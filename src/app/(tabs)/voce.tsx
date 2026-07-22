@@ -148,7 +148,11 @@ export default function Voce() {
 
       <Group title="Saúde & dados" items={[
         ['scale', 'Evolução & medidas', 'Peso, IMC, composição corporal', go('/evolucao')],
+        ['heart', 'Saúde & sinais vitais', 'Pressão, glicemia, frequência', go('/saude')],
         ['doc', 'Exames', '15 marcadores importados e explicados', go('/exames')],
+        ['ruler', 'Medidas & composição', 'Cintura, quadril, gordura, músculo', go('/medidas')],
+        ['photo', 'Evolução visual', 'Fotos antes e depois, comparadas pela IA', go('/fotos')],
+        ['waves', 'Sintomas & radar', 'Equilíbrio e evolução por sintoma', go('/sintomas')],
       ]} />
 
       {/* histórico médico */}

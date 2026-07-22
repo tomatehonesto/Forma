@@ -37,6 +37,10 @@ export default function RootLayout() {
           <Stack.Screen name="aplicacoes" />
           <Stack.Screen name="exames" />
           <Stack.Screen name="notificacoes" />
+          <Stack.Screen name="saude" />
+          <Stack.Screen name="medidas" />
+          <Stack.Screen name="fotos" />
+          <Stack.Screen name="sintomas" />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

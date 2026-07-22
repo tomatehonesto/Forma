@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 import { useTheme } from './useTheme';
 
 type Pt = { x: number; y: number };
@@ -86,5 +86,35 @@ export function MiniBars({ vals, height = 60, color, lowColor, lowIndex, gap = 6
         </Svg>
       )}
     </View>
+  );
+}
+
+/* Radar 0..100 — equilíbrio dos check-ins (8 eixos). */
+export function Radar({ data, size = 250 }: { data: { k: string; v: number }[]; size?: number }) {
+  const { c } = useTheme();
+  const cx = size / 2, cy = size / 2, R = size / 2 - 44;
+  const n = data.length;
+  const pt = (i: number, r: number): [number, number] => {
+    const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+  const ringPts = (f: number) => data.map((_, i) => pt(i, R * f).join(',')).join(' ');
+  const poly = data.map((d, i) => pt(i, R * Math.max(0.06, Math.min(1, d.v / 100))).join(',')).join(' ');
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <SvgGrad id="radg" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={c.gradFrom} /><Stop offset="1" stopColor={c.gradTo} />
+        </SvgGrad>
+      </Defs>
+      {[0.33, 0.66, 1].map((f) => <Polygon key={f} points={ringPts(f)} stroke={c.line2} strokeWidth={1} fill="none" />)}
+      {data.map((_, i) => { const [x, y] = pt(i, R); return <Line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={c.line} strokeWidth={1} />; })}
+      <Polygon points={poly} fill={c.accent + '2A'} stroke="url(#radg)" strokeWidth={2} strokeLinejoin="round" />
+      {data.map((d, i) => { const [x, y] = pt(i, R * Math.max(0.06, Math.min(1, d.v / 100))); return <Circle key={i} cx={x} cy={y} r={3} fill={c.bg1} stroke={c.accent2} strokeWidth={1.8} />; })}
+      {data.map((d, i) => {
+        const [x, y] = pt(i, R + 16);
+        return <SvgText key={i} x={x} y={y + 3.5} fontSize={10.5} fill={c.tx3} textAnchor="middle">{d.k}</SvgText>;
+      })}
+    </Svg>
   );
 }
