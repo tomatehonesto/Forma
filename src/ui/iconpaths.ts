@@ -16,6 +16,7 @@ export const P: Record<string, string> = {
   moon: '<path d="M20.5 14.2A8.4 8.4 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/>',
   bolt: '<path d="M13 3 5.5 13.2H11l-1.2 7.8L18.5 10.5H12.6z"/>',
   mood: '<circle cx="12" cy="12" r="8.4"/><path d="M8.4 14.4a4.4 4.4 0 0 0 7.2 0"/><path d="M9 9.6h.01M15 9.6h.01" stroke-width="2"/>',
+  meh: '<circle cx="12" cy="12" r="8.4"/><path d="M8.6 14.6h6.8"/><path d="M9 9.6h.01M15 9.6h.01" stroke-width="2"/>',
   full: '<path d="M12 4c4.6 0 8 3 8 6.5S16.6 17 12 17s-8-3-8-6.5S7.4 4 12 4z"/><path d="M9.5 10.5a2.5 2.5 0 0 0 5 0"/>',
   gut: '<path d="M8 4c-2.5 0-3.5 2.4-2 4s2 3-.5 4 .5 4.5 3 4.5 4-2 3-3.5-1-2.4 0-4 3-2 2-4.5S10 4 8 4z"/>',
   pill: '<rect x="3.8" y="9" width="16.4" height="6" rx="3" transform="rotate(-45 12 12)"/><path d="M8.4 8.4 15.6 15.6"/>',

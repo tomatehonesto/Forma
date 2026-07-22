@@ -116,44 +116,45 @@ export default function Home() {
         </Row>
       </Row>
 
-      {/* hoje seu corpo — contextualização do dia, superfície leve */}
-      <Surface style={{ marginTop: 20, paddingVertical: 15, backgroundColor: c.accentWeak, borderColor: c.accentLine }}>
+      {/* hoje seu corpo — contextualização do dia, sem caixa e compacta */}
+      <View style={{ marginTop: 24 }}>
         <Row style={{ justifyContent: 'space-between' }}>
           <Row gap={6}>
-            <Icon name="spark" size={14} color={c.accent} sw={2.1} />
+            <Icon name="spark" size={13} color={c.accent} sw={2.1} />
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.1 }}>HOJE SEU CORPO</Txt>
           </Row>
           <Pressable onPress={go('/ciclo')} hitSlop={8}>
-            <Txt v="micro" c={c.tx3}>Dia {brief.cyc.dayIn} de {brief.cyc.total}</Txt>
+            <Row gap={8}>
+              <Txt v="micro" c={c.tx3}>Dia {brief.cyc.dayIn} de {brief.cyc.total}</Txt>
+              <CycleDots dayIn={brief.cyc.dayIn} total={brief.cyc.total} />
+            </Row>
           </Pressable>
         </Row>
-        <Txt v="h2" style={{ marginTop: 8, lineHeight: 26 }}>{brief.head}</Txt>
-        <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 4, lineHeight: 20 }}>{brief.body}</Txt>
-        <Row style={{ justifyContent: 'space-between', marginTop: 12 }}>
-          <AskCompanion q={brief.q} label="Entender melhor" style={{ marginLeft: -2 }} />
-          <Pressable onPress={go('/ciclo')} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <CycleDots dayIn={brief.cyc.dayIn} total={brief.cyc.total} />
-          </Pressable>
-        </Row>
-      </Surface>
+        <Txt v="title" style={{ marginTop: 8, fontSize: 17.5, lineHeight: 23 }}>{brief.head}</Txt>
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 18 }}>
+          {brief.body}  <Txt v="caption" c={c.accent} onPress={() => router.push(`/companion?q=${encodeURIComponent(brief.q)}` as any)}>Entender melhor</Txt>
+        </Txt>
+      </View>
 
-      {/* check-in — a ação do dia; o único card com sombra */}
+      {/* check-in — a ação do dia; rostinhos abrem o bottom sheet */}
       {!ci ? (
-        <Card style={{ marginTop: 14 }}>
+        <Card style={{ marginTop: 18 }}>
           <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
               <Txt v="h2">Como você está agora?</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>Seus check-ins alimentam os insights do Companion.</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>Toque pra registrar — leva menos de 20 segundos.</Txt>
             </View>
             {stk > 0 && <Pill icon="flame" label={`${stk} dias`} color={c.amber} bg={c.amberBg} />}
           </Row>
-          <Pressable onPress={go('/checkin')} style={({ pressed }) => [{ marginTop: 14, transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
-            <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ borderRadius: radius.pill, paddingVertical: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-              <Icon name="check" size={19} color="#fff" sw={2.4} />
-              <Txt v="title" c="#fff">Registrar check-in</Txt>
-            </LinearGradient>
-          </Pressable>
-          <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 9 }}>Leva menos de 20 segundos</Txt>
+          <Row gap={10} style={{ marginTop: 14 }}>
+            {(['mood', 'meh', 'frown'] as const).map((f) => (
+              <Pressable key={f} onPress={go('/checkin')} style={({ pressed }) => [{ flex: 1, transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
+                <View style={{ height: 54, borderRadius: radius.md, backgroundColor: c.bg2, borderWidth: 1, borderColor: c.line, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={f} size={26} color={f === 'mood' ? c.accent : f === 'meh' ? c.amber : c.cta} sw={1.7} />
+                </View>
+              </Pressable>
+            ))}
+          </Row>
         </Card>
       ) : (
         <Surface style={{ marginTop: 14 }}>
@@ -172,7 +173,7 @@ export default function Home() {
       {tasks.length > 0 && (
         <View style={{ marginTop: 26 }}>
           <SectionTitle>Hoje</SectionTitle>
-          <Surface>
+          <View>
             {tasks.map((t, i) => (
               <View key={t.text}>
                 {i > 0 && <Divider style={{ marginLeft: 32 }} />}
@@ -180,7 +181,7 @@ export default function Home() {
                   color={t.ic === 'water' ? c.water : t.ic === 'pill' ? c.amber : t.ic === 'doc' ? c.accent2 : undefined} />
               </View>
             ))}
-          </Surface>
+          </View>
         </View>
       )}
 
@@ -237,15 +238,13 @@ export default function Home() {
       {/* tratamento — evento futuro, uma linha */}
       <View style={{ marginTop: 26 }}>
         <SectionTitle>Tratamento</SectionTitle>
-        <Surface>
-          <ListRow ic="syringe" title={`Próxima aplicação ${ndWhen}.`} sub={`${siteLabel(nextSite(S))} sugerido · preparo em 3 passos`} onPress={go('/proxima-aplicacao')} />
-        </Surface>
+        <ListRow ic="syringe" title={`Próxima aplicação ${ndWhen}.`} sub={`${siteLabel(nextSite(S))} sugerido · preparo em 3 passos`} onPress={go('/proxima-aplicacao')} />
       </View>
 
       {/* protocolo da semana — objetivos */}
       <View style={{ marginTop: 26 }}>
         <SectionTitle right={<Txt v="label" c={c.tx3}>{protoDone} de {S.protocol.tasks.length}</Txt>}>Protocolo da semana</SectionTitle>
-        <Surface>
+        <View>
           {protoPending.map((t: any, i: number) => (
             <View key={t.t}>
               {i > 0 && <Divider style={{ marginLeft: 32 }} />}
@@ -262,14 +261,13 @@ export default function Home() {
               </Pressable>
             </View>
           ))}
-          <Divider style={{ marginLeft: 32 }} />
-          <Row style={{ justifyContent: 'space-between', paddingVertical: 12, paddingLeft: 32 }}>
+          <Row style={{ justifyContent: 'space-between', marginTop: 6, paddingLeft: 32 }}>
             <Pressable onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
               <Row gap={4}><Txt v="label" c={c.accent}>Ver a semana inteira</Txt><Chevron size={15} color={c.accent} /></Row>
             </Pressable>
             <AskCompanion q="Como o protocolo ajuda meu tratamento?" label="Como isso ajuda?" tone="line" />
           </Row>
-        </Surface>
+        </View>
       </View>
 
       {/* contextual — só quando há o que celebrar */}
