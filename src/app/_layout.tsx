@@ -41,6 +41,18 @@ export default function RootLayout() {
           <Stack.Screen name="medidas" />
           <Stack.Screen name="fotos" />
           <Stack.Screen name="sintomas" />
+          <Stack.Screen name="medico" />
+          <Stack.Screen name="consultas" />
+          <Stack.Screen name="protocolos" />
+          <Stack.Screen name="metas" />
+          <Stack.Screen name="conquistas" />
+          <Stack.Screen name="companion" />
+          <Stack.Screen name="lembretes" />
+          <Stack.Screen name="alimentacao" />
+          <Stack.Screen name="integracoes" />
+          <Stack.Screen name="biblioteca" />
+          <Stack.Screen name="resumo-medico" />
+          <Stack.Screen name="registrar" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

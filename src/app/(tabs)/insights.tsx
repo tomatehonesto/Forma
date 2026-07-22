@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../../logic/store';
 import { insights } from '../../logic/derive';
 import { Screen, Txt, Card, Pill, IconBadge, Row, Rich, CircleBtn, Divider } from '../../ui/kit';
@@ -14,6 +15,7 @@ const TAB_IC = ['activity', 'barchart', 'target'];
 export default function Insights() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const router = useRouter();
   const [tab, setTab] = useState(0);
 
   const ci = S.checkins;
@@ -40,6 +42,7 @@ export default function Insights() {
           <Txt v="display">Insights pra você</Txt>
           <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 6 }}>Entenda seus padrões e cuide do que importa.</Txt>
         </View>
+        <CircleBtn name="aura" color={c.accent} bg={c.accentWeak} onPress={() => router.push('/companion' as any)} />
       </Row>
 
       {/* período */}

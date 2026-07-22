@@ -44,7 +44,7 @@ export function TabBar({ state, navigation }: any) {
       <Tab idx={0} />
       <Tab idx={1} />
       <View style={styles.fabSlot}>
-        <Pressable onPress={() => router.push('/checkin')} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
+        <Pressable onPress={() => router.push('/registrar' as any)} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
           <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.fab, shadowCard(c)]}>
             <Icon name="plus" size={26} color="#fff" sw={2.6} />
           </LinearGradient>

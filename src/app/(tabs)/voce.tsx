@@ -144,6 +144,9 @@ export default function Voce() {
         ['syringe', 'Aplicações', 'Histórico, constância e estoque da caneta', go('/aplicacoes')],
         ['activity', 'Ciclo da dose', 'Em que fase do efeito você está', go('/ciclo')],
         ['clock', 'Próxima aplicação', 'Contagem, preparo e local sugerido', go('/proxima-aplicacao')],
+        ['aura', 'Companion', 'Converse sobre sua jornada com a IA', go('/companion')],
+        ['leaf', 'Alimentação', 'Proteína do dia, refeições e favoritos', go('/alimentacao')],
+        ['target', 'Protocolos', `Semana ${S.protocol.week} · missões do tratamento`, go('/protocolos')],
       ]} />
 
       <Group title="Saúde & dados" items={[
@@ -153,6 +156,14 @@ export default function Voce() {
         ['ruler', 'Medidas & composição', 'Cintura, quadril, gordura, músculo', go('/medidas')],
         ['photo', 'Evolução visual', 'Fotos antes e depois, comparadas pela IA', go('/fotos')],
         ['waves', 'Sintomas & radar', 'Equilíbrio e evolução por sintoma', go('/sintomas')],
+        ['target', 'Metas além do peso', `${S.goals.length} metas ativas`, go('/metas')],
+        ['trophy', 'Conquistas', `${achDone(S).length} desbloqueadas`, go('/conquistas')],
+      ]} />
+
+      <Group title="Sua clínica" items={[
+        ['steth', 'Meu médico', `${S.profile.doctor} · mensagens e equipe`, go('/medico')],
+        ['cal', 'Consultas', 'Agenda, preparação e histórico', go('/consultas')],
+        ['doc', 'Resumo para o médico', 'Retrato do tratamento, pronto pra enviar', go('/resumo-medico')],
       ]} />
 
       {/* histórico médico */}
@@ -167,7 +178,10 @@ export default function Voce() {
       </Card>
 
       <Group title="Conta e preferências" items={[
-        ['bell', 'Notificações', `${S.notifications.length} avisos · lembretes`, go('/notificacoes')],
+        ['bell', 'Notificações', `${S.notifications.length} avisos`, go('/notificacoes')],
+        ['clock', 'Lembretes', 'Dose, pesagem, água e proteína', go('/lembretes')],
+        ['trend', 'Integrações', 'Apple Health, Withings e mais', go('/integracoes')],
+        ['book', 'Biblioteca', 'Conteúdo certo para o seu momento', go('/biblioteca')],
         ['palette', 'Aparência', isDark ? 'Tema escuro' : 'Tema claro', () => setTheme(isDark ? 'light' : 'dark')],
         ['user', 'Editar perfil', 'Altere suas informações pessoais', undefined],
         ['lock', 'Privacidade', 'Compartilhado apenas com sua clínica', undefined],

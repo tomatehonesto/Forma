@@ -105,7 +105,7 @@ export default function Aplicacoes() {
 
       {/* lembrete */}
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Lembrete de aplicação</Txt>
-      <Card style={{ paddingVertical: 14 }}>
+      <Card style={{ paddingVertical: 14 }} onPress={() => router.push('/lembretes' as any)}>
         <Row>
           <IconBadge name="bell" size={40} color={S.reminders.dose.on ? c.accent : c.tx4} bg={S.reminders.dose.on ? c.accentWeak : c.bg2} />
           <View style={{ flex: 1, marginLeft: 12 }}>

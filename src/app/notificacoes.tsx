@@ -48,7 +48,7 @@ export default function Notificacoes() {
       </View>
 
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Lembretes</Txt>
-      <Card style={{ paddingVertical: 14 }}>
+      <Card style={{ paddingVertical: 14 }} onPress={() => router.push('/lembretes' as any)}>
         <Row>
           <IconBadge name="bell" size={40} />
           <View style={{ flex: 1, marginLeft: 12 }}>
