@@ -7,6 +7,7 @@ import { fmtDate, nf } from '../logic/time';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AreaCurve } from '../ui/charts';
+import { AskCompanion } from '../ui/Ask';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -83,6 +84,7 @@ function Detail({ e, onBack }: { e: any; onBack: () => void }) {
       <Card tint={c.accentWeak} style={{ marginTop: 14 }}>
         <Row gap={7}><Icon name="aura" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE ISSO SIGNIFICA</Txt></Row>
         <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{examExplain(e)}</Txt>
+        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar ao Companion" style={{ marginTop: 12 }} />
       </Card>
     </Screen>
   );

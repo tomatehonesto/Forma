@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, TextInput } from 'react-native';
+import { View, Pressable, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -42,6 +42,16 @@ export default function Registrar() {
     flash('agua');
   };
   const aguaHoje = checkinToday(S)?.agua || 0;
+  const treinou = () => {
+    update((s: any) => {
+      const t = +startOfDay(now());
+      const ci = s.checkins.find((x: any) => x.t === t);
+      if (ci) ci.exerc = (ci.exerc || 0) + 30;
+      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: 0, prot: 0, exerc: 30, refluxo: 0, ansiedade: 0, constip: 0 });
+    });
+    flash('exerc');
+  };
+  const exercHoje = checkinToday(S)?.exerc || 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 6 }}>
@@ -53,7 +63,7 @@ export default function Registrar() {
         <CircleBtn name="x" onPress={() => router.back()} />
       </Row>
 
-      <View style={{ paddingHorizontal: space.lg, marginTop: 18, gap: 11 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: space.lg, paddingTop: 18, paddingBottom: (insets.bottom || 12) + 16, gap: 11 }} showsVerticalScrollIndicator={false}>
         {/* check-in */}
         <Card style={{ paddingVertical: 15 }} onPress={() => { router.back(); setTimeout(() => router.push('/checkin' as any), 60); }}>
           <Row>
@@ -128,6 +138,18 @@ export default function Registrar() {
           </Row>
         </Card>
 
+        {/* exercício — 1 toque, real */}
+        <Card style={{ paddingVertical: 15 }} onPress={treinou}>
+          <Row>
+            <IconBadge name="dumbbell" size={42} color={done === 'exerc' ? '#fff' : c.accent2} bg={done === 'exerc' ? c.accent2 : c.waterBg} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Txt v="title">{done === 'exerc' ? 'Treino registrado' : 'Registrar exercício'}</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{done === 'exerc' ? 'Mais 30 min no seu dia' : `+30 min de movimento · hoje ${exercHoje} min`}</Txt>
+            </View>
+            {done === 'exerc' ? <Icon name="check" size={20} color={c.accent2} sw={2.4} /> : <Icon name="plus" size={18} color={c.accent2} sw={2.2} />}
+          </Row>
+        </Card>
+
         {/* foto */}
         <Card style={{ paddingVertical: 15 }} onPress={() => { router.back(); setTimeout(() => router.push('/fotos' as any), 60); }}>
           <Row>
@@ -139,7 +161,39 @@ export default function Registrar() {
             <Chevron />
           </Row>
         </Card>
-      </View>
+
+        {/* medidas / sintomas / exame */}
+        <Card style={{ paddingVertical: 15 }} onPress={() => { router.back(); setTimeout(() => router.push('/medidas' as any), 60); }}>
+          <Row>
+            <IconBadge name="ruler" size={42} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Txt v="title">Medidas do corpo</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>Cintura, quadril, composição</Txt>
+            </View>
+            <Chevron />
+          </Row>
+        </Card>
+        <Card style={{ paddingVertical: 15 }} onPress={() => { router.back(); setTimeout(() => router.push('/sintomas' as any), 60); }}>
+          <Row>
+            <IconBadge name="waves" size={42} color={c.rose} bg={c.roseBg} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Txt v="title">Sintomas</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>Como seu corpo tem reagido</Txt>
+            </View>
+            <Chevron />
+          </Row>
+        </Card>
+        <Card style={{ paddingVertical: 15 }} onPress={() => { router.back(); setTimeout(() => router.push('/exames' as any), 60); }}>
+          <Row>
+            <IconBadge name="doc" size={42} color={c.amber} bg={c.amberBg} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Txt v="title">Importar exame</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>PDF ou foto, organizado pela IA</Txt>
+            </View>
+            <Chevron />
+          </Row>
+        </Card>
+      </ScrollView>
     </View>
   );
 }

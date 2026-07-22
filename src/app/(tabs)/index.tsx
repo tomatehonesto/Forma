@@ -5,9 +5,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { useStore } from '../../logic/store';
 import { now, MO, MO_LONG, diffDays } from '../../logic/time';
-import { pharmaSeries, nextInjectionDate } from '../../logic/derive';
-import { Screen, Txt, Card, Pill, IconBadge, Row, Chevron } from '../../ui/kit';
+import { pharmaSeries, nextInjectionDate, alerts, checkinToday } from '../../logic/derive';
+import { Screen, Txt, Card, Pill, IconBadge, Row, Chevron, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
+import { AskCompanion } from '../../ui/Ask';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { BRAND, space } from '../../theme';
@@ -71,9 +72,11 @@ export default function Home() {
             <Icon name="bell" size={23} color={c.tx2} sw={1.8} />
             {S.unread > 0 && <View style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.accent, borderWidth: 1.6, borderColor: c.bg }} />}
           </Pressable>
-          <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' }}>
-            <Txt v="title" c="#fff">{first[0]}</Txt>
-          </LinearGradient>
+          <Pressable hitSlop={6} onPress={() => router.push('/perfil' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+            <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' }}>
+              <Txt v="title" c="#fff">{first[0]}</Txt>
+            </LinearGradient>
+          </Pressable>
         </Row>
       </Row>
 
@@ -107,7 +110,50 @@ export default function Home() {
           <View style={{ marginTop: 6, marginHorizontal: -2 }}>
             <AreaCurve pts={cpts} marker={marker} height={150} id="hero" />
           </View>
+          <AskCompanion q="Por que sinto mais fome?" label="Entender melhor" style={{ marginTop: 4 }} />
         </View>
+      </Card>
+
+      {/* pra hoje — o que precisa de você */}
+      <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Pra hoje</Txt>
+      <Card style={{ paddingVertical: 4 }}>
+        {alerts(S).map((a, i) => {
+          const to = a.act === 'sheet:checkin' ? '/checkin' : a.act.startsWith('nav:') ? `/${a.act.slice(4)}` : null;
+          const warn = a.kind === 'warn';
+          return (
+            <View key={a.text}>
+              {i > 0 && <Divider style={{ marginLeft: 52 }} />}
+              <Pressable onPress={to ? () => router.push(to as any) : undefined} style={({ pressed }) => [{ opacity: pressed && to ? 0.6 : 1 }]}>
+                <Row style={{ paddingVertical: 12 }}>
+                  <IconBadge name={a.ic} size={40} color={warn ? c.cta : undefined} bg={warn ? c.ctaWeak : undefined} />
+                  <Txt v="title" style={{ flex: 1, marginLeft: 12 }}>{a.text}</Txt>
+                  <Chevron />
+                </Row>
+              </Pressable>
+            </View>
+          );
+        })}
+      </Card>
+
+      {/* protocolo de hoje */}
+      <Card style={{ marginTop: 14 }} onPress={() => router.push('/protocolos' as any)}>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Row gap={6}><Icon name="target" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PROTOCOLO · SEMANA {S.protocol.week}</Txt></Row>
+          <Txt v="label" c={c.tx3}>{S.protocol.tasks.filter((t: any) => t.done).length}/{S.protocol.tasks.length}</Txt>
+        </Row>
+        {S.protocol.tasks.filter((t: any) => !t.done).slice(0, 2).map((t: any) => (
+          <Row key={t.t} gap={10} style={{ marginTop: 12 }}>
+            <View style={{ width: 22, height: 22, borderRadius: 8, borderWidth: 1.6, borderColor: c.line2 }} />
+            <View style={{ flex: 1 }}>
+              <Txt v="bodyMed">{t.t}</Txt>
+              {!!t.note && <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{t.note}</Txt>}
+            </View>
+          </Row>
+        ))}
+        <Row gap={4} style={{ marginTop: 12 }}>
+          <Txt v="label" c={c.accent}>Ver a semana inteira</Txt>
+          <Chevron size={15} color={c.accent} />
+        </Row>
       </Card>
 
       {/* próxima aplicação */}

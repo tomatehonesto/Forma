@@ -33,7 +33,7 @@ export default function RootLayout() {
           <Stack.Screen name="checkin" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
           <Stack.Screen name="proxima-aplicacao" />
           <Stack.Screen name="ciclo" />
-          <Stack.Screen name="evolucao" />
+          <Stack.Screen name="perfil" />
           <Stack.Screen name="aplicacoes" />
           <Stack.Screen name="exames" />
           <Stack.Screen name="notificacoes" />

@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
@@ -73,6 +73,13 @@ export default function Companion() {
     { who: 'ai', text: `Oi, ${S.profile.name.split(' ')[0]}. Estou aqui do seu lado no tratamento. Conheço toda a sua jornada — posso resumir sua evolução, preparar sua consulta, explicar um sintoma ou organizar perguntas pra ${S.profile.doctor}. No que te ajudo agora?` },
   ]);
   const [input, setInput] = useState('');
+
+  // camada transversal: chegou com ?q= (CTA contextual), pergunta sozinho
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const askedRef = useRef(false);
+  useEffect(() => {
+    if (q && !askedRef.current) { askedRef.current = true; setTimeout(() => ask(String(q)), 380); }
+  }, [q]);
 
   const ask = (text: string) => {
     const t = text.trim(); if (!t) return;

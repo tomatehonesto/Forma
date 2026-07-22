@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useStore } from '../logic/store';
-import { curWeight, startWeight, lostKg, lostPct, imc, latestMeasure, firstMeasure } from '../logic/derive';
-import { daysAgo, fmtDate, nf, kg } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill } from '../ui/kit';
-import { Icon } from '../ui/Icon';
-import { AreaCurve } from '../ui/charts';
-import { useTheme } from '../ui/useTheme';
-import { space, radius, font } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useStore } from '../../logic/store';
+import { curWeight, startWeight, lostKg, lostPct, imc, latestMeasure, firstMeasure, goalProgress } from '../../logic/derive';
+import { daysAgo, fmtDate, nf, kg } from '../../logic/time';
+import { Screen, Txt, Card, Row, IconBadge, Chevron, Pill, Divider } from '../../ui/kit';
+import { Icon } from '../../ui/Icon';
+import { AskCompanion } from '../../ui/Ask';
+import { AreaCurve } from '../../ui/charts';
+import { useTheme } from '../../ui/useTheme';
+import { radius, font } from '../../theme';
 
 const TABS = ['Peso', 'Medidas', 'Composição'];
 const RANGES: [string, string][] = [['30', '30d'], ['90', '90d'], ['all', 'Tudo']];
@@ -39,15 +41,33 @@ function MeasureRow({ label, from, to, unit, goodUp = false }: { label: string; 
   );
 }
 
+function LinkRow({ ic, title, sub, onPress }: { ic: string; title: string; sub: string; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+      <Row style={{ paddingVertical: 13 }}>
+        <IconBadge name={ic} size={40} />
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Txt v="title">{title}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
+        </View>
+        <Chevron />
+      </Row>
+    </Pressable>
+  );
+}
+
 export default function Evolucao() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const [tab, setTab] = useState(0);
   const [range, setRange] = useState('all');
+  const go = (p: string) => () => router.push(p as any);
 
   const cur = curWeight(S), st = startWeight(S);
   const m0 = firstMeasure(S), m1 = latestMeasure(S);
+  const pct = Math.round(goalProgress(S));
 
   // série de peso filtrada pelo range
   const from = range === 'all' ? -Infinity : +daysAgo(+range);
@@ -63,13 +83,9 @@ export default function Evolucao() {
 
   return (
     <Screen>
-      <Row style={{ justifyContent: 'space-between', marginTop: 4 }}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <CircleBtn name="info" />
-      </Row>
-      <View style={{ marginTop: 14 }}>
+      <View style={{ marginTop: 8 }}>
         <Txt v="display">Evolução</Txt>
-        <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 6 }}>Acompanhe sua transformação ao longo do tempo.</Txt>
+        <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 6 }}>Sua transformação, comparada só com você.</Txt>
       </View>
 
       {/* tabs */}
@@ -130,6 +146,27 @@ export default function Evolucao() {
                 </View>
               ))}
             </Row>
+            <AskCompanion q="Como está minha evolução?" label="Resumir minha evolução" style={{ marginTop: 12 }} />
+          </Card>
+
+          {/* meta atual */}
+          <Card style={{ marginTop: 14 }}>
+            <Row style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <Row gap={7}>
+                <Icon name="target" size={17} color={c.accent} sw={1.8} />
+                <View>
+                  <Txt v="title" c={c.accent}>Meta atual</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{kg(S.profile.goalWeight)} kg, no seu ritmo</Txt>
+                </View>
+              </Row>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Txt v="h2" c={c.accent}>{pct}%</Txt>
+                <Txt v="micro" c={c.tx3}>do caminho</Txt>
+              </View>
+            </Row>
+            <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 12, overflow: 'hidden' }}>
+              <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: `${pct}%`, height: '100%', borderRadius: 4 }} />
+            </View>
           </Card>
 
           {/* métricas principais */}
@@ -155,14 +192,24 @@ export default function Evolucao() {
             </View>
           </Row>
 
-          <Card tint={c.accentWeak} style={{ marginTop: 12, paddingVertical: 14 }} onPress={() => setTab(1)}>
-            <Row style={{ justifyContent: 'space-between' }}>
-              <Txt v="title" c={c.accent}>Ver todas as métricas</Txt>
-              <Chevron color={c.accent} />
-            </Row>
+          {/* corpo em transformação */}
+          <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Corpo em transformação</Txt>
+          <Card style={{ paddingVertical: 4 }}>
+            <LinkRow ic="photo" title="Evolução visual" sub="Fotos antes e depois, comparadas pela IA" onPress={go('/fotos')} />
+            <Divider style={{ marginLeft: 52 }} />
+            <LinkRow ic="ruler" title="Medidas completas" sub="Cintura, quadril, braço, coxa" onPress={go('/medidas')} />
+            <Divider style={{ marginLeft: 52 }} />
+            <LinkRow ic="target" title="Metas além do peso" sub={`${S.goals.length} metas ativas`} onPress={go('/metas')} />
           </Card>
 
-          {/* motivação + dica */}
+          {/* saúde que acompanha */}
+          <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Saúde que acompanha</Txt>
+          <Card style={{ paddingVertical: 4 }}>
+            <LinkRow ic="heart" title="Sinais vitais" sub="Pressão, glicemia, frequência" onPress={go('/saude')} />
+            <Divider style={{ marginLeft: 52 }} />
+            <LinkRow ic="doc" title="Exames" sub="15 marcadores explicados" onPress={go('/exames')} />
+          </Card>
+
           <Card tint={c.accentWeak} style={{ marginTop: 14 }}>
             <Row style={{ alignItems: 'flex-start' }}>
               <IconBadge name="spark" size={44} bg={c.bg1} />
@@ -170,16 +217,6 @@ export default function Evolucao() {
                 <Txt v="title">Você está no caminho certo</Txt>
                 <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 3 }}>Manter consistência nas suas escolhas é o que gera resultados.</Txt>
               </View>
-            </Row>
-          </Card>
-          <Card style={{ marginTop: 12 }}>
-            <Row style={{ alignItems: 'flex-start' }}>
-              <IconBadge name="bulb" size={44} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="title">Dica para continuar evoluindo</Txt>
-                <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 3 }}>Priorize proteína, treinos de força e sono de qualidade para potencializar seus resultados.</Txt>
-              </View>
-              <Chevron />
             </Row>
           </Card>
         </>
@@ -201,6 +238,9 @@ export default function Evolucao() {
               <Txt v="bodyMed" c={c.tx2} style={{ flex: 1 }}>Menos {m0.cintura - m1.cintura} cm de cintura desde o início. A transformação aparece na forma do corpo, não só no número da balança.</Txt>
             </Row>
           </Card>
+          <Card style={{ marginTop: 12, paddingVertical: 4 }}>
+            <LinkRow ic="ruler" title="Ver medidas com tendência" sub="Cada medida ao longo do tempo" onPress={go('/medidas')} />
+          </Card>
         </>
       )}
 
@@ -220,6 +260,7 @@ export default function Evolucao() {
                 <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 3 }}>Sua massa magra subiu de {nf(m0.musculo, 1)}% para {nf(m1.musculo, 1)}% enquanto o peso caiu — sinal de que a proteína e os treinos estão funcionando.</Txt>
               </View>
             </Row>
+            <AskCompanion q="Por que a proteína protege a massa magra?" label="O que isso significa?" style={{ marginTop: 12, marginLeft: 56 }} />
           </Card>
         </>
       )}

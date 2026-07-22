@@ -1,5 +1,5 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
-import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf } from './time';
+import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg } from './time';
 import { MEDS, CADENCE_DAYS } from './meds';
 import type { State } from './seed';
 
@@ -170,6 +170,28 @@ export function examGaugeData(e: any) {
   else { min = 0; max = (v * 1.6) || 1; bandL = min; bandR = max; }
   const clamp = (x: number) => Math.max(1, Math.min(99, ((x - min) / ((max - min) || 1)) * 100));
   return { pos: clamp(v), bandL: clamp(bandL), bandR: clamp(bandR), min, max, status: examStatus(e) };
+}
+
+/* Modo clínica — recursos de equipe médica só aparecem com vínculo ativo. */
+export const hasClinic = (S: State) => !!S.profile.clinic;
+
+/* Marcos do tratamento — a narrativa da jornada em eventos (cronológico desc). */
+export type Milestone = { t: number; ic: string; title: string; sub: string };
+export function milestones(S: State): Milestone[] {
+  const out: Milestone[] = [];
+  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${kg(S.profile.startWeight)} kg` });
+  let prev: number | null = null;
+  for (const inj of S.injections as any[]) {
+    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: `Dose ajustada para ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} mg`, sub: 'Titulação conforme orientação médica' });
+    prev = inj.dose;
+  }
+  const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
+  if (w5) out.push({ t: w5.t, ic: 'trend', title: '5% do peso inicial', sub: 'Marca clínica, com benefícios além da balança' });
+  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note }));
+  S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: `${b.n} marcadores importados` }));
+  achDone(S).forEach((a: any) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc }));
+  out.sort((a, b) => b.t - a.t);
+  return out;
 }
 
 /* Aplicações — locais, rotação e calendário de constância (porta verbatim). */

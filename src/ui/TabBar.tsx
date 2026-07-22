@@ -9,10 +9,10 @@ import { useTheme } from './useTheme';
 import { shadowCard } from '../theme';
 
 const ITEMS = [
-  { ic: 'home', label: 'Início' },
-  { ic: 'activity', label: 'Jornada' },
-  { ic: 'barchart', label: 'Insights' },
-  { ic: 'user', label: 'Você' },
+  { ic: 'home', label: 'Hoje' },
+  { ic: 'journey', label: 'Jornada' },
+  { ic: 'trend', label: 'Evolução' },
+  { ic: 'spark', label: 'Descobertas' },
 ];
 
 /* Tab bar custom com FAB central (abre o check-in). */
