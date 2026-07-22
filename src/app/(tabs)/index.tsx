@@ -67,7 +67,7 @@ export default function Home() {
       <Row style={{ justifyContent: 'space-between', marginTop: 4 }}>
         <BrandMark />
         <Row gap={16}>
-          <Pressable hitSlop={10}>
+          <Pressable hitSlop={10} onPress={() => router.push('/notificacoes')}>
             <Icon name="bell" size={23} color={c.tx2} sw={1.8} />
             {S.unread > 0 && <View style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.accent, borderWidth: 1.6, borderColor: c.bg }} />}
           </Pressable>

@@ -172,6 +172,49 @@ export function examGaugeData(e: any) {
   return { pos: clamp(v), bandL: clamp(bandL), bandR: clamp(bandR), min, max, status: examStatus(e) };
 }
 
+/* Aplicações — locais, rotação e calendário de constância (porta verbatim). */
+export const SITE_LABEL: Record<string, string> = { 'abd-e': 'Abdômen (esq.)', 'abd-d': 'Abdômen (dir.)', 'coxa-e': 'Coxa (esq.)', 'coxa-d': 'Coxa (dir.)', 'braco-e': 'Braço (esq.)', 'braco-d': 'Braço (dir.)' };
+export const siteLabel = (s: string) => SITE_LABEL[s] || s;
+export function nextSite(S: State) {
+  const used = S.injections.slice(-3).map((i: any) => i.site);
+  const all = ['abd-e', 'abd-d', 'coxa-e', 'coxa-d', 'braco-e', 'braco-d'];
+  return all.find((s) => !used.includes(s)) || all[0];
+}
+// calendário de aderência: 6 semanas, aplicadas marcadas, próxima tracejada — sem punição por dia perdido
+export function injCalendar(S: State) {
+  const applied = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
+  const nd = +startOfDay(nextInjectionDate(S)), today = +startOfDay(now());
+  const anchor = new Date(Math.max(nd, today));
+  const endSat = addDays(startOfDay(anchor), 6 - anchor.getDay());
+  const cells: { day: number; applied: boolean; planned: boolean; today: boolean }[] = [];
+  for (let i = 41; i >= 0; i--) {
+    const d = addDays(endSat, -i); const key = +startOfDay(d);
+    cells.push({ day: d.getDate(), applied: applied.has(key), planned: key === nd && key >= today, today: key === today });
+  }
+  return cells;
+}
+
+/* Exames — categorias e explicações (porta verbatim). */
+export const EXAM_CATS: [string, string[]][] = [
+  ['Metabólico', ['HbA1c', 'Glicemia jejum', 'Insulina']],
+  ['Lipídico', ['Colesterol total', 'HDL', 'LDL', 'Triglicerídeos']],
+  ['Fígado & rim', ['Creatinina', 'TGO', 'TGP']],
+  ['Tireoide', ['TSH', 'T4 livre']],
+  ['Vitaminas', ['Vitamina D', 'Vitamina B12', 'Ferritina']],
+];
+export function examExplain(e: any) {
+  const map: Record<string, string> = {
+    'HbA1c': 'A HbA1c reflete sua glicose média dos últimos ~3 meses. A queda de 6,3 para 5,6% mostra um controle bem melhor — saiu da faixa de pré-diabetes, algo comum com a perda de peso no tratamento com GLP-1.',
+    'Glicemia jejum': 'Sua glicose em jejum voltou à faixa normal, refletindo a melhora da sensibilidade à insulina que costuma acompanhar a redução de peso.',
+    'Colesterol total': 'Caiu para dentro da faixa desejável, acompanhando a melhora dos triglicerídeos e do LDL.',
+    'HDL': 'O HDL (colesterol "bom") subiu — protege o coração. Atividade física e perda de peso ajudam a elevá-lo.',
+    'LDL': 'O LDL ("ruim") caiu para uma faixa saudável, reduzindo o risco cardiovascular.',
+    'Triglicerídeos': 'Caíram bastante — costumam responder rápido à perda de peso e à redução de açúcar e álcool.',
+    'Vitamina D': 'Subiu para uma faixa adequada, importante para ossos, humor e imunidade.',
+  };
+  return map[e.marker] || `Este marcador está ${examStatus(e) === 'ok' ? 'dentro da referência' : 'fora da referência'}. Vale acompanhar a evolução ao longo do tratamento e conversar com a Dra. Helena. Não interpreto exames isoladamente nem substituo a avaliação médica.`;
+}
+
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */
 export type Phase = { key: string; label: string; ic: string; range: string };
 export function doseCycle(S: State) {

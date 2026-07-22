@@ -34,6 +34,9 @@ export default function RootLayout() {
           <Stack.Screen name="proxima-aplicacao" />
           <Stack.Screen name="ciclo" />
           <Stack.Screen name="evolucao" />
+          <Stack.Screen name="aplicacoes" />
+          <Stack.Screen name="exames" />
+          <Stack.Screen name="notificacoes" />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
