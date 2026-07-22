@@ -318,7 +318,9 @@ export function todayTasks(S: State): TodayTask[] {
     if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
   }
   const wt = waterToday(S);
-  if (now().getHours() >= 15 && wt < 4) out.push({ ic: 'water', text: 'Beber água', sub: `${wt} de ${GOAL_WATER} copos até agora`, to: '/registrar' });
+  if (now().getHours() >= 15 && wt < 4) out.push({ ic: 'water', text: 'Registrar água', sub: `${wt} de ${GOAL_WATER} copos até agora`, to: '/registrar' });
+  const ciT = checkinToday(S);
+  if (ciT && ciT.prot < 90) out.push({ ic: 'leaf', text: `Faltam ${Math.round(90 - ciT.prot)} g de proteína`, sub: 'Da meta diária de 90 g', to: '/alimentacao' });
   return out;
 }
 
