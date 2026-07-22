@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "norte-app",
+    "name": "Forma",
     "slug": "norte-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "norteapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +20,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,15 +28,15 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#F4F7F5",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": false,
+      "baseUrl": "/gs-packs/forma"
     }
   }
 }

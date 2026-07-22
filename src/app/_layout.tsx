@@ -1,18 +1,41 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import {
+  useFonts,
+  PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
+import { useStore } from '../logic/store';
+import { light } from '../theme';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+export default function RootLayout() {
+  const hydrate = useStore((s) => s.hydrate);
+  const ready = useStore((s) => s.ready);
+  const [loaded] = useFonts({
+    PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold,
+    Inter_400Regular, Inter_500Medium, Inter_600SemiBold,
+  });
 
-SplashScreen.preventAutoHideAsync();
+  useEffect(() => { hydrate(); }, [hydrate]);
+  if (!loaded || !ready) return null;
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="checkin" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="proxima-aplicacao" />
+          <Stack.Screen name="ciclo" />
+          <Stack.Screen name="evolucao" />
+        </Stack>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
