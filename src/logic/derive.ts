@@ -255,6 +255,79 @@ export function doseCycle(S: State) {
   return { dayIn, total, phases, idx, phase: phases[idx], nextDose: nextInjectionDate(S) };
 }
 
+/* ============================================================
+   HOME DE AÇÃO — o motor do dia
+   ============================================================ */
+
+/* Briefing do dia — mensagem específica e acionável por fase do ciclo.
+   Determinística (mesmo dia → mesma mensagem), muda conforme o ciclo anda. */
+export function todayBrief(S: State) {
+  const cyc = doseCycle(S);
+  const ndDays = diffDays(nextInjectionDate(S), now());
+  let head = '', body = '', q = '';
+  switch (cyc.phase.key) {
+    case 'aplic':
+      head = 'Hoje é dia de aplicação.';
+      body = 'Enjoo leve pode aparecer — prefira refeições menores ao longo do dia.';
+      q = 'O que esperar no dia da aplicação?';
+      break;
+    case 'pico':
+      head = 'Seu apetite tende a ficar mais baixo hoje.';
+      body = 'Pico de efeito da medicação — bom dia para treinar e adiantar a proteína.';
+      q = 'Quando tenho mais energia?';
+      break;
+    case 'estab':
+      head = 'Seu corpo está na fase estável do ciclo.';
+      body = 'Efeito constante — mantenha água e proteína em dia para sustentar a saciedade.';
+      q = 'Como funciona o ciclo da medicação?';
+      break;
+    case 'retorno':
+      head = 'Sua fome pode começar a aumentar nas próximas 24 horas.';
+      body = 'Proteína e água seguram a saciedade nesta fase do ciclo.';
+      q = 'Por que sinto mais fome?';
+      break;
+    default:
+      head = ndDays <= 0 ? 'Fome no ponto alto — a aplicação é hoje.' : `Fome no ponto alto do ciclo — aplicação ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`;
+      body = 'Não pule refeições: volumes menores, mais vezes, com proteína.';
+      q = 'Por que sinto mais fome?';
+  }
+  // sinal extra: noite bem dormida muda o tom do dia
+  const last = S.checkins[S.checkins.length - 1];
+  if (last && last.sono >= 7.5 && cyc.phase.key !== 'aplic') {
+    body = 'Você dormiu bem — seu corpo tende a responder melhor hoje. ' + body;
+  }
+  return { head, body, q, cyc };
+}
+
+/* Tarefas inteligentes do dia — cada uma só aparece quando faz sentido agora. */
+export type TodayTask = { ic: string; text: string; sub?: string; to: string; warn?: boolean };
+export function todayTasks(S: State): TodayTask[] {
+  const out: TodayTask[] = [];
+  const nd = nextInjectionDate(S);
+  const ndDays = diffDays(nd, now());
+  if (ndDays <= 3)
+    out.push({ ic: 'syringe', text: ndDays <= 0 ? 'Aplicação hoje' : ndDays === 1 ? 'Aplicação amanhã' : `Aplicação em ${ndDays} dias`, sub: `${siteLabel(nextSite(S))} sugerido`, to: '/proxima-aplicacao', warn: ndDays <= 1 });
+  out.push({ ic: 'pill', text: 'Renovar receita', sub: 'Restam 3 doses na caneta', to: '/aplicacoes' });
+  const lastW = S.weights[S.weights.length - 1];
+  const wDays = diffDays(now(), new Date(lastW.t));
+  if (wDays >= 4) out.push({ ic: 'scale', text: 'Registrar peso', sub: `Último registro há ${wDays} dias`, to: '/registrar' });
+  const examTask = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
+  if (examTask) out.push({ ic: 'doc', text: examTask.t, sub: 'Do protocolo desta semana', to: '/protocolos' });
+  if (hasClinic(S)) {
+    const cd = diffDays(new Date(S.consult.t), now());
+    if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
+  }
+  const wt = waterToday(S);
+  if (now().getHours() >= 15 && wt < 4) out.push({ ic: 'water', text: 'Beber água', sub: `${wt} de ${GOAL_WATER} copos até agora`, to: '/registrar' });
+  return out;
+}
+
+/* Conquista recente (≤7 dias) — só aparece quando há o que celebrar. */
+export function recentAchievement(S: State) {
+  const done = achDone(S).filter((a: any) => diffDays(now(), new Date(a.t)) <= 7);
+  return done.length ? done[done.length - 1] : null;
+}
+
 /* Linha do tempo — mistura de eventos (aplicação, check-in, peso, água, treino,
    sono, proteína, humor) num feed cronológico (mockup neurosafe .23_2). */
 export type TLEvent = { key: string; day: number; time: string; ic: string; color: string; title: string; sub: string; value: string; valueColor?: string };
