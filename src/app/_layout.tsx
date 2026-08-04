@@ -9,7 +9,7 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
-import { light } from '../theme';
+import { light, radius } from '../theme';
 
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
@@ -52,7 +52,20 @@ export default function RootLayout() {
           <Stack.Screen name="integracoes" />
           <Stack.Screen name="biblioteca" />
           <Stack.Screen name="resumo-medico" />
-          <Stack.Screen name="registrar" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          {/* Registrar é um bottom sheet, não uma tela: registrar algo é um
+              desvio rápido do que a pessoa estava fazendo, e o contexto de
+              trás precisa continuar visível. fitToContents deixa a altura
+              seguir o conteúdo em vez de fixar uma fração da tela. */}
+          <Stack.Screen
+            name="registrar"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              sheetCornerRadius: radius.xl,
+              sheetExpandsWhenScrolledToEdge: false,
+            }}
+          />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
