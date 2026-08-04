@@ -32,7 +32,15 @@ export function buildSeed() {
     });
   }
   return {
-    profile: { name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT, startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis', nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com' },
+    profile: {
+      name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
+      startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
+      /* metas diárias — antes ficavam espalhadas como número fixo no
+         código (proteína 90 g em derive, água na constante GOAL_WATER).
+         A Home nova trata as três como alvo configurável. */
+      targets: { prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 },
+    },
     weights, injections, checkins,
     photos: [{ t: +daysAgo(70), tag: 'início' }, { t: +daysAgo(35), tag: 'semana 5' }, { t: +daysAgo(4), tag: 'semana 10' }],
     goals: [
@@ -137,6 +145,9 @@ export function buildSeed() {
       agua: { on: false, hour: 15, min: 0 },
       proteina: { on: false, hour: 12, min: 0 },
     },
+    /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
+       em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
+    pen: { dosesLeft: 3, dosesPerPen: 4 },
     consultNotes: '',
     onboardDone: true,
     theme: 'light' as 'light' | 'dark',
@@ -158,5 +169,9 @@ export function ensureDefaults(S: any) {
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
   if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };
   if (!S.theme) S.theme = 'light';
+  /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
+     depende da pessoa, e um padrão fixo não serve para todo mundo. */
+  if (S.profile) S.profile.targets = Object.assign({ prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 }, S.profile.targets || {});
+  if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
   return S;
 }

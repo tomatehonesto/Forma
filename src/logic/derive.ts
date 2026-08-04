@@ -330,33 +330,372 @@ export function recentAchievement(S: State) {
   return done.length ? done[done.length - 1] : null;
 }
 
+/* ============================================================
+   HOME V2 — metas diárias e cartões de evolução (Figma 181:1869)
+   ============================================================ */
+
+/** Um copo de água = 250 ml. O check-in continua contando copos;
+    a Home exibe em litros, que é como o desenho fala. */
+export const CUP_ML = 250;
+
+export const waterMlToday = (S: State) => waterToday(S) * CUP_ML;
+
+const nfBR = (v: number, d = 0) => nf(v, d).replace('.', ',');
+
+export type DailyTarget = {
+  key: 'prot' | 'agua' | 'exerc';
+  label: string;
+  /* valor e unidade são dois elementos, nunca uma string só — mantém a
+     coluna de números alinhada entre os três cards. */
+  num: string; unit: string;
+  maxLabel: string;
+  cur: number; target: number; pct: number;
+  remain: string; done: boolean;
+  from: string; to: string;   // chaves da Palette p/ o gradiente da barra
+};
+
+/* As três metas do dia. Vêm do check-in de hoje contra profile.targets —
+   quando não há check-in, tudo zera (e não some da tela: a meta continua
+   valendo, só não foi cumprida ainda). */
+export function dailyTargets(S: State): DailyTarget[] {
+  const t: any = S.profile.targets;
+  const ci: any = checkinToday(S);
+  const prot = ci ? ci.prot : 0;
+  const ml = waterMlToday(S);
+  const ex = ci ? ci.exerc : 0;
+  const mk = (
+    key: DailyTarget['key'], label: string, cur: number, target: number,
+    num: string, unit: string, maxLabel: string, remain: string, from: string, to: string,
+  ): DailyTarget => ({
+    key, label, cur, target, num, unit, maxLabel,
+    pct: Math.max(0, Math.min(1, target ? cur / target : 0)),
+    remain, done: cur >= target, from, to,
+  });
+  const faltaMl = Math.max(0, t.waterMl - ml);
+  return [
+    mk('prot', 'Ingestão de proteína', prot, t.prot,
+      `${Math.round(prot)}`, 'g', `${t.prot} g`,
+      prot >= t.prot ? 'Meta batida' : `Faltam ${Math.round(t.prot - prot)} g`,
+      'limePale', 'lime'),
+    mk('agua', 'Beber mais água', ml, t.waterMl,
+      nfBR(ml / 1000, 1), 'L', `${nfBR(t.waterMl / 1000, 1)} L`,
+      faltaMl <= 0 ? 'Meta batida' : `Faltam ${faltaMl >= 1000 ? `${nfBR(faltaMl / 1000, 1)} L` : `${Math.round(faltaMl)} ml`}`,
+      'bluePale', 'accent2'),
+    mk('exerc', 'Exercitar diariamente', ex, t.exercMin,
+      `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
+      ex >= t.exercMin ? 'Meta batida' : `Faltam ${Math.round(t.exercMin - ex)} min`,
+      'tealPale', 'teal'),
+  ];
+}
+
+/* Todo número exibido vem com um veredito. O valor diz a medida; a palavra
+   diz se está bom — e é a palavra que a pessoa procura primeiro. Sem isso
+   ela faz a conta sozinha, e num tratamento médico faz errado. */
+export type Verdict = { label: string; good: boolean };
+
+/** Média de proteína dos últimos 7 dias, contra a meta. */
+export function protein7d(S: State) {
+  const from = +daysAgo(7);
+  const r = S.checkins.filter((c: any) => c.t >= from);
+  const avg = r.length ? r.reduce((s: number, c: any) => s + c.prot, 0) / r.length : 0;
+  const target = (S.profile as any).targets.prot as number;
+  const verdict: Verdict = avg >= target
+    ? { label: 'Na meta', good: true }
+    : avg >= target * 0.85
+      ? { label: 'Perto da meta', good: true }
+      : { label: 'Abaixo da meta', good: false };
+  return { avg, target, verdict };
+}
+
+/** Gordura corporal da última medida, contra a meta do perfil. */
+export function bodyFat(S: State) {
+  const m = latestMeasure(S);
+  const target = (S.profile as any).targets.bodyFat as number;
+  if (!m) return null;
+  const first = firstMeasure(S);
+  const caindo = first ? m.gordura < first.gordura : false;
+  const above = m.gordura > target;
+  const verdict: Verdict = !above
+    ? { label: 'Na meta', good: true }
+    : caindo
+      ? { label: 'Em queda', good: true }
+      : { label: 'Acima da meta', good: false };
+  return { v: m.gordura, target, above, verdict };
+}
+
+/** Peso perdido e o quanto a meta pede — cartão principal da evolução. */
+export function weightCard(S: State) {
+  const lost = lostKg(S);
+  const goal = startWeight(S) - S.profile.goalWeight;
+  return { lost, goal, lostLabel: `-${nfBR(lost, 1)} kg`, goalLabel: `Meta: -${nfBR(goal, 1)} kg` };
+}
+
+/** Série de peso normalizada (x,y ∈ 0..1) para o sparkline do card. */
+export function weightSeries(S: State) {
+  const w = S.weights;
+  if (w.length < 2) return [] as { x: number; y: number }[];
+  const ks = w.map((p: any) => p.kg);
+  const lo = Math.min(...ks), hi = Math.max(...ks), span = hi - lo || 1;
+  return w.map((p: any, i: number) => ({ x: i / (w.length - 1), y: (p.kg - lo) / span }));
+}
+
 /* Linha do tempo — mistura de eventos (aplicação, check-in, peso, água, treino,
    sono, proteína, humor) num feed cronológico (mockup neurosafe .23_2). */
-export type TLEvent = { key: string; day: number; time: string; ic: string; color: string; title: string; sub: string; value: string; valueColor?: string };
+/* Os oito tipos da árvore de informação. O filtro da Linha do tempo é
+   exatamente esta lista — e cada chip carrega sua contagem, para a pessoa
+   saber o que tem atrás dele antes de tocar. */
+export type TLKind = 'checkin' | 'aplicacao' | 'peso' | 'foto' | 'refeicao' | 'exercicio' | 'consulta' | 'exame';
+
+export const TL_LABEL: Record<TLKind, string> = {
+  checkin: 'Check-ins', aplicacao: 'Aplicações', peso: 'Peso', foto: 'Fotos',
+  refeicao: 'Refeições', exercicio: 'Exercícios', consulta: 'Consultas', exame: 'Exames',
+};
+
+export type TLEvent = {
+  key: string; kind: TLKind; day: number; time: string;
+  ic: string; color: string; title: string; sub: string;
+  value: string; valueColor?: string;
+};
+
+/* Feed cronológico do tratamento inteiro. Água, sono, proteína e humor não
+   são eventos próprios: são o conteúdo do check-in daquele dia — por isso
+   entram resumidos na linha do check-in, e não como oito linhas repetidas. */
 export function timelineEvents(S: State): TLEvent[] {
   const out: TLEvent[] = [];
   const med = M(S);
-  const li = lastInjection(S);
-  const cyc = doseCycle(S);
   const kgf = (x: number) => nf(x, 1).replace('.', ',');
-  if (li) out.push({ key: 'inj', day: +startOfDay(new Date(li.t)), time: '09:00', ic: 'syringe', color: 'accent', title: `Aplicação ${li.dose} ${med.unit}`, sub: med.mol, value: `Dia ${cyc.dayIn} de ${cyc.total}`, valueColor: 'tx3' });
-  const w = S.weights;
-  if (w.length >= 2) {
-    const cur = w[w.length - 1], prev = w[w.length - 2]; const dl = cur.kg - prev.kg;
-    out.push({ key: 'peso', day: +startOfDay(new Date(cur.t)), time: '07:45', ic: 'scale', color: 'purple', title: 'Peso', sub: `${kgf(cur.kg)} kg`, value: `${dl <= 0 ? '−' : '+'}${kgf(Math.abs(dl))} kg`, valueColor: dl <= 0 ? 'good' : 'tx2' });
+  const D = (t: number) => +startOfDay(new Date(t));
+
+  for (const inj of S.injections as any[]) {
+    out.push({
+      key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), time: '09:00',
+      ic: 'syringe', color: 'accent', title: `Aplicação ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit}`,
+      sub: `${med.mol} · ${siteLabel(inj.site)}`, value: '', valueColor: 'tx3',
+    });
   }
-  const days = S.checkins.slice(-2).reverse();
-  for (const cc of days as any[]) {
-    const day = +startOfDay(new Date(cc.t));
-    out.push({ key: `ci-${day}`, day, time: '08:30', ic: 'check', color: 'accent', title: 'Check-in', sub: 'Como você está agora', value: '', valueColor: 'accent' });
-    const L = cc.agua * 0.2, aguaPct = Math.round((cc.agua / GOAL_WATER) * 100);
-    out.push({ key: `agua-${day}`, day, time: '07:30', ic: 'water', color: 'water', title: 'Água', sub: `${L.toFixed(1).replace('.', ',')} L`, value: `${aguaPct}% da meta`, valueColor: 'water' });
-    if (cc.exerc > 0) out.push({ key: `tre-${day}`, day, time: '07:00', ic: 'dumbbell', color: 'accent', title: 'Treino', sub: `Caminhada ${cc.exerc} min`, value: 'Leve', valueColor: 'tx2' });
-    const sh = Math.floor(cc.sono), sm = Math.round((cc.sono - sh) * 60);
-    out.push({ key: `sono-${day}`, day, time: '22:45', ic: 'moon', color: 'purple', title: 'Sono', sub: `${sh}h${sm ? ` ${sm}min` : ''}`, value: cc.sono >= 7 ? 'Qualidade boa' : 'Qualidade ok', valueColor: 'tx2' });
-    out.push({ key: `prot-${day}`, day, time: '19:30', ic: 'leaf', color: 'amber', title: 'Proteína', sub: `${Math.round(cc.prot)} g`, value: `${Math.round(cc.prot)}% da meta`, valueColor: 'amber' });
-    out.push({ key: `hum-${day}`, day, time: '12:30', ic: 'mood', color: 'amber', title: 'Humor', sub: cc.mood >= 4 ? 'Bom' : cc.mood >= 3 ? 'Neutro' : 'Baixo', value: `${Math.round((cc.mood / 5) * 10)}/10`, valueColor: 'tx2' });
+
+  const w = S.weights as any[];
+  w.forEach((cur, i) => {
+    const prev = i > 0 ? w[i - 1] : null;
+    const dl = prev ? cur.kg - prev.kg : 0;
+    out.push({
+      key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), time: '07:45',
+      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${kgf(cur.kg)} kg`,
+      value: prev ? `${dl <= 0 ? '−' : '+'}${kgf(Math.abs(dl))} kg` : 'Peso inicial',
+      valueColor: prev ? (dl <= 0 ? 'good' : 'tx2') : 'tx3',
+    });
+  });
+
+  for (const cc of S.checkins as any[]) {
+    const day = D(cc.t);
+    const L = (cc.agua * CUP_ML) / 1000;
+    out.push({
+      key: `ci-${day}`, kind: 'checkin', day, time: '08:30',
+      ic: 'check', color: 'accent', title: 'Check-in',
+      sub: `${L.toFixed(1).replace('.', ',')} L · ${Math.round(cc.prot)} g proteína · ${Math.floor(cc.sono)}h de sono`,
+      value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
+      valueColor: cc.mood >= 4 ? 'good' : 'tx3',
+    });
+    if (cc.exerc > 0) out.push({
+      key: `ex-${day}`, kind: 'exercicio', day, time: '07:00',
+      ic: 'dumbbell', color: 'teal', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
+      value: '', valueColor: 'tx3',
+    });
   }
+
+  for (const p of S.photos as any[]) out.push({
+    key: `foto-${p.t}`, kind: 'foto', day: D(p.t), time: '10:00',
+    ic: 'camera', color: 'purple', title: 'Foto de progresso', sub: p.tag, value: '', valueColor: 'tx3',
+  });
+
+  for (const m of S.meals as any[]) out.push({
+    key: `ref-${m.t}`, kind: 'refeicao', day: D(m.t), time: '12:30',
+    ic: 'utensils', color: 'amber', title: m.name, sub: m.tag,
+    value: `Proteína ${m.prot}`, valueColor: 'tx3',
+  });
+
+  for (const ch of S.consultsHistory as any[]) out.push({
+    key: `con-${ch.t}`, kind: 'consulta', day: D(ch.t), time: '14:00',
+    ic: 'steth', color: 'accent2', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note, value: '', valueColor: 'tx3',
+  });
+
+  for (const b of S.examBundles as any[]) out.push({
+    key: `exa-${b.t}`, kind: 'exame', day: D(b.t), time: '11:00',
+    ic: 'doc', color: 'amber', title: b.name, sub: `${b.n} marcadores · ${b.source}`,
+    value: b.shared ? 'Compartilhado' : '', valueColor: 'tx3',
+  });
+
   out.sort((a, b) => b.day - a.day || (b.time > a.time ? 1 : b.time < a.time ? -1 : 0));
-  return out.slice(0, 14);
+  return out;
+}
+
+/* A linha do tempo em capítulos semanais.
+
+   Num tratamento semanal a aplicação não é "mais um evento": ela abre a
+   semana. Tudo que acontece depois dela — check-in, peso, refeição, foto —
+   pertence àquele ciclo. Por isso a aplicação vira o cabeçalho do capítulo,
+   e não uma linha igual às outras. É assim que a paciente já pensa:
+   "semana 10", não "agosto". */
+export type JourneyWeek = {
+  semana: number; t: number; dose: string; site: string;
+  eventos: TLEvent[]; deltaPeso: string | null;
+  /** resumo dos registros da semana — "7 check-ins · 2 refeições" */
+  resumo: string;
+  /** dose diferente da semana anterior: o evento que mais muda o tratamento */
+  mudouDose: boolean;
+};
+
+export function timelineWeeks(S: State): JourneyWeek[] {
+  const evs = timelineEvents(S);
+  const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
+  const med = M(S);
+  const out: JourneyWeek[] = [];
+
+  for (let i = injs.length - 1; i >= 0; i--) {
+    const inicio = +startOfDay(new Date(injs[i].t));
+    const fim = i + 1 < injs.length ? +startOfDay(new Date(injs[i + 1].t)) : Infinity;
+    const eventos = evs.filter((e) => e.day >= inicio && e.day < fim && e.kind !== 'aplicacao');
+
+    // variação de peso dentro do ciclo — o que a semana rendeu
+    const pesos = (S.weights as any[]).filter((w) => {
+      const d = +startOfDay(new Date(w.t));
+      return d >= inicio && d < fim;
+    });
+    const anteriores = (S.weights as any[]).filter((w) => +startOfDay(new Date(w.t)) < inicio);
+    const base = anteriores.length ? anteriores[anteriores.length - 1].kg : null;
+    let deltaPeso: string | null = null;
+    if (base != null && pesos.length) {
+      const d = pesos[pesos.length - 1].kg - base;
+      deltaPeso = `${d <= 0 ? '−' : '+'}${nf(Math.abs(d), 1).replace('.', ',')} kg`;
+    }
+
+    /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
+    const contagem: Partial<Record<TLKind, number>> = {};
+    for (const e of eventos) contagem[e.kind] = (contagem[e.kind] || 0) + 1;
+    const nome: Partial<Record<TLKind, [string, string]>> = {
+      checkin: ['check-in', 'check-ins'],
+      peso: ['pesagem', 'pesagens'],
+      foto: ['foto', 'fotos'],
+      refeicao: ['refeição', 'refeições'],
+      exercicio: ['exercício', 'exercícios'],
+      consulta: ['consulta', 'consultas'],
+      exame: ['exame', 'exames'],
+    };
+    const resumo = (Object.keys(contagem) as TLKind[])
+      .map((k) => {
+        const n = contagem[k]!;
+        const [s, p] = nome[k] ?? [TL_LABEL[k].toLowerCase(), TL_LABEL[k].toLowerCase()];
+        return `${n} ${n === 1 ? s : p}`;
+      })
+      .join(' · ');
+
+    out.push({
+      semana: i + 1, t: injs[i].t,
+      dose: `${med.label} ${nf(injs[i].dose, injs[i].dose % 1 ? 1 : 0)} ${med.unit}`,
+      site: siteLabel(injs[i].site),
+      eventos, deltaPeso,
+      resumo: resumo || 'Sem registros nesta semana',
+      mudouDose: i > 0 && injs[i].dose !== injs[i - 1].dose,
+    });
+  }
+  return out;
+}
+
+/** Contagem por tipo — alimenta os chips de filtro. Tipo sem evento não vira chip. */
+export function timelineCounts(S: State): { kind: TLKind; label: string; n: number }[] {
+  const all = timelineEvents(S);
+  return (Object.keys(TL_LABEL) as TLKind[])
+    .map((k) => ({ kind: k, label: TL_LABEL[k], n: all.filter((e) => e.kind === k).length }))
+    .filter((x) => x.n > 0);
+}
+
+/* "O que já mudou" — o coração da Jornada.
+
+   Uma paciente de GLP-1 abre esta tela com uma pergunta: está funcionando?
+   Listar links para telas não responde. Mostrar de-onde-para-onde responde —
+   e cobre justamente o que mais sustenta alguém num platô, quando a balança
+   trava mas cintura, exames e composição seguem melhorando. */
+export type Change = { ic: string; label: string; from: string; to: string; delta: string; good: boolean; to_: string };
+
+export function journeyChanges(S: State): Change[] {
+  const out: Change[] = [];
+  const n1 = (x: number) => nf(x, 1).replace('.', ',');
+  const fm = firstMeasure(S), lm = latestMeasure(S);
+
+  out.push({
+    ic: 'scale', label: 'Peso', from: `${n1(startWeight(S))} kg`, to: `${n1(curWeight(S))} kg`,
+    delta: `−${n1(lostKg(S))} kg`, good: true, to_: '/evolucao',
+  });
+
+  if (fm && lm && fm !== lm) {
+    if (lm.cintura !== fm.cintura) out.push({
+      ic: 'ruler', label: 'Cintura', from: `${fm.cintura} cm`, to: `${lm.cintura} cm`,
+      delta: `−${n1(fm.cintura - lm.cintura)} cm`, good: lm.cintura < fm.cintura, to_: '/medidas',
+    });
+    if (lm.gordura !== fm.gordura) out.push({
+      ic: 'activity', label: 'Gordura corporal', from: `${n1(fm.gordura)}%`, to: `${n1(lm.gordura)}%`,
+      delta: `−${n1(fm.gordura - lm.gordura)} pp`, good: lm.gordura < fm.gordura, to_: '/medidas',
+    });
+    if (lm.musculo !== fm.musculo) out.push({
+      ic: 'dumbbell', label: 'Massa magra', from: `${n1(fm.musculo)} kg`, to: `${n1(lm.musculo)} kg`,
+      delta: `${lm.musculo >= fm.musculo ? '+' : '−'}${n1(Math.abs(lm.musculo - fm.musculo))} kg`,
+      good: lm.musculo >= fm.musculo, to_: '/medidas',
+    });
+  }
+
+  const a1c = examBy(S, 'HbA1c');
+  if (a1c && a1c.values.length >= 2) {
+    const f = examFirst(a1c), l = examLast(a1c);
+    out.push({
+      ic: 'doc', label: 'HbA1c', from: `${n1(f.v)}%`, to: `${n1(l.v)}%`,
+      delta: examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da faixa',
+      good: examStatus(a1c) === 'ok', to_: '/exames',
+    });
+  }
+
+  const pa = (S.vitals as any).pa;
+  if (pa && pa.length >= 2) {
+    const f = pa[0], l = pa[pa.length - 1];
+    out.push({
+      ic: 'heart', label: 'Pressão', from: `${f.sys}/${f.dia}`, to: `${l.sys}/${l.dia}`,
+      delta: l.sys < f.sys ? 'Em queda' : 'Estável', good: l.sys <= f.sys, to_: '/saude',
+    });
+  }
+
+  return out;
+}
+
+/** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
+export function penStock(S: State) {
+  const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
+  const semanas = p.dosesLeft * (CADENCE_DAYS(S.profile.med) / 7);
+  const verdict: Verdict = p.dosesLeft <= 1
+    ? { label: 'Renove agora', good: false }
+    : p.dosesLeft <= 3
+      ? { label: 'Vale renovar a receita', good: false }
+      : { label: 'Estoque em dia', good: true };
+  return { left: p.dosesLeft, total: p.dosesPerPen, semanas, verdict };
+}
+
+/* Resumo do tratamento — os cinco números do topo da Jornada. */
+export function journeySummary(S: State) {
+  const lost = lostKg(S);
+  const goal = startWeight(S) - S.profile.goalWeight;
+  const semanas = Math.max(1, Math.ceil(journeyDay(S) / 7));
+  const ritmo = lost / semanas;                       // kg por semana
+  /* 0,5–1,5 kg/semana é a faixa que o tratamento costuma render. Fora dela
+     o texto não alarma: aponta para conversar com a equipe. */
+  const verdict: Verdict = ritmo >= 0.5 && ritmo <= 1.5
+    ? { label: 'Em ritmo saudável', good: true }
+    : ritmo > 1.5
+      ? { label: 'Ritmo acelerado', good: false }
+      : { label: 'Ritmo mais lento', good: true };
+  return {
+    dia: journeyDay(S), semana: S.protocol.week,
+    lost, lostLabel: nf(lost, 1).replace('.', ','),
+    goal, pct: Math.round((lost / goal) * 100),
+    aplicacoes: S.injections.length,
+    proximaEmDias: diffDays(nextInjectionDate(S), now()),
+    verdict,
+  };
 }
