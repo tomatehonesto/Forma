@@ -13,6 +13,7 @@ import { Txt, Row, SectionHead, ListRow, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
+import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, font } from '../../theme';
 
 /* ============================================================
@@ -35,6 +36,7 @@ export default function Insights() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  useLightStatusBar();
 
   const go = (to: string) => () => router.push(to as any);
   const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
@@ -75,34 +77,39 @@ export default function Insights() {
              do tratamento e um caminho para a conversa inteira. Sem hero
              grande — as outras duas abas já têm um, e esta precisa de
              personalidade própria: conversa, não painel. */}
-        <View style={{ paddingTop: insets.top + 26 }}>
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 20, overflow: 'hidden' }}>
-            {/* véu leve do azul da marca — dá presença ao card sem
-                virar mais um hero */}
-            <LinearGradient
-              colors={[c.accentWeak, 'transparent']}
-              start={{ x: 1, y: 0 }} end={{ x: 0.2, y: 0.9 }}
-              style={StyleSheet.absoluteFillObject}
-            />
+        <View style={{
+          marginHorizontal: -PAD, paddingHorizontal: PAD,
+          paddingTop: insets.top + 26, paddingBottom: 26,
+          borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden',
+        }}>
+          <LinearGradient
+            colors={[c.altFrom, c.altMid, c.altTo]}
+            start={{ x: 0.15, y: 0 }} end={{ x: 0.9, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+
+          {/* card em vidro sobre o gradiente — mesmo tratamento da faixa
+              de check-in da Home */}
+          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 20 }}>
             <Row gap={8}>
-              <Icon name="spark" size={15} color={c.accent} sw={2.1} />
-              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.1 }}>COMPANION</Txt>
+              <Icon name="spark" size={15} color={c.lime} sw={2.1} />
+              <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.1 }}>COMPANION</Txt>
             </Row>
-            <Txt v="h2" style={{ marginTop: 12 }}>O que você quer entender?</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+            <Txt v="h2" c={c.onHero} style={{ marginTop: 12 }}>O que você quer entender?</Txt>
+            <Txt v="note" c={c.onHero2} style={{ marginTop: 4 }}>
               Ele conhece seus registros, seus exames e a fase do seu ciclo.
             </Txt>
 
-            <Row gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 16, marginTop: 16 }}>
+            <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 16, marginTop: 16 }}>
               <TextInput
                 value={pergunta} onChangeText={setPergunta}
                 onSubmitEditing={enviar} returnKeyType="send"
-                placeholder="Pergunte sobre seu tratamento..." placeholderTextColor={c.tx4}
-                style={{ flex: 1, paddingVertical: 14, color: c.tx, fontFamily: font.body, fontSize: 16 }}
+                placeholder="Pergunte sobre seu tratamento..." placeholderTextColor={c.onHero2}
+                style={{ flex: 1, paddingVertical: 14, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
               />
-              <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.3 : pressed ? 0.6 : 1 }]}>
-                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="send" size={16} color={c.accentInk} sw={2} />
+              <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
+                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="send" size={16} color={c.limeInk} sw={2} />
                 </View>
               </Pressable>
             </Row>
@@ -110,8 +117,8 @@ export default function Insights() {
             <Row gap={6} style={{ flexWrap: 'wrap', marginTop: 14 }}>
               {sugestoes.map((q) => (
                 <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
-                  <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.accentLine, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 9, marginBottom: 6 }}>
-                    <Txt v="caption" c={c.accent}>{q}</Txt>
+                  <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 9, marginBottom: 6 }}>
+                    <Txt v="caption" c={c.onHero}>{q}</Txt>
                   </View>
                 </Pressable>
               ))}
@@ -119,8 +126,8 @@ export default function Insights() {
 
             <Pressable onPress={go('/companion')} style={({ pressed }) => [{ marginTop: 8, opacity: pressed ? 0.6 : 1 }]}>
               <Row gap={6}>
-                <Txt v="label" c={c.accent2}>Abrir conversa</Txt>
-                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                <Txt v="label" c={c.lime}>Abrir conversa</Txt>
+                <Icon name="chev" size={13} color={c.lime} sw={2.2} />
               </Row>
             </Pressable>
           </View>
