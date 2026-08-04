@@ -1,290 +1,371 @@
-import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Pressable, ScrollView, Animated, Easing, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
-import { now, MO, MO_LONG, diffDays, relDay } from '../../logic/time';
-import { nextInjectionDate, checkinToday, todayBrief, todayTasks, recentAchievement, hasClinic, streak, siteLabel, nextSite } from '../../logic/derive';
-import { Screen, Txt, Card, IconBadge, Row, Chevron, Divider, Pill } from '../../ui/kit';
+import {
+  todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
+  nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
+  type DailyTarget,
+} from '../../logic/derive';
+import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
+import { Txt, Row, Card, SectionHead, ListRow, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
-import { AskCompanion } from '../../ui/Ask';
+import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
-import { radius } from '../../theme';
+import { useLightStatusBar } from '../../ui/useLightStatusBar';
+import { radius, type Palette } from '../../theme';
 
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const WDL = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-const WDL_LOW = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const AURORA = require('../../../assets/images/aurora-hero.png');
+const PAD = 24;                     // margem lateral do frame
+const GOAL_W = 323;                 // largura do card de meta
+const GOAL_GAP = 4;
+const DOT_W = 32;                   // largura do ponto ativo (= a barra de progresso)
+const DOT_IDLE = 16;
+const SLIDE_MS = 7000;              // tempo de leitura de cada slide do hero
 
-/* superfície calma — agrupa listas (inset grouped, iOS). Sem sombra: o card
-   com sombra fica reservado pra ação principal. */
-function Surface({ children, style }: { children: React.ReactNode; style?: any }) {
+/* ------------------------------------------------------------------ */
+/* Barra de meta — trilho, preenchimento em gradiente e marcador da
+   posicao atual. As cores vem da propria meta (proteina/agua/exercicio). */
+function GoalBar({ t }: { t: DailyTarget }) {
   const { c } = useTheme();
+  const from = (c as any)[t.from] as string;
+  const to = (c as any)[t.to] as string;
+  const pct = `${Math.round(t.pct * 100)}%`;
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, borderColor: c.line2, paddingHorizontal: 14 }, style]}>
-      {children}
+    <View>
+      <View style={{ height: 8, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
+        <LinearGradient
+          colors={[from, to]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          style={{ width: pct as any, height: 8, borderRadius: radius.pill }}
+        />
+      </View>
+      <Row style={{ justifyContent: 'space-between', marginTop: 5 }}>
+        <Txt v="note" c={c.tx3}>0</Txt>
+        <Txt v="note" c={c.tx3}>{t.maxLabel}</Txt>
+      </Row>
+      {/* marcador triangular na posicao atual */}
+      <View style={{ position: 'absolute', top: 10, left: pct as any, marginLeft: -5 }}>
+        <View style={{ width: 0, height: 0, borderLeftWidth: 5, borderRightWidth: 5, borderBottomWidth: 6, borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: c.tx }} />
+      </View>
     </View>
   );
 }
 
-/* indicador discreto do ciclo — 7 pontos, sem gráfico */
-function CycleDots({ dayIn, total }: { dayIn: number; total: number }) {
+function GoalCard({ t, onRegister }: { t: DailyTarget; onRegister: () => void }) {
   const { c } = useTheme();
   return (
-    <Row gap={5}>
-      {Array.from({ length: total }, (_, i) => {
-        const cur = i === dayIn - 1;
-        return <View key={i} style={{ width: cur ? 18 : 6, height: 6, borderRadius: 3, backgroundColor: i < dayIn ? (cur ? c.accent : c.accentLine) : c.track }} />;
-      })}
-    </Row>
-  );
-}
-
-/* linha de lista — ícone plano, vive dentro de uma Surface */
-function ListRow({ ic, color, title, sub, meta, onPress, warn }: {
-  ic: string; color?: string; title: string; sub?: string; meta?: string; onPress?: () => void; warn?: boolean;
-}) {
-  const { c } = useTheme();
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed && onPress ? 0.55 : 1 }]}>
-      <Row style={{ paddingVertical: 13 }}>
-        <View style={{ width: 32 }}>
-          <Icon name={ic} size={20} color={warn ? c.cta : color ?? c.accent} sw={1.8} />
+    <View style={{ width: GOAL_W, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Txt v="title" style={{ flex: 1, marginRight: 10, marginTop: 4 }} numberOfLines={1}>{t.label}</Txt>
+        {/* valor e unidade separados — mantém a coluna alinhada entre cards */}
+        <View style={{ alignItems: 'flex-end' }}>
+          <Metric value={t.num} />
+          <Txt v="caption" c={c.tx3} style={{ marginTop: -2 }}>{t.unit}</Txt>
         </View>
-        <View style={{ flex: 1, marginRight: 10 }}>
-          <Txt v="title">{title}</Txt>
-          {!!sub && <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>}
-        </View>
-        {meta ? <Txt v="micro" c={c.tx4}>{meta}</Txt> : onPress ? <Chevron size={16} /> : null}
       </Row>
-    </Pressable>
+      <View style={{ marginTop: 12 }}><GoalBar t={t} /></View>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+        <Pressable onPress={onRegister} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Row gap={6}>
+            <Icon name="plus" size={15} color={c.accent} sw={2.4} />
+            <Txt v="label" c={c.accent}>Registrar</Txt>
+          </Row>
+        </Pressable>
+        <Txt v="note" c={t.done ? c.accent : c.tx}>{t.remain}</Txt>
+      </Row>
+    </View>
   );
 }
 
-function SectionTitle({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+/* Selo de tendencia ao lado do numero (sobe = lima, precisa cair = vermelho) */
+function TrendDot({ up, good, c }: { up: boolean; good: boolean; c: Palette }) {
   return (
-    <Row style={{ justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10 }}>
-      <Txt v="h2">{children}</Txt>
-      {right}
-    </Row>
+    <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: good ? c.lime : c.bad, alignItems: 'center', justifyContent: 'center', marginLeft: 6 }}>
+      <Icon name={up ? 'arrowup' : 'arrowdown'} size={11} color={good ? c.limeInk : '#FFFFFF'} sw={2.6} />
+    </View>
   );
 }
 
+/* ------------------------------------------------------------------ */
 export default function Home() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const go = (p: string) => () => router.push(p as any);
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const [slide, setSlide] = useState(0);
+  const [held, setHeld] = useState(false);   // dedo no carrossel = cronômetro parado
+  const heroRef = useRef<ScrollView>(null);
+  const progress = useRef(new Animated.Value(0)).current;
 
-  const d = now();
-  const greet = d.getHours() < 12 ? 'Bom dia' : d.getHours() < 18 ? 'Boa tarde' : 'Boa noite';
+  const go = (to: string) => () => router.push(to as any);
+  useLightStatusBar();
   const first = S.profile.name.split(' ')[0];
-  const dateStr = `${WDL[d.getDay()]}, ${d.getDate()} de ${cap(MO_LONG[d.getMonth()])}`;
+  const hour = now().getHours();
+  const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
   const brief = todayBrief(S);
-  const tasks = todayTasks(S);
-  const ci = checkinToday(S);
-  const linked = hasClinic(S);
-  const ach = recentAchievement(S);
+  const med = M(S);
+  const ndDays = diffDays(nextInjectionDate(S), now());
+  const ins = insights(S);
+  const targets = dailyTargets(S);
+  const wc = weightCard(S);
+  const wSeries = weightSeries(S);
+  const prot7 = protein7d(S);
+  const bf = bodyFat(S);
   const stk = streak(S);
+  const linked = hasClinic(S);
+  const consultD = new Date(S.consult.t);
 
-  const nd = nextInjectionDate(S);
-  const ndDays = diffDays(nd, now());
-  const ndWhen = ndDays <= 0 ? 'hoje' : ndDays === 1 ? 'amanhã' : `${WDL_LOW[nd.getDay()]}, ${nd.getDate()} ${MO[nd.getMonth()]}`;
-  const lastDocMsg = [...S.messages].reverse().find((m: any) => m.from === 'doc');
-  const examTask = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
-  const protoDone = S.protocol.tasks.filter((t: any) => t.done).length;
-  const protoPending = S.protocol.tasks.filter((t: any) => !t.done).slice(0, 2);
+  /* Carrossel do hero — tres leituras do dia, todas com dado real. */
+  const slides = [
+    { over: 'PARA HOJE', title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
+    {
+      over: 'PRÓXIMA APLICAÇÃO',
+      title: ndDays <= 0 ? `${med.label} é hoje.` : `${med.label} ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`,
+      body: `${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit} · ${siteLabel(nextSite(S))} sugerido.`,
+      cta: 'Ver o preparo', to: '/proxima-aplicacao',
+    },
+    ...(ins.length ? [{
+      over: 'DESCOBERTA', title: ins[0].text.replace(/<\/?b>/g, ''),
+      body: 'O Forma acompanha seus registros e conta o que encontra.',
+      cta: 'Ver descobertas', to: '/insights',
+    }] : []),
+  ];
+
+  const total = slides.length;
+
+  /* A barra do ponto ativo é o próprio cronômetro: enche em SLIDE_MS e,
+     ao encher, empurra para o próximo slide (voltando ao primeiro no fim).
+     Encostar o dedo pausa; soltar recomeça a contagem do slide atual. */
+  useEffect(() => {
+    progress.setValue(0);
+    if (held || total < 2) return;
+    const anim = Animated.timing(progress, {
+      toValue: 1, duration: SLIDE_MS, easing: Easing.linear, useNativeDriver: false,
+    });
+    anim.start(({ finished }) => {
+      if (!finished) return;
+      const next = (slide + 1) % total;
+      heroRef.current?.scrollTo({ x: next * width, animated: true });
+      setSlide(next);
+    });
+    return () => anim.stop();
+  }, [slide, held, total, width, progress]);
+
+  const onHeroScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const i = Math.round(e.nativeEvent.contentOffset.x / width);
+    if (i !== slide) setSlide(i);
+  };
 
   return (
-    <Screen>
-      {/* header: saudação no lugar do logo */}
-      <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start', marginTop: 6 }}>
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">{greet}, {first}</Txt>
-          <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 2 }}>{dateStr}</Txt>
-        </View>
-        <Row gap={14} style={{ marginTop: 4 }}>
-          <Pressable hitSlop={10} onPress={go('/notificacoes')}>
-            <Icon name="bell" size={23} color={c.tx2} sw={1.8} />
-            {S.unread > 0 && <View style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.accent, borderWidth: 1.6, borderColor: c.bg }} />}
-          </Pressable>
-          <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-            <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}>
-              <Txt v="title" c="#fff">{first[0]}</Txt>
-            </LinearGradient>
-          </Pressable>
-        </Row>
-      </Row>
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
-      {/* hoje seu corpo — contextualização do dia, sem caixa e compacta */}
-      <View style={{ marginTop: 24 }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Row gap={6}>
-            <Icon name="spark" size={13} color={c.accent} sw={2.1} />
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.1 }}>HOJE SEU CORPO</Txt>
-          </Row>
-          <Pressable onPress={go('/ciclo')} hitSlop={8}>
-            <Row gap={8}>
-              <Txt v="micro" c={c.tx3}>Dia {brief.cyc.dayIn} de {brief.cyc.total}</Txt>
-              <CycleDots dayIn={brief.cyc.dayIn} total={brief.cyc.total} />
-            </Row>
-          </Pressable>
-        </Row>
-        <Txt v="title" style={{ marginTop: 8, fontSize: 17.5, lineHeight: 23 }}>{brief.head}</Txt>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 18 }}>
-          {brief.body}  <Txt v="caption" c={c.accent} onPress={() => router.push(`/companion?q=${encodeURIComponent(brief.q)}` as any)}>Entender melhor</Txt>
-        </Txt>
-      </View>
-
-      {/* check-in — a ação do dia; rostinhos abrem o bottom sheet */}
-      {!ci ? (
-        <Card style={{ marginTop: 18 }}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <View style={{ flex: 1 }}>
-              <Txt v="h2">Como você está agora?</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>Toque pra registrar — leva menos de 20 segundos.</Txt>
-            </View>
-            {stk > 0 && <Pill icon="flame" label={`${stk} dias`} color={c.amber} bg={c.amberBg} />}
-          </Row>
-          <Row gap={10} style={{ marginTop: 14 }}>
-            {(['mood', 'meh', 'frown'] as const).map((f) => (
-              <Pressable key={f} onPress={go('/checkin')} style={({ pressed }) => [{ flex: 1, transform: [{ scale: pressed ? 0.94 : 1 }] }]}>
-                <View style={{ height: 54, borderRadius: radius.md, backgroundColor: c.bg2, borderWidth: 1, borderColor: c.line, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={f} size={26} color={f === 'mood' ? c.accent : f === 'meh' ? c.amber : c.cta} sw={1.7} />
-                </View>
-              </Pressable>
-            ))}
-          </Row>
-        </Card>
-      ) : (
-        <Surface style={{ marginTop: 14 }}>
-          <Row style={{ paddingVertical: 13 }}>
-            <View style={{ width: 32 }}><Icon name="check" size={20} color={c.accent} sw={2.2} /></View>
-            <View style={{ flex: 1 }}>
-              <Txt v="title">Check-in de hoje feito</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>Energia {ci.energia} · Fome {ci.fome} · Enjoo {ci.nausea}</Txt>
-            </View>
-            <AskCompanion q="Quando tenho mais energia?" label="O que isso significa?" />
-          </Row>
-        </Surface>
-      )}
-
-      {/* hoje — inbox do tratamento */}
-      {tasks.length > 0 && (
-        <View style={{ marginTop: 26 }}>
-          <SectionTitle>Hoje</SectionTitle>
-          <View>
-            {tasks.map((t, i) => (
-              <View key={t.text}>
-                {i > 0 && <Divider style={{ marginLeft: 32 }} />}
-                <ListRow ic={t.ic} title={t.text} sub={t.sub} onPress={go(t.to)} warn={t.warn}
-                  color={t.ic === 'water' ? c.water : t.ic === 'pill' ? c.amber : t.ic === 'doc' ? c.accent2 : undefined} />
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-
-      {/* seu acompanhamento — feed contextual, clínica ou Companion */}
-      <View style={{ marginTop: 26 }}>
-        <SectionTitle right={
-          <Row gap={5}>
-            <Icon name={linked ? 'steth' : 'aura'} size={13} color={c.tx3} sw={1.9} />
-            <Txt v="micro" c={c.tx3}>{linked ? S.profile.clinic : 'Companion'}</Txt>
-          </Row>
-        }>Seu acompanhamento</SectionTitle>
-
-        <Surface>
-          {linked ? (
-            <>
-              {lastDocMsg && (
-                <>
-                  <ListRow ic="steth" color={c.purple} title={`${S.profile.doctor.split(' ').slice(0, 2).join(' ')} respondeu sua última mensagem.`} sub={lastDocMsg.text} meta={relDay(new Date(lastDocMsg.t))} onPress={go('/medico')} />
-                  <Divider style={{ marginLeft: 32 }} />
-                </>
-              )}
-              <ListRow ic="cal" title={`Consulta ${relDay(new Date(S.consult.t))}.`} sub={`${S.consult.type} · ${S.consult.doctor}`} onPress={go('/consultas')} />
-              <Divider style={{ marginLeft: 32 }} />
-              <ListRow ic="doc" color={c.accent2} title="Seu resumo para a consulta está pronto." sub="Peso, adesão, sintomas e perguntas sugeridas" onPress={go('/resumo-medico')} />
-              {examTask && (
-                <>
-                  <Divider style={{ marginLeft: 32 }} />
-                  <ListRow ic="drop2" color={c.amber} title="Exame solicitado para esta semana." sub={examTask.t} onPress={go('/protocolos')} />
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <Row style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-                <View style={{ width: 32, paddingTop: 1 }}><Icon name="aura" size={20} color={c.accent} sw={1.8} /></View>
-                <Txt v="bodyMed" style={{ flex: 1, lineHeight: 21 }}>{brief.head} {brief.body}</Txt>
-              </Row>
-              <Divider style={{ marginLeft: 32 }} />
-              <View style={{ paddingVertical: 13, paddingLeft: 32 }}>
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>PERGUNTAS SUGERIDAS</Txt>
-                <View style={{ marginTop: 10, gap: 8, alignItems: 'flex-start' }}>
-                  <AskCompanion q="Por que minha fome voltou?" label="Por que minha fome voltou?" tone="line" />
-                  <AskCompanion q="Como diminuir o enjoo?" label="Como diminuir o enjoo?" tone="line" />
-                  <AskCompanion q="Posso trocar o local da aplicação?" label="Posso trocar o local da aplicação?" tone="line" />
-                </View>
-              </View>
-              <Divider style={{ marginLeft: 32 }} />
-              <ListRow ic="companion" color={c.tx3} title="Última conversa" sub="Continue de onde parou" onPress={go('/companion')} />
-            </>
-          )}
-        </Surface>
-      </View>
-
-      {/* tratamento — evento futuro, uma linha */}
-      <View style={{ marginTop: 26 }}>
-        <SectionTitle>Tratamento</SectionTitle>
-        <ListRow ic="syringe" title={`Próxima aplicação ${ndWhen}.`} sub={`${siteLabel(nextSite(S))} sugerido · preparo em 3 passos`} onPress={go('/proxima-aplicacao')} />
-      </View>
-
-      {/* protocolo da semana — objetivos */}
-      <View style={{ marginTop: 26 }}>
-        <SectionTitle right={<Txt v="label" c={c.tx3}>{protoDone} de {S.protocol.tasks.length}</Txt>}>Protocolo da semana</SectionTitle>
+        {/* ================= HERO ================= */}
         <View>
-          {protoPending.map((t: any, i: number) => (
-            <View key={t.t}>
-              {i > 0 && <Divider style={{ marginLeft: 32 }} />}
-              <Pressable onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.55 : 1 }]}>
-                <Row style={{ paddingVertical: 13 }}>
-                  <View style={{ width: 32 }}>
-                    <View style={{ width: 20, height: 20, borderRadius: 7, borderWidth: 1.6, borderColor: c.line2 }} />
+          <Image source={AURORA} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
+
+          {/* cabecalho */}
+          <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12, alignItems: 'center' }}>
+            <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+              <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
+                <Txt v="title" c="#FFFFFF">{first[0]}</Txt>
+              </LinearGradient>
+            </Pressable>
+            <View style={{ flex: 1, marginLeft: 16 }}>
+              <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
+              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
+                Dia {diffDays(now(), new Date(S.profile.startT)) + 1} do tratamento • Semana {S.protocol.week}
+              </Txt>
+            </View>
+            <Pressable hitSlop={8} onPress={go('/notificacoes')}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.onHeroLine, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="bell" size={20} color={c.onHero} sw={1.8} />
+              </View>
+              {S.unread > 0 && <View style={{ position: 'absolute', top: 1, right: 1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.lime }} />}
+            </Pressable>
+          </Row>
+
+          {/* carrossel */}
+          <ScrollView
+            ref={heroRef}
+            horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+            onScroll={onHeroScroll} scrollEventThrottle={32}
+            onScrollBeginDrag={() => setHeld(true)}
+            onScrollEndDrag={() => setHeld(false)}
+            style={{ marginTop: 80 }}
+          >
+            {slides.map((s, i) => (
+              <View key={i} style={{ width, paddingHorizontal: PAD }}>
+                <View style={{ maxWidth: 300 }}>
+                  <Txt v="caption" c={c.lime} style={{ letterSpacing: 1 }}>{s.over}</Txt>
+                  <Txt v="display" c={c.onHero} style={{ marginTop: 10 }}>{s.title}</Txt>
+                  <Txt v="body" c={c.onHero} style={{ marginTop: 12 }}>{s.body}</Txt>
+                </View>
+                <Pressable onPress={go(s.to)} style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 16, opacity: pressed ? 0.7 : 1 }]}>
+                  <Row gap={7} style={{ backgroundColor: c.onHeroWeak, borderRadius: radius.xl, paddingHorizontal: 14, paddingVertical: 6 }}>
+                    <Txt v="note" c={c.onHero}>{s.cta}</Txt>
+                    <Icon name="spark" size={13} color={c.lime} sw={2} />
+                  </Row>
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* pontinhos — o ativo é a barra que enche até virar o slide */}
+          <Row gap={4} style={{ paddingHorizontal: PAD, marginTop: 24 }}>
+            {slides.map((_, i) => {
+              const active = i === slide;
+              return (
+                <Pressable key={i} hitSlop={10} onPress={() => { heroRef.current?.scrollTo({ x: i * width, animated: true }); setSlide(i); }}>
+                  <View style={{ width: active ? DOT_W : DOT_IDLE, height: 4, borderRadius: radius.pill, backgroundColor: c.onHeroLine, overflow: 'hidden' }}>
+                    {active && (
+                      <Animated.View
+                        style={{
+                          height: 4, borderRadius: radius.pill, backgroundColor: c.onHero,
+                          width: progress.interpolate({ inputRange: [0, 1], outputRange: [0, DOT_W] }),
+                        }}
+                      />
+                    )}
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="title">{t.t}</Txt>
-                    {!!t.note && <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{t.note}</Txt>}
+                </Pressable>
+              );
+            })}
+          </Row>
+
+          {/* Faixa do check-in — vidro sobre a aurora, cantos de cima
+              arredondados. Os 60 de padding embaixo são os 36px que a
+              folha clara vai cobrir (no Figma a faixa tem 128 de altura
+              e some por baixo do bloco branco). */}
+          <Row style={{
+            marginTop: 40, paddingHorizontal: PAD, paddingTop: 24, paddingBottom: 60,
+            backgroundColor: 'rgba(151,151,151,0.20)',
+            borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+            alignItems: 'center',
+          }}>
+            <Pressable onPress={go('/checkin')} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.96 : 1 }] }]}>
+              <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 24, paddingVertical: 12 }}>
+                <Txt v="body" c={c.limeInk}>Check-in</Txt>
+              </View>
+            </Pressable>
+            <Row style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }} gap={8}>
+              <Txt v="h1" c={c.lime}>{stk}</Txt>
+              <Txt v="body" c={c.onHero} style={{ width: 120 }}>
+                {stk === 1 ? 'dia de check-in' : 'dias de check-in consecutivos'}
+              </Txt>
+            </Row>
+          </Row>
+        </View>
+
+        {/* ================= FOLHA ================= */}
+        {/* Folha clara — sobe 36px por cima da faixa de vidro, que é o
+            que torna o arredondamento visível (senão os cantos revelam
+            o próprio fundo claro e o raio some). */}
+        <View style={{ backgroundColor: c.bg, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -36, paddingTop: 32 }}>
+
+          {/* metas diarias */}
+          <View style={{ paddingHorizontal: PAD }}>
+            <SectionHead title="Suas metas diárias" link="Ir para metas" onPress={go('/metas')} />
+          </View>
+          <ScrollView
+            horizontal showsHorizontalScrollIndicator={false}
+            snapToInterval={GOAL_W + GOAL_GAP} decelerationRate="fast"
+            contentContainerStyle={{ paddingHorizontal: PAD, gap: GOAL_GAP, paddingTop: 16 }}
+          >
+            {targets.map((t) => <GoalCard key={t.key} t={t} onRegister={go('/registrar')} />)}
+          </ScrollView>
+
+          {/* evolucao */}
+          <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
+            <SectionHead title="Sua evolução" link="Ir para evolução" onPress={go('/evolucao')} />
+
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, overflow: 'hidden' }}>
+              <Row style={{ padding: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
+                <View style={{ flex: 1 }}>
+                  <Txt v="body">Peso perdido</Txt>
+                  <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{wc.goalLabel}</Txt>
+                </View>
+                <Txt v="metric">{wc.lostLabel}</Txt>
+              </Row>
+              {wSeries.length > 1 && (
+                <AreaCurve pts={wSeries} height={50} padT={4} padB={0} padX={0} strokeW={2} strokeFrom={c.limeDim} strokeTo={c.limeDim} id="wk" dashed={false} />
+              )}
+            </View>
+
+            <Row gap={4} style={{ marginTop: 4, alignItems: 'stretch' }}>
+              <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+                <Txt v="body">Ingestão de proteína</Txt>
+                <Row style={{ marginTop: 28, alignItems: 'center' }}>
+                  <Txt v="metric">{Math.round(prot7.avg)}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>g/dia</Txt>
+                  <TrendDot up good={prot7.verdict.good} c={c} />
+                </Row>
+                <Txt v="note" c={prot7.verdict.good ? c.tx3 : c.bad} style={{ marginTop: 4 }}>{prot7.verdict.label}</Txt>
+              </View>
+              <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+                <Txt v="body">Gordura corporal</Txt>
+                <Row style={{ marginTop: 28, alignItems: 'center' }}>
+                  <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0).replace('.', ',') : '—'}</Txt>
+                  {bf && <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>%</Txt>}
+                  {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
+                </Row>
+                <Txt v="note" c={bf && !bf.verdict.good ? c.bad : c.tx3} style={{ marginTop: 4 }}>
+                  {bf ? bf.verdict.label : 'sem medida'}
+                </Txt>
+              </View>
+            </Row>
+          </View>
+
+          {/* acompanhamento */}
+          <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
+            <SectionHead title="Seu acompanhamento" link="Ir para área médica" onPress={go('/medico')} />
+
+            {linked ? (
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
+                <Row>
+                  {/* sem foto no perfil — inicial ate existir upload de avatar */}
+                  <View style={{ width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Txt v="h1" c={c.accent}>{S.profile.doctor.replace(/^Dr[a]?\.\s*/, '')[0]}</Txt>
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
+                    <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.6 }}>SUA ESPECIALISTA</Txt>
+                    <Txt v="h2" style={{ marginTop: 3 }}>{S.profile.doctor}</Txt>
+                    <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{S.profile.clinic}</Txt>
                   </View>
                 </Row>
-              </Pressable>
-            </View>
-          ))}
-          <Row style={{ justifyContent: 'space-between', marginTop: 6, paddingLeft: 32 }}>
-            <Pressable onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Row gap={4}><Txt v="label" c={c.accent}>Ver a semana inteira</Txt><Chevron size={15} color={c.accent} /></Row>
-            </Pressable>
-            <AskCompanion q="Como o protocolo ajuda meu tratamento?" label="Como isso ajuda?" tone="line" />
-          </Row>
-        </View>
-      </View>
 
-      {/* contextual — só quando há o que celebrar */}
-      {ach && (
-        <Surface style={{ marginTop: 26, backgroundColor: c.accentWeak, borderColor: c.accentLine }}>
-          <Pressable onPress={go('/conquistas')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <Row style={{ paddingVertical: 13 }}>
-              <View style={{ width: 32 }}><Icon name={ach.ic} size={20} color={c.accent} sw={1.9} /></View>
-              <View style={{ flex: 1 }}>
-                <Txt v="title" c={c.accent}>{ach.title}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 1 }}>{ach.desc} · {relDay(new Date(ach.t))}</Txt>
+                <View style={{ marginTop: 24 }}>
+                  <ListRow ic="companion" title="Mensagens" dot={S.unread > 0}
+                    sub={S.unread > 0 ? `${S.unread} ${S.unread === 1 ? 'nova mensagem' : 'novas mensagens'}` : 'Nenhuma mensagem nova'}
+                    onPress={go('/medico')} />
+                  <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+                  <ListRow ic="cal" title="Próxima consulta"
+                    sub={`${fmtDate(consultD)} • ${DOW_PT[consultD.getDay()]}`}
+                    onPress={go('/consultas')} />
+                  <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+                  <ListRow ic="doc" title="Solicitar nova receita" sub="Renove seu tratamento" onPress={go('/medico')} />
+                </View>
               </View>
-              <Chevron />
-            </Row>
-          </Pressable>
-        </Surface>
-      )}
-    </Screen>
+            ) : (
+              /* sem clinica vinculada — o acompanhamento vira convite */
+              <Card style={{ marginTop: 16 }} onPress={go('/medico')}>
+                <Txt v="title">Você ainda não tem uma equipe no Forma</Txt>
+                <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
+                  Encontre um especialista credenciado para acompanhar seu tratamento de perto.
+                </Txt>
+                <Row gap={6} style={{ marginTop: 14 }}>
+                  <Txt v="label" c={c.accent2}>Conhecer especialistas</Txt>
+                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                </Row>
+              </Card>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
