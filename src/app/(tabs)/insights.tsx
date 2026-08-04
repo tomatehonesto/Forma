@@ -1,139 +1,253 @@
-import React from 'react';
-import { View, Pressable } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
-import { insights, hungerForecast, adesao, radar, checkins30, streak, hasClinic, GOAL_WATER } from '../../logic/derive';
-import { daysAgo, nf, kg } from '../../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, Chevron, Pill, Rich } from '../../ui/kit';
+import {
+  patterns, recommendations, PAT_LABEL, radar, checkins30, adesao,
+  hasClinic, journeySummary, type PatKey,
+} from '../../logic/derive';
+import { daysAgo, nf } from '../../logic/time';
+import { Txt, Row, SectionHead, ListRow, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
-import { AskCompanion } from '../../ui/Ask';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
+import { useLightStatusBar } from '../../ui/useLightStatusBar';
+import { radius } from '../../theme';
 
-/* Descobertas — não é um dashboard. É o que o Forma aprendeu sobre o seu corpo,
-   contado em linguagem humana. Cada descoberta se aprofunda pelo Companion. */
-export default function Descobertas() {
+/* ============================================================
+   INSIGHTS — a camada de interpretação.
+
+   A Home responde "como estou hoje", a Jornada "por onde passei". Esta
+   tela responde "o que isso quer dizer": o que o app entendeu dos
+   registros e o que fazer com isso.
+
+   Cada padrão termina numa pergunta ao Companion, porque descoberta sem
+   caminho de aprofundamento é curiosidade, não ajuda. E nenhum texto aqui
+   decide dose ou protocolo — isso é da equipe médica.
+   ============================================================ */
+
+const PAD = 24;
+
+export default function Insights() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  useLightStatusBar();
 
-  const ins = insights(S);
-  const hf = hungerForecast(S);
-  const ade = adesao(S);
+  const go = (to: string) => () => router.push(to as any);
+  const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
 
-  // replay da semana — números reais dos últimos 7 dias
-  const wk = S.weights.filter((x: any) => x.t >= +daysAgo(7));
-  const wkDelta = wk.length >= 2 ? wk[wk.length - 1].kg - wk[0].kg : 0;
+  const [filtro, setFiltro] = useState<PatKey | null>(null);
+  const pads = useMemo(() => patterns(S), [S]);
+  const recos = useMemo(() => recommendations(S), [S]);
+  const r = journeySummary(S);
+  const cor = (k: string) => (c as any)[k] as string;
+
+  const destaque = pads[0];
+  const restantes = pads.slice(1);
+  const visiveis = filtro ? restantes.filter((p) => p.key === filtro) : restantes;
+
+  /* só categorias que de fato têm padrão — chip vazio é promessa quebrada */
+  const cats = (Object.keys(PAT_LABEL) as PatKey[]).filter((k) => restantes.some((p) => p.key === k));
+
+  const hoje = recos.filter((x) => x.quando === 'hoje');
+  const semana = recos.filter((x) => x.quando === 'semana');
+
+  const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
+  const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
   const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7)).length;
 
-  type Disc = { ic: string; color: string; bg: string; tag: string; text: string; q: string; cta: string };
-  const feed: Disc[] = [];
-  feed.push({ ic: 'moon', color: c.purple, bg: c.purpleBg, tag: 'Sono e fome', text: 'Nas noites em que você dorme <b>7h ou mais</b>, sua fome e seus registros de náusea no dia seguinte são menores.', q: 'O que registrar antes de dormir?', cta: 'Explicar esse padrão' });
-  if (hf) feed.push({ ic: 'waves', color: c.accent, bg: c.accentWeak, tag: 'Ciclo da medicação', text: `Sua fome tende a voltar <b>${hf.inDays <= 0 ? 'nestes dias' : `em ${hf.inDays} dias`}</b>, quando o nível da medicação chega ao ponto mais baixo antes da próxima dose.`, q: 'Por que sinto mais fome?', cta: 'Entender melhor' });
-  const water = ins.find((i) => i.ic === 'water');
-  if (water) feed.push({ ic: 'water', color: c.water, bg: c.waterBg, tag: 'Hidratação', text: water.text, q: 'Como está minha água?', cta: 'Entender melhor' });
-  feed.push({ ic: 'bolt', color: c.amber, bg: c.amberBg, tag: 'Energia', text: 'Sua energia costuma <b>subir nos dias de pico de efeito</b> da medicação, um a dois dias após a aplicação.', q: 'Quando tenho mais energia?', cta: 'O que isso significa?' });
-  const prot = ins.find((i) => i.ic === 'flame');
-  if (prot) feed.push({ ic: 'flame', color: c.accent, bg: c.accentWeak, tag: 'Proteína', text: prot.text, q: 'Como está minha proteína?', cta: 'Entender melhor' });
-
   return (
-    <Screen>
-      <View style={{ marginTop: 8 }}>
-        <Txt v="display">Descobertas</Txt>
-        <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 6 }}>O que o Forma aprendeu sobre o seu corpo.</Txt>
-      </View>
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
 
-      {/* descoberta principal */}
-      <Card tint={c.accentWeak} style={{ marginTop: 18, overflow: 'hidden' }}>
-        <View style={{ position: 'absolute', right: -10, top: 10, opacity: 0.16 }}><Icon name="heart" size={140} color={c.accent} sw={1.2} /></View>
-        <Row gap={7}><Icon name="spark" size={16} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>DESCOBERTA DA SEMANA</Txt></Row>
-        <Txt v="h1" style={{ marginTop: 12, fontSize: 23, lineHeight: 30, maxWidth: '86%' }}>
-          Dormir mais de <Txt v="h1" c={c.accent} style={{ fontSize: 23, lineHeight: 30 }}>7 horas</Txt> costuma reduzir sua <Txt v="h1" c={c.accent2} style={{ fontSize: 23, lineHeight: 30 }}>fome</Txt> no dia seguinte.
-        </Txt>
-        <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 10, maxWidth: '88%' }}>Seu corpo responde ao conjunto — sono, proteína e ritmo da medicação andam juntos.</Txt>
-        <AskCompanion q="O que registrar antes de dormir?" label="Explicar esse padrão" style={{ marginTop: 14 }} />
-      </Card>
+        {/* ---- descoberta da semana: o único bloco escuro, sangrado ---- */}
+        <View style={{
+          marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 26,
+          borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden',
+        }}>
+          <LinearGradient
+            colors={[c.panelFrom, c.panelMid, c.panelTo]}
+            start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
 
-      {/* replay da semana */}
-      <Card style={{ marginTop: 14 }}>
-        <Row gap={7}><Icon name="play" size={15} color={c.accent2} sw={2} /><Txt v="micro" c={c.accent2} style={{ letterSpacing: 1 }}>REPLAY DA SEMANA</Txt></Row>
-        <Row style={{ marginTop: 12 }}>
-          {[[`${wkDelta <= 0 ? '−' : '+'}${kg(Math.abs(wkDelta))} kg`, 'na semana', wkDelta <= 0 ? c.accent : c.tx], [`${ci7}`, 'check-ins', c.tx], [`${ade}%`, 'adesão às doses', c.tx]].map(([v, l, col], i) => (
-            <View key={l as string} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.line }}>
-              <Txt v="h2" c={col as string}>{v as string}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 2, textAlign: 'center' }}>{l as string}</Txt>
-            </View>
-          ))}
-        </Row>
-        <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 12 }}>Uma semana constante — o ritmo certo é o que se sustenta.</Txt>
-        <Row style={{ marginTop: 10, justifyContent: 'space-between' }}>
-          <AskCompanion q="Como está minha evolução?" label="Resumir minha semana" />
-          <Pressable onPress={() => router.push('/evolucao' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, paddingVertical: 9 }]}>
-            <Row gap={4}><Txt v="label" c={c.tx3}>Ver evolução</Txt><Chevron size={15} /></Row>
-          </Pressable>
-        </Row>
-      </Card>
+          {destaque ? (
+            <>
+              <Txt v="display" c={c.onHero} style={{ marginTop: 14 }}>{destaque.titulo}</Txt>
+              <Txt v="body" c={c.onHero2} style={{ marginTop: 12 }}>{destaque.texto}</Txt>
+              <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 18, opacity: pressed ? 0.75 : 1 }]}>
+                <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 10 }}>
+                  <Icon name="spark" size={15} color={c.limeInk} sw={2} />
+                  <Txt v="label" c={c.limeInk}>Entender melhor</Txt>
+                </Row>
+              </Pressable>
+            </>
+          ) : (
+            <Txt v="body" c={c.onHero} style={{ marginTop: 14 }}>
+              Ainda não há registros suficientes para encontrar padrões.
+            </Txt>
+          )}
 
-      {/* feed de padrões */}
-      <Txt v="h2" style={{ marginTop: 22, marginBottom: 4 }}>Padrões encontrados</Txt>
-      {feed.map((d, i) => (
-        <Card key={i} style={{ marginTop: 12 }}>
-          <Row style={{ alignItems: 'flex-start' }}>
-            <IconBadge name={d.ic} size={42} color={d.color} bg={d.bg} />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>{d.tag.toUpperCase()}</Txt>
-              <Rich v="bodyMed" base={c.tx} bold={d.color} style={{ marginTop: 4, lineHeight: 21 }} text={d.text} />
-            </View>
+          <Row style={{ marginTop: 28, paddingBottom: 24 }}>
+            {[
+              [`${dSem <= 0 ? '−' : '+'}${nf(Math.abs(dSem), 1).replace('.', ',')} kg`, 'na semana'],
+              [`${ci7}`, ci7 === 1 ? 'check-in' : 'check-ins'],
+              [`${adesao(S)}%`, 'adesão'],
+            ].map(([v, l]) => (
+              <View key={l} style={{ flex: 1 }}>
+                <Txt v="h2" c={c.onHero}>{v}</Txt>
+                <Txt v="micro" c={c.onHero2} style={{ marginTop: 3 }}>{l}</Txt>
+              </View>
+            ))}
           </Row>
-          <AskCompanion q={d.q} label={d.cta} style={{ marginTop: 12, marginLeft: 54 }} />
-        </Card>
-      ))}
+        </View>
 
-      {/* aderência */}
-      <Card style={{ marginTop: 12 }}>
-        <Row>
-          <IconBadge name="syringe" size={42} />
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Txt v="title">{ade}% das aplicações em dia</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Constância é o que faz a medicação trabalhar a seu favor.</Txt>
+        {/* ---- recomendações ---- */}
+        {(hoje.length > 0 || semana.length > 0) && (
+          <View style={{ marginTop: 34 }}>
+            <SectionHead title="O que fazer com isso" />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+              Sai dos seus registros e da fase do ciclo — nunca de dose ou protocolo.
+            </Txt>
+
+            {hoje.length > 0 && (
+              <>
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 18, marginBottom: 10 }}>HOJE</Txt>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+                  {hoje.map((x, i) => (
+                    <React.Fragment key={x.texto}>
+                      {i > 0 && <Divider />}
+                      <ListRow ic={x.ic} title={x.texto} onPress={go(x.to)} />
+                    </React.Fragment>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {semana.length > 0 && (
+              <>
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>PRÓXIMA SEMANA</Txt>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+                  {semana.map((x, i) => (
+                    <React.Fragment key={x.texto}>
+                      {i > 0 && <Divider />}
+                      <ListRow ic={x.ic} title={x.texto} onPress={go(x.to)} />
+                    </React.Fragment>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
-          <Pill label={`${streak(S)} dias seguidos`} />
-        </Row>
-      </Card>
+        )}
 
-      {/* equilíbrio → sintomas & radar */}
-      <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Seu equilíbrio</Txt>
-      <Card style={{ alignItems: 'center' }} onPress={() => router.push('/sintomas' as any)}>
-        <Radar data={radar(S)} size={228} />
-        <Row style={{ justifyContent: 'space-between', alignSelf: 'stretch', marginTop: 4 }}>
-          <Txt v="caption" c={c.tx3}>Últimos 3 dias de check-in · {checkins30(S)} registros no mês</Txt>
-          <Chevron size={16} />
-        </Row>
-      </Card>
+        {/* ---- padrões encontrados ---- */}
+        {restantes.length > 0 && (
+          <View style={{ marginTop: 36 }}>
+            <SectionHead title="Padrões encontrados" />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+              {restantes.length} no que você registrou até agora.
+            </Txt>
 
-      {/* levar à consulta + conteúdo */}
-      <View style={{ marginTop: 14, gap: 12 }}>
-        <Card onPress={() => router.push('/resumo-medico' as any)}>
-          <Row>
-            <IconBadge name="doc" size={42} />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Txt v="title">Leve suas descobertas à consulta</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{hasClinic(S) ? 'Resumo pronto pra enviar à sua equipe' : 'Resumo do tratamento, pronto pra compartilhar'}</Txt>
-            </View>
-            <Chevron />
-          </Row>
-        </Card>
-        <Card onPress={() => router.push('/biblioteca' as any)}>
-          <Row>
-            <IconBadge name="book" size={42} color={c.accent2} bg={c.waterBg} />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Txt v="title">Pra ler agora</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Conteúdo escolhido pro seu momento do tratamento</Txt>
-            </View>
-            <Chevron />
-          </Row>
-        </Card>
-      </View>
-    </Screen>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 14, marginHorizontal: -PAD }}
+              contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
+              <Pressable onPress={() => setFiltro(null)}>
+                <Row gap={6} style={{ backgroundColor: filtro === null ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                  <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>Tudo</Txt>
+                  <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{restantes.length}</Txt>
+                </Row>
+              </Pressable>
+              {cats.map((k) => {
+                const on = filtro === k;
+                const n = restantes.filter((p) => p.key === k).length;
+                return (
+                  <Pressable key={k} onPress={() => setFiltro(on ? null : k)}>
+                    <Row gap={6} style={{ backgroundColor: on ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                      <Txt v="label" c={on ? c.onHero : c.tx2}>{PAT_LABEL[k]}</Txt>
+                      <Txt v="micro" c={on ? c.lime : c.tx4}>{n}</Txt>
+                    </Row>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            {visiveis.map((p) => (
+              <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
+                  <Row gap={9}>
+                    <Icon name={p.ic} size={15} color={cor(p.cor)} sw={2} />
+                    <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>{p.cat.toUpperCase()}</Txt>
+                  </Row>
+                  <Txt v="title" style={{ marginTop: 10 }}>{p.titulo}</Txt>
+                  <Txt v="note" c={c.tx2} style={{ marginTop: 6 }}>{p.texto}</Txt>
+                  <Row gap={6} style={{ marginTop: 14 }}>
+                    <Txt v="label" c={c.accent2}>Entender melhor</Txt>
+                    <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                  </Row>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        {/* ---- equilíbrio ---- */}
+        <View style={{ marginTop: 36 }}>
+          <SectionHead title="Seu equilíbrio" link="Sintomas" onPress={go('/sintomas')} />
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingVertical: 18, alignItems: 'center' }}>
+            <Radar data={radar(S)} size={Math.min(250, width - 100)} />
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 6 }}>
+              Últimos 3 check-ins · {checkins30(S)} registros no mês
+            </Txt>
+          </View>
+        </View>
+
+        {/* ---- resumos ---- */}
+        <View style={{ marginTop: 36 }}>
+          <SectionHead title="Resumos" />
+          <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+            Seus dados organizados para levar a alguém.
+          </Txt>
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16 }}>
+            <ListRow ic="chart" title="Resumo da semana"
+              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`}
+              onPress={perguntar('Como está minha evolução?')} />
+            <Divider />
+            <ListRow ic="cal" title="Resumo para a consulta"
+              sub={hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
+              onPress={perguntar('Prepare minha consulta')} />
+            <Divider />
+            <ListRow ic="doc" title="Resumo para o médico"
+              sub="documento com a evolução completa" onPress={go('/resumo-medico')} />
+          </View>
+        </View>
+
+        {/* ---- companion e biblioteca ---- */}
+        <View style={{ marginTop: 36 }}>
+          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
+            <Row gap={14} style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
+              <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="companion" size={20} color={c.accent} sw={1.9} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="title" c={c.accent}>Conversar com o Companion</Txt>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>Pergunte qualquer coisa sobre sua jornada</Txt>
+              </View>
+              <Icon name="chev" size={17} color={c.accent} sw={2.2} />
+            </Row>
+          </Pressable>
+
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 7, paddingHorizontal: 16 }}>
+            <ListRow ic="book" title="Biblioteca"
+              sub="conteúdo escolhido para o seu momento do tratamento" onPress={go('/biblioteca')} />
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
