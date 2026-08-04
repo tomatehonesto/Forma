@@ -238,18 +238,21 @@ export function examExplain(e: any) {
 }
 
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */
-export type Phase = { key: string; label: string; ic: string; range: string };
+/* Cada fase carrega uma explicação em português comum. O nome sozinho
+   ("Início do retorno da fome") é diagnóstico sem contexto — numa tela de
+   tratamento isso assusta em vez de orientar. */
+export type Phase = { key: string; label: string; ic: string; range: string; hint: string };
 export function doseCycle(S: State) {
   const li = lastInjection(S);
   const total = CADENCE_DAYS(S.profile.med);
   const injDate = li ? startOfDay(new Date(li.t)) : startOfDay(now());
   const dayIn = Math.max(1, Math.min(total, diffDays(now(), injDate) + 1));
   const phases: Phase[] = [
-    { key: 'aplic', label: 'Aplicação', ic: 'syringe', range: 'Dia 1' },
-    { key: 'pico', label: 'Pico de efeito', ic: 'rocket', range: 'Dias 1–2' },
-    { key: 'estab', label: 'Estabilidade', ic: 'shield', range: 'Dias 3–4' },
-    { key: 'retorno', label: 'Início do retorno da fome', ic: 'waves', range: 'Dias 5–6' },
-    { key: 'pre', label: 'Pré-aplicação', ic: 'target', range: `Dias 7+` },
+    { key: 'aplic', label: 'Aplicação', ic: 'syringe', range: 'Dia 1', hint: 'O efeito começa a subir nas próximas horas.' },
+    { key: 'pico', label: 'Pico de efeito', ic: 'rocket', range: 'Dias 1–2', hint: 'Remédio no ponto mais alto — a fome fica menor.' },
+    { key: 'estab', label: 'Estabilidade', ic: 'shield', range: 'Dias 3–4', hint: 'Efeito constante, sem grandes oscilações.' },
+    { key: 'retorno', label: 'Início do retorno da fome', ic: 'waves', range: 'Dias 5–6', hint: 'O remédio começa a cair, e a fome tende a voltar.' },
+    { key: 'pre', label: 'Pré-aplicação', ic: 'target', range: `Dias 7+`, hint: 'Ponto mais baixo do ciclo, até a próxima dose.' },
   ];
   const idx = dayIn >= 7 ? 4 : dayIn >= 5 ? 3 : dayIn >= 3 ? 2 : dayIn >= 2 ? 1 : 0;
   return { dayIn, total, phases, idx, phase: phases[idx], nextDose: nextInjectionDate(S) };
@@ -694,8 +697,12 @@ export function journeySummary(S: State) {
     dia: journeyDay(S), semana: S.protocol.week,
     lost, lostLabel: nf(lost, 1).replace('.', ','),
     goal, pct: Math.round((lost / goal) * 100),
+    faltamLabel: nf(Math.max(0, goal - lost), 1).replace('.', ','),
     aplicacoes: S.injections.length,
     proximaEmDias: diffDays(nextInjectionDate(S), now()),
+    /* ritmo semanal — diz mais que "71 dias de tratamento", que é trivia */
+    ritmo, ritmoLabel: nf(ritmo, 1).replace('.', ','),
+    adesao: adesao(S), streak: streak(S),
     verdict,
   };
 }

@@ -14,14 +14,18 @@ function smooth(P: Pt[]) {
 
 /* Curva de área suave. pts em coords normalizadas (x,y ∈ 0..1, y=1 no topo). */
 export function AreaCurve({
-  pts, height = 150, marker, dashed = true, strokeFrom, strokeTo,
+  pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
 }: {
-  pts: Pt[]; height?: number; marker?: number | null; dashed?: boolean;
+  pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
+  marker?: number | null; dashed?: boolean;
   strokeFrom?: string; strokeTo?: string; padT?: number; padB?: number; padX?: number; strokeW?: number; id?: string; nodes?: boolean;
 }) {
   const { c } = useTheme();
-  const [w, setW] = useState(0);
+  const [medida, setW] = useState(0);
+  /* Quem já sabe a largura passa direto: o gráfico aparece no primeiro
+     quadro em vez de piscar vazio esperando a medição. */
+  const w = width ?? medida;
   const sf = strokeFrom ?? c.gradFrom, st = strokeTo ?? c.gradTo;
   const PX = pts.map((p) => ({ x: padX + p.x * (w - padX * 2), y: padT + (1 - p.y) * (height - padT - padB) }));
   const line = w ? smooth(PX) : '';
