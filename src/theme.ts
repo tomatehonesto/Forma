@@ -165,7 +165,7 @@ export const font = {
    A régua ficou: 12 · 14 · 15 · 17 · 19 · 20 · 30 · 32 · 36 */
 export const ty = {
   /** manchete do hero — o peso leve é intencional */
-  display: { fontFamily: font.light, fontSize: 36, lineHeight: 41 },
+  display: { fontFamily: font.light, fontSize: 32, lineHeight: 38 },
   /** número grande em destaque (streak) */
   h1: { fontFamily: font.display, fontSize: 32, lineHeight: 40 },
   /** título de seção — "Suas metas diárias" */

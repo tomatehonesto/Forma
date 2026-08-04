@@ -99,7 +99,7 @@ function Painel() {
           As barrinhas são os dias entre uma aplicação e a próxima. Sem o
           "dia X de Y" e sem a explicação da fase, elas não dizem nada. */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <View style={{ marginTop: 32 }}>
+        <View style={{ marginTop: 46, paddingBottom: 26 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
               CICLO DA DOSE · DIA {cyc.dayIn} DE {cyc.total}
@@ -118,23 +118,6 @@ function Painel() {
         </View>
       </Pressable>
 
-      {/* ---- constância ----
-          Antes eram 71 dias / 10 aplicações / 13 check-ins: trivia que não
-          muda decisão nenhuma. Agora são os três números que dizem se o
-          tratamento está indo bem. Sem divisores — o agrupamento vem do
-          respiro. */}
-      <Row style={{ marginTop: 32, paddingBottom: 24 }}>
-        {[
-          [`${r.ritmoLabel} kg`, 'por semana'],
-          [`${r.adesao}%`, 'das doses em dia'],
-          [`${r.streak}`, r.streak === 1 ? 'dia de check-in' : 'dias seguidos'],
-        ].map(([v, l]) => (
-          <View key={l} style={{ flex: 1, paddingRight: 8 }}>
-            <Metric value={v} v="h2" tone={c.onHero} dim={c.onHero2} />
-            <Txt v="micro" c={c.onHero2} style={{ marginTop: 3 }}>{l}</Txt>
-          </View>
-        ))}
-      </Row>
     </View>
   );
 }
@@ -174,91 +157,101 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
   const { c } = useTheme();
   const perdeu = w.deltaPeso?.startsWith('−');
 
-  /* Ao abrir, a semana mostra o que os NÚMEROS daquele ciclo dizem —
+  /* Aberta, a semana mostra o que os NÚMEROS daquele ciclo dizem —
      hidratação, proteína, exercício, peso — cada um comparado com a semana
-     anterior, mais os acontecimentos que marcaram (conquistas, consultas,
-     exames, fotos). Registro a registro fica em /historico.
+     anterior, mais os acontecimentos que marcaram. Registro a registro
+     fica em /historico.
 
-     Com um tipo escolhido nos chips, a mesma view se estreita: só os
-     eventos daquele tipo, semana a semana. */
+     Com um tipo escolhido nos chips a semana não vira accordion: os
+     registros daquele tipo aparecem direto, porque são poucos e é isso
+     que a pessoa foi buscar. */
   const conquistas = filtro ? [] : milestones(S).filter((m) => m.t >= w.t && m.t < proxT);
   const notaveis = (w.eventos as TLEvent[]).filter((e) => filtro ? e.kind === filtro : NOTAVEIS.includes(e.kind));
   const metricas: WeekMetric[] = filtro ? [] : w.metricas;
   const cor = (k: string) => (c as any)[k] as string;
+  const expandido = filtro ? true : aberto;
 
-  return (
-    <Pressable onPress={onToggle} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-      <View style={{ paddingVertical: 16 }}>
-        <Row style={{ alignItems: 'center' }}>
-          <Txt v="bodyMed" style={{ marginRight: 8 }}>Semana {w.semana}</Txt>
-          {w.mudouDose && (
-            <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginRight: 6 }}>
-              <Txt v="micro" c={c.accent}>dose ajustada</Txt>
-            </View>
-          )}
-          <View style={{ flex: 1 }} />
-          {w.deltaPeso && (
-            <View style={{ backgroundColor: perdeu ? c.limeWeak : c.bg2, paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill }}>
-              <Txt v="micro" c={perdeu ? c.limeInk : c.tx3}>{w.deltaPeso}</Txt>
-            </View>
-          )}
+  const Cabecalho = (
+    <>
+      <Row style={{ alignItems: 'center' }}>
+        <Txt v="bodyMed" style={{ marginRight: 8 }}>Semana {w.semana}</Txt>
+        {!filtro && w.mudouDose && (
+          <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginRight: 6 }}>
+            <Txt v="micro" c={c.accent}>dose ajustada</Txt>
+          </View>
+        )}
+        <View style={{ flex: 1 }} />
+        {!filtro && w.deltaPeso && (
+          <View style={{ backgroundColor: perdeu ? c.limeWeak : c.bg2, paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill }}>
+            <Txt v="micro" c={perdeu ? c.limeInk : c.tx3}>{w.deltaPeso}</Txt>
+          </View>
+        )}
+        {!filtro && (
           <View style={{ marginLeft: 10 }}>
             <Icon name={aberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
           </View>
-        </Row>
-
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 5 }}>{w.dose} · {w.site}</Txt>
-        <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>
-
-        {aberto && (
-          <View style={{ marginTop: 16 }}>
-            {/* números do ciclo, cada um comparado com a semana anterior */}
-            {metricas.length > 0 && (
-              <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                {metricas.map((m) => (
-                  <View key={m.label} style={{ width: '48.5%', backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
-                    <Row gap={7}>
-                      <Icon name={m.ic} size={14} color={c.tx3} sw={1.9} />
-                      <Txt v="micro" c={c.tx3}>{m.label}</Txt>
-                    </Row>
-                    <Row gap={6} style={{ marginTop: 7, alignItems: 'baseline' }}>
-                      <Metric value={m.valor} v="bodyMed" />
-                      {m.delta && (
-                        <Txt v="micro" c={m.good ? c.limeInk : c.tx3}>{m.delta}</Txt>
-                      )}
-                    </Row>
-                  </View>
-                ))}
-              </Row>
-            )}
-
-            {conquistas.map((m) => (
-              <Row key={`${m.t}-${m.title}`} gap={10} style={{ backgroundColor: c.limeWeak, borderRadius: radius.md, padding: 12, marginTop: 6 }}>
-                <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
-                <View style={{ flex: 1 }}>
-                  <Txt v="caption" c={c.tx}>{m.title}</Txt>
-                  <Txt v="micro" c={c.tx2} style={{ marginTop: 1 }} numberOfLines={1}>{m.sub}</Txt>
-                </View>
-              </Row>
-            ))}
-            {notaveis.map((ev) => (
-              <Row key={ev.key} gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginTop: 6 }}>
-                <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
-                <View style={{ flex: 1 }}>
-                  <Txt v="caption" c={c.tx}>{ev.title}</Txt>
-                  <Txt v="micro" c={c.tx2} style={{ marginTop: 1 }} numberOfLines={1}>{ev.sub}</Txt>
-                </View>
-              </Row>
-            ))}
-            {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
-              <Txt v="caption" c={c.tx4}>Sem registros nesta semana.</Txt>
-            )}
-          </View>
         )}
+      </Row>
+      <Txt v="caption" c={c.tx3} style={{ marginTop: 5 }}>
+        {filtro ? fmtDate(new Date(w.t)) : `${w.dose} · ${w.site}`}
+      </Txt>
+      {!filtro && <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>}
+    </>
+  );
+
+  /* Sem caixas dentro de caixa: o conteúdo aberto respira no próprio card
+     da lista, separado por espaço e por um filete à esquerda. */
+  const Corpo = (
+    <View style={{ marginTop: 14 }}>
+      {metricas.length > 0 && (
+        <Row style={{ flexWrap: 'wrap' }}>
+          {metricas.map((m) => (
+            <View key={m.label} style={{ width: '50%', paddingRight: 12, marginBottom: 14 }}>
+              <Row gap={7}>
+                <Icon name={m.ic} size={14} color={c.tx4} sw={1.9} />
+                <Txt v="micro" c={c.tx3}>{m.label}</Txt>
+              </Row>
+              <Row gap={6} style={{ marginTop: 5, alignItems: 'baseline' }}>
+                <Metric value={m.valor} v="bodyMed" />
+                {m.delta && <Txt v="micro" c={m.good ? c.tx2 : c.tx4}>{m.delta}</Txt>}
+              </Row>
+            </View>
+          ))}
+        </Row>
+      )}
+
+      {[...conquistas.map((m) => ({ k: `m-${m.t}-${m.title}`, ic: m.ic, cor: c.lime, titulo: m.title, sub: m.sub })),
+        ...notaveis.map((ev) => ({ k: ev.key, ic: ev.ic, cor: cor(ev.color), titulo: ev.title, sub: ev.sub }))
+      ].map((it) => (
+        <Row key={it.k} gap={12} style={{ alignItems: 'flex-start', marginTop: 12 }}>
+          <View style={{ width: 3, alignSelf: 'stretch', borderRadius: 2, backgroundColor: it.cor }} />
+          <Icon name={it.ic} size={15} color={c.tx3} sw={1.9} />
+          <View style={{ flex: 1 }}>
+            <Txt v="caption" c={c.tx}>{it.titulo}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{it.sub}</Txt>
+          </View>
+        </Row>
+      ))}
+
+      {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
+        <Txt v="caption" c={c.tx4}>Sem registros nesta semana.</Txt>
+      )}
+    </View>
+  );
+
+  if (filtro) {
+    return <View style={{ paddingVertical: 16 }}>{Cabecalho}{Corpo}</View>;
+  }
+  return (
+    <Pressable onPress={onToggle} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+      <View style={{ paddingVertical: 16 }}>
+        {Cabecalho}
+        {expandido && Corpo}
       </View>
     </Pressable>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 export default function Jornada() {
