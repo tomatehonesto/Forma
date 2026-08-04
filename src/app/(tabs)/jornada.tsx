@@ -11,7 +11,7 @@ import {
   waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, Metric } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
@@ -71,7 +71,9 @@ function Painel() {
       <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
 
       <Row style={{ alignItems: 'flex-end', marginTop: 12 }}>
-        <Metric value={`−${r.lostLabel}`} unit="kg" v="display" tone={c.onHero} dim={c.onHero2} />
+        {/* número inteiro em branco puro — é o destaque da tela, e recuar a
+            fração aqui só enfraquecia o que mais importa */}
+        <Metric value={`−${r.lostLabel}`} unit="kg" v="display" tone={c.onHero} dim={c.onHero} />
         <View style={{ flex: 1 }} />
         <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
           <Txt v="micro" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
@@ -307,22 +309,23 @@ export default function Jornada() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
         <Painel />
 
-        <Txt v="note" c={c.tx3} style={{ marginTop: 16 }}>
-          Perder peso não é linear — semanas paradas fazem parte do tratamento.
-        </Txt>
-
-        {/* estoque: ação, fica logo abaixo do painel */}
+        {/* Estoque: é lembrete de reposição, não emergência clínica. Em
+            vermelho parecia alarme grave — fica em azul, que é a cor de
+            ação do app. O vermelho continua reservado para o que de fato
+            precisa de atenção imediata. */}
         {!pen.verdict.good && (
           <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <Row gap={12} style={{ backgroundColor: c.ctaWeak, borderRadius: radius.lg, padding: 14, marginTop: 16 }}>
-              <Icon name="pill" size={18} color={c.cta} sw={1.9} />
+            <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 20 }}>
+              <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="pill" size={17} color={c.accent} sw={1.9} />
+              </View>
               <View style={{ flex: 1 }}>
-                <Txt v="body" c={c.cta}>{pen.verdict.label}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 1 }}>
+                <Txt v="body">{pen.verdict.label}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
                   {pen.left} de {pen.total} doses na caneta · cerca de {pen.semanas} {pen.semanas === 1 ? 'semana' : 'semanas'}
                 </Txt>
               </View>
-              <Icon name="chev" size={14} color={c.cta} sw={2} />
+              <Icon name="chev" size={14} color={c.tx4} sw={2} />
             </Row>
           </Pressable>
         )}
@@ -333,21 +336,22 @@ export default function Jornada() {
           <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
             {changes.map((ch) => <ChangeTile key={ch.label} ch={ch} onPress={go(ch.to_)} />)}
           </Row>
-          {/* atalhos — pílula com contorno para não competir com os
-              tiles de dado acima: botão parece botão, card parece card */}
-          <Row gap={8} style={{ marginTop: 10 }}>
-            {[['camera', 'Fotos', '/fotos'], ['target', 'Metas', '/metas'], ['heart', 'Saúde', '/saude']].map(([ic, t, to]) => (
-              <Pressable key={t} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
-                <Row gap={7} style={{
-                  justifyContent: 'center', paddingVertical: 11, borderRadius: radius.pill,
-                  borderWidth: 1, borderColor: c.accentLine, backgroundColor: c.accentWeak,
-                }}>
-                  <Icon name={ic} size={15} color={c.accent} sw={2} />
-                  <Txt v="label" c={c.accent}>{t}</Txt>
-                </Row>
-              </Pressable>
+          {/* Três pílulas iguais lado a lado leem como seletor — como se
+              fossem opções de um mesmo controle. São três destinos
+              diferentes, então viram linhas de navegação: ícone, nome e
+              chevron, que é a gramática do resto do app. */}
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 6, paddingHorizontal: 16, paddingVertical: 2 }}>
+            {([
+              ['camera', 'Evolução visual', `${S.photos.length} fotos de progresso`, '/fotos'],
+              ['target', 'Metas além do peso', `${S.goals.length} metas ativas`, '/metas'],
+              ['heart', 'Saúde e sinais vitais', 'Pressão, glicemia e frequência', '/saude'],
+            ] as [string, string, string, string][]).map(([ic, t, sub, to], i) => (
+              <React.Fragment key={t}>
+                {i > 0 && <Divider />}
+                <ListRow ic={ic} title={t} sub={sub} onPress={go(to)} />
+              </React.Fragment>
             ))}
-          </Row>
+          </View>
         </View>
 
         {/* ---------- HÁBITOS — quatro tiles ---------- */}

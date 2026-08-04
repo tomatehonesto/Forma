@@ -5,8 +5,11 @@ export const HEIGHT = 1.67;
 
 export function buildSeed() {
   const med = 'mounjaro';
-  // pesos: 82.4 -> 75.1 ao longo de ~70 dias
-  const wpts = [[70, 82.4], [63, 81.6], [56, 80.5], [49, 79.6], [42, 78.9], [35, 78.1], [28, 77.5], [21, 76.9], [14, 76.3], [10, 75.9], [7, 75.6], [3, 75.3], [0, 75.1]];
+  /* Pesos: 82,4 -> 75,1 em ~70 dias.
+     A curva tem platô e duas semanas de leve ganho de propósito. Perda com
+     GLP-1 não é linear, e um seed em linha reta contradiz o que o próprio
+     app diz à paciente sobre semanas paradas. */
+  const wpts = [[70, 82.4], [63, 81.5], [56, 80.9], [49, 80.2], [42, 79.9], [35, 79.4], [28, 79.6], [21, 78.5], [14, 77.4], [10, 77.6], [7, 76.4], [3, 75.6], [0, 75.1]];
   const weights = wpts.map(([d, k]) => ({ t: +daysAgo(d), kg: k }));
   // aplicações semanais: 4×2.5mg depois 5mg; última há 4 dias
   const injDays = [67, 60, 53, 46, 39, 32, 25, 18, 11, 4];
