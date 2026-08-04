@@ -35,6 +35,9 @@ import { radius } from '../../theme';
 
 const PAD = 24;
 const FEED_SEMANAS = 3;
+/* densidade do medidor do ciclo — 8 riscos por dia dá o traço fino sem
+   perder a correspondência com os dias */
+const TRACOS_POR_DIA = 8;
 /* eventos que merecem virar destaque; o resto é rotina e vira contagem */
 const NOTAVEIS: TLKind[] = ['consulta', 'exame', 'foto'];
 
@@ -117,9 +120,17 @@ function Painel() {
               {ndDays <= 0 ? 'dose hoje' : ndDays === 1 ? 'dose amanhã' : `dose em ${ndDays} dias`}
             </Txt>
           </Row>
-          <Row gap={3} style={{ marginTop: 10 }}>
-            {Array.from({ length: cyc.total }).map((_, i) => (
-              <View key={i} style={{ flex: 1, height: 5, borderRadius: radius.pill, backgroundColor: i < cyc.dayIn ? c.lime : c.onHeroLine }} />
+          {/* Medidor em traços: cada dia do ciclo vira TRACOS_POR_DIA riscos,
+              então a leitura é contínua sem perder o "dia X de Y". */}
+          <Row gap={3} style={{ marginTop: 12, alignItems: 'center' }}>
+            {Array.from({ length: cyc.total * TRACOS_POR_DIA }).map((_, i) => (
+              <View
+                key={i}
+                style={{
+                  flex: 1, height: 18, borderRadius: radius.pill,
+                  backgroundColor: i < cyc.dayIn * TRACOS_POR_DIA ? c.lime : c.onHeroLine,
+                }}
+              />
             ))}
           </Row>
           <Txt v="caption" c={c.onHero} style={{ marginTop: 10 }}>{cyc.phase.label}</Txt>
