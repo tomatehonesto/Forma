@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { waterMlToday, CUP_ML } from '../logic/derive';
@@ -23,6 +24,7 @@ export default function MedirAgua() {
   const { c } = useTheme();
   const router = useRouter();
   const [somado, setSomado] = useState(0);
+  const [escolhido, setEscolhido] = useState(250);
 
   const alvo = (S.profile as any).targets.waterMl as number;
   const atual = waterMlToday(S);
@@ -60,23 +62,49 @@ export default function MedirAgua() {
         )}
       </View>
 
-      <Row gap={7} style={{ marginTop: 7, alignItems: 'stretch' }}>
+      {/* medida na mão — para quem bebeu um copo pela metade ou uma
+          garrafa e meia, que os atalhos não cobrem */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
+        <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Txt v="caption" c={c.tx3}>Quantidade</Txt>
+          <Metric value={`${escolhido}`} unit="ml" v="h2" />
+        </Row>
+        <Slider
+          value={escolhido}
+          minimumValue={50} maximumValue={1500} step={50}
+          onValueChange={setEscolhido}
+          minimumTrackTintColor={c.accent}
+          maximumTrackTintColor={c.bg2}
+          thumbTintColor={c.accent}
+          style={{ marginTop: 8, marginHorizontal: -6 }}
+        />
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Txt v="micro" c={c.tx4}>50 ml</Txt>
+          <Txt v="micro" c={c.tx4}>1,5 L</Txt>
+        </Row>
+        <Pressable onPress={() => beber(escolhido)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center' }}>
+            <Txt v="body" c={c.accentInk}>Adicionar {escolhido} ml</Txt>
+          </View>
+        </Pressable>
+      </View>
+
+      <Row gap={10} style={{ marginTop: 22, marginBottom: 12 }}>
+        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>MEDIDAS COMUNS</Txt>
+        <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
+      </Row>
+
+      <Row gap={7} style={{ alignItems: 'stretch' }}>
         {MEDIDAS.map(([nome, ml, ic]) => (
           <Pressable key={nome} onPress={() => beber(ml as number)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, alignItems: 'center' }}>
-              <Icon name={ic as string} size={22} color={c.accent} sw={1.9} />
-              <Txt v="body" style={{ marginTop: 10 }}>{nome}</Txt>
+            <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14, alignItems: 'center' }}>
+              <Icon name={ic as string} size={20} color={c.accent} sw={1.9} />
+              <Txt v="caption" style={{ marginTop: 8 }}>{nome}</Txt>
               <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{ml} ml</Txt>
             </View>
           </Pressable>
         ))}
       </Row>
-
-      <Pressable onPress={() => router.back()} style={({ pressed }) => [{ marginTop: 16, opacity: pressed ? 0.8 : 1 }]}>
-        <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
-          <Txt v="body" c={c.accentInk}>Pronto</Txt>
-        </View>
-      </Pressable>
     </SheetScreen>
   );
 }

@@ -15,10 +15,6 @@ const ITEMS = [
   { ic: 'heart', label: 'Cuidado' },
 ];
 
-/* Altura da barra sem a safe area — quem precisa se posicionar acima dela
-   (o sheet de registrar) soma insets.bottom por fora. */
-export const TAB_BAR_H = 58;
-
 /* Tab bar custom com FAB central (abre o registrar). */
 export function TabBar({ state, navigation }: any) {
   const { c } = useTheme();

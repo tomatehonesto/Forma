@@ -3,7 +3,7 @@ import { Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, Tex
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ty, font, radius, space, shadowCard, TAB_BAR_H } from '../theme';
+import { ty, font, radius, space, shadowCard } from '../theme';
 import { useTheme } from './useTheme';
 import { Icon } from './Icon';
 
@@ -211,13 +211,14 @@ export function SheetScreen({ titulo, sub, children, onClose }: {
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
       <Pressable onPress={onClose} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
+      {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
+          que a pessoa já conhece de outros apps. */}
       <View style={{
-        backgroundColor: c.bg, maxHeight: height * 0.78,
-        borderRadius: radius.xl, marginHorizontal: 10,
-        marginBottom: TAB_BAR_H + (insets.bottom || 8) + 10,
-        paddingBottom: 16,
+        backgroundColor: c.bg, maxHeight: height * 0.86,
+        borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
+        paddingBottom: (insets.bottom || 12) + 16,
       }}>
-        <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 16 }}>
+        <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
         <ScrollView
@@ -225,8 +226,18 @@ export function SheetScreen({ titulo, sub, children, onClose }: {
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Txt v="h2">{titulo}</Txt>
-          {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
+          <Row style={{ alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <Txt v="h2">{titulo}</Txt>
+              {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
+            </View>
+            {/* fechar explícito — o grabber some para quem não conhece o gesto */}
+            <Pressable onPress={onClose} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="x" size={16} color={c.tx2} sw={2.2} />
+              </View>
+            </Pressable>
+          </Row>
           {children}
         </ScrollView>
       </View>

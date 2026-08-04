@@ -11,7 +11,7 @@ import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius, font, TAB_BAR_H } from '../theme';
+import { radius, font } from '../theme';
 
 /* ============================================================
    REGISTRAR — captura de um momento, não menu de funcionalidade.
@@ -57,24 +57,6 @@ export default function Registrar() {
     update((s: any) => { s.injections.push({ t: +now(), med: s.profile.med, dose: s.profile.dose, site: nextSite(s), note: '' }); });
     piscar('aplicacao');
   };
-  const maisAgua = () => {
-    update((s: any) => {
-      const t = +startOfDay(now());
-      const c2 = s.checkins.find((x: any) => x.t === t);
-      if (c2) c2.agua = (c2.agua || 0) + 1;
-      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: 1, prot: 0, exerc: 0, refluxo: 0, ansiedade: 0, constip: 0 });
-    });
-    piscar('agua');
-  };
-  const treinou = () => {
-    update((s: any) => {
-      const t = +startOfDay(now());
-      const c2 = s.checkins.find((x: any) => x.t === t);
-      if (c2) c2.exerc = (c2.exerc || 0) + 30;
-      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: 0, prot: 0, exerc: 30, refluxo: 0, ansiedade: 0, constip: 0 });
-    });
-    piscar('exercicio');
-  };
   const salvarPeso = () => {
     const v = parseFloat(peso.replace(',', '.'));
     if (!v || v < 30 || v > 250) return;
@@ -85,11 +67,11 @@ export default function Registrar() {
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
   const CATALOGO: Record<QuickKey, Item> = {
-        agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L hoje`, to: '/medir-agua' },
-        exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
+    agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L hoje`, to: '/medir-agua' },
+    exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: feito === 'aplicacao' ? 'registrada' : siteLabel(nextSite(S)), acao: registrarAplicacao },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
-        refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
+    refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
     sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/sintomas' },
     exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'PDF ou foto', to: '/exames' },
     anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/consultas' },
@@ -109,17 +91,13 @@ export default function Registrar() {
     <View style={{ height: alturaJanela, justifyContent: 'flex-end' }}>
       <Pressable onPress={fechar} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
 
-      {/* Para acima da tab bar em vez de cobri-la: a barra continua sendo a
-          referência de onde a pessoa está, e o respiro entre as duas deixa
-          claro que o sheet é uma camada, não a tela. */}
+      {/* Ancorado na base, cobrindo a tab bar — padrão de bottom sheet. */}
       <View style={{
-        backgroundColor: c.bg, maxHeight: alturaJanela * 0.78,
-        borderRadius: radius.xl,
-        marginHorizontal: 10,
-        marginBottom: TAB_BAR_H + (insets.bottom || 8) + 10,
-        paddingBottom: 16,
+        backgroundColor: c.bg, maxHeight: alturaJanela * 0.86,
+        borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
+        paddingBottom: (insets.bottom || 12) + 16,
       }}>
-        <Pressable onPress={fechar} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 16 }}>
+        <Pressable onPress={fechar} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
 
@@ -129,10 +107,19 @@ export default function Registrar() {
           keyboardShouldPersistTaps="handled"
         >
           {/* a pergunta é o comando da tela */}
-          <Txt v="h2">O que aconteceu agora?</Txt>
-          <Row gap={7} style={{ marginTop: 6 }}>
-            <Icon name="spark" size={13} color={c.accent} sw={2} />
-            <Txt v="note" c={c.tx3}>{motivo}</Txt>
+          <Row style={{ alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <Txt v="h2">O que aconteceu agora?</Txt>
+              <Row gap={7} style={{ marginTop: 6 }}>
+                <Icon name="spark" size={13} color={c.accent} sw={2} />
+                <Txt v="note" c={c.tx3}>{motivo}</Txt>
+              </Row>
+            </View>
+            <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="x" size={16} color={c.tx2} sw={2.2} />
+              </View>
+            </Pressable>
           </Row>
 
           {/* --- check-in: banner fixo, nunca sai da tela ---
@@ -147,17 +134,19 @@ export default function Registrar() {
               </View>
               <View style={{ flex: 1 }}>
                 <Txt v="body" c={c.limeInk}>
-                  {ci ? 'Check-in de hoje concluído' : 'Como você está agora?'}
+                  {ci ? 'Check-in concluído' : 'Como você está agora?'}
                 </Txt>
                 <Txt v="caption" c={c.limeInk} style={{ marginTop: 2, opacity: 0.7 }}>
-                  {ci
-                    ? stk > 0 ? `${stk} dias seguidos · toque para editar` : 'toque para editar'
-                    : stk > 0 ? `menos de 30s · ${stk} dias seguidos` : 'menos de 30s'}
+                  {stk > 0 ? `${stk} dias seguidos` : ci ? 'registrado hoje' : 'menos de 30s'}
                 </Txt>
               </View>
-              {ci
-                ? <Txt v="label" c={c.limeInk}>Editar</Txt>
-                : <Icon name="chev" size={17} color={c.limeInk} sw={2.2} />}
+              {ci ? (
+                <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 7 }}>
+                  <Txt v="label" c={c.limeInk}>Editar</Txt>
+                </View>
+              ) : (
+                <Icon name="chev" size={17} color={c.limeInk} sw={2.2} />
+              )}
             </Row>
           </Pressable>
 
