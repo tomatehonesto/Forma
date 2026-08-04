@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  patterns, recommendations, PAT_LABEL, radar, checkins30, adesao,
+  patterns, recommendations, companionSuggestions, PAT_LABEL, radar, checkins30,
   hasClinic, journeySummary, type PatKey,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
@@ -13,8 +13,7 @@ import { Txt, Row, SectionHead, ListRow, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
-import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius } from '../../theme';
+import { radius, font } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -36,12 +35,17 @@ export default function Insights() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  useLightStatusBar();
 
   const go = (to: string) => () => router.push(to as any);
   const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
 
   const [filtro, setFiltro] = useState<PatKey | null>(null);
+  const [pergunta, setPergunta] = useState('');
+  const sugestoes = useMemo(() => companionSuggestions(S), [S]);
+  const enviar = () => {
+    const q = pergunta.trim();
+    if (q) router.push(`/companion?q=${encodeURIComponent(q)}` as any);
+  };
   const pads = useMemo(() => patterns(S), [S]);
   const recos = useMemo(() => recommendations(S), [S]);
   const r = journeySummary(S);
@@ -65,53 +69,85 @@ export default function Insights() {
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
 
-        {/* ---- descoberta da semana: o único bloco escuro, sangrado ---- */}
-        <View style={{
-          marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 26,
-          borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden',
-        }}>
-          <LinearGradient
-            colors={[c.panelFrom, c.panelMid, c.panelTo]}
-            start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-          />
-          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
-
-          {destaque ? (
-            <>
-              <Txt v="display" c={c.onHero} style={{ marginTop: 14 }}>{destaque.titulo}</Txt>
-              <Txt v="body" c={c.onHero2} style={{ marginTop: 12 }}>{destaque.texto}</Txt>
-              <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 18, opacity: pressed ? 0.75 : 1 }]}>
-                <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 10 }}>
-                  <Icon name="spark" size={15} color={c.limeInk} sw={2} />
-                  <Txt v="label" c={c.limeInk}>Entender melhor</Txt>
-                </Row>
-              </Pressable>
-            </>
-          ) : (
-            <Txt v="body" c={c.onHero} style={{ marginTop: 14 }}>
-              Ainda não há registros suficientes para encontrar padrões.
+        {/* ---- o Companion abre a tela ----
+             Aqui a IA deixa de ser um item da lista e vira a porta de
+             entrada: campo de pergunta, sugestões que mudam com o momento
+             do tratamento e um caminho para a conversa inteira. Sem hero
+             grande — as outras duas abas já têm um, e esta precisa de
+             personalidade própria: conversa, não painel. */}
+        <View style={{ paddingTop: insets.top + 26 }}>
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 20, overflow: 'hidden' }}>
+            {/* véu leve do azul da marca — dá presença ao card sem
+                virar mais um hero */}
+            <LinearGradient
+              colors={[c.accentWeak, 'transparent']}
+              start={{ x: 1, y: 0 }} end={{ x: 0.2, y: 0.9 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+            <Row gap={8}>
+              <Icon name="spark" size={15} color={c.accent} sw={2.1} />
+              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.1 }}>COMPANION</Txt>
+            </Row>
+            <Txt v="h2" style={{ marginTop: 12 }}>O que você quer entender?</Txt>
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+              Ele conhece seus registros, seus exames e a fase do seu ciclo.
             </Txt>
-          )}
 
-          <Row style={{ marginTop: 28, paddingBottom: 24 }}>
-            {[
-              [`${dSem <= 0 ? '−' : '+'}${nf(Math.abs(dSem), 1).replace('.', ',')} kg`, 'na semana'],
-              [`${ci7}`, ci7 === 1 ? 'check-in' : 'check-ins'],
-              [`${adesao(S)}%`, 'adesão'],
-            ].map(([v, l]) => (
-              <View key={l} style={{ flex: 1 }}>
-                <Txt v="h2" c={c.onHero}>{v}</Txt>
-                <Txt v="micro" c={c.onHero2} style={{ marginTop: 3 }}>{l}</Txt>
-              </View>
-            ))}
-          </Row>
+            <Row gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 16, marginTop: 16 }}>
+              <TextInput
+                value={pergunta} onChangeText={setPergunta}
+                onSubmitEditing={enviar} returnKeyType="send"
+                placeholder="Pergunte sobre seu tratamento..." placeholderTextColor={c.tx4}
+                style={{ flex: 1, paddingVertical: 14, color: c.tx, fontFamily: font.body, fontSize: 16 }}
+              />
+              <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.3 : pressed ? 0.6 : 1 }]}>
+                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="send" size={16} color={c.accentInk} sw={2} />
+                </View>
+              </Pressable>
+            </Row>
+
+            <Row gap={6} style={{ flexWrap: 'wrap', marginTop: 14 }}>
+              {sugestoes.map((q) => (
+                <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
+                  <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.accentLine, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 9, marginBottom: 6 }}>
+                    <Txt v="caption" c={c.accent}>{q}</Txt>
+                  </View>
+                </Pressable>
+              ))}
+            </Row>
+
+            <Pressable onPress={go('/companion')} style={({ pressed }) => [{ marginTop: 8, opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={6}>
+                <Txt v="label" c={c.accent2}>Abrir conversa</Txt>
+                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+              </Row>
+            </Pressable>
+          </View>
         </View>
+
+        {/* ---- descoberta da semana, agora em registro editorial ---- */}
+        {destaque && (
+          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 34, opacity: pressed ? 0.85 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 20 }}>
+              <Row gap={9}>
+                <Icon name={destaque.ic} size={15} color={cor(destaque.cor)} sw={2} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>DESCOBERTA DA SEMANA</Txt>
+              </Row>
+              <Txt v="h2" style={{ marginTop: 12 }}>{destaque.titulo}</Txt>
+              <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>{destaque.texto}</Txt>
+              <Row gap={6} style={{ marginTop: 16 }}>
+                <Txt v="label" c={c.accent2}>Entender melhor</Txt>
+                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+              </Row>
+            </View>
+          </Pressable>
+        )}
 
         {/* ---- recomendações ---- */}
         {(hoje.length > 0 || semana.length > 0) && (
           <View style={{ marginTop: 34 }}>
-            <SectionHead title="O que fazer com isso" />
+            <SectionHead title="Próximas ações" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Sai dos seus registros e da fase do ciclo — nunca de dose ou protocolo.
             </Txt>

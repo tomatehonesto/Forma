@@ -453,6 +453,35 @@ export function patterns(S: State): Pattern[] {
   return out;
 }
 
+/* Sugestões para o Companion — o que faz sentido perguntar AGORA.
+
+   Pergunta sugerida é a porta de entrada da IA: se ela vier genérica
+   ("Como está minha evolução?" sempre), a inteligência não se prova. As
+   duas primeiras saem do momento do tratamento; as outras cobrem o que a
+   pessoa costuma querer saber. */
+export function companionSuggestions(S: State): string[] {
+  const out: string[] = [];
+  const cyc = doseCycle(S);
+  const nd = diffDays(nextInjectionDate(S), now());
+  const ci: any = checkinToday(S);
+
+  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push('Por que senti mais fome hoje?');
+  else if (cyc.phase.key === 'pico') out.push('Por que estou sem fome?');
+  else if (cyc.phase.key === 'aplic') out.push('O que esperar depois da aplicação?');
+
+  if (ci && ci.nausea >= 5) out.push('Como diminuir o enjoo?');
+  if (nd <= 2) out.push('Posso trocar o dia da aplicação?');
+
+  const a1c = examBy(S, 'HbA1c');
+  if (a1c && a1c.values.length >= 2) out.push('O que meus exames mostram?');
+
+  out.push('Analise meu progresso');
+  if (hasClinic(S)) out.push('Prepare minha consulta');
+
+  /* sem repetir e no máximo quatro — lista longa vira menu, não conversa */
+  return [...new Set(out)].slice(0, 4);
+}
+
 /* Recomendações — o que fazer com o que foi encontrado. Saem da fase do
    ciclo e do que está em aberto, não de conselho genérico. */
 export type Reco = { quando: 'hoje' | 'semana'; ic: string; texto: string; to: string };
