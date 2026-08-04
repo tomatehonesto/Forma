@@ -763,20 +763,24 @@ export function quickCapture(S: State): { motivo: string; acoes: QuickKey[] } {
   const li = lastInjection(S);
   const aplicouHoje = li ? +startOfDay(new Date(li.t)) === +startOfDay(now()) : false;
 
-  /* dia da aplicação: o que vem junto é sintoma e hidratação, porque é
-     quando o enjoo aparece */
+  /* Água e refeição são os dois registros que acontecem todo dia, então
+     seguram lugar fixo. Só o terceiro gira conforme o momento — e nunca
+     entra aí algo semanal como a aplicação, que ficaria parada seis dias
+     em sete ocupando destaque. */
   if (nd <= 0 || aplicouHoje) {
     return {
       motivo: aplicouHoje ? 'Você aplicou hoje' : 'Hoje é dia de aplicação',
-      acoes: ['aplicacao', 'sintomas', 'agua'],
+      acoes: ['agua', 'refeicao', 'sintomas'],   // é quando o enjoo aparece
     };
   }
 
-  /* logo depois de consulta costumam chegar exames e orientações */
   const ultima = (S.consultsHistory as any[])
     .slice().sort((a, b) => b.t - a.t)[0];
   if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) {
-    return { motivo: 'Depois da sua consulta', acoes: ['exame', 'anotacoes', 'agua'] };
+    return {
+      motivo: 'Depois da sua consulta',
+      acoes: ['agua', 'refeicao', 'exame'],      // é quando os exames chegam
+    };
   }
 
   return { motivo: 'Um dia comum de tratamento', acoes: ['agua', 'refeicao', 'exercicio'] };

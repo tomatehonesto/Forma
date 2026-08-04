@@ -142,26 +142,22 @@ export default function Registrar() {
               feito tirava a confirmação de que o dia está em dia. Feito, ele
               vira comprovante com opção de ajustar. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
-            <Row gap={14} style={{ backgroundColor: ci ? c.bg1 : c.lime, borderRadius: radius.lg, padding: 16 }}>
-              <View style={{
-                width: 40, height: 40, borderRadius: 20,
-                backgroundColor: ci ? c.limeWeak : 'rgba(0,0,0,0.08)',
-                alignItems: 'center', justifyContent: 'center',
-              }}>
+            <Row gap={14} style={{ backgroundColor: c.lime, borderRadius: radius.lg, padding: 16 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name={ci ? 'check' : 'leaf'} size={20} color={c.limeInk} sw={2.2} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="body" c={ci ? c.tx : c.limeInk}>
+                <Txt v="body" c={c.limeInk}>
                   {ci ? 'Check-in de hoje concluído' : 'Como você está agora?'}
                 </Txt>
-                <Txt v="caption" c={ci ? c.tx3 : c.limeInk} style={{ marginTop: 2, opacity: ci ? 1 : 0.7 }}>
+                <Txt v="caption" c={c.limeInk} style={{ marginTop: 2, opacity: 0.7 }}>
                   {ci
                     ? stk > 0 ? `${stk} dias seguidos · toque para editar` : 'toque para editar'
                     : stk > 0 ? `menos de 30s · ${stk} dias seguidos` : 'menos de 30s'}
                 </Txt>
               </View>
               {ci
-                ? <Txt v="label" c={c.accent2}>Editar</Txt>
+                ? <Txt v="label" c={c.limeInk}>Editar</Txt>
                 : <Icon name="chev" size={17} color={c.limeInk} sw={2.2} />}
             </Row>
           </Pressable>
@@ -188,10 +184,17 @@ export default function Registrar() {
             })}
           </Row>
 
-          {/* --- peso: um número, resolvido sem sair daqui --- */}
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 7, paddingHorizontal: 16 }}>
+          {/* --- separação pelo esforço, não por categoria --- */}
+          <Row gap={10} style={{ marginTop: 24, marginBottom: 12 }}>
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>LEVA UM MINUTO</Txt>
+            <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
+          </Row>
+
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+            {/* peso abre aqui mesmo: é um número só, sair do sheet para
+                digitá-lo seria desproporcional */}
             <Pressable onPress={() => setPesoAberto((v) => !v)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-              <Row style={{ paddingVertical: 15 }}>
+              <Row style={{ paddingVertical: 14 }}>
                 <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name={feito === 'peso' ? 'check' : 'scale'} size={17} color={feito === 'peso' ? c.accent : c.tx} sw={1.9} />
                 </View>
@@ -204,9 +207,8 @@ export default function Registrar() {
                 <Icon name={pesoAberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
               </Row>
             </Pressable>
-
             {pesoAberto && (
-              <Row gap={10} style={{ paddingBottom: 15 }}>
+              <Row gap={10} style={{ paddingBottom: 14 }}>
                 <TextInput
                   value={peso} onChangeText={setPeso} keyboardType="decimal-pad" autoFocus
                   placeholder={nf(curWeight(S), 1).replace('.', ',')} placeholderTextColor={c.tx4}
@@ -220,18 +222,12 @@ export default function Registrar() {
                 </Pressable>
               </Row>
             )}
-          </View>
 
-          {/* --- separação pelo esforço, não por categoria --- */}
-          <Row gap={10} style={{ marginTop: 24, marginBottom: 12 }}>
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>LEVA UM MINUTO</Txt>
-            <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
-          </Row>
-
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-            {completos.map((it, i) => (
+            {/* peso é sempre a primeira linha, então todas as seguintes
+                vêm precedidas de divisor */}
+            {completos.map((it) => (
               <React.Fragment key={it.titulo}>
-                {i > 0 && <Divider />}
+                <Divider />
                 <Pressable onPress={irPara(it.to!)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                   <Row style={{ paddingVertical: 14 }}>
                     <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
