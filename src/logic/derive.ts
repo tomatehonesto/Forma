@@ -776,15 +776,10 @@ export function quickCapture(S: State): { motivo: string; acoes: QuickKey[] } {
   const ultima = (S.consultsHistory as any[])
     .slice().sort((a, b) => b.t - a.t)[0];
   if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) {
-    return { motivo: 'Depois da sua consulta', acoes: ['exame', 'anotacoes', 'checkin'] };
+    return { motivo: 'Depois da sua consulta', acoes: ['exame', 'anotacoes', 'agua'] };
   }
 
-  /* check-in já feito: o lugar dele vai para o movimento do dia */
-  if (checkinToday(S)) {
-    return { motivo: 'Check-in de hoje já está feito', acoes: ['agua', 'refeicao', 'exercicio'] };
-  }
-
-  return { motivo: 'Um dia comum de tratamento', acoes: ['agua', 'refeicao', 'checkin'] };
+  return { motivo: 'Um dia comum de tratamento', acoes: ['agua', 'refeicao', 'exercicio'] };
 }
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */

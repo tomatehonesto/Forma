@@ -9,6 +9,7 @@ import {
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
+import { TAB_BAR_H } from '../ui/TabBar';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
@@ -103,17 +104,21 @@ export default function Registrar() {
     { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/fotos' },
     { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, composição', to: '/medidas' },
     { ic: 'doc', titulo: 'Recebi um exame', sub: 'importar PDF ou foto', to: '/exames' },
-    { ic: 'leaf', titulo: 'Como estou agora', sub: 'check-in do dia', to: '/checkin' },
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
   return (
     <View style={{ height: alturaJanela, justifyContent: 'flex-end' }}>
       <Pressable onPress={fechar} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
 
+      {/* Para acima da tab bar em vez de cobri-la: a barra continua sendo a
+          referência de onde a pessoa está, e o respiro entre as duas deixa
+          claro que o sheet é uma camada, não a tela. */}
       <View style={{
-        backgroundColor: c.bg, maxHeight: alturaJanela * 0.88,
-        borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
-        paddingBottom: (insets.bottom || 12) + 16,
+        backgroundColor: c.bg, maxHeight: alturaJanela * 0.78,
+        borderRadius: radius.xl,
+        marginHorizontal: 10,
+        marginBottom: TAB_BAR_H + (insets.bottom || 8) + 10,
+        paddingBottom: 16,
       }}>
         <Pressable onPress={fechar} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 16 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
@@ -131,8 +136,38 @@ export default function Registrar() {
             <Txt v="note" c={c.tx3}>{motivo}</Txt>
           </Row>
 
+          {/* --- check-in: banner fixo, nunca sai da tela ---
+              Sai da rotação dos atalhos e ganha lugar próprio: é o registro
+              que alimenta insights, radar e streak, e some-lo quando já foi
+              feito tirava a confirmação de que o dia está em dia. Feito, ele
+              vira comprovante com opção de ajustar. */}
+          <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
+            <Row gap={14} style={{ backgroundColor: ci ? c.bg1 : c.lime, borderRadius: radius.lg, padding: 16 }}>
+              <View style={{
+                width: 40, height: 40, borderRadius: 20,
+                backgroundColor: ci ? c.limeWeak : 'rgba(0,0,0,0.08)',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name={ci ? 'check' : 'leaf'} size={20} color={c.limeInk} sw={2.2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="body" c={ci ? c.tx : c.limeInk}>
+                  {ci ? 'Check-in de hoje concluído' : 'Como você está agora?'}
+                </Txt>
+                <Txt v="caption" c={ci ? c.tx3 : c.limeInk} style={{ marginTop: 2, opacity: ci ? 1 : 0.7 }}>
+                  {ci
+                    ? stk > 0 ? `${stk} dias seguidos · toque para editar` : 'toque para editar'
+                    : stk > 0 ? `menos de 30s · ${stk} dias seguidos` : 'menos de 30s'}
+                </Txt>
+              </View>
+              {ci
+                ? <Txt v="label" c={c.accent2}>Editar</Txt>
+                : <Icon name="chev" size={17} color={c.limeInk} sw={2.2} />}
+            </Row>
+          </Pressable>
+
           {/* --- agora: três atalhos que mudam com o momento --- */}
-          <Row gap={7} style={{ marginTop: 18, alignItems: 'stretch' }}>
+          <Row gap={7} style={{ marginTop: 7, alignItems: 'stretch' }}>
             {acoes.map((k) => {
               const it = CATALOGO[k];
               const ok = feito === k;
