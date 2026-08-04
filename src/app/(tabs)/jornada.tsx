@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   journeySummary, journeyChanges, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
+  startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind,
 } from '../../logic/derive';
@@ -65,6 +66,7 @@ function Painel() {
         start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
         style={StyleSheet.absoluteFillObject}
       />
+      {/* ---- peso: o número que a pessoa veio buscar ---- */}
       <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
 
       <Row style={{ alignItems: 'flex-end', marginTop: 12 }}>
@@ -85,19 +87,34 @@ function Painel() {
         </Row>
       </View>
 
+      {/* ---- a curva do peso. Sem rótulo ela parece um gráfico solto e
+             sem relação com o número acima — por isso vem nomeada e com
+             os dois extremos escritos. ---- */}
       {serie.length > 1 && (
-        <View style={{ marginHorizontal: -PAD, marginTop: 24, marginBottom: 22 }}>
-          <AreaCurve pts={serie} height={46} padT={4} padB={0} padX={0} strokeW={1.8}
-            strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
+        <View style={{ marginTop: 30 }}>
+          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>SEU PESO, SEMANA A SEMANA</Txt>
+          <View style={{ marginHorizontal: -PAD, marginTop: 10 }}>
+            <AreaCurve pts={serie} height={52} padT={4} padB={0} padX={PAD} strokeW={2}
+              strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
+          </View>
+          <Row style={{ justifyContent: 'space-between', marginTop: 6 }}>
+            <Txt v="caption" c={c.onHero2}>{nf(startWeight(S), 1).replace('.', ',')} kg no início</Txt>
+            <Txt v="caption" c={c.onHero}>{nf(curWeight(S), 1).replace('.', ',')} kg hoje</Txt>
+          </Row>
         </View>
       )}
 
-      {/* ciclo — a mesma informação da Home, aqui como continuidade */}
+      {/* ---- ciclo da dose. As barrinhas são os dias entre uma aplicação
+             e a próxima; sem o rótulo e o "dia X de Y" elas não dizem
+             nada. ---- */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <View style={{ borderTopWidth: 1, borderTopColor: c.onHeroLine, paddingVertical: 18 }}>
-          <Row gap={3}>
+        <View style={{ marginTop: 30 }}>
+          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
+            CICLO DA DOSE · DIA {cyc.dayIn} DE {cyc.total}
+          </Txt>
+          <Row gap={3} style={{ marginTop: 10 }}>
             {Array.from({ length: cyc.total }).map((_, i) => (
-              <View key={i} style={{ flex: 1, height: 4, borderRadius: radius.pill, backgroundColor: i < cyc.dayIn ? c.lime : c.onHeroLine }} />
+              <View key={i} style={{ flex: 1, height: 5, borderRadius: radius.pill, backgroundColor: i < cyc.dayIn ? c.lime : c.onHeroLine }} />
             ))}
           </Row>
           <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
@@ -109,9 +126,11 @@ function Painel() {
         </View>
       </Pressable>
 
-      <Row style={{ borderTopWidth: 1, borderTopColor: c.onHeroLine }}>
-        {[[`${r.dia}`, 'dias'], [`${r.aplicacoes}`, 'aplicações'], [`${S.checkins.length}`, 'check-ins']].map(([v, l], i) => (
-          <View key={l} style={{ flex: 1, alignItems: 'center', paddingVertical: 15, borderLeftWidth: i ? 1 : 0, borderLeftColor: c.onHeroLine }}>
+      {/* ---- constância. Sem divisores: o agrupamento vem do respiro,
+             como a Ron faz. ---- */}
+      <Row style={{ marginTop: 30, paddingBottom: 24 }}>
+        {[[`${r.dia}`, 'dias de tratamento'], [`${r.aplicacoes}`, 'aplicações'], [`${S.checkins.length}`, 'check-ins']].map(([v, l]) => (
+          <View key={l} style={{ flex: 1 }}>
             <Txt v="h2" c={c.onHero}>{v}</Txt>
             <Txt v="micro" c={c.onHero2} style={{ marginTop: 3 }}>{l}</Txt>
           </View>
