@@ -99,7 +99,7 @@ function Painel() {
           As barrinhas são os dias entre uma aplicação e a próxima. Sem o
           "dia X de Y" e sem a explicação da fase, elas não dizem nada. */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <View style={{ marginTop: 46, paddingBottom: 26 }}>
+        <View style={{ marginTop: 46 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
               CICLO DA DOSE · DIA {cyc.dayIn} DE {cyc.total}
@@ -114,8 +114,25 @@ function Painel() {
             ))}
           </Row>
           <Txt v="caption" c={c.onHero} style={{ marginTop: 10 }}>{cyc.phase.label}</Txt>
-          <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>{cyc.phase.hint}</Txt>
         </View>
+      </Pressable>
+
+      {/* A explicação da fase é uma dica, não um dado — por isso ganha
+          lâmpada e um caminho para perguntar mais. */}
+      <Pressable
+        onPress={() => router.push(`/companion?q=${encodeURIComponent(cyc.phase.q)}` as any)}
+        style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 14, marginBottom: 26 }]}
+      >
+        <Row gap={11} style={{ alignItems: 'flex-start', backgroundColor: c.onHeroWeak, borderRadius: radius.md, padding: 13 }}>
+          <Icon name="bulb" size={17} color={c.lime} sw={1.9} />
+          <View style={{ flex: 1 }}>
+            <Txt v="caption" c={c.onHero}>{cyc.phase.hint}</Txt>
+            <Row gap={5} style={{ marginTop: 7 }}>
+              <Txt v="micro" c={c.lime}>Perguntar ao Companion</Txt>
+              <Icon name="chev" size={11} color={c.lime} sw={2.4} />
+            </Row>
+          </View>
+        </Row>
       </Pressable>
 
     </View>
@@ -272,11 +289,8 @@ export default function Jornada() {
   const contagens = useMemo(() => timelineCounts(S), [S]);
   const cor = (k: string) => (c as any)[k] as string;
 
-  /* com um tipo escolhido, semanas sem nada daquele tipo saem da lista */
-  const semanasComFiltro = filtro
-    ? semanas.filter((w) => w.eventos.some((e) => e.kind === filtro))
-    : semanas;
-  const semanasVisiveis = todasSemanas ? semanasComFiltro : semanasComFiltro.slice(0, FEED_SEMANAS);
+  const semanasVisiveis = todasSemanas ? semanas : semanas.slice(0, FEED_SEMANAS);
+  const filtrados = filtro ? eventos.filter((e) => e.kind === filtro) : [];
   const marcos = milestones(S).slice(0, 8);
   const pen = penStock(S);
   const ci = checkinToday(S);
@@ -400,30 +414,56 @@ export default function Jornada() {
             })}
           </ScrollView>
 
-          {/* A view por semana vale para todas as abas: com um tipo
-              escolhido, cada semana mostra só aquele registro. Semanas sem
-              nada daquele tipo saem da lista. */}
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 2 }}>
-            {semanasVisiveis.map((w, i) => (
-              <React.Fragment key={w.semana}>
-                {i > 0 && <Divider />}
-                <Semana w={w} proxT={semanas[semanas.indexOf(w) - 1]?.t ?? Infinity}
-                  filtro={filtro}
-                  aberto={!!abertas[w.semana]}
-                  onToggle={() => setAbertas((a) => ({ ...a, [w.semana]: !a[w.semana] }))} />
-              </React.Fragment>
-            ))}
-            {semanasVisiveis.length === 0 && (
-              <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
-            )}
-          </View>
-          {!todasSemanas && semanasComFiltro.length > FEED_SEMANAS && (
-            <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
-                <Txt v="label" c={c.accent2}>Ver as {semanasComFiltro.length} semanas</Txt>
-                <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
-              </Row>
-            </Pressable>
+          {filtro === null ? (
+            /* "Por semana" é a única aba que agrupa por ciclo — é o que
+               dá sentido a ela existir como aba própria. */
+            <>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 2 }}>
+                {semanasVisiveis.map((w, i) => (
+                  <React.Fragment key={w.semana}>
+                    {i > 0 && <Divider />}
+                    <Semana w={w} proxT={semanas[semanas.indexOf(w) - 1]?.t ?? Infinity}
+                      filtro={null}
+                      aberto={!!abertas[w.semana]}
+                      onToggle={() => setAbertas((a) => ({ ...a, [w.semana]: !a[w.semana] }))} />
+                  </React.Fragment>
+                ))}
+              </View>
+              {!todasSemanas && semanas.length > FEED_SEMANAS && (
+                <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
+                    <Txt v="label" c={c.accent2}>Ver as {semanas.length} semanas</Txt>
+                    <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
+                  </Row>
+                </Pressable>
+              )}
+            </>
+          ) : (
+            /* Nos filtros de tipo o ciclo não é a unidade — a leitura é
+               cronológica, do mais recente para trás. */
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16, paddingVertical: 4 }}>
+              {filtrados.slice(0, 30).map((ev, i) => (
+                <React.Fragment key={ev.key}>
+                  {i > 0 && <Divider />}
+                  <Row style={{ alignItems: 'flex-start', paddingVertical: 14 }}>
+                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: cor(ev.color) + '1F', alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <Row style={{ justifyContent: 'space-between' }}>
+                        <Txt v="body" style={{ flex: 1, marginRight: 8 }}>{ev.title}</Txt>
+                        {ev.value ? <Txt v="micro" c={ev.valueColor ? cor(ev.valueColor) : c.tx4}>{ev.value}</Txt> : null}
+                      </Row>
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{ev.sub}</Txt>
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4, textTransform: 'capitalize' }}>{relDay(new Date(ev.day))}</Txt>
+                    </View>
+                  </Row>
+                </React.Fragment>
+              ))}
+              {filtrados.length === 0 && (
+                <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
+              )}
+            </View>
           )}
         </View>
 

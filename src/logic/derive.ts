@@ -241,18 +241,18 @@ export function examExplain(e: any) {
 /* Cada fase carrega uma explicação em português comum. O nome sozinho
    ("Início do retorno da fome") é diagnóstico sem contexto — numa tela de
    tratamento isso assusta em vez de orientar. */
-export type Phase = { key: string; label: string; ic: string; range: string; hint: string };
+export type Phase = { key: string; label: string; ic: string; range: string; hint: string; q: string };
 export function doseCycle(S: State) {
   const li = lastInjection(S);
   const total = CADENCE_DAYS(S.profile.med);
   const injDate = li ? startOfDay(new Date(li.t)) : startOfDay(now());
   const dayIn = Math.max(1, Math.min(total, diffDays(now(), injDate) + 1));
   const phases: Phase[] = [
-    { key: 'aplic', label: 'Aplicação', ic: 'syringe', range: 'Dia 1', hint: 'O efeito começa a subir nas próximas horas.' },
-    { key: 'pico', label: 'Pico de efeito', ic: 'rocket', range: 'Dias 1–2', hint: 'Remédio no ponto mais alto — a fome fica menor.' },
-    { key: 'estab', label: 'Estabilidade', ic: 'shield', range: 'Dias 3–4', hint: 'Efeito constante, sem grandes oscilações.' },
-    { key: 'retorno', label: 'Início do retorno da fome', ic: 'waves', range: 'Dias 5–6', hint: 'O remédio começa a cair, e a fome tende a voltar.' },
-    { key: 'pre', label: 'Pré-aplicação', ic: 'target', range: `Dias 7+`, hint: 'Ponto mais baixo do ciclo, até a próxima dose.' },
+    { key: 'aplic', label: 'Aplicação', ic: 'syringe', range: 'Dia 1', hint: 'O efeito começa a subir nas próximas horas.', q: 'O que esperar no dia da aplicação?' },
+    { key: 'pico', label: 'Pico de efeito', ic: 'rocket', range: 'Dias 1–2', hint: 'Remédio no ponto mais alto — a fome fica menor.', q: 'Quando tenho mais energia?' },
+    { key: 'estab', label: 'Estabilidade', ic: 'shield', range: 'Dias 3–4', hint: 'Efeito constante, sem grandes oscilações.', q: 'Como funciona o ciclo da medicação?' },
+    { key: 'retorno', label: 'Início do retorno da fome', ic: 'waves', range: 'Dias 5–6', hint: 'O remédio começa a cair, e a fome tende a voltar.', q: 'Por que sinto mais fome?' },
+    { key: 'pre', label: 'Pré-aplicação', ic: 'target', range: `Dias 7+`, hint: 'Ponto mais baixo do ciclo, até a próxima dose.', q: 'Por que sinto mais fome?' },
   ];
   const idx = dayIn >= 7 ? 4 : dayIn >= 5 ? 3 : dayIn >= 3 ? 2 : dayIn >= 2 ? 1 : 0;
   return { dayIn, total, phases, idx, phase: phases[idx], nextDose: nextInjectionDate(S) };
