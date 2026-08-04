@@ -9,7 +9,7 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
-import { light, radius } from '../theme';
+import { light } from '../theme';
 
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
@@ -52,18 +52,17 @@ export default function RootLayout() {
           <Stack.Screen name="integracoes" />
           <Stack.Screen name="biblioteca" />
           <Stack.Screen name="resumo-medico" />
-          {/* Registrar é um bottom sheet, não uma tela: registrar algo é um
-              desvio rápido do que a pessoa estava fazendo, e o contexto de
-              trás precisa continuar visível. fitToContents deixa a altura
-              seguir o conteúdo em vez de fixar uma fração da tela. */}
+          {/* Registrar é um bottom sheet montado à mão, não o formSheet
+              nativo: aquele só existe em iOS/Android e virava tela cheia na
+              web, sem sequer um jeito de fechar. transparentModal deixa o
+              scrim e o painel por conta da própria tela, e o comportamento
+              fica igual em todo lugar. */}
           <Stack.Screen
             name="registrar"
             options={{
-              presentation: 'formSheet',
-              sheetAllowedDetents: 'fitToContents',
-              sheetGrabberVisible: true,
-              sheetCornerRadius: radius.xl,
-              sheetExpandsWhenScrolledToEdge: false,
+              presentation: 'transparentModal',
+              animation: 'slide_from_bottom',
+              contentStyle: { backgroundColor: 'transparent' },
             }}
           />
         </Stack>
