@@ -21,7 +21,7 @@ export type Palette = {
   accentWeak: string; accentLine: string;
   lime: string; limeDim: string; limeInk: string; limeWeak: string;
   limePale: string; bluePale: string; teal: string; tealPale: string;
-  deepFrom: string; deepTo: string; deepGlow: string;
+  panelFrom: string; panelMid: string; panelTo: string;
   green: string; greenDim: string; blue: string; blueDim: string;
   good: string; bad: string;
   cta: string; cta2: string; ctaInk: string; ctaWeak: string; ctaLine: string;
@@ -58,12 +58,10 @@ export const light: Palette = {
   limePale: '#F5F8DF', bluePale: '#D7DDEF',
   teal: '#15E4CB', tealPale: '#C5EAE6',
 
-  /* Véus de destaque — a superfície de ênfase do app é CLARA. Em vez de
-     um bloco escuro (que brigaria com o resto), duas lavagens difusas das
-     próprias cores da marca sobre branco: lima no alto, azul embaixo.
-     É o tratamento de malha suave, não cor chapada. */
-  deepFrom: 'rgba(221,246,44,0.13)', deepTo: 'rgba(6,92,245,0.07)',
-  deepGlow: 'rgba(255,255,255,0)',
+  /* Painel de destaque — azul saturado em gradiente. Precisa ler como
+     CARD, não como fundo: o app inteiro é claro, então a superfície de
+     ênfase se separa por saturação, e o lima pontua os itens dentro. */
+  panelFrom: '#3D7BFF', panelMid: '#065CF5', panelTo: '#0130BE',
 
   // legado do tema v1 — sem uso nas telas, mantidos só para
   // não quebrar o tipo Palette                               [infer]
@@ -112,8 +110,7 @@ export const dark: Palette = {
   lime: '#DDF62C', limeDim: '#C7DD2A', limeInk: '#0A0A0A',
   limeWeak: 'rgba(221,246,44,0.16)',
   limePale: '#4A5220', bluePale: '#1E2A4D', teal: '#15E4CB', tealPale: '#12463F',
-  deepFrom: 'rgba(221,246,44,0.16)', deepTo: 'rgba(76,139,255,0.14)',
-  deepGlow: 'rgba(255,255,255,0)',
+  panelFrom: '#4C8BFF', panelMid: '#1F5FE0', panelTo: '#0A2E9E',
 
   green: '#DDF62C', greenDim: '#C7DD2A', blue: '#4C8BFF', blueDim: '#6BA1FF',
 

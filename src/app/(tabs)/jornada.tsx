@@ -1,19 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  journeySummary, journeyChanges, timelineWeeks, weightSeries,
+  journeySummary, journeyChanges, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, checkinToday, M, type Change, type TLEvent,
+  waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind,
 } from '../../logic/derive';
-import { now, diffDays, fmtDate, nf } from '../../logic/time';
-import { Txt, Row, SectionHead, Metric } from '../../ui/kit';
+import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
+import { Txt, Row, SectionHead, Divider, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
+import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius } from '../../theme';
 
 /* ============================================================
@@ -32,6 +33,9 @@ import { radius } from '../../theme';
    rendeu; a lista linha por linha fica em app/historico. */
 
 const PAD = 24;
+const FEED_SEMANAS = 3;
+/* eventos que merecem virar destaque; o resto é rotina e vira contagem */
+const NOTAVEIS: TLKind[] = ['consulta', 'exame', 'foto'];
 
 /* ------------------------------------------------------------------ */
 /* Painel — sangra até as bordas e é o único bloco que quebra a margem,
@@ -51,73 +55,65 @@ function Painel() {
     /* Sobe até o topo da tela: o rótulo da aba já diz "Jornada", então o
        espaço vira conteúdo. A safe area entra como padding interno.
 
-       A superfície de ênfase deste app é CLARA. Em vez de um bloco escuro
-       — que faria a tela parecer de outro produto — duas lavagens difusas
-       das cores da marca sobre branco: lima no alto à direita, azul no
-       rodapé à esquerda. Gradiente, nunca cor chapada. */
-    <View style={{ backgroundColor: c.bg1, marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 20, borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden' }}>
+       Azul saturado em gradiente. O app inteiro é claro, então a superfície
+       de ênfase precisa se separar por SATURAÇÃO — lavagem clara sobre
+       branco sumia no fundo e deixava de ler como card. O lima pontua os
+       itens dentro: veredito, barra, curva e ciclo. */
+    <View style={{ marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 20, borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden' }}>
       <LinearGradient
-        colors={[c.deepFrom, 'transparent']}
-        start={{ x: 1, y: 0 }} end={{ x: 0.1, y: 0.62 }}
+        colors={[c.panelFrom, c.panelMid, c.panelTo]}
+        start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
         style={StyleSheet.absoluteFillObject}
       />
-      <LinearGradient
-        colors={['transparent', c.deepTo]}
-        start={{ x: 0.9, y: 0.35 }} end={{ x: 0, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      <Txt v="micro" c={c.tx2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
+      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
 
       <Row style={{ alignItems: 'flex-end', marginTop: 12 }}>
-        <Metric value={`−${r.lostLabel}`} unit="kg" v="display" />
+        <Metric value={`−${r.lostLabel}`} unit="kg" v="display" tone={c.onHero} dim={c.onHero2} />
         <View style={{ flex: 1 }} />
-        <View style={{ backgroundColor: r.verdict.good ? c.lime : c.ctaWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
-          <Txt v="micro" c={r.verdict.good ? c.limeInk : c.cta}>{r.verdict.label}</Txt>
+        <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
+          <Txt v="micro" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
         </View>
       </Row>
 
       <View style={{ marginTop: 16 }}>
-        <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
-          <LinearGradient
-            colors={[c.bluePale, c.accent2]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={{ width: `${Math.max(3, Math.min(100, r.pct))}%`, height: 6, borderRadius: radius.pill }}
-          />
+        <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.onHeroLine, overflow: 'hidden' }}>
+          <View style={{ width: `${Math.max(3, Math.min(100, r.pct))}%`, height: 6, borderRadius: radius.pill, backgroundColor: c.lime }} />
         </View>
         <Row style={{ justifyContent: 'space-between', marginTop: 8 }}>
-          <Txt v="caption" c={c.tx3}>{r.pct}% da meta</Txt>
-          <Txt v="caption" c={c.tx3}>faltam {nf(r.goal - r.lost, 1).replace('.', ',')} kg</Txt>
+          <Txt v="caption" c={c.onHero2}>{r.pct}% da meta</Txt>
+          <Txt v="caption" c={c.onHero2}>faltam {nf(r.goal - r.lost, 1).replace('.', ',')} kg</Txt>
         </Row>
       </View>
 
       {serie.length > 1 && (
         <View style={{ marginHorizontal: -PAD, marginTop: 24, marginBottom: 22 }}>
           <AreaCurve pts={serie} height={46} padT={4} padB={0} padX={0} strokeW={1.8}
-            strokeFrom={c.accent} strokeTo={c.accent2} id="jp" dashed={false} />
+            strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
         </View>
       )}
 
       {/* ciclo — a mesma informação da Home, aqui como continuidade */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <View style={{ borderTopWidth: 1, borderTopColor: c.line, paddingVertical: 18 }}>
+        <View style={{ borderTopWidth: 1, borderTopColor: c.onHeroLine, paddingVertical: 18 }}>
           <Row gap={3}>
             {Array.from({ length: cyc.total }).map((_, i) => (
-              <View key={i} style={{ flex: 1, height: 4, borderRadius: radius.pill, backgroundColor: i < cyc.dayIn ? c.accent : c.bg2 }} />
+              <View key={i} style={{ flex: 1, height: 4, borderRadius: radius.pill, backgroundColor: i < cyc.dayIn ? c.lime : c.onHeroLine }} />
             ))}
           </Row>
           <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
-            <Txt v="caption" c={c.tx}>{cyc.phase.label}</Txt>
-            <Txt v="caption" c={c.tx3}>
+            <Txt v="caption" c={c.onHero}>{cyc.phase.label}</Txt>
+            <Txt v="caption" c={c.onHero2}>
               próxima dose {ndDays <= 0 ? 'hoje' : ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}
             </Txt>
           </Row>
         </View>
       </Pressable>
 
-      <Row style={{ borderTopWidth: 1, borderTopColor: c.line }}>
+      <Row style={{ borderTopWidth: 1, borderTopColor: c.onHeroLine }}>
         {[[`${r.dia}`, 'dias'], [`${r.aplicacoes}`, 'aplicações'], [`${S.checkins.length}`, 'check-ins']].map(([v, l], i) => (
-          <View key={l} style={{ flex: 1, alignItems: 'center', paddingVertical: 15, borderLeftWidth: i ? 1 : 0, borderLeftColor: c.line }}>
-            <Txt v="h2">{v}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>{l}</Txt>
+          <View key={l} style={{ flex: 1, alignItems: 'center', paddingVertical: 15, borderLeftWidth: i ? 1 : 0, borderLeftColor: c.onHeroLine }}>
+            <Txt v="h2" c={c.onHero}>{v}</Txt>
+            <Txt v="micro" c={c.onHero2} style={{ marginTop: 3 }}>{l}</Txt>
           </View>
         ))}
       </Row>
@@ -155,62 +151,69 @@ function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
 
    O histórico linha por linha existe, mas mora em tela própria: quem abre
    a Jornada quer saber como vai, não auditar registros. */
-function DestaquesDaSemana({ w, onVerTudo }: { w: any; onVerTudo: () => void }) {
+function Semana({ w, proxT, aberto, onToggle }: { w: any; proxT: number; aberto: boolean; onToggle: () => void }) {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const perdeu = w.deltaPeso?.startsWith('−');
 
-  /* marcos alcançados dentro deste ciclo — o que merece ser lembrado */
-  const conquistas = milestones(S).filter((m) => m.t >= w.t);
-
-  const stats: [string, string][] = [];
-  if (w.deltaPeso) stats.push([w.deltaPeso, 'na semana']);
-  const ci = w.eventos.filter((e: TLEvent) => e.kind === 'checkin').length;
-  if (ci) stats.push([`${ci}`, ci === 1 ? 'check-in' : 'check-ins']);
-  const ex = w.eventos.filter((e: TLEvent) => e.kind === 'exercicio').length;
-  if (ex) stats.push([`${ex}`, ex === 1 ? 'treino' : 'treinos']);
+  /* Ao abrir, a semana mostra o que MARCOU o ciclo — conquistas, consultas,
+     exames, fotos. Check-in e refeição são rotina: entram como contagem na
+     linha de cima, não como lista. Registro a registro fica em /historico. */
+  const conquistas = milestones(S).filter((m) => m.t >= w.t && m.t < proxT);
+  const notaveis = (w.eventos as TLEvent[]).filter((e) => NOTAVEIS.includes(e.kind));
+  const cor = (k: string) => (c as any)[k] as string;
 
   return (
-    <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 18 }}>
-      <Row style={{ alignItems: 'center' }}>
-        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>SEMANA {w.semana}</Txt>
-        {w.mudouDose && (
-          <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginLeft: 8 }}>
-            <Txt v="micro" c={c.accent}>dose ajustada</Txt>
+    <Pressable onPress={onToggle} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+      <View style={{ paddingVertical: 16 }}>
+        <Row style={{ alignItems: 'center' }}>
+          <Txt v="bodyMed" style={{ marginRight: 8 }}>Semana {w.semana}</Txt>
+          {w.mudouDose && (
+            <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginRight: 6 }}>
+              <Txt v="micro" c={c.accent}>dose ajustada</Txt>
+            </View>
+          )}
+          <View style={{ flex: 1 }} />
+          {w.deltaPeso && (
+            <View style={{ backgroundColor: perdeu ? c.limeWeak : c.bg2, paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill }}>
+              <Txt v="micro" c={perdeu ? c.limeInk : c.tx3}>{w.deltaPeso}</Txt>
+            </View>
+          )}
+          <View style={{ marginLeft: 10 }}>
+            <Icon name={aberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
+          </View>
+        </Row>
+
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 5 }}>{w.dose} · {w.site}</Txt>
+        <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>
+
+        {aberto && (
+          <View style={{ marginTop: 14 }}>
+            {conquistas.map((m) => (
+              <Row key={`${m.t}-${m.title}`} gap={10} style={{ backgroundColor: c.limeWeak, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
+                <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
+                <View style={{ flex: 1 }}>
+                  <Txt v="caption" c={c.tx}>{m.title}</Txt>
+                  <Txt v="micro" c={c.tx2} style={{ marginTop: 1 }} numberOfLines={1}>{m.sub}</Txt>
+                </View>
+              </Row>
+            ))}
+            {notaveis.map((ev) => (
+              <Row key={ev.key} gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
+                <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
+                <View style={{ flex: 1 }}>
+                  <Txt v="caption" c={c.tx}>{ev.title}</Txt>
+                  <Txt v="micro" c={c.tx2} style={{ marginTop: 1 }} numberOfLines={1}>{ev.sub}</Txt>
+                </View>
+              </Row>
+            ))}
+            {conquistas.length === 0 && notaveis.length === 0 && (
+              <Txt v="micro" c={c.tx4}>Semana de rotina — sem consultas, exames ou marcos.</Txt>
+            )}
           </View>
         )}
-      </Row>
-      <Txt v="title" style={{ marginTop: 8 }}>{w.dose}</Txt>
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{w.site} · {fmtDate(new Date(w.t))}</Txt>
-
-      {stats.length > 0 && (
-        <Row style={{ marginTop: 20, borderTopWidth: 1, borderTopColor: c.line, paddingTop: 16 }}>
-          {stats.map(([v, l], i) => (
-            <View key={l} style={{ flex: 1, borderLeftWidth: i ? 1 : 0, borderLeftColor: c.line, paddingLeft: i ? 14 : 0 }}>
-              <Txt v="h2" c={i === 0 && perdeu ? c.limeInk : c.tx}>{v}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>{l}</Txt>
-            </View>
-          ))}
-        </Row>
-      )}
-
-      {conquistas.length > 0 && (
-        <Row gap={10} style={{ marginTop: 16, backgroundColor: c.limeWeak, borderRadius: radius.md, padding: 12 }}>
-          <Icon name={conquistas[0].ic} size={16} color={c.limeInk} sw={2} />
-          <View style={{ flex: 1 }}>
-            <Txt v="caption" c={c.tx}>{conquistas[0].title}</Txt>
-            <Txt v="micro" c={c.tx2} style={{ marginTop: 1 }} numberOfLines={1}>{conquistas[0].sub}</Txt>
-          </View>
-        </Row>
-      )}
-
-      <Pressable onPress={onVerTudo} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-        <Row gap={6} style={{ marginTop: 16 }}>
-          <Txt v="label" c={c.accent2}>Ver histórico completo</Txt>
-          <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-        </Row>
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
   );
 }
 
@@ -221,9 +224,20 @@ export default function Jornada() {
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
 
+  useLightStatusBar();
+  const [filtro, setFiltro] = useState<TLKind | null>(null);
+  const [abertas, setAbertas] = useState<Record<number, boolean>>({});
+  const [todasSemanas, setTodasSemanas] = useState(false);
+
   const r = journeySummary(S);
   const changes = journeyChanges(S);
   const semanas = useMemo(() => timelineWeeks(S), [S]);
+  const eventos = useMemo(() => timelineEvents(S), [S]);
+  const contagens = useMemo(() => timelineCounts(S), [S]);
+  const cor = (k: string) => (c as any)[k] as string;
+
+  const semanasVisiveis = todasSemanas ? semanas : semanas.slice(0, FEED_SEMANAS);
+  const filtrados = filtro ? eventos.filter((e) => e.kind === filtro) : [];
   const marcos = milestones(S).slice(0, 8);
   const pen = penStock(S);
   const ci = checkinToday(S);
@@ -318,13 +332,83 @@ export default function Jornada() {
           </ScrollView>
         </View>
 
-        {/* ---------- A HISTÓRIA — destaques da semana ---------- */}
+        {/* ---------- A HISTÓRIA — por semana, com destaques ---------- */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="A história" link="Histórico" onPress={go('/historico')} />
+          <SectionHead title="A história" link="Ver tudo" onPress={go('/historico')} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-            O que este ciclo rendeu até agora.
+            Semana a semana. Toque para ver o que marcou cada ciclo.
           </Txt>
-          {semanas[0] && <DestaquesDaSemana w={semanas[0]} onVerTudo={go('/historico')} />}
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+            style={{ marginTop: 14, marginHorizontal: -PAD }}
+            contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
+            <Pressable onPress={() => setFiltro(null)}>
+              <Row gap={6} style={{ backgroundColor: filtro === null ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>Por semana</Txt>
+                <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{semanas.length}</Txt>
+              </Row>
+            </Pressable>
+            {contagens.map((f) => {
+              const on = filtro === f.kind;
+              return (
+                <Pressable key={f.kind} onPress={() => setFiltro(on ? null : f.kind)}>
+                  <Row gap={6} style={{ backgroundColor: on ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                    <Txt v="label" c={on ? c.onHero : c.tx2}>{f.label}</Txt>
+                    <Txt v="micro" c={on ? c.lime : c.tx4}>{f.n}</Txt>
+                  </Row>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          {filtro === null ? (
+            <>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 2 }}>
+                {semanasVisiveis.map((w, i) => (
+                  <React.Fragment key={w.semana}>
+                    {i > 0 && <Divider />}
+                    <Semana w={w} proxT={semanas[i - 1]?.t ?? Infinity}
+                      aberto={!!abertas[w.semana]}
+                      onToggle={() => setAbertas((a) => ({ ...a, [w.semana]: !a[w.semana] }))} />
+                  </React.Fragment>
+                ))}
+              </View>
+              {!todasSemanas && semanas.length > FEED_SEMANAS && (
+                <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
+                    <Txt v="label" c={c.accent2}>Ver as {semanas.length} semanas</Txt>
+                    <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
+                  </Row>
+                </Pressable>
+              )}
+            </>
+          ) : (
+            /* com um tipo escolhido a semana deixa de ser a unidade —
+               vira lista corrida daquele registro */
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16, paddingVertical: 4 }}>
+              {filtrados.slice(0, 30).map((ev, i) => (
+                <React.Fragment key={ev.key}>
+                  {i > 0 && <Divider />}
+                  <Row style={{ alignItems: 'flex-start', paddingVertical: 13 }}>
+                    <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: cor(ev.color) + '1F', alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name={ev.ic} size={14} color={cor(ev.color)} sw={1.9} />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <Row style={{ justifyContent: 'space-between' }}>
+                        <Txt v="body" style={{ flex: 1, marginRight: 8 }}>{ev.title}</Txt>
+                        {ev.value ? <Txt v="micro" c={ev.valueColor ? cor(ev.valueColor) : c.tx4}>{ev.value}</Txt> : null}
+                      </Row>
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{ev.sub}</Txt>
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 3, textTransform: 'capitalize' }}>{relDay(new Date(ev.day))}</Txt>
+                    </View>
+                  </Row>
+                </React.Fragment>
+              ))}
+              {filtrados.length === 0 && (
+                <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
+              )}
+            </View>
+          )}
         </View>
 
       </ScrollView>
