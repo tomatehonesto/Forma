@@ -158,11 +158,13 @@ export function CircleBtn({ name, onPress, color, bg, size = 40 }: { name: strin
 export function Screen({ children, scroll = true, style }: { children: React.ReactNode; scroll?: boolean; style?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }, style]}>{children}</View>;
+  /* +20 acima da safe area: encostar o conteúdo na status bar aperta a
+     leitura. Vale para todas as telas que usam Screen. */
+  if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20 }, style]}>{children}</View>;
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: c.bg }}
-      contentContainerStyle={[{ paddingTop: insets.top + 6, paddingBottom: 120, paddingHorizontal: space.xl }, style]}
+      contentContainerStyle={[{ paddingTop: insets.top + 20, paddingBottom: 120, paddingHorizontal: space.xl }, style]}
       showsVerticalScrollIndicator={false}
     >
       {children}

@@ -61,7 +61,7 @@ function Painel() {
        de ênfase precisa se separar por SATURAÇÃO — lavagem clara sobre
        branco sumia no fundo e deixava de ler como card. O lima pontua os
        itens dentro: veredito, barra, curva e ciclo. */
-    <View style={{ marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 20, borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden' }}>
+    <View style={{ marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 26, borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden' }}>
       <LinearGradient
         colors={[c.panelFrom, c.panelMid, c.panelTo]}
         start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}

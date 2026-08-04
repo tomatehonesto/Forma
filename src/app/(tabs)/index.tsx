@@ -60,11 +60,8 @@ function GoalCard({ t, onRegister }: { t: DailyTarget; onRegister: () => void })
     <View style={{ width: GOAL_W, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
       <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <Txt v="title" style={{ flex: 1, marginRight: 10, marginTop: 4 }} numberOfLines={1}>{t.label}</Txt>
-        {/* valor e unidade separados — mantém a coluna alinhada entre cards */}
-        <View style={{ alignItems: 'flex-end' }}>
-          <Metric value={t.num} />
-          <Txt v="caption" c={c.tx3} style={{ marginTop: -2 }}>{t.unit}</Txt>
-        </View>
+        {/* unidade na mesma linha do número, recuada um tom */}
+        <Metric value={t.num} unit={t.unit} />
       </Row>
       <View style={{ marginTop: 12 }}><GoalBar t={t} /></View>
       <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
@@ -170,7 +167,7 @@ export default function Home() {
           <Image source={AURORA} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
 
           {/* cabecalho */}
-          <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12, alignItems: 'center' }}>
+          <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 26, alignItems: 'center' }}>
             <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
               <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
                 <Txt v="title" c="#FFFFFF">{first[0]}</Txt>
@@ -199,8 +196,12 @@ export default function Home() {
             onScrollEndDrag={() => setHeld(false)}
             style={{ marginTop: 80 }}
           >
+            {/* flex:1 faz o slide preencher a altura do mais alto (o
+                ScrollView estica o contêiner, não o filho), e o conteúdo
+                é empurrado para baixo. Assim a paginação fica parada e
+                slides curtos não abrem um vão até ela. */}
             {slides.map((s, i) => (
-              <View key={i} style={{ width, paddingHorizontal: PAD }}>
+              <View key={i} style={{ width, flex: 1, paddingHorizontal: PAD, justifyContent: 'flex-end' }}>
                 <View style={{ maxWidth: 300 }}>
                   <Txt v="caption" c={c.lime} style={{ letterSpacing: 1 }}>{s.over}</Txt>
                   <Txt v="display" c={c.onHero} style={{ marginTop: 10 }}>{s.title}</Txt>
