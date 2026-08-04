@@ -714,6 +714,39 @@ export function journeyChanges(S: State): Change[] {
   return out;
 }
 
+/* Metas — a linha de chegada.
+
+   No estado, três das quatro metas guardam prog: 0: elas não são digitadas,
+   são derivadas do que a pessoa registra. Só a meta manual ("vestir a calça
+   jeans antiga") carrega um valor informado por ela. */
+export type JourneyGoal = { id: string; ic: string; label: string; pct: number; hint: string };
+
+export function journeyGoals(S: State): JourneyGoal[] {
+  const recentes = S.checkins.slice(-14) as any[];
+  const media = (k: string) => (recentes.length ? recentes.reduce((s, c) => s + (c[k] || 0), 0) / recentes.length : 0);
+  const pctSono = recentes.length
+    ? (recentes.filter((c) => c.sono >= 7).length / recentes.length) * 100
+    : 0;
+
+  return (S.goals as any[]).map((g) => {
+    let pct = g.prog || 0;
+    let hint = '';
+    if (g.kind === 'peso') {
+      pct = goalProgress(S);
+      hint = `faltam ${nf(Math.max(0, curWeight(S) - S.profile.goalWeight), 1).replace('.', ',')} kg`;
+    } else if (g.kind === 'sono') {
+      pct = pctSono;
+      hint = `${Math.round(pctSono)}% das noites recentes`;
+    } else if (g.kind === 'energia') {
+      pct = media('energia') * 10;
+      hint = `energia média ${nf(media('energia'), 1).replace('.', ',')} de 10`;
+    } else {
+      hint = 'acompanhada por você';
+    }
+    return { id: g.id, ic: g.ic, label: g.label, pct: Math.max(0, Math.min(100, pct)), hint };
+  });
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };

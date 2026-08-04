@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  journeySummary, journeyChanges, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
+  journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind, type WeekMetric,
@@ -294,6 +294,7 @@ export default function Jornada() {
   const r = journeySummary(S);
   const changes = journeyChanges(S);
   const semanas = useMemo(() => timelineWeeks(S), [S]);
+  const metas = journeyGoals(S);
   const eventos = useMemo(() => timelineEvents(S), [S]);
   const contagens = useMemo(() => timelineCounts(S), [S]);
   const cor = (k: string) => (c as any)[k] as string;
@@ -348,6 +349,32 @@ export default function Jornada() {
               o problema não era o estilo, era a redundância. Os três moram
               em Evolução, que já é o link do cabeçalho desta seção — e a
               pressão arterial já aparece como tile, levando a Saúde. */}
+        </View>
+
+        {/* ---------- METAS — a linha de chegada ----------
+            As outras seções olham para trás. Esta é a única que aponta
+            para onde a pessoa quer chegar, e por isso vem logo depois do
+            que já mudou: passado e destino lado a lado. */}
+        <View style={{ marginTop: 34 }}>
+          <SectionHead title="Onde quero chegar" link="Metas" onPress={go('/metas')} />
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 4 }}>
+            {metas.map((m, i) => (
+              <React.Fragment key={m.id}>
+                {i > 0 && <Divider />}
+                <View style={{ paddingVertical: 15 }}>
+                  <Row gap={11}>
+                    <Icon name={m.ic} size={16} color={c.tx3} sw={1.9} />
+                    <Txt v="caption" c={c.tx} style={{ flex: 1 }} numberOfLines={1}>{m.label}</Txt>
+                    <Txt v="micro" c={m.pct >= 100 ? c.limeInk : c.tx3}>{Math.round(m.pct)}%</Txt>
+                  </Row>
+                  <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 9 }}>
+                    <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: m.pct >= 100 ? c.lime : c.accent }} />
+                  </View>
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.hint}</Txt>
+                </View>
+              </React.Fragment>
+            ))}
+          </View>
         </View>
 
         {/* ---------- HÁBITOS — quatro tiles ---------- */}
