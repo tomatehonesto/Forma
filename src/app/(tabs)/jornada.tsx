@@ -8,7 +8,7 @@ import {
   journeySummary, journeyChanges, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind,
+  waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, Metric } from '../../ui/kit';
@@ -169,16 +169,21 @@ function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
 
    O histórico linha por linha existe, mas mora em tela própria: quem abre
    a Jornada quer saber como vai, não auditar registros. */
-function Semana({ w, proxT, aberto, onToggle }: { w: any; proxT: number; aberto: boolean; onToggle: () => void }) {
+function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number; filtro: TLKind | null; aberto: boolean; onToggle: () => void }) {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const perdeu = w.deltaPeso?.startsWith('−');
 
-  /* Ao abrir, a semana mostra o que MARCOU o ciclo — conquistas, consultas,
-     exames, fotos. Check-in e refeição são rotina: entram como contagem na
-     linha de cima, não como lista. Registro a registro fica em /historico. */
-  const conquistas = milestones(S).filter((m) => m.t >= w.t && m.t < proxT);
-  const notaveis = (w.eventos as TLEvent[]).filter((e) => NOTAVEIS.includes(e.kind));
+  /* Ao abrir, a semana mostra o que os NÚMEROS daquele ciclo dizem —
+     hidratação, proteína, exercício, peso — cada um comparado com a semana
+     anterior, mais os acontecimentos que marcaram (conquistas, consultas,
+     exames, fotos). Registro a registro fica em /historico.
+
+     Com um tipo escolhido nos chips, a mesma view se estreita: só os
+     eventos daquele tipo, semana a semana. */
+  const conquistas = filtro ? [] : milestones(S).filter((m) => m.t >= w.t && m.t < proxT);
+  const notaveis = (w.eventos as TLEvent[]).filter((e) => filtro ? e.kind === filtro : NOTAVEIS.includes(e.kind));
+  const metricas: WeekMetric[] = filtro ? [] : w.metricas;
   const cor = (k: string) => (c as any)[k] as string;
 
   return (
@@ -206,9 +211,29 @@ function Semana({ w, proxT, aberto, onToggle }: { w: any; proxT: number; aberto:
         <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>
 
         {aberto && (
-          <View style={{ marginTop: 14 }}>
+          <View style={{ marginTop: 16 }}>
+            {/* números do ciclo, cada um comparado com a semana anterior */}
+            {metricas.length > 0 && (
+              <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                {metricas.map((m) => (
+                  <View key={m.label} style={{ width: '48.5%', backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
+                    <Row gap={7}>
+                      <Icon name={m.ic} size={14} color={c.tx3} sw={1.9} />
+                      <Txt v="micro" c={c.tx3}>{m.label}</Txt>
+                    </Row>
+                    <Row gap={6} style={{ marginTop: 7, alignItems: 'baseline' }}>
+                      <Metric value={m.valor} v="bodyMed" />
+                      {m.delta && (
+                        <Txt v="micro" c={m.good ? c.limeInk : c.tx3}>{m.delta}</Txt>
+                      )}
+                    </Row>
+                  </View>
+                ))}
+              </Row>
+            )}
+
             {conquistas.map((m) => (
-              <Row key={`${m.t}-${m.title}`} gap={10} style={{ backgroundColor: c.limeWeak, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
+              <Row key={`${m.t}-${m.title}`} gap={10} style={{ backgroundColor: c.limeWeak, borderRadius: radius.md, padding: 12, marginTop: 6 }}>
                 <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
                 <View style={{ flex: 1 }}>
                   <Txt v="caption" c={c.tx}>{m.title}</Txt>
@@ -217,7 +242,7 @@ function Semana({ w, proxT, aberto, onToggle }: { w: any; proxT: number; aberto:
               </Row>
             ))}
             {notaveis.map((ev) => (
-              <Row key={ev.key} gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginBottom: 6 }}>
+              <Row key={ev.key} gap={10} style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 12, marginTop: 6 }}>
                 <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
                 <View style={{ flex: 1 }}>
                   <Txt v="caption" c={c.tx}>{ev.title}</Txt>
@@ -225,8 +250,8 @@ function Semana({ w, proxT, aberto, onToggle }: { w: any; proxT: number; aberto:
                 </View>
               </Row>
             ))}
-            {conquistas.length === 0 && notaveis.length === 0 && (
-              <Txt v="micro" c={c.tx4}>Semana de rotina — sem consultas, exames ou marcos.</Txt>
+            {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
+              <Txt v="caption" c={c.tx4}>Sem registros nesta semana.</Txt>
             )}
           </View>
         )}
@@ -254,8 +279,11 @@ export default function Jornada() {
   const contagens = useMemo(() => timelineCounts(S), [S]);
   const cor = (k: string) => (c as any)[k] as string;
 
-  const semanasVisiveis = todasSemanas ? semanas : semanas.slice(0, FEED_SEMANAS);
-  const filtrados = filtro ? eventos.filter((e) => e.kind === filtro) : [];
+  /* com um tipo escolhido, semanas sem nada daquele tipo saem da lista */
+  const semanasComFiltro = filtro
+    ? semanas.filter((w) => w.eventos.some((e) => e.kind === filtro))
+    : semanas;
+  const semanasVisiveis = todasSemanas ? semanasComFiltro : semanasComFiltro.slice(0, FEED_SEMANAS);
   const marcos = milestones(S).slice(0, 8);
   const pen = penStock(S);
   const ci = checkinToday(S);
@@ -379,53 +407,30 @@ export default function Jornada() {
             })}
           </ScrollView>
 
-          {filtro === null ? (
-            <>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 2 }}>
-                {semanasVisiveis.map((w, i) => (
-                  <React.Fragment key={w.semana}>
-                    {i > 0 && <Divider />}
-                    <Semana w={w} proxT={semanas[i - 1]?.t ?? Infinity}
-                      aberto={!!abertas[w.semana]}
-                      onToggle={() => setAbertas((a) => ({ ...a, [w.semana]: !a[w.semana] }))} />
-                  </React.Fragment>
-                ))}
-              </View>
-              {!todasSemanas && semanas.length > FEED_SEMANAS && (
-                <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
-                    <Txt v="label" c={c.accent2}>Ver as {semanas.length} semanas</Txt>
-                    <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
-                  </Row>
-                </Pressable>
-              )}
-            </>
-          ) : (
-            /* com um tipo escolhido a semana deixa de ser a unidade —
-               vira lista corrida daquele registro */
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16, paddingVertical: 4 }}>
-              {filtrados.slice(0, 30).map((ev, i) => (
-                <React.Fragment key={ev.key}>
-                  {i > 0 && <Divider />}
-                  <Row style={{ alignItems: 'flex-start', paddingVertical: 13 }}>
-                    <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: cor(ev.color) + '1F', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name={ev.ic} size={14} color={cor(ev.color)} sw={1.9} />
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 12 }}>
-                      <Row style={{ justifyContent: 'space-between' }}>
-                        <Txt v="body" style={{ flex: 1, marginRight: 8 }}>{ev.title}</Txt>
-                        {ev.value ? <Txt v="micro" c={ev.valueColor ? cor(ev.valueColor) : c.tx4}>{ev.value}</Txt> : null}
-                      </Row>
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{ev.sub}</Txt>
-                      <Txt v="micro" c={c.tx4} style={{ marginTop: 3, textTransform: 'capitalize' }}>{relDay(new Date(ev.day))}</Txt>
-                    </View>
-                  </Row>
-                </React.Fragment>
-              ))}
-              {filtrados.length === 0 && (
-                <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
-              )}
-            </View>
+          {/* A view por semana vale para todas as abas: com um tipo
+              escolhido, cada semana mostra só aquele registro. Semanas sem
+              nada daquele tipo saem da lista. */}
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 2 }}>
+            {semanasVisiveis.map((w, i) => (
+              <React.Fragment key={w.semana}>
+                {i > 0 && <Divider />}
+                <Semana w={w} proxT={semanas[semanas.indexOf(w) - 1]?.t ?? Infinity}
+                  filtro={filtro}
+                  aberto={!!abertas[w.semana]}
+                  onToggle={() => setAbertas((a) => ({ ...a, [w.semana]: !a[w.semana] }))} />
+              </React.Fragment>
+            ))}
+            {semanasVisiveis.length === 0 && (
+              <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
+            )}
+          </View>
+          {!todasSemanas && semanasComFiltro.length > FEED_SEMANAS && (
+            <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
+                <Txt v="label" c={c.accent2}>Ver as {semanasComFiltro.length} semanas</Txt>
+                <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
+              </Row>
+            </Pressable>
           )}
         </View>
 

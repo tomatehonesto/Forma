@@ -539,6 +539,9 @@ export function timelineEvents(S: State): TLEvent[] {
    pertence àquele ciclo. Por isso a aplicação vira o cabeçalho do capítulo,
    e não uma linha igual às outras. É assim que a paciente já pensa:
    "semana 10", não "agosto". */
+/** Um destaque numérico do ciclo — valor + como ele se moveu. */
+export type WeekMetric = { ic: string; label: string; valor: string; delta: string | null; good: boolean };
+
 export type JourneyWeek = {
   semana: number; t: number; dose: string; site: string;
   eventos: TLEvent[]; deltaPeso: string | null;
@@ -546,6 +549,8 @@ export type JourneyWeek = {
   resumo: string;
   /** dose diferente da semana anterior: o evento que mais muda o tratamento */
   mudouDose: boolean;
+  /** o que os números daquele ciclo dizem, comparados com o anterior */
+  metricas: WeekMetric[];
 };
 
 export function timelineWeeks(S: State): JourneyWeek[] {
@@ -553,6 +558,20 @@ export function timelineWeeks(S: State): JourneyWeek[] {
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
   const med = M(S);
   const out: JourneyWeek[] = [];
+  const n1 = (x: number) => nf(x, 1).replace('.', ',');
+
+  /* Médias do ciclo — o que o corpo recebeu naquela semana. Calculadas
+     para todos os ciclos antes do laço, porque cada semana precisa da
+     anterior para dizer se melhorou ou piorou. */
+  const janela = (i: number) => {
+    const ini = +startOfDay(new Date(injs[i].t));
+    const fim = i + 1 < injs.length ? +startOfDay(new Date(injs[i + 1].t)) : Infinity;
+    const cs = (S.checkins as any[]).filter((x) => x.t >= ini && x.t < fim);
+    if (!cs.length) return null;
+    const med2 = (k: string) => cs.reduce((s: number, x: any) => s + (x[k] || 0), 0) / cs.length;
+    return { agua: (med2('agua') * CUP_ML) / 1000, prot: med2('prot'), exerc: cs.reduce((s: number, x: any) => s + (x.exerc || 0), 0) };
+  };
+  const stats = injs.map((_, i) => janela(i));
 
   for (let i = injs.length - 1; i >= 0; i--) {
     const inicio = +startOfDay(new Date(injs[i].t));
@@ -592,6 +611,32 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       })
       .join(' · ');
 
+    /* Destaques numéricos do ciclo. Cada um traz a variação contra a semana
+       anterior — é a comparação que transforma número em informação. */
+    const at = stats[i], ant = i > 0 ? stats[i - 1] : null;
+    const metricas: WeekMetric[] = [];
+    if (deltaPeso) metricas.push({
+      ic: 'scale', label: 'Peso', valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
+    });
+    if (at) {
+      const varia = (agora: number, antes: number | undefined, suf: string) =>
+        antes == null ? null : `${agora >= antes ? '+' : '−'}${n1(Math.abs(agora - antes))} ${suf}`;
+      metricas.push({
+        ic: 'water', label: 'Hidratação', valor: `${n1(at.agua)} L/dia`,
+        delta: varia(at.agua, ant?.agua, 'L'), good: !ant || at.agua >= ant.agua,
+      });
+      metricas.push({
+        ic: 'leaf', label: 'Proteína', valor: `${Math.round(at.prot)} g/dia`,
+        delta: ant ? `${at.prot >= ant.prot ? '+' : '−'}${Math.round(Math.abs(at.prot - ant.prot))} g` : null,
+        good: !ant || at.prot >= ant.prot,
+      });
+      metricas.push({
+        ic: 'dumbbell', label: 'Exercício', valor: `${at.exerc} min`,
+        delta: ant ? `${at.exerc >= ant.exerc ? '+' : '−'}${Math.abs(at.exerc - ant.exerc)} min` : null,
+        good: !ant || at.exerc >= ant.exerc,
+      });
+    }
+
     out.push({
       semana: i + 1, t: injs[i].t,
       dose: `${med.label} ${nf(injs[i].dose, injs[i].dose % 1 ? 1 : 0)} ${med.unit}`,
@@ -599,6 +644,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       eventos, deltaPeso,
       resumo: resumo || 'Sem registros nesta semana',
       mudouDose: i > 0 && injs[i].dose !== injs[i - 1].dose,
+      metricas,
     });
   }
   return out;

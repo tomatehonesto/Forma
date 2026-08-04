@@ -154,28 +154,36 @@ export const font = {
   light: 'Outfit_300Light',
 };
 
-/* Escala tipográfica — tamanhos e entrelinhas lidos do frame. [figma] */
+/* Escala tipográfica.
+
+   O frame do Figma usa 10px em overline e 12px em legenda. Numa peça de
+   apresentação isso funciona; num app de tratamento, não — a pessoa lê
+   isto no ônibus, com pressa, às vezes com a vista cansada, e boa parte
+   do público tem mais de 40. A escala foi subida um degrau na ponta
+   pequena, mantendo a hierarquia e as proporções do frame.
+
+   A régua ficou: 12 · 14 · 15 · 17 · 19 · 20 · 30 · 32 · 36 */
 export const ty = {
-  /** manchete do hero — 34/300, o peso leve é intencional */
-  display: { fontFamily: font.light, fontSize: 34, lineHeight: 37 },
+  /** manchete do hero — o peso leve é intencional */
+  display: { fontFamily: font.light, fontSize: 36, lineHeight: 41 },
   /** número grande em destaque (streak) */
-  h1: { fontFamily: font.display, fontSize: 30, lineHeight: 38 },
+  h1: { fontFamily: font.display, fontSize: 32, lineHeight: 40 },
   /** título de seção — "Suas metas diárias" */
-  h2: { fontFamily: font.display, fontSize: 18, lineHeight: 23 },
+  h2: { fontFamily: font.display, fontSize: 20, lineHeight: 26 },
   /** título de card — "Ingestão de proteína" */
-  title: { fontFamily: font.body, fontSize: 18, lineHeight: 23 },
+  title: { fontFamily: font.body, fontSize: 19, lineHeight: 25 },
   /** valor numérico — "57g", "−16,5 kg" */
-  metric: { fontFamily: font.body, fontSize: 28, lineHeight: 35 },
-  body: { fontFamily: font.body, fontSize: 16, lineHeight: 20 },
-  bodyMed: { fontFamily: font.bodyMed, fontSize: 16, lineHeight: 20 },
+  metric: { fontFamily: font.body, fontSize: 30, lineHeight: 37 },
+  body: { fontFamily: font.body, fontSize: 17, lineHeight: 23 },
+  bodyMed: { fontFamily: font.bodyMed, fontSize: 17, lineHeight: 23 },
   /** link de seção e tab ativa — "Ir para metas" */
-  label: { fontFamily: font.bodyMed, fontSize: 14, lineHeight: 20 },
+  label: { fontFamily: font.bodyMed, fontSize: 15, lineHeight: 20 },
   /** legenda — "Faltam 33 g", "Meta: −23 kg", eixos */
-  note: { fontFamily: font.light, fontSize: 14, lineHeight: 18 },
+  note: { fontFamily: font.light, fontSize: 15, lineHeight: 21 },
   /** sub de item de lista — "3 novas mensagens" */
-  caption: { fontFamily: font.body, fontSize: 12, lineHeight: 15 },
-  /** overline — "SUA ESPECIALISTA", "PARA HOJE" */
-  micro: { fontFamily: font.body, fontSize: 10, lineHeight: 13 },
+  caption: { fontFamily: font.body, fontSize: 14, lineHeight: 18 },
+  /** overline em caixa alta e selos — "SUA ESPECIALISTA", "PARA HOJE" */
+  micro: { fontFamily: font.body, fontSize: 12, lineHeight: 15 },
 } as const;
 
 /* Sombra do frame é bem mais suave que a do v1: preto a 5%. */
