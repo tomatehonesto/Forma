@@ -747,6 +747,46 @@ export function journeyGoals(S: State): JourneyGoal[] {
   });
 }
 
+/* Captura rápida — os três atalhos do sheet de registrar.
+
+   O critério é FREQUÊNCIA, não importância. Aplicação é o registro mais
+   importante do tratamento e mesmo assim não merece lugar fixo: acontece
+   uma vez a cada sete dias, então em seis deles ocuparia um dos três
+   espaços de maior destaque sem ser usada.
+
+   Os três lugares vão para o que a pessoa faz todo dia — e mudam quando o
+   dia pede outra coisa. */
+export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicacao' | 'sintomas' | 'exame' | 'anotacoes';
+
+export function quickCapture(S: State): { motivo: string; acoes: QuickKey[] } {
+  const nd = diffDays(nextInjectionDate(S), now());
+  const li = lastInjection(S);
+  const aplicouHoje = li ? +startOfDay(new Date(li.t)) === +startOfDay(now()) : false;
+
+  /* dia da aplicação: o que vem junto é sintoma e hidratação, porque é
+     quando o enjoo aparece */
+  if (nd <= 0 || aplicouHoje) {
+    return {
+      motivo: aplicouHoje ? 'Você aplicou hoje' : 'Hoje é dia de aplicação',
+      acoes: ['aplicacao', 'sintomas', 'agua'],
+    };
+  }
+
+  /* logo depois de consulta costumam chegar exames e orientações */
+  const ultima = (S.consultsHistory as any[])
+    .slice().sort((a, b) => b.t - a.t)[0];
+  if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) {
+    return { motivo: 'Depois da sua consulta', acoes: ['exame', 'anotacoes', 'checkin'] };
+  }
+
+  /* check-in já feito: o lugar dele vai para o movimento do dia */
+  if (checkinToday(S)) {
+    return { motivo: 'Check-in de hoje já está feito', acoes: ['agua', 'refeicao', 'exercicio'] };
+  }
+
+  return { motivo: 'Um dia comum de tratamento', acoes: ['agua', 'refeicao', 'checkin'] };
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
