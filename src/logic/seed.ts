@@ -9,7 +9,7 @@ export function buildSeed() {
      A curva tem platô e duas semanas de leve ganho de propósito. Perda com
      GLP-1 não é linear, e um seed em linha reta contradiz o que o próprio
      app diz à paciente sobre semanas paradas. */
-  const wpts = [[70, 82.4], [63, 81.5], [56, 80.9], [49, 80.2], [42, 79.9], [35, 79.4], [28, 79.6], [21, 78.5], [14, 77.4], [10, 77.6], [7, 76.4], [3, 75.6], [0, 75.1]];
+  const wpts = [[70, 82.4], [63, 81.2], [56, 80.3], [49, 80.9], [42, 79.6], [35, 78.8], [28, 79.5], [21, 78.1], [14, 77.0], [10, 77.7], [7, 76.3], [3, 75.5], [0, 75.1]];
   const weights = wpts.map(([d, k]) => ({ t: +daysAgo(d), kg: k }));
   // aplicações semanais: 4×2.5mg depois 5mg; última há 4 dias
   const injDays = [67, 60, 53, 46, 39, 32, 25, 18, 11, 4];

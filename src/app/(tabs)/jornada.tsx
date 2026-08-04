@@ -84,17 +84,24 @@ function Painel() {
           forma: quanto perdeu (número) e como perdeu (formato). A barra de
           progresso saiu; três gráficos num card era demais, e o que ela
           dizia cabe em texto. */}
+      {/* Altura generosa de propósito: a variação semanal é de menos de
+          1 kg contra uma amplitude de 7, então num gráfico baixo os platôs
+          e as retomadas viram um pixel e a curva parece uma reta. */}
       {serie.length > 1 && (
-        <View style={{ marginHorizontal: -PAD, marginTop: 14 }}>
-          <AreaCurve pts={serie} height={56} width={largura} padT={4} padB={0} padX={PAD} strokeW={2}
+        <View style={{ marginHorizontal: -PAD, marginTop: 16 }}>
+          <AreaCurve pts={serie} height={84} width={largura} padT={6} padB={0} padX={PAD} strokeW={2}
             strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
         </View>
       )}
-      <Row style={{ justifyContent: 'space-between', marginTop: 8 }}>
-        <Txt v="caption" c={c.onHero2}>
-          {nf(startWeight(S), 1).replace('.', ',')} kg no início · {nf(curWeight(S), 1).replace('.', ',')} kg hoje
-        </Txt>
-        <Txt v="caption" c={c.onHero}>faltam {r.faltamLabel} kg</Txt>
+      <Row style={{ justifyContent: 'space-between', marginTop: 10, alignItems: 'baseline' }}>
+        <Row gap={5} style={{ alignItems: 'baseline' }}>
+          <Txt v="caption" c={c.onHero2}>{nf(startWeight(S), 1).replace('.', ',')} kg no início</Txt>
+          <Txt v="caption" c={c.onHero2}>·</Txt>
+          {/* o peso de hoje é o outro número que importa: fica em branco */}
+          <Txt v="bodyMed" c={c.onHero}>{nf(curWeight(S), 1).replace('.', ',')} kg</Txt>
+          <Txt v="caption" c={c.onHero2}>hoje</Txt>
+        </Row>
+        <Txt v="caption" c={c.onHero2}>faltam {r.faltamLabel} kg</Txt>
       </Row>
 
       {/* ---- ciclo da dose ----
@@ -336,22 +343,11 @@ export default function Jornada() {
           <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
             {changes.map((ch) => <ChangeTile key={ch.label} ch={ch} onPress={go(ch.to_)} />)}
           </Row>
-          {/* Três pílulas iguais lado a lado leem como seletor — como se
-              fossem opções de um mesmo controle. São três destinos
-              diferentes, então viram linhas de navegação: ícone, nome e
-              chevron, que é a gramática do resto do app. */}
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 6, paddingHorizontal: 16, paddingVertical: 2 }}>
-            {([
-              ['camera', 'Evolução visual', `${S.photos.length} fotos de progresso`, '/fotos'],
-              ['target', 'Metas além do peso', `${S.goals.length} metas ativas`, '/metas'],
-              ['heart', 'Saúde e sinais vitais', 'Pressão, glicemia e frequência', '/saude'],
-            ] as [string, string, string, string][]).map(([ic, t, sub, to], i) => (
-              <React.Fragment key={t}>
-                {i > 0 && <Divider />}
-                <ListRow ic={ic} title={t} sub={sub} onPress={go(to)} />
-              </React.Fragment>
-            ))}
-          </View>
+          {/* Aqui havia três atalhos (Fotos, Metas, Saúde). Tentei como
+              pílula e como linha de navegação, e nenhum dos dois assentou:
+              o problema não era o estilo, era a redundância. Os três moram
+              em Evolução, que já é o link do cabeçalho desta seção — e a
+              pressão arterial já aparece como tile, levando a Saúde. */}
         </View>
 
         {/* ---------- HÁBITOS — quatro tiles ---------- */}
