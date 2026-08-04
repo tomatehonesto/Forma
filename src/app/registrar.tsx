@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, TextInput, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -11,7 +11,7 @@ import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
+import { radius } from '../theme';
 
 /* ============================================================
    REGISTRAR — captura de um momento, não menu de funcionalidade.
@@ -37,8 +37,6 @@ export default function Registrar() {
   const insets = useSafeAreaInsets();
   const { height: alturaJanela } = useWindowDimensions();
 
-  const [pesoAberto, setPesoAberto] = useState(false);
-  const [peso, setPeso] = useState('');
   const [feito, setFeito] = useState<string | null>(null);
 
   const piscar = (k: string) => { setFeito(k); setTimeout(() => setFeito(null), 1600); };
@@ -57,12 +55,6 @@ export default function Registrar() {
     update((s: any) => { s.injections.push({ t: +now(), med: s.profile.med, dose: s.profile.dose, site: nextSite(s), note: '' }); });
     piscar('aplicacao');
   };
-  const salvarPeso = () => {
-    const v = parseFloat(peso.replace(',', '.'));
-    if (!v || v < 30 || v > 250) return;
-    update((s: any) => { s.weights.push({ t: +now(), kg: v }); });
-    setPeso(''); setPesoAberto(false); piscar('peso');
-  };
 
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
@@ -72,19 +64,20 @@ export default function Registrar() {
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: feito === 'aplicacao' ? 'registrada' : siteLabel(nextSite(S)), acao: registrarAplicacao },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
-    sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/sintomas' },
-    exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'PDF ou foto', to: '/exames' },
-    anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/consultas' },
+    sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/medir-sintomas' },
+    exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar resultado', to: '/medir-exame' },
+    anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/medir-anotacao' },
   };
 
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
      sempre aqui: pede um número, mas resolve sem sair do sheet. */
   const completos: Item[] = [
+    { ic: 'scale', titulo: 'Acabei de me pesar', sub: `último: ${nf(curWeight(S), 1).replace('.', ',')} kg`, to: '/medir-peso' },
     { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/medir-refeicao' },
-    { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino, humor', to: '/sintomas' },
-    { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/fotos' },
-    { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, composição', to: '/medidas' },
-    { ic: 'doc', titulo: 'Recebi um exame', sub: 'importar PDF ou foto', to: '/exames' },
+    { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome e intestino', to: '/medir-sintomas' },
+    { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/medir-foto' },
+    { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, braço e coxa', to: '/medir-medidas' },
+    { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar o resultado', to: '/medir-exame' },
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
   return (
@@ -179,38 +172,6 @@ export default function Registrar() {
           </Row>
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-            {/* peso abre aqui mesmo: é um número só, sair do sheet para
-                digitá-lo seria desproporcional */}
-            <Pressable onPress={() => setPesoAberto((v) => !v)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-              <Row style={{ paddingVertical: 14 }}>
-                <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={feito === 'peso' ? 'check' : 'scale'} size={17} color={feito === 'peso' ? c.accent : c.tx} sw={1.9} />
-                </View>
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Txt v="body">{feito === 'peso' ? 'Peso registrado' : 'Acabei de me pesar'}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                    {feito === 'peso' ? 'sua evolução foi atualizada' : `último: ${nf(curWeight(S), 1).replace('.', ',')} kg`}
-                  </Txt>
-                </View>
-                <Icon name={pesoAberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
-              </Row>
-            </Pressable>
-            {pesoAberto && (
-              <Row gap={10} style={{ paddingBottom: 14 }}>
-                <TextInput
-                  value={peso} onChangeText={setPeso} keyboardType="decimal-pad" autoFocus
-                  placeholder={nf(curWeight(S), 1).replace('.', ',')} placeholderTextColor={c.tx4}
-                  style={{ flex: 1, backgroundColor: c.bg2, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19 }}
-                />
-                <Txt v="body" c={c.tx3}>kg</Txt>
-                <Pressable onPress={salvarPeso}>
-                  <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
-                    <Txt v="label" c={c.accentInk}>Salvar</Txt>
-                  </View>
-                </Pressable>
-              </Row>
-            )}
-
             {/* peso é sempre a primeira linha, então todas as seguintes
                 vêm precedidas de divisor */}
             {completos.map((it) => (

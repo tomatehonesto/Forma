@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, Animated, Easing, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,8 +22,9 @@ const AURORA = require('../../../assets/images/aurora-hero.png');
 const PAD = 24;                     // margem lateral do frame
 const GOAL_W = 323;                 // largura do card de meta
 const GOAL_GAP = 4;
-const DOT_W = 32;                   // largura do ponto ativo (= a barra de progresso)
-const DOT_IDLE = 16;
+const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
+const DOT_IDLE = 12;
+const DERIVA_MS = 22000;            // ciclo do movimento lento da aurora
 const SLIDE_MS = 7000;              // tempo de leitura de cada slide do hero
 
 /* ------------------------------------------------------------------ */
@@ -97,6 +98,7 @@ export default function Home() {
   const [held, setHeld] = useState(false);   // dedo no carrossel = cronômetro parado
   const heroRef = useRef<ScrollView>(null);
   const progress = useRef(new Animated.Value(0)).current;
+  const deriva = useRef(new Animated.Value(0)).current;
 
   const go = (to: string) => () => router.push(to as any);
   useLightStatusBar();
@@ -153,6 +155,23 @@ export default function Home() {
     return () => anim.stop();
   }, [slide, held, total, width, progress]);
 
+
+  /* Deriva da aurora — vai e volta devagar, dando vida ao fundo sem
+     pedir atenção. Transform roda no driver nativo, então não custa
+     quadro de JS. Respeita 'reduzir movimento': para quem liga essa
+     opção do sistema, o fundo fica parado. */
+  useEffect(() => {
+    let cancelado = false;
+    AccessibilityInfo.isReduceMotionEnabled().then((reduzir) => {
+      if (cancelado || reduzir) return;
+      const ida = (to: number) => Animated.timing(deriva, {
+        toValue: to, duration: DERIVA_MS, easing: Easing.inOut(Easing.ease), useNativeDriver: true,
+      });
+      Animated.loop(Animated.sequence([ida(1), ida(0)])).start();
+    });
+    return () => { cancelado = true; deriva.stopAnimation(); };
+  }, [deriva]);
+
   const onHeroScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
     if (i !== slide) setSlide(i);
@@ -164,7 +183,18 @@ export default function Home() {
 
         {/* ================= HERO ================= */}
         <View>
-          <Image source={AURORA} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
+          {/* escala base acima de 1 para a deriva não descobrir as bordas */}
+          <Animated.View
+            style={[StyleSheet.absoluteFillObject, {
+              transform: [
+                { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
+                { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
+                { translateY: deriva.interpolate({ inputRange: [0, 1], outputRange: [5, -7] }) },
+              ],
+            }]}
+          >
+            <Image source={AURORA} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+          </Animated.View>
 
           {/* cabecalho */}
           <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 26, alignItems: 'center' }}>

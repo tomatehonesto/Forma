@@ -66,7 +66,7 @@ export default function RootLayout() {
             }}
           />
           {/* capturas dedicadas — mesma apresentação do registrar */}
-          {['medir-agua','medir-exercicio','medir-refeicao'].map((n) => (
+          {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-sintomas','medir-medidas','medir-foto','medir-exame','medir-anotacao'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}
