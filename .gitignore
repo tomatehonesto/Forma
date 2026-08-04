@@ -44,3 +44,9 @@ example
 
 # web export (build artifact)
 dist-web/
+
+# log local do dev server (Claude Code)
+expo-dev.log
+
+# imagens de referencia externa (material de terceiros - nao versionar)
+.ui-refs/

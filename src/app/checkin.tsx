@@ -9,7 +9,7 @@ import { startOfDay, now } from '../logic/time';
 import { Txt, Card, Row, IconBadge, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { space, radius } from '../theme';
+import { space, radius, font } from '../theme';
 
 type Key = 'fome' | 'enjoo' | 'energia' | 'humor' | 'compulsao';
 const METRICS: { key: Key; label: string; ic: string; q: (v: number) => string }[] = [
@@ -123,7 +123,7 @@ export default function Checkin() {
           <Icon name="pencil" size={16} color={c.tx4} sw={1.7} />
           <TextInput
             value={note} onChangeText={setNote} placeholder="Adicionar observações..." placeholderTextColor={c.tx4}
-            style={{ flex: 1, marginLeft: 10, paddingVertical: 15, color: c.tx, fontFamily: 'Inter_400Regular', fontSize: 15 }}
+            style={{ flex: 1, marginLeft: 10, paddingVertical: 15, color: c.tx, fontFamily: font.body, fontSize: 16 }}
           />
         </View>
       </ScrollView>
