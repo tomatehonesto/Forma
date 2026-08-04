@@ -1,9 +1,9 @@
 import React from 'react';
-import { Text, View, Pressable, ScrollView, StyleSheet, TextProps, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, TextProps, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ty, font, radius, space, shadowCard } from '../theme';
+import { ty, font, radius, space, shadowCard, TAB_BAR_H } from '../theme';
 import { useTheme } from './useTheme';
 import { Icon } from './Icon';
 
@@ -28,8 +28,6 @@ export function Rich({ text, v = 'body', base, bold, style }: { text: string; v?
   );
 }
 
-/* Superfície branca sobre o fundo quase-branco. Sem borda: a separação
-   vem do tom e de uma sombra mínima (5%), como no frame da Home. */
 /* Número com a fração recuada.
 
    O inteiro carrega o peso e o decimal recua um tom — o valor é lido de
@@ -55,6 +53,8 @@ export function Metric({ value, unit, v = 'metric', tone, dim, style }: {
   );
 }
 
+/* Superfície branca sobre o fundo quase-branco. Sem borda: a separação
+   vem do tom e de uma sombra mínima (5%), como no frame da Home. */
 export function Card({ children, style, onPress, tint }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void; tint?: string }) {
   const { c } = useTheme();
   const body = (
@@ -197,6 +197,41 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
   );
   if (!onPress) return body;
   return <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}>{body}</Pressable>;
+}
+
+/* Sheet de captura — o invólucro que registrar e as telas de medição
+   compartilham: scrim que fecha ao toque, grabber, painel flutuando acima
+   da tab bar. Mantém as capturas com a mesma cara e o mesmo gesto. */
+export function SheetScreen({ titulo, sub, children, onClose }: {
+  titulo: string; sub?: string; children: React.ReactNode; onClose: () => void;
+}) {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  return (
+    <View style={{ height, justifyContent: 'flex-end' }}>
+      <Pressable onPress={onClose} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
+      <View style={{
+        backgroundColor: c.bg, maxHeight: height * 0.78,
+        borderRadius: radius.xl, marginHorizontal: 10,
+        marginBottom: TAB_BAR_H + (insets.bottom || 8) + 10,
+        paddingBottom: 16,
+      }}>
+        <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 16 }}>
+          <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
+        </Pressable>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Txt v="h2">{titulo}</Txt>
+          {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
+          {children}
+        </ScrollView>
+      </View>
+    </View>
+  );
 }
 
 export const sectionTitleStyle: TextStyle = { ...ty.h2 };

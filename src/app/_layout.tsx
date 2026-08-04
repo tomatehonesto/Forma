@@ -65,6 +65,14 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: 'transparent' },
             }}
           />
+          {/* capturas dedicadas — mesma apresentação do registrar */}
+          {['medir-agua','medir-exercicio','medir-refeicao'].map((n) => (
+            <Stack.Screen
+              key={n}
+              name={n}
+              options={{ presentation: 'transparentModal', animation: 'slide_from_bottom', contentStyle: { backgroundColor: 'transparent' } }}
+            />
+          ))}
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

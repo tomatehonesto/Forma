@@ -9,10 +9,9 @@ import {
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
-import { TAB_BAR_H } from '../ui/TabBar';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
+import { radius, font, TAB_BAR_H } from '../theme';
 
 /* ============================================================
    REGISTRAR — captura de um momento, não menu de funcionalidade.
@@ -86,11 +85,11 @@ export default function Registrar() {
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: 'Bebi água', sub: feito === 'agua' ? 'mais um copo' : `${litros} de ${alvoL} L hoje`, acao: maisAgua },
-    exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: feito === 'exercicio' ? 'mais 30 min' : `${ci?.exerc || 0} min hoje`, acao: treinou },
+        agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L hoje`, to: '/medir-agua' },
+        exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: feito === 'aplicacao' ? 'registrada' : siteLabel(nextSite(S)), acao: registrarAplicacao },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
-    refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/alimentacao' },
+        refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
     sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/sintomas' },
     exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'PDF ou foto', to: '/exames' },
     anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/consultas' },
@@ -99,7 +98,7 @@ export default function Registrar() {
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
      sempre aqui: pede um número, mas resolve sem sair do sheet. */
   const completos: Item[] = [
-    { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/alimentacao' },
+    { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/medir-refeicao' },
     { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino, humor', to: '/sintomas' },
     { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/fotos' },
     { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, composição', to: '/medidas' },

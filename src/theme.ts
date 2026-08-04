@@ -136,6 +136,11 @@ export const dark: Palette = {
 
 export const space = { xs: 4, sm: 8, md: 12, base: 16, lg: 20, xl: 24, xxl: 32, huge: 44 };
 
+/* Altura da tab bar sem a safe area. Mora aqui, e não em ui/TabBar, porque
+   o kit precisa dela para posicionar os sheets acima da barra — e kit não
+   pode importar de TabBar, que já importa do kit. */
+export const TAB_BAR_H = 58;
+
 /* Raios do frame: 8 · 12 · 24 · 32 · pill. 32 é o dominante
    (cards e superfícies agrupadas).                           [figma] */
 export const radius = { sm: 8, md: 12, lg: 24, xl: 32, pill: 999 };
