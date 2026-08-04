@@ -128,11 +128,20 @@ export default function Home() {
       body: `${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit} · ${siteLabel(nextSite(S))} sugerido.`,
       cta: 'Ver o preparo', to: '/proxima-aplicacao',
     },
-    ...(ins.length ? [{
-      over: 'DESCOBERTA', title: ins[0].text.replace(/<\/?b>/g, ''),
-      body: 'O Forma acompanha seus registros e conta o que encontra.',
-      cta: 'Ver descobertas', to: '/insights',
-    }] : []),
+    /* A descoberta já vem escrita como "achado — detalhe". Quebrar no
+       travessão dá manchete e explicação sem precisar de texto genérico
+       por baixo: a própria descoberta preenche os dois níveis. */
+    ...(ins.length ? [(() => {
+      const limpo = ins[0].text.replace(/<\/?b>/g, '');
+      const [achado, ...resto] = limpo.split(' — ');
+      const detalhe = resto.join(' — ');
+      return {
+        over: 'DESCOBERTA',
+        title: achado.replace(/\.$/, ''),
+        body: detalhe ? detalhe.charAt(0).toUpperCase() + detalhe.slice(1) : '',
+        cta: 'Ver descobertas', to: '/insights',
+      };
+    })()] : []),
   ];
 
   const total = slides.length;
