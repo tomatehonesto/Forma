@@ -11,8 +11,8 @@ import { shadowCard } from '../theme';
 const ITEMS = [
   { ic: 'home', label: 'Home' },
   { ic: 'journey', label: 'Jornada' },
-  { ic: 'spark', label: 'Insights' },
   { ic: 'heart', label: 'Cuidado' },
+  { ic: 'spark', label: 'Insights' },
 ];
 
 /* Tab bar custom com FAB central (abre o registrar). */

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
@@ -259,13 +260,16 @@ export default function Insights() {
           /* a barra de baixo não é respiro: é o comprimento que a cor precisa
              para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
              seco, e o corte aparece como uma linha atravessando a tela */
-          paddingTop: insets.top + 22, paddingBottom: 140,
+          /* +48 e não +22: a onda encostava na barra de status. O elemento
+             que abre a tela precisa de margem antes dele, senão parece que
+             o conteúdo começou fora do quadro. */
+          paddingTop: insets.top + 48, paddingBottom: 84,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
              cor tem para chegar ao fundo. Mede o mesmo que a faixa sólida no
              rodapé da Dissolução. */
-          marginBottom: -20,
+          marginBottom: -11,
           overflow: 'hidden',
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
@@ -279,15 +283,26 @@ export default function Insights() {
             contentFit="cover"
             contentPosition="center"
           />
-          {/* véu escuro para segurar o contraste do vidro: a aurora tem
-              regiões claras, e branco sobre azul-claro não lê */}
-          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(4,15,51,0.30)' }]} />
+          {/* Véu escuro para segurar o contraste do vidro: a aurora tem
+              regiões claras, e branco sobre azul-claro não lê.
+
+              Em degradê e não chapado porque o card da descoberta virou vidro
+              e mora na parte de baixo — ali o véu precisa pesar mais. No topo
+              ele fica leve, para a aurora aparecer onde ela é bonita, e o
+              texto que mora lá (saudação e pergunta) é grande o bastante para
+              aguentar. */}
+          <LinearGradient
+            colors={['rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)']}
+            locations={[0, 0.45, 1]}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
 
           {/* o azul não termina numa altura, termina num contorno — e o
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={340} />
+          <Dissolucao c={c} width={width} height={110} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -368,15 +383,20 @@ export default function Insights() {
               rodapé — a borda superior aparecendo na dobra é o que promete
               que há mais conteúdo abaixo. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 92, opacity: pressed ? 0.9 : 1 }]}>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, overflow: 'hidden', ...shadowCard(c) }}>
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 84, opacity: pressed ? 0.85 : 1 }]}>
+              {/* Em vidro, como o campo e as chips. Opaco ele era um objeto
+                  pousado sobre o azul; translúcido, pertence ao ambiente do
+                  Companion — e a descoberta É fala dele, não conteúdo da
+                  página. Por isso o card fica inteiro sobre cor chapada, e a
+                  dissolução só começa depois dele. */}
+              <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 24, overflow: 'hidden' }}>
                 {/* clarão lima no canto, quase imperceptível: a assinatura da
                     IA no card sem precisar de mais um elemento gráfico */}
                 <Svg width={220} height={180} style={{ position: 'absolute', right: -60, top: -60 }} pointerEvents="none">
                   <Defs>
                     <RadialGradient id="brilhoCard" cx="50%" cy="50%" r="50%">
-                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.34} />
-                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.12} />
+                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.42} />
+                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.16} />
                       <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
                     </RadialGradient>
                   </Defs>
@@ -384,16 +404,16 @@ export default function Insights() {
                 </Svg>
 
                 <Row gap={9}>
-                  <Icon name="aura" size={15} color={c.accent} sw={2} />
-                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DA SEMANA</Txt>
+                  <Icon name="aura" size={15} color={c.lime} sw={2} />
+                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DA SEMANA</Txt>
                 </Row>
-                <Txt v="title" style={{ fontSize: 20, lineHeight: 27, marginTop: 14 }}>
+                <Txt v="title" c={c.onHero} style={{ fontSize: 20, lineHeight: 27, marginTop: 14 }}>
                   {destaque.titulo}
                 </Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 9, lineHeight: 21 }}>{destaque.texto}</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 9, lineHeight: 21 }}>{destaque.texto}</Txt>
                 <Row gap={7} style={{ marginTop: 16 }}>
-                  <Txt v="label" c={c.accent2}>Entender melhor</Txt>
-                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                  <Txt v="label" c={c.lime}>Entender melhor</Txt>
+                  <Icon name="chev" size={13} color={c.lime} sw={2.2} />
                 </Row>
               </View>
             </Pressable>
@@ -414,7 +434,7 @@ export default function Insights() {
             ela é respondida.
             ============================================================ */}
         {outras.length > 0 && (
-          <View style={{ marginTop: 40 }}>
+          <View style={{ marginTop: 30 }}>
             <SectionHead title="O que mais percebi" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Outras observações que encontrei analisando sua jornada.
