@@ -279,9 +279,10 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          /* A barra inferior mede exatamente o mesmo que a rampa de
-             dissolução, e é isso que faz a rampa começar na base do card:
-             ancorada no rodapé do hero, ela sobe 80 px e encosta ali. */
+          /* A barra inferior é o que separa a base do card do rodapé do hero.
+             A rampa é ancorada nesse rodapé, então o topo dela fica em
+             (barra − altura da rampa) acima do card: com barra 80 e rampa
+             120, ela começa 40 px antes de o card acabar. */
           paddingTop: insets.top + 76, paddingBottom: 80,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
@@ -322,7 +323,12 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={80} />
+          {/* 120 e não 80: a rampa entra 40 px por trás do card. Ali ela está
+              nos primeiros terços do percurso, onde o alfa ainda é baixo — a
+              base do card recebe cerca de 11% de lavagem, o bastante para o
+              azul já estar indo embora quando a borda aparece, e pouco
+              demais para tirar contraste do texto de vidro. */}
+          <Dissolucao c={c} width={width} height={120} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
