@@ -279,13 +279,17 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          paddingTop: insets.top + 76, paddingBottom: 270,
+          /* A barra inferior mede exatamente o mesmo que a rampa de
+             dissolução, e é isso que faz a rampa começar na base do card:
+             ancorada no rodapé do hero, ela sobe 80 px e encosta ali. */
+          paddingTop: insets.top + 76, paddingBottom: 80,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
-             cor tem para chegar ao fundo. Mede o mesmo que a faixa sólida no
-             rodapé da Dissolução. */
-          marginBottom: -34,
+             cor tem para chegar ao fundo. Agora é zero: a rampa termina
+             exatamente na borda do hero, então não há sobra de fundo puro
+             para o conteúdo subir por dentro. */
+          marginBottom: 0,
           overflow: 'hidden',
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
@@ -318,7 +322,7 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={306} />
+          <Dissolucao c={c} width={width} height={80} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -449,8 +453,11 @@ export default function Insights() {
             de uma descoberta é sempre "e daí?", e a matéria acaba quando
             ela é respondida.
             ============================================================ */}
+        {/* Sem margem no topo: os 80 px até o card da descoberta já são a
+            barra inferior do hero, e somar margem aqui os transformaria em
+            98 — a medida vive num lugar só. */}
         {outras.length > 0 && (
-          <View style={{ marginTop: 18 }}>
+          <View>
             <SectionHead title="O que mais percebi" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Outras observações que encontrei analisando sua jornada.
