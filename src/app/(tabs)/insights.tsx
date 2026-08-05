@@ -36,9 +36,13 @@ const PAD = 24;
 
 /* Duas linhas de chips, centradas. Quatro perguntas bastam: a nuvem existe
    para quem não sabe começar, e uma nuvem grande demais volta a ser o menu
-   que ela deveria substituir. */
+   que ela deveria substituir.
+
+   O deslocamento é pequeno e alterna de lado: centrado sem desencontro, o
+   par de linhas vira uma caixa e perde o ar de nuvem. */
 const CHIP_LINHAS = 2;
 const CHIPS_MAX = 4;
+const CHIP_OFFSET = [18, -22];
 
 /* ============================================================
    ORBE — a presença do Companion
@@ -182,6 +186,9 @@ export default function Insights() {
   const hoje = recos.filter((x) => x.quando === 'hoje');
   const semana = recos.filter((x) => x.quando === 'semana');
 
+  /* prova de que ele conhece a jornada — número, não promessa */
+  const lidos = S.checkins.length + S.weights.length + S.injections.length + S.exams.length;
+
   const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
   const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
   const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7)).length;
@@ -206,15 +213,19 @@ export default function Insights() {
           /* a barra de baixo não é respiro: é o comprimento que a cor precisa
              para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
              seco, e o corte aparece como uma linha atravessando a tela */
-          paddingTop: insets.top + 22, paddingBottom: 96, overflow: 'hidden',
+          paddingTop: insets.top + 22, paddingBottom: 110, overflow: 'hidden',
         }}>
           <LinearGradient
-            colors={[c.altTo, c.altMid, c.altFrom, c.bluePale, c.bg]}
-            /* a cor segura a saturação até a metade e só então lava, num
-               último quarto inteiro dedicado à queda — o campo e as chips
-               precisam de fundo com peso, e um degradê que clareia cedo
-               demais entrega texto branco sobre quase-branco */
-            locations={[0, 0.24, 0.56, 0.8, 1]}
+            /* Saiu o quase-preto do topo: ele dava peso de tela escura, não
+               de céu. Agora o campo inteiro de cima é azul profundo com
+               variação sutil, e a lavagem toda acontece depois do campo de
+               digitar — 56% da altura de cor cheia, 44% de queda.
+
+               O campo cai exatamente no índigo saturado de propósito: ali o
+               texto branco lê a 9,5:1. Clarear antes disso entregaria
+               placeholder branco sobre quase-branco. */
+            colors={[c.altMid, c.altFrom, c.bluePale, c.bg]}
+            locations={[0, 0.56, 0.82, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -234,6 +245,11 @@ export default function Insights() {
           </Txt>
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>
             O que você quer{'\n'}entender hoje?
+          </Txt>
+          {/* a credencial voltou, agora do tamanho certo: uma linha discreta
+              sob a pergunta, não uma barra de identidade no topo */}
+          <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, textAlign: 'center' }}>
+            Ele leu {lidos} registros da sua jornada
           </Txt>
 
           {/* o campo é o vidro — e fica na faixa ainda saturada do gradiente,
@@ -259,7 +275,7 @@ export default function Insights() {
               quando as perguntas mudam com o momento do tratamento. */}
           <View style={{ marginHorizontal: -PAD, marginTop: 22 }}>
             {chipLines.map((linha, i) => (
-              <Row key={i} gap={8} style={{ justifyContent: 'center', marginBottom: 8 }}>
+              <Row key={i} gap={8} style={{ justifyContent: 'center', marginBottom: 8, transform: [{ translateX: CHIP_OFFSET[i] ?? 0 }] }}>
                 {linha.map(({ q, visto }) => (
                   <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                     <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, ...shadowSoft(c) }}>
