@@ -14,7 +14,7 @@ import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import Svg, { Defs, Ellipse, Path, RadialGradient, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
+import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowSoft, type Palette } from '../../theme';
 
 /* ============================================================
@@ -41,6 +41,55 @@ const PAD = 24;
    do inglês da referência — e duas por linha só cabiam vazando a tela. Chip
    cortada na borda não é insinuação de que há mais, é chip cortada. */
 const CHIPS_MAX = 3;
+
+/* ============================================================
+   DISSOLUÇÃO — como o azul acaba
+
+   Degradê linear termina em linha, e linha o olho encontra sempre: por
+   mais longa que seja a queda, existe uma altura em que a tela inteira
+   muda de cor de uma vez, de borda a borda. É o que fazia o fim parecer
+   cortado mesmo depois de esticado.
+
+   Aqui a cor do fundo entra por cima em três manchas de tamanhos e
+   alturas diferentes, cada uma com queda radial até zero. Onde elas se
+   sobrepõem o azul some antes; onde não chegam, ele sobrevive mais um
+   pouco. O limite deixa de ser uma altura e passa a ser um contorno —
+   irregular, sem lado paralelo à borda da tela.
+
+   A faixa sólida no rodapé garante que os últimos pixels são fundo puro,
+   para que o encontro com o conteúdo não tenha emenda nenhuma.
+   ============================================================ */
+function Dissolucao({ c, width, height }: { c: Palette; width: number; height: number }) {
+  /* Os centros ficam abaixo da última chip de propósito: mancha que sobe
+     demais clareia o fundo do vidro e derruba o contraste do texto. */
+  const manchas = [
+    { id: 'd0', cx: 0.16, cy: 0.86, rx: 0.80, ry: 0.50, meio: 0.40 },
+    { id: 'd1', cx: 0.90, cy: 0.74, rx: 0.70, ry: 0.42, meio: 0.32 },
+    { id: 'd2', cx: 0.50, cy: 1.02, rx: 1.10, ry: 0.60, meio: 0.48 },
+  ];
+  return (
+    <Svg width={width} height={height} style={{ position: 'absolute', left: 0, bottom: 0 }}>
+      <Defs>
+        {manchas.map((m) => (
+          <RadialGradient key={m.id} id={m.id} cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={c.bg} stopOpacity={1} />
+            <Stop offset={String(m.meio)} stopColor={c.bg} stopOpacity={0.82} />
+            <Stop offset="1" stopColor={c.bg} stopOpacity={0} />
+          </RadialGradient>
+        ))}
+      </Defs>
+      {manchas.map((m) => (
+        <Ellipse
+          key={m.id}
+          cx={width * m.cx} cy={height * m.cy}
+          rx={width * m.rx} ry={height * m.ry}
+          fill={`url(#${m.id})`}
+        />
+      ))}
+      <Rect x={0} y={height * 0.9} width={width} height={height * 0.1} fill={c.bg} />
+    </Svg>
+  );
+}
 
 /* ============================================================
    ONDA — a presença do Companion
@@ -188,31 +237,45 @@ export default function Insights() {
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
-             cor tem para chegar ao fundo. */
-          marginBottom: -25,
+             cor tem para chegar ao fundo. Mede o mesmo que a faixa sólida no
+             rodapé da Dissolução. */
+          marginBottom: -20,
           overflow: 'hidden',
         }}>
           <LinearGradient
-            /* Azul escuro em cima, azul claro embaixo, e o fundo da tela no
-               fim — sete paradas para uma rampa só, porque cada trecho tem
-               um trabalho diferente.
+            /* Azul escuro em cima, azul claro embaixo. A rampa não vai até o
+               fundo da tela — quem faz o encontro com o branco é a
+               Dissolução, logo abaixo.
 
-               O azul médio aparece DUAS vezes, em 30% e em 80%: entre elas a
+               O azul médio aparece DUAS vezes, em 28% e em 80%: entre elas a
                cor não muda. Essa faixa chapada é o que permite campo e chips
                em vidro. Num degradê contínuo a chip de cima estaria sobre um
                azul e a de baixo sobre outro bem mais claro, com a mesma
-               translucidez rendendo contrastes diferentes.
-
-               Depois dela a cor abre para o azul claro e cai até o fundo,
-               chegando lá antes da borda: os últimos 4% já são fundo puro —
-               a mesma medida da margem negativa que sobe o conteúdo. Enquanto
-               o degradê ainda estava mudando quando o hero acabava, o olho
-               encontrava a emenda. */
-            colors={[c.altTo, c.altMid, c.altMid, c.altFrom, c.bluePale, c.bg, c.bg]}
-            locations={[0, 0.30, 0.78, 0.86, 0.92, 0.96, 1]}
+               translucidez rendendo contrastes diferentes. */
+            colors={[c.altTo, c.altMid, c.altMid, c.altFrom]}
+            locations={[0, 0.28, 0.80, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
+
+          {/* Clarão no alto, fora do eixo. Serve só para quebrar a leitura de
+              rampa: um degradê de duas cores, por mais bem espaçado que
+              esteja, ainda lê como faixa uniforme descendo. A mancha
+              desalinhada dá profundidade sem custar contraste — ela morre
+              bem acima do campo de digitar. */}
+          <Svg width={width} height={230} style={{ position: 'absolute', left: 0, top: 0 }}>
+            <Defs>
+              <RadialGradient id="atmosfera" cx="50%" cy="50%" r="50%">
+                <Stop offset="0" stopColor={c.altFrom} stopOpacity={0.30} />
+                <Stop offset="0.55" stopColor={c.altFrom} stopOpacity={0.12} />
+                <Stop offset="1" stopColor={c.altFrom} stopOpacity={0} />
+              </RadialGradient>
+            </Defs>
+            <Ellipse cx={width * 0.78} cy={70} rx={width * 0.62} ry={115} fill="url(#atmosfera)" />
+          </Svg>
+
+          {/* o azul não termina numa altura, termina num contorno */}
+          <Dissolucao c={c} width={width} height={200} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
