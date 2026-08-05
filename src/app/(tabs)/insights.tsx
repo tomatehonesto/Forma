@@ -34,13 +34,13 @@ import { radius, font, shadowSoft, type Palette } from '../../theme';
 
 const PAD = 24;
 
-/* Quatro perguntas, uma por linha, centradas.
+/* Três perguntas, uma por linha, centradas e sem ícone.
 
    A nuvem escalonada era bonita no mockup e errada no aparelho: as
    perguntas em português são longas — 22 a 29 caracteres contra as 12 a 15
    do inglês da referência — e duas por linha só cabiam vazando a tela. Chip
    cortada na borda não é insinuação de que há mais, é chip cortada. */
-const CHIPS_MAX = 4;
+const CHIPS_MAX = 3;
 
 /* ============================================================
    ORBE — a presença do Companion
@@ -87,25 +87,6 @@ function Orbe({ c, size = 132 }: { c: Palette; size?: number }) {
       <Ellipse cx={meio} cy={meio - r * 0.44} rx={r * 0.6} ry={r * 0.28} fill="url(#orbBrilho)" />
     </Svg>
   );
-}
-
-/* O ícone sai do assunto da pergunta. Não há campo para isso porque as
-   perguntas são geradas por heurística, não escolhidas de um catálogo —
-   e um ícone genérico em todas tiraria justamente a leitura rápida que
-   ele existe para dar. */
-function iconePergunta(q: string) {
-  const t = q.toLowerCase();
-  if (/enjoo|náusea|nausea|sintoma/.test(t)) return 'waves';
-  if (/fome|apetite|saciedade/.test(t)) return 'flame';
-  if (/exame|hba1c|colesterol/.test(t)) return 'doc';
-  if (/consulta|médic|medic/.test(t)) return 'cal';
-  if (/aplica|dose|caneta|ciclo/.test(t)) return 'syringe';
-  if (/água|agua|hidrat/.test(t)) return 'water';
-  if (/proteína|proteina|refeiç/.test(t)) return 'leaf';
-  if (/dorm|sono|noite/.test(t)) return 'moon';
-  if (/progresso|evolu|peso|ritmo/.test(t)) return 'trend';
-  if (/fim de semana|semana/.test(t)) return 'journey';
-  return 'spark';
 }
 
 export default function Insights() {
@@ -184,7 +165,13 @@ export default function Insights() {
           /* a barra de baixo não é respiro: é o comprimento que a cor precisa
              para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
              seco, e o corte aparece como uma linha atravessando a tela */
-          paddingTop: insets.top + 22, paddingBottom: 168, overflow: 'hidden',
+          paddingTop: insets.top + 22, paddingBottom: 168,
+          /* O trecho final do degradê é fundo puro, chapado — então o
+             conteúdo pode subir para dentro dele sem que nada mude
+             visualmente. É como encurtar o hero em 88 px sem encurtar a
+             distância que a cor tem para chegar ao fundo. */
+          marginBottom: -88,
+          overflow: 'hidden',
         }}>
           <LinearGradient
             /* A cor de fundo aparece duas vezes no fim, em 88% e em 100%: o
@@ -243,15 +230,17 @@ export default function Insights() {
 
           {/* Uma pergunta por linha, cada chip do tamanho do próprio texto e
               centrada. Perde o desenho de nuvem da referência, e ganha o que
-              importa mais: nenhuma pergunta cortada na borda. Chip que vaza
-              a tela não insinua que há mais — parece defeito. */}
+              importa mais: nenhuma pergunta cortada na borda.
+
+              Sem ícone: a pergunta já diz do que se trata, e um pictograma
+              ao lado de "Como diminuir o enjoo?" não acrescenta leitura —
+              só divide a atenção com o texto que faz o trabalho. */}
           <View style={{ marginTop: 22, alignItems: 'center', gap: 8 }}>
-            {chips.map(({ q, visto }) => (
+            {chips.map(({ q }) => (
               <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, maxWidth: '100%' }]}>
-                <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11, ...shadowSoft(c) }}>
-                  <Icon name={visto ? 'back' : iconePergunta(q)} size={14} color={visto ? c.tx4 : c.accent} sw={2} />
-                  <Txt v="caption" c={c.tx} numberOfLines={1} style={{ flexShrink: 1 }}>{q}</Txt>
-                </Row>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11, ...shadowSoft(c) }}>
+                  <Txt v="caption" c={c.tx} numberOfLines={1}>{q}</Txt>
+                </View>
               </Pressable>
             ))}
           </View>
