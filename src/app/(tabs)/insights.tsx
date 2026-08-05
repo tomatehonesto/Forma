@@ -14,7 +14,7 @@ import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, font } from '../../theme';
+import { radius, font, shadowSoft } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -32,6 +32,57 @@ import { radius, font } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
+
+/* Deslocamento de cada linha da nuvem de chips, medido da borda da tela.
+   A do meio começa antes do zero de propósito: é a linha que vaza à
+   esquerda e denuncia que a nuvem continua fora do quadro. */
+const CHIP_OFFSET = [PAD, PAD - 44, PAD + 18];
+
+/* O ícone sai do assunto da pergunta. Não há campo para isso porque as
+   perguntas são geradas por heurística, não escolhidas de um catálogo —
+   e um ícone genérico em todas tiraria justamente a leitura rápida que
+   ele existe para dar. */
+function iconePergunta(q: string) {
+  const t = q.toLowerCase();
+  if (/enjoo|náusea|nausea|sintoma/.test(t)) return 'waves';
+  if (/fome|apetite|saciedade/.test(t)) return 'flame';
+  if (/exame|hba1c|colesterol/.test(t)) return 'doc';
+  if (/consulta|médic|medic/.test(t)) return 'cal';
+  if (/aplica|dose|caneta|ciclo/.test(t)) return 'syringe';
+  if (/água|agua|hidrat/.test(t)) return 'water';
+  if (/proteína|proteina|refeiç/.test(t)) return 'leaf';
+  if (/dorm|sono|noite/.test(t)) return 'moon';
+  if (/progresso|evolu|peso|ritmo/.test(t)) return 'trend';
+  if (/fim de semana|semana/.test(t)) return 'journey';
+  return 'spark';
+}
+
+/* Quebra as perguntas em linhas por largura ESTIMADA — a medida real só
+   existe depois do layout, e esperar por ela faria a nuvem montar em dois
+   quadros, com salto visível. A estimativa erra por alguns pixels; como
+   as linhas vazam de propósito, o erro não aparece. */
+function montarLinhas(itens: { q: string; visto: boolean }[], larguraTela: number) {
+  const largura = (q: string) => q.length * 7.1 + 52;
+  /* teto bem acima da largura da tela: é o que faz caber uma segunda chip
+     por linha e a deixa vazar na borda. Com teto justo, cada pergunta
+     ocupa uma linha inteira e a nuvem vira lista. */
+  const teto = larguraTela * 1.45;
+  const linhas: { q: string; visto: boolean }[][] = [];
+  let atual: { q: string; visto: boolean }[] = [];
+  let soma = 0;
+
+  for (const it of itens) {
+    const w = largura(it.q) + 8;
+    if (atual.length && soma + w > teto) {
+      linhas.push(atual);
+      if (linhas.length === CHIP_OFFSET.length) return linhas;
+      atual = []; soma = 0;
+    }
+    atual.push(it); soma += w;
+  }
+  if (atual.length) linhas.push(atual);
+  return linhas.slice(0, CHIP_OFFSET.length);
+}
 
 export default function Insights() {
   const S = useStore((s) => s.S);
@@ -58,6 +109,15 @@ export default function Insights() {
     () => companionSuggestions(S).filter((q) => !recentes.includes(q)),
     [S, recentes],
   );
+  /* o que ela já perguntou vem na frente: retomar é mais provável que começar */
+  const chipLines = useMemo(
+    () => montarLinhas(
+      [...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))].slice(0, 6),
+      width,
+    ),
+    [recentes, sugestoes, width],
+  );
+
   const pads = useMemo(() => patterns(S), [S]);
   const recos = useMemo(() => recommendations(S), [S]);
   const eq = useMemo(() => balanceRead(S), [S]);
@@ -77,9 +137,6 @@ export default function Insights() {
   const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
   const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7)).length;
 
-  /* prova de que ele conhece a jornada — número, não promessa */
-  const lidos = S.checkins.length + S.weights.length + S.injections.length + S.exams.length;
-
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
@@ -87,86 +144,90 @@ export default function Insights() {
         {/* ============================================================
             O COMPANION ABRE A TELA
 
-            Não é um card de produto anunciando um recurso — é um espaço de
-            conversa parado esperando. Por isso a ordem é: quem ele é e o
-            que já leu (a credencial), o campo aberto (o convite), e só
-            então o que perguntar (a ajuda para quem não sabe começar).
+            Sem card. A cor entra escura no topo e morre em branco onde o
+            conteúdo começa — o hero não tem borda, tem fim. Card definido
+            recorta a IA como mais um bloco da tela; um banho de cor diz que
+            ela é o ambiente em que a tela acontece.
+
+            O vidro sobrou para uma coisa só: o campo. É o único elemento
+            que a pessoa vai tocar aqui, então é o único que ganha matéria.
             ============================================================ */}
         <View style={{
           marginHorizontal: -PAD, paddingHorizontal: PAD,
-          paddingTop: insets.top + 24, paddingBottom: 26,
-          borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden',
+          paddingTop: insets.top + 22, paddingBottom: 30, overflow: 'hidden',
         }}>
           <LinearGradient
-            colors={[c.altFrom, c.altMid, c.altTo]}
-            start={{ x: 0.15, y: 0 }} end={{ x: 0.9, y: 1 }}
+            colors={[c.altTo, c.altMid, c.altFrom, c.bluePale, c.bg]}
+            /* a cor segura a saturação até bem abaixo e só então lava: o
+               campo e as chips precisam de fundo com peso, e um degradê que
+               clareia cedo demais entrega texto branco sobre quase-branco */
+            locations={[0, 0.3, 0.62, 0.88, 1]}
+            start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
 
-          {/* identidade fora do vidro: o Companion é a aba, não um item dentro dela */}
-          <Row gap={11}>
-            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="aura" size={18} color={c.lime} sw={1.9} />
+          {/* O orbe é a única marca do Companion aqui. Substitui a linha de
+              nome, contagem e link que ocupava o topo: três elementos de
+              interface para dizer o que uma presença diz sozinha. Tocá-lo
+              abre a conversa inteira — o caminho continua existindo, só
+              deixou de ocupar espaço. */}
+          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
+            <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ position: 'absolute', width: 96, height: 96, borderRadius: 48, backgroundColor: c.accent, opacity: 0.18 }} />
+              <View style={{ position: 'absolute', width: 76, height: 76, borderRadius: 38, backgroundColor: c.accent, opacity: 0.3 }} />
+              <View style={{ width: 60, height: 60, borderRadius: 30, overflow: 'hidden' }}>
+                <LinearGradient
+                  colors={[c.lime, c.teal, c.accent]}
+                  start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 1 }}
+                  style={{ flex: 1 }}
+                />
+              </View>
             </View>
-            {/* a contagem é a credencial: sem ela, "conheço sua jornada" é
-                promessa; com ela, é fato verificável */}
-            <View style={{ flex: 1 }}>
-              <Txt v="bodyMed" c={c.onHero}>Companion</Txt>
-              <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>leu {lidos} registros seus</Txt>
-            </View>
-            <Pressable onPress={go('/companion')} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Row gap={6}>
-                <Txt v="label" c={c.lime}>Conversa</Txt>
-                <Icon name="chev" size={13} color={c.lime} sw={2.2} />
-              </Row>
+          </Pressable>
+
+          {/* a pergunta solta na cor, centrada, sem moldura */}
+          <Txt v="note" c={c.onHero2} style={{ marginTop: 14, textAlign: 'center' }}>
+            Oi, {S.profile.name.split(' ')[0]}
+          </Txt>
+          <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>
+            O que você quer{'\n'}entender hoje?
+          </Txt>
+
+          {/* o campo é o vidro — e fica na faixa ainda saturada do gradiente,
+              porque vidro sobre branco não é vidro, é contorno */}
+          <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 24 }}>
+            <TextInput
+              value={pergunta} onChangeText={setPergunta}
+              onSubmitEditing={enviar} returnKeyType="send"
+              placeholder="Escreva sua pergunta..." placeholderTextColor={c.onHero2}
+              style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
+            />
+            <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="send" size={17} color={c.limeInk} sw={2} />
+              </View>
             </Pressable>
           </Row>
 
-          {/* O vidro carrega um gesto só: a pergunta e o campo para respondê-la.
-              Tudo que puder viver fora dele vive fora — quanto menos coisa
-              dentro, mais o card parece uma conversa esperando e menos parece
-              um painel. */}
-          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 22, marginTop: 22 }}>
-            <Txt v="display" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>
-              Oi, {S.profile.name.split(' ')[0]}.{'\n'}O que você quer entender?
-            </Txt>
-
-            <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 20 }}>
-              <TextInput
-                value={pergunta} onChangeText={setPergunta}
-                onSubmitEditing={enviar} returnKeyType="send"
-                placeholder="Escreva sua pergunta..." placeholderTextColor={c.onHero2}
-                style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
-              />
-              <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="send" size={17} color={c.limeInk} sw={2} />
-                </View>
-              </Pressable>
-            </Row>
+          {/* Nuvem de chips: linhas com deslocamentos diferentes que vazam nas
+              duas bordas. Não é enfeite — é o que diz "há mais do que cabe"
+              sem precisar de carrossel nem de reticências. Cada linha é
+              montada por largura estimada, então o desenho se refaz sozinho
+              quando as perguntas mudam com o momento do tratamento. */}
+          <View style={{ marginHorizontal: -PAD, marginTop: 22 }}>
+            {chipLines.map((linha, i) => (
+              <Row key={i} gap={8} style={{ marginLeft: CHIP_OFFSET[i], marginBottom: 8 }}>
+                {linha.map(({ q, visto }) => (
+                  <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                    <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, ...shadowSoft(c) }}>
+                      <Icon name={visto ? 'back' : iconePergunta(q)} size={14} color={visto ? c.tx4 : c.accent} sw={2} />
+                      <Txt v="caption" c={c.tx}>{q}</Txt>
+                    </Row>
+                  </Pressable>
+                ))}
+              </Row>
+            ))}
           </View>
-
-          {/* As sugestões saem do vidro e viram pills soltas sobre o gradiente:
-              quem já sabe o que perguntar ignora; quem não sabe tem por onde
-              começar. As que ela já perguntou levam a seta de volta. */}
-          {/* uma faixa que rola, não uma grade que empilha: no telefone cada
-              pergunta ocupa uma linha inteira, e cinco linhas de pill são a
-              mesma poluição de antes, só que fora do vidro. A última pill
-              vaza na borda para dizer que há mais. */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}
-            style={{ marginHorizontal: -PAD, marginTop: 18 }}
-            contentContainerStyle={{ paddingHorizontal: PAD, gap: 7 }}>
-            {[...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))]
-              .slice(0, 5)
-              .map(({ q, visto }) => (
-                <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
-                  <Row gap={7} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11 }}>
-                    {visto && <Icon name="back" size={12} color={c.onHero2} sw={2} />}
-                    <Txt v="caption" c={c.onHero}>{q}</Txt>
-                  </Row>
-                </Pressable>
-              ))}
-          </ScrollView>
         </View>
 
         {/* ---- descoberta da semana: a prova de que ele conhece a pessoa ---- */}
