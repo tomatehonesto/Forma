@@ -14,7 +14,8 @@ import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, font, shadowSoft } from '../../theme';
+import Svg, { Circle, Defs, Ellipse, RadialGradient, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
+import { radius, font, shadowSoft, type Palette } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -33,10 +34,58 @@ import { radius, font, shadowSoft } from '../../theme';
 
 const PAD = 24;
 
-/* Deslocamento de cada linha da nuvem de chips, medido da borda da tela.
-   A do meio começa antes do zero de propósito: é a linha que vaza à
-   esquerda e denuncia que a nuvem continua fora do quadro. */
-const CHIP_OFFSET = [PAD, PAD - 44, PAD + 18];
+/* Duas linhas de chips, centradas. Quatro perguntas bastam: a nuvem existe
+   para quem não sabe começar, e uma nuvem grande demais volta a ser o menu
+   que ela deveria substituir. */
+const CHIP_LINHAS = 2;
+const CHIPS_MAX = 4;
+
+/* ============================================================
+   ORBE — a presença do Companion
+
+   Dois círculos opacos empilhados não fazem halo, fazem alvo: a borda
+   de cada um aparece e o brilho vira anel. Glow de verdade precisa de
+   queda contínua até zero, e isso só existe em gradiente radial — daí o
+   SVG. Os anéis orbitais em volta são o que dá a leitura de instrumento
+   em vez de bolinha colorida.
+   ============================================================ */
+function Orbe({ c, size = 132 }: { c: Palette; size?: number }) {
+  const meio = size / 2;
+  const r = size * 0.225;
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <RadialGradient id="orbGlow" cx="50%" cy="50%" r="50%">
+          <Stop offset="0.30" stopColor={c.teal} stopOpacity={0.42} />
+          <Stop offset="0.52" stopColor={c.accent} stopOpacity={0.26} />
+          <Stop offset="0.78" stopColor={c.accent} stopOpacity={0.07} />
+          <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
+        </RadialGradient>
+        <SvgGrad id="orbCorpo" x1="0.12" y1="0" x2="0.88" y2="1">
+          <Stop offset="0" stopColor={c.lime} />
+          <Stop offset="0.42" stopColor={c.teal} />
+          <Stop offset="1" stopColor={c.accent} />
+        </SvgGrad>
+        <SvgGrad id="orbBrilho" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.7} />
+          <Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
+        </SvgGrad>
+      </Defs>
+
+      {/* o brilho ocupa a tela inteira do svg e morre em zero — sem borda
+          para o olho encontrar */}
+      <Circle cx={meio} cy={meio} r={meio} fill="url(#orbGlow)" />
+
+      {/* anéis orbitais, cada vez mais tênues */}
+      <Circle cx={meio} cy={meio} r={r + 11} fill="none" stroke={c.onHeroLine} strokeWidth={1} />
+      <Circle cx={meio} cy={meio} r={r + 24} fill="none" stroke={c.onHeroWeak} strokeWidth={1} />
+
+      <Circle cx={meio} cy={meio} r={r} fill="url(#orbCorpo)" />
+      {/* reflexo alto: é ele que faz o disco virar esfera */}
+      <Ellipse cx={meio} cy={meio - r * 0.44} rx={r * 0.6} ry={r * 0.28} fill="url(#orbBrilho)" />
+    </Svg>
+  );
+}
 
 /* O ícone sai do assunto da pergunta. Não há campo para isso porque as
    perguntas são geradas por heurística, não escolhidas de um catálogo —
@@ -63,10 +112,10 @@ function iconePergunta(q: string) {
    as linhas vazam de propósito, o erro não aparece. */
 function montarLinhas(itens: { q: string; visto: boolean }[], larguraTela: number) {
   const largura = (q: string) => q.length * 7.1 + 52;
-  /* teto bem acima da largura da tela: é o que faz caber uma segunda chip
-     por linha e a deixa vazar na borda. Com teto justo, cada pergunta
-     ocupa uma linha inteira e a nuvem vira lista. */
-  const teto = larguraTela * 1.45;
+  /* teto acima da largura da tela: é o que faz caber uma segunda chip por
+     linha, mesmo que o par vaze um pouco nas duas bordas. Com teto justo,
+     cada pergunta ocupa uma linha inteira e a nuvem vira lista. */
+  const teto = larguraTela * 1.35;
   const linhas: { q: string; visto: boolean }[][] = [];
   let atual: { q: string; visto: boolean }[] = [];
   let soma = 0;
@@ -75,13 +124,13 @@ function montarLinhas(itens: { q: string; visto: boolean }[], larguraTela: numbe
     const w = largura(it.q) + 8;
     if (atual.length && soma + w > teto) {
       linhas.push(atual);
-      if (linhas.length === CHIP_OFFSET.length) return linhas;
+      if (linhas.length === CHIP_LINHAS) return linhas;
       atual = []; soma = 0;
     }
     atual.push(it); soma += w;
   }
   if (atual.length) linhas.push(atual);
-  return linhas.slice(0, CHIP_OFFSET.length);
+  return linhas.slice(0, CHIP_LINHAS);
 }
 
 export default function Insights() {
@@ -112,7 +161,7 @@ export default function Insights() {
   /* o que ela já perguntou vem na frente: retomar é mais provável que começar */
   const chipLines = useMemo(
     () => montarLinhas(
-      [...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))].slice(0, 6),
+      [...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))].slice(0, CHIPS_MAX),
       width,
     ),
     [recentes, sugestoes, width],
@@ -154,14 +203,18 @@ export default function Insights() {
             ============================================================ */}
         <View style={{
           marginHorizontal: -PAD, paddingHorizontal: PAD,
-          paddingTop: insets.top + 22, paddingBottom: 30, overflow: 'hidden',
+          /* a barra de baixo não é respiro: é o comprimento que a cor precisa
+             para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
+             seco, e o corte aparece como uma linha atravessando a tela */
+          paddingTop: insets.top + 22, paddingBottom: 96, overflow: 'hidden',
         }}>
           <LinearGradient
             colors={[c.altTo, c.altMid, c.altFrom, c.bluePale, c.bg]}
-            /* a cor segura a saturação até bem abaixo e só então lava: o
-               campo e as chips precisam de fundo com peso, e um degradê que
-               clareia cedo demais entrega texto branco sobre quase-branco */
-            locations={[0, 0.3, 0.62, 0.88, 1]}
+            /* a cor segura a saturação até a metade e só então lava, num
+               último quarto inteiro dedicado à queda — o campo e as chips
+               precisam de fundo com peso, e um degradê que clareia cedo
+               demais entrega texto branco sobre quase-branco */
+            locations={[0, 0.24, 0.56, 0.8, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -172,21 +225,11 @@ export default function Insights() {
               abre a conversa inteira — o caminho continua existindo, só
               deixou de ocupar espaço. */}
           <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
-            <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
-              <View style={{ position: 'absolute', width: 96, height: 96, borderRadius: 48, backgroundColor: c.accent, opacity: 0.18 }} />
-              <View style={{ position: 'absolute', width: 76, height: 76, borderRadius: 38, backgroundColor: c.accent, opacity: 0.3 }} />
-              <View style={{ width: 60, height: 60, borderRadius: 30, overflow: 'hidden' }}>
-                <LinearGradient
-                  colors={[c.lime, c.teal, c.accent]}
-                  start={{ x: 0.15, y: 0 }} end={{ x: 0.85, y: 1 }}
-                  style={{ flex: 1 }}
-                />
-              </View>
-            </View>
+            <Orbe c={c} />
           </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
-          <Txt v="note" c={c.onHero2} style={{ marginTop: 14, textAlign: 'center' }}>
+          <Txt v="note" c={c.onHero2} style={{ marginTop: 4, textAlign: 'center' }}>
             Oi, {S.profile.name.split(' ')[0]}
           </Txt>
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>
@@ -216,7 +259,7 @@ export default function Insights() {
               quando as perguntas mudam com o momento do tratamento. */}
           <View style={{ marginHorizontal: -PAD, marginTop: 22 }}>
             {chipLines.map((linha, i) => (
-              <Row key={i} gap={8} style={{ marginLeft: CHIP_OFFSET[i], marginBottom: 8 }}>
+              <Row key={i} gap={8} style={{ justifyContent: 'center', marginBottom: 8 }}>
                 {linha.map(({ q, visto }) => (
                   <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                     <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, ...shadowSoft(c) }}>
@@ -230,9 +273,12 @@ export default function Insights() {
           </View>
         </View>
 
-        {/* ---- descoberta da semana: a prova de que ele conhece a pessoa ---- */}
+        {/* ---- descoberta da semana: a prova de que ele conhece a pessoa ----
+             A margem é pequena de propósito: a cauda do degradê já é o
+             respiro, e somar espaço aqui abriria um vão branco onde antes
+             havia a borda do card. */}
         {destaque && (
-          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 34, opacity: pressed ? 0.85 : 1 }]}>
+          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 6, opacity: pressed ? 0.85 : 1 }]}>
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 20 }}>
               <Row gap={9}>
                 <Icon name={destaque.ic} size={15} color={cor(destaque.cor)} sw={2} />
