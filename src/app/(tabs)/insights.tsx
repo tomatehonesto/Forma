@@ -89,12 +89,17 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
   return (
     <View style={{ position: 'absolute', left: 0, bottom: 0, width, height }} pointerEvents="none">
       <LinearGradient
+        /* As duas últimas paradas são ambas opacas: a rampa chega ao fundo em
+           88% e o resto é chapado. Terminando em 100% ela nunca alcança
+           opacidade total — a penúltima fileira de pixels fica com uma fração
+           de azul, e essa fração aparece como um fio logo acima do conteúdo
+           seguinte. Fio de meio por cento de cor ainda é fio. */
         colors={[
           'rgba(245,246,250,0)', 'rgba(245,246,250,0.02)', 'rgba(245,246,250,0.07)',
           'rgba(245,246,250,0.17)', 'rgba(245,246,250,0.34)', 'rgba(245,246,250,0.58)',
-          'rgba(245,246,250,0.80)', 'rgba(245,246,250,0.94)', 'rgba(245,246,250,1)',
+          'rgba(245,246,250,0.82)', 'rgba(245,246,250,1)', 'rgba(245,246,250,1)',
         ]}
-        locations={[0, 0.14, 0.28, 0.42, 0.56, 0.70, 0.82, 0.90, 1]}
+        locations={[0, 0.13, 0.26, 0.40, 0.54, 0.68, 0.80, 0.88, 1]}
         style={StyleSheet.absoluteFillObject}
       />
       {/* Duas manchas muito fracas por cima, deslocadas para lados opostos.
