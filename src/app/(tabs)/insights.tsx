@@ -15,7 +15,7 @@ import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
-import { radius, font, type Palette } from '../../theme';
+import { radius, font, shadowCard, type Palette } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -247,14 +247,15 @@ export default function Insights() {
                fundo da tela — quem faz o encontro com o branco é a
                Dissolução, logo abaixo.
 
-               O azul médio aparece DUAS vezes, em 24% e em 85%: entre elas a
-               cor não muda. Essa faixa chapada é o que permite campo, chips e
-               descoberta em vidro. Num degradê contínuo o vidro do topo
-               estaria sobre um azul e o de baixo sobre outro bem mais claro,
-               com a mesma translucidez rendendo contrastes diferentes — a
-               segunda parada acompanha a base do card da descoberta. */
+               O azul médio aparece DUAS vezes, em 24% e em 58%: entre elas a
+               cor não muda. Essa faixa chapada é o que permite campo e chips
+               em vidro. Num degradê contínuo a chip de cima estaria sobre um
+               azul e a de baixo sobre outro bem mais claro, com a mesma
+               translucidez rendendo contrastes diferentes. A parada acompanha
+               a última chip; o card da descoberta é opaco e não precisa
+               dela. */
             colors={[c.altTo, c.altMid, c.altMid, c.altFrom]}
-            locations={[0, 0.24, 0.85, 1]}
+            locations={[0, 0.24, 0.58, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -275,8 +276,11 @@ export default function Insights() {
             <Ellipse cx={width * 0.78} cy={70} rx={width * 0.62} ry={115} fill="url(#atmosfera)" />
           </Svg>
 
-          {/* o azul não termina numa altura, termina num contorno */}
-          <Dissolucao c={c} width={width} height={200} />
+          {/* o azul não termina numa altura, termina num contorno — e o
+              contorno passa por trás do card da descoberta, não abaixo
+              dele: é isso que põe o card na divisa em vez de encostado
+              nela */}
+          <Dissolucao c={c} width={width} height={340} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -338,30 +342,30 @@ export default function Insights() {
           </View>
 
           {/* ---- descoberta da semana ----
-              Mora dentro do hero, em vidro, na última faixa de azul antes da
-              dissolução. É uma decisão de autoria, não de layout: a
-              descoberta não é o primeiro item da lista de conteúdo, é a
-              última coisa que a IA diz. Do lado de cá da divisa ela sai da
-              boca do Companion; do lado de lá viraria mais um card entre
-              cards.
+              Mora dentro do hero, montado em cima da divisa: metade sobre o
+              azul, metade sobre a dissolução. É uma decisão de autoria, não
+              de layout — a descoberta não é o primeiro item da lista de
+              conteúdo, é a última coisa que a IA diz, e a peça que costura
+              as duas metades da tela.
 
-              A borda de baixo cai onde o azul começa a se desfazer, então o
-              card encosta na divisa sem atravessá-la — atravessar poria
-              texto branco sobre fundo clareando. */}
+              Branco e opaco de propósito. Em vidro ele teria de caber
+              inteiro dentro do azul, senão o texto branco escorregaria para
+              um fundo clareando; opaco, ele carrega o próprio fundo e pode
+              ficar exatamente onde o desenho pede. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 34, opacity: pressed ? 0.8 : 1 }]}>
-              <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 22 }}>
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 56, opacity: pressed ? 0.9 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 22, ...shadowCard(c) }}>
                 <Row gap={10}>
                   <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
                 </Row>
-                <Txt v="display" c={c.onHero} style={{ fontSize: 25, lineHeight: 32, marginTop: 16 }}>
+                <Txt v="display" c={c.tx} style={{ fontSize: 21, lineHeight: 28, marginTop: 14 }}>
                   {destaque.titulo}
                 </Txt>
-                <Txt v="note" c={c.onHero2} style={{ marginTop: 10 }}>{destaque.texto}</Txt>
-                <Row gap={6} style={{ marginTop: 18 }}>
-                  <Txt v="label" c={c.lime}>Entender melhor</Txt>
-                  <Icon name="chev" size={13} color={c.lime} sw={2.2} />
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 20 }}>{destaque.texto}</Txt>
+                <Row gap={6} style={{ marginTop: 16 }}>
+                  <Txt v="label" c={c.accent2}>Entender melhor</Txt>
+                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </View>
             </Pressable>
