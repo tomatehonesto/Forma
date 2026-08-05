@@ -6,13 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, companionMemoria, libraryPicks, PAT_LABEL, radar, checkins30,
+  balanceRead, companionMemoria, PAT_LABEL, radar, checkins30,
   hasClinic, journeySummary, type PatKey,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
-import { Txt, Row, SectionHead, ListRow, Divider } from '../../ui/kit';
+import { Txt, Row, SectionHead } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
-import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
@@ -90,6 +89,101 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
       ))}
       <Rect x={0} y={height * 0.9} width={width} height={height * 0.1} fill={c.bg} />
     </Svg>
+  );
+}
+
+/* ============================================================
+   PÉTALAS — o equilíbrio como oito setores
+
+   Substituiu o radar. Radar desenha um polígono e pede que a pessoa
+   julgue a forma dele: quanto mais irregular, pior — mas ninguém sabe
+   qual polígono é bom, e um eixo baixo some no meio do contorno. Aqui
+   cada indicador tem uma pétala própria: o trilho mostra o que caberia,
+   o preenchimento mostra o que há, e a comparação é entre vizinhos, que
+   é uma leitura que o olho faz sozinho.
+
+   O eixo mais fraco vem em lima — o mesmo que a leitura escrita logo
+   acima aponta como foco da semana. Sem isso o gráfico ilustraria o
+   texto por coincidência; com isso, ele aponta para a mesma coisa.
+   ============================================================ */
+function Petalas({ c, data, size, fraco }: { c: Palette; data: { k: string; v: number }[]; size: number; fraco?: string }) {
+  const R = size / 2;
+  const meio = R;
+  const buraco = R * 0.12;
+  const trilhoAte = R * 0.97;
+  /* o preenchimento para antes do rótulo: número coberto por pétala é
+     dado escondido pelo próprio gráfico */
+  const valorAte = R * 0.57;
+  const n = data.length;
+  const passo = 360 / n;
+  const folga = 2.6;          // graus de respiro entre pétalas
+  const arredondar = 7;       // vira strokeWidth: o traço arredonda os cantos
+
+  const ponto = (ang: number, r: number) => {
+    const rad = ((ang - 90) * Math.PI) / 180;
+    return [meio + Math.cos(rad) * r, meio + Math.sin(rad) * r];
+  };
+  /* setor anular entre dois raios. O contorno com linejoin redondo é o que
+     dá o canto arredondado sem precisar calcular arcos de canto — por isso
+     os raios entram encolhidos pela metade da espessura. */
+  const setor = (a0: number, a1: number, r0: number, r1: number) => {
+    const i = arredondar / 2;
+    const [x0, y0] = ponto(a0, r0 + i), [x1, y1] = ponto(a1, r0 + i);
+    const [x2, y2] = ponto(a1, r1 - i), [x3, y3] = ponto(a0, r1 - i);
+    return `M${x0},${y0} A${r0 + i},${r0 + i} 0 0 1 ${x1},${y1} L${x2},${y2} A${r1 - i},${r1 - i} 0 0 0 ${x3},${y3} Z`;
+  };
+
+  return (
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size}>
+        <Defs>
+          <SvgGrad id="petala" x1="0" y1="0" x2="0.4" y2="1">
+            <Stop offset="0" stopColor={c.panelFrom} />
+            <Stop offset="1" stopColor={c.accent2} />
+          </SvgGrad>
+        </Defs>
+
+        {data.map((d, i) => {
+          const a0 = i * passo - passo / 2 + folga / 2;
+          const a1 = i * passo + passo / 2 - folga / 2;
+          const pct = Math.max(0, Math.min(100, d.v)) / 100;
+          const alvo = buraco + (valorAte - buraco) * pct;
+          const ehFraco = d.k === fraco;
+          return (
+            <React.Fragment key={d.k}>
+              <Path
+                d={setor(a0, a1, buraco, trilhoAte)}
+                fill={c.bg2} stroke={c.bg2}
+                strokeWidth={arredondar} strokeLinejoin="round"
+              />
+              {pct > 0.04 && (
+                <Path
+                  d={setor(a0, a1, buraco, alvo)}
+                  fill={ehFraco ? c.lime : 'url(#petala)'}
+                  stroke={ehFraco ? c.lime : c.accent2}
+                  strokeWidth={arredondar} strokeLinejoin="round"
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </Svg>
+
+      {/* rótulos em View e não em <Text> do SVG: assim herdam a Outfit e a
+          escala tipográfica do app, em vez de virarem uma segunda régua */}
+      {data.map((d, i) => {
+        /* 0,73 e não 0,79: nos setores da esquerda e da direita o rótulo sai
+           na horizontal pura, e a caixa de 70 px vazava a borda do desenho */
+        const [x, y] = ponto(i * passo, R * 0.73);
+        const ehFraco = d.k === fraco;
+        return (
+          <View key={d.k} pointerEvents="none" style={{ position: 'absolute', left: x - 35, top: y - 19, width: 70, alignItems: 'center' }}>
+            <Txt v="bodyMed" c={ehFraco ? c.limeInk : c.tx} style={{ fontSize: 17 }}>{Math.round(d.v)}</Txt>
+            <Txt v="micro" c={ehFraco ? c.limeInk : c.tx3} numberOfLines={1}>{d.k}</Txt>
+          </View>
+        );
+      })}
+    </View>
   );
 }
 
@@ -196,7 +290,6 @@ export default function Insights() {
   const pads = useMemo(() => patterns(S), [S]);
   const recos = useMemo(() => recommendations(S), [S]);
   const eq = useMemo(() => balanceRead(S), [S]);
-  const leituras = useMemo(() => libraryPicks(S), [S]);
   const r = journeySummary(S);
   const cor = (k: string) => (c as any)[k] as string;
 
@@ -487,7 +580,7 @@ export default function Insights() {
               <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 14 }}>
                 O QUE SUSTENTA ESSA LEITURA
               </Txt>
-              <Radar data={radar(S)} size={Math.min(230, width - 140)} />
+              <Petalas data={radar(S)} size={Math.min(288, width - 96)} fraco={eq.fraco} c={c} />
               <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
                 Últimos 3 check-ins · {checkins30(S)} registros no mês
               </Txt>
@@ -582,41 +675,10 @@ export default function Insights() {
           </View>
         </View>
 
-        {/* ---- leituras: cada uma entra por um motivo que aparece no card ----
-             O segundo card do Companion morava aqui. Saiu: ele já é a porta
-             da tela, e repetir a porta no fim é dizer que a primeira não
-             convenceu. No lugar entra o que a IA escolheu ler com a pessoa. */}
-        {leituras.length > 0 && (
-          <View style={{ marginTop: 36 }}>
-            <SectionHead title="Para o seu momento" link="Ver tudo" onPress={go('/biblioteca')} />
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              Escolhido pela fase do seu ciclo e pelo que você vem registrando.
-            </Txt>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}
-              style={{ marginTop: 14, marginHorizontal: -PAD }}
-              contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}>
-              {leituras.map((l) => (
-                <Pressable key={l.titulo} onPress={go('/biblioteca')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
-                  <View style={{ width: 264, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
-                    <Row gap={8} style={{ alignItems: 'flex-start' }}>
-                      <View style={{ marginTop: 1 }}>
-                        <Icon name={l.ic} size={14} color={c.accent} sw={2} />
-                      </View>
-                      <Txt v="micro" c={c.accent} style={{ flex: 1, letterSpacing: 0.6 }}>{l.motivo.toUpperCase()}</Txt>
-                    </Row>
-                    <Txt v="title" style={{ marginTop: 11 }}>{l.titulo}</Txt>
-                    <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 19 }}>{l.desc}</Txt>
-                    <Row gap={6} style={{ marginTop: 14 }}>
-                      <Icon name="book" size={13} color={c.tx4} sw={2} />
-                      <Txt v="micro" c={c.tx3}>{l.min} min de leitura</Txt>
-                    </Row>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        )}
+        {/* O bloco de leituras morava aqui. A tela fecha nos resumos: o que
+            ela faz é observar, interpretar e organizar — sugerir artigo é
+            outro serviço, e ele diluía o último gesto da página. libraryPicks
+            segue em derive.ts, servindo a Biblioteca. */}
       </ScrollView>
     </View>
   );

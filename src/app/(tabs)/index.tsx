@@ -207,6 +207,24 @@ export default function Home() {
             <Image source={AURORA} style={StyleSheet.absoluteFillObject} contentFit="cover" />
           </Animated.View>
 
+          {/* Véu sobre a aurora, mais pesado nas pontas que no meio.
+
+              A imagem tem regiões bem claras, e o hero carrega a manchete do
+              dia em branco por cima delas — sem o véu a leitura depende de
+              onde a deriva parou, o que é o mesmo que não ser legível. Fica
+              FORA do Animated.View de propósito: se derivasse junto, a
+              proteção passearia pela tela e deixaria trechos descobertos.
+
+              Mais escuro em cima (onde ficam nome e data, em corpo pequeno)
+              e embaixo (onde a faixa de check-in encosta), e mais leve no
+              meio, para a aurora ainda aparecer onde ela é bonita. */}
+          <LinearGradient
+            colors={['rgba(3,10,38,0.62)', 'rgba(3,10,38,0.34)', 'rgba(3,10,38,0.58)']}
+            locations={[0, 0.46, 1]}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+
           {/* cabecalho */}
           <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 26, alignItems: 'center' }}>
             <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
