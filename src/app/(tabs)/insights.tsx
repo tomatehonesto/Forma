@@ -15,7 +15,7 @@ import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
-import { radius, font, shadowSoft, type Palette } from '../../theme';
+import { radius, font, type Palette } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -247,13 +247,14 @@ export default function Insights() {
                fundo da tela — quem faz o encontro com o branco é a
                Dissolução, logo abaixo.
 
-               O azul médio aparece DUAS vezes, em 28% e em 80%: entre elas a
-               cor não muda. Essa faixa chapada é o que permite campo e chips
-               em vidro. Num degradê contínuo a chip de cima estaria sobre um
-               azul e a de baixo sobre outro bem mais claro, com a mesma
-               translucidez rendendo contrastes diferentes. */
+               O azul médio aparece DUAS vezes, em 24% e em 85%: entre elas a
+               cor não muda. Essa faixa chapada é o que permite campo, chips e
+               descoberta em vidro. Num degradê contínuo o vidro do topo
+               estaria sobre um azul e o de baixo sobre outro bem mais claro,
+               com a mesma translucidez rendendo contrastes diferentes — a
+               segunda parada acompanha a base do card da descoberta. */
             colors={[c.altTo, c.altMid, c.altMid, c.altFrom]}
-            locations={[0, 0.28, 0.80, 1]}
+            locations={[0, 0.24, 0.85, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -335,33 +336,37 @@ export default function Insights() {
               </Pressable>
             ))}
           </View>
-        </View>
 
-        {/* ---- descoberta da semana: a prova de que ele conhece a pessoa ----
-             A margem é pequena de propósito: a cauda do degradê já é o
-             respiro, e somar espaço aqui abriria um vão branco onde antes
-             havia a borda do card. */}
-        {destaque && (
-          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 30, opacity: pressed ? 0.7 : 1 }]}>
-            {/* Sem card. O achado mais forte da semana não precisa de caixa
-                para se destacar — precisa de tamanho e de ar em volta, e a
-                caixa branca sobre fundo quase branco só acrescenta uma borda
-                que não separa nada. O traço lima faz o trabalho que a moldura
-                fazia mal. */}
-            <Row gap={10}>
-              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
-            </Row>
-            <Txt v="display" c={c.tx} style={{ fontSize: 26, lineHeight: 33, marginTop: 16 }}>
-              {destaque.titulo}
-            </Txt>
-            <Txt v="note" c={c.tx2} style={{ marginTop: 10 }}>{destaque.texto}</Txt>
-            <Row gap={6} style={{ marginTop: 16 }}>
-              <Txt v="label" c={c.accent2}>Entender melhor</Txt>
-              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-            </Row>
-          </Pressable>
-        )}
+          {/* ---- descoberta da semana ----
+              Mora dentro do hero, em vidro, na última faixa de azul antes da
+              dissolução. É uma decisão de autoria, não de layout: a
+              descoberta não é o primeiro item da lista de conteúdo, é a
+              última coisa que a IA diz. Do lado de cá da divisa ela sai da
+              boca do Companion; do lado de lá viraria mais um card entre
+              cards.
+
+              A borda de baixo cai onde o azul começa a se desfazer, então o
+              card encosta na divisa sem atravessá-la — atravessar poria
+              texto branco sobre fundo clareando. */}
+          {destaque && (
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 34, opacity: pressed ? 0.8 : 1 }]}>
+              <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 22 }}>
+                <Row gap={10}>
+                  <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
+                </Row>
+                <Txt v="display" c={c.onHero} style={{ fontSize: 25, lineHeight: 32, marginTop: 16 }}>
+                  {destaque.titulo}
+                </Txt>
+                <Txt v="note" c={c.onHero2} style={{ marginTop: 10 }}>{destaque.texto}</Txt>
+                <Row gap={6} style={{ marginTop: 18 }}>
+                  <Txt v="label" c={c.lime}>Entender melhor</Txt>
+                  <Icon name="chev" size={13} color={c.lime} sw={2.2} />
+                </Row>
+              </View>
+            </Pressable>
+          )}
+        </View>
 
         {/* ---- padrões: o que explica o comportamento ---- */}
         {restantes.length > 0 && (
