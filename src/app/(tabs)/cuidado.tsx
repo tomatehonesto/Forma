@@ -1,6 +1,9 @@
 import React from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
@@ -30,6 +33,7 @@ import { radius } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
+const FOTO_MEDICA = require('../../../assets/images/especialista.jpg');
 
 /* ------------------------------------------------------------------ *
  * COM VÍNCULO
@@ -40,15 +44,23 @@ const PAD = 24;
 /** Inicial dentro de um bloco tingido. Substitui a foto que o app ainda não
     tem — e não finge ter: nome próprio em corpo grande identifica uma pessoa
     tão bem quanto um retrato, e melhor que um avatar genérico. */
-function Retrato({ nome, size = 56, tint }: { nome: string; size?: number; tint?: string }) {
+function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
   const { c } = useTheme();
   const letra = nome.replace(/^Dr[a]?\.\s*/, '')[0];
   return (
     <View style={{
       width: size, height: size, borderRadius: size * 0.32,
-      backgroundColor: tint ?? c.bg1, alignItems: 'center', justifyContent: 'center',
+      overflow: 'hidden', alignItems: 'center', justifyContent: 'center',
     }}>
-      <Txt v="h1" c={c.accent} style={{ fontSize: size * 0.4 }}>{letra}</Txt>
+      {/* degradê e não cor chapada: um bloco de tom único ao lado de uma
+          foto de verdade denuncia na hora que ali falta a imagem. Com luz
+          caindo na diagonal ele vira um objeto, não um espaço vazio. */}
+      <LinearGradient
+        colors={[c.bluePale, c.accentWeak]}
+        start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+      />
+      <Txt v="h1" c={c.accent2} style={{ fontSize: size * 0.4 }}>{letra}</Txt>
     </View>
   );
 }
@@ -75,42 +87,82 @@ function Equipe() {
 
   return (
     <View style={{ marginTop: 24 }}>
-      {/* Card em lima pálido: é a única superfície tingida da aba, e marca
-          que ali dentro se fala de pessoas, não de números. O lima é a cor
-          de energia da marca — usada em 10% de opacidade, vira acolhimento
-          em vez de destaque. */}
-      <View style={{ backgroundColor: c.limeWeak, borderRadius: radius.xl, padding: 20 }}>
-        <Row gap={16} style={{ alignItems: 'flex-start' }}>
-          <Retrato nome={S.profile.doctor} size={64} tint={c.bg1} />
-          <View style={{ flex: 1 }}>
-            <View style={{ alignSelf: 'flex-start', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+      {/* O card da especialista.
+
+          Três camadas, na ordem: um degradê diagonal do branco ao lima
+          pálido, um clarão lima difuso no canto, e a foto sangrando na
+          borda direita. O degradê sozinho seria chapado; o clarão dá a
+          profundidade que faz a superfície parecer iluminada em vez de
+          pintada — é o mesmo recurso do card de descoberta no Insights,
+          e é o que amarra as duas abas sem repetir cor.
+
+          A foto tem fundo azul de estúdio, que brigaria com o lima numa
+          emenda reta. Por isso o véu branco horizontal na borda esquerda
+          dela: o branco conversa com os dois lados, e a passagem deixa de
+          ser um corte para virar uma dissolução. */}
+      <View style={{ height: 208, borderRadius: radius.xl, overflow: 'hidden' }}>
+        <LinearGradient
+          colors={[c.bg1, c.limeWeak, c.limeWeak]}
+          locations={[0, 0.55, 1]}
+          start={{ x: 0, y: 0 }} end={{ x: 0.7, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <Svg width={200} height={170} style={{ position: 'absolute', left: -50, top: -50 }} pointerEvents="none">
+          <Defs>
+            <RadialGradient id="brilhoMedica" cx="50%" cy="50%" r="50%">
+              <Stop offset="0" stopColor={c.lime} stopOpacity={0.5} />
+              <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.18} />
+              <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Ellipse cx={100} cy={85} rx={100} ry={85} fill="url(#brilhoMedica)" />
+        </Svg>
+
+        <Image
+          source={FOTO_MEDICA}
+          style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '46%' }}
+          contentFit="cover"
+          contentPosition="top center"
+        />
+        <LinearGradient
+          colors={['rgba(255,255,255,0.98)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          style={{ position: 'absolute', right: '30%', top: 0, bottom: 0, width: '22%' }}
+          pointerEvents="none"
+        />
+
+        <View style={{ flex: 1, padding: 20, justifyContent: 'space-between' }}>
+          <View>
+            {/* selo em vidro: translúcido sobre o degradê, ele pertence ao
+                card em vez de pousar sobre ele */}
+            <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
               <Txt v="micro" c={c.tx2}>Sua especialista</Txt>
             </View>
-            <Txt v="h2" style={{ marginTop: 8 }}>{S.profile.doctor}</Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
-              {info.especialidade}{info.crm ? ` · ${info.crm}` : ''}
-            </Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{S.profile.clinic}</Txt>
+            <Txt v="h2" style={{ marginTop: 10, maxWidth: '62%' }}>{S.profile.doctor}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 4, maxWidth: '58%' }}>{info.especialidade}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{info.crm}</Txt>
           </View>
-        </Row>
 
-        <Row gap={8} style={{ marginTop: 20 }}>
-          {acoes.map(([ic, label, to]) => (
-            <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.65 : 1 }]}>
-              <View style={{ alignItems: 'center' }}>
-                <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={ic} size={19} color={c.tx} sw={1.8} />
+          <Row gap={9}>
+            {acoes.map(([ic, label, to]) => (
+              <Pressable key={label} onPress={go(to)} hitSlop={4} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <View style={{
+                  width: 42, height: 42, borderRadius: 21,
+                  backgroundColor: 'rgba(255,255,255,0.75)',
+                  borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)',
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name={ic} size={18} color={c.tx} sw={1.8} />
                   {label === 'Mensagem' && S.unread > 0 && (
-                    <View style={{ position: 'absolute', top: 0, right: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ position: 'absolute', top: -1, right: -1, width: 15, height: 15, borderRadius: 8, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
                       <Txt v="micro" c={c.accentInk} style={{ fontSize: 9 }}>{S.unread}</Txt>
                     </View>
                   )}
                 </View>
-                <Txt v="micro" c={c.tx2} style={{ marginTop: 7 }}>{label}</Txt>
-              </View>
-            </Pressable>
-          ))}
-        </Row>
+              </Pressable>
+            ))}
+          </Row>
+        </View>
       </View>
 
       {/* Credenciais em faixa. Não é vaidade da clínica: num app que não
@@ -185,7 +237,7 @@ function Time() {
           <Pressable key={p.name} onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
             <View style={{ width: 150, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
               <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Retrato nome={p.name} size={48} tint={c.accentWeak} />
+                <Retrato nome={p.name} size={48} />
                 <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="companion" size={13} color={c.tx2} sw={1.9} />
                 </View>

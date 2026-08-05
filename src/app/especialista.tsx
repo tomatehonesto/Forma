@@ -1,12 +1,16 @@
 import React from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { Txt, Row, CircleBtn, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, shadowSoft } from '../theme';
+
+const FOTO = require('../../assets/images/especialista.jpg');
 
 /* ============================================================
    ESPECIALISTA — quem assina o seu tratamento
@@ -33,7 +37,6 @@ export default function Especialista() {
   const go = (to: string) => () => router.push(to as any);
 
   const info: any = (S.profile as any).doctorInfo ?? {};
-  const letra = S.profile.doctor.replace(/^Dr[a]?\.\s*/, '')[0];
 
   const acoes: [string, string, string][] = [
     ['companion', 'Mensagem', '/medico'],
@@ -48,39 +51,64 @@ export default function Especialista() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}
       >
-        {/* Bloco tingido do topo, sangrando até a borda. É o único lugar do
-            app onde uma pessoa ocupa a tela inteira — e é proposital: a
-            escala comunica que ali há alguém, não um registro. */}
-        <View style={{ backgroundColor: c.limeWeak, paddingHorizontal: PAD, paddingTop: insets.top + 12, paddingBottom: 26 }}>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <CircleBtn name="back" onPress={() => router.back()} />
-          </Row>
+        {/* Retrato sangrando de borda a borda. É o único lugar do app onde
+            uma pessoa ocupa a tela inteira — proposital: a escala comunica
+            que ali há alguém, não um registro.
 
-          <View style={{ alignItems: 'center', marginTop: 18 }}>
-            <View style={{ width: 104, height: 104, borderRadius: 34, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-              <Txt v="h1" c={c.accent} style={{ fontSize: 42 }}>{letra}</Txt>
+            O nome fica SOBRE a foto, no rodapé dela, apoiado por uma queda
+            ao fundo da tela. Pôr o nome abaixo da imagem separaria a pessoa
+            do nome dela em dois blocos; sobreposto, é a mesma coisa. */}
+        <View style={{ height: 430 }}>
+          <Image source={FOTO} style={StyleSheet.absoluteFillObject} contentFit="cover" contentPosition="top center" />
+
+          {/* queda para o fundo da página: a foto não termina numa linha */}
+          <LinearGradient
+            colors={['rgba(245,246,250,0)', 'rgba(245,246,250,0.06)', 'rgba(245,246,250,0.45)', 'rgba(245,246,250,0.88)', c.bg]}
+            locations={[0, 0.4, 0.66, 0.86, 1]}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+
+          <View style={{ flex: 1, paddingHorizontal: PAD, paddingTop: insets.top + 12, justifyContent: 'space-between' }}>
+            <Row>
+              <CircleBtn name="back" onPress={() => router.back()} />
+            </Row>
+
+            <View style={{ paddingBottom: 8 }}>
+              {!!info.rating && (
+                <Row gap={6} style={{
+                  alignSelf: 'flex-start', marginBottom: 12,
+                  backgroundColor: 'rgba(255,255,255,0.72)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)',
+                  borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
+                }}>
+                  <Icon name="trophy" size={13} color={c.accent} sw={2} />
+                  <Txt v="micro" c={c.tx}>{String(info.rating).replace('.', ',')}</Txt>
+                  <Txt v="micro" c={c.tx3}>· {info.avaliacoes} avaliações</Txt>
+                </Row>
+              )}
+              <Txt v="h1" style={{ fontSize: 28 }}>{S.profile.doctor}</Txt>
+              <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
+                {info.especialidade} · {info.crm}
+              </Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
             </View>
-
-            {!!info.rating && (
-              <Row gap={6} style={{ marginTop: -14, backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
-                <Icon name="trophy" size={13} color={c.accent} sw={2} />
-                <Txt v="micro" c={c.tx}>{String(info.rating).replace('.', ',')}</Txt>
-                <Txt v="micro" c={c.tx3}>· {info.avaliacoes} avaliações</Txt>
-              </Row>
-            )}
-
-            <Txt v="h1" style={{ fontSize: 27, marginTop: 16, textAlign: 'center' }}>{S.profile.doctor}</Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 6, textAlign: 'center' }}>
-              {info.especialidade} · {info.crm}
-            </Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
           </View>
+        </View>
 
-          <Row gap={8} style={{ marginTop: 24 }}>
+        {/* Ações em vidro, montadas na divisa entre a foto e a página. É a
+            peça que costura os dois planos — e translúcida ela deixa a
+            passagem acontecer por trás em vez de tapá-la. */}
+        <View style={{ paddingHorizontal: PAD, marginTop: -26 }}>
+          <Row gap={8} style={{
+            backgroundColor: 'rgba(255,255,255,0.66)',
+            borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)',
+            borderRadius: radius.xl, paddingVertical: 16,
+            ...shadowSoft(c),
+          }}>
             {acoes.map(([ic, label, to]) => (
-              <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.65 : 1 }]}>
+              <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                 <View style={{ alignItems: 'center' }}>
-                  <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name={ic} size={19} color={c.tx} sw={1.8} />
                   </View>
                   <Txt v="micro" c={c.tx2} style={{ marginTop: 7 }}>{label}</Txt>
