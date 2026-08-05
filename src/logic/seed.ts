@@ -151,6 +151,10 @@ export function buildSeed() {
     /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
     pen: { dosesLeft: 3, dosesPerPen: 4 },
+    /* Perguntas feitas ao Companion. Guarda só o texto e a hora — a
+       resposta é sempre recalculada sobre o estado atual, então
+       persistir a thread inteira envelheceria o dado. */
+    asked: [] as { t: number; q: string }[],
     consultNotes: '',
     onboardDone: true,
     theme: 'light' as 'light' | 'dark',
@@ -168,6 +172,7 @@ export function ensureDefaults(S: any) {
   R.peso = Object.assign({ on: false, freq: 'semanal', dow: 1, hour: 8, min: 0 }, R.peso || {});
   R.agua = Object.assign({ on: false, hour: 15, min: 0 }, R.agua || {});
   R.proteina = Object.assign({ on: false, hour: 12, min: 0 }, R.proteina || {});
+  if (!Array.isArray(S.asked)) S.asked = [];
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
   if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };

@@ -65,6 +65,7 @@ function companionReply(S: State, text: string): Msg {
 
 export default function Companion() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -84,6 +85,11 @@ export default function Companion() {
   const ask = (text: string) => {
     const t = text.trim(); if (!t) return;
     setInput('');
+    /* guarda a pergunta para o Insights poder oferecer "continue de onde
+       parou" — sem isso, cada visita à aba recomeça do zero */
+    update((s: any) => {
+      s.asked = [...(s.asked || []).filter((x: any) => x.q !== t), { t: Date.now(), q: t }].slice(-12);
+    });
     setMsgs((m) => [...m, { who: 'me', text: t }]);
     setTimeout(() => {
       setMsgs((m) => [...m, companionReply(S, t)]);

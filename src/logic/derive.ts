@@ -344,7 +344,14 @@ export function recentAchievement(S: State) {
    texto precisa deixar isso claro sempre que tocar em dose ou sintoma.
    ============================================================ */
 export type PatKey = 'alimentacao' | 'sono' | 'sintomas' | 'peso' | 'aplicacoes';
-export type Pattern = { key: PatKey; cat: string; ic: string; cor: string; titulo: string; texto: string; q: string };
+/* `surpresa` ordena a tela: 3 é o que a pessoa não veria sozinha (cruza duas
+   variáveis, ou contraria a intuição), 0 é o que ela já sabe olhando a Home.
+   Sem essa nota, um "ritmo de 0,7 kg/semana" — correto e óbvio — disputa
+   espaço com "seu fim de semana é outro tratamento". */
+export type Pattern = {
+  key: PatKey; cat: string; ic: string; cor: string;
+  titulo: string; texto: string; q: string; surpresa: number;
+};
 
 export const PAT_LABEL: Record<PatKey, string> = {
   alimentacao: 'Alimentação', sono: 'Sono', sintomas: 'Sintomas',
@@ -355,94 +362,148 @@ export function patterns(S: State): Pattern[] {
   const out: Pattern[] = [];
   const cs = S.checkins as any[];
   const n1 = (x: number) => nf(x, 1).replace('.', ',');
+  const med = (arr: number[]) => (arr.length ? arr.reduce((s, x) => s + x, 0) / arr.length : 0);
 
-  /* água por dia da semana — onde a hidratação cai */
+  /* --- o fim de semana como outro tratamento ---
+     Cruza três variáveis de uma vez. Ninguém percebe isso olhando um dia
+     por vez: é preciso agrupar 13 check-ins por tipo de dia. */
+  const fds = cs.filter((c) => [0, 6].includes(new Date(c.t).getDay()));
+  const uteis = cs.filter((c) => ![0, 6].includes(new Date(c.t).getDay()));
+  let fdsDito = false;
+  if (fds.length >= 2 && uteis.length >= 3) {
+    const dAgua = med(uteis.map((c) => c.agua)) - med(fds.map((c) => c.agua));
+    const dProt = med(uteis.map((c) => c.prot)) - med(fds.map((c) => c.prot));
+    const dSono = med(fds.map((c) => c.sono)) - med(uteis.map((c) => c.sono));
+    if (dAgua >= 1.5) {
+      fdsDito = true;
+      /* a proteína só entra na frase quando a diferença é grande o
+         bastante para significar alguma coisa — 5 g de gap não sustentam
+         uma manchete, e insight que exagera o dado deixa de ser insight */
+      const prot = dProt >= 8 ? ` e come ${Math.round(dProt)} g menos de proteína` : '';
+      const sono = dSono >= 0.4 ? ` — mas dorme ${n1(dSono)} h a mais. O descanso melhora; a rotina é que se solta.` : '.';
+      out.push({
+        key: 'alimentacao', cat: 'Alimentação', ic: 'cal', cor: 'water', surpresa: 3,
+        titulo: 'Seu fim de semana funciona como outro tratamento',
+        texto: `Sábado e domingo você bebe ${n1(dAgua)} copos a menos${prot}${sono}`,
+        q: 'Como cuidar melhor do fim de semana?',
+      });
+    }
+  }
+
+  /* --- água por dia da semana --- */
   const porDia: Record<number, number[]> = {};
   cs.forEach((c) => { const d = new Date(c.t).getDay(); (porDia[d] = porDia[d] || []).push(c.agua); });
   let piorDia: number | null = null, piorMedia = 99;
   Object.entries(porDia).forEach(([d, arr]) => {
-    const m = arr.reduce((s, x) => s + x, 0) / arr.length;
+    const m = med(arr);
     if (m < piorMedia) { piorMedia = m; piorDia = +d; }
   });
-  if (piorDia !== null) {
+  /* se o card do fim de semana já falou disso, este vira eco: dois cards
+     dizendo a mesma coisa gastam a confiança que o primeiro construiu */
+  if (piorDia !== null && !(fdsDito && [0, 6].includes(piorDia))) {
+    const outros = med(cs.filter((c) => new Date(c.t).getDay() !== piorDia).map((c) => c.agua));
     const nomes = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
-    out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water',
-      titulo: `Sua hidratação cai ${nomes[piorDia]}`,
-      texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${GOAL_WATER} nos outros dias. Água ajuda com saciedade e com o enjoo.`,
+    if (outros - piorMedia >= 1) out.push({
+      key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2,
+      titulo: `Você bebe menos água ${nomes[piorDia]}`,
+      texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
       q: 'Como está minha água?',
     });
   }
 
-  /* proteína: metade recente contra metade antiga */
-  if (cs.length >= 8) {
-    const meio = Math.floor(cs.length / 2);
-    const antes = cs.slice(0, meio).reduce((s, x) => s + x.prot, 0) / meio;
-    const depois = cs.slice(meio).reduce((s, x) => s + x.prot, 0) / (cs.length - meio);
-    const pct = Math.round(((depois - antes) / antes) * 100);
-    if (Math.abs(pct) >= 5) {
-      out.push({
-        key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime',
-        titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}%`,
-        texto: pct > 0
-          ? `Média de ${Math.round(depois)} g/dia nas últimas semanas. Proteína preserva massa magra durante a perda de peso.`
-          : `Média de ${Math.round(depois)} g/dia nas últimas semanas. Vale retomar — massa magra sustenta o metabolismo.`,
-        q: 'Como está minha proteína?',
-      });
-    }
+  /* --- proteína de hoje contra fome de amanhã ---
+     A relação está a um dia de distância, então some no gráfico diário:
+     a pessoa vê a fome de hoje ao lado do prato de hoje, nunca do de ontem. */
+  const t: any = S.profile.targets;
+  const seq = cs.slice(0, -1).map((c, i) => ({ prot: c.prot, fomeDepois: cs[i + 1].fome }));
+  const bateu = seq.filter((p) => p.prot >= t.prot), naoBateu = seq.filter((p) => p.prot < t.prot);
+  if (bateu.length >= 2 && naoBateu.length >= 2) {
+    const fSim = med(bateu.map((p) => p.fomeDepois)), fNao = med(naoBateu.map((p) => p.fomeDepois));
+    if (fNao - fSim >= 0.5) out.push({
+      key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3,
+      titulo: 'A proteína de hoje aparece na fome de amanhã',
+      texto: `Nos dias seguintes a bater os ${t.prot} g, sua fome ficou em ${n1(fSim)}. Quando não bateu, ${n1(fNao)}. O efeito não é no mesmo dia — é no dia seguinte.`,
+      q: 'Como está minha proteína?',
+    });
   }
 
-  /* sono contra fome do dia seguinte */
+  /* --- sono contra fome do dia seguinte --- */
   const pares = cs.slice(0, -1).map((c, i) => ({ sono: c.sono, fomeDepois: cs[i + 1].fome }));
   const bem = pares.filter((p) => p.sono >= 7), mal = pares.filter((p) => p.sono < 7);
   if (bem.length >= 2 && mal.length >= 2) {
-    const fBem = bem.reduce((s, p) => s + p.fomeDepois, 0) / bem.length;
-    const fMal = mal.reduce((s, p) => s + p.fomeDepois, 0) / mal.length;
-    if (fMal - fBem >= 0.5) {
-      out.push({
-        key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple',
-        titulo: 'Dormir 7h+ reduz sua fome no dia seguinte',
-        texto: `Fome média de ${n1(fBem)} depois de noites boas, contra ${n1(fMal)} depois de noites curtas.`,
-        q: 'O que registrar antes de dormir?',
-      });
-    }
+    const fBem = med(bem.map((p) => p.fomeDepois)), fMal = med(mal.map((p) => p.fomeDepois));
+    if (fMal - fBem >= 0.5) out.push({
+      key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3,
+      titulo: 'Uma noite curta cobra o preço no dia seguinte',
+      texto: `Depois de dormir menos de 7 h, sua fome média foi de ${n1(fMal)}. Depois de noites completas, ${n1(fBem)}. Seu apetite responde mais ao sono do que ao que você comeu.`,
+      q: 'O que registrar antes de dormir?',
+    });
   }
 
-  /* enjoo concentrado nos dias após a aplicação */
-  const diasInj = new Set((S.injections as any[]).map((i) => +startOfDay(new Date(i.t))));
-  const nPerto = cs.filter((c) => {
+  /* --- enjoo: onde ele começa e onde termina ---
+     O achado não é que existe enjoo — é que ele tem hora para acabar. */
+  const diasInj = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t)));
+  const desde = (c: any) => {
     const dia = +startOfDay(new Date(c.t));
-    return [...diasInj].some((t) => dia >= t && dia - t <= 2 * DAY);
-  });
-  if (nPerto.length >= 2) {
-    const enjooPerto = nPerto.reduce((s, c) => s + c.nausea, 0) / nPerto.length;
-    const resto = cs.filter((c) => !nPerto.includes(c));
-    const enjooResto = resto.length ? resto.reduce((s, c) => s + c.nausea, 0) / resto.length : 0;
-    if (enjooPerto - enjooResto >= 0.5) {
-      out.push({
-        key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose',
-        titulo: 'Seu enjoo se concentra nos dias após a aplicação',
-        texto: `Média de ${n1(enjooPerto)} nos dois dias seguintes, contra ${n1(enjooResto)} no resto da semana. Costuma diminuir com o tempo.`,
-        q: 'Por que sinto enjoo?',
-      });
-    }
+    const ds = diasInj.filter((x) => x <= dia).map((x) => (dia - x) / DAY);
+    return ds.length ? Math.min(...ds) : 99;
+  };
+  const perto = cs.filter((c) => desde(c) <= 2), longe = cs.filter((c) => desde(c) > 2 && desde(c) < 99);
+  if (perto.length >= 2 && longe.length >= 2) {
+    const ePerto = med(perto.map((c) => c.nausea)), eLonge = med(longe.map((c) => c.nausea));
+    if (ePerto - eLonge >= 0.5) out.push({
+      key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2,
+      titulo: 'Seu enjoo tem prazo de validade',
+      texto: `Ele fica em ${n1(ePerto)} nos dois dias após a aplicação e cai para ${n1(eLonge)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são 48 h dele.`,
+      q: 'Por que sinto enjoo?',
+    });
   }
 
-  /* ritmo de perda */
+  /* --- o platô que não impediu nada ---
+     Contra-intuitivo por definição: a balança subiu e o resultado veio
+     assim mesmo. É o padrão que evita abandono na semana ruim. */
+  const ws = S.weights as any[];
+  if (ws.length >= 5) {
+    const subidas = ws.slice(1).filter((w, i) => w.kg > ws[i].kg).length;
+    const total = ws[0].kg - ws[ws.length - 1].kg;
+    if (subidas >= 1 && total > 0) out.push({
+      key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3,
+      titulo: `A balança subiu ${subidas}× e você perdeu ${n1(total)} kg mesmo assim`,
+      texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
+      q: 'Como está minha evolução?',
+    });
+  }
+
+  /* --- proteína: metade recente contra metade antiga --- */
+  if (cs.length >= 8) {
+    const meio = Math.floor(cs.length / 2);
+    const antes = med(cs.slice(0, meio).map((x) => x.prot));
+    const depois = med(cs.slice(meio).map((x) => x.prot));
+    const pct = Math.round(((depois - antes) / antes) * 100);
+    if (Math.abs(pct) >= 5) out.push({
+      key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1,
+      titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}%`,
+      texto: pct > 0
+        ? `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g no começo. Proteína preserva massa magra durante a perda de peso.`
+        : `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g antes. Vale retomar — massa magra sustenta o metabolismo.`,
+      q: 'Como está minha proteína?',
+    });
+  }
+
+  /* --- os dois óbvios, no fim da fila --- */
   const r = journeySummary(S);
   out.push({
-    key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent',
+    key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent', surpresa: 0,
     titulo: `Seu ritmo é de ${r.ritmoLabel} kg por semana`,
     texto: r.verdict.good
-      ? `${n1(r.lost)} kg em ${r.semana} semanas. Perder peso não é linear — semanas paradas fazem parte.`
+      ? `${n1(r.lost)} kg em ${r.semana} semanas, dentro do esperado para a sua fase.`
       : `${n1(r.lost)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
   });
 
-  /* constância das aplicações */
   const ade = adesao(S);
   out.push({
-    key: 'aplicacoes', cat: 'Aplicações', ic: 'syringe', cor: 'accent2',
+    key: 'aplicacoes', cat: 'Aplicações', ic: 'syringe', cor: 'accent2', surpresa: 0,
     titulo: `${ade}% das aplicações em dia`,
     texto: ade >= 90
       ? `${S.injections.length} aplicações desde o início. Constância é o que faz a medicação trabalhar a seu favor.`
@@ -450,7 +511,92 @@ export function patterns(S: State): Pattern[] {
     q: 'Como funciona o ciclo da medicação?',
   });
 
-  return out;
+  /* o mais surpreendente primeiro — a ordem da tela é a ordem do valor */
+  return out.sort((a, b) => b.surpresa - a.surpresa);
+}
+
+/* ============================================================
+   LEITURA DO EQUILÍBRIO
+
+   O radar mostra oito eixos e não conclui nada — quem conclui é o
+   paciente, que não sabe se 62% em proteína é bom. Aqui a IA lê o
+   gráfico por ele: o gráfico vira ilustração de uma frase, não a frase.
+   ============================================================ */
+export function balanceRead(S: State) {
+  const eixos = radar(S).slice().sort((a, b) => b.v - a.v);
+  const fortes = eixos.slice(0, 2);
+  const fraco = eixos[eixos.length - 1];
+  const media = eixos.reduce((s, e) => s + e.v, 0) / eixos.length;
+  /* amplitude entre o melhor e o pior eixo: é ela que diz se o
+     tratamento está equilibrado ou apoiado numa perna só */
+  const amp = eixos[0].v - fraco.v;
+
+  const titulo = amp <= 30 ? 'Seu equilíbrio está consistente'
+    : amp <= 55 ? 'Seu equilíbrio está bom, com uma ponta solta'
+      : 'Seu tratamento está apoiado em poucos pontos';
+
+  return {
+    titulo,
+    texto: `${fortes[0].k} e ${fortes[1].k} são seus pontos fortes. ${fraco.k} é o que mais puxa a média para baixo — e é onde uma semana de atenção rende mais.`,
+    media: Math.round(media),
+    fortes: fortes.map((e) => e.k),
+    fraco: fraco.k,
+    q: `Como melhorar ${fraco.k.toLowerCase()}?`,
+  };
+}
+
+/* ============================================================
+   BIBLIOTECA CONTEXTUAL
+
+   Não é catálogo. Cada leitura entra porque alguma coisa no estado da
+   pessoa a puxou — a fase do ciclo, um sintoma, a consulta marcada — e
+   o motivo aparece no card. Conteúdo sem motivo visível vira blog.
+   ============================================================ */
+export type Leitura = { motivo: string; titulo: string; desc: string; ic: string; min: number };
+
+export function libraryPicks(S: State): Leitura[] {
+  const out: Leitura[] = [];
+  const cyc = doseCycle(S);
+  const ci: any = checkinToday(S);
+  const cs = S.checkins as any[];
+  const r = journeySummary(S);
+  const m = M(S);
+
+  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
+    out.push({ motivo: 'Você está na fase de retorno da fome', titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
+  }
+  if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
+    out.push({ motivo: 'Você aplicou há poucos dias', titulo: 'Os primeiros dias depois da dose', desc: 'O que é esperado sentir na janela de 48 h e o que já merece uma mensagem para a equipe.', ic: 'dose', min: 3 });
+  }
+
+  const enjoo = cs.slice(-5).reduce((s, c) => s + c.nausea, 0) / Math.max(1, Math.min(5, cs.length));
+  if (enjoo >= 2 || (ci && ci.nausea >= 4)) {
+    out.push({ motivo: 'Seus registros mostram enjoo recorrente', titulo: 'Comer sem enfrentar o enjoo', desc: 'Combinações e horários que costumam passar melhor nos dias em que a comida parece demais.', ic: 'waves', min: 4 });
+  }
+
+  const t: any = S.profile.targets;
+  const protMed = cs.length ? cs.reduce((s, c) => s + c.prot, 0) / cs.length : 0;
+  if (protMed < t.prot) {
+    out.push({ motivo: `Sua média está em ${Math.round(protMed)} g de ${t.prot} g`, titulo: 'Proteína sem cozinhar mais', desc: 'Como chegar à meta com o que já existe na sua geladeira — o problema raramente é receita, é praticidade.', ic: 'flame', min: 5 });
+  }
+
+  if (r.semana >= 8) {
+    out.push({ motivo: `Semana ${r.semana} de tratamento`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
+  }
+
+  if (hasClinic(S)) {
+    const cd = diffDays(new Date(S.consult.t), now());
+    if (cd >= 0 && cd <= 14) out.push({ motivo: `Consulta em ${cd} dias`, titulo: 'Como aproveitar melhor sua consulta', desc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.', ic: 'steth', min: 3 });
+  }
+
+  return out.slice(0, 4);
+}
+
+/* Perguntas que a pessoa já fez — a conversa continua entre sessões em vez
+   de recomeçar do zero toda vez que a aba abre. */
+export function recentQuestions(S: State): string[] {
+  const a = ((S as any).asked || []) as { t: number; q: string }[];
+  return [...new Set(a.slice().reverse().map((x) => x.q))].slice(0, 3);
 }
 
 /* Sugestões para o Companion — o que faz sentido perguntar AGORA.
