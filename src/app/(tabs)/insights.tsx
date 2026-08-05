@@ -74,44 +74,50 @@ const CHIPS_MAX = 3;
    para que o encontro com o conteúdo não tenha emenda nenhuma.
    ============================================================ */
 function Dissolucao({ c, width, height }: { c: Palette; width: number; height: number }) {
-  /* Os centros ficam abaixo do último vidro de propósito: mancha que sobe
-     demais clareia o fundo do card e derruba o contraste do texto.
+  /* Antes eram manchas radiais sobrepostas, para que o azul acabasse num
+     contorno irregular em vez de numa linha. O contorno resolvia o corte,
+     mas trazia estrutura própria: onde duas manchas se encontram existe uma
+     crista, e crista é forma — o olho encontra forma tão rápido quanto
+     encontra linha.
 
-     O `meio` é a parada intermediária de cada gradiente radial, e é ele que
-     decide se a queda é abrupta ou macia. Valores baixos concentram a
-     opacidade perto do centro e fazem a mancha ter uma "borda"; empurrados
-     para longe, a cor se espalha e o fim vira difusão em vez de contorno.
-     Quatro manchas, e não três, para que a sobreposição cubra a largura sem
-     que nenhuma precise ser densa. */
-  const manchas = [
-    { id: 'd0', cx: 0.14, cy: 0.88, rx: 0.86, ry: 0.54, meio: 0.62 },
-    { id: 'd1', cx: 0.92, cy: 0.78, rx: 0.76, ry: 0.46, meio: 0.58 },
-    { id: 'd2', cx: 0.50, cy: 1.04, rx: 1.15, ry: 0.66, meio: 0.66 },
-    { id: 'd3', cx: 0.62, cy: 0.92, rx: 0.70, ry: 0.42, meio: 0.55 },
-  ];
+     Agora a queda é uma rampa vertical única, e a irregularidade fica por
+     conta da própria aurora, que já é irregular. O que faz a rampa
+     desaparecer é o PERFIL das paradas: alfa distribuído em curva, quase
+     parado no começo e acelerando depois. Numa rampa linear de duas
+     paradas o topo tem uma taxa de mudança constante desde o primeiro
+     pixel, e é justamente isso que se vê como início do degradê. */
   return (
-    <Svg width={width} height={height} style={{ position: 'absolute', left: 0, bottom: 0 }}>
-      <Defs>
-        {manchas.map((m) => (
-          <RadialGradient key={m.id} id={m.id} cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={c.bg} stopOpacity={1} />
-            <Stop offset={String(m.meio)} stopColor={c.bg} stopOpacity={0.82} />
+    <View style={{ position: 'absolute', left: 0, bottom: 0, width, height }} pointerEvents="none">
+      <LinearGradient
+        colors={[
+          'rgba(245,246,250,0)', 'rgba(245,246,250,0.02)', 'rgba(245,246,250,0.07)',
+          'rgba(245,246,250,0.17)', 'rgba(245,246,250,0.34)', 'rgba(245,246,250,0.58)',
+          'rgba(245,246,250,0.80)', 'rgba(245,246,250,0.94)', 'rgba(245,246,250,1)',
+        ]}
+        locations={[0, 0.14, 0.28, 0.42, 0.56, 0.70, 0.82, 0.90, 1]}
+        style={StyleSheet.absoluteFillObject}
+      />
+      {/* Duas manchas muito fracas por cima, deslocadas para lados opostos.
+          Não desenham contorno nessa opacidade — só impedem que a rampa
+          fique perfeitamente horizontal, que é o único jeito de uma
+          transição longa denunciar que foi calculada. */}
+      <Svg width={width} height={height} style={StyleSheet.absoluteFillObject}>
+        <Defs>
+          <RadialGradient id="dsf0" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={c.bg} stopOpacity={0.34} />
+            <Stop offset="0.6" stopColor={c.bg} stopOpacity={0.12} />
             <Stop offset="1" stopColor={c.bg} stopOpacity={0} />
           </RadialGradient>
-        ))}
-      </Defs>
-      {manchas.map((m) => (
-        <Ellipse
-          key={m.id}
-          cx={width * m.cx} cy={height * m.cy}
-          rx={width * m.rx} ry={height * m.ry}
-          fill={`url(#${m.id})`}
-        />
-      ))}
-      {/* faixa sólida no rodapé: garante que os últimos pixels são fundo
-          puro, para o encontro com o conteúdo não ter emenda */}
-      <Rect x={0} y={height * 0.88} width={width} height={height * 0.12} fill={c.bg} />
-    </Svg>
+          <RadialGradient id="dsf1" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={c.bg} stopOpacity={0.26} />
+            <Stop offset="0.6" stopColor={c.bg} stopOpacity={0.09} />
+            <Stop offset="1" stopColor={c.bg} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Ellipse cx={width * 0.18} cy={height * 0.78} rx={width * 0.72} ry={height * 0.40} fill="url(#dsf0)" />
+        <Ellipse cx={width * 0.88} cy={height * 0.64} rx={width * 0.62} ry={height * 0.34} fill="url(#dsf1)" />
+      </Svg>
+    </View>
   );
 }
 
@@ -273,13 +279,13 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          paddingTop: insets.top + 48, paddingBottom: 190,
+          paddingTop: insets.top + 48, paddingBottom: 250,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
              cor tem para chegar ao fundo. Mede o mesmo que a faixa sólida no
              rodapé da Dissolução. */
-          marginBottom: -80,
+          marginBottom: -34,
           overflow: 'hidden',
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
@@ -312,7 +318,7 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={230} />
+          <Dissolucao c={c} width={width} height={280} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
