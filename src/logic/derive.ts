@@ -603,9 +603,12 @@ export function balanceRead(S: State) {
      consertar com "seu sono e sua adesão" trava a frase. Os nomes dos
      eixos abrem a oração sozinhos. */
   const par = (a: string, b: string) => `${a} e ${b.toLowerCase()}`;
+  /* Duas frases, não quatro. O gráfico ao lado mostra a variação que o
+     texto antes precisava descrever — descrever e desenhar a mesma coisa
+     é gastar o dobro do espaço para dizer uma vez. */
   const corpo = amp <= 30
-    ? `Seus oito indicadores estão andando juntos, o que é raro. ${par(fortes[0].k, fortes[1].k)} puxam para cima, e nem ${fraco.k.toLowerCase()} ficou para trás. Eu não mudaria nada por enquanto.`
-    : `${par(fortes[0].k, fortes[1].k)} estão muito consistentes. Já ${par(fracos[0].k, fracos[1].k).toLowerCase()} continuam variando bastante. Acho que ${fraco.k.toLowerCase()} pode ser um bom foco para a próxima semana.`;
+    ? `${par(fortes[0].k, fortes[1].k)} puxam para cima, e nem ${fraco.k.toLowerCase()} ficou para trás. Eu não mudaria nada por enquanto.`
+    : `${par(fortes[0].k, fortes[1].k)} estão consistentes. ${fraco.k} é o que mais oscila — seria meu foco para a próxima semana.`;
 
   return {
     abertura,
@@ -616,6 +619,34 @@ export function balanceRead(S: State) {
     fraco: fraco.k,
     q: `Como melhorar ${fraco.k.toLowerCase()}?`,
   };
+}
+
+/* O eixo mais fraco, dia a dia.
+
+   O radar e as pétalas mostram a MÉDIA de cada indicador, e média esconde
+   exatamente o que a leitura afirma: que aquele eixo "oscila". Duas
+   semanas de 50 constante e duas semanas alternando 20 e 80 dão a mesma
+   média e não são a mesma coisa. Aqui a série diária mostra a oscilação
+   em vez de descrevê-la. */
+const EIXO_DIA: Record<string, (c: any, S: State) => number> = {
+  'Sono': (c) => Math.min(100, (c.sono / 8) * 100),
+  'Energia': (c) => c.energia * 10,
+  'Humor': (c) => (c.mood / 5) * 100,
+  'Água': (c) => Math.min(100, (c.agua / GOAL_WATER) * 100),
+  'Exercício': (c) => (c.exerc > 0 ? 100 : 0),
+  'Proteína': (c) => Math.min(100, c.prot),
+  'Saciedade': (c) => (10 - c.fome) * 10,
+  'Adesão': (_c, S) => adesao(S),
+};
+
+export function balanceSeries(S: State, eixo: string, n = 8) {
+  const f = EIXO_DIA[eixo];
+  const cs = (S.checkins as any[]).slice(-n);
+  if (!f || !cs.length) return [];
+  return cs.map((c) => ({
+    t: c.t,
+    v: Math.max(0, Math.min(100, Math.round(f(c, S)))),
+  }));
 }
 
 /* ============================================================

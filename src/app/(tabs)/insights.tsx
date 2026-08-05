@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, companionMemoria, hasClinic, journeySummary,
+  balanceRead, balanceSeries, companionMemoria, hasClinic, journeySummary,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
-import { Txt, Row, SectionHead } from '../../ui/kit';
+import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
+import { Barras } from '../../ui/charts';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
@@ -206,6 +207,7 @@ export default function Insights() {
   const pads = useMemo(() => patterns(S), [S]);
   const recos = useMemo(() => recommendations(S), [S]);
   const eq = useMemo(() => balanceRead(S), [S]);
+  const serie = useMemo(() => balanceSeries(S, eq.fraco), [S, eq.fraco]);
   const r = journeySummary(S);
   const cor = (k: string) => (c as any)[k] as string;
 
@@ -361,18 +363,35 @@ export default function Insights() {
               inteiro dentro do azul, senão o texto branco escorregaria para
               um fundo clareando; opaco, ele carrega o próprio fundo e pode
               ficar exatamente onde o desenho pede. */}
+          {/* marginTop alto de propósito: empurra o card para baixo, o que dá
+              ao Companion a tela quase inteira e deixa o card entrando pelo
+              rodapé — a borda superior aparecendo na dobra é o que promete
+              que há mais conteúdo abaixo. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 56, opacity: pressed ? 0.9 : 1 }]}>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, ...shadowCard(c) }}>
-                <Row gap={10}>
-                  <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 92, opacity: pressed ? 0.9 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, overflow: 'hidden', ...shadowCard(c) }}>
+                {/* clarão lima no canto, quase imperceptível: a assinatura da
+                    IA no card sem precisar de mais um elemento gráfico */}
+                <Svg width={220} height={180} style={{ position: 'absolute', right: -60, top: -60 }} pointerEvents="none">
+                  <Defs>
+                    <RadialGradient id="brilhoCard" cx="50%" cy="50%" r="50%">
+                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.34} />
+                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.12} />
+                      <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
+                    </RadialGradient>
+                  </Defs>
+                  <Ellipse cx={110} cy={90} rx={110} ry={90} fill="url(#brilhoCard)" />
+                </Svg>
+
+                <Row gap={9}>
+                  <Icon name="aura" size={15} color={c.accent} sw={2} />
                   <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DA SEMANA</Txt>
                 </Row>
-                <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 16 }}>
+                <Txt v="title" style={{ fontSize: 20, lineHeight: 27, marginTop: 14 }}>
                   {destaque.titulo}
                 </Txt>
-                <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 25 }}>{destaque.texto}</Txt>
-                <Row gap={7} style={{ marginTop: 18 }}>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 9, lineHeight: 21 }}>{destaque.texto}</Txt>
+                <Row gap={7} style={{ marginTop: 16 }}>
                   <Txt v="label" c={c.accent2}>Entender melhor</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
@@ -474,10 +493,32 @@ export default function Insights() {
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
             <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>COMPANION OBSERVOU</Txt>
           </Row>
-          <Txt v="display" c={c.onHero} style={{ fontSize: 24, lineHeight: 31, marginTop: 16 }}>
+          <Txt v="display" c={c.onHero} style={{ fontSize: 22, lineHeight: 29, marginTop: 16 }}>
             {eq.abertura}
           </Txt>
-          <Txt v="body" c={c.onHero2} style={{ marginTop: 10, lineHeight: 25 }}>{eq.texto}</Txt>
+          <Txt v="caption" c={c.onHero2} style={{ marginTop: 9, lineHeight: 21 }}>{eq.texto}</Txt>
+
+          {/* O gráfico entra para dizer o que o texto teria de descrever em
+              mais duas frases: o formato da oscilação. Barras e não pétalas
+              porque aqui o assunto é UM indicador ao longo dos dias, não
+              oito num instante — e para uma série curta, barra é o gráfico
+              mais simples que ainda informa. */}
+          {serie.length > 2 && (
+            <View style={{ marginTop: 20, borderTopWidth: 1, borderTopColor: c.glassLine, paddingTop: 18 }}>
+              <Row style={{ alignItems: 'flex-end' }}>
+                <View style={{ flex: 1 }}>
+                  <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 0.8 }}>
+                    {eq.fraco.toUpperCase()} · ÚLTIMOS {serie.length} DIAS
+                  </Txt>
+                  <Row gap={7} style={{ alignItems: 'baseline', marginTop: 4 }}>
+                    <Txt v="h2" c={c.lime}>{serie[serie.length - 1].v}</Txt>
+                    <Txt v="caption" c={c.onHero2}>hoje, de 100</Txt>
+                  </Row>
+                </View>
+                <Barras data={serie} height={48} />
+              </Row>
+            </View>
+          )}
 
           {/* botão sólido em lima, não link: aqui a IA não oferece leitura,
               propõe conversa */}
@@ -509,65 +550,73 @@ export default function Insights() {
               Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.
             </Txt>
 
-            {/* Um card por ação, e o prazo como sobretítulo dentro dele. Na
-                versão anterior o prazo era o título do grupo e as ações vinham
-                penduradas nele — o que fazia a seção ler como agenda. Aqui a
-                ação é o assunto e o prazo é uma propriedade dela. */}
-            {acoes.map((x) => (
-              <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, marginTop: 10 }]}>
-                <Row gap={14} style={{ alignItems: 'flex-start', backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
-                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={x.ic} size={17} color={c.accent} sw={1.9} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.9 }}>
-                      {recoBucket(x.emDias).toUpperCase()}
-                    </Txt>
-                    <Txt v="bodyMed" style={{ marginTop: 5, lineHeight: 23 }}>{x.texto}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginTop: 4, lineHeight: 20 }}>{x.porque}</Txt>
-                  </View>
-                  <View style={{ marginTop: 12 }}>
-                    <Icon name="chev" size={15} color={c.tx4} sw={2} />
-                  </View>
-                </Row>
-              </Pressable>
-            ))}
+            {/* Timeline: um fio vertical ligando as ações, com um ponto em
+                cada. O ícone saiu — ele identificava o assunto, mas o que
+                importa nesta seção é a ORDEM, e ícones lado a lado num fio
+                competem com os pontos que marcam a posição.
+
+                O ponto da primeira é cheio e maior: é a que já está
+                acontecendo. Os demais ficam vazados, como marcos ainda por
+                chegar, e o fio para no último — linha que continua depois do
+                fim promete um item que não existe. */}
+            <View style={{ marginTop: 20 }}>
+              {acoes.map((x, i) => {
+                const ultimo = i === acoes.length - 1;
+                const agora = i === 0;
+                return (
+                  <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                    <Row gap={16} style={{ alignItems: 'stretch' }}>
+                      <View style={{ width: 14, alignItems: 'center' }}>
+                        <View style={{
+                          width: agora ? 14 : 11, height: agora ? 14 : 11, borderRadius: 7, marginTop: 4,
+                          backgroundColor: agora ? c.accent : c.bg,
+                          borderWidth: agora ? 0 : 2, borderColor: c.line,
+                        }} />
+                        {!ultimo && <View style={{ flex: 1, width: 2, backgroundColor: c.line, marginTop: 4 }} />}
+                      </View>
+                      <View style={{ flex: 1, paddingBottom: ultimo ? 0 : 26 }}>
+                        <Txt v="micro" c={agora ? c.accent : c.tx3} style={{ letterSpacing: 0.9 }}>
+                          {recoBucket(x.emDias).toUpperCase()}
+                        </Txt>
+                        <Txt v="bodyMed" style={{ marginTop: 5, lineHeight: 23 }}>{x.texto}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 4, lineHeight: 20 }}>{x.porque}</Txt>
+                      </View>
+                      <View style={{ marginTop: 4 }}>
+                        <Icon name="chev" size={15} color={c.tx4} sw={2} />
+                      </View>
+                    </Row>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
         )}
 
-        {/* ---- resumos ---- */}
-        <View style={{ marginTop: 36 }}>
-          <SectionHead title="Resumos" />
+        {/* ---- gerar resumos ----
+             "Resumos" nomeava um lugar onde eles já estariam; "Gerar resumos"
+             nomeia a ação, que é o que de fato acontece — cada um é montado
+             na hora, com os dados de hoje.
+
+             A lista usa o mesmo ListRow com fio da área médica da Home: são
+             o mesmo tipo de coisa, três atalhos para documentos, e repetir o
+             padrão poupa a pessoa de aprender dois. */}
+        <View style={{ marginTop: 40 }}>
+          <SectionHead title="Gerar resumos" />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
             Seus dados organizados para levar a alguém.
           </Txt>
-          {/* Linhas construídas aqui e não com ListRow: os três resumos têm
-              duas linhas de texto cada e o padding padrão do kit os deixava
-              colados, com o sub de um quase encostando no título do
-              seguinte. 20 px acima e abaixo dão à lista o mesmo ar do
-              resto da tela. */}
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18 }}>
-            {[
-              { ic: 'chart', t: 'Resumo da semana', s: `semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`, on: perguntar('Como está minha evolução?') },
-              { ic: 'cal', t: 'Resumo para a consulta', s: hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar', on: perguntar('Prepare minha consulta') },
-              { ic: 'doc', t: 'Resumo para o médico', s: 'documento com a evolução completa', on: go('/resumo-medico') },
-            ].map((x, i) => (
-              <React.Fragment key={x.t}>
-                {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
-                <Pressable onPress={x.on} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Row gap={14} style={{ paddingVertical: 20 }}>
-                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name={x.ic} size={16} color={c.tx2} sw={1.9} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Txt v="bodyMed">{x.t}</Txt>
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{x.s}</Txt>
-                    </View>
-                    <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                  </Row>
-                </Pressable>
-              </React.Fragment>
-            ))}
+
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
+            <ListRow ic="chart" title="Resumo da semana"
+              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`}
+              onPress={perguntar('Como está minha evolução?')} />
+            <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+            <ListRow ic="cal" title="Resumo para a consulta"
+              sub={hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
+              onPress={perguntar('Prepare minha consulta')} />
+            <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+            <ListRow ic="doc" title="Resumo para o médico"
+              sub="documento com a evolução completa" onPress={go('/resumo-medico')} />
           </View>
         </View>
 

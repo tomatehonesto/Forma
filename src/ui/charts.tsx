@@ -219,3 +219,46 @@ export function Petalas({ data, size = 288, fraco }: { data: { k: string; v: num
     </View>
   );
 }
+
+/* ============================================================
+   BARRAS — uma série curta, sem eixo nem grade
+
+   O mínimo que um gráfico pode ser e ainda informar: uma barra por dia,
+   altura proporcional, sem números soltos, sem linha de base, sem
+   legenda. Existe para mostrar oscilação — a média já está dita em
+   texto, e o que o texto não consegue dizer é o formato dela.
+
+   A barra mais recente vem em lima e as outras em cinza: o olho precisa
+   de um ponto de entrada, e o ponto de entrada é sempre "e hoje?".
+   ============================================================ */
+export function Barras({
+  data, height = 56, largura = 9, gap = 6, destaque = true,
+}: {
+  data: { t: number; v: number }[];
+  height?: number; largura?: number; gap?: number; destaque?: boolean;
+}) {
+  const { c } = useTheme();
+  if (!data.length) return null;
+  /* piso de 4 px: barra de valor zero sumiria, e sumir é dizer que não
+     houve registro — que é diferente de ter registrado zero */
+  const alt = (v: number) => Math.max(4, (v / 100) * height);
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', height, gap }}>
+      {data.map((d, i) => {
+        const ultima = i === data.length - 1;
+        return (
+          <View
+            key={d.t}
+            style={{
+              width: largura,
+              height: alt(d.v),
+              borderRadius: largura / 2,
+              backgroundColor: destaque && ultima ? c.lime : 'rgba(255,255,255,0.28)',
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+}
