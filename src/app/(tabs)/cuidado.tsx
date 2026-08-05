@@ -6,7 +6,7 @@ import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, penStock, M,
 } from '../../logic/derive';
-import { fmtDate, relDay, DOW_PT, nf } from '../../logic/time';
+import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
 import { Txt, Card, Row, IconBadge, SectionHead, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
@@ -37,56 +37,109 @@ const PAD = 24;
 
 /** Quem cuida de você. Abre a tela porque é a resposta à pergunta que traz
     a pessoa aqui — "com quem eu falo?" — e não um cabeçalho decorativo. */
+/** Inicial dentro de um bloco tingido. Substitui a foto que o app ainda não
+    tem — e não finge ter: nome próprio em corpo grande identifica uma pessoa
+    tão bem quanto um retrato, e melhor que um avatar genérico. */
+function Retrato({ nome, size = 56, tint }: { nome: string; size?: number; tint?: string }) {
+  const { c } = useTheme();
+  const letra = nome.replace(/^Dr[a]?\.\s*/, '')[0];
+  return (
+    <View style={{
+      width: size, height: size, borderRadius: size * 0.32,
+      backgroundColor: tint ?? c.bg1, alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Txt v="h1" c={c.accent} style={{ fontSize: size * 0.4 }}>{letra}</Txt>
+    </View>
+  );
+}
+
 function Equipe() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
 
-  const inicial = S.profile.doctor.replace(/^Dr[a]?\.\s*/, '')[0];
+  const info: any = (S.profile as any).doctorInfo ?? {};
   const msg = lastMessage(S);
+  const semanasJuntas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+
+  /* Quatro atalhos e não dois. A largura dá conta, e cada um resolve uma
+     necessidade diferente de quem abre esta aba: falar, ver quando é,
+     consultar o que foi orientado, saber com quem se está lidando. */
+  const acoes: [string, string, string][] = [
+    ['companion', 'Mensagem', '/medico'],
+    ['cal', 'Consultas', '/consultas'],
+    ['doc', 'Protocolos', '/protocolos'],
+    ['info', 'Sobre', '/especialista'],
+  ];
 
   return (
-    <View style={{ marginTop: 26 }}>
-      <Row gap={16}>
-        {/* sem foto no perfil ainda — a inicial ocupa o lugar dela sem
-            fingir um avatar que não existe */}
-        <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-          <Txt v="h1" c={c.accent} style={{ fontSize: 28 }}>{inicial}</Txt>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>SUA ESPECIALISTA</Txt>
-          <Txt v="h2" style={{ marginTop: 4 }}>{S.profile.doctor}</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{S.profile.clinic}</Txt>
-        </View>
-      </Row>
+    <View style={{ marginTop: 24 }}>
+      {/* Card em lima pálido: é a única superfície tingida da aba, e marca
+          que ali dentro se fala de pessoas, não de números. O lima é a cor
+          de energia da marca — usada em 10% de opacidade, vira acolhimento
+          em vez de destaque. */}
+      <View style={{ backgroundColor: c.limeWeak, borderRadius: radius.xl, padding: 20 }}>
+        <Row gap={16} style={{ alignItems: 'flex-start' }}>
+          <Retrato nome={S.profile.doctor} size={64} tint={c.bg1} />
+          <View style={{ flex: 1 }}>
+            <View style={{ alignSelf: 'flex-start', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+              <Txt v="micro" c={c.tx2}>Sua especialista</Txt>
+            </View>
+            <Txt v="h2" style={{ marginTop: 8 }}>{S.profile.doctor}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
+              {info.especialidade}{info.crm ? ` · ${info.crm}` : ''}
+            </Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{S.profile.clinic}</Txt>
+          </View>
+        </Row>
 
-      {/* Duas ações, lado a lado e do mesmo tamanho. Mensagem é a que a
-          pessoa mais usa, então vem cheia; consulta é evento marcado, e
-          botão cheio para uma coisa que já está agendada promete uma ação
-          que não existe. */}
-      <Row gap={10} style={{ marginTop: 20 }}>
-        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
-          <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 14, justifyContent: 'center' }}>
-            <Icon name="companion" size={17} color={c.accentInk} sw={1.9} />
-            <Txt v="label" c={c.accentInk}>Mensagem</Txt>
-            {S.unread > 0 && (
-              <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
-                <Txt v="micro" c={c.limeInk}>{S.unread}</Txt>
+        <Row gap={8} style={{ marginTop: 20 }}>
+          {acoes.map(([ic, label, to]) => (
+            <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.65 : 1 }]}>
+              <View style={{ alignItems: 'center' }}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={ic} size={19} color={c.tx} sw={1.8} />
+                  {label === 'Mensagem' && S.unread > 0 && (
+                    <View style={{ position: 'absolute', top: 0, right: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+                      <Txt v="micro" c={c.accentInk} style={{ fontSize: 9 }}>{S.unread}</Txt>
+                    </View>
+                  )}
+                </View>
+                <Txt v="micro" c={c.tx2} style={{ marginTop: 7 }}>{label}</Txt>
               </View>
-            )}
-          </Row>
-        </Pressable>
-        <Pressable onPress={go('/consultas')} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-          <Row gap={8} style={{ borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingVertical: 14, justifyContent: 'center' }}>
-            <Icon name="cal" size={17} color={c.tx} sw={1.9} />
-            <Txt v="label" c={c.tx}>Consultas</Txt>
-          </Row>
-        </Pressable>
-      </Row>
+            </Pressable>
+          ))}
+        </Row>
+      </View>
+
+      {/* Credenciais em faixa. Não é vaidade da clínica: num app que não
+          prescreve nada, saber quem prescreve é a informação que sustenta a
+          confiança no tratamento inteiro. */}
+      {!!info.anos && (
+        <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 10, paddingVertical: 16 }}>
+          {[
+            ['shield', `${info.anos} anos`, 'de experiência'],
+            ['user', `${(info.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes'],
+            /* a terceira não é credencial dela, é da relação: repetir
+               "Endocrinologista" aqui só ecoaria o cabeçalho, e o que o
+               cabeçalho não diz é há quanto tempo vocês estão juntas */
+            ['cal', `${semanasJuntas} sem`, 'acompanhando você'],
+          ].map(([ic, valor, label], i) => (
+            <React.Fragment key={label}>
+              {i > 0 && <View style={{ width: 1, backgroundColor: c.line2, marginVertical: 2 }} />}
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Icon name={ic} size={16} color={c.accent} sw={1.9} />
+                <Txt v="bodyMed" style={{ marginTop: 6 }} numberOfLines={1}>{valor}</Txt>
+                <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{label}</Txt>
+              </View>
+            </React.Fragment>
+          ))}
+        </Row>
+      )}
 
       {!!msg && (
-        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 20, opacity: pressed ? 0.6 : 1 }]}>
+        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.6 : 1 }]}>
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
             <Row gap={8}>
               <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8, flex: 1 }}>
@@ -107,6 +160,96 @@ function Equipe() {
         </Pressable>
       )}
     </View>
+  );
+}
+
+/** O resto da equipe, em carrossel. Cada um com o papel embaixo do nome:
+    quem lê "Nutricionista" sabe para quem mandar a dúvida do prato sem
+    precisar abrir e descobrir. */
+function Time() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  const time = ((S as any).team ?? []) as { name: string; role: string; sobre: string }[];
+  if (!time.length) return null;
+
+  return (
+    <View style={{ marginTop: 36 }}>
+      <SectionHead title="Sua equipe" link="Clínica" onPress={() => router.push('/medico' as any)} />
+      <ScrollView
+        horizontal showsHorizontalScrollIndicator={false}
+        style={{ marginTop: 14, marginHorizontal: -PAD }}
+        contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}
+      >
+        {time.map((p) => (
+          <Pressable key={p.name} onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ width: 150, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+              <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Retrato nome={p.name} size={48} tint={c.accentWeak} />
+                <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="companion" size={13} color={c.tx2} sw={1.9} />
+                </View>
+              </Row>
+              <Txt v="bodyMed" style={{ marginTop: 12 }} numberOfLines={1}>{p.name}</Txt>
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{p.role}</Txt>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+/** O que a clínica mandou para você — orientação recebida, não prova
+    enviada. Por isso não se mistura com Documentos. */
+function Materiais() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  const mats = ((S as any).materials ?? []) as { name: string; kind: string; size: string }[];
+  if (!mats.length) return null;
+
+  return (
+    <View style={{ marginTop: 36 }}>
+      <SectionHead title="Materiais da clínica" />
+      <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>O que sua equipe preparou para você.</Txt>
+      <ScrollView
+        horizontal showsHorizontalScrollIndicator={false}
+        style={{ marginTop: 14, marginHorizontal: -PAD }}
+        contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}
+      >
+        {mats.map((m) => (
+          <Pressable key={m.name} onPress={() => router.push('/protocolos' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ width: 160, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+              <View style={{ width: 36, height: 36, borderRadius: radius.sm, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="doc" size={17} color={c.tx} sw={1.9} />
+              </View>
+              <Txt v="bodyMed" style={{ marginTop: 12, lineHeight: 21 }} numberOfLines={2}>{m.name}</Txt>
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 4 }}>{m.kind} · {m.size}</Txt>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+/** Fecho da aba: se nada acima resolveu, fala com gente. */
+function FalarComClinica() {
+  const { c } = useTheme();
+  const router = useRouter();
+  return (
+    <Pressable onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ marginTop: 36, opacity: pressed ? 0.85 : 1 }]}>
+      <Row gap={14} style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, padding: 18 }}>
+        <View style={{ flex: 1 }}>
+          <Txt v="title">Converse com sua clínica</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>Tire dúvidas e receba orientações.</Txt>
+        </View>
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="companion" size={20} color={c.limeInk} sw={2} />
+        </View>
+      </Row>
+    </Pressable>
   );
 }
 
@@ -377,8 +520,11 @@ export default function Cuidado() {
             <Equipe />
             <Pendencias />
             <Consulta />
+            <Time />
             <Tratamento />
+            <Materiais />
             <Documentos />
+            <FalarComClinica />
           </>
         ) : (
           <Descoberta />

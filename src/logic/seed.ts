@@ -39,6 +39,20 @@ export function buildSeed() {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
       startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
       nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
+      /* Ficha da especialista. CRM e tempo de formação não são enfeite: são
+         o que separa "alguém está te acompanhando" de "alguém habilitado
+         está te acompanhando", e num app que não prescreve nada essa
+         distinção é o produto inteiro. */
+      doctorInfo: {
+        crm: 'CRM 128456-SP',
+        especialidade: 'Endocrinologista',
+        anos: 12,
+        pacientes: 2400,
+        rating: 4.9,
+        avaliacoes: 128,
+        sobre: 'Especialista em tratamento clínico da obesidade, modulação hormonal e saúde metabólica. Meu objetivo é promover saúde com acolhimento, ciência e personalização em cada etapa do tratamento.',
+        abordagens: ['Emagrecimento', 'Modulação hormonal', 'Metabolismo', 'Saúde intestinal'],
+      },
       /* metas diárias — antes ficavam espalhadas como número fixo no
          código (proteína 90 g em derive, água na constante GOAL_WATER).
          A Home nova trata as três como alvo configurável. */
@@ -151,6 +165,23 @@ export function buildSeed() {
     /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
     pen: { dosesLeft: 3, dosesPerPen: 4 },
+    /* A equipe além da médica. Cada pessoa tem um papel distinto no
+       tratamento — não é lista de contatos, é quem faz o quê. */
+    team: [
+      { name: 'Renata Alves', role: 'Nutricionista', sobre: 'Ajusta o plano alimentar conforme a fase do ciclo.' },
+      { name: 'Carla Mendes', role: 'Enfermeira', sobre: 'Orienta aplicação, locais e conservação da caneta.' },
+      { name: 'Rafael Lima', role: 'Psicólogo', sobre: 'Acompanha a relação com a comida e com o corpo.' },
+    ],
+
+    /* Material que a clínica mandou para você — diferente de `documents`,
+       que é o que saiu de você para a clínica. A direção importa: um é
+       orientação recebida, o outro é prova enviada. */
+    materials: [
+      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'PDF', size: '2,4 MB' },
+      { t: +daysAgo(70), name: 'Orientações de aplicação', kind: 'PDF', size: '1,1 MB' },
+      { t: +daysAgo(32), name: 'Guia de efeitos colaterais', kind: 'PDF', size: '1,8 MB' },
+    ],
+
     /* Perguntas feitas ao Companion. Guarda só o texto e a hora — a
        resposta é sempre recalculada sobre o estado atual, então
        persistir a thread inteira envelheceria o dado. */
@@ -173,6 +204,9 @@ export function ensureDefaults(S: any) {
   R.agua = Object.assign({ on: false, hour: 15, min: 0 }, R.agua || {});
   R.proteina = Object.assign({ on: false, hour: 12, min: 0 }, R.proteina || {});
   if (!Array.isArray(S.asked)) S.asked = [];
+  if (!Array.isArray(S.team)) S.team = buildSeed().team;
+  if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
+  if (S.profile && !S.profile.doctorInfo) S.profile.doctorInfo = buildSeed().profile.doctorInfo;
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
   if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };
