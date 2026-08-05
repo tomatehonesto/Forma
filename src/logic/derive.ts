@@ -1,5 +1,5 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
-import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg } from './time';
+import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS } from './meds';
 import type { State } from './seed';
 
@@ -1350,4 +1350,75 @@ export function journeySummary(S: State) {
     adesao: adesao(S), streak: streak(S),
     verdict,
   };
+}
+
+/* ============================================================
+   CUIDADO — a área das pessoas
+
+   Diferente das outras abas, aqui quase nada é calculado: o dado já
+   existe pronto no estado (consulta marcada, mensagens, receitas). O que
+   falta é seleção — o que está esperando a pessoa, o que está esperando
+   a equipe, e o que é só arquivo.
+   ============================================================ */
+
+/** Última mensagem da conversa com a equipe, com quem falou por último. */
+export function lastMessage(S: State) {
+  const m = S.messages as any[];
+  if (!m.length) return null;
+  const u = m[m.length - 1];
+  return {
+    ...u,
+    daEquipe: u.from === 'doc',
+    quando: relDay(new Date(u.t)),
+  };
+}
+
+/** A próxima consulta, com o quanto falta e se já dá para se preparar. */
+export function nextConsult(S: State) {
+  if (!hasClinic(S)) return null;
+  const d = new Date(S.consult.t);
+  const dias = diffDays(d, now());
+  return {
+    data: d, dias,
+    tipo: S.consult.type,
+    doutor: S.consult.doctor,
+    /* uma semana antes é quando faz sentido começar a juntar perguntas —
+       antes disso ainda vai acontecer coisa que vale levar */
+    prepararAgora: dias >= 0 && dias <= 7,
+    label: dias <= 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`,
+  };
+}
+
+/** O que está esperando uma ação da pessoa — e só isso. */
+export function carePending(S: State) {
+  const out: { ic: string; texto: string; to: string; urgente?: boolean }[] = [];
+  const cs = nextConsult(S);
+
+  if (S.unread > 0) out.push({
+    ic: 'companion',
+    texto: `${S.unread} ${S.unread === 1 ? 'mensagem não lida' : 'mensagens não lidas'}`,
+    to: '/medico', urgente: true,
+  });
+  const p = penStock(S);
+  if (!p.verdict.good) out.push({
+    ic: 'pill', texto: `${p.left} doses na caneta — peça a renovação`, to: '/medico',
+  });
+  const exame = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
+  if (exame) out.push({ ic: 'doc', texto: exame.t, to: '/exames' });
+  if (cs?.prepararAgora) out.push({
+    ic: 'cal', texto: `Prepare o que levar para a consulta de ${cs.label}`, to: '/consultas',
+  });
+  return out;
+}
+
+/** Documentos e exames em uma lista só, do mais recente para o mais antigo. */
+export function careDocs(S: State, n = 3) {
+  const docs = (S.documents as any[]).map((d) => ({
+    t: d.t, nome: d.name, tipo: d.kind,
+    to: /exame/i.test(d.kind) ? '/exames' : '/resumo-medico',
+  }));
+  const recs = (S.prescriptions as any[]).map((r) => ({
+    t: r.t, nome: r.name, tipo: 'Receita', to: '/medico',
+  }));
+  return [...docs, ...recs].sort((a, b) => b.t - a.t).slice(0, n);
 }
