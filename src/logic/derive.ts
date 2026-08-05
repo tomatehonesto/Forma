@@ -355,6 +355,16 @@ export type Pattern = {
      exibido grande. Sem ele o card afirma; com ele, o card mostra de onde
      tirou — e é a diferença entre parecer opinião e parecer descoberta. */
   evid?: { valor: string; unidade: string; legenda: string };
+  /* O terceiro movimento: o que o achado quer dizer para esta pessoa.
+     Sem ele o card informa e para; com ele, responde a pergunta que a
+     pessoa faria em seguida — "e daí?". É a diferença entre dado e
+     análise, e é o que faz a tela parecer escrita e não gerada. */
+  significa: string;
+  /* Por que o fenômeno acontece. Só os achados de maior surpresa têm —
+     são os candidatos a virar a matéria da semana, e matéria precisa de
+     um meio entre a manchete e a conclusão. Nos demais, explicar o
+     mecanismo alongaria sem acrescentar. */
+  porque?: string;
 };
 
 export const PAT_LABEL: Record<PatKey, string> = {
@@ -391,6 +401,8 @@ export function patterns(S: State): Pattern[] {
         texto: `Sábado e domingo você bebe ${n1(dAgua)} copos a menos${prot}${sono}`,
         q: 'Como cuidar melhor do fim de semana?',
         evid: { valor: `−${n1(dAgua)}`, unidade: 'copos', legenda: 'no sábado e no domingo' },
+        porque: 'A rotina da semana carrega sua hidratação e suas refeições sem que você precise pensar nelas: horários fixos, garrafa na mesa, almoço na mesma hora. No sábado essa estrutura some, e o que sobra é decidir tudo na hora — que é exatamente quando a decisão fica mais difícil.',
+        significa: 'Dois dias por semana o tratamento fica com um pé fora, e são justamente os dias em que você tem mais tempo. Não precisa de disciplina nova — precisa que o fim de semana tenha uma rotina própria, não a ausência da rotina da semana.',
       });
     }
   }
@@ -414,6 +426,7 @@ export function patterns(S: State): Pattern[] {
       texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
       q: 'Como está minha água?',
       evid: { valor: piorMedia.toFixed(0), unidade: `de ${outros.toFixed(0)} copos`, legenda: 'a média nesse dia da semana' },
+      significa: 'Um dia da semana puxa sua média para baixo sozinho. Como é sempre o mesmo, dá para resolver com um lembrete só, em vez de vigiar a hidratação todos os dias.',
     });
   }
 
@@ -431,6 +444,8 @@ export function patterns(S: State): Pattern[] {
       texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${n1(fSim)}. Quando não chegou, ${n1(fNao)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
       q: 'Como está minha proteína?',
       evid: { valor: `−${n1(fNao - fSim)}`, unidade: 'de fome', legenda: 'no dia seguinte a bater a meta' },
+      porque: 'A proteína age na saciedade por um caminho mais lento que o do açúcar: ela demora a esvaziar do estômago e sustenta os sinais de saciedade por muitas horas. Por isso o efeito atravessa a noite e reaparece no apetite da manhã seguinte.',
+      significa: `Bater a meta de proteína não é só cumprir tabela: é comprar um dia seguinte mais tranquilo. Quando a fome apertar, o que resolve não é o que você come naquela hora — é o que você comeu ontem.`,
     });
   }
 
@@ -445,6 +460,8 @@ export function patterns(S: State): Pattern[] {
       texto: `Depois de noites completas sua fome ficou em ${n1(fBem)}; depois de noites curtas, ${n1(fMal)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
       q: 'O que registrar antes de dormir?',
       evid: { valor: '7h', unidade: '+', legenda: 'o ponto em que sua fome muda' },
+      porque: 'Dormir pouco mexe nos dois hormônios que regulam apetite: sobe o que dá fome e cai o que avisa que já deu. Não é falta de disciplina no dia seguinte — é o corpo pedindo energia rápida para compensar o que faltou de descanso.',
+      significa: 'Sono não costuma entrar na conta de quem está tratando o peso, mas nos seus dados ele mexe no apetite como poucas coisas. Uma noite protegida pode valer mais para o dia seguinte do que qualquer ajuste no prato.',
     });
   }
 
@@ -465,6 +482,7 @@ export function patterns(S: State): Pattern[] {
       texto: `Ele fica em ${n1(ePerto)} nos dois primeiros dias e cai para ${n1(eLonge)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
       q: 'Por que sinto enjoo?',
       evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
+      significa: `Isso se repetiu em ${perto.length} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
     });
   }
 
@@ -481,6 +499,7 @@ export function patterns(S: State): Pattern[] {
       texto: `Com ${GOAL_WATER - 1} copos ou mais, seu enjoo médio foi ${n1(eSim)}. Abaixo disso, ${n1(eNao)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
       q: 'Como diminuir o enjoo?',
       evid: { valor: `−${n1(eNao - eSim)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
+      significa: 'De tudo o que aparece ligado ao seu enjoo, a água é o que está mais na sua mão. Não substitui conversar com a equipe se ele apertar, mas é a primeira coisa que vale testar antes.',
     });
   }
 
@@ -497,6 +516,8 @@ export function patterns(S: State): Pattern[] {
       texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
       q: 'Como está minha evolução?',
       evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${n1(total)} kg no período` },
+      porque: 'O peso do dia é gordura, mas também é água, sal, intestino e o ciclo hormonal — variações de um a dois quilos acontecem sem que nada tenha mudado na gordura corporal. A gordura sai devagar e em linha; o resto oscila por cima dela e é o que a balança mostra primeiro.',
+      significa: 'Isso importa mais do que parece: a semana em que a balança sobe é a semana em que as pessoas costumam desistir. Nos seus próprios números, ela nunca significou o que parecia significar.',
     });
   }
 
@@ -514,6 +535,9 @@ export function patterns(S: State): Pattern[] {
         : `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g antes. Vale retomar — massa magra sustenta o metabolismo.`,
       q: 'Como está minha proteína?',
       evid: { valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${Math.round(antes)} → ${Math.round(depois)} g por dia` },
+      significa: pct > 0
+        ? 'Subiu sem que você anunciasse nenhuma mudança, o que costuma ser o tipo de hábito que fica. Proteína é o que protege sua massa magra enquanto o peso cai — sem ela, parte do que some não é gordura.'
+        : 'A queda foi gradual, do tipo que não se percebe de um dia para o outro. Proteína é o que protege sua massa magra enquanto o peso cai; vale retomar antes que vire o novo normal.',
     });
   }
 
@@ -527,17 +551,23 @@ export function patterns(S: State): Pattern[] {
       : `${n1(r.lost)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
     evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${n1(r.lost)} kg em ${r.semana} semanas` },
+    significa: r.verdict.good
+      ? 'É um ritmo sustentável, e sustentável é o que importa: perdas rápidas demais costumam levar massa magra junto e voltar depois. O seu está no intervalo que a literatura associa a resultado que se mantém.'
+      : 'Ritmo é uma conversa para ter com sua equipe, não comigo. Levo o número organizado para a consulta se você quiser.',
   });
 
   const ade = adesao(S);
   out.push({
     key: 'aplicacoes', cat: 'Aplicações', ic: 'syringe', cor: 'accent2', surpresa: 0,
-    titulo: `${ade}% das aplicações em dia`,
-    texto: ade >= 90
-      ? `${S.injections.length} aplicações desde o início. Constância é o que faz a medicação trabalhar a seu favor.`
-      : `${S.injections.length} aplicações desde o início. Atrasos mudam o efeito ao longo da semana.`,
+    titulo: ade >= 100
+      ? 'Você não atrasou nenhuma aplicação desde o começo'
+      : `Você manteve ${ade}% das aplicações em dia`,
+    texto: `São ${S.injections.length} aplicações desde o início do tratamento, ${ade >= 90 ? 'praticamente todas na data certa' : 'com alguns atrasos pelo caminho'}.`,
     q: 'Como funciona o ciclo da medicação?',
     evid: { valor: `${ade}%`, unidade: '', legenda: `${S.injections.length} aplicações desde o início` },
+    significa: ade >= 90
+      ? 'Essa consistência é um dos fatores que mais pesam numa boa resposta ao medicamento. O nível da substância no corpo depende de regularidade, não de esforço — e é o tipo de coisa que só aparece quando alguém olha o histórico inteiro.'
+      : 'A regularidade pesa mais do que a dose exata do dia: cada atraso deixa uma janela em que o efeito cai antes da hora, e é nela que a fome costuma voltar mais forte.',
   });
 
   /* o mais surpreendente primeiro — a ordem da tela é a ordem do valor */

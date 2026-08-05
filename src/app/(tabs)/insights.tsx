@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, companionMemoria, PAT_LABEL, radar, checkins30,
-  hasClinic, journeySummary, type PatKey,
+  balanceRead, companionMemoria, radar, checkins30,
+  hasClinic, journeySummary,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead } from '../../ui/kit';
@@ -264,7 +264,6 @@ export default function Insights() {
   const go = (to: string) => () => router.push(to as any);
   const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
 
-  const [filtro, setFiltro] = useState<PatKey | null>(null);
   const [pergunta, setPergunta] = useState('');
   const enviar = () => {
     const q = pergunta.trim();
@@ -294,19 +293,15 @@ export default function Insights() {
   const cor = (k: string) => (c as any)[k] as string;
 
   const destaque = pads[0];
-  const restantes = pads.slice(1);
-  const visiveis = filtro ? restantes.filter((p) => p.key === filtro) : restantes;
-  const cats = (Object.keys(PAT_LABEL) as PatKey[]).filter((k) => restantes.some((p) => p.key === k));
+  /* três, e as três de maior surpresa — patterns() já devolve ordenado.
+     Selecionar é o trabalho da IA; despejar tudo o que ela sabe é o
+     oposto de priorizar. */
+  const outras = pads.slice(1, 4);
 
-  /* agrupa preservando a ordem cronológica que recommendations já devolveu */
-  const grupos = useMemo(() => {
-    const mapa = new Map<string, typeof recos>();
-    recos.forEach((x) => {
-      const k = recoBucket(x.emDias);
-      mapa.set(k, [...(mapa.get(k) || []), x]);
-    });
-    return [...mapa.entries()];
-  }, [recos]);
+  /* A primeira é a mais urgente — recommendations() já devolve por prazo.
+     As três seguintes ficam como nota; o resto não entra. */
+  const principal = recos[0];
+  const secundarias = recos.slice(1, 4);
 
   const memoria = useMemo(() => companionMemoria(S), [S]);
 
@@ -439,203 +434,207 @@ export default function Insights() {
               um fundo clareando; opaco, ele carrega o próprio fundo e pode
               ficar exatamente onde o desenho pede. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 56, opacity: pressed ? 0.9 : 1 }]}>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 22, ...shadowCard(c) }}>
-                <Row gap={10}>
-                  <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
-                </Row>
-                <Txt v="display" c={c.tx} style={{ fontSize: 21, lineHeight: 28, marginTop: 14 }}>
-                  {destaque.titulo}
-                </Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 20 }}>{destaque.texto}</Txt>
-                <Row gap={6} style={{ marginTop: 16 }}>
-                  <Txt v="label" c={c.accent2}>Entender melhor</Txt>
-                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-                </Row>
-              </View>
-            </Pressable>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, marginTop: 56, ...shadowCard(c) }}>
+              <Row gap={10}>
+                <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DESTA SEMANA</Txt>
+              </Row>
+              <Txt v="display" c={c.tx} style={{ fontSize: 27, lineHeight: 34, marginTop: 16 }}>
+                {destaque.titulo}
+              </Txt>
+              {/* olho da matéria: sai do corpo, entra maior e em outro tom */}
+              <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 25 }}>{destaque.texto}</Txt>
+            </View>
           )}
         </View>
 
-        {/* ---- padrões: o que explica o comportamento ---- */}
-        {restantes.length > 0 && (
-          <View style={{ marginTop: 36 }}>
-            {/* "Outras descobertas" e não "Padrões encontrados": padrão é o
-                que o sistema calcula, descoberta é o que ele conta. E o nome
-                amarra a seção ao card lá em cima, que é a descoberta da
-                semana — estas são as outras. */}
-            <SectionHead title="Outras descobertas" />
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              {restantes.length} coisas que encontrei cruzando seus registros.
-            </Txt>
+        {/* ============================================================
+            O CORPO DA MATÉRIA
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}
-              style={{ marginTop: 14, marginHorizontal: -PAD }}
-              contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
-              {/* filtro em contorno, não em preenchimento: o chip cheio
-                  pesava tanto quanto o conteúdo que ele filtra */}
-              <Pressable onPress={() => setFiltro(null)}>
-                <Row gap={6} style={{ borderWidth: 1, borderColor: filtro === null ? c.tx : c.line, backgroundColor: filtro === null ? c.tx : 'transparent', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill }}>
-                  <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>Tudo</Txt>
-                  <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{restantes.length}</Txt>
+            A capa fica no card, sobre a divisa; o texto continua aqui, na
+            página branca. É a estrutura de revista: manchete e olho na
+            abertura, e o desenvolvimento em coluna, com o número solto
+            entre os dois movimentos fazendo as vezes de olho gráfico.
+
+            Dois movimentos e não cinco: por que acontece, e o que isso
+            quer dizer para esta pessoa. A pergunta que o leitor faz depois
+            de uma descoberta é sempre "e daí?", e a matéria acaba quando
+            ela é respondida.
+            ============================================================ */}
+        {destaque && (
+          <View style={{ marginTop: 34 }}>
+            {destaque.evid && (
+              <View style={{ borderLeftWidth: 2, borderLeftColor: c.lime, paddingLeft: 16, marginBottom: 28 }}>
+                <Row gap={8} style={{ alignItems: 'baseline' }}>
+                  <Txt v="display" c={c.tx} style={{ fontSize: 44, lineHeight: 50 }}>{destaque.evid.valor}</Txt>
+                  {!!destaque.evid.unidade && <Txt v="body" c={c.tx3}>{destaque.evid.unidade}</Txt>}
                 </Row>
-              </Pressable>
-              {cats.map((k) => {
-                const on = filtro === k;
-                const n = restantes.filter((p) => p.key === k).length;
-                return (
-                  <Pressable key={k} onPress={() => setFiltro(on ? null : k)}>
-                    <Row gap={6} style={{ borderWidth: 1, borderColor: on ? c.tx : c.line, backgroundColor: on ? c.tx : 'transparent', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill }}>
-                      <Txt v="label" c={on ? c.onHero : c.tx2}>{PAT_LABEL[k]}</Txt>
-                      <Txt v="micro" c={on ? c.lime : c.tx4}>{n}</Txt>
-                    </Row>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{destaque.evid.legenda}</Txt>
+              </View>
+            )}
 
-            {/* Cada padrão é uma descoberta, e descoberta se lê em três
-                tempos: a evidência (o número que ninguém somaria sozinho), a
-                frase que ele sustenta, e o convite para ir fundo.
+            {!!destaque.porque && (
+              <>
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>POR QUE ISSO ACONTECE</Txt>
+                <Txt v="body" c={c.tx2} style={{ marginTop: 10, lineHeight: 26 }}>{destaque.porque}</Txt>
+              </>
+            )}
 
-                Por isso o número vem primeiro e grande, na tipografia leve —
-                é a prova. Sem ele o card afirma; com ele, mostra de onde
-                tirou. O fio separa sem enquadrar: caixa branca sobre fundo
-                quase branco faria cinco descobertas parecerem cinco
-                notificações. */}
-            <View style={{ marginTop: 20 }}>
-              {visiveis.map((p, i) => (
-                <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <View style={{ paddingVertical: 26, borderTopWidth: 1, borderTopColor: c.line }}>
-                    <Row style={{ alignItems: 'flex-start' }}>
-                      <Row gap={7} style={{ flex: 1 }}>
-                        <Icon name={p.ic} size={13} color={cor(p.cor)} sw={2} />
-                        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.9 }}>{p.cat.toUpperCase()}</Txt>
-                      </Row>
-                      <Txt v="micro" c={c.tx4}>{String(i + 1).padStart(2, '0')}</Txt>
-                    </Row>
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1, marginTop: destaque.porque ? 26 : 0 }}>
+              O QUE ISSO QUER DIZER PARA VOCÊ
+            </Txt>
+            <Txt v="body" c={c.tx2} style={{ marginTop: 10, lineHeight: 26 }}>{destaque.significa}</Txt>
 
-                    {p.evid && (
-                      <Row gap={7} style={{ alignItems: 'baseline', marginTop: 16 }}>
-                        <Txt v="display" c={c.tx} style={{ fontSize: 40, lineHeight: 46 }}>{p.evid.valor}</Txt>
-                        {!!p.evid.unidade && <Txt v="body" c={c.tx3}>{p.evid.unidade}</Txt>}
-                      </Row>
-                    )}
-                    {p.evid && (
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{p.evid.legenda}</Txt>
-                    )}
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 22, opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={9} style={{ borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 13, alignSelf: 'flex-start' }}>
+                <Icon name="aura" size={15} color={c.accent} sw={1.9} />
+                <Txt v="label" c={c.accent2}>Conversar sobre isso</Txt>
+              </Row>
+            </Pressable>
+          </View>
+        )}
 
-                    <Txt v="title" style={{ marginTop: p.evid ? 18 : 14 }}>{p.titulo}</Txt>
-                    <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{p.texto}</Txt>
+        {/* ============================================================
+            TAMBÉM NOTEI
 
-                    <Row gap={6} style={{ marginTop: 16 }}>
-                      <Txt v="label" c={c.accent2}>Perguntar sobre isso</Txt>
-                      <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-                    </Row>
+            Não é a lista das descobertas restantes — é o Companion
+            continuando a falar depois de contar a principal. Por isso o
+            título é uma frase dele e não um rótulo de seção, e por isso
+            são três e não cinco: seleção é o trabalho, e mostrar tudo o
+            que se sabe é o oposto de priorizar.
+
+            Sumiu o filtro por categoria. Filtro pressupõe alguém
+            procurando algo específico num acervo; aqui não há acervo, há
+            três observações escolhidas.
+            ============================================================ */}
+        {outras.length > 0 && (
+          <View style={{ marginTop: 44 }}>
+            <Row gap={10}>
+              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>TAMBÉM NOTEI</Txt>
+            </Row>
+
+            {outras.map((p, i) => (
+              <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <View style={{ paddingTop: i === 0 ? 22 : 26, paddingBottom: 26, borderBottomWidth: 1, borderBottomColor: c.line }}>
+                  <Txt v="title" style={{ lineHeight: 26 }}>{p.titulo}</Txt>
+                  <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{p.texto}</Txt>
+                  {/* o "e daí?" respondido, recuado como um aparte do autor */}
+                  <View style={{ borderLeftWidth: 2, borderLeftColor: c.line, paddingLeft: 14, marginTop: 14 }}>
+                    <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>{p.significa}</Txt>
                   </View>
-                </Pressable>
-              ))}
-              <View style={{ height: 1, backgroundColor: c.line }} />
-            </View>
+                </View>
+              </Pressable>
+            ))}
           </View>
         )}
 
         {/* ---- equilíbrio: a leitura primeiro, o gráfico como ilustração ----
              Oito eixos num radar não concluem nada sozinhos. A frase conclui;
              o desenho mostra de onde ela saiu. */}
-        <View style={{ marginTop: 36 }}>
-          <SectionHead title="Seu equilíbrio" link="Sintomas" onPress={go('/sintomas')} />
+        {/* ============================================================
+            O EQUILÍBRIO
 
-          {/* A conclusão vem antes do gráfico, e vem em voz de gente. O radar
-              tem oito eixos e não conclui nada sozinho — quem sabe se 62% em
-              proteína é bom é quem já viu os outros sete. Aqui ele deixa de
-              ser a análise e passa a ser a prova dela: primeiro o Companion
-              diz o que viu, depois mostra onde viu. */}
-          {/* Leitura e gráfico dentro do mesmo card: eles são um argumento e
-              sua prova, e soltos na página pareciam dois blocos sem dono. O
-              card aqui não é moldura decorativa — é o que diz "isto pertence
-              àquilo". O fio interno separa o que a IA concluiu do que
-              sustenta a conclusão. */}
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 22, marginTop: 16 }}>
-            <Row gap={9}>
-              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>O COMPANION OBSERVOU</Txt>
+            Sem título de seção e sem card: é o Companion falando de novo,
+            na mesma coluna de texto da matéria. O que muda de registro é o
+            fundo escuro — a fala dele tem a cor da aba, e é isso que
+            separa o que ele diz do que a página apresenta.
+
+            O gráfico entra depois, menor e sobre o claro, com o rótulo
+            dizendo que é apoio. Deixou de ser a seção "Seu equilíbrio"
+            com um gráfico dentro e virou uma observação com uma nota de
+            rodapé desenhada.
+            ============================================================ */}
+        <View style={{ marginTop: 44, marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: 30, paddingBottom: 28, backgroundColor: c.altTo }}>
+          <Row gap={9}>
+            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
+            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>O COMPANION OBSERVOU</Txt>
+          </Row>
+          <Txt v="display" c={c.onHero} style={{ fontSize: 26, lineHeight: 33, marginTop: 16 }}>
+            {eq.abertura}
+          </Txt>
+          <Txt v="body" c={c.onHero2} style={{ marginTop: 10, lineHeight: 26 }}>{eq.texto}</Txt>
+
+          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 20 }]}>
+            <Row gap={9} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 13, alignSelf: 'flex-start' }}>
+              <Icon name="aura" size={15} color={c.lime} sw={1.9} />
+              <Txt v="label" c={c.onHero}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
             </Row>
-            <Txt v="display" c={c.tx} style={{ fontSize: 23, lineHeight: 30, marginTop: 14 }}>
-              {eq.abertura}
-            </Txt>
-            <Txt v="body" c={c.tx2} style={{ marginTop: 8, lineHeight: 25 }}>{eq.texto}</Txt>
+          </Pressable>
+        </View>
 
-            <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 16 }]}>
-              <Row gap={6}>
-                <Txt v="label" c={c.accent2}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
-                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-              </Row>
-            </Pressable>
-
-            <View style={{ height: 1, backgroundColor: c.line2, marginTop: 24 }} />
-
-            <View style={{ alignItems: 'center', marginTop: 22 }}>
-              <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 14 }}>
-                O QUE SUSTENTA ESSA LEITURA
-              </Txt>
-              <Petalas data={radar(S)} size={Math.min(288, width - 96)} fraco={eq.fraco} c={c} />
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-                Últimos 3 check-ins · {checkins30(S)} registros no mês
-              </Txt>
-            </View>
-          </View>
+        <View style={{ alignItems: 'center', marginTop: 30 }}>
+          <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 16 }}>
+            OS OITO INDICADORES, HOJE
+          </Txt>
+          <Petalas data={radar(S)} size={Math.min(288, width - 96)} fraco={eq.fraco} c={c} />
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 14, textAlign: 'center' }}>
+            Média dos últimos 3 check-ins · {checkins30(S)} registros no mês
+          </Txt>
         </View>
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
-        {grupos.length > 0 && (
-          <View style={{ marginTop: 36 }}>
-            <SectionHead title="Próximas ações" />
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.
-            </Txt>
+        {/* ============================================================
+            SE FOSSE COMIGO, ESTA SEMANA
 
-            {/* Os grupos saem do prazo calculado, não de dois baldes fixos:
-                "Daqui a 9 dias" só existe porque a consulta é daqui a nove
-                dias. É a diferença entre uma lista de tarefas e alguém
-                organizando a agenda de outra pessoa.
+            Deixou de ser calendário. Antes os prazos eram os títulos e as
+            ações vinham penduradas neles, o que fazia a seção parecer
+            agenda; agora a IA escolhe UMA recomendação principal e trata o
+            resto como nota de rodapé. O prazo continua lá, mas como
+            informação dentro da linha, não como estrutura da seção.
 
-                Cada linha carrega o porquê. Sem ele a ação é ordem; com ele,
-                é recomendação — e a pessoa pode discordar, que é o que
-                separa conselho de alarme. */}
-            {grupos.map(([rotulo, itens], gi) => (
-              <View key={rotulo} style={{ marginTop: gi === 0 ? 20 : 14 }}>
-                <Row gap={10} style={{ marginBottom: 10 }}>
-                  <Txt v="label" c={c.tx}>{rotulo}</Txt>
-                  <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
-                  <Txt v="micro" c={c.tx4}>{itens.length}</Txt>
+            Priorizar é escolher o que fica de fora do destaque — se tudo
+            tem o mesmo peso, ninguém priorizou nada.
+            ============================================================ */}
+        {principal && (
+          <View style={{ marginTop: 44 }}>
+            <Row gap={10}>
+              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>SE FOSSE COMIGO, ESTA SEMANA</Txt>
+            </Row>
+
+            <Pressable onPress={go(principal.to)} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 20 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 22 }}>
+                <Row gap={8}>
+                  <Icon name={principal.ic} size={14} color={c.accent} sw={2} />
+                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.9 }}>
+                    {recoBucket(principal.emDias).toUpperCase()}
+                  </Txt>
                 </Row>
-                {/* cada prazo é um card: o grupo passa a ter contorno próprio
-                    em vez de flutuar como uma lista solta sob um rótulo */}
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 18, paddingVertical: 4 }}>
-                  {itens.map((x, i) => (
-                    <React.Fragment key={x.texto}>
-                      {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
-                      <Pressable onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                        <Row gap={13} style={{ alignItems: 'flex-start', paddingVertical: 16 }}>
-                          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-                            <Icon name={x.ic} size={15} color={c.accent} sw={1.9} />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Txt v="bodyMed">{x.texto}</Txt>
-                            <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>{x.porque}</Txt>
-                          </View>
-                          <View style={{ marginTop: 8 }}>
-                            <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                          </View>
-                        </Row>
-                      </Pressable>
-                    </React.Fragment>
-                  ))}
-                </View>
+                <Txt v="display" c={c.tx} style={{ fontSize: 21, lineHeight: 28, marginTop: 12 }}>
+                  {principal.texto}
+                </Txt>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{principal.porque}</Txt>
+                <Row gap={6} style={{ marginTop: 16 }}>
+                  <Txt v="label" c={c.accent2}>Fazer agora</Txt>
+                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                </Row>
               </View>
-            ))}
+            </Pressable>
+
+            {secundarias.length > 0 && (
+              <>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 24 }}>
+                  Depois dessa, o que eu deixaria no radar:
+                </Txt>
+                {secundarias.map((x) => (
+                  <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                    <Row gap={12} style={{ alignItems: 'flex-start', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: c.line }}>
+                      <View style={{ marginTop: 3 }}>
+                        <Icon name={x.ic} size={15} color={c.tx3} sw={1.9} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="bodyMed">{x.texto}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{recoBucket(x.emDias)}</Txt>
+                      </View>
+                      <View style={{ marginTop: 4 }}>
+                        <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                      </View>
+                    </Row>
+                  </Pressable>
+                ))}
+              </>
+            )}
           </View>
         )}
 
