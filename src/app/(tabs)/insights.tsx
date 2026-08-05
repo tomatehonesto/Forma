@@ -104,79 +104,69 @@ export default function Insights() {
           />
 
           {/* identidade fora do vidro: o Companion é a aba, não um item dentro dela */}
-          <Row gap={11} style={{ marginBottom: 18 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="aura" size={19} color={c.lime} sw={1.9} />
+          <Row gap={11}>
+            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="aura" size={18} color={c.lime} sw={1.9} />
             </View>
+            {/* a contagem é a credencial: sem ela, "conheço sua jornada" é
+                promessa; com ela, é fato verificável */}
             <View style={{ flex: 1 }}>
               <Txt v="bodyMed" c={c.onHero}>Companion</Txt>
-              <Row gap={6} style={{ marginTop: 1 }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.lime }} />
-                <Txt v="caption" c={c.onHero2}>leu {lidos} registros da sua jornada</Txt>
-              </Row>
+              <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>leu {lidos} registros seus</Txt>
             </View>
+            <Pressable onPress={go('/companion')} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={6}>
+                <Txt v="label" c={c.lime}>Conversa</Txt>
+                <Icon name="chev" size={13} color={c.lime} sw={2.2} />
+              </Row>
+            </Pressable>
           </Row>
 
-          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 20 }}>
-            <Txt v="h2" c={c.onHero}>O que você quer entender?</Txt>
-            <Txt v="note" c={c.onHero2} style={{ marginTop: 5 }}>
-              Ele acompanha seus check-ins, exames e a fase do seu ciclo. Pergunte como falaria com alguém que estava lá.
+          {/* O vidro carrega um gesto só: a pergunta e o campo para respondê-la.
+              Tudo que puder viver fora dele vive fora — quanto menos coisa
+              dentro, mais o card parece uma conversa esperando e menos parece
+              um painel. */}
+          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 22, marginTop: 22 }}>
+            <Txt v="display" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>
+              Oi, {S.profile.name.split(' ')[0]}.{'\n'}O que você quer entender?
             </Txt>
 
-            <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 16, marginTop: 18 }}>
+            <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 20 }}>
               <TextInput
                 value={pergunta} onChangeText={setPergunta}
                 onSubmitEditing={enviar} returnKeyType="send"
                 placeholder="Escreva sua pergunta..." placeholderTextColor={c.onHero2}
-                style={{ flex: 1, paddingVertical: 14, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
+                style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
               />
               <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
-                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="send" size={16} color={c.limeInk} sw={2} />
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="send" size={17} color={c.limeInk} sw={2} />
                 </View>
               </Pressable>
             </Row>
-
-            {/* sugestões como início de frase, não como chips de filtro —
-                cada linha já é a pergunta pronta, basta tocar */}
-            <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1, marginTop: 22, marginBottom: 4 }}>
-              PARA COMEÇAR AGORA
-            </Txt>
-            {sugestoes.map((q, i) => (
-              <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <Row style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.glassLine }}>
-                  <Txt v="body" c={c.onHero} style={{ flex: 1 }}>{q}</Txt>
-                  <Icon name="chev" size={15} color={c.lime} sw={2.2} />
-                </Row>
-              </Pressable>
-            ))}
           </View>
 
-          {/* continuar de onde parou — só existe depois da primeira conversa */}
-          {recentes.length > 0 && (
-            <View style={{ marginTop: 18 }}>
-              <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1, marginBottom: 10 }}>VOCÊ PERGUNTOU ANTES</Txt>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}
-                style={{ marginHorizontal: -PAD }}
-                contentContainerStyle={{ paddingHorizontal: PAD, gap: 7 }}>
-                {recentes.map((q) => (
-                  <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
-                    <Row gap={8} style={{ borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 10 }}>
-                      <Icon name="back" size={13} color={c.onHero2} sw={2} />
-                      <Txt v="caption" c={c.onHero}>{q}</Txt>
-                    </Row>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-
-          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ marginTop: 18, opacity: pressed ? 0.6 : 1 }]}>
-            <Row gap={6}>
-              <Txt v="label" c={c.lime}>Abrir conversa completa</Txt>
-              <Icon name="chev" size={13} color={c.lime} sw={2.2} />
-            </Row>
-          </Pressable>
+          {/* As sugestões saem do vidro e viram pills soltas sobre o gradiente:
+              quem já sabe o que perguntar ignora; quem não sabe tem por onde
+              começar. As que ela já perguntou levam a seta de volta. */}
+          {/* uma faixa que rola, não uma grade que empilha: no telefone cada
+              pergunta ocupa uma linha inteira, e cinco linhas de pill são a
+              mesma poluição de antes, só que fora do vidro. A última pill
+              vaza na borda para dizer que há mais. */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+            style={{ marginHorizontal: -PAD, marginTop: 18 }}
+            contentContainerStyle={{ paddingHorizontal: PAD, gap: 7 }}>
+            {[...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))]
+              .slice(0, 5)
+              .map(({ q, visto }) => (
+                <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
+                  <Row gap={7} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11 }}>
+                    {visto && <Icon name="back" size={12} color={c.onHero2} sw={2} />}
+                    <Txt v="caption" c={c.onHero}>{q}</Txt>
+                  </Row>
+                </Pressable>
+              ))}
+          </ScrollView>
         </View>
 
         {/* ---- descoberta da semana: a prova de que ele conhece a pessoa ---- */}
