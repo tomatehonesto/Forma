@@ -14,7 +14,7 @@ import { Icon } from '../../ui/Icon';
 import { Radar } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import Svg, { Circle, Defs, Ellipse, RadialGradient, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
+import Svg, { Defs, Ellipse, Path, RadialGradient, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowSoft, type Palette } from '../../theme';
 
 /* ============================================================
@@ -43,48 +43,67 @@ const PAD = 24;
 const CHIPS_MAX = 3;
 
 /* ============================================================
-   ORBE — a presença do Companion
+   ONDA — a presença do Companion
 
-   Dois círculos opacos empilhados não fazem halo, fazem alvo: a borda
-   de cada um aparece e o brilho vira anel. Glow de verdade precisa de
-   queda contínua até zero, e isso só existe em gradiente radial — daí o
-   SVG. Os anéis orbitais em volta são o que dá a leitura de instrumento
-   em vez de bolinha colorida.
+   Substituiu a esfera. Esfera é objeto: fica ali, parada, decorativa. A
+   onda é sinal — diz que alguém está ouvindo, que há atividade do outro
+   lado. Numa aba cuja tese é "existe uma inteligência acompanhando",
+   sinal comunica melhor que objeto.
+
+   Três senóides de amplitude e fase diferentes, com opacidade caindo do
+   centro para as bordas — é a queda nas pontas que faz o traço parecer
+   emitido em vez de desenhado. O lima leva a linha da frente porque é a
+   cor de energia da marca; o teal e o branco ficam atrás, dando volume.
    ============================================================ */
-function Orbe({ c, size = 132 }: { c: Palette; size?: number }) {
-  const meio = size / 2;
-  const r = size * 0.225;
+function Onda({ c, width, height = 96 }: { c: Palette; width: number; height?: number }) {
+  const meio = height / 2;
+
+  /* Cada curva é uma senóide amostrada em 48 pontos, com um envelope que
+     zera a amplitude nas duas pontas: sem ele o traço termina no ar, com
+     um corte reto que denuncia o SVG. */
+  const curva = (amp: number, ciclos: number, fase: number) => {
+    const n = 48;
+    return Array.from({ length: n + 1 }, (_, i) => {
+      const t = i / n;
+      const envelope = Math.sin(Math.PI * t) ** 1.4;
+      const y = meio - Math.sin(t * Math.PI * 2 * ciclos + fase) * amp * envelope;
+      return `${i ? 'L' : 'M'}${(t * width).toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  };
+
+  const linhas = [
+    { d: curva(height * 0.30, 1.5, 0), cor: c.lime, w: 2, o: 1 },
+    { d: curva(height * 0.22, 1.5, 0.7), cor: c.teal, w: 1.6, o: 0.72 },
+    { d: curva(height * 0.34, 1.2, 2.1), cor: '#FFFFFF', w: 1.2, o: 0.45 },
+    { d: curva(height * 0.16, 2.1, 3.4), cor: c.lime, w: 1, o: 0.34 },
+  ];
+
   return (
-    <Svg width={size} height={size}>
+    <Svg width={width} height={height}>
       <Defs>
-        <RadialGradient id="orbGlow" cx="50%" cy="50%" r="50%">
-          <Stop offset="0.30" stopColor={c.teal} stopOpacity={0.42} />
-          <Stop offset="0.52" stopColor={c.accent} stopOpacity={0.26} />
-          <Stop offset="0.78" stopColor={c.accent} stopOpacity={0.07} />
-          <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
+        {/* brilho por trás do feixe — dá o halo sem contorno */}
+        <RadialGradient id="ondaGlow" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={c.lime} stopOpacity={0.34} />
+          <Stop offset="0.45" stopColor={c.teal} stopOpacity={0.16} />
+          <Stop offset="1" stopColor={c.teal} stopOpacity={0} />
         </RadialGradient>
-        <SvgGrad id="orbCorpo" x1="0.12" y1="0" x2="0.88" y2="1">
-          <Stop offset="0" stopColor={c.lime} />
-          <Stop offset="0.42" stopColor={c.teal} />
-          <Stop offset="1" stopColor={c.accent} />
-        </SvgGrad>
-        <SvgGrad id="orbBrilho" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.7} />
+        {/* as pontas somem: o feixe não tem começo nem fim visível */}
+        <SvgGrad id="ondaFade" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0} />
+          <Stop offset="0.5" stopColor="#FFFFFF" stopOpacity={1} />
           <Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
         </SvgGrad>
       </Defs>
 
-      {/* o brilho ocupa a tela inteira do svg e morre em zero — sem borda
-          para o olho encontrar */}
-      <Circle cx={meio} cy={meio} r={meio} fill="url(#orbGlow)" />
+      <Ellipse cx={width / 2} cy={meio} rx={width / 2} ry={height / 2} fill="url(#ondaGlow)" />
 
-      {/* anéis orbitais, cada vez mais tênues */}
-      <Circle cx={meio} cy={meio} r={r + 11} fill="none" stroke={c.onHeroLine} strokeWidth={1} />
-      <Circle cx={meio} cy={meio} r={r + 24} fill="none" stroke={c.onHeroWeak} strokeWidth={1} />
-
-      <Circle cx={meio} cy={meio} r={r} fill="url(#orbCorpo)" />
-      {/* reflexo alto: é ele que faz o disco virar esfera */}
-      <Ellipse cx={meio} cy={meio - r * 0.44} rx={r * 0.6} ry={r * 0.28} fill="url(#orbBrilho)" />
+      {linhas.map((l, i) => (
+        <React.Fragment key={i}>
+          {/* traço largo e translúcido por baixo = o glow da própria linha */}
+          <Path d={l.d} stroke={l.cor} strokeWidth={l.w * 4} strokeOpacity={l.o * 0.16} fill="none" strokeLinecap="round" />
+          <Path d={l.d} stroke={l.cor} strokeWidth={l.w} strokeOpacity={l.o} fill="none" strokeLinecap="round" />
+        </React.Fragment>
+      ))}
     </Svg>
   );
 }
@@ -165,27 +184,28 @@ export default function Insights() {
           /* a barra de baixo não é respiro: é o comprimento que a cor precisa
              para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
              seco, e o corte aparece como uma linha atravessando a tela */
-          paddingTop: insets.top + 22, paddingBottom: 168,
+          paddingTop: insets.top + 22, paddingBottom: 140,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
-             visualmente. É como encurtar o hero em 88 px sem encurtar a
-             distância que a cor tem para chegar ao fundo. */
-          marginBottom: -88,
+             visualmente. É encurtar o hero sem encurtar a distância que a
+             cor tem para chegar ao fundo. */
+          marginBottom: -25,
           overflow: 'hidden',
         }}>
           <LinearGradient
-            /* A cor de fundo aparece duas vezes no fim, em 88% e em 100%: o
-               último trecho é fundo puro, chapado. É isso que mata o corte —
-               enquanto o degradê ainda estava mudando quando o hero acabava,
-               o olho encontrava a emenda; agora ele já chegou ao destino bem
-               antes da borda e os últimos ~90 px são indistinguíveis do
-               resto da tela.
+            /* O índigo aparece DUAS vezes, em 42% e em 78%: entre as duas
+               paradas a cor não muda. Essa faixa chapada é o que permite
+               campo e chips em vidro — vidro precisa de fundo com peso, e
+               num degradê contínuo a chip de cima estaria sobre um azul e a
+               de baixo sobre outro bem mais claro, com a mesma translucidez
+               rendendo contrastes diferentes.
 
-               O campo de digitar cai no índigo saturado de propósito: ali o
-               texto branco lê a 9,5:1. Clarear antes disso entregaria
-               placeholder branco sobre quase-branco. */
-            colors={[c.altMid, c.altFrom, c.bluePale, c.bg, c.bg]}
-            locations={[0, 0.46, 0.74, 0.88, 1]}
+               Depois dela a cor cai até o fundo da tela e chega lá antes da
+               borda: os últimos 4% já são fundo puro. Enquanto o degradê
+               ainda estava mudando quando o hero acabava, o olho encontrava
+               a emenda. */
+            colors={[c.altMid, c.altFrom, c.altFrom, c.bluePale, c.bg, c.bg]}
+            locations={[0, 0.42, 0.78, 0.90, 0.96, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -196,7 +216,7 @@ export default function Insights() {
               abre a conversa inteira — o caminho continua existindo, só
               deixou de ocupar espaço. */}
           <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
-            <Orbe c={c} />
+            <Onda c={c} width={Math.min(300, width - PAD * 2)} />
           </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
@@ -234,12 +254,16 @@ export default function Insights() {
 
               Sem ícone: a pergunta já diz do que se trata, e um pictograma
               ao lado de "Como diminuir o enjoo?" não acrescenta leitura —
-              só divide a atenção com o texto que faz o trabalho. */}
-          <View style={{ marginTop: 22, alignItems: 'center', gap: 8 }}>
+              só divide a atenção com o texto que faz o trabalho.
+
+              Em vidro, como o campo: chip branca sólida virava botão e
+              competia com o card branco que vem logo abaixo. Translúcida,
+              ela pertence ao ambiente do Companion. */}
+          <View style={{ marginTop: 20, alignItems: 'center', gap: 8 }}>
             {chips.map(({ q }) => (
-              <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, maxWidth: '100%' }]}>
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11, ...shadowSoft(c) }}>
-                  <Txt v="caption" c={c.tx} numberOfLines={1}>{q}</Txt>
+              <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1, maxWidth: '100%' }]}>
+                <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
+                  <Txt v="caption" c={c.onHero} numberOfLines={1}>{q}</Txt>
                 </View>
               </Pressable>
             ))}
@@ -251,19 +275,24 @@ export default function Insights() {
              respiro, e somar espaço aqui abriria um vão branco onde antes
              havia a borda do card. */}
         {destaque && (
-          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 6, opacity: pressed ? 0.85 : 1 }]}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 20 }}>
-              <Row gap={9}>
-                <Icon name={destaque.ic} size={15} color={cor(destaque.cor)} sw={2} />
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>DESCOBERTA DA SEMANA</Txt>
-              </Row>
-              <Txt v="h2" style={{ marginTop: 12 }}>{destaque.titulo}</Txt>
-              <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>{destaque.texto}</Txt>
-              <Row gap={6} style={{ marginTop: 16 }}>
-                <Txt v="label" c={c.accent2}>Entender melhor</Txt>
-                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-              </Row>
-            </View>
+          <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 30, opacity: pressed ? 0.7 : 1 }]}>
+            {/* Sem card. O achado mais forte da semana não precisa de caixa
+                para se destacar — precisa de tamanho e de ar em volta, e a
+                caixa branca sobre fundo quase branco só acrescenta uma borda
+                que não separa nada. O traço lima faz o trabalho que a moldura
+                fazia mal. */}
+            <Row gap={10}>
+              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>DESCOBERTA DA SEMANA</Txt>
+            </Row>
+            <Txt v="display" c={c.tx} style={{ fontSize: 26, lineHeight: 33, marginTop: 16 }}>
+              {destaque.titulo}
+            </Txt>
+            <Txt v="note" c={c.tx2} style={{ marginTop: 10 }}>{destaque.texto}</Txt>
+            <Row gap={6} style={{ marginTop: 16 }}>
+              <Txt v="label" c={c.accent2}>Entender melhor</Txt>
+              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+            </Row>
           </Pressable>
         )}
 
@@ -278,8 +307,10 @@ export default function Insights() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
               style={{ marginTop: 14, marginHorizontal: -PAD }}
               contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
+              {/* filtro em contorno, não em preenchimento: o chip cheio
+                  pesava tanto quanto o conteúdo que ele filtra */}
               <Pressable onPress={() => setFiltro(null)}>
-                <Row gap={6} style={{ backgroundColor: filtro === null ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                <Row gap={6} style={{ borderWidth: 1, borderColor: filtro === null ? c.tx : c.line, backgroundColor: filtro === null ? c.tx : 'transparent', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill }}>
                   <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>Tudo</Txt>
                   <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{restantes.length}</Txt>
                 </Row>
@@ -289,7 +320,7 @@ export default function Insights() {
                 const n = restantes.filter((p) => p.key === k).length;
                 return (
                   <Pressable key={k} onPress={() => setFiltro(on ? null : k)}>
-                    <Row gap={6} style={{ backgroundColor: on ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
+                    <Row gap={6} style={{ borderWidth: 1, borderColor: on ? c.tx : c.line, backgroundColor: on ? c.tx : 'transparent', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill }}>
                       <Txt v="label" c={on ? c.onHero : c.tx2}>{PAT_LABEL[k]}</Txt>
                       <Txt v="micro" c={on ? c.lime : c.tx4}>{n}</Txt>
                     </Row>
@@ -298,22 +329,34 @@ export default function Insights() {
               })}
             </ScrollView>
 
-            {visiveis.map((p) => (
-              <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
-                  <Row gap={9}>
-                    <Icon name={p.ic} size={15} color={cor(p.cor)} sw={2} />
-                    <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>{p.cat.toUpperCase()}</Txt>
+            {/* Lista numerada com fios, não pilha de caixas. Cinco cards
+                brancos iguais empilhados fazem o olho tratar todos como o
+                mesmo peso e desistir no terceiro; o número dá posição, o fio
+                dá separação, e o espaço faz o resto. É o mesmo conteúdo com
+                metade da tinta. */}
+            <View style={{ marginTop: 18 }}>
+              {visiveis.map((p, i) => (
+                <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={14} style={{ alignItems: 'flex-start', paddingVertical: 20, borderTopWidth: 1, borderTopColor: c.line }}>
+                    <Txt v="micro" c={c.tx4} style={{ width: 20, marginTop: 3 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </Txt>
+                    <View style={{ flex: 1 }}>
+                      <Row gap={7}>
+                        <Icon name={p.ic} size={13} color={cor(p.cor)} sw={2} />
+                        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>{p.cat.toUpperCase()}</Txt>
+                      </Row>
+                      <Txt v="title" style={{ marginTop: 9 }}>{p.titulo}</Txt>
+                      <Txt v="note" c={c.tx2} style={{ marginTop: 5 }}>{p.texto}</Txt>
+                    </View>
+                    <View style={{ marginTop: 3 }}>
+                      <Icon name="chev" size={15} color={c.tx4} sw={2} />
+                    </View>
                   </Row>
-                  <Txt v="title" style={{ marginTop: 10 }}>{p.titulo}</Txt>
-                  <Txt v="note" c={c.tx2} style={{ marginTop: 6 }}>{p.texto}</Txt>
-                  <Row gap={6} style={{ marginTop: 14 }}>
-                    <Txt v="label" c={c.accent2}>Entender melhor</Txt>
-                    <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-                  </Row>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              ))}
+              <View style={{ height: 1, backgroundColor: c.line }} />
+            </View>
           </View>
         )}
 
@@ -322,28 +365,33 @@ export default function Insights() {
              o desenho mostra de onde ela saiu. */}
         <View style={{ marginTop: 36 }}>
           <SectionHead title="Seu equilíbrio" link="Sintomas" onPress={go('/sintomas')} />
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 20 }}>
-            <Row gap={9}>
-              <Icon name="spark" size={15} color={c.accent} sw={2} />
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>LEITURA DO COMPANION</Txt>
-            </Row>
-            <Txt v="title" style={{ marginTop: 10 }}>{eq.titulo}</Txt>
-            <Txt v="note" c={c.tx2} style={{ marginTop: 6 }}>{eq.texto}</Txt>
 
-            <View style={{ alignItems: 'center', marginTop: 18 }}>
-              <Radar data={radar(S)} size={Math.min(240, width - 130)} />
-            </View>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 8, textAlign: 'center' }}>
+          {/* A leitura vem primeiro e grande; o radar entra abaixo, sem caixa,
+              como ilustração dela. Dentro de um card os dois disputavam o
+              mesmo plano — a frase virava legenda do gráfico, quando é o
+              gráfico que devia ser a nota de rodapé da frase. */}
+          <Row gap={10} style={{ marginTop: 20 }}>
+            <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>LEITURA DO COMPANION</Txt>
+          </Row>
+          <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 14 }}>
+            {eq.titulo}
+          </Txt>
+          <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>{eq.texto}</Txt>
+
+          <View style={{ alignItems: 'center', marginTop: 24 }}>
+            <Radar data={radar(S)} size={Math.min(250, width - 110)} />
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
               Últimos 3 check-ins · {checkins30(S)} registros no mês
             </Txt>
-
-            <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 16 }]}>
-              <Row gap={6}>
-                <Txt v="label" c={c.accent2}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
-                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-              </Row>
-            </Pressable>
           </View>
+
+          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 20 }]}>
+            <Row gap={6}>
+              <Txt v="label" c={c.accent2}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
+              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+            </Row>
+          </Pressable>
         </View>
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
