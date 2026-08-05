@@ -279,7 +279,7 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          paddingTop: insets.top + 48, paddingBottom: 250,
+          paddingTop: insets.top + 76, paddingBottom: 214,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
@@ -318,7 +318,7 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={280} />
+          <Dissolucao c={c} width={width} height={250} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -399,7 +399,7 @@ export default function Insights() {
               rodapé — a borda superior aparecendo na dobra é o que promete
               que há mais conteúdo abaixo. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 84, opacity: pressed ? 0.85 : 1 }]}>
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 104, opacity: pressed ? 0.85 : 1 }]}>
               {/* Em vidro, como o campo e as chips. Opaco ele era um objeto
                   pousado sobre o azul; translúcido, pertence ao ambiente do
                   Companion — e a descoberta É fala dele, não conteúdo da
@@ -450,7 +450,7 @@ export default function Insights() {
             ela é respondida.
             ============================================================ */}
         {outras.length > 0 && (
-          <View style={{ marginTop: 30 }}>
+          <View style={{ marginTop: 22 }}>
             <SectionHead title="O que mais percebi" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Outras observações que encontrei analisando sua jornada.
