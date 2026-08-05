@@ -664,13 +664,16 @@ export function companionMemoria(S: State): string {
   const semanas = Math.max(1, Math.floor(dias / 7));
   const nInj = S.injections.length;
   const nCheck = S.checkins.length;
-  const nEx = S.exams.length;
 
   const frases = [
     `Acompanho seu tratamento desde a primeira aplicação, há ${dias} dias.`,
     `Conheço sua jornada desde o primeiro dia — ${semanas} semanas até aqui.`,
-    `Considerei seus check-ins, ${nInj} aplicações, ${nEx} exames e seus hábitos.`,
-    `Li tudo o que você registrou nos últimos ${nCheck} dias antes de responder.`,
+    /* Antes esta linha enumerava o que ele leu ("considerei seus check-ins,
+       11 aplicações, 15 exames..."). Enumerar prova capacidade de contar,
+       não de conhecer — e a frase que constrói confiança é a que fala de
+       presença ao longo do tempo, não de volume processado. */
+    'Conheço sua jornada desde o primeiro dia.',
+    `Estou com você desde a primeira aplicação, ${nInj} doses atrás.`,
   ];
   return frases[nCheck % frases.length];
 }

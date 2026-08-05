@@ -74,12 +74,20 @@ const CHIPS_MAX = 3;
    para que o encontro com o conteúdo não tenha emenda nenhuma.
    ============================================================ */
 function Dissolucao({ c, width, height }: { c: Palette; width: number; height: number }) {
-  /* Os centros ficam abaixo da última chip de propósito: mancha que sobe
-     demais clareia o fundo do vidro e derruba o contraste do texto. */
+  /* Os centros ficam abaixo do último vidro de propósito: mancha que sobe
+     demais clareia o fundo do card e derruba o contraste do texto.
+
+     O `meio` é a parada intermediária de cada gradiente radial, e é ele que
+     decide se a queda é abrupta ou macia. Valores baixos concentram a
+     opacidade perto do centro e fazem a mancha ter uma "borda"; empurrados
+     para longe, a cor se espalha e o fim vira difusão em vez de contorno.
+     Quatro manchas, e não três, para que a sobreposição cubra a largura sem
+     que nenhuma precise ser densa. */
   const manchas = [
-    { id: 'd0', cx: 0.16, cy: 0.86, rx: 0.80, ry: 0.50, meio: 0.40 },
-    { id: 'd1', cx: 0.90, cy: 0.74, rx: 0.70, ry: 0.42, meio: 0.32 },
-    { id: 'd2', cx: 0.50, cy: 1.02, rx: 1.10, ry: 0.60, meio: 0.48 },
+    { id: 'd0', cx: 0.14, cy: 0.88, rx: 0.86, ry: 0.54, meio: 0.62 },
+    { id: 'd1', cx: 0.92, cy: 0.78, rx: 0.76, ry: 0.46, meio: 0.58 },
+    { id: 'd2', cx: 0.50, cy: 1.04, rx: 1.15, ry: 0.66, meio: 0.66 },
+    { id: 'd3', cx: 0.62, cy: 0.92, rx: 0.70, ry: 0.42, meio: 0.55 },
   ];
   return (
     <Svg width={width} height={height} style={{ position: 'absolute', left: 0, bottom: 0 }}>
@@ -100,7 +108,9 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
           fill={`url(#${m.id})`}
         />
       ))}
-      <Rect x={0} y={height * 0.9} width={width} height={height * 0.1} fill={c.bg} />
+      {/* faixa sólida no rodapé: garante que os últimos pixels são fundo
+          puro, para o encontro com o conteúdo não ter emenda */}
+      <Rect x={0} y={height * 0.88} width={width} height={height * 0.12} fill={c.bg} />
     </Svg>
   );
 }
@@ -263,13 +273,13 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          paddingTop: insets.top + 48, paddingBottom: 84,
+          paddingTop: insets.top + 48, paddingBottom: 190,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
              cor tem para chegar ao fundo. Mede o mesmo que a faixa sólida no
              rodapé da Dissolução. */
-          marginBottom: -11,
+          marginBottom: -80,
           overflow: 'hidden',
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
@@ -302,7 +312,7 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          <Dissolucao c={c} width={width} height={110} />
+          <Dissolucao c={c} width={width} height={230} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
