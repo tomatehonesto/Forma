@@ -6,8 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, companionMemoria, radar, checkins30,
-  hasClinic, journeySummary,
+  balanceRead, companionMemoria, hasClinic, journeySummary,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead } from '../../ui/kit';
@@ -34,6 +33,18 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
 
 const PAD = 24;
 const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
+
+/* Fundo pálido do círculo de ícone, a partir da cor do achado. A paleta já
+   tem o par claro de cada cor de dado; sem esse mapa eu teria de compor
+   alfa em runtime, e cor com alfa sobre branco não é a mesma coisa que a
+   cor pálida desenhada — a segunda foi escolhida, a primeira só acontece. */
+function fundoDe(c: Palette, k: string): string {
+  const par: Record<string, string> = {
+    water: c.waterBg, purple: c.purpleBg, rose: c.roseBg, amber: c.amberBg,
+    lime: c.limeWeak, teal: c.tealPale, accent: c.accentWeak, accent2: c.accentWeak,
+  };
+  return par[k] ?? c.bg2;
+}
 
 /* Três perguntas, uma por linha, centradas e sem ícone.
 
@@ -89,101 +100,6 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
       ))}
       <Rect x={0} y={height * 0.9} width={width} height={height * 0.1} fill={c.bg} />
     </Svg>
-  );
-}
-
-/* ============================================================
-   PÉTALAS — o equilíbrio como oito setores
-
-   Substituiu o radar. Radar desenha um polígono e pede que a pessoa
-   julgue a forma dele: quanto mais irregular, pior — mas ninguém sabe
-   qual polígono é bom, e um eixo baixo some no meio do contorno. Aqui
-   cada indicador tem uma pétala própria: o trilho mostra o que caberia,
-   o preenchimento mostra o que há, e a comparação é entre vizinhos, que
-   é uma leitura que o olho faz sozinho.
-
-   O eixo mais fraco vem em lima — o mesmo que a leitura escrita logo
-   acima aponta como foco da semana. Sem isso o gráfico ilustraria o
-   texto por coincidência; com isso, ele aponta para a mesma coisa.
-   ============================================================ */
-function Petalas({ c, data, size, fraco }: { c: Palette; data: { k: string; v: number }[]; size: number; fraco?: string }) {
-  const R = size / 2;
-  const meio = R;
-  const buraco = R * 0.12;
-  const trilhoAte = R * 0.97;
-  /* o preenchimento para antes do rótulo: número coberto por pétala é
-     dado escondido pelo próprio gráfico */
-  const valorAte = R * 0.57;
-  const n = data.length;
-  const passo = 360 / n;
-  const folga = 2.6;          // graus de respiro entre pétalas
-  const arredondar = 7;       // vira strokeWidth: o traço arredonda os cantos
-
-  const ponto = (ang: number, r: number) => {
-    const rad = ((ang - 90) * Math.PI) / 180;
-    return [meio + Math.cos(rad) * r, meio + Math.sin(rad) * r];
-  };
-  /* setor anular entre dois raios. O contorno com linejoin redondo é o que
-     dá o canto arredondado sem precisar calcular arcos de canto — por isso
-     os raios entram encolhidos pela metade da espessura. */
-  const setor = (a0: number, a1: number, r0: number, r1: number) => {
-    const i = arredondar / 2;
-    const [x0, y0] = ponto(a0, r0 + i), [x1, y1] = ponto(a1, r0 + i);
-    const [x2, y2] = ponto(a1, r1 - i), [x3, y3] = ponto(a0, r1 - i);
-    return `M${x0},${y0} A${r0 + i},${r0 + i} 0 0 1 ${x1},${y1} L${x2},${y2} A${r1 - i},${r1 - i} 0 0 0 ${x3},${y3} Z`;
-  };
-
-  return (
-    <View style={{ width: size, height: size }}>
-      <Svg width={size} height={size}>
-        <Defs>
-          <SvgGrad id="petala" x1="0" y1="0" x2="0.4" y2="1">
-            <Stop offset="0" stopColor={c.panelFrom} />
-            <Stop offset="1" stopColor={c.accent2} />
-          </SvgGrad>
-        </Defs>
-
-        {data.map((d, i) => {
-          const a0 = i * passo - passo / 2 + folga / 2;
-          const a1 = i * passo + passo / 2 - folga / 2;
-          const pct = Math.max(0, Math.min(100, d.v)) / 100;
-          const alvo = buraco + (valorAte - buraco) * pct;
-          const ehFraco = d.k === fraco;
-          return (
-            <React.Fragment key={d.k}>
-              <Path
-                d={setor(a0, a1, buraco, trilhoAte)}
-                fill={c.bg2} stroke={c.bg2}
-                strokeWidth={arredondar} strokeLinejoin="round"
-              />
-              {pct > 0.04 && (
-                <Path
-                  d={setor(a0, a1, buraco, alvo)}
-                  fill={ehFraco ? c.lime : 'url(#petala)'}
-                  stroke={ehFraco ? c.lime : c.accent2}
-                  strokeWidth={arredondar} strokeLinejoin="round"
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </Svg>
-
-      {/* rótulos em View e não em <Text> do SVG: assim herdam a Outfit e a
-          escala tipográfica do app, em vez de virarem uma segunda régua */}
-      {data.map((d, i) => {
-        /* 0,73 e não 0,79: nos setores da esquerda e da direita o rótulo sai
-           na horizontal pura, e a caixa de 70 px vazava a borda do desenho */
-        const [x, y] = ponto(i * passo, R * 0.73);
-        const ehFraco = d.k === fraco;
-        return (
-          <View key={d.k} pointerEvents="none" style={{ position: 'absolute', left: x - 35, top: y - 19, width: 70, alignItems: 'center' }}>
-            <Txt v="bodyMed" c={ehFraco ? c.limeInk : c.tx} style={{ fontSize: 17 }}>{Math.round(d.v)}</Txt>
-            <Txt v="micro" c={ehFraco ? c.limeInk : c.tx3} numberOfLines={1}>{d.k}</Txt>
-          </View>
-        );
-      })}
-    </View>
   );
 }
 
@@ -265,6 +181,7 @@ export default function Insights() {
   const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
 
   const [pergunta, setPergunta] = useState('');
+  const [tudo, setTudo] = useState(false);
   const enviar = () => {
     const q = pergunta.trim();
     if (q) { setPergunta(''); router.push(`/companion?q=${encodeURIComponent(q)}` as any); }
@@ -295,13 +212,24 @@ export default function Insights() {
   const destaque = pads[0];
   /* três, e as três de maior surpresa — patterns() já devolve ordenado.
      Selecionar é o trabalho da IA; despejar tudo o que ela sabe é o
-     oposto de priorizar. */
-  const outras = pads.slice(1, 4);
+     oposto de priorizar. O resto fica atrás de um toque. */
+  const outras = tudo ? pads.slice(1) : pads.slice(1, 4);
+  const temMais = !tudo && pads.length > 4;
 
-  /* A primeira é a mais urgente — recommendations() já devolve por prazo.
-     As três seguintes ficam como nota; o resto não entra. */
-  const principal = recos[0];
-  const secundarias = recos.slice(1, 4);
+  /* Uma ação por horizonte, não as três mais próximas.
+     Pegar simplesmente o topo da lista devolvia "hoje, hoje, hoje" — que é
+     verdade, mas lê como despejo de pendências do dia. Espalhando por prazo,
+     a seção mostra que alguém está olhando a semana inteira: o que fazer
+     agora, o que preparar, e o que já dá para adiantar. */
+  const acoes = useMemo(() => {
+    const vistos = new Set<string>();
+    return recos.filter((x) => {
+      const b = recoBucket(x.emDias);
+      if (vistos.has(b)) return false;
+      vistos.add(b);
+      return true;
+    }).slice(0, 3);
+  }, [recos]);
 
   const memoria = useMemo(() => companionMemoria(S), [S]);
 
@@ -434,17 +362,22 @@ export default function Insights() {
               um fundo clareando; opaco, ele carrega o próprio fundo e pode
               ficar exatamente onde o desenho pede. */}
           {destaque && (
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, marginTop: 56, ...shadowCard(c) }}>
-              <Row gap={10}>
-                <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DESTA SEMANA</Txt>
-              </Row>
-              <Txt v="display" c={c.tx} style={{ fontSize: 27, lineHeight: 34, marginTop: 16 }}>
-                {destaque.titulo}
-              </Txt>
-              {/* olho da matéria: sai do corpo, entra maior e em outro tom */}
-              <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 25 }}>{destaque.texto}</Txt>
-            </View>
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 56, opacity: pressed ? 0.9 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.xl, padding: 24, ...shadowCard(c) }}>
+                <Row gap={10}>
+                  <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
+                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DA SEMANA</Txt>
+                </Row>
+                <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 16 }}>
+                  {destaque.titulo}
+                </Txt>
+                <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 25 }}>{destaque.texto}</Txt>
+                <Row gap={7} style={{ marginTop: 18 }}>
+                  <Txt v="label" c={c.accent2}>Entender melhor</Txt>
+                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                </Row>
+              </View>
+            </Pressable>
           )}
         </View>
 
@@ -461,71 +394,54 @@ export default function Insights() {
             de uma descoberta é sempre "e daí?", e a matéria acaba quando
             ela é respondida.
             ============================================================ */}
-        {destaque && (
-          <View style={{ marginTop: 34 }}>
-            {destaque.evid && (
-              <View style={{ borderLeftWidth: 2, borderLeftColor: c.lime, paddingLeft: 16, marginBottom: 28 }}>
-                <Row gap={8} style={{ alignItems: 'baseline' }}>
-                  <Txt v="display" c={c.tx} style={{ fontSize: 44, lineHeight: 50 }}>{destaque.evid.valor}</Txt>
-                  {!!destaque.evid.unidade && <Txt v="body" c={c.tx3}>{destaque.evid.unidade}</Txt>}
-                </Row>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{destaque.evid.legenda}</Txt>
-              </View>
-            )}
-
-            {!!destaque.porque && (
-              <>
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>POR QUE ISSO ACONTECE</Txt>
-                <Txt v="body" c={c.tx2} style={{ marginTop: 10, lineHeight: 26 }}>{destaque.porque}</Txt>
-              </>
-            )}
-
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1, marginTop: destaque.porque ? 26 : 0 }}>
-              O QUE ISSO QUER DIZER PARA VOCÊ
-            </Txt>
-            <Txt v="body" c={c.tx2} style={{ marginTop: 10, lineHeight: 26 }}>{destaque.significa}</Txt>
-
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 22, opacity: pressed ? 0.6 : 1 }]}>
-              <Row gap={9} style={{ borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 13, alignSelf: 'flex-start' }}>
-                <Icon name="aura" size={15} color={c.accent} sw={1.9} />
-                <Txt v="label" c={c.accent2}>Conversar sobre isso</Txt>
-              </Row>
-            </Pressable>
-          </View>
-        )}
-
-        {/* ============================================================
-            TAMBÉM NOTEI
-
-            Não é a lista das descobertas restantes — é o Companion
-            continuando a falar depois de contar a principal. Por isso o
-            título é uma frase dele e não um rótulo de seção, e por isso
-            são três e não cinco: seleção é o trabalho, e mostrar tudo o
-            que se sabe é o oposto de priorizar.
-
-            Sumiu o filtro por categoria. Filtro pressupõe alguém
-            procurando algo específico num acervo; aqui não há acervo, há
-            três observações escolhidas.
-            ============================================================ */}
         {outras.length > 0 && (
-          <View style={{ marginTop: 44 }}>
-            <Row gap={10}>
-              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>TAMBÉM NOTEI</Txt>
-            </Row>
+          <View style={{ marginTop: 40 }}>
+            <SectionHead title="O que mais percebi" />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+              Outras observações que encontrei analisando sua jornada.
+            </Txt>
 
-            {outras.map((p, i) => (
-              <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <View style={{ paddingTop: i === 0 ? 22 : 26, paddingBottom: 26, borderBottomWidth: 1, borderBottomColor: c.line }}>
-                  <Txt v="title" style={{ lineHeight: 26 }}>{p.titulo}</Txt>
-                  <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{p.texto}</Txt>
-                  {/* o "e daí?" respondido, recuado como um aparte do autor */}
-                  <View style={{ borderLeftWidth: 2, borderLeftColor: c.line, paddingLeft: 14, marginTop: 14 }}>
-                    <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>{p.significa}</Txt>
-                  </View>
-                </View>
-              </Pressable>
-            ))}
+            {/* Card único com linhas divididas, e não blocos soltos na
+                página: o card agrupa, e agrupar aqui diz que aquelas três
+                coisas são da mesma natureza e vieram da mesma leitura. */}
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, paddingHorizontal: 18 }}>
+              {outras.map((p, i) => (
+                <React.Fragment key={p.titulo}>
+                  {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
+                  <Pressable onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                    <Row gap={14} style={{ alignItems: 'flex-start', paddingVertical: 20 }}>
+                      {/* o círculo tingido carrega a categoria sem precisar
+                          escrevê-la: quem lê três observações seguidas
+                          reconhece que são de assuntos diferentes */}
+                      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: fundoDe(c, p.cor), alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon name={p.ic} size={17} color={cor(p.cor)} sw={1.9} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="bodyMed" style={{ lineHeight: 23 }}>{p.titulo}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 5, lineHeight: 20 }}>{p.texto}</Txt>
+                      </View>
+                      <View style={{ marginTop: 10 }}>
+                        <Icon name="chev" size={15} color={c.tx4} sw={2} />
+                      </View>
+                    </Row>
+                  </Pressable>
+                </React.Fragment>
+              ))}
+
+              {/* o total fica no rodapé, não na chamada: três é o que a IA
+                  escolheu mostrar; quem quiser o acervo inteiro pede */}
+              {temMais && (
+                <>
+                  <View style={{ height: 1, backgroundColor: c.line2 }} />
+                  <Pressable onPress={() => setTudo(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                    <Row gap={7} style={{ paddingVertical: 18 }}>
+                      <Txt v="label" c={c.accent2}>Ver todas as observações ({pads.length - 1})</Txt>
+                      <Icon name="chev" size={14} color={c.accent2} sw={2.2} />
+                    </Row>
+                  </Pressable>
+                </>
+              )}
+            </View>
           </View>
         )}
 
@@ -545,32 +461,32 @@ export default function Insights() {
             com um gráfico dentro e virou uma observação com uma nota de
             rodapé desenhada.
             ============================================================ */}
-        <View style={{ marginTop: 44, marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: 30, paddingBottom: 28, backgroundColor: c.altTo }}>
+        {/* Card escuro no meio do claro. É a única peça da tela que troca de
+            fundo, e é isso que impede a leitura mais interpretativa da página
+            de passar como mais um bloco branco entre blocos brancos.
+
+            O gráfico saiu daqui. A spec pede que a interpretação seja o
+            elemento, e um radar ao lado de três frases volta a puxar a
+            atenção para a técnica — os oito indicadores continuam desenhados
+            em Sintomas, que é onde quem quer o detalhe vai. */}
+        <View style={{ backgroundColor: c.altTo, borderRadius: radius.lg, padding: 24, marginTop: 40 }}>
           <Row gap={9}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
-            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>O COMPANION OBSERVOU</Txt>
+            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>COMPANION OBSERVOU</Txt>
           </Row>
-          <Txt v="display" c={c.onHero} style={{ fontSize: 26, lineHeight: 33, marginTop: 16 }}>
+          <Txt v="display" c={c.onHero} style={{ fontSize: 24, lineHeight: 31, marginTop: 16 }}>
             {eq.abertura}
           </Txt>
-          <Txt v="body" c={c.onHero2} style={{ marginTop: 10, lineHeight: 26 }}>{eq.texto}</Txt>
+          <Txt v="body" c={c.onHero2} style={{ marginTop: 10, lineHeight: 25 }}>{eq.texto}</Txt>
 
-          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 20 }]}>
-            <Row gap={9} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 13, alignSelf: 'flex-start' }}>
-              <Icon name="aura" size={15} color={c.lime} sw={1.9} />
-              <Txt v="label" c={c.onHero}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
+          {/* botão sólido em lima, não link: aqui a IA não oferece leitura,
+              propõe conversa */}
+          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 22, alignSelf: 'flex-start' }]}>
+            <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
+              <Txt v="label" c={c.limeInk}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
+              <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />
             </Row>
           </Pressable>
-        </View>
-
-        <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 16 }}>
-            OS OITO INDICADORES, HOJE
-          </Txt>
-          <Petalas data={radar(S)} size={Math.min(288, width - 96)} fraco={eq.fraco} c={c} />
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 14, textAlign: 'center' }}>
-            Média dos últimos 3 check-ins · {checkins30(S)} registros no mês
-          </Txt>
         </View>
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
@@ -586,55 +502,36 @@ export default function Insights() {
             Priorizar é escolher o que fica de fora do destaque — se tudo
             tem o mesmo peso, ninguém priorizou nada.
             ============================================================ */}
-        {principal && (
-          <View style={{ marginTop: 44 }}>
-            <Row gap={10}>
-              <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>SE FOSSE COMIGO, ESTA SEMANA</Txt>
-            </Row>
+        {acoes.length > 0 && (
+          <View style={{ marginTop: 40 }}>
+            <SectionHead title="Próximas ações" />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
+              Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.
+            </Txt>
 
-            <Pressable onPress={go(principal.to)} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 20 }]}>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 22 }}>
-                <Row gap={8}>
-                  <Icon name={principal.ic} size={14} color={c.accent} sw={2} />
-                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.9 }}>
-                    {recoBucket(principal.emDias).toUpperCase()}
-                  </Txt>
+            {/* Um card por ação, e o prazo como sobretítulo dentro dele. Na
+                versão anterior o prazo era o título do grupo e as ações vinham
+                penduradas nele — o que fazia a seção ler como agenda. Aqui a
+                ação é o assunto e o prazo é uma propriedade dela. */}
+            {acoes.map((x) => (
+              <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, marginTop: 10 }]}>
+                <Row gap={14} style={{ alignItems: 'flex-start', backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
+                  <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={x.ic} size={17} color={c.accent} sw={1.9} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.9 }}>
+                      {recoBucket(x.emDias).toUpperCase()}
+                    </Txt>
+                    <Txt v="bodyMed" style={{ marginTop: 5, lineHeight: 23 }}>{x.texto}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginTop: 4, lineHeight: 20 }}>{x.porque}</Txt>
+                  </View>
+                  <View style={{ marginTop: 12 }}>
+                    <Icon name="chev" size={15} color={c.tx4} sw={2} />
+                  </View>
                 </Row>
-                <Txt v="display" c={c.tx} style={{ fontSize: 21, lineHeight: 28, marginTop: 12 }}>
-                  {principal.texto}
-                </Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{principal.porque}</Txt>
-                <Row gap={6} style={{ marginTop: 16 }}>
-                  <Txt v="label" c={c.accent2}>Fazer agora</Txt>
-                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-                </Row>
-              </View>
-            </Pressable>
-
-            {secundarias.length > 0 && (
-              <>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 24 }}>
-                  Depois dessa, o que eu deixaria no radar:
-                </Txt>
-                {secundarias.map((x) => (
-                  <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                    <Row gap={12} style={{ alignItems: 'flex-start', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: c.line }}>
-                      <View style={{ marginTop: 3 }}>
-                        <Icon name={x.ic} size={15} color={c.tx3} sw={1.9} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Txt v="bodyMed">{x.texto}</Txt>
-                        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{recoBucket(x.emDias)}</Txt>
-                      </View>
-                      <View style={{ marginTop: 4 }}>
-                        <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                      </View>
-                    </Row>
-                  </Pressable>
-                ))}
-              </>
-            )}
+              </Pressable>
+            ))}
           </View>
         )}
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
+import { Txt } from './kit';
 import { useTheme } from './useTheme';
 
 type Pt = { x: number; y: number };
@@ -120,5 +121,101 @@ export function Radar({ data, size = 250 }: { data: { k: string; v: number }[]; 
         return <SvgText key={i} x={x} y={y + 3.5} fontSize={10.5} fill={c.tx3} textAnchor="middle">{d.k}</SvgText>;
       })}
     </Svg>
+  );
+}
+
+/* ============================================================
+   PÉTALAS — o equilíbrio como oito setores
+
+   Substituiu o radar. Radar desenha um polígono e pede que a pessoa
+   julgue a forma dele: quanto mais irregular, pior — mas ninguém sabe
+   qual polígono é bom, e um eixo baixo some no meio do contorno. Aqui
+   cada indicador tem uma pétala própria: o trilho mostra o que caberia,
+   o preenchimento mostra o que há, e a comparação é entre vizinhos, que
+   é uma leitura que o olho faz sozinho.
+
+   O eixo mais fraco vem em lima — o mesmo que a leitura escrita logo
+   acima aponta como foco da semana. Sem isso o gráfico ilustraria o
+   texto por coincidência; com isso, ele aponta para a mesma coisa.
+   ============================================================ */
+export function Petalas({ data, size = 288, fraco }: { data: { k: string; v: number }[]; size?: number; fraco?: string }) {
+  const { c } = useTheme();
+  const R = size / 2;
+  const meio = R;
+  const buraco = R * 0.12;
+  const trilhoAte = R * 0.97;
+  /* o preenchimento para antes do rótulo: número coberto por pétala é
+     dado escondido pelo próprio gráfico */
+  const valorAte = R * 0.57;
+  const n = data.length;
+  const passo = 360 / n;
+  const folga = 2.6;          // graus de respiro entre pétalas
+  const arredondar = 7;       // vira strokeWidth: o traço arredonda os cantos
+
+  const ponto = (ang: number, r: number) => {
+    const rad = ((ang - 90) * Math.PI) / 180;
+    return [meio + Math.cos(rad) * r, meio + Math.sin(rad) * r];
+  };
+  /* setor anular entre dois raios. O contorno com linejoin redondo é o que
+     dá o canto arredondado sem precisar calcular arcos de canto — por isso
+     os raios entram encolhidos pela metade da espessura. */
+  const setor = (a0: number, a1: number, r0: number, r1: number) => {
+    const i = arredondar / 2;
+    const [x0, y0] = ponto(a0, r0 + i), [x1, y1] = ponto(a1, r0 + i);
+    const [x2, y2] = ponto(a1, r1 - i), [x3, y3] = ponto(a0, r1 - i);
+    return `M${x0},${y0} A${r0 + i},${r0 + i} 0 0 1 ${x1},${y1} L${x2},${y2} A${r1 - i},${r1 - i} 0 0 0 ${x3},${y3} Z`;
+  };
+
+  return (
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size}>
+        <Defs>
+          <SvgGrad id="petala" x1="0" y1="0" x2="0.4" y2="1">
+            <Stop offset="0" stopColor={c.panelFrom} />
+            <Stop offset="1" stopColor={c.accent2} />
+          </SvgGrad>
+        </Defs>
+
+        {data.map((d, i) => {
+          const a0 = i * passo - passo / 2 + folga / 2;
+          const a1 = i * passo + passo / 2 - folga / 2;
+          const pct = Math.max(0, Math.min(100, d.v)) / 100;
+          const alvo = buraco + (valorAte - buraco) * pct;
+          const ehFraco = d.k === fraco;
+          return (
+            <React.Fragment key={d.k}>
+              <Path
+                d={setor(a0, a1, buraco, trilhoAte)}
+                fill={c.bg2} stroke={c.bg2}
+                strokeWidth={arredondar} strokeLinejoin="round"
+              />
+              {pct > 0.04 && (
+                <Path
+                  d={setor(a0, a1, buraco, alvo)}
+                  fill={ehFraco ? c.lime : 'url(#petala)'}
+                  stroke={ehFraco ? c.lime : c.accent2}
+                  strokeWidth={arredondar} strokeLinejoin="round"
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </Svg>
+
+      {/* rótulos em View e não em <Text> do SVG: assim herdam a Outfit e a
+          escala tipográfica do app, em vez de virarem uma segunda régua */}
+      {data.map((d, i) => {
+        /* 0,73 e não 0,79: nos setores da esquerda e da direita o rótulo sai
+           na horizontal pura, e a caixa de 70 px vazava a borda do desenho */
+        const [x, y] = ponto(i * passo, R * 0.73);
+        const ehFraco = d.k === fraco;
+        return (
+          <View key={d.k} pointerEvents="none" style={{ position: 'absolute', left: x - 35, top: y - 19, width: 70, alignItems: 'center' }}>
+            <Txt v="bodyMed" c={ehFraco ? c.limeInk : c.tx} style={{ fontSize: 17 }}>{Math.round(d.v)}</Txt>
+            <Txt v="micro" c={ehFraco ? c.limeInk : c.tx3} numberOfLines={1}>{d.k}</Txt>
+          </View>
+        );
+      })}
+    </View>
   );
 }
