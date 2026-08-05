@@ -193,19 +193,23 @@ export default function Insights() {
           overflow: 'hidden',
         }}>
           <LinearGradient
-            /* O índigo aparece DUAS vezes, em 42% e em 78%: entre as duas
-               paradas a cor não muda. Essa faixa chapada é o que permite
-               campo e chips em vidro — vidro precisa de fundo com peso, e
-               num degradê contínuo a chip de cima estaria sobre um azul e a
-               de baixo sobre outro bem mais claro, com a mesma translucidez
-               rendendo contrastes diferentes.
+            /* Azul escuro em cima, azul claro embaixo, e o fundo da tela no
+               fim — sete paradas para uma rampa só, porque cada trecho tem
+               um trabalho diferente.
 
-               Depois dela a cor cai até o fundo da tela e chega lá antes da
-               borda: os últimos 4% já são fundo puro. Enquanto o degradê
-               ainda estava mudando quando o hero acabava, o olho encontrava
-               a emenda. */
-            colors={[c.altMid, c.altFrom, c.altFrom, c.bluePale, c.bg, c.bg]}
-            locations={[0, 0.42, 0.78, 0.90, 0.96, 1]}
+               O azul médio aparece DUAS vezes, em 30% e em 80%: entre elas a
+               cor não muda. Essa faixa chapada é o que permite campo e chips
+               em vidro. Num degradê contínuo a chip de cima estaria sobre um
+               azul e a de baixo sobre outro bem mais claro, com a mesma
+               translucidez rendendo contrastes diferentes.
+
+               Depois dela a cor abre para o azul claro e cai até o fundo,
+               chegando lá antes da borda: os últimos 4% já são fundo puro —
+               a mesma medida da margem negativa que sobe o conteúdo. Enquanto
+               o degradê ainda estava mudando quando o hero acabava, o olho
+               encontrava a emenda. */
+            colors={[c.altTo, c.altMid, c.altMid, c.altFrom, c.bluePale, c.bg, c.bg]}
+            locations={[0, 0.30, 0.78, 0.86, 0.92, 0.96, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />

@@ -65,11 +65,17 @@ export const light: Palette = {
      ênfase se separa por saturação, e o lima pontua os itens dentro. */
   panelFrom: '#3D7BFF', panelMid: '#065CF5', panelTo: '#0130BE',
 
-  /* Segundo gradiente, para o Insights. Mesma família do painel da Jornada
-     — não é uma cor nova na marca — mas em outro registro: aquele é azul
-     vivo e energético, este é fundo e profundidade. Duas abas com hero
-     idêntico viram a mesma tela com conteúdo diferente. */
-  altFrom: '#2E3C9E', altMid: '#161F63', altTo: '#080C2E',
+  /* Segundo gradiente, para o Insights — azul escuro descendo até azul
+     claro. Mesma família do painel da Jornada, em outro registro: aquele
+     é azul vivo chapado num card, este é uma lavagem que começa quase
+     noturna e termina no fundo da tela.
+
+     A versão anterior puxava para o violeta (#2E3C9E / #161F63) e lia
+     como outra marca. Agora o azul é azul em toda a rampa.
+
+     altMid é a cor da faixa chapada onde moram campo e chips em vidro:
+     branco sobre ela dá 9,9:1. */
+  altFrom: '#4C77E8', altMid: '#123A9E', altTo: '#05143F',
 
   /* Vidro sobre fundo escuro — o mesmo tratamento da faixa de check-in
      da Home, agora nomeado para poder se repetir. */
@@ -123,7 +129,7 @@ export const dark: Palette = {
   limeWeak: 'rgba(221,246,44,0.16)',
   limePale: '#4A5220', bluePale: '#1E2A4D', teal: '#15E4CB', tealPale: '#12463F',
   panelFrom: '#4C8BFF', panelMid: '#1F5FE0', panelTo: '#0A2E9E',
-  altFrom: '#2E3C9E', altMid: '#161F63', altTo: '#080C2E',
+  altFrom: '#5B84EE', altMid: '#123A9E', altTo: '#040F33',
   glass: 'rgba(255,255,255,0.11)', glassLine: 'rgba(255,255,255,0.17)',
 
   green: '#DDF62C', greenDim: '#C7DD2A', blue: '#4C8BFF', blueDim: '#6BA1FF',
