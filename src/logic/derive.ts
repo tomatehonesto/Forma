@@ -351,6 +351,10 @@ export type PatKey = 'alimentacao' | 'sono' | 'sintomas' | 'peso' | 'aplicacoes'
 export type Pattern = {
   key: PatKey; cat: string; ic: string; cor: string;
   titulo: string; texto: string; q: string; surpresa: number;
+  /* O número que sustenta o achado, separado do texto para poder ser
+     exibido grande. Sem ele o card afirma; com ele, o card mostra de onde
+     tirou — e é a diferença entre parecer opinião e parecer descoberta. */
+  evid?: { valor: string; unidade: string; legenda: string };
 };
 
 export const PAT_LABEL: Record<PatKey, string> = {
@@ -386,6 +390,7 @@ export function patterns(S: State): Pattern[] {
         titulo: 'Seu fim de semana funciona como outro tratamento',
         texto: `Sábado e domingo você bebe ${n1(dAgua)} copos a menos${prot}${sono}`,
         q: 'Como cuidar melhor do fim de semana?',
+        evid: { valor: `−${n1(dAgua)}`, unidade: 'copos', legenda: 'no sábado e no domingo' },
       });
     }
   }
@@ -405,9 +410,10 @@ export function patterns(S: State): Pattern[] {
     const nomes = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
     if (outros - piorMedia >= 1) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2,
-      titulo: `Você bebe menos água ${nomes[piorDia]}`,
+      titulo: `Você bebe bem menos água ${nomes[piorDia]}`,
       texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
       q: 'Como está minha água?',
+      evid: { valor: piorMedia.toFixed(0), unidade: `de ${outros.toFixed(0)} copos`, legenda: 'a média nesse dia da semana' },
     });
   }
 
@@ -421,9 +427,10 @@ export function patterns(S: State): Pattern[] {
     const fSim = med(bateu.map((p) => p.fomeDepois)), fNao = med(naoBateu.map((p) => p.fomeDepois));
     if (fNao - fSim >= 0.5) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3,
-      titulo: 'A proteína de hoje aparece na fome de amanhã',
-      texto: `Nos dias seguintes a bater os ${t.prot} g, sua fome ficou em ${n1(fSim)}. Quando não bateu, ${n1(fNao)}. O efeito não é no mesmo dia — é no dia seguinte.`,
+      titulo: 'Nos dias em que você bate a proteína, o dia seguinte é mais fácil',
+      texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${n1(fSim)}. Quando não chegou, ${n1(fNao)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
       q: 'Como está minha proteína?',
+      evid: { valor: `−${n1(fNao - fSim)}`, unidade: 'de fome', legenda: 'no dia seguinte a bater a meta' },
     });
   }
 
@@ -434,9 +441,10 @@ export function patterns(S: State): Pattern[] {
     const fBem = med(bem.map((p) => p.fomeDepois)), fMal = med(mal.map((p) => p.fomeDepois));
     if (fMal - fBem >= 0.5) out.push({
       key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3,
-      titulo: 'Uma noite curta cobra o preço no dia seguinte',
-      texto: `Depois de dormir menos de 7 h, sua fome média foi de ${n1(fMal)}. Depois de noites completas, ${n1(fBem)}. Seu apetite responde mais ao sono do que ao que você comeu.`,
+      titulo: 'Dormir mais de sete horas segura sua fome no dia seguinte',
+      texto: `Depois de noites completas sua fome ficou em ${n1(fBem)}; depois de noites curtas, ${n1(fMal)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
       q: 'O que registrar antes de dormir?',
+      evid: { valor: '7h', unidade: '+', legenda: 'o ponto em que sua fome muda' },
     });
   }
 
@@ -453,9 +461,26 @@ export function patterns(S: State): Pattern[] {
     const ePerto = med(perto.map((c) => c.nausea)), eLonge = med(longe.map((c) => c.nausea));
     if (ePerto - eLonge >= 0.5) out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2,
-      titulo: 'Seu enjoo tem prazo de validade',
-      texto: `Ele fica em ${n1(ePerto)} nos dois dias após a aplicação e cai para ${n1(eLonge)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são 48 h dele.`,
+      titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
+      texto: `Ele fica em ${n1(ePerto)} nos dois primeiros dias e cai para ${n1(eLonge)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
       q: 'Por que sinto enjoo?',
+      evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
+    });
+  }
+
+  /* --- água contra enjoo ---
+     Duas coisas que a pessoa registra em telas diferentes, e que só se
+     encontram quando alguém cruza as duas colunas. */
+  const hidratados = cs.filter((c) => c.agua >= GOAL_WATER - 1);
+  const secos = cs.filter((c) => c.agua < GOAL_WATER - 1);
+  if (hidratados.length >= 3 && secos.length >= 3) {
+    const eSim = med(hidratados.map((c) => c.nausea)), eNao = med(secos.map((c) => c.nausea));
+    if (eNao - eSim >= 0.5) out.push({
+      key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3,
+      titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
+      texto: `Com ${GOAL_WATER - 1} copos ou mais, seu enjoo médio foi ${n1(eSim)}. Abaixo disso, ${n1(eNao)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
+      q: 'Como diminuir o enjoo?',
+      evid: { valor: `−${n1(eNao - eSim)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
     });
   }
 
@@ -468,9 +493,10 @@ export function patterns(S: State): Pattern[] {
     const total = ws[0].kg - ws[ws.length - 1].kg;
     if (subidas >= 1 && total > 0) out.push({
       key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3,
-      titulo: `A balança subiu ${subidas}× e você perdeu ${n1(total)} kg mesmo assim`,
+      titulo: `A balança subiu ${subidas} vezes e você perdeu ${n1(total)} kg mesmo assim`,
       texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
       q: 'Como está minha evolução?',
+      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${n1(total)} kg no período` },
     });
   }
 
@@ -482,11 +508,12 @@ export function patterns(S: State): Pattern[] {
     const pct = Math.round(((depois - antes) / antes) * 100);
     if (Math.abs(pct) >= 5) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1,
-      titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}%`,
+      titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}% desde o começo`,
       texto: pct > 0
-        ? `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g no começo. Proteína preserva massa magra durante a perda de peso.`
+        ? `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g no início. Proteína preserva massa magra durante a perda de peso.`
         : `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g antes. Vale retomar — massa magra sustenta o metabolismo.`,
       q: 'Como está minha proteína?',
+      evid: { valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${Math.round(antes)} → ${Math.round(depois)} g por dia` },
     });
   }
 
@@ -499,6 +526,7 @@ export function patterns(S: State): Pattern[] {
       ? `${n1(r.lost)} kg em ${r.semana} semanas, dentro do esperado para a sua fase.`
       : `${n1(r.lost)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
+    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${n1(r.lost)} kg em ${r.semana} semanas` },
   });
 
   const ade = adesao(S);
@@ -509,6 +537,7 @@ export function patterns(S: State): Pattern[] {
       ? `${S.injections.length} aplicações desde o início. Constância é o que faz a medicação trabalhar a seu favor.`
       : `${S.injections.length} aplicações desde o início. Atrasos mudam o efeito ao longo da semana.`,
     q: 'Como funciona o ciclo da medicação?',
+    evid: { valor: `${ade}%`, unidade: '', legenda: `${S.injections.length} aplicações desde o início` },
   });
 
   /* o mais surpreendente primeiro — a ordem da tela é a ordem do valor */
@@ -525,24 +554,64 @@ export function patterns(S: State): Pattern[] {
 export function balanceRead(S: State) {
   const eixos = radar(S).slice().sort((a, b) => b.v - a.v);
   const fortes = eixos.slice(0, 2);
+  const fracos = eixos.slice(-2).reverse();
   const fraco = eixos[eixos.length - 1];
   const media = eixos.reduce((s, e) => s + e.v, 0) / eixos.length;
   /* amplitude entre o melhor e o pior eixo: é ela que diz se o
      tratamento está equilibrado ou apoiado numa perna só */
   const amp = eixos[0].v - fraco.v;
 
-  const titulo = amp <= 30 ? 'Seu equilíbrio está consistente'
-    : amp <= 55 ? 'Seu equilíbrio está bom, com uma ponta solta'
-      : 'Seu tratamento está apoiado em poucos pontos';
+  /* Fala em primeira pessoa, com abertura de conversa. "Seu equilíbrio
+     está consistente" é laudo — quem escreve laudo é sistema. "Uma coisa
+     me chamou atenção" é alguém que olhou os dados e resolveu comentar,
+     que é exatamente o que a tela promete. */
+  const abertura = amp <= 30 ? 'Reparei numa coisa boa.'
+    : amp <= 55 ? 'Uma coisa me chamou atenção.'
+      : 'Preciso te mostrar uma coisa.';
+
+  /* Sem "seu" antes do par: "seu sono e adesão" concorda errado, e
+     consertar com "seu sono e sua adesão" trava a frase. Os nomes dos
+     eixos abrem a oração sozinhos. */
+  const par = (a: string, b: string) => `${a} e ${b.toLowerCase()}`;
+  const corpo = amp <= 30
+    ? `Seus oito indicadores estão andando juntos, o que é raro. ${par(fortes[0].k, fortes[1].k)} puxam para cima, e nem ${fraco.k.toLowerCase()} ficou para trás. Eu não mudaria nada por enquanto.`
+    : `${par(fortes[0].k, fortes[1].k)} estão muito consistentes. Já ${par(fracos[0].k, fracos[1].k).toLowerCase()} continuam variando bastante. Acho que ${fraco.k.toLowerCase()} pode ser um bom foco para a próxima semana.`;
 
   return {
-    titulo,
-    texto: `${fortes[0].k} e ${fortes[1].k} são seus pontos fortes. ${fraco.k} é o que mais puxa a média para baixo — e é onde uma semana de atenção rende mais.`,
+    abertura,
+    texto: corpo,
     media: Math.round(media),
     fortes: fortes.map((e) => e.k),
+    fracos: fracos.map((e) => e.k),
     fraco: fraco.k,
     q: `Como melhorar ${fraco.k.toLowerCase()}?`,
   };
+}
+
+/* ============================================================
+   MEMÓRIA DO COMPANION
+
+   A frase que prova que ele conhece esta pessoa e não uma qualquer.
+   "Leu 51 registros" é verdadeiro mas soa a contador; o que constrói
+   confiança é a extensão do que ele acompanha — desde quando, e o quê.
+
+   O índice sai da quantidade de check-ins, e não de sorteio: a frase
+   muda quando a jornada muda, não a cada vez que a tela desenha.
+   ============================================================ */
+export function companionMemoria(S: State): string {
+  const dias = diffDays(now(), new Date(S.profile.startT));
+  const semanas = Math.max(1, Math.floor(dias / 7));
+  const nInj = S.injections.length;
+  const nCheck = S.checkins.length;
+  const nEx = S.exams.length;
+
+  const frases = [
+    `Acompanho seu tratamento desde a primeira aplicação, há ${dias} dias.`,
+    `Conheço sua jornada desde o primeiro dia — ${semanas} semanas até aqui.`,
+    `Considerei seus check-ins, ${nInj} aplicações, ${nEx} exames e seus hábitos.`,
+    `Li tudo o que você registrou nos últimos ${nCheck} dias antes de responder.`,
+  ];
+  return frases[nCheck % frases.length];
 }
 
 /* ============================================================
@@ -562,31 +631,39 @@ export function libraryPicks(S: State): Leitura[] {
   const r = journeySummary(S);
   const m = M(S);
 
+  const dia = Math.max(0, CADENCE_DAYS(S.profile.med) - diffDays(nextInjectionDate(S), now()));
+
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
-    out.push({ motivo: 'Você está na fase de retorno da fome', titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
+    out.push({ motivo: `Você está no dia ${dia} do ciclo, quando a fome volta`, titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
   }
   if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
-    out.push({ motivo: 'Você aplicou há poucos dias', titulo: 'Os primeiros dias depois da dose', desc: 'O que é esperado sentir na janela de 48 h e o que já merece uma mensagem para a equipe.', ic: 'dose', min: 3 });
+    out.push({ motivo: `Você aplicou há ${dia} ${dia === 1 ? 'dia' : 'dias'}`, titulo: 'Os primeiros dias depois da dose', desc: 'O que é esperado sentir na janela de 48 h e o que já merece uma mensagem para a equipe.', ic: 'dose', min: 3 });
   }
 
   const enjoo = cs.slice(-5).reduce((s, c) => s + c.nausea, 0) / Math.max(1, Math.min(5, cs.length));
   if (enjoo >= 2 || (ci && ci.nausea >= 4)) {
-    out.push({ motivo: 'Seus registros mostram enjoo recorrente', titulo: 'Comer sem enfrentar o enjoo', desc: 'Combinações e horários que costumam passar melhor nos dias em que a comida parece demais.', ic: 'waves', min: 4 });
+    const dias = cs.slice(-7).filter((c) => c.nausea >= 3).length;
+    out.push({ motivo: `Você marcou enjoo em ${dias} dos últimos 7 dias`, titulo: 'Comer sem enfrentar o enjoo', desc: 'Combinações e horários que costumam passar melhor nos dias em que a comida parece demais.', ic: 'waves', min: 4 });
   }
 
   const t: any = S.profile.targets;
   const protMed = cs.length ? cs.reduce((s, c) => s + c.prot, 0) / cs.length : 0;
   if (protMed < t.prot) {
-    out.push({ motivo: `Sua média está em ${Math.round(protMed)} g de ${t.prot} g`, titulo: 'Proteína sem cozinhar mais', desc: 'Como chegar à meta com o que já existe na sua geladeira — o problema raramente é receita, é praticidade.', ic: 'flame', min: 5 });
+    out.push({ motivo: `Faltam ${Math.round(t.prot - protMed)} g para sua média bater a meta`, titulo: 'Proteína sem cozinhar mais', desc: 'Como chegar à meta com o que já existe na sua geladeira — o problema raramente é receita, é praticidade.', ic: 'flame', min: 5 });
+  }
+
+  const sonoMed = cs.length ? cs.reduce((s, c) => s + c.sono, 0) / cs.length : 0;
+  if (sonoMed < 7) {
+    out.push({ motivo: `Sua média de sono está em ${nf(sonoMed, 1).replace('.', ',')} h`, titulo: 'O sono como parte do tratamento', desc: 'Dormir pouco muda os hormônios da fome no dia seguinte — nos seus próprios registros isso já aparece.', ic: 'moon', min: 4 });
   }
 
   if (r.semana >= 8) {
-    out.push({ motivo: `Semana ${r.semana} de tratamento`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
+    out.push({ motivo: `Semana ${r.semana}, com ${nf(r.lost, 1).replace('.', ',')} kg no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
   }
 
   if (hasClinic(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
-    if (cd >= 0 && cd <= 14) out.push({ motivo: `Consulta em ${cd} dias`, titulo: 'Como aproveitar melhor sua consulta', desc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.', ic: 'steth', min: 3 });
+    if (cd >= 0 && cd <= 14) out.push({ motivo: `Sua consulta é daqui a ${cd} dias`, titulo: 'Como aproveitar melhor sua consulta', desc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.', ic: 'steth', min: 3 });
   }
 
   return out.slice(0, 4);
@@ -630,38 +707,93 @@ export function companionSuggestions(S: State): string[] {
 
 /* Recomendações — o que fazer com o que foi encontrado. Saem da fase do
    ciclo e do que está em aberto, não de conselho genérico. */
-export type Reco = { quando: 'hoje' | 'semana'; ic: string; texto: string; to: string };
+/* Cada ação carrega o PORQUÊ e o PRAZO REAL, não um balde genérico.
+
+   "Esta semana: agendar exame" é lista de tarefas. "Daqui a 9 dias:
+   prepare perguntas para a consulta" é alguém organizando a agenda de
+   outra pessoa — e a diferença toda está em o prazo ser calculado a
+   partir do dado, não escolhido entre duas opções fixas. */
+export type Reco = {
+  /* ordem cronológica real, em dias — é ela que agrupa e ordena */
+  emDias: number;
+  ic: string;
+  texto: string;
+  /* a razão de a IA estar sugerindo isso agora */
+  porque: string;
+  to: string;
+};
 
 export function recommendations(S: State): Reco[] {
   const out: Reco[] = [];
   const cyc = doseCycle(S);
   const nd = diffDays(nextInjectionDate(S), now());
   const t: any = S.profile.targets;
+  const cs = S.checkins as any[];
+  const recentes = cs.slice(-4);
+  const enjoo = recentes.length ? recentes.reduce((s, c) => s + c.nausea, 0) / recentes.length : 0;
 
-  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
-    out.push({ quando: 'hoje', ic: 'leaf', texto: 'Reforce a proteína hoje — é a fase em que a fome volta', to: '/medir-refeicao' });
-  }
   if (waterMlToday(S) < t.waterMl * 0.6) {
-    out.push({ quando: 'hoje', ic: 'water', texto: 'Você está atrás na água — falta mais da metade da meta', to: '/medir-agua' });
+    out.push({
+      emDias: 0, ic: 'water', texto: 'Beba mais água ainda hoje',
+      porque: enjoo >= 2
+        ? 'Nos seus dias bem hidratados o enjoo aparece menos — e você está na metade da meta'
+        : 'Você está abaixo da metade da meta, e a água segura a saciedade até o fim do dia',
+      to: '/medir-agua',
+    });
+  }
+  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
+    out.push({
+      emDias: 0, ic: 'leaf', texto: 'Reforce a proteína no jantar',
+      porque: 'Você está na fase do ciclo em que a fome volta, e a proteína de hoje aparece na fome de amanhã',
+      to: '/medir-refeicao',
+    });
   }
   if (!checkinToday(S)) {
-    out.push({ quando: 'hoje', ic: 'check', texto: 'O check-in de hoje ainda não foi feito', to: '/checkin' });
+    out.push({
+      emDias: 0, ic: 'check', texto: 'Faça o check-in de hoje',
+      porque: 'É o registro que alimenta tudo o que eu consigo enxergar sobre você',
+      to: '/checkin',
+    });
   }
 
-  if (nd <= 2) {
-    out.push({ quando: 'semana', ic: 'syringe', texto: `Aplicação ${nd <= 0 ? 'hoje' : nd === 1 ? 'amanhã' : `em ${nd} dias`} — separe a caneta e o local`, to: '/proxima-aplicacao' });
+  if (nd >= 0 && nd <= 3) {
+    out.push({
+      emDias: nd, ic: 'syringe', texto: 'Separe a caneta e escolha o local',
+      porque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
+      to: '/proxima-aplicacao',
+    });
   }
   const p = penStock(S);
   if (!p.verdict.good) {
-    out.push({ quando: 'semana', ic: 'pill', texto: `${p.left} doses na caneta — renove a receita`, to: '/aplicacoes' });
+    out.push({
+      emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: 'Peça a renovação da receita',
+      porque: `Restam ${p.left} doses na caneta — pedindo agora, ela chega antes de acabar`,
+      to: '/aplicacoes',
+    });
   }
   const exame = S.protocol.tasks.find((x: any) => !x.done && /exame/i.test(x.t));
-  if (exame) out.push({ quando: 'semana', ic: 'doc', texto: exame.t, to: '/exames' });
+  if (exame) out.push({
+    emDias: 5, ic: 'doc', texto: exame.t,
+    porque: 'Está aberto no protocolo desta semana, e o resultado costuma demorar alguns dias',
+    to: '/exames',
+  });
   if (hasClinic(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
-    if (cd >= 0 && cd <= 10) out.push({ quando: 'semana', ic: 'cal', texto: `Consulta em ${cd} dias — leve suas anotações`, to: '/consultas' });
+    if (cd >= 0 && cd <= 14) out.push({
+      emDias: cd, ic: 'cal', texto: 'Prepare suas perguntas para a consulta',
+      porque: `${S.consult.type} com ${S.consult.doctor} — eu monto o resumo, você escolhe o que quer perguntar`,
+      to: '/consultas',
+    });
   }
-  return out;
+  return out.sort((a, b) => a.emDias - b.emDias);
+}
+
+/* O rótulo do grupo sai do prazo, e o prazo sai do dado. */
+export function recoBucket(d: number): string {
+  if (d <= 0) return 'Hoje';
+  if (d === 1) return 'Amanhã';
+  if (d <= 7) return 'Esta semana';
+  return `Daqui a ${d} dias`;
 }
 
 /* ============================================================

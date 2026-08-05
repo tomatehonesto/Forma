@@ -5,8 +5,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  patterns, recommendations, companionSuggestions, recentQuestions, balanceRead,
-  libraryPicks, PAT_LABEL, radar, checkins30, hasClinic, journeySummary, type PatKey,
+  patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
+  balanceRead, companionMemoria, libraryPicks, PAT_LABEL, radar, checkins30,
+  hasClinic, journeySummary, type PatKey,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow, Divider } from '../../ui/kit';
@@ -203,11 +204,17 @@ export default function Insights() {
   const visiveis = filtro ? restantes.filter((p) => p.key === filtro) : restantes;
   const cats = (Object.keys(PAT_LABEL) as PatKey[]).filter((k) => restantes.some((p) => p.key === k));
 
-  const hoje = recos.filter((x) => x.quando === 'hoje');
-  const semana = recos.filter((x) => x.quando === 'semana');
+  /* agrupa preservando a ordem cronológica que recommendations já devolveu */
+  const grupos = useMemo(() => {
+    const mapa = new Map<string, typeof recos>();
+    recos.forEach((x) => {
+      const k = recoBucket(x.emDias);
+      mapa.set(k, [...(mapa.get(k) || []), x]);
+    });
+    return [...mapa.entries()];
+  }, [recos]);
 
-  /* prova de que ele conhece a jornada — número, não promessa */
-  const lidos = S.checkins.length + S.weights.length + S.injections.length + S.exams.length;
+  const memoria = useMemo(() => companionMemoria(S), [S]);
 
   const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
   const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
@@ -300,8 +307,12 @@ export default function Insights() {
           </Txt>
           {/* a credencial voltou, agora do tamanho certo: uma linha discreta
               sob a pergunta, não uma barra de identidade no topo */}
+          {/* A credencial fala em primeira pessoa e em extensão de tempo, não
+              em contagem. "Leu 51 registros" é verdadeiro e soa a contador;
+              "acompanho desde a primeira aplicação" é memória, que é o que
+              faz acreditar que ele conhece ESTA pessoa. */}
           <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, textAlign: 'center' }}>
-            Ele leu {lidos} registros da sua jornada
+            {memoria}
           </Txt>
 
           {/* o campo é o vidro — e fica na faixa ainda saturada do gradiente,
@@ -375,9 +386,13 @@ export default function Insights() {
         {/* ---- padrões: o que explica o comportamento ---- */}
         {restantes.length > 0 && (
           <View style={{ marginTop: 36 }}>
-            <SectionHead title="Padrões encontrados" />
+            {/* "Outras descobertas" e não "Padrões encontrados": padrão é o
+                que o sistema calcula, descoberta é o que ele conta. E o nome
+                amarra a seção ao card lá em cima, que é a descoberta da
+                semana — estas são as outras. */}
+            <SectionHead title="Outras descobertas" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              {restantes.length} no que você registrou até agora.
+              {restantes.length} coisas que encontrei cruzando seus registros.
             </Txt>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -405,30 +420,45 @@ export default function Insights() {
               })}
             </ScrollView>
 
-            {/* Lista numerada com fios, não pilha de caixas. Cinco cards
-                brancos iguais empilhados fazem o olho tratar todos como o
-                mesmo peso e desistir no terceiro; o número dá posição, o fio
-                dá separação, e o espaço faz o resto. É o mesmo conteúdo com
-                metade da tinta. */}
-            <View style={{ marginTop: 18 }}>
+            {/* Cada padrão é uma descoberta, e descoberta se lê em três
+                tempos: a evidência (o número que ninguém somaria sozinho), a
+                frase que ele sustenta, e o convite para ir fundo.
+
+                Por isso o número vem primeiro e grande, na tipografia leve —
+                é a prova. Sem ele o card afirma; com ele, mostra de onde
+                tirou. O fio separa sem enquadrar: caixa branca sobre fundo
+                quase branco faria cinco descobertas parecerem cinco
+                notificações. */}
+            <View style={{ marginTop: 20 }}>
               {visiveis.map((p, i) => (
                 <Pressable key={p.titulo} onPress={perguntar(p.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Row gap={14} style={{ alignItems: 'flex-start', paddingVertical: 20, borderTopWidth: 1, borderTopColor: c.line }}>
-                    <Txt v="micro" c={c.tx4} style={{ width: 20, marginTop: 3 }}>
-                      {String(i + 1).padStart(2, '0')}
-                    </Txt>
-                    <View style={{ flex: 1 }}>
-                      <Row gap={7}>
+                  <View style={{ paddingVertical: 26, borderTopWidth: 1, borderTopColor: c.line }}>
+                    <Row style={{ alignItems: 'flex-start' }}>
+                      <Row gap={7} style={{ flex: 1 }}>
                         <Icon name={p.ic} size={13} color={cor(p.cor)} sw={2} />
-                        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>{p.cat.toUpperCase()}</Txt>
+                        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.9 }}>{p.cat.toUpperCase()}</Txt>
                       </Row>
-                      <Txt v="title" style={{ marginTop: 9 }}>{p.titulo}</Txt>
-                      <Txt v="note" c={c.tx2} style={{ marginTop: 5 }}>{p.texto}</Txt>
-                    </View>
-                    <View style={{ marginTop: 3 }}>
-                      <Icon name="chev" size={15} color={c.tx4} sw={2} />
-                    </View>
-                  </Row>
+                      <Txt v="micro" c={c.tx4}>{String(i + 1).padStart(2, '0')}</Txt>
+                    </Row>
+
+                    {p.evid && (
+                      <Row gap={7} style={{ alignItems: 'baseline', marginTop: 16 }}>
+                        <Txt v="display" c={c.tx} style={{ fontSize: 40, lineHeight: 46 }}>{p.evid.valor}</Txt>
+                        {!!p.evid.unidade && <Txt v="body" c={c.tx3}>{p.evid.unidade}</Txt>}
+                      </Row>
+                    )}
+                    {p.evid && (
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{p.evid.legenda}</Txt>
+                    )}
+
+                    <Txt v="title" style={{ marginTop: p.evid ? 18 : 14 }}>{p.titulo}</Txt>
+                    <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{p.texto}</Txt>
+
+                    <Row gap={6} style={{ marginTop: 16 }}>
+                      <Txt v="label" c={c.accent2}>Perguntar sobre isso</Txt>
+                      <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                    </Row>
+                  </View>
                 </Pressable>
               ))}
               <View style={{ height: 1, backgroundColor: c.line }} />
@@ -442,69 +472,83 @@ export default function Insights() {
         <View style={{ marginTop: 36 }}>
           <SectionHead title="Seu equilíbrio" link="Sintomas" onPress={go('/sintomas')} />
 
-          {/* A leitura vem primeiro e grande; o radar entra abaixo, sem caixa,
-              como ilustração dela. Dentro de um card os dois disputavam o
-              mesmo plano — a frase virava legenda do gráfico, quando é o
-              gráfico que devia ser a nota de rodapé da frase. */}
-          <Row gap={10} style={{ marginTop: 20 }}>
-            <View style={{ width: 20, height: 2, borderRadius: 1, backgroundColor: c.lime }} />
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>LEITURA DO COMPANION</Txt>
-          </Row>
-          <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 14 }}>
-            {eq.titulo}
-          </Txt>
-          <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>{eq.texto}</Txt>
+          {/* A conclusão vem antes do gráfico, e vem em voz de gente. O radar
+              tem oito eixos e não conclui nada sozinho — quem sabe se 62% em
+              proteína é bom é quem já viu os outros sete. Aqui ele deixa de
+              ser a análise e passa a ser a prova dela: primeiro o Companion
+              diz o que viu, depois mostra onde viu. */}
+          <View style={{ marginTop: 20 }}>
+            <Row gap={9}>
+              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>O COMPANION OBSERVOU</Txt>
+            </Row>
+            <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 14 }}>
+              {eq.abertura}
+            </Txt>
+            <Txt v="body" c={c.tx2} style={{ marginTop: 8, lineHeight: 25 }}>{eq.texto}</Txt>
 
-          <View style={{ alignItems: 'center', marginTop: 24 }}>
-            <Radar data={radar(S)} size={Math.min(250, width - 110)} />
+            <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 16 }]}>
+              <Row gap={6}>
+                <Txt v="label" c={c.accent2}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
+                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+              </Row>
+            </Pressable>
+          </View>
+
+          {/* o gráfico entra rebaixado: legenda antes, tamanho menor, e um
+              rótulo que diz explicitamente que ele é a evidência */}
+          <View style={{ alignItems: 'center', marginTop: 30 }}>
+            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 12 }}>
+              O QUE SUSTENTA ESSA LEITURA
+            </Txt>
+            <Radar data={radar(S)} size={Math.min(238, width - 120)} />
             <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
               Últimos 3 check-ins · {checkins30(S)} registros no mês
             </Txt>
           </View>
-
-          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 20 }]}>
-            <Row gap={6}>
-              <Txt v="label" c={c.accent2}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
-              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-            </Row>
-          </Pressable>
         </View>
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
-        {(hoje.length > 0 || semana.length > 0) && (
+        {grupos.length > 0 && (
           <View style={{ marginTop: 36 }}>
             <SectionHead title="Próximas ações" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              Sai dos seus registros e da fase do ciclo — nunca de dose ou protocolo.
+              Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.
             </Txt>
 
-            {hoje.length > 0 && (
-              <>
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 18, marginBottom: 10 }}>HOJE</Txt>
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-                  {hoje.map((x, i) => (
-                    <React.Fragment key={x.texto}>
-                      {i > 0 && <Divider />}
-                      <ListRow ic={x.ic} title={x.texto} onPress={go(x.to)} />
-                    </React.Fragment>
-                  ))}
-                </View>
-              </>
-            )}
+            {/* Os grupos saem do prazo calculado, não de dois baldes fixos:
+                "Daqui a 9 dias" só existe porque a consulta é daqui a nove
+                dias. É a diferença entre uma lista de tarefas e alguém
+                organizando a agenda de outra pessoa.
 
-            {semana.length > 0 && (
-              <>
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>PRÓXIMA SEMANA</Txt>
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-                  {semana.map((x, i) => (
-                    <React.Fragment key={x.texto}>
-                      {i > 0 && <Divider />}
-                      <ListRow ic={x.ic} title={x.texto} onPress={go(x.to)} />
-                    </React.Fragment>
-                  ))}
-                </View>
-              </>
-            )}
+                Cada linha carrega o porquê. Sem ele a ação é ordem; com ele,
+                é recomendação — e a pessoa pode discordar, que é o que
+                separa conselho de alarme. */}
+            {grupos.map(([rotulo, itens], gi) => (
+              <View key={rotulo} style={{ marginTop: gi === 0 ? 22 : 26 }}>
+                <Row gap={10}>
+                  <Txt v="label" c={c.tx}>{rotulo}</Txt>
+                  <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
+                  <Txt v="micro" c={c.tx4}>{itens.length}</Txt>
+                </Row>
+                {itens.map((x) => (
+                  <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                    <Row gap={13} style={{ alignItems: 'flex-start', marginTop: 16 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon name={x.ic} size={15} color={c.accent} sw={1.9} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="bodyMed">{x.texto}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>{x.porque}</Txt>
+                      </View>
+                      <View style={{ marginTop: 8 }}>
+                        <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                      </View>
+                    </Row>
+                  </Pressable>
+                ))}
+              </View>
+            ))}
           </View>
         )}
 
