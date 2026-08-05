@@ -34,15 +34,13 @@ import { radius, font, shadowSoft, type Palette } from '../../theme';
 
 const PAD = 24;
 
-/* Duas linhas de chips, centradas. Quatro perguntas bastam: a nuvem existe
-   para quem não sabe começar, e uma nuvem grande demais volta a ser o menu
-   que ela deveria substituir.
+/* Quatro perguntas, uma por linha, centradas.
 
-   O deslocamento é pequeno e alterna de lado: centrado sem desencontro, o
-   par de linhas vira uma caixa e perde o ar de nuvem. */
-const CHIP_LINHAS = 2;
+   A nuvem escalonada era bonita no mockup e errada no aparelho: as
+   perguntas em português são longas — 22 a 29 caracteres contra as 12 a 15
+   do inglês da referência — e duas por linha só cabiam vazando a tela. Chip
+   cortada na borda não é insinuação de que há mais, é chip cortada. */
 const CHIPS_MAX = 4;
-const CHIP_OFFSET = [18, -22];
 
 /* ============================================================
    ORBE — a presença do Companion
@@ -110,33 +108,6 @@ function iconePergunta(q: string) {
   return 'spark';
 }
 
-/* Quebra as perguntas em linhas por largura ESTIMADA — a medida real só
-   existe depois do layout, e esperar por ela faria a nuvem montar em dois
-   quadros, com salto visível. A estimativa erra por alguns pixels; como
-   as linhas vazam de propósito, o erro não aparece. */
-function montarLinhas(itens: { q: string; visto: boolean }[], larguraTela: number) {
-  const largura = (q: string) => q.length * 7.1 + 52;
-  /* teto acima da largura da tela: é o que faz caber uma segunda chip por
-     linha, mesmo que o par vaze um pouco nas duas bordas. Com teto justo,
-     cada pergunta ocupa uma linha inteira e a nuvem vira lista. */
-  const teto = larguraTela * 1.35;
-  const linhas: { q: string; visto: boolean }[][] = [];
-  let atual: { q: string; visto: boolean }[] = [];
-  let soma = 0;
-
-  for (const it of itens) {
-    const w = largura(it.q) + 8;
-    if (atual.length && soma + w > teto) {
-      linhas.push(atual);
-      if (linhas.length === CHIP_LINHAS) return linhas;
-      atual = []; soma = 0;
-    }
-    atual.push(it); soma += w;
-  }
-  if (atual.length) linhas.push(atual);
-  return linhas.slice(0, CHIP_LINHAS);
-}
-
 export default function Insights() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
@@ -163,12 +134,12 @@ export default function Insights() {
     [S, recentes],
   );
   /* o que ela já perguntou vem na frente: retomar é mais provável que começar */
-  const chipLines = useMemo(
-    () => montarLinhas(
-      [...recentes.map((q) => ({ q, visto: true })), ...sugestoes.map((q) => ({ q, visto: false }))].slice(0, CHIPS_MAX),
-      width,
-    ),
-    [recentes, sugestoes, width],
+  const chips = useMemo(
+    () => [
+      ...recentes.map((q) => ({ q, visto: true })),
+      ...sugestoes.map((q) => ({ q, visto: false })),
+    ].slice(0, CHIPS_MAX),
+    [recentes, sugestoes],
   );
 
   const pads = useMemo(() => patterns(S), [S]);
@@ -213,19 +184,21 @@ export default function Insights() {
           /* a barra de baixo não é respiro: é o comprimento que a cor precisa
              para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
              seco, e o corte aparece como uma linha atravessando a tela */
-          paddingTop: insets.top + 22, paddingBottom: 110, overflow: 'hidden',
+          paddingTop: insets.top + 22, paddingBottom: 168, overflow: 'hidden',
         }}>
           <LinearGradient
-            /* Saiu o quase-preto do topo: ele dava peso de tela escura, não
-               de céu. Agora o campo inteiro de cima é azul profundo com
-               variação sutil, e a lavagem toda acontece depois do campo de
-               digitar — 56% da altura de cor cheia, 44% de queda.
+            /* A cor de fundo aparece duas vezes no fim, em 88% e em 100%: o
+               último trecho é fundo puro, chapado. É isso que mata o corte —
+               enquanto o degradê ainda estava mudando quando o hero acabava,
+               o olho encontrava a emenda; agora ele já chegou ao destino bem
+               antes da borda e os últimos ~90 px são indistinguíveis do
+               resto da tela.
 
-               O campo cai exatamente no índigo saturado de propósito: ali o
+               O campo de digitar cai no índigo saturado de propósito: ali o
                texto branco lê a 9,5:1. Clarear antes disso entregaria
                placeholder branco sobre quase-branco. */
-            colors={[c.altMid, c.altFrom, c.bluePale, c.bg]}
-            locations={[0, 0.56, 0.82, 1]}
+            colors={[c.altMid, c.altFrom, c.bluePale, c.bg, c.bg]}
+            locations={[0, 0.46, 0.74, 0.88, 1]}
             start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
             style={StyleSheet.absoluteFillObject}
           />
@@ -268,23 +241,18 @@ export default function Insights() {
             </Pressable>
           </Row>
 
-          {/* Nuvem de chips: linhas com deslocamentos diferentes que vazam nas
-              duas bordas. Não é enfeite — é o que diz "há mais do que cabe"
-              sem precisar de carrossel nem de reticências. Cada linha é
-              montada por largura estimada, então o desenho se refaz sozinho
-              quando as perguntas mudam com o momento do tratamento. */}
-          <View style={{ marginHorizontal: -PAD, marginTop: 22 }}>
-            {chipLines.map((linha, i) => (
-              <Row key={i} gap={8} style={{ justifyContent: 'center', marginBottom: 8, transform: [{ translateX: CHIP_OFFSET[i] ?? 0 }] }}>
-                {linha.map(({ q, visto }) => (
-                  <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-                    <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, ...shadowSoft(c) }}>
-                      <Icon name={visto ? 'back' : iconePergunta(q)} size={14} color={visto ? c.tx4 : c.accent} sw={2} />
-                      <Txt v="caption" c={c.tx}>{q}</Txt>
-                    </Row>
-                  </Pressable>
-                ))}
-              </Row>
+          {/* Uma pergunta por linha, cada chip do tamanho do próprio texto e
+              centrada. Perde o desenho de nuvem da referência, e ganha o que
+              importa mais: nenhuma pergunta cortada na borda. Chip que vaza
+              a tela não insinua que há mais — parece defeito. */}
+          <View style={{ marginTop: 22, alignItems: 'center', gap: 8 }}>
+            {chips.map(({ q, visto }) => (
+              <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, maxWidth: '100%' }]}>
+                <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11, ...shadowSoft(c) }}>
+                  <Icon name={visto ? 'back' : iconePergunta(q)} size={14} color={visto ? c.tx4 : c.accent} sw={2} />
+                  <Txt v="caption" c={c.tx} numberOfLines={1} style={{ flexShrink: 1 }}>{q}</Txt>
+                </Row>
+              </Pressable>
             ))}
           </View>
         </View>
