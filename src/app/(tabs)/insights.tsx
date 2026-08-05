@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
@@ -34,6 +34,7 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
+const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
 
 /* Três perguntas, uma por linha, centradas e sem ícone.
 
@@ -249,39 +250,20 @@ export default function Insights() {
           marginBottom: -20,
           overflow: 'hidden',
         }}>
-          <LinearGradient
-            /* Azul escuro em cima, azul claro embaixo. A rampa não vai até o
-               fundo da tela — quem faz o encontro com o branco é a
-               Dissolução, logo abaixo.
-
-               O azul médio aparece DUAS vezes, em 24% e em 58%: entre elas a
-               cor não muda. Essa faixa chapada é o que permite campo e chips
-               em vidro. Num degradê contínuo a chip de cima estaria sobre um
-               azul e a de baixo sobre outro bem mais claro, com a mesma
-               translucidez rendendo contrastes diferentes. A parada acompanha
-               a última chip; o card da descoberta é opaco e não precisa
-               dela. */
-            colors={[c.altTo, c.altMid, c.altMid, c.altFrom]}
-            locations={[0, 0.24, 0.58, 1]}
-            start={{ x: 0.25, y: 0 }} end={{ x: 0.75, y: 1 }}
+          {/* A aurora entra como imagem: o degradê que eu havia construído em
+              paradas de cor chegava perto, mas cor calculada não tem grão nem
+              a irregularidade de luz que uma peça pintada tem. A imagem é a
+              mesma família da Home, em outro corte — a Home é vertical e
+              recortada, esta é a faixa larga. */}
+          <Image
+            source={AURORA_INSIGHTS}
             style={StyleSheet.absoluteFillObject}
+            contentFit="cover"
+            contentPosition="center"
           />
-
-          {/* Clarão no alto, fora do eixo. Serve só para quebrar a leitura de
-              rampa: um degradê de duas cores, por mais bem espaçado que
-              esteja, ainda lê como faixa uniforme descendo. A mancha
-              desalinhada dá profundidade sem custar contraste — ela morre
-              bem acima do campo de digitar. */}
-          <Svg width={width} height={230} style={{ position: 'absolute', left: 0, top: 0 }}>
-            <Defs>
-              <RadialGradient id="atmosfera" cx="50%" cy="50%" r="50%">
-                <Stop offset="0" stopColor={c.altFrom} stopOpacity={0.30} />
-                <Stop offset="0.55" stopColor={c.altFrom} stopOpacity={0.12} />
-                <Stop offset="1" stopColor={c.altFrom} stopOpacity={0} />
-              </RadialGradient>
-            </Defs>
-            <Ellipse cx={width * 0.78} cy={70} rx={width * 0.62} ry={115} fill="url(#atmosfera)" />
-          </Svg>
+          {/* véu escuro para segurar o contraste do vidro: a aurora tem
+              regiões claras, e branco sobre azul-claro não lê */}
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(4,15,51,0.30)' }]} />
 
           {/* o azul não termina numa altura, termina num contorno — e o
               contorno passa por trás do card da descoberta, não abaixo
@@ -477,12 +459,17 @@ export default function Insights() {
               proteína é bom é quem já viu os outros sete. Aqui ele deixa de
               ser a análise e passa a ser a prova dela: primeiro o Companion
               diz o que viu, depois mostra onde viu. */}
-          <View style={{ marginTop: 20 }}>
+          {/* Leitura e gráfico dentro do mesmo card: eles são um argumento e
+              sua prova, e soltos na página pareciam dois blocos sem dono. O
+              card aqui não é moldura decorativa — é o que diz "isto pertence
+              àquilo". O fio interno separa o que a IA concluiu do que
+              sustenta a conclusão. */}
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 22, marginTop: 16 }}>
             <Row gap={9}>
               <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
               <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>O COMPANION OBSERVOU</Txt>
             </Row>
-            <Txt v="display" c={c.tx} style={{ fontSize: 24, lineHeight: 31, marginTop: 14 }}>
+            <Txt v="display" c={c.tx} style={{ fontSize: 23, lineHeight: 30, marginTop: 14 }}>
               {eq.abertura}
             </Txt>
             <Txt v="body" c={c.tx2} style={{ marginTop: 8, lineHeight: 25 }}>{eq.texto}</Txt>
@@ -493,18 +480,18 @@ export default function Insights() {
                 <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
               </Row>
             </Pressable>
-          </View>
 
-          {/* o gráfico entra rebaixado: legenda antes, tamanho menor, e um
-              rótulo que diz explicitamente que ele é a evidência */}
-          <View style={{ alignItems: 'center', marginTop: 30 }}>
-            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 12 }}>
-              O QUE SUSTENTA ESSA LEITURA
-            </Txt>
-            <Radar data={radar(S)} size={Math.min(238, width - 120)} />
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-              Últimos 3 check-ins · {checkins30(S)} registros no mês
-            </Txt>
+            <View style={{ height: 1, backgroundColor: c.line2, marginTop: 24 }} />
+
+            <View style={{ alignItems: 'center', marginTop: 22 }}>
+              <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 14 }}>
+                O QUE SUSTENTA ESSA LEITURA
+              </Txt>
+              <Radar data={radar(S)} size={Math.min(230, width - 140)} />
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
+                Últimos 3 check-ins · {checkins30(S)} registros no mês
+              </Txt>
+            </View>
           </View>
         </View>
 
@@ -525,28 +512,35 @@ export default function Insights() {
                 é recomendação — e a pessoa pode discordar, que é o que
                 separa conselho de alarme. */}
             {grupos.map(([rotulo, itens], gi) => (
-              <View key={rotulo} style={{ marginTop: gi === 0 ? 22 : 26 }}>
-                <Row gap={10}>
+              <View key={rotulo} style={{ marginTop: gi === 0 ? 20 : 14 }}>
+                <Row gap={10} style={{ marginBottom: 10 }}>
                   <Txt v="label" c={c.tx}>{rotulo}</Txt>
                   <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
                   <Txt v="micro" c={c.tx4}>{itens.length}</Txt>
                 </Row>
-                {itens.map((x) => (
-                  <Pressable key={x.texto} onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                    <Row gap={13} style={{ alignItems: 'flex-start', marginTop: 16 }}>
-                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon name={x.ic} size={15} color={c.accent} sw={1.9} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Txt v="bodyMed">{x.texto}</Txt>
-                        <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>{x.porque}</Txt>
-                      </View>
-                      <View style={{ marginTop: 8 }}>
-                        <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                      </View>
-                    </Row>
-                  </Pressable>
-                ))}
+                {/* cada prazo é um card: o grupo passa a ter contorno próprio
+                    em vez de flutuar como uma lista solta sob um rótulo */}
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 18, paddingVertical: 4 }}>
+                  {itens.map((x, i) => (
+                    <React.Fragment key={x.texto}>
+                      {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
+                      <Pressable onPress={go(x.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                        <Row gap={13} style={{ alignItems: 'flex-start', paddingVertical: 16 }}>
+                          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon name={x.ic} size={15} color={c.accent} sw={1.9} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Txt v="bodyMed">{x.texto}</Txt>
+                            <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>{x.porque}</Txt>
+                          </View>
+                          <View style={{ marginTop: 8 }}>
+                            <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                          </View>
+                        </Row>
+                      </Pressable>
+                    </React.Fragment>
+                  ))}
+                </View>
               </View>
             ))}
           </View>
@@ -558,17 +552,33 @@ export default function Insights() {
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
             Seus dados organizados para levar a alguém.
           </Txt>
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16 }}>
-            <ListRow ic="chart" title="Resumo da semana"
-              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`}
-              onPress={perguntar('Como está minha evolução?')} />
-            <Divider />
-            <ListRow ic="cal" title="Resumo para a consulta"
-              sub={hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
-              onPress={perguntar('Prepare minha consulta')} />
-            <Divider />
-            <ListRow ic="doc" title="Resumo para o médico"
-              sub="documento com a evolução completa" onPress={go('/resumo-medico')} />
+          {/* Linhas construídas aqui e não com ListRow: os três resumos têm
+              duas linhas de texto cada e o padding padrão do kit os deixava
+              colados, com o sub de um quase encostando no título do
+              seguinte. 20 px acima e abaixo dão à lista o mesmo ar do
+              resto da tela. */}
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18 }}>
+            {[
+              { ic: 'chart', t: 'Resumo da semana', s: `semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`, on: perguntar('Como está minha evolução?') },
+              { ic: 'cal', t: 'Resumo para a consulta', s: hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar', on: perguntar('Prepare minha consulta') },
+              { ic: 'doc', t: 'Resumo para o médico', s: 'documento com a evolução completa', on: go('/resumo-medico') },
+            ].map((x, i) => (
+              <React.Fragment key={x.t}>
+                {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
+                <Pressable onPress={x.on} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={14} style={{ paddingVertical: 20 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name={x.ic} size={16} color={c.tx2} sw={1.9} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Txt v="bodyMed">{x.t}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{x.s}</Txt>
+                    </View>
+                    <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                  </Row>
+                </Pressable>
+              </React.Fragment>
+            ))}
           </View>
         </View>
 

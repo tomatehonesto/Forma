@@ -8,6 +8,7 @@ import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
+  checkinToday,
   type DailyTarget,
 } from '../../logic/derive';
 import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
@@ -116,6 +117,7 @@ export default function Home() {
   const prot7 = protein7d(S);
   const bf = bodyFat(S);
   const stk = streak(S);
+  const feitoHoje = !!checkinToday(S);
   const linked = hasClinic(S);
   const consultD = new Date(S.consult.t);
 
@@ -287,10 +289,15 @@ export default function Home() {
             borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
             alignItems: 'center',
           }}>
+            {/* Dois estados, e o rótulo diz qual é: "Fazer check-in" é
+                convite, "Check-in feito" é comprovante. Um rótulo só —
+                "Check-in" — deixa a pessoa sem saber se já registrou hoje,
+                que é justamente o que ela vem à Home descobrir. */}
             <Pressable onPress={go('/checkin')} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.96 : 1 }] }]}>
-              <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 24, paddingVertical: 12 }}>
-                <Txt v="body" c={c.limeInk}>Check-in</Txt>
-              </View>
+              <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 22, paddingVertical: 12 }}>
+                {feitoHoje && <Icon name="check" size={17} color={c.limeInk} sw={2.4} />}
+                <Txt v="body" c={c.limeInk}>{feitoHoje ? 'Check-in feito' : 'Fazer check-in'}</Txt>
+              </Row>
             </Pressable>
             <Row style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }} gap={8}>
               <Txt v="h1" c={c.lime}>{stk}</Txt>
