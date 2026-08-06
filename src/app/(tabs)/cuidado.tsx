@@ -40,6 +40,101 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
  * COM VÍNCULO
  * ------------------------------------------------------------------ */
 
+/* ============================================================
+   MALHA — o degradê que não é rampa
+
+   As referências de blob são imagens exportadas de ferramenta de mesh
+   gradient. Aqui a malha é desenhada: quatro elipses radiais com queda
+   até zero, sobrepostas em posições e tamanhos diferentes. Onde duas se
+   encontram a cor soma e nasce um tom que não está em nenhuma delas —
+   é isso que dá o aspecto de pintura em vez de rampa, e é o que um
+   LinearGradient nunca produz por mais paradas que tenha.
+
+   Desenhada e não importada por três razões: escala sem perder nitidez,
+   acompanha o tema (a mesma malha em modo escuro pega as cores certas),
+   e não pesa no bundle — as três blobs de referência somariam alguns
+   megabytes.
+
+   `forca` regula a saturação toda de uma vez, porque a legibilidade do
+   texto por cima depende dela: o mesmo desenho a 0,5 é fundo de card
+   claro, a 1,0 é superfície de destaque.
+   ============================================================ */
+function Malha({ forca = 1, id }: { forca?: number; id: string }) {
+  const { c } = useTheme();
+  /* Concentradas à direita. A metade esquerda e a faixa de baixo ficam
+     quase brancas, e é onde mora todo o texto — a malha precisa ser
+     bonita sem cobrar legibilidade em troca. */
+  const blobs = [
+    { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.85 },
+    { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.75 },
+    { k: 'c', cor: c.purple, cx: 0.66, cy: 0.06, r: 0.44, o: 0.45 },
+    { k: 'd', cor: c.teal, cx: 0.96, cy: 0.98, r: 0.40, o: 0.4 },
+  ];
+  /* Coordenadas em 0–100 e preserveAspectRatio="none": a malha se estica
+     para o tamanho do pai sem precisar medi-lo. A primeira versão usava
+     useWindowDimensions e desenhava com largura negativa no primeiro
+     quadro, porque a medida ainda não existia. Blob é forma orgânica —
+     esticar não a deforma de um jeito que se perceba. */
+  return (
+    <Svg
+      width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none"
+      style={StyleSheet.absoluteFillObject} pointerEvents="none"
+    >
+      <Defs>
+        {blobs.map((b) => (
+          <RadialGradient key={b.k} id={`${id}${b.k}`} cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={b.cor} stopOpacity={b.o * forca} />
+            <Stop offset="0.45" stopColor={b.cor} stopOpacity={b.o * forca * 0.55} />
+            <Stop offset="0.75" stopColor={b.cor} stopOpacity={b.o * forca * 0.16} />
+            <Stop offset="1" stopColor={b.cor} stopOpacity={0} />
+          </RadialGradient>
+        ))}
+      </Defs>
+      {blobs.map((b) => (
+        <Ellipse
+          key={b.k}
+          cx={b.cx * 100} cy={b.cy * 100}
+          rx={b.r * 125} ry={b.r * 135}
+          fill={`url(#${id}${b.k})`}
+        />
+      ))}
+    </Svg>
+  );
+}
+
+/** Régua das semanas de tratamento.
+
+    Um traço por semana, o de hoje em lima e mais alto. Não é gráfico —
+    não há valor nos eixos — é uma linha do tempo: mostra quanto já
+    andou e que a contagem continua. É o elemento que faz o card dizer
+    "acompanhamento contínuo" sem escrever a palavra. */
+function Regua({ semana, total = 24 }: { semana: number; total?: number }) {
+  const { c } = useTheme();
+  return (
+    <Row gap={3} style={{ alignItems: 'flex-end', height: 28 }}>
+      {Array.from({ length: total }, (_, i) => {
+        const passada = i < semana;
+        const hoje = i === semana - 1;
+        return (
+          <View
+            key={i}
+            style={{
+              flex: 1,
+              height: hoje ? 28 : passada ? 15 : 9,
+              borderRadius: 2,
+              /* o traço de hoje é o único cheio: lima e inteiro. O passado
+                 fica azul médio e o futuro quase apagado — a régua conta o
+                 tempo sem prometer um fim, porque tratamento com GLP-1 não
+                 tem data de alta marcada */
+              backgroundColor: hoje ? c.accent : passada ? c.accentLine : c.line,
+            }}
+          />
+        );
+      })}
+    </Row>
+  );
+}
+
 /** Inicial dentro de um bloco tingido, para quem não tem foto. Só a médica
     tem retrato; a equipe de apoio entra assim até haver imagens delas — e
     não finge ter: nome próprio em corpo grande identifica uma pessoa tão
@@ -77,43 +172,47 @@ function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
 function Topo() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const router = useRouter();
-  const go = (to: string) => () => router.push(to as any);
   const st = careStatus(S);
 
+  const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+
   return (
-    <View style={{ borderRadius: radius.xl, overflow: 'hidden' }}>
-      <LinearGradient
-        colors={[c.bg1, c.bg1, c.bluePale]}
-        locations={[0, 0.45, 1]}
-        start={{ x: 0, y: 0.1 }} end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {/* clarão frio no canto: dá profundidade sem trazer cor de alerta —
-          esta é a tela que precisa acalmar, não avisar */}
-      <Svg width={230} height={190} style={{ position: 'absolute', right: -50, top: -50 }} pointerEvents="none">
-        <Defs>
-          <RadialGradient id="brilhoCuidado" cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={c.accent} stopOpacity={0.15} />
-            <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
-            <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoCuidado)" />
-      </Svg>
+    <View style={{ borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.bg1 }}>
+      <Malha id="cuidadoTopo" forca={1} />
 
       <View style={{ padding: 22 }}>
         <Row gap={8}>
           <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.teal }} />
           <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SEU ACOMPANHAMENTO</Txt>
         </Row>
+
+        {/* O número grande responde "há quanto tempo alguém olha isso" —
+            que é a prova de continuidade que a aba precisa dar logo de
+            cara. Semana é a unidade certa: dia é curto demais para
+            mostrar constância, mês é longo demais para mostrar ritmo. */}
+        <Row gap={10} style={{ alignItems: 'baseline', marginTop: 18 }}>
+          <Txt v="display" c={c.tx} style={{ fontSize: 56, lineHeight: 62 }}>{semanas}</Txt>
+          <View style={{ flex: 1, paddingBottom: 6 }}>
+            <Txt v="body" c={c.tx}>semanas</Txt>
+            <Txt v="caption" c={c.tx3}>de acompanhamento</Txt>
+          </View>
+        </Row>
+
+        <View style={{ marginTop: 20 }}>
+          <Regua semana={semanas} />
+          <Row style={{ marginTop: 8 }}>
+            <Txt v="micro" c={c.tx4} style={{ flex: 1 }}>início</Txt>
+            <Txt v="micro" c={c.accent2}>você está aqui</Txt>
+          </Row>
+        </View>
+
         {/* A frase de estado vem antes da de pendência, sempre. A pessoa
             precisa saber que está indo bem antes de saber o que falta —
             invertido, a tela vira aviso. */}
-        <Txt v="display" c={c.tx} style={{ fontSize: 25, lineHeight: 32, marginTop: 12 }}>
-          {st.titulo}
-        </Txt>
-        <Txt v="note" c={c.tx2} style={{ marginTop: 10, lineHeight: 24 }}>{st.sub}</Txt>
+        <View style={{ marginTop: 22, borderTopWidth: 1, borderTopColor: c.line2, paddingTop: 18 }}>
+          <Txt v="title" c={c.tx}>{st.titulo}</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 21 }}>{st.sub}</Txt>
+        </View>
       </View>
     </View>
   );
@@ -137,23 +236,10 @@ function BannerMedica() {
   return (
     <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
       {/* metade de cima: quem é ela */}
-      <View style={{ height: 168, overflow: 'hidden' }}>
-        <LinearGradient
-          colors={[c.bg1, c.bg1, c.bluePale]}
-          locations={[0, 0.42, 1]}
-          start={{ x: 0, y: 0.15 }} end={{ x: 1, y: 0.9 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-        <Svg width={230} height={190} style={{ position: 'absolute', right: -40, top: -40 }} pointerEvents="none">
-          <Defs>
-            <RadialGradient id="brilhoBanner" cx="50%" cy="50%" r="50%">
-              <Stop offset="0" stopColor={c.accent} stopOpacity={0.16} />
-              <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
-              <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-            </RadialGradient>
-          </Defs>
-          <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoBanner)" />
-        </Svg>
+      <View style={{ height: 168, overflow: 'hidden', backgroundColor: c.bg1 }}>
+        {/* a mesma malha do topo, em meia força: aqui ela é fundo para um
+            retrato recortado, e a foto é que precisa ganhar o olho */}
+        <Malha id="cuidadoBanner" forca={0.55} />
 
         {/* alinhada pela base: retrato flutuando no meio parece adesivo */}
         <Image
