@@ -20,13 +20,13 @@ import { radius } from '../../theme';
    CUIDADO — a aba das pessoas
 
    As outras três abas são sobre dados: a Home mostra o dia, a Jornada a
-   história, o Insights a interpretação. Esta é sobre quem cuida — e por
-   isso é a única sem hero colorido.
+   história, o Insights a interpretação. Esta é sobre quem cuida.
 
-   A identidade vem da ausência: fundo claro, tipografia grande e muito
-   ar. Um degradê aqui poria a tela no mesmo registro das outras, e o
-   assunto pede o contrário — calma, não energia. Quem abre esta aba
-   normalmente está com uma dúvida ou uma pendência, não explorando.
+   A tela nasceu sem hero colorido, apostando que a identidade viria da
+   ausência — fundo claro e muito ar. Não veio: sem cor a aba lia como
+   prontuário, que é exatamente o oposto do que ela deve transmitir. O
+   hero voltou, mas com linguagem própria: malha de degradê em vez da
+   rampa da Jornada, e da aurora fotográfica do Insights.
 
    Duas telas dentro de uma. Com clínica vinculada, é o painel do
    acompanhamento; sem vínculo, é a porta de entrada para encontrar um
@@ -59,17 +59,31 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
    texto por cima depende dela: o mesmo desenho a 0,5 é fundo de card
    claro, a 1,0 é superfície de destaque.
    ============================================================ */
-function Malha({ forca = 1, id }: { forca?: number; id: string }) {
+function Malha({ forca = 1, id, escura = false }: { forca?: number; id: string; escura?: boolean }) {
   const { c } = useTheme();
-  /* Concentradas à direita. A metade esquerda e a faixa de baixo ficam
-     quase brancas, e é onde mora todo o texto — a malha precisa ser
-     bonita sem cobrar legibilidade em troca. */
-  const blobs = [
-    { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.85 },
-    { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.75 },
-    { k: 'c', cor: c.purple, cx: 0.66, cy: 0.06, r: 0.44, o: 0.45 },
-    { k: 'd', cor: c.teal, cx: 0.96, cy: 0.98, r: 0.40, o: 0.4 },
-  ];
+
+  /* Duas famílias para o mesmo desenho.
+
+     Na clara, as blobs ficam concentradas à direita e a metade esquerda
+     continua quase branca, porque o texto é escuro e mora lá.
+
+     Na escura, elas se espalham e sobem a saturação: o texto é branco e
+     lê sobre qualquer ponto, então a malha pode ocupar o card inteiro. É
+     essa que dá vida à tela — cor tímida atrás de texto escuro vira
+     papel de parede, e papel de parede não é o que a aba precisava. */
+  const blobs = escura
+    ? [
+      { k: 'a', cor: c.accent, cx: 0.24, cy: 0.28, r: 0.72, o: 0.95 },
+      { k: 'b', cor: c.purple, cx: 0.88, cy: 0.18, r: 0.62, o: 0.8 },
+      { k: 'c', cor: c.teal, cx: 0.82, cy: 0.92, r: 0.58, o: 0.55 },
+      { k: 'd', cor: c.accent2, cx: 0.12, cy: 1.0, r: 0.66, o: 0.9 },
+    ]
+    : [
+      { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.85 },
+      { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.75 },
+      { k: 'c', cor: c.purple, cx: 0.66, cy: 0.06, r: 0.44, o: 0.45 },
+      { k: 'd', cor: c.teal, cx: 0.96, cy: 0.98, r: 0.40, o: 0.4 },
+    ];
   /* Coordenadas em 0–100 e preserveAspectRatio="none": a malha se estica
      para o tamanho do pai sem precisar medi-lo. A primeira versão usava
      useWindowDimensions e desenhava com largura negativa no primeiro
@@ -108,25 +122,27 @@ function Malha({ forca = 1, id }: { forca?: number; id: string }) {
     não há valor nos eixos — é uma linha do tempo: mostra quanto já
     andou e que a contagem continua. É o elemento que faz o card dizer
     "acompanhamento contínuo" sem escrever a palavra. */
-function Regua({ semana, total = 24 }: { semana: number; total?: number }) {
+function Regua({ semana, total = 24, sobreEscuro = false }: { semana: number; total?: number; sobreEscuro?: boolean }) {
   const { c } = useTheme();
   return (
-    <Row gap={3} style={{ alignItems: 'flex-end', height: 28 }}>
+    <Row gap={3} style={{ alignItems: 'flex-end', height: 34 }}>
       {Array.from({ length: total }, (_, i) => {
         const passada = i < semana;
         const hoje = i === semana - 1;
+        /* o traço de hoje é o único cheio e em lima. O passado fica opaco
+           e o futuro quase apagado — a régua conta o tempo sem prometer um
+           fim, porque tratamento com GLP-1 não tem data de alta marcada */
+        const cor = sobreEscuro
+          ? (hoje ? c.lime : passada ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.22)')
+          : (hoje ? c.accent : passada ? c.accentLine : c.line);
         return (
           <View
             key={i}
             style={{
               flex: 1,
-              height: hoje ? 28 : passada ? 15 : 9,
+              height: hoje ? 34 : passada ? 17 : 10,
               borderRadius: 2,
-              /* o traço de hoje é o único cheio: lima e inteiro. O passado
-                 fica azul médio e o futuro quase apagado — a régua conta o
-                 tempo sem prometer um fim, porque tratamento com GLP-1 não
-                 tem data de alta marcada */
-              backgroundColor: hoje ? c.accent : passada ? c.accentLine : c.line,
+              backgroundColor: cor,
             }}
           />
         );
@@ -176,43 +192,64 @@ function Topo() {
 
   const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
 
+  const cs = nextConsult(S);
+  const desde = fmtDate(new Date(S.profile.startT));
+
+  /* Ocupa metade da dobra. Card pequeno com malha pálida virava papel de
+     parede: a cor não tinha área para acontecer e o texto escuro puxava
+     tudo de volta para o registro clínico. Grande e saturado, com texto
+     branco, ele deixa de ser um cabeçalho e passa a ser a primeira coisa
+     que a tela É. */
   return (
-    <View style={{ borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.bg1 }}>
-      <Malha id="cuidadoTopo" forca={1} />
+    <View style={{ height: 396, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.altMid }}>
+      <Malha id="cuidadoTopo" forca={1} escura />
 
-      <View style={{ padding: 22 }}>
-        <Row gap={8}>
-          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.teal }} />
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SEU ACOMPANHAMENTO</Txt>
-        </Row>
+      <View style={{ flex: 1, padding: 24, justifyContent: 'space-between' }}>
+        <View>
+          <Row gap={8}>
+            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
+            <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1 }}>SEU ACOMPANHAMENTO</Txt>
+          </Row>
 
-        {/* O número grande responde "há quanto tempo alguém olha isso" —
-            que é a prova de continuidade que a aba precisa dar logo de
-            cara. Semana é a unidade certa: dia é curto demais para
-            mostrar constância, mês é longo demais para mostrar ritmo. */}
-        <Row gap={10} style={{ alignItems: 'baseline', marginTop: 18 }}>
-          <Txt v="display" c={c.tx} style={{ fontSize: 56, lineHeight: 62 }}>{semanas}</Txt>
-          <View style={{ flex: 1, paddingBottom: 6 }}>
-            <Txt v="body" c={c.tx}>semanas</Txt>
-            <Txt v="caption" c={c.tx3}>de acompanhamento</Txt>
-          </View>
-        </Row>
+          {/* A frase de estado é a manchete, e vem antes de qualquer
+              pendência: a pessoa precisa saber que está indo bem antes de
+              saber o que falta. Invertido, a tela vira aviso. */}
+          <Txt v="display" c={c.onHero} style={{ fontSize: 31, lineHeight: 39, marginTop: 16 }}>
+            {st.titulo}
+          </Txt>
+          <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, lineHeight: 21, maxWidth: '92%' }}>
+            {st.sub}
+          </Txt>
+        </View>
 
-        <View style={{ marginTop: 20 }}>
-          <Regua semana={semanas} />
-          <Row style={{ marginTop: 8 }}>
-            <Txt v="micro" c={c.tx4} style={{ flex: 1 }}>início</Txt>
-            <Txt v="micro" c={c.accent2}>você está aqui</Txt>
+        <View>
+          {/* A régua responde "há quanto tempo alguém olha isso", que é a
+              prova de continuidade que a aba precisa dar de cara. Semana é
+              a unidade certa: dia é curto demais para mostrar constância,
+              mês é longo demais para mostrar ritmo. */}
+          <Regua semana={semanas} sobreEscuro />
+          <Row style={{ marginTop: 10 }}>
+            <Txt v="micro" c={c.onHero2} style={{ flex: 1 }}>desde {desde}</Txt>
+            <Txt v="micro" c={c.lime}>semana {semanas}</Txt>
           </Row>
         </View>
 
-        {/* A frase de estado vem antes da de pendência, sempre. A pessoa
-            precisa saber que está indo bem antes de saber o que falta —
-            invertido, a tela vira aviso. */}
-        <View style={{ marginTop: 22, borderTopWidth: 1, borderTopColor: c.line2, paddingTop: 18 }}>
-          <Txt v="title" c={c.tx}>{st.titulo}</Txt>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 21 }}>{st.sub}</Txt>
-        </View>
+        {/* Em vidro, dentro do card: o próximo contato é a informação mais
+            tranquilizadora que existe aqui — não o que falta fazer, mas
+            quando alguém vai olhar de novo. */}
+        {!!cs && (
+          <Row gap={12} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>
+            <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="cal" size={17} color={c.onHero} sw={1.9} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt v="micro" c={c.onHero2}>PRÓXIMO CONTATO</Txt>
+              <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }}>
+                {cs.tipo} {cs.label} · {fmtDate(cs.data)}
+              </Txt>
+            </View>
+          </Row>
+        )}
       </View>
     </View>
   );
@@ -375,28 +412,11 @@ function CuidadoHoje() {
 /** Os quatro destinos mais usados. "Sobre" saiu — é uma tela que se visita
     uma vez, e atalho existe para o que se repete. Entrou Tratamento, que
     é onde se olha a dose e o estoque toda semana. */
-function Atalhos() {
-  const { c } = useTheme();
-  const router = useRouter();
-  const itens: [string, string, string][] = [
-    ['companion', 'Mensagens', '/medico'],
-    ['cal', 'Consultas', '/consultas'],
-    ['chart', 'Exames', '/exames'],
-    ['syringe', 'Tratamento', '/aplicacoes'],
-  ];
-  return (
-    <Row gap={8} style={{ marginTop: 10 }}>
-      {itens.map(([ic, label, to]) => (
-        <Pressable key={label} onPress={() => router.push(to as any)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.md, paddingVertical: 14, alignItems: 'center' }}>
-            <Icon name={ic} size={18} color={c.tx} sw={1.8} />
-            <Txt v="micro" c={c.tx2} style={{ marginTop: 6 }}>{label}</Txt>
-          </View>
-        </Pressable>
-      ))}
-    </Row>
-  );
-}
+/* Os quatro atalhos moravam aqui — Mensagens, Consultas, Exames,
+   Tratamento. Saíram por repetição: os mesmos quatro assuntos já
+   aparecem logo abaixo em "Seu cuidado hoje", e lá com estado junto.
+   Botão que leva ao mesmo lugar que o card de baixo, com o mesmo nome,
+   é o card de baixo duas vezes. */
 
 /* A seção solta de última mensagem morava aqui. Foi para dentro do
    card da médica: a pessoa e a fala dela são a mesma coisa, e mantê-las
@@ -792,7 +812,7 @@ export default function Cuidado() {
              calendário, e só então ao arquivo. */
           <>
             <Topo />
-            <Atalhos />
+
             <CuidadoHoje />
             <Pendencias />
             <Consulta />
