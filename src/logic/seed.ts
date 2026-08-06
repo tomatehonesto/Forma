@@ -176,11 +176,13 @@ export function buildSeed() {
     /* Material que a clínica mandou para você — diferente de `documents`,
        que é o que saiu de você para a clínica. A direção importa: um é
        orientação recebida, o outro é prova enviada. */
+    /* `motivo` é o que separa curadoria de biblioteca: cada material diz
+       por que ELE foi escolhido para esta pessoa neste momento. */
     materials: [
-      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'PDF', meta: '2,4 MB', ic: 'doc' },
-      { t: +daysAgo(70), name: 'Como aplicar sem dor', kind: 'Vídeo', meta: '4 min', ic: 'play' },
-      { t: +daysAgo(60), name: 'Checklist da primeira semana', kind: 'Checklist', meta: '8 itens', ic: 'check' },
-      { t: +daysAgo(32), name: 'O que fazer se enjoar', kind: 'Guia rápido', meta: '2 min', ic: 'bulb' },
+      { t: +daysAgo(32), name: 'O que fazer se enjoar', kind: 'Guia rápido', meta: '2 min', ic: 'bulb', motivo: 'Para a fase de titulação' },
+      { t: +daysAgo(70), name: 'Como aplicar sem dor', kind: 'Vídeo', meta: '4 min', ic: 'play', motivo: 'Enviado pela enfermeira' },
+      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'Protocolo', meta: '2,4 MB', ic: 'doc', motivo: 'Montado pela nutricionista' },
+      { t: +daysAgo(60), name: 'Checklist da semana', kind: 'Checklist', meta: '8 itens', ic: 'check', motivo: 'Atualizado toda segunda' },
     ],
 
     /* Perguntas feitas ao Companion. Guarda só o texto e a hora — a

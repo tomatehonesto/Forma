@@ -7,7 +7,8 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  hasClinic, nextConsult, lastMessage, carePending, careDocs, careStatus, penStock, M,
+  hasClinic, nextConsult, lastMessage, carePending, careDocs, careStatus,
+  doseContext, penStock, M,
 } from '../../logic/derive';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
 import { Txt, Card, Row, IconBadge, SectionHead, Divider } from '../../ui/kit';
@@ -103,19 +104,16 @@ function Topo() {
 
       <View style={{ padding: 22 }}>
         <Row gap={8}>
-          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: st.quantos ? c.accent : c.teal }} />
+          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.teal }} />
           <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SEU ACOMPANHAMENTO</Txt>
         </Row>
+        {/* A frase de estado vem antes da de pendência, sempre. A pessoa
+            precisa saber que está indo bem antes de saber o que falta —
+            invertido, a tela vira aviso. */}
         <Txt v="display" c={c.tx} style={{ fontSize: 25, lineHeight: 32, marginTop: 12 }}>
           {st.titulo}
         </Txt>
-
-        {/* A médica saiu daqui. Ela tem um banner próprio mais abaixo, e
-            mantê-la também no topo a poria duas vezes na mesma rolagem —
-            o que devolveria à tela o ar de ficha que esta reestruturação
-            tirou. Aqui fica só a extensão do acompanhamento, que é
-            contexto do estado e não apresentação de pessoa. */}
-        <Txt v="note" c={c.tx2} style={{ marginTop: 10 }}>{st.sub}</Txt>
+        <Txt v="note" c={c.tx2} style={{ marginTop: 10, lineHeight: 24 }}>{st.sub}</Txt>
       </View>
     </View>
   );
@@ -195,10 +193,17 @@ function BannerMedica() {
       {msg ? (
         <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
           <View style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
+            {/* "Última orientação" e não "última mensagem": vindo dela, o
+                que chega não é recado, é conduta — e nomear assim muda o
+                peso do que se lê. Quando é a paciente que escreveu, volta a
+                ser "você escreveu", porque orientação ela não dá. */}
             <Row gap={8}>
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8, flex: 1 }}>
-                {msg.daEquipe ? 'ÚLTIMA MENSAGEM' : 'VOCÊ ESCREVEU'}
-              </Txt>
+              <Row gap={7} style={{ flex: 1 }}>
+                <Icon name={msg.daEquipe ? 'steth' : 'pencil'} size={13} color={c.tx3} sw={2} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>
+                  {msg.daEquipe ? 'ÚLTIMA ORIENTAÇÃO' : 'VOCÊ ESCREVEU'}
+                </Txt>
+              </Row>
               {S.unread > 0 && msg.daEquipe && (
                 <Row gap={5}>
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
@@ -249,19 +254,33 @@ function CuidadoHoje() {
   return (
     <View style={{ marginTop: 30 }}>
       <SectionHead title="Seu cuidado hoje" />
+      {/* Um ponto de estado por card, em três níveis.
+
+          Cor pequena e saturada em vez de card inteiro tingido: o ponto se
+          lê de relance e não muda o peso do bloco, então os quatro
+          continuam iguais em importância enquanto dizem coisas diferentes.
+          Tingir o card do exame pendente faria dele o assunto da seção,
+          quando o assunto é o conjunto.
+
+          Três níveis, porque dois não bastam: receita vencendo em três
+          semanas e exame já atrasado não pedem a mesma reação, e igualá-los
+          ensina a ignorar os dois. */}
       <Row gap={8} style={{ flexWrap: 'wrap', marginTop: 14 }}>
-        {st.tiles.map((t) => (
-          <Pressable key={t.label} onPress={() => router.push(t.to as any)} style={({ pressed }) => [{ width: '48.4%', opacity: pressed ? 0.65 : 1 }]}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginBottom: 8 }}>
-              <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Icon name={t.ic} size={17} color={t.atencao ? c.accent : c.tx3} sw={1.9} />
-                {t.atencao && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.accent, marginTop: 4 }} />}
-              </Row>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 14 }}>{t.label}</Txt>
-              <Txt v="bodyMed" c={t.atencao ? c.tx : c.tx2} style={{ marginTop: 2 }} numberOfLines={1}>{t.valor}</Txt>
-            </View>
-          </Pressable>
-        ))}
+        {st.tiles.map((t) => {
+          const cor = t.nivel === 'acao' ? c.cta : t.nivel === 'atencao' ? c.amber : c.teal;
+          return (
+            <Pressable key={t.label} onPress={() => router.push(t.to as any)} style={({ pressed }) => [{ width: '48.4%', opacity: pressed ? 0.65 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginBottom: 8 }}>
+                <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Icon name={t.ic} size={17} color={c.tx3} sw={1.9} />
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: cor }} />
+                </Row>
+                <Txt v="micro" c={c.tx3} style={{ marginTop: 14 }}>{t.label}</Txt>
+                <Txt v="bodyMed" style={{ marginTop: 2 }} numberOfLines={1}>{t.valor}</Txt>
+              </View>
+            </Pressable>
+          );
+        })}
       </Row>
     </View>
   );
@@ -321,13 +340,19 @@ function Time() {
             </View>
           ))}
         </Row>
+        {/* A linha de baixo é convite e não legenda: este card é a porta
+            para a tela da clínica, e "Nutricionista · Enfermeira" sozinho
+            parece um rótulo do que já está à vista nos retratos. */}
         <View style={{ flex: 1 }}>
           <Txt v="bodyMed">Sua equipe de apoio</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
+          <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
             {time.map((p) => p.role).join(' · ')}
           </Txt>
+          <Row gap={5} style={{ marginTop: 7 }}>
+            <Txt v="label" c={c.accent2} style={{ fontSize: 13 }}>Conheça toda a equipe</Txt>
+            <Icon name="chev" size={12} color={c.accent2} sw={2.2} />
+          </Row>
         </View>
-        <Icon name="chev" size={15} color={c.tx4} sw={2} />
       </Row>
     </Pressable>
   );
@@ -339,7 +364,7 @@ function Materiais() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const mats = ((S as any).materials ?? []) as { name: string; kind: string; meta: string; ic: string }[];
+  const mats = ((S as any).materials ?? []) as { name: string; kind: string; meta: string; ic: string; motivo: string }[];
   if (!mats.length) return null;
 
   return (
@@ -355,20 +380,23 @@ function Materiais() {
       >
         {mats.map((m) => (
           <Pressable key={m.name} onPress={() => router.push('/protocolos' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ width: 164, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+            <View style={{ width: 178, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
               {/* o ícone diz o formato antes do rótulo dizer: vídeo, guia e
                   checklist se consomem de maneiras diferentes, e saber isso
                   antes de tocar evita abrir a coisa errada com pressa */}
-              <View style={{ width: 36, height: 36, borderRadius: radius.sm, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name={m.ic} size={17} color={c.tx} sw={1.9} />
-              </View>
-              <Txt v="bodyMed" style={{ marginTop: 12, lineHeight: 21 }} numberOfLines={2}>{m.name}</Txt>
-              <Row gap={6} style={{ marginTop: 6 }}>
+              <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View style={{ width: 36, height: 36, borderRadius: radius.sm, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={m.ic} size={17} color={c.tx} sw={1.9} />
+                </View>
                 <View style={{ backgroundColor: c.bg2, borderRadius: radius.sm, paddingHorizontal: 7, paddingVertical: 3 }}>
                   <Txt v="micro" c={c.tx2}>{m.kind}</Txt>
                 </View>
-                <Txt v="micro" c={c.tx3}>{m.meta}</Txt>
               </Row>
+              <Txt v="bodyMed" style={{ marginTop: 12, lineHeight: 21 }} numberOfLines={2}>{m.name}</Txt>
+              {/* o motivo é o que separa curadoria de biblioteca: sem ele o
+                  card diz o que É, com ele diz por que está aqui */}
+              <Txt v="micro" c={c.accent2} style={{ marginTop: 7, lineHeight: 16 }} numberOfLines={2}>{m.motivo}</Txt>
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.meta}</Txt>
             </View>
           </Pressable>
         ))}
@@ -483,6 +511,7 @@ function Tratamento() {
   const dose = nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0);
   const receita = (S.prescriptions as any[])[0];
   const critico = p.left <= 1;
+  const ctx = doseContext(S);
 
   return (
     <View style={{ marginTop: 36 }}>
@@ -496,6 +525,19 @@ function Tratamento() {
               {med.cad === 'weekly' ? '1× por semana' : 'diariamente'} · prescrito por {receita?.by ?? S.profile.doctor}
             </Txt>
           </View>
+        </Row>
+
+        {/* Três frases curtas em linha. Cada uma é um tempo diferente do
+            mesmo tratamento — o que vem, o que dura, o que será revisto — e
+            juntas dizem que alguém está olhando isso ao longo das semanas,
+            não só guardando a dose. Em chips e não em parágrafo para não
+            engordar o card. */}
+        <Row gap={7} style={{ flexWrap: 'wrap', marginTop: 16 }}>
+          {[ctx.proxima, ctx.naDose, ctx.revisao].filter(Boolean).map((frase) => (
+            <View key={frase as string} style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginBottom: 3 }}>
+              <Txt v="micro" c={c.tx2}>{frase}</Txt>
+            </View>
+          ))}
         </Row>
 
         <Divider style={{ marginVertical: 18 }} />

@@ -1433,11 +1433,14 @@ export function careDocs(S: State, n = 3) {
    precisa poder dizer "está tudo certo", e essa é justamente a
    informação que mais tranquiliza.
    ============================================================ */
+/* Três níveis e não dois. "Precisa de atenção" junta coisas muito
+   diferentes: uma receita que vence em três semanas e um exame já
+   atrasado não pedem a mesma reação, e tratá-los igual ensina a pessoa a
+   ignorar os dois. */
+export type CareNivel = 'ok' | 'atencao' | 'acao';
 export type CareTile = {
   ic: string; label: string; valor: string;
-  /* atenção não é alarme: marca o que mudou de estado e merece o olho,
-     não o que está errado */
-  atencao: boolean;
+  nivel: CareNivel;
   to: string;
 };
 
@@ -1448,40 +1451,79 @@ export function careStatus(S: State) {
 
   const tiles: CareTile[] = [
     {
-      ic: 'cal', label: 'Próxima consulta',
+      ic: 'cal', label: 'Consulta',
       valor: cs ? (cs.dias <= 0 ? 'Hoje' : cs.dias === 1 ? 'Amanhã' : `Em ${cs.dias} dias`) : 'Sem consulta',
-      atencao: !!cs && cs.dias <= 2, to: '/consultas',
+      nivel: !cs ? 'atencao' : cs.dias <= 1 ? 'acao' : 'ok',
+      to: '/consultas',
     },
     {
       ic: 'companion', label: 'Mensagens',
-      valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Em dia',
-      atencao: S.unread > 0, to: '/medico',
+      valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Tudo em dia',
+      nivel: S.unread > 0 ? 'atencao' : 'ok',
+      to: '/medico',
     },
     {
       ic: 'pill', label: 'Receita',
       valor: p.semanas <= 0 ? 'Vencida' : `Vence em ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
-      atencao: !p.verdict.good, to: '/aplicacoes',
+      nivel: p.left <= 1 ? 'acao' : p.verdict.good ? 'ok' : 'atencao',
+      to: '/aplicacoes',
     },
     {
       ic: 'doc', label: 'Exames',
       valor: exame ? 'Pendente' : 'Em dia',
-      atencao: !!exame, to: '/exames',
+      nivel: exame ? 'acao' : 'ok',
+      to: '/exames',
     },
   ];
 
-  const n = tiles.filter((t) => t.atencao).length;
+  const n = tiles.filter((t) => t.nivel !== 'ok').length;
   const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+  const r = journeySummary(S);
+  const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
 
+  /* Duas frases, não uma.
+
+     A primeira diz como o tratamento está indo — e sai do dado real de
+     evolução, não de otimismo genérico. A segunda dimensiona o que falta.
+     Separadas nessa ordem, a pendência chega depois de a pessoa já saber
+     que está no caminho certo, que é a diferença entre acompanhamento e
+     cobrança. Uma frase só, começando por "2 coisas precisam", faz da
+     tela um aviso. */
+  const indoBem = r.verdict.good;
+  const titulo = !hasClinic(S)
+    ? 'Você ainda não tem uma equipe no Forma'
+    : indoBem
+      ? 'Seu tratamento está evoluindo bem'
+      : 'Sua equipe está acompanhando de perto';
+
+  const sub = !hasClinic(S)
+    ? 'Encontre um especialista para acompanhar seu tratamento de perto.'
+    : n === 0
+      ? `${S.profile.doctor} acompanha você há ${semanas} semanas, e está tudo em dia por aqui.`
+      : `${S.profile.doctor} acompanha você há ${semanas} semanas. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
+
+  return { tiles, quantos: n, titulo, sub };
+}
+
+/* Contexto do tratamento — as três frases curtas que fazem a dose parecer
+   acompanhada em vez de só registrada. */
+export function doseContext(S: State) {
+  const nd = diffDays(nextInjectionDate(S), now());
+  const injs = S.injections as any[];
+
+  /* há quanto tempo a dose atual não muda: acha a primeira aplicação da
+     dose vigente andando de trás para frente */
+  const atual = injs.length ? injs[injs.length - 1].dose : S.profile.dose;
+  let i = injs.length - 1;
+  while (i > 0 && injs[i - 1].dose === atual) i--;
+  const desde = injs.length ? Math.max(1, Math.round(diffDays(now(), new Date(injs[i].t)) / 7)) : 0;
+
+  const cs = nextConsult(S);
   return {
-    tiles,
-    quantos: n,
-    titulo: n === 0
-      ? 'Seu acompanhamento está em dia'
-      : n === 1
-        ? 'Uma coisa precisa da sua atenção'
-        : `${n} coisas precisam da sua atenção`,
-    sub: hasClinic(S)
-      ? `${S.profile.doctor} acompanha você há ${semanas} semanas.`
-      : 'Você ainda não tem uma equipe no Forma.',
+    proxima: nd <= 0 ? 'Aplicação hoje' : nd === 1 ? 'Próxima aplicação amanhã' : `Próxima aplicação em ${nd} dias`,
+    naDose: desde > 0 ? `Nesta dose há ${desde} ${desde === 1 ? 'semana' : 'semanas'}` : null,
+    /* cs.label já vem como "em 9 dias" / "amanhã" / "hoje", então a
+       preposição não entra aqui — "consulta de em 9 dias" */
+    revisao: cs ? `Revisão na consulta ${cs.dias <= 0 ? 'de hoje' : cs.label}` : null,
   };
 }
