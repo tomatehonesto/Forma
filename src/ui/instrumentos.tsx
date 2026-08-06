@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, LinearGradient as SvgGrad, Path, RadialGradient, Stop } from 'react-native-svg';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
@@ -25,6 +25,82 @@ import { useTheme } from './useTheme';
    sozinho mostra isso.
    ============================================================ */
 
+/* ============================================================
+   MALHA — o degradê que não é rampa
+
+   As referências de blob são imagens exportadas de ferramenta de mesh
+   gradient. Aqui a malha é desenhada: quatro elipses radiais com queda
+   até zero, sobrepostas em posições e tamanhos diferentes. Onde duas se
+   encontram a cor soma e nasce um tom que não está em nenhuma delas —
+   é isso que dá o aspecto de pintura em vez de rampa, e é o que um
+   LinearGradient nunca produz por mais paradas que tenha.
+
+   Desenhada e não importada por três razões: escala sem perder nitidez,
+   acompanha o tema (a mesma malha em modo escuro pega as cores certas),
+   e não pesa no bundle — as três blobs de referência somariam alguns
+   megabytes.
+
+   `forca` regula a saturação toda de uma vez, porque a legibilidade do
+   texto por cima depende dela: o mesmo desenho a 0,5 é fundo de card
+   claro, a 1,0 é superfície de destaque.
+   ============================================================ */
+export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: string; escura?: boolean }) {
+  const { c } = useTheme();
+
+  /* Duas famílias para o mesmo desenho.
+
+     Na clara, as blobs ficam concentradas à direita e a metade esquerda
+     continua quase branca, porque o texto é escuro e mora lá.
+
+     Na escura, elas se espalham e sobem a saturação: o texto é branco e
+     lê sobre qualquer ponto, então a malha pode ocupar o card inteiro. É
+     essa que dá vida à tela — cor tímida atrás de texto escuro vira
+     papel de parede, e papel de parede não é o que a aba precisava. */
+  const blobs = escura
+    ? [
+      { k: 'a', cor: c.accent, cx: 0.24, cy: 0.28, r: 0.72, o: 0.95 },
+      { k: 'b', cor: c.purple, cx: 0.88, cy: 0.18, r: 0.62, o: 0.8 },
+      { k: 'c', cor: c.teal, cx: 0.82, cy: 0.92, r: 0.58, o: 0.55 },
+      { k: 'd', cor: c.accent2, cx: 0.12, cy: 1.0, r: 0.66, o: 0.9 },
+    ]
+    : [
+      { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.85 },
+      { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.75 },
+      { k: 'c', cor: c.purple, cx: 0.66, cy: 0.06, r: 0.44, o: 0.45 },
+      { k: 'd', cor: c.teal, cx: 0.96, cy: 0.98, r: 0.40, o: 0.4 },
+    ];
+  /* Coordenadas em 0–100 e preserveAspectRatio="none": a malha se estica
+     para o tamanho do pai sem precisar medi-lo. A primeira versão usava
+     useWindowDimensions e desenhava com largura negativa no primeiro
+     quadro, porque a medida ainda não existia. Blob é forma orgânica —
+     esticar não a deforma de um jeito que se perceba. */
+  return (
+    <Svg
+      width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none"
+      style={StyleSheet.absoluteFillObject} pointerEvents="none"
+    >
+      <Defs>
+        {blobs.map((b) => (
+          <RadialGradient key={b.k} id={`${id}${b.k}`} cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={b.cor} stopOpacity={b.o * forca} />
+            <Stop offset="0.45" stopColor={b.cor} stopOpacity={b.o * forca * 0.55} />
+            <Stop offset="0.75" stopColor={b.cor} stopOpacity={b.o * forca * 0.16} />
+            <Stop offset="1" stopColor={b.cor} stopOpacity={0} />
+          </RadialGradient>
+        ))}
+      </Defs>
+      {blobs.map((b) => (
+        <Ellipse
+          key={b.k}
+          cx={b.cx * 100} cy={b.cy * 100}
+          rx={b.r * 125} ry={b.r * 135}
+          fill={`url(#${id}${b.k})`}
+        />
+      ))}
+    </Svg>
+  );
+}
+
 /* ------------------------------------------------------------------ *
  * MEDIDOR — posição numa faixa
  *
@@ -35,19 +111,33 @@ import { useTheme } from './useTheme';
  * que uma barra de progresso não dá.
  * ------------------------------------------------------------------ */
 export function Medidor({
-  pct, traços = 28, altura = 30, cor, sobreEscuro = false, faixa,
+  pct, traços = 28, altura = 30, cor, sobreEscuro = false, faixa, escala,
 }: {
   /** 0..1 */
   pct: number;
   traços?: number; altura?: number; cor?: string; sobreEscuro?: boolean;
   /** zona destacada da régua, em 0..1 — a "faixa boa" */
   faixa?: [number, number];
+  /** duas cores: os traços passam de uma à outra ao longo da régua. Serve
+      quando a escala TEM direção — começo do ciclo até o fim dele, valor
+      dentro e fora da referência. Sem isso a régua é neutra, e neutra é o
+      certo quando os extremos não significam melhor nem pior. */
+  escala?: [string, string];
 }) {
   const { c } = useTheme();
   const marca = Math.max(0, Math.min(1, pct));
   const acento = cor ?? c.lime;
   const base = sobreEscuro ? 'rgba(255,255,255,0.28)' : c.line;
   const dentro = sobreEscuro ? 'rgba(255,255,255,0.55)' : c.accentLine;
+
+  /* interpolação em hex, sem lib: a régua tem 28 traços e cada um precisa
+     de uma cor própria para a passagem ser contínua */
+  const mistura = (a: string, b: string, t: number) => {
+    const n = (s: string) => [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16));
+    const [r1, g1, b1] = n(a), [r2, g2, b2] = n(b);
+    const m = (x: number, y: number) => Math.round(x + (y - x) * t);
+    return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`;
+  };
 
   return (
     <View style={{ height: altura + 14 }}>
@@ -67,6 +157,9 @@ export function Medidor({
           /* o traço sob o marcador cresce: o instrumento aponta duas
              vezes para o mesmo lugar, de cima e de baixo */
           const perto = Math.abs(t - marca) < 0.5 / traços;
+          const tom = escala
+            ? mistura(escala[0], escala[1], t)
+            : naFaixa ? dentro : base;
           return (
             <View
               key={i}
@@ -74,7 +167,14 @@ export function Medidor({
                 flex: 1,
                 height: perto ? altura : naFaixa ? altura * 0.6 : altura * 0.38,
                 borderRadius: 1,
-                backgroundColor: perto ? acento : naFaixa ? dentro : base,
+                backgroundColor: perto ? acento : tom,
+                /* só o traço do marcador acende — fulgor em todos seria
+                   ruído, e o ponto do instrumento é dizer qual é o "aqui" */
+                ...(perto ? {
+                  shadowColor: acento, shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.9, shadowRadius: 8, elevation: 4,
+                } : null),
+                opacity: escala && !perto ? (t <= marca ? 1 : 0.35) : 1,
               }}
             />
           );
@@ -96,39 +196,85 @@ export function Medidor({
  * comum informa melhor.
  * ------------------------------------------------------------------ */
 export function Glifos({
-  total, cheios, parcial = 0, cor, sobreEscuro = false, altura = 26,
+  total, cheios, parcial = 0, de, para, sobreEscuro = false, altura = 26,
 }: {
   total: number; cheios: number;
   /** 0..1 — preenchimento do próximo glifo, para meia dose / meio copo */
   parcial?: number;
-  cor?: string; sobreEscuro?: boolean; altura?: number;
+  /** o glifo é preenchido por degradê, não por cor chapada */
+  de?: string; para?: string;
+  sobreEscuro?: boolean; altura?: number;
 }) {
   const { c } = useTheme();
-  const acento = cor ?? c.accent;
-  const vazio = sobreEscuro ? 'rgba(255,255,255,0.30)' : c.line;
+  const topo = de ?? c.lime;
+  const base = para ?? c.teal;
+  const vazio = sobreEscuro ? 'rgba(255,255,255,0.26)' : c.line;
 
   return (
-    <Row gap={6} style={{ height: altura }}>
+    <Row gap={8} style={{ height: altura }}>
       {Array.from({ length: total }, (_, i) => {
         const cheio = i < cheios;
         const meio = i === cheios && parcial > 0;
+
+        if (!cheio && !meio) {
+          /* vazio em contorno, não em cinza sólido: dose gasta não é dose
+             apagada, é dose ausente — e ausência se desenha com o vazio */
+          return (
+            <View
+              key={i}
+              style={{
+                flex: 1, height: altura, borderRadius: altura / 2.6,
+                borderWidth: 1.5, borderColor: vazio,
+              }}
+            />
+          );
+        }
+
         return (
           <View
             key={i}
             style={{
-              flex: 1, height: altura, borderRadius: 5,
-              borderWidth: cheio ? 0 : 1.5,
-              borderColor: vazio,
-              backgroundColor: cheio ? acento : 'transparent',
-              overflow: 'hidden',
-              justifyContent: 'flex-end',
+              flex: 1, height: altura, borderRadius: altura / 2.6,
+              /* a sombra colorida é o fulgor: o glifo não é pintado de
+                 lima, ele EMITE lima. É o que separa um bloco de cor de
+                 uma coisa acesa, e é barato — sombra, não mais uma camada */
+              shadowColor: topo,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.75,
+              shadowRadius: 12,
+              elevation: 6,
             }}
           >
-            {meio && <View style={{ height: `${parcial * 100}%`, backgroundColor: acento }} />}
+            <View style={{ flex: 1, borderRadius: altura / 2.6, overflow: 'hidden', justifyContent: 'flex-end' }}>
+              <View style={{ height: meio ? `${parcial * 100}%` : '100%' }}>
+                <SvgGradFill de={topo} para={base} />
+                {/* reflexo alto: dá volume de cápsula em vez de retângulo */}
+                <View style={{
+                  position: 'absolute', left: '18%', right: '18%', top: '10%', height: '22%',
+                  borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.45)',
+                }} />
+              </View>
+            </View>
           </View>
         );
       })}
     </Row>
+  );
+}
+
+/** Preenchimento em degradê vertical, isolado para o Glifos não precisar
+    importar expo-linear-gradient em cada uso. */
+function SvgGradFill({ de, para }: { de: string; para: string }) {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 10 30" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 } as any}>
+      <Defs>
+        <SvgGrad id={`gf${de.replace('#', '')}${para.replace('#', '')}`} x1="0" y1="0" x2="0.35" y2="1">
+          <Stop offset="0" stopColor={de} />
+          <Stop offset="1" stopColor={para} />
+        </SvgGrad>
+      </Defs>
+      <Path d="M0,0 H10 V30 H0 Z" fill={`url(#gf${de.replace('#', '')}${para.replace('#', '')})`} />
+    </Svg>
   );
 }
 
