@@ -44,23 +44,10 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 /** Inicial dentro de um bloco tingido. Substitui a foto que o app ainda não
     tem — e não finge ter: nome próprio em corpo grande identifica uma pessoa
     tão bem quanto um retrato, e melhor que um avatar genérico. */
-/** Recorte circular do retrato. A foto é de corpo, com o rosto no terço
-    superior — para virar avatar ela entra grande e deslocada dentro de uma
-    máscara redonda, em vez de encolhida (o que mostraria mais jaleco que
-    pessoa). */
-function Avatar({ size = 44 }: { size?: number }) {
-  const { c } = useTheme();
-  const escala = size * 3.1;
-  return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden', backgroundColor: c.bluePale }}>
-      <Image
-        source={FOTO_MEDICA}
-        style={{ width: escala, height: escala * 1.5, marginLeft: -(escala - size) / 2, marginTop: -escala * 0.30 }}
-        contentFit="cover"
-      />
-    </View>
-  );
-}
+/* O Avatar circular existia para o chip da médica no topo. Saiu junto com
+   ele: no banner ela aparece de corpo inteiro, e recorte de rosto e
+   retrato inteiro na mesma tela são duas versões da mesma pessoa
+   competindo. */
 
 function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
   const { c } = useTheme();
@@ -131,19 +118,83 @@ function Topo() {
           {st.titulo}
         </Txt>
 
-        <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ marginTop: 20, opacity: pressed ? 0.65 : 1 }]}>
-          <Row gap={12} style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', borderRadius: radius.pill, padding: 8 }}>
-            <Avatar size={38} />
-            <View style={{ flex: 1 }}>
-              <Txt v="caption" c={c.tx}>{S.profile.doctor}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{st.sub.replace(`${S.profile.doctor} `, '')}</Txt>
-            </View>
-            <View style={{ paddingRight: 10 }}>
-              <Icon name="chev" size={15} color={c.tx3} sw={2} />
-            </View>
-          </Row>
-        </Pressable>
+        {/* A médica saiu daqui. Ela tem um banner próprio mais abaixo, e
+            mantê-la também no topo a poria duas vezes na mesma rolagem —
+            o que devolveria à tela o ar de ficha que esta reestruturação
+            tirou. Aqui fica só a extensão do acompanhamento, que é
+            contexto do estado e não apresentação de pessoa. */}
+        <Txt v="note" c={c.tx2} style={{ marginTop: 10 }}>{st.sub}</Txt>
       </View>
+    </View>
+  );
+}
+
+/** O banner da especialista, agora no meio da rolagem.
+
+    No topo ele fazia a tela ser sobre ela; aqui, depois do estado do
+    cuidado e da última mensagem, ele fecha o bloco das pessoas — e a
+    escala grande volta a ser um ganho em vez de um problema, porque a
+    pergunta "como está meu cuidado?" já foi respondida antes dele.
+
+    O lima fica só no botão: cor de energia em superfície é decoração, em
+    botão é chamada. */
+function BannerMedica() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  const go = (to: string) => () => router.push(to as any);
+
+  return (
+    <View style={{ height: 196, borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
+      <LinearGradient
+        colors={[c.bg1, c.bg1, c.bluePale]}
+        locations={[0, 0.42, 1]}
+        start={{ x: 0, y: 0.15 }} end={{ x: 1, y: 0.9 }}
+        style={StyleSheet.absoluteFillObject}
+      />
+      <Svg width={230} height={190} style={{ position: 'absolute', right: -40, top: -40 }} pointerEvents="none">
+        <Defs>
+          <RadialGradient id="brilhoBanner" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={c.accent} stopOpacity={0.16} />
+            <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
+            <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoBanner)" />
+      </Svg>
+
+      {/* alinhada pela base: retrato flutuando no meio parece adesivo */}
+      <Image
+        source={FOTO_MEDICA}
+        style={{ position: 'absolute', right: -6, bottom: 0, width: 132, height: 188 }}
+        contentFit="contain"
+        contentPosition="bottom center"
+      />
+
+      <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
+        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
+          <Txt v="h2" style={{ marginTop: 7, maxWidth: '68%' }}>{S.profile.doctor}</Txt>
+          <Row gap={6} style={{ marginTop: 5 }}>
+            <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
+            <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>
+          </Row>
+
+          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 16, alignSelf: 'flex-start', opacity: pressed ? 0.82 : 1 }]}>
+            <Row gap={10} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingLeft: 8, paddingRight: 20, paddingVertical: 8 }}>
+              <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="companion" size={16} color={c.limeInk} sw={2} />
+              </View>
+              <Txt v="bodyMed" c={c.limeInk}>Enviar mensagem</Txt>
+              {S.unread > 0 && (
+                <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: c.limeInk, alignItems: 'center', justifyContent: 'center' }}>
+                  <Txt v="micro" c={c.lime} style={{ fontSize: 10 }}>{S.unread}</Txt>
+                </View>
+              )}
+            </Row>
+          </Pressable>
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -332,24 +383,10 @@ function Materiais() {
   );
 }
 
-/** Fecho da aba: se nada acima resolveu, fala com gente. */
-function FalarComClinica() {
-  const { c } = useTheme();
-  const router = useRouter();
-  return (
-    <Pressable onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ marginTop: 36, opacity: pressed ? 0.85 : 1 }]}>
-      <Row gap={14} style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, padding: 18 }}>
-        <View style={{ flex: 1 }}>
-          <Txt v="title">Converse com sua clínica</Txt>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>Tire dúvidas e receba orientações.</Txt>
-        </View>
-        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="companion" size={20} color={c.limeInk} sw={2} />
-        </View>
-      </Row>
-    </Pressable>
-  );
-}
+/* "Converse com sua clínica" morava aqui, fechando a aba. Saiu quando o
+   banner da especialista voltou: os dois eram o mesmo convite em lima,
+   com o mesmo destino, a uma rolagem de distância um do outro. O banner
+   ganha por ter rosto. */
 
 /** O que está esperando você. Só aparece quando há algo — seção vazia com
     "nada pendente" é um lembrete de olhar para o nada. */
@@ -638,11 +675,11 @@ export default function Cuidado() {
             <Pendencias />
             <Consulta />
             <UltimaMensagem />
+            <BannerMedica />
             <Time />
             <Tratamento />
             <Materiais />
             <Documentos />
-            <FalarComClinica />
           </>
         ) : (
           <Descoberta />
