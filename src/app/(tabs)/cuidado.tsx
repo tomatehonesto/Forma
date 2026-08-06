@@ -39,16 +39,10 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
  * COM VÍNCULO
  * ------------------------------------------------------------------ */
 
-/** Quem cuida de você. Abre a tela porque é a resposta à pergunta que traz
-    a pessoa aqui — "com quem eu falo?" — e não um cabeçalho decorativo. */
-/** Inicial dentro de um bloco tingido. Substitui a foto que o app ainda não
-    tem — e não finge ter: nome próprio em corpo grande identifica uma pessoa
-    tão bem quanto um retrato, e melhor que um avatar genérico. */
-/* O Avatar circular existia para o chip da médica no topo. Saiu junto com
-   ele: no banner ela aparece de corpo inteiro, e recorte de rosto e
-   retrato inteiro na mesma tela são duas versões da mesma pessoa
-   competindo. */
-
+/** Inicial dentro de um bloco tingido, para quem não tem foto. Só a médica
+    tem retrato; a equipe de apoio entra assim até haver imagens delas — e
+    não finge ter: nome próprio em corpo grande identifica uma pessoa tão
+    bem quanto um retrato, e melhor que um boneco genérico. */
 function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
   const { c } = useTheme();
   const letra = nome.replace(/^Dr[a]?\.\s*/, '')[0];
@@ -72,15 +66,13 @@ function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
 
 /** O topo.
 
-    Antes era a ficha da médica; agora é o estado do acompanhamento, com
-    ela dentro dele. A inversão é de sujeito: quem abre esta aba não
-    pergunta "quem é minha médica?" — sabe quem é. Pergunta "como está meu
-    cuidado?". A frase grande responde isso, e o retrato aparece como a
-    resposta a uma segunda pergunta, "quem está cuidando", que vem depois.
+    Antes era a ficha da médica; agora é o estado do acompanhamento. A
+    inversão é de sujeito: quem abre esta aba não pergunta "quem é minha
+    médica?" — sabe quem é. Pergunta "como está meu cuidado?", e a frase
+    grande responde isso.
 
-    O retrato encolheu para caber nessa nova ordem: de banner de 196 px a
-    um avatar de 44. Perdeu presença de propósito — presença demais ali
-    faria a tela voltar a ser sobre ela. */
+    Ela aparece só como uma linha de contexto ("acompanha você há N
+    semanas"). O retrato dela está no banner, mais abaixo. */
 function Topo() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
@@ -132,69 +124,111 @@ function Topo() {
 /** O banner da especialista, agora no meio da rolagem.
 
     No topo ele fazia a tela ser sobre ela; aqui, depois do estado do
-    cuidado e da última mensagem, ele fecha o bloco das pessoas — e a
-    escala grande volta a ser um ganho em vez de um problema, porque a
-    pergunta "como está meu cuidado?" já foi respondida antes dele.
+    cuidado, das pendências e da consulta, a escala grande volta a ser um
+    ganho — a pergunta "como está meu cuidado?" já foi respondida antes
+    dele.
 
-    O lima fica só no botão: cor de energia em superfície é decoração, em
-    botão é chamada. */
+    O card tem duas metades: quem é ela em cima, o que ela disse embaixo. */
 function BannerMedica() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
+  const msg = lastMessage(S);
 
   return (
-    <View style={{ height: 196, borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
-      <LinearGradient
-        colors={[c.bg1, c.bg1, c.bluePale]}
-        locations={[0, 0.42, 1]}
-        start={{ x: 0, y: 0.15 }} end={{ x: 1, y: 0.9 }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      <Svg width={230} height={190} style={{ position: 'absolute', right: -40, top: -40 }} pointerEvents="none">
-        <Defs>
-          <RadialGradient id="brilhoBanner" cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={c.accent} stopOpacity={0.16} />
-            <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
-            <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoBanner)" />
-      </Svg>
+    <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
+      {/* metade de cima: quem é ela */}
+      <View style={{ height: 168, overflow: 'hidden' }}>
+        <LinearGradient
+          colors={[c.bg1, c.bg1, c.bluePale]}
+          locations={[0, 0.42, 1]}
+          start={{ x: 0, y: 0.15 }} end={{ x: 1, y: 0.9 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <Svg width={230} height={190} style={{ position: 'absolute', right: -40, top: -40 }} pointerEvents="none">
+          <Defs>
+            <RadialGradient id="brilhoBanner" cx="50%" cy="50%" r="50%">
+              <Stop offset="0" stopColor={c.accent} stopOpacity={0.16} />
+              <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
+              <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoBanner)" />
+        </Svg>
 
-      {/* alinhada pela base: retrato flutuando no meio parece adesivo */}
-      <Image
-        source={FOTO_MEDICA}
-        style={{ position: 'absolute', right: -6, bottom: 0, width: 132, height: 188 }}
-        contentFit="contain"
-        contentPosition="bottom center"
-      />
+        {/* alinhada pela base: retrato flutuando no meio parece adesivo */}
+        <Image
+          source={FOTO_MEDICA}
+          style={{ position: 'absolute', right: -6, bottom: 0, width: 128, height: 182 }}
+          contentFit="contain"
+          contentPosition="bottom center"
+        />
 
-      <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
-        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
-          <Txt v="h2" style={{ marginTop: 7, maxWidth: '68%' }}>{S.profile.doctor}</Txt>
-          <Row gap={6} style={{ marginTop: 5 }}>
-            <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
-            <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>
-          </Row>
+        <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
+          <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
+            <Txt v="h2" style={{ marginTop: 7, maxWidth: '66%' }}>{S.profile.doctor}</Txt>
+            <Row gap={6} style={{ marginTop: 5 }}>
+              <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
+              <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>
+            </Row>
+            <Row gap={6} style={{ marginTop: 12 }}>
+              <Txt v="label" c={c.accent2}>Ver perfil</Txt>
+              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+            </Row>
+          </View>
+        </Pressable>
+      </View>
 
-          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 16, alignSelf: 'flex-start', opacity: pressed ? 0.82 : 1 }]}>
-            <Row gap={10} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingLeft: 8, paddingRight: 20, paddingVertical: 8 }}>
-              <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="companion" size={16} color={c.limeInk} sw={2} />
-              </View>
-              <Txt v="bodyMed" c={c.limeInk}>Enviar mensagem</Txt>
-              {S.unread > 0 && (
-                <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: c.limeInk, alignItems: 'center', justifyContent: 'center' }}>
-                  <Txt v="micro" c={c.lime} style={{ fontSize: 10 }}>{S.unread}</Txt>
-                </View>
+      {/* metade de baixo: o que ela disse.
+
+          Substitui o botão "Enviar mensagem". Um botão genérico ao lado do
+          retrato pedia uma ação sem dar motivo; a frase que ela escreveu É
+          o motivo — e transforma o card de ficha em conversa. A ação
+          continua ali, agora nomeada pelo que se vai fazer de fato:
+          responder, não enviar.
+
+          Colada no mesmo card e não solta acima: a pessoa e a fala dela
+          são a mesma coisa, e separá-las em dois blocos fazia a tela
+          apresentar duas vezes a mesma relação. */}
+      {msg ? (
+        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <View style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
+            <Row gap={8}>
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8, flex: 1 }}>
+                {msg.daEquipe ? 'ÚLTIMA MENSAGEM' : 'VOCÊ ESCREVEU'}
+              </Txt>
+              {S.unread > 0 && msg.daEquipe && (
+                <Row gap={5}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
+                  <Txt v="micro" c={c.accent2}>não lida</Txt>
+                </Row>
               )}
             </Row>
-          </Pressable>
-        </View>
-      </Pressable>
+            <Txt v="body" c={c.tx} style={{ marginTop: 10, lineHeight: 24, fontStyle: 'italic' }} numberOfLines={2}>
+              “{msg.text}”
+            </Txt>
+            <Row style={{ marginTop: 12 }}>
+              <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>{msg.quando}</Txt>
+              <Row gap={6}>
+                <Txt v="label" c={c.accent2}>Responder</Txt>
+                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+              </Row>
+            </Row>
+          </View>
+        </Pressable>
+      ) : (
+        /* sem histórico não há frase para mostrar, e aí o botão volta a ser
+           a única coisa que faz sentido */
+        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+          <Row gap={10} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
+            <Icon name="companion" size={18} color={c.accent} sw={1.9} />
+            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Enviar a primeira mensagem</Txt>
+            <Icon name="chev" size={14} color={c.accent2} sw={2} />
+          </Row>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -259,49 +293,9 @@ function Atalhos() {
   );
 }
 
-/** A última mensagem, em três linhas.
-
-    A versão anterior desenhava o thread inteiro — balão, avatar, campo de
-    resposta. Ficou parecendo a tela de Mensagens em miniatura, e ocupava
-    o espaço de uma. O trabalho desta seção é só provar que a conversa está
-    viva; ler tudo é na outra tela. */
-function UltimaMensagem() {
-  const S = useStore((s) => s.S);
-  const { c } = useTheme();
-  const router = useRouter();
-  const msg = lastMessage(S);
-  if (!msg) return null;
-
-  return (
-    <Pressable onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
-        <Row gap={8}>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8, flex: 1 }}>ÚLTIMA MENSAGEM</Txt>
-          {S.unread > 0 && msg.daEquipe && (
-            <Row gap={5}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
-              <Txt v="micro" c={c.accent2}>não lida</Txt>
-            </Row>
-          )}
-        </Row>
-        {/* aspas e itálico: sinalizam citação, e é isso que a frase é —
-            um trecho, não o conteúdo inteiro */}
-        <Txt v="body" c={c.tx} style={{ marginTop: 10, lineHeight: 24, fontStyle: 'italic' }} numberOfLines={2}>
-          “{msg.text}”
-        </Txt>
-        <Row style={{ marginTop: 12 }}>
-          <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>
-            {msg.daEquipe ? S.profile.doctor.split(' ').slice(0, 2).join(' ') : 'Você'} · {msg.quando}
-          </Txt>
-          <Row gap={6}>
-            <Txt v="label" c={c.accent2}>Responder</Txt>
-            <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-          </Row>
-        </Row>
-      </View>
-    </Pressable>
-  );
-}
+/* A seção solta de última mensagem morava aqui. Foi para dentro do
+   card da médica: a pessoa e a fala dela são a mesma coisa, e mantê-las
+   em dois blocos fazia a tela apresentar duas vezes a mesma relação. */
 
 /** O apoio, compacto.
 
@@ -674,7 +668,6 @@ export default function Cuidado() {
             <CuidadoHoje />
             <Pendencias />
             <Consulta />
-            <UltimaMensagem />
             <BannerMedica />
             <Time />
             <Tratamento />
