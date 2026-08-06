@@ -33,7 +33,7 @@ import { radius } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
-const FOTO_MEDICA = require('../../../assets/images/especialista.jpg');
+const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 
 /* ------------------------------------------------------------------ *
  * COM VÍNCULO
@@ -75,95 +75,95 @@ function Equipe() {
   const msg = lastMessage(S);
   const semanasJuntas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
 
-  /* Quatro atalhos e não dois. A largura dá conta, e cada um resolve uma
-     necessidade diferente de quem abre esta aba: falar, ver quando é,
-     consultar o que foi orientado, saber com quem se está lidando. */
+  /* Mensagem saiu daqui e virou o botão do banner. O que sobra são os
+     quatro destinos que a pessoa procura depois de já ter decidido não
+     escrever: quando é, o que foi orientado, o que foi medido, e quem é
+     ela. */
   const acoes: [string, string, string][] = [
-    ['companion', 'Mensagem', '/medico'],
     ['cal', 'Consultas', '/consultas'],
     ['doc', 'Protocolos', '/protocolos'],
+    ['chart', 'Exames', '/exames'],
     ['info', 'Sobre', '/especialista'],
   ];
 
   return (
-    <View style={{ marginTop: 24 }}>
-      {/* O card da especialista.
+    <View>
+      {/* O banner da especialista, seguindo o frame 173:1674.
 
-          Três camadas, na ordem: um degradê diagonal do branco ao lima
-          pálido, um clarão lima difuso no canto, e a foto sangrando na
-          borda direita. O degradê sozinho seria chapado; o clarão dá a
-          profundidade que faz a superfície parecer iluminada em vez de
-          pintada — é o mesmo recurso do card de descoberta no Insights,
-          e é o que amarra as duas abas sem repetir cor.
+          Duas mudanças em relação à versão anterior mudam tudo. A primeira
+          é a foto: recorte em PNG com transparência, e não retrato com
+          fundo de estúdio. Foto recortada não tem emenda para disfarçar —
+          ela pousa sobre o degradê, e a pessoa fica DENTRO do card em vez
+          de colada nele.
 
-          A foto tem fundo azul de estúdio, que brigaria com o lima numa
-          emenda reta. Por isso o véu branco horizontal na borda esquerda
-          dela: o branco conversa com os dois lados, e a passagem deixa de
-          ser um corte para virar uma dissolução. */}
-      <View style={{ height: 208, borderRadius: radius.xl, overflow: 'hidden' }}>
+          A segunda é onde o lima está. Antes ele tingia o card inteiro, o
+          que gastava a cor mais forte da marca num fundo; agora o fundo é
+          um azul lavanda quase branco e o lima fica só no botão — que é o
+          que a pessoa vem fazer aqui. Cor de energia em superfície é
+          decoração; em botão é chamada. */}
+      <View style={{ height: 196, borderRadius: radius.xl, overflow: 'hidden' }}>
         <LinearGradient
-          colors={[c.bg1, c.limeWeak, c.limeWeak]}
-          locations={[0, 0.55, 1]}
-          start={{ x: 0, y: 0 }} end={{ x: 0.7, y: 1 }}
+          colors={[c.bg1, c.bg1, c.bluePale]}
+          locations={[0, 0.42, 1]}
+          start={{ x: 0, y: 0.15 }} end={{ x: 1, y: 0.9 }}
           style={StyleSheet.absoluteFillObject}
         />
-        <Svg width={200} height={170} style={{ position: 'absolute', left: -50, top: -50 }} pointerEvents="none">
+        <Svg width={230} height={190} style={{ position: 'absolute', right: -40, top: -40 }} pointerEvents="none">
           <Defs>
             <RadialGradient id="brilhoMedica" cx="50%" cy="50%" r="50%">
-              <Stop offset="0" stopColor={c.lime} stopOpacity={0.5} />
-              <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.18} />
-              <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
+              <Stop offset="0" stopColor={c.accent} stopOpacity={0.16} />
+              <Stop offset="0.6" stopColor={c.accent} stopOpacity={0.05} />
+              <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
             </RadialGradient>
           </Defs>
-          <Ellipse cx={100} cy={85} rx={100} ry={85} fill="url(#brilhoMedica)" />
+          <Ellipse cx={115} cy={95} rx={115} ry={95} fill="url(#brilhoMedica)" />
         </Svg>
 
+        {/* alinhada pela base: a foto encosta no rodapé do card, como no
+            frame — retrato flutuando no meio parece adesivo */}
         <Image
           source={FOTO_MEDICA}
-          style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '46%' }}
-          contentFit="cover"
-          contentPosition="top center"
-        />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.98)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-          style={{ position: 'absolute', right: '30%', top: 0, bottom: 0, width: '22%' }}
-          pointerEvents="none"
+          style={{ position: 'absolute', right: -6, bottom: 0, width: 132, height: 188 }}
+          contentFit="contain"
+          contentPosition="bottom center"
         />
 
-        <View style={{ flex: 1, padding: 20, justifyContent: 'space-between' }}>
-          <View>
-            {/* selo em vidro: translúcido sobre o degradê, ele pertence ao
-                card em vez de pousar sobre ele */}
-            <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
-              <Txt v="micro" c={c.tx2}>Sua especialista</Txt>
-            </View>
-            <Txt v="h2" style={{ marginTop: 10, maxWidth: '62%' }}>{S.profile.doctor}</Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 4, maxWidth: '58%' }}>{info.especialidade}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{info.crm}</Txt>
-          </View>
-
-          <Row gap={9}>
-            {acoes.map(([ic, label, to]) => (
-              <Pressable key={label} onPress={go(to)} hitSlop={4} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <View style={{
-                  width: 42, height: 42, borderRadius: 21,
-                  backgroundColor: 'rgba(255,255,255,0.75)',
-                  borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)',
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name={ic} size={18} color={c.tx} sw={1.8} />
-                  {label === 'Mensagem' && S.unread > 0 && (
-                    <View style={{ position: 'absolute', top: -1, right: -1, width: 15, height: 15, borderRadius: 8, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
-                      <Txt v="micro" c={c.accentInk} style={{ fontSize: 9 }}>{S.unread}</Txt>
-                    </View>
-                  )}
-                </View>
-              </Pressable>
-            ))}
+        <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
+          <Txt v="h2" style={{ marginTop: 7, maxWidth: '68%' }}>{S.profile.doctor}</Txt>
+          <Row gap={6} style={{ marginTop: 5 }}>
+            <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
+            <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>
           </Row>
+
+          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 16, alignSelf: 'flex-start', opacity: pressed ? 0.82 : 1 }]}>
+            <Row gap={10} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingLeft: 8, paddingRight: 20, paddingVertical: 8 }}>
+              <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="companion" size={16} color={c.limeInk} sw={2} />
+              </View>
+              <Txt v="bodyMed" c={c.limeInk}>Enviar mensagem</Txt>
+              {S.unread > 0 && (
+                <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: c.limeInk, alignItems: 'center', justifyContent: 'center' }}>
+                  <Txt v="micro" c={c.lime} style={{ fontSize: 10 }}>{S.unread}</Txt>
+                </View>
+              )}
+            </Row>
+          </Pressable>
         </View>
       </View>
+
+      {/* atalhos que saíram do banner: lá dentro competiam com o botão, e
+          o botão é a ação principal */}
+      <Row gap={8} style={{ marginTop: 10 }}>
+        {acoes.map(([ic, label, to]) => (
+          <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.md, paddingVertical: 14, alignItems: 'center' }}>
+              <Icon name={ic} size={18} color={c.tx} sw={1.8} />
+              <Txt v="micro" c={c.tx2} style={{ marginTop: 6 }}>{label}</Txt>
+            </View>
+          </Pressable>
+        ))}
+      </Row>
 
       {/* Credenciais em faixa. Não é vaidade da clínica: num app que não
           prescreve nada, saber quem prescreve é a informação que sustenta a
@@ -190,23 +190,51 @@ function Equipe() {
         </Row>
       )}
 
+      {/* A última mensagem, desenhada como mensagem.
+
+          Antes era um card com overline e parágrafo — a mesma forma dos
+          outros seis cards da tela, e por isso não lia como conversa. Agora
+          tem o que uma conversa tem: quem falou à esquerda, o balão com o
+          canto quebrado do lado de quem enviou, a hora embaixo. O balão
+          vindo dela é cinza e alinhado à esquerda; o seu seria azul e à
+          direita, exatamente como no thread.
+
+          A caixa de escrever no rodapé não escreve — leva para o thread.
+          É isca deliberada: a forma do campo diz "dá para responder" mais
+          rápido do que qualquer rótulo diria. */}
       {!!msg && (
-        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.6 : 1 }]}>
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
-            <Row gap={8}>
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8, flex: 1 }}>
-                {msg.daEquipe ? 'ÚLTIMA MENSAGEM DELA' : 'VOCÊ ESCREVEU'} · {msg.quando.toUpperCase()}
-              </Txt>
-              {S.unread > 0 && msg.daEquipe && (
-                <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
-              )}
+        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.75 : 1 }]}>
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+            <Row gap={10} style={{ alignItems: 'flex-end' }}>
+              <Retrato nome={msg.daEquipe ? S.profile.doctor : S.profile.name} size={30} />
+              <View style={{ flex: 1 }}>
+                <View style={{
+                  backgroundColor: msg.daEquipe ? c.bg2 : c.accentWeak,
+                  borderRadius: radius.lg, borderBottomLeftRadius: msg.daEquipe ? 5 : radius.lg,
+                  borderBottomRightRadius: msg.daEquipe ? radius.lg : 5,
+                  paddingHorizontal: 14, paddingVertical: 12,
+                }}>
+                  <Txt v="caption" c={c.tx} style={{ lineHeight: 21 }} numberOfLines={3}>{msg.text}</Txt>
+                </View>
+                <Row gap={7} style={{ marginTop: 6, paddingLeft: 4 }}>
+                  <Txt v="micro" c={c.tx4}>
+                    {msg.daEquipe ? S.profile.doctor.split(' ').slice(0, 2).join(' ') : 'Você'} · {msg.quando}
+                  </Txt>
+                  {S.unread > 0 && msg.daEquipe && (
+                    <Row gap={4}>
+                      <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: c.accent }} />
+                      <Txt v="micro" c={c.accent2}>não lida</Txt>
+                    </Row>
+                  )}
+                </Row>
+              </View>
             </Row>
-            <Txt v="body" c={c.tx2} style={{ marginTop: 10, lineHeight: 24 }} numberOfLines={3}>
-              {msg.text}
-            </Txt>
-            <Row gap={6} style={{ marginTop: 14 }}>
-              <Txt v="label" c={c.accent2}>Abrir conversa</Txt>
-              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+
+            <Row gap={10} style={{ marginTop: 14, backgroundColor: c.bg2, borderRadius: radius.pill, paddingLeft: 16, paddingRight: 6, paddingVertical: 6 }}>
+              <Txt v="caption" c={c.tx4} style={{ flex: 1 }}>Responder…</Txt>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="send" size={15} color={c.accentInk} sw={2} />
+              </View>
             </Row>
           </View>
         </Pressable>
@@ -562,10 +590,16 @@ export default function Cuidado() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: insets.top + 20, paddingBottom: 120 }}
       >
-        <Txt v="h1">Cuidado</Txt>
-        <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
-          {linked ? 'Sua equipe, suas consultas e o que está pendente.' : 'Ninguém precisa fazer isso sozinho.'}
-        </Txt>
+        {/* Sem título de tela. A tab bar já diz onde a pessoa está, e
+            repetir "Cuidado" no topo gasta a primeira dobra com informação
+            que ela acabou de dar. O banner da especialista abre direto —
+            é ele que responde por que se veio aqui.
+
+            No estado sem vínculo o título fica, porque ali não há
+            especialista para abrir a tela e a frase é o convite. */}
+        {!linked && (
+          <Txt v="note" c={c.tx3}>Ninguém precisa fazer isso sozinho.</Txt>
+        )}
 
         {linked ? (
           <>

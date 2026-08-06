@@ -10,7 +10,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowSoft } from '../theme';
 
-const FOTO = require('../../assets/images/especialista.jpg');
+const FOTO = require('../../assets/images/especialista.png');
 
 /* ============================================================
    ESPECIALISTA — quem assina o seu tratamento
@@ -59,12 +59,25 @@ export default function Especialista() {
             ao fundo da tela. Pôr o nome abaixo da imagem separaria a pessoa
             do nome dela em dois blocos; sobreposto, é a mesma coisa. */}
         <View style={{ height: 430 }}>
-          <Image source={FOTO} style={StyleSheet.absoluteFillObject} contentFit="cover" contentPosition="top center" />
-
-          {/* queda para o fundo da página: a foto não termina numa linha */}
+          {/* fundo próprio, porque o retrato é recorte com transparência —
+              sem ele a pessoa apareceria flutuando sobre o cinza da página */}
           <LinearGradient
-            colors={['rgba(245,246,250,0)', 'rgba(245,246,250,0.06)', 'rgba(245,246,250,0.45)', 'rgba(245,246,250,0.88)', c.bg]}
-            locations={[0, 0.4, 0.66, 0.86, 1]}
+            colors={[c.bluePale, c.bg1, c.bg]}
+            locations={[0, 0.62, 1]}
+            start={{ x: 0.2, y: 0 }} end={{ x: 0.85, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <Image
+            source={FOTO}
+            style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 400 }}
+            contentFit="contain"
+            contentPosition="bottom center"
+          />
+
+          {/* queda para o fundo da página: o retrato não termina numa linha */}
+          <LinearGradient
+            colors={['rgba(245,246,250,0)', 'rgba(245,246,250,0.04)', 'rgba(245,246,250,0.35)', 'rgba(245,246,250,0.85)', c.bg]}
+            locations={[0, 0.5, 0.74, 0.9, 1]}
             style={StyleSheet.absoluteFillObject}
             pointerEvents="none"
           />
