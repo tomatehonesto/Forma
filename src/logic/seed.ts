@@ -177,9 +177,10 @@ export function buildSeed() {
        que é o que saiu de você para a clínica. A direção importa: um é
        orientação recebida, o outro é prova enviada. */
     materials: [
-      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'PDF', size: '2,4 MB' },
-      { t: +daysAgo(70), name: 'Orientações de aplicação', kind: 'PDF', size: '1,1 MB' },
-      { t: +daysAgo(32), name: 'Guia de efeitos colaterais', kind: 'PDF', size: '1,8 MB' },
+      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'PDF', meta: '2,4 MB', ic: 'doc' },
+      { t: +daysAgo(70), name: 'Como aplicar sem dor', kind: 'Vídeo', meta: '4 min', ic: 'play' },
+      { t: +daysAgo(60), name: 'Checklist da primeira semana', kind: 'Checklist', meta: '8 itens', ic: 'check' },
+      { t: +daysAgo(32), name: 'O que fazer se enjoar', kind: 'Guia rápido', meta: '2 min', ic: 'bulb' },
     ],
 
     /* Perguntas feitas ao Companion. Guarda só o texto e a hora — a

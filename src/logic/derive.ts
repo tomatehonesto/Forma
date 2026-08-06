@@ -1422,3 +1422,66 @@ export function careDocs(S: State, n = 3) {
   }));
   return [...docs, ...recs].sort((a, b) => b.t - a.t).slice(0, n);
 }
+
+/* ============================================================
+   ESTADO DO ACOMPANHAMENTO
+
+   Responde à pergunta que traz a pessoa à aba Cuidado: "como está meu
+   cuidado agora?". Diferente de carePending, que lista o que exige ação,
+   aqui TODAS as dimensões aparecem — inclusive as que estão bem. É a
+   diferença entre um painel e uma lista de tarefas: o painel também
+   precisa poder dizer "está tudo certo", e essa é justamente a
+   informação que mais tranquiliza.
+   ============================================================ */
+export type CareTile = {
+  ic: string; label: string; valor: string;
+  /* atenção não é alarme: marca o que mudou de estado e merece o olho,
+     não o que está errado */
+  atencao: boolean;
+  to: string;
+};
+
+export function careStatus(S: State) {
+  const cs = nextConsult(S);
+  const p = penStock(S);
+  const exame = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
+
+  const tiles: CareTile[] = [
+    {
+      ic: 'cal', label: 'Próxima consulta',
+      valor: cs ? (cs.dias <= 0 ? 'Hoje' : cs.dias === 1 ? 'Amanhã' : `Em ${cs.dias} dias`) : 'Sem consulta',
+      atencao: !!cs && cs.dias <= 2, to: '/consultas',
+    },
+    {
+      ic: 'companion', label: 'Mensagens',
+      valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Em dia',
+      atencao: S.unread > 0, to: '/medico',
+    },
+    {
+      ic: 'pill', label: 'Receita',
+      valor: p.semanas <= 0 ? 'Vencida' : `Vence em ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
+      atencao: !p.verdict.good, to: '/aplicacoes',
+    },
+    {
+      ic: 'doc', label: 'Exames',
+      valor: exame ? 'Pendente' : 'Em dia',
+      atencao: !!exame, to: '/exames',
+    },
+  ];
+
+  const n = tiles.filter((t) => t.atencao).length;
+  const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+
+  return {
+    tiles,
+    quantos: n,
+    titulo: n === 0
+      ? 'Seu acompanhamento está em dia'
+      : n === 1
+        ? 'Uma coisa precisa da sua atenção'
+        : `${n} coisas precisam da sua atenção`,
+    sub: hasClinic(S)
+      ? `${S.profile.doctor} acompanha você há ${semanas} semanas.`
+      : 'Você ainda não tem uma equipe no Forma.',
+  };
+}
