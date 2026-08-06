@@ -8,8 +8,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careStatus,
-  doseContext, penStock, M,
+  doseContext, doseCycle, nextInjectionDate, penStock, M,
 } from '../../logic/derive';
+import { CADENCE_DAYS } from '../../logic/meds';
+import { Medidor, Glifos } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
 import { Txt, Card, Row, IconBadge, SectionHead, Divider } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
@@ -618,6 +620,11 @@ function Tratamento() {
   const receita = (S.prescriptions as any[])[0];
   const critico = p.left <= 1;
   const ctx = doseContext(S);
+  const ciclo = doseCycle(S);
+  /* posição entre a última aplicação e a próxima, em 0..1 */
+  const cad = CADENCE_DAYS(S.profile.med);
+  const faltam = diffDays(nextInjectionDate(S), now());
+  const posCiclo = Math.max(0, Math.min(1, (cad - faltam) / cad));
 
   return (
     <View style={{ marginTop: 36 }}>
@@ -648,8 +655,25 @@ function Tratamento() {
 
         <Divider style={{ marginVertical: 18 }} />
 
-        {/* Estoque em barra: "3 doses" não diz se é muito ou pouco; a barra
-            contra o total da caneta diz na hora.
+        {/* Onde estou no ciclo desta dose.
+
+            Nenhum número diz isso: "aplicou há 4 dias" é dado, mas a
+            posição entre uma aplicação e a próxima é o que explica por que
+            a fome muda ao longo da semana. O marcador triangular responde
+            de relance, e a faixa clara marca os dois dias de pico. */}
+        <Row style={{ marginBottom: 4 }}>
+          <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Onde você está no ciclo</Txt>
+          <Txt v="micro" c={c.tx3}>{ciclo.phase.label}</Txt>
+        </Row>
+        <Medidor pct={posCiclo} cor={c.accent} faixa={[0, 0.3]} altura={26} />
+
+        <Divider style={{ marginVertical: 18 }} />
+
+        {/* Doses como glifos, não como barra segmentada.
+
+            Uma dose é contável e são só quatro — então cada uma pode ter
+            corpo próprio, e a que falta aparece como ausência em vez de
+            trecho apagado. "3 de 4" deixa de precisar ser lido.
 
             Vermelho só quando resta uma dose ou menos. "Vale renovar a
             receita" é lembrete com semanas de antecedência, e pintá-lo de
@@ -659,18 +683,10 @@ function Tratamento() {
           <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Doses na caneta</Txt>
           <Txt v="caption" c={critico ? c.cta : p.verdict.good ? c.tx3 : c.accent2}>{p.verdict.label}</Txt>
         </Row>
-        <Row gap={5} style={{ marginTop: 10 }}>
-          {Array.from({ length: p.total }, (_, i) => (
-            <View
-              key={i}
-              style={{
-                flex: 1, height: 6, borderRadius: 3,
-                backgroundColor: i < p.left ? (critico ? c.cta : c.accent) : c.bg3,
-              }}
-            />
-          ))}
-        </Row>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 8 }}>
+        <View style={{ marginTop: 12 }}>
+          <Glifos total={p.total} cheios={p.left} cor={critico ? c.cta : c.accent} altura={30} />
+        </View>
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
           {p.left} de {p.total} · cerca de {p.semanas} {p.semanas === 1 ? 'semana' : 'semanas'}
         </Txt>
 

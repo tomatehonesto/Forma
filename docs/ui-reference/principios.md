@@ -124,3 +124,58 @@ sono, energia e humor não têm "cheio" → a barra mente ali.
 Dribbble (38 shots) e o Behance (12 projetos, ~4,5M views).
 
 O Instagram não foi analisado: exige login e devolve apenas o muro.
+
+---
+
+## Vocabulário de forma
+
+Os dez princípios acima falam de hierarquia, restrição e voz. Faltava o
+repertório: COM O QUÊ se constrói. Sem ele, o resultado converge sempre
+para card + título + texto + lista — que informa e não comunica, porque
+quatro números iguais em quatro caixas iguais fazem o olho tratar tudo
+como a mesma coisa.
+
+### O teste
+
+Um elemento visual só entra se **parar de funcionar quando o dado muda**.
+É isso que separa instrumento de decoração. Um marcador que aponta sempre
+para o meio é enfeite; um que anda com o ciclo da dose é informação.
+
+O erro oposto também existe e foi o meu: internalizar "nada decorativo"
+a ponto de rejeitar qualquer forma expressiva. Quando a forma codifica o
+dado, expressivo é o contrário de decorativo.
+
+### As peças (`src/ui/instrumentos.tsx`)
+
+**Medidor** — régua de traços com marcador triangular. Para posição numa
+faixa: dose no ciclo, exame na referência, proteína contra a meta. O
+triângulo é lido como "aqui" sem legenda, e a densidade dos traços dá
+escala contínua que barra de progresso não dá.
+
+**Glifos** — uma forma por unidade, cheias e vazias. Só para unidade
+discreta e pequena (doses, copos, aplicações na semana): a que falta
+aparece como ausência, e "3 de 4" deixa de precisar ser lido. Acima de
+oito unidades o olho volta a contar, e aí uma barra informa melhor.
+
+**Fulgor** — clarão radial atrás de um número. O único que existe por
+ênfase pura: marca qual é o valor principal quando tamanho de fonte já
+chegou ao limite. No máximo um por tela — dois fulgores é nenhum.
+
+**Curva viva** — série com traço em degradê e ponto aceso na ponta. A
+ponta é o argumento: diz "aqui é agora" e transforma histórico em coisa
+que ainda acontece. Sem eixo nem grade.
+
+**Segmentado** — pílula de recortes (D · S · M). Só quando as opções são
+o mesmo dado em outra janela; se levam a conteúdos diferentes, são abas.
+
+**Malha** (em `cuidado.tsx`) — quatro elipses radiais sobrepostas. Onde
+duas se encontram nasce um tom que não está em nenhuma: é o que dá
+aspecto de pintura, e o que LinearGradient não produz por mais paradas
+que tenha. Duas famílias: clara com o texto escuro à esquerda, escura
+com o texto branco por cima de tudo.
+
+### Quando NÃO usar
+
+Se o dado cabe num número e o número basta, use texto. Estas peças
+existem para quando comparação, posição numa escala ou passagem do tempo
+é o que importa — e nenhum número sozinho mostra isso.
