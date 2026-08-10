@@ -363,12 +363,24 @@ export default function Insights() {
               inteiro dentro do azul, senão o texto branco escorregaria para
               um fundo clareando; opaco, ele carrega o próprio fundo e pode
               ficar exatamente onde o desenho pede. */}
-          {/* marginTop alto de propósito: empurra o card para baixo, o que dá
-              ao Companion a tela quase inteira e deixa o card entrando pelo
-              rodapé — a borda superior aparecendo na dobra é o que promete
-              que há mais conteúdo abaixo. */}
+          {/* 80 e não 104.
+
+              O vão grande existia para empurrar o card para baixo e deixá-lo
+              entrando pelo rodapé, com a borda superior aparecendo na dobra
+              — a promessa de que há mais conteúdo abaixo.
+
+              Com a folha, essa promessa passou a ser feita por outra coisa:
+              o próprio arredondamento claro subindo por cima da imagem já
+              diz que a tela continua, e diz melhor, porque é uma camada
+              inteira e não a aresta de um card. O vão perdeu a função e
+              virou só distância.
+
+              80 é o mesmo respiro que separa os blocos grandes no resto do
+              app. Aqui ele fecha o gesto do Companion — pergunta, campo,
+              chips — e abre o próximo, em vez de deixar as chips soltas no
+              meio de um vazio. */}
           {destaque && (
-            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 104, opacity: pressed ? 0.85 : 1 }]}>
+            <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 80, opacity: pressed ? 0.85 : 1 }]}>
               {/* Em vidro, como o campo e as chips. Opaco ele era um objeto
                   pousado sobre o azul; translúcido, pertence ao ambiente do
                   Companion — e a descoberta É fala dele, não conteúdo da
