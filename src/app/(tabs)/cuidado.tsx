@@ -143,7 +143,20 @@ function Topo() {
           <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1, flex: 1 }}>
             {st.pulso.toUpperCase()}
           </Txt>
-          <Txt v="micro" c={c.onHero2}>{st.adesaoRotulo}</Txt>
+          {/* A adesão em tag e não em texto solto.
+
+              Solta no fim da linha ela lia como continuação do pulso — duas
+              informações diferentes na mesma frase, e a segunda parecendo
+              complemento da primeira. "3 itens pendentes · Boa adesão" não
+              é uma frase; são dois vereditos sobre coisas distintas, um de
+              atenção e outro de mérito.
+
+              A cápsula os separa sem precisar de divisor: forma fechada
+              lê como unidade, e o que está dentro dela deixa de pertencer
+              ao que está fora. */}
+          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+            <Txt v="micro" c={c.onHero}>{st.adesaoRotulo}</Txt>
+          </View>
         </Row>
 
         {/* A manchete é a resposta. Ela muda de texto conforme o momento —
@@ -236,19 +249,27 @@ function LinhaDoPlano() {
 
   return (
     <View>
-      {/* Uma barrinha por semana, e agora com o total que faltava.
+      {/* Célula por semana, e o estado se lê pelo QUE tem dentro.
 
-          A versão de dois traços dizia a proporção e perdia a granulação:
-          uma barra contínua de 62% não mostra que a semana 4 ficou sem
-          aplicação. Com uma barra por semana, a falha tem posição — e é a
-          posição que explica um platô.
+          A versão de barras codificava tudo em altura e tom: cumprida era
+          alta e branca, vazia era baixa e cinza. Funciona como gráfico e
+          falha como recado — altura diz "mais" e "menos", e semana
+          cumprida não é uma semana MAIOR, é uma semana feita. Feito é
+          binário, e binário se desenha com marca, não com quantidade.
 
-          Três alturas, três estados. Semana cumprida é alta e acesa;
-          semana vivida sem aplicação é baixa e apagada, no mesmo lugar,
-          porque ausência precisa ocupar espaço para ser vista; semana
-          prevista é fio. O gráfico agora tem fim porque o plano tem fim —
-          e o fim é a dose de manutenção, não a alta. */}
-      <Row gap={3} style={{ alignItems: 'flex-end', height: 26 }}>
+          Então o check entra. Ele não mede nada, diz uma coisa só, e é
+          justamente por não medir que serve aqui. Em lima porque é a cor
+          de conquista do app; a vazia perde a marca e fica com o campo
+          apagado, no mesmo tamanho — ausência precisa ocupar espaço para
+          ser vista.
+
+          A semana corrente fica em lima a 50% com contorno pontilhado. O
+          pontilhado é a única linha tracejada do app e ganha exceção por
+          significar exatamente o que a forma sugere: contorno aberto é
+          coisa em andamento, e ela é a única célula que ainda pode virar
+          check antes do domingo. Cheia, prometeria um feito que não
+          aconteceu; vazia, esconderia que está acontecendo. */}
+      <Row gap={3} style={{ alignItems: 'center' }}>
         {Array.from({ length: previstas }, (_, i) => {
           const n = i + 1;
           const futura = n > atual;
@@ -258,14 +279,22 @@ function LinhaDoPlano() {
             <View
               key={n}
               style={{
-                flex: 1,
-                height: hoje ? 26 : futura ? 7 : ok ? 17 : 9,
-                borderRadius: 2,
-                backgroundColor: hoje ? c.lime
-                  : futura ? 'rgba(255,255,255,0.24)'
-                    : ok ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.32)',
+                flex: 1, aspectRatio: 1, borderRadius: 5,
+                alignItems: 'center', justifyContent: 'center',
+                backgroundColor: hoje ? 'rgba(221,246,44,0.5)'
+                  : ok ? c.lime
+                    : futura ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.26)',
+                /* todas levam a borda, e só a de hoje tem cor: sem isso a
+                   célula pontilhada ficaria 2 px maior que as vizinhas e a
+                   fileira perderia o alinhamento no ponto exato em que ela
+                   precisa ser lida como uma das dezesseis */
+                borderWidth: 1,
+                borderStyle: 'dashed' as const,
+                borderColor: hoje ? c.lime : 'transparent',
               }}
-            />
+            >
+              {ok && !hoje && <Icon name="check" size={10} color={c.limeInk} sw={3} />}
+            </View>
           );
         })}
       </Row>
