@@ -261,12 +261,13 @@ function LinhaDoPlano() {
           a 10, e a marca que deveria ser a mais legível da fileira virava
           a menos.
 
-          A resposta é as duas coisas em camadas: a barra continua sendo a
-          barra, e o check sobe para cima dela. Cada um faz o que sabe — a
-          fileira de barras dá o percurso de relance, e a marca diz "feito"
-          sem precisar competir por espaço com ela. De quebra a semana
-          cumprida vira a coluna mais alta do conjunto por ter marca, não
-          por ter barra maior, que é a leitura certa.
+          A resposta não era tirar o check da barra: era dar à barra
+          altura para caber. Com 24 px ela aceita um check de 10 sem que
+          ele encolha, e o conjunto volta a ser uma coisa só — barra e
+          marca no mesmo objeto, em vez de dois elementos empilhados que o
+          olho precisa juntar. Fora dela o check ficava órfão: centrado
+          acima de uma coluna, ele parecia pertencer tanto a ela quanto à
+          vizinha.
 
           A semana corrente fica em lima a 50% com contorno pontilhado. É a
           única linha tracejada do app e ganha exceção por significar
@@ -278,49 +279,35 @@ function LinhaDoPlano() {
           As previstas viram fio. Semana prevista não é uma barra curta: é
           uma barra que ainda não existe, e fio é o mínimo que marca
           posição sem afirmar quantidade nenhuma. */}
-      <Row gap={3} style={{ alignItems: 'flex-end', height: 34 }}>
+      <Row gap={3} style={{ alignItems: 'flex-end', height: 26 }}>
         {Array.from({ length: previstas }, (_, i) => {
           const n = i + 1;
           const futura = n > atual;
           const hoje = n === atual;
-          const ok = feitas.has(n);
+          const ok = feitas.has(n) && !futura;
           return (
-            <View key={n} style={{ flex: 1, alignItems: 'center' }}>
-              {/* O check acima e não dentro.
-
-                  Dentro de uma célula de 15 px ele tinha que encolher a 10,
-                  e a 10 px um check é uma rabisco — a marca que deveria ser
-                  a mais legível da fileira virava a menos. Fora, ele tem o
-                  tamanho que quer e ainda ganha o que faltava: ALTURA. A
-                  semana cumprida passa a ser a coluna mais alta do conjunto
-                  por ter marca, não por ter barra maior.
-
-                  A faixa de 11 px existe para todas as colunas, com ou sem
-                  check. Reservada, ela mantém as barras alinhadas pela base
-                  numa linha só; calculada por coluna, cada barra começaria
-                  numa altura diferente. */}
-              <View style={{ height: 11, justifyContent: 'flex-end' }}>
-                {ok && !hoje && <Icon name="check" size={11} color={c.lime} sw={3} />}
-              </View>
-              <View
-                style={{
-                  width: '100%', marginTop: 4,
-                  /* Quatro alturas. As três primeiras são barra de verdade;
-                     a última é fio — semana prevista não é uma barra curta,
-                     é uma barra que ainda não existe, e fio é o mínimo que
-                     ainda marca posição sem afirmar quantidade. */
-                  height: hoje ? 19 : futura ? 2 : ok ? 15 : 8,
-                  borderRadius: futura ? 1 : 3,
-                  backgroundColor: hoje ? 'rgba(221,246,44,0.5)'
-                    : ok ? c.lime
-                      : futura ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.26)',
-                  /* pontilhado só na de hoje, e transparente nas outras para
-                     as larguras não divergirem */
-                  borderWidth: 1,
-                  borderStyle: 'dashed' as const,
-                  borderColor: hoje ? c.lime : 'transparent',
-                }}
-              />
+            <View
+              key={n}
+              style={{
+                flex: 1,
+                alignItems: 'center', justifyContent: 'center',
+                /* Quatro alturas. As três primeiras são barra de verdade;
+                   a última é fio — semana prevista não é uma barra curta,
+                   é uma barra que ainda não existe, e fio é o mínimo que
+                   marca posição sem afirmar quantidade. */
+                height: hoje ? 26 : futura ? 2 : ok ? 24 : 10,
+                borderRadius: futura ? 1 : 4,
+                backgroundColor: hoje ? 'rgba(221,246,44,0.5)'
+                  : ok ? c.lime
+                    : futura ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.26)',
+                /* pontilhado só na de hoje, e transparente nas outras para
+                   as larguras não divergirem */
+                borderWidth: 1,
+                borderStyle: 'dashed' as const,
+                borderColor: hoje ? c.lime : 'transparent',
+              }}
+            >
+              {ok && <Icon name="check" size={10} color={c.limeInk} sw={3} />}
             </View>
           );
         })}

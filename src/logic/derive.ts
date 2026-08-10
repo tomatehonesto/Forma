@@ -1657,9 +1657,15 @@ export function careState(S: State) {
      não de uma alta: tratamento com GLP-1 não tem data de alta, tem
      data em que a titulação chega à dose de manutenção. */
   const grade = weekGrid(S, 0);
+  /* A semana corrente vem da grade, não de `semanas`.
+
+     `semanas` é quantas se COMPLETARAM — floor(dias/7) —, e a que a pessoa
+     está vivendo é a seguinte. Usar uma no lugar da outra deslocava a
+     régua em um: o marcador de "agora" caía sobre uma semana já cumprida,
+     e a semana de fato corrente aparecia como prevista. */
   const plano = {
     previstas: (S.profile as any).planoSemanas ?? 16,
-    atual: semanas,
+    atual: grade.length,
     cumpridas: grade.filter((g) => !g.futura && g.aplicou).length,
   };
 
