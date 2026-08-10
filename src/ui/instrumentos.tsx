@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, LinearGradient as SvgGrad, Path, RadialGradient, Stop } from 'react-native-svg';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
+import type { Palette } from '../theme';
 
 /* ============================================================
    INSTRUMENTOS — o vocabulário de forma do Forma
@@ -578,5 +579,71 @@ export function Segmentado({
         );
       })}
     </Row>
+  );
+}
+
+/* ============================================================
+   ONDA — a presença do Companion
+
+   Substituiu a esfera. Esfera é objeto: fica ali, parada, decorativa. A
+   onda é sinal — diz que alguém está ouvindo, que há atividade do outro
+   lado. Numa aba cuja tese é "existe uma inteligência acompanhando",
+   sinal comunica melhor que objeto.
+
+   Três senóides de amplitude e fase diferentes, com opacidade caindo do
+   centro para as bordas — é a queda nas pontas que faz o traço parecer
+   emitido em vez de desenhado. O lima leva a linha da frente porque é a
+   cor de energia da marca; o teal e o branco ficam atrás, dando volume.
+   ============================================================ */
+export function Onda({ c, width, height = 96 }: { c: Palette; width: number; height?: number }) {
+  const meio = height / 2;
+
+  /* Cada curva é uma senóide amostrada em 48 pontos, com um envelope que
+     zera a amplitude nas duas pontas: sem ele o traço termina no ar, com
+     um corte reto que denuncia o SVG. */
+  const curva = (amp: number, ciclos: number, fase: number) => {
+    const n = 48;
+    return Array.from({ length: n + 1 }, (_, i) => {
+      const t = i / n;
+      const envelope = Math.sin(Math.PI * t) ** 1.4;
+      const y = meio - Math.sin(t * Math.PI * 2 * ciclos + fase) * amp * envelope;
+      return `${i ? 'L' : 'M'}${(t * width).toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  };
+
+  const linhas = [
+    { d: curva(height * 0.30, 1.5, 0), cor: c.lime, w: 2, o: 1 },
+    { d: curva(height * 0.22, 1.5, 0.7), cor: c.teal, w: 1.6, o: 0.72 },
+    { d: curva(height * 0.34, 1.2, 2.1), cor: '#FFFFFF', w: 1.2, o: 0.45 },
+    { d: curva(height * 0.16, 2.1, 3.4), cor: c.lime, w: 1, o: 0.34 },
+  ];
+
+  return (
+    <Svg width={width} height={height}>
+      <Defs>
+        {/* brilho por trás do feixe — dá o halo sem contorno */}
+        <RadialGradient id="ondaGlow" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={c.lime} stopOpacity={0.34} />
+          <Stop offset="0.45" stopColor={c.teal} stopOpacity={0.16} />
+          <Stop offset="1" stopColor={c.teal} stopOpacity={0} />
+        </RadialGradient>
+        {/* as pontas somem: o feixe não tem começo nem fim visível */}
+        <SvgGrad id="ondaFade" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0} />
+          <Stop offset="0.5" stopColor="#FFFFFF" stopOpacity={1} />
+          <Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
+        </SvgGrad>
+      </Defs>
+
+      <Ellipse cx={width / 2} cy={meio} rx={width / 2} ry={height / 2} fill="url(#ondaGlow)" />
+
+      {linhas.map((l, i) => (
+        <React.Fragment key={i}>
+          {/* traço largo e translúcido por baixo = o glow da própria linha */}
+          <Path d={l.d} stroke={l.cor} strokeWidth={l.w * 4} strokeOpacity={l.o * 0.16} fill="none" strokeLinecap="round" />
+          <Path d={l.d} stroke={l.cor} strokeWidth={l.w} strokeOpacity={l.o} fill="none" strokeLinecap="round" />
+        </React.Fragment>
+      ))}
+    </Svg>
   );
 }
