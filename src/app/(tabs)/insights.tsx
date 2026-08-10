@@ -94,12 +94,26 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
            opacidade total — a penúltima fileira de pixels fica com uma fração
            de azul, e essa fração aparece como um fio logo acima do conteúdo
            seguinte. Fio de meio por cento de cor ainda é fio. */
+        /* Quatorze paradas, e o alfa quase não sai do zero no primeiro
+           terço. É aí que mora a diferença entre uma transição longa e uma
+           transição gradual — a rampa anterior tinha 120 px e já estava em
+           7% na primeira quinta parte, então o olho pegava exatamente onde
+           ela começava. Agora o começo é imperceptível por construção: nos
+           primeiros 25% do percurso o azul perde 3% de força, o que é menos
+           do que a própria aurora varia sozinha naquele trecho.
+
+           A aceleração fica concentrada no terço final, e a chegada ao
+           fundo em 92% com cauda chapada — se ela terminasse exatamente em
+           100%, a última fileira de pixels ficaria com uma fração de azul,
+           e fração de cor ainda lê como fio. */
         colors={[
-          'rgba(245,246,250,0)', 'rgba(245,246,250,0.02)', 'rgba(245,246,250,0.07)',
-          'rgba(245,246,250,0.17)', 'rgba(245,246,250,0.34)', 'rgba(245,246,250,0.58)',
-          'rgba(245,246,250,0.82)', 'rgba(245,246,250,1)', 'rgba(245,246,250,1)',
+          'rgba(245,246,250,0)', 'rgba(245,246,250,0.005)', 'rgba(245,246,250,0.015)',
+          'rgba(245,246,250,0.035)', 'rgba(245,246,250,0.065)', 'rgba(245,246,250,0.11)',
+          'rgba(245,246,250,0.17)', 'rgba(245,246,250,0.25)', 'rgba(245,246,250,0.36)',
+          'rgba(245,246,250,0.50)', 'rgba(245,246,250,0.66)', 'rgba(245,246,250,0.83)',
+          'rgba(245,246,250,1)', 'rgba(245,246,250,1)',
         ]}
-        locations={[0, 0.13, 0.26, 0.40, 0.54, 0.68, 0.80, 0.88, 1]}
+        locations={[0, 0.09, 0.17, 0.25, 0.33, 0.41, 0.49, 0.57, 0.65, 0.73, 0.81, 0.87, 0.92, 1]}
         style={StyleSheet.absoluteFillObject}
       />
       {/* Duas manchas muito fracas por cima, deslocadas para lados opostos.
@@ -284,11 +298,25 @@ export default function Insights() {
           /* +48 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          /* A barra inferior é o que separa a base do card do rodapé do hero.
-             A rampa é ancorada nesse rodapé, então o topo dela fica em
-             (barra − altura da rampa) acima do card: com barra 80 e rampa
-             120, ela começa 40 px antes de o card acabar. */
-          paddingTop: insets.top + 76, paddingBottom: 80,
+          /* A barra inferior é o que separa a base do card do rodapé do hero,
+             e a rampa é ancorada nesse rodapé — o topo dela fica em
+             (barra − altura da rampa) acima do card.
+
+             Com barra 80 e rampa 120 (a versão anterior) ela começava 40 px
+             antes de o card acabar e tinha só 120 px para ir de cheio a
+             zero. Cabia inteira no campo de visão, e transição que se vê de
+             ponta a ponta é lida como faixa, não como dissolução.
+
+             Agora a barra é 260 e a rampa 300: ela ainda entra 40 px por
+             trás do card, e ganhou 180 px de percurso depois dele. É esse
+             trecho de baixo que faz a diferença — é onde o azul realmente
+             se dilui, e ele precisa de comprimento que não caiba num
+             relance.
+
+             O custo é o conteúdo seguinte descer 180 px. É um custo real e
+             aceito: o hero desta aba é o momento de marca do app, e o que
+             vem depois é lista. */
+          paddingTop: insets.top + 76, paddingBottom: 260,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
@@ -328,12 +356,25 @@ export default function Insights() {
               contorno passa por trás do card da descoberta, não abaixo
               dele: é isso que põe o card na divisa em vez de encostado
               nela */}
-          {/* 120 e não 80: a rampa entra 40 px por trás do card. Ali ela está
-              nos primeiros terços do percurso, onde o alfa ainda é baixo — a
-              base do card recebe cerca de 11% de lavagem, o bastante para o
-              azul já estar indo embora quando a borda aparece, e pouco
-              demais para tirar contraste do texto de vidro. */}
-          <Dissolucao c={c} width={width} height={120} />
+          {/* 300 e não 120.
+
+              A transição estava curta e por isso "acabava do nada": 120 px
+              é menos que a altura de um card, então o azul saía de cheio a
+              zero dentro de um só gesto de rolagem e o olho lia o percurso
+              inteiro de uma vez. Transição que cabe no campo de visão é
+              vista como faixa, não como dissolução.
+
+              Com 300 px ela ocupa mais de um terço do bloco da aurora, e
+              como o alfa quase não se move no primeiro terço, os 100 px de
+              cima são indistinguíveis da aurora. O resultado é que não
+              existe um ponto onde ela começa — que é a definição prática
+              de gradual.
+
+              O contraste do vidro continua seguro: na base do card da
+              descoberta a lavagem é da ordem de 5%, menos que os 11% da
+              versão curta. Esticar a rampa deixou o miolo MAIS limpo, não
+              menos. */}
+          <Dissolucao c={c} width={width} height={300} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de

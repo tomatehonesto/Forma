@@ -68,12 +68,29 @@ export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: s
      ponto de lima, pequeno e no canto. Duas cores com papéis, que é o
      que o Forma tem — e a variação de tom vem da SOBREPOSIÇÃO, não de
      acrescentar matiz. */
+  /* O lima cresceu, e isso é uma decisão de identidade, não de gosto.
+
+     A Jornada usa a mesma família de azul num LinearGradient. Duas
+     superfícies escuras azuis em duas abas vizinhas liam como a mesma
+     coisa, e a malha perdia o motivo de existir. O que separa as duas não
+     pode ser a estrutura (blob vs. rampa) — isso o olho não isola —, tem
+     que ser cor.
+
+     Então o lima deixa de ser um ponto no canto e vira duas manchas de
+     verdade, embaixo à esquerda e subindo pela direita. Onde ele cruza o
+     azul nasce um verde-água que não está em nenhuma das duas: é
+     exatamente o que a malha faz de melhor, e é a assinatura de Cuidado.
+
+     Não vira terceira cor da marca: continua sendo o mesmo lima do
+     veredito, aqui em opacidade baixa e sob outra cor. Pigmento diluído
+     não é matiz nova. */
   const blobs = escura
     ? [
-      { k: 'a', cor: c.accent, cx: 0.22, cy: 0.26, r: 0.74, o: 0.95 },
-      { k: 'b', cor: c.accent2, cx: 0.86, cy: 0.16, r: 0.66, o: 0.92 },
-      { k: 'c', cor: c.accent, cx: 0.86, cy: 0.94, r: 0.60, o: 0.7 },
-      { k: 'd', cor: c.lime, cx: 0.06, cy: 1.02, r: 0.34, o: 0.3 },
+      { k: 'a', cor: c.accent, cx: 0.24, cy: 0.20, r: 0.72, o: 0.95 },
+      { k: 'b', cor: c.accent2, cx: 0.88, cy: 0.10, r: 0.62, o: 0.92 },
+      { k: 'c', cor: c.lime, cx: 0.04, cy: 0.86, r: 0.46, o: 0.5 },
+      { k: 'd', cor: c.lime, cx: 0.92, cy: 1.04, r: 0.40, o: 0.42 },
+      { k: 'e', cor: c.accent, cx: 0.62, cy: 0.62, r: 0.50, o: 0.55 },
     ]
     : [
       { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.82 },

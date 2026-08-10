@@ -21,6 +21,7 @@ import { radius, type Palette } from '../../theme';
 
 const AURORA = require('../../../assets/images/aurora-hero.png');
 const PAD = 24;                     // margem lateral do frame
+const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 const GOAL_W = 323;                 // largura do card de meta
 const GOAL_GAP = 4;
 const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
@@ -392,9 +393,25 @@ export default function Home() {
             {linked ? (
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
                 <Row>
-                  {/* sem foto no perfil — inicial ate existir upload de avatar */}
-                  <View style={{ width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-                    <Txt v="h1" c={c.accent}>{S.profile.doctor.replace(/^Dr[a]?\.\s*/, '')[0]}</Txt>
+                  {/* O retrato, no lugar da inicial.
+
+                      A inicial era o certo enquanto não havia imagem — ela
+                      identifica sem fingir. Agora que existe o recorte da
+                      especialista, mantê-la seria escolher o símbolo sobre
+                      a pessoa, e esta seção é justamente a que diz "tem
+                      alguém do outro lado".
+
+                      Fundo tingido embaixo do recorte porque a imagem é PNG
+                      com fundo transparente: sem ele o retrato flutuaria
+                      sobre o branco do card e perderia a moldura que o faz
+                      ler como avatar. */}
+                  <View style={{ width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, overflow: 'hidden' }}>
+                    <Image
+                      source={FOTO_MEDICA}
+                      style={{ width: '100%', height: '100%' }}
+                      contentFit="cover"
+                      contentPosition="top center"
+                    />
                   </View>
                   <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
                     <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.6 }}>SUA ESPECIALISTA</Txt>

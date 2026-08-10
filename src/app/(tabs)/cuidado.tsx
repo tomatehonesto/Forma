@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
-  doseContext, doseCycle, penStock, M,
+  doseContext, doseCycle, penStock, weekGrid, M,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
@@ -158,30 +158,18 @@ function Topo() {
           {st.texto}
         </Txt>
 
-        {/* Duas métricas pequenas, em colunas de larguras iguais.
+        {/* Os big numbers saíram.
 
-            Pequenas de propósito: elas são o rodapé da frase, não o
-            assunto. Quando o número estava em corpo 44 ele virava o
-            protagonista e a leitura inteligente virava legenda dele — o
-            inverso do que esta aba deve fazer.
+            "10 semanas de acompanhamento" em corpo 27 e "Semana 10 de 16
+            previstas" logo abaixo são o mesmo fato duas vezes — e a
+            segunda vez é a melhor, porque tem denominador. O número
+            grande sozinho impressionava e não situava.
 
-            Duas e não três: a adesão estava aqui como terceiro "big
-            number" e cortava, porque adesão não é número, é veredito.
-            Encolher a fonte resolveria o corte e não o erro. Ela desceu
-            para a linha do pulso, que é onde qualificador mora. */}
-        <Row gap={14} style={{ marginTop: 26, alignItems: 'flex-start' }}>
-          {st.metricas.map((m) => (
-            <View key={m.label} style={{ flex: 1 }}>
-              <Txt v="h1" c={c.onHero} style={{ fontSize: 27, lineHeight: 31 }} numberOfLines={1}>
-                {m.valor}
-              </Txt>
-              <Txt v="micro" c={c.onHero2} style={{ marginTop: 5, lineHeight: 15 }}>{m.label}</Txt>
-            </View>
-          ))}
-        </Row>
-
-        {/* Onde você está dentro do plano. */}
-        <View style={{ marginTop: 22 }}>
+            "10 aplicações registradas" foi junto: é a mesma contagem que
+            a régua mostra em forma e a frase confirma em palavra. Três
+            versões do mesmo dado num card de 500 px era o excesso que a
+            rodada passada não pegou. */}
+        <View style={{ marginTop: 26 }}>
           <LinhaDoPlano />
         </View>
 
@@ -243,21 +231,53 @@ function LinhaDoPlano() {
   const { c } = useTheme();
   const st = careState(S);
   const { previstas, atual, cumpridas } = st.plano;
-  const pct = Math.max(0, Math.min(1, atual / previstas));
+  const grade = weekGrid(S, 0);
+  const feitas = new Set(grade.filter((g) => g.aplicou).map((g) => g.n));
 
   return (
     <View>
-      <Txt v="caption" c={c.onHero} style={{ lineHeight: 21 }}>
+      {/* Uma barrinha por semana, e agora com o total que faltava.
+
+          A versão de dois traços dizia a proporção e perdia a granulação:
+          uma barra contínua de 62% não mostra que a semana 4 ficou sem
+          aplicação. Com uma barra por semana, a falha tem posição — e é a
+          posição que explica um platô.
+
+          Três alturas, três estados. Semana cumprida é alta e acesa;
+          semana vivida sem aplicação é baixa e apagada, no mesmo lugar,
+          porque ausência precisa ocupar espaço para ser vista; semana
+          prevista é fio. O gráfico agora tem fim porque o plano tem fim —
+          e o fim é a dose de manutenção, não a alta. */}
+      <Row gap={3} style={{ alignItems: 'flex-end', height: 26 }}>
+        {Array.from({ length: previstas }, (_, i) => {
+          const n = i + 1;
+          const futura = n > atual;
+          const hoje = n === atual;
+          const ok = feitas.has(n);
+          return (
+            <View
+              key={n}
+              style={{
+                flex: 1,
+                height: hoje ? 26 : futura ? 7 : ok ? 17 : 9,
+                borderRadius: 2,
+                backgroundColor: hoje ? c.lime
+                  : futura ? 'rgba(255,255,255,0.24)'
+                    : ok ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.32)',
+              }}
+            />
+          );
+        })}
+      </Row>
+
+      {/* O texto embaixo, e não em cima: a forma dá a impressão em um
+          relance, a frase confirma com os números para quem quer o exato.
+          Invertido, a frase seria lida primeiro e a régua viraria enfeite
+          do que já foi dito. */}
+      <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, lineHeight: 20 }}>
         Semana <Txt v="bodyMed" c={c.onHero}>{atual}</Txt> de {previstas} previstas no seu plano ·{' '}
         <Txt v="bodyMed" c={c.lime}>{cumpridas}</Txt> com aplicação em dia
       </Txt>
-
-      {/* dois traços e não vinte: o percurso cumprido e o que resta. A
-          leitura é de proporção, e proporção não precisa de subdivisão. */}
-      <Row gap={4} style={{ marginTop: 12, height: 6 }}>
-        <View style={{ flex: pct, backgroundColor: c.lime, borderRadius: 3 }} />
-        <View style={{ flex: 1 - pct, backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 3 }} />
-      </Row>
     </View>
   );
 }

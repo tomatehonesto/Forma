@@ -97,7 +97,12 @@ function Painel() {
           e as retomadas viram um pixel e a curva parece uma reta. */}
       {serie.length > 1 && (
         <View style={{ marginHorizontal: -PAD, marginTop: 16 }}>
-          <AreaCurve pts={serie} height={84} width={largura} padT={6} padB={0} padX={PAD} strokeW={2}
+          {/* padX 0: a curva encosta nas duas bordas da tela, como a de
+              peso na Home. Com respiro lateral ela lia como gráfico dentro
+              de um card — objeto sobre superfície. Sangrando, ela vira a
+              própria superfície: o painel não CONTÉM a curva, ele É a
+              curva com texto por cima. */}
+          <AreaCurve pts={serie} height={84} width={largura} padT={6} padB={0} padX={0} strokeW={2}
             strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
         </View>
       )}

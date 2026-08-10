@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Morphi",
-    "slug": "norte-app",
+    "slug": "morphi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "norteapp",
+    "scheme": "morphi",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
