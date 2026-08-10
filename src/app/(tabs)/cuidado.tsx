@@ -45,24 +45,33 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 /* A Malha mudou para ui/instrumentos: ela serve a qualquer tela, não
    só a esta. */
 
-/** Régua das semanas de tratamento.
+/** Régua das semanas de tratamento — aberta à direita.
 
-    Um traço por semana, o de hoje em lima e mais alto. Não é gráfico —
-    não há valor nos eixos — é uma linha do tempo: mostra quanto já
-    andou e que a contagem continua. É o elemento que faz o card dizer
-    "acompanhamento contínuo" sem escrever a palavra. */
-function Regua({ semana, total = 24, sobreEscuro = false }: { semana: number; total?: number; sobreEscuro?: boolean }) {
+    Um traço por semana, o de hoje em lima e inteiro. Não é gráfico: não
+    há valor nos eixos. É linha do tempo, e o que ela precisa dizer é que
+    a contagem continua.
+
+    Por isso não tem total fixo. A primeira versão tinha 24 traços, e uma
+    régua com fim promete um fim — na semana 24 ela estaria cheia, e
+    tratamento com GLP-1 não tem data de alta marcada. É o princípio 10:
+    barra fechada só onde existe meta dura. Agora ela cresce com a
+    pessoa e os traços do futuro se apagam progressivamente até sumir na
+    borda, sem nunca completar. */
+function Regua({ semana, adiante = 9, sobreEscuro = false }: { semana: number; adiante?: number; sobreEscuro?: boolean }) {
   const { c } = useTheme();
+  const total = semana + adiante;
   return (
     <Row gap={3} style={{ alignItems: 'flex-end', height: 34 }}>
       {Array.from({ length: total }, (_, i) => {
-        const passada = i < semana;
+        const passada = i < semana - 1;
         const hoje = i === semana - 1;
-        /* o traço de hoje é o único cheio e em lima. O passado fica opaco
-           e o futuro quase apagado — a régua conta o tempo sem prometer um
-           fim, porque tratamento com GLP-1 não tem data de alta marcada */
+        /* o futuro perde opacidade a cada traço: na borda direita ele já
+           não está lá, e é essa dissolução que faz a régua não ter fim */
+        const distancia = (i - (semana - 1)) / adiante;
+        const some = hoje ? 1 : passada ? 1 : Math.max(0.06, 1 - distancia * 1.15);
+
         const cor = sobreEscuro
-          ? (hoje ? c.lime : passada ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.22)')
+          ? (hoje ? c.lime : passada ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.30)')
           : (hoje ? c.accent : passada ? c.accentLine : c.line);
         return (
           <View
@@ -72,6 +81,7 @@ function Regua({ semana, total = 24, sobreEscuro = false }: { semana: number; to
               height: hoje ? 34 : passada ? 17 : 10,
               borderRadius: 2,
               backgroundColor: cor,
+              opacity: some,
             }}
           />
         );
@@ -152,14 +162,23 @@ function Topo() {
         </View>
 
         <View>
-          {/* A régua responde "há quanto tempo alguém olha isso", que é a
-              prova de continuidade que a aba precisa dar de cara. Semana é
-              a unidade certa: dia é curto demais para mostrar constância,
-              mês é longo demais para mostrar ritmo. */}
+          {/* Valor e unidade como dois elementos, nunca a string "10
+              semanas": o número fica legível de relance e a coluna alinha.
+              É o princípio 9, que eu tinha aplicado e perdi quando o
+              número saiu do card na iteração passada.
+
+              A régua embaixo responde "há quanto tempo alguém olha isso",
+              que é a prova de continuidade que a aba precisa dar de cara.
+              Semana é a unidade certa: dia é curto demais para mostrar
+              constância, mês é longo demais para mostrar ritmo. */}
+          <Row gap={9} style={{ alignItems: 'baseline', marginBottom: 14 }}>
+            <Txt v="display" c={c.onHero} style={{ fontSize: 44, lineHeight: 48 }}>{semanas}</Txt>
+            <Txt v="body" c={c.onHero2} style={{ flex: 1 }}>semanas de acompanhamento</Txt>
+          </Row>
           <Regua semana={semanas} sobreEscuro />
           <Row style={{ marginTop: 10 }}>
             <Txt v="micro" c={c.onHero2} style={{ flex: 1 }}>desde {desde}</Txt>
-            <Txt v="micro" c={c.lime}>semana {semanas}</Txt>
+            <Txt v="micro" c={c.lime}>você está aqui</Txt>
           </Row>
         </View>
 
@@ -522,8 +541,11 @@ function Consulta() {
               Eu monto um resumo com peso, adesão e sintomas do período — você escolhe
               o que quer perguntar.
             </Txt>
+            {/* preenchimento tonal, não contorno: o princípio 4 diz que
+                superfície se separa por tom, e um botão em borda cinza é
+                exatamente a borda que a linguagem não tem */}
             <Pressable onPress={go('/companion?q=Prepare%20minha%20consulta')} style={({ pressed }) => [{ marginTop: 14, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
-              <Row gap={8} style={{ borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11 }}>
+              <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11 }}>
                 <Icon name="aura" size={15} color={c.accent} sw={1.9} />
                 <Txt v="label" c={c.accent2}>Preparar com o Companion</Txt>
               </Row>
@@ -557,19 +579,19 @@ function Tratamento() {
     <View style={{ marginTop: 36 }}>
       <SectionHead title="Seu tratamento" link="Aplicações" onPress={go('/aplicacoes')} />
 
-      {/* Card escuro com malha, e não branco.
+      {/* Escuro, mas SEM malha.
 
-          Os instrumentos só existem com luz: uma cápsula que emite lima e
-          um marcador com fulgor precisam de escuro atrás para acender. Em
-          card branco eles viram gráfico de barras colorido — que é
-          exatamente o que a tela tinha antes.
+          A versão anterior tinha malha aqui também, e errava duas vezes.
+          Uma: o princípio 6 diz que atmosfera é evento, não papel de
+          parede — duas superfícies pintadas na mesma rolagem já é papel de
+          parede. Outra, mais prática: fulgor precisa de campo limpo atrás
+          para se ler. Cápsula acesa sobre malha colorida é luz sobre luz,
+          e as duas se anulam.
 
-          E há uma razão de conteúdo: este é o único card da aba que fala
-          da substância no corpo da pessoa. Escuro, ele se destaca dos
-          brancos ao redor como assunto de outra natureza. */}
+          Então o hero fica com a pintura e este card fica com o campo. É a
+          diferença entre o momento de marca e o instrumento — e o
+          instrumento ganha por contraste, não por competição. */}
       <View style={{ borderRadius: radius.xl, marginTop: 14, overflow: 'hidden', backgroundColor: c.altTo }}>
-        <Malha id="cuidadoTratamento" forca={0.9} escura />
-
         <View style={{ padding: 22 }}>
           <Row gap={14}>
             <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, alignItems: 'center', justifyContent: 'center' }}>

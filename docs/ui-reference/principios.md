@@ -179,3 +179,41 @@ com o texto branco por cima de tudo.
 Se o dado cabe num número e o número basta, use texto. Estas peças
 existem para quando comparação, posição numa escala ou passagem do tempo
 é o que importa — e nenhum número sozinho mostra isso.
+
+---
+
+## Auditoria: cinco violações minhas
+
+Reli este documento contra o que eu tinha construído e achei cinco
+lugares onde ousei sem refinar. Ficam registrados porque o erro é mais
+instrutivo que a regra.
+
+**1. Luz interna na cápsula.** Eu tinha posto um reflexo branco no alto
+de cada glifo "para dar volume". É gloss esqueumórfico — o botão lustroso
+de 2008 — e não existe em nenhuma peça da Ron: lá a luz vem da cor
+emitindo para fora, nunca de um highlight especular fingindo vidro por
+dentro. **Regra:** volume se faz com degradê e fulgor. Se a forma precisa
+de reflexo para parecer objeto, o problema é a forma.
+
+**2. Quatro cores na malha.** Usei purple e teal como protagonistas,
+contra o princípio 2, que manda as cores de dado ENCOLHEREM. Ficou bonito
+e de outra marca. **Regra:** a malha é a rampa do azul com um ponto de
+lima; a variação de tom vem da sobreposição, não de acrescentar matiz.
+
+**3. Duas atmosferas na mesma rolagem.** Hero com malha e card de
+tratamento com malha viola o princípio 6 — atmosfera é evento, não papel
+de parede. E tinha um custo prático: fulgor sobre campo pintado é luz
+sobre luz, e as duas se anulam. **Regra:** a pintura fica no momento de
+marca; o instrumento ganha campo limpo.
+
+**4. Botão em contorno cinza.** Contra o princípio 4. Virou preenchimento
+tonal. **Nota:** fio divisor entre linhas de lista NÃO é isso — o
+princípio fala de contorno em volta de superfície.
+
+**5. Régua com fim.** Ela tinha 24 traços fixos: na semana 24 estaria
+cheia, e tratamento com GLP-1 não tem alta marcada. Era o princípio 10
+invertido. **Regra:** a régua cresce com a pessoa e o futuro se dissolve
+até sumir na borda, sem nunca completar.
+
+O padrão dos cinco é o mesmo: ousadia sem o refinamento que a torna
+coerente. Ousar é acrescentar; refinar é tirar o que sobra da ousadia.

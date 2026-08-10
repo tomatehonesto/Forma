@@ -56,18 +56,30 @@ export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: s
      lê sobre qualquer ponto, então a malha pode ocupar o card inteiro. É
      essa que dá vida à tela — cor tímida atrás de texto escuro vira
      papel de parede, e papel de parede não é o que a aba precisava. */
+  /* Só as cores da marca.
+
+     A primeira versão usava purple e teal como protagonistas da malha —
+     e a regra escrita em principios.md é que as cores de dado devem
+     ENCOLHER, não crescer. Eu as fiz crescer, e o resultado era bonito e
+     de outra marca: quatro cores numa superfície é paleta de wallpaper,
+     não identidade.
+
+     Agora a malha é a rampa do azul (accent2 → accent) com um único
+     ponto de lima, pequeno e no canto. Duas cores com papéis, que é o
+     que o Forma tem — e a variação de tom vem da SOBREPOSIÇÃO, não de
+     acrescentar matiz. */
   const blobs = escura
     ? [
-      { k: 'a', cor: c.accent, cx: 0.24, cy: 0.28, r: 0.72, o: 0.95 },
-      { k: 'b', cor: c.purple, cx: 0.88, cy: 0.18, r: 0.62, o: 0.8 },
-      { k: 'c', cor: c.teal, cx: 0.82, cy: 0.92, r: 0.58, o: 0.55 },
-      { k: 'd', cor: c.accent2, cx: 0.12, cy: 1.0, r: 0.66, o: 0.9 },
+      { k: 'a', cor: c.accent, cx: 0.22, cy: 0.26, r: 0.74, o: 0.95 },
+      { k: 'b', cor: c.accent2, cx: 0.86, cy: 0.16, r: 0.66, o: 0.92 },
+      { k: 'c', cor: c.accent, cx: 0.86, cy: 0.94, r: 0.60, o: 0.7 },
+      { k: 'd', cor: c.lime, cx: 0.06, cy: 1.02, r: 0.34, o: 0.3 },
     ]
     : [
-      { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.85 },
-      { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.75 },
-      { k: 'c', cor: c.purple, cx: 0.66, cy: 0.06, r: 0.44, o: 0.45 },
-      { k: 'd', cor: c.teal, cx: 0.96, cy: 0.98, r: 0.40, o: 0.4 },
+      { k: 'a', cor: c.accent2, cx: 0.84, cy: 0.36, r: 0.58, o: 0.82 },
+      { k: 'b', cor: c.accent, cx: 1.02, cy: 0.66, r: 0.52, o: 0.72 },
+      { k: 'c', cor: c.accent, cx: 0.66, cy: 0.06, r: 0.44, o: 0.4 },
+      { k: 'd', cor: c.lime, cx: 0.98, cy: 1.0, r: 0.3, o: 0.22 },
     ];
   /* Coordenadas em 0–100 e preserveAspectRatio="none": a malha se estica
      para o tamanho do pai sem precisar medi-lo. A primeira versão usava
@@ -247,12 +259,18 @@ export function Glifos({
           >
             <View style={{ flex: 1, borderRadius: altura / 2.6, overflow: 'hidden', justifyContent: 'flex-end' }}>
               <View style={{ height: meio ? `${parcial * 100}%` : '100%' }}>
+                {/* Sem reflexo interno.
+
+                    A primeira versão tinha um brilho branco no alto para
+                    "dar volume de cápsula". Era gloss esqueumórfico — o
+                    botão lustroso de 2008 — e não existe em nenhuma peça da
+                    Ron: lá a luz vem da cor emitindo para fora, nunca de um
+                    highlight especular fingindo vidro por dentro.
+
+                    Volume aqui é o degradê mais o fulgor. Se a forma
+                    precisar de reflexo para parecer um objeto, o problema é
+                    a forma. */}
                 <SvgGradFill de={topo} para={base} />
-                {/* reflexo alto: dá volume de cápsula em vez de retângulo */}
-                <View style={{
-                  position: 'absolute', left: '18%', right: '18%', top: '10%', height: '22%',
-                  borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.45)',
-                }} />
               </View>
             </View>
           </View>
