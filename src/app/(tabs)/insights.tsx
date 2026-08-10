@@ -12,7 +12,7 @@ import {
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
-import { Malha, Onda } from '../../ui/instrumentos';
+import { Malha, Orbe } from '../../ui/instrumentos';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
@@ -232,13 +232,25 @@ export default function Insights() {
               nome, contagem e link que ocupava o topo: três elementos de
               interface para dizer o que uma presença diz sozinha. Tocá-lo
               abre a conversa inteira — o caminho continua existindo, só
-              deixou de ocupar espaço. */}
+              deixou de ocupar espaço.
+
+              Voltou a ser esfera. Era uma onda de senóides, e as duas dizem
+              "há uma inteligência aqui" — mas sugerem coisas diferentes: a
+              onda é sinal em trânsito, algo passando; a esfera é um corpo,
+              uma coisa que ESTÁ. Numa aba cuja tese é "existe alguém
+              acompanhando você desde o primeiro dia", presença permanente
+              comunica melhor que sinal.
+
+              A margem negativa recupera a folga que a caixa do orbe carrega
+              embaixo: o reflexo faz parte do desenho e precisa de altura,
+              mas ele é luz que se dissolve, não conteúdo, e o texto abaixo
+              deve se medir pela base da esfera. */}
           <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
-            <Onda c={c} width={Math.min(300, width - PAD * 2)} />
+            <Orbe c={c} size={Math.min(190, width - PAD * 4)} />
           </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
-          <Txt v="note" c={c.onHero2} style={{ marginTop: 4, textAlign: 'center' }}>
+          <Txt v="note" c={c.onHero2} style={{ marginTop: -52, textAlign: 'center' }}>
             Oi, {S.profile.name.split(' ')[0]}
           </Txt>
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>
