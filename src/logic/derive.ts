@@ -216,6 +216,52 @@ export function injCalendar(S: State) {
   return cells;
 }
 
+/* ============================================================
+   GRADE DE SEMANAS — o calendário do acompanhamento
+
+   Uma célula por semana de tratamento, da primeira até hoje mais algumas
+   à frente. Cada célula sabe três coisas: se teve aplicação, quantos
+   check-ins teve, e se é a semana corrente ou ainda por vir.
+
+   É o mesmo dado que a barra de adesão resume num número, e a diferença
+   é o que se enxerga: 87% não mostra ONDE ficaram os buracos, e é
+   justamente o buraco — duas semanas seguidas sem registro em maio — que
+   explica um platô. Um número esconde padrão; uma grade é o padrão.
+   ============================================================ */
+export type SemanaCelula = {
+  n: number;                 // número da semana de tratamento
+  aplicou: boolean;
+  checkins: number;
+  futura: boolean;
+  atual: boolean;
+  mes: string;               // rótulo curto, para agrupar visualmente
+};
+
+export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
+  const ini = startOfDay(new Date(S.profile.startT));
+  const hoje = +startOfDay(now());
+  const decorridas = Math.max(1, Math.floor(diffDays(now(), ini) / 7) + 1);
+  const total = decorridas + adiante;
+
+  const apl = S.injections.map((i: any) => +startOfDay(new Date(i.t)));
+  const chk = (S.checkins as any[]).map((c) => c.t);
+
+  return Array.from({ length: total }, (_, k) => {
+    const de = +addDays(ini, k * 7);
+    const ate = +addDays(ini, (k + 1) * 7);
+    return {
+      n: k + 1,
+      aplicou: apl.some((t) => t >= de && t < ate),
+      checkins: chk.filter((t) => t >= de && t < ate).length,
+      futura: de > hoje,
+      atual: hoje >= de && hoje < ate,
+      mes: MES_CURTO[new Date(de).getMonth()],
+    };
+  });
+}
+
+const MES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
 /* Exames — categorias e explicações (porta verbatim). */
 export const EXAM_CATS: [string, string[]][] = [
   ['Metabólico', ['HbA1c', 'Glicemia jejum', 'Insulina']],
@@ -1391,22 +1437,30 @@ export function nextConsult(S: State) {
 
 /** O que está esperando uma ação da pessoa — e só isso. */
 export function carePending(S: State) {
-  const out: { ic: string; texto: string; to: string; urgente?: boolean }[] = [];
+  /* Título curto e sub explicando: a lista virou ListRow, e ListRow tem
+     duas linhas. O título diz O QUE fazer, o sub diz por que agora — que
+     é a informação que decide se a pessoa toca hoje ou semana que vem. */
+  const out: { ic: string; texto: string; sub?: string; to: string; urgente?: boolean }[] = [];
   const cs = nextConsult(S);
 
   if (S.unread > 0) out.push({
     ic: 'companion',
-    texto: `${S.unread} ${S.unread === 1 ? 'mensagem não lida' : 'mensagens não lidas'}`,
+    texto: `Responder ${S.unread === 1 ? 'a mensagem' : `as ${S.unread} mensagens`} da sua equipe`,
+    sub: 'aguardando sua resposta',
     to: '/medico', urgente: true,
   });
   const p = penStock(S);
   if (!p.verdict.good) out.push({
-    ic: 'pill', texto: `${p.left} doses na caneta — peça a renovação`, to: '/medico',
+    ic: 'pill', texto: 'Peça a renovação da receita',
+    sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
+    to: '/medico',
   });
   const exame = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
-  if (exame) out.push({ ic: 'doc', texto: exame.t, to: '/exames' });
+  if (exame) out.push({ ic: 'doc', texto: exame.t, sub: 'pedido pela sua equipe', to: '/exames' });
   if (cs?.prepararAgora) out.push({
-    ic: 'cal', texto: `Prepare o que levar para a consulta de ${cs.label}`, to: '/consultas',
+    ic: 'cal', texto: 'Prepare o que levar para a consulta',
+    sub: `${cs.tipo.toLowerCase()} ${cs.label} · com ${cs.doutor}`,
+    to: '/consultas',
   });
   return out;
 }
@@ -1546,18 +1600,25 @@ export function careState(S: State) {
   const ad = adesao(S);
   const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
 
-  /* Três números pequenos, sempre os mesmos: duração, volume e qualidade
-     do acompanhamento. Não mudam com o estado porque são o chão — o que
-     muda é a leitura em cima deles. E cada um vem com qualificador: é o
-     princípio 1, o veredito antes do número. */
+  /* Dois números e um rótulo, não três números.
+
+     A primeira versão punha a adesão como terceiro "big number", e ela
+     não é número: é veredito. Escrita em corpo 25 numa coluna de um
+     terço, "Boa adesão" cortava — e a solução não era diminuir a fonte,
+     era reconhecer que ali não cabia um número porque ali não HÁ um.
+     Adesão desceu para a linha do pulso, onde qualificador é a gramática
+     do lugar.
+
+     Os dois que ficaram são contagens de verdade — duração e volume — e
+     por isso ganham a leitura de relance que o princípio 9 pede: valor
+     em cima, unidade embaixo. */
   const adRotulo = ad >= 90 ? 'Boa adesão' : ad >= 70 ? 'Adesão regular' : 'Adesão baixa';
   const metricas: { valor: string; label: string }[] = [
     { valor: String(semanas), label: 'semanas\nde acompanhamento' },
     { valor: String(S.injections.length), label: 'aplicações\nregistradas' },
-    { valor: adRotulo, label: 'ao tratamento' },
   ];
 
-  const base = { metricas, semanas };
+  const base = { metricas, semanas, adesaoRotulo: adRotulo };
 
   if (!hasClinic(S)) return {
     ...base, momento: 'semClinica' as CareMomento, nivel: 'atencao' as CareNivel,
@@ -1574,9 +1635,13 @@ export function careState(S: State) {
     ...base, momento: 'consulta' as CareMomento, nivel: 'atencao' as CareNivel,
     kicker: 'SEU ACOMPANHAMENTO',
     titulo: 'Sua consulta está chegando.',
+    /* O resumo saiu daqui e virou a faixa de vidro no pé do card. Numa
+       frase corrida ele é informação; como faixa, com ícone e chevron,
+       ele é uma coisa que se pode abrir — e era isso que ele queria ser
+       desde o começo. */
     texto: cs.dias === 0
-      ? `Sua consulta com ${cs.doutor} é hoje. A Forma já preparou um resumo da sua evolução.`
-      : `${cs.dias === 1 ? 'Falta 1 dia' : `Faltam ${cs.dias} dias`}. A Forma já preparou um resumo da sua evolução.`,
+      ? `Sua consulta com ${cs.doutor} é hoje. Vale revisar o que você quer perguntar.`
+      : `${cs.dias === 1 ? 'Falta 1 dia' : `Faltam ${cs.dias} dias`} para sua consulta com ${cs.doutor}.`,
     pulso: `Consulta ${cs.label}`,
   };
 

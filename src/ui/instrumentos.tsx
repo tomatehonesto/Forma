@@ -302,6 +302,144 @@ function SvgGradFill({ de, para }: { de: string; para: string }) {
 }
 
 /* ------------------------------------------------------------------ *
+ * NÍVEL — quantidade em traços finos
+ *
+ * A mesma informação do Glifos numa gramática mais discreta: cada
+ * unidade vira um traço vertical fino em vez de uma cápsula cheia. A
+ * cápsula tem corpo e por isso pesa — quatro delas lado a lado viram o
+ * assunto do card. O traço pesa quase nada e continua contável, o que é
+ * o que se quer quando o dado é verdadeiro mas secundário.
+ *
+ * O gasto não some: ele encolhe. Um traço curto e apagado no lugar de
+ * um alto e aceso diz "aqui já foi" melhor do que um vazio, porque a
+ * altura vira uma leitura de nível — como um medidor caindo.
+ * ------------------------------------------------------------------ */
+export function Nivel({
+  total, cheios, de, para, sobreEscuro = false, altura = 30,
+}: {
+  total: number; cheios: number;
+  de?: string; para?: string; sobreEscuro?: boolean; altura?: number;
+}) {
+  const { c } = useTheme();
+  const topo = de ?? c.accent;
+  const base = para ?? c.accent2;
+  const apagado = sobreEscuro ? 'rgba(255,255,255,0.22)' : c.line;
+
+  /* Três traços por unidade, não um. Com um traço só o instrumento vira
+     um gráfico de barras de quatro colunas — que é exatamente o que ele
+     deveria deixar de ser. Em grupos de três a leitura é de TEXTURA:
+     densidade que cai da esquerda para a direita, e as unidades ainda se
+     contam pelos vãos maiores entre os grupos. */
+  const porUnidade = 3;
+
+  return (
+    <Row gap={7} style={{ height: altura, alignItems: 'flex-end' }}>
+      {Array.from({ length: total }, (_, i) => {
+        const cheio = i < cheios;
+        return (
+          <Row key={i} gap={2.5} style={{ flex: 1, alignItems: 'flex-end', height: altura }}>
+            {Array.from({ length: porUnidade }, (_, j) => {
+              /* dentro do grupo os traços sobem um degrauzinho: dá direção
+                 ao conjunto e evita a leitura de "bloco" */
+              const t = (i * porUnidade + j) / (total * porUnidade - 1);
+              const h = cheio ? altura * (0.68 + 0.32 * (j / (porUnidade - 1))) : altura * 0.26;
+              return (
+                <View
+                  key={j}
+                  style={{
+                    flex: 1, height: h, borderRadius: 999,
+                    backgroundColor: cheio ? mixHex(topo, base, t) : apagado,
+                    opacity: cheio ? 1 : 0.9,
+                  }}
+                />
+              );
+            })}
+          </Row>
+        );
+      })}
+    </Row>
+  );
+}
+
+/** Interpolação em hex sem lib — usada pelo Medidor e pelo Nível. */
+function mixHex(a: string, b: string, t: number) {
+  const n = (s: string) => [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16));
+  const [r1, g1, b1] = n(a), [r2, g2, b2] = n(b);
+  const m = (x: number, y: number) => Math.round(x + (y - x) * t);
+  return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`;
+}
+
+/* ------------------------------------------------------------------ *
+ * GRADE — o calendário do acompanhamento
+ *
+ * Uma célula por semana, em linhas. Célula preenchida com marca é semana
+ * cumprida; apagada é semana vazia; contornada é a de agora; translúcida
+ * é futuro.
+ *
+ * O que ela faz que um número não faz: mostra ONDE. "87% de adesão" é
+ * verdade e é opaco — não diz que os buracos foram duas semanas seguidas
+ * em maio, que é a informação que explica um platô. O olho lê a falha
+ * numa grade antes de ler qualquer rótulo, e é por isso que calendário
+ * de contribuição funciona: a ausência tem posição.
+ * ------------------------------------------------------------------ */
+export type GradeCelula = {
+  n: number; cheia: boolean; parcial?: number; atual: boolean; futura: boolean; rotulo?: string;
+};
+
+export function Grade({
+  celulas, colunas = 6, sobreEscuro = false, cor, corVazia,
+}: {
+  celulas: GradeCelula[]; colunas?: number; sobreEscuro?: boolean;
+  cor?: string; corVazia?: string;
+}) {
+  const { c } = useTheme();
+  const acesa = cor ?? c.lime;
+  const vazia = corVazia ?? (sobreEscuro ? 'rgba(255,255,255,0.10)' : c.bg2);
+  const contorno = sobreEscuro ? 'rgba(255,255,255,0.55)' : c.accent;
+  const tinta = sobreEscuro ? c.onHero2 : c.tx3;
+
+  const linhas: GradeCelula[][] = [];
+  for (let i = 0; i < celulas.length; i += colunas) linhas.push(celulas.slice(i, i + colunas));
+
+  return (
+    <View style={{ gap: 6 }}>
+      {linhas.map((linha, li) => (
+        <Row key={li} gap={6}>
+          {linha.map((cel) => (
+            <View
+              key={cel.n}
+              style={{
+                flex: 1, aspectRatio: 1, borderRadius: 11,
+                alignItems: 'center', justifyContent: 'center',
+                backgroundColor: cel.futura ? 'transparent' : cel.cheia ? acesa : vazia,
+                /* só a semana corrente ganha contorno. É o único lugar do
+                   app em que uma borda é o dispositivo certo: aqui ela não
+                   separa superfícies (princípio 4), ela aponta uma célula
+                   dentro de uma grade de iguais. */
+                ...(cel.atual ? { borderWidth: 1.5, borderColor: contorno } : null),
+                ...(cel.futura && !cel.atual ? { borderWidth: 1, borderColor: sobreEscuro ? 'rgba(255,255,255,0.12)' : c.line } : null),
+              }}
+            >
+              <Txt
+                v="micro"
+                c={cel.cheia && !cel.futura ? (sobreEscuro ? c.limeInk : c.limeInk) : cel.futura ? tinta : tinta}
+                style={{ opacity: cel.futura ? 0.5 : 1, fontSize: 11 }}
+              >
+                {cel.rotulo ?? cel.n}
+              </Txt>
+            </View>
+          ))}
+          {/* completa a última linha para as células não esticarem */}
+          {linha.length < colunas && Array.from({ length: colunas - linha.length }, (_, i) => (
+            <View key={`v${i}`} style={{ flex: 1, aspectRatio: 1 }} />
+          ))}
+        </Row>
+      ))}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  * FULGOR — luz atrás do número
  *
  * Um clarão radial posicionado atrás de um valor. Não informa nada

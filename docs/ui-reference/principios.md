@@ -165,6 +165,17 @@ chegou ao limite. No máximo um por tela — dois fulgores é nenhum.
 ponta é o argumento: diz "aqui é agora" e transforma histórico em coisa
 que ainda acontece. Sem eixo nem grade.
 
+**Nível** — traços finos em grupos de três, um grupo por unidade. Diz o
+mesmo que o Glifos numa voz mais baixa: a cápsula tem corpo e vira o
+assunto do card, o traço custa quase nada e continua contável. Para dado
+verdadeiro e secundário — estoque da caneta, copos restantes. A leitura
+é de densidade caindo, que é o que "nível" quer dizer.
+
+**Grade** — uma célula por período, acesa quando cumprido. Para presença
+ao longo do tempo. O que ela faz e um número não faz: mostra ONDE. "87%
+de adesão" é verdade e é opaco; duas células vazias seguidas em maio
+explicam um platô. A ausência ganha posição.
+
 **Segmentado** — pílula de recortes (D · S · M). Só quando as opções são
 o mesmo dado em outra janela; se levam a conteúdos diferentes, são abas.
 
@@ -217,3 +228,12 @@ até sumir na borda, sem nunca completar.
 
 O padrão dos cinco é o mesmo: ousadia sem o refinamento que a torna
 coerente. Ousar é acrescentar; refinar é tirar o que sobra da ousadia.
+
+**6. Peça certa, pergunta errada.** Pus um Medidor em "onde você está no
+ciclo da dose" e o resultado não dizia nada — nem para mim, olhando. A
+causa não era acabamento: o Medidor comunica posição numa faixa
+CONTÍNUA, e o ciclo da dose é contado em dias. Ele respondia uma
+pergunta que ninguém tinha feito. Trocado por sete blocos, um por dia,
+a mesma informação passou a se ler sem legenda. **Regra:** quando um
+instrumento "não diz nada", desconfiar da escolha antes do desenho —
+refinar a peça errada não a torna certa.

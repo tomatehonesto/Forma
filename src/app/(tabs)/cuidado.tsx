@@ -8,12 +8,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
-  doseContext, doseCycle, nextInjectionDate, penStock, M,
+  doseContext, doseCycle, penStock, weekGrid, M,
 } from '../../logic/derive';
-import { CADENCE_DAYS } from '../../logic/meds';
-import { Medidor, Glifos, Malha } from '../../ui/instrumentos';
+import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
-import { Txt, Card, Row, IconBadge, SectionHead, Divider } from '../../ui/kit';
+import { Txt, Card, Row, IconBadge, SectionHead, Divider, ListRow } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { radius } from '../../theme';
@@ -105,7 +104,9 @@ function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
 function Topo() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const router = useRouter();
   const st = careState(S);
+  const cs = nextConsult(S);
 
   /* O pulso muda de cor com o nível, e é a única cor de estado do card.
      Verde não existe na paleta como cor de dado; lima é a cor de "está
@@ -124,7 +125,26 @@ function Topo() {
       <Malha id="cuidadoTopo" forca={1} escura />
 
       <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }}>
-        <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1 }}>{st.kicker}</Txt>
+        {/* O pulso é o kicker.
+
+            Ele estava no pé do card, numa linha só dele, e dizia "3 itens
+            pendentes" — a mesma coisa que o parágrafo logo acima já
+            dizia por extenso. Duas frases sobre o mesmo fato, a uma tela
+            de distância uma da outra, é a redundância que esta rodada
+            veio caçar.
+
+            Como kicker ele deixa de repetir e passa a anunciar: o sinal
+            aparece ANTES da manchete, que é a ordem em que se lê um
+            estado — primeiro a luz acesa, depois o que ela significa. A
+            adesão fecha a linha do outro lado, onde qualificador cabe sem
+            competir. */}
+        <Row gap={9}>
+          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: corPulso }} />
+          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1, flex: 1 }}>
+            {st.pulso.toUpperCase()}
+          </Txt>
+          <Txt v="micro" c={c.onHero2}>{st.adesaoRotulo}</Txt>
+        </Row>
 
         {/* A manchete é a resposta. Ela muda de texto conforme o momento —
             consulta chegando, tratamento atualizado, pendências, tudo em
@@ -138,20 +158,21 @@ function Topo() {
           {st.texto}
         </Txt>
 
-        {/* Três métricas pequenas, em coluna de larguras iguais.
+        {/* Duas métricas pequenas, em colunas de larguras iguais.
 
             Pequenas de propósito: elas são o rodapé da frase, não o
-            assunto. Quando eu as tinha em corpo 44 o número virava o
+            assunto. Quando o número estava em corpo 44 ele virava o
             protagonista e a leitura inteligente virava legenda dele — o
             inverso do que esta aba deve fazer.
 
-            Valor e unidade como dois elementos, nunca a string "10
-            semanas" (princípio 9): assim as três colunas alinham pela
-            linha de base do número, e o olho compara antes de ler. */}
+            Duas e não três: a adesão estava aqui como terceiro "big
+            number" e cortava, porque adesão não é número, é veredito.
+            Encolher a fonte resolveria o corte e não o erro. Ela desceu
+            para a linha do pulso, que é onde qualificador mora. */}
         <Row gap={14} style={{ marginTop: 26, alignItems: 'flex-start' }}>
           {st.metricas.map((m) => (
             <View key={m.label} style={{ flex: 1 }}>
-              <Txt v="h1" c={c.onHero} style={{ fontSize: 25, lineHeight: 29 }} numberOfLines={1}>
+              <Txt v="h1" c={c.onHero} style={{ fontSize: 27, lineHeight: 31 }} numberOfLines={1}>
                 {m.valor}
               </Txt>
               <Txt v="micro" c={c.onHero2} style={{ marginTop: 5, lineHeight: 15 }}>{m.label}</Txt>
@@ -159,13 +180,90 @@ function Topo() {
           ))}
         </Row>
 
-        {/* O pulso fecha o card com o veredito em uma linha. Sem caixa,
-            sem vidro: é um sinal, e sinal com moldura vira aviso. */}
-        <Row gap={9} style={{ marginTop: 24 }}>
-          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: corPulso }} />
-          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 0.4 }}>{st.pulso}</Txt>
-        </Row>
+        {/* A régua das semanas, de volta — e agora dizendo mais.
+
+            Ela tinha saído por narrar a evolução, papel da Jornada. O que
+            faltou perceber é que aqui ela não narra peso: narra
+            PRESENÇA. Cada traço é uma semana, e o traço acende quando
+            houve aplicação naquela semana. Assim ela responde a pergunta
+            que é desta aba — "o tratamento está sendo cumprido?" — com
+            uma forma, e mostra ONDE ficaram os buracos, coisa que a
+            porcentagem de adesão esconde por definição. */}
+        <View style={{ marginTop: 22 }}>
+          <ReguaSemanas />
+        </View>
+
+        {/* A faixa do resumo, de volta ao pé do card.
+
+            Ela tinha virado uma frase dentro do parágrafo de estado — "a
+            Forma já preparou um resumo da sua evolução" — e como frase
+            ela era só informação. Como faixa, com ícone e chevron, é uma
+            coisa que se abre, que é o que ela sempre quis ser.
+
+            E isto não recria a seção da consulta: aquela é sobre a
+            consulta (data, tipo, especialista, preparação); esta é sobre
+            o que a Forma tem PRONTO para você levar. Uma é o compromisso,
+            a outra é o material. */}
+        {!!cs && (
+          <Pressable onPress={() => router.push('/companion?q=Prepare%20minha%20consulta' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
+            <Row gap={12} style={{ marginTop: 22, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="aura" size={16} color={c.onHero} sw={1.9} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="micro" c={c.onHero2}>PARA A CONSULTA {cs.label.toUpperCase()}</Txt>
+                <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }} numberOfLines={1}>
+                  {/* perto da consulta o resumo já existe; longe dela, a
+                      promessa é a certa — dizer "preparei" três semanas
+                      antes seria prometer um documento com dados que ainda
+                      vão mudar */}
+                  {cs.prepararAgora ? 'Seu resumo já está pronto' : 'Vou preparar seu resumo'}
+                </Txt>
+              </View>
+              <Icon name="chev" size={15} color={c.onHero2} sw={2} />
+            </Row>
+          </Pressable>
+        )}
       </View>
+    </View>
+  );
+}
+
+/** A régua das semanas — um traço por semana, aceso onde houve aplicação.
+
+    Aberta à direita: nada aqui promete um fim. As semanas futuras se
+    dissolvem progressivamente até sumir na borda, porque tratamento com
+    GLP-1 não tem data de alta marcada e uma barra que enche promete uma
+    (princípio 10). */
+function ReguaSemanas() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const grade = weekGrid(S, 5);
+  const atual = grade.findIndex((g) => g.atual);
+
+  return (
+    <View>
+      <Row gap={3} style={{ alignItems: 'flex-end', height: 30 }}>
+        {grade.map((g, i) => {
+          /* três alturas, três estados: semana com aplicação é alta e
+             acesa, semana sem é baixa e apagada, futuro é fio. A
+             diferença se lê antes de qualquer rótulo — é o princípio 7,
+             estado embutido na forma. */
+          const dist = atual >= 0 ? (i - atual) / 5 : 0;
+          const some = g.futura ? Math.max(0.08, 1 - dist * 1.2) : 1;
+          const alt = g.atual ? 30 : g.futura ? 8 : g.aplicou ? 20 : 10;
+          const cor = g.atual ? c.lime
+            : g.futura ? 'rgba(255,255,255,0.34)'
+              : g.aplicou ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.30)';
+          return (
+            <View key={g.n} style={{ flex: 1, height: alt, borderRadius: 2, backgroundColor: cor, opacity: some }} />
+          );
+        })}
+      </Row>
+      <Row style={{ marginTop: 8 }}>
+        <Txt v="micro" c={c.onHero2} style={{ flex: 1 }}>traço aceso · semana com aplicação</Txt>
+        <Txt v="micro" c={c.lime}>você está aqui</Txt>
+      </Row>
     </View>
   );
 }
@@ -435,20 +533,20 @@ function Pendencias() {
   return (
     <View style={{ marginTop: 32 }}>
       <SectionHead title="Precisa de você" />
-      <View style={{ marginTop: 14 }}>
+      {/* Mesma UI de "Gerar resumos" no Insights: ListRow com fio, dentro
+          de um card branco. São a mesma coisa — uma pilha de atalhos para
+          um destino cada — e o app já tinha o padrão em duas telas. Ter
+          uma terceira variante aqui obrigava a pessoa a aprender de novo
+          um gesto que ela já sabe. */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 16 }}>
         {itens.map((it, i) => (
-          <Pressable key={it.texto} onPress={() => router.push(it.to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <Row gap={14} style={{ paddingVertical: 15, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: c.line }}>
-              {/* destaque em azul, não em vermelho: nada nesta lista é
-                  emergência — é o que precisa de um toque seu, e o vermelho
-                  fica reservado para o que é clinicamente grave */}
-              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: it.urgente ? c.accentWeak : c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name={it.ic} size={16} color={it.urgente ? c.accent : c.tx2} sw={1.9} />
-              </View>
-              <Txt v="bodyMed" style={{ flex: 1, lineHeight: 22 }}>{it.texto}</Txt>
-              <Icon name="chev" size={15} color={c.tx4} sw={2} />
-            </Row>
-          </Pressable>
+          <React.Fragment key={it.texto}>
+            {i > 0 && <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />}
+            <ListRow
+              ic={it.ic} title={it.texto} sub={it.sub}
+              onPress={() => router.push(it.to as any)}
+            />
+          </React.Fragment>
         ))}
       </View>
     </View>
@@ -528,11 +626,9 @@ function Tratamento() {
   const receita = (S.prescriptions as any[])[0];
   const critico = p.left <= 1;
   const ctx = doseContext(S);
+  /* doseCycle já traz dia e total do ciclo; a fração 0..1 que o Medidor
+     pedia saiu junto com ele */
   const ciclo = doseCycle(S);
-  /* posição entre a última aplicação e a próxima, em 0..1 */
-  const cad = CADENCE_DAYS(S.profile.med);
-  const faltam = diffDays(nextInjectionDate(S), now());
-  const posCiclo = Math.max(0, Math.min(1, (cad - faltam) / cad));
 
   return (
     <View style={{ marginTop: 36 }}>
@@ -580,32 +676,70 @@ function Tratamento() {
 
           <Divider style={{ marginVertical: 20 }} />
 
-          {/* Onde estou no ciclo desta dose.
+          {/* Os dias entre uma aplicação e a próxima.
 
-              Nenhum número diz isso: "aplicou há 4 dias" é dado, mas a
-              posição entre uma aplicação e a próxima é o que explica por
-              que a fome muda ao longo da semana. A escala tem direção — do
-              começo do ciclo ao fim — então os traços caminham do azul
-              claro ao azul forte, e o marcador acende no ponto de hoje. */}
-          <Row style={{ marginBottom: 6 }}>
-            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Onde você está no ciclo</Txt>
+              O Medidor estava aqui e não dizia nada — e o motivo é
+              estrutural, não de acabamento. Uma régua de 28 traços com um
+              marcador comunica POSIÇÃO NUMA FAIXA CONTÍNUA, e o ciclo da
+              dose não é contínuo: é contado em dias, sete deles. O
+              instrumento respondia uma pergunta que ninguém tinha feito,
+              e por isso a resposta soava vazia. O erro não foi o
+              acabamento; foi escolher a peça errada do vocabulário.
+
+              Agora cada bloco é um dia. Os dias vividos vêm cheios, hoje é
+              o alto e aceso, e a seringa marca só as duas pontas: onde a
+              dose entrou e onde a próxima entra. "Dia 4 de 7" e "faltam
+              3" ficam visíveis sem precisarem ser lidos — e o que se lê é
+              o que a pessoa de fato sente, que é onde ela está na semana
+              da própria dose. */}
+          <Row style={{ marginBottom: 12 }}>
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Sua semana de dose</Txt>
             <Txt v="micro" c={c.accent2}>{ciclo.phase.label}</Txt>
           </Row>
-          <Medidor pct={posCiclo} cor={c.accent} escala={[c.bluePale, c.accent2]} altura={30} />
+          <Row gap={5} style={{ alignItems: 'flex-end', height: 42 }}>
+            {Array.from({ length: ciclo.total }, (_, i) => {
+              const dia = i + 1;
+              const passou = dia < ciclo.dayIn;
+              const hoje = dia === ciclo.dayIn;
+              const ponta = dia === 1 || dia === ciclo.total;
+              return (
+                <View
+                  key={dia}
+                  style={{
+                    flex: 1, height: hoje ? 42 : passou ? 28 : 19, borderRadius: 8,
+                    backgroundColor: hoje ? c.accent : passou ? c.accentLine : c.bg2,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  {/* marcar todos os dias com ícone transformaria a fileira
+                      num calendário, e calendário responde outra pergunta */}
+                  {ponta && (
+                    <Icon name="syringe" size={11} color={hoje ? c.accentInk : dia === 1 ? c.accent : c.tx3} sw={2} />
+                  )}
+                </View>
+              );
+            })}
+          </Row>
+          <Row style={{ marginTop: 9 }}>
+            <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>dia {ciclo.dayIn} de {ciclo.total}</Txt>
+            <Txt v="micro" c={c.tx3}>{ctx.proxima.toLowerCase()}</Txt>
+          </Row>
 
           <Divider style={{ marginVertical: 20 }} />
 
-          {/* Doses como cápsulas, não como barra segmentada.
+          {/* Doses em traços finos, não em cápsulas.
 
-              Uma dose é contável e são só quatro — então cada uma tem corpo
-              próprio, com degradê no azul da marca. A que falta fica em
-              contorno vazado: dose gasta não é dose apagada, é dose
-              ausente, e ausência se desenha com o vazio. "3 de 4" deixa de
-              precisar ser lido.
+              A cápsula funcionava — "3 de 4" se lia sem contar. Mas ela
+              tem corpo, e corpo pesa: quatro cápsulas grandes lado a lado
+              viravam o assunto do card, quando o estoque é um dado
+              verdadeiro e secundário. O traço custa quase nada ao olho e
+              continua contável.
 
-              Sem fulgor aqui. O brilho existia para acender sobre campo
-              escuro; sobre branco ele viraria uma auréola suja em volta de
-              cada cápsula. A forma e o degradê seguram sozinhos.
+              E ele diz melhor a coisa certa. Em grupos de três, o que se
+              lê é DENSIDADE caindo da esquerda para a direita — leitura de
+              nível, que é literalmente o que o estoque de uma caneta é. As
+              unidades continuam separáveis pelos vãos maiores entre os
+              grupos, então "3 de 4" não se perde.
 
               Vermelho só quando resta uma dose ou menos. "Vale renovar a
               receita" é lembrete com semanas de antecedência, e pintá-lo de
@@ -616,10 +750,10 @@ function Tratamento() {
             <Txt v="caption" c={critico ? c.cta : p.verdict.good ? c.tx3 : c.accent2}>{p.verdict.label}</Txt>
           </Row>
           <View style={{ marginTop: 14 }}>
-            <Glifos
+            <Nivel
               total={p.total} cheios={p.left}
               de={critico ? c.cta2 : c.accent} para={critico ? c.cta : c.accent2}
-              altura={34}
+              altura={30}
             />
           </View>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>

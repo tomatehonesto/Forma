@@ -8,12 +8,13 @@ import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, checkinToday, M, type Change, type TLEvent, type TLKind, type WeekMetric,
+  waterMlToday, checkinToday, weekGrid, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
+import { Grade } from '../../ui/instrumentos';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius } from '../../theme';
@@ -55,6 +56,12 @@ function Painel() {
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
   const ndDays = diffDays(nd, now());
+  /* três semanas à frente e não mais: o futuro aqui é contexto, e uma
+     fileira inteira de células vazias faz a grade parecer incompleta em
+     vez de aberta */
+  const grade = weekGrid(S, 3);
+  const vividas = grade.filter((g) => !g.futura).length;
+  const aplicadas = grade.filter((g) => !g.futura && g.aplicou).length;
 
   return (
     /* Sobe até o topo da tela: o rótulo da aba já diz "Jornada", então o
@@ -107,33 +114,73 @@ function Painel() {
         <Txt v="caption" c={c.onHero2}>faltam {r.faltamLabel} kg</Txt>
       </Row>
 
-      {/* ---- ciclo da dose ----
-          As barrinhas são os dias entre uma aplicação e a próxima. Sem o
-          "dia X de Y" e sem a explicação da fase, elas não dizem nada. */}
+      {/* ---- o calendário do tratamento ----
+
+          Aqui morava o medidor do ciclo da dose: 56 riscos finos que
+          enchiam da esquerda para a direita conforme os dias passavam.
+          Ele estava tecnicamente correto e era a peça errada para esta
+          aba. O ciclo da dose é um dado de HOJE — dura sete dias e
+          zera —, e Jornada é a aba do ao longo do tempo. Um instrumento
+          que reinicia toda semana não tem nada a dizer sobre uma
+          história de dez.
+
+          A grade tem. Uma célula por semana desde o começo: acesa onde
+          houve aplicação, apagada onde não houve, contornada na semana
+          corrente, desenhada em fio no futuro. É o mesmo dado que a
+          adesão resume em "87%", e a diferença é tudo — a porcentagem
+          esconde ONDE ficaram os buracos, e a grade os põe em posição.
+          Duas semanas vazias seguidas em maio explicam um platô; 87% não
+          explica nada.
+
+          O ciclo da dose não sumiu do app: ele continua no card do
+          tratamento em Cuidado, que é a aba do agora, e em /ciclo — que
+          é para onde este bloco ainda leva. */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <View style={{ marginTop: 46 }}>
+        <View style={{ marginTop: 40 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
-              CICLO DA DOSE · DIA {cyc.dayIn} DE {cyc.total}
+              SEMANA A SEMANA
             </Txt>
             <Txt v="micro" c={c.onHero2}>
               {ndDays <= 0 ? 'dose hoje' : ndDays === 1 ? 'dose amanhã' : `dose em ${ndDays} dias`}
             </Txt>
           </Row>
-          {/* Medidor em traços: cada dia do ciclo vira TRACOS_POR_DIA riscos,
-              então a leitura é contínua sem perder o "dia X de Y". */}
-          <Row gap={3} style={{ marginTop: 12, alignItems: 'center' }}>
-            {Array.from({ length: cyc.total * TRACOS_POR_DIA }).map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  flex: 1, height: 18, borderRadius: radius.pill,
-                  backgroundColor: i < cyc.dayIn * TRACOS_POR_DIA ? c.lime : c.onHeroLine,
-                }}
-              />
-            ))}
+
+          <View style={{ marginTop: 14 }}>
+            <Grade
+              celulas={grade.map((g) => ({
+                n: g.n,
+                cheia: g.aplicou,
+                atual: g.atual,
+                futura: g.futura,
+                rotulo: String(g.n),
+              }))}
+              colunas={7}
+              sobreEscuro
+            />
+          </View>
+
+          {/* A legenda existe porque a grade tem quatro estados, e quatro
+              é mais do que a forma sozinha ensina. Com dois — cheio e
+              vazio — ela seria dispensável. */}
+          <Row gap={14} style={{ marginTop: 14, flexWrap: 'wrap' }}>
+            <Row gap={6}>
+              <View style={{ width: 9, height: 9, borderRadius: 3, backgroundColor: c.lime }} />
+              <Txt v="micro" c={c.onHero2}>semana com aplicação</Txt>
+            </Row>
+            <Row gap={6}>
+              <View style={{ width: 9, height: 9, borderRadius: 3, backgroundColor: c.onHeroLine }} />
+              <Txt v="micro" c={c.onHero2}>sem registro</Txt>
+            </Row>
+            <Row gap={6}>
+              <View style={{ width: 9, height: 9, borderRadius: 3, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.55)' }} />
+              <Txt v="micro" c={c.onHero2}>esta semana</Txt>
+            </Row>
           </Row>
-          <Txt v="caption" c={c.onHero} style={{ marginTop: 10 }}>{cyc.phase.label}</Txt>
+
+          <Txt v="caption" c={c.onHero} style={{ marginTop: 14 }}>
+            {aplicadas} de {vividas} semanas com aplicação · {cyc.phase.label}
+          </Txt>
         </View>
       </Pressable>
 
