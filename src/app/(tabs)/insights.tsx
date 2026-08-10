@@ -37,26 +37,42 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
 const PAD = 24;
 const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
 
-/* O orbe do Companion.
+/* O ORBE NÃO É MAIS UM ARQUIVO.
 
-   A imagem original vinha com fundo azul-quase-preto. Colada assim sobre
-   a aurora ela seria um retângulo escuro, então o fundo virou
-   transparência por LUMINÂNCIA: cada pixel manteve a cor e ganhou alfa
-   igual ao próprio brilho. Numa peça que é só luz sobre preto, essa
-   conversão é exata — o fundo zera sozinho, o halo mantém a queda suave e
-   o resultado se comporta como emissão sobre qualquer superfície.
+   Ele passou por três formas. Desenhado em SVG — halo, reflexo, corpo,
+   brasa e aro em camadas de degradê radial —, chegava perto e não chegava
+   lá. Depois virou PNG recortado do fundo por luminância, e aí o recorte
+   apareceu: onde o halo quase acaba, o dither da imagem de origem vira
+   franja, e franja num objeto que deveria ser contínuo é pior do que a
+   versão desenhada.
 
-   O alfa levou uma gama de 1,45 no caminho. Sem ela, a franja onde o halo
-   quase acaba fica com dois ou três por cento de opacidade e o dither da
-   imagem original aparece como chiado na borda. A gama empurra esse pé
-   para zero de forma contínua, sem criar o recorte duro que um limiar
-   criaria.
+   A saída era não recortar. Agora o orbe faz parte da imagem do hero:
+   mesma peça, mesma luz, mesma renderização, nenhuma borda para dar
+   errado. É a mesma decisão que a aurora já tinha tomado — quando a
+   matéria é o assunto, ela vem inteira.
 
-   600 px de largura para 190 na tela: 3× é o que uma tela de celular
-   moderna pede, e menos que isso borra justamente no aro, que é a parte
-   fina do desenho. */
-const ORBE = require('../../../assets/images/orbe-companion.png');
-const ORBE_W = 190;
+   Sobra em código só a altura que ele ocupa, para o texto começar abaixo
+   dele e para o toque cair em cima dele.
+
+   A IMAGEM FOI ESTICADA PARA 1024×3600, E ISSO É ESTRUTURAL
+
+   Com a peça no formato original (2:3) e contentFit cover, a escala é
+   ditada pela ALTURA do hero — e o hero é estreito e comprido. Resultado:
+   o orbe crescia junto com o conteúdo, chegando a 275 px de diâmetro, e
+   qualquer linha a mais empurrava a esfera para baixo, que empurrava o
+   texto, que aumentava o hero. Um laço sem ponto fixo.
+
+   Alongando a tela da imagem até ficar mais estreita que o hero, a escala
+   passa a ser ditada pela LARGURA, que é fixa. O orbe trava em 141 px e
+   para de reagir ao conteúdo. A parte esticada é a faixa de baixo da
+   própria peça — degradê liso e escuro, sem elemento nenhum —, então a
+   emenda não existe: as cores batem exatamente na fronteira e o que
+   continua é a mesma queda de luz.
+
+   3600 e não 3000 porque em 3000 o cruzamento entre as duas escalas caía
+   exatamente na altura atual do hero. Ficar na fronteira é ficar a uma
+   linha de texto de o laço voltar. */
+const ORBE_ALTURA = 240;
 
 /* As duas medidas da junção entre o hero e a folha.
 
@@ -222,7 +238,15 @@ export default function Insights() {
             source={AURORA_INSIGHTS}
             style={StyleSheet.absoluteFillObject}
             contentFit="cover"
-            contentPosition="center"
+            /* ancorada no topo, não centralizada.
+
+               Com a peça esticada, a imagem é mais alta que o hero — e
+               centralizar corta em cima e embaixo por igual, o que subia o
+               orbe 78 px e o deixava quase encostado na barra de status.
+               Ancorada no topo, a posição da esfera é sempre a mesma
+               fração da largura, e o corte acontece só embaixo, onde só
+               existe degradê. */
+            contentPosition="top center"
           />
           {/* Véu escuro para segurar o contraste do vidro: a aurora tem
               regiões claras, e branco sobre azul-claro não lê.
@@ -262,33 +286,28 @@ export default function Insights() {
               acompanhando você desde o primeiro dia", presença permanente
               comunica melhor que sinal.
 
-              E é imagem, não desenho. Eu tinha construído a esfera em SVG —
-              halo, reflexo, corpo, brasa e aro em cinco camadas de degradê
-              radial — e ela chegava perto sem chegar lá. É o mesmo limite
-              da aurora: cor calculada não tem o grão nem a irregularidade
-              de luz de uma peça renderizada, e numa forma cuja matéria É
-              luz esse é o assunto inteiro, não um detalhe.
+              E ele deixou de ser um elemento.
 
-              O PNG entrou com o fundo convertido em transparência por
-              luminância — cada pixel manteve a cor e ganhou alfa igual ao
-              próprio brilho —, então ele não é um retângulo escuro colado
-              sobre a aurora: é luz sobre luz, e o que estiver atrás
-              atravessa onde o orbe é fraco.
+              Passou por três formas. Desenhado em SVG, chegava perto e não
+              chegava lá — cor calculada não tem o grão de uma peça
+              renderizada, e numa forma cuja matéria É luz isso é o assunto
+              inteiro. Depois virou PNG recortado do fundo por luminância,
+              e o recorte apareceu: onde o halo quase acaba, o dither da
+              imagem vira franja, e franja num objeto que deveria ser
+              contínuo é pior que a versão desenhada.
 
-              A margem negativa recupera a folga que a imagem carrega
-              embaixo: o reflexo faz parte dela e precisa de altura, mas é
-              luz que se dissolve, não conteúdo, e o texto abaixo deve se
-              medir pela base da ESFERA. */}
-          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
-            <Image
-              source={ORBE}
-              style={{ width: ORBE_W, height: ORBE_W * 1.5 }}
-              contentFit="contain"
-            />
-          </Pressable>
+              A saída era não recortar. O orbe agora faz parte da própria
+              imagem do hero — mesma peça, mesma luz, mesma renderização —,
+              então não existe borda para dar errado. É a mesma decisão que
+              a aurora já tinha tomado: quando a matéria é o assunto, ela
+              vem inteira.
+
+              O que sobra aqui é só o toque, invisível, sobre onde o orbe
+              está desenhado. */}
+          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ height: ORBE_ALTURA, opacity: pressed ? 0.85 : 1 }]} />
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
-          <Txt v="note" c={c.onHero2} style={{ marginTop: -78, textAlign: 'center' }}>
+          <Txt v="note" c={c.onHero2} style={{ textAlign: 'center' }}>
             Oi, {S.profile.name.split(' ')[0]}
           </Txt>
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>

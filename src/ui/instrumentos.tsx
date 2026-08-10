@@ -654,7 +654,11 @@ export function Onda({ c, width, height = 96 }: { c: Palette; width: number; hei
    irregularidade de luz de uma peça renderizada. Numa forma cuja matéria
    É luz, isso não é detalhe, é o assunto.
 
-   Virou PNG com o fundo convertido em alfa por luminância, em
-   assets/images/orbe-companion.png. A regra que fica: instrumento se
-   desenha quando a FORMA carrega o dado; quando o que carrega é a
-   matéria, imagem ganha. */
+   Virou PNG recortado por luminância, e o recorte apareceu como franja no
+   pé do halo. Acabou virando parte da própria imagem do hero do Insights,
+   sem recorte nenhum.
+
+   A regra que fica, em duas partes: instrumento se DESENHA quando a forma
+   carrega o dado; quando o que carrega é a matéria, imagem ganha. E
+   quando a peça é luz sobre luz, ela não se recorta — se compõe junto,
+   na mesma renderização. */
