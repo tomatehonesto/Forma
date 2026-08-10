@@ -284,7 +284,19 @@ function LinhaDoPlano() {
           const n = i + 1;
           const futura = n > atual;
           const hoje = n === atual;
-          const ok = feitas.has(n) && !futura;
+          /* O check é o selo de semana ENCERRADA, não de aplicação feita.
+
+             `hoje` fica de fora mesmo quando já houve aplicação nela. Uma
+             semana em curso ainda pode ter dose atrasada, sintoma, consulta
+             remarcada — marcá-la como cumprida no meio do caminho é
+             carimbar um resultado antes de ele existir, e obrigaria o
+             desenho a desmarcar depois, que é a única coisa que um selo
+             não pode fazer.
+
+             É também o que dá sentido ao pontilhado: contorno aberto e
+             ausência de marca dizem a mesma coisa por dois meios, e a
+             célula fica coerente consigo mesma. */
+          const ok = feitas.has(n) && !futura && !hoje;
           return (
             <View
               key={n}
