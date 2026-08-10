@@ -138,12 +138,19 @@ function Topo() {
      parede: a cor não tinha área para acontecer e o texto escuro puxava
      tudo de volta para o registro clínico. Grande e saturado, com texto
      branco, ele deixa de ser um cabeçalho e passa a ser a primeira coisa
-     que a tela É. */
+     que a tela É.
+
+     Altura pelo conteúdo, não fixa. A versão anterior travava 442 px e
+     usava space-between, contando que sobrasse folga para distribuir. Não
+     sobrava: o conteúdo enchia o card e o space-between virava zero,
+     deixando a faixa de vidro colada no texto acima e na borda de baixo.
+     Com espaçamento explícito a medida é a que está escrita — e o card dá
+     nos mesmos ~55% da dobra por consequência do que tem dentro. */
   return (
-    <View style={{ height: 396, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.altMid }}>
+    <View style={{ borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.altMid }}>
       <Malha id="cuidadoTopo" forca={1} escura />
 
-      <View style={{ flex: 1, padding: 24, justifyContent: 'space-between' }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 26 }}>
         <View>
           <Row gap={8}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
@@ -157,11 +164,11 @@ function Topo() {
             {st.titulo}
           </Txt>
           <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, lineHeight: 21, maxWidth: '92%' }}>
-            {st.sub}
+            {st.subCurto}
           </Txt>
         </View>
 
-        <View>
+        <View style={{ marginTop: 30 }}>
           {/* Valor e unidade como dois elementos, nunca a string "10
               semanas": o número fica legível de relance e a coluna alinha.
               É o princípio 9, que eu tinha aplicado e perdi quando o
@@ -186,7 +193,7 @@ function Topo() {
             tranquilizadora que existe aqui — não o que falta fazer, mas
             quando alguém vai olhar de novo. */}
         {!!cs && (
-          <Row gap={12} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>
+          <Row gap={12} style={{ marginTop: 26, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 15 }}>
             <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="cal" size={17} color={c.onHero} sw={1.9} />
             </View>
@@ -579,91 +586,99 @@ function Tratamento() {
     <View style={{ marginTop: 36 }}>
       <SectionHead title="Seu tratamento" link="Aplicações" onPress={go('/aplicacoes')} />
 
-      {/* Escuro, mas SEM malha.
+      {/* Claro, como o resto da aba.
 
-          A versão anterior tinha malha aqui também, e errava duas vezes.
-          Uma: o princípio 6 diz que atmosfera é evento, não papel de
-          parede — duas superfícies pintadas na mesma rolagem já é papel de
-          parede. Outra, mais prática: fulgor precisa de campo limpo atrás
-          para se ler. Cápsula acesa sobre malha colorida é luz sobre luz,
-          e as duas se anulam.
+          A versão anterior era escura com cápsulas em neon. Funcionava
+          como peça, e estava errada como produto: fundo escuro com luz
+          ácida é linguagem de app de performance — treino, corrida,
+          métrica de atleta. Esta é a área médica de alguém em tratamento,
+          e a promessa da aba é calma.
 
-          Então o hero fica com a pintura e este card fica com o campo. É a
-          diferença entre o momento de marca e o instrumento — e o
-          instrumento ganha por contraste, não por competição. */}
-      <View style={{ borderRadius: radius.xl, marginTop: 14, overflow: 'hidden', backgroundColor: c.altTo }}>
+          Também quebrava a identidade por dentro: a atmosfera escura já é
+          o momento de marca do hero, e repeti-la aqui num registro
+          diferente fazia a tela ter duas vozes.
+
+          Os instrumentos ficam — eles não dependiam do escuro, dependiam
+          de contraste. Sobre branco, a cápsula troca o fulgor pelo próprio
+          degradê, e o medidor usa o azul da marca. Instrumento bom se
+          adapta à superfície; o que não se adapta era efeito. */}
+      <View style={{ borderRadius: radius.xl, marginTop: 14, overflow: 'hidden', backgroundColor: c.bg1 }}>
         <View style={{ padding: 22 }}>
           <Row gap={14}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="syringe" size={20} color={c.onHero} sw={1.8} />
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="syringe" size={20} color={c.accent} sw={1.8} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="title" c={c.onHero}>{med.label} {dose} {med.unit}</Txt>
-              <Txt v="caption" c={c.onHero2} style={{ marginTop: 3 }}>
+              <Txt v="title">{med.label} {dose} {med.unit}</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
                 {med.cad === 'weekly' ? '1× por semana' : 'diariamente'} · {receita?.by ?? S.profile.doctor}
               </Txt>
             </View>
           </Row>
 
-          {/* Três frases curtas em vidro. Cada uma é um tempo diferente do
-              mesmo tratamento — o que vem, o que dura, o que será revisto. */}
+          {/* Três frases curtas. Cada uma é um tempo diferente do mesmo
+              tratamento — o que vem, o que dura, o que será revisto. */}
           <Row gap={7} style={{ flexWrap: 'wrap', marginTop: 18 }}>
             {[ctx.proxima, ctx.naDose, ctx.revisao].filter(Boolean).map((frase) => (
-              <View key={frase as string} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginBottom: 3 }}>
-                <Txt v="micro" c={c.onHero}>{frase}</Txt>
+              <View key={frase as string} style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginBottom: 3 }}>
+                <Txt v="micro" c={c.tx2}>{frase}</Txt>
               </View>
             ))}
           </Row>
 
-          <View style={{ height: 1, backgroundColor: c.glassLine, marginVertical: 20 }} />
+          <Divider style={{ marginVertical: 20 }} />
 
           {/* Onde estou no ciclo desta dose.
 
               Nenhum número diz isso: "aplicou há 4 dias" é dado, mas a
               posição entre uma aplicação e a próxima é o que explica por
               que a fome muda ao longo da semana. A escala tem direção — do
-              pico ao vale — então os traços vão do teal ao lima, e o
-              marcador acende no ponto de hoje. */}
+              começo do ciclo ao fim — então os traços caminham do azul
+              claro ao azul forte, e o marcador acende no ponto de hoje. */}
           <Row style={{ marginBottom: 6 }}>
-            <Txt v="caption" c={c.onHero2} style={{ flex: 1 }}>Onde você está no ciclo</Txt>
-            <Txt v="micro" c={c.lime}>{ciclo.phase.label}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Onde você está no ciclo</Txt>
+            <Txt v="micro" c={c.accent2}>{ciclo.phase.label}</Txt>
           </Row>
-          <Medidor pct={posCiclo} cor={c.lime} escala={[c.teal, c.accent2]} altura={30} sobreEscuro />
+          <Medidor pct={posCiclo} cor={c.accent} escala={[c.bluePale, c.accent2]} altura={30} />
 
-          <View style={{ height: 1, backgroundColor: c.glassLine, marginVertical: 20 }} />
+          <Divider style={{ marginVertical: 20 }} />
 
-          {/* Doses como cápsulas acesas, não como barra segmentada.
+          {/* Doses como cápsulas, não como barra segmentada.
 
-              Uma dose é contável e são só quatro — então cada uma pode ter
-              corpo próprio, com degradê e fulgor. A que falta fica em
+              Uma dose é contável e são só quatro — então cada uma tem corpo
+              próprio, com degradê no azul da marca. A que falta fica em
               contorno vazado: dose gasta não é dose apagada, é dose
               ausente, e ausência se desenha com o vazio. "3 de 4" deixa de
               precisar ser lido.
+
+              Sem fulgor aqui. O brilho existia para acender sobre campo
+              escuro; sobre branco ele viraria uma auréola suja em volta de
+              cada cápsula. A forma e o degradê seguram sozinhos.
 
               Vermelho só quando resta uma dose ou menos. "Vale renovar a
               receita" é lembrete com semanas de antecedência, e pintá-lo de
               vermelho o iguala a um problema clínico — que é o que a cor de
               alerta precisa continuar significando neste app. */}
           <Row>
-            <Txt v="caption" c={c.onHero2} style={{ flex: 1 }}>Doses na caneta</Txt>
-            <Txt v="caption" c={critico ? c.cta2 : p.verdict.good ? c.onHero2 : c.lime}>{p.verdict.label}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Doses na caneta</Txt>
+            <Txt v="caption" c={critico ? c.cta : p.verdict.good ? c.tx3 : c.accent2}>{p.verdict.label}</Txt>
           </Row>
           <View style={{ marginTop: 14 }}>
             <Glifos
               total={p.total} cheios={p.left}
-              de={critico ? c.cta2 : c.lime} para={critico ? c.cta : c.teal}
-              altura={34} sobreEscuro
+              de={critico ? c.cta2 : c.accent} para={critico ? c.cta : c.accent2}
+              altura={34}
             />
           </View>
-          <Txt v="caption" c={c.onHero2} style={{ marginTop: 12 }}>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
             {p.left} de {p.total} · cerca de {p.semanas} {p.semanas === 1 ? 'semana' : 'semanas'}
           </Txt>
 
           {!p.verdict.good && (
             <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 18, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
-              <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
-                <Txt v="label" c={c.limeInk}>Pedir renovação</Txt>
-                <Icon name="chev" size={13} color={c.limeInk} sw={2.2} />
+              <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
+                <Txt v="label" c={c.accent2}>Pedir renovação</Txt>
+                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
               </Row>
             </Pressable>
           )}

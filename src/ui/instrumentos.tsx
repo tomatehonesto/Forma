@@ -180,9 +180,10 @@ export function Medidor({
                 height: perto ? altura : naFaixa ? altura * 0.6 : altura * 0.38,
                 borderRadius: 1,
                 backgroundColor: perto ? acento : tom,
-                /* só o traço do marcador acende — fulgor em todos seria
-                   ruído, e o ponto do instrumento é dizer qual é o "aqui" */
-                ...(perto ? {
+                /* só o traço do marcador acende, e só sobre escuro —
+                   fulgor em todos seria ruído, e sobre branco não há
+                   escuro para a luz preencher */
+                ...(perto && sobreEscuro ? {
                   shadowColor: acento, shadowOffset: { width: 0, height: 0 },
                   shadowOpacity: 0.9, shadowRadius: 8, elevation: 4,
                 } : null),
@@ -247,14 +248,18 @@ export function Glifos({
             key={i}
             style={{
               flex: 1, height: altura, borderRadius: altura / 2.6,
-              /* a sombra colorida é o fulgor: o glifo não é pintado de
-                 lima, ele EMITE lima. É o que separa um bloco de cor de
-                 uma coisa acesa, e é barato — sombra, não mais uma camada */
-              shadowColor: topo,
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.75,
-              shadowRadius: 12,
-              elevation: 6,
+              /* A sombra colorida é o fulgor: o glifo não é pintado, ele
+                 EMITE. Mas só sobre escuro — sobre branco a mesma sombra
+                 vira uma auréola suja em volta de cada cápsula, porque não
+                 há escuro para a luz preencher. Emissão precisa de
+                 ausência de luz atrás; sem isso, é sujeira. */
+              ...(sobreEscuro ? {
+                shadowColor: topo,
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.75,
+                shadowRadius: 12,
+                elevation: 6,
+              } : null),
             }}
           >
             <View style={{ flex: 1, borderRadius: altura / 2.6, overflow: 'hidden', justifyContent: 'flex-end' }}>

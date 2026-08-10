@@ -1502,7 +1502,16 @@ export function careStatus(S: State) {
       ? `${S.profile.doctor} acompanha você há ${semanas} semanas, e está tudo em dia por aqui.`
       : `${S.profile.doctor} acompanha você há ${semanas} semanas. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
 
-  return { tiles, quantos: n, titulo, sub };
+  /* A mesma frase sem a duração. Onde o card já mostra "10 semanas" em
+     corpo grande, repetir "acompanha você há 10 semanas" logo acima é
+     dizer o número duas vezes — e a segunda gasta uma linha inteira. */
+  const subCurto = !hasClinic(S)
+    ? sub
+    : n === 0
+      ? `${S.profile.doctor} está com você, e não há nada pendente.`
+      : `Com ${S.profile.doctor}. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
+
+  return { tiles, quantos: n, titulo, sub, subCurto };
 }
 
 /* Contexto do tratamento — as três frases curtas que fazem a dose parecer
