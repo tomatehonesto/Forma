@@ -54,24 +54,20 @@ const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
    Sobra em código só a altura que ele ocupa, para o texto começar abaixo
    dele e para o toque cair em cima dele.
 
-   A IMAGEM FOI ESTICADA PARA 1024×3600, E ISSO É ESTRUTURAL
+   A PEÇA VEM NO FORMATO DA TELA, E ISSO RESOLVEU UM PROBLEMA REAL
 
-   Com a peça no formato original (2:3) e contentFit cover, a escala é
-   ditada pela ALTURA do hero — e o hero é estreito e comprido. Resultado:
-   o orbe crescia junto com o conteúdo, chegando a 275 px de diâmetro, e
-   qualquer linha a mais empurrava a esfera para baixo, que empurrava o
-   texto, que aumentava o hero. Um laço sem ponto fixo.
+   A versão anterior era 2:3 — quase quadrada perto de um hero estreito e
+   comprido. Com contentFit cover a escala fica ditada pela ALTURA, e o
+   orbe crescia junto com o conteúdo: chegou a 275 px de diâmetro, e cada
+   linha a mais empurrava a esfera para baixo, que empurrava o texto, que
+   aumentava o hero. Um laço sem ponto fixo — eu ajustava a margem e o
+   problema voltava maior. Cheguei a esticar a tela da imagem para 3600 px
+   só para tirar a escala das mãos da altura.
 
-   Alongando a tela da imagem até ficar mais estreita que o hero, a escala
-   passa a ser ditada pela LARGURA, que é fixa. O orbe trava em 141 px e
-   para de reagir ao conteúdo. A parte esticada é a faixa de baixo da
-   própria peça — degradê liso e escuro, sem elemento nenhum —, então a
-   emenda não existe: as cores batem exatamente na fronteira e o que
-   continua é a mesma queda de luz.
-
-   3600 e não 3000 porque em 3000 o cruzamento entre as duas escalas caía
-   exatamente na altura atual do hero. Ficar na fronteira é ficar a uma
-   linha de texto de o laço voltar. */
+   Esta vem 853×1844, praticamente a proporção do aparelho. A imagem cabe
+   inteira na altura do hero (nenhuma linha dela é descartada em cima ou
+   embaixo) e o corte acontece nas laterais, onde só existe degradê. O
+   orbe fica em 136 px e o laço some por construção, sem truque nenhum. */
 const ORBE_ALTURA = 240;
 
 /* As duas medidas da junção entre o hero e a folha.
