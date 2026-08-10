@@ -36,6 +36,21 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
 const PAD = 24;
 const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
 
+/* As três medidas da passagem entre o hero e a lista. Vivem juntas porque
+   só fazem sentido em relação:
+
+   RAMPA é o comprimento da difusão. BARRA é o vão do hero abaixo do card
+   da descoberta — a rampa é ancorada no rodapé do hero, então
+   (BARRA − RAMPA) é o quanto ela entra por trás do card. Com 380 e 420 ela
+   entra 40 px, que é a posição já ajustada e aprovada.
+
+   TEXTO_DENTRO é o quanto o título seguinte sobe para dentro da rampa.
+   Em 210 ele cai por volta da metade do percurso, onde o azul já entregou
+   metade do caminho — escuro sobre azul claro, com folga de contraste. */
+const RAMPA = 420;
+const BARRA = 380;
+const TEXTO_DENTRO = 210;
+
 /* Fundo pálido do círculo de ícone, a partir da cor do achado. A paleta já
    tem o par claro de cada cor de dado; sem esse mapa eu teria de compor
    alfa em runtime, e cor com alfa sobre branco não é a mesma coisa que a
@@ -89,31 +104,39 @@ function Dissolucao({ c, width, height }: { c: Palette; width: number; height: n
   return (
     <View style={{ position: 'absolute', left: 0, bottom: 0, width, height }} pointerEvents="none">
       <LinearGradient
-        /* As duas últimas paradas são ambas opacas: a rampa chega ao fundo em
-           88% e o resto é chapado. Terminando em 100% ela nunca alcança
-           opacidade total — a penúltima fileira de pixels fica com uma fração
-           de azul, e essa fração aparece como um fio logo acima do conteúdo
-           seguinte. Fio de meio por cento de cor ainda é fio. */
-        /* Quatorze paradas, e o alfa quase não sai do zero no primeiro
-           terço. É aí que mora a diferença entre uma transição longa e uma
-           transição gradual — a rampa anterior tinha 120 px e já estava em
-           7% na primeira quinta parte, então o olho pegava exatamente onde
-           ela começava. Agora o começo é imperceptível por construção: nos
-           primeiros 25% do percurso o azul perde 3% de força, o que é menos
-           do que a própria aurora varia sozinha naquele trecho.
+        /* Vinte paradas, e o perfil é uma sigmoide: quase parado nas duas
+           pontas, com a mudança concentrada no miolo.
 
-           A aceleração fica concentrada no terço final, e a chegada ao
-           fundo em 92% com cauda chapada — se ela terminasse exatamente em
-           100%, a última fileira de pixels ficaria com uma fração de azul,
-           e fração de cor ainda lê como fio. */
+           A versão anterior era só ease-in — parada no começo e acelerando
+           até o fim. Isso mata o início do degradê, que era o problema
+           original, mas cria outro no fim: quando a rampa chega ao fundo
+           ainda estava a toda velocidade, e uma curva que freia de repente
+           deixa um joelho visível no ponto em que ela encosta na cor de
+           fundo.
+
+           A sigmoide fecha os dois lados. Nos primeiros 20% do percurso o
+           azul perde 2% de força — menos do que a própria aurora varia
+           sozinha ali —, o miolo faz o trabalho, e os últimos 20%
+           voltam a rastejar até encostar. Não há ponto de partida nem
+           ponto de chegada; há só o meio, que é onde a passagem deve
+           acontecer.
+
+           A chegada ao fundo fica em 94% com cauda chapada. Terminando
+           exatamente em 100%, a última fileira de pixels ficaria com uma
+           fração de azul, e fração de cor ainda lê como fio. */
         colors={[
-          'rgba(245,246,250,0)', 'rgba(245,246,250,0.005)', 'rgba(245,246,250,0.015)',
-          'rgba(245,246,250,0.035)', 'rgba(245,246,250,0.065)', 'rgba(245,246,250,0.11)',
-          'rgba(245,246,250,0.17)', 'rgba(245,246,250,0.25)', 'rgba(245,246,250,0.36)',
-          'rgba(245,246,250,0.50)', 'rgba(245,246,250,0.66)', 'rgba(245,246,250,0.83)',
+          'rgba(245,246,250,0)', 'rgba(245,246,250,0.004)', 'rgba(245,246,250,0.012)',
+          'rgba(245,246,250,0.026)', 'rgba(245,246,250,0.048)', 'rgba(245,246,250,0.08)',
+          'rgba(245,246,250,0.125)', 'rgba(245,246,250,0.185)', 'rgba(245,246,250,0.26)',
+          'rgba(245,246,250,0.35)', 'rgba(245,246,250,0.45)', 'rgba(245,246,250,0.55)',
+          'rgba(245,246,250,0.65)', 'rgba(245,246,250,0.74)', 'rgba(245,246,250,0.815)',
+          'rgba(245,246,250,0.875)', 'rgba(245,246,250,0.92)', 'rgba(245,246,250,0.96)',
           'rgba(245,246,250,1)', 'rgba(245,246,250,1)',
         ]}
-        locations={[0, 0.09, 0.17, 0.25, 0.33, 0.41, 0.49, 0.57, 0.65, 0.73, 0.81, 0.87, 0.92, 1]}
+        locations={[
+          0, 0.06, 0.12, 0.18, 0.24, 0.30, 0.36, 0.42, 0.47, 0.52,
+          0.57, 0.62, 0.67, 0.72, 0.77, 0.82, 0.87, 0.91, 0.94, 1,
+        ]}
         style={StyleSheet.absoluteFillObject}
       />
       {/* Duas manchas muito fracas por cima, deslocadas para lados opostos.
@@ -316,7 +339,7 @@ export default function Insights() {
              O custo é o conteúdo seguinte descer 180 px. É um custo real e
              aceito: o hero desta aba é o momento de marca do app, e o que
              vem depois é lista. */
-          paddingTop: insets.top + 76, paddingBottom: 260,
+          paddingTop: insets.top + 76, paddingBottom: BARRA,
           /* O trecho final do degradê é fundo puro, chapado — então o
              conteúdo pode subir para dentro dele sem que nada mude
              visualmente. É encurtar o hero sem encurtar a distância que a
@@ -345,9 +368,27 @@ export default function Insights() {
               ele fica leve, para a aurora aparecer onde ela é bonita, e o
               texto que mora lá (saudação e pergunta) é grande o bastante para
               aguentar. */}
+          {/* O véu agora solta a cauda.
+
+              Ele existe por um motivo só: segurar o contraste do texto
+              branco do card de vidro. Enquanto o hero terminava logo
+              abaixo do card, escurecer até o rodapé não custava nada.
+
+              Com a barra em 380 px, custa: o trecho de baixo é justamente
+              onde a difusão faz o trabalho, e escurecê-lo deixaria o miolo
+              da rampa num tom médio — ruim para o azul, que deveria estar
+              clareando, e pior ainda para o título escuro que agora mora
+              ali dentro.
+
+              Então o véu chega ao máximo no pé do card (70% da altura do
+              bloco) e some daí para baixo. O que protege é protegido; o
+              que precisa clarear, clareia. */}
           <LinearGradient
-            colors={['rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)']}
-            locations={[0, 0.45, 1]}
+            colors={[
+              'rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)',
+              'rgba(4,15,51,0.24)', 'rgba(4,15,51,0)',
+            ]}
+            locations={[0, 0.42, 0.70, 0.84, 1]}
             style={StyleSheet.absoluteFillObject}
             pointerEvents="none"
           />
@@ -374,7 +415,7 @@ export default function Insights() {
               descoberta a lavagem é da ordem de 5%, menos que os 11% da
               versão curta. Esticar a rampa deixou o miolo MAIS limpo, não
               menos. */}
-          <Dissolucao c={c} width={width} height={300} />
+          <Dissolucao c={c} width={width} height={RAMPA} />
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -505,11 +546,29 @@ export default function Insights() {
             de uma descoberta é sempre "e daí?", e a matéria acaba quando
             ela é respondida.
             ============================================================ */}
-        {/* Sem margem no topo: os 80 px até o card da descoberta já são a
-            barra inferior do hero, e somar margem aqui os transformaria em
-            98 — a medida vive num lugar só. */}
+        {/* O título sobe PARA DENTRO da difusão.
+
+            Antes ele começava onde a rampa terminava, e isso dava à
+            transição uma função que ela não deveria ter: a de fronteira.
+            Enquanto o conteúdo espera o azul acabar, o azul é uma parede —
+            um degradê bonito, mas ainda uma parede, e a tela continua sendo
+            duas telas coladas.
+
+            Com o título no meio da rampa, a passagem deixa de ser um lugar
+            por onde não se anda. O azul atravessa o começo da lista em vez
+            de entregá-la, e a leitura não tem ponto de costura: quando a
+            pessoa percebe que está no miolo da tela, já está há um tempo.
+
+            Margem negativa e não redução da barra do hero, porque as duas
+            coisas são independentes: a barra é o comprimento que a rampa
+            precisa para se diluir, e esta margem é onde o texto entra
+            nela. Encolher a barra encurtaria a difusão de novo.
+
+            Ele passa por cima porque é irmão posterior do bloco da aurora —
+            e no ponto onde ele cai a rampa já entregou metade do caminho,
+            então o texto escuro lê sobre azul claro com folga. */}
         {outras.length > 0 && (
-          <View>
+          <View style={{ marginTop: -TEXTO_DENTRO }}>
             <SectionHead title="O que mais percebi" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Outras observações que encontrei analisando sua jornada.
