@@ -12,7 +12,7 @@ import {
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
-import { Malha, Orbe } from '../../ui/instrumentos';
+import { Malha } from '../../ui/instrumentos';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
@@ -36,6 +36,27 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
 
 const PAD = 24;
 const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
+
+/* O orbe do Companion.
+
+   A imagem original vinha com fundo azul-quase-preto. Colada assim sobre
+   a aurora ela seria um retângulo escuro, então o fundo virou
+   transparência por LUMINÂNCIA: cada pixel manteve a cor e ganhou alfa
+   igual ao próprio brilho. Numa peça que é só luz sobre preto, essa
+   conversão é exata — o fundo zera sozinho, o halo mantém a queda suave e
+   o resultado se comporta como emissão sobre qualquer superfície.
+
+   O alfa levou uma gama de 1,45 no caminho. Sem ela, a franja onde o halo
+   quase acaba fica com dois ou três por cento de opacidade e o dither da
+   imagem original aparece como chiado na borda. A gama empurra esse pé
+   para zero de forma contínua, sem criar o recorte duro que um limiar
+   criaria.
+
+   600 px de largura para 190 na tela: 3× é o que uma tela de celular
+   moderna pede, e menos que isso borra justamente no aro, que é a parte
+   fina do desenho. */
+const ORBE = require('../../../assets/images/orbe-companion.png');
+const ORBE_W = 190;
 
 /* As duas medidas da junção entre o hero e a folha.
 
@@ -241,16 +262,33 @@ export default function Insights() {
               acompanhando você desde o primeiro dia", presença permanente
               comunica melhor que sinal.
 
-              A margem negativa recupera a folga que a caixa do orbe carrega
-              embaixo: o reflexo faz parte do desenho e precisa de altura,
-              mas ele é luz que se dissolve, não conteúdo, e o texto abaixo
-              deve se medir pela base da esfera. */}
+              E é imagem, não desenho. Eu tinha construído a esfera em SVG —
+              halo, reflexo, corpo, brasa e aro em cinco camadas de degradê
+              radial — e ela chegava perto sem chegar lá. É o mesmo limite
+              da aurora: cor calculada não tem o grão nem a irregularidade
+              de luz de uma peça renderizada, e numa forma cuja matéria É
+              luz esse é o assunto inteiro, não um detalhe.
+
+              O PNG entrou com o fundo convertido em transparência por
+              luminância — cada pixel manteve a cor e ganhou alfa igual ao
+              próprio brilho —, então ele não é um retângulo escuro colado
+              sobre a aurora: é luz sobre luz, e o que estiver atrás
+              atravessa onde o orbe é fraco.
+
+              A margem negativa recupera a folga que a imagem carrega
+              embaixo: o reflexo faz parte dela e precisa de altura, mas é
+              luz que se dissolve, não conteúdo, e o texto abaixo deve se
+              medir pela base da ESFERA. */}
           <Pressable onPress={go('/companion')} style={({ pressed }) => [{ alignSelf: 'center', opacity: pressed ? 0.8 : 1 }]}>
-            <Orbe c={c} size={Math.min(190, width - PAD * 4)} />
+            <Image
+              source={ORBE}
+              style={{ width: ORBE_W, height: ORBE_W * 1.5 }}
+              contentFit="contain"
+            />
           </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
-          <Txt v="note" c={c.onHero2} style={{ marginTop: -52, textAlign: 'center' }}>
+          <Txt v="note" c={c.onHero2} style={{ marginTop: -78, textAlign: 'center' }}>
             Oi, {S.profile.name.split(' ')[0]}
           </Txt>
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>

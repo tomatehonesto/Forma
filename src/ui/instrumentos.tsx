@@ -648,94 +648,13 @@ export function Onda({ c, width, height = 96 }: { c: Palette; width: number; hei
   );
 }
 
-/* ============================================================
-   ORBE — a presença do Companion, versão esfera
+/* O ORBE morava aqui, desenhado: halo, reflexo, corpo, brasa e aro em
+   cinco camadas de degradê radial. Chegava perto e não chegava lá, e o
+   limite é o mesmo da aurora — cor calculada não tem o grão nem a
+   irregularidade de luz de uma peça renderizada. Numa forma cuja matéria
+   É luz, isso não é detalhe, é o assunto.
 
-   Substituiu a Onda no hero do Insights. As duas dizem "há uma
-   inteligência aqui", e a diferença é o que cada uma sugere: a onda é
-   sinal em trânsito, algo passando; a esfera é um corpo, uma coisa que
-   ESTÁ. Numa aba cuja tese é "existe alguém acompanhando você desde o
-   primeiro dia", presença permanente comunica melhor que sinal.
-
-   Nenhum blur é usado, porque react-native-svg não tem filtro confiável
-   nas duas plataformas. Tudo aqui é degradê radial com queda até zero,
-   que é o mesmo truque da Malha: luz se faz com opacidade caindo, não
-   com desfoque.
-
-   Cinco camadas, de trás para frente:
-
-   1. HALO — elipse larga em azul, quase transparente. É o que faz a
-      esfera parecer emitir em vez de estar colada no fundo.
-   2. REFLEXO — coluna que desce a partir da base, em lima virando azul.
-      Não é sombra: sombra é ausência de luz, e isto é o contrário —
-      luz derramando para baixo. Sem ele a esfera flutua sem chão.
-   3. CORPO — o círculo com a rampa da marca na vertical: azul profundo
-      no alto, azul, e lima na base.
-   4. BRASA — mancha radial de lima concentrada no terço inferior,
-      recortada pelo círculo. É ela que dá o ponto quente da referência;
-      sem ela a rampa é uma transição uniforme e a esfera fica chapada.
-   5. ARO — anel fino de luz, mais forte em cima. Dá a curvatura: sem o
-      aro o círculo lê como disco, com ele lê como volume.
-   ============================================================ */
-export function Orbe({ c, size = 168, id = 'orbe' }: { c: Palette; size?: number; id?: string }) {
-  /* A caixa é mais alta que larga porque o reflexo continua abaixo da
-     esfera. O corpo ocupa a metade de cima. */
-  const w = size, h = size * 1.55;
-  const cx = w / 2, cy = size * 0.5, r = size * 0.42;
-
-  return (
-    <Svg width={w} height={h} pointerEvents="none">
-      <Defs>
-        <RadialGradient id={`${id}Halo`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={c.accent} stopOpacity={0.55} />
-          <Stop offset="0.4" stopColor={c.accent} stopOpacity={0.22} />
-          <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-        </RadialGradient>
-
-        <RadialGradient id={`${id}Reflexo`} cx="50%" cy="0%" r="100%">
-          <Stop offset="0" stopColor={c.lime} stopOpacity={0.85} />
-          <Stop offset="0.22" stopColor={c.lime} stopOpacity={0.45} />
-          <Stop offset="0.5" stopColor={c.teal} stopOpacity={0.26} />
-          <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-        </RadialGradient>
-
-        <SvgGrad id={`${id}Corpo`} x1="0" y1="0" x2="0.15" y2="1">
-          <Stop offset="0" stopColor="#0A1F8A" />
-          <Stop offset="0.34" stopColor={c.accent} />
-          <Stop offset="0.62" stopColor={c.teal} />
-          <Stop offset="0.86" stopColor={c.lime} />
-          <Stop offset="1" stopColor={c.lime} />
-        </SvgGrad>
-
-        <RadialGradient id={`${id}Brasa`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={c.lime} stopOpacity={1} />
-          <Stop offset="0.45" stopColor={c.lime} stopOpacity={0.6} />
-          <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
-        </RadialGradient>
-
-        {/* o aro acende em cima e nas laterais altas, e some na base —
-            é de onde a luz vem que decide onde a borda brilha */}
-        <SvgGrad id={`${id}Aro`} x1="0.2" y1="0" x2="0.8" y2="1">
-          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.85} />
-          <Stop offset="0.35" stopColor="#FFFFFF" stopOpacity={0.35} />
-          <Stop offset="0.7" stopColor={c.lime} stopOpacity={0.25} />
-          <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
-        </SvgGrad>
-
-        <ClipPath id={`${id}Corte`}>
-          <Circle cx={cx} cy={cy} r={r} />
-        </ClipPath>
-      </Defs>
-
-      <Ellipse cx={cx} cy={cy + r * 0.15} rx={r * 2.05} ry={r * 1.75} fill={`url(#${id}Halo)`} />
-      <Ellipse cx={cx} cy={cy + r * 0.72} rx={r * 0.92} ry={r * 1.5} fill={`url(#${id}Reflexo)`} />
-
-      <Circle cx={cx} cy={cy} r={r} fill={`url(#${id}Corpo)`} />
-      <Ellipse
-        cx={cx} cy={cy + r * 0.62} rx={r * 1.05} ry={r * 0.62}
-        fill={`url(#${id}Brasa)`} clipPath={`url(#${id}Corte)`}
-      />
-      <Circle cx={cx} cy={cy} r={r - 0.75} fill="none" stroke={`url(#${id}Aro)`} strokeWidth={1.5} />
-    </Svg>
-  );
-}
+   Virou PNG com o fundo convertido em alfa por luminância, em
+   assets/images/orbe-companion.png. A regra que fica: instrumento se
+   desenha quando a FORMA carrega o dado; quando o que carrega é a
+   matéria, imagem ganha. */
