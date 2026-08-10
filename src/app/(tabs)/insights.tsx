@@ -36,20 +36,18 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
 const PAD = 24;
 const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
 
-/* As três medidas da passagem entre o hero e a lista. Vivem juntas porque
-   só fazem sentido em relação:
+/* As duas medidas da junção entre o hero e a folha.
 
-   RAMPA é o comprimento da difusão. BARRA é o vão do hero abaixo do card
-   da descoberta — a rampa é ancorada no rodapé do hero, então
-   (BARRA − RAMPA) é o quanto ela entra por trás do card. Com 380 e 420 ela
-   entra 40 px, que é a posição já ajustada e aprovada.
+   BARRA é o vão de imagem abaixo do card da descoberta. SOBREPOSICAO é o
+   quanto a folha clara sobe por cima dele. A diferença — 68 menos 36 — é
+   a faixa de aurora que continua visível sob o card, e é ela que faz o
+   card ficar montado sobre a imagem em vez de encostado na borda dela.
 
-   TEXTO_DENTRO é o quanto o título seguinte sobe para dentro da rampa.
-   Em 210 ele cai por volta da metade do percurso, onde o azul já entregou
-   metade do caminho — escuro sobre azul claro, com folga de contraste. */
-const RAMPA = 420;
-const BARRA = 380;
-const TEXTO_DENTRO = 210;
+   Os dois números são os mesmos da Home. Junção idêntica, medida idêntica:
+   se uma tela abrisse 36 e a outra 44, a diferença não leria como
+   variação, leria como descuido. */
+const BARRA = 68;
+const SOBREPOSICAO = 36;
 
 /* Fundo pálido do círculo de ícone, a partir da cor do achado. A paleta já
    tem o par claro de cada cor de dado; sem esse mapa eu teria de compor
@@ -71,97 +69,25 @@ function fundoDe(c: Palette, k: string): string {
    cortada na borda não é insinuação de que há mais, é chip cortada. */
 const CHIPS_MAX = 3;
 
-/* ============================================================
-   DISSOLUÇÃO — como o azul acaba
+/* A DISSOLUÇÃO morava aqui, em quatro versões: 120 px, 300, 420, e um
+   perfil em sigmoide de vinte paradas. Cada uma ficou melhor que a
+   anterior sem nunca ficar certa, e o motivo é que o problema não era o
+   ajuste — era a ideia.
 
-   Degradê linear termina em linha, e linha o olho encontra sempre: por
-   mais longa que seja a queda, existe uma altura em que a tela inteira
-   muda de cor de uma vez, de borda a borda. É o que fazia o fim parecer
-   cortado mesmo depois de esticado.
+   Um degradê que vai da cor ao fundo tenta ESCONDER que existe uma
+   transição, e essa é uma promessa que nenhum degradê cumpre: por mais
+   longa e suave que seja a rampa, existe sempre uma altura em que a tela
+   inteira muda de cor de lado a lado. O olho encontra faixa horizontal
+   antes de encontrar qualquer outra coisa.
 
-   Aqui a cor do fundo entra por cima em três manchas de tamanhos e
-   alturas diferentes, cada uma com queda radial até zero. Onde elas se
-   sobrepõem o azul some antes; onde não chegam, ele sobrevive mais um
-   pouco. O limite deixa de ser uma altura e passa a ser um contorno —
-   irregular, sem lado paralelo à borda da tela.
+   A folha clara com topo arredondado (no corpo da tela) faz o contrário:
+   assume a transição e a transforma em objeto. Não há mistura, há
+   sobreposição — e o raio diz "isto é outra camada" numa forma que se lê
+   de imediato, sem depender de truque de alfa nenhum.
 
-   A faixa sólida no rodapé garante que os últimos pixels são fundo puro,
-   para que o encontro com o conteúdo não tenha emenda nenhuma.
-   ============================================================ */
-function Dissolucao({ c, width, height }: { c: Palette; width: number; height: number }) {
-  /* Antes eram manchas radiais sobrepostas, para que o azul acabasse num
-     contorno irregular em vez de numa linha. O contorno resolvia o corte,
-     mas trazia estrutura própria: onde duas manchas se encontram existe uma
-     crista, e crista é forma — o olho encontra forma tão rápido quanto
-     encontra linha.
-
-     Agora a queda é uma rampa vertical única, e a irregularidade fica por
-     conta da própria aurora, que já é irregular. O que faz a rampa
-     desaparecer é o PERFIL das paradas: alfa distribuído em curva, quase
-     parado no começo e acelerando depois. Numa rampa linear de duas
-     paradas o topo tem uma taxa de mudança constante desde o primeiro
-     pixel, e é justamente isso que se vê como início do degradê. */
-  return (
-    <View style={{ position: 'absolute', left: 0, bottom: 0, width, height }} pointerEvents="none">
-      <LinearGradient
-        /* Vinte paradas, e o perfil é uma sigmoide: quase parado nas duas
-           pontas, com a mudança concentrada no miolo.
-
-           A versão anterior era só ease-in — parada no começo e acelerando
-           até o fim. Isso mata o início do degradê, que era o problema
-           original, mas cria outro no fim: quando a rampa chega ao fundo
-           ainda estava a toda velocidade, e uma curva que freia de repente
-           deixa um joelho visível no ponto em que ela encosta na cor de
-           fundo.
-
-           A sigmoide fecha os dois lados. Nos primeiros 20% do percurso o
-           azul perde 2% de força — menos do que a própria aurora varia
-           sozinha ali —, o miolo faz o trabalho, e os últimos 20%
-           voltam a rastejar até encostar. Não há ponto de partida nem
-           ponto de chegada; há só o meio, que é onde a passagem deve
-           acontecer.
-
-           A chegada ao fundo fica em 94% com cauda chapada. Terminando
-           exatamente em 100%, a última fileira de pixels ficaria com uma
-           fração de azul, e fração de cor ainda lê como fio. */
-        colors={[
-          'rgba(245,246,250,0)', 'rgba(245,246,250,0.004)', 'rgba(245,246,250,0.012)',
-          'rgba(245,246,250,0.026)', 'rgba(245,246,250,0.048)', 'rgba(245,246,250,0.08)',
-          'rgba(245,246,250,0.125)', 'rgba(245,246,250,0.185)', 'rgba(245,246,250,0.26)',
-          'rgba(245,246,250,0.35)', 'rgba(245,246,250,0.45)', 'rgba(245,246,250,0.55)',
-          'rgba(245,246,250,0.65)', 'rgba(245,246,250,0.74)', 'rgba(245,246,250,0.815)',
-          'rgba(245,246,250,0.875)', 'rgba(245,246,250,0.92)', 'rgba(245,246,250,0.96)',
-          'rgba(245,246,250,1)', 'rgba(245,246,250,1)',
-        ]}
-        locations={[
-          0, 0.06, 0.12, 0.18, 0.24, 0.30, 0.36, 0.42, 0.47, 0.52,
-          0.57, 0.62, 0.67, 0.72, 0.77, 0.82, 0.87, 0.91, 0.94, 1,
-        ]}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {/* Duas manchas muito fracas por cima, deslocadas para lados opostos.
-          Não desenham contorno nessa opacidade — só impedem que a rampa
-          fique perfeitamente horizontal, que é o único jeito de uma
-          transição longa denunciar que foi calculada. */}
-      <Svg width={width} height={height} style={StyleSheet.absoluteFillObject}>
-        <Defs>
-          <RadialGradient id="dsf0" cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={c.bg} stopOpacity={0.34} />
-            <Stop offset="0.6" stopColor={c.bg} stopOpacity={0.12} />
-            <Stop offset="1" stopColor={c.bg} stopOpacity={0} />
-          </RadialGradient>
-          <RadialGradient id="dsf1" cx="50%" cy="50%" r="50%">
-            <Stop offset="0" stopColor={c.bg} stopOpacity={0.26} />
-            <Stop offset="0.6" stopColor={c.bg} stopOpacity={0.09} />
-            <Stop offset="1" stopColor={c.bg} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Ellipse cx={width * 0.18} cy={height * 0.78} rx={width * 0.72} ry={height * 0.40} fill="url(#dsf0)" />
-        <Ellipse cx={width * 0.88} cy={height * 0.64} rx={width * 0.62} ry={height * 0.34} fill="url(#dsf1)" />
-      </Svg>
-    </View>
-  );
-}
+   Fica registrado porque o erro é instrutivo: eu estava refinando a
+   execução de uma abordagem que não ia dar certo, e refinar o errado
+   parece progresso porque cada passo de fato melhora. */
 
 /* ============================================================
    ONDA — a presença do Companion
@@ -315,38 +241,16 @@ export default function Insights() {
             ============================================================ */}
         <View style={{
           marginHorizontal: -PAD, paddingHorizontal: PAD,
-          /* a barra de baixo não é respiro: é o comprimento que a cor precisa
-             para chegar ao fundo da tela sem degrau. Sem ela o degradê termina
-             seco, e o corte aparece como uma linha atravessando a tela */
-          /* +48 e não +22: a onda encostava na barra de status. O elemento
+          /* +76 e não +22: a onda encostava na barra de status. O elemento
              que abre a tela precisa de margem antes dele, senão parece que
              o conteúdo começou fora do quadro. */
-          /* A barra inferior é o que separa a base do card do rodapé do hero,
-             e a rampa é ancorada nesse rodapé — o topo dela fica em
-             (barra − altura da rampa) acima do card.
-
-             Com barra 80 e rampa 120 (a versão anterior) ela começava 40 px
-             antes de o card acabar e tinha só 120 px para ir de cheio a
-             zero. Cabia inteira no campo de visão, e transição que se vê de
-             ponta a ponta é lida como faixa, não como dissolução.
-
-             Agora a barra é 260 e a rampa 300: ela ainda entra 40 px por
-             trás do card, e ganhou 180 px de percurso depois dele. É esse
-             trecho de baixo que faz a diferença — é onde o azul realmente
-             se dilui, e ele precisa de comprimento que não caiba num
-             relance.
-
-             O custo é o conteúdo seguinte descer 180 px. É um custo real e
-             aceito: o hero desta aba é o momento de marca do app, e o que
-             vem depois é lista. */
+          /* A barra de baixo era o comprimento que a cor precisava para se
+             diluir — chegou a 380 px na versão do degradê. Com a folha, a
+             cor não se dilui mais: ela é coberta. Então a barra volta a ser
+             o que o nome diz, o vão entre a base do card e o fim da
+             imagem, e 68 px bastam. Descontada a sobreposição da folha,
+             sobram 32 px de aurora visível sob o card. */
           paddingTop: insets.top + 76, paddingBottom: BARRA,
-          /* O trecho final do degradê é fundo puro, chapado — então o
-             conteúdo pode subir para dentro dele sem que nada mude
-             visualmente. É encurtar o hero sem encurtar a distância que a
-             cor tem para chegar ao fundo. Agora é zero: a rampa termina
-             exatamente na borda do hero, então não há sobra de fundo puro
-             para o conteúdo subir por dentro. */
-          marginBottom: 0,
           overflow: 'hidden',
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
@@ -368,54 +272,22 @@ export default function Insights() {
               ele fica leve, para a aurora aparecer onde ela é bonita, e o
               texto que mora lá (saudação e pergunta) é grande o bastante para
               aguentar. */}
-          {/* O véu agora solta a cauda.
+          {/* O véu voltou a escurecer até o rodapé.
 
-              Ele existe por um motivo só: segurar o contraste do texto
-              branco do card de vidro. Enquanto o hero terminava logo
-              abaixo do card, escurecer até o rodapé não custava nada.
-
-              Com a barra em 380 px, custa: o trecho de baixo é justamente
-              onde a difusão faz o trabalho, e escurecê-lo deixaria o miolo
-              da rampa num tom médio — ruim para o azul, que deveria estar
-              clareando, e pior ainda para o título escuro que agora mora
-              ali dentro.
-
-              Então o véu chega ao máximo no pé do card (70% da altura do
-              bloco) e some daí para baixo. O que protege é protegido; o
-              que precisa clarear, clareia. */}
+              Ele tinha soltado a cauda para não sujar o miolo da difusão.
+              Sem difusão, o argumento cai: o que sobra de imagem abaixo do
+              card são 32 px de faixa, e ali escuro é bom — é o que faz a
+              borda clara da folha aparecer contra alguma coisa em vez de
+              contra mais claridade. */}
           <LinearGradient
-            colors={[
-              'rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)',
-              'rgba(4,15,51,0.24)', 'rgba(4,15,51,0)',
-            ]}
-            locations={[0, 0.42, 0.70, 0.84, 1]}
+            colors={['rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)']}
+            locations={[0, 0.45, 1]}
             style={StyleSheet.absoluteFillObject}
             pointerEvents="none"
           />
 
-          {/* o azul não termina numa altura, termina num contorno — e o
-              contorno passa por trás do card da descoberta, não abaixo
-              dele: é isso que põe o card na divisa em vez de encostado
-              nela */}
-          {/* 300 e não 120.
-
-              A transição estava curta e por isso "acabava do nada": 120 px
-              é menos que a altura de um card, então o azul saía de cheio a
-              zero dentro de um só gesto de rolagem e o olho lia o percurso
-              inteiro de uma vez. Transição que cabe no campo de visão é
-              vista como faixa, não como dissolução.
-
-              Com 300 px ela ocupa mais de um terço do bloco da aurora, e
-              como o alfa quase não se move no primeiro terço, os 100 px de
-              cima são indistinguíveis da aurora. O resultado é que não
-              existe um ponto onde ela começa — que é a definição prática
-              de gradual.
-
-              O contraste do vidro continua seguro: na base do card da
-              descoberta a lavagem é da ordem de 5%, menos que os 11% da
-              versão curta. Esticar a rampa deixou o miolo MAIS limpo, não
-              menos. */}
-          <Dissolucao c={c} width={width} height={RAMPA} />
+          {/* A Dissolucao era desenhada aqui. Foi embora inteira — o azul
+              não precisa mais acabar, porque a folha o cobre. */}
 
           {/* O orbe é a única marca do Companion aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
@@ -533,6 +405,43 @@ export default function Insights() {
           )}
         </View>
 
+        {/* ================= FOLHA =================
+
+            A difusão saiu. Ela passou por quatro versões — 120 px, 300,
+            420, perfil em sigmoide — e cada uma ficou melhor que a
+            anterior sem nunca ficar certa. O motivo é que o problema não
+            era o ajuste: era a ideia.
+
+            Um degradê que vai do azul ao fundo tenta esconder que existe
+            uma transição. E esconder é uma promessa que nenhum degradê
+            cumpre, porque a tela tem borda: por mais longa e suave que
+            seja a rampa, existe SEMPRE uma altura em que a coisa toda muda
+            de cor de lado a lado, e o olho encontra faixa horizontal antes
+            de encontrar qualquer outra coisa.
+
+            A folha faz o contrário: assume a transição e a transforma em
+            objeto. Uma superfície clara com o topo arredondado sobe por
+            cima da imagem — não há mistura, há sobreposição, e o
+            arredondamento diz "isto aqui é outra camada" numa forma que se
+            lê de imediato e não depende de nenhum truque de alfa.
+
+            É o que a Home já fazia. Duas telas resolvendo a mesma junção
+            de dois jeitos era eu tratando como problema de arte o que era
+            um padrão do app — e padrão que existe e não se usa é
+            inconsistência gratuita.
+
+            Sobe 36 px por cima do hero: sem a sobreposição, os cantos
+            arredondados revelariam o próprio fundo claro atrás e o raio
+            sumiria. O arredondamento só existe porque tem imagem embaixo
+            dele.
+            ============================================================ */}
+        <View style={{
+          marginHorizontal: -PAD, paddingHorizontal: PAD,
+          backgroundColor: c.bg,
+          borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+          marginTop: -SOBREPOSICAO, paddingTop: 34,
+        }}>
+
         {/* ============================================================
             O CORPO DA MATÉRIA
 
@@ -546,29 +455,10 @@ export default function Insights() {
             de uma descoberta é sempre "e daí?", e a matéria acaba quando
             ela é respondida.
             ============================================================ */}
-        {/* O título sobe PARA DENTRO da difusão.
-
-            Antes ele começava onde a rampa terminava, e isso dava à
-            transição uma função que ela não deveria ter: a de fronteira.
-            Enquanto o conteúdo espera o azul acabar, o azul é uma parede —
-            um degradê bonito, mas ainda uma parede, e a tela continua sendo
-            duas telas coladas.
-
-            Com o título no meio da rampa, a passagem deixa de ser um lugar
-            por onde não se anda. O azul atravessa o começo da lista em vez
-            de entregá-la, e a leitura não tem ponto de costura: quando a
-            pessoa percebe que está no miolo da tela, já está há um tempo.
-
-            Margem negativa e não redução da barra do hero, porque as duas
-            coisas são independentes: a barra é o comprimento que a rampa
-            precisa para se diluir, e esta margem é onde o texto entra
-            nela. Encolher a barra encurtaria a difusão de novo.
-
-            Ele passa por cima porque é irmão posterior do bloco da aurora —
-            e no ponto onde ele cai a rampa já entregou metade do caminho,
-            então o texto escuro lê sobre azul claro com folga. */}
+        {/* Sem margem no topo: o paddingTop da folha já é o respiro, e a
+            medida vive num lugar só. */}
         {outras.length > 0 && (
-          <View style={{ marginTop: -TEXTO_DENTRO }}>
+          <View>
             <SectionHead title="O que mais percebi" />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
               Outras observações que encontrei analisando sua jornada.
@@ -778,6 +668,7 @@ export default function Insights() {
             ela faz é observar, interpretar e organizar — sugerir artigo é
             outro serviço, e ele diluía o último gesto da página. libraryPicks
             segue em derive.ts, servindo a Biblioteca. */}
+        </View>
       </ScrollView>
     </View>
   );
