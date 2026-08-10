@@ -583,7 +583,7 @@ export function Segmentado({
 }
 
 /* ============================================================
-   ONDA — a presença do Companion
+   ONDA — a presença do Morphi
 
    Substituiu a esfera. Esfera é objeto: fica ali, parada, decorativa. A
    onda é sinal — diz que alguém está ouvindo, que há atividade do outro

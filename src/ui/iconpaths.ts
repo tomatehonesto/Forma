@@ -33,7 +33,7 @@ export const P: Record<string, string> = {
   /* O glifo da inteligência do app.
      Eram três arcos concêntricos — desenho que existe há vinte anos com
      um significado só, e não é este: arco sobre arco é sinal de rede.
-     Toda vez que ele aparecia ao lado de "Companion", prometia conexão.
+     Toda vez que ele aparecia ao lado do Morphi, prometia conexão.
      Agora é a estrela de quatro pontas com a satélite menor, que é o
      glifo que o mundo passou a ler como resposta gerada. */
   aura: '<path d="M12 3.2c.85 3.9 2.65 5.7 6.5 6.55-3.85.85-5.65 2.65-6.5 6.55-.85-3.9-2.65-5.7-6.5-6.55C9.35 8.9 11.15 7.1 12 3.2z"/><path d="M18 15.4c.4 1.75 1.2 2.55 2.9 2.95-1.7.4-2.5 1.2-2.9 2.95-.4-1.75-1.2-2.55-2.9-2.95 1.7-.4 2.5-1.2 2.9-2.95z"/>',

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -10,14 +10,14 @@ import {
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
-import { Malha, Onda } from '../ui/instrumentos';
+import { Image } from 'expo-image';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, font } from '../theme';
 
 /* ============================================================
-   COMPANION — a tela para onde tudo aponta
+   MORPHI — a tela para onde tudo aponta
 
    Insights abre com ele, a Jornada oferece "perguntar", Cuidado prepara
    a consulta com ele. Era a única peça central ainda na linguagem antiga:
@@ -26,11 +26,14 @@ import { radius, font } from '../theme';
 
    A IDENTIDADE
 
-   A malha escura virou, ao longo das últimas telas, a voz da
-   inteligência do Morphi — hero de Cuidado, card do "Companion observou"
-   em Insights. Aqui ela chega na origem: o cabeçalho É a superfície, e a
-   conversa acontece sobre a folha clara que sobe por cima dela, com o
-   mesmo raio e a mesma sobreposição de 36 px da Home e do Insights.
+   O cabeçalho é a mesma peça do hero do Insights, com o mesmo orbe no
+   mesmo lugar da composição. Lá ele é a única marca do Morphi na tela e
+   tocá-lo abre esta; aqui ele reaparece idêntico, então o toque deixa de
+   ser navegação e vira aproximação — a tela não abre outra coisa, abre
+   mais perto da mesma coisa.
+
+   A conversa acontece sobre a folha clara que sobe por cima da imagem,
+   com o mesmo raio e a mesma sobreposição de 36 px da Home e do Insights.
 
    Escuro só no alto, e não na tela toda, por uma razão de leitura: fio
    de conversa é texto longo, e texto longo em branco sobre escuro cansa.
@@ -54,6 +57,19 @@ import { radius, font } from '../theme';
 
 const PAD = 24;
 const SOBREPOSICAO = 36;
+const AURORA = require('../../assets/images/aurora-insights.png');
+
+/* Onde a base da esfera cai, em fração da LARGURA da tela.
+
+   A peça é 853×1844 e a esfera vai de y≈200 a y≈430. Com contentFit
+   cover num cabeçalho baixo, quem manda na escala é a largura — então
+   430/853 = 0,504 é a fração que resolve a conta em qualquer aparelho,
+   sem medir nada em runtime.
+
+   Fração da largura e não valor fixo porque a imagem escala com ela: num
+   aparelho mais largo a esfera é maior E desce, e um número em pixels
+   descolaria do desenho exatamente onde ele precisa acompanhar. */
+const ESFERA_BASE_FRACAO = 0.504;
 
 type Msg = { who: 'me' | 'ai'; text: string; mini?: string };
 
@@ -129,6 +145,7 @@ export default function Companion() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: largura } = useWindowDimensions();
   useLightStatusBar();
   const scrollRef = useRef<ScrollView>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -172,14 +189,28 @@ export default function Companion() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
-      {/* ---- o cabeçalho é a superfície ----
+      {/* ---- o cabeçalho é a presença ----
 
-          Não é uma barra de navegação com um avatar: é a presença dele. A
-          malha ocupa tudo, o nome fica em corpo de manchete e o limite
-          vem logo abaixo, no mesmo bloco — porque quem ele é e o que ele
-          não faz são a mesma informação. */}
-      <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 26 + SOBREPOSICAO }}>
-        <Malha id="companionTopo" forca={1} escura />
+          Era a malha escura com um ícone de 44 px ao lado do nome. Agora é
+          a MESMA imagem do hero do Insights, com o mesmo orbe.
+
+          A continuidade é o argumento. Lá o orbe é a única marca do Morphi
+          na tela e tocá-lo abre esta; aqui ele reaparece no mesmo lugar da
+          composição, na mesma luz. O toque deixa de ser navegação e vira
+          aproximação — a tela não abre outra coisa, abre mais perto da
+          mesma coisa. Com ícone e malha, eram dois retratos diferentes do
+          mesmo personagem.
+
+          O nome fica centrado sob a esfera, e o limite logo abaixo, no
+          mesmo bloco: quem ele é e o que ele não faz são a mesma
+          informação. */}
+      <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 24 + SOBREPOSICAO }}>
+        <Image
+          source={AURORA}
+          style={StyleSheet.absoluteFillObject}
+          contentFit="cover"
+          contentPosition="top center"
+        />
 
         <Row gap={12}>
           {/* o botão de voltar sobre campo escuro: vidro e tinta clara, não
@@ -188,20 +219,18 @@ export default function Companion() {
           <View style={{ flex: 1 }} />
         </Row>
 
-        <Row gap={14} style={{ marginTop: 18, alignItems: 'flex-start' }}>
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="aura" size={21} color={c.onHero} sw={1.8} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt v="h2" c={c.onHero}>Companion</Txt>
-            {/* O limite, no cabeçalho e não em termos de uso. Num app que
-                não prescreve, isto não é aviso legal: é a definição do que
-                a coisa é. */}
-            <Txt v="micro" c={c.onHero2} style={{ marginTop: 4, lineHeight: 17 }}>
-              Conhece sua jornada inteira · não substitui sua equipe médica
-            </Txt>
-          </View>
-        </Row>
+        {/* O vão é a esfera. Ela é desenhada na imagem, então aqui só
+            existe como altura reservada — e a medida sai da própria peça:
+            a base da esfera cai em 43% da largura da tela, e o nome começa
+            um respiro abaixo disso. */}
+        <View style={{ height: Math.max(60, largura * ESFERA_BASE_FRACAO - 26) }} />
+
+        <View style={{ alignItems: 'center' }}>
+          <Txt v="h2" c={c.onHero}>Morphi</Txt>
+          <Txt v="micro" c={c.onHero2} style={{ marginTop: 6, lineHeight: 17, textAlign: 'center' }}>
+            Conhece sua jornada inteira · não substitui sua equipe médica
+          </Txt>
+        </View>
       </View>
 
       {/* ---- a folha: onde se lê ----
@@ -222,15 +251,19 @@ export default function Companion() {
               menu disfarçado de conversa — e pior, deixa o fio começando
               com alguém falando sozinho.
 
-              Agora a abertura é estado da tela, não mensagem. A onda diz
-              que há presença, a memória diz que ele lembra da última vez,
-              e as perguntas são o convite. Quando a conversa começa, tudo
-              isso sai de cena em vez de ficar rolado para cima como um
-              primeiro balão sem valor. */}
+              Agora a abertura é estado da tela, não mensagem. A memória diz
+              que ele lembra da última vez, e as perguntas são o convite.
+              Quando a conversa começa, tudo isso sai de cena em vez de
+              ficar rolado para cima como um primeiro balão sem valor.
+
+              A onda que abria este bloco saiu junto. Ela era a presença do
+              Morphi enquanto o cabeçalho tinha só um ícone; com o orbe no
+              alto, ter as duas era mostrar o mesmo personagem duas vezes
+              na mesma dobra, em desenhos diferentes — e a de baixo era a
+              mais fraca. */}
           {vazio ? (
-            <View style={{ alignItems: 'center', paddingTop: 22 }}>
-              <Onda c={c} width={260} height={84} />
-              <Txt v="display" style={{ fontSize: 26, lineHeight: 33, marginTop: 18, textAlign: 'center' }}>
+            <View style={{ alignItems: 'center', paddingTop: 8 }}>
+              <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 Oi, {S.profile.name.split(' ')[0]}
               </Txt>
               {/* A memória é o que separa assistente de buscador: ela prova

@@ -812,7 +812,7 @@ export function recentQuestions(S: State): string[] {
   return [...new Set(a.slice().reverse().map((x) => x.q))].slice(0, 3);
 }
 
-/* Sugestões para o Companion — o que faz sentido perguntar AGORA.
+/* Sugestões para o Morphi — o que faz sentido perguntar AGORA.
 
    Pergunta sugerida é a porta de entrada da IA: se ela vier genérica
    ("Como está minha evolução?" sempre), a inteligência não se prova. As

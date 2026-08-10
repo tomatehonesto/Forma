@@ -673,7 +673,7 @@ function Consulta() {
             <Pressable onPress={go('/companion?q=Prepare%20minha%20consulta')} style={({ pressed }) => [{ marginTop: 14, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11 }}>
                 <Icon name="aura" size={15} color={c.accent} sw={1.9} />
-                <Txt v="label" c={c.accent2}>Preparar com o Companion</Txt>
+                <Txt v="label" c={c.accent2}>Preparar com o Morphi</Txt>
               </Row>
             </Pressable>
           </>

@@ -32,7 +32,7 @@ import { radius } from '../theme';
    O QUE ESTA TELA NÃO FAZ
 
    Não pinta. A malha escura é a voz da inteligência do Morphi — hero de
-   Cuidado, card do Companion em Insights — e usá-la aqui diluiria o
+   Cuidado, card do Morphi em Insights — e usá-la aqui diluiria o
    significado dela em troca de bonito. O princípio 6 diz que atmosfera é
    evento; configuração não é evento. A malha clara aparece uma vez, atrás
    da identidade, no mesmo papel que tem no banner da especialista: fundo

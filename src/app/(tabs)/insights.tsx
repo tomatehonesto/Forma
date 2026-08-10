@@ -25,7 +25,7 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
    A Home responde "como estou hoje", a Jornada "por onde passei". Esta
    tela responde "o que isso quer dizer".
 
-   A ordem não é arbitrária. O Companion abre porque é a porta da
+   A ordem não é arbitrária. O Morphi abre porque é a porta da
    inteligência; as descobertas vêm logo depois porque são a prova de que
    essa inteligência conhece a pessoa; os padrões explicam o comportamento;
    só então vêm as ações. Renovar receita é importante, mas é tarefa — e
@@ -123,8 +123,8 @@ const CHIPS_MAX = 3;
    execução de uma abordagem que não ia dar certo, e refinar o errado
    parece progresso porque cada passo de fato melhora. */
 
-/* A ONDA mudou para ui/instrumentos. Ela é a presença do Companion,
-   e o Companion tem tela propria — peça que aparece em dois lugares
+/* A ONDA mudou para ui/instrumentos. Ela é a presença do Morphi,
+   e o Morphi tem tela propria — peça que aparece em dois lugares
    nao mora dentro de um deles. */
 
 export default function Insights() {
@@ -201,7 +201,7 @@ export default function Insights() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
 
         {/* ============================================================
-            O COMPANION ABRE A TELA
+            O MORPHI ABRE A TELA
 
             Sem card. A cor entra escura no topo e morre em branco onde o
             conteúdo começa — o hero não tem borda, tem fim. Card definido
@@ -269,7 +269,7 @@ export default function Insights() {
           {/* A Dissolucao era desenhada aqui. Foi embora inteira — o azul
               não precisa mais acabar, porque a folha o cobre. */}
 
-          {/* O orbe é a única marca do Companion aqui. Substitui a linha de
+          {/* O orbe é a única marca do Morphi aqui. Substitui a linha de
               nome, contagem e link que ocupava o topo: três elementos de
               interface para dizer o que uma presença diz sozinha. Tocá-lo
               abre a conversa inteira — o caminho continua existindo, só
@@ -345,7 +345,7 @@ export default function Insights() {
 
               Em vidro, como o campo: chip branca sólida virava botão e
               competia com o card branco que vem logo abaixo. Translúcida,
-              ela pertence ao ambiente do Companion. */}
+              ela pertence ao ambiente do Morphi. */}
           <View style={{ marginTop: 20, alignItems: 'center', gap: 8 }}>
             {chips.map(({ q }) => (
               <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1, maxWidth: '100%' }]}>
@@ -380,14 +380,14 @@ export default function Insights() {
               virou só distância.
 
               80 é o mesmo respiro que separa os blocos grandes no resto do
-              app. Aqui ele fecha o gesto do Companion — pergunta, campo,
+              app. Aqui ele fecha o gesto do Morphi — pergunta, campo,
               chips — e abre o próximo, em vez de deixar as chips soltas no
               meio de um vazio. */}
           {destaque && (
             <Pressable onPress={perguntar(destaque.q)} style={({ pressed }) => [{ marginTop: 80, opacity: pressed ? 0.85 : 1 }]}>
               {/* Em vidro, como o campo e as chips. Opaco ele era um objeto
                   pousado sobre o azul; translúcido, pertence ao ambiente do
-                  Companion — e a descoberta É fala dele, não conteúdo da
+                  Morphi — e a descoberta É fala dele, não conteúdo da
                   página. Por isso o card fica inteiro sobre cor chapada, e a
                   dissolução só começa depois dele. */}
               <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.xl, padding: 24, overflow: 'hidden' }}>
@@ -530,7 +530,7 @@ export default function Insights() {
         {/* ============================================================
             O EQUILÍBRIO
 
-            Sem título de seção e sem card: é o Companion falando de novo,
+            Sem título de seção e sem card: é o Morphi falando de novo,
             na mesma coluna de texto da matéria. O que muda de registro é o
             fundo escuro — a fala dele tem a cor da aba, e é isso que
             separa o que ele diz do que a página apresenta.
@@ -553,7 +553,7 @@ export default function Insights() {
             O card era `altTo` chapado — o azul mais escuro da rampa, e
             portanto tecnicamente da marca. Mas cor chapada num app cujas
             duas superfícies escuras são pintadas lia como um retângulo
-            desligado das duas: o mesmo registro de "fala do Companion" que
+            desligado das duas: o mesmo registro de "fala do Morphi" que
             a Cuidado usa, sem o material que o faz parecer isso.
 
             Com a malha ele passa a pertencer. O verde-água que nasce do
@@ -570,7 +570,7 @@ export default function Insights() {
           <View style={{ padding: 24 }}>
           <Row gap={9}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
-            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>COMPANION OBSERVOU</Txt>
+            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>MORPHI OBSERVOU</Txt>
           </Row>
           <Txt v="display" c={c.onHero} style={{ fontSize: 22, lineHeight: 29, marginTop: 16 }}>
             {eq.abertura}

@@ -189,7 +189,7 @@ export function buildSeed() {
       { t: +daysAgo(60), name: 'Checklist da semana', kind: 'Checklist', meta: '8 itens', ic: 'check', motivo: 'Atualizado toda segunda' },
     ],
 
-    /* Perguntas feitas ao Companion. Guarda só o texto e a hora — a
+    /* Perguntas feitas ao Morphi. Guarda só o texto e a hora — a
        resposta é sempre recalculada sobre o estado atual, então
        persistir a thread inteira envelheceria o dado. */
     asked: [] as { t: number; q: string }[],
