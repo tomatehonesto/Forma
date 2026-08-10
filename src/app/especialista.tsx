@@ -15,7 +15,7 @@ const FOTO = require('../../assets/images/especialista.png');
 /* ============================================================
    ESPECIALISTA — quem assina o seu tratamento
 
-   Existe por uma razão específica: o Forma não prescreve nada. Dose,
+   Existe por uma razão específica: o Morphi não prescreve nada. Dose,
    protocolo e ajuste são decisão médica, e o app repete isso em todas as
    telas. Então a pergunta "quem é essa pessoa que decide?" precisa ter
    uma resposta, e ela precisa ser verificável — CRM, formação, tempo de
@@ -181,7 +181,7 @@ export default function Especialista() {
               </View>
               <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
                 Dose, protocolo e qualquer ajuste no tratamento são decisão de {S.profile.doctor}.
-                O Forma organiza seus registros e prepara o que levar — não prescreve.
+                O Morphi organiza seus registros e prepara o que levar — não prescreve.
               </Txt>
             </Row>
           </View>

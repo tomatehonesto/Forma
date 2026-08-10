@@ -418,7 +418,7 @@ export default function Home() {
             ) : (
               /* sem clinica vinculada — o acompanhamento vira convite */
               <Card style={{ marginTop: 16 }} onPress={go('/medico')}>
-                <Txt v="title">Você ainda não tem uma equipe no Forma</Txt>
+                <Txt v="title">Você ainda não tem uma equipe no Morphi</Txt>
                 <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
                   Encontre um especialista credenciado para acompanhar seu tratamento de perto.
                 </Txt>

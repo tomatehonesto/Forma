@@ -100,7 +100,7 @@ export default function Perfil() {
             <IconBadge name="steth" size={42} color={c.tx3} bg={c.bg2} />
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Txt v="title">Conectar a uma clínica</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Sua equipe acompanha sua evolução de perto — opcional, o Forma funciona completo sem vínculo.</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Sua equipe acompanha sua evolução de perto — opcional, o Morphi funciona completo sem vínculo.</Txt>
             </View>
             <Chevron />
           </Row>
@@ -109,7 +109,7 @@ export default function Perfil() {
 
       <Group title="Conta" items={[
         ['user', 'Dados pessoais', 'Nome, e-mail e informações de saúde', undefined],
-        ['leaf', 'Plano', 'Forma Pessoal · gratuito', undefined],
+        ['leaf', 'Plano', 'Morphi Pessoal · gratuito', undefined],
         ['trend', 'Dispositivos e integrações', 'Apple Health, Withings e mais', go('/integracoes')],
       ]} />
 

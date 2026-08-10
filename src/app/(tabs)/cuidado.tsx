@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
-  doseContext, doseCycle, penStock, weekGrid, M,
+  doseContext, doseCycle, penStock, M,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
@@ -180,17 +180,9 @@ function Topo() {
           ))}
         </Row>
 
-        {/* A régua das semanas, de volta — e agora dizendo mais.
-
-            Ela tinha saído por narrar a evolução, papel da Jornada. O que
-            faltou perceber é que aqui ela não narra peso: narra
-            PRESENÇA. Cada traço é uma semana, e o traço acende quando
-            houve aplicação naquela semana. Assim ela responde a pergunta
-            que é desta aba — "o tratamento está sendo cumprido?" — com
-            uma forma, e mostra ONDE ficaram os buracos, coisa que a
-            porcentagem de adesão esconde por definição. */}
+        {/* Onde você está dentro do plano. */}
         <View style={{ marginTop: 22 }}>
-          <ReguaSemanas />
+          <LinhaDoPlano />
         </View>
 
         {/* A faixa do resumo, de volta ao pé do card.
@@ -229,40 +221,42 @@ function Topo() {
   );
 }
 
-/** A régua das semanas — um traço por semana, aceso onde houve aplicação.
+/** O plano, em uma frase e uma linha.
 
-    Aberta à direita: nada aqui promete um fim. As semanas futuras se
-    dissolvem progressivamente até sumir na borda, porque tratamento com
-    GLP-1 não tem data de alta marcada e uma barra que enche promete uma
-    (princípio 10). */
-function ReguaSemanas() {
+    A régua de traços que morava aqui não dizia nada, e a causa não era o
+    desenho: era a falta de DENOMINADOR. Onze traços acesos não
+    significam coisa alguma sem saber quantos existem ao todo — barra sem
+    total é decoração com aparência de dado. Eu tinha tirado o total de
+    propósito, para não prometer uma alta que o tratamento não tem, e ao
+    tirá-lo tirei junto a única coisa que dava sentido à forma.
+
+    A saída é dizer qual total é esse. Não é alta: é o horizonte do plano
+    que a equipe traçou até a dose de manutenção. Com ele nomeado, a
+    frase se sustenta sozinha e a barra vira o que ela deve ser — a
+    confirmação visual de uma leitura que já foi feita em palavras.
+
+    A parte além da semana atual fica em fio e não em vazio: plano é
+    previsão, não promessa, e um trecho apagado esperando ser preenchido
+    daria à continuação um ar de obrigação. */
+function LinhaDoPlano() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const grade = weekGrid(S, 5);
-  const atual = grade.findIndex((g) => g.atual);
+  const st = careState(S);
+  const { previstas, atual, cumpridas } = st.plano;
+  const pct = Math.max(0, Math.min(1, atual / previstas));
 
   return (
     <View>
-      <Row gap={3} style={{ alignItems: 'flex-end', height: 30 }}>
-        {grade.map((g, i) => {
-          /* três alturas, três estados: semana com aplicação é alta e
-             acesa, semana sem é baixa e apagada, futuro é fio. A
-             diferença se lê antes de qualquer rótulo — é o princípio 7,
-             estado embutido na forma. */
-          const dist = atual >= 0 ? (i - atual) / 5 : 0;
-          const some = g.futura ? Math.max(0.08, 1 - dist * 1.2) : 1;
-          const alt = g.atual ? 30 : g.futura ? 8 : g.aplicou ? 20 : 10;
-          const cor = g.atual ? c.lime
-            : g.futura ? 'rgba(255,255,255,0.34)'
-              : g.aplicou ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.30)';
-          return (
-            <View key={g.n} style={{ flex: 1, height: alt, borderRadius: 2, backgroundColor: cor, opacity: some }} />
-          );
-        })}
-      </Row>
-      <Row style={{ marginTop: 8 }}>
-        <Txt v="micro" c={c.onHero2} style={{ flex: 1 }}>traço aceso · semana com aplicação</Txt>
-        <Txt v="micro" c={c.lime}>você está aqui</Txt>
+      <Txt v="caption" c={c.onHero} style={{ lineHeight: 21 }}>
+        Semana <Txt v="bodyMed" c={c.onHero}>{atual}</Txt> de {previstas} previstas no seu plano ·{' '}
+        <Txt v="bodyMed" c={c.lime}>{cumpridas}</Txt> com aplicação em dia
+      </Txt>
+
+      {/* dois traços e não vinte: o percurso cumprido e o que resta. A
+          leitura é de proporção, e proporção não precisa de subdivisão. */}
+      <Row gap={4} style={{ marginTop: 12, height: 6 }}>
+        <View style={{ flex: pct, backgroundColor: c.lime, borderRadius: 3 }} />
+        <View style={{ flex: 1 - pct, backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 3 }} />
       </Row>
     </View>
   );
@@ -676,70 +670,19 @@ function Tratamento() {
 
           <Divider style={{ marginVertical: 20 }} />
 
-          {/* Os dias entre uma aplicação e a próxima.
+          {/* Doses em traços deitados, um por dose.
 
-              O Medidor estava aqui e não dizia nada — e o motivo é
-              estrutural, não de acabamento. Uma régua de 28 traços com um
-              marcador comunica POSIÇÃO NUMA FAIXA CONTÍNUA, e o ciclo da
-              dose não é contínuo: é contado em dias, sete deles. O
-              instrumento respondia uma pergunta que ninguém tinha feito,
-              e por isso a resposta soava vazia. O erro não foi o
-              acabamento; foi escolher a peça errada do vocabulário.
+              Passou por duas versões erradas. A cápsula em pé tinha corpo
+              demais e virava o assunto do card. Os grupos de três em
+              escadinha vieram depois e erraram pior: a escadinha sugeria
+              que uma dose vale mais que a outra, e não vale — quatro
+              doses são quatro iguais. Sempre que a forma insinua uma
+              diferença que o dado não tem, ela mente.
 
-              Agora cada bloco é um dia. Os dias vividos vêm cheios, hoje é
-              o alto e aceso, e a seringa marca só as duas pontas: onde a
-              dose entrou e onde a próxima entra. "Dia 4 de 7" e "faltam
-              3" ficam visíveis sem precisarem ser lidos — e o que se lê é
-              o que a pessoa de fato sente, que é onde ela está na semana
-              da própria dose. */}
-          <Row style={{ marginBottom: 12 }}>
-            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Sua semana de dose</Txt>
-            <Txt v="micro" c={c.accent2}>{ciclo.phase.label}</Txt>
-          </Row>
-          <Row gap={5} style={{ alignItems: 'flex-end', height: 42 }}>
-            {Array.from({ length: ciclo.total }, (_, i) => {
-              const dia = i + 1;
-              const passou = dia < ciclo.dayIn;
-              const hoje = dia === ciclo.dayIn;
-              const ponta = dia === 1 || dia === ciclo.total;
-              return (
-                <View
-                  key={dia}
-                  style={{
-                    flex: 1, height: hoje ? 42 : passou ? 28 : 19, borderRadius: 8,
-                    backgroundColor: hoje ? c.accent : passou ? c.accentLine : c.bg2,
-                    alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  {/* marcar todos os dias com ícone transformaria a fileira
-                      num calendário, e calendário responde outra pergunta */}
-                  {ponta && (
-                    <Icon name="syringe" size={11} color={hoje ? c.accentInk : dia === 1 ? c.accent : c.tx3} sw={2} />
-                  )}
-                </View>
-              );
-            })}
-          </Row>
-          <Row style={{ marginTop: 9 }}>
-            <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>dia {ciclo.dayIn} de {ciclo.total}</Txt>
-            <Txt v="micro" c={c.tx3}>{ctx.proxima.toLowerCase()}</Txt>
-          </Row>
-
-          <Divider style={{ marginVertical: 20 }} />
-
-          {/* Doses em traços finos, não em cápsulas.
-
-              A cápsula funcionava — "3 de 4" se lia sem contar. Mas ela
-              tem corpo, e corpo pesa: quatro cápsulas grandes lado a lado
-              viravam o assunto do card, quando o estoque é um dado
-              verdadeiro e secundário. O traço custa quase nada ao olho e
-              continua contável.
-
-              E ele diz melhor a coisa certa. Em grupos de três, o que se
-              lê é DENSIDADE caindo da esquerda para a direita — leitura de
-              nível, que é literalmente o que o estoque de uma caneta é. As
-              unidades continuam separáveis pelos vãos maiores entre os
-              grupos, então "3 de 4" não se perde.
+              Agora é um traço por dose, todos do mesmo tamanho, deitados
+              com vão entre eles. Deitado porque a leitura é de SEQUÊNCIA
+              — as doses se gastam em ordem — e a gasta fica no mesmo
+              lugar, apagada: a posição é o que conta.
 
               Vermelho só quando resta uma dose ou menos. "Vale renovar a
               receita" é lembrete com semanas de antecedência, e pintá-lo de
@@ -753,7 +696,7 @@ function Tratamento() {
             <Nivel
               total={p.total} cheios={p.left}
               de={critico ? c.cta2 : c.accent} para={critico ? c.cta : c.accent2}
-              altura={30}
+              altura={9}
             />
           </View>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
@@ -838,7 +781,7 @@ function Descoberta() {
         <IconBadge name="heart" size={48} bg={c.bg1} />
         <Txt v="h2" style={{ marginTop: 14 }}>Encontre quem acompanhe seu tratamento</Txt>
         <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>
-          Você pode seguir sozinha no Forma. Mas quem tem acompanhamento profissional
+          Você pode seguir sozinha no Morphi. Mas quem tem acompanhamento profissional
           ajusta dose e protocolo com mais segurança — e essa decisão não é sua para
           tomar sozinha.
         </Txt>

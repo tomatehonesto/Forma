@@ -262,6 +262,32 @@ export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
 
 const MES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
+/** Os últimos sete dias, com o que foi registrado em cada um.
+
+    Sete e não trinta: a semana é a unidade em que a pessoa se lembra do
+    que fez. Numa grade de trinta dias, a célula de anteontem e a de três
+    semanas atrás pesam igual — e só uma delas ainda pode ser corrigida.
+
+    Ancorada em hoje à direita, não na segunda-feira: a pergunta é "como
+    tenho ido", não "como foi a semana civil". */
+export function last7Days(S: State) {
+  const chk = new Set((S.checkins as any[]).map((c) => c.t));
+  const apl = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
+  const hoje = +startOfDay(now());
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(startOfDay(now()), i - 6);
+    const t = +d;
+    return {
+      t,
+      dow: DOW_PT[d.getDay()][0].toUpperCase(),
+      dia: d.getDate(),
+      feito: chk.has(t),
+      aplicou: apl.has(t),
+      hoje: t === hoje,
+    };
+  });
+}
+
 /* Exames — categorias e explicações (porta verbatim). */
 export const EXAM_CATS: [string, string[]][] = [
   ['Metabólico', ['HbA1c', 'Glicemia jejum', 'Insulina']],
@@ -1545,7 +1571,7 @@ export function careStatus(S: State) {
      tela um aviso. */
   const indoBem = r.verdict.good;
   const titulo = !hasClinic(S)
-    ? 'Você ainda não tem uma equipe no Forma'
+    ? 'Você ainda não tem uma equipe no Morphi'
     : indoBem
       ? 'Seu tratamento está evoluindo bem'
       : 'Sua equipe está acompanhando de perto';
@@ -1618,7 +1644,26 @@ export function careState(S: State) {
     { valor: String(S.injections.length), label: 'aplicações\nregistradas' },
   ];
 
-  const base = { metricas, semanas, adesaoRotulo: adRotulo };
+  /* O plano em números.
+
+     A régua de traços que vivia no hero não dizia nada, e a razão é que
+     ela não tinha REFERÊNCIA: onze traços acesos não significam nada
+     sem saber quantos existem ao todo. Barra sem denominador é decoração
+     com aparência de dado.
+
+     Estes três números dão o denominador — previstas, atual, cumpridas —
+     e é a partir deles que a forma passa a ter o que mostrar. O
+     horizonte vem do plano que a equipe traçou (profile.planoSemanas),
+     não de uma alta: tratamento com GLP-1 não tem data de alta, tem
+     data em que a titulação chega à dose de manutenção. */
+  const grade = weekGrid(S, 0);
+  const plano = {
+    previstas: (S.profile as any).planoSemanas ?? 16,
+    atual: semanas,
+    cumpridas: grade.filter((g) => !g.futura && g.aplicou).length,
+  };
+
+  const base = { metricas, semanas, adesaoRotulo: adRotulo, plano };
 
   if (!hasClinic(S)) return {
     ...base, momento: 'semClinica' as CareMomento, nivel: 'atencao' as CareNivel,

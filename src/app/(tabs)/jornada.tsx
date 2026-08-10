@@ -8,13 +8,13 @@ import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, checkinToday, weekGrid, M, type Change, type TLEvent, type TLKind, type WeekMetric,
+  waterMlToday, checkinToday, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
-import { Grade } from '../../ui/instrumentos';
+
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius } from '../../theme';
@@ -36,9 +36,6 @@ import { radius } from '../../theme';
 
 const PAD = 24;
 const FEED_SEMANAS = 3;
-/* densidade do medidor do ciclo — 8 riscos por dia dá o traço fino sem
-   perder a correspondência com os dias */
-const TRACOS_POR_DIA = 8;
 /* eventos que merecem virar destaque; o resto é rotina e vira contagem */
 const NOTAVEIS: TLKind[] = ['consulta', 'exame', 'foto'];
 
@@ -56,10 +53,11 @@ function Painel() {
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
   const ndDays = diffDays(nd, now());
-  /* três semanas à frente e não mais: o futuro aqui é contexto, e uma
-     fileira inteira de células vazias faz a grade parecer incompleta em
-     vez de aberta */
-  const grade = weekGrid(S, 3);
+  const dias = last7Days(S);
+  const feitos = dias.filter((d) => d.feito).length;
+  /* a contagem de semanas continua, agora só como frase: o número diz
+     a constância longa que sete dias não alcançam */
+  const grade = weekGrid(S, 0);
   const vividas = grade.filter((g) => !g.futura).length;
   const aplicadas = grade.filter((g) => !g.futura && g.aplicou).length;
 
@@ -124,81 +122,86 @@ function Painel() {
           que reinicia toda semana não tem nada a dizer sobre uma
           história de dez.
 
-          A grade tem. Uma célula por semana desde o começo: acesa onde
-          houve aplicação, apagada onde não houve, contornada na semana
-          corrente, desenhada em fio no futuro. É o mesmo dado que a
-          adesão resume em "87%", e a diferença é tudo — a porcentagem
-          esconde ONDE ficaram os buracos, e a grade os põe em posição.
-          Duas semanas vazias seguidas em maio explicam um platô; 87% não
-          explica nada.
+          A primeira tentativa foi uma grade de todas as semanas do
+          tratamento, sete por linha. Ela tinha o problema oposto: onze
+          células cheias e três em branco viravam um bloco, e bloco não
+          é leitura. Numa grade longa a célula de anteontem e a de três
+          semanas atrás pesam igual — e só uma delas ainda pode ser
+          corrigida hoje.
 
-          O ciclo da dose não sumiu do app: ele continua no card do
-          tratamento em Cuidado, que é a aba do agora, e em /ciclo — que
-          é para onde este bloco ainda leva. */}
+          Agora são sete dias, uma linha, ancorados em hoje à direita. A
+          semana é a unidade em que a pessoa se lembra do que fez, e o
+          check é a marca certa: ele não mede quanto, diz FEITO. Quem
+          registrou vê a fileira marcada; quem falhou vê exatamente qual
+          dia, e ainda dá tempo.
+
+          O ciclo da dose não sumiu do app: ele continua em /ciclo, que é
+          para onde este bloco leva. */}
       <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
         <View style={{ marginTop: 40 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
-              SEMANA A SEMANA
+              SEUS ÚLTIMOS 7 DIAS
             </Txt>
             <Txt v="micro" c={c.onHero2}>
               {ndDays <= 0 ? 'dose hoje' : ndDays === 1 ? 'dose amanhã' : `dose em ${ndDays} dias`}
             </Txt>
           </Row>
 
-          <View style={{ marginTop: 14 }}>
-            <Grade
-              celulas={grade.map((g) => ({
-                n: g.n,
-                cheia: g.aplicou,
-                atual: g.atual,
-                futura: g.futura,
-                rotulo: String(g.n),
-              }))}
-              colunas={7}
-              sobreEscuro
-            />
-          </View>
-
-          {/* A legenda existe porque a grade tem quatro estados, e quatro
-              é mais do que a forma sozinha ensina. Com dois — cheio e
-              vazio — ela seria dispensável. */}
-          <Row gap={14} style={{ marginTop: 14, flexWrap: 'wrap' }}>
-            <Row gap={6}>
-              <View style={{ width: 9, height: 9, borderRadius: 3, backgroundColor: c.lime }} />
-              <Txt v="micro" c={c.onHero2}>semana com aplicação</Txt>
-            </Row>
-            <Row gap={6}>
-              <View style={{ width: 9, height: 9, borderRadius: 3, backgroundColor: c.onHeroLine }} />
-              <Txt v="micro" c={c.onHero2}>sem registro</Txt>
-            </Row>
-            <Row gap={6}>
-              <View style={{ width: 9, height: 9, borderRadius: 3, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.55)' }} />
-              <Txt v="micro" c={c.onHero2}>esta semana</Txt>
-            </Row>
+          <Row gap={7} style={{ marginTop: 14 }}>
+            {dias.map((d) => (
+              <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                <Txt v="micro" c={c.onHero2} style={{ marginBottom: 6, opacity: d.hoje ? 1 : 0.7 }}>{d.dow}</Txt>
+                <View
+                  style={{
+                    width: '100%', aspectRatio: 1, borderRadius: 12,
+                    alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: d.feito ? c.lime : c.onHeroLine,
+                    /* só hoje ganha contorno. Aqui a borda não separa
+                       superfícies (princípio 4): aponta uma célula dentro
+                       de uma fileira de iguais. */
+                    ...(d.hoje && !d.feito ? { borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.6)' } : null),
+                  }}
+                >
+                  {d.feito
+                    ? <Icon name="check" size={16} color={c.limeInk} sw={2.6} />
+                    : <Txt v="micro" c={c.onHero2} style={{ opacity: 0.8 }}>{d.dia}</Txt>}
+                </View>
+                {/* a aplicação da semana é um ponto sob o dia, não outra
+                    cor na célula: são dois fatos diferentes no mesmo dia,
+                    e misturá-los na mesma marca apagaria os dois */}
+                <View style={{ height: 8, justifyContent: 'center' }}>
+                  {d.aplicou && <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.onHero }} />}
+                </View>
+              </View>
+            ))}
           </Row>
 
-          <Txt v="caption" c={c.onHero} style={{ marginTop: 14 }}>
-            {aplicadas} de {vividas} semanas com aplicação · {cyc.phase.label}
+          <Txt v="caption" c={c.onHero} style={{ marginTop: 8 }}>
+            {feitos} de 7 dias com check-in · {aplicadas} de {vividas} semanas com aplicação
           </Txt>
         </View>
       </Pressable>
 
-      {/* A explicação da fase é uma dica, não um dado — por isso ganha
-          lâmpada e um caminho para perguntar mais. */}
+      {/* A dica da fase, no mesmo desenho da faixa de vidro do hero de
+          Cuidado: círculo de 36 com o ícone, kicker em micro, frase em
+          caption e chevron à direita. Eram dois cartões com a mesma
+          função — a inteligência do app falando de dentro do hero — em
+          dois desenhos diferentes, e isso obriga a pessoa a reconhecer
+          duas vezes a mesma coisa. */}
       <Pressable
         onPress={() => router.push(`/companion?q=${encodeURIComponent(cyc.phase.q)}` as any)}
-        style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 14, marginBottom: 26 }]}
+        style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 22, marginBottom: 26 }]}
       >
-        <Row gap={11} style={{ alignItems: 'flex-start', backgroundColor: c.onHeroWeak, borderRadius: radius.md, padding: 13 }}>
-          <Icon name="bulb" size={17} color={c.lime} sw={1.9} />
-          <View style={{ flex: 1 }}>
-            <Txt v="caption" c={c.onHero}>{cyc.phase.hint}</Txt>
-            <Row gap={5} style={{ marginTop: 7 }}>
-              <Txt v="micro" c={c.lime}>Perguntar ao Companion</Txt>
-              <Icon name="chev" size={11} color={c.lime} sw={2.4} />
-            </Row>
+        <Row gap={12} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="aura" size={16} color={c.onHero} sw={1.9} />
           </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="micro" c={c.onHero2}>{cyc.phase.label.toUpperCase()}</Txt>
+            <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }}>{cyc.phase.hint}</Txt>
+          </View>
+          <Icon name="chev" size={15} color={c.onHero2} sw={2} />
         </Row>
       </Pressable>
 

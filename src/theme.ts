@@ -11,7 +11,7 @@
               quando chegarem os frames de Jornada / Insights / Cuidado.
    ============================================================ */
 
-export const BRAND = 'Forma';
+export const BRAND = 'Morphi';
 
 export type Palette = {
   bg: string; bg1: string; bg2: string; bg3: string;

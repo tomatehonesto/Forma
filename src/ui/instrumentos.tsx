@@ -315,46 +315,44 @@ function SvgGradFill({ de, para }: { de: string; para: string }) {
  * altura vira uma leitura de nível — como um medidor caindo.
  * ------------------------------------------------------------------ */
 export function Nivel({
-  total, cheios, de, para, sobreEscuro = false, altura = 30,
+  total, cheios, de, para, sobreEscuro = false, altura = 9,
 }: {
   total: number; cheios: number;
-  de?: string; para?: string; sobreEscuro?: boolean; altura?: number;
+  de?: string; para?: string; sobreEscuro?: boolean;
+  /** espessura do traço — é a medida toda do instrumento, já que ele é
+      deitado. 9 px é grosso o bastante para o degradê aparecer e fino o
+      bastante para não virar barra de progresso. */
+  altura?: number;
 }) {
   const { c } = useTheme();
   const topo = de ?? c.accent;
   const base = para ?? c.accent2;
   const apagado = sobreEscuro ? 'rgba(255,255,255,0.22)' : c.line;
 
-  /* Três traços por unidade, não um. Com um traço só o instrumento vira
-     um gráfico de barras de quatro colunas — que é exatamente o que ele
-     deveria deixar de ser. Em grupos de três a leitura é de TEXTURA:
-     densidade que cai da esquerda para a direita, e as unidades ainda se
-     contam pelos vãos maiores entre os grupos. */
-  const porUnidade = 3;
+  /* Um traço por unidade, deitado, todos do mesmo tamanho.
 
+     A versão anterior fazia grupos de três em escadinha, para dar
+     "textura". Era invenção: a escadinha sugeria que uma dose vale mais
+     que a outra, e não vale — quatro doses são quatro iguais. Toda vez
+     que a forma insinua uma diferença que o dado não tem, ela mente.
+
+     Deitado e não em pé porque a leitura é de SEQUÊNCIA, não de altura:
+     as doses se gastam em ordem, da esquerda para a direita, e um traço
+     horizontal com vão entre eles é o desenho mais curto que diz isso. O
+     gasto fica no mesmo lugar, apagado — a posição é o que importa. */
   return (
-    <Row gap={7} style={{ height: altura, alignItems: 'flex-end' }}>
+    <Row gap={10} style={{ height: altura, alignItems: 'center' }}>
       {Array.from({ length: total }, (_, i) => {
         const cheio = i < cheios;
+        const t = total > 1 ? i / (total - 1) : 0;
         return (
-          <Row key={i} gap={2.5} style={{ flex: 1, alignItems: 'flex-end', height: altura }}>
-            {Array.from({ length: porUnidade }, (_, j) => {
-              /* dentro do grupo os traços sobem um degrauzinho: dá direção
-                 ao conjunto e evita a leitura de "bloco" */
-              const t = (i * porUnidade + j) / (total * porUnidade - 1);
-              const h = cheio ? altura * (0.68 + 0.32 * (j / (porUnidade - 1))) : altura * 0.26;
-              return (
-                <View
-                  key={j}
-                  style={{
-                    flex: 1, height: h, borderRadius: 999,
-                    backgroundColor: cheio ? mixHex(topo, base, t) : apagado,
-                    opacity: cheio ? 1 : 0.9,
-                  }}
-                />
-              );
-            })}
-          </Row>
+          <View
+            key={i}
+            style={{
+              flex: 1, height: altura, borderRadius: 2,
+              backgroundColor: cheio ? mixHex(topo, base, t) : apagado,
+            }}
+          />
         );
       })}
     </Row>

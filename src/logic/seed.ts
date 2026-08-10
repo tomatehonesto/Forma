@@ -38,6 +38,10 @@ export function buildSeed() {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
       startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      /* Horizonte do plano que a equipe traçou até a dose de manutenção.
+         Não é alta: é até onde a titulação foi programada, e é o número
+         que dá sentido a "você está na semana 11". */
+      planoSemanas: 16,
       nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
       /* Ficha da especialista. CRM e tempo de formação não são enfeite: são
          o que separa "alguém está te acompanhando" de "alguém habilitado
@@ -218,5 +222,6 @@ export function ensureDefaults(S: any) {
      depende da pessoa, e um padrão fixo não serve para todo mundo. */
   if (S.profile) S.profile.targets = Object.assign({ prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 }, S.profile.targets || {});
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
+  if (S.profile && !S.profile.planoSemanas) S.profile.planoSemanas = 16;
   return S;
 }

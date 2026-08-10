@@ -30,7 +30,13 @@ export const P: Record<string, string> = {
   send: '<path d="M4.5 11.5 20 4.5l-6.2 15-2.4-6.2z"/><path d="M11.4 13.3 20 4.5"/>',
   sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.4 19.6 6 18M18 6l1.6-1.6"/>',
   moonToggle: '<path d="M20 14.2A8.4 8.4 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/>',
-  aura: '<path d="M3.5 14.5c2.6-6 14.4-6 17 0"/><path d="M6.6 18c1.8-3.4 9-3.4 10.8 0"/><path d="M9.8 21c1-1.6 3.4-1.6 4.4 0"/>',
+  /* O glifo da inteligência do app.
+     Eram três arcos concêntricos — desenho que existe há vinte anos com
+     um significado só, e não é este: arco sobre arco é sinal de rede.
+     Toda vez que ele aparecia ao lado de "Companion", prometia conexão.
+     Agora é a estrela de quatro pontas com a satélite menor, que é o
+     glifo que o mundo passou a ler como resposta gerada. */
+  aura: '<path d="M12 3.2c.85 3.9 2.65 5.7 6.5 6.55-3.85.85-5.65 2.65-6.5 6.55-.85-3.9-2.65-5.7-6.5-6.55C9.35 8.9 11.15 7.1 12 3.2z"/><path d="M18 15.4c.4 1.75 1.2 2.55 2.9 2.95-1.7.4-2.5 1.2-2.9 2.95-.4-1.75-1.2-2.55-2.9-2.95 1.7-.4 2.5-1.2 2.9-2.95z"/>',
   doc: '<path d="M6 3.5h8L18.5 8v12.5H6z"/><path d="M14 3.5V8h4.5"/><path d="M8.5 12.5h7M8.5 15.5h7M8.5 9.5h3"/>',
   ruler: '<rect x="3" y="8" width="18" height="8" rx="1.6" transform="rotate(-45 12 12)"/><path d="M9 9l1.4 1.4M11.5 11.5l1.4 1.4M6.5 11.5l1.4 1.4"/>',
   photo: '<rect x="3.5" y="5" width="17" height="14" rx="2.6"/><circle cx="8.5" cy="10" r="1.6"/><path d="M4 17l4.5-4 3.2 2.6 3-2.6L20 17"/>',
