@@ -1514,6 +1514,102 @@ export function careStatus(S: State) {
   return { tiles, quantos: n, titulo, sub, subCurto };
 }
 
+/* ============================================================
+   O ESTADO DO ACOMPANHAMENTO, EM UMA FRASE
+
+   careStatus responde "como está cada dimensão" — quatro linhas, quatro
+   níveis. Serve a um painel. Mas o hero não é painel: ele tem que dizer,
+   numa frase só, o que está acontecendo com o acompanhamento AGORA.
+
+   E o que está acontecendo muda de natureza ao longo do mês. Faltando
+   três dias para a consulta, o assunto do cuidado é a consulta. No dia
+   seguinte a ela, é a orientação nova. Com a receita vencendo, é a
+   receita. No resto do tempo — que é a maior parte — é a continuidade.
+
+   Por isso a saída é um estado nomeado e não um texto montado por
+   concatenação: cada momento tem manchete própria, e a ordem em que os
+   estados são testados é a ordem de precedência entre eles.
+   ============================================================ */
+export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'emDia' | 'semClinica';
+
+/* "a, b e c" — vírgula até o penúltimo, "e" só antes do último. Com join
+   simples saía "mensagens e receita e exames", que é como uma máquina
+   fala. */
+const lista = (xs: string[]) =>
+  xs.length <= 1 ? (xs[0] ?? '')
+    : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`;
+
+export function careState(S: State) {
+  const cs = nextConsult(S);
+  const st = careStatus(S);
+  const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+  const ad = adesao(S);
+  const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
+
+  /* Três números pequenos, sempre os mesmos: duração, volume e qualidade
+     do acompanhamento. Não mudam com o estado porque são o chão — o que
+     muda é a leitura em cima deles. E cada um vem com qualificador: é o
+     princípio 1, o veredito antes do número. */
+  const adRotulo = ad >= 90 ? 'Boa adesão' : ad >= 70 ? 'Adesão regular' : 'Adesão baixa';
+  const metricas: { valor: string; label: string }[] = [
+    { valor: String(semanas), label: 'semanas\nde acompanhamento' },
+    { valor: String(S.injections.length), label: 'aplicações\nregistradas' },
+    { valor: adRotulo, label: 'ao tratamento' },
+  ];
+
+  const base = { metricas, semanas };
+
+  if (!hasClinic(S)) return {
+    ...base, momento: 'semClinica' as CareMomento, nivel: 'atencao' as CareNivel,
+    kicker: 'SEU ACOMPANHAMENTO',
+    titulo: 'Você ainda não tem uma equipe.',
+    texto: 'Encontre um especialista para acompanhar seu tratamento de perto.',
+    pulso: 'Sem vínculo com clínica',
+  };
+
+  /* A consulta chegando vence tudo: nos dias que a antecedem, ela é o
+     acompanhamento. Três dias é a janela em que dá tempo de preparar
+     alguma coisa — antes disso ainda vai acontecer o que vale levar. */
+  if (cs && cs.dias >= 0 && cs.dias <= 3) return {
+    ...base, momento: 'consulta' as CareMomento, nivel: 'atencao' as CareNivel,
+    kicker: 'SEU ACOMPANHAMENTO',
+    titulo: 'Sua consulta está chegando.',
+    texto: cs.dias === 0
+      ? `Sua consulta com ${cs.doutor} é hoje. A Forma já preparou um resumo da sua evolução.`
+      : `${cs.dias === 1 ? 'Falta 1 dia' : `Faltam ${cs.dias} dias`}. A Forma já preparou um resumo da sua evolução.`,
+    pulso: `Consulta ${cs.label}`,
+  };
+
+  /* Logo depois da consulta o tratamento costuma ter mudado, e é isso que
+     a pessoa volta aqui para conferir. */
+  const ultima = (S.consultsHistory as any[]).slice().sort((a, b) => b.t - a.t)[0];
+  if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) return {
+    ...base, momento: 'posConsulta' as CareMomento, nivel: 'ok' as CareNivel,
+    kicker: 'SEU ACOMPANHAMENTO',
+    titulo: 'Sua equipe atualizou seu tratamento.',
+    texto: 'Confira as orientações da consulta e o que muda na sua dose a partir de agora.',
+    pulso: 'Tratamento atualizado',
+  };
+
+  if (st.quantos > 0) return {
+    ...base, momento: 'pendencia' as CareMomento, nivel: 'acao' as CareNivel,
+    kicker: 'SEU ACOMPANHAMENTO',
+    titulo: 'Temos algumas coisas para cuidar.',
+    /* nomeia o que é, em vez de contar quantos: "duas coisas" obriga a
+       rolar para descobrir se importa */
+    texto: `${nomes[st.quantos] ?? st.quantos} ${st.quantos === 1 ? 'pendência precisa' : 'pendências precisam'} de você — ${lista(st.tiles.filter((t) => t.nivel !== 'ok').map((t) => t.label.toLowerCase()))}. Nada urgente, mas vale resolver esta semana.`,
+    pulso: `${st.quantos} ${st.quantos === 1 ? 'item pendente' : 'itens pendentes'}`,
+  };
+
+  return {
+    ...base, momento: 'emDia' as CareMomento, nivel: 'ok' as CareNivel,
+    kicker: 'SEU ACOMPANHAMENTO',
+    titulo: 'Seu cuidado está em dia.',
+    texto: `${S.profile.doctor} acompanha seu tratamento há ${semanas} semanas. Você está com boa adesão e não há nenhuma pendência importante no momento.`,
+    pulso: 'Acompanhamento em dia',
+  };
+}
+
 /* Contexto do tratamento — as três frases curtas que fazem a dose parecer
    acompanhada em vez de só registrada. */
 export function doseContext(S: State) {

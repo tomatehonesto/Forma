@@ -7,7 +7,7 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  hasClinic, nextConsult, lastMessage, carePending, careDocs, careStatus,
+  hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, nextInjectionDate, penStock, M,
 } from '../../logic/derive';
 import { CADENCE_DAYS } from '../../logic/meds';
@@ -45,50 +45,15 @@ const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 /* A Malha mudou para ui/instrumentos: ela serve a qualquer tela, não
    só a esta. */
 
-/** Régua das semanas de tratamento — aberta à direita.
+/* A régua das semanas — um traço por semana, aberta à direita — morava
+   aqui, dentro do hero. Ela estava certa como instrumento: crescia com a
+   pessoa e o futuro se dissolvia na borda, sem prometer alta.
 
-    Um traço por semana, o de hoje em lima e inteiro. Não é gráfico: não
-    há valor nos eixos. É linha do tempo, e o que ela precisa dizer é que
-    a contagem continua.
-
-    Por isso não tem total fixo. A primeira versão tinha 24 traços, e uma
-    régua com fim promete um fim — na semana 24 ela estaria cheia, e
-    tratamento com GLP-1 não tem data de alta marcada. É o princípio 10:
-    barra fechada só onde existe meta dura. Agora ela cresce com a
-    pessoa e os traços do futuro se apagam progressivamente até sumir na
-    borda, sem nunca completar. */
-function Regua({ semana, adiante = 9, sobreEscuro = false }: { semana: number; adiante?: number; sobreEscuro?: boolean }) {
-  const { c } = useTheme();
-  const total = semana + adiante;
-  return (
-    <Row gap={3} style={{ alignItems: 'flex-end', height: 34 }}>
-      {Array.from({ length: total }, (_, i) => {
-        const passada = i < semana - 1;
-        const hoje = i === semana - 1;
-        /* o futuro perde opacidade a cada traço: na borda direita ele já
-           não está lá, e é essa dissolução que faz a régua não ter fim */
-        const distancia = (i - (semana - 1)) / adiante;
-        const some = hoje ? 1 : passada ? 1 : Math.max(0.06, 1 - distancia * 1.15);
-
-        const cor = sobreEscuro
-          ? (hoje ? c.lime : passada ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.30)')
-          : (hoje ? c.accent : passada ? c.accentLine : c.line);
-        return (
-          <View
-            key={i}
-            style={{
-              flex: 1,
-              height: hoje ? 34 : passada ? 17 : 10,
-              borderRadius: 2,
-              backgroundColor: cor,
-              opacity: some,
-            }}
-          />
-        );
-      })}
-    </Row>
-  );
-}
+   Saiu por divisão de papéis entre as abas. Contar quanto tempo passou e
+   como isso avança é a Jornada; Cuidado é o estado agora e o que precisa
+   de mim. A régua narrava — e narrativa repetida em duas abas enfraquece
+   as duas. Fica registrada aqui porque o dia em que a Jornada precisar
+   de uma linha do tempo compacta, é esta. */
 
 /** Inicial dentro de um bloco tingido, para quem não tem foto. Só a médica
     tem retrato; a equipe de apoio entra assim até haver imagens delas — e
@@ -115,96 +80,91 @@ function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
   );
 }
 
-/** O topo.
+/** O topo — a leitura do estado, não o painel dele.
 
-    Antes era a ficha da médica; agora é o estado do acompanhamento. A
-    inversão é de sujeito: quem abre esta aba não pergunta "quem é minha
-    médica?" — sabe quem é. Pergunta "como está meu cuidado?", e a frase
-    grande responde isso.
+    Três versões atrás isto era a ficha da médica. Depois virou um painel:
+    frase de estado, número grande, régua das semanas, data desde quando,
+    e uma faixa de vidro com a próxima consulta. Cada peça se justificava
+    sozinha e o conjunto não: quem abre a aba faz UMA pergunta — "como
+    está meu acompanhamento agora?" — e um bloco que responde cinco coisas
+    não responde nenhuma primeiro.
 
-    Ela aparece só como uma linha de contexto ("acompanha você há N
-    semanas"). O retrato dela está no banner, mais abaixo. */
+    O que saiu e por quê:
+
+    A régua contava a história do tratamento, e história é a Jornada. Duas
+    abas narrando a mesma evolução deixam as duas mais fracas: aqui ela
+    ocupava 34 px de altura para dizer o que o "10 semanas" já dizia.
+
+    A consulta saiu porque tem seção própria trinta linhas abaixo, com
+    data, tipo, especialista e preparação. Repetida no hero, ela roubava o
+    lugar da manchete e ainda chegava pior — sem nada do que a torna útil.
+
+    O que ficou é uma frase que muda com o momento (`careState`), três
+    números pequenos de contexto e um pulso discreto. O hero deixou de ser
+    dashboard e voltou a ser leitura. */
 function Topo() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const st = careStatus(S);
+  const st = careState(S);
 
-  const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
+  /* O pulso muda de cor com o nível, e é a única cor de estado do card.
+     Verde não existe na paleta como cor de dado; lima é a cor de "está
+     indo bem" no app inteiro, e sobre campo escuro ela lê como sinal
+     aceso — que é exatamente o que um indicador de estado precisa ser. */
+  const corPulso = st.nivel === 'acao'
+    /* âmbar fixo e não c.amber: o token claro é #B58900, escolhido para
+       contrastar sobre branco, e sobre este campo escuro ele apaga. O
+       card é sempre escuro nos dois temas, então a cor do sinal também
+       é sempre a mesma. */
+    ? '#E7BE55'
+    : st.nivel === 'atencao' ? c.bluePale : c.lime;
 
-  const cs = nextConsult(S);
-  const desde = fmtDate(new Date(S.profile.startT));
-
-  /* Ocupa metade da dobra. Card pequeno com malha pálida virava papel de
-     parede: a cor não tinha área para acontecer e o texto escuro puxava
-     tudo de volta para o registro clínico. Grande e saturado, com texto
-     branco, ele deixa de ser um cabeçalho e passa a ser a primeira coisa
-     que a tela É.
-
-     Altura pelo conteúdo, não fixa. A versão anterior travava 442 px e
-     usava space-between, contando que sobrasse folga para distribuir. Não
-     sobrava: o conteúdo enchia o card e o space-between virava zero,
-     deixando a faixa de vidro colada no texto acima e na borda de baixo.
-     Com espaçamento explícito a medida é a que está escrita — e o card dá
-     nos mesmos ~55% da dobra por consequência do que tem dentro. */
   return (
     <View style={{ borderRadius: radius.xl, overflow: 'hidden', backgroundColor: c.altMid }}>
       <Malha id="cuidadoTopo" forca={1} escura />
 
-      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 26 }}>
-        <View>
-          <Row gap={8}>
-            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
-            <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1 }}>SEU ACOMPANHAMENTO</Txt>
-          </Row>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 24 }}>
+        <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.1 }}>{st.kicker}</Txt>
 
-          {/* A frase de estado é a manchete, e vem antes de qualquer
-              pendência: a pessoa precisa saber que está indo bem antes de
-              saber o que falta. Invertido, a tela vira aviso. */}
-          <Txt v="display" c={c.onHero} style={{ fontSize: 31, lineHeight: 39, marginTop: 16 }}>
-            {st.titulo}
-          </Txt>
-          <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, lineHeight: 21, maxWidth: '92%' }}>
-            {st.subCurto}
-          </Txt>
-        </View>
+        {/* A manchete é a resposta. Ela muda de texto conforme o momento —
+            consulta chegando, tratamento atualizado, pendências, tudo em
+            dia — e é por isso que o resto do card é fixo: se a moldura
+            também mudasse, a pessoa teria que reaprender o bloco a cada
+            estado. */}
+        <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 38, marginTop: 14 }}>
+          {st.titulo}
+        </Txt>
+        <Txt v="caption" c={c.onHero2} style={{ marginTop: 12, lineHeight: 22 }}>
+          {st.texto}
+        </Txt>
 
-        <View style={{ marginTop: 30 }}>
-          {/* Valor e unidade como dois elementos, nunca a string "10
-              semanas": o número fica legível de relance e a coluna alinha.
-              É o princípio 9, que eu tinha aplicado e perdi quando o
-              número saiu do card na iteração passada.
+        {/* Três métricas pequenas, em coluna de larguras iguais.
 
-              A régua embaixo responde "há quanto tempo alguém olha isso",
-              que é a prova de continuidade que a aba precisa dar de cara.
-              Semana é a unidade certa: dia é curto demais para mostrar
-              constância, mês é longo demais para mostrar ritmo. */}
-          <Row gap={9} style={{ alignItems: 'baseline', marginBottom: 14 }}>
-            <Txt v="display" c={c.onHero} style={{ fontSize: 44, lineHeight: 48 }}>{semanas}</Txt>
-            <Txt v="body" c={c.onHero2} style={{ flex: 1 }}>semanas de acompanhamento</Txt>
-          </Row>
-          <Regua semana={semanas} sobreEscuro />
-          <Row style={{ marginTop: 10 }}>
-            <Txt v="micro" c={c.onHero2} style={{ flex: 1 }}>desde {desde}</Txt>
-            <Txt v="micro" c={c.lime}>você está aqui</Txt>
-          </Row>
-        </View>
+            Pequenas de propósito: elas são o rodapé da frase, não o
+            assunto. Quando eu as tinha em corpo 44 o número virava o
+            protagonista e a leitura inteligente virava legenda dele — o
+            inverso do que esta aba deve fazer.
 
-        {/* Em vidro, dentro do card: o próximo contato é a informação mais
-            tranquilizadora que existe aqui — não o que falta fazer, mas
-            quando alguém vai olhar de novo. */}
-        {!!cs && (
-          <Row gap={12} style={{ marginTop: 26, backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 15 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="cal" size={17} color={c.onHero} sw={1.9} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Txt v="micro" c={c.onHero2}>PRÓXIMO CONTATO</Txt>
-              <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }}>
-                {cs.tipo} {cs.label} · {fmtDate(cs.data)}
+            Valor e unidade como dois elementos, nunca a string "10
+            semanas" (princípio 9): assim as três colunas alinham pela
+            linha de base do número, e o olho compara antes de ler. */}
+        <Row gap={14} style={{ marginTop: 26, alignItems: 'flex-start' }}>
+          {st.metricas.map((m) => (
+            <View key={m.label} style={{ flex: 1 }}>
+              <Txt v="h1" c={c.onHero} style={{ fontSize: 25, lineHeight: 29 }} numberOfLines={1}>
+                {m.valor}
               </Txt>
+              <Txt v="micro" c={c.onHero2} style={{ marginTop: 5, lineHeight: 15 }}>{m.label}</Txt>
             </View>
-          </Row>
-        )}
+          ))}
+        </Row>
+
+        {/* O pulso fecha o card com o veredito em uma linha. Sem caixa,
+            sem vidro: é um sinal, e sinal com moldura vira aviso. */}
+        <Row gap={9} style={{ marginTop: 24 }}>
+          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: corPulso }} />
+          <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 0.4 }}>{st.pulso}</Txt>
+        </Row>
       </View>
     </View>
   );
@@ -316,53 +276,20 @@ function BannerMedica() {
   );
 }
 
-/** As quatro dimensões do cuidado, com o estado de cada uma.
+/* "Seu cuidado hoje" morava aqui — quatro cards com consulta, mensagens,
+   receita e exames, cada um com um ponto de estado. Saiu inteiro.
 
-    Convive com "Precisa de você" sem repeti-la porque responde outra
-    pergunta. Aqui aparecem TODAS, inclusive as que estão bem — e é
-    justamente "Receita: vence em 3 semanas" quando não há nada a fazer
-    que dá a sensação de acompanhamento contínuo. A lista de baixo diz o
-    que fazer; esta diz como está. */
-function CuidadoHoje() {
-  const S = useStore((s) => s.S);
-  const { c } = useTheme();
-  const router = useRouter();
-  const st = careStatus(S);
+   A defesa dela era que respondia outra pergunta que "Precisa de você":
+   uma dizia COMO ESTÁ, a outra O QUE FAZER. Isso é verdade no papel, e na
+   tela não sobreviveu — os quatro assuntos já aparecem cada um no seu
+   lugar próprio (consulta tem seção, mensagens estão no card da
+   especialista, receita e doses estão no tratamento, exames estão em
+   pendências), então o painel os mostrava pela segunda vez, menor e sem
+   nada do que os torna úteis.
 
-  return (
-    <View style={{ marginTop: 30 }}>
-      <SectionHead title="Seu cuidado hoje" />
-      {/* Um ponto de estado por card, em três níveis.
-
-          Cor pequena e saturada em vez de card inteiro tingido: o ponto se
-          lê de relance e não muda o peso do bloco, então os quatro
-          continuam iguais em importância enquanto dizem coisas diferentes.
-          Tingir o card do exame pendente faria dele o assunto da seção,
-          quando o assunto é o conjunto.
-
-          Três níveis, porque dois não bastam: receita vencendo em três
-          semanas e exame já atrasado não pedem a mesma reação, e igualá-los
-          ensina a ignorar os dois. */}
-      <Row gap={8} style={{ flexWrap: 'wrap', marginTop: 14 }}>
-        {st.tiles.map((t) => {
-          const cor = t.nivel === 'acao' ? c.cta : t.nivel === 'atencao' ? c.amber : c.teal;
-          return (
-            <Pressable key={t.label} onPress={() => router.push(t.to as any)} style={({ pressed }) => [{ width: '48.4%', opacity: pressed ? 0.65 : 1 }]}>
-              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginBottom: 8 }}>
-                <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Icon name={t.ic} size={17} color={c.tx3} sw={1.9} />
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: cor }} />
-                </Row>
-                <Txt v="micro" c={c.tx3} style={{ marginTop: 14 }}>{t.label}</Txt>
-                <Txt v="bodyMed" style={{ marginTop: 2 }} numberOfLines={1}>{t.valor}</Txt>
-              </View>
-            </Pressable>
-          );
-        })}
-      </Row>
-    </View>
-  );
-}
+   E o que restava do "como está" o hero passou a dizer melhor em uma
+   frase. Painel de quatro caixas iguais é o que se faz quando não se sabe
+   qual das quatro importa hoje; a leitura do `careState` sabe. */
 
 /** Os quatro destinos mais usados. "Sobre" saiu — é uma tela que se visita
     uma vez, e atalho existe para o que se repete. Entrou Tratamento, que
@@ -471,17 +398,42 @@ function Materiais() {
    com o mesmo destino, a uma rolagem de distância um do outro. O banner
    ganha por ter rosto. */
 
-/** O que está esperando você. Só aparece quando há algo — seção vazia com
-    "nada pendente" é um lembrete de olhar para o nada. */
+/** O que está esperando você — agora a primeira seção da tela.
+
+    Com o painel fora, esta lista é o que transforma o estado do hero em
+    coisa que se faz. Por isso ela ganhou o estado vazio que antes eu
+    tinha recusado: quando a seção só aparecia se houvesse pendência, sua
+    ausência era ambígua — não dava para saber se estava tudo em dia ou se
+    a tela tinha esquecido de carregar. Dito em voz alta, "nada precisa de
+    você agora" é a melhor notícia que esta aba tem para dar.
+
+    Só entra aqui o que exige um toque da pessoa. "Consulta em 3 dias" e
+    "mensagens em dia" são estado, não ação, e estado já é o hero. */
 function Pendencias() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const itens = carePending(S);
-  if (!itens.length) return null;
+
+  if (!itens.length) {
+    return (
+      <View style={{ marginTop: 32 }}>
+        <SectionHead title="Precisa de você" />
+        <Row gap={14} style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, marginTop: 14, padding: 18 }}>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="check" size={16} color={c.tx} sw={2.2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed">Nada precisa de você agora.</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>Seu acompanhamento está em dia.</Txt>
+          </View>
+        </Row>
+      </View>
+    );
+  }
 
   return (
-    <View style={{ marginTop: 36 }}>
+    <View style={{ marginTop: 32 }}>
       <SectionHead title="Precisa de você" />
       <View style={{ marginTop: 14 }}>
         {itens.map((it, i) => (
@@ -806,15 +758,19 @@ export default function Cuidado() {
         )}
 
         {linked ? (
-          /* A ordem responde, nesta sequência: como está o cuidado, o que
-             precisa de mim, quando é o próximo contato, o que existe de
-             comunicação, quem mais cuida, o que estou tomando, o que
-             prepararam, o que já foi trocado. Do estado à ação, da ação ao
-             calendário, e só então ao arquivo. */
+          /* Oito blocos, e cada assunto aparece em exatamente um.
+
+             Estado (hero) → ação (Precisa de você) → compromisso
+             (Consulta) → pessoas (Especialista, Equipe) → medicamento
+             (Tratamento) → recursos (Materiais, Documentos).
+
+             A regra que a iteração passada quebrou e esta restabelece:
+             consulta só na Consulta, mensagem só no card da especialista,
+             dose e receita só no Tratamento. Nada volta ao hero — ele
+             lê o conjunto, não reexibe as partes. */
           <>
             <Topo />
 
-            <CuidadoHoje />
             <Pendencias />
             <Consulta />
             <BannerMedica />
