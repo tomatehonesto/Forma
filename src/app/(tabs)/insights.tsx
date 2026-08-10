@@ -12,6 +12,7 @@ import {
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
+import { Malha } from '../../ui/instrumentos';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
@@ -544,7 +545,26 @@ export default function Insights() {
             elemento, e um radar ao lado de três frases volta a puxar a
             atenção para a técnica — os oito indicadores continuam desenhados
             em Sintomas, que é onde quem quer o detalhe vai. */}
-        <View style={{ backgroundColor: c.altTo, borderRadius: radius.lg, padding: 24, marginTop: 40 }}>
+        {/* A malha, a mesma do hero de Cuidado.
+
+            O card era `altTo` chapado — o azul mais escuro da rampa, e
+            portanto tecnicamente da marca. Mas cor chapada num app cujas
+            duas superfícies escuras são pintadas lia como um retângulo
+            desligado das duas: o mesmo registro de "fala do Companion" que
+            a Cuidado usa, sem o material que o faz parecer isso.
+
+            Com a malha ele passa a pertencer. O verde-água que nasce do
+            cruzamento entre lima e azul é a mesma assinatura, e ela
+            aparecendo aqui diz que a voz é a mesma — a inteligência do app
+            fala com a mesma superfície em qualquer aba, e é a superfície
+            que a identifica antes do rótulo.
+
+            `overflow: hidden` porque a malha é absoluta e precisa ser
+            recortada pelo raio; o conteúdo vai num filho, senão ele fica
+            atrás do desenho. */}
+        <View style={{ backgroundColor: c.altMid, borderRadius: radius.lg, marginTop: 40, overflow: 'hidden' }}>
+          <Malha id="insightsEquilibrio" forca={1} escura />
+          <View style={{ padding: 24 }}>
           <Row gap={9}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
             <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>COMPANION OBSERVOU</Txt>
@@ -584,6 +604,7 @@ export default function Insights() {
               <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />
             </Row>
           </Pressable>
+          </View>
         </View>
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
