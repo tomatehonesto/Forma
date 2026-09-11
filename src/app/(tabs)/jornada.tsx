@@ -16,6 +16,7 @@ import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 
 import { useTheme } from '../../ui/useTheme';
+import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius } from '../../theme';
 
@@ -47,7 +48,7 @@ function Painel() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width: largura } = useWindowDimensions();
+  const largura = useLarguraApp();
   const r = journeySummary(S);
   const cyc = doseCycle(S);
   const serie = weightSeries(S);

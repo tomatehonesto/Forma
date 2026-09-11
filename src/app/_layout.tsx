@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,7 +10,29 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
-import { light } from '../theme';
+import { light, APP_MAX_W } from '../theme';
+
+/* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
+   é a mesa sobre a qual o aparelho fica apoiado, e só existe em navegador. */
+const MESA = '#DDE3F2';
+
+/* No celular o app é a tela inteira e este componente não faz nada. No web
+   ele passa a rodar numa coluna de largura de telefone, centrada.
+
+   Sem isso o app renderiza edge-to-edge, e o preview mente: uma manchete de
+   32px que domina uma tela de 390 vira uma linha perdida num hero de 1400,
+   e quem avalia a tela pelo navegador conclui que a tipografia está pequena
+   quando o que está errado é a proporção. */
+function Moldura({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') return <>{children}</>;
+  return (
+    <View style={{ flex: 1, backgroundColor: MESA, alignItems: 'center' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: APP_MAX_W, backgroundColor: light.bg, overflow: 'hidden' }}>
+        {children}
+      </View>
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
@@ -26,6 +49,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar style="dark" />
+        <Moldura>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="checkin" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
@@ -83,6 +107,7 @@ export default function RootLayout() {
             />
           ))}
         </Stack>
+        </Moldura>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

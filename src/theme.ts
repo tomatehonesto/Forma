@@ -166,6 +166,18 @@ export const dark: Palette = {
   scrim: 'rgba(0,0,0,0.60)',
 };
 
+/* Largura máxima do app.
+
+   Isto é um app de celular. No web ele rodaria edge-to-edge, e aí a mesma
+   manchete de 32px que domina uma tela de 390 vira uma linha perdida num
+   hero de 1400 — o desenho some, e quem avalia a tela pelo navegador julga
+   um layout que ninguém vai ver. A coluna centrada em app/_layout devolve
+   ao preview a proporção do aparelho.
+
+   430 é a largura do iPhone Pro Max, o maior telefone que o app precisa
+   atender: a coluna nunca aperta um aparelho real, só segura o desktop. */
+export const APP_MAX_W = 430;
+
 export const space = { xs: 4, sm: 8, md: 12, base: 16, lg: 20, xl: 24, xxl: 32, huge: 44 };
 
 /* Altura da tab bar sem a safe area. Mora aqui, e não em ui/TabBar, porque

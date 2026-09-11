@@ -13,6 +13,7 @@ import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
 import { Image } from 'expo-image';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { useLarguraApp } from '../ui/useLarguraApp';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, font } from '../theme';
 
@@ -145,7 +146,7 @@ export default function Companion() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width: largura } = useWindowDimensions();
+  const largura = useLarguraApp();
   useLightStatusBar();
   const scrollRef = useRef<ScrollView>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);

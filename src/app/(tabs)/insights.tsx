@@ -15,6 +15,7 @@ import { Barras } from '../../ui/charts';
 import { Malha } from '../../ui/instrumentos';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
+import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, type Palette } from '../../theme';
@@ -132,7 +133,7 @@ export default function Insights() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const width = useLarguraApp();
   useLightStatusBar();
 
   const go = (to: string) => () => router.push(to as any);

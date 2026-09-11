@@ -16,6 +16,7 @@ import { Txt, Row, Card, SectionHead, ListRow, Metric } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
+import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, type Palette } from '../../theme';
 
@@ -95,7 +96,7 @@ export default function Home() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const width = useLarguraApp();
   const [slide, setSlide] = useState(0);
   const [held, setHeld] = useState(false);   // dedo no carrossel = cronômetro parado
   const heroRef = useRef<ScrollView>(null);
