@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
-import { View, Pressable, TextInput } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { curWeight } from '../logic/derive';
-import { now, nf } from '../logic/time';
+import { curWeight, latestMeasure } from '../logic/derive';
+import { DOW_PT, MO_LONG, now, nf } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Icon } from '../ui/Icon';
+import { Campo, Opcoes, Opc, Stepper, Selo, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
 
-/* Novo peso — captura, não a tela de evolução. Abre com o último valor já
-   preenchido porque a variação de um dia para o outro é pequena: quase
-   sempre são dois toques no ajuste fino, não digitar tudo de novo. */
+/* ============================================================
+   PESO E MEDIDAS
+
+   A captura abre com o último valor já preenchido: de um dia para o outro
+   a variação é pequena, então quase sempre são dois toques no ajuste fino
+   e não digitar tudo de novo. Quem voltou de uma semana fora digita, que é
+   para isso que o número do meio é campo.
+
+   As medidas entram no mesmo sheet, e opcionais. São a resposta ao platô —
+   a balança trava e a cintura continua caindo —, mas exigi-las junto do
+   peso transformaria a pesagem de dez segundos numa sessão com fita
+   métrica, e o resultado disso é não pesar. Por isso a ajuda diz, em voz
+   alta, que pesar sozinho também é uma escolha válida.
+
+   A medição completa, com as quatro circunferências, continua em
+   /medir-medidas. Aqui ficam as três que mudam entre uma sessão e outra.
+   ============================================================ */
+
+const MEDIDAS: [string, string][] = [
+  ['cintura', 'Cintura'],
+  ['quadril', 'Quadril'],
+  ['braco', 'Braço'],
+];
+
+const n1 = (x: number) => nf(x, 1).replace('.', ',');
+
 export default function MedirPeso() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -19,63 +41,107 @@ export default function MedirPeso() {
   const router = useRouter();
 
   const ultimo = curWeight(S);
-  const [valor, setValor] = useState(ultimo);
-  const [texto, setTexto] = useState(nf(ultimo, 1).replace('.', ','));
+  const ultima: any = latestMeasure(S);
+
+  const [peso, setPeso] = useState(ultimo);
+  const [texto, setTexto] = useState(n1(ultimo));
+  const [abertas, setAbertas] = useState<string[]>([]);
+  const [medidas, setMedidas] = useState<Record<string, number>>(
+    Object.fromEntries(MEDIDAS.map(([k]) => [k, ultima?.[k] ?? 0])),
+  );
 
   const ajustar = (d: number) => {
-    const v = Math.round((valor + d) * 10) / 10;
+    const v = Math.round((peso + d) * 10) / 10;
     if (v < 30 || v > 250) return;
-    setValor(v); setTexto(nf(v, 1).replace('.', ','));
+    setPeso(v); setTexto(n1(v));
   };
   const digitar = (t: string) => {
     setTexto(t);
     const v = parseFloat(t.replace(',', '.'));
-    if (v >= 30 && v <= 250) setValor(v);
+    if (v >= 30 && v <= 250) setPeso(v);
   };
 
-  const delta = valor - ultimo;
+  const alterna = (k: string) =>
+    setAbertas((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k]));
+  const mexer = (k: string, d: number) =>
+    setMedidas((m) => ({ ...m, [k]: Math.max(0, Math.round((m[k] + d) * 10) / 10) }));
+
+  const delta = peso - ultimo;
+  const hoje = now();
+  const dow = DOW_PT[hoje.getDay()];
+
   const salvar = () => {
-    update((s: any) => { s.weights.push({ t: +now(), kg: valor }); });
+    update((s: any) => {
+      s.weights.push({ t: +now(), kg: peso });
+      /* Só grava medida se alguma foi aberta. Um registro com os valores
+         da última sessão repetidos entraria no gráfico como se a pessoa
+         tivesse medido de novo e não mudado nada — que é uma afirmação
+         diferente de não ter medido. */
+      if (abertas.length) {
+        const base = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
+        s.measures.push({
+          ...base,
+          t: +now(),
+          ...Object.fromEntries(abertas.map((k) => [k, medidas[k]])),
+        });
+      }
+    });
     router.back();
   };
 
   return (
-    <SheetScreen titulo="Quanto você está pesando?" sub={`último: ${nf(ultimo, 1).replace('.', ',')} kg`} onClose={() => router.back()}>
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 18 }}>
-        <Row gap={14} style={{ justifyContent: 'center' }}>
-          <Pressable onPress={() => ajustar(-0.1)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="chevdown" size={20} color={c.tx2} sw={2.2} />
-            </View>
-          </Pressable>
-          <TextInput
-            value={texto} onChangeText={digitar} keyboardType="decimal-pad" selectTextOnFocus
-            style={{ minWidth: 120, textAlign: 'center', color: c.tx, fontFamily: font.body, fontSize: 40, paddingVertical: 4 }}
+    <SheetScreen
+      titulo="Peso e medidas"
+      sub={`${dow.charAt(0).toUpperCase()}${dow.slice(1)}, ${hoje.getDate()} de ${MO_LONG[hoje.getMonth()]}`}
+      onClose={() => router.back()}
+    >
+      <View style={{ marginTop: 18, gap: 10 }}>
+        <Campo rotulo="Peso">
+          <Stepper
+            valor={texto}
+            unidade="kg"
+            onMenos={() => ajustar(-0.1)}
+            onMais={() => ajustar(0.1)}
+            onDigitar={digitar}
           />
-          <Pressable onPress={() => ajustar(0.1)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="chevup" size={20} color={c.tx2} sw={2.2} />
-            </View>
-          </Pressable>
-        </Row>
-        <Txt v="note" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>kg</Txt>
+          {Math.abs(delta) >= 0.05 ? (
+            <Row style={{ justifyContent: 'center' }}>
+              <Selo
+                label={`${delta < 0 ? '−' : '+'}${n1(Math.abs(delta))} kg desde o último`}
+                tom={delta < 0 ? 'lima' : 'neutra'}
+              />
+            </Row>
+          ) : null}
+        </Campo>
 
-        {Math.abs(delta) >= 0.05 && (
-          <Row gap={7} style={{ justifyContent: 'center', marginTop: 14 }}>
-            <View style={{ backgroundColor: delta < 0 ? c.limeWeak : c.bg2, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill }}>
-              <Txt v="micro" c={delta < 0 ? c.limeInk : c.tx3}>
-                {delta < 0 ? '−' : '+'}{nf(Math.abs(delta), 1).replace('.', ',')} kg desde o último
-              </Txt>
-            </View>
-          </Row>
-        )}
+        <Campo
+          rotulo="Medidas · opcional"
+          ajuda="Nenhuma medida é obrigatória. Pesar quando você quiser também é uma escolha válida."
+        >
+          <Opcoes>
+            {MEDIDAS.map(([k, label]) => (
+              <Opc key={k} label={label} on={abertas.includes(k)} onPress={() => alterna(k)} />
+            ))}
+          </Opcoes>
+
+          {abertas.map((k) => {
+            const label = MEDIDAS.find(([id]) => id === k)![1];
+            return (
+              <View key={k} style={{ gap: 6 }}>
+                <Txt v="caption" c={c.tx3}>{label}</Txt>
+                <Stepper
+                  valor={n1(medidas[k])}
+                  unidade="cm"
+                  onMenos={() => mexer(k, -0.5)}
+                  onMais={() => mexer(k, 0.5)}
+                />
+              </View>
+            );
+          })}
+        </Campo>
+
+        <Botao label={`Salvar ${n1(peso)} kg`} onPress={salvar} />
       </View>
-
-      <Pressable onPress={salvar} style={({ pressed }) => [{ marginTop: 16, opacity: pressed ? 0.8 : 1 }]}>
-        <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
-          <Txt v="body" c={c.accentInk}>Registrar {nf(valor, 1).replace('.', ',')} kg</Txt>
-        </View>
-      </Pressable>
     </SheetScreen>
   );
 }

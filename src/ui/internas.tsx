@@ -476,11 +476,18 @@ export function Opc({ label, on, onPress }: { label: string; on?: boolean; onPre
   );
 }
 
-/* Stepper — menos, valor grande, mais. Para peso e dose: são números que a
-   pessoa ajusta em passos conhecidos, e abrir teclado numérico para isso
-   erra mais do que acerta (75,1 vira 751 com um toque a mais). */
-export function Stepper({ valor, unidade, onMenos, onMais }: {
+/* Stepper — menos, valor grande, mais. Para peso, dose e medidas: são
+   números que a pessoa ajusta em passos conhecidos, e abrir teclado
+   numérico para isso erra mais do que acerta (75,1 vira 751 com um toque
+   a mais).
+
+   `onDigitar` abre a exceção: o passo resolve a variação de um dia para o
+   outro, mas quem voltou de uma semana fora não vai tocar vinte vezes. Com
+   ele o número do meio vira campo; sem ele, texto. A dose não recebe —
+   ela é uma escada fechada, e digitar ali inventaria valor fora dela. */
+export function Stepper({ valor, unidade, onMenos, onMais, onDigitar }: {
   valor: string; unidade: string; onMenos: () => void; onMais: () => void;
+  onDigitar?: (v: string) => void;
 }) {
   const { c } = useTheme();
   const caixa = {
@@ -492,12 +499,20 @@ export function Stepper({ valor, unidade, onMenos, onMais }: {
       <Pressable onPress={onMenos} style={({ pressed }) => [caixa, { opacity: pressed ? 0.6 : 1 }]}>
         <View style={{ width: 16, height: 2, borderRadius: 1, backgroundColor: c.tx }} />
       </Pressable>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <Txt v="metric" style={{ letterSpacing: -1 }}>
-          {valor}
-          <Txt v="label" c={c.tx2}>{` ${unidade}`}</Txt>
-        </Txt>
-      </View>
+      <Row style={{ flex: 1, justifyContent: 'center', alignItems: 'baseline' }}>
+        {onDigitar ? (
+          <TextInput
+            value={valor}
+            onChangeText={onDigitar}
+            keyboardType="decimal-pad"
+            selectTextOnFocus
+            style={[ty.metric, { color: c.tx, letterSpacing: -1, textAlign: 'right', minWidth: 92, paddingVertical: 0 }]}
+          />
+        ) : (
+          <Txt v="metric" style={{ letterSpacing: -1 }}>{valor}</Txt>
+        )}
+        <Txt v="label" c={c.tx2}>{` ${unidade}`}</Txt>
+      </Row>
       <Pressable onPress={onMais} style={({ pressed }) => [caixa, { opacity: pressed ? 0.6 : 1 }]}>
         <Icon name="plus" size={20} color={c.tx} sw={2.2} />
       </Pressable>
