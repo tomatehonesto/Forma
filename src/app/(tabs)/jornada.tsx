@@ -79,7 +79,7 @@ function Painel() {
       {/* ---- peso: o número que a pessoa veio buscar ---- */}
       <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
 
-      <Row style={{ alignItems: 'flex-end', marginTop: 12 }}>
+      <Row style={{ alignItems: 'center', marginTop: 12 }}>
         {/* número inteiro em branco puro — é o destaque da tela, e recuar a
             fração aqui só enfraquecia o que mais importa */}
         <Metric value={`−${r.lostLabel}`} unit="kg" v="hero" tone={c.onHero} dim={c.onHero} />
@@ -88,7 +88,7 @@ function Painel() {
             toque abre /ritmo, que mostra de onde ela saiu e — mais
             importante — o que ela NÃO mede. */}
         <Pressable onPress={() => router.push('/ritmo' as any)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
-          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill, marginBottom: 6 }}>
+          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
             <Txt v="tag" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
           </View>
         </Pressable>
@@ -154,7 +154,7 @@ function Painel() {
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
               SEUS ÚLTIMOS 7 DIAS
             </Txt>
-            <Txt v="micro" c={c.onHero2}>
+            <Txt v="tag" c={c.onHero}>
               {ndDays <= 0 ? 'dose hoje' : ndDays === 1 ? 'dose amanhã' : `dose em ${ndDays} dias`}
             </Txt>
           </Row>

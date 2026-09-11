@@ -321,8 +321,17 @@ export default function Home() {
             </Pressable>
             <Row style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }} gap={8}>
               <Txt v="h1" c={c.lime}>{stk}</Txt>
+              {/* Hífen não-separável em "check‑in": com o corpo em 19px a
+                  frase quebrava em três linhas e partia a palavra ao meio
+                  ("dias de check-" / "in" / "consecutivos"), que é o tipo de
+                  quebra que faz a pessoa reler.
+
+                  A caixa não pode crescer — 120px é exatamente o que sobra
+                  entre o botão e a borda —, então o que encolheu foi a
+                  frase: "seguidos" diz o mesmo que "consecutivos" em quatro
+                  letras a menos, e cabe em duas linhas limpas. */}
               <Txt v="body" c={c.onHero} style={{ width: 120 }}>
-                {stk === 1 ? 'dia de check-in' : 'dias de check-in consecutivos'}
+                {stk === 1 ? 'dia de check‑in' : 'dias seguidos de check‑in'}
               </Txt>
             </Row>
           </Row>
