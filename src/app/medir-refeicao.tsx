@@ -80,7 +80,7 @@ export default function MedirRefeicao() {
         <TextInput
           value={oque} onChangeText={setOque}
           placeholder="O que tinha no prato?" placeholderTextColor={c.tx4}
-          style={{ paddingVertical: 16, color: c.tx, fontFamily: font.body, fontSize: 17 }}
+          style={{ paddingVertical: 16, color: c.tx, fontFamily: font.body, fontSize: 19 }}
         />
         <Divider />
         <View style={{ paddingVertical: 14 }}>

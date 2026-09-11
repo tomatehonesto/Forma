@@ -327,7 +327,7 @@ export default function Insights() {
               value={pergunta} onChangeText={setPergunta}
               onSubmitEditing={enviar} returnKeyType="send"
               placeholder="Escreva sua pergunta..." placeholderTextColor={c.onHero2}
-              style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 16 }}
+              style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 19 }}
             />
             <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>

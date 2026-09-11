@@ -46,7 +46,7 @@ export default function MedirAnotacao() {
           value={texto} onChangeText={setTexto} autoFocus multiline
           placeholder="O que a médica orientou, o que mudou, o que você quer perguntar depois..."
           placeholderTextColor={c.tx4}
-          style={{ minHeight: 96, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 17, lineHeight: 23, textAlignVertical: 'top' }}
+          style={{ minHeight: 96, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19, lineHeight: 26, textAlignVertical: 'top' }}
         />
       </View>
 

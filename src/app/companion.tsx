@@ -331,7 +331,7 @@ export default function Companion() {
               <TextInput
                 value={input} onChangeText={setInput} onSubmitEditing={() => ask(input)}
                 placeholder="Pergunte sobre sua jornada" placeholderTextColor={c.tx4}
-                style={{ flex: 1, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 15 }}
+                style={{ flex: 1, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19 }}
               />
             </Row>
             {/* o botão só acende quando há o que enviar: cheio e apagado

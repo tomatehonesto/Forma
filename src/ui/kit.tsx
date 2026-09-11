@@ -103,7 +103,12 @@ export function ListRow({ ic, title, sub, dot, tone, right, onPress }: {
       </View>
       <View style={{ flex: 1, marginLeft: 12 }}>
         <Txt v="body">{title}</Txt>
-        {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }} numberOfLines={1}>{sub}</Txt> : null}
+        {/* Duas linhas, não uma. Com a legenda em 16px, subs como "3 doses
+            restantes · cerca de 3 semanas" deixaram de caber numa linha só,
+            e o corte comia justamente o fim da frase — que é onde mora a
+            informação ("cerca de 3 semanas"). A linha cresce só quando
+            precisa. */}
+        {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }} numberOfLines={2}>{sub}</Txt> : null}
       </View>
       {right ?? (onPress ? <Icon name="chev" size={15} color={c.tx2} sw={2} /> : null)}
     </Row>

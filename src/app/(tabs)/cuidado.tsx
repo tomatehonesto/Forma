@@ -504,7 +504,7 @@ function Time() {
             {time.map((p) => p.role).join(' · ')}
           </Txt>
           <Row gap={5} style={{ marginTop: 7 }}>
-            <Txt v="label" c={c.accent2} style={{ fontSize: 13 }}>Conheça toda a equipe</Txt>
+            <Txt v="label" c={c.accent2} style={{ fontSize: 15 }}>Conheça toda a equipe</Txt>
             <Icon name="chev" size={12} color={c.accent2} sw={2.2} />
           </Row>
         </View>

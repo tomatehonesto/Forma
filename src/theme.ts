@@ -215,28 +215,38 @@ export const font = {
    do público tem mais de 40. A escala foi subida um degrau na ponta
    pequena, mantendo a hierarquia e as proporções do frame.
 
-   A régua ficou: 12 · 14 · 15 · 17 · 19 · 20 · 30 · 32 · 36 */
+   A régua era: 12 · 14 · 15 · 17 · 19 · 20 · 30 · 32 · 36
+
+   E ainda era pequena. Vista na proporção certa — o app numa coluna de
+   telefone, não esticado no navegador —, a leitura continuou apertada, e
+   a escala subiu de novo, cerca de 12% em toda a extensão. O degrau maior
+   ficou nas legendas: caption e note carregam quase todo o texto
+   secundário do app (a data de um registro, o de-onde-para-onde de uma
+   métrica, a frase que explica um campo) e eram justamente as que a vista
+   cansada perdia primeiro.
+
+   A régua agora: 13 · 16 · 17 · 19 · 21 · 23 · 34 · 36 */
 export const ty = {
   /** manchete do hero — o peso leve é intencional */
-  display: { fontFamily: font.light, fontSize: 32, lineHeight: 38 },
+  display: { fontFamily: font.light, fontSize: 36, lineHeight: 42 },
   /** número grande em destaque (streak) */
-  h1: { fontFamily: font.display, fontSize: 32, lineHeight: 40 },
+  h1: { fontFamily: font.display, fontSize: 36, lineHeight: 44 },
   /** título de seção — "Suas metas diárias" */
-  h2: { fontFamily: font.display, fontSize: 20, lineHeight: 26 },
+  h2: { fontFamily: font.display, fontSize: 23, lineHeight: 30 },
   /** título de card — "Ingestão de proteína" */
-  title: { fontFamily: font.body, fontSize: 19, lineHeight: 25 },
+  title: { fontFamily: font.body, fontSize: 21, lineHeight: 28 },
   /** valor numérico — "57g", "−16,5 kg" */
-  metric: { fontFamily: font.body, fontSize: 30, lineHeight: 37 },
-  body: { fontFamily: font.body, fontSize: 17, lineHeight: 23 },
-  bodyMed: { fontFamily: font.bodyMed, fontSize: 17, lineHeight: 23 },
+  metric: { fontFamily: font.body, fontSize: 34, lineHeight: 42 },
+  body: { fontFamily: font.body, fontSize: 19, lineHeight: 26 },
+  bodyMed: { fontFamily: font.bodyMed, fontSize: 19, lineHeight: 26 },
   /** link de seção e tab ativa — "Ir para metas" */
-  label: { fontFamily: font.bodyMed, fontSize: 15, lineHeight: 20 },
+  label: { fontFamily: font.bodyMed, fontSize: 16, lineHeight: 22 },
   /** legenda — "Faltam 33 g", "Meta: −23 kg", eixos */
-  note: { fontFamily: font.light, fontSize: 15, lineHeight: 21 },
+  note: { fontFamily: font.light, fontSize: 17, lineHeight: 24 },
   /** sub de item de lista — "3 novas mensagens" */
-  caption: { fontFamily: font.body, fontSize: 14, lineHeight: 18 },
+  caption: { fontFamily: font.body, fontSize: 16, lineHeight: 21 },
   /** overline em caixa alta e selos — "SUA ESPECIALISTA", "PARA HOJE" */
-  micro: { fontFamily: font.body, fontSize: 12, lineHeight: 15 },
+  micro: { fontFamily: font.body, fontSize: 13, lineHeight: 17 },
 } as const;
 
 /* Sombra do frame é bem mais suave que a do v1: preto a 5%. */
