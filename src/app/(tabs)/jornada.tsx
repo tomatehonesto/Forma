@@ -88,8 +88,8 @@ function Painel() {
             toque abre /ritmo, que mostra de onde ela saiu e — mais
             importante — o que ela NÃO mede. */}
         <Pressable onPress={() => router.push('/ritmo' as any)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
-          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
-            <Txt v="micro" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
+          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill, marginBottom: 6 }}>
+            <Txt v="tag" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
           </View>
         </Pressable>
       </Row>
@@ -244,7 +244,7 @@ function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
         <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Icon name={ch.ic} size={17} color={c.tx3} sw={1.8} />
           <View style={{ backgroundColor: ch.good ? c.limeWeak : c.bg2, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill }}>
-            <Txt v="micro" c={ch.good ? c.limeInk : c.tx3}>{ch.delta}</Txt>
+            <Txt v="tag" c={ch.good ? c.limeInk : c.tx3}>{ch.delta}</Txt>
           </View>
         </Row>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 20 }} numberOfLines={1}>{ch.label}</Txt>
@@ -289,13 +289,13 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
         <Txt v="bodyMed" style={{ marginRight: 8 }}>Semana {w.semana}</Txt>
         {!filtro && w.mudouDose && (
           <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginRight: 6 }}>
-            <Txt v="micro" c={c.accent}>dose ajustada</Txt>
+            <Txt v="tag" c={c.accent}>dose ajustada</Txt>
           </View>
         )}
         <View style={{ flex: 1 }} />
         {!filtro && w.deltaPeso && (
           <View style={{ backgroundColor: perdeu ? c.limeWeak : c.bg2, paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill }}>
-            <Txt v="micro" c={perdeu ? c.limeInk : c.tx3}>{w.deltaPeso}</Txt>
+            <Txt v="tag" c={perdeu ? c.limeInk : c.tx3}>{w.deltaPeso}</Txt>
           </View>
         )}
         {!filtro && (

@@ -194,7 +194,7 @@ export function Selo({ label, tom = 'lima' }: { label: string; tom?: SeloTom }) 
   const [bg, fg] = par[tom];
   return (
     <View style={{ backgroundColor: bg, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.sm, alignSelf: 'flex-start' }}>
-      <Txt v="micro" c={fg} style={{ fontFamily: font.bodyMed }}>{label}</Txt>
+      <Txt v="tag" c={fg} style={{ fontFamily: font.bodyMed }}>{label}</Txt>
     </View>
   );
 }

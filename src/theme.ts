@@ -260,7 +260,19 @@ export const ty = {
   note: { fontFamily: font.light, fontSize: 17, lineHeight: 24 },
   /** sub de item de lista — "3 novas mensagens" */
   caption: { fontFamily: font.body, fontSize: 16, lineHeight: 21 },
-  /** overline em caixa alta e selos — "SUA ESPECIALISTA", "PARA HOJE" */
+  /* Selo — "Em ritmo saudável", "−7,3 kg", "Na referência".
+
+     Vivia em `micro` junto com o overline, e os dois querem coisas
+     opostas. O overline é um rótulo de seção em caixa alta: ele orienta e
+     depois some, e ser pequeno é parte do trabalho. O selo é um VALOR —
+     o veredito do tratamento, a variação da semana — e encolhê-lo esconde
+     justamente o que a pessoa veio ler. Ao lado de um número de 44px, 13
+     sumia.
+
+     15 contra um corpo de 19 dá a mesma razão que o protótipo tem entre o
+     selo dele e o corpo dele. */
+  tag: { fontFamily: font.body, fontSize: 15, lineHeight: 20 },
+  /** overline em caixa alta — "SUA ESPECIALISTA", "PARA HOJE" */
   micro: { fontFamily: font.body, fontSize: 13, lineHeight: 17 },
 } as const;
 

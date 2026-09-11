@@ -122,7 +122,7 @@ export function Pill({ label, color, bg, icon }: { label: string; color?: string
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: bg ?? c.accentWeak, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill }}>
       {icon ? <Icon name={icon} size={13} color={color ?? c.accent} sw={2} /> : null}
-      <Text style={[ty.micro, { color: color ?? c.accent }]}>{label}</Text>
+      <Text style={[ty.tag, { color: color ?? c.accent }]}>{label}</Text>
     </View>
   );
 }
