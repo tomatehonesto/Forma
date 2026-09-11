@@ -205,9 +205,16 @@ function Painel() {
           caption e chevron à direita. Eram dois cartões com a mesma
           função — a inteligência do app falando de dentro do hero — em
           dois desenhos diferentes, e isso obriga a pessoa a reconhecer
-          duas vezes a mesma coisa. */}
+          duas vezes a mesma coisa.
+
+          Levava ao Morphi com a pergunta da fase já digitada, e isso fazia
+          sentido enquanto /ciclo não respondia: perguntar a uma IA era o
+          caminho mais curto para "por que a fome voltou?". Agora a tela de
+          ciclo abre nas quatro fases, com a de agora já expandida — a
+          faixa leva para lá, que é a resposta direta em vez do caminho até
+          ela. */}
       <Pressable
-        onPress={() => router.push(`/companion?q=${encodeURIComponent(cyc.phase.q)}` as any)}
+        onPress={() => router.push('/ciclo' as any)}
         style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 22, marginBottom: 26 }]}
       >
         <Row gap={12} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>

@@ -67,7 +67,7 @@ export default function Registro() {
           <Botao
             label="Corrigir registro"
             tom="fantasma"
-            onPress={() => { router.back(); router.push('/medir-peso' as any); }}
+            onPress={() => { router.back(); router.push((marcador === 'cintura' ? '/medir-medidas' : '/medir-peso') as any); }}
           />
           <Botao label="Apagar" tom="perigo" onPress={apagar} />
         </View>

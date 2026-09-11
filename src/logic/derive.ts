@@ -1270,15 +1270,20 @@ export function journeyChanges(S: State): Change[] {
   const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const fm = firstMeasure(S), lm = latestMeasure(S);
 
+  /* Peso e cintura vão para /marcador, e não para a tela da área: são os
+     dois marcadores que a própria pessoa registra, então existe um
+     histórico linha a linha para abrir — com a série, cada registro e o
+     caminho para corrigir. Os de baixo vêm de exame ou de balança, não
+     têm lista para auditar, e seguem levando para onde o laudo mora. */
   out.push({
     ic: 'scale', label: 'Peso', from: `${n1(startWeight(S))} kg`, to: `${n1(curWeight(S))} kg`,
-    delta: `−${n1(lostKg(S))} kg`, good: true, to_: '/evolucao',
+    delta: `−${n1(lostKg(S))} kg`, good: true, to_: '/marcador?m=peso',
   });
 
   if (fm && lm && fm !== lm) {
     if (lm.cintura !== fm.cintura) out.push({
       ic: 'ruler', label: 'Cintura', from: `${fm.cintura} cm`, to: `${lm.cintura} cm`,
-      delta: `−${n1(fm.cintura - lm.cintura)} cm`, good: lm.cintura < fm.cintura, to_: '/medidas',
+      delta: `−${n1(fm.cintura - lm.cintura)} cm`, good: lm.cintura < fm.cintura, to_: '/marcador?m=cintura',
     });
     if (lm.gordura !== fm.gordura) out.push({
       ic: 'activity', label: 'Gordura corporal', from: `${n1(fm.gordura)}%`, to: `${n1(lm.gordura)}%`,

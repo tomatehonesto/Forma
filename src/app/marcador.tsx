@@ -36,15 +36,19 @@ type Def = {
   pontos: (S: any) => { t: number; v: number }[];
   /** "manhã" para peso; medidas não têm hora do dia */
   nota?: string;
+  /** para onde o "+" leva — cada marcador tem a sua captura */
+  capturar: string;
 };
 
 const DEFS: Record<string, Def> = {
   peso: {
     nome: 'Peso', unidade: 'kg', casas: 1, nota: 'manhã',
+    capturar: '/medir-peso',
     pontos: (S) => (S.weights as any[]).map((w) => ({ t: w.t, v: w.kg })),
   },
   cintura: {
     nome: 'Cintura', unidade: 'cm', casas: 0,
+    capturar: '/medir-medidas',
     pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m.cintura })),
   },
 };
@@ -96,7 +100,7 @@ export default function Marcador() {
     <TelaInterna
       titulo={def.nome}
       iconeAcao="plus"
-      onAcao={() => router.push('/medir-peso' as any)}
+      onAcao={() => router.push(def.capturar as any)}
     >
       <Titulao
         titulo={fmt(ultimo.v)}
