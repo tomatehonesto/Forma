@@ -194,6 +194,18 @@ export function buildSeed() {
        persistir a thread inteira envelheceria o dado. */
     asked: [] as { t: number; q: string }[],
     consultNotes: '',
+
+    /* Notas para a consulta. Cada uma guarda QUANDO foi anotada e se já
+       foi conversada: sem a data, a nota chega na consulta sem o contexto
+       que a explica ('isso foi antes ou depois de subir a dose?'). */
+    notes: [
+      { t: +daysAgo(2), text: 'A constipação piorou desde que subi para 5 mg', done: false },
+      { t: +daysAgo(7), text: 'Perguntar se posso aplicar de manhã em vez de à noite', done: false },
+      { t: +daysAgo(16), text: 'Tontura em dois dias seguidos na semana 9', done: false },
+      { t: +daysAgo(23), text: 'Confirmar se mantenho 5 mg ou subo', done: false },
+      { t: +daysAgo(38), text: 'Falar sobre os enjoos das primeiras semanas', done: true },
+      { t: +daysAgo(45), text: 'Pedir os exames de acompanhamento', done: true },
+    ],
     onboardDone: true,
     theme: 'light' as 'light' | 'dark',
     lastReplaySeen: 0,
@@ -215,6 +227,18 @@ export function ensureDefaults(S: any) {
   if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
   if (S.profile && !S.profile.doctorInfo) S.profile.doctorInfo = buildSeed().profile.doctorInfo;
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
+  /* Migração do texto corrido para a lista: cada linha do campo antigo
+     vira uma nota, datada de hoje porque a data original nunca existiu.
+     Depois disso a lista é a fonte, e consultNotes deixa de ser lido. */
+  if (!Array.isArray(S.notes)) {
+    const linhas = String(S.consultNotes || '')
+      .split('\n')
+      .map((l) => l.replace(/^[•\-\s]+/, '').trim())
+      .filter(Boolean);
+    S.notes = linhas.length
+      ? linhas.map((text) => ({ t: +startOfDay(now()), text, done: false }))
+      : buildSeed().notes;
+  }
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
   if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };
   if (!S.theme) S.theme = 'light';

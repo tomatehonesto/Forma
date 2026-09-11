@@ -83,9 +83,14 @@ function Painel() {
             fração aqui só enfraquecia o que mais importa */}
         <Metric value={`−${r.lostLabel}`} unit="kg" v="display" tone={c.onHero} dim={c.onHero} />
         <View style={{ flex: 1 }} />
-        <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
-          <Txt v="micro" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
-        </View>
+        {/* A etiqueta emite um juízo, então precisa poder ser auditada: o
+            toque abre /ritmo, que mostra de onde ela saiu e — mais
+            importante — o que ela NÃO mede. */}
+        <Pressable onPress={() => router.push('/ritmo' as any)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
+          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill, marginBottom: 6 }}>
+            <Txt v="micro" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
+          </View>
+        </Pressable>
       </Row>
 
       {/* A curva vem colada no número — é a mesma informação em outra
@@ -154,8 +159,15 @@ function Painel() {
           </Row>
 
           <Row gap={7} style={{ marginTop: 14 }}>
+            {/* Cada célula abre o dia dela; o resto da faixa continua
+                levando a /ciclo. O caso que isto resolve é o mais comum de
+                todos: lembrar na quarta que esqueceu de registrar a terça. */}
             {dias.map((d) => (
-              <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+              <Pressable
+                key={d.t}
+                onPress={() => router.push(`/dia?t=${d.t}` as any)}
+                style={({ pressed }) => [{ flex: 1, alignItems: 'center', opacity: pressed ? 0.7 : 1 }]}
+              >
                 <Txt v="micro" c={c.onHero2} style={{ marginBottom: 6, opacity: d.hoje ? 1 : 0.7 }}>{d.dow}</Txt>
                 <View
                   style={{
@@ -178,7 +190,7 @@ function Painel() {
                 <View style={{ height: 8, justifyContent: 'center' }}>
                   {d.aplicou && <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.onHero }} />}
                 </View>
-              </View>
+              </Pressable>
             ))}
           </Row>
 
@@ -388,7 +400,7 @@ export default function Jornada() {
             ação do app. O vermelho continua reservado para o que de fato
             precisa de atenção imediata. */}
         {!pen.verdict.good && (
-          <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <Pressable onPress={go('/caneta')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
             <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 20 }}>
               <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="pill" size={17} color={c.accent} sw={1.9} />

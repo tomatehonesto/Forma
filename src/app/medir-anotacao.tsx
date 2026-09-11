@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Pressable, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { notasTexto } from '../logic/derive';
+import { now } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -9,9 +11,9 @@ import { radius, font } from '../theme';
 
 /* Anotação da consulta — captura.
 
-   Vai para o mesmo campo que a tela de consultas usa na preparação: o que
-   a pessoa anota ao sair do consultório é exatamente o que ela quer ter em
-   mãos na próxima. Um lugar só, dois momentos de acesso. */
+   Vai para a mesma lista que /notas administra: o que a pessoa anota ao
+   sair do consultório é exatamente o que ela quer ter em mãos na próxima.
+   Um lugar só, dois momentos de acesso. */
 const SUGESTOES = [
   'Ajuste de dose',
   'Exame para repetir',
@@ -26,12 +28,14 @@ export default function MedirAnotacao() {
   const router = useRouter();
 
   const [texto, setTexto] = useState('');
-  const anterior = (S as any).consultNotes || '';
+  const anterior = notasTexto(S);
 
   const salvar = () => {
     const t = texto.trim();
     if (!t) return;
-    update((s: any) => { s.consultNotes = s.consultNotes ? `${s.consultNotes}\n• ${t}` : `• ${t}`; });
+    /* Entra no topo da lista com a data de hoje: é a data que dá sentido à
+       nota quando ela for lida na consulta, semanas depois. */
+    update((s: any) => { s.notes = [{ t: +now(), text: t, done: false }, ...(s.notes || [])]; });
     router.back();
   };
 

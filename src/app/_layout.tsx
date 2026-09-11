@@ -52,6 +52,14 @@ export default function RootLayout() {
           <Stack.Screen name="integracoes" />
           <Stack.Screen name="biblioteca" />
           <Stack.Screen name="resumo-medico" />
+          {/* telas internas da primeira leva — desenho em ui/internas */}
+          <Stack.Screen name="marcador" />
+          <Stack.Screen name="caneta" />
+          <Stack.Screen name="semana" />
+          <Stack.Screen name="notas" />
+          <Stack.Screen name="exportar" />
+          <Stack.Screen name="aplicacao" />
+          <Stack.Screen name="aplicacao-ok" />
           {/* Registrar é um bottom sheet montado à mão, não o formSheet
               nativo: aquele só existe em iOS/Android e virava tela cheia na
               web, sem sequer um jeito de fechar. transparentModal deixa o
@@ -66,7 +74,8 @@ export default function RootLayout() {
             }}
           />
           {/* capturas dedicadas — mesma apresentação do registrar */}
-          {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-sintomas','medir-medidas','medir-foto','medir-exame','medir-anotacao'].map((n) => (
+          {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-sintomas','medir-medidas','medir-foto','medir-exame','medir-anotacao',
+           'registro','nota','caneta-nova','ritmo','dia'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}

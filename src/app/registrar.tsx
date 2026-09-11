@@ -51,17 +51,19 @@ export default function Registrar() {
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
   const { motivo, acoes } = quickCapture(S);
 
-  const registrarAplicacao = () => {
-    update((s: any) => { s.injections.push({ t: +now(), med: s.profile.med, dose: s.profile.dose, site: nextSite(s), note: '' }); });
-    piscar('aplicacao');
-  };
+  /* A aplicação era o único item que salvava aqui dentro, num toque, com
+     dose e local no automático. Deixou de ser: ela é o registro que mais
+     pede escolha (local da rotação, dose, qual caneta) e o único que mexe
+     na contagem de doses — salvar no escuro deixava o estoque errado e
+     tirava da pessoa a decisão de onde aplicar. Agora abre /aplicacao,
+     que já chega com tudo preenchido para quem só quer confirmar. */
 
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
   const CATALOGO: Record<QuickKey, Item> = {
     agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L hoje`, to: '/medir-agua' },
     exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
-    aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: feito === 'aplicacao' ? 'registrada' : siteLabel(nextSite(S)), acao: registrarAplicacao },
+    aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
     sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/medir-sintomas' },
@@ -70,8 +72,15 @@ export default function Registrar() {
   };
 
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
-     sempre aqui: pede um número, mas resolve sem sair do sheet. */
+     sempre aqui: pede um número, mas resolve sem sair do sheet.
+
+     A aplicação abre a lista e está sempre presente. Ela também é um dos
+     atalhos contextuais, mas só no dia da dose — e adiantar ou atrasar uma
+     aplicação é exatamente a situação em que a pessoa precisa registrar
+     fora do dia. O filtro de baixo tira a duplicata quando os dois
+     coincidem. */
   const completos: Item[] = [
+    { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     { ic: 'scale', titulo: 'Acabei de me pesar', sub: `último: ${nf(curWeight(S), 1).replace('.', ',')} kg`, to: '/medir-peso' },
     { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/medir-refeicao' },
     { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome e intestino', to: '/medir-sintomas' },

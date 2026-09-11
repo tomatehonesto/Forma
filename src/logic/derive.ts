@@ -1748,3 +1748,173 @@ export function doseContext(S: State) {
     revisao: cs ? `Revisão na consulta ${cs.dias <= 0 ? 'de hoje' : cs.label}` : null,
   };
 }
+
+/* ============================================================
+   CICLO EM QUATRO FASES — a leitura das telas internas
+
+   doseCycle() divide o ciclo em cinco etapas e é o que alimenta a Home e
+   a Jornada: lá a pergunta é "em que ponto eu estou AGORA", e cinco
+   etapas dão granularidade para a frase do dia mudar.
+
+   A tela de Ciclo pergunta outra coisa — "como é o ciclo inteiro" — e aí
+   cinco linhas é uma a mais do que a pessoa consegue guardar. Aplicação e
+   pico são a mesma experiência vivida ("o efeito está subindo"), então
+   viram uma fase só. Sobram quatro, que é o número de coisas que cabe na
+   cabeça de quem está lendo isto pela primeira vez.
+
+   As duas leituras convivem de propósito: nenhuma tela de aba muda por
+   causa desta função.
+   ============================================================ */
+export type CicloFase = {
+  key: string;
+  /** "Dias 1–2 · subida" */
+  titulo: string;
+  /** o que a fase é, em meia linha */
+  sub: string;
+  /** primeiro e último dia do ciclo que a fase cobre */
+  de: number; ate: number;
+  comum: string;
+  ajuda: string;
+  /** só a fase de descida tem: é quando os sintomas que pedem médico aparecem */
+  atencao?: string;
+};
+
+export const CICLO_FASES: CicloFase[] = [
+  {
+    key: 'subida', titulo: 'Dias 1–2 · subida', sub: 'Efeito subindo, apetite mais baixo',
+    de: 1, ate: 2,
+    comum: 'náusea leve, saciedade rápida, menos vontade de comer',
+    ajuda: 'refeições menores e mais espaçadas; beber água ao longo do dia',
+  },
+  {
+    key: 'plato', titulo: 'Dias 3–4 · platô', sub: 'Fase mais estável do ciclo',
+    de: 3, ate: 4,
+    comum: 'apetite constante, intestino mais lento',
+    ajuda: 'priorizar proteína e fibra nas refeições',
+  },
+  {
+    key: 'descida', titulo: 'Dias 5–6 · descida', sub: 'Efeito cedendo, fome voltando aos poucos',
+    de: 5, ate: 6,
+    comum: 'mais fome que nos primeiros dias, energia oscilando',
+    ajuda: 'é a fase em que a fome volta — não significa que o tratamento parou de funcionar',
+    atencao: 'vômito persistente ou dor abdominal forte: fale com seu médico',
+  },
+  {
+    key: 'baixo', titulo: 'Dia 7 · ponto mais baixo', sub: 'Véspera da próxima aplicação',
+    de: 7, ate: 99,
+    comum: 'apetite mais próximo do habitual',
+    ajuda: 'deixe a caneta e o local da aplicação definidos na véspera',
+  },
+];
+
+/** Onde a pessoa está nas quatro fases, e o rótulo de cada uma em relação
+    a hoje: "passou", "agora", "amanhã" ou o intervalo que falta. */
+export function cicloFases(S: State) {
+  const { dayIn, total, nextDose } = doseCycle(S);
+  const fases = CICLO_FASES.map((f) => {
+    const estado: 'passou' | 'agora' | 'amanha' | 'depois' =
+      dayIn > f.ate ? 'passou'
+        : dayIn >= f.de ? 'agora'
+          : f.de === dayIn + 1 ? 'amanha' : 'depois';
+    const selo = estado === 'passou' ? 'passou' : estado === 'agora' ? 'agora' : estado === 'amanha' ? 'amanhã' : `em ${f.de - dayIn} dias`;
+    return { ...f, estado, selo };
+  });
+  const atual = fases.find((f) => f.estado === 'agora') ?? fases[fases.length - 1];
+  return { dayIn, total, nextDose, fases, atual, pct: Math.round((dayIn / total) * 100) };
+}
+
+/* ============================================================
+   CANETAS — o histórico do que foi aberto
+
+   O estado guarda quantas doses sobraram na caneta atual, não uma lista
+   de canetas. A lista é reconstruída a partir das aplicações: a caneta em
+   uso cobre as últimas (dosesPerPen − dosesLeft) aplicações, e o resto do
+   histórico é fatiado de trás para frente em blocos do mesmo tamanho.
+
+   Reconstruir em vez de guardar significa que trocar a contagem de doses
+   por caneta no perfil reescreve o histórico inteiro — que é justamente o
+   comportamento certo enquanto a caneta não for uma entidade do estado.
+   ============================================================ */
+
+/* Validade depois de aberta. 21 dias é o número da referência de desenho
+   (Mounjaro). Cada produto tem o seu, e isto precisa virar um campo de
+   MEDS assim que houver a fonte por produto — até lá fica em um lugar só,
+   visível, em vez de espalhado pelas telas. */
+export const CANETA_VALIDADE_DIAS = 21;
+
+export type Caneta = {
+  id: number;
+  /** 'uso' | 'fim' — a de cima é a que está aberta */
+  estado: 'uso' | 'fim';
+  label: string; dose: number; unit: string;
+  usadas: number; total: number;
+  /** timestamp da primeira aplicação da caneta; null se ainda não foi aberta */
+  abertaEm: number | null;
+  ultimaEm: number | null;
+  aplicacoes: { t: number; site: string; dose: number }[];
+};
+
+export function canetas(S: State): Caneta[] {
+  const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
+  const total: number = p.dosesPerPen || 4;
+  const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
+  const med = M(S);
+
+  /* A caneta aberta pode estar pela metade; as anteriores sempre foram
+     usadas até o fim. Por isso o corte começa pelo pedaço de cima. */
+  const emUso = Math.max(0, Math.min(total, total - p.dosesLeft));
+  const blocos: any[][] = [];
+  let fim = injs.length;
+  if (emUso > 0) { blocos.push(injs.slice(fim - emUso)); fim -= emUso; }
+  while (fim > 0) { const ini = Math.max(0, fim - total); blocos.push(injs.slice(ini, fim)); fim = ini; }
+
+  return blocos.map((bl, i) => ({
+    id: i,
+    estado: i === 0 && emUso > 0 ? 'uso' : 'fim',
+    label: med.label,
+    dose: bl.length ? bl[bl.length - 1].dose : S.profile.dose,
+    unit: med.unit,
+    usadas: bl.length,
+    total,
+    abertaEm: bl.length ? bl[0].t : null,
+    ultimaEm: bl.length ? bl[bl.length - 1].t : null,
+    aplicacoes: bl.map((x) => ({ t: x.t, site: x.site, dose: x.dose })),
+  }));
+}
+
+/** A caneta aberta e o que decorre dela: validade, cobertura e o veredito
+    de estoque que a Jornada já mostra no card de receita. */
+export function canetaAtual(S: State) {
+  const lista = canetas(S);
+  const atual = lista[0] ?? null;
+  const est = penStock(S);
+  const cad = CADENCE_DAYS(S.profile.med);
+  const vence = atual?.abertaEm ? addDays(new Date(atual.abertaEm), CANETA_VALIDADE_DIAS) : null;
+  /* Cobertura da receita: o que ainda há de dose vezes a cadência, contado
+     a partir da próxima aplicação. É uma estimativa do app, não um dado da
+     receita — o texto na tela diz "cerca de". */
+  const cobreAte = addDays(nextInjectionDate(S), Math.max(0, est.left - 1) * cad);
+  return { atual, lista, ...est, vence, cobreAte, validadeDias: CANETA_VALIDADE_DIAS };
+}
+
+/* ============================================================
+   NOTAS PARA A CONSULTA
+
+   A lista é a fonte; o texto corrido é uma PROJEÇÃO dela, gerada só na
+   hora de montar o relatório. O caminho inverso — guardar texto e tentar
+   extrair estrutura — foi o que existia antes, e não sobrevive à primeira
+   pergunta que a tela precisa responder: "esta nota é de antes ou depois
+   de eu subir a dose?".
+   ============================================================ */
+export type Nota = { t: number; text: string; done: boolean };
+
+export const notas = (S: State): Nota[] =>
+  ((S as any).notes || []).slice().sort((a: Nota, b: Nota) => b.t - a.t);
+
+export const notasAbertas = (S: State) => notas(S).filter((n) => !n.done);
+
+/** As notas ainda não conversadas, em texto, para o resumo do médico. */
+export function notasTexto(S: State) {
+  const abertas = notasAbertas(S);
+  return abertas.length ? abertas.map((n) => `• ${n.text}`).join('\n') : '';
+}

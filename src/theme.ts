@@ -26,6 +26,8 @@ export type Palette = {
   glass: string; glassLine: string;
   green: string; greenDim: string; blue: string; blueDim: string;
   good: string; bad: string;
+  ok: string; okBg: string;
+  limeSoft: string; limeSoftInk: string;
   cta: string; cta2: string; ctaInk: string; ctaWeak: string; ctaLine: string;
   water: string; waterBg: string;
   purple: string; purpleBg: string;
@@ -88,6 +90,13 @@ export const light: Palette = {
   // estado                                                   [figma p/ bad]
   good: '#065CF5', bad: '#D51A1A',
 
+  /* Selos das telas internas — o par de lavagens que carrega o veredito
+     dentro de um card: lima para variação medida ('−7,3 kg') e verde para
+     estado clínico bom ('Na referência'). São washes com tinta escura por
+     cima, não cores de marca: o selo informa, não compete com o azul.  */
+  ok: '#3C6B2C', okBg: '#D9EFC6',
+  limeSoft: '#EFF6A6', limeSoftInk: '#4A5410',
+
   // atenção / destrutivo — o frame só define o vermelho do
   // indicador de piora; o resto é derivado dele.             [infer]
   cta: '#D51A1A', cta2: '#E8452B', ctaInk: '#FFFFFF',
@@ -136,6 +145,9 @@ export const dark: Palette = {
 
   good: '#4C8BFF', bad: '#FF5A5A',
 
+  ok: '#A7D98A', okBg: 'rgba(167,217,138,0.16)',
+  limeSoft: 'rgba(221,246,44,0.16)', limeSoftInk: '#DDF62C',
+
   cta: '#FF5A5A', cta2: '#FF7A5A', ctaInk: '#2B0404',
   ctaWeak: 'rgba(255,90,90,0.16)', ctaLine: 'rgba(255,90,90,0.30)',
 
@@ -163,7 +175,11 @@ export const TAB_BAR_H = 58;
 
 /* Raios do frame: 8 · 12 · 24 · 32 · pill. 32 é o dominante
    (cards e superfícies agrupadas).                           [figma] */
-export const radius = { sm: 8, md: 12, lg: 24, xl: 32, pill: 999 };
+/* 18 entra entre md e lg como o raio de CARD das telas internas: elas são
+   listas densas de cartões pequenos, e 24 num card de 60px de altura come a
+   própria caixa. As telas de aba seguem em lg/xl — lá o card é grande e o
+   raio maior é o que dá o ar de superfície agrupada.                [figma] */
+export const radius = { sm: 8, md: 12, card: 18, lg: 24, xl: 32, pill: 999 };
 
 /* Outfit em quatro pesos. O frame usa 300 como peso mais frequente —
    o app v1 era 700/800, então o conjunto fica visivelmente mais leve. */

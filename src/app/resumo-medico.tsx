@@ -3,7 +3,7 @@ import { View, Pressable, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
-import { M, curWeight, lostKg, lostPct, adesao, journeyDay, examLast } from '../logic/derive';
+import { M, curWeight, lostKg, lostPct, adesao, journeyDay, examLast, notasTexto } from '../logic/derive';
 import { now, fmtDate, diffDays, nf, kg } from '../logic/time';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -28,7 +28,7 @@ function resumoText(S: State) {
     `Náusea ${nf(avg('nausea'), 1)} · Fome ${nf(avg('fome'), 1)} · Energia ${nf(avg('energia'), 1)} · Sono ${nf(avg('sono'), 1)} h`, '',
     'EXAMES (mais recentes)', exLines, '',
     'ANOTAÇÕES PARA A CONSULTA',
-    (S.consultNotes || '').trim() || '(sem anotações)',
+    notasTexto(S) || '(sem anotações)',
   ].join('\n');
 }
 
@@ -93,8 +93,8 @@ export default function ResumoMedico() {
         ))}
 
         <Sec t="Anotações para a consulta" />
-        <Txt v="bodyMed" c={(S.consultNotes || '').trim() ? c.tx2 : c.tx4} style={{ marginTop: 4, lineHeight: 20 }}>
-          {(S.consultNotes || '').trim() || 'Sem anotações — adicione em Consultas.'}
+        <Txt v="bodyMed" c={notasTexto(S) ? c.tx2 : c.tx4} style={{ marginTop: 4, lineHeight: 20 }}>
+          {notasTexto(S) || 'Sem anotações — adicione em Notas para a consulta.'}
         </Txt>
       </Card>
 
