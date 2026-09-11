@@ -82,7 +82,7 @@ function Painel() {
       <Row style={{ alignItems: 'flex-end', marginTop: 12 }}>
         {/* número inteiro em branco puro — é o destaque da tela, e recuar a
             fração aqui só enfraquecia o que mais importa */}
-        <Metric value={`−${r.lostLabel}`} unit="kg" v="display" tone={c.onHero} dim={c.onHero} />
+        <Metric value={`−${r.lostLabel}`} unit="kg" v="hero" tone={c.onHero} dim={c.onHero} />
         <View style={{ flex: 1 }} />
         {/* A etiqueta emite um juízo, então precisa poder ser auditada: o
             toque abre /ritmo, que mostra de onde ela saiu e — mais

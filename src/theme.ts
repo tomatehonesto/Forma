@@ -225,9 +225,24 @@ export const font = {
    métrica, a frase que explica um campo) e eram justamente as que a vista
    cansada perdia primeiro.
 
-   A régua agora: 13 · 16 · 17 · 19 · 21 · 23 · 34 · 36 */
+   A régua agora: 13 · 16 · 17 · 19 · 21 · 23 · 40 · 44
+
+   A ponta grande veio depois, do protótipo das telas internas: lá o
+   número do hero é 44 e o corpo é 14,5, e o que dá caráter àquelas telas
+   não é o tamanho do texto — é a DISTÂNCIA entre os dois. Os tamanhos de
+   leitura ficaram onde estavam; subiu só o que é valor. */
 export const ty = {
-  /** manchete do hero — o peso leve é intencional */
+  /* O número do hero — "−7,3 kg" na Jornada. É o maior degrau da régua e
+     não é vaidade: no protótipo das telas internas ele é 44 contra um
+     corpo de 14,5, uma razão de 3×, e é dela que vem o soco daquelas
+     telas. A nossa razão era 1,9× e a tela lia chapada.
+
+     Separado de `display` porque os dois papéis divergiram: o titulão de
+     uma tela interna ("Evolução", "A história") é um TÍTULO e fica em 36;
+     isto aqui é um VALOR, a resposta que a pessoa abriu o app para ver, e
+     ganha a ponta da escala sozinho. */
+  hero: { fontFamily: font.light, fontSize: 44, lineHeight: 52 },
+  /** manchete de tela — titulão das internas, slides do hero da Home */
   display: { fontFamily: font.light, fontSize: 36, lineHeight: 42 },
   /** número grande em destaque (streak) */
   h1: { fontFamily: font.display, fontSize: 36, lineHeight: 44 },
@@ -235,8 +250,8 @@ export const ty = {
   h2: { fontFamily: font.display, fontSize: 23, lineHeight: 30 },
   /** título de card — "Ingestão de proteína" */
   title: { fontFamily: font.body, fontSize: 21, lineHeight: 28 },
-  /** valor numérico — "57g", "−16,5 kg" */
-  metric: { fontFamily: font.body, fontSize: 34, lineHeight: 42 },
+  /** valor numérico — "57g", "−16,5 kg", o número do stepper */
+  metric: { fontFamily: font.body, fontSize: 40, lineHeight: 48 },
   body: { fontFamily: font.body, fontSize: 19, lineHeight: 26 },
   bodyMed: { fontFamily: font.bodyMed, fontSize: 19, lineHeight: 26 },
   /** link de seção e tab ativa — "Ir para metas" */
