@@ -36,7 +36,7 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, acao, iconeAcao, onAcao, fechar, rodape, children,
+  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, children,
 }: {
   titulo: string;
   /** rótulo curto da ação à direita ("Nova", "Salvar") */
@@ -46,6 +46,11 @@ export function TelaInterna({
   onAcao?: () => void;
   /** troca o "‹" por "✕" — fluxos de captura se fecham, não voltam */
   fechar?: boolean;
+  /* Nem todo voltar sai da tela. Onde uma tela guarda dois estados —
+     a lista de exames e o detalhe de um marcador —, voltar significa
+     desfazer a seleção, não desempilhar a rota. Sem isto a pessoa sairia
+     de Exames inteiro ao fechar um marcador. */
+  onVoltar?: () => void;
   rodape?: React.ReactNode;
   children: React.ReactNode;
 }) {
@@ -68,7 +73,7 @@ export function TelaInterna({
       >
         <Row style={{ minHeight: 48, paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 }}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={onVoltar ?? (() => router.back())}
             hitSlop={8}
             style={({ pressed }) => [{
               width: 36, height: 36, borderRadius: radius.md,
@@ -107,18 +112,22 @@ export function TelaInterna({
         {children}
       </ScrollView>
 
-      {/* Fundo chapado. Aqui havia um véu em degradê, do transparente até a
-          cor do fundo, para o conteúdo sumir por baixo do botão em vez de
-          esbarrar nele. A intenção era boa e o resultado não: o
-          esmaecimento lia como desfoque, como se a faixa fosse um vidro
-          embaçado, e nada mais no app se comporta assim. Corte limpo é mais
-          honesto — a faixa é uma superfície opaca, e diz isso. */}
+      {/* Fundo chapado com um fio no topo. Aqui havia um véu em degradê, do
+          transparente até a cor do fundo, para o conteúdo sumir por baixo do
+          botão. A intenção era boa e o resultado não: o esmaecimento lia
+          como desfoque, como se a faixa fosse vidro embaçado.
+
+          Sem o degradê, porém, o conteúdo passava a ser cortado numa linha
+          reta sem explicação. O fio resolve: ele declara que ali começa
+          outra superfície, em vez de deixar o corte parecer um defeito. É o
+          mesmo fio que a barra de cima ganha quando a rolagem começa. */}
       {rodape ? (
         <View style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,
           paddingHorizontal: PAD, paddingTop: 14,
           paddingBottom: (insets.bottom || 12) + 14,
           backgroundColor: c.bg, gap: 8,
+          borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
         }}>
           {rodape}
         </View>
@@ -427,14 +436,17 @@ export function Grade2({ children }: { children: React.ReactNode }) {
 /* Aviso — a nota de rodapé com peso de card. Existe para o que precisa ser
    dito mas não é dado: o disclaimer clínico, o lembrete de que uma semana
    vazia não é falha, o alerta de que apagar tira o registro do relatório. */
-export function Aviso({ ic = 'info', titulo, texto }: { ic?: string; titulo?: string; texto: string }) {
+export function Aviso({ ic = 'info', titulo, texto, children }: {
+  ic?: string; titulo?: string; texto?: string; children?: React.ReactNode;
+}) {
   const { c } = useTheme();
   return (
     <Row style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11, alignItems: 'flex-start' }, shadowCard(c)]}>
       <Icon name={ic} size={18} color={c.accent} sw={1.9} />
       <View style={{ flex: 1 }}>
         {titulo ? <Txt v="bodyMed" style={{ marginBottom: 2 }}>{titulo}</Txt> : null}
-        <Txt v="caption" c={c.tx2}>{texto}</Txt>
+        {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
+        {children}
       </View>
     </Row>
   );
