@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
@@ -108,17 +107,19 @@ export function TelaInterna({
         {children}
       </ScrollView>
 
+      {/* Fundo chapado. Aqui havia um véu em degradê, do transparente até a
+          cor do fundo, para o conteúdo sumir por baixo do botão em vez de
+          esbarrar nele. A intenção era boa e o resultado não: o
+          esmaecimento lia como desfoque, como se a faixa fosse um vidro
+          embaçado, e nada mais no app se comporta assim. Corte limpo é mais
+          honesto — a faixa é uma superfície opaca, e diz isso. */}
       {rodape ? (
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: PAD, paddingTop: 18, paddingBottom: (insets.bottom || 12) + 14, gap: 8 }}>
-          {/* Véu do transparente até o fundo: o conteúdo some por baixo do
-              botão em vez de esbarrar nele, e o botão não precisa de sombra
-              para se separar da lista. */}
-          <LinearGradient
-            colors={['rgba(0,0,0,0)', c.bg, c.bg]}
-            locations={[0, 0.3, 1]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
+        <View style={{
+          position: 'absolute', left: 0, right: 0, bottom: 0,
+          paddingHorizontal: PAD, paddingTop: 14,
+          paddingBottom: (insets.bottom || 12) + 14,
+          backgroundColor: c.bg, gap: 8,
+        }}>
           {rodape}
         </View>
       ) : null}
