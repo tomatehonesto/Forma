@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { CANETA_VALIDADE_DIAS } from '../logic/derive';
 import { MEDS } from '../logic/meds';
 import { nf } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
@@ -69,7 +68,7 @@ export default function CanetaNova() {
 
         <Campo
           rotulo="Concentração e doses"
-          ajuda={`${porCaneta} doses por caneta · validade de ${CANETA_VALIDADE_DIAS} dias após aberta`}
+          ajuda={`${porCaneta} doses por caneta · validade de ${catalogo.shelf} dias após aberta`}
         >
           <Opcoes>
             {catalogo.doses.slice(0, 4).map((d) => (

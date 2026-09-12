@@ -79,6 +79,18 @@ export default function Caneta() {
         />
       </Grade2>
 
+      {/* A caneta pode vencer antes de a última dose sair dela — com 14 dias
+          de validade e quatro doses semanais, isso é a regra, não a exceção.
+          O aviso constata e para por aí: o que fazer com a dose que sobra é
+          conversa de médico, não decisão de app. */}
+      {k.venceAntesDoFim ? (
+        <Aviso
+          ic="clock"
+          titulo="A caneta vence antes de acabar"
+          texto={`${med.label} dura ${k.validadeDias} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`}
+        />
+      ) : null}
+
       {!k.verdict.good ? (
         <Aviso
           ic="pill"

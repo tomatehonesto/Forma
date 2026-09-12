@@ -1,6 +1,6 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
-import { MEDS, CADENCE_DAYS } from './meds';
+import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import type { State } from './seed';
 
 export const GOAL_WATER = 8;
@@ -1841,11 +1841,9 @@ export function cicloFases(S: State) {
    comportamento certo enquanto a caneta não for uma entidade do estado.
    ============================================================ */
 
-/* Validade depois de aberta. 21 dias é o número da referência de desenho
-   (Mounjaro). Cada produto tem o seu, e isto precisa virar um campo de
-   MEDS assim que houver a fonte por produto — até lá fica em um lugar só,
-   visível, em vez de espalhado pelas telas. */
-export const CANETA_VALIDADE_DIAS = 21;
+/* A validade depois de aberta virou campo de MEDS — ela varia por produto
+   e não se deduz da molécula nem da cadência. Ver o bloco sobre `shelf`
+   em logic/meds. */
 
 export type Caneta = {
   id: number;
@@ -1894,12 +1892,20 @@ export function canetaAtual(S: State) {
   const atual = lista[0] ?? null;
   const est = penStock(S);
   const cad = CADENCE_DAYS(S.profile.med);
-  const vence = atual?.abertaEm ? addDays(new Date(atual.abertaEm), CANETA_VALIDADE_DIAS) : null;
+  const validadeDias = SHELF_DAYS(S.profile.med);
+  const vence = atual?.abertaEm ? addDays(new Date(atual.abertaEm), validadeDias) : null;
   /* Cobertura da receita: o que ainda há de dose vezes a cadência, contado
      a partir da próxima aplicação. É uma estimativa do app, não um dado da
      receita — o texto na tela diz "cerca de". */
   const cobreAte = addDays(nextInjectionDate(S), Math.max(0, est.left - 1) * cad);
-  return { atual, lista, ...est, vence, cobreAte, validadeDias: CANETA_VALIDADE_DIAS };
+
+  /* A caneta pode vencer ANTES de a última dose sair dela. Com Trulicity —
+     14 dias de validade e 4 doses semanais — isso é a regra, não a exceção:
+     a quarta dose cairia duas semanas depois de a caneta ter vencido. Quem
+     consome decide o que fazer com o aviso; aqui só se constata. */
+  const venceAntesDoFim = !!vence && vence < cobreAte;
+
+  return { atual, lista, ...est, vence, cobreAte, validadeDias, venceAntesDoFim };
 }
 
 /* ============================================================
