@@ -111,7 +111,7 @@ export default function Saude() {
           <CardSerie
             id="pa"
             nome="Pressão arterial"
-            sub={`${pa0.sys}/${pa0.dia} no início do tratamento · ${paSerie.length} medições`}
+            sub={`${pa0.sys}/${pa0.dia} no início · ${paSerie.length} medições`}
             valor={`${pa.sys}/${pa.dia}`}
             unidade="mmHg"
             pts={paSerie}
@@ -119,7 +119,7 @@ export default function Saude() {
           <CardSerie
             id="gl"
             nome="Glicemia de jejum"
-            sub={`${gl0.v} mg/dL no início · de volta à faixa normal`}
+            sub={`${gl0.v} mg/dL no início · ${glSerie.length} medições`}
             valor={`${gl.v}`}
             unidade="mg/dL"
             pts={glSerie}

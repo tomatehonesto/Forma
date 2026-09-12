@@ -66,7 +66,7 @@ function CardMedida({ nome, chave, onPress }: { nome: string; chave: string; onP
           <View style={{ flex: 1 }}>
             <Txt v="body">{nome}</Txt>
             <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-              {n0(primeiro.v)} cm no início · {n0(ultimo.v)} cm em {dia(ultimo.t)}
+              {n0(primeiro.v)} › {n0(ultimo.v)} cm · {dia(ultimo.t)}
             </Txt>
           </View>
           <Txt v="metric">
