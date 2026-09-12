@@ -40,17 +40,25 @@ type Def = {
   capturar: string;
 };
 
+/* As quatro circunferências têm a mesma forma — um número em cm vindo da
+   fita, medido de vez em quando — então nascem da mesma fábrica. Cada uma
+   ganha histórico navegável e corrigível sem custo de tela nova. */
+const circunferencia = (k: string, nome: string): Def => ({
+  nome, unidade: 'cm', casas: 0,
+  capturar: '/medir-medidas',
+  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })),
+});
+
 const DEFS: Record<string, Def> = {
   peso: {
     nome: 'Peso', unidade: 'kg', casas: 1, nota: 'manhã',
     capturar: '/medir-peso',
     pontos: (S) => (S.weights as any[]).map((w) => ({ t: w.t, v: w.kg })),
   },
-  cintura: {
-    nome: 'Cintura', unidade: 'cm', casas: 0,
-    capturar: '/medir-medidas',
-    pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m.cintura })),
-  },
+  cintura: circunferencia('cintura', 'Cintura'),
+  quadril: circunferencia('quadril', 'Quadril'),
+  braco: circunferencia('braco', 'Braço'),
+  coxa: circunferencia('coxa', 'Coxa'),
 };
 
 const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
