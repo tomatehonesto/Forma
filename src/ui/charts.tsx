@@ -56,6 +56,12 @@ export function AreaCurve({
       style={{ height }}
       onStartShouldSetResponder={() => !!onScrub}
       onMoveShouldSetResponder={() => !!onScrub}
+      /* Uma vez com o dedo, a curva não devolve. Por padrão o RN concede
+         qualquer pedido de terminação, e é assim que o ScrollView de cima
+         rouba o gesto no meio do arrasto — a leitura morre na metade e a
+         tela começa a rolar. Negando, o arrasto acaba onde começou. */
+      onResponderTerminationRequest={() => false}
+      onStartShouldSetResponderCapture={() => !!onScrub}
       onResponderGrant={(e) => aponta(e.nativeEvent.locationX)}
       onResponderMove={(e) => aponta(e.nativeEvent.locationX)}
       onResponderRelease={() => onScrub?.(null)}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
@@ -439,7 +439,30 @@ export function CardCurva({
   id: string; altura?: number; onPress?: () => void;
 }) {
   const { c } = useTheme();
+  const navegacao = useNavigation();
   const [i, setI] = useState<number | null>(null);
+
+  /* O arrasto horizontal na curva disputa com o gesto NATIVO de voltar —
+     aquele que puxa a tela pela borda. Ele roda fora do sistema de
+     responder do JS, então negar o toque aqui dentro não o alcança: a
+     pessoa desliza para ler e a tela começa a sair pelo lado.
+
+     A saída é desligar o gesto da tela enquanto o dedo está no gráfico e
+     devolvê-lo ao soltar. O ref evita chamar setOptions a cada pixel de
+     movimento — só nas duas transições que importam. */
+  const travado = React.useRef(false);
+  const trava = (quer: boolean) => {
+    if (quer === travado.current) return;
+    travado.current = quer;
+    navegacao.setOptions({ gestureEnabled: !quer } as any);
+  };
+  const desliza = (idx: number | null) => { setI(idx); trava(idx != null); };
+
+  /* Se a tela sair no meio de um arrasto — um toque que navega, um back de
+     hardware —, o gesto voltaria destravado só na próxima montagem. */
+  React.useEffect(() => () => {
+    if (travado.current) navegacao.setOptions({ gestureEnabled: true } as any);
+  }, [navegacao]);
 
   const curva = React.useMemo(() => {
     if (pontos.length < 2) return [];
@@ -469,7 +492,7 @@ export function CardCurva({
         <AreaCurve
           pts={curva} height={altura} padT={6} padB={0} padX={0} strokeW={2}
           strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={id}
-          onScrub={setI} scrub={i}
+          onScrub={desliza} scrub={i}
         />
       ) : (
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: PAD, paddingBottom: 20 }}>
