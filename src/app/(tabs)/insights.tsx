@@ -233,7 +233,7 @@ export default function Insights() {
               recortada, esta é a faixa larga. */}
           <Image
             source={AURORA_INSIGHTS}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             contentFit="cover"
             /* ancorada no topo, não centralizada.
 
@@ -263,7 +263,7 @@ export default function Insights() {
           <LinearGradient
             colors={['rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)']}
             locations={[0, 0.45, 1]}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
 

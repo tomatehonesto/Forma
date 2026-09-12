@@ -72,7 +72,7 @@ function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
       <LinearGradient
         colors={[c.bluePale, c.accentWeak]}
         start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <Txt v="h1" c={c.accent2} style={{ fontSize: size * 0.4 }}>{letra}</Txt>
     </View>

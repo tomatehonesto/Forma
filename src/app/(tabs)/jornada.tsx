@@ -74,7 +74,7 @@ function Painel() {
       <LinearGradient
         colors={[c.panelFrom, c.panelMid, c.panelTo]}
         start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       {/* ---- peso: o número que a pessoa veio buscar ---- */}
       <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>

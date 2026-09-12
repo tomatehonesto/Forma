@@ -65,7 +65,7 @@ export default function Especialista() {
             colors={[c.bluePale, c.bg1, c.bg]}
             locations={[0, 0.62, 1]}
             start={{ x: 0.2, y: 0 }} end={{ x: 0.85, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
           />
           <Image
             source={FOTO}
@@ -78,7 +78,7 @@ export default function Especialista() {
           <LinearGradient
             colors={['rgba(245,246,250,0)', 'rgba(245,246,250,0.04)', 'rgba(245,246,250,0.35)', 'rgba(245,246,250,0.85)', c.bg]}
             locations={[0, 0.5, 0.74, 0.9, 1]}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
 

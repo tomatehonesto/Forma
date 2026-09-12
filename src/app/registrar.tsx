@@ -91,7 +91,7 @@ export default function Registrar() {
 
   return (
     <View style={{ height: alturaJanela, justifyContent: 'flex-end' }}>
-      <Pressable onPress={fechar} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
+      <Pressable onPress={fechar} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
 
       {/* Ancorado na base, cobrindo a tab bar — padrão de bottom sheet. */}
       <View style={{

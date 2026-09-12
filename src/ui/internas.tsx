@@ -116,7 +116,7 @@ export function TelaInterna({
           <LinearGradient
             colors={['rgba(0,0,0,0)', c.bg, c.bg]}
             locations={[0, 0.3, 1]}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
           {rodape}

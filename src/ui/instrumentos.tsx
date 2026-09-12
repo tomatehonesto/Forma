@@ -107,7 +107,7 @@ export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: s
   return (
     <Svg
       width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none"
-      style={StyleSheet.absoluteFillObject} pointerEvents="none"
+      style={StyleSheet.absoluteFill} pointerEvents="none"
     >
       <Defs>
         {blobs.map((b) => (

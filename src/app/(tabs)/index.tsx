@@ -198,7 +198,7 @@ export default function Home() {
         <View>
           {/* escala base acima de 1 para a deriva não descobrir as bordas */}
           <Animated.View
-            style={[StyleSheet.absoluteFillObject, {
+            style={[StyleSheet.absoluteFill, {
               transform: [
                 { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
                 { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
@@ -206,7 +206,7 @@ export default function Home() {
               ],
             }]}
           >
-            <Image source={AURORA} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+            <Image source={AURORA} style={StyleSheet.absoluteFill} contentFit="cover" />
           </Animated.View>
 
           {/* Véu sobre a aurora, mais pesado nas pontas que no meio.
@@ -223,7 +223,7 @@ export default function Home() {
           <LinearGradient
             colors={['rgba(3,10,38,0.62)', 'rgba(3,10,38,0.34)', 'rgba(3,10,38,0.58)']}
             locations={[0, 0.46, 1]}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
 

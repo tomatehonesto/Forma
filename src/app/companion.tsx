@@ -208,7 +208,7 @@ export default function Companion() {
       <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 24 + SOBREPOSICAO }}>
         <Image
           source={AURORA}
-          style={StyleSheet.absoluteFillObject}
+          style={StyleSheet.absoluteFill}
           contentFit="cover"
           contentPosition="top center"
         />

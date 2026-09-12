@@ -187,11 +187,11 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
   const { c } = useTheme();
   const body = (
     <View style={[{ height, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: c.bg3 }, style]}>
-      <Image source={source} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+      <Image source={source} style={StyleSheet.absoluteFill} contentFit="cover" />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.72)']}
         start={{ x: 0, y: 0.25 }} end={{ x: 0, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <View style={{ marginTop: 'auto', padding: space.base }}>
         {over ? <Text style={[ty.micro, { color: c.lime, letterSpacing: 1 }]}>{over.toUpperCase()}</Text> : null}
@@ -215,7 +215,7 @@ export function SheetScreen({ titulo, sub, children, onClose }: {
   const { height } = useWindowDimensions();
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
-      <Pressable onPress={onClose} style={[StyleSheet.absoluteFillObject, { backgroundColor: c.scrim }]} />
+      <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
       {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
           que a pessoa já conhece de outros apps. */}
       <View style={{
