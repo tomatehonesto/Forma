@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 import { Txt } from './kit';
 import { useTheme } from './useTheme';
@@ -41,6 +42,25 @@ export function AreaCurve({
   const mk = marker != null && PX[marker] ? PX[marker] : null;
   const sc = scrub != null && PX[scrub] ? PX[scrub] : null;
 
+  /* Recuo da área de toque em relação às bordas laterais.
+
+     A curva sangra até a borda do card, e o card fica a 16px da borda da
+     tela — ou seja, a ponta esquerda da curva cai DENTRO da faixa em que o
+     sistema escuta o gesto de voltar (~20pt no iOS, e as duas bordas no
+     Android). Começar um arrasto ali é começar em cima do reconhecedor
+     nativo, e ele ganha: ele decide no toque, antes de qualquer código
+     nosso rodar.
+
+     A saída não é disputar essa faixa, é DEVOLVÊ-LA: um toque que nasce
+     nela faz o nosso gesto desistir, e o do sistema segue o curso normal.
+     No resto da curva, quem fica com o dedo somos nós.
+
+     Nenhuma ponta se perde: uma vez ativo, o gesto acompanha o dedo até a
+     extremidade, e o arredondamento abaixo entrega o primeiro e o último
+     ponto igual. O que se perde é só a possibilidade de COMEÇAR o arrasto
+     nos 22px de cada lado — e é exatamente onde não se deveria mesmo. */
+  const MARGEM_GESTO = 22;
+
   /* Ponto mais próximo do dedo. Arredondar em vez de truncar faz a marca
      pular para o ponto vizinho na metade do caminho, que é o que a mão
      espera — truncando, ela só muda ao passar por cima do próximo. */
@@ -50,22 +70,46 @@ export function AreaCurve({
     onScrub(Math.max(0, Math.min(pts.length - 1, Math.round(t * (pts.length - 1)))));
   };
 
-  return (
+  /* Gesture Handler, e não o responder do JS.
+
+     O responder vivia perdendo: o ScrollView de cima roubava o dedo no meio
+     do arrasto, e o gesto nativo de voltar — que no iOS nasce na borda
+     esquerda, exatamente onde esta curva começa, porque ela sangra até a
+     borda do card — reivindicava antes de qualquer código nosso rodar.
+
+     O Pan do Gesture Handler disputa no mesmo nível dos reconhecedores
+     nativos, em vez de reagir depois deles — e, com ativação manual, pode
+     decidir no toque se entra na disputa ou sai dela.
+
+     shouldCancelWhenOutside(false) mantém o dedo ligado à curva mesmo
+     saindo do card, que é o que acontece quando a pessoa arrasta rápido
+     até a ponta. */
+  const pan = React.useMemo(
+    () => Gesture.Pan()
+      .enabled(!!onScrub)
+      .runOnJS(true)
+      /* Ativação manual para poder DESISTIR quando o toque nasce na faixa
+         de borda. Desistindo, o reconhecedor nativo segue o curso dele e o
+         gesto de voltar funciona normalmente ali; no resto da curva, quem
+         fica com o dedo somos nós. É a diferença entre disputar a borda e
+         devolvê-la. */
+      .manualActivation(true)
+      .shouldCancelWhenOutside(false)
+      .onTouchesDown((e, estado) => {
+        const x = e.allTouches[0]?.x ?? 0;
+        if (w && (x < MARGEM_GESTO || x > w - MARGEM_GESTO)) estado.fail();
+      })
+      .onTouchesMove((_e, estado) => estado.activate())
+      .onBegin((e) => aponta(e.x))
+      .onUpdate((e) => aponta(e.x))
+      .onFinalize(() => onScrub?.(null)),
+    [onScrub, w, pts.length, padX],
+  );
+
+  const corpo = (
     <View
       onLayout={(e) => setW(Math.round(e.nativeEvent.layout.width))}
       style={{ height }}
-      onStartShouldSetResponder={() => !!onScrub}
-      onMoveShouldSetResponder={() => !!onScrub}
-      /* Uma vez com o dedo, a curva não devolve. Por padrão o RN concede
-         qualquer pedido de terminação, e é assim que o ScrollView de cima
-         rouba o gesto no meio do arrasto — a leitura morre na metade e a
-         tela começa a rolar. Negando, o arrasto acaba onde começou. */
-      onResponderTerminationRequest={() => false}
-      onStartShouldSetResponderCapture={() => !!onScrub}
-      onResponderGrant={(e) => aponta(e.nativeEvent.locationX)}
-      onResponderMove={(e) => aponta(e.nativeEvent.locationX)}
-      onResponderRelease={() => onScrub?.(null)}
-      onResponderTerminate={() => onScrub?.(null)}
     >
       {w > 0 && (
         <Svg width={w} height={height}>
@@ -92,6 +136,9 @@ export function AreaCurve({
       )}
     </View>
   );
+
+  if (!onScrub) return corpo;
+  return <GestureDetector gesture={pan}>{corpo}</GestureDetector>;
 }
 
 /* Anel de progresso com gradiente verde→azul. */
