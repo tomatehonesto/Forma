@@ -17,10 +17,17 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
+  onScrub, scrub,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
   strokeFrom?: string; strokeTo?: string; padT?: number; padB?: number; padX?: number; strokeW?: number; id?: string; nodes?: boolean;
+  /* Deslizar o dedo pela curva devolve o índice do ponto mais próximo, e
+     null ao soltar. Quem passa isto assume a leitura: a curva sozinha não
+     sabe o que cada ponto significa. */
+  onScrub?: (i: number | null) => void;
+  /** índice destacado — controlado por fora, para o card poder reagir junto */
+  scrub?: number | null;
 }) {
   const { c } = useTheme();
   const [medida, setW] = useState(0);
@@ -32,8 +39,28 @@ export function AreaCurve({
   const line = w ? smooth(PX) : '';
   const area = w && PX.length ? `${line} L${PX[PX.length - 1].x},${height - padB} L${PX[0].x},${height - padB} Z` : '';
   const mk = marker != null && PX[marker] ? PX[marker] : null;
+  const sc = scrub != null && PX[scrub] ? PX[scrub] : null;
+
+  /* Ponto mais próximo do dedo. Arredondar em vez de truncar faz a marca
+     pular para o ponto vizinho na metade do caminho, que é o que a mão
+     espera — truncando, ela só muda ao passar por cima do próximo. */
+  const aponta = (x: number) => {
+    if (!onScrub || pts.length < 2 || !w) return;
+    const t = (x - padX) / Math.max(1, w - padX * 2);
+    onScrub(Math.max(0, Math.min(pts.length - 1, Math.round(t * (pts.length - 1)))));
+  };
+
   return (
-    <View onLayout={(e) => setW(Math.round(e.nativeEvent.layout.width))} style={{ height }}>
+    <View
+      onLayout={(e) => setW(Math.round(e.nativeEvent.layout.width))}
+      style={{ height }}
+      onStartShouldSetResponder={() => !!onScrub}
+      onMoveShouldSetResponder={() => !!onScrub}
+      onResponderGrant={(e) => aponta(e.nativeEvent.locationX)}
+      onResponderMove={(e) => aponta(e.nativeEvent.locationX)}
+      onResponderRelease={() => onScrub?.(null)}
+      onResponderTerminate={() => onScrub?.(null)}
+    >
       {w > 0 && (
         <Svg width={w} height={height}>
           <Defs>
@@ -45,6 +72,16 @@ export function AreaCurve({
           {nodes && PX.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.2} fill={c.bg1} stroke={st} strokeWidth={2} />)}
           {mk && dashed && <Line x1={mk.x} y1={mk.y} x2={mk.x} y2={height - padB} stroke={st} strokeWidth={1.4} strokeDasharray="3 4" opacity={0.5} />}
           {mk && <><Circle cx={mk.x} cy={mk.y} r={6.5} fill={c.bg1} /><Circle cx={mk.x} cy={mk.y} r={4.3} fill={st} /></>}
+
+          {/* Marca do dedo — fio inteiro da borda de cima à de baixo, para
+              ela ser encontrada mesmo com a mão cobrindo metade do card. */}
+          {sc && (
+            <>
+              <Line x1={sc.x} y1={0} x2={sc.x} y2={height} stroke={c.tx} strokeWidth={1} opacity={0.28} />
+              <Circle cx={sc.x} cy={sc.y} r={7} fill={c.bg1} />
+              <Circle cx={sc.x} cy={sc.y} r={4.5} fill={c.tx} />
+            </>
+          )}
         </Svg>
       )}
     </View>

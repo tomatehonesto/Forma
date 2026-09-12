@@ -4,9 +4,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { MO_LONG, DAY, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { AreaCurve } from '../ui/charts';
 import {
-  TelaInterna, Titulao, Bloco, Chips, Cartao, Linha,
+  TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -80,13 +79,6 @@ export default function Marcador() {
   const ultimo = todos[todos.length - 1];
   const primeiro = todos[0];
 
-  const curva = useMemo(() => {
-    if (pts.length < 2) return [];
-    const vs = pts.map((p) => p.v);
-    const lo = Math.min(...vs), hi = Math.max(...vs), span = hi - lo || 1;
-    return pts.map((p, i) => ({ x: i / (pts.length - 1), y: (p.v - lo) / span }));
-  }, [pts]);
-
   /* Variação dentro do período escolhido nos chips. É o que o cabeçalho do
      card responde, e não se repete com o titulão: lá em cima está o valor
      de hoje contra o início do tratamento; aqui, o quanto andou nas doze
@@ -131,34 +123,15 @@ export default function Marcador() {
 
           Sangrando, ela deixa de ser um gráfico dentro de uma caixa e vira
           o piso do card — o mesmo princípio da curva do painel da Jornada. */}
-      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-        <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Txt v="body">{def.nome}</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-              {PERIODOS.find((p) => p.id === per)!.label.toLowerCase()}
-              {pts.length > 1 ? ` · ${pts.length} registros` : ''}
-            </Txt>
-          </View>
-          {variacao != null && (
-            <Txt v="metric">
-              {variacao > 0 ? '+' : '−'}{fmt(Math.abs(variacao))}
-              <Txt v="label" c={c.tx3}>{` ${def.unidade}`}</Txt>
-            </Txt>
-          )}
-        </Row>
-
-        {curva.length > 1 ? (
-          <AreaCurve
-            pts={curva} height={120} padT={6} padB={0} padX={0} strokeW={2}
-            strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id="mk"
-          />
-        ) : (
-          <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 16, paddingBottom: 24, textAlign: 'center' }}>
-            Um registro só não desenha uma curva. Marque outro para ver a variação.
-          </Txt>
-        )}
-      </View>
+      <CardCurva
+        id="mk"
+        nome={def.nome}
+        sub={`${PERIODOS.find((p) => p.id === per)!.label.toLowerCase()}${pts.length > 1 ? ` · ${pts.length} registros` : ''}`}
+        valor={variacao != null ? `${variacao > 0 ? '+' : '−'}${fmt(Math.abs(variacao))}` : '—'}
+        unidade={def.unidade}
+        altura={120}
+        pontos={pts.map((p) => ({ v: p.v, rotulo: fmt(p.v), quando: porExtenso(p.t) }))}
+      />
 
       <Bloco
         titulo="Registros"

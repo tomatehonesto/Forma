@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { vitalLast } from '../logic/derive';
+import { MO } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { AreaCurve } from '../ui/charts';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Selo, Grade2,
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Selo, Grade2, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -46,38 +46,7 @@ function Regua({ k, num }: { k: string; num: number }) {
   );
 }
 
-/* Card de série — o mesmo desenho de Peso, Medidas e Exames. */
-function CardSerie({ nome, sub, valor, unidade, pts, id }: {
-  nome: string; sub: string; valor: string; unidade: string; pts: number[]; id: string;
-}) {
-  const { c } = useTheme();
-  const curva = useMemo(() => {
-    if (pts.length < 2) return [];
-    const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || 1;
-    return pts.map((v, i) => ({ x: i / (pts.length - 1), y: (v - lo) / span }));
-  }, [pts]);
-
-  return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-      <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
-        <View style={{ flex: 1 }}>
-          <Txt v="body">{nome}</Txt>
-          <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt>
-        </View>
-        <Txt v="metric">
-          {valor}
-          <Txt v="label" c={c.tx3}>{` ${unidade}`}</Txt>
-        </Txt>
-      </Row>
-      {curva.length > 1 ? (
-        <AreaCurve
-          pts={curva} height={100} padT={6} padB={0} padX={0} strokeW={2}
-          strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={id}
-        />
-      ) : null}
-    </View>
-  );
-}
+const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 export default function Saude() {
   const S = useStore((s) => s.S);
@@ -108,21 +77,28 @@ export default function Saude() {
 
       <Bloco titulo="Acompanhados ao longo do tempo">
         <View style={{ gap: 10 }}>
-          <CardSerie
+          {/* A leitura ao deslizar mostra a sistólica de cada medição com a
+              data. A curva é da sistólica sozinha — é ela que carrega a
+              tendência; a diastólica acompanha e caberia mal numa linha. */}
+          <CardCurva
             id="pa"
             nome="Pressão arterial"
             sub={`${pa0.sys}/${pa0.dia} no início · ${paSerie.length} medições`}
             valor={`${pa.sys}/${pa.dia}`}
             unidade="mmHg"
-            pts={paSerie}
+            pontos={(S.vitals.pa as any[]).map((x) => ({
+              v: x.sys, rotulo: `${x.sys}/${x.dia}`, quando: dia(x.t),
+            }))}
           />
-          <CardSerie
+          <CardCurva
             id="gl"
             nome="Glicemia de jejum"
             sub={`${gl0.v} mg/dL no início · ${glSerie.length} medições`}
             valor={`${gl.v}`}
             unidade="mg/dL"
-            pts={glSerie}
+            pontos={(S.vitals.glic as any[]).map((x) => ({
+              v: x.v, rotulo: `${x.v}`, quando: dia(x.t),
+            }))}
           />
         </View>
       </Bloco>

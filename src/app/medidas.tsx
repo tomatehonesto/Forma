@@ -1,16 +1,13 @@
-import React, { useMemo } from 'react';
-import { View, Pressable } from 'react-native';
+import React from 'react';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { latestMeasure, firstMeasure } from '../logic/derive';
 import { MO, nf } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
-import { AreaCurve } from '../ui/charts';
 import {
-  TelaInterna, Titulao, Bloco, Grade2, Metrica, Botao, Aviso,
+  TelaInterna, Titulao, Bloco, Grade2, Metrica, Botao, Aviso, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard } from '../theme';
 
 /* ============================================================
    MEDIDAS E COMPOSIÇÃO
@@ -43,49 +40,25 @@ const n1 = (x: number) => nf(x, 1).replace('.', ',');
 const n0 = (x: number) => nf(x, 0);
 const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
-/* Card de circunferência — o mesmo desenho do marcador e da Home. */
+/* Card de circunferência — CardCurva com os rótulos que a leitura ao
+   deslizar precisa: cada ponto vira "96 · 29 ago" no cabeçalho. */
 function CardMedida({ nome, chave, onPress }: { nome: string; chave: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
-  const { c } = useTheme();
-
   const pts = (S.measures as any[]).map((m) => ({ t: m.t, v: m[chave] as number }));
-  const curva = useMemo(() => {
-    if (pts.length < 2) return [];
-    const vs = pts.map((p) => p.v);
-    const lo = Math.min(...vs), hi = Math.max(...vs), span = hi - lo || 1;
-    return pts.map((p, i) => ({ x: i / (pts.length - 1), y: (p.v - lo) / span }));
-  }, [S.measures, chave]);
-
   const primeiro = pts[0], ultimo = pts[pts.length - 1];
   const delta = ultimo.v - primeiro.v;
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-        <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Txt v="body">{nome}</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-              {n0(primeiro.v)} › {n0(ultimo.v)} cm · {dia(ultimo.t)}
-            </Txt>
-          </View>
-          <Txt v="metric">
-            {delta > 0 ? '+' : '−'}{n1(Math.abs(delta))}
-            <Txt v="label" c={c.tx3}> cm</Txt>
-          </Txt>
-        </Row>
-        {curva.length > 1 ? (
-          <AreaCurve
-            pts={curva} height={92} padT={6} padB={0} padX={0} strokeW={2}
-            strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={`md-${chave}`}
-          />
-        ) : (
-          <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 16, paddingBottom: 20 }}>
-            Uma medida só não desenha uma curva.
-          </Txt>
-        )}
-      </View>
-    </Pressable>
+    <CardCurva
+      id={`md-${chave}`}
+      nome={nome}
+      sub={`${n0(primeiro.v)} › ${n0(ultimo.v)} cm · ${dia(ultimo.t)}`}
+      valor={`${delta > 0 ? '+' : '−'}${n1(Math.abs(delta))}`}
+      unidade="cm"
+      altura={92}
+      pontos={pts.map((p) => ({ v: p.v, rotulo: n0(p.v), quando: dia(p.t) }))}
+      onPress={onPress}
+    />
   );
 }
 

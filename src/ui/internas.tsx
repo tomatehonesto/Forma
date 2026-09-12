@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
+import { AreaCurve } from './charts';
 import { useTheme } from './useTheme';
 import { ty, font, radius, shadowCard } from '../theme';
 
@@ -411,6 +412,82 @@ export function Metrica({ ic, selo, seloTom, nome, de, para, onPress }: {
   );
   if (!onPress) return corpo;
   return <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.9 : 1 }]}>{corpo}</Pressable>;
+}
+
+/* ------------------------------------------------------------------ */
+/* Card de curva — texto em cima, curva sangrando até as três bordas de
+   baixo. É o mesmo desenho do card de evolução da Home, e agora a única
+   implementação dele: Peso, Medidas, Evolução, Exames e Sinais vitais
+   tinham cinco cópias quase idênticas, que já começavam a divergir.
+
+   A curva responde ao dedo. Deslizando, o card mostra o valor daquele
+   ponto e quando ele foi registrado — e mostra no CABEÇALHO, não num balão
+   junto do toque. Num gráfico de celular a mão cobre metade do card, então
+   um balão sob o dedo é exatamente o lugar onde a leitura não pode estar.
+   No cabeçalho, ela fica acima da mão e no lugar onde os olhos já estavam.
+
+   Ao soltar, o cabeçalho volta ao resumo. Nada fica preso: a leitura é do
+   gesto, não um estado que a pessoa precise desfazer. */
+export function CardCurva({
+  nome, sub, valor, unidade, pontos, id, altura = 100, onPress,
+}: {
+  nome: string;
+  /** o que o cabeçalho diz quando ninguém está deslizando */
+  sub: string; valor: string; unidade?: string;
+  /** série em ordem cronológica, com a leitura de cada ponto pronta */
+  pontos: { v: number; rotulo: string; quando: string }[];
+  id: string; altura?: number; onPress?: () => void;
+}) {
+  const { c } = useTheme();
+  const [i, setI] = useState<number | null>(null);
+
+  const curva = React.useMemo(() => {
+    if (pontos.length < 2) return [];
+    const vs = pontos.map((p) => p.v);
+    const lo = Math.min(...vs), hi = Math.max(...vs), span = hi - lo || 1;
+    return pontos.map((p, k) => ({ x: k / (pontos.length - 1), y: (p.v - lo) / span }));
+  }, [pontos]);
+
+  const ativo = i != null ? pontos[i] : null;
+
+  const corpo = (
+    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+      <Row style={{ paddingHorizontal: PAD, paddingTop: PAD, paddingBottom: 12, alignItems: 'flex-start' }}>
+        <View style={{ flex: 1 }}>
+          <Txt v="body">{nome}</Txt>
+          <Txt v="note" c={ativo ? c.accent : c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
+            {ativo ? ativo.quando : sub}
+          </Txt>
+        </View>
+        <Txt v="metric">
+          {ativo ? ativo.rotulo : valor}
+          {unidade ? <Txt v="label" c={c.tx3}>{` ${unidade}`}</Txt> : null}
+        </Txt>
+      </Row>
+
+      {curva.length > 1 ? (
+        <AreaCurve
+          pts={curva} height={altura} padT={6} padB={0} padX={0} strokeW={2}
+          strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={id}
+          onScrub={setI} scrub={i}
+        />
+      ) : (
+        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: PAD, paddingBottom: 20 }}>
+          Um registro só não desenha uma curva.
+        </Txt>
+      )}
+    </View>
+  );
+
+  if (!onPress) return corpo;
+  /* O toque na curva é do scrub, não da navegação: quem arrasta quer ler,
+     não sair da tela. Por isso o Pressable envolve o card mas a curva fica
+     com o responder — tocar no cabeçalho navega, tocar no gráfico lê. */
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
+      {corpo}
+    </Pressable>
+  );
 }
 
 /* Grade de dois — usada pelas métricas e pelos resumos de semana. Ímpar na

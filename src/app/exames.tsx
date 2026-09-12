@@ -1,14 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examExplain } from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
-import { AreaCurve } from '../ui/charts';
 import { AskCompanion } from '../ui/Ask';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo,
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -60,13 +59,6 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
 
-  const curva = useMemo(() => {
-    if (!varios) return [];
-    const vs = e.values.map((y: any) => y.v);
-    const lo = Math.min(...vs), hi = Math.max(...vs), span = hi - lo || 1;
-    return e.values.map((x: any, i: number) => ({ x: i / (e.values.length - 1), y: (x.v - lo) / span }));
-  }, [e]);
-
   return (
     <TelaInterna titulo={e.marker} onVoltar={onVoltar}>
       <Titulao
@@ -86,23 +78,20 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         <Regua e={e} />
       </View>
 
-      {/* Mesmo desenho dos cards de Peso e Medidas: texto em cima, curva
-          sangrando até as bordas de baixo. */}
+      {/* Mesmo desenho dos cards de Peso e Medidas, e deslizar pela curva
+          mostra o valor de cada coleta com a data. */}
       {varios ? (
-        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-          <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
-            <View style={{ flex: 1 }}>
-              <Txt v="body">{e.marker}</Txt>
-              <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-                {fmtV(f.v)} {e.unit} no primeiro exame · {e.values.length} coletas
-              </Txt>
-            </View>
-          </Row>
-          <AreaCurve
-            pts={curva} height={110} padT={6} padB={0} padX={0} strokeW={2}
-            strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={`ex-${e.marker}`}
-          />
-        </View>
+        <CardCurva
+          id={`ex-${e.marker}`}
+          nome={e.marker}
+          sub={`${fmtV(f.v)} › ${fmtV(l.v)} ${e.unit} · ${e.values.length} coletas`}
+          valor={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`}
+          unidade={e.unit}
+          altura={110}
+          pontos={e.values.map((x: any) => ({
+            v: x.v, rotulo: fmtV(x.v), quando: porExtenso(x.t),
+          }))}
+        />
       ) : null}
 
       {varios ? (
