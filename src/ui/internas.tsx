@@ -573,13 +573,25 @@ export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }
   if (empilha) {
     return (
       <View style={[
-        { gap: 9 },
+        { gap: 5 },
         destaque && { backgroundColor: c.accentWeak, borderRadius: radius.card, padding: PAD },
       ]}>
-        <View style={{ alignSelf: 'flex-start' }}>
-          <Icon name={ic} size={18} color={c.accent} sw={1.9} />
-        </View>
-        {texto2}
+        {/* Ícone na linha do título, e o corpo do texto na largura toda por
+            baixo dos dois. Ao lado do bloco inteiro ele espremia a coluna;
+            acima de tudo, empurrava o título para longe do que o provocou.
+            Na linha do título ele funciona como marcador da frase, que é o
+            papel que tem. */}
+        <Row gap={9} style={{ alignItems: 'flex-start' }}>
+          {/* Alinhado à PRIMEIRA linha do título, não ao centro do bloco:
+              com título de duas linhas, centrado ele descia para o meio e
+              deixava de marcar onde a frase começa. */}
+          <View style={{ marginTop: (ty.bodyMed.lineHeight - 18) / 2 }}>
+            <Icon name={ic} size={18} color={c.accent} sw={1.9} />
+          </View>
+          {titulo ? <Txt v="bodyMed" style={{ flex: 1 }}>{titulo}</Txt> : null}
+        </Row>
+        {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
+        {children}
       </View>
     );
   }
@@ -607,9 +619,9 @@ export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }
    sobe o tanto do raio e some atrás do cartão, então as duas peças leem
    como uma coisa só com um degrau. Serve para o que o app tem a dizer
    sobre a resposta — dentro do cartão o recado disputava espaço com o
-   controle, e solto embaixo virava outro bloco da pilha. Mais estreita que
-   o cartão de propósito: aba que sai de baixo é aba, aba do mesmo tamanho
-   é outro cartão. */
+   controle, e solto embaixo virava outro bloco da pilha. Mesma largura do
+   cartão: o degrau já vem do tom e do encaixe, e estreitar de novo era
+   afastar a aba do que ela comenta. */
 export function Campo({ rotulo, ajuda, nu, saia, children }: {
   rotulo?: string; ajuda?: string; nu?: boolean; saia?: React.ReactNode; children: React.ReactNode;
 }) {
@@ -634,7 +646,7 @@ export function Campo({ rotulo, ajuda, nu, saia, children }: {
       <View style={{ zIndex: 2 }}>{cartao}</View>
       <View style={{
         zIndex: 1,
-        marginTop: -radius.card, marginHorizontal: 10,
+        marginTop: -radius.card,
         paddingTop: radius.card + 12, paddingHorizontal: PAD, paddingBottom: 14,
         backgroundColor: c.accentWeak,
         borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
