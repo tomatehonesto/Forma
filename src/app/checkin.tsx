@@ -447,12 +447,12 @@ export default function Checkin() {
         lead="Responda o que fizer sentido. Deixar em branco também é uma resposta."
       />
 
-      {/* As três quase se tocam, como os cartões de "Sua evolução" na
+      {/* As três ficam bem juntas, quase como os cartões de "Sua evolução" na
           Home. Elas são um bloco só — as perguntas que a tela faz todo
           dia —, e o ar de antes entre uma e outra as fazia parecer três
           assuntos empilhados por acaso. O respiro maior fica para as
           quebras que existem de verdade: o titulão e os sintomas. */}
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: 8 }}>
         <Campo rotulo="Energia">
           <Escala
             valores={[1, 2, 3, 4, 5]}
@@ -509,7 +509,7 @@ export default function Checkin() {
             da constipação é o quarto dia sem ir ao banheiro. Sem escala
             aqui — quem quer desfazer desmarca o chip, que é de onde o
             cartão veio. */}
-        <View style={{ gap: 4 }}>
+        <View style={{ gap: 8 }}>
           {/* Os cartões seguem a ordem dos chips, não a ordem em que foram
               tocados: a lista não se reembaralha conforme a pessoa marca,
               e o que ela vê embaixo tem a mesma sequência do que está em
