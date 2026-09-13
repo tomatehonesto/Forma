@@ -537,43 +537,57 @@ export function Grade2({ children }: { children: React.ReactNode }) {
 /* Aviso — a nota de rodapé com peso de card. Existe para o que precisa ser
    dito mas não é dado: o disclaimer clínico, o lembrete de que uma semana
    vazia não é falha, o alerta de que apagar tira o registro do relatório. */
-/* Aviso — o que a tela diz depois de ler a resposta.
+/* Aviso — o que a tela diz depois de ler a resposta. Três formas, e cada
+   uma existe por causa de onde o aviso nasce.
 
    `dentro` tira a casca de cartão e o encaixa NO campo que o provocou,
    separado por um fio. Como cartão solto ele virava mais um bloco na
    pilha, à mesma distância de todos e ligado a nenhum; dentro, ele é a
-   continuação da resposta que a pessoa acabou de dar — e por isso vem com
-   o ícone da IA, o mesmo que o app usa quando é ele quem observa algo. */
-export function Aviso({ ic = 'info', titulo, texto, dentro, children }: {
-  ic?: string; titulo?: string; texto?: string; dentro?: boolean; children?: React.ReactNode;
+   continuação da resposta que a pessoa acabou de dar.
+
+   `destaque` é o contrário: o aviso que não pertence a campo nenhum
+   porque nasce de vários ao mesmo tempo. Cartão tingido, sem sombra — ele
+   não é mais um bloco do formulário, é o app falando sobre o dia inteiro.
+
+   Nas duas, o ícone sobe para cima do texto e o texto ocupa a largura
+   toda. Ao lado, ele espremia a coluna e o aviso ficava com cara de nota
+   de rodapé; em cima, ele abre o bloco, como um selo. A forma padrão —
+   cartão com ícone à esquerda — continua para as outras telas, que usam o
+   Aviso como linha de apoio e não como interrupção. */
+export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }: {
+  ic?: string; titulo?: string; texto?: string;
+  dentro?: boolean; destaque?: boolean; children?: React.ReactNode;
 }) {
   const { c } = useTheme();
+  const empilha = dentro || destaque;
 
-  const corpo = (
-    <>
-      <Icon name={ic} size={18} color={c.accent} sw={1.9} />
-      <View style={{ flex: 1 }}>
-        {titulo ? <Txt v="bodyMed" style={{ marginBottom: 2 }}>{titulo}</Txt> : null}
-        {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
-        {children}
-      </View>
-    </>
+  const texto2 = (
+    <View style={{ flex: 1 }}>
+      {titulo ? <Txt v="bodyMed" style={{ marginBottom: 2 }}>{titulo}</Txt> : null}
+      {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
+      {children}
+    </View>
   );
 
-  if (dentro) {
+  if (empilha) {
     return (
-      <Row style={{
-        gap: 11, alignItems: 'flex-start',
-        borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 12,
-      }}>
-        {corpo}
-      </Row>
+      <View style={[
+        { gap: 9 },
+        dentro && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 12 },
+        destaque && { backgroundColor: c.accentWeak, borderRadius: radius.card, padding: PAD },
+      ]}>
+        <View style={{ alignSelf: 'flex-start' }}>
+          <Icon name={ic} size={18} color={c.accent} sw={1.9} />
+        </View>
+        {texto2}
+      </View>
     );
   }
 
   return (
     <Row style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11, alignItems: 'flex-start' }, shadowCard(c)]}>
-      {corpo}
+      <Icon name={ic} size={18} color={c.accent} sw={1.9} />
+      {texto2}
     </Row>
   );
 }

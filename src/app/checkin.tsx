@@ -116,6 +116,43 @@ const AVISO_SOLTO = {
   texto: 'Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim.',
 };
 
+/* AVISOS POR COMBINAÇÃO — o que nenhum sintoma sozinho consegue dizer.
+
+   Dor forte é uma coisa; dor forte COM vômito é outra, e a bula trata as
+   duas de maneiras diferentes. Até aqui cada campo só sabia de si, e o
+   quadro que mais importa era justamente o que nenhum deles enxergava.
+
+   A ordem é a da urgência, e só o primeiro que bate aparece: dois avisos
+   graves ao mesmo tempo dividem a atenção em vez de somá-la.
+
+   Quando uma combinação aparece, os avisos de campo somem. Eles dizem
+   "converse com sua equipe" sobre um sintoma; a combinação diz "vá agora"
+   sobre o conjunto, e manter os dois na tela é deixar o menos urgente
+   discutir com o mais urgente. */
+type Niveis = { dor: number; vomito: number; tontura: number; preso: number; solto: number };
+
+const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string }[] = [
+  {
+    /* Intestino parado há dias + dor forte + vômito. */
+    quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
+    titulo: 'Essa combinação pede atendimento agora',
+    texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou no caminho. Não espere a consulta nem a melhora: procure um pronto atendimento e diga que está em uso da caneta.',
+  },
+  {
+    /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
+       manda relatar de imediato. */
+    quando: (n) => n.dor >= 4 && n.vomito >= 3,
+    titulo: 'Dor forte com vômito não espera',
+    texto: 'Dor abdominal intensa junto de vômito, às vezes irradiando para as costas, é o quadro que a bula manda relatar imediatamente. Procure sua equipe ou um atendimento hoje, e diga que usa a caneta.',
+  },
+  {
+    /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
+    quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
+    titulo: 'Tontura junto disso é sinal de desidratação',
+    texto: 'Perder líquido rápido e sentir tontura costumam andar juntos. Beba em goles ao longo do dia, com soro ou um pouco de sal, e avise sua equipe se não melhorar até amanhã.',
+  },
+];
+
 /* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
    sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
    Perguntar a intensidade antes do nome é pedir o adjetivo sem o
@@ -211,6 +248,19 @@ export default function Checkin() {
     if (k === 'preso') setDias((d) => (d == null ? 3 : d));
     if (k === 'solto') setVezes((v) => (v == null ? 3 : v));
   };
+
+  /* Zero quando o sintoma não está marcado: a combinação lê o dia como
+     ele foi respondido, não o que ficou guardado no estado de um chip que
+     a pessoa desmarcou. */
+  const nivel = (id: string) => (marcados.includes(id) ? (grau[id] ?? 3) : 0);
+  const noGut = marcados.includes(GUT);
+  const combinado = COMBINACOES.find((x) => x.quando({
+    dor: nivel('dor'),
+    vomito: nivel('vomito'),
+    tontura: nivel('tontura'),
+    preso: noGut && gut === 'preso' ? (dias ?? 3) : 0,
+    solto: noGut && gut === 'solto' ? (vezes ?? 3) : 0,
+  })) ?? null;
 
   const salvar = () => {
     update((s: any) => {
@@ -388,7 +438,7 @@ export default function Checkin() {
                     />
                   ) : null}
 
-                  {gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? (
+                  {!combinado && gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? (
                     <Aviso dentro ic="aura" titulo={AVISO_PRESO.titulo} texto={AVISO_PRESO.texto} />
                   ) : null}
 
@@ -405,7 +455,7 @@ export default function Checkin() {
 
                   {/* Dentro do cartão, abaixo de um fio: é a leitura da
                       resposta que acabou de ser dada, não um bloco novo. */}
-                  {gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? (
+                  {!combinado && gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? (
                     <Aviso dentro ic="aura" titulo={AVISO_SOLTO.titulo} texto={AVISO_SOLTO.texto} />
                   ) : null}
                 </Campo>
@@ -436,13 +486,19 @@ export default function Checkin() {
                   legendas={SINTOMA[id] ?? INTENSIDADE}
                 />
 
-                {av && (grau[id] ?? 0) >= av.min ? (
+                {!combinado && av && (grau[id] ?? 0) >= av.min ? (
                   <Aviso dentro ic="aura" titulo={av.titulo} texto={av.texto} />
                 ) : null}
               </Campo>
             );
           })}
         </View>
+
+        {/* Fecha o bloco dos sintomas: é a leitura do conjunto, e por isso
+            vem depois de todos eles e não dentro de nenhum. */}
+        {combinado ? (
+          <Aviso destaque ic="aura" titulo={combinado.titulo} texto={combinado.texto} />
+        ) : null}
       </View>
 
       <View />
