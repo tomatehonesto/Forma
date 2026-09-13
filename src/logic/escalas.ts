@@ -50,10 +50,21 @@ export const SINTOMA: Record<string, string[]> = {
   nausea: ['Um leve embrulho', 'Enjoo indo e vindo', 'Enjoo constante', 'Quase vomitei', 'Vomitei'],
   constip: ['Fui com esforço', 'Um dia sem ir', 'Dois dias sem ir', 'Três dias sem ir', 'Quatro dias ou mais'],
   /* O lado solto se conta em idas no dia, como o preso se conta em dias
-     sem ir — os dois lados do eixo medem quantidade, não advérbio. Os
-     cortes em quatro e em sete são os mesmos que a graduação clínica de
-     diarreia usa para separar o leve do que merece atenção. */
-  diarreia: ['Uma vez', 'Duas vezes', 'Três vezes', 'Quatro a seis vezes', 'Sete ou mais'],
+     sem ir — os dois lados do eixo medem quantidade, não advérbio.
+
+     O piso é uma FAIXA, e não "uma vez", porque uma ida mole não é
+     diarreia: a definição da OMS começa em três evacuações moles no dia
+     (ou mais do que o normal para aquela pessoa). Com o piso em uma vez,
+     a escala afirmava como sintoma o que ainda está dentro do normal de
+     muita gente — e uma coluna que chama tudo de diarreia não serve para
+     ler nada depois.
+
+     Então: o degrau 1 é o "mole, mas ainda não é isso", o 2 é onde a OMS
+     passa a chamar de diarreia, e o 5 é a faixa que a graduação clínica
+     trata como grave. O lado preso não precisou do mesmo ajuste — fazer
+     força para evacuar já é critério de constipação, então o piso dele
+     nasce em cima da linha. */
+  diarreia: ['Uma ou duas vezes', 'Três vezes', 'Quatro vezes', 'Cinco a seis vezes', 'Sete ou mais'],
   refluxo: ['Queimação leve', 'Depois das refeições', 'Várias vezes no dia', 'Atrapalhou comer', 'Não consegui deitar'],
   fadiga: ['Cansaço leve', 'Cansei mais rápido', 'Precisei desacelerar', 'Precisei deitar', 'Não saí da cama'],
   cefaleia: ['Uma fisgada', 'Incomodou de leve', 'Precisei de remédio', 'Atrapalhou o dia', 'Fiquei no escuro'],
