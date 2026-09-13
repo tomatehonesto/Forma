@@ -53,7 +53,35 @@ export const SINTOMA: Record<string, string[]> = {
   fadiga: ['Cansaço leve', 'Cansei mais rápido', 'Precisei desacelerar', 'Precisei deitar', 'Não saí da cama'],
   cefaleia: ['Uma fisgada', 'Incomodou de leve', 'Precisei de remédio', 'Atrapalhou o dia', 'Fiquei no escuro'],
   tontura: ['Leve desequilíbrio', 'Ao levantar rápido', 'Várias vezes no dia', 'Precisei me segurar', 'Não fiquei de pé'],
+  /* Vômito se conta, não se gradua: "atrapalhou o dia" não diz nada sobre
+     vomitar, e o número de vezes é o que a equipe vai perguntar. */
+  vomito: ['Uma vez', 'Duas vezes', 'Três vezes', 'Quatro ou mais', 'Não consegui parar'],
+  dor: ['Um desconforto', 'Cólica leve', 'Cólica constante', 'Precisei parar o dia', 'Dor que não passou'],
 };
+
+/* O INTESTINO é um eixo, não um sintoma.
+
+   Prender e soltar não são queixas diferentes: são as duas pontas do
+   mesmo efeito. A caneta desacelera o trato inteiro — esvaziamento
+   gástrico atrasado em cerca de 80% de quem usa, cólon em cerca de um
+   terço —, e daí sai constipação; a mesma lentidão, com o escalonamento
+   de dose e a mudança de alimentação, produz diarreia numa proporção
+   equivalente. Nos dados de mundo real os dois aparecem quase empatados,
+   32,7% de diarreia contra 30,4% de constipação.
+
+   Por isso "Alternou" é um valor de primeira classe e não um caso
+   estranho: era a resposta que a pessoa tinha e que a tela não aceitava.
+
+   A lista mora aqui porque as duas telas que escrevem `gut` — o check-in
+   e "como o corpo reagiu" — precisam concordar sobre quais valores
+   existem. Separadas, uma podia gravar um estado que a outra não sabia
+   exibir. */
+export const INTESTINO: [string, string][] = [
+  ['normal', 'Normal'],
+  ['preso', 'Preso'],
+  ['solto', 'Solto'],
+  ['alterna', 'Alternou'],
+];
 
 /** Fome é o contrário de saciedade, e o radar lê como saciedade. Por isso
     1 é a fome menor: a régua sobe junto com o sintoma, como as outras. */

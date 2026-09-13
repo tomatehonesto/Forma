@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
-import { ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA } from '../logic/escalas';
+import { ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO } from '../logic/escalas';
 import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
 
 /* ============================================================
@@ -37,7 +37,9 @@ import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '
    `sint` do check-in, e entram nas leituras quando ganharem derivação. */
 const SINTOMAS: { id: string; label: string; store?: string }[] = [
   { id: 'nausea', label: 'Náusea', store: 'nausea' },
-  { id: 'constip', label: 'Constipação', store: 'constip' },
+  { id: 'intestino', label: 'Intestino' },
+  { id: 'vomito', label: 'Vômito' },
+  { id: 'dor', label: 'Dor abdominal' },
   { id: 'refluxo', label: 'Refluxo', store: 'refluxo' },
   { id: 'fadiga', label: 'Fadiga' },
   { id: 'cefaleia', label: 'Dor de cabeça' },
@@ -45,13 +47,33 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
   { id: 'outro', label: 'Outro' },
 ];
 
-/* "Outro" é o único que não tem régua, e não podia ter: a escala mede
-   quanto pesou um sintoma que a tela sabe nomear, e aqui a tela não sabe
-   qual é. Perguntar a intensidade antes do nome é pedir o adjetivo sem o
+/* A lista cresceu para caber o que a literatura mais registra. Faltavam
+   três dos mais frequentes: vômito, dor abdominal — a queixa mais
+   relatada de todas em dados de mundo real — e o lado "solto" do
+   intestino, que a tela simplesmente não tinha como receber.
+
+   E "Constipação" virou "Intestino". Prender e soltar não são sintomas
+   diferentes: são as duas pontas do mesmo efeito, e apareciam quase
+   empatados nos estudos. Com um sintoma só para o lado preso, quem tivesse
+   diarreia não tinha onde dizer, e quem alternasse tinha que escolher
+   metade da verdade.
+
+   Isso também encerra uma divergência que já existia: "Como o corpo
+   reagiu" guardava `gut` com normal/preso/solto enquanto o check-in
+   guardava `constip` como intensidade. As duas telas podiam afirmar
+   coisas contrárias sobre o mesmo dia. Agora as duas escrevem `gut`, da
+   mesma lista de valores, e `constip` continua sendo gravado quando o
+   intestino está preso — é a coluna que Ritmo, Semana e Sintomas já
+   leem. */
+const OUTRO = 'outro';
+const GUT = 'intestino';
+
+/* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
+   sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
+   Perguntar a intensidade antes do nome é pedir o adjetivo sem o
    substantivo — então ele abre um campo de escrever, e o que a pessoa
    digitar é o registro. Vive em `outroTexto`, fora do mapa `sint`, que
    continua só com números. */
-const OUTRO = 'outro';
 
 /* Armazenamento é 0–10; a tela fala 1–5. A conversão mora na fronteira,
    nos dois sentidos, e é a mesma de medir-sintomas. Vale para os sintomas
@@ -81,15 +103,24 @@ export default function Checkin() {
   const inicial = (() => {
     const g: Record<string, number> = {};
     const m: string[] = [];
+    /* Percorre SINTOMAS, e não as chaves do registro, para os marcados
+       saírem na mesma ordem dos chips. Os dois especiais têm cada um a
+       sua prova de existência: "Outro" é o texto, e o intestino é `gut`
+       fora do normal — `normal` gravado é uma resposta ("foi bem"), não
+       um sintoma, e deixa o chip desmarcado como o zero de náusea faz. */
     for (const x of SINTOMAS) {
-      if (x.id === OUTRO) continue;
+      if (x.id === OUTRO) {
+        if (String(hoje?.outroTexto || '').trim()) m.push(OUTRO);
+        continue;
+      }
+      if (x.id === GUT) {
+        if (hoje?.gut && hoje.gut !== 'normal') m.push(GUT);
+        continue;
+      }
       const v = x.store ? paraTela(hoje?.[x.store]) : (hoje?.sint?.[x.id] ?? null);
       if (v == null) continue;
       m.push(x.id); g[x.id] = v;
     }
-    /* "Outro" está marcado quando há texto, e entra por último para o
-       cartão dele ficar depois dos outros, como na fileira de chips. */
-    if (String(hoje?.outroTexto || '').trim()) m.push(OUTRO);
     return { marcados: m, grau: g };
   })();
 
@@ -102,6 +133,12 @@ export default function Checkin() {
   const [sono, setSono] = useState<number | null>(hoje?.sono ?? null);
   const [humor, setHumor] = useState<number | null>(hoje?.mood ?? null);
   const [outro, setOutro] = useState<string>(hoje?.outroTexto ?? '');
+  const [gut, setGut] = useState<string | null>(
+    hoje?.gut && hoje.gut !== 'normal' ? hoje.gut : null,
+  );
+  /* Dias sem ir ao banheiro, na régua 1–5 da tela. Só existe quando o
+     intestino está preso; soltar e alternar não se contam em dias. */
+  const [dias, setDias] = useState<number | null>(paraTela(hoje?.constip));
 
   /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
      intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
@@ -112,7 +149,14 @@ export default function Checkin() {
   const alterna = (id: string) => {
     const tinha = marcados.includes(id);
     setMarcados((m) => (tinha ? m.filter((x) => x !== id) : [...m, id]));
-    if (!tinha && id !== OUTRO) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
+    if (!tinha && id !== OUTRO && id !== GUT) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
+  };
+
+  /* Escolher "preso" já põe os dias no meio, pelo mesmo motivo que marcar
+     um sintoma já põe a intensidade em 3: a tela mostra o que vai salvar. */
+  const escolheGut = (k: string) => {
+    setGut(k);
+    if (k === 'preso') setDias((d) => (d == null ? 3 : d));
   };
 
   const salvar = () => {
@@ -137,9 +181,25 @@ export default function Checkin() {
          vivem na coluna e em lugar nenhum além dela. */
       c.sint = Object.fromEntries(
         marcados
-          .filter((id) => id !== OUTRO && !SINTOMAS.find((x) => x.id === id)?.store)
+          .filter((id) => id !== OUTRO && id !== GUT && !SINTOMAS.find((x) => x.id === id)?.store)
           .map((id) => [id, grau[id] ?? 3]),
       );
+
+      /* INTESTINO — um eixo, gravado em dois lugares com papéis distintos.
+
+         `gut` diz a DIREÇÃO e é o campo que "como o corpo reagiu" também
+         escreve. `constip` continua sendo a coluna numérica de quantos
+         dias sem ir, porque Ritmo, Semana e Sintomas leem dali; ela só
+         tem valor quando o intestino está preso.
+
+         Chip desmarcado grava `normal`, do mesmo jeito que um sintoma não
+         marcado grava zero: é a pessoa dizendo que o intestino foi bem,
+         não uma lacuna. Marcado sem escolher o estado é o único caso que
+         não afirma nada — ela disse que teve algo e não disse o quê, e
+         inventar um lado seria pior do que deixar como estava. */
+      const marcouGut = marcados.includes(GUT);
+      if (!marcouGut) { c.gut = 'normal'; c.constip = 0; }
+      else if (gut) { c.gut = gut; c.constip = gut === 'preso' ? (dias ?? 3) * 2 : 0; }
 
       /* Desmarcar "Outro" apaga o texto: ele é a única prova de que o
          sintoma existiu, e deixá-lo para trás faria a pessoa desmarcar na
@@ -241,8 +301,36 @@ export default function Checkin() {
             aqui — quem quer desfazer desmarca o chip, que é de onde o
             cartão veio. */}
         <View style={{ gap: 4 }}>
-          {marcados.map((id) => {
-            const s = SINTOMAS.find((x) => x.id === id)!;
+          {/* Os cartões seguem a ordem dos chips, não a ordem em que foram
+              tocados: a lista não se reembaralha conforme a pessoa marca,
+              e o que ela vê embaixo tem a mesma sequência do que está em
+              cima. */}
+          {SINTOMAS.filter((x) => marcados.includes(x.id)).map((s) => {
+            const id = s.id;
+
+            if (id === GUT) {
+              return (
+                <Campo key={id} rotulo="Como foi o intestino?">
+                  <Opcoes>
+                    {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
+                      <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
+                    ))}
+                  </Opcoes>
+                  {/* Dias só fazem sentido do lado preso. Soltar e
+                      alternar não se medem em dias sem ir. */}
+                  {gut === 'preso' ? (
+                    <Escala
+                      suave
+                      valores={[1, 2, 3, 4, 5]}
+                      valor={dias}
+                      onChange={(v) => setDias(Number(v))}
+                      onLimpar={() => setDias(null)}
+                      legendas={SINTOMA.constip}
+                    />
+                  ) : null}
+                </Campo>
+              );
+            }
 
             if (id === OUTRO) {
               return (
