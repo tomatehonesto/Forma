@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row } from './kit';
@@ -37,7 +37,7 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, children,
+  titulo, acao, iconeAcao, onAcao, fechar, folha, onVoltar, rodape, children,
 }: {
   titulo: string;
   /** rótulo curto da ação à direita ("Nova", "Salvar") */
@@ -47,6 +47,13 @@ export function TelaInterna({
   onAcao?: () => void;
   /** troca o "‹" por "✕" — fluxos de captura se fecham, não voltam */
   fechar?: boolean;
+  /* A tela é apresentada como folha (presentation: 'modal'). No iOS a
+     folha já desce abaixo da barra de status e o sistema dá esse espaço
+     sozinho — mas o inset que chega aqui é medido na JANELA, não na
+     folha, então somá-lo abria um vão do tamanho do notch acima da barra
+     de navegação. No Android o modal ainda ocupa a tela inteira, e lá o
+     inset continua valendo. */
+  folha?: boolean;
   /* Nem todo voltar sai da tela. Onde uma tela guarda dois estados —
      a lista de exames e o detalhe de um marcador —, voltar significa
      desfazer a seleção, não desempilhar a rota. Sem isto a pessoa sairia
@@ -60,12 +67,13 @@ export function TelaInterna({
   const router = useRouter();
   const [rolou, setRolou] = useState(false);
   const temAcao = !!onAcao && (!!acao || !!iconeAcao);
+  const topo = folha && Platform.OS === 'ios' ? 0 : insets.top;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View
         style={{
-          paddingTop: insets.top,
+          paddingTop: topo,
           backgroundColor: c.bg,
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: rolou ? c.line : 'transparent',
@@ -639,31 +647,63 @@ export function Stepper({ valor, unidade, onMenos, onMais, onDigitar }: {
    chapado premia o pior dia como se fosse conquista. Ali o selecionado é
    uma lavagem — está marcado, não celebrado. Energia, que é o quanto você
    TEM, segue em azul cheio. */
-export function Escala({ valores, valor, onChange, suave }: {
+/* Escala — chips, não slider.
+
+   O slider foi a primeira versão desta tela e voltou a ser cogitado. Ele
+   não serve aqui por um motivo estrutural: um slider SEMPRE tem o polegar
+   em algum lugar. Não existe slider em branco, e "não respondi" é o estado
+   mais importante desta tela inteira — foi por confundir ausência com zero
+   que os registros passaram a mentir. Uma fileira de chips pode estar
+   vazia, e vazia é uma resposta legível.
+
+   Além disso: um check-in cheio pode ter dez escalas. Dez toques contra dez
+   arrastes é a diferença entre um minuto e uma tarefa.
+
+   As LEGENDAS dizem o que cada número significa, em primeira pessoa. O
+   número sozinho pede que a pessoa invente a régua ("3 de energia é bom?");
+   a legenda devolve a régua pronta. A linha tem altura fixa: sem seleção
+   mostra os dois extremos, e trocar de valor não empurra a tela. */
+export function Escala({ valores, valor, onChange, suave, legendas }: {
   valores: (string | number)[]; valor: string | number | null;
   onChange: (v: string | number) => void; suave?: boolean;
+  /** o que cada valor quer dizer, na mesma ordem de `valores` */
+  legendas?: string[];
 }) {
   const { c } = useTheme();
+  const i = valores.findIndex((v) => v === valor);
+  const dita = legendas && i >= 0 ? legendas[i] : null;
+  const extremos = legendas ? `${legendas[0]} · ${legendas[legendas.length - 1]}` : null;
+
   return (
-    <Row style={{ gap: 6 }}>
-      {valores.map((v) => {
-        const on = v === valor;
-        return (
-          <Pressable
-            key={String(v)}
-            onPress={() => onChange(v)}
-            style={({ pressed }) => [{
-              flex: 1, height: 42, borderRadius: radius.md, borderWidth: 1,
-              borderColor: on ? (suave ? c.accentLine : c.accent) : c.line,
-              backgroundColor: on ? (suave ? c.accentWeak : c.accent) : c.bg1,
-              alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1,
-            }]}
-          >
-            <Txt v="label" c={on ? (suave ? c.accent : c.accentInk) : c.tx2}>{String(v)}</Txt>
-          </Pressable>
-        );
-      })}
-    </Row>
+    <View style={{ gap: 9 }}>
+      <Row style={{ gap: 6 }}>
+        {valores.map((v) => {
+          const on = v === valor;
+          return (
+            <Pressable
+              key={String(v)}
+              onPress={() => onChange(v)}
+              style={({ pressed }) => [{
+                flex: 1, height: 42, borderRadius: radius.md, borderWidth: 1,
+                borderColor: on ? (suave ? c.accentLine : c.accent) : c.line,
+                backgroundColor: on ? (suave ? c.accentWeak : c.accent) : c.bg1,
+                alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1,
+              }]}
+            >
+              <Txt v="label" c={on ? (suave ? c.accent : c.accentInk) : c.tx2}>{String(v)}</Txt>
+            </Pressable>
+          );
+        })}
+      </Row>
+
+      {legendas ? (
+        <View style={{ height: ty.caption.lineHeight, justifyContent: 'center' }}>
+          <Txt v="caption" c={dita ? c.tx : c.tx3} numberOfLines={1}>
+            {dita ?? extremos}
+          </Txt>
+        </View>
+      ) : null}
+    </View>
   );
 }
 

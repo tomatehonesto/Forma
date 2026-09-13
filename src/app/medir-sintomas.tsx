@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
+import { INTENSIDADE, FOME } from '../logic/escalas';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Escala, Opcoes, Opc, Aviso, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -65,12 +66,15 @@ export default function MedirSintomas() {
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo rotulo="Enjoo" ajuda="1 mal percebo · 5 atrapalha o dia">
-          <Escala suave valores={[1, 2, 3, 4, 5]} valor={nausea} onChange={(v) => setNausea(Number(v))} />
+        {/* As legendas são as mesmas do check-in, porque a coluna é a
+            mesma. A linha de ajuda saiu: ela dizia só as pontas, e a
+            legenda diz as cinco. */}
+        <Campo rotulo="Enjoo">
+          <Escala suave valores={[1, 2, 3, 4, 5]} valor={nausea} onChange={(v) => setNausea(Number(v))} legendas={INTENSIDADE} />
         </Campo>
 
-        <Campo rotulo="Fome" ajuda="1 sem fome · 5 fome constante">
-          <Escala suave valores={[1, 2, 3, 4, 5]} valor={fome} onChange={(v) => setFome(Number(v))} />
+        <Campo rotulo="Fome">
+          <Escala suave valores={[1, 2, 3, 4, 5]} valor={fome} onChange={(v) => setFome(Number(v))} legendas={FOME} />
         </Campo>
 
         <Campo rotulo="Intestino">
