@@ -63,12 +63,17 @@ export default function MedirSintomas() {
         {/* As legendas são as mesmas do check-in, porque a coluna é a
             mesma. A linha de ajuda saiu: ela dizia só as pontas, e a
             legenda diz as cinco. */}
-        {/* O aviso sai por baixo do campo que o provocou. Solto lá embaixo,
-            depois do intestino, ele estava a três blocos da pergunta sobre
-            a qual fala. */}
-        <Campo
-          rotulo="Enjoo"
-          saia={nausea != null && nausea >= 4 ? (
+        {/* O aviso mora no campo que o provocou. Solto lá embaixo, depois
+            do intestino, ele estava a três blocos da pergunta sobre a qual
+            fala. */}
+        <Campo rotulo="Enjoo">
+          <Escala
+            suave valores={[1, 2, 3, 4, 5]} valor={nausea}
+            onChange={(v) => setNausea(Number(v))} onLimpar={() => setNausea(null)}
+            legendas={SINTOMA.nausea}
+          />
+
+          {nausea != null && nausea >= 4 ? (
             <Aviso
               dentro
               ic="aura"
@@ -76,13 +81,7 @@ export default function MedirSintomas() {
               texto="Enjoo é o efeito mais comum da caneta e costuma passar. Mas forte assim, ele atrapalha comer e beber o que o corpo precisa."
               acao="Conte na próxima consulta. Enquanto isso, refeições menores e com menos gordura costumam aliviar."
             />
-          ) : undefined}
-        >
-          <Escala
-            suave valores={[1, 2, 3, 4, 5]} valor={nausea}
-            onChange={(v) => setNausea(Number(v))} onLimpar={() => setNausea(null)}
-            legendas={SINTOMA.nausea}
-          />
+          ) : null}
         </Campo>
 
         <Campo rotulo="Fome">

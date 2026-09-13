@@ -540,11 +540,12 @@ export function Grade2({ children }: { children: React.ReactNode }) {
 /* Aviso — o que a tela diz depois de ler a resposta. Três formas, e cada
    uma existe por causa de onde o aviso nasce.
 
-   `dentro` tira a casca de cartão e deixa só o conteúdo. É a forma que
-   vai dentro da SAIA do Campo — a aba tingida que sai por baixo do
-   cartão —, e por isso não traz fundo nem fio: quem separa já é a saia.
-   Como cartão solto ele virava mais um bloco na pilha, à mesma distância
-   de todos e ligado a nenhum.
+   `dentro` tira a casca de cartão e encaixa o aviso NO campo que o
+   provocou, abaixo de um fio — e um corpo menor que o do resto da tela.
+   Ele é comentário sobre a resposta, não uma segunda pergunta: no mesmo
+   tamanho do controle acima, disputava a leitura com ele. Como cartão
+   solto virava mais um bloco na pilha, à mesma distância de todos e
+   ligado a nenhum.
 
    `destaque` é o contrário: o aviso que não pertence a campo nenhum
    porque nasce de vários ao mesmo tempo. Cartão tingido, sem sombra — ele
@@ -568,6 +569,15 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
   const { c } = useTheme();
   const empilha = dentro || destaque;
 
+  /* Dentro do campo o aviso fala mais baixo: título em 16 e corpo em 15,
+     contra os 19 e 16 do cartão solto. Ele comenta a resposta que está
+     logo acima e não pode ter a mesma voz dela. O cartão da leitura do
+     conjunto mantém o corpo cheio — aquele não comenta um campo, fala do
+     dia inteiro, e é o único da tela que deve soar mais alto. */
+  const vTitulo = dentro ? 'label' : 'bodyMed';
+  const vTexto = dentro ? 'tag' : 'caption';
+  const tamIcone = dentro ? 15 : 18;
+
   const texto2 = (
     <View style={{ flex: 1 }}>
       {titulo ? <Txt v="bodyMed" style={{ marginBottom: 2 }}>{titulo}</Txt> : null}
@@ -580,6 +590,7 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
     return (
       <View style={[
         { gap: 5 },
+        dentro && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 12 },
         destaque && { backgroundColor: c.accentWeak, borderRadius: radius.card, padding: PAD },
       ]}>
         {/* Ícone na linha do título, e o corpo do texto na largura toda por
@@ -587,23 +598,23 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
             acima de tudo, empurrava o título para longe do que o provocou.
             Na linha do título ele funciona como marcador da frase, que é o
             papel que tem. */}
-        <Row gap={9} style={{ alignItems: 'flex-start' }}>
+        <Row gap={8} style={{ alignItems: 'flex-start' }}>
           {/* Alinhado à PRIMEIRA linha do título, não ao centro do bloco:
               com título de duas linhas, centrado ele descia para o meio e
               deixava de marcar onde a frase começa. */}
-          <View style={{ marginTop: (ty.bodyMed.lineHeight - 18) / 2 }}>
-            <Icon name={ic} size={18} color={c.accent} sw={1.9} />
+          <View style={{ marginTop: (ty[vTitulo].lineHeight - tamIcone) / 2 }}>
+            <Icon name={ic} size={tamIcone} color={c.accent} sw={1.9} />
           </View>
-          {titulo ? <Txt v="bodyMed" style={{ flex: 1 }}>{titulo}</Txt> : null}
+          {titulo ? <Txt v={vTitulo} style={{ flex: 1 }}>{titulo}</Txt> : null}
         </Row>
-        {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
+        {texto ? <Txt v={vTexto} c={c.tx2}>{texto}</Txt> : null}
 
         {acao ? (
           <View style={{ gap: 3, marginTop: 3 }}>
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>
             {/* Em tinta cheia, e não na cinza do texto de cima: é a parte
                 que a pessoa precisa levar embora da tela. */}
-            <Txt v="caption" c={c.tx}>{acao}</Txt>
+            <Txt v={vTexto} c={c.tx}>{acao}</Txt>
           </View>
         ) : null}
 
@@ -631,49 +642,23 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
    cartão parece um painel de controle montado por quem gosta de painéis;
    solta na tela, ela é só a pergunta e as respostas.
 
-   `saia` é uma aba tingida que sai POR BAIXO do cartão, presa a ele: ela
-   sobe o tanto do raio e some atrás do cartão, então as duas peças leem
-   como uma coisa só com um degrau. Serve para o que o app tem a dizer
-   sobre a resposta — dentro do cartão o recado disputava espaço com o
-   controle, e solto embaixo virava outro bloco da pilha. Mesma largura do
-   cartão: o degrau já vem do tom e do encaixe, e estreitar de novo era
-   afastar a aba do que ela comenta. */
-export function Campo({ rotulo, ajuda, nu, saia, children }: {
-  rotulo?: string; ajuda?: string; nu?: boolean; saia?: React.ReactNode; children: React.ReactNode;
+   Já tentei pendurar uma SAIA aqui — uma aba que saía por baixo do cartão
+   com o que o app tem a dizer sobre a resposta. Em azul ela competia com o
+   controle logo acima; em cinza, sumia no fundo da tela, que é quase o
+   mesmo cinza. O aviso voltou para dentro do cartão, separado por um fio:
+   sobre o branco do cartão qualquer coisa se destaca, e é lá que ele está
+   preso ao que comenta. */
+export function Campo({ rotulo, ajuda, nu, children }: {
+  rotulo?: string; ajuda?: string; nu?: boolean; children: React.ReactNode;
 }) {
   const { c } = useTheme();
-
-  const cartao = (
+  return (
     <View style={nu
       ? { gap: 11, paddingHorizontal: 2 }
       : [{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11 }, shadowCard(c)]}>
       {rotulo ? <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>{rotulo.toUpperCase()}</Txt> : null}
       {children}
       {ajuda ? <Txt v="caption" c={c.tx3}>{ajuda}</Txt> : null}
-    </View>
-  );
-
-  if (!saia || nu) return cartao;
-
-  return (
-    <View>
-      {/* O cartão por cima, e a saia por baixo: é o cartão que esconde o
-          topo dela, então ele precisa vir depois na pilha de desenho. */}
-      <View style={{ zIndex: 2 }}>{cartao}</View>
-      <View style={{
-        zIndex: 1,
-        marginTop: -radius.card,
-        paddingTop: radius.card + 12, paddingHorizontal: PAD, paddingBottom: 14,
-        /* Cinza, e não o azul do app: a saia é um degrau abaixo do cartão,
-           não um segundo destaque. Tingida de azul ela competia com o
-           controle que está logo acima — e com o cartão da leitura do
-           conjunto, que é o lugar onde a cor de fato significa urgência.
-           Aqui quem carrega o azul é só o ícone e o "o que fazer". */
-        backgroundColor: c.bg2,
-        borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
-      }}>
-        {saia}
-      </View>
     </View>
   );
 }

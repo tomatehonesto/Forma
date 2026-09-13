@@ -524,11 +524,7 @@ export default function Checkin() {
                 : !combinado && gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? AVISO_SOLTO
                 : null;
               return (
-                <Campo
-                  key={id}
-                  rotulo="Como foi o intestino?"
-                  saia={avGut ? <Aviso dentro ic="aura" titulo={avGut.titulo} texto={avGut.texto} acao={avGut.acao} /> : undefined}
-                >
+                <Campo key={id} rotulo="Como foi o intestino?">
                   <Opcoes>
                     {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
@@ -560,6 +556,9 @@ export default function Checkin() {
                     />
                   ) : null}
 
+                  {avGut ? (
+                    <Aviso dentro ic="aura" titulo={avGut.titulo} texto={avGut.texto} acao={avGut.acao} />
+                  ) : null}
                 </Campo>
               );
             }
@@ -580,11 +579,7 @@ export default function Checkin() {
             const av = AVISOS[id];
             const mostra = !combinado && av && (grau[id] ?? 0) >= av.min;
             return (
-              <Campo
-                key={id}
-                rotulo={`${s.label} · intensidade`}
-                saia={mostra ? <Aviso dentro ic="aura" titulo={av!.titulo} texto={av!.texto} acao={av!.acao} /> : undefined}
-              >
+              <Campo key={id} rotulo={`${s.label} · intensidade`}>
                 <Escala
                   suave
                   valores={[1, 2, 3, 4, 5]}
@@ -592,6 +587,10 @@ export default function Checkin() {
                   onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
                   legendas={SINTOMA[id] ?? INTENSIDADE}
                 />
+
+                {mostra ? (
+                  <Aviso dentro ic="aura" titulo={av!.titulo} texto={av!.texto} acao={av!.acao} />
+                ) : null}
               </Campo>
             );
           })}
