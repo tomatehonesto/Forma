@@ -41,7 +41,7 @@ export default function Ritmo() {
   const pontual = maior <= cad + 2;
 
   const recentes = (S.checkins as any[]).slice(-14);
-  const pico = recentes.reduce((m, c) => Math.max(m, c.nausea || 0, c.constip || 0, c.refluxo || 0), 0);
+  const pico = recentes.reduce((m, c) => Math.max(m, c.nausea || 0, c.constip || 0, c.diarreia || 0, c.refluxo || 0), 0);
   const sintomas = pico <= 2 ? 'Leves' : pico <= 5 ? 'Leves a moderados' : 'Moderados a fortes';
 
   return (

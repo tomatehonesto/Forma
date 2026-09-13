@@ -17,7 +17,7 @@ const SYMS = [
   { k: 'sono', label: 'Sono', ic: 'moon' },
   { k: 'mood', label: 'Humor', ic: 'mood' },
 ];
-const EXTRA_SYMS: [string, string][] = [['refluxo', 'Refluxo'], ['ansiedade', 'Ansiedade'], ['constip', 'Constipação']];
+const EXTRA_SYMS: [string, string][] = [['refluxo', 'Refluxo'], ['ansiedade', 'Ansiedade'], ['constip', 'Constipação'], ['diarreia', 'Intestino solto']];
 const LV = ['nenhum', 'leve', 'moderado', 'forte'];
 
 function symReading(k: string, cur: number, old: number, better: boolean) {

@@ -42,7 +42,7 @@ export function adesao(S: State) {
    nasceu. */
 export function checkinToday(S: State) { const t = +startOfDay(now()); return S.checkins.find((c: any) => c.t === t); }
 
-const RESPOSTAS = ['energia', 'sono', 'mood', 'fome', 'nausea', 'constip', 'refluxo', 'gut'];
+const RESPOSTAS = ['energia', 'sono', 'mood', 'fome', 'nausea', 'constip', 'diarreia', 'refluxo', 'gut'];
 
 /** O dia tem alguma resposta — não só um acumulador que subiu sozinho. */
 export function respostaNoDia(c: any) {

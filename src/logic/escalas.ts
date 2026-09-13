@@ -49,6 +49,11 @@ export const INTENSIDADE = ['Mal percebi', 'Leve', 'Incomodou', 'Atrapalhou o di
 export const SINTOMA: Record<string, string[]> = {
   nausea: ['Um leve embrulho', 'Enjoo indo e vindo', 'Enjoo constante', 'Quase vomitei', 'Vomitei'],
   constip: ['Fui com esforço', 'Um dia sem ir', 'Dois dias sem ir', 'Três dias sem ir', 'Quatro dias ou mais'],
+  /* O lado solto se conta em idas no dia, como o preso se conta em dias
+     sem ir — os dois lados do eixo medem quantidade, não advérbio. Os
+     cortes em quatro e em sete são os mesmos que a graduação clínica de
+     diarreia usa para separar o leve do que merece atenção. */
+  diarreia: ['Uma vez', 'Duas vezes', 'Três vezes', 'Quatro a seis vezes', 'Sete ou mais'],
   refluxo: ['Queimação leve', 'Depois das refeições', 'Várias vezes no dia', 'Atrapalhou comer', 'Não consegui deitar'],
   fadiga: ['Cansaço leve', 'Cansei mais rápido', 'Precisei desacelerar', 'Precisei deitar', 'Não saí da cama'],
   cefaleia: ['Uma fisgada', 'Incomodou de leve', 'Precisei de remédio', 'Atrapalhou o dia', 'Fiquei no escuro'],

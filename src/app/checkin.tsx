@@ -150,9 +150,12 @@ export default function Checkin() {
   const [gut, setGut] = useState<string | null>(
     hoje?.gut && hoje.gut !== 'normal' ? hoje.gut : null,
   );
-  /* Dias sem ir ao banheiro, na régua 1–5 da tela. Só existe quando o
-     intestino está preso; soltar e alternar não se contam em dias. */
+  /* Os dois lados do eixo se medem, e em unidades diferentes: preso conta
+     DIAS sem ir, solto conta IDAS no dia. Por isso são dois estados, e não
+     um número que troca de significado — trocar de lado não devia carregar
+     o número do lado anterior. Alternar não se conta em nenhuma das duas. */
   const [dias, setDias] = useState<number | null>(paraTela(hoje?.constip));
+  const [vezes, setVezes] = useState<number | null>(paraTela(hoje?.diarreia));
 
   /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
      intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
@@ -166,11 +169,13 @@ export default function Checkin() {
     if (!tinha && id !== OUTRO && id !== GUT) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
   };
 
-  /* Escolher "preso" já põe os dias no meio, pelo mesmo motivo que marcar
-     um sintoma já põe a intensidade em 3: a tela mostra o que vai salvar. */
+  /* Escolher um lado já põe a contagem no meio, pelo mesmo motivo que
+     marcar um sintoma já põe a intensidade em 3: a tela mostra o que vai
+     salvar. */
   const escolheGut = (k: string) => {
     setGut(k);
     if (k === 'preso') setDias((d) => (d == null ? 3 : d));
+    if (k === 'solto') setVezes((v) => (v == null ? 3 : v));
   };
 
   const salvar = () => {
@@ -212,8 +217,12 @@ export default function Checkin() {
          não afirma nada — ela disse que teve algo e não disse o quê, e
          inventar um lado seria pior do que deixar como estava. */
       const marcouGut = marcados.includes(GUT);
-      if (!marcouGut) { c.gut = 'normal'; c.constip = 0; }
-      else if (gut) { c.gut = gut; c.constip = gut === 'preso' ? (dias ?? 3) * 2 : 0; }
+      if (!marcouGut) { c.gut = 'normal'; c.constip = 0; c.diarreia = 0; }
+      else if (gut) {
+        c.gut = gut;
+        c.constip = gut === 'preso' ? (dias ?? 3) * 2 : 0;
+        c.diarreia = gut === 'solto' ? (vezes ?? 3) * 2 : 0;
+      }
 
       /* Desmarcar "Outro" apaga o texto: ele é a única prova de que o
          sintoma existiu, e deixá-lo para trás faria a pessoa desmarcar na
@@ -330,8 +339,10 @@ export default function Checkin() {
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
                     ))}
                   </Opcoes>
-                  {/* Dias só fazem sentido do lado preso. Soltar e
-                      alternar não se medem em dias sem ir. */}
+                  {/* Uma régua por lado, cada uma na sua unidade: dias sem
+                      ir de um lado, idas no dia do outro. Alternar fica sem
+                      contagem — dizer quantas vezes num dia que teve os dois
+                      pede uma resposta que ninguém tem na ponta da língua. */}
                   {gut === 'preso' ? (
                     <Escala
                       suave
@@ -340,6 +351,17 @@ export default function Checkin() {
                       onChange={(v) => setDias(Number(v))}
                       onLimpar={() => setDias(null)}
                       legendas={SINTOMA.constip}
+                    />
+                  ) : null}
+
+                  {gut === 'solto' ? (
+                    <Escala
+                      suave
+                      valores={[1, 2, 3, 4, 5]}
+                      valor={vezes}
+                      onChange={(v) => setVezes(Number(v))}
+                      onLimpar={() => setVezes(null)}
+                      legendas={SINTOMA.diarreia}
                     />
                   ) : null}
                 </Campo>

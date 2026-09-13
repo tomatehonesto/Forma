@@ -69,6 +69,7 @@ export default function Semana() {
   const sintomas = [
     { k: 'nausea', label: 'Náusea' },
     { k: 'constip', label: 'Constipação' },
+    { k: 'diarreia', label: 'Intestino solto' },
     { k: 'refluxo', label: 'Refluxo' },
   ].filter((x) => media(x.k) > 0);
 
