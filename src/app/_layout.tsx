@@ -52,7 +52,11 @@ export default function RootLayout() {
         <Moldura>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="checkin" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          {/* O check-in era folha modal. Virou tela: ele tem três escalas
+              fixas, a lista de sintomas e um cartão por sintoma marcado —
+              conteúdo que rola, e folha que rola muito é tela com menos
+              espaço e um gesto de fechar a mais. */}
+          <Stack.Screen name="checkin" />
           <Stack.Screen name="proxima-aplicacao" />
           <Stack.Screen name="ciclo" />
           <Stack.Screen name="evolucao" />

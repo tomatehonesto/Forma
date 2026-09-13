@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,7 +38,7 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, acao, iconeAcao, onAcao, fechar, folha, onVoltar, rodape, children,
+  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, children,
 }: {
   titulo: string;
   /** rótulo curto da ação à direita ("Nova", "Salvar") */
@@ -48,13 +48,6 @@ export function TelaInterna({
   onAcao?: () => void;
   /** troca o "‹" por "✕" — fluxos de captura se fecham, não voltam */
   fechar?: boolean;
-  /* A tela é apresentada como folha (presentation: 'modal'). No iOS a
-     folha já desce abaixo da barra de status e o sistema dá esse espaço
-     sozinho — mas o inset que chega aqui é medido na JANELA, não na
-     folha, então somá-lo abria um vão do tamanho do notch acima da barra
-     de navegação. No Android o modal ainda ocupa a tela inteira, e lá o
-     inset continua valendo. */
-  folha?: boolean;
   /* Nem todo voltar sai da tela. Onde uma tela guarda dois estados —
      a lista de exames e o detalhe de um marcador —, voltar significa
      desfazer a seleção, não desempilhar a rota. Sem isto a pessoa sairia
@@ -68,13 +61,12 @@ export function TelaInterna({
   const router = useRouter();
   const [rolou, setRolou] = useState(false);
   const temAcao = !!onAcao && (!!acao || !!iconeAcao);
-  const topo = folha && Platform.OS === 'ios' ? 0 : insets.top;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View
         style={{
-          paddingTop: topo,
+          paddingTop: insets.top,
           backgroundColor: c.bg,
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: rolou ? c.line : 'transparent',

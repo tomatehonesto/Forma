@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { ENERGIA, SONO, HUMOR, INTENSIDADE } from '../logic/escalas';
-import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Botao } from '../ui/internas';
 
 /* ============================================================
    CHECK-IN DO DIA
@@ -89,8 +89,6 @@ export default function Checkin() {
   const [energia, setEnergia] = useState<number | null>(paraTela(hoje?.energia));
   const [sono, setSono] = useState<number | null>(hoje?.sono ?? null);
   const [humor, setHumor] = useState<number | null>(hoje?.mood ?? null);
-  const [nota, setNota] = useState<string>(hoje?.note ?? '');
-  const [levar, setLevar] = useState(false);
 
   /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
      intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
@@ -129,8 +127,6 @@ export default function Checkin() {
           .filter((id) => !SINTOMAS.find((x) => x.id === id)?.store)
           .map((id) => [id, grau[id] ?? 3]),
       );
-      c.note = nota;
-
       /* Só o que foi respondido é gravado. Deixar uma escala em branco
          mantém o campo ausente, e ausente continua sendo diferente de
          zero para quem lê. */
@@ -139,11 +135,10 @@ export default function Checkin() {
       if (humor != null) c.mood = humor;
 
       /* Fome fica em medir-sintomas, junto de intestino: as duas telas não
-         perguntam a mesma coisa. */
+         perguntam a mesma coisa. A anotação livre saiu por ora; `c.note`
+         não é mais escrito aqui, e por isso o que já estiver gravado
+         continua onde está em vez de ser apagado por um campo ausente. */
 
-      if (levar && nota.trim()) {
-        s.notes = [{ t: +now(), text: nota.trim(), done: false }, ...(s.notes || [])];
-      }
       s.heroSeen = { milestone: 0, insight: null, replay: null };
     });
     router.replace('/(tabs)/jornada' as any);
@@ -157,7 +152,6 @@ export default function Checkin() {
     <TelaInterna
       titulo="Check-in"
       fechar
-      folha
       rodape={<Botao label="Salvar check-in" onPress={salvar} />}
     >
       <Titulao
@@ -165,32 +159,39 @@ export default function Checkin() {
         lead="Responda o que fizer sentido. Deixar em branco também é uma resposta."
       />
 
-      <Campo rotulo="Energia">
-        <Escala
-          valores={[1, 2, 3, 4, 5]}
-          valor={energia}
-          onChange={(v) => setEnergia(Number(v))}
-          legendas={ENERGIA}
-        />
-      </Campo>
+      {/* As três quase se tocam, como os cartões de "Sua evolução" na
+          Home. Elas são um bloco só — as perguntas que a tela faz todo
+          dia —, e o ar de antes entre uma e outra as fazia parecer três
+          assuntos empilhados por acaso. O respiro maior fica para as
+          quebras que existem de verdade: o titulão e os sintomas. */}
+      <View style={{ gap: 4 }}>
+        <Campo rotulo="Energia">
+          <Escala
+            valores={[1, 2, 3, 4, 5]}
+            valor={energia}
+            onChange={(v) => setEnergia(Number(v))}
+            legendas={ENERGIA}
+          />
+        </Campo>
 
-      <Campo rotulo="Sono">
-        <Escala
-          valores={[5, 6, 7, 8, 9]}
-          valor={sono}
-          onChange={(v) => setSono(Number(v))}
-          legendas={SONO}
-        />
-      </Campo>
+        <Campo rotulo="Sono">
+          <Escala
+            valores={[5, 6, 7, 8, 9]}
+            valor={sono}
+            onChange={(v) => setSono(Number(v))}
+            legendas={SONO}
+          />
+        </Campo>
 
-      <Campo rotulo="Humor">
-        <Escala
-          valores={[1, 2, 3, 4, 5]}
-          valor={humor}
-          onChange={(v) => setHumor(Number(v))}
-          legendas={HUMOR}
-        />
-      </Campo>
+        <Campo rotulo="Humor">
+          <Escala
+            valores={[1, 2, 3, 4, 5]}
+            valor={humor}
+            onChange={(v) => setHumor(Number(v))}
+            legendas={HUMOR}
+          />
+        </Campo>
+      </View>
 
       {/* Daqui para baixo é a parte que a pessoa descreve. Nada aqui é
           obrigatório, e um dia sem sintoma nenhum passa direto.
@@ -201,40 +202,34 @@ export default function Checkin() {
           Cartão só aparece depois, e um por sintoma marcado — o que dá à
           tela a forma do dia que a pessoa teve, em vez de uma grade fixa
           esperando ser preenchida. */}
-      <Campo rotulo="Teve algum sintoma?" nu>
-        <Opcoes>
-          {SINTOMAS.map((x) => (
-            <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />
-          ))}
-        </Opcoes>
-      </Campo>
+      <View style={{ gap: 14 }}>
+        <Campo rotulo="Teve algum sintoma?" nu>
+          <Opcoes>
+            {SINTOMAS.map((x) => (
+              <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />
+            ))}
+          </Opcoes>
+        </Campo>
 
-      {marcados.map((id) => {
-        const s = SINTOMAS.find((x) => x.id === id)!;
-        return (
-          <Campo key={id} rotulo={`${s.label} · intensidade`}>
-            <Escala
-              suave
-              valores={[1, 2, 3, 4, 5]}
-              valor={grau[id] ?? null}
-              onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
-              legendas={INTENSIDADE}
-            />
-          </Campo>
-        );
-      })}
-
-      <Campo rotulo="Quer anotar alguma coisa?">
-        <Texto
-          valor={nota}
-          onChange={setNota}
-          placeholder="Opcional. Só para você — a menos que você mande para a consulta."
-          linhas={3}
-        />
-        <View style={{ alignSelf: 'flex-start' }}>
-          <Opc label="Levar para a consulta" on={levar} onPress={() => setLevar((x) => !x)} />
+        {/* Os cartões dos sintomas são a continuação da escolha de cima,
+            então ficam colados entre si e perto dela. */}
+        <View style={{ gap: 4 }}>
+          {marcados.map((id) => {
+            const s = SINTOMAS.find((x) => x.id === id)!;
+            return (
+              <Campo key={id} rotulo={`${s.label} · intensidade`}>
+                <Escala
+                  suave
+                  valores={[1, 2, 3, 4, 5]}
+                  valor={grau[id] ?? null}
+                  onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
+                  legendas={INTENSIDADE}
+                />
+              </Campo>
+            );
+          })}
         </View>
-      </Campo>
+      </View>
 
       <View />
     </TelaInterna>
