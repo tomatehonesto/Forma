@@ -3,6 +3,7 @@ import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { registroDoDia } from '../logic/derive';
 import { checkinToday } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Divider } from '../ui/kit';
@@ -32,9 +33,10 @@ export default function MedirSintomas() {
   const salvar = () => {
     update((s: any) => {
       const t = +startOfDay(now());
-      const c2 = s.checkins.find((x: any) => x.t === t);
-      if (c2) { c2.nausea = nausea; c2.fome = fome; c2.gut = gut; }
-      else s.checkins.push({ t, mood: 3, fome, nausea, sono: 7, gut, energia: 6, agua: 0, prot: 0, exerc: 0, refluxo: 0, ansiedade: 0, constip: 0 });
+      const c2 = registroDoDia(s, t);
+      c2.nausea = nausea;
+      c2.fome = fome;
+      c2.gut = gut;
     });
     router.back();
   };
