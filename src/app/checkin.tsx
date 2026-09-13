@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { registroDoDia } from '../logic/derive';
+import { checkinToday, registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
 
@@ -39,15 +39,49 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
   { id: 'outro', label: 'Outro' },
 ];
 
+/* Armazenamento é 0–10; a tela fala 1–5. A conversão mora na fronteira,
+   nos dois sentidos, e é a mesma de medir-sintomas. */
+const paraTela = (v: any) => (typeof v === 'number' && v > 0 ? Math.round(v / 2) : null);
+
 export default function Checkin() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const router = useRouter();
 
-  const [marcados, setMarcados] = useState<string[]>([]);
-  const [grau, setGrau] = useState<Record<string, number>>({});
-  const [energia, setEnergia] = useState<number>(6);
-  const [nota, setNota] = useState('');
+  /* A tela abre com o que já foi registrado hoje. Sem isso, "Revisar como
+     estou" — que o sheet de registrar oferece quando o dia já tem
+     check-in — abria em branco e o segundo salvamento apagava o primeiro.
+
+     Cada sintoma tem UMA fonte, nunca duas. Os três com coluna própria
+     (enjoo, constipação, refluxo) são lidos da coluna; os outros quatro,
+     que só existem aqui, do mapa `sint`.
+
+     Guardar os três nos dois lugares era o que eu tinha feito antes, e
+     quebrou na primeira vez que medir-sintomas mexeu no enjoo: a coluna ia
+     para 4 e o `sint` continuava em 4 da régua antiga, dizendo coisas
+     diferentes sobre o mesmo sintoma. Uma fonte por campo elimina a
+     possibilidade da divergência em vez de tentar sincronizá-la. */
+  const hoje: any = checkinToday(S);
+  const inicial = (() => {
+    const g: Record<string, number> = {};
+    const m: string[] = [];
+    for (const x of SINTOMAS) {
+      const v = x.store ? paraTela(hoje?.[x.store]) : (hoje?.sint?.[x.id] ?? null);
+      if (v == null) continue;
+      m.push(x.id); g[x.id] = v;
+    }
+    return { marcados: m, grau: g };
+  })();
+
+  const [marcados, setMarcados] = useState<string[]>(inicial.marcados);
+  const [grau, setGrau] = useState<Record<string, number>>(inicial.grau);
+  /* null = ainda não respondido. Voltar a um valor padrão aqui reinventaria
+     o problema que essas telas acabaram de deixar de ter: gravar como
+     resposta um número que ninguém deu. */
+  const [energia, setEnergia] = useState<number | null>(hoje?.energia ?? null);
+  const [sono, setSono] = useState<number | null>(hoje?.sono ?? null);
+  const [humor, setHumor] = useState<number | null>(hoje?.mood ?? null);
+  const [nota, setNota] = useState<string>(hoje?.note ?? '');
   const [levar, setLevar] = useState(false);
 
   const alterna = (id: string) =>
@@ -71,15 +105,24 @@ export default function Checkin() {
         c[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 3) * 2 : 0;
       }
 
-      c.energia = energia;
-      c.sint = Object.fromEntries(marcados.map((id) => [id, grau[id] ?? 3]));
+      /* `sint` guarda SÓ os sintomas sem coluna própria. Os três com coluna
+         vivem na coluna e em lugar nenhum além dela. */
+      c.sint = Object.fromEntries(
+        marcados
+          .filter((id) => !SINTOMAS.find((x) => x.id === id)?.store)
+          .map((id) => [id, grau[id] ?? 3]),
+      );
       c.note = nota;
 
-      /* Sono, humor e fome NÃO entram. A tela não pergunta, e antes ela
-         gravava 7 horas, humor 3 e fome 5 de enfeite — números que a
-         pessoa nunca disse e que saíam daqui para as médias da Jornada e
-         para o radar como se fossem resposta dela.
-         Ausente é ausente; quem lê estado agora sabe lidar com isso. */
+      /* Só o que foi respondido é gravado. Deixar uma escala em branco
+         mantém o campo ausente, e ausente continua sendo diferente de
+         zero para quem lê. */
+      if (energia != null) c.energia = energia;
+      if (sono != null) c.sono = sono;
+      if (humor != null) c.mood = humor;
+
+      /* Fome fica em medir-sintomas, junto de intestino: as duas telas não
+         perguntam a mesma coisa. */
 
       if (levar && nota.trim()) {
         s.notes = [{ t: +now(), text: nota.trim(), done: false }, ...(s.notes || [])];
@@ -135,6 +178,31 @@ export default function Checkin() {
           valores={[2, 4, 6, 8, 10]}
           valor={energia}
           onChange={(v) => setEnergia(Number(v))}
+        />
+      </Campo>
+
+      {/* Sono e humor voltaram. Eles não são sintoma — não se "marca se
+          aconteceu", todo dia tem os dois —, então aparecem sempre, em
+          escala, como a energia. Mas nascem em branco: quem não responder
+          deixa o dia sem essa resposta, e não com uma inventada.
+
+          São os dois campos que a Jornada e o Insights leem e que ninguém
+          escrevia desde que as telas pararam de preencher o dia de
+          enfeite — a meta "Dormir 7h+", o eixo Sono do radar e o padrão de
+          sono contra a fome do dia seguinte. */}
+      <Campo rotulo="Quanto você dormiu" ajuda="Em horas · 9 vale para nove ou mais.">
+        <Escala
+          valores={[5, 6, 7, 8, 9]}
+          valor={sono}
+          onChange={(v) => setSono(Number(v))}
+        />
+      </Campo>
+
+      <Campo rotulo="Humor" ajuda="1 um dia difícil · 5 um bom dia.">
+        <Escala
+          valores={[1, 2, 3, 4, 5]}
+          valor={humor}
+          onChange={(v) => setHumor(Number(v))}
         />
       </Campo>
 
