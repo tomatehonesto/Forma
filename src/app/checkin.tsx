@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO } from '../logic/escalas';
-import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Aviso, Botao } from '../ui/internas';
 
 /* ============================================================
    CHECK-IN DO DIA
@@ -67,6 +67,20 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
    leem. */
 const OUTRO = 'outro';
 const GUT = 'intestino';
+const DOR = 'dor';
+
+/* O único sintoma desta tela que muda de urgência conforme a intensidade.
+
+   Dor abdominal forte ou que não passa é o que toda bula de GLP-1 manda
+   relatar sem esperar — os outros sintomas viram assunto na próxima
+   consulta, esse não. Um diário que registra e cala nesse ponto cumpre a
+   função de arquivo e falha na de acompanhamento.
+
+   O aviso entra em 4 ("precisei parar o dia") e 5 ("dor que não passou"),
+   a mesma régua de 4 que "como o corpo reagiu" usa para o enjoo. Ele diz
+   o que fazer e não nomeia diagnóstico: quem lê já está com dor, e um
+   nome de doença aqui assusta sem ajudar a decidir. */
+const DOR_AVISA = 4;
 
 /* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
    sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
@@ -346,15 +360,28 @@ export default function Checkin() {
             }
 
             return (
-              <Campo key={id} rotulo={`${s.label} · intensidade`}>
-                <Escala
-                  suave
-                  valores={[1, 2, 3, 4, 5]}
-                  valor={grau[id] ?? null}
-                  onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
-                  legendas={SINTOMA[id] ?? INTENSIDADE}
-                />
-              </Campo>
+              <React.Fragment key={id}>
+                <Campo rotulo={`${s.label} · intensidade`}>
+                  <Escala
+                    suave
+                    valores={[1, 2, 3, 4, 5]}
+                    valor={grau[id] ?? null}
+                    onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
+                    legendas={SINTOMA[id] ?? INTENSIDADE}
+                  />
+                </Campo>
+
+                {/* Colado embaixo do cartão da dor, e não dentro dele:
+                    o Aviso já é um cartão, e cartão dentro de cartão vira
+                    caixa em caixa. */}
+                {id === DOR && (grau[id] ?? 0) >= DOR_AVISA ? (
+                  <Aviso
+                    ic="steth"
+                    titulo="Essa dor não espera a próxima consulta"
+                    texto="Dor abdominal forte ou que não passa é a que a bula pede para relatar na hora. Registre aqui e fale com sua equipe hoje."
+                  />
+                ) : null}
+              </React.Fragment>
             );
           })}
         </View>
