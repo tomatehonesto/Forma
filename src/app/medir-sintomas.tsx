@@ -63,24 +63,25 @@ export default function MedirSintomas() {
         {/* As legendas são as mesmas do check-in, porque a coluna é a
             mesma. A linha de ajuda saiu: ela dizia só as pontas, e a
             legenda diz as cinco. */}
-        <Campo rotulo="Enjoo">
-          <Escala
-            suave valores={[1, 2, 3, 4, 5]} valor={nausea}
-            onChange={(v) => setNausea(Number(v))} onLimpar={() => setNausea(null)}
-            legendas={SINTOMA.nausea}
-          />
-
-          {/* O aviso mora no campo que o provocou. Solto lá embaixo, depois
-              do intestino, ele estava a três blocos da pergunta sobre a
-              qual fala. */}
-          {nausea != null && nausea >= 4 ? (
+        {/* O aviso sai por baixo do campo que o provocou. Solto lá embaixo,
+            depois do intestino, ele estava a três blocos da pergunta sobre
+            a qual fala. */}
+        <Campo
+          rotulo="Enjoo"
+          saia={nausea != null && nausea >= 4 ? (
             <Aviso
               dentro
               ic="aura"
               titulo="Enjoo forte merece ser conversado"
               texto="Vale registrar e comentar com sua equipe na próxima consulta."
             />
-          ) : null}
+          ) : undefined}
+        >
+          <Escala
+            suave valores={[1, 2, 3, 4, 5]} valor={nausea}
+            onChange={(v) => setNausea(Number(v))} onLimpar={() => setNausea(null)}
+            legendas={SINTOMA.nausea}
+          />
         </Campo>
 
         <Campo rotulo="Fome">

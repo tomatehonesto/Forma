@@ -540,10 +540,11 @@ export function Grade2({ children }: { children: React.ReactNode }) {
 /* Aviso — o que a tela diz depois de ler a resposta. Três formas, e cada
    uma existe por causa de onde o aviso nasce.
 
-   `dentro` tira a casca de cartão e o encaixa NO campo que o provocou,
-   separado por um fio. Como cartão solto ele virava mais um bloco na
-   pilha, à mesma distância de todos e ligado a nenhum; dentro, ele é a
-   continuação da resposta que a pessoa acabou de dar.
+   `dentro` tira a casca de cartão e deixa só o conteúdo. É a forma que
+   vai dentro da SAIA do Campo — a aba tingida que sai por baixo do
+   cartão —, e por isso não traz fundo nem fio: quem separa já é a saia.
+   Como cartão solto ele virava mais um bloco na pilha, à mesma distância
+   de todos e ligado a nenhum.
 
    `destaque` é o contrário: o aviso que não pertence a campo nenhum
    porque nasce de vários ao mesmo tempo. Cartão tingido, sem sombra — ele
@@ -573,7 +574,6 @@ export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }
     return (
       <View style={[
         { gap: 9 },
-        dentro && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 12 },
         destaque && { backgroundColor: c.accentWeak, borderRadius: radius.card, padding: PAD },
       ]}>
         <View style={{ alignSelf: 'flex-start' }}>
@@ -601,18 +601,46 @@ export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }
    `nu` tira o cartão e deixa só o rótulo e o conteúdo. Serve para o campo
    que É uma escolha e não um formulário: uma fileira de chips dentro de um
    cartão parece um painel de controle montado por quem gosta de painéis;
-   solta na tela, ela é só a pergunta e as respostas. */
-export function Campo({ rotulo, ajuda, nu, children }: {
-  rotulo?: string; ajuda?: string; nu?: boolean; children: React.ReactNode;
+   solta na tela, ela é só a pergunta e as respostas.
+
+   `saia` é uma aba tingida que sai POR BAIXO do cartão, presa a ele: ela
+   sobe o tanto do raio e some atrás do cartão, então as duas peças leem
+   como uma coisa só com um degrau. Serve para o que o app tem a dizer
+   sobre a resposta — dentro do cartão o recado disputava espaço com o
+   controle, e solto embaixo virava outro bloco da pilha. Mais estreita que
+   o cartão de propósito: aba que sai de baixo é aba, aba do mesmo tamanho
+   é outro cartão. */
+export function Campo({ rotulo, ajuda, nu, saia, children }: {
+  rotulo?: string; ajuda?: string; nu?: boolean; saia?: React.ReactNode; children: React.ReactNode;
 }) {
   const { c } = useTheme();
-  return (
+
+  const cartao = (
     <View style={nu
       ? { gap: 11, paddingHorizontal: 2 }
       : [{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11 }, shadowCard(c)]}>
       {rotulo ? <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>{rotulo.toUpperCase()}</Txt> : null}
       {children}
       {ajuda ? <Txt v="caption" c={c.tx3}>{ajuda}</Txt> : null}
+    </View>
+  );
+
+  if (!saia || nu) return cartao;
+
+  return (
+    <View>
+      {/* O cartão por cima, e a saia por baixo: é o cartão que esconde o
+          topo dela, então ele precisa vir depois na pilha de desenho. */}
+      <View style={{ zIndex: 2 }}>{cartao}</View>
+      <View style={{
+        zIndex: 1,
+        marginTop: -radius.card, marginHorizontal: 10,
+        paddingTop: radius.card + 12, paddingHorizontal: PAD, paddingBottom: 14,
+        backgroundColor: c.accentWeak,
+        borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
+      }}>
+        {saia}
+      </View>
     </View>
   );
 }
@@ -710,9 +738,16 @@ export function Stepper({ valor, unidade, onMenos, onMais, onDigitar }: {
    NÃO RESPONDIDO é um estado de verdade, e é o mais importante desta
    tela: foi confundir ausência com zero que fez os registros mentirem.
    Como todo slider tem o polegar em algum lugar, aqui o vazio se mostra
-   pela cor — trilho e polegar cinzas, manchete apagada — e o valor só
-   passa a existir quando a pessoa encosta. O polegar espera no meio
-   porque é de onde toda resposta fica mais perto.
+   pela MATÉRIA: o polegar vazio é da cor do próprio cartão, sobre um
+   trilho de um tom só — vidro, não peça. Um polegar cinza chapado era um
+   controle como outro qualquer, e um controle posto em algum lugar parece
+   um valor escolhido. Cheio, ele vira azul sólido, e a diferença entre
+   "não respondi" e "respondi" deixa de depender de ler a manchete.
+
+   O trilho também perde a divisão enquanto não há resposta: dois tons
+   desenham uma parte preenchida, e não há o que preencher antes de a
+   pessoa escolher. O polegar espera no meio porque é de onde toda
+   resposta fica mais perto.
 
    `onSlidingComplete` existe junto do `onValueChange` de propósito:
    quem quer responder o valor do meio, e toca exatamente onde o polegar
@@ -765,7 +800,7 @@ export function Escala({ valores, valor, onChange, onLimpar, suave, legendas }: 
         onSlidingComplete={escolhe}
         minimumTrackTintColor={respondido ? (suave ? c.accentLine : c.accent) : c.bg2}
         maximumTrackTintColor={c.bg2}
-        thumbTintColor={respondido ? c.accent : c.tx4}
+        thumbTintColor={respondido ? c.accent : c.bg3}
         style={{ marginTop: 8, marginHorizontal: -6 }}
       />
 

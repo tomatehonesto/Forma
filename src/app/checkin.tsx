@@ -500,8 +500,17 @@ export default function Checkin() {
             const id = s.id;
 
             if (id === GUT) {
+              /* A saia do intestino atende os dois lados — só um deles
+                 pode estar escolhido de cada vez. */
+              const avGut = !combinado && gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? AVISO_PRESO
+                : !combinado && gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? AVISO_SOLTO
+                : null;
               return (
-                <Campo key={id} rotulo="Como foi o intestino?">
+                <Campo
+                  key={id}
+                  rotulo="Como foi o intestino?"
+                  saia={avGut ? <Aviso dentro ic="aura" titulo={avGut.titulo} texto={avGut.texto} /> : undefined}
+                >
                   <Opcoes>
                     {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
@@ -522,10 +531,6 @@ export default function Checkin() {
                     />
                   ) : null}
 
-                  {!combinado && gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? (
-                    <Aviso dentro ic="aura" titulo={AVISO_PRESO.titulo} texto={AVISO_PRESO.texto} />
-                  ) : null}
-
                   {gut === 'solto' ? (
                     <Escala
                       suave
@@ -537,11 +542,6 @@ export default function Checkin() {
                     />
                   ) : null}
 
-                  {/* Dentro do cartão, abaixo de um fio: é a leitura da
-                      resposta que acabou de ser dada, não um bloco novo. */}
-                  {!combinado && gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? (
-                    <Aviso dentro ic="aura" titulo={AVISO_SOLTO.titulo} texto={AVISO_SOLTO.texto} />
-                  ) : null}
                 </Campo>
               );
             }
@@ -560,8 +560,13 @@ export default function Checkin() {
             }
 
             const av = AVISOS[id];
+            const mostra = !combinado && av && (grau[id] ?? 0) >= av.min;
             return (
-              <Campo key={id} rotulo={`${s.label} · intensidade`}>
+              <Campo
+                key={id}
+                rotulo={`${s.label} · intensidade`}
+                saia={mostra ? <Aviso dentro ic="aura" titulo={av!.titulo} texto={av!.texto} /> : undefined}
+              >
                 <Escala
                   suave
                   valores={[1, 2, 3, 4, 5]}
@@ -569,10 +574,6 @@ export default function Checkin() {
                   onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
                   legendas={SINTOMA[id] ?? INTENSIDADE}
                 />
-
-                {!combinado && av && (grau[id] ?? 0) >= av.min ? (
-                  <Aviso dentro ic="aura" titulo={av.titulo} texto={av.texto} />
-                ) : null}
               </Campo>
             );
           })}
