@@ -88,20 +88,20 @@ const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao:
   dor: {
     min: 4,
     titulo: 'Essa dor não espera a próxima consulta',
-    texto: 'Dor forte na barriga, ou que não passa, é o sintoma que a bula manda relatar de imediato — às vezes ela irradia para as costas. Na maior parte das vezes não é nada grave, e é justamente por isso que se olha cedo: quanto antes, mais simples resolver.',
-    acao: 'Fale com sua equipe hoje, sem esperar a consulta marcada. Se a dor piorar ou vier com vômito, procure um atendimento.',
+    texto: 'Dor forte na barriga, ou que não passa, é a única que pede atenção no mesmo dia. Quase sempre não é nada grave — e é por isso mesmo que vale olhar cedo.',
+    acao: 'Fale com sua equipe hoje. Se piorar ou vier com vômito, procure um atendimento.',
   },
   vomito: {
     min: 4,
     titulo: 'Vomitar muito desidrata rápido',
-    texto: 'Junto com a água vai o sal, e o corpo sente isso antes de a sede avisar. Vomitar várias vezes também impede segurar comida e a própria medicação, então o dia seguinte já começa em desvantagem.',
-    acao: 'Beba em goles pequenos e frequentes, em vez de um copo de uma vez. Se não conseguir segurar nem água, fale com sua equipe hoje.',
+    texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E sem segurar comida, o dia seguinte já começa cansado.',
+    acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
   },
   tontura: {
     min: 4,
-    titulo: 'Tontura assim costuma ter causa',
-    texto: 'Na caneta ela quase sempre vem de dois lugares: falta de líquido ou açúcar baixo. Quem usa insulina ou sulfonilureia junto tem mais risco do segundo, porque a caneta soma efeito com esses remédios.',
-    acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, avise sua equipe — pode ser ajuste de dose, sua ou dos outros remédios.',
+    titulo: 'Tontura assim costuma ter explicação',
+    texto: 'Quase sempre é falta de líquido ou açúcar baixo. Se você toma algum remédio para diabetes junto, o açúcar baixo fica ainda mais provável.',
+    acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, conte para sua equipe.',
   },
 };
 
@@ -110,15 +110,15 @@ const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao:
 const AVISO_PRESO = {
   min: 5,
   titulo: 'Quatro dias sem ir pede ação',
-  texto: 'A caneta desacelera o intestino inteiro, e quando a comida diminui junto sobra pouco volume para ele empurrar. Quatro dias é o ponto em que isso costuma deixar de se resolver sozinho.',
-  acao: 'Água ao longo do dia, fibra nas refeições e caminhada ajudam. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
+  texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
+  acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
 };
 
 const AVISO_SOLTO = {
   min: 5,
   titulo: 'Nesse ritmo, o risco é desidratar',
-  texto: 'Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. É o degrau em que o intestino solto deixa de ser incômodo e passa a mexer com o equilíbrio do corpo.',
-  acao: 'Beba ao longo do dia sem esperar sede, de preferência com soro ou um pouco de sal. Se amanhã continuar assim, avise sua equipe.',
+  texto: 'Sete idas ou mais num dia levam mais água e sal do que a sede dá conta de repor.',
+  acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
 };
 
 /* AVISOS POR COMBINAÇÃO — o que nenhum sintoma sozinho consegue dizer.
@@ -141,23 +141,23 @@ const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: stri
     /* Intestino parado há dias + dor forte + vômito. */
     quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
     titulo: 'Essa combinação pede atendimento agora',
-    texto: 'Intestino parado há dias, dor forte e vômito juntos formam o quadro de algo travado no caminho. É raro, mas é dos poucos que não melhoram sozinhos e pioram com o tempo.',
-    acao: 'Procure um pronto atendimento hoje, sem esperar a consulta. Diga que está em uso da caneta e há quantos dias não evacua.',
+    texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou. É raro, mas não melhora sozinho.',
+    acao: 'Procure um pronto atendimento hoje. Diga que usa a caneta e há quantos dias não vai ao banheiro.',
   },
   {
     /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
        manda relatar de imediato. */
     quando: (n) => n.dor >= 4 && n.vomito >= 3,
     titulo: 'Dor forte com vômito não espera',
-    texto: 'Dor abdominal intensa junto de vômito, às vezes irradiando para as costas, é o quadro que toda bula de GLP-1 manda relatar imediatamente. Quando se chega cedo, checar é simples.',
-    acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, qual é a dose atual e quando a dor começou.',
+    texto: 'Dor forte na barriga junto de vômito, às vezes espalhando para as costas, pede atenção no mesmo dia. Chegando cedo, é simples de checar.',
+    acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, a dose e quando a dor começou.',
   },
   {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
     titulo: 'Tontura junto disso é sinal de desidratação',
-    texto: 'Perder líquido rápido e sentir tontura andam juntos: quando falta água e sal, a pressão cai ao levantar. É o corpo avisando antes de algo pior.',
-    acao: 'Beba em goles ao longo do dia, com soro ou um pouco de sal, e evite levantar rápido. Se não melhorar até amanhã, avise sua equipe.',
+    texto: 'Quando falta água e sal, a pressão cai ao levantar — e a tontura é o corpo avisando.',
+    acao: 'Beba de pouquinho ao longo do dia, com soro ou uma pitada de sal, e levante devagar. Se não melhorar até amanhã, avise sua equipe.',
   },
 ];
 
@@ -194,16 +194,16 @@ const PERSISTENCIA: {
     noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
     hoje: (n) => n.vomito >= 1,
     titulo: 'Vômito em dias repetidos',
-    texto: (n) => `${n} dos últimos sete dias com vômito. Nesse ritmo fica difícil segurar comida, líquido e a própria medicação, e o corpo vai ficando para trás sem que nenhum dia isolado explique.`,
-    acao: 'Não espere a consulta marcada: fale com sua equipe esta semana. Leve o número de dias — é ele que muda a conduta.',
+    texto: (n) => `${n} dos últimos sete dias com vômito. Assim fica difícil segurar comida, líquido e o próprio remédio.`,
+    acao: 'Fale com sua equipe esta semana, sem esperar a consulta. Leve o número de dias — é ele que faz diferença.',
   },
   {
     dias: 3,
     noDia: (c) => c?.gut === 'solto',
     hoje: (n) => n.solto >= 1,
     titulo: 'O intestino está solto há dias',
-    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação e nos sais, mesmo quando cada dia, sozinho, parece tolerável.`,
-    acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser o que mudou na alimentação — quem separa isso é quem acompanha você.',
+    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação, mesmo quando cada dia, sozinho, parece tranquilo.`,
+    acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser a alimentação.',
   },
   {
     dias: 4,
@@ -211,16 +211,16 @@ const PERSISTENCIA: {
     noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
     hoje: (n) => n.nausea >= 3,
     titulo: 'O enjoo não está passando',
-    texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. É o tipo de coisa que costuma mudar com a dose, ou com a velocidade com que ela sobe.`,
-    acao: 'Leve esse número para a próxima consulta. Existe conversa sobre segurar a dose por mais tempo, e segurar não é desistir — é ajustar.',
+    texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. Costuma mudar com a dose, ou com a velocidade que ela sobe.`,
+    acao: 'Leve esse número para a próxima consulta. Segurar a dose um pouco mais não é desistir.',
   },
   {
     dias: 5,
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
     titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos significa menos volume e menos fibra passando, e o intestino sente isso antes de a balança mostrar qualquer coisa.`,
-    acao: 'Água ao longo do dia, fibra e caminhada ajudam. Nesse ritmo vale contar para sua equipe — às vezes é a dose, às vezes é o quanto você está comendo.',
+    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comendo menos, passa menos comida e menos fibra — e ele sente antes da balança.`,
+    acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
   },
 ];
 
