@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
-import { curWeight, goalProgress } from '../logic/derive';
+import { curWeight, goalProgress, pctDe, mediaDe } from '../logic/derive';
 import { nf, kg } from '../logic/time';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
@@ -11,8 +11,15 @@ import { useTheme } from '../ui/useTheme';
 function goalVal(S: any, g: any) {
   if (g.kind === 'peso') return goalProgress(S);
   if (g.kind === 'manual') return g.prog;
-  if (g.kind === 'sono') { const wk = S.checkins.filter((c: any) => { const d = new Date(c.t).getDay(); return d >= 1 && d <= 5; }); return wk.length ? (wk.filter((c: any) => c.sono >= 7).length / wk.length) * 100 : 0; }
-  if (g.kind === 'energia') { const r = S.checkins.slice(-7); return r.length ? (r.reduce((s: number, c: any) => s + c.energia, 0) / r.length) * 10 : 0; }
+  /* Só os dias respondidos entram na conta, como na Jornada. Dividir pelo
+     que ninguém perguntou fazia noite não registrada valer como noite mal
+     dormida — e bastava um dia sem energia respondida para a média virar
+     NaN e a barra sumir. */
+  if (g.kind === 'sono') {
+    const semana = S.checkins.filter((c: any) => { const d = new Date(c.t).getDay(); return d >= 1 && d <= 5; });
+    return pctDe(semana, 'sono', (v) => v >= 7) ?? 0;
+  }
+  if (g.kind === 'energia') return (mediaDe(S.checkins.slice(-7), 'energia') ?? 0) * 10;
   return 0;
 }
 const subOf = (g: any) => g.kind === 'peso' ? 'referência combinada com a médica' : g.kind === 'manual' ? 'progresso pessoal' : g.kind === 'sono' ? 'noites de semana com 7h+' : 'média da semana';

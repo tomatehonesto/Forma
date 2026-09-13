@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  quickCapture, nextSite, siteLabel, curWeight, checkinToday, waterMlToday, streak,
+  quickCapture, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, streak,
   type QuickKey,
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
@@ -47,15 +47,19 @@ export default function Registrar() {
      duas camadas de volta */
   const irPara = (to: string) => () => { router.back(); setTimeout(() => router.push(to as any), 60); };
 
+  /* `ci` é o registro do dia, e serve para ler o exercício acumulado.
+     Se o check-in foi respondido é outra pergunta, e quem responde é
+     `checkinFeito`: antes, um copo d'água já pintava o banner de verde. */
   const ci = checkinToday(S);
+  const fez = checkinFeito(S);
   const stk = streak(S);
 
   /* Tinta e véu do banner do check-in. Sobre o azul saturado a tinta é
      branca; sobre a lavagem verde, o verde escuro do par — os mesmos dois
      tons que o selo "verde" usa nas telas internas. O véu das pastilhas é
      a tinta a 12%, e não uma terceira cor. */
-  const tinta = ci ? c.ok : c.accentInk;
-  const veu = ci ? 'rgba(60,107,44,0.12)' : 'rgba(255,255,255,0.18)';
+  const tinta = fez ? c.ok : c.accentInk;
+  const veu = fez ? 'rgba(60,107,44,0.12)' : 'rgba(255,255,255,0.18)';
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
   const { acoes } = quickCapture(S);
@@ -73,7 +77,7 @@ export default function Registrar() {
     agua: { ic: 'water', titulo: 'Me hidratei', sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
     exercicio: { ic: 'dumbbell', titulo: 'Me exercitei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
-    checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
+    checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
     sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/medir-sintomas' },
     exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar resultado', to: '/medir-exame' },
@@ -149,7 +153,7 @@ export default function Registrar() {
               A tinta acompanha o fundo, e as pastilhas internas são um véu
               da própria tinta, não uma cor nova. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
-            <View style={{ backgroundColor: ci ? c.okBg : c.accent, borderRadius: radius.lg, padding: 18 }}>
+            <View style={{ backgroundColor: fez ? c.okBg : c.accent, borderRadius: radius.lg, padding: 18 }}>
               {/* O selo nomeia o que isto é. Os outros itens do sheet são
                   registros avulsos — um copo, uma refeição —, e este é o
                   único que se espera todo dia. Dizer "diário" na etiqueta
@@ -158,7 +162,7 @@ export default function Registrar() {
                 <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
                   <Txt v="tag" c={tinta}>Check-in diário</Txt>
                 </View>
-                {ci ? (
+                {fez ? (
                   <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
                     <Txt v="tag" c={tinta}>Editar</Txt>
                   </View>
@@ -170,17 +174,17 @@ export default function Registrar() {
                   {/* Pendente pergunta como foi o dia, e o rosto é o ícone
                       que faz essa pergunta. A folha de antes falava de
                       saúde em geral, não de como a pessoa esteve. */}
-                  <Icon name={ci ? 'check' : 'mood'} size={24} color={tinta} sw={2.2} />
+                  <Icon name={fez ? 'check' : 'mood'} size={24} color={tinta} sw={2.2} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Txt v="title" c={tinta}>
-                    {ci ? 'Check-in concluído' : 'Como foi o seu dia?'}
+                    {fez ? 'Check-in concluído' : 'Como foi o seu dia?'}
                   </Txt>
                   <Txt v="caption" c={tinta} style={{ marginTop: 3, opacity: 0.75 }}>
-                    {stk > 0 ? `${stk} dias seguidos` : ci ? 'registrado hoje' : 'menos de 30s'}
+                    {stk > 0 ? `${stk} dias seguidos` : fez ? 'registrado hoje' : 'menos de 30s'}
                   </Txt>
                 </View>
-                {!ci ? <Icon name="chev" size={17} color={tinta} sw={2.2} /> : null}
+                {!fez ? <Icon name="chev" size={17} color={tinta} sw={2.2} /> : null}
               </Row>
             </View>
           </Pressable>

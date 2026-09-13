@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, balanceSeries, companionMemoria, hasClinic, journeySummary,
+  balanceRead, balanceSeries, companionMemoria, hasClinic, journeySummary, respostaNoDia,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
@@ -195,7 +195,8 @@ export default function Insights() {
 
   const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
   const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
-  const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7)).length;
+  /* Conta check-ins, e check-in é dia com resposta — não dia com linha. */
+  const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7) && respostaNoDia(x)).length;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>

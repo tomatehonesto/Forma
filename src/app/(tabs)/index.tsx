@@ -8,7 +8,7 @@ import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
-  checkinToday,
+  checkinFeito,
   type DailyTarget,
 } from '../../logic/derive';
 import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
@@ -119,7 +119,7 @@ export default function Home() {
   const prot7 = protein7d(S);
   const bf = bodyFat(S);
   const stk = streak(S);
-  const feitoHoje = !!checkinToday(S);
+  const feitoHoje = checkinFeito(S);
   const linked = hasClinic(S);
   const consultD = new Date(S.consult.t);
 

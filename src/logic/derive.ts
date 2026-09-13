@@ -24,13 +24,48 @@ export function adesao(S: State) {
   const expected = Math.floor(days / CADENCE_DAYS(S.profile.med)) + 1;
   return Math.max(0, Math.min(100, Math.round((S.injections.length / expected) * 100)));
 }
+/* O REGISTRO DO DIA e o CHECK-IN FEITO são duas perguntas diferentes.
+
+   `checkinToday` devolve o registro de hoje — a linha onde moram a água,
+   a proteína e o exercício. Ela nasce no primeiro copo d'água, porque os
+   acumuladores precisam de onde somar.
+
+   Quem pergunta "a pessoa fez o check-in?" não pode usar essa linha: um
+   copo d'água às oito da manhã criava o registro e, com ele, o banner
+   dizia "concluído", o streak subia e o empurrão do dia sumia — tudo sem
+   ninguém ter respondido nada.
+
+   `checkinFeito` procura resposta, não registro. Resposta é o que só
+   existe porque alguém disse: energia, sono, humor, fome, os sintomas, o
+   intestino, a anotação. Zero conta — marcar "não tive náusea" grava 0, e
+   isso é uma resposta. Água em zero não conta: ela é zero desde que o dia
+   nasceu. */
 export function checkinToday(S: State) { const t = +startOfDay(now()); return S.checkins.find((c: any) => c.t === t); }
+
+const RESPOSTAS = ['energia', 'sono', 'mood', 'fome', 'nausea', 'constip', 'refluxo', 'gut'];
+
+/** O dia tem alguma resposta — não só um acumulador que subiu sozinho. */
+export function respostaNoDia(c: any) {
+  if (!c) return false;
+  if (RESPOSTAS.some((k) => c[k] != null)) return true;
+  if (Object.keys(c.sint || {}).length) return true;
+  return !!String(c.note || '').trim();
+}
+
+export function checkinFeito(S: State) { return respostaNoDia(checkinToday(S)); }
+
 export function streak(S: State) {
-  let n = 0; let d = checkinToday(S) ? 0 : 1;
-  for (; ;) { const t = +startOfDay(daysAgo(d)); if (S.checkins.find((c: any) => c.t === t)) { n++; d++; } else break; }
+  let n = 0; let d = checkinFeito(S) ? 0 : 1;
+  for (; ;) {
+    const t = +startOfDay(daysAgo(d));
+    if (respostaNoDia(S.checkins.find((c: any) => c.t === t))) { n++; d++; } else break;
+  }
   return n;
 }
-export function checkins30(S: State) { const from = +daysAgo(30); return S.checkins.filter((c: any) => c.t >= from).length; }
+export function checkins30(S: State) {
+  const from = +daysAgo(30);
+  return S.checkins.filter((c: any) => c.t >= from && respostaNoDia(c)).length;
+}
 export function waterToday(S: State) { const c = checkinToday(S); return c ? c.agua : 0; }
 
 // radar 0..100 a partir das últimas 3 avaliações
@@ -122,7 +157,7 @@ export const achDone = (S: State) => S.achievements.filter((a: any) => a.done);
 export type Alert = { ic: string; kind: string; text: string; act: string };
 export function alerts(S: State): Alert[] {
   const out: Alert[] = [];
-  if (!checkinToday(S)) out.push({ ic: 'leaf', kind: 'info', text: 'Check-in de hoje, quando quiser', act: 'sheet:checkin' });
+  if (!checkinFeito(S)) out.push({ ic: 'leaf', kind: 'info', text: 'Check-in de hoje, quando quiser', act: 'sheet:checkin' });
   const dr = doseReminderDate(S); const nd = diffDays(nextInjectionDate(S), now());
   if (nd <= 1) out.push({ ic: 'syringe', kind: 'warn', text: `Aplicação ${nd <= 0 ? 'hoje' : 'amanhã'}`, act: 'nav:aplicacoes' });
   else if (dr) { const dd = diffDays(startOfDay(dr), now()); if (dd <= 1) out.push({ ic: 'syringe', kind: 'info', text: `Lembrete: aplicação ${diffDays(nextInjectionDate(S), now()) === 2 ? 'em 2 dias' : 'em breve'}`, act: 'nav:aplicacoes' }); }
@@ -895,7 +930,7 @@ export function recommendations(S: State): Reco[] {
       to: '/medir-refeicao',
     });
   }
-  if (!checkinToday(S)) {
+  if (!checkinFeito(S)) {
     out.push({
       emDias: 0, ic: 'check', texto: 'Faça o check-in de hoje',
       porque: 'É o registro que alimenta tudo o que eu consigo enxergar sobre você',

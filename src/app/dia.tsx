@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { nextInjectionDate, M } from '../logic/derive';
+import { nextInjectionDate, M, respostaNoDia, respondido } from '../logic/derive';
 import { MO_LONG, DOW_PT, startOfDay, now, diffDays, nf } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
@@ -35,10 +35,18 @@ export default function Dia() {
   const med = M(S);
   const aplicou = (S.injections as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
   const checkin = (S.checkins as any[]).find((x) => x.t === dia);
+  /* O registro do dia existe assim que a água entra. O selo "feito" é do
+     check-in, e por isso pergunta se há resposta, não se há linha — e o
+     resumo só cita a energia quando alguém respondeu a energia. */
+  const fez = respostaNoDia(checkin);
+  const resumoCheckin = !fez ? 'Sem registro'
+    : respondido(checkin, 'energia') ? `Energia ${checkin.energia} de 10`
+    : respondido(checkin, 'mood') ? `Humor ${checkin.mood} de 5`
+    : 'Respondido neste dia';
   const peso = (S.weights as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
 
   const prevista = diffDays(nextInjectionDate(S), d) === 0;
-  const nada = !aplicou && !checkin && !peso;
+  const nada = !aplicou && !fez && !peso;
 
   const sub = [
     prevista || aplicou ? 'Dia de aplicação' : null,
@@ -65,11 +73,11 @@ export default function Dia() {
           />
           <Linha
             titulo="Check-in"
-            sub={checkin ? `Energia ${checkin.energia} de 10` : 'Sem registro'}
-            selo={checkin ? 'feito' : 'registrar'}
-            seloTom={checkin ? 'verde' : 'neutra'}
+            sub={resumoCheckin}
+            selo={fez ? 'feito' : 'registrar'}
+            seloTom={fez ? 'verde' : 'neutra'}
             seta={false}
-            onPress={checkin ? undefined : () => ir('/checkin')}
+            onPress={fez ? undefined : () => ir('/checkin')}
           />
           <Linha
             titulo="Peso"
