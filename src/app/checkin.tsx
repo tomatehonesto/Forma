@@ -82,6 +82,15 @@ const DOR = 'dor';
    nome de doença aqui assusta sem ajudar a decidir. */
 const DOR_AVISA = 4;
 
+/* O outro ponto em que a tela deixa de só anotar.
+
+   Sete ou mais idas num dia é onde a graduação clínica de diarreia troca
+   de patamar — é a faixa em que o risco deixa de ser o incômodo e passa a
+   ser perder água e sal mais rápido do que a sede repõe. Os degraus
+   abaixo, a própria graduação descreve como algo que não atrapalha o dia,
+   e avisar neles seria assustar por um número. */
+const SOLTO_AVISA = 5;
+
 /* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
    sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
    Perguntar a intensidade antes do nome é pedir o adjetivo sem o
@@ -333,7 +342,8 @@ export default function Checkin() {
 
             if (id === GUT) {
               return (
-                <Campo key={id} rotulo="Como foi o intestino?">
+                <React.Fragment key={id}>
+                <Campo rotulo="Como foi o intestino?">
                   <Opcoes>
                     {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
@@ -365,6 +375,17 @@ export default function Checkin() {
                     />
                   ) : null}
                 </Campo>
+
+                {/* Fora do cartão, como o aviso da dor: o Aviso já é um
+                    cartão, e cartão dentro de cartão vira caixa em caixa. */}
+                {gut === 'solto' && (vezes ?? 0) >= SOLTO_AVISA ? (
+                  <Aviso
+                    ic="water"
+                    titulo="Nesse ritmo, o risco é desidratar"
+                    texto="Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim."
+                  />
+                ) : null}
+                </React.Fragment>
               );
             }
 
