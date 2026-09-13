@@ -92,8 +92,17 @@ export default function Checkin() {
   const [nota, setNota] = useState<string>(hoje?.note ?? '');
   const [levar, setLevar] = useState(false);
 
-  const alterna = (id: string) =>
-    setMarcados((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+  /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
+     intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
+     lista porque a pessoa disse que teve, e salvar mandava 3 de qualquer
+     jeito. Com a escala nascendo em branco, a tela dizia "ainda não
+     respondi" e guardava "incomodou" — duas coisas diferentes sobre o
+     mesmo campo. Agora ela mostra o que vai salvar, e a pessoa ajusta. */
+  const alterna = (id: string) => {
+    const tinha = marcados.includes(id);
+    setMarcados((m) => (tinha ? m.filter((x) => x !== id) : [...m, id]));
+    if (!tinha) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
+  };
 
   const salvar = () => {
     update((s: any) => {
@@ -184,8 +193,15 @@ export default function Checkin() {
       </Campo>
 
       {/* Daqui para baixo é a parte que a pessoa descreve. Nada aqui é
-          obrigatório, e um dia sem sintoma nenhum passa direto. */}
-      <Campo rotulo="Teve algum sintoma?" ajuda="Marque só o que aconteceu.">
+          obrigatório, e um dia sem sintoma nenhum passa direto.
+
+          A escolha fica FORA do cartão. Ela não é um formulário, é uma
+          pergunta com respostas soltas na tela; embrulhada num cartão
+          igual aos de cima, virava mais um painel numa pilha de painéis.
+          Cartão só aparece depois, e um por sintoma marcado — o que dá à
+          tela a forma do dia que a pessoa teve, em vez de uma grade fixa
+          esperando ser preenchida. */}
+      <Campo rotulo="Teve algum sintoma?" nu>
         <Opcoes>
           {SINTOMAS.map((x) => (
             <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />

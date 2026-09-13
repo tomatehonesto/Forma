@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row } from './kit';
@@ -564,10 +565,20 @@ export function Aviso({ ic = 'info', titulo, texto, children }: {
 /* Campo — o invólucro de um controle de formulário: rótulo em caixa alta,
    controle, e uma linha de ajuda. A ajuda não é decorativa: é onde o app
    diz por que a pergunta existe e o que a resposta muda. */
-export function Campo({ rotulo, ajuda, children }: { rotulo?: string; ajuda?: string; children: React.ReactNode }) {
+/* Campo — rótulo, conteúdo e uma linha de ajuda, dentro de um cartão.
+
+   `nu` tira o cartão e deixa só o rótulo e o conteúdo. Serve para o campo
+   que É uma escolha e não um formulário: uma fileira de chips dentro de um
+   cartão parece um painel de controle montado por quem gosta de painéis;
+   solta na tela, ela é só a pergunta e as respostas. */
+export function Campo({ rotulo, ajuda, nu, children }: {
+  rotulo?: string; ajuda?: string; nu?: boolean; children: React.ReactNode;
+}) {
   const { c } = useTheme();
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11 }, shadowCard(c)]}>
+    <View style={nu
+      ? { gap: 11, paddingHorizontal: 2 }
+      : [{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11 }, shadowCard(c)]}>
       {rotulo ? <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>{rotulo.toUpperCase()}</Txt> : null}
       {children}
       {ajuda ? <Txt v="caption" c={c.tx3}>{ajuda}</Txt> : null}
@@ -647,22 +658,29 @@ export function Stepper({ valor, unidade, onMenos, onMais, onDigitar }: {
    chapado premia o pior dia como se fosse conquista. Ali o selecionado é
    uma lavagem — está marcado, não celebrado. Energia, que é o quanto você
    TEM, segue em azul cheio. */
-/* Escala — chips, não slider.
+/* Escala — slider com paradas, uma por valor, e a legenda como manchete.
 
-   O slider foi a primeira versão desta tela e voltou a ser cogitado. Ele
-   não serve aqui por um motivo estrutural: um slider SEMPRE tem o polegar
-   em algum lugar. Não existe slider em branco, e "não respondi" é o estado
-   mais importante desta tela inteira — foi por confundir ausência com zero
-   que os registros passaram a mentir. Uma fileira de chips pode estar
-   vazia, e vazia é uma resposta legível.
+   O slider é o mesmo de "quanto você bebeu", com passo: ele não para em
+   qualquer lugar, só nas cinco posições que existem. Escala com passo dá
+   o gesto contínuo sem pedir precisão — não há como errar por um fio.
 
-   Além disso: um check-in cheio pode ter dez escalas. Dez toques contra dez
-   arrastes é a diferença entre um minuto e uma tarefa.
+   A LEGENDA é a resposta, e por isso vem grande e em cima. O número
+   sozinho pede que a pessoa invente a régua ("3 de energia é bom?") e
+   cada dia acaba respondido com uma régua diferente da do dia anterior,
+   o que estraga justamente a série que o app vai ler depois. Embaixo, as
+   duas pontas dizem para onde a régua cresce, antes do primeiro toque.
 
-   As LEGENDAS dizem o que cada número significa, em primeira pessoa. O
-   número sozinho pede que a pessoa invente a régua ("3 de energia é bom?");
-   a legenda devolve a régua pronta. A linha tem altura fixa: sem seleção
-   mostra os dois extremos, e trocar de valor não empurra a tela. */
+   NÃO RESPONDIDO é um estado de verdade, e é o mais importante desta
+   tela: foi confundir ausência com zero que fez os registros mentirem.
+   Como todo slider tem o polegar em algum lugar, aqui o vazio se mostra
+   pela cor — trilho e polegar cinzas, manchete apagada — e o valor só
+   passa a existir quando a pessoa encosta. O polegar espera no meio
+   porque é de onde toda resposta fica mais perto.
+
+   `onSlidingComplete` existe junto do `onValueChange` de propósito:
+   quem quer responder o valor do meio, e toca exatamente onde o polegar
+   já está, não muda valor nenhum — sem o segundo evento esse toque não
+   registraria nada e o campo continuaria em branco. */
 export function Escala({ valores, valor, onChange, suave, legendas }: {
   valores: (string | number)[]; valor: string | number | null;
   onChange: (v: string | number) => void; suave?: boolean;
@@ -671,37 +689,40 @@ export function Escala({ valores, valor, onChange, suave, legendas }: {
 }) {
   const { c } = useTheme();
   const i = valores.findIndex((v) => v === valor);
-  const dita = legendas && i >= 0 ? legendas[i] : null;
-  const extremos = legendas ? `${legendas[0]} · ${legendas[legendas.length - 1]}` : null;
+  const respondido = i >= 0;
+  const meio = Math.floor((valores.length - 1) / 2);
+  const escolhe = (n: number) => {
+    const idx = Math.max(0, Math.min(valores.length - 1, Math.round(n)));
+    if (valores[idx] !== valor) onChange(valores[idx]);
+  };
+
+  const manchete = respondido
+    ? (legendas?.[i] ?? String(valores[i]))
+    : 'Ainda não respondi';
 
   return (
-    <View style={{ gap: 9 }}>
-      <Row style={{ gap: 6 }}>
-        {valores.map((v) => {
-          const on = v === valor;
-          return (
-            <Pressable
-              key={String(v)}
-              onPress={() => onChange(v)}
-              style={({ pressed }) => [{
-                flex: 1, height: 42, borderRadius: radius.md, borderWidth: 1,
-                borderColor: on ? (suave ? c.accentLine : c.accent) : c.line,
-                backgroundColor: on ? (suave ? c.accentWeak : c.accent) : c.bg1,
-                alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.7 : 1,
-              }]}
-            >
-              <Txt v="label" c={on ? (suave ? c.accent : c.accentInk) : c.tx2}>{String(v)}</Txt>
-            </Pressable>
-          );
-        })}
-      </Row>
+    <View>
+      <Txt v="title" c={respondido ? c.tx : c.tx3}>{manchete}</Txt>
+
+      <Slider
+        value={respondido ? i : meio}
+        minimumValue={0}
+        maximumValue={valores.length - 1}
+        step={1}
+        tapToSeek
+        onValueChange={escolhe}
+        onSlidingComplete={escolhe}
+        minimumTrackTintColor={respondido ? (suave ? c.accentLine : c.accent) : c.bg2}
+        maximumTrackTintColor={c.bg2}
+        thumbTintColor={respondido ? c.accent : c.tx4}
+        style={{ marginTop: 8, marginHorizontal: -6 }}
+      />
 
       {legendas ? (
-        <View style={{ height: ty.caption.lineHeight, justifyContent: 'center' }}>
-          <Txt v="caption" c={dita ? c.tx : c.tx3} numberOfLines={1}>
-            {dita ?? extremos}
-          </Txt>
-        </View>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Txt v="micro" c={c.tx4}>{legendas[0]}</Txt>
+          <Txt v="micro" c={c.tx4}>{legendas[legendas.length - 1]}</Txt>
+        </Row>
       ) : null}
     </View>
   );
