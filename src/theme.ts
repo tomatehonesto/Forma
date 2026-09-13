@@ -1,10 +1,17 @@
 /* ============================================================
    Forma — design tokens (single source of truth)
-   Palette: green + blue (vibrant, premium) over warm off-white.
-   Change BRAND or the accent hexes here and the whole app follows.
+
+   V2: extraído do Figma "Aplicativo de Caneta GLP-1" › frame Home
+   (node 181:1869). Azul elétrico + lima sobre branco, tipografia
+   Outfit em pesos leves.
+
+   Procedência de cada valor:
+     [figma]  lido direto do frame — não alterar sem nova referência
+     [infer]  derivado por consistência; o frame não define. Substituir
+              quando chegarem os frames de Jornada / Insights / Cuidado.
    ============================================================ */
 
-export const BRAND = 'Forma';
+export const BRAND = 'Morphi';
 
 export type Palette = {
   bg: string; bg1: string; bg2: string; bg3: string;
@@ -12,92 +19,276 @@ export type Palette = {
   line: string; line2: string;
   accent: string; accent2: string; accentInk: string;
   accentWeak: string; accentLine: string;
+  lime: string; limeDim: string; limeInk: string; limeWeak: string;
+  limePale: string; bluePale: string; teal: string; tealPale: string;
+  panelFrom: string; panelMid: string; panelTo: string;
+  altFrom: string; altMid: string; altTo: string;
+  glass: string; glassLine: string;
   green: string; greenDim: string; blue: string; blueDim: string;
-  good: string;
+  good: string; bad: string;
+  ok: string; okBg: string;
+  limeSoft: string; limeSoftInk: string;
   cta: string; cta2: string; ctaInk: string; ctaWeak: string; ctaLine: string;
   water: string; waterBg: string;
   purple: string; purpleBg: string;
   amber: string; amberBg: string;
   rose: string; roseBg: string;
   gradFrom: string; gradTo: string;
+  onHero: string; onHero2: string; onHeroWeak: string; onHeroLine: string;
   track: string; shadow: string; scrim: string;
 };
 
 export const light: Palette = {
-  bg: '#F4F7F5', bg1: '#FFFFFF', bg2: '#EDF2EF', bg3: '#E3EAE6',
-  tx: '#0F2E38', tx2: '#45606A', tx3: '#7B919B', tx4: '#A7B9BF',
-  line: '#E7ECE9', line2: '#DBE3DF',
-  accent: '#0FB981', accent2: '#2E86C7', accentInk: '#FFFFFF',
-  accentWeak: 'rgba(15,185,129,0.10)', accentLine: 'rgba(15,185,129,0.22)',
-  green: '#0FB981', greenDim: '#0C9E6E', blue: '#2E86C7', blueDim: '#2570AC',
-  good: '#0FB981',
-  cta: '#E8562C', cta2: '#F1793A', ctaInk: '#FFFFFF',
-  ctaWeak: 'rgba(232,86,44,0.10)', ctaLine: 'rgba(232,86,44,0.24)',
-  water: '#3E8FD0', waterBg: '#E9F2FB',
-  purple: '#8B7FD4', purpleBg: '#EFEDFB',
-  amber: '#DFA53C', amberBg: '#FAF1DD',
-  rose: '#E27BA0', roseBg: '#FBEAF0',
-  gradFrom: '#12C08A', gradTo: '#2E86C7',
-  track: '#E9EEEB', shadow: 'rgba(15,46,56,0.10)', scrim: 'rgba(15,46,56,0.38)',
+  // superfícies — bg é a folha branca que sobe sobre o hero  [figma]
+  bg: '#F5F6FA', bg1: '#FFFFFF', bg2: '#EDF1F3', bg3: '#E5E7EA',
+  // texto                                                    [figma]
+  tx: '#000000', tx2: '#4D5461', tx3: '#727272', tx4: '#98A2B3',
+  // divisores                                                [figma]
+  line: '#E5E7EA', line2: '#EDF1F3',
+
+  // ação — azul elétrico. accent = controles ("Registrar",
+  // tab ativa), accent2 = links de seção ("Ir para metas").  [figma]
+  accent: '#065CF5', accent2: '#003FEF', accentInk: '#FFFFFF',
+  accentWeak: 'rgba(6,92,245,0.08)', accentLine: 'rgba(6,92,245,0.20)',
+
+  // destaque — lima. Botão de check-in, números de streak,
+  // overline "PARA HOJE", barra de proteína.                 [figma]
+  lime: '#DDF62C', limeDim: '#C7DD2A', limeInk: '#0A0A0A',
+  limeWeak: 'rgba(221,246,44,0.18)',
+
+  // barras de meta diária — cada uma é um gradiente do tom
+  // pálido ao saturado. Proteína lima, água azul, exercício
+  // teal.                                                    [figma]
+  limePale: '#F5F8DF', bluePale: '#D7DDEF',
+  teal: '#15E4CB', tealPale: '#C5EAE6',
+
+  /* Painel de destaque — azul saturado em gradiente. Precisa ler como
+     CARD, não como fundo: o app inteiro é claro, então a superfície de
+     ênfase se separa por saturação, e o lima pontua os itens dentro. */
+  panelFrom: '#3D7BFF', panelMid: '#065CF5', panelTo: '#0130BE',
+
+  /* Segundo gradiente, para o Insights — azul escuro descendo até azul
+     claro. Mesma família do painel da Jornada, em outro registro: aquele
+     é azul vivo chapado num card, este é uma lavagem que começa quase
+     noturna e termina no fundo da tela.
+
+     A versão anterior puxava para o violeta (#2E3C9E / #161F63) e lia
+     como outra marca. Agora o azul é azul em toda a rampa.
+
+     altMid é a cor da faixa chapada onde moram campo e chips em vidro:
+     branco sobre ela dá 9,9:1. */
+  altFrom: '#4C77E8', altMid: '#123A9E', altTo: '#05143F',
+
+  /* Vidro sobre fundo escuro — o mesmo tratamento da faixa de check-in
+     da Home, agora nomeado para poder se repetir. */
+  glass: 'rgba(255,255,255,0.13)', glassLine: 'rgba(255,255,255,0.20)',
+
+  // legado do tema v1 — sem uso nas telas, mantidos só para
+  // não quebrar o tipo Palette                               [infer]
+  green: '#DDF62C', greenDim: '#C7DD2A', blue: '#065CF5', blueDim: '#003FEF',
+
+  // estado                                                   [figma p/ bad]
+  good: '#065CF5', bad: '#D51A1A',
+
+  /* Selos das telas internas — o par de lavagens que carrega o veredito
+     dentro de um card: lima para variação medida ('−7,3 kg') e verde para
+     estado clínico bom ('Na referência'). São washes com tinta escura por
+     cima, não cores de marca: o selo informa, não compete com o azul.  */
+  ok: '#3C6B2C', okBg: '#D9EFC6',
+  limeSoft: '#EFF6A6', limeSoftInk: '#4A5410',
+
+  // atenção / destrutivo — o frame só define o vermelho do
+  // indicador de piora; o resto é derivado dele.             [infer]
+  cta: '#D51A1A', cta2: '#E8452B', ctaInk: '#FFFFFF',
+  ctaWeak: 'rgba(213,26,26,0.08)', ctaLine: 'rgba(213,26,26,0.20)',
+
+  // cores de dado — só "água" aparece no frame (barra azul).
+  // As outras três são usadas pela timeline e pelo radar e
+  // ainda não têm referência de design.                      [infer]
+  water: '#065CF5', waterBg: '#EAF1FE',
+  purple: '#7A5AF8', purpleBg: '#F0EDFE',
+  amber: '#B58900', amberBg: '#FAF6E0',
+  rose: '#E0457B', roseBg: '#FDECF2',
+
+  // gradiente do FAB e do avatar — no frame o FAB é azul
+  // chapado; mantido como gradiente sutil entre os dois azuis
+  gradFrom: '#065CF5', gradTo: '#003FEF',
+
+  // texto sobre o hero escuro (aurora)                       [figma]
+  onHero: '#FFFFFF', onHero2: 'rgba(255,255,255,0.80)',
+  onHeroWeak: 'rgba(255,255,255,0.10)', onHeroLine: 'rgba(255,255,255,0.20)',
+
+  track: '#EDF1F3',
+  shadow: 'rgba(0,0,0,0.05)',                              // [figma]
+  scrim: 'rgba(0,0,0,0.45)',
 };
 
+/* Dark — NÃO existe frame de referência. Derivado da paleta clara
+   invertendo superfícies e preservando azul/lima. Trocar quando
+   houver desenho. */
 export const dark: Palette = {
-  bg: '#0D1618', bg1: '#152220', bg2: '#1B2825', bg3: '#243330',
-  tx: '#EAF3EF', tx2: '#AFC3BE', tx3: '#7F8A94', tx4: '#5C6E72',
-  line: 'rgba(255,255,255,0.08)', line2: 'rgba(255,255,255,0.13)',
-  accent: '#2ED3A0', accent2: '#4FA6E0', accentInk: '#04211A',
-  accentWeak: 'rgba(46,211,160,0.14)', accentLine: 'rgba(46,211,160,0.28)',
-  green: '#2ED3A0', greenDim: '#25B489', blue: '#4FA6E0', blueDim: '#3E8CC4',
-  good: '#2ED3A0',
-  cta: '#F1662F', cta2: '#F7864A', ctaInk: '#FFFFFF',
-  ctaWeak: 'rgba(241,102,47,0.16)', ctaLine: 'rgba(241,102,47,0.30)',
-  water: '#5AA6E0', waterBg: 'rgba(90,166,224,0.15)',
-  purple: '#A79BE8', purpleBg: 'rgba(167,155,232,0.15)',
-  amber: '#EBBE5E', amberBg: 'rgba(235,190,94,0.15)',
-  rose: '#EC93B4', roseBg: 'rgba(236,147,180,0.15)',
-  gradFrom: '#2ED3A0', gradTo: '#4FA6E0',
-  track: 'rgba(255,255,255,0.10)', shadow: 'rgba(0,0,0,0.40)', scrim: 'rgba(0,0,0,0.55)',
+  bg: '#0B0D12', bg1: '#141821', bg2: '#1C2029', bg3: '#262B36',
+  tx: '#FFFFFF', tx2: '#C3C9D4', tx3: '#98A2B3', tx4: '#6B7280',
+  line: 'rgba(255,255,255,0.09)', line2: 'rgba(255,255,255,0.14)',
+
+  accent: '#4C8BFF', accent2: '#6BA1FF', accentInk: '#04102B',
+  accentWeak: 'rgba(76,139,255,0.14)', accentLine: 'rgba(76,139,255,0.28)',
+
+  lime: '#DDF62C', limeDim: '#C7DD2A', limeInk: '#0A0A0A',
+  limeWeak: 'rgba(221,246,44,0.16)',
+  limePale: '#4A5220', bluePale: '#1E2A4D', teal: '#15E4CB', tealPale: '#12463F',
+  panelFrom: '#4C8BFF', panelMid: '#1F5FE0', panelTo: '#0A2E9E',
+  altFrom: '#5B84EE', altMid: '#123A9E', altTo: '#040F33',
+  glass: 'rgba(255,255,255,0.11)', glassLine: 'rgba(255,255,255,0.17)',
+
+  green: '#DDF62C', greenDim: '#C7DD2A', blue: '#4C8BFF', blueDim: '#6BA1FF',
+
+  good: '#4C8BFF', bad: '#FF5A5A',
+
+  ok: '#A7D98A', okBg: 'rgba(167,217,138,0.16)',
+  limeSoft: 'rgba(221,246,44,0.16)', limeSoftInk: '#DDF62C',
+
+  cta: '#FF5A5A', cta2: '#FF7A5A', ctaInk: '#2B0404',
+  ctaWeak: 'rgba(255,90,90,0.16)', ctaLine: 'rgba(255,90,90,0.30)',
+
+  water: '#4C8BFF', waterBg: 'rgba(76,139,255,0.15)',
+  purple: '#9D86FF', purpleBg: 'rgba(157,134,255,0.15)',
+  amber: '#E0BC4A', amberBg: 'rgba(224,188,74,0.15)',
+  rose: '#F26A9B', roseBg: 'rgba(242,106,155,0.15)',
+
+  gradFrom: '#4C8BFF', gradTo: '#065CF5',
+
+  onHero: '#FFFFFF', onHero2: 'rgba(255,255,255,0.80)',
+  onHeroWeak: 'rgba(255,255,255,0.10)', onHeroLine: 'rgba(255,255,255,0.20)',
+
+  track: 'rgba(255,255,255,0.10)',
+  shadow: 'rgba(0,0,0,0.45)',
+  scrim: 'rgba(0,0,0,0.60)',
 };
+
+/* Largura máxima do app.
+
+   Isto é um app de celular. No web ele rodaria edge-to-edge, e aí a mesma
+   manchete de 32px que domina uma tela de 390 vira uma linha perdida num
+   hero de 1400 — o desenho some, e quem avalia a tela pelo navegador julga
+   um layout que ninguém vai ver. A coluna centrada em app/_layout devolve
+   ao preview a proporção do aparelho.
+
+   430 é a largura do iPhone Pro Max, o maior telefone que o app precisa
+   atender: a coluna nunca aperta um aparelho real, só segura o desktop. */
+export const APP_MAX_W = 430;
 
 export const space = { xs: 4, sm: 8, md: 12, base: 16, lg: 20, xl: 24, xxl: 32, huge: 44 };
-export const radius = { sm: 10, md: 14, lg: 18, xl: 24, pill: 999 };
 
+/* Altura da tab bar sem a safe area. Mora aqui, e não em ui/TabBar, porque
+   o kit precisa dela para posicionar os sheets acima da barra — e kit não
+   pode importar de TabBar, que já importa do kit. */
+export const TAB_BAR_H = 58;
+
+/* Raios do frame: 8 · 12 · 24 · 32 · pill. 32 é o dominante
+   (cards e superfícies agrupadas).                           [figma] */
+/* 18 entra entre md e lg como o raio de CARD das telas internas: elas são
+   listas densas de cartões pequenos, e 24 num card de 60px de altura come a
+   própria caixa. As telas de aba seguem em lg/xl — lá o card é grande e o
+   raio maior é o que dá o ar de superfície agrupada.                [figma] */
+export const radius = { sm: 8, md: 12, card: 18, lg: 24, xl: 32, pill: 999 };
+
+/* Outfit em quatro pesos. O frame usa 300 como peso mais frequente —
+   o app v1 era 700/800, então o conjunto fica visivelmente mais leve. */
 export const font = {
-  display: 'PlusJakartaSans_700Bold',
-  displayX: 'PlusJakartaSans_800ExtraBold',
-  bold: 'PlusJakartaSans_700Bold',
-  semi: 'PlusJakartaSans_600SemiBold',
-  medDisplay: 'PlusJakartaSans_500Medium',
-  body: 'Inter_400Regular',
-  bodyMed: 'Inter_500Medium',
-  bodySemi: 'Inter_600SemiBold',
+  display: 'Outfit_600SemiBold',
+  displayX: 'Outfit_600SemiBold',
+  bold: 'Outfit_600SemiBold',
+  semi: 'Outfit_500Medium',
+  medDisplay: 'Outfit_400Regular',
+  body: 'Outfit_400Regular',
+  bodyMed: 'Outfit_500Medium',
+  bodySemi: 'Outfit_600SemiBold',
+  light: 'Outfit_300Light',
 };
 
-// type ramp — size + line height + default family
+/* Escala tipográfica.
+
+   O frame do Figma usa 10px em overline e 12px em legenda. Numa peça de
+   apresentação isso funciona; num app de tratamento, não — a pessoa lê
+   isto no ônibus, com pressa, às vezes com a vista cansada, e boa parte
+   do público tem mais de 40. A escala foi subida um degrau na ponta
+   pequena, mantendo a hierarquia e as proporções do frame.
+
+   A régua era: 12 · 14 · 15 · 17 · 19 · 20 · 30 · 32 · 36
+
+   E ainda era pequena. Vista na proporção certa — o app numa coluna de
+   telefone, não esticado no navegador —, a leitura continuou apertada, e
+   a escala subiu de novo, cerca de 12% em toda a extensão. O degrau maior
+   ficou nas legendas: caption e note carregam quase todo o texto
+   secundário do app (a data de um registro, o de-onde-para-onde de uma
+   métrica, a frase que explica um campo) e eram justamente as que a vista
+   cansada perdia primeiro.
+
+   A régua agora: 13 · 16 · 17 · 19 · 21 · 23 · 40 · 44
+
+   A ponta grande veio depois, do protótipo das telas internas: lá o
+   número do hero é 44 e o corpo é 14,5, e o que dá caráter àquelas telas
+   não é o tamanho do texto — é a DISTÂNCIA entre os dois. Os tamanhos de
+   leitura ficaram onde estavam; subiu só o que é valor. */
 export const ty = {
-  display: { fontFamily: font.displayX, fontSize: 32, lineHeight: 37 },
-  h1: { fontFamily: font.display, fontSize: 26, lineHeight: 31 },
-  h2: { fontFamily: font.display, fontSize: 20, lineHeight: 25 },
-  title: { fontFamily: font.semi, fontSize: 16, lineHeight: 21 },
-  body: { fontFamily: font.body, fontSize: 15, lineHeight: 22 },
-  bodyMed: { fontFamily: font.bodyMed, fontSize: 15, lineHeight: 22 },
-  label: { fontFamily: font.bodyMed, fontSize: 13, lineHeight: 17 },
-  caption: { fontFamily: font.bodyMed, fontSize: 12, lineHeight: 16 },
-  micro: { fontFamily: font.bodySemi, fontSize: 11, lineHeight: 14 },
+  /* O número do hero — "−7,3 kg" na Jornada. É o maior degrau da régua e
+     não é vaidade: no protótipo das telas internas ele é 44 contra um
+     corpo de 14,5, uma razão de 3×, e é dela que vem o soco daquelas
+     telas. A nossa razão era 1,9× e a tela lia chapada.
+
+     Separado de `display` porque os dois papéis divergiram: o titulão de
+     uma tela interna ("Evolução", "A história") é um TÍTULO e fica em 36;
+     isto aqui é um VALOR, a resposta que a pessoa abriu o app para ver, e
+     ganha a ponta da escala sozinho. */
+  hero: { fontFamily: font.light, fontSize: 44, lineHeight: 52 },
+  /** manchete de tela — titulão das internas, slides do hero da Home */
+  display: { fontFamily: font.light, fontSize: 36, lineHeight: 42 },
+  /** número grande em destaque (streak) */
+  h1: { fontFamily: font.display, fontSize: 36, lineHeight: 44 },
+  /** título de seção — "Suas metas diárias" */
+  h2: { fontFamily: font.display, fontSize: 23, lineHeight: 30 },
+  /** título de card — "Ingestão de proteína" */
+  title: { fontFamily: font.body, fontSize: 21, lineHeight: 28 },
+  /** valor numérico — "57g", "−16,5 kg", o número do stepper */
+  metric: { fontFamily: font.body, fontSize: 40, lineHeight: 48 },
+  body: { fontFamily: font.body, fontSize: 19, lineHeight: 26 },
+  bodyMed: { fontFamily: font.bodyMed, fontSize: 19, lineHeight: 26 },
+  /** link de seção e tab ativa — "Ir para metas" */
+  label: { fontFamily: font.bodyMed, fontSize: 16, lineHeight: 22 },
+  /** legenda — "Faltam 33 g", "Meta: −23 kg", eixos */
+  note: { fontFamily: font.light, fontSize: 17, lineHeight: 24 },
+  /** sub de item de lista — "3 novas mensagens" */
+  caption: { fontFamily: font.body, fontSize: 16, lineHeight: 21 },
+  /* Selo — "Em ritmo saudável", "−7,3 kg", "Na referência".
+
+     Vivia em `micro` junto com o overline, e os dois querem coisas
+     opostas. O overline é um rótulo de seção em caixa alta: ele orienta e
+     depois some, e ser pequeno é parte do trabalho. O selo é um VALOR —
+     o veredito do tratamento, a variação da semana — e encolhê-lo esconde
+     justamente o que a pessoa veio ler. Ao lado de um número de 44px, 13
+     sumia.
+
+     15 contra um corpo de 19 dá a mesma razão que o protótipo tem entre o
+     selo dele e o corpo dele. */
+  tag: { fontFamily: font.body, fontSize: 15, lineHeight: 20 },
+  /** overline em caixa alta — "SUA ESPECIALISTA", "PARA HOJE" */
+  micro: { fontFamily: font.body, fontSize: 13, lineHeight: 17 },
 } as const;
 
+/* Sombra do frame é bem mais suave que a do v1: preto a 5%. */
 export const shadowCard = (p: Palette) => ({
   shadowColor: p.shadow,
-  shadowOffset: { width: 0, height: 8 },
+  shadowOffset: { width: 0, height: 4 },
   shadowOpacity: 1,
-  shadowRadius: 20,
-  elevation: 3,
+  shadowRadius: 16,
+  elevation: 2,
 });
 
 export const shadowSoft = (p: Palette) => ({
   shadowColor: p.shadow,
-  shadowOffset: { width: 0, height: 3 },
+  shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 1,
-  shadowRadius: 10,
-  elevation: 2,
+  shadowRadius: 8,
+  elevation: 1,
 });

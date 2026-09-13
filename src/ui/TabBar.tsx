@@ -9,13 +9,13 @@ import { useTheme } from './useTheme';
 import { shadowCard } from '../theme';
 
 const ITEMS = [
-  { ic: 'home', label: 'Hoje' },
+  { ic: 'home', label: 'Home' },
   { ic: 'journey', label: 'Jornada' },
-  { ic: 'trend', label: 'Evolução' },
-  { ic: 'spark', label: 'Descobertas' },
+  { ic: 'heart', label: 'Cuidado' },
+  { ic: 'spark', label: 'Insights' },
 ];
 
-/* Tab bar custom com FAB central (abre o check-in). */
+/* Tab bar custom com FAB central (abre o registrar). */
 export function TabBar({ state, navigation }: any) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();

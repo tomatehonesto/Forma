@@ -5,8 +5,11 @@ export const HEIGHT = 1.67;
 
 export function buildSeed() {
   const med = 'mounjaro';
-  // pesos: 82.4 -> 75.1 ao longo de ~70 dias
-  const wpts = [[70, 82.4], [63, 81.6], [56, 80.5], [49, 79.6], [42, 78.9], [35, 78.1], [28, 77.5], [21, 76.9], [14, 76.3], [10, 75.9], [7, 75.6], [3, 75.3], [0, 75.1]];
+  /* Pesos: 82,4 -> 75,1 em ~70 dias.
+     A curva tem platô e duas semanas de leve ganho de propósito. Perda com
+     GLP-1 não é linear, e um seed em linha reta contradiz o que o próprio
+     app diz à paciente sobre semanas paradas. */
+  const wpts = [[70, 82.4], [63, 81.2], [56, 80.3], [49, 80.9], [42, 79.6], [35, 78.8], [28, 79.5], [21, 78.1], [14, 77.0], [10, 77.7], [7, 76.3], [3, 75.5], [0, 75.1]];
   const weights = wpts.map(([d, k]) => ({ t: +daysAgo(d), kg: k }));
   // aplicações semanais: 4×2.5mg depois 5mg; última há 4 dias
   const injDays = [67, 60, 53, 46, 39, 32, 25, 18, 11, 4];
@@ -32,7 +35,33 @@ export function buildSeed() {
     });
   }
   return {
-    profile: { name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT, startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis', nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com' },
+    profile: {
+      name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
+      startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      /* Horizonte do plano que a equipe traçou até a dose de manutenção.
+         Não é alta: é até onde a titulação foi programada, e é o número
+         que dá sentido a "você está na semana 11". */
+      planoSemanas: 16,
+      nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
+      /* Ficha da especialista. CRM e tempo de formação não são enfeite: são
+         o que separa "alguém está te acompanhando" de "alguém habilitado
+         está te acompanhando", e num app que não prescreve nada essa
+         distinção é o produto inteiro. */
+      doctorInfo: {
+        crm: 'CRM 128456-SP',
+        especialidade: 'Endocrinologista',
+        anos: 12,
+        pacientes: 2400,
+        rating: 4.9,
+        avaliacoes: 128,
+        sobre: 'Especialista em tratamento clínico da obesidade, modulação hormonal e saúde metabólica. Meu objetivo é promover saúde com acolhimento, ciência e personalização em cada etapa do tratamento.',
+        abordagens: ['Emagrecimento', 'Modulação hormonal', 'Metabolismo', 'Saúde intestinal'],
+      },
+      /* metas diárias — antes ficavam espalhadas como número fixo no
+         código (proteína 90 g em derive, água na constante GOAL_WATER).
+         A Home nova trata as três como alvo configurável. */
+      targets: { prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 },
+    },
     weights, injections, checkins,
     photos: [{ t: +daysAgo(70), tag: 'início' }, { t: +daysAgo(35), tag: 'semana 5' }, { t: +daysAgo(4), tag: 'semana 10' }],
     goals: [
@@ -137,7 +166,46 @@ export function buildSeed() {
       agua: { on: false, hour: 15, min: 0 },
       proteina: { on: false, hour: 12, min: 0 },
     },
+    /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
+       em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
+    pen: { dosesLeft: 3, dosesPerPen: 4 },
+    /* A equipe além da médica. Cada pessoa tem um papel distinto no
+       tratamento — não é lista de contatos, é quem faz o quê. */
+    team: [
+      { name: 'Renata Alves', role: 'Nutricionista', sobre: 'Ajusta o plano alimentar conforme a fase do ciclo.' },
+      { name: 'Carla Mendes', role: 'Enfermeira', sobre: 'Orienta aplicação, locais e conservação da caneta.' },
+      { name: 'Rafael Lima', role: 'Psicólogo', sobre: 'Acompanha a relação com a comida e com o corpo.' },
+    ],
+
+    /* Material que a clínica mandou para você — diferente de `documents`,
+       que é o que saiu de você para a clínica. A direção importa: um é
+       orientação recebida, o outro é prova enviada. */
+    /* `motivo` é o que separa curadoria de biblioteca: cada material diz
+       por que ELE foi escolhido para esta pessoa neste momento. */
+    materials: [
+      { t: +daysAgo(32), name: 'O que fazer se enjoar', kind: 'Guia rápido', meta: '2 min', ic: 'bulb', motivo: 'Para a fase de titulação' },
+      { t: +daysAgo(70), name: 'Como aplicar sem dor', kind: 'Vídeo', meta: '4 min', ic: 'play', motivo: 'Enviado pela enfermeira' },
+      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'Protocolo', meta: '2,4 MB', ic: 'doc', motivo: 'Montado pela nutricionista' },
+      { t: +daysAgo(60), name: 'Checklist da semana', kind: 'Checklist', meta: '8 itens', ic: 'check', motivo: 'Atualizado toda segunda' },
+    ],
+
+    /* Perguntas feitas ao Morphi. Guarda só o texto e a hora — a
+       resposta é sempre recalculada sobre o estado atual, então
+       persistir a thread inteira envelheceria o dado. */
+    asked: [] as { t: number; q: string }[],
     consultNotes: '',
+
+    /* Notas para a consulta. Cada uma guarda QUANDO foi anotada e se já
+       foi conversada: sem a data, a nota chega na consulta sem o contexto
+       que a explica ('isso foi antes ou depois de subir a dose?'). */
+    notes: [
+      { t: +daysAgo(2), text: 'A constipação piorou desde que subi para 5 mg', done: false },
+      { t: +daysAgo(7), text: 'Perguntar se posso aplicar de manhã em vez de à noite', done: false },
+      { t: +daysAgo(16), text: 'Tontura em dois dias seguidos na semana 9', done: false },
+      { t: +daysAgo(23), text: 'Confirmar se mantenho 5 mg ou subo', done: false },
+      { t: +daysAgo(38), text: 'Falar sobre os enjoos das primeiras semanas', done: true },
+      { t: +daysAgo(45), text: 'Pedir os exames de acompanhamento', done: true },
+    ],
     onboardDone: true,
     theme: 'light' as 'light' | 'dark',
     lastReplaySeen: 0,
@@ -154,9 +222,30 @@ export function ensureDefaults(S: any) {
   R.peso = Object.assign({ on: false, freq: 'semanal', dow: 1, hour: 8, min: 0 }, R.peso || {});
   R.agua = Object.assign({ on: false, hour: 15, min: 0 }, R.agua || {});
   R.proteina = Object.assign({ on: false, hour: 12, min: 0 }, R.proteina || {});
+  if (!Array.isArray(S.asked)) S.asked = [];
+  if (!Array.isArray(S.team)) S.team = buildSeed().team;
+  if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
+  if (S.profile && !S.profile.doctorInfo) S.profile.doctorInfo = buildSeed().profile.doctorInfo;
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
+  /* Migração do texto corrido para a lista: cada linha do campo antigo
+     vira uma nota, datada de hoje porque a data original nunca existiu.
+     Depois disso a lista é a fonte, e consultNotes deixa de ser lido. */
+  if (!Array.isArray(S.notes)) {
+    const linhas = String(S.consultNotes || '')
+      .split('\n')
+      .map((l) => l.replace(/^[•\-\s]+/, '').trim())
+      .filter(Boolean);
+    S.notes = linhas.length
+      ? linhas.map((text) => ({ t: +startOfDay(now()), text, done: false }))
+      : buildSeed().notes;
+  }
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
   if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };
   if (!S.theme) S.theme = 'light';
+  /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
+     depende da pessoa, e um padrão fixo não serve para todo mundo. */
+  if (S.profile) S.profile.targets = Object.assign({ prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 }, S.profile.targets || {});
+  if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
+  if (S.profile && !S.profile.planoSemanas) S.profile.planoSemanas = 16;
   return S;
 }

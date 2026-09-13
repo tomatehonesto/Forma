@@ -1,146 +1,151 @@
 import React, { useState } from 'react';
-import { View, Pressable, ScrollView, TextInput } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import Slider from '@react-native-community/slider';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { startOfDay, now } from '../logic/time';
-import { Txt, Card, Row, IconBadge, CircleBtn } from '../ui/kit';
-import { Icon } from '../ui/Icon';
-import { useTheme } from '../ui/useTheme';
-import { space, radius } from '../theme';
+import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
 
-type Key = 'fome' | 'enjoo' | 'energia' | 'humor' | 'compulsao';
-const METRICS: { key: Key; label: string; ic: string; q: (v: number) => string }[] = [
-  { key: 'fome', label: 'Fome', ic: 'utensils', q: (v) => (v <= 3 ? 'Baixa' : v <= 6 ? 'Moderada' : 'Alta') },
-  { key: 'enjoo', label: 'Enjoo', ic: 'frown', q: (v) => (v <= 2 ? 'Leve' : v <= 6 ? 'Moderado' : 'Forte') },
-  { key: 'energia', label: 'Energia', ic: 'bolt', q: (v) => (v <= 3 ? 'Baixa' : v <= 6 ? 'Média' : 'Alta') },
-  { key: 'humor', label: 'Humor', ic: 'mood', q: (v) => (v <= 3 ? 'Baixo' : v <= 6 ? 'Neutro' : 'Bom') },
-  { key: 'compulsao', label: 'Compulsão', ic: 'brain', q: (v) => (v <= 2 ? 'Leve' : v <= 6 ? 'Média' : 'Alta') },
-];
-const TILES: [string, string, string][] = [
-  ['water', 'Água', '1,2 L'], ['dumbbell', 'Treino', 'Sim'],
-  ['moon', 'Sono', '7h 20min'], ['gut', 'Evacuação', 'Sim'],
-  ['leaf', 'Proteína', '75 g'], ['scale', 'Peso', '70,3 kg'],
+/* ============================================================
+   CHECK-IN DO DIA
+
+   A tela antiga pedia cinco notas de 0 a 10, todas obrigatórias na
+   prática: fome, enjoo, energia, humor, compulsão, cinco sliders sempre
+   presentes. Quem não teve enjoo tinha que decidir o que fazer com o
+   slider de enjoo — e a resposta honesta, "não tive", não existia.
+
+   Aqui a pergunta vem em duas etapas. Primeiro O QUE aconteceu: a pessoa
+   marca só os sintomas que teve. Só então aparece QUANTO, uma escala por
+   sintoma marcado. Um dia sem sintoma nenhum é um toque em salvar — e a
+   frase de abertura diz isso em voz alta, porque deixar em branco por
+   medo de estar "fazendo errado" é o jeito mais comum de abandonar um
+   diário de sintomas.
+
+   A escala de sintoma é a versão suave (lavagem, não azul chapado): marcar
+   5 de náusea não é uma conquista. Energia, que é o quanto você tem, segue
+   em azul cheio.
+   ============================================================ */
+
+/* `store` é a chave numérica legada que derive.ts já lê. Os três primeiros
+   sintomas têm coluna própria desde o início; os outros vivem só no mapa
+   `sint` do check-in, e entram nas leituras quando ganharem derivação. */
+const SINTOMAS: { id: string; label: string; store?: string }[] = [
+  { id: 'nausea', label: 'Náusea', store: 'nausea' },
+  { id: 'constip', label: 'Constipação', store: 'constip' },
+  { id: 'refluxo', label: 'Refluxo', store: 'refluxo' },
+  { id: 'fadiga', label: 'Fadiga' },
+  { id: 'cefaleia', label: 'Dor de cabeça' },
+  { id: 'tontura', label: 'Tontura' },
+  { id: 'outro', label: 'Outro' },
 ];
 
 export default function Checkin() {
-  const { c } = useTheme();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
-  const [vals, setVals] = useState<Record<Key, number>>({ fome: 6, enjoo: 2, energia: 8, humor: 5, compulsao: 2 });
-  const [focus, setFocus] = useState<Key>('fome');
-  const [note, setNote] = useState('');
+  const router = useRouter();
 
-  const save = () => {
+  const [marcados, setMarcados] = useState<string[]>([]);
+  const [grau, setGrau] = useState<Record<string, number>>({});
+  const [energia, setEnergia] = useState<number>(6);
+  const [nota, setNota] = useState('');
+  const [levar, setLevar] = useState(false);
+
+  const alterna = (id: string) =>
+    setMarcados((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+
+  const salvar = () => {
     update((s: any) => {
       const t = +startOfDay(now());
       s.checkins = s.checkins.filter((x: any) => x.t !== t);
-      s.checkins.push({ t, fome: vals.fome, nausea: vals.enjoo, energia: vals.energia, mood: Math.max(1, Math.round(vals.humor / 2)), compulsao: vals.compulsao, sono: 7, agua: 6, prot: 75, exerc: 0, gut: 'normal', refluxo: 0, ansiedade: 0, constip: 0, note });
+
+      /* A escala da tela é 1–5; as colunas legadas são 0–10. Dobrar mantém
+         as duas leituras coerentes sem reescrever quem já consome. */
+      const col: Record<string, number> = {};
+      for (const x of SINTOMAS) if (x.store) col[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 3) * 2 : 0;
+
+      s.checkins.push({
+        t,
+        ...col,
+        energia,
+        fome: 0, mood: 3, compulsao: 0, ansiedade: 0, gut: 'normal',
+        /* Sono, água e proteína têm captura própria e não são perguntados
+           aqui. Os valores seguem os mesmos que a tela anterior gravava,
+           para não mudar o que as médias da Jornada já mostram — trocar
+           isso é decisão de produto, não efeito colateral do redesenho. */
+        sono: 7, agua: 6, prot: 75, exerc: 0,
+        sint: Object.fromEntries(marcados.map((id) => [id, grau[id] ?? 3])),
+        note: nota,
+      });
+
+      if (levar && nota.trim()) {
+        s.notes = [{ t: +now(), text: nota.trim(), done: false }, ...(s.notes || [])];
+      }
       s.heroSeen = { milestone: 0, insight: null, replay: null };
     });
-    router.back();
+    router.replace('/(tabs)/jornada' as any);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: 130, paddingHorizontal: space.lg }} showsVerticalScrollIndicator={false}>
-        {/* header */}
-        <Row style={{ justifyContent: 'space-between' }}>
-          <CircleBtn name="x" onPress={() => router.back()} />
-          <View style={{ alignItems: 'center' }}>
-            <Txt v="title">Check-in rápido</Txt>
-            <Txt v="micro" c={c.tx3}>Leva menos de 15 segundos</Txt>
-          </View>
-          <CircleBtn name="info" />
-        </Row>
+    <TelaInterna
+      titulo="Check-in"
+      fechar
+      acao="Salvar"
+      onAcao={salvar}
+      rodape={<Botao label="Salvar check-in" onPress={salvar} />}
+    >
+      <Titulao
+        titulo={`Como foi${'\n'}o seu dia?`}
+        lead="Marque só o que aconteceu. Deixar em branco também é uma resposta."
+      />
 
-        <View style={{ marginTop: 18 }}>
-          <Txt v="display" style={{ fontSize: 28 }}>Como você está agora?</Txt>
-          <Txt v="bodyMed" c={c.tx3} style={{ marginTop: 4 }}>Toque e deslize para registrar.</Txt>
-        </View>
-
-        {/* chip selector */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 16, marginHorizontal: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, gap: 10 }}>
-          {METRICS.map((m) => {
-            const on = focus === m.key;
-            return (
-              <Pressable key={m.key} onPress={() => setFocus(m.key)} style={{ width: 74, alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: 1.4, borderColor: on ? c.accent : c.line, paddingVertical: 12 }}>
-                <Icon name={m.ic} size={22} color={on ? c.accent : c.tx3} sw={1.8} />
-                <Txt v="caption" c={on ? c.accent : c.tx3} style={{ marginTop: 6 }} numberOfLines={1}>{m.label}</Txt>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        {/* sliders */}
-        <View style={{ marginTop: 16, gap: 10 }}>
-          {METRICS.map((m) => {
-            const v = vals[m.key]; const on = focus === m.key;
-            return (
-              <View key={m.key} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: 1.4, borderColor: on ? c.accentLine : c.line, padding: 14 }}>
-                <Row>
-                  <IconBadge name={m.ic} size={40} />
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Txt v="title">{m.label}</Txt>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Txt v="h2" c={c.accent}>{v}</Txt>
-                        <Txt v="micro" c={c.tx3}>{m.q(v)}</Txt>
-                      </View>
-                    </Row>
-                    <Slider
-                      style={{ width: '100%', height: 30, marginTop: 2 }}
-                      minimumValue={0} maximumValue={10} step={1} value={v}
-                      onValueChange={(nv) => { setFocus(m.key); setVals((s) => ({ ...s, [m.key]: Math.round(nv) })); }}
-                      minimumTrackTintColor={c.accent} maximumTrackTintColor={c.track} thumbTintColor={c.accent}
-                    />
-                  </View>
-                </Row>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* mini tiles */}
-        <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 12 }}>
-          {TILES.map(([ic, label, val]) => (
-            <View key={label} style={{ width: '48.5%', backgroundColor: c.bg1, borderRadius: radius.md, borderWidth: 1, borderColor: c.line, padding: 12, marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-              <IconBadge name={ic} size={34} />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Txt v="caption" c={c.tx3}>{label}</Txt>
-                <Txt v="title" style={{ marginTop: 1 }}>{val}</Txt>
-              </View>
-              <Icon name="check" size={18} color={c.good} sw={2} />
-            </View>
+      <Campo rotulo="Sintomas">
+        <Opcoes>
+          {SINTOMAS.map((x) => (
+            <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />
           ))}
-        </Row>
+        </Opcoes>
+      </Campo>
 
-        {/* obs */}
-        <View style={{ marginTop: 14, backgroundColor: c.bg1, borderRadius: radius.md, borderWidth: 1, borderColor: c.line, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center' }}>
-          <Icon name="pencil" size={16} color={c.tx4} sw={1.7} />
-          <TextInput
-            value={note} onChangeText={setNote} placeholder="Adicionar observações..." placeholderTextColor={c.tx4}
-            style={{ flex: 1, marginLeft: 10, paddingVertical: 15, color: c.tx, fontFamily: 'Inter_400Regular', fontSize: 15 }}
-          />
+      {marcados.map((id, i) => {
+        const s = SINTOMAS.find((x) => x.id === id)!;
+        return (
+          <Campo
+            key={id}
+            rotulo={`${s.label} · intensidade`}
+            /* A régua só é explicada uma vez: repetir "1 mal percebo · 5
+               atrapalha o dia" em cada sintoma vira ruído na terceira vez. */
+            ajuda={i === 0 ? '1 mal percebo · 5 atrapalha o dia' : undefined}
+          >
+            <Escala
+              suave
+              valores={[1, 2, 3, 4, 5]}
+              valor={grau[id] ?? null}
+              onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
+            />
+          </Campo>
+        );
+      })}
+
+      <Campo rotulo="Energia hoje" ajuda="Alimenta a meta “ter mais energia à tarde”.">
+        <Escala
+          valores={[2, 4, 6, 8, 10]}
+          valor={energia}
+          onChange={(v) => setEnergia(Number(v))}
+        />
+      </Campo>
+
+      <Campo rotulo="Quer anotar alguma coisa?">
+        <Texto
+          valor={nota}
+          onChange={setNota}
+          placeholder="Opcional. Só para você — a menos que você mande para a consulta."
+          linhas={3}
+        />
+        <View style={{ alignSelf: 'flex-start' }}>
+          <Opc label="Levar para a consulta" on={levar} onPress={() => setLevar((x) => !x)} />
         </View>
-      </ScrollView>
+      </Campo>
 
-      {/* save button (fixed) */}
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: space.lg, paddingBottom: (insets.bottom || 10) + 8, paddingTop: 10, backgroundColor: c.bg }}>
-        <Pressable onPress={save} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
-          <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-            <Icon name="check" size={20} color="#fff" sw={2.4} />
-            <Txt v="title" c="#fff">Salvar check-in</Txt>
-          </LinearGradient>
-        </Pressable>
-        <Row gap={5} style={{ justifyContent: 'center', marginTop: 10 }}>
-          <Icon name="lock" size={12} color={c.tx4} sw={1.7} />
-          <Txt v="micro" c={c.tx4}>Seus dados são privados e seguros</Txt>
-        </Row>
-      </View>
-    </View>
+      <View />
+    </TelaInterna>
   );
 }

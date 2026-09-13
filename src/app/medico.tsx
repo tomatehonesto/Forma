@@ -84,7 +84,7 @@ export default function Medico() {
           <TextInput
             value={msg} onChangeText={setMsg} onSubmitEditing={send}
             placeholder="Escrever para a equipe..." placeholderTextColor={c.tx4}
-            style={{ flex: 1, backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, color: c.tx, fontFamily: font.body, fontSize: 14.5 }}
+            style={{ flex: 1, backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, color: c.tx, fontFamily: font.body, fontSize: 19 }}
           />
           <Pressable onPress={send} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
             <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>

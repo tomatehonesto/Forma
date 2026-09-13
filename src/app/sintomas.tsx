@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { radar } from '../logic/derive';
+import { radar, balanceRead } from '../logic/derive';
 import { nf, relDay } from '../logic/time';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Rich, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { AreaCurve, Radar } from '../ui/charts';
+import { AreaCurve, Petalas } from '../ui/charts';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -31,6 +31,7 @@ function symReading(k: string, cur: number, old: number, better: boolean) {
 
 export default function Sintomas() {
   const S = useStore((s) => s.S);
+  const eq = balanceRead(S);
   const { c } = useTheme();
   const router = useRouter();
   const [key, setKey] = useState('fome');
@@ -57,15 +58,20 @@ export default function Sintomas() {
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
         <View style={{ flex: 1 }}>
-          <Txt v="h1">Sintomas & radar</Txt>
+          {/* "radar" saiu do título junto com o gráfico que tinha esse nome */}
+          <Txt v="h1">Sintomas & equilíbrio</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Acompanhamento acolhedor, sem alarme</Txt>
         </View>
       </Row>
 
-      {/* radar */}
+      {/* Os oito indicadores. Saíram do Insights, que passou a levar só a
+          leitura escrita, e vivem aqui — que é onde vai quem quer o detalhe
+          em vez da conclusão. */}
       <Card style={{ marginTop: 18, alignItems: 'center' }}>
-        <Radar data={radar(S)} size={264} />
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 4 }}>Seu equilíbrio nos últimos 3 dias de check-in</Txt>
+        <Petalas data={radar(S)} size={272} fraco={eq.fraco} />
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 10, textAlign: 'center' }}>
+          Média dos últimos 3 check-ins · em lima, o que mais pede atenção
+        </Txt>
       </Card>
 
       {/* evolução por sintoma */}

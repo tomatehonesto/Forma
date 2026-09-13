@@ -1,18 +1,78 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
-import { M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate, lastInjection, siteLabel, waterToday, GOAL_WATER } from '../logic/derive';
+import {
+  M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
+  lastInjection, siteLabel, waterToday, GOAL_WATER, companionSuggestions, companionMemoria,
+} from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
+import { Image } from 'expo-image';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { space, radius, font } from '../theme';
+import { useLarguraApp } from '../ui/useLarguraApp';
+import { useLightStatusBar } from '../ui/useLightStatusBar';
+import { radius, font } from '../theme';
+
+/* ============================================================
+   MORPHI — a tela para onde tudo aponta
+
+   Insights abre com ele, a Jornada oferece "perguntar", Cuidado prepara
+   a consulta com ele. Era a única peça central ainda na linguagem antiga:
+   balões com contorno cinza, chips genéricas, cabeçalho de lista de
+   contatos.
+
+   A IDENTIDADE
+
+   O cabeçalho é a mesma peça do hero do Insights, com o mesmo orbe no
+   mesmo lugar da composição. Lá ele é a única marca do Morphi na tela e
+   tocá-lo abre esta; aqui ele reaparece idêntico, então o toque deixa de
+   ser navegação e vira aproximação — a tela não abre outra coisa, abre
+   mais perto da mesma coisa.
+
+   A conversa acontece sobre a folha clara que sobe por cima da imagem,
+   com o mesmo raio e a mesma sobreposição de 36 px da Home e do Insights.
+
+   Escuro só no alto, e não na tela toda, por uma razão de leitura: fio
+   de conversa é texto longo, e texto longo em branco sobre escuro cansa.
+   A cor marca quem está falando; a folha é onde se lê.
+
+   O LIMITE
+
+   O app não prescreve. Isso não é rodapé jurídico, é o produto: a linha
+   "não substitui sua equipe" fica no cabeçalho, visível o tempo inteiro,
+   e não numa tela de termos. Quem confunde as duas coisas está desenhando
+   outro produto.
+
+   O QUE AINDA É FALSO
+
+   companionReply é uma cadeia de if/else sobre palavras-chave. As
+   respostas são ancoradas em dados reais — peso, adesão, ciclo, exames —
+   mas a compreensão é fingida: quem escrever "e se eu parar?" cai no
+   fallback. Nada nesta tela disfarça isso, e o "pensando" existe para dar
+   ritmo à espera, não para simular processamento que não acontece.
+   ============================================================ */
+
+const PAD = 24;
+const SOBREPOSICAO = 36;
+const AURORA = require('../../assets/images/aurora-insights.png');
+
+/* Onde a base da esfera cai, em fração da LARGURA da tela.
+
+   A peça é 853×1844 e a esfera vai de y≈200 a y≈430. Com contentFit
+   cover num cabeçalho baixo, quem manda na escala é a largura — então
+   430/853 = 0,504 é a fração que resolve a conta em qualquer aparelho,
+   sem medir nada em runtime.
+
+   Fração da largura e não valor fixo porque a imagem escala com ela: num
+   aparelho mais largo a esfera é maior E desce, e um número em pixels
+   descolaria do desenho exatamente onde ele precisa acompanhar. */
+const ESFERA_BASE_FRACAO = 0.504;
 
 type Msg = { who: 'me' | 'ai'; text: string; mini?: string };
-const QCHIPS = ['Como está minha evolução?', 'Prepare minha consulta', 'Por que sinto mais fome?', 'O que registrar antes de dormir?'];
 
 /* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados reais */
 function companionReply(S: State, text: string): Msg {
@@ -63,18 +123,47 @@ function companionReply(S: State, text: string): Msg {
   return { who: 'ai', text: `Entendi. Posso te ajudar melhor com algo específico da sua jornada — sua evolução, um sintoma, a linha da medicação, ou preparar a consulta com a Dra. Helena. Só lembrando que <b>não tomo decisões médicas</b>: pra dose e protocolo, quem decide é sua equipe.` };
 }
 
+/** Os três pontos da espera.
+
+    Existiam 450 ms de silêncio entre a pergunta e a resposta, sem nada na
+    tela — e silêncio sem sinal não lê como processamento, lê como falha.
+    O balão vazio no lugar certo do fio resolve isso sem prometer mais do
+    que acontece: ele ocupa a posição da resposta que vem. */
+function Pensando() {
+  const { c } = useTheme();
+  return (
+    <Row gap={5} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, borderBottomLeftRadius: 6, paddingHorizontal: 16, paddingVertical: 15, alignSelf: 'flex-start' }}>
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.tx4, opacity: 1 - i * 0.25 }} />
+      ))}
+    </Row>
+  );
+}
+
 export default function Companion() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const largura = useLarguraApp();
+  useLightStatusBar();
   const scrollRef = useRef<ScrollView>(null);
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { who: 'ai', text: `Oi, ${S.profile.name.split(' ')[0]}. Estou aqui do seu lado no tratamento. Conheço toda a sua jornada — posso resumir sua evolução, preparar sua consulta, explicar um sintoma ou organizar perguntas pra ${S.profile.doctor}. No que te ajudo agora?` },
-  ]);
+  const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [pensando, setPensando] = useState(false);
   const [input, setInput] = useState('');
 
-  // camada transversal: chegou com ?q= (CTA contextual), pergunta sozinho
+  /* As sugestões vêm do estado, não de uma constante.
+
+     A lista fixa oferecia "Por que sinto mais fome?" no dia da aplicação,
+     quando a fome é o menor dos problemas. companionSuggestions lê a fase
+     do ciclo, o enjoo de hoje e a proximidade da dose — as mesmas
+     perguntas que o Insights oferece, o que faz as duas telas parecerem a
+     mesma inteligência em vez de dois menus. */
+  const sugestoes = useMemo(() => companionSuggestions(S).slice(0, 4), [S]);
+  const memoria = useMemo(() => companionMemoria(S), [S]);
+  const vazio = msgs.length === 0;
+
   const { q } = useLocalSearchParams<{ q?: string }>();
   const askedRef = useRef(false);
   useEffect(() => {
@@ -84,77 +173,176 @@ export default function Companion() {
   const ask = (text: string) => {
     const t = text.trim(); if (!t) return;
     setInput('');
+    /* guarda a pergunta para o Insights poder oferecer "continue de onde
+       parou" — sem isso, cada visita à aba recomeça do zero */
+    update((s: any) => {
+      s.asked = [...(s.asked || []).filter((x: any) => x.q !== t), { t: Date.now(), q: t }].slice(-12);
+    });
     setMsgs((m) => [...m, { who: 'me', text: t }]);
+    setPensando(true);
     setTimeout(() => {
+      setPensando(false);
       setMsgs((m) => [...m, companionReply(S, t)]);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
-    }, 450);
+    }, 620);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
   };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
-      {/* header */}
-      <Row style={{ paddingTop: insets.top + 6, paddingHorizontal: space.lg, paddingBottom: 10 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="aura" size={20} color={c.accent} sw={1.8} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Txt v="h2" style={{ fontSize: 17 }}>Companion</Txt>
-          <Row gap={5}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.good }} />
-            <Txt v="micro" c={c.tx3}>conhece sua jornada · não substitui o médico</Txt>
-          </Row>
-        </View>
-      </Row>
+      {/* ---- o cabeçalho é a presença ----
 
-      {/* thread */}
-      <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: 12, gap: 10 }} showsVerticalScrollIndicator={false} onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}>
-        {msgs.map((m, i) => m.who === 'me' ? (
-          <View key={i} style={{ alignSelf: 'flex-end', maxWidth: '84%', backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 5, paddingHorizontal: 14, paddingVertical: 11 }}>
-            <Txt v="bodyMed" c="#fff" style={{ lineHeight: 20 }}>{m.text}</Txt>
-          </View>
-        ) : (
-          <Row key={i} style={{ alignItems: 'flex-end', maxWidth: '92%' }} gap={8}>
-            <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="aura" size={15} color={c.accent} sw={1.9} />
+          Era a malha escura com um ícone de 44 px ao lado do nome. Agora é
+          a MESMA imagem do hero do Insights, com o mesmo orbe.
+
+          A continuidade é o argumento. Lá o orbe é a única marca do Morphi
+          na tela e tocá-lo abre esta; aqui ele reaparece no mesmo lugar da
+          composição, na mesma luz. O toque deixa de ser navegação e vira
+          aproximação — a tela não abre outra coisa, abre mais perto da
+          mesma coisa. Com ícone e malha, eram dois retratos diferentes do
+          mesmo personagem.
+
+          O nome fica centrado sob a esfera, e o limite logo abaixo, no
+          mesmo bloco: quem ele é e o que ele não faz são a mesma
+          informação. */}
+      <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 24 + SOBREPOSICAO }}>
+        <Image
+          source={AURORA}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          contentPosition="top center"
+        />
+
+        <Row gap={12}>
+          {/* o botão de voltar sobre campo escuro: vidro e tinta clara, não
+              o par cinza-sobre-branco que ele usa nas telas claras */}
+          <CircleBtn name="back" onPress={() => router.back()} bg="rgba(255,255,255,0.16)" color={c.onHero} />
+          <View style={{ flex: 1 }} />
+        </Row>
+
+        {/* O vão é a esfera. Ela é desenhada na imagem, então aqui só
+            existe como altura reservada — e a medida sai da própria peça:
+            a base da esfera cai em 43% da largura da tela, e o nome começa
+            um respiro abaixo disso. */}
+        <View style={{ height: Math.max(60, largura * ESFERA_BASE_FRACAO - 26) }} />
+
+        <View style={{ alignItems: 'center' }}>
+          <Txt v="h2" c={c.onHero}>Morphi</Txt>
+          <Txt v="micro" c={c.onHero2} style={{ marginTop: 6, lineHeight: 17, textAlign: 'center' }}>
+            Conhece sua jornada inteira · não substitui sua equipe médica
+          </Txt>
+        </View>
+      </View>
+
+      {/* ---- a folha: onde se lê ----
+          Sobe 36 px por cima da superfície escura, com o mesmo raio da Home
+          e do Insights. Escuro marca quem fala; claro é onde o texto longo
+          fica confortável. */}
+      <View style={{ flex: 1, backgroundColor: c.bg, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -SOBREPOSICAO }}>
+        <ScrollView
+          ref={scrollRef} style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 16, gap: 12 }}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
+        >
+          {/* ---- abertura ----
+
+              Antes a saudação era a primeira mensagem do fio: um balão de
+              IA com cinco linhas listando o que ela sabe fazer. Isso é
+              menu disfarçado de conversa — e pior, deixa o fio começando
+              com alguém falando sozinho.
+
+              Agora a abertura é estado da tela, não mensagem. A memória diz
+              que ele lembra da última vez, e as perguntas são o convite.
+              Quando a conversa começa, tudo isso sai de cena em vez de
+              ficar rolado para cima como um primeiro balão sem valor.
+
+              A onda que abria este bloco saiu junto. Ela era a presença do
+              Morphi enquanto o cabeçalho tinha só um ícone; com o orbe no
+              alto, ter as duas era mostrar o mesmo personagem duas vezes
+              na mesma dobra, em desenhos diferentes — e a de baixo era a
+              mais fraca. */}
+          {vazio ? (
+            <View style={{ alignItems: 'center', paddingTop: 8 }}>
+              <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
+                Oi, {S.profile.name.split(' ')[0]}
+              </Txt>
+              {/* A memória é o que separa assistente de buscador: ela prova
+                  que a conversa anterior aconteceu. É a mesma frase que
+                  abre o Insights, de propósito — uma voz só. */}
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 8, textAlign: 'center', lineHeight: 21, maxWidth: 300 }}>
+                {memoria}
+              </Txt>
+
+              <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
+                {sugestoes.map((s) => (
+                  <Pressable key={s} onPress={() => ask(s)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
+                    <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 15 }}>
+                      <Icon name="aura" size={15} color={c.accent} sw={1.9} />
+                      <Txt v="body" style={{ flex: 1 }}>{s}</Txt>
+                      <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                    </Row>
+                  </Pressable>
+                ))}
+              </View>
             </View>
-            <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: c.line, paddingHorizontal: 14, paddingVertical: 12 }}>
-              <Rich v="bodyMed" base={c.tx} bold={c.accent} style={{ lineHeight: 20 }} text={m.text} />
+          ) : null}
+
+          {msgs.map((m, i) => m.who === 'me' ? (
+            <View key={i} style={{ alignSelf: 'flex-end', maxWidth: '84%', backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
+              <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 21 }}>{m.text}</Txt>
+            </View>
+          ) : (
+            /* O balão dele perdeu o contorno e o avatar repetido.
+
+               O contorno cinza era borda em volta de superfície, contra o
+               princípio 4 — branco sobre #F5F6FA já separa. E o avatar de
+               30 px em cada resposta repetia a cada balão uma informação
+               que o lado da tela já dá: o que está à esquerda é dele.
+
+               Sem os dois, o balão ganha a largura toda e o texto longo —
+               que é o que ele produz — deixa de quebrar em coluna estreita. */
+            <View key={i} style={{ maxWidth: '94%', backgroundColor: c.bg1, borderRadius: radius.lg, borderBottomLeftRadius: 6, paddingHorizontal: 16, paddingVertical: 14 }}>
+              <Rich v="bodyMed" base={c.tx} bold={c.accent2} style={{ lineHeight: 22 }} text={m.text} />
               {!!m.mini && (
-                <View style={{ marginTop: 9, backgroundColor: c.accentWeak, borderRadius: radius.sm, padding: 10 }}>
-                  <Txt v="caption" c={c.tx2} style={{ lineHeight: 18 }}>{m.mini}</Txt>
+                /* A nota de apoio em fundo tingido, separada por espaço e
+                   não por fio: é a mesma fala continuando em voz mais
+                   baixa, não outro assunto. */
+                <View style={{ marginTop: 12, backgroundColor: c.bg2, borderRadius: radius.md, padding: 13 }}>
+                  <Txt v="caption" c={c.tx2} style={{ lineHeight: 20 }}>{m.mini}</Txt>
                 </View>
               )}
             </View>
-          </Row>
-        ))}
-      </ScrollView>
+          ))}
 
-      {/* quick chips + composer */}
-      <View style={{ paddingBottom: (insets.bottom || 10) + 6, backgroundColor: c.bg }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: space.lg, gap: 8, paddingVertical: 8 }}>
-          {QCHIPS.map((q) => (
-            <Pressable key={q} onPress={() => ask(q)}>
-              <View style={{ paddingHorizontal: 13, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2 }}>
-                <Txt v="label" c={c.tx2}>{q}</Txt>
+          {pensando && <Pensando />}
+        </ScrollView>
+
+        {/* ---- o campo ----
+
+            As chips horizontais que moravam aqui saíram. Elas repetiam as
+            perguntas da abertura num carrossel cortado na borda, e ficavam
+            na tela durante a conversa inteira oferecendo recomeçar quando
+            a pessoa já está no meio de um assunto. O convite pertence ao
+            começo; depois dele, o que se quer é escrever. */}
+        <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: c.bg }}>
+          <Row gap={10}>
+            <Row style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 4 }}>
+              <TextInput
+                value={input} onChangeText={setInput} onSubmitEditing={() => ask(input)}
+                placeholder="Pergunte sobre sua jornada" placeholderTextColor={c.tx4}
+                style={{ flex: 1, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19 }}
+              />
+            </Row>
+            {/* o botão só acende quando há o que enviar: cheio e apagado
+                dizem, antes do toque, se o gesto vai levar a algo */}
+            <Pressable onPress={() => ask(input)} disabled={!input.trim()} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: input.trim() ? c.accent : c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="send" size={19} color={input.trim() ? c.accentInk : c.tx4} sw={2} />
               </View>
             </Pressable>
-          ))}
-        </ScrollView>
-        <Row style={{ paddingHorizontal: space.lg, marginTop: 2 }} gap={8}>
-          <TextInput
-            value={input} onChangeText={setInput} onSubmitEditing={() => ask(input)}
-            placeholder="Pergunte sobre sua jornada..." placeholderTextColor={c.tx4}
-            style={{ flex: 1, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 15 }}
-          />
-          <Pressable onPress={() => ask(input)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="send" size={19} color="#fff" sw={2} />
-            </View>
-          </Pressable>
-        </Row>
+          </Row>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );

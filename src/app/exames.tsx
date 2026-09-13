@@ -1,24 +1,43 @@
 import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examExplain } from '../logic/derive';
-import { fmtDate, nf } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider, Rich } from '../ui/kit';
-import { Icon } from '../ui/Icon';
-import { AreaCurve } from '../ui/charts';
+import { fmtDate, MO_LONG, nf } from '../logic/time';
+import { Txt, Row, Rich } from '../ui/kit';
 import { AskCompanion } from '../ui/Ask';
+import {
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo, CardCurva,
+} from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, shadowCard } from '../theme';
+
+/* ============================================================
+   EXAMES
+
+   Duas telas em uma: a lista de marcadores por categoria e o detalhe de um
+   deles. O detalhe é estado, não rota — por isso a seta de voltar dele
+   desfaz a seleção em vez de desempilhar. Sem isso, fechar um marcador
+   jogaria a pessoa para fora de Exames inteiro.
+
+   A régua (Gauge) é a peça que justifica esta tela existir. Um resultado de
+   exame sozinho não diz nada a quem não é médico: 5,6% é bom ou ruim? A
+   régua responde mostrando ONDE o valor caiu dentro da faixa de referência,
+   que é a única leitura que a pessoa consegue fazer sem formação.
+   ============================================================ */
 
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
+const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
-function Gauge({ e }: { e: any }) {
+/* Régua de referência — faixa normal em lavagem azul, valor como marcador.
+   Fora da faixa o marcador fica vermelho: aqui o alarme é legítimo, porque
+   é a única leitura da tela que pode pedir médico. */
+function Regua({ e }: { e: any }) {
   const { c } = useTheme();
   const g = examGaugeData(e);
   const col = g.status === 'ok' ? c.accent : c.cta;
   return (
-    <View style={{ marginTop: 16 }}>
+    <View>
       <View style={{ height: 10, borderRadius: 5, backgroundColor: c.track }}>
         <View style={{ position: 'absolute', left: `${g.bandL}%`, width: `${Math.max(3, g.bandR - g.bandL)}%`, top: 0, bottom: 0, borderRadius: 5, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }} />
         <View style={{ position: 'absolute', left: `${g.pos}%`, top: -3, width: 16, height: 16, marginLeft: -8, borderRadius: 8, backgroundColor: col, borderWidth: 3, borderColor: c.bg1 }} />
@@ -32,156 +51,156 @@ function Gauge({ e }: { e: any }) {
   );
 }
 
-function Detail({ e, onBack }: { e: any; onBack: () => void }) {
+/* ------------------------------------------------------------------ */
+function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const { c } = useTheme();
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
-  const many = e.values.length > 1;
-  const trend = l.v - f.v, good = e.good === 'up' ? trend > 0 : trend < 0;
-  const pts = many ? e.values.map((x: any, i: number) => {
-    const vs = e.values.map((y: any) => y.v); const mn = Math.min(...vs), mx = Math.max(...vs), pad = (mx - mn) * 0.3 || 1;
-    return { x: i / (e.values.length - 1), y: (x.v - (mn - pad)) / ((mx + pad) - (mn - pad)) };
-  }) : [];
+  const varios = e.values.length > 1;
+  const delta = l.v - f.v;
+  const bom = e.good === 'up' ? delta > 0 : delta < 0;
+
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={onBack} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">{e.marker}</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>referência {e.ref} {e.unit}</Txt>
-        </View>
-      </Row>
+    <TelaInterna titulo={e.marker} onVoltar={onVoltar}>
+      <Titulao
+        titulo={fmtV(l.v)}
+        unidade={e.unit}
+        lead={`Colhido em ${porExtenso(l.t)} · referência ${e.ref} ${e.unit}`}
+      />
 
-      <Card style={{ marginTop: 18 }}>
-        <Row style={{ alignItems: 'baseline' }} gap={12}>
-          <Txt v="h1" style={{ fontSize: 34 }}>{fmtV(l.v)}<Txt v="h2" c={c.tx3}> {e.unit}</Txt></Txt>
-          {many && (
-            <Row gap={3}>
-              <Icon name={trend < 0 ? 'arrowdown' : 'arrowup'} size={13} color={good ? c.accent : c.cta} sw={2.2} />
-              <Txt v="label" c={good ? c.accent : c.cta}>{fmtV(Math.abs(trend))}</Txt>
-            </Row>
-          )}
+      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 14 }, shadowCard(c)]}>
+        <Row style={{ justifyContent: 'space-between', gap: 10 }}>
+          <Selo
+            label={st === 'ok' ? 'Na referência' : `Fora da referência — ${st}`}
+            tom={st === 'ok' ? 'verde' : 'neutra'}
+          />
+          {varios ? <Selo label={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))} ${e.unit}`} tom={bom ? 'lima' : 'neutra'} /> : null}
         </Row>
-        <View style={{ marginTop: 10, alignSelf: 'flex-start' }}>
-          <Pill label={st === 'ok' ? 'dentro da referência' : `fora da referência — ${st}`} color={st === 'ok' ? c.accent : c.cta} bg={st === 'ok' ? c.accentWeak : c.ctaWeak} />
-        </View>
-        <Gauge e={e} />
-        {many && <View style={{ marginTop: 18 }}><AreaCurve pts={pts} height={120} marker={pts.length - 1} nodes id="ex" /></View>}
-        {many && (
-          <View style={{ marginTop: 10 }}>
-            {e.values.slice().reverse().map((x: any, i: number) => (
-              <View key={x.t}>
-                {i > 0 && <Divider />}
-                <Row style={{ justifyContent: 'space-between', paddingVertical: 9 }}>
-                  <Txt v="caption" c={c.tx3}>{fmtDate(new Date(x.t))}</Txt>
-                  <Txt v="title">{fmtV(x.v)} {e.unit}</Txt>
-                </Row>
-              </View>
-            ))}
-          </View>
-        )}
-      </Card>
+        <Regua e={e} />
+      </View>
 
-      <Card tint={c.accentWeak} style={{ marginTop: 14 }}>
-        <Row gap={7}><Icon name="aura" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE ISSO SIGNIFICA</Txt></Row>
-        <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{examExplain(e)}</Txt>
-        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar ao Companion" style={{ marginTop: 12 }} />
-      </Card>
-    </Screen>
+      {/* Mesmo desenho dos cards de Peso e Medidas, e deslizar pela curva
+          mostra o valor de cada coleta com a data. */}
+      {varios ? (
+        <CardCurva
+          id={`ex-${e.marker}`}
+          nome={e.marker}
+          sub={`${fmtV(f.v)} › ${fmtV(l.v)} ${e.unit} · ${e.values.length} coletas`}
+          valor={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`}
+          unidade={e.unit}
+          altura={110}
+          pontos={e.values.map((x: any) => ({
+            v: x.v, rotulo: fmtV(x.v), quando: porExtenso(x.t),
+          }))}
+        />
+      ) : null}
+
+      {varios ? (
+        <Bloco titulo="Coletas">
+          <Cartao>
+            {e.values.slice().reverse().map((x: any) => (
+              <Linha
+                key={x.t}
+                titulo={`${fmtV(x.v)} ${e.unit}`}
+                sub={fmtDate(new Date(x.t))}
+                seta={false}
+              />
+            ))}
+          </Cartao>
+        </Bloco>
+      ) : null}
+
+      <Aviso ic="spark" titulo="O que isso significa">
+        <Txt v="caption" c={c.tx2}>{examExplain(e)}</Txt>
+        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar ao Morphi" style={{ marginTop: 12 }} />
+      </Aviso>
+
+      <View />
+    </TelaInterna>
   );
 }
 
+/* ------------------------------------------------------------------ */
 export default function Exames() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
 
-  if (sel) { const e = examBy(S, sel); if (e) return <Detail e={e} onBack={() => setSel(null)} />; }
+  if (sel) {
+    const e = examBy(S, sel);
+    if (e) return <Detalhe e={e} onVoltar={() => setSel(null)} />;
+  }
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Exames</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Importados, organizados e explicados pela IA</Txt>
-        </View>
-      </Row>
+    <TelaInterna
+      titulo="Exames"
+      iconeAcao="plus"
+      onAcao={() => router.push('/medir-exame' as any)}
+      rodape={
+        <>
+          <Botao label="Importar exame" onPress={() => router.push('/medir-exame' as any)} />
+          <Botao label="Enviar ao médico" tom="fantasma" onPress={() => router.push('/exportar' as any)} />
+        </>
+      }
+    >
+      <Titulao
+        titulo="Exames"
+        lead="Importados, organizados por sistema e explicados em português. Toque num marcador para ver a faixa de referência e o histórico."
+      />
 
-      <Row gap={10} style={{ marginTop: 16 }}>
-        <Pressable style={{ flex: 1 }}>
-          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
-            <Icon name="doc" size={15} color="#fff" sw={2} /><Txt v="label" c="#fff">Importar exame</Txt>
-          </View>
-        </Pressable>
-        <Pressable style={{ flex: 1 }}>
-          <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
-            <Icon name="send" size={14} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Enviar ao médico</Txt>
-          </View>
-        </Pressable>
-      </Row>
-
-      <Card tint={c.accentWeak} style={{ marginTop: 14 }}>
-        <Row gap={7}><Icon name="aura" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>RESUMO DA IA</Txt></Row>
-        <Rich v="bodyMed" base={c.tx2} bold={c.tx} style={{ marginTop: 8, lineHeight: 21 }} text="Seus marcadores metabólicos <b>melhoraram de forma consistente</b>: HbA1c 6,3 → 5,6%, triglicerídeos e LDL em queda, HDL e vitamina D em alta. Evolução alinhada com a perda de peso e o tratamento." />
-      </Card>
+      <Aviso ic="spark" titulo="Resumo da IA">
+        <Rich
+          v="caption"
+          base={c.tx2}
+          bold={c.tx}
+          text="Seus marcadores metabólicos <b>melhoraram de forma consistente</b>: HbA1c 6,3 → 5,6%, triglicerídeos e LDL em queda, HDL e vitamina D em alta. Evolução alinhada com a perda de peso e o tratamento."
+        />
+      </Aviso>
 
       {EXAM_CATS.map(([cat, ms]) => (
-        <View key={cat}>
-          <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>{cat}</Txt>
-          <Card style={{ paddingVertical: 4 }}>
-            {ms.map((mk, i) => {
-              const e = examBy(S, mk); if (!e) return null;
+        <Bloco key={cat} titulo={cat}>
+          <Cartao>
+            {ms.map((mk) => {
+              const e = examBy(S, mk);
+              if (!e) return null;
               const l = examLast(e), st = examStatus(e);
-              const many = e.values.length > 1;
-              const trend = many ? l.v - examFirst(e).v : 0;
-              const good = e.good === 'up' ? trend > 0 : trend < 0;
+              const varios = e.values.length > 1;
+              const delta = varios ? l.v - examFirst(e).v : 0;
+              const bom = e.good === 'up' ? delta > 0 : delta < 0;
               return (
-                <View key={mk}>
-                  {i > 0 && <Divider />}
-                  <Pressable onPress={() => setSel(mk)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                    <Row style={{ paddingVertical: 12 }}>
-                      <View style={{ flex: 1 }}>
-                        <Txt v="title">{mk}</Txt>
-                        <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>ref {e.ref} {e.unit}</Txt>
-                      </View>
-                      <View style={{ alignItems: 'flex-end', marginRight: 8 }}>
-                        <Txt v="title">{fmtV(l.v)} <Txt v="micro" c={c.tx3}>{e.unit}</Txt></Txt>
-                        {many ? (
-                          <Row gap={3} style={{ marginTop: 2 }}>
-                            <Icon name={trend < 0 ? 'arrowdown' : 'arrowup'} size={11} color={good ? c.accent : c.cta} sw={2.2} />
-                            <Txt v="micro" c={good ? c.accent : c.cta}>{fmtV(Math.abs(trend))}</Txt>
-                          </Row>
-                        ) : (
-                          <View style={{ marginTop: 3 }}><Pill label={st === 'ok' ? 'normal' : st} color={st === 'ok' ? c.accent : c.cta} bg={st === 'ok' ? c.accentWeak : c.ctaWeak} /></View>
-                        )}
-                      </View>
-                      <Chevron />
-                    </Row>
-                  </Pressable>
-                </View>
+                <Linha
+                  key={mk}
+                  titulo={mk}
+                  sub={`${fmtV(l.v)} ${e.unit} · ref ${e.ref}`}
+                  selo={varios
+                    ? `${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`
+                    : (st === 'ok' ? 'normal' : st)}
+                  seloTom={varios ? (bom ? 'lima' : 'neutra') : (st === 'ok' ? 'verde' : 'neutra')}
+                  onPress={() => setSel(mk)}
+                />
               );
             })}
-          </Card>
-        </View>
+          </Cartao>
+        </Bloco>
       ))}
 
-      <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Arquivos importados</Txt>
-      <Card style={{ paddingVertical: 4 }}>
-        {S.examBundles.map((b: any, i: number) => (
-          <View key={b.t}>
-            {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-            <Row style={{ paddingVertical: 12 }}>
-              <IconBadge name={b.source === 'PDF' ? 'doc' : 'photo'} size={40} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="title">{b.name}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{b.n} marcadores · {b.source} · {fmtDate(new Date(b.t))}</Txt>
-              </View>
-              {b.shared && <Pill label="enviado" />}
-            </Row>
-          </View>
-        ))}
-      </Card>
-    </Screen>
+      <Bloco titulo="Arquivos importados">
+        <Cartao>
+          {(S.examBundles as any[]).map((b) => (
+            <Linha
+              key={b.t}
+              ic={b.source === 'PDF' ? 'doc' : 'photo'}
+              titulo={b.name}
+              sub={`${b.n} marcadores · ${b.source} · ${fmtDate(new Date(b.t))}`}
+              selo={b.shared ? 'enviado' : undefined}
+              seloTom="neutra"
+              seta={false}
+            />
+          ))}
+        </Cartao>
+      </Bloco>
+
+      <View />
+    </TelaInterna>
   );
 }
