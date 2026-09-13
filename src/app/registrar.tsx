@@ -150,26 +150,22 @@ export default function Registrar() {
               obrigava a LER para saber em qual deles se está; agora a cor
               responde antes do texto.
 
-              A tinta acompanha o fundo, e as pastilhas internas são um véu
-              da própria tinta, não uma cor nova. */}
+              A tinta acompanha o fundo, e o véu da pastilha é a própria
+              tinta a 12%, não uma cor nova.
+
+              Só UMA pastilha no banner, e ela é o "Editar". Antes havia
+              duas iguais — "Check-in diário" e "Editar" — com a mesma
+              forma, a mesma cor e o mesmo tamanho, mas só uma delas
+              significando um toque. Forma de botão é promessa de botão.
+
+              "CHECK-IN DIÁRIO" virou sobrelinha do título, que é o que ele
+              sempre foi: o nome do que está ali, no mesmo papel do "LEVA UM
+              MINUTO" mais abaixo. E como a sobrelinha já diz a palavra,
+              concluído virou "Concluído hoje" em vez de repetir "Check-in"
+              duas linhas seguidas. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
             <View style={{ backgroundColor: fez ? c.okBg : c.accent, borderRadius: radius.lg, padding: 18 }}>
-              {/* O selo nomeia o que isto é. Os outros itens do sheet são
-                  registros avulsos — um copo, uma refeição —, e este é o
-                  único que se espera todo dia. Dizer "diário" na etiqueta
-                  faz essa diferença sem precisar de uma frase. */}
-              <Row style={{ justifyContent: 'space-between' }}>
-                <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
-                  <Txt v="tag" c={tinta}>Check-in diário</Txt>
-                </View>
-                {fez ? (
-                  <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
-                    <Txt v="tag" c={tinta}>Editar</Txt>
-                  </View>
-                ) : null}
-              </Row>
-
-              <Row gap={14} style={{ marginTop: 14 }}>
+              <Row gap={14}>
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: veu, alignItems: 'center', justifyContent: 'center' }}>
                   {/* Pendente pergunta como foi o dia, e o rosto é o ícone
                       que faz essa pergunta. A folha de antes falava de
@@ -177,14 +173,28 @@ export default function Registrar() {
                   <Icon name={fez ? 'check' : 'mood'} size={24} color={tinta} sw={2.2} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Txt v="title" c={tinta}>
-                    {fez ? 'Check-in concluído' : 'Como foi o seu dia?'}
+                  <Txt v="micro" c={tinta} style={{ letterSpacing: 1, opacity: 0.8 }}>CHECK-IN DIÁRIO</Txt>
+                  <Txt v="title" c={tinta} style={{ marginTop: 3 }}>
+                    {fez ? 'Concluído hoje' : 'Como foi o seu dia?'}
                   </Txt>
-                  <Txt v="caption" c={tinta} style={{ marginTop: 3, opacity: 0.75 }}>
-                    {stk > 0 ? `${stk} dias seguidos` : fez ? 'registrado hoje' : 'menos de 30s'}
-                  </Txt>
+                  {/* O streak é a única linha de apoio que sobrou. "Menos de
+                      30s" saiu: prometia rapidez para quem ainda não sabe o
+                      que vai encontrar, e quem faz todo dia já sabe. */}
+                  {stk > 0 ? (
+                    <Txt v="caption" c={tinta} style={{ marginTop: 3, opacity: 0.75 }}>
+                      {stk} {stk === 1 ? 'dia seguido' : 'dias seguidos'}
+                    </Txt>
+                  ) : null}
                 </View>
-                {!fez ? <Icon name="chev" size={17} color={tinta} sw={2.2} /> : null}
+                {/* O mesmo lugar, os dois estados: a seta diz "abre para
+                    preencher", a pastilha diz "abre para mudar". */}
+                {fez ? (
+                  <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
+                    <Txt v="tag" c={tinta}>Editar</Txt>
+                  </View>
+                ) : (
+                  <Icon name="chev" size={17} color={tinta} sw={2.2} />
+                )}
               </Row>
             </View>
           </Pressable>
