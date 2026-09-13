@@ -49,6 +49,13 @@ export default function Registrar() {
 
   const ci = checkinToday(S);
   const stk = streak(S);
+
+  /* Tinta e véu do banner do check-in. Sobre o azul saturado a tinta é
+     branca; sobre a lavagem verde, o verde escuro do par — os mesmos dois
+     tons que o selo "verde" usa nas telas internas. O véu das pastilhas é
+     a tinta a 12%, e não uma terceira cor. */
+  const tinta = ci ? c.ok : c.accentInk;
+  const veu = ci ? 'rgba(60,107,44,0.12)' : 'rgba(255,255,255,0.18)';
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
   const { acoes } = quickCapture(S);
@@ -63,8 +70,8 @@ export default function Registrar() {
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
-    exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
+    agua: { ic: 'water', titulo: 'Me hidratei', sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
+    exercicio: { ic: 'dumbbell', titulo: 'Me exercitei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
@@ -130,36 +137,50 @@ export default function Registrar() {
               que alimenta insights, radar e streak, e some-lo quando já foi
               feito tirava a confirmação de que o dia está em dia. Feito, ele
               vira comprovante com opção de ajustar. */}
+          {/* A cor carrega o estado, e os dois estados querem volumes
+              diferentes de atenção.
+
+              Pendente é azul saturado — a cor de ação do app —, porque é
+              uma coisa por fazer e deve puxar o olho. Concluído é a lavagem
+              verde: já resolvido, então recua. Manter os dois no mesmo lima
+              obrigava a LER para saber em qual deles se está; agora a cor
+              responde antes do texto.
+
+              A tinta acompanha o fundo, e as pastilhas internas são um véu
+              da própria tinta, não uma cor nova. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
-            <View style={{ backgroundColor: c.lime, borderRadius: radius.lg, padding: 18 }}>
+            <View style={{ backgroundColor: ci ? c.okBg : c.accent, borderRadius: radius.lg, padding: 18 }}>
               {/* O selo nomeia o que isto é. Os outros itens do sheet são
                   registros avulsos — um copo, uma refeição —, e este é o
                   único que se espera todo dia. Dizer "diário" na etiqueta
                   faz essa diferença sem precisar de uma frase. */}
               <Row style={{ justifyContent: 'space-between' }}>
-                <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
-                  <Txt v="tag" c={c.limeInk}>Check-in diário</Txt>
+                <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+                  <Txt v="tag" c={tinta}>Check-in diário</Txt>
                 </View>
                 {ci ? (
-                  <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
-                    <Txt v="tag" c={c.limeInk}>Editar</Txt>
+                  <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
+                    <Txt v="tag" c={tinta}>Editar</Txt>
                   </View>
                 ) : null}
               </Row>
 
               <Row gap={14} style={{ marginTop: 14 }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={ci ? 'check' : 'leaf'} size={24} color={c.limeInk} sw={2.2} />
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: veu, alignItems: 'center', justifyContent: 'center' }}>
+                  {/* Pendente pergunta como foi o dia, e o rosto é o ícone
+                      que faz essa pergunta. A folha de antes falava de
+                      saúde em geral, não de como a pessoa esteve. */}
+                  <Icon name={ci ? 'check' : 'mood'} size={24} color={tinta} sw={2.2} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Txt v="title" c={c.limeInk}>
-                    {ci ? 'Check-in concluído' : 'Como você está agora?'}
+                  <Txt v="title" c={tinta}>
+                    {ci ? 'Check-in concluído' : 'Como foi o seu dia?'}
                   </Txt>
-                  <Txt v="caption" c={c.limeInk} style={{ marginTop: 3, opacity: 0.7 }}>
+                  <Txt v="caption" c={tinta} style={{ marginTop: 3, opacity: 0.75 }}>
                     {stk > 0 ? `${stk} dias seguidos` : ci ? 'registrado hoje' : 'menos de 30s'}
                   </Txt>
                 </View>
-                {!ci ? <Icon name="chev" size={17} color={c.limeInk} sw={2.2} /> : null}
+                {!ci ? <Icon name="chev" size={17} color={tinta} sw={2.2} /> : null}
               </Row>
             </View>
           </Pressable>
@@ -176,24 +197,29 @@ export default function Registrar() {
                   onPress={it.acao ?? irPara(it.to!)}
                   style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.75 : 1 }]}
                 >
-                  {/* Altura fixa nas duas linhas do título.
+                  {/* Duas linhas de título para os três, sempre.
 
-                      "Bebi água" cabe em uma; "Fiz uma refeição" precisa de
-                      duas. Deixando cada um ocupar o que precisa, os três
-                      tiles ficavam de alturas diferentes — ou iguais pelo
-                      mais alto, com um buraco embaixo dos curtos. Reservar
-                      sempre duas linhas dá a mesma caixa para os três,
-                      independente do rótulo que caia neles. */}
+                      "Me hidratei" cabe em uma linha; "Fiz uma refeição"
+                      precisa de duas. Deixando cada rótulo ocupar o que
+                      pede, os tiles saíam de alturas diferentes e o
+                      subtítulo de cada um parava numa altura sua.
+
+                      A caixa do título tem altura de duas linhas nos três, e
+                      o rótulo fica centrado nela: o curto não cola no ícone
+                      nem abre buraco embaixo, e os três subtítulos caem na
+                      mesma linha. */}
                   <View style={{ flex: 1, backgroundColor: ok || lima ? c.lime : c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
                     <Icon name={ok ? 'check' : it.ic} size={19} color={ok || lima ? c.limeInk : c.accent} sw={2} />
-                    <Txt
-                      v="caption"
-                      c={ok || lima ? c.limeInk : c.tx}
-                      style={{ marginTop: 8, textAlign: 'center', height: ty.caption.lineHeight * 2 }}
-                      numberOfLines={2}
-                    >
-                      {it.titulo}
-                    </Txt>
+                    <View style={{ height: ty.caption.lineHeight * 2, marginTop: 8, justifyContent: 'center' }}>
+                      <Txt
+                        v="caption"
+                        c={ok || lima ? c.limeInk : c.tx}
+                        style={{ textAlign: 'center' }}
+                        numberOfLines={2}
+                      >
+                        {it.titulo}
+                      </Txt>
+                    </View>
                     <Txt v="micro" c={ok || lima ? c.limeInk : c.tx3} style={{ textAlign: 'center', opacity: lima && !ok ? 0.7 : 1 }} numberOfLines={1}>{it.sub}</Txt>
                   </View>
                 </Pressable>
