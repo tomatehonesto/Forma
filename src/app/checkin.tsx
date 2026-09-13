@@ -67,29 +67,54 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
    leem. */
 const OUTRO = 'outro';
 const GUT = 'intestino';
-const DOR = 'dor';
 
-/* O único sintoma desta tela que muda de urgência conforme a intensidade.
+/* ONDE A TELA DEIXA DE SÓ ANOTAR
 
-   Dor abdominal forte ou que não passa é o que toda bula de GLP-1 manda
-   relatar sem esperar — os outros sintomas viram assunto na próxima
-   consulta, esse não. Um diário que registra e cala nesse ponto cumpre a
-   função de arquivo e falha na de acompanhamento.
+   Um diário que registra e cala nos pontos que importam cumpre a função
+   de arquivo e falha na de acompanhamento. Mas alarme em todo sintoma
+   vira alarme nenhum, então o corte é um só: o aviso existe quando a
+   resposta muda o que a pessoa deveria fazer HOJE. Fadiga e dor de cabeça
+   ficam de fora por isso — quase sempre vêm de comer e beber pouco, e um
+   aviso ali seria ruído sobre o que já é esperado.
 
-   O aviso entra em 4 ("precisei parar o dia") e 5 ("dor que não passou"),
-   a mesma régua de 4 que "como o corpo reagiu" usa para o enjoo. Ele diz
-   o que fazer e não nomeia diagnóstico: quem lê já está com dor, e um
-   nome de doença aqui assusta sem ajudar a decidir. */
-const DOR_AVISA = 4;
+   Nenhum deles nomeia diagnóstico. Quem lê já está com o sintoma, e um
+   nome de doença assusta sem ajudar a decidir o próximo passo.
 
-/* O outro ponto em que a tela deixa de só anotar.
+   As faixas não são iguais porque os sintomas não são: dor e tontura
+   avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
+   vômito, intestino — avisam no degrau em que a graduação clínica troca
+   de patamar. */
+const AVISOS: Record<string, { min: number; titulo: string; texto: string }> = {
+  dor: {
+    min: 4,
+    titulo: 'Essa dor não espera a próxima consulta',
+    texto: 'Dor abdominal forte ou que não passa é a que a bula pede para relatar na hora. Registre aqui e fale com sua equipe hoje.',
+  },
+  vomito: {
+    min: 4,
+    titulo: 'Vomitar muito desidrata rápido',
+    texto: 'Junto com a água vai o sal, e você fica sem segurar comida nem remédio. Beba em goles pequenos e frequentes — e se não conseguir segurar nem água, fale com sua equipe hoje.',
+  },
+  tontura: {
+    min: 4,
+    titulo: 'Tontura assim costuma ter causa',
+    texto: 'Na caneta ela costuma vir de desidratação ou de açúcar baixo, e quem usa insulina ou sulfonilureia junto tem mais risco. Beba água, coma alguma coisa, e avise sua equipe se repetir.',
+  },
+};
 
-   Sete ou mais idas num dia é onde a graduação clínica de diarreia troca
-   de patamar — é a faixa em que o risco deixa de ser o incômodo e passa a
-   ser perder água e sal mais rápido do que a sede repõe. Os degraus
-   abaixo, a própria graduação descreve como algo que não atrapalha o dia,
-   e avisar neles seria assustar por um número. */
-const SOLTO_AVISA = 5;
+/* Os dois lados do intestino têm o seu, e ficam fora do mapa acima porque
+   não são medidos em `grau` — um conta dias sem ir, o outro idas no dia. */
+const AVISO_PRESO = {
+  min: 5,
+  titulo: 'Quatro dias sem ir pede ação',
+  texto: 'Água ao longo do dia, fibra e movimento costumam resolver. Se vier junto com dor forte na barriga e vômito, não espere pela consulta — procure atendimento.',
+};
+
+const AVISO_SOLTO = {
+  min: 5,
+  titulo: 'Nesse ritmo, o risco é desidratar',
+  texto: 'Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim.',
+};
 
 /* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
    sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
@@ -363,6 +388,10 @@ export default function Checkin() {
                     />
                   ) : null}
 
+                  {gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? (
+                    <Aviso dentro ic="aura" titulo={AVISO_PRESO.titulo} texto={AVISO_PRESO.texto} />
+                  ) : null}
+
                   {gut === 'solto' ? (
                     <Escala
                       suave
@@ -376,13 +405,8 @@ export default function Checkin() {
 
                   {/* Dentro do cartão, abaixo de um fio: é a leitura da
                       resposta que acabou de ser dada, não um bloco novo. */}
-                  {gut === 'solto' && (vezes ?? 0) >= SOLTO_AVISA ? (
-                    <Aviso
-                      dentro
-                      ic="aura"
-                      titulo="Nesse ritmo, o risco é desidratar"
-                      texto="Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim."
-                    />
+                  {gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? (
+                    <Aviso dentro ic="aura" titulo={AVISO_SOLTO.titulo} texto={AVISO_SOLTO.texto} />
                   ) : null}
                 </Campo>
               );
@@ -401,6 +425,7 @@ export default function Checkin() {
               );
             }
 
+            const av = AVISOS[id];
             return (
               <Campo key={id} rotulo={`${s.label} · intensidade`}>
                 <Escala
@@ -411,13 +436,8 @@ export default function Checkin() {
                   legendas={SINTOMA[id] ?? INTENSIDADE}
                 />
 
-                {id === DOR && (grau[id] ?? 0) >= DOR_AVISA ? (
-                  <Aviso
-                    dentro
-                    ic="aura"
-                    titulo="Essa dor não espera a próxima consulta"
-                    texto="Dor abdominal forte ou que não passa é a que a bula pede para relatar na hora. Registre aqui e fale com sua equipe hoje."
-                  />
+                {av && (grau[id] ?? 0) >= av.min ? (
+                  <Aviso dentro ic="aura" titulo={av.titulo} texto={av.texto} />
                 ) : null}
               </Campo>
             );
