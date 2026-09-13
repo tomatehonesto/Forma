@@ -11,19 +11,21 @@ import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, ty } from '../theme';
 
 /* ============================================================
-   REGISTRAR — captura de um momento, não menu de funcionalidade.
+   REGISTRAR — o "+" da tab bar, e tudo que abre aqui é um registro.
 
-   A tela pergunta "o que aconteceu agora?" e a pessoa responde. Por isso
-   os itens são acontecimentos em primeira pessoa ("Acabei de me pesar"),
-   não nomes de tela ("Peso"): ela está acrescentando um momento à jornada,
-   não escolhendo um formulário.
+   A tela pergunta "o que deseja registrar?" e a pessoa escolhe. Os itens
+   seguem em primeira pessoa ("Acabei de me pesar"), não em nome de tela
+   ("Peso"): o que ela escolhe é o acontecimento, e o formulário é
+   consequência.
 
-   Duas camadas, separadas pelo esforço:
-     · agora — três atalhos CONTEXTUAIS, que mudam com o momento do
-       tratamento e priorizam o que acontece todo dia
+   Três camadas, e a ordem é a da frequência esperada:
+     · check-in — o único que se espera TODO dia, e por isso tem faixa
+       própria, selo e o maior peso visual do sheet
+     · agora — três atalhos contextuais, que mudam com o momento do
+       tratamento
      · leva um minuto — os registros que pedem mais informação
    ============================================================ */
 
@@ -49,7 +51,7 @@ export default function Registrar() {
   const stk = streak(S);
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
-  const { motivo, acoes } = quickCapture(S);
+  const { acoes } = quickCapture(S);
 
   /* A aplicação era o único item que salvava aqui dentro, num toque, com
      dose e local no automático. Deixou de ser: ela é o registro que mais
@@ -61,7 +63,7 @@ export default function Registrar() {
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
      nome da funcionalidade fica para a tela de destino. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L hoje`, to: '/medir-agua' },
+    agua: { ic: 'water', titulo: 'Bebi água', sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
     exercicio: { ic: 'dumbbell', titulo: 'Me movimentei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: ci ? 'Revisar como estou' : 'Como estou agora', sub: ci ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !ci },
@@ -108,14 +110,13 @@ export default function Registrar() {
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* a pergunta é o comando da tela */}
+          {/* A pergunta é o comando da tela. Saiu a linha de contexto que
+              vinha embaixo ("um dia comum de tratamento"): ela comentava o
+              momento em vez de ajudar a escolher, e o sheet abre para
+              escolher. */}
           <Row style={{ alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
-              <Txt v="h2">O que aconteceu agora?</Txt>
-              <Row gap={7} style={{ marginTop: 6 }}>
-                <Icon name="spark" size={13} color={c.accent} sw={2} />
-                <Txt v="note" c={c.tx3}>{motivo}</Txt>
-              </Row>
+              <Txt v="h2">O que deseja registrar?</Txt>
             </View>
             <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
@@ -130,26 +131,37 @@ export default function Registrar() {
               feito tirava a confirmação de que o dia está em dia. Feito, ele
               vira comprovante com opção de ajustar. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
-            <Row gap={14} style={{ backgroundColor: c.lime, borderRadius: radius.lg, padding: 16 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name={ci ? 'check' : 'leaf'} size={20} color={c.limeInk} sw={2.2} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Txt v="body" c={c.limeInk}>
-                  {ci ? 'Check-in concluído' : 'Como você está agora?'}
-                </Txt>
-                <Txt v="caption" c={c.limeInk} style={{ marginTop: 2, opacity: 0.7 }}>
-                  {stk > 0 ? `${stk} dias seguidos` : ci ? 'registrado hoje' : 'menos de 30s'}
-                </Txt>
-              </View>
-              {ci ? (
-                <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 7 }}>
-                  <Txt v="label" c={c.limeInk}>Editar</Txt>
+            <View style={{ backgroundColor: c.lime, borderRadius: radius.lg, padding: 18 }}>
+              {/* O selo nomeia o que isto é. Os outros itens do sheet são
+                  registros avulsos — um copo, uma refeição —, e este é o
+                  único que se espera todo dia. Dizer "diário" na etiqueta
+                  faz essa diferença sem precisar de uma frase. */}
+              <Row style={{ justifyContent: 'space-between' }}>
+                <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+                  <Txt v="tag" c={c.limeInk}>Check-in diário</Txt>
                 </View>
-              ) : (
-                <Icon name="chev" size={17} color={c.limeInk} sw={2.2} />
-              )}
-            </Row>
+                {ci ? (
+                  <View style={{ backgroundColor: 'rgba(0,0,0,0.10)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
+                    <Txt v="tag" c={c.limeInk}>Editar</Txt>
+                  </View>
+                ) : null}
+              </Row>
+
+              <Row gap={14} style={{ marginTop: 14 }}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.08)', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={ci ? 'check' : 'leaf'} size={24} color={c.limeInk} sw={2.2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt v="title" c={c.limeInk}>
+                    {ci ? 'Check-in concluído' : 'Como você está agora?'}
+                  </Txt>
+                  <Txt v="caption" c={c.limeInk} style={{ marginTop: 3, opacity: 0.7 }}>
+                    {stk > 0 ? `${stk} dias seguidos` : ci ? 'registrado hoje' : 'menos de 30s'}
+                  </Txt>
+                </View>
+                {!ci ? <Icon name="chev" size={17} color={c.limeInk} sw={2.2} /> : null}
+              </Row>
+            </View>
           </Pressable>
 
           {/* --- agora: três atalhos que mudam com o momento --- */}
@@ -164,10 +176,25 @@ export default function Registrar() {
                   onPress={it.acao ?? irPara(it.to!)}
                   style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.75 : 1 }]}
                 >
-                  <View style={{ flex: 1, backgroundColor: ok ? c.lime : lima ? c.lime : c.bg1, borderRadius: radius.lg, padding: 14, alignItems: 'center' }}>
-                    <Icon name={ok ? 'check' : it.ic} size={21} color={ok || lima ? c.limeInk : c.accent} sw={2} />
-                    <Txt v="caption" c={ok || lima ? c.limeInk : c.tx} style={{ marginTop: 10, textAlign: 'center' }} numberOfLines={2}>{it.titulo}</Txt>
-                    <Txt v="micro" c={ok || lima ? c.limeInk : c.tx3} style={{ marginTop: 3, textAlign: 'center', opacity: lima && !ok ? 0.7 : 1 }} numberOfLines={1}>{it.sub}</Txt>
+                  {/* Altura fixa nas duas linhas do título.
+
+                      "Bebi água" cabe em uma; "Fiz uma refeição" precisa de
+                      duas. Deixando cada um ocupar o que precisa, os três
+                      tiles ficavam de alturas diferentes — ou iguais pelo
+                      mais alto, com um buraco embaixo dos curtos. Reservar
+                      sempre duas linhas dá a mesma caixa para os três,
+                      independente do rótulo que caia neles. */}
+                  <View style={{ flex: 1, backgroundColor: ok || lima ? c.lime : c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
+                    <Icon name={ok ? 'check' : it.ic} size={19} color={ok || lima ? c.limeInk : c.accent} sw={2} />
+                    <Txt
+                      v="caption"
+                      c={ok || lima ? c.limeInk : c.tx}
+                      style={{ marginTop: 8, textAlign: 'center', height: ty.caption.lineHeight * 2 }}
+                      numberOfLines={2}
+                    >
+                      {it.titulo}
+                    </Txt>
+                    <Txt v="micro" c={ok || lima ? c.limeInk : c.tx3} style={{ textAlign: 'center', opacity: lima && !ok ? 0.7 : 1 }} numberOfLines={1}>{it.sub}</Txt>
                   </View>
                 </Pressable>
               );
