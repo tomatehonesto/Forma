@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
 
@@ -55,26 +56,30 @@ export default function Checkin() {
   const salvar = () => {
     update((s: any) => {
       const t = +startOfDay(now());
-      s.checkins = s.checkins.filter((x: any) => x.t !== t);
+
+      /* Escreve DENTRO do registro do dia, em vez de apagar e recriar. A
+         versão anterior filtrava o dia fora da lista e empurrava um objeto
+         novo — e levava junto a água e a proteína que a pessoa já tinha
+         registrado antes do check-in. Fazer check-in apagava o copo d'água
+         das dez da manhã. */
+      const c = registroDoDia(s, t);
 
       /* A escala da tela é 1–5; as colunas legadas são 0–10. Dobrar mantém
          as duas leituras coerentes sem reescrever quem já consome. */
-      const col: Record<string, number> = {};
-      for (const x of SINTOMAS) if (x.store) col[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 3) * 2 : 0;
+      for (const x of SINTOMAS) {
+        if (!x.store) continue;
+        c[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 3) * 2 : 0;
+      }
 
-      s.checkins.push({
-        t,
-        ...col,
-        energia,
-        fome: 0, mood: 3, compulsao: 0, ansiedade: 0, gut: 'normal',
-        /* Sono, água e proteína têm captura própria e não são perguntados
-           aqui. Os valores seguem os mesmos que a tela anterior gravava,
-           para não mudar o que as médias da Jornada já mostram — trocar
-           isso é decisão de produto, não efeito colateral do redesenho. */
-        sono: 7, agua: 6, prot: 75, exerc: 0,
-        sint: Object.fromEntries(marcados.map((id) => [id, grau[id] ?? 3])),
-        note: nota,
-      });
+      c.energia = energia;
+      c.sint = Object.fromEntries(marcados.map((id) => [id, grau[id] ?? 3]));
+      c.note = nota;
+
+      /* Sono, humor e fome NÃO entram. A tela não pergunta, e antes ela
+         gravava 7 horas, humor 3 e fome 5 de enfeite — números que a
+         pessoa nunca disse e que saíam daqui para as médias da Jornada e
+         para o radar como se fossem resposta dela.
+         Ausente é ausente; quem lê estado agora sabe lidar com isso. */
 
       if (levar && nota.trim()) {
         s.notes = [{ t: +now(), text: nota.trim(), done: false }, ...(s.notes || [])];

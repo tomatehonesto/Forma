@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday } from '../logic/derive';
+import { checkinToday, registroDoDia } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -35,9 +35,8 @@ export default function MedirExercicio() {
   const salvar = () => {
     update((s: any) => {
       const t = +startOfDay(now());
-      const c2 = s.checkins.find((x: any) => x.t === t);
-      if (c2) c2.exerc = (c2.exerc || 0) + min;
-      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: 0, prot: 0, exerc: min, refluxo: 0, ansiedade: 0, constip: 0 });
+      const c2 = registroDoDia(s, t);
+      c2.exerc = (c2.exerc || 0) + min;
     });
     router.back();
   };

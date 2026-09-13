@@ -34,19 +34,28 @@ export function checkins30(S: State) { const from = +daysAgo(30); return S.check
 export function waterToday(S: State) { const c = checkinToday(S); return c ? c.agua : 0; }
 
 // radar 0..100 a partir das últimas 3 avaliações
+/* Eixo sem resposta SAI do radar, em vez de aparecer zerado. Um vértice
+   encostado no centro lê como "você foi mal nisso", e não é isso que um
+   dia sem registro diz. A figura fica com menos pontas e continua
+   verdadeira — o que é melhor do que oito pontas mentindo em três. */
 export function radar(S: State) {
   const recent = S.checkins.slice(-3);
-  const avg = (k: string) => (recent.length ? recent.reduce((s: number, c: any) => s + c[k], 0) / recent.length : 0);
-  return [
-    { k: 'Sono', v: Math.min(100, (avg('sono') / 8) * 100) },
-    { k: 'Energia', v: avg('energia') * 10 },
-    { k: 'Humor', v: (avg('mood') / 5) * 100 },
-    { k: 'Água', v: Math.min(100, (avg('agua') / GOAL_WATER) * 100) },
-    { k: 'Exercício', v: Math.min(100, (recent.filter((c: any) => c.exerc > 0).length / Math.max(1, recent.length)) * 100) },
-    { k: 'Proteína', v: Math.min(100, (avg('prot') / 100) * 100) },
-    { k: 'Saciedade', v: (10 - avg('fome')) * 10 },
-    { k: 'Adesão', v: adesao(S) },
-  ];
+  const eixos: { k: string; v: number }[] = [];
+  const põe = (k: string, v: number | null) => { if (v != null) eixos.push({ k, v }); };
+  const esc = (m: number | null, f: (x: number) => number) => (m == null ? null : f(m));
+
+  põe('Sono', esc(mediaDe(recent, 'sono'), (m) => Math.min(100, (m / 8) * 100)));
+  põe('Energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
+  põe('Humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
+  /* Acumuladores não somem: zero de água é uma resposta, não uma lacuna. */
+  põe('Água', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / GOAL_WATER) * 100));
+  põe('Exercício', recent.length
+    ? Math.min(100, (recent.filter((c: any) => (c.exerc || 0) > 0).length / recent.length) * 100)
+    : 0);
+  põe('Proteína', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / 100) * 100));
+  põe('Saciedade', esc(mediaDe(recent, 'fome'), (m) => (10 - m) * 10));
+  põe('Adesão', adesao(S));
+  return eixos;
 }
 
 // nível farmacológico estimado 0..1 num instante t
@@ -700,14 +709,16 @@ export function balanceRead(S: State) {
    semanas de 50 constante e duas semanas alternando 20 e 80 dão a mesma
    média e não são a mesma coisa. Aqui a série diária mostra a oscilação
    em vez de descrevê-la. */
-const EIXO_DIA: Record<string, (c: any, S: State) => number> = {
-  'Sono': (c) => Math.min(100, (c.sono / 8) * 100),
-  'Energia': (c) => c.energia * 10,
-  'Humor': (c) => (c.mood / 5) * 100,
-  'Água': (c) => Math.min(100, (c.agua / GOAL_WATER) * 100),
-  'Exercício': (c) => (c.exerc > 0 ? 100 : 0),
-  'Proteína': (c) => Math.min(100, c.prot),
-  'Saciedade': (c) => (10 - c.fome) * 10,
+/* null quando o dia não respondeu aquele eixo — a série pula o ponto em vez
+   de desenhar um zero que ninguém disse. */
+const EIXO_DIA: Record<string, (c: any, S: State) => number | null> = {
+  'Sono': (c) => (respondido(c, 'sono') ? Math.min(100, (c.sono / 8) * 100) : null),
+  'Energia': (c) => (respondido(c, 'energia') ? c.energia * 10 : null),
+  'Humor': (c) => (respondido(c, 'mood') ? (c.mood / 5) * 100 : null),
+  'Água': (c) => Math.min(100, ((c.agua || 0) / GOAL_WATER) * 100),
+  'Exercício': (c) => ((c.exerc || 0) > 0 ? 100 : 0),
+  'Proteína': (c) => Math.min(100, c.prot || 0),
+  'Saciedade': (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
   'Adesão': (_c, S) => adesao(S),
 };
 
@@ -715,10 +726,10 @@ export function balanceSeries(S: State, eixo: string, n = 8) {
   const f = EIXO_DIA[eixo];
   const cs = (S.checkins as any[]).slice(-n);
   if (!f || !cs.length) return [];
-  return cs.map((c) => ({
-    t: c.t,
-    v: Math.max(0, Math.min(100, Math.round(f(c, S)))),
-  }));
+  return cs
+    .map((c) => ({ t: c.t, bruto: f(c, S) }))
+    .filter((p): p is { t: number; bruto: number } => p.bruto != null)
+    .map((p) => ({ t: p.t, v: Math.max(0, Math.min(100, Math.round(p.bruto))) }));
 }
 
 /* ============================================================
@@ -1327,10 +1338,12 @@ export type JourneyGoal = { id: string; ic: string; label: string; pct: number; 
 
 export function journeyGoals(S: State): JourneyGoal[] {
   const recentes = S.checkins.slice(-14) as any[];
-  const media = (k: string) => (recentes.length ? recentes.reduce((s, c) => s + (c[k] || 0), 0) / recentes.length : 0);
-  const pctSono = recentes.length
-    ? (recentes.filter((c) => c.sono >= 7).length / recentes.length) * 100
-    : 0;
+  /* Só os dias respondidos entram na conta. Quatorze dias com três noites
+     registradas não são "21% das noites" — são três noites, e duas delas
+     boas é 67%. Diluir pelo que não foi perguntado transformaria silêncio
+     em fracasso. */
+  const pctSono = pctDe(recentes, 'sono', (v) => v >= 7);
+  const mediaEnergia = mediaDe(recentes, 'energia');
 
   return (S.goals as any[]).map((g) => {
     let pct = g.prog || 0;
@@ -1339,11 +1352,15 @@ export function journeyGoals(S: State): JourneyGoal[] {
       pct = goalProgress(S);
       hint = `faltam ${nf(Math.max(0, curWeight(S) - S.profile.goalWeight), 1).replace('.', ',')} kg`;
     } else if (g.kind === 'sono') {
-      pct = pctSono;
-      hint = `${Math.round(pctSono)}% das noites recentes`;
+      pct = pctSono ?? 0;
+      hint = pctSono == null
+        ? 'sem noites registradas ainda'
+        : `${Math.round(pctSono)}% das noites recentes`;
     } else if (g.kind === 'energia') {
-      pct = media('energia') * 10;
-      hint = `energia média ${nf(media('energia'), 1).replace('.', ',')} de 10`;
+      pct = (mediaEnergia ?? 0) * 10;
+      hint = mediaEnergia == null
+        ? 'sem check-ins recentes'
+        : `energia média ${nf(mediaEnergia, 1).replace('.', ',')} de 10`;
     } else {
       hint = 'acompanhada por você';
     }
@@ -1928,4 +1945,54 @@ export const notasAbertas = (S: State) => notas(S).filter((n) => !n.done);
 export function notasTexto(S: State) {
   const abertas = notasAbertas(S);
   return abertas.length ? abertas.map((n) => `• ${n.text}`).join('\n') : '';
+}
+
+/* ============================================================
+   O REGISTRO DO DIA — acumulador não é estado
+
+   O check-in de um dia é o recipiente daquele dia, e várias telas
+   escrevem nele: o check-in em si, a água, o exercício, a refeição. O
+   problema é que cada uma delas, ao criar o registro do zero, preenchia o
+   dia INTEIRO com valores de enfeite — sono 7, humor 3, fome 5, energia 6.
+   Registrar um copo d'água afirmava junto que a pessoa dormiu sete horas.
+
+   A separação que resolve é entre dois tipos de campo:
+
+     acumuladores — agua, prot, exerc. Contam o que foi acontecendo no dia,
+       e zero é a resposta HONESTA de quem ainda não registrou nada. Nascem
+       em zero e vão subindo.
+
+     estados — sono, humor, fome, energia, sintomas. Descrevem como a
+       pessoa esteve, e não têm valor neutro: só existem se ela disser.
+       Ficam AUSENTES até ser perguntados.
+
+   Quem lê estado precisa então saber lidar com ausência — e é por isso que
+   as médias abaixo devolvem null em vez de zero. Um dia sem resposta não é
+   um dia ruim; é um dia sem resposta, e a diferença entre as duas coisas é
+   o que separa um diário de um boletim.
+   ============================================================ */
+
+/** Registro de hoje, criado se ainda não existir. Só os acumuladores
+    nascem preenchidos — em zero, que é o que eles de fato valem. */
+export function registroDoDia(s: any, t: number) {
+  let c = s.checkins.find((x: any) => x.t === t);
+  if (!c) { c = { t, agua: 0, prot: 0, exerc: 0 }; s.checkins.push(c); }
+  return c;
+}
+
+/** O campo foi respondido naquele dia? */
+export const respondido = (c: any, k: string) => typeof c?.[k] === 'number';
+
+/** Média só dos dias em que o campo foi respondido; null se nenhum foi. */
+export function mediaDe(cs: any[], k: string): number | null {
+  const vs = (cs || []).filter((c) => respondido(c, k)).map((c) => c[k] as number);
+  return vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+}
+
+/** Proporção de dias que atendem a condição, contando só os respondidos.
+    null quando ninguém respondeu — não existe "0% das noites" se nenhuma
+    noite foi registrada. */
+export function pctDe(cs: any[], k: string, cond: (v: number) => boolean): number | null {
+  const vs = (cs || []).filter((c) => respondido(c, k)).map((c) => c[k] as number);
+  return vs.length ? (vs.filter(cond).length / vs.length) * 100 : null;
 }

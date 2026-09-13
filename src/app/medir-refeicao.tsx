@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { registroDoDia } from '../logic/derive';
 import { now } from '../logic/time';
 import { Txt, Row, SheetScreen, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -37,10 +38,9 @@ export default function MedirRefeicao() {
       /* proteína do dia sobe conforme o porte da refeição — estimativa,
          não pesagem, e é assim que ela deve ser lida */
       const t = +new Date(new Date().setHours(0, 0, 0, 0));
-      const ci = s.checkins.find((x: any) => x.t === t);
       const ganho = prot === 'alta' ? 30 : prot === 'média' ? 18 : 8;
-      if (ci) ci.prot = (ci.prot || 0) + ganho;
-      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: 0, prot: ganho, exerc: 0, refluxo: 0, ansiedade: 0, constip: 0 });
+      const ci = registroDoDia(s, t);
+      ci.prot = (ci.prot || 0) + ganho;
     });
     router.back();
   };

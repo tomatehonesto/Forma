@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { waterMlToday, CUP_ML } from '../logic/derive';
+import { waterMlToday, CUP_ML, registroDoDia } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -34,10 +34,11 @@ export default function MedirAgua() {
   const beber = (ml: number) => {
     update((s: any) => {
       const t = +startOfDay(now());
-      const ci = s.checkins.find((x: any) => x.t === t);
-      const copos = ml / CUP_ML;
-      if (ci) ci.agua = (ci.agua || 0) + copos;
-      else s.checkins.push({ t, mood: 3, fome: 5, nausea: 0, sono: 7, gut: 'normal', energia: 6, agua: copos, prot: 0, exerc: 0, refluxo: 0, ansiedade: 0, constip: 0 });
+      /* Registrar água diz uma coisa só: quanta água. Antes, criar o
+         registro do dia aqui afirmava junto sono 7, humor 3 e fome 5 —
+         estado que ninguém perguntou. registroDoDia traz só o recipiente. */
+      const ci = registroDoDia(s, t);
+      ci.agua = (ci.agua || 0) + ml / CUP_ML;
     });
     setSomado((v) => v + ml);
   };
