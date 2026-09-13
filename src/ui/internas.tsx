@@ -664,7 +664,12 @@ export function Campo({ rotulo, ajuda, nu, saia, children }: {
         zIndex: 1,
         marginTop: -radius.card,
         paddingTop: radius.card + 12, paddingHorizontal: PAD, paddingBottom: 14,
-        backgroundColor: c.accentWeak,
+        /* Cinza, e não o azul do app: a saia é um degrau abaixo do cartão,
+           não um segundo destaque. Tingida de azul ela competia com o
+           controle que está logo acima — e com o cartão da leitura do
+           conjunto, que é o lugar onde a cor de fato significa urgência.
+           Aqui quem carrega o azul é só o ícone e o "o que fazer". */
+        backgroundColor: c.bg2,
         borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card,
       }}>
         {saia}

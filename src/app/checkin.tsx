@@ -80,6 +80,11 @@ const GUT = 'intestino';
    Nenhum deles nomeia diagnóstico. Quem lê já está com o sintoma, e um
    nome de doença assusta sem ajudar a decidir o próximo passo.
 
+   E nenhum trata o sintoma como escolha. "Vomitar muito" e "nesse ritmo"
+   descreviam o involuntário como se fosse hábito — quem vomita não está
+   vomitando demais, está vomitando. O sujeito das frases é o sintoma ou o
+   corpo, nunca a pessoa: ela é quem lê, não quem causou.
+
    As faixas não são iguais porque os sintomas não são: dor e tontura
    avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
    vômito, intestino — avisam no degrau em que a graduação clínica troca
@@ -93,8 +98,8 @@ const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao:
   },
   vomito: {
     min: 4,
-    titulo: 'Vomitar muito desidrata rápido',
-    texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E sem segurar comida, o dia seguinte já começa cansado.',
+    titulo: 'Isso tira mais líquido do que parece',
+    texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E quando a comida não fica, o dia seguinte já começa cansado.',
     acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
   },
   tontura: {
@@ -109,14 +114,14 @@ const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao:
    não são medidos em `grau` — um conta dias sem ir, o outro idas no dia. */
 const AVISO_PRESO = {
   min: 5,
-  titulo: 'Quatro dias sem ir pede ação',
+  titulo: 'Quatro dias sem ir já merece atenção',
   texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
   acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
 };
 
 const AVISO_SOLTO = {
   min: 5,
-  titulo: 'Nesse ritmo, o risco é desidratar',
+  titulo: 'Assim o corpo perde mais do que repõe',
   texto: 'Sete idas ou mais num dia levam mais água e sal do que a sede dá conta de repor.',
   acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
 };
@@ -194,7 +199,7 @@ const PERSISTENCIA: {
     noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
     hoje: (n) => n.vomito >= 1,
     titulo: 'Vômito em dias repetidos',
-    texto: (n) => `${n} dos últimos sete dias com vômito. Assim fica difícil segurar comida, líquido e o próprio remédio.`,
+    texto: (n) => `${n} dos últimos sete dias com vômito. Assim comida, líquido e o próprio remédio não ficam.`,
     acao: 'Fale com sua equipe esta semana, sem esperar a consulta. Leve o número de dias — é ele que faz diferença.',
   },
   {
@@ -219,7 +224,7 @@ const PERSISTENCIA: {
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
     titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comendo menos, passa menos comida e menos fibra — e ele sente antes da balança.`,
+    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito da caneta, e com menos comida passa menos fibra — ele sente antes da balança.`,
     acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
   },
 ];
