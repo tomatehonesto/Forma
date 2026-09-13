@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
-import { ENERGIA, SONO, HUMOR, INTENSIDADE } from '../logic/escalas';
-import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Botao } from '../ui/internas';
+import { ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA } from '../logic/escalas';
+import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Botao } from '../ui/internas';
 
 /* ============================================================
    CHECK-IN DO DIA
@@ -45,6 +45,14 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
   { id: 'outro', label: 'Outro' },
 ];
 
+/* "Outro" é o único que não tem régua, e não podia ter: a escala mede
+   quanto pesou um sintoma que a tela sabe nomear, e aqui a tela não sabe
+   qual é. Perguntar a intensidade antes do nome é pedir o adjetivo sem o
+   substantivo — então ele abre um campo de escrever, e o que a pessoa
+   digitar é o registro. Vive em `outroTexto`, fora do mapa `sint`, que
+   continua só com números. */
+const OUTRO = 'outro';
+
 /* Armazenamento é 0–10; a tela fala 1–5. A conversão mora na fronteira,
    nos dois sentidos, e é a mesma de medir-sintomas. Vale para os sintomas
    e para a energia, que também é lida em 0–10 pelo radar, pelas metas e
@@ -74,10 +82,14 @@ export default function Checkin() {
     const g: Record<string, number> = {};
     const m: string[] = [];
     for (const x of SINTOMAS) {
+      if (x.id === OUTRO) continue;
       const v = x.store ? paraTela(hoje?.[x.store]) : (hoje?.sint?.[x.id] ?? null);
       if (v == null) continue;
       m.push(x.id); g[x.id] = v;
     }
+    /* "Outro" está marcado quando há texto, e entra por último para o
+       cartão dele ficar depois dos outros, como na fileira de chips. */
+    if (String(hoje?.outroTexto || '').trim()) m.push(OUTRO);
     return { marcados: m, grau: g };
   })();
 
@@ -89,6 +101,7 @@ export default function Checkin() {
   const [energia, setEnergia] = useState<number | null>(paraTela(hoje?.energia));
   const [sono, setSono] = useState<number | null>(hoje?.sono ?? null);
   const [humor, setHumor] = useState<number | null>(hoje?.mood ?? null);
+  const [outro, setOutro] = useState<string>(hoje?.outroTexto ?? '');
 
   /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
      intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
@@ -99,7 +112,7 @@ export default function Checkin() {
   const alterna = (id: string) => {
     const tinha = marcados.includes(id);
     setMarcados((m) => (tinha ? m.filter((x) => x !== id) : [...m, id]));
-    if (!tinha) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
+    if (!tinha && id !== OUTRO) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
   };
 
   const salvar = () => {
@@ -124,9 +137,15 @@ export default function Checkin() {
          vivem na coluna e em lugar nenhum além dela. */
       c.sint = Object.fromEntries(
         marcados
-          .filter((id) => !SINTOMAS.find((x) => x.id === id)?.store)
+          .filter((id) => id !== OUTRO && !SINTOMAS.find((x) => x.id === id)?.store)
           .map((id) => [id, grau[id] ?? 3]),
       );
+
+      /* Desmarcar "Outro" apaga o texto: ele é a única prova de que o
+         sintoma existiu, e deixá-lo para trás faria a pessoa desmarcar na
+         tela e continuar registrada no arquivo. */
+      if (marcados.includes(OUTRO) && outro.trim()) c.outroTexto = outro.trim();
+      else delete c.outroTexto;
       /* Só o que foi respondido é gravado. Deixar uma escala em branco
          mantém o campo ausente, e ausente continua sendo diferente de
          zero para quem lê. */
@@ -170,6 +189,7 @@ export default function Checkin() {
             valores={[1, 2, 3, 4, 5]}
             valor={energia}
             onChange={(v) => setEnergia(Number(v))}
+            onLimpar={() => setEnergia(null)}
             legendas={ENERGIA}
           />
         </Campo>
@@ -179,6 +199,7 @@ export default function Checkin() {
             valores={[5, 6, 7, 8, 9]}
             valor={sono}
             onChange={(v) => setSono(Number(v))}
+            onLimpar={() => setSono(null)}
             legendas={SONO}
           />
         </Campo>
@@ -188,6 +209,7 @@ export default function Checkin() {
             valores={[1, 2, 3, 4, 5]}
             valor={humor}
             onChange={(v) => setHumor(Number(v))}
+            onLimpar={() => setHumor(null)}
             legendas={HUMOR}
           />
         </Campo>
@@ -212,10 +234,29 @@ export default function Checkin() {
         </Campo>
 
         {/* Os cartões dos sintomas são a continuação da escolha de cima,
-            então ficam colados entre si e perto dela. */}
+            então ficam colados entre si e perto dela.
+
+            Cada um traz a régua do SEU sintoma: o 5 da náusea é vomitar, o
+            da constipação é o quarto dia sem ir ao banheiro. Sem escala
+            aqui — quem quer desfazer desmarca o chip, que é de onde o
+            cartão veio. */}
         <View style={{ gap: 4 }}>
           {marcados.map((id) => {
             const s = SINTOMAS.find((x) => x.id === id)!;
+
+            if (id === OUTRO) {
+              return (
+                <Campo key={id} rotulo="Qual foi o outro sintoma?">
+                  <Texto
+                    valor={outro}
+                    onChange={setOutro}
+                    placeholder="Ex.: gosto metálico na boca"
+                    linhas={1}
+                  />
+                </Campo>
+              );
+            }
+
             return (
               <Campo key={id} rotulo={`${s.label} · intensidade`}>
                 <Escala
@@ -223,7 +264,7 @@ export default function Checkin() {
                   valores={[1, 2, 3, 4, 5]}
                   valor={grau[id] ?? null}
                   onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
-                  legendas={INTENSIDADE}
+                  legendas={SINTOMA[id] ?? INTENSIDADE}
                 />
               </Campo>
             );

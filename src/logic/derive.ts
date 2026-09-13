@@ -49,6 +49,7 @@ export function respostaNoDia(c: any) {
   if (!c) return false;
   if (RESPOSTAS.some((k) => c[k] != null)) return true;
   if (Object.keys(c.sint || {}).length) return true;
+  if (String(c.outroTexto || '').trim()) return true;
   return !!String(c.note || '').trim();
 }
 

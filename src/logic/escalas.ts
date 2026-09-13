@@ -29,9 +29,31 @@ export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca de 8
 /** 1–5 dos dois lados, sem conversão. */
 export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um bom dia', 'Um ótimo dia'];
 
-/** Quanto um sintoma pesou. Vale para os sete do check-in e para o enjoo
-    de "como o corpo reagiu" — é a mesma coluna. */
+/** Régua genérica de sintoma — a rede de segurança para um sintoma que
+    ainda não tem a sua. Ver `SINTOMA` logo abaixo. */
 export const INTENSIDADE = ['Mal percebi', 'Leve', 'Incomodou', 'Atrapalhou o dia', 'Tomou conta do dia'];
+
+/* Cada sintoma tem a SUA régua, porque cada um piora de um jeito.
+
+   "Tomou conta do dia" servia para tudo e não descrevia nada: o 5 da
+   náusea é vomitar, o da constipação é o quarto dia sem ir ao banheiro e
+   o da tontura é não conseguir ficar de pé. São eventos diferentes, e
+   quem responde sabe qual deles teve — a régua genérica obrigava a
+   traduzir isso para um advérbio.
+
+   Constipação sai da intensidade e vira contagem de dias, que é como a
+   pessoa de fato se lembra do sintoma e como a equipe clínica pergunta.
+
+   Só as pontas aparecem embaixo do trilho, então elas são as mais curtas
+   das cinco. */
+export const SINTOMA: Record<string, string[]> = {
+  nausea: ['Um leve embrulho', 'Enjoo indo e vindo', 'Enjoo constante', 'Quase vomitei', 'Vomitei'],
+  constip: ['Fui com esforço', 'Um dia sem ir', 'Dois dias sem ir', 'Três dias sem ir', 'Quatro dias ou mais'],
+  refluxo: ['Queimação leve', 'Depois das refeições', 'Várias vezes no dia', 'Atrapalhou comer', 'Não consegui deitar'],
+  fadiga: ['Cansaço leve', 'Cansei mais rápido', 'Precisei desacelerar', 'Precisei deitar', 'Não saí da cama'],
+  cefaleia: ['Uma fisgada', 'Incomodou de leve', 'Precisei de remédio', 'Atrapalhou o dia', 'Fiquei no escuro'],
+  tontura: ['Leve desequilíbrio', 'Ao levantar rápido', 'Várias vezes no dia', 'Precisei me segurar', 'Não fiquei de pé'],
+};
 
 /** Fome é o contrário de saciedade, e o radar lê como saciedade. Por isso
     1 é a fome menor: a régua sobe junto com o sintoma, como as outras. */

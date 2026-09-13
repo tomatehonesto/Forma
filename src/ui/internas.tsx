@@ -595,7 +595,13 @@ export function Opc({ label, on, onPress }: { label: string; on?: boolean; onPre
         backgroundColor: on ? c.accentWeak : c.bg1, opacity: pressed ? 0.7 : 1,
       }]}
     >
-      <Txt v="label" c={on ? c.accent : c.tx2}>{label}</Txt>
+      {/* O check entra junto da cor. Só a lavagem azul pedia comparação
+          com os vizinhos para se ler como "marcado"; o check diz sozinho,
+          sem precisar do resto da lista ao lado. */}
+      <Row gap={7}>
+        {on ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
+        <Txt v="label" c={on ? c.accent : c.tx2}>{label}</Txt>
+      </Row>
     </Pressable>
   );
 }
@@ -673,11 +679,16 @@ export function Stepper({ valor, unidade, onMenos, onMais, onDigitar }: {
    quem quer responder o valor do meio, e toca exatamente onde o polegar
    já está, não muda valor nenhum — sem o segundo evento esse toque não
    registraria nada e o campo continuaria em branco. */
-export function Escala({ valores, valor, onChange, suave, legendas }: {
+export function Escala({ valores, valor, onChange, onLimpar, suave, legendas }: {
   valores: (string | number)[]; valor: string | number | null;
   onChange: (v: string | number) => void; suave?: boolean;
   /** o que cada valor quer dizer, na mesma ordem de `valores` */
   legendas?: string[];
+  /* Desfaz a resposta. Num slider, encostar sem querer já responde — e
+     sem uma saída a pessoa fica com um número que ela não quis dar,
+     obrigada a escolher o "menos errado". Só aparece quando há o que
+     limpar, porque antes disso não há nada a desfazer. */
+  onLimpar?: () => void;
 }) {
   const { c } = useTheme();
   const i = valores.findIndex((v) => v === valor);
@@ -694,7 +705,16 @@ export function Escala({ valores, valor, onChange, suave, legendas }: {
 
   return (
     <View>
-      <Txt v="title" c={respondido ? c.tx : c.tx3}>{manchete}</Txt>
+      <Row style={{ alignItems: 'center' }}>
+        <Txt v="title" c={respondido ? c.tx : c.tx3} style={{ flex: 1 }} numberOfLines={1}>{manchete}</Txt>
+        {respondido && onLimpar ? (
+          <Pressable onPress={onLimpar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+            <View style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 4 }}>
+              <Txt v="tag" c={c.tx3}>Limpar</Txt>
+            </View>
+          </Pressable>
+        ) : null}
+      </Row>
 
       <Slider
         value={respondido ? i : meio}
