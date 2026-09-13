@@ -129,7 +129,7 @@ const AVISO_SOLTO = {
    "converse com sua equipe" sobre um sintoma; a combinação diz "vá agora"
    sobre o conjunto, e manter os dois na tela é deixar o menos urgente
    discutir com o mais urgente. */
-type Niveis = { dor: number; vomito: number; tontura: number; preso: number; solto: number };
+type Niveis = { nausea: number; dor: number; vomito: number; tontura: number; preso: number; solto: number };
 
 const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string }[] = [
   {
@@ -150,6 +150,64 @@ const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: stri
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
     titulo: 'Tontura junto disso é sinal de desidratação',
     texto: 'Perder líquido rápido e sentir tontura costumam andar juntos. Beba em goles ao longo do dia, com soro ou um pouco de sal, e avise sua equipe se não melhorar até amanhã.',
+  },
+];
+
+/* PERSISTÊNCIA — a outra coisa que um dia sozinho não diz.
+
+   Enjoo hoje é o esperado de quem começou ou acabou de subir a dose.
+   Enjoo em quatro dos últimos sete dias é outra frase: é o que separa
+   "efeito da dose subindo" de "isso não está passando", e é exatamente o
+   que muda a conduta na consulta. Até aqui a tela lia só o dia de hoje, e
+   quem se acostuma com um sintoma para de achar que vale contar.
+
+   Por isso o aviso traz o NÚMERO de dias: "quatro dos últimos sete" é um
+   fato que a pessoa leva para a consulta, "você tem enjoo com frequência"
+   é uma impressão que ela já tinha.
+
+   O intestino preso aparece nas duas leituras, e não é repetição: a régua
+   do campo conta dias seguidos sem ir — um episódio —, e aqui conta dias
+   da semana com o intestino lento, que é o padrão de quem vai a cada três
+   dias sem nunca ficar quatro sem ir.
+
+   A ordem é a da urgência, e só o primeiro que bate aparece. */
+const SEMANA = 7;
+
+const PERSISTENCIA: {
+  dias: number;
+  noDia: (c: any) => boolean;
+  hoje: (n: Niveis) => boolean;
+  titulo: string;
+  texto: (n: number) => string;
+}[] = [
+  {
+    dias: 3,
+    noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
+    hoje: (n) => n.vomito >= 1,
+    titulo: 'Vômito em dias repetidos',
+    texto: (n) => `${n} dos últimos sete dias com vômito atrapalha segurar comida, líquido e a própria medicação. Não espere a consulta marcada: fale com sua equipe esta semana.`,
+  },
+  {
+    dias: 3,
+    noDia: (c) => c?.gut === 'solto',
+    hoje: (n) => n.solto >= 1,
+    titulo: 'O intestino está solto há dias',
+    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação e nos sais. Beba mais do que a sede pede e conte para sua equipe — pode ser a dose, pode ser o que mudou na alimentação.`,
+  },
+  {
+    dias: 4,
+    /* 6 na régua de armazenamento é o 3 da tela — enjoo que incomodou. */
+    noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
+    hoje: (n) => n.nausea >= 3,
+    titulo: 'O enjoo não está passando',
+    texto: (n) => `${n} dos últimos sete dias com enjoo é o tipo de coisa que costuma mudar com a dose ou com a velocidade do aumento. Leve esse número para a próxima consulta — é uma conversa que existe.`,
+  },
+  {
+    dias: 5,
+    noDia: (c) => c?.gut === 'preso',
+    hoje: (n) => n.preso >= 1,
+    titulo: 'O intestino está lento a semana toda',
+    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Água ao longo do dia, fibra e caminhada ajudam, mas nesse ritmo vale contar para sua equipe — às vezes é a dose, às vezes é o quanto você está comendo.`,
   },
 ];
 
@@ -249,18 +307,44 @@ export default function Checkin() {
     if (k === 'solto') setVezes((v) => (v == null ? 3 : v));
   };
 
-  /* Zero quando o sintoma não está marcado: a combinação lê o dia como
-     ele foi respondido, não o que ficou guardado no estado de um chip que
-     a pessoa desmarcou. */
+  /* Zero quando o sintoma não está marcado: as leituras enxergam o dia
+     como ele foi respondido, não o que ficou guardado no estado de um chip
+     que a pessoa desmarcou. */
   const nivel = (id: string) => (marcados.includes(id) ? (grau[id] ?? 3) : 0);
   const noGut = marcados.includes(GUT);
-  const combinado = COMBINACOES.find((x) => x.quando({
+  const niveis: Niveis = {
+    nausea: nivel('nausea'),
     dor: nivel('dor'),
     vomito: nivel('vomito'),
     tontura: nivel('tontura'),
     preso: noGut && gut === 'preso' ? (dias ?? 3) : 0,
     solto: noGut && gut === 'solto' ? (vezes ?? 3) : 0,
-  })) ?? null;
+  };
+
+  const combinado = COMBINACOES.find((x) => x.quando(niveis)) ?? null;
+
+  /* Os dias ANTERIORES, sem o de hoje: o registro salvo de hoje pode estar
+     atrás do que a pessoa acabou de marcar na tela, e contaria o dia com o
+     valor velho. Hoje entra pela resposta que está na tela agora, então a
+     conta muda enquanto ela responde. */
+  const anteriores = React.useMemo(() => {
+    const t = +startOfDay(now());
+    const desde = t - SEMANA * 24 * 3600 * 1000;
+    return (S.checkins as any[]).filter((c) => c.t < t && c.t >= desde);
+  }, [S.checkins]);
+
+  const persistente = (() => {
+    for (const r of PERSISTENCIA) {
+      const n = anteriores.filter(r.noDia).length + (r.hoje(niveis) ? 1 : 0);
+      if (n >= r.dias) return { titulo: r.titulo, texto: r.texto(n) };
+    }
+    return null;
+  })();
+
+  /* Uma mensagem por vez no cartão de baixo. A combinação fala do agora e
+     manda agir hoje; a persistência fala da semana e manda levar para a
+     consulta — as duas juntas competem, e a do agora ganha. */
+  const leitura = combinado ?? persistente;
 
   const salvar = () => {
     update((s: any) => {
@@ -494,10 +578,11 @@ export default function Checkin() {
           })}
         </View>
 
-        {/* Fecha o bloco dos sintomas: é a leitura do conjunto, e por isso
-            vem depois de todos eles e não dentro de nenhum. */}
-        {combinado ? (
-          <Aviso destaque ic="aura" titulo={combinado.titulo} texto={combinado.texto} />
+        {/* Fecha o bloco dos sintomas: é a leitura do conjunto — dos
+            sintomas de hoje entre si, ou dos últimos sete dias —, e por
+            isso vem depois de todos eles e não dentro de nenhum. */}
+        {leitura ? (
+          <Aviso destaque ic="aura" titulo={leitura.titulo} texto={leitura.texto} />
         ) : null}
       </View>
 
