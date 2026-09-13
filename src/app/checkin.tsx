@@ -84,21 +84,24 @@ const GUT = 'intestino';
    avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
    vômito, intestino — avisam no degrau em que a graduação clínica troca
    de patamar. */
-const AVISOS: Record<string, { min: number; titulo: string; texto: string }> = {
+const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao: string }> = {
   dor: {
     min: 4,
     titulo: 'Essa dor não espera a próxima consulta',
-    texto: 'Dor abdominal forte ou que não passa é a que a bula pede para relatar na hora. Registre aqui e fale com sua equipe hoje.',
+    texto: 'Dor forte na barriga, ou que não passa, é o sintoma que a bula manda relatar de imediato — às vezes ela irradia para as costas. Na maior parte das vezes não é nada grave, e é justamente por isso que se olha cedo: quanto antes, mais simples resolver.',
+    acao: 'Fale com sua equipe hoje, sem esperar a consulta marcada. Se a dor piorar ou vier com vômito, procure um atendimento.',
   },
   vomito: {
     min: 4,
     titulo: 'Vomitar muito desidrata rápido',
-    texto: 'Junto com a água vai o sal, e você fica sem segurar comida nem remédio. Beba em goles pequenos e frequentes — e se não conseguir segurar nem água, fale com sua equipe hoje.',
+    texto: 'Junto com a água vai o sal, e o corpo sente isso antes de a sede avisar. Vomitar várias vezes também impede segurar comida e a própria medicação, então o dia seguinte já começa em desvantagem.',
+    acao: 'Beba em goles pequenos e frequentes, em vez de um copo de uma vez. Se não conseguir segurar nem água, fale com sua equipe hoje.',
   },
   tontura: {
     min: 4,
     titulo: 'Tontura assim costuma ter causa',
-    texto: 'Na caneta ela costuma vir de desidratação ou de açúcar baixo, e quem usa insulina ou sulfonilureia junto tem mais risco. Beba água, coma alguma coisa, e avise sua equipe se repetir.',
+    texto: 'Na caneta ela quase sempre vem de dois lugares: falta de líquido ou açúcar baixo. Quem usa insulina ou sulfonilureia junto tem mais risco do segundo, porque a caneta soma efeito com esses remédios.',
+    acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, avise sua equipe — pode ser ajuste de dose, sua ou dos outros remédios.',
   },
 };
 
@@ -107,13 +110,15 @@ const AVISOS: Record<string, { min: number; titulo: string; texto: string }> = {
 const AVISO_PRESO = {
   min: 5,
   titulo: 'Quatro dias sem ir pede ação',
-  texto: 'Água ao longo do dia, fibra e movimento costumam resolver. Se vier junto com dor forte na barriga e vômito, não espere pela consulta — procure atendimento.',
+  texto: 'A caneta desacelera o intestino inteiro, e quando a comida diminui junto sobra pouco volume para ele empurrar. Quatro dias é o ponto em que isso costuma deixar de se resolver sozinho.',
+  acao: 'Água ao longo do dia, fibra nas refeições e caminhada ajudam. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
 };
 
 const AVISO_SOLTO = {
   min: 5,
   titulo: 'Nesse ritmo, o risco é desidratar',
-  texto: 'Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim.',
+  texto: 'Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. É o degrau em que o intestino solto deixa de ser incômodo e passa a mexer com o equilíbrio do corpo.',
+  acao: 'Beba ao longo do dia sem esperar sede, de preferência com soro ou um pouco de sal. Se amanhã continuar assim, avise sua equipe.',
 };
 
 /* AVISOS POR COMBINAÇÃO — o que nenhum sintoma sozinho consegue dizer.
@@ -131,25 +136,28 @@ const AVISO_SOLTO = {
    discutir com o mais urgente. */
 type Niveis = { nausea: number; dor: number; vomito: number; tontura: number; preso: number; solto: number };
 
-const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string }[] = [
+const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string; acao: string }[] = [
   {
     /* Intestino parado há dias + dor forte + vômito. */
     quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
     titulo: 'Essa combinação pede atendimento agora',
-    texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou no caminho. Não espere a consulta nem a melhora: procure um pronto atendimento e diga que está em uso da caneta.',
+    texto: 'Intestino parado há dias, dor forte e vômito juntos formam o quadro de algo travado no caminho. É raro, mas é dos poucos que não melhoram sozinhos e pioram com o tempo.',
+    acao: 'Procure um pronto atendimento hoje, sem esperar a consulta. Diga que está em uso da caneta e há quantos dias não evacua.',
   },
   {
     /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
        manda relatar de imediato. */
     quando: (n) => n.dor >= 4 && n.vomito >= 3,
     titulo: 'Dor forte com vômito não espera',
-    texto: 'Dor abdominal intensa junto de vômito, às vezes irradiando para as costas, é o quadro que a bula manda relatar imediatamente. Procure sua equipe ou um atendimento hoje, e diga que usa a caneta.',
+    texto: 'Dor abdominal intensa junto de vômito, às vezes irradiando para as costas, é o quadro que toda bula de GLP-1 manda relatar imediatamente. Quando se chega cedo, checar é simples.',
+    acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, qual é a dose atual e quando a dor começou.',
   },
   {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
     titulo: 'Tontura junto disso é sinal de desidratação',
-    texto: 'Perder líquido rápido e sentir tontura costumam andar juntos. Beba em goles ao longo do dia, com soro ou um pouco de sal, e avise sua equipe se não melhorar até amanhã.',
+    texto: 'Perder líquido rápido e sentir tontura andam juntos: quando falta água e sal, a pressão cai ao levantar. É o corpo avisando antes de algo pior.',
+    acao: 'Beba em goles ao longo do dia, com soro ou um pouco de sal, e evite levantar rápido. Se não melhorar até amanhã, avise sua equipe.',
   },
 ];
 
@@ -179,20 +187,23 @@ const PERSISTENCIA: {
   hoje: (n: Niveis) => boolean;
   titulo: string;
   texto: (n: number) => string;
+  acao: string;
 }[] = [
   {
     dias: 3,
     noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
     hoje: (n) => n.vomito >= 1,
     titulo: 'Vômito em dias repetidos',
-    texto: (n) => `${n} dos últimos sete dias com vômito atrapalha segurar comida, líquido e a própria medicação. Não espere a consulta marcada: fale com sua equipe esta semana.`,
+    texto: (n) => `${n} dos últimos sete dias com vômito. Nesse ritmo fica difícil segurar comida, líquido e a própria medicação, e o corpo vai ficando para trás sem que nenhum dia isolado explique.`,
+    acao: 'Não espere a consulta marcada: fale com sua equipe esta semana. Leve o número de dias — é ele que muda a conduta.',
   },
   {
     dias: 3,
     noDia: (c) => c?.gut === 'solto',
     hoje: (n) => n.solto >= 1,
     titulo: 'O intestino está solto há dias',
-    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação e nos sais. Beba mais do que a sede pede e conte para sua equipe — pode ser a dose, pode ser o que mudou na alimentação.`,
+    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação e nos sais, mesmo quando cada dia, sozinho, parece tolerável.`,
+    acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser o que mudou na alimentação — quem separa isso é quem acompanha você.',
   },
   {
     dias: 4,
@@ -200,14 +211,16 @@ const PERSISTENCIA: {
     noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
     hoje: (n) => n.nausea >= 3,
     titulo: 'O enjoo não está passando',
-    texto: (n) => `${n} dos últimos sete dias com enjoo é o tipo de coisa que costuma mudar com a dose ou com a velocidade do aumento. Leve esse número para a próxima consulta — é uma conversa que existe.`,
+    texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. É o tipo de coisa que costuma mudar com a dose, ou com a velocidade com que ela sobe.`,
+    acao: 'Leve esse número para a próxima consulta. Existe conversa sobre segurar a dose por mais tempo, e segurar não é desistir — é ajustar.',
   },
   {
     dias: 5,
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
     titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Água ao longo do dia, fibra e caminhada ajudam, mas nesse ritmo vale contar para sua equipe — às vezes é a dose, às vezes é o quanto você está comendo.`,
+    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos significa menos volume e menos fibra passando, e o intestino sente isso antes de a balança mostrar qualquer coisa.`,
+    acao: 'Água ao longo do dia, fibra e caminhada ajudam. Nesse ritmo vale contar para sua equipe — às vezes é a dose, às vezes é o quanto você está comendo.',
   },
 ];
 
@@ -336,7 +349,7 @@ export default function Checkin() {
   const persistente = (() => {
     for (const r of PERSISTENCIA) {
       const n = anteriores.filter(r.noDia).length + (r.hoje(niveis) ? 1 : 0);
-      if (n >= r.dias) return { titulo: r.titulo, texto: r.texto(n) };
+      if (n >= r.dias) return { titulo: r.titulo, texto: r.texto(n), acao: r.acao };
     }
     return null;
   })();
@@ -509,7 +522,7 @@ export default function Checkin() {
                 <Campo
                   key={id}
                   rotulo="Como foi o intestino?"
-                  saia={avGut ? <Aviso dentro ic="aura" titulo={avGut.titulo} texto={avGut.texto} /> : undefined}
+                  saia={avGut ? <Aviso dentro ic="aura" titulo={avGut.titulo} texto={avGut.texto} acao={avGut.acao} /> : undefined}
                 >
                   <Opcoes>
                     {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
@@ -565,7 +578,7 @@ export default function Checkin() {
               <Campo
                 key={id}
                 rotulo={`${s.label} · intensidade`}
-                saia={mostra ? <Aviso dentro ic="aura" titulo={av!.titulo} texto={av!.texto} /> : undefined}
+                saia={mostra ? <Aviso dentro ic="aura" titulo={av!.titulo} texto={av!.texto} acao={av!.acao} /> : undefined}
               >
                 <Escala
                   suave
@@ -583,7 +596,7 @@ export default function Checkin() {
             sintomas de hoje entre si, ou dos últimos sete dias —, e por
             isso vem depois de todos eles e não dentro de nenhum. */}
         {leitura ? (
-          <Aviso destaque ic="aura" titulo={leitura.titulo} texto={leitura.texto} />
+          <Aviso destaque ic="aura" titulo={leitura.titulo} texto={leitura.texto} acao={leitura.acao} />
         ) : null}
       </View>
 

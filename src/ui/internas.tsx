@@ -555,8 +555,14 @@ export function Grade2({ children }: { children: React.ReactNode }) {
    de rodapé; em cima, ele abre o bloco, como um selo. A forma padrão —
    cartão com ícone à esquerda — continua para as outras telas, que usam o
    Aviso como linha de apoio e não como interrupção. */
-export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }: {
+export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, children }: {
   ic?: string; titulo?: string; texto?: string;
+  /* O parágrafo de fazer. Vem separado do `texto` de propósito: o de cima
+     explica POR QUE aquilo está acontecendo, e este diz o que fazer com
+     isso. Juntos num parágrafo só, a explicação engole a instrução — a
+     pessoa lê, concorda e não sai do lugar. Separados, o "o que fazer"
+     tem endereço fixo e pode ser lido sozinho por quem já entendeu. */
+  acao?: string;
   dentro?: boolean; destaque?: boolean; children?: React.ReactNode;
 }) {
   const { c } = useTheme();
@@ -591,6 +597,16 @@ export function Aviso({ ic = 'info', titulo, texto, dentro, destaque, children }
           {titulo ? <Txt v="bodyMed" style={{ flex: 1 }}>{titulo}</Txt> : null}
         </Row>
         {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
+
+        {acao ? (
+          <View style={{ gap: 3, marginTop: 3 }}>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>
+            {/* Em tinta cheia, e não na cinza do texto de cima: é a parte
+                que a pessoa precisa levar embora da tela. */}
+            <Txt v="caption" c={c.tx}>{acao}</Txt>
+          </View>
+        ) : null}
+
         {children}
       </View>
     );

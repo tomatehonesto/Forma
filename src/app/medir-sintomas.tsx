@@ -73,7 +73,8 @@ export default function MedirSintomas() {
               dentro
               ic="aura"
               titulo="Enjoo forte merece ser conversado"
-              texto="Vale registrar e comentar com sua equipe na próxima consulta."
+              texto="Enjoo é o efeito mais comum da caneta e costuma ceder com o tempo, mas forte ele atrapalha comer e beber o suficiente — e aí um problema vira dois."
+              acao="Registre aqui e comente com sua equipe na próxima consulta. Enquanto isso, refeições menores e com menos gordura costumam aliviar."
             />
           ) : undefined}
         >
