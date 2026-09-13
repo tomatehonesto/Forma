@@ -69,6 +69,18 @@ export default function MedirSintomas() {
             onChange={(v) => setNausea(Number(v))} onLimpar={() => setNausea(null)}
             legendas={SINTOMA.nausea}
           />
+
+          {/* O aviso mora no campo que o provocou. Solto lá embaixo, depois
+              do intestino, ele estava a três blocos da pergunta sobre a
+              qual fala. */}
+          {nausea != null && nausea >= 4 ? (
+            <Aviso
+              dentro
+              ic="aura"
+              titulo="Enjoo forte merece ser conversado"
+              texto="Vale registrar e comentar com sua equipe na próxima consulta."
+            />
+          ) : null}
         </Campo>
 
         <Campo rotulo="Fome">
@@ -86,16 +98,6 @@ export default function MedirSintomas() {
             ))}
           </Opcoes>
         </Campo>
-
-        {/* 4 na escala da tela equivale a 8 na régua de armazenamento — o
-            mesmo ponto em que o aviso aparecia antes. */}
-        {nausea != null && nausea >= 4 ? (
-          <Aviso
-            ic="waves"
-            titulo="Enjoo forte merece ser conversado"
-            texto="Vale registrar e comentar com sua equipe na próxima consulta."
-          />
-        ) : null}
 
         <Botao label="Registrar como estou" onPress={salvar} />
 

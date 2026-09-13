@@ -342,8 +342,7 @@ export default function Checkin() {
 
             if (id === GUT) {
               return (
-                <React.Fragment key={id}>
-                <Campo rotulo="Como foi o intestino?">
+                <Campo key={id} rotulo="Como foi o intestino?">
                   <Opcoes>
                     {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
@@ -374,18 +373,18 @@ export default function Checkin() {
                       legendas={SINTOMA.diarreia}
                     />
                   ) : null}
-                </Campo>
 
-                {/* Fora do cartão, como o aviso da dor: o Aviso já é um
-                    cartão, e cartão dentro de cartão vira caixa em caixa. */}
-                {gut === 'solto' && (vezes ?? 0) >= SOLTO_AVISA ? (
-                  <Aviso
-                    ic="water"
-                    titulo="Nesse ritmo, o risco é desidratar"
-                    texto="Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim."
-                  />
-                ) : null}
-                </React.Fragment>
+                  {/* Dentro do cartão, abaixo de um fio: é a leitura da
+                      resposta que acabou de ser dada, não um bloco novo. */}
+                  {gut === 'solto' && (vezes ?? 0) >= SOLTO_AVISA ? (
+                    <Aviso
+                      dentro
+                      ic="aura"
+                      titulo="Nesse ritmo, o risco é desidratar"
+                      texto="Sete ou mais idas num dia tiram mais água e sal do que a sede consegue repor. Beba ao longo do dia, sem esperar sede, e avise sua equipe se amanhã continuar assim."
+                    />
+                  ) : null}
+                </Campo>
               );
             }
 
@@ -403,28 +402,24 @@ export default function Checkin() {
             }
 
             return (
-              <React.Fragment key={id}>
-                <Campo rotulo={`${s.label} · intensidade`}>
-                  <Escala
-                    suave
-                    valores={[1, 2, 3, 4, 5]}
-                    valor={grau[id] ?? null}
-                    onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
-                    legendas={SINTOMA[id] ?? INTENSIDADE}
-                  />
-                </Campo>
+              <Campo key={id} rotulo={`${s.label} · intensidade`}>
+                <Escala
+                  suave
+                  valores={[1, 2, 3, 4, 5]}
+                  valor={grau[id] ?? null}
+                  onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
+                  legendas={SINTOMA[id] ?? INTENSIDADE}
+                />
 
-                {/* Colado embaixo do cartão da dor, e não dentro dele:
-                    o Aviso já é um cartão, e cartão dentro de cartão vira
-                    caixa em caixa. */}
                 {id === DOR && (grau[id] ?? 0) >= DOR_AVISA ? (
                   <Aviso
-                    ic="steth"
+                    dentro
+                    ic="aura"
                     titulo="Essa dor não espera a próxima consulta"
                     texto="Dor abdominal forte ou que não passa é a que a bula pede para relatar na hora. Registre aqui e fale com sua equipe hoje."
                   />
                 ) : null}
-              </React.Fragment>
+              </Campo>
             );
           })}
         </View>

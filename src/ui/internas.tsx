@@ -537,18 +537,43 @@ export function Grade2({ children }: { children: React.ReactNode }) {
 /* Aviso — a nota de rodapé com peso de card. Existe para o que precisa ser
    dito mas não é dado: o disclaimer clínico, o lembrete de que uma semana
    vazia não é falha, o alerta de que apagar tira o registro do relatório. */
-export function Aviso({ ic = 'info', titulo, texto, children }: {
-  ic?: string; titulo?: string; texto?: string; children?: React.ReactNode;
+/* Aviso — o que a tela diz depois de ler a resposta.
+
+   `dentro` tira a casca de cartão e o encaixa NO campo que o provocou,
+   separado por um fio. Como cartão solto ele virava mais um bloco na
+   pilha, à mesma distância de todos e ligado a nenhum; dentro, ele é a
+   continuação da resposta que a pessoa acabou de dar — e por isso vem com
+   o ícone da IA, o mesmo que o app usa quando é ele quem observa algo. */
+export function Aviso({ ic = 'info', titulo, texto, dentro, children }: {
+  ic?: string; titulo?: string; texto?: string; dentro?: boolean; children?: React.ReactNode;
 }) {
   const { c } = useTheme();
-  return (
-    <Row style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11, alignItems: 'flex-start' }, shadowCard(c)]}>
+
+  const corpo = (
+    <>
       <Icon name={ic} size={18} color={c.accent} sw={1.9} />
       <View style={{ flex: 1 }}>
         {titulo ? <Txt v="bodyMed" style={{ marginBottom: 2 }}>{titulo}</Txt> : null}
         {texto ? <Txt v="caption" c={c.tx2}>{texto}</Txt> : null}
         {children}
       </View>
+    </>
+  );
+
+  if (dentro) {
+    return (
+      <Row style={{
+        gap: 11, alignItems: 'flex-start',
+        borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 12,
+      }}>
+        {corpo}
+      </Row>
+    );
+  }
+
+  return (
+    <Row style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 11, alignItems: 'flex-start' }, shadowCard(c)]}>
+      {corpo}
     </Row>
   );
 }
