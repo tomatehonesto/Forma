@@ -1562,6 +1562,26 @@ export function diasDeForca(S: State): number {
   return dias.size;
 }
 
+/* OS DIAS DO PERÍODO, do mais antigo para hoje.
+
+   Serve à tira de calendário do caderno: cada dia sabe se teve treino
+   registrado e quantos minutos. É diferente do gráfico de barras lá em
+   cima, que mostra SETE dias e responde "quanto" — aqui a pergunta é o
+   ritmo ao longo do período: três dias seguidos, um de folga, dois.
+
+   `treinos` e não `exerc`: a tira navega o caderno, e o caderno só tem
+   o que foi registrado à mão. Marcar um dia que só o relógio preencheu
+   levaria a pessoa a um dia vazio. */
+export function diasDoPeriodo(S: State, dias: number): { t: number; treinos: number; min: number }[] {
+  const hoje = +startOfDay(now());
+  const porT = new Map((S.checkins as any[]).map((c) => [c.t, c]));
+  return Array.from({ length: dias }, (_, i) => {
+    const t = hoje - (dias - 1 - i) * DAY;
+    const lista = (porT.get(t)?.treinos || []) as { min: number }[];
+    return { t, treinos: lista.length, min: lista.reduce((x, tr) => x + tr.min, 0) };
+  });
+}
+
 /* O RESUMO DE UM PERÍODO — só do que foi registrado aqui.
 
    Os minutos vêm dos TREINOS, e não de `exerc`: os números ficam em

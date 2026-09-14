@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   checkinToday, fontesDeMovimento, listaPt,
-  diasDeForca, resumoDeMovimento, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
+  diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
+  semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
@@ -79,6 +80,12 @@ export default function Exercicio() {
   const router = useRouter();
   const [per, setPer] = useState('30');
   const dias = PERIODOS.find((x) => x.id === per)!.dias;
+  /* O dia escolhido na tira, ou null para o período inteiro. Trocar de
+     período solta a escolha: um 12 de setembro selecionado não faz
+     sentido dentro de "7 dias". */
+  const [diaSel, setDiaSel] = useState<number | null>(null);
+  const tira = React.useRef<ScrollView>(null);
+  const escolhePeriodo = (id: string) => { setPer(id); setDiaSel(null); };
 
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
@@ -98,13 +105,16 @@ export default function Exercicio() {
   const forca = diasDeForca(S);
   const treinos = treinosRecentes(S, dias);
   const resumo = resumoDeMovimento(S, dias);
+  const calendario = diasDoPeriodo(S, dias);
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
   /* O registro agrupado por dia, que é como um caderno de treino se lê:
      a data uma vez, e embaixo o que aconteceu nela. Em lista corrida, a
      mesma data se repetia em toda linha e o olho tinha que juntar. */
-  const porDia = treinos.reduce<{ t: number; itens: typeof treinos }[]>((fora, tr) => {
+  const porDia = treinos
+    .filter((tr) => diaSel == null || tr.t === diaSel)
+    .reduce<{ t: number; itens: typeof treinos }[]>((fora, tr) => {
     const ultimo = fora[fora.length - 1];
     if (ultimo && ultimo.t === tr.t) ultimo.itens.push(tr);
     else fora.push({ t: tr.t, itens: [tr] });
@@ -268,7 +278,7 @@ export default function Exercicio() {
           mostra 6 h. */}
       <Bloco titulo="No período" nota="Só o que foi registrado aqui — o que vem do relógio não tem modalidade.">
         <View style={{ gap: 10 }}>
-          <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={setPer} />
+          <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={escolhePeriodo} />
           {resumo.treinos ? (
             <View style={{ gap: 10 }}>
               <Grade2>
@@ -306,6 +316,71 @@ export default function Exercicio() {
         titulo="Caderno de treino"
         nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
       >
+        {/* A TIRA DE CALENDÁRIO
+
+            Ela responde uma coisa que nem o gráfico de barras nem a lista
+            dão: o RITMO. O gráfico mostra sete dias e diz quanto; a lista
+            mostra os treinos e some com os dias vazios. A tira mostra os
+            dois juntos — três dias seguidos, um de folga, dois — que é
+            como se enxerga constância.
+
+            E navega: tocar num dia filtra o caderno para ele, tocar de
+            novo solta. Sem isso, achar o que foi feito no dia 3 num
+            período de três meses é rolagem. */}
+        <View style={{ gap: 12 }}>
+          {/* Em ordem, e rolada até o fim assim que mede: a tira nasce
+              mostrando HOJE, que é onde a pessoa está, em vez de três meses
+              atrás. Tentei antes com row-reverse, que inverte o desenho mas
+              não a rolagem — abria no dia mais velho de todos. */}
+          <ScrollView
+            ref={tira}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            onContentSizeChange={() => tira.current?.scrollToEnd({ animated: false })}
+            style={{ marginHorizontal: -16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
+          >
+            {calendario.map((d) => {
+              const on = diaSel === d.t;
+              const dt = new Date(d.t);
+              const temTreino = d.treinos > 0;
+              return (
+                <Pressable
+                  key={d.t}
+                  onPress={() => setDiaSel(on ? null : d.t)}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                >
+                  <View style={{
+                    width: 44, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
+                    backgroundColor: on ? c.tx : temTreino ? c.accentWeak : c.bg1,
+                    borderWidth: 1, borderColor: on ? c.tx : temTreino ? c.accentLine : c.line,
+                  }}>
+                    <Txt v="micro" c={on ? c.onHero : c.tx4}>{WD[dt.getDay()]}</Txt>
+                    <Txt v="caption" c={on ? c.onHero : temTreino ? c.accent : c.tx3}>{dt.getDate()}</Txt>
+                    {/* O ponto marca o dia com treino mesmo quando o cartão
+                        está selecionado e a cor de fundo já não diz. */}
+                    <View style={{
+                      width: 4, height: 4, borderRadius: 2,
+                      backgroundColor: temTreino ? (on ? c.onHero : c.accent) : 'transparent',
+                    }} />
+                  </View>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
+          {diaSel != null ? (
+            <Row gap={8} style={{ paddingHorizontal: 2 }}>
+              <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>
+                Mostrando só {relDay(new Date(diaSel))}.
+              </Txt>
+              <Pressable onPress={() => setDiaSel(null)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <Txt v="label" c={c.accent}>Ver tudo</Txt>
+              </Pressable>
+            </Row>
+          ) : null}
+        </View>
+
         {porDia.length ? (
           <View style={{ gap: 14 }}>
             {porDia.map((dia) => (
@@ -341,8 +416,9 @@ export default function Exercicio() {
           <Cartao>
             <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
               <Txt v="caption" c={c.tx2}>
-                Nada registrado neste período. O que você registrar aparece aqui com a
-                modalidade e a duração.
+                {diaSel != null
+                  ? 'Nenhum treino registrado neste dia.'
+                  : 'Nada registrado neste período. O que você registrar aparece aqui com a modalidade e a duração.'}
               </Txt>
             </View>
           </Cartao>
