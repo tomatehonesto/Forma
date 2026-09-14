@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  quickCapture, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, streak,
+  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, streak,
   type QuickKey,
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
@@ -62,7 +62,7 @@ export default function Registrar() {
   const veu = fez ? 'rgba(60,107,44,0.12)' : 'rgba(255,255,255,0.18)';
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
-  const { acoes } = quickCapture(S);
+  const acoes = ATALHOS;
 
   /* A aplicação era o único item que salvava aqui dentro, num toque, com
      dose e local no automático. Deixou de ser: ela é o registro que mais

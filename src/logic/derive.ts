@@ -1415,33 +1415,23 @@ export function journeyGoals(S: State): JourneyGoal[] {
    dia pede outra coisa. */
 export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicacao' | 'sintomas' | 'exame' | 'anotacoes';
 
-export function quickCapture(S: State): { motivo: string; acoes: QuickKey[] } {
-  const nd = diffDays(nextInjectionDate(S), now());
-  const li = lastInjection(S);
-  const aplicouHoje = li ? +startOfDay(new Date(li.t)) === +startOfDay(now()) : false;
+/* Os três atalhos do sheet de registrar. Fixos, sempre os mesmos.
 
-  /* Água e refeição são os dois registros que acontecem todo dia, então
-     seguram lugar fixo. Só o terceiro gira conforme o momento — e nunca
-     entra aí algo semanal como a aplicação, que ficaria parada seis dias
-     em sete ocupando destaque. */
-  if (nd <= 0 || aplicouHoje) {
-    return {
-      motivo: aplicouHoje ? 'Você aplicou hoje' : 'Hoje é dia de aplicação',
-      acoes: ['agua', 'refeicao', 'sintomas'],   // é quando o enjoo aparece
-    };
-  }
+   Eles giravam com o momento do tratamento: no dia da aplicação o terceiro
+   virava "Meu corpo reagiu", depois de uma consulta virava "Recebi um
+   exame". A intenção era boa e o efeito era ruim — o sheet é superfície de
+   memória muscular, e um botão que troca de identidade conforme o dia
+   obriga a LER os três toda vez, que é o oposto de atalho.
 
-  const ultima = (S.consultsHistory as any[])
-    .slice().sort((a, b) => b.t - a.t)[0];
-  if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) {
-    return {
-      motivo: 'Depois da sua consulta',
-      acoes: ['agua', 'refeicao', 'exame'],      // é quando os exames chegam
-    };
-  }
+   E a escolha do dia de aplicação era a mais questionável das três:
+   sintoma já é o assunto do check-in, que fica no banner logo acima, com
+   nove sintomas e intensidade. Exercício não está em lugar nenhum além
+   daqui — tirá-lo do atalho no dia em que a pessoa mais precisa se mexer
+   era trocar o único caminho pelo caminho duplicado.
 
-  return { motivo: 'Um dia comum de tratamento', acoes: ['agua', 'refeicao', 'exercicio'] };
-}
+   A rotação continua existindo no app, mas onde ela cabe: nos empurrões da
+   Home e do companion, que são leitura, não botão. */
+export const ATALHOS: QuickKey[] = ['agua', 'refeicao', 'exercicio'];
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
