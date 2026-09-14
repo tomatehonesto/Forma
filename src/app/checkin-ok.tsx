@@ -129,15 +129,23 @@ export default function CheckinOk() {
     transform: [{ translateY: sobe.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
   };
 
-  /* Pastilha — a peça de que a tela inteira é feita. Em lima quando
-     celebra, em vidro quando confirma. */
-  const Pastilha = ({ label, lima }: { label: string; lima?: boolean }) => (
+  /* Pastilha em dois tons, e a diferença é o que ela faz.
+
+     MARCA celebra, e é verde CHAPADO — o mesmo par que o app usa para
+     'concluído'. Em lavagem de lima ela era mais um vidro na tela: três
+     peças translúcidas embaixo de um número de lima, e o que devia ser
+     conquista lia como legenda. Chapada, ela é objeto.
+
+     VIDRO confirma, e continua vidro: aquilo não comemora nada, só diz o
+     que foi respondido. */
+  const Pastilha = ({ label, marca }: { label: string; marca?: boolean }) => (
     <View style={{
-      backgroundColor: lima ? c.limeWeak : c.glass,
-      borderWidth: 1, borderColor: lima ? 'rgba(221,246,44,0.32)' : c.glassLine,
-      borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 7,
+      backgroundColor: marca ? c.okBg : c.glass,
+      borderWidth: marca ? 0 : 1, borderColor: c.glassLine,
+      borderRadius: radius.pill,
+      paddingHorizontal: 13, paddingVertical: marca ? 8 : 7,
     }}>
-      <Txt v="tag" c={lima ? c.lime : c.onHero}>{label}</Txt>
+      <Txt v="tag" c={marca ? c.ok : c.onHero}>{label}</Txt>
     </View>
   );
 
@@ -209,7 +217,7 @@ export default function CheckinOk() {
                 quanto o enjoo, e ninguém contava esse. */}
             {marcas.length ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, justifyContent: 'center' }}>
-                {marcas.map((m) => <Pastilha key={m} label={m} lima />)}
+                {marcas.map((m) => <Pastilha key={m} label={m} marca />)}
               </View>
             ) : null}
           </Animated.View>
