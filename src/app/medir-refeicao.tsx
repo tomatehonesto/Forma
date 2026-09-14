@@ -38,14 +38,15 @@ import { radius } from '../theme';
    inteiro seria pior, e inventar um número seria voltar ao começo.
    ============================================================ */
 
-/* As horas do dia em ordem, e o sol contando elas: nasce, fica a pino,
-   cai, some. A lua é o sono no resto do app, mas nesta fileira ela lê
-   como noite — quem dá o sentido é a família, não o glifo sozinho. */
+/* Cada refeição pelo que se come nela, e não pela hora em que ela cai:
+   a xícara, o talher, o sanduíche, a tigela. O sol e a lua diziam que
+   horas eram — e a pessoa não está escolhendo um horário, está dizendo
+   qual refeição foi. */
 const HORARIOS: [string, string][] = [
-  ['sunrise', 'Café da manhã'],
-  ['sun', 'Almoço'],
-  ['sunset', 'Lanche'],
-  ['moon', 'Jantar'],
+  ['coffee', 'Café da manhã'],
+  ['cutlery', 'Almoço'],
+  ['sandwich', 'Lanche'],
+  ['soup', 'Jantar'],
 ];
 
 export default function MedirRefeicao() {

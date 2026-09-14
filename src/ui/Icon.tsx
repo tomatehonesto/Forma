@@ -80,8 +80,9 @@ import Sparkle from 'lucide-react-native/icons/sparkle';
 import Sparkles from 'lucide-react-native/icons/sparkles';
 import Stethoscope from 'lucide-react-native/icons/stethoscope';
 import Sun from 'lucide-react-native/icons/sun';
-import Sunrise from 'lucide-react-native/icons/sunrise';
-import Sunset from 'lucide-react-native/icons/sunset';
+import Coffee from 'lucide-react-native/icons/coffee';
+import Sandwich from 'lucide-react-native/icons/sandwich';
+import UtensilsCrossed from 'lucide-react-native/icons/utensils-crossed';
 import Syringe from 'lucide-react-native/icons/syringe';
 import Target from 'lucide-react-native/icons/target';
 import ThumbsDown from 'lucide-react-native/icons/thumbs-down';
@@ -131,7 +132,9 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   bolt: Zap,
   mood: FaceSlightlySmiling,
   meh: FaceNeutral,
-  full: Soup,
+  /* A tigela é o jantar. A chave se chamava `full` e não era usada em
+     lugar nenhum — nome de sentimento para um desenho de prato. */
+  soup: Soup,
   gut: Toilet,
   pill: Pill,
   syringe: Syringe,
@@ -143,11 +146,15 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   steth: Stethoscope,
   send: Send,
   sun: Sun,
-  /* As horas da refeição: nascer, meio-dia, fim de tarde, noite. A lua
-     já é o sono no resto do app, mas dentro da fileira do sol ela lê
-     como noite — é a família que dá o sentido, não o glifo sozinho. */
-  sunrise: Sunrise,
-  sunset: Sunset,
+  /* As refeições, cada uma pelo que se come nela. O talher CRUZADO é o
+     almoço; o talher paralelo (`utensils`, logo abaixo) continua sendo a
+     categoria Alimentação no resto do app. São dois desenhos parecidos
+     de propósito — mesma família, níveis diferentes —, mas o cruzado é
+     a marca clássica de refeição principal e se distingue no tamanho em
+     que a lista desenha. */
+  coffee: Coffee,
+  cutlery: UtensilsCrossed,
+  sandwich: Sandwich,
   aura: Sparkles,
   doc: FileText,
   ruler: Ruler,
