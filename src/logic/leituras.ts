@@ -227,3 +227,35 @@ export function persistencia(anteriores: any[], niveis: Niveis): Leitura | null 
 export function leituraDoDia(anteriores: any[], n: Niveis): Leitura | null {
   return combinacao(n) ?? persistencia(anteriores, n);
 }
+
+/* Os avisos de CAMPO que se aplicam ao dia, todos.
+
+   No formulário cada um aparece grudado no campo que o provocou, e some
+   quando uma combinação toma a frente. A confirmação faz o contrário:
+   junta os que sobraram numa lista, porque ali a pessoa já respondeu tudo
+   e o que resta é lembrar do que fazer com as respostas. */
+export function avisosDoDia(n: Niveis): Leitura[] {
+  const fora: Leitura[] = [];
+  for (const [id, a] of Object.entries(AVISOS)) {
+    if (((n as any)[id] ?? 0) >= a.min) fora.push({ titulo: a.titulo, texto: a.texto, acao: a.acao });
+  }
+  if (n.preso >= AVISO_PRESO.min) {
+    fora.push({ titulo: AVISO_PRESO.titulo, texto: AVISO_PRESO.texto, acao: AVISO_PRESO.acao });
+  }
+  if (n.solto >= AVISO_SOLTO.min) {
+    fora.push({ titulo: AVISO_SOLTO.titulo, texto: AVISO_SOLTO.texto, acao: AVISO_SOLTO.acao });
+  }
+  return fora;
+}
+
+/* O que a confirmação lembra, em ordem de urgência.
+
+   Uma combinação cala o resto — ela diz "vá agora" sobre o conjunto, e
+   uma lista embaixo dela vira ruído. Sem combinação, a persistência abre
+   a lista e os avisos de campo vêm atrás. */
+export function lembretesDoDia(anteriores: any[], n: Niveis): Leitura[] {
+  const junto = combinacao(n);
+  if (junto) return [junto];
+  const semana = persistencia(anteriores, n);
+  return [...(semana ? [semana] : []), ...avisosDoDia(n)];
+}

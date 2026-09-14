@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, Animated, ScrollView, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { checkinToday, streak } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { ENERGIA, SONO, HUMOR, SINTOMAS, paraTela } from '../logic/escalas';
-import { leituraDoDia, niveisDoRegistro, diasAnteriores } from '../logic/leituras';
+import { lembretesDoDia, niveisDoRegistro, diasAnteriores } from '../logic/leituras';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Aviso, Botao, Selo } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -20,23 +21,31 @@ import { radius } from '../theme';
    Jornada, sem ninguém dizer que o dia tinha entrado. Um formulário que
    se fecha sozinho ensina que responder não muda coisa alguma.
 
-   Esta tela fecha o gesto com as três coisas que ela produziu:
+   Esta é a única tela do app inteiramente sobre a aurora. As abas usam o
+   fundo escuro no topo e sobem a folha branca por cima; aqui não sobe
+   nada — porque esta tela não tem conteúdo para administrar, ela tem um
+   momento para marcar, e o momento dura quinze segundos. É a diferença
+   entre um recibo e uma comemoração.
 
-     · a confirmação — o dia está registrado
+   O que ela mostra, nessa ordem:
+
+     · o selo de feito, em lima, entrando crescendo
      · o STREAK subindo, animado. O número é o mesmo de sempre, mas vê-lo
        virar é o que transforma um registro em sequência. Quem edita um
        dia já respondido vê o número parado: não houve festa, e fingir que
        houve estragaria as que são de verdade.
      · o que ficou gravado, em palavras — não os números da régua, as
-       legendas que a pessoa escolheu. É o recibo do que ela disse.
-     · a LEITURA do dia, quando existe: a mesma combinação ou persistência
-       que o formulário mostraria, vinda de logic/leituras para as duas
-       chegarem à mesma conclusão sobre o mesmo dia.
+       legendas que a pessoa escolheu
+     · NÃO SE ESQUEÇA: tudo que o dia pediu de ação, junto. No formulário
+       cada aviso vive grudado no seu campo e some quando uma combinação
+       toma a frente; aqui eles se juntam, porque a pessoa já respondeu e
+       o que resta é levar embora o que fazer.
 
-   Sem leitura, a tela não inventa uma. Dia sem nada a apontar é uma boa
-   notícia que não precisa de frase.
+   Sem nada a lembrar, a tela não inventa. Dia sem aviso é boa notícia, e
+   boa notícia não precisa de frase.
    ============================================================ */
 
+const AURORA = require('../../assets/images/aurora-hero.png');
 const PAD = 16;
 
 /* Marcos de sequência. Não são conquistas do app — são só os números em
@@ -70,18 +79,23 @@ export default function CheckinOk() {
      a troca significar alguma coisa. */
   const [n, setN] = useState(subiu ? anterior : atual);
   const entrada = useRef(new Animated.Value(0)).current;
+  const sobe = useRef(new Animated.Value(0)).current;
   const pulo = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.spring(entrada, { toValue: 1, friction: 6, tension: 90, useNativeDriver: true }).start();
+    Animated.stagger(90, [
+      Animated.spring(entrada, { toValue: 1, friction: 6, tension: 90, useNativeDriver: true }),
+      Animated.timing(sobe, { toValue: 1, duration: 380, useNativeDriver: true }),
+    ]).start();
+
     if (!subiu) return;
     const t = setTimeout(() => {
       setN(atual);
       Animated.sequence([
-        Animated.timing(pulo, { toValue: 1.22, duration: 140, useNativeDriver: true }),
+        Animated.timing(pulo, { toValue: 1.24, duration: 140, useNativeDriver: true }),
         Animated.spring(pulo, { toValue: 1, friction: 4, useNativeDriver: true }),
       ]).start();
-    }, 520);
+    }, 560);
     return () => clearTimeout(t);
   }, []);
 
@@ -107,82 +121,155 @@ export default function CheckinOk() {
   }).map((x) => x.label);
   recibo.push(['Sintomas', sintomas.length ? sintomas.join(', ') : 'Nenhum hoje']);
 
-  const leitura = registro
-    ? leituraDoDia(diasAnteriores(S.checkins as any[], +startOfDay(now())), niveisDoRegistro(registro))
-    : null;
+  const lembretes = registro
+    ? lembretesDoDia(diasAnteriores(S.checkins as any[], +startOfDay(now())), niveisDoRegistro(registro))
+    : [];
 
   const sair = () => router.replace('/(tabs)/jornada' as any);
 
+  /* Sobem juntos, com um atraso depois do selo: o conteúdo entra atrás da
+     confirmação, não ao lado dela. */
+  const subindo = {
+    opacity: sobe,
+    transform: [{ translateY: sobe.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg }}>
+    <View style={{ flex: 1, backgroundColor: c.altTo }}>
+      {/* A aurora parada. Na Home ela deriva devagar, e ali o movimento é
+          ambiente; aqui o que se move é o número, e duas coisas em
+          movimento disputam o mesmo olhar. */}
+      <Image source={AURORA} style={StyleSheet.absoluteFill} contentFit="cover" />
+
+      {/* Véu mais pesado embaixo, onde ficam o recibo em vidro e a faixa
+          do botão — a aurora tem regiões claras, e vidro sobre claro não
+          é vidro, é contorno. */}
+      <LinearGradient
+        colors={['rgba(3,10,38,0.42)', 'rgba(3,10,38,0.54)', 'rgba(3,10,38,0.88)']}
+        locations={[0, 0.38, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: PAD,
-          paddingTop: insets.top + 48,
-          paddingBottom: 170,
-          gap: 28,
+          paddingTop: insets.top + 52,
+          paddingBottom: 180,
+          gap: 30,
         }}
       >
-        {/* O selo de feito. Entra crescendo porque é a resposta ao toque
-            que acabou de acontecer — parado, seria só um ícone. */}
-        <View style={{ alignItems: 'center', gap: 20 }}>
+        <View style={{ alignItems: 'center', gap: 22 }}>
+          {/* O selo em lima, que é a cor que o app reserva para o que foi
+              conquistado. Entra crescendo porque é resposta ao toque que
+              acabou de acontecer — parado, seria só um ícone. */}
           <Animated.View
             style={{
               opacity: entrada,
               transform: [{ scale: entrada }],
-              width: 78, height: 78, borderRadius: 39,
-              backgroundColor: c.okBg, alignItems: 'center', justifyContent: 'center',
+              width: 84, height: 84, borderRadius: 42,
+              backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <Icon name="check" size={34} color={c.ok} sw={2.4} />
+            <Icon name="check" size={38} color={c.limeInk} sw={2.6} />
           </Animated.View>
 
-          <Txt v="h1" style={{ textAlign: 'center', letterSpacing: -0.4 }}>Check-in concluído</Txt>
-        </View>
-
-        {/* A sequência. O número é o herói da tela, então fica sozinho na
-            sua linha, no tamanho que os números grandes têm no app. */}
-        <View style={{ alignItems: 'center', gap: 12 }}>
-          <Row gap={12} style={{ alignItems: 'center' }}>
-            <Animated.View style={{ transform: [{ scale: pulo }] }}>
-              <Txt v="hero" c={c.accent}>{n}</Txt>
-            </Animated.View>
-            <Txt v="title" c={c.tx2} style={{ maxWidth: 130 }}>
-              {n === 1 ? 'dia seguido de check-in' : 'dias seguidos de check-in'}
+          <Animated.View style={[subindo, { alignItems: 'center', gap: 16 }]}>
+            <Txt v="display" c={c.onHero} style={{ textAlign: 'center', letterSpacing: -0.6 }}>
+              Check-in concluído
             </Txt>
-          </Row>
 
-          {marco ? <Selo label={marco} tom="lima" /> : null}
+            {/* A sequência. O número é o herói da tela e fica em lima, do
+                tamanho dos números grandes do app. */}
+            <Row gap={12} style={{ alignItems: 'center' }}>
+              <Animated.View style={{ transform: [{ scale: pulo }] }}>
+                <Txt v="hero" c={c.lime}>{n}</Txt>
+              </Animated.View>
+              <Txt v="title" c={c.onHero2} style={{ maxWidth: 132 }}>
+                {n === 1 ? 'dia seguido de check-in' : 'dias seguidos de check-in'}
+              </Txt>
+            </Row>
+
+            {marco ? (
+              <View style={{
+                backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+                borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 6,
+              }}>
+                <Txt v="tag" c={c.onHero}>{marco}</Txt>
+              </View>
+            ) : null}
+          </Animated.View>
         </View>
 
-        {/* O recibo. Em palavras e não em números: quem respondeu escolheu
-            "Com disposição", não "4". */}
-        <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: PAD, paddingVertical: 4 }}>
+        {/* O recibo, em vidro. Em palavras e não em números: quem
+            respondeu escolheu "Com disposição", não "4". */}
+        <Animated.View style={[subindo, {
+          backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+          borderRadius: radius.lg, paddingHorizontal: PAD, paddingVertical: 4,
+        }]}>
           {recibo.map(([rotulo, valor], i) => (
             <View key={rotulo}>
-              {i > 0 ? <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line }} /> : null}
+              {i > 0 ? <View style={{ height: 1, backgroundColor: c.onHeroLine }} /> : null}
               <Row gap={12} style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-                <Txt v="caption" c={c.tx3} style={{ width: 78 }}>{rotulo}</Txt>
-                <Txt v="caption" style={{ flex: 1, textAlign: 'right' }}>{valor}</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ width: 78 }}>{rotulo}</Txt>
+                <Txt v="caption" c={c.onHero} style={{ flex: 1, textAlign: 'right' }}>{valor}</Txt>
               </Row>
             </View>
           ))}
-        </View>
+        </Animated.View>
 
-        {leitura ? (
-          <Aviso destaque ic="aura" titulo={leitura.titulo} texto={leitura.texto} acao={leitura.acao} />
+        {lembretes.length ? (
+          <Animated.View style={[subindo, { gap: 10 }]}>
+            <Row gap={10} style={{ paddingHorizontal: 2 }}>
+              <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>NÃO SE ESQUEÇA</Txt>
+              <View style={{ flex: 1, height: 1, backgroundColor: c.onHeroLine }} />
+            </Row>
+
+            {lembretes.map((l) => (
+              <View
+                key={l.titulo}
+                style={{
+                  backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+                  borderRadius: radius.lg, padding: PAD, gap: 5,
+                }}
+              >
+                <Row gap={8} style={{ alignItems: 'flex-start' }}>
+                  <View style={{ marginTop: 2 }}>
+                    <Icon name="aura" size={15} color={c.lime} sw={2} />
+                  </View>
+                  <Txt v="label" c={c.onHero} style={{ flex: 1 }}>{l.titulo}</Txt>
+                </Row>
+                <Txt v="tag" c={c.onHero2}>{l.texto}</Txt>
+                <View style={{ gap: 3, marginTop: 3 }}>
+                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>
+                  <Txt v="tag" c={c.onHero}>{l.acao}</Txt>
+                </View>
+              </View>
+            ))}
+          </Animated.View>
         ) : null}
       </ScrollView>
 
+      {/* A faixa do botão não tem fundo próprio: o véu já escureceu a base
+          da aurora, e uma barra chapada ali cortaria a imagem em duas. */}
       <View style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,
-        paddingHorizontal: PAD, paddingTop: 14,
-        paddingBottom: (insets.bottom || 12) + 14,
-        backgroundColor: c.bg,
-        borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
+        paddingHorizontal: PAD, paddingTop: 16,
+        paddingBottom: (insets.bottom || 12) + 16,
       }}>
-        <Botao label="Ver minha jornada" onPress={sair} />
+        <LinearGradient
+          colors={['rgba(3,10,38,0)', 'rgba(3,10,38,0.92)']}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        {/* Em lima, como o "Fazer check-in" da Home: é o mesmo par de
+            cores fechando o que aquele botão abriu. */}
+        <Pressable onPress={sair} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
+          <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
+            <Txt v="bodyMed" c={c.limeInk}>Ver minha jornada</Txt>
+          </View>
+        </Pressable>
       </View>
     </View>
   );
