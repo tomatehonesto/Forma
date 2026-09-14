@@ -7,7 +7,7 @@ import {
   diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
   semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
-import { fmtDate, now, relDay, startOfDay, WD } from '../logic/time';
+import { fmtDate, now, startOfDay, WD } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
@@ -132,17 +132,14 @@ export default function Exercicio() {
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
-  /* O registro agrupado por dia, que é como um caderno de treino se lê:
-     a data uma vez, e embaixo o que aconteceu nela. Em lista corrida, a
-     mesma data se repetia em toda linha e o olho tinha que juntar. */
-  const porDia = treinos
-    .filter((tr) => tr.t === diaSel)
-    .reduce<{ t: number; itens: typeof treinos }[]>((fora, tr) => {
-    const ultimo = fora[fora.length - 1];
-    if (ultimo && ultimo.t === tr.t) ultimo.itens.push(tr);
-    else fora.push({ t: tr.t, itens: [tr] });
-    return fora;
-  }, []);
+  /* Uma lista simples, do dia escolhido.
+
+     Ela já foi agrupada por data, com um cabeçalho por dia — fazia
+     sentido enquanto o caderno listava o período inteiro e a mesma data
+     se repetia em toda linha. Com um dia por vez o cabeçalho passou a
+     repetir o que a tira logo acima já diz, e um agrupamento de um grupo
+     só é estrutura sem trabalho. */
+  const doDia = treinos.filter((tr) => tr.t === diaSel);
 
   return (
     /* Sem "+" no topo: o rodapé fixo é o mesmo gesto, e dois botões para
@@ -469,41 +466,26 @@ export default function Exercicio() {
           </ScrollView>
         </View>
 
-        {porDia.length ? (
-          <View style={{ gap: 14 }}>
-            {porDia.map((dia) => (
-              <View key={dia.t} style={{ gap: 7 }}>
-                <Row style={{ justifyContent: 'space-between', paddingHorizontal: 4 }}>
-                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>
-                    {relDay(new Date(dia.t)).toUpperCase()}
-                  </Txt>
-                  <Txt v="micro" c={c.tx4}>
-                    {dia.itens.reduce((x, t) => x + t.min, 0)} min · {fmtDate(new Date(dia.t))}
-                  </Txt>
-                </Row>
-                <Cartao>
-                  {/* A seta abre a folha do treino: ela MOSTRA, e só depois
-                      oferece corrigir e apagar. Abrir o formulário direto
-                      era rápido e errado — quem toca num treino ainda não
-                      decidiu mexer nele, pode estar só conferindo o que foi
-                      aquele dia. */}
-                  {dia.itens.map((t) => (
-                    <Linha
-                      key={`${t.t}-${t.i}`}
-                      ic={t.ic}
-                      titulo={t.tipo}
-                      /* A origem entra aqui e não numa segunda linha: ela
-                         qualifica a duração — 50 min que você digitou e 50
-                         min que o relógio contou não se conferem do mesmo
-                         jeito — e é ao lado do número que ela é lida. */
-                      sub={`${t.min} min · ${t.fonte}`}
-                      onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
-                    />
-                  ))}
-                </Cartao>
-              </View>
+        {doDia.length ? (
+          <Cartao>
+            {/* A seta abre a folha do treino: ela MOSTRA, e só depois
+                oferece corrigir e apagar. Abrir o formulário direto era
+                rápido e errado — quem toca num treino ainda não decidiu
+                mexer nele, pode estar só conferindo o que foi aquele dia. */}
+            {doDia.map((t) => (
+              <Linha
+                key={`${t.t}-${t.i}`}
+                ic={t.ic}
+                titulo={t.tipo}
+                /* A origem entra aqui e não numa segunda linha: ela
+                   qualifica a duração — 50 min que você digitou e 50 min
+                   que o relógio contou não se conferem do mesmo jeito — e é
+                   ao lado do número que ela é lida. */
+                sub={`${t.min} min · ${t.fonte}`}
+                onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
+              />
             ))}
-          </View>
+          </Cartao>
         ) : (
           /* Um vazio só, com três frases possíveis — e a segunda linha só
              aparece quando existe uma saída para oferecer.
