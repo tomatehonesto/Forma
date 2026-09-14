@@ -18,11 +18,14 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
-  onScrub, scrub,
+  fill = 0.17, onScrub, scrub,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
   strokeFrom?: string; strokeTo?: string; padT?: number; padB?: number; padX?: number; strokeW?: number; id?: string; nodes?: boolean;
+  /** opacidade do topo da área. Fio fino de sparkline pede 0,17; cartão de
+      gráfico, que é a peça principal da seção, aguenta mais. */
+  fill?: number;
   /* Deslizar o dedo pela curva devolve o índice do ponto mais próximo, e
      null ao soltar. Quem passa isto assume a leitura: a curva sozinha não
      sabe o que cada ponto significa. */
@@ -115,11 +118,14 @@ export function AreaCurve({
         <Svg width={w} height={height}>
           <Defs>
             <SvgGrad id={`${id}s`} x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor={sf} /><Stop offset="1" stopColor={st} /></SvgGrad>
-            <SvgGrad id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={sf} stopOpacity={0.17} /><Stop offset="1" stopColor={sf} stopOpacity={0} /></SvgGrad>
+            <SvgGrad id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={sf} stopOpacity={fill} /><Stop offset="1" stopColor={sf} stopOpacity={0} /></SvgGrad>
           </Defs>
           <Path d={area} fill={`url(#${id}f)`} />
           <Path d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          {nodes && PX.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.2} fill={c.bg1} stroke={st} strokeWidth={2} />)}
+          {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
+              vira um engrossamento do próprio traço e some. O miolo na cor
+              do cartão é o que faz cada marcação existir como marcação. */}
+          {nodes && PX.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.6} fill={c.bg1} stroke={st} strokeWidth={2.2} />)}
           {mk && dashed && <Line x1={mk.x} y1={mk.y} x2={mk.x} y2={height - padB} stroke={st} strokeWidth={1.4} strokeDasharray="3 4" opacity={0.5} />}
           {mk && <><Circle cx={mk.x} cy={mk.y} r={6.5} fill={c.bg1} /><Circle cx={mk.x} cy={mk.y} r={4.3} fill={st} /></>}
 

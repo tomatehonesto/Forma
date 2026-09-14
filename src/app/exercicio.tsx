@@ -278,7 +278,12 @@ export default function Exercicio() {
             sub="Média das últimas 8 semanas"
             valor={String(mediaSemanal)}
             unidade="min"
-            altura={110}
+            /* Mais alta que o padrão porque é a única coisa nesta tela que
+               olha para trás de verdade — as barras de cima cobrem sete
+               dias, e sete dias não dizem se a pessoa está se mexendo mais
+               do que há dois meses. Altura é o que separa a resposta
+               principal da nota de rodapé. */
+            altura={140}
             pontos={semanas.map((w) => ({
               v: w.min,
               rotulo: String(w.min),

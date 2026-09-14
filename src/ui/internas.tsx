@@ -490,9 +490,26 @@ export function CardCurva({
       </Row>
 
       {curva.length > 1 ? (
+        /* A CURVA MARCADA.
+
+           Ela nasceu como um fio de 2px sangrando de borda a borda, sem um
+           único ponto — bonita e muda: dava para ver que subia, não dava
+           para ver de quantas leituras ela é feita nem onde cada uma cai.
+           Um gráfico que só tem forma é enfeite; o que o torna leitura é a
+           marcação, porque é ela que diz "aqui houve uma medida".
+
+           Daí os três ajustes: traço mais grosso, área mais presente e um
+           nó em cada ponto. E daí também o recuo nas quatro bordas — sem
+           ele o primeiro e o último nó sairiam cortados ao meio na dobra
+           do cartão, que é pior do que não ter nó nenhum.
+
+           Acima de catorze leituras os nós saem. Aí eles deixam de marcar
+           e passam a serrilhar a curva, e a série já é longa o bastante
+           para a forma responder sozinha. */
         <AreaCurve
-          pts={curva} height={altura} padT={6} padB={0} padX={0} strokeW={2}
+          pts={curva} height={altura} padT={12} padB={12} padX={11} strokeW={2.8}
           strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={id}
+          nodes={pontos.length <= 14} fill={0.26}
           onScrub={desliza} scrub={i}
         />
       ) : (
