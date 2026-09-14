@@ -8,9 +8,9 @@ import {
   semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao, Vazio,
+  TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -95,6 +95,13 @@ export default function Exercicio() {
      assim um dia de 60 min enche a barra e um de 90 não sai da caixa. */
   const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
   const ALT = 64;
+  /* A calha onde mora a legenda da meta. A tracejada morria na borda do
+     cartão sem dizer do que era, e o número que ela marca é justamente o
+     que dá unidade à altura das barras. Reservar a faixa em vez de
+     sobrepor o rótulo é o que garante que ele nunca cubra uma barra: o
+     eixo dos dias respeita a mesma calha, então rótulo e coluna
+     continuam alinhados. */
+  const CALHA = 82;
 
   /* A curva só aparece quando há mais de uma semana com movimento: duas
      semanas vazias e uma cheia não formam tendência, formam um degrau. */
@@ -183,14 +190,21 @@ export default function Exercicio() {
             <View
               pointerEvents="none"
               style={{
-                position: 'absolute', left: 0, right: 0, bottom: Math.round((alvoDia / teto) * ALT),
+                position: 'absolute', left: 0, right: CALHA, bottom: Math.round((alvoDia / teto) * ALT),
                 /* Em c.line2 a meta some dentro do cartão branco. Linha
                    de referência precisa ser lida de relance, senão o
                    gráfico volta a ser altura sem unidade. */
                 borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
               }}
             />
-            <Row style={{ flex: 1, alignItems: 'flex-end' }}>
+            {/* A tracejada aponta para o próprio nome. Sem isto ela era um
+                fio no meio do gráfico que só entendia quem já sabia. */}
+            <Txt
+              v="micro"
+              c={c.tx3}
+              style={{ position: 'absolute', right: 0, bottom: Math.round((alvoDia / teto) * ALT) - 8 }}
+            >Meta: {alvoDia} min</Txt>
+            <Row style={{ flex: 1, alignItems: 'flex-end', paddingRight: CALHA }}>
               {semana.map((d, i) => {
                 const eHoje = i === semana.length - 1;
                 return (
@@ -207,12 +221,17 @@ export default function Exercicio() {
                     ) : null}
                     {/* O dia parado ganha um ponto na linha de base: coluna
                         vazia some, e descanso não é ausência de dado. */}
+                    {/* Azul cheio, todas. A 34% de opacidade os outros seis
+                        dias saíam lavanda, e o gráfico parecia ter uma barra
+                        de verdade e seis de rascunho — sendo que hoje é o dia
+                        que menos precisa de destaque aqui, porque ainda nem
+                        acabou. Quem marca hoje é o rótulo: o número em cima
+                        vem em tinta cheia, e o dia da semana embaixo também. */}
                     <View style={{
                       width: d.min ? 16 : 5,
                       height: d.min ? Math.max(8, Math.round((d.min / teto) * ALT)) : 5,
                       borderRadius: radius.pill,
                       backgroundColor: d.min ? c.accent : c.line,
-                      opacity: d.min && !eHoje ? 0.34 : 1,
                     }} />
                   </View>
                 );
@@ -220,7 +239,7 @@ export default function Exercicio() {
             </Row>
           </View>
 
-          <Row style={{ marginTop: 8 }}>
+          <Row style={{ marginTop: 8, paddingRight: CALHA }}>
             {semana.map((d, i) => (
               /* Três letras, não uma: sáb, seg e sex começam iguais, e a
                  fileira virava "s s s" no meio da semana. */
@@ -377,19 +396,28 @@ export default function Exercicio() {
               const miolo = (
                 <View style={{
                   width: 46, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
-                  backgroundColor: on ? c.tx : d.futuro ? 'transparent' : temTreino ? c.accentWeak : c.bg1,
+                  backgroundColor: on ? c.tx
+                    : d.hoje ? c.accent
+                      : d.futuro ? 'transparent'
+                        : temTreino ? c.accentWeak : c.bg1,
                   borderWidth: 1,
                   borderStyle: d.futuro ? 'dashed' : 'solid',
-                  borderColor: on || d.hoje ? c.tx : temTreino ? c.accentLine : c.line,
+                  borderColor: on ? c.tx : d.hoje ? c.accent : temTreino ? c.accentLine : c.line,
                 }}>
-                  {/* A tinta do dia escolhido é `bg1`, e não branco: o
-                      preenchimento é `tx`, que no tema escuro é BRANCO — e
-                      branco sobre branco some. É a mesma dupla que os chips
-                      do app usam desde sempre. */}
-                  <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.tx : c.tx4}>
+                  {/* Hoje é PREENCHIDO, e não contornado. O contorno tinha de
+                      competir com a borda que já marca o dia com treino e com
+                      a do dia futuro — três molduras diferentes na mesma
+                      fileira, e a pessoa tendo que aprender qual é qual.
+                      Preenchimento é outro canal: azul é hoje, preto é o que
+                      você tocou, e moldura volta a ser só moldura.
+
+                      A tinta sai de `accentInk` e `bg1`, e não de branco fixo:
+                      no tema escuro o azul clareia e o preenchimento do
+                      selecionado é branco — texto branco sumiria nos dois. */}
+                  <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
                     {d.hoje ? 'hoje' : WD[dt.getDay()]}
                   </Txt>
-                  <Txt v="caption" c={on ? c.bg1 : d.futuro ? c.tx4 : temTreino ? c.accent : c.tx3}>
+                  <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : d.futuro ? c.tx4 : temTreino ? c.accent : c.tx3}>
                     {dt.getDate()}
                   </Txt>
                   <View style={{
@@ -398,11 +426,11 @@ export default function Exercicio() {
                     borderRadius: 3,
                     backgroundColor: d.futuro
                       ? 'transparent'
-                      /* O cinza do dia em branco é o mesmo escolhido ou não:
-                         `tx4` é meio-tom nos dois temas e se enxerga tanto
-                         sobre o branco do cartão quanto sobre o preenchimento
-                         do dia selecionado. */
-                      : temTreino ? (on ? c.bg1 : c.accent) : c.tx4,
+                      /* O cinza do dia em branco é o mesmo em qualquer
+                         preenchimento: `tx4` é meio-tom nos dois temas, e
+                         num dia cheio de cor ele quase some — que é o certo,
+                         já que hoje não passou em branco, só não acabou. */
+                      : temTreino ? (on ? c.bg1 : d.hoje ? c.accentInk : c.accent) : c.tx4,
                   }} />
                 </View>
               );
@@ -458,7 +486,11 @@ export default function Exercicio() {
                       key={`${t.t}-${t.i}`}
                       ic={t.ic}
                       titulo={t.tipo}
-                      sub={`${t.min} min`}
+                      /* A origem entra aqui e não numa segunda linha: ela
+                         qualifica a duração — 50 min que você digitou e 50
+                         min que o relógio contou não se conferem do mesmo
+                         jeito — e é ao lado do número que ela é lida. */
+                      sub={`${t.min} min · ${t.fonte}`}
                       onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
                     />
                   ))}

@@ -3,7 +3,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notas } from '../logic/derive';
 import { MO_LONG } from '../logic/time';
-import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao, Vazio } from '../ui/internas';
+import { Vazio } from '../ui/kit';
+import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/internas';
 
 /* ============================================================
    NOTAS PARA A CONSULTA

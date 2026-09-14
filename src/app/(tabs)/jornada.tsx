@@ -11,7 +11,7 @@ import {
   waterMlToday, checkinToday, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, ListRow, Metric } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 
@@ -552,6 +552,12 @@ export default function Jornada() {
               )}
             </>
           ) : (
+            filtrados.length === 0 ? (
+            /* Sem o cartão, e não com o cartão vazio por dentro: um
+               retângulo branco com uma frase cinza no meio parece a lista
+               que não carregou. */
+            <Vazio ic="filter" titulo="Nada registrado neste tipo ainda" />
+          ) : (
             /* Nos filtros de tipo o ciclo não é a unidade — a leitura é
                cronológica, do mais recente para trás. */
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16, paddingVertical: 4 }}>
@@ -573,11 +579,8 @@ export default function Jornada() {
                   </Row>
                 </React.Fragment>
               ))}
-              {filtrados.length === 0 && (
-                <Txt v="note" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>Nada registrado neste tipo ainda.</Txt>
-              )}
             </View>
-          )}
+          ))}
         </View>
 
       </ScrollView>

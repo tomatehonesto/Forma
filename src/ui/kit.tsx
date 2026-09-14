@@ -136,6 +136,51 @@ export function IconBadge({ name, size = 44, iconSize, color, bg, sw }: { name: 
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Vazio — o lugar que existe e está sem conteúdo.
+
+   Não é um Aviso. O aviso TEM algo a dizer, e por isso é um parágrafo:
+   ícone em azul à esquerda, título e texto alinhados, como um recado
+   pregado na tela. O vazio não tem nada a dizer — ele É a ausência — e
+   vesti-lo de recado faz a seção parecer que deu errado, além de pesar
+   mais que o conteúdo que deveria estar ali.
+
+   E não vem em cartão. Cartão é superfície de conteúdo: ele existe para
+   segurar coisa, e um cartão vazio no meio de uma pilha de cartões cheios
+   parece conteúdo que não carregou. Aqui o desenho fica solto sobre o
+   fundo da própria tela, que é o que a ausência é — o lugar sem nada em
+   cima. O único objeto é o disco do ícone, que dá um centro de gravidade
+   para o texto não boiar.
+
+   Tudo centrado e curto: explicar a ausência em três linhas é o erro que
+   este componente existe para não deixar acontecer de novo. O texto é
+   opcional, e o normal é não ter — ele só entra quando há uma SAÍDA para
+   oferecer (trocar o período, a outra aba). Comentar o vazio sem oferecer
+   saída é ocupar espaço com nada.
+
+   Mora aqui no kit, e não no vocabulário das telas internas, porque
+   vazio não é assunto de tela interna: a Jornada tem, as fotos têm, o
+   caderno tem. */
+export function Vazio({ ic, titulo, texto }: {
+  ic: string; titulo: string; texto?: string;
+}) {
+  const { c } = useTheme();
+  return (
+    <View style={{
+      alignItems: 'center', gap: 3,
+      paddingVertical: 34, paddingHorizontal: 24,
+    }}>
+      <View style={{ marginBottom: 12 }}>
+        <IconBadge name={ic} size={46} iconSize={21} color={c.tx4} bg={c.bg3} sw={1.7} />
+      </View>
+      <Txt v="bodyMed" c={c.tx2} style={{ textAlign: 'center' }}>{titulo}</Txt>
+      {texto ? (
+        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{texto}</Txt>
+      ) : null}
+    </View>
+  );
+}
+
 export function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   return <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: c.line2 }, style]} />;

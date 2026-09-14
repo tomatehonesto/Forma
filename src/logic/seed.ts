@@ -28,6 +28,46 @@ export function buildSeed() {
   const checkins: any[] = [
     { t: +startOfDay(daysAgo(0)), agua: 0, prot: 30, exerc: 0 },
   ];
+
+  /* AS SESSÕES DE EXERCÍCIO — por dias atrás.
+
+     Antes o exercício da semente era `30 min` em seis dias fixos, sem
+     modalidade e sem origem, e só nas duas últimas semanas. Isso deixava
+     duas telas mentindo sobre si mesmas: o caderno de treino abria
+     sempre vazio, e a curva de oito semanas era seis semanas em zero
+     seguidas de dois degraus iguais — uma rampa, não um histórico. Quem
+     treina de verdade tem semana boa, semana fraca e semana de viagem, e
+     é essa variação que a curva existe para mostrar.
+
+     A origem também é da semente: sem uma mistura de registro manual e
+     integração, a linha "de onde veio" nunca aparece nas duas formas. */
+  const SESSOES: Record<number, { tipo: string; min: number; fonte?: string }[]> = {
+    55: [{ tipo: 'Musculação', min: 45 }],
+    53: [{ tipo: 'Corrida', min: 30, fonte: 'Apple Saúde' }],
+    50: [{ tipo: 'Musculação', min: 45 }],
+    47: [{ tipo: 'Caminhada', min: 35, fonte: 'Apple Saúde' }],
+    44: [{ tipo: 'Musculação', min: 30 }],
+    41: [{ tipo: 'Musculação', min: 50 }],
+    39: [{ tipo: 'Bicicleta', min: 40, fonte: 'Apple Saúde' }],
+    37: [{ tipo: 'Musculação', min: 40 }],
+    35: [{ tipo: 'Caminhada', min: 20, fonte: 'Apple Saúde' }],
+    33: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
+    30: [{ tipo: 'Musculação', min: 60 }],
+    27: [{ tipo: 'Musculação', min: 55 }],
+    25: [{ tipo: 'Natação', min: 45 }],
+    23: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
+    21: [{ tipo: 'Musculação', min: 40 }],
+    19: [{ tipo: 'Musculação', min: 50 }],
+    17: [{ tipo: 'Caminhada', min: 25, fonte: 'Apple Saúde' }],
+    15: [{ tipo: 'Pilates', min: 35 }],
+    12: [{ tipo: 'Musculação', min: 40 }],
+    10: [{ tipo: 'Caminhada', min: 30, fonte: 'Apple Saúde' }],
+    8: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
+    5: [{ tipo: 'Musculação', min: 80 }],
+    3: [{ tipo: 'Pilates', min: 40 }],
+    1: [{ tipo: 'Corrida', min: 30, fonte: 'Apple Saúde' }],
+  };
+  const minDoDia = (d: number) => (SESSOES[d] || []).reduce((x, tr) => x + tr.min, 0);
   for (let d = 13; d >= 1; d--) {
     const date = daysAgo(d); const wd = date.getDay();
     const postInj = [3, 4, 5, 10, 11, 12].includes(d); // dias logo após aplicar
@@ -41,10 +81,22 @@ export function buildSeed() {
       energia: postInj ? 5 : 7,
       agua: wd === 0 ? 4 : (wd === 6 ? 5 : 7),
       prot: 70 + (13 - d) * 1.4 + (wd === 0 ? -15 : 0),
-      exerc: [1, 3, 5, 8, 10, 12].includes(d) ? 30 : 0,
+      exerc: minDoDia(d),
+      treinos: SESSOES[d],
       refluxo: postInj ? 1 : 0, ansiedade: wd === 1 ? 2 : (d % 3 === 0 ? 1 : 0), constip: postInj ? 2 : 0,
     });
   }
+  /* As semanas anteriores entram só com movimento — nem humor, nem sono,
+     nem fome. Um registro que tem apenas acumuladores não conta como
+     check-in respondido, então a sequência e a contagem do mês continuam
+     falando das duas semanas que a pessoa de fato preencheu. Inventar
+     dois meses de check-in completo para encher um gráfico seria pagar a
+     curva com um histórico falso em cinco outras telas. */
+  for (let d = 55; d >= 14; d--) {
+    if (!SESSOES[d]) continue;
+    checkins.push({ t: +startOfDay(daysAgo(d)), exerc: minDoDia(d), treinos: SESSOES[d] });
+  }
+
   return {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkins30, journeyDay, achDone } from '../logic/derive';
 import { relDay } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill } from '../ui/kit';
+import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Vazio } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -47,9 +47,16 @@ export default function Conquistas() {
       </Card>
 
       <Txt v="h2" style={{ marginTop: 22 }}>Desbloqueadas</Txt>
-      <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-        {done.map((a: any) => <AchCard key={a.id} a={a} on />)}
-      </Row>
+      {done.length === 0 ? (
+        /* Quem abre no primeiro dia via um título e nada embaixo. A
+           frase não promete conquista nenhuma: diz onde ela vai aparecer,
+           e a lista de "a caminho" logo abaixo já mostra quais são. */
+        <Vazio ic="trophy" titulo="Nenhuma conquista ainda" texto="As que estão a caminho aparecem logo abaixo." />
+      ) : (
+        <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          {done.map((a: any) => <AchCard key={a.id} a={a} on />)}
+        </Row>
+      )}
 
       <Txt v="h2" style={{ marginTop: 22 }}>A caminho</Txt>
       <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>

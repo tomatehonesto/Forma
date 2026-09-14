@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import { fmtDate } from '../logic/time';
-import { Screen, Txt, Card, Row, CircleBtn, Pill, Rich } from '../ui/kit';
+import { Screen, Txt, Card, Row, CircleBtn, Pill, Rich, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -45,6 +45,33 @@ export default function Fotos() {
         </View>
       </Row>
 
+      {/* SEM FOTO, A TELA INTEIRA É OUTRA.
+
+          Não era um vazio feio: era um CRASH. O comparador lê ph[0].t e
+          ph[ph.length - 1].t direto, então a galeria sem foto derrubava a
+          tela em branco — e como a semente sempre traz fotos, ninguém
+          esbarrava nisso até o primeiro usuário de verdade.
+
+          Com uma foto só também não há comparação: o antes e o depois
+          precisa dos dois lados. Por isso são dois vazios diferentes, e
+          não um — "não tem nada" e "falta a segunda" pedem coisas
+          diferentes de quem está lendo. */}
+      {ph.length === 0 ? (
+        <Vazio
+          ic="camera"
+          titulo="Nenhuma foto de progresso ainda"
+          texto="Com duas fotos o app já monta o antes e o depois."
+        />
+      ) : (
+      <>
+      {ph.length < 2 ? (
+        <Vazio
+          ic="camera"
+          titulo="Falta a segunda foto"
+          texto="O comparador precisa de duas para ter o que comparar."
+        />
+      ) : (
+      <>
       {/* comparador */}
       <Card style={{ marginTop: 18 }}>
         <Row style={{ justifyContent: 'space-between', marginBottom: 12 }}>
@@ -79,6 +106,8 @@ export default function Fotos() {
         <Row gap={7}><Icon name="aura" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>A IA COMPAROU</Txt></Row>
         <Rich v="bodyMed" base={c.tx2} bold={c.tx} style={{ marginTop: 8, lineHeight: 21 }} text="Mudanças mais visíveis no <b>rosto</b> e na <b>cintura</b>. Contorno do abdômen mais definido e postura mais ereta nas fotos recentes." />
       </Card>
+      </>
+      )}
 
       {/* por região */}
       <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Por região</Txt>
@@ -104,6 +133,8 @@ export default function Fotos() {
           </View>
         ))}
       </Row>
+      </>
+      )}
 
       <Pressable style={({ pressed }) => [{ marginTop: 18, transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
         <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}>

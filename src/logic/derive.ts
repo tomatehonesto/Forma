@@ -1490,7 +1490,24 @@ export function listaPt(itens: string[], mostrar = 3): string {
 /* `i` é a posição da sessão dentro do dia dela. A lista da tela é
    achatada e reordenada, então sem esse índice não dá para apagar uma
    sessão específica — só adivinhar qual era. */
-export type Treino = { t: number; i: number; tipo: string; min: number; ic: string };
+export type Treino = { t: number; i: number; tipo: string; min: number; ic: string; fonte: string };
+
+/* DE ONDE VEIO A SESSÃO.
+
+   Um treino de 50 minutos que a pessoa digitou e um que o relógio mandou
+   não valem a mesma coisa na hora de conferir: o primeiro ela lembra de
+   ter escrito, o segundo pode ser uma caminhada até o mercado que o
+   relógio resolveu chamar de exercício. Sem a origem escrita, corrigir
+   vira adivinhação.
+
+   Ausência quer dizer manual, porque manual é o que existia antes de
+   haver origem — e todo registro antigo é manual de fato. Mas a tela
+   nunca mostra a ausência: ela mostra "Você", porque ausência não
+   responde "quem registrou isto", responde "não sei". */
+export const ORIGEM_MANUAL = 'Você';
+export const origemDoTreino = (tr: { fonte?: string } | null | undefined): string =>
+  (tr && tr.fonte) || ORIGEM_MANUAL;
+export const ehManual = (fonte: string) => fonte === ORIGEM_MANUAL;
 
 /** Existe algum treino registrado, em qualquer data?
 
@@ -1509,8 +1526,8 @@ export function treinosRecentes(S: State, dias = 30): Treino[] {
   const out: Treino[] = [];
   for (const c of S.checkins as any[]) {
     if (c.t < corte) continue;
-    ((c.treinos || []) as { tipo: string; min: number }[]).forEach((tr, i) => {
-      out.push({ t: c.t, i, tipo: tr.tipo, min: tr.min, ic: iconeDe(tr.tipo) });
+    ((c.treinos || []) as { tipo: string; min: number; fonte?: string }[]).forEach((tr, i) => {
+      out.push({ t: c.t, i, tipo: tr.tipo, min: tr.min, ic: iconeDe(tr.tipo), fonte: origemDoTreino(tr) });
     });
   }
   return out.sort((a, b) => b.t - a.t);
@@ -1625,7 +1642,7 @@ export function resumoDeMovimento(S: State, dias: number): Resumo {
 }
 
 /** Uma sessão pelo dia e pela posição dentro dele. */
-export function treinoEm(S: State, t: number, i: number): { tipo: string; min: number } | null {
+export function treinoEm(S: State, t: number, i: number): { tipo: string; min: number; fonte?: string } | null {
   const c = (S.checkins as any[]).find((x) => x.t === t);
   return c?.treinos?.[i] ?? null;
 }
@@ -1638,7 +1655,11 @@ export function editarTreino(s: any, t: number, i: number, tipo: string, min: nu
   const tr = c?.treinos?.[i];
   if (!tr) return;
   c.exerc = Math.max(0, (c.exerc || 0) - tr.min + min);
-  c.treinos = (c.treinos as any[]).map((x: any, j: number) => (j === i ? { tipo, min } : x));
+  /* Espalha o original: corrigir a modalidade não pode apagar de onde a
+     sessão veio. Trocar o objeto inteiro por { tipo, min } fazia um treino
+     do relógio virar um treino manual no instante em que alguém acertava
+     a duração dele. */
+  c.treinos = (c.treinos as any[]).map((x: any, j: number) => (j === i ? { ...x, tipo, min } : x));
 }
 
 /* Apagar uma sessão devolve os minutos dela ao dia. O total NÃO volta a

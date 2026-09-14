@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { apagarTreino, treinoEm } from '../logic/derive';
+import { apagarTreino, ehManual, origemDoTreino, treinoEm } from '../logic/derive';
 import { ehForca } from '../logic/modalidades';
 import { MO_LONG, DOW_PT, diffDays } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
@@ -66,6 +66,17 @@ export default function Treino() {
         <Cartao>
           <Linha titulo="Modalidade" sub={treino.tipo} seta={false} />
           <Linha titulo="Duração" sub={`${treino.min} min`} seta={false} />
+          {/* Quem registrou. Numa tela cujas duas ações são corrigir e
+              apagar, saber se o número foi você que escreveu ou se ele
+              chegou do relógio é o que decide se "está errado" é um erro
+              de digitação ou o relógio chamando caminhada de corrida. */}
+          <Linha
+            titulo="Origem"
+            sub={ehManual(origemDoTreino(treino))
+              ? 'Você — registrado nesta tela'
+              : `${origemDoTreino(treino)} — chegou pela integração`}
+            seta={false}
+          />
           <Linha titulo="Quando" sub={dataLonga} seta={false} />
           <Linha titulo="Semana" sub={`Semana ${semana} do tratamento`} seta={false} />
           {/* A marca de força aparece aqui porque é a única propriedade do

@@ -632,50 +632,6 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
 }
 
 /* ------------------------------------------------------------------ */
-/* Vazio — o lugar que existe e está sem conteúdo.
-
-   Não é um Aviso. O aviso TEM algo a dizer, e por isso é um parágrafo:
-   ícone em azul à esquerda, título e texto alinhados, como um recado
-   pregado na tela. O vazio não tem nada a dizer — ele É a ausência — e
-   vesti-lo de recado faz a seção parecer que deu errado, além de pesar
-   mais que o conteúdo que deveria estar ali.
-
-   E não vem em cartão. Cartão é superfície de conteúdo: ele existe para
-   segurar coisa, e um cartão vazio no meio de uma pilha de cartões cheios
-   parece conteúdo que não carregou. Aqui o desenho fica solto sobre o
-   fundo da própria tela, que é o que a ausência é — o lugar sem nada em
-   cima. O único objeto é o disco do ícone, que dá um centro de gravidade
-   para o texto não boiar.
-
-   Tudo centrado e curto: explicar a ausência em três linhas é o erro que
-   este componente existe para não deixar acontecer de novo. O texto é
-   opcional, e o normal é não ter — ele só entra quando há uma SAÍDA para
-   oferecer (trocar o período, a outra aba). Comentar o vazio sem oferecer
-   saída é ocupar espaço com nada. */
-export function Vazio({ ic, titulo, texto }: {
-  ic: string; titulo: string; texto?: string;
-}) {
-  const { c } = useTheme();
-  return (
-    <View style={{
-      alignItems: 'center', gap: 3,
-      paddingVertical: 34, paddingHorizontal: 24,
-    }}>
-      <View style={{
-        width: 46, height: 46, borderRadius: 23, marginBottom: 12,
-        backgroundColor: c.bg3, alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Icon name={ic} size={21} color={c.tx4} sw={1.7} />
-      </View>
-      <Txt v="bodyMed" c={c.tx2} style={{ textAlign: 'center' }}>{titulo}</Txt>
-      {texto ? (
-        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{texto}</Txt>
-      ) : null}
-    </View>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Campo — o invólucro de um controle de formulário: rótulo em caixa alta,
    controle, e uma linha de ajuda. A ajuda não é decorativa: é onde o app
    diz por que a pergunta existe e o que a resposta muda. */
