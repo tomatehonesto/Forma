@@ -28,14 +28,15 @@ import { radius, font } from '../theme';
 
    UM HERÓI SÓ. O selo de feito e o número da sequência já brigaram por
    tamanho aqui: dois discos grandes de lima, um em cima do outro, e o
-   olho sem saber onde pousar. O selo virou marca pequena, do tamanho de
-   um ícone de cabeçalho, e o número ficou com a tela.
+   olho sem saber onde pousar. O selo virou marca pequena, ao lado do
+   título e na altura dele, e o número ficou com a tela.
 
-   TUDO EM PASTILHA. O dia inteiro cabe em chips: as três respostas fixas,
-   os sintomas relatados e as marcas da semana. Cartão é o formato de quem
-   vai administrar uma informação, e aqui ninguém vai administrar nada —
-   vai olhar e sair. As marcas usam lima, as respostas usam vidro: uma
-   celebra, a outra confirma.
+   CADA COISA NO SEU FORMATO. As marcas da semana são pastilhas de lima,
+   porque são frases soltas que celebram. Os sintomas são pastilhas de
+   vidro, porque são uma lista de nomes de tamanho variável. E as três
+   respostas fixas voltaram a ser LISTA: elas são sempre as mesmas três,
+   cada uma com um rótulo e um valor, e isso é uma tabela — em pastilha,
+   "Um bom dia" flutuava sem dizer que era o humor.
 
    O NÃO SE ESQUEÇA é resumo, não repetição. Cada aviso já apareceu por
    inteiro no formulário, grudado no campo que o provocou; aqui vira uma
@@ -98,11 +99,14 @@ export default function CheckinOk() {
   const humor = typeof registro?.mood === 'number' && registro.mood >= 1 && registro.mood <= 5
     ? registro.mood : null;
 
-  const respostas = [
-    energia ? ENERGIA[energia - 1] : null,
-    sono != null ? SONO[sono - 5] : null,
-    humor != null ? HUMOR[humor - 1] : null,
-  ].filter(Boolean) as string[];
+  /* Sempre as três, com traço no lugar do valor quando não foi
+     respondida: a lista é das perguntas que a tela faz todo dia, e some-
+     -las esconderia o que ficou em branco. */
+  const respostas: [string, string | null][] = [
+    ['Energia', energia ? ENERGIA[energia - 1] : null],
+    ['Sono', sono != null ? SONO[sono - 5] : null],
+    ['Humor', humor != null ? HUMOR[humor - 1] : null],
+  ];
 
   /* Os sintomas, pelo nome. Cada um tem a sua prova de existência: coluna
      própria, entrada no mapa `sint`, `gut` fora do normal ou texto livre. */
@@ -166,21 +170,26 @@ export default function CheckinOk() {
           gap: 28,
         }}
       >
-        <View style={{ alignItems: 'center', gap: 10 }}>
-          {/* O selo, agora pequeno. Ele marca; quem celebra é o número. */}
-          <Animated.View
-            style={{
-              opacity: entrada,
-              transform: [{ scale: entrada }],
-              width: 34, height: 34, borderRadius: 17,
-              backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <Icon name="check" size={18} color={c.limeInk} sw={2.8} />
-          </Animated.View>
+        <View style={{ alignItems: 'center', gap: 22 }}>
+          {/* O selo à esquerda do título, na altura dele: marca e frase são
+              a mesma afirmação, e separadas em duas linhas viravam duas. */}
+          <Row gap={10}>
+            <Animated.View
+              style={{
+                opacity: entrada,
+                transform: [{ scale: entrada }],
+                width: 30, height: 30, borderRadius: 15,
+                backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <Icon name="check" size={16} color={c.limeInk} sw={2.8} />
+            </Animated.View>
+            <Animated.View style={subindo}>
+              <Txt v="h2" c={c.onHero}>Check-in concluído</Txt>
+            </Animated.View>
+          </Row>
 
           <Animated.View style={[subindo, { alignItems: 'center', gap: 22 }]}>
-            <Txt v="h2" c={c.onHero} style={{ textAlign: 'center' }}>Check-in concluído</Txt>
 
             {/* O placar. Número sozinho na linha e a frase como legenda
                 embaixo, em micro espaçado — na Home a sequência é uma
@@ -206,14 +215,30 @@ export default function CheckinOk() {
           </Animated.View>
         </View>
 
-        {respostas.length ? (
-          <Animated.View style={[subindo, { gap: 10 }]}>
-            <Secao titulo="COMO FOI O DIA" />
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
-              {respostas.map((r) => <Pastilha key={r} label={r} />)}
-            </View>
-          </Animated.View>
-        ) : null}
+        <Animated.View style={[subindo, { gap: 4 }]}>
+          <Secao titulo="COMO FOI O DIA" />
+          {/* Lista, e não pastilha: rótulo à esquerda, resposta à direita.
+              São sempre as mesmas três perguntas, e uma tabela é o formato
+              de quem lê pares. Sem cartão em volta — a seção já está
+              delimitada pelo fio do título. */}
+          <View>
+            {respostas.map(([rotulo, valor], i) => (
+              <View key={rotulo}>
+                {i > 0 ? <View style={{ height: 1, backgroundColor: c.onHeroLine }} /> : null}
+                <Row gap={12} style={{ paddingVertical: 12, paddingHorizontal: 2, alignItems: 'flex-start' }}>
+                  <Txt v="caption" c={c.onHero2} style={{ width: 78 }}>{rotulo}</Txt>
+                  <Txt
+                    v="caption"
+                    c={valor ? c.onHero : c.onHero2}
+                    style={{ flex: 1, textAlign: 'right', opacity: valor ? 1 : 0.55 }}
+                  >
+                    {valor ?? '—'}
+                  </Txt>
+                </Row>
+              </View>
+            ))}
+          </View>
+        </Animated.View>
 
         <Animated.View style={[subindo, { gap: 10 }]}>
           <Secao titulo="SINTOMAS" />

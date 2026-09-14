@@ -33,6 +33,11 @@ import { respondido, mediaDe } from './derive';
    resta é sair da tela lembrando. Daí `sobre` — o assunto em duas
    palavras — e `curto` — a ação numa frase que cabe numa linha.
 
+   O `curto` nomeia o objeto do verbo, sempre. "Beba de pouquinho" deixa
+   a pessoa preenchendo a lacuna sozinha, e numa linha lida de passagem a
+   lacuna fica. "Beba água de pouquinho" não sobra dúvida — e é a única
+   frase que ela vai levar embora.
+
    `urgente` marca o que não pode virar linha: quando a leitura manda
    procurar atendimento hoje, a confirmação volta a mostrá-la por inteiro. */
 export type Leitura = {
@@ -73,7 +78,7 @@ export const AVISOS: Record<string, { min: number; sobre: string; titulo: string
   vomito: {
     min: 4,
     sobre: 'Vômito',
-    curto: 'beba de pouquinho, várias vezes',
+    curto: 'beba água de pouquinho, várias vezes',
     titulo: 'O vômito tira mais líquido do que parece',
     texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E quando a comida não fica, o dia seguinte já começa cansado.',
     acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
@@ -81,7 +86,7 @@ export const AVISOS: Record<string, { min: number; sobre: string; titulo: string
   tontura: {
     min: 4,
     sobre: 'Tontura',
-    curto: 'sente-se, beba água e coma alguma coisa',
+    curto: 'sente-se, beba água e coma alguma coisa doce',
     titulo: 'Tontura assim costuma ter explicação',
     texto: 'Quase sempre é falta de líquido ou açúcar baixo. Se você toma algum remédio para diabetes junto, o açúcar baixo fica ainda mais provável.',
     acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, conte para sua equipe.',
@@ -93,7 +98,7 @@ export const AVISOS: Record<string, { min: number; sobre: string; titulo: string
 export const AVISO_PRESO = {
   min: 5,
   sobre: 'Intestino preso',
-  curto: 'água ao longo do dia, fibra e caminhada',
+  curto: 'beba água ao longo do dia, coma fibra e caminhe',
   titulo: 'Quatro dias sem ir já merece atenção',
   texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
   acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
@@ -102,7 +107,7 @@ export const AVISO_PRESO = {
 export const AVISO_SOLTO = {
   min: 5,
   sobre: 'Intestino solto',
-  curto: 'beba sem esperar sede, com uma pitada de sal',
+  curto: 'beba água com uma pitada de sal, sem esperar sede',
   titulo: 'O intestino solto leva água e sal junto',
   texto: 'Sete idas ou mais num dia levam mais do que a sede dá conta de repor.',
   acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
@@ -152,7 +157,7 @@ const COMBINACOES: {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
     sobre: 'Tontura e perda de líquido',
-    curto: 'beba com soro e levante devagar',
+    curto: 'beba soro ou água com sal, e levante devagar',
     urgente: false,
     titulo: 'Tontura com perda de líquido é sinal de desidratação',
     texto: 'Quando falta água e sal, a pressão cai ao levantar — e a tontura é o corpo avisando.',
@@ -205,7 +210,7 @@ const PERSISTENCIA: {
     noDia: (c) => c?.gut === 'solto',
     hoje: (n) => n.solto >= 1,
     sobre: 'Intestino na semana',
-    curto: 'beba mais e conte para sua equipe',
+    curto: 'beba mais água e conte para sua equipe',
     titulo: 'O intestino está solto há dias',
     texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação, mesmo quando cada dia, sozinho, parece tranquilo.`,
     acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser a alimentação.',
@@ -226,7 +231,7 @@ const PERSISTENCIA: {
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
     sobre: 'Intestino lento na semana',
-    curto: 'água, fibra e caminhada',
+    curto: 'beba água, coma fibra e caminhe',
     titulo: 'O intestino está lento a semana toda',
     texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito da caneta, e com menos comida passa menos fibra — ele sente antes da balança.`,
     acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
