@@ -1413,7 +1413,7 @@ export function journeyGoals(S: State): JourneyGoal[] {
 
    Os três lugares vão para o que a pessoa faz todo dia — e mudam quando o
    dia pede outra coisa. */
-export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicacao' | 'sintomas' | 'exame' | 'anotacoes';
+export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicacao' | 'exame' | 'anotacoes';
 
 /* Os três atalhos do sheet de registrar. Fixos, sempre os mesmos.
 

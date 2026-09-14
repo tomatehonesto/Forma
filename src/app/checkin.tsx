@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia, streak } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import {
-  ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO, SINTOMAS, paraTela,
+  ENERGIA, FOME, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO, SINTOMAS, paraTela,
 } from '../logic/escalas';
 import {
   type Niveis, AVISOS, AVISO_PRESO, AVISO_SOLTO,
@@ -19,10 +19,17 @@ import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Aviso, Botao }
    A tela tem duas partes, e a ordem delas é a resposta a "o que esta tela
    quer de mim?".
 
-   Primeiro as PERGUNTAS FIXAS: energia, sono, humor. Todo dia tem as três
-   — ninguém "teve ou não teve" humor —, então elas aparecem sempre, em
-   escala, e respondê-las é um gesto de três toques. Quem só tem trinta
-   segundos responde essas e sai com o dia registrado.
+   Primeiro as PERGUNTAS FIXAS: energia, fome, sono, humor. Todo dia tem as
+   quatro — ninguém "teve ou não teve" humor —, então elas aparecem sempre,
+   em escala, e respondê-las é um gesto de quatro toques. Quem só tem
+   trinta segundos responde essas e sai com o dia registrado.
+
+   A fome entrou por último e veio de outra tela. Ela morava em "como o
+   corpo reagiu", junto de enjoo e intestino — e aquelas duas o check-in já
+   perguntava, melhor. Sobrava a fome sozinha, num lugar que ninguém abre
+   todo dia, sendo lida pelo eixo Saciedade do radar, pela tela de
+   Sintomas, pelo resumo médico, pelo companion e por dois padrões do
+   Insights. O campo mais lido tinha o escritor menos visitado.
 
    Depois os SINTOMAS, que são o contrário: a pessoa é quem diz quais
    existiram. Marca o que teve, e só então aparece quanto, uma escala por
@@ -85,9 +92,9 @@ export default function Checkin() {
      que só existem aqui, do mapa `sint`.
 
      Guardar os três nos dois lugares era o que eu tinha feito antes, e
-     quebrou na primeira vez que medir-sintomas mexeu no enjoo: a coluna ia
-     para 4 e o `sint` continuava em 4 da régua antiga, dizendo coisas
-     diferentes sobre o mesmo sintoma. Uma fonte por campo elimina a
+     quebrou na primeira vez que a tela de sintomas mexeu no enjoo: a
+     coluna ia para 4 e o `sint` continuava em 4 da régua antiga, dizendo
+     coisas diferentes sobre o mesmo sintoma. Uma fonte por campo elimina a
      possibilidade da divergência em vez de tentar sincronizá-la. */
   const hoje: any = checkinToday(S);
   const inicial = (() => {
@@ -120,6 +127,7 @@ export default function Checkin() {
      o problema que essas telas acabaram de deixar de ter: gravar como
      resposta um número que ninguém deu. */
   const [energia, setEnergia] = useState<number | null>(paraTela(hoje?.energia));
+  const [fome, setFome] = useState<number | null>(paraTela(hoje?.fome));
   const [sono, setSono] = useState<number | null>(hoje?.sono ?? null);
   const [humor, setHumor] = useState<number | null>(hoje?.mood ?? null);
   const [outro, setOutro] = useState<string>(hoje?.outroTexto ?? '');
@@ -245,13 +253,13 @@ export default function Checkin() {
          mantém o campo ausente, e ausente continua sendo diferente de
          zero para quem lê. */
       if (energia != null) c.energia = energia * 2;
+      if (fome != null) c.fome = fome * 2;
       if (sono != null) c.sono = sono;
       if (humor != null) c.mood = humor;
 
-      /* Fome fica em medir-sintomas, junto de intestino: as duas telas não
-         perguntam a mesma coisa. A anotação livre saiu por ora; `c.note`
-         não é mais escrito aqui, e por isso o que já estiver gravado
-         continua onde está em vez de ser apagado por um campo ausente. */
+      /* A anotação livre saiu por ora: `c.note` não é mais escrito aqui, e
+         por isso o que já estiver gravado continua onde está em vez de ser
+         apagado por um campo ausente. */
 
       s.heroSeen = { milestone: 0, insight: null, replay: null };
     });
@@ -286,6 +294,16 @@ export default function Checkin() {
             onChange={(v) => setEnergia(Number(v))}
             onLimpar={() => setEnergia(null)}
             legendas={ENERGIA}
+          />
+        </Campo>
+
+        <Campo rotulo="Fome">
+          <Escala
+            valores={[1, 2, 3, 4, 5]}
+            valor={fome}
+            onChange={(v) => setFome(Number(v))}
+            onLimpar={() => setFome(null)}
+            legendas={FOME}
           />
         </Campo>
 

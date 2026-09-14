@@ -91,7 +91,6 @@ export default function Registrar() {
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
-    sintomas: { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome, intestino', to: '/medir-sintomas' },
     exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar resultado', to: '/medir-exame' },
     anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/medir-anotacao' },
   };
@@ -99,16 +98,19 @@ export default function Registrar() {
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
      sempre aqui: pede um número, mas resolve sem sair do sheet.
 
-     A aplicação abre a lista e está sempre presente. Ela também é um dos
-     atalhos contextuais, mas só no dia da dose — e adiantar ou atrasar uma
-     aplicação é exatamente a situação em que a pessoa precisa registrar
-     fora do dia. O filtro de baixo tira a duplicata quando os dois
-     coincidem. */
+     A aplicação abre a lista e está sempre presente. O filtro de baixo
+     tira a duplicata quando ela também aparece nos atalhos de cima.
+
+     "Meu corpo reagiu" saiu daqui. Esta lista é de EVENTOS: peso, medidas,
+     exame, foto e aplicação criam um registro novo a cada vez, e registrar
+     duas vezes é registrar duas coisas. Aquela tela escrevia dentro do
+     registro de HOJE, sobrescrevendo — era estado do dia, não evento, e
+     estava na lista pelo critério errado (esforço). Suas três perguntas
+     agora vivem no check-in, que é onde o dia se descreve. */
   const completos: Item[] = [
     { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     { ic: 'scale', titulo: 'Acabei de me pesar', sub: `último: ${nf(curWeight(S), 1).replace('.', ',')} kg`, to: '/medir-peso' },
     { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/medir-refeicao' },
-    { ic: 'waves', titulo: 'Meu corpo reagiu', sub: 'enjoo, fome e intestino', to: '/medir-sintomas' },
     { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/medir-foto' },
     { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, braço e coxa', to: '/medir-medidas' },
     { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar o resultado', to: '/medir-exame' },
