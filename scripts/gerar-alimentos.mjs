@@ -281,4 +281,19 @@ export function gramasDe(a: Alimento, porcao: Porcao): number {
 `;
 
 fs.writeFileSync(process.argv[2], cab);
+
+/* A MESMA lista, em JSON, para o servidor que lê a foto.
+
+   Ele precisa dela no prompt: sem a lista, o modelo devolve nomes soltos
+   e nada casa com a tabela do app — todo item viraria "estimado pela
+   foto", justamente o que se quer evitar. E precisa ser a mesma lista,
+   gerada na mesma passada, senão um id existe de um lado e não do outro.
+
+   Só o que o prompt usa: id, nome e a medida da porção normal. */
+const paraServidor = L.map((l) => {
+  const [id, slug, nome, busca, porcao, medida] = l;
+  return { id: slug, nome, medida };
+});
+fs.writeFileSync('servidor/alimentos.json', JSON.stringify(paraServidor) + '\n');
+
 console.log('alimentos: ' + linhas.length);

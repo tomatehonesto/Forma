@@ -1,31 +1,56 @@
-import { type ItemComida } from './prato';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { alimentoDe, type ItemComida } from './prato';
 
 /* ============================================================
-   A LEITURA DA FOTO — o contrato
+   A LEITURA DA FOTO
 
-   Uma função só, e é ela que a fase 3 vai preencher. Hoje devolve
-   `sem-servidor` porque o app não fala com servidor nenhum: não há um
-   único fetch no projeto inteiro, e chave de API não pode ir no bundle
-   (tudo que é empacotado é extraível). Então o caminho da foto existe
-   inteiro daqui até a tela, e para no lugar certo.
+   O aplicativo não fala com o modelo — fala com o servidor em
+   `servidor/`, e é ele que tem a chave. Não dá para ser diferente: tudo
+   que é empacotado aqui é extraível, e chave de API no pacote é chave
+   publicada.
 
-   O QUE A FOTO PODE RESPONDER
+   Sem a URL configurada, esta função devolve 'sem-servidor' e a tela cai
+   na lista manual, que é exatamente como o aplicativo se comporta hoje.
+   Ligar a leitura por foto é uma variável de ambiente, não outro build.
 
-   Uma foto acerta o que está no prato e erra o quanto tem. Não é
-   limitação de modelo, é limitação física: imagem 2D sem referência de
-   tamanho não carrega peso, e o mesmo arroz vai de 80 a 250 g conforme o
-   ângulo e o tamanho do prato.
+   O QUE VOLTA
 
-   Por isso o retorno é uma lista de itens COM PORÇÃO SUGERIDA, e não um
-   número fechado de proteína. O analisador chuta 'normal' e a pessoa
-   corrige em um toque — que é a pergunta que ela sabe responder. Um
-   número único e fechado seria a mesma falsa precisão que as faixas de
-   30/18/8 tinham, só que com mais cara de tecnologia.
+   Uma lista de itens COM PORÇÃO SUGERIDA, nunca um número fechado. Foto
+   acerta o que está no prato e erra o quanto tem — imagem 2D sem
+   referência de tamanho não carrega peso. O modelo chuta 'normal' e quem
+   comeu corrige em um toque, que é a pergunta que ela sabe responder.
 
-   O tipo de item é o MESMO que a tela monta à mão (ItemComida), de
-   propósito: o resultado da análise cai direto no estado da tela sem
-   tradução, e sem uma segunda forma de guardar refeição.
+   O tipo de item é o MESMO que a tela monta à mão, de propósito: o
+   resultado cai direto no estado da tela, sem tradução e sem uma segunda
+   forma de guardar refeição.
    ============================================================ */
+
+const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
+const TOKEN = process.env.EXPO_PUBLIC_ANALISE_TOKEN;
+
+/* A foto sai daqui com 1024 px de lado maior e qualidade 0,6.
+
+   São dois limites ao mesmo tempo. O corpo da requisição tem teto de
+   4,5 MB e base64 engorda em um terço o que passa por ele — foto crua de
+   celular estoura. E a imagem vira token no modelo mais ou menos na
+   proporção da área, então cada pixel a mais é custo por refeição, três
+   vezes por dia, para sempre.
+
+   1024 px continua mostrando o que um prato tem. Foto de comida não
+   precisa de resolução, precisa de enquadramento. */
+const LADO = 1024;
+
+async function encolher(uri: string): Promise<string | null> {
+  try {
+    const ctx = ImageManipulator.manipulate(uri);
+    ctx.resize({ width: LADO });
+    const render = await ctx.renderAsync();
+    const saida = await render.saveAsync({ format: SaveFormat.JPEG, compress: 0.6, base64: true });
+    return saida.base64 ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export type Motivo = 'sem-servidor' | 'sem-rede' | 'nao-reconheci';
 
@@ -42,6 +67,28 @@ export const RECADO: Record<Motivo, string> = {
   'nao-reconheci': 'Não consegui reconhecer o prato. Monte aqui embaixo o que tinha.',
 };
 
+const PORCOES_OK = ['pouca', 'normal', 'bastante'];
+
+/* O servidor já limpa a resposta do modelo, e mesmo assim se confere de
+   novo aqui. Não é zelo: um id que não existe na tabela vira um item sem
+   nome — o cartão não desenha nada, mas a linha embaixo da soma anuncia
+   "não entra nessa conta" sem dizer o quê, e o registro salva um item
+   fantasma. O que vem da rede vale como proposta, não como verdade. */
+function limpar(bruto: unknown): ItemComida[] {
+  if (!Array.isArray(bruto)) return [];
+  const itens: ItemComida[] = [];
+  for (const x of bruto) {
+    if (!x || typeof x !== 'object') continue;
+    const it = x as any;
+    const porcao = PORCOES_OK.includes(it.porcao) ? it.porcao : 'normal';
+    if (typeof it.id === 'string' && alimentoDe(it.id)) itens.push({ id: it.id, porcao });
+    else if (typeof it.nome === 'string' && it.nome && typeof it.base === 'number') {
+      itens.push({ nome: it.nome, base: Math.max(0, Math.round(it.base)), porcao });
+    }
+  }
+  return itens;
+}
+
 /**
  * Lê um prato a partir da foto.
  *
@@ -49,5 +96,39 @@ export const RECADO: Record<Motivo, string> = {
  */
 export async function analisarFoto(uri: string): Promise<Analise> {
   if (!uri) return { ok: false, motivo: 'nao-reconheci' };
-  return { ok: false, motivo: 'sem-servidor' };
+  if (!URL_ANALISE) return { ok: false, motivo: 'sem-servidor' };
+
+  const imagem = await encolher(uri);
+  if (!imagem) return { ok: false, motivo: 'nao-reconheci' };
+
+  /* Trinta segundos e desiste. O modelo costuma responder em menos de
+     dez; deixar a roda girando além disso é pior do que dizer que não
+     deu, porque a lista manual está ali parada esperando. */
+  const corta = new AbortController();
+  const relogio = setTimeout(() => corta.abort(), 30000);
+
+  try {
+    const r = await fetch(URL_ANALISE, {
+      method: 'POST',
+      signal: corta.signal,
+      headers: {
+        'content-type': 'application/json',
+        ...(TOKEN ? { 'x-morphi-token': TOKEN } : {}),
+      },
+      body: JSON.stringify({ imagem, tipo: 'image/jpeg' }),
+    });
+
+    const corpo = await r.json().catch(() => null);
+    if (!corpo || corpo.ok !== true) {
+      return { ok: false, motivo: corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci' };
+    }
+
+    const itens = limpar(corpo.itens);
+    if (!itens.length) return { ok: false, motivo: 'nao-reconheci' };
+    return { ok: true, itens };
+  } catch {
+    return { ok: false, motivo: 'sem-rede' };
+  } finally {
+    clearTimeout(relogio);
+  }
 }
