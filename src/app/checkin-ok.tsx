@@ -141,11 +141,11 @@ export default function CheckinOk() {
     </View>
   );
 
+  /* Só o rótulo, sem o fio que ia até a borda. Com três seções na tela o
+     fio virava três réguas paralelas competindo com os fios internos da
+     lista, e o que ele separava já estava separado pelo espaço. */
   const Secao = ({ titulo }: { titulo: string }) => (
-    <Row gap={10} style={{ paddingHorizontal: 2 }}>
-      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>{titulo}</Txt>
-      <View style={{ flex: 1, height: 1, backgroundColor: c.onHeroLine }} />
-    </Row>
+    <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2, paddingHorizontal: 2 }}>{titulo}</Txt>
   );
 
   return (
@@ -215,13 +215,17 @@ export default function CheckinOk() {
           </Animated.View>
         </View>
 
-        <Animated.View style={[subindo, { gap: 4 }]}>
+        <Animated.View style={[subindo, { gap: 10 }]}>
           <Secao titulo="COMO FOI O DIA" />
-          {/* Lista, e não pastilha: rótulo à esquerda, resposta à direita.
-              São sempre as mesmas três perguntas, e uma tabela é o formato
-              de quem lê pares. Sem cartão em volta — a seção já está
-              delimitada pelo fio do título. */}
-          <View>
+          {/* Lista dentro de um cartão de vidro: rótulo à esquerda,
+              resposta à direita. São sempre as mesmas três perguntas, e
+              uma tabela é o formato de quem lê pares — o cartão é o que
+              segura as três como um bloco só, agora que o fio do título
+              não faz mais esse trabalho. */}
+          <View style={{
+            backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+            borderRadius: radius.lg, paddingHorizontal: PAD, paddingVertical: 3,
+          }}>
             {respostas.map(([rotulo, valor], i) => (
               <View key={rotulo}>
                 {i > 0 ? <View style={{ height: 1, backgroundColor: c.onHeroLine }} /> : null}
