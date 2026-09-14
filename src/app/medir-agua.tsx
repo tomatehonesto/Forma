@@ -42,7 +42,10 @@ export default function MedirAgua() {
   const { c } = useTheme();
   const router = useRouter();
   const [somado, setSomado] = useState(0);
-  const [escolhido, setEscolhido] = useState(250);
+  /* Começa em ZERO. Começando em 250 a tela já tinha uma resposta pronta
+     antes da pergunta, e "+ Copo" somava em cima dela: quem tocou uma vez
+     no copo registrava dois. Em zero, cada toque vale o que diz. */
+  const [escolhido, setEscolhido] = useState(0);
 
   const alvo = (S.profile as any).targets.waterMl as number;
   const atual = waterMlToday(S);
@@ -78,12 +81,23 @@ export default function MedirAgua() {
       sub="Toque quantas vezes precisar"
       onClose={() => router.back()}
       rodape={(
-        <Pressable onPress={() => beber(escolhido)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
+        /* Em zero não há o que gravar, e o botão diz o que falta em vez de
+           oferecer um "adicionar 0 ml" que não faz nada. */
+        <Pressable
+          onPress={() => beber(escolhido)}
+          disabled={escolhido === 0}
+          style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
+        >
+          <View style={{
+            backgroundColor: escolhido === 0 ? c.bg2 : c.accent,
+            borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center',
+          }}>
             {/* Em ml, a mesma unidade do número lá em cima. Em litros,
                 1250 virava "1,3 L" no botão enquanto a Quantidade dizia
                 1250 ml — a mesma tela afirmando duas coisas. */}
-            <Txt v="body" c={c.accentInk}>Adicionar {escolhido} ml</Txt>
+            <Txt v="body" c={escolhido === 0 ? c.tx4 : c.accentInk}>
+              {escolhido === 0 ? 'Escolha a quantidade' : `Adicionar ${escolhido} ml`}
+            </Txt>
           </View>
         </Pressable>
       )}
@@ -117,7 +131,7 @@ export default function MedirAgua() {
         </Row>
         <Slider
           value={escolhido}
-          minimumValue={50} maximumValue={max} step={50}
+          minimumValue={0} maximumValue={max} step={50}
           onValueChange={setEscolhido}
           minimumTrackTintColor={c.accent}
           maximumTrackTintColor={c.bg2}
@@ -128,7 +142,7 @@ export default function MedirAgua() {
             teto de 3750 aparecia como "3,8 L", arredondado, ao lado de um
             número exato. */}
         <Row style={{ justifyContent: 'space-between' }}>
-          <Txt v="micro" c={c.tx4}>50 ml</Txt>
+          <Txt v="micro" c={c.tx4}>0 ml</Txt>
           <Txt v="micro" c={c.tx4}>{max} ml</Txt>
         </Row>
 
