@@ -197,50 +197,164 @@ const erros = [];
    para menos conforme a mão de quem cozinhou — como toda estimativa
    desta tabela, e é por isso que a tela escreve "~". */
 const COMPOSTOS = [
-  /* O terceiro número de um componente é o rendimento de cocção: a TACO
-     traz macarrão só cru, e 180 g de massa NO PRATO não carregam a
-     proteína de 180 g de massa seca. Sem isso o carbonara contava massa
-     crua e saía 10 g acima. */
-  ['carbonara', 'Macarrão à carbonara', 'carbonara massa bacon',
+  /* O NOME DIZ A PROTEÍNA, SEMPRE.
+
+     "Estrogonofe com arroz" era de frango e não avisava — quem procurou
+     "strogonoff" via três opções e uma delas escondia qual carne tinha
+     dentro. Num app cuja única conta é proteína, um prato que não diz de
+     que é são duas respostas diferentes com a mesma cara. Toda receita
+     aqui carrega a proteína no nome, e quando o prato existe em mais de
+     uma versão as duas entram. */
+
+  /* --- massas ------------------------------------------------------- */
+  ['carbonara', 'Macarrão à carbonara', 'carbonara massa bacon ovo',
    'prato', 'pratos', [[40, 180, 2.2], [489, 55], [439, 40], [464, 20]]],
-  ['lasanha', 'Lasanha', 'lasanha a bolonhesa',
+  ['macarrao-alho', 'Macarrão ao alho e óleo', 'macarrao alho e oleo massa simples',
+   'prato', 'pratos', [[40, 180, 2.2], [464, 10]]],
+  ['macarrao-frango', 'Macarrão com frango', 'macarrao com frango massa',
+   'prato', 'pratos', [[40, 160, 2.2], [410, 90], [161, 40]]],
+  ['macarrao-queijos', 'Macarrão aos quatro queijos', 'macarrao quatro queijos massa',
+   'prato', 'pratos', [[40, 170, 2.2], [463, 45], [464, 20], [447, 40]]],
+  ['lasanha-carne', 'Lasanha de carne', 'lasanha bolonhesa carne',
    'pedaço', 'pedaços', [[37, 120], [326, 70], [463, 50]]],
-  ['parmegiana', 'Filé à parmegiana', 'parmegiana parmigiana milanesa com queijo',
+  ['lasanha-frango', 'Lasanha de frango', 'lasanha de frango',
+   'pedaço', 'pedaços', [[37, 120], [404, 70], [463, 50]]],
+  ['lasanha-presunto', 'Lasanha de presunto e queijo', 'lasanha presunto queijo quatro queijos',
+   'pedaço', 'pedaços', [[37, 130], [439, 40], [463, 60]]],
+  ['nhoque', 'Nhoque ao sugo', 'nhoque gnocchi batata',
+   'prato', 'pratos', [[91, 220], [161, 60], [464, 15]]],
+
+  /* --- estrogonofe, com e sem o arroz do lado ------------------------ */
+  ['strogonoff-frango-arroz', 'Estrogonofe de frango com arroz', 'estrogonofe strogonoff frango com arroz',
+   'prato', 'pratos', [[538, 150], [3, 120]]],
+  ['strogonoff-carne-arroz', 'Estrogonofe de carne com arroz', 'estrogonofe strogonoff carne com arroz',
+   'prato', 'pratos', [[537, 150], [3, 120]]],
+
+  /* --- empanados e à parmegiana -------------------------------------- */
+  ['parmegiana-frango', 'Filé de frango à parmegiana', 'parmegiana parmigiana frango milanesa com queijo',
    'filé', 'filés', [[401, 130], [463, 40], [161, 30]]],
-  ['escondidinho', 'Escondidinho', 'escondidinho carne seca purê',
+  ['parmegiana-carne', 'Filé de carne à parmegiana', 'parmegiana parmigiana carne bife milanesa com queijo',
+   'filé', 'filés', [[340, 130], [463, 40], [161, 30]]],
+  ['bife-milanesa', 'Bife à milanesa', 'bife a milanesa empanado carne',
+   'filé', 'filés', [[340, 130]]],
+
+  /* --- pratos feitos e refeições de bandeja --------------------------- */
+  ['pf-frango', 'Prato feito de frango', 'pf prato feito frango arroz feijao',
+   'prato', 'pratos', [[410, 120], [3, 120], [561, 80], [78, 40]]],
+  ['pf-carne', 'Prato feito de carne', 'pf prato feito bife carne arroz feijao',
+   'prato', 'pratos', [[377, 100], [3, 120], [561, 80], [78, 40]]],
+  ['pf-peixe', 'Prato feito de peixe', 'pf prato feito peixe arroz feijao',
+   'prato', 'pratos', [[301, 120], [3, 120], [561, 80], [78, 40]]],
+  ['pf-ovo', 'Prato feito com ovo', 'pf prato feito ovo arroz feijao',
+   'prato', 'pratos', [[490, 100], [3, 120], [561, 80], [78, 40]]],
+  ['galinhada', 'Galinhada', 'galinhada arroz com frango',
+   'prato', 'pratos', [[3, 180], [404, 110]]],
+  ['arroz-brocolis-frango', 'Arroz com brócolis e frango', 'arroz integral brocolis frango fit marmita',
+   'prato', 'pratos', [[1, 150], [100, 80], [410, 110]]],
+
+  /* --- escondidinho, torta, panqueca --------------------------------- */
+  ['escondidinho-carne', 'Escondidinho de carne moída', 'escondidinho carne moida pure',
    'porção', 'porções', [[129, 180], [326, 80], [463, 30]]],
-  ['pizza', 'Pizza', 'pizza',
-   'fatia', 'fatias', [[54, 70], [463, 40], [161, 25]]],
-  ['risoto', 'Risoto', 'risoto risotto',
-   'prato', 'pratos', [[3, 200], [464, 20], [410, 60]]],
-  ['sanduiche-frango', 'Sanduíche de frango', 'sanduiche natural lanche frango',
-   'unidade', 'unidades', [[52, 50], [410, 60], [161, 20]]],
-  ['crepe', 'Crepe salgado', 'crepe panqueca recheada',
+  ['escondidinho-carne-seca', 'Escondidinho de carne seca', 'escondidinho carne seca charque pure',
+   'porção', 'porções', [[129, 180], [384, 80], [463, 30]]],
+  ['escondidinho-frango', 'Escondidinho de frango', 'escondidinho de frango pure',
+   'porção', 'porções', [[129, 180], [404, 80], [463, 30]]],
+  ['panqueca-carne', 'Panqueca de carne', 'panqueca de carne moida',
+   'unidade', 'unidades', [[37, 70], [326, 60], [161, 30]]],
+  ['panqueca-frango', 'Panqueca de frango', 'panqueca de frango',
+   'unidade', 'unidades', [[37, 70], [404, 60], [161, 30]]],
+  ['torta-frango', 'Torta de frango', 'torta salgada de frango empadao',
+   'fatia', 'fatias', [[389, 150]]],
+  ['crepe-carne', 'Crepe de carne', 'crepe de carne moida',
    'unidade', 'unidades', [[37, 90], [326, 50], [463, 30]]],
+  ['crepe-frango', 'Crepe de frango', 'crepe de frango com catupiry',
+   'unidade', 'unidades', [[37, 90], [404, 50], [465, 30]]],
+  ['crepe-queijo', 'Crepe de queijo', 'crepe de queijo presunto',
+   'unidade', 'unidades', [[37, 90], [463, 40], [439, 30]]],
+
+  /* --- pizza, por sabor ----------------------------------------------- */
+  ['pizza-mussarela', 'Pizza de mussarela', 'pizza mussarela marguerita',
+   'fatia', 'fatias', [[54, 70], [463, 40], [161, 25]]],
+  ['pizza-calabresa', 'Pizza de calabresa', 'pizza calabresa',
+   'fatia', 'fatias', [[54, 70], [463, 25], [420, 30]]],
+  ['pizza-frango', 'Pizza de frango com catupiry', 'pizza frango catupiry',
+   'fatia', 'fatias', [[54, 70], [404, 35], [465, 30]]],
+  ['pizza-portuguesa', 'Pizza portuguesa', 'pizza portuguesa presunto ovo',
+   'fatia', 'fatias', [[54, 70], [463, 25], [439, 25], [488, 20]]],
+
+  /* --- lanches --------------------------------------------------------- */
+  ['sanduiche-frango', 'Sanduíche de frango', 'sanduiche natural lanche de frango',
+   'unidade', 'unidades', [[52, 50], [410, 60], [161, 20]]],
+  ['sanduiche-atum', 'Sanduíche de atum', 'sanduiche natural lanche de atum',
+   'unidade', 'unidades', [[52, 50], [277, 55], [161, 20]]],
+  ['sanduiche-peru', 'Sanduíche de peito de peru', 'sanduiche peito de peru queijo branco',
+   'unidade', 'unidades', [[52, 50], [425, 40], [461, 25]]],
+  ['x-salada', 'X-salada', 'x salada hamburguer lanche burguer',
+   'unidade', 'unidades', [[54, 70], [416, 90], [463, 25], [78, 20], [161, 20]]],
+  ['misto-quente', 'Misto quente', 'misto quente queijo presunto',
+   'unidade', 'unidades', [[52, 50], [463, 30], [439, 30]]],
+  ['tapioca-frango', 'Tapioca de frango', 'tapioca recheada de frango',
+   'unidade', 'unidades', [[551, 90], [404, 60]]],
+  ['tapioca-queijo', 'Tapioca de queijo', 'tapioca recheada de queijo coco',
+   'unidade', 'unidades', [[551, 90], [461, 40]]],
   ['esfiha', 'Esfiha de carne', 'esfiha esfirra kibe aberto',
    'unidade', 'unidades', [[54, 50], [326, 35]]],
-  ['pastel-carne', 'Pastel de carne', 'pastel salgado frito',
+  ['pastel-carne', 'Pastel de carne', 'pastel de carne salgado frito',
    'unidade', 'unidades', [[54, 60], [326, 30]]],
-  ['moqueca', 'Moqueca de peixe', 'moqueca peixe dendê',
+  ['pastel-queijo', 'Pastel de queijo', 'pastel de queijo salgado frito',
+   'unidade', 'unidades', [[54, 60], [463, 30]]],
+  ['croquete', 'Croquete de carne', 'croquete de carne salgado',
+   'unidade', 'unidades', [[388, 45]]],
+  ['empada-frango', 'Empada de frango', 'empada empadinha de frango',
+   'unidade', 'unidades', [[389, 70]]],
+
+  /* --- peixes e frutos do mar ------------------------------------------ */
+  ['moqueca', 'Moqueca de peixe', 'moqueca peixe dende',
    'porção', 'porções', [[301, 150], [161, 40]]],
-  ['canja', 'Canja de galinha', 'canja sopa de frango',
+  ['bobo-camarao', 'Bobó de camarão', 'bobo de camarao',
+   'porção', 'porções', [[284, 90], [129, 140]]],
+  ['bacalhau-natas', 'Bacalhau com batata', 'bacalhau com natas batata portuguesa',
+   'porção', 'porções', [[280, 110], [91, 140], [447, 40]]],
+  ['sushi', 'Sushi de salmão', 'sushi sashimi temaki japonesa salmao',
+   'porção', 'porções', [[3, 90], [315, 70]]],
+  ['risoto-camarao', 'Risoto de camarão', 'risoto risotto de camarao',
+   'prato', 'pratos', [[3, 200], [284, 80], [464, 15]]],
+
+  /* --- risoto, sopas e caldos ------------------------------------------ */
+  ['risoto-frango', 'Risoto de frango', 'risoto risotto de frango',
+   'prato', 'pratos', [[3, 200], [410, 70], [464, 20]]],
+  ['canja', 'Canja de galinha', 'canja sopa de frango com arroz',
    'prato', 'pratos', [[3, 60], [404, 70]]],
   ['sopa-legumes', 'Sopa de legumes', 'sopa caldo de legumes',
    'prato', 'pratos', [[546, 250]]],
-  ['acai-tigela', 'Açaí na tigela', 'acai tigela',
-   'tigela', 'tigelas', [[168, 250], [25, 30], [182, 60]]],
-  ['sushi', 'Sushi ou sashimi', 'sushi sashimi temaki japonesa',
-   'porção', 'porções', [[3, 90], [315, 70]]],
-  ['strogonoff-arroz', 'Estrogonofe com arroz', 'estrogonofe com arroz prato feito',
-   'prato', 'pratos', [[538, 150], [3, 120]]],
-  ['pf-frango', 'Prato feito de frango', 'pf prato feito frango arroz feijao',
-   'prato', 'pratos', [[410, 120], [3, 120], [561, 80], [78, 40]]],
-  ['pf-carne', 'Prato feito de carne', 'pf prato feito bife arroz feijao',
-   'prato', 'pratos', [[377, 100], [3, 120], [561, 80], [78, 40]]],
-  ['misto-quente', 'Misto quente', 'misto quente queijo presunto',
-   'unidade', 'unidades', [[52, 50], [463, 30], [439, 30]]],
+  ['sopa-feijao', 'Caldo de feijão', 'caldo sopa de feijao',
+   'prato', 'pratos', [[561, 220], [420, 30]]],
+  ['sopa-carne', 'Sopa de carne com legumes', 'sopa de carne legumes musculo',
+   'prato', 'pratos', [[371, 90], [546, 180]]],
+
+  /* --- saladas e o que vem com elas ------------------------------------ */
   ['salada-frango', 'Salada com frango', 'salada com frango caesar',
    'prato', 'pratos', [[78, 80], [410, 90], [161, 40]]],
+  ['salada-atum', 'Salada com atum', 'salada com atum',
+   'prato', 'pratos', [[78, 80], [277, 70], [161, 40]]],
+  ['salada-ovo', 'Salada com ovo', 'salada com ovo cozido',
+   'prato', 'pratos', [[78, 80], [488, 100], [161, 40]]],
+
+  /* --- café da manhã e lanche da tarde ---------------------------------- */
+  ['iogurte-granola', 'Iogurte com granola', 'iogurte com granola aveia fruta',
+   'pote', 'potes', [[448, 170], [25, 30], [182, 50]]],
+  ['mingau-aveia', 'Mingau de aveia', 'mingau de aveia leite overnight',
+   'prato', 'pratos', [[7, 40], [null, 200, 3.2, 'leite TBCA']]],
+  ['vitamina-banana', 'Vitamina de banana', 'vitamina batida de banana leite',
+   'copo', 'copos', [[null, 200, 3.2, 'leite TBCA'], [182, 90], [7, 20]]],
+  ['pao-ovo', 'Pão com ovo', 'pao com ovo frito na chapa',
+   'unidade', 'unidades', [[53, 50], [490, 50]]],
+  ['pao-queijo-presunto', 'Pão com queijo e presunto', 'pao na chapa com queijo e presunto',
+   'unidade', 'unidades', [[53, 50], [463, 25], [439, 25]]],
+  ['ovos-mexidos-queijo', 'Ovos mexidos com queijo', 'ovos mexidos com queijo',
+   'porção', 'porções', [[490, 100], [463, 25]]],
+  ['acai-tigela', 'Açaí na tigela', 'acai tigela com granola',
+   'tigela', 'tigelas', [[168, 250], [25, 30], [182, 60]]],
 ];
 
 const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) => {
@@ -248,7 +362,16 @@ const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) =>
      entrega e divide pelo peso total. */
   let prot = 0, peso = 0;
   const partes = [];
-  for (const [tacoId, gramas, rendimento = 1] of receita) {
+  for (const [tacoId, gramas, rendimento = 1, rotulo] of receita) {
+    /* Componente de fora da TACO: o terceiro número é a proteína por
+       100 g e o quarto diz de onde ele veio. Existe porque a TACO não
+       analisou o leite líquido, e mingau e vitamina são leite. */
+    if (tacoId == null) {
+      prot += (rendimento / 100) * gramas;
+      peso += gramas;
+      partes.push((rotulo || '?') + '×' + gramas + 'g');
+      continue;
+    }
     const row = porId.get(tacoId);
     if (!row || typeof row.protein_g !== 'number') {
       erros.push(slug + ': componente ' + tacoId + ' sem proteína numérica');

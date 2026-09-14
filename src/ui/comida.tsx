@@ -174,20 +174,24 @@ export function ItemAlimento({ item, onQtd, onRemover }: {
 
 /* ------------------------------------------------------------------ */
 
-/** O convite para fotografar, quando ainda não há foto. */
+/* O convite para fotografar, do tamanho de um atalho e na linha do
+   rótulo da seção.
+
+   Ele já foi um cartão de largura inteira com duas linhas de texto, e
+   isso empurrava a busca para baixo da dobra numa tela que abre três
+   vezes por dia. A foto é um caminho, não O caminho: quem fotografa
+   acha o botão de qualquer tamanho, e quem digita não precisa passar
+   por cima dele. */
 export function BotaoEscanear({ onPress }: { onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
-      <Row gap={11} style={{
+    <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+      <Row gap={6} style={{
         backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine,
-        borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 13,
+        borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6,
       }}>
-        <Icon name="camera" size={18} color={c.accent} sw={1.9} />
-        <View style={{ flex: 1 }}>
-          <Txt v="label" c={c.accent}>Escanear o prato</Txt>
-          <Txt v="micro" c={c.tx3}>Uma foto e o app monta a lista</Txt>
-        </View>
+        <Icon name="camera" size={14} color={c.accent} sw={2} />
+        <Txt v="tag" c={c.accent}>Escanear</Txt>
       </Row>
     </Pressable>
   );

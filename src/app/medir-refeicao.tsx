@@ -166,23 +166,28 @@ export default function MedirRefeicao() {
         ))}
       </Grade>
 
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22, marginBottom: 10 }}>O QUE TINHA NO PRATO</Txt>
+      {/* O rótulo da seção e o atalho da câmera na mesma linha. A foto é
+          um caminho, não O caminho — como cartão de largura inteira ela
+          empurrava a busca para baixo, e é a busca que a maioria usa. */}
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 22, marginBottom: 10 }}>
+        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>O QUE TINHA NO PRATO</Txt>
+        {foto ? null : <BotaoEscanear onPress={() => setCamera(true)} />}
+      </Row>
 
-      {/* A foto primeiro, porque é o caminho curto: uma foto e a lista
-          vem montada. Quando ela não dá conta, a busca está logo abaixo,
-          no mesmo lugar de sempre. */}
+      {/* Com foto tirada, ela toma o lugar do atalho e mostra o que está
+          acontecendo com a leitura. */}
       {foto ? (
-        <FotoDoPrato
-          uri={foto}
-          lendo={lendo}
-          recado={recado || undefined}
-          onRemover={() => { setFoto(null); setRecado(null); }}
-        />
-      ) : (
-        <BotaoEscanear onPress={() => setCamera(true)} />
-      )}
+        <View style={{ marginBottom: 8 }}>
+          <FotoDoPrato
+            uri={foto}
+            lendo={lendo}
+            recado={recado || undefined}
+            onRemover={() => { setFoto(null); setRecado(null); }}
+          />
+        </View>
+      ) : null}
 
-      <View style={{ marginTop: 8 }}>
+      <View>
         <BuscaAlimento
           valor={busca}
           onChange={setBusca}
