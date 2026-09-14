@@ -104,6 +104,92 @@ export function itensDe(itens: ItemComida[], origem: Origem): ItemComida[] {
   return itens.filter((it) => origemDe(it) === origem);
 }
 
+/* ============================================================
+   O QUE ESTE ALIMENTO FAZ POR QUEM ESTÁ EM TRATAMENTO
+
+   Uma frase por alimento, calculada dos números — não escrita à mão
+   para cada um. Duzentas e vinte e quatro frases escritas à mão seriam
+   duzentas e vinte e quatro afirmações que ninguém conferiu; estas aqui
+   são a leitura de uma conta, e a conta está logo acima na tela.
+
+   O eixo é PROTEÍNA POR CALORIA. Num tratamento de GLP-1 a fome cai e o
+   prato encolhe, então a pergunta deixa de ser "quanto eu como" e passa
+   a ser "o que cabe no pouco que eu como". Um alimento que entrega 20 g
+   de proteína a cada 100 kcal trabalha a favor; um que entrega 2 g
+   ocupa o espaço de outro que entregaria mais.
+
+   A fibra entra logo depois porque prisão de ventre é efeito colateral
+   conhecido da caneta, e é o segundo assunto de comida numa consulta.
+
+   E quando não há o que dizer, não se diz nada. Sem frase é melhor do
+   que "delicioso e nutritivo".
+   ============================================================ */
+export type Insight = { texto: string; bom: boolean };
+
+export function insightDe(a: Alimento): Insight | null {
+  const { p, kcal, fibra } = a;
+  /* Proteína a cada 100 kcal. Sem caloria analisada não há razão, e sem
+     razão não há frase. */
+  const razao = kcal && kcal > 0 ? (p / kcal) * 100 : null;
+
+  if (razao != null && razao >= 15 && p >= 10) {
+    return {
+      bom: true,
+      texto: 'Muita proteína para pouca caloria. É o tipo de comida que o tratamento pede: ela cabe no prato que encolheu e ainda segura a massa magra.',
+    };
+  }
+  if (p >= 15) {
+    return {
+      bom: true,
+      texto: 'Boa fonte de proteína, que é o que segura a massa magra enquanto o peso desce.',
+    };
+  }
+  if (razao != null && razao < 3 && (kcal as number) >= 250) {
+    return {
+      bom: false,
+      texto: 'Caloria alta e pouca proteína. Não é proibido, mas ocupa bastante do dia e devolve pouco do que o tratamento precisa.',
+    };
+  }
+  /* A ressalva vem antes do elogio da fibra. A batata frita tem 8 g de
+     fibra, e pela ordem anterior saía daqui elogiada — verdade sobre a
+     fibra, e a leitura errada do prato inteiro. */
+  if (fibra != null && fibra >= 5) {
+    return {
+      bom: true,
+      texto: 'Bastante fibra. Ajuda com o intestino preso, que é dos efeitos colaterais mais comuns da caneta.',
+    };
+  }
+  if (kcal != null && kcal <= 60 && p < 3) {
+    return {
+      bom: true,
+      texto: 'Quase não pesa no dia. Bom para acompanhar o prato, mas a proteína tem que vir de outro lugar.',
+    };
+  }
+  if (fibra != null && fibra >= 2.5) {
+    return {
+      bom: true,
+      texto: 'Tem fibra, que ajuda com o intestino preso — dos efeitos colaterais mais comuns da caneta.',
+    };
+  }
+  return null;
+}
+
+/* DE ONDE VEIO O NÚMERO, dito para gente.
+
+   A tela dizia "Os valores vêm da TACO, linha 78", que é exato e não
+   quer dizer nada para quem não sabe o que é TACO. Sigla sem explicação
+   é a forma mais rápida de um app parecer que não foi escrito para
+   quem está lendo. */
+export function origemDoAlimento(a: Alimento): string {
+  if (a.taco) {
+    return 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.';
+  }
+  if (a.fonte && a.fonte.startsWith('soma TACO')) {
+    return 'Este é um prato montado: somamos ingrediente por ingrediente pela tabela da Unicamp, numa porção de restaurante. O seu pode vir maior ou menor.';
+  }
+  return 'A tabela da Unicamp não analisa este, então os números vêm do rótulo de produtos comuns no mercado. De marca para marca eles mudam um pouco.';
+}
+
 /** Quantas unidades esse alimento traz ao entrar na lista. */
 export function qtdPadrao(id: string): number {
   return alimentoDe(id)?.qtd ?? 1;

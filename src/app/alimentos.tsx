@@ -3,7 +3,7 @@ import { View, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ALIMENTOS, buscarAlimento, medidaDe, type Alimento } from '../logic/alimentos';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Chips, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius } from '../theme';
@@ -32,17 +32,32 @@ export default function Alimentos() {
   const { c } = useTheme();
   const router = useRouter();
   const [termo, setTermo] = useState('');
+  const [onde, setOnde] = useState('');
   const [tudo, setTudo] = useState(false);
 
   const emOrdem = React.useMemo(
     () => [...ALIMENTOS].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
     [],
   );
-  const achados: Alimento[] = termo.trim().length >= 2
-    ? buscarAlimento(termo, 60)
-    : (tudo ? emOrdem : emOrdem.slice(0, TETO));
+
+  /* AS PRATELEIRAS, na ordem em que aparecem na lista.
+
+     Elas saem dos próprios alimentos, e não de uma lista escrita à mão:
+     uma prateleira que ficasse sem nenhum alimento continuaria no filtro,
+     e o toque nela levaria a lugar nenhum. */
+  const prateleiras = React.useMemo(() => {
+    const vistas = new Map<string, number>();
+    for (const a of ALIMENTOS) vistas.set(a.onde, (vistas.get(a.onde) || 0) + 1);
+    return [...vistas.entries()].sort((x, y) => y[1] - x[1]);
+  }, []);
 
   const procurando = termo.trim().length >= 2;
+  const base = procurando ? buscarAlimento(termo, 200) : emOrdem;
+  const filtrados = onde ? base.filter((a) => a.onde === onde) : base;
+  /* O teto é para a lista inteira. Quem filtrou uma prateleira já
+     encurtou a lista por conta própria, e cortar de novo escondia
+     alimento que a pessoa acabou de pedir para ver. */
+  const achados: Alimento[] = procurando || onde || tudo ? filtrados : filtrados.slice(0, TETO);
 
   return (
     <TelaInterna titulo="Alimentos">
@@ -69,6 +84,19 @@ export default function Alimentos() {
           />
         </Row>
 
+        {/* O filtro de prateleira, rolando na horizontal. Ele aparece
+            sempre — inclusive com busca no ar, porque "frango" em
+            "Pratos prontos" e "frango" em "Carnes e aves" são duas
+            perguntas diferentes. */}
+        <Chips
+          itens={[
+            { id: '', label: 'Tudo', n: ALIMENTOS.length },
+            ...prateleiras.map(([nome, n]) => ({ id: nome, label: nome, n })),
+          ]}
+          valor={onde}
+          onChange={setOnde}
+        />
+
         {achados.length ? (
           <Cartao>
             {achados.map((a) => (
@@ -89,7 +117,7 @@ export default function Alimentos() {
           </Txt>
         )}
 
-        {!procurando && !tudo && emOrdem.length > TETO ? (
+        {!procurando && !onde && !tudo && emOrdem.length > TETO ? (
           <Linha
             titulo={`Ver todos os ${emOrdem.length}`}
             seta={false}

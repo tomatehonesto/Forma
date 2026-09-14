@@ -209,6 +209,73 @@ const L = [
   [null, 'barra-cereal', 'Barra de cereal', 'barra de cereal snack lanche', 25, 1, 'unidade', 'unidades', 6, 'rótulo', 400, 70, 10],
 ];
 
+/* A PRATELEIRA — em que corredor do mercado o alimento estaria.
+
+   Serve para filtrar a lista de consulta, e serve para escolher a foto:
+   224 fotos de comida seriam 224 licenças, então quem tem foto é a
+   prateleira, não o alimento. O peito de frango e a picanha dividem a
+   mesma imagem de carne, e isso é honesto — a foto ali é sinalização,
+   não documentação daquele prato.
+
+   Para o que vem da TACO ela sai da própria TACO. Para prato composto e
+   item de rótulo, sai da lista abaixo, com "Pratos prontos" de padrão:
+   quase todo composto é um prato pronto mesmo. */
+const PRATELEIRA_TACO = {
+  'Carnes e derivados': 'Carnes e aves',
+  'Pescados e frutos do mar': 'Peixes e frutos do mar',
+  'Ovos e derivados': 'Ovos',
+  'Leite e derivados': 'Leite e queijos',
+  'Leguminosas e derivados': 'Grãos e feijões',
+  'Cereais e derivados': 'Arroz, massas e pães',
+  'Verduras, hortaliças e derivados': 'Verduras e legumes',
+  'Frutas e derivados': 'Frutas',
+  'Nozes e sementes': 'Castanhas e sementes',
+  'Alimentos preparados': 'Pratos prontos',
+  'Bebidas (alcoólicas e não alcoólicas)': 'Bebidas',
+  'Produtos açucarados': 'Doces e lanches',
+  'Miscelâneas': 'Pratos prontos',
+  'Outros alimentos industrializados': 'Doces e lanches',
+  'Gorduras e óleos': 'Doces e lanches',
+};
+
+const PRATELEIRA_FORA = {
+  leite: 'Leite e queijos',
+  whey: 'Suplementos',
+  'barra-proteina': 'Suplementos',
+  'pasta-amendoim': 'Castanhas e sementes',
+  granola: 'Arroz, massas e pães',
+  cottage: 'Leite e queijos',
+  'barra-cereal': 'Doces e lanches',
+  'panqueca-americana': 'Café da manhã',
+  waffle: 'Café da manhã',
+  crepioca: 'Café da manhã',
+  'iogurte-granola': 'Café da manhã',
+  'smoothie-proteico': 'Café da manhã',
+  'torrada-abacate-ovo': 'Café da manhã',
+  shakshuka: 'Café da manhã',
+  'croissant-presunto-queijo': 'Café da manhã',
+  'bagel-cream-cheese': 'Café da manhã',
+  'sanduiche-ovo': 'Café da manhã',
+  'mingau-aveia': 'Café da manhã',
+  'vitamina-banana': 'Café da manhã',
+  'acai-tigela': 'Café da manhã',
+  'sanduiche-frango': 'Doces e lanches',
+  'sanduiche-atum': 'Doces e lanches',
+  'sanduiche-peru': 'Doces e lanches',
+  'x-salada': 'Doces e lanches',
+  'misto-quente': 'Doces e lanches',
+  'tapioca-frango': 'Doces e lanches',
+  'tapioca-queijo': 'Doces e lanches',
+  esfiha: 'Doces e lanches',
+  'pastel-carne': 'Doces e lanches',
+  'pastel-queijo': 'Doces e lanches',
+  croquete: 'Doces e lanches',
+  'empada-frango': 'Doces e lanches',
+  'guacamole-nachos': 'Doces e lanches',
+  'homus-pao': 'Doces e lanches',
+  'wrap-frango': 'Doces e lanches',
+};
+
 const porId = new Map(TACO.map((x) => [x.id, x]));
 const erros = [];
 
@@ -228,45 +295,57 @@ const num = (v) => {
   return null;
 };
 
-/* IDR — Ingestão Diária Recomendada para adultos, ANVISA RDC 269/2005.
+/* VDR — Valores Diários de Referência, ANVISA IN 75/2020, Anexo II.
 
-   Está aqui por um motivo só: decidir o DESTAQUE de cada alimento, que
-   é a frase "fonte de vitamina C" que a tela mostra no topo. O corte de
-   15% é o mesmo da RDC 54/2012 para a alegação "fonte de", e o de 30%
-   para "alto teor" — então a frase que o app escreve é a mesma que a
-   regra brasileira de rotulagem autoriza escrever.
+   Esta tabela decide o DESTAQUE de cada alimento: a frase do topo da
+   tela de consulta, "muita vitamina C — 48% do que se recomenda por
+   dia".
 
-   ATENÇÃO: estes valores foram escritos de memória e NÃO foram
-   conferidos contra o texto da RDC. Antes de qualquer publicação,
-   conferir um por um. */
-const IDR = [
+   É a IN 75/2020, e não a RDC 269/2005, porque foi ela que substituiu a
+   antiga na rotulagem brasileira — e sete dos doze valores mudaram no
+   caminho. A proteína caiu de 75 g para 50 g, a vitamina C subiu de 45
+   para 100 mg, o magnésio de 260 para 420, o zinco de 7 para 11, a
+   vitamina A de 600 para 800 µg RAE, a niacina de 16 para 15 e a
+   riboflavina de 1,3 para 1,2. Usar a tabela velha teria dado, por
+   exemplo, o dobro do percentual de vitamina C em toda fruta.
+
+   Conferido em setembro de 2026 contra o Anexo II da IN 75/2020.
+
+   O QUE O APP NÃO FAZ com isto: escrever "fonte de" ou "alto teor de".
+   Essas são alegações reguladas, com condições que dependem da porção,
+   do estado do alimento e — no caso da proteína — do escore químico
+   dela. O app não rotula embalagem; ele mostra uma conta e diz que
+   conta é. Por isso a frase é "muita vitamina C" e não uma alegação.
+
+   O corte de 15% em 100 g é regra DESTE app para decidir o que merece
+   virar frase, e não um limite legal. */
+const VDR = [
   ['proteína', 'protein_g', 'g', 50],
   ['fibra', 'fiber_g', 'g', 25],
-  ['vitamina C', 'vitaminC_mg', 'mg', 45],
+  ['vitamina C', 'vitaminC_mg', 'mg', 100],
   ['cálcio', 'calcium_mg', 'mg', 1000],
   ['ferro', 'iron_mg', 'mg', 14],
-  ['magnésio', 'magnesium_mg', 'mg', 260],
-  ['zinco', 'zinc_mg', 'mg', 7],
+  ['magnésio', 'magnesium_mg', 'mg', 420],
+  ['zinco', 'zinc_mg', 'mg', 11],
   ['fósforo', 'phosphorus_mg', 'mg', 700],
-  ['niacina', 'niacin_mg', 'mg', 16],
+  ['niacina', 'niacin_mg', 'mg', 15],
   ['tiamina', 'thiamine_mg', 'mg', 1.2],
-  ['riboflavina', 'riboflavin_mg', 'mg', 1.3],
-  ['vitamina A', 'rae_mcg', 'mcg', 600],
+  ['riboflavina', 'riboflavin_mg', 'mg', 1.2],
+  ['vitamina A', 'rae_mcg', 'mcg', 800],
 ];
 
 /* O nutriente em que 100 g do alimento mais se destacam, se algum
-   passar de 15% da IDR. Sem isso a tela não inventa frase nenhuma.
+   passar de 15% do VDR. Sem isso a tela não inventa frase nenhuma.
 
-   Com UMA exceção, e ela é do app e não da tabela: quando a proteína já
-   chega em "alto teor", é ela que a frase diz. O peito de frango tem
-   155% da IDR de niacina e 64% da de proteína, e pela conta pura a tela
-   anunciava "alto teor de niacina" — verdade, e a coisa menos útil que
-   se pode dizer sobre um frango num aplicativo cuja única conta é
-   proteína. */
+   Com UMA exceção, e ela é do app e não da tabela: quando a proteína
+   passa de 30%, é ela que a frase diz. O peito de frango tem 165% do
+   VDR de niacina e 64% do de proteína, e pela conta pura a tela
+   anunciava a niacina — verdade, e a coisa menos útil que se pode dizer
+   sobre um frango num aplicativo cuja única conta é proteína. */
 function destaqueDe(row, divisor = 1) {
   let melhor = null;
   let proteina = null;
-  for (const [nome, campo, un, idr] of IDR) {
+  for (const [nome, campo, un, idr] of VDR) {
     const v = num(row[campo]);
     if (v == null) continue;
     const valor = v / divisor;
@@ -602,7 +681,7 @@ const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) =>
 
 const linhasTS = linhas.map((l) => {
   const [id, slug, nome, busca, gUn, qtd, un, unp, nono, origem, kcalF, carbF, gordF] = l;
-  let p, nota, kcal, carb, gord, fibra, destaque;
+  let p, nota, kcal, carb, gord, fibra, destaque, prateleira;
 
   if (id == null) {
     p = nono;
@@ -614,6 +693,7 @@ const linhasTS = linhas.map((l) => {
     /* Sem linha da TACO não há micronutriente para comparar com a IDR,
        então o prato composto e o item de rótulo não ganham destaque —
        a não ser o que a própria proteína der. */
+    prateleira = PRATELEIRA_FORA[slug] || 'Pratos prontos';
     destaque = p / 50 >= 0.15
       ? { nome: 'proteína', valor: +p.toFixed(1), un: 'g', pct: Math.round((p / 50) * 100) }
       : null;
@@ -634,6 +714,7 @@ const linhasTS = linhas.map((l) => {
     gord = q('lipid_g');
     fibra = q('fiber_g');
     destaque = destaqueDe(row, d);
+    prateleira = PRATELEIRA_TACO[row.category] || 'Pratos prontos';
     nota = row.description + (d !== 1 ? ' ÷ ' + String(d).replace('.', ',') + ' de rendimento' : '');
   }
 
@@ -651,6 +732,7 @@ const linhasTS = linhas.map((l) => {
     `qtd: ${qtd}`,
     `un: '${un}'`,
     `unp: '${unp}'`,
+    `onde: '${prateleira}'`,
     destaque
       ? `destaque: { nome: '${destaque.nome}', valor: ${destaque.valor}, un: '${destaque.un}', pct: ${destaque.pct} }`
       : null,
@@ -717,6 +799,8 @@ export type Alimento = {
   /** A unidade no singular, e no plural. */
   un: string;
   unp: string;
+  /** Em que corredor do mercado ele estaria — filtro e foto. */
+  onde: string;
   /* O nutriente em que 100 g deste alimento mais se destacam, quando
      algum passa de 15% da IDR — o mesmo corte que a regra brasileira de
      rotulagem usa para autorizar a frase "fonte de". Sem destaque, a
