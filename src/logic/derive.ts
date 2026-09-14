@@ -2,7 +2,7 @@
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
-import { nomeItem } from './prato';
+import { MOMENTOS, nomeItem } from './prato';
 import type { State } from './seed';
 
 export const GOAL_WATER = 8;
@@ -1713,12 +1713,23 @@ export function diasDeRefeicao(S: State, dias: number): DiaDaTira[] {
   });
 }
 
-/** As refeições de um dia, da mais recente para a mais antiga. */
+/* AS REFEIÇÕES DE UM DIA, na ordem em que o dia acontece: café, almoço,
+   lanche, jantar.
+
+   Pela hora do registro elas saíam trocadas com frequência — quem só
+   lembra de anotar à noite registra o café por último, e o caderno
+   mostrava o dia de trás para a frente. A ordem que se lê é a do prato,
+   não a do toque, e ela já está escrita em MOMENTOS; a hora fica como
+   desempate para duas refeições do mesmo momento. */
 export function refeicoesDoDia(S: State, t: number): any[] {
+  const ordem = (nome: string) => {
+    const i = MOMENTOS.findIndex(([, n]) => n === nome);
+    return i < 0 ? MOMENTOS.length : i;
+  };
   return (S.meals as any[])
     .filter((m) => diaDaRefeicao(m) === t)
     .slice()
-    .sort((a, b) => b.t - a.t);
+    .sort((a, b) => ordem(a.name) - ordem(b.name) || a.t - b.t);
 }
 
 /** Uma refeição pelo instante em que foi registrada — que é o id dela. */

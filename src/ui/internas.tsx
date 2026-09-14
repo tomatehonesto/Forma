@@ -313,15 +313,24 @@ export function Sanfona({ children }: { children: React.ReactNode }) {
    atalho que a maioria não usa em toda visita — visível o bastante para
    ser lembrado, fechado o bastante para não empurrar para baixo o que a
    maioria veio fazer. */
-export function Acordeao({ titulo, sub, children, aberto: inicial = false }: {
-  titulo: string; sub?: string; children: React.ReactNode; aberto?: boolean;
+export function Acordeao({ ic, titulo, sub, children, nu, aberto: inicial = false }: {
+  ic?: string; titulo: string; sub?: string; children: React.ReactNode;
+  /** sem cartão: fios em cima e embaixo, sobre o fundo da tela */
+  nu?: boolean; aberto?: boolean;
 }) {
   const { c } = useTheme();
   const [aberto, setAberto] = useState(inicial);
+  const fio = { height: StyleSheet.hairlineWidth, backgroundColor: c.line };
+  const filhos = React.Children.toArray(children).filter(Boolean);
+
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+    <View style={nu
+      ? { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.line }
+      : [{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}
+    >
       <Pressable onPress={() => setAberto((a) => !a)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-        <Row gap={10} style={{ paddingHorizontal: PAD, paddingVertical: 14 }}>
+        <Row gap={10} style={{ paddingHorizontal: nu ? 2 : PAD, paddingVertical: 13 }}>
+          {ic ? <Icon name={ic} size={16} color={c.accent} sw={1.9} /> : null}
           <View style={{ flex: 1 }}>
             <Txt v="bodyMed">{titulo}</Txt>
             {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt> : null}
@@ -329,12 +338,15 @@ export function Acordeao({ titulo, sub, children, aberto: inicial = false }: {
           <Icon name={aberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
         </Row>
       </Pressable>
-      {aberto ? (
-        <>
-          <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginLeft: PAD }} />
-          {children}
-        </>
-      ) : null}
+      {/* Fio entre os filhos, e não dentro de cada um: assim o primeiro e
+          o último nunca deixam um fio sobrando na borda. É a mesma regra
+          do Cartao. */}
+      {aberto ? filhos.map((ch, k) => (
+        <View key={k}>
+          <View style={[fio, nu ? null : { marginLeft: PAD }]} />
+          {ch}
+        </View>
+      )) : null}
     </View>
   );
 }

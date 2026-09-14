@@ -238,7 +238,7 @@ export default function MedirRefeicao() {
         </View>
       ) : null}
 
-      {/* OS FAVORITOS, fechados.
+      {/* OS FAVORITOS, fechados e DEPOIS da busca.
 
           Quem come marmita ou tem rotina repete o mesmo prato — e sem
           isto remontava item por item, com a mesma quantidade, todo dia.
@@ -252,30 +252,15 @@ export default function MedirRefeicao() {
           cima da busca, que é o caminho que a maioria usa. Fechado, ele
           é uma linha; aberto, é a lista com o que cada prato rende.
 
+          E sem cartão: dentro de um, ele competia com o campo de busca
+          logo acima, dois blocos brancos de peso igual disputando o
+          primeiro toque. Nu, entre dois fios, ele lê como o que é — um
+          atalho pendurado embaixo da busca.
+
           Só aparece quando existe favorito com prato guardado. Os
           antigos, que só têm nome, continuam entrando por /alimentacao
           com o nome escrito na busca — aqui eles não teriam o que
           acrescentar. */}
-      {!cadastrando && favs.length ? (
-        <View style={{ marginBottom: 10 }}>
-          <Acordeao
-            titulo="Pratos favoritos"
-            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
-          >
-            {favs.map((f) => (
-              <Linha
-                key={f.nome}
-                ic="leaf"
-                titulo={f.nome}
-                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
-                seta={false}
-                onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
-              />
-            ))}
-          </Acordeao>
-        </View>
-      ) : null}
-
       <View>
         <BuscaAlimento
           valor={busca}
@@ -291,6 +276,27 @@ export default function MedirRefeicao() {
           }}
         />
       </View>
+      {!cadastrando && favs.length ? (
+        <View style={{ marginTop: 14 }}>
+          <Acordeao
+            nu
+            ic="star"
+            titulo="Pratos favoritos"
+            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
+          >
+            {favs.map((f) => (
+              <Linha
+                key={f.nome}
+                titulo={f.nome}
+                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
+                seta={false}
+                onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
+              />
+            ))}
+          </Acordeao>
+        </View>
+      ) : null}
+
 
       {itens.length ? (
         <View style={{ gap: 7, marginTop: 8 }}>

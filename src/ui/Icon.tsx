@@ -93,6 +93,7 @@ import ThumbsUp from 'lucide-react-native/icons/thumbs-up';
 import Toilet from 'lucide-react-native/icons/toilet';
 import TrendingUp from 'lucide-react-native/icons/trending-up';
 import Trophy from 'lucide-react-native/icons/trophy';
+import Star from 'lucide-react-native/icons/star';
 import User from 'lucide-react-native/icons/user';
 import Utensils from 'lucide-react-native/icons/utensils';
 import WavesHorizontal from 'lucide-react-native/icons/waves-horizontal';
@@ -194,6 +195,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   shield: ShieldCheck,
   filter: Funnel,
   trophy: Trophy,
+  star: Star,
   bulb: Lightbulb,
   thumbup: ThumbsUp,
   thumbdown: ThumbsDown,

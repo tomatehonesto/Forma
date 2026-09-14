@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
-  apagarFavorito, apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
+  apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
   semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
@@ -258,36 +258,36 @@ export default function Alimentacao() {
       >
         {favs.length ? (
           <View style={{ gap: 10 }}>
+            {/* A linha ABRE o prato, e é só isso que ela faz. A lixeira
+                morava aqui e foi para dentro da folha, pelo mesmo motivo
+                da lista de refeições: apagar é irreversível, e ao alcance
+                do polegar numa lista que se rola é um erro esperando
+                acontecer. */}
             {favs.map((f) => {
               const g = somaDe((f.itens || []) as any);
               return (
-                <View key={f.nome} style={[{ backgroundColor: c.bg1, borderRadius: radius.card }, shadowCard(c)]}>
-                  <ItemApagavel
-                    pergunta={`Tirar "${f.nome}" dos favoritos?`}
-                    onApagar={() => update((s: any) => apagarFavorito(s, f.nome))}
-                  >
-                    <Pressable
-                      onPress={() => router.push(f.itens?.length
-                        ? '/medir-refeicao?prato=' + encodeURIComponent(f.nome) as any
-                        : `/medir-refeicao?oque=${encodeURIComponent(f.nome)}` as any)}
-                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                    >
-                      <Row style={{ alignItems: 'flex-start' }}>
-                        <View style={{ flex: 1, paddingRight: 10 }}>
-                          <Txt v="body">{f.nome}</Txt>
-                          {/* Quantos gramas o prato rende, dito aqui: é a
-                              razão de ele ser favorito de quem está
-                              perseguindo uma meta de proteína, e sem isso a
-                              escolha entre dois favoritos é às cegas. */}
-                          <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
-                            {f.itens?.length ? `~${g} g de proteína` : 'Sem prato guardado — abre pela busca'}
-                          </Txt>
-                        </View>
-                        <Chevron size={15} />
-                      </Row>
-                    </Pressable>
-                  </ItemApagavel>
-                </View>
+                <Pressable
+                  key={f.nome}
+                  onPress={() => router.push(`/favorito?nome=${encodeURIComponent(f.nome)}` as any)}
+                  style={({ pressed }) => [
+                    { backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
+                    shadowCard(c),
+                  ]}
+                >
+                  <Row style={{ alignItems: 'flex-start' }}>
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <Txt v="body">{f.nome}</Txt>
+                      {/* Quantos gramas o prato rende, dito aqui: é a razão
+                          de ele ser favorito de quem está perseguindo uma
+                          meta de proteína, e sem isso a escolha entre dois
+                          favoritos é às cegas. */}
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
+                        {f.itens?.length ? `~${g} g de proteína` : 'Sem prato guardado — abre pela busca'}
+                      </Txt>
+                    </View>
+                    <Chevron size={15} />
+                  </Row>
+                </Pressable>
               );
             })}
           </View>

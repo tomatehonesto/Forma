@@ -202,6 +202,8 @@ const L = [
   [495, 'chocolate', 'Chocolate ao leite', 'chocolate barra ao leite bombom', 25, 1, 'porção', 'porções'],
   [215, 'suco-laranja', 'Suco de laranja', 'suco laranja natural', 200, 1, 'copo', 'copos'],
   [139, 'palmito', 'Palmito em conserva', 'palmito conserva pupunha', 30, 3, 'tolete', 'toletes'],
+  [143, 'pimentao', 'Pimentão', 'pimentao cru salada', 30, 2, 'rodela', 'rodelas'],
+  [null, 'barra-cereal', 'Barra de cereal', 'barra de cereal snack lanche', 25, 1, 'unidade', 'unidades', 6, 'rótulo'],
 ];
 
 const porId = new Map(TACO.map((x) => [x.id, x]));
@@ -364,8 +366,108 @@ const COMPOSTOS = [
   /* A granola era o id 25 da TACO, que é "Cereal matinal, milho" — flocos
      de milho com nome de granola. Agora ela é o item de fora, com o valor
      de rótulo, e os dois pratos dizem a mesma coisa sobre a mesma coisa. */
+  ['panqueca-americana', 'Panquecas americanas', 'panqueca americana pancake hotcake',
+   'porção', 'porções', [[35, 60], [489, 50], [null, 80, 3.2, 'leite TBCA']]],
+  ['waffle', 'Waffle', 'waffle belga',
+   'unidade', 'unidades', [[35, 60], [489, 40], [null, 60, 3.2, 'leite TBCA']]],
+  ['crepioca', 'Crepioca de queijo', 'crepioca tapioca com ovo',
+   'unidade', 'unidades', [[551, 40], [489, 50], [461, 30]]],
+  ['iogurte-granola', 'Iogurte com granola e fruta', 'iogurte granola parfait grego bowl',
+   'tigela', 'tigelas', [[448, 170], [null, 30, 9, 'granola rótulo'], [182, 60]]],
+  ['smoothie-proteico', 'Smoothie de banana com whey', 'smoothie shake proteico batida',
+   'copo', 'copos', [[182, 90], [null, 200, 3.2, 'leite TBCA'], [null, 30, 80, 'whey rótulo']]],
+  ['torrada-abacate-ovo', 'Torrada com abacate e ovo', 'avocado toast torrada abacate ovo',
+   'porção', 'porções', [[63, 50], [163, 60], [490, 50]]],
+  ['shakshuka', 'Shakshuka', 'shakshuka ovos no molho de tomate arabe',
+   'porção', 'porções', [[489, 100], [159, 150], [107, 30]]],
+  ['croissant-presunto-queijo', 'Croissant de presunto e queijo', 'croissant misto frances padaria',
+   'unidade', 'unidades', [[54, 60], [439, 25], [463, 25]]],
+  ['bagel-cream-cheese', 'Bagel com cream cheese', 'bagel cream cheese requeijao pao',
+   'unidade', 'unidades', [[53, 90], [465, 30]]],
+  ['sanduiche-ovo', 'Sanduíche de ovo', 'sanduiche de ovo egg sandwich',
+   'unidade', 'unidades', [[52, 50], [488, 100]]],
   ['acai-tigela', 'Açaí na tigela', 'acai tigela com granola',
    'tigela', 'tigelas', [[168, 250], [null, 30, 9, 'granola rótulo'], [182, 60]]],
+
+  /* --- a cozinha do mundo -----------------------------------------------
+
+     A tabela era brasileira até aqui, e comida não é. Quem almoça poke,
+     janta ramen ou come um wrap no meio da tarde procurava e não achava
+     — e não achar é pior do que achar um valor aproximado, porque manda
+     a pessoa embora da tela sem registrar nada.
+
+     Cada prato daqui é montado dos MESMOS componentes da TACO que os
+     pratos brasileiros usam: o frango do xadrez é o mesmo frango do
+     estrogonofe, o grão-de-bico do homus é o mesmo do curry. Nenhum
+     número novo foi inventado para eles — o que muda é a receita, e ela
+     fica escrita na linha gerada para poder ser conferida e corrigida.
+
+     As receitas são porções médias de restaurante, não a receita da sua
+     casa. É por isso que o app escreve "~" antes de todo grama. ------ */
+
+  /* japonesa, chinesa e tailandesa */
+  ['ramen-carne', 'Lámen com carne e ovo', 'ramen lamen miojo japones sopa macarrao',
+   'tigela', 'tigelas', [[39, 80], [328, 50], [488, 50]]],
+  ['temaki-salmao', 'Temaki de salmão', 'temaki cone japones salmao',
+   'unidade', 'unidades', [[3, 80], [316, 60]]],
+  ['poke-salmao', 'Poke de salmão', 'poke bowl havaiano salmao',
+   'tigela', 'tigelas', [[3, 150], [316, 90], [163, 40]]],
+  ['gyoza-porco', 'Guioza de porco', 'guioza gyoza pastel japones porco',
+   'porção', 'porções', [[35, 45], [433, 55]]],
+  ['frango-xadrez', 'Frango xadrez', 'frango xadrez chines castanha',
+   'prato', 'pratos', [[410, 110], [588, 20], [145, 40]]],
+  ['arroz-frito', 'Arroz frito com ovo', 'arroz frito yakimeshi chines chaufa',
+   'prato', 'pratos', [[3, 180], [489, 50], [559, 30]]],
+  ['pad-thai-camarao', 'Pad thai de camarão', 'pad thai tailandes macarrao camarao',
+   'prato', 'pratos', [[40, 80, 2.2], [285, 80], [489, 40], [558, 15]]],
+  ['bibimbap', 'Bibimbap', 'bibimbap coreano arroz carne ovo',
+   'tigela', 'tigelas', [[3, 180], [328, 60], [490, 50], [110, 40]]],
+
+  /* mexicana */
+  ['taco-carne', 'Taco de carne', 'taco tacos mexicano carne',
+   'unidade', 'unidades', [[33, 40], [326, 70], [463, 20]]],
+  ['burrito-frango', 'Burrito de frango', 'burrito mexicano frango feijao',
+   'unidade', 'unidades', [[35, 70], [410, 80], [561, 60], [3, 60]]],
+  ['quesadilla-queijo', 'Quesadilla de queijo', 'quesadilla mexicana queijo tortilla',
+   'unidade', 'unidades', [[35, 60], [463, 50]]],
+  ['chili-carne', 'Chili com carne', 'chili con carne mexicano feijao',
+   'prato', 'pratos', [[326, 100], [567, 100], [159, 60]]],
+  ['guacamole-nachos', 'Guacamole com nachos', 'guacamole nachos abacate mexicano',
+   'porção', 'porções', [[163, 80], [33, 40]]],
+
+  /* árabe e mediterrânea */
+  ['homus-pao', 'Homus com pão sírio', 'homus hummus grao de bico arabe',
+   'porção', 'porções', [[575, 80, 2.4], [53, 60]]],
+  ['falafel', 'Falafel', 'falafel bolinho de grao de bico arabe',
+   'porção', 'porções', [[575, 120, 2.4], [35, 20]]],
+  ['shawarma-frango', 'Shawarma de frango', 'shawarma shauarma churrasco grego frango',
+   'unidade', 'unidades', [[53, 70], [410, 100], [448, 30]]],
+  ['kebab-carne', 'Kebab de carne', 'kebab kebap doner carne arabe turco',
+   'unidade', 'unidades', [[53, 70], [328, 80], [448, 30]]],
+  ['souvlaki-frango', 'Espetinho grego de frango', 'souvlaki espetinho grego frango tzatziki',
+   'espetinho', 'espetinhos', [[410, 120], [448, 40]]],
+
+  /* indiana */
+  ['tikka-masala', 'Frango tikka masala', 'tikka masala curry indiano frango',
+   'prato', 'pratos', [[410, 110], [447, 60], [159, 60]]],
+  ['curry-grao-de-bico', 'Curry de grão-de-bico', 'curry indiano grao de bico vegetariano channa',
+   'prato', 'pratos', [[575, 120, 2.4], [523, 80], [159, 50]]],
+
+  /* europeia e americana */
+  ['paella-frutos-do-mar', 'Paella de frutos do mar', 'paella espanhola arroz camarao',
+   'prato', 'pratos', [[3, 200], [285, 90]]],
+  ['tortilla-espanhola', 'Tortilha espanhola', 'tortilla espanhola omelete de batata',
+   'fatia', 'fatias', [[489, 100], [91, 150]]],
+  ['quiche-queijo', 'Quiche de queijo', 'quiche torta francesa queijo',
+   'fatia', 'fatias', [[35, 45], [489, 55], [463, 40], [447, 35]]],
+  ['mac-and-cheese', 'Macarrão com queijo cheddar', 'mac and cheese macarrao queijo americano',
+   'prato', 'pratos', [[40, 150, 2.2], [467, 50], [null, 80, 3.2, 'leite TBCA']]],
+  ['wrap-frango', 'Wrap de frango', 'wrap enrolado frango tortilla',
+   'unidade', 'unidades', [[35, 60], [410, 80], [161, 30]]],
+
+  /* latino-americana */
+  ['ceviche-peixe', 'Ceviche de peixe', 'ceviche peruano peixe limao',
+   'porção', 'porções', [[307, 150], [107, 30]]],
 ];
 
 const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) => {
