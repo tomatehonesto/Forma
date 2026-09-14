@@ -1,0 +1,11 @@
+Fotos dos alimentos.
+
+O nome do arquivo é o ID do alimento (src/logic/alimentos.ts):
+  peito-frango.jpg, banana.jpg, tikka-masala.jpg
+
+Ou o nome da prateleira, em minúsculas e sem acento, para cobrir
+todo um corredor enquanto as fotos específicas não chegam:
+  carnes-e-aves.jpg, frutas.jpg, verduras-e-legumes.jpg
+
+Depois de mexer aqui, rode:
+  node scripts/gerar-fotos.mjs

@@ -1,41 +1,37 @@
 /* ============================================================
-   AS FOTOS DA PRATELEIRA
+   AS FOTOS DOS ALIMENTOS
 
-   A tela de consulta abre com uma imagem em cima, como a referência que
-   a inspirou. Mas a foto é da PRATELEIRA, e não do alimento: duzentas e
-   vinte e quatro fotos de comida seriam duzentas e vinte e quatro
-   licenças e uns vinte megabytes de bundle num app que não é de
-   receitas.
+   ARQUIVO GERADO por scripts/gerar-fotos.mjs a partir do que existe em
+   assets/images/alimentos/. Para acrescentar uma foto, ponha o arquivo lá com o id do
+   alimento no nome e rode:
 
-   O peito de frango e a picanha dividem a mesma imagem de carne, e isso
-   é honesto — a foto ali é sinalização, do mesmo jeito que a placa do
-   corredor do mercado. O que descreve aquele alimento são os números
-   logo abaixo.
+     node scripts/gerar-fotos.mjs
 
-   COMO ACRESCENTAR UMA: ponha o arquivo em
-   assets/images/alimentos/<arquivo>.jpg e escreva a linha aqui. O
-   `require` do Metro precisa do caminho literal, então não dá para
-   montar o nome em tempo de execução.
+   A tela de consulta procura nesta ordem: a foto DAQUELE alimento, a
+   foto da prateleira dele, e por último o painel de cor — que continua
+   dizendo alguma coisa, porque a cor vem do nutriente em destaque.
 
-   Enquanto uma prateleira não tem foto, a tela usa o painel de cor —
-   que continua funcionando e continua dizendo alguma coisa, porque a
-   cor vem do nutriente em destaque.
+   A prateleira existe para o meio do caminho. Com vinte fotos entre
+   duzentas e vinte e quatro, dezenove telas caem no painel de cor; com
+   uma foto de "carnes e aves", todas as carnes já abrem com imagem
+   enquanto a específica não chega.
    ============================================================ */
-export const FOTO_PRATELEIRA: Record<string, any> = {
-  // 'Carnes e aves': require('../../assets/images/alimentos/carnes.jpg'),
-  // 'Peixes e frutos do mar': require('../../assets/images/alimentos/peixes.jpg'),
-  // 'Ovos': require('../../assets/images/alimentos/ovos.jpg'),
-  // 'Leite e queijos': require('../../assets/images/alimentos/laticinios.jpg'),
-  // 'Grãos e feijões': require('../../assets/images/alimentos/graos.jpg'),
-  // 'Arroz, massas e pães': require('../../assets/images/alimentos/massas.jpg'),
-  // 'Verduras e legumes': require('../../assets/images/alimentos/verduras.jpg'),
-  // 'Frutas': require('../../assets/images/alimentos/frutas.jpg'),
-  // 'Castanhas e sementes': require('../../assets/images/alimentos/castanhas.jpg'),
-  // 'Pratos prontos': require('../../assets/images/alimentos/pratos.jpg'),
-  // 'Café da manhã': require('../../assets/images/alimentos/cafe.jpg'),
-  // 'Doces e lanches': require('../../assets/images/alimentos/lanches.jpg'),
-  // 'Bebidas': require('../../assets/images/alimentos/bebidas.jpg'),
-  // 'Suplementos': require('../../assets/images/alimentos/suplementos.jpg'),
+const POR_ITEM: Record<string, any> = {
+
 };
 
-export const temFoto = (onde: string) => !!FOTO_PRATELEIRA[onde];
+const POR_PRATELEIRA: Record<string, any> = {
+
+};
+
+const chave = (s: string) =>
+  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/** A foto de um alimento: a dele, a da prateleira dele, ou nenhuma. */
+export function fotoDoAlimento(id: string, onde: string): any | null {
+  return POR_ITEM[id] || POR_PRATELEIRA[chave(onde)] || null;
+}
+
+/** Quantas fotos existem hoje — a tela de consulta não usa, o gerador sim. */
+export const TOTAL_FOTOS = 0;

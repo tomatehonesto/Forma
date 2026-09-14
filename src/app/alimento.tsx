@@ -9,7 +9,7 @@ import { medidaDe } from '../logic/alimentos';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
-import { FOTO_PRATELEIRA } from '../ui/fotosAlimento';
+import { fotoDoAlimento } from '../ui/fotosAlimento';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
 
@@ -24,12 +24,19 @@ import { radius, shadowCard } from '../theme';
    com os números. É a composição de um rótulo de embalagem: a alegação
    em cima, a tabela embaixo.
 
-   A FOTO É DA PRATELEIRA, e não do alimento — ver ui/fotosAlimento. E
-   quando a prateleira ainda não tem foto, o lugar dela é um painel de
-   cor: a cor vem do DESTAQUE, o nutriente em que aquele alimento mais
-   se sobressai, então verde é fibra, âmbar é vitamina C, azul é
-   proteína. Quem abre dez alimentos seguidos aprende a ler a cor antes
-   de ler a frase.
+   A FOTO É DAQUELE ALIMENTO, quando existe uma. Ela sai de
+   assets/images/alimentos/<id>.jpg, e o mapa é gerado do que está no
+   disco — ver scripts/gerar-fotos.mjs.
+
+   Sem a foto do alimento, a da PRATELEIRA cobre o corredor inteiro: uma
+   imagem de carne enquanto o peito de frango não tem a dele. E sem
+   nenhuma das duas, o lugar é um painel de cor — a cor vem do DESTAQUE,
+   o nutriente em que aquele alimento mais se sobressai, então verde é
+   fibra, âmbar é vitamina C, azul é proteína.
+
+   Os três degraus existem porque uma tabela de 224 alimentos não ganha
+   224 fotos de uma vez: ela ganha as primeiras vinte, e as outras
+   duzentas precisam continuar abrindo bonitas nesse meio-tempo.
 
    A FRASE DO TOPO diz o percentual e para por aí. Ela já disse "fonte
    de" e "alto teor de", que são alegações REGULADAS — com condições que
@@ -81,7 +88,7 @@ export default function Alimento() {
 
   const d = a.destaque;
   const [de, para] = (d && TINTA[d.nome] ? TINTA[d.nome] : TINTA['proteína'])(c);
-  const foto = FOTO_PRATELEIRA[a.onde];
+  const foto = fotoDoAlimento(a.id, a.onde);
   /* Espaço duro dentro do nome do nutriente: sem ele "vitamina C"
      quebrava com o C sozinho na segunda linha. */
   const nutriente = d ? d.nome.replace(/ /g, ' ') : '';
