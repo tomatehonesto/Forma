@@ -1545,6 +1545,19 @@ export function apagarTreino(s: any, t: number, i: number) {
   c.exerc = Math.max(0, (c.exerc || 0) - tr.min);
 }
 
+/* Apagar uma refeição devolve a proteína dela ao dia. Mesma regra do
+   treino: o total do dia não volta a zero, porque ele soma o que as
+   OUTRAS refeições trouxeram.
+
+   Refeição antiga, gravada antes de `g` existir, vale o que a faixa dela
+   valia — senão apagar um registro de "proteína alta" tiraria zero do dia
+   e o número ficaria alto para sempre, sem nada explicando. */
+export function apagarRefeicao(s: any, t: number, gramas: number) {
+  s.meals = (s.meals as any[]).filter((m) => m.t !== t);
+  const dia = (s.checkins as any[]).find((c) => c.t === +startOfDay(new Date(t)));
+  if (dia) dia.prot = Math.max(0, (dia.prot || 0) - gramas);
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };

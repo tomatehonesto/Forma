@@ -912,6 +912,51 @@ export function Texto({ valor, onChange, placeholder, linhas = 3 }: {
    perigo para o que não volta atrás. Perigo é branco com tinta vermelha e
    não vermelho chapado: apagar um registro é uma operação legítima, não
    um alarme. */
+/* ------------------------------------------------------------------ */
+/* Item que pode ser apagado — a lixeira arma, o segundo toque confirma.
+
+   A pergunta ocupa a própria linha do item, e não um modal: o que vai
+   sumir continua à vista enquanto se decide, e a decisão acontece onde a
+   mão já está. Registro de tratamento não devia ir embora com um
+   deslize, mas também não merece uma caixa cinza no meio da tela.
+
+   Nasceu na lista de treinos e virou peça quando a de refeições precisou
+   do mesmo — duas cópias do mesmo gesto é onde um padrão começa a
+   divergir. */
+export function ItemApagavel({ pergunta, onApagar, children }: {
+  /** A frase da confirmação: "Apagar caminhada de 30 min?" */
+  pergunta: string;
+  onApagar: () => void;
+  children: React.ReactNode;
+}) {
+  const { c } = useTheme();
+  const [armado, setArmado] = useState(false);
+
+  if (armado) {
+    return (
+      <Row gap={10} style={{ paddingHorizontal: PAD, paddingVertical: 13 }}>
+        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{pergunta}</Txt>
+        <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.tx3}>Cancelar</Txt>
+        </Pressable>
+        <Pressable onPress={onApagar} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.cta}>Apagar</Txt>
+        </Pressable>
+      </Row>
+    );
+  }
+
+  return (
+    <Row gap={12} style={{ paddingHorizontal: PAD, paddingVertical: 13 }}>
+      <View style={{ flex: 1 }}>{children}</View>
+      <Pressable onPress={() => setArmado(true)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+        <Icon name="trash" size={16} color={c.tx4} sw={1.9} />
+      </Pressable>
+    </Row>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 export function Botao({ label, onPress, tom = 'cheio' }: {
   label: string; onPress?: () => void; tom?: 'cheio' | 'fantasma' | 'perigo';
 }) {

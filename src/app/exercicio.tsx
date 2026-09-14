@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import React from 'react';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -8,7 +8,7 @@ import {
 } from '../logic/derive';
 import { relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Cartao, Linha, ItemApagavel, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -54,11 +54,6 @@ export default function Exercicio() {
   const { c } = useTheme();
   const router = useRouter();
 
-  /* Qual sessão está com a pergunta de apagar aberta. Uma de cada vez: a
-     lixeira arma, o segundo toque confirma. Sem esse passo, um deslize
-     num cartão pequeno apaga registro de tratamento. */
-  const [armado, setArmado] = useState<string | null>(null);
-
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
   const daSemana = semana.reduce((s, d) => s + d.min, 0);
@@ -66,6 +61,7 @@ export default function Exercicio() {
   /* O teto da barra é a meta do dia, ou o maior dia se ele passou dela —
      assim um dia de 60 min enche a barra e um de 90 não sai da caixa. */
   const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
+  const ALT = 64;
 
   const forca = diasDeForca(S);
   const modalidades = porModalidade(S, 30);
@@ -73,16 +69,12 @@ export default function Exercicio() {
   const fonte = fonteDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
-  const apagar = (t: number, i: number) => {
-    update((s: any) => apagarTreino(s, t, i));
-    setArmado(null);
-  };
-
   return (
+    /* Sem "+" no topo: o rodapé fixo é o mesmo gesto, e dois botões para
+       a mesma ação na mesma tela fazem a pessoa procurar a diferença
+       entre eles. */
     <TelaInterna
       titulo="Exercício"
-      iconeAcao="plus"
-      onAcao={() => router.push('/medir-exercicio' as any)}
       rodape={<Botao label="Registrar um treino" onPress={() => router.push('/medir-exercicio' as any)} />}
     >
       <Titulao
@@ -108,28 +100,67 @@ export default function Exercicio() {
           </Txt>
         </Row>
 
-        {/* Cada dia tem um trilho inteiro, sempre visível, e a barra sobe
-            de baixo dentro dele. Sem o trilho, o dia parado virava um
-            fiapo que some — e descanso não é ausência de dado. */}
-        <Row gap={7} style={{ marginTop: 14, alignItems: 'flex-end' }}>
-          {semana.map((d, i) => {
-            const eHoje = i === semana.length - 1;
-            const alt = d.min ? Math.max(6, Math.round((d.min / teto) * 54)) : 0;
-            return (
-              <View key={d.t} style={{ flex: 1, alignItems: 'center', gap: 7 }}>
-                <View style={{
-                  width: '100%', height: 54, borderRadius: radius.sm,
-                  backgroundColor: c.track, justifyContent: 'flex-end', overflow: 'hidden',
-                }}>
-                  <View style={{ height: alt, backgroundColor: eHoje ? c.accent : c.accent2 }} />
+        {/* A barra diz QUANTOS MINUTOS, e não só "teve ou não teve".
+
+            Antes ela era um trilho cinza com um preenchimento dentro,
+            escalado pelo maior dia da semana — o que fazia 20 min numa
+            semana fraca parecerem tanto quanto 60 numa semana forte. Um
+            gráfico assim tem altura mas não tem unidade.
+
+            Agora cada barra carrega o número em cima dela e a linha
+            tracejada marca a meta do dia. Com essas duas coisas dá para
+            ler a semana sem contar barra: onde passou, onde faltou
+            pouco, e quanto foi cada dia. */}
+        <View style={{ marginTop: 16, height: ALT + 24 }}>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute', left: 0, right: 0, bottom: Math.round((alvoDia / teto) * ALT),
+              /* Em c.line2 a meta sumia dentro do cartão branco. Uma linha
+                 de referência precisa ser lida de relance, senão o gráfico
+                 volta a ser altura sem unidade. */
+              borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
+            }}
+          />
+          <Row gap={7} style={{ flex: 1, alignItems: 'flex-end' }}>
+            {semana.map((d, i) => {
+              const eHoje = i === semana.length - 1;
+              return (
+                <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                  {d.min ? (
+                    <Txt v="micro" c={eHoje ? c.tx : c.tx3} style={{ marginBottom: 4 }}>{d.min}</Txt>
+                  ) : null}
+                  {/* O dia parado ganha um traço na linha de base: campo
+                      vazio some, e descanso não é ausência de dado. */}
+                  {/* Hoje em azul cheio, os outros dias apagados. Antes
+                     eram accent e accent2, dois azuis a três tons de
+                     distância: no tamanho de uma barra isso não é
+                     diferença, é ruído. */}
+                  <View style={{
+                    width: '100%',
+                    height: d.min ? Math.max(5, Math.round((d.min / teto) * ALT)) : 3,
+                    borderRadius: radius.sm,
+                    backgroundColor: d.min ? c.accent : c.line2,
+                    opacity: d.min && !eHoje ? 0.42 : 1,
+                  }} />
                 </View>
-                {/* Três letras, não uma: sáb, seg e sex começam iguais, e
-                    a fileira virava "s s s" no meio da semana. */}
-                <Txt v="micro" c={eHoje ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
-              </View>
-            );
-          })}
+              );
+            })}
+          </Row>
+        </View>
+
+        <Row gap={7} style={{ marginTop: 7 }}>
+          {semana.map((d, i) => (
+            /* Três letras, não uma: sáb, seg e sex começam iguais, e a
+               fileira virava "s s s" no meio da semana. */
+            <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+              <Txt v="micro" c={i === semana.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
+            </View>
+          ))}
         </Row>
+        <Txt v="micro" c={c.tx4} style={{ marginTop: 9 }}>
+          A linha tracejada é a meta de {alvoDia} min por dia.
+        </Txt>
 
         {/* Relata, não cobra. Quantos dias houve, e ponto — virar meta
             seria inventar uma cobrança que o tratamento não pediu. */}
@@ -171,42 +202,18 @@ export default function Exercicio() {
       >
         {treinos.length ? (
           <Cartao>
-            {treinos.map((t) => {
-              const chave = `${t.t}-${t.i}`;
-              const perguntando = armado === chave;
-              return (
-                <View key={chave} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
-                  {perguntando ? (
-                    /* A pergunta ocupa a própria linha do treino, e não um
-                       modal: o que vai sumir continua à vista enquanto se
-                       decide. */
-                    <Row gap={10}>
-                      <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-                        Apagar {t.tipo.toLowerCase()} de {t.min} min?
-                      </Txt>
-                      <Pressable onPress={() => setArmado(null)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                        <Txt v="label" c={c.tx3}>Cancelar</Txt>
-                      </Pressable>
-                      <Pressable onPress={() => apagar(t.t, t.i)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                        <Txt v="label" c={c.cta}>Apagar</Txt>
-                      </Pressable>
-                    </Row>
-                  ) : (
-                    <Row gap={12}>
-                      <View style={{ flex: 1 }}>
-                        <Txt v="body">{t.tipo}</Txt>
-                        <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-                          {relDay(new Date(t.t))} · {t.min} min
-                        </Txt>
-                      </View>
-                      <Pressable onPress={() => setArmado(chave)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
-                        <Icon name="trash" size={16} color={c.tx4} sw={1.9} />
-                      </Pressable>
-                    </Row>
-                  )}
-                </View>
-              );
-            })}
+            {treinos.map((t) => (
+              <ItemApagavel
+                key={`${t.t}-${t.i}`}
+                pergunta={`Apagar ${t.tipo.toLowerCase()} de ${t.min} min?`}
+                onApagar={() => update((s: any) => apagarTreino(s, t.t, t.i))}
+              >
+                <Txt v="body">{t.tipo}</Txt>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
+                  {relDay(new Date(t.t))} · {t.min} min
+                </Txt>
+              </ItemApagavel>
+            ))}
           </Cartao>
         ) : (
           <Cartao>

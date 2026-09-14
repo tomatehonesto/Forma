@@ -3,16 +3,18 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
-import { checkinToday } from '../logic/derive';
+import { apagarRefeicao, checkinToday } from '../logic/derive';
 import { relDay } from '../logic/time';
 import { gramasDaFaixa } from '../logic/escalas';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Divider } from '../ui/kit';
+import { ItemApagavel } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
 export default function Alimentacao() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
 
@@ -55,8 +57,19 @@ export default function Alimentacao() {
       {/* recentes */}
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Registro recente</Txt>
       <View style={{ gap: 10 }}>
+        {/* Cada refeição pode ser apagada daqui. Registrar três vezes por
+            dia produz engano — o almoço que entrou como jantar, a busca
+            que somou dois frangos —, e sem uma saída o número do dia fica
+            errado para sempre com a pessoa sabendo que está.
+
+            Apagar devolve a proteína ao dia, não zera: o que as outras
+            refeições trouxeram continua lá. */}
         {S.meals.map((m: any, i: number) => (
-          <Card key={`${m.t}-${i}`} style={{ paddingVertical: 14 }}>
+          <Card key={`${m.t}-${i}`} style={{ paddingVertical: 2, paddingHorizontal: 0 }}>
+            <ItemApagavel
+              pergunta={`Apagar ${String(m.name).toLowerCase()} de ${relDay(new Date(m.t))}?`}
+              onApagar={() => update((s: any) => apagarRefeicao(s, m.t, m.g ?? gramasDaFaixa(m.prot) ?? 0))}
+            >
             <Row style={{ justifyContent: 'space-between' }}>
               <Txt v="title">{m.name}</Txt>
               <Txt v="micro" c={c.tx3}>{relDay(new Date(m.t))}</Txt>
@@ -76,6 +89,7 @@ export default function Alimentacao() {
               />
               <Pill label={`~${m.g ?? gramasDaFaixa(m.prot) ?? 0} g`} color={c.tx3} bg={c.bg2} />
             </Row>
+            </ItemApagavel>
           </Card>
         ))}
       </View>
