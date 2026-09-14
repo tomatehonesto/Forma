@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
-import { SINTOMA, FOME, INTESTINO } from '../logic/escalas';
+import { SINTOMA, FOME, INTESTINO, paraTela } from '../logic/escalas';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Escala, Opcoes, Opc, Aviso, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -24,10 +24,6 @@ import { useTheme } from '../ui/useTheme';
    E as duas telas abrem com o que a outra já gravou. Editar um valor é
    corrigir o mesmo número, não escrever um segundo por cima.
    ============================================================ */
-
-/* O armazenamento é 0–10 e continua sendo: derives, seed e histórico já
-   leem nessa régua. A tela fala 1–5 e converte na fronteira. */
-const paraTela = (v: any) => (typeof v === 'number' && v > 0 ? Math.round(v / 2) : null);
 
 export default function MedirSintomas() {
   const S = useStore((s) => s.S);

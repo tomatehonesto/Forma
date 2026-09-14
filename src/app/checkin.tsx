@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday, registroDoDia } from '../logic/derive';
+import { checkinToday, registroDoDia, streak } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
-import { ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO } from '../logic/escalas';
+import {
+  ENERGIA, SONO, HUMOR, INTENSIDADE, SINTOMA, INTESTINO, SINTOMAS, paraTela,
+} from '../logic/escalas';
+import {
+  type Niveis, AVISOS, AVISO_PRESO, AVISO_SOLTO,
+  combinacao, persistencia, diasAnteriores,
+} from '../logic/leituras';
 import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Aviso, Botao } from '../ui/internas';
 
 /* ============================================================
@@ -32,20 +38,6 @@ import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Aviso, Botao }
    dormiu zero hora.
    ============================================================ */
 
-/* `store` é a chave numérica legada que derive.ts já lê. Os três primeiros
-   sintomas têm coluna própria desde o início; os outros vivem só no mapa
-   `sint` do check-in, e entram nas leituras quando ganharem derivação. */
-const SINTOMAS: { id: string; label: string; store?: string }[] = [
-  { id: 'nausea', label: 'Náusea', store: 'nausea' },
-  { id: 'intestino', label: 'Intestino' },
-  { id: 'vomito', label: 'Vômito' },
-  { id: 'dor', label: 'Dor abdominal' },
-  { id: 'refluxo', label: 'Refluxo', store: 'refluxo' },
-  { id: 'fadiga', label: 'Fadiga' },
-  { id: 'cefaleia', label: 'Dor de cabeça' },
-  { id: 'tontura', label: 'Tontura' },
-  { id: 'outro', label: 'Outro' },
-];
 
 /* A lista cresceu para caber o que a literatura mais registra. Faltavam
    três dos mais frequentes: vômito, dor abdominal — a queixa mais
@@ -68,166 +60,9 @@ const SINTOMAS: { id: string; label: string; store?: string }[] = [
 const OUTRO = 'outro';
 const GUT = 'intestino';
 
-/* ONDE A TELA DEIXA DE SÓ ANOTAR
-
-   Um diário que registra e cala nos pontos que importam cumpre a função
-   de arquivo e falha na de acompanhamento. Mas alarme em todo sintoma
-   vira alarme nenhum, então o corte é um só: o aviso existe quando a
-   resposta muda o que a pessoa deveria fazer HOJE. Fadiga e dor de cabeça
-   ficam de fora por isso — quase sempre vêm de comer e beber pouco, e um
-   aviso ali seria ruído sobre o que já é esperado.
-
-   Nenhum deles nomeia diagnóstico. Quem lê já está com o sintoma, e um
-   nome de doença assusta sem ajudar a decidir o próximo passo.
-
-   E nenhum trata o sintoma como escolha. "Vomitar muito" e "nesse ritmo"
-   descreviam o involuntário como se fosse hábito — quem vomita não está
-   vomitando demais, está vomitando. O sujeito das frases é o sintoma ou o
-   corpo, nunca a pessoa: ela é quem lê, não quem causou.
-
-   As faixas não são iguais porque os sintomas não são: dor e tontura
-   avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
-   vômito, intestino — avisam no degrau em que a graduação clínica troca
-   de patamar. */
-const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao: string }> = {
-  dor: {
-    min: 4,
-    titulo: 'Essa dor não espera a próxima consulta',
-    texto: 'Dor forte na barriga, ou que não passa, é a única que pede atenção no mesmo dia. Quase sempre não é nada grave — e é por isso mesmo que vale olhar cedo.',
-    acao: 'Fale com sua equipe hoje. Se piorar ou vier com vômito, procure um atendimento.',
-  },
-  vomito: {
-    min: 4,
-    titulo: 'Isso tira mais líquido do que parece',
-    texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E quando a comida não fica, o dia seguinte já começa cansado.',
-    acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
-  },
-  tontura: {
-    min: 4,
-    titulo: 'Tontura assim costuma ter explicação',
-    texto: 'Quase sempre é falta de líquido ou açúcar baixo. Se você toma algum remédio para diabetes junto, o açúcar baixo fica ainda mais provável.',
-    acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, conte para sua equipe.',
-  },
-};
-
-/* Os dois lados do intestino têm o seu, e ficam fora do mapa acima porque
-   não são medidos em `grau` — um conta dias sem ir, o outro idas no dia. */
-const AVISO_PRESO = {
-  min: 5,
-  titulo: 'Quatro dias sem ir já merece atenção',
-  texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
-  acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
-};
-
-const AVISO_SOLTO = {
-  min: 5,
-  titulo: 'Assim o corpo perde mais do que repõe',
-  texto: 'Sete idas ou mais num dia levam mais água e sal do que a sede dá conta de repor.',
-  acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
-};
-
-/* AVISOS POR COMBINAÇÃO — o que nenhum sintoma sozinho consegue dizer.
-
-   Dor forte é uma coisa; dor forte COM vômito é outra, e a bula trata as
-   duas de maneiras diferentes. Até aqui cada campo só sabia de si, e o
-   quadro que mais importa era justamente o que nenhum deles enxergava.
-
-   A ordem é a da urgência, e só o primeiro que bate aparece: dois avisos
-   graves ao mesmo tempo dividem a atenção em vez de somá-la.
-
-   Quando uma combinação aparece, os avisos de campo somem. Eles dizem
-   "converse com sua equipe" sobre um sintoma; a combinação diz "vá agora"
-   sobre o conjunto, e manter os dois na tela é deixar o menos urgente
-   discutir com o mais urgente. */
-type Niveis = { nausea: number; dor: number; vomito: number; tontura: number; preso: number; solto: number };
-
-const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string; acao: string }[] = [
-  {
-    /* Intestino parado há dias + dor forte + vômito. */
-    quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
-    titulo: 'Essa combinação pede atendimento agora',
-    texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou. É raro, mas não melhora sozinho.',
-    acao: 'Procure um pronto atendimento hoje. Diga que usa a caneta e há quantos dias não vai ao banheiro.',
-  },
-  {
-    /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
-       manda relatar de imediato. */
-    quando: (n) => n.dor >= 4 && n.vomito >= 3,
-    titulo: 'Dor forte com vômito não espera',
-    texto: 'Dor forte na barriga junto de vômito, às vezes espalhando para as costas, pede atenção no mesmo dia. Chegando cedo, é simples de checar.',
-    acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, a dose e quando a dor começou.',
-  },
-  {
-    /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
-    quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
-    titulo: 'Tontura junto disso é sinal de desidratação',
-    texto: 'Quando falta água e sal, a pressão cai ao levantar — e a tontura é o corpo avisando.',
-    acao: 'Beba de pouquinho ao longo do dia, com soro ou uma pitada de sal, e levante devagar. Se não melhorar até amanhã, avise sua equipe.',
-  },
-];
-
-/* PERSISTÊNCIA — a outra coisa que um dia sozinho não diz.
-
-   Enjoo hoje é o esperado de quem começou ou acabou de subir a dose.
-   Enjoo em quatro dos últimos sete dias é outra frase: é o que separa
-   "efeito da dose subindo" de "isso não está passando", e é exatamente o
-   que muda a conduta na consulta. Até aqui a tela lia só o dia de hoje, e
-   quem se acostuma com um sintoma para de achar que vale contar.
-
-   Por isso o aviso traz o NÚMERO de dias: "quatro dos últimos sete" é um
-   fato que a pessoa leva para a consulta, "você tem enjoo com frequência"
-   é uma impressão que ela já tinha.
-
-   O intestino preso aparece nas duas leituras, e não é repetição: a régua
-   do campo conta dias seguidos sem ir — um episódio —, e aqui conta dias
-   da semana com o intestino lento, que é o padrão de quem vai a cada três
-   dias sem nunca ficar quatro sem ir.
-
-   A ordem é a da urgência, e só o primeiro que bate aparece. */
-const SEMANA = 7;
-
-const PERSISTENCIA: {
-  dias: number;
-  noDia: (c: any) => boolean;
-  hoje: (n: Niveis) => boolean;
-  titulo: string;
-  texto: (n: number) => string;
-  acao: string;
-}[] = [
-  {
-    dias: 3,
-    noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
-    hoje: (n) => n.vomito >= 1,
-    titulo: 'Vômito em dias repetidos',
-    texto: (n) => `${n} dos últimos sete dias com vômito. Assim comida, líquido e o próprio remédio não ficam.`,
-    acao: 'Fale com sua equipe esta semana, sem esperar a consulta. Leve o número de dias — é ele que faz diferença.',
-  },
-  {
-    dias: 3,
-    noDia: (c) => c?.gut === 'solto',
-    hoje: (n) => n.solto >= 1,
-    titulo: 'O intestino está solto há dias',
-    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação, mesmo quando cada dia, sozinho, parece tranquilo.`,
-    acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser a alimentação.',
-  },
-  {
-    dias: 4,
-    /* 6 na régua de armazenamento é o 3 da tela — enjoo que incomodou. */
-    noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
-    hoje: (n) => n.nausea >= 3,
-    titulo: 'O enjoo não está passando',
-    texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. Costuma mudar com a dose, ou com a velocidade que ela sobe.`,
-    acao: 'Leve esse número para a próxima consulta. Segurar a dose um pouco mais não é desistir.',
-  },
-  {
-    dias: 5,
-    noDia: (c) => c?.gut === 'preso',
-    hoje: (n) => n.preso >= 1,
-    titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito da caneta, e com menos comida passa menos fibra — ele sente antes da balança.`,
-    acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
-  },
-];
+/* As tabelas de aviso, combinação e persistência moram em
+   logic/leituras.ts: a tela de confirmação precisa chegar à mesma
+   conclusão sobre o mesmo dia, e duas cópias divergiriam. */
 
 /* "Outro" não tem régua, e não podia ter: a escala mede quanto pesou um
    sintoma que a tela sabe nomear, e aqui a tela não sabe qual é.
@@ -235,12 +70,6 @@ const PERSISTENCIA: {
    substantivo — então ele abre um campo de escrever, e o que a pessoa
    digitar é o registro. Vive em `outroTexto`, fora do mapa `sint`, que
    continua só com números. */
-
-/* Armazenamento é 0–10; a tela fala 1–5. A conversão mora na fronteira,
-   nos dois sentidos, e é a mesma de medir-sintomas. Vale para os sintomas
-   e para a energia, que também é lida em 0–10 pelo radar, pelas metas e
-   pela série do balanço. */
-const paraTela = (v: any) => (typeof v === 'number' && v > 0 ? Math.round(v / 2) : null);
 
 export default function Checkin() {
   const S = useStore((s) => s.S);
@@ -339,32 +168,29 @@ export default function Checkin() {
     solto: noGut && gut === 'solto' ? (vezes ?? 3) : 0,
   };
 
-  const combinado = COMBINACOES.find((x) => x.quando(niveis)) ?? null;
+  const combinado = combinacao(niveis);
 
   /* Os dias ANTERIORES, sem o de hoje: o registro salvo de hoje pode estar
      atrás do que a pessoa acabou de marcar na tela, e contaria o dia com o
      valor velho. Hoje entra pela resposta que está na tela agora, então a
      conta muda enquanto ela responde. */
-  const anteriores = React.useMemo(() => {
-    const t = +startOfDay(now());
-    const desde = t - SEMANA * 24 * 3600 * 1000;
-    return (S.checkins as any[]).filter((c) => c.t < t && c.t >= desde);
-  }, [S.checkins]);
-
-  const persistente = (() => {
-    for (const r of PERSISTENCIA) {
-      const n = anteriores.filter(r.noDia).length + (r.hoje(niveis) ? 1 : 0);
-      if (n >= r.dias) return { titulo: r.titulo, texto: r.texto(n), acao: r.acao };
-    }
-    return null;
-  })();
+  const anteriores = React.useMemo(
+    () => diasAnteriores(S.checkins as any[], +startOfDay(now())),
+    [S.checkins],
+  );
 
   /* Uma mensagem por vez no cartão de baixo. A combinação fala do agora e
      manda agir hoje; a persistência fala da semana e manda levar para a
      consulta — as duas juntas competem, e a do agora ganha. */
-  const leitura = combinado ?? persistente;
+  const leitura = combinado ?? persistencia(anteriores, niveis);
 
   const salvar = () => {
+    /* O streak ANTES de gravar. A confirmação anima de um número para o
+       outro, e depois do update só existe o depois — quem sabe o antes é
+       quem estava aqui. Editando um dia já respondido os dois são iguais,
+       e a tela mostra o número parado, sem festa que não aconteceu. */
+    const antes = streak(S);
+
     update((s: any) => {
       const t = +startOfDay(now());
 
@@ -429,7 +255,7 @@ export default function Checkin() {
 
       s.heroSeen = { milestone: 0, insight: null, replay: null };
     });
-    router.replace('/(tabs)/jornada' as any);
+    router.replace(`/checkin-ok?de=${antes}` as any);
   };
 
   return (

@@ -102,3 +102,36 @@ export const INTESTINO: [string, string][] = [
 /** Fome é o contrário de saciedade, e o radar lê como saciedade. Por isso
     1 é a fome menor: a régua sobe junto com o sintoma, como as outras. */
 export const FOME = ['Sem fome', 'Pouca fome', 'Fome normal', 'Bastante fome', 'Fome o dia todo'];
+
+/* A fronteira entre as duas réguas. O armazenamento é 0–10 desde o começo
+   — radar, metas, série do balanço e histórico leem nessa escala —, e as
+   telas falam 1–5. A conversão mora aqui, ao lado das legendas que dão
+   nome a cada degrau, e é a mesma para o check-in, para "como o corpo
+   reagiu" e para quem lê o registro depois de salvo.
+
+   Zero vira null de propósito: na régua de armazenamento o zero é
+   "não teve", e na tela isso é campo em branco, não o degrau 1. */
+export const paraTela = (v: any) => (typeof v === 'number' && v > 0 ? Math.round(v / 2) : null);
+
+/* OS SINTOMAS que a tela oferece, na ordem em que aparecem.
+
+   `store` é a coluna numérica legada, para os três que já tinham uma desde
+   o começo; os outros vivem no mapa `sint` do registro. Dois são casos à
+   parte e não têm régua nem coluna própria aqui: `intestino` escreve
+   `gut` (e `constip` ou `diarreia`, conforme o lado), e `outro` guarda texto
+   em `outroTexto`.
+
+   Mora junto das réguas porque quem lê um registro já salvo — a
+   confirmação do check-in, por exemplo — precisa da mesma lista para dar
+   nome ao que encontrou. */
+export const SINTOMAS: { id: string; label: string; store?: string }[] = [
+  { id: 'nausea', label: 'Náusea', store: 'nausea' },
+  { id: 'intestino', label: 'Intestino' },
+  { id: 'vomito', label: 'Vômito' },
+  { id: 'dor', label: 'Dor abdominal' },
+  { id: 'refluxo', label: 'Refluxo', store: 'refluxo' },
+  { id: 'fadiga', label: 'Fadiga' },
+  { id: 'cefaleia', label: 'Dor de cabeça' },
+  { id: 'tontura', label: 'Tontura' },
+  { id: 'outro', label: 'Outro' },
+];
