@@ -124,6 +124,14 @@ export default function Exercicio() {
         lead="Junto com a proteína, é o que segura a massa magra durante a perda de peso."
       />
 
+      {/* Os dois gráficos são UM grupo: a semana e a tendência dela.
+
+          Como filhos diretos da TelaInterna eles caíam nos 26 px que
+          separam SEÇÕES, e ficavam tão longe um do outro quanto do
+          caderno — como se fossem três assuntos. Dentro de um View com
+          gap 10, que é a distância de cartões irmãos no resto do app,
+          eles leem como duas vistas da mesma coisa. */}
+      <View style={{ gap: 10 }}>
       {/* A SEMANA — a unidade em que exercício faz sentido.
 
           Mesmo desenho do cartão de baixo, e não um próprio: cabeçalho
@@ -174,7 +182,14 @@ export default function Exercicio() {
                 return (
                   <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
                     {d.min ? (
-                      <Txt v="micro" c={eHoje ? c.tx : c.tx4} style={{ marginBottom: 5 }}>{d.min}</Txt>
+                      /* Fundo do cartão atrás do número: a tracejada da
+                         meta passa na altura dos rótulos dos dias curtos e
+                         cruzava os dígitos. */
+                      <Txt
+                        v="micro"
+                        c={eHoje ? c.tx : c.tx4}
+                        style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
+                      >{d.min}</Txt>
                     ) : null}
                     {/* O dia parado ganha um ponto na linha de base: coluna
                         vazia some, e descanso não é ausência de dado. */}
@@ -223,7 +238,7 @@ export default function Exercicio() {
           meses, que num tratamento de meses é a pergunta que importa e
           que nada na tela respondia. */}
       {comHistorico ? (
-        <View style={{ marginTop: 10 }}>
+        <View>
           <CardCurva
             id="ex"
             nome="Minutos por semana"
@@ -239,6 +254,7 @@ export default function Exercicio() {
           />
         </View>
       ) : null}
+      </View>
 
       {/* OS DESTAQUES DO PERÍODO
 
