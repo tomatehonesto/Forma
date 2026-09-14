@@ -197,7 +197,24 @@ const erros = [];
    para menos conforme a mão de quem cozinhou — como toda estimativa
    desta tabela, e é por isso que a tela escreve "~". */
 const COMPOSTOS = [
-  /* O NOME DIZ A PROTEÍNA, SEMPRE.
+  /* O QUE ENTRA AQUI, E O QUE NÃO ENTRA.
+
+     Só prato que é UMA coisa. Carbonara é carbonara; lasanha à
+     bolonhesa é lasanha à bolonhesa. O molho não se separa da massa e
+     ninguém pediria os dois em linhas diferentes.
+
+     Prato mais acompanhamento fica de fora, e é uma decisão contra a
+     multiplicação: "estrogonofe de carne com arroz" pede logo em
+     seguida com batata palha, com purê, com fritas — e cada combinação
+     vira uma linha que precisa de nome, de receita e de manutenção.
+     Quem comeu estrogonofe com arroz adiciona o estrogonofe e depois o
+     arroz, e o número sai mais certo do que qualquer combinação que a
+     tabela tivesse adivinhado.
+
+     A fronteira: se dá para apontar as partes no prato e comê-las
+     separadas, são itens. Se saiu do fogo já misturado, é um prato.
+
+     E O NOME DIZ A PROTEÍNA, SEMPRE.
 
      "Estrogonofe com arroz" era de frango e não avisava — quem procurou
      "strogonoff" via três opções e uma delas escondia qual carne tinha
@@ -211,8 +228,6 @@ const COMPOSTOS = [
    'prato', 'pratos', [[40, 180, 2.2], [489, 55], [439, 40], [464, 20]]],
   ['macarrao-alho', 'Macarrão ao alho e óleo', 'macarrao alho e oleo massa simples',
    'prato', 'pratos', [[40, 180, 2.2], [464, 10]]],
-  ['macarrao-frango', 'Macarrão com frango', 'macarrao com frango massa',
-   'prato', 'pratos', [[40, 160, 2.2], [410, 90], [161, 40]]],
   ['macarrao-queijos', 'Macarrão aos quatro queijos', 'macarrao quatro queijos massa',
    'prato', 'pratos', [[40, 170, 2.2], [463, 45], [464, 20], [447, 40]]],
   ['lasanha-carne', 'Lasanha de carne', 'lasanha bolonhesa carne',
@@ -224,12 +239,6 @@ const COMPOSTOS = [
   ['nhoque', 'Nhoque ao sugo', 'nhoque gnocchi batata',
    'prato', 'pratos', [[91, 220], [161, 60], [464, 15]]],
 
-  /* --- estrogonofe, com e sem o arroz do lado ------------------------ */
-  ['strogonoff-frango-arroz', 'Estrogonofe de frango com arroz', 'estrogonofe strogonoff frango com arroz',
-   'prato', 'pratos', [[538, 150], [3, 120]]],
-  ['strogonoff-carne-arroz', 'Estrogonofe de carne com arroz', 'estrogonofe strogonoff carne com arroz',
-   'prato', 'pratos', [[537, 150], [3, 120]]],
-
   /* --- empanados e à parmegiana -------------------------------------- */
   ['parmegiana-frango', 'Filé de frango à parmegiana', 'parmegiana parmigiana frango milanesa com queijo',
    'filé', 'filés', [[401, 130], [463, 40], [161, 30]]],
@@ -238,19 +247,9 @@ const COMPOSTOS = [
   ['bife-milanesa', 'Bife à milanesa', 'bife a milanesa empanado carne',
    'filé', 'filés', [[340, 130]]],
 
-  /* --- pratos feitos e refeições de bandeja --------------------------- */
-  ['pf-frango', 'Prato feito de frango', 'pf prato feito frango arroz feijao',
-   'prato', 'pratos', [[410, 120], [3, 120], [561, 80], [78, 40]]],
-  ['pf-carne', 'Prato feito de carne', 'pf prato feito bife carne arroz feijao',
-   'prato', 'pratos', [[377, 100], [3, 120], [561, 80], [78, 40]]],
-  ['pf-peixe', 'Prato feito de peixe', 'pf prato feito peixe arroz feijao',
-   'prato', 'pratos', [[301, 120], [3, 120], [561, 80], [78, 40]]],
-  ['pf-ovo', 'Prato feito com ovo', 'pf prato feito ovo arroz feijao',
-   'prato', 'pratos', [[490, 100], [3, 120], [561, 80], [78, 40]]],
+  /* --- arroz que já vem com a proteína dentro ------------------------- */
   ['galinhada', 'Galinhada', 'galinhada arroz com frango',
    'prato', 'pratos', [[3, 180], [404, 110]]],
-  ['arroz-brocolis-frango', 'Arroz com brócolis e frango', 'arroz integral brocolis frango fit marmita',
-   'prato', 'pratos', [[1, 150], [100, 80], [410, 110]]],
 
   /* --- escondidinho, torta, panqueca --------------------------------- */
   ['escondidinho-carne', 'Escondidinho de carne moída', 'escondidinho carne moida pure',
@@ -332,27 +331,11 @@ const COMPOSTOS = [
   ['sopa-carne', 'Sopa de carne com legumes', 'sopa de carne legumes musculo',
    'prato', 'pratos', [[371, 90], [546, 180]]],
 
-  /* --- saladas e o que vem com elas ------------------------------------ */
-  ['salada-frango', 'Salada com frango', 'salada com frango caesar',
-   'prato', 'pratos', [[78, 80], [410, 90], [161, 40]]],
-  ['salada-atum', 'Salada com atum', 'salada com atum',
-   'prato', 'pratos', [[78, 80], [277, 70], [161, 40]]],
-  ['salada-ovo', 'Salada com ovo', 'salada com ovo cozido',
-   'prato', 'pratos', [[78, 80], [488, 100], [161, 40]]],
-
   /* --- café da manhã e lanche da tarde ---------------------------------- */
-  ['iogurte-granola', 'Iogurte com granola', 'iogurte com granola aveia fruta',
-   'pote', 'potes', [[448, 170], [25, 30], [182, 50]]],
   ['mingau-aveia', 'Mingau de aveia', 'mingau de aveia leite overnight',
    'prato', 'pratos', [[7, 40], [null, 200, 3.2, 'leite TBCA']]],
   ['vitamina-banana', 'Vitamina de banana', 'vitamina batida de banana leite',
    'copo', 'copos', [[null, 200, 3.2, 'leite TBCA'], [182, 90], [7, 20]]],
-  ['pao-ovo', 'Pão com ovo', 'pao com ovo frito na chapa',
-   'unidade', 'unidades', [[53, 50], [490, 50]]],
-  ['pao-queijo-presunto', 'Pão com queijo e presunto', 'pao na chapa com queijo e presunto',
-   'unidade', 'unidades', [[53, 50], [463, 25], [439, 25]]],
-  ['ovos-mexidos-queijo', 'Ovos mexidos com queijo', 'ovos mexidos com queijo',
-   'porção', 'porções', [[490, 100], [463, 25]]],
   ['acai-tigela', 'Açaí na tigela', 'acai tigela com granola',
    'tigela', 'tigelas', [[168, 250], [25, 30], [182, 60]]],
 ];

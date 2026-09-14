@@ -14,6 +14,7 @@ import React, { memo } from 'react';
    bicicleta. Barra e bicicleta são o que essas duas modalidades têm de
    reconhecível. */
 import IconBarbell from '@tabler/icons-react-native/IconBarbell';
+import IconPhotoSpark from '@tabler/icons-react-native/IconPhotoSpark';
 import IconBike from '@tabler/icons-react-native/IconBike';
 import IconGymnastics from '@tabler/icons-react-native/IconGymnastics';
 import IconRun from '@tabler/icons-react-native/IconRun';
@@ -152,6 +153,10 @@ const MAPA: Record<string, React.ComponentType<any>> = {
      de propósito — mesma família, níveis diferentes —, mas o cruzado é
      a marca clássica de refeição principal e se distingue no tamanho em
      que a lista desenha. */
+  /* A foto com a estrelinha: é o desenho que virou convenção para
+     "imagem que a máquina vai ler". O Tabler também tem uma câmera com
+     as letras A e I, mas letra é idioma e a estrela não é. */
+  photoSpark: IconPhotoSpark,
   coffee: Coffee,
   cutlery: UtensilsCrossed,
   sandwich: Sandwich,

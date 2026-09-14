@@ -6,7 +6,7 @@ import { gramasItem, medidaItem, nomeItem, ressalvaItem, origemDe, type ItemComi
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
-import { radius, ty } from '../theme';
+import { font, radius, ty } from '../theme';
 
 /* ============================================================
    A COMIDA NA TELA
@@ -185,13 +185,10 @@ export function ItemAlimento({ item, onQtd, onRemover }: {
 export function BotaoEscanear({ onPress }: { onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-      <Row gap={6} style={{
-        backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine,
-        borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6,
-      }}>
-        <Icon name="camera" size={14} color={c.accent} sw={2} />
-        <Txt v="tag" c={c.accent}>Escanear</Txt>
+    <Pressable onPress={onPress} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+      <Row gap={6}>
+        <Icon name="photoSpark" size={16} color={c.accent} sw={1.9} />
+        <Txt v="tag" c={c.accent} style={{ fontFamily: font.bodySemi }}>Escanear</Txt>
       </Row>
     </Pressable>
   );

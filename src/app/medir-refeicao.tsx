@@ -146,12 +146,20 @@ export default function MedirRefeicao() {
         </Pressable>
       )}
     >
+      {/* O que já entrou hoje, encostado na linha do total — as duas
+          coisas falam do mesmo dia, e separadas a fileira ficava boiando
+          entre o cabeçalho e o formulário, sem pertencer a nenhum dos
+          dois. Em branco com fio, e não no cinza de antes: sobre um fundo
+          quase da mesma cor, aquilo era uma mancha, não uma peça. */}
       {doDia.length ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 18 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
           {doDia.map((m, i) => (
             <View
               key={`${m.t}-${i}`}
-              style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 }}
+              style={{
+                backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+                borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5,
+              }}
             >
               <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? gramasDaFaixa(m.prot) ?? 0} g</Txt>
             </View>
