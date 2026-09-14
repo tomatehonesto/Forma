@@ -154,14 +154,19 @@ export default function Alimento() {
         {/* O TOPO: foto quando a prateleira tem uma, painel de cor quando
             não tem. O véu escuro por cima da foto não é estilo — sem ele
             o texto branco some num tomate claro. */}
-        {/* QUEM ESTICA É O TOPO.
+        {/* QUEM ESTICA É O TOPO, E O TEXTO FICA NO ALTO DELE.
 
-            Antes era o cartão: ele crescia para encostar na base e
-            deixava uma faixa branca morta embaixo do botão, do tamanho
-            do que sobrava da tela. Na referência quem ocupa a sobra é a
-            imagem, e o cartão é uma folha de altura própria encostada na
-            base — que é o certo, porque o conteúdo do cartão tem um
-            tamanho e a foto não tem.
+            Duas correções em cima da mesma coisa. A primeira: quem
+            crescia para encostar na base era o CARTÃO, e sobrava uma
+            faixa branca morta embaixo do botão. Quem ocupa a sobra tem
+            de ser a imagem, porque o conteúdo do cartão tem tamanho e a
+            foto não tem.
+
+            A segunda: ao esticar o topo eu empurrei o cabeçalho junto,
+            para baixo. Na referência ele está no ALTO — barra, pílula e
+            a frase —, e a imagem continua embaixo disso, vazia, até
+            encontrar o cartão. É essa faixa livre de imagem que faz a
+            tela parecer uma foto de comida e não um banner com legenda.
 
             `flexGrow` faz o topo comer o que sobrar, e `minHeight`
             impede que ele desapareça quando o conteúdo é longo demais e
@@ -175,13 +180,13 @@ export default function Alimento() {
               start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
               style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
             />
-            <View style={{ marginTop: 'auto' }}>{cabecalho}</View>
+            {cabecalho}
           </View>
         ) : (
           <LinearGradient
             colors={[de, para]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={{ flexGrow: 1, minHeight: 260, justifyContent: 'flex-end' }}
+            style={{ flexGrow: 1, minHeight: 260 }}
           >
             {cabecalho}
           </LinearGradient>
@@ -205,49 +210,43 @@ export default function Alimento() {
               alimento — ver insightDe. Quando não há o que dizer, a linha
               não aparece: sem frase é melhor do que "delicioso e
               nutritivo". */}
+          {/* TEXTO CORRIDO, embaixo do nome, como a descrição da
+              referência — e não um banner com selo.
+
+              Ele já foi um cartão em tom fraco com a marca do Morphi em
+              caixa alta. Chamava mais atenção que o nome do alimento
+              logo acima e que os números logo abaixo, para dizer a coisa
+              menos exata das três. Como parágrafo ele vira o que é: uma
+              orientação, lida no caminho entre o nome e a tabela. */}
           {insight ? (
-            <View style={{
-              marginTop: 14, borderRadius: radius.md, padding: 14,
-              backgroundColor: insight.bom ? c.accentWeak : c.amberBg,
-            }}>
-              <Row gap={7}>
-                <Icon
-                  name="aura"
-                  size={14}
-                  color={insight.bom ? c.accent : c.amber}
-                  sw={2}
-                />
-                <Txt
-                  v="micro"
-                  c={insight.bom ? c.accent : c.amber}
-                  style={{ letterSpacing: 1 }}
-                >
-                  {insight.bom ? 'O MORPHI LEU' : 'O MORPHI RESSALVA'}
-                </Txt>
-              </Row>
-              <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{insight.texto}</Txt>
-            </View>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 22 }}>
+              {insight.texto}
+            </Txt>
           ) : null}
 
           {/* AS TRÊS BARRAS */}
-          <Row gap={10} style={{ marginTop: 18, alignItems: 'stretch' }}>
+          <Row gap={10} style={{ marginTop: 16, alignItems: 'stretch' }}>
             {macros.map(([nome, v]) => (
               <View key={nome} style={{ flex: 1 }}>
                 {/* A altura máxima da barra para ANTES do rótulo. Sem o
                     teto, o macro mais alto subia até em cima e cobria a
                     própria palavra que dizia qual macro era. */}
+                {/* Mais baixo do que já foi: cada pixel que o gráfico
+                    devolve é um pixel a mais de foto lá em cima, e a
+                    barra continua legível — o que ela compara são três
+                    números, não uma série. */}
                 <View style={{
-                  height: 200, borderRadius: radius.md, backgroundColor: c.bg2,
+                  height: 148, borderRadius: radius.md, backgroundColor: c.bg2,
                   overflow: 'hidden', justifyContent: 'flex-end',
                 }}>
-                  <Txt v="caption" c={c.tx3} style={{ position: 'absolute', top: 13, left: 0, right: 0, textAlign: 'center' }}>
+                  <Txt v="micro" c={c.tx3} style={{ position: 'absolute', top: 12, left: 0, right: 0, textAlign: 'center' }}>
                     {nome}
                   </Txt>
                   <LinearGradient
                     colors={[c.bluePale, c.accentWeak]}
-                    style={{ height: v == null ? 0 : Math.max(54, (v / teto) * 144), borderRadius: radius.md }}
+                    style={{ height: v == null ? 0 : Math.max(46, (v / teto) * 100), borderRadius: radius.md }}
                   />
-                  <Txt v="bodyMed" style={{ position: 'absolute', bottom: 13, left: 0, right: 0, textAlign: 'center' }}>
+                  <Txt v="bodyMed" style={{ position: 'absolute', bottom: 11, left: 0, right: 0, textAlign: 'center' }}>
                     {n1(v)}{v == null ? '' : ' g'}
                   </Txt>
                 </View>
