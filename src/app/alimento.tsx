@@ -64,6 +64,51 @@ const TINTA: Record<string, (c: any) => [string, string]> = {
   'riboflavina': (c) => [c.rose, '#8E1E48'],
 };
 
+/* ============================================================
+   O VIDRO QUE SE DESFAZ
+
+   Um BlurView tem uma altura, e onde essa altura acaba o desfoque
+   acaba junto: um corte reto atravessando a foto, que é a coisa que
+   mais denuncia que ali existe uma camada. A referência não tem corte —
+   o desfoque some aos poucos e a foto vai ficando nítida.
+
+   RN não sabe mascarar um blur com degradê sem trazer uma biblioteca de
+   máscara junto. O que dá para fazer sem ela é empilhar: nove camadas de
+   desfoque fraco, cada uma um pouco mais curta que a de cima. No topo as
+   nove se somam; na nona parte de baixo sobra uma só. Cada borda
+   individual é fraca demais para ser vista, e o conjunto lê como uma
+   passagem contínua.
+
+   E SEM TINTA NENHUMA. A primeira versão pintava cada camada de escuro
+   junto com o desfoque, e o degradê saiu LISTRADO: o olho não percebe
+   degrau de foco, mas percebe degrau de luz na hora. Todo o
+   escurecimento passou para um degradê só, contínuo, que mora logo
+   abaixo destas camadas — aqui só se cuida do foco.
+   ============================================================ */
+function VidroDegrade({ altura, camadas = 9 }: { altura: number; camadas?: number }) {
+  return (
+    <>
+      {Array.from({ length: camadas }, (_, i) => {
+        /* A camada MAIS ALTA é a mais fraca, e é ela que decide se o
+           degradê tem fim visível: onde ela acaba, o desfoque cai de uma
+           vez para zero, e quanto menos ela desfoca menos esse último
+           passo aparece. As curtas, que ficam só no topo, podem ser
+           fortes — ali embaixo delas há oito outras somando junto. */
+        const altura_i = (altura * (camadas - i)) / camadas;
+        const intensidade = 4 + i * 2;
+        return (
+          <BlurView
+            key={i}
+            intensity={intensidade}
+            tint="default"
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura_i }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 /** "1,3" em vez de "1.3", e "—" quando o nutriente não foi analisado. */
 const n1 = (v: number | null) =>
   v == null ? '—' : String(Math.round(v * 10) / 10).replace('.', ',');
@@ -127,7 +172,8 @@ export default function Alimento() {
       </Row>
 
       {/* A pílula de vidro, como a da referência: um pedaço da própria
-          imagem desfocado, com um fio branco de borda. */}
+          imagem desfocado, com um fio branco de borda. Aqui o corte é
+          desejado — pílula É uma forma fechada. */}
       <BlurView
         intensity={40}
         tint="light"
@@ -178,8 +224,10 @@ export default function Alimento() {
             desfocada, e a metade de baixo fica nítida: o texto ganha um
             fundo uniforme sem que a imagem perca o brilho.
 
-            O vidro vai só até onde o texto vai, e passa para a foto
-            nítida por um degradê — um corte reto ali viraria uma tarja.
+            E o vidro não termina: ele se desfaz. Uma faixa de desfoque
+            com altura fixa deixa um corte reto atravessando a foto, que
+            é a coisa que mais denuncia que existe uma camada ali. Ver
+            VidroDegrade logo acima.
 
             QUEM ESTICA É O TOPO, E O TEXTO FICA NO ALTO DELE.
 
@@ -201,23 +249,22 @@ export default function Alimento() {
         {foto ? (
           <View style={{ flexGrow: 1, minHeight: 260 }}>
             <Image source={foto} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
-            {/* Intensidade 52, e não 34. O morango é uma foto clara, e a
-                 30 e poucos o branco do texto encostava no branco do
-                 fundo — o vidro tem de escurecer o que está ATRÁS DO
-                 TEXTO, que é diferente de escurecer a foto toda. */}
-            <BlurView
-              intensity={52}
-              tint="dark"
-              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro }}
-            />
+            {/* A faixa vai bem além da última linha de texto: as camadas
+                de baixo são fracas e servem só para a passagem, e é
+                precisando de espaço que uma passagem deixa de ser um
+                corte. */}
+            <VidroDegrade altura={alturaVidro + 120} />
             {/* A passagem do vidro para a foto nítida, e um fio de sombra
                 sob o texto: é o que garante a leitura numa foto clara sem
                 escurecer o prato inteiro. */}
             <LinearGradient
-              colors={['rgba(0,0,0,0.34)', 'rgba(0,0,0,0.16)', 'rgba(0,0,0,0)']}
-              locations={[0, 0.74, 1]}
+              colors={[
+                'rgba(0,0,0,0.42)', 'rgba(0,0,0,0.36)', 'rgba(0,0,0,0.22)',
+                'rgba(0,0,0,0.10)', 'rgba(0,0,0,0.03)', 'rgba(0,0,0,0)',
+              ]}
+              locations={[0, 0.34, 0.56, 0.76, 0.9, 1]}
               start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro + 40 }}
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro + 120 }}
             />
             {cabecalho}
           </View>
