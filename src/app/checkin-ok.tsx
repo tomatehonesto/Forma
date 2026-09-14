@@ -122,7 +122,12 @@ export default function CheckinOk() {
     : [];
   const urgente = lembretes.find((l) => l.urgente);
 
-  const sair = () => router.replace('/(tabs)/jornada' as any);
+  /* Volta para a Home, e não para a Jornada. A Jornada é o arquivo — ela
+     responde 'por onde eu passei', e quem acabou de registrar o dia não
+     está procurando o passado. A Home responde 'como estou hoje', que é
+     exatamente a pergunta que o check-in acabou de ajudar a responder: o
+     streak que subiu aqui aparece lá, e a leitura do dia também. */
+  const sair = () => router.replace('/(tabs)' as any);
 
   const subindo = {
     opacity: sobe,
@@ -320,7 +325,7 @@ export default function CheckinOk() {
             cores fechando o que aquele botão abriu. */}
         <Pressable onPress={sair} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
           <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
-            <Txt v="bodyMed" c={c.limeInk}>Ver minha jornada</Txt>
+            <Txt v="bodyMed" c={c.limeInk}>Voltar para a Home</Txt>
           </View>
         </Pressable>
       </View>
