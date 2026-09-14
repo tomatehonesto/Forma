@@ -105,7 +105,11 @@ export default function Exercicio() {
   const forca = diasDeForca(S);
   const treinos = treinosRecentes(S, dias);
   const resumo = resumoDeMovimento(S, dias);
-  const calendario = diasDoPeriodo(S, dias);
+  /* Um dia a mais no fim. A tira que parava em hoje parecia cortada, e
+     não dizia a coisa mais útil que um calendário diz: que ainda tem dia
+     vindo. Um só, e tracejado — dois já seriam uma agenda, e esta tela
+     não agenda nada. */
+  const calendario = diasDoPeriodo(S, dias, 1);
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
@@ -333,39 +337,87 @@ export default function Exercicio() {
           {/* Em ordem, e rolada até o fim assim que mede: a tira nasce
               mostrando HOJE, que é onde a pessoa está, em vez de três meses
               atrás. Tentei antes com row-reverse, que inverte o desenho mas
-              não a rolagem — abria no dia mais velho de todos. */}
+              não a rolagem — abria no dia mais velho de todos.
+
+              Dois gatilhos, e não um: o conteúdo e a caixa são medidos em
+              ordens diferentes conforme a plataforma, e com só o do
+              conteúdo a tira parava quarenta pixels antes do fim — o
+              bastante para comer o dia de amanhã na borda. */}
           <ScrollView
             ref={tira}
             horizontal
             showsHorizontalScrollIndicator={false}
             onContentSizeChange={() => tira.current?.scrollToEnd({ animated: false })}
+            onLayout={() => tira.current?.scrollToEnd({ animated: false })}
             style={{ marginHorizontal: -16 }}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
           >
+            {/* TRÊS PERGUNTAS, TRÊS LUGARES NO CARTÃO
+
+                O rótulo de cima diz ONDE no tempo: o dia da semana, ou
+                "hoje" na cor cheia do texto no meio dos cinzas. Minúsculo
+                de propósito, para caber na mesma linha dos "seg" e "ter"
+                em vez de virar um selo.
+
+                A moldura diz se o dia JÁ CHEGOU: contínua sobre branco no
+                passado, tracejada sobre o cinza da página no futuro. São
+                três diferenças de uma vez (traço, fundo e cor do número)
+                porque borda tracejada com canto arredondado desenha sólida
+                no Android — se o traço sumir, o resto ainda diz.
+
+                O ponto de baixo diz se TEVE TREINO: azul e maior quando
+                sim, cinza e menor quando o dia passou em branco, e nenhum
+                no futuro, onde ainda não há o que dizer. Ausência sozinha
+                não respondia "não treinei" — respondia "não sei". */}
             {calendario.map((d) => {
               const on = diaSel === d.t;
               const dt = new Date(d.t);
               const temTreino = d.treinos > 0;
-              return (
+
+              const miolo = (
+                <View style={{
+                  width: 46, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
+                  backgroundColor: on ? c.tx : d.futuro ? 'transparent' : temTreino ? c.accentWeak : c.bg1,
+                  borderWidth: 1,
+                  borderStyle: d.futuro ? 'dashed' : 'solid',
+                  borderColor: on || d.hoje ? c.tx : temTreino ? c.accentLine : c.line,
+                }}>
+                  {/* A tinta do dia escolhido é `bg1`, e não branco: o
+                      preenchimento é `tx`, que no tema escuro é BRANCO — e
+                      branco sobre branco some. É a mesma dupla que os chips
+                      do app usam desde sempre. */}
+                  <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.tx : c.tx4}>
+                    {d.hoje ? 'hoje' : WD[dt.getDay()]}
+                  </Txt>
+                  <Txt v="caption" c={on ? c.bg1 : d.futuro ? c.tx4 : temTreino ? c.accent : c.tx3}>
+                    {dt.getDate()}
+                  </Txt>
+                  <View style={{
+                    width: temTreino ? 5 : 3,
+                    height: temTreino ? 5 : 3,
+                    borderRadius: 3,
+                    backgroundColor: d.futuro
+                      ? 'transparent'
+                      /* O cinza do dia em branco é o mesmo escolhido ou não:
+                         `tx4` é meio-tom nos dois temas e se enxerga tanto
+                         sobre o branco do cartão quanto sobre o preenchimento
+                         do dia selecionado. */
+                      : temTreino ? (on ? c.bg1 : c.accent) : c.tx4,
+                  }} />
+                </View>
+              );
+
+              /* O futuro não filtra nada: tocar em amanhã só abriria um dia
+                 vazio que já se sabe vazio. Fica no lugar, sem toque. */
+              return d.futuro ? (
+                <View key={d.t}>{miolo}</View>
+              ) : (
                 <Pressable
                   key={d.t}
                   onPress={() => setDiaSel(on ? null : d.t)}
                   style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
                 >
-                  <View style={{
-                    width: 44, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
-                    backgroundColor: on ? c.tx : temTreino ? c.accentWeak : c.bg1,
-                    borderWidth: 1, borderColor: on ? c.tx : temTreino ? c.accentLine : c.line,
-                  }}>
-                    <Txt v="micro" c={on ? c.onHero : c.tx4}>{WD[dt.getDay()]}</Txt>
-                    <Txt v="caption" c={on ? c.onHero : temTreino ? c.accent : c.tx3}>{dt.getDate()}</Txt>
-                    {/* O ponto marca o dia com treino mesmo quando o cartão
-                        está selecionado e a cor de fundo já não diz. */}
-                    <View style={{
-                      width: 4, height: 4, borderRadius: 2,
-                      backgroundColor: temTreino ? (on ? c.onHero : c.accent) : 'transparent',
-                    }} />
-                  </View>
+                  {miolo}
                 </Pressable>
               );
             })}

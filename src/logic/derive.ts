@@ -1583,13 +1583,26 @@ export function diasDeForca(S: State): number {
    `treinos` e não `exerc`: a tira navega o caderno, e o caderno só tem
    o que foi registrado à mão. Marcar um dia que só o relógio preencheu
    levaria a pessoa a um dia vazio. */
-export function diasDoPeriodo(S: State, dias: number): { t: number; treinos: number; min: number }[] {
+export type DiaDaTira = {
+  t: number; treinos: number; min: number; hoje: boolean; futuro: boolean;
+};
+
+export function diasDoPeriodo(S: State, dias: number, futuros = 0): DiaDaTira[] {
   const hoje = +startOfDay(now());
   const porT = new Map((S.checkins as any[]).map((c) => [c.t, c]));
-  return Array.from({ length: dias }, (_, i) => {
+  /* `hoje` e `futuro` saem daqui e não da tela porque quem sabe que dia
+     é hoje é esta camada — a tela que recalculasse isso teria a sua
+     própria meia-noite, e as duas divergiriam justamente na virada. */
+  return Array.from({ length: dias + futuros }, (_, i) => {
     const t = hoje - (dias - 1 - i) * DAY;
     const lista = (porT.get(t)?.treinos || []) as { min: number }[];
-    return { t, treinos: lista.length, min: lista.reduce((x, tr) => x + tr.min, 0) };
+    return {
+      t,
+      treinos: lista.length,
+      min: lista.reduce((x, tr) => x + tr.min, 0),
+      hoje: t === hoje,
+      futuro: t > hoje,
+    };
   });
 }
 
