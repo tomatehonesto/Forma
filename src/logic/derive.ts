@@ -1562,6 +1562,24 @@ export function diasDeForca(S: State): number {
   return dias.size;
 }
 
+/* O RESUMO DE UM PERÍODO — só do que foi registrado aqui.
+
+   Os minutos vêm dos TREINOS, e não de `exerc`: os números ficam em
+   cima da lista de treinos, e somar o que o relógio trouxe faria o
+   resumo dizer 12 h sobre uma lista que mostra 6 h. Duas contas na mesma
+   tela é a divergência que este app passou meses tirando de si mesmo. */
+export type Resumo = { treinos: number; min: number; maisLongo: number; forca: number };
+
+export function resumoDeMovimento(S: State, dias: number): Resumo {
+  const lista = treinosRecentes(S, dias);
+  return {
+    treinos: lista.length,
+    min: lista.reduce((x, t) => x + t.min, 0),
+    maisLongo: lista.reduce((x, t) => Math.max(x, t.min), 0),
+    forca: lista.filter((t) => ehForca(t.tipo)).reduce((x, t) => x + t.min, 0),
+  };
+}
+
 /** Uma sessão pelo dia e pela posição dentro dele. */
 export function treinoEm(S: State, t: number, i: number): { tipo: string; min: number } | null {
   const c = (S.checkins as any[]).find((x) => x.t === t);

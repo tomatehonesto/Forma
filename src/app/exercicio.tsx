@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   checkinToday, fontesDeMovimento, listaPt,
-  diasDeForca, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
+  diasDeForca, resumoDeMovimento, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, CardCurva, Linha, Botao } from '../ui/internas';
+import {
+  TelaInterna, Titulao, Bloco, Cartao, CardCurva, Chips, Grade2, Linha, Metrica, Botao,
+} from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -48,11 +50,35 @@ import { radius } from '../theme';
    configura.
    ============================================================ */
 
+/* O período governa o RESUMO e o CADERNO juntos — os dois falam do
+   mesmo recorte. Um seletor que só filtrasse a lista seria enfeite; o
+   que ele faz aqui é trocar a pergunta: como foi o meu mês, e não só o
+   que aconteceu hoje.
+
+   Não passa de três meses porque abaixo disso a tela já tem a curva de
+   oito semanas, e acima disso a lista vira rolagem sem fim. */
+const PERIODOS = [
+  { id: '7', label: '7 dias', dias: 7 },
+  { id: '30', label: '30 dias', dias: 30 },
+  { id: '90', label: '3 meses', dias: 90 },
+];
+
+/* "6 h 20" em vez de "380 min": acima de uma hora, minuto puro obriga a
+   pessoa a dividir de cabeça para saber se aquilo é muito. */
+function duracao(min: number): string {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `${h} h ${m}` : `${h} h`;
+}
+
 export default function Exercicio() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
+  const [per, setPer] = useState('30');
+  const dias = PERIODOS.find((x) => x.id === per)!.dias;
 
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
@@ -70,7 +96,8 @@ export default function Exercicio() {
   const mediaSemanal = Math.round(semanas.reduce((x, w) => x + w.min, 0) / semanas.length);
 
   const forca = diasDeForca(S);
-  const treinos = treinosRecentes(S, 30);
+  const treinos = treinosRecentes(S, dias);
+  const resumo = resumoDeMovimento(S, dias);
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
@@ -213,6 +240,46 @@ export default function Exercicio() {
         </View>
       ) : null}
 
+      {/* OS DESTAQUES DO PERÍODO
+
+          Quatro números que a lista não dá de graça: quantos treinos,
+          quanto tempo ao todo, qual foi o maior, e quanto daquilo puxou
+          músculo. Eles e o caderno respondem ao mesmo seletor, porque
+          são a mesma pergunta em duas resoluções — o resumo e o detalhe.
+
+          Tudo aqui conta só o que foi registrado nesta tela. Somar o que
+          o relógio trouxe faria o resumo dizer 12 h sobre uma lista que
+          mostra 6 h. */}
+      <Bloco titulo="No período" nota="Só o que foi registrado aqui — o que vem do relógio não tem modalidade.">
+        <View style={{ gap: 10 }}>
+          <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={setPer} />
+          {resumo.treinos ? (
+            <View style={{ gap: 10 }}>
+              <Grade2>
+                <Metrica ic="dumbbell" nome="Treinos" para={String(resumo.treinos)} />
+                <Metrica ic="clock" nome="Tempo" para={duracao(resumo.min)} />
+              </Grade2>
+              <Grade2>
+                <Metrica ic="run" nome="Mais longo" para={duracao(resumo.maisLongo)} />
+                <Metrica
+                  ic="shield"
+                  nome="De força"
+                  para={duracao(resumo.forca)}
+                  selo={resumo.forca ? `${Math.round((resumo.forca / resumo.min) * 100)}%` : undefined}
+                  seloTom="verde"
+                />
+              </Grade2>
+            </View>
+          ) : (
+            <Cartao>
+              <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
+                <Txt v="caption" c={c.tx2}>Nenhum treino registrado neste período.</Txt>
+              </View>
+            </Cartao>
+          )}
+        </View>
+      </Bloco>
+
       {/* O CADERNO
 
           Agrupado por dia, com o desenho da modalidade na frente. Em
@@ -221,7 +288,7 @@ export default function Exercicio() {
           vez, e embaixo dela o que aconteceu. */}
       <Bloco
         titulo="Caderno de treino"
-        nota={treinos.length ? 'Toque num treino para corrigir ou apagar.' : undefined}
+        nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
       >
         {porDia.length ? (
           <View style={{ gap: 14 }}>
@@ -236,18 +303,18 @@ export default function Exercicio() {
                   </Txt>
                 </Row>
                 <Cartao>
-                  {/* A seta abre a mesma folha que registra, com o treino
-                      carregado dentro. Corrigir e apagar moram lá, junto do
-                      formulário que criou o registro — a lixeira solta na
-                      linha resolvia metade do problema (apagar) e deixava a
-                      outra metade (era caminhada, não corrida) sem saída. */}
+                  {/* A seta abre a folha do treino: ela MOSTRA, e só depois
+                      oferece corrigir e apagar. Abrir o formulário direto
+                      era rápido e errado — quem toca num treino ainda não
+                      decidiu mexer nele, pode estar só conferindo o que foi
+                      aquele dia. */}
                   {dia.itens.map((t) => (
                     <Linha
                       key={`${t.t}-${t.i}`}
                       ic={t.ic}
                       titulo={t.tipo}
                       sub={`${t.min} min`}
-                      onPress={() => router.push(`/medir-exercicio?t=${t.t}&i=${t.i}` as any)}
+                      onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
                     />
                   ))}
                 </Cartao>
@@ -258,8 +325,8 @@ export default function Exercicio() {
           <Cartao>
             <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
               <Txt v="caption" c={c.tx2}>
-                Nada registrado ainda. O que você registrar aparece aqui com a modalidade
-                e a duração — e dá para apagar se entrar errado.
+                Nada registrado neste período. O que você registrar aparece aqui com a
+                modalidade e a duração.
               </Txt>
             </View>
           </Cartao>
