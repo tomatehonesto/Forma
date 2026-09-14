@@ -3,6 +3,7 @@ import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyl
 import Slider from '@react-native-community/slider';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { WD } from '../logic/time';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
@@ -413,6 +414,216 @@ export function Metrica({ ic, selo, seloTom, nome, de, para, onPress }: {
   );
   if (!onPress) return corpo;
   return <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.9 : 1 }]}>{corpo}</Pressable>;
+}
+
+/* ------------------------------------------------------------------ */
+/* CARD DA SEMANA — sete barras, o número do dia e a linha da meta.
+
+   Nasceu solto dentro de /exercicio e virou componente quando a
+   alimentação pediu a mesma pergunta: "como foi a minha semana, dia a
+   dia, contra a meta diária?". São dados diferentes — minutos e gramas
+   — e exatamente a mesma leitura, e duas cópias do mesmo gráfico é como
+   começam as divergências que este app passou meses tirando de si.
+
+   A barra diz QUANTO, e não só "teve ou não teve": cada uma carrega o
+   número em cima e a tracejada marca a meta. Barra estreita e redonda
+   porque a de antes ocupava a coluna inteira — sete blocos colados
+   viram parede, não gráfico.
+
+   O rodapé é livre. No exercício ele é a linha de treino de força; em
+   outra tela será outra coisa, ou nada. */
+const ALT_SEMANA = 64;
+/* A calha onde mora a legenda da meta. Reservar a faixa em vez de
+   sobrepor o rótulo é o que garante que ele nunca cubra uma barra: o
+   eixo dos dias respeita a mesma calha, então rótulo e coluna continuam
+   alinhados. */
+const CALHA = 82;
+
+export function CardSemana({
+  nome, sub, valor, unidade, dias, alvo, rotuloMeta, rodape,
+}: {
+  nome: string; sub: string; valor: string; unidade?: string;
+  /** sete dias em ordem, do mais antigo para hoje */
+  dias: { t: number; v: number }[];
+  alvo: number;
+  /** o que a tracejada diz de si mesma: "Meta: 60 min", "Meta: 90 g" */
+  rotuloMeta: string;
+  rodape?: React.ReactNode;
+}) {
+  const { c } = useTheme();
+  /* O teto é a meta, ou o maior dia se ele passou dela — assim um dia na
+     meta enche a barra e um acima dela não sai da caixa. */
+  const teto = Math.max(alvo, ...dias.map((d) => d.v)) || 1;
+  const yMeta = Math.round((alvo / teto) * ALT_SEMANA);
+
+  return (
+    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+      <Row style={{ paddingHorizontal: PAD, paddingTop: PAD, paddingBottom: 14, alignItems: 'flex-start' }}>
+        <View style={{ flex: 1 }}>
+          <Txt v="body">{nome}</Txt>
+          <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt>
+        </View>
+        <Txt v="metric">
+          {valor}
+          {unidade ? <Txt v="label" c={c.tx3}>{` ${unidade}`}</Txt> : null}
+        </Txt>
+      </Row>
+
+      <View style={{ paddingHorizontal: PAD }}>
+        <View style={{ height: ALT_SEMANA + 24 }}>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute', left: 0, right: CALHA, bottom: yMeta,
+              /* Em c.line2 a meta some dentro do cartão branco. Linha de
+                 referência precisa ser lida de relance, senão o gráfico
+                 volta a ser altura sem unidade. */
+              borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
+            }}
+          />
+          {/* A tracejada aponta para o próprio nome. Sem isto ela era um
+              fio no meio do gráfico que só entendia quem já sabia. */}
+          <Txt v="micro" c={c.tx3} style={{ position: 'absolute', right: 0, bottom: yMeta - 8 }}>
+            {rotuloMeta}
+          </Txt>
+          <Row style={{ flex: 1, alignItems: 'flex-end', paddingRight: CALHA }}>
+            {dias.map((d, i) => {
+              const eHoje = i === dias.length - 1;
+              return (
+                <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                  {d.v ? (
+                    /* Fundo do cartão atrás do número: a tracejada da meta
+                       passa na altura dos rótulos dos dias curtos e cruzava
+                       os dígitos. */
+                    <Txt
+                      v="micro"
+                      c={eHoje ? c.tx : c.tx4}
+                      style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
+                    >{d.v}</Txt>
+                  ) : null}
+                  {/* O dia em branco ganha um ponto na linha de base: coluna
+                      vazia some, e não ter registro não é ausência de dado. */}
+                  <View style={{
+                    width: d.v ? 16 : 5,
+                    height: d.v ? Math.max(8, Math.round((d.v / teto) * ALT_SEMANA)) : 5,
+                    borderRadius: radius.pill,
+                    backgroundColor: d.v ? c.accent : c.line,
+                  }} />
+                </View>
+              );
+            })}
+          </Row>
+        </View>
+
+        <Row style={{ marginTop: 8, paddingRight: CALHA }}>
+          {dias.map((d, i) => (
+            /* Três letras, não uma: sáb, seg e sex começam iguais, e a
+               fileira virava "s s s" no meio da semana. */
+            <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+              <Txt v="micro" c={i === dias.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
+            </View>
+          ))}
+        </Row>
+      </View>
+
+      {rodape ? (
+        <>
+          <View style={{ height: 1, backgroundColor: c.line, marginTop: 16 }} />
+          {rodape}
+        </>
+      ) : <View style={{ height: PAD }} />}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* TIRA DE DIAS — o calendário horizontal que escolhe o dia de um
+   caderno.
+
+   Ela responde uma coisa que nem o gráfico nem a lista dão: o RITMO. O
+   gráfico mostra sete dias e diz quanto; a lista mostra os registros e
+   some com os dias vazios. A tira mostra os dois juntos — três dias
+   seguidos, um de folga, dois — que é como se enxerga constância.
+
+   E navega: ela ESCOLHE o dia, e o caderno embaixo mostra só ele.
+   Filtro opcional, com tudo listado embaixo, era um seletor de data
+   contradizendo a própria lista.
+
+   Duas perguntas, dois lugares no cartão. O rótulo de cima diz onde no
+   tempo — o dia da semana, ou "hoje". O ponto de baixo diz se houve
+   registro: cheio e maior quando sim, cinza e menor quando o dia passou
+   em branco, porque ausência sozinha não responde "não teve", responde
+   "não sei". E o preenchimento diz onde você está: tinta no dia aberto,
+   azul em hoje quando o dia aberto é outro. */
+export function TiraDeDias({ dias, sel, onEscolhe }: {
+  /** em ordem, do mais antigo para hoje */
+  dias: { t: number; marcado: boolean; hoje: boolean }[];
+  sel: number;
+  onEscolhe: (t: number) => void;
+}) {
+  const { c } = useTheme();
+  const tira = React.useRef<ScrollView>(null);
+  const aoFim = () => tira.current?.scrollToEnd({ animated: false });
+
+  return (
+    /* Em ordem, e rolada até o fim assim que mede: a tira nasce mostrando
+       HOJE, que é onde a pessoa está, em vez de três meses atrás. Tentei
+       antes com row-reverse, que inverte o desenho mas não a rolagem —
+       abria no dia mais velho de todos.
+
+       Dois gatilhos, e não um: o conteúdo e a caixa são medidos em ordens
+       diferentes conforme a plataforma, e com só o do conteúdo a tira
+       parava quarenta pixels antes do fim. */
+    <ScrollView
+      ref={tira}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      onContentSizeChange={aoFim}
+      onLayout={aoFim}
+      style={{ marginHorizontal: -PAD }}
+      contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}
+    >
+      {dias.map((d) => {
+        const on = sel === d.t;
+        const dt = new Date(d.t);
+        return (
+          <Pressable
+            key={d.t}
+            onPress={() => onEscolhe(d.t)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+          >
+            <View style={{
+              width: 46, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
+              backgroundColor: on ? c.tx : d.hoje ? c.accent : d.marcado ? c.accentWeak : c.bg1,
+              borderWidth: 1,
+              borderColor: on ? c.tx : d.hoje ? c.accent : d.marcado ? c.accentLine : c.line,
+            }}>
+              {/* A tinta do dia escolhido é `bg1`, e não branco: o
+                  preenchimento é `tx`, que no tema escuro é BRANCO — e
+                  branco sobre branco some. É a mesma dupla que os chips do
+                  app usam desde sempre. */}
+              <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
+                {d.hoje ? 'hoje' : WD[dt.getDay()]}
+              </Txt>
+              <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : d.marcado ? c.accent : c.tx3}>
+                {dt.getDate()}
+              </Txt>
+              <View style={{
+                width: d.marcado ? 5 : 3,
+                height: d.marcado ? 5 : 3,
+                borderRadius: 3,
+                /* O cinza do dia em branco é o mesmo em qualquer
+                   preenchimento: `tx4` é meio-tom nos dois temas, e num dia
+                   cheio de cor ele quase some — que é o certo, já que hoje
+                   não passou em branco, só não acabou. */
+                backgroundColor: d.marcado ? (on ? c.bg1 : d.hoje ? c.accentInk : c.accent) : c.tx4,
+              }} />
+            </View>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
 }
 
 /* ------------------------------------------------------------------ */

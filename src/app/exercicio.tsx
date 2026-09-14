@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -10,7 +10,8 @@ import {
 import { fmtDate, now, startOfDay, WD } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
+  TelaInterna, Titulao, Bloco, CardCurva, CardSemana, Cartao, Chips, Grade2, Linha,
+  Metrica, Botao, TiraDeDias,
 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -96,24 +97,12 @@ export default function Exercicio() {
      Trocar de período volta para hoje: um 12 de setembro escolhido não
      existe mais dentro de "7 dias". */
   const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
-  const tira = React.useRef<ScrollView>(null);
   const escolhePeriodo = (id: string) => { setPer(id); setDiaSel(+startOfDay(now())); };
 
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
   const daSemana = semana.reduce((s, d) => s + d.min, 0);
   const comMovimento = semana.filter((d) => d.min > 0).length;
-  /* O teto da barra é a meta do dia, ou o maior dia se ele passou dela —
-     assim um dia de 60 min enche a barra e um de 90 não sai da caixa. */
-  const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
-  const ALT = 64;
-  /* A calha onde mora a legenda da meta. A tracejada morria na borda do
-     cartão sem dizer do que era, e o número que ela marca é justamente o
-     que dá unidade à altura das barras. Reservar a faixa em vez de
-     sobrepor o rótulo é o que garante que ele nunca cubra uma barra: o
-     eixo dos dias respeita a mesma calha, então rótulo e coluna
-     continuam alinhados. */
-  const CALHA = 82;
 
   /* A curva só aparece quando há mais de uma semana com movimento: duas
      semanas vazias e uma cheia não formam tendência, formam um degrau. */
@@ -163,114 +152,40 @@ export default function Exercicio() {
       <View style={{ gap: 10 }}>
       {/* A SEMANA — a unidade em que exercício faz sentido.
 
-          Mesmo desenho do cartão de baixo, e não um próprio: cabeçalho
-          com nome e contexto à esquerda, o número grande à direita, e o
-          gráfico ocupando a largura inteira embaixo. Dois cartões de
-          gráfico um em cima do outro com gramáticas diferentes fazem o
-          olho procurar a diferença entre eles em vez de ler os dois. */}
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
-        <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 14, alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Txt v="body">Esta semana</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-              {comMovimento === 0
-                ? 'Nenhum dia com movimento'
-                : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
+          O desenho inteiro deste cartão morava aqui solto, e virou
+          componente quando a alimentação pediu a mesma leitura com
+          gramas no lugar de minutos. O rodapé é o que sobrou de
+          específico: a linha de treino de força.
+
+          Sem meta semanal no número grande. A meta do app é diária (60
+          min); multiplicar por sete inventaria uma cobrança de 420 min
+          que nenhuma recomendação faz, e que deixaria toda semana normal
+          parecendo fracasso. O que se conta é o que houve. */}
+      <CardSemana
+        nome="Esta semana"
+        sub={comMovimento === 0
+          ? 'Nenhum dia com movimento'
+          : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
+        valor={String(daSemana)}
+        unidade="min"
+        dias={semana.map((d) => ({ t: d.t, v: d.min }))}
+        alvo={alvoDia}
+        rotuloMeta={`Meta: ${alvoDia} min`}
+        rodape={(
+          /* Uma linha, e não um cartão. A proporção de força já teve
+             barra, legenda e minutos por modalidade aqui — resumo bonito
+             que não mudava nenhuma decisão. O fato importa e cabe numa
+             frase. */
+          <Row gap={8} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+            <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+              {forca === 0
+                ? 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.'
+                : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força — é o que segura o músculo enquanto o peso cai.`}
             </Txt>
-          </View>
-          {/* Sem meta semanal. A meta do app é diária (60 min); multiplicar
-              por sete inventaria uma cobrança de 420 min que nenhuma
-              recomendação faz, e que deixaria toda semana normal parecendo
-              fracasso. O que se conta é o que houve. */}
-          <Txt v="metric">
-            {daSemana}
-            <Txt v="label" c={c.tx3}> min</Txt>
-          </Txt>
-        </Row>
-
-        {/* A barra diz QUANTOS MINUTOS, e não só "teve ou não teve": cada
-            uma carrega o número em cima, e a tracejada marca a meta do
-            dia. Barra estreita e redonda porque a de antes ocupava a
-            coluna inteira — sete blocos colados viram parede, não
-            gráfico. */}
-        <View style={{ paddingHorizontal: 16 }}>
-          <View style={{ height: ALT + 24 }}>
-            <View
-              pointerEvents="none"
-              style={{
-                position: 'absolute', left: 0, right: CALHA, bottom: Math.round((alvoDia / teto) * ALT),
-                /* Em c.line2 a meta some dentro do cartão branco. Linha
-                   de referência precisa ser lida de relance, senão o
-                   gráfico volta a ser altura sem unidade. */
-                borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
-              }}
-            />
-            {/* A tracejada aponta para o próprio nome. Sem isto ela era um
-                fio no meio do gráfico que só entendia quem já sabia. */}
-            <Txt
-              v="micro"
-              c={c.tx3}
-              style={{ position: 'absolute', right: 0, bottom: Math.round((alvoDia / teto) * ALT) - 8 }}
-            >Meta: {alvoDia} min</Txt>
-            <Row style={{ flex: 1, alignItems: 'flex-end', paddingRight: CALHA }}>
-              {semana.map((d, i) => {
-                const eHoje = i === semana.length - 1;
-                return (
-                  <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
-                    {d.min ? (
-                      /* Fundo do cartão atrás do número: a tracejada da
-                         meta passa na altura dos rótulos dos dias curtos e
-                         cruzava os dígitos. */
-                      <Txt
-                        v="micro"
-                        c={eHoje ? c.tx : c.tx4}
-                        style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
-                      >{d.min}</Txt>
-                    ) : null}
-                    {/* O dia parado ganha um ponto na linha de base: coluna
-                        vazia some, e descanso não é ausência de dado. */}
-                    {/* Azul cheio, todas. A 34% de opacidade os outros seis
-                        dias saíam lavanda, e o gráfico parecia ter uma barra
-                        de verdade e seis de rascunho — sendo que hoje é o dia
-                        que menos precisa de destaque aqui, porque ainda nem
-                        acabou. Quem marca hoje é o rótulo: o número em cima
-                        vem em tinta cheia, e o dia da semana embaixo também. */}
-                    <View style={{
-                      width: d.min ? 16 : 5,
-                      height: d.min ? Math.max(8, Math.round((d.min / teto) * ALT)) : 5,
-                      borderRadius: radius.pill,
-                      backgroundColor: d.min ? c.accent : c.line,
-                    }} />
-                  </View>
-                );
-              })}
-            </Row>
-          </View>
-
-          <Row style={{ marginTop: 8, paddingRight: CALHA }}>
-            {semana.map((d, i) => (
-              /* Três letras, não uma: sáb, seg e sex começam iguais, e a
-                 fileira virava "s s s" no meio da semana. */
-              <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
-                <Txt v="micro" c={i === semana.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
-              </View>
-            ))}
           </Row>
-        </View>
-
-        {/* Uma linha, e não um cartão. A proporção de força já teve barra,
-            legenda e minutos por modalidade aqui — resumo bonito que não
-            mudava nenhuma decisão. O fato importa e cabe numa frase. */}
-        <View style={{ height: 1, backgroundColor: c.line, marginTop: 16 }} />
-        <Row gap={8} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
-          <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
-          <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-            {forca === 0
-              ? 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.'
-              : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força — é o que segura o músculo enquanto o peso cai.`}
-          </Txt>
-        </Row>
-      </View>
+        )}
+      />
 
       {/* A TENDÊNCIA — a pergunta que a semana isolada não alcança.
 
@@ -354,107 +269,15 @@ export default function Exercicio() {
         titulo="Caderno de treino"
         nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
       >
-        {/* A TIRA DE CALENDÁRIO
-
-            Ela responde uma coisa que nem o gráfico de barras nem a lista
-            dão: o RITMO. O gráfico mostra sete dias e diz quanto; a lista
-            mostra os treinos e some com os dias vazios. A tira mostra os
-            dois juntos — três dias seguidos, um de folga, dois — que é
-            como se enxerga constância.
-
-            E navega: tocar num dia filtra o caderno para ele, tocar de
-            novo solta. Sem isso, achar o que foi feito no dia 3 num
-            período de três meses é rolagem. */}
         {/* A tira e o dia que ela escolhe no mesmo empilhamento, com o
             mesmo respiro que separa os chips dos quadros no bloco de
-            cima: são controle e conteúdo, não duas seções.
-
-            Estavam colados em 0px porque este View já existia — com gap —
-            para separar a tira da linha de "Mostrando só ontem · Ver
-            tudo". Com a linha fora ele passou a embrulhar um filho só, o
-            gap virou enfeite, e o cartão do dia caiu como irmão do Bloco,
-            que não espaça nada: cada seção decide o próprio respiro. */}
+            cima: são controle e conteúdo, não duas seções. */}
         <View style={{ gap: 10 }}>
-          {/* Em ordem, e rolada até o fim assim que mede: a tira nasce
-              mostrando HOJE, que é onde a pessoa está, em vez de três meses
-              atrás. Tentei antes com row-reverse, que inverte o desenho mas
-              não a rolagem — abria no dia mais velho de todos.
-
-              Dois gatilhos, e não um: o conteúdo e a caixa são medidos em
-              ordens diferentes conforme a plataforma, e com só o do
-              conteúdo a tira parava quarenta pixels antes do fim — o
-              bastante para comer o dia de amanhã na borda. */}
-          <ScrollView
-            ref={tira}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            onContentSizeChange={() => tira.current?.scrollToEnd({ animated: false })}
-            onLayout={() => tira.current?.scrollToEnd({ animated: false })}
-            style={{ marginHorizontal: -16 }}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
-          >
-            {/* DUAS PERGUNTAS, DOIS LUGARES NO CARTÃO
-
-                O rótulo de cima diz ONDE no tempo: o dia da semana, ou
-                "hoje". Minúsculo de propósito, para caber na mesma linha
-                dos "seg" e "ter" em vez de virar um selo.
-
-                O ponto de baixo diz se TEVE TREINO: azul e maior quando
-                sim, cinza e menor quando o dia passou em branco. Ausência
-                sozinha não respondia "não treinei" — respondia "não sei".
-
-                E o preenchimento diz onde você está: preto no dia aberto,
-                azul em hoje quando o dia aberto é outro. */}
-            {calendario.map((d) => {
-              const on = diaSel === d.t;
-              const dt = new Date(d.t);
-              const temTreino = d.treinos > 0;
-
-              return (
-                <Pressable
-                  key={d.t}
-                  onPress={() => setDiaSel(d.t)}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-                >
-                <View style={{
-                  width: 46, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
-                  backgroundColor: on ? c.tx
-                    : d.hoje ? c.accent
-                      : temTreino ? c.accentWeak : c.bg1,
-                  borderWidth: 1,
-                  borderColor: on ? c.tx : d.hoje ? c.accent : temTreino ? c.accentLine : c.line,
-                }}>
-                  {/* Hoje é PREENCHIDO, e não contornado. O contorno tinha de
-                      competir com a borda que já marca o dia com treino e com
-                      a do dia futuro — três molduras diferentes na mesma
-                      fileira, e a pessoa tendo que aprender qual é qual.
-                      Preenchimento é outro canal: azul é hoje, preto é o que
-                      você tocou, e moldura volta a ser só moldura.
-
-                      A tinta sai de `accentInk` e `bg1`, e não de branco fixo:
-                      no tema escuro o azul clareia e o preenchimento do
-                      selecionado é branco — texto branco sumiria nos dois. */}
-                  <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
-                    {d.hoje ? 'hoje' : WD[dt.getDay()]}
-                  </Txt>
-                  <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : temTreino ? c.accent : c.tx3}>
-                    {dt.getDate()}
-                  </Txt>
-                  <View style={{
-                    width: temTreino ? 5 : 3,
-                    height: temTreino ? 5 : 3,
-                    borderRadius: 3,
-                    /* O cinza do dia em branco é o mesmo em qualquer
-                       preenchimento: `tx4` é meio-tom nos dois temas, e num
-                       dia cheio de cor ele quase some — que é o certo, já
-                       que hoje não passou em branco, só não acabou. */
-                    backgroundColor: temTreino ? (on ? c.bg1 : d.hoje ? c.accentInk : c.accent) : c.tx4,
-                  }} />
-                </View>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+          <TiraDeDias
+            dias={calendario.map((d) => ({ t: d.t, marcado: d.itens > 0, hoje: d.hoje }))}
+            sel={diaSel}
+            onEscolhe={setDiaSel}
+          />
 
           {doDia.length ? (
             <Cartao>

@@ -1589,7 +1589,12 @@ export function diasDeForca(S: State): number {
    `treinos` e não `exerc`: a tira navega o caderno, e o caderno só tem
    o que foi registrado à mão. Marcar um dia que só o relógio preencheu
    levaria a pessoa a um dia vazio. */
-export type DiaDaTira = { t: number; treinos: number; min: number; hoje: boolean };
+/** Um dia na tira de calendário: quantos registros ele tem, e se é hoje.
+
+    `itens` e não `treinos` porque a mesma tira serve o caderno de treino
+    e o de alimentação — nomear pelo conteúdo de um dos dois obrigava o
+    outro a ler `d.treinos` para contar refeições. */
+export type DiaDaTira = { t: number; itens: number; hoje: boolean };
 
 export function diasDoPeriodo(S: State, dias: number): DiaDaTira[] {
   const hoje = +startOfDay(now());
@@ -1602,8 +1607,7 @@ export function diasDoPeriodo(S: State, dias: number): DiaDaTira[] {
     const lista = (porT.get(t)?.treinos || []) as { min: number }[];
     return {
       t,
-      treinos: lista.length,
-      min: lista.reduce((x, tr) => x + tr.min, 0),
+      itens: lista.length,
       hoje: t === hoje,
     };
   });
@@ -1666,6 +1670,85 @@ export function apagarTreino(s: any, t: number, i: number) {
    Refeição antiga, gravada antes de `g` existir, vale o que a faixa dela
    valia — senão apagar um registro de "proteína alta" tiraria zero do dia
    e o número ficaria alto para sempre, sem nada explicando. */
+/* ============================================================
+   A PROTEÍNA AO LONGO DO TEMPO
+
+   A tela de alimentação só sabia dizer HOJE. Num tratamento de meses a
+   pergunta que importa não é "quanto comi hoje", é "estou conseguindo
+   manter" — e são as mesmas duas resoluções que o exercício já tem: a
+   semana dia a dia, e a tendência de oito semanas.
+   ============================================================ */
+
+/** Os sete últimos dias em gramas, do mais antigo para hoje. */
+export function semanaDeProteina(S: State): { t: number; g: number }[] {
+  const hoje = +startOfDay(now());
+  const porDia = new Map<number, number>(
+    (S.checkins as any[]).map((c) => [c.t, Math.round(c.prot || 0)]),
+  );
+  return Array.from({ length: 7 }, (_, i) => {
+    const t = hoje - (6 - i) * DAY;
+    return { t, g: porDia.get(t) || 0 };
+  });
+}
+
+/* A MÉDIA POR DIA REGISTRADO, semana a semana.
+
+   Média por dia, e não total da semana: 630 g não é um número que
+   alguém carregue na cabeça, e a meta com que ele se compara é diária.
+
+   E por dia REGISTRADO, não por dia corrido. Um dia sem nenhuma
+   refeição anotada não é um dia de 0 g — é um dia que a pessoa não
+   registrou, e dividir por sete transformaria esquecimento em queda de
+   proteína. É a única regra desta camada que se afasta do "zero é
+   honesto": ali o zero É a resposta do dia; aqui ele seria a resposta
+   errada para uma pergunta sobre média. */
+export function semanasDeProteina(S: State, n = 8): { t: number; g: number }[] {
+  const hoje = +startOfDay(now());
+  const soma = new Array(n).fill(0);
+  const dias = new Array(n).fill(0);
+  for (const c of S.checkins as any[]) {
+    if (c.prot == null) continue;
+    const atras = Math.floor((hoje - c.t) / DAY);
+    if (atras < 0 || atras >= n * 7) continue;
+    const b = n - 1 - Math.floor(atras / 7);
+    soma[b] += c.prot;
+    dias[b] += 1;
+  }
+  return soma.map((s, i) => ({
+    t: hoje - (n - 1 - i) * 7 * DAY,
+    g: dias[i] ? Math.round(s / dias[i]) : 0,
+  }));
+}
+
+/** O dia a que uma refeição pertence — ela guarda a hora, o caderno lê o dia. */
+export const diaDaRefeicao = (m: any) => +startOfDay(new Date(m.t));
+
+/** Os dias do período, marcando os que têm refeição registrada. */
+export function diasDeRefeicao(S: State, dias: number): DiaDaTira[] {
+  const hoje = +startOfDay(now());
+  const porT = new Map<number, { n: number; g: number }>();
+  for (const m of S.meals as any[]) {
+    const t = diaDaRefeicao(m);
+    const a = porT.get(t) || { n: 0, g: 0 };
+    a.n += 1;
+    a.g += m.g ?? 0;
+    porT.set(t, a);
+  }
+  return Array.from({ length: dias }, (_, i) => {
+    const t = hoje - (dias - 1 - i) * DAY;
+    const a = porT.get(t);
+    return { t, itens: a?.n || 0, hoje: t === hoje };
+  });
+}
+
+/** As refeições de um dia, da mais recente para a mais antiga. */
+export function refeicoesDoDia(S: State, t: number): any[] {
+  return (S.meals as any[])
+    .filter((m) => diaDaRefeicao(m) === t)
+    .slice()
+    .sort((a, b) => b.t - a.t);
+}
+
 export function apagarRefeicao(s: any, t: number, gramas: number) {
   s.meals = (s.meals as any[]).filter((m) => m.t !== t);
   const dia = (s.checkins as any[]).find((c) => c.t === +startOfDay(new Date(t)));

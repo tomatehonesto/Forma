@@ -25,8 +25,60 @@ export function buildSeed() {
      mesma tela. Um registro só com agua/prot/exerc não conta como
      check-in respondido (ver respostaNoDia), então o convite continua
      de pé. */
+  /* O CARDÁPIO — as refeições de cada dia, e a proteína que vem delas.
+
+     A semente tinha TRÊS refeições ao todo, todas nos dois últimos dias.
+     Com isso o caderno de alimentação abria com um dia cheio e vinte e
+     nove vazios, e a proteína do dia era um número solto no check-in que
+     não batia com refeição nenhuma — duas versões do mesmo dia.
+
+     Aqui a ordem se inverte: o dia tem refeições, e `prot` é a SOMA
+     delas. Uma fonte por campo, inclusive na semente. */
+  const CARDAPIO = [
+    { name: 'Café da manhã', tag: 'Ovos mexidos e fruta', g: 18, h: 8 },
+    { name: 'Café da manhã', tag: 'Iogurte natural com granola', g: 14, h: 8 },
+    { name: 'Almoço', tag: 'Frango grelhado, arroz integral e salada', g: 38, h: 12.5 },
+    { name: 'Almoço', tag: 'Carne moída com legumes e purê de batata', g: 34, h: 12.5 },
+    { name: 'Jantar', tag: 'Salmão e legumes no vapor', g: 30, h: 19.5 },
+    { name: 'Jantar', tag: 'Omelete de claras com queijo branco', g: 26, h: 19.5 },
+    { name: 'Lanche', tag: 'Queijo cottage com castanhas', g: 12, h: 16 },
+  ];
+
+  /* Hoje entra pela metade de propósito: um dia em andamento é o estado
+     em que a tela é aberta, e é o único que mostra o "faltam X g". */
+  const refeicoesDe = (d: number) => {
+    if (d === 0) return [CARDAPIO[0], CARDAPIO[2]];
+    const r = [CARDAPIO[d % 2]];
+    if (d % 7 !== 3) r.push(CARDAPIO[2 + (d % 2)]);
+    if (d % 5 !== 1) r.push(CARDAPIO[4 + (d % 2)]);
+    if (d % 4 === 0) r.push(CARDAPIO[6]);
+    return r;
+  };
+  const protDoDia = (d: number) => refeicoesDe(d).reduce((x, m) => x + m.g, 0);
+
+  /* Da mais recente para a mais antiga, que é a ordem em que a lista lê
+     e a mesma em que o registro novo entra (unshift). */
+  const meals: any[] = [];
+  for (let d = 0; d <= 55; d++) {
+    const base = +startOfDay(daysAgo(d));
+    refeicoesDe(d)
+      .slice()
+      .reverse()
+      .forEach((m, k) => {
+        meals.push({
+          t: base + Math.round(m.h * 3600000),
+          name: m.name,
+          tag: m.tag,
+          g: m.g,
+          /* Uma em cada quatro veio da câmera: sem a mistura, a linha de
+             origem só existiria numa das duas formas. */
+          fonte: (d + k) % 4 === 0 ? 'foto' : 'manual',
+        });
+      });
+  }
+
   const checkins: any[] = [
-    { t: +startOfDay(daysAgo(0)), agua: 0, prot: 30, exerc: 0 },
+    { t: +startOfDay(daysAgo(0)), agua: 0, prot: protDoDia(0), exerc: 0 },
   ];
 
   /* AS SESSÕES DE EXERCÍCIO — por dias atrás.
@@ -68,6 +120,7 @@ export function buildSeed() {
     1: [{ tipo: 'Corrida', min: 30, fonte: 'Apple Saúde' }],
   };
   const minDoDia = (d: number) => (SESSOES[d] || []).reduce((x, tr) => x + tr.min, 0);
+
   for (let d = 13; d >= 1; d--) {
     const date = daysAgo(d); const wd = date.getDay();
     const postInj = [3, 4, 5, 10, 11, 12].includes(d); // dias logo após aplicar
@@ -80,7 +133,7 @@ export function buildSeed() {
       gut: postInj ? 'preso' : 'normal',
       energia: postInj ? 5 : 7,
       agua: wd === 0 ? 4 : (wd === 6 ? 5 : 7),
-      prot: 70 + (13 - d) * 1.4 + (wd === 0 ? -15 : 0),
+      prot: protDoDia(d),
       exerc: minDoDia(d),
       treinos: SESSOES[d],
       refluxo: postInj ? 1 : 0, ansiedade: wd === 1 ? 2 : (d % 3 === 0 ? 1 : 0), constip: postInj ? 2 : 0,
@@ -93,8 +146,12 @@ export function buildSeed() {
      dois meses de check-in completo para encher um gráfico seria pagar a
      curva com um histórico falso em cinco outras telas. */
   for (let d = 55; d >= 14; d--) {
-    if (!SESSOES[d]) continue;
-    checkins.push({ t: +startOfDay(daysAgo(d)), exerc: minDoDia(d), treinos: SESSOES[d] });
+    checkins.push({
+      t: +startOfDay(daysAgo(d)),
+      prot: protDoDia(d),
+      exerc: minDoDia(d),
+      treinos: SESSOES[d],
+    });
   }
 
   return {
@@ -206,21 +263,7 @@ export function buildSeed() {
       { t: +daysAgo(70), name: 'Mounjaro (tirzepatida)', detail: 'Titulação 2,5 → 5 mg · 1×/semana, subcutânea', by: 'Dra. Helena Costa' },
       { t: +daysAgo(70), name: 'Suplemento de proteína', detail: 'Conforme necessidade, para atingir a meta diária', by: 'Renata Alves (Nutrição)' },
     ],
-    /* Refeições no formato de hoje: o grama é a verdade e a origem diz de
-       onde ele veio. Elas estavam na forma antiga — `prot: 'alta'` sem
-       `g` —, que é exatamente a forma que `gramasDaFaixa` existe para ler
-       e que o comentário dela manda não criar mais. A semente escrevendo
-       dado legado fazia a tela inteira ser testada pelo caminho de
-       compatibilidade e nunca pelo caminho normal.
-
-       O almoço fica em 30 g porque é o de hoje, e o check-in de hoje diz
-       `prot: 30`: dois lugares falando do mesmo dia têm de dar o mesmo
-       número. */
-    meals: [
-      { t: +daysAgo(0.4), name: 'Almoço', g: 30, fonte: 'manual', tag: 'Frango grelhado, arroz integral e salada' },
-      { t: +daysAgo(1), name: 'Café da manhã', g: 18, fonte: 'manual', tag: 'Ovos mexidos e fruta' },
-      { t: +daysAgo(1.4), name: 'Jantar', g: 38, fonte: 'foto', tag: 'Salmão e legumes no vapor' },
-    ],
+    meals,
     favMeals: ['Iogurte natural + granola', 'Frango grelhado + salada', 'Omelete de claras'],
     notifications: [
       { t: +daysAgo(0.2), ic: 'syringe', kind: 'trat', title: 'Aplicação em 3 dias', body: 'Mounjaro 5 mg · quinta. Local sugerido: abdômen (esq.).' },

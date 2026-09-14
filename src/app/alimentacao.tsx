@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
-import { apagarRefeicao, checkinToday } from '../logic/derive';
-import { relDay } from '../logic/time';
-import { gramasDaFaixa } from '../logic/escalas';
+import {
+  apagarRefeicao, checkinToday, diasDeRefeicao, refeicoesDoDia,
+  semanaDeProteina, semanasDeProteina,
+} from '../logic/derive';
+import { fmtDate, now, relDay, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, ItemApagavel } from '../ui/internas';
+import {
+  TelaInterna, Titulao, Bloco, CardCurva, CardSemana, Cartao, Linha, Botao,
+  ItemApagavel, TiraDeDias,
+} from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -20,6 +25,12 @@ import { radius, shadowCard } from '../theme';
    deixa de ser comer demais e passa a ser comer pouca PROTEÍNA — que é
    o que segura a massa magra enquanto o peso desce.
 
+   Três resoluções, e é a mesma escada da tela de exercício: o dia (o
+   número que muda o que se almoça), a semana (a unidade em que a meta
+   diária faz sentido) e as oito semanas (se está conseguindo manter).
+   Sozinho, o dia não diz nada sobre o tratamento; sozinha, a tendência
+   não diz o que fazer no almoço.
+
    Dois caminhos para registrar, e é a mesma decisão que a folha de
    registro já tomou: a foto para quem não sabe quantos gramas tem um
    filé, e a mão para quem prefere escrever. O botão fixo embaixo é o
@@ -31,6 +42,12 @@ import { radius, shadowCard } from '../theme';
    dizer manual, porque manual é o que existia antes de haver origem —
    mas a tela nunca mostra ausência, mostra "por você". */
 const origem = (fonte?: string) => (fonte === 'foto' ? 'pela foto' : 'por você');
+
+/* A tira cobre trinta dias. Não há seletor de período aqui porque não há
+   nada mais na tela que responda a ele: na de exercício o período governa
+   também os quatro quadros do resumo, e um seletor que só encurtasse o
+   calendário seria um controle a mais para aprender sem nada a decidir. */
+const DIAS_DA_TIRA = 30;
 
 export default function Alimentacao() {
   const S = useStore((s) => s.S);
@@ -46,6 +63,26 @@ export default function Alimentacao() {
   const alvo = (S.profile as any).targets.prot as number;
   const falta = Math.max(0, alvo - prot);
 
+  const semana = semanaDeProteina(S);
+  const diasComRegistro = semana.filter((d) => d.g > 0).length;
+  const mediaSemana = diasComRegistro
+    ? Math.round(semana.reduce((x, d) => x + d.g, 0) / diasComRegistro)
+    : 0;
+
+  /* A curva só aparece com mais de uma semana registrada: duas semanas
+     vazias e uma cheia não formam tendência, formam um degrau. */
+  const semanas = semanasDeProteina(S, 8);
+  const comHistorico = semanas.filter((w) => w.g > 0).length >= 2;
+  const mediaGeral = (() => {
+    const cheias = semanas.filter((w) => w.g > 0);
+    return cheias.length ? Math.round(cheias.reduce((x, w) => x + w.g, 0) / cheias.length) : 0;
+  })();
+
+  const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
+  const calendario = diasDeRefeicao(S, DIAS_DA_TIRA);
+  const doDia = refeicoesDoDia(S, diaSel);
+  const gDoDia = doDia.reduce((x, m) => x + (m.g ?? 0), 0);
+
   return (
     <TelaInterna
       titulo="Alimentação"
@@ -56,12 +93,12 @@ export default function Alimentacao() {
         lead="Aqui não se conta caloria. O que o tratamento pede é proteína, que é o que segura a massa magra enquanto o peso desce."
       />
 
-      {/* O NÚMERO DO DIA, e o que ainda falta dele.
-
-          A barra sozinha dizia a proporção e deixava a conta para a
-          pessoa. "Faltam 60 g" é a mesma informação já resolvida, e é
-          ela que muda o que se almoça. */}
       <View style={{ gap: 10 }}>
+        {/* O NÚMERO DO DIA, e o que ainda falta dele.
+
+            A barra sozinha dizia a proporção e deixava a conta para a
+            pessoa. "Faltam 34 g" é a mesma informação já resolvida, e é
+            ela que muda o que se almoça. */}
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <Row style={{ alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
@@ -105,28 +142,80 @@ export default function Alimentacao() {
         </Pressable>
       </View>
 
-      {/* O REGISTRO
+      {/* A SEMANA E A TENDÊNCIA — os dois gráficos são um grupo só, com o
+          respiro de cartões irmãos. Separados pelos 26 px que dividem
+          seções eles leriam como dois assuntos. */}
+      <View style={{ gap: 10 }}>
+        {/* MÉDIA POR DIA, e não total da semana. A meta com que ela se
+            compara é diária: 390 g na semana não é número que alguém
+            carregue na cabeça, nem se compara com 90.
+
+            E média dos dias REGISTRADOS. Um dia sem nenhuma refeição
+            anotada não é um dia de 0 g — é um dia que a pessoa não
+            registrou, e dividir por sete transformaria esquecimento em
+            queda de proteína. */}
+        <CardSemana
+          nome="Esta semana"
+          sub={diasComRegistro === 0
+            ? 'Nada registrado nos últimos sete dias'
+            : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
+          valor={String(mediaSemana)}
+          unidade="g"
+          dias={semana.map((d) => ({ t: d.t, v: d.g }))}
+          alvo={alvo}
+          rotuloMeta={`Meta: ${alvo} g`}
+        />
+
+        {comHistorico ? (
+          <CardCurva
+            id="prot"
+            nome="Proteína por semana"
+            /* Curto porque o número grande come a largura: "Média por dia,
+               nas últimas 8 semanas" chegava truncado em "8 sema…". */
+            sub="Média por dia, 8 semanas"
+            valor={String(mediaGeral)}
+            unidade="g"
+            altura={140}
+            pontos={semanas.map((w) => ({
+              v: w.g,
+              rotulo: String(w.g),
+              quando: `semana de ${fmtDate(new Date(w.t))}`,
+            }))}
+          />
+        ) : null}
+      </View>
+
+      {/* O CADERNO DE REFEIÇÕES — um dia por vez, como o de treino.
+
+          A lista corrida de "registro recente" mostrava as últimas
+          refeições sem nenhum recorte, e por isso não respondia a pergunta
+          que se faz olhando para trás: o que eu comi TERÇA. A tira escolhe
+          o dia e a lista mostra só ele; os pontos embaixo de cada número
+          dizem onde há registro, sem tentativa e erro.
 
           Cada refeição pode ser apagada daqui. Registrar três vezes por
           dia produz engano — o almoço que entrou como jantar, a busca que
-          somou dois frangos —, e sem uma saída o número do dia fica
-          errado para sempre com a pessoa sabendo que está.
-
-          Apagar devolve a proteína ao dia, não zera: o que as outras
-          refeições trouxeram continua lá. */}
+          somou dois frangos —, e sem uma saída o número do dia fica errado
+          para sempre com a pessoa sabendo que está. Apagar devolve a
+          proteína ao dia, não zera. */}
       <Bloco
-        titulo="Registro recente"
-        nota={S.meals.length ? 'Toque na lixeira para apagar uma refeição que entrou errada.' : undefined}
+        titulo="Caderno de refeições"
+        nota="Toque na lixeira para apagar uma refeição que entrou errada."
       >
-        {S.meals.length ? (
-          <View style={{ gap: 10 }}>
-            {S.meals.map((m: any, i: number) => {
-              const g = m.g ?? gramasDaFaixa(m.prot) ?? 0;
-              return (
+        <View style={{ gap: 10 }}>
+          <TiraDeDias
+            dias={calendario.map((d) => ({ t: d.t, marcado: d.itens > 0, hoje: d.hoje }))}
+            sel={diaSel}
+            onEscolhe={setDiaSel}
+          />
+
+          {doDia.length ? (
+            <View style={{ gap: 10 }}>
+              {doDia.map((m: any, i: number) => (
                 <View key={`${m.t}-${i}`} style={[{ backgroundColor: c.bg1, borderRadius: radius.card }, shadowCard(c)]}>
                   <ItemApagavel
                     pergunta={`Apagar ${String(m.name).toLowerCase()} de ${relDay(new Date(m.t))}?`}
-                    onApagar={() => update((s: any) => apagarRefeicao(s, m.t, g))}
+                    onApagar={() => update((s: any) => apagarRefeicao(s, m.t, m.g ?? 0))}
                   >
                     <Row style={{ alignItems: 'flex-start' }}>
                       <View style={{ flex: 1, paddingRight: 10 }}>
@@ -134,32 +223,35 @@ export default function Alimentacao() {
                         {m.tag && m.tag !== m.name ? (
                           <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.tag}</Txt>
                         ) : null}
-                        {/* Gramas e origem na mesma linha, como nos treinos:
-                            a origem qualifica o número — 30 g que você
-                            escreveu e 30 g que a foto estimou não se
-                            conferem do mesmo jeito.
+                        {/* A origem qualifica o número, como nos treinos:
+                            30 g que você escreveu e 30 g que a foto estimou
+                            não se conferem do mesmo jeito.
 
                             A faixa ("proteína alta") saiu. Ela é DERIVADA
-                            dos gramas, e mostrar as duas era o mesmo fato
-                            em duas resoluções ocupando duas pastilhas. */}
-                        <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>
-                          {relDay(new Date(m.t))} · {origem(m.fonte)}
-                        </Txt>
+                            dos gramas, e mostrar as duas era o mesmo fato em
+                            duas resoluções ocupando duas pastilhas. */}
+                        <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{origem(m.fonte)}</Txt>
                       </View>
-                      <Txt v="bodyMed" c={c.accent}>~{g} g</Txt>
+                      <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
                     </Row>
                   </ItemApagavel>
                 </View>
-              );
-            })}
-          </View>
-        ) : (
-          <Vazio
-            ic="utensils"
-            titulo="Nenhuma refeição registrada"
-            texto="O que você registrar entra na proteína do dia."
-          />
-        )}
+              ))}
+              {/* O total do dia embaixo da lista, e não em cima: em cima ele
+                  seria um segundo cabeçalho competindo com a tira; embaixo
+                  ele é o que a soma das linhas deu. */}
+              <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
+                {doDia.length} {doDia.length === 1 ? 'refeição' : 'refeições'} · {gDoDia} g de proteína
+              </Txt>
+            </View>
+          ) : (
+            <Vazio
+              ic="utensils"
+              titulo="Nenhuma refeição neste dia"
+              texto="O que você registrar entra na proteína do dia."
+            />
+          )}
+        </View>
       </Bloco>
 
       {/* OS FAVORITOS — o atalho de quem repete a mesma comida.
