@@ -154,29 +154,42 @@ export default function Alimento() {
         {/* O TOPO: foto quando a prateleira tem uma, painel de cor quando
             não tem. O véu escuro por cima da foto não é estilo — sem ele
             o texto branco some num tomate claro. */}
+        {/* QUEM ESTICA É O TOPO.
+
+            Antes era o cartão: ele crescia para encostar na base e
+            deixava uma faixa branca morta embaixo do botão, do tamanho
+            do que sobrava da tela. Na referência quem ocupa a sobra é a
+            imagem, e o cartão é uma folha de altura própria encostada na
+            base — que é o certo, porque o conteúdo do cartão tem um
+            tamanho e a foto não tem.
+
+            `flexGrow` faz o topo comer o que sobrar, e `minHeight`
+            impede que ele desapareça quando o conteúdo é longo demais e
+            a tela vira rolagem. */}
         {foto ? (
-          <View>
+          <View style={{ flexGrow: 1, minHeight: 260 }}>
             <Image source={foto} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
             <LinearGradient
-              colors={['rgba(0,0,0,0.30)', 'rgba(0,0,0,0.62)']}
+              colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0.30)', 'rgba(0,0,0,0.68)']}
+              locations={[0, 0.45, 1]}
               start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
               style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
             />
-            {cabecalho}
+            <View style={{ marginTop: 'auto' }}>{cabecalho}</View>
           </View>
         ) : (
-          <LinearGradient colors={[de, para]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <LinearGradient
+            colors={[de, para]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={{ flexGrow: 1, minHeight: 260, justifyContent: 'flex-end' }}
+          >
             {cabecalho}
           </LinearGradient>
         )}
 
-        {/* O CARTÃO, subindo por cima do topo e indo até a base da tela.
-
-            `flex: 1` com `flexGrow` no contêiner: sem isso, num alimento
-            de conteúdo curto, sobrava uma faixa do fundo cinza embaixo do
-            botão, como se a tela tivesse acabado antes do fim. */}
+        {/* O CARTÃO tem a altura do que ele diz, e encosta na base. */}
         <View style={[{
-          flex: 1, backgroundColor: c.bg1, marginTop: -24,
+          backgroundColor: c.bg1, marginTop: -24,
           borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
           paddingHorizontal: 20, paddingTop: 22,
           paddingBottom: insets.bottom + 22,
@@ -193,22 +206,27 @@ export default function Alimento() {
               não aparece: sem frase é melhor do que "delicioso e
               nutritivo". */}
           {insight ? (
-            <Row
-              gap={10}
-              style={{
-                marginTop: 14, alignItems: 'flex-start',
-                backgroundColor: insight.bom ? c.okBg : c.amberBg,
-                borderRadius: radius.md, padding: 13,
-              }}
-            >
-              <Icon
-                name={insight.bom ? 'thumbup' : 'info'}
-                size={16}
-                color={insight.bom ? c.ok : c.amber}
-                sw={1.9}
-              />
-              <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 21 }}>{insight.texto}</Txt>
-            </Row>
+            <View style={{
+              marginTop: 14, borderRadius: radius.md, padding: 14,
+              backgroundColor: insight.bom ? c.accentWeak : c.amberBg,
+            }}>
+              <Row gap={7}>
+                <Icon
+                  name="aura"
+                  size={14}
+                  color={insight.bom ? c.accent : c.amber}
+                  sw={2}
+                />
+                <Txt
+                  v="micro"
+                  c={insight.bom ? c.accent : c.amber}
+                  style={{ letterSpacing: 1 }}
+                >
+                  {insight.bom ? 'O MORPHI LEU' : 'O MORPHI RESSALVA'}
+                </Txt>
+              </Row>
+              <Txt v="caption" c={c.tx2} style={{ marginTop: 8, lineHeight: 21 }}>{insight.texto}</Txt>
+            </View>
           ) : null}
 
           {/* AS TRÊS BARRAS */}
