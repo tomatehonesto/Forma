@@ -124,11 +124,10 @@ export default function Exercicio() {
   const forca = diasDeForca(S);
   const treinos = treinosRecentes(S, dias);
   const resumo = resumoDeMovimento(S, dias);
-  /* Um dia a mais no fim. A tira que parava em hoje parecia cortada, e
-     não dizia a coisa mais útil que um calendário diz: que ainda tem dia
-     vindo. Um só, e tracejado — dois já seriam uma agenda, e esta tela
-     não agenda nada. */
-  const calendario = diasDoPeriodo(S, dias, 1);
+  /* A tira termina em hoje. Chegou a ter o dia seguinte, tracejado, para
+     não parecer cortada — mas um caderno registra o que foi feito, e o
+     amanhã ali só ocupava espaço com uma casa que ninguém pode abrir. */
+  const calendario = diasDoPeriodo(S, dias);
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
@@ -394,37 +393,35 @@ export default function Exercicio() {
             style={{ marginHorizontal: -16 }}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
           >
-            {/* TRÊS PERGUNTAS, TRÊS LUGARES NO CARTÃO
+            {/* DUAS PERGUNTAS, DOIS LUGARES NO CARTÃO
 
                 O rótulo de cima diz ONDE no tempo: o dia da semana, ou
-                "hoje" na cor cheia do texto no meio dos cinzas. Minúsculo
-                de propósito, para caber na mesma linha dos "seg" e "ter"
-                em vez de virar um selo.
-
-                A moldura diz se o dia JÁ CHEGOU: contínua sobre branco no
-                passado, tracejada sobre o cinza da página no futuro. São
-                três diferenças de uma vez (traço, fundo e cor do número)
-                porque borda tracejada com canto arredondado desenha sólida
-                no Android — se o traço sumir, o resto ainda diz.
+                "hoje". Minúsculo de propósito, para caber na mesma linha
+                dos "seg" e "ter" em vez de virar um selo.
 
                 O ponto de baixo diz se TEVE TREINO: azul e maior quando
-                sim, cinza e menor quando o dia passou em branco, e nenhum
-                no futuro, onde ainda não há o que dizer. Ausência sozinha
-                não respondia "não treinei" — respondia "não sei". */}
+                sim, cinza e menor quando o dia passou em branco. Ausência
+                sozinha não respondia "não treinei" — respondia "não sei".
+
+                E o preenchimento diz onde você está: preto no dia aberto,
+                azul em hoje quando o dia aberto é outro. */}
             {calendario.map((d) => {
               const on = diaSel === d.t;
               const dt = new Date(d.t);
               const temTreino = d.treinos > 0;
 
-              const miolo = (
+              return (
+                <Pressable
+                  key={d.t}
+                  onPress={() => setDiaSel(d.t)}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                >
                 <View style={{
                   width: 46, paddingVertical: 8, borderRadius: radius.md, alignItems: 'center', gap: 3,
                   backgroundColor: on ? c.tx
                     : d.hoje ? c.accent
-                      : d.futuro ? 'transparent'
-                        : temTreino ? c.accentWeak : c.bg1,
+                      : temTreino ? c.accentWeak : c.bg1,
                   borderWidth: 1,
-                  borderStyle: d.futuro ? 'dashed' : 'solid',
                   borderColor: on ? c.tx : d.hoje ? c.accent : temTreino ? c.accentLine : c.line,
                 }}>
                   {/* Hoje é PREENCHIDO, e não contornado. O contorno tinha de
@@ -440,35 +437,20 @@ export default function Exercicio() {
                   <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
                     {d.hoje ? 'hoje' : WD[dt.getDay()]}
                   </Txt>
-                  <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : d.futuro ? c.tx4 : temTreino ? c.accent : c.tx3}>
+                  <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : temTreino ? c.accent : c.tx3}>
                     {dt.getDate()}
                   </Txt>
                   <View style={{
                     width: temTreino ? 5 : 3,
                     height: temTreino ? 5 : 3,
                     borderRadius: 3,
-                    backgroundColor: d.futuro
-                      ? 'transparent'
-                      /* O cinza do dia em branco é o mesmo em qualquer
-                         preenchimento: `tx4` é meio-tom nos dois temas, e
-                         num dia cheio de cor ele quase some — que é o certo,
-                         já que hoje não passou em branco, só não acabou. */
-                      : temTreino ? (on ? c.bg1 : d.hoje ? c.accentInk : c.accent) : c.tx4,
+                    /* O cinza do dia em branco é o mesmo em qualquer
+                       preenchimento: `tx4` é meio-tom nos dois temas, e num
+                       dia cheio de cor ele quase some — que é o certo, já
+                       que hoje não passou em branco, só não acabou. */
+                    backgroundColor: temTreino ? (on ? c.bg1 : d.hoje ? c.accentInk : c.accent) : c.tx4,
                   }} />
                 </View>
-              );
-
-              /* O futuro não filtra nada: tocar em amanhã só abriria um dia
-                 vazio que já se sabe vazio. Fica no lugar, sem toque. */
-              return d.futuro ? (
-                <View key={d.t}>{miolo}</View>
-              ) : (
-                <Pressable
-                  key={d.t}
-                  onPress={() => setDiaSel(d.t)}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-                >
-                  {miolo}
                 </Pressable>
               );
             })}

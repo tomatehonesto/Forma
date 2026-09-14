@@ -3,9 +3,9 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarTreino, ehManual, origemDoTreino, treinoEm } from '../logic/derive';
-import { ehForca } from '../logic/modalidades';
+import { ehForca, iconeDe } from '../logic/modalidades';
 import { MO_LONG, DOW_PT, diffDays } from '../logic/time';
-import { Txt, SheetScreen } from '../ui/kit';
+import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
@@ -24,6 +24,19 @@ import { useTheme } from '../ui/useTheme';
    É a mesma forma de /registro, que faz isso para peso e medidas desde
    antes: os dados primeiro, corrigir e apagar depois, e a consequência
    escrita embaixo do apagar em vez de depois do toque.
+
+   O DESENHO, e por que ele mudou. A primeira versão era um cartão com
+   seis linhas de rótulo e valor — e três delas repetiam palavra por
+   palavra o cabeçalho da própria folha: a modalidade no título, a
+   duração e a data no subtítulo, e as três de novo logo abaixo. O olho
+   lia tudo duas vezes e ainda assim não pousava em lugar nenhum, porque
+   uma pilha de seis linhas iguais não tem hierarquia.
+
+   Agora a folha tem um FATO e um RESTO. O fato é a duração, em número
+   grande, ao lado do ícone da modalidade — é o que a pessoa veio ver e
+   o único campo que a correção costuma vir buscar. O resto são as duas
+   coisas que o cabeçalho não diz: de onde a sessão veio e se ela conta
+   como força. Nada aparece duas vezes.
    ============================================================ */
 
 export default function Treino() {
@@ -56,37 +69,62 @@ export default function Treino() {
     );
   }
 
+  const fonte = origemDoTreino(treino);
+  const forca = ehForca(treino.tipo);
+
   return (
     <SheetScreen
       titulo={treino.tipo}
-      sub={`${treino.min} min · ${dataLonga}`}
+      sub={dataLonga}
       onClose={() => router.back()}
     >
-      <View style={{ marginTop: 18, gap: 8 }}>
+      <View style={{ marginTop: 20, gap: 10 }}>
+        {/* O FATO: quanto tempo.
+
+            Em corpo de métrica porque é a resposta da folha, e porque é o
+            campo que a correção quase sempre vem buscar — do mesmo
+            tamanho dos outros, ele obrigava a pessoa a procurar o que já
+            era o assunto. O ícone da modalidade ao lado repete o título
+            de propósito: é a mesma marca que ela tocou na lista, e é o
+            que confirma que abriu o treino certo. */}
         <Cartao>
-          <Linha titulo="Modalidade" sub={treino.tipo} seta={false} />
-          <Linha titulo="Duração" sub={`${treino.min} min`} seta={false} />
+          <Row gap={14} style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
+            <IconBadge name={iconeDe(treino.tipo)} size={52} iconSize={24} sw={1.9} />
+            <View style={{ flex: 1 }}>
+              <Txt v="metric">
+                {treino.min}
+                <Txt v="label" c={c.tx3}> min</Txt>
+              </Txt>
+              <Txt v="caption" c={c.tx3}>Semana {semana} do tratamento</Txt>
+            </View>
+          </Row>
+        </Cartao>
+
+        {/* O RESTO: só o que o cabeçalho não disse. */}
+        <Cartao>
           {/* Quem registrou. Numa tela cujas duas ações são corrigir e
               apagar, saber se o número foi você que escreveu ou se ele
               chegou do relógio é o que decide se "está errado" é um erro
               de digitação ou o relógio chamando caminhada de corrida. */}
           <Linha
+            ic={ehManual(fonte) ? 'pencil' : 'watch'}
             titulo="Origem"
-            sub={ehManual(origemDoTreino(treino))
+            sub={ehManual(fonte)
               ? 'Você — registrado nesta tela'
-              : `${origemDoTreino(treino)} — chegou pela integração`}
+              : `${fonte} — chegou pela integração`}
             seta={false}
           />
-          <Linha titulo="Quando" sub={dataLonga} seta={false} />
-          <Linha titulo="Semana" sub={`Semana ${semana} do tratamento`} seta={false} />
           {/* A marca de força aparece aqui porque é a única propriedade do
               treino que o app usa para outra coisa — e quem abre para
               conferir merece ver por que aquele dia contou (ou não). */}
           <Linha
+            ic="shield"
             titulo="Conta como força"
-            sub={ehForca(treino.tipo)
+            sub={forca
               ? 'Sim — puxa músculo'
               : 'Não — musculação, pilates e funcional é que contam'}
+            selo={forca ? 'Força' : undefined}
+            seloTom="verde"
             seta={false}
           />
         </Cartao>
