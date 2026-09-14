@@ -10,12 +10,32 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
-/* Quanto de água — antes o atalho somava um copo às cegas. Perguntar
-   quanto custa um toque a mais e é a diferença entre registro e chute. */
-const MEDIDAS: [string, number, string][] = [
-  ['Copo', 250, 'water'],
-  ['Garrafa', 500, 'water'],
-  ['Garrafão', 1000, 'water'],
+/* ============================================================
+   QUANTO VOCÊ BEBEU
+
+   Antes o atalho somava um copo às cegas. Perguntar quanto custa um toque
+   a mais e é a diferença entre registro e chute.
+
+   As MEDIDAS COMUNS eram botões de registro: tocar em "Garrafa" gravava
+   500 ml na hora. Agora elas SOMAM no slider, e quem grava é só o botão
+   de baixo. A diferença aparece em quem bebeu duas coisas diferentes:
+   antes eram dois registros e duas idas ao mesmo botão; agora é
+   "copo + copo + garrafa", o número sobe na frente da pessoa, e ela
+   confirma uma vez. O slider deixa de ser o caminho alternativo e vira o
+   mostrador de todos eles.
+
+   Por isso as três também mudaram de lugar: estavam numa seção própria lá
+   embaixo, longe do número que agora alimentam.
+   ============================================================ */
+
+const MAX = 2500;
+
+/* Os recipientes que existem na cozinha de qualquer um. Somam no slider,
+   e por isso o rótulo traz o sinal: o que o toque faz é acrescentar. */
+const MEDIDAS: [string, number][] = [
+  ['Copo', 250],
+  ['Garrafa', 500],
+  ['Garrafão', 1000],
 ];
 
 export default function MedirAgua() {
@@ -30,6 +50,8 @@ export default function MedirAgua() {
   const atual = waterMlToday(S);
   const pct = Math.max(0, Math.min(1, atual / alvo));
   const L = (ml: number) => (ml / 1000).toFixed(1).replace('.', ',');
+
+  const somar = (ml: number) => setEscolhido((v) => Math.min(MAX, v + ml));
 
   const beber = (ml: number) => {
     update((s: any) => {
@@ -63,8 +85,9 @@ export default function MedirAgua() {
         )}
       </View>
 
-      {/* medida na mão — para quem bebeu um copo pela metade ou uma
-          garrafa e meia, que os atalhos não cobrem */}
+      {/* O montador. Tudo que compõe a quantidade mora aqui, e um botão só
+          grava — inclusive o meio copo e a garrafa e meia, que os
+          recipientes não cobrem. */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Txt v="caption" c={c.tx3}>Quantidade</Txt>
@@ -72,7 +95,7 @@ export default function MedirAgua() {
         </Row>
         <Slider
           value={escolhido}
-          minimumValue={50} maximumValue={1500} step={50}
+          minimumValue={50} maximumValue={MAX} step={50}
           onValueChange={setEscolhido}
           minimumTrackTintColor={c.accent}
           maximumTrackTintColor={c.bg2}
@@ -81,31 +104,34 @@ export default function MedirAgua() {
         />
         <Row style={{ justifyContent: 'space-between' }}>
           <Txt v="micro" c={c.tx4}>50 ml</Txt>
-          <Txt v="micro" c={c.tx4}>1,5 L</Txt>
+          {/* O teto é a meta do dia: quem lembrou de registrar só à noite
+              consegue lançar o dia inteiro sem esbarrar no fim da régua. */}
+          <Txt v="micro" c={c.tx4}>{L(MAX)} L</Txt>
         </Row>
+
+        <Row gap={7} style={{ marginTop: 16, alignItems: 'stretch' }}>
+          {MEDIDAS.map(([nome, ml]) => (
+            <Pressable key={nome} onPress={() => somar(ml)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
+              <View style={{
+                flex: 1, backgroundColor: c.bg2, borderRadius: radius.md,
+                paddingVertical: 11, alignItems: 'center', gap: 1,
+              }}>
+                <Txt v="caption" c={c.tx}>+ {nome}</Txt>
+                <Txt v="micro" c={c.tx3}>{ml} ml</Txt>
+              </View>
+            </Pressable>
+          ))}
+        </Row>
+
         <Pressable onPress={() => beber(escolhido)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
-          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center' }}>
+          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
+            {/* Em ml, a mesma unidade do número logo acima. Em litros,
+                1250 virava "1,3 L" no botão enquanto a Quantidade dizia
+                1250 ml — a mesma tela afirmando duas coisas. */}
             <Txt v="body" c={c.accentInk}>Adicionar {escolhido} ml</Txt>
           </View>
         </Pressable>
       </View>
-
-      <Row gap={10} style={{ marginTop: 22, marginBottom: 12 }}>
-        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>MEDIDAS COMUNS</Txt>
-        <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
-      </Row>
-
-      <Row gap={7} style={{ alignItems: 'stretch' }}>
-        {MEDIDAS.map(([nome, ml, ic]) => (
-          <Pressable key={nome} onPress={() => beber(ml as number)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14, alignItems: 'center' }}>
-              <Icon name={ic as string} size={20} color={c.accent} sw={1.9} />
-              <Txt v="caption" style={{ marginTop: 8 }}>{nome}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{ml} ml</Txt>
-            </View>
-          </Pressable>
-        ))}
-      </Row>
     </SheetScreen>
   );
 }
