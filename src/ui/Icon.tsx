@@ -1,14 +1,166 @@
 import React, { memo } from 'react';
-import { SvgXml } from 'react-native-svg';
-import { P } from './iconpaths';
+import Activity from 'lucide-react-native/icons/activity';
+import ArrowDown from 'lucide-react-native/icons/arrow-down';
+import ArrowUp from 'lucide-react-native/icons/arrow-up';
+import Bell from 'lucide-react-native/icons/bell';
+import BookOpen from 'lucide-react-native/icons/book-open';
+import Brain from 'lucide-react-native/icons/brain';
+import CakeSlice from 'lucide-react-native/icons/cake-slice';
+import Calendar from 'lucide-react-native/icons/calendar';
+import Camera from 'lucide-react-native/icons/camera';
+import ChartColumn from 'lucide-react-native/icons/chart-column';
+import ChartLine from 'lucide-react-native/icons/chart-line';
+import Check from 'lucide-react-native/icons/check';
+import ChevronDown from 'lucide-react-native/icons/chevron-down';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
+import ChevronUp from 'lucide-react-native/icons/chevron-up';
+import Clock from 'lucide-react-native/icons/clock';
+import Droplet from 'lucide-react-native/icons/droplet';
+import Dumbbell from 'lucide-react-native/icons/dumbbell';
+import FaceNeutral from 'lucide-react-native/icons/face-neutral';
+import FaceSlightlyFrowning from 'lucide-react-native/icons/face-slightly-frowning';
+import FaceSlightlySmiling from 'lucide-react-native/icons/face-slightly-smiling';
+import FileText from 'lucide-react-native/icons/file-text';
+import Flag from 'lucide-react-native/icons/flag';
+import Flame from 'lucide-react-native/icons/flame';
+import Funnel from 'lucide-react-native/icons/funnel';
+import GlassWater from 'lucide-react-native/icons/glass-water';
+import Heart from 'lucide-react-native/icons/heart';
+import House from 'lucide-react-native/icons/house';
+import Image from 'lucide-react-native/icons/image';
+import Info from 'lucide-react-native/icons/info';
+import Leaf from 'lucide-react-native/icons/leaf';
+import Lightbulb from 'lucide-react-native/icons/lightbulb';
+import Lock from 'lucide-react-native/icons/lock';
+import LogOut from 'lucide-react-native/icons/log-out';
+import MessageCircle from 'lucide-react-native/icons/message-circle';
+import Moon from 'lucide-react-native/icons/moon';
+import Palette from 'lucide-react-native/icons/palette';
+import Pencil from 'lucide-react-native/icons/pencil';
+import Pill from 'lucide-react-native/icons/pill';
+import PillBottle from 'lucide-react-native/icons/pill-bottle';
+import Play from 'lucide-react-native/icons/play';
+import Plus from 'lucide-react-native/icons/plus';
+import Rocket from 'lucide-react-native/icons/rocket';
+import RotateCcw from 'lucide-react-native/icons/rotate-ccw';
+import Ruler from 'lucide-react-native/icons/ruler';
+import Scale from 'lucide-react-native/icons/scale';
+import Send from 'lucide-react-native/icons/send';
+import Settings from 'lucide-react-native/icons/settings';
+import ShieldCheck from 'lucide-react-native/icons/shield-check';
+import Soup from 'lucide-react-native/icons/soup';
+import Sparkle from 'lucide-react-native/icons/sparkle';
+import Sparkles from 'lucide-react-native/icons/sparkles';
+import Stethoscope from 'lucide-react-native/icons/stethoscope';
+import Sun from 'lucide-react-native/icons/sun';
+import Syringe from 'lucide-react-native/icons/syringe';
+import Target from 'lucide-react-native/icons/target';
+import ThumbsDown from 'lucide-react-native/icons/thumbs-down';
+import ThumbsUp from 'lucide-react-native/icons/thumbs-up';
+import Toilet from 'lucide-react-native/icons/toilet';
+import TrendingUp from 'lucide-react-native/icons/trending-up';
+import Trophy from 'lucide-react-native/icons/trophy';
+import User from 'lucide-react-native/icons/user';
+import Utensils from 'lucide-react-native/icons/utensils';
+import WavesHorizontal from 'lucide-react-native/icons/waves-horizontal';
+import X from 'lucide-react-native/icons/x';
+import Zap from 'lucide-react-native/icons/zap';
 
-/* Reaproveita os paths do protótipo verbatim via SvgXml (sem lib de ícones). */
+/* ============================================================
+   ÍCONES
+
+   Eram 68 paths desenhados à mão, herdados do protótipo. Serviram
+   enquanto o app tinha vinte telas; com sessenta, cada ícone novo virava
+   uma decisão de desenho, e os que existiam iam ficando desiguais — o
+   halter lia como uma seta de tanto colapsar em 19px.
+
+   Agora vêm do Lucide, que é a mesma família geométrica do que já estava
+   aqui: grade de 24, traço aberto, pontas redondas. A troca é invisível
+   na maioria dos ícones e conserta os que não estavam funcionando.
+
+   A API não mudou: as telas continuam pedindo `<Icon name="water" />`.
+   O mapa abaixo é a única coisa que sabe o nome do ícone lá dentro, então
+   trocar de biblioteca de novo é reescrever este arquivo e mais nada.
+
+   Import por arquivo, e não do índice: o índice traz os 1839 ícones da
+   biblioteca para o bundle, e a gente usa 68.
+   ============================================================ */
+const MAPA: Record<string, React.ComponentType<any>> = {
+  home: House,
+  journey: Flag,
+  plus: Plus,
+  evolution: TrendingUp,
+  companion: MessageCircle,
+  back: ChevronLeft,
+  x: X,
+  chev: ChevronRight,
+  check: Check,
+  water: GlassWater,
+  flame: Flame,
+  moon: Moon,
+  bolt: Zap,
+  mood: FaceSlightlySmiling,
+  meh: FaceNeutral,
+  full: Soup,
+  gut: Toilet,
+  pill: Pill,
+  syringe: Syringe,
+  scale: Scale,
+  camera: Camera,
+  target: Target,
+  cal: Calendar,
+  clock: Clock,
+  steth: Stethoscope,
+  send: Send,
+  sun: Sun,
+  aura: Sparkles,
+  doc: FileText,
+  ruler: Ruler,
+  photo: Image,
+  reset: RotateCcw,
+  chart: ChartLine,
+  trend: TrendingUp,
+  bell: Bell,
+  book: BookOpen,
+  spark: Sparkle,
+  drop2: Droplet,
+  leaf: Leaf,
+  arrowdown: ArrowDown,
+  arrowup: ArrowUp,
+  dose: PillBottle,
+  info: Info,
+  play: Play,
+  chevdown: ChevronDown,
+  chevup: ChevronUp,
+  user: User,
+  activity: Activity,
+  barchart: ChartColumn,
+  brain: Brain,
+  dumbbell: Dumbbell,
+  waves: WavesHorizontal,
+  cupcake: CakeSlice,
+  rocket: Rocket,
+  shield: ShieldCheck,
+  filter: Funnel,
+  trophy: Trophy,
+  bulb: Lightbulb,
+  thumbup: ThumbsUp,
+  thumbdown: ThumbsDown,
+  palette: Palette,
+  logout: LogOut,
+  gear: Settings,
+  heart: Heart,
+  pencil: Pencil,
+  utensils: Utensils,
+  frown: FaceSlightlyFrowning,
+  lock: Lock,
+};
+
 export const Icon = memo(function Icon({
   name, size = 20, color = '#0F2E38', sw = 1.7,
 }: { name: string; size?: number; color?: string; sw?: number }) {
-  const body = (P[name] || '').replace(/currentColor/g, color);
-  const xml =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" ` +
-    `fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
-  return <SvgXml xml={xml} width={size} height={size} />;
+  const Glifo = MAPA[name];
+  if (!Glifo) return null;
+  return <Glifo size={size} color={color} strokeWidth={sw} />;
 });

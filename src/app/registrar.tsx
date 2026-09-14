@@ -55,11 +55,17 @@ export default function Registrar() {
   const stk = streak(S);
 
   /* Tinta e véu do banner do check-in. Sobre o azul saturado a tinta é
-     branca; sobre a lavagem verde, o verde escuro do par — os mesmos dois
-     tons que o selo "verde" usa nas telas internas. O véu das pastilhas é
-     a tinta a 12%, e não uma terceira cor. */
-  const tinta = fez ? c.ok : c.accentInk;
-  const veu = fez ? 'rgba(60,107,44,0.12)' : 'rgba(255,255,255,0.18)';
+     branca; sobre o lima, a tinta quase preta do par — o mesmo par do
+     botão "Fazer check-in" da Home e do número da sequência. O véu das
+     pastilhas é a tinta diluída, e não uma terceira cor.
+
+     O concluído era uma lavagem verde, escolhida para recuar. Virou lima
+     chapado: no app inteiro o lima é a cor do que foi conquistado, e o
+     check-in feito é a conquista diária. Recuar era a leitura certa
+     enquanto ele era só um estado; comemorar é a certa agora que existe
+     uma tela inteira comemorando o mesmo fato. */
+  const tinta = fez ? c.limeInk : c.accentInk;
+  const veu = fez ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.18)';
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
   const acoes = ATALHOS;
@@ -164,7 +170,7 @@ export default function Registrar() {
               concluído virou "Concluído hoje" em vez de repetir "Check-in"
               duas linhas seguidas. */}
           <Pressable onPress={irPara('/checkin')} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1, marginTop: 18 }]}>
-            <View style={{ backgroundColor: fez ? c.okBg : c.accent, borderRadius: radius.lg, padding: 18 }}>
+            <View style={{ backgroundColor: fez ? c.lime : c.accent, borderRadius: radius.lg, padding: 18 }}>
               <Row gap={14}>
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: veu, alignItems: 'center', justifyContent: 'center' }}>
                   {/* Pendente pergunta como foi o dia, e o rosto é o ícone
