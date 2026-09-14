@@ -60,7 +60,7 @@ const UA = process.env.WIKI_UA
 /* Um pedido por segundo. Parece devagar, e é: 224 alimentos levam uns
    oito minutos. A alternativa é ser barrado no meio e não saber quais
    dos duzentos ficaram sem foto. */
-const PAUSA = 1000;
+const PAUSA = process.env.PEXELS_KEY ? 250 : 1000;
 const API = 'https://commons.wikimedia.org/w/api.php';
 const WIKI = 'https://pt.wikipedia.org/w/api.php';
 const PEXELS = 'https://api.pexels.com/v1/search';
@@ -155,6 +155,13 @@ function paraIngles(nome) {
 
 /* Uma foto no Pexels. Devolve no mesmo formato do resto do script para
    o CREDITOS.txt não precisar saber de onde veio. */
+/* A conta grátis do Pexels dá 200 pedidos por hora. Batendo no teto, o
+   script PARA em vez de continuar caindo na Wikipédia: preencher o
+   resto com foto de enciclopédia é justamente o que a chave veio
+   evitar, e os que ficaram de fora entram na próxima rodada — o script
+   pula o que já tem arquivo. */
+class CotaEstourada extends Error {}
+
 async function noPexels(termo) {
   if (!CHAVE) return null;
   const u = new URL(PEXELS);
@@ -162,6 +169,7 @@ async function noPexels(termo) {
     query: termo, per_page: '3', orientation: 'landscape', size: 'medium',
   }).toString();
   const r = await pega(u, { Authorization: CHAVE, 'User-Agent': UA });
+  if (r.status === 429) throw new CotaEstourada();
   if (!r.ok) return null;
   const j = await r.json();
   const foto = (j.photos || [])[0];
@@ -305,6 +313,7 @@ function combina(nomeAlimento, tituloArtigo) {
 const creditos = [];
 const pulados = [];
 let baixadas = 0;
+let cota = false;
 
 const alvo = sos.length ? ALIMENTOS.filter((a) => sos.includes(a.id)) : ALIMENTOS;
 
@@ -317,12 +326,18 @@ for (const a of alvo) {
   /* O PEXELS PRIMEIRO. Ele responde em inglês e responde com comida
      fotografada; a Wikipédia fica de rede de segurança para o que o
      banco não tiver. */
+if (cota) {
+  console.log('');
+  console.log('A cota do Pexels acabou (200 por hora). Rode de novo daqui a uma');
+  console.log('hora: o script pula o que ja tem foto e continua de onde parou.');
+}
   if (CHAVE) {
     const en = paraIngles(a.nome);
     for (const t of [en, en.split(' ').slice(0, 2).join(' ')]) {
       if (!t) continue;
       let px = null;
-      try { px = await noPexels(t); } catch { px = null; }
+      try { px = await noPexels(t); }
+      catch (e) { if (e instanceof CotaEstourada) { cota = true; break; } px = null; }
       if (px) { achou = { pexels: px, lic: px.lic, autor: px.autor, termo: t, artigo: 'Pexels' }; break; }
       await dorme(PAUSA);
     }
@@ -391,6 +406,11 @@ daquela imagem — a tela volta a abrir com o painel de cor.
 fs.writeFileSync(path.join(PASTA, 'CREDITOS.txt'), antes + creditos.join('\n'));
 
 console.log(`\nbaixadas: ${baixadas}`);
+if (cota) {
+  console.log('');
+  console.log('A cota do Pexels acabou (200 por hora). Rode de novo daqui a uma');
+  console.log('hora: o script pula o que já tem foto e continua de onde parou.');
+}
 if (pulados.length) {
   console.log(`sem foto (${pulados.length}):`);
   for (const p of pulados) console.log('  ' + p);
