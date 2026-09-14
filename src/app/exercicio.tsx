@@ -4,13 +4,13 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   checkinToday, fontesDeMovimento, listaPt,
-  diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
+  algumTreino, diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
   semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, CardCurva, Chips, Grade2, Linha, Metrica, Botao,
+  TelaInterna, Titulao, Bloco, Aviso, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -279,30 +279,32 @@ export default function Exercicio() {
       <Bloco titulo="No período" nota="Só o que foi registrado aqui — o que vem do relógio não tem modalidade.">
         <View style={{ gap: 10 }}>
           <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={escolhePeriodo} />
-          {resumo.treinos ? (
-            <View style={{ gap: 10 }}>
-              <Grade2>
-                <Metrica ic="dumbbell" nome="Treinos" para={String(resumo.treinos)} />
-                <Metrica ic="clock" nome="Tempo" para={duracao(resumo.min)} />
-              </Grade2>
-              <Grade2>
-                <Metrica ic="run" nome="Mais longo" para={duracao(resumo.maisLongo)} />
-                <Metrica
-                  ic="shield"
-                  nome="De força"
-                  para={duracao(resumo.forca)}
-                  selo={resumo.forca ? `${Math.round((resumo.forca / resumo.min) * 100)}%` : undefined}
-                  seloTom="verde"
-                />
-              </Grade2>
-            </View>
-          ) : (
-            <Cartao>
-              <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
-                <Txt v="caption" c={c.tx2}>Nenhum treino registrado neste período.</Txt>
-              </View>
-            </Cartao>
-          )}
+          {/* Os quatro aparecem SEMPRE, zerados quando não houve nada.
+
+              Trocar os quadros por uma frase de "nenhum registro" fazia a
+              tela mudar de forma conforme o conteúdo: quem abre num
+              período vazio nunca descobre que ali moram quatro números, e
+              quem registra o primeiro treino vê o layout inteiro pular.
+
+              Zero é um resultado, e é a mesma regra que já vale para água,
+              proteína e exercício no resto do app: o dia começa vazio e
+              isso é a verdade dele, não a ausência dela. */}
+          <View style={{ gap: 10 }}>
+            <Grade2>
+              <Metrica ic="dumbbell" nome="Treinos" para={String(resumo.treinos)} />
+              <Metrica ic="clock" nome="Tempo" para={duracao(resumo.min)} />
+            </Grade2>
+            <Grade2>
+              <Metrica ic="run" nome="Mais longo" para={duracao(resumo.maisLongo)} />
+              <Metrica
+                ic="shield"
+                nome="De força"
+                para={duracao(resumo.forca)}
+                selo={resumo.forca ? `${Math.round((resumo.forca / resumo.min) * 100)}%` : undefined}
+                seloTom="verde"
+              />
+            </Grade2>
+          </View>
         </View>
       </Bloco>
 
@@ -412,16 +414,36 @@ export default function Exercicio() {
               </View>
             ))}
           </View>
+        ) : diaSel != null ? (
+          /* Dia vazio não é falha: pode ter sido descanso, e descanso faz
+             parte de treinar.
+
+             Curto de propósito. A linha logo acima já diz QUAL dia está
+             filtrado e oferece o "Ver tudo" — repetir o nome do dia aqui e
+             ensinar a sair do filtro embaixo de um link que faz isso era
+             a mesma frase escrita duas vezes. */
+          <Aviso
+            ic="cal"
+            titulo="Nenhum treino neste dia"
+            texto="Pode ter sido descanso, e descanso faz parte do plano."
+          />
+        ) : !algumTreino(S) ? (
+          /* Ainda não existe caderno nenhum. Aqui a frase não é sobre o
+             período — é sobre o que este lugar guarda, e por que o total
+             da semana pode ser maior que a lista. */
+          <Aviso
+            ic="dumbbell"
+            titulo="Seu caderno começa no primeiro registro"
+            texto="Os minutos que chegam do relógio contam na sua semana, mas vêm sem modalidade. O que você registrar aqui aparece com a modalidade, a duração e o dia."
+          />
         ) : (
-          <Cartao>
-            <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
-              <Txt v="caption" c={c.tx2}>
-                {diaSel != null
-                  ? 'Nenhum treino registrado neste dia.'
-                  : 'Nada registrado neste período. O que você registrar aparece aqui com a modalidade e a duração.'}
-              </Txt>
-            </View>
-          </Cartao>
+          /* Existe caderno, só não neste recorte. Então a saída é o
+             recorte, e é isso que a frase oferece. */
+          <Aviso
+            ic="cal"
+            titulo="Nada nestes dias"
+            texto="Você tem treinos registrados, mas nenhum nos últimos dias escolhidos. Experimente um período maior."
+          />
         )}
       </Bloco>
 
