@@ -3,14 +3,13 @@ import { View, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
-import { faixaDe, gramasDaFaixa } from '../logic/escalas';
+import { faixaDe } from '../logic/escalas';
 import { itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Icon } from '../ui/Icon';
 import { Grade, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -32,11 +31,17 @@ import { radius } from '../theme';
    é o lado da conta onde cabe uma tabela.
 
    Sobra uma coisa para a pessoa, e é a única que a tabela não pode saber
-   olhando: se a porção foi pouca, normal ou bastante.
+   olhando: quantas unidades de cada coisa tinha no prato.
 
-   E quando a tabela não tem o prato — lasanha, a receita da avó —, o
-   item entra pelo nome e sem conta, dizendo isso. Perder o registro
-   inteiro seria pior, e inventar um número seria voltar ao começo.
+   E quando a tabela não tem o prato — a receita da avó —, o item entra
+   pelo nome e sem conta, dizendo isso. Perder o registro inteiro seria
+   pior, e inventar um número seria voltar ao começo.
+
+   A folha abre para UMA ação, e só para ela. A lista do que já foi
+   registrado hoje morava aqui em cima e saiu: numa tela que abre três
+   vezes por dia, resumo é coisa para passar por cima antes de chegar no
+   que se veio fazer. O total continua na linha embaixo do título — esse
+   não é histórico, é o estado do número que se está prestes a mexer.
    ============================================================ */
 
 /* Cada refeição pelo que se come nela: a xícara, o talher, o sanduíche.
@@ -78,9 +83,6 @@ export default function MedirRefeicao() {
   const ci: any = checkinToday(S);
   const alvo = (S.profile as any).targets.prot as number;
   const hojeProt = Math.round(ci?.prot || 0);
-
-  const t0 = +startOfDay(now());
-  const doDia = (S.meals as any[]).filter((m) => +startOfDay(new Date(m.t)) === t0);
 
   const g = somaDe(itens);
   const semConta = itensDe(itens, 'sem-conta');
@@ -147,34 +149,6 @@ export default function MedirRefeicao() {
         </Pressable>
       )}
     >
-      {/* O que já entrou hoje, encostado na linha do total — as duas
-          coisas falam do mesmo dia, e separadas a fileira ficava boiando
-          entre o cabeçalho e o formulário, sem pertencer a nenhum dos
-          dois. Em branco com fio, e não no cinza de antes: sobre um fundo
-          quase da mesma cor, aquilo era uma mancha, não uma peça.
-
-          E com o check na frente, porque "Almoço · 30 g" sozinho não diz
-          se é o que já foi ou o que falta. O check resolve em um glifo o
-          que um rótulo resolveria em uma linha inteira. */}
-      {doDia.length ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-          {doDia.map((m, i) => (
-            <View
-              key={`${m.t}-${i}`}
-              style={{
-                backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-                borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5,
-              }}
-            >
-              <Row gap={5}>
-                <Icon name="check" size={12} color={c.tx3} sw={2.6} />
-                <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? gramasDaFaixa(m.prot) ?? 0} g</Txt>
-              </Row>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
       <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
       <Grade>
         {HORARIOS.map(([ic, h]) => (

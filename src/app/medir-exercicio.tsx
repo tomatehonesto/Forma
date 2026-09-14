@@ -6,7 +6,6 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
-import { Icon } from '../ui/Icon';
 import { Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -29,8 +28,17 @@ import { radius } from '../theme';
    E a modalidade passou a ser GRAVADA. Ela existia só no rótulo do botão:
    a pessoa escolhia "Musculação", lia "Registrar 30 min de musculação" e
    o registro guardava trinta minutos de nada. Agora cada sessão entra em
-   `treinos`, e a tela mostra o que já foi registrado hoje — sem leitor, o
-   campo seria mais um dado morto.
+   `treinos`.
+
+   Esta tela chegou a listar os treinos do dia aqui em cima, e não lista
+   mais: a folha abre para UMA ação, e resumo no topo é coisa para passar
+   por cima antes de chegar no que se veio fazer. O total do dia fica na
+   linha embaixo do título, que não é histórico — é o estado do número
+   que se está prestes a mexer.
+
+   Com isso `treinos` fica sem leitor por enquanto. É dado guardado
+   esperando a tela que mostra o dia, não dado morto: a distinção é que
+   alguém sabe que ele está lá, e agora está escrito.
    ============================================================ */
 
 /* Cada modalidade com uma pessoa fazendo. Numa lista de dez o desenho é
@@ -74,7 +82,6 @@ export default function MedirExercicio() {
   const ci: any = checkinToday(S);
   const alvo = (S.profile as any).targets.exercMin as number;
   const hoje = ci?.exerc || 0;
-  const treinos: { tipo: string; min: number }[] = ci?.treinos ?? [];
 
   /* "Outro" só vale com nome. Sem isso o registro guardaria a palavra
      "Outro", que não diz mais do que não ter escolhido nada. */
@@ -110,33 +117,6 @@ export default function MedirExercicio() {
         </Pressable>
       )}
     >
-      {/* O que já entrou hoje. É a prova de que a modalidade foi guardada,
-          e o lembrete de quem se mexeu duas vezes e não lembra.
-
-          Mesmo tratamento das pastilhas da refeição: encostadas na linha
-          do total, que fala do mesmo dia, em branco com fio e com o check
-          na frente. No cinza antigo, sobre um fundo quase da mesma cor,
-          elas eram mancha; e sem o check não diziam se era o que já foi
-          ou o que falta. */}
-      {treinos.length ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-          {treinos.map((t, i) => (
-            <View
-              key={`${t.tipo}-${i}`}
-              style={{
-                backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-                borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5,
-              }}
-            >
-              <Row gap={5}>
-                <Icon name="check" size={12} color={c.tx3} sw={2.6} />
-                <Txt v="tag" c={c.tx2}>{t.tipo} · {t.min} min</Txt>
-              </Row>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
       {/* Uma linha, e não um cartão.
 
           O que precisa ser dito é curto: o que a pessoa digitar aqui
