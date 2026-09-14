@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView, Pressable, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
+import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
@@ -67,45 +68,65 @@ const TINTA: Record<string, (c: any) => [string, string]> = {
 /* ============================================================
    O VIDRO QUE SE DESFAZ
 
-   Um BlurView tem uma altura, e onde essa altura acaba o desfoque
-   acaba junto: um corte reto atravessando a foto, que é a coisa que
-   mais denuncia que ali existe uma camada. A referência não tem corte —
-   o desfoque some aos poucos e a foto vai ficando nítida.
+   Um BlurView tem uma altura, e onde essa altura acaba o desfoque acaba
+   junto: um corte reto atravessando a foto, que é a coisa que mais
+   denuncia que existe uma camada ali. O que se quer é um vidro só,
+   forte no alto, que vá ficando transparente até sumir.
 
-   RN não sabe mascarar um blur com degradê sem trazer uma biblioteca de
-   máscara junto. O que dá para fazer sem ela é empilhar: nove camadas de
-   desfoque fraco, cada uma um pouco mais curta que a de cima. No topo as
-   nove se somam; na nona parte de baixo sobra uma só. Cada borda
-   individual é fraca demais para ser vista, e o conjunto lê como uma
-   passagem contínua.
+   E A MESMA IDEIA PRECISA DE DOIS CAMINHOS, um por plataforma:
 
-   E SEM TINTA NENHUMA. A primeira versão pintava cada camada de escuro
-   junto com o desfoque, e o degradê saiu LISTRADO: o olho não percebe
-   degrau de foco, mas percebe degrau de luz na hora. Todo o
-   escurecimento passou para um degradê só, contínuo, que mora logo
-   abaixo destas camadas — aqui só se cuida do foco.
+     web     o próprio desfoque leva uma máscara em degradê no estilo,
+             que é a técnica de "progressive blur" do CSS;
+     nativo  MaskedView, que é o equivalente de lá.
+
+   O MaskedView sozinho não serve porque na web ele não mascara: ele
+   DESENHA o elemento da máscara. O degradê preto que devia recortar o
+   vidro aparecia como um bloco preto cobrindo a foto — e foi assim que
+   eu descobri, olhando a tela em tamanho real depois de três tentativas
+   olhando um print reduzido.
+
+   AS DUAS APROXIMAÇÕES QUE NÃO FUNCIONARAM ficam registradas, porque as
+   duas pareciam boas no papel:
+
+   EMPILHAR CAMADAS de desfoque, cada uma mais curta que a anterior, não
+   soma o bastante. Medido no navegador: nove camadas de intensidade
+   baixa rendiam de 0,8 a 4 px de desfoque cada, quase nada.
+
+   E TODA CAMADA DE VIDRO PINTA UM FUNDO junto, por menor que seja — 1%
+   a 6% de branco cada. Nove delas viram um véu leitoso de 30% por cima
+   da comida, que é exatamente o que o desfoque veio evitar. Não existe
+   vidro sem tinta.
    ============================================================ */
-function VidroDegrade({ altura, camadas = 9 }: { altura: number; camadas?: number }) {
+const MASCARA = 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0) 100%)';
+
+function VidroDegrade({ altura, intensidade = 55 }: { altura: number; intensidade?: number }) {
+  const caixa = { position: 'absolute' as const, left: 0, right: 0, top: 0, height: altura };
+
+  if (Platform.OS === 'web') {
+    return (
+      <BlurView
+        intensity={intensidade}
+        tint="dark"
+        style={[caixa, { maskImage: MASCARA, WebkitMaskImage: MASCARA } as any]}
+      />
+    );
+  }
+
   return (
-    <>
-      {Array.from({ length: camadas }, (_, i) => {
-        /* A camada MAIS ALTA é a mais fraca, e é ela que decide se o
-           degradê tem fim visível: onde ela acaba, o desfoque cai de uma
-           vez para zero, e quanto menos ela desfoca menos esse último
-           passo aparece. As curtas, que ficam só no topo, podem ser
-           fortes — ali embaixo delas há oito outras somando junto. */
-        const altura_i = (altura * (camadas - i)) / camadas;
-        const intensidade = 4 + i * 2;
-        return (
-          <BlurView
-            key={i}
-            intensity={intensidade}
-            tint="default"
-            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura_i }}
-          />
-        );
-      })}
-    </>
+    <MaskedView
+      style={caixa}
+      maskElement={
+        <LinearGradient
+          colors={['#000', '#000', 'rgba(0,0,0,0.5)', 'transparent']}
+          locations={[0, 0.4, 0.72, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ flex: 1 }}
+        />
+      }
+    >
+      <BlurView intensity={intensidade} tint="dark" style={{ flex: 1 }} />
+    </MaskedView>
   );
 }
 
@@ -249,22 +270,18 @@ export default function Alimento() {
         {foto ? (
           <View style={{ flexGrow: 1, minHeight: 260 }}>
             <Image source={foto} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
-            {/* A faixa vai bem além da última linha de texto: as camadas
-                de baixo são fracas e servem só para a passagem, e é
-                precisando de espaço que uma passagem deixa de ser um
-                corte. */}
-            <VidroDegrade altura={alturaVidro + 120} />
-            {/* A passagem do vidro para a foto nítida, e um fio de sombra
-                sob o texto: é o que garante a leitura numa foto clara sem
-                escurecer o prato inteiro. */}
+            {/* A faixa vai bem além da última linha de texto: a passagem
+                precisa de espaço para deixar de ser um corte. */}
+            <VidroDegrade altura={alturaVidro + 140} />
+            {/* Uma sombra a mais, curta e fraca, só atrás do texto. O
+                vidro já escurece — mas ele escurece para dar MATÉRIA, e
+                numa foto clara o branco do texto ainda encosta no branco
+                do fundo. */}
             <LinearGradient
-              colors={[
-                'rgba(0,0,0,0.42)', 'rgba(0,0,0,0.36)', 'rgba(0,0,0,0.22)',
-                'rgba(0,0,0,0.10)', 'rgba(0,0,0,0.03)', 'rgba(0,0,0,0)',
-              ]}
-              locations={[0, 0.34, 0.56, 0.76, 0.9, 1]}
+              colors={['rgba(0,0,0,0.26)', 'rgba(0,0,0,0.12)', 'rgba(0,0,0,0)']}
+              locations={[0, 0.6, 1]}
               start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro + 120 }}
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro }}
             />
             {cabecalho}
           </View>
