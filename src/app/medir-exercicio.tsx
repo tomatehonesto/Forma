@@ -6,6 +6,7 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import { Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -110,15 +111,27 @@ export default function MedirExercicio() {
       )}
     >
       {/* O que já entrou hoje. É a prova de que a modalidade foi guardada,
-          e o lembrete de quem se mexeu duas vezes e não lembra. */}
+          e o lembrete de quem se mexeu duas vezes e não lembra.
+
+          Mesmo tratamento das pastilhas da refeição: encostadas na linha
+          do total, que fala do mesmo dia, em branco com fio e com o check
+          na frente. No cinza antigo, sobre um fundo quase da mesma cor,
+          elas eram mancha; e sem o check não diziam se era o que já foi
+          ou o que falta. */}
       {treinos.length ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 18 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
           {treinos.map((t, i) => (
             <View
               key={`${t.tipo}-${i}`}
-              style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 }}
+              style={{
+                backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+                borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5,
+              }}
             >
-              <Txt v="tag" c={c.tx2}>{t.tipo} · {t.min} min</Txt>
+              <Row gap={5}>
+                <Icon name="check" size={12} color={c.tx3} sw={2.6} />
+                <Txt v="tag" c={c.tx2}>{t.tipo} · {t.min} min</Txt>
+              </Row>
             </View>
           ))}
         </View>

@@ -15,8 +15,19 @@ export function buildSeed() {
   const injDays = [67, 60, 53, 46, 39, 32, 25, 18, 11, 4];
   const sites = ['abd-e', 'abd-d', 'coxa-e', 'coxa-d', 'braco-e', 'braco-d'];
   const injections = injDays.map((d, i) => ({ t: +daysAgo(d), med, dose: i < 4 ? 2.5 : 5, site: sites[i % 6], note: '' }));
-  // check-ins últimos 13 dias (hoje pendente)
-  const checkins: any[] = [];
+  /* Check-ins dos últimos 13 dias — hoje fica pendente de propósito,
+     para a home abrir com o convite de responder.
+
+     Mas HOJE tem um registro mesmo assim, só com os acumuladores: o
+     almoço da semente é de hoje, e refeição registrada move a proteína
+     do dia. Sem esta linha a tela de refeição abria dizendo "0 de 90 g"
+     com uma pastilha de 30 g do lado — duas versões do mesmo dia na
+     mesma tela. Um registro só com agua/prot/exerc não conta como
+     check-in respondido (ver respostaNoDia), então o convite continua
+     de pé. */
+  const checkins: any[] = [
+    { t: +startOfDay(daysAgo(0)), agua: 0, prot: 30, exerc: 0 },
+  ];
   for (let d = 13; d >= 1; d--) {
     const date = daysAgo(d); const wd = date.getDay();
     const postInj = [3, 4, 5, 10, 11, 12].includes(d); // dias logo após aplicar

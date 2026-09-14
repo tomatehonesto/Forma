@@ -10,6 +10,7 @@ import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/c
 import { CameraPrato } from '../ui/CameraPrato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import { Grade, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -150,7 +151,11 @@ export default function MedirRefeicao() {
           coisas falam do mesmo dia, e separadas a fileira ficava boiando
           entre o cabeçalho e o formulário, sem pertencer a nenhum dos
           dois. Em branco com fio, e não no cinza de antes: sobre um fundo
-          quase da mesma cor, aquilo era uma mancha, não uma peça. */}
+          quase da mesma cor, aquilo era uma mancha, não uma peça.
+
+          E com o check na frente, porque "Almoço · 30 g" sozinho não diz
+          se é o que já foi ou o que falta. O check resolve em um glifo o
+          que um rótulo resolveria em uma linha inteira. */}
       {doDia.length ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
           {doDia.map((m, i) => (
@@ -161,7 +166,10 @@ export default function MedirRefeicao() {
                 borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5,
               }}
             >
-              <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? gramasDaFaixa(m.prot) ?? 0} g</Txt>
+              <Row gap={5}>
+                <Icon name="check" size={12} color={c.tx3} sw={2.6} />
+                <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? gramasDaFaixa(m.prot) ?? 0} g</Txt>
+              </Row>
             </View>
           ))}
         </View>
