@@ -28,8 +28,6 @@ import { radius } from '../theme';
    embaixo, longe do número que agora alimentam.
    ============================================================ */
 
-const MAX = 2500;
-
 /* Os recipientes que existem na cozinha de qualquer um. Somam no slider,
    e por isso o rótulo traz o sinal: o que o toque faz é acrescentar. */
 const MEDIDAS: [string, number][] = [
@@ -51,7 +49,16 @@ export default function MedirAgua() {
   const pct = Math.max(0, Math.min(1, atual / alvo));
   const L = (ml: number) => (ml / 1000).toFixed(1).replace('.', ',');
 
-  const somar = (ml: number) => setEscolhido((v) => Math.min(MAX, v + ml));
+  /* O teto é meia meta acima da meta, e sai dela — não de um número fixo:
+     quem tem 3 L de meta merece a mesma folga de quem tem 2.
+
+     Parar na meta exata seria transformar o fim da régua em regra. Quem
+     bebeu mais do que devia num dia quente precisa conseguir dizer isso;
+     um limite que corta a verdade em nome do alvo faz o registro mentir
+     justo no dia em que a pessoa acertou por excesso. */
+  const max = Math.round((alvo * 1.5) / 50) * 50;
+
+  const somar = (ml: number) => setEscolhido((v) => Math.min(max, v + ml));
 
   const beber = (ml: number) => {
     update((s: any) => {
@@ -95,18 +102,19 @@ export default function MedirAgua() {
         </Row>
         <Slider
           value={escolhido}
-          minimumValue={50} maximumValue={MAX} step={50}
+          minimumValue={50} maximumValue={max} step={50}
           onValueChange={setEscolhido}
           minimumTrackTintColor={c.accent}
           maximumTrackTintColor={c.bg2}
           thumbTintColor={c.accent}
           style={{ marginTop: 8, marginHorizontal: -6 }}
         />
+        {/* As duas pontas em ml, como a Quantidade logo acima. Em litros o
+            teto de 3750 aparecia como "3,8 L", arredondado, ao lado de um
+            número exato. */}
         <Row style={{ justifyContent: 'space-between' }}>
           <Txt v="micro" c={c.tx4}>50 ml</Txt>
-          {/* O teto é a meta do dia: quem lembrou de registrar só à noite
-              consegue lançar o dia inteiro sem esbarrar no fim da régua. */}
-          <Txt v="micro" c={c.tx4}>{L(MAX)} L</Txt>
+          <Txt v="micro" c={c.tx4}>{max} ml</Txt>
         </Row>
 
         <Row gap={7} style={{ marginTop: 16, alignItems: 'stretch' }}>
