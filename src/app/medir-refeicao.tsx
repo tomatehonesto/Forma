@@ -13,7 +13,7 @@ import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/c
 import { CameraPrato } from '../ui/CameraPrato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Botao, Chips, Grade, Opc } from '../ui/internas';
+import { Acordeao, Botao, Grade, Linha, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -217,32 +217,6 @@ export default function MedirRefeicao() {
         </>
       )}
 
-      {/* OS FAVORITOS, antes da busca.
-
-          Quem come marmita ou tem rotina repete o mesmo prato — e sem
-          isto remontava item por item, com a mesma quantidade, todo dia.
-          O toque ACRESCENTA ao prato em vez de substituir: almoço de
-          favorito mais uma sobremesa digitada é um caso comum, e
-          substituir apagaria o que já estava ali.
-
-          Só aparece quando existe favorito com prato guardado. Os
-          antigos, que só têm nome, continuam entrando por /alimentacao
-          com o nome escrito na busca — aqui eles não teriam o que
-          acrescentar. */}
-      {!cadastrando && favs.length ? (
-        <>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22, marginBottom: 10 }}>SEUS PRATOS</Txt>
-          <Chips
-            itens={favs.map((f) => ({ id: f.nome, label: f.nome }))}
-            valor={''}
-            onChange={(nome) => {
-              const f = favs.find((x) => x.nome === nome);
-              if (f?.itens) setItens((v) => [...v, ...(f.itens as ItemComida[])]);
-            }}
-          />
-        </>
-      ) : null}
-
       {/* O rótulo da seção e o atalho da câmera na mesma linha. A foto é
           um caminho, não O caminho — como cartão de largura inteira ela
           empurrava a busca para baixo, e é a busca que a maioria usa. */}
@@ -261,6 +235,44 @@ export default function MedirRefeicao() {
             recado={recado || undefined}
             onRemover={() => { setFoto(null); setRecado(null); }}
           />
+        </View>
+      ) : null}
+
+      {/* OS FAVORITOS, fechados.
+
+          Quem come marmita ou tem rotina repete o mesmo prato — e sem
+          isto remontava item por item, com a mesma quantidade, todo dia.
+          O toque ACRESCENTA ao prato em vez de substituir: almoço de
+          favorito mais uma sobremesa digitada é um caso comum, e
+          substituir apagaria o que já estava ali.
+
+          Acordeão e não fileira de chips: com o nome do prato inteiro em
+          cada chip — "Peito de frango grelhado, Arroz integral, Salada
+          de folhas" — a fileira virava uma parede de texto rolando por
+          cima da busca, que é o caminho que a maioria usa. Fechado, ele
+          é uma linha; aberto, é a lista com o que cada prato rende.
+
+          Só aparece quando existe favorito com prato guardado. Os
+          antigos, que só têm nome, continuam entrando por /alimentacao
+          com o nome escrito na busca — aqui eles não teriam o que
+          acrescentar. */}
+      {!cadastrando && favs.length ? (
+        <View style={{ marginBottom: 10 }}>
+          <Acordeao
+            titulo="Pratos favoritos"
+            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
+          >
+            {favs.map((f) => (
+              <Linha
+                key={f.nome}
+                ic="leaf"
+                titulo={f.nome}
+                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
+                seta={false}
+                onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
+              />
+            ))}
+          </Acordeao>
         </View>
       ) : null}
 

@@ -305,6 +305,41 @@ export function Sanfona({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Acordeão — um cartão que guarda conteúdo até ser aberto.
+
+   Diferente da Sanfona, que é uma pilha de linhas que abrem cada uma o
+   seu texto: aqui é UM cartão, com filhos livres dentro. Serve para o
+   atalho que a maioria não usa em toda visita — visível o bastante para
+   ser lembrado, fechado o bastante para não empurrar para baixo o que a
+   maioria veio fazer. */
+export function Acordeao({ titulo, sub, children, aberto: inicial = false }: {
+  titulo: string; sub?: string; children: React.ReactNode; aberto?: boolean;
+}) {
+  const { c } = useTheme();
+  const [aberto, setAberto] = useState(inicial);
+  return (
+    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+      <Pressable onPress={() => setAberto((a) => !a)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+        <Row gap={10} style={{ paddingHorizontal: PAD, paddingVertical: 14 }}>
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed">{titulo}</Txt>
+            {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt> : null}
+          </View>
+          <Icon name={aberto ? 'chevup' : 'chevdown'} size={15} color={c.tx4} sw={2} />
+        </Row>
+      </Pressable>
+      {aberto ? (
+        <>
+          <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginLeft: PAD }} />
+          {children}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 export function SanfonaLinha({
   titulo, selo, seloTom, sub, meta, itens, aberta: inicial = false, onPress,
 }: {

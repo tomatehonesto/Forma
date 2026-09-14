@@ -5,17 +5,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
   apagarFavorito, apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
-  semanaDeProteina, semanasDeProteina,
+  semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
-import { fmtDate, now, startOfDay } from '../logic/time';
+import { now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardCurva, CardSemana, Cartao, Linha, Botao,
-  ItemApagavel, TiraDeDias,
+  TelaInterna, Titulao, Bloco, CardSemana, Botao, ItemApagavel, TiraDeDias,
 } from '../ui/internas';
 import { Chevron } from '../ui/kit';
-import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
 
@@ -71,15 +69,6 @@ export default function Alimentacao() {
     ? Math.round(semana.reduce((x, d) => x + d.g, 0) / diasComRegistro)
     : 0;
 
-  /* A curva só aparece com mais de uma semana registrada: duas semanas
-     vazias e uma cheia não formam tendência, formam um degrau. */
-  const semanas = semanasDeProteina(S, 8);
-  const comHistorico = semanas.filter((w) => w.g > 0).length >= 2;
-  const mediaGeral = (() => {
-    const cheias = semanas.filter((w) => w.g > 0);
-    return cheias.length ? Math.round(cheias.reduce((x, w) => x + w.g, 0) / cheias.length) : 0;
-  })();
-
   const favs = favoritos(S);
 
   const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
@@ -97,59 +86,54 @@ export default function Alimentacao() {
         lead="Aqui não se conta caloria. O que o tratamento pede é proteína, que é o que segura a massa magra enquanto o peso desce."
       />
 
-      <View style={{ gap: 10 }}>
-        {/* O NÚMERO DO DIA, e o que ainda falta dele.
+      {/* O NÚMERO DO DIA, e o que ainda falta dele.
 
-            A barra sozinha dizia a proporção e deixava a conta para a
-            pessoa. "Faltam 34 g" é a mesma informação já resolvida, e é
-            ela que muda o que se almoça. */}
-        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
-          <Row style={{ alignItems: 'flex-start' }}>
-            <View style={{ flex: 1 }}>
-              <Txt v="body">Proteína de hoje</Txt>
-              <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-                {prot === 0
-                  ? `Meta de ${alvo} g`
-                  : falta > 0 ? `Faltam ${falta} g para a meta` : 'Meta do dia alcançada'}
-              </Txt>
-            </View>
-            <Txt v="metric">
-              {prot}
-              <Txt v="label" c={c.tx3}>{` / ${alvo} g`}</Txt>
+          A barra sozinha dizia a proporção e deixava a conta para a
+          pessoa. "Faltam 34 g" é a mesma informação já resolvida, e é ela
+          que muda o que se almoça.
+
+          Embaixo dele morava um botão em gradiente, "Escanear uma
+          refeição". Ele saiu: a câmera já é a primeira coisa da folha de
+          registro, ao lado de "o que tinha no prato", e um segundo botão
+          para ela aqui em cima tirava do número do dia o lugar que é
+          dele. Duas portas para a mesma sala, uma mais chamativa que a
+          porta principal. */}
+      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
+        <Row style={{ alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
+            <Txt v="body">Proteína de hoje</Txt>
+            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
+              {prot === 0
+                ? `Meta de ${alvo} g`
+                : falta > 0 ? `Faltam ${falta} g para a meta` : 'Meta do dia alcançada'}
             </Txt>
-          </Row>
-          <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 14, overflow: 'hidden' }}>
-            <LinearGradient
-              colors={[c.gradFrom, c.gradTo]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={{ width: `${Math.min(100, (prot / alvo) * 100)}%`, height: '100%' }}
-            />
           </View>
-        </View>
-
-        {/* O caminho da foto. Ele tinha esta mesma cara e NENHUM onPress:
-            um botão em gradiente, com ícone de câmera, que não fazia nada
-            ao ser tocado. Agora abre a folha de registro com a câmera já
-            no ar — que é onde ele sempre devia ter ido. */}
-        <Pressable
-          onPress={() => router.push('/medir-refeicao?cam=1' as any)}
-          style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.98 : 1 }] }]}
-        >
+          <Txt v="metric">
+            {prot}
+            <Txt v="label" c={c.tx3}>{` / ${alvo} g`}</Txt>
+          </Txt>
+        </Row>
+        <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 14, overflow: 'hidden' }}>
           <LinearGradient
             colors={[c.gradFrom, c.gradTo]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={{ borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
-          >
-            <Icon name="camera" size={16} color={c.onHero} sw={2} />
-            <Txt v="title" c={c.onHero}>Escanear uma refeição</Txt>
-          </LinearGradient>
-        </Pressable>
+            style={{ width: `${Math.min(100, (prot / alvo) * 100)}%`, height: '100%' }}
+          />
+        </View>
       </View>
 
-      {/* A SEMANA E A TENDÊNCIA — os dois gráficos são um grupo só, com o
-          respiro de cartões irmãos. Separados pelos 26 px que dividem
-          seções eles leriam como dois assuntos. */}
-      <View style={{ gap: 10 }}>
+      {/* A SEMANA, e só ela.
+
+          Aqui teve também a curva de oito semanas, igual à do exercício,
+          e ela saiu. Esta tela responde "o que eu como e quanto falta
+          hoje"; a tendência de dois meses responde "o tratamento está
+          indo", que é pergunta de outra tela. Era a única coisa daqui
+          que não mudava nenhuma decisão sobre o próximo prato, e ficava
+          entre a pessoa e o caderno.
+
+          A semana fica porque ela contextualiza a meta DIÁRIA que se está
+          perseguindo agora: sete barras contra a mesma linha de 90 g. */}
+      <View>
         {/* MÉDIA POR DIA, e não total da semana. A meta com que ela se
             compara é diária: 390 g na semana não é número que alguém
             carregue na cabeça, nem se compara com 90.
@@ -170,23 +154,6 @@ export default function Alimentacao() {
           rotuloMeta={`Meta: ${alvo} g`}
         />
 
-        {comHistorico ? (
-          <CardCurva
-            id="prot"
-            nome="Proteína por semana"
-            /* Curto porque o número grande come a largura: "Média por dia,
-               nas últimas 8 semanas" chegava truncado em "8 sema…". */
-            sub="Média por dia, 8 semanas"
-            valor={String(mediaGeral)}
-            unidade="g"
-            altura={140}
-            pontos={semanas.map((w) => ({
-              v: w.g,
-              rotulo: String(w.g),
-              quando: `semana de ${fmtDate(new Date(w.t))}`,
-            }))}
-          />
-        ) : null}
       </View>
 
       {/* O CADERNO DE REFEIÇÕES — um dia por vez, como o de treino.
@@ -204,7 +171,7 @@ export default function Alimentacao() {
           proteína ao dia, não zera. */}
       <Bloco
         titulo="Caderno de refeições"
-        nota="Toque na lixeira para apagar uma refeição que entrou errada."
+        nota="Toque numa refeição para ver, corrigir ou apagar."
       >
         <View style={{ gap: 10 }}>
           <TiraDeDias
@@ -215,51 +182,50 @@ export default function Alimentacao() {
 
           {doDia.length ? (
             <View style={{ gap: 10 }}>
-              {/* A linha ABRE a refeição, e a lixeira continua ali.
+              {/* A linha ABRE a refeição, e é só isso que ela faz.
 
-                  Só apagar era metade da saída: quem registrou o almoço
-                  como jantar, ou esqueceu a sobremesa, queria corrigir —
-                  e a única alternativa era apagar e montar o prato de
-                  novo. A folha que abre mostra primeiro e oferece as duas
-                  ações depois, igual à de treino. */}
+                  A lixeira morava aqui e foi para dentro da folha. Uma
+                  ação irreversível ao alcance do polegar numa lista que se
+                  rola é um erro esperando acontecer — e, pior, ela era a
+                  ÚNICA saída: quem registrou o almoço como jantar não
+                  queria apagar, queria corrigir. Na folha as duas moram
+                  juntas, depois de a pessoa ver o que está prestes a
+                  mexer. */}
               {doDia.map((m: any, i: number) => (
-                <View key={`${m.t}-${i}`} style={[{ backgroundColor: c.bg1, borderRadius: radius.card }, shadowCard(c)]}>
-                  <ItemApagavel
-                    pergunta={`Apagar ${String(m.name).toLowerCase()} de ${fmtDate(new Date(m.t))}?`}
-                    onApagar={() => update((s: any) => apagarRefeicao(s, m.t, m.g ?? 0))}
-                  >
-                    <Pressable
-                      onPress={() => router.push(`/refeicao?t=${m.t}` as any)}
-                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                    >
-                      <Row style={{ alignItems: 'flex-start' }}>
-                        <View style={{ flex: 1, paddingRight: 10 }}>
-                          <Txt v="body">{m.name}</Txt>
-                          {m.tag && m.tag !== m.name ? (
-                            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.tag}</Txt>
-                          ) : null}
-                          {/* A origem qualifica o número, como nos treinos:
-                              30 g que você escreveu e 30 g que a foto
-                              estimou não se conferem do mesmo jeito.
+                <Pressable
+                  key={`${m.t}-${i}`}
+                  onPress={() => router.push(`/refeicao?t=${m.t}` as any)}
+                  style={({ pressed }) => [
+                    { backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
+                    shadowCard(c),
+                  ]}
+                >
+                  <Row style={{ alignItems: 'flex-start' }}>
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <Txt v="body">{m.name}</Txt>
+                      {m.tag && m.tag !== m.name ? (
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.tag}</Txt>
+                      ) : null}
+                      {/* A origem qualifica o número, como nos treinos: 30 g
+                          que você escreveu e 30 g que a foto estimou não se
+                          conferem do mesmo jeito.
 
-                              A faixa ("proteína alta") saiu. Ela é DERIVADA
-                              dos gramas, e mostrar as duas era o mesmo fato
-                              em duas resoluções ocupando duas pastilhas. */}
-                          <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{origem(m.fonte)}</Txt>
-                        </View>
-                        {/* "de proteína" escrito, e não só "g". Num app que
-                            recusa contar caloria, um grama sem dono é
-                            justamente a dúvida que a tela existe para não
-                            deixar: é o peso do prato? é carboidrato? */}
-                        <View style={{ alignItems: 'flex-end' }}>
-                          <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
-                          <Txt v="micro" c={c.tx4}>de proteína</Txt>
-                        </View>
-                        <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
-                      </Row>
-                    </Pressable>
-                  </ItemApagavel>
-                </View>
+                          A faixa ("proteína alta") saiu. Ela é DERIVADA dos
+                          gramas, e mostrar as duas era o mesmo fato em duas
+                          resoluções ocupando duas pastilhas. */}
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{origem(m.fonte)}</Txt>
+                    </View>
+                    {/* "de proteína" escrito, e não só "g". Num app que
+                        recusa contar caloria, um grama sem dono é justamente
+                        a dúvida que a tela existe para não deixar: é o peso
+                        do prato? é carboidrato? */}
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
+                      <Txt v="micro" c={c.tx4}>de proteína</Txt>
+                    </View>
+                    <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
+                  </Row>
+                </Pressable>
               ))}
               {/* O total do dia embaixo da lista, e não em cima: em cima ele
                   seria um segundo cabeçalho competindo com a tira; embaixo

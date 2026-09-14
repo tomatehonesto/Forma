@@ -1692,35 +1692,6 @@ export function semanaDeProteina(S: State): { t: number; g: number }[] {
   });
 }
 
-/* A MÉDIA POR DIA REGISTRADO, semana a semana.
-
-   Média por dia, e não total da semana: 630 g não é um número que
-   alguém carregue na cabeça, e a meta com que ele se compara é diária.
-
-   E por dia REGISTRADO, não por dia corrido. Um dia sem nenhuma
-   refeição anotada não é um dia de 0 g — é um dia que a pessoa não
-   registrou, e dividir por sete transformaria esquecimento em queda de
-   proteína. É a única regra desta camada que se afasta do "zero é
-   honesto": ali o zero É a resposta do dia; aqui ele seria a resposta
-   errada para uma pergunta sobre média. */
-export function semanasDeProteina(S: State, n = 8): { t: number; g: number }[] {
-  const hoje = +startOfDay(now());
-  const soma = new Array(n).fill(0);
-  const dias = new Array(n).fill(0);
-  for (const c of S.checkins as any[]) {
-    if (c.prot == null) continue;
-    const atras = Math.floor((hoje - c.t) / DAY);
-    if (atras < 0 || atras >= n * 7) continue;
-    const b = n - 1 - Math.floor(atras / 7);
-    soma[b] += c.prot;
-    dias[b] += 1;
-  }
-  return soma.map((s, i) => ({
-    t: hoje - (n - 1 - i) * 7 * DAY,
-    g: dias[i] ? Math.round(s / dias[i]) : 0,
-  }));
-}
-
 /** O dia a que uma refeição pertence — ela guarda a hora, o caderno lê o dia. */
 export const diaDaRefeicao = (m: any) => +startOfDay(new Date(m.t));
 

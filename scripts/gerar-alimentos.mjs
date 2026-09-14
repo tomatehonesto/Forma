@@ -177,6 +177,31 @@ const L = [
   [558, 'amendoim', 'Amendoim', 'amendoim', 30, 1, 'punhado', 'punhados'],
   [null, 'pasta-amendoim', 'Pasta de amendoim', 'pasta de amendoim peanut', 20, 1, 'colher', 'colheres', 25, 'rótulo'],
   [579, 'pacoca', 'Paçoca', 'pacoca amendoim doce', 25, 1, 'unidade', 'unidades'],
+  [587, 'amendoa', 'Amêndoas', 'amendoa amendoas nuts', 30, 1, 'punhado', 'punhados'],
+
+  /* --- o café da manhã e o lanche, que era onde a tabela era mais rala
+
+     Ela nasceu virada para o almoço e o jantar: 124 linhas e quase
+     nenhuma do que se come às oito da manhã ou às quatro da tarde.
+     Quem foi procurar granola não achou — e não achar é pior do que
+     achar um valor aproximado, porque manda a pessoa embora da tela.
+
+     A TACO não tem granola, barra de proteína nem cottage: são produtos
+     de marca, e cada marca tem o seu número. Eles entram como os que já
+     estavam de fora (leite, whey, pasta de amendoim), com valor de
+     rótulo e dizendo que é de rótulo. --------------------------------- */
+  [null, 'granola', 'Granola', 'granola aveia mel cereal barra', 12, 3, 'colher', 'colheres', 9, 'rótulo'],
+  [null, 'cottage', 'Queijo cottage', 'cottage queijo branco fresco', 50, 2, 'colher', 'colheres', 11, 'rótulo'],
+  [null, 'barra-proteina', 'Barra de proteína', 'barra de proteina protein bar', 45, 1, 'unidade', 'unidades', 33, 'rótulo'],
+  [485, 'ovo-codorna', 'Ovo de codorna', 'ovo codorna ovinho', 10, 4, 'unidade', 'unidades'],
+  [63, 'torrada', 'Torrada', 'torrada pao torrado', 8, 2, 'fatia', 'fatias'],
+  [13, 'biscoito-salgado', 'Biscoito cream cracker', 'biscoito salgado cream cracker agua e sal bolacha', 6, 4, 'unidade', 'unidades'],
+  [9, 'biscoito-recheado', 'Biscoito recheado', 'biscoito recheado bolacha doce', 15, 3, 'unidade', 'unidades'],
+  [16, 'bolo-chocolate', 'Bolo de chocolate', 'bolo chocolate fatia doce', 60, 1, 'fatia', 'fatias'],
+  [61, 'pipoca', 'Pipoca', 'pipoca milho estourado', 30, 1, 'porção', 'porções'],
+  [495, 'chocolate', 'Chocolate ao leite', 'chocolate barra ao leite bombom', 25, 1, 'porção', 'porções'],
+  [215, 'suco-laranja', 'Suco de laranja', 'suco laranja natural', 200, 1, 'copo', 'copos'],
+  [139, 'palmito', 'Palmito em conserva', 'palmito conserva pupunha', 30, 3, 'tolete', 'toletes'],
 ];
 
 const porId = new Map(TACO.map((x) => [x.id, x]));
@@ -336,8 +361,11 @@ const COMPOSTOS = [
    'prato', 'pratos', [[7, 40], [null, 200, 3.2, 'leite TBCA']]],
   ['vitamina-banana', 'Vitamina de banana', 'vitamina batida de banana leite',
    'copo', 'copos', [[null, 200, 3.2, 'leite TBCA'], [182, 90], [7, 20]]],
+  /* A granola era o id 25 da TACO, que é "Cereal matinal, milho" — flocos
+     de milho com nome de granola. Agora ela é o item de fora, com o valor
+     de rótulo, e os dois pratos dizem a mesma coisa sobre a mesma coisa. */
   ['acai-tigela', 'Açaí na tigela', 'acai tigela com granola',
-   'tigela', 'tigelas', [[168, 250], [25, 30], [182, 60]]],
+   'tigela', 'tigelas', [[168, 250], [null, 30, 9, 'granola rótulo'], [182, 60]]],
 ];
 
 const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) => {

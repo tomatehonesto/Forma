@@ -175,6 +175,19 @@ export const ALIMENTOS: Alimento[] = [
   { id: 'amendoim', nome: 'Amendoim', busca: 'amendoim', p: 22.5, gUn: 30, qtd: 1, un: 'punhado', unp: 'punhados', taco: 558 }, /* Amendoim, torrado, salgado */
   { id: 'pasta-amendoim', nome: 'Pasta de amendoim', busca: 'pasta de amendoim peanut', p: 25, gUn: 20, qtd: 1, un: 'colher', unp: 'colheres', fonte: 'rótulo' }, /* rótulo */
   { id: 'pacoca', nome: 'Paçoca', busca: 'pacoca amendoim doce', p: 16, gUn: 25, qtd: 1, un: 'unidade', unp: 'unidades', taco: 579 }, /* Paçoca, amendoim */
+  { id: 'amendoa', nome: 'Amêndoas', busca: 'amendoa amendoas nuts', p: 18.6, gUn: 30, qtd: 1, un: 'punhado', unp: 'punhados', taco: 587 }, /* Amêndoa, torrada, salgada */
+  { id: 'granola', nome: 'Granola', busca: 'granola aveia mel cereal barra', p: 9, gUn: 12, qtd: 3, un: 'colher', unp: 'colheres', fonte: 'rótulo' }, /* rótulo */
+  { id: 'cottage', nome: 'Queijo cottage', busca: 'cottage queijo branco fresco', p: 11, gUn: 50, qtd: 2, un: 'colher', unp: 'colheres', fonte: 'rótulo' }, /* rótulo */
+  { id: 'barra-proteina', nome: 'Barra de proteína', busca: 'barra de proteina protein bar', p: 33, gUn: 45, qtd: 1, un: 'unidade', unp: 'unidades', fonte: 'rótulo' }, /* rótulo */
+  { id: 'ovo-codorna', nome: 'Ovo de codorna', busca: 'ovo codorna ovinho', p: 13.7, gUn: 10, qtd: 4, un: 'unidade', unp: 'unidades', taco: 485 }, /* Ovo, de codorna, inteiro, cru */
+  { id: 'torrada', nome: 'Torrada', busca: 'torrada pao torrado', p: 10.5, gUn: 8, qtd: 2, un: 'fatia', unp: 'fatias', taco: 63 }, /* Torrada, pão francês */
+  { id: 'biscoito-salgado', nome: 'Biscoito cream cracker', busca: 'biscoito salgado cream cracker agua e sal bolacha', p: 10.1, gUn: 6, qtd: 4, un: 'unidade', unp: 'unidades', taco: 13 }, /* Biscoito, salgado, cream cracker */
+  { id: 'biscoito-recheado', nome: 'Biscoito recheado', busca: 'biscoito recheado bolacha doce', p: 6.4, gUn: 15, qtd: 3, un: 'unidade', unp: 'unidades', taco: 9 }, /* Biscoito, doce, recheado com chocolate */
+  { id: 'bolo-chocolate', nome: 'Bolo de chocolate', busca: 'bolo chocolate fatia doce', p: 6.2, gUn: 60, qtd: 1, un: 'fatia', unp: 'fatias', taco: 16 }, /* Bolo, pronto, chocolate */
+  { id: 'pipoca', nome: 'Pipoca', busca: 'pipoca milho estourado', p: 9.9, gUn: 30, qtd: 1, un: 'porção', unp: 'porções', taco: 61 }, /* Pipoca, com óleo de soja, sem sal */
+  { id: 'chocolate', nome: 'Chocolate ao leite', busca: 'chocolate barra ao leite bombom', p: 7.2, gUn: 25, qtd: 1, un: 'porção', unp: 'porções', taco: 495 }, /* Chocolate, ao leite */
+  { id: 'suco-laranja', nome: 'Suco de laranja', busca: 'suco laranja natural', p: 0.7, gUn: 200, qtd: 1, un: 'copo', unp: 'copos', taco: 215 }, /* Laranja, pêra, suco */
+  { id: 'palmito', nome: 'Palmito em conserva', busca: 'palmito conserva pupunha', p: 2.5, gUn: 30, qtd: 3, un: 'tolete', unp: 'toletes', taco: 139 }, /* Palmito, pupunha, em conserva */
   { id: 'carbonara', nome: 'Macarrão à carbonara', busca: 'carbonara massa bacon ovo', p: 9.5, gUn: 295, qtd: 1, un: 'prato', unp: 'pratos', fonte: 'soma TACO 40×180g÷2,2 + 489×55g + 439×40g + 464×20g' }, /* soma TACO 40×180g÷2,2 + 489×55g + 439×40g + 464×20g */
   { id: 'macarrao-alho', nome: 'Macarrão ao alho e óleo', busca: 'macarrao alho e oleo massa simples', p: 6.2, gUn: 190, qtd: 1, un: 'prato', unp: 'pratos', fonte: 'soma TACO 40×180g÷2,2 + 464×10g' }, /* soma TACO 40×180g÷2,2 + 464×10g */
   { id: 'macarrao-queijos', nome: 'Macarrão aos quatro queijos', busca: 'macarrao quatro queijos massa', p: 9.3, gUn: 275, qtd: 1, un: 'prato', unp: 'pratos', fonte: 'soma TACO 40×170g÷2,2 + 463×45g + 464×20g + 447×40g' }, /* soma TACO 40×170g÷2,2 + 463×45g + 464×20g + 447×40g */
@@ -223,7 +236,7 @@ export const ALIMENTOS: Alimento[] = [
   { id: 'sopa-carne', nome: 'Sopa de carne com legumes', busca: 'sopa de carne legumes musculo', p: 11.7, gUn: 270, qtd: 1, un: 'prato', unp: 'pratos', fonte: 'soma TACO 371×90g + 546×180g' }, /* soma TACO 371×90g + 546×180g */
   { id: 'mingau-aveia', nome: 'Mingau de aveia', busca: 'mingau de aveia leite overnight', p: 5, gUn: 240, qtd: 1, un: 'prato', unp: 'pratos', fonte: 'soma TACO 7×40g + leite TBCA×200g' }, /* soma TACO 7×40g + leite TBCA×200g */
   { id: 'vitamina-banana', nome: 'Vitamina de banana', busca: 'vitamina batida de banana leite', p: 3.3, gUn: 310, qtd: 1, un: 'copo', unp: 'copos', fonte: 'soma TACO leite TBCA×200g + 182×90g + 7×20g' }, /* soma TACO leite TBCA×200g + 182×90g + 7×20g */
-  { id: 'acai-tigela', nome: 'Açaí na tigela', busca: 'acai tigela com granola', p: 1.4, gUn: 340, qtd: 1, un: 'tigela', unp: 'tigelas', fonte: 'soma TACO 168×250g + 25×30g + 182×60g' }, /* soma TACO 168×250g + 25×30g + 182×60g */
+  { id: 'acai-tigela', nome: 'Açaí na tigela', busca: 'acai tigela com granola', p: 1.6, gUn: 340, qtd: 1, un: 'tigela', unp: 'tigelas', fonte: 'soma TACO 168×250g + granola rótulo×30g + 182×60g' }, /* soma TACO 168×250g + granola rótulo×30g + 182×60g */
 ];
 
 /** "2 colheres", "1 filé" — o plural só quando é mais de um. */
