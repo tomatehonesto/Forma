@@ -1,13 +1,30 @@
 import React, { memo } from 'react';
+
+/* O Tabler ao lado do Lucide, e só para as modalidades de exercício.
+
+   O Lucide tem uma única figura humana em quase duas mil peças — a
+   `person-standing`, parada de braços abertos —, então caminhada virava
+   pegada, corrida virava velocímetro e natação virava onda: o objeto ou o
+   rastro no lugar de quem se mexeu. O Tabler desenha a pessoa fazendo, e
+   desenha no mesmo grid de 24 com traço redondo de 2, então as duas
+   bibliotecas convivem sem que a diferença apareça.
+
+   Os dois que sobraram em objeto não existem como gente em lugar nenhum
+   do Tabler: não há ninguém levantando peso nem ninguém em cima de uma
+   bicicleta. Barra e bicicleta são o que essas duas modalidades têm de
+   reconhecível. */
+import IconBarbell from '@tabler/icons-react-native/IconBarbell';
+import IconBike from '@tabler/icons-react-native/IconBike';
+import IconGymnastics from '@tabler/icons-react-native/IconGymnastics';
+import IconRun from '@tabler/icons-react-native/IconRun';
+import IconStretching from '@tabler/icons-react-native/IconStretching';
+import IconStretching2 from '@tabler/icons-react-native/IconStretching2';
+import IconSwimming from '@tabler/icons-react-native/IconSwimming';
+import IconWalk from '@tabler/icons-react-native/IconWalk';
+import IconYoga from '@tabler/icons-react-native/IconYoga';
+
 import Activity from 'lucide-react-native/icons/activity';
-import Bike from 'lucide-react-native/icons/bike';
 import Ellipsis from 'lucide-react-native/icons/ellipsis';
-import Flower from 'lucide-react-native/icons/flower';
-import Footprints from 'lucide-react-native/icons/footprints';
-import Gauge from 'lucide-react-native/icons/gauge';
-import Link from 'lucide-react-native/icons/link';
-import UnfoldVertical from 'lucide-react-native/icons/unfold-vertical';
-import PersonStanding from 'lucide-react-native/icons/person-standing';
 import ArrowDown from 'lucide-react-native/icons/arrow-down';
 import ArrowUp from 'lucide-react-native/icons/arrow-up';
 import Bell from 'lucide-react-native/icons/bell';
@@ -163,22 +180,19 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   utensils: Utensils,
   frown: FaceSlightlyFrowning,
   lock: Lock,
-  /* As modalidades de exercício. Corrida é o velocímetro e não um bicho
-     correndo: o Lucide só tem coelho para "rápido", e coelho numa tela de
-     tratamento lê como piada. */
-  footprints: Footprints,
-  gauge: Gauge,
-  bike: Bike,
-  flower: Flower,
-  person: PersonStanding,
-  /* Alongamento são as duas setas que se afastam, e não o `accessibility`
-     do Lucide: aquele é a figura dentro do círculo, o mesmo desenho da
-     placa de cadeirante. Usado para uma modalidade, dizia da pessoa uma
-     coisa que a tela não sabe. */
-  stretch: UnfoldVertical,
+  /* As modalidades de exercício, em gente fazendo (Tabler). Nomeadas
+     pelo desenho e não pela modalidade, como o resto do mapa: `lunge` é
+     a pessoa em avanço, e quem escolhe o que ela representa é a tela. */
+  walk: IconWalk,
+  run: IconRun,
+  swim: IconSwimming,
+  yoga: IconYoga,
+  gymnastics: IconGymnastics,
+  stretch: IconStretching,
+  lunge: IconStretching2,
+  barbell: IconBarbell,
+  bike: IconBike,
   more: Ellipsis,
-  /* Conta de fora ligada à de dentro. */
-  link: Link,
 };
 
 export const Icon = memo(function Icon({

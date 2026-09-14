@@ -6,7 +6,6 @@ import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
-import { Icon } from '../ui/Icon';
 import { Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -33,17 +32,24 @@ import { radius } from '../theme';
    campo seria mais um dado morto.
    ============================================================ */
 
-/* Cada modalidade com o seu desenho: numa lista de onze, o glifo é o que
-   a pessoa encontra antes de ler. */
+/* Cada modalidade com uma pessoa fazendo. Numa lista de dez o desenho é
+   o que se encontra antes de ler, e o desenho tem que ser do movimento —
+   pegada, velocímetro e onda diziam do rastro, do aparelho e da água, em
+   vez de dizer de quem se mexeu.
+
+   Musculação fica na barra em vez do halter que o app usa para
+   "Exercício" em toda parte: o mesmo glifo para a categoria e para uma
+   das modalidades dentro dela daria a impressão de que musculação é o
+   exercício e o resto é outra coisa. */
 const TIPOS: [string, string][] = [
-  ['footprints', 'Caminhada'],
-  ['gauge', 'Corrida'],
-  ['dumbbell', 'Musculação'],
+  ['walk', 'Caminhada'],
+  ['run', 'Corrida'],
+  ['barbell', 'Musculação'],
   ['bike', 'Bike'],
-  ['waves', 'Natação'],
-  ['flower', 'Yoga'],
-  ['person', 'Pilates'],
-  ['activity', 'Funcional'],
+  ['swim', 'Natação'],
+  ['yoga', 'Yoga'],
+  ['gymnastics', 'Pilates'],
+  ['lunge', 'Funcional'],
   ['stretch', 'Alongamento'],
   ['more', 'Outro'],
 ];
@@ -87,7 +93,8 @@ export default function MedirExercicio() {
   return (
     <SheetScreen
       titulo="Como você se movimentou?"
-      sub={`${hoje} de ${alvo} min hoje`}
+      /* A fonte automática qualifica o NÚMERO, então mora junto dele. */
+      sub={`${hoje} de ${alvo} min hoje${fonte ? ' · já com o ' + fonte : ''}`}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -117,26 +124,22 @@ export default function MedirExercicio() {
         </View>
       ) : null}
 
-      {/* Quando já existe uma fonte automática, a tela diz isso ANTES do
-          formulário: sem o aviso a pessoa registra o que o telefone já
-          contou, e o dia fecha com o dobro do que aconteceu. O erro caro
-          desta tela nunca foi esquecer, é somar duas vezes.
+      {/* Uma linha, e não um cartão.
 
-          Na mesma superfície dos outros cartões, com o elo de conexão. Em
-          azul e com a seta circular, o aviso lia como observação que o app
-          faz SOBRE a pessoa — e não é: é um fato da configuração dela, da
-          mesma natureza que "sua meta é 60 min". */}
+          O que precisa ser dito é curto: o que a pessoa digitar aqui
+          ENTRA SOMANDO, e quem tem o telefone contando sozinho pode
+          fechar o dia com o dobro do que aconteceu. Mas ícone, título em
+          negrito e parágrafo dentro de uma caixa arredondada são a
+          anatomia de um cartão de insight — a forma diz "o app concluiu
+          algo sobre você" antes de o texto dizer qualquer coisa, e isso
+          aqui é só um fato da configuração dela.
+
+          Sem caixa, sem ícone, sem título: uma frase logo abaixo do
+          número que ela explica. */}
       {fonte ? (
-        <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 18, gap: 5 }}>
-          <Row gap={8}>
-            <Icon name="link" size={15} color={c.tx3} sw={2} />
-            <Txt v="label" style={{ flex: 1 }}>O {fonte} já registra por você</Txt>
-          </Row>
-          <Txt v="caption" c={c.tx3}>
-            Os treinos chegam sozinhos, e o número aí em cima já conta com eles. O que você
-            registrar aqui soma por cima.
-          </Txt>
-        </View>
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
+          O que você registrar aqui soma ao que ele já contou.
+        </Txt>
       ) : null}
 
       {/* O mesmo título com fonte ou sem ela. A versão de antes trocava
