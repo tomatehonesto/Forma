@@ -1896,3 +1896,128 @@ tortilla-espanhola.jpg — Tortilha espanhola
   licença: Pexels License
   origem:  https://www.pexels.com/photo/delicious-argentine-tortilla-with-aioli-on-slate-plate-34490390/
   buscado por: "spanish potato omelette tortilla" em Pexels
+lombo.jpg — Lombo de porco assado
+  arquivo: Sliced roasted meat with tomatoes and onions on a wooden board. Perfect for BBQ lovers.
+  autor:   Evgeniy Alekseyev
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/savory-grilled-meat-on-wooden-tray-7333173/
+  buscado por: "roasted pork tenderloin cooked slices" em Pexels
+
+figado.jpg — Fígado acebolado
+  arquivo: Juicy grilled steak garnished with sliced red onions, highlighting savory flavors.
+  autor:   Sergej  *****
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/grilled-steak-with-red-onions-close-up-37414039/
+  buscado por: "beef liver steak cooked onion" em Pexels
+
+leite.jpg — Leite
+  arquivo: A woman pours milk into a glass of coffee on a wooden table, focused on brewing.
+  autor:   Kübra Arslaner
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/woman-making-ice-coffee-13387139/
+  buscado por: "pouring milk into glass" em Pexels
+
+palmito.jpg — Palmito em conserva
+  arquivo: A minimalist composition featuring an open canned fish with a fork on a decorative white cutting board.
+  autor:   Leeloo The First
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/canned-food-on-a-tray-5595423/
+  buscado por: "palmito palm hearts canned" em Pexels
+
+x-salada.jpg — X-salada
+  arquivo: A mouthwatering plate of mini burgers perfect for appetizers or snacks at any gathering.
+  autor:   Vidal Balielo Jr.
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/mini-burgers-on-plate-18354206/
+  buscado por: "hamburger sandwich cheese lettuce" em Pexels
+
+esfiha.jpg — Esfiha de carne
+  arquivo: A baker arranging meat-topped flatbreads on a wooden board in a bakery setting.
+  autor:   Yasin Onuş
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/baker-preparing-traditional-meat-topped-flatbreads-37290084/
+  buscado por: "sfiha open meat pastry" em Pexels
+
+sopa-feijao.jpg — Caldo de feijão
+  arquivo: Hearty homemade bean soup garnished with green onions served in a white bowl.
+  autor:   IARA MELO
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/delicious-homemade-bean-soup-in-white-bowl-30635687/
+  buscado por: "bean soup bowl" em Pexels
+
+smoothie-proteico.jpg — Smoothie de banana com whey
+  arquivo: A delicious banana and berry smoothie topped with chia seeds, accompanied by fresh fruits and a magazine.
+  autor:   The Lazy Artist Gallery
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/three-bananas-near-a-fruit-shake-1438080/
+  buscado por: "banana protein shake glass" em Pexels
+
+frango-xadrez.jpg — Frango xadrez
+  arquivo: A vibrant and delicious cashew chicken stir fry, perfect for a healthy meal.
+  autor:   Horizon Content
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/food-meal-in-white-ceramic-bowl-3763792/
+  buscado por: "chicken cashew stir fry" em Pexels
+
+arroz-frito.jpg — Arroz frito com ovo
+  arquivo: Vibrant flame-grilled salmon served on vegetable fried rice, set against a striking black background.
+  autor:   Alondra Medina
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/fire-above-meal-cooking-in-wok-11129150/
+  buscado por: "egg fried rice wok" em Pexels
+
+chili-carne.jpg — Chili com carne
+  arquivo: A bowl of hearty Mexican chili topped with avocado, served with tortilla on a wooden table.
+  autor:   Magda Ehlers
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/hearty-mexican-chili-with-tortilla-and-avocado-32667184/
+  buscado por: "chili con carne bowl" em Pexels
+
+kebab-carne.jpg — Kebab de carne
+  arquivo: Close-up of a hearty Turkish wrap served with crispy fries and dipping sauce.
+  autor:   Shawkat Galib
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/doner-fries-and-pide-behind-15202777/
+  buscado por: "doner kebab wrap" em Pexels
+
+tikka-masala.jpg — Frango tikka masala
+  arquivo: Vibrant Indian curries in bowls on a dark rustic table, ideal for food enthusiasts.
+  autor:   Alberta Studios
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/bowls-of-mouth-watering-indian-food-on-a-wooden-table-10508207/
+  buscado por: "chicken tikka masala curry" em Pexels
+
+curry-grao-de-bico.jpg — Curry de grão-de-bico
+  arquivo: Delicious close-up of Chana Masala, a flavorful Indian dish garnished with mint and onion.
+  autor:   Muhammad  Khawar Nazir
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-of-chana-masala-9287032/
+  buscado por: "chickpea curry bowl" em Pexels
+
+paella-frutos-do-mar.jpg — Paella de frutos do mar
+  arquivo: A vibrant and flavorful seafood paella served in a pan with mussels and shrimp.
+  autor:   Marcelo Verfe
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/seafood-paella-with-lobster-16743486/
+  buscado por: "seafood paella pan" em Pexels
+
+quiche-queijo.jpg — Quiche de queijo
+  arquivo: Sliced homemade quiche with a golden crust, perfect for a savory treat.
+  autor:   Bia Metidieri
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/delicious-homemade-quiche-with-crispy-crust-34318142/
+  buscado por: "cheese quiche slice" em Pexels
+
+wrap-frango.jpg — Wrap de frango
+  arquivo: Tasty chicken wrap filled with creamy sauce on a wooden cutting board.
+  autor:   Valeria Boltneva
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/wrap-with-meat-and-sauce-15913640/
+  buscado por: "chicken wrap tortilla" em Pexels
+
+ceviche-peixe.jpg — Ceviche de peixe
+  arquivo: A vibrant dish of ceviche served on a white plate with colorful garnishes, offering fresh flavors.
+  autor:   Thibault Luycx
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/food-on-white-ceramic-plate-3975044/
+  buscado por: "fish ceviche with lime" em Pexels

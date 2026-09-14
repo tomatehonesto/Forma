@@ -8,7 +8,6 @@ import {
   semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
-import { ALIMENTOS } from '../logic/alimentos';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
@@ -245,24 +244,6 @@ export default function Alimentacao() {
         </View>
       </Bloco>
 
-      {/* A TABELA, aberta para ser lida.
-
-          Ela já existia inteira dentro da folha de registro, e só
-          aparecia enquanto alguém montava um prato — três resultados por
-          vez, cada um dizendo uma linha de proteína e sumindo em
-          seguida. Quem quis saber quanta proteína tem um ovo sem estar
-          registrando um ovo não tinha onde olhar. */}
-      <Bloco titulo="Consultar alimentos">
-        <Cartao>
-          <Linha
-            ic="book"
-            titulo="Tabela de alimentos"
-            sub={`${ALIMENTOS.length} alimentos e pratos, com proteína, caloria e o resto do rótulo`}
-            onPress={() => router.push('/alimentos' as any)}
-          />
-        </Cartao>
-      </Bloco>
-
       {/* OS FAVORITOS — o atalho de quem repete a mesma comida.
 
           Eles abrem a folha de registro com o nome já escrito, em vez de
@@ -319,6 +300,33 @@ export default function Alimentacao() {
             texto="Cadastre um prato que você repete e ele entra com um toque."
           />
         )}
+      </Bloco>
+
+      {/* EXPLORAR, e não consultar uma tabela.
+
+          Ela já existia inteira dentro da folha de registro, e só
+          aparecia enquanto alguém montava um prato — três resultados por
+          vez, cada um dizendo uma linha de proteína e sumindo em
+          seguida. Quem quis saber quanta proteína tem um ovo sem estar
+          registrando um ovo não tinha onde olhar.
+
+          O convite não diz mais quantos alimentos são. Duzentos e vinte
+          e quatro é um número que impressiona quem construiu e não diz
+          nada a quem vai usar: ninguém abre uma tabela porque ela é
+          grande, abre porque quer saber de UM alimento.
+
+          E fica DEPOIS dos favoritos, que é a ordem do que se faz: o
+          número do dia, o que eu comi, o que eu repito, e por último o
+          passeio. */}
+      <Bloco titulo="Explorar alimentos">
+        <Cartao>
+          <Linha
+            ic="book"
+            titulo="O que tem em cada comida"
+            sub="Procure um alimento e veja a proteína, a caloria e o resto do rótulo"
+            onPress={() => router.push('/alimentos' as any)}
+          />
+        </Cartao>
       </Bloco>
     </TelaInterna>
   );

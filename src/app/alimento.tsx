@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
@@ -106,6 +107,10 @@ export default function Alimento() {
   const naPorcao = (v: number | null) =>
     v == null ? null : Math.round((v / 100) * a.gUn * a.qtd * 10) / 10;
 
+  /* Até onde o vidro desce: a barra, a pílula e a frase, mais um dedo
+     de folga para a transição não encostar na última linha de texto. */
+  const alturaVidro = insets.top + 216;
+
   const cabecalho = (
     <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 56 }}>
       <Row style={{ justifyContent: 'space-between' }}>
@@ -121,40 +126,62 @@ export default function Alimento() {
         <View style={{ width: 36 }} />
       </Row>
 
-      <View style={{
-        alignSelf: 'flex-start', marginTop: 40,
-        backgroundColor: c.onHeroLine, borderRadius: radius.pill,
-        paddingHorizontal: 12, paddingVertical: 6,
-      }}>
-        <Txt v="caption" c={c.onHero}>por 100 g</Txt>
-      </View>
+      {/* A pílula de vidro, como a da referência: um pedaço da própria
+          imagem desfocado, com um fio branco de borda. */}
+      <BlurView
+        intensity={40}
+        tint="light"
+        style={{
+          alignSelf: 'flex-start', marginTop: 40, overflow: 'hidden',
+          borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)',
+        }}
+      >
+        <Txt v="caption" c={c.onHero} style={{ paddingHorizontal: 13, paddingVertical: 6 }}>
+          Porção de 100 g
+        </Txt>
+      </BlurView>
 
+      {/* TUDO NESTA LINHA É SOBRE O DESTAQUE.
+
+          A caloria morava aqui, embaixo do valor do nutriente, e criava
+          uma dúvida legítima: os "25% do que se recomenda por dia" eram
+          sobre a vitamina ou sobre as calorias? Eram sobre a vitamina —
+          e a resposta certa não é explicar melhor, é tirar a caloria
+          daqui. Ela já está no cartão, ao lado do nome, uma vez só. */}
+      {/* O VALOR NA LINHA DO TÍTULO, e a explicação numa linha só dela.
+
+          Os três estavam em duas colunas, e a frase da esquerda acabava
+          exatamente onde o número da direita começava — encostados, num
+          texto que já é branco sobre foto. Na referência o número divide
+          a linha com o título e o texto miúdo corre por baixo dos dois,
+          com a largura inteira. */}
       <Row style={{ marginTop: 12, alignItems: 'flex-end' }}>
-        <View style={{ flex: 1, paddingRight: 12 }}>
-          <Txt v="display" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>
-            {d ? `Muita ${nutriente}` : a.nome}
-          </Txt>
-          <Txt v="caption" c={c.onHero2} style={{ marginTop: 4 }}>
-            {d ? `${d.pct}% do que se recomenda por dia` : 'Valores por 100 g'}
-          </Txt>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          {d ? <Txt v="h2" c={c.onHero}>{n1(d.valor)}{d.un}</Txt> : null}
-          <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-            {a.kcal == null ? 'sem caloria medida' : `${a.kcal} kcal`}
-          </Txt>
-        </View>
+        <Txt v="display" c={c.onHero} style={{ flex: 1, paddingRight: 12, fontSize: 28, lineHeight: 34 }}>
+          {d ? `Muita ${nutriente}` : a.nome}
+        </Txt>
+        {d ? <Txt v="h2" c={c.onHero}>{n1(d.valor)}{d.un}</Txt> : null}
       </Row>
+      <Txt v="caption" c={c.onHero2} style={{ marginTop: 4 }}>
+        {d ? `${d.pct}% do que uma pessoa precisa por dia` : 'Valores por 100 g'}
+      </Txt>
     </View>
   );
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg1 }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        {/* O TOPO: foto quando a prateleira tem uma, painel de cor quando
-            não tem. O véu escuro por cima da foto não é estilo — sem ele
-            o texto branco some num tomate claro. */}
-        {/* QUEM ESTICA É O TOPO, E O TEXTO FICA NO ALTO DELE.
+        {/* O DESFOQUE NO LUGAR DO VÉU.
+
+            Antes era um degradê preto por cima da foto inteira, que dava
+            leitura ao custo de escurecer a comida — e a comida é o motivo
+            de a foto existir. Na referência só a FAIXA DE CIMA é
+            desfocada, e a metade de baixo fica nítida: o texto ganha um
+            fundo uniforme sem que a imagem perca o brilho.
+
+            O vidro vai só até onde o texto vai, e passa para a foto
+            nítida por um degradê — um corte reto ali viraria uma tarja.
+
+            QUEM ESTICA É O TOPO, E O TEXTO FICA NO ALTO DELE.
 
             Duas correções em cima da mesma coisa. A primeira: quem
             crescia para encostar na base era o CARTÃO, e sobrava uma
@@ -174,11 +201,23 @@ export default function Alimento() {
         {foto ? (
           <View style={{ flexGrow: 1, minHeight: 260 }}>
             <Image source={foto} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} contentFit="cover" />
+            {/* Intensidade 52, e não 34. O morango é uma foto clara, e a
+                 30 e poucos o branco do texto encostava no branco do
+                 fundo — o vidro tem de escurecer o que está ATRÁS DO
+                 TEXTO, que é diferente de escurecer a foto toda. */}
+            <BlurView
+              intensity={52}
+              tint="dark"
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro }}
+            />
+            {/* A passagem do vidro para a foto nítida, e um fio de sombra
+                sob o texto: é o que garante a leitura numa foto clara sem
+                escurecer o prato inteiro. */}
             <LinearGradient
-              colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0.30)', 'rgba(0,0,0,0.68)']}
-              locations={[0, 0.45, 1]}
+              colors={['rgba(0,0,0,0.34)', 'rgba(0,0,0,0.16)', 'rgba(0,0,0,0)']}
+              locations={[0, 0.74, 1]}
               start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-              style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: alturaVidro + 40 }}
             />
             {cabecalho}
           </View>
