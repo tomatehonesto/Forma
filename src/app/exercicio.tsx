@@ -366,7 +366,16 @@ export default function Exercicio() {
             E navega: tocar num dia filtra o caderno para ele, tocar de
             novo solta. Sem isso, achar o que foi feito no dia 3 num
             período de três meses é rolagem. */}
-        <View style={{ gap: 12 }}>
+        {/* A tira e o dia que ela escolhe no mesmo empilhamento, com o
+            mesmo respiro que separa os chips dos quadros no bloco de
+            cima: são controle e conteúdo, não duas seções.
+
+            Estavam colados em 0px porque este View já existia — com gap —
+            para separar a tira da linha de "Mostrando só ontem · Ver
+            tudo". Com a linha fora ele passou a embrulhar um filho só, o
+            gap virou enfeite, e o cartão do dia caiu como irmão do Bloco,
+            que não espaça nada: cada seção decide o próprio respiro. */}
+        <View style={{ gap: 10 }}>
           {/* Em ordem, e rolada até o fim assim que mede: a tira nasce
               mostrando HOJE, que é onde a pessoa está, em vez de três meses
               atrás. Tentei antes com row-reverse, que inverte o desenho mas
@@ -464,45 +473,41 @@ export default function Exercicio() {
               );
             })}
           </ScrollView>
+
+          {doDia.length ? (
+            <Cartao>
+              {/* A seta abre a folha do treino: ela MOSTRA, e só depois
+                  oferece corrigir e apagar. Abrir o formulário direto era
+                  rápido e errado — quem toca num treino ainda não decidiu
+                  mexer nele, pode estar só conferindo o que foi aquele dia. */}
+              {doDia.map((t) => (
+                <Linha
+                  key={`${t.t}-${t.i}`}
+                  ic={t.ic}
+                  titulo={t.tipo}
+                  /* A origem entra aqui e não numa segunda linha: ela
+                     qualifica a duração — 50 min que você digitou e 50 min
+                     que o relógio contou não se conferem do mesmo jeito — e
+                     é ao lado do número que ela é lida. */
+                  sub={`${t.min} min · ${t.fonte}`}
+                  onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
+                />
+              ))}
+            </Cartao>
+          ) : (
+            /* Dia sem treino não é falha: pode ter sido descanso, e
+               descanso faz parte de treinar. Uma frase só, e curta — quem
+               escolheu um dia na tira já sabe qual dia é, e a explicação
+               de por que o total da semana pode ser maior que esta lista
+               mora na nota do bloco de cima, que é onde ela qualifica um
+               número de verdade. */
+            <Vazio
+              ic="dumbbell"
+              titulo="Nenhum treino neste dia"
+              texto="Descanso também faz parte."
+            />
+          )}
         </View>
-
-        {doDia.length ? (
-          <Cartao>
-            {/* A seta abre a folha do treino: ela MOSTRA, e só depois
-                oferece corrigir e apagar. Abrir o formulário direto era
-                rápido e errado — quem toca num treino ainda não decidiu
-                mexer nele, pode estar só conferindo o que foi aquele dia. */}
-            {doDia.map((t) => (
-              <Linha
-                key={`${t.t}-${t.i}`}
-                ic={t.ic}
-                titulo={t.tipo}
-                /* A origem entra aqui e não numa segunda linha: ela
-                   qualifica a duração — 50 min que você digitou e 50 min
-                   que o relógio contou não se conferem do mesmo jeito — e é
-                   ao lado do número que ela é lida. */
-                sub={`${t.min} min · ${t.fonte}`}
-                onPress={() => router.push(`/treino?t=${t.t}&i=${t.i}` as any)}
-              />
-            ))}
-          </Cartao>
-        ) : (
-          /* Um vazio só, com três frases possíveis — e a segunda linha só
-             aparece quando existe uma saída para oferecer.
-
-             Quem nunca registrou nada não recebe linha nenhuma. Ali eu
-             tinha escrito um parágrafo explicando o que o caderno guarda
-             e por que o total da semana pode ser maior que a lista; era
-             verdade, e mesmo assim atrapalhava — chegava antes de haver
-             qualquer interesse na resposta, no lugar onde a pessoa está
-             tentando ver os treinos dela. A explicação já mora na nota do
-             bloco de cima, que é onde ela qualifica um número de verdade. */
-          <Vazio
-            ic="dumbbell"
-            titulo="Nenhum treino neste dia"
-            texto="Descanso também faz parte."
-          />
-        )}
       </Bloco>
 
       {/* Um atalho, e não uma explicação. Este bloco chegou a se chamar
