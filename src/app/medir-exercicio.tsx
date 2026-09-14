@@ -3,9 +3,10 @@ import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday, registroDoDia } from '../logic/derive';
+import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import { Opcoes, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -19,8 +20,8 @@ import { radius } from '../theme';
    quem nada, pedala ou dança não se via ali, e quem caminhou 40 minutos
    tinha que escolher entre mentir 30 ou mentir 45.
 
-   Agora a modalidade é uma lista larga com "Outro" por escrito, e o tempo
-   é um slider de 5 em 5 até três horas. Os quatro números viraram atalhos
+   Agora a modalidade é uma lista larga com ícone e "Outro" por escrito, e
+   o tempo é um slider de 5 em 5 até três horas. Os quatro números viraram atalhos
    que POSICIONAM o slider — diferente da água, onde os recipientes somam:
    lá a pessoa junta copos até o total do gole; aqui a duração é uma coisa
    só, e 15 + 30 não é um treino de 45.
@@ -32,9 +33,19 @@ import { radius } from '../theme';
    campo seria mais um dado morto.
    ============================================================ */
 
-const TIPOS = [
-  'Caminhada', 'Corrida', 'Musculação', 'Bike', 'Natação',
-  'Dança', 'Yoga', 'Pilates', 'Funcional', 'Alongamento', 'Outro',
+/* Cada modalidade com o seu desenho: numa lista de onze, o glifo é o que
+   a pessoa encontra antes de ler. */
+const TIPOS: [string, string][] = [
+  ['footprints', 'Caminhada'],
+  ['gauge', 'Corrida'],
+  ['dumbbell', 'Musculação'],
+  ['bike', 'Bike'],
+  ['waves', 'Natação'],
+  ['flower', 'Yoga'],
+  ['person', 'Pilates'],
+  ['activity', 'Funcional'],
+  ['body', 'Alongamento'],
+  ['more', 'Outro'],
 ];
 const OUTRO = 'Outro';
 
@@ -52,6 +63,7 @@ export default function MedirExercicio() {
   const [outro, setOutro] = useState('');
   const [min, setMin] = useState(30);
 
+  const fonte = fonteDeMovimento(S);
   const ci: any = checkinToday(S);
   const alvo = (S.profile as any).targets.exercMin as number;
   const hoje = ci?.exerc || 0;
@@ -105,10 +117,32 @@ export default function MedirExercicio() {
         </View>
       ) : null}
 
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>O QUE VOCÊ FEZ</Txt>
+      {/* Quando já existe uma fonte automática, a tela diz isso ANTES do
+          formulário. Sem esse aviso a pessoa registra o que o telefone já
+          contou, e o dia fecha com o dobro do que aconteceu — o erro mais
+          caro aqui não é esquecer, é somar duas vezes. */}
+      {fonte ? (
+        <View style={{
+          backgroundColor: c.accentWeak, borderRadius: radius.lg,
+          padding: 16, marginTop: 18, gap: 5,
+        }}>
+          <Row gap={8}>
+            <Icon name="reset" size={15} color={c.accent} sw={2} />
+            <Txt v="label" c={c.accent} style={{ flex: 1 }}>O {fonte} já registra por você</Txt>
+          </Row>
+          <Txt v="caption" c={c.tx2}>
+            Os treinos chegam sozinhos, e o número aí em cima já conta com eles. O que você
+            registrar aqui soma por cima.
+          </Txt>
+        </View>
+      ) : null}
+
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>
+        {fonte ? 'ADICIONAR À MÃO' : 'O QUE VOCÊ FEZ'}
+      </Txt>
       <Opcoes>
-        {TIPOS.map((t) => (
-          <Opc key={t} label={t} on={tipo === t} onPress={() => setTipo(t)} />
+        {TIPOS.map(([ic, t]) => (
+          <Opc key={t} ic={ic} label={t} on={tipo === t} onPress={() => setTipo(t)} />
         ))}
       </Opcoes>
 

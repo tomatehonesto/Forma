@@ -1,5 +1,12 @@
 import React, { memo } from 'react';
+import Accessibility from 'lucide-react-native/icons/accessibility';
 import Activity from 'lucide-react-native/icons/activity';
+import Bike from 'lucide-react-native/icons/bike';
+import Ellipsis from 'lucide-react-native/icons/ellipsis';
+import Flower from 'lucide-react-native/icons/flower';
+import Footprints from 'lucide-react-native/icons/footprints';
+import Gauge from 'lucide-react-native/icons/gauge';
+import PersonStanding from 'lucide-react-native/icons/person-standing';
 import ArrowDown from 'lucide-react-native/icons/arrow-down';
 import ArrowUp from 'lucide-react-native/icons/arrow-up';
 import Bell from 'lucide-react-native/icons/bell';
@@ -155,6 +162,16 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   utensils: Utensils,
   frown: FaceSlightlyFrowning,
   lock: Lock,
+  /* As modalidades de exercício. Corrida é o velocímetro e não um bicho
+     correndo: o Lucide só tem coelho para "rápido", e coelho numa tela de
+     tratamento lê como piada. */
+  footprints: Footprints,
+  gauge: Gauge,
+  bike: Bike,
+  flower: Flower,
+  person: PersonStanding,
+  body: Accessibility,
+  more: Ellipsis,
 };
 
 export const Icon = memo(function Icon({

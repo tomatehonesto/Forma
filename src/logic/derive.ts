@@ -1433,6 +1433,27 @@ export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicaca
    Home e do companion, que são leitura, não botão. */
 export const ATALHOS: QuickKey[] = ['agua', 'refeicao', 'exercicio'];
 
+/* Quais integrações trazem MOVIMENTO. Balança e Withings ficam de fora:
+   elas pesam, não contam passo.
+
+   A ordem é a de quem costuma ser a fonte principal — o telefone antes do
+   relógio, porque o relógio manda para ele. */
+const FONTES_MOVIMENTO: [string, string][] = [
+  ['appleHealth', 'Apple Saúde'],
+  ['healthConnect', 'Health Connect'],
+  ['googleFit', 'Google Fit'],
+  ['garmin', 'Garmin'],
+  ['fitbit', 'Fitbit'],
+  ['watch', 'seu smartwatch'],
+];
+
+/** O nome da fonte que já registra exercício sozinha, ou null. */
+export function fonteDeMovimento(S: State): string | null {
+  const i: any = (S as any).integrations || {};
+  const achou = FONTES_MOVIMENTO.find(([k]) => i[k]);
+  return achou ? achou[1] : null;
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };

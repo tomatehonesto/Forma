@@ -669,7 +669,14 @@ export function Opcoes({ children }: { children: React.ReactNode }) {
   return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{children}</View>;
 }
 
-export function Opc({ label, on, onPress }: { label: string; on?: boolean; onPress?: () => void }) {
+/* `ic` troca o check por um glifo próprio. Vale quando a lista é de
+   COISAS e não de sim/não: onze modalidades de exercício se reconhecem
+   pelo desenho antes do nome, e o estado já é dito pela cor da borda, do
+   fundo e do próprio ícone. Com check E ícone seriam três sinais para uma
+   informação só. */
+export function Opc({ label, ic, on, onPress }: {
+  label: string; ic?: string; on?: boolean; onPress?: () => void;
+}) {
   const { c } = useTheme();
   return (
     <Pressable
@@ -684,7 +691,9 @@ export function Opc({ label, on, onPress }: { label: string; on?: boolean; onPre
           com os vizinhos para se ler como "marcado"; o check diz sozinho,
           sem precisar do resto da lista ao lado. */}
       <Row gap={7}>
-        {on ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
+        {ic
+          ? <Icon name={ic} size={15} color={on ? c.accent : c.tx3} sw={1.9} />
+          : on ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
         <Txt v="label" c={on ? c.accent : c.tx2}>{label}</Txt>
       </Row>
     </Pressable>
