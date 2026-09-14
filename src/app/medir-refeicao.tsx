@@ -4,8 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
 import { faixaDe, gramasDaFaixa } from '../logic/escalas';
-import { type Porcao } from '../logic/alimentos';
-import { itensDe, nomeItem, somaDe, type ItemComida } from '../logic/prato';
+import { itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
@@ -39,7 +38,15 @@ import { radius } from '../theme';
    inteiro seria pior, e inventar um número seria voltar ao começo.
    ============================================================ */
 
-const HORARIOS = ['Café da manhã', 'Almoço', 'Lanche', 'Jantar'];
+/* As horas do dia em ordem, e o sol contando elas: nasce, fica a pino,
+   cai, some. A lua é o sono no resto do app, mas nesta fileira ela lê
+   como noite — quem dá o sentido é a família, não o glifo sozinho. */
+const HORARIOS: [string, string][] = [
+  ['sunrise', 'Café da manhã'],
+  ['sun', 'Almoço'],
+  ['sunset', 'Lanche'],
+  ['moon', 'Jantar'],
+];
 
 export default function MedirRefeicao() {
   const S = useStore((s) => s.S);
@@ -150,8 +157,8 @@ export default function MedirRefeicao() {
 
       <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
       <Grade>
-        {HORARIOS.map((h) => (
-          <Opc key={h} cheia label={h} on={quando === h} onPress={() => setQuando(h)} />
+        {HORARIOS.map(([ic, h]) => (
+          <Opc key={h} cheia ic={ic} label={h} on={quando === h} onPress={() => setQuando(h)} />
         ))}
       </Grade>
 
@@ -177,11 +184,11 @@ export default function MedirRefeicao() {
           onChange={setBusca}
           jaTem={itens.map((it) => it.id).filter(Boolean) as string[]}
           onEscolher={(a) => {
-            setItens((v) => [...v, { id: a.id, porcao: 'normal' }]);
+            setItens((v) => [...v, { id: a.id, qtd: qtdPadrao(a.id) }]);
             setBusca('');
           }}
           onLivre={(nome) => {
-            setItens((v) => [...v, { nome, porcao: 'normal' }]);
+            setItens((v) => [...v, { nome, qtd: 1 }]);
             setBusca('');
           }}
         />
@@ -193,7 +200,7 @@ export default function MedirRefeicao() {
             <ItemAlimento
               key={`${it.id || it.nome}-${i}`}
               item={it}
-              onPorcao={(p: Porcao) => setItens((v) => v.map((x, j) => (j === i ? { ...x, porcao: p } : x)))}
+              onQtd={(q: number) => setItens((v) => v.map((x, j) => (j === i ? { ...x, qtd: q } : x)))}
               onRemover={() => setItens((v) => v.filter((_, j) => j !== i))}
             />
           ))}

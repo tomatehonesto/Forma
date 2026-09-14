@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Pressable, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
-import { PORCOES, buscarAlimento, gramasDe, type Alimento, type Porcao } from '../logic/alimentos';
-import { gramasItem, medidaItem, nomeItem, origemDe, type ItemComida } from '../logic/prato';
+import { buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alimentos';
+import { gramasItem, medidaItem, nomeItem, ressalvaItem, origemDe, type ItemComida } from '../logic/prato';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
@@ -36,10 +36,17 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
 
   return (
     <View>
+      {/* O exemplo ensina o que a lista aceita. "Frango, arroz, ovo"
+          dizia só que dá para digitar comida; com um prato inteiro no
+          fim, a frase mostra que carbonara também é uma resposta — e essa
+          é a parte que ninguém descobre sozinho.
+
+          Curto porque precisa caber: a 19 px, num campo de 316, o texto
+          some pela direita antes de terminar de ensinar. */}
       <TextInput
         value={valor}
         onChangeText={onChange}
-        placeholder="Frango, arroz, ovo…"
+        placeholder="Arroz, frango, carbonara…"
         placeholderTextColor={c.tx4}
         style={[ty.body, {
           color: c.tx, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
@@ -66,7 +73,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
               >
                 <View style={{ flex: 1 }}>
                   <Txt v="label" numberOfLines={1}>{a.nome}</Txt>
-                  <Txt v="micro" c={c.tx4}>{a.medida} · ~{gramasDe(a, 'normal')} g de proteína</Txt>
+                  <Txt v="micro" c={c.tx4}>{medidaDe(a, a.qtd)} · ~{gramasDe(a, a.qtd)} g de proteína</Txt>
                 </View>
                 <Icon name="plus" size={16} color={c.accent} sw={2.4} />
               </Row>
@@ -75,10 +82,11 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
         </View>
       ) : null}
 
-      {/* A tabela tem 124 alimentos e o Brasil tem mais. Sem esta saída,
-          quem comeu lasanha ficava sem registrar a refeição — e perder o
-          registro inteiro é pior do que registrar sem o número. Entra com
-          nome e sem conta, dito com todas as letras. */}
+      {/* A tabela tem 144 alimentos e o Brasil tem mais. Sem esta saída,
+          quem comeu uma receita de família ficava sem registrar a
+          refeição — e perder o registro inteiro é pior do que registrar
+          sem o número. Entra com nome e sem conta, dito com todas as
+          letras. */}
       {semPar ? (
         <Pressable onPress={() => onLivre(escrito)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Row gap={10} style={{
@@ -99,15 +107,32 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
 
 /* ------------------------------------------------------------------ */
 
-/** Um item do prato, com o tamanho da porção e o que ele soma. */
-export function ItemAlimento({ item, onPorcao, onRemover }: {
+const MAX = 20;
+
+function Passo({ nome, on, onPress }: { nome: string; on: boolean; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <Pressable onPress={on ? onPress : undefined} hitSlop={6} style={({ pressed }) => [{ opacity: pressed && on ? 0.6 : 1 }]}>
+      <View style={{
+        width: 30, height: 30, borderRadius: radius.sm,
+        backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name={nome} size={15} color={on ? c.tx2 : c.tx4} sw={2.4} />
+      </View>
+    </Pressable>
+  );
+}
+
+/** Um item do prato, com quantas unidades e o que ele soma. */
+export function ItemAlimento({ item, onQtd, onRemover }: {
   item: ItemComida;
-  onPorcao: (p: Porcao) => void;
+  onQtd: (q: number) => void;
   onRemover: () => void;
 }) {
   const { c } = useTheme();
   const nome = nomeItem(item);
-  const origem = origemDe(item);
+  const ressalva = ressalvaItem(item);
+  const conta = origemDe(item) !== 'sem-conta';
   if (!nome) return null;
 
   return (
@@ -118,44 +143,34 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
       <Row gap={10}>
         <View style={{ flex: 1 }}>
           <Txt v="label" numberOfLines={1}>{nome}</Txt>
-          {/* Ou a medida caseira, ou a confissão de que o número saiu da
-              foto e não da tabela. As duas coisas cabem na mesma linha
-              porque são a mesma pergunta: de onde veio isso. */}
-          <Txt v="micro" c={c.tx4}>{medidaItem(item)}</Txt>
+          {/* Só o que foge do normal se anuncia. Escrever "da tabela" em
+              toda linha seria avisar em todas para alertar sobre nenhuma. */}
+          {ressalva ? <Txt v="micro" c={c.tx4}>{ressalva}</Txt> : null}
         </View>
         <Pressable onPress={onRemover} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
           <Icon name="x" size={15} color={c.tx4} sw={2.2} />
         </Pressable>
       </Row>
 
-      {/* A pergunta que a pessoa consegue responder. Ninguém sabe quantos
-          gramas de proteína tem um filé; todo mundo sabe se o pedaço foi
-          grande ou pequeno. A conta difícil fica com a tabela.
+      {/* Contar unidades, e não escolher um tamanho de porção. "Quantas
+          colheres de arroz?" é uma pergunta sobre o que aconteceu no
+          prato; "a porção foi normal?" era uma pergunta sobre uma régua
+          que a pessoa nunca viu.
 
-          Sem número por trás, a porção não muda nada — então ela nem
-          aparece. Pedir "pouca ou bastante" de uma coisa que vale zero
-          seria pedir à toa. */}
-      {origem === 'sem-conta' ? null : (
-      <Row gap={6}>
-        {PORCOES.map((p) => {
-          const on = item.porcao === p.id;
-          return (
-            <Pressable key={p.id} onPress={() => onPorcao(p.id)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-              <View style={{
-                backgroundColor: on ? c.accentWeak : c.bg2,
-                borderWidth: 1, borderColor: on ? c.accentLine : 'transparent',
-                borderRadius: radius.sm, paddingVertical: 7, alignItems: 'center',
-              }}>
-                <Txt v="tag" c={on ? c.accent : c.tx3}>{p.label}</Txt>
-              </View>
-            </Pressable>
-          );
-        })}
-        <View style={{ width: 52, alignItems: 'flex-end', justifyContent: 'center' }}>
-          <Txt v="tag" c={c.tx2}>~{gramasItem(item)} g</Txt>
-        </View>
-      </Row>
-      )}
+          Sem número por trás, o contador nem aparece: multiplicar zero
+          por três continua dando zero, e pedir isso seria pedir à toa. */}
+      {conta ? (
+        <Row gap={8}>
+          <Passo nome="minus" on={item.qtd > 1} onPress={() => onQtd(item.qtd - 1)} />
+          <View style={{ minWidth: 92, alignItems: 'center' }}>
+            <Txt v="caption" c={c.tx}>{medidaItem(item)}</Txt>
+          </View>
+          <Passo nome="plus" on={item.qtd < MAX} onPress={() => onQtd(item.qtd + 1)} />
+          <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
+            <Txt v="tag" c={c.tx2}>~{gramasItem(item)} g</Txt>
+          </View>
+        </Row>
+      ) : null}
     </View>
   );
 }

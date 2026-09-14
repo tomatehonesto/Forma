@@ -1,21 +1,24 @@
-import { ALIMENTOS, PORCOES, gramasDe, type Alimento, type Porcao } from './alimentos';
+import { ALIMENTOS, gramasDe, medidaDe, type Alimento } from './alimentos';
 
 /* ============================================================
    O PRATO MONTADO
 
    Um item do prato vem de um de dois lugares, e o tipo diz de qual:
 
-     { id: 'peito-frango', porcao }        da tabela — a TACO responde
-     { nome: '…', base: 22, porcao }       livre — quem viu a foto responde
+     { id: 'arroz', qtd: 4 }                  da tabela — a TACO responde
+     { nome: '…', base: 22, qtd: 1 }          livre — quem viu a foto responde
+     { nome: '…', qtd: 1 }                    anotado, sem conta
 
-   O segundo caso existe porque a tabela tem 76 alimentos e o Brasil tem
-   mais: escondidinho, virado à paulista, a receita da avó. Quando a foto
-   reconhece um prato que a tabela não tem, o item entra assim mesmo, com
-   o número que o analisador estimou — e a tela DIZ que foi assim, porque
-   esse número não tem a procedência que o outro tem.
+   `qtd` é quantas UNIDADES daquele alimento: quatro colheres de arroz,
+   um filé de frango, duas fatias de queijo. Antes era um tamanho
+   abstrato de porção — pouca, normal, bastante —, que pedia à pessoa
+   comparar o prato dela com uma régua que só o app conhecia. Contar
+   colheres é uma coisa que ela viu acontecer.
 
-   O que os dois casos têm em comum é o que importa: a porção continua
-   sendo escolhida pela pessoa, e a soma continua sendo uma só.
+   O terceiro caso existe porque a tabela tem 144 alimentos e o Brasil
+   tem mais. O item entra pelo nome e diz que não conta — perder o
+   registro inteiro seria pior, e inventar o número seria voltar ao
+   começo.
    ============================================================ */
 
 export type ItemComida = {
@@ -23,9 +26,10 @@ export type ItemComida = {
   id?: string;
   /** Nome livre, quando não há par na tabela. */
   nome?: string;
-  /** Proteína de uma porção normal, em gramas. Só para item livre. */
+  /** Proteína de UMA porção, em gramas. Só para item livre contado. */
   base?: number;
-  porcao: Porcao;
+  /** Quantas unidades. */
+  qtd: number;
 };
 
 export type Origem = 'tabela' | 'estimado' | 'sem-conta';
@@ -45,18 +49,28 @@ export function nomeItem(it: ItemComida): string {
   return alimentoDe(it.id)?.nome ?? it.nome ?? '';
 }
 
-/** A medida caseira, ou a confissão de onde o número veio — ou não veio. */
+/** Quantos, e de quê: "4 colheres", "1 filé", "2 porções". */
 export function medidaItem(it: ItemComida): string {
   const a = alimentoDe(it.id);
-  if (a) return a.medida;
-  return it.base != null ? 'estimado pela foto' : 'ainda não entra na conta';
+  if (a) return medidaDe(a, it.qtd);
+  return `${it.qtd} ${it.qtd === 1 ? 'porção' : 'porções'}`;
+}
+
+/** A procedência do número, quando ela precisa ser dita. Item de tabela
+    não diz nada: é o caso normal, e anunciá-lo seria ruído em todas as
+    linhas para avisar sobre nenhuma. */
+export function ressalvaItem(it: ItemComida): string | null {
+  switch (origemDe(it)) {
+    case 'estimado': return 'estimado pela foto';
+    case 'sem-conta': return 'ainda não entra na conta';
+    default: return null;
+  }
 }
 
 export function gramasItem(it: ItemComida): number {
   const a = alimentoDe(it.id);
-  if (a) return gramasDe(a, it.porcao);
-  const k = PORCOES.find((p) => p.id === it.porcao)!.k;
-  return Math.round((it.base ?? 0) * k);
+  if (a) return gramasDe(a, it.qtd);
+  return Math.round((it.base ?? 0) * Math.max(0, it.qtd));
 }
 
 export function somaDe(itens: ItemComida[]): number {
@@ -66,4 +80,9 @@ export function somaDe(itens: ItemComida[]): number {
 /** Itens do prato numa dada origem. */
 export function itensDe(itens: ItemComida[], origem: Origem): ItemComida[] {
   return itens.filter((it) => origemDe(it) === origem);
+}
+
+/** Quantas unidades esse alimento traz ao entrar na lista. */
+export function qtdPadrao(id: string): number {
+  return alimentoDe(id)?.qtd ?? 1;
 }

@@ -66,6 +66,7 @@ import Pencil from 'lucide-react-native/icons/pencil';
 import Pill from 'lucide-react-native/icons/pill';
 import PillBottle from 'lucide-react-native/icons/pill-bottle';
 import Play from 'lucide-react-native/icons/play';
+import Minus from 'lucide-react-native/icons/minus';
 import Plus from 'lucide-react-native/icons/plus';
 import Rocket from 'lucide-react-native/icons/rocket';
 import RotateCcw from 'lucide-react-native/icons/rotate-ccw';
@@ -79,6 +80,8 @@ import Sparkle from 'lucide-react-native/icons/sparkle';
 import Sparkles from 'lucide-react-native/icons/sparkles';
 import Stethoscope from 'lucide-react-native/icons/stethoscope';
 import Sun from 'lucide-react-native/icons/sun';
+import Sunrise from 'lucide-react-native/icons/sunrise';
+import Sunset from 'lucide-react-native/icons/sunset';
 import Syringe from 'lucide-react-native/icons/syringe';
 import Target from 'lucide-react-native/icons/target';
 import ThumbsDown from 'lucide-react-native/icons/thumbs-down';
@@ -114,6 +117,7 @@ import Zap from 'lucide-react-native/icons/zap';
 const MAPA: Record<string, React.ComponentType<any>> = {
   home: House,
   journey: Flag,
+  minus: Minus,
   plus: Plus,
   evolution: TrendingUp,
   companion: MessageCircle,
@@ -139,6 +143,11 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   steth: Stethoscope,
   send: Send,
   sun: Sun,
+  /* As horas da refeição: nascer, meio-dia, fim de tarde, noite. A lua
+     já é o sono no resto do app, mas dentro da fileira do sol ela lê
+     como noite — é a família que dá o sentido, não o glifo sozinho. */
+  sunrise: Sunrise,
+  sunset: Sunset,
   aura: Sparkles,
   doc: FileText,
   ruler: Ruler,

@@ -15,10 +15,13 @@ import { alimentoDe, type ItemComida } from './prato';
 
    O QUE VOLTA
 
-   Uma lista de itens COM PORÇÃO SUGERIDA, nunca um número fechado. Foto
-   acerta o que está no prato e erra o quanto tem — imagem 2D sem
-   referência de tamanho não carrega peso. O modelo chuta 'normal' e quem
-   comeu corrige em um toque, que é a pergunta que ela sabe responder.
+   Uma lista de itens COM QUANTAS UNIDADES, nunca um número fechado de
+   proteína. Foto acerta o que está no prato e erra o quanto tem — imagem
+   2D sem referência de tamanho não carrega peso.
+
+   Mas contar unidades é uma pergunta que a foto responde melhor do que
+   "a porção foi normal?": quatro colheres de arroz dá para ver, e a
+   pessoa confere no contador em um toque.
 
    O tipo de item é o MESMO que a tela monta à mão, de propósito: o
    resultado cai direto no estado da tela, sem tradução e sem uma segunda
@@ -67,7 +70,10 @@ export const RECADO: Record<Motivo, string> = {
   'nao-reconheci': 'Não consegui reconhecer o prato. Monte aqui embaixo o que tinha.',
 };
 
-const PORCOES_OK = ['pouca', 'normal', 'bastante'];
+/* Quantidade que veio de fora: inteiro, pelo menos 1, no máximo 20.
+   Vinte colheres de arroz já é absurdo; duzentas é erro. */
+const qtdDe = (v: unknown) =>
+  typeof v === 'number' && Number.isFinite(v) ? Math.min(20, Math.max(1, Math.round(v))) : 1;
 
 /* O servidor já limpa a resposta do modelo, e mesmo assim se confere de
    novo aqui. Não é zelo: um id que não existe na tabela vira um item sem
@@ -80,10 +86,10 @@ function limpar(bruto: unknown): ItemComida[] {
   for (const x of bruto) {
     if (!x || typeof x !== 'object') continue;
     const it = x as any;
-    const porcao = PORCOES_OK.includes(it.porcao) ? it.porcao : 'normal';
-    if (typeof it.id === 'string' && alimentoDe(it.id)) itens.push({ id: it.id, porcao });
+    const qtd = qtdDe(it.qtd);
+    if (typeof it.id === 'string' && alimentoDe(it.id)) itens.push({ id: it.id, qtd });
     else if (typeof it.nome === 'string' && it.nome && typeof it.base === 'number') {
-      itens.push({ nome: it.nome, base: Math.max(0, Math.round(it.base)), porcao });
+      itens.push({ nome: it.nome, base: Math.max(0, Math.round(it.base)), qtd });
     }
   }
   return itens;

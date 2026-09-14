@@ -13,16 +13,16 @@ import ALIMENTOS from '../alimentos.json' with { type: 'json' };
 
    O QUE ELE DEVOLVE, E POR QUÊ
 
-   Uma lista de itens com porção sugerida — nunca um número fechado de
-   proteína. Foto acerta o QUE está no prato e erra o QUANTO tem: imagem
-   2D sem referência de tamanho não carrega peso, e o mesmo arroz vai de
-   80 a 250 g conforme o ângulo e o tamanho do prato. Devolver "48 g" com
+   Uma lista de itens com QUANTAS UNIDADES — nunca um número fechado de
+   proteína. Foto acerta o QUE está no prato e erra o QUANTO pesa: imagem
+   2D sem referência de tamanho não carrega peso. Devolver "48 g" com
    duas casas seria a mesma falsa precisão que o aplicativo passou meses
    tirando de si mesmo, só que com mais cara de tecnologia.
 
-   Então o modelo faz a parte que a foto responde (o que é isso) e chuta
-   'normal' na porção; quem comeu corrige em um toque, que é a pergunta
-   que ela sabe responder.
+   Contar unidades, por outro lado, é justamente o que uma foto mostra:
+   quatro colheres de arroz, um filé, duas fatias de queijo. O modelo
+   conta, o aplicativo multiplica pela tabela, e quem comeu confere no
+   contador em um toque.
 
    A TABELA VAI NO PROMPT
 
@@ -38,12 +38,14 @@ const Item = z.object({
   id: z.string().nullable().describe('id da TABELA, quando o prato está lá'),
   nome: z.string().nullable().describe('nome em português, só quando não há id'),
   base: z.number().nullable().describe('gramas de proteína de uma porção normal, só quando não há id'),
-  porcao: z.enum(['pouca', 'normal', 'bastante']),
+  qtd: z.number().int().min(1).max(20).describe('quantas unidades da medida daquele alimento'),
 });
 export const Resposta = z.object({ itens: z.array(Item) });
 
-const TABELA = (ALIMENTOS as { id: string; nome: string; medida: string }[])
-  .map((a) => `${a.id} | ${a.nome} | porção normal: ${a.medida}`)
+/* Cada linha diz em que unidade contar aquele alimento, que é o que
+   transforma "quanto tem aí?" numa pergunta que a foto responde. */
+const TABELA = (ALIMENTOS as { id: string; nome: string; un: string; unp: string; padrao: number }[])
+  .map((a) => `${a.id} | ${a.nome} | conte em ${a.unp} (uma porção comum: ${a.padrao})`)
   .join('\n');
 
 export const INSTRUCOES = `Você lê fotos de refeições e devolve o que está no prato.
@@ -62,12 +64,13 @@ REGRAS
    aplicativo, e vêm de tabela oficial.
 
 3. Se nada na TABELA corresponde, devolva nome (em português, como se
-   fala: "Escondidinho de carne seca") e base, que são as gramas de
-   PROTEÍNA de uma porção normal desse prato. Deixe id nulo.
+   fala: "Bobó de camarão") e base, que são as gramas de PROTEÍNA de UMA
+   porção desse prato. Deixe id nulo.
 
-4. porcao compara o que está na foto com a porção normal descrita na
-   TABELA — ou com uma porção normal do prato, nos itens livres. Na
-   dúvida, 'normal'.
+4. qtd é QUANTAS unidades daquela medida você vê na foto: quatro
+   colheres de arroz, um filé, duas fatias. Conte o que está no prato,
+   não o que costuma ser servido. Nos itens livres, qtd é quantas
+   porções do prato aparecem — quase sempre 1.
 
 5. Junte o que é um prato só: feijoada é feijoada, não é feijão mais
    carne seca mais paio. Mas arroz e feijão servidos lado a lado são
@@ -164,9 +167,9 @@ export default async function handler(req: Request): Promise<Response> {
        quando ele mandou nome e base; senão o item cai fora. */
     const itens = bruto
       .map((it) => {
-        if (it.id && conhecidos.has(it.id)) return { id: it.id, porcao: it.porcao };
+        if (it.id && conhecidos.has(it.id)) return { id: it.id, qtd: it.qtd };
         if (it.nome && it.base != null && it.base >= 0) {
-          return { nome: it.nome, base: Math.round(it.base), porcao: it.porcao };
+          return { nome: it.nome, base: Math.round(it.base), qtd: it.qtd };
         }
         return null;
       })
