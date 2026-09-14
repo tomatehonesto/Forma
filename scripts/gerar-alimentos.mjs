@@ -276,6 +276,17 @@ const PRATELEIRA_FORA = {
   'wrap-frango': 'Doces e lanches',
 };
 
+/* A TACO classifica por MATÉRIA-PRIMA, e a prateleira é por onde a
+   pessoa procura. Pão de queijo e farofa são feitos de polvilho, então
+   a tabela os põe em "Verduras, hortaliças e derivados" — o que está
+   certo pela química e é o último corredor em que alguém procuraria um
+   pão de queijo. Estes poucos são corrigidos à mão. */
+const PRATELEIRA_FORCA = {
+  'pao-de-queijo': 'Arroz, massas e pães',
+  farofa: 'Arroz, massas e pães',
+  tapioca: 'Arroz, massas e pães',
+};
+
 const porId = new Map(TACO.map((x) => [x.id, x]));
 const erros = [];
 
@@ -693,7 +704,7 @@ const linhasTS = linhas.map((l) => {
     /* Sem linha da TACO não há micronutriente para comparar com a IDR,
        então o prato composto e o item de rótulo não ganham destaque —
        a não ser o que a própria proteína der. */
-    prateleira = PRATELEIRA_FORA[slug] || 'Pratos prontos';
+    prateleira = PRATELEIRA_FORCA[slug] || PRATELEIRA_FORA[slug] || 'Pratos prontos';
     destaque = p / 50 >= 0.15
       ? { nome: 'proteína', valor: +p.toFixed(1), un: 'g', pct: Math.round((p / 50) * 100) }
       : null;
@@ -714,7 +725,7 @@ const linhasTS = linhas.map((l) => {
     gord = q('lipid_g');
     fibra = q('fiber_g');
     destaque = destaqueDe(row, d);
-    prateleira = PRATELEIRA_TACO[row.category] || 'Pratos prontos';
+    prateleira = PRATELEIRA_FORCA[slug] || PRATELEIRA_TACO[row.category] || 'Pratos prontos';
     nota = row.description + (d !== 1 ? ' ÷ ' + String(d).replace('.', ',') + ' de rendimento' : '');
   }
 

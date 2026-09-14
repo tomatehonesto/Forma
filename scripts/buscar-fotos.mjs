@@ -139,6 +139,91 @@ const EN = {
   mingau: 'porridge', vitamina: 'smoothie', açaí: 'acai bowl', tigela: 'bowl',
   misto: 'grilled cheese', quente: '', americana: '', americanas: '',
 };
+/* O TERMO ESCRITO À MÃO, quando a tradução palavra por palavra não dá
+   conta.
+
+   O dicionário acima resolve o caso comum e erra o caso próprio. Um
+   nome de prato brasileiro não se traduz somando palavras: "pão de
+   queijo" virou "bread cheese" e trouxe pão com fatia de queijo em
+   cima; "virado" e "manicoba" não têm par em inglês nenhum e trouxeram
+   fotos aéreas da Avenida Paulista e de Fortaleza.
+
+   Outros erram por ambiguidade do inglês: "beans" sozinho traz grão de
+   café torrado, "milk" traz a ordenha da vaca, "heart of palm" traz
+   dim sum em forma de coração. E há os que precisam do PRATO e não do
+   INGREDIENTE: "liver" trouxe patê, "pork loin" trouxe a peça crua.
+
+   Cada linha aqui é uma foto que eu abri e recusei. Acrescentar uma é
+   o conserto de uma tela, não uma regra nova. */
+const TERMO = {
+  // o inglês ambíguo
+  'feijao-preto': 'black beans cooked dish',
+  'grao-de-bico': 'cooked chickpeas bowl',
+  leite: 'glass of milk on table',
+  palmito: 'heart of palm salad jar',
+  espinafre: 'fresh spinach leaves bunch',
+  cenoura: 'fresh whole carrots bunch',
+  legumes: 'cooked mixed vegetables side dish',
+  arroz: 'cooked white rice bowl',
+  iogurte: 'plain natural yogurt bowl',
+  granola: 'granola cereal in a bowl',
+  chocolate: 'milk chocolate bar pieces',
+  pipoca: 'bowl of salted popcorn',
+  torrada: 'toasted bread slices on plate',
+  'biscoito-salgado': 'cream cracker biscuits stack',
+  whey: 'protein powder scoop and shaker',
+  'barra-cereal': 'cereal bar granola bar',
+  lombo: 'roast pork loin sliced',
+  merluza: 'baked white fish fillet plate',
+  corvina: 'grilled white fish fillet',
+  musculo: 'beef shank stew in bowl',
+  'coxao-mole': 'braised beef stew plate',
+  figado: 'grilled liver with onions plate',
+  // nome próprio brasileiro, que não se soma em inglês
+  'pao-de-queijo': 'brazilian cheese bread balls',
+  'pao-sovado': 'sweet bread loaf sliced',
+  cuscuz: 'brazilian corn couscous cake',
+  'cuscuz-paulista': 'brazilian couscous with sardines',
+  virado: 'brazilian rice beans pork plate',
+  manicoba: 'brazilian dark greens stew',
+  'vaca-atolada': 'beef ribs with cassava stew',
+  vatapa: 'brazilian vatapa shrimp cream',
+  moqueca: 'brazilian fish stew in clay pot',
+  mandioca: 'boiled cassava root pieces',
+  dobradinha: 'tripe and beans stew bowl',
+  salpicao: 'shredded chicken salad brazilian',
+  galinhada: 'brazilian chicken and rice pot',
+  pacoca: 'brazilian peanut candy pacoca',
+  charuto: 'stuffed cabbage rolls plate',
+  'bife-a-cavalo': 'steak topped with fried egg',
+  'bife-milanesa': 'breaded beef cutlet on plate',
+  'parmegiana-carne': 'beef parmigiana cheese tomato sauce',
+  esfiha: 'sfiha open meat pastry',
+  'escondidinho-carne': 'shepherds pie with mashed cassava',
+  'bacalhau-natas': 'codfish with cream gratin',
+  'crepe-carne': 'savory crepe with meat filling',
+  'sanduiche-atum': 'tuna salad sandwich',
+  'x-salada': 'cheeseburger with lettuce and tomato',
+  'macarrao-alho': 'spaghetti aglio e olio garlic',
+  'macarrao-queijos': 'four cheese creamy pasta',
+  'sopa-feijao': 'bean soup bowl',
+  'smoothie-proteico': 'banana protein shake glass',
+  // prato do mundo que o inglês tem pronto
+  yakisoba: 'yakisoba noodles plate',
+  'frango-xadrez': 'chicken cashew stir fry',
+  'arroz-frito': 'egg fried rice wok',
+  'chili-carne': 'chili con carne bowl',
+  'kebab-carne': 'doner kebab wrap',
+  'tikka-masala': 'chicken tikka masala curry',
+  'quiche-queijo': 'cheese quiche slice',
+  'wrap-frango': 'chicken wrap tortilla',
+  'ceviche-peixe': 'fish ceviche with lime',
+  'shawarma-frango': 'chicken shawarma wrap',
+  'curry-grao-de-bico': 'chickpea curry bowl',
+  'paella-frutos-do-mar': 'seafood paella pan',
+  'tortilla-espanhola': 'spanish potato omelette tortilla',
+};
+
 const LIGACAO = new Set(['de', 'da', 'do', 'dos', 'das', 'com', 'e', 'ao', 'à', 'a', 'o', 'em', 'no', 'na', 'sem', 'tipo', 'por']);
 
 function paraIngles(nome) {
@@ -332,7 +417,7 @@ if (cota) {
   console.log('hora: o script pula o que ja tem foto e continua de onde parou.');
 }
   if (CHAVE) {
-    const en = paraIngles(a.nome);
+    const en = TERMO[a.id] || paraIngles(a.nome);
     for (const t of [en, en.split(' ').slice(0, 2).join(' ')]) {
       if (!t) continue;
       let px = null;

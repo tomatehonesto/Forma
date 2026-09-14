@@ -1547,3 +1547,352 @@ ceviche-peixe.jpg — Ceviche de peixe
   licença: CC BY-SA 4.0
   origem:  https://commons.wikimedia.org/wiki/File:Cebiche_de_corvina.JPG
   buscado por: "Ceviche de peixe" em pt.wikipedia (Ceviche)
+musculo.jpg — Músculo cozido
+  arquivo: Delicious Mexican beef stew with potatoes and herbs, perfect for a comforting meal.
+  autor:   SAMY PHOTOGRAPHY
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/traditional-mexican-beef-stew-in-a-bowl-34822475/
+  buscado por: "beef shank stew in bowl" em Pexels
+
+lombo.jpg — Lombo de porco assado
+  arquivo: A fresh arrangement of raw pork chops seasoned with herbs and spices, ready for cooking.
+  autor:   Evgeniy Alekseyev
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/porkchops-on-wooden-chopping-board-7333266/
+  buscado por: "roast pork loin sliced" em Pexels
+
+coxao-mole.jpg — Carne cozida (coxão mole)
+  arquivo: Delicious Brazilian beef stew with potatoes and green onions served in a bowl.
+  autor:   IARA MELO
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/savory-brazilian-beef-stew-with-potatoes-30635686/
+  buscado por: "braised beef stew plate" em Pexels
+
+figado.jpg — Fígado acebolado
+  arquivo: Savory Turkish lamb cuts with grilled vegetables and bread served on a rustic wooden table in Bursa, Türkiye.
+  autor:   Mavi Yıldız Restoran Cumalıkızık Bursa
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/traditional-turkish-lamb-feast-with-grilled-vegetables-37206689/
+  buscado por: "grilled liver with onions plate" em Pexels
+
+merluza.jpg — Merluza assada
+  arquivo: Delicious grilled fish steak garnished with chives, served with fresh tomatoes on a white plate.
+  autor:   RDNE Stock project
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/seafood-with-tomatoes-10432702/
+  buscado por: "baked white fish fillet plate" em Pexels
+
+corvina.jpg — Corvina assada
+  arquivo: Delicious grilled fish fillet served with vegetables in a plastic container.
+  autor:   Gustavo Santana
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/fried-fish-fillet-with-green-vegetable-in-white-plastic-container-5860604/
+  buscado por: "grilled white fish fillet" em Pexels
+
+iogurte.jpg — Iogurte natural
+  arquivo: Lancewood double cream coconut yoghurt with a spoon and bowl on a reflective surface.
+  autor:   C'Pho Ngondo R.Rouge
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/lancewood-double-cream-coconut-yoghurt-and-bowl-20379659/
+  buscado por: "plain natural yogurt bowl" em Pexels
+
+leite.jpg — Leite
+  arquivo: Glass of milk with a colorful candy cane and heart-shaped marshmallow on wooden table.
+  autor:   Acharaporn Kamornboonyarush
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/photo-of-milkshake-near-heart-shaped-marshmallow-1028735/
+  buscado por: "glass of milk on table" em Pexels
+
+whey.jpg — Whey protein
+  arquivo: White powder spilled from a scoop on bright blue background. Clean and minimalistic food photo.
+  autor:   Towfiqu barbhuiya
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/photo-of-a-white-powder-and-a-scoop-lying-on-the-blue-background-12625114/
+  buscado por: "protein powder scoop and shaker" em Pexels
+
+feijao-preto.jpg — Feijão preto
+  arquivo: Traditional Brazilian feijoada with chorizo, orange slices, greens, and peppers.
+  autor:   José Roberto Oliveira
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/authentic-brazilian-feijoada-with-orange-and-greens-34195319/
+  buscado por: "black beans cooked dish" em Pexels
+
+grao-de-bico.jpg — Grão-de-bico cozido
+  arquivo: High angle view of cooked chickpeas in a metal bowl, showcasing a healthy vegan food option.
+  autor:   Wan Fun
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-of-peas-in-bowl-16208459/
+  buscado por: "cooked chickpeas bowl" em Pexels
+
+arroz.jpg — Arroz branco
+  arquivo: A close-up shot of a bowl of white rice with sautéed vegetables on the side, ideal for food blogs.
+  autor:   FOX ^.ᆽ.^= ∫
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/a-rice-in-a-small-bowl-5850339/
+  buscado por: "cooked white rice bowl" em Pexels
+
+cuscuz.jpg — Cuscuz de milho
+  arquivo: An assortment of traditional dishes including corn cake, tamales, and dessert cups on a checkered table.
+  autor:   Vidal Balielo Jr.
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/snacks-on-trays-on-table-10949539/
+  buscado por: "brazilian corn couscous cake" em Pexels
+
+pao-de-queijo.jpg — Pão de queijo
+  arquivo: Freshly baked cheese bread rolls on a rack with warm lighting in the oven.
+  autor:   thiago japyassu
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/brazilian-cheese-bread-in-the-oven-20450299/
+  buscado por: "brazilian cheese bread balls" em Pexels
+
+pao-sovado.jpg — Pão doce ou sovado
+  arquivo: Delicious homemade banana bread sliced on a white surface with a rustic texture.
+  autor:   Craig Dennis
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/shallow-focus-photography-of-sliced-brownies-1277202/
+  buscado por: "sweet bread loaf sliced" em Pexels
+
+cuscuz-paulista.jpg — Cuscuz paulista
+  arquivo: Close-up of sardines being grilled, perfect for healthy seafood cuisine.
+  autor:   Elle Hughes
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/photo-of-raw-fish-on-grill-1321124/
+  buscado por: "brazilian couscous with sardines" em Pexels
+
+bife-a-cavalo.jpg — Bife à cavalo
+  arquivo: Delicious plate featuring Brazilian steak, fried egg, rice, beans, fries, and greens.
+  autor:   Fernanda da Silva Lopes
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/traditional-brazilian-dish-with-steak-and-egg-34130182/
+  buscado por: "steak topped with fried egg" em Pexels
+
+legumes.jpg — Legumes cozidos
+  arquivo: Close-up of a delicious mixed vegetable side dish featuring peas, carrots, and potatoes.
+  autor:   Engin Akyurt
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/cooked-green-peas-in-a-bowl-9399981/
+  buscado por: "cooked mixed vegetables side dish" em Pexels
+
+virado.jpg — Virado à paulista
+  arquivo: Delicious Brazilian feijoada served in a black pot with a side of rice.
+  autor:   Laura oliveira
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/brazilian-feijoada-with-rice-on-wooden-table-34442361/
+  buscado por: "brazilian rice beans pork plate" em Pexels
+
+yakisoba.jpg — Yakisoba
+  arquivo: Close-up of a flavorful yakisoba stir-fry with shrimp, chicken, and vegetables in a bowl.
+  autor:   Kawê  Rodrigues
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-top-view-of-a-bowl-with-yakisoba-dish-19264271/
+  buscado por: "yakisoba noodles plate" em Pexels
+
+salpicao.jpg — Salpicão de frango
+  arquivo: Closeup of a fresh Caesar salad with chicken and parmesan, perfect for a healthy meal.
+  autor:   Julia Filirovska
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-of-caesar-salad-8251537/
+  buscado por: "shredded chicken salad brazilian" em Pexels
+
+dobradinha.jpg — Dobradinha
+  arquivo: Leaf-shaped bowl with traditional African soup featuring meat and vegetables.
+  autor:   Tochukwu  Ekeh
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/traditional-african-soup-with-meat-and-vegetables-37648018/
+  buscado por: "tripe and beans stew bowl" em Pexels
+
+vaca-atolada.jpg — Vaca atolada
+  arquivo: A vibrant display of traditional African dishes featuring banana, cassava, yams, and spicy stewed fish in Burundi.
+  autor:   Lionel Ntasano
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/traditional-african-cuisine-with-banana-and-cassava-37099829/
+  buscado por: "beef ribs with cassava stew" em Pexels
+
+vatapa.jpg — Vatapá
+  arquivo: Top view of a delicious creamy shrimp soup with bread on a rustic table.
+  autor:   Shameel mukkath
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/photo-of-soup-in-red-bowl-5639441/
+  buscado por: "brazilian vatapa shrimp cream" em Pexels
+
+manicoba.jpg — Maniçoba
+  arquivo: Top view of traditional Brazilian dishes with rice, beans, beef, and fresh salad served in black bowls.
+  autor:   Lucas Andrade
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/meals-in-frying-pans-on-wooden-table-19781592/
+  buscado por: "brazilian dark greens stew" em Pexels
+
+charuto.jpg — Charuto de repolho
+  arquivo: Delicious homemade stuffed cabbage rolls served on a white plate.
+  autor:   Diana ✨
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-of-traditional-stuffed-cabbage-rolls-37238839/
+  buscado por: "stuffed cabbage rolls plate" em Pexels
+
+cenoura.jpg — Cenoura cozida
+  arquivo: Fresh organic carrots closely stacked together, showcasing vibrant orange hues and healthy textures.
+  autor:   Victoria Bowers
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/orange-carrots-in-close-up-photography-10487659/
+  buscado por: "fresh whole carrots bunch" em Pexels
+
+espinafre.jpg — Espinafre refogado
+  arquivo: A bunch of fresh spinach leaves on a gray textured surface, captured from above.
+  autor:   Bogdan Krupin
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/spinach-leaves-on-a-gray-surface-4506881/
+  buscado por: "fresh spinach leaves bunch" em Pexels
+
+mandioca.jpg — Mandioca cozida
+  arquivo: Sliced cassava on display at a market stall, offering fresh produce for sale.
+  autor:   Matheus Bertelli
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/fresh-cassava-roots-at-local-market-stall-30893343/
+  buscado por: "boiled cassava root pieces" em Pexels
+
+pacoca.jpg — Paçoca
+  arquivo: Top view of Brazilian chocolate brigadeiros, perfect for desserts and treats.
+  autor:   Paloma Clarice
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/top-view-of-chocolate-pralines-with-chocolate-and-nut-sprinkles-9285187/
+  buscado por: "brazilian peanut candy pacoca" em Pexels
+
+granola.jpg — Granola
+  arquivo: A top view of granola in a bowl with a spoon and a glass of orange juice on a white background.
+  autor:   Foodie Factor
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/oats-and-nuts-in-gray-bowl-543730/
+  buscado por: "granola cereal in a bowl" em Pexels
+
+torrada.jpg — Torrada
+  arquivo: Stack of toasted bread slices on a white ceramic plate, perfect for breakfast or snacks.
+  autor:   Elviss Railijs Bitāns
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/plate-of-sliced-breads-1448665/
+  buscado por: "toasted bread slices on plate" em Pexels
+
+biscoito-salgado.jpg — Biscoito cream cracker
+  arquivo: A collection of assorted round crackers stacked in a pile, perfect for snacking or party platters.
+  autor:   Food Story
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/variety-of-crackers-piled-for-snack-time-37108654/
+  buscado por: "cream cracker biscuits stack" em Pexels
+
+pipoca.jpg — Pipoca
+  arquivo: Glass bowl filled with popcorn next to TV remotes on a gray sofa. Perfect for cozy movie nights.
+  autor:   Srattha Nualsate
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/popcorn-in-clear-glass-bowl-13005068/
+  buscado por: "bowl of salted popcorn" em Pexels
+
+chocolate.jpg — Chocolate ao leite
+  arquivo: A flat lay of assorted chocolate bars with varying shades on a white background.
+  autor:   Tamanna Rumee
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/brown-chocolates-on-white-surface-8794060/
+  buscado por: "milk chocolate bar pieces" em Pexels
+
+palmito.jpg — Palmito em conserva
+  arquivo: Three jars of colorful quinoa salad with mushrooms and tomatoes, perfect for a healthy meal.
+  autor:   Ella Olsson
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/three-clear-glass-jars-on-gray-surface-1640767/
+  buscado por: "heart of palm salad jar" em Pexels
+
+barra-cereal.jpg — Barra de cereal
+  arquivo: Close-up of a stack of homemade granola bars on a dark plate against a moody background.
+  autor:   Çiğdem Bilgin
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/stack-of-homemade-granola-bars-on-dark-plate-36361406/
+  buscado por: "cereal bar granola bar" em Pexels
+
+macarrao-alho.jpg — Macarrão ao alho e óleo
+  arquivo: Top view of tasty noodles with garlic and chili pepper slices decorated with ground pepper mix on table in cafe
+  autor:   Satyam Verma
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/plate-with-delicious-spaghetti-with-garlic-in-restaurant-4431588/
+  buscado por: "spaghetti aglio e olio garlic" em Pexels
+
+macarrao-queijos.jpg — Macarrão aos quatro queijos
+  arquivo: Close-up of creamy pasta with herbs, offering a delicious Italian meal.
+  autor:   Engin Akyurt
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/food-photography-of-pasta-1438672/
+  buscado por: "four cheese creamy pasta" em Pexels
+
+parmegiana-carne.jpg — Filé de carne à parmegiana
+  arquivo: Tasty chicken parmesan with pasta and fresh ingredients on a rustic table.
+  autor:   Mahmoud Salem
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/delicious-chicken-parmesan-with-pasta-and-cheese-31064273/
+  buscado por: "beef parmigiana cheese tomato sauce" em Pexels
+
+bife-milanesa.jpg — Bife à milanesa
+  arquivo: Plate of breaded chicken schnitzel, ready for cooking, with olive oil bottle in background.
+  autor:   Anna Guerrero
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/breaded-chicken-on-white-plate-4078178/
+  buscado por: "breaded beef cutlet on plate" em Pexels
+
+galinhada.jpg — Galinhada
+  arquivo: Delicious Brazilian feijoada served in a black pot with a side of rice.
+  autor:   Laura oliveira
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/brazilian-feijoada-with-rice-on-wooden-table-34442361/
+  buscado por: "brazilian chicken and rice pot" em Pexels
+
+escondidinho-carne.jpg — Escondidinho de carne moída
+  arquivo: File:Escondidinho de carne seca.jpg
+  autor:   mpellegr from Barcelona, Spain
+  licença: CC BY 2.0
+  origem:  https://commons.wikimedia.org/wiki/File:Escondidinho_de_carne_seca.jpg
+  buscado por: "Escondidinho carne" em pt.wikipedia (Escondidinho)
+
+crepe-carne.jpg — Crepe de carne
+  arquivo: Mouth-watering close-up of a traditional Venezuelan cachapa with cheese and meat filling on a plate.
+  autor:   Hiure Gomes Fernandes
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/macro-photography-of-a-cachapa-11094167/
+  buscado por: "savory crepe with meat filling" em Pexels
+
+sanduiche-atum.jpg — Sanduíche de atum
+  arquivo: File:Bacon, lettuce, tomato, and avocado.jpg
+  autor:   Jami430
+  licença: CC BY-SA 4.0
+  origem:  https://commons.wikimedia.org/wiki/File:Bacon,_lettuce,_tomato,_and_avocado.jpg
+  buscado por: "sanduiche" em pt.wikipedia (Sanduíche)
+
+x-salada.jpg — X-salada
+  arquivo: File:Caprese-1 (tigher crop).jpg
+  autor:   Rainer Zenz
+  licença: CC BY-SA 3.0
+  origem:  https://commons.wikimedia.org/wiki/File:Caprese-1_(tigher_crop).jpg
+  buscado por: "X-salada" em pt.wikipedia (Salada caprese)
+
+moqueca.jpg — Moqueca de peixe
+  arquivo: File:MOQUECAB.jpg
+  autor:   Janaina Roberge
+  licença: Public domain
+  origem:  https://commons.wikimedia.org/wiki/File:MOQUECAB.jpg
+  buscado por: "Moqueca de peixe" em pt.wikipedia (Moqueca)
+
+bacalhau-natas.jpg — Bacalhau com batata
+  arquivo: File:Bacalhau com natas.jpg
+  autor:   Fpenteado
+  licença: CC0
+  origem:  https://commons.wikimedia.org/wiki/File:Bacalhau_com_natas.jpg
+  buscado por: "Bacalhau com batata" em pt.wikipedia (Bacalhau com natas)
+
+shawarma-frango.jpg — Shawarma de frango
+  arquivo: Close-up of a freshly grilled shawarma wrap halved to reveal its appetizing ingredients.
+  autor:   RDNE Stock project
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/close-up-photo-of-sliced-shawarma-5779364/
+  buscado por: "chicken shawarma wrap" em Pexels
+
+tortilla-espanhola.jpg — Tortilha espanhola
+  arquivo: Close-up of a traditional Argentine tortilla served with aioli on a black slate plate, showcasing culinary presentation.
+  autor:   Patricia Bozan
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/delicious-argentine-tortilla-with-aioli-on-slate-plate-34490390/
+  buscado por: "spanish potato omelette tortilla" em Pexels
