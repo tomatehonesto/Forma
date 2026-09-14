@@ -1542,35 +1542,41 @@ export function semanasDeMovimento(S: State, n = 8): { t: number; min: number }[
   return balde.map((min, i) => ({ t: hoje - (n - 1 - i) * 7 * DAY, min: Math.round(min) }));
 }
 
-/* De que é feito o movimento de alguém, e quanto dele puxa músculo.
+/* Em quantos dos últimos 7 dias houve treino de força.
 
-   A segunda parte não é curiosidade de academia: em déficit calórico,
-   quem só faz cardio perde massa magra junto com a gordura, e massa
-   magra é o que o tratamento inteiro tenta segurar. A proporção entre
-   uma coisa e outra é a leitura que essa tabela existe para dar. */
-export type Mistura = {
-  itens: { tipo: string; ic: string; forca: boolean; vezes: number; min: number }[];
-  total: number;
-  forca: number;
-};
+   A proporção de força já teve um cartão inteiro nesta tela — barra,
+   legenda, minutos por modalidade — e não fazia nada. Era resumo: olhava
+   bonito, não mudava nenhuma decisão, e ocupava a altura de um cartão
+   para dizer o que cabe numa linha.
 
-export function misturaDeMovimento(S: State, dias = 30): Mistura {
-  const conta = new Map<string, { vezes: number; min: number }>();
-  for (const tr of treinosRecentes(S, dias)) {
-    const a = conta.get(tr.tipo) || { vezes: 0, min: 0 };
-    conta.set(tr.tipo, { vezes: a.vezes + 1, min: a.min + tr.min });
+   A linha ficou, porque o FATO importa: em déficit calórico quem só faz
+   cardio perde massa magra junto com a gordura, e massa magra é o que o
+   tratamento inteiro tenta segurar. O que saiu foi a moldura. */
+export function diasDeForca(S: State): number {
+  const corte = +startOfDay(now()) - 6 * DAY;
+  const dias = new Set<number>();
+  for (const c of S.checkins as any[]) {
+    if (c.t < corte) continue;
+    if (((c.treinos || []) as any[]).some((tr) => ehForca(tr.tipo))) dias.add(c.t);
   }
-  /* Força primeiro, e dentro de cada grupo o que mais pesou: assim a
-     barra empilha o que protege músculo de um lado só, em vez de
-     alternar as cores e virar listra. */
-  const itens = [...conta.entries()]
-    .map(([tipo, v]) => ({ tipo, ic: iconeDe(tipo), forca: ehForca(tipo), ...v }))
-    .sort((a, b) => Number(b.forca) - Number(a.forca) || b.min - a.min);
-  return {
-    itens,
-    total: itens.reduce((s, x) => s + x.min, 0),
-    forca: itens.filter((x) => x.forca).reduce((s, x) => s + x.min, 0),
-  };
+  return dias.size;
+}
+
+/** Uma sessão pelo dia e pela posição dentro dele. */
+export function treinoEm(S: State, t: number, i: number): { tipo: string; min: number } | null {
+  const c = (S.checkins as any[]).find((x) => x.t === t);
+  return c?.treinos?.[i] ?? null;
+}
+
+/* Corrigir uma sessão acerta o total do dia pela DIFERENÇA, e não pela
+   soma dos treinos: o dia pode carregar minutos que vieram do relógio, e
+   recalcular do zero apagaria justamente esses. */
+export function editarTreino(s: any, t: number, i: number, tipo: string, min: number) {
+  const c = (s.checkins as any[]).find((x) => x.t === t);
+  const tr = c?.treinos?.[i];
+  if (!tr) return;
+  c.exerc = Math.max(0, (c.exerc || 0) - tr.min + min);
+  c.treinos = (c.treinos as any[]).map((x: any, j: number) => (j === i ? { tipo, min } : x));
 }
 
 /* Apagar uma sessão devolve os minutos dela ao dia. O total NÃO volta a

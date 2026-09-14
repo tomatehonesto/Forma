@@ -3,12 +3,12 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  apagarTreino, checkinToday, fontesDeMovimento, listaPt,
-  misturaDeMovimento, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
+  checkinToday, fontesDeMovimento, listaPt,
+  diasDeForca, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, CardCurva, Linha, ItemApagavel, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Cartao, CardCurva, Linha, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -69,7 +69,7 @@ export default function Exercicio() {
   const comHistorico = semanas.filter((w) => w.min > 0).length >= 2;
   const mediaSemanal = Math.round(semanas.reduce((x, w) => x + w.min, 0) / semanas.length);
 
-  const mistura = misturaDeMovimento(S, 30);
+  const forca = diasDeForca(S);
   const treinos = treinosRecentes(S, 30);
   const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
@@ -97,86 +97,96 @@ export default function Exercicio() {
         lead="Junto com a proteína, é o que segura a massa magra durante a perda de peso."
       />
 
-      {/* A SEMANA — a unidade em que exercício faz sentido */}
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
-        <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <Txt v="caption" c={c.tx2}>
-            {comMovimento === 0
-              ? 'Nenhum dia com movimento'
-              : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
-          </Txt>
+      {/* A SEMANA — a unidade em que exercício faz sentido.
+
+          Mesmo desenho do cartão de baixo, e não um próprio: cabeçalho
+          com nome e contexto à esquerda, o número grande à direita, e o
+          gráfico ocupando a largura inteira embaixo. Dois cartões de
+          gráfico um em cima do outro com gramáticas diferentes fazem o
+          olho procurar a diferença entre eles em vez de ler os dois. */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
+        <Row style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 14, alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
+            <Txt v="body">Esta semana</Txt>
+            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
+              {comMovimento === 0
+                ? 'Nenhum dia com movimento'
+                : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
+            </Txt>
+          </View>
           {/* Sem meta semanal. A meta do app é diária (60 min); multiplicar
               por sete inventaria uma cobrança de 420 min que nenhuma
               recomendação faz, e que deixaria toda semana normal parecendo
               fracasso. O que se conta é o que houve. */}
-          <Txt v="h2">
-            <Txt v="h2" c={c.accent}>{daSemana}</Txt>
+          <Txt v="metric">
+            {daSemana}
             <Txt v="label" c={c.tx3}> min</Txt>
           </Txt>
         </Row>
 
-        {/* A barra diz QUANTOS MINUTOS, e não só "teve ou não teve".
+        {/* A barra diz QUANTOS MINUTOS, e não só "teve ou não teve": cada
+            uma carrega o número em cima, e a tracejada marca a meta do
+            dia. Barra estreita e redonda porque a de antes ocupava a
+            coluna inteira — sete blocos colados viram parede, não
+            gráfico. */}
+        <View style={{ paddingHorizontal: 16 }}>
+          <View style={{ height: ALT + 24 }}>
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute', left: 0, right: 0, bottom: Math.round((alvoDia / teto) * ALT),
+                /* Em c.line2 a meta some dentro do cartão branco. Linha
+                   de referência precisa ser lida de relance, senão o
+                   gráfico volta a ser altura sem unidade. */
+                borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
+              }}
+            />
+            <Row style={{ flex: 1, alignItems: 'flex-end' }}>
+              {semana.map((d, i) => {
+                const eHoje = i === semana.length - 1;
+                return (
+                  <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                    {d.min ? (
+                      <Txt v="micro" c={eHoje ? c.tx : c.tx4} style={{ marginBottom: 5 }}>{d.min}</Txt>
+                    ) : null}
+                    {/* O dia parado ganha um ponto na linha de base: coluna
+                        vazia some, e descanso não é ausência de dado. */}
+                    <View style={{
+                      width: d.min ? 16 : 5,
+                      height: d.min ? Math.max(8, Math.round((d.min / teto) * ALT)) : 5,
+                      borderRadius: radius.pill,
+                      backgroundColor: d.min ? c.accent : c.line,
+                      opacity: d.min && !eHoje ? 0.34 : 1,
+                    }} />
+                  </View>
+                );
+              })}
+            </Row>
+          </View>
 
-            Antes ela era um trilho cinza com um preenchimento dentro,
-            escalado pelo maior dia da semana — o que fazia 20 min numa
-            semana fraca parecerem tanto quanto 60 numa semana forte. Um
-            gráfico assim tem altura mas não tem unidade.
-
-            Agora cada barra carrega o número em cima dela e a linha
-            tracejada marca a meta do dia. Com essas duas coisas dá para
-            ler a semana sem contar barra: onde passou, onde faltou
-            pouco, e quanto foi cada dia. */}
-        <View style={{ marginTop: 16, height: ALT + 24 }}>
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute', left: 0, right: 0, bottom: Math.round((alvoDia / teto) * ALT),
-              /* Em c.line2 a meta sumia dentro do cartão branco. Uma linha
-                 de referência precisa ser lida de relance, senão o gráfico
-                 volta a ser altura sem unidade. */
-              borderTopWidth: 1, borderTopColor: c.tx4, borderStyle: 'dashed',
-            }}
-          />
-          <Row gap={7} style={{ flex: 1, alignItems: 'flex-end' }}>
-            {semana.map((d, i) => {
-              const eHoje = i === semana.length - 1;
-              return (
-                <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
-                  {d.min ? (
-                    <Txt v="micro" c={eHoje ? c.tx : c.tx3} style={{ marginBottom: 4 }}>{d.min}</Txt>
-                  ) : null}
-                  {/* O dia parado ganha um traço na linha de base: campo
-                      vazio some, e descanso não é ausência de dado. */}
-                  {/* Hoje em azul cheio, os outros dias apagados. Antes
-                     eram accent e accent2, dois azuis a três tons de
-                     distância: no tamanho de uma barra isso não é
-                     diferença, é ruído. */}
-                  <View style={{
-                    width: '100%',
-                    height: d.min ? Math.max(5, Math.round((d.min / teto) * ALT)) : 3,
-                    borderRadius: radius.sm,
-                    backgroundColor: d.min ? c.accent : c.line2,
-                    opacity: d.min && !eHoje ? 0.42 : 1,
-                  }} />
-                </View>
-              );
-            })}
+          <Row style={{ marginTop: 8 }}>
+            {semana.map((d, i) => (
+              /* Três letras, não uma: sáb, seg e sex começam iguais, e a
+                 fileira virava "s s s" no meio da semana. */
+              <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                <Txt v="micro" c={i === semana.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
+              </View>
+            ))}
           </Row>
         </View>
 
-        <Row gap={7} style={{ marginTop: 7 }}>
-          {semana.map((d, i) => (
-            /* Três letras, não uma: sáb, seg e sex começam iguais, e a
-               fileira virava "s s s" no meio da semana. */
-            <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
-              <Txt v="micro" c={i === semana.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
-            </View>
-          ))}
+        {/* Uma linha, e não um cartão. A proporção de força já teve barra,
+            legenda e minutos por modalidade aqui — resumo bonito que não
+            mudava nenhuma decisão. O fato importa e cabe numa frase. */}
+        <View style={{ height: 1, backgroundColor: c.line, marginTop: 16 }} />
+        <Row gap={8} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+          <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
+          <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+            {forca === 0
+              ? 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.'
+              : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força — é o que segura o músculo enquanto o peso cai.`}
+          </Txt>
         </Row>
-        <Txt v="micro" c={c.tx4} style={{ marginTop: 9 }}>
-          A linha tracejada é a meta de {alvoDia} min por dia.
-        </Txt>
-
       </View>
 
       {/* A TENDÊNCIA — a pergunta que a semana isolada não alcança.
@@ -184,11 +194,7 @@ export default function Exercicio() {
           As barras de cima dizem como foi esta semana. Esta curva diz se
           a pessoa está se mexendo mais ou menos do que estava há dois
           meses, que num tratamento de meses é a pergunta que importa e
-          que nada na tela respondia.
-
-          É o CardCurva das outras internas, com a leitura no cabeçalho em
-          vez de um balão embaixo do dedo — num gráfico de celular a mão
-          cobre metade do card, e a leitura não pode morar ali. */}
+          que nada na tela respondia. */}
       {comHistorico ? (
         <View style={{ marginTop: 10 }}>
           <CardCurva
@@ -207,64 +213,6 @@ export default function Exercicio() {
         </View>
       ) : null}
 
-      {/* DE QUE É FEITO O MOVIMENTO
-
-          Era uma tabela: modalidade, vezes, minutos, três linhas. Dizia
-          tudo e não mostrava nada — quem lia tinha que fazer a divisão de
-          cabeça para chegar na única pergunta que importa aqui, que é
-          quanto daquilo puxa músculo.
-
-          Agora a barra faz a divisão. Cheia é força, apagada é o resto, e
-          a proporção entre as duas aparece antes de qualquer número. */}
-      {mistura.total ? (
-        <Bloco titulo="De que é o seu movimento" nota="Nos últimos 30 dias.">
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
-            {/* alignItems stretch, e não o 'center' que o Row traz: um
-                segmento sem altura própria colapsa e a barra some. */}
-            <Row gap={2} style={{ height: 12, alignItems: 'stretch', borderRadius: radius.pill, overflow: 'hidden' }}>
-              {mistura.itens.map((m) => (
-                <View
-                  key={m.tipo}
-                  style={{
-                    flex: Math.max(1, m.min),
-                    backgroundColor: c.accent,
-                    opacity: m.forca ? 1 : 0.28,
-                  }}
-                />
-              ))}
-            </Row>
-
-            <Txt v="caption" c={c.tx} style={{ marginTop: 12 }}>
-              {mistura.forca === 0
-                ? `Nenhum dos ${mistura.total} minutos foi treino de força.`
-                : `${mistura.forca} dos ${mistura.total} minutos foram treino de força.`}
-            </Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 5 }}>
-              Musculação, pilates e funcional puxam músculo — e músculo é o que a perda
-              de peso leva junto se ninguém segurar.
-            </Txt>
-
-            <View style={{ height: 1, backgroundColor: c.line, marginTop: 14, marginBottom: 12 }} />
-
-            <View style={{ gap: 11 }}>
-              {mistura.itens.map((m) => (
-                <Row key={m.tipo} gap={10}>
-                  <View style={{
-                    width: 8, height: 8, borderRadius: 4,
-                    backgroundColor: c.accent, opacity: m.forca ? 1 : 0.28,
-                  }} />
-                  <Icon name={m.ic} size={15} color={c.tx3} sw={1.9} />
-                  <Txt v="caption" c={c.tx} style={{ flex: 1 }}>{m.tipo}</Txt>
-                  <Txt v="caption" c={c.tx3}>
-                    {m.vezes}× · {m.min} min
-                  </Txt>
-                </Row>
-              ))}
-            </View>
-          </View>
-        </Bloco>
-      ) : null}
-
       {/* O CADERNO
 
           Agrupado por dia, com o desenho da modalidade na frente. Em
@@ -273,7 +221,7 @@ export default function Exercicio() {
           vez, e embaixo dela o que aconteceu. */}
       <Bloco
         titulo="Caderno de treino"
-        nota={treinos.length ? 'Toque na lixeira para apagar um registro.' : undefined}
+        nota={treinos.length ? 'Toque num treino para corrigir ou apagar.' : undefined}
       >
         {porDia.length ? (
           <View style={{ gap: 14 }}>
@@ -288,23 +236,19 @@ export default function Exercicio() {
                   </Txt>
                 </Row>
                 <Cartao>
+                  {/* A seta abre a mesma folha que registra, com o treino
+                      carregado dentro. Corrigir e apagar moram lá, junto do
+                      formulário que criou o registro — a lixeira solta na
+                      linha resolvia metade do problema (apagar) e deixava a
+                      outra metade (era caminhada, não corrida) sem saída. */}
                   {dia.itens.map((t) => (
-                    <ItemApagavel
+                    <Linha
                       key={`${t.t}-${t.i}`}
-                      pergunta={`Apagar ${t.tipo.toLowerCase()} de ${t.min} min?`}
-                      onApagar={() => update((s: any) => apagarTreino(s, t.t, t.i))}
-                    >
-                      <Row gap={11}>
-                        <View style={{
-                          width: 32, height: 32, borderRadius: radius.md,
-                          backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name={t.ic} size={16} color={c.accent} sw={1.9} />
-                        </View>
-                        <Txt v="body" style={{ flex: 1 }}>{t.tipo}</Txt>
-                        <Txt v="caption" c={c.tx2}>{t.min} min</Txt>
-                      </Row>
-                    </ItemApagavel>
+                      ic={t.ic}
+                      titulo={t.tipo}
+                      sub={`${t.min} min`}
+                      onPress={() => router.push(`/medir-exercicio?t=${t.t}&i=${t.i}` as any)}
+                    />
                   ))}
                 </Cartao>
               </View>
@@ -322,26 +266,19 @@ export default function Exercicio() {
         )}
       </Bloco>
 
-      {/* A diferença entre os minutos e a lista se explica aqui, no mesmo
-          lugar onde ela se configura. */}
-      <Bloco titulo="De onde vêm os minutos">
+      {/* Um atalho, e não uma explicação. Este bloco chegou a se chamar
+          "De onde vêm os minutos" e gastava três linhas justificando por
+          que o caderno é mais curto que o total — uma diferença que quem
+          está aqui provavelmente nem notou. O que serve é a porta.
+
+          TODAS as fontes, e não a primeira: ninguém tem só uma, e quem
+          usa Garmin costuma ter o Apple Saúde ligado junto. */}
+      <Bloco titulo="Integrações">
         <Cartao>
-          {/* TODAS as fontes, e não a primeira. Ninguém tem só uma: quem
-              usa Garmin costuma ter o Apple Saúde ligado junto, e a tela
-              que dizia "Apple Saúde conectado" escondia as outras de quem
-              justamente queria saber de onde os minutos vinham. */}
           <Linha
             ic="watch"
-            titulo={
-              fontes.length
-                ? `${listaPt(fontes)} ${fontes.length === 1 ? 'conectado' : 'conectados'}`
-                : 'Conectar um relógio ou app'
-            }
-            sub={
-              fontes.length
-                ? 'Os minutos chegam sozinhos, mas sem modalidade — por isso o caderno acima é mais curto que o total da semana.'
-                : 'Apple Saúde, Health Connect, Garmin e outros lançam os minutos sem você digitar.'
-            }
+            titulo={fontes.length ? listaPt(fontes) : 'Conectar um relógio ou app'}
+            sub={fontes.length ? 'Lançam os minutos sozinhos' : 'Apple Saúde, Health Connect, Garmin e outros'}
             onPress={() => router.push('/integracoes' as any)}
           />
         </Cartao>

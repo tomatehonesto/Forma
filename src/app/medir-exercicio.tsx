@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday, registroDoDia, fontesDeMovimento, listaPt } from '../logic/derive';
+import {
+  apagarTreino, checkinToday, editarTreino, fontesDeMovimento, listaPt, registroDoDia, treinoEm,
+} from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
-import { Grade, Opc, Texto } from '../ui/internas';
+import { Botao, Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -74,9 +76,26 @@ export default function MedirExercicio() {
   const { c } = useTheme();
   const router = useRouter();
 
-  const [tipo, setTipo] = useState('Caminhada');
-  const [outro, setOutro] = useState('');
-  const [min, setMin] = useState(30);
+  /* A MESMA folha registra e corrige.
+
+     Com `t` e `i` na URL ela abre carregada com aquela sessão, o botão
+     passa a salvar em vez de somar, e ganha o apagar embaixo. Fazer uma
+     segunda tela para corrigir significaria manter duas cópias da grade
+     de modalidades e do controle de duração — e é exatamente aí que um
+     vira nove modalidades e o outro continua com oito. */
+  const { t: tParam, i: iParam } = useLocalSearchParams<{ t?: string; i?: string }>();
+  const editando = tParam != null && iParam != null;
+  const diaEdit = Number(tParam);
+  const idxEdit = Number(iParam);
+  const original = editando ? treinoEm(S, diaEdit, idxEdit) : null;
+
+  const [tipo, setTipo] = useState(() => {
+    const t = original?.tipo;
+    return t && TIPOS.some(([, nome]) => nome === t) ? t : (t ? OUTRO : 'Caminhada');
+  });
+  const [outro, setOutro] = useState(() =>
+    original && !TIPOS.some(([, nome]) => nome === original.tipo) ? original.tipo : '');
+  const [min, setMin] = useState(original?.min ?? 30);
 
   /* No plural: quem tem Garmin costuma ter o Apple Saúde junto, e dizer
      só o primeiro esconde de onde metade dos minutos veio. */
@@ -94,6 +113,7 @@ export default function MedirExercicio() {
   const salvar = () => {
     if (!pronto) return;
     update((s: any) => {
+      if (editando) return editarTreino(s, diaEdit, idxEdit, nome, min);
       const c2 = registroDoDia(s, +startOfDay(now()));
       c2.exerc = (c2.exerc || 0) + min;
       c2.treinos = [...(c2.treinos || []), { tipo: nome, min }];
@@ -101,11 +121,20 @@ export default function MedirExercicio() {
     router.back();
   };
 
+  const apagar = () => {
+    update((s: any) => apagarTreino(s, diaEdit, idxEdit));
+    router.back();
+  };
+
   return (
     <SheetScreen
-      titulo="Como você se movimentou?"
-      /* A fonte automática qualifica o NÚMERO, então mora junto dele. */
-      sub={`${hoje} de ${alvo} min hoje${fonte ? ` · já com ${fontes.length === 1 ? 'o ' : ''}${fonte}` : ''}`}
+      titulo={editando ? 'Corrigir o treino' : 'Como você se movimentou?'}
+      /* A fonte automática qualifica o NÚMERO, então mora junto dele. Ao
+         corrigir ela não vem: quem está consertando uma linha não precisa
+         do total do dia, precisa da linha. */
+      sub={editando
+        ? 'O que ficou errado no registro'
+        : `${hoje} de ${alvo} min hoje${fonte ? ` · já com ${fontes.length === 1 ? 'o ' : ''}${fonte}` : ''}`}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -114,7 +143,11 @@ export default function MedirExercicio() {
             borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center',
           }}>
             <Txt v="body" c={pronto ? c.accentInk : c.tx4}>
-              {!nome ? 'Diga o que você fez' : `Registrar ${min} min de ${nome.toLowerCase()}`}
+              {!nome
+                ? 'Diga o que você fez'
+                : editando
+                  ? 'Salvar a correção'
+                  : `Registrar ${min} min de ${nome.toLowerCase()}`}
             </Txt>
           </View>
         </Pressable>
@@ -132,7 +165,7 @@ export default function MedirExercicio() {
 
           Sem caixa, sem ícone, sem título: uma frase logo abaixo do
           número que ela explica. */}
-      {fonte ? (
+      {fonte && !editando ? (
         <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
           O que você registrar aqui soma ao que {fontes.length === 1 ? 'ele já contou' : 'eles já contaram'}.
         </Txt>
@@ -194,6 +227,14 @@ export default function MedirExercicio() {
           })}
         </Row>
       </View>
+
+      {/* Longe do salvar, e no fim: apagar é o que se faz depois de olhar
+          o registro inteiro e concluir que ele não devia existir. */}
+      {editando ? (
+        <View style={{ marginTop: 22 }}>
+          <Botao label="Apagar este treino" tom="perigo" onPress={apagar} />
+        </View>
+      ) : null}
     </SheetScreen>
   );
 }
