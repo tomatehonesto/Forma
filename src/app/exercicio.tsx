@@ -4,10 +4,10 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   checkinToday, fontesDeMovimento, listaPt,
-  algumTreino, diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
+  diasDeForca, diasDoPeriodo, resumoDeMovimento, semanaDeMovimento,
   semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
-import { fmtDate, relDay, WD } from '../logic/time';
+import { fmtDate, now, relDay, startOfDay, WD } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
@@ -80,12 +80,24 @@ export default function Exercicio() {
   const router = useRouter();
   const [per, setPer] = useState('30');
   const dias = PERIODOS.find((x) => x.id === per)!.dias;
-  /* O dia escolhido na tira, ou null para o período inteiro. Trocar de
-     período solta a escolha: um 12 de setembro selecionado não faz
-     sentido dentro de "7 dias". */
-  const [diaSel, setDiaSel] = useState<number | null>(null);
+  /* O DIA ESCOLHIDO — sempre há um, e começa em hoje.
+
+     A tira nasceu como filtro opcional: sem escolha, o caderno listava o
+     período inteiro. Duas coisas na mesma seção dizendo coisas
+     diferentes — um seletor de data em cima e, embaixo, tudo. Ou o
+     seletor manda, ou ele é enfeite.
+
+     Agora ele manda. Tocar num dia troca o dia; não existe "soltar" para
+     voltar a ver tudo, porque ver tudo é justamente o que contradizia o
+     seletor. Quem procura um treino antigo usa a tira, que é para isso —
+     e os pontos embaixo de cada número dizem onde procurar sem tentativa
+     e erro.
+
+     Trocar de período volta para hoje: um 12 de setembro escolhido não
+     existe mais dentro de "7 dias". */
+  const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
   const tira = React.useRef<ScrollView>(null);
-  const escolhePeriodo = (id: string) => { setPer(id); setDiaSel(null); };
+  const escolhePeriodo = (id: string) => { setPer(id); setDiaSel(+startOfDay(now())); };
 
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
@@ -124,7 +136,7 @@ export default function Exercicio() {
      a data uma vez, e embaixo o que aconteceu nela. Em lista corrida, a
      mesma data se repetia em toda linha e o olho tinha que juntar. */
   const porDia = treinos
-    .filter((tr) => diaSel == null || tr.t === diaSel)
+    .filter((tr) => tr.t === diaSel)
     .reduce<{ t: number; itens: typeof treinos }[]>((fora, tr) => {
     const ultimo = fora[fora.length - 1];
     if (ultimo && ultimo.t === tr.t) ultimo.itens.push(tr);
@@ -447,7 +459,7 @@ export default function Exercicio() {
               ) : (
                 <Pressable
                   key={d.t}
-                  onPress={() => setDiaSel(on ? null : d.t)}
+                  onPress={() => setDiaSel(d.t)}
                   style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
                 >
                   {miolo}
@@ -455,17 +467,6 @@ export default function Exercicio() {
               );
             })}
           </ScrollView>
-
-          {diaSel != null ? (
-            <Row gap={8} style={{ paddingHorizontal: 2 }}>
-              <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>
-                Mostrando só {relDay(new Date(diaSel))}.
-              </Txt>
-              <Pressable onPress={() => setDiaSel(null)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <Txt v="label" c={c.accent}>Ver tudo</Txt>
-              </Pressable>
-            </Row>
-          ) : null}
         </View>
 
         {porDia.length ? (
@@ -516,16 +517,8 @@ export default function Exercicio() {
              bloco de cima, que é onde ela qualifica um número de verdade. */
           <Vazio
             ic="dumbbell"
-            titulo={
-              diaSel != null ? 'Nenhum treino neste dia'
-                : algumTreino(S) ? 'Nenhum treino nestes dias'
-                  : 'Nenhum treino registrado'
-            }
-            texto={
-              diaSel != null ? 'Descanso também faz parte.'
-                : algumTreino(S) ? 'Experimente um período maior.'
-                  : undefined
-            }
+            titulo="Nenhum treino neste dia"
+            texto="Descanso também faz parte."
           />
         )}
       </Bloco>

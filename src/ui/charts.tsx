@@ -6,11 +6,31 @@ import { Txt } from './kit';
 import { useTheme } from './useTheme';
 
 type Pt = { x: number; y: number };
+
+/* A CURVA PASSA PELOS PONTOS.
+
+   O suavizador anterior encadeava quadráticas de ponto-médio a
+   ponto-médio, usando cada leitura como ponto de CONTROLE. Ponto de
+   controle é ímã, não trilho: a curva era puxada na direção de cada
+   leitura sem nunca tocá-la, e só a primeira e a última ficavam em cima
+   do traço. Enquanto o gráfico era um fio liso ninguém percebia; no dia
+   em que ele ganhou um nó por leitura, os nós apareceram boiando ao lado
+   da linha — e o erro estava na linha, não nos nós.
+
+   No lugar entra Catmull-Rom convertido para Bézier cúbica: cada tangente
+   sai da direção entre o ponto anterior e o próximo, e a curva é obrigada
+   a passar por todos. A tensão de 1/6 é a que reproduz a suavidade que a
+   tela já tinha. Ela pode ultrapassar de leve o topo ou a base num pico
+   isolado, e é por isso que o cartão reserva folga em cima e embaixo. */
 function smooth(P: Pt[]) {
   if (P.length < 2) return '';
+  if (P.length === 2) return `M${P[0].x},${P[0].y} L${P[1].x},${P[1].y}`;
+  const t = 1 / 6;
   let d = `M${P[0].x},${P[0].y}`;
-  for (let i = 1; i < P.length; i++) { const mx = (P[i - 1].x + P[i].x) / 2, my = (P[i - 1].y + P[i].y) / 2; d += ` Q${P[i - 1].x},${P[i - 1].y} ${mx},${my}`; }
-  d += ` L${P[P.length - 1].x},${P[P.length - 1].y}`;
+  for (let i = 0; i < P.length - 1; i++) {
+    const a = P[i - 1] || P[i], b = P[i], e = P[i + 1], f = P[i + 2] || e;
+    d += ` C${b.x + (e.x - a.x) * t},${b.y + (e.y - a.y) * t} ${e.x - (f.x - b.x) * t},${e.y - (f.y - b.y) * t} ${e.x},${e.y}`;
+  }
   return d;
 }
 

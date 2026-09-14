@@ -1509,17 +1509,6 @@ export const origemDoTreino = (tr: { fonte?: string } | null | undefined): strin
   (tr && tr.fonte) || ORIGEM_MANUAL;
 export const ehManual = (fonte: string) => fonte === ORIGEM_MANUAL;
 
-/** Existe algum treino registrado, em qualquer data?
-
-    Serve para separar dois vazios que pedem frases diferentes: quem nunca
-    registrou nada precisa saber o que o caderno guarda; quem registrou e
-    escolheu um período curto só precisa saber que é o recorte. Sem isto a
-    tela usava a contagem do período para as duas coisas, e a segunda
-    frase nunca aparecia. */
-export function algumTreino(S: State): boolean {
-  return (S.checkins as any[]).some((c) => ((c.treinos || []) as any[]).length > 0);
-}
-
 /** As sessões registradas à mão, da mais nova para a mais velha. */
 export function treinosRecentes(S: State, dias = 30): Treino[] {
   const corte = +startOfDay(now()) - (dias - 1) * DAY;
