@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notas } from '../logic/derive';
 import { MO_LONG } from '../logic/time';
-import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao, Vazio } from '../ui/internas';
 
 /* ============================================================
    NOTAS PARA A CONSULTA
@@ -66,12 +66,22 @@ export default function Notas() {
           ))}
         </Cartao>
       ) : (
-        <Aviso
+        /* Era um Aviso, com a anatomia de recado — ícone azul à esquerda e
+           dois parágrafos explicando a ausência. Logo abaixo mora um aviso
+           de verdade ("as notas entram no relatório"), e os dois lado a
+           lado viravam dois recados empilhados: a tela vazia falava mais
+           que a tela cheia.
+
+           A segunda linha só aparece na aba das conversadas, e só quando
+           existe pauta do outro lado — aí ela é uma SAÍDA, e não um
+           comentário. Na pauta vazia não entra nada: o que fazer já está
+           no botão fixo embaixo e no "+" da barra. */
+        <Vazio
           ic="pencil"
           titulo={aba === 'abertas' ? 'Nada na pauta ainda' : 'Nenhuma conversada ainda'}
-          texto={aba === 'abertas'
-            ? 'O que você anotar aqui aparece junto na hora de exportar o histórico para a consulta.'
-            : 'Assim que você marcar uma nota como conversada, ela sai da pauta e fica guardada aqui.'}
+          texto={aba === 'feitas' && abertas.length
+            ? `${abertas.length === 1 ? 'Sua nota está' : 'Suas notas estão'} em “A conversar”.`
+            : undefined}
         />
       )}
 
