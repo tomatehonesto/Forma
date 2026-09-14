@@ -37,7 +37,13 @@ const L = [
   [432, 'lombo', 'Lombo de porco assado', 'lombo porco suino', 100, '1 fatia grossa'],
   [435, 'pernil', 'Pernil assado', 'pernil porco suino', 100, '1 fatia'],
   [430, 'costelinha', 'Costelinha de porco', 'costela costelinha porco', 120, '2 costelas'],
+  [351, 'coxao-mole', 'Carne cozida (coxão mole)', 'coxao mole carne cozida panela', 100, '1 porção'],
+  [331, 'almondega', 'Almôndegas', 'almondega bolinho de carne', 100, '3 unidades'],
+  [356, 'figado', 'Fígado acebolado', 'figado bife acebolado', 100, '1 bife'],
+  [425, 'peru', 'Peru assado', 'peru chester ave natal', 100, '1 fatia'],
+  [440, 'quibe', 'Quibe assado', 'quibe kibe', 80, '1 pedaço'],
   [439, 'presunto', 'Presunto', 'presunto frios peito de peru', 30, '2 fatias'],
+  [424, 'mortadela', 'Mortadela', 'mortadela frios', 30, '2 fatias'],
 
   /* --- peixes e frutos do mar --------------------------------------- */
   [315, 'salmao', 'Salmão grelhado', 'salmao peixe', 120, '1 posta'],
@@ -46,6 +52,9 @@ const L = [
   [318, 'sardinha', 'Sardinha assada', 'sardinha peixe assada', 100, '2 unidades'],
   [319, 'sardinha-lata', 'Sardinha em lata', 'sardinha lata conserva', 80, 'meia lata'],
   [277, 'atum-lata', 'Atum em lata', 'atum lata conserva', 80, 'meia lata'],
+  [280, 'bacalhau', 'Bacalhau refogado', 'bacalhau', 120, '1 porção'],
+  [293, 'corvina', 'Corvina assada', 'corvina peixe assado', 120, '1 posta'],
+  [300, 'manjuba', 'Manjuba frita', 'manjuba peixinho frito', 80, '1 porção'],
   [284, 'camarao', 'Camarão cozido', 'camarao frutos do mar', 100, '1 porção'],
 
   /* --- ovos ---------------------------------------------------------- */
@@ -67,6 +76,7 @@ const L = [
   [null, 'leite', 'Leite', 'leite copo integral desnatado', 200, '1 copo', 3.2, 'TBCA'],
   /* Suplemento: não existe tabela de composição para isso, o número é o
      do rótulo típico de whey concentrado. */
+  [455, 'achocolatado', 'Leite com achocolatado', 'achocolatado nescau toddy leite', 200, '1 copo'],
   [null, 'whey', 'Whey protein', 'whey proteina suplemento shake', 30, '1 scoop', 80, 'rótulo'],
 
   /* --- leguminosas ---------------------------------------------------- */
@@ -79,6 +89,7 @@ const L = [
   [null, 'grao-de-bico', 'Grão-de-bico cozido', 'grao de bico homus', 80, '1 concha', +(21.2 / 2.4).toFixed(1), 'TACO 575 ÷ 2,4 de rendimento'],
   [584, 'tofu', 'Tofu', 'tofu soja queijo de soja', 100, '1 fatia grossa'],
   [539, 'feijao-tropeiro', 'Feijão tropeiro', 'tropeiro feijao mineiro', 120, '1 porção'],
+  [559, 'ervilha', 'Ervilha', 'ervilha', 60, '3 colheres'],
 
   /* --- cereais e acompanhamentos -------------------------------------- */
   [3, 'arroz', 'Arroz branco', 'arroz branco', 120, '4 colheres'],
@@ -94,17 +105,46 @@ const L = [
   [25, 'cereal', 'Cereal matinal', 'cereal matinal granola sucrilhos', 30, '1 xícara'],
   [526, 'arroz-carreteiro', 'Arroz carreteiro', 'carreteiro arroz com carne', 200, '1 prato'],
   [527, 'baiao', 'Baião de dois', 'baiao de dois', 200, '1 prato'],
+  [54, 'pao-sovado', 'Pão doce ou sovado', 'pao sovado doce bisnaguinha', 50, '1 unidade'],
+  [48, 'pao-aveia', 'Pão de aveia', 'pao aveia forma', 50, '2 fatias'],
+  [534, 'cuscuz-paulista', 'Cuscuz paulista', 'cuscuz paulista', 150, '1 pedaço'],
 
   /* --- pratos prontos -------------------------------------------------- */
   [538, 'estrogonofe', 'Estrogonofe de frango', 'estrogonofe strogonoff frango', 150, '1 porção'],
   [529, 'bife-a-cavalo', 'Bife à cavalo', 'bife a cavalo', 150, '1 porção'],
   [386, 'coxinha', 'Coxinha', 'coxinha salgado', 80, '1 unidade'],
   [546, 'legumes', 'Legumes cozidos', 'legumes cozidos vapor mistura', 100, '1 pires'],
+  [540, 'feijoada', 'Feijoada', 'feijoada', 250, '1 prato'],
+  [555, 'virado', 'Virado à paulista', 'virado paulista', 250, '1 prato'],
+  [537, 'estrogonofe-carne', 'Estrogonofe de carne', 'estrogonofe strogonoff carne', 150, '1 porção'],
+  [556, 'yakisoba', 'Yakisoba', 'yakisoba macarrao oriental', 250, '1 prato'],
+  [547, 'salpicao', 'Salpicão de frango', 'salpicao', 120, '1 porção'],
+  [536, 'dobradinha', 'Dobradinha', 'dobradinha bucho', 200, '1 prato'],
+  [553, 'vaca-atolada', 'Vaca atolada', 'vaca atolada costela mandioca', 250, '1 prato'],
+  [554, 'vatapa', 'Vatapá', 'vatapa', 150, '1 porção'],
+  [525, 'acaraje', 'Acarajé', 'acaraje', 100, '1 unidade'],
+  [543, 'manicoba', 'Maniçoba', 'manicoba', 200, '1 prato'],
+  [528, 'barreado', 'Barreado', 'barreado', 200, '1 prato'],
+  [532, 'charuto', 'Charuto de repolho', 'charuto repolho', 150, '2 unidades'],
+  [549, 'tabule', 'Tabule', 'tabule', 100, '1 porção'],
 
   /* --- verduras, frutas e o resto do prato ------------------------------ */
   [78, 'salada-folhas', 'Salada de folhas', 'salada alface folhas verde rucula', 60, '1 prato'],
   [161, 'tomate', 'Tomate', 'tomate', 60, '1 unidade'],
   [100, 'brocolis', 'Brócolis', 'brocolis', 80, '1 porção'],
+  [109, 'cenoura', 'Cenoura cozida', 'cenoura', 60, '3 colheres'],
+  [97, 'beterraba', 'Beterraba cozida', 'beterraba', 60, '3 colheres'],
+  [116, 'couve', 'Couve refogada', 'couve mineira', 50, '2 colheres'],
+  [118, 'couve-flor', 'Couve-flor', 'couve flor', 80, '1 porção'],
+  [120, 'espinafre', 'Espinafre refogado', 'espinafre', 60, '2 colheres'],
+  [64, 'abobora', 'Abóbora cozida', 'abobora jerimum cabotia', 100, '1 porção'],
+  [112, 'chuchu', 'Chuchu cozido', 'chuchu', 80, '1 porção'],
+  [162, 'vagem', 'Vagem', 'vagem', 60, '1 porção'],
+  [147, 'quiabo', 'Quiabo', 'quiabo', 60, '1 porção'],
+  [149, 'repolho', 'Repolho', 'repolho', 50, '1 pires'],
+  [142, 'pepino', 'Pepino', 'pepino', 50, 'meia unidade'],
+  [129, 'mandioca', 'Mandioca cozida', 'mandioca aipim macaxeira', 100, '1 porção'],
+  [132, 'mandioca-frita', 'Mandioca frita', 'mandioca frita aipim', 100, '1 porção'],
   [91, 'batata', 'Batata cozida', 'batata inglesa cozida pure', 120, '1 unidade média'],
   [93, 'batata-frita', 'Batata frita', 'batata frita fritas', 100, '1 porção'],
   [88, 'batata-doce', 'Batata doce', 'batata doce', 120, '1 pedaço'],
@@ -113,6 +153,14 @@ const L = [
   [182, 'banana', 'Banana', 'banana', 90, '1 unidade'],
   [221, 'maca', 'Maçã', 'maca fruta', 130, '1 unidade'],
   [163, 'abacate', 'Abacate', 'abacate guacamole', 100, 'meia unidade'],
+  [164, 'abacaxi', 'Abacaxi', 'abacaxi', 100, '2 fatias'],
+  [200, 'goiaba', 'Goiaba', 'goiaba', 100, '1 unidade'],
+  [214, 'laranja', 'Laranja', 'laranja', 130, '1 unidade'],
+  [225, 'mamao', 'Mamão', 'mamao papaia formosa', 150, '1 fatia'],
+  [231, 'manga', 'Manga', 'manga', 150, '1 unidade'],
+  [235, 'melancia', 'Melancia', 'melancia', 200, '1 fatia'],
+  [239, 'morango', 'Morango', 'morango', 100, '1 xícara'],
+  [256, 'uva', 'Uva', 'uva', 100, '1 cacho pequeno'],
 
   /* --- nozes e sementes -------------------------------------------------- */
   [588, 'castanha-caju', 'Castanha de caju', 'castanha caju', 30, '1 punhado'],

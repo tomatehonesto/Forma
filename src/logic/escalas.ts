@@ -31,51 +31,36 @@ export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca d
 /** 1–5 dos dois lados, sem conversão. */
 export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um bom dia', 'Um ótimo dia'];
 
-/* PROTEÍNA POR REFEIÇÃO — faixa com a conta à mostra.
+/* PROTEÍNA POR REFEIÇÃO — a faixa saiu da pergunta.
 
-   O app não conta caloria e não vai pedir balança: a pessoa olha o prato
-   e diz se tinha bastante, média ou pouca. Mas a meta do dia é um número
-   duro (90 g na home, "faltam 36 g"), então a faixa VIRA número em algum
-   lugar — e virava escondida, dentro da tela de registro.
+   Durante um tempo a tela perguntava "quanta proteína tinha?" e oferecia
+   Bastante / Média / Pouca. Era melhor do que o silêncio de antes, mas
+   continuava pedindo a coisa errada: quantas gramas de proteína tem um
+   filé é informação que quem comeu não tem. A pergunta certa é o que
+   estava no prato — essa a pessoa responde sem pensar —, e a conta é
+   trabalho do app.
 
-   Três "Médias" fecham o dia em 54 de 90, e quem comeu decentemente as
-   três vezes não tinha como descobrir por que o app discordava. Agora o
-   grama aparece na opção e os exemplos aparecem embaixo: é a mesma
-   defesa das legendas do check-in — uma estimativa se sustenta mostrando
-   a régua, nunca arredondando melhor.
+   O que sobrou da faixa é rótulo, nas duas direções:
 
-   Os números vêm do porte da porção de proteína animal que cada faixa
-   descreve (um filé de 120 g dá perto de 30 g de proteína; dois ovos,
-   perto de 13; um prato sem fonte nenhuma, o resíduo do arroz e do
-   feijão). São estimativas de porte, e o "~" na tela é para valer.
+   faixaDe(g) desce dos gramas para a palavra, para /alimentacao poder
+   dizer "proteína alta" sem guardar isso em lugar nenhum. Os cortes
+   ficam no meio do caminho entre as âncoras antigas (30, 18 e 8), o que
+   mantém a ida e a volta coerentes.
 
-   Os ids ficam como nasceram, acento e tudo: já existem refeições
-   gravadas com 'média'. */
-export const PROTEINA: { id: string; label: string; g: number; legenda: string }[] = [
-  { id: 'alta', label: 'Bastante', g: 30, legenda: 'Um filé, um peito de frango, uma posta de peixe.' },
-  { id: 'média', label: 'Média', g: 18, legenda: 'Dois ovos, um pote de iogurte, um pedaço menor de carne.' },
-  { id: 'baixa', label: 'Pouca', g: 8, legenda: 'Salada, fruta, pão — sem uma fonte de proteína à vista.' },
-];
-
-/* A SETA INVERTEU.
-
-   A faixa mandava e o grama saía dela: "Bastante" virava 30. Agora a
-   tela sabe somar alimento por alimento, e a câmera vai chegar com
-   gramas também — então o grama passou a ser a verdade da refeição e a
-   faixa virou o rótulo dela, calculado de volta.
-
-   Os cortes ficam no meio do caminho entre as âncoras (30, 18 e 8), que
-   é o que mantém a ida e a volta coerentes: gravar "Bastante" e reler o
-   registro continua devolvendo "Bastante". */
+   gramasDaFaixa sobe da palavra para os gramas, e existe SÓ para ler
+   refeição gravada antes de tudo isso: elas têm 'alta' e não têm `g`.
+   Não use em registro novo — em registro novo o grama vem do prato. */
 export function faixaDe(g: number): string {
   if (g >= 24) return 'alta';
   if (g >= 13) return 'média';
   return 'baixa';
 }
 
-/** A faixa por id, ou null. Guarda contra o id antigo que não existe mais. */
-export function proteinaDe(id: string | null | undefined) {
-  return PROTEINA.find((p) => p.id === id) || null;
+const FAIXA_ANTIGA: Record<string, number> = { alta: 30, 'média': 18, baixa: 8 };
+
+/** Gramas de uma refeição antiga, gravada só com a faixa. */
+export function gramasDaFaixa(prot: string | null | undefined): number | null {
+  return prot ? FAIXA_ANTIGA[prot] ?? null : null;
 }
 
 /** Régua genérica de sintoma — a rede de segurança para um sintoma que

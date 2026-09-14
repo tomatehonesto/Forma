@@ -28,6 +28,14 @@ export type ItemComida = {
   porcao: Porcao;
 };
 
+export type Origem = 'tabela' | 'estimado' | 'sem-conta';
+
+/** De onde sai — ou não sai — o número deste item. */
+export function origemDe(it: ItemComida): Origem {
+  if (alimentoDe(it.id)) return 'tabela';
+  return it.base != null ? 'estimado' : 'sem-conta';
+}
+
 /** O alimento de um item, ou null se ele for livre (ou o id sumir). */
 export function alimentoDe(id?: string): Alimento | null {
   return (id && ALIMENTOS.find((a) => a.id === id)) || null;
@@ -37,9 +45,11 @@ export function nomeItem(it: ItemComida): string {
   return alimentoDe(it.id)?.nome ?? it.nome ?? '';
 }
 
-/** A medida caseira, ou a confissão de que o número veio da foto. */
+/** A medida caseira, ou a confissão de onde o número veio — ou não veio. */
 export function medidaItem(it: ItemComida): string {
-  return alimentoDe(it.id)?.medida ?? 'estimado pela foto';
+  const a = alimentoDe(it.id);
+  if (a) return a.medida;
+  return it.base != null ? 'estimado pela foto' : 'ainda não entra na conta';
 }
 
 export function gramasItem(it: ItemComida): number {
@@ -53,7 +63,7 @@ export function somaDe(itens: ItemComida[]): number {
   return itens.reduce((s, it) => s + gramasItem(it), 0);
 }
 
-/** Se ALGUM item do prato foi estimado sem tabela. */
-export function temEstimativa(itens: ItemComida[]): boolean {
-  return itens.some((it) => !alimentoDe(it.id));
+/** Itens do prato numa dada origem. */
+export function itensDe(itens: ItemComida[], origem: Origem): ItemComida[] {
+  return itens.filter((it) => origemDe(it) === origem);
 }

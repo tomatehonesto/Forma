@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { PORCOES, buscarAlimento, gramasDe, type Alimento, type Porcao } from '../logic/alimentos';
-import { gramasItem, medidaItem, nomeItem, type ItemComida } from '../logic/prato';
+import { gramasItem, medidaItem, nomeItem, origemDe, type ItemComida } from '../logic/prato';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
@@ -20,15 +20,19 @@ import { radius, ty } from '../theme';
 /* ------------------------------------------------------------------ */
 
 /** Campo de texto que sugere alimentos enquanto se digita. */
-export function BuscaAlimento({ valor, onChange, onEscolher, jaTem }: {
+export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
   valor: string;
   onChange: (v: string) => void;
   onEscolher: (a: Alimento) => void;
+  /** Guardar o que foi digitado, quando a tabela não tem. */
+  onLivre: (nome: string) => void;
   /** Ids já na lista — somem das sugestões para não entrar duas vezes. */
   jaTem?: string[];
 }) {
   const { c } = useTheme();
   const achados = buscarAlimento(valor).filter((a) => !jaTem?.includes(a.id));
+  const escrito = valor.trim();
+  const semPar = escrito.length >= 2 && achados.length === 0;
 
   return (
     <View>
@@ -70,6 +74,25 @@ export function BuscaAlimento({ valor, onChange, onEscolher, jaTem }: {
           ))}
         </View>
       ) : null}
+
+      {/* A tabela tem 124 alimentos e o Brasil tem mais. Sem esta saída,
+          quem comeu lasanha ficava sem registrar a refeição — e perder o
+          registro inteiro é pior do que registrar sem o número. Entra com
+          nome e sem conta, dito com todas as letras. */}
+      {semPar ? (
+        <Pressable onPress={() => onLivre(escrito)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Row gap={10} style={{
+            marginTop: 6, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 10,
+          }}>
+            <View style={{ flex: 1 }}>
+              <Txt v="label" numberOfLines={1}>Anotar “{escrito}”</Txt>
+              <Txt v="micro" c={c.tx4}>Não tenho a proteína desse ainda</Txt>
+            </View>
+            <Icon name="plus" size={16} color={c.tx3} sw={2.4} />
+          </Row>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -84,6 +107,7 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
 }) {
   const { c } = useTheme();
   const nome = nomeItem(item);
+  const origem = origemDe(item);
   if (!nome) return null;
 
   return (
@@ -106,7 +130,12 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
 
       {/* A pergunta que a pessoa consegue responder. Ninguém sabe quantos
           gramas de proteína tem um filé; todo mundo sabe se o pedaço foi
-          grande ou pequeno. A conta difícil fica com a tabela. */}
+          grande ou pequeno. A conta difícil fica com a tabela.
+
+          Sem número por trás, a porção não muda nada — então ela nem
+          aparece. Pedir "pouca ou bastante" de uma coisa que vale zero
+          seria pedir à toa. */}
+      {origem === 'sem-conta' ? null : (
       <Row gap={6}>
         {PORCOES.map((p) => {
           const on = item.porcao === p.id;
@@ -126,6 +155,7 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
           <Txt v="tag" c={c.tx2}>~{gramasItem(item)} g</Txt>
         </View>
       </Row>
+      )}
     </View>
   );
 }

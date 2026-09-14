@@ -3,9 +3,9 @@ import { View, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkinToday, registroDoDia } from '../logic/derive';
-import { PROTEINA, proteinaDe, faixaDe } from '../logic/escalas';
+import { faixaDe, gramasDaFaixa } from '../logic/escalas';
 import { type Porcao } from '../logic/alimentos';
-import { nomeItem, somaDe, temEstimativa, type ItemComida } from '../logic/prato';
+import { itensDe, nomeItem, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
@@ -19,25 +19,24 @@ import { radius } from '../theme';
    O QUE VOCÊ COMEU
 
    Esta tela alimenta UM número: a proteína do dia, que a home cobra como
-   "faltam 36 g". Durante muito tempo ela escondia esse número — as faixas
-   viravam 30, 18 e 8 g em silêncio —, depois passou a mostrar a conta, e
-   então deixou de PEDIR a conta.
+   "faltam 36 g". Ela já escondeu esse número, depois mostrou a conta,
+   depois pediu a conta — e agora parou de pedir.
 
-   Quem come não sabe quantos gramas de proteína tem um filé de frango.
-   Essa informação não está ao alcance de quem responde, e pedir mesmo
-   assim só produz palpite com cara de dado. Mas todo mundo sabe dizer o
-   que comeu, e sabe se o pedaço foi grande ou pequeno.
+   A pergunta "quanta proteína tinha?" pedia o que quem comeu não tem
+   como saber. Ninguém sabe quantas gramas um filé de frango carrega, e
+   perguntar assim mesmo só produz palpite com cara de dado. O que a
+   pessoa sabe, e sabe sem pensar, é O QUE ESTAVA NO PRATO.
 
-   TRÊS PORTAS, UMA LISTA
+   Então essa virou a única entrada da tela. O prato entra digitado ou
+   fotografado; o número sai calculado. Quem soma é a tabela da TACO, que
+   é o lado da conta onde cabe uma tabela.
 
-   A foto propõe os itens, a busca acha os itens, a faixa responde por
-   alto quando nada disso alcança — comida de festa, receita de família,
-   o prato que ninguém sabe nomear. As três chegam no mesmo lugar: uma
-   lista de itens com porção, e uma soma só.
+   Sobra uma coisa para a pessoa, e é a única que a tabela não pode saber
+   olhando: se a porção foi pouca, normal ou bastante.
 
-   É por isso que a foto não abre outra tela. Ela preenche esta, e o que
-   ela preencheu fica aberto para conserto — porque foto acerta o que é e
-   erra o quanto tem.
+   E quando a tabela não tem o prato — lasanha, a receita da avó —, o
+   item entra pelo nome e sem conta, dizendo isso. Perder o registro
+   inteiro seria pior, e inventar um número seria voltar ao começo.
    ============================================================ */
 
 const HORARIOS = ['Café da manhã', 'Almoço', 'Lanche', 'Jantar'];
@@ -58,7 +57,6 @@ export default function MedirRefeicao() {
   const [quando, setQuando] = useState(sugerido);
   const [busca, setBusca] = useState(String(oqueParam || ''));
   const [itens, setItens] = useState<ItemComida[]>([]);
-  const [faixa, setFaixa] = useState<string | null>(null);
 
   const [camera, setCamera] = useState(false);
   const [foto, setFoto] = useState<string | null>(null);
@@ -72,12 +70,10 @@ export default function MedirRefeicao() {
   const t0 = +startOfDay(now());
   const doDia = (S.meals as any[]).filter((m) => +startOfDay(new Date(m.t)) === t0);
 
-  /* A lista manda. A faixa só vale enquanto nada foi encontrado — dois
-     números para a mesma refeição seria a divergência que esta tela
-     passou o mês inteiro tirando de si mesma. */
-  const porAlto = proteinaDe(faixa);
-  const g = itens.length ? somaDe(itens) : porAlto?.g ?? 0;
-  const pronto = itens.length > 0 || !!porAlto;
+  const g = somaDe(itens);
+  const semConta = itensDe(itens, 'sem-conta');
+  const estimados = itensDe(itens, 'estimado');
+  const pronto = itens.length > 0;
 
   const receberFoto = async (uri: string) => {
     setCamera(false);
@@ -90,7 +86,6 @@ export default function MedirRefeicao() {
       /* O que a foto viu ENTRA na lista em vez de substituir: quem já
          tinha digitado o que o prato não mostrava não perde isso. */
       setItens((v) => [...v, ...r.itens]);
-      setFaixa(null);
     } else {
       setRecado(RECADO[r.motivo]);
     }
@@ -102,17 +97,15 @@ export default function MedirRefeicao() {
     update((s: any) => {
       s.meals.unshift({
         t: +now(), name: quando,
-        /* Gramas é a verdade; a faixa virou rótulo derivado dela. Era o
-           contrário, e por isso a foto não teria onde escrever: ela chega
-           com gramas, nunca com "bastante". */
+        /* Gramas é a verdade; a faixa virou rótulo derivado dela. */
         g,
         prot: faixaDe(g),
-        tag: nomes.length ? nomes.join(', ') : busca.trim(),
+        tag: nomes.join(', '),
         /* De onde veio o número. A foto some do registro — a imagem em si
            não é guardada enquanto não houver decisão sobre armazenar foto
            de comida de alguém —, mas o fato de ter havido uma fica. */
-        fonte: foto && itens.length ? 'foto' : 'manual',
-        itens: itens.length ? itens : undefined,
+        fonte: foto ? 'foto' : 'manual',
+        itens,
       });
       const ci2 = registroDoDia(s, +startOfDay(now()));
       ci2.prot = (ci2.prot || 0) + g;
@@ -149,7 +142,7 @@ export default function MedirRefeicao() {
               key={`${m.t}-${i}`}
               style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 }}
             >
-              <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? proteinaDe(m.prot)?.g ?? 0} g</Txt>
+              <Txt v="tag" c={c.tx2}>{m.name} · {m.g ?? gramasDaFaixa(m.prot) ?? 0} g</Txt>
             </View>
           ))}
         </View>
@@ -186,10 +179,10 @@ export default function MedirRefeicao() {
           onEscolher={(a) => {
             setItens((v) => [...v, { id: a.id, porcao: 'normal' }]);
             setBusca('');
-            /* Achar o alimento desliga o palpite: quem encontrou não
-               precisa mais responder por alto, e a faixa marcada ficaria
-               de pé como uma segunda resposta. */
-            setFaixa(null);
+          }}
+          onLivre={(nome) => {
+            setItens((v) => [...v, { nome, porcao: 'normal' }]);
+            setBusca('');
           }}
         />
       </View>
@@ -207,38 +200,32 @@ export default function MedirRefeicao() {
 
           <Row style={{ justifyContent: 'space-between', paddingHorizontal: 2, marginTop: 3 }}>
             <Txt v="caption" c={c.tx3}>Proteína desta refeição</Txt>
-            <Txt v="label" c={c.accent}>~{g} g</Txt>
+            {/* Um traço, e não "~0 g", quando nada do prato entrou na
+                conta: zero é um resultado, e aqui não houve resultado. */}
+            {g === 0 && semConta.length ? (
+              <Txt v="label" c={c.tx4}>—</Txt>
+            ) : (
+              <Txt v="label" c={c.accent}>~{g} g</Txt>
+            )}
           </Row>
 
-          {/* Quando algum item não tem par na tabela, o total inteiro
-              carrega um palpite dentro. Dizer isso uma vez embaixo da
-              soma é mais honesto do que deixar a linha do item explicando
-              sozinha, porque é a soma que vai virar o número do dia. */}
-          {temEstimativa(itens) ? (
+          {/* O que ficou de fora da soma, dito embaixo dela. A linha do
+              item já avisa, mas é a SOMA que vira o número do dia — e é
+              nela que a ressalva precisa aparecer para ser lida. */}
+          {semConta.length ? (
+            <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
+              {semConta.length === 1
+                ? `${nomeItem(semConta[0])} não entra nessa conta — ainda não tenho a proteína desse prato.`
+                : `${semConta.length} itens não entram nessa conta — ainda não tenho a proteína deles.`}
+            </Txt>
+          ) : null}
+
+          {estimados.length ? (
             <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
               Parte deste total foi estimada pela foto, sem tabela por trás.
             </Txt>
           ) : null}
         </View>
-      ) : null}
-
-      {/* O caminho de pouca informação, para o que nem a foto nem a
-          tabela alcançam. Some quando a lista tem itens. */}
-      {!itens.length ? (
-        <>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22, marginBottom: 10 }}>OU DIGA POR ALTO</Txt>
-          <Grade cols={1}>
-            {PROTEINA.map((p) => (
-              <Opc
-                key={p.id} cheia label={p.label} dir={`~${p.g} g`}
-                on={faixa === p.id} onPress={() => setFaixa(p.id)}
-              />
-            ))}
-          </Grade>
-          {porAlto ? (
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>{porAlto.legenda}</Txt>
-          ) : null}
-        </>
       ) : null}
     </SheetScreen>
   );

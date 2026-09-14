@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { checkinToday } from '../logic/derive';
 import { relDay } from '../logic/time';
-import { proteinaDe } from '../logic/escalas';
+import { gramasDaFaixa } from '../logic/escalas';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -74,7 +74,7 @@ export default function Alimentacao() {
                 color={m.prot === 'alta' ? c.accent : c.tx3}
                 bg={m.prot === 'alta' ? c.accentWeak : c.bg2}
               />
-              <Pill label={`~${m.g ?? proteinaDe(m.prot)?.g ?? 0} g`} color={c.tx3} bg={c.bg2} />
+              <Pill label={`~${m.g ?? gramasDaFaixa(m.prot) ?? 0} g`} color={c.tx3} bg={c.bg2} />
             </Row>
           </Card>
         ))}
