@@ -207,8 +207,13 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
 /* Sheet de captura — o invólucro que registrar e as telas de medição
    compartilham: scrim que fecha ao toque, grabber, painel flutuando acima
    da tab bar. Mantém as capturas com a mesma cara e o mesmo gesto. */
-export function SheetScreen({ titulo, sub, children, onClose }: {
-  titulo: string; sub?: string; children: React.ReactNode; onClose: () => void;
+/* `rodape` fica FORA da rolagem, colado na base da folha. Serve para a
+   ação principal de uma captura: dentro do cartão ela descia junto com o
+   conteúdo e, em folha cheia, saía de vista bem quando a pessoa terminava
+   de montar o que ia registrar. */
+export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
+  titulo: string; sub?: string; rodape?: React.ReactNode;
+  children: React.ReactNode; onClose: () => void;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -245,6 +250,15 @@ export function SheetScreen({ titulo, sub, children, onClose }: {
           </Row>
           {children}
         </ScrollView>
+
+        {rodape ? (
+          <View style={{
+            paddingHorizontal: 24, paddingTop: 14,
+            borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
+          }}>
+            {rodape}
+          </View>
+        ) : null}
       </View>
     </View>
   );

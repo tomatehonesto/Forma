@@ -73,7 +73,21 @@ export default function MedirAgua() {
   };
 
   return (
-    <SheetScreen titulo="Quanto você bebeu?" sub="Toque quantas vezes precisar" onClose={() => router.back()}>
+    <SheetScreen
+      titulo="Quanto você bebeu?"
+      sub="Toque quantas vezes precisar"
+      onClose={() => router.back()}
+      rodape={(
+        <Pressable onPress={() => beber(escolhido)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
+            {/* Em ml, a mesma unidade do número lá em cima. Em litros,
+                1250 virava "1,3 L" no botão enquanto a Quantidade dizia
+                1250 ml — a mesma tela afirmando duas coisas. */}
+            <Txt v="body" c={c.accentInk}>Adicionar {escolhido} ml</Txt>
+          </View>
+        </Pressable>
+      )}
+    >
       {/* onde está agora */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 18 }}>
         <Row style={{ alignItems: 'flex-end' }}>
@@ -92,9 +106,10 @@ export default function MedirAgua() {
         )}
       </View>
 
-      {/* O montador. Tudo que compõe a quantidade mora aqui, e um botão só
-          grava — inclusive o meio copo e a garrafa e meia, que os
-          recipientes não cobrem. */}
+      {/* O montador. Tudo que compõe a quantidade mora aqui — inclusive o
+          meio copo e a garrafa e meia, que os recipientes não cobrem. Quem
+          grava é o botão do rodapé, fora da rolagem: ele é o mesmo em toda
+          a tela, e o cartão é só onde o número se forma. */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Txt v="caption" c={c.tx3}>Quantidade</Txt>
@@ -130,15 +145,6 @@ export default function MedirAgua() {
             </Pressable>
           ))}
         </Row>
-
-        <Pressable onPress={() => beber(escolhido)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
-          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
-            {/* Em ml, a mesma unidade do número logo acima. Em litros,
-                1250 virava "1,3 L" no botão enquanto a Quantidade dizia
-                1250 ml — a mesma tela afirmando duas coisas. */}
-            <Txt v="body" c={c.accentInk}>Adicionar {escolhido} ml</Txt>
-          </View>
-        </Pressable>
       </View>
     </SheetScreen>
   );
