@@ -8,10 +8,11 @@ import {
   semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
+import { ALIMENTOS } from '../logic/alimentos';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardSemana, Botao, ItemApagavel, TiraDeDias,
+  TelaInterna, Titulao, Bloco, CardSemana, Cartao, Linha, Botao, ItemApagavel, TiraDeDias,
 } from '../ui/internas';
 import { Chevron } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
@@ -242,6 +243,24 @@ export default function Alimentacao() {
             />
           )}
         </View>
+      </Bloco>
+
+      {/* A TABELA, aberta para ser lida.
+
+          Ela já existia inteira dentro da folha de registro, e só
+          aparecia enquanto alguém montava um prato — três resultados por
+          vez, cada um dizendo uma linha de proteína e sumindo em
+          seguida. Quem quis saber quanta proteína tem um ovo sem estar
+          registrando um ovo não tinha onde olhar. */}
+      <Bloco titulo="Consultar alimentos">
+        <Cartao>
+          <Linha
+            ic="book"
+            titulo="Tabela de alimentos"
+            sub={`${ALIMENTOS.length} alimentos e pratos, com proteína, caloria e o resto do rótulo`}
+            onPress={() => router.push('/alimentos' as any)}
+          />
+        </Cartao>
       </Bloco>
 
       {/* OS FAVORITOS — o atalho de quem repete a mesma comida.

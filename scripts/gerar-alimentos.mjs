@@ -1,8 +1,11 @@
 /* Gera src/logic/alimentos.ts a partir da TACO 4ª ed. (NEPA/UNICAMP).
 
    Cada linha da curadoria é:
-     [tacoId, slug, nome, busca, gUn, qtd, un, unp]        -> da TACO
-     [null,  slug, nome, busca, gUn, qtd, un, unp, p, de]  -> de fora
+     [tacoId, slug, nome, busca, gUn, qtd, un, unp, rend?]  -> da TACO
+     [null, slug, nome, busca, gUn, qtd, un, unp, p, de, kcal, carb, gord]
+
+   rend  rendimento de cocção, quando a TACO só traz o alimento CRU:
+         todos os valores da linha são divididos por ele de uma vez
 
    gUn  gramas de UMA unidade (um filé, uma colher, uma concha)
    qtd  quantas unidades vêm marcadas quando a pessoa escolhe o alimento
@@ -82,11 +85,11 @@ const L = [
   [465, 'requeijao', 'Requeijão', 'requeijao cream cheese', 30, 1, 'colher', 'colheres'],
   /* A TACO marca o leite líquido como não analisado (*). O valor vem da
      TBCA/FCF-USP para leite de vaca integral UHT. */
-  [null, 'leite', 'Leite', 'leite copo integral desnatado', 200, 1, 'copo', 'copos', 3.2, 'TBCA'],
+  [null, 'leite', 'Leite', 'leite copo integral desnatado', 200, 1, 'copo', 'copos', 3.2, 'TBCA', 60, 4.7, 3.2],
   /* Suplemento: não existe tabela de composição para isso, o número é o
      do rótulo típico de whey concentrado. */
   [455, 'achocolatado', 'Leite com achocolatado', 'achocolatado nescau toddy leite', 200, 1, 'copo', 'copos'],
-  [null, 'whey', 'Whey protein', 'whey proteina suplemento shake', 30, 1, 'scoop', 'scoops', 80, 'rótulo'],
+  [null, 'whey', 'Whey protein', 'whey proteina suplemento shake', 30, 1, 'scoop', 'scoops', 80, 'rótulo', 380, 8, 5],
 
   /* --- leguminosas ---------------------------------------------------- */
   [561, 'feijao-carioca', 'Feijão carioca', 'feijao carioca caldo', 80, 1, 'concha', 'conchas'],
@@ -95,7 +98,7 @@ const L = [
   /* Cozidos que a TACO só traz crus. O fator é o rendimento de cocção
      (quanto o grão pesa depois de hidratado), e está escrito aqui para
      que a conta possa ser conferida. */
-  [null, 'grao-de-bico', 'Grão-de-bico cozido', 'grao de bico homus', 80, 1, 'concha', 'conchas', +(21.2 / 2.4).toFixed(1), 'TACO 575 ÷ 2,4 de rendimento'],
+  [575, 'grao-de-bico', 'Grão-de-bico cozido', 'grao de bico homus', 80, 1, 'concha', 'conchas', 2.4],
   [584, 'tofu', 'Tofu', 'tofu soja queijo de soja', 100, 1, 'fatia', 'fatias'],
   [539, 'feijao-tropeiro', 'Feijão tropeiro', 'tropeiro feijao mineiro', 120, 1, 'porção', 'porções'],
   [559, 'ervilha', 'Ervilha', 'ervilha', 20, 3, 'colher', 'colheres'],
@@ -103,7 +106,7 @@ const L = [
   /* --- cereais e acompanhamentos -------------------------------------- */
   [3, 'arroz', 'Arroz branco', 'arroz branco', 30, 4, 'colher', 'colheres'],
   [1, 'arroz-integral', 'Arroz integral', 'arroz integral', 30, 4, 'colher', 'colheres'],
-  [null, 'macarrao', 'Macarrão cozido', 'macarrao massa espaguete penne', 150, 1, 'prato', 'pratos', +(10.0 / 2.2).toFixed(1), 'TACO 40 ÷ 2,2 de rendimento'],
+  [40, 'macarrao', 'Macarrão cozido', 'macarrao massa espaguete penne', 150, 1, 'prato', 'pratos', 2.2],
   [542, 'macarrao-bolonhesa', 'Macarrão à bolonhesa', 'macarrao bolonhesa molho carne', 200, 1, 'prato', 'pratos'],
   [53, 'pao-frances', 'Pão francês', 'pao frances padaria', 50, 1, 'unidade', 'unidades'],
   [52, 'pao-integral', 'Pão integral de forma', 'pao forma integral', 25, 2, 'fatia', 'fatias'],
@@ -175,7 +178,7 @@ const L = [
   [588, 'castanha-caju', 'Castanha de caju', 'castanha caju', 30, 1, 'punhado', 'punhados'],
   [589, 'castanha-para', 'Castanha do Pará', 'castanha para brasil', 7, 3, 'unidade', 'unidades'],
   [558, 'amendoim', 'Amendoim', 'amendoim', 30, 1, 'punhado', 'punhados'],
-  [null, 'pasta-amendoim', 'Pasta de amendoim', 'pasta de amendoim peanut', 20, 1, 'colher', 'colheres', 25, 'rótulo'],
+  [null, 'pasta-amendoim', 'Pasta de amendoim', 'pasta de amendoim peanut', 20, 1, 'colher', 'colheres', 25, 'rótulo', 590, 22, 50],
   [579, 'pacoca', 'Paçoca', 'pacoca amendoim doce', 25, 1, 'unidade', 'unidades'],
   [587, 'amendoa', 'Amêndoas', 'amendoa amendoas nuts', 30, 1, 'punhado', 'punhados'],
 
@@ -190,9 +193,9 @@ const L = [
      de marca, e cada marca tem o seu número. Eles entram como os que já
      estavam de fora (leite, whey, pasta de amendoim), com valor de
      rótulo e dizendo que é de rótulo. --------------------------------- */
-  [null, 'granola', 'Granola', 'granola aveia mel cereal barra', 12, 3, 'colher', 'colheres', 9, 'rótulo'],
-  [null, 'cottage', 'Queijo cottage', 'cottage queijo branco fresco', 50, 2, 'colher', 'colheres', 11, 'rótulo'],
-  [null, 'barra-proteina', 'Barra de proteína', 'barra de proteina protein bar', 45, 1, 'unidade', 'unidades', 33, 'rótulo'],
+  [null, 'granola', 'Granola', 'granola aveia mel cereal barra', 12, 3, 'colher', 'colheres', 9, 'rótulo', 430, 65, 14],
+  [null, 'cottage', 'Queijo cottage', 'cottage queijo branco fresco', 50, 2, 'colher', 'colheres', 11, 'rótulo', 98, 3.4, 4.3],
+  [null, 'barra-proteina', 'Barra de proteína', 'barra de proteina protein bar', 45, 1, 'unidade', 'unidades', 33, 'rótulo', 350, 40, 10],
   [485, 'ovo-codorna', 'Ovo de codorna', 'ovo codorna ovinho', 10, 4, 'unidade', 'unidades'],
   [63, 'torrada', 'Torrada', 'torrada pao torrado', 8, 2, 'fatia', 'fatias'],
   [13, 'biscoito-salgado', 'Biscoito cream cracker', 'biscoito salgado cream cracker agua e sal bolacha', 6, 4, 'unidade', 'unidades'],
@@ -203,11 +206,79 @@ const L = [
   [215, 'suco-laranja', 'Suco de laranja', 'suco laranja natural', 200, 1, 'copo', 'copos'],
   [139, 'palmito', 'Palmito em conserva', 'palmito conserva pupunha', 30, 3, 'tolete', 'toletes'],
   [143, 'pimentao', 'Pimentão', 'pimentao cru salada', 30, 2, 'rodela', 'rodelas'],
-  [null, 'barra-cereal', 'Barra de cereal', 'barra de cereal snack lanche', 25, 1, 'unidade', 'unidades', 6, 'rótulo'],
+  [null, 'barra-cereal', 'Barra de cereal', 'barra de cereal snack lanche', 25, 1, 'unidade', 'unidades', 6, 'rótulo', 400, 70, 10],
 ];
 
 const porId = new Map(TACO.map((x) => [x.id, x]));
 const erros = [];
+
+/* A CÉLULA DA TACO NEM SEMPRE É UM NÚMERO.
+
+   Ela traz "Tr" para traço — presente, mas abaixo do que o método
+   mede —, "NA" para não aplicável e "" para não analisado. Os três
+   viram coisas diferentes aqui: traço é zero na nossa precisão, e os
+   outros dois são NULL, que a tela mostra como "—".
+
+   Tratar não-analisado como zero seria a mentira mais fácil deste
+   arquivo: diria que o frango não tem fibra quando o que houve foi que
+   ninguém mediu. */
+const num = (v) => {
+  if (typeof v === 'number') return v;
+  if (v === 'Tr' || v === 'tr') return 0;
+  return null;
+};
+
+/* IDR — Ingestão Diária Recomendada para adultos, ANVISA RDC 269/2005.
+
+   Está aqui por um motivo só: decidir o DESTAQUE de cada alimento, que
+   é a frase "fonte de vitamina C" que a tela mostra no topo. O corte de
+   15% é o mesmo da RDC 54/2012 para a alegação "fonte de", e o de 30%
+   para "alto teor" — então a frase que o app escreve é a mesma que a
+   regra brasileira de rotulagem autoriza escrever.
+
+   ATENÇÃO: estes valores foram escritos de memória e NÃO foram
+   conferidos contra o texto da RDC. Antes de qualquer publicação,
+   conferir um por um. */
+const IDR = [
+  ['proteína', 'protein_g', 'g', 50],
+  ['fibra', 'fiber_g', 'g', 25],
+  ['vitamina C', 'vitaminC_mg', 'mg', 45],
+  ['cálcio', 'calcium_mg', 'mg', 1000],
+  ['ferro', 'iron_mg', 'mg', 14],
+  ['magnésio', 'magnesium_mg', 'mg', 260],
+  ['zinco', 'zinc_mg', 'mg', 7],
+  ['fósforo', 'phosphorus_mg', 'mg', 700],
+  ['niacina', 'niacin_mg', 'mg', 16],
+  ['tiamina', 'thiamine_mg', 'mg', 1.2],
+  ['riboflavina', 'riboflavin_mg', 'mg', 1.3],
+  ['vitamina A', 'rae_mcg', 'mcg', 600],
+];
+
+/* O nutriente em que 100 g do alimento mais se destacam, se algum
+   passar de 15% da IDR. Sem isso a tela não inventa frase nenhuma.
+
+   Com UMA exceção, e ela é do app e não da tabela: quando a proteína já
+   chega em "alto teor", é ela que a frase diz. O peito de frango tem
+   155% da IDR de niacina e 64% da de proteína, e pela conta pura a tela
+   anunciava "alto teor de niacina" — verdade, e a coisa menos útil que
+   se pode dizer sobre um frango num aplicativo cuja única conta é
+   proteína. */
+function destaqueDe(row, divisor = 1) {
+  let melhor = null;
+  let proteina = null;
+  for (const [nome, campo, un, idr] of IDR) {
+    const v = num(row[campo]);
+    if (v == null) continue;
+    const valor = v / divisor;
+    const pct = Math.round((valor / idr) * 100);
+    if (pct < 15) continue;
+    const cand = { nome, valor: +valor.toFixed(valor < 10 ? 1 : 0), un, pct };
+    if (nome === 'proteína') proteina = cand;
+    if (!melhor || pct > melhor.pct) melhor = cand;
+  }
+  if (proteina && proteina.pct >= 30) return proteina;
+  return melhor;
+}
 
 /* PRATOS QUE SÃO O PRATO INTEIRO
 
@@ -360,22 +431,22 @@ const COMPOSTOS = [
 
   /* --- café da manhã e lanche da tarde ---------------------------------- */
   ['mingau-aveia', 'Mingau de aveia', 'mingau de aveia leite overnight',
-   'prato', 'pratos', [[7, 40], [null, 200, 3.2, 'leite TBCA']]],
+   'prato', 'pratos', [[7, 40], [null, 200, 3.2, 'leite TBCA', 60, 4.7, 3.2]]],
   ['vitamina-banana', 'Vitamina de banana', 'vitamina batida de banana leite',
-   'copo', 'copos', [[null, 200, 3.2, 'leite TBCA'], [182, 90], [7, 20]]],
+   'copo', 'copos', [[null, 200, 3.2, 'leite TBCA', 60, 4.7, 3.2], [182, 90], [7, 20]]],
   /* A granola era o id 25 da TACO, que é "Cereal matinal, milho" — flocos
      de milho com nome de granola. Agora ela é o item de fora, com o valor
      de rótulo, e os dois pratos dizem a mesma coisa sobre a mesma coisa. */
   ['panqueca-americana', 'Panquecas americanas', 'panqueca americana pancake hotcake',
-   'porção', 'porções', [[35, 60], [489, 50], [null, 80, 3.2, 'leite TBCA']]],
+   'porção', 'porções', [[35, 60], [489, 50], [null, 80, 3.2, 'leite TBCA', 60, 4.7, 3.2]]],
   ['waffle', 'Waffle', 'waffle belga',
-   'unidade', 'unidades', [[35, 60], [489, 40], [null, 60, 3.2, 'leite TBCA']]],
+   'unidade', 'unidades', [[35, 60], [489, 40], [null, 60, 3.2, 'leite TBCA', 60, 4.7, 3.2]]],
   ['crepioca', 'Crepioca de queijo', 'crepioca tapioca com ovo',
    'unidade', 'unidades', [[551, 40], [489, 50], [461, 30]]],
   ['iogurte-granola', 'Iogurte com granola e fruta', 'iogurte granola parfait grego bowl',
-   'tigela', 'tigelas', [[448, 170], [null, 30, 9, 'granola rótulo'], [182, 60]]],
+   'tigela', 'tigelas', [[448, 170], [null, 30, 9, 'granola rótulo', 430, 65, 14], [182, 60]]],
   ['smoothie-proteico', 'Smoothie de banana com whey', 'smoothie shake proteico batida',
-   'copo', 'copos', [[182, 90], [null, 200, 3.2, 'leite TBCA'], [null, 30, 80, 'whey rótulo']]],
+   'copo', 'copos', [[182, 90], [null, 200, 3.2, 'leite TBCA', 60, 4.7, 3.2], [null, 30, 80, 'whey rótulo', 380, 8, 5]]],
   ['torrada-abacate-ovo', 'Torrada com abacate e ovo', 'avocado toast torrada abacate ovo',
    'porção', 'porções', [[63, 50], [163, 60], [490, 50]]],
   ['shakshuka', 'Shakshuka', 'shakshuka ovos no molho de tomate arabe',
@@ -387,7 +458,7 @@ const COMPOSTOS = [
   ['sanduiche-ovo', 'Sanduíche de ovo', 'sanduiche de ovo egg sandwich',
    'unidade', 'unidades', [[52, 50], [488, 100]]],
   ['acai-tigela', 'Açaí na tigela', 'acai tigela com granola',
-   'tigela', 'tigelas', [[168, 250], [null, 30, 9, 'granola rótulo'], [182, 60]]],
+   'tigela', 'tigelas', [[168, 250], [null, 30, 9, 'granola rótulo', 430, 65, 14], [182, 60]]],
 
   /* --- a cozinha do mundo -----------------------------------------------
 
@@ -471,16 +542,34 @@ const COMPOSTOS = [
 ];
 
 const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) => {
-  /* A proteína de 100 g do prato montado: soma o que cada componente
-     entrega e divide pelo peso total. */
-  let prot = 0, peso = 0;
+  /* O perfil de 100 g do prato montado: soma o que cada componente
+     entrega e divide pelo peso total.
+
+     Proteína, caloria, carboidrato e gordura, os quatro juntos. Somar
+     só a proteína e deixar o resto em branco era o que havia antes, e
+     fazia todo prato composto chegar na tela de consulta sem caloria
+     nenhuma — justo os pratos que as pessoas mais procuram. */
+  let peso = 0;
+  const soma = { p: 0, kcal: 0, carb: 0, gord: 0 };
+  /* Um campo desconhecido em UM componente contamina a soma inteira:
+     dizer 300 kcal quando faltou contar o leite é pior do que dizer
+     "não sei". */
+  const falta = { kcal: false, carb: false, gord: false };
   const partes = [];
-  for (const [tacoId, gramas, rendimento = 1, rotulo] of receita) {
+
+  for (const [tacoId, gramas, rendimento = 1, rotulo, kcalF, carbF, gordF] of receita) {
     /* Componente de fora da TACO: o terceiro número é a proteína por
-       100 g e o quarto diz de onde ele veio. Existe porque a TACO não
-       analisou o leite líquido, e mingau e vitamina são leite. */
+       100 g, o quarto diz de onde ele veio, e os três últimos completam
+       o perfil. Existe porque a TACO não analisou o leite líquido, e
+       mingau e vitamina são leite. */
     if (tacoId == null) {
-      prot += (rendimento / 100) * gramas;
+      soma.p += (rendimento / 100) * gramas;
+      soma.kcal += ((kcalF ?? 0) / 100) * gramas;
+      soma.carb += ((carbF ?? 0) / 100) * gramas;
+      soma.gord += ((gordF ?? 0) / 100) * gramas;
+      if (kcalF == null) falta.kcal = true;
+      if (carbF == null) falta.carb = true;
+      if (gordF == null) falta.gord = true;
       peso += gramas;
       partes.push((rotulo || '?') + '×' + gramas + 'g');
       continue;
@@ -490,38 +579,83 @@ const linhas = L.concat(COMPOSTOS.map(([slug, nome, busca, un, unp, receita]) =>
       erros.push(slug + ': componente ' + tacoId + ' sem proteína numérica');
       continue;
     }
-    prot += (row.protein_g / rendimento / 100) * gramas;
+    const pega = (campo, alvo) => {
+      const v = num(row[campo]);
+      if (v == null) { falta[alvo] = true; return; }
+      soma[alvo] += (v / rendimento / 100) * gramas;
+    };
+    soma.p += (row.protein_g / rendimento / 100) * gramas;
+    pega('energy_kcal', 'kcal');
+    pega('carbohydrate_g', 'carb');
+    pega('lipid_g', 'gord');
     peso += gramas;
     partes.push(tacoId + '×' + gramas + 'g' + (rendimento !== 1 ? '÷' + String(rendimento).replace('.', ',') : ''));
   }
+
+  const por100 = (v) => +((v / peso) * 100).toFixed(1);
   return [null, slug, nome, busca, peso, 1, un, unp,
-    +((prot / peso) * 100).toFixed(1), 'soma TACO ' + partes.join(' + ')];
+    por100(soma.p), 'soma TACO ' + partes.join(' + '),
+    falta.kcal ? null : Math.round((soma.kcal / peso) * 100),
+    falta.carb ? null : por100(soma.carb),
+    falta.gord ? null : por100(soma.gord)];
 }));
 
 const linhasTS = linhas.map((l) => {
-  const [id, slug, nome, busca, gUn, qtd, un, unp, pFora, origem] = l;
-  let p, nota;
+  const [id, slug, nome, busca, gUn, qtd, un, unp, nono, origem, kcalF, carbF, gordF] = l;
+  let p, nota, kcal, carb, gord, fibra, destaque;
+
   if (id == null) {
-    p = pFora;
+    p = nono;
     nota = origem;
+    kcal = kcalF ?? null;
+    carb = carbF ?? null;
+    gord = gordF ?? null;
+    fibra = null;
+    /* Sem linha da TACO não há micronutriente para comparar com a IDR,
+       então o prato composto e o item de rótulo não ganham destaque —
+       a não ser o que a própria proteína der. */
+    destaque = p / 50 >= 0.15
+      ? { nome: 'proteína', valor: +p.toFixed(1), un: 'g', pct: Math.round((p / 50) * 100) }
+      : null;
   } else {
     const row = porId.get(id);
     if (!row) { erros.push(slug + ': id ' + id + ' nao existe'); return null; }
     if (typeof row.protein_g !== 'number') { erros.push(slug + ': proteina nao numerica (' + row.protein_g + ') em ' + row.description); return null; }
-    p = +row.protein_g.toFixed(1);
-    nota = row.description;
+    /* `nono` aqui é o rendimento de cocção, quando a TACO só traz o
+       alimento cru: divide a linha inteira de uma vez. */
+    const d = typeof nono === 'number' ? nono : 1;
+    const q = (campo, casas = 1) => {
+      const v = num(row[campo]);
+      return v == null ? null : +(v / d).toFixed(casas);
+    };
+    p = q('protein_g');
+    kcal = q('energy_kcal', 0);
+    carb = q('carbohydrate_g');
+    gord = q('lipid_g');
+    fibra = q('fiber_g');
+    destaque = destaqueDe(row, d);
+    nota = row.description + (d !== 1 ? ' ÷ ' + String(d).replace('.', ',') + ' de rendimento' : '');
   }
+
+  const n = (v) => (v == null ? 'null' : v);
   const campos = [
     `id: '${slug}'`,
     `nome: '${nome.replace(/'/g, "\\'")}'`,
     `busca: '${busca}'`,
     `p: ${p}`,
+    `kcal: ${n(kcal)}`,
+    `carb: ${n(carb)}`,
+    `gord: ${n(gord)}`,
+    `fibra: ${n(fibra)}`,
     `gUn: ${gUn}`,
     `qtd: ${qtd}`,
     `un: '${un}'`,
     `unp: '${unp}'`,
+    destaque
+      ? `destaque: { nome: '${destaque.nome}', valor: ${destaque.valor}, un: '${destaque.un}', pct: ${destaque.pct} }`
+      : null,
     id == null ? `fonte: '${origem}'` : `taco: ${id}`,
-  ].join(', ');
+  ].filter(Boolean).join(', ');
   return `  { ${campos} }, /* ${nota} */`;
 });
 
@@ -566,6 +700,16 @@ export type Alimento = {
   busca: string;
   /** Proteína por 100 g. */
   p: number;
+  /* O RESTO DO RÓTULO, por 100 g.
+
+     Um \`null\` ali quer dizer NÃO ANALISADO, e não zero: a TACO deixa
+     a célula vazia quando o nutriente não foi medido naquele alimento, e
+     a tela mostra "—". Dizer zero ali seria afirmar uma ausência que
+     ninguém verificou. */
+  kcal: number | null;
+  carb: number | null;
+  gord: number | null;
+  fibra: number | null;
   /** Gramas de UMA unidade: um filé, uma colher, uma concha. */
   gUn: number;
   /** Quantas unidades vêm marcadas ao escolher o alimento. */
@@ -573,7 +717,12 @@ export type Alimento = {
   /** A unidade no singular, e no plural. */
   un: string;
   unp: string;
-  /** Linha da TACO de onde \`p\` saiu. */
+  /* O nutriente em que 100 g deste alimento mais se destacam, quando
+     algum passa de 15% da IDR — o mesmo corte que a regra brasileira de
+     rotulagem usa para autorizar a frase "fonte de". Sem destaque, a
+     tela não inventa frase nenhuma. */
+  destaque?: { nome: string; valor: number; un: string; pct: number };
+  /** Linha da TACO de onde os números saíram. */
   taco?: number;
   /** Quando não é da TACO, de onde é. */
   fonte?: string;
