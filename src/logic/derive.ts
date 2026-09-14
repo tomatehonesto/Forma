@@ -1457,6 +1457,80 @@ export function fonteDeMovimento(S: State): string | null {
   return achou ? achou[1] : null;
 }
 
+/* ============================================================
+   O MOVIMENTO DOS ÚLTIMOS DIAS
+
+   Duas coisas moram no registro do dia e não são a mesma:
+
+     exerc    minutos — o total, venha de onde vier
+     treinos  as sessões: [{ tipo, min }]
+
+   Elas divergem de propósito. Quem tem Apple Saúde ou Health Connect
+   ligado recebe minutos que ninguém digitou, e esses minutos não têm
+   modalidade: o telefone conta passo, não sabe que era caminhada. Então
+   a soma dos treinos é quase sempre MENOR que os minutos, e a tela que
+   mostra as duas precisa dizer isso — senão ela se contradiz sozinha.
+   ============================================================ */
+
+export type Treino = { t: number; tipo: string; min: number };
+
+/** As sessões registradas à mão, da mais nova para a mais velha. */
+export function treinosRecentes(S: State, dias = 30): Treino[] {
+  const corte = +startOfDay(now()) - (dias - 1) * DAY;
+  const out: Treino[] = [];
+  for (const c of S.checkins as any[]) {
+    if (c.t < corte) continue;
+    for (const tr of (c.treinos || []) as { tipo: string; min: number }[]) {
+      out.push({ t: c.t, tipo: tr.tipo, min: tr.min });
+    }
+  }
+  return out.sort((a, b) => b.t - a.t);
+}
+
+/** Os sete últimos dias em minutos, do mais antigo para hoje. */
+export function semanaDeMovimento(S: State): { t: number; min: number }[] {
+  const hoje = +startOfDay(now());
+  const porDia = new Map<number, number>(
+    (S.checkins as any[]).map((c) => [c.t, c.exerc || 0]),
+  );
+  return Array.from({ length: 7 }, (_, i) => {
+    const t = hoje - (6 - i) * DAY;
+    return { t, min: Math.round(porDia.get(t) || 0) };
+  });
+}
+
+/* As modalidades que puxam músculo. A distinção importa nesta doença:
+   em déficit calórico, quem só faz cardio perde massa magra junto com a
+   gordura, e massa magra é o que o tratamento inteiro tenta segurar.
+
+   Comparação por nome porque é o nome que fica gravado — quem escolheu
+   "Outro" e escreveu à mão não entra, e está certo: o app não sabe o
+   que é "treino da Carol". */
+const FORCA = ['Musculação', 'Pilates', 'Funcional'];
+
+/** Em quantos dos últimos 7 dias houve treino de força. */
+export function diasDeForca(S: State): number {
+  const corte = +startOfDay(now()) - 6 * DAY;
+  const dias = new Set<number>();
+  for (const c of S.checkins as any[]) {
+    if (c.t < corte) continue;
+    if (((c.treinos || []) as any[]).some((tr) => FORCA.includes(tr.tipo))) dias.add(c.t);
+  }
+  return dias.size;
+}
+
+/** Quanto de cada modalidade, no período — o que só os treinos sabem. */
+export function porModalidade(S: State, dias = 30): { tipo: string; vezes: number; min: number }[] {
+  const conta = new Map<string, { vezes: number; min: number }>();
+  for (const tr of treinosRecentes(S, dias)) {
+    const a = conta.get(tr.tipo) || { vezes: 0, min: 0 };
+    conta.set(tr.tipo, { vezes: a.vezes + 1, min: a.min + tr.min });
+  }
+  return [...conta.entries()]
+    .map(([tipo, v]) => ({ tipo, ...v }))
+    .sort((a, b) => b.min - a.min);
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
