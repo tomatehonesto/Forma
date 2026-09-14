@@ -38,15 +38,18 @@ import { radius } from '../theme';
    inteiro seria pior, e inventar um número seria voltar ao começo.
    ============================================================ */
 
-/* Cada refeição pelo que se come nela, e não pela hora em que ela cai:
-   a xícara, o talher, o sanduíche, a tigela. O sol e a lua diziam que
-   horas eram — e a pessoa não está escolhendo um horário, está dizendo
-   qual refeição foi. */
+/* Cada refeição pelo que se come nela: a xícara, o talher, o sanduíche.
+
+   Menos o jantar, que fica na lua — e não por descuido. Jantar no Brasil
+   é quase sempre a mesma comida do almoço, então nenhum desenho de prato
+   separa um do outro: a única coisa que distingue o jantar é ser de
+   noite. Desenhar uma tigela ali fingiria uma diferença de comida que
+   não existe. */
 const HORARIOS: [string, string][] = [
   ['coffee', 'Café da manhã'],
   ['cutlery', 'Almoço'],
   ['sandwich', 'Lanche'],
-  ['soup', 'Jantar'],
+  ['moon', 'Jantar'],
 ];
 
 export default function MedirRefeicao() {

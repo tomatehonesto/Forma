@@ -36,17 +36,14 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
 
   return (
     <View>
-      {/* O exemplo ensina o que a lista aceita. "Frango, arroz, ovo"
-          dizia só que dá para digitar comida; com um prato inteiro no
-          fim, a frase mostra que carbonara também é uma resposta — e essa
-          é a parte que ninguém descobre sozinho.
-
-          Curto porque precisa caber: a 19 px, num campo de 316, o texto
-          some pela direita antes de terminar de ensinar. */}
+      {/* Instrução, e não exemplos. Uma lista de comidas soltas só repete
+          o que o rótulo acima já disse; o que a pessoa não sabe é que
+          além de ingrediente dá para escrever o prato inteiro, e isso
+          precisa estar dito com essas palavras. */}
       <TextInput
         value={valor}
         onChangeText={onChange}
-        placeholder="Arroz, frango, carbonara…"
+        placeholder="Busque um alimento ou um prato"
         placeholderTextColor={c.tx4}
         style={[ty.body, {
           color: c.tx, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
