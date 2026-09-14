@@ -1,5 +1,6 @@
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
 import { daysAgo, addDays, startOfDay, now } from './time';
+import { nomeItem, somaDe, type ItemComida } from './prato';
 
 export const HEIGHT = 1.67;
 
@@ -34,14 +35,14 @@ export function buildSeed() {
 
      Aqui a ordem se inverte: o dia tem refeições, e `prot` é a SOMA
      delas. Uma fonte por campo, inclusive na semente. */
-  const CARDAPIO = [
-    { name: 'Café da manhã', tag: 'Ovos mexidos e fruta', g: 18, h: 8 },
-    { name: 'Café da manhã', tag: 'Iogurte natural com granola', g: 14, h: 8 },
-    { name: 'Almoço', tag: 'Frango grelhado, arroz integral e salada', g: 38, h: 12.5 },
-    { name: 'Almoço', tag: 'Carne moída com legumes e purê de batata', g: 34, h: 12.5 },
-    { name: 'Jantar', tag: 'Salmão e legumes no vapor', g: 30, h: 19.5 },
-    { name: 'Jantar', tag: 'Omelete de claras com queijo branco', g: 26, h: 19.5 },
-    { name: 'Lanche', tag: 'Queijo cottage com castanhas', g: 12, h: 16 },
+  const CARDAPIO: { name: string; itens: ItemComida[]; h: number }[] = [
+    { name: 'Café da manhã', h: 8, itens: [{ id: 'ovo-frito', qtd: 2 }, { id: 'pao-integral', qtd: 2 }] },
+    { name: 'Café da manhã', h: 8, itens: [{ id: 'iogurte', qtd: 1 }, { id: 'whey', qtd: 1 }] },
+    { name: 'Almoço', h: 12.5, itens: [{ id: 'peito-frango', qtd: 1 }, { id: 'arroz-integral', qtd: 4 }, { id: 'salada-folhas', qtd: 1 }] },
+    { name: 'Almoço', h: 12.5, itens: [{ id: 'patinho', qtd: 1 }, { id: 'arroz', qtd: 4 }, { id: 'legumes', qtd: 1 }] },
+    { name: 'Jantar', h: 19.5, itens: [{ id: 'salmao', qtd: 1 }, { id: 'brocolis', qtd: 1 }] },
+    { name: 'Jantar', h: 19.5, itens: [{ id: 'omelete', qtd: 1 }, { id: 'queijo-minas', qtd: 1 }] },
+    { name: 'Lanche', h: 16, itens: [{ id: 'queijo-minas', qtd: 1 }] },
   ];
 
   /* Hoje entra pela metade de propósito: um dia em andamento é o estado
@@ -54,7 +55,10 @@ export function buildSeed() {
     if (d % 4 === 0) r.push(CARDAPIO[6]);
     return r;
   };
-  const protDoDia = (d: number) => refeicoesDe(d).reduce((x, m) => x + m.g, 0);
+  /* Os gramas saem dos ITENS, pela mesma tabela que a tela usa. Um número
+     fixo ao lado da lista seria um segundo lugar dizendo quanta proteína
+     o prato tem, e ele divergiria no dia em que a TACO fosse corrigida. */
+  const protDoDia = (d: number) => refeicoesDe(d).reduce((x, m) => x + somaDe(m.itens), 0);
 
   /* Da mais recente para a mais antiga, que é a ordem em que a lista lê
      e a mesma em que o registro novo entra (unshift). */
@@ -68,8 +72,11 @@ export function buildSeed() {
         meals.push({
           t: base + Math.round(m.h * 3600000),
           name: m.name,
-          tag: m.tag,
-          g: m.g,
+          tag: m.itens.map(nomeItem).filter(Boolean).join(', '),
+          g: somaDe(m.itens),
+          /* Com os itens guardados, corrigir a refeição abre o prato do
+             jeito que ele foi montado em vez de uma folha em branco. */
+          itens: m.itens,
           /* Uma em cada quatro veio da câmera: sem a mistura, a linha de
              origem só existiria numa das duas formas. */
           fonte: (d + k) % 4 === 0 ? 'foto' : 'manual',
@@ -264,7 +271,14 @@ export function buildSeed() {
       { t: +daysAgo(70), name: 'Suplemento de proteína', detail: 'Conforme necessidade, para atingir a meta diária', by: 'Renata Alves (Nutrição)' },
     ],
     meals,
-    favMeals: ['Iogurte natural + granola', 'Frango grelhado + salada', 'Omelete de claras'],
+    /* Favoritos são PRATOS, com os itens e as quantidades. O nome sai
+       deles na hora de mostrar, então não há um segundo lugar guardando
+       como o prato se chama. */
+    favMeals: [
+      { itens: [{ id: 'peito-frango', qtd: 1 }, { id: 'arroz-integral', qtd: 4 }, { id: 'salada-folhas', qtd: 1 }] },
+      { itens: [{ id: 'patinho', qtd: 1 }, { id: 'arroz', qtd: 4 }] },
+      { itens: [{ id: 'ovo-frito', qtd: 2 }, { id: 'iogurte', qtd: 1 }] },
+    ],
     notifications: [
       { t: +daysAgo(0.2), ic: 'syringe', kind: 'trat', title: 'Aplicação em 3 dias', body: 'Mounjaro 5 mg · quinta. Local sugerido: abdômen (esq.).' },
       { t: +daysAgo(0.5), ic: 'spark', kind: 'ia', title: 'Novo insight', body: 'Sua fome tende a subir nos próximos dias, perto da dose.' },
@@ -362,6 +376,13 @@ export function ensureDefaults(S: any) {
      depende da pessoa, e um padrão fixo não serve para todo mundo. */
   if (S.profile) S.profile.targets = Object.assign({ prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 }, S.profile.targets || {});
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
+  /* Favorito virou prato. Os que existirem como string continuam
+     valendo — viram { nome } e seguem abrindo o registro com o nome na
+     busca, que é o que sempre fizeram. */
+  if (Array.isArray((S as any).favMeals)) {
+    (S as any).favMeals = ((S as any).favMeals as any[])
+      .map((f) => (typeof f === 'string' ? { nome: f } : f));
+  }
   if (S.profile && !S.profile.planoSemanas) S.profile.planoSemanas = 16;
   return S;
 }

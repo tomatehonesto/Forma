@@ -106,7 +106,13 @@ export default function RootLayout() {
           />
           {/* capturas dedicadas — mesma apresentação do registrar */}
           {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-medidas','medir-foto','medir-exame','medir-anotacao',
-           'registro','nota','caneta-nova','ritmo','dia'].map((n) => (
+           'registro','nota','caneta-nova','ritmo','dia',
+           /* As folhas de DETALHE entram aqui pelo mesmo motivo das de
+              captura: elas se desenham como bottom sheet, com scrim
+              próprio, e sem esta apresentação o scrim cobria a tela
+              inteira em cinza opaco em vez de deixar ver o que está
+              atrás. */
+           'treino','refeicao'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}

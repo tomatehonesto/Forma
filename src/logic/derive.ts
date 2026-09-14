@@ -2,6 +2,7 @@
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
+import { nomeItem } from './prato';
 import type { State } from './seed';
 
 export const GOAL_WATER = 8;
@@ -1747,6 +1748,62 @@ export function refeicoesDoDia(S: State, t: number): any[] {
     .filter((m) => diaDaRefeicao(m) === t)
     .slice()
     .sort((a, b) => b.t - a.t);
+}
+
+/** Uma refeição pelo instante em que foi registrada — que é o id dela. */
+export function refeicaoEm(S: State, t: number): any | null {
+  return (S.meals as any[]).find((m) => m.t === t) ?? null;
+}
+
+/* Corrigir uma refeição acerta o dia pela DIFERENÇA, e não recalculando
+   do zero: o dia pode carregar proteína de outras refeições, e refazer a
+   conta a partir desta apagaria justamente as outras. É a mesma regra de
+   editarTreino, pelo mesmo motivo. */
+export function editarRefeicao(
+  s: any, t: number,
+  dados: { name: string; g: number; tag: string; itens?: any[]; fonte?: string },
+) {
+  const m = (s.meals as any[]).find((x) => x.t === t);
+  if (!m) return;
+  const dia = (s.checkins as any[]).find((c) => c.t === +startOfDay(new Date(t)));
+  if (dia) dia.prot = Math.max(0, (dia.prot || 0) - (m.g || 0) + dados.g);
+  Object.assign(m, dados);
+}
+
+/* OS FAVORITOS — pratos que se repetem.
+
+   Um favorito é um PRATO, não um nome: quem come marmita repete os
+   mesmos itens nas mesmas quantidades, e é isso que faz o atalho valer
+   a pena. Guardar só o texto obrigava a pessoa a remontar o prato item
+   por item toda vez, que é exatamente o trabalho que o favorito existe
+   para poupar.
+
+   Os antigos, que eram só string, continuam a ser lidos — eles abrem o
+   registro com o nome escrito na busca, como sempre fizeram. O que não
+   acontece mais é CRIAR um assim. */
+export type Favorito = { nome: string; itens?: any[] };
+
+/* O nome sai dos ITENS, e não de um campo guardado ao lado deles. Dois
+   lugares dizendo como o prato se chama divergem na primeira vez que
+   alguém troca o arroz branco pelo integral e o nome continua falando do
+   branco. */
+export function favoritos(S: State): Favorito[] {
+  return (((S as any).favMeals || []) as any[]).map((f) => {
+    if (typeof f === 'string') return { nome: f };
+    const itens = (f.itens || []) as any[];
+    return { ...f, nome: itens.length ? itens.map(nomeItem).filter(Boolean).join(', ') : f.nome };
+  });
+}
+
+export function apagarFavorito(s: any, nome: string) {
+  s.favMeals = (((s as any).favMeals || []) as any[])
+    .filter((f) => (typeof f === 'string' ? f : f.nome) !== nome);
+}
+
+export function guardarFavorito(s: any, fav: Favorito) {
+  const atuais = favoritos(s as any);
+  if (atuais.some((f) => f.nome === fav.nome)) return;
+  s.favMeals = [...(s.favMeals || []), fav];
 }
 
 export function apagarRefeicao(s: any, t: number, gramas: number) {

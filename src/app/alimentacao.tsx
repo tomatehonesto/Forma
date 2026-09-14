@@ -4,15 +4,17 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
-  apagarRefeicao, checkinToday, diasDeRefeicao, refeicoesDoDia,
+  apagarFavorito, apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
   semanaDeProteina, semanasDeProteina,
 } from '../logic/derive';
-import { fmtDate, now, relDay, startOfDay } from '../logic/time';
+import { somaDe } from '../logic/prato';
+import { fmtDate, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, CardCurva, CardSemana, Cartao, Linha, Botao,
   ItemApagavel, TiraDeDias,
 } from '../ui/internas';
+import { Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -77,6 +79,8 @@ export default function Alimentacao() {
     const cheias = semanas.filter((w) => w.g > 0);
     return cheias.length ? Math.round(cheias.reduce((x, w) => x + w.g, 0) / cheias.length) : 0;
   })();
+
+  const favs = favoritos(S);
 
   const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
   const calendario = diasDeRefeicao(S, DIAS_DA_TIRA);
@@ -211,29 +215,49 @@ export default function Alimentacao() {
 
           {doDia.length ? (
             <View style={{ gap: 10 }}>
+              {/* A linha ABRE a refeição, e a lixeira continua ali.
+
+                  Só apagar era metade da saída: quem registrou o almoço
+                  como jantar, ou esqueceu a sobremesa, queria corrigir —
+                  e a única alternativa era apagar e montar o prato de
+                  novo. A folha que abre mostra primeiro e oferece as duas
+                  ações depois, igual à de treino. */}
               {doDia.map((m: any, i: number) => (
                 <View key={`${m.t}-${i}`} style={[{ backgroundColor: c.bg1, borderRadius: radius.card }, shadowCard(c)]}>
                   <ItemApagavel
-                    pergunta={`Apagar ${String(m.name).toLowerCase()} de ${relDay(new Date(m.t))}?`}
+                    pergunta={`Apagar ${String(m.name).toLowerCase()} de ${fmtDate(new Date(m.t))}?`}
                     onApagar={() => update((s: any) => apagarRefeicao(s, m.t, m.g ?? 0))}
                   >
-                    <Row style={{ alignItems: 'flex-start' }}>
-                      <View style={{ flex: 1, paddingRight: 10 }}>
-                        <Txt v="body">{m.name}</Txt>
-                        {m.tag && m.tag !== m.name ? (
-                          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.tag}</Txt>
-                        ) : null}
-                        {/* A origem qualifica o número, como nos treinos:
-                            30 g que você escreveu e 30 g que a foto estimou
-                            não se conferem do mesmo jeito.
+                    <Pressable
+                      onPress={() => router.push(`/refeicao?t=${m.t}` as any)}
+                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                    >
+                      <Row style={{ alignItems: 'flex-start' }}>
+                        <View style={{ flex: 1, paddingRight: 10 }}>
+                          <Txt v="body">{m.name}</Txt>
+                          {m.tag && m.tag !== m.name ? (
+                            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.tag}</Txt>
+                          ) : null}
+                          {/* A origem qualifica o número, como nos treinos:
+                              30 g que você escreveu e 30 g que a foto
+                              estimou não se conferem do mesmo jeito.
 
-                            A faixa ("proteína alta") saiu. Ela é DERIVADA
-                            dos gramas, e mostrar as duas era o mesmo fato em
-                            duas resoluções ocupando duas pastilhas. */}
-                        <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{origem(m.fonte)}</Txt>
-                      </View>
-                      <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
-                    </Row>
+                              A faixa ("proteína alta") saiu. Ela é DERIVADA
+                              dos gramas, e mostrar as duas era o mesmo fato
+                              em duas resoluções ocupando duas pastilhas. */}
+                          <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{origem(m.fonte)}</Txt>
+                        </View>
+                        {/* "de proteína" escrito, e não só "g". Num app que
+                            recusa contar caloria, um grama sem dono é
+                            justamente a dúvida que a tela existe para não
+                            deixar: é o peso do prato? é carboidrato? */}
+                        <View style={{ alignItems: 'flex-end' }}>
+                          <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
+                          <Txt v="micro" c={c.tx4}>de proteína</Txt>
+                        </View>
+                        <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
+                      </Row>
+                    </Pressable>
                   </ItemApagavel>
                 </View>
               ))}
@@ -261,22 +285,54 @@ export default function Alimentacao() {
           na lista e a barra do dia não andava — duas versões do mesmo dia
           na mesma tela. */}
       <Bloco
-        titulo="Favoritos"
-        nota={S.favMeals.length ? 'Abrem o registro com o prato já escrito.' : undefined}
+        titulo="Pratos favoritos"
+        link="Cadastrar"
+        onLink={() => router.push('/medir-refeicao?fav=1' as any)}
+        nota="Monte o prato uma vez e ele entra no registro com um toque."
       >
-        {S.favMeals.length ? (
-          <Cartao>
-            {S.favMeals.map((f: string) => (
-              <Linha
-                key={f}
-                ic="leaf"
-                titulo={f}
-                onPress={() => router.push(`/medir-refeicao?oque=${encodeURIComponent(f)}` as any)}
-              />
-            ))}
-          </Cartao>
+        {favs.length ? (
+          <View style={{ gap: 10 }}>
+            {favs.map((f) => {
+              const g = somaDe((f.itens || []) as any);
+              return (
+                <View key={f.nome} style={[{ backgroundColor: c.bg1, borderRadius: radius.card }, shadowCard(c)]}>
+                  <ItemApagavel
+                    pergunta={`Tirar "${f.nome}" dos favoritos?`}
+                    onApagar={() => update((s: any) => apagarFavorito(s, f.nome))}
+                  >
+                    <Pressable
+                      onPress={() => router.push(f.itens?.length
+                        ? '/medir-refeicao?prato=' + encodeURIComponent(f.nome) as any
+                        : `/medir-refeicao?oque=${encodeURIComponent(f.nome)}` as any)}
+                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                    >
+                      <Row style={{ alignItems: 'flex-start' }}>
+                        <View style={{ flex: 1, paddingRight: 10 }}>
+                          <Txt v="body">{f.nome}</Txt>
+                          {/* Quantos gramas o prato rende, dito aqui: é a
+                              razão de ele ser favorito de quem está
+                              perseguindo uma meta de proteína, e sem isso a
+                              escolha entre dois favoritos é às cegas. */}
+                          <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
+                            {f.itens?.length ? `~${g} g de proteína` : 'Sem prato guardado — abre pela busca'}
+                          </Txt>
+                        </View>
+                        <Chevron size={15} />
+                      </Row>
+                    </Pressable>
+                  </ItemApagavel>
+                </View>
+              );
+            })}
+          </View>
         ) : (
-          <Vazio ic="leaf" titulo="Nenhum favorito ainda" />
+          /* O vazio aponta a saída, porque aqui ela existe: o cadastro
+             está no cabeçalho do bloco. */
+          <Vazio
+            ic="leaf"
+            titulo="Nenhum prato favorito"
+            texto="Cadastre um prato que você repete e ele entra com um toque."
+          />
         )}
       </Bloco>
     </TelaInterna>

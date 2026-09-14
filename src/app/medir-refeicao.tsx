@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday, registroDoDia } from '../logic/derive';
+import {
+  apagarRefeicao, checkinToday, editarRefeicao, favoritos, guardarFavorito,
+  refeicaoEm, registroDoDia,
+} from '../logic/derive';
 import { faixaDe } from '../logic/escalas';
-import { itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
+import { MOMENTOS, itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Grade, Opc } from '../ui/internas';
+import { Botao, Chips, Grade, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -44,20 +47,6 @@ import { radius } from '../theme';
    não é histórico, é o estado do número que se está prestes a mexer.
    ============================================================ */
 
-/* Cada refeição pelo que se come nela: a xícara, o talher, o sanduíche.
-
-   Menos o jantar, que fica na lua — e não por descuido. Jantar no Brasil
-   é quase sempre a mesma comida do almoço, então nenhum desenho de prato
-   separa um do outro: a única coisa que distingue o jantar é ser de
-   noite. Desenhar uma tigela ali fingiria uma diferença de comida que
-   não existe. */
-const HORARIOS: [string, string][] = [
-  ['coffee', 'Café da manhã'],
-  ['cutlery', 'Almoço'],
-  ['sandwich', 'Lanche'],
-  ['moon', 'Jantar'],
-];
-
 export default function MedirRefeicao() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -69,14 +58,40 @@ export default function MedirRefeicao() {
   /* `cam=1` abre a folha já com a câmera no ar. É por onde entra o botão
      de escanear de /alimentacao: sem isto ele teria de abrir o registro e
      pedir um segundo toque para a coisa que a pessoa já tinha escolhido. */
-  const { oque: oqueParam, cam: camParam } = useLocalSearchParams<{ oque?: string; cam?: string }>();
+  const {
+    oque: oqueParam, cam: camParam, t: tParam, fav: favParam, prato: pratoParam,
+  } = useLocalSearchParams<{ oque?: string; cam?: string; t?: string; fav?: string; prato?: string }>();
+
+  /* TRÊS MODOS NA MESMA FOLHA, e todos montam um prato.
+
+     Registrar é o normal. Corrigir chega com `t` e troca a refeição
+     daquele instante em vez de somar outra. Cadastrar favorito chega com
+     `fav=1`, monta o prato e não registra nada — guarda o prato para os
+     próximos dias.
+
+     Três telas para isso significaria três cópias da busca de alimento,
+     da grade de momentos e do stepper de porção — e é exatamente aí que
+     uma ganha um alimento novo e as outras não. */
+  const editando = tParam != null;
+  const cadastrando = favParam === '1';
+  const tEdit = Number(tParam);
+  const original = editando ? refeicaoEm(S, tEdit) : null;
 
   const hora = new Date().getHours();
   const sugerido = hora < 10 ? 'Café da manhã' : hora < 15 ? 'Almoço' : hora < 18 ? 'Lanche' : 'Jantar';
 
-  const [quando, setQuando] = useState(sugerido);
+  const [quando, setQuando] = useState(original?.name || sugerido);
   const [busca, setBusca] = useState(String(oqueParam || ''));
-  const [itens, setItens] = useState<ItemComida[]>([]);
+  /* Tres origens para o prato inicial, e so uma vale por vez: a refeicao
+     que se corrige, o favorito que se escolheu na lista, ou vazio. */
+  const [itens, setItens] = useState<ItemComida[]>(() => {
+    if (original?.itens) return original.itens as ItemComida[];
+    if (pratoParam) {
+      const f = favoritos(S).find((x) => x.nome === String(pratoParam));
+      if (f?.itens) return f.itens as ItemComida[];
+    }
+    return [];
+  });
 
   const [camera, setCamera] = useState(camParam === '1');
   const [foto, setFoto] = useState<string | null>(null);
@@ -87,10 +102,19 @@ export default function MedirRefeicao() {
   const alvo = (S.profile as any).targets.prot as number;
   const hojeProt = Math.round(ci?.prot || 0);
 
+  /* Só os que têm prato: um favorito sem itens não tem o que acrescentar
+     aqui. */
+  const favs = favoritos(S).filter((f) => (f.itens || []).length > 0);
+
   const g = somaDe(itens);
   const semConta = itensDe(itens, 'sem-conta');
   const estimados = itensDe(itens, 'estimado');
   const pronto = itens.length > 0;
+
+  const apagar = () => {
+    update((s: any) => apagarRefeicao(s, tEdit, original?.g ?? 0));
+    router.back();
+  };
 
   const receberFoto = async (uri: string) => {
     setCamera(false);
@@ -111,6 +135,21 @@ export default function MedirRefeicao() {
   const salvar = () => {
     if (!pronto) return;
     const nomes = itens.map(nomeItem).filter(Boolean);
+
+    if (cadastrando) {
+      update((s: any) => guardarFavorito(s, { nome: nomes.join(', '), itens }));
+      router.back();
+      return;
+    }
+
+    if (editando) {
+      update((s: any) => editarRefeicao(s, tEdit, {
+        name: quando, g, tag: nomes.join(', '), itens, fonte: foto ? 'foto' : original?.fonte,
+      }));
+      router.back();
+      return;
+    }
+
     update((s: any) => {
       s.meals.unshift({
         t: +now(), name: quando,
@@ -136,8 +175,15 @@ export default function MedirRefeicao() {
 
   return (
     <SheetScreen
-      titulo="O que você comeu?"
-      sub={`${hojeProt} de ${alvo} g de proteína hoje`}
+      titulo={cadastrando ? 'Um prato favorito' : editando ? 'Corrigir a refeição' : 'O que você comeu?'}
+      /* Ao corrigir e ao cadastrar, o total do dia não cabe: quem está
+         consertando uma linha precisa da linha, e quem está guardando um
+         prato para amanhã não está mexendo em hoje. */
+      sub={cadastrando
+        ? 'Monte o prato uma vez e ele fica a um toque'
+        : editando
+          ? 'O que ficou errado no registro'
+          : `${hojeProt} de ${alvo} g de proteína hoje`}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -146,18 +192,56 @@ export default function MedirRefeicao() {
             borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center',
           }}>
             <Txt v="body" c={pronto ? c.accentInk : c.tx4}>
-              {pronto ? `Registrar ${quando.toLowerCase()}` : 'Diga o que tinha no prato'}
+              {!pronto
+                ? 'Diga o que tinha no prato'
+                : cadastrando ? 'Guardar nos favoritos'
+                  : editando ? 'Salvar a correção'
+                    : `Registrar ${quando.toLowerCase()}`}
             </Txt>
           </View>
         </Pressable>
       )}
     >
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
-      <Grade>
-        {HORARIOS.map(([ic, h]) => (
-          <Opc key={h} cheia ic={ic} label={h} on={quando === h} onPress={() => setQuando(h)} />
-        ))}
-      </Grade>
+      {/* O momento não cabe no cadastro de favorito: um prato guardado
+          não é de um horário, é de uma rotina — a mesma marmita serve de
+          almoço num dia e de jantar no outro, e o momento é escolhido na
+          hora de registrar. */}
+      {cadastrando ? null : (
+        <>
+          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
+          <Grade>
+            {MOMENTOS.map(([ic, h]) => (
+              <Opc key={h} cheia ic={ic} label={h} on={quando === h} onPress={() => setQuando(h)} />
+            ))}
+          </Grade>
+        </>
+      )}
+
+      {/* OS FAVORITOS, antes da busca.
+
+          Quem come marmita ou tem rotina repete o mesmo prato — e sem
+          isto remontava item por item, com a mesma quantidade, todo dia.
+          O toque ACRESCENTA ao prato em vez de substituir: almoço de
+          favorito mais uma sobremesa digitada é um caso comum, e
+          substituir apagaria o que já estava ali.
+
+          Só aparece quando existe favorito com prato guardado. Os
+          antigos, que só têm nome, continuam entrando por /alimentacao
+          com o nome escrito na busca — aqui eles não teriam o que
+          acrescentar. */}
+      {!cadastrando && favs.length ? (
+        <>
+          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22, marginBottom: 10 }}>SEUS PRATOS</Txt>
+          <Chips
+            itens={favs.map((f) => ({ id: f.nome, label: f.nome }))}
+            valor={''}
+            onChange={(nome) => {
+              const f = favs.find((x) => x.nome === nome);
+              if (f?.itens) setItens((v) => [...v, ...(f.itens as ItemComida[])]);
+            }}
+          />
+        </>
+      ) : null}
 
       {/* O rótulo da seção e o atalho da câmera na mesma linha. A foto é
           um caminho, não O caminho — como cartão de largura inteira ela
@@ -234,6 +318,14 @@ export default function MedirRefeicao() {
               Parte deste total foi estimada pela foto, sem tabela por trás.
             </Txt>
           ) : null}
+        </View>
+      ) : null}
+
+      {/* Longe do salvar, e no fim: apagar é o que se faz depois de olhar
+          o registro inteiro e concluir que ele não devia existir. */}
+      {editando ? (
+        <View style={{ marginTop: 22 }}>
+          <Botao label="Apagar esta refeição" tom="perigo" onPress={apagar} />
         </View>
       ) : null}
     </SheetScreen>

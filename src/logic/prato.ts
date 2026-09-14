@@ -21,6 +21,28 @@ import { ALIMENTOS, gramasDe, medidaDe, type Alimento } from './alimentos';
    começo.
    ============================================================ */
 
+/* OS MOMENTOS DA REFEIÇÃO, cada um pelo que se come nele: a xícara, o
+   talher, o sanduíche.
+
+   Menos o jantar, que fica na lua — e não por descuido. Jantar no Brasil
+   é quase sempre a mesma comida do almoço, então nenhum desenho de prato
+   separa um do outro: a única coisa que distingue o jantar é ser de
+   noite. Desenhar uma tigela ali fingiria uma diferença de comida que
+   não existe.
+
+   Mora aqui, e não na folha de registro, porque a folha de detalhe
+   precisa do mesmo ícone — e duas listas de momentos divergem na semana
+   em que alguém acrescentar a ceia numa delas. */
+export const MOMENTOS: [string, string][] = [
+  ['coffee', 'Café da manhã'],
+  ['cutlery', 'Almoço'],
+  ['sandwich', 'Lanche'],
+  ['moon', 'Jantar'],
+];
+
+export const iconeDaRefeicao = (nome: string) =>
+  MOMENTOS.find(([, n]) => n === nome)?.[0] ?? 'cutlery';
+
 export type ItemComida = {
   /** Alimento da tabela. */
   id?: string;
