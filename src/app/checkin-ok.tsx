@@ -131,29 +131,39 @@ export default function CheckinOk() {
 
   /* Pastilha em dois tons, e a diferença é o que ela faz.
 
-     MARCA celebra, e é verde CHAPADO — o mesmo par que o app usa para
-     'concluído'. Em lavagem de lima ela era mais um vidro na tela: três
-     peças translúcidas embaixo de um número de lima, e o que devia ser
-     conquista lia como legenda. Chapada, ela é objeto.
+     MARCA celebra, e é o AZUL DA MARCA chapado, com texto branco. Em
+     lavagem de lima ela era mais um vidro na tela — três peças
+     translúcidas embaixo de um número de lima, e o que devia ser
+     conquista lia como legenda. Azul puro sobre a aurora funciona porque
+     o fundo ali é quase preto no azul: é o mesmo tom, duas saturações de
+     distância, e o chapado recorta.
 
      VIDRO confirma, e continua vidro: aquilo não comemora nada, só diz o
      que foi respondido. */
   const Pastilha = ({ label, marca }: { label: string; marca?: boolean }) => (
     <View style={{
-      backgroundColor: marca ? c.okBg : c.glass,
+      backgroundColor: marca ? c.accent : c.glass,
       borderWidth: marca ? 0 : 1, borderColor: c.glassLine,
       borderRadius: radius.pill,
       paddingHorizontal: 13, paddingVertical: marca ? 8 : 7,
     }}>
-      <Txt v="tag" c={marca ? c.ok : c.onHero}>{label}</Txt>
+      <Txt v="tag" c={marca ? c.accentInk : c.onHero}>{label}</Txt>
     </View>
   );
 
   /* Só o rótulo, sem o fio que ia até a borda. Com três seções na tela o
      fio virava três réguas paralelas competindo com os fios internos da
-     lista, e o que ele separava já estava separado pelo espaço. */
-  const Secao = ({ titulo }: { titulo: string }) => (
-    <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2, paddingHorizontal: 2 }}>{titulo}</Txt>
+     lista, e o que ele separava já estava separado pelo espaço.
+
+     `aura` marca a seção que é fala do app, e não descrição do registro:
+     o ícone e o rótulo em lima dizem quem está falando, e os tópicos
+     embaixo ficam limpos por isso — um marcador por linha repetiria em
+     cada item o que o título já disse uma vez. */
+  const Secao = ({ titulo, aura }: { titulo: string; aura?: boolean }) => (
+    <Row gap={7} style={{ paddingHorizontal: 2 }}>
+      {aura ? <Icon name="aura" size={13} color={c.lime} sw={2} /> : null}
+      <Txt v="micro" c={aura ? c.lime : c.onHero2} style={{ letterSpacing: 1.2 }}>{titulo}</Txt>
+    </Row>
   );
 
   return (
@@ -263,7 +273,7 @@ export default function CheckinOk() {
 
         {lembretes.length ? (
           <Animated.View style={[subindo, { gap: 12 }]}>
-            <Secao titulo="NÃO SE ESQUEÇA" />
+            <Secao titulo="NÃO SE ESQUEÇA" aura />
 
             {urgente ? (
               /* O que manda procurar atendimento hoje não vira linha. */
@@ -283,17 +293,12 @@ export default function CheckinOk() {
                 </View>
               </View>
             ) : (
-              <View style={{ gap: 11, paddingHorizontal: 2 }}>
+              <View style={{ gap: 10, paddingHorizontal: 2 }}>
                 {lembretes.map((l) => (
-                  <Row key={l.titulo} gap={9} style={{ alignItems: 'flex-start' }}>
-                    <View style={{ marginTop: 3 }}>
-                      <Icon name="aura" size={13} color={c.lime} sw={2} />
-                    </View>
-                    <Txt v="tag" c={c.onHero2} style={{ flex: 1 }}>
-                      <Txt v="tag" c={c.onHero} style={{ fontFamily: font.bodyMed }}>{l.sobre}</Txt>
-                      {'  ·  '}{l.curto}
-                    </Txt>
-                  </Row>
+                  <Txt key={l.titulo} v="tag" c={c.onHero2}>
+                    <Txt v="tag" c={c.onHero} style={{ fontFamily: font.bodyMed }}>{l.sobre}</Txt>
+                    {'  ·  '}{l.curto}
+                  </Txt>
                 ))}
               </View>
             )}
