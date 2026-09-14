@@ -31,6 +31,37 @@ export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca d
 /** 1–5 dos dois lados, sem conversão. */
 export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um bom dia', 'Um ótimo dia'];
 
+/* PROTEÍNA POR REFEIÇÃO — faixa com a conta à mostra.
+
+   O app não conta caloria e não vai pedir balança: a pessoa olha o prato
+   e diz se tinha bastante, média ou pouca. Mas a meta do dia é um número
+   duro (90 g na home, "faltam 36 g"), então a faixa VIRA número em algum
+   lugar — e virava escondida, dentro da tela de registro.
+
+   Três "Médias" fecham o dia em 54 de 90, e quem comeu decentemente as
+   três vezes não tinha como descobrir por que o app discordava. Agora o
+   grama aparece na opção e os exemplos aparecem embaixo: é a mesma
+   defesa das legendas do check-in — uma estimativa se sustenta mostrando
+   a régua, nunca arredondando melhor.
+
+   Os números vêm do porte da porção de proteína animal que cada faixa
+   descreve (um filé de 120 g dá perto de 30 g de proteína; dois ovos,
+   perto de 13; um prato sem fonte nenhuma, o resíduo do arroz e do
+   feijão). São estimativas de porte, e o "~" na tela é para valer.
+
+   Os ids ficam como nasceram, acento e tudo: já existem refeições
+   gravadas com 'média'. */
+export const PROTEINA: { id: string; label: string; g: number; legenda: string }[] = [
+  { id: 'alta', label: 'Bastante', g: 30, legenda: 'Um filé, um peito de frango, uma posta de peixe.' },
+  { id: 'média', label: 'Média', g: 18, legenda: 'Dois ovos, um pote de iogurte, um pedaço menor de carne.' },
+  { id: 'baixa', label: 'Pouca', g: 8, legenda: 'Salada, fruta, pão — sem uma fonte de proteína à vista.' },
+];
+
+/** A faixa por id, ou null. Guarda contra o id antigo que não existe mais. */
+export function proteinaDe(id: string | null | undefined) {
+  return PROTEINA.find((p) => p.id === id) || null;
+}
+
 /** Régua genérica de sintoma — a rede de segurança para um sintoma que
     ainda não tem a sua. Ver `SINTOMA` logo abaixo. */
 export const INTENSIDADE = ['Mal percebi', 'Leve', 'Incomodou', 'Atrapalhou o dia', 'Tomou conta do dia'];

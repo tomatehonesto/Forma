@@ -66,6 +66,8 @@ export default function Registrar() {
      uma tela inteira comemorando o mesmo fato. */
   const tinta = fez ? c.limeInk : c.accentInk;
   const veu = fez ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.18)';
+  const protHoje = Math.round((ci as any)?.prot || 0);
+  const alvoProt = (S.profile as any).targets.prot as number;
   const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
   const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
   const acoes = ATALHOS;
@@ -90,7 +92,10 @@ export default function Registrar() {
     exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },
-    refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
+    /* A proteína do dia, como a água e o exercício. "12 registradas" era
+       o total desde que o app foi instalado — não responde nada que se
+       pergunte antes de comer. */
+    refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${protHoje} de ${alvoProt} g`, to: '/medir-refeicao' },
     exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar resultado', to: '/medir-exame' },
     anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/medir-anotacao' },
   };

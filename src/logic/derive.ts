@@ -440,7 +440,10 @@ export function todayTasks(S: State): TodayTask[] {
   const wt = waterToday(S);
   if (now().getHours() >= 15 && wt < 4) out.push({ ic: 'water', text: 'Registrar água', sub: `${wt} de ${GOAL_WATER} copos até agora`, to: '/registrar' });
   const ciT = checkinToday(S);
-  if (ciT && ciT.prot < 90) out.push({ ic: 'leaf', text: `Faltam ${Math.round(90 - ciT.prot)} g de proteína`, sub: 'Da meta diária de 90 g', to: '/alimentacao' });
+  /* A meta vem do perfil. Estava 90 fixo aqui enquanto o resto do app lia
+     targets.prot — quem mudasse a meta passaria a ver duas contas. */
+  const alvoProt = (S.profile as any).targets.prot as number;
+  if (ciT && ciT.prot < alvoProt) out.push({ ic: 'leaf', text: `Faltam ${Math.round(alvoProt - ciT.prot)} g de proteína`, sub: `Da meta diária de ${alvoProt} g`, to: '/alimentacao' });
   return out;
 }
 

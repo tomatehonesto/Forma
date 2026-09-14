@@ -677,8 +677,8 @@ export function Opcoes({ children }: { children: React.ReactNode }) {
 /* `cheia` faz a opção ocupar a coluna inteira. Só serve dentro de
    <Grade>, e é lá que está a explicação de por que uma lista pediria
    isso. */
-export function Opc({ label, ic, cheia, on, onPress }: {
-  label: string; ic?: string; cheia?: boolean; on?: boolean; onPress?: () => void;
+export function Opc({ label, ic, dir, cheia, on, onPress }: {
+  label: string; ic?: string; dir?: string; cheia?: boolean; on?: boolean; onPress?: () => void;
 }) {
   const { c } = useTheme();
   return (
@@ -692,12 +692,21 @@ export function Opc({ label, ic, cheia, on, onPress }: {
     >
       {/* O check entra junto da cor. Só a lavagem azul pedia comparação
           com os vizinhos para se ler como "marcado"; o check diz sozinho,
-          sem precisar do resto da lista ao lado. */}
+          sem precisar do resto da lista ao lado.
+
+          Dentro de uma <Grade> ele sai: ali as opções são ALTERNATIVAS,
+          só uma pode estar ligada, e a cor já diz qual — o check era o
+          terceiro sinal de uma informação só. E os 21 px que ele ocupava
+          faziam "Café da manhã" caber com reticências numa coluna de
+          metade da tela. */}
       <Row gap={7}>
         {ic
           ? <Icon name={ic} size={15} color={on ? c.accent : c.tx3} sw={1.9} />
-          : on ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
-        <Txt v="label" c={on ? c.accent : c.tx2} numberOfLines={1}>{label}</Txt>
+          : on && !cheia ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
+        <Txt v="label" c={on ? c.accent : c.tx2} numberOfLines={1} style={dir ? { flex: 1 } : undefined}>{label}</Txt>
+        {/* Um valor do lado direito — o que aquela escolha vale. Serve
+            para listas em que as opções se comparam por número. */}
+        {dir ? <Txt v="caption" c={on ? c.accent : c.tx4}>{dir}</Txt> : null}
       </Row>
     </Pressable>
   );

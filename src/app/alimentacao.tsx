@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { checkinToday } from '../logic/derive';
-import { now, relDay } from '../logic/time';
+import { relDay } from '../logic/time';
+import { proteinaDe } from '../logic/escalas';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -12,14 +13,15 @@ import { radius } from '../theme';
 
 export default function Alimentacao() {
   const S = useStore((s) => s.S);
-  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
 
-  const prot = Math.round(checkinToday(S)?.prot || 70);
-  const addMeal = (name: string) => update((s: any) => {
-    s.meals.unshift({ t: +now(), name, prot: 'alta', qual: 'boa', tag: name });
-  });
+  /* Zero é zero. O 70 de antes era um número inventado: quem ainda não
+     tinha registrado nada abria a tela e via a barra em 78% de uma meta
+     que ninguém tinha começado a cumprir. Proteína é acumulador como
+     água e exercício — o dia começa vazio e isso é a verdade dele. */
+  const prot = Math.round(checkinToday(S)?.prot || 0);
+  const alvo = (S.profile as any).targets.prot as number;
 
   return (
     <Screen>
@@ -35,10 +37,10 @@ export default function Alimentacao() {
       <Card style={{ marginTop: 18 }}>
         <Row style={{ justifyContent: 'space-between' }}>
           <Row gap={6}><Icon name="flame" size={14} color={c.amber} sw={2} /><Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>PROTEÍNA DE HOJE</Txt></Row>
-          <Txt v="h2"><Txt v="h2" c={c.accent}>{prot}</Txt><Txt v="label" c={c.tx3}> / 90 g</Txt></Txt>
+          <Txt v="h2"><Txt v="h2" c={c.accent}>{prot}</Txt><Txt v="label" c={c.tx3}> / {alvo} g</Txt></Txt>
         </Row>
         <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 12, overflow: 'hidden' }}>
-          <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: `${Math.min(100, (prot / 90) * 100)}%`, height: '100%' }} />
+          <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: `${Math.min(100, (prot / alvo) * 100)}%`, height: '100%' }} />
         </View>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 8 }}>Proteína protege sua massa magra durante a perda de peso.</Txt>
       </Card>
@@ -59,11 +61,20 @@ export default function Alimentacao() {
               <Txt v="title">{m.name}</Txt>
               <Txt v="micro" c={c.tx3}>{relDay(new Date(m.t))}</Txt>
             </Row>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{m.tag}</Txt>
+            {m.tag && m.tag !== m.name ? <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{m.tag}</Txt> : null}
+            {/* O que a refeição de fato somou. "saciedade longa" estava
+                fixa em toda refeição, e "qualidade ótima/boa" saía só da
+                proteína — a primeira era um dado inventado e a segunda
+                era o app dando nota à comida de alguém com uma régua de
+                um eixo só. O que resta é verificável: a faixa e o quanto
+                ela contou no dia. */}
             <Row gap={7} style={{ marginTop: 10, flexWrap: 'wrap' }}>
-              <Pill label={`proteína ${m.prot}`} color={m.prot === 'alta' ? c.accent : c.tx3} bg={m.prot === 'alta' ? c.accentWeak : c.bg2} />
-              <Pill label="saciedade longa" color={c.accent2} bg={c.waterBg} />
-              <Pill label={`qualidade ${m.qual}`} color={c.tx3} bg={c.bg2} />
+              <Pill
+                label={`proteína ${m.prot}`}
+                color={m.prot === 'alta' ? c.accent : c.tx3}
+                bg={m.prot === 'alta' ? c.accentWeak : c.bg2}
+              />
+              <Pill label={`~${m.g ?? proteinaDe(m.prot)?.g ?? 0} g`} color={c.tx3} bg={c.bg2} />
             </Row>
           </Card>
         ))}
@@ -78,7 +89,7 @@ export default function Alimentacao() {
             <Row style={{ paddingVertical: 12 }}>
               <IconBadge name="leaf" size={40} />
               <Txt v="title" style={{ flex: 1, marginLeft: 12 }}>{f}</Txt>
-              <Pressable onPress={() => addMeal(f)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Pressable onPress={() => router.push(`/medir-refeicao?oque=${encodeURIComponent(f)}` as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                 <View style={{ paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }}>
                   <Txt v="micro" c={c.accent}>registrar</Txt>
                 </View>
