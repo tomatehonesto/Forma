@@ -632,6 +632,53 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
 }
 
 /* ------------------------------------------------------------------ */
+/* Vazio — o lugar que existe e está sem conteúdo.
+
+   Não é um Aviso. O aviso TEM algo a dizer, e por isso é um parágrafo:
+   ícone em azul à esquerda, título e texto alinhados, como um recado
+   pregado na tela. O vazio não tem nada a dizer — ele É a ausência — e
+   vesti-lo de recado faz a seção parecer que deu errado, além de pesar
+   mais que o conteúdo que deveria estar ali.
+
+   O cartão branco fica, e é de propósito: é a mesma regra dos quadros
+   zerados de "No período". A seção não muda de forma conforme o
+   conteúdo — o lugar continua sendo um lugar, e o que falta é o que
+   estava dentro. Um contorno tracejado no lugar do cartão até tem a
+   gramática certa (é a do dia que ainda não chegou, na tira), mas
+   nesta paleta o fio mais claro sobre o fundo da página fica invisível,
+   e o que sobra é texto boiando.
+
+   Tudo centrado, o ícone num disco cinza, e curto: explicar a ausência
+   em três linhas é o erro que este componente existe para não deixar
+   acontecer de novo. O texto é opcional, e o normal é não ter — ele só
+   entra quando há uma SAÍDA para oferecer (trocar o período, limpar o
+   filtro). Comentar o vazio sem oferecer saída é ocupar espaço com
+   nada. */
+export function Vazio({ ic, titulo, texto }: {
+  ic: string; titulo: string; texto?: string;
+}) {
+  const { c } = useTheme();
+  return (
+    <View style={[{
+      backgroundColor: c.bg1, borderRadius: radius.card,
+      alignItems: 'center', gap: 3,
+      paddingVertical: 30, paddingHorizontal: 24,
+    }, shadowCard(c)]}>
+      <View style={{
+        width: 44, height: 44, borderRadius: 22, marginBottom: 12,
+        backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name={ic} size={21} color={c.tx4} sw={1.7} />
+      </View>
+      <Txt v="bodyMed" c={c.tx2} style={{ textAlign: 'center' }}>{titulo}</Txt>
+      {texto ? (
+        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{texto}</Txt>
+      ) : null}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Campo — o invólucro de um controle de formulário: rótulo em caixa alta,
    controle, e uma linha de ajuda. A ajuda não é decorativa: é onde o app
    diz por que a pergunta existe e o que a resposta muda. */

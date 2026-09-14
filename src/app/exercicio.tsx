@@ -10,7 +10,7 @@ import {
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, Aviso, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao,
+  TelaInterna, Titulao, Bloco, CardCurva, Cartao, Chips, Grade2, Linha, Metrica, Botao, Vazio,
 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -466,35 +466,29 @@ export default function Exercicio() {
               </View>
             ))}
           </View>
-        ) : diaSel != null ? (
-          /* Dia vazio não é falha: pode ter sido descanso, e descanso faz
-             parte de treinar.
-
-             Curto de propósito. A linha logo acima já diz QUAL dia está
-             filtrado e oferece o "Ver tudo" — repetir o nome do dia aqui e
-             ensinar a sair do filtro embaixo de um link que faz isso era
-             a mesma frase escrita duas vezes. */
-          <Aviso
-            ic="cal"
-            titulo="Nenhum treino neste dia"
-            texto="Pode ter sido descanso, e descanso faz parte do plano."
-          />
-        ) : !algumTreino(S) ? (
-          /* Ainda não existe caderno nenhum. Aqui a frase não é sobre o
-             período — é sobre o que este lugar guarda, e por que o total
-             da semana pode ser maior que a lista. */
-          <Aviso
-            ic="dumbbell"
-            titulo="Seu caderno começa no primeiro registro"
-            texto="Os minutos que chegam do relógio contam na sua semana, mas vêm sem modalidade. O que você registrar aqui aparece com a modalidade, a duração e o dia."
-          />
         ) : (
-          /* Existe caderno, só não neste recorte. Então a saída é o
-             recorte, e é isso que a frase oferece. */
-          <Aviso
-            ic="cal"
-            titulo="Nada nestes dias"
-            texto="Você tem treinos registrados, mas nenhum nos últimos dias escolhidos. Experimente um período maior."
+          /* Um vazio só, com três frases possíveis — e a segunda linha só
+             aparece quando existe uma saída para oferecer.
+
+             Quem nunca registrou nada não recebe linha nenhuma. Ali eu
+             tinha escrito um parágrafo explicando o que o caderno guarda
+             e por que o total da semana pode ser maior que a lista; era
+             verdade, e mesmo assim atrapalhava — chegava antes de haver
+             qualquer interesse na resposta, no lugar onde a pessoa está
+             tentando ver os treinos dela. A explicação já mora na nota do
+             bloco de cima, que é onde ela qualifica um número de verdade. */
+          <Vazio
+            ic="dumbbell"
+            titulo={
+              diaSel != null ? 'Nenhum treino neste dia'
+                : algumTreino(S) ? 'Nenhum treino nestes dias'
+                  : 'Nenhum treino registrado'
+            }
+            texto={
+              diaSel != null ? 'Descanso também faz parte.'
+                : algumTreino(S) ? 'Experimente um período maior.'
+                  : undefined
+            }
           />
         )}
       </Bloco>
