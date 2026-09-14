@@ -22,9 +22,19 @@
    máquina — o que permite gerar o arquivo de créditos junto, na mesma
    passada, em vez de prometer que depois alguém anota.
 
-   O Pexels e o Unsplash têm foto melhor, e não entram aqui porque a API
-   dos dois exige chave de conta. Com uma chave em PEXELS_KEY dá para
-   escrever a segunda metade deste script.
+   O PEXELS VEM PRIMEIRO, QUANDO HÁ CHAVE. Ele é banco de fotografia:
+   as imagens são de comida posta no prato, com luz, e não a foto de
+   documentação que a Wikipédia usa para explicar o que é um alimento.
+   Para uma tela que existe para ser bonita, a diferença é o assunto
+   inteiro.
+
+   Ele precisa de PEXELS_KEY no ambiente — ver .env.example. Sem a
+   chave, o script cai na Wikipédia e continua funcionando.
+
+   E o Pexels é indexado em INGLÊS. "Peito de frango grelhado" não acha
+   nada; "grilled chicken breast" acha. A tradução está logo abaixo, em
+   dicionário de palavra por palavra: o que ele não conhece passa
+   inteiro, porque "carbonara", "sushi" e "falafel" já são o termo.
 
    A LICENÇA VEM JUNTO. Cada download grava autor, licença e a página de
    origem em CREDITOS.txt. Arquivo sem licença legível é PULADO: é
@@ -53,6 +63,120 @@ const UA = process.env.WIKI_UA
 const PAUSA = 1000;
 const API = 'https://commons.wikimedia.org/w/api.php';
 const WIKI = 'https://pt.wikipedia.org/w/api.php';
+const PEXELS = 'https://api.pexels.com/v1/search';
+const CHAVE = process.env.PEXELS_KEY || '';
+
+/* PORTUGUÊS → INGLÊS, palavra por palavra.
+
+   Não é tradução de texto, é vocabulário de cardápio: o que interessa é
+   que "frango" vire "chicken" e "grelhado" vire "grilled". Palavra que
+   não está aqui passa inteira — e passa de propósito, porque nome de
+   prato costuma já ser o termo internacional. */
+const EN = {
+  // aves, carnes e porco
+  frango: 'chicken', peito: 'breast', coxa: 'thigh', sobrecoxa: 'thigh',
+  carne: 'beef', bife: 'steak', patinho: 'beef', contra: '', 'contra-filé': 'sirloin',
+  file: 'fillet', filé: 'fillet', mignon: 'mignon', picanha: 'picanha',
+  moída: 'ground beef', moida: 'ground beef', panela: 'stew', músculo: 'beef stew',
+  hambúrguer: 'hamburger', linguiça: 'sausage', lombo: 'pork loin', pernil: 'roast pork',
+  costelinha: 'pork ribs', costela: 'ribs', almôndegas: 'meatballs', almôndega: 'meatball',
+  fígado: 'liver', peru: 'turkey', quibe: 'kibbeh', presunto: 'ham',
+  mortadela: 'mortadella', porco: 'pork', acebolado: 'with onions',
+  'coxão': 'beef', mole: '', salsicha: 'sausage',
+  // peixes
+  salmão: 'salmon', merluza: 'hake', pescada: 'white fish', sardinha: 'sardines',
+  atum: 'tuna', bacalhau: 'codfish', corvina: 'fish', manjuba: 'fried fish',
+  camarão: 'shrimp', peixe: 'fish', lata: 'canned',
+  // ovos e laticínios
+  ovo: 'egg', ovos: 'eggs', codorna: 'quail', clara: 'egg white', claras: 'egg whites',
+  omelete: 'omelette', iogurte: 'yogurt', queijo: 'cheese', mussarela: 'mozzarella',
+  parmesão: 'parmesan', ricota: 'ricotta', requeijão: 'cream cheese', leite: 'milk',
+  achocolatado: 'chocolate milk', whey: 'whey protein', cottage: 'cottage cheese',
+  minas: 'white cheese', prato: '', frescal: 'fresh',
+  // grãos, massas e pães
+  arroz: 'rice', integral: 'brown', feijão: 'beans', preto: 'black', carioca: 'pinto',
+  lentilha: 'lentils', grão: 'chickpeas', bico: '', ervilha: 'peas', tofu: 'tofu',
+  macarrão: 'pasta', pão: 'bread', aveia: 'oats', flocos: '', tapioca: 'tapioca',
+  cuscuz: 'couscous', farofa: 'farofa', granola: 'granola', torrada: 'toast',
+  biscoito: 'cracker', bolo: 'cake', pipoca: 'popcorn', cereal: 'cereal',
+  forma: 'sliced', francês: 'french', sovado: 'sweet', tropeiro: 'tropeiro beans',
+  baião: 'rice and beans', dois: '',
+  // verduras, legumes e frutas
+  salada: 'salad', folhas: 'greens', alface: 'lettuce', tomate: 'tomato',
+  brócolis: 'broccoli', cenoura: 'carrot', beterraba: 'beetroot', couve: 'kale',
+  'couve-flor': 'cauliflower', espinafre: 'spinach', abóbora: 'pumpkin',
+  chuchu: 'chayote', vagem: 'green beans', quiabo: 'okra', repolho: 'cabbage',
+  pepino: 'cucumber', mandioca: 'cassava', batata: 'potato', doce: 'sweet',
+  milho: 'corn', legumes: 'vegetables', palmito: 'heart of palm',
+  pimentão: 'bell pepper', banana: 'banana', maçã: 'apple', abacate: 'avocado',
+  abacaxi: 'pineapple', goiaba: 'guava', laranja: 'orange', mamão: 'papaya',
+  manga: 'mango', melancia: 'watermelon', morango: 'strawberry', uva: 'grapes',
+  // castanhas
+  castanha: 'cashew nuts', caju: 'cashew', pará: 'brazil nuts', amendoim: 'peanuts',
+  amêndoas: 'almonds', pasta: 'butter', paçoca: 'peanut candy',
+  // preparo
+  grelhado: 'grilled', grelhada: 'grilled', assado: 'roasted', assada: 'roasted',
+  cozido: 'boiled', cozida: 'cooked', frito: 'fried', frita: 'fries',
+  mexido: 'scrambled', refogado: 'sauteed', vapor: 'steamed', milanesa: 'breaded',
+  natural: '', branco: 'white', branca: 'white', verde: 'green', suco: 'juice',
+  copo: '', unidade: '', porção: '', barra: 'bar', proteína: 'protein',
+  // pratos
+  feijoada: 'feijoada', estrogonofe: 'stroganoff', lasanha: 'lasagna',
+  nhoque: 'gnocchi', risoto: 'risotto', sanduíche: 'sandwich', sopa: 'soup',
+  canja: 'chicken soup', moqueca: 'fish stew', panqueca: 'pancake',
+  escondidinho: 'shepherds pie', torta: 'pie', empada: 'pie', coxinha: 'coxinha',
+  pastel: 'fried pastry', croquete: 'croquette', esfiha: 'meat pie',
+  parmegiana: 'parmigiana', galinhada: 'chicken and rice', yakisoba: 'yakisoba',
+  salpicão: 'chicken salad', tabule: 'tabbouleh', vatapá: 'vatapa',
+  acarajé: 'acaraje', crepe: 'crepe', lámen: 'ramen', guioza: 'gyoza',
+  temaki: 'temaki', poke: 'poke bowl', xadrez: 'stir fry', espetinho: 'skewer',
+  grego: 'greek', kebab: 'kebab', shawarma: 'shawarma', homus: 'hummus',
+  falafel: 'falafel', quesadilla: 'quesadilla', burrito: 'burrito', taco: 'taco',
+  chili: 'chili', guacamole: 'guacamole', nachos: 'nachos', paella: 'paella',
+  tortilha: 'spanish omelette', quiche: 'quiche', wrap: 'wrap', ceviche: 'ceviche',
+  bibimbap: 'bibimbap', shakshuka: 'shakshuka', waffle: 'waffle',
+  croissant: 'croissant', bagel: 'bagel', smoothie: 'smoothie', crepioca: 'tapioca crepe',
+  mingau: 'porridge', vitamina: 'smoothie', açaí: 'acai bowl', tigela: 'bowl',
+  misto: 'grilled cheese', quente: '', americana: '', americanas: '',
+};
+const LIGACAO = new Set(['de', 'da', 'do', 'dos', 'das', 'com', 'e', 'ao', 'à', 'a', 'o', 'em', 'no', 'na', 'sem', 'tipo', 'por']);
+
+function paraIngles(nome) {
+  const partes = nome
+    .toLowerCase()
+    .replace(/[(),]/g, ' ')
+    .split(/[\s]+/)
+    .filter(Boolean)
+    .filter((w) => !LIGACAO.has(w))
+    .map((w) => (w in EN ? EN[w] : w))
+    .filter(Boolean);
+  return [...new Set(partes.join(' ').split(' '))].join(' ').trim();
+}
+
+/* Uma foto no Pexels. Devolve no mesmo formato do resto do script para
+   o CREDITOS.txt não precisar saber de onde veio. */
+async function noPexels(termo) {
+  if (!CHAVE) return null;
+  const u = new URL(PEXELS);
+  u.search = new URLSearchParams({
+    query: termo, per_page: '3', orientation: 'landscape', size: 'medium',
+  }).toString();
+  const r = await pega(u, { Authorization: CHAVE, 'User-Agent': UA });
+  if (!r.ok) return null;
+  const j = await r.json();
+  const foto = (j.photos || [])[0];
+  if (!foto) return null;
+  return {
+    url: foto.src.large || foto.src.medium,
+    titulo: foto.alt || termo,
+    autor: foto.photographer,
+    pagina: foto.url,
+    /* A licença do Pexels dispensa atribuição, e o CREDITOS.txt registra
+       o fotógrafo mesmo assim: é o mínimo, e é o que permite conferir
+       depois de onde cada imagem saiu. */
+    lic: 'Pexels License',
+  };
+}
 
 const args = process.argv.slice(2);
 const refazer = args.includes('--refazer');
@@ -189,7 +313,22 @@ for (const a of alvo) {
   if (!refazer && fs.existsSync(destino)) continue;
 
   let achou = null;
-  for (const t of termos(a)) {
+
+  /* O PEXELS PRIMEIRO. Ele responde em inglês e responde com comida
+     fotografada; a Wikipédia fica de rede de segurança para o que o
+     banco não tiver. */
+  if (CHAVE) {
+    const en = paraIngles(a.nome);
+    for (const t of [en, en.split(' ').slice(0, 2).join(' ')]) {
+      if (!t) continue;
+      let px = null;
+      try { px = await noPexels(t); } catch { px = null; }
+      if (px) { achou = { pexels: px, lic: px.lic, autor: px.autor, termo: t, artigo: 'Pexels' }; break; }
+      await dorme(PAUSA);
+    }
+  }
+
+  for (const t of achou ? [] : termos(a)) {
     let alvoWiki = null;
     try { alvoWiki = await imagemDoArtigo(t); } catch { alvoWiki = null; }
     if (!alvoWiki || !combina(a.nome, alvoWiki.artigo)) { await dorme(PAUSA); continue; }
@@ -210,8 +349,9 @@ for (const a of alvo) {
 
   if (!achou) { pulados.push(a.id + ' (' + a.nome + ')'); continue; }
 
+  const urlDaFoto = achou.pexels ? achou.pexels.url : achou.ii.thumburl;
   let bin;
-  try { bin = await pega(achou.ii.thumburl, { 'User-Agent': UA }); }
+  try { bin = await pega(urlDaFoto, { 'User-Agent': UA }); }
   catch { pulados.push(a.id + ' (download falhou)'); continue; }
   if (!bin.ok) { pulados.push(a.id + ' (download ' + bin.status + ')'); continue; }
   fs.writeFileSync(destino, Buffer.from(await bin.arrayBuffer()));
@@ -219,14 +359,17 @@ for (const a of alvo) {
 
   creditos.push(
     `${a.id}.jpg — ${a.nome}\n` +
-    `  arquivo: ${achou.pg.title}\n` +
+    `  arquivo: ${achou.pexels ? achou.pexels.titulo : achou.pg.title}\n` +
     `  autor:   ${achou.autor}\n` +
     `  licença: ${achou.lic}\n` +
-    `  origem:  ${achou.ii.descriptionurl}\n` +
-    `  artigo:  ${achou.artigo} (pt.wikipedia, buscado por "${achou.termo}")\n`,
+    `  origem:  ${achou.pexels ? achou.pexels.pagina : achou.ii.descriptionurl}\n` +
+    `  buscado por: "${achou.termo}" em ${achou.pexels ? 'Pexels' : 'pt.wikipedia (' + achou.artigo + ')'}\n`,
   );
 
-  console.log(`${a.id}  ←  ${achou.artigo}  ·  ${achou.pg.title.replace('File:', '')}  [${achou.lic}]`);
+  console.log(
+    `${(a.id + '                         ').slice(0, 25)} ${achou.pexels ? 'px' : 'wk'}  ` +
+    `${achou.pexels ? achou.pexels.titulo : achou.pg.title.replace('File:', '')}  [${achou.lic}]`,
+  );
   await dorme(PAUSA);
 }
 
@@ -236,9 +379,10 @@ const antes = fs.existsSync(path.join(PASTA, 'CREDITOS.txt'))
   ? fs.readFileSync(path.join(PASTA, 'CREDITOS.txt'), 'utf8')
   : `CRÉDITOS DAS FOTOS
 
-As imagens vêm do Wikimedia Commons, com licença que permite uso
-mediante atribuição. Cada bloco abaixo diz o autor, a licença e a
-página de origem do arquivo.
+As imagens vêm do Pexels (licença Pexels, uso livre inclusive
+comercial) e do Wikimedia Commons (licença que permite uso mediante
+atribuição). Cada bloco abaixo diz o autor, a licença e a página de
+origem do arquivo.
 
 Gerado por scripts/buscar-fotos.mjs. Apagar um .jpg desfaz o uso
 daquela imagem — a tela volta a abrir com o painel de cor.
