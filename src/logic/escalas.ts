@@ -24,7 +24,9 @@
 export const ENERGIA = ['Sem força', 'Arrastando o dia', 'Deu para o dia', 'Com disposição', 'Energia de sobra'];
 
 /** Horas dormidas — as pontas absorvem o que passa delas. */
-export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca de 8 h', '9 h ou mais'];
+/* Espaço fino inquebrável entre o número e o 'h': em caixa estreita a
+   linha quebrava entre os dois e sobrava um 'h' órfão na segunda linha. */
+export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca de 8 h', '9 h ou mais'];
 
 /** 1–5 dos dois lados, sem conversão. */
 export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um bom dia', 'Um ótimo dia'];

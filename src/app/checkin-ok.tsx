@@ -99,17 +99,23 @@ export default function CheckinOk() {
     return () => clearTimeout(t);
   }, []);
 
-  /* O recibo em palavras. Cada linha só existe se foi respondida — a tela
-     confirma o que a pessoa disse, e campo em branco não virou resposta. */
-  const recibo: [string, string][] = [];
+  /* As três fixas, sempre as três, lado a lado. Elas são as perguntas que
+     a tela faz todo dia, então a grade é estável: quem não respondeu vê o
+     traço no lugar do valor, e não um buraco onde havia um campo.
+
+     Em grade e não em lista porque lista é o formato de quem vai conferir
+     item por item, e aqui a pessoa está olhando o dia de uma vez. */
   const energia = paraTela(registro?.energia);
-  if (energia) recibo.push(['Energia', ENERGIA[energia - 1]]);
-  if (typeof registro?.sono === 'number' && registro.sono >= 5 && registro.sono <= 9) {
-    recibo.push(['Sono', SONO[registro.sono - 5]]);
-  }
-  if (typeof registro?.mood === 'number' && registro.mood >= 1 && registro.mood <= 5) {
-    recibo.push(['Humor', HUMOR[registro.mood - 1]]);
-  }
+  const sono = typeof registro?.sono === 'number' && registro.sono >= 5 && registro.sono <= 9
+    ? registro.sono : null;
+  const humor = typeof registro?.mood === 'number' && registro.mood >= 1 && registro.mood <= 5
+    ? registro.mood : null;
+
+  const grade: [string, string | null][] = [
+    ['Energia', energia ? ENERGIA[energia - 1] : null],
+    ['Sono', sono != null ? SONO[sono - 5] : null],
+    ['Humor', humor != null ? HUMOR[humor - 1] : null],
+  ];
 
   /* Os sintomas, pelo nome. Cada um tem a sua prova de existência: coluna
      própria, entrada no mapa `sint`, `gut` fora do normal ou texto livre. */
@@ -119,7 +125,6 @@ export default function CheckinOk() {
     if (x.store) return (registro?.[x.store] ?? 0) > 0;
     return (registro?.sint?.[x.id] ?? 0) > 0;
   }).map((x) => x.label);
-  recibo.push(['Sintomas', sintomas.length ? sintomas.join(', ') : 'Nenhum hoje']);
 
   const lembretes = registro
     ? lembretesDoDia(diasAnteriores(S.checkins as any[], +startOfDay(now())), niveisDoRegistro(registro))
@@ -175,26 +180,36 @@ export default function CheckinOk() {
             <Icon name="check" size={38} color={c.limeInk} sw={2.6} />
           </Animated.View>
 
-          <Animated.View style={[subindo, { alignItems: 'center', gap: 16 }]}>
+          <Animated.View style={[subindo, { alignItems: 'center', gap: 26 }]}>
             <Txt v="display" c={c.onHero} style={{ textAlign: 'center', letterSpacing: -0.6 }}>
               Check-in concluído
             </Txt>
 
-            {/* A sequência. O número é o herói da tela e fica em lima, do
-                tamanho dos números grandes do app. */}
-            <Row gap={12} style={{ alignItems: 'center' }}>
+            {/* A SEQUÊNCIA, com desenho próprio.
+
+                Na Home ela é uma pastilha de canto: número e frase lado a
+                lado, do tamanho de um dado entre outros. Ali está certo —
+                é uma informação da tela. Aqui ela é a tela, e repetir o
+                mesmo arranjo faria a confirmação parecer um pedaço da Home
+                que escapou.
+
+                Então o número sobe para 76, sozinho na linha, e a frase
+                vira legenda embaixo dele: em micro espaçado, que é como o
+                app escreve rótulo de coisa grande. Placar, não pastilha. */}
+            <View style={{ alignItems: 'center' }}>
               <Animated.View style={{ transform: [{ scale: pulo }] }}>
-                <Txt v="hero" c={c.lime}>{n}</Txt>
+                <Txt v="hero" c={c.lime} style={{ fontSize: 76, lineHeight: 82 }}>{n}</Txt>
               </Animated.View>
-              <Txt v="title" c={c.onHero2} style={{ maxWidth: 132 }}>
-                {n === 1 ? 'dia seguido de check-in' : 'dias seguidos de check-in'}
+              <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 2, marginTop: 4 }}>
+                {n === 1 ? 'DIA SEGUIDO DE CHECK-IN' : 'DIAS SEGUIDOS DE CHECK-IN'}
               </Txt>
-            </Row>
+            </View>
 
             {marco ? (
               <View style={{
                 backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
                 borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 6,
+                marginTop: -12,
               }}>
                 <Txt v="tag" c={c.onHero}>{marco}</Txt>
               </View>
@@ -202,21 +217,53 @@ export default function CheckinOk() {
           </Animated.View>
         </View>
 
-        {/* O recibo, em vidro. Em palavras e não em números: quem
-            respondeu escolheu "Com disposição", não "4". */}
-        <Animated.View style={[subindo, {
-          backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
-          borderRadius: radius.lg, paddingHorizontal: PAD, paddingVertical: 4,
-        }]}>
-          {recibo.map(([rotulo, valor], i) => (
-            <View key={rotulo}>
-              {i > 0 ? <View style={{ height: 1, backgroundColor: c.onHeroLine }} /> : null}
-              <Row gap={12} style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-                <Txt v="caption" c={c.onHero2} style={{ width: 78 }}>{rotulo}</Txt>
-                <Txt v="caption" c={c.onHero} style={{ flex: 1, textAlign: 'right' }}>{valor}</Txt>
-              </Row>
+        {/* O dia em palavras, não em números: quem respondeu escolheu
+            "Com disposição", não "4". */}
+        <Animated.View style={[subindo, { gap: 14 }]}>
+          <Row gap={8} style={{ alignItems: 'stretch' }}>
+            {grade.map(([rotulo, valor]) => (
+              <View
+                key={rotulo}
+                style={{
+                  flex: 1, minHeight: 106,
+                  backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+                  borderRadius: radius.lg, padding: 13, gap: 7,
+                }}
+              >
+                <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>{rotulo.toUpperCase()}</Txt>
+                <Txt v="caption" c={valor ? c.onHero : c.onHero2} style={{ opacity: valor ? 1 : 0.55 }}>
+                  {valor ?? '—'}
+                </Txt>
+              </View>
+            ))}
+          </Row>
+
+          {/* Os sintomas em chips, e não numa quarta caixa: eles são uma
+              lista de nomes, de tamanho variável, e caixa de tamanho fixo
+              ou sobra vazia ou corta o terceiro nome. */}
+          <View style={{ gap: 9, paddingHorizontal: 2 }}>
+            <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>SINTOMAS</Txt>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
+              {sintomas.length ? sintomas.map((nome) => (
+                <View
+                  key={nome}
+                  style={{
+                    backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+                    borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 7,
+                  }}
+                >
+                  <Txt v="tag" c={c.onHero}>{nome}</Txt>
+                </View>
+              )) : (
+                <View style={{
+                  borderWidth: 1, borderColor: c.glassLine,
+                  borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 7,
+                }}>
+                  <Txt v="tag" c={c.onHero2}>Nenhum hoje</Txt>
+                </View>
+              )}
             </View>
-          ))}
+          </View>
         </Animated.View>
 
         {lembretes.length ? (
@@ -234,12 +281,15 @@ export default function CheckinOk() {
                   borderRadius: radius.lg, padding: PAD, gap: 5,
                 }}
               >
-                <Row gap={8} style={{ alignItems: 'flex-start' }}>
-                  <View style={{ marginTop: 2 }}>
-                    <Icon name="aura" size={15} color={c.lime} sw={2} />
-                  </View>
-                  <Txt v="label" c={c.onHero} style={{ flex: 1 }}>{l.titulo}</Txt>
+                {/* O assunto vem antes do recado. Solto numa lista, longe do
+                    campo que o provocou, "isso tira mais líquido do que
+                    parece" perdia o antecedente — isso o quê? A linha
+                    responde antes de a pergunta existir. */}
+                <Row gap={8} style={{ alignItems: 'center' }}>
+                  <Icon name="aura" size={15} color={c.lime} sw={2} />
+                  <Txt v="tag" c={c.lime} style={{ flex: 1 }}>Sobre {l.sobre}</Txt>
                 </Row>
+                <Txt v="label" c={c.onHero} style={{ marginTop: 1 }}>{l.titulo}</Txt>
                 <Txt v="tag" c={c.onHero2}>{l.texto}</Txt>
                 <View style={{ gap: 3, marginTop: 3 }}>
                   <Txt v="micro" c={c.lime} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>

@@ -22,7 +22,14 @@
 
 import { paraTela } from './escalas';
 
-export type Leitura = { titulo: string; texto: string; acao: string };
+/* `sobre` é o ASSUNTO, e existe porque a mesma leitura aparece em dois
+   lugares com contextos opostos. No formulário ela mora dentro do cartão
+   "VÔMITO · INTENSIDADE", e o cartão já diz do que se trata. Na
+   confirmação ela vira item de uma lista solta, e ali "isso tira mais
+   líquido do que parece" perde o antecedente — isso o quê?
+
+   A frase é um complemento de "Sobre…": "Sobre o vômito de hoje". */
+export type Leitura = { sobre: string; titulo: string; texto: string; acao: string };
 
 /* ONDE A TELA DEIXA DE SÓ ANOTAR
 
@@ -45,21 +52,24 @@ export type Leitura = { titulo: string; texto: string; acao: string };
    avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
    vômito, intestino — avisam no degrau em que a graduação clínica troca
    de patamar. */
-export const AVISOS: Record<string, { min: number; titulo: string; texto: string; acao: string }> = {
+export const AVISOS: Record<string, { min: number; sobre: string; titulo: string; texto: string; acao: string }> = {
   dor: {
     min: 4,
+    sobre: 'a dor de hoje',
     titulo: 'Essa dor não espera a próxima consulta',
     texto: 'Dor forte na barriga, ou que não passa, é a única que pede atenção no mesmo dia. Quase sempre não é nada grave — e é por isso mesmo que vale olhar cedo.',
     acao: 'Fale com sua equipe hoje. Se piorar ou vier com vômito, procure um atendimento.',
   },
   vomito: {
     min: 4,
-    titulo: 'Isso tira mais líquido do que parece',
+    sobre: 'o vômito de hoje',
+    titulo: 'O vômito tira mais líquido do que parece',
     texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E quando a comida não fica, o dia seguinte já começa cansado.',
     acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
   },
   tontura: {
     min: 4,
+    sobre: 'a tontura de hoje',
     titulo: 'Tontura assim costuma ter explicação',
     texto: 'Quase sempre é falta de líquido ou açúcar baixo. Se você toma algum remédio para diabetes junto, o açúcar baixo fica ainda mais provável.',
     acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, conte para sua equipe.',
@@ -70,6 +80,7 @@ export const AVISOS: Record<string, { min: number; titulo: string; texto: string
    não são medidos em `grau` — um conta dias sem ir, o outro idas no dia. */
 export const AVISO_PRESO = {
   min: 5,
+  sobre: 'o intestino preso',
   titulo: 'Quatro dias sem ir já merece atenção',
   texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
   acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
@@ -77,8 +88,9 @@ export const AVISO_PRESO = {
 
 export const AVISO_SOLTO = {
   min: 5,
-  titulo: 'Assim o corpo perde mais do que repõe',
-  texto: 'Sete idas ou mais num dia levam mais água e sal do que a sede dá conta de repor.',
+  sobre: 'o intestino solto',
+  titulo: 'O intestino solto leva água e sal junto',
+  texto: 'Sete idas ou mais num dia levam mais do que a sede dá conta de repor.',
   acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
 };
 
@@ -97,10 +109,11 @@ export const AVISO_SOLTO = {
    discutir com o mais urgente. */
 export type Niveis = { nausea: number; dor: number; vomito: number; tontura: number; preso: number; solto: number };
 
-const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: string; acao: string }[] = [
+const COMBINACOES: { quando: (n: Niveis) => boolean; sobre: string; titulo: string; texto: string; acao: string }[] = [
   {
     /* Intestino parado há dias + dor forte + vômito. */
     quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
+    sobre: 'o intestino, a dor e o vômito juntos',
     titulo: 'Essa combinação pede atendimento agora',
     texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou. É raro, mas não melhora sozinho.',
     acao: 'Procure um pronto atendimento hoje. Diga que usa a caneta e há quantos dias não vai ao banheiro.',
@@ -109,6 +122,7 @@ const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: stri
     /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
        manda relatar de imediato. */
     quando: (n) => n.dor >= 4 && n.vomito >= 3,
+    sobre: 'a dor com vômito',
     titulo: 'Dor forte com vômito não espera',
     texto: 'Dor forte na barriga junto de vômito, às vezes espalhando para as costas, pede atenção no mesmo dia. Chegando cedo, é simples de checar.',
     acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, a dose e quando a dor começou.',
@@ -116,7 +130,8 @@ const COMBINACOES: { quando: (n: Niveis) => boolean; titulo: string; texto: stri
   {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
-    titulo: 'Tontura junto disso é sinal de desidratação',
+    sobre: 'a tontura com a perda de líquido',
+    titulo: 'Tontura com perda de líquido é sinal de desidratação',
     texto: 'Quando falta água e sal, a pressão cai ao levantar — e a tontura é o corpo avisando.',
     acao: 'Beba de pouquinho ao longo do dia, com soro ou uma pitada de sal, e levante devagar. Se não melhorar até amanhã, avise sua equipe.',
   },
@@ -146,6 +161,7 @@ const PERSISTENCIA: {
   dias: number;
   noDia: (c: any) => boolean;
   hoje: (n: Niveis) => boolean;
+  sobre: string;
   titulo: string;
   texto: (n: number) => string;
   acao: string;
@@ -154,6 +170,7 @@ const PERSISTENCIA: {
     dias: 3,
     noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
     hoje: (n) => n.vomito >= 1,
+    sobre: 'o vômito desta semana',
     titulo: 'Vômito em dias repetidos',
     texto: (n) => `${n} dos últimos sete dias com vômito. Assim comida, líquido e o próprio remédio não ficam.`,
     acao: 'Fale com sua equipe esta semana, sem esperar a consulta. Leve o número de dias — é ele que faz diferença.',
@@ -162,6 +179,7 @@ const PERSISTENCIA: {
     dias: 3,
     noDia: (c) => c?.gut === 'solto',
     hoje: (n) => n.solto >= 1,
+    sobre: 'o intestino desta semana',
     titulo: 'O intestino está solto há dias',
     texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação, mesmo quando cada dia, sozinho, parece tranquilo.`,
     acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser a alimentação.',
@@ -171,6 +189,7 @@ const PERSISTENCIA: {
     /* 6 na régua de armazenamento é o 3 da tela — enjoo que incomodou. */
     noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
     hoje: (n) => n.nausea >= 3,
+    sobre: 'o enjoo desta semana',
     titulo: 'O enjoo não está passando',
     texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. Costuma mudar com a dose, ou com a velocidade que ela sobe.`,
     acao: 'Leve esse número para a próxima consulta. Segurar a dose um pouco mais não é desistir.',
@@ -179,6 +198,7 @@ const PERSISTENCIA: {
     dias: 5,
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
+    sobre: 'o intestino desta semana',
     titulo: 'O intestino está lento a semana toda',
     texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito da caneta, e com menos comida passa menos fibra — ele sente antes da balança.`,
     acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
@@ -218,7 +238,7 @@ export function combinacao(n: Niveis): Leitura | null {
 export function persistencia(anteriores: any[], niveis: Niveis): Leitura | null {
   for (const r of PERSISTENCIA) {
     const n = anteriores.filter(r.noDia).length + (r.hoje(niveis) ? 1 : 0);
-    if (n >= r.dias) return { titulo: r.titulo, texto: r.texto(n), acao: r.acao };
+    if (n >= r.dias) return { sobre: r.sobre, titulo: r.titulo, texto: r.texto(n), acao: r.acao };
   }
   return null;
 }
@@ -237,13 +257,13 @@ export function leituraDoDia(anteriores: any[], n: Niveis): Leitura | null {
 export function avisosDoDia(n: Niveis): Leitura[] {
   const fora: Leitura[] = [];
   for (const [id, a] of Object.entries(AVISOS)) {
-    if (((n as any)[id] ?? 0) >= a.min) fora.push({ titulo: a.titulo, texto: a.texto, acao: a.acao });
+    if (((n as any)[id] ?? 0) >= a.min) fora.push({ sobre: a.sobre, titulo: a.titulo, texto: a.texto, acao: a.acao });
   }
   if (n.preso >= AVISO_PRESO.min) {
-    fora.push({ titulo: AVISO_PRESO.titulo, texto: AVISO_PRESO.texto, acao: AVISO_PRESO.acao });
+    fora.push({ sobre: AVISO_PRESO.sobre, titulo: AVISO_PRESO.titulo, texto: AVISO_PRESO.texto, acao: AVISO_PRESO.acao });
   }
   if (n.solto >= AVISO_SOLTO.min) {
-    fora.push({ titulo: AVISO_SOLTO.titulo, texto: AVISO_SOLTO.texto, acao: AVISO_SOLTO.acao });
+    fora.push({ sobre: AVISO_SOLTO.sobre, titulo: AVISO_SOLTO.titulo, texto: AVISO_SOLTO.texto, acao: AVISO_SOLTO.acao });
   }
   return fora;
 }
