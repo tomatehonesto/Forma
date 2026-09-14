@@ -1517,6 +1517,31 @@ export function semanaDeMovimento(S: State): { t: number; min: number }[] {
   });
 }
 
+/* MINUTOS POR SEMANA, NAS ÚLTIMAS N SEMANAS.
+
+   O gráfico de barras em cima responde "como foi esta semana". Este
+   responde outra coisa, que nenhuma parte da tela respondia: estou me
+   mexendo mais ou menos do que estava há dois meses. Num tratamento que
+   dura meses, essa é a pergunta que a semana isolada nunca alcança.
+
+   Em SEMANAS e não em dias porque o dia é picotado — 0, 30, 0, 0, 45 —,
+   e uma curva suave passada por cima disso desenha um movimento que não
+   aconteceu. A semana soma o descanso junto com o treino, que é como o
+   corpo conta.
+
+   As semanas terminam hoje e correm para trás: a última é a que está
+   acontecendo, e por isso costuma ser mais baixa que as outras. */
+export function semanasDeMovimento(S: State, n = 8): { t: number; min: number }[] {
+  const hoje = +startOfDay(now());
+  const balde = new Array(n).fill(0);
+  for (const c of S.checkins as any[]) {
+    const atras = Math.floor((hoje - c.t) / DAY);
+    if (atras < 0 || atras >= n * 7) continue;
+    balde[n - 1 - Math.floor(atras / 7)] += c.exerc || 0;
+  }
+  return balde.map((min, i) => ({ t: hoje - (n - 1 - i) * 7 * DAY, min: Math.round(min) }));
+}
+
 /* De que é feito o movimento de alguém, e quanto dele puxa músculo.
 
    A segunda parte não é curiosidade de academia: em déficit calórico,

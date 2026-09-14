@@ -4,11 +4,11 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   apagarTreino, checkinToday, fontesDeMovimento, listaPt,
-  misturaDeMovimento, semanaDeMovimento, treinosRecentes,
+  misturaDeMovimento, semanaDeMovimento, semanasDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, Linha, ItemApagavel, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Cartao, CardCurva, Linha, ItemApagavel, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -62,6 +62,12 @@ export default function Exercicio() {
      assim um dia de 60 min enche a barra e um de 90 não sai da caixa. */
   const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
   const ALT = 64;
+
+  /* A curva só aparece quando há mais de uma semana com movimento: duas
+     semanas vazias e uma cheia não formam tendência, formam um degrau. */
+  const semanas = semanasDeMovimento(S, 8);
+  const comHistorico = semanas.filter((w) => w.min > 0).length >= 2;
+  const mediaSemanal = Math.round(semanas.reduce((x, w) => x + w.min, 0) / semanas.length);
 
   const mistura = misturaDeMovimento(S, 30);
   const treinos = treinosRecentes(S, 30);
@@ -172,6 +178,34 @@ export default function Exercicio() {
         </Txt>
 
       </View>
+
+      {/* A TENDÊNCIA — a pergunta que a semana isolada não alcança.
+
+          As barras de cima dizem como foi esta semana. Esta curva diz se
+          a pessoa está se mexendo mais ou menos do que estava há dois
+          meses, que num tratamento de meses é a pergunta que importa e
+          que nada na tela respondia.
+
+          É o CardCurva das outras internas, com a leitura no cabeçalho em
+          vez de um balão embaixo do dedo — num gráfico de celular a mão
+          cobre metade do card, e a leitura não pode morar ali. */}
+      {comHistorico ? (
+        <View style={{ marginTop: 10 }}>
+          <CardCurva
+            id="ex"
+            nome="Minutos por semana"
+            sub="Média das últimas 8 semanas"
+            valor={String(mediaSemanal)}
+            unidade="min"
+            altura={110}
+            pontos={semanas.map((w) => ({
+              v: w.min,
+              rotulo: String(w.min),
+              quando: `semana de ${fmtDate(new Date(w.t))}`,
+            }))}
+          />
+        </View>
+      ) : null}
 
       {/* DE QUE É FEITO O MOVIMENTO
 
