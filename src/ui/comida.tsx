@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Pressable, TextInput, StyleSheet } from 'react-native';
-import { ALIMENTOS, PORCOES, buscarAlimento, gramasDe, type Alimento, type Porcao } from '../logic/alimentos';
+import { View, Pressable, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
+import { PORCOES, buscarAlimento, gramasDe, type Alimento, type Porcao } from '../logic/alimentos';
+import { gramasItem, medidaItem, nomeItem, type ItemComida } from '../logic/prato';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
@@ -9,29 +11,11 @@ import { radius, ty } from '../theme';
 /* ============================================================
    A COMIDA NA TELA
 
-   Duas peças, e as duas servem os dois caminhos de registro: o que a
-   pessoa digita hoje e o que a câmera vai propor depois. A foto devolve
-   exatamente isto — uma lista de alimentos com porção —, então a tela da
-   foto não vai precisar inventar nada: recebe os itens já escolhidos e
-   mostra a mesma lista, aberta para conserto.
-
-   É por isso que elas nascem fora da tela de refeição.
+   As peças servem os dois caminhos de registro: o que a pessoa digita e o
+   que a câmera propõe. A foto devolve exatamente o mesmo tipo de item
+   que a busca monta, então a tela da foto não é outra tela — é esta,
+   preenchida por outra porta.
    ============================================================ */
-
-export type ItemComida = { id: string; porcao: Porcao };
-
-/** O alimento de um item, ou null se o id não existir mais na tabela. */
-export function alimentoDe(id: string): Alimento | null {
-  return ALIMENTOS.find((a) => a.id === id) || null;
-}
-
-/** Proteína de uma lista de itens. */
-export function somaDe(itens: ItemComida[]): number {
-  return itens.reduce((s, it) => {
-    const a = alimentoDe(it.id);
-    return a ? s + gramasDe(a, it.porcao) : s;
-  }, 0);
-}
 
 /* ------------------------------------------------------------------ */
 
@@ -40,7 +24,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, jaTem }: {
   valor: string;
   onChange: (v: string) => void;
   onEscolher: (a: Alimento) => void;
-  /** Ids já na lista — some das sugestões para não entrar duas vezes. */
+  /** Ids já na lista — somem das sugestões para não entrar duas vezes. */
   jaTem?: string[];
 }) {
   const { c } = useTheme();
@@ -92,15 +76,15 @@ export function BuscaAlimento({ valor, onChange, onEscolher, jaTem }: {
 
 /* ------------------------------------------------------------------ */
 
-/** Um alimento escolhido, com o tamanho da porção e o que ele soma. */
+/** Um item do prato, com o tamanho da porção e o que ele soma. */
 export function ItemAlimento({ item, onPorcao, onRemover }: {
   item: ItemComida;
   onPorcao: (p: Porcao) => void;
   onRemover: () => void;
 }) {
   const { c } = useTheme();
-  const a = alimentoDe(item.id);
-  if (!a) return null;
+  const nome = nomeItem(item);
+  if (!nome) return null;
 
   return (
     <View style={{
@@ -109,8 +93,11 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
     }}>
       <Row gap={10}>
         <View style={{ flex: 1 }}>
-          <Txt v="label" numberOfLines={1}>{a.nome}</Txt>
-          <Txt v="micro" c={c.tx4}>{a.medida}</Txt>
+          <Txt v="label" numberOfLines={1}>{nome}</Txt>
+          {/* Ou a medida caseira, ou a confissão de que o número saiu da
+              foto e não da tabela. As duas coisas cabem na mesma linha
+              porque são a mesma pergunta: de onde veio isso. */}
+          <Txt v="micro" c={c.tx4}>{medidaItem(item)}</Txt>
         </View>
         <Pressable onPress={onRemover} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
           <Icon name="x" size={15} color={c.tx4} sw={2.2} />
@@ -136,9 +123,69 @@ export function ItemAlimento({ item, onPorcao, onRemover }: {
           );
         })}
         <View style={{ width: 52, alignItems: 'flex-end', justifyContent: 'center' }}>
-          <Txt v="tag" c={c.tx2}>~{gramasDe(a, item.porcao)} g</Txt>
+          <Txt v="tag" c={c.tx2}>~{gramasItem(item)} g</Txt>
         </View>
       </Row>
     </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+/** O convite para fotografar, quando ainda não há foto. */
+export function BotaoEscanear({ onPress }: { onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
+      <Row gap={11} style={{
+        backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine,
+        borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 13,
+      }}>
+        <Icon name="camera" size={18} color={c.accent} sw={1.9} />
+        <View style={{ flex: 1 }}>
+          <Txt v="label" c={c.accent}>Escanear o prato</Txt>
+          <Txt v="micro" c={c.tx3}>Uma foto e o app monta a lista</Txt>
+        </View>
+      </Row>
+    </Pressable>
+  );
+}
+
+/** A foto tirada, e o que está acontecendo com ela. */
+export function FotoDoPrato({ uri, lendo, recado, onRemover }: {
+  uri: string;
+  lendo: boolean;
+  /** O que impediu a leitura, quando impediu. */
+  recado?: string;
+  onRemover: () => void;
+}) {
+  const { c } = useTheme();
+  return (
+    <Row gap={12} style={{
+      backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+      borderRadius: radius.md, padding: 10,
+    }}>
+      <Image
+        source={{ uri }}
+        style={{ width: 62, height: 62, borderRadius: radius.sm, backgroundColor: c.bg2 }}
+        contentFit="cover"
+      />
+      <View style={{ flex: 1, gap: 3 }}>
+        {lendo ? (
+          <Row gap={8}>
+            <ActivityIndicator size="small" color={c.accent} />
+            <Txt v="label" c={c.accent}>Lendo o prato…</Txt>
+          </Row>
+        ) : (
+          /* Quando não deu, o recado já aponta para o caminho que
+             funciona: um erro que só diz "falhou" deixa a pessoa parada
+             com a refeição por registrar. */
+          <Txt v="caption" c={c.tx3}>{recado || 'Confira a lista abaixo e ajuste o que precisar.'}</Txt>
+        )}
+      </View>
+      <Pressable onPress={onRemover} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+        <Icon name="x" size={15} color={c.tx4} sw={2.2} />
+      </Pressable>
+    </Row>
   );
 }

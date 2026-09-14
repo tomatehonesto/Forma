@@ -35,6 +35,20 @@
       ],
       "expo-font",
       "expo-image",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O Morphi usa a câmera para ler o seu prato e estimar a proteína da refeição.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Morphi abre as suas fotos para você escolher a imagem de uma refeição."
+        }
+      ],
       "expo-status-bar",
       "expo-web-browser"
     ],
