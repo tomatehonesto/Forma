@@ -66,7 +66,10 @@ export default function MedirRefeicao() {
   /* Os favoritos de /alimentacao entram por aqui, com o nome já escrito.
      Antes eles gravavam por conta própria e não mexiam na proteína do
      dia: a refeição aparecia na lista e a barra não andava. */
-  const { oque: oqueParam } = useLocalSearchParams<{ oque?: string }>();
+  /* `cam=1` abre a folha já com a câmera no ar. É por onde entra o botão
+     de escanear de /alimentacao: sem isto ele teria de abrir o registro e
+     pedir um segundo toque para a coisa que a pessoa já tinha escolhido. */
+  const { oque: oqueParam, cam: camParam } = useLocalSearchParams<{ oque?: string; cam?: string }>();
 
   const hora = new Date().getHours();
   const sugerido = hora < 10 ? 'Café da manhã' : hora < 15 ? 'Almoço' : hora < 18 ? 'Lanche' : 'Jantar';
@@ -75,7 +78,7 @@ export default function MedirRefeicao() {
   const [busca, setBusca] = useState(String(oqueParam || ''));
   const [itens, setItens] = useState<ItemComida[]>([]);
 
-  const [camera, setCamera] = useState(false);
+  const [camera, setCamera] = useState(camParam === '1');
   const [foto, setFoto] = useState<string | null>(null);
   const [lendo, setLendo] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);

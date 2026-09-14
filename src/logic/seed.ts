@@ -206,10 +206,20 @@ export function buildSeed() {
       { t: +daysAgo(70), name: 'Mounjaro (tirzepatida)', detail: 'Titulação 2,5 → 5 mg · 1×/semana, subcutânea', by: 'Dra. Helena Costa' },
       { t: +daysAgo(70), name: 'Suplemento de proteína', detail: 'Conforme necessidade, para atingir a meta diária', by: 'Renata Alves (Nutrição)' },
     ],
+    /* Refeições no formato de hoje: o grama é a verdade e a origem diz de
+       onde ele veio. Elas estavam na forma antiga — `prot: 'alta'` sem
+       `g` —, que é exatamente a forma que `gramasDaFaixa` existe para ler
+       e que o comentário dela manda não criar mais. A semente escrevendo
+       dado legado fazia a tela inteira ser testada pelo caminho de
+       compatibilidade e nunca pelo caminho normal.
+
+       O almoço fica em 30 g porque é o de hoje, e o check-in de hoje diz
+       `prot: 30`: dois lugares falando do mesmo dia têm de dar o mesmo
+       número. */
     meals: [
-      { t: +daysAgo(0.4), name: 'Almoço', prot: 'alta', qual: 'ótima', tag: 'Frango grelhado, arroz integral e salada' },
-      { t: +daysAgo(1), name: 'Café da manhã', prot: 'média', qual: 'boa', tag: 'Ovos mexidos e fruta' },
-      { t: +daysAgo(1.4), name: 'Jantar', prot: 'alta', qual: 'ótima', tag: 'Salmão e legumes no vapor' },
+      { t: +daysAgo(0.4), name: 'Almoço', g: 30, fonte: 'manual', tag: 'Frango grelhado, arroz integral e salada' },
+      { t: +daysAgo(1), name: 'Café da manhã', g: 18, fonte: 'manual', tag: 'Ovos mexidos e fruta' },
+      { t: +daysAgo(1.4), name: 'Jantar', g: 38, fonte: 'foto', tag: 'Salmão e legumes no vapor' },
     ],
     favMeals: ['Iogurte natural + granola', 'Frango grelhado + salada', 'Omelete de claras'],
     notifications: [
