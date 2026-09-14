@@ -78,10 +78,16 @@ export default function Registrar() {
      que já chega com tudo preenchido para quem só quer confirmar. */
 
   /* Catálogo em primeira pessoa. O que a pessoa lê é o acontecimento; o
-     nome da funcionalidade fica para a tela de destino. */
+     nome da funcionalidade fica para a tela de destino.
+
+     Os dois títulos de duas palavras quebram na mão, depois do "Me".
+     "Fiz uma refeição" já ocupava as duas linhas reservadas, e os outros
+     dois cabiam numa — as três pastilhas ficavam com o texto começando em
+     alturas diferentes. Quebrando aqui, os três abrem com uma palavra
+     curta na primeira linha e o verbo na segunda. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: 'Me hidratei', sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
-    exercicio: { ic: 'dumbbell', titulo: 'Me exercitei', sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
+    agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
+    exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${S.meals.length} registradas`, to: '/medir-refeicao' },
