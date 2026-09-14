@@ -160,7 +160,10 @@ const TERMO = {
   'feijao-preto': 'black beans cooked dish',
   'grao-de-bico': 'cooked chickpeas bowl',
   leite: 'pouring milk into glass',
-  palmito: 'palmito palm hearts canned',
+  /* Uma lista, e não um termo: palmito e fígado quase não existem em
+     banco de fotografia, e cada tentativa recusada custa só um pedido.
+     Quem tem um termo só continua tendo um termo só. */
+  palmito: ['hearts of palm', 'palm heart salad', 'palmito'],
   espinafre: 'fresh spinach leaves bunch',
   cenoura: 'fresh whole carrots bunch',
   legumes: 'cooked mixed vegetables side dish',
@@ -178,7 +181,7 @@ const TERMO = {
   corvina: 'grilled white fish fillet',
   musculo: 'beef shank stew in bowl',
   'coxao-mole': 'braised beef stew plate',
-  figado: 'beef liver steak cooked onion',
+  figado: ['liver and onions dish', 'cooked beef liver plate', 'liver pan fried'],
   // nome próprio brasileiro, que não se soma em inglês
   'pao-de-queijo': 'brazilian cheese bread balls',
   'pao-sovado': 'sweet bread loaf sliced',
@@ -417,8 +420,11 @@ if (cota) {
   console.log('hora: o script pula o que ja tem foto e continua de onde parou.');
 }
   if (CHAVE) {
-    const en = TERMO[a.id] || paraIngles(a.nome);
-    for (const t of [en, en.split(' ').slice(0, 2).join(' ')]) {
+    const escrito = TERMO[a.id];
+    const tentativas = Array.isArray(escrito)
+      ? escrito
+      : (() => { const en = escrito || paraIngles(a.nome); return [en, en.split(' ').slice(0, 2).join(' ')]; })();
+    for (const t of tentativas) {
       if (!t) continue;
       let px = null;
       try { px = await noPexels(t); }

@@ -155,6 +155,7 @@ const POR_ITEM: Record<string, any> = {
   'pacoca': require('../../assets/images/alimentos/pacoca.jpg'),
   'pad-thai-camarao': require('../../assets/images/alimentos/pad-thai-camarao.jpg'),
   'paella-frutos-do-mar': require('../../assets/images/alimentos/paella-frutos-do-mar.jpg'),
+  'palmito': require('../../assets/images/alimentos/palmito.jpg'),
   'panqueca-americana': require('../../assets/images/alimentos/panqueca-americana.jpg'),
   'panqueca-carne': require('../../assets/images/alimentos/panqueca-carne.jpg'),
   'panqueca-frango': require('../../assets/images/alimentos/panqueca-frango.jpg'),
@@ -255,4 +256,4 @@ export function fotoDoAlimento(id: string, onde: string): any | null {
 }
 
 /** Quantas fotos existem hoje — a tela de consulta não usa, o gerador sim. */
-export const TOTAL_FOTOS = 222;
+export const TOTAL_FOTOS = 223;

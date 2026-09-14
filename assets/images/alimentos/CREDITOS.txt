@@ -2021,3 +2021,29 @@ ceviche-peixe.jpg — Ceviche de peixe
   licença: Pexels License
   origem:  https://www.pexels.com/photo/food-on-white-ceramic-plate-3975044/
   buscado por: "fish ceviche with lime" em Pexels
+figado.jpg — Fígado acebolado
+  arquivo: Raw meat garnished with onions and spices, served with fresh greens for a flavorful meal.
+  autor:   FOX ^.ᆽ.^= ∫
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/delicious-raw-meat-platter-with-fresh-vegetables-30207049/
+  buscado por: "liver and onions dish" em Pexels
+
+palmito.jpg — Palmito em conserva
+  arquivo: Top view of a spinach and goat cheese salad in a white bowl on a table.
+  autor:   Nadin Sh
+  licença: Pexels License
+  origem:  https://www.pexels.com/photo/fresh-spinach-and-goat-cheese-salad-34106024/
+  buscado por: "hearts of palm" em Pexels
+figado.jpg — Fígado acebolado
+  arquivo: File:Leber Schaf.jpg
+  autor:   de:Benutzer:Uwe Gille
+  licença: CC BY-SA 3.0
+  origem:  https://commons.wikimedia.org/wiki/File:Leber_Schaf.jpg
+  buscado por: "figado" em pt.wikipedia (Fígado)
+
+palmito.jpg — Palmito em conserva
+  arquivo: File:Palmito de pupunha - ABr - Valter Campanato.jpg
+  autor:   Valter Campanato
+  licença: CC BY 3.0 br
+  origem:  https://commons.wikimedia.org/wiki/File:Palmito_de_pupunha_-_ABr_-_Valter_Campanato.jpg
+  buscado por: "Palmito em conserva" em pt.wikipedia (Palmito)
