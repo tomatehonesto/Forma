@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
+import { checkinToday, registroDoDia, fontesDeMovimento, listaPt } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Grade, Opc, Texto } from '../ui/internas';
@@ -78,7 +78,10 @@ export default function MedirExercicio() {
   const [outro, setOutro] = useState('');
   const [min, setMin] = useState(30);
 
-  const fonte = fonteDeMovimento(S);
+  /* No plural: quem tem Garmin costuma ter o Apple Saúde junto, e dizer
+     só o primeiro esconde de onde metade dos minutos veio. */
+  const fontes = fontesDeMovimento(S);
+  const fonte = fontes.length ? listaPt(fontes) : null;
   const ci: any = checkinToday(S);
   const alvo = (S.profile as any).targets.exercMin as number;
   const hoje = ci?.exerc || 0;
@@ -102,7 +105,7 @@ export default function MedirExercicio() {
     <SheetScreen
       titulo="Como você se movimentou?"
       /* A fonte automática qualifica o NÚMERO, então mora junto dele. */
-      sub={`${hoje} de ${alvo} min hoje${fonte ? ' · já com o ' + fonte : ''}`}
+      sub={`${hoje} de ${alvo} min hoje${fonte ? ` · já com ${fontes.length === 1 ? 'o ' : ''}${fonte}` : ''}`}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -131,7 +134,7 @@ export default function MedirExercicio() {
           número que ela explica. */}
       {fonte ? (
         <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-          O que você registrar aqui soma ao que ele já contou.
+          O que você registrar aqui soma ao que {fontes.length === 1 ? 'ele já contou' : 'eles já contaram'}.
         </Txt>
       ) : null}
 

@@ -1,6 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
+import { ehForca, iconeDe } from './modalidades';
 import type { State } from './seed';
 
 export const GOAL_WATER = 8;
@@ -1450,11 +1451,25 @@ const FONTES_MOVIMENTO: [string, string][] = [
   ['watch', 'seu smartwatch'],
 ];
 
-/** O nome da fonte que já registra exercício sozinha, ou null. */
-export function fonteDeMovimento(S: State): string | null {
+/* TODAS as fontes ligadas, e não a primeira que aparece.
+
+   Ninguém tem só uma. Quem usa Garmin costuma ter o Apple Saúde ligado
+   junto, e quem tem relógio tem o app do relógio — e a tela que dizia
+   "Apple Saúde conectado" estava escondendo as outras duas de quem
+   justamente queria saber de onde os minutos vinham. */
+export function fontesDeMovimento(S: State): string[] {
   const i: any = (S as any).integrations || {};
-  const achou = FONTES_MOVIMENTO.find(([k]) => i[k]);
-  return achou ? achou[1] : null;
+  return FONTES_MOVIMENTO.filter(([k]) => i[k]).map(([, nome]) => nome);
+}
+
+/** Lista em português: "a", "a e b", "a, b e c", "a, b e mais 2". */
+export function listaPt(itens: string[], mostrar = 3): string {
+  if (!itens.length) return '';
+  if (itens.length === 1) return itens[0];
+  if (itens.length <= mostrar) {
+    return itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1];
+  }
+  return itens.slice(0, mostrar).join(', ') + ` e mais ${itens.length - mostrar}`;
 }
 
 /* ============================================================
@@ -1475,7 +1490,7 @@ export function fonteDeMovimento(S: State): string | null {
 /* `i` é a posição da sessão dentro do dia dela. A lista da tela é
    achatada e reordenada, então sem esse índice não dá para apagar uma
    sessão específica — só adivinhar qual era. */
-export type Treino = { t: number; i: number; tipo: string; min: number };
+export type Treino = { t: number; i: number; tipo: string; min: number; ic: string };
 
 /** As sessões registradas à mão, da mais nova para a mais velha. */
 export function treinosRecentes(S: State, dias = 30): Treino[] {
@@ -1484,7 +1499,7 @@ export function treinosRecentes(S: State, dias = 30): Treino[] {
   for (const c of S.checkins as any[]) {
     if (c.t < corte) continue;
     ((c.treinos || []) as { tipo: string; min: number }[]).forEach((tr, i) => {
-      out.push({ t: c.t, i, tipo: tr.tipo, min: tr.min });
+      out.push({ t: c.t, i, tipo: tr.tipo, min: tr.min, ic: iconeDe(tr.tipo) });
     });
   }
   return out.sort((a, b) => b.t - a.t);
@@ -1502,36 +1517,35 @@ export function semanaDeMovimento(S: State): { t: number; min: number }[] {
   });
 }
 
-/* As modalidades que puxam músculo. A distinção importa nesta doença:
-   em déficit calórico, quem só faz cardio perde massa magra junto com a
-   gordura, e massa magra é o que o tratamento inteiro tenta segurar.
+/* De que é feito o movimento de alguém, e quanto dele puxa músculo.
 
-   Comparação por nome porque é o nome que fica gravado — quem escolheu
-   "Outro" e escreveu à mão não entra, e está certo: o app não sabe o
-   que é "treino da Carol". */
-const FORCA = ['Musculação', 'Pilates', 'Funcional'];
+   A segunda parte não é curiosidade de academia: em déficit calórico,
+   quem só faz cardio perde massa magra junto com a gordura, e massa
+   magra é o que o tratamento inteiro tenta segurar. A proporção entre
+   uma coisa e outra é a leitura que essa tabela existe para dar. */
+export type Mistura = {
+  itens: { tipo: string; ic: string; forca: boolean; vezes: number; min: number }[];
+  total: number;
+  forca: number;
+};
 
-/** Em quantos dos últimos 7 dias houve treino de força. */
-export function diasDeForca(S: State): number {
-  const corte = +startOfDay(now()) - 6 * DAY;
-  const dias = new Set<number>();
-  for (const c of S.checkins as any[]) {
-    if (c.t < corte) continue;
-    if (((c.treinos || []) as any[]).some((tr) => FORCA.includes(tr.tipo))) dias.add(c.t);
-  }
-  return dias.size;
-}
-
-/** Quanto de cada modalidade, no período — o que só os treinos sabem. */
-export function porModalidade(S: State, dias = 30): { tipo: string; vezes: number; min: number }[] {
+export function misturaDeMovimento(S: State, dias = 30): Mistura {
   const conta = new Map<string, { vezes: number; min: number }>();
   for (const tr of treinosRecentes(S, dias)) {
     const a = conta.get(tr.tipo) || { vezes: 0, min: 0 };
     conta.set(tr.tipo, { vezes: a.vezes + 1, min: a.min + tr.min });
   }
-  return [...conta.entries()]
-    .map(([tipo, v]) => ({ tipo, ...v }))
-    .sort((a, b) => b.min - a.min);
+  /* Força primeiro, e dentro de cada grupo o que mais pesou: assim a
+     barra empilha o que protege músculo de um lado só, em vez de
+     alternar as cores e virar listra. */
+  const itens = [...conta.entries()]
+    .map(([tipo, v]) => ({ tipo, ic: iconeDe(tipo), forca: ehForca(tipo), ...v }))
+    .sort((a, b) => Number(b.forca) - Number(a.forca) || b.min - a.min);
+  return {
+    itens,
+    total: itens.reduce((s, x) => s + x.min, 0),
+    forca: itens.filter((x) => x.forca).reduce((s, x) => s + x.min, 0),
+  };
 }
 
 /* Apagar uma sessão devolve os minutos dela ao dia. O total NÃO volta a

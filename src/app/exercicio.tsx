@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  apagarTreino, checkinToday, diasDeForca, fonteDeMovimento,
-  porModalidade, semanaDeMovimento, treinosRecentes,
+  apagarTreino, checkinToday, fontesDeMovimento, listaPt,
+  misturaDeMovimento, semanaDeMovimento, treinosRecentes,
 } from '../logic/derive';
-import { relDay, WD } from '../logic/time';
+import { fmtDate, relDay, WD } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, ItemApagavel, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -63,11 +63,20 @@ export default function Exercicio() {
   const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
   const ALT = 64;
 
-  const forca = diasDeForca(S);
-  const modalidades = porModalidade(S, 30);
+  const mistura = misturaDeMovimento(S, 30);
   const treinos = treinosRecentes(S, 30);
-  const fonte = fonteDeMovimento(S);
+  const fontes = fontesDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
+
+  /* O registro agrupado por dia, que é como um caderno de treino se lê:
+     a data uma vez, e embaixo o que aconteceu nela. Em lista corrida, a
+     mesma data se repetia em toda linha e o olho tinha que juntar. */
+  const porDia = treinos.reduce<{ t: number; itens: typeof treinos }[]>((fora, tr) => {
+    const ultimo = fora[fora.length - 1];
+    if (ultimo && ultimo.t === tr.t) ultimo.itens.push(tr);
+    else fora.push({ t: tr.t, itens: [tr] });
+    return fora;
+  }, []);
 
   return (
     /* Sem "+" no topo: o rodapé fixo é o mesmo gesto, e dois botões para
@@ -162,59 +171,111 @@ export default function Exercicio() {
           A linha tracejada é a meta de {alvoDia} min por dia.
         </Txt>
 
-        {/* Relata, não cobra. Quantos dias houve, e ponto — virar meta
-            seria inventar uma cobrança que o tratamento não pediu. */}
-        <View style={{ height: 1, backgroundColor: c.line, marginTop: 15, marginBottom: 13 }} />
-        <Row gap={8}>
-          <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
-          <Txt v="caption" c={c.tx} style={{ flex: 1 }}>
-            {forca === 0
-              ? 'Nenhum treino de força nesta semana'
-              : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força`}
-          </Txt>
-        </Row>
-        <Txt v="micro" c={c.tx3} style={{ marginTop: 6 }}>
-          Musculação, pilates e funcional. É a parte do movimento que puxa músculo — e
-          músculo é o que a perda de peso leva junto se ninguém segurar.
-        </Txt>
       </View>
 
-      {modalidades.length ? (
-        <Bloco titulo="O que você tem feito" nota="Nos últimos 30 dias.">
-          <Cartao>
-            {modalidades.map((m) => (
-              <Linha
-                key={m.tipo}
-                titulo={m.tipo}
-                sub={`${m.vezes} ${m.vezes === 1 ? 'vez' : 'vezes'}`}
-                selo={`${m.min} min`}
-                seloTom="neutra"
-                seta={false}
-              />
-            ))}
-          </Cartao>
+      {/* DE QUE É FEITO O MOVIMENTO
+
+          Era uma tabela: modalidade, vezes, minutos, três linhas. Dizia
+          tudo e não mostrava nada — quem lia tinha que fazer a divisão de
+          cabeça para chegar na única pergunta que importa aqui, que é
+          quanto daquilo puxa músculo.
+
+          Agora a barra faz a divisão. Cheia é força, apagada é o resto, e
+          a proporção entre as duas aparece antes de qualquer número. */}
+      {mistura.total ? (
+        <Bloco titulo="De que é o seu movimento" nota="Nos últimos 30 dias.">
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
+            {/* alignItems stretch, e não o 'center' que o Row traz: um
+                segmento sem altura própria colapsa e a barra some. */}
+            <Row gap={2} style={{ height: 12, alignItems: 'stretch', borderRadius: radius.pill, overflow: 'hidden' }}>
+              {mistura.itens.map((m) => (
+                <View
+                  key={m.tipo}
+                  style={{
+                    flex: Math.max(1, m.min),
+                    backgroundColor: c.accent,
+                    opacity: m.forca ? 1 : 0.28,
+                  }}
+                />
+              ))}
+            </Row>
+
+            <Txt v="caption" c={c.tx} style={{ marginTop: 12 }}>
+              {mistura.forca === 0
+                ? `Nenhum dos ${mistura.total} minutos foi treino de força.`
+                : `${mistura.forca} dos ${mistura.total} minutos foram treino de força.`}
+            </Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 5 }}>
+              Musculação, pilates e funcional puxam músculo — e músculo é o que a perda
+              de peso leva junto se ninguém segurar.
+            </Txt>
+
+            <View style={{ height: 1, backgroundColor: c.line, marginTop: 14, marginBottom: 12 }} />
+
+            <View style={{ gap: 11 }}>
+              {mistura.itens.map((m) => (
+                <Row key={m.tipo} gap={10}>
+                  <View style={{
+                    width: 8, height: 8, borderRadius: 4,
+                    backgroundColor: c.accent, opacity: m.forca ? 1 : 0.28,
+                  }} />
+                  <Icon name={m.ic} size={15} color={c.tx3} sw={1.9} />
+                  <Txt v="caption" c={c.tx} style={{ flex: 1 }}>{m.tipo}</Txt>
+                  <Txt v="caption" c={c.tx3}>
+                    {m.vezes}× · {m.min} min
+                  </Txt>
+                </Row>
+              ))}
+            </View>
+          </View>
         </Bloco>
       ) : null}
 
+      {/* O CADERNO
+
+          Agrupado por dia, com o desenho da modalidade na frente. Em
+          lista corrida a data se repetia em toda linha e o olho tinha que
+          juntar sozinho o que era do mesmo dia — aqui a data aparece uma
+          vez, e embaixo dela o que aconteceu. */}
       <Bloco
-        titulo="Treinos registrados"
+        titulo="Caderno de treino"
         nota={treinos.length ? 'Toque na lixeira para apagar um registro.' : undefined}
       >
-        {treinos.length ? (
-          <Cartao>
-            {treinos.map((t) => (
-              <ItemApagavel
-                key={`${t.t}-${t.i}`}
-                pergunta={`Apagar ${t.tipo.toLowerCase()} de ${t.min} min?`}
-                onApagar={() => update((s: any) => apagarTreino(s, t.t, t.i))}
-              >
-                <Txt v="body">{t.tipo}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-                  {relDay(new Date(t.t))} · {t.min} min
-                </Txt>
-              </ItemApagavel>
+        {porDia.length ? (
+          <View style={{ gap: 14 }}>
+            {porDia.map((dia) => (
+              <View key={dia.t} style={{ gap: 7 }}>
+                <Row style={{ justifyContent: 'space-between', paddingHorizontal: 4 }}>
+                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>
+                    {relDay(new Date(dia.t)).toUpperCase()}
+                  </Txt>
+                  <Txt v="micro" c={c.tx4}>
+                    {dia.itens.reduce((x, t) => x + t.min, 0)} min · {fmtDate(new Date(dia.t))}
+                  </Txt>
+                </Row>
+                <Cartao>
+                  {dia.itens.map((t) => (
+                    <ItemApagavel
+                      key={`${t.t}-${t.i}`}
+                      pergunta={`Apagar ${t.tipo.toLowerCase()} de ${t.min} min?`}
+                      onApagar={() => update((s: any) => apagarTreino(s, t.t, t.i))}
+                    >
+                      <Row gap={11}>
+                        <View style={{
+                          width: 32, height: 32, borderRadius: radius.md,
+                          backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <Icon name={t.ic} size={16} color={c.accent} sw={1.9} />
+                        </View>
+                        <Txt v="body" style={{ flex: 1 }}>{t.tipo}</Txt>
+                        <Txt v="caption" c={c.tx2}>{t.min} min</Txt>
+                      </Row>
+                    </ItemApagavel>
+                  ))}
+                </Cartao>
+              </View>
             ))}
-          </Cartao>
+          </View>
         ) : (
           <Cartao>
             <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
@@ -231,12 +292,20 @@ export default function Exercicio() {
           lugar onde ela se configura. */}
       <Bloco titulo="De onde vêm os minutos">
         <Cartao>
+          {/* TODAS as fontes, e não a primeira. Ninguém tem só uma: quem
+              usa Garmin costuma ter o Apple Saúde ligado junto, e a tela
+              que dizia "Apple Saúde conectado" escondia as outras de quem
+              justamente queria saber de onde os minutos vinham. */}
           <Linha
             ic="watch"
-            titulo={fonte ? `${fonte} conectado` : 'Conectar um relógio ou app'}
+            titulo={
+              fontes.length
+                ? `${listaPt(fontes)} ${fontes.length === 1 ? 'conectado' : 'conectados'}`
+                : 'Conectar um relógio ou app'
+            }
             sub={
-              fonte
-                ? 'Os treinos chegam sozinhos, mas sem modalidade — por isso a lista acima é mais curta que o total da semana.'
+              fontes.length
+                ? 'Os minutos chegam sozinhos, mas sem modalidade — por isso o caderno acima é mais curto que o total da semana.'
                 : 'Apple Saúde, Health Connect, Garmin e outros lançam os minutos sem você digitar.'
             }
             onPress={() => router.push('/integracoes' as any)}
