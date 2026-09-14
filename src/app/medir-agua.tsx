@@ -50,7 +50,18 @@ export default function MedirAgua() {
   const alvo = (S.profile as any).targets.waterMl as number;
   const atual = waterMlToday(S);
   const pct = Math.max(0, Math.min(1, atual / alvo));
-  const L = (ml: number) => (ml / 1000).toFixed(1).replace('.', ',');
+  /* LITROS em toda a tela, e uma casa decimal só quando ela existe: 1 L,
+     1,5 L, 0,25 L. Sem zero à toa no fim, como se escreve à mão.
+
+     A meta é em litros, o número grande do progresso é em litros, e o
+     montador falava em mililitros — a mesma tela dizia "de 2,5 L hoje" e
+     "2.750 ml" a dois centímetros de distância, e quem lia fazia a conta
+     de cabeça para saber se tinha chegado perto. A unidade do alvo é que
+     manda: é ela que a pessoa está tentando alcançar.
+
+     Por dentro tudo continua em ml, que é onde o passo de 50 vive e o que
+     o armazenamento entende. Litro é como a tela fala. */
+  const L = (ml: number) => (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
 
   /* O teto é meia meta acima da meta, e sai dela — não de um número fixo:
      quem tem 3 L de meta merece a mesma folga de quem tem 2.
@@ -92,11 +103,10 @@ export default function MedirAgua() {
             backgroundColor: escolhido === 0 ? c.bg2 : c.accent,
             borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center',
           }}>
-            {/* Em ml, a mesma unidade do número lá em cima. Em litros,
-                1250 virava "1,3 L" no botão enquanto a Quantidade dizia
-                1250 ml — a mesma tela afirmando duas coisas. */}
+            {/* A mesma unidade do número lá em cima, e da meta no cartão
+                de progresso: a tela inteira fala em litros. */}
             <Txt v="body" c={escolhido === 0 ? c.tx4 : c.accentInk}>
-              {escolhido === 0 ? 'Escolha a quantidade' : `Adicionar ${escolhido} ml`}
+              {escolhido === 0 ? 'Escolha a quantidade' : `Adicionar ${L(escolhido)} L`}
             </Txt>
           </View>
         </Pressable>
@@ -115,7 +125,7 @@ export default function MedirAgua() {
         {somado > 0 && (
           <Row gap={7} style={{ marginTop: 12 }}>
             <Icon name="check" size={14} color={c.accent} sw={2.4} />
-            <Txt v="caption" c={c.accent}>+{somado >= 1000 ? `${L(somado)} L` : `${somado} ml`} agora</Txt>
+            <Txt v="caption" c={c.accent}>+{L(somado)} L agora</Txt>
           </Row>
         )}
       </View>
@@ -127,7 +137,7 @@ export default function MedirAgua() {
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Txt v="caption" c={c.tx3}>Quantidade</Txt>
-          <Metric value={`${escolhido}`} unit="ml" v="h2" />
+          <Metric value={L(escolhido)} unit="L" v="h2" />
         </Row>
         <Slider
           value={escolhido}
@@ -138,12 +148,9 @@ export default function MedirAgua() {
           thumbTintColor={c.accent}
           style={{ marginTop: 8, marginHorizontal: -6 }}
         />
-        {/* As duas pontas em ml, como a Quantidade logo acima. Em litros o
-            teto de 3750 aparecia como "3,8 L", arredondado, ao lado de um
-            número exato. */}
         <Row style={{ justifyContent: 'space-between' }}>
-          <Txt v="micro" c={c.tx4}>0 ml</Txt>
-          <Txt v="micro" c={c.tx4}>{max} ml</Txt>
+          <Txt v="micro" c={c.tx4}>0 L</Txt>
+          <Txt v="micro" c={c.tx4}>{L(max)} L</Txt>
         </Row>
 
         <Row gap={7} style={{ marginTop: 16, alignItems: 'stretch' }}>
@@ -154,7 +161,7 @@ export default function MedirAgua() {
                 paddingVertical: 11, alignItems: 'center', gap: 1,
               }}>
                 <Txt v="caption" c={c.tx}>+ {nome}</Txt>
-                <Txt v="micro" c={c.tx3}>{ml} ml</Txt>
+                <Txt v="micro" c={c.tx3}>{L(ml)} L</Txt>
               </View>
             </Pressable>
           ))}
