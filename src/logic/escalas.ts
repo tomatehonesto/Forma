@@ -57,6 +57,22 @@ export const PROTEINA: { id: string; label: string; g: number; legenda: string }
   { id: 'baixa', label: 'Pouca', g: 8, legenda: 'Salada, fruta, pão — sem uma fonte de proteína à vista.' },
 ];
 
+/* A SETA INVERTEU.
+
+   A faixa mandava e o grama saía dela: "Bastante" virava 30. Agora a
+   tela sabe somar alimento por alimento, e a câmera vai chegar com
+   gramas também — então o grama passou a ser a verdade da refeição e a
+   faixa virou o rótulo dela, calculado de volta.
+
+   Os cortes ficam no meio do caminho entre as âncoras (30, 18 e 8), que
+   é o que mantém a ida e a volta coerentes: gravar "Bastante" e reler o
+   registro continua devolvendo "Bastante". */
+export function faixaDe(g: number): string {
+  if (g >= 24) return 'alta';
+  if (g >= 13) return 'média';
+  return 'baixa';
+}
+
 /** A faixa por id, ou null. Guarda contra o id antigo que não existe mais. */
 export function proteinaDe(id: string | null | undefined) {
   return PROTEINA.find((p) => p.id === id) || null;
