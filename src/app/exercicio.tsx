@@ -1,13 +1,14 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useState } from 'react';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  checkinToday, diasDeForca, fonteDeMovimento, porModalidade,
-  semanaDeMovimento, treinosRecentes,
+  apagarTreino, checkinToday, diasDeForca, fonteDeMovimento,
+  porModalidade, semanaDeMovimento, treinosRecentes,
 } from '../logic/derive';
 import { relDay, WD } from '../logic/time';
-import { Screen, Txt, Card, Row, CircleBtn, Divider } from '../ui/kit';
+import { Txt, Row } from '../ui/kit';
+import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -15,9 +16,9 @@ import { radius } from '../theme';
 /* ============================================================
    EXERCÍCIO
 
-   A tela que lê `treinos`. O campo existia desde que a modalidade passou
-   a ser gravada, e até agora ninguém olhava para ele — o que faz de um
-   dado guardado um dado morto.
+   A tela que lê `treinos`. O campo existia desde que a modalidade deixou
+   de morar só no rótulo do botão, e até agora ninguém olhava para ele —
+   o que faz de um dado guardado um dado morto.
 
    O QUE ELA MOSTRA, E POR QUÊ NESSA ORDEM
 
@@ -27,34 +28,41 @@ import { radius } from '../theme';
 
    Depois a força, porque é o que importa NESTE tratamento. Em déficit
    calórico quem só faz cardio perde massa magra junto com a gordura, e
-   massa magra é justamente o que o app passa o dia inteiro tentando
-   segurar — com proteína de um lado e movimento do outro. A linha
-   relata, não cobra: diz quantos dias houve, e para.
+   massa magra é justamente o que o app passa o dia tentando segurar —
+   com proteína de um lado e movimento do outro. A linha relata, não
+   cobra: diz quantos dias houve, e para.
 
    Depois o que se tem feito, por modalidade. É a única coisa que os
    minutos sozinhos não sabem dizer, e é por isso que `treinos` existe.
 
-   E por último a lista, que é o registro em si.
+   Depois a lista, que é o registro em si — e de onde dá para apagar.
 
    A CONTRADIÇÃO QUE PRECISA SER DITA
 
-   Os minutos e os treinos não batem, e não deveriam mesmo. Quem tem
-   Apple Saúde ligado recebe minutos que ninguém digitou, e o telefone
-   não sabe que aquilo era caminhada. Um dia com 40 minutos e nenhum
-   treino na lista não é erro — é movimento que chegou sozinho. A tela
-   diz isso onde a diferença aparece, em vez de deixar quem lê achar que
-   perdeu um registro.
+   Os minutos e os treinos não batem, e não deveriam. Quem tem o relógio
+   ligado recebe minutos que ninguém digitou, e o telefone não sabe que
+   aquilo era caminhada. Um dia com 40 minutos e nenhum treino na lista
+   não é erro — é movimento que chegou sozinho. Em vez de uma nota de
+   rodapé pedindo desculpa pela diferença, isso virou a porta para as
+   integrações: o lugar onde a diferença se explica é o mesmo onde ela se
+   configura.
    ============================================================ */
 
 export default function Exercicio() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
+
+  /* Qual sessão está com a pergunta de apagar aberta. Uma de cada vez: a
+     lixeira arma, o segundo toque confirma. Sem esse passo, um deslize
+     num cartão pequeno apaga registro de tratamento. */
+  const [armado, setArmado] = useState<string | null>(null);
 
   const alvoDia = (S.profile as any).targets.exercMin as number;
   const semana = semanaDeMovimento(S);
   const daSemana = semana.reduce((s, d) => s + d.min, 0);
-  const diasComMovimento = semana.filter((d) => d.min > 0).length;
+  const comMovimento = semana.filter((d) => d.min > 0).length;
   /* O teto da barra é a meta do dia, ou o maior dia se ele passou dela —
      assim um dia de 60 min enche a barra e um de 90 não sai da caixa. */
   const teto = Math.max(alvoDia, ...semana.map((d) => d.min));
@@ -65,44 +73,44 @@ export default function Exercicio() {
   const fonte = fonteDeMovimento(S);
   const hoje = Math.round((checkinToday(S) as any)?.exerc || 0);
 
+  const apagar = (t: number, i: number) => {
+    update((s: any) => apagarTreino(s, t, i));
+    setArmado(null);
+  };
+
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Exercício</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-            Junto com a proteína, é o que segura a massa magra
-          </Txt>
-        </View>
-      </Row>
+    <TelaInterna
+      titulo="Exercício"
+      iconeAcao="plus"
+      onAcao={() => router.push('/medir-exercicio' as any)}
+      rodape={<Botao label="Registrar um treino" onPress={() => router.push('/medir-exercicio' as any)} />}
+    >
+      <Titulao
+        titulo="Exercício"
+        lead="Junto com a proteína, é o que segura a massa magra durante a perda de peso."
+      />
 
       {/* A SEMANA — a unidade em que exercício faz sentido */}
-      <Card style={{ marginTop: 18 }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Row gap={6}>
-            <Icon name="dumbbell" size={14} color={c.teal} sw={2} />
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>ESTES SETE DIAS</Txt>
-          </Row>
-          {/* Sem meta semanal. A meta do app é diária (60 min);
-             multiplicar por sete inventaria uma cobrança de 420 min que
-             nenhuma recomendação faz e que deixaria toda semana normal
-             parecendo fracasso. O que se conta é o que houve. */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
+        <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Txt v="caption" c={c.tx2}>
+            {comMovimento === 0
+              ? 'Nenhum dia com movimento'
+              : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
+          </Txt>
+          {/* Sem meta semanal. A meta do app é diária (60 min); multiplicar
+              por sete inventaria uma cobrança de 420 min que nenhuma
+              recomendação faz, e que deixaria toda semana normal parecendo
+              fracasso. O que se conta é o que houve. */}
           <Txt v="h2">
             <Txt v="h2" c={c.accent}>{daSemana}</Txt>
             <Txt v="label" c={c.tx3}> min</Txt>
           </Txt>
         </Row>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-          {diasComMovimento === 0
-            ? 'Nenhum dia com movimento.'
-            : `Em ${diasComMovimento} ${diasComMovimento === 1 ? 'dia' : 'dias'} dos sete.`}
-        </Txt>
 
         {/* Cada dia tem um trilho inteiro, sempre visível, e a barra sobe
-             de baixo dentro dele. Sem o trilho, o dia sem movimento virava
-             um fiapo de 3 px que some — e dia de descanso não é ausência
-             de dado, é descanso. */}
+            de baixo dentro dele. Sem o trilho, o dia parado virava um
+            fiapo que some — e descanso não é ausência de dado. */}
         <Row gap={7} style={{ marginTop: 14, alignItems: 'flex-end' }}>
           {semana.map((d, i) => {
             const eHoje = i === semana.length - 1;
@@ -123,86 +131,116 @@ export default function Exercicio() {
           })}
         </Row>
 
-        <Divider style={{ marginTop: 14 }} />
-        {/* Relata, não cobra. Quantos dias houve, e ponto — transformar
-            isso numa meta seria inventar uma cobrança que o tratamento
-            não pediu. */}
-        <Row gap={7} style={{ marginTop: 12 }}>
-          <Icon name="shield" size={14} color={forca ? c.ok : c.tx4} sw={2} />
-          <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+        {/* Relata, não cobra. Quantos dias houve, e ponto — virar meta
+            seria inventar uma cobrança que o tratamento não pediu. */}
+        <View style={{ height: 1, backgroundColor: c.line, marginTop: 15, marginBottom: 13 }} />
+        <Row gap={8}>
+          <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
+          <Txt v="caption" c={c.tx} style={{ flex: 1 }}>
             {forca === 0
-              ? 'Nenhum treino de força nesta semana.'
-              : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força.`}
+              ? 'Nenhum treino de força nesta semana'
+              : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força`}
           </Txt>
         </Row>
-        <Txt v="micro" c={c.tx4} style={{ marginTop: 5 }}>
-          Musculação, pilates e funcional. É a parte do movimento que puxa músculo —
-          e músculo é o que a perda de peso leva junto se ninguém segurar.
+        <Txt v="micro" c={c.tx3} style={{ marginTop: 6 }}>
+          Musculação, pilates e funcional. É a parte do movimento que puxa músculo — e
+          músculo é o que a perda de peso leva junto se ninguém segurar.
         </Txt>
-      </Card>
-
-      {/* HOJE — pequeno, porque o dia é o detalhe e a semana é a história */}
-      <Card style={{ marginTop: 10, paddingVertical: 14 }} onPress={() => router.push('/medir-exercicio' as any)}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Row gap={9}>
-            <Icon name="plus" size={16} color={c.accent} sw={2.4} />
-            <Txt v="label" c={c.accent}>Registrar um treino</Txt>
-          </Row>
-          <Txt v="caption" c={c.tx3}>{hoje} de {alvoDia} min hoje</Txt>
-        </Row>
-      </Card>
+      </View>
 
       {modalidades.length ? (
-        <>
-          <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>O que você tem feito</Txt>
-          <Card style={{ paddingVertical: 4 }}>
-            {modalidades.map((m, i) => (
-              <View key={m.tipo}>
-                {i > 0 && <Divider />}
-                <Row style={{ paddingVertical: 12, justifyContent: 'space-between' }}>
-                  <Txt v="title">{m.tipo}</Txt>
-                  <Txt v="caption" c={c.tx3}>
-                    {m.vezes}× · {m.min} min
-                  </Txt>
-                </Row>
-              </View>
+        <Bloco titulo="O que você tem feito" nota="Nos últimos 30 dias.">
+          <Cartao>
+            {modalidades.map((m) => (
+              <Linha
+                key={m.tipo}
+                titulo={m.tipo}
+                sub={`${m.vezes} ${m.vezes === 1 ? 'vez' : 'vezes'}`}
+                selo={`${m.min} min`}
+                seloTom="neutra"
+                seta={false}
+              />
             ))}
-          </Card>
-          <Txt v="micro" c={c.tx4} style={{ marginTop: 7, paddingHorizontal: 2 }}>Nos últimos 30 dias.</Txt>
-        </>
+          </Cartao>
+        </Bloco>
       ) : null}
 
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Treinos registrados</Txt>
-      {treinos.length ? (
-        <View style={{ gap: 8 }}>
-          {treinos.map((t, i) => (
-            <Card key={`${t.t}-${i}`} style={{ paddingVertical: 13 }}>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <Txt v="title">{t.tipo}</Txt>
-                <Txt v="caption" c={c.tx3}>{t.min} min</Txt>
-              </Row>
-              <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>{relDay(new Date(t.t))}</Txt>
-            </Card>
-          ))}
-        </View>
-      ) : (
-        <Card>
-          <Txt v="caption" c={c.tx3}>
-            Nenhum treino registrado ainda. O que você registrar aparece aqui com a
-            modalidade e a duração.
-          </Txt>
-        </Card>
-      )}
+      <Bloco
+        titulo="Treinos registrados"
+        nota={treinos.length ? 'Toque na lixeira para apagar um registro.' : undefined}
+      >
+        {treinos.length ? (
+          <Cartao>
+            {treinos.map((t) => {
+              const chave = `${t.t}-${t.i}`;
+              const perguntando = armado === chave;
+              return (
+                <View key={chave} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
+                  {perguntando ? (
+                    /* A pergunta ocupa a própria linha do treino, e não um
+                       modal: o que vai sumir continua à vista enquanto se
+                       decide. */
+                    <Row gap={10}>
+                      <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+                        Apagar {t.tipo.toLowerCase()} de {t.min} min?
+                      </Txt>
+                      <Pressable onPress={() => setArmado(null)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                        <Txt v="label" c={c.tx3}>Cancelar</Txt>
+                      </Pressable>
+                      <Pressable onPress={() => apagar(t.t, t.i)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                        <Txt v="label" c={c.cta}>Apagar</Txt>
+                      </Pressable>
+                    </Row>
+                  ) : (
+                    <Row gap={12}>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="body">{t.tipo}</Txt>
+                        <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
+                          {relDay(new Date(t.t))} · {t.min} min
+                        </Txt>
+                      </View>
+                      <Pressable onPress={() => setArmado(chave)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+                        <Icon name="trash" size={16} color={c.tx4} sw={1.9} />
+                      </Pressable>
+                    </Row>
+                  )}
+                </View>
+              );
+            })}
+          </Cartao>
+        ) : (
+          <Cartao>
+            <View style={{ paddingHorizontal: 16, paddingVertical: 16 }}>
+              <Txt v="caption" c={c.tx2}>
+                Nada registrado ainda. O que você registrar aparece aqui com a modalidade
+                e a duração — e dá para apagar se entrar errado.
+              </Txt>
+            </View>
+          </Cartao>
+        )}
+      </Bloco>
 
-      {/* Onde a diferença aparece, a explicação dela. Sem isto, um dia com
-          minutos e sem treino na lista parece registro perdido. */}
-      {fonte || (daSemana > 0 && !treinos.length) ? (
-        <Txt v="micro" c={c.tx4} style={{ marginTop: 10, paddingHorizontal: 2 }}>
-          {fonte
-            ? `Os minutos lá em cima incluem o que vem do ${fonte}, que chega sem modalidade — por isso a lista aqui é mais curta que o total.`
-            : 'Minutos registrados antes desta tela não guardaram a modalidade, então não aparecem na lista.'}
-        </Txt>
-      ) : null}
-    </Screen>
+      {/* A diferença entre os minutos e a lista se explica aqui, no mesmo
+          lugar onde ela se configura. */}
+      <Bloco titulo="De onde vêm os minutos">
+        <Cartao>
+          <Linha
+            ic="watch"
+            titulo={fonte ? `${fonte} conectado` : 'Conectar um relógio ou app'}
+            sub={
+              fonte
+                ? 'Os treinos chegam sozinhos, mas sem modalidade — por isso a lista acima é mais curta que o total da semana.'
+                : 'Apple Saúde, Health Connect, Garmin e outros lançam os minutos sem você digitar.'
+            }
+            onPress={() => router.push('/integracoes' as any)}
+          />
+        </Cartao>
+      </Bloco>
+
+      {/* O dia, pequeno e no fim: é o detalhe, e a semana é a história. */}
+      <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
+        Hoje: {hoje} de {alvoDia} min.
+      </Txt>
+    </TelaInterna>
   );
 }

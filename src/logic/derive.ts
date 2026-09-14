@@ -1472,7 +1472,10 @@ export function fonteDeMovimento(S: State): string | null {
    mostra as duas precisa dizer isso — senão ela se contradiz sozinha.
    ============================================================ */
 
-export type Treino = { t: number; tipo: string; min: number };
+/* `i` é a posição da sessão dentro do dia dela. A lista da tela é
+   achatada e reordenada, então sem esse índice não dá para apagar uma
+   sessão específica — só adivinhar qual era. */
+export type Treino = { t: number; i: number; tipo: string; min: number };
 
 /** As sessões registradas à mão, da mais nova para a mais velha. */
 export function treinosRecentes(S: State, dias = 30): Treino[] {
@@ -1480,9 +1483,9 @@ export function treinosRecentes(S: State, dias = 30): Treino[] {
   const out: Treino[] = [];
   for (const c of S.checkins as any[]) {
     if (c.t < corte) continue;
-    for (const tr of (c.treinos || []) as { tipo: string; min: number }[]) {
-      out.push({ t: c.t, tipo: tr.tipo, min: tr.min });
-    }
+    ((c.treinos || []) as { tipo: string; min: number }[]).forEach((tr, i) => {
+      out.push({ t: c.t, i, tipo: tr.tipo, min: tr.min });
+    });
   }
   return out.sort((a, b) => b.t - a.t);
 }
@@ -1529,6 +1532,17 @@ export function porModalidade(S: State, dias = 30): { tipo: string; vezes: numbe
   return [...conta.entries()]
     .map(([tipo, v]) => ({ tipo, ...v }))
     .sort((a, b) => b.min - a.min);
+}
+
+/* Apagar uma sessão devolve os minutos dela ao dia. O total NÃO volta a
+   zero: ele pode carregar minutos que vieram do relógio e que ninguém
+   digitou, e esses não são desta sessão. */
+export function apagarTreino(s: any, t: number, i: number) {
+  const c = (s.checkins as any[]).find((x) => x.t === t);
+  const tr = c?.treinos?.[i];
+  if (!tr) return;
+  c.treinos = (c.treinos as any[]).filter((_: any, j: number) => j !== i);
+  c.exerc = Math.max(0, (c.exerc || 0) - tr.min);
 }
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */

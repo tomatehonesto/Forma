@@ -81,6 +81,8 @@ import Sparkle from 'lucide-react-native/icons/sparkle';
 import Sparkles from 'lucide-react-native/icons/sparkles';
 import Stethoscope from 'lucide-react-native/icons/stethoscope';
 import Sun from 'lucide-react-native/icons/sun';
+import Trash from 'lucide-react-native/icons/trash';
+import Watch from 'lucide-react-native/icons/watch';
 import Coffee from 'lucide-react-native/icons/coffee';
 import Sandwich from 'lucide-react-native/icons/sandwich';
 import UtensilsCrossed from 'lucide-react-native/icons/utensils-crossed';
@@ -125,6 +127,8 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   companion: MessageCircle,
   back: ChevronLeft,
   x: X,
+  trash: Trash,
+  watch: Watch,
   chev: ChevronRight,
   check: Check,
   water: GlassWater,
