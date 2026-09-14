@@ -7,7 +7,7 @@ import { checkinToday, registroDoDia, fonteDeMovimento } from '../logic/derive';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Opcoes, Opc, Texto } from '../ui/internas';
+import { Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -44,7 +44,7 @@ const TIPOS: [string, string][] = [
   ['flower', 'Yoga'],
   ['person', 'Pilates'],
   ['activity', 'Funcional'],
-  ['body', 'Alongamento'],
+  ['stretch', 'Alongamento'],
   ['more', 'Outro'],
 ];
 const OUTRO = 'Outro';
@@ -118,33 +118,37 @@ export default function MedirExercicio() {
       ) : null}
 
       {/* Quando já existe uma fonte automática, a tela diz isso ANTES do
-          formulário. Sem esse aviso a pessoa registra o que o telefone já
-          contou, e o dia fecha com o dobro do que aconteceu — o erro mais
-          caro aqui não é esquecer, é somar duas vezes. */}
+          formulário: sem o aviso a pessoa registra o que o telefone já
+          contou, e o dia fecha com o dobro do que aconteceu. O erro caro
+          desta tela nunca foi esquecer, é somar duas vezes.
+
+          Na mesma superfície dos outros cartões, com o elo de conexão. Em
+          azul e com a seta circular, o aviso lia como observação que o app
+          faz SOBRE a pessoa — e não é: é um fato da configuração dela, da
+          mesma natureza que "sua meta é 60 min". */}
       {fonte ? (
-        <View style={{
-          backgroundColor: c.accentWeak, borderRadius: radius.lg,
-          padding: 16, marginTop: 18, gap: 5,
-        }}>
+        <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 18, gap: 5 }}>
           <Row gap={8}>
-            <Icon name="reset" size={15} color={c.accent} sw={2} />
-            <Txt v="label" c={c.accent} style={{ flex: 1 }}>O {fonte} já registra por você</Txt>
+            <Icon name="link" size={15} color={c.tx3} sw={2} />
+            <Txt v="label" style={{ flex: 1 }}>O {fonte} já registra por você</Txt>
           </Row>
-          <Txt v="caption" c={c.tx2}>
+          <Txt v="caption" c={c.tx3}>
             Os treinos chegam sozinhos, e o número aí em cima já conta com eles. O que você
             registrar aqui soma por cima.
           </Txt>
         </View>
       ) : null}
 
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>
-        {fonte ? 'ADICIONAR À MÃO' : 'O QUE VOCÊ FEZ'}
-      </Txt>
-      <Opcoes>
+      {/* O mesmo título com fonte ou sem ela. A versão de antes trocava
+          para "ADICIONAR À MÃO", que separa o mundo entre o automático e o
+          que se faz com a mão — e chama de mão o que muita gente faz de
+          outro jeito. O banner acima já disse o que precisava ser dito. */}
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>O QUE VOCÊ FEZ</Txt>
+      <Grade>
         {TIPOS.map(([ic, t]) => (
-          <Opc key={t} ic={ic} label={t} on={tipo === t} onPress={() => setTipo(t)} />
+          <Opc key={t} ic={ic} cheia label={t} on={tipo === t} onPress={() => setTipo(t)} />
         ))}
-      </Opcoes>
+      </Grade>
 
       {tipo === OUTRO ? (
         <View style={{ marginTop: 10 }}>

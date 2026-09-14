@@ -674,18 +674,21 @@ export function Opcoes({ children }: { children: React.ReactNode }) {
    pelo desenho antes do nome, e o estado já é dito pela cor da borda, do
    fundo e do próprio ícone. Com check E ícone seriam três sinais para uma
    informação só. */
-export function Opc({ label, ic, on, onPress }: {
-  label: string; ic?: string; on?: boolean; onPress?: () => void;
+/* `cheia` faz a opção ocupar a coluna inteira. Só serve dentro de
+   <Grade>, e é lá que está a explicação de por que uma lista pediria
+   isso. */
+export function Opc({ label, ic, cheia, on, onPress }: {
+  label: string; ic?: string; cheia?: boolean; on?: boolean; onPress?: () => void;
 }) {
   const { c } = useTheme();
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [{
-        paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md,
+        paddingHorizontal: cheia ? 12 : 14, paddingVertical: 10, borderRadius: radius.md,
         borderWidth: 1, borderColor: on ? c.accent : c.line,
         backgroundColor: on ? c.accentWeak : c.bg1, opacity: pressed ? 0.7 : 1,
-      }]}
+      }, cheia ? { flex: 1 } : null]}
     >
       {/* O check entra junto da cor. Só a lavagem azul pedia comparação
           com os vizinhos para se ler como "marcado"; o check diz sozinho,
@@ -694,9 +697,41 @@ export function Opc({ label, ic, on, onPress }: {
         {ic
           ? <Icon name={ic} size={15} color={on ? c.accent : c.tx3} sw={1.9} />
           : on ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
-        <Txt v="label" c={on ? c.accent : c.tx2}>{label}</Txt>
+        <Txt v="label" c={on ? c.accent : c.tx2} numberOfLines={1}>{label}</Txt>
       </Row>
     </Pressable>
+  );
+}
+
+/* GRADE — as opções em colunas de largura igual, em vez de se ajustarem
+   ao texto.
+
+   <Opcoes> serve quando a lista é de sim/não e a pessoa lê uma por uma:
+   sintomas, por exemplo, onde cada peça é marcada por conta própria. Mas
+   quando a lista é de ALTERNATIVAS — uma modalidade de exercício entre
+   dez — as peças são comparadas entre si, e aí a largura vira informação
+   que não existe: "Bike" ao lado de "Alongamento" fazia uma parecer
+   menor que a outra. Em grade as dez pesam igual e o olho corre em duas
+   colunas retas em vez de um mosaico. */
+export function Grade({ cols = 2, gap = 8, children }: {
+  cols?: number; gap?: number; children: React.ReactNode;
+}) {
+  const itens = React.Children.toArray(children);
+  const linhas: React.ReactNode[][] = [];
+  for (let i = 0; i < itens.length; i += cols) linhas.push(itens.slice(i, i + cols));
+  return (
+    <View style={{ gap }}>
+      {linhas.map((linha, i) => (
+        <View key={i} style={{ flexDirection: 'row', alignItems: 'stretch', gap }}>
+          {linha}
+          {/* A última linha incompleta ganha vãos, e não uma peça
+              esticada: uma opção larga no fim leria como a principal. */}
+          {Array.from({ length: cols - linha.length }, (_, k) => (
+            <View key={`vao${k}`} style={{ flex: 1 }} />
+          ))}
+        </View>
+      ))}
+    </View>
   );
 }
 

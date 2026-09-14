@@ -1,11 +1,12 @@
 import React, { memo } from 'react';
-import Accessibility from 'lucide-react-native/icons/accessibility';
 import Activity from 'lucide-react-native/icons/activity';
 import Bike from 'lucide-react-native/icons/bike';
 import Ellipsis from 'lucide-react-native/icons/ellipsis';
 import Flower from 'lucide-react-native/icons/flower';
 import Footprints from 'lucide-react-native/icons/footprints';
 import Gauge from 'lucide-react-native/icons/gauge';
+import Link from 'lucide-react-native/icons/link';
+import UnfoldVertical from 'lucide-react-native/icons/unfold-vertical';
 import PersonStanding from 'lucide-react-native/icons/person-standing';
 import ArrowDown from 'lucide-react-native/icons/arrow-down';
 import ArrowUp from 'lucide-react-native/icons/arrow-up';
@@ -170,8 +171,14 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   bike: Bike,
   flower: Flower,
   person: PersonStanding,
-  body: Accessibility,
+  /* Alongamento são as duas setas que se afastam, e não o `accessibility`
+     do Lucide: aquele é a figura dentro do círculo, o mesmo desenho da
+     placa de cadeirante. Usado para uma modalidade, dizia da pessoa uma
+     coisa que a tela não sabe. */
+  stretch: UnfoldVertical,
   more: Ellipsis,
+  /* Conta de fora ligada à de dentro. */
+  link: Link,
 };
 
 export const Icon = memo(function Icon({
