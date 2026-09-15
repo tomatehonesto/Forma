@@ -244,7 +244,18 @@ export function examGaugeData(e: any) {
 }
 
 /* Modo clínica — recursos de equipe médica só aparecem com vínculo ativo. */
-export const hasClinic = (S: State) => !!S.profile.clinic;
+/* TER ACOMPANHAMENTO não é ter uma clínica.
+
+   Isto lia só `clinic`, e por isso quem é acompanhado por uma médica sem
+   clínica no nome — a maioria — aparecia para o app como pessoa sozinha:
+   a aba Cuidado escondia o preparo de consulta e o resumo médico dizia
+   que não havia para quem mandar.
+
+   O cadastro pergunta uma coisa só, "alguém acompanha você?", e guarda um
+   nome, porque se ele é de pessoa ou de lugar é assunto de quem responde.
+   Aqui a pergunta continua a mesma de antes — existe alguém do outro
+   lado? —, e agora ela olha para os dois campos. */
+export const hasClinic = (S: State) => !!(S.profile.doctor || S.profile.clinic);
 
 /* Marcos do tratamento — a narrativa da jornada em eventos (cronológico desc). */
 export type Milestone = { t: number; ic: string; title: string; sub: string };

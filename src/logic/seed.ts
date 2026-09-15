@@ -265,6 +265,10 @@ export function buildSeed() {
          que dá sentido a "você está na semana 11". */
       planoSemanas: 16,
       nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
+      /* O código de convite de quem chegou por um profissional parceiro.
+         Vazio na semente: a Mariana não veio por indicação, e inventar um
+         código daria ao app um dado comercial que ninguém emitiu. */
+      convite: '',
       /* Ficha da especialista. CRM e tempo de formação não são enfeite: são
          o que separa "alguém está te acompanhando" de "alguém habilitado
          está te acompanhando", e num app que não prescreve nada essa
