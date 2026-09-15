@@ -2115,6 +2115,82 @@ export function historicoDeProtocolos(S: State, n = 6): SemanaDoProtocolo[] {
   return out;
 }
 
+/* UMA SEMANA DO HISTÓRICO, aberta.
+
+   A linha do histórico diz 5/7 e para aí. Quem toca nela quer a coisa
+   que o número esconde: QUAIS dias. Cinco de sete seguidos e cinco de
+   sete alternados são a mesma fração e semanas diferentes — a primeira é
+   um hábito que caiu na quinta, a segunda é um hábito que nunca pegou.
+
+   Dia sem check-in devolve valor nulo, e não zero. Nos acumuladores os
+   dois quase se confundem — quem não registrou água provavelmente bebeu
+   pouco —, mas "não sei" e "zero" continuam sendo respostas diferentes,
+   e a célula vazia é a única que diz a primeira. */
+export type DiaDaMeta = { t: number; ok: boolean; valor: number | null };
+export type MetaDaSemana = {
+  ic: string;
+  texto: string;
+  feito: number;
+  alvo: number;
+  /** a frase de baixo: média por dia, ou o total da semana */
+  resumo: string;
+  dias: DiaDaMeta[];
+};
+
+export function semanaDoHistorico(S: State, ate: number) {
+  const de = ate - 6 * DAY;
+  const t = (S.profile as any).targets;
+  const alvoDe = (metrica: string, padrao: number) => {
+    const x = (S.protocol.tasks as any[]).find((y) => y.metrica === metrica);
+    return (x && x.alvo) || padrao;
+  };
+
+  const porT = new Map<number, any>((S.checkins as any[]).map((c) => [c.t, c]));
+  const dias = Array.from({ length: 7 }, (_, i) => de + i * DAY);
+
+  /* Média só dos dias REGISTRADOS, como em toda média deste arquivo:
+     dividir por sete transformaria um dia sem resposta em um dia ruim. */
+  const media = (vs: (number | null)[]) => {
+    const n = vs.filter((v): v is number => v != null);
+    return n.length ? n.reduce((a, b) => a + b, 0) / n.length : null;
+  };
+
+  const monta = (
+    ic: string, texto: string, alvo: number,
+    valorDe: (c: any) => number | null, bate: (v: number) => boolean,
+    resumoDe: (m: number | null, soma: number) => string,
+  ): MetaDaSemana => {
+    const ds: DiaDaMeta[] = dias.map((d) => {
+      const c = porT.get(d);
+      const v = c ? valorDe(c) : null;
+      return { t: d, ok: v != null && bate(v), valor: v };
+    });
+    const vs = ds.map((d) => d.valor);
+    const soma = vs.reduce((a: number, b) => a + (b || 0), 0);
+    return { ic, texto, alvo, feito: ds.filter((d) => d.ok).length, resumo: resumoDe(media(vs), soma), dias: ds };
+  };
+
+  return {
+    semana: S.protocol.week - Math.round((+startOfDay(now()) - ate) / (7 * DAY)),
+    de,
+    ate,
+    metas: [
+      monta('water', `Beber ${litros(t.waterMl)} L todo dia`, alvoDe('agua', 7),
+        (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
+        (v) => v >= t.waterMl,
+        (m) => (m == null ? 'sem registro na semana' : `média de ${litros(Math.round(m))} L por dia`)),
+      monta('utensils', `Comer ${t.prot} g de proteína todo dia`, alvoDe('prot', 7),
+        (c) => (typeof c.prot === 'number' ? Math.round(c.prot) : null),
+        (v) => v >= t.prot,
+        (m) => (m == null ? 'sem registro na semana' : `média de ${Math.round(m)} g por dia`)),
+      monta('dumbbell', `Se mexer em ${alvoDe('exerc', 3)} dias da semana`, alvoDe('exerc', 3),
+        (c) => (typeof c.exerc === 'number' ? Math.round(c.exerc) : null),
+        (v) => v > 0,
+        (_m, soma) => (soma ? `${soma} min na semana` : 'nenhum movimento registrado')),
+    ],
+  };
+}
+
 /* O EXAME QUE AINDA ESTÁ ABERTO no protocolo. Três telas perguntam por
    ele — a lista de hoje, as recomendações e o cuidado —, e a busca morava
    copiada nas três, cada uma com a sua regex.

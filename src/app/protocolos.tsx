@@ -6,7 +6,7 @@ import {
   hasClinic, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
 } from '../logic/derive';
 import { fmtPeriodo, relDay } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Bloco, Cartao, Aviso } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
@@ -205,7 +205,12 @@ export default function Protocolos() {
           >
             <Cartao>
               {historico.map((w) => (
-                <Row key={w.semana} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
+                <Pressable
+                  key={w.semana}
+                  onPress={() => router.push(`/protocolo?t=${w.ate}` as any)}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                <Row style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
                   <View style={{ flex: 1 }}>
                     <Txt v="body">Semana {w.semana}</Txt>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
@@ -223,7 +228,13 @@ export default function Protocolos() {
                       );
                     })}
                   </Row>
+                  {/* A seta diz que a linha abre. Sem ela, três números
+                      alinhados à direita parecem o fim da linha — e a
+                      semana que dá para abrir some dentro do resumo que
+                      ela deveria estar prometendo. */}
+                  <View style={{ marginLeft: 10 }}><Chevron size={14} /></View>
                 </Row>
+                </Pressable>
               ))}
             </Cartao>
           </Bloco>
