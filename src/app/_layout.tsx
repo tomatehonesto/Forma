@@ -52,6 +52,11 @@ export default function RootLayout() {
         <Moldura>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />
+          {/* O cadastro não se fecha pelo lado. Ele é o único fluxo do app
+              em que sair pela metade deixa o perfil sem medicamento ou sem
+              dose — e com isso a Home sem o que dizer. O caminho de volta é
+              o botão de cada passo, que preserva o que já foi respondido. */}
+          <Stack.Screen name="cadastro" options={{ gestureEnabled: false }} />
           {/* O check-in era folha modal. Virou tela: ele tem três escalas
               fixas, a lista de sintomas e um cartão por sintoma marcado —
               conteúdo que rola, e folha que rola muito é tela com menos
