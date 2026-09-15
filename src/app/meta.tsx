@@ -191,13 +191,18 @@ export default function Meta() {
           )}
         >
           <View style={{ marginTop: 20, gap: 18 }}>
-            {/* O exemplo dentro do campo ensina a FORMA da resposta: um
-                pedaço de frase, não a frase inteira. É o que faz "vôlei"
-                virar "Voltar a praticar vôlei" sem ninguém explicar. */}
+            {/* O campo abre NEUTRO. Ele já teve um exemplo dentro — e
+                exemplo dentro de campo é sugestão: quem lê "o vestido do
+                casamento da minha irmã" antes de pensar na própria meta
+                pensa na meta do exemplo, e ainda ganha de brinde um
+                casamento e uma irmã que talvez não existam.
+
+                Quem ensina a forma da resposta é a frase montada logo
+                abaixo, que aparece já na primeira letra. */}
             <Texto
               valor={texto}
               onChange={setTexto}
-              placeholder={pess.exemplo}
+              placeholder={pess.dica}
               linhas={2}
             />
 

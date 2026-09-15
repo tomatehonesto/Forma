@@ -2513,8 +2513,18 @@ export type MetaPessoal = {
   nome: string;
   /** a pergunta que especifica */
   pergunta: string;
-  /** o que aparece dentro do campo, ensinando a forma da resposta */
-  exemplo: string;
+  /* O QUE APARECE DENTRO DO CAMPO, e por que ele é neutro.
+
+     Ele era um exemplo de verdade — "o vestido do casamento da minha
+     irmã", "vôlei" —, e exemplo dentro de campo é sugestão: quem lê
+     aquilo antes de pensar na própria meta pensa na meta do exemplo. Pior
+     no caso da roupa, que inventava um casamento e uma irmã para quem
+     talvez não tenha nenhum dos dois.
+
+     Quem ensina a forma da resposta agora é a frase montada logo abaixo,
+     que aparece já na primeira letra e mostra o resultado de verdade em
+     vez de prometer um. */
+  dica: string;
   /** a frase inteira, a partir do pedaço que a pessoa escreveu */
   monta: (r: string) => string;
 };
@@ -2523,31 +2533,31 @@ export const METAS_PESSOAIS: MetaPessoal[] = [
   {
     id: 'roupa', ic: 'ruler', nome: 'Uma peça de roupa',
     pergunta: 'Qual peça você quer vestir?',
-    exemplo: 'o vestido do casamento da minha irmã',
+    dica: 'Digite a peça de roupa',
     monta: (r) => `Vestir ${r}`,
   },
   {
     id: 'esporte', ic: 'run', nome: 'Um esporte',
     pergunta: 'Qual esporte você quer voltar a praticar?',
-    exemplo: 'vôlei',
+    dica: 'Digite o esporte',
     monta: (r) => `Voltar a praticar ${r}`,
   },
   {
     id: 'folego', ic: 'walk', nome: 'Algo do dia a dia',
     pergunta: 'O que você quer fazer sem perder o fôlego?',
-    exemplo: 'subir a escada de casa',
+    dica: 'Digite a atividade',
     monta: (r) => `Conseguir ${r} sem perder o fôlego`,
   },
   {
     id: 'sentir', ic: 'heart', nome: 'Como eu me sinto',
     pergunta: 'Como você quer se sentir?',
-    exemplo: 'bem ao me olhar no espelho',
+    dica: 'Digite como você quer se sentir',
     monta: (r) => `Me sentir ${r}`,
   },
   {
     id: 'foto', ic: 'photo', nome: 'Uma foto',
     pergunta: 'Que foto você quer tirar?',
-    exemplo: 'uma foto de corpo inteiro e gostar dela',
+    dica: 'Digite a foto que você quer tirar',
     monta: (r) => `Tirar ${r}`,
   },
 ];
@@ -2558,7 +2568,7 @@ export const METAS_PESSOAIS: MetaPessoal[] = [
 export const META_LIVRE: MetaPessoal = {
   id: 'livre', ic: 'more', nome: 'Outra meta',
   pergunta: 'O que você quer conseguir?',
-  exemplo: 'Vestir a calça jeans antiga',
+  dica: 'Digite a sua meta',
   monta: (r) => r,
 };
 
