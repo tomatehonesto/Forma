@@ -57,17 +57,10 @@ export type DadosDoPlano = {
   plano: PlanoInicial;
 };
 
-export function Plano({ dados: d, aoSair, rotuloSair, recemFeito }: {
+export function Plano({ dados: d, aoSair, rotuloSair }: {
   dados: DadosDoPlano;
   aoSair: () => void;
   rotuloSair: string;
-  /* "SEU PLANO ESTÁ PRONTO!" SÓ SE DIZ UMA VEZ.
-
-     É a frase do minuto seguinte ao cadastro, com a marca verde em cima
-     dela. Quem abre /plano na terça de manhã para conferir quanta água
-     tem de beber não está estreando nada, e receber um "pronto!" ali é o
-     app comemorando sozinho. */
-  recemFeito?: boolean;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -132,18 +125,14 @@ export function Plano({ dados: d, aoSair, rotuloSair, recemFeito }: {
           paddingTop: insets.top + 34, paddingHorizontal: 24, paddingBottom: 32,
           alignItems: 'center', gap: 14,
         }}>
-          {recemFeito ? (
-            <View style={{
-              width: 58, height: 58, borderRadius: 29, backgroundColor: c.lime,
-              alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
-            </View>
-          ) : null}
+          <View style={{
+            width: 58, height: 58, borderRadius: 29, backgroundColor: c.lime,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
+          </View>
           <Txt v="h1" style={{ textAlign: 'center' }}>
-            {recemFeito
-              ? `${primeiro}, seu plano personalizado está pronto!`
-              : 'O seu plano'}
+            {`${primeiro}, seu plano personalizado está pronto!`}
           </Txt>
           <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
             {`Para ${alvo}${marca}.`}
@@ -477,21 +466,21 @@ export function Plano({ dados: d, aoSair, rotuloSair, recemFeito }: {
 }
 
 /* ------------------------------------------------------------------ *
- * A ROTA — /plano
+ * /plano — A PORTA PARA OLHAR A TELA, e não uma tela do app
  *
- * A mesma tela, montada do perfil salvo em vez das respostas de um
- * formulário. Existe por dois motivos, e o segundo é o que importa:
+ * O plano é a ÚLTIMA TELA DO CADASTRO, e é só isso: não existe "meu
+ * plano" na área logada, e nada no app leva até aqui. Esta rota existe
+ * porque, sem ela, ver uma vírgula fora do lugar custava responder quinze
+ * perguntas de novo — e trabalho que se repete a cada ajuste é ajuste que
+ * deixa de ser feito.
  *
- *   · dá para abrir o plano sem refazer o cadastro inteiro;
- *   · o plano deixa de ser um cartaz que aparece uma vez e some. As
- *     metas do dia, a distância até o alvo e a régua de IMC continuam
- *     valendo depois do primeiro dia, e agora têm endereço.
- *
- * ELA RECALCULA, e não guarda: peso, meta, ritmo e nível de atividade
- * mudam no perfil, e um plano gravado no dia do cadastro estaria errado
- * na primeira vez que a pessoa mexesse em qualquer um deles.
+ * Ela monta a tela com o perfil que estiver na loja, que é o jeito de ter
+ * números de gente de verdade em vez dos zeros de um formulário vazio. Se
+ * um dia o plano virar tela de produto, é aqui que ele nasce — mas hoje
+ * não é, e o comentário existe para que ninguém confunda porta de serviço
+ * com porta de entrada.
  * ------------------------------------------------------------------ */
-export default function MeuPlano() {
+export default function PreviaDoPlano() {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const p = S.profile as any;

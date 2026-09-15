@@ -1048,7 +1048,6 @@ export default function Cadastro() {
         }}
         aoSair={() => router.replace('/(tabs)' as any)}
         rotuloSair="Ir para a minha Home"
-        recemFeito
       />
     );
   }
