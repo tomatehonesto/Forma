@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Animated, View, Pressable, ScrollView, TextInput, Platform } from 'react-native';
+import { Animated, View, Pressable, ScrollView, TextInput, Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { FAIXAS_IMC, faixaDoIMC, litros, planoDoCadastro } from '../logic/derive';
+import { FONTES } from '../logic/fontes';
 import { MO, MO_LONG, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn, SectionHead } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -729,6 +730,10 @@ function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unida
    "perder dez vírgula zero quilos". */
 const kgTxt = (v: number) => nf(v, v % 1 === 0 ? 0 : 1);
 
+/* Mil e setecentas quilocalorias se escrevem "1.700". Sem o ponto, o
+   número mais alto da tela é também o mais difícil de ler. */
+const milhar = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
 const doseTxt = (d: number) => nf(d, d % 1 === 0 ? 0 : Math.round(d * 10) === d * 10 ? 1 : 2);
 
 /* O ANEL DE FOCO DO NAVEGADOR não pertence a esta tela.
@@ -924,6 +929,19 @@ export default function Cadastro() {
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
   const inicio = +new Date(r.iAno, r.iMes, r.iDia);
+  /* A IDADE VIROU CONTA, e não só linha de conferência: ela entra na
+     equação de energia e na referência de água por quilo. */
+  const idade = (() => {
+    const h = now();
+    let a = h.getFullYear() - r.ano;
+    const m = h.getMonth() - r.mes;
+    if (m < 0 || (m === 0 && h.getDate() < r.dia)) a -= 1;
+    return a;
+  })();
+  /* A equação pede sexo biológico e o cadastro pergunta identidade —
+     quem respondeu "outro" ou "prefiro não informar" entra como null, e
+     derive.ts usa a média dos dois termos. */
+  const sexo: 'f' | 'm' | null = r.identidade === 'f' ? 'f' : r.identidade === 'm' ? 'm' : null;
   /* Um intervalo que não está entre as alternativas prontas — é ele que
      mantém o contador aberto na tela de frequência. */
   const outroIntervalo = r.intervalo != null
@@ -956,8 +974,9 @@ export default function Cadastro() {
   const plano = useMemo(
     () => planoDoCadastro({
       altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo, atividade: nivel,
+      idade, sexo,
     }),
-    [r.altura, r.peso, r.meta, r.ritmo, nivel],
+    [r.altura, r.peso, r.meta, r.ritmo, nivel, idade, sexo],
   );
 
   /* A PERGUNTA RESPONDIDA. É ela que liga o botão: sem a resposta o
@@ -1035,6 +1054,11 @@ export default function Cadastro() {
          dez vezes cada um. */
       s.profile.targets.prot = plano.prot;
       s.profile.targets.waterMl = plano.agua;
+      /* ⚠️ A META DE ENERGIA FICA GUARDADA E AINDA NÃO TEM LEITOR: nenhuma
+         tela soma a caloria do que a pessoa come. Ela é gravada aqui para
+         que /alimentacao a encontre quando passar a contar — e enquanto
+         isso não acontecer, ela é dívida, e não recurso. */
+      (s.profile.targets as any).kcal = plano.kcal;
       /* O peso de hoje entra como PESAGEM, e não só como número do perfil:
          a curva de evolução, o "de → para" da Jornada e a meta leem a
          lista de pesagens. Desduplica por DIA, e não por instante:
@@ -1162,13 +1186,6 @@ export default function Cadastro() {
       ['scale', 'A sua curva de peso', 'cada pesagem entra na linha, com a leitura do que mudou'],
       ['doc', 'Um resumo para a consulta', 'doses, sintomas e peso organizados numa página só'],
     ];
-    const FONTES: [string, string][] = [
-      ['Proteína', '1,2 g por quilo de peso'],
-      ['Água', '35 ml por quilo, mais o seu nível de atividade'],
-      ['Fibra', '25 g por dia, a recomendação para adultos'],
-      ['IMC', 'as faixas da OMS para adultos'],
-      ['Ritmo', 'o que você escolheu — não é projeção'],
-    ];
     const Secao = ({ t }: { t: string }) => (
       <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1.2, marginBottom: 12 }}>{t}</Txt>
     );
@@ -1193,13 +1210,13 @@ export default function Cadastro() {
             <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
               {`Para ${alvo}${marca}.`}
             </Txt>
-            {/* AS DUAS ETIQUETAS DIZEM O QUE É VERDADE HOJE. A segunda
-                seria "com base em estudos científicos" se alguém já
-                tivesse conferido os coeficientes contra a diretriz — e
-                não conferiu. Ela aponta para a última seção, que mostra
-                de onde sai cada número. */}
+            {/* A SEGUNDA ETIQUETA SÓ PODE EXISTIR PORQUE A ÚLTIMA SEÇÃO
+                EXISTE. "Com base em estudos" é a frase mais fácil de
+                estampar e a mais fácil de mentir; aqui ela é um índice —
+                cada trabalho listado lá embaixo sustenta uma conta desta
+                tela, e abre no toque. */}
             <Row style={{ gap: 8, justifyContent: 'center' }}>
-              {([['user', 'Das suas respostas'], ['info', 'Com as contas à mostra']] as [string, string][])
+              {([['user', 'Das suas respostas'], ['book', 'Com base em estudos']] as [string, string][])
                 .map(([ic, t]) => (
                   <Row key={t} style={{
                     gap: 6, alignItems: 'center', backgroundColor: c.bg1,
@@ -1217,26 +1234,73 @@ export default function Cadastro() {
             {/* ---------- o dia ---------- */}
             <View>
               <Secao t="O SEU DIA" />
-              <Row style={{ gap: 8, alignItems: 'stretch' }}>
-                {([
-                  ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g'],
-                  ['water', c.water, c.waterBg, 'Água', litros(plano.agua), 'L'],
-                  ['leaf', c.ok, c.okBg, 'Fibra', '25', 'g'],
-                ] as [string, string, string, string, string, string][]).map(([ic, cor, fundo, nome, val, un]) => (
-                  <View key={nome} style={[cartao, { flex: 1, padding: 13 }]}>
-                    <View style={{
-                      width: 28, height: 28, borderRadius: 9, backgroundColor: fundo,
-                      alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <Icon name={ic} size={15} color={cor} sw={1.9} />
-                    </View>
-                    <Row style={{ marginTop: 14, alignItems: 'center' }}>
-                      <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{val}</Txt>
-                      <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 4 }}>{un}</Txt>
-                    </Row>
-                    <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{nome}</Txt>
-                  </View>
-                ))}
+
+              {/* A ENERGIA É O NÚMERO GRANDE porque é dela que os outros
+                  saem: carboidrato e gordura são fatia de uma meta de
+                  energia, e não existem sem ela. */}
+              <View style={{
+                backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 16, gap: 8,
+              }}>
+                <Row style={{ gap: 9, alignItems: 'center' }}>
+                  <Icon name="flame" size={17} color={c.accent} sw={1.9} />
+                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS</Txt>
+                </Row>
+                <Row style={{ alignItems: 'baseline', gap: 5 }}>
+                  <Txt v="metric" c={c.accent}>{milhar(plano.kcal)}</Txt>
+                  <Txt v="caption" c={c.tx2}>kcal por dia</Txt>
+                </Row>
+                {/* QUANDO O RITMO NÃO CABE, A TELA DIZ. Dois quilos por
+                    semana pedem 2.200 kcal de déficit por dia — mais do
+                    que o gasto inteiro de muita gente. A meta para no piso
+                    e a frase explica, em vez de o número aparecer menor do
+                    que a conta sem motivo visível. */}
+                <Txt v="caption" c={c.tx2}>
+                  {plano.noPiso
+                    ? `No ritmo que você escolheu, a conta pediria menos do que o mínimo seguro sem acompanhamento médico. A meta parou aí.`
+                    : `Do seu gasto estimado de ${milhar(plano.gasto)} kcal, menos o déficit do ritmo que você escolheu.`}
+                </Txt>
+              </View>
+
+              <View style={{ marginTop: 10 }}>
+                <Duplas>
+                  {([
+                    ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g'],
+                    ['leaf', c.ok, c.okBg, 'Carboidrato', `${plano.carb}`, 'g'],
+                    ['drop2', c.amber, c.amberBg, 'Gordura', `${plano.gord}`, 'g'],
+                    ['gut', c.purple, c.purpleBg, 'Fibra', `${plano.fibra}`, 'g'],
+                  ] as [string, string, string, string, string, string][])
+                    .map(([ic, cor, fundo, nome, val, un]) => (
+                      <View key={nome} style={[cartao, { flex: 1, padding: 14 }]}>
+                        <Row style={{ gap: 8, alignItems: 'center' }}>
+                          <View style={{
+                            width: 26, height: 26, borderRadius: 8, backgroundColor: fundo,
+                            alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <Icon name={ic} size={14} color={cor} sw={1.9} />
+                          </View>
+                          <Txt v="caption" c={c.tx3}>{nome}</Txt>
+                        </Row>
+                        <Row style={{ marginTop: 10, alignItems: 'baseline' }}>
+                          <Txt v="metric" style={{ fontSize: 26, lineHeight: 32 }}>{val}</Txt>
+                          <Txt v="caption" c={c.tx3} style={{ marginLeft: 3 }}>{un}</Txt>
+                        </Row>
+                      </View>
+                    ))}
+                </Duplas>
+              </View>
+
+              <Row style={[cartao, { marginTop: 10, padding: 14, gap: 12, alignItems: 'center' }]}>
+                <View style={{
+                  width: 26, height: 26, borderRadius: 8, backgroundColor: c.waterBg,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name="water" size={14} color={c.water} sw={1.9} />
+                </View>
+                <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>Água</Txt>
+                <Row style={{ alignItems: 'baseline' }}>
+                  <Txt v="metric" style={{ fontSize: 26, lineHeight: 32 }}>{litros(plano.agua)}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginLeft: 3 }}>L</Txt>
+                </Row>
               </Row>
             </View>
 
@@ -1291,35 +1355,51 @@ export default function Cadastro() {
             {marcos ? (
               <View>
                 <Secao t="ATÉ A SUA META" />
-                <View style={[cartao, { padding: 18 }]}>
-                  {marcos.map((m, i) => {
-                    const fim = i === marcos.length - 1;
-                    return (
-                      <Row key={m.rot} style={{ alignItems: 'flex-start', gap: 14 }}>
-                        {/* O fio e a bolinha. O último marco é cheio — é a
-                            chegada; os outros, vazados. */}
-                        <View style={{ alignItems: 'center', width: 18 }}>
-                          <View style={{
-                            width: 14, height: 14, borderRadius: 7, marginTop: 5,
-                            borderWidth: 2.5, borderColor: fim ? c.accent : c.line,
-                            backgroundColor: fim ? c.accent : 'transparent',
-                          }} />
-                          {fim ? null : (
-                            <View style={{ width: 2, flex: 1, minHeight: 34, backgroundColor: c.line }} />
-                          )}
-                        </View>
-                        <View style={{ flex: 1, paddingBottom: fim ? 0 : 18 }}>
-                          <Row style={{ alignItems: 'baseline', gap: 5 }}>
-                            <Txt v="title" c={fim ? c.accent : c.tx}>{nf(m.kg, 1)}</Txt>
-                            <Txt v="caption" c={c.tx3}>kg</Txt>
-                          </Row>
-                          <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                            {m.sem === 0 ? 'hoje' : `em ${m.rot} · ${m.quando}`}
-                          </Txt>
-                        </View>
-                      </Row>
-                    );
-                  })}
+                {/* A LINHA DESCENDO, que é o que a pessoa veio ver. Ela é
+                    RETA porque "1 kg por semana" desenha uma reta — a
+                    exponencial da referência afirmaria um modelo de como o
+                    peso cai que ninguém calculou. E é TRACEJADA porque
+                    nada disso aconteceu ainda: traço cheio é medida, e no
+                    primeiro dia existe uma pesagem só.
+
+                    Os três nós são os marcos, e os rótulos embaixo caem
+                    debaixo de cada um. */}
+                <View style={[cartao, { overflow: 'hidden' }]}>
+                  <Row style={{ padding: 16, paddingBottom: 4, alignItems: 'flex-start' }}>
+                    <View style={{ flex: 1 }}>
+                      <Txt v="body">{perder > 0 ? 'Peso a perder' : 'Peso a ganhar'}</Txt>
+                      <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
+                        {`em ${plano.semanas} semanas`}
+                      </Txt>
+                    </View>
+                    <Row style={{ alignItems: 'center' }}>
+                      <Txt v="metric">{kgTxt(Math.abs(perder))}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>kg</Txt>
+                    </Row>
+                  </Row>
+
+                  <AreaCurve
+                    pts={[{ x: 0, y: 1 }, { x: 0.5, y: 0.5 }, { x: 1, y: 0 }]}
+                    height={104} padT={16} padB={12} padX={20} strokeW={2.4}
+                    id="pl" dashed={false} tracejada nodes fill={0.15}
+                  />
+
+                  <Row style={{ paddingHorizontal: 14, paddingBottom: 16, gap: 6 }}>
+                    {marcos.map((m, i) => (
+                      <View key={m.rot} style={{
+                        flex: 1,
+                        alignItems: i === 0 ? 'flex-start' : i === 1 ? 'center' : 'flex-end',
+                      }}>
+                        <Row style={{ alignItems: 'baseline', gap: 3 }}>
+                          <Txt v="label" c={i === 2 ? c.accent : c.tx}>{nf(m.kg, 1)}</Txt>
+                          <Txt v="micro" c={c.tx4}>kg</Txt>
+                        </Row>
+                        <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>
+                          {m.sem === 0 ? 'hoje' : m.quando}
+                        </Txt>
+                      </View>
+                    ))}
+                  </Row>
                 </View>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
                   {`É a conta de ${nf(r.ritmo ?? 0, 1)} kg por semana, o ritmo que você escolheu — não é previsão.`}
@@ -1405,20 +1485,41 @@ export default function Cadastro() {
               </View>
             </View>
 
-            {/* ---------- de onde vêm os números ---------- */}
+            {/* ---------- em que isto se baseia ----------
+
+                CADA LINHA DIZ QUAL CONTA ELA SUSTENTA, e abre o trabalho
+                no toque. É o contrário do selo: em vez de pedir confiança,
+                mostra de onde veio e deixa conferir.
+
+                A lista vem de fontes.ts, e a regra de entrada é estrita —
+                só entra o que sustenta um número que o app calcula. */}
             <View>
-              <Secao t="DE ONDE VÊM OS NÚMEROS" />
+              <Secao t="EM QUE ISTO SE BASEIA" />
               <View style={[cartao, { paddingHorizontal: 16 }]}>
-                {FONTES.map(([t, sub], i) => (
-                  <View key={t} style={{
-                    paddingVertical: 12,
-                    borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
-                  }}>
-                    <Txt v="label">{t}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
-                  </View>
+                {FONTES.map((fo, i) => (
+                  <Pressable
+                    key={fo.id}
+                    onPress={() => Linking.openURL(fo.url)}
+                    style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                  >
+                    <Row style={{
+                      gap: 10, alignItems: 'center', paddingVertical: 12,
+                      borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
+                    }}>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="label">{fo.sustenta}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }} numberOfLines={2}>
+                          {`${fo.titulo} · ${fo.onde}${fo.ano ? `, ${fo.ano}` : ''}`}
+                        </Txt>
+                      </View>
+                      <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                    </Row>
+                  </Pressable>
                 ))}
               </View>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
+                São ponto de partida, não prescrição — e nada aqui substitui quem te acompanha.
+              </Txt>
             </View>
           </View>
         </ScrollView>
@@ -1446,13 +1547,6 @@ export default function Cadastro() {
      A linha inteira abre a pergunta; o lápis do fim é só a marca de que
      ela abre. */
   if (n === RESUMO) {
-    const idade = (() => {
-      const h = now();
-      let a = h.getFullYear() - r.ano;
-      const m = h.getMonth() - r.mes;
-      if (m < 0 || (m === 0 && h.getDate() < r.dia)) a -= 1;
-      return a;
-    })();
     const freq = (() => {
       const d = r.intervalo ?? padrao;
       return d === 1 ? 'Todos os dias' : `A cada ${d} dias`;

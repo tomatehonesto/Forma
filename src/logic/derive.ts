@@ -1129,8 +1129,17 @@ export type PlanoInicial = {
   imc: number;
   /** o IMC que a meta de peso representa, na mesma altura */
   imcMeta: number;
+  /** quilocalorias por dia, já com o piso de segurança aplicado */
+  kcal: number;
+  /** o gasto estimado do dia, antes do déficit */
+  gasto: number;
+  /** o ritmo escolhido pedia menos caloria do que o piso — a meta parou nele */
+  noPiso: boolean;
   /** gramas por dia */
   prot: number;
+  carb: number;
+  gord: number;
+  fibra: number;
   /** mililitros por dia */
   agua: number;
   /** semanas até a meta, no ritmo escolhido; null quando não há o que perder */
@@ -1138,39 +1147,124 @@ export type PlanoInicial = {
   chegada: number | null;
 };
 
+/* Sedentário, leve, moderado, muito ativo — os multiplicadores clássicos
+   de nível de atividade sobre o gasto de repouso. */
+const FATOR_ATIVIDADE = [1.2, 1.375, 1.55, 1.725];
+/* Um quilo de gordura corporal ≈ 7.700 kcal. É a conta que transforma o
+   ritmo que a pessoa escolheu (kg por semana) em déficit por dia. */
+const KCAL_POR_QUILO = 7700;
+
 export function planoDoCadastro(d: {
   altura: number; peso: number; meta: number; ritmo: number | null;
   /** 0 sedentário, 1 leve, 2 moderado, 3 muito ativo */
   atividade?: number;
+  idade?: number;
+  /** o que o cadastro sabe sobre o corpo — ver o bloco sobre a equação */
+  sexo?: 'f' | 'm' | null;
 }): PlanoInicial {
   const perder = d.peso - d.meta;
   const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
+  const idade = d.idade ?? 40;
+
+  /* ============================================================
+     A ENERGIA DO DIA
+
+     O APP PASSOU A CONTAR CALORIA, e isso é uma reversão de rumo que
+     merece estar escrita aqui: /alimentacao tem uma seção chamada "Por
+     que proteína, e não caloria", e o argumento dela continua de pé para
+     o dia a dia — num tratamento de GLP-1 a fome cai sozinha, e contar
+     caloria de cada refeição é trabalho que a maioria abandona na
+     segunda semana. O que mudou é o ESCOPO: aqui a caloria não é um
+     contador, é um ALVO — e é dele que saem carboidrato e gordura, que
+     não existem de outra forma. Os dois são fatia de uma meta de
+     energia; sem ela, gramas de carboidrato são chute com cara de conta.
+
+     ⚠️ E É ALVO SEM LEITOR, por enquanto: nenhuma tela soma a caloria do
+     que a pessoa come. Enquanto /alimentacao não ler `targets.kcal`, este
+     número vive só na tela de plano — e meta que ninguém lê é dívida, não
+     recurso.
+
+     MIFFLIN-ST JEOR, porque é a que a Academy of Nutrition and Dietetics
+     designou como padrão baseado em evidência para gasto de repouso, e a
+     que mais vezes cai dentro de 10% do medido por calorimetria.
+
+     O TERMO DE SEXO É O PONTO FRACO, e está dito em vez de escondido: a
+     equação pede sexo biológico (+5 para homens, −161 para mulheres), e o
+     cadastro pergunta como a pessoa se IDENTIFICA. Para quem respondeu
+     "outro" ou "prefiro não informar", o termo usado é a média dos dois
+     (−78), que erra menos do que escolher um. Para quem respondeu
+     feminino ou masculino, a identidade é usada como aproximação do
+     corpo — o que é aproximação mesmo, e não verdade.
+     ============================================================ */
+  const tmb = 10 * d.peso + 6.25 * (d.altura * 100) - 5 * idade
+    + (d.sexo === 'm' ? 5 : d.sexo === 'f' ? -161 : -78);
+  const gasto = tmb * FATOR_ATIVIDADE[d.atividade ?? 0];
+  const deficit = d.ritmo && perder > 0 ? (d.ritmo * KCAL_POR_QUILO) / 7 : 0;
+
+  /* O PISO EXISTE PORQUE O RITMO NÃO TEM TETO NA TELA DE ESCOLHA.
+
+     O app deixa escolher até 2 kg por semana, e 2 kg por semana são 2.200
+     kcal de déficit por dia — mais do que o gasto inteiro de muita gente.
+     Sem piso, a tela de plano escreveria "coma 300 kcal por dia" com toda
+     a calma do mundo, e isso é dano.
+
+     1.200 para mulheres e 1.500 para homens é a linha que o NHS marca
+     como o mínimo sem acompanhamento médico. Na dúvida sobre o corpo, o
+     piso mais alto: errar para mais comida é o erro que não machuca. */
+  const piso = d.sexo === 'f' ? 1200 : 1500;
+  const bruto = gasto - deficit;
+  const kcal = Math.max(piso, Math.round(bruto / 10) * 10);
+
+  /* Arredondados para cinco: o app vai escrever estes números como meta, e
+     "96,4 g" afirma uma precisão que a conta não tem — ela nasce de uma
+     regra de bolso sobre um peso digitado. */
+  const prot = Math.round((d.peso * 1.2) / 5) * 5;
+  /* 28% da energia em gordura — o meio da faixa de 25 a 30% que as
+     diretrizes repetem. Nove quilocalorias por grama. */
+  const gord = Math.round((kcal * 0.28) / 9 / 5) * 5;
+  /* O carboidrato é o que sobra. É a ordem certa: a proteína protege
+     massa magra e tem alvo próprio, a gordura tem faixa, e o resto da
+     energia vira carboidrato — e não o contrário. */
+  const carb = Math.max(0, Math.round((kcal - prot * 4 - gord * 9) / 4 / 5) * 5);
+  /* 14 g de fibra por 1.000 kcal é a ingestão adequada do Institute of
+     Medicine, repetida na posição da Academy of Nutrition and Dietetics.
+     Ela é proporcional à energia, e não ao peso. */
+  const fibra = Math.round(((kcal / 1000) * 14) / 5) * 5;
+
   return {
     imc: d.peso / (d.altura ** 2),
     imcMeta: d.meta / (d.altura ** 2),
-    /* Arredondados para cinco e para cem: o app vai escrever estes
-       números como meta, e "96,4 g" afirma uma precisão que a conta não
-       tem — ela nasce de uma regra de bolso sobre um peso digitado. */
-    prot: Math.round((d.peso * 1.2) / 5) * 5,
-    /* A ÁGUA SOBE COM O QUANTO A PESSOA SE MEXE.
+    kcal,
+    gasto: Math.round(gasto / 10) * 10,
+    noPiso: bruto < piso,
+    prot,
+    carb,
+    gord,
+    fibra,
+    /* A ÁGUA SOBE COM O QUANTO A PESSOA SE MEXE, E CAI COM A IDADE.
 
-       35 ml por quilo é a regra de bolso para o corpo parado; quem treina
-       perde mais, e a faixa que se cita é de algumas centenas de
-       mililitros por hora de exercício. O acréscimo aqui é modesto de
-       propósito — é ponto de partida, e errar para cima numa meta que a
-       pessoa persegue todo dia cansa mais do que ajuda.
+       35 ml por quilo é a referência para adultos até uns 55 anos; de 56
+       a 65 a faixa citada cai para 30, e daí em diante para 25 — a
+       necessidade por quilo diminui e a sede fica menos confiável, o que
+       faz uma meta alta demais virar cobrança sem função. Quem treina
+       perde mais líquido, e o acréscimo por nível de atividade é modesto
+       de propósito: é ponto de partida.
 
-       É também o que faz a pergunta de atividade física ter leitor: ela
-       descreve o cenário, e o cenário entra em uma conta. */
-    agua: Math.round((d.peso * 35 + [0, 100, 250, 400][d.atividade ?? 0]) / 100) * 100,
-    /* A META DE GORDURA CORPORAL SAIU DAQUI, e não por acaso.
+       São as duas perguntas — nascimento e atividade física — virando
+       conta. É esse o critério para uma pergunta existir no cadastro. */
+    agua: Math.round(
+      (d.peso * (idade <= 55 ? 35 : idade <= 65 ? 30 : 25)
+        + [0, 100, 250, 400][d.atividade ?? 0]) / 100,
+    ) * 100,
+    /* A META DE GORDURA CORPORAL CONTINUA FORA DAQUI.
 
        Ela dependia do sexo biológico — 28% é a ponta saudável para
-       mulheres, 20% para homens —, e o cadastro deixou de perguntar isso:
-       pergunta agora como a pessoa se IDENTIFICA, que é outra coisa.
-       Derivar um alvo clínico da identidade de gênero seria imprecisão
-       silenciosa no pior lugar. Enquanto não houver de onde tirar, a meta
-       continua a padrão do app e muda no perfil. */
+       mulheres, 20% para homens — e o cadastro pergunta identidade. A
+       equação de energia usa identidade como aproximação porque o erro
+       ali é de algumas dezenas de quilocalorias num alvo que já é
+       estimativa; um alvo de composição corporal é outra ordem de
+       afirmação, e continua vindo do padrão do app até haver de onde
+       tirar. */
     semanas,
     chegada: semanas ? +addDays(startOfDay(now()), semanas * 7) : null,
   };
