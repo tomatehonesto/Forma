@@ -10,9 +10,10 @@ import {
 import { fmtDate, now, startOfDay, WD } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardCurva, CardSemana, Cartao, Chips, Grade2, Linha,
-  Metrica, Botao, TiraDeDias,
+  Bloco, CardCurva, CardSemana, Cartao, Chips, Grade2, Linha,
+  Metrica, TiraDeDias,
 } from '../ui/internas';
+import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -28,7 +29,17 @@ import { radius } from '../theme';
 
    A semana primeiro, e não o dia. Exercício é uma coisa semanal: quem
    treinou forte segunda e descansou terça não teve um dia ruim, teve uma
-   terça. O número de hoje sozinho transforma descanso em falha.
+   terça. O número de hoje SOZINHO transforma descanso em falha.
+
+   A capa mostra o dia, e a palavra sozinho é que segura a contradição:
+   as sete barras da semana vêm logo abaixo dela, na primeira rolagem. O
+   topo é o marcador de onde a pessoa está agora; a tese da tela continua
+   sendo a semana, e é ela que o corpo abre.
+
+   E o dia já estava aqui: em letra miúda, no rodapé, depois das
+   integrações — "Hoje: 0 de 60 min", onde ninguém rolava para ler. A
+   escolha nunca foi entre ter e não ter o dia; era entre dá-lo de frente
+   ou escondê-lo no fim e chamar isso de hierarquia.
 
    Depois a força, porque é o que importa NESTE tratamento. Em déficit
    calórico quem só faz cardio perde massa magra junto com a gordura, e
@@ -130,17 +141,47 @@ export default function Exercicio() {
   const doDia = treinos.filter((tr) => tr.t === diaSel);
 
   return (
-    /* Sem "+" no topo: o rodapé fixo é o mesmo gesto, e dois botões para
-       a mesma ação na mesma tela fazem a pessoa procurar a diferença
-       entre eles. */
-    <TelaInterna
-      titulo="Exercício"
-      rodape={<Botao label="Registrar um treino" onPress={() => router.push('/medir-exercicio' as any)} />}
-    >
-      <Titulao
+    <TelaDeHabito>
+      {/* A CAPA — a mesma das outras duas telas de hábito. Ver
+          src/ui/capa.tsx.
+
+          POR QUE UMA TRILHA, e não alguém treinando. Num app de perda de
+          peso, a foto de um corpo em forma no alto da tela de exercício
+          cobra em vez de convidar. A trilha diz movimento sem dizer qual
+          corpo — e caminhar é a modalidade por onde a maioria começa.
+
+          UM BOTÃO SÓ, e não três como na água. Lá um toque completa um
+          registro, porque um copo é uma quantidade inteira; aqui a sessão
+          precisa do TEMPO, e uma pastilha "Caminhada" que gravasse
+          sozinha teria de inventar trinta minutos que ninguém disse. */}
+      <CapaDeHabito
+        foto={require('../../assets/images/exercicio-hero.jpg')}
         titulo="Exercício"
-        lead="Junto com a proteína, é o que segura a massa magra durante a perda de peso."
-      />
+        /* EM ZERO A LINHA FALA DA SEMANA, e não do que falta hoje.
+
+           "0 de 60 min · faltam 60 min" diz a mesma coisa duas vezes, e
+           diz só a pior metade: num hábito em que descansar faz parte, a
+           resposta útil para um dia ainda vazio é quanto a semana já tem.
+           E "sem treino ainda" em vez de "descanso" porque ausência de
+           registro não é descanso — é ausência de registro. */
+        linha={hoje === 0
+          ? `Hoje: sem treino ainda · ${daSemana} min nesta semana`
+          : `Hoje: ${hoje} de ${alvoDia} min · ${hoje >= alvoDia ? 'meta alcançada' : `faltam ${alvoDia - hoje} min`}`}
+        pct={Math.round((hoje / alvoDia) * 100)}
+      >
+        <AtalhoDaCapa
+          titulo="Registrar um treino"
+          cheio
+          onPress={() => router.push('/medir-exercicio' as any)}
+        />
+      </CapaDeHabito>
+
+      <FolhaDeHabito>
+        {/* Por que um app de GLP-1 tem tela de exercício. */}
+        <Txt v="note" c={c.tx2} style={{ paddingHorizontal: 2 }}>
+          Junto com a proteína, é o que segura a massa magra durante a perda
+          de peso.
+        </Txt>
 
       {/* Os dois gráficos são UM grupo: a semana e a tendência dela.
 
@@ -333,10 +374,7 @@ export default function Exercicio() {
         </Cartao>
       </Bloco>
 
-      {/* O dia, pequeno e no fim: é o detalhe, e a semana é a história. */}
-      <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
-        Hoje: {hoje} de {alvoDia} min.
-      </Txt>
-    </TelaInterna>
+      </FolhaDeHabito>
+    </TelaDeHabito>
   );
 }

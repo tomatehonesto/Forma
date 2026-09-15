@@ -12,3 +12,20 @@ agua-hero.jpg — o topo da tela de Água
   autor: Jess Loiterton
   licença: Pexels License (uso livre, inclusive comercial)
   origem: https://www.pexels.com/photo/underwater-waves-5007946/
+
+alimentacao-hero.jpg — o topo da tela de Alimentação
+  assunto: tigela com atum, grão-de-bico, ovo e folhas
+  autor: Alesia Kozik
+  licença: Pexels License (uso livre, inclusive comercial)
+  origem: https://www.pexels.com/photo/vegetarian-meal-with-poached-egg-6632285/
+
+exercicio-hero.jpg — o topo da tela de Exercício
+  assunto: trilha na mata com a luz da manhã atravessando a neblina
+  autor: adam rozanski
+  licença: Pexels License (uso livre, inclusive comercial)
+  origem: https://www.pexels.com/photo/sunlight-filtering-through-misty-forest-trail-29347337/
+
+  Por que uma trilha, e não alguém treinando: num app de perda de peso,
+  a foto de um corpo em forma no alto da tela de exercício cobra em vez
+  de convidar. A trilha diz movimento sem dizer qual corpo — e caminhar
+  é a modalidade por onde a maioria começa.

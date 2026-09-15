@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
   apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
@@ -11,8 +10,9 @@ import { somaDe } from '../logic/prato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardSemana, Cartao, Linha, Botao, TiraDeDias,
+  Bloco, CardSemana, Cartao, Linha, TiraDeDias,
 } from '../ui/internas';
+import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { Chevron } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -77,50 +77,43 @@ export default function Alimentacao() {
   const gDoDia = doDia.reduce((x, m) => x + (m.g ?? 0), 0);
 
   return (
-    <TelaInterna
-      titulo="Alimentação"
-      rodape={<Botao label="Registrar uma refeição" onPress={() => router.push('/medir-refeicao' as any)} />}
-    >
-      <Titulao
+    <TelaDeHabito>
+      {/* A CAPA — a mesma das outras duas telas de hábito. Ver
+          src/ui/capa.tsx.
+
+          Ela absorveu o cartão "Proteína de hoje", que dizia o número, a
+          meta e a proporção logo abaixo de um titulão sobre fundo liso.
+          E a foto faz o que o cartão não fazia: uma tigela de atum com
+          ovo diz sobre proteína uma coisa que "63 / 90 g" não diz.
+
+          UM BOTÃO SÓ, e não três como na água. Lá um toque completa um
+          registro, porque um copo é uma quantidade inteira; aqui a
+          refeição precisa do prato, e não existe atalho honesto que
+          adivinhe o que a pessoa comeu. Os favoritos, que seriam os
+          candidatos, têm nome derivado dos itens — "Arroz, feijão,
+          frango" não cabe numa pastilha, e eles já moram logo abaixo com
+          o nome inteiro. */}
+      <CapaDeHabito
+        foto={require('../../assets/images/alimentacao-hero.jpg')}
         titulo="Alimentação"
-        lead="Aqui não se conta caloria. O que o tratamento pede é proteína, que é o que segura a massa magra enquanto o peso desce."
-      />
+        linha={prot === 0
+          ? `Hoje: nada registrado · meta de ${alvo} g`
+          : `Hoje: ${prot} de ${alvo} g · ${falta > 0 ? `faltam ${falta} g` : 'meta alcançada'}`}
+        pct={Math.round((prot / alvo) * 100)}
+      >
+        <AtalhoDaCapa
+          titulo="Registrar uma refeição"
+          cheio
+          onPress={() => router.push('/medir-refeicao' as any)}
+        />
+      </CapaDeHabito>
 
-      {/* O NÚMERO DO DIA, e o que ainda falta dele.
-
-          A barra sozinha dizia a proporção e deixava a conta para a
-          pessoa. "Faltam 34 g" é a mesma informação já resolvida, e é ela
-          que muda o que se almoça.
-
-          Embaixo dele morava um botão em gradiente, "Escanear uma
-          refeição". Ele saiu: a câmera já é a primeira coisa da folha de
-          registro, ao lado de "o que tinha no prato", e um segundo botão
-          para ela aqui em cima tirava do número do dia o lugar que é
-          dele. Duas portas para a mesma sala, uma mais chamativa que a
-          porta principal. */}
-      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
-        <Row style={{ alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Txt v="body">Proteína de hoje</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-              {prot === 0
-                ? `Meta de ${alvo} g`
-                : falta > 0 ? `Faltam ${falta} g para a meta` : 'Meta do dia alcançada'}
-            </Txt>
-          </View>
-          <Txt v="metric">
-            {prot}
-            <Txt v="label" c={c.tx3}>{` / ${alvo} g`}</Txt>
-          </Txt>
-        </Row>
-        <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 14, overflow: 'hidden' }}>
-          <LinearGradient
-            colors={[c.gradFrom, c.gradTo]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={{ width: `${Math.min(100, (prot / alvo) * 100)}%`, height: '100%' }}
-          />
-        </View>
-      </View>
+      <FolhaDeHabito>
+        {/* Por que um app de GLP-1 não conta caloria. */}
+        <Txt v="note" c={c.tx2} style={{ paddingHorizontal: 2 }}>
+          Aqui não se conta caloria. O que o tratamento pede é proteína, que
+          é o que segura a massa magra enquanto o peso desce.
+        </Txt>
 
       {/* A SEMANA, e só ela.
 
@@ -328,6 +321,7 @@ export default function Alimentacao() {
           />
         </Cartao>
       </Bloco>
-    </TelaInterna>
+      </FolhaDeHabito>
+    </TelaDeHabito>
   );
 }
