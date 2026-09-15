@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  INDICADORES, balanceRead, checkinToday, diasDeSintomas, padraoDoCiclo, radar,
+  INDICADORES, checkinToday, diasDeSintomas, padraoDoCiclo,
   sintomaNoCiclo, sintomasDaSemana,
 } from '../logic/derive';
 import { diasAnteriores, leituraDoDia, niveisDoRegistro } from '../logic/leituras';
@@ -12,7 +12,6 @@ import { Txt, Row } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Progresso, Chips, CardCurva, Aviso, Botao,
 } from '../ui/internas';
-import { Petalas } from '../ui/charts';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
@@ -307,21 +306,17 @@ export default function Sintomas() {
         </Bloco>
       </View>
 
-      {/* O EQUILÍBRIO fecha a tela, e não a abre.
+      {/* O RADAR DAS OITO FRENTES SAIU DAQUI.
 
-          O radar mistura o que você SENTIU com o que você FEZ — água,
-          exercício, proteína e adesão estão nos oito eixos —, então ele
-          não responde a pergunta desta tela. Responde a de depois: com
-          tudo isso na mesa, onde o tratamento está apoiado. */}
-      <View style={{ marginTop: 26 }}>
-        <Bloco titulo="Equilíbrio" nota="Média dos últimos 3 check-ins, nas oito frentes que o app acompanha.">
-          <Cartao>
-            <View style={{ alignItems: 'center', paddingVertical: 18 }}>
-              <Petalas data={radar(S)} size={264} fraco={balanceRead(S).fraco} />
-            </View>
-          </Cartao>
-        </Bloco>
-      </View>
+          Ele fechava a tela com sono, energia, humor, saciedade, água,
+          exercício, proteína e adesão numa figura só. As quatro primeiras
+          são desta tela; as quatro últimas são o que a pessoa FEZ, e
+          nenhum dos oito eixos é sintoma. Ele respondia bem uma pergunta
+          que ninguém tinha feito aqui — e, fechando a tela, era a última
+          coisa que ficava da visita.
+
+          A leitura escrita dele continua nos Insights, que é onde a
+          pergunta "onde o tratamento está apoiado" é feita. */}
     </TelaInterna>
   );
 }
