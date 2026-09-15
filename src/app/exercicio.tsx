@@ -178,11 +178,15 @@ export default function Exercicio() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-        {/* Por que um app de GLP-1 tem tela de exercício. */}
-        <Txt v="note" c={c.tx2} style={{ paddingHorizontal: 2 }}>
-          Junto com a proteína, é o que segura a massa magra durante a perda
-          de peso.
-        </Txt>
+        {/* A primeira seção da folha, e a única que não é número. Sem
+            título ela era um parágrafo solto encostado na foto. */}
+        <Bloco titulo="Por que o músculo importa">
+          <Txt v="note" c={c.tx2}>
+            Em déficit calórico o corpo perde músculo junto com a gordura.
+            Movimento é, com a proteína, o que segura a massa magra — e é por
+            isso que o treino de força aparece de novo mais abaixo.
+          </Txt>
+        </Bloco>
 
       {/* Os dois gráficos são UM grupo: a semana e a tendência dela.
 

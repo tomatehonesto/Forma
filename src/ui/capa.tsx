@@ -133,17 +133,28 @@ export function CapaDeHabito({ foto, titulo, linha, pct, children }: {
 /* UM ATALHO NO PÉ DA CAPA.
 
    Vidro quando é um entre vários — um pedaço da própria foto desfocado,
-   com um fio branco de borda —, sólido quando é a ação principal ou a
-   única. O sólido é branco e não azul: sobre foto, o azul da marca some
-   em metade das imagens, e o branco funciona em todas. */
+   com um fio branco de borda —, AZUL quando é a ação principal.
+
+   O azul é o da marca, o mesmo de todo botão do app. Ele chegou a ser
+   branco, com o argumento de que branco lê sobre qualquer foto e o azul
+   sumiria em metade delas. O argumento estava errado por dois motivos.
+
+   Sumir não era o risco: o botão é uma forma cheia de 350 px por 44,
+   não um fio — ele aparece sobre qualquer coisa. O risco era o oposto,
+   um retângulo branco no meio da foto parecendo um pedaço de papel
+   colado ali.
+
+   E o que se perdia era a CONSTÂNCIA. Em todas as outras telas do app o
+   botão de ação é azul; três telas com botão branco não viram um estilo,
+   viram três exceções. */
 export function AtalhoDaCapa({ titulo, sub, cheio, onPress }: {
   titulo: string; sub?: string; cheio?: boolean; onPress: () => void;
 }) {
   const { c } = useTheme();
   const corpo = (
     <>
-      <Txt v="caption" c={cheio ? '#0B1220' : c.onHero}>{titulo}</Txt>
-      {sub ? <Txt v="micro" c={cheio ? 'rgba(11,18,32,0.55)' : c.onHero2}>{sub}</Txt> : null}
+      <Txt v="caption" c={cheio ? c.accentInk : c.onHero}>{titulo}</Txt>
+      {sub ? <Txt v="micro" c={cheio ? c.accentInk : c.onHero2} style={cheio ? { opacity: 0.7 } : undefined}>{sub}</Txt> : null}
     </>
   );
 
@@ -151,7 +162,7 @@ export function AtalhoDaCapa({ titulo, sub, cheio, onPress }: {
     <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
       {cheio ? (
         <View style={{
-          backgroundColor: c.onHero, borderRadius: radius.pill,
+          backgroundColor: c.accent, borderRadius: radius.pill,
           alignItems: 'center', paddingVertical: sub ? 10 : 13, gap: 1,
         }}>
           {corpo}

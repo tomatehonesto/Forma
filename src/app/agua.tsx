@@ -126,14 +126,21 @@ export default function Agua() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-          {/* Por que um app de GLP-1 tem tela de água. As outras duas
-              telas de hábito abrem com a mesma frase, embaixo do titulão;
-              aqui o titulão está na foto, e sobra a frase sozinha. */}
-          <Txt v="note" c={c.tx2} style={{ paddingHorizontal: 2 }}>
-            Comendo menos, entra menos água pela comida — e ela é boa parte
-            do que se bebe sem perceber. Beber de propósito é o que cobre a
-            diferença.
-          </Txt>
+          {/* POR QUE UM APP DE GLP-1 TEM TELA DE ÁGUA — a primeira seção
+              da folha, e a única que não é número.
+
+              Ela era um parágrafo solto encostado na foto: o texto
+              começava sem nada dizer o que ele era, e quem rolava caía no
+              meio de uma frase. Com título ele vira seção, e a folha
+              passa a ter uma escada para descer — por quê, como foi a
+              semana, o que aconteceu. */}
+          <Bloco titulo="Por que beber de propósito">
+            <Txt v="note" c={c.tx2}>
+              Comendo menos, entra menos água pela comida — e ela é boa parte
+              do que se bebe sem perceber. Beber de propósito é o que cobre a
+              diferença.
+            </Txt>
+          </Bloco>
 
           {/* A SEMANA.
 

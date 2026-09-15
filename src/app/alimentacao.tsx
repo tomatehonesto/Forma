@@ -109,11 +109,15 @@ export default function Alimentacao() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-        {/* Por que um app de GLP-1 não conta caloria. */}
-        <Txt v="note" c={c.tx2} style={{ paddingHorizontal: 2 }}>
-          Aqui não se conta caloria. O que o tratamento pede é proteína, que
-          é o que segura a massa magra enquanto o peso desce.
-        </Txt>
+        {/* A primeira seção da folha, e a única que não é número. Sem
+            título ela era um parágrafo solto encostado na foto. */}
+        <Bloco titulo="Por que proteína, e não caloria">
+          <Txt v="note" c={c.tx2}>
+            Num tratamento de GLP-1 a fome cai sozinha, e o risco deixa de ser
+            comer demais: passa a ser comer pouca proteína — que é o que segura
+            a massa magra enquanto o peso desce.
+          </Txt>
+        </Bloco>
 
       {/* A SEMANA, e só ela.
 
