@@ -5,9 +5,17 @@ import { useStore } from '../logic/store';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Divider } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 
+/* O QUE CADA UMA DIZ TEM DE SER O QUE O APP LÊ.
+
+   Apple Health e Health Connect ganharam uma tela no cadastro, e lá elas
+   prometem peso, sono e treino. Aqui a mesma integração dizia "passos,
+   sono e treinos": passo nenhuma tela do Morphi mostra, e o peso — que
+   vira ponto na curva de evolução — ficava de fora da lista. Duas
+   descrições da mesma coisa, e a que a pessoa lê primeiro é a que ela
+   cobra depois. */
 const ITEMS: [string, string, string][] = [
-  ['appleHealth', 'Apple Health', 'Passos, sono e treinos'],
-  ['healthConnect', 'Health Connect', 'Android · dados de saúde'],
+  ['appleHealth', 'Apple Health', 'Peso, sono e treinos'],
+  ['healthConnect', 'Health Connect', 'Android · peso, sono e treinos'],
   ['googleFit', 'Google Fit', 'Atividade e passos'],
   ['garmin', 'Garmin', 'Treinos e frequência'],
   ['fitbit', 'Fitbit', 'Sono e passos'],

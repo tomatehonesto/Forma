@@ -1069,6 +1069,35 @@ export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
 }
 
 /* ============================================================
+   AS FAIXAS DE IMC
+
+   Os cortes são os que a OMS usa para adultos — 18,5 / 25 / 30 / 35 / 40
+   —, e são os mesmos que aparecem em qualquer relatório de consulta. Ficam
+   numa tabela só porque mais de uma tela mostra IMC: três listas escritas
+   à mão viram, mais cedo ou mais tarde, três classificações diferentes
+   para o mesmo número.
+
+   O QUE ELAS NÃO SABEM: o IMC não separa músculo de gordura, não sabe a
+   idade de quem está na balança nem de onde veio o peso. Quem mostra a
+   faixa mostra junto o que ela ignora — é o mesmo cuidado que as faixas de
+   referência dos exames pedem.
+
+   `tom` é o nome de um par de cores do tema, e não uma cor: a tela clara e
+   a escura resolvem o mesmo nome em vermelhos diferentes.
+   ============================================================ */
+export type FaixaIMC = { de: number; ate: number; nome: string; tom: string };
+export const FAIXAS_IMC: FaixaIMC[] = [
+  { de: 15, ate: 18.5, nome: 'Abaixo do peso', tom: 'blue' },
+  { de: 18.5, ate: 25, nome: 'Peso normal', tom: 'ok' },
+  { de: 25, ate: 30, nome: 'Sobrepeso', tom: 'amber' },
+  { de: 30, ate: 35, nome: 'Obesidade grau I', tom: 'cta2' },
+  { de: 35, ate: 40, nome: 'Obesidade grau II', tom: 'cta' },
+  { de: 40, ate: 45, nome: 'Obesidade grau III', tom: 'cta' },
+];
+export const faixaDoIMC = (v: number) =>
+  FAIXAS_IMC.find((x) => v < x.ate) ?? FAIXAS_IMC[FAIXAS_IMC.length - 1];
+
+/* ============================================================
    O PLANO DE PARTIDA — o que o app deriva do cadastro
 
    As metas diárias do app — proteína, água, movimento, gordura corporal
@@ -1098,6 +1127,8 @@ export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
    ============================================================ */
 export type PlanoInicial = {
   imc: number;
+  /** o IMC que a meta de peso representa, na mesma altura */
+  imcMeta: number;
   /** gramas por dia */
   prot: number;
   /** mililitros por dia */
@@ -1116,6 +1147,7 @@ export function planoDoCadastro(d: {
   const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
   return {
     imc: d.peso / (d.altura ** 2),
+    imcMeta: d.meta / (d.altura ** 2),
     /* Arredondados para cinco e para cem: o app vai escrever estes
        números como meta, e "96,4 g" afirma uma precisão que a conta não
        tem — ela nasce de uma regra de bolso sobre um peso digitado. */
