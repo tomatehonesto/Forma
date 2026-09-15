@@ -145,10 +145,11 @@ export default function Exercicio() {
       {/* A CAPA — a mesma das outras duas telas de hábito. Ver
           src/ui/capa.tsx.
 
-          POR QUE UMA TRILHA, e não alguém treinando. Num app de perda de
-          peso, a foto de um corpo em forma no alto da tela de exercício
-          cobra em vez de convidar. A trilha diz movimento sem dizer qual
-          corpo — e caminhar é a modalidade por onde a maioria começa.
+          A FOTO É UMA ESCADA SENDO SUBIDA — pernas e tênis, sem rosto e
+          sem torso. Movimento de verdade, e não um corpo em exposição:
+          num app de perda de peso a diferença entre as duas coisas é a
+          diferença entre convidar e cobrar. E subir escada é exercício
+          que não pede academia nem roupa própria.
 
           UM BOTÃO SÓ, e não três como na água. Lá um toque completa um
           registro, porque um copo é uma quantidade inteira; aqui a sessão

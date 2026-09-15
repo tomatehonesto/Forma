@@ -38,8 +38,17 @@ import { radius } from '../theme';
    e a meta. São as duas resoluções da mesma coisa, que é o que um topo
    faz: o quanto, e o quão longe.
 
-   Em branco translúcido para ficar no plano da imagem. Sólido, ele
-   viraria o assunto da tela — e o assunto é a água, o prato, a trilha.
+   EM BRANCO SÓLIDO, e não translúcido. Ele nasceu a 46% de branco, para
+   ficar no plano da imagem como uma marca-d'água — e a marca-d'água
+   funcionava sobre a água, que é lisa, e sumia sobre a tigela de atum,
+   que tem grão-de-bico claro, ovo amarelo e folha verde em cada
+   centímetro. Tapar o buraco subindo a opacidade foto a foto seria
+   acertar cada tela e perder a família.
+
+   Branco inteiro lê em qualquer imagem, e a sombra difusa larga é o que
+   o separa do fundo sem pintar uma caixa atrás dele. O número é o que a
+   pessoa veio ver; deixá-lo meio apagado era estilo cobrando pedágio da
+   informação.
    ============================================================ */
 export function CapaDeHabito({ foto, titulo, linha, pct, children }: {
   foto: any;
@@ -93,30 +102,25 @@ export function CapaDeHabito({ foto, titulo, linha, pct, children }: {
         <Txt v="display" c={c.onHero} style={{ marginTop: 22 }}>{titulo}</Txt>
         <Txt v="note" c={c.onHero2} style={{ marginTop: 2 }}>{linha}</Txt>
 
-        {/* A SOMBRA DIFUSA É O QUE FAZ O NÚMERO FUNCIONAR EM QUALQUER FOTO.
+        {/* A SOMBRA DIFUSA É O QUE SEGURA O BRANCO EM QUALQUER FOTO — e
+            ela não precisa saber nada sobre a imagem que está embaixo,
+            que é o ponto: a escada ao sol é clara, a trilha é escura, e o
+            mesmo número funciona nas duas.
 
-            Translúcido sobre a água ele lia bem: a foto é lisa e escura
-            no meio, e o branco tinha onde encostar. Sobre a tigela de
-            atum — grão-de-bico claro, ovo amarelo, folha verde, tudo com
-            textura — o mesmo branco a 46% sumiu.
-
-            Subir a opacidade resolveria a leitura e estragaria o efeito:
-            sólido, o número vira o assunto da tela, e o assunto é o
-            prato. A sombra larga e fraca separa o número da imagem sem
-            pesar sobre ela, e não precisa saber nada sobre a foto que
-            está embaixo. */}
+            O "%" acompanha o branco do número. Ele já é menor; escurecê-lo
+            também seria hierarquia demais para um símbolo de um glifo. */}
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <Txt
             v="display"
-            c="rgba(255,255,255,0.60)"
+            c={c.onHero}
             style={{
               fontSize: 84, lineHeight: 92, letterSpacing: -2,
-              textShadowColor: 'rgba(0,0,0,0.34)', textShadowRadius: 24,
+              textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26,
               textShadowOffset: { width: 0, height: 2 },
             }}
           >
             {pct}
-            <Txt v="display" c="rgba(255,255,255,0.48)" style={{ fontSize: 40, lineHeight: 92 }}>%</Txt>
+            <Txt v="display" c={c.onHero} style={{ fontSize: 40, lineHeight: 92 }}>%</Txt>
           </Txt>
         </View>
 
