@@ -456,8 +456,8 @@ export function todayTasks(S: State): TodayTask[] {
   const lastW = S.weights[S.weights.length - 1];
   const wDays = diffDays(now(), new Date(lastW.t));
   if (wDays >= 4) out.push({ ic: 'scale', text: 'Registrar peso', sub: `Último registro há ${wDays} dias`, to: '/registrar' });
-  const examTask = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
-  if (examTask) out.push({ ic: 'doc', text: examTask.t, sub: 'Do protocolo desta semana', to: '/protocolos' });
+  const examTask = exameNoProtocolo(S);
+  if (examTask) out.push({ ic: 'doc', text: examTask, sub: 'Do protocolo desta semana', to: '/protocolos' });
   if (hasClinic(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
@@ -1003,9 +1003,9 @@ export function recommendations(S: State): Reco[] {
       to: '/aplicacoes',
     });
   }
-  const exame = S.protocol.tasks.find((x: any) => !x.done && /exame/i.test(x.t));
+  const exame = exameNoProtocolo(S);
   if (exame) out.push({
-    emDias: 5, ic: 'doc', texto: exame.t,
+    emDias: 5, ic: 'doc', texto: exame,
     porque: 'Está aberto no protocolo desta semana, e o resultado costuma demorar alguns dias',
     to: '/exames',
   });
@@ -1962,6 +1962,118 @@ export function golesDoDia(S: State, t: number): { t: number | null; ml: number 
   return ml > 0 ? [{ t: null, ml }] : [];
 }
 
+/* ============================================================
+   O PROTOCOLO DA SEMANA
+
+   Cinco itens combinados com a equipe, e duas naturezas muito diferentes
+   entre eles:
+
+     MEDIDOS   água, proteína, movimento. O app conta esses dias o tempo
+               todo — é o que as três telas de hábito fazem. No protocolo
+               eles só aparecem somados.
+
+     MANUAIS   aplicar a dose, agendar o exame. Não há registro de onde
+               tirar a resposta; quem sabe é a pessoa, e por isso essas
+               se marcam.
+
+   A SEPARAÇÃO NÃO É ARRUMAÇÃO, é o conserto de uma mentira. Os medidos
+   vinham com a contagem ESCRITA À MÃO — "5 de 7 dias" — ao lado de um
+   caderno de água que sabia a resposta de verdade, e com uma caixinha
+   que deixava marcar "2 L por dia" como cumprido num dia de meio litro.
+   Duas fontes para o mesmo fato, e a que mandava era a inventada.
+
+   Agora a contagem sai dos registros, e nos medidos a caixinha some:
+   eles se cumprem bebendo, comendo e andando — não tocando neles.
+
+   E A META SAI DO PERFIL, não do texto da tarefa. O item dizia "2 L de
+   água por dia" enquanto o perfil pedia 2,5 L: a tela de água cobrava um
+   número e o protocolo cobrava outro, na mesma semana. */
+
+export type TarefaDoProtocolo = {
+  /** o índice no array guardado — é por ele que a manual se marca */
+  i: number;
+  texto: string;
+  nota: string;
+  feita: boolean;
+  /** medida: o app conta. manual: a pessoa marca. */
+  medida: boolean;
+};
+
+/* Como cada meta medida se escreve e se conta. O alvo — em quantos dias
+   da semana — vem da tarefa, porque é ele que a equipe negocia. */
+const MEDIDAS: Record<string, (S: State, alvo: number) => { texto: string; feito: number }> = {
+  agua: (S, alvo) => {
+    const ml = (S.profile as any).targets.waterMl as number;
+    return {
+      texto: alvo >= 7 ? `Beber ${litros(ml)} L todo dia` : `Beber ${litros(ml)} L em ${alvo} dias`,
+      feito: semanaDeAgua(S).filter((d) => d.ml >= ml).length,
+    };
+  },
+  prot: (S, alvo) => {
+    const g = (S.profile as any).targets.prot as number;
+    return {
+      texto: alvo >= 7 ? `Comer ${g} g de proteína todo dia` : `Comer ${g} g de proteína em ${alvo} dias`,
+      feito: semanaDeProteina(S).filter((d) => d.g >= g).length,
+    };
+  },
+  /* Dias COM MOVIMENTO, e não minutos: é o que o item pede — sair do
+     sofá três vezes —, e é o que o registro sabe dizer sem chutar
+     modalidade. O item já foi "Caminhada 3× na semana", e o app não tem
+     como saber se aqueles trinta minutos foram uma caminhada. */
+  exerc: (S, alvo) => ({
+    texto: `Se mexer em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
+    feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
+  }),
+};
+
+export function protocoloDaSemana(S: State) {
+  const p: any = S.protocol;
+  const tarefas: TarefaDoProtocolo[] = (p.tasks as any[]).map((x, i) => {
+    const m = x.metrica && MEDIDAS[x.metrica];
+    if (!m) {
+      /* Tarefa manual — inclusive as antigas, guardadas antes de existir
+         métrica: elas continuam valendo o que a pessoa marcou. */
+      return { i, texto: x.t, nota: x.note || '', feita: !!x.done, medida: false };
+    }
+    const alvo = x.alvo || 7;
+    const { texto, feito } = m(S, alvo);
+    return {
+      i, texto,
+      nota: `${feito} de ${alvo} ${alvo === 1 ? 'dia' : 'dias'}`,
+      feita: feito >= alvo,
+      medida: true,
+    };
+  });
+  const feitas = tarefas.filter((t) => t.feita).length;
+  return {
+    semana: p.week as number,
+    tarefas,
+    feitas,
+    total: tarefas.length,
+    pct: tarefas.length ? Math.round((feitas / tarefas.length) * 100) : 0,
+  };
+}
+
+/* O EXAME QUE AINDA ESTÁ ABERTO no protocolo. Três telas perguntam por
+   ele — a lista de hoje, as recomendações e o cuidado —, e a busca morava
+   copiada nas três, cada uma com a sua regex.
+
+   E só as MANUAIS entram: uma tarefa medida não tem texto próprio (o
+   texto dela sai da meta do perfil), então procurar "exame" nela é
+   procurar em undefined. */
+export function exameNoProtocolo(S: State): string | null {
+  const x = (S.protocol.tasks as any[])
+    .find((t) => !t.done && typeof t.t === 'string' && /exame/i.test(t.t));
+  return x ? (x.t as string) : null;
+}
+
+/** Marca ou desmarca uma tarefa manual. As medidas não passam por aqui. */
+export function marcarTarefa(s: any, i: number) {
+  const x = s.protocol.tasks[i];
+  if (!x || x.metrica) return;
+  x.done = !x.done;
+}
+
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
@@ -2058,8 +2170,8 @@ export function carePending(S: State) {
     sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
     to: '/medico',
   });
-  const exame = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
-  if (exame) out.push({ ic: 'doc', texto: exame.t, sub: 'pedido pela sua equipe', to: '/exames' });
+  const exame = exameNoProtocolo(S);
+  if (exame) out.push({ ic: 'doc', texto: exame, sub: 'pedido pela sua equipe', to: '/exames' });
   if (cs?.prepararAgora) out.push({
     ic: 'cal', texto: 'Prepare o que levar para a consulta',
     sub: `${cs.tipo.toLowerCase()} ${cs.label} · com ${cs.doutor}`,

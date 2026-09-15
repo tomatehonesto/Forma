@@ -235,13 +235,24 @@ export function buildSeed() {
       { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', kind: 'manual', prog: 60 },
       { id: 'g4', ic: 'bolt', label: 'Ter mais energia à tarde', kind: 'energia', prog: 0 },
     ],
+    /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
+
+       Os MEDIDOS trazem só a métrica e o alvo: o texto sai da meta do
+       perfil e a contagem sai dos registros. Antes eles vinham com o
+       número escrito à mão aqui — "5 de 7 dias" — ao lado de um caderno
+       de água que sabia a resposta, e com a meta de 2 L enquanto o perfil
+       pedia 2,5 L. Semente não é lugar de guardar conta feita.
+
+       Os MANUAIS trazem o texto, porque não há registro de onde tirar a
+       resposta: o app não sabe se a dose foi aplicada nem se o exame foi
+       agendado. */
     protocol: {
       week: 10, tasks: [
-        { t: 'Aplicação da semana', done: true, note: '' },
-        { t: '2 L de água por dia', done: false, note: '5 de 7 dias' },
-        { t: '90 g de proteína por dia', done: false, note: '4 de 7 dias' },
-        { t: 'Caminhada 3× na semana', done: false, note: '2 de 3' },
-        { t: 'Agendar exame de sangue', done: false, note: '' },
+        { t: 'Aplicação da semana', done: true },
+        { metrica: 'agua', alvo: 7 },
+        { metrica: 'prot', alvo: 7 },
+        { metrica: 'exerc', alvo: 3 },
+        { t: 'Agendar exame de sangue', done: false },
       ],
     },
     messages: [

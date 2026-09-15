@@ -8,7 +8,7 @@ import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, litros, checkinToday, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
+  waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
@@ -390,6 +390,7 @@ export default function Jornada() {
   const marcos = milestones(S).slice(0, 8);
   const pen = penStock(S);
   const ci = checkinToday(S);
+  const proto = protocoloDaSemana(S);
 
   const habitos: [string, string, string, string][] = [
     ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
@@ -400,7 +401,9 @@ export default function Jornada() {
        1,75 L. */
     ['water', 'Água', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
-    ['target', 'Protocolos', `${S.protocol.tasks.filter((t: any) => t.done).length} de ${S.protocol.tasks.length}`, '/protocolos'],
+    /* Contado por protocoloDaSemana, e não somando os `done`: os itens
+       medidos não têm esse campo — eles se cumprem pelos registros. */
+    ['target', 'Protocolos', `${proto.feitas} de ${proto.total}`, '/protocolos'],
   ];
 
   return (

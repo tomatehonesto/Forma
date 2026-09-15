@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { protocoloDaSemana } from '../logic/derive';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -102,7 +103,7 @@ export default function Medico() {
           <IconBadge name="target" size={40} />
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Txt v="title">Semana {S.protocol.week}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{S.protocol.tasks.filter((t: any) => t.done).length} de {S.protocol.tasks.length} concluídos</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{protocoloDaSemana(S).feitas} de {protocoloDaSemana(S).total} cumpridas</Txt>
           </View>
           <Chevron />
         </Row>
