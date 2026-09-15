@@ -20,7 +20,7 @@
    porque fala do agora, e a persistência fala da semana.
    ============================================================ */
 
-import { paraTela } from './escalas';
+import { grauDoSintoma } from './escalas';
 import { respondido, mediaDe } from './derive';
 
 /* Cada leitura fala em dois comprimentos, porque aparece em dois lugares.
@@ -246,14 +246,17 @@ const PERSISTENCIA: {
    mesmo lugar, então a conversão do registro para a mesma régua 1–5 mora
    aqui, ao lado de quem a consome. */
 export function niveisDoRegistro(c: any): Niveis {
-  const n = (v: any) => paraTela(v) ?? 0;
+  /* Zero aqui é de propósito, e não contradiz o null de grauDoSintoma:
+     estas são as faixas de AVISO, e um aviso que não dispara é o mesmo
+     silêncio de um sintoma que não houve. */
+  const g = (id: string) => grauDoSintoma(c, id) ?? 0;
   return {
-    nausea: n(c?.nausea),
-    dor: (c?.sint?.dor ?? 0) as number,
-    vomito: (c?.sint?.vomito ?? 0) as number,
-    tontura: (c?.sint?.tontura ?? 0) as number,
-    preso: c?.gut === 'preso' ? n(c?.constip) : 0,
-    solto: c?.gut === 'solto' ? n(c?.diarreia) : 0,
+    nausea: g('nausea'),
+    dor: g('dor'),
+    vomito: g('vomito'),
+    tontura: g('tontura'),
+    preso: g('preso'),
+    solto: g('solto'),
   };
 }
 

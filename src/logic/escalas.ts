@@ -147,6 +147,34 @@ export const FOME = ['Sem fome', 'Pouca fome', 'Fome normal', 'Bastante fome', '
    "não teve", e na tela isso é campo em branco, não o degrau 1. */
 export const paraTela = (v: any) => (typeof v === 'number' && v > 0 ? Math.round(v / 2) : null);
 
+/* O GRAU DE UM SINTOMA NO DIA, na régua de 1 a 5 — a mesma que a pessoa
+   respondeu.
+
+   Os sintomas moram em três lugares, por história: náusea e refluxo têm
+   coluna própria em 0–10; o intestino guarda a direção em `gut` e a
+   quantidade em `constip`/`diarreia`, também em 0–10; e o resto vive no
+   mapa `sint`, já na régua da tela.
+
+   Sem um lugar só para essa tradução, cada tela que lê sintoma refaz a
+   conversão por conta própria — e foi assim que a tela de sintomas
+   acabou escrevendo "náusea 4/10" embaixo de uma pergunta de 1 a 5, e a
+   da semana classificando como "forte" o que a pessoa respondeu como
+   leve.
+
+   `null` é "não teve ou não respondeu". Os dois somem da leitura pelo
+   mesmo motivo: nenhum dos dois é sintoma. Quem precisa distinguir um do
+   outro — o gráfico do ciclo precisa — pergunta antes se o dia teve
+   resposta, e aí o silêncio e o zero deixam de ser a mesma coisa. */
+export function grauDoSintoma(c: any, id: string): number | null {
+  if (!c) return null;
+  if (id === 'nausea') return paraTela(c.nausea);
+  if (id === 'refluxo') return paraTela(c.refluxo);
+  if (id === 'preso') return c.gut === 'preso' ? paraTela(c.constip) : null;
+  if (id === 'solto') return c.gut === 'solto' ? paraTela(c.diarreia) : null;
+  const v = c?.sint?.[id];
+  return typeof v === 'number' && v > 0 ? v : null;
+}
+
 /* OS SINTOMAS que a tela oferece, na ordem em que aparecem.
 
    `store` é a coluna numérica legada, para os três que já tinham uma desde
@@ -168,4 +196,28 @@ export const SINTOMAS: { id: string; label: string; store?: string }[] = [
   { id: 'cefaleia', label: 'Dor de cabeça' },
   { id: 'tontura', label: 'Tontura' },
   { id: 'outro', label: 'Outro' },
+];
+
+/* OS SINTOMAS COMO SE LÊ DEPOIS — com os dois lados do intestino separados.
+
+   `SINTOMAS`, acima, é a lista de PERGUNTAS, e nela o intestino é uma só:
+   prender e soltar são as duas pontas do mesmo eixo, e a pessoa responde
+   uma vez. Quem lê o passado precisa deles separados — "intestino em
+   quatro dias" soma dias presos com dias soltos e vira um número que não
+   quer dizer nada.
+
+   Cada um traz a régua com que foi respondido, que é o que devolve a
+   palavra do grau: o 4 da náusea é "quase vomitei" e o 4 da constipação é
+   "três dias sem ir". Sem a régua junto, a tela teria que escrever "4 de
+   5" e deixar a pessoa lembrar do resto. */
+export const SINTOMAS_LIDOS: { id: string; label: string; regua: string[] }[] = [
+  { id: 'nausea', label: 'Náusea', regua: SINTOMA.nausea },
+  { id: 'preso', label: 'Intestino preso', regua: SINTOMA.constip },
+  { id: 'solto', label: 'Intestino solto', regua: SINTOMA.diarreia },
+  { id: 'vomito', label: 'Vômito', regua: SINTOMA.vomito },
+  { id: 'dor', label: 'Dor abdominal', regua: SINTOMA.dor },
+  { id: 'refluxo', label: 'Refluxo', regua: SINTOMA.refluxo },
+  { id: 'fadiga', label: 'Fadiga', regua: SINTOMA.fadiga },
+  { id: 'cefaleia', label: 'Dor de cabeça', regua: SINTOMA.cefaleia },
+  { id: 'tontura', label: 'Tontura', regua: SINTOMA.tontura },
 ];
