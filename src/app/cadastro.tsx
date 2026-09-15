@@ -52,8 +52,8 @@ import { radius, ty, font } from '../theme';
    tire: é o mesmo critério das outras.
    ============================================================ */
 
-type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'medicamento' | 'dose'
-  | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade' | 'inicio' | 'recomendacao';
+type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
+  | 'dose' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade' | 'saude' | 'recomendacao';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -63,8 +63,8 @@ type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'medicamento' | 
    acontecer. Para quem já aplicou, a pergunta fica: é ela que dá sentido
    a "semana 11 do tratamento". */
 const TODOS: Id[] = [
-  'nome', 'identidade', 'nascimento', 'tratamento', 'medicamento', 'dose',
-  'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'inicio', 'recomendacao',
+  'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
+  'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'saude', 'recomendacao',
 ];
 
 /* O NÍVEL DE ATIVIDADE DESCREVE O CENÁRIO, e não define meta.
@@ -98,10 +98,20 @@ const ATIVIDADE: { id: string; titulo: string; sub: string }[] = [
    previsão. Mês, e não dia: projeção com data exata seria afirmar uma
    precisão que a conta não tem.
 
-   O teto é 0,75 kg por semana. A faixa que se cita como perda segura vai
-   a cerca de 1 kg, e oferecer mais do que isso seria o app sugerindo um
-   ritmo que ele não deveria sugerir. */
-const RITMOS = [0.25, 0.5, 0.75];
+   CADA OPÇÃO TEM UM APELIDO, e não só um número. "0,5 kg por semana" é
+   uma taxa; "devagar e sempre" é uma postura, e é a postura que a pessoa
+   está de fato escolhendo — o número é a consequência dela.
+
+   ⚠️ A faixa vai a 2 kg por semana a pedido do produto. O que se cita
+   como perda sustentada fica por volta de 0,5 a 1 kg, e acima disso a
+   conta é do corpo e da dose, não da vontade — por isso a nota embaixo da
+   lista está lá, e por isso nenhuma opção promete nada. */
+const RITMOS: { kg: number; nome: string }[] = [
+  { kg: 0.5, nome: 'Devagar e sempre' },
+  { kg: 1, nome: 'Ritmo constante' },
+  { kg: 1.5, nome: 'Acelerado' },
+  { kg: 2, nome: 'O mais rápido que der' },
+];
 
 /* A motivação, com as opções que os três apps oferecem em comum. */
 const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
@@ -119,7 +129,7 @@ const MESES = [
 
 type Respostas = {
   nome: string;
-  identidade: 'f' | 'm' | 'o' | null;
+  identidade: 'f' | 'm' | 'o' | 'n' | null;
   /* dia, mês (0–11) e ano, guardados soltos porque a roda mexe um de cada
      vez e o dia 31 tem que sobreviver a um passeio por fevereiro. */
   dia: number; mes: number; ano: number;
@@ -129,10 +139,13 @@ type Respostas = {
   intervalo: number | null;
   altura: number;
   peso: number;
+  /** o peso de quando começou — só quem já iniciou responde */
+  pesoInicial: number;
   meta: number;
   ritmo: number | null;
   motivacao: string | null;
   atividade: string | null;
+  saude: boolean | null;
   inicio: number | null;
   recomendado: boolean | null;
   codigo: string;
@@ -146,8 +159,8 @@ const VAZIO: Respostas = {
      são o meio da faixa. */
   dia: 1, mes: 0, ano: 1990,
   emTratamento: null, med: null, dose: null, intervalo: null,
-  altura: 1.7, peso: 80, meta: 70, ritmo: null,
-  motivacao: null, atividade: null, inicio: null,
+  altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
+  motivacao: null, atividade: null, saude: null, inicio: null,
   recomendado: null, codigo: '',
 };
 
@@ -223,31 +236,39 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
     <View style={{
       width: 24, height: 24, borderRadius: 12,
       borderWidth: on ? 0 : 1.5, borderColor: c.line2,
-      backgroundColor: on ? c.accent : 'transparent',
+      backgroundColor: on ? c.accentInk : 'transparent',
       alignItems: 'center', justifyContent: 'center',
     }}>
-      {on ? <Icon name="check" size={13} color={c.accentInk} sw={3} /> : null}
+      {on ? <Icon name="check" size={13} color={c.accent} sw={3} /> : null}
     </View>
   );
   const selo = ic ? (
     <View style={{
       width: 34, height: 34, borderRadius: 17,
-      backgroundColor: on ? c.accent : c.bg2,
+      backgroundColor: on ? 'rgba(255,255,255,0.22)' : c.bg2,
       alignItems: 'center', justifyContent: 'center',
     }}>
       <Icon name={ic} size={16} color={on ? c.accentInk : c.tx3} sw={1.9} />
     </View>
   ) : null;
-  /* Sem borda no estado normal: o cartão se separa do fundo pelo branco e
-     por uma sombra rasa, como todo cartão do app. Borda cinza em oito
-     cartões empilhados vira grade de planilha. A borda aparece só no
-     escolhido, e aí ela é informação. */
+  /* O ESCOLHIDO É CHEIO, e não contornado.
+
+     Borda azul com lavagem clara pede que o olho compare com os vizinhos
+     para decidir qual está marcado — funciona, mas depois de uma
+     conferida. Preenchido, a resposta salta antes da leitura: numa fila
+     de treze perguntas em que a pessoa marca e segue, é a diferença entre
+     olhar e verificar.
+
+     Sem borda no estado normal pelo mesmo motivo de antes: o cartão se
+     separa do fundo pelo branco, e borda cinza em oito cartões empilhados
+     vira grade de planilha. */
   const moldura = {
-    backgroundColor: on ? c.accentWeak : c.bg1,
-    borderRadius: radius.lg, borderWidth: 1.5,
-    borderColor: on ? c.accent : 'transparent',
+    backgroundColor: on ? c.accent : c.bg1,
+    borderRadius: radius.lg,
     paddingHorizontal: 18, paddingVertical: 17,
   };
+  const tinta = on ? c.accentInk : c.tx;
+  const tintaSub = on ? 'rgba(255,255,255,0.78)' : c.tx3;
 
   if (cheia) {
     return (
@@ -259,8 +280,8 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
       >
         {selo}
         <View style={{ flex: 1 }}>
-          <Txt v="bodyMed">{titulo}</Txt>
-          {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{sub}</Txt> : null}
+          <Txt v="bodyMed" c={tinta}>{titulo}</Txt>
+          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 3 }}>{sub}</Txt> : null}
         </View>
         {marca}
       </Pressable>
@@ -284,8 +305,8 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
         }]}
       >
         <View style={{ flex: 1 }}>
-          <Txt v="bodyMed" numberOfLines={2}>{titulo}</Txt>
-          {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }} numberOfLines={2}>{sub}</Txt> : null}
+          <Txt v="bodyMed" c={tinta} numberOfLines={2}>{titulo}</Txt>
+          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 3 }} numberOfLines={2}>{sub}</Txt> : null}
         </View>
         {marca}
       </Pressable>
@@ -302,8 +323,8 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
         {marca}
       </Row>
       <View>
-        <Txt v="bodyMed" numberOfLines={2}>{titulo}</Txt>
-        {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }} numberOfLines={2}>{sub}</Txt> : null}
+        <Txt v="bodyMed" c={tinta} numberOfLines={2}>{titulo}</Txt>
+        {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 3 }} numberOfLines={2}>{sub}</Txt> : null}
       </View>
     </Pressable>
   );
@@ -466,12 +487,18 @@ function Roda({ itens, valor, onEscolhe, largura }: {
   return (
     <View style={{ width: largura, height: ALT * VISIVEIS }}>
       {/* A faixa do meio marca onde a lista para. Fica atrás dos números e
-          não recebe toque — é régua, não botão. */}
+          não recebe toque — é régua, não botão.
+
+          Em bg2 ela sumia: o fundo da tela é #F5F6FA e ela era #EDF1F3,
+          dois cinzas a três pontos de distância. Na lavagem azul do
+          cadastro, então, desaparecia de vez. Agora ela usa a cor de
+          seleção do app, que é a mesma coisa que a faixa significa. */}
       <View
         pointerEvents="none"
         style={{
           position: 'absolute', left: 0, right: 0, top: ALT * 2, height: ALT,
-          backgroundColor: c.bg2, borderRadius: radius.md,
+          backgroundColor: c.accentWeak, borderRadius: radius.md,
+          borderWidth: 1, borderColor: c.accentLine,
         }}
       />
       <ScrollView
@@ -490,7 +517,7 @@ function Roda({ itens, valor, onEscolhe, largura }: {
       >
         {itens.map((x) => (
           <View key={x.v} style={{ height: ALT, alignItems: 'center', justifyContent: 'center' }}>
-            <Txt v={x.v === valor ? 'bodyMed' : 'body'} c={x.v === valor ? c.tx : c.tx4}>
+            <Txt v={x.v === valor ? 'bodyMed' : 'body'} c={x.v === valor ? c.accent : c.tx4}>
               {x.label}
             </Txt>
           </View>
@@ -516,12 +543,14 @@ function Roda({ itens, valor, onEscolhe, largura }: {
    vistas numa lista que rola. O traço marca a meia unidade; a parada
    continua sendo a do passo, porque ela é do deslocamento, não do
    desenho. */
-function Regua({ min, max, passo, tracoCada, casas, esp = 9, valor, unidade, onEscolhe }: {
+function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe }: {
   min: number; max: number; passo: number; tracoCada: number; casas: number;
   /* pixels por PASSO. O peso anda de cem em cem gramas e a altura de
      centímetro em centímetro: com o mesmo espaçamento, atravessar quarenta
      quilos viraria uma maratona de arrasto. */
   esp?: number;
+  /** quanto os botões movem por toque */
+  salto: number;
   valor: number; unidade: string; onEscolhe: (v: number) => void;
 }) {
   const { c } = useTheme();
@@ -558,9 +587,30 @@ function Regua({ min, max, passo, tracoCada, casas, esp = 9, valor, unidade, onE
     tracos.push({ v: +v.toFixed(casas), forte: Math.abs(v / (tracoCada * 10) - Math.round(v / (tracoCada * 10))) < 1e-6 });
   }
 
+  /* MAIS E MENOS AO LADO DA RÉGUA, e não no lugar dela.
+
+     A régua atravessa a faixa num gesto e mostra a vizinhança do valor; o
+     botão acerta a última casa sem ninguém precisar mirar. Cada um é bom
+     numa coisa, e a conversa entre os dois é o que faltava: o botão move
+     o número E arrasta a régua junto, senão o marcador diria uma coisa e
+     o número outra. */
+  const mover = (d: number) => {
+    const v = +Math.min(max, Math.max(min, valor + d)).toFixed(casas);
+    onEscolhe(v);
+    ref.current?.scrollTo({ x: aX(v), animated: true });
+  };
+  const botao = {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: c.bg1,
+    alignItems: 'center' as const, justifyContent: 'center' as const,
+  };
+
   return (
     <View style={{ gap: 18 }}>
-      <Row style={{ justifyContent: 'center', alignItems: 'baseline', gap: 5 }}>
+      <Row style={{ justifyContent: 'center', alignItems: 'center', gap: 5 }}>
+        <Pressable onPress={() => mover(-salto)} style={({ pressed }) => [botao, { opacity: pressed ? 0.6 : 1 }]}>
+          <View style={{ width: 16, height: 2, borderRadius: 1, backgroundColor: c.tx }} />
+        </Pressable>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', gap: 5 }}>
         {digitando ? (
           <TextInput
             value={rascunho}
@@ -577,14 +627,18 @@ function Regua({ min, max, passo, tracoCada, casas, esp = 9, valor, unidade, onE
             keyboardType="decimal-pad"
             autoFocus
             selectTextOnFocus
-            style={[NUMERO, SEM_ANEL, { color: c.tx, textAlign: 'right', width: 150, paddingVertical: 0 }]}
+            style={[NUMERO, SEM_ANEL, { color: c.tx, textAlign: 'right', width: 130, paddingVertical: 0 }]}
           />
         ) : (
           <Pressable onPress={() => { setRascunho(nf(valor, casas)); setDigitando(true); }}>
             <Txt style={NUMERO}>{nf(valor, casas)}</Txt>
           </Pressable>
         )}
-        <Txt v="body" c={c.tx2}>{unidade}</Txt>
+          <Txt v="body" c={c.tx2}>{unidade}</Txt>
+        </View>
+        <Pressable onPress={() => mover(salto)} style={({ pressed }) => [botao, { opacity: pressed ? 0.6 : 1 }]}>
+          <Icon name="plus" size={20} color={c.tx} sw={2.2} />
+        </Pressable>
       </Row>
 
       <View style={{ height: 74 }} onLayout={(e) => setLarg(Math.round(e.nativeEvent.layout.width))}>
@@ -825,9 +879,16 @@ export default function Cadastro() {
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
      quem ainda vai começar não responde QUANDO começou. */
+  /* Duas perguntas saem da fila conforme as respostas anteriores: quem
+     ainda não começou não responde QUANDO começou, e quem não sabe qual
+     caneta vai usar não tem escada de dose para escolher. */
   const passos = useMemo(
-    () => TODOS.filter((x) => x !== 'inicio' || r.emTratamento === true),
-    [r.emTratamento],
+    () => TODOS.filter((x) => {
+      if (x === 'inicio') return r.emTratamento === true;
+      if (x === 'dose') return r.med !== 'indefinido';
+      return true;
+    }),
+    [r.emTratamento, r.med],
   );
   const RESUMO = passos.length;
   const PLANO = passos.length + 1;
@@ -858,6 +919,7 @@ export default function Cadastro() {
     if (x === 'ritmo') return perder <= 0 || r.ritmo != null;
     if (x === 'motivacao') return r.motivacao != null;
     if (x === 'atividade') return r.atividade != null;
+    if (x === 'saude') return r.saude != null;
     if (x === 'inicio') return r.inicio != null;
     if (x === 'recomendacao') {
       return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
@@ -877,11 +939,26 @@ export default function Cadastro() {
          uma segunda cópia do mesmo fato — e no dia em que a bula mudar,
          a cópia não muda junto. */
       s.profile.intervalo = r.intervalo && r.intervalo !== padrao ? r.intervalo : null;
-      s.profile.startWeight = r.peso;
+      /* O PESO DE ONDE A PESSOA PARTIU, que não é o de hoje.
+
+         startWeight é a ponta esquerda de todo "de → para" do app. Antes
+         ele recebia o peso de hoje, e com isso quem já estava em
+         tratamento há dois meses começava a jornada com zero de
+         diferença. Quem ainda vai começar não tem essa distinção, e para
+         essa pessoa os dois são o mesmo número. */
+      s.profile.startWeight = r.emTratamento ? r.pesoInicial : r.peso;
       s.profile.goalWeight = r.meta;
       s.profile.ritmo = r.ritmo;
       s.profile.motivacao = r.motivacao;
       s.profile.atividade = r.atividade;
+      /* A INTEGRAÇÃO DE SAÚDE é a mesma chave que a tela de Integrações
+         liga — uma fonte só para o mesmo fato. iOS tem Apple Health,
+         Android tem Health Connect; ligar os dois faria o perfil afirmar
+         uma integração que aquele aparelho não tem. */
+      if (r.saude != null) {
+        const chave = Platform.OS === 'ios' ? 'appleHealth' : 'healthConnect';
+        s.integrations[chave] = r.saude;
+      }
       /* Quem ainda vai começar não respondeu data nenhuma, e o dia do
          cadastro é o único marco que existe. Não vira "dia 1 do
          tratamento": diaDoTratamento só conta a partir da primeira dose. */
@@ -901,7 +978,14 @@ export default function Cadastro() {
          pesagem gravada às três da tarde tem hora no carimbo. */
       const t = +startOfDay(now());
       const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
-      s.weights = [...resto, { t, kg: r.peso }].sort((a: any, b: any) => a.t - b.t);
+      const pesagens = [...resto, { t, kg: r.peso }];
+      /* Quem já começou tem DUAS pesagens de largada: a de quando começou
+         e a de hoje. Sem a primeira, a curva de evolução nasce com um
+         ponto só e não tem o que desenhar. */
+      if (r.emTratamento && r.inicio && +startOfDay(new Date(r.inicio)) !== t) {
+        pesagens.push({ t: +startOfDay(new Date(r.inicio)), kg: r.pesoInicial });
+      }
+      s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
     });
     setN(PLANO);
   };
@@ -1027,18 +1111,23 @@ export default function Cadastro() {
     })();
     const cartoes: [string, string, string, Id][] = [
       ['user', 'NOME', r.nome.trim(), 'nome'],
-      ['heart', 'IDENTIDADE',
-        r.identidade === 'f' ? 'Feminino' : r.identidade === 'm' ? 'Masculino' : 'Outro', 'identidade'],
+      ['heart', 'IDENTIDADE', r.identidade === 'f' ? 'Feminino'
+        : r.identidade === 'm' ? 'Masculino'
+          : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
       ['cal', 'NASCIMENTO', `${r.dia} de ${MESES[r.mes]} de ${r.ano} · ${idade} anos`, 'nascimento'],
       ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
       ['pill', 'MEDICAMENTO', med?.label ?? '—', 'medicamento'],
-      ['syringe', 'DOSE', `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`, 'dose'],
+      ...(r.med === 'indefinido' ? [] : [['syringe', 'DOSE',
+        r.dose === 0 ? 'Ainda não sei'
+          : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`,
+        'dose'] as [string, string, string, Id]]),
       ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
       ['target', 'META', `${nf(r.meta, 1)} kg`, 'meta'],
-      ['trend', 'RITMO', r.ritmo ? `${nf(r.ritmo, 2)} kg por semana` : 'sem peso a perder', 'ritmo'],
+      ['trend', 'RITMO', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
       ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 'motivacao'],
       ['dumbbell', 'ATIVIDADE', ativ?.titulo ?? '—', 'atividade'],
-      ...(futuro ? [] : [['cal', 'INÍCIO', r.inicio ? dataPorExtenso(r.inicio) : '—', 'inicio'] as [string, string, string, Id]]),
+      ['activity', 'APP DE SAÚDE', r.saude ? 'Conectar' : 'Agora não', 'saude'],
+      ...(futuro ? [] : [['cal', 'INÍCIO', `${r.inicio ? dataPorExtenso(r.inicio) : '—'} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
       ['steth', 'INDICAÇÃO', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
     ];
     return (
@@ -1098,29 +1187,45 @@ export default function Cadastro() {
     identidade: 'Como você se identifica?',
     nascimento: 'Quando você nasceu?',
     tratamento: 'Você já está em tratamento?',
-    medicamento: 'Qual medicamento você usa?',
-    dose: futuro ? 'Com qual dose você vai começar?' : 'Qual é a sua dose atual?',
+    inicio: 'Quando você começou?',
+    medicamento: futuro ? 'Qual medicamento você pretende usar?' : 'Qual medicamento você usa?',
+    dose: futuro ? 'Com qual dose você pretende começar?' : 'Qual é a sua dose atual?',
     corpo: 'Sua altura e seu peso de hoje',
     meta: 'Aonde você quer chegar?',
     ritmo: 'Em que ritmo?',
     motivacao: 'O que está te levando a essa jornada?',
     atividade: 'Qual é o seu nível de atividade física?',
-    inicio: 'Quando você começou?',
+    saude: 'Quer conectar seu app de saúde?',
     recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
   };
   const subs: Record<Id, string> = {
     nome: 'É assim que o app vai te chamar todo dia.',
-    identidade: 'Escolha a que fizer sentido para você.',
-    nascimento: 'Arraste até a sua data.',
+    /* A JUSTIFICATIVA DE POR QUE PERGUNTAMOS.
+
+       Um dos apps que olhamos diz que usa esses detalhes "para melhorar
+       seu rastreamento nutricional e de atividade física". Aqui isso seria
+       falso: identidade de gênero não entra em nenhuma conta do Morphi —
+       as contas usam peso, altura e o que a pessoa registra. Então a
+       justificativa é a verdadeira, que também responde à pergunta: é
+       para o app falar com ela do jeito certo, e o corpo entra nas
+       perguntas seguintes. Prometer benefício que não existe é como se
+       perde a confiança de quem parou para ler. */
+    identidade: 'É para o Morphi falar com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
+    nascimento: 'Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.',
     tratamento: 'Só para saber onde você está agora.',
-    medicamento: 'A escada de doses da próxima pergunta vem dele.',
-    dose: med ? `Na ordem da titulação do ${med.label}.` : 'Na ordem da titulação.',
+    inicio: 'Aproximado está bom, e o peso daquela época também.',
+    medicamento: futuro
+      ? 'Se ainda não souber, dá para escolher depois.'
+      : 'A escada de doses da próxima pergunta vem dele.',
+    dose: med && med.doses.length
+      ? `Na ordem da titulação do ${med.label}.`
+      : 'Na ordem da titulação.',
     corpo: 'O peso fica como a sua primeira pesagem.',
     meta: 'Um número de referência — dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Escolha a que mais pesa.',
     atividade: 'É só para saber de onde você está partindo.',
-    inicio: 'Aproximado está bom.',
+    saude: 'Peso, passos, sono e treinos entram sozinhos, sem você digitar.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
 
@@ -1200,6 +1305,14 @@ export default function Cadastro() {
               ic="more" cheia titulo="Outro"
               on={r.identidade === 'o'} onPress={() => p({ identidade: 'o' })}
             />
+            {/* "Outro" e "prefiro não informar" não são a mesma resposta:
+                uma diz quem a pessoa é, a outra diz que ela não quer
+                dizer. Juntar as duas obrigaria quem só quer privacidade a
+                se declarar. */}
+            <Escolha
+              ic="lock" cheia titulo="Prefiro não informar"
+              on={r.identidade === 'n'} onPress={() => p({ identidade: 'n' })}
+            />
           </View>
         ) : null}
 
@@ -1234,7 +1347,7 @@ export default function Cadastro() {
         {id === 'tratamento' ? (
           <View style={{ gap: 10 }}>
             <Escolha
-              ic="syringe" cheia titulo="Já apliquei alguma dose" sub="Em tratamento agora"
+              ic="syringe" cheia titulo="Já iniciei o tratamento" sub="Já apliquei pelo menos uma dose"
               on={r.emTratamento === true} onPress={() => p({ emTratamento: true })}
             />
             <Escolha
@@ -1246,15 +1359,30 @@ export default function Cadastro() {
 
         {id === 'medicamento' ? (
           <View style={{ gap: 10 }}>
-            {Object.entries(MEDS).map(([k, m]) => (
+            {Object.entries(MEDS).filter(([k]) => k !== 'indefinido').map(([k, m]) => (
               <Escolha
-                key={k} cheia titulo={m.label} sub={m.mol}
+                key={k} cheia
+                /* O ® é da marca, e escrevê-lo é o mínimo: são sete nomes
+                   registrados de três fabricantes, e o app os lista de
+                   graça numa tela de cadastro. */
+                titulo={`${m.label}®`} sub={m.mol}
                 on={r.med === k}
                 /* Trocar de caneta zera a dose e o intervalo: a escada é
                    outra e a cadência também. */
                 onPress={() => p(r.med === k ? { med: k } : { med: k, dose: null, intervalo: null })}
               />
             ))}
+            {/* SÓ PARA QUEM AINDA VAI COMEÇAR. Quem já aplicou sabe o que
+                aplicou — oferecer "não sei" ali seria abrir uma saída para
+                uma resposta que a pessoa tem, e o app depende dela para
+                tudo: meia-vida, cadência, escada de doses, validade. */}
+            {futuro ? (
+              <Escolha
+                cheia titulo="Ainda não sei" sub="dá para escolher depois, no perfil"
+                on={r.med === 'indefinido'}
+                onPress={() => p({ med: 'indefinido', dose: null, intervalo: null })}
+              />
+            ) : null}
           </View>
         ) : null}
 
@@ -1270,6 +1398,16 @@ export default function Cadastro() {
                   onPress={() => p({ dose: d })}
                 />
               ))}
+              {/* Mesma regra do medicamento: quem já aplicou sabe a dose
+                  que aplicou. Quem vai começar muitas vezes ainda não teve
+                  a consulta que define isso. */}
+              {futuro ? (
+                <Escolha
+                  cheia titulo="Ainda não sei" sub="quase todo mundo começa pela menor"
+                  on={r.dose === 0}
+                  onPress={() => p({ dose: 0 })}
+                />
+              ) : null}
             </View>
 
             {/* O INTERVALO É EXCEÇÃO, e por isso fica atrás de um toque. O
@@ -1320,14 +1458,14 @@ export default function Cadastro() {
             <View>
               <Rotulo>ALTURA</Rotulo>
               <Regua
-                min={1.2} max={2.2} passo={0.01} tracoCada={0.01} casas={2} esp={12}
+                min={1.2} max={2.2} passo={0.01} tracoCada={0.01} casas={2} esp={12} salto={0.01}
                 valor={r.altura} unidade="m" onEscolhe={(v) => p({ altura: v })}
               />
             </View>
             <View>
               <Rotulo>PESO DE HOJE</Rotulo>
               <Regua
-                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5}
+                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
                 valor={r.peso} unidade="kg" onEscolhe={(v) => p({ peso: v })}
               />
             </View>
@@ -1337,7 +1475,7 @@ export default function Cadastro() {
         {id === 'meta' ? (
           <View style={{ gap: 16 }}>
             <Regua
-              min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5}
+              min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.5}
               valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })}
             />
             {/* Meta ACIMA do peso de hoje é escolha legítima de quem está
@@ -1353,16 +1491,16 @@ export default function Cadastro() {
         {id === 'ritmo' ? (
           perder > 0 ? (
             <View style={{ gap: 10 }}>
-              {RITMOS.map((kg) => {
-                const semanas = Math.ceil(perder / kg);
+              {RITMOS.map((x) => {
+                const semanas = Math.ceil(perder / x.kg);
                 const quando = +startOfDay(now()) + semanas * 7 * 86400000;
                 return (
                   <Escolha
-                    key={kg} cheia
-                    titulo={`${nf(kg, 2)} kg por semana`}
-                    sub={`chega por volta de ${mesPorExtenso(quando)}`}
-                    on={r.ritmo === kg}
-                    onPress={() => p({ ritmo: kg })}
+                    key={x.kg} cheia
+                    titulo={x.nome}
+                    sub={`${nf(x.kg, 1)} kg por semana · chega por volta de ${mesPorExtenso(quando)}`}
+                    on={r.ritmo === x.kg}
+                    onPress={() => p({ ritmo: x.kg })}
                   />
                 );
               })}
@@ -1403,7 +1541,27 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'inicio' ? (
-          <Calendario valor={r.inicio} onEscolhe={(t) => p({ inicio: t })} futuro={false} />
+          <View style={{ gap: 32 }}>
+            <Calendario valor={r.inicio} onEscolhe={(t) => p({ inicio: t })} futuro={false} />
+            {/* O PESO DAQUELA ÉPOCA, aqui e não junto do peso de hoje: os
+                dois são a mesma grandeza em dois momentos, e perguntados
+                lado a lado é onde alguém responde o mesmo número duas
+                vezes sem perceber. Perto da data, fica claro de quando ele
+                é. */}
+            <View>
+              <Rotulo>PESO DE QUANDO COMEÇOU</Rotulo>
+              <Contador
+                valor={nf(r.pesoInicial, 1)}
+                unidade="kg"
+                onMenos={() => p({ pesoInicial: Math.max(35, Math.round((r.pesoInicial - 0.1) * 10) / 10) })}
+                onMais={() => p({ pesoInicial: Math.min(300, Math.round((r.pesoInicial + 0.1) * 10) / 10) })}
+                onDigitar={(v) => {
+                  const x = parseFloat(v.replace(',', '.'));
+                  if (!Number.isNaN(x)) p({ pesoInicial: Math.min(300, Math.max(35, x)) });
+                }}
+              />
+            </View>
+          </View>
         ) : null}
 
         {/* A INDICAÇÃO, E O CÓDIGO QUE A PROVA.
@@ -1419,6 +1577,41 @@ export default function Cadastro() {
             trabalho de servidor. O que esta tela pode fazer é aceitar e
             guardar — sem "código válido", sem carimbo verde, sem dizer que
             a partir de agora é grátis. */}
+        {/* A INTEGRAÇÃO DE SAÚDE, logo depois da atividade física.
+
+            É onde ela cai naturalmente: a pessoa acabou de dizer quanto se
+            mexe, e a pergunta seguinte é se o app pode ver isso sozinho.
+            De largada, é o que enche peso, passos, sono e treino sem
+            ninguém digitar.
+
+            ⚠️ A CONEXÃO EM SI AINDA NÃO ACONTECE AQUI. O módulo nativo de
+            Apple Health / Health Connect não está no projeto, então esta
+            tela liga a mesma chave que a tela de Integrações liga — a
+            intenção fica registrada, e a permissão de sistema é pedida
+            quando o módulo existir. Por isso o texto não diz "conectado":
+            dizer isso seria o app afirmar um acesso que ele não tem. */}
+        {id === 'saude' ? (
+          <View style={{ gap: 16 }}>
+            <View style={{ gap: 10 }}>
+              <Escolha
+                ic="activity" cheia titulo="Quero conectar"
+                sub={Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect'}
+                on={r.saude === true} onPress={() => p({ saude: true })}
+              />
+              <Escolha
+                ic="x" cheia titulo="Agora não" sub="dá para ligar depois, nas integrações"
+                on={r.saude === false} onPress={() => p({ saude: false })}
+              />
+            </View>
+            {r.saude ? (
+              <Txt v="caption" c={c.tx3}>
+                A integração fica ligada no seu perfil. A permissão de leitura é pedida
+                pelo próprio sistema do aparelho.
+              </Txt>
+            ) : null}
+          </View>
+        ) : null}
+
         {id === 'recomendacao' ? (
           <View style={{ gap: 16 }}>
             <View style={{ gap: 10 }}>

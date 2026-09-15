@@ -39,7 +39,28 @@ export const MEDS: Record<string, Med> = {
   victoza:   { label: 'Victoza',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8],             unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30 },
 };
 
-export const CADENCE_DAYS = (m: string) => (MEDS[m].cad === 'weekly' ? 7 : 1);
+/* AINDA NÃO DEFINIDO — para quem vai começar e não sabe qual caneta.
+
+   Não é um medicamento: é a ausência de um, com nome. Existe aqui, e não
+   como `null` no perfil, porque meia-vida, cadência, escada de doses e
+   validade da caneta pendem todas do id — um id ausente derrubaria as
+   quinze telas que leem M(S), e um id inventado faria o app afirmar uma
+   caneta que ninguém escolheu.
+
+   A escada vazia é de propósito: não há dose a oferecer para quem não
+   sabe o remédio. E o rótulo diz o que é, para que nenhuma tela acabe
+   mostrando uma marca que a pessoa não escolheu.
+
+   ⚠️ As telas de tratamento ainda não sabem lidar com este estado: quem
+   ficar nele vai ver "Ainda não definido · 0 mg" onde outras pessoas veem
+   a caneta delas. É menos errado do que inventar uma, e é o próximo
+   pedaço a fazer. */
+MEDS.indefinido = {
+  label: 'Ainda não definido', mol: '—', cad: 'weekly', doses: [], unit: 'mg',
+  hl: 5, maker: '—', shelf: 21,
+};
+
+export const CADENCE_DAYS = (m: string) => (MEDS[m]?.cad === 'daily' ? 1 : 7);
 
 /** Validade da caneta aberta, em dias, para o medicamento em uso. */
 export const SHELF_DAYS = (m: string) => MEDS[m]?.shelf ?? 21;
