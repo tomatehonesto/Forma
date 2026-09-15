@@ -731,12 +731,64 @@ const SOBREPOSTO = { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 
    sempre encosta dois no mesmo canto e deixa o outro vazio — e porque
    nenhum deles pode cair atrás dos dois quadrados do meio. */
 const GLIFOS: [string, number, number, number][] = [
-  ['drop2', 5, 16, 20], ['activity', 33, 6, 18], ['flame', 61, 10, 17], ['bolt', 85, 16, 20],
-  ['target', 47, 30, 16], ['waves', 2, 64, 20], ['pill', 90, 58, 18],
-  ['trophy', 7, 106, 17], ['brain', 88, 100, 18], ['scale', 15, 132, 18],
-  ['dumbbell', 31, 144, 20], ['heart', 46, 132, 19], ['moon', 61, 146, 17],
-  ['leaf', 74, 126, 18], ['ruler', 88, 140, 17],
+  ['drop2', 4, 6, 20], ['activity', 18, 26, 18], ['flame', 32, 4, 17], ['target', 46, 24, 16],
+  ['bolt', 60, 6, 19], ['pill', 74, 26, 18], ['waves', 88, 8, 20],
+  ['trophy', 1, 96, 17], ['brain', 92, 92, 18],
+  ['scale', 5, 142, 18], ['moon', 20, 158, 17], ['dumbbell', 34, 140, 20],
+  ['heart', 48, 160, 19], ['ruler', 62, 142, 17], ['leaf', 76, 156, 18],
+  ['clock', 90, 140, 17],
 ];
+
+/* ------------------------------------------------------------------ */
+/* O DESENHO DA SINCRONIA.
+
+   As referências resolvem esta tela com uma imagem, e resolvem bem: os
+   dois aplicativos lado a lado, a seta circular entre eles, e uma
+   constelação apagada de símbolos de saúde atrás — que não informa nada e
+   é justamente o que faz a tela parecer o lugar onde dado de saúde mora.
+
+   ELA VEM ANTES DA FRASE, e não depois. Em todas as telas do cadastro a
+   pergunta é o assunto e por isso abre; aqui o assunto é uma coisa que a
+   pessoa reconhece de olhar — dois apps se dando as mãos —, e a imagem
+   explica mais rápido do que a linha de texto que viria antes dela.
+
+   O QUE NÃO COPIAMOS: o logo da Apple. Marca de terceiro num cadastro é
+   marca usada sem licença, e o desenho funciona igual com o símbolo
+   genérico de saúde. */
+function Sincronia() {
+  const { c } = useTheme();
+  return (
+    <View style={{ height: 184, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+      <View style={{ ...SOBREPOSTO, opacity: 0.085 }} pointerEvents="none">
+        {GLIFOS.map(([ic, x, y, t], i) => (
+          <View key={i} style={{ position: 'absolute', left: `${x}%`, top: y }}>
+            <Icon name={ic} size={t} color={c.tx} sw={1.6} />
+          </View>
+        ))}
+      </View>
+      <Row style={{ alignItems: 'center', gap: 6 }}>
+        <View style={{
+          width: 84, height: 84, borderRadius: 26, backgroundColor: c.accent,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name="heart" size={38} color={c.accentInk} sw={1.9} />
+        </View>
+        <Row style={{ width: 74, alignItems: 'center', gap: 8 }}>
+          <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
+          <Icon name="reset" size={20} color={c.accent} sw={2.2} />
+          <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
+        </Row>
+        <View style={{
+          width: 84, height: 84, borderRadius: 26, backgroundColor: c.bg1,
+          borderWidth: 1, borderColor: c.line,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name="activity" size={38} color={c.rose} sw={2} />
+        </View>
+      </Row>
+    </View>
+  );
+}
 
 const dataPorExtenso = (t: number) => {
   const d = new Date(t);
@@ -1367,7 +1419,7 @@ export default function Cadastro() {
     ritmo: 'Qual ritmo você quer seguir para chegar lá?',
     motivacao: 'O que está te levando a essa jornada?',
     atividade: 'Qual é o seu nível de atividade física?',
-    saude: 'Quer conectar seu app de saúde?',
+    saude: 'Conecte o seu app de saúde',
     recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
   };
   const subs: Record<Id, string> = {
@@ -1395,7 +1447,7 @@ export default function Cadastro() {
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz ao Morphi de onde você está partindo.',
-    saude: 'Quanto menos você precisa digitar, mais o Morphi consegue acompanhar.',
+    saude: 'O seu aparelho já mede. O Morphi só lê.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
 
@@ -1430,14 +1482,15 @@ export default function Cadastro() {
         /* AR ENTRE O TOPO E A PERGUNTA. Colada na barra de progresso, a
            manchete lia como cabeçalho de tela; afastada, ela lê como a
            pergunta que é. */
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 64, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: id === 'saude' ? 20 : 64, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* A pergunta mora DENTRO da lavagem, e não abaixo dela: é ela o
             assunto da tela, e o gradiente existe para dar altura ao que
             ela pergunta. As respostas é que caem no branco. */}
+        {id === 'saude' ? <Sincronia /> : null}
         <Txt v="h1">{titulos[id]}</Txt>
-        <Txt v="note" c={c.tx2} style={{ marginTop: 10, marginBottom: 28 }}>{subs[id]}</Txt>
+        <Txt v="note" c={c.tx2} style={{ marginTop: 10, marginBottom: id === 'saude' ? 18 : 28 }}>{subs[id]}</Txt>
 
         {/* O NOME SE ESCREVE NA TELA, e não dentro de uma caixa. A caixa de
             formulário existe para separar um campo dos outros campos, e
@@ -1846,76 +1899,37 @@ export default function Cadastro() {
             quando o módulo existir. Por isso o texto não diz "conectado":
             dizer isso seria o app afirmar um acesso que ele não tem. */}
         {id === 'saude' ? (
-          <View style={{ gap: 20 }}>
-            {/* O DESENHO DA SINCRONIA.
+          /* OS BENEFÍCIOS SÃO A RESPOSTA À PERGUNTA QUE NINGUÉM FAZ EM VOZ
+             ALTA: "o que eu ganho deixando um app ver isso?". Por isso
+             ganharam cartão, selo colorido e corpo de texto — eram três
+             linhas soltas no fundo da página, do tamanho de uma legenda.
 
-                As referências resolvem esta tela com uma imagem, e
-                resolvem bem: os dois aplicativos lado a lado, a seta
-                circular entre eles, e uma constelação apagada de símbolos
-                de saúde atrás — que não informa nada e é justamente o que
-                faz a tela parecer o lugar onde dado de saúde mora.
-
-                O QUE NÃO COPIAMOS: o logo da Apple. Marca de terceiro num
-                cadastro é marca usada sem licença, e o desenho funciona
-                igual com o símbolo genérico.
-
-                E AS TRÊS LINHAS DE BAIXO SÃO SÓ O QUE É VERDADE AQUI. A
-                referência promete "passos" e "macronutrientes"; passo
-                nenhuma tela do Morphi lê, e macro o app não conta. Peso
-                vira ponto na curva, sono é coluna do check-in, treino é a
-                tela de exercício — e as outras duas linhas falam da
-                permissão, que é o que a pessoa está decidindo de fato. */}
-            <View style={{ height: 168, justifyContent: 'center', alignItems: 'center' }}>
-              <View style={{ ...SOBREPOSTO, opacity: 0.085 }} pointerEvents="none">
-                {GLIFOS.map(([ic, x, y, t], i) => (
-                  <View key={i} style={{ position: 'absolute', left: `${x}%`, top: y }}>
-                    <Icon name={ic} size={t} color={c.tx} sw={1.6} />
-                  </View>
-                ))}
-              </View>
-
-              <Row style={{ alignItems: 'center', gap: 4 }}>
+             O primeiro é o que a pessoa ganha e vem em azul; os dois
+             seguintes são o que ela mantém — controle e saída —, e ficam
+             em cinza. A hierarquia é essa mesma: um benefício e duas
+             garantias, e não três avisos. */
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+            {([
+              ['arrowdown', c.accent, c.accentWeak, 'Peso, sono e treinos entram sozinhos', 'sem você digitar nada'],
+              ['shield', c.tx2, c.bg2, 'Você escolhe o que liberar', 'quem pede é o aparelho'],
+              ['gear', c.tx2, c.bg2, 'Desligar é um toque', 'no seu perfil, quando quiser'],
+            ] as [string, string, string, string, string][]).map(([ic, cor, fundo, t, sub], i) => (
+              <Row key={t} style={{
+                gap: 13, alignItems: 'center', paddingVertical: 13,
+                borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
+              }}>
                 <View style={{
-                  width: 62, height: 62, borderRadius: 19, backgroundColor: c.accent,
+                  width: 42, height: 42, borderRadius: 13, backgroundColor: fundo,
                   alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Icon name="heart" size={28} color={c.accentInk} sw={1.9} />
+                  <Icon name={ic} size={20} color={cor} sw={1.9} />
                 </View>
-                <Row style={{ width: 72, alignItems: 'center', gap: 7 }}>
-                  <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
-                  <Icon name="reset" size={18} color={c.accent} sw={2.2} />
-                  <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
-                </Row>
-                <View style={{
-                  width: 62, height: 62, borderRadius: 19, backgroundColor: c.bg1,
-                  borderWidth: 1, borderColor: c.line,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name="activity" size={28} color={c.rose} sw={2} />
+                <View style={{ flex: 1 }}>
+                  <Txt v="bodyMed">{t}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
                 </View>
               </Row>
-            </View>
-
-            <View style={{ gap: 14 }}>
-              {([
-                ['arrowdown', 'Peso, sono e treinos entram sozinhos', 'sem você digitar nada'],
-                ['shield', 'Você escolhe o que liberar', 'quem pede a autorização é o próprio aparelho'],
-                ['gear', 'Desligar é um toque', 'no seu perfil, quando quiser'],
-              ] as [string, string, string][]).map(([ic, t, sub]) => (
-                <Row key={t} style={{ gap: 12, alignItems: 'center' }}>
-                  <View style={{
-                    width: 38, height: 38, borderRadius: 19, backgroundColor: c.bg2,
-                    alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon name={ic} size={18} color={c.tx2} sw={1.9} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="label">{t}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
-                  </View>
-                </Row>
-              ))}
-            </View>
+            ))}
           </View>
         ) : null}
 
