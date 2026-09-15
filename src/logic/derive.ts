@@ -3,7 +3,7 @@ import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, D
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem } from './prato';
-import { ENERGIA, FOME, HUMOR, SINTOMA, SONO, paraTela } from './escalas';
+import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
@@ -859,6 +859,142 @@ export function balanceSeries(S: State, eixo: string, n = 8) {
     .map((c) => ({ t: c.t, bruto: f(c, S) }))
     .filter((p): p is { t: number; bruto: number } => p.bruto != null)
     .map((p) => ({ t: p.t, v: Math.max(0, Math.min(100, Math.round(p.bruto))) }));
+}
+
+/* ============================================================
+   OS SINTOMAS, LIDOS DEPOIS
+
+   Um dia de check-in responde "como foi hoje". Três perguntas só a SÉRIE
+   responde, e são as três que a pessoa leva para a consulta:
+
+     · o que apareceu na semana, e em quantos dias
+     · se isso acompanha o ciclo da dose
+     · e o que dá para afirmar a partir disso
+
+   A do meio é a que a tela de sintomas afirmava sem calcular. Havia um
+   parágrafo fixo dizendo que a náusea se concentra nos dois primeiros
+   dias depois da aplicação e que a fome faz o contrário. É o padrão
+   típico — mas escrito com "seus registros" virava um achado sobre ESTA
+   pessoa que ninguém tinha olhado. O app tem a data de cada aplicação e o
+   grau de cada dia: dá para responder de verdade, e às vezes a resposta
+   é "ainda não dá para dizer".
+   ============================================================ */
+
+/** Um sintoma na janela lida. `dias` são os dias em que ele apareceu. */
+export type SintomaLido = {
+  id: string; label: string;
+  dias: number; pior: number; media: number;
+  /** a frase da régua no pior grau — "enjoo constante", "dois dias sem ir" */
+  legenda: string;
+};
+
+const janela = (S: State, n: number) => {
+  const desde = +startOfDay(daysAgo(n - 1));
+  return (S.checkins as any[]).filter((c) => c.t >= desde);
+};
+
+/* O DIA PASSOU PELA PERGUNTA DE SINTOMAS — mesmo que a resposta tenha
+   sido "não tive nada".
+
+   Não dá para usar `respostaNoDia` aqui: ela aceita o dia em que a pessoa
+   respondeu só o sono, e nesse dia a náusea não é zero — é ausência. O
+   check-in grava zero nas colunas e 'normal' no intestino quando nada é
+   marcado, então a presença desses campos é a prova de que a pergunta foi
+   feita e respondida. */
+const respondeuSintomas = (c: any) => typeof c?.nausea === 'number' || c?.gut != null || !!c?.sint;
+
+/** Dias da janela em que os sintomas foram respondidos — o denominador
+    honesto. Sem ele, "náusea em 3 dias" esconde que só 4 foram respondidos. */
+export function diasDeSintomas(S: State, n = 7) {
+  return janela(S, n).filter(respondeuSintomas).length;
+}
+
+/** Os sintomas que apareceram nos últimos `n` dias, do mais presente. */
+export function sintomasDaSemana(S: State, n = 7): SintomaLido[] {
+  return sintomasEm(janela(S, n));
+}
+
+/* A MESMA LEITURA, sobre os dias que quem chama escolher.
+
+   /sintomas pergunta pelos últimos sete; /semana pergunta por uma semana
+   específica do tratamento, que pode ter acabado em abril. Era essa
+   diferença de janela que justificava a segunda tela ter a sua própria
+   conta — e com ela vieram uma régua de 0 a 10 na cara da pessoa, um
+   "forte" que chamava de forte o que ela respondeu como leve, e o
+   silêncio somado como zero. A janela é de quem chama; a régua, não. */
+export function sintomasEm(cs: any[]): SintomaLido[] {
+  const fora: SintomaLido[] = [];
+  for (const s of SINTOMAS_LIDOS) {
+    const graus = cs.map((c) => grauDoSintoma(c, s.id)).filter((v): v is number => v != null);
+    if (!graus.length) continue;
+    const pior = Math.max(...graus);
+    fora.push({
+      id: s.id, label: s.label, dias: graus.length, pior,
+      media: graus.reduce((a, b) => a + b, 0) / graus.length,
+      legenda: s.regua[pior - 1] ?? '',
+    });
+  }
+  /* Mais dias primeiro, e o grau desempata: o que incomodou a semana
+     inteira vem antes do que foi forte num dia só. */
+  return fora.sort((a, b) => b.dias - a.dias || b.pior - a.pior);
+}
+
+/* O SINTOMA AO LONGO DO CICLO DA DOSE.
+
+   O dia do ciclo é a distância até a última aplicação: 0 é o dia de
+   aplicar. Um dia respondido SEM o sintoma entra como zero e não sai da
+   conta — o vale é metade do achado, e tirá-lo faria a média subir
+   justamente nos dias em que o sintoma não apareceu. */
+export function sintomaNoCiclo(S: State, id = 'nausea') {
+  const cad = CADENCE_DAYS(S.profile.med);
+  const baldes = Array.from({ length: cad }, (_, dia) => ({ dia, dias: 0, soma: 0 }));
+  const injs = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t))).sort((a, b) => a - b);
+  for (const c of S.checkins as any[]) {
+    if (!respondeuSintomas(c)) continue;
+    let ultima: number | null = null;
+    for (const t of injs) { if (t <= c.t) ultima = t; else break; }
+    if (ultima == null) continue;
+    const d = Math.round((c.t - ultima) / DAY);
+    if (d < 0 || d >= cad) continue;
+    baldes[d].dias++;
+    baldes[d].soma += grauDoSintoma(c, id) ?? 0;
+  }
+  return baldes.map((b) => ({ dia: b.dia, dias: b.dias, media: b.dias ? b.soma / b.dias : null }));
+}
+
+/* O PADRÃO, e a régua para poder afirmar que existe um.
+
+   Três condições, e todas precisam valer: dias bastantes, quase todo o
+   ciclo coberto, e um degrau inteiro de diferença entre o pior dia e o
+   melhor. Sem isso a frase seria ruído de amostra pequena com cara de
+   descoberta — e é uma frase que a pessoa leva para a consulta.
+
+   Quando não dá para afirmar, devolve POR QUE não deu, porque as duas
+   razões dizem coisas opostas à pessoa: "ainda são poucos dias" pede que
+   ela continue respondendo, e "aparece parecido em todo o ciclo" já é uma
+   resposta — a de que, nela, o sintoma não segue a dose. A régua fica
+   aqui e não na tela: quem mostra não deveria poder discordar de quem
+   calcula sobre quantos dias bastam. */
+export type PadraoDoCiclo =
+  | { pode: true; dias: number[]; alto: number; baixo: number; doInicio: boolean; doFim: boolean }
+  | { pode: false; motivo: 'poucos' | 'parecido' };
+
+export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
+  const baldes = sintomaNoCiclo(S, id);
+  const com = baldes.filter((b) => b.media != null) as { dia: number; dias: number; media: number }[];
+  const total = com.reduce((a, b) => a + b.dias, 0);
+  if (total < 10 || com.length < baldes.length - 1) return { pode: false, motivo: 'poucos' };
+  const alto = Math.max(...com.map((b) => b.media));
+  const baixo = Math.min(...com.map((b) => b.media));
+  if (alto - baixo < 1) return { pode: false, motivo: 'parecido' };
+  const corte = (alto + baixo) / 2;
+  const dias = com.filter((b) => b.media >= corte).map((b) => b.dia).sort((a, b) => a - b);
+  const seguido = dias.every((d, i) => i === 0 || d === dias[i - 1] + 1);
+  return {
+    pode: true, dias, alto, baixo,
+    doInicio: seguido && dias[0] === 0,
+    doFim: seguido && dias[dias.length - 1] === baldes.length - 1,
+  };
 }
 
 /* ============================================================
@@ -2410,6 +2546,15 @@ export type Indicador = {
   sentido: 'min' | 'max';
   /** o palpite inicial — só um começo, não uma recomendação */
   padrao: number;
+  /* A UNIDADE, para quem escreve MÉDIA.
+
+     `escreve` dá conta do número inteiro que a pessoa escolhe — "7 h",
+     "4 de 5" —, mas média tem casa decimal, e formatar decimal é de quem
+     mostra. Sem a unidade declarada aqui, cada tela que mostra média
+     redescobre que sono é hora e energia é degrau; é assim que uma delas
+     acaba escrevendo "6.8 h" com ponto. Os indicadores de passo já dizem
+     a sua em `passos.un`. */
+  un?: string;
   /** quando o padrão sai da meta do perfil */
   doPerfil?: (S: State) => number;
   /** escolha por régua, com as legendas do check-in */
@@ -2432,7 +2577,7 @@ export const INDICADORES: Indicador[] = [
   {
     id: 'sono', ic: 'moon', nome: 'Horas de sono',
     pergunta: 'Quantas horas por noite?', origem: 'Do sono que você responde no check-in',
-    nomes: ['noite', 'noites'], sentido: 'min', padrao: 7,
+    nomes: ['noite', 'noites'], sentido: 'min', padrao: 7, un: 'h',
     escala: { valores: [5, 6, 7, 8, 9], legendas: SONO },
     leitura: (c) => num(c, 'sono'),
     escreve: (v) => `${v} h`,
@@ -2445,7 +2590,7 @@ export const INDICADORES: Indicador[] = [
        usa para reabrir uma resposta salva. */
     id: 'energia', ic: 'bolt', nome: 'Energia no dia',
     pergunta: 'De que nível para cima conta?', origem: 'Da energia que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4,
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA },
     leitura: (c) => paraTela(c.energia),
     escreve: (v) => `${v} de 5`,
@@ -2455,7 +2600,7 @@ export const INDICADORES: Indicador[] = [
   {
     id: 'humor', ic: 'mood', nome: 'Humor no dia',
     pergunta: 'De que nível para cima conta?', origem: 'Do humor que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4,
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR },
     leitura: (c) => num(c, 'mood'),
     escreve: (v) => `${v} de 5`,
@@ -2468,7 +2613,7 @@ export const INDICADORES: Indicador[] = [
        junto com o enjoo. */
     id: 'enjoo', ic: 'waves', nome: 'Enjoo',
     pergunta: 'Até que nível ainda conta como bom?', origem: 'Do enjoo que você marca no check-in',
-    nomes: ['dia', 'dias'], sentido: 'max', padrao: 2,
+    nomes: ['dia', 'dias'], sentido: 'max', padrao: 2, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA.nausea },
     leitura: (c) => num(c, 'nausea'),
     escreve: (v) => `${v} de 5`,
@@ -2478,7 +2623,7 @@ export const INDICADORES: Indicador[] = [
   {
     id: 'fome', ic: 'soup', nome: 'Fome',
     pergunta: 'Até que nível ainda conta como bom?', origem: 'Da fome que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'max', padrao: 3,
+    nomes: ['dia', 'dias'], sentido: 'max', padrao: 3, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: FOME },
     leitura: (c) => paraTela(c.fome),
     escreve: (v) => `${v} de 5`,

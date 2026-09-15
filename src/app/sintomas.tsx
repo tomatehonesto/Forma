@@ -1,146 +1,327 @@
-import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { radar, balanceRead } from '../logic/derive';
-import { nf, relDay } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Rich, Divider } from '../ui/kit';
-import { Icon } from '../ui/Icon';
-import { AreaCurve, Petalas } from '../ui/charts';
+import {
+  INDICADORES, balanceRead, checkinToday, diasDeSintomas, padraoDoCiclo, radar,
+  sintomaNoCiclo, sintomasDaSemana,
+} from '../logic/derive';
+import { diasAnteriores, leituraDoDia, niveisDoRegistro } from '../logic/leituras';
+import { daysAgo, fmtDate, nf, now, startOfDay } from '../logic/time';
+import { Txt, Row } from '../ui/kit';
+import {
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Progresso, Chips, CardCurva, Aviso, Botao,
+} from '../ui/internas';
+import { Petalas } from '../ui/charts';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
-const SYMS = [
-  { k: 'fome', label: 'Fome', ic: 'flame' },
-  { k: 'nausea', label: 'Náusea', ic: 'drop2' },
-  { k: 'energia', label: 'Energia', ic: 'bolt' },
-  { k: 'sono', label: 'Sono', ic: 'moon' },
-  { k: 'mood', label: 'Humor', ic: 'mood' },
-];
-const EXTRA_SYMS: [string, string][] = [['refluxo', 'Refluxo'], ['ansiedade', 'Ansiedade'], ['constip', 'Constipação'], ['diarreia', 'Intestino solto']];
-const LV = ['nenhum', 'leve', 'moderado', 'forte'];
+/* ============================================================
+   SINTOMAS
 
-function symReading(k: string, cur: number, old: number, better: boolean) {
-  const dir = better ? 'melhorou' : 'subiu um pouco';
-  if (k === 'fome') return `Sua fome média está em <b>${nf(cur, 1)}/10</b> e ${dir} em relação à semana passada. Ela tende a oscilar com o ciclo da medicação — é esperado.`;
-  if (k === 'nausea') return `Náusea média <b>${nf(cur, 1)}/10</b>, ${dir}. Concentra-se nos dias após a aplicação e costuma diminuir com o tempo.`;
-  if (k === 'energia') return `Energia média <b>${nf(cur, 1)}/10</b>, ${dir}. Sono e proteína costumam andar junto com esse número.`;
-  if (k === 'sono') return `Você dormiu em média <b>${nf(cur, 1)}h</b> por noite, ${dir}. Noites melhores aparecem associadas a menos náusea.`;
-  return `Seu humor médio está em <b>${nf(cur, 1)}/5</b>, ${dir}. Ao longo do tratamento ele vem ficando mais estável.`;
+   O outro lado da dose. A caneta faz o corpo reagir, e esta é a tela que
+   responde o que um dia de check-in sozinho não responde: o que apareceu
+   na semana, se isso acompanha o ciclo da aplicação, e o que já dá para
+   levar para a consulta.
+
+   A VERSÃO ANTERIOR AFIRMAVA TRÊS COISAS QUE NINGUÉM TINHA CALCULADO.
+
+   Um parágrafo fixo dizia que "seus registros de náusea concentram-se nos
+   2 primeiros dias após cada aplicação" — texto escrito à mão, igual para
+   todo mundo, com cara de achado sobre esta pessoa. Outro, por sintoma,
+   dizia que "noites melhores aparecem associadas a menos náusea" e que
+   "sono e proteína costumam andar junto com esse número". São correlações
+   plausíveis, e nenhuma delas saía dos dados. Um app de tratamento que
+   inventa um achado clínico é pior do que um que cala: o achado vai para
+   a consulta.
+
+   O ciclo agora é conta, e a conta às vezes responde "ainda não dá para
+   dizer". Essa resposta também é informação — e é honesta.
+
+   E AS MÉDIAS CONTAVAM SILÊNCIO COMO ZERO. `arr.reduce((s, x) => s + x[k])`
+   sobre catorze dias com sete respondidos devolvia metade do valor real,
+   e a tela escrevia isso como "fome média 3,5/10" — de quebra na régua de
+   armazenamento, quando a pessoa tinha respondido de 1 a 5.
+   ============================================================ */
+
+const DIAS = 7;
+/* O enjoo é o sintoma do ciclo. É o mais frequente com GLP-1, o que mais
+   muda conduta de dose, e o único com registro em praticamente todo dia
+   respondido — os outros aparecem pouco, e uma média de dois dias por
+   balde não desenha padrão nenhum. */
+const DO_CICLO = 'nausea';
+
+/* Os quatro que a pessoa responde sobre si — não são sintomas, são como
+   ela passou o dia. Ficam separados do bloco de cima de propósito: "tive
+   náusea em 3 dias" e "durmo 7h" são duas perguntas diferentes, e
+   misturá-las numa lista só foi o que produziu a tela antiga, onde um
+   seletor trocava entre fome, sono e humor com uma régua só.
+
+   O rótulo é curto e escrito aqui: o nome do indicador é a pergunta
+   inteira — "Horas de sono", "Energia no dia" — e a primeira palavra dele
+   não serve de apelido. Cortar em branco dava um chip escrito "Horas". */
+const SENTIR: [string, string][] = [
+  ['energia', 'Energia'],
+  ['humor', 'Humor'],
+  ['sono', 'Sono'],
+  ['fome', 'Fome'],
+];
+
+/* ------------------------------------------------------------------ */
+/* AS BARRAS DO CICLO.
+
+   Sete colunas, uma por dia desde a aplicação. Três estados, e a
+   diferença entre dois deles é a razão de este desenho não ser um
+   gráfico de barras qualquer:
+
+     · dia com sintoma        barra proporcional
+     · dia respondido sem ele barra de piso, 3 px — "respondi, não tive"
+     · dia sem resposta       calha vazia e o rótulo apagado
+
+   Piso e calha vazia pareceriam a mesma coisa se a barra de zero
+   simplesmente sumisse, e não são: uma é resposta, a outra é lacuna. */
+function BarrasDoCiclo({ baldes, destaque }: {
+  baldes: { dia: number; dias: number; media: number | null }[];
+  destaque: number[] | null;
+}) {
+  const { c } = useTheme();
+  const ALT = 76;
+  return (
+    <View style={{ gap: 8 }}>
+      <Row style={{ alignItems: 'flex-end', gap: 6 }}>
+        {baldes.map((b) => {
+          const vazio = b.media == null;
+          const forte = !destaque || destaque.includes(b.dia);
+          return (
+            <View key={b.dia} style={{ flex: 1, alignItems: 'center', gap: 7 }}>
+              <View style={{
+                width: '100%', height: ALT, justifyContent: 'flex-end',
+                borderRadius: radius.sm, overflow: 'hidden',
+                backgroundColor: vazio ? 'transparent' : c.track,
+                borderWidth: vazio ? 1 : 0, borderColor: c.line,
+                borderStyle: 'dashed',
+              }}>
+                {vazio ? null : (
+                  <View style={{
+                    height: Math.max(3, ((b.media as number) / 5) * ALT),
+                    borderRadius: radius.sm,
+                    backgroundColor: forte ? c.accent : c.accentLine,
+                  }} />
+                )}
+              </View>
+              <Txt v="micro" c={vazio ? c.tx4 : c.tx3}>{b.dia === 0 ? 'dose' : b.dia}</Txt>
+            </View>
+          );
+        })}
+      </Row>
+    </View>
+  );
 }
 
+/* A frase do padrão. Mora aqui, e não no cálculo, porque é redação: o
+   cálculo devolve quais dias pesam, e quantos deles seguidos, que é o que
+   uma tela em outra língua também usaria. */
+function fraseDoCiclo(p: ReturnType<typeof padraoDoCiclo>, cad: number) {
+  if (!p.pode) {
+    return p.motivo === 'parecido'
+      ? 'Nos dias respondidos até agora, o enjoo aparece parecido ao longo de todo o ciclo — ele não está seguindo a dose.'
+      : 'Ainda são poucos dias respondidos para dizer se o enjoo acompanha o ciclo. Respondendo mais dias, essa conta fica de pé.';
+  }
+  const n = p.dias.length;
+  if (p.doInicio) {
+    return n === 1
+      ? 'O enjoo pesa mais no dia da aplicação.'
+      : `O enjoo pesa mais nos ${n} primeiros dias depois da aplicação.`;
+  }
+  if (p.doFim) {
+    return n === 1
+      ? 'O enjoo pesa mais na véspera da próxima aplicação.'
+      : `O enjoo pesa mais nos ${n} dias que antecedem a próxima aplicação.`;
+  }
+  const quais = p.dias.map((d) => (d === 0 ? 'no dia da aplicação' : `no ${d}º dia depois`));
+  const lista = quais.length === 1 ? quais[0]
+    : `${quais.slice(0, -1).join(', ')} e ${quais[quais.length - 1]}`;
+  return `O enjoo pesa mais ${lista}.`;
+}
+
+/* ------------------------------------------------------------------ */
 export default function Sintomas() {
   const S = useStore((s) => s.S);
-  const eq = balanceRead(S);
   const { c } = useTheme();
   const router = useRouter();
-  const [key, setKey] = useState('fome');
+  const [qual, setQual] = useState('energia');
 
-  const recent = S.checkins.slice(-7), prev = S.checkins.slice(-14, -7);
-  const avg = (arr: any[], k: string) => (arr.length ? arr.reduce((s, x) => s + x[k], 0) / arr.length : 0);
-  const cur = avg(recent, key), old = avg(prev, key);
-  const sym = SYMS.find((s) => s.k === key)!;
-  const better = ['fome', 'nausea'].includes(key) ? cur < old : cur > old;
+  const hoje = +startOfDay(now());
+  const desde = +startOfDay(daysAgo(DIAS - 1));
 
-  const series = S.checkins.slice(-14).map((x: any) => x[key]);
-  const mn = Math.min(...series), mx = Math.max(...series), pad = (mx - mn) * 0.3 || 1;
-  const pts = series.map((v: number, i: number) => ({ x: i / (series.length - 1 || 1), y: (v - (mn - pad)) / ((mx + pad) - (mn - pad)) }));
+  const lista = useMemo(() => sintomasDaSemana(S, DIAS), [S]);
+  const respondidos = useMemo(() => diasDeSintomas(S, DIAS), [S]);
 
-  const latestSev = (k: string) => {
-    for (let i = S.checkins.length - 1; i >= 0; i--) { const x: any = S.checkins[i]; if (x && x[k] != null) return { val: x[k], t: x.t }; }
-    return null;
-  };
-  const extras = EXTRA_SYMS.map(([k, l]) => ({ l, s: latestSev(k) })).filter((x) => x.s);
-  const lvColor = (v: number) => [c.tx4, c.accent, c.amber, c.cta][v] || c.tx4;
+  /* A MESMA LEITURA QUE O CHECK-IN MOSTRA, e não uma segunda opinião.
+
+     "Quatro dos últimos sete dias com enjoo" é a frase que muda a
+     conversa na consulta, e ela já existe em leituras.ts, lida pelo
+     formulário e pela confirmação. Escrever aqui uma terceira versão do
+     mesmo juízo é como o app volta a divergir de si mesmo. */
+  const leitura = useMemo(
+    () => leituraDoDia(diasAnteriores(S.checkins, hoje), niveisDoRegistro(checkinToday(S))),
+    [S, hoje],
+  );
+
+  const baldes = useMemo(() => sintomaNoCiclo(S, DO_CICLO), [S]);
+  const padrao = useMemo(() => padraoDoCiclo(S, DO_CICLO), [S]);
+  const diasNoCiclo = baldes.reduce((a, b) => a + b.dias, 0);
+
+  /* O que a pessoa escreveu em "Outro". Não tem régua nem gráfico — é
+     texto que ela digitou porque a lista não tinha o que ela sentiu, e
+     some da tela se ninguém o mostrar. */
+  const outros = (S.checkins as any[])
+    .filter((x) => x.t >= desde && String(x.outroTexto || '').trim())
+    .sort((a, b) => b.t - a.t);
+
+  const ind = INDICADORES.find((x) => x.id === qual)!;
+  const serie = useMemo(() => {
+    return (S.checkins as any[])
+      .slice(-14)
+      .map((x) => ({ t: x.t, v: ind.leitura(x) }))
+      .filter((p): p is { t: number; v: number } => p.v != null)
+      .map((p) => ({ v: p.v, rotulo: ind.escreve(p.v), quando: fmtDate(new Date(p.t)) }));
+  }, [S, ind]);
+  const media = serie.length ? serie.reduce((a, p) => a + p.v, 0) / serie.length : null;
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          {/* "radar" saiu do título junto com o gráfico que tinha esse nome */}
-          <Txt v="h1">Sintomas & equilíbrio</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Acompanhamento acolhedor, sem alarme</Txt>
+    <TelaInterna titulo="Sintomas">
+      <Titulao
+        titulo="Sintomas"
+        lead={respondidos
+          ? `${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'} nos últimos ${DIAS}`
+          : `Nenhum dia respondido nos últimos ${DIAS}`}
+      />
+
+      {/* A leitura da semana abre a tela quando existe: ela é a conclusão,
+          e o resto é a conta que levou até ela. */}
+      {leitura ? (
+        <View style={{ marginBottom: 26 }}>
+          <Aviso destaque titulo={leitura.titulo} texto={leitura.texto} acao={leitura.acao} />
         </View>
-      </Row>
+      ) : null}
 
-      {/* Os oito indicadores. Saíram do Insights, que passou a levar só a
-          leitura escrita, e vivem aqui — que é onde vai quem quer o detalhe
-          em vez da conclusão. */}
-      <Card style={{ marginTop: 18, alignItems: 'center' }}>
-        <Petalas data={radar(S)} size={272} fraco={eq.fraco} />
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 10, textAlign: 'center' }}>
-          Média dos últimos 3 check-ins · em lima, o que mais pede atenção
-        </Txt>
-      </Card>
-
-      {/* evolução por sintoma */}
-      <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Evolução por sintoma</Txt>
-      <Row gap={8} style={{ flexWrap: 'wrap' }}>
-        {SYMS.map((s) => (
-          <Pressable key={s.k} onPress={() => setKey(s.k)}>
-            <Row gap={5} style={{ paddingHorizontal: 13, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: key === s.k ? c.accentWeak : c.bg1, borderWidth: 1.2, borderColor: key === s.k ? c.accent : c.line }}>
-              <Icon name={s.ic} size={14} color={key === s.k ? c.accent : c.tx3} sw={1.9} />
-              <Txt v="label" c={key === s.k ? c.accent : c.tx3}>{s.label}</Txt>
-            </Row>
-          </Pressable>
-        ))}
-      </Row>
-
-      <Card style={{ marginTop: 12 }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Txt v="h2">{sym.label}</Txt>
-          <Row gap={4}>
-            <Icon name={better ? 'arrowdown' : 'arrowup'} size={12} color={better ? c.accent : c.cta} sw={2.2} />
-            <Txt v="caption" c={better ? c.accent : c.cta}>{nf(Math.abs(cur - old), 1)} vs. semana anterior</Txt>
-          </Row>
-        </Row>
-        <View style={{ marginTop: 8 }}>
-          <AreaCurve pts={pts} height={110} padT={10} padB={10} marker={pts.length - 1} id="sy" />
-        </View>
-        <View style={{ marginTop: 12, backgroundColor: c.accentWeak, borderRadius: radius.md, padding: 13 }}>
-          <Row gap={6}><Icon name="aura" size={13} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>LEITURA</Txt></Row>
-          <Rich v="bodyMed" base={c.tx2} bold={c.tx} style={{ marginTop: 6, lineHeight: 20 }} text={symReading(key, cur, old, better)} />
-        </View>
-      </Card>
-
-      {/* outros sintomas */}
-      {extras.length > 0 && (
-        <>
-          <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Outros sintomas registrados</Txt>
-          <Card style={{ paddingVertical: 4 }}>
-            {extras.map((x, idx) => (
-              <View key={x.l}>
-                {idx > 0 && <Divider />}
-                <Row style={{ justifyContent: 'space-between', paddingVertical: 11 }}>
-                  <View>
-                    <Txt v="bodyMed">{x.l}</Txt>
-                    <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>último registro · {relDay(new Date(x.s!.t))}</Txt>
-                  </View>
-                  <Row gap={9}>
-                    <Row gap={3}>
-                      {[0, 1, 2, 3].map((i) => (
-                        <View key={i} style={{ width: 6, height: 16, borderRadius: 2, backgroundColor: i <= x.s!.val && x.s!.val > 0 ? lvColor(x.s!.val) : c.track }} />
-                      ))}
-                    </Row>
-                    <Pill label={LV[x.s!.val]} color={c.tx2} bg={c.bg2} />
-                  </Row>
-                </Row>
-              </View>
+      <Bloco titulo="Nesta semana">
+        {respondidos === 0 ? (
+          <Cartao>
+            <View style={{ padding: 16, gap: 12 }}>
+              <Txt v="caption" c={c.tx2}>
+                Você ainda não respondeu sobre sintomas nesta semana. É no check-in que eles entram.
+              </Txt>
+              <Botao label="Fazer o check-in" onPress={() => router.push('/checkin' as any)} />
+            </View>
+          </Cartao>
+        ) : lista.length === 0 ? (
+          <Cartao>
+            <Linha
+              ic="check"
+              titulo="Nenhum sintoma nesta semana"
+              sub={`${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'}, nenhum com queixa.`}
+              seta={false}
+            />
+          </Cartao>
+        ) : (
+          <View style={{ gap: 8 }}>
+            {lista.map((s) => (
+              <Progresso
+                key={s.id}
+                label={s.label}
+                valor={`${s.dias} de ${respondidos} ${respondidos === 1 ? 'dia' : 'dias'}`}
+                /* A barra é a MÉDIA dos dias em que apareceu, e o texto
+                   embaixo guarda o pior. Barra pelo pior faria um único dia
+                   ruim desenhar a semana inteira. */
+                pct={(s.media / 5) * 100}
+                nota={s.legenda ? `No pior dia: ${s.legenda.toLowerCase()}` : undefined}
+              />
             ))}
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 6, marginBottom: 8, lineHeight: 16 }}>Você registra estes no check-in, em "Mais sintomas". Aqui eles ficam visíveis pra você e pra sua médica — sem alarme.</Txt>
-          </Card>
-        </>
-      )}
+            {outros.map((x) => (
+              <Cartao key={x.t}>
+                <Linha
+                  ic="note"
+                  titulo={`“${String(x.outroTexto).trim()}”`}
+                  sub={`Você escreveu em ${fmtDate(new Date(x.t))}`}
+                  seta={false}
+                />
+              </Cartao>
+            ))}
+          </View>
+        )}
+      </Bloco>
 
-      {/* correlação */}
-      <Txt v="h2" style={{ marginTop: 22, marginBottom: 10 }}>Correlação com as doses</Txt>
-      <Card>
-        <Row style={{ alignItems: 'flex-start' }}>
-          <IconBadge name="drop2" size={40} />
-          <Rich v="bodyMed" base={c.tx2} bold={c.tx} style={{ flex: 1, marginLeft: 12, lineHeight: 20 }} text="Seus registros de <b>náusea</b> concentram-se nos 2 primeiros dias após cada aplicação e caem depois. A <b>fome</b> segue o caminho inverso: menor logo após a dose, maior perto da próxima." />
-        </Row>
-      </Card>
-    </Screen>
+      {/* O CICLO — a pergunta que só a série responde.
+
+          Só aparece quando há dias contados: sem aplicação registrada ou
+          sem sintoma respondido, as sete colunas seriam sete calhas
+          vazias com uma legenda explicando o vazio. */}
+      {diasNoCiclo > 0 ? (
+        <View style={{ marginTop: 26 }}>
+          <Bloco
+            titulo="Ao longo do ciclo"
+            nota={`Média do enjoo em cada dia depois da aplicação, de ${diasNoCiclo} ${diasNoCiclo === 1 ? 'dia respondido' : 'dias respondidos'}.`}
+          >
+            <Cartao>
+              <View style={{ padding: 16, gap: 14 }}>
+                <BarrasDoCiclo baldes={baldes} destaque={padrao.pode ? padrao.dias : null} />
+                <Txt v="caption" c={c.tx2}>{fraseDoCiclo(padrao, baldes.length)}</Txt>
+              </View>
+            </Cartao>
+          </Bloco>
+        </View>
+      ) : null}
+
+      {/* COMO VOCÊ SE SENTIU — o que não é sintoma.
+
+          Cada indicador tem a régua dele, e por isso o número e a legenda
+          saem de INDICADORES, a mesma lista que as metas usam: energia e
+          fome moram de 0 a 10 no banco e de 1 a 5 na tela, e é a leitura
+          de lá que faz a conversão. A tela antiga fazia a sua, e escrevia
+          "/10" embaixo de uma pergunta de 1 a 5. */}
+      <View style={{ marginTop: 26 }}>
+        <Bloco titulo="Como você se sentiu">
+          <View style={{ gap: 12 }}>
+            <Chips
+              itens={SENTIR.map(([id, label]) => ({ id, label }))}
+              valor={qual}
+              onChange={setQual}
+            />
+            {serie.length ? (
+              <CardCurva
+                id={`sy-${qual}`}
+                nome={ind.nome}
+                sub={`${serie.length} ${serie.length === 1 ? 'resposta' : 'respostas'} em 14 dias`}
+                valor={nf(media as number, 1)}
+                unidade={ind.un}
+                pontos={serie}
+              />
+            ) : (
+              <Cartao>
+                <Linha titulo="Sem respostas ainda" sub={ind.origem} seta={false} />
+              </Cartao>
+            )}
+          </View>
+        </Bloco>
+      </View>
+
+      {/* O EQUILÍBRIO fecha a tela, e não a abre.
+
+          O radar mistura o que você SENTIU com o que você FEZ — água,
+          exercício, proteína e adesão estão nos oito eixos —, então ele
+          não responde a pergunta desta tela. Responde a de depois: com
+          tudo isso na mesa, onde o tratamento está apoiado. */}
+      <View style={{ marginTop: 26 }}>
+        <Bloco titulo="Equilíbrio" nota="Média dos últimos 3 check-ins, nas oito frentes que o app acompanha.">
+          <Cartao>
+            <View style={{ alignItems: 'center', paddingVertical: 18 }}>
+              <Petalas data={radar(S)} size={264} fraco={balanceRead(S).fraco} />
+            </View>
+          </Cartao>
+        </Bloco>
+      </View>
+    </TelaInterna>
   );
 }
