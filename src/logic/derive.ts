@@ -1097,15 +1097,15 @@ export type PlanoInicial = {
   prot: number;
   /** mililitros por dia */
   agua: number;
-  /** percentual — a meta de gordura corporal */
-  gordura: number;
+  /** percentual — a meta de gordura corporal; null sem sexo informado */
+  gordura: number | null;
   /** semanas até a meta, no ritmo escolhido; null quando não há o que perder */
   semanas: number | null;
   chegada: number | null;
 };
 
 export function planoDoCadastro(d: {
-  sexo: 'f' | 'm'; altura: number; peso: number; meta: number; ritmo: number | null;
+  sexo: 'f' | 'm' | null; altura: number; peso: number; meta: number; ritmo: number | null;
 }): PlanoInicial {
   const perder = d.peso - d.meta;
   const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
@@ -1119,8 +1119,13 @@ export function planoDoCadastro(d: {
     /* A meta de gordura corporal é a única coisa do plano que depende do
        sexo, e é a razão de a pergunta existir: 28% era o padrão fixo da
        semente, que é a ponta saudável para mulheres e não serve para
-       homens. As faixas usuais são 18–28% e 10–20%. */
-    gordura: d.sexo === 'f' ? 28 : 20,
+       homens. As faixas usuais são 18–28% e 10–20%.
+
+       Quem prefere não informar fica sem meta de gordura, e isso é o
+       certo: não há número que sirva para os dois, e escolher um seria o
+       app decidir o sexo da pessoa por conta própria depois de ela ter
+       dito que não queria dizer. */
+    gordura: d.sexo == null ? null : d.sexo === 'f' ? 28 : 20,
     semanas,
     chegada: semanas ? +addDays(startOfDay(now()), semanas * 7) : null,
   };
