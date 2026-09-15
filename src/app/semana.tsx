@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { timelineWeeks, notas } from '../logic/derive';
-import { MO_LONG, DAY, DOW_PT, MO } from '../logic/time';
+import { INDICADORES, sintomasEm, timelineWeeks, notas } from '../logic/derive';
+import { MO_LONG, DAY, DOW_PT, MO, nf } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
@@ -59,19 +59,25 @@ export default function Semana() {
   }
 
   const ini = new Date(w.t), fim = new Date(w.t + 6 * DAY);
-  /* Média dos check-ins do ciclo — é o que transforma "náusea" em uma
-     quantidade comparável com "constipação" na mesma tela. */
   const cs = (S.checkins as any[]).filter((x) => x.t >= w.t && x.t < w.t + 7 * DAY);
-  const media = (k: string) => (cs.length ? cs.reduce((a, x) => a + (x[k] || 0), 0) / cs.length : 0);
-  const dias = (k: string) => cs.filter((x) => (x[k] || 0) > 0).length;
-  const grau = (v: number) => (v <= 2 ? 'leve' : v <= 5 ? 'moderada' : 'forte');
 
-  const sintomas = [
-    { k: 'nausea', label: 'Náusea' },
-    { k: 'constip', label: 'Constipação' },
-    { k: 'diarreia', label: 'Intestino solto' },
-    { k: 'refluxo', label: 'Refluxo' },
-  ].filter((x) => media(x.k) > 0);
+  /* OS SINTOMAS SAEM DA LEITURA COMPARTILHADA.
+
+     Esta tela tinha a sua: média com `x[k] || 0`, que soma como zero o dia
+     em que ninguém respondeu; uma lista de quatro sintomas escrita à mão,
+     sem os cinco que o check-in também grava; e um "leve / moderada /
+     forte" medido na régua de 0 a 10 do banco — que classificava como
+     forte o que a pessoa tinha respondido como moderado. A régua agora é
+     a mesma da tela de sintomas, e a palavra do grau é a que ela leu ao
+     responder. */
+  const sintomas = sintomasEm(cs);
+  const respondidos = cs.filter((x: any) => typeof x?.nausea === 'number' || x?.gut != null).length;
+
+  /* Energia pela leitura do indicador, que é quem sabe que a coluna mora
+     de 0 a 10 e a pergunta foi de 1 a 5. */
+  const energia = INDICADORES.find((x) => x.id === 'energia')!;
+  const ens = cs.map((x: any) => energia.leitura(x)).filter((v): v is number => v != null);
+  const mediaEnergia = ens.length ? ens.reduce((a, b) => a + b, 0) / ens.length : null;
 
   /* A nota que pertence a ESTA semana, não a mais recente do app: o bloco
      está contando o que aconteceu no ciclo, e uma nota de três semanas
@@ -104,25 +110,25 @@ export default function Semana() {
         )}
       </Grade2>
 
-      {sintomas.length || cs.length ? (
-        <Bloco titulo="Como você se sentiu">
+      {sintomas.length || mediaEnergia != null ? (
+        <Bloco
+          titulo="Como você se sentiu"
+          nota={respondidos ? `${respondidos} de 7 dias respondidos` : undefined}
+        >
           <View style={{ gap: 8 }}>
-            {sintomas.map((x) => {
-              const v = media(x.k);
-              return (
-                <Progresso
-                  key={x.k}
-                  label={x.label}
-                  valor={`${grau(v)} · ${dias(x.k)} ${dias(x.k) === 1 ? 'dia' : 'dias'}`}
-                  pct={(v / 10) * 100}
-                />
-              );
-            })}
-            {cs.length ? (
+            {sintomas.map((x) => (
+              <Progresso
+                key={x.id}
+                label={x.label}
+                valor={`${x.legenda.toLowerCase()} · ${x.dias} ${x.dias === 1 ? 'dia' : 'dias'}`}
+                pct={(x.media / 5) * 100}
+              />
+            ))}
+            {mediaEnergia != null ? (
               <Progresso
                 label="Energia"
-                valor={`${media('energia').toFixed(1).replace('.', ',')} de 10`}
-                pct={media('energia') * 10}
+                valor={`${nf(mediaEnergia, 1)} de 5`}
+                pct={(mediaEnergia / 5) * 100}
               />
             ) : null}
           </View>
