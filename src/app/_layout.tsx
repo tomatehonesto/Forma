@@ -60,7 +60,6 @@ export default function RootLayout() {
           {/* Confirmação do check-in. Em fade porque ela não é o próximo
               passo de um fluxo, é o mesmo assunto mudando de estado. */}
           <Stack.Screen name="checkin-ok" options={{ animation: 'fade' }} />
-          <Stack.Screen name="proxima-aplicacao" />
           <Stack.Screen name="ciclo" />
           <Stack.Screen name="evolucao" />
           <Stack.Screen name="historico" />

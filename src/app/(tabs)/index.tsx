@@ -130,7 +130,7 @@ export default function Home() {
       over: 'PRÓXIMA APLICAÇÃO',
       title: ndDays <= 0 ? `${med.label} é hoje.` : `${med.label} ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`,
       body: `${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit} · ${siteLabel(nextSite(S))} sugerido.`,
-      cta: 'Ver o preparo', to: '/proxima-aplicacao',
+      cta: 'Ver a aplicação', to: '/aplicacoes',
     },
     /* A descoberta já vem escrita como "achado — detalhe". Quebrar no
        travessão dá manchete e explicação sem precisar de texto genérico

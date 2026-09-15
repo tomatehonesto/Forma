@@ -452,7 +452,7 @@ export function todayTasks(S: State): TodayTask[] {
   const nd = nextInjectionDate(S);
   const ndDays = diffDays(nd, now());
   if (ndDays <= 3)
-    out.push({ ic: 'syringe', text: ndDays <= 0 ? 'Aplicação hoje' : ndDays === 1 ? 'Aplicação amanhã' : `Aplicação em ${ndDays} dias`, sub: `${siteLabel(nextSite(S))} sugerido`, to: '/proxima-aplicacao', warn: ndDays <= 1 });
+    out.push({ ic: 'syringe', text: ndDays <= 0 ? 'Aplicação hoje' : ndDays === 1 ? 'Aplicação amanhã' : `Aplicação em ${ndDays} dias`, sub: `${siteLabel(nextSite(S))} sugerido`, to: '/aplicacoes', warn: ndDays <= 1 });
   out.push({ ic: 'pill', text: 'Renovar receita', sub: 'Restam 3 doses na caneta', to: '/aplicacoes' });
   const lastW = S.weights[S.weights.length - 1];
   const wDays = diffDays(now(), new Date(lastW.t));
@@ -993,7 +993,7 @@ export function recommendations(S: State): Reco[] {
     out.push({
       emDias: nd, ic: 'syringe', texto: 'Separe a caneta e escolha o local',
       porque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
-      to: '/proxima-aplicacao',
+      to: '/aplicacoes',
     });
   }
   const p = penStock(S);
