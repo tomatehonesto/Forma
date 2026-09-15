@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, nextSite, siteLabel, lastInjection, penStock, diasParaAplicar, instanteDaAplicacao,
+  M, nextSite, siteLabel, penStock, diasParaAplicar, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
 import { MO_LONG, DOW_PT, now, fmtTime, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
@@ -31,28 +31,38 @@ import { useTheme } from '../ui/useTheme';
 /* O corpo mora em src/ui/corpo.tsx: duas telas desenham a mesma
    silhueta e querem coisas diferentes dela — aqui ela é um seletor, na
    tela de aplicações ela mostra o rodízio. */
-function MapaCorpo({ escolhido, sugerido, onEscolher }: {
-  escolhido: string; sugerido: string; onEscolher: (id: string) => void;
+/* O MAPA PASSA A MOSTRAR O DESCANSO, e não só a sugestão.
+
+   Antes ele tinha duas cores: azul no escolhido, lima tracejado no
+   sugerido, e todo o resto igual. A pessoa via QUAL o app recomenda, e
+   não POR QUÊ — que é a informação que faz ela concordar ou discordar
+   com conhecimento de causa.
+
+   Agora cada local tem a força do tempo que descansa: cheio é o que foi
+   usado por último, e vai clareando. É o mesmo desenho do rodízio na
+   tela de aplicações — quem viu lá reconhece aqui. */
+function MapaCorpo({ escolhido, sugerido, rodizio, onEscolher }: {
+  escolhido: string; sugerido: string;
+  rodizio: { id: string; semanas: number | null }[];
+  onEscolher: (id: string) => void;
 }) {
   const { c } = useTheme();
-  /* O QUE AS CORES DIZEM AQUI: azul cheio é o escolhido, lima tracejado é
-     o que a rotação sugere, e o resto é área disponível. */
   const tons = Object.fromEntries(ZONAS.map((z) => {
     const on = z.id === escolhido;
     const sug = z.id === sugerido;
+    const l = rodizio.find((x) => x.id === z.id);
+    /* Quatro semanas é o teto: além disso o local está tão livre quanto
+       qualquer outro, e continuar clareando inventaria diferença. */
+    const desc = l?.semanas == null ? 1 : Math.min(1, l.semanas / 4);
     return [z.id, {
-      fill: on ? c.accent : sug ? c.limeSoft : c.accentWeak,
+      fill: on ? c.accent : c.accent,
+      opacidade: on ? 1 : 0.40 * (1 - desc) + 0.05,
       stroke: on ? c.accent : sug ? c.limeDim : c.accentLine,
       tracejada: !on && sug,
     }];
   }));
   return <Corpo tons={tons} onEscolher={onEscolher} />;
 }
-
-/* "no abdômen (esq.)" mas "na coxa (dir.)" — a lista de locais tem os dois
-   gêneros, e concordar errado numa frase curta é o tipo de detalhe que faz
-   o app soar automático. */
-const artigo = (site: string) => (site.startsWith('coxa') ? 'na' : 'no');
 
 export default function Aplicacao() {
   const S = useStore((s) => s.S);
@@ -62,7 +72,7 @@ export default function Aplicacao() {
 
   const med = M(S);
   const sugerido = nextSite(S);
-  const ultima = lastInjection(S);
+  const rod = rodizioDeLocais(S);
   const est = penStock(S);
 
   /* O DIA da aplicação, e não um "quando" solto. '0' é hoje. */
@@ -97,8 +107,10 @@ export default function Aplicacao() {
       onAcao={salvar}
       rodape={<Botao label="Salvar aplicação" onPress={salvar} />}
     >
+      {/* Em uma linha só: "Registrar" e "aplicação" quebrados viravam duas
+          linhas de titulão para duas palavras que sempre andam juntas. */}
       <Titulao
-        titulo={`Registrar${'\n'}aplicação`}
+        titulo="Registrar aplicação"
         lead={`${DOW_PT[hoje.getDay()].charAt(0).toUpperCase()}${DOW_PT[hoje.getDay()].slice(1)}, ${hoje.getDate()} de ${MO_LONG[hoje.getMonth()]} · dose prevista para hoje`}
       />
 
@@ -136,25 +148,30 @@ export default function Aplicacao() {
         rotulo="Local da aplicação"
         ajuda="Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele."
       >
-        <Row style={{ gap: 14, alignItems: 'center' }}>
-          <MapaCorpo escolhido={site} sugerido={sugerido} onEscolher={setSite} />
-          <View style={{ flex: 1, gap: 8 }}>
-            <View>
-              <Txt v="bodyMed">{siteLabel(site)}</Txt>
-              <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-                {site === sugerido
-                  ? `Sugerido: a última aplicação foi ${ultima ? `${artigo(ultima.site)} ${siteLabel(ultima.site).toLowerCase()}` : 'em outro local'}.`
-                  : 'Fora da rotação sugerida — sem problema, é só um lembrete.'}
-              </Txt>
-            </View>
-            <Row gap={7}>
-              <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: c.limeSoft, borderWidth: 1, borderColor: c.limeDim }} />
-              <Txt v="caption" c={c.tx2}>sugerido pela rotação</Txt>
-            </Row>
-            <Row gap={7}>
-              <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: c.accent }} />
-              <Txt v="caption" c={c.tx2}>escolhido</Txt>
-            </Row>
+        {/* O QUE A COLUNA DA DIREITA DIZ MUDOU DE ASSUNTO.
+
+            Ela era uma legenda de cores — "sugerido pela rotação",
+            "escolhido" —, duas linhas para explicar o próprio desenho. O
+            que a pessoa precisa saber ao tocar num local é HÁ QUANTO
+            TEMPO ele descansa, que é a razão inteira de existir rotação.
+            A legenda sai; o fato entra, e muda a cada toque. */}
+        <Row style={{ gap: 16, alignItems: 'center' }}>
+          <MapaCorpo escolhido={site} sugerido={sugerido} rodizio={rod} onEscolher={setSite} />
+          <View style={{ flex: 1, gap: 6 }}>
+            <Txt v="bodyMed">{siteLabel(site)}</Txt>
+            <Txt v="caption" c={c.tx2}>
+              {(() => {
+                const l = rod.find((x) => x.id === site);
+                if (!l || l.semanas == null) return 'Ainda não usado neste tratamento.';
+                if (l.semanas === 0) return 'Usado esta semana.';
+                return `Descansando há ${l.semanas} ${l.semanas === 1 ? 'semana' : 'semanas'}.`;
+              })()}
+            </Txt>
+            <Txt v="caption" c={site === sugerido ? c.accent : c.tx3}>
+              {site === sugerido
+                ? 'É o próximo da rotação.'
+                : 'Fora da rotação sugerida — sem problema, é só um lembrete.'}
+            </Txt>
           </View>
         </Row>
       </Campo>
