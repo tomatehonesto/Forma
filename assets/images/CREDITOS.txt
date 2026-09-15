@@ -8,24 +8,25 @@ As fotos dos alimentos têm o próprio arquivo, gerado junto com o
 download — ver alimentos/CREDITOS.txt.
 
 agua-hero.jpg — o topo da tela de Água
-  assunto: cena submarina com raios de sol atravessando a superfície
-  autor: Jess Loiterton
+  assunto: superfície de água em azul, com o reflexo em faixas claras
+  autor: Nothing Ahead
   licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/underwater-waves-5007946/
+  origem: https://www.pexels.com/photo/close-up-of-water-15957181/
 
 alimentacao-hero.jpg — o topo da tela de Alimentação
-  assunto: tigela com atum, grão-de-bico, ovo e folhas
-  autor: Alesia Kozik
+  assunto: mesa de frutas, legumes e castanhas, em cores fechadas
+  autor: Natalia S
   licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/vegetarian-meal-with-poached-egg-6632285/
+  origem: https://www.pexels.com/photo/table-filled-with-fruit-vegetables-and-healthy-snacks-27154961/
 
 exercicio-hero.jpg — o topo da tela de Exercício
-  assunto: pernas e tênis subindo uma escada de granito ao sol
-  autor: Ketut Subiyanto
+  assunto: corredor em movimento, com o borrão de quem passou rápido
+  autor: Nick Gosset
   licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/person-running-up-stairs-4804022/
+  origem: https://www.pexels.com/photo/a-blurry-shot-of-a-man-running-12125332/
 
-  O enquadramento importa: pernas e tênis, sem rosto e sem torso. Num
-  app de perda de peso, a foto de um corpo em exposição no alto da tela
-  de exercício cobra em vez de convidar — esta mostra o movimento, não
-  quem o faz.
+  O borrão é o assunto, e não um defeito: é movimento fotografado como
+  movimento. De quebra, resolve o que a foto nítida de alguém treinando
+  nunca resolveu — num app de perda de peso, um corpo em foco no alto da
+  tela de exercício cobra em vez de convidar. Aqui não dá para ver de
+  quem é o corpo.

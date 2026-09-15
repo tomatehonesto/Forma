@@ -158,6 +158,10 @@ export default function Exercicio() {
       <CapaDeHabito
         foto={require('../../assets/images/exercicio-hero.jpg')}
         titulo="Exercício"
+        /* O corte desce até o pé: o assunto desta foto são as pernas, e
+           o corte centrado mostrava o tronco borrado e deixava o passo
+           de fora — que é a única parte que diz "correndo". */
+        posicao={{ bottom: 0 }}
         /* EM ZERO A LINHA FALA DA SEMANA, e não do que falta hoje.
 
            "0 de 60 min · faltam 60 min" diz a mesma coisa duas vezes, e

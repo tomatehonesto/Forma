@@ -50,13 +50,19 @@ import { radius } from '../theme';
    pessoa veio ver; deixá-lo meio apagado era estilo cobrando pedágio da
    informação.
    ============================================================ */
-export function CapaDeHabito({ foto, titulo, linha, pct, children }: {
+export function CapaDeHabito({ foto, titulo, linha, pct, posicao, children }: {
   foto: any;
   titulo: string;
   /** "Hoje: 0,5 de 2,5 L" — a quantidade por extenso, com a meta */
   linha: string;
   /** a proporção do dia, já arredondada */
   pct: number;
+  /* QUAL PEDAÇO DA FOTO FICA VISÍVEL. A capa é larga e as fotos são
+     retratos: sobra altura, e o corte padrão tira metade de cima e
+     metade de baixo. Isso serve para textura — água, comida — e não
+     serve quando o assunto mora numa ponta só, como as pernas de quem
+     corre. */
+  posicao?: any;
   /** os atalhos, no pé da foto */
   children?: React.ReactNode;
 }) {
@@ -76,6 +82,7 @@ export function CapaDeHabito({ foto, titulo, linha, pct, children }: {
         source={foto}
         style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
         contentFit="cover"
+        contentPosition={posicao}
       />
       {/* A faixa vai além da última linha de texto: a passagem precisa de
           espaço para deixar de ser um corte. */}
