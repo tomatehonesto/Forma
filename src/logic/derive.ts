@@ -1486,10 +1486,19 @@ export function journeyGoals(S: State): JourneyGoal[] {
 
     if (!ind) {
       /* Pessoal: cheia ou vazia, e a data no lugar da fração. */
+      /* O PRAZO É FATO, NÃO COBRANÇA. Passado e não conquistada, a linha
+         diz que ele passou e para aí — sem vermelho e sem "atrasada". Num
+         tratamento de meses, uma data que escorregou é a coisa mais
+         comum do mundo, e a meta continua de pé. */
+      const venceu = !g.feita && g.prazo && g.prazo < +startOfDay(now());
       return {
         id: g.id, ic: g.ic, label: g.label,
         pct: g.feita ? 100 : 0,
-        hint: g.feita && g.em ? `conquistada em ${fmtDate(new Date(g.em))}` : 'você marca quando chegar',
+        hint: g.feita && g.em
+          ? `conquistada em ${fmtDate(new Date(g.em))}`
+          : g.prazo
+            ? `${venceu ? 'o prazo era' : 'até'} ${fmtDate(new Date(g.prazo))}`
+            : 'você marca quando chegar',
         pessoal: true,
         feita: !!g.feita,
         conta: '',
@@ -2478,21 +2487,97 @@ export const INDICADORES: Indicador[] = [
    meta" com o cursor piscando escreve "emagrecer" — que é o que o app
    inteiro já faz — ou fecha.
 
-   Estas cinco não são uma lista de opções, são exemplos do TIPO de coisa
-   que cabe aqui. Por isso elas não gravam direto: elas preenchem o campo
-   e deixam a pessoa terminar a frase. "Entrar numa peça de roupa" vira
-   "Entrar no vestido do casamento da minha irmã", e é aí que a meta passa
-   a ser dela.
+   ESTAS SÃO CATEGORIAS, E NÃO FRASES PRONTAS. É a mesma forma dos
+   indicadores: a lista diz de QUE coisa se trata, e o segundo toque é
+   que a torna dela. "Um esporte" pergunta qual esporte; "uma peça de
+   roupa" pergunta qual peça.
 
-   Nenhuma delas assume família, corpo ou dinheiro — uma meta que não cabe
+   Elas chegaram a ser frases prontas que preenchiam o campo — "Voltar a
+   um esporte que eu gostava", com o cursor no fim. Funcionava e era
+   preguiçoso: quem não apagasse nada ficava com uma meta genérica, e
+   meta genérica não convida ninguém a nada. A pergunta obriga a
+   especificar, que é justamente o trabalho que uma meta pessoal pede.
+
+   O PREFIXO GARANTE QUE A FRASE FECHE. A resposta é um pedaço de frase —
+   "vôlei", "o vestido do casamento" — e o monta devolve a sentença
+   inteira. Sem isso, metade das metas começaria em minúscula e a outra
+   metade repetiria o verbo.
+
+   Nenhuma delas assume família, corpo ou dinheiro: uma meta que não cabe
    na vida de quem está lendo é pior do que campo vazio.
    ============================================================ */
-export const METAS_PESSOAIS: { ic: string; label: string }[] = [
-  { ic: 'ruler', label: 'Entrar numa peça de roupa' },
-  { ic: 'heart', label: 'Me sentir bem comigo mesmo' },
-  { ic: 'walk', label: 'Subir escada sem perder o fôlego' },
-  { ic: 'run', label: 'Voltar a um esporte que eu gostava' },
-  { ic: 'photo', label: 'Tirar uma foto e gostar dela' },
+export type MetaPessoal = {
+  id: string;
+  ic: string;
+  /** a categoria, na lista */
+  nome: string;
+  /** a pergunta que especifica */
+  pergunta: string;
+  /** o que aparece dentro do campo, ensinando a forma da resposta */
+  exemplo: string;
+  /** a frase inteira, a partir do pedaço que a pessoa escreveu */
+  monta: (r: string) => string;
+};
+
+export const METAS_PESSOAIS: MetaPessoal[] = [
+  {
+    id: 'roupa', ic: 'ruler', nome: 'Uma peça de roupa',
+    pergunta: 'Qual peça você quer vestir?',
+    exemplo: 'o vestido do casamento da minha irmã',
+    monta: (r) => `Vestir ${r}`,
+  },
+  {
+    id: 'esporte', ic: 'run', nome: 'Um esporte',
+    pergunta: 'Qual esporte você quer voltar a praticar?',
+    exemplo: 'vôlei',
+    monta: (r) => `Voltar a praticar ${r}`,
+  },
+  {
+    id: 'folego', ic: 'walk', nome: 'Algo do dia a dia',
+    pergunta: 'O que você quer fazer sem perder o fôlego?',
+    exemplo: 'subir a escada de casa',
+    monta: (r) => `Conseguir ${r} sem perder o fôlego`,
+  },
+  {
+    id: 'sentir', ic: 'heart', nome: 'Como eu me sinto',
+    pergunta: 'Como você quer se sentir?',
+    exemplo: 'bem ao me olhar no espelho',
+    monta: (r) => `Me sentir ${r}`,
+  },
+  {
+    id: 'foto', ic: 'photo', nome: 'Uma foto',
+    pergunta: 'Que foto você quer tirar?',
+    exemplo: 'uma foto de corpo inteiro e gostar dela',
+    monta: (r) => `Tirar ${r}`,
+  },
+];
+
+/* A saída para o que não cabe em nenhuma categoria. Ela é a mesma coisa
+   que as outras — pergunta, exemplo, monta —, só que sem prefixo: aqui a
+   frase inteira é de quem escreve. */
+export const META_LIVRE: MetaPessoal = {
+  id: 'livre', ic: 'more', nome: 'Outra meta',
+  pergunta: 'O que você quer conseguir?',
+  exemplo: 'Vestir a calça jeans antiga',
+  monta: (r) => r,
+};
+
+/* OS PRAZOS, e por que eles são relativos.
+
+   Uma meta pessoal pode ter data — "até o casamento", "até a consulta de
+   junho" — e um calendário para escolher o dia exato seria precisão que
+   ninguém tem: quem põe prazo numa meta de tratamento pensa em "uns três
+   meses", não em 14 de dezembro.
+
+   E o prazo é OPCIONAL de verdade: a primeira opção é não ter, e ela vem
+   selecionada. Uma meta sem data continua sendo uma meta — o que ela não
+   pode é ganhar um prazo que a pessoa não escolheu. */
+export const PRAZOS: { id: string; label: string; dias: number | null }[] = [
+  { id: 'nao', label: 'Sem prazo', dias: null },
+  { id: '30', label: 'Em 1 mês', dias: 30 },
+  { id: '90', label: 'Em 3 meses', dias: 90 },
+  { id: '180', label: 'Em 6 meses', dias: 180 },
+  { id: '365', label: 'Em 1 ano', dias: 365 },
 ];
 
 export const indicadorDe = (id?: string | null) =>
@@ -2530,14 +2615,17 @@ export type Meta = {
   feita?: boolean;
   /** o dia em que ela foi conquistada */
   em?: number | null;
+  /** a data que a pessoa escolheu, quando escolheu alguma */
+  prazo?: number | null;
 };
 
-/** Uma meta que só a pessoa sabe dizer quando chegou. */
-export function guardarMetaPessoal(s: any, label: string) {
+/** Uma meta que só a pessoa sabe dizer quando chegou, com prazo se ela
+    quis um. */
+export function guardarMetaPessoal(s: any, label: string, ic = 'target', prazo: number | null = null) {
   const texto = label.trim();
   if (!texto) return;
   s.goals = [...(s.goals || []), {
-    id: 'g' + Date.now(), ic: 'target', label: texto, indicador: null, feita: false, em: null,
+    id: 'g' + Date.now(), ic, label: texto, indicador: null, feita: false, em: null, prazo,
   }];
 }
 

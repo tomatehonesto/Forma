@@ -3,12 +3,13 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, METAS_PESSOAIS, apagarMeta, guardarMetaMedida, guardarMetaPessoal,
-  indicadoresLivres, padraoDe, journeyGoals, marcarMeta, mudarAlvo,
-  type ChaveDeAlvo, type Indicador,
+  ALVOS, METAS_PESSOAIS, META_LIVRE, PRAZOS, apagarMeta, guardarMetaMedida,
+  guardarMetaPessoal, indicadoresLivres, padraoDe, journeyGoals, marcarMeta,
+  mudarAlvo, type ChaveDeAlvo, type Indicador, type MetaPessoal,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { DAY, fmtDate, now, startOfDay } from '../logic/time';
+import { Campo, Chips, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -80,7 +81,10 @@ export default function Meta() {
 
   /* ---------------- uma meta nova ---------------- */
   const [texto, setTexto] = useState('');
-  const [escrevendo, setEscrevendo] = useState(false);
+  /* A categoria pessoal escolhida no primeiro passo, e o prazo do
+     segundo. Sem categoria, a folha mostra a lista. */
+  const [pess, setPess] = useState<MetaPessoal | null>(null);
+  const [prazo, setPrazo] = useState('nao');
   /* O indicador escolhido no primeiro passo, e o número que a pessoa está
      ajustando no segundo. */
   const [ind, setInd] = useState<Indicador | null>(null);
@@ -88,10 +92,6 @@ export default function Meta() {
 
   if (novo === '1') {
     const livres = indicadoresLivres(S);
-    const criar = () => {
-      update((s: any) => guardarMetaPessoal(s, texto));
-      router.back();
-    };
     const abrir = (i: Indicador) => { setInd(i); setRegua(padraoDe(i, S)); };
     const guardar = () => {
       if (!ind) return;
@@ -159,47 +159,64 @@ export default function Meta() {
       );
     }
 
-    /* ESCREVER É O ÚLTIMO ANDAR, e não o primeiro.
+    /* SEGUNDO PASSO DA PESSOAL: ESPECIFICAR.
 
-       A folha pedia direto um texto livre — e texto livre vira meta que o
-       app não sabe acompanhar, porque ele não tem como adivinhar que
-       "dormir melhor" é a coluna sono. A pessoa escrevia uma meta
-       mensurável e recebia uma caixinha para marcar à mão. */
-    if (escrevendo) {
+       As categorias chegaram a ser frases prontas que preenchiam o campo
+       — "Voltar a um esporte que eu gostava", com o cursor no fim.
+       Funcionava e era preguiçoso: quem não apagasse nada ficava com uma
+       meta genérica, e meta genérica não convida ninguém a nada.
+
+       A pergunta obriga a especificar, que é o trabalho que uma meta
+       pessoal pede — qual esporte, qual peça de roupa. E é a mesma forma
+       da medida, em que o segundo toque escolhe a régua. */
+    if (pess) {
+      const frase = texto.trim() ? pess.monta(texto.trim()) : '';
+      const dias = PRAZOS.find((x) => x.id === prazo)?.dias ?? null;
+      const quando = dias == null ? null : +startOfDay(now()) + dias * DAY;
+      const salvarPessoal = () => {
+        update((s: any) => guardarMetaPessoal(s, frase, pess.ic, quando));
+        router.back();
+      };
       return (
         <SheetScreen
-          titulo="Sua meta"
-          sub="Uma coisa que só você sabe dizer quando chegou"
-          onClose={() => setEscrevendo(false)}
+          titulo={pess.nome}
+          sub={pess.pergunta}
+          onClose={() => setPess(null)}
           rodape={(
             <Botao
-              label={texto.trim() ? 'Guardar meta' : 'Escreva a meta'}
-              desligado={!texto.trim()}
-              onPress={criar}
+              label={frase ? 'Guardar meta' : 'Responda para guardar'}
+              desligado={!frase}
+              onPress={salvarPessoal}
             />
           )}
         >
-          <View style={{ marginTop: 20, gap: 14 }}>
-            <Campo rotulo="A meta" ajuda="Escreva do seu jeito — ela aparece exatamente assim." nu>
-              <Texto
-                valor={texto}
-                onChange={setTexto}
-                placeholder="Vestir a calça jeans antiga"
-                linhas={2}
-              />
+          <View style={{ marginTop: 20, gap: 18 }}>
+            {/* O exemplo dentro do campo ensina a FORMA da resposta: um
+                pedaço de frase, não a frase inteira. É o que faz "vôlei"
+                virar "Voltar a praticar vôlei" sem ninguém explicar. */}
+            <Texto
+              valor={texto}
+              onChange={setTexto}
+              placeholder={pess.exemplo}
+              linhas={2}
+            />
+
+            {/* O PRAZO, e o "opcional" dito no rótulo. A primeira pastilha
+                é não ter prazo, e ela vem escolhida: uma meta sem data
+                continua sendo uma meta — o que ela não pode é ganhar uma
+                data que a pessoa não pediu. */}
+            <Campo rotulo="Prazo (opcional)" nu>
+              <Chips itens={PRAZOS} valor={prazo} onChange={setPrazo} />
             </Campo>
 
-            {/* SEM PORCENTAGEM, e sem prazo. Esta meta é uma coisa que
-                acontece num dia: ou ainda não, ou conseguiu. Pedir aqui um
-                "quanto por cento" seria pedir um número que ninguém tem
-                como responder — e foi o que a tela fazia até agora, com um
-                60% escrito no código. */}
-            <Aviso
-              ic="target"
-              dentro
-              titulo="Ela não tem barra nem prazo"
-              texto="Fica em ainda não até você marcar. No dia em que acontecer, o app guarda a data junto."
-            />
+            {/* COMO ELA VAI APARECER, montada enquanto a pessoa escreve.
+                Sem isto, a regra do prefixo é uma surpresa que só chega
+                depois de salvar. */}
+            <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
+              {frase
+                ? `Vai aparecer assim: "${frase}"${quando ? `, até ${fmtDate(new Date(quando))}` : ''}.`
+                : 'Ela fica em ainda não até você marcar. No dia em que acontecer, o app guarda a data junto.'}
+            </Txt>
           </View>
         </SheetScreen>
       );
@@ -254,23 +271,18 @@ export default function Meta() {
               que "entrar numa peça de roupa" vira a peça dela. */}
           <Campo rotulo="Você marca quando chegar" nu>
             <Cartao>
-              {METAS_PESSOAIS.map((m) => (
+              {/* CATEGORIAS, e não frases prontas — a mesma forma da lista
+                  de cima. "Um esporte" pergunta qual esporte; a frase
+                  inteira só existe depois da resposta. */}
+              {[...METAS_PESSOAIS, META_LIVRE].map((m) => (
                 <Linha
-                  key={m.label}
+                  key={m.id}
                   ic={m.ic}
-                  titulo={m.label}
-                  onPress={() => { setTexto(m.label); setEscrevendo(true); }}
+                  titulo={m.nome}
+                  sub={m.id === 'livre' ? 'Escreva do seu jeito' : undefined}
+                  onPress={() => { setTexto(''); setPrazo('nao'); setPess(m); }}
                 />
               ))}
-              {/* OS TRÊS PONTINHOS, e não o alvo. O alvo é o ícone de meta
-                  — este item não é uma meta, é a porta para escrever uma.
-                  Reticências dizem "tem mais", que é exatamente o caso. */}
-              <Linha
-                ic="more"
-                titulo="Outra meta"
-                sub="Escreva do seu jeito"
-                onPress={() => { setTexto(''); setEscrevendo(true); }}
-              />
             </Cartao>
           </Campo>
         </View>
