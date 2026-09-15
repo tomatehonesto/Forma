@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import { useStore } from '../logic/store';
-import { M, nextSite, siteLabel, lastInjection, penStock } from '../logic/derive';
+import {
+  M, nextSite, siteLabel, lastInjection, penStock, diasParaAplicar, instanteDaAplicacao,
+} from '../logic/derive';
 import { MO_LONG, DOW_PT, now, fmtTime, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Campo, Opcoes, Opc, Stepper, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Campo, Chips, Opcoes, Opc, Stepper, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -39,6 +41,17 @@ const ZONAS: Zona[] = [
   { id: 'coxa-e', x: 59, y: 100, w: 12, h: 26, r: 6 },
 ];
 
+/* O DESENHO NÃO RECEBE O TOQUE; UMA CAMADA POR CIMA RECEBE.
+
+   Cada zona era um <Rect onPress>, e no navegador isso não funciona: o
+   react-native-svg traduz o onPress em props de responder do React
+   Native, que o DOM não conhece. O resultado eram seis erros de console a
+   cada render — e um mapa que no web não respondia a toque nenhum.
+
+   O SVG volta a ser só desenho e seis Pressable ficam por cima, nas
+   mesmas coordenadas. Dá certo porque o desenho é renderizado em tamanho
+   fixo, 112 por 176, igual ao viewBox: uma unidade do desenho é um pixel
+   da tela, e não há conversão para errar. */
 function MapaCorpo({ escolhido, sugerido, onEscolher }: {
   escolhido: string; sugerido: string; onEscolher: (id: string) => void;
 }) {
@@ -48,7 +61,7 @@ function MapaCorpo({ escolhido, sugerido, onEscolher }: {
      Zona e corpo no mesmo cinza — a primeira versão — deixava as seis
      áreas invisíveis, e o mapa virava desenho. */
   const corpo = c.bg2;
-  return (
+  const desenho = (
     <Svg width={112} height={176} viewBox="0 0 112 176">
       <Circle cx={56} cy={18} r={12} fill={corpo} />
       <Rect x={38} y={34} width={36} height={52} rx={12} fill={corpo} />
@@ -68,11 +81,27 @@ function MapaCorpo({ escolhido, sugerido, onEscolher }: {
             stroke={on ? c.accent : sug ? c.limeDim : c.accentLine}
             strokeWidth={1.5}
             strokeDasharray={!on && sug ? '3 3' : undefined}
-            onPress={() => onEscolher(z.id)}
           />
         );
       })}
     </Svg>
+  );
+
+  return (
+    <View style={{ width: 112, height: 176 }}>
+      {desenho}
+      {/* A área de toque cresce 6 px para cada lado do que está pintado:
+          a maior das seis zonas tem 16 por 22, que é menos da metade do
+          alvo confortável de dedo. O retângulo colorido continua do
+          tamanho que é — quem cresce é só o que escuta. */}
+      {ZONAS.map((z) => (
+        <Pressable
+          key={z.id}
+          onPress={() => onEscolher(z.id)}
+          style={{ position: 'absolute', left: z.x - 6, top: z.y - 6, width: z.w + 12, height: z.h + 12 }}
+        />
+      ))}
+    </View>
   );
 }
 
@@ -92,7 +121,9 @@ export default function Aplicacao() {
   const ultima = lastInjection(S);
   const est = penStock(S);
 
-  const [quando, setQuando] = useState('agora');
+  /* O DIA da aplicação, e não um "quando" solto. '0' é hoje. */
+  const dias = diasParaAplicar(S);
+  const [dia, setDia] = useState('0');
   const [dose, setDose] = useState<number>(S.profile.dose);
   const [site, setSite] = useState(sugerido);
   const [outraCaneta, setOutraCaneta] = useState(false);
@@ -104,9 +135,10 @@ export default function Aplicacao() {
   };
 
   const hoje = now();
+  const quando = dias.find((d) => d.id === dia) || dias[0];
   const salvar = () => {
     update((s: any) => {
-      s.injections.push({ t: +now(), med: s.profile.med, dose, site, note: '' });
+      s.injections.push({ t: instanteDaAplicacao(quando.t), med: s.profile.med, dose, site, note: '' });
       s.profile.dose = dose;
       if (s.pen) s.pen.dosesLeft = Math.max(0, s.pen.dosesLeft - 1);
     });
@@ -126,12 +158,25 @@ export default function Aplicacao() {
         lead={`${DOW_PT[hoje.getDay()].charAt(0).toUpperCase()}${DOW_PT[hoje.getDay()].slice(1)}, ${hoje.getDate()} de ${MO_LONG[hoje.getMonth()]} · dose prevista para hoje`}
       />
 
-      <Campo rotulo="Quando">
-        <Opcoes>
-          <Opc label={`Agora · ${fmtTime(hoje)}`} on={quando === 'agora'} onPress={() => setQuando('agora')} />
-          <Opc label="Outro horário" on={quando === 'hora'} onPress={() => setQuando('hora')} />
-          <Opc label="Outro dia" on={quando === 'dia'} onPress={() => setQuando('dia')} />
-        </Opcoes>
+      {/* O DIA, e só ele.
+
+          Eram três opções — Agora, Outro horário, Outro dia — e as três
+          gravavam a hora de AGORA: a escolha era lida na tela e jogada
+          fora no salvar. Quem aplicou na sexta e registrou no domingo
+          ficava com uma aplicação de domingo, e a próxima data saía dois
+          dias errada.
+
+          "Outro horário" não voltou. A hora de uma aplicação não aparece
+          em lugar nenhum do app — o histórico mostra data, o calendário
+          conta por dia, a curva farmacológica trabalha em dias. Um
+          controle cujo valor ninguém lê é uma pergunta respondida à toa. */}
+      <Campo
+        rotulo="Quando"
+        ajuda={dia === '0'
+          ? `Fica registrada agora, ${fmtTime(hoje)}.`
+          : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
+      >
+        <Chips itens={dias} valor={dia} onChange={setDia} />
       </Campo>
 
       <Campo rotulo="Dose" ajuda={`Sua dose atual é ${nf(S.profile.dose, 1).replace('.', ',')} ${med.unit}.`}>

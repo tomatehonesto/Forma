@@ -1,5 +1,5 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
-import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, DOW_PT, nf, kg, relDay } from './time';
+import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem } from './prato';
@@ -2682,6 +2682,57 @@ export function marcarTarefa(s: any, i: number) {
   const x = s.protocol.tasks[i];
   if (!x || x.metrica) return;
   x.done = !x.done;
+}
+
+/* ============================================================
+   QUANDO FOI A APLICAÇÃO
+
+   O formulário tinha três opções — Agora, Outro horário, Outro dia — e
+   as três gravavam `+now()`. A escolha era lida na tela e jogada fora
+   no salvar: quem aplicou na sexta e registrou no domingo ficava com uma
+   aplicação de domingo, e a próxima data saía dois dias errada.
+
+   E a tela de aplicações prometia, por escrito, "dá pra registrar uma
+   aplicação anterior a qualquer momento".
+
+   "OUTRO HORÁRIO" NÃO VOLTA. A hora de uma aplicação não aparece em
+   lugar nenhum do app — o histórico mostra data, o calendário conta por
+   dia, a curva farmacológica trabalha em dias. Um controle cujo valor
+   ninguém lê não é um recurso, é uma pergunta que a pessoa responde à
+   toa.
+
+   Fica o DIA, em pastilhas: hoje e os seis anteriores. Mais que isso e o
+   atraso deixa de ser esquecimento e vira outra conversa — com a equipe,
+   não com o formulário. */
+export function diasParaAplicar(S: State, n = 7): { id: string; label: string; t: number }[] {
+  const hoje = +startOfDay(now());
+  return Array.from({ length: n }, (_, i) => {
+    const t = hoje - i * DAY;
+    const d = new Date(t);
+    return {
+      id: String(i),
+      label: i === 0 ? 'Hoje' : i === 1 ? 'Ontem' : i === 2 ? 'Anteontem' : `${fmtWD(d)} ${d.getDate()}`,
+      t,
+    };
+  });
+}
+
+/* A hora dentro do dia escolhido: agora quando é hoje, meio-dia quando é
+   um dia que já passou. Meio-dia porque a hora precisa existir para o
+   registro ter um instante, e porque ela não aparece em tela nenhuma —
+   herdar a hora de AGORA num registro de sexta-feira seria inventar um
+   detalhe com cara de dado. */
+export const instanteDaAplicacao = (t: number) =>
+  t === +startOfDay(now()) ? +now() : t + 12 * 3600000;
+
+/* Apagar uma aplicação devolve a dose à caneta, que é o inverso exato do
+   que salvar fez. Sem isso, um registro criado sem querer levava uma
+   dose embora do estoque para sempre. */
+export function apagarAplicacao(s: any, t: number) {
+  const tinha = (s.injections as any[]).some((i) => i.t === t);
+  if (!tinha) return;
+  s.injections = (s.injections as any[]).filter((i) => i.t !== t);
+  if (s.pen) s.pen.dosesLeft = Math.min(s.pen.dosesPerPen ?? 4, (s.pen.dosesLeft || 0) + 1);
 }
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
