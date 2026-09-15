@@ -3,10 +3,11 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, apagarMeta, guardarMeta, journeyGoals, marcarMeta, mudarAlvo, type ChaveDeAlvo,
+  ALVOS, apagarMeta, guardarMetaMedida, guardarMetaPessoal, indicadoresLivres,
+  journeyGoals, marcarMeta, mudarAlvo, type ChaveDeAlvo,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { Campo, Stepper, Texto, Botao, Aviso } from '../ui/internas';
+import { Campo, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -16,7 +17,7 @@ import { useTheme } from '../ui/useTheme';
 
      ?alvo=prot     um dos quatro números que o app cobra, no stepper
      ?g=<id>        uma meta da lista: marcar, desmarcar, apagar
-     ?novo=1        escrever uma meta nova
+     ?novo=1        escolher uma meta medida, ou escrever a sua
 
    Três telas para isso significaria três cópias do rodapé, do fechar e
    do cartão — e é exatamente aí que uma ganha o botão de apagar e as
@@ -78,45 +79,109 @@ export default function Meta() {
 
   /* ---------------- uma meta nova ---------------- */
   const [texto, setTexto] = useState('');
+  const [escrevendo, setEscrevendo] = useState(false);
+
   if (novo === '1') {
+    const livres = indicadoresLivres(S);
     const criar = () => {
-      update((s: any) => guardarMeta(s, texto));
+      update((s: any) => guardarMetaPessoal(s, texto));
       router.back();
     };
+    const pegar = (id: string) => {
+      update((s: any) => guardarMetaMedida(s, id));
+      router.back();
+    };
+
+    /* ESCREVER É O SEGUNDO ANDAR, e não o primeiro.
+
+       A folha pedia direto um texto livre — e texto livre vira meta que o
+       app não sabe acompanhar, porque ele não tem como adivinhar que
+       "dormir melhor" é a coluna `sono`. A pessoa escrevia uma meta
+       mensurável e recebia uma caixinha para marcar à mão.
+
+       Com a lista na frente, o que o app SABE CONTAR aparece primeiro, e
+       o texto livre fica para o que ele não tem como medir mesmo — uma
+       calça, uma viagem, subir a escada sem parar. */
+    if (escrevendo) {
+      return (
+        <SheetScreen
+          titulo="Outra meta"
+          sub="Uma coisa que só você sabe dizer quando chegou"
+          onClose={() => router.back()}
+          rodape={(
+            <Botao
+              label={texto.trim() ? 'Guardar meta' : 'Escreva a meta'}
+              desligado={!texto.trim()}
+              onPress={criar}
+            />
+          )}
+        >
+          <View style={{ marginTop: 20, gap: 14 }}>
+            <Campo rotulo="A meta" ajuda="Escreva do seu jeito — ela aparece exatamente assim." nu>
+              <Texto
+                valor={texto}
+                onChange={setTexto}
+                placeholder="Vestir a calça jeans antiga"
+                linhas={2}
+              />
+            </Campo>
+
+            {/* SEM PORCENTAGEM, e sem prazo. Esta meta é uma coisa que
+                acontece num dia: ou ainda não, ou conseguiu. Pedir aqui um
+                "quanto por cento" seria pedir um número que ninguém tem
+                como responder — e foi o que a tela fazia até agora, com um
+                60% escrito no código. */}
+            <Aviso
+              ic="target"
+              dentro
+              titulo="Ela não tem barra nem prazo"
+              texto="Fica em ainda não até você marcar. No dia em que acontecer, o app guarda a data junto."
+            />
+          </View>
+        </SheetScreen>
+      );
+    }
+
     return (
       <SheetScreen
         titulo="Nova meta"
-        sub="Uma coisa que você quer conseguir"
+        sub="Escolha uma que o app acompanha, ou escreva a sua"
         onClose={() => router.back()}
-        rodape={(
-          <Botao
-            label={texto.trim() ? 'Guardar meta' : 'Escreva a meta'}
-            desligado={!texto.trim()}
-            onPress={criar}
-          />
-        )}
       >
-        <View style={{ marginTop: 20, gap: 14 }}>
-          <Campo rotulo="A meta" ajuda="Escreva do seu jeito — ela aparece exatamente assim." nu>
-            <Texto
-              valor={texto}
-              onChange={setTexto}
-              placeholder="Vestir a calça jeans antiga"
-              linhas={2}
-            />
-          </Campo>
+        <View style={{ marginTop: 18, gap: 10 }}>
+          {/* AS QUE O APP CONTA. Cada uma diz, embaixo, exatamente o que
+              vai ser contado — sem isso "enjoo sob controle" é uma
+              promessa, e com isso é uma régua: dias com enjoo em 2 ou
+              menos. A pessoa escolhe sabendo o que vai ver depois. */}
+          {livres.length ? (
+            <Cartao>
+              {livres.map((i) => (
+                <Linha
+                  key={i.id}
+                  ic={i.ic}
+                  titulo={i.label}
+                  sub={i.conta}
+                  onPress={() => pegar(i.id)}
+                />
+              ))}
+            </Cartao>
+          ) : (
+            <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
+              Você já tem uma meta para cada coisa que o app sabe contar.
+            </Txt>
+          )}
 
-          {/* SEM PORCENTAGEM, e sem prazo. A meta pessoal é uma coisa que
-              acontece num dia: ou ainda não, ou conseguiu. Pedir aqui um
-              "quanto por cento" seria pedir um número que ninguém tem
-              como responder — e foi o que a tela fazia até agora, com um
-              60% escrito no código. */}
-          <Aviso
-            ic="target"
-            dentro
-            titulo="Ela não tem barra nem prazo"
-            texto="Fica em ainda não até você marcar. No dia em que acontecer, o app guarda a data junto."
-          />
+          {/* E A OUTRA PORTA, embaixo e separada: o que o app não mede.
+              Ela não é a opção de segunda classe — é a única honesta para
+              uma calça que precisa fechar. */}
+          <Cartao>
+            <Linha
+              ic="target"
+              titulo="Outra coisa"
+              sub="Uma meta que só você sabe dizer quando chegou"
+              onPress={() => setEscrevendo(true)}
+            />
+          </Cartao>
         </View>
       </SheetScreen>
     );
@@ -184,8 +249,8 @@ export default function Meta() {
           <Aviso
             ic="leaf"
             dentro
-            titulo="Esta o app conta sozinho"
-            texto="O número sai dos seus check-ins dos últimos catorze dias. Não dá para marcar à mão — e é isso que faz ele valer alguma coisa."
+            titulo={meta.conta || 'Esta o app conta sozinho'}
+            texto="Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa."
           />
         )}
       </View>

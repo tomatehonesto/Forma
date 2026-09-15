@@ -1449,63 +1449,66 @@ export function journeyChanges(S: State): Change[] {
   return out;
 }
 
-/* Metas — a linha de chegada.
-
-   No estado, três das quatro metas guardam prog: 0: elas não são digitadas,
-   são derivadas do que a pessoa registra. Só a meta manual ("vestir a calça
-   jeans antiga") carrega um valor informado por ela. */
-export type JourneyGoal = { id: string; ic: string; label: string; pct: number; hint: string };
+/* AS METAS, prontas para a tela — a medida com a conta que o indicador
+   dela devolve, a pessoal com o estado e a data. */
+export type JourneyGoal = {
+  id: string; ic: string; label: string;
+  pct: number;
+  hint: string;
+  /** sem indicador: quem marca é a pessoa */
+  pessoal: boolean;
+  feita: boolean;
+  /** o que o indicador conta, em uma frase; vazio nas pessoais */
+  conta: string;
+};
 
 export function journeyGoals(S: State): JourneyGoal[] {
+  /* Catorze dias, e só os RESPONDIDOS entram na conta: quatorze dias com
+     três noites registradas não são "21% das noites" — são três noites, e
+     duas delas boas é 67%. Diluir pelo que não foi perguntado
+     transformaria silêncio em fracasso. */
   const recentes = S.checkins.slice(-14) as any[];
-  /* Só os dias respondidos entram na conta. Quatorze dias com três noites
-     registradas não são "21% das noites" — são três noites, e duas delas
-     boas é 67%. Diluir pelo que não foi perguntado transformaria silêncio
-     em fracasso. */
-  /* A CONTA, e não só a porcentagem. A linha dizia "85%" à direita e
-     "85% das noites recentes" embaixo — o mesmo número duas vezes, e a
-     segunda vez sem acrescentar nada. "11 de 13 noites" responde outra
-     pergunta: de quantas noites estamos falando. */
-  const sono = contaDe(recentes, 'sono', (v) => v >= 7);
-  const energia = contaDe(recentes, 'energia', (v) => v >= 7);
-  const pctSono = sono.de ? (sono.n / sono.de) * 100 : null;
 
-  /* DIAS COM ENERGIA ALTA, e não a média dela.
+  /* CADA META PERGUNTA AO PRÓPRIO INDICADOR.
 
-     A conta era média × 10: energia 6,2 virava uma barra em 62%, como se
-     62% fosse o caminho andado até um dez que ninguém pediu. A meta diz
-     "mais energia", que é comparação, e a barra dizia nível.
+     Aqui havia um `if` para sono e outro para energia, os dois com a
+     conta escrita à mão. Acrescentar "menos enjoo" exigia um terceiro,
+     e a tela de nova meta não teria como oferecer nada que o arquivo
+     não soubesse de cor. Agora a lista de indicadores é o que manda, e
+     esta função não conhece nenhum deles pelo nome.
 
-     Contar os dias que passaram de sete responde a mesma pergunta com uma
-     conta que existe — e é a mesma do sono, que já funcionava. */
-  const pctEnergia = energia.de ? (energia.n / energia.de) * 100 : null;
-
+     A de energia era MÉDIA × 10: energia 6,2 virava barra em 62%, como
+     se 62% fosse o caminho andado até um dez que ninguém pediu. Ela é
+     um indicador como os outros — dias que passaram de sete. */
   return (S.goals as any[]).map((g) => {
-    let pct = 0;
-    let hint = '';
-    if (g.kind === 'sono') {
-      pct = pctSono ?? 0;
-      hint = pctSono == null
-        ? 'sem noites registradas ainda'
-        : `${sono.n} de ${sono.de} noites registradas`;
-    } else if (g.kind === 'energia') {
-      pct = pctEnergia ?? 0;
-      hint = pctEnergia == null
-        ? 'sem check-ins recentes'
-        : `${energia.n} de ${energia.de} dias registrados`;
-    } else {
+    const ind = indicadorDe(g.indicador || KIND_ANTIGO[g.kind]);
+
+    if (!ind) {
       /* Pessoal: cheia ou vazia, e a data no lugar da fração. */
-      pct = g.feita ? 100 : 0;
-      hint = g.feita && g.em
-        ? `conquistada em ${fmtDate(new Date(g.em))}`
-        : 'você marca quando chegar';
+      return {
+        id: g.id, ic: g.ic, label: g.label,
+        pct: g.feita ? 100 : 0,
+        hint: g.feita && g.em ? `conquistada em ${fmtDate(new Date(g.em))}` : 'você marca quando chegar',
+        pessoal: true,
+        feita: !!g.feita,
+        conta: '',
+      };
     }
+
+    const fatia = ind.filtra ? recentes.filter(ind.filtra) : recentes;
+    const { n, de } = contaDe(fatia, ind.campo, (v) => ind.bate(v, S));
+    /* A CONTA, e não a porcentagem de novo. A linha dizia "85%" à
+       direita e "85% das noites recentes" embaixo — o mesmo número duas
+       vezes. "11 de 13 noites" responde de quantas noites falamos. */
     return {
-      id: g.id, ic: g.ic, label: g.label,
-      pct: Math.max(0, Math.min(100, pct)),
-      hint,
-      pessoal: g.kind === 'pessoal',
-      feita: !!g.feita,
+      id: g.id, ic: ind.ic, label: g.label,
+      pct: de ? Math.round((n / de) * 100) : 0,
+      hint: de
+        ? `${n} de ${de} ${de === 1 ? ind.nomes[0] : ind.nomes[1]} ${ind.nomes[0] === 'noite' ? 'registradas' : 'registrados'}`
+        : `sem ${ind.nomes[1]} registradas ainda`,
+      pessoal: false,
+      feita: false,
+      conta: ind.conta,
     };
   });
 }
@@ -2307,21 +2310,145 @@ export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number) {
    É a mesma divisão do protocolo, pelo mesmo motivo: o que o app mede,
    ele conta; o que só a pessoa sabe, ela diz.
    ============================================================ */
+/* ============================================================
+   OS INDICADORES — o que o app sabe contar
+
+   Uma meta medida não é uma palavra especial no código: é uma meta
+   AMARRADA a um indicador. O indicador diz de qual coluna do check-in
+   ele vive, o que conta como acerto e como se chama o que ele conta —
+   noites, dias.
+
+   Antes eram dois casos escritos à mão dentro de journeyGoals, um `if`
+   para sono e outro para energia. Quem quisesse "menos enjoo" teria de
+   abrir o arquivo. Agora é uma linha nesta lista, e a tela de nova meta
+   mostra a lista inteira sem saber de nenhuma delas em particular.
+
+   E TODO INDICADOR CONTA SÓ OS DIAS RESPONDIDOS. Catorze dias com três
+   noites registradas não são "21% das noites" — são três noites, e duas
+   delas boas é 67%. É a mesma regra do resto do arquivo.
+   ============================================================ */
+export type Indicador = {
+  id: string;
+  ic: string;
+  /** o texto que a meta ganha ao ser criada */
+  label: string;
+  /** o que ele conta, dito na hora de escolher */
+  conta: string;
+  /** a coluna do check-in */
+  campo: string;
+  /** singular e plural do que se conta */
+  nomes: [string, string];
+  /** a fatia de dias que entra, quando não são todos */
+  filtra?: (c: any) => boolean;
+  bate: (v: number, S: State) => boolean;
+};
+
+export const INDICADORES: Indicador[] = [
+  {
+    id: 'sono7u', ic: 'moon', label: 'Dormir 7h+ nas noites de semana',
+    conta: 'Noites de segunda a sexta com sete horas ou mais',
+    campo: 'sono', nomes: ['noite', 'noites'],
+    filtra: (c) => { const d = new Date(c.t).getDay(); return d >= 1 && d <= 5; },
+    bate: (v) => v >= 7,
+  },
+  {
+    id: 'sono7', ic: 'moon', label: 'Dormir 7h+ todo dia',
+    conta: 'Noites com sete horas ou mais',
+    campo: 'sono', nomes: ['noite', 'noites'],
+    bate: (v) => v >= 7,
+  },
+  {
+    id: 'energia7', ic: 'bolt', label: 'Dias com energia de 7 para cima',
+    conta: 'Dias em que você marcou energia 7 ou mais',
+    campo: 'energia', nomes: ['dia', 'dias'],
+    bate: (v) => v >= 7,
+  },
+  {
+    id: 'humor4', ic: 'mood', label: 'Mais dias de bom humor',
+    conta: 'Dias em que o humor ficou em 4 ou 5',
+    campo: 'mood', nomes: ['dia', 'dias'],
+    bate: (v) => v >= 4,
+  },
+  {
+    /* Sintomas contam ao CONTRÁRIO: o acerto é o dia em que o número
+       ficou baixo. Sem isso a meta "menos enjoo" mostraria a barra
+       crescendo junto com o enjoo. */
+    id: 'enjoo', ic: 'waves', label: 'Enjoo sob controle',
+    conta: 'Dias com enjoo em 2 ou menos',
+    campo: 'nausea', nomes: ['dia', 'dias'],
+    bate: (v) => v <= 2,
+  },
+  {
+    id: 'fome', ic: 'soup', label: 'Fome sob controle',
+    conta: 'Dias com fome em 5 ou menos',
+    campo: 'fome', nomes: ['dia', 'dias'],
+    bate: (v) => v <= 5,
+  },
+  {
+    /* Estes três comparam com a META DO PERFIL, e não com um número
+       cravado: quem subir a proteína para 110 g passa a ver esta meta
+       cobrando 110, sem ter de refazer nada. */
+    id: 'prot', ic: 'utensils', label: 'Bater a proteína do dia',
+    conta: 'Dias que alcançaram a meta de proteína',
+    campo: 'prot', nomes: ['dia', 'dias'],
+    bate: (v, S) => v >= (S.profile as any).targets.prot,
+  },
+  {
+    id: 'agua', ic: 'water', label: 'Bater a água do dia',
+    conta: 'Dias que alcançaram a meta de água',
+    campo: 'agua', nomes: ['dia', 'dias'],
+    bate: (v, S) => v * CUP_ML >= (S.profile as any).targets.waterMl,
+  },
+  {
+    id: 'exerc', ic: 'dumbbell', label: 'Se mexer todo dia',
+    conta: 'Dias com algum movimento registrado',
+    campo: 'exerc', nomes: ['dia', 'dias'],
+    bate: (v) => v > 0,
+  },
+];
+
+export const indicadorDe = (id?: string | null) =>
+  INDICADORES.find((x) => x.id === id) || null;
+
+/* Os indicadores que ainda não viraram meta. Duas metas medindo a mesma
+   coluna seriam duas linhas com o mesmo número — e a segunda não teria
+   como ser diferente da primeira. */
+export function indicadoresLivres(S: State): Indicador[] {
+  const usados = new Set(((S.goals || []) as any[]).map((g) => g.indicador || KIND_ANTIGO[g.kind]));
+  return INDICADORES.filter((i) => !usados.has(i.id));
+}
+
+/* As metas guardadas antes de existir indicador traziam `kind`. Elas
+   continuam valendo: o app traduz na leitura, e ninguém perde a meta de
+   sono por causa de uma mudança de formato. */
+const KIND_ANTIGO: Record<string, string> = { sono: 'sono7u', energia: 'energia7' };
+
 export type Meta = {
   id: string;
   ic: string;
   label: string;
-  kind: 'sono' | 'energia' | 'pessoal';
+  /** o indicador que o app conta; sem ele, a meta é pessoal */
+  indicador?: string | null;
   /** só nas pessoais */
   feita?: boolean;
   /** o dia em que ela foi conquistada */
   em?: number | null;
 };
 
-export function guardarMeta(s: any, label: string, ic = 'target') {
+/** Uma meta que só a pessoa sabe dizer quando chegou. */
+export function guardarMetaPessoal(s: any, label: string) {
   const texto = label.trim();
   if (!texto) return;
-  s.goals = [...(s.goals || []), { id: 'g' + Date.now(), ic, label: texto, kind: 'pessoal', feita: false, em: null }];
+  s.goals = [...(s.goals || []), {
+    id: 'g' + Date.now(), ic: 'target', label: texto, indicador: null, feita: false, em: null,
+  }];
+}
+
+/** Uma meta amarrada a um indicador — o app conta, ela não se marca. */
+export function guardarMetaMedida(s: any, idIndicador: string) {
+  const i = indicadorDe(idIndicador);
+  if (!i) return;
+  s.goals = [...(s.goals || []), { id: 'g' + Date.now(), ic: i.ic, label: i.label, indicador: i.id }];
 }
 
 export function apagarMeta(s: any, id: string) {
@@ -2333,7 +2460,7 @@ export function apagarMeta(s: any, id: string) {
    — e a data é a parte da conquista que se conta para alguém. */
 export function marcarMeta(s: any, id: string) {
   const g = ((s.goals || []) as any[]).find((x) => x.id === id);
-  if (!g || g.kind !== 'pessoal') return;
+  if (!g || g.indicador || KIND_ANTIGO[g.kind]) return;
   g.feita = !g.feita;
   g.em = g.feita ? +startOfDay(now()) : null;
 }
