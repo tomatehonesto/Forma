@@ -54,7 +54,8 @@ import { radius, ty, font } from '../theme';
    ============================================================ */
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
-  | 'dose' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade' | 'saude' | 'recomendacao';
+  | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
+  | 'saude' | 'recomendacao';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -65,7 +66,7 @@ type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medi
    a "semana 11 do tratamento". */
 const TODOS: Id[] = [
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
-  'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'saude', 'recomendacao',
+  'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'saude', 'recomendacao',
 ];
 
 /* O NÍVEL DE ATIVIDADE DESCREVE O CENÁRIO, e não define meta.
@@ -224,8 +225,13 @@ function Lavagem({ altura }: { altura: number }) {
    `cheia` deita o cartão. Quando a opção é uma frase — "me exercito 3 ou
    4 vezes por semana" —, duas colunas quebram o texto em quatro linhas e
    a lista vira parede. */
-function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
+function Escolha({ ic, titulo, sub, selo, on, cheia, onPress }: {
   ic?: string; titulo: string; sub?: string; on?: boolean; cheia?: boolean; onPress: () => void;
+  /* A ETIQUETA — "Frequência padrão" ao lado de "a cada 7 dias". Diz qual
+     das alternativas é a que o produto indica, sem transformar as outras
+     em erro: quem aplica a cada dez dias faz isso com o médico, e o app
+     não está ali para discordar. */
+  selo?: string;
 }) {
   const { c } = useTheme();
   /* A MARCA FICA À DIREITA, E EXISTE MESMO DESMARCADA.
@@ -247,7 +253,16 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
       {on ? <Icon name="check" size={13} color={c.accent} sw={3} /> : null}
     </View>
   );
-  const selo = ic ? (
+  const etiqueta = selo ? (
+    <View style={{
+      backgroundColor: on ? 'rgba(255,255,255,0.18)' : c.accentWeak,
+      borderWidth: 1, borderColor: on ? 'rgba(255,255,255,0.28)' : 'transparent',
+      borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4,
+    }}>
+      <Txt v="micro" c={on ? c.accentInk : c.accent}>{selo}</Txt>
+    </View>
+  ) : null;
+  const pastilha = ic ? (
     <View style={{
       width: 32, height: 32, borderRadius: 16,
       backgroundColor: on ? 'rgba(255,255,255,0.22)' : c.bg2,
@@ -288,11 +303,12 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
           flexDirection: 'row', alignItems: 'center', gap: 14, opacity: pressed ? 0.85 : 1,
         }]}
       >
-        {selo}
+        {pastilha}
         <View style={{ flex: 1 }}>
           <Txt v="bodyMed" c={tinta}>{titulo}</Txt>
           {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 1 }}>{sub}</Txt> : null}
         </View>
+        {etiqueta}
         {marca}
       </Pressable>
     );
@@ -305,7 +321,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
      com um círculo no canto, e o título caía para o pé de um cartão alto
      e oco. Na mesma linha do título, o cartão volta a ter a altura do que
      ele diz. */
-  if (!selo) {
+  if (!pastilha) {
     return (
       <Pressable
         onPress={onPress}
@@ -329,7 +345,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
       style={({ pressed }) => [moldura, { flex: 1, minWidth: 0, gap: 14, opacity: pressed ? 0.85 : 1 }]}
     >
       <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        {selo}
+        {pastilha}
         {marca}
       </Row>
       <View>
@@ -908,6 +924,10 @@ export default function Cadastro() {
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
   const inicio = +new Date(r.iAno, r.iMes, r.iDia);
+  /* Um intervalo que não está entre as alternativas prontas — é ele que
+     mantém o contador aberto na tela de frequência. */
+  const outroIntervalo = r.intervalo != null
+    && !(padrao === 1 ? [1] : [7, 10, 14]).includes(r.intervalo);
   const nivel = Math.max(0, ATIVIDADE.findIndex((x) => x.id === r.atividade));
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
@@ -918,7 +938,7 @@ export default function Cadastro() {
   const passos = useMemo(
     () => TODOS.filter((x) => {
       if (x === 'inicio') return r.emTratamento === true;
-      if (x === 'dose') return r.med !== 'indefinido';
+      if (x === 'dose' || x === 'frequencia') return r.med !== 'indefinido';
       return true;
     }),
     [r.emTratamento, r.med],
@@ -1069,30 +1089,31 @@ export default function Cadastro() {
      A DEVOLUTIVA, e um resumo VISUAL. Catorze perguntas depois, é a
      primeira vez que o app dá alguma coisa em troca do formulário — e o
      que ele dá não é o que a pessoa digitou (isso é a tela de conferir),
-     é o que aquilo virou: quanto beber, quanto comer de proteína, qual a
-     dose, aonde isso chega e o que o app vai fazer junto.
+     é o que aquilo virou.
 
-     POR ISSO CADA SEÇÃO É UMA AÇÃO — "o seu dia", "a sua dose", "até a
-     sua meta" — e os cartões são os da Home: título em cima, número
-     grande, nota curta embaixo. É o mesmo desenho que ela vai reencontrar
-     na primeira tela do app.
+     A TELA É ESCURA, E É A ÚNICA ASSIM NO CADASTRO. O app é claro do
+     começo ao fim; esta é a última tela do fluxo e a única que não pede
+     nada — inverter a superfície é o jeito mais barato de dizer "acabou,
+     e o que vem agora é seu". O gradiente é o mesmo painel azul da
+     Jornada, e os cartões viram vidro sobre ele.
 
-     E POR ISSO O TEXTO É CURTO. Toda frase aqui disputa espaço com um
-     número, e o número é que é o assunto: quem quiser a explicação
-     inteira vai encontrá-la na tela da conta, não nesta.
+     O TEXTO É CURTO. Toda frase aqui disputa espaço com um número, e o
+     número é o assunto.
 
-     O QUE NÃO VEIO DAS REFERÊNCIAS, e não por esquecimento:
+     O QUE NÃO VEIO DAS REFERÊNCIAS:
 
-       · caloria, carboidrato e gordura. O Morphi não conta nenhum dos
-         três, e /alimentacao tem uma seção inteira explicando por quê.
-       · "você começa a ver diferença em 30 de setembro". Ninguém sabe
-         isso, e é a frase que vira cobrança no dia em que a data chega e
-         a balança não mudou.
-       · a curva caindo em exponencial. A linha aqui é reta e tracejada:
-         reta porque "1 kg por semana" desenha uma reta, e tracejada
-         porque nada disso aconteceu ainda.
-       · artigos sob "baseado em evidência", nota na loja e depoimentos.
-         Nada disso existe aqui. */
+       · caloria, carboidrato e gordura em gramas. Carboidrato e gordura
+         só existem como fatia de uma meta de energia, e o Morphi não
+         conta caloria por decisão de produto — /alimentacao tem uma seção
+         explicando por quê. Fibra entra porque a recomendação dela é
+         absoluta e não depende de caloria nenhuma.
+       · "você começa a ver diferença em 30 de setembro". A linha do tempo
+         aqui é aritmética do ritmo escolhido, e diz isso.
+       · o selo de "baseado em evidência científica". Os coeficientes que
+         este app usa ainda carregam ⚠️ de procedência em meds.ts e
+         derive.ts: ninguém conferiu um por um contra a diretriz vigente.
+         No lugar do selo vai a seção que mostra de onde sai cada número —
+         que é o que um selo desses deveria significar. */
   if (n === PLANO) {
     const primeiro = r.nome.trim().split(' ')[0];
     const marca = r.med !== 'indefinido' && med ? ` com o ${med.label}®` : '';
@@ -1102,39 +1123,66 @@ export default function Cadastro() {
     const inter = r.intervalo ?? padrao;
     const cadTexto = inter === 1 ? 'todos os dias'
       : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
-    const linha = perder > 0.05 ? [{ x: 0, y: 1 }, { x: 1, y: 0 }]
-      : perder < -0.05 ? [{ x: 0, y: 0 }, { x: 1, y: 1 }]
-        : [{ x: 0, y: 0.5 }, { x: 1, y: 0.5 }];
+    /* A LINHA DO TEMPO É ARITMÉTICA, e não previsão. Três marcos: hoje, o
+       meio do caminho e a meta, cada um com a data que o ritmo escolhido
+       produz. A referência promete aqui "quando você começa a ver
+       efeito"; isso ninguém sabe, e a conta do ritmo, sim. */
+    const marcos = plano.semanas && r.ritmo
+      ? (() => {
+        const meio = Math.max(1, Math.round(plano.semanas / 2));
+        const quando = (sem: number) => {
+          const d = new Date(+startOfDay(now()) + sem * 7 * 86400000);
+          return sem === 0 ? 'hoje' : `${d.getDate()} de ${MESES[d.getMonth()].slice(0, 3)}`;
+        };
+        return [
+          { sem: 0, kg: r.peso, rot: 'hoje', quando: quando(0) },
+          { sem: meio, kg: r.peso - (r.ritmo as number) * meio, rot: `${meio} semanas`, quando: quando(meio) },
+          { sem: plano.semanas, kg: r.meta, rot: `${plano.semanas} semanas`, quando: quando(plano.semanas) },
+        ];
+      })()
+      : null;
     const pos = (v: number) => Math.max(0, Math.min(1, (v - 15) / 25));
-    const TOM_IMC: Record<string, [string, string]> = {
-      blue: [c.water, c.waterBg], ok: [c.ok, c.okBg], amber: [c.amber, c.amberBg],
-      cta2: [c.cta2, c.ctaWeak], cta: [c.cta, c.ctaWeak],
-    };
+    /* AS CORES DA RÉGUA SÃO FIXAS porque a superfície é fixa: esta tela é
+       escura nos dois temas, e um token claro do tema — o verde-oliva, o
+       mostarda — vira lama sobre o azul profundo. São os valores da
+       paleta escura do Morphi: roxo, turquesa, lima, âmbar, rosa, alerta. */
+    const CORES_IMC = ['#9D86FF', '#15E4CB', '#DDF62C', '#E0BC4A', '#F26A9B', '#FF5A5A'];
     const fxHoje = faixaDoIMC(plano.imc);
     const fxMeta = faixaDoIMC(plano.imcMeta);
-    /* O QUE O APP FAZ JUNTO. Quatro telas que já existem, em quatro
-       frases de quatro palavras — é o "como o Morphi vai te ajudar" sem
-       virar folheto: nenhuma delas promete coisa que o app não faça. */
+    const iHoje = FAIXAS_IMC.indexOf(fxHoje);
+    const iMeta = FAIXAS_IMC.indexOf(fxMeta);
     const AJUDA: [string, string, string][] = [
-      ['syringe', c.accent, 'Cada dose no lugar certo'],
-      ['mood', c.rose, 'O enjoo em números'],
-      ['scale', c.water, 'A sua curva de peso'],
-      ['doc', c.amber, 'Um resumo para a consulta'],
+      ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da caneta, sem você contar'],
+      ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
+      ['scale', 'A sua curva de peso', 'cada pesagem entra na linha, com a leitura do que mudou'],
+      ['doc', 'Um resumo para a consulta', 'doses, sintomas e peso organizados numa página só'],
     ];
+    const FONTES: [string, string][] = [
+      ['Proteína', '1,2 g por quilo de peso'],
+      ['Água', '35 ml por quilo, mais o seu nível de atividade'],
+      ['Fibra', '25 g por dia, a recomendação para adultos'],
+      ['IMC', 'as faixas da OMS para adultos'],
+      ['Ritmo', 'o que você escolheu — não é projeção'],
+    ];
+    /* O título de seção é o miúdo em caixa alta: numa tela que é toda
+       cartão, um h2 a cada quatro parágrafos vira degrau. */
+    const Secao = ({ t }: { t: string }) => (
+      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2, marginBottom: 12 }}>{t}</Txt>
+    );
+    const vidro = {
+      backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
+      borderRadius: radius.lg,
+    };
     return (
-      <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1, backgroundColor: c.altTo }}>
+        <LinearGradient
+          colors={[c.altFrom, c.altMid, c.altTo]}
+          start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }}
+          style={SOBREPOSTO}
+        />
         <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
-          {/* O TOPO É A MESMA LAVAGEM DAS PERGUNTAS.
-
-              Era um bloco chapado de azul com texto branco, e ele não
-              pertencia a lugar nenhum: nenhuma outra tela do app tem essa
-              faixa, e o corte seco entre o azul e o branco era a costura
-              aparecendo. A malha desfocada que abre cada pergunta do
-              cadastro já resolve isso — ela vira branco sozinha, e o
-              título fica preto como em todas as outras telas. */}
-          <Lavagem altura={insets.top + 330} />
           <View style={{
-            paddingTop: insets.top + 30, paddingHorizontal: 24, paddingBottom: 34,
+            paddingTop: insets.top + 34, paddingHorizontal: 24, paddingBottom: 32,
             alignItems: 'center', gap: 14,
           }}>
             <View style={{
@@ -1143,91 +1191,94 @@ export default function Cadastro() {
             }}>
               <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
             </View>
-            <Txt v="h1" style={{ textAlign: 'center' }}>
-              {primeiro}, seu plano{'\n'}está pronto
+            <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>
+              {`${primeiro}, seu plano personalizado está pronto!`}
             </Txt>
-            <Txt v="note" c={c.tx2} style={{ textAlign: 'center', maxWidth: 300 }}>
+            <Txt v="note" c={c.onHero2} style={{ textAlign: 'center' }}>
               {`Para ${alvo}${marca}.`}
             </Txt>
+            {/* AS DUAS ETIQUETAS DIZEM O QUE É VERDADE HOJE. A segunda
+                seria "com base em estudos científicos" se alguém já
+                tivesse conferido os coeficientes contra a diretriz — e
+                não conferiu. Ela aponta para a última seção, que mostra
+                de onde sai cada número. */}
+            <Row style={{ gap: 8, justifyContent: 'center' }}>
+              {([['user', 'Das suas respostas'], ['info', 'Com as contas à mostra']] as [string, string][])
+                .map(([ic, t]) => (
+                  <Row key={t} style={{
+                    gap: 6, alignItems: 'center', backgroundColor: c.onHeroWeak,
+                    borderWidth: 1, borderColor: c.onHeroLine, borderRadius: radius.pill,
+                    paddingHorizontal: 11, paddingVertical: 7,
+                  }}>
+                    <Icon name={ic} size={13} color={c.onHero2} sw={2} />
+                    <Txt v="micro" c={c.onHero}>{t}</Txt>
+                  </Row>
+                ))}
+            </Row>
           </View>
 
           <View style={{ paddingHorizontal: 20, gap: 30 }}>
             {/* ---------- o dia ---------- */}
             <View>
-              <SectionHead title="O seu dia" />
-              <Row style={{ gap: 10, marginTop: 14, alignItems: 'stretch' }}>
+              <Secao t="O SEU DIA" />
+              <Row style={{ gap: 8, alignItems: 'stretch' }}>
                 {([
-                  ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g/dia', '1,2 g por quilo'],
-                  ['water', c.water, c.waterBg, 'Água', litros(plano.agua), 'L/dia', '35 ml por quilo'],
-                ] as [string, string, string, string, string, string, string][])
-                  .map(([ic, cor, fundo, nome, val, un, nota]) => (
-                    <View key={nome} style={{
-                      flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16,
-                    }}>
-                      <Row style={{ gap: 8, alignItems: 'center' }}>
-                        <View style={{
-                          width: 28, height: 28, borderRadius: 9, backgroundColor: fundo,
-                          alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name={ic} size={15} color={cor} sw={1.9} />
-                        </View>
-                        <Txt v="body">{nome}</Txt>
-                      </Row>
-                      <Row style={{ marginTop: 20, alignItems: 'center' }}>
-                        <Txt v="metric">{val}</Txt>
-                        <Txt v="caption" c={c.tx3} style={{ marginLeft: 4, marginTop: 6 }}>{un}</Txt>
-                      </Row>
-                      <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{nota}</Txt>
-                    </View>
-                  ))}
+                  ['utensils', 'Proteína', `${plano.prot}`, 'g'],
+                  ['water', 'Água', litros(plano.agua), 'L'],
+                  ['leaf', 'Fibra', '25', 'g'],
+                ] as [string, string, string, string][]).map(([ic, nome, val, un]) => (
+                  <View key={nome} style={[vidro, { flex: 1, padding: 13 }]}>
+                    <Icon name={ic} size={17} color={c.lime} sw={1.9} />
+                    <Row style={{ marginTop: 16, alignItems: 'center' }}>
+                      <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{val}</Txt>
+                      <Txt v="caption" c={c.onHero2} style={{ marginLeft: 3, marginTop: 4 }}>{un}</Txt>
+                    </Row>
+                    <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{nome}</Txt>
+                  </View>
+                ))}
               </Row>
             </View>
 
             {/* ---------- a dose ---------- */}
             <View>
-              <SectionHead title="A sua dose" />
-              <View style={{
-                backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 14, gap: 12,
-              }}>
+              <Secao t="A SUA DOSE" />
+              <View style={[vidro, { padding: 16, gap: 12 }]}>
                 {r.med === 'indefinido' ? (
                   <>
                     <Row style={{ gap: 12, alignItems: 'center' }}>
                       <View style={{
-                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.bg2,
+                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.onHeroWeak,
                         alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Icon name="syringe" size={21} color={c.tx3} sw={1.9} />
+                        <Icon name="syringe" size={21} color={c.onHero2} sw={1.9} />
                       </View>
-                      <Txt v="body" style={{ flex: 1 }}>Ainda a definir</Txt>
+                      <Txt v="body" c={c.onHero} style={{ flex: 1 }}>Ainda a definir</Txt>
                     </Row>
-                    <Txt v="caption" c={c.tx3}>
-                      Quando você souber a caneta, o Morphi monta a escada de doses e o ciclo.
+                    <Txt v="caption" c={c.onHero2}>
+                      Quando você souber a caneta, eu monto a escada de doses e o ciclo.
                     </Txt>
                   </>
                 ) : (
                   <>
                     <Row style={{ gap: 12, alignItems: 'center' }}>
                       <View style={{
-                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.accentWeak,
+                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.onHeroWeak,
                         alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Icon name="syringe" size={21} color={c.accent} sw={1.9} />
+                        <Icon name="syringe" size={21} color={c.lime} sw={1.9} />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Txt v="body">{`${med?.label}®`}</Txt>
-                        <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{cadTexto}</Txt>
+                        <Txt v="body" c={c.onHero}>{`${med?.label}®`}</Txt>
+                        <Txt v="note" c={c.onHero2} style={{ marginTop: 1 }}>{cadTexto}</Txt>
                       </View>
                       {r.dose ? (
                         <Row style={{ alignItems: 'center' }}>
-                          <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{doseTxt(r.dose)}</Txt>
-                          <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 4 }}>{med?.unit}</Txt>
+                          <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{doseTxt(r.dose)}</Txt>
+                          <Txt v="caption" c={c.onHero2} style={{ marginLeft: 3, marginTop: 4 }}>{med?.unit}</Txt>
                         </Row>
                       ) : null}
                     </Row>
-                    {/* O CICLO NÃO COMEÇOU: o cadastro não inventa
-                        aplicações que ninguém registrou, e é da aplicação
-                        registrada que sai a contagem. */}
-                    <Txt v="caption" c={c.tx3}>
+                    <Txt v="caption" c={c.onHero2}>
                       O ciclo começa na primeira aplicação que você registrar.
                     </Txt>
                   </>
@@ -1235,130 +1286,153 @@ export default function Cadastro() {
               </View>
             </View>
 
-            {/* ---------- até a meta ---------- */}
-            <View>
-              <SectionHead title="Até a sua meta" />
-
-              <View style={{
-                backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, overflow: 'hidden',
-              }}>
-                <Row style={{ padding: 16, paddingBottom: 10, alignItems: 'flex-start' }}>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="body">{perder > 0.05 ? 'Peso a perder' : perder < -0.05 ? 'Peso a ganhar' : 'Peso a manter'}</Txt>
-                    <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-                      {plano.semanas ? `em ${plano.semanas} semanas` : 'manter também é meta'}
-                    </Txt>
-                  </View>
-                  <Row style={{ alignItems: 'center' }}>
-                    <Txt v="metric">{kgTxt(Math.abs(perder) || r.meta)}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>kg</Txt>
-                  </Row>
-                </Row>
-
-                <Row style={{ paddingHorizontal: 16, justifyContent: 'space-between' }}>
-                  <Txt v="micro" c={c.tx4}>{`hoje · ${nf(r.peso, 1)} kg`}</Txt>
-                  <Txt v="micro" c={c.tx4}>
-                    {plano.chegada ? `${mesPorExtenso(plano.chegada)} · ${nf(r.meta, 1)} kg` : `${nf(r.meta, 1)} kg`}
-                  </Txt>
-                </Row>
-                {/* A LINHA SANGRA ATÉ A BORDA, como a da Home — e é
-                    tracejada porque é plano, não medida. */}
-                <AreaCurve
-                  pts={linha} height={56} padT={8} padB={0} padX={0} strokeW={2.4}
-                  id="pl" dashed={false} tracejada fill={0.13}
-                />
+            {/* ---------- a linha do tempo ---------- */}
+            {marcos ? (
+              <View>
+                <Secao t="ATÉ A SUA META" />
+                <View style={[vidro, { padding: 18 }]}>
+                  {marcos.map((m, i) => (
+                    <Row key={m.rot} style={{ alignItems: 'flex-start', gap: 14 }}>
+                      {/* O fio e a bolinha. O último marco é lima cheia —
+                          é a chegada; os outros, vazados. */}
+                      <View style={{ alignItems: 'center', width: 18 }}>
+                        <View style={{
+                          width: 14, height: 14, borderRadius: 7, marginTop: 5,
+                          borderWidth: 2.5, borderColor: i === marcos.length - 1 ? c.lime : c.onHeroLine,
+                          backgroundColor: i === marcos.length - 1 ? c.lime : 'transparent',
+                        }} />
+                        {i < marcos.length - 1 ? (
+                          <View style={{ width: 2, flex: 1, minHeight: 34, backgroundColor: c.onHeroLine }} />
+                        ) : null}
+                      </View>
+                      <View style={{ flex: 1, paddingBottom: i < marcos.length - 1 ? 18 : 0 }}>
+                        <Row style={{ alignItems: 'baseline', gap: 5 }}>
+                          <Txt v="title" c={i === marcos.length - 1 ? c.lime : c.onHero}>
+                            {nf(m.kg, 1)}
+                          </Txt>
+                          <Txt v="caption" c={c.onHero2}>kg</Txt>
+                        </Row>
+                        <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>
+                          {m.sem === 0 ? 'hoje' : `em ${m.rot} · ${m.quando}`}
+                        </Txt>
+                      </View>
+                    </Row>
+                  ))}
+                </View>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 10 }}>
+                  {`É a conta de ${nf(r.ritmo ?? 0, 1)} kg por semana, o ritmo que você escolheu — não é previsão.`}
+                </Txt>
               </View>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-                É a conta do ritmo que você escolheu, não uma previsão.
-              </Txt>
+            ) : null}
 
-              <View style={{
-                backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 14, gap: 16,
-              }}>
+            {/* ---------- o corpo ---------- */}
+            <View>
+              <Secao t="O SEU CORPO" />
+              <View style={[vidro, { padding: 18, gap: 18 }]}>
                 <Row style={{ alignItems: 'center', gap: 10 }}>
-                  {([[fxHoje, 'IMC de hoje', plano.imc, 'flex-start'],
-                    [fxMeta, 'Na sua meta', plano.imcMeta, 'flex-end']] as const)
-                    .map(([fx, rot, val, lado], i) => (
+                  {([[fxHoje, 'IMC de hoje', plano.imc, iHoje, 'flex-start'],
+                    [fxMeta, 'Na sua meta', plano.imcMeta, iMeta, 'flex-end']] as const)
+                    .map(([fx, rot, val, idx, lado], i) => (
                       <React.Fragment key={rot}>
-                        {i ? <Icon name="chev" size={15} color={c.tx4} sw={2} /> : null}
+                        {i ? <Icon name="chev" size={15} color={c.onHero2} sw={2} /> : null}
                         <View style={{ flex: 1, gap: 4, alignItems: lado }}>
-                          <Txt v="note" c={c.tx3}>{rot}</Txt>
-                          <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{nf(val, 1)}</Txt>
-                          <View style={{
-                            backgroundColor: TOM_IMC[fx.tom][1], borderRadius: radius.sm,
-                            paddingHorizontal: 8, paddingVertical: 3,
-                          }}>
-                            <Txt v="micro" c={TOM_IMC[fx.tom][0]}>{fx.nome}</Txt>
-                          </View>
+                          <Txt v="caption" c={c.onHero2}>{rot}</Txt>
+                          <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{nf(val, 1)}</Txt>
+                          <Row style={{ gap: 6, alignItems: 'center' }}>
+                            <View style={{
+                              width: 7, height: 7, borderRadius: 4, backgroundColor: CORES_IMC[idx],
+                            }} />
+                            <Txt v="micro" c={c.onHero}>{fx.nome}</Txt>
+                          </Row>
                         </View>
                       </React.Fragment>
                     ))}
                 </Row>
 
-                {/* A RÉGUA É UM DEGRADÊ, E NÃO SEIS BLOCOS.
-
-                    Seis retângulos de cor cheia, encostados, com dois
-                    vermelhos quase iguais no fim: parecia legenda de
-                    planilha, e a fronteira entre "29,9" e "30,0" ganhava
-                    uma parede que ela não tem no corpo de ninguém. O risco
-                    do IMC é contínuo; as faixas é que são cortes que
-                    alguém escolheu. O degradê diz isso sozinho — e quem
-                    quer o nome da faixa lê o selo ali em cima.
-
-                    As paradas caem nos cortes da OMS mapeados em 15–40:
-                    18,5 em 14%, 25 em 40%, 30 em 60%, 35 em 80%. O trecho
-                    de peso normal fica inteiro na mesma cor, com as duas
-                    paradas repetidas — sem isso ele viraria uma passagem
-                    contínua e a faixa boa não existiria como faixa. */}
+                {/* A RÉGUA VOLTOU A TER NÍVEIS SEPARADOS — o degradê
+                    apagava justamente o que ela existe para mostrar, que é
+                    onde uma faixa acaba e a outra começa. O que estava
+                    feio eram as cores: verde-oliva, mostarda e dois
+                    vermelhos iguais. Agora são as da paleta. */}
                 <View>
-                  <LinearGradient
-                    colors={[c.water, c.teal, c.teal, c.amber, c.cta2, c.cta]}
-                    locations={[0, 0.14, 0.4, 0.6, 0.82, 1]}
-                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                    style={{ height: 12, borderRadius: 6 }}
-                  />
-                  {/* Vazado é aonde ela vai; cheio é onde ela está — a
-                      mesma gramática do trilho da Jornada. */}
+                  <Row style={{ gap: 3 }}>
+                    {FAIXAS_IMC.map((fx, i) => (
+                      <View key={fx.nome} style={{
+                        flex: fx.ate - fx.de, height: 10, borderRadius: 5,
+                        backgroundColor: CORES_IMC[i],
+                        opacity: i === iHoje || i === iMeta ? 1 : 0.45,
+                      }} />
+                    ))}
+                  </Row>
                   <View style={{
-                    position: 'absolute', top: -3, left: `${pos(plano.imcMeta) * 100}%`,
+                    position: 'absolute', top: -4, left: `${pos(plano.imcMeta) * 100}%`,
                     marginLeft: -9, width: 18, height: 18, borderRadius: 9,
-                    borderWidth: 3.5, borderColor: c.bg1,
+                    borderWidth: 3, borderColor: c.onHero,
                   }} />
                   <View style={{
-                    position: 'absolute', top: -3, left: `${pos(plano.imc) * 100}%`,
+                    position: 'absolute', top: -4, left: `${pos(plano.imc) * 100}%`,
                     marginLeft: -9, width: 18, height: 18, borderRadius: 9,
-                    borderWidth: 3.5, borderColor: c.bg1, backgroundColor: c.tx,
+                    borderWidth: 3, borderColor: c.onHero, backgroundColor: c.onHero,
                   }} />
                 </View>
 
-                <Txt v="caption" c={c.tx3} style={{ marginTop: -2 }}>
+                <Txt v="caption" c={c.onHero2}>
                   O IMC é ponto de partida: ele não separa músculo de gordura.
                 </Txt>
               </View>
             </View>
 
-            {/* ---------- o que o app faz junto ---------- */}
+            {/* ---------- como eu ajudo ---------- */}
             <View>
-              <SectionHead title="Como eu te ajudo" style={{ marginBottom: 14 }} />
-              <Duplas>
-                {AJUDA.map(([ic, cor, t]) => (
+              <Secao t="COMO EU TE AJUDO" />
+              <View style={{ gap: 16 }}>
+                {AJUDA.map(([ic, t, sub]) => (
+                  <Row key={t} style={{ gap: 13, alignItems: 'center' }}>
+                    <View style={{
+                      width: 42, height: 42, borderRadius: 13, backgroundColor: c.onHeroWeak,
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon name={ic} size={20} color={c.lime} sw={1.9} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Txt v="bodyMed" c={c.onHero}>{t}</Txt>
+                      <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{sub}</Txt>
+                    </View>
+                  </Row>
+                ))}
+              </View>
+            </View>
+
+            {/* ---------- de onde vêm os números ---------- */}
+            <View>
+              <Secao t="DE ONDE VÊM OS NÚMEROS" />
+              <View style={[vidro, { paddingHorizontal: 16 }]}>
+                {FONTES.map(([t, sub], i) => (
                   <View key={t} style={{
-                    flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 14,
+                    paddingVertical: 12,
+                    borderTopWidth: i ? 1 : 0, borderTopColor: c.onHeroLine,
                   }}>
-                    <Icon name={ic} size={21} color={cor} sw={1.9} />
-                    <Txt v="bodyMed">{t}</Txt>
+                    <Txt v="label" c={c.onHero}>{t}</Txt>
+                    <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{sub}</Txt>
                   </View>
                 ))}
-              </Duplas>
+              </View>
             </View>
           </View>
         </ScrollView>
 
-        <View style={{
-          paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
-          backgroundColor: c.bg,
-        }}>
-          <Botao pilula label="Ir para a minha Home" onPress={() => router.replace('/(tabs)' as any)} />
+        {/* O BOTÃO É BRANCO porque o fundo é escuro — o azul de ação do app
+            some sobre o azul do painel. */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20 }}>
+          <Pressable
+            onPress={() => router.replace('/(tabs)' as any)}
+            style={({ pressed }) => [{
+              borderRadius: radius.pill, backgroundColor: c.onHero, paddingVertical: 18,
+              alignItems: 'center', opacity: pressed ? 0.85 : 1,
+            }]}
+          >
+            <Txt v="bodyMed" c="#0A0A0A">Ir para a minha Home</Txt>
+          </Pressable>
         </View>
       </View>
     );
@@ -1366,22 +1440,16 @@ export default function Cadastro() {
 
   /* ---------- confere ----------
 
-     A ÚLTIMA PARADA ANTES DE ESCREVER O PERFIL. Ela existe porque catorze
+     A ÚLTIMA PARADA ANTES DE ESCREVER O PERFIL. Ela existe porque quinze
      respostas foram dadas uma de cada vez, e ninguém lembra a nona.
 
-     ERAM CARTÕES DE DUAS COLUNAS, com lápis em cada um: sete linhas de
-     molduras, valores quebrados em duas linhas, e um lápis repetido
-     catorze vezes. Uma conferência se lê de cima para baixo — rótulo à
-     esquerda, resposta à direita —, e é assim que o resto do app mostra
-     lista. A linha inteira abre a pergunta; o lápis do fim é só a marca
-     de que ela abre.
+     AS LINHAS ANDAM EM GRUPOS. Quinze seguidas são uma parede onde tudo
+     tem o mesmo peso e nada se acha; separadas em quem você é, o
+     tratamento, a meta e o app, a pessoa sabe onde procurar a que quer
+     corrigir antes de começar a ler.
 
-     ESTA TELA NÃO É O FIM, E NÃO PODE PARECER O FIM. Ela se chamava
-     "Prontinho", e prontinho é palavra de quem terminou: quem chegava
-     aqui concluía que o cadastro acabava num formulário de conferência —
-     quando o que vem depois é justamente a parte que devolve alguma
-     coisa. O título pergunta, e o botão diz o que acontece ao ser
-     tocado. */
+     A linha inteira abre a pergunta; o lápis do fim é só a marca de que
+     ela abre. */
   if (n === RESUMO) {
     const idade = (() => {
       const h = now();
@@ -1390,65 +1458,81 @@ export default function Cadastro() {
       if (m < 0 || (m === 0 && h.getDate() < r.dia)) a -= 1;
       return a;
     })();
-    const linhas: [string, string, string, Id][] = [
-      ['user', 'Nome', r.nome.trim(), 'nome'],
-      /* SEXO, e não "identidade": o rótulo de uma conferência é o nome
-         curto da coisa, e é esse nome que a pessoa procura quando quer
-         corrigir. A pergunta continua sendo como ela se identifica, com
-         "prefiro não informar" entre as respostas. */
-      ['heart', 'Sexo', r.identidade === 'f' ? 'Feminino'
-        : r.identidade === 'm' ? 'Masculino'
-          : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
-      ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
-      ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
-      ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
-      ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei' : `${med?.label}®`, 'medicamento'],
-      ...(r.med === 'indefinido' ? [] : [['syringe', 'Dose',
-        r.dose === 0 ? 'Ainda não sei'
-          : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · ${r.intervalo} dias` : ''}`,
-        'dose'] as [string, string, string, Id]]),
-      ['ruler', 'Altura e peso', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
-      ['target', 'Meta', `${nf(r.meta, 1)} kg`, 'meta'],
-      ['trend', 'Ritmo', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
-      ['bolt', 'Motivo', motivo?.titulo ?? '—', 'motivacao'],
-      ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
-      ['activity', 'App de saúde', r.saude ? 'Conectar' : 'Agora não', 'saude'],
-      ['steth', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Por conta própria', 'recomendacao'],
+    const freq = (() => {
+      const d = r.intervalo ?? padrao;
+      return d === 1 ? 'Todos os dias' : `A cada ${d} dias`;
+    })();
+    type L = [string, string, string, Id];
+    const grupos: [string, L[]][] = [
+      ['VOCÊ', [
+        ['user', 'Nome', r.nome.trim(), 'nome'],
+        /* SEXO, e não "identidade": o rótulo de uma conferência é o nome
+           curto da coisa, e é esse nome que a pessoa procura quando quer
+           corrigir. A pergunta continua sendo como ela se identifica, com
+           "prefiro não informar" entre as respostas. */
+        ['heart', 'Sexo', r.identidade === 'f' ? 'Feminino'
+          : r.identidade === 'm' ? 'Masculino'
+            : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
+        ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
+        ['ruler', 'Altura e peso', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
+        ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
+      ]],
+      ['O TRATAMENTO', [
+        ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
+        ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as L]),
+        ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei' : `${med?.label}®`, 'medicamento'],
+        ...(r.med === 'indefinido' ? [] : [
+          ['syringe', 'Dose', r.dose === 0 ? 'Ainda não sei' : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}`, 'dose'] as L,
+          ['reset', 'Frequência', freq, 'frequencia'] as L,
+        ]),
+      ]],
+      ['A SUA META', [
+        ['target', 'Peso', `${nf(r.meta, 1)} kg`, 'meta'],
+        ['trend', 'Ritmo', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
+        ['bolt', 'Motivo', motivo?.titulo ?? '—', 'motivacao'],
+      ]],
+      ['NO APP', [
+        ['activity', 'App de saúde', r.saude ? 'Conectar' : 'Agora não', 'saude'],
+        ['steth', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Por conta própria', 'recomendacao'],
+      ]],
     ];
     return (
       <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <Lavagem altura={insets.top + 260} />
+        <Lavagem altura={insets.top + 300} />
         <ScrollView contentContainerStyle={{
           paddingHorizontal: 20, paddingTop: insets.top + 36, paddingBottom: 24,
         }}>
-          <Txt v="h1" style={{ textAlign: 'center' }}>Confere comigo?</Txt>
-          <Txt v="note" c={c.tx2} style={{ textAlign: 'center', marginTop: 8, marginBottom: 26 }}>
-            Toque em qualquer linha para mudar.
+          <Txt v="h1" style={{ textAlign: 'center' }}>Antes de concluir</Txt>
+          <Txt v="note" c={c.tx2} style={{ textAlign: 'center', marginTop: 8, marginBottom: 28 }}>
+            Confirme as informações — é delas que sai o seu plano.
           </Txt>
 
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-            {linhas.map(([ic, rotulo, valor, destino], i) => (
-              <Pressable
-                key={rotulo}
-                onPress={() => { setDoResumo(true); setN(passos.indexOf(destino)); }}
-                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Row style={{
-                  gap: 12, alignItems: 'center', paddingVertical: 13,
-                  borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
-                }}>
-                  <Icon name={ic} size={18} color={c.tx4} sw={1.9} />
-                  <Txt v="caption" c={c.tx3}>{rotulo}</Txt>
-                  <Txt
-                    v="label"
-                    style={{ flex: 1, textAlign: 'right' }}
-                    numberOfLines={1}
-                  >
-                    {valor}
-                  </Txt>
-                  <Icon name="pencil" size={14} color={c.accent} sw={2} />
-                </Row>
-              </Pressable>
+          <View style={{ gap: 22 }}>
+            {grupos.map(([titulo, itens]) => (
+              <View key={titulo}>
+                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1.2, marginBottom: 10 }}>{titulo}</Txt>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+                  {itens.map(([ic, rotulo, valor, destino], i) => (
+                    <Pressable
+                      key={rotulo}
+                      onPress={() => { setDoResumo(true); setN(passos.indexOf(destino)); }}
+                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                    >
+                      <Row style={{
+                        gap: 12, alignItems: 'center', paddingVertical: 13,
+                        borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
+                      }}>
+                        <Icon name={ic} size={18} color={c.tx4} sw={1.9} />
+                        <Txt v="caption" c={c.tx3}>{rotulo}</Txt>
+                        <Txt v="label" style={{ flex: 1, textAlign: 'right' }} numberOfLines={1}>
+                          {valor}
+                        </Txt>
+                        <Icon name="pencil" size={14} color={c.accent} sw={2} />
+                      </Row>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
             ))}
           </View>
         </ScrollView>
@@ -1478,6 +1562,7 @@ export default function Cadastro() {
     inicio: 'Quando você começou?',
     medicamento: futuro ? 'Qual medicamento você pretende usar?' : 'Qual medicamento você usa?',
     dose: futuro ? 'Com qual dose você pretende começar?' : 'Qual é a sua dose atual?',
+    frequencia: futuro ? 'De quanto em quanto tempo você vai aplicar?' : 'De quanto em quanto tempo você aplica?',
     corpo: 'Quais são suas medidas atuais?',
     meta: 'Qual é a sua meta de peso?',
     ritmo: 'Qual ritmo você quer seguir para chegar lá?',
@@ -1506,6 +1591,7 @@ export default function Cadastro() {
     dose: med && med.doses.length
       ? `Na ordem da titulação do ${med.label}.`
       : 'Na ordem da titulação.',
+    frequencia: 'É daqui que saem a contagem do ciclo, os lembretes e o estoque da caneta.',
     corpo: 'É com altura e peso que o Morphi calcula seu IMC e monta suas metas diárias de proteína e água.',
     meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
@@ -1554,7 +1640,7 @@ export default function Cadastro() {
            convite se lê de baixo para cima — o botão, os motivos, a
            frase, e a imagem ocupando a sobra. */
         contentContainerStyle={id === 'saude'
-          ? { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8, flexGrow: 1, justifyContent: 'flex-end' }
+          ? { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 34, flexGrow: 1, justifyContent: 'center' }
           : { paddingHorizontal: 20, paddingTop: 64, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -1724,46 +1810,53 @@ export default function Cadastro() {
               ) : null}
             </View>
 
-            {/* O INTERVALO É EXCEÇÃO, e por isso fica atrás de um toque. O
-                app sabe a cadência de cada caneta; mas aplicar a cada dez
-                ou catorze dias existe, e para essa pessoa o app contava
-                tudo errado e cobrava dose atrasada de quem não estava
-                atrasada. */}
-            {r.intervalo == null ? (
-              <View style={{ gap: 8 }}>
-                <Txt v="caption" c={c.tx3}>
-                  {padrao === 1
-                    ? `${med.label} é de aplicação diária.`
-                    : `${med.label} é de aplicação semanal, a cada ${padrao} dias.`}
-                </Txt>
-                <Pressable
-                  onPress={() => p({ intervalo: padrao })}
-                  hitSlop={8}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Txt v="label" c={c.accent}>Aplico em outro intervalo</Txt>
-                </Pressable>
+          </View>
+        ) : null}
+
+        {/* A FREQUÊNCIA VIROU PERGUNTA, e saiu do rodapé da tela de dose.
+
+            Lá ela era uma linha azul escrita "aplico em outro intervalo",
+            escondida embaixo da escada de doses: quem aplica a cada dez ou
+            catorze dias — e isso existe, combinado com o médico — tinha de
+            reparar num link para o app parar de cobrar dose atrasada dela.
+            Uma coisa da qual dependem a contagem do ciclo, os lembretes e
+            o estoque não mora no rodapé de outra pergunta.
+
+            E A ETIQUETA DIZ QUAL É A PADRÃO. Sem ela, quatro alternativas
+            iguais fazem parecer que o app não sabe qual é a indicada; com
+            ela, a resposta comum fica óbvia e as outras continuam sendo
+            respostas, e não desvios. */}
+        {id === 'frequencia' && med ? (
+          <View style={{ gap: 16 }}>
+            <View style={{ gap: 8 }}>
+              {(padrao === 1 ? [1] : [7, 10, 14]).map((d) => (
+                <Escolha
+                  key={d} cheia
+                  titulo={d === 1 ? 'Todos os dias' : `A cada ${d} dias`}
+                  selo={d === padrao ? 'Padrão' : undefined}
+                  on={d === padrao ? r.intervalo == null || r.intervalo === padrao : r.intervalo === d}
+                  onPress={() => p({ intervalo: d === padrao ? null : d })}
+                />
+              ))}
+              <Escolha
+                cheia titulo="Outro intervalo"
+                sub={outroIntervalo ? `a cada ${r.intervalo} dias` : 'você diz de quantos em quantos dias'}
+                on={outroIntervalo}
+                onPress={() => p({ intervalo: padrao === 1 ? 2 : 9 })}
+              />
+            </View>
+
+            {outroIntervalo ? (
+              <View>
+                <Rotulo>APLICO A CADA</Rotulo>
+                <Contador
+                  valor={String(r.intervalo)}
+                  unidade={r.intervalo === 1 ? 'dia' : 'dias'}
+                  onMenos={() => p({ intervalo: Math.max(1, (r.intervalo ?? padrao) - 1) })}
+                  onMais={() => p({ intervalo: Math.min(60, (r.intervalo ?? padrao) + 1) })}
+                />
               </View>
-            ) : (
-              <View style={{ gap: 10 }}>
-                <View>
-                  <Rotulo>APLICO A CADA</Rotulo>
-                  <Contador
-                    valor={String(r.intervalo)}
-                    unidade={r.intervalo === 1 ? 'dia' : 'dias'}
-                    onMenos={() => p({ intervalo: Math.max(1, (r.intervalo ?? padrao) - 1) })}
-                    onMais={() => p({ intervalo: Math.min(60, (r.intervalo ?? padrao) + 1) })}
-                  />
-                </View>
-                <Pressable
-                  onPress={() => p({ intervalo: null })}
-                  hitSlop={8}
-                  style={({ pressed }) => [{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Txt v="label" c={c.tx3}>Voltar ao intervalo do {med.label}</Txt>
-                </Pressable>
-              </View>
-            )}
+            ) : null}
           </View>
         ) : null}
 
