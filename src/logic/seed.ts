@@ -175,9 +175,23 @@ export function buildSeed() {
   };
   const minDoDia = (d: number) => (SESSOES[d] || []).reduce((x, tr) => x + tr.min, 0);
 
+  /* OS DIAS LOGO APÓS APLICAR, contados a partir das aplicações de verdade.
+
+     A lista era escrita à mão — [3, 4, 5, 10, 11, 12] — e não batia com
+     injDays: o dia 12 e o dia 5 caem no SEXTO dia depois da aplicação,
+     que é o vale do ciclo, e mesmo assim recebiam enjoo de dia de dose.
+     Enquanto ninguém cruzava as duas colunas, o erro não aparecia; a
+     tela de sintomas cruza, e passaria a dizer que o enjoo desta pessoa
+     pesa no fim da semana. Semente que contradiz a própria história é o
+     mesmo que dado inventado — só que mais difícil de achar. */
+  const desdeAplicacao = (d: number) => {
+    const antes = injDays.filter((x) => x >= d);
+    return antes.length ? Math.min(...antes) - d : 99;
+  };
+
   for (let d = 13; d >= 1; d--) {
     const date = daysAgo(d); const wd = date.getDay();
-    const postInj = [3, 4, 5, 10, 11, 12].includes(d); // dias logo após aplicar
+    const postInj = desdeAplicacao(d) <= 2;
     checkins.push({
       t: +startOfDay(date),
       mood: 3 + (13 - d > 6 ? 1 : 0) + (wd === 0 ? -1 : 0),
@@ -191,7 +205,11 @@ export function buildSeed() {
       prot: protDoDia(d),
       exerc: minDoDia(d),
       treinos: SESSOES[d],
-      refluxo: postInj ? 1 : 0, ansiedade: wd === 1 ? 2 : (d % 3 === 0 ? 1 : 0), constip: postInj ? 2 : 0,
+      /* Sem `ansiedade`: o check-in não pergunta isso em lugar nenhum, e
+         a coluna só existia porque a tela de sintomas a mostrava. Semente
+         é retrato do que o app coleta — coluna que nenhuma tela escreve é
+         dado que nenhum usuário vai ter. */
+      refluxo: postInj ? 1 : 0, constip: postInj ? 2 : 0,
     });
   }
   /* As semanas anteriores entram só com ACUMULADORES — nem humor, nem
