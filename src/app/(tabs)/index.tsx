@@ -8,7 +8,7 @@ import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
-  checkinFeito,
+  checkinFeito, diaDoTratamento,
   type DailyTarget,
 } from '../../logic/derive';
 import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
@@ -106,6 +106,7 @@ export default function Home() {
   const go = (to: string) => () => router.push(to as any);
   useLightStatusBar();
   const first = S.profile.name.split(' ')[0];
+  const dia = diaDoTratamento(S);
   const hour = now().getHours();
   const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
@@ -237,7 +238,7 @@ export default function Home() {
             <View style={{ flex: 1, marginLeft: 16 }}>
               <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
               <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-                Dia {diffDays(now(), new Date(S.profile.startT)) + 1} do tratamento • Semana {S.protocol.week}
+                {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
               </Txt>
             </View>
             <Pressable hitSlop={8} onPress={go('/notificacoes')}>

@@ -2937,6 +2937,21 @@ export function penStock(S: State) {
 }
 
 /* Resumo do tratamento — os cinco números do topo da Jornada. */
+/* A LINHA DO DIA, que agora precisa saber contar para trás.
+
+   O cadastro aceita "vou começar em breve", e com isso startT pode estar
+   no futuro. A conta que a Home fazia — diffDays + 1, direto no JSX —
+   escrevia "Dia -6 do tratamento", que não é frase nenhuma, e ao lado
+   dela uma semana de protocolo que ainda não começou.
+
+   Antes de começar o que existe é contagem regressiva; depois, o dia. E
+   a semana só entra quando existe semana. */
+export function diaDoTratamento(S: State) {
+  const d = diffDays(now(), new Date(S.profile.startT));
+  if (d < 0) return { antes: true, texto: d === -1 ? 'Começa amanhã' : `Começa em ${-d} dias` };
+  return { antes: false, texto: `Dia ${d + 1} do tratamento` };
+}
+
 export function journeySummary(S: State) {
   const lost = lostKg(S);
   const goal = startWeight(S) - S.profile.goalWeight;
