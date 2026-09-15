@@ -71,14 +71,13 @@ export default function Protocolos() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-        <Bloco titulo="O que é um protocolo">
-          <Txt v="note" c={c.tx2}>
-            É o combinado da semana com a sua equipe — o que manter, o que
-            medir e o que resolver antes da próxima consulta. Ele muda de
-            semana em semana, conforme a dose e o que os registros vêm
-            mostrando.
-          </Txt>
-        </Bloco>
+        {/* SEM O PARÁGRAFO DE ABERTURA que as outras três telas têm.
+
+            Lá ele explica por que um app de GLP-1 conta água, proteína e
+            movimento — que é uma afirmação de tratamento, e precisa ser
+            dita. Aqui ele explicava o que é uma lista de tarefas
+            combinada com a médica. A tela é uma lista de cinco linhas: ou
+            ela se explica sozinha, ou não é o texto que vai salvá-la. */}
 
         {/* AS CINCO LINHAS, e a divisão que faz a tela ser honesta.
 
@@ -91,10 +90,16 @@ export default function Protocolos() {
 
             As outras duas têm, porque não existe registro de onde tirar a
             resposta: o app não sabe se a dose foi aplicada nem se o exame
-            foi agendado. Quem sabe é ela. */}
+            foi agendado. Quem sabe é ela.
+
+            A NOTA SOBROU DE DUAS FRASES PARA MEIA. A regra inteira estava
+            escrita ali — quais contam sozinhos, quais você marca —, e a
+            tela já mostra as duas coisas: o que tem contagem embaixo não
+            tem caixinha. A frase que resta existe só para ninguém ficar
+            tocando na linha da água esperando que ela acenda. */}
         <Bloco
           titulo="Esta semana"
-          nota="Os três itens com contagem embaixo o app acompanha sozinho, pelos seus registros. Os outros dois são você quem marca."
+          nota="O que tem contagem vem dos seus registros."
         >
           <Cartao>
             {p.tarefas.map((t) => {
@@ -154,32 +159,25 @@ export default function Protocolos() {
           </Cartao>
         </Bloco>
 
-        {/* O QUE VEM AÍ — e o que saiu daqui.
+        {/* O QUE VEM AÍ — uma linha, e não um cartão de conselho.
 
-            Este bloco prometia: "vou preparar o protocolo da semana 12 com
-            foco em proteína e hidratação". O app não prepara protocolo
-            nenhum — quem escreve é a equipe —, e uma promessa que o
-            software não cumpre é pior do que não dizer nada.
+            Aqui houve um bloco com título, três linhas de texto e um "o
+            que fazer". Dele só as duas datas mudavam alguma coisa: o
+            resto era a fome perto da dose, que a Home diz todo dia, e uma
+            frase dizendo que a equipe revisa o protocolo na consulta —
+            explicação de como o app funciona, vestida de conselho.
 
-            Ficou o que é verdade e é útil: as duas datas que mexem na
-            semana que vem, e o padrão do ciclo que a pessoa já vê na Home.
-
-            Saiu também a lista de "semanas anteriores", que eram duas
-            linhas cravadas no código — "Semana 9, 5 de 5 concluídos". O
-            app guarda um protocolo só, o desta semana; as outras duas
-            semanas eram história inventada sobre o tratamento de alguém. */}
-        <Bloco titulo="O que vem aí">
-          <Aviso
-            ic="aura"
-            destaque
-            titulo={`A semana ${p.semana + 1}`}
-            texto={[
-              `Aplicação ${relDay(nextInjectionDate(S))}`,
-              hasClinic(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
-            ].filter(Boolean).join(', ') + '. A fome costuma apertar nos primeiros dias depois da dose, e é quando a proteína e a água seguram mais.'}
-            acao="A equipe revisa o protocolo na consulta. Até lá, os três itens medidos continuam contando sozinhos."
-          />
-        </Bloco>
+            Antes disso, o mesmo bloco prometia "vou preparar o protocolo
+            da semana 12", que o app não faz. Cada volta tirou uma camada;
+            o que restou é o que a semana tem de concreto. */}
+        <Aviso
+          ic="cal"
+          titulo={`Semana ${p.semana + 1}`}
+          texto={[
+            `Aplicação ${relDay(nextInjectionDate(S))}`,
+            hasClinic(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
+          ].filter(Boolean).join(', ') + '.'}
+        />
       </FolhaDeHabito>
     </TelaDeHabito>
   );
