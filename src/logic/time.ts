@@ -31,3 +31,25 @@ export function relDay(d: Date) {
 }
 export const nf = (x: number, d = 1) => x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
 export const kg = (x: number) => nf(x, 1).replace('.', ',');
+
+/* ------------------------------------------------------------------ *
+ * OS TRÊS FORMATADORES DE NÚMERO EM TEXTO
+ *
+ * Moravam dentro de cadastro.tsx, e saíram de lá quando a tela de plano
+ * virou rota própria: as duas telas escrevem os mesmos números, e duas
+ * cópias de uma regra de arredondamento é como começam as divergências.
+ * ------------------------------------------------------------------ */
+
+/** O número em prosa: a régua escreve 10,0 porque anda de 0,1 em 0,1, e
+ *  dentro dela a casa decimal é informação. Numa frase, ninguém diz
+ *  "perder dez vírgula zero quilos". */
+export const kgTxt = (v: number) => nf(v, v % 1 === 0 ? 0 : 1);
+
+/** Mil e setecentas quilocalorias se escrevem "1.700". Sem o ponto, o
+ *  número mais alto da tela é também o mais difícil de ler. */
+export const milhar = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+/** A dose com as casas que ela tem, e não com uma casa fixa: 0,25 mg
+ *  precisa de duas, 2,5 de uma, 15 de nenhuma. */
+export const doseTxt = (d: number) =>
+  nf(d, d % 1 === 0 ? 0 : Math.round(d * 10) === d * 10 ? 1 : 2);

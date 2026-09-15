@@ -1147,8 +1147,23 @@ export type PlanoInicial = {
   chegada: number | null;
 };
 
-/* Sedentário, leve, moderado, muito ativo — os multiplicadores clássicos
-   de nível de atividade sobre o gasto de repouso. */
+/* OS QUATRO DEGRAUS DE ATIVIDADE, com o que cada um quer dizer em dias
+   por semana — sem isso "levemente ativo" é autoavaliação, e cada pessoa
+   se põe num degrau diferente.
+
+   Mora aqui, e não na tela que pergunta, porque quem lê o índice é a
+   conta de energia logo abaixo: a lista e o multiplicador são a mesma
+   informação em duas formas, e separá-los é como um ganha um degrau que o
+   outro não tem. */
+export const ATIVIDADES: { id: string; titulo: string; sub: string }[] = [
+  { id: 'sedentario', titulo: 'Sedentário', sub: 'pouco ou nenhum exercício' },
+  { id: 'leve', titulo: 'Levemente ativo', sub: '1 a 3 dias por semana' },
+  { id: 'moderado', titulo: 'Moderadamente ativo', sub: '3 a 5 dias por semana' },
+  { id: 'muito', titulo: 'Muito ativo', sub: '6 a 7 dias por semana' },
+];
+
+/* Os multiplicadores clássicos de nível de atividade sobre o gasto de
+   repouso, na ordem de ATIVIDADES. */
 const FATOR_ATIVIDADE = [1.2, 1.375, 1.55, 1.725];
 /* Um quilo de gordura corporal ≈ 7.700 kcal. É a conta que transforma o
    ritmo que a pessoa escolheu (kg por semana) em déficit por dia. */
