@@ -2470,6 +2470,31 @@ export const INDICADORES: Indicador[] = [
   },
 ];
 
+/* ============================================================
+   AS QUE O APP NÃO MEDE
+
+   A folha oferecia oito indicadores e, no fim, uma linha em branco. E a
+   linha em branco é a parte mais difícil da tela: quem abre "escreva sua
+   meta" com o cursor piscando escreve "emagrecer" — que é o que o app
+   inteiro já faz — ou fecha.
+
+   Estas cinco não são uma lista de opções, são exemplos do TIPO de coisa
+   que cabe aqui. Por isso elas não gravam direto: elas preenchem o campo
+   e deixam a pessoa terminar a frase. "Entrar numa peça de roupa" vira
+   "Entrar no vestido do casamento da minha irmã", e é aí que a meta passa
+   a ser dela.
+
+   Nenhuma delas assume família, corpo ou dinheiro — uma meta que não cabe
+   na vida de quem está lendo é pior do que campo vazio.
+   ============================================================ */
+export const METAS_PESSOAIS: { ic: string; label: string }[] = [
+  { ic: 'ruler', label: 'Entrar numa peça de roupa' },
+  { ic: 'heart', label: 'Me sentir bem comigo mesmo' },
+  { ic: 'walk', label: 'Subir escada sem perder o fôlego' },
+  { ic: 'run', label: 'Voltar a um esporte que eu gostava' },
+  { ic: 'photo', label: 'Tirar uma foto e gostar dela' },
+];
+
 export const indicadorDe = (id?: string | null) =>
   INDICADORES.find((x) => x.id === id) || null;
 

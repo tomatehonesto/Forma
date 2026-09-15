@@ -3,11 +3,12 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, apagarMeta, guardarMetaMedida, guardarMetaPessoal, indicadoresLivres, padraoDe,
-  journeyGoals, marcarMeta, mudarAlvo, type ChaveDeAlvo, type Indicador,
+  ALVOS, METAS_PESSOAIS, apagarMeta, guardarMetaMedida, guardarMetaPessoal,
+  indicadoresLivres, padraoDe, journeyGoals, marcarMeta, mudarAlvo,
+  type ChaveDeAlvo, type Indicador,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { Bloco, Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -167,7 +168,7 @@ export default function Meta() {
     if (escrevendo) {
       return (
         <SheetScreen
-          titulo="Outra meta"
+          titulo="Sua meta"
           sub="Uma coisa que só você sabe dizer quando chegou"
           onClose={() => setEscrevendo(false)}
           rodape={(
@@ -207,42 +208,64 @@ export default function Meta() {
     return (
       <SheetScreen
         titulo="Nova meta"
-        sub="Escolha o que o app acompanha, ou escreva a sua"
+        sub="Uma que o app acompanha, ou uma que só você sabe dizer"
         onClose={() => router.back()}
       >
-        <View style={{ marginTop: 18, gap: 10 }}>
+        {/* DUAS SEÇÕES, E A DIVISÃO É O ASSUNTO DA TELA.
+
+            Elas estavam na mesma lista, com a de baixo separada só por um
+            cartão — e a diferença entre as duas não é de categoria, é de
+            NATUREZA: uma o app conta sozinho, a outra ninguém tem como
+            medir. Com título, a pessoa escolhe sabendo em qual das duas
+            vidas ela está entrando. */}
+        <View style={{ marginTop: 18, gap: 22 }}>
           {/* AS QUE O APP CONTA, pelo nome genérico. O número vem no toque
               seguinte — a lista diz de QUE coisa se trata, e a régua é de
               quem está criando a meta. */}
-          {livres.length ? (
+          <Bloco titulo="O app acompanha">
+            {livres.length ? (
+              <Cartao>
+                {livres.map((i) => (
+                  <Linha
+                    key={i.id}
+                    ic={i.ic}
+                    titulo={i.nome}
+                    sub={i.origem}
+                    onPress={() => abrir(i)}
+                  />
+                ))}
+              </Cartao>
+            ) : (
+              <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
+                Você já tem uma meta para cada coisa que o app sabe contar.
+              </Txt>
+            )}
+          </Bloco>
+
+          {/* AS QUE ELE NÃO MEDE. Os cinco exemplos não gravam direto:
+              preenchem o campo e deixam a pessoa terminar a frase — é aí
+              que "entrar numa peça de roupa" vira a peça dela. */}
+          <Bloco titulo="Você marca quando chegar">
             <Cartao>
-              {livres.map((i) => (
+              {METAS_PESSOAIS.map((m) => (
                 <Linha
-                  key={i.id}
-                  ic={i.ic}
-                  titulo={i.nome}
-                  sub={i.origem}
-                  onPress={() => abrir(i)}
+                  key={m.label}
+                  ic={m.ic}
+                  titulo={m.label}
+                  onPress={() => { setTexto(m.label); setEscrevendo(true); }}
                 />
               ))}
+              {/* OS TRÊS PONTINHOS, e não o alvo. O alvo é o ícone de meta
+                  — este item não é uma meta, é a porta para escrever uma.
+                  Reticências dizem "tem mais", que é exatamente o caso. */}
+              <Linha
+                ic="more"
+                titulo="Outra meta"
+                sub="Escreva do seu jeito"
+                onPress={() => { setTexto(''); setEscrevendo(true); }}
+              />
             </Cartao>
-          ) : (
-            <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
-              Você já tem uma meta para cada coisa que o app sabe contar.
-            </Txt>
-          )}
-
-          {/* E A OUTRA PORTA, embaixo e separada: o que o app não mede.
-              Ela não é a opção de segunda classe — é a única honesta para
-              uma calça que precisa fechar. */}
-          <Cartao>
-            <Linha
-              ic="target"
-              titulo="Outra coisa"
-              sub="Uma meta que só você sabe dizer quando chegou"
-              onPress={() => setEscrevendo(true)}
-            />
-          </Cartao>
+          </Bloco>
         </View>
       </SheetScreen>
     );
