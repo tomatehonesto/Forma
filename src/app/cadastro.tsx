@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, Platform } from 'react-native';
+import { Animated, View, Pressable, ScrollView, TextInput, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -740,6 +740,82 @@ const GLIFOS: [string, number, number, number][] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* MONTANDO O PLANO — os três segundos entre a conferência e o plano.
+
+   Não é enfeite, e também não é mentira: o app de fato calcula aqui
+   (metas do dia, semanas até a meta, IMC, e a gravação do perfil inteiro
+   no armazenamento), só que calcula rápido demais para alguém perceber.
+   Sem esta tela, tocar em "montar o meu plano" trocava a tela no mesmo
+   quadro — e um plano que aparece instantâneo não parece um plano, parece
+   uma tela que já estava pronta.
+
+   As três frases dizem o que está sendo feito, na ordem em que é feito. A
+   barra anda sozinha até o fim e não finge progresso real: ela mede o
+   tempo da espera, que é o único número honesto que existe aqui. */
+const FASES = [
+  'Lendo as suas respostas',
+  'Calculando as suas metas do dia',
+  'Desenhando a sua jornada',
+];
+
+function Montando({ onFim }: { onFim: () => void }) {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  const [fase, setFase] = React.useState(0);
+  const pulso = React.useRef(new Animated.Value(0)).current;
+  const barra = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    /* useNativeDriver desligado: a largura da barra não é animável pela
+       thread nativa, e na web o driver nativo não existe de todo jeito. */
+    Animated.loop(Animated.sequence([
+      Animated.timing(pulso, { toValue: 1, duration: 850, useNativeDriver: false }),
+      Animated.timing(pulso, { toValue: 0, duration: 850, useNativeDriver: false }),
+    ])).start();
+    Animated.timing(barra, { toValue: 1, duration: 2700, useNativeDriver: false }).start();
+    const t = [
+      setTimeout(() => setFase(1), 950),
+      setTimeout(() => setFase(2), 1900),
+      setTimeout(onFim, 2850),
+    ];
+    return () => t.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <View style={{
+      flex: 1, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center',
+      paddingHorizontal: 32, paddingBottom: insets.bottom, gap: 28,
+    }}>
+      <Lavagem altura={560} />
+      <Animated.View style={{
+        transform: [{ scale: pulso.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] }) }],
+      }}>
+        <View style={{
+          width: 96, height: 96, borderRadius: 32, backgroundColor: c.accent,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name="heart" size={44} color={c.accentInk} sw={1.9} />
+        </View>
+      </Animated.View>
+
+      <View style={{ alignItems: 'center', gap: 8 }}>
+        <Txt v="h2" style={{ textAlign: 'center' }}>Montando o seu plano</Txt>
+        <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>{FASES[fase]}</Txt>
+      </View>
+
+      <View style={{
+        width: 170, height: 5, borderRadius: 3, backgroundColor: c.track, overflow: 'hidden',
+      }}>
+        <Animated.View style={{
+          height: '100%', borderRadius: 3, backgroundColor: c.accent,
+          width: barra.interpolate({ inputRange: [0, 1], outputRange: ['4%', '100%'] }),
+        }} />
+      </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* O DESENHO DA SINCRONIA.
 
    As referências resolvem esta tela com uma imagem, e resolvem bem: os
@@ -789,6 +865,14 @@ function Sincronia() {
     </View>
   );
 }
+
+/* A DATA CURTA — a da conferência, onde ela divide a linha com um rótulo
+   e um lápis. "15 de setembro de 2026" ali dentro quebra em duas linhas
+   ou some no meio de reticências. */
+const dataCurta = (t: number) => {
+  const d = new Date(t);
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+};
 
 const dataPorExtenso = (t: number) => {
   const d = new Date(t);
@@ -840,7 +924,8 @@ export default function Cadastro() {
     [r.emTratamento, r.med],
   );
   const RESUMO = passos.length;
-  const PLANO = passos.length + 1;
+  const MONTANDO = passos.length + 1;
+  const PLANO = passos.length + 2;
   const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
   /* Ir para a próxima é uma coisa só, e agora dois rodapés diferentes
      fazem isso: o "Continuar" de sempre e o "Conectar" da tela de saúde.
@@ -945,8 +1030,11 @@ export default function Cadastro() {
       }
       s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
     });
-    setN(PLANO);
+    setN(MONTANDO);
   };
+
+  /* ---------- montando ---------- */
+  if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} />;
 
   /* ---------- abertura ---------- */
   if (n === -1) {
@@ -978,37 +1066,33 @@ export default function Cadastro() {
 
   /* ---------- o plano ----------
 
-     A DEVOLUTIVA. Catorze perguntas depois, é a primeira vez que o app dá
-     alguma coisa em troca do formulário — e o que ele dá não é um resumo
-     do que a pessoa digitou (isso é a tela anterior, a de conferir), e sim
-     o que aquilo virou: quanto beber, quanto comer de proteína, qual a
-     dose, e aonde isso chega.
+     A DEVOLUTIVA, e um resumo VISUAL. Catorze perguntas depois, é a
+     primeira vez que o app dá alguma coisa em troca do formulário — e o
+     que ele dá não é o que a pessoa digitou (isso é a tela de conferir),
+     é o que aquilo virou: quanto beber, quanto comer de proteína, qual a
+     dose, aonde isso chega e o que o app vai fazer junto.
 
-     POR ISSO A TELA FALA EM SEÇÕES DE AÇÃO — "o seu dia", "a sua dose",
-     "até a sua meta" — e usa os cartões da Home: título, número grande,
-     nota embaixo. É o mesmo desenho que a pessoa vai reencontrar na
-     primeira tela do app, e isso é metade da promessa sendo cumprida na
-     hora.
+     POR ISSO CADA SEÇÃO É UMA AÇÃO — "o seu dia", "a sua dose", "até a
+     sua meta" — e os cartões são os da Home: título em cima, número
+     grande, nota curta embaixo. É o mesmo desenho que ela vai reencontrar
+     na primeira tela do app.
+
+     E POR ISSO O TEXTO É CURTO. Toda frase aqui disputa espaço com um
+     número, e o número é que é o assunto: quem quiser a explicação
+     inteira vai encontrá-la na tela da conta, não nesta.
 
      O QUE NÃO VEIO DAS REFERÊNCIAS, e não por esquecimento:
 
        · caloria, carboidrato e gordura. O Morphi não conta nenhum dos
-         três, e /alimentacao tem uma seção inteira explicando por quê. Um
-         cartão azul escrito "2.026 kcal" seria o maior número da tela e o
-         único que nada no app consegue medir.
+         três, e /alimentacao tem uma seção inteira explicando por quê.
        · "você começa a ver diferença em 30 de setembro". Ninguém sabe
-         isso. Num app de tratamento, é a frase que vira cobrança no dia
-         em que a data chega e a balança não mudou.
-       · a curva caindo até a meta em forma de exponencial. A linha aqui é
-         reta e tracejada: reta porque "1 kg por semana" desenha uma reta,
-         e tracejada porque nada disso aconteceu ainda. Curva cheia é
-         dado, e no primeiro dia não existe dado — a pessoa tem uma
-         pesagem só, a de agora.
-       · a lista de artigos sob o título "baseado em evidência". Essa
-         biblioteca não existe aqui, e quatro links emprestados de outra
-         tela são autoridade de mentira.
-       · nota na loja e depoimentos. O app não tem nem uma coisa nem
-         outra, e prova social inventada é a mais barata de todas. */
+         isso, e é a frase que vira cobrança no dia em que a data chega e
+         a balança não mudou.
+       · a curva caindo em exponencial. A linha aqui é reta e tracejada:
+         reta porque "1 kg por semana" desenha uma reta, e tracejada
+         porque nada disso aconteceu ainda.
+       · artigos sob "baseado em evidência", nota na loja e depoimentos.
+         Nada disso existe aqui. */
   if (n === PLANO) {
     const primeiro = r.nome.trim().split(' ')[0];
     const marca = r.med !== 'indefinido' && med ? ` com o ${med.label}®` : '';
@@ -1018,13 +1102,9 @@ export default function Cadastro() {
     const inter = r.intervalo ?? padrao;
     const cadTexto = inter === 1 ? 'todos os dias'
       : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
-    /* A RETA DO PLANO. Dois pontos: o peso de hoje e a meta. É tudo o que
-       o ritmo escolhido diz, e desenhar mais do que isso seria inventar um
-       modelo de como o peso desce. */
     const linha = perder > 0.05 ? [{ x: 0, y: 1 }, { x: 1, y: 0 }]
       : perder < -0.05 ? [{ x: 0, y: 0 }, { x: 1, y: 1 }]
         : [{ x: 0, y: 0.5 }, { x: 1, y: 0.5 }];
-    /* A régua de IMC vai de 15 a 40 — ver o comentário do marcador. */
     const pos = (v: number) => Math.max(0, Math.min(1, (v - 15) / 25));
     const TOM_IMC: Record<string, [string, string]> = {
       blue: [c.water, c.waterBg], ok: [c.ok, c.okBg], amber: [c.amber, c.amberBg],
@@ -1032,17 +1112,30 @@ export default function Cadastro() {
     };
     const fxHoje = faixaDoIMC(plano.imc);
     const fxMeta = faixaDoIMC(plano.imcMeta);
+    /* O QUE O APP FAZ JUNTO. Quatro telas que já existem, em quatro
+       frases de quatro palavras — é o "como o Morphi vai te ajudar" sem
+       virar folheto: nenhuma delas promete coisa que o app não faça. */
+    const AJUDA: [string, string, string][] = [
+      ['syringe', c.accent, 'Cada dose no lugar certo'],
+      ['mood', c.rose, 'O enjoo em números'],
+      ['scale', c.water, 'A sua curva de peso'],
+      ['doc', c.amber, 'Um resumo para a consulta'],
+    ];
     return (
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
-          {/* O TOPO EM ACENTO, com o nome de quem acabou de responder. A
-              referência põe a frase inteira no título — "seu plano para
-              perder 5 kg com Mounjaro está pronto" —, o que no nosso corpo
-              de 36 ocupa cinco linhas. O nome e o fato ficam no título; o
-              específico desce para a linha de baixo. */}
+          {/* O TOPO É A MESMA LAVAGEM DAS PERGUNTAS.
+
+              Era um bloco chapado de azul com texto branco, e ele não
+              pertencia a lugar nenhum: nenhuma outra tela do app tem essa
+              faixa, e o corte seco entre o azul e o branco era a costura
+              aparecendo. A malha desfocada que abre cada pergunta do
+              cadastro já resolve isso — ela vira branco sozinha, e o
+              título fica preto como em todas as outras telas. */}
+          <Lavagem altura={insets.top + 330} />
           <View style={{
-            backgroundColor: c.accent, paddingTop: insets.top + 26, paddingHorizontal: 24,
-            paddingBottom: 30, alignItems: 'center', gap: 14,
+            paddingTop: insets.top + 30, paddingHorizontal: 24, paddingBottom: 34,
+            alignItems: 'center', gap: 14,
           }}>
             <View style={{
               width: 58, height: 58, borderRadius: 29, backgroundColor: c.lime,
@@ -1050,37 +1143,18 @@ export default function Cadastro() {
             }}>
               <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
             </View>
-            <Txt v="h1" c={c.accentInk} style={{ textAlign: 'center' }}>
+            <Txt v="h1" style={{ textAlign: 'center' }}>
               {primeiro}, seu plano{'\n'}está pronto
             </Txt>
-            <Txt v="caption" c="rgba(255,255,255,0.82)" style={{ textAlign: 'center', maxWidth: 300 }}>
+            <Txt v="note" c={c.tx2} style={{ textAlign: 'center', maxWidth: 300 }}>
               {`Para ${alvo}${marca}.`}
             </Txt>
-            {/* Onde a referência carimba "evidência científica", vai o que
-                é verdade: isto aqui é o que você respondeu, e nada disso
-                está preso. */}
-            <Row style={{ gap: 8, justifyContent: 'center' }}>
-              {([['user', 'Das suas respostas'], ['reset', 'Muda quando quiser']] as [string, string][])
-                .map(([ic, t]) => (
-                  <Row key={t} style={{
-                    gap: 6, alignItems: 'center', backgroundColor: c.glass,
-                    borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill,
-                    paddingHorizontal: 11, paddingVertical: 7,
-                  }}>
-                    <Icon name={ic} size={13} color={c.onHero2} sw={2} />
-                    <Txt v="micro" c={c.onHero}>{t}</Txt>
-                  </Row>
-                ))}
-            </Row>
           </View>
 
-          <View style={{ paddingHorizontal: 20, paddingTop: 26, gap: 30 }}>
+          <View style={{ paddingHorizontal: 20, gap: 30 }}>
             {/* ---------- o dia ---------- */}
             <View>
               <SectionHead title="O seu dia" />
-              <Txt v="caption" c={c.tx2} style={{ marginTop: 4 }}>
-                As duas saem do seu peso — e a água sobe um pouco pelo quanto você se mexe.
-              </Txt>
               <Row style={{ gap: 10, marginTop: 14, alignItems: 'stretch' }}>
                 {([
                   ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g/dia', '1,2 g por quilo'],
@@ -1127,8 +1201,7 @@ export default function Cadastro() {
                       <Txt v="body" style={{ flex: 1 }}>Ainda a definir</Txt>
                     </Row>
                     <Txt v="caption" c={c.tx3}>
-                      Quando você souber qual é a caneta, o Morphi monta a escada de doses, o
-                      intervalo entre as aplicações e a validade de cada refil.
+                      Quando você souber a caneta, o Morphi monta a escada de doses e o ciclo.
                     </Txt>
                   </>
                 ) : (
@@ -1142,7 +1215,7 @@ export default function Cadastro() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Txt v="body">{`${med?.label}®`}</Txt>
-                        <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{med?.mol}</Txt>
+                        <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{cadTexto}</Txt>
                       </View>
                       {r.dose ? (
                         <Row style={{ alignItems: 'center' }}>
@@ -1151,14 +1224,11 @@ export default function Cadastro() {
                         </Row>
                       ) : null}
                     </Row>
-                    {/* O CICLO NÃO COMEÇOU. O cadastro guarda desde quando a
-                        pessoa está em tratamento, mas não inventa
-                        aplicações que ela não registrou — e é da aplicação
-                        registrada que sai a contagem do ciclo. Dizer aqui
-                        "próxima na terça" seria marcar um compromisso a
-                        partir de um dado que não existe. */}
+                    {/* O CICLO NÃO COMEÇOU: o cadastro não inventa
+                        aplicações que ninguém registrou, e é da aplicação
+                        registrada que sai a contagem. */}
                     <Txt v="caption" c={c.tx3}>
-                      {`${cadTexto[0].toUpperCase()}${cadTexto.slice(1)}. A contagem do ciclo começa na primeira aplicação que você registrar.`}
+                      O ciclo começa na primeira aplicação que você registrar.
                     </Txt>
                   </>
                 )}
@@ -1176,9 +1246,7 @@ export default function Cadastro() {
                   <View style={{ flex: 1 }}>
                     <Txt v="body">{perder > 0.05 ? 'Peso a perder' : perder < -0.05 ? 'Peso a ganhar' : 'Peso a manter'}</Txt>
                     <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-                      {plano.semanas
-                        ? `em ${plano.semanas} semanas, a ${nf(r.ritmo ?? 0, 1)} kg por semana`
-                        : 'manter também é meta'}
+                      {plano.semanas ? `em ${plano.semanas} semanas` : 'manter também é meta'}
                     </Txt>
                   </View>
                   <Row style={{ alignItems: 'center' }}>
@@ -1200,15 +1268,12 @@ export default function Cadastro() {
                   id="pl" dashed={false} tracejada fill={0.13}
                 />
               </View>
-              {/* Onde os outros põem "com o nosso app é 3x mais rápido",
-                  aqui vai a ressalva. */}
               <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-                É a conta do ritmo que você escolheu, não uma previsão: quanto o peso desce
-                depende do corpo, da dose e do dia.
+                É a conta do ritmo que você escolheu, não uma previsão.
               </Txt>
 
               <View style={{
-                backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 14, gap: 18,
+                backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 14, gap: 16,
               }}>
                 <Row style={{ alignItems: 'center', gap: 10 }}>
                   {([[fxHoje, 'IMC de hoje', plano.imc, 'flex-start'],
@@ -1230,79 +1295,62 @@ export default function Cadastro() {
                     ))}
                 </Row>
 
-                <View>
-                  {/* A ALTURA É DE CADA SEGMENTO, e não da linha: `Row`
-                      centraliza o que está dentro dela, e um filho sem
-                      altura própria centralizado vira altura zero — a
-                      faixa sumia e só os dois marcadores apareciam,
-                      boiando.
+                {/* A RÉGUA É UM DEGRADÊ, E NÃO SEIS BLOCOS.
 
-                      A RÉGUA PARA EM 40. Ia até 45 para caber o grau III,
-                      e o preço era um segmento vermelho encostado em outro
-                      vermelho: as duas faixas mais altas usam a mesma cor
-                      de alerta do tema, e lado a lado viravam uma mancha
-                      só, com um corte invisível no meio. Quem está acima
-                      de 40 encosta na borda — que é onde ele está mesmo —
-                      e a faixa em texto continua dizendo o grau. */}
-                  <Row style={{ gap: 2 }}>
-                    {FAIXAS_IMC.slice(0, 5).map((fx) => (
-                      <View key={fx.nome} style={{
-                        flex: fx.ate - fx.de, height: 10, borderRadius: 3,
-                        backgroundColor: TOM_IMC[fx.tom][0], opacity: 0.9,
-                      }} />
-                    ))}
-                  </Row>
-                  {/* DOIS MARCADORES, E A MESMA GRAMÁTICA DO TRILHO: cheio
-                      é onde a pessoa está, vazado é aonde ela vai. Sem
-                      isso são duas bolinhas iguais numa régua colorida, e
-                      na faixa o marcador de hoje fica à DIREITA do da
-                      meta — o contrário da ordem em que os dois números
-                      aparecem logo acima. */}
+                    Seis retângulos de cor cheia, encostados, com dois
+                    vermelhos quase iguais no fim: parecia legenda de
+                    planilha, e a fronteira entre "29,9" e "30,0" ganhava
+                    uma parede que ela não tem no corpo de ninguém. O risco
+                    do IMC é contínuo; as faixas é que são cortes que
+                    alguém escolheu. O degradê diz isso sozinho — e quem
+                    quer o nome da faixa lê o selo ali em cima.
+
+                    As paradas caem nos cortes da OMS mapeados em 15–40:
+                    18,5 em 14%, 25 em 40%, 30 em 60%, 35 em 80%. O trecho
+                    de peso normal fica inteiro na mesma cor, com as duas
+                    paradas repetidas — sem isso ele viraria uma passagem
+                    contínua e a faixa boa não existiria como faixa. */}
+                <View>
+                  <LinearGradient
+                    colors={[c.water, c.teal, c.teal, c.amber, c.cta2, c.cta]}
+                    locations={[0, 0.14, 0.4, 0.6, 0.82, 1]}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                    style={{ height: 12, borderRadius: 6 }}
+                  />
+                  {/* Vazado é aonde ela vai; cheio é onde ela está — a
+                      mesma gramática do trilho da Jornada. */}
                   <View style={{
                     position: 'absolute', top: -3, left: `${pos(plano.imcMeta) * 100}%`,
-                    marginLeft: -8, width: 16, height: 16, borderRadius: 8,
-                    borderWidth: 3, borderColor: c.tx, backgroundColor: c.bg1,
+                    marginLeft: -9, width: 18, height: 18, borderRadius: 9,
+                    borderWidth: 3.5, borderColor: c.bg1,
                   }} />
                   <View style={{
                     position: 'absolute', top: -3, left: `${pos(plano.imc) * 100}%`,
-                    marginLeft: -8, width: 16, height: 16, borderRadius: 8,
-                    borderWidth: 3, borderColor: c.bg1, backgroundColor: c.tx,
+                    marginLeft: -9, width: 18, height: 18, borderRadius: 9,
+                    borderWidth: 3.5, borderColor: c.bg1, backgroundColor: c.tx,
                   }} />
                 </View>
-                <Row style={{ justifyContent: 'space-between', marginTop: -10 }}>
-                  <Txt v="micro" c={c.tx4}>15</Txt>
-                  <Txt v="micro" c={c.tx4}>40+</Txt>
-                </Row>
 
-                <Txt v="caption" c={c.tx3}>
-                  O IMC é um ponto de partida: ele não separa músculo de gordura nem sabe de
-                  onde veio o peso. É por isso que o Morphi acompanha a sua curva, e não um
-                  número sozinho.
+                <Txt v="caption" c={c.tx3} style={{ marginTop: -2 }}>
+                  O IMC é ponto de partida: ele não separa músculo de gordura.
                 </Txt>
               </View>
             </View>
 
-            {/* ---------- o porquê ---------- */}
-            {motivo ? (
-              <View>
-                <SectionHead title="O seu porquê" />
-                <Row style={{
-                  backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, marginTop: 14,
-                  gap: 12, alignItems: 'center',
-                }}>
-                  <View style={{
-                    width: 44, height: 44, borderRadius: 14, backgroundColor: c.limeWeak,
-                    alignItems: 'center', justifyContent: 'center',
+            {/* ---------- o que o app faz junto ---------- */}
+            <View>
+              <SectionHead title="Como eu te ajudo" style={{ marginBottom: 14 }} />
+              <Duplas>
+                {AJUDA.map(([ic, cor, t]) => (
+                  <View key={t} style={{
+                    flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 14,
                   }}>
-                    <Icon name={motivo.ic} size={21} color={c.tx} sw={1.9} />
+                    <Icon name={ic} size={21} color={cor} sw={1.9} />
+                    <Txt v="bodyMed">{t}</Txt>
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="body">{motivo.titulo}</Txt>
-                    <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{motivo.sub}</Txt>
-                  </View>
-                </Row>
-              </View>
-            ) : null}
+                ))}
+              </Duplas>
+            </View>
           </View>
         </ScrollView>
 
@@ -1316,7 +1364,24 @@ export default function Cadastro() {
     );
   }
 
-  /* ---------- resumo ---------- */
+  /* ---------- confere ----------
+
+     A ÚLTIMA PARADA ANTES DE ESCREVER O PERFIL. Ela existe porque catorze
+     respostas foram dadas uma de cada vez, e ninguém lembra a nona.
+
+     ERAM CARTÕES DE DUAS COLUNAS, com lápis em cada um: sete linhas de
+     molduras, valores quebrados em duas linhas, e um lápis repetido
+     catorze vezes. Uma conferência se lê de cima para baixo — rótulo à
+     esquerda, resposta à direita —, e é assim que o resto do app mostra
+     lista. A linha inteira abre a pergunta; o lápis do fim é só a marca
+     de que ela abre.
+
+     ESTA TELA NÃO É O FIM, E NÃO PODE PARECER O FIM. Ela se chamava
+     "Prontinho", e prontinho é palavra de quem terminou: quem chegava
+     aqui concluía que o cadastro acabava num formulário de conferência —
+     quando o que vem depois é justamente a parte que devolve alguma
+     coisa. O título pergunta, e o botão diz o que acontece ao ser
+     tocado. */
   if (n === RESUMO) {
     const idade = (() => {
       const h = now();
@@ -1325,69 +1390,68 @@ export default function Cadastro() {
       if (m < 0 || (m === 0 && h.getDate() < r.dia)) a -= 1;
       return a;
     })();
-    const cartoes: [string, string, string, Id][] = [
-      ['user', 'NOME', r.nome.trim(), 'nome'],
-      ['heart', 'IDENTIDADE', r.identidade === 'f' ? 'Feminino'
+    const linhas: [string, string, string, Id][] = [
+      ['user', 'Nome', r.nome.trim(), 'nome'],
+      /* SEXO, e não "identidade": o rótulo de uma conferência é o nome
+         curto da coisa, e é esse nome que a pessoa procura quando quer
+         corrigir. A pergunta continua sendo como ela se identifica, com
+         "prefiro não informar" entre as respostas. */
+      ['heart', 'Sexo', r.identidade === 'f' ? 'Feminino'
         : r.identidade === 'm' ? 'Masculino'
           : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
-      ['cal', 'NASCIMENTO', `${r.dia} de ${MESES[r.mes]} de ${r.ano} · ${idade} anos`, 'nascimento'],
-      ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
-      ['pill', 'MEDICAMENTO', med?.label ?? '—', 'medicamento'],
-      ...(r.med === 'indefinido' ? [] : [['syringe', 'DOSE',
+      ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
+      ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
+      ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
+      ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei' : `${med?.label}®`, 'medicamento'],
+      ...(r.med === 'indefinido' ? [] : [['syringe', 'Dose',
         r.dose === 0 ? 'Ainda não sei'
-          : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`,
+          : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · ${r.intervalo} dias` : ''}`,
         'dose'] as [string, string, string, Id]]),
-      ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
-      ['target', 'META', `${nf(r.meta, 1)} kg`, 'meta'],
-      ['trend', 'RITMO', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
-      ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 'motivacao'],
-      ['dumbbell', 'ATIVIDADE', ativ?.titulo ?? '—', 'atividade'],
-      ['activity', 'APP DE SAÚDE', r.saude ? 'Conectar' : 'Agora não', 'saude'],
-      ...(futuro ? [] : [['cal', 'INÍCIO', `${dataPorExtenso(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
-      ['steth', 'INDICAÇÃO', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
+      ['ruler', 'Altura e peso', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
+      ['target', 'Meta', `${nf(r.meta, 1)} kg`, 'meta'],
+      ['trend', 'Ritmo', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
+      ['bolt', 'Motivo', motivo?.titulo ?? '—', 'motivacao'],
+      ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
+      ['activity', 'App de saúde', r.saude ? 'Conectar' : 'Agora não', 'saude'],
+      ['steth', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Por conta própria', 'recomendacao'],
     ];
     return (
-      <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24 }}>
-          {/* ESTA TELA NÃO É O FIM, E NÃO PODE PARECER O FIM.
-
-              Ela se chamava "Prontinho", e prontinho é palavra de quem
-              terminou: quem chegava aqui via catorze cartões com lápis e
-              concluía que o cadastro acabava num formulário de conferência
-              — quando o que vem depois é justamente a parte que devolve
-              alguma coisa. O título agora pergunta, e o botão diz o que
-              acontece ao ser tocado. */}
+      <View style={{ flex: 1, backgroundColor: c.bg }}>
+        <Lavagem altura={insets.top + 260} />
+        <ScrollView contentContainerStyle={{
+          paddingHorizontal: 20, paddingTop: insets.top + 36, paddingBottom: 24,
+        }}>
           <Txt v="h1" style={{ textAlign: 'center' }}>Confere comigo?</Txt>
-          <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', marginTop: 6, marginBottom: 24 }}>
-            Toque no lápis para mudar qualquer resposta. Depois eu monto o seu plano.
+          <Txt v="note" c={c.tx2} style={{ textAlign: 'center', marginTop: 8, marginBottom: 26 }}>
+            Toque em qualquer linha para mudar.
           </Txt>
-          <Duplas>
-            {cartoes.map(([ic, rotulo, valor, alvo]) => (
-              <View
+
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+            {linhas.map(([ic, rotulo, valor, destino], i) => (
+              <Pressable
                 key={rotulo}
-                style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.card, padding: 14, gap: 10 }}
+                onPress={() => { setDoResumo(true); setN(passos.indexOf(destino)); }}
+                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
               >
-                <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Icon name={ic} size={16} color={c.tx3} sw={1.9} />
-                  <Pressable
-                    onPress={() => { setDoResumo(true); setN(passos.indexOf(alvo)); }}
-                    hitSlop={10}
-                    style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                <Row style={{
+                  gap: 12, alignItems: 'center', paddingVertical: 13,
+                  borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
+                }}>
+                  <Icon name={ic} size={18} color={c.tx4} sw={1.9} />
+                  <Txt v="caption" c={c.tx3}>{rotulo}</Txt>
+                  <Txt
+                    v="label"
+                    style={{ flex: 1, textAlign: 'right' }}
+                    numberOfLines={1}
                   >
-                    <Icon name="pencil" size={15} color={c.accent} sw={1.9} />
-                  </Pressable>
+                    {valor}
+                  </Txt>
+                  <Icon name="pencil" size={14} color={c.accent} sw={2} />
                 </Row>
-                <View>
-                  <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>{rotulo}</Txt>
-                  <Txt v="bodyMed" style={{ marginTop: 3 }} numberOfLines={2}>{valor}</Txt>
-                </View>
-              </View>
+              </Pressable>
             ))}
-          </Duplas>
+          </View>
         </ScrollView>
-        {/* ARRASTAR PARA CONFIRMAR VIROU BOTÃO. O arraste é o gesto de quem
-            vai fazer algo que não dá para desfazer; aqui ele guardava a
-            porta da Home, e tudo atrás dela muda no perfil. */}
         <View style={{
           paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
           gap: 12, backgroundColor: c.bg,
@@ -1456,7 +1520,10 @@ export default function Cadastro() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <Lavagem altura={insets.top + 320} />
+      {/* A MALHA NÃO VAI PARA A TELA DE SAÚDE. Lá o desenho dos dois
+          aplicativos é que é o assunto, e ele já tem a constelação atrás —
+          duas texturas no mesmo lugar viram só borrão azul. */}
+      {id === 'saude' ? null : <Lavagem altura={insets.top + 320} />}
 
       {/* O TOPO diz onde a pessoa está e não oferece saída. "Pular tudo"
           ficava aqui; com as perguntas obrigatórias, o que sobra é a
@@ -1482,15 +1549,29 @@ export default function Cadastro() {
         /* AR ENTRE O TOPO E A PERGUNTA. Colada na barra de progresso, a
            manchete lia como cabeçalho de tela; afastada, ela lê como a
            pergunta que é. */
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: id === 'saude' ? 20 : 64, paddingBottom: 24 }}
+        /* A TELA DE SAÚDE SE APOIA NO RODAPÉ. As outras começam em cima,
+           porque a pergunta é a primeira coisa; esta é um convite, e
+           convite se lê de baixo para cima — o botão, os motivos, a
+           frase, e a imagem ocupando a sobra. */
+        contentContainerStyle={id === 'saude'
+          ? { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8, flexGrow: 1, justifyContent: 'flex-end' }
+          : { paddingHorizontal: 20, paddingTop: 64, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* A pergunta mora DENTRO da lavagem, e não abaixo dela: é ela o
             assunto da tela, e o gradiente existe para dar altura ao que
             ela pergunta. As respostas é que caem no branco. */}
         {id === 'saude' ? <Sincronia /> : null}
-        <Txt v="h1">{titulos[id]}</Txt>
-        <Txt v="note" c={c.tx2} style={{ marginTop: 10, marginBottom: id === 'saude' ? 18 : 28 }}>{subs[id]}</Txt>
+        <Txt v="h1" style={id === 'saude' ? { textAlign: 'center' } : null}>{titulos[id]}</Txt>
+        <Txt
+          v="note" c={c.tx2}
+          style={[
+            { marginTop: 10, marginBottom: id === 'saude' ? 22 : 28 },
+            id === 'saude' ? { textAlign: 'center' } : null,
+          ]}
+        >
+          {subs[id]}
+        </Txt>
 
         {/* O NOME SE ESCREVE NA TELA, e não dentro de uma caixa. A caixa de
             formulário existe para separar um campo dos outros campos, e
@@ -1899,30 +1980,32 @@ export default function Cadastro() {
             quando o módulo existir. Por isso o texto não diz "conectado":
             dizer isso seria o app afirmar um acesso que ele não tem. */}
         {id === 'saude' ? (
-          /* OS BENEFÍCIOS SÃO A RESPOSTA À PERGUNTA QUE NINGUÉM FAZ EM VOZ
-             ALTA: "o que eu ganho deixando um app ver isso?". Por isso
-             ganharam cartão, selo colorido e corpo de texto — eram três
-             linhas soltas no fundo da página, do tamanho de uma legenda.
+          /* OS MOTIVOS PERDERAM O CARTÃO.
 
-             O primeiro é o que a pessoa ganha e vem em azul; os dois
-             seguintes são o que ela mantém — controle e saída —, e ficam
-             em cinza. A hierarquia é essa mesma: um benefício e duas
-             garantias, e não três avisos. */
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
+             Dentro de um cartão branco eles viravam um bloco à parte no
+             meio de uma tela que é toda ela um convite — e o cartão ainda
+             empurrava o botão para longe. Soltos, com o selo de cor à
+             esquerda, eles são a continuação da frase que está logo acima.
+
+             E OS ARGUMENTOS MUDARAM. Eram três descrições do mecanismo
+             ("peso, sono e treinos entram sozinhos", "quem pede é o
+             aparelho"): verdade, e nenhuma delas responde à pergunta que
+             a pessoa está realmente se fazendo, que é o que ela ganha
+             deixando um app ver isso. Agora são dois ganhos e uma
+             garantia — menos trabalho, curva mais completa, e o controle
+             continuando com ela. */
+          <View style={{ gap: 18 }}>
             {([
-              ['arrowdown', c.accent, c.accentWeak, 'Peso, sono e treinos entram sozinhos', 'sem você digitar nada'],
-              ['shield', c.tx2, c.bg2, 'Você escolhe o que liberar', 'quem pede é o aparelho'],
-              ['gear', c.tx2, c.bg2, 'Desligar é um toque', 'no seu perfil, quando quiser'],
-            ] as [string, string, string, string, string][]).map(([ic, cor, fundo, t, sub], i) => (
-              <Row key={t} style={{
-                gap: 13, alignItems: 'center', paddingVertical: 13,
-                borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
-              }}>
+              ['clock', 'Menos uma coisa para lembrar', 'peso, sono e treino entram sozinhos'],
+              ['trend', 'A sua curva mais completa', 'o que o aparelho mede já entra aqui'],
+              ['shield', 'Você decide o que liberar', 'e desliga quando quiser, no perfil'],
+            ] as [string, string, string][]).map(([ic, t, sub]) => (
+              <Row key={t} style={{ gap: 13, alignItems: 'center' }}>
                 <View style={{
-                  width: 42, height: 42, borderRadius: 13, backgroundColor: fundo,
+                  width: 42, height: 42, borderRadius: 13, backgroundColor: c.accentWeak,
                   alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Icon name={ic} size={20} color={cor} sw={1.9} />
+                  <Icon name={ic} size={20} color={c.accent} sw={1.9} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Txt v="bodyMed">{t}</Txt>
