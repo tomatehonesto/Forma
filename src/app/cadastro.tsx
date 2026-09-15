@@ -1091,11 +1091,13 @@ export default function Cadastro() {
      que ele dá não é o que a pessoa digitou (isso é a tela de conferir),
      é o que aquilo virou.
 
-     A TELA É ESCURA, E É A ÚNICA ASSIM NO CADASTRO. O app é claro do
-     começo ao fim; esta é a última tela do fluxo e a única que não pede
-     nada — inverter a superfície é o jeito mais barato de dizer "acabou,
-     e o que vem agora é seu". O gradiente é o mesmo painel azul da
-     Jornada, e os cartões viram vidro sobre ele.
+     A TELA É CLARA, COMO O RESTO DO APP. Ela chegou a ser escura, com
+     gradiente azul e cartões de vidro; a inversão de superfície dizia
+     "acabou" de um jeito bonito e fazia a última tela do cadastro parecer
+     de outro produto. O que fica do experimento é a estrutura: a mesma
+     lavagem que abre cada pergunta no topo, cartões brancos, e títulos de
+     seção no miúdo em caixa alta — numa tela que é toda cartão, um h2 a
+     cada quatro parágrafos vira degrau.
 
      O TEXTO É CURTO. Toda frase aqui disputa espaço com um número, e o
      número é o assunto.
@@ -1132,7 +1134,7 @@ export default function Cadastro() {
         const meio = Math.max(1, Math.round(plano.semanas / 2));
         const quando = (sem: number) => {
           const d = new Date(+startOfDay(now()) + sem * 7 * 86400000);
-          return sem === 0 ? 'hoje' : `${d.getDate()} de ${MESES[d.getMonth()].slice(0, 3)}`;
+          return `${d.getDate()} de ${MESES[d.getMonth()].slice(0, 3)}`;
         };
         return [
           { sem: 0, kg: r.peso, rot: 'hoje', quando: quando(0) },
@@ -1142,10 +1144,13 @@ export default function Cadastro() {
       })()
       : null;
     const pos = (v: number) => Math.max(0, Math.min(1, (v - 15) / 25));
-    /* AS CORES DA RÉGUA SÃO FIXAS porque a superfície é fixa: esta tela é
-       escura nos dois temas, e um token claro do tema — o verde-oliva, o
-       mostarda — vira lama sobre o azul profundo. São os valores da
-       paleta escura do Morphi: roxo, turquesa, lima, âmbar, rosa, alerta. */
+    /* AS CORES DA RÉGUA SÃO UMA ESCALA CATEGÓRICA, e por isso são valores
+       fixos e não tokens: elas não querem dizer "fundo", "acento" ou
+       "alerta" — querem dizer primeira faixa, segunda, terceira. São os
+       tons da paleta do Morphi nas versões mais claras, que é o que
+       sobrevive sobre o branco sem virar mancha: lavanda, turquesa, lima,
+       ouro, rosa e coral. O que estava feio antes eram o verde-oliva e o
+       mostarda das cores de texto, e dois vermelhos iguais no fim. */
     const CORES_IMC = ['#9D86FF', '#15E4CB', '#DDF62C', '#E0BC4A', '#F26A9B', '#FF5A5A'];
     const fxHoje = faixaDoIMC(plano.imc);
     const fxMeta = faixaDoIMC(plano.imcMeta);
@@ -1164,23 +1169,14 @@ export default function Cadastro() {
       ['IMC', 'as faixas da OMS para adultos'],
       ['Ritmo', 'o que você escolheu — não é projeção'],
     ];
-    /* O título de seção é o miúdo em caixa alta: numa tela que é toda
-       cartão, um h2 a cada quatro parágrafos vira degrau. */
     const Secao = ({ t }: { t: string }) => (
-      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2, marginBottom: 12 }}>{t}</Txt>
+      <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1.2, marginBottom: 12 }}>{t}</Txt>
     );
-    const vidro = {
-      backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine,
-      borderRadius: radius.lg,
-    };
+    const cartao = { backgroundColor: c.bg1, borderRadius: radius.lg };
     return (
-      <View style={{ flex: 1, backgroundColor: c.altTo }}>
-        <LinearGradient
-          colors={[c.altFrom, c.altMid, c.altTo]}
-          start={{ x: 0, y: 0 }} end={{ x: 0.9, y: 1 }}
-          style={SOBREPOSTO}
-        />
+      <View style={{ flex: 1, backgroundColor: c.bg }}>
         <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
+          <Lavagem altura={insets.top + 380} />
           <View style={{
             paddingTop: insets.top + 34, paddingHorizontal: 24, paddingBottom: 32,
             alignItems: 'center', gap: 14,
@@ -1191,10 +1187,10 @@ export default function Cadastro() {
             }}>
               <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
             </View>
-            <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>
+            <Txt v="h1" style={{ textAlign: 'center' }}>
               {`${primeiro}, seu plano personalizado está pronto!`}
             </Txt>
-            <Txt v="note" c={c.onHero2} style={{ textAlign: 'center' }}>
+            <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
               {`Para ${alvo}${marca}.`}
             </Txt>
             {/* AS DUAS ETIQUETAS DIZEM O QUE É VERDADE HOJE. A segunda
@@ -1206,12 +1202,12 @@ export default function Cadastro() {
               {([['user', 'Das suas respostas'], ['info', 'Com as contas à mostra']] as [string, string][])
                 .map(([ic, t]) => (
                   <Row key={t} style={{
-                    gap: 6, alignItems: 'center', backgroundColor: c.onHeroWeak,
-                    borderWidth: 1, borderColor: c.onHeroLine, borderRadius: radius.pill,
+                    gap: 6, alignItems: 'center', backgroundColor: c.bg1,
+                    borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
                     paddingHorizontal: 11, paddingVertical: 7,
                   }}>
-                    <Icon name={ic} size={13} color={c.onHero2} sw={2} />
-                    <Txt v="micro" c={c.onHero}>{t}</Txt>
+                    <Icon name={ic} size={13} color={c.tx3} sw={2} />
+                    <Txt v="micro" c={c.tx2}>{t}</Txt>
                   </Row>
                 ))}
             </Row>
@@ -1223,17 +1219,22 @@ export default function Cadastro() {
               <Secao t="O SEU DIA" />
               <Row style={{ gap: 8, alignItems: 'stretch' }}>
                 {([
-                  ['utensils', 'Proteína', `${plano.prot}`, 'g'],
-                  ['water', 'Água', litros(plano.agua), 'L'],
-                  ['leaf', 'Fibra', '25', 'g'],
-                ] as [string, string, string, string][]).map(([ic, nome, val, un]) => (
-                  <View key={nome} style={[vidro, { flex: 1, padding: 13 }]}>
-                    <Icon name={ic} size={17} color={c.lime} sw={1.9} />
-                    <Row style={{ marginTop: 16, alignItems: 'center' }}>
-                      <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{val}</Txt>
-                      <Txt v="caption" c={c.onHero2} style={{ marginLeft: 3, marginTop: 4 }}>{un}</Txt>
+                  ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g'],
+                  ['water', c.water, c.waterBg, 'Água', litros(plano.agua), 'L'],
+                  ['leaf', c.ok, c.okBg, 'Fibra', '25', 'g'],
+                ] as [string, string, string, string, string, string][]).map(([ic, cor, fundo, nome, val, un]) => (
+                  <View key={nome} style={[cartao, { flex: 1, padding: 13 }]}>
+                    <View style={{
+                      width: 28, height: 28, borderRadius: 9, backgroundColor: fundo,
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon name={ic} size={15} color={cor} sw={1.9} />
+                    </View>
+                    <Row style={{ marginTop: 14, alignItems: 'center' }}>
+                      <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{val}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 4 }}>{un}</Txt>
                     </Row>
-                    <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{nome}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{nome}</Txt>
                   </View>
                 ))}
               </Row>
@@ -1242,19 +1243,19 @@ export default function Cadastro() {
             {/* ---------- a dose ---------- */}
             <View>
               <Secao t="A SUA DOSE" />
-              <View style={[vidro, { padding: 16, gap: 12 }]}>
+              <View style={[cartao, { padding: 16, gap: 12 }]}>
                 {r.med === 'indefinido' ? (
                   <>
                     <Row style={{ gap: 12, alignItems: 'center' }}>
                       <View style={{
-                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.onHeroWeak,
+                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.bg2,
                         alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Icon name="syringe" size={21} color={c.onHero2} sw={1.9} />
+                        <Icon name="syringe" size={21} color={c.tx3} sw={1.9} />
                       </View>
-                      <Txt v="body" c={c.onHero} style={{ flex: 1 }}>Ainda a definir</Txt>
+                      <Txt v="body" style={{ flex: 1 }}>Ainda a definir</Txt>
                     </Row>
-                    <Txt v="caption" c={c.onHero2}>
+                    <Txt v="caption" c={c.tx3}>
                       Quando você souber a caneta, eu monto a escada de doses e o ciclo.
                     </Txt>
                   </>
@@ -1262,23 +1263,23 @@ export default function Cadastro() {
                   <>
                     <Row style={{ gap: 12, alignItems: 'center' }}>
                       <View style={{
-                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.onHeroWeak,
+                        width: 44, height: 44, borderRadius: 14, backgroundColor: c.accentWeak,
                         alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Icon name="syringe" size={21} color={c.lime} sw={1.9} />
+                        <Icon name="syringe" size={21} color={c.accent} sw={1.9} />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Txt v="body" c={c.onHero}>{`${med?.label}®`}</Txt>
-                        <Txt v="note" c={c.onHero2} style={{ marginTop: 1 }}>{cadTexto}</Txt>
+                        <Txt v="body">{`${med?.label}®`}</Txt>
+                        <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{cadTexto}</Txt>
                       </View>
                       {r.dose ? (
                         <Row style={{ alignItems: 'center' }}>
-                          <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{doseTxt(r.dose)}</Txt>
-                          <Txt v="caption" c={c.onHero2} style={{ marginLeft: 3, marginTop: 4 }}>{med?.unit}</Txt>
+                          <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{doseTxt(r.dose)}</Txt>
+                          <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 4 }}>{med?.unit}</Txt>
                         </Row>
                       ) : null}
                     </Row>
-                    <Txt v="caption" c={c.onHero2}>
+                    <Txt v="caption" c={c.tx3}>
                       O ciclo começa na primeira aplicação que você registrar.
                     </Txt>
                   </>
@@ -1290,36 +1291,37 @@ export default function Cadastro() {
             {marcos ? (
               <View>
                 <Secao t="ATÉ A SUA META" />
-                <View style={[vidro, { padding: 18 }]}>
-                  {marcos.map((m, i) => (
-                    <Row key={m.rot} style={{ alignItems: 'flex-start', gap: 14 }}>
-                      {/* O fio e a bolinha. O último marco é lima cheia —
-                          é a chegada; os outros, vazados. */}
-                      <View style={{ alignItems: 'center', width: 18 }}>
-                        <View style={{
-                          width: 14, height: 14, borderRadius: 7, marginTop: 5,
-                          borderWidth: 2.5, borderColor: i === marcos.length - 1 ? c.lime : c.onHeroLine,
-                          backgroundColor: i === marcos.length - 1 ? c.lime : 'transparent',
-                        }} />
-                        {i < marcos.length - 1 ? (
-                          <View style={{ width: 2, flex: 1, minHeight: 34, backgroundColor: c.onHeroLine }} />
-                        ) : null}
-                      </View>
-                      <View style={{ flex: 1, paddingBottom: i < marcos.length - 1 ? 18 : 0 }}>
-                        <Row style={{ alignItems: 'baseline', gap: 5 }}>
-                          <Txt v="title" c={i === marcos.length - 1 ? c.lime : c.onHero}>
-                            {nf(m.kg, 1)}
+                <View style={[cartao, { padding: 18 }]}>
+                  {marcos.map((m, i) => {
+                    const fim = i === marcos.length - 1;
+                    return (
+                      <Row key={m.rot} style={{ alignItems: 'flex-start', gap: 14 }}>
+                        {/* O fio e a bolinha. O último marco é cheio — é a
+                            chegada; os outros, vazados. */}
+                        <View style={{ alignItems: 'center', width: 18 }}>
+                          <View style={{
+                            width: 14, height: 14, borderRadius: 7, marginTop: 5,
+                            borderWidth: 2.5, borderColor: fim ? c.accent : c.line,
+                            backgroundColor: fim ? c.accent : 'transparent',
+                          }} />
+                          {fim ? null : (
+                            <View style={{ width: 2, flex: 1, minHeight: 34, backgroundColor: c.line }} />
+                          )}
+                        </View>
+                        <View style={{ flex: 1, paddingBottom: fim ? 0 : 18 }}>
+                          <Row style={{ alignItems: 'baseline', gap: 5 }}>
+                            <Txt v="title" c={fim ? c.accent : c.tx}>{nf(m.kg, 1)}</Txt>
+                            <Txt v="caption" c={c.tx3}>kg</Txt>
+                          </Row>
+                          <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
+                            {m.sem === 0 ? 'hoje' : `em ${m.rot} · ${m.quando}`}
                           </Txt>
-                          <Txt v="caption" c={c.onHero2}>kg</Txt>
-                        </Row>
-                        <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>
-                          {m.sem === 0 ? 'hoje' : `em ${m.rot} · ${m.quando}`}
-                        </Txt>
-                      </View>
-                    </Row>
-                  ))}
+                        </View>
+                      </Row>
+                    );
+                  })}
                 </View>
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 10 }}>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
                   {`É a conta de ${nf(r.ritmo ?? 0, 1)} kg por semana, o ritmo que você escolheu — não é previsão.`}
                 </Txt>
               </View>
@@ -1328,32 +1330,32 @@ export default function Cadastro() {
             {/* ---------- o corpo ---------- */}
             <View>
               <Secao t="O SEU CORPO" />
-              <View style={[vidro, { padding: 18, gap: 18 }]}>
+              <View style={[cartao, { padding: 18, gap: 18 }]}>
                 <Row style={{ alignItems: 'center', gap: 10 }}>
                   {([[fxHoje, 'IMC de hoje', plano.imc, iHoje, 'flex-start'],
                     [fxMeta, 'Na sua meta', plano.imcMeta, iMeta, 'flex-end']] as const)
                     .map(([fx, rot, val, idx, lado], i) => (
                       <React.Fragment key={rot}>
-                        {i ? <Icon name="chev" size={15} color={c.onHero2} sw={2} /> : null}
+                        {i ? <Icon name="chev" size={15} color={c.tx4} sw={2} /> : null}
                         <View style={{ flex: 1, gap: 4, alignItems: lado }}>
-                          <Txt v="caption" c={c.onHero2}>{rot}</Txt>
-                          <Txt v="metric" c={c.onHero} style={{ fontSize: 28, lineHeight: 34 }}>{nf(val, 1)}</Txt>
+                          <Txt v="caption" c={c.tx3}>{rot}</Txt>
+                          <Txt v="metric" style={{ fontSize: 28, lineHeight: 34 }}>{nf(val, 1)}</Txt>
                           <Row style={{ gap: 6, alignItems: 'center' }}>
                             <View style={{
                               width: 7, height: 7, borderRadius: 4, backgroundColor: CORES_IMC[idx],
                             }} />
-                            <Txt v="micro" c={c.onHero}>{fx.nome}</Txt>
+                            <Txt v="micro" c={c.tx2}>{fx.nome}</Txt>
                           </Row>
                         </View>
                       </React.Fragment>
                     ))}
                 </Row>
 
-                {/* A RÉGUA VOLTOU A TER NÍVEIS SEPARADOS — o degradê
-                    apagava justamente o que ela existe para mostrar, que é
-                    onde uma faixa acaba e a outra começa. O que estava
-                    feio eram as cores: verde-oliva, mostarda e dois
-                    vermelhos iguais. Agora são as da paleta. */}
+                {/* A RÉGUA TEM NÍVEIS SEPARADOS — o degradê apagava
+                    justamente o que ela existe para mostrar, que é onde
+                    uma faixa acaba e a outra começa. As duas que importam
+                    ficam cheias; as outras continuam legíveis, porque a
+                    régua mostra a escala inteira. */}
                 <View>
                   <Row style={{ gap: 3 }}>
                     {FAIXAS_IMC.map((fx, i) => (
@@ -1367,16 +1369,16 @@ export default function Cadastro() {
                   <View style={{
                     position: 'absolute', top: -4, left: `${pos(plano.imcMeta) * 100}%`,
                     marginLeft: -9, width: 18, height: 18, borderRadius: 9,
-                    borderWidth: 3, borderColor: c.onHero,
+                    borderWidth: 3, borderColor: c.tx, backgroundColor: c.bg1,
                   }} />
                   <View style={{
                     position: 'absolute', top: -4, left: `${pos(plano.imc) * 100}%`,
                     marginLeft: -9, width: 18, height: 18, borderRadius: 9,
-                    borderWidth: 3, borderColor: c.onHero, backgroundColor: c.onHero,
+                    borderWidth: 3, borderColor: c.bg1, backgroundColor: c.tx,
                   }} />
                 </View>
 
-                <Txt v="caption" c={c.onHero2}>
+                <Txt v="caption" c={c.tx3}>
                   O IMC é ponto de partida: ele não separa músculo de gordura.
                 </Txt>
               </View>
@@ -1389,14 +1391,14 @@ export default function Cadastro() {
                 {AJUDA.map(([ic, t, sub]) => (
                   <Row key={t} style={{ gap: 13, alignItems: 'center' }}>
                     <View style={{
-                      width: 42, height: 42, borderRadius: 13, backgroundColor: c.onHeroWeak,
+                      width: 42, height: 42, borderRadius: 13, backgroundColor: c.accentWeak,
                       alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <Icon name={ic} size={20} color={c.lime} sw={1.9} />
+                      <Icon name={ic} size={20} color={c.accent} sw={1.9} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Txt v="bodyMed" c={c.onHero}>{t}</Txt>
-                      <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{sub}</Txt>
+                      <Txt v="bodyMed">{t}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
                     </View>
                   </Row>
                 ))}
@@ -1406,14 +1408,14 @@ export default function Cadastro() {
             {/* ---------- de onde vêm os números ---------- */}
             <View>
               <Secao t="DE ONDE VÊM OS NÚMEROS" />
-              <View style={[vidro, { paddingHorizontal: 16 }]}>
+              <View style={[cartao, { paddingHorizontal: 16 }]}>
                 {FONTES.map(([t, sub], i) => (
                   <View key={t} style={{
                     paddingVertical: 12,
-                    borderTopWidth: i ? 1 : 0, borderTopColor: c.onHeroLine,
+                    borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
                   }}>
-                    <Txt v="label" c={c.onHero}>{t}</Txt>
-                    <Txt v="caption" c={c.onHero2} style={{ marginTop: 1 }}>{sub}</Txt>
+                    <Txt v="label">{t}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
                   </View>
                 ))}
               </View>
@@ -1421,18 +1423,11 @@ export default function Cadastro() {
           </View>
         </ScrollView>
 
-        {/* O BOTÃO É BRANCO porque o fundo é escuro — o azul de ação do app
-            some sobre o azul do painel. */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20 }}>
-          <Pressable
-            onPress={() => router.replace('/(tabs)' as any)}
-            style={({ pressed }) => [{
-              borderRadius: radius.pill, backgroundColor: c.onHero, paddingVertical: 18,
-              alignItems: 'center', opacity: pressed ? 0.85 : 1,
-            }]}
-          >
-            <Txt v="bodyMed" c="#0A0A0A">Ir para a minha Home</Txt>
-          </Pressable>
+        <View style={{
+          paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
+          backgroundColor: c.bg,
+        }}>
+          <Botao pilula label="Ir para a minha Home" onPress={() => router.replace('/(tabs)' as any)} />
         </View>
       </View>
     );
