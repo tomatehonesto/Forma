@@ -145,11 +145,12 @@ export default function Exercicio() {
       {/* A CAPA — a mesma das outras duas telas de hábito. Ver
           src/ui/capa.tsx.
 
-          A FOTO É UMA ESCADA SENDO SUBIDA — pernas e tênis, sem rosto e
-          sem torso. Movimento de verdade, e não um corpo em exposição:
-          num app de perda de peso a diferença entre as duas coisas é a
-          diferença entre convidar e cobrar. E subir escada é exercício
-          que não pede academia nem roupa própria.
+          A FOTO É UM BORRÃO, e o borrão é o assunto: movimento
+          fotografado como movimento, e não um corpo parado fingindo que
+          se move. De quebra resolve o que a foto nítida de alguém
+          treinando nunca resolveu — num app de perda de peso, um corpo em
+          foco no alto da tela de exercício cobra em vez de convidar, e
+          aqui não dá para ver de quem é o corpo.
 
           UM BOTÃO SÓ, e não três como na água. Lá um toque completa um
           registro, porque um copo é uma quantidade inteira; aqui a sessão
@@ -158,10 +159,10 @@ export default function Exercicio() {
       <CapaDeHabito
         foto={require('../../assets/images/exercicio-hero.jpg')}
         titulo="Exercício"
-        /* O corte desce até o pé: o assunto desta foto são as pernas, e
-           o corte centrado mostrava o tronco borrado e deixava o passo
-           de fora — que é a única parte que diz "correndo". */
-        posicao={{ bottom: 0 }}
+        /* O corte sobe: o assunto desta foto são as pernas, que moram na
+           metade de cima; o resto do quadro é asfalto, e centrado a capa
+           abria com um retângulo cinza. */
+        posicao={{ top: 0 }}
         /* EM ZERO A LINHA FALA DA SEMANA, e não do que falta hoje.
 
            "0 de 60 min · faltam 60 min" diz a mesma coisa duas vezes, e

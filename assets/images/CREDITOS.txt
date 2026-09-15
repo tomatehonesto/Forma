@@ -7,23 +7,28 @@ fotografia de ninguém.
 As fotos dos alimentos têm o próprio arquivo, gerado junto com o
 download — ver alimentos/CREDITOS.txt.
 
+As três capas vêm do Unsplash, cuja licença permite uso livre, inclusive
+comercial, sem pedir permissão. Atribuição não é exigida; fica aqui
+porque é o mínimo, e porque é o que permite conferir depois de onde cada
+imagem saiu.
+
 agua-hero.jpg — o topo da tela de Água
-  assunto: superfície de água em azul, com o reflexo em faixas claras
-  autor: Nothing Ahead
-  licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/close-up-of-water-15957181/
+  assunto: água azul escura com reflexos dourados
+  autor: Jason Leung
+  licença: Unsplash License
+  origem: https://unsplash.com/pt-br/fotografias/agua-azul-escura-com-reflexos-dourados-nOz9mDukDF8
 
 alimentacao-hero.jpg — o topo da tela de Alimentação
-  assunto: mesa de frutas, legumes e castanhas, em cores fechadas
-  autor: Natalia S
-  licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/table-filled-with-fruit-vegetables-and-healthy-snacks-27154961/
+  assunto: vegetais frescos sobre superfície branca
+  autor: Nathan Dumlao
+  licença: Unsplash License
+  origem: https://unsplash.com/pt-br/fotografias/vegetais-frescos-sobre-superficie-branca-bRdRUUtbxO0
 
 exercicio-hero.jpg — o topo da tela de Exercício
-  assunto: corredor em movimento, com o borrão de quem passou rápido
-  autor: Nick Gosset
-  licença: Pexels License (uso livre, inclusive comercial)
-  origem: https://www.pexels.com/photo/a-blurry-shot-of-a-man-running-12125332/
+  assunto: corredores em movimento durante uma corrida
+  autor: Pierre-Antoine FRANCK
+  licença: Unsplash License
+  origem: https://unsplash.com/pt-br/fotografias/corredores-em-movimento-durante-uma-corrida-W2pBsQaT6FQ
 
   O borrão é o assunto, e não um defeito: é movimento fotografado como
   movimento. De quebra, resolve o que a foto nítida de alguém treinando
