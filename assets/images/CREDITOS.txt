@@ -1,0 +1,14 @@
+CRÉDITOS DAS FOTOS DESTA PASTA
+
+Só o que está listado aqui teve a origem conferida. As imagens de
+interface geradas para o app (ícones, aurora, logo) não entram: não são
+fotografia de ninguém.
+
+As fotos dos alimentos têm o próprio arquivo, gerado junto com o
+download — ver alimentos/CREDITOS.txt.
+
+agua-hero.jpg — o topo da tela de Água
+  assunto: cena submarina com raios de sol atravessando a superfície
+  autor: Jess Loiterton
+  licença: Pexels License (uso livre, inclusive comercial)
+  origem: https://www.pexels.com/photo/underwater-waves-5007946/
