@@ -3,7 +3,8 @@ import { View, Pressable, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { MEDS } from '../logic/meds';
+import { MEDS, CADENCE_DAYS } from '../logic/meds';
+import { planoDoCadastro, litros } from '../logic/derive';
 import { MO, MO_LONG, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -12,65 +13,49 @@ import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
 
 /* ============================================================
-   CADASTRO — as nove perguntas antes da primeira tela
+   CADASTRO — as onze perguntas antes da primeira tela
 
-   O app inteiro pressupõe um perfil: como a pessoa se chama, qual caneta,
-   qual dose, quanto ela pesa e mede, aonde quer chegar, desde quando está
-   nisso e quem a acompanha. Até aqui essas coisas vinham da semente, ou
-   seja, de ninguém.
+   O app inteiro pressupõe um perfil: como a pessoa se chama, quem ela é,
+   qual caneta, qual dose, quanto pesa e mede, aonde quer chegar, em que
+   ritmo, por quê, desde quando e quem a acompanha. Até aqui essas coisas
+   vinham da semente, ou seja, de ninguém.
 
-   TODAS SÃO OBRIGATÓRIAS, e isso é decisão de produto. A versão que
-   recebi abria dizendo "7 perguntas rápidas — todas opcionais" e punha
-   "Pular esta pergunta" no pé de cada uma, além de "Pular tudo" no topo.
-   É simpático e é uma armadilha: quem pula chega numa Home que não sabe
-   dizer nada sobre ele, e a primeira impressão do app vira um painel de
-   traços.
+   TODAS SÃO OBRIGATÓRIAS. A versão que recebi abria dizendo "7 perguntas
+   rápidas — todas opcionais" e punha "Pular esta pergunta" no pé de cada
+   uma. É simpático e é uma armadilha: quem pula chega numa Home que não
+   sabe dizer nada sobre ele.
 
-   A REGRA DE QUE PERGUNTA ENTRA AQUI: alguma tela precisa ler a resposta.
-   Não é rigor por rigor — é que campo sem leitor vira formulário que
-   cobra trabalho e não devolve nada, e num cadastro obrigatório isso é
-   cobrar duas vezes. Cada uma das nove tem endereço:
+   A REGRA DE QUE PERGUNTA ENTRA: alguma tela precisa ler a resposta.
+   Campo sem leitor vira formulário que cobra trabalho e não devolve nada,
+   e num cadastro obrigatório isso cobra duas vezes. Onde cada uma é lida:
 
      nome           → a saudação da Home e do Insights
+     sexo           → a meta de gordura corporal, e as faixas de exame
+     nascimento     → a idade, que o perfil mostra e o exame usa
      tratamento     → decide se o início é passado ou futuro
      medicamento    → meia-vida, escada de doses, cadência, validade
      dose           → a próxima aplicação e o estoque da caneta
+     intervalo      → cadenciaDias, e com ela as dez contas do ciclo
      altura e peso  → o IMC, a curva de evolução, o "de → para"
-     meta           → a barra da Jornada e a tela de metas
-     movimento      → a meta diária de exercício (targets.exercMin)
+     meta e ritmo   → a barra da Jornada e a data projetada
+     movimento      → a meta diária de exercício
      início         → "semana N do tratamento", em toda parte
      acompanhamento → hasClinic, a aba Cuidado e o resumo médico
 
-   O QUE MUDOU DO DESENHO ORIGINAL, e por quê:
-
-   · A pergunta da FREQUÊNCIA saiu. O app já sabe: MEDS diz se a caneta é
-     semanal ou diária, e CADENCE_DAYS lê dali. Perguntar de novo só cria
-     a chance de a resposta discordar do catálogo.
-
-   · A lista de DOSES agora depende do medicamento. Era fixa em 2,5 a 15
-     mg, que é a escada do Mounjaro; quem usa Ozempic ia de 0,25 a 2, e
-     quem usa Saxenda nunca viu 15 mg na vida.
-
-   · O "Outro / ainda não sei" do medicamento saiu junto: meia-vida,
-     escada, cadência e validade pendem do id, e um id fora do catálogo
-     derruba a leitura inteira. Victoza entrou, que faltava na lista.
-
-   · A META virou só peso. "Vestir uma roupa" e as metas pessoais
-     continuam na tela de metas, com as réguas de lá.
-
-   · ALTURA E PESO na mesma tela. São a mesma pergunta feita ao mesmo
-     corpo no mesmo minuto, e separá-las cobraria um toque por nada.
-
-   · O "Prefiro não dizer agora" sumiu das duas perguntas onde aparecia.
-     É pular com outro nome.
+   A ÚNICA QUE AINDA NÃO TEM LEITOR é a MOTIVAÇÃO, e isso está dito aqui
+   em vez de escondido. Ela entrou porque o lugar dela é a voz do
+   Companion — quem acompanha alguém precisa saber o que essa pessoa veio
+   buscar —, e o Companion ainda não a lê. Por enquanto ela aparece na
+   tela de plano e fica guardada. Se ficar sem leitor por muito tempo,
+   tire: é o mesmo critério das outras.
    ============================================================ */
 
-type Id = 'nome' | 'tratamento' | 'medicamento' | 'dose' | 'corpo' | 'meta'
-  | 'movimento' | 'inicio' | 'acompanhamento';
+type Id = 'nome' | 'perfil' | 'tratamento' | 'medicamento' | 'dose' | 'corpo'
+  | 'meta' | 'motivacao' | 'movimento' | 'inicio' | 'acompanhamento';
 
 const PASSOS: Id[] = [
-  'nome', 'tratamento', 'medicamento', 'dose', 'corpo', 'meta',
-  'movimento', 'inicio', 'acompanhamento',
+  'nome', 'perfil', 'tratamento', 'medicamento', 'dose', 'corpo',
+  'meta', 'motivacao', 'movimento', 'inicio', 'acompanhamento',
 ];
 
 /* O MOVIMENTO É PERGUNTADO COMO ROTINA E GUARDADO COMO META.
@@ -81,8 +66,7 @@ const PASSOS: Id[] = [
    da Home, o card da semana em /exercicio e o radar leem.
 
    O número aparece na própria opção de propósito: é ele que vai virar
-   meta, e esconder isso seria decidir por ela sem contar. É começo, não
-   recomendação — o perfil muda depois. */
+   meta, e esconder isso seria decidir por ela sem contar. */
 const MOVIMENTO: { id: string; titulo: string; sub: string; min: number }[] = [
   { id: 'parado', titulo: 'Quase não me movimento', sub: 'meta de 20 min por dia', min: 20 },
   { id: 'leve', titulo: 'Caminho de vez em quando', sub: 'meta de 30 min por dia', min: 30 },
@@ -90,14 +74,46 @@ const MOVIMENTO: { id: string; titulo: string; sub: string; min: number }[] = [
   { id: 'muito', titulo: 'Me exercito quase todo dia', sub: 'meta de 60 min por dia', min: 60 },
 ];
 
+/* O RITMO É META, NÃO PREVISÃO.
+
+   Os três apps que a gente olhou perguntam "quão rápido você quer
+   perder", e dois deles respondem com um gráfico dizendo que com o app
+   dele é mais rápido. A pergunta é legítima — ter prazo muda o
+   comportamento —, a resposta com gráfico não: quanto o peso desce
+   depende do corpo e da dose, não do aplicativo.
+
+   Então aqui a pergunta fica e a promessa não. Cada opção mostra o mês em
+   que a meta cai NAQUELE ritmo, e o texto embaixo diz que é plano, não
+   previsão. Mês, e não dia: projeção com data exata seria afirmar uma
+   precisão que a conta não tem.
+
+   O teto é 0,75 kg por semana. A faixa que se cita como perda segura vai
+   a cerca de 1 kg, e oferecer mais do que isso seria o app sugerindo um
+   ritmo que ele não deveria sugerir. */
+const RITMOS = [0.25, 0.5, 0.75];
+
+/* A motivação, com as opções que os três apps oferecem em comum. */
+const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
+  { id: 'saude', titulo: 'Saúde', sub: 'exames, pressão, glicemia', ic: 'heart' },
+  { id: 'energia', titulo: 'Energia', sub: 'disposição no dia', ic: 'bolt' },
+  { id: 'espelho', titulo: 'Como me vejo', sub: 'no espelho e nas fotos', ic: 'camera' },
+  { id: 'confianca', titulo: 'Confiança', sub: 'me sentir bem comigo', ic: 'spark' },
+  { id: 'medico', titulo: 'Orientação médica', sub: 'foi indicação de quem me acompanha', ic: 'steth' },
+];
+
 type Respostas = {
   nome: string;
+  sexo: 'f' | 'm' | null;
+  nascimento: number;
   emTratamento: boolean | null;
   med: string | null;
   dose: number | null;
+  intervalo: number | null;
   altura: number;
   peso: number;
   meta: number;
+  ritmo: number | null;
+  motivacao: string | null;
   movimento: string | null;
   inicio: number | null;
   acompanhado: boolean | null;
@@ -106,14 +122,14 @@ type Respostas = {
 };
 
 const VAZIO: Respostas = {
-  nome: '',
-  emTratamento: null, med: null, dose: null,
-  /* Altura, peso e meta nascem com um número porque o controle deles é um
-     stepper: ele precisa de uma posição de partida para a pessoa subir ou
-     descer a partir dali. Não são recomendação nenhuma — são o meio da
-     régua, e ela move nos dois sentidos. */
-  altura: 1.7, peso: 80, meta: 70,
-  movimento: null, inicio: null,
+  nome: '', sexo: null,
+  /* Altura, peso, meta e ano nascem com um número porque o controle deles
+     é um stepper: ele precisa de uma posição de partida para a pessoa
+     subir ou descer a partir dali. Não são recomendação nenhuma. */
+  nascimento: 1990,
+  emTratamento: null, med: null, dose: null, intervalo: null,
+  altura: 1.7, peso: 80, meta: 70, ritmo: null,
+  motivacao: null, movimento: null, inicio: null,
   acompanhado: null, quem: '', codigo: '',
 };
 
@@ -235,6 +251,17 @@ function CampoTexto({ valor, onChange, placeholder, caixa }: {
   );
 }
 
+/* Um controle dentro de um cartão, com o rótulo em cima. */
+function Caixa({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
+  const { c } = useTheme();
+  return (
+    <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 12 }}>
+      <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>{rotulo}</Txt>
+      {children}
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* O CALENDÁRIO — mês na tira, dia na grade.
 
@@ -290,8 +317,7 @@ function Calendario({ valor, onEscolhe, futuro }: {
      Doze meses não cabem na largura de um telefone, e quem já começou o
      tratamento começou perto de hoje — o mês certo é quase sempre o
      último da fila. Sem isto, a tira abria em outubro do ano passado
-     enquanto a grade embaixo mostrava setembro deste: a pessoa via um
-     calendário sem nenhuma pastilha marcada.
+     enquanto a grade embaixo mostrava setembro deste.
 
      Dois gatilhos porque conteúdo e caixa são medidos em ordens
      diferentes conforme a plataforma. Quem vai começar não precisa: o mês
@@ -384,6 +410,12 @@ const dataPorExtenso = (t: number) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
+/* Mês e ano, para projeção. Ver o comentário de RITMOS. */
+const mesPorExtenso = (t: number) => {
+  const d = new Date(t);
+  return `${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
+};
+
 export default function Cadastro() {
   const update = useStore((s) => s.update);
   const { c } = useTheme();
@@ -391,8 +423,8 @@ export default function Cadastro() {
   const insets = useSafeAreaInsets();
 
   const RESUMO = PASSOS.length;
-  const FIM = PASSOS.length + 1;
-  /* -1 é a abertura, 0..8 são as perguntas, 9 é o resumo e 10 é o fim. */
+  const PLANO = PASSOS.length + 1;
+  /* -1 é a abertura, 0..10 são as perguntas, 11 é o resumo e 12 é o plano. */
   const [n, setN] = useState(-1);
   const [r, setR] = useState<Respostas>(VAZIO);
   const p = (x: Partial<Respostas>) => setR((v) => ({ ...v, ...x }));
@@ -400,31 +432,41 @@ export default function Cadastro() {
   /* QUEM ENTROU PELO LÁPIS VOLTA PELO LÁPIS.
 
      O resumo promete "toque no lápis para mudar qualquer resposta", e
-     mudar uma resposta não devia obrigar a atravessar as outras de novo.
-     Sem isto, quem corrigia a dose no passo 4 tinha que passar por corpo,
-     meta, movimento e data outra vez para reencontrar o resumo. */
+     mudar uma resposta não devia obrigar a atravessar as outras de novo. */
   const [doResumo, setDoResumo] = useState(false);
   const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
 
   const futuro = r.emTratamento === false;
   const med = r.med ? MEDS[r.med] : null;
   const mov = MOVIMENTO.find((x) => x.id === r.movimento) ?? null;
+  const motivo = MOTIVOS.find((x) => x.id === r.motivacao) ?? null;
+  const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
+  const perder = r.peso - r.meta;
+
+  const plano = useMemo(
+    () => planoDoCadastro({
+      sexo: r.sexo ?? 'f', altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo,
+    }),
+    [r.sexo, r.altura, r.peso, r.meta, r.ritmo],
+  );
 
   /* A PERGUNTA RESPONDIDA, uma por passo. É ela que liga o botão: sem a
      resposta o "Continuar" fica desligado, e é assim que "obrigatória"
      se diz sem precisar de mensagem de erro.
 
-     O código de convite é a única coisa do fluxo que não trava nada: quem
-     é acompanhado por um profissional que não é parceiro simplesmente não
-     tem um, e barrar ali transformaria uma vantagem comercial em
-     pedágio. */
+     Duas respostas não travam nada, e por motivos diferentes: o RITMO só
+     existe para quem tem peso a perder, e o CÓDIGO de convite quem é
+     acompanhado por um profissional não parceiro simplesmente não tem —
+     barrar ali transformaria uma vantagem comercial em pedágio. */
   const respondida: boolean[] = [
     r.nome.trim().length > 1,
+    r.sexo != null,
     r.emTratamento != null,
     r.med != null,
     r.dose != null,
     true,
-    true,
+    perder <= 0 || r.ritmo != null,
+    r.motivacao != null,
     r.movimento != null,
     r.inicio != null,
     r.acompanhado === false || (r.acompanhado === true && r.quem.trim().length > 1),
@@ -433,35 +475,41 @@ export default function Cadastro() {
   const salvar = () => {
     update((s: any) => {
       s.profile.name = r.nome.trim();
+      s.profile.sexo = r.sexo;
+      s.profile.nascimento = r.nascimento;
       s.profile.height = r.altura;
       s.profile.med = r.med;
       s.profile.dose = r.dose;
+      /* Só guarda intervalo quando ele DIFERE do catálogo. Igual, seria
+         uma segunda cópia do mesmo fato — e no dia em que a bula mudar,
+         a cópia não muda junto. */
+      s.profile.intervalo = r.intervalo && r.intervalo !== padrao ? r.intervalo : null;
       s.profile.startWeight = r.peso;
       s.profile.goalWeight = r.meta;
+      s.profile.ritmo = r.ritmo;
+      s.profile.motivacao = r.motivacao;
       s.profile.startT = r.inicio;
+      /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína, água e
+         gordura corporal vinham fixas em 90 g, 2,5 L e 28% — os números
+         de outra pessoa, lidos dez vezes cada um. */
+      s.profile.targets.prot = plano.prot;
+      s.profile.targets.waterMl = plano.agua;
+      s.profile.targets.bodyFat = plano.gordura;
       s.profile.targets.exercMin = mov?.min ?? s.profile.targets.exercMin;
-      /* QUEM ACOMPANHA, e o código que veio com a indicação.
-
-         Um campo só para o nome: se é pessoa ou lugar é assunto de quem
-         responde, e o app precisa saber uma coisa só — se existe alguém
-         acompanhando. Quem diz que não, zera: sem isso a pessoa acabaria
-         o cadastro dizendo que está por conta própria e encontraria a
-         médica da semente na aba Cuidado. */
+      /* QUEM ACOMPANHA, e o código que veio com a indicação. Um campo só
+         para o nome: se é pessoa ou lugar é assunto de quem responde, e o
+         app precisa saber uma coisa só — se existe alguém acompanhando. */
       s.profile.doctor = r.acompanhado ? r.quem.trim() : '';
       s.profile.convite = r.acompanhado ? r.codigo.trim().toUpperCase() : '';
       /* O peso de hoje entra como PESAGEM, e não só como número do perfil:
          a curva de evolução, o "de → para" da Jornada e a meta leem a
-         lista de pesagens. Sem esta linha a pessoa acabaria o cadastro
-         dizendo que pesa 80 kg e o app abriria dizendo que não sabe.
-
-         Desduplica por DIA, e não por instante: pesagem gravada às três da
-         tarde tem hora no carimbo, e comparar timestamps crus deixaria
-         dois pesos de hoje na lista. */
+         lista de pesagens. Desduplica por DIA, e não por instante:
+         pesagem gravada às três da tarde tem hora no carimbo. */
       const t = +startOfDay(now());
       const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
       s.weights = [...resto, { t, kg: r.peso }].sort((a: any, b: any) => a.t - b.t);
     });
-    setN(FIM);
+    setN(PLANO);
   };
 
   /* ---------- abertura ---------- */
@@ -480,9 +528,9 @@ export default function Cadastro() {
               opcionais, você pode pular", ele agora diz quanto custa e o
               que muda depois. Prometer que dá para pular e depois não
               deixar seria pior do que nunca ter prometido. */}
-          <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', maxWidth: 280 }}>
-            São nove perguntas curtas. É com elas que o Morphi monta a sua Home — e
-            qualquer uma pode ser mudada depois, no seu perfil.
+          <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', maxWidth: 290 }}>
+            São onze perguntas curtas. É com elas que o Morphi monta a sua Home e as suas
+            metas do dia — e qualquer uma pode ser mudada depois, no seu perfil.
           </Txt>
         </View>
         <View style={{ paddingBottom: insets.bottom + 20 }}>
@@ -492,37 +540,92 @@ export default function Cadastro() {
     );
   }
 
-  /* ---------- fim ---------- */
-  if (n === FIM) {
+  /* ---------- o plano ---------- */
+  if (n === PLANO) {
+    const cartoes: [string, string, string][] = [
+      ['utensils', 'PROTEÍNA', `${plano.prot} g por dia`],
+      ['water', 'ÁGUA', `${litros(plano.agua)} L por dia`],
+      ['dumbbell', 'MOVIMENTO', `${mov?.min ?? 30} min por dia`],
+      ['scale', 'IMC DE HOJE', nf(plano.imc, 1)],
+    ];
     return (
-      <View style={{ flex: 1, backgroundColor: c.accent, paddingTop: insets.top, paddingHorizontal: 24 }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 20 }}>
-          <View style={{
-            width: 72, height: 72, borderRadius: 36, backgroundColor: c.lime,
-            alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon name="check" size={34} color={c.limeInk} sw={2.6} />
+      <View style={{ flex: 1, backgroundColor: c.accent }}>
+        <ScrollView contentContainerStyle={{ paddingTop: insets.top + 28, paddingBottom: 0 }}>
+          <View style={{ alignItems: 'center', gap: 14, paddingHorizontal: 24, paddingBottom: 32 }}>
+            <View style={{
+              width: 60, height: 60, borderRadius: 30, backgroundColor: c.lime,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon name="check" size={28} color={c.limeInk} sw={2.6} />
+            </View>
+            <Txt v="h1" c={c.accentInk} style={{ textAlign: 'center' }}>
+              Tudo certo, {r.nome.trim().split(' ')[0]}
+            </Txt>
+            <Txt v="caption" c="rgba(255,255,255,0.82)" style={{ textAlign: 'center', maxWidth: 290 }}>
+              {futuro
+                ? `Sua primeira aplicação é ${dataPorExtenso(r.inicio as number)}. Daqui até lá, dá para ir conhecendo o app.`
+                : 'O Morphi já está configurado com o que você contou.'}
+            </Txt>
           </View>
-          <Txt v="h1" c={c.accentInk} style={{ textAlign: 'center' }}>
-            Tudo certo, {r.nome.trim().split(' ')[0]}
-          </Txt>
-          <Txt v="caption" c="rgba(255,255,255,0.82)" style={{ textAlign: 'center', maxWidth: 290 }}>
-            {futuro
-              ? `O Morphi já está configurado. Sua primeira aplicação é ${dataPorExtenso(r.inicio as number)} — daqui até lá, dá para ir conhecendo o app.`
-              : 'O Morphi já está configurado com o que você contou. A partir daqui, é um registro de cada vez.'}
-          </Txt>
-        </View>
-        <View style={{ paddingBottom: insets.bottom + 20 }}>
-          <Pressable
-            onPress={() => router.replace('/(tabs)' as any)}
-            style={({ pressed }) => [{
-              borderRadius: radius.md + 3, backgroundColor: c.bg1,
-              paddingVertical: 16, alignItems: 'center', opacity: pressed ? 0.85 : 1,
-            }]}
-          >
-            <Txt v="bodyMed" c={c.accent}>Ir para a minha Home</Txt>
-          </Pressable>
-        </View>
+
+          {/* A FOLHA BRANCA sobe sobre o azul, como na Home. O que está
+              nela não foi digitado por ninguém: são as metas que o app
+              montou com as respostas, e é a primeira vez que ele devolve
+              alguma coisa em troca do formulário. */}
+          <View style={{
+            backgroundColor: c.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28,
+            paddingHorizontal: 20, paddingTop: 26, paddingBottom: 28, gap: 16, minHeight: 420,
+          }}>
+            <View>
+              <Txt v="h2">Suas metas do dia</Txt>
+              <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
+                Calculadas do seu peso e da sua rotina. São ponto de partida, não
+                prescrição — todas mudam no perfil.
+              </Txt>
+            </View>
+
+            <Duplas>
+              {cartoes.map(([ic, rotulo, valor]) => (
+                <View key={rotulo} style={{
+                  flex: 1, backgroundColor: c.bg1, borderRadius: radius.card, padding: 14, gap: 10,
+                }}>
+                  <Icon name={ic} size={16} color={c.tx3} sw={1.9} />
+                  <View>
+                    <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>{rotulo}</Txt>
+                    <Txt v="bodyMed" style={{ marginTop: 3 }}>{valor}</Txt>
+                  </View>
+                </View>
+              ))}
+            </Duplas>
+
+            {plano.chegada ? (
+              <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 16, gap: 4 }}>
+                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>NO RITMO QUE VOCÊ ESCOLHEU</Txt>
+                <Txt v="bodyMed">
+                  {nf(r.meta, 1)} kg por volta de {mesPorExtenso(plano.chegada)}
+                </Txt>
+                {/* Onde os outros apps põem "com o nosso app é 3x mais
+                    rápido", aqui vai a ressalva. A conta é aritmética
+                    simples sobre o ritmo que a pessoa escolheu; o corpo e
+                    a dose é que decidem, e o app não tem como prometer. */}
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
+                  É a conta do ritmo que você escolheu, não uma previsão: quanto o peso
+                  desce depende do corpo e da dose.
+                </Txt>
+              </View>
+            ) : null}
+
+            {motivo ? (
+              <Txt v="caption" c={c.tx3}>
+                E fica anotado por que você começou: {motivo.titulo.toLowerCase()}.
+              </Txt>
+            ) : null}
+
+            <View style={{ marginTop: 4 }}>
+              <Botao label="Ir para a minha Home" onPress={() => router.replace('/(tabs)' as any)} />
+            </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -531,16 +634,18 @@ export default function Cadastro() {
   if (n === RESUMO) {
     const cartoes: [string, string, string, number][] = [
       ['user', 'NOME', r.nome.trim(), 0],
-      ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 1],
-      ['pill', 'MEDICAMENTO', med?.label ?? '—', 2],
-      ['syringe', 'DOSE', `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}`, 3],
-      ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 4],
-      ['target', 'META', `${nf(r.meta, 1)} kg`, 5],
-      ['dumbbell', 'MOVIMENTO', mov ? `${mov.min} min por dia` : '—', 6],
-      ['cal', futuro ? 'PRIMEIRA DOSE' : 'INÍCIO', r.inicio ? dataPorExtenso(r.inicio) : '—', 7],
+      ['heart', 'PERFIL', `${r.sexo === 'f' ? 'Feminino' : 'Masculino'} · ${now().getFullYear() - r.nascimento} anos`, 1],
+      ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 2],
+      ['pill', 'MEDICAMENTO', med?.label ?? '—', 3],
+      ['syringe', 'DOSE', `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`, 4],
+      ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 5],
+      ['target', 'META', `${nf(r.meta, 1)} kg${r.ritmo ? ` · ${nf(r.ritmo, 2)} kg/semana` : ''}`, 6],
+      ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 7],
+      ['dumbbell', 'MOVIMENTO', mov ? `${mov.min} min por dia` : '—', 8],
+      ['cal', futuro ? 'PRIMEIRA DOSE' : 'INÍCIO', r.inicio ? dataPorExtenso(r.inicio) : '—', 9],
       ['steth', 'ACOMPANHAMENTO', r.acompanhado
         ? `${r.quem.trim()}${r.codigo.trim() ? ` · ${r.codigo.trim().toUpperCase()}` : ''}`
-        : 'Por conta própria', 8],
+        : 'Por conta própria', 10],
     ];
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
@@ -578,8 +683,7 @@ export default function Cadastro() {
             O arraste é o gesto de quem vai fazer algo que não dá para
             desfazer — apagar, enviar, pagar. Aqui ele guardava a porta da
             Home, e tudo o que está atrás dela pode ser mudado no perfil a
-            qualquer hora. Gesto difícil sem risco do outro lado é atrito
-            cobrado à toa. */}
+            qualquer hora. */}
         <View style={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 12 }}>
           <Botao label="Confirmar" onPress={salvar} />
           <Pressable
@@ -593,28 +697,32 @@ export default function Cadastro() {
     );
   }
 
-  /* ---------- as nove perguntas ---------- */
+  /* ---------- as onze perguntas ---------- */
   const id = PASSOS[n];
   const titulos: Record<Id, string> = {
     nome: 'Como podemos te chamar?',
+    perfil: 'Um pouco sobre você',
     tratamento: 'Você já está em tratamento?',
     medicamento: 'Qual medicamento você usa?',
     dose: futuro ? 'Com qual dose você vai começar?' : 'Qual é a sua dose atual?',
     corpo: 'Sua altura e seu peso de hoje',
     meta: 'Aonde você quer chegar?',
+    motivacao: 'O que te trouxe até aqui?',
     movimento: 'Como é a sua rotina de movimento?',
     inicio: futuro ? 'Quando você vai começar?' : 'Quando você começou?',
     acompanhamento: 'Alguém acompanha o seu tratamento?',
   };
   const subs: Record<Id, string> = {
     nome: 'É como o app vai te chamar todo dia. Só o primeiro nome já serve.',
+    perfil: 'Sexo biológico e ano de nascimento entram nas faixas de referência dos exames e na meta de gordura corporal — por isso a pergunta é do corpo, não de identidade.',
     tratamento: 'Sem julgamento — é só para saber onde você está agora.',
     medicamento: 'Cada caneta tem a sua escada de doses, e é ela que a próxima pergunta usa.',
     dose: med
       ? `As doses aparecem na ordem da titulação do ${med.label}.`
       : 'As doses aparecem na ordem da titulação.',
     corpo: 'A altura entra no IMC; o peso fica registrado como a sua primeira pesagem.',
-    meta: 'Só um número de referência. As outras metas — vestir uma roupa, voltar a um esporte — ficam na tela de metas.',
+    meta: 'Um número de referência e o ritmo que você quer seguir. As outras metas — vestir uma roupa, voltar a um esporte — ficam na tela de metas.',
+    motivacao: 'Uma só. É o que o app leva em conta quando fala com você.',
     movimento: 'Vira a sua meta diária de movimento. É um começo, não uma recomendação: dá para mudar no perfil.',
     inicio: 'Aproximado está bom: isso serve para contar a sua semana de tratamento.',
     acompanhamento: 'Médico, nutricionista ou clínica. É isso que muda o que o app prepara para a consulta.',
@@ -654,6 +762,41 @@ export default function Cadastro() {
           />
         ) : null}
 
+        {id === 'perfil' ? (
+          <View style={{ gap: 12 }}>
+            <Duplas>
+              <Escolha
+                ic="user" titulo="Feminino" on={r.sexo === 'f'}
+                onPress={() => p({ sexo: 'f' })}
+              />
+              <Escolha
+                ic="user" titulo="Masculino" on={r.sexo === 'm'}
+                onPress={() => p({ sexo: 'm' })}
+              />
+            </Duplas>
+            {/* O ANO, e não a data inteira. A idade é o que o app lê, e
+                pedir dia e mês cobraria dois controles a mais por uma
+                precisão que nada aqui usa. */}
+            <Caixa rotulo="ANO DE NASCIMENTO">
+              <Stepper
+                valor={String(r.nascimento)}
+                /* Sem unidade no controle: "· 36 anos" quebrava em duas
+                   linhas na calha estreita do stepper e sobrava um "anos"
+                   órfão embaixo. A idade vai como legenda, que é o papel
+                   que ela tem — o número que a pessoa move é o ano. */
+                unidade=""
+                onMenos={() => p({ nascimento: Math.max(1920, r.nascimento - 1) })}
+                onMais={() => p({ nascimento: Math.min(now().getFullYear() - 12, r.nascimento + 1) })}
+                onDigitar={(v) => {
+                  const x = parseInt(v.replace(/\D/g, ''), 10);
+                  if (!Number.isNaN(x)) p({ nascimento: Math.min(now().getFullYear() - 12, Math.max(1920, x)) });
+                }}
+              />
+              <Txt v="caption" c={c.tx3}>{now().getFullYear() - r.nascimento} anos hoje</Txt>
+            </Caixa>
+          </View>
+        ) : null}
+
         {id === 'tratamento' ? (
           <Duplas>
             <Escolha
@@ -675,33 +818,79 @@ export default function Cadastro() {
               <Escolha
                 key={k} ic="pill" titulo={m.label} sub={m.mol}
                 on={r.med === k}
-                /* Trocar de caneta zera a dose: a escada é outra, e manter
-                   5 mg ao pular de Mounjaro para Ozempic gravaria uma dose
-                   que aquela caneta não tem. */
-                onPress={() => p({ med: k, dose: r.med === k ? r.dose : null })}
+                /* Trocar de caneta zera a dose e o intervalo: a escada é
+                   outra e a cadência também — manter 5 mg semanais ao
+                   pular de Mounjaro para Saxenda gravaria uma dose que
+                   aquela caneta não tem, num ritmo que ela não usa. */
+                onPress={() => p(r.med === k ? { med: k } : { med: k, dose: null, intervalo: null })}
               />
             ))}
           </Duplas>
         ) : null}
 
         {id === 'dose' && med ? (
-          <Duplas>
-            {med.doses.map((d, i) => (
-              <Escolha
-                key={d} ic="syringe"
-                titulo={`${doseTxt(d)} ${med.unit}`}
-                sub={i === 0 ? 'dose de início' : i === med.doses.length - 1 ? 'dose máxima' : undefined}
-                on={r.dose === d}
-                onPress={() => p({ dose: d })}
-              />
-            ))}
-          </Duplas>
+          <View style={{ gap: 16 }}>
+            <Duplas>
+              {med.doses.map((d, i) => (
+                <Escolha
+                  key={d} ic="syringe"
+                  titulo={`${doseTxt(d)} ${med.unit}`}
+                  sub={i === 0 ? 'dose de início' : i === med.doses.length - 1 ? 'dose máxima' : undefined}
+                  on={r.dose === d}
+                  onPress={() => p({ dose: d })}
+                />
+              ))}
+            </Duplas>
+
+            {/* O INTERVALO É EXCEÇÃO, e por isso fica atrás de um toque.
+
+                O app sabe a cadência de cada caneta, e perguntar de novo
+                daria à resposta a chance de discordar do catálogo. Mas
+                aplicar a cada dez ou catorze dias existe — por tolerância,
+                por orientação, por preço — e para essa pessoa o app
+                contava tudo errado e cobrava dose atrasada de quem não
+                estava atrasada. Fica aqui, dito como o que é: o padrão
+                primeiro, a exceção a um toque. */}
+            {r.intervalo == null ? (
+              <View style={{ gap: 8 }}>
+                <Txt v="caption" c={c.tx3}>
+                  {padrao === 1
+                    ? `${med.label} é de aplicação diária.`
+                    : `${med.label} é de aplicação semanal, a cada ${padrao} dias.`}
+                </Txt>
+                <Pressable
+                  onPress={() => p({ intervalo: padrao })}
+                  hitSlop={8}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Txt v="label" c={c.accent}>Aplico em outro intervalo</Txt>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={{ gap: 10 }}>
+                <Caixa rotulo="APLICO A CADA">
+                  <Stepper
+                    valor={String(r.intervalo)}
+                    unidade={r.intervalo === 1 ? 'dia' : 'dias'}
+                    onMenos={() => p({ intervalo: Math.max(1, (r.intervalo ?? padrao) - 1) })}
+                    onMais={() => p({ intervalo: Math.min(60, (r.intervalo ?? padrao) + 1) })}
+                  />
+                </Caixa>
+                <Pressable
+                  onPress={() => p({ intervalo: null })}
+                  hitSlop={8}
+                  style={({ pressed }) => [{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Txt v="label" c={c.tx3}>Voltar ao intervalo do {med.label}</Txt>
+                </Pressable>
+              </View>
+            )}
+          </View>
         ) : null}
 
         {id === 'corpo' ? (
           <View style={{ gap: 12 }}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 12 }}>
-              <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>ALTURA</Txt>
+            <Caixa rotulo="ALTURA">
               <Stepper
                 valor={nf(r.altura, 2)}
                 unidade="m"
@@ -712,9 +901,8 @@ export default function Cadastro() {
                   if (!Number.isNaN(x)) p({ altura: Math.min(2.2, Math.max(1.2, x)) });
                 }}
               />
-            </View>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 12 }}>
-              <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>PESO DE HOJE</Txt>
+            </Caixa>
+            <Caixa rotulo="PESO DE HOJE">
               <Stepper
                 valor={nf(r.peso, 1)}
                 unidade="kg"
@@ -725,13 +913,13 @@ export default function Cadastro() {
                   if (!Number.isNaN(x)) p({ peso: Math.min(300, Math.max(35, x)) });
                 }}
               />
-            </View>
+            </Caixa>
           </View>
         ) : null}
 
         {id === 'meta' ? (
-          <View style={{ gap: 12 }}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18 }}>
+          <View style={{ gap: 16 }}>
+            <Caixa rotulo="PESO DE REFERÊNCIA">
               <Stepper
                 valor={nf(r.meta, 1)}
                 unidade="kg"
@@ -742,17 +930,54 @@ export default function Cadastro() {
                   if (!Number.isNaN(x)) p({ meta: Math.min(300, Math.max(35, x)) });
                 }}
               />
-            </View>
-            {/* A distância dita em quilos, porque é ela que a pessoa está
-                escolhendo — e porque uma meta ACIMA do peso de hoje é
-                escolha legítima de quem está subindo de volta, não erro
-                para bloquear. O app só não finge que não viu. */}
-            <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
-              {r.meta === r.peso
-                ? 'Mesmo peso de hoje — manter também é meta.'
-                : `${nf(Math.abs(r.peso - r.meta), 1)} kg ${r.meta < r.peso ? 'abaixo' : 'acima'} do seu peso de hoje.`}
-            </Txt>
+            </Caixa>
+
+            {/* Meta ACIMA do peso de hoje é escolha legítima de quem está
+                subindo de volta, não erro para bloquear — e nesse caso o
+                ritmo de perda não tem o que fazer na tela. */}
+            {perder > 0 ? (
+              <View style={{ gap: 10 }}>
+                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>
+                  EM QUE RITMO · {nf(perder, 1)} KG A PERCORRER
+                </Txt>
+                {RITMOS.map((kg) => {
+                  const semanas = Math.ceil(perder / kg);
+                  const quando = +new Date(+startOfDay(now()) + semanas * 7 * 86400000);
+                  return (
+                    <Escolha
+                      key={kg} ic="target" cheia
+                      titulo={`${nf(kg, 2)} kg por semana`}
+                      sub={`chega por volta de ${mesPorExtenso(quando)}`}
+                      on={r.ritmo === kg}
+                      onPress={() => p({ ritmo: kg })}
+                    />
+                  );
+                })}
+                <Txt v="caption" c={c.tx3}>
+                  É o ritmo que você quer seguir, não uma previsão: quanto o peso desce
+                  depende do corpo e da dose.
+                </Txt>
+              </View>
+            ) : (
+              <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
+                {r.meta === r.peso
+                  ? 'Mesmo peso de hoje — manter também é meta.'
+                  : `${nf(Math.abs(perder), 1)} kg acima do seu peso de hoje.`}
+              </Txt>
+            )}
           </View>
+        ) : null}
+
+        {id === 'motivacao' ? (
+          <Duplas>
+            {MOTIVOS.map((x) => (
+              <Escolha
+                key={x.id} ic={x.ic} titulo={x.titulo} sub={x.sub}
+                on={r.motivacao === x.id}
+                onPress={() => p({ motivacao: x.id })}
+              />
+            ))}
+          </Duplas>
         ) : null}
 
         {id === 'movimento' ? (
@@ -816,9 +1041,7 @@ export default function Cadastro() {
                       trabalho de servidor — que este app ainda não tem.
                       Então aqui ele é aceito e guardado, e nada mais: sem
                       "código válido", sem carimbo verde, sem dizer que a
-                      partir de agora é grátis. Afirmar qualquer uma dessas
-                      três coisas seria o app inventando uma resposta que
-                      ele não foi buscar em lugar nenhum. */}
+                      partir de agora é grátis. */}
                   <Txt v="caption" c={c.tx3}>
                     Quem chega por um profissional parceiro não paga pelo app. O código é
                     conferido depois — se você não tiver um, pode seguir sem ele.

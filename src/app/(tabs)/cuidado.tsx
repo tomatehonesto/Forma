@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
-  doseContext, doseCycle, penStock, weekGrid, M,
+  doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
@@ -728,7 +728,7 @@ function Tratamento() {
             <View style={{ flex: 1 }}>
               <Txt v="title">{med.label} {dose} {med.unit}</Txt>
               <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
-                {med.cad === 'weekly' ? '1× por semana' : 'diariamente'} · {receita?.by ?? S.profile.doctor}
+                {cadenciaCurta(S)} · {receita?.by ?? S.profile.doctor}
               </Txt>
             </View>
           </Row>

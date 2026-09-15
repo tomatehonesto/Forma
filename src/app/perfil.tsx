@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { MO_LONG, nf } from '../logic/time';
-import { journeyDay, hasClinic, penStock, M } from '../logic/derive';
+import { journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Malha, Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
@@ -90,6 +90,9 @@ function Grupo({ title, children }: { title: string; children: React.ReactNode }
 
 export default function Perfil() {
   const S = useStore((s) => s.S);
+  /* Contada do ano de nascimento, e não guardada: idade guardada
+     envelhece errado — o perfil diria 38 anos para sempre. */
+  const idade = idadeDe(S);
   const setTheme = useStore((s) => s.setTheme);
   const { c, isDark } = useTheme();
   const router = useRouter();
@@ -142,7 +145,7 @@ export default function Perfil() {
               <Txt v="h2">{S.profile.name}</Txt>
               <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{S.profile.email}</Txt>
               <Txt v="micro" c={c.tx3} style={{ marginTop: 8 }}>
-                {S.profile.idade} anos · membro desde {desde}
+                {idade != null ? idade + ' anos · ' : ''}membro desde {desde}
               </Txt>
             </View>
           </Row>
@@ -198,7 +201,7 @@ export default function Perfil() {
             <View style={{ flex: 1 }}>
               <Txt v="bodyMed">{med.label} {dose} {med.unit}</Txt>
               <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
-                {med.cad === 'weekly' ? '1× por semana' : 'uso diário'} · {p.left} de {p.total} doses na caneta
+                {cadenciaCurta(S)} · {p.left} de {p.total} doses na caneta
               </Txt>
             </View>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />

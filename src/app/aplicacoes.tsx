@@ -5,6 +5,7 @@ import { useStore } from '../logic/store';
 import {
   M, adesao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
   nextInjectionDate, nextSite, pharmaSeries, reminderWhen, rodizioDeLocais, siteLabel,
+  cadenciaTexto,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
@@ -83,7 +84,7 @@ export default function Aplicacoes() {
     >
       <Titulao
         titulo="Aplicações"
-        lead={`${med.label} · ${med.mol} · ${med.cad === 'weekly' ? 'uma vez por semana' : 'uso diário'}`}
+        lead={`${med.label} · ${med.mol} · ${cadenciaTexto(S)}`}
       />
 
       {/* A PRÓXIMA DOSE, com o anel da semana em volta da contagem.

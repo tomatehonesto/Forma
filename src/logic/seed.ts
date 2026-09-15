@@ -264,7 +264,17 @@ export function buildSeed() {
          Não é alta: é até onde a titulação foi programada, e é o número
          que dá sentido a "você está na semana 11". */
       planoSemanas: 16,
-      nutri: 'Renata Alves', idade: 38, email: 'mariana.silva@email.com',
+      nutri: 'Renata Alves', email: 'mariana.silva@email.com',
+      /* O ano, e não a idade: idade muda sozinha todo aniversário, e um
+         número guardado envelhece errado. Quem precisa dela usa idadeDe. */
+      nascimento: 1988,
+      sexo: 'f',
+      /* Vazio quando a aplicação segue a cadência do catálogo. Só quem
+         aplica em outro intervalo tem número aqui. */
+      intervalo: null as number | null,
+      motivacao: 'saude',
+      /* kg por semana — o ritmo que a pessoa escolheu perseguir. */
+      ritmo: 0.5,
       /* O código de convite de quem chegou por um profissional parceiro.
          Vazio na semente: a Mariana não veio por indicação, e inventar um
          código daria ao app um dado comercial que ninguém emitiu. */

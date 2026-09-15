@@ -3,7 +3,7 @@ import { View, Pressable, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
-import { M, curWeight, lostKg, lostPct, adesao, journeyDay, examLast, notasTexto } from '../logic/derive';
+import { M, curWeight, lostKg, lostPct, adesao, journeyDay, examLast, notasTexto, cadenciaCurta } from '../logic/derive';
 import { now, fmtDate, diffDays, nf, kg } from '../logic/time';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -74,7 +74,7 @@ export default function ResumoMedico() {
 
         <Sec t="Medicação" />
         <Line k="Medicamento" v={`${med.label} ${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}`} />
-        <Line k="Cadência" v={med.cad === 'weekly' ? '1× por semana' : 'diária'} />
+        <Line k="Cadência" v={cadenciaCurta(S)} />
         <Line k="Tempo de tratamento" v={`${journeyDay(S)} dias`} />
         <Line k="Adesão às aplicações" v={`${adesao(S)}%`} />
 

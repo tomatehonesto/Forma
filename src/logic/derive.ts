@@ -28,13 +28,68 @@ export const goalProgress = (S: State) =>
   Math.max(0, Math.min(100, ((startWeight(S) - curWeight(S)) / (startWeight(S) - S.profile.goalWeight)) * 100));
 export const lastInjection = (S: State) => (S.injections.length ? S.injections[S.injections.length - 1] : null);
 
+/* A CADÊNCIA REAL, que nem sempre é a do catálogo.
+
+   CADENCE_DAYS lê MEDS: Mounjaro e Ozempic são semanais, Saxenda e
+   Victoza são diários. É o certo para quase todo mundo, e é por isso que
+   o cadastro não faz da frequência uma pergunta.
+
+   Só que aplicar a cada dez ou catorze dias existe, e não é erro de quem
+   faz: acontece por tolerância, por orientação e por preço da caneta.
+   Para essa pessoa o app inteiro contava errado — próxima aplicação,
+   adesão, dia do ciclo, quanto tempo dura o estoque — e cobrava dose
+   atrasada de quem não estava atrasada.
+
+   O cadastro pergunta isso como EXCEÇÃO, atrás de um toque, e guarda em
+   profile.intervalo. Aqui é onde a exceção passa a valer: as dez contas
+   que dependiam da cadência leem esta função, e não mais o catálogo
+   direto. Sem isto a resposta seria lida na tela do cadastro e jogada
+   fora — que é exatamente o defeito que o "Quando" da tela de aplicação
+   já teve. */
+export const cadenciaDias = (S: State) => {
+  const i = (S.profile as any).intervalo;
+  return typeof i === 'number' && i > 0 ? i : CADENCE_DAYS(S.profile.med);
+};
+
+/** A idade, contada do ano de nascimento. */
+export const idadeDe = (S: State) => {
+  const ano = (S.profile as any).nascimento;
+  return typeof ano === 'number' ? now().getFullYear() - ano : null;
+};
+
+/* COMO A CADÊNCIA SE ESCREVE, em dois comprimentos.
+
+   Quatro telas montavam esta frase por conta própria, cada uma com a sua
+   redação e todas lendo med.cad direto do catálogo: "uma vez por
+   semana", "1× por semana", "diariamente", "diária", "uso diário". Com o
+   intervalo de exceção, as quatro passaram a contradizer a contagem do
+   próprio app — a tela de aplicações dizia "uma vez por semana" logo
+   acima de um anel marcando dia 5 de 10.
+
+   Os dois comprimentos são de propósito: a linha de abertura de uma tela
+   fala por extenso, e a célula de uma tabela de resumo médico não tem
+   essa largura. */
+export const cadenciaTexto = (S: State) => {
+  const d = cadenciaDias(S);
+  if (d === 7) return 'uma vez por semana';
+  if (d === 1) return 'uso diário';
+  return `a cada ${d} dias`;
+};
+
+export const cadenciaCurta = (S: State) => {
+  const d = cadenciaDias(S);
+  if (d === 7) return '1× por semana';
+  if (d === 1) return 'diária';
+  return `a cada ${d} dias`;
+};
+
 export function nextInjectionDate(S: State) {
   const li = lastInjection(S); if (!li) return startOfDay(now());
-  return addDays(startOfDay(new Date(li.t)), CADENCE_DAYS(S.profile.med));
+  return addDays(startOfDay(new Date(li.t)), cadenciaDias(S));
 }
 export function adesao(S: State) {
   const days = diffDays(now(), new Date(S.profile.startT));
-  const expected = Math.floor(days / CADENCE_DAYS(S.profile.med)) + 1;
+  const expected = Math.floor(days / cadenciaDias(S)) + 1;
   return Math.max(0, Math.min(100, Math.round((S.injections.length / expected) * 100)));
 }
 /* O REGISTRO DO DIA e o CHECK-IN FEITO são duas perguntas diferentes.
@@ -118,7 +173,7 @@ export function pharmaLevel(S: State, t: number) {
 }
 // amostra a curva ao redor de hoje e normaliza; retorna pontos + vale futuro
 export function pharmaSeries(S: State) {
-  const days = CADENCE_DAYS(S.profile.med);
+  const days = cadenciaDias(S);
   const from = +addDays(startOfDay(now()), -Math.min(days, 7));
   const to = +addDays(startOfDay(now()), days + 1);
   const pts: { t: number; v: number; n: number }[] = []; let max = 0;
@@ -441,7 +496,7 @@ export function examExplain(e: any) {
 export type Phase = { key: string; label: string; ic: string; range: string; hint: string; q: string };
 export function doseCycle(S: State) {
   const li = lastInjection(S);
-  const total = CADENCE_DAYS(S.profile.med);
+  const total = cadenciaDias(S);
   const injDate = li ? startOfDay(new Date(li.t)) : startOfDay(now());
   const dayIn = Math.max(1, Math.min(total, diffDays(now(), injDate) + 1));
   const phases: Phase[] = [
@@ -957,7 +1012,7 @@ export function sintomasEm(cs: any[]): SintomaLido[] {
    conta — o vale é metade do achado, e tirá-lo faria a média subir
    justamente nos dias em que o sintoma não apareceu. */
 export function sintomaNoCiclo(S: State, id = 'nausea') {
-  const cad = CADENCE_DAYS(S.profile.med);
+  const cad = cadenciaDias(S);
   const baldes = Array.from({ length: cad }, (_, dia) => ({ dia, dias: 0, soma: 0 }));
   const injs = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t))).sort((a, b) => a - b);
   for (const c of S.checkins as any[]) {
@@ -1009,6 +1064,69 @@ export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
 }
 
 /* ============================================================
+   O PLANO DE PARTIDA — o que o app deriva do cadastro
+
+   As metas diárias do app — proteína, água, movimento, gordura corporal
+   — vinham fixas da semente: 90 g, 2,5 L, 60 min, 28%. Eram os números
+   de UMA pessoa, lidos dez vezes cada um por telas que falam com outra.
+
+   Aqui elas saem do que a pessoa acabou de contar. Não é conta de
+   nutricionista e não substitui uma: é ponto de partida, e o perfil muda
+   todas.
+
+   ⚠️ PROCEDÊNCIA — os dois coeficientes são de uso corrente e NÃO foram
+   conferidos contra diretriz brasileira vigente. Proteína a 1,2 g por
+   quilo é o piso da faixa que se cita para preservação de massa magra em
+   perda de peso (a faixa vai a 1,6, e o piso é escolha deliberada: errar
+   para baixo num número que a pessoa vai perseguir todo dia é mais
+   seguro do que errar para cima). Água a 35 ml por quilo é a regra de
+   bolso mais comum. Antes disto chegar a alguém de verdade, as duas
+   linhas precisam ser verificadas e esta marca, removida.
+
+   E NÃO TEM CALORIA, de propósito. O app decidiu não contar caloria —
+   /alimentacao tem uma seção inteira chamada "Por que proteína, e não
+   caloria", e o argumento é que num tratamento de GLP-1 a fome cai
+   sozinha e o risco deixa de ser comer demais. Uma meta diária de
+   quilocaloria aqui contradiria isso na cara, e seria pior: o app não
+   soma caloria de refeição nenhuma, então seria uma meta que nada no app
+   consegue medir. Meta que ninguém lê é pior do que meta nenhuma.
+   ============================================================ */
+export type PlanoInicial = {
+  imc: number;
+  /** gramas por dia */
+  prot: number;
+  /** mililitros por dia */
+  agua: number;
+  /** percentual — a meta de gordura corporal */
+  gordura: number;
+  /** semanas até a meta, no ritmo escolhido; null quando não há o que perder */
+  semanas: number | null;
+  chegada: number | null;
+};
+
+export function planoDoCadastro(d: {
+  sexo: 'f' | 'm'; altura: number; peso: number; meta: number; ritmo: number | null;
+}): PlanoInicial {
+  const perder = d.peso - d.meta;
+  const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
+  return {
+    imc: d.peso / (d.altura ** 2),
+    /* Arredondados para cinco e para cem: o app vai escrever estes
+       números como meta, e "96,4 g" afirma uma precisão que a conta não
+       tem — ela nasce de uma regra de bolso sobre um peso digitado. */
+    prot: Math.round((d.peso * 1.2) / 5) * 5,
+    agua: Math.round((d.peso * 35) / 100) * 100,
+    /* A meta de gordura corporal é a única coisa do plano que depende do
+       sexo, e é a razão de a pergunta existir: 28% era o padrão fixo da
+       semente, que é a ponta saudável para mulheres e não serve para
+       homens. As faixas usuais são 18–28% e 10–20%. */
+    gordura: d.sexo === 'f' ? 28 : 20,
+    semanas,
+    chegada: semanas ? +addDays(startOfDay(now()), semanas * 7) : null,
+  };
+}
+
+/* ============================================================
    MEMÓRIA DO COMPANION
 
    A frase que prova que ele conhece esta pessoa e não uma qualquer.
@@ -1054,7 +1172,7 @@ export function libraryPicks(S: State): Leitura[] {
   const r = journeySummary(S);
   const m = M(S);
 
-  const dia = Math.max(0, CADENCE_DAYS(S.profile.med) - diffDays(nextInjectionDate(S), now()));
+  const dia = Math.max(0, cadenciaDias(S) - diffDays(nextInjectionDate(S), now()));
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
     out.push({ motivo: `Você está no dia ${dia} do ciclo, quando a fome volta`, titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
@@ -2938,7 +3056,7 @@ export const instanteDaAplicacao = (t: number) =>
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
-  const semanas = p.dosesLeft * (CADENCE_DAYS(S.profile.med) / 7);
+  const semanas = p.dosesLeft * (cadenciaDias(S) / 7);
   const verdict: Verdict = p.dosesLeft <= 1
     ? { label: 'Renove agora', good: false }
     : p.dosesLeft <= 3
@@ -3451,7 +3569,7 @@ export function canetaAtual(S: State) {
   const lista = canetas(S);
   const atual = lista[0] ?? null;
   const est = penStock(S);
-  const cad = CADENCE_DAYS(S.profile.med);
+  const cad = cadenciaDias(S);
   const validadeDias = SHELF_DAYS(S.profile.med);
   const vence = atual?.abertaEm ? addDays(new Date(atual.abertaEm), validadeDias) : null;
   /* Cobertura da receita: o que ainda há de dose vezes a cadência, contado

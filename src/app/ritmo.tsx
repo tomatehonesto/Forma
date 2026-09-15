@@ -2,8 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { weekGrid, journeySummary } from '../logic/derive';
-import { CADENCE_DAYS } from '../logic/meds';
+import { weekGrid, journeySummary, cadenciaDias } from '../logic/derive';
 import { DAY } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Aviso, Botao } from '../ui/internas';
@@ -35,7 +34,7 @@ export default function Ritmo() {
   /* Maior intervalo entre duas aplicações seguidas contra a cadência do
      medicamento. Um atraso de um dia não é notícia; três semanas são. */
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
-  const cad = CADENCE_DAYS(S.profile.med);
+  const cad = cadenciaDias(S);
   let maior = cad;
   for (let i = 1; i < injs.length; i++) maior = Math.max(maior, Math.round((injs[i].t - injs[i - 1].t) / DAY));
   const pontual = maior <= cad + 2;
