@@ -3,8 +3,7 @@ import { View, Pressable } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { waterMlToday, CUP_ML, registroDoDia } from '../logic/derive';
-import { now, startOfDay } from '../logic/time';
+import { waterMlToday, litros, registrarAgua } from '../logic/derive';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -61,7 +60,7 @@ export default function MedirAgua() {
 
      Por dentro tudo continua em ml, que é onde o passo de 50 vive e o que
      o armazenamento entende. Litro é como a tela fala. */
-  const L = (ml: number) => (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+  const L = litros;
 
   /* O teto é meia meta acima da meta, e sai dela — não de um número fixo:
      quem tem 3 L de meta merece a mesma folga de quem tem 2.
@@ -74,15 +73,13 @@ export default function MedirAgua() {
 
   const somar = (ml: number) => setEscolhido((v) => Math.min(max, v + ml));
 
+  /* Gravar é uma linha porque a regra não mora mais aqui. Este botão
+     somava direto no acumulador do dia e não guardava nada sobre o gole —
+     era por isso que beber virava a única coisa do app que não se podia
+     desfazer. registrarAgua escreve os dois: o gole no caderno e o total
+     do dia. */
   const beber = (ml: number) => {
-    update((s: any) => {
-      const t = +startOfDay(now());
-      /* Registrar água diz uma coisa só: quanta água. Antes, criar o
-         registro do dia aqui afirmava junto sono 7, humor 3 e fome 5 —
-         estado que ninguém perguntou. registroDoDia traz só o recipiente. */
-      const ci = registroDoDia(s, t);
-      ci.agua = (ci.agua || 0) + ml / CUP_ML;
-    });
+    update((s: any) => registrarAgua(s, ml));
     setSomado((v) => v + ml);
   };
 

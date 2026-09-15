@@ -11,7 +11,7 @@ import { somaDe } from '../logic/prato';
 import { now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, CardSemana, Cartao, Linha, Botao, ItemApagavel, TiraDeDias,
+  TelaInterna, Titulao, Bloco, CardSemana, Cartao, Linha, Botao, TiraDeDias,
 } from '../ui/internas';
 import { Chevron } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';

@@ -5,7 +5,17 @@ import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem } from './prato';
 import type { State } from './seed';
 
-export const GOAL_WATER = 8;
+/* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
+
+   Era a constante 8 aqui — oito copos, 2 L — enquanto o perfil pedia
+   2,5 L e todas as telas de registro liam o perfil. Duas metas para a
+   mesma água: a barra do dia dizia "faltam 2 L", o radar dava a mesma
+   pessoa como 100% hidratada, e a conversa com o acompanhante contava os
+   copos até oito. Nenhuma das três estava errada sozinha.
+
+   Em COPOS porque é em copos que o check-in guarda a água, e é contra
+   copos que estas contas comparam. Quem traduz para litro é a frase. */
+export const metaDeCopos = (S: State) => (S.profile as any).targets.waterMl / CUP_ML;
 
 export const M = (S: State) => MEDS[S.profile.med];
 export const curWeight = (S: State) => S.weights[S.weights.length - 1].kg;
@@ -86,7 +96,7 @@ export function radar(S: State) {
   põe('Energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
   põe('Humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
   /* Acumuladores não somem: zero de água é uma resposta, não uma lacuna. */
-  põe('Água', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / GOAL_WATER) * 100));
+  põe('Água', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / metaDeCopos(S)) * 100));
   põe('Exercício', recent.length
     ? Math.min(100, (recent.filter((c: any) => (c.exerc || 0) > 0).length / recent.length) * 100)
     : 0);
@@ -128,11 +138,24 @@ export type Insight = { ic: string; text: string };
 export function insights(S: State): Insight[] {
   const out: Insight[] = [];
   const byWd: Record<number, number[]> = {};
-  S.checkins.forEach((c: any) => { const w = new Date(c.t).getDay(); (byWd[w] = byWd[w] || []).push(c.agua); });
+  /* Só os dias que TÊM água registrada. Os check-ins antigos guardam
+     exercício e proteína e mais nada, e um undefined no meio fazia a
+     média virar NaN — todas as sete viravam, nenhuma ganhava a
+     comparação, e o padrão nunca aparecia para ninguém. */
+  S.checkins.forEach((c: any) => {
+    if (typeof c.agua !== 'number') return;
+    const w = new Date(c.t).getDay();
+    (byWd[w] = byWd[w] || []).push(c.agua);
+  });
   let minWd: number | null = null, minV = 99;
   Object.entries(byWd).forEach(([w, a]) => { const m = a.reduce((s, x) => s + x, 0) / a.length; if (m < minV) { minV = m; minWd = +w; } });
+  /* "CONTRA A META", e não "contra os outros dias". A frase terminava em
+     "contra 8 nos outros dias" e os 8 eram a meta, não o que a pessoa
+     bebe de segunda a sábado: o texto atribuía a ela um hábito que talvez
+     nunca tivesse tido. E em litros, que é como as duas telas de água
+     falam. */
   if (minWd !== null)
-    out.push({ ic: 'water', text: `Você bebe menos água <b>${['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'][minWd]}</b> — cerca de ${minV.toFixed(0)} copos, contra ${GOAL_WATER} nos outros dias.` });
+    out.push({ ic: 'water', text: `Você bebe menos água <b>${['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'][minWd]}</b> — cerca de ${litros(minV * CUP_ML)} L, contra a meta de ${litros(metaDeCopos(S) * CUP_ML)} L.` });
   const c = S.checkins;
   if (c.length >= 8) {
     const half = Math.floor(c.length / 2);
@@ -439,8 +462,15 @@ export function todayTasks(S: State): TodayTask[] {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
   }
-  const wt = waterToday(S);
-  if (now().getHours() >= 15 && wt < 4) out.push({ ic: 'water', text: 'Registrar água', sub: `${wt} de ${GOAL_WATER} copos até agora`, to: '/registrar' });
+  /* Metade da meta às três da tarde é o mesmo critério de antes — quatro
+     copos de oito —, agora escrito contra a meta que a pessoa tem.
+
+     E o destino é a folha de registro. A linha diz "Registrar água" e
+     levava para o menu de registros, onde ainda era preciso achar a
+     água: um toque a mais para fazer o que o texto já tinha prometido. */
+  const mlHoje = waterMlToday(S);
+  const alvoAgua = (S.profile as any).targets.waterMl as number;
+  if (now().getHours() >= 15 && mlHoje < alvoAgua / 2) out.push({ ic: 'water', text: 'Registrar água', sub: `${litros(mlHoje)} de ${litros(alvoAgua)} L até agora`, to: '/medir-agua' });
   const ciT = checkinToday(S);
   /* A meta vem do perfil. Estava 90 fixo aqui enquanto o resto do app lia
      targets.prot — quem mudasse a meta passaria a ver duas contas. */
@@ -611,14 +641,28 @@ export function patterns(S: State): Pattern[] {
   /* --- água contra enjoo ---
      Duas coisas que a pessoa registra em telas diferentes, e que só se
      encontram quando alguém cruza as duas colunas. */
-  const hidratados = cs.filter((c) => c.agua >= GOAL_WATER - 1);
-  const secos = cs.filter((c) => c.agua < GOAL_WATER - 1);
+  /* "BEBEU BEM" É COMPARADO COM OS PRÓPRIOS DIAS DELA, e não com a meta.
+
+     O corte era um copo abaixo da meta, e a meta não tem nada a ver com a
+     comparação que este achado faz. Quem nunca chega perto dela não tem
+     nenhum dia "bem hidratado" — e o achado, que é sobre a VARIAÇÃO da
+     pessoa, deixaria de existir justamente para quem mais precisava dele.
+
+     A mediana dos dias registrados divide em dois grupos que sempre têm
+     gente: os dias em que ela bebeu mais do que o próprio normal, e os em
+     que bebeu menos. E só entram os dias que têm as DUAS colunas: cruzar
+     água com enjoo num dia sem enjoo registrado é comparar com nada. */
+  const comAgua = cs.filter((c) => typeof c.agua === 'number' && typeof c.nausea === 'number');
+  const escala = comAgua.map((c) => c.agua as number).sort((a, b) => a - b);
+  const corteAgua = escala.length ? escala[Math.floor(escala.length / 2)] : 0;
+  const hidratados = comAgua.filter((c) => c.agua >= corteAgua);
+  const secos = comAgua.filter((c) => c.agua < corteAgua);
   if (hidratados.length >= 3 && secos.length >= 3) {
     const eSim = med(hidratados.map((c) => c.nausea)), eNao = med(secos.map((c) => c.nausea));
     if (eNao - eSim >= 0.5) out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3,
       titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
-      texto: `Com ${GOAL_WATER - 1} copos ou mais, seu enjoo médio foi ${n1(eSim)}. Abaixo disso, ${n1(eNao)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
+      texto: `Com ${litros(corteAgua * CUP_ML)} L ou mais, seu enjoo médio foi ${n1(eSim)}. Abaixo disso, ${n1(eNao)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
       q: 'Como diminuir o enjoo?',
       evid: { valor: `−${n1(eNao - eSim)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
       significa: 'De tudo o que aparece ligado ao seu enjoo, a água é o que está mais na sua mão. Não substitui conversar com a equipe se ele apertar, mas é a primeira coisa que vale testar antes.',
@@ -756,7 +800,7 @@ const EIXO_DIA: Record<string, (c: any, S: State) => number | null> = {
   'Sono': (c) => (respondido(c, 'sono') ? Math.min(100, (c.sono / 8) * 100) : null),
   'Energia': (c) => (respondido(c, 'energia') ? c.energia * 10 : null),
   'Humor': (c) => (respondido(c, 'mood') ? (c.mood / 5) * 100 : null),
-  'Água': (c) => Math.min(100, ((c.agua || 0) / GOAL_WATER) * 100),
+  'Água': (c, S) => Math.min(100, ((c.agua || 0) / metaDeCopos(S)) * 100),
   'Exercício': (c) => ((c.exerc || 0) > 0 ? 100 : 0),
   'Proteína': (c) => Math.min(100, c.prot || 0),
   'Saciedade': (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
@@ -994,6 +1038,19 @@ export const CUP_ML = 250;
 
 export const waterMlToday = (S: State) => waterToday(S) * CUP_ML;
 
+/* COMO O APP ESCREVE UM VOLUME: em litros, e sem zero à toa no fim —
+   "2,5", "1,75", "0,25", "1". Duas telas falam de água, e enquanto cada
+   uma tinha o próprio formatador elas escreviam o mesmo copo de jeitos
+   diferentes a dois toques de distância.
+
+   Sem arredondar para uma casa: 1,75 L arredondado vira 1,8 L, e um
+   número que a pessoa não registrou aparecendo no lugar do que ela
+   registrou é caro demais para o pouco que economiza de largura.
+
+   A unidade não vem junto de propósito — quem escreve o "L" é a frase,
+   que às vezes quer "de 2,5 L hoje" e às vezes só o número. */
+export const litros = (ml: number) => (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+
 const nfBR = (v: number, d = 0) => nf(v, d).replace('.', ',');
 
 export type DailyTarget = {
@@ -1032,8 +1089,12 @@ export function dailyTargets(S: State): DailyTarget[] {
       prot >= t.prot ? 'Meta batida' : `Faltam ${Math.round(t.prot - prot)} g`,
       'limePale', 'lime'),
     mk('agua', 'Beber mais água', ml, t.waterMl,
-      nfBR(ml / 1000, 1), 'L', `${nfBR(t.waterMl / 1000, 1)} L`,
-      faltaMl <= 0 ? 'Meta batida' : `Faltam ${faltaMl >= 1000 ? `${nfBR(faltaMl / 1000, 1)} L` : `${Math.round(faltaMl)} ml`}`,
+      litros(ml), 'L', `${litros(t.waterMl)} L`,
+      /* Sempre em litros, inclusive abaixo de um. A frase trocava de
+         unidade no meio do caminho — "Faltam 1,5 L" virava "Faltam 400 ml"
+         quando a pessoa chegava perto —, e quem está acompanhando o
+         próprio número via a escala mudar debaixo do pé. */
+      faltaMl <= 0 ? 'Meta batida' : `Faltam ${litros(faltaMl)} L`,
       'bluePale', 'accent2'),
     mk('exerc', 'Exercitar diariamente', ex, t.exercMin,
       `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
@@ -1142,14 +1203,32 @@ export function timelineEvents(S: State): TLEvent[] {
 
   for (const cc of S.checkins as any[]) {
     const day = D(cc.t);
-    const L = (cc.agua * CUP_ML) / 1000;
-    out.push({
-      key: `ci-${day}`, kind: 'checkin', day, time: '08:30',
-      ic: 'check', color: 'accent', title: 'Check-in',
-      sub: `${L.toFixed(1).replace('.', ',')} L · ${Math.round(cc.prot)} g proteína · ${Math.floor(cc.sono)}h de sono`,
-      value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
-      valueColor: cc.mood >= 4 ? 'good' : 'tx3',
-    });
+    /* SÓ OS DIAS EM QUE HOUVE CHECK-IN DE VERDADE.
+
+       Todo registro de dia entrava aqui como um check-in, e os antigos
+       guardam só acumuladores — proteína e exercício. Deles esta linha
+       lia sono e humor assim mesmo: quarenta e dois dias de "NaN L ·
+       NaNh de sono", cada um marcado como dia Difícil, porque um humor
+       AUSENTE também não é >= 3. A linha do tempo contava uma temporada
+       ruim que nunca existiu.
+
+       O evento de exercício continua fora desta condição: ele depende de
+       exerc, que é acumulador, e um dia de treino sem check-in é um dia
+       de treino. */
+    if (respondido(cc, 'mood')) {
+      /* E o resumo traz só o que foi respondido. Água e proteína são
+         acumuladores e sempre valem o que dizem; sono é estado, e um dia
+         sem resposta sai da frase em vez de virar zero. */
+      const partes = [`${litros((cc.agua || 0) * CUP_ML)} L`, `${Math.round(cc.prot || 0)} g proteína`];
+      if (respondido(cc, 'sono')) partes.push(`${Math.floor(cc.sono)}h de sono`);
+      out.push({
+        key: `ci-${day}`, kind: 'checkin', day, time: '08:30',
+        ic: 'check', color: 'accent', title: 'Check-in',
+        sub: partes.join(' · '),
+        value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
+        valueColor: cc.mood >= 4 ? 'good' : 'tx3',
+      });
+    }
     if (cc.exerc > 0) out.push({
       key: `ex-${day}`, kind: 'exercicio', day, time: '07:00',
       ic: 'dumbbell', color: 'teal', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
@@ -1792,6 +1871,95 @@ export function apagarRefeicao(s: any, t: number, gramas: number) {
   s.meals = (s.meals as any[]).filter((m) => m.t !== t);
   const dia = (s.checkins as any[]).find((c) => c.t === +startOfDay(new Date(t)));
   if (dia) dia.prot = Math.max(0, (dia.prot || 0) - gramas);
+}
+
+/* ============================================================
+   A ÁGUA — e a memória que ela não tinha
+
+   Beber era a única coisa deste app que não se podia desfazer. O registro
+   somava num acumulador do dia e não guardava nada sobre quem somou: quem
+   tocou "Garrafão" sem querer ficava com um litro a mais para sempre,
+   vendo o número errado todo dia até ele virar ontem. Refeição se apaga,
+   treino se apaga, água não se apagava.
+
+   Agora a água guarda os goles um a um, com a mesma dupla que o exercício
+   já tem — `treinos` é a lista, `exerc` é o total do dia, e apagar um
+   mexe nos dois. Aqui é `aguas` e `agua`.
+
+   POR QUE DOIS CAMPOS e não só a lista: `agua` é o que o app inteiro lê —
+   a pontuação, os padrões, o resumo, a Home. E os dias antigos só têm o
+   total: derivar tudo da lista faria cada um deles valer zero, que é
+   perder histórico para arrumar a arquitetura. O total continua sendo o
+   número; a lista conta de onde ele veio.
+
+   E um dia sem goles é tratado pelo que ele é: um total sem detalhe. O
+   caderno mostra uma linha só dizendo isso, em vez de inventar um horário
+   que ninguém registrou.
+   ============================================================ */
+
+/** Um gole no caderno: quando e quanto. O instante é o id. */
+export type Gole = { t: number; ml: number };
+
+/** Registra água hoje — entra na lista e sobe o total do dia. */
+export function registrarAgua(s: any, ml: number) {
+  const c = registroDoDia(s, +startOfDay(now()));
+  c.aguas = [...((c.aguas || []) as Gole[]), { t: +now(), ml }];
+  c.agua = (c.agua || 0) + ml / CUP_ML;
+}
+
+/* Apagar devolve ao dia o que aquele gole tinha somado, e não zera: o dia
+   carrega a água dos outros goles. Mesma regra de apagarTreino.
+
+   Sem o instante, apaga o dia inteiro — que é a única saída possível para
+   um registro antigo, de quando não havia goles para apagar um a um. */
+export function apagarGole(s: any, dia: number, t?: number | null) {
+  const c = (s.checkins as any[]).find((x) => x.t === dia);
+  if (!c) return;
+  if (t == null) { c.agua = 0; c.aguas = []; return; }
+  const g = ((c.aguas || []) as Gole[]).find((x) => x.t === t);
+  if (!g) return;
+  c.aguas = ((c.aguas || []) as Gole[]).filter((x) => x.t !== t);
+  c.agua = Math.max(0, (c.agua || 0) - g.ml / CUP_ML);
+}
+
+/** Os sete últimos dias em ml, do mais antigo para hoje. */
+export function semanaDeAgua(S: State): { t: number; ml: number }[] {
+  const hoje = +startOfDay(now());
+  const porDia = new Map<number, number>(
+    (S.checkins as any[]).map((c) => [c.t, Math.round((c.agua || 0) * CUP_ML)]),
+  );
+  return Array.from({ length: 7 }, (_, i) => {
+    const t = hoje - (6 - i) * DAY;
+    return { t, ml: porDia.get(t) || 0 };
+  });
+}
+
+/** Os dias do período, marcando os que têm água registrada. */
+export function diasDeAgua(S: State, dias: number): DiaDaTira[] {
+  const hoje = +startOfDay(now());
+  const porT = new Map<number, number>();
+  for (const c of S.checkins as any[]) {
+    /* O ponto da tira responde "houve registro", e para isso o TOTAL é
+       resposta melhor que a lista: um dia antigo tem litros e nenhum gole,
+       e marcá-lo como vazio seria sumir com ele da vista. */
+    const n = ((c.aguas || []) as Gole[]).length || ((c.agua || 0) > 0 ? 1 : 0);
+    if (n) porT.set(c.t, n);
+  }
+  return Array.from({ length: dias }, (_, i) => {
+    const t = hoje - (dias - 1 - i) * DAY;
+    return { t, itens: porT.get(t) || 0, hoje: t === hoje };
+  });
+}
+
+/** O caderno de um dia, do primeiro gole ao último. Um dia antigo devolve
+    uma linha sem hora: o total é tudo o que se sabe dele. */
+export function golesDoDia(S: State, t: number): { t: number | null; ml: number }[] {
+  const c = (S.checkins as any[]).find((x) => x.t === t);
+  if (!c) return [];
+  const gs = ((c.aguas || []) as Gole[]).slice().sort((a, b) => a.t - b.t);
+  if (gs.length) return gs;
+  const ml = Math.round((c.agua || 0) * CUP_ML);
+  return ml > 0 ? [{ t: null, ml }] : [];
 }
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */

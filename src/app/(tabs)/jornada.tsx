@@ -8,7 +8,7 @@ import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, checkinToday, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
+  waterMlToday, litros, checkinToday, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
@@ -393,7 +393,12 @@ export default function Jornada() {
 
   const habitos: [string, string, string, string][] = [
     ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
-    ['water', 'Água', ci ? `${(waterMlToday(S) / 1000).toFixed(1).replace('.', ',')} L hoje` : 'sem registro', '/registrar'],
+    /* A água ia para o MENU de registros enquanto as vizinhas iam para a
+       tela do próprio hábito: era a única linha desta lista que não
+       levava a lugar nenhum sobre si mesma. E o número usava um
+       formatador próprio, que escrevia 1,8 L onde a tela de água escreve
+       1,75 L. */
+    ['water', 'Água', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
     ['target', 'Protocolos', `${S.protocol.tasks.filter((t: any) => t.done).length} de ${S.protocol.tasks.length}`, '/protocolos'],
   ];

@@ -84,8 +84,44 @@ export function buildSeed() {
       });
   }
 
+  /* A ÁGUA, GOLE A GOLE.
+
+     A semente escrevia só o total do dia — "7 copos" — e era exatamente o
+     formato antigo que golesDoDia existe para tolerar: o caderno de água
+     abriria com uma linha sem hora em todos os treze dias, contando a
+     história de um app que ainda não guardava goles. Semente não é dado
+     legado; ela é o app funcionando.
+
+     O dia de semana bebe seis vezes e chega a 1,75 L; sábado e domingo
+     bebem menos e mais tarde, que é o que acontece com quem não tem a
+     garrafa da mesa de trabalho por perto. Nenhum dos três alcança os
+     2,5 L da meta, e isso é de propósito: a tela existe para quem está
+     tentando chegar lá. */
+  const GOLES_SEMANA: [number, number][] = [[7.3, 250], [9.8, 250], [12.5, 500], [15.7, 250], [18.3, 250], [21.2, 250]];
+  const GOLES_SABADO: [number, number][] = [[10.3, 250], [13.5, 500], [17, 250], [21, 250]];
+  const GOLES_DOMINGO: [number, number][] = [[9.7, 250], [13.2, 500], [19, 250]];
+  const golesDe = (d: number) => {
+    const wd = daysAgo(d).getDay();
+    return wd === 0 ? GOLES_DOMINGO : wd === 6 ? GOLES_SABADO : GOLES_SEMANA;
+  };
+  /* Hoje entra pela metade: dois copos da manhã, e o resto do dia por
+     acontecer. Zerado, o caderno de água abriria vazio no único dia em
+     que a pessoa vai olhar primeiro. */
+  const GOLES_HOJE: [number, number][] = [[7.5, 250], [10.2, 250]];
+  /* A lista é que manda, e o total sai dela. Escrever os dois à mão faria
+     a barra do dia discordar do caderno na primeira vez que alguém
+     mexesse num horário. Um copo são 250 ml — o mesmo CUP_ML que derive
+     usa para traduzir copos em litros. */
+  const emGoles = (base: number, gs: [number, number][]) =>
+    gs.map(([h, ml]) => ({ t: base + Math.round(h * 3600000), ml }));
+  const coposDe = (gs: [number, number][]) => gs.reduce((x, [, ml]) => x + ml, 0) / 250;
+
   const checkins: any[] = [
-    { t: +startOfDay(daysAgo(0)), agua: 0, prot: protDoDia(0), exerc: 0 },
+    {
+      t: +startOfDay(daysAgo(0)),
+      agua: coposDe(GOLES_HOJE), aguas: emGoles(+startOfDay(daysAgo(0)), GOLES_HOJE),
+      prot: protDoDia(0), exerc: 0,
+    },
   ];
 
   /* AS SESSÕES DE EXERCÍCIO — por dias atrás.
@@ -139,7 +175,8 @@ export function buildSeed() {
       sono: wd === 0 || wd === 6 ? 7.5 : (d % 3 === 0 ? 6 : 7),
       gut: postInj ? 'preso' : 'normal',
       energia: postInj ? 5 : 7,
-      agua: wd === 0 ? 4 : (wd === 6 ? 5 : 7),
+      agua: coposDe(golesDe(d)),
+      aguas: emGoles(+startOfDay(date), golesDe(d)),
       prot: protDoDia(d),
       exerc: minDoDia(d),
       treinos: SESSOES[d],
@@ -186,6 +223,7 @@ export function buildSeed() {
       },
       /* metas diárias — antes ficavam espalhadas como número fixo no
          código (proteína 90 g em derive, água na constante GOAL_WATER).
+         Hoje as três saem daqui, e derive lê o perfil.
          A Home nova trata as três como alvo configurável. */
       targets: { prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 },
     },

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, streak,
+  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, litros, streak,
   type QuickKey,
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
@@ -68,8 +68,10 @@ export default function Registrar() {
   const veu = fez ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.18)';
   const protHoje = Math.round((ci as any)?.prot || 0);
   const alvoProt = (S.profile as any).targets.prot as number;
-  const litros = (waterMlToday(S) / 1000).toFixed(1).replace('.', ',');
-  const alvoL = ((S.profile as any).targets.waterMl / 1000).toFixed(1).replace('.', ',');
+  /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
+     escrevia 1,8 L do lado de um caderno que registrou 1,75 L. */
+  const bebido = litros(waterMlToday(S));
+  const alvoL = litros((S.profile as any).targets.waterMl);
   const acoes = ATALHOS;
 
   /* A aplicação era o único item que salvava aqui dentro, num toque, com
@@ -88,7 +90,7 @@ export default function Registrar() {
      alturas diferentes. Quebrando aqui, os três abrem com uma palavra
      curta na primeira linha e o verbo na segunda. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${litros} de ${alvoL} L`, to: '/medir-agua' },
+    agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${bebido} de ${alvoL} L`, to: '/medir-agua' },
     exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
     aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
     checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },

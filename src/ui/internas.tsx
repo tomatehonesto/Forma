@@ -487,7 +487,7 @@ const ALT_SEMANA = 64;
 const CALHA = 82;
 
 export function CardSemana({
-  nome, sub, valor, unidade, dias, alvo, rotuloMeta, rodape,
+  nome, sub, valor, unidade, dias, alvo, rotuloMeta, rotulo, rodape,
 }: {
   nome: string; sub: string; valor: string; unidade?: string;
   /** sete dias em ordem, do mais antigo para hoje */
@@ -495,6 +495,14 @@ export function CardSemana({
   alvo: number;
   /** o que a tracejada diz de si mesma: "Meta: 60 min", "Meta: 90 g" */
   rotuloMeta: string;
+  /* COMO O NÚMERO DA BARRA SE ESCREVE.
+
+     Minuto e grama são inteiros e se escrevem sozinhos. Litro não: a
+     água chega aqui em mililitros, porque é em mililitros que a altura
+     da barra e a meta se comparam sem erro de arredondamento, e 1750
+     escrito em cima de uma barra de sete é ruído. Quem sabe a unidade é
+     a tela; o cartão só pergunta como escrever. */
+  rotulo?: (v: number) => string;
   rodape?: React.ReactNode;
 }) {
   const { c } = useTheme();
@@ -546,7 +554,7 @@ export function CardSemana({
                       v="micro"
                       c={eHoje ? c.tx : c.tx4}
                       style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
-                    >{d.v}</Txt>
+                    >{rotulo ? rotulo(d.v) : d.v}</Txt>
                   ) : null}
                   {/* O dia em branco ganha um ponto na linha de base: coluna
                       vazia some, e não ter registro não é ausência de dado. */}

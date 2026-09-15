@@ -6,7 +6,7 @@ import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
 import {
   M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
-  lastInjection, siteLabel, waterToday, GOAL_WATER, companionSuggestions, companionMemoria,
+  lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
@@ -98,7 +98,7 @@ function companionReply(S: State, text: string): Msg {
     return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão da Dra. Helena. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
-    return { who: 'ai', text: `Hoje você registrou <b>${waterToday(S)} de ${GOAL_WATER} copos</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
+    return { who: 'ai', text: `Hoje você registrou <b>${litros(waterMlToday(S))} de ${litros((S.profile as any).targets.waterMl)} L</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
   }
   if (has('proteína', 'proteina')) {
     return { who: 'ai', text: `Proteína é uma das suas metas — e você vem cumprindo bem. Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, mini: `Média recente perto de 90 g/dia. Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
