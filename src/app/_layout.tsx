@@ -112,7 +112,7 @@ export default function RootLayout() {
               próprio, e sem esta apresentação o scrim cobria a tela
               inteira em cinza opaco em vez de deixar ver o que está
               atrás. */
-           'treino','refeicao','favorito','protocolo'].map((n) => (
+           'treino','refeicao','favorito','protocolo','meta'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}

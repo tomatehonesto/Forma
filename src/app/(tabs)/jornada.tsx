@@ -457,13 +457,21 @@ export default function Jornada() {
                 {i > 0 && <Divider />}
                 <View style={{ paddingVertical: 15 }}>
                   <Row gap={11}>
-                    <Icon name={m.ic} size={16} color={c.tx3} sw={1.9} />
+                    <Icon name={(m as any).feita ? 'check' : m.ic} size={16} color={(m as any).feita ? c.accent : c.tx3} sw={1.9} />
                     <Txt v="caption" c={c.tx} style={{ flex: 1 }} numberOfLines={1}>{m.label}</Txt>
-                    <Txt v="micro" c={m.pct >= 100 ? c.limeInk : c.tx3}>{Math.round(m.pct)}%</Txt>
+                    {/* A PESSOAL NÃO TEM PORCENTAGEM. Ela é uma coisa que
+                        acontece num dia: 0% ou 100% seria a caixinha dita
+                        em número, e a barra em 2px diria "você não saiu do
+                        lugar" sobre algo que não tem lugar intermediário. */}
+                    {(m as any).pessoal ? null : (
+                      <Txt v="micro" c={m.pct >= 100 ? c.limeInk : c.tx3}>{Math.round(m.pct)}%</Txt>
+                    )}
                   </Row>
-                  <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 9 }}>
-                    <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: m.pct >= 100 ? c.lime : c.accent }} />
-                  </View>
+                  {(m as any).pessoal ? null : (
+                    <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 9 }}>
+                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: m.pct >= 100 ? c.lime : c.accent }} />
+                    </View>
+                  )}
                   <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.hint}</Txt>
                 </View>
               </React.Fragment>

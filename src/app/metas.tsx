@@ -1,69 +1,174 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
-import { curWeight, goalProgress, pctDe, mediaDe } from '../logic/derive';
-import { nf, kg } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn } from '../ui/kit';
+import {
+  ALVOS, curWeight, goalProgress, journeyGoals, startWeight, type ChaveDeAlvo,
+} from '../logic/derive';
+import { kg } from '../logic/time';
+import { Txt, Row, Vazio, Chevron } from '../ui/kit';
+import { Icon } from '../ui/Icon';
+import { Bloco, Cartao, Linha } from '../ui/internas';
+import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
+import { radius } from '../theme';
 
-function goalVal(S: any, g: any) {
-  if (g.kind === 'peso') return goalProgress(S);
-  if (g.kind === 'manual') return g.prog;
-  /* Só os dias respondidos entram na conta, como na Jornada. Dividir pelo
-     que ninguém perguntou fazia noite não registrada valer como noite mal
-     dormida — e bastava um dia sem energia respondida para a média virar
-     NaN e a barra sumir. */
-  if (g.kind === 'sono') {
-    const semana = S.checkins.filter((c: any) => { const d = new Date(c.t).getDay(); return d >= 1 && d <= 5; });
-    return pctDe(semana, 'sono', (v) => v >= 7) ?? 0;
-  }
-  if (g.kind === 'energia') return (mediaDe(S.checkins.slice(-7), 'energia') ?? 0) * 10;
-  return 0;
-}
-const subOf = (g: any) => g.kind === 'peso' ? 'referência combinada com a médica' : g.kind === 'manual' ? 'progresso pessoal' : g.kind === 'sono' ? 'noites de semana com 7h+' : 'média da semana';
+/* ============================================================
+   ONDE QUERO CHEGAR
+
+   A tela chamava-se "Metas além do peso" e abria com o peso. Listava
+   quatro coisas, não deixava mexer em nenhuma, e calculava as
+   porcentagens com uma segunda cópia da conta que já existia em derive —
+   as duas com recortes diferentes, então a mesma meta de sono aparecia
+   com um número aqui e outro na Jornada.
+
+   E ERA UM BECO SEM SAÍDA DUPLO. O perfil manda para cá em duas linhas:
+   "peso de referência" e "metas diárias". Nenhuma das duas existia aqui.
+   Os quatro números que o app cobra todo dia — proteína, água, exercício
+   e o peso — não tinham onde ser mudados em lugar nenhum do app.
+
+   A TELA AGORA TEM DOIS ANDARES, e eles respondem perguntas diferentes:
+
+     os alvos      os números que o app cobra. Mudar aqui muda a barra da
+                   alimentação, a tracejada do exercício e o protocolo.
+
+     as metas      onde a pessoa quer chegar. Umas o app mede pelos
+                   check-ins, outras só ela sabe dizer.
+
+   A CAPA é a viagem do peso, que é a única meta com aritmética fechada:
+   de 82,4 para 68, e onde ela está entre as duas. Não é a tela virando
+   balança — é o número que responde "onde quero chegar" com a conta que
+   existe, enquanto as outras metas ocupam o corpo da tela.
+   ============================================================ */
+
+const AURORA = require('../../assets/images/aurora-insights.png');
 
 export default function Metas() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
 
-  return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Metas além do peso</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Transformação é o conjunto, não só a balança</Txt>
-        </View>
-      </Row>
+  const pct = Math.round(goalProgress(S));
+  const perdido = startWeight(S) - curWeight(S);
+  const total = startWeight(S) - S.profile.goalWeight;
+  const metas = journeyGoals(S);
 
-      <View style={{ marginTop: 16, gap: 12 }}>
-        {S.goals.map((g: any) => {
-          const isPeso = g.kind === 'peso';
-          const v = goalVal(S, g);
-          return (
-            <Card key={g.id} style={{ paddingVertical: 15 }}>
-              <Row>
-                <IconBadge name={g.ic} size={40} />
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Txt v="title">{g.label}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{subOf(g)}</Txt>
-                </View>
-                <Txt v="h2" c={isPeso ? c.tx2 : c.accent}>{isPeso ? `${kg(curWeight(S))} kg` : `${nf(v, 0)}%`}</Txt>
-              </Row>
-              {isPeso ? (
-                <Txt v="micro" c={c.tx3} style={{ marginTop: 10, lineHeight: 16 }}>Tendência constante desde {kg(S.profile.startWeight)} kg, no seu ritmo — sem contagem regressiva.</Txt>
-              ) : (
-                <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, marginTop: 12, overflow: 'hidden' }}>
-                  <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: `${Math.min(100, v)}%`, height: '100%' }} />
-                </View>
-              )}
-            </Card>
-          );
-        })}
-      </View>
-    </Screen>
+  const chaves: ChaveDeAlvo[] = ['peso', 'prot', 'waterMl', 'exercMin'];
+
+  return (
+    <TelaDeHabito>
+      <CapaDeHabito
+        foto={AURORA}
+        titulo="Onde quero chegar"
+        linha={`${kg(perdido)} de ${kg(total)} kg até ${ALVOS.peso.escreve(S.profile.goalWeight)} kg`}
+        pct={pct}
+      >
+        <AtalhoDaCapa
+          titulo="Nova meta"
+          cheio
+          onPress={() => router.push('/meta?novo=1' as any)}
+        />
+      </CapaDeHabito>
+
+      <FolhaDeHabito>
+        {/* OS ALVOS — os números que o app cobra, e onde eles pegam.
+
+            Cada linha diz o que aquele número muda no resto do app. Sem
+            isso, mexer na meta de proteína é mexer num campo de perfil;
+            com isso, é mexer na barra que a pessoa vê todo dia. */}
+        <Bloco
+          titulo="Os números do dia"
+          nota="É o que as telas de água, alimentação e exercício cobram, e o que o protocolo conta."
+        >
+          <Cartao>
+            {chaves.map((k) => {
+              const a = ALVOS[k];
+              return (
+                /* SEM O "onde" NA LISTA. Ele explica o que aquele número
+                   muda no resto do app — e isso interessa a quem está
+                   prestes a mexer, não a quem está passando o olho. Na
+                   lista ele virava três linhas de texto por item; na folha
+                   de edição ele é o subtítulo, lido no momento certo. */
+                <Linha
+                  key={k}
+                  ic={a.ic}
+                  titulo={a.nome}
+                  selo={`${a.escreve(a.le(S))} ${a.un}`}
+                  seloTom="neutra"
+                  onPress={() => router.push(`/meta?alvo=${k}` as any)}
+                />
+              );
+            })}
+          </Cartao>
+        </Bloco>
+
+        {/* AS METAS — e as duas naturezas.
+
+            A medida traz uma porcentagem que é conta de verdade, saída
+            dos check-ins. A pessoal traz "ainda não" ou a data em que
+            aconteceu — ela perdeu a barra, porque não existe sessenta por
+            cento de caber numa calça. */}
+        <Bloco
+          titulo="Onde quero chegar"
+          nota="As medidas o app acompanha pelos check-ins. As suas, você marca."
+        >
+          {metas.length ? (
+            <Cartao>
+              {metas.map((m: any) => (
+                <Pressable
+                  key={m.id}
+                  onPress={() => router.push(`/meta?g=${m.id}` as any)}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+                    <Row gap={12}>
+                      <View style={{
+                        width: 34, height: 34, borderRadius: radius.md,
+                        alignItems: 'center', justifyContent: 'center',
+                        backgroundColor: m.feita ? c.accent : c.accentWeak,
+                      }}>
+                        <Icon
+                          name={m.feita ? 'check' : m.ic}
+                          size={17}
+                          color={m.feita ? c.accentInk : c.accent}
+                          sw={1.9}
+                        />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Txt v="body">{m.label}</Txt>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{m.hint}</Txt>
+                      </View>
+                      {/* A porcentagem só nas medidas. Na pessoal ela seria
+                          0% ou 100%, que é a caixinha dita em número. */}
+                      {m.pessoal ? null : (
+                        <Txt v="bodyMed" c={m.pct >= 100 ? c.accent : c.tx3}>{Math.round(m.pct)}%</Txt>
+                      )}
+                      <View style={{ marginLeft: 8 }}><Chevron size={15} /></View>
+                    </Row>
+                    {m.pessoal ? null : (
+                      <View style={{
+                        height: 6, borderRadius: radius.pill, backgroundColor: c.track,
+                        overflow: 'hidden', marginTop: 12,
+                      }}>
+                        <View style={{
+                          width: `${Math.max(2, m.pct)}%`, height: 6,
+                          borderRadius: radius.pill, backgroundColor: c.accent,
+                        }} />
+                      </View>
+                    )}
+                  </View>
+                </Pressable>
+              ))}
+            </Cartao>
+          ) : (
+            <Vazio
+              ic="target"
+              titulo="Nenhuma meta ainda"
+              texto="Escreva uma coisa que você quer conseguir. Ela fica aqui até acontecer."
+            />
+          )}
+        </Bloco>
+      </FolhaDeHabito>
+    </TelaDeHabito>
   );
 }

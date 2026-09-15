@@ -1,5 +1,5 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
-import { DAY, startOfDay, now, daysAgo, addDays, diffDays, hm, DOW_PT, nf, kg, relDay } from './time';
+import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem } from './prato';
@@ -1462,29 +1462,51 @@ export function journeyGoals(S: State): JourneyGoal[] {
      registradas não são "21% das noites" — são três noites, e duas delas
      boas é 67%. Diluir pelo que não foi perguntado transformaria silêncio
      em fracasso. */
-  const pctSono = pctDe(recentes, 'sono', (v) => v >= 7);
-  const mediaEnergia = mediaDe(recentes, 'energia');
+  /* A CONTA, e não só a porcentagem. A linha dizia "85%" à direita e
+     "85% das noites recentes" embaixo — o mesmo número duas vezes, e a
+     segunda vez sem acrescentar nada. "11 de 13 noites" responde outra
+     pergunta: de quantas noites estamos falando. */
+  const sono = contaDe(recentes, 'sono', (v) => v >= 7);
+  const energia = contaDe(recentes, 'energia', (v) => v >= 7);
+  const pctSono = sono.de ? (sono.n / sono.de) * 100 : null;
+
+  /* DIAS COM ENERGIA ALTA, e não a média dela.
+
+     A conta era média × 10: energia 6,2 virava uma barra em 62%, como se
+     62% fosse o caminho andado até um dez que ninguém pediu. A meta diz
+     "mais energia", que é comparação, e a barra dizia nível.
+
+     Contar os dias que passaram de sete responde a mesma pergunta com uma
+     conta que existe — e é a mesma do sono, que já funcionava. */
+  const pctEnergia = energia.de ? (energia.n / energia.de) * 100 : null;
 
   return (S.goals as any[]).map((g) => {
-    let pct = g.prog || 0;
+    let pct = 0;
     let hint = '';
-    if (g.kind === 'peso') {
-      pct = goalProgress(S);
-      hint = `faltam ${nf(Math.max(0, curWeight(S) - S.profile.goalWeight), 1).replace('.', ',')} kg`;
-    } else if (g.kind === 'sono') {
+    if (g.kind === 'sono') {
       pct = pctSono ?? 0;
       hint = pctSono == null
         ? 'sem noites registradas ainda'
-        : `${Math.round(pctSono)}% das noites recentes`;
+        : `${sono.n} de ${sono.de} noites registradas`;
     } else if (g.kind === 'energia') {
-      pct = (mediaEnergia ?? 0) * 10;
-      hint = mediaEnergia == null
+      pct = pctEnergia ?? 0;
+      hint = pctEnergia == null
         ? 'sem check-ins recentes'
-        : `energia média ${nf(mediaEnergia, 1).replace('.', ',')} de 10`;
+        : `${energia.n} de ${energia.de} dias registrados`;
     } else {
-      hint = 'acompanhada por você';
+      /* Pessoal: cheia ou vazia, e a data no lugar da fração. */
+      pct = g.feita ? 100 : 0;
+      hint = g.feita && g.em
+        ? `conquistada em ${fmtDate(new Date(g.em))}`
+        : 'você marca quando chegar';
     }
-    return { id: g.id, ic: g.ic, label: g.label, pct: Math.max(0, Math.min(100, pct)), hint };
+    return {
+      id: g.id, ic: g.ic, label: g.label,
+      pct: Math.max(0, Math.min(100, pct)),
+      hint,
+      pessoal: g.kind === 'pessoal',
+      feita: !!g.feita,
+    };
   });
 }
 
@@ -2191,6 +2213,131 @@ export function semanaDoHistorico(S: State, ate: number) {
   };
 }
 
+/* ============================================================
+   OS ALVOS — os quatro números que o app cobra
+
+   Proteína, água, exercício e o peso de referência. Eles não são enfeite
+   de perfil: a tela de alimentação cobra o de proteína, a de água cobra o
+   dela, o protocolo conta os três e a Jornada mede a viagem inteira
+   contra o de peso.
+
+   E NÃO HAVIA COMO MUDAR NENHUM. O perfil tinha duas linhas apontando
+   para /metas — "peso de referência" e "metas diárias" — e a tela de
+   metas não mostrava nem um nem outro: dois becos sem saída para os
+   números mais usados do app. A meta de 90 g de proteína valia para
+   sempre porque ninguém tinha onde escrever outra.
+
+   A tabela mora aqui, e não na tela, porque a folha de edição e a lista
+   precisam das mesmas definições. Duas cópias divergiriam no dia em que
+   alguém mudasse o passo de um lado só.
+   ============================================================ */
+export type ChaveDeAlvo = 'prot' | 'waterMl' | 'exercMin' | 'peso';
+
+export const ALVOS: Record<ChaveDeAlvo, {
+  ic: string;
+  nome: string;
+  /** o que este número muda no resto do app */
+  onde: string;
+  un: string;
+  passo: number;
+  min: number;
+  max: number;
+  le: (S: State) => number;
+  /** como o número se escreve na tela */
+  escreve: (v: number) => string;
+}> = {
+  prot: {
+    ic: 'utensils', nome: 'Proteína por dia', onde: 'Cobrada na alimentação e no protocolo',
+    un: 'g', passo: 5, min: 40, max: 220,
+    le: (S) => (S.profile as any).targets.prot,
+    escreve: (v) => String(Math.round(v)),
+  },
+  waterMl: {
+    /* Guardada em mililitros e escrita em litros, como em toda parte: o
+       passo de 250 ml é um copo, que é a unidade em que se bebe. */
+    ic: 'water', nome: 'Água por dia', onde: 'Cobrada na água e no protocolo',
+    un: 'L', passo: 250, min: 750, max: 5000,
+    le: (S) => (S.profile as any).targets.waterMl,
+    escreve: (v) => litros(v),
+  },
+  exercMin: {
+    ic: 'dumbbell', nome: 'Exercício por dia', onde: 'É a tracejada da semana, no exercício',
+    un: 'min', passo: 10, min: 10, max: 180,
+    le: (S) => (S.profile as any).targets.exercMin,
+    escreve: (v) => String(Math.round(v)),
+  },
+  peso: {
+    /* Referência, e não alvo: é o ponto de chegada que a equipe combinou,
+       e o app usa ele para medir o caminho — não para cobrar. */
+    ic: 'scale', nome: 'Peso de referência', onde: 'Mede a viagem inteira, na Jornada',
+    un: 'kg', passo: 0.5, min: 40, max: 200,
+    le: (S) => S.profile.goalWeight,
+    /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e
+       "68,0 kg" numa pastilha de meta parece precisão de balança. */
+    escreve: (v) => nf(v, 1).replace('.', ',').replace(/,0$/, ''),
+  },
+};
+
+export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number) {
+  const a = ALVOS[chave];
+  const v = Math.max(a.min, Math.min(a.max, valor));
+  if (chave === 'peso') s.profile.goalWeight = v;
+  else s.profile.targets[chave] = v;
+}
+
+/* ============================================================
+   AS METAS — e as duas naturezas que elas têm
+
+   MEDIDAS   o app tem como responder: quantas noites de sete horas,
+             quantos dias com energia alta. Saem dos check-ins, e a
+             porcentagem é uma conta de verdade.
+
+   PESSOAIS  só a pessoa sabe. Vestir a calça jeans antiga, subir a
+             escada sem parar, voltar a jogar bola no domingo.
+
+   A PESSOAL PERDEU A PORCENTAGEM, e essa é a mudança que importa. Ela
+   vinha com "prog: 60" escrito na semente e uma barra em 60% — e não
+   existe sessenta por cento de caber numa calça. Era precisão inventada,
+   parada para sempre num número que ninguém tinha como mexer.
+
+   Agora ela é o que sempre foi: ainda não, ou conseguiu em tal dia. A
+   data importa mais que a barra — é ela que a pessoa vai querer contar
+   para alguém.
+
+   É a mesma divisão do protocolo, pelo mesmo motivo: o que o app mede,
+   ele conta; o que só a pessoa sabe, ela diz.
+   ============================================================ */
+export type Meta = {
+  id: string;
+  ic: string;
+  label: string;
+  kind: 'sono' | 'energia' | 'pessoal';
+  /** só nas pessoais */
+  feita?: boolean;
+  /** o dia em que ela foi conquistada */
+  em?: number | null;
+};
+
+export function guardarMeta(s: any, label: string, ic = 'target') {
+  const texto = label.trim();
+  if (!texto) return;
+  s.goals = [...(s.goals || []), { id: 'g' + Date.now(), ic, label: texto, kind: 'pessoal', feita: false, em: null }];
+}
+
+export function apagarMeta(s: any, id: string) {
+  s.goals = ((s.goals || []) as any[]).filter((g) => g.id !== id);
+}
+
+/* Marcar guarda a DATA junto, e desmarcar a apaga. Sem isso, quem
+   desmarcasse por engano e marcasse de novo ficaria com a data do engano
+   — e a data é a parte da conquista que se conta para alguém. */
+export function marcarMeta(s: any, id: string) {
+  const g = ((s.goals || []) as any[]).find((x) => x.id === id);
+  if (!g || g.kind !== 'pessoal') return;
+  g.feita = !g.feita;
+  g.em = g.feita ? +startOfDay(now()) : null;
+}
+
 /* O EXAME QUE AINDA ESTÁ ABERTO no protocolo. Três telas perguntam por
    ele — a lista de hoje, as recomendações e o cuidado —, e a busca morava
    copiada nas três, cada uma com a sua regex.
@@ -2796,7 +2943,12 @@ export function mediaDe(cs: any[], k: string): number | null {
 /** Proporção de dias que atendem a condição, contando só os respondidos.
     null quando ninguém respondeu — não existe "0% das noites" se nenhuma
     noite foi registrada. */
-export function pctDe(cs: any[], k: string, cond: (v: number) => boolean): number | null {
+export function contaDe(cs: any[], k: string, cond: (v: number) => boolean) {
   const vs = (cs || []).filter((c) => respondido(c, k)).map((c) => c[k] as number);
-  return vs.length ? (vs.filter(cond).length / vs.length) * 100 : null;
+  return { n: vs.filter(cond).length, de: vs.length };
+}
+
+export function pctDe(cs: any[], k: string, cond: (v: number) => boolean): number | null {
+  const { n, de } = contaDe(cs, k, cond);
+  return de ? (n / de) * 100 : null;
 }

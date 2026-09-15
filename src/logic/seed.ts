@@ -218,6 +218,26 @@ export function buildSeed() {
     });
   }
 
+  /* EM ORDEM, DO MAIS ANTIGO PARA HOJE — e isto conserta oito lugares
+     de uma vez.
+
+     O array nascia embaralhado: hoje primeiro, depois as duas últimas
+     semanas, depois os quarenta dias anteriores. E meia dúzia de funções
+     escreve `checkins.slice(-14)` querendo dizer "os catorze dias mais
+     recentes" — o radar, as metas, o resumo médico, o ritmo, os
+     sintomas, a série de equilíbrio. Todas pegavam o rabo do array, que
+     era o bloco MAIS ANTIGO.
+
+     O efeito era visível e mudo: a tela de metas dizia "sem noites
+     registradas ainda" com treze noites registradas, porque as catorze
+     linhas do fim são justamente as que só têm acumulador.
+
+     Dava para corrigir as oito chamadas. Ordenar aqui é melhor: o array
+     passa a ser o que todo mundo já achava que ele era, e um registro
+     novo — que é sempre de hoje — continua entrando no fim, no lugar
+     certo. */
+  checkins.sort((a, b) => a.t - b.t);
+
   return {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
@@ -249,11 +269,21 @@ export function buildSeed() {
     },
     weights, injections, checkins,
     photos: [{ t: +daysAgo(70), tag: 'início' }, { t: +daysAgo(35), tag: 'semana 5' }, { t: +daysAgo(4), tag: 'semana 10' }],
+    /* ONDE QUERO CHEGAR — as metas de vida, e só elas.
+
+       O PESO SAIU DAQUI. Ele era a primeira da lista, numa tela que se
+       chamava "metas além do peso" — e continua no app, no lugar certo:
+       é o número grande da capa e uma linha dos alvos, onde dá para
+       mudar. Na lista ele aparecia uma terceira vez.
+
+       E A PESSOAL PERDEU O "prog: 60". Não existe sessenta por cento de
+       caber numa calça: era precisão inventada, parada para sempre num
+       número que ninguém tinha como mexer. Ela é o que sempre foi —
+       ainda não, ou conseguiu em tal dia. */
     goals: [
-      { id: 'g1', ic: 'scale', label: 'Peso de referência · 68 kg', kind: 'peso', prog: 0 },
-      { id: 'g2', ic: 'moon', label: 'Dormir 7h+ nas noites de semana', kind: 'sono', prog: 0 },
-      { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', kind: 'manual', prog: 60 },
-      { id: 'g4', ic: 'bolt', label: 'Ter mais energia à tarde', kind: 'energia', prog: 0 },
+      { id: 'g2', ic: 'moon', label: 'Dormir 7h+ nas noites de semana', kind: 'sono' },
+      { id: 'g4', ic: 'bolt', label: 'Dias com energia de 7 para cima', kind: 'energia' },
+      { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', kind: 'pessoal', feita: false, em: null },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
 
