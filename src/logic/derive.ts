@@ -1109,6 +1109,8 @@ export type PlanoInicial = {
 
 export function planoDoCadastro(d: {
   altura: number; peso: number; meta: number; ritmo: number | null;
+  /** 0 sedentário, 1 leve, 2 moderado, 3 muito ativo */
+  atividade?: number;
 }): PlanoInicial {
   const perder = d.peso - d.meta;
   const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
@@ -1118,7 +1120,17 @@ export function planoDoCadastro(d: {
        números como meta, e "96,4 g" afirma uma precisão que a conta não
        tem — ela nasce de uma regra de bolso sobre um peso digitado. */
     prot: Math.round((d.peso * 1.2) / 5) * 5,
-    agua: Math.round((d.peso * 35) / 100) * 100,
+    /* A ÁGUA SOBE COM O QUANTO A PESSOA SE MEXE.
+
+       35 ml por quilo é a regra de bolso para o corpo parado; quem treina
+       perde mais, e a faixa que se cita é de algumas centenas de
+       mililitros por hora de exercício. O acréscimo aqui é modesto de
+       propósito — é ponto de partida, e errar para cima numa meta que a
+       pessoa persegue todo dia cansa mais do que ajuda.
+
+       É também o que faz a pergunta de atividade física ter leitor: ela
+       descreve o cenário, e o cenário entra em uma conta. */
+    agua: Math.round((d.peso * 35 + [0, 100, 250, 400][d.atividade ?? 0]) / 100) * 100,
     /* A META DE GORDURA CORPORAL SAIU DAQUI, e não por acaso.
 
        Ela dependia do sexo biológico — 28% é a ponta saudável para

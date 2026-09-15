@@ -146,7 +146,10 @@ type Respostas = {
   motivacao: string | null;
   atividade: string | null;
   saude: boolean | null;
-  inicio: number | null;
+  /* A data do início em três peças, como a de nascimento: a roda mexe uma
+     de cada vez, e o dia 31 tem que sobreviver a um passeio por
+     fevereiro. Vira carimbo só na hora de salvar. */
+  iDia: number; iMes: number; iAno: number;
   recomendado: boolean | null;
   codigo: string;
 };
@@ -160,7 +163,8 @@ const VAZIO: Respostas = {
   dia: 1, mes: 0, ano: 1990,
   emTratamento: null, med: null, dose: null, intervalo: null,
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
-  motivacao: null, atividade: null, saude: null, inicio: null,
+  motivacao: null, atividade: null, saude: null,
+  iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
   recomendado: null, codigo: '',
 };
 
@@ -244,7 +248,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
   );
   const selo = ic ? (
     <View style={{
-      width: 34, height: 34, borderRadius: 17,
+      width: 32, height: 32, borderRadius: 16,
       backgroundColor: on ? 'rgba(255,255,255,0.22)' : c.bg2,
       alignItems: 'center', justifyContent: 'center',
     }}>
@@ -262,10 +266,15 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
      Sem borda no estado normal pelo mesmo motivo de antes: o cartão se
      separa do fundo pelo branco, e borda cinza em oito cartões empilhados
      vira grade de planilha. */
+  /* A ALTURA É CURTA DE PROPÓSITO. Sete canetas e seis doses não cabem
+     numa tela com cartão de dezessete de folga em cima e embaixo, e uma
+     lista que só mostra quatro de sete obriga a rolar para descobrir que
+     existe uma oitava. Treze pontos ainda dão um alvo confortável de
+     dedo, e a lista inteira passa a caber. */
   const moldura = {
     backgroundColor: on ? c.accent : c.bg1,
     borderRadius: radius.lg,
-    paddingHorizontal: 18, paddingVertical: 17,
+    paddingHorizontal: 16, paddingVertical: 13,
   };
   const tinta = on ? c.accentInk : c.tx;
   const tintaSub = on ? 'rgba(255,255,255,0.78)' : c.tx3;
@@ -281,7 +290,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
         {selo}
         <View style={{ flex: 1 }}>
           <Txt v="bodyMed" c={tinta}>{titulo}</Txt>
-          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 3 }}>{sub}</Txt> : null}
+          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 1 }}>{sub}</Txt> : null}
         </View>
         {marca}
       </Pressable>
@@ -306,7 +315,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
       >
         <View style={{ flex: 1 }}>
           <Txt v="bodyMed" c={tinta} numberOfLines={2}>{titulo}</Txt>
-          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 3 }} numberOfLines={2}>{sub}</Txt> : null}
+          {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 1 }} numberOfLines={2}>{sub}</Txt> : null}
         </View>
         {marca}
       </Pressable>
@@ -693,141 +702,6 @@ function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unida
 }
 
 /* ------------------------------------------------------------------ */
-/* O CALENDÁRIO — mês na tira, dia na grade.
-
-   A versão que recebi usava roda de três colunas (dia / mês / ano). Roda
-   é controle de sistema operacional: fora dele, ela vira uma lista que
-   rola sem dizer onde termina, e no navegador não rola direito. Aqui o
-   mês é uma tira horizontal e o dia é uma grade de sete colunas — dois
-   toques, e a pessoa vê o mês inteiro de uma vez.
-
-   Os dias impossíveis ficam apagados e não respondem: quem já começou não
-   começou amanhã, e quem vai começar não vai começar ontem. */
-const SIGLAS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-
-function Calendario({ valor, onEscolhe, futuro }: {
-  valor: number | null; onEscolhe: (t: number) => void; futuro: boolean;
-}) {
-  const { c } = useTheme();
-  const hoje = startOfDay(now());
-
-  /* Doze meses para trás, ou este e os dois seguintes. Ninguém começou um
-     tratamento em 2019 e vem cadastrar hoje — e se veio, o perfil resolve
-     depois com o número exato. */
-  const meses = useMemo(() => {
-    const fora: { ano: number; mes: number }[] = [];
-    const n = futuro ? 3 : 12;
-    for (let i = 0; i < n; i++) {
-      const d = new Date(hoje.getFullYear(), hoje.getMonth() + (futuro ? i : -i), 1);
-      fora.push({ ano: d.getFullYear(), mes: d.getMonth() });
-    }
-    return futuro ? fora : fora.reverse();
-  }, [futuro, +hoje]);
-
-  const doValor = valor != null ? new Date(valor) : null;
-  const [sel, setSel] = useState(() => {
-    const i = doValor
-      ? meses.findIndex((m) => m.ano === doValor.getFullYear() && m.mes === doValor.getMonth())
-      : -1;
-    return i >= 0 ? i : (futuro ? 0 : meses.length - 1);
-  });
-
-  const m = meses[Math.min(sel, meses.length - 1)];
-  const primeiro = new Date(m.ano, m.mes, 1);
-  const dias = new Date(m.ano, m.mes + 1, 0).getDate();
-  const vao = primeiro.getDay();
-
-  const podeDia = (d: number) => {
-    const t = +new Date(m.ano, m.mes, d);
-    return futuro ? t >= +hoje : t <= +hoje;
-  };
-
-  /* A TIRA ABRE NO MÊS ESCOLHIDO, e não no começo dela.
-
-     Doze meses não cabem na largura de um telefone, e quem já começou o
-     tratamento começou perto de hoje — o mês certo é quase sempre o
-     último da fila. Sem isto, a tira abria em outubro do ano passado
-     enquanto a grade embaixo mostrava setembro deste.
-
-     Dois gatilhos porque conteúdo e caixa são medidos em ordens
-     diferentes conforme a plataforma. Quem vai começar não precisa: o mês
-     dele é o primeiro. */
-  const tira = React.useRef<ScrollView>(null);
-  const aoFim = () => { if (!futuro) tira.current?.scrollToEnd({ animated: false }); };
-
-  return (
-    <View style={{ gap: 14 }}>
-      <ScrollView
-        ref={tira}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        onContentSizeChange={aoFim}
-        onLayout={aoFim}
-        contentContainerStyle={{ gap: 7 }}
-      >
-        {meses.map((x, i) => {
-          const on = i === sel;
-          return (
-            <Pressable
-              key={`${x.ano}-${x.mes}`}
-              onPress={() => setSel(i)}
-              style={({ pressed }) => [{
-                paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill,
-                borderWidth: 1, borderColor: on ? c.tx : c.line,
-                backgroundColor: on ? c.tx : c.bg1, opacity: pressed ? 0.7 : 1,
-              }]}
-            >
-              <Txt v="label" c={on ? c.bg1 : c.tx2}>
-                {MO[x.mes]}{x.ano !== hoje.getFullYear() ? ` ${String(x.ano).slice(2)}` : ''}
-              </Txt>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 12, gap: 6 }}>
-        <Row>
-          {SIGLAS.map((s, i) => (
-            <View key={i} style={{ flex: 1, alignItems: 'center' }}>
-              <Txt v="micro" c={c.tx4}>{s}</Txt>
-            </View>
-          ))}
-        </Row>
-        {Array.from({ length: Math.ceil((vao + dias) / 7) }, (_, semana) => (
-          <Row key={semana}>
-            {Array.from({ length: 7 }, (_, col) => {
-              const d = semana * 7 + col - vao + 1;
-              if (d < 1 || d > dias) return <View key={col} style={{ flex: 1, height: 38 }} />;
-              const t = +new Date(m.ano, m.mes, d);
-              const on = valor != null && +startOfDay(new Date(valor)) === t;
-              const pode = podeDia(d);
-              return (
-                <Pressable
-                  key={col}
-                  onPress={pode ? () => onEscolhe(t) : undefined}
-                  style={({ pressed }) => [{
-                    flex: 1, height: 38, alignItems: 'center', justifyContent: 'center',
-                    opacity: pressed && pode ? 0.6 : 1,
-                  }]}
-                >
-                  <View style={{
-                    width: 34, height: 34, borderRadius: 17,
-                    alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: on ? c.accent : 'transparent',
-                  }}>
-                    <Txt v="caption" c={on ? c.accentInk : pode ? c.tx : c.tx4}>{d}</Txt>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </Row>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* A DOSE SE ESCREVE COM AS CASAS QUE ELA TEM.
 
    O formatador do app arredonda para uma casa, e com isso os 0,25 mg do
@@ -876,6 +750,8 @@ export default function Cadastro() {
   const motivo = MOTIVOS.find((x) => x.id === r.motivacao) ?? null;
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
+  const inicio = +new Date(r.iAno, r.iMes, r.iDia);
+  const nivel = Math.max(0, ATIVIDADE.findIndex((x) => x.id === r.atividade));
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
      quem ainda vai começar não responde QUANDO começou. */
@@ -895,8 +771,10 @@ export default function Cadastro() {
   const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
 
   const plano = useMemo(
-    () => planoDoCadastro({ altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo }),
-    [r.altura, r.peso, r.meta, r.ritmo],
+    () => planoDoCadastro({
+      altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo, atividade: nivel,
+    }),
+    [r.altura, r.peso, r.meta, r.ritmo, nivel],
   );
 
   /* A PERGUNTA RESPONDIDA. É ela que liga o botão: sem a resposta o
@@ -920,7 +798,9 @@ export default function Cadastro() {
     if (x === 'motivacao') return r.motivacao != null;
     if (x === 'atividade') return r.atividade != null;
     if (x === 'saude') return r.saude != null;
-    if (x === 'inicio') return r.inicio != null;
+    /* A roda não deixa escolher um dia que ainda não aconteceu, então
+       chegar aqui já significa uma data válida. */
+    if (x === 'inicio') return inicio <= +startOfDay(now());
     if (x === 'recomendacao') {
       return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
     }
@@ -962,7 +842,7 @@ export default function Cadastro() {
       /* Quem ainda vai começar não respondeu data nenhuma, e o dia do
          cadastro é o único marco que existe. Não vira "dia 1 do
          tratamento": diaDoTratamento só conta a partir da primeira dose. */
-      s.profile.startT = r.inicio ?? +startOfDay(now());
+      s.profile.startT = r.emTratamento ? +startOfDay(new Date(inicio)) : +startOfDay(now());
       /* O CÓDIGO, e só ele. O nome do profissional saiu: o app não tem
          como conferir um nome digitado, e o que liga a pessoa à clínica é
          o código — resolver código em nome é trabalho de servidor. */
@@ -982,8 +862,8 @@ export default function Cadastro() {
       /* Quem já começou tem DUAS pesagens de largada: a de quando começou
          e a de hoje. Sem a primeira, a curva de evolução nasce com um
          ponto só e não tem o que desenhar. */
-      if (r.emTratamento && r.inicio && +startOfDay(new Date(r.inicio)) !== t) {
-        pesagens.push({ t: +startOfDay(new Date(r.inicio)), kg: r.pesoInicial });
+      if (r.emTratamento && +startOfDay(new Date(inicio)) !== t) {
+        pesagens.push({ t: +startOfDay(new Date(inicio)), kg: r.pesoInicial });
       }
       s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
     });
@@ -1127,7 +1007,7 @@ export default function Cadastro() {
       ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 'motivacao'],
       ['dumbbell', 'ATIVIDADE', ativ?.titulo ?? '—', 'atividade'],
       ['activity', 'APP DE SAÚDE', r.saude ? 'Conectar' : 'Agora não', 'saude'],
-      ...(futuro ? [] : [['cal', 'INÍCIO', `${r.inicio ? dataPorExtenso(r.inicio) : '—'} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
+      ...(futuro ? [] : [['cal', 'INÍCIO', `${dataPorExtenso(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as [string, string, string, Id]]),
       ['steth', 'INDICAÇÃO', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
     ];
     return (
@@ -1221,13 +1101,14 @@ export default function Cadastro() {
     corpo: 'É com altura e peso que o Morphi calcula seu IMC e monta suas metas diárias de proteína e água.',
     meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
-    motivacao: 'Entender o seu porquê ajuda a gente a te apoiar melhor. Não tem resposta certa.',
-    atividade: 'É só para saber de onde você está partindo.',
+    motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
+    atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz ao Morphi de onde você está partindo.',
     saude: 'Peso, passos, sono e treinos entram sozinhos, sem você digitar.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
+  const hoje = startOfDay(now());
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -1356,7 +1237,7 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'medicamento' ? (
-          <View style={{ gap: 10 }}>
+          <View style={{ gap: 8 }}>
             {Object.entries(MEDS).filter(([k]) => k !== 'indefinido').map(([k, m]) => (
               <Escolha
                 key={k} cheia
@@ -1386,7 +1267,7 @@ export default function Cadastro() {
 
         {id === 'dose' && med ? (
           <View style={{ gap: 16 }}>
-            <View style={{ gap: 10 }}>
+            <View style={{ gap: 8 }}>
               {med.doses.map((d, i) => (
                 <Escolha
                   key={d} cheia
@@ -1476,13 +1357,36 @@ export default function Cadastro() {
               min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.5}
               valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })}
             />
-            {/* Meta ACIMA do peso de hoje é escolha legítima de quem está
+            {/* A DISTÂNCIA É O ASSUNTO DA TELA, e não o número absoluto.
+
+                "70 kg" é uma meta; "10 kg daqui até lá" é o que a pessoa
+                vai atravessar, e é o que ela fica pensando depois de
+                fechar o app. Por isso a diferença sai da legenda cinza e
+                vira o segundo número grande da tela.
+
+                Meta ACIMA do peso de hoje é escolha legítima de quem está
                 subindo de volta, não erro para bloquear. */}
-            <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
-              {perder === 0
-                ? 'Mesmo peso de hoje — manter também é meta.'
-                : `${nf(Math.abs(perder), 1)} kg ${perder > 0 ? 'abaixo' : 'acima'} do seu peso de hoje.`}
-            </Txt>
+            {perder === 0 ? (
+              <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
+                Mesmo peso de hoje — manter também é meta.
+              </Txt>
+            ) : (
+              <View style={{
+                backgroundColor: c.accentWeak, borderRadius: radius.card,
+                paddingVertical: 18, paddingHorizontal: 16, gap: 2, alignItems: 'center',
+              }}>
+                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>
+                  {perder > 0 ? 'DAQUI ATÉ LÁ' : 'FALTAM GANHAR'}
+                </Txt>
+                <Row style={{ alignItems: 'baseline', gap: 4 }}>
+                  <Txt style={[NUMERO, { fontSize: 40, lineHeight: 48 }]}>{nf(Math.abs(perder), 1)}</Txt>
+                  <Txt v="body" c={c.tx2}>kg</Txt>
+                </Row>
+                <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', marginTop: 4 }}>
+                  Uma semana de cada vez — e eu acompanho cada uma delas com você.
+                </Txt>
+              </View>
+            )}
           </View>
         ) : null}
 
@@ -1543,25 +1447,67 @@ export default function Cadastro() {
           </View>
         ) : null}
 
+        {/* A MESMA RODA DA DATA DE NASCIMENTO.
+
+            Aqui havia tira de meses e grade de dias — dois controles
+            diferentes para a mesma coisa que a tela de nascimento já
+            resolvia com um. Duas gramáticas de data no mesmo formulário é
+            a pessoa reaprendendo a responder no meio do caminho.
+
+            As rodas se limitam ao passado: quem já começou não começou
+            amanhã, e o mês e o dia encolhem quando o ano é o de agora. */}
         {id === 'inicio' ? (
           <View style={{ gap: 32 }}>
-            <Calendario valor={r.inicio} onEscolhe={(t) => p({ inicio: t })} futuro={false} />
+            <Row style={{ gap: 10 }}>
+              <Roda
+                largura={78}
+                itens={Array.from(
+                  { length: r.iAno === hoje.getFullYear() && r.iMes === hoje.getMonth()
+                    ? hoje.getDate() : new Date(r.iAno, r.iMes + 1, 0).getDate() },
+                  (_, k) => ({ v: k + 1, label: String(k + 1) }),
+                )}
+                valor={r.iDia}
+                onEscolhe={(v) => p({ iDia: v })}
+              />
+              <Roda
+                largura={142}
+                itens={MESES
+                  .map((m, k) => ({ v: k, label: m }))
+                  .filter((x) => r.iAno < hoje.getFullYear() || x.v <= hoje.getMonth())}
+                valor={r.iMes}
+                onEscolhe={(v) => p({
+                  iMes: v,
+                  iDia: Math.min(r.iDia, new Date(r.iAno, v + 1, 0).getDate()),
+                })}
+              />
+              <Roda
+                largura={90}
+                itens={Array.from({ length: 6 }, (_, k) => {
+                  const a = hoje.getFullYear() - 5 + k;
+                  return { v: a, label: String(a) };
+                })}
+                valor={r.iAno}
+                onEscolhe={(v) => p({
+                  iAno: v,
+                  iMes: v === hoje.getFullYear() ? Math.min(r.iMes, hoje.getMonth()) : r.iMes,
+                  iDia: Math.min(r.iDia, new Date(v, r.iMes + 1, 0).getDate()),
+                })}
+              />
+            </Row>
             {/* O PESO DAQUELA ÉPOCA, aqui e não junto do peso de hoje: os
                 dois são a mesma grandeza em dois momentos, e perguntados
                 lado a lado é onde alguém responde o mesmo número duas
                 vezes sem perceber. Perto da data, fica claro de quando ele
                 é. */}
+            {/* O MESMO CONTROLE DOS OUTROS PESOS: régua para arrastar, mais
+                e menos para acertar, e o número tocável para digitar. Era
+                um contador só — três jeitos de dizer peso em duas telas e
+                um jeito só nesta. */}
             <View>
               <Rotulo>PESO DE QUANDO COMEÇOU</Rotulo>
-              <Contador
-                valor={nf(r.pesoInicial, 1)}
-                unidade="kg"
-                onMenos={() => p({ pesoInicial: Math.max(35, Math.round((r.pesoInicial - 0.1) * 10) / 10) })}
-                onMais={() => p({ pesoInicial: Math.min(300, Math.round((r.pesoInicial + 0.1) * 10) / 10) })}
-                onDigitar={(v) => {
-                  const x = parseFloat(v.replace(',', '.'));
-                  if (!Number.isNaN(x)) p({ pesoInicial: Math.min(300, Math.max(35, x)) });
-                }}
+              <Regua
+                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
+                valor={r.pesoInicial} unidade="kg" onEscolhe={(v) => p({ pesoInicial: v })}
               />
             </View>
           </View>
