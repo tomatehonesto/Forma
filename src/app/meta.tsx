@@ -8,7 +8,7 @@ import {
   type ChaveDeAlvo, type Indicador,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { Bloco, Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -217,12 +217,19 @@ export default function Meta() {
             cartão — e a diferença entre as duas não é de categoria, é de
             NATUREZA: uma o app conta sozinho, a outra ninguém tem como
             medir. Com título, a pessoa escolhe sabendo em qual das duas
-            vidas ela está entrando. */}
+            vidas ela está entrando.
+
+            O TÍTULO É O RÓTULO DE CAMPO, e não o de bloco. Bloco é o
+            cabeçalho de seção das TELAS, no mesmo corpo do título da
+            folha — dentro de um bottom sheet ele empatava com "Nova meta"
+            e a tela ficava com dois títulos do mesmo tamanho brigando.
+            Maiúsculas miúdas é o que as outras folhas já usam para dizer
+            "começa aqui outra parte": A META, NOVO VALOR. */}
         <View style={{ marginTop: 18, gap: 22 }}>
           {/* AS QUE O APP CONTA, pelo nome genérico. O número vem no toque
               seguinte — a lista diz de QUE coisa se trata, e a régua é de
               quem está criando a meta. */}
-          <Bloco titulo="O app acompanha">
+          <Campo rotulo="O que conseguimos medir" nu>
             {livres.length ? (
               <Cartao>
                 {livres.map((i) => (
@@ -240,12 +247,12 @@ export default function Meta() {
                 Você já tem uma meta para cada coisa que o app sabe contar.
               </Txt>
             )}
-          </Bloco>
+          </Campo>
 
           {/* AS QUE ELE NÃO MEDE. Os cinco exemplos não gravam direto:
               preenchem o campo e deixam a pessoa terminar a frase — é aí
               que "entrar numa peça de roupa" vira a peça dela. */}
-          <Bloco titulo="Você marca quando chegar">
+          <Campo rotulo="Você marca quando chegar" nu>
             <Cartao>
               {METAS_PESSOAIS.map((m) => (
                 <Linha
@@ -265,7 +272,7 @@ export default function Meta() {
                 onPress={() => { setTexto(''); setEscrevendo(true); }}
               />
             </Cartao>
-          </Bloco>
+          </Campo>
         </View>
       </SheetScreen>
     );
