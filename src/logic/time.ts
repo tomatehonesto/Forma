@@ -13,6 +13,13 @@ export const DOW_PT = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sext
 export const DOW_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
 export const fmtDate = (d: Date) => `${d.getDate()} ${MO[d.getMonth()]}`;
+
+/* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:
+   "1 a 7 set", e "28 jul a 3 ago" quando a semana vira o mês. */
+export const fmtPeriodo = (a: Date, b: Date) =>
+  a.getMonth() === b.getMonth()
+    ? `${a.getDate()} a ${b.getDate()} ${MO[b.getMonth()]}`
+    : `${fmtDate(a)} a ${fmtDate(b)}`;
 export const fmtWD = (d: Date) => WD[d.getDay()];
 export const fmtTime = (d: Date) => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 export const hm = (h: number, m: number) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;

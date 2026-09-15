@@ -2054,6 +2054,67 @@ export function protocoloDaSemana(S: State) {
   };
 }
 
+/* ============================================================
+   AS SEMANAS ANTERIORES
+
+   O app guarda UM protocolo, o desta semana — quem escreve é a equipe, e
+   o da semana passada não ficou em lugar nenhum. Esta seção já existiu
+   com duas linhas cravadas no código ("Semana 9 · 5 de 5 concluídos") e
+   saiu por isso: era história inventada sobre o tratamento de alguém.
+
+   O QUE DÁ PARA MOSTRAR DE VERDADE são as três metas que o app MEDE,
+   semana a semana, saídas dos mesmos registros que alimentam as telas de
+   água, alimentação e exercício. Aplicação e exame não entram: não existe
+   registro de quem marcou o quê, e um "cumprido" sem lastro aqui seria a
+   mesma invenção com outra roupa.
+
+   A RESSALVA É REAL e está escrita na tela: os alvos são os de HOJE,
+   aplicados para trás. Se a equipe mudou a meta de proteína no mês
+   passado, o app não tem como saber — ele guarda a meta atual, não a
+   história dela.
+
+   E só entram as semanas com registro. Uma semana sem nenhum check-in
+   não é uma semana de zeros, é uma semana sem resposta — e a diferença
+   entre as duas coisas é a mesma de sempre.
+   ============================================================ */
+export type SemanaDoProtocolo = {
+  semana: number;
+  de: number;
+  ate: number;
+  metas: { ic: string; feito: number; alvo: number }[];
+};
+
+export function historicoDeProtocolos(S: State, n = 6): SemanaDoProtocolo[] {
+  const hoje = +startOfDay(now());
+  const t = (S.profile as any).targets;
+  /* Os alvos saem das tarefas de hoje — é lá que a equipe negocia quantos
+     dias da semana cada meta pede. */
+  const alvoDe = (metrica: string, padrao: number) => {
+    const x = (S.protocol.tasks as any[]).find((y) => y.metrica === metrica);
+    return (x && x.alvo) || padrao;
+  };
+  const alvos = { agua: alvoDe('agua', 7), prot: alvoDe('prot', 7), exerc: alvoDe('exerc', 3) };
+
+  const out: SemanaDoProtocolo[] = [];
+  for (let k = 1; k <= n; k++) {
+    const ate = hoje - k * 7 * DAY;
+    const de = ate - 6 * DAY;
+    const cs = (S.checkins as any[]).filter((c) => c.t >= de && c.t <= ate);
+    if (!cs.length) continue;
+    out.push({
+      semana: S.protocol.week - k,
+      de,
+      ate,
+      metas: [
+        { ic: 'water', feito: cs.filter((c) => (c.agua || 0) * CUP_ML >= t.waterMl).length, alvo: alvos.agua },
+        { ic: 'utensils', feito: cs.filter((c) => (c.prot || 0) >= t.prot).length, alvo: alvos.prot },
+        { ic: 'dumbbell', feito: cs.filter((c) => (c.exerc || 0) > 0).length, alvo: alvos.exerc },
+      ],
+    });
+  }
+  return out;
+}
+
 /* O EXAME QUE AINDA ESTÁ ABERTO no protocolo. Três telas perguntam por
    ele — a lista de hoje, as recomendações e o cuidado —, e a busca morava
    copiada nas três, cada uma com a sua regex.

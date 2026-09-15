@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { hasClinic, marcarTarefa, nextInjectionDate, protocoloDaSemana } from '../logic/derive';
-import { relDay } from '../logic/time';
+import {
+  hasClinic, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
+} from '../logic/derive';
+import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Bloco, Cartao, Aviso } from '../ui/internas';
@@ -74,6 +76,7 @@ export default function Protocolos() {
 
   const p = protocoloDaSemana(S);
   const faltam = p.total - p.feitas;
+  const historico = historicoDeProtocolos(S);
 
   return (
     <TelaDeHabito>
@@ -183,6 +186,48 @@ export default function Protocolos() {
             hasClinic(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
           ].filter(Boolean).join(', ') + '.'}
         />
+
+        {/* AS SEMANAS ANTERIORES — três números por semana, sem uma linha
+            de texto.
+
+            O app guarda um protocolo só, o desta semana; o que sobrevive
+            das anteriores são os REGISTROS, e deles saem as três metas que
+            ele mede. Aplicação e exame ficam de fora porque não há registro
+            de quem marcou o quê — e um "cumprido" sem lastro aqui seria a
+            mesma história inventada que esta seção já teve uma vez.
+
+            Os ícones são os das três telas de hábito, na mesma ordem da
+            lista de cima: quem viu a lista lê a fileira sem legenda. */}
+        {historico.length ? (
+          <Bloco
+            titulo="Semanas anteriores"
+            nota="As metas de hoje, medidas nos registros de cada semana."
+          >
+            <Cartao>
+              {historico.map((w) => (
+                <Row key={w.semana} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="body">Semana {w.semana}</Txt>
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
+                      {fmtPeriodo(new Date(w.de), new Date(w.ate))}
+                    </Txt>
+                  </View>
+                  <Row gap={13}>
+                    {w.metas.map((m) => {
+                      const bateu = m.feito >= m.alvo;
+                      return (
+                        <Row key={m.ic} gap={4}>
+                          <Icon name={m.ic} size={13} color={bateu ? c.accent : c.tx4} sw={2} />
+                          <Txt v="micro" c={bateu ? c.accent : c.tx3}>{m.feito}/{m.alvo}</Txt>
+                        </Row>
+                      );
+                    })}
+                  </Row>
+                </Row>
+              ))}
+            </Cartao>
+          </Bloco>
+        ) : null}
       </FolhaDeHabito>
     </TelaDeHabito>
   );

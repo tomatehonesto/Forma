@@ -92,17 +92,28 @@ export function buildSeed() {
      história de um app que ainda não guardava goles. Semente não é dado
      legado; ela é o app funcionando.
 
-     O dia de semana bebe seis vezes e chega a 1,75 L; sábado e domingo
-     bebem menos e mais tarde, que é o que acontece com quem não tem a
-     garrafa da mesa de trabalho por perto. Nenhum dos três alcança os
-     2,5 L da meta, e isso é de propósito: a tela existe para quem está
-     tentando chegar lá. */
-  const GOLES_SEMANA: [number, number][] = [[7.3, 250], [9.8, 250], [12.5, 500], [15.7, 250], [18.3, 250], [21.2, 250]];
-  const GOLES_SABADO: [number, number][] = [[10.3, 250], [13.5, 500], [17, 250], [21, 250]];
-  const GOLES_DOMINGO: [number, number][] = [[9.7, 250], [13.2, 500], [19, 250]];
+     QUATRO DIAS POSSÍVEIS, do mais seco ao que bate a meta. O dia de
+     semana bebe melhor que o fim de semana — sem a garrafa da mesa de
+     trabalho, bebe-se menos e mais tarde. */
+  const AGUA: Record<string, [number, number][]> = {
+    seco: [[9.7, 250], [13.2, 500], [19, 250]],                                              // 1 L
+    meio: [[10.3, 250], [13.5, 500], [17, 250], [21, 250]],                                  // 1,25 L
+    bom: [[7.3, 250], [9.8, 250], [12.5, 500], [15.7, 250], [18.3, 250], [21.2, 250]],       // 1,75 L
+    otimo: [[7.2, 250], [9.5, 250], [11.8, 500], [14.3, 250], [16.5, 500], [18.6, 250], [21, 500]], // 2,5 L
+  };
+  const ESCALA = ['seco', 'meio', 'bom', 'otimo'];
+  /* COMO CADA SEMANA FOI, da atual para trás. Não é uma linha reta: tem
+     semana boa, semana de viagem e semana em que ninguém lembrou de
+     encher a garrafa — que é como hidratação funciona de verdade, e é o
+     que dá o que mostrar no histórico do protocolo. Uma semente que
+     repetisse o mesmo dia cinquenta vezes faria a tela de semanas
+     anteriores parecer quebrada. */
+  const NIVEL_DA_SEMANA = ['bom', 'bom', 'otimo', 'meio', 'bom', 'otimo', 'seco', 'meio', 'bom'];
   const golesDe = (d: number) => {
     const wd = daysAgo(d).getDay();
-    return wd === 0 ? GOLES_DOMINGO : wd === 6 ? GOLES_SABADO : GOLES_SEMANA;
+    const base = NIVEL_DA_SEMANA[Math.min(Math.floor(d / 7), NIVEL_DA_SEMANA.length - 1)];
+    const i = Math.max(0, ESCALA.indexOf(base) - (wd === 0 || wd === 6 ? 1 : 0));
+    return AGUA[ESCALA[i]];
   };
   /* Hoje entra pela metade: dois copos da manhã, e o resto do dia por
      acontecer. Zerado, o caderno de água abriria vazio no único dia em
@@ -183,15 +194,24 @@ export function buildSeed() {
       refluxo: postInj ? 1 : 0, ansiedade: wd === 1 ? 2 : (d % 3 === 0 ? 1 : 0), constip: postInj ? 2 : 0,
     });
   }
-  /* As semanas anteriores entram só com movimento — nem humor, nem sono,
-     nem fome. Um registro que tem apenas acumuladores não conta como
-     check-in respondido, então a sequência e a contagem do mês continuam
-     falando das duas semanas que a pessoa de fato preencheu. Inventar
-     dois meses de check-in completo para encher um gráfico seria pagar a
-     curva com um histórico falso em cinco outras telas. */
+  /* As semanas anteriores entram só com ACUMULADORES — nem humor, nem
+     sono, nem fome. Um registro que tem apenas acumuladores não conta
+     como check-in respondido, então a sequência e a contagem do mês
+     continuam falando das duas semanas que a pessoa de fato preencheu.
+     Inventar dois meses de check-in completo para encher um gráfico seria
+     pagar a curva com um histórico falso em cinco outras telas.
+
+     E a água entra junto, que antes não entrava. Ela é acumulador como
+     proteína e exercício, e ficava de fora sem motivo: quarenta e dois
+     dias com prato e treino registrados e nenhuma gota d'água é retrato
+     de ninguém. Era também o que deixava o caderno de água vazio antes de
+     duas semanas atrás, e o histórico do protocolo sem o que contar. */
   for (let d = 55; d >= 14; d--) {
+    const base = +startOfDay(daysAgo(d));
     checkins.push({
-      t: +startOfDay(daysAgo(d)),
+      t: base,
+      agua: coposDe(golesDe(d)),
+      aguas: emGoles(base, golesDe(d)),
       prot: protDoDia(d),
       exerc: minDoDia(d),
       treinos: SESSOES[d],
