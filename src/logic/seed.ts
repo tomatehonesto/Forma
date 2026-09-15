@@ -281,9 +281,9 @@ export function buildSeed() {
        número que ninguém tinha como mexer. Ela é o que sempre foi —
        ainda não, ou conseguiu em tal dia. */
     goals: [
-      { id: 'g2', ic: 'moon', label: 'Dormir 7h+ nas noites de semana', kind: 'sono' },
-      { id: 'g4', ic: 'bolt', label: 'Dias com energia de 7 para cima', kind: 'energia' },
-      { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', kind: 'pessoal', feita: false, em: null },
+      { id: 'g2', ic: 'moon', label: 'Dormir 7h por noite', indicador: 'sono', alvo: 7 },
+      { id: 'g4', ic: 'bolt', label: 'Energia 4 ou mais', indicador: 'energia', alvo: 4 },
+      { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
 

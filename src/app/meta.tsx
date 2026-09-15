@@ -3,11 +3,11 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, apagarMeta, guardarMetaMedida, guardarMetaPessoal, indicadoresLivres,
-  journeyGoals, marcarMeta, mudarAlvo, type ChaveDeAlvo,
+  ALVOS, apagarMeta, guardarMetaMedida, guardarMetaPessoal, indicadoresLivres, padraoDe,
+  journeyGoals, marcarMeta, mudarAlvo, type ChaveDeAlvo, type Indicador,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { Campo, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { Campo, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -80,6 +80,10 @@ export default function Meta() {
   /* ---------------- uma meta nova ---------------- */
   const [texto, setTexto] = useState('');
   const [escrevendo, setEscrevendo] = useState(false);
+  /* O indicador escolhido no primeiro passo, e o número que a pessoa está
+     ajustando no segundo. */
+  const [ind, setInd] = useState<Indicador | null>(null);
+  const [regua, setRegua] = useState(0);
 
   if (novo === '1') {
     const livres = indicadoresLivres(S);
@@ -87,27 +91,85 @@ export default function Meta() {
       update((s: any) => guardarMetaPessoal(s, texto));
       router.back();
     };
-    const pegar = (id: string) => {
-      update((s: any) => guardarMetaMedida(s, id));
+    const abrir = (i: Indicador) => { setInd(i); setRegua(padraoDe(i, S)); };
+    const guardar = () => {
+      if (!ind) return;
+      update((s: any) => guardarMetaMedida(s, ind.id, regua));
       router.back();
     };
 
-    /* ESCREVER É O SEGUNDO ANDAR, e não o primeiro.
+    /* SEGUNDO PASSO: A RÉGUA.
+
+       A lista oferecia a régua pronta — "Dormir 7h+", "Enjoo em 2 ou
+       menos". Sete horas é o que a literatura repete e ainda assim é um
+       palpite sobre a vida de alguém: quem dorme cinco e quer chegar a
+       seis não tinha onde dizer isso, e quem já dorme oito recebia uma
+       meta que já nasceu cumprida.
+
+       Escolher a COISA e escolher o NÚMERO são duas decisões, e a segunda
+       é a que é pessoal. */
+    if (ind) {
+      const passos = ind.passos;
+      const mexe = (n: number) => passos && setRegua((x) => Math.max(
+        passos.min, Math.min(passos.max, Math.round((x + n * passos.passo) * 100) / 100),
+      ));
+      return (
+        <SheetScreen
+          titulo={ind.nome}
+          sub={ind.pergunta}
+          onClose={() => setInd(null)}
+          rodape={<Botao label="Guardar meta" onPress={guardar} />}
+        >
+          <View style={{ marginTop: 20, gap: 14 }}>
+            {/* A MESMA RÉGUA DO CHECK-IN, com as mesmas palavras. Energia e
+                fome são guardadas de 0 a 10 e perguntadas de 1 a 5; a meta
+                dizia "energia de 7 para cima", que é um número que ninguém
+                nunca viu em tela nenhuma. */}
+            {/* Sem rótulo de campo: a pergunta já é o subtítulo da folha, e
+                repeti-la um centímetro abaixo em caixa alta é o mesmo texto
+                pedindo a mesma coisa duas vezes. */}
+            {ind.escala ? (
+              <Escala
+                valores={ind.escala.valores}
+                valor={regua}
+                legendas={ind.escala.legendas}
+                onChange={(v) => setRegua(Number(v))}
+              />
+            ) : passos ? (
+              <Stepper
+                valor={ind.escreve(regua)}
+                unidade=""
+                onMenos={() => mexe(-1)}
+                onMais={() => mexe(1)}
+              />
+            ) : null}
+
+            {/* O QUE A META VAI DIZER, montada com o número escolhido. É a
+                única forma de escolher sabendo o que se vai ver depois — e
+                ela muda enquanto a pessoa mexe. */}
+            <Aviso
+              ic="target"
+              dentro
+              titulo={ind.rotulo(regua)}
+              texto={`O app conta assim: ${ind.conta(regua).toLowerCase()}. Só os dias que você respondeu entram na conta.`}
+            />
+          </View>
+        </SheetScreen>
+      );
+    }
+
+    /* ESCREVER É O ÚLTIMO ANDAR, e não o primeiro.
 
        A folha pedia direto um texto livre — e texto livre vira meta que o
        app não sabe acompanhar, porque ele não tem como adivinhar que
-       "dormir melhor" é a coluna `sono`. A pessoa escrevia uma meta
-       mensurável e recebia uma caixinha para marcar à mão.
-
-       Com a lista na frente, o que o app SABE CONTAR aparece primeiro, e
-       o texto livre fica para o que ele não tem como medir mesmo — uma
-       calça, uma viagem, subir a escada sem parar. */
+       "dormir melhor" é a coluna sono. A pessoa escrevia uma meta
+       mensurável e recebia uma caixinha para marcar à mão. */
     if (escrevendo) {
       return (
         <SheetScreen
           titulo="Outra meta"
           sub="Uma coisa que só você sabe dizer quando chegou"
-          onClose={() => router.back()}
+          onClose={() => setEscrevendo(false)}
           rodape={(
             <Botao
               label={texto.trim() ? 'Guardar meta' : 'Escreva a meta'}
@@ -145,23 +207,22 @@ export default function Meta() {
     return (
       <SheetScreen
         titulo="Nova meta"
-        sub="Escolha uma que o app acompanha, ou escreva a sua"
+        sub="Escolha o que o app acompanha, ou escreva a sua"
         onClose={() => router.back()}
       >
         <View style={{ marginTop: 18, gap: 10 }}>
-          {/* AS QUE O APP CONTA. Cada uma diz, embaixo, exatamente o que
-              vai ser contado — sem isso "enjoo sob controle" é uma
-              promessa, e com isso é uma régua: dias com enjoo em 2 ou
-              menos. A pessoa escolhe sabendo o que vai ver depois. */}
+          {/* AS QUE O APP CONTA, pelo nome genérico. O número vem no toque
+              seguinte — a lista diz de QUE coisa se trata, e a régua é de
+              quem está criando a meta. */}
           {livres.length ? (
             <Cartao>
               {livres.map((i) => (
                 <Linha
                   key={i.id}
                   ic={i.ic}
-                  titulo={i.label}
-                  sub={i.conta}
-                  onPress={() => pegar(i.id)}
+                  titulo={i.nome}
+                  sub={i.origem}
+                  onPress={() => abrir(i)}
                 />
               ))}
             </Cartao>
@@ -246,12 +307,19 @@ export default function Meta() {
              contradizer o próprio registro — é a mesma regra do
              protocolo. O que dá para fazer com ela é responder o
              check-in, que é onde o número nasce. */
-          <Aviso
-            ic="leaf"
-            dentro
-            titulo={meta.conta || 'Esta o app conta sozinho'}
-            texto="Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa."
-          />
+          <View style={{ gap: 12 }}>
+            <Aviso
+              ic="leaf"
+              dentro
+              titulo={meta.conta || 'Esta o app conta sozinho'}
+              texto="Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa."
+            />
+            {/* APAGAR EXISTE NAS DUAS. A medida não se marca, mas ela é uma
+                meta como a outra: quem escolheu a régua errada precisa
+                poder desistir dela sem ter de conviver com uma barra que
+                não quer dizer nada. */}
+            <Botao label="Apagar" tom="perigo" onPress={apagar} />
+          </View>
         )}
       </View>
     </SheetScreen>

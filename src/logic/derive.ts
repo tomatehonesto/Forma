@@ -3,6 +3,7 @@ import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, DOW_PT, 
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem } from './prato';
+import { ENERGIA, FOME, HUMOR, SINTOMA, SONO, paraTela } from './escalas';
 import type { State } from './seed';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
@@ -1495,20 +1496,22 @@ export function journeyGoals(S: State): JourneyGoal[] {
       };
     }
 
-    const fatia = ind.filtra ? recentes.filter(ind.filtra) : recentes;
-    const { n, de } = contaDe(fatia, ind.campo, (v) => ind.bate(v, S));
+    const alvo = typeof g.alvo === 'number' ? g.alvo : padraoDe(ind, S);
+    const vals = recentes.map((c) => ind.leitura(c)).filter((v): v is number => v != null);
+    const n = vals.filter((v) => (ind.sentido === 'min' ? v >= alvo : v <= alvo)).length;
+    const de = vals.length;
     /* A CONTA, e não a porcentagem de novo. A linha dizia "85%" à
        direita e "85% das noites recentes" embaixo — o mesmo número duas
        vezes. "11 de 13 noites" responde de quantas noites falamos. */
     return {
-      id: g.id, ic: ind.ic, label: g.label,
+      id: g.id, ic: ind.ic, label: g.label || ind.rotulo(alvo),
       pct: de ? Math.round((n / de) * 100) : 0,
       hint: de
         ? `${n} de ${de} ${de === 1 ? ind.nomes[0] : ind.nomes[1]} ${ind.nomes[0] === 'noite' ? 'registradas' : 'registrados'}`
         : `sem ${ind.nomes[1]} registradas ainda`,
       pessoal: false,
       feita: false,
-      conta: ind.conta,
+      conta: ind.conta(alvo),
     };
   });
 }
@@ -2311,117 +2314,184 @@ export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number) {
    ele conta; o que só a pessoa sabe, ela diz.
    ============================================================ */
 /* ============================================================
-   OS INDICADORES — o que o app sabe contar
+   OS INDICADORES — o que o app sabe contar, e a régua que falta
 
-   Uma meta medida não é uma palavra especial no código: é uma meta
-   AMARRADA a um indicador. O indicador diz de qual coluna do check-in
-   ele vive, o que conta como acerto e como se chama o que ele conta —
-   noites, dias.
+   Um indicador é uma coluna do check-in mais uma DIREÇÃO: sono conta
+   para cima, enjoo conta para baixo. O que ele não traz é o número —
+   esse é de quem está criando a meta.
 
-   Antes eram dois casos escritos à mão dentro de journeyGoals, um `if`
-   para sono e outro para energia. Quem quisesse "menos enjoo" teria de
-   abrir o arquivo. Agora é uma linha nesta lista, e a tela de nova meta
-   mostra a lista inteira sem saber de nenhuma delas em particular.
+   A LISTA OFERECIA A RÉGUA PRONTA: "Dormir 7h+", "Enjoo em 2 ou menos".
+   Sete horas é o que a literatura repete, e mesmo assim é um palpite
+   sobre a vida de alguém — quem dorme cinco e quer chegar a seis não
+   tinha onde dizer isso, e quem já dorme oito recebia uma meta que já
+   nasceu cumprida. Escolher a coisa e escolher o número são duas
+   decisões, e a segunda é a que é pessoal.
 
-   E TODO INDICADOR CONTA SÓ OS DIAS RESPONDIDOS. Catorze dias com três
-   noites registradas não são "21% das noites" — são três noites, e duas
-   delas boas é 67%. É a mesma regra do resto do arquivo.
+   Agora a lista é genérica — "Horas de sono", "Enjoo" — e o número vem
+   no segundo toque, com a mesma régua e as mesmas palavras do check-in.
+
+   E É A RÉGUA DA TELA, NÃO A DO BANCO. Energia e fome são guardadas de
+   0 a 10 e perguntadas de 1 a 5; a meta dizia "energia de 7 para cima",
+   que é um número que ninguém nunca viu em tela nenhuma. A escolha
+   acontece em 1 a 5, com as legendas do check-in, e a leitura converte —
+   é a mesma fronteira que escalas.ts já documenta.
+
+   TODO INDICADOR CONTA SÓ OS DIAS RESPONDIDOS. Catorze dias com três
+   noites registradas não são "21% das noites": são três noites.
    ============================================================ */
 export type Indicador = {
   id: string;
   ic: string;
-  /** o texto que a meta ganha ao ser criada */
-  label: string;
-  /** o que ele conta, dito na hora de escolher */
-  conta: string;
-  /** a coluna do check-in */
-  campo: string;
+  /** o nome genérico, na lista de escolha: "Horas de sono" */
+  nome: string;
+  /** a pergunta do segundo passo */
+  pergunta: string;
+  /* DE ONDE SAI O NÚMERO, dito na lista. "Conta para cima" era o que
+     estava ali, e é coisa da régua — que só aparece no passo seguinte.
+     Antes de escolher, o que a pessoa precisa saber é se o app tem como
+     responder: se ela nunca registra refeição, a meta de proteína vai
+     ficar parada em zero e é melhor ela ver isso agora. */
+  origem: string;
   /** singular e plural do que se conta */
   nomes: [string, string];
-  /** a fatia de dias que entra, quando não são todos */
-  filtra?: (c: any) => boolean;
-  bate: (v: number, S: State) => boolean;
+  /** para cima (sono, proteína) ou para baixo (enjoo, fome) */
+  sentido: 'min' | 'max';
+  /** o palpite inicial — só um começo, não uma recomendação */
+  padrao: number;
+  /** quando o padrão sai da meta do perfil */
+  doPerfil?: (S: State) => number;
+  /** escolha por régua, com as legendas do check-in */
+  escala?: { valores: number[]; legendas?: string[] };
+  /** escolha por passos, quando o número é aberto */
+  passos?: { min: number; max: number; passo: number; un: string };
+  /** o valor do dia na régua da ESCOLHA; null quando não foi respondido */
+  leitura: (c: any) => number | null;
+  /** o nome que a meta ganha: "Dormir 7h por noite" */
+  rotulo: (v: number) => string;
+  /** o que ela conta, dito por extenso */
+  conta: (v: number) => string;
+  /** como o número aparece no seletor */
+  escreve: (v: number) => string;
 };
+
+const num = (c: any, k: string): number | null => (typeof c[k] === 'number' ? c[k] : null);
 
 export const INDICADORES: Indicador[] = [
   {
-    id: 'sono7u', ic: 'moon', label: 'Dormir 7h+ nas noites de semana',
-    conta: 'Noites de segunda a sexta com sete horas ou mais',
-    campo: 'sono', nomes: ['noite', 'noites'],
-    filtra: (c) => { const d = new Date(c.t).getDay(); return d >= 1 && d <= 5; },
-    bate: (v) => v >= 7,
+    id: 'sono', ic: 'moon', nome: 'Horas de sono',
+    pergunta: 'Quantas horas por noite?', origem: 'Do sono que você responde no check-in',
+    nomes: ['noite', 'noites'], sentido: 'min', padrao: 7,
+    escala: { valores: [5, 6, 7, 8, 9], legendas: SONO },
+    leitura: (c) => num(c, 'sono'),
+    escreve: (v) => `${v} h`,
+    rotulo: (v) => `Dormir ${v}h por noite`,
+    conta: (v) => `Noites com ${v}h ou mais`,
   },
   {
-    id: 'sono7', ic: 'moon', label: 'Dormir 7h+ todo dia',
-    conta: 'Noites com sete horas ou mais',
-    campo: 'sono', nomes: ['noite', 'noites'],
-    bate: (v) => v >= 7,
+    /* Energia e fome moram de 0 a 10 no banco e de 1 a 5 na tela. A
+       leitura converte com paraTela, que é a mesma função que o check-in
+       usa para reabrir uma resposta salva. */
+    id: 'energia', ic: 'bolt', nome: 'Energia no dia',
+    pergunta: 'De que nível para cima conta?', origem: 'Da energia que você responde no check-in',
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4,
+    escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA },
+    leitura: (c) => paraTela(c.energia),
+    escreve: (v) => `${v} de 5`,
+    rotulo: (v) => `Energia ${v} ou mais`,
+    conta: (v) => `Dias com energia ${v} ou mais, de 1 a 5`,
   },
   {
-    id: 'energia7', ic: 'bolt', label: 'Dias com energia de 7 para cima',
-    conta: 'Dias em que você marcou energia 7 ou mais',
-    campo: 'energia', nomes: ['dia', 'dias'],
-    bate: (v) => v >= 7,
+    id: 'humor', ic: 'mood', nome: 'Humor no dia',
+    pergunta: 'De que nível para cima conta?', origem: 'Do humor que você responde no check-in',
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4,
+    escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR },
+    leitura: (c) => num(c, 'mood'),
+    escreve: (v) => `${v} de 5`,
+    rotulo: (v) => `Humor ${v} ou mais`,
+    conta: (v) => `Dias com humor ${v} ou mais, de 1 a 5`,
   },
   {
-    id: 'humor4', ic: 'mood', label: 'Mais dias de bom humor',
-    conta: 'Dias em que o humor ficou em 4 ou 5',
-    campo: 'mood', nomes: ['dia', 'dias'],
-    bate: (v) => v >= 4,
+    /* Sintoma conta AO CONTRÁRIO: o acerto é o dia em que o número ficou
+       baixo. Sem o sentido, "menos enjoo" mostraria a barra crescendo
+       junto com o enjoo. */
+    id: 'enjoo', ic: 'waves', nome: 'Enjoo',
+    pergunta: 'Até que nível ainda conta como bom?', origem: 'Do enjoo que você marca no check-in',
+    nomes: ['dia', 'dias'], sentido: 'max', padrao: 2,
+    escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA.nausea },
+    leitura: (c) => num(c, 'nausea'),
+    escreve: (v) => `${v} de 5`,
+    rotulo: (v) => `Enjoo ${v} ou menos`,
+    conta: (v) => `Dias com enjoo ${v} ou menos, de 1 a 5`,
   },
   {
-    /* Sintomas contam ao CONTRÁRIO: o acerto é o dia em que o número
-       ficou baixo. Sem isso a meta "menos enjoo" mostraria a barra
-       crescendo junto com o enjoo. */
-    id: 'enjoo', ic: 'waves', label: 'Enjoo sob controle',
-    conta: 'Dias com enjoo em 2 ou menos',
-    campo: 'nausea', nomes: ['dia', 'dias'],
-    bate: (v) => v <= 2,
+    id: 'fome', ic: 'soup', nome: 'Fome',
+    pergunta: 'Até que nível ainda conta como bom?', origem: 'Da fome que você responde no check-in',
+    nomes: ['dia', 'dias'], sentido: 'max', padrao: 3,
+    escala: { valores: [1, 2, 3, 4, 5], legendas: FOME },
+    leitura: (c) => paraTela(c.fome),
+    escreve: (v) => `${v} de 5`,
+    rotulo: (v) => `Fome ${v} ou menos`,
+    conta: (v) => `Dias com fome ${v} ou menos, de 1 a 5`,
   },
   {
-    id: 'fome', ic: 'soup', label: 'Fome sob controle',
-    conta: 'Dias com fome em 5 ou menos',
-    campo: 'fome', nomes: ['dia', 'dias'],
-    bate: (v) => v <= 5,
+    /* Os três de baixo começam na meta do PERFIL, que é o número que a
+       pessoa já persegue todo dia — mas continuam livres: dá para pôr uma
+       meta de proteína mais baixa do que a diária e ir subindo. */
+    id: 'prot', ic: 'utensils', nome: 'Proteína por dia',
+    pergunta: 'Quantos gramas por dia?', origem: 'Das refeições que você registra',
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 90,
+    doPerfil: (S) => (S.profile as any).targets.prot,
+    passos: { min: 40, max: 220, passo: 5, un: 'g' },
+    leitura: (c) => num(c, 'prot'),
+    escreve: (v) => `${Math.round(v)} g`,
+    rotulo: (v) => `Comer ${Math.round(v)} g de proteína`,
+    conta: (v) => `Dias com ${Math.round(v)} g ou mais`,
   },
   {
-    /* Estes três comparam com a META DO PERFIL, e não com um número
-       cravado: quem subir a proteína para 110 g passa a ver esta meta
-       cobrando 110, sem ter de refazer nada. */
-    id: 'prot', ic: 'utensils', label: 'Bater a proteína do dia',
-    conta: 'Dias que alcançaram a meta de proteína',
-    campo: 'prot', nomes: ['dia', 'dias'],
-    bate: (v, S) => v >= (S.profile as any).targets.prot,
+    id: 'agua', ic: 'water', nome: 'Água por dia',
+    pergunta: 'Quanto por dia?', origem: 'Da água que você registra',
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 2500,
+    doPerfil: (S) => (S.profile as any).targets.waterMl,
+    passos: { min: 750, max: 5000, passo: 250, un: 'L' },
+    leitura: (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
+    escreve: (v) => `${litros(v)} L`,
+    rotulo: (v) => `Beber ${litros(v)} L de água`,
+    conta: (v) => `Dias com ${litros(v)} L ou mais`,
   },
   {
-    id: 'agua', ic: 'water', label: 'Bater a água do dia',
-    conta: 'Dias que alcançaram a meta de água',
-    campo: 'agua', nomes: ['dia', 'dias'],
-    bate: (v, S) => v * CUP_ML >= (S.profile as any).targets.waterMl,
-  },
-  {
-    id: 'exerc', ic: 'dumbbell', label: 'Se mexer todo dia',
-    conta: 'Dias com algum movimento registrado',
-    campo: 'exerc', nomes: ['dia', 'dias'],
-    bate: (v) => v > 0,
+    id: 'exerc', ic: 'dumbbell', nome: 'Minutos de movimento',
+    pergunta: 'Quantos minutos por dia?', origem: 'Dos treinos que você registra',
+    nomes: ['dia', 'dias'], sentido: 'min', padrao: 30,
+    passos: { min: 10, max: 180, passo: 10, un: 'min' },
+    leitura: (c) => num(c, 'exerc'),
+    escreve: (v) => `${Math.round(v)} min`,
+    rotulo: (v) => `Se mexer ${Math.round(v)} min por dia`,
+    conta: (v) => `Dias com ${Math.round(v)} min ou mais`,
   },
 ];
 
 export const indicadorDe = (id?: string | null) =>
   INDICADORES.find((x) => x.id === id) || null;
 
+/** O número com que o seletor abre: a meta do perfil quando existe. */
+export const padraoDe = (i: Indicador, S: State) => (i.doPerfil ? i.doPerfil(S) : i.padrao);
+
 /* Os indicadores que ainda não viraram meta. Duas metas medindo a mesma
-   coluna seriam duas linhas com o mesmo número — e a segunda não teria
-   como ser diferente da primeira. */
+   coluna seriam duas linhas quase iguais, e a segunda teria de explicar
+   por que difere da primeira. */
 export function indicadoresLivres(S: State): Indicador[] {
   const usados = new Set(((S.goals || []) as any[]).map((g) => g.indicador || KIND_ANTIGO[g.kind]));
   return INDICADORES.filter((i) => !usados.has(i.id));
 }
 
-/* As metas guardadas antes de existir indicador traziam `kind`. Elas
+/* As metas guardadas antes de existir indicador traziam `kind`, e as da
+   primeira versão do catálogo traziam a régua no id ('sono7u'). As duas
    continuam valendo: o app traduz na leitura, e ninguém perde a meta de
    sono por causa de uma mudança de formato. */
-const KIND_ANTIGO: Record<string, string> = { sono: 'sono7u', energia: 'energia7' };
+const KIND_ANTIGO: Record<string, string> = {
+  sono: 'sono', energia: 'energia',
+  sono7u: 'sono', sono7: 'sono', energia7: 'energia', humor4: 'humor',
+};
 
 export type Meta = {
   id: string;
@@ -2429,6 +2499,8 @@ export type Meta = {
   label: string;
   /** o indicador que o app conta; sem ele, a meta é pessoal */
   indicador?: string | null;
+  /** o número que a pessoa escolheu para ele */
+  alvo?: number;
   /** só nas pessoais */
   feita?: boolean;
   /** o dia em que ela foi conquistada */
@@ -2444,11 +2516,15 @@ export function guardarMetaPessoal(s: any, label: string) {
   }];
 }
 
-/** Uma meta amarrada a um indicador — o app conta, ela não se marca. */
-export function guardarMetaMedida(s: any, idIndicador: string) {
+/** Uma meta amarrada a um indicador e a um número — o app conta, ela não
+    se marca. O rótulo sai do indicador com o alvo dentro, para a lista
+    não ter de remontar a frase. */
+export function guardarMetaMedida(s: any, idIndicador: string, alvo: number) {
   const i = indicadorDe(idIndicador);
   if (!i) return;
-  s.goals = [...(s.goals || []), { id: 'g' + Date.now(), ic: i.ic, label: i.label, indicador: i.id }];
+  s.goals = [...(s.goals || []), {
+    id: 'g' + Date.now(), ic: i.ic, label: i.rotulo(alvo), indicador: i.id, alvo,
+  }];
 }
 
 export function apagarMeta(s: any, id: string) {
