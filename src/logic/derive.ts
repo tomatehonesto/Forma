@@ -51,10 +51,15 @@ export const cadenciaDias = (S: State) => {
   return typeof i === 'number' && i > 0 ? i : CADENCE_DAYS(S.profile.med);
 };
 
-/** A idade, contada do ano de nascimento. */
+/** A idade, contada da data de nascimento — inclusive se já fez anos. */
 export const idadeDe = (S: State) => {
-  const ano = (S.profile as any).nascimento;
-  return typeof ano === 'number' ? now().getFullYear() - ano : null;
+  const t = (S.profile as any).nascimento;
+  if (typeof t !== 'number') return null;
+  const d = new Date(t); const h = now();
+  let anos = h.getFullYear() - d.getFullYear();
+  const m = h.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && h.getDate() < d.getDate())) anos -= 1;
+  return anos;
 };
 
 /* COMO A CADÊNCIA SE ESCREVE, em dois comprimentos.
@@ -1097,15 +1102,13 @@ export type PlanoInicial = {
   prot: number;
   /** mililitros por dia */
   agua: number;
-  /** percentual — a meta de gordura corporal; null sem sexo informado */
-  gordura: number | null;
   /** semanas até a meta, no ritmo escolhido; null quando não há o que perder */
   semanas: number | null;
   chegada: number | null;
 };
 
 export function planoDoCadastro(d: {
-  sexo: 'f' | 'm' | null; altura: number; peso: number; meta: number; ritmo: number | null;
+  altura: number; peso: number; meta: number; ritmo: number | null;
 }): PlanoInicial {
   const perder = d.peso - d.meta;
   const semanas = d.ritmo && perder > 0 ? Math.ceil(perder / d.ritmo) : null;
@@ -1116,16 +1119,14 @@ export function planoDoCadastro(d: {
        tem — ela nasce de uma regra de bolso sobre um peso digitado. */
     prot: Math.round((d.peso * 1.2) / 5) * 5,
     agua: Math.round((d.peso * 35) / 100) * 100,
-    /* A meta de gordura corporal é a única coisa do plano que depende do
-       sexo, e é a razão de a pergunta existir: 28% era o padrão fixo da
-       semente, que é a ponta saudável para mulheres e não serve para
-       homens. As faixas usuais são 18–28% e 10–20%.
+    /* A META DE GORDURA CORPORAL SAIU DAQUI, e não por acaso.
 
-       Quem prefere não informar fica sem meta de gordura, e isso é o
-       certo: não há número que sirva para os dois, e escolher um seria o
-       app decidir o sexo da pessoa por conta própria depois de ela ter
-       dito que não queria dizer. */
-    gordura: d.sexo == null ? null : d.sexo === 'f' ? 28 : 20,
+       Ela dependia do sexo biológico — 28% é a ponta saudável para
+       mulheres, 20% para homens —, e o cadastro deixou de perguntar isso:
+       pergunta agora como a pessoa se IDENTIFICA, que é outra coisa.
+       Derivar um alvo clínico da identidade de gênero seria imprecisão
+       silenciosa no pior lugar. Enquanto não houver de onde tirar, a meta
+       continua a padrão do app e muda no perfil. */
     semanas,
     chegada: semanas ? +addDays(startOfDay(now()), semanas * 7) : null,
   };
@@ -3081,6 +3082,16 @@ export function penStock(S: State) {
    Antes de começar o que existe é contagem regressiva; depois, o dia. E
    a semana só entra quando existe semana. */
 export function diaDoTratamento(S: State) {
+  /* SEM NENHUMA APLICAÇÃO, NÃO HÁ DIA DE TRATAMENTO A CONTAR.
+
+     O cadastro deixou de perguntar a data a quem ainda vai começar —
+     muita gente chega ao app antes de ter receita, e pedir uma data que
+     ela não tem é pedir um palpite para guardar como fato. Para essa
+     pessoa startT é o dia do cadastro, e sem esta guarda a Home abriria
+     dizendo "Dia 1 do tratamento" para quem nunca aplicou nada.
+
+     O tratamento começa na primeira dose, e é ela que passa a contar. */
+  if (!S.injections.length) return { antes: true, texto: 'Antes da primeira dose' };
   const d = diffDays(now(), new Date(S.profile.startT));
   if (d < 0) return { antes: true, texto: d === -1 ? 'Começa amanhã' : `Começa em ${-d} dias` };
   return { antes: false, texto: `Dia ${d + 1} do tratamento` };

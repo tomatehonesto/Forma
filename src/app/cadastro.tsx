@@ -52,33 +52,37 @@ import { radius, ty, font } from '../theme';
    tire: é o mesmo critério das outras.
    ============================================================ */
 
-type Id = 'nome' | 'sexo' | 'idade' | 'tratamento' | 'medicamento' | 'dose' | 'corpo'
-  | 'meta' | 'motivacao' | 'movimento' | 'inicio' | 'acompanhamento';
+type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'medicamento' | 'dose'
+  | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade' | 'inicio' | 'recomendacao';
 
-/* SEXO E IDADE EM TELAS SEPARADAS. Estavam juntos numa só, com um
-   parágrafo de três linhas explicando as duas de uma vez — e duas
-   perguntas embaixo de uma explicação é a pessoa lendo para descobrir
-   qual parte vale para qual campo. Uma pergunta por tela é a regra do
-   resto do fluxo; não havia motivo para estas duas serem exceção. */
-const PASSOS: Id[] = [
-  'nome', 'sexo', 'idade', 'tratamento', 'medicamento', 'dose', 'corpo',
-  'meta', 'motivacao', 'movimento', 'inicio', 'acompanhamento',
+/* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
+
+   Muita gente chega ao app antes de ter receita, e perguntar a data a
+   essa pessoa é pedir um palpite para guardar como fato — a data que
+   importa é a da primeira dose, e ela vai ser registrada quando
+   acontecer. Para quem já aplicou, a pergunta fica: é ela que dá sentido
+   a "semana 11 do tratamento". */
+const TODOS: Id[] = [
+  'nome', 'identidade', 'nascimento', 'tratamento', 'medicamento', 'dose',
+  'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'inicio', 'recomendacao',
 ];
 
-/* O MOVIMENTO É PERGUNTADO COMO ROTINA E GUARDADO COMO META.
+/* O NÍVEL DE ATIVIDADE DESCREVE O CENÁRIO, e não define meta.
 
-   "Você é sedentário?" é uma pergunta sobre a pessoa que não devolve nada
-   — e ninguém responde "sim" de bom grado. A rotina, essa ela responde
-   sem pensar, e o app converte em minutos por dia, que é o que as barras
-   da Home, o card da semana em /exercicio e o radar leem.
+   A versão anterior perguntava a rotina e convertia a resposta em minutos
+   por dia — quem dizia "quase não me movimento" saía do cadastro com uma
+   meta de 20 minutos. Virou pelo avesso: a pergunta é sobre onde a pessoa
+   ESTÁ, e o que o app faz com isso é saber com quem está falando. A meta
+   diária de movimento continua a padrão do app, e muda no perfil.
 
-   O número aparece na própria opção de propósito: é ele que vai virar
-   meta, e esconder isso seria decidir por ela sem contar. */
-const MOVIMENTO: { id: string; titulo: string; sub: string; min: number }[] = [
-  { id: 'parado', titulo: 'Quase não me movimento', sub: 'meta de 20 min por dia', min: 20 },
-  { id: 'leve', titulo: 'Caminho de vez em quando', sub: 'meta de 30 min por dia', min: 30 },
-  { id: 'ativo', titulo: 'Me exercito 3 ou 4 vezes por semana', sub: 'meta de 45 min por dia', min: 45 },
-  { id: 'muito', titulo: 'Me exercito quase todo dia', sub: 'meta de 60 min por dia', min: 60 },
+   Os quatro degraus são os de sempre nesse tipo de escala, com o que cada
+   um quer dizer em dias por semana — sem isso "levemente ativo" é
+   autoavaliação, e cada pessoa se põe num degrau diferente. */
+const ATIVIDADE: { id: string; titulo: string; sub: string }[] = [
+  { id: 'sedentario', titulo: 'Sedentário', sub: 'pouco ou nenhum exercício' },
+  { id: 'leve', titulo: 'Levemente ativo', sub: '1 a 3 dias por semana' },
+  { id: 'moderado', titulo: 'Moderadamente ativo', sub: '3 a 5 dias por semana' },
+  { id: 'muito', titulo: 'Muito ativo', sub: '6 a 7 dias por semana' },
 ];
 
 /* O RITMO É META, NÃO PREVISÃO.
@@ -108,10 +112,17 @@ const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
   { id: 'medico', titulo: 'Orientação médica', sub: 'foi indicação de quem me acompanha', ic: 'steth' },
 ];
 
+const MESES = [
+  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+];
+
 type Respostas = {
   nome: string;
-  sexo: 'f' | 'm' | 'n' | null;
-  nascimento: number;
+  identidade: 'f' | 'm' | 'o' | null;
+  /* dia, mês (0–11) e ano, guardados soltos porque a roda mexe um de cada
+     vez e o dia 31 tem que sobreviver a um passeio por fevereiro. */
+  dia: number; mes: number; ano: number;
   emTratamento: boolean | null;
   med: string | null;
   dose: number | null;
@@ -121,23 +132,23 @@ type Respostas = {
   meta: number;
   ritmo: number | null;
   motivacao: string | null;
-  movimento: string | null;
+  atividade: string | null;
   inicio: number | null;
-  acompanhado: boolean | null;
-  quem: string;
+  recomendado: boolean | null;
   codigo: string;
 };
 
 const VAZIO: Respostas = {
-  nome: '', sexo: null,
-  /* Altura, peso, meta e ano nascem com um número porque o controle deles
-     é um stepper: ele precisa de uma posição de partida para a pessoa
-     subir ou descer a partir dali. Não são recomendação nenhuma. */
-  nascimento: 1990,
+  nome: '', identidade: null,
+  /* Data, altura, peso e meta nascem com um número porque os controles
+     deles são roda e régua: os dois precisam de uma posição de partida
+     para a pessoa arrastar a partir dali. Não são recomendação nenhuma —
+     são o meio da faixa. */
+  dia: 1, mes: 0, ano: 1990,
   emTratamento: null, med: null, dose: null, intervalo: null,
   altura: 1.7, peso: 80, meta: 70, ritmo: null,
-  motivacao: null, movimento: null, inicio: null,
-  acompanhado: null, quem: '', codigo: '',
+  motivacao: null, atividade: null, inicio: null,
+  recomendado: null, codigo: '',
 };
 
 /* ------------------------------------------------------------------ */
@@ -362,6 +373,9 @@ function Rotulo({ children }: { children: React.ReactNode }) {
 
    Continua digitável: mover de um em um é bom para ajustar, péssimo para
    ir de 1990 a 1975. */
+/* O corpo do número grande — o mesmo no contador e na régua. */
+const NUMERO = { fontFamily: font.light, fontSize: 52, lineHeight: 60, letterSpacing: -1.5 };
+
 function Contador({ valor, unidade, nota, onMenos, onMais, onDigitar }: {
   valor: string; unidade?: string; nota?: string;
   onMenos: () => void; onMais: () => void; onDigitar?: (v: string) => void;
@@ -371,7 +385,7 @@ function Contador({ valor, unidade, nota, onMenos, onMais, onDigitar }: {
     width: 56, height: 56, borderRadius: 28, backgroundColor: c.bg1,
     alignItems: 'center' as const, justifyContent: 'center' as const,
   };
-  const numero = { fontFamily: font.light, fontSize: 52, lineHeight: 60, letterSpacing: -1.5 };
+  const numero = NUMERO;
   return (
     <View style={{ gap: 12 }}>
       <Row style={{ alignItems: 'center' }}>
@@ -401,6 +415,225 @@ function Contador({ valor, unidade, nota, onMenos, onMais, onDigitar }: {
         </Pressable>
       </Row>
       {nota ? <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{nota}</Txt> : null}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* A RODA — a lista que rola até parar no valor.
+
+   É o controle de data de todo sistema operacional, e é o certo aqui
+   pelo mesmo motivo que o é lá: escolher um dia entre trinta e um, ou um
+   ano entre noventa, com mais e menos custaria dezenas de toques. A roda
+   atravessa a lista inteira num gesto.
+
+   O valor sai da POSIÇÃO DA ROLAGEM, quadro a quadro, e não de um evento
+   de "parou de rolar". Na web aquele evento não chega de forma
+   confiável, e sem ele a roda girava bonito e não mudava nada.
+
+   A rolagem programática acontece uma vez, na montagem. Mandá-la para o
+   valor a cada render criaria a briga clássica: o dedo empurra, o código
+   devolve, e a lista treme no lugar. */
+function Roda({ itens, valor, onEscolhe, largura }: {
+  itens: { v: number; label: string }[];
+  valor: number; onEscolhe: (v: number) => void; largura?: number;
+}) {
+  const { c } = useTheme();
+  const ALT = 44;
+  const VISIVEIS = 5;
+  const ref = React.useRef<ScrollView>(null);
+  const montou = React.useRef(false);
+  const i = Math.max(0, itens.findIndex((x) => x.v === valor));
+
+  /* PRIMEIRO POSICIONA, DEPOIS ESCUTA.
+
+     Sem esta trava a roda estragava a resposta que já existia: ao montar,
+     a lista reporta deslocamento zero, o onScroll lê zero como "parou no
+     primeiro item" e grava 1920 por cima de 1990 — antes mesmo de o
+     scrollTo ter acontecido. O quadro de folga garante que o salto
+     inicial já passou quando a escuta começa. */
+  const pronto = React.useRef(false);
+  React.useEffect(() => {
+    if (montou.current) return;
+    montou.current = true;
+    const t = setTimeout(() => {
+      ref.current?.scrollTo({ y: i * ALT, animated: false });
+      setTimeout(() => { pronto.current = true; }, 60);
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <View style={{ width: largura, height: ALT * VISIVEIS }}>
+      {/* A faixa do meio marca onde a lista para. Fica atrás dos números e
+          não recebe toque — é régua, não botão. */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute', left: 0, right: 0, top: ALT * 2, height: ALT,
+          backgroundColor: c.bg2, borderRadius: radius.md,
+        }}
+      />
+      <ScrollView
+        ref={ref}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={ALT}
+        decelerationRate="fast"
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          if (!pronto.current) return;
+          const k = Math.round(e.nativeEvent.contentOffset.y / ALT);
+          const item = itens[Math.max(0, Math.min(itens.length - 1, k))];
+          if (item && item.v !== valor) onEscolhe(item.v);
+        }}
+        contentContainerStyle={{ paddingVertical: ALT * 2 }}
+      >
+        {itens.map((x) => (
+          <View key={x.v} style={{ height: ALT, alignItems: 'center', justifyContent: 'center' }}>
+            <Txt v={x.v === valor ? 'bodyMed' : 'body'} c={x.v === valor ? c.tx : c.tx4}>
+              {x.label}
+            </Txt>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* A RÉGUA — o número que se arrasta, ou se digita.
+
+   Mais e menos servem para corrigir em um passo; não servem para dizer
+   quanto alguém pesa. A régua atravessa a faixa inteira num gesto e
+   mostra a vizinhança do valor — quem está em 82 vê 78 e 86 ao mesmo
+   tempo, e isso é o que um par de botões nunca mostra.
+
+   E o número em cima é tocável: para quem já sabe o seu, digitar é mais
+   rápido do que qualquer arrasto.
+
+   OS TRAÇOS SÃO MAIS ESPAÇADOS DO QUE O PASSO. O peso anda de cem em cem
+   gramas, e desenhar um traço por decigrama seriam mil e quatrocentas
+   vistas numa lista que rola. O traço marca a meia unidade; a parada
+   continua sendo a do passo, porque ela é do deslocamento, não do
+   desenho. */
+function Regua({ min, max, passo, tracoCada, casas, esp = 9, valor, unidade, onEscolhe }: {
+  min: number; max: number; passo: number; tracoCada: number; casas: number;
+  /* pixels por PASSO. O peso anda de cem em cem gramas e a altura de
+     centímetro em centímetro: com o mesmo espaçamento, atravessar quarenta
+     quilos viraria uma maratona de arrasto. */
+  esp?: number;
+  valor: number; unidade: string; onEscolhe: (v: number) => void;
+}) {
+  const { c } = useTheme();
+  const ESP = esp;
+  const ref = React.useRef<ScrollView>(null);
+  const montou = React.useRef(false);
+  const [larg, setLarg] = useState(0);
+  const [digitando, setDigitando] = useState(false);
+  const [rascunho, setRascunho] = useState('');
+
+  const aX = (v: number) => ((v - min) / passo) * ESP;
+  /* O SALTO INICIAL DEPENDE DA LARGURA, e a largura só existe depois do
+     primeiro layout — o recuo lateral do conteúdo é metade dela. Amarrado
+     a onContentSizeChange, o salto acontecia cedo demais e a régua abria
+     no lugar errado: o número dizia 80 e o marcador apontava 113.
+
+     Por efeito, ele espera a medida chegar e só então salta. E a escuta
+     começa depois do salto: ao montar, a lista reporta deslocamento zero,
+     e zero lido como resposta grava o mínimo da faixa por cima do valor
+     que já estava lá. */
+  const pronto = React.useRef(false);
+  React.useEffect(() => {
+    if (!larg || montou.current) return;
+    montou.current = true;
+    const t = setTimeout(() => {
+      ref.current?.scrollTo({ x: aX(valor), animated: false });
+      setTimeout(() => { pronto.current = true; }, 60);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [larg]);
+
+  const tracos: { v: number; forte: boolean }[] = [];
+  for (let v = min; v <= max + 1e-9; v = +(v + tracoCada).toFixed(6)) {
+    tracos.push({ v: +v.toFixed(casas), forte: Math.abs(v / (tracoCada * 10) - Math.round(v / (tracoCada * 10))) < 1e-6 });
+  }
+
+  return (
+    <View style={{ gap: 18 }}>
+      <Row style={{ justifyContent: 'center', alignItems: 'baseline', gap: 5 }}>
+        {digitando ? (
+          <TextInput
+            value={rascunho}
+            onChangeText={setRascunho}
+            onBlur={() => {
+              const x = parseFloat(rascunho.replace(',', '.'));
+              setDigitando(false);
+              if (!Number.isNaN(x)) {
+                const v = +Math.min(max, Math.max(min, x)).toFixed(casas);
+                onEscolhe(v);
+                ref.current?.scrollTo({ x: aX(v), animated: false });
+              }
+            }}
+            keyboardType="decimal-pad"
+            autoFocus
+            selectTextOnFocus
+            style={[NUMERO, SEM_ANEL, { color: c.tx, textAlign: 'right', width: 150, paddingVertical: 0 }]}
+          />
+        ) : (
+          <Pressable onPress={() => { setRascunho(nf(valor, casas)); setDigitando(true); }}>
+            <Txt style={NUMERO}>{nf(valor, casas)}</Txt>
+          </Pressable>
+        )}
+        <Txt v="body" c={c.tx2}>{unidade}</Txt>
+      </Row>
+
+      <View style={{ height: 74 }} onLayout={(e) => setLarg(Math.round(e.nativeEvent.layout.width))}>
+        {larg > 0 ? (
+          <>
+            <ScrollView
+              ref={ref}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={ESP}
+              decelerationRate="fast"
+              scrollEventThrottle={16}
+              onScroll={(e) => {
+                if (!pronto.current) return;
+                const v = +(min + Math.round(e.nativeEvent.contentOffset.x / ESP) * passo).toFixed(casas);
+                const dentro = Math.min(max, Math.max(min, v));
+                if (dentro !== valor) onEscolhe(dentro);
+              }}
+              contentContainerStyle={{ paddingHorizontal: larg / 2 }}
+            >
+              {/* O traço forte leva o número embaixo. Régua sem número é
+                  textura: ela mostra que existe uma faixa e não diz qual.
+                  Com o rótulo, a pessoa vê a vizinhança do próprio valor,
+                  que é a razão de a régua ganhar dos botões. */}
+              {tracos.map((t) => (
+                <View key={t.v} style={{ width: (tracoCada / passo) * ESP, height: 74 }}>
+                  <View style={{
+                    width: 1.5, height: t.forte ? 30 : 15, borderRadius: 1,
+                    backgroundColor: t.forte ? c.tx4 : c.line,
+                  }} />
+                  {t.forte ? (
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 6, marginLeft: -12, width: 28, textAlign: 'center' }}>
+                      {nf(t.v, casas === 2 ? 2 : 0)}
+                    </Txt>
+                  ) : null}
+                </View>
+              ))}
+            </ScrollView>
+            {/* O marcador do meio, em cima de tudo e sem toque. */}
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute', left: larg / 2 - 1.5, top: 0,
+                width: 3, height: 38, borderRadius: 2, backgroundColor: c.accent,
+              }}
+            />
+          </>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -573,9 +806,6 @@ export default function Cadastro() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const RESUMO = PASSOS.length;
-  const PLANO = PASSOS.length + 1;
-  /* -1 é a abertura, 0..10 são as perguntas, 11 é o resumo e 12 é o plano. */
   const [n, setN] = useState(-1);
   const [r, setR] = useState<Respostas>(VAZIO);
   const p = (x: Partial<Respostas>) => setR((v) => ({ ...v, ...x }));
@@ -585,54 +815,61 @@ export default function Cadastro() {
      O resumo promete "toque no lápis para mudar qualquer resposta", e
      mudar uma resposta não devia obrigar a atravessar as outras de novo. */
   const [doResumo, setDoResumo] = useState(false);
-  const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
 
   const futuro = r.emTratamento === false;
   const med = r.med ? MEDS[r.med] : null;
-  const mov = MOVIMENTO.find((x) => x.id === r.movimento) ?? null;
+  const ativ = ATIVIDADE.find((x) => x.id === r.atividade) ?? null;
   const motivo = MOTIVOS.find((x) => x.id === r.motivacao) ?? null;
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
 
+  /* A fila é montada a cada render porque ela depende de uma resposta:
+     quem ainda vai começar não responde QUANDO começou. */
+  const passos = useMemo(
+    () => TODOS.filter((x) => x !== 'inicio' || r.emTratamento === true),
+    [r.emTratamento],
+  );
+  const RESUMO = passos.length;
+  const PLANO = passos.length + 1;
+  const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
+
   const plano = useMemo(
-    () => planoDoCadastro({
-      sexo: r.sexo === 'f' || r.sexo === 'm' ? r.sexo : null,
-      altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo,
-    }),
-    [r.sexo, r.altura, r.peso, r.meta, r.ritmo],
+    () => planoDoCadastro({ altura: r.altura, peso: r.peso, meta: r.meta, ritmo: r.ritmo }),
+    [r.altura, r.peso, r.meta, r.ritmo],
   );
 
-  /* A PERGUNTA RESPONDIDA, uma por passo. É ela que liga o botão: sem a
-     resposta o "Continuar" fica desligado, e é assim que "obrigatória"
-     se diz sem precisar de mensagem de erro.
+  /* A PERGUNTA RESPONDIDA. É ela que liga o botão: sem a resposta o
+     "Continuar" fica desligado, e é assim que "obrigatória" se diz sem
+     precisar de mensagem de erro.
 
-     Duas respostas não travam nada, e por motivos diferentes: o RITMO só
-     existe para quem tem peso a perder, e o CÓDIGO de convite quem é
-     acompanhado por um profissional não parceiro simplesmente não tem —
-     barrar ali transformaria uma vantagem comercial em pedágio. */
-  const respondida: boolean[] = [
-    r.nome.trim().length > 1,
-    r.sexo != null,
-    true,
-    r.emTratamento != null,
-    r.med != null,
-    r.dose != null,
-    true,
-    perder <= 0 || r.ritmo != null,
-    r.motivacao != null,
-    r.movimento != null,
-    r.inicio != null,
-    r.acompanhado === false || (r.acompanhado === true && r.quem.trim().length > 1),
-  ];
+     Vai por id, e não por posição: a fila muda de tamanho conforme a
+     situação da pessoa, e índice fixo numa lista variável é como se
+     acerta a pergunta errada.
+
+     O RITMO só existe para quem tem peso a perder. E o CÓDIGO agora
+     trava: ele é o que prova que o profissional é mesmo o responsável —
+     sem ele, "vim por indicação" é afirmação sem lastro. */
+  const respondida = (x: Id): boolean => {
+    if (x === 'nome') return r.nome.trim().length > 1;
+    if (x === 'identidade') return r.identidade != null;
+    if (x === 'tratamento') return r.emTratamento != null;
+    if (x === 'medicamento') return r.med != null;
+    if (x === 'dose') return r.dose != null;
+    if (x === 'ritmo') return perder <= 0 || r.ritmo != null;
+    if (x === 'motivacao') return r.motivacao != null;
+    if (x === 'atividade') return r.atividade != null;
+    if (x === 'inicio') return r.inicio != null;
+    if (x === 'recomendacao') {
+      return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
+    }
+    return true;
+  };
 
   const salvar = () => {
     update((s: any) => {
       s.profile.name = r.nome.trim();
-      /* "Prefiro não informar" grava null, e não a letra: null é a
-         ausência, e quem lê depois não precisa saber que existiu uma
-         terceira opção na tela. */
-      s.profile.sexo = r.sexo === 'n' ? null : r.sexo;
-      s.profile.nascimento = r.nascimento;
+      s.profile.identidade = r.identidade;
+      s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
       s.profile.height = r.altura;
       s.profile.med = r.med;
       s.profile.dose = r.dose;
@@ -644,21 +881,20 @@ export default function Cadastro() {
       s.profile.goalWeight = r.meta;
       s.profile.ritmo = r.ritmo;
       s.profile.motivacao = r.motivacao;
-      s.profile.startT = r.inicio;
-      /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína, água e
-         gordura corporal vinham fixas em 90 g, 2,5 L e 28% — os números
-         de outra pessoa, lidos dez vezes cada um. */
+      s.profile.atividade = r.atividade;
+      /* Quem ainda vai começar não respondeu data nenhuma, e o dia do
+         cadastro é o único marco que existe. Não vira "dia 1 do
+         tratamento": diaDoTratamento só conta a partir da primeira dose. */
+      s.profile.startT = r.inicio ?? +startOfDay(now());
+      /* O CÓDIGO, e só ele. O nome do profissional saiu: o app não tem
+         como conferir um nome digitado, e o que liga a pessoa à clínica é
+         o código — resolver código em nome é trabalho de servidor. */
+      s.profile.convite = r.recomendado ? r.codigo.trim().toUpperCase() : '';
+      /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína e água
+         vinham fixas em 90 g e 2,5 L — os números de outra pessoa, lidos
+         dez vezes cada um. */
       s.profile.targets.prot = plano.prot;
       s.profile.targets.waterMl = plano.agua;
-      /* Sem sexo informado não há meta de gordura corporal — e a antiga
-         não é sobrescrita por um palpite. */
-      if (plano.gordura != null) s.profile.targets.bodyFat = plano.gordura;
-      s.profile.targets.exercMin = mov?.min ?? s.profile.targets.exercMin;
-      /* QUEM ACOMPANHA, e o código que veio com a indicação. Um campo só
-         para o nome: se é pessoa ou lugar é assunto de quem responde, e o
-         app precisa saber uma coisa só — se existe alguém acompanhando. */
-      s.profile.doctor = r.acompanhado ? r.quem.trim() : '';
-      s.profile.convite = r.acompanhado ? r.codigo.trim().toUpperCase() : '';
       /* O peso de hoje entra como PESAGEM, e não só como número do perfil:
          a curva de evolução, o "de → para" da Jornada e a meta leem a
          lista de pesagens. Desduplica por DIA, e não por instante:
@@ -685,11 +921,10 @@ export default function Cadastro() {
           <Txt v="h1" style={{ textAlign: 'center' }}>Vamos conhecer{'\n'}seu tratamento</Txt>
           {/* A promessa mudou junto com a regra: onde o texto dizia "todas
               opcionais, você pode pular", ele agora diz quanto custa e o
-              que muda depois. Prometer que dá para pular e depois não
-              deixar seria pior do que nunca ter prometido. */}
+              que muda depois. */}
           <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', maxWidth: 290 }}>
-            Doze perguntas curtas. É com elas que o Morphi monta a sua Home e as suas
-            metas do dia — e qualquer uma muda depois, no perfil.
+            Perguntas curtas, uma por tela. É com elas que o Morphi monta a sua Home e as
+            suas metas do dia — e qualquer uma muda depois, no perfil.
           </Txt>
         </View>
         <View style={{ paddingBottom: insets.bottom + 20 }}>
@@ -704,8 +939,8 @@ export default function Cadastro() {
     const cartoes: [string, string, string][] = [
       ['utensils', 'PROTEÍNA', `${plano.prot} g por dia`],
       ['water', 'ÁGUA', `${litros(plano.agua)} L por dia`],
-      ['dumbbell', 'MOVIMENTO', `${mov?.min ?? 30} min por dia`],
       ['scale', 'IMC DE HOJE', nf(plano.imc, 1)],
+      ['target', 'META', `${nf(r.meta, 1)} kg`],
     ];
     return (
       <View style={{ flex: 1, backgroundColor: c.accent }}>
@@ -722,7 +957,7 @@ export default function Cadastro() {
             </Txt>
             <Txt v="caption" c="rgba(255,255,255,0.82)" style={{ textAlign: 'center', maxWidth: 290 }}>
               {futuro
-                ? `Sua primeira aplicação é ${dataPorExtenso(r.inicio as number)}. Daqui até lá, dá para ir conhecendo o app.`
+                ? 'O Morphi já está configurado. A contagem do tratamento começa na sua primeira aplicação.'
                 : 'O Morphi já está configurado com o que você contou.'}
             </Txt>
           </View>
@@ -738,8 +973,8 @@ export default function Cadastro() {
             <View>
               <Txt v="h2">Suas metas do dia</Txt>
               <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
-                Calculadas do seu peso e da sua rotina. São ponto de partida, não
-                prescrição — todas mudam no perfil.
+                Calculadas do seu peso. São ponto de partida, não prescrição — todas mudam
+                no perfil.
               </Txt>
             </View>
 
@@ -764,20 +999,12 @@ export default function Cadastro() {
                   {nf(r.meta, 1)} kg por volta de {mesPorExtenso(plano.chegada)}
                 </Txt>
                 {/* Onde os outros apps põem "com o nosso app é 3x mais
-                    rápido", aqui vai a ressalva. A conta é aritmética
-                    simples sobre o ritmo que a pessoa escolheu; o corpo e
-                    a dose é que decidem, e o app não tem como prometer. */}
+                    rápido", aqui vai a ressalva. */}
                 <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
                   É a conta do ritmo que você escolheu, não uma previsão: quanto o peso
                   desce depende do corpo e da dose.
                 </Txt>
               </View>
-            ) : null}
-
-            {motivo ? (
-              <Txt v="caption" c={c.tx3}>
-                E fica anotado por que você começou: {motivo.titulo.toLowerCase()}.
-              </Txt>
             ) : null}
 
             <View style={{ marginTop: 4 }}>
@@ -791,21 +1018,28 @@ export default function Cadastro() {
 
   /* ---------- resumo ---------- */
   if (n === RESUMO) {
-    const cartoes: [string, string, string, number][] = [
-      ['user', 'NOME', r.nome.trim(), 0],
-      ['heart', 'SEXO', r.sexo === 'f' ? 'Feminino' : r.sexo === 'm' ? 'Masculino' : 'Não informado', 1],
-      ['cal', 'IDADE', `${now().getFullYear() - r.nascimento} anos`, 2],
-      ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 3],
-      ['pill', 'MEDICAMENTO', med?.label ?? '—', 4],
-      ['syringe', 'DOSE', `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`, 5],
-      ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 6],
-      ['target', 'META', `${nf(r.meta, 1)} kg${r.ritmo ? ` · ${nf(r.ritmo, 2)} kg/semana` : ''}`, 7],
-      ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 8],
-      ['dumbbell', 'MOVIMENTO', mov ? `${mov.min} min por dia` : '—', 9],
-      ['cal', futuro ? 'PRIMEIRA DOSE' : 'INÍCIO', r.inicio ? dataPorExtenso(r.inicio) : '—', 10],
-      ['steth', 'ACOMPANHAMENTO', r.acompanhado
-        ? `${r.quem.trim()}${r.codigo.trim() ? ` · ${r.codigo.trim().toUpperCase()}` : ''}`
-        : 'Por conta própria', 11],
+    const idade = (() => {
+      const h = now();
+      let a = h.getFullYear() - r.ano;
+      const m = h.getMonth() - r.mes;
+      if (m < 0 || (m === 0 && h.getDate() < r.dia)) a -= 1;
+      return a;
+    })();
+    const cartoes: [string, string, string, Id][] = [
+      ['user', 'NOME', r.nome.trim(), 'nome'],
+      ['heart', 'IDENTIDADE',
+        r.identidade === 'f' ? 'Feminino' : r.identidade === 'm' ? 'Masculino' : 'Outro', 'identidade'],
+      ['cal', 'NASCIMENTO', `${r.dia} de ${MESES[r.mes]} de ${r.ano} · ${idade} anos`, 'nascimento'],
+      ['spark', 'SITUAÇÃO', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
+      ['pill', 'MEDICAMENTO', med?.label ?? '—', 'medicamento'],
+      ['syringe', 'DOSE', `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}${r.intervalo && r.intervalo !== padrao ? ` · a cada ${r.intervalo} dias` : ''}`, 'dose'],
+      ['ruler', 'ALTURA E PESO', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
+      ['target', 'META', `${nf(r.meta, 1)} kg`, 'meta'],
+      ['trend', 'RITMO', r.ritmo ? `${nf(r.ritmo, 2)} kg por semana` : 'sem peso a perder', 'ritmo'],
+      ['bolt', 'MOTIVO', motivo?.titulo ?? '—', 'motivacao'],
+      ['dumbbell', 'ATIVIDADE', ativ?.titulo ?? '—', 'atividade'],
+      ...(futuro ? [] : [['cal', 'INÍCIO', r.inicio ? dataPorExtenso(r.inicio) : '—', 'inicio'] as [string, string, string, Id]]),
+      ['steth', 'INDICAÇÃO', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
     ];
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
@@ -815,7 +1049,7 @@ export default function Cadastro() {
             Toque no lápis para mudar qualquer resposta.
           </Txt>
           <Duplas>
-            {cartoes.map(([ic, rotulo, valor, passo]) => (
+            {cartoes.map(([ic, rotulo, valor, alvo]) => (
               <View
                 key={rotulo}
                 style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.card, padding: 14, gap: 10 }}
@@ -823,7 +1057,7 @@ export default function Cadastro() {
                 <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                   <Icon name={ic} size={16} color={c.tx3} sw={1.9} />
                   <Pressable
-                    onPress={() => { setDoResumo(true); setN(passo); }}
+                    onPress={() => { setDoResumo(true); setN(passos.indexOf(alvo)); }}
                     hitSlop={10}
                     style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
                   >
@@ -838,19 +1072,16 @@ export default function Cadastro() {
             ))}
           </Duplas>
         </ScrollView>
-        {/* ARRASTAR PARA CONFIRMAR VIROU BOTÃO.
-
-            O arraste é o gesto de quem vai fazer algo que não dá para
-            desfazer — apagar, enviar, pagar. Aqui ele guardava a porta da
-            Home, e tudo o que está atrás dela pode ser mudado no perfil a
-            qualquer hora. */}
+        {/* ARRASTAR PARA CONFIRMAR VIROU BOTÃO. O arraste é o gesto de quem
+            vai fazer algo que não dá para desfazer; aqui ele guardava a
+            porta da Home, e tudo atrás dela muda no perfil. */}
         <View style={{
           paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
           gap: 12, backgroundColor: c.bg,
         }}>
           <Botao pilula label="Confirmar" onPress={salvar} />
           <Pressable
-            onPress={() => setN(PASSOS.length - 1)}
+            onPress={() => setN(passos.length - 1)}
             style={({ pressed }) => [{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}
           >
             <Txt v="label" c={c.tx3}>Voltar</Txt>
@@ -860,43 +1091,40 @@ export default function Cadastro() {
     );
   }
 
-  /* ---------- as doze perguntas ---------- */
-  const id = PASSOS[n];
+  /* ---------- as perguntas ---------- */
+  const id = passos[n];
   const titulos: Record<Id, string> = {
     nome: 'Como podemos te chamar?',
-    sexo: 'Qual é o seu sexo biológico?',
-    idade: 'Em que ano você nasceu?',
+    identidade: 'Como você se identifica?',
+    nascimento: 'Quando você nasceu?',
     tratamento: 'Você já está em tratamento?',
     medicamento: 'Qual medicamento você usa?',
     dose: futuro ? 'Com qual dose você vai começar?' : 'Qual é a sua dose atual?',
     corpo: 'Sua altura e seu peso de hoje',
     meta: 'Aonde você quer chegar?',
-    motivacao: 'O que te trouxe até aqui?',
-    movimento: 'Como é a sua rotina de movimento?',
-    inicio: futuro ? 'Quando você vai começar?' : 'Quando você começou?',
-    acompanhamento: 'Alguém acompanha o seu tratamento?',
+    ritmo: 'Em que ritmo?',
+    motivacao: 'O que está te levando a essa jornada?',
+    atividade: 'Qual é o seu nível de atividade física?',
+    inicio: 'Quando você começou?',
+    recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
   };
-  /* UMA LINHA, NÃO UM PARÁGRAFO.
-
-     O subtítulo estava explicando a pergunta, o motivo dela e o que muda
-     depois — três linhas antes de qualquer resposta aparecer. Quem chega
-     numa fila de doze perguntas não lê três linhas doze vezes; pula, e
-     aí o texto não serviu nem de explicação nem de nada. Fica o mínimo
-     que evita a dúvida, e o resto vive onde a resposta é usada. */
   const subs: Record<Id, string> = {
     nome: 'É assim que o app vai te chamar todo dia.',
-    sexo: 'Entra nas faixas de referência dos seus exames.',
-    idade: 'Entra nas mesmas faixas.',
+    identidade: 'Escolha a que fizer sentido para você.',
+    nascimento: 'Arraste até a sua data.',
     tratamento: 'Só para saber onde você está agora.',
     medicamento: 'A escada de doses da próxima pergunta vem dele.',
     dose: med ? `Na ordem da titulação do ${med.label}.` : 'Na ordem da titulação.',
     corpo: 'O peso fica como a sua primeira pesagem.',
-    meta: 'Um número de referência e o ritmo que você quer seguir.',
+    meta: 'Um número de referência — dá para mudar quando quiser.',
+    ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Escolha a que mais pesa.',
-    movimento: 'Vira a sua meta diária de movimento.',
+    atividade: 'É só para saber de onde você está partindo.',
     inicio: 'Aproximado está bom.',
-    acompanhamento: 'Médico, nutricionista ou clínica.',
+    recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
+
+  const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -904,8 +1132,8 @@ export default function Cadastro() {
 
       {/* O TOPO diz onde a pessoa está e não oferece saída. "Pular tudo"
           ficava aqui; com as perguntas obrigatórias, o que sobra é a
-          barra, a contagem e o voltar — e os três passam a flutuar sobre
-          a lavagem, sem faixa nem fio embaixo. */}
+          barra, a contagem e o voltar — e os três flutuam sobre a
+          lavagem, sem faixa nem fio embaixo. */}
       <View style={{ paddingHorizontal: 20, paddingTop: insets.top + 10 }}>
         <Row gap={12}>
           <CircleBtn name="back" size={38} bg={c.bg1} onPress={() => (doResumo ? aoResumo() : setN(n - 1))} />
@@ -914,18 +1142,18 @@ export default function Cadastro() {
             backgroundColor: 'rgba(255,255,255,0.6)',
           }}>
             <View style={{
-              width: `${((n + 1) / PASSOS.length) * 100}%`,
+              width: `${((n + 1) / passos.length) * 100}%`,
               height: '100%', borderRadius: 2, backgroundColor: c.accent,
             }} />
           </View>
-          <Txt v="micro" c={c.tx2}>{n + 1} de {PASSOS.length}</Txt>
+          <Txt v="micro" c={c.tx2}>{n + 1} de {passos.length}</Txt>
         </Row>
       </View>
 
       <ScrollView
         /* AR ENTRE O TOPO E A PERGUNTA. Colada na barra de progresso, a
            manchete lia como cabeçalho de tela; afastada, ela lê como a
-           pergunta que é — é o vão que dá a ela o lugar de assunto. */
+           pergunta que é. */
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 64, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -935,13 +1163,9 @@ export default function Cadastro() {
         <Txt v="h1">{titulos[id]}</Txt>
         <Txt v="note" c={c.tx2} style={{ marginTop: 10, marginBottom: 28 }}>{subs[id]}</Txt>
 
-        {/* O NOME SE ESCREVE NA TELA, e não dentro de uma caixa.
-
-            A caixa de formulário estava ali por hábito: ela existe para
-            separar um campo dos outros campos, e aqui não há outros — a
-            tela inteira é essa resposta. Sem moldura, o que a pessoa
-            digita vira a maior coisa da tela, que é exatamente o peso que
-            o próprio nome tem. */}
+        {/* O NOME SE ESCREVE NA TELA, e não dentro de uma caixa. A caixa de
+            formulário existe para separar um campo dos outros campos, e
+            aqui não há outros — a tela inteira é essa resposta. */}
         {id === 'nome' ? (
           <TextInput
             value={r.nome}
@@ -955,95 +1179,104 @@ export default function Cadastro() {
           />
         ) : null}
 
-        {/* TRÊS OPÇÕES, e a terceira não é um "pular" disfarçado: quem não
-            informa recebe o app sem meta de gordura corporal, e as faixas
-            de exame ficam na versão genérica. É uma resposta com
-            consequência, e ela está dita no plano do fim. */}
-        {id === 'sexo' ? (
-          <Duplas>
-            <Escolha titulo="Feminino" on={r.sexo === 'f'} onPress={() => p({ sexo: 'f' })} />
-            <Escolha titulo="Masculino" on={r.sexo === 'm'} onPress={() => p({ sexo: 'm' })} />
+        {/* IDENTIDADE, E NÃO SEXO BIOLÓGICO — e a diferença tem
+            consequência. O sexo biológico é o que define faixa de
+            referência de exame e meta de gordura corporal; a identidade
+            não define nenhum dos dois, e derivar um alvo clínico dela
+            seria imprecisão silenciosa. Por isso esta resposta não alimenta
+            mais aquelas contas: ela existe para o app saber com quem
+            fala. */}
+        {id === 'identidade' ? (
+          <View style={{ gap: 10 }}>
             <Escolha
-              titulo="Prefiro não informar"
-              sub="as faixas ficam genéricas"
-              on={r.sexo === 'n'}
-              onPress={() => p({ sexo: 'n' })}
+              ic="venus" cheia titulo="Feminino"
+              on={r.identidade === 'f'} onPress={() => p({ identidade: 'f' })}
             />
-          </Duplas>
-        ) : null}
-
-        {id === 'idade' ? (
-          <View style={{ gap: 12 }}>
-            {/* O ANO, e não a data inteira. A idade é o que o app lê, e
-                pedir dia e mês cobraria dois controles a mais por uma
-                precisão que nada aqui usa. */}
-            <Contador
-              valor={String(r.nascimento)}
-              nota={`${now().getFullYear() - r.nascimento} anos hoje`}
-              onMenos={() => p({ nascimento: Math.max(1920, r.nascimento - 1) })}
-              onMais={() => p({ nascimento: Math.min(now().getFullYear() - 12, r.nascimento + 1) })}
-              onDigitar={(v) => {
-                const x = parseInt(v.replace(/\D/g, ''), 10);
-                if (!Number.isNaN(x)) p({ nascimento: Math.min(now().getFullYear() - 12, Math.max(1920, x)) });
-              }}
+            <Escolha
+              ic="mars" cheia titulo="Masculino"
+              on={r.identidade === 'm'} onPress={() => p({ identidade: 'm' })}
+            />
+            <Escolha
+              ic="more" cheia titulo="Outro"
+              on={r.identidade === 'o'} onPress={() => p({ identidade: 'o' })}
             />
           </View>
         ) : null}
 
+        {id === 'nascimento' ? (
+          <Row style={{ gap: 10 }}>
+            <Roda
+              largura={78}
+              itens={Array.from({ length: diasNoMes }, (_, k) => ({ v: k + 1, label: String(k + 1) }))}
+              valor={Math.min(r.dia, diasNoMes)}
+              onEscolhe={(v) => p({ dia: v })}
+            />
+            <Roda
+              largura={142}
+              itens={MESES.map((m, k) => ({ v: k, label: m }))}
+              valor={r.mes}
+              /* Mudar de mês pode deixar o dia fora do calendário — 31 de
+                 fevereiro não existe, e guardar isso encostaria um dia
+                 inválido na data de nascimento. */
+              onEscolhe={(v) => p({ mes: v, dia: Math.min(r.dia, new Date(r.ano, v + 1, 0).getDate()) })}
+            />
+            <Roda
+              largura={90}
+              itens={Array.from({ length: now().getFullYear() - 12 - 1920 + 1 }, (_, k) => ({
+                v: 1920 + k, label: String(1920 + k),
+              }))}
+              valor={r.ano}
+              onEscolhe={(v) => p({ ano: v, dia: Math.min(r.dia, new Date(v, r.mes + 1, 0).getDate()) })}
+            />
+          </Row>
+        ) : null}
+
         {id === 'tratamento' ? (
-          <Duplas>
+          <View style={{ gap: 10 }}>
             <Escolha
-              ic="syringe" titulo="Já apliquei alguma dose" sub="Em tratamento agora"
-              on={r.emTratamento === true}
-              onPress={() => p({ emTratamento: true })}
+              ic="syringe" cheia titulo="Já apliquei alguma dose" sub="Em tratamento agora"
+              on={r.emTratamento === true} onPress={() => p({ emTratamento: true })}
             />
             <Escolha
-              ic="cal" titulo="Vou começar em breve" sub="Ainda não apliquei"
-              on={r.emTratamento === false}
-              onPress={() => p({ emTratamento: false })}
+              ic="cal" cheia titulo="Vou começar em breve" sub="Ainda não apliquei"
+              on={r.emTratamento === false} onPress={() => p({ emTratamento: false })}
             />
-          </Duplas>
+          </View>
         ) : null}
 
         {id === 'medicamento' ? (
-          <Duplas>
+          <View style={{ gap: 10 }}>
             {Object.entries(MEDS).map(([k, m]) => (
               <Escolha
-                key={k} ic="pill" titulo={m.label} sub={m.mol}
+                key={k} cheia titulo={m.label} sub={m.mol}
                 on={r.med === k}
                 /* Trocar de caneta zera a dose e o intervalo: a escada é
-                   outra e a cadência também — manter 5 mg semanais ao
-                   pular de Mounjaro para Saxenda gravaria uma dose que
-                   aquela caneta não tem, num ritmo que ela não usa. */
+                   outra e a cadência também. */
                 onPress={() => p(r.med === k ? { med: k } : { med: k, dose: null, intervalo: null })}
               />
             ))}
-          </Duplas>
+          </View>
         ) : null}
 
         {id === 'dose' && med ? (
           <View style={{ gap: 16 }}>
-            <Duplas>
+            <View style={{ gap: 10 }}>
               {med.doses.map((d, i) => (
                 <Escolha
-                  key={d} ic="syringe"
+                  key={d} cheia
                   titulo={`${doseTxt(d)} ${med.unit}`}
                   sub={i === 0 ? 'dose de início' : i === med.doses.length - 1 ? 'dose máxima' : undefined}
                   on={r.dose === d}
                   onPress={() => p({ dose: d })}
                 />
               ))}
-            </Duplas>
+            </View>
 
-            {/* O INTERVALO É EXCEÇÃO, e por isso fica atrás de um toque.
-
-                O app sabe a cadência de cada caneta, e perguntar de novo
-                daria à resposta a chance de discordar do catálogo. Mas
-                aplicar a cada dez ou catorze dias existe — por tolerância,
-                por orientação, por preço — e para essa pessoa o app
-                contava tudo errado e cobrava dose atrasada de quem não
-                estava atrasada. Fica aqui, dito como o que é: o padrão
-                primeiro, a exceção a um toque. */}
+            {/* O INTERVALO É EXCEÇÃO, e por isso fica atrás de um toque. O
+                app sabe a cadência de cada caneta; mas aplicar a cada dez
+                ou catorze dias existe, e para essa pessoa o app contava
+                tudo errado e cobrava dose atrasada de quem não estava
+                atrasada. */}
             {r.intervalo == null ? (
               <View style={{ gap: 8 }}>
                 <Txt v="caption" c={c.tx3}>
@@ -1083,31 +1316,19 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'corpo' ? (
-          <View style={{ gap: 34 }}>
+          <View style={{ gap: 40 }}>
             <View>
               <Rotulo>ALTURA</Rotulo>
-              <Contador
-                valor={nf(r.altura, 2)}
-                unidade="m"
-                onMenos={() => p({ altura: Math.max(1.2, Math.round((r.altura - 0.01) * 100) / 100) })}
-                onMais={() => p({ altura: Math.min(2.2, Math.round((r.altura + 0.01) * 100) / 100) })}
-                onDigitar={(v) => {
-                  const x = parseFloat(v.replace(',', '.'));
-                  if (!Number.isNaN(x)) p({ altura: Math.min(2.2, Math.max(1.2, x)) });
-                }}
+              <Regua
+                min={1.2} max={2.2} passo={0.01} tracoCada={0.01} casas={2} esp={12}
+                valor={r.altura} unidade="m" onEscolhe={(v) => p({ altura: v })}
               />
             </View>
             <View>
               <Rotulo>PESO DE HOJE</Rotulo>
-              <Contador
-                valor={nf(r.peso, 1)}
-                unidade="kg"
-                onMenos={() => p({ peso: Math.max(35, Math.round((r.peso - 0.1) * 10) / 10) })}
-                onMais={() => p({ peso: Math.min(300, Math.round((r.peso + 0.1) * 10) / 10) })}
-                onDigitar={(v) => {
-                  const x = parseFloat(v.replace(',', '.'));
-                  if (!Number.isNaN(x)) p({ peso: Math.min(300, Math.max(35, x)) });
-                }}
+              <Regua
+                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5}
+                valor={r.peso} unidade="kg" onEscolhe={(v) => p({ peso: v })}
               />
             </View>
           </View>
@@ -1115,135 +1336,114 @@ export default function Cadastro() {
 
         {id === 'meta' ? (
           <View style={{ gap: 16 }}>
-            <View>
-              <Rotulo>PESO DE REFERÊNCIA</Rotulo>
-              <Contador
-                valor={nf(r.meta, 1)}
-                unidade="kg"
-                onMenos={() => p({ meta: Math.max(35, Math.round((r.meta - 0.5) * 10) / 10) })}
-                onMais={() => p({ meta: Math.min(300, Math.round((r.meta + 0.5) * 10) / 10) })}
-                onDigitar={(v) => {
-                  const x = parseFloat(v.replace(',', '.'));
-                  if (!Number.isNaN(x)) p({ meta: Math.min(300, Math.max(35, x)) });
-                }}
-              />
-            </View>
-
+            <Regua
+              min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5}
+              valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })}
+            />
             {/* Meta ACIMA do peso de hoje é escolha legítima de quem está
-                subindo de volta, não erro para bloquear — e nesse caso o
-                ritmo de perda não tem o que fazer na tela. */}
-            {perder > 0 ? (
-              <View style={{ gap: 10 }}>
-                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>
-                  EM QUE RITMO · {nf(perder, 1)} KG A PERCORRER
-                </Txt>
-                {RITMOS.map((kg) => {
-                  const semanas = Math.ceil(perder / kg);
-                  const quando = +new Date(+startOfDay(now()) + semanas * 7 * 86400000);
-                  return (
-                    <Escolha
-                      key={kg} cheia
-                      titulo={`${nf(kg, 2)} kg por semana`}
-                      sub={`chega por volta de ${mesPorExtenso(quando)}`}
-                      on={r.ritmo === kg}
-                      onPress={() => p({ ritmo: kg })}
-                    />
-                  );
-                })}
-                <Txt v="caption" c={c.tx3}>
-                  É o ritmo que você quer seguir, não uma previsão: quanto o peso desce
-                  depende do corpo e da dose.
-                </Txt>
-              </View>
-            ) : (
-              <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
-                {r.meta === r.peso
-                  ? 'Mesmo peso de hoje — manter também é meta.'
-                  : `${nf(Math.abs(perder), 1)} kg acima do seu peso de hoje.`}
-              </Txt>
-            )}
+                subindo de volta, não erro para bloquear. */}
+            <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
+              {perder === 0
+                ? 'Mesmo peso de hoje — manter também é meta.'
+                : `${nf(Math.abs(perder), 1)} kg ${perder > 0 ? 'abaixo' : 'acima'} do seu peso de hoje.`}
+            </Txt>
           </View>
         ) : null}
 
+        {id === 'ritmo' ? (
+          perder > 0 ? (
+            <View style={{ gap: 10 }}>
+              {RITMOS.map((kg) => {
+                const semanas = Math.ceil(perder / kg);
+                const quando = +startOfDay(now()) + semanas * 7 * 86400000;
+                return (
+                  <Escolha
+                    key={kg} cheia
+                    titulo={`${nf(kg, 2)} kg por semana`}
+                    sub={`chega por volta de ${mesPorExtenso(quando)}`}
+                    on={r.ritmo === kg}
+                    onPress={() => p({ ritmo: kg })}
+                  />
+                );
+              })}
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 4 }}>
+                É o ritmo que você quer seguir, não uma previsão: quanto o peso desce
+                depende do corpo e da dose.
+              </Txt>
+            </View>
+          ) : (
+            <Txt v="note" c={c.tx3}>
+              Sua meta não é perder peso, então não há ritmo a escolher aqui.
+            </Txt>
+          )
+        ) : null}
+
         {id === 'motivacao' ? (
-          <Duplas>
+          <View style={{ gap: 10 }}>
             {MOTIVOS.map((x) => (
               <Escolha
-                key={x.id} ic={x.ic} titulo={x.titulo} sub={x.sub}
+                key={x.id} cheia ic={x.ic} titulo={x.titulo} sub={x.sub}
                 on={r.motivacao === x.id}
                 onPress={() => p({ motivacao: x.id })}
               />
             ))}
-          </Duplas>
+          </View>
         ) : null}
 
-        {id === 'movimento' ? (
+        {id === 'atividade' ? (
           <View style={{ gap: 10 }}>
-            {MOVIMENTO.map((x) => (
+            {ATIVIDADE.map((x) => (
               <Escolha
-                key={x.id} cheia
-                titulo={x.titulo} sub={x.sub}
-                on={r.movimento === x.id}
-                onPress={() => p({ movimento: x.id })}
+                key={x.id} cheia titulo={x.titulo} sub={x.sub}
+                on={r.atividade === x.id}
+                onPress={() => p({ atividade: x.id })}
               />
             ))}
           </View>
         ) : null}
 
         {id === 'inicio' ? (
-          <Calendario valor={r.inicio} onEscolhe={(t) => p({ inicio: t })} futuro={futuro} />
+          <Calendario valor={r.inicio} onEscolhe={(t) => p({ inicio: t })} futuro={false} />
         ) : null}
 
-        {id === 'acompanhamento' ? (
+        {/* A INDICAÇÃO, E O CÓDIGO QUE A PROVA.
+
+            A pergunta deixou de ser "alguém acompanha você?" e passou a ser
+            a que importa comercialmente: veio por um parceiro? E o código
+            deixou de ser opcional — ele é o que prova que o profissional é
+            mesmo o responsável. Sem ele, "vim por indicação" é afirmação
+            sem lastro, e é ela que libera o app.
+
+            O nome do profissional saiu do formulário: o app não tem como
+            conferir um nome digitado, e resolver o código em nome é
+            trabalho de servidor. O que esta tela pode fazer é aceitar e
+            guardar — sem "código válido", sem carimbo verde, sem dizer que
+            a partir de agora é grátis. */}
+        {id === 'recomendacao' ? (
           <View style={{ gap: 16 }}>
-            <Duplas>
+            <View style={{ gap: 10 }}>
               <Escolha
-                ic="steth" titulo="Sim" sub="Médico, nutri ou clínica"
-                on={r.acompanhado === true}
-                onPress={() => p({ acompanhado: true })}
+                ic="steth" cheia titulo="Sim" sub="tenho um código de convite"
+                on={r.recomendado === true} onPress={() => p({ recomendado: true })}
               />
               <Escolha
-                ic="user" titulo="Não" sub="Estou por conta própria"
-                on={r.acompanhado === false}
-                /* Dizer que não apaga o que foi digitado antes: deixar o
-                   nome guardado faria o resumo mostrar "por conta própria"
-                   e o perfil gravar um profissional. */
-                onPress={() => p({ acompanhado: false, quem: '', codigo: '' })}
+                ic="user" cheia titulo="Não" sub="cheguei por conta própria"
+                on={r.recomendado === false} onPress={() => p({ recomendado: false, codigo: '' })}
               />
-            </Duplas>
+            </View>
 
-            {r.acompanhado ? (
-              <View style={{ gap: 16 }}>
-                <View style={{ gap: 8 }}>
-                  <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>QUEM ACOMPANHA</Txt>
-                  <CampoTexto
-                    valor={r.quem}
-                    onChange={(v) => p({ quem: v })}
-                    placeholder="Nome do profissional ou da clínica"
-                    caixa="words"
-                  />
-                </View>
-                <View style={{ gap: 8 }}>
-                  <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>CÓDIGO DE CONVITE (OPCIONAL)</Txt>
-                  <CampoTexto
-                    valor={r.codigo}
-                    onChange={(v) => p({ codigo: v })}
-                    placeholder="Se você recebeu um, digite aqui"
-                    caixa="characters"
-                  />
-                  {/* O QUE ESTA TELA PODE E NÃO PODE PROMETER.
-
-                      O código é o que libera o app para quem chegou por um
-                      profissional parceiro, e conferir se ele existe é
-                      trabalho de servidor — que este app ainda não tem.
-                      Então aqui ele é aceito e guardado, e nada mais: sem
-                      "código válido", sem carimbo verde, sem dizer que a
-                      partir de agora é grátis. */}
-                  <Txt v="caption" c={c.tx3}>
-                    Quem chega por um profissional parceiro não paga pelo app. O código é
-                    conferido depois — se você não tiver um, pode seguir sem ele.
-                  </Txt>
-                </View>
+            {r.recomendado ? (
+              <View style={{ gap: 8 }}>
+                <Rotulo>CÓDIGO DE CONVITE</Rotulo>
+                <CampoTexto
+                  valor={r.codigo}
+                  onChange={(v) => p({ codigo: v })}
+                  placeholder="O código que o profissional te passou"
+                  caixa="characters"
+                />
+                <Txt v="caption" c={c.tx3}>
+                  É ele que liga a sua conta ao profissional. A conferência acontece depois.
+                </Txt>
               </View>
             ) : null}
           </View>
@@ -1252,16 +1452,15 @@ export default function Cadastro() {
 
       {/* O RODAPÉ É OPACO. Sem fundo, a lista de opções passava por baixo
           do botão e a última delas aparecia cortada ao meio atrás de uma
-          pílula translúcida — parecia defeito de render, não fim de
-          lista. */}
+          pílula translúcida. */}
       <View style={{
         paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
         backgroundColor: c.bg,
       }}>
         <Botao
           pilula
-          label={doResumo || n === PASSOS.length - 1 ? 'Ver o resumo' : 'Continuar'}
-          desligado={!respondida[n]}
+          label={doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
+          desligado={!respondida(id)}
           onPress={() => (doResumo ? aoResumo() : setN(n + 1))}
         />
       </View>

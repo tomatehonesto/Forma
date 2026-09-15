@@ -265,10 +265,12 @@ export function buildSeed() {
          que dá sentido a "você está na semana 11". */
       planoSemanas: 16,
       nutri: 'Renata Alves', email: 'mariana.silva@email.com',
-      /* O ano, e não a idade: idade muda sozinha todo aniversário, e um
+      /* A DATA, e não a idade: idade muda sozinha todo aniversário, e um
          número guardado envelhece errado. Quem precisa dela usa idadeDe. */
-      nascimento: 1988,
-      sexo: 'f',
+      nascimento: +new Date(1988, 4, 12),
+      /* Como a pessoa se identifica. Não é sexo biológico, e por isso não
+         alimenta faixa de exame nem meta de gordura corporal. */
+      identidade: 'f',
       /* Vazio quando a aplicação segue a cadência do catálogo. Só quem
          aplica em outro intervalo tem número aqui. */
       intervalo: null as number | null,

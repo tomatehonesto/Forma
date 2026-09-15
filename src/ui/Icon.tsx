@@ -13,6 +13,11 @@ import React, { memo } from 'react';
    do Tabler: não há ninguém levantando peso nem ninguém em cima de uma
    bicicleta. Barra e bicicleta são o que essas duas modalidades têm de
    reconhecível. */
+/* Vênus e Marte vêm do Tabler porque o Lucide não os tem — e o desenho de
+   uma figura humana genérica não serve aqui: com o mesmo boneco nas duas
+   opções, o ícone deixa de distinguir e vira enfeite repetido. */
+import IconVenus from '@tabler/icons-react-native/IconVenus';
+import IconMars from '@tabler/icons-react-native/IconMars';
 import IconBarbell from '@tabler/icons-react-native/IconBarbell';
 import IconPhotoSpark from '@tabler/icons-react-native/IconPhotoSpark';
 import IconBike from '@tabler/icons-react-native/IconBike';
@@ -185,6 +190,8 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   chevdown: ChevronDown,
   chevup: ChevronUp,
   user: User,
+  venus: IconVenus,
+  mars: IconMars,
   activity: Activity,
   barchart: ChartColumn,
   brain: Brain,
