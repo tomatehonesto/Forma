@@ -1190,16 +1190,16 @@ export default function Cadastro() {
     inicio: 'Quando você começou?',
     medicamento: futuro ? 'Qual medicamento você pretende usar?' : 'Qual medicamento você usa?',
     dose: futuro ? 'Com qual dose você pretende começar?' : 'Qual é a sua dose atual?',
-    corpo: 'Sua altura e seu peso de hoje',
-    meta: 'Aonde você quer chegar?',
-    ritmo: 'Em que ritmo?',
+    corpo: 'Quais são suas medidas atuais?',
+    meta: 'Qual é a sua meta de peso?',
+    ritmo: 'Qual ritmo você quer seguir para chegar lá?',
     motivacao: 'O que está te levando a essa jornada?',
     atividade: 'Qual é o seu nível de atividade física?',
     saude: 'Quer conectar seu app de saúde?',
     recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
   };
   const subs: Record<Id, string> = {
-    nome: 'É assim que o app vai te chamar todo dia.',
+    nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
     /* A JUSTIFICATIVA DE POR QUE PERGUNTAMOS.
 
        Um dos apps que olhamos diz que usa esses detalhes "para melhorar
@@ -1213,17 +1213,15 @@ export default function Cadastro() {
     identidade: 'É para o Morphi falar com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
     nascimento: 'Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.',
     tratamento: 'Só para saber onde você está agora.',
-    inicio: 'Aproximado está bom, e o peso daquela época também.',
-    medicamento: futuro
-      ? 'Se ainda não souber, dá para escolher depois.'
-      : 'A escada de doses da próxima pergunta vem dele.',
+    inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.',
+    medicamento: 'É dele que saem a escada de doses e o intervalo entre as aplicações.',
     dose: med && med.doses.length
       ? `Na ordem da titulação do ${med.label}.`
       : 'Na ordem da titulação.',
-    corpo: 'O peso fica como a sua primeira pesagem.',
-    meta: 'Um número de referência — dá para mudar quando quiser.',
+    corpo: 'É com altura e peso que o Morphi calcula seu IMC e monta suas metas diárias de proteína e água.',
+    meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
-    motivacao: 'Escolha a que mais pesa.',
+    motivacao: 'Entender o seu porquê ajuda a gente a te apoiar melhor. Não tem resposta certa.',
     atividade: 'É só para saber de onde você está partindo.',
     saude: 'Peso, passos, sono e treinos entram sozinhos, sem você digitar.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
@@ -1378,7 +1376,7 @@ export default function Cadastro() {
                 tudo: meia-vida, cadência, escada de doses, validade. */}
             {futuro ? (
               <Escolha
-                cheia titulo="Ainda não sei" sub="dá para escolher depois, no perfil"
+                cheia titulo="Ainda não sei" sub="Você pode definir depois no seu perfil"
                 on={r.med === 'indefinido'}
                 onPress={() => p({ med: 'indefinido', dose: null, intervalo: null })}
               />
@@ -1497,8 +1495,13 @@ export default function Cadastro() {
                 return (
                   <Escolha
                     key={x.kg} cheia
-                    titulo={x.nome}
-                    sub={`${nf(x.kg, 1)} kg por semana · chega por volta de ${mesPorExtenso(quando)}`}
+                    /* O NÚMERO É O TÍTULO, e o apelido desce para a linha
+                       de baixo. É entre os números que a pessoa compara —
+                       "devagar e sempre" não se compara com "acelerado"
+                       sem saber quanto cada um vale. O apelido diz o que
+                       aquilo significa depois que ela já viu o quanto. */
+                    titulo={`${nf(x.kg, 1)} kg por semana`}
+                    sub={`${x.nome} · chega por volta de ${mesPorExtenso(quando)}`}
                     on={r.ritmo === x.kg}
                     onPress={() => p({ ritmo: x.kg })}
                   />
