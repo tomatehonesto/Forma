@@ -34,6 +34,38 @@ import { useTheme } from '../ui/useTheme';
 
 const AURORA = require('../../assets/images/aurora-hero.png');
 
+/* UM SÓ MARCADOR PARA AS CINCO LINHAS.
+
+   Eram três desenhos na mesma lista: quadrado com borda para o que se
+   marca, redondo com um gráfico dentro para o que o app conta, e redondo
+   com visto para o que o app já contou. Três formas para duas ideias — e
+   o gráfico ainda precisava ser decifrado antes de dizer o que queria.
+
+   A lista volta a ser uma lista: a mesma caixinha nas cinco. O que muda é
+   o CADEADO, e ele diz de perto o que a nota lá em cima diz de longe —
+   essa linha não é sua para marcar, ela se cumpre bebendo, comendo e
+   andando.
+
+   E cumprida é cumprida: alcançada, a caixa acende igual nas cinco. O
+   cadeado responde "dá para tocar?", e essa pergunta some quando não há
+   mais nada para marcar. */
+function Marcador({ feita, travada }: { feita: boolean; travada: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={{
+      width: 26, height: 26, borderRadius: 9,
+      alignItems: 'center', justifyContent: 'center',
+      backgroundColor: feita ? c.accent : travada ? c.bg3 : 'transparent',
+      borderWidth: feita || travada ? 0 : 1.6,
+      borderColor: c.line2,
+    }}>
+      {feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} />
+        : travada ? <Icon name="lock" size={13} color={c.tx4} sw={2} />
+          : null}
+    </View>
+  );
+}
+
 export default function Protocolos() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -105,34 +137,7 @@ export default function Protocolos() {
             {p.tarefas.map((t) => {
               const corpo = (
                 <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-                  {t.medida ? (
-                    /* REDONDO, e não quadrado: caixa quadrada pede toque, e
-                       esta linha não aceita nenhum — ela se cumpre bebendo,
-                       comendo e andando. A forma é a única diferença que
-                       sobrevive ao item cumprido, quando os dois ficam
-                       azuis com um visto dentro. */
-                    <View style={{
-                      width: 26, height: 26, borderRadius: 13,
-                      alignItems: 'center', justifyContent: 'center',
-                      backgroundColor: t.feita ? c.accent : c.accentWeak,
-                    }}>
-                      <Icon
-                        name={t.feita ? 'check' : 'barchart'}
-                        size={14}
-                        color={t.feita ? c.accentInk : c.accent}
-                        sw={2.2}
-                      />
-                    </View>
-                  ) : (
-                    <View style={{
-                      width: 26, height: 26, borderRadius: 9,
-                      borderWidth: 1.6, borderColor: t.feita ? c.accent : c.line2,
-                      backgroundColor: t.feita ? c.accent : 'transparent',
-                      alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {t.feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} /> : null}
-                    </View>
-                  )}
+                  <Marcador feita={t.feita} travada={t.medida} />
                   <View style={{ flex: 1 }}>
                     {/* Sem risco em cima do texto cumprido. O risco diz
                         "isto saiu da lista", e numa meta que se refaz toda
