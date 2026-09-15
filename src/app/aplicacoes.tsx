@@ -4,12 +4,13 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   M, adesao, apagarAplicacao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
-  nextInjectionDate, nextSite, pharmaSeries, reminderWhen, siteLabel,
+  nextInjectionDate, nextSite, pharmaSeries, reminderWhen, rodizioDeLocais, siteLabel,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { AreaCurve } from '../ui/charts';
+import { AreaCurve, Ring } from '../ui/charts';
+import { Corpo } from '../ui/corpo';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, ItemApagavel,
 } from '../ui/internas';
@@ -58,6 +59,7 @@ export default function Aplicacoes() {
   const cal = injCalendar(S);
   const k = canetaAtual(S);
   const cic = cicloFases(S);
+  const rod = rodizioDeLocais(S);
   const rem = reminderWhen(doseReminderDate(S));
 
   /* Quantas doses o tratamento previa até hoje, e quantas foram
@@ -85,31 +87,40 @@ export default function Aplicacoes() {
         lead={`${med.label} · ${med.mol} · ${med.cad === 'weekly' ? 'uma vez por semana' : 'uso diário'}`}
       />
 
-      {/* A PRÓXIMA DOSE.
+      {/* A PRÓXIMA DOSE, com o anel da semana em volta da contagem.
 
-          O botão de registrar saiu daqui e foi para o rodapé. Ele gravava
-          na hora — hora de agora, local sugerido, dose atual —, pulando o
-          formulário que existe ao lado e que faz tudo isso com escolha:
-          dia, dose, mapa do corpo, caneta. Duas portas para a mesma sala,
-          e a de dentro do cartão fazia menos. */}
-      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
-        <Row style={{ alignItems: 'flex-start' }}>
+          O cartão era branco como os outros quatro da tela, com o número
+          encostado na direita — a coisa mais importante daqui desenhada
+          como a menos. O anel não é enfeite: ele mostra onde a semana
+          está, que é o que faz "em 3 dias" ter tamanho. Cheio à esquerda,
+          contagem no meio: enche enquanto o número desce.
+
+          E o botão de registrar saiu daqui para o rodapé. Ele gravava na
+          hora — hora de agora, local sugerido, dose atual —, pulando o
+          formulário que existe ao lado e que faz tudo isso com escolha.
+          Duas portas para a mesma sala, e a de dentro do cartão fazia
+          menos. */}
+      <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
+        <Row gap={16}>
           <View style={{ flex: 1 }}>
-            <Txt v="body">Próxima aplicação</Txt>
-            <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PRÓXIMA APLICAÇÃO</Txt>
+            <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
+              {ndDays <= 0 ? 'Hoje' : ndDays === 1 ? 'Amanhã' : `Em ${ndDays} dias`}
+            </Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
               {fmtWD(nd)}, {fmtDate(nd)} · {doseStr} {med.unit}
             </Txt>
           </View>
-          <Txt v="metric">
-            {ndDays <= 0 ? 'Hoje' : ndDays}
-            {ndDays > 0 ? <Txt v="label" c={c.tx3}>{ndDays === 1 ? ' dia' : ' dias'}</Txt> : null}
-          </Txt>
-        </Row>
-        <Row gap={8} style={{ marginTop: 14 }}>
-          <Icon name="syringe" size={15} color={c.accent} sw={2} />
-          <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-            {siteLabel(site)} — é o próximo da rotação, para a pele descansar.
-          </Txt>
+          {/* O anel conta a SEMANA, e o número conta os dias que faltam —
+              duas leituras do mesmo intervalo, uma em forma e outra em
+              número. Dentro dele vai o dia do ciclo, que é o que a volta
+              está desenhando. */}
+          <Ring size={88} stroke={9} pct={cic.pct} id="ap" track={c.bg1}>
+            <Txt v="bodyMed">
+              {cic.dayIn}
+              <Txt v="micro" c={c.tx3}>{`/${cic.total}`}</Txt>
+            </Txt>
+          </Ring>
         </Row>
       </View>
 
@@ -155,6 +166,64 @@ export default function Aplicacoes() {
           onPress={() => router.push('/lembretes' as any)}
         />
       </Cartao>
+
+      {/* O RODÍZIO — a única coisa deste assunto que é espacial.
+
+          Alternar o local não é burocracia: repetir o mesmo ponto causa
+          nódulo e irritação, e é o tipo de coisa que ninguém controla de
+          cabeça. O app tinha a resposta inteira guardada — cada aplicação
+          traz local e data — e usava isso para escrever uma linha:
+          "Abdômen (esq.) sugerido". Aqui ela vira mapa, e a pessoa
+          confere sozinha em vez de confiar na sugestão.
+
+          O TOM DIZ HÁ QUANTO TEMPO. Cheio é o que foi usado por último,
+          e vai clareando conforme o local descansa; o próximo da rotação
+          é o contorno lima tracejado, o mesmo do formulário — quem já
+          registrou uma aplicação reconhece a marca. */}
+      <Bloco titulo="Rodízio dos locais">
+        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
+          <Row gap={18} style={{ alignItems: 'center' }}>
+            <Corpo escala={0.92} tons={Object.fromEntries(rod.map((l) => {
+              /* Quatro semanas de descanso é o teto da escala: além disso
+                 o local está tão livre quanto qualquer outro, e continuar
+                 clareando só inventaria diferença.
+
+                 A cor é sempre a da marca e só a FORÇA muda — assim o
+                 desenho continua certo no tema escuro, onde o azul é
+                 outro. Nunca usado fica no cinza do corpo: ele não é "há
+                 muito tempo", é "nunca". */
+              const desc = l.semanas == null ? 1 : Math.min(1, l.semanas / 4);
+              return [l.id, {
+                fill: l.semanas == null ? c.bg2 : c.accent,
+                opacidade: l.semanas == null ? 1 : 0.40 * (1 - desc) + 0.05,
+                stroke: l.proximo ? c.limeDim : c.accentLine,
+                tracejada: l.proximo,
+              }];
+            }))} />
+            <View style={{ flex: 1, gap: 10 }}>
+              <View>
+                <Txt v="bodyMed">{siteLabel(site)}</Txt>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
+                  {(() => {
+                    const p = rod.find((l) => l.proximo);
+                    if (!p || p.semanas == null) return 'Ainda não usado — é a vez dele.';
+                    if (p.semanas === 0) return 'É o próximo da rotação, mesmo tendo sido usado esta semana.';
+                    return `Descansando há ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'} — é a vez dele.`;
+                  })()}
+                </Txt>
+              </View>
+              <Row gap={7}>
+                <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: c.accent, opacity: 0.4 }} />
+                <Txt v="caption" c={c.tx2}>usado há pouco</Txt>
+              </Row>
+              <Row gap={7}>
+                <View style={{ width: 11, height: 11, borderRadius: 3, borderWidth: 1, borderColor: c.limeDim, borderStyle: 'dashed' }} />
+                <Txt v="caption" c={c.tx2}>o próximo</Txt>
+              </Row>
+            </View>
+          </Row>
+        </View>
+      </Bloco>
 
       {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
       <Bloco

@@ -268,6 +268,49 @@ export function milestones(S: State): Milestone[] {
 /* Aplicações — locais, rotação e calendário de constância (porta verbatim). */
 export const SITE_LABEL: Record<string, string> = { 'abd-e': 'Abdômen (esq.)', 'abd-d': 'Abdômen (dir.)', 'coxa-e': 'Coxa (esq.)', 'coxa-d': 'Coxa (dir.)', 'braco-e': 'Braço (esq.)', 'braco-d': 'Braço (dir.)' };
 export const siteLabel = (s: string) => SITE_LABEL[s] || s;
+/* ============================================================
+   O RODÍZIO DOS LOCAIS
+
+   Alternar o local não é burocracia: repetir o mesmo ponto causa nódulo
+   e irritação, e é o tipo de coisa que ninguém controla de cabeça. O app
+   tem a resposta inteira guardada — cada aplicação traz o local e a data
+   —, e usava isso só para SUGERIR o próximo, numa linha de texto.
+
+   Aqui ele devolve a coisa toda: há quanto tempo cada um dos seis
+   descansa. É o que transforma "Abdômen (esq.) sugerido" em uma decisão
+   que a pessoa consegue conferir sozinha.
+
+   Local nunca usado devolve semanas nulo — e não zero. Zero seria "usado
+   esta semana", que é o oposto. */
+export type LocalDoRodizio = {
+  id: string;
+  label: string;
+  ultima: number | null;
+  /** semanas desde a última vez; null quando nunca foi usado */
+  semanas: number | null;
+  proximo: boolean;
+};
+
+export function rodizioDeLocais(S: State): LocalDoRodizio[] {
+  const prox = nextSite(S);
+  const hoje = +startOfDay(now());
+  const ultimaDe = new Map<string, number>();
+  for (const i of S.injections as any[]) {
+    const t = +startOfDay(new Date(i.t));
+    if (!ultimaDe.has(i.site) || t > (ultimaDe.get(i.site) as number)) ultimaDe.set(i.site, t);
+  }
+  return Object.keys(SITE_LABEL).map((id) => {
+    const ultima = ultimaDe.get(id) ?? null;
+    return {
+      id,
+      label: SITE_LABEL[id],
+      ultima,
+      semanas: ultima == null ? null : Math.floor((hoje - ultima) / (7 * DAY)),
+      proximo: id === prox,
+    };
+  }).sort((a, b) => (a.ultima ?? -1) - (b.ultima ?? -1));
+}
+
 export function nextSite(S: State) {
   const used = S.injections.slice(-3).map((i: any) => i.site);
   const all = ['abd-e', 'abd-d', 'coxa-e', 'coxa-d', 'braco-e', 'braco-d'];

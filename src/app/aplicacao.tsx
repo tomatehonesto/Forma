@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import Svg, { Circle, Rect } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, lastInjection, penStock, diasParaAplicar, instanteDaAplicacao,
@@ -9,6 +8,7 @@ import {
 import { MO_LONG, DOW_PT, now, fmtTime, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Campo, Chips, Opcoes, Opc, Stepper, Botao } from '../ui/internas';
+import { Corpo, ZONAS } from '../ui/corpo';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -28,81 +28,25 @@ import { useTheme } from '../ui/useTheme';
    porque escolher outro lugar é decisão dela, não erro.
    ============================================================ */
 
-type Zona = { id: string; x: number; y: number; w: number; h: number; r: number };
-
-/* Coordenadas no viewBox 112×176 — a silhueta é esquemática de propósito:
-   detalhe anatômico aqui só atrapalharia o reconhecimento das seis áreas. */
-const ZONAS: Zona[] = [
-  { id: 'braco-e', x: 15, y: 44, w: 16, h: 22, r: 8 },
-  { id: 'braco-d', x: 81, y: 44, w: 16, h: 22, r: 8 },
-  { id: 'abd-d', x: 40, y: 60, w: 15, h: 20, r: 7 },
-  { id: 'abd-e', x: 57, y: 60, w: 15, h: 20, r: 7 },
-  { id: 'coxa-d', x: 41, y: 100, w: 12, h: 26, r: 6 },
-  { id: 'coxa-e', x: 59, y: 100, w: 12, h: 26, r: 6 },
-];
-
-/* O DESENHO NÃO RECEBE O TOQUE; UMA CAMADA POR CIMA RECEBE.
-
-   Cada zona era um <Rect onPress>, e no navegador isso não funciona: o
-   react-native-svg traduz o onPress em props de responder do React
-   Native, que o DOM não conhece. O resultado eram seis erros de console a
-   cada render — e um mapa que no web não respondia a toque nenhum.
-
-   O SVG volta a ser só desenho e seis Pressable ficam por cima, nas
-   mesmas coordenadas. Dá certo porque o desenho é renderizado em tamanho
-   fixo, 112 por 176, igual ao viewBox: uma unidade do desenho é um pixel
-   da tela, e não há conversão para errar. */
+/* O corpo mora em src/ui/corpo.tsx: duas telas desenham a mesma
+   silhueta e querem coisas diferentes dela — aqui ela é um seletor, na
+   tela de aplicações ela mostra o rodízio. */
 function MapaCorpo({ escolhido, sugerido, onEscolher }: {
   escolhido: string; sugerido: string; onEscolher: (id: string) => void;
 }) {
   const { c } = useTheme();
-  /* A silhueta fica no tom mais claro da escala e as zonas recebem a
-     lavagem azul: assim o que é TOCÁVEL se separa do que é só contorno.
-     Zona e corpo no mesmo cinza — a primeira versão — deixava as seis
-     áreas invisíveis, e o mapa virava desenho. */
-  const corpo = c.bg2;
-  const desenho = (
-    <Svg width={112} height={176} viewBox="0 0 112 176">
-      <Circle cx={56} cy={18} r={12} fill={corpo} />
-      <Rect x={38} y={34} width={36} height={52} rx={12} fill={corpo} />
-      <Rect x={14} y={38} width={18} height={52} rx={9} fill={corpo} />
-      <Rect x={80} y={38} width={18} height={52} rx={9} fill={corpo} />
-      <Rect x={40} y={92} width={14} height={70} rx={7} fill={corpo} />
-      <Rect x={58} y={92} width={14} height={70} rx={7} fill={corpo} />
-
-      {ZONAS.map((z) => {
-        const on = z.id === escolhido;
-        const sug = z.id === sugerido;
-        return (
-          <Rect
-            key={z.id}
-            x={z.x} y={z.y} width={z.w} height={z.h} rx={z.r}
-            fill={on ? c.accent : sug ? c.limeSoft : c.accentWeak}
-            stroke={on ? c.accent : sug ? c.limeDim : c.accentLine}
-            strokeWidth={1.5}
-            strokeDasharray={!on && sug ? '3 3' : undefined}
-          />
-        );
-      })}
-    </Svg>
-  );
-
-  return (
-    <View style={{ width: 112, height: 176 }}>
-      {desenho}
-      {/* A área de toque cresce 6 px para cada lado do que está pintado:
-          a maior das seis zonas tem 16 por 22, que é menos da metade do
-          alvo confortável de dedo. O retângulo colorido continua do
-          tamanho que é — quem cresce é só o que escuta. */}
-      {ZONAS.map((z) => (
-        <Pressable
-          key={z.id}
-          onPress={() => onEscolher(z.id)}
-          style={{ position: 'absolute', left: z.x - 6, top: z.y - 6, width: z.w + 12, height: z.h + 12 }}
-        />
-      ))}
-    </View>
-  );
+  /* O QUE AS CORES DIZEM AQUI: azul cheio é o escolhido, lima tracejado é
+     o que a rotação sugere, e o resto é área disponível. */
+  const tons = Object.fromEntries(ZONAS.map((z) => {
+    const on = z.id === escolhido;
+    const sug = z.id === sugerido;
+    return [z.id, {
+      fill: on ? c.accent : sug ? c.limeSoft : c.accentWeak,
+      stroke: on ? c.accent : sug ? c.limeDim : c.accentLine,
+      tracejada: !on && sug,
+    }];
+  }));
+  return <Corpo tons={tons} onEscolher={onEscolher} />;
 }
 
 /* "no abdômen (esq.)" mas "na coxa (dir.)" — a lista de locais tem os dois
