@@ -38,7 +38,7 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
-  fill = 0.17, onScrub, scrub,
+  fill = 0.17, onScrub, scrub, tracejada = false,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
@@ -52,6 +52,13 @@ export function AreaCurve({
   onScrub?: (i: number | null) => void;
   /** índice destacado — controlado por fora, para o card poder reagir junto */
   scrub?: number | null;
+  /* A LINHA QUE AINDA NÃO ACONTECEU.
+
+     Traço cheio é medida: a curva passa pelos pontos que alguém registrou.
+     Projeção não é isso — é uma conta sobre o futuro —, e desenhá-la igual
+     seria o gráfico afirmando um dado que não existe. Tracejada, ela diz
+     sozinha o que é, sem precisar de legenda embaixo. */
+  tracejada?: boolean;
 }) {
   const { c } = useTheme();
   const [medida, setW] = useState(0);
@@ -141,7 +148,11 @@ export function AreaCurve({
             <SvgGrad id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={sf} stopOpacity={fill} /><Stop offset="1" stopColor={sf} stopOpacity={0} /></SvgGrad>
           </Defs>
           <Path d={area} fill={`url(#${id}f)`} />
-          <Path d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <Path
+            d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none"
+            strokeLinecap="round" strokeLinejoin="round"
+            strokeDasharray={tracejada ? `${strokeW * 2} ${strokeW * 2.2}` : undefined}
+          />
           {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
               vira um engrossamento do próprio traço e some. O miolo na cor
               do cartão é o que faz cada marcação existir como marcação. */}
