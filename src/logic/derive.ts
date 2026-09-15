@@ -2768,15 +2768,16 @@ export function diasParaAplicar(S: State, n = 7): { id: string; label: string; t
 export const instanteDaAplicacao = (t: number) =>
   t === +startOfDay(now()) ? +now() : t + 12 * 3600000;
 
-/* Apagar uma aplicação devolve a dose à caneta, que é o inverso exato do
-   que salvar fez. Sem isso, um registro criado sem querer levava uma
-   dose embora do estoque para sempre. */
-export function apagarAplicacao(s: any, t: number) {
-  const tinha = (s.injections as any[]).some((i) => i.t === t);
-  if (!tinha) return;
-  s.injections = (s.injections as any[]).filter((i) => i.t !== t);
-  if (s.pen) s.pen.dosesLeft = Math.min(s.pen.dosesPerPen ?? 4, (s.pen.dosesLeft || 0) + 1);
-}
+/* NÃO EXISTE APAGAR APLICAÇÃO, e isso é decisão de produto.
+
+   Chegou a existir, pela mesma regra da água e do treino: o que o app
+   deixa criar, ele tem de deixar desfazer. Mas uma aplicação não é um
+   copo d'água — é registro de medicamento injetado, o que a equipe lê na
+   consulta e o que conta a história do tratamento. Um toque errado
+   apagando a dose da semana passada some com um fato clínico.
+
+   Quem registrou errado resolve com quem acompanha. O app não oferece a
+   borracha. */
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
 export function penStock(S: State) {

@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, adesao, apagarAplicacao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
+  M, adesao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
   nextInjectionDate, nextSite, pharmaSeries, reminderWhen, rodizioDeLocais, siteLabel,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
@@ -12,7 +12,7 @@ import { Icon } from '../ui/Icon';
 import { AreaCurve, Ring } from '../ui/charts';
 import { Corpo } from '../ui/corpo';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, ItemApagavel,
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Botao,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -48,7 +48,6 @@ import { radius, shadowCard } from '../theme';
 
 export default function Aplicacoes() {
   const S = useStore((s) => s.S);
-  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
 
@@ -280,13 +279,18 @@ export default function Aplicacoes() {
         </View>
       </Bloco>
 
-      {/* O HISTÓRICO, e a saída que ele não tinha.
+      {/* O HISTÓRICO NÃO SE APAGA, e isso é decisão de produto.
 
-          Aplicar era irreversível: um toque no antigo botão de registrar
-          gravava uma dose que não dava para tirar de lugar nenhum — e ela
-          mexe na data da próxima e no estoque da caneta. Apagar devolve a
-          dose à caneta, que é o inverso exato do que salvar fez. */}
-      <Bloco titulo="Histórico" nota="Apague o que tiver entrado errado — a dose volta para a caneta.">
+          Cheguei a pôr a lixeira aqui, pela mesma regra da água e do
+          treino: o que o app deixa criar, ele tem de deixar desfazer. Mas
+          uma aplicação não é um copo d'água. Ela é registro de
+          medicamento injetado — o que a equipe lê na consulta, o que
+          conta a história do tratamento — e um toque errado apagando uma
+          dose da semana passada some com um fato clínico.
+
+          Fica a lista, e só. Quem registrou errado corrige com quem
+          acompanha; o app não tem por que oferecer a borracha. */}
+      <Bloco titulo="Histórico">
         <Cartao>
           <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
             <View style={{
@@ -303,26 +307,20 @@ export default function Aplicacoes() {
             </View>
           </Row>
           {S.injections.slice().reverse().map((i: any) => (
-            <ItemApagavel
-              key={i.t}
-              pergunta={`Apagar a aplicação de ${fmtDate(new Date(i.t))}?`}
-              onApagar={() => update((s: any) => apagarAplicacao(s, i.t))}
-            >
-              <Row gap={12}>
-                <View style={{
-                  width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name="check" size={14} color={c.accent} sw={2.4} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Txt v="body">{nf(i.dose, i.dose % 1 ? 1 : 0)} {med.unit} · {siteLabel(i.site)}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                    {fmtDate(new Date(i.t))} · {relDay(new Date(i.t))}
-                  </Txt>
-                </View>
-              </Row>
-            </ItemApagavel>
+            <Row key={i.t} gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
+              <View style={{
+                width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name="check" size={14} color={c.accent} sw={2.4} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="body">{nf(i.dose, i.dose % 1 ? 1 : 0)} {med.unit} · {siteLabel(i.site)}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
+                  {fmtDate(new Date(i.t))} · {relDay(new Date(i.t))}
+                </Txt>
+              </View>
+            </Row>
           ))}
         </Cartao>
       </Bloco>
