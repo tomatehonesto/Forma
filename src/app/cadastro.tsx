@@ -1485,16 +1485,20 @@ export default function Cadastro() {
               </View>
             </View>
 
-            {/* ---------- em que isto se baseia ----------
+            {/* ---------- por que esses números ----------
 
-                CADA LINHA DIZ QUAL CONTA ELA SUSTENTA, e abre o trabalho
-                no toque. É o contrário do selo: em vez de pedir confiança,
-                mostra de onde veio e deixa conferir.
+                O QUE SE LÊ É O QUE SE SABE, e não o nome do artigo. "Equação
+                de Mifflin-St Jeor para gasto energético de repouso" é o nome
+                certo da coisa e não diz nada a quem acabou de terminar um
+                cadastro; quem quer o nome certo toca na linha e chega ao
+                trabalho. Em tela fica o que aquilo quer dizer para essa
+                pessoa, com a instituição embaixo — que é o que dá lastro sem
+                virar aula.
 
-                A lista vem de fontes.ts, e a regra de entrada é estrita —
-                só entra o que sustenta um número que o app calcula. */}
+                É o contrário do selo: em vez de pedir confiança, mostra o que
+                se sabe, quem estudou, e deixa conferir. */}
             <View>
-              <Secao t="EM QUE ISTO SE BASEIA" />
+              <Secao t="POR QUE ESSES NÚMEROS" />
               <View style={[cartao, { paddingHorizontal: 16 }]}>
                 {FONTES.map((fo, i) => (
                   <Pressable
@@ -1503,13 +1507,13 @@ export default function Cadastro() {
                     style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
                   >
                     <Row style={{
-                      gap: 10, alignItems: 'center', paddingVertical: 12,
+                      gap: 10, alignItems: 'center', paddingVertical: 14,
                       borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
                     }}>
-                      <View style={{ flex: 1 }}>
-                        <Txt v="label">{fo.sustenta}</Txt>
-                        <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }} numberOfLines={2}>
-                          {`${fo.titulo} · ${fo.onde}${fo.ano ? `, ${fo.ano}` : ''}`}
+                      <View style={{ flex: 1, gap: 4 }}>
+                        <Txt v="caption">{fo.frase}</Txt>
+                        <Txt v="micro" c={c.tx4}>
+                          {`${fo.onde}${fo.ano ? `, ${fo.ano}` : ''}`}
                         </Txt>
                       </View>
                       <Icon name="chev" size={14} color={c.tx4} sw={2} />
