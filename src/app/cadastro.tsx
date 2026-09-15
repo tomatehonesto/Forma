@@ -774,6 +774,11 @@ export default function Cadastro() {
   const RESUMO = passos.length;
   const PLANO = passos.length + 1;
   const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
+  /* Ir para a próxima é uma coisa só, e agora dois rodapés diferentes
+     fazem isso: o "Continuar" de sempre e o "Conectar" da tela de saúde.
+     Quem veio do resumo volta para o resumo, dos dois jeitos. */
+  const avanca = () => (doResumo ? aoResumo() : setN(n + 1));
+  const appSaude = Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect';
 
   const plano = useMemo(
     () => planoDoCadastro({
@@ -1658,10 +1663,15 @@ export default function Cadastro() {
             />
             {/* A DISTÂNCIA É O ASSUNTO DA TELA, e não o número absoluto.
 
-                "70 kg" é uma meta; "10 kg daqui até lá" é o que a pessoa
-                vai atravessar, e é o que ela fica pensando depois de
-                fechar o app. Por isso a diferença sai da legenda cinza e
-                vira o segundo número grande da tela.
+                "70 kg" é uma meta; "você quer perder 10 kg" é o que a
+                pessoa vai atravessar, e é o que ela fica pensando depois
+                de fechar o app. Por isso a diferença sai da legenda cinza
+                e vira o segundo número grande da tela.
+
+                E O RÓTULO É UMA FRASE, não uma etiqueta. "DAQUI ATÉ LÁ"
+                em caixa alta é como se nomeia um campo de formulário; a
+                tela toda é uma conversa, e aqui ela devolve à pessoa o
+                que a pessoa acabou de decidir.
 
                 Meta ACIMA do peso de hoje é escolha legítima de quem está
                 subindo de volta, não erro para bloquear. */}
@@ -1674,8 +1684,8 @@ export default function Cadastro() {
                 backgroundColor: c.accentWeak, borderRadius: radius.card,
                 paddingVertical: 18, paddingHorizontal: 16, gap: 2, alignItems: 'center',
               }}>
-                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>
-                  {perder > 0 ? 'DAQUI ATÉ LÁ' : 'FALTAM GANHAR'}
+                <Txt v="label" c={c.accent}>
+                  {perder > 0 ? 'Você quer perder' : 'Você quer ganhar'}
                 </Txt>
                 <Row style={{ alignItems: 'baseline', gap: 4 }}>
                   <Txt style={[NUMERO, { fontSize: 40, lineHeight: 48 }]}>{nf(Math.abs(perder), 1)}</Txt>
@@ -1898,18 +1908,6 @@ export default function Cadastro() {
               </View>
             </View>
 
-            <View style={{ gap: 8 }}>
-              <Escolha
-                ic="activity" cheia titulo="Quero conectar"
-                sub={Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect'}
-                on={r.saude === true} onPress={() => p({ saude: true })}
-              />
-              <Escolha
-                ic="x" cheia titulo="Agora não" sub="dá para ligar depois, nas integrações"
-                on={r.saude === false} onPress={() => p({ saude: false })}
-              />
-            </View>
-
             {/* A RESSALVA APARECE ANTES DA RESPOSTA, e não depois dela.
 
                 Ela só saía quando a pessoa já tinha marcado "quero
@@ -1918,7 +1916,7 @@ export default function Cadastro() {
                 saúde. É informação para decidir, não confirmação. */}
             <Txt v="caption" c={c.tx3}>
               Quem pede a autorização é o próprio aparelho, e lá você escolhe o que liberar.
-              Desligar é um toque, no seu perfil.
+              Se preferir agora não, dá para ligar depois no seu perfil.
             </Txt>
           </View>
         ) : null}
@@ -1961,12 +1959,40 @@ export default function Cadastro() {
         paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
         backgroundColor: c.bg,
       }}>
-        <Botao
-          pilula
-          label={doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
-          desligado={!respondida(id)}
-          onPress={() => (doResumo ? aoResumo() : setN(n + 1))}
-        />
+        {/* NA TELA DE SAÚDE, A RESPOSTA É O PRÓPRIO BOTÃO.
+
+            Ali eram dois cartões de seleção mais o "Continuar": três
+            toques e duas gramáticas para uma pergunta de sim ou não. Pior
+            que a contagem, o cartão marcado acendia um círculo azul de
+            "pronto" antes de a pessoa sair da tela — e não havia nada de
+            pronto. Autorizar acesso a dado de saúde é o gesto mais
+            delicado do cadastro, e é o único aqui que a pessoa vai
+            reconhecer de outros apps: a ação embaixo, e a recusa logo
+            abaixo dela, escrita por extenso em vez de escondida. */}
+        {id === 'saude' ? (
+          <View>
+            <Botao
+              pilula
+              label={`Conectar ao ${appSaude}`}
+              onPress={() => { p({ saude: true }); avanca(); }}
+            />
+            <Pressable
+              onPress={() => { p({ saude: false }); avanca(); }}
+              style={({ pressed }) => [{
+                alignItems: 'center', paddingVertical: 14, opacity: pressed ? 0.6 : 1,
+              }]}
+            >
+              <Txt v="label" c={c.tx3}>Agora não</Txt>
+            </Pressable>
+          </View>
+        ) : (
+          <Botao
+            pilula
+            label={doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
+            desligado={!respondida(id)}
+            onPress={avanca}
+          />
+        )}
       </View>
     </View>
   );
