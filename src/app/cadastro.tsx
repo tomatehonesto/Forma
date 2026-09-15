@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
@@ -134,6 +135,53 @@ const VAZIO: Respostas = {
 };
 
 /* ------------------------------------------------------------------ */
+/* A LAVAGEM DO TOPO.
+
+   O cadastro não é uma tela do app — é a porta dele, e as portas do app
+   já têm esse desenho: a Home e o Insights abrem com uma aurora que
+   morre no branco onde o conteúdo começa. Aquelas duas são escuras
+   porque o texto delas é branco; esta é clara porque o texto dela é
+   preto, e é a pergunta que precisa pesar.
+
+   Sem borda e sem cartão: o gradiente não tem fim, tem desbotamento. É
+   isso que separa o cabeçalho de uma barra de navegação — barra é uma
+   régua em cima do conteúdo, lavagem é o ambiente em que ele acontece.
+
+   AS CORES SÃO AS CHEIAS DO TEMA, COM TRANSPARÊNCIA — e não os tons
+   pálidos já prontos. Tentei primeiro com bluePale e limePale, que são os
+   que pintam as barras de meta: a lavagem saiu tão fraca que lia como
+   sujeira na tela, não como cor. Tom pálido nasce misturado com branco, e
+   misturar de novo com o fundo branco não sobra nada.
+
+   Assim o azul e o lima entram com a saturação que têm, e é a opacidade
+   que decide quanto aparece — some no fundo do gradiente em vez de
+   começar já sumindo. */
+function Lavagem({ altura }: { altura: number }) {
+  const { c } = useTheme();
+  return (
+    <LinearGradient
+      colors={[
+        'rgba(6,92,245,0.30)',
+        'rgba(21,228,203,0.34)',
+        'rgba(221,246,44,0.26)',
+        c.bg,
+      ]}
+      locations={[0, 0.3, 0.56, 1]}
+      /* VERTICAL, e não na diagonal.
+
+         Na diagonal o último ponto do gradiente — o que iguala o fundo da
+         tela — chega ao canto de baixo à esquerda antes de chegar ao da
+         direita, e sobra uma emenda atravessada no lugar exato onde a
+         lavagem deveria ter desaparecido. No eixo vertical a última parada
+         cai reta na borda de baixo, e o fim não tem linha. */
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, height: altura }}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* A ESCOLHA — o cartão de uma alternativa.
 
    `Opc`, do vocabulário, é de uma linha só, e aqui quase toda opção tem
@@ -148,12 +196,25 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
   ic: string; titulo: string; sub?: string; on?: boolean; cheia?: boolean; onPress: () => void;
 }) {
   const { c } = useTheme();
+  /* A MARCA FICA À DIREITA, E EXISTE MESMO DESMARCADA.
+
+     Antes ela só aparecia no cartão escolhido, e com isso a lista dizia
+     "aqui tem uma opção marcada" sem dizer "aqui se marca" — quem chega
+     na tela precisa ver que aquilo é escolhível antes de escolher. O
+     círculo vazio é o convite; cheio, é a resposta.
+
+     À direita porque é lá que a mão vai, e porque à esquerda ela
+     disputaria com o ícone do assunto. Em azul, que é a cor de ação do
+     app — o lima é a cor do feito, e escolher no cadastro ainda não é
+     ter feito nada. */
   const marca = (
     <View style={{
-      width: 20, height: 20, borderRadius: 10, backgroundColor: c.lime,
+      width: 24, height: 24, borderRadius: 12,
+      borderWidth: on ? 0 : 1.5, borderColor: c.line,
+      backgroundColor: on ? c.accent : 'transparent',
       alignItems: 'center', justifyContent: 'center',
     }}>
-      <Icon name="check" size={12} color={c.limeInk} sw={2.8} />
+      {on ? <Icon name="check" size={13} color={c.accentInk} sw={3} /> : null}
     </View>
   );
   const selo = (
@@ -185,7 +246,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
           <Txt v="bodyMed">{titulo}</Txt>
           {sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt> : null}
         </View>
-        {on ? marca : null}
+        {marca}
       </Pressable>
     );
   }
@@ -197,10 +258,7 @@ function Escolha({ ic, titulo, sub, on, cheia, onPress }: {
     >
       <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
         {selo}
-        {/* A marca do escolhido em lima, que é a cor do feito no app
-            inteiro. Ela existe porque a lavagem azul sozinha pede
-            comparação com os vizinhos para se ler como "este". */}
-        {on ? marca : null}
+        {marca}
       </Row>
       <View>
         <Txt v="bodyMed" numberOfLines={2}>{titulo}</Txt>
@@ -516,6 +574,7 @@ export default function Cadastro() {
   if (n === -1) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top, paddingHorizontal: 20 }}>
+        <Lavagem altura={insets.top + 380} />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 }}>
           <View style={{
             width: 56, height: 56, borderRadius: radius.card, backgroundColor: c.bg1,
@@ -534,7 +593,7 @@ export default function Cadastro() {
           </Txt>
         </View>
         <View style={{ paddingBottom: insets.bottom + 20 }}>
-          <Botao label="Começar" onPress={() => setN(0)} />
+          <Botao pilula label="Começar" onPress={() => setN(0)} />
         </View>
       </View>
     );
@@ -622,7 +681,7 @@ export default function Cadastro() {
             ) : null}
 
             <View style={{ marginTop: 4 }}>
-              <Botao label="Ir para a minha Home" onPress={() => router.replace('/(tabs)' as any)} />
+              <Botao pilula label="Ir para a minha Home" onPress={() => router.replace('/(tabs)' as any)} />
             </View>
           </View>
         </ScrollView>
@@ -684,8 +743,11 @@ export default function Cadastro() {
             desfazer — apagar, enviar, pagar. Aqui ele guardava a porta da
             Home, e tudo o que está atrás dela pode ser mudado no perfil a
             qualquer hora. */}
-        <View style={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 12 }}>
-          <Botao label="Confirmar" onPress={salvar} />
+        <View style={{
+          paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
+          gap: 12, backgroundColor: c.bg,
+        }}>
+          <Botao pilula label="Confirmar" onPress={salvar} />
           <Pressable
             onPress={() => setN(PASSOS.length - 1)}
             style={({ pressed }) => [{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}
@@ -729,29 +791,38 @@ export default function Cadastro() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <Lavagem altura={insets.top + 320} />
+
       {/* O TOPO diz onde a pessoa está e não oferece saída. "Pular tudo"
           ficava aqui; com as perguntas obrigatórias, o que sobra é a
-          barra, a contagem e o voltar. */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 10, gap: 16 }}>
+          barra, a contagem e o voltar — e os três passam a flutuar sobre
+          a lavagem, sem faixa nem fio embaixo. */}
+      <View style={{ paddingHorizontal: 20, paddingTop: insets.top + 10 }}>
         <Row gap={12}>
-          <CircleBtn name="back" size={36} onPress={() => (doResumo ? aoResumo() : setN(n - 1))} />
-          <View style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: c.bg3, overflow: 'hidden' }}>
+          <CircleBtn name="back" size={38} bg={c.bg1} onPress={() => (doResumo ? aoResumo() : setN(n - 1))} />
+          <View style={{
+            flex: 1, height: 4, borderRadius: 2, overflow: 'hidden',
+            backgroundColor: 'rgba(255,255,255,0.6)',
+          }}>
             <View style={{
               width: `${((n + 1) / PASSOS.length) * 100}%`,
               height: '100%', borderRadius: 2, backgroundColor: c.accent,
             }} />
           </View>
-          <Txt v="micro" c={c.tx3}>{n + 1} de {PASSOS.length}</Txt>
+          <Txt v="micro" c={c.tx2}>{n + 1} de {PASSOS.length}</Txt>
         </Row>
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 26, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 40, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
+        {/* A pergunta mora DENTRO da lavagem, e não abaixo dela: é ela o
+            assunto da tela, e o gradiente existe para dar altura ao que
+            ela pergunta. As respostas é que caem no branco. */}
         <Txt v="h1">{titulos[id]}</Txt>
-        <Txt v="caption" c={c.tx2} style={{ marginTop: 8, marginBottom: 22 }}>{subs[id]}</Txt>
+        <Txt v="note" c={c.tx2} style={{ marginTop: 10, marginBottom: 28 }}>{subs[id]}</Txt>
 
         {id === 'nome' ? (
           <CampoTexto
@@ -1053,8 +1124,16 @@ export default function Cadastro() {
         ) : null}
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 20 }}>
+      {/* O RODAPÉ É OPACO. Sem fundo, a lista de opções passava por baixo
+          do botão e a última delas aparecia cortada ao meio atrás de uma
+          pílula translúcida — parecia defeito de render, não fim de
+          lista. */}
+      <View style={{
+        paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
+        backgroundColor: c.bg,
+      }}>
         <Botao
+          pilula
           label={doResumo || n === PASSOS.length - 1 ? 'Ver o resumo' : 'Continuar'}
           desligado={!respondida[n]}
           onPress={() => (doResumo ? aoResumo() : setN(n + 1))}

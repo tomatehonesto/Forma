@@ -1250,8 +1250,16 @@ export function ItemApagavel({ pergunta, onApagar, children }: {
 
    Desligado ele NÃO CHAMA onPress: um botão que parece apagado e mesmo
    assim funciona é pior do que um que não parece nada. */
-export function Botao({ label, onPress, tom = 'cheio', desligado }: {
+export function Botao({ label, onPress, tom = 'cheio', desligado, pilula }: {
   label: string; onPress?: () => void; tom?: 'cheio' | 'fantasma' | 'perigo'; desligado?: boolean;
+  /* PÍLULA — o botão que fecha uma tela inteira, e não um cartão.
+
+     No cadastro cada passo é a tela toda: gradiente no topo, uma pergunta
+     no meio, um botão no pé. Ali o raio de cartão faz o botão parecer mais
+     um bloco da pilha, e o que ele precisa parecer é o fim dela. Dentro de
+     um cartão continua valendo o raio de cartão — daí ser opção, e não
+     troca. */
+  pilula?: boolean;
 }) {
   const { c } = useTheme();
   const fundo = desligado ? c.bg2 : tom === 'cheio' ? c.accent : c.bg1;
@@ -1261,8 +1269,10 @@ export function Botao({ label, onPress, tom = 'cheio', desligado }: {
     <Pressable
       onPress={desligado ? undefined : onPress}
       style={({ pressed }) => [{
-        borderRadius: radius.md + 3, backgroundColor: fundo, borderWidth: 1, borderColor: borda,
-        paddingVertical: 16, alignItems: 'center', opacity: pressed && !desligado ? 0.85 : 1,
+        borderRadius: pilula ? radius.pill : radius.md + 3,
+        backgroundColor: fundo, borderWidth: 1, borderColor: borda,
+        paddingVertical: pilula ? 18 : 16, alignItems: 'center',
+        opacity: pressed && !desligado ? 0.85 : 1,
       }]}
     >
       <Txt v="bodyMed" c={tinta}>{label}</Txt>
