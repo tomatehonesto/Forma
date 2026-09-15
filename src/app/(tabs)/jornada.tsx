@@ -8,7 +8,8 @@ import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
-  waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M, type Change, type TLEvent, type TLKind, type WeekMetric,
+  waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
+  sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
@@ -392,7 +393,20 @@ export default function Jornada() {
   const ci = checkinToday(S);
   const proto = protocoloDaSemana(S);
 
-  const habitos: [string, string, string, string][] = [
+  /* SINTOMAS ENTRA NA LISTA, e por isso ela não se chama mais só de
+     hábitos.
+
+     A tela existia, estava registrada no Stack e NENHUMA outra empurrava
+     para ela: dava para chegar lá digitando a rota. É metade do
+     tratamento — o que a caneta causa — sem porta, enquanto água e
+     exercício têm a sua nesta mesma lista.
+
+     O subtítulo diz o sintoma mais presente da semana, e distingue os
+     dois silêncios: quem não respondeu lê 'sem registro', quem respondeu
+     e não teve nada lê 'sem queixas'. */
+  const sint = sintomasDaSemana(S);
+  const diasSint = diasDeSintomas(S);
+  const temas: [string, string, string, string][] = [
     ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
     /* A água ia para o MENU de registros enquanto as vizinhas iam para a
        tela do próprio hábito: era a única linha desta lista que não
@@ -401,6 +415,9 @@ export default function Jornada() {
        1,75 L. */
     ['water', 'Água', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
+    ['waves', 'Sintomas', !diasSint ? 'sem registro'
+      : !sint.length ? 'sem queixas na semana'
+      : `${sint[0].label.toLowerCase()} em ${sint[0].dias} ${sint[0].dias === 1 ? 'dia' : 'dias'}`, '/sintomas'],
     /* Contado por protocoloDaSemana, e não somando os `done`: os itens
        medidos não têm esse campo — eles se cumprem pelos registros. */
     ['target', 'Protocolos', `${proto.feitas} de ${proto.total}`, '/protocolos'],
@@ -479,11 +496,17 @@ export default function Jornada() {
           </View>
         </View>
 
-        {/* ---------- HÁBITOS — quatro tiles ---------- */}
+        {/* ---------- O DIA A DIA — uma porta por assunto ----------
+
+             Chamava-se "Hábitos", e o link do cabeçalho levava a
+             Protocolos — que é um dos tiles logo abaixo. Duas portas para
+             a mesma sala, a de cima escrita menor. Com Sintomas na lista o
+             título também deixou de valer: o que a caneta causa não é
+             hábito de ninguém. */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="Hábitos" link="Protocolos" onPress={go('/protocolos')} />
+          <SectionHead title="O dia a dia" />
           <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
-            {habitos.map(([ic, t, sub, to]) => (
+            {temas.map(([ic, t, sub, to]) => (
               <Pressable key={t} onPress={go(to)} style={({ pressed }) => [{ width: '49%', opacity: pressed ? 0.7 : 1 }]}>
                 <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginBottom: 7 }}>
                   <Icon name={ic} size={17} color={c.tx3} sw={1.8} />
