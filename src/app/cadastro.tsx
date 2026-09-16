@@ -13,6 +13,7 @@ import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
+import { RESTRICOES } from '../logic/restricoes';
 import { Marca } from '../ui/marca';
 import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
@@ -60,7 +61,7 @@ import { radius, ty, font } from '../theme';
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
   | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
-  | 'saude' | 'recomendacao';
+  | 'restricao' | 'saude' | 'recomendacao';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -71,7 +72,8 @@ type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medi
    a "semana 11 do tratamento". */
 const TODOS: Id[] = [
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
-  'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'saude', 'recomendacao',
+  'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
+  'saude', 'recomendacao',
 ];
 
 /* O NÍVEL DE ATIVIDADE DESCREVE O CENÁRIO, e não define meta.
@@ -140,6 +142,9 @@ type Respostas = {
   ritmo: number | null;
   motivacao: string | null;
   atividade: string | null;
+  /* Pode ser mais de uma: vegetariano E sem lactose é combinação comum.
+     Lista vazia quer dizer "como de tudo", e não "não respondeu". */
+  restricoes: string[];
   saude: boolean | null;
   /* A data do início em três peças, como a de nascimento: a roda mexe uma
      de cada vez, e o dia 31 tem que sobreviver a um passeio por
@@ -158,7 +163,7 @@ const VAZIO: Respostas = {
   dia: 1, mes: 0, ano: 1990,
   emTratamento: null, med: null, dose: null, intervalo: null,
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
-  motivacao: null, atividade: null, saude: null,
+  motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
   recomendado: null, codigo: '',
 };
@@ -1042,6 +1047,8 @@ export default function Cadastro() {
     if (x === 'ritmo') return perder <= 0 || r.ritmo != null;
     if (x === 'motivacao') return r.motivacao != null;
     if (x === 'atividade') return r.atividade != null;
+    /* Sempre válida: lista vazia é "nenhuma", que é uma resposta. */
+    if (x === 'restricao') return true;
     if (x === 'saude') return r.saude != null;
     /* A roda não deixa escolher um dia que ainda não aconteceu, então
        chegar aqui já significa uma data válida. */
@@ -1076,6 +1083,10 @@ export default function Cadastro() {
       s.profile.ritmo = r.ritmo;
       s.profile.motivacao = r.motivacao;
       s.profile.atividade = r.atividade;
+      /* QUEM LÊ: a tabela de alimentos, que passa a mostrar primeiro o que
+         cabe, e os achados da tela de Alimentação, que sugerem o que
+         comer. Ver src/logic/restricoes.ts. */
+      (s.profile as any).restricoes = r.restricoes;
       /* A INTEGRAÇÃO DE SAÚDE é a mesma chave que a tela de Integrações
          liga — uma fonte só para o mesmo fato. iOS tem Apple Health,
          Android tem Health Connect; ligar os dois faria o perfil afirmar
@@ -1187,6 +1198,9 @@ export default function Cadastro() {
         ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
         ['ruler', 'Altura e peso', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
         ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
+        ['leaf', 'Restrição', r.restricoes.length
+          ? r.restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
+          : 'Nenhuma', 'restricao'],
       ]],
       ['O TRATAMENTO', [
         ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
@@ -1279,6 +1293,7 @@ export default function Cadastro() {
     ritmo: 'Qual ritmo você quer seguir para chegar lá?',
     motivacao: 'O que está te levando a essa jornada?',
     atividade: 'Qual é o seu nível de atividade física?',
+    restricao: 'Você tem alguma restrição alimentar?',
     saude: 'Conecte o seu app de saúde',
     recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
   };
@@ -1307,6 +1322,7 @@ export default function Cadastro() {
     meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
+    restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz ao Morphi de onde você está partindo.',
     saude: 'O seu aparelho já mede. O Morphi só lê.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
@@ -1674,6 +1690,35 @@ export default function Cadastro() {
                 key={x.id} cheia ic={x.ic} titulo={x.titulo} sub={x.sub}
                 on={r.motivacao === x.id}
                 onPress={() => p({ motivacao: x.id })}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {/* A RESTRIÇÃO É A ÚNICA PERGUNTA DE MÚLTIPLA ESCOLHA DO
+            FORMULÁRIO, e por isso ela precisa dizer isso de alguma forma:
+            "Nenhuma" existe como opção, e não como ausência de resposta.
+            Sem ela, quem come de tudo ficaria olhando uma lista à espera
+            de saber o que fazer — e o botão de continuar desligado.
+
+            E ela limpa as outras ao ser tocada, porque é o que significa:
+            não dá para ser vegano e não ter restrição nenhuma. */}
+        {id === 'restricao' ? (
+          <View style={{ gap: 10 }}>
+            <Escolha
+              cheia titulo="Nenhuma" sub="Como de tudo"
+              on={r.restricoes.length === 0}
+              onPress={() => p({ restricoes: [] })}
+            />
+            {RESTRICOES.map((x) => (
+              <Escolha
+                key={x.id} cheia titulo={x.titulo} sub={x.sub}
+                on={r.restricoes.includes(x.id)}
+                onPress={() => p({
+                  restricoes: r.restricoes.includes(x.id)
+                    ? r.restricoes.filter((y) => y !== x.id)
+                    : [...r.restricoes, x.id],
+                })}
               />
             ))}
           </View>

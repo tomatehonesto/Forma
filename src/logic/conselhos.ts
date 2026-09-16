@@ -1,8 +1,9 @@
 import type { State } from './seed';
 import { ALIMENTOS } from './alimentos';
-import { metasDoDia, diaDaRefeicao } from './derive';
+import { listaPt, metasDoDia, diaDaRefeicao } from './derive';
 import { nutrientesDe, gramasItem, MOMENTOS, type ItemComida } from './prato';
 import { DAY, now, startOfDay } from './time';
+import { fontesDeProteina } from './restricoes';
 
 /* ============================================================
    O QUE DÁ PARA NOTAR NA ROTINA
@@ -78,6 +79,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
   if (dias.length < MINIMO_DE_DIAS) return [];
 
   const metas = metasDoDia(S);
+  const restricoes = ((S.profile as any).restricoes ?? []) as string[];
   const fora: Conselho[] = [];
 
   /* ---------- 1. A FIBRA ----------
@@ -134,13 +136,18 @@ export function conselhosDaRotina(S: State): Conselho[] {
        inventar uma rotina que não é a dela. */
     const cota = metas.prot / porMomento.length;
     if (pior.media < cota * 0.6) {
+      /* AS FONTES SAEM DA TABELA, E RESPEITAM O QUE A PESSOA COME. A
+         frase dizia "um ovo, um iogurte ou um pedaço de queijo" para
+         todo mundo — conselho que um vegano não pode seguir, dito pelo
+         app que acabou de perguntar se ele é vegano. */
+      const fontes = fontesDeProteina(restricoes, 3);
       fora.push({
         id: 'momento-fraco',
         ic: pior.ic,
         bom: false,
         q: `O que eu posso comer no ${pior.nome.toLowerCase()} para ter mais proteína?`,
         titulo: `${pior.nome}: ${pior.media} g de proteína, na média`,
-        texto: `É o seu momento mais leve em proteína — o ${melhor.nome.toLowerCase()} vem com ${melhor.media} g. Um ovo, um iogurte ou um pedaço de queijo ali já mudam a conta do dia.`,
+        texto: `É o seu momento mais leve em proteína — o ${melhor.nome.toLowerCase()} vem com ${melhor.media} g. Dentro do que você come, quem mais entrega proteína por caloria é ${listaPt(fontes)}.`,
       });
     } else if (melhor.media >= cota) {
       fora.push({

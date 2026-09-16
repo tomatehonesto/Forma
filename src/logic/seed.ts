@@ -299,6 +299,9 @@ export function buildSeed() {
          código (proteína 90 g em derive, água na constante GOAL_WATER).
          Hoje as três saem daqui, e derive lê o perfil.
          A Home nova trata as três como alvo configurável. */
+      /* Sem restrição alimentar — ver src/logic/restricoes.ts. Lista vazia
+         quer dizer "come de tudo". */
+      restricoes: [],
       targets: { prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 },
     },
     weights, injections, checkins,
@@ -508,6 +511,9 @@ export function ensureDefaults(S: any) {
   /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
      depende da pessoa, e um padrão fixo não serve para todo mundo. */
   if (S.profile) S.profile.targets = Object.assign({ prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 }, S.profile.targets || {});
+  /* Quem gravou o perfil antes desta pergunta existir não tem a lista, e
+     ausente quer dizer "nenhuma" — o comportamento que o app já tinha. */
+  if (S.profile && !(S.profile as any).restricoes) (S.profile as any).restricoes = [];
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
   /* Favorito virou prato. Os que existirem como string continuam
      valendo — viram { nome } e seguem abrindo o registro com o nome na

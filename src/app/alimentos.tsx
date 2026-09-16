@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ALIMENTOS, buscarAlimento, medidaDe, type Alimento } from '../logic/alimentos';
+import { cabe } from '../logic/restricoes';
+import { useStore } from '../logic/store';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Chips, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -29,11 +31,25 @@ import { ty, radius } from '../theme';
 const TETO = 40;
 
 export default function Alimentos() {
+  const S = useStore((x) => x.S);
   const { c } = useTheme();
   const router = useRouter();
   const [termo, setTermo] = useState('');
   const [onde, setOnde] = useState('');
   const [tudo, setTudo] = useState(false);
+
+  /* A RESTRIÇÃO FILTRA, E NUNCA APAGA.
+
+     A lista mostra primeiro o que cabe no que a pessoa come, e o botão
+     de ver tudo fica logo abaixo dela, escrito com o número do que está
+     de fora. Esconder em definitivo seria transformar uma preferência
+     numa parede: quem é vegetariano ainda pode querer conferir quanta
+     proteína tem um filé, e quem cozinha para casa procura o que os
+     outros comem. Ver src/logic/restricoes.ts. */
+  const restricoes = ((S.profile as any).restricoes ?? []) as string[];
+  const [semFiltro, setSemFiltro] = useState(false);
+  const filtraRestricao = restricoes.length > 0 && !semFiltro;
+
 
   const emOrdem = React.useMemo(
     () => [...ALIMENTOS].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
@@ -47,17 +63,25 @@ export default function Alimentos() {
      e o toque nela levaria a lugar nenhum. */
   const prateleiras = React.useMemo(() => {
     const vistas = new Map<string, number>();
-    for (const a of ALIMENTOS) vistas.set(a.onde, (vistas.get(a.onde) || 0) + 1);
+    for (const a of ALIMENTOS) {
+      if (filtraRestricao && !cabe(a, restricoes)) continue;
+      vistas.set(a.onde, (vistas.get(a.onde) || 0) + 1);
+    }
     return [...vistas.entries()].sort((x, y) => y[1] - x[1]);
-  }, []);
+  }, [filtraRestricao, restricoes]);
 
   const procurando = termo.trim().length >= 2;
   const base = procurando ? buscarAlimento(termo, 200) : emOrdem;
   const filtrados = onde ? base.filter((a) => a.onde === onde) : base;
+  const foraDaRestricao = filtraRestricao
+    ? filtrados.filter((a) => !cabe(a, restricoes)).length
+    : 0;
+  const naRestricao = filtraRestricao ? filtrados.filter((a) => cabe(a, restricoes)) : filtrados;
+
   /* O teto é para a lista inteira. Quem filtrou uma prateleira já
      encurtou a lista por conta própria, e cortar de novo escondia
      alimento que a pessoa acabou de pedir para ver. */
-  const achados: Alimento[] = procurando || onde || tudo ? filtrados : filtrados.slice(0, TETO);
+  const achados: Alimento[] = procurando || onde || tudo ? naRestricao : naRestricao.slice(0, TETO);
 
   return (
     <TelaInterna titulo="Alimentos">
@@ -90,7 +114,9 @@ export default function Alimentos() {
             perguntas diferentes. */}
         <Chips
           itens={[
-            { id: '', label: 'Tudo', n: ALIMENTOS.length },
+            /* O NÚMERO É O DO QUE O TOQUE ENTREGA, e não o da tabela: com
+               a restrição ligada, "Tudo 224" prometeria 224 e mostraria 81. */
+            { id: '', label: 'Tudo', n: prateleiras.reduce((x, [, k]) => x + k, 0) },
             ...prateleiras.map(([nome, n]) => ({ id: nome, label: nome, n })),
           ]}
           valor={onde}
@@ -117,9 +143,24 @@ export default function Alimentos() {
           </Txt>
         )}
 
-        {!procurando && !onde && !tudo && emOrdem.length > TETO ? (
+        {/* O ESCAPE DA RESTRIÇÃO, com o número do que ele traz de volta.
+            Um botão que dissesse só "mostrar tudo" não contaria que a
+            lista estava sendo cortada — e lista cortada em silêncio é a
+            pessoa achando que o app não tem o alimento. */}
+        {foraDaRestricao > 0 ? (
           <Linha
-            titulo={`Ver todos os ${emOrdem.length}`}
+            titulo={`Mostrar também os ${foraDaRestricao} fora da sua restrição`}
+            seta={false}
+            onPress={() => setSemFiltro(true)}
+          />
+        ) : null}
+
+        {!procurando && !onde && !tudo && naRestricao.length > TETO ? (
+          <Linha
+            /* O número é o da lista que a pessoa está vendo, e não o da
+               tabela inteira: com a restrição ligada, "ver todos os 224"
+               prometeria 224 e entregaria 72. */
+            titulo={`Ver todos os ${naRestricao.length}`}
             seta={false}
             onPress={() => setTudo(true)}
           />
