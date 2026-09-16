@@ -76,7 +76,7 @@ export default function MedirAgua() {
   /* Gravar é uma linha porque a regra não mora mais aqui. Este botão
      somava direto no acumulador do dia e não guardava nada sobre o gole —
      era por isso que beber virava a única coisa do app que não se podia
-     desfazer. registrarAgua escreve os dois: o gole no caderno e o total
+     desfazer. registrarAgua escreve os dois: o gole no diário e o total
      do dia. */
   const beber = (ml: number) => {
     update((s: any) => registrarAgua(s, ml));

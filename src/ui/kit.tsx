@@ -160,7 +160,7 @@ export function IconBadge({ name, size = 44, iconSize, color, bg, sw }: { name: 
 
    Mora aqui no kit, e não no vocabulário das telas internas, porque
    vazio não é assunto de tela interna: a Jornada tem, as fotos têm, o
-   caderno tem. */
+   diário tem. */
 export function Vazio({ ic, titulo, texto }: {
   ic: string; titulo: string; texto?: string;
 }) {

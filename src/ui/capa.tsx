@@ -31,7 +31,7 @@ import { radius } from '../theme';
    E O RODAPÉ FIXO TAMBÉM. A ação mora na capa agora; um botão fixo
    embaixo seria a segunda porta para a mesma sala, com a de baixo mais
    chamativa que a principal. O custo é real e é aceito: rolando até o
-   caderno, a ação fica para trás.
+   diário, a ação fica para trás.
 
    O NÚMERO GRANDE É SEMPRE A PROPORÇÃO DO DIA, e nunca a quantidade — a
    quantidade já está escrita por extenso na linha de cima, com a unidade

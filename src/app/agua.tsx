@@ -19,7 +19,7 @@ import { radius } from '../theme';
    ÁGUA
 
    A água era o único dos três hábitos sem tela. Alimentação e exercício
-   têm a sua — o número do dia, a semana, o caderno —, e a água tinha um
+   têm a sua — o número do dia, a semana, o diário —, e a água tinha um
    botão que abria a folha de registro e mais nada: dava para BEBER e não
    dava para OLHAR. Ontem, a semana, o copo que entrou errado: nada disso
    existia em lugar nenhum.
@@ -33,7 +33,7 @@ import { radius } from '../theme';
    três telas de hábito passaram a dividir. Ver src/ui/capa.tsx.
    ============================================================ */
 
-/* Trinta dias na tira, como no caderno de refeições, e pelo mesmo motivo:
+/* Trinta dias na tira, como no diário de refeições, e pelo mesmo motivo:
    não há seletor de período porque não há mais nada na tela que responda
    a ele. */
 const DIAS_DA_TIRA = 30;
@@ -102,7 +102,7 @@ export default function Agua() {
             segundos.
 
             E o que tornava isso arriscado deixou de existir: agora cada
-            gole é um registro com hora e lixeira no caderno logo abaixo.
+            gole é um registro com hora e lixeira no diário logo abaixo.
             O medo de um toque errado era o medo de um toque IRREVERSÍVEL.
 
             A água é o único dos três hábitos em que um toque completa um
@@ -160,7 +160,7 @@ export default function Agua() {
             rotulo={litros}
           />
 
-          {/* O CADERNO DE ÁGUA — e a saída que a água não tinha.
+          {/* O DIÁRIO DE ÁGUA — e a saída que a água não tinha.
 
               Beber era a única coisa deste app sem volta: um toque errado
               em "Garrafão" somava um litro para sempre, e a pessoa via o
@@ -172,7 +172,7 @@ export default function Agua() {
               quem está procurando qual apagar. Entre dois copos de
               0,25 L, o que diferencia um do outro é "às 7:18". */}
           <Bloco
-            titulo="Caderno de água"
+            titulo="Diário de água"
             nota="Cada registro com a hora em que entrou. Apague o que tiver entrado errado."
           >
             <View style={{ gap: 10 }}>
@@ -207,7 +207,7 @@ export default function Agua() {
                           <View style={{ flex: 1 }}>
                             <Txt v="body">{litros(g.ml)} L</Txt>
                             {/* O DIA SEM HORA é dito, e não maquiado. Um
-                                registro de antes de o caderno existir sabe o
+                                registro de antes de o diário existir sabe o
                                 total e não sabe quando: inventar "08:00" para
                                 preencher a linha seria escrever no diário da
                                 pessoa uma coisa que ela não escreveu. */}

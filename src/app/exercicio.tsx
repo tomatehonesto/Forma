@@ -63,7 +63,7 @@ import { radius } from '../theme';
    configura.
    ============================================================ */
 
-/* O período governa o RESUMO e o CADERNO juntos — os dois falam do
+/* O período governa o RESUMO e o DIÁRIO juntos — os dois falam do
    mesmo recorte. Um seletor que só filtrasse a lista seria enfeite; o
    que ele faz aqui é trocar a pergunta: como foi o meu mês, e não só o
    que aconteceu hoje.
@@ -94,7 +94,7 @@ export default function Exercicio() {
   const dias = PERIODOS.find((x) => x.id === per)!.dias;
   /* O DIA ESCOLHIDO — sempre há um, e começa em hoje.
 
-     A tira nasceu como filtro opcional: sem escolha, o caderno listava o
+     A tira nasceu como filtro opcional: sem escolha, o diário listava o
      período inteiro. Duas coisas na mesma seção dizendo coisas
      diferentes — um seletor de data em cima e, embaixo, tudo. Ou o
      seletor manda, ou ele é enfeite.
@@ -125,7 +125,7 @@ export default function Exercicio() {
   const treinos = treinosRecentes(S, dias);
   const resumo = resumoDeMovimento(S, dias);
   /* A tira termina em hoje. Chegou a ter o dia seguinte, tracejado, para
-     não parecer cortada — mas um caderno registra o que foi feito, e o
+     não parecer cortada — mas um diário registra o que foi feito, e o
      amanhã ali só ocupava espaço com uma casa que ninguém pode abrir. */
   const calendario = diasDoPeriodo(S, dias);
   const fontes = fontesDeMovimento(S);
@@ -134,7 +134,7 @@ export default function Exercicio() {
   /* Uma lista simples, do dia escolhido.
 
      Ela já foi agrupada por data, com um cabeçalho por dia — fazia
-     sentido enquanto o caderno listava o período inteiro e a mesma data
+     sentido enquanto o diário listava o período inteiro e a mesma data
      se repetia em toda linha. Com um dia por vez o cabeçalho passou a
      repetir o que a tira logo acima já diz, e um agrupamento de um grupo
      só é estrutura sem trabalho. */
@@ -197,7 +197,7 @@ export default function Exercicio() {
 
           Como filhos diretos da TelaInterna eles caíam nos 26 px que
           separam SEÇÕES, e ficavam tão longe um do outro quanto do
-          caderno — como se fossem três assuntos. Dentro de um View com
+          diário — como se fossem três assuntos. Dentro de um View com
           gap 10, que é a distância de cartões irmãos no resto do app,
           eles leem como duas vistas da mesma coisa. */}
       <View style={{ gap: 10 }}>
@@ -272,7 +272,7 @@ export default function Exercicio() {
 
           Quatro números que a lista não dá de graça: quantos treinos,
           quanto tempo ao todo, qual foi o maior, e quanto daquilo puxou
-          músculo. Eles e o caderno respondem ao mesmo seletor, porque
+          músculo. Eles e o diário respondem ao mesmo seletor, porque
           são a mesma pergunta em duas resoluções — o resumo e o detalhe.
 
           Tudo aqui conta só o que foi registrado nesta tela. Somar o que
@@ -310,14 +310,14 @@ export default function Exercicio() {
         </View>
       </Bloco>
 
-      {/* O CADERNO
+      {/* O DIÁRIO
 
           Agrupado por dia, com o desenho da modalidade na frente. Em
           lista corrida a data se repetia em toda linha e o olho tinha que
           juntar sozinho o que era do mesmo dia — aqui a data aparece uma
           vez, e embaixo dela o que aconteceu. */}
       <Bloco
-        titulo="Caderno de treino"
+        titulo="Diário de treino"
         nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
       >
         {/* A tira e o dia que ela escolhe no mesmo empilhamento, com o
@@ -368,7 +368,7 @@ export default function Exercicio() {
 
       {/* Um atalho, e não uma explicação. Este bloco chegou a se chamar
           "De onde vêm os minutos" e gastava três linhas justificando por
-          que o caderno é mais curto que o total — uma diferença que quem
+          que o diário é mais curto que o total — uma diferença que quem
           está aqui provavelmente nem notou. O que serve é a porta.
 
           TODAS as fontes, e não a primeira: ninguém tem só uma, e quem

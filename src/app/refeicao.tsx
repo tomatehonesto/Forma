@@ -12,7 +12,7 @@ import { useTheme } from '../ui/useTheme';
 /* ============================================================
    UMA REFEIÇÃO
 
-   A folha que abre ao tocar numa linha do caderno de refeições. Ela
+   A folha que abre ao tocar numa linha do diário de refeições. Ela
    mostra, e só depois oferece as duas ações — a mesma forma da folha de
    treino, e pela mesma razão: quem toca num registro ainda não decidiu
    mexer nele, pode estar só conferindo o que comeu naquele dia. Abrir o

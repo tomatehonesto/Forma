@@ -11,6 +11,7 @@ import { conselhosDaRotina } from '../logic/conselhos';
 import { milhar, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
+import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import {
   Bloco, CardSemana, Cartao, Linha, TiraDeDias,
 } from '../ui/internas';
@@ -70,6 +71,7 @@ export default function Alimentacao() {
      saem dela. */
   const metas = metasDoDia(S);
   const energia = energiaDoDia(S, +startOfDay(now()));
+  const resta = metas.kcal - energia.kcal;
   /* Zero é zero. O 70 de antes era um número inventado: quem ainda não
      tinha registrado nada abria a tela e via a barra em 78% de uma meta
      que ninguém tinha começado a cumprir. Proteína é acumulador como
@@ -115,8 +117,8 @@ export default function Alimentacao() {
         foto={require('../../assets/images/alimentacao-hero.jpg')}
         titulo="Alimentação"
         linha={prot === 0
-          ? `Hoje: nada registrado · meta de ${alvo} g`
-          : `Hoje: ${prot} de ${alvo} g · ${falta > 0 ? `faltam ${falta} g` : 'meta alcançada'}`}
+          ? `Proteína: nada registrado · meta de ${alvo} g`
+          : `Proteína: ${prot} de ${alvo} g · ${falta > 0 ? `faltam ${falta} g` : 'meta alcançada'}`}
         pct={Math.round((prot / alvo) * 100)}
       >
         <AtalhoDaCapa
@@ -161,6 +163,24 @@ export default function Alimentacao() {
                 height: '100%', borderRadius: radius.pill, backgroundColor: c.accent,
               }} />
             </View>
+            {/* O QUE AINDA CABE, dito como frase e não como subtração que
+                a pessoa faz de cabeça. É a leitura que interessa na hora
+                do jantar: o total consumido responde "como foi o dia", e
+                só o que resta responde "o que eu faço agora".
+
+                E A FRASE MUDA DE PROMESSA CONFORME A CONTA. Com o dia
+                inteiro na tabela, cabem tantas calorias. Com parte do
+                prato fora da conta, o que sobra é do que DÁ PARA CONTAR —
+                dizer "ainda cabem 500" para quem almoçou sem registrar o
+                prato seria o app autorizando um jantar que ele não tem
+                como calcular. */}
+            <Txt v="note" c={c.tx2}>
+              {resta > 0
+                ? (energia.fora > 0
+                  ? <>Sobram <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> do que dá para contar.</>
+                  : <>Ainda cabem <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> no seu dia.</>)
+                : <>Você passou a meta do dia em <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(-resta)} kcal</Txt>.</>}
+            </Txt>
             <Txt v="caption" c={c.tx3}>
               {energia.refeicoes === 0
                 ? 'Nada registrado hoje.'
@@ -204,7 +224,7 @@ export default function Alimentacao() {
           hoje"; a tendência de dois meses responde "o tratamento está
           indo", que é pergunta de outra tela. Era a única coisa daqui
           que não mudava nenhuma decisão sobre o próximo prato, e ficava
-          entre a pessoa e o caderno.
+          entre a pessoa e o diário.
 
           A semana fica porque ela contextualiza a meta DIÁRIA que se está
           perseguindo agora: sete barras contra a mesma linha de 90 g. */}
@@ -218,7 +238,7 @@ export default function Alimentacao() {
             registrou, e dividir por sete transformaria esquecimento em
             queda de proteína. */}
         <CardSemana
-          nome="Esta semana"
+          nome="Proteína esta semana"
           sub={diasComRegistro === 0
             ? 'Nada registrado nos últimos sete dias'
             : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
@@ -241,23 +261,42 @@ export default function Alimentacao() {
           dos quadros de cima; lida antes deles, seria um app dando
           conselho sobre uma rotina que a pessoa ainda não viu. */}
       {conselhos.length ? (
-        <Bloco titulo="O que dá para notar">
+        <Bloco
+          titulo="O que o Morphi notou"
+          nota="Da sua rotina das últimas duas semanas — e só do que você registrou."
+        >
           <View style={{ gap: 10 }}>
             {conselhos.map((k) => (
               <View
                 key={k.id}
-                style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 8 }, shadowCard(c)]}
+                style={[{
+                  backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10,
+                  overflow: 'hidden',
+                }, shadowCard(c)]}
               >
-                <Row gap={10} style={{ alignItems: 'center' }}>
-                  <View style={{
-                    width: 28, height: 28, borderRadius: 9,
-                    backgroundColor: k.bom ? c.okBg : c.limeSoft,
-                    alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon name={k.ic} size={14} color={k.bom ? c.ok : c.limeSoftInk} sw={1.9} />
-                  </View>
-                  <Txt v="bodyMed" style={{ flex: 1 }}>{k.titulo}</Txt>
+                {/* O CLARÃO LIMA NO CANTO é a assinatura do Morphi, a
+                    mesma da descoberta da semana na aba Insights. Vale
+                    mais do que um selo escrito "IA": aparece em todo card
+                    que é fala dele e em nenhum que é contador, e o olho
+                    aprende isso sem ler nada. */}
+                <Svg width={200} height={150} style={{ position: 'absolute', right: -50, top: -50 }} pointerEvents="none">
+                  <Defs>
+                    <RadialGradient id={`brilho-${k.id}`} cx="50%" cy="50%" r="50%">
+                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.5} />
+                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.18} />
+                      <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
+                    </RadialGradient>
+                  </Defs>
+                  <Ellipse cx={100} cy={75} rx={100} ry={75} fill={`url(#brilho-${k.id})`} />
+                </Svg>
+
+                <Row gap={8} style={{ alignItems: 'center' }}>
+                  <Icon name="aura" size={14} color={c.limeSoftInk} sw={2} />
+                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>
+                    {k.bom ? 'CONTINUE ASSIM' : 'UMA IDEIA'}
+                  </Txt>
                 </Row>
+                <Txt v="bodyMed">{k.titulo}</Txt>
                 <Txt v="note" c={c.tx2}>{k.texto}</Txt>
               </View>
             ))}
@@ -265,7 +304,7 @@ export default function Alimentacao() {
         </Bloco>
       ) : null}
 
-      {/* O CADERNO DE REFEIÇÕES — um dia por vez, como o de treino.
+      {/* O DIÁRIO DE REFEIÇÕES — um dia por vez, como o de treino.
 
           A lista corrida de "registro recente" mostrava as últimas
           refeições sem nenhum recorte, e por isso não respondia a pergunta
@@ -279,7 +318,7 @@ export default function Alimentacao() {
           para sempre com a pessoa sabendo que está. Apagar devolve a
           proteína ao dia, não zera. */}
       <Bloco
-        titulo="Caderno de refeições"
+        titulo="Diário de refeições"
         nota="Toque numa refeição para ver, corrigir ou apagar."
       >
         <View style={{ gap: 10 }}>

@@ -20,7 +20,7 @@ import { radius } from '../theme';
    Cinco de sete seguidos e cinco de sete alternados são a mesma fração e
    semanas diferentes — a primeira é um hábito que caiu na quinta, a
    segunda é um hábito que nunca pegou. É a mesma informação que a tira
-   de dias dá nos cadernos, e pelo mesmo motivo: constância não cabe num
+   de dias dá nos diários, e pelo mesmo motivo: constância não cabe num
    número.
 
    TRÊS METAS, E SÓ ELAS. Aplicação e exame não aparecem aqui como não

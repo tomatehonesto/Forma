@@ -120,7 +120,7 @@ export default function Protocolos() {
             telas de água, alimentação e exercício registram o dia inteiro.
             Elas não têm caixinha: marcar "2,5 L todo dia" como cumprido
             num dia de meio litro seria deixar a pessoa contradizer o
-            próprio caderno — e antes dava, porque a contagem ao lado era
+            próprio diário — e antes dava, porque a contagem ao lado era
             texto escrito à mão.
 
             As outras duas têm, porque não existe registro de onde tirar a

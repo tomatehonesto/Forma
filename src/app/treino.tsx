@@ -12,7 +12,7 @@ import { useTheme } from '../ui/useTheme';
 /* ============================================================
    UM TREINO
 
-   A folha que abre ao tocar numa linha do caderno. Ela mostra, e só
+   A folha que abre ao tocar numa linha do diário. Ela mostra, e só
    depois oferece as duas ações.
 
    Antes o toque abria direto o formulário de registro carregado — o que

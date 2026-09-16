@@ -593,14 +593,14 @@ export function CardSemana({
 
 /* ------------------------------------------------------------------ */
 /* TIRA DE DIAS — o calendário horizontal que escolhe o dia de um
-   caderno.
+   diário.
 
    Ela responde uma coisa que nem o gráfico nem a lista dão: o RITMO. O
    gráfico mostra sete dias e diz quanto; a lista mostra os registros e
    some com os dias vazios. A tira mostra os dois juntos — três dias
    seguidos, um de folga, dois — que é como se enxerga constância.
 
-   E navega: ela ESCOLHE o dia, e o caderno embaixo mostra só ele.
+   E navega: ela ESCOLHE o dia, e o diário embaixo mostra só ele.
    Filtro opcional, com tudo listado embaixo, era um seletor de data
    contradizendo a própria lista.
 

@@ -69,7 +69,7 @@ export default function Registrar() {
   const protHoje = Math.round((ci as any)?.prot || 0);
   const alvoProt = (S.profile as any).targets.prot as number;
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
-     escrevia 1,8 L do lado de um caderno que registrou 1,75 L. */
+     escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
   const bebido = litros(waterMlToday(S));
   const alvoL = litros((S.profile as any).targets.waterMl);
   const acoes = ATALHOS;
