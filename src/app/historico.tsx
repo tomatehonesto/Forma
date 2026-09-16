@@ -11,13 +11,17 @@ import {
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
-   A HISTÓRIA
+   SEU TRATAMENTO
 
    O nome não é enfeite. "Histórico" promete uma auditoria — linhas, datas,
-   um log. "A história" promete o que a tela realmente entrega: o
-   tratamento contado em capítulos, e a semana é o capítulo, porque é a
-   unidade em que a pessoa se lembra do que fez ("na semana que apliquei na
-   coxa eu passei mal").
+   um log —, e a tela não é isso: é o tratamento contado em capítulos, e a
+   semana é o capítulo, porque é a unidade em que a pessoa se lembra do que
+   fez ("na semana que apliquei na coxa eu passei mal").
+
+   Ela já se chamou "A história", que dizia o formato certo e não dizia o
+   assunto. "Seu tratamento" diz de quem é e do que se trata — e é o mesmo
+   nome na seção da Jornada que traz até aqui, porque link e destino com
+   nomes diferentes fazem a pessoa achar que chegou noutro lugar.
 
    Semana sem registro FICA NA LISTA, do mesmo tamanho que as outras. Sumir
    com ela deixaria a história parecendo mais constante do que foi, e
@@ -52,12 +56,12 @@ export default function Historico() {
 
   return (
     <TelaInterna
-      titulo="A história"
+      titulo="Seu tratamento"
       iconeAcao="arrowup"
       onAcao={() => router.push('/exportar' as any)}
     >
       <Titulao
-        titulo="A história"
+        titulo="Seu tratamento"
         lead={`Tudo que você registrou desde ${inicio.getDate()} de ${MO_LONG[inicio.getMonth()]}. Toque em qualquer linha para abrir.`}
       />
 

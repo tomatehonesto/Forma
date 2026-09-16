@@ -374,25 +374,41 @@ export default function Home() {
             </View>
 
             <Row gap={4} style={{ marginTop: 4, alignItems: 'stretch' }}>
+              {/* OS DOIS NÚMEROS SE ALINHAM PELO PÉ, e não pelo topo.
+
+                  "Ingestão de proteína" quebra em duas linhas e "Gordura
+                  corporal" cabia em uma, então o mesmo afastamento de 28
+                  deixava um número mais alto que o outro — dois cartões
+                  lado a lado com a mesma estrutura e a leitura desencontrada.
+
+                  A quebra de "Gordura / corporal" é escrita à mão porque
+                  depende da largura do cartão, que depende da tela; e o
+                  bloco de baixo ganhou um marginTop automatico para o dia em que
+                  um dos dois títulos mudar de tamanho outra vez. O 28
+                  continua sendo o mínimo. */}
               <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
                 <Txt v="body">Ingestão de proteína</Txt>
-                <Row style={{ marginTop: 28, alignItems: 'center' }}>
-                  <Txt v="metric">{Math.round(prot7.avg)}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>g/dia</Txt>
-                  <TrendDot up good={prot7.verdict.good} c={c} />
-                </Row>
-                <Txt v="note" c={prot7.verdict.good ? c.tx3 : c.bad} style={{ marginTop: 4 }}>{prot7.verdict.label}</Txt>
+                <View style={{ marginTop: 'auto' }}>
+                  <Row style={{ marginTop: 28, alignItems: 'center' }}>
+                    <Txt v="metric">{Math.round(prot7.avg)}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>g/dia</Txt>
+                    <TrendDot up good={prot7.verdict.good} c={c} />
+                  </Row>
+                  <Txt v="note" c={prot7.verdict.good ? c.tx3 : c.bad} style={{ marginTop: 4 }}>{prot7.verdict.label}</Txt>
+                </View>
               </View>
               <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-                <Txt v="body">Gordura corporal</Txt>
-                <Row style={{ marginTop: 28, alignItems: 'center' }}>
-                  <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0).replace('.', ',') : '—'}</Txt>
-                  {bf && <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>%</Txt>}
-                  {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
-                </Row>
-                <Txt v="note" c={bf && !bf.verdict.good ? c.bad : c.tx3} style={{ marginTop: 4 }}>
-                  {bf ? bf.verdict.label : 'sem medida'}
-                </Txt>
+                <Txt v="body">Gordura{'\n'}corporal</Txt>
+                <View style={{ marginTop: 'auto' }}>
+                  <Row style={{ marginTop: 28, alignItems: 'center' }}>
+                    <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0).replace('.', ',') : '—'}</Txt>
+                    {bf && <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>%</Txt>}
+                    {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
+                  </Row>
+                  <Txt v="note" c={bf && !bf.verdict.good ? c.bad : c.tx3} style={{ marginTop: 4 }}>
+                    {bf ? bf.verdict.label : 'sem medida'}
+                  </Txt>
+                </View>
               </View>
             </Row>
           </View>

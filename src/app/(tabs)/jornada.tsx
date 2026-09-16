@@ -539,7 +539,7 @@ export default function Jornada() {
 
         {/* ---------- A HISTÓRIA — por semana, com destaques ---------- */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="A história" link="Ver tudo" onPress={go('/historico')} />
+          <SectionHead title="Seu tratamento" link="Ver tudo" onPress={go('/historico')} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
             Semana a semana. Toque para ver o que marcou cada ciclo.
           </Txt>
