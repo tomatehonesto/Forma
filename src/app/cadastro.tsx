@@ -1295,7 +1295,7 @@ export default function Cadastro() {
     atividade: 'Qual é o seu nível de atividade física?',
     restricao: 'Você tem alguma restrição alimentar?',
     saude: 'Conecte o seu app de saúde',
-    recomendacao: 'Você chegou ao Morphi por indicação de um especialista?',
+    recomendacao: 'Você chegou até nós por indicação de um especialista?',
   };
   const subs: Record<Id, string> = {
     nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
@@ -1309,7 +1309,7 @@ export default function Cadastro() {
        para o app falar com ela do jeito certo, e o corpo entra nas
        perguntas seguintes. Prometer benefício que não existe é como se
        perde a confiança de quem parou para ler. */
-    identidade: 'É para o Morphi falar com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
+    identidade: 'É para falarmos com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
     nascimento: 'Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.',
     tratamento: 'Só para saber onde você está agora.',
     inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.',
@@ -1318,13 +1318,13 @@ export default function Cadastro() {
       ? `Na ordem da titulação do ${med.label}.`
       : 'Na ordem da titulação.',
     frequencia: 'É daqui que saem a contagem do ciclo, os lembretes e o estoque da caneta.',
-    corpo: 'É com altura e peso que o Morphi calcula seu IMC e monta suas metas diárias de proteína e água.',
+    corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
     meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
-    atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz ao Morphi de onde você está partindo.',
-    saude: 'O seu aparelho já mede. O Morphi só lê.',
+    atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
+    saude: 'O seu aparelho já mede. A gente só lê.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
 

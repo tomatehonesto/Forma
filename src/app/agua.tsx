@@ -3,8 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  aguaDaComida, apagarGole, diasDeAgua, golesDoDia, litros, registrarAgua, semanaDeAgua,
-  waterMlToday,
+  aguaDaComida, apagarGole, diasDeAgua, golesDoDia, litros, semanaDeAgua, waterMlToday,
 } from '../logic/derive';
 import { hm, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
@@ -46,14 +45,6 @@ import { BEBIDA_PADRAO, bebidaDe } from '../logic/bebidas';
    não há seletor de período porque não há mais nada na tela que responda
    a ele. */
 const DIAS_DA_TIRA = 30;
-
-/* Os recipientes que a capa oferece — os mesmos nomes que a folha de
-   registro usa, para as duas telas falarem a mesma língua. O porquê de
-   eles gravarem direto está na capa, onde eles são usados. */
-const ATALHOS: [string, number][] = [
-  ['Copo', 250],
-  ['Garrafa', 500],
-];
 
 export default function Agua() {
   const S = useStore((s) => s.S);
@@ -107,38 +98,20 @@ export default function Agua() {
           : `Hoje: ${litros(hoje)} de ${litros(alvo)} L · ${falta > 0 ? `faltam ${litros(falta)} L` : 'meta alcançada'}`}
         pct={pct}
       >
-        {/* OS ATALHOS, e a decisão que eles revertem.
+        {/* UM BOTÃO SÓ, como nas outras duas capas de hábito.
 
-            Na folha de registro, tocar em "Garrafa" NÃO grava: soma no
-            montador, e quem grava é o botão de baixo. Isso foi de
-            propósito, e continua certo lá — lá a pessoa está compondo uma
-            quantidade, e um toque que gravasse sozinho atrapalharia quem
-            bebeu um copo e meio.
+            Aqui havia "+ Copo" e "+ Garrafa", que gravavam na hora. Eles
+            faziam sentido enquanto esta tela só contava água: um copo é
+            uma quantidade inteira, e o toque era a interação toda.
 
-            Aqui é o contrário: o toque É a interação inteira. Não há
-            montador para alimentar, e cobrar duas telas de quem bebeu um
-            copo é cobrar o preço de um formulário por um gesto de dois
-            segundos.
-
-            E o que tornava isso arriscado deixou de existir: agora cada
-            gole é um registro com hora e lixeira no diário logo abaixo.
-            O medo de um toque errado era o medo de um toque IRREVERSÍVEL.
-
-            A água é o único dos três hábitos em que um toque completa um
-            registro — um copo é uma quantidade inteira. Refeição precisa
-            do prato, treino precisa do tempo, e por isso as capas delas
-            têm um botão só, que abre a folha. */}
-        {ATALHOS.map(([nome, ml]) => (
-          <AtalhoDaCapa
-            key={nome}
-            titulo={`+ ${nome}`}
-            sub={`${litros(ml)} L`}
-            onPress={() => update((s: any) => registrarAgua(s, ml))}
-          />
-        ))}
+            Depois que café, chá, leite e shake passaram a contar, o
+            atalho virou uma resposta pronta para uma pergunta que a tela
+            não faz mais. Quem tomou um café com leite tocaria em "+ Copo"
+            e registraria água — e o leite, que é o ponto, ficaria de
+            fora. Atalho que acerta o volume e erra o assunto é pior do
+            que atalho nenhum. */}
         <AtalhoDaCapa
-          titulo="Outra"
-          sub="quantidade"
+          titulo="Registrar o que você bebeu"
           cheio
           onPress={() => router.push('/medir-agua' as any)}
         />

@@ -489,9 +489,9 @@ export default function Alimentacao() {
 
           E fica DEPOIS dos favoritos, que é a ordem do que se faz: o
           número do dia, o que eu comi, o que eu repito, e por último o
-      {/* A COMIDA FORA DO DIA DE HOJE — a tabela e o que a pessoa não
-          come. As duas moram juntas porque são a mesma conversa: uma diz
-          o que existe, a outra diz o que existe PARA VOCÊ.
+      {/* SEUS ALIMENTOS — o dicionário e as restrições. As duas moram
+          juntas porque são a mesma conversa: uma diz o que existe, a
+          outra diz o que existe PARA VOCÊ.
 
           A tabela já vivia inteira dentro da folha de registro, e só
           aparecia enquanto alguém montava um prato — três resultados por
@@ -502,19 +502,19 @@ export default function Alimentacao() {
           E ficam DEPOIS do diário, que é a ordem do que se faz: o número
           do dia, o que eu comi, o que eu repito, e por último o passeio e
           o ajuste. */}
-      <Bloco titulo="A sua comida">
+      <Bloco titulo="Seus alimentos">
         <Cartao>
           <Linha
             ic="book"
-            titulo="O que tem em cada comida"
-            sub="Procure um alimento e veja a proteína, a caloria e o resto do rótulo"
+            titulo="Dicionário de alimentos"
+            sub="Aprenda como cada comida pode te ajudar no tratamento"
             onPress={() => router.push('/alimentos' as any)}
           />
           {/* RESTRIÇÃO É AJUSTE, e ajuste mora atrás de uma linha.
               Ver src/app/restricao.tsx. */}
           <Linha
             ic="leaf"
-            titulo="O que você não come"
+            titulo="Restrições alimentares"
             sub={restricoes.length
               ? restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
               : 'Nenhuma restrição'}

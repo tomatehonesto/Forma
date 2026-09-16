@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Switch } from 'react-native';
 import { useStore } from '../logic/store';
-import { AVISO_DE_RESTRICAO, RESTRICOES } from '../logic/restricoes';
+import { RESTRICOES } from '../logic/restricoes';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Aviso } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -41,8 +41,8 @@ export default function Restricao() {
   return (
     <TelaInterna titulo="Restrição alimentar">
       <Titulao
-        titulo="O que você não come"
-        lead="O Morphi passa a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve."
+        titulo="Restrições alimentares"
+        lead="Marque o que fica fora do seu prato. Passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve."
       />
 
       <Bloco>
@@ -51,7 +51,7 @@ export default function Restricao() {
             <Row key={x.id} style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
               <View style={{ flex: 1 }}>
                 <Txt v="body">{x.titulo}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{x.sub}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{x.sub}</Txt>
               </View>
               <Switch
                 value={atuais.includes(x.id)}
@@ -64,7 +64,16 @@ export default function Restricao() {
         </Cartao>
       </Bloco>
 
-      <Aviso ic="info" titulo="Isto é orientação, e não garantia" texto={AVISO_DE_RESTRICAO} />
+      {/* O AVISO DIZ UMA COISA SÓ, e por isso ele tem título de frase e
+          não de seção. Antes ele dizia "isto é orientação, e não
+          garantia", que é uma distinção clara para quem escreveu e vaga
+          para quem lê: a pessoa fica sabendo que existe uma ressalva sem
+          saber o que fazer com ela. Agora ele diz o que fazer. */}
+      <Aviso
+        ic="info"
+        titulo="Nada some para sempre"
+        texto="O que fica fora da sua restrição sai da frente, e não da tabela: dá para ver a lista inteira quando quiser. E em caso de alergia, confira sempre o rótulo — não temos como saber a marca, o preparo nem o que encostou no que na cozinha."
+      />
     </TelaInterna>
   );
 }

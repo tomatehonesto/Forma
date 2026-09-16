@@ -2548,7 +2548,7 @@ export function itensDaBebida(b: Bebida, ml: number, doses = 0): ItemComida[] {
   if (b.porDose) return doses > 0 ? [{ id: b.porDose, qtd: doses }] : [];
   if (!b.item) return [];
   const a = alimentoDe(b.item);
-  return a ? [{ id: b.item, qtd: ml / a.gUn }] : [];
+  return a ? [{ id: b.item, qtd: (ml * (b.fracao ?? 1)) / a.gUn }] : [];
 }
 
 /* Registra o que se bebeu hoje — entra no diário e sobe o total do dia.
@@ -3609,7 +3609,7 @@ export function careStatus(S: State) {
      tela um aviso. */
   const indoBem = r.verdict.good;
   const titulo = !hasClinic(S)
-    ? 'Você ainda não tem uma equipe no Morphi'
+    ? 'Você ainda não tem uma equipe por aqui'
     : indoBem
       ? 'Seu tratamento está evoluindo bem'
       : 'Sua equipe está acompanhando de perto';

@@ -225,7 +225,7 @@ export default function Perfil() {
               <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
                 {linked
                   ? `${S.profile.doctor} · mensagens, consultas e equipe`
-                  : 'Opcional — o Morphi funciona completo sem vínculo.'}
+                  : 'Opcional — o app funciona completo sem vínculo.'}
               </Txt>
             </View>
             {linked && <Icon name="chev" size={14} color={c.tx4} sw={2} />}

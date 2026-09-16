@@ -48,22 +48,21 @@ export type Restricao = {
 };
 
 export const RESTRICOES: Restricao[] = [
-  { id: 'vegetariano', titulo: 'Vegetariano', sub: 'sem carne, frango ou peixe', tira: ['carne', 'ave', 'peixe'] },
-  { id: 'vegano', titulo: 'Vegano', sub: 'nada de origem animal', tira: ['carne', 'ave', 'peixe', 'ovo', 'leite'] },
-  { id: 'sem-lactose', titulo: 'Sem lactose', sub: 'intolerância ou alergia a leite', tira: ['leite'] },
-  { id: 'sem-ovo', titulo: 'Sem ovo', sub: 'ovo fora do prato', tira: ['ovo'] },
-  { id: 'sem-peixe', titulo: 'Sem peixe e frutos do mar', sub: 'inclui camarão', tira: ['peixe'] },
-  { id: 'sem-carne-vermelha', titulo: 'Sem carne vermelha', sub: 'boi e porco fora', tira: ['carne'] },
+  { id: 'vegetariano', titulo: 'Vegetariano', sub: 'Sem carne, frango ou peixe. Ovo e laticínio continuam.', tira: ['carne', 'ave', 'peixe'] },
+  { id: 'vegano', titulo: 'Vegano', sub: 'Nada de origem animal: carne, peixe, ovo, leite e queijo ficam fora.', tira: ['carne', 'ave', 'peixe', 'ovo', 'leite'] },
+  { id: 'sem-lactose', titulo: 'Sem lactose', sub: 'Leite, queijo e derivados ficam fora — por intolerância ou alergia.', tira: ['leite'] },
+  { id: 'sem-ovo', titulo: 'Sem ovo', sub: 'Ovo e os pratos que levam ovo ficam fora.', tira: ['ovo'] },
+  { id: 'sem-peixe', titulo: 'Sem peixe e frutos do mar', sub: 'Peixe, camarão e frutos do mar ficam fora.', tira: ['peixe'] },
+  { id: 'sem-carne-vermelha', titulo: 'Sem carne vermelha', sub: 'Boi e porco ficam fora. Frango e peixe continuam.', tira: ['carne'] },
 ];
 
 /* O QUE ESTA LISTA É, E O QUE ELA NÃO É.
 
-   Ela é orientação: o app põe na frente o que cabe no que a pessoa come.
-   Não é garantia de segurança alimentar, e a diferença importa — uma
-   intolerância cobra desconforto, uma alergia cobra hospital. O app não
-   tem dado de rótulo, de marca nem de contaminação cruzada, e por isso
-   diz isso em voz alta na tela em vez de deixar a pessoa deduzir. */
-export const AVISO_DE_RESTRICAO = 'Serve para o app te mostrar primeiro o que serve. Em caso de alergia, o rótulo continua sendo a única fonte que responde.';
+   Ela é orientação: põe na frente o que cabe no que a pessoa come. Não é
+   garantia de segurança alimentar, e a diferença importa — uma
+   intolerância cobra desconforto, uma alergia cobra hospital. Não temos
+   dado de rótulo, de marca nem de contaminação cruzada, e a tela de
+   restrições diz isso em vez de deixar a pessoa deduzir.
 
 /* ============================================================
    DE ONDE SAI O QUE CADA ALIMENTO TEM

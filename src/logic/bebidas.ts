@@ -49,6 +49,8 @@ export type Bebida = {
      O registro vira também uma refeição, e proteína, caloria e macro
      saem todos da tabela — nenhum número novo nasce aqui. */
   item?: string;
+  /** quanto do volume é o alimento: café com leite é meio leite */
+  fracao?: number;
   /** o alimento medido em DOSES, e não em volume — ver o shake */
   porDose?: string;
   /** a pessoa escreve o nome: a lista nunca vai estar completa */
@@ -65,6 +67,18 @@ export const MEDIDAS_PADRAO: [string, number][] = [
 export const BEBIDAS: Bebida[] = [
   { id: 'agua', nome: 'Água', ic: 'water', conta: true },
   { id: 'cafe', nome: 'Café', ic: 'coffee', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
+  /* O PINGADO CONTA O LEITE QUE TEM DENTRO.
+
+     Metade e metade é a proporção do café com leite de padaria, e é
+     dela que sai o item: 200 ml levam 100 ml de leite, com a proteína e
+     a caloria que a tabela dá para 100 ml de leite. Quem toma mais
+     forte ou mais fraco corrige a refeição depois — o que não dava para
+     fazer antes era registrar o leite sem escrever tudo duas vezes. */
+  {
+    id: 'cafe-leite', nome: 'Café com leite', ic: 'coffee', conta: true,
+    item: 'leite', fracao: 0.5,
+    medidas: [['Xícara', 150], ['Caneca', 300], ['Copo', 250]],
+  },
   { id: 'cha', nome: 'Chá', ic: 'leaf', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
   { id: 'coco', nome: 'Água de coco', ic: 'drop2', conta: true, medidas: [['Copo', 250], ['Caixinha', 200], ['Garrafa', 500]] },
   /* O leite e o suco TAMBÉM SÃO COMIDA, e o volume responde por eles:
