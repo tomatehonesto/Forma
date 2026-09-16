@@ -7,15 +7,17 @@ import {
   refeicoesDoDia, semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
+import { conselhosDaRotina } from '../logic/conselhos';
 import { milhar, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import {
-  Bloco, CardSemana, Cartao, Linha, Progresso, TiraDeDias,
+  Bloco, CardSemana, Cartao, Linha, TiraDeDias,
 } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { Chevron } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard } from '../theme';
+import { font, radius, shadowCard } from '../theme';
 
 /* ============================================================
    ALIMENTAÇÃO
@@ -83,6 +85,8 @@ export default function Alimentacao() {
     : 0;
 
 
+  const conselhos = conselhosDaRotina(S);
+
   const favs = favoritos(S);
 
   const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
@@ -123,17 +127,75 @@ export default function Alimentacao() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-        {/* A primeira seção da folha, e a única que não é número. Sem
-            título ela era um parágrafo solto encostado na foto. */}
-        <Bloco titulo="Por que a proteína vem primeiro">
-          <Txt v="note" c={c.tx2}>
-            Num tratamento de GLP-1 a fome cai sozinha, e o risco deixa de ser
-            comer demais: passa a ser comer pouca proteína — que é o que segura
-            a massa magra enquanto o peso desce. Por isso ela é o número da
-            capa. A caloria aparece logo abaixo como limite do dia, e não como
-            tarefa: quem conta cada refeição costuma parar na segunda semana.
-          </Txt>
-        </Bloco>
+
+      {/* A ENERGIA DO DIA — a meta que o cadastro montou, finalmente lida.
+
+          Ela vivia só na tela de plano: a pessoa via "1.200 kcal por dia"
+          no fim do cadastro e nunca mais. Meta que nenhuma tela lê é
+          dívida, não recurso.
+
+          O NÚMERO GRANDE É O CONSUMIDO, e a meta vem pequena ao lado. É a
+          mesma regra da capa: o que muda durante o dia é o que a pessoa
+          fez, e a meta é a régua parada atrás dele. Os dois no mesmo
+          tamanho faziam a linha ser lida como uma fração, que é a forma
+          de escrever um número sem que ninguém saiba qual dos dois olhar.
+
+          E A CONTA SÓ FALA DO QUE TEM RÓTULO. Prato montado pela tabela
+          tem caloria conferida; refeição estimada pela foto responde por
+          proteína, e nada mais. Em vez de somar zero pelas outras em
+          silêncio, a tela diz de quantas ela não está falando. */}
+      <Bloco titulo="A energia de hoje">
+        <View style={{ gap: 10 }}>
+          <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10 }, shadowCard(c)]}>
+            <Row gap={8} style={{ alignItems: 'center' }}>
+              <Icon name="flame" size={15} color={c.accent} sw={1.9} />
+              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS</Txt>
+            </Row>
+            <Row style={{ alignItems: 'baseline', gap: 6 }}>
+              <Txt v="metric">{milhar(energia.kcal)}</Txt>
+              <Txt v="caption" c={c.tx3}>de {milhar(metas.kcal)} kcal</Txt>
+            </Row>
+            <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.track, overflow: 'hidden' }}>
+              <View style={{
+                width: `${Math.max(0, Math.min(100, Math.round((energia.kcal / metas.kcal) * 100)))}%`,
+                height: '100%', borderRadius: radius.pill, backgroundColor: c.accent,
+              }} />
+            </View>
+            <Txt v="caption" c={c.tx3}>
+              {energia.refeicoes === 0
+                ? 'Nada registrado hoje.'
+                : energia.fora > 0
+                  ? `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`
+                  : 'De tudo o que você registrou hoje.'}
+            </Txt>
+          </View>
+
+          {/* OS TRÊS SAEM DA META DE ENERGIA, e não de um campo guardado.
+              São fatia dela — guardá-los à parte seria criar números que
+              divergem do quinto no dia em que alguém mexer nele. */}
+          <Cartao>
+            {([
+              ['leaf', c.ok, c.okBg, 'Carboidrato', energia.carb, metas.carb],
+              ['drop2', c.amber, c.amberBg, 'Gordura', energia.gord, metas.gord],
+              ['gut', c.purple, c.purpleBg, 'Fibra', energia.fibra, metas.fibra],
+            ] as [string, string, string, string, number, number][]).map(([ic, cor, fundo, nome, tem, meta]) => (
+              <Row key={nome} style={{ paddingHorizontal: 16, paddingVertical: 13, gap: 12, alignItems: 'center' }}>
+                <View style={{
+                  width: 28, height: 28, borderRadius: 9, backgroundColor: fundo,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name={ic} size={14} color={cor} sw={1.9} />
+                </View>
+                <Txt v="body" style={{ flex: 1 }}>{nome}</Txt>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Txt v="title" style={{ fontFamily: font.bodySemi }}>{tem} g</Txt>
+                  <Txt v="micro" c={c.tx4}>de {meta} g</Txt>
+                </View>
+              </Row>
+            ))}
+          </Cartao>
+        </View>
+      </Bloco>
 
       {/* A SEMANA, e só ela.
 
@@ -168,57 +230,41 @@ export default function Alimentacao() {
         />
 
       </View>
+      {/* O QUE DÁ PARA NOTAR — a única parte da tela que não é contador.
 
-      {/* A ENERGIA DO DIA — a meta que o cadastro montou, finalmente lida.
+          Cada frase sai de uma contagem sobre o que a pessoa registrou nas
+          últimas duas semanas, e traz o número junto. A regra está em
+          src/logic/conselhos.ts: sem registro suficiente, a seção some
+          inteira em vez de opinar sobre três refeições.
 
-          Ela vivia só na tela de plano: a pessoa via "1.780 kcal por dia"
-          no fim do cadastro e nunca mais. Meta que nenhuma tela lê é
-          dívida, não recurso.
-
-          FICA ABAIXO DA PROTEÍNA, e não acima, porque a ordem é o
-          argumento: a proteína é o que o tratamento pede que se persiga,
-          a energia é o limite dentro do qual isso acontece. Trocar a
-          ordem seria transformar esta tela num contador de caloria, que é
-          exatamente o que o bloco lá em cima diz que ela não é.
-
-          E A CONTA SÓ FALA DO QUE TEM RÓTULO. Prato montado pela tabela
-          tem caloria conferida; refeição estimada pela foto responde por
-          proteína, e nada mais. Em vez de somar zero pelas outras em
-          silêncio, a tela diz de quantas ela não está falando. */}
-      <Bloco titulo="A energia de hoje">
-        <View style={{ gap: 10 }}>
-          <Progresso
-            label="Calorias"
-            valor={`${milhar(energia.kcal)} de ${milhar(metas.kcal)} kcal`}
-            pct={Math.round((energia.kcal / metas.kcal) * 100)}
-            nota={energia.refeicoes === 0
-              ? 'Nada registrado hoje.'
-              : energia.fora > 0
-                ? `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`
-                : 'De tudo o que você registrou hoje.'}
-          />
-
-          {/* OS TRÊS SAEM DA META DE ENERGIA, e não de um campo guardado.
-              São fatia dela — guardá-los à parte seria criar números que
-              divergem do quinto no dia em que alguém mexer nele. */}
-          <Cartao>
-            {([
-              ['leaf', 'Carboidrato', energia.carb, metas.carb],
-              ['drop2', 'Gordura', energia.gord, metas.gord],
-              ['gut', 'Fibra', energia.fibra, metas.fibra],
-            ] as [string, string, number, number][]).map(([ic, nome, tem, meta]) => (
-              <Linha
-                key={nome}
-                ic={ic}
-                titulo={nome}
-                sub={`Meta de ${meta} g`}
-                selo={`${tem} g`}
-                seloTom="neutra"
-              />
+          POR ISSO ELA FICA DEPOIS DOS NÚMEROS. O que ela diz é leitura
+          dos quadros de cima; lida antes deles, seria um app dando
+          conselho sobre uma rotina que a pessoa ainda não viu. */}
+      {conselhos.length ? (
+        <Bloco titulo="O que dá para notar">
+          <View style={{ gap: 10 }}>
+            {conselhos.map((k) => (
+              <View
+                key={k.id}
+                style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 8 }, shadowCard(c)]}
+              >
+                <Row gap={10} style={{ alignItems: 'center' }}>
+                  <View style={{
+                    width: 28, height: 28, borderRadius: 9,
+                    backgroundColor: k.bom ? c.okBg : c.limeSoft,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon name={k.ic} size={14} color={k.bom ? c.ok : c.limeSoftInk} sw={1.9} />
+                  </View>
+                  <Txt v="bodyMed" style={{ flex: 1 }}>{k.titulo}</Txt>
+                </Row>
+                <Txt v="note" c={c.tx2}>{k.texto}</Txt>
+              </View>
             ))}
-          </Cartao>
-        </View>
-      </Bloco>
+          </View>
+        </Bloco>
+      ) : null}
+
       {/* O CADERNO DE REFEIÇÕES — um dia por vez, como o de treino.
 
           A lista corrida de "registro recente" mostrava as últimas
