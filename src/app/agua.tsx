@@ -31,6 +31,13 @@ import { radius } from '../theme';
 
    O TOPO É A PRÓPRIA ÁGUA, e não um cartão falando dela — a capa que as
    três telas de hábito passaram a dividir. Ver src/ui/capa.tsx.
+
+   E O PARÁGRAFO DE ABERTURA SAIU, como nas outras duas. Ele explicava
+   POR QUE um app de GLP-1 tem tela de água: comendo menos, entra menos
+   água pela comida, e ela é boa parte do que se bebe sem perceber —
+   beber de propósito é o que cobre a diferença. O argumento continua de
+   pé, e continua aqui, que é onde ele muda decisão de código; na tela
+   ele era um texto lido uma vez e rolado por cima nas outras cem.
    ============================================================ */
 
 /* Trinta dias na tira, como no diário de refeições, e pelo mesmo motivo:
@@ -126,27 +133,12 @@ export default function Agua() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-          {/* POR QUE UM APP DE GLP-1 TEM TELA DE ÁGUA — a primeira seção
-              da folha, e a única que não é número.
-
-              Ela era um parágrafo solto encostado na foto: o texto
-              começava sem nada dizer o que ele era, e quem rolava caía no
-              meio de uma frase. Com título ele vira seção, e a folha
-              passa a ter uma escada para descer — por quê, como foi a
-              semana, o que aconteceu. */}
-          <Bloco titulo="Por que beber de propósito">
-            <Txt v="note" c={c.tx2}>
-              Comendo menos, entra menos água pela comida — e ela é boa parte
-              do que se bebe sem perceber. Beber de propósito é o que cobre a
-              diferença.
-            </Txt>
-          </Bloco>
-
           {/* A SEMANA.
 
               As barras chegam em MILILITROS, que é a unidade em que a
               altura e a meta se comparam sem arredondar nada; quem traduz
               para litro é o rótulo. */}
+          <Bloco titulo="A água da semana">
           <CardSemana
             nome="Esta semana"
             sub={diasComRegistro === 0
@@ -159,6 +151,7 @@ export default function Agua() {
             rotuloMeta={`Meta: ${litros(alvo)} L`}
             rotulo={litros}
           />
+          </Bloco>
 
           {/* O DIÁRIO DE ÁGUA — e a saída que a água não tinha.
 

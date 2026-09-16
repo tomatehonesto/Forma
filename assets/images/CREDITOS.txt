@@ -19,10 +19,16 @@ agua-hero.jpg — o topo da tela de Água
   origem: https://unsplash.com/pt-br/fotografias/agua-azul-escura-com-reflexos-dourados-nOz9mDukDF8
 
 alimentacao-hero.jpg — o topo da tela de Alimentação
-  assunto: vegetais frescos sobre superfície branca
-  autor: Nathan Dumlao
+  assunto: folhas verdes e roxas com gotículas de água
+  autor: Monika Grabkowska (@moniqa)
   licença: Unsplash License
-  origem: https://unsplash.com/pt-br/fotografias/vegetais-frescos-sobre-superficie-branca-bRdRUUtbxO0
+  origem: https://unsplash.com/pt-br/fotografias/folhas-verdes-e-roxas-com-goticulas-de-agua-i14VzlCp-Eo
+
+  A foto anterior era um tabuleiro de vegetais visto de cima, em plano
+  aberto: legível e sem temperatura, do jeito que estoque de banco de
+  imagem costuma ser. Esta chega perto — folha, água, textura. É comida
+  antes de ser ilustração de comida, e é a única das três capas em que o
+  assunto aparece do tamanho em que a pessoa o vê no prato.
 
 exercicio-hero.jpg — o topo da tela de Exercício
   assunto: corredores em movimento durante uma corrida

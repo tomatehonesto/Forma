@@ -61,6 +61,14 @@ import { radius } from '../theme';
    rodapé pedindo desculpa pela diferença, isso virou a porta para as
    integrações: o lugar onde a diferença se explica é o mesmo onde ela se
    configura.
+
+   O PARÁGRAFO DE ABERTURA SAIU, como nas outras duas telas de hábito.
+   Ele dizia que em déficit calórico o corpo perde músculo junto com a
+   gordura, e que movimento é, com a proteína, o que segura a massa
+   magra. O argumento continua de pé — ele é a razão de esta tela existir
+   e de a força ter linha própria no cartão da semana —, e continua aqui,
+   que é onde ele muda decisão de código. Na tela era um texto lido uma
+   vez e rolado por cima nas outras cem.
    ============================================================ */
 
 /* O período governa o RESUMO e o DIÁRIO juntos — os dois falam do
@@ -183,16 +191,6 @@ export default function Exercicio() {
       </CapaDeHabito>
 
       <FolhaDeHabito>
-        {/* A primeira seção da folha, e a única que não é número. Sem
-            título ela era um parágrafo solto encostado na foto. */}
-        <Bloco titulo="Por que o músculo importa">
-          <Txt v="note" c={c.tx2}>
-            Em déficit calórico o corpo perde músculo junto com a gordura.
-            Movimento é, com a proteína, o que segura a massa magra — e é por
-            isso que o treino de força aparece de novo mais abaixo.
-          </Txt>
-        </Bloco>
-
       {/* Os dois gráficos são UM grupo: a semana e a tendência dela.
 
           Como filhos diretos da TelaInterna eles caíam nos 26 px que
@@ -200,6 +198,7 @@ export default function Exercicio() {
           diário — como se fossem três assuntos. Dentro de um View com
           gap 10, que é a distância de cartões irmãos no resto do app,
           eles leem como duas vistas da mesma coisa. */}
+      <Bloco titulo="O seu movimento">
       <View style={{ gap: 10 }}>
       {/* A SEMANA — a unidade em que exercício faz sentido.
 
@@ -267,6 +266,7 @@ export default function Exercicio() {
         </View>
       ) : null}
       </View>
+      </Bloco>
 
       {/* OS DESTAQUES DO PERÍODO
 
