@@ -3,6 +3,7 @@ import { View, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ALIMENTOS, buscarAlimento, medidaDe, type Alimento } from '../logic/alimentos';
 import { cabe } from '../logic/restricoes';
+import { SeletorDeRestricao } from '../ui/restricao';
 import { useStore } from '../logic/store';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Chips, Linha } from '../ui/internas';
@@ -107,6 +108,11 @@ export default function Alimentos() {
             style={[ty.body, { flex: 1, color: c.tx, paddingVertical: 13 }]}
           />
         </Row>
+
+        {/* O SELETOR FICA NO TOPO, junto da busca, porque é ele que
+            governa o que a lista inteira mostra. Embaixo, ele seria uma
+            configuração escondida depois do resultado que ela filtrou. */}
+        <SeletorDeRestricao compacto />
 
         {/* O filtro de prateleira, rolando na horizontal. Ele aparece
             sempre — inclusive com busca no ar, porque "frango" em

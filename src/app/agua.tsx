@@ -17,7 +17,7 @@ import { radius } from '../theme';
 import { BEBIDA_PADRAO, bebidaDe } from '../logic/bebidas';
 
 /* ============================================================
-   ÁGUA
+   HIDRATAÇÃO
 
    A água era o único dos três hábitos sem tela. Alimentação e exercício
    têm a sua — o número do dia, a semana, o diário —, e a água tinha um
@@ -91,7 +91,11 @@ export default function Agua() {
           a quantidade por extenso. Ver src/ui/capa.tsx. */}
       <CapaDeHabito
         foto={require('../../assets/images/agua-hero.jpg')}
-        titulo="Água"
+        /* HIDRATAÇÃO, e não ÁGUA. A tela passou a contar café, chá,
+           leite e suco — o nome antigo virou promessa menor do que a
+           tela cumpre, e mandava a pessoa registrar só o copo d'água.
+           Ver src/logic/bebidas.ts. */
+        titulo="Hidratação"
         /* O QUE FALTA, e não só o quanto já foi. É a mesma informação
            resolvida: "faltam 2 L" é o que decide se vale encher a
            garrafa agora, e era o que o cartão do dia dizia antes de a
@@ -144,7 +148,7 @@ export default function Agua() {
               As barras chegam em MILILITROS, que é a unidade em que a
               altura e a meta se comparam sem arredondar nada; quem traduz
               para litro é o rótulo. */}
-          <Bloco titulo="A água da semana">
+          <Bloco titulo="A sua semana">
           <CardSemana
             nome="Esta semana"
             sub={diasComRegistro === 0
@@ -171,7 +175,7 @@ export default function Agua() {
               quem está procurando qual apagar. Entre dois copos de
               0,25 L, o que diferencia um do outro é "às 7:18". */}
           <Bloco
-            titulo="Diário de água"
+            titulo="Diário de bebidas"
             nota="Café, chá, leite e suco contam: a meta é de líquido, e não de água pura. Apague o que tiver entrado errado."
           >
             <View style={{ gap: 10 }}>

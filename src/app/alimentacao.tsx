@@ -8,6 +8,7 @@ import {
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
 import { conselhosDaRotina } from '../logic/conselhos';
+import { SeletorDeRestricao } from '../ui/restricao';
 import { milhar, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -488,6 +489,19 @@ export default function Alimentacao() {
           E fica DEPOIS dos favoritos, que é a ordem do que se faz: o
           número do dia, o que eu comi, o que eu repito, e por último o
           passeio. */}
+      {/* O SELETOR FICA NO PÉ DA TELA, e não no topo como na tabela de
+          alimentos. Lá ele governa a lista que a pessoa está olhando
+          naquele instante; aqui ele é ajuste de perfil — muda o conselho
+          e a busca das próximas vezes, e não o número de hoje. Ajuste de
+          perfil no alto de uma tela de acompanhamento é uma pergunta na
+          frente da resposta. */}
+      <Bloco
+        titulo="O que você não come"
+        nota="Muda o que o Morphi sugere e o que aparece primeiro na tabela de alimentos."
+      >
+        <SeletorDeRestricao />
+      </Bloco>
+
       <Bloco titulo="Explorar alimentos">
         <Cartao>
           <Linha

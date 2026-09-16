@@ -413,7 +413,7 @@ export default function Jornada() {
        levava a lugar nenhum sobre si mesma. E o número usava um
        formatador próprio, que escrevia 1,8 L onde a tela de água escreve
        1,75 L. */
-    ['water', 'Água', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
+    ['water', 'Hidratação', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
     ['waves', 'Sintomas', !diasSint ? 'sem registro'
       : !sint.length ? 'sem queixas na semana'

@@ -50,9 +50,20 @@ export type Restricao = {
 export const RESTRICOES: Restricao[] = [
   { id: 'vegetariano', titulo: 'Vegetariano', sub: 'sem carne, frango ou peixe', tira: ['carne', 'ave', 'peixe'] },
   { id: 'vegano', titulo: 'Vegano', sub: 'nada de origem animal', tira: ['carne', 'ave', 'peixe', 'ovo', 'leite'] },
-  { id: 'sem-lactose', titulo: 'Sem lactose', sub: 'sem leite e derivados', tira: ['leite'] },
+  { id: 'sem-lactose', titulo: 'Sem lactose', sub: 'intolerância ou alergia a leite', tira: ['leite'] },
+  { id: 'sem-ovo', titulo: 'Sem ovo', sub: 'ovo fora do prato', tira: ['ovo'] },
+  { id: 'sem-peixe', titulo: 'Sem peixe e frutos do mar', sub: 'inclui camarão', tira: ['peixe'] },
   { id: 'sem-carne-vermelha', titulo: 'Sem carne vermelha', sub: 'boi e porco fora', tira: ['carne'] },
 ];
+
+/* O QUE ESTA LISTA É, E O QUE ELA NÃO É.
+
+   Ela é orientação: o app põe na frente o que cabe no que a pessoa come.
+   Não é garantia de segurança alimentar, e a diferença importa — uma
+   intolerância cobra desconforto, uma alergia cobra hospital. O app não
+   tem dado de rótulo, de marca nem de contaminação cruzada, e por isso
+   diz isso em voz alta na tela em vez de deixar a pessoa deduzir. */
+export const AVISO_DE_RESTRICAO = 'Serve para o app te mostrar primeiro o que serve. Em caso de alergia, o rótulo continua sendo a única fonte que responde.';
 
 /* ============================================================
    DE ONDE SAI O QUE CADA ALIMENTO TEM

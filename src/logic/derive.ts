@@ -158,7 +158,7 @@ export function radar(S: State) {
   põe('Energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
   põe('Humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
   /* Acumuladores não somem: zero de água é uma resposta, não uma lacuna. */
-  põe('Água', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / metaDeCopos(S)) * 100));
+  põe('Hidratação', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / metaDeCopos(S)) * 100));
   põe('Exercício', recent.length
     ? Math.min(100, (recent.filter((c: any) => (c.exerc || 0) > 0).length / recent.length) * 100)
     : 0);
@@ -916,7 +916,7 @@ const EIXO_DIA: Record<string, (c: any, S: State) => number | null> = {
   'Sono': (c) => (respondido(c, 'sono') ? Math.min(100, (c.sono / 8) * 100) : null),
   'Energia': (c) => (respondido(c, 'energia') ? c.energia * 10 : null),
   'Humor': (c) => (respondido(c, 'mood') ? (c.mood / 5) * 100 : null),
-  'Água': (c, S) => Math.min(100, ((c.agua || 0) / metaDeCopos(S)) * 100),
+  'Hidratação': (c, S) => Math.min(100, ((c.agua || 0) / metaDeCopos(S)) * 100),
   'Exercício': (c) => ((c.exerc || 0) > 0 ? 100 : 0),
   'Proteína': (c) => Math.min(100, c.prot || 0),
   'Saciedade': (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
@@ -2841,7 +2841,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
   waterMl: {
     /* Guardada em mililitros e escrita em litros, como em toda parte: o
        passo de 250 ml é um copo, que é a unidade em que se bebe. */
-    ic: 'water', nome: 'Água por dia', onde: 'Cobrada na água e no protocolo',
+    ic: 'water', nome: 'Hidratação por dia', onde: 'Cobrada na hidratação e no protocolo',
     un: 'L', passo: 250, min: 750, max: 5000,
     le: (S) => (S.profile as any).targets.waterMl,
     escreve: (v) => litros(v),
@@ -3037,8 +3037,8 @@ export const INDICADORES: Indicador[] = [
     conta: (v) => `Dias com ${Math.round(v)} g ou mais`,
   },
   {
-    id: 'agua', ic: 'water', nome: 'Água por dia',
-    pergunta: 'Quanto por dia?', origem: 'Da água que você registra',
+    id: 'agua', ic: 'water', nome: 'Hidratação por dia',
+    pergunta: 'Quanto por dia?', origem: 'Do que você registra na hidratação',
     nomes: ['dia', 'dias'], sentido: 'min', padrao: 2500,
     doPerfil: (S) => (S.profile as any).targets.waterMl,
     passos: { min: 750, max: 5000, passo: 250, un: 'L' },
