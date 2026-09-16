@@ -41,28 +41,50 @@ import { LinearGradient } from 'expo-linear-gradient';
    da comida, que é exatamente o que o desfoque veio evitar. Não existe
    vidro sem tinta.
    ============================================================ */
-const MASCARA = 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0) 100%)';
+const mascara = (sentido: 'bottom' | 'top') =>
+  `linear-gradient(to ${sentido}, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0) 100%)`;
 
-export function VidroDegrade({ altura, intensidade = 55 }: { altura: number; intensidade?: number }) {
-  const caixa = { position: 'absolute' as const, left: 0, right: 0, top: 0, height: altura };
+/* `deBaixo` vira o vidro de cabeça para baixo: ele encosta no pé da tela
+   e se desfaz subindo, em vez de descer do topo. É o que a abertura do
+   cadastro pede — foto em cima, texto no pé — e é a mesma peça, porque
+   duas curvas de máscara mantidas à mão divergem na primeira vez que
+   alguém mexer numa delas. */
+export function VidroDegrade({ altura, intensidade = 55, deBaixo }: {
+  altura: number; intensidade?: number; deBaixo?: boolean;
+}) {
+  const caixa = {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    ...(deBaixo ? { bottom: 0 } : { top: 0 }),
+    height: altura,
+  };
+  const css = mascara(deBaixo ? 'top' : 'bottom');
 
   if (Platform.OS === 'web') {
     return (
       <BlurView
         intensity={intensidade}
         tint="dark"
-        style={[caixa, { maskImage: MASCARA, WebkitMaskImage: MASCARA } as any]}
+        style={[caixa, { maskImage: css, WebkitMaskImage: css } as any]}
       />
     );
   }
+
+  const cores: [string, string, string, string] = deBaixo
+    ? ['transparent', 'rgba(0,0,0,0.5)', '#000', '#000']
+    : ['#000', '#000', 'rgba(0,0,0,0.5)', 'transparent'];
+  const paradas: [number, number, number, number] = deBaixo
+    ? [0, 0.28, 0.6, 1]
+    : [0, 0.4, 0.72, 1];
 
   return (
     <MaskedView
       style={caixa}
       maskElement={
         <LinearGradient
-          colors={['#000', '#000', 'rgba(0,0,0,0.5)', 'transparent']}
-          locations={[0, 0.4, 0.72, 1]}
+          colors={cores}
+          locations={paradas}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={{ flex: 1 }}

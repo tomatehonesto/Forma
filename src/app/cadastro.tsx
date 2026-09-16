@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Animated, View, Image, Pressable, ScrollView, TextInput, Platform } from 'react-native';
+import {
+  Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -12,6 +14,8 @@ import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
+import { VidroDegrade } from '../ui/vidro';
+import { AreaCurve } from '../ui/charts';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
@@ -687,28 +691,40 @@ const GLIFOS: [string, number, number, number][] = [
    médico, que é exatamente o que vem depois e exatamente o que não se
    quer prometer na porta.
 
-   FOTO SANGRANDO, VÉU ESCURO E O TEXTO NO PÉ. É a gramática que Nike,
-   Strivo e companhia usam para a primeira tela, e ela funciona porque
-   inverte a ordem: primeiro a imagem diz como é a vida com aquilo,
-   depois as palavras dizem o que é.
+   IMAGEM SANGRANDO, VIDRO NO PÉ E O TEXTO DENTRO DELE. É a gramática que
+   Nike, NEOM e companhia usam na primeira tela, e ela funciona porque
+   inverte a ordem: primeiro a imagem diz como é, depois as palavras
+   dizem o que é.
 
-   A FOTO NÃO TEM CORPO EM EXIBIÇÃO, e isso é regra e não gosto. O arquivo
-   de créditos desta pasta já a tinha escrito para a capa do exercício:
-   num app de perda de peso, corpo em foco cobra em vez de convidar. Na
-   primeira tela cobraria de quem ainda nem entrou. Aqui é alguém de
-   costas, andando na direção da luz — sem rosto, sem corpo, com a ideia.
+   A IMAGEM É A AURORA DO PRÓPRIO APP, e não uma fotografia. Passamos por
+   duas fotos antes — alguém caminhando no fim de tarde, depois alguém
+   correndo por um campo — e as duas tinham o mesmo problema de fundo:
+   uma foto bonita é sempre a foto de OUTRA pessoa, e a porta de um app
+   de transformação é o pior lugar para alguém encontrar um corpo que não
+   é o dela. A aurora resolve isso e ainda é o azul com verde da marca,
+   já usado na Home e no Insights — a primeira tela passa a parecer o app
+   em vez de parecer uma campanha.
 
-   O VÉU É UM DEGRADÊ LONGO, e não uma faixa preta. A referência da Nike
-   corta a foto numa reta e põe texto no bloco preto de baixo; o corte
-   funciona lá porque a foto tem fundo escuro do lado de dentro. Com uma
-   foto de fim de tarde, reta seria costura à mostra — o degradê começa a
-   meia altura e só fecha no pé.
+   A CURVA APAGADA ATRAVESSANDO O MEIO é a mesma forma da curva do plano:
+   rápida no começo, afrouxando depois. Aqui ela não mede nada e não tem
+   rótulo nenhum — é textura com significado, o desenho do que o app faz,
+   na intensidade de quem não quer ser lido, só notado.
 
-   A MARCA É A DA ÍCONE DO APP, desenhada aqui em vez de importada: são
-   três pontos e dois traços, e trazer um PNG para isso seria carregar
-   imagem para desenhar uma letra. */
-const CAPA = require('../../assets/images/abertura-hero.jpg');
-const TINTA_CAPA = '#0B0B0C';
+   O VIDRO É O MESMO DE /alimento E /agua, virado de cabeça para baixo.
+   Lá ele desce do topo sobre a foto; aqui sobe do pé, forte embaixo e
+   sumindo no meio da tela. Faixa preta reta seria mais simples e seria
+   uma costura à mostra. */
+const CAPA = require('../../assets/images/aurora-hero.png');
+const TINTA_CAPA = '#05143F';
+
+/* A MESMA FORMA DA CURVA DO PLANO, sem os números. Nove pontos porque é
+   o que deixa o traço liso; 30% de reta e 70% de afrouxamento porque é
+   assim que a perda se comporta, e desenhar outra coisa aqui seria a
+   marca da casa contradizendo a conta da casa. */
+const CURVA_ABERTURA = Array.from({ length: 9 }, (_, i) => {
+  const x = i / 8;
+  return { x, y: 1 - (0.3 * x + 0.7 * (1 - (1 - x) ** 2)) };
+});
 
 function Marca() {
   return (
@@ -729,32 +745,39 @@ function Marca() {
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   useLightStatusBar();
   return (
     <View style={{ flex: 1, backgroundColor: TINTA_CAPA }}>
       {/* Largura e altura explícitas: só com os quatro cantos presos, a
           web escala a imagem pelo tamanho natural dela e o recorte sai
-          quatro vezes ampliado, mostrando um canto da foto. */}
+          ampliado, mostrando um canto. */}
       <Image
         source={CAPA}
         style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
         resizeMode="cover"
       />
-      <LinearGradient
-        colors={['transparent', 'rgba(11,11,12,0.72)', TINTA_CAPA]}
-        locations={[0, 0.62, 0.92]}
-        style={SOBREPOSTO}
+
+      <View
         pointerEvents="none"
-      />
+        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.3, opacity: 0.32 }}
+      >
+        <AreaCurve
+          pts={CURVA_ABERTURA} width={width} height={210}
+          padT={10} padB={10} padX={0} strokeW={2.2}
+          id="ab" dashed={false} fill={0.1}
+          strokeFrom="#DDF62C" strokeTo="#15E4CB"
+        />
+      </View>
+
+      <VidroDegrade altura={height * 0.52} intensidade={38} deBaixo />
+
       <View style={{
         flex: 1, justifyContent: 'flex-end',
         paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
       }}>
         <Marca />
-        {/* O TEXTO DIZ O OBJETIVO, e não a mecânica.
-
-            "Um dia de cada vez, e eu do seu lado" era acolhimento puro:
-            bonito, e sem dizer para onde se está indo. Quem baixa um app
+        {/* O TEXTO DIZ O OBJETIVO, e não a mecânica. Quem baixa um app
             destes não veio por companhia — veio por transformação, e a
             primeira tela é onde isso se nomeia. A linha de baixo conta o
             como, e ela cabe em três palavras: dose, sintoma, resultado. */}
@@ -766,8 +789,8 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
           jornada — e mostra o que está mudando.
         </Txt>
         {/* Botão branco sobre escuro: o azul de ação do app desaparece
-            sobre uma foto de fim de tarde, e esta é a única tela do app em
-            que o fundo não é o branco. */}
+            sobre o azul da aurora, e esta é a única tela em que o fundo
+            não é o branco. */}
         <Pressable
           onPress={onComecar}
           style={({ pressed }) => [{
