@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
@@ -13,10 +13,9 @@ import { MO_LONG, doseTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
-import { Medidor } from '../ui/instrumentos';
 import { Lavagem } from '../ui/lavagem';
 import { VidroDegrade } from '../ui/vidro';
-import { AreaCurve } from '../ui/charts';
+import { AreaCurve, MiniBars, Ring } from '../ui/charts';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
@@ -720,7 +719,7 @@ const TINTA_CAPA = '#05143F';
 
 /* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
    que ele é usado. */
-const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 30, lineHeight: 38 };
+const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 34, lineHeight: 42 };
 
 /* A MESMA FORMA DA CURVA DO PLANO, sem os números. Nove pontos porque é
    o que deixa o traço liso; 30% de reta e 70% de afrouxamento porque é
@@ -731,89 +730,100 @@ const CURVA_ABERTURA = Array.from({ length: 9 }, (_, i) => {
   return { x, y: 1 - (0.3 * x + 0.7 * (1 - (1 - x) ** 2)) };
 });
 
-function Marca() {
+/* A MARCA.
+
+   ⚠️ O DESENHO AQUI É REDESENHO A OLHO, feito a partir de uma imagem da
+   marca — não do arquivo original. Ele acerta a silhueta (o bloco da
+   esquerda, o entalhe no meio, o ombro redondo da direita) e a proporção,
+   e vai errar o raio de alguma curva por um ou dois por cento, que é
+   exatamente o tipo de erro que ninguém vê num app e todo mundo vê num
+   material impresso ao lado do original.
+
+   Assim que existir o SVG oficial, ele entra aqui e este path sai: é uma
+   troca de três linhas, e o lugar já está isolado por isso.
+
+   FICA DE FORA O PINGO LIMA DO "i". No logotipo ele é lima e é o único
+   acento de cor do letreiro; aqui ele teria de ser um círculo posicionado
+   por cima do pingo que a fonte já desenha, e um pingo desalinhado por um
+   pixel estraga mais do que a ausência dele. Entra junto com o arquivo
+   oficial. */
+function Marca({ altura = 20 }: { altura?: number }) {
   return (
-    <Row style={{ alignItems: 'center', gap: 10 }}>
-      <Svg width={26} height={20} viewBox="0 0 26 20">
+    <Row style={{ alignItems: 'center', gap: altura * 0.5 }}>
+      <Svg width={altura * 1.375} height={altura} viewBox="0 0 44 32">
+        {/* Uma forma só, com o entalhe vindo de cima: bloco à esquerda,
+            vale em U no meio, ombro redondo à direita, base contínua.
+            Dois blocos separados — a primeira tentativa — liam como
+            "II", e não como um M. */}
         <Path
-          d="M3 17.5 L13 3.5 L23 17.5"
-          stroke="#FFFFFF" strokeWidth={4.6}
-          strokeLinecap="round" strokeLinejoin="round" fill="none"
+          d="M0 32 L0 8 A8 8 0 0 1 8 0 L15 0 C15 17 18 30 22 30 C26 30 29 17 29 0 L36 0 A8 8 0 0 1 44 8 L44 32 Z"
+          fill="#DDF62C"
         />
       </Svg>
-      <Txt v="title" c="#FFFFFF" style={{ fontFamily: font.bodySemi, letterSpacing: 0.2 }}>
+      <Txt
+        c="#FFFFFF"
+        style={{ fontFamily: font.display, fontSize: altura * 1.15, letterSpacing: 0.2 }}
+      >
         Morphi
       </Txt>
     </Row>
   );
 }
 
-/* AS CAMADAS APAGADAS.
+/* OS CARTÕES QUE FLUTUAM SOBRE A AURORA.
 
-   As referências desta leva — o app de projetor, a Oura — têm em comum
-   uma coisa: o fundo não é só gradiente, é gradiente COM INSTRUMENTO.
-   Arcos de mostrador, réguas de traço, escalas que atravessam a tela a
-   dez ou vinte por cento. Não se lê nenhum deles, e é justamente isso
-   que faz a tela parecer um aparelho de precisão em vez de um pôster.
+   Aqui estavam arcos de mostrador, uma régua na borda e um medidor solto:
+   textura bonita e muda, emprestada de um app de projetor. Bonito não
+   basta numa primeira tela — o que ela tem de mostrar é o produto, e o
+   produto deste app são os gráficos com que ele fala com a pessoa.
 
-   AQUI SÃO OS INSTRUMENTOS DO PRÓPRIO APP, na mesma lógica da curva que
-   já estava: o medidor de faixa, a régua de traços, os arcos. O que some
-   é o número — sem ele, eles deixam de afirmar e passam a sugerir, que é
-   tudo o que uma tela de abertura tem o direito de fazer.
+   ENTÃO SÃO OS COMPONENTES REAIS, dentro de cartões de vidro: a curva de
+   peso (`AreaCurve`), as barras do enjoo (`MiniBars`) e o anel da
+   proteína (`Ring`) — os mesmos que a Home e a Jornada usam, e não
+   desenhos feitos para a abertura.
 
-   E TODOS FICAM ABAIXO DO VIDRO. O vidro sobe do pé e os apaga na metade
-   inferior, que é onde mora o texto: instrumento atrás de letra é ruído,
-   instrumento atrás de vidro é profundidade. */
-function Camadas({ largura, altura }: { largura: number; altura: number }) {
-  const cx = largura / 2;
-  const cy = altura * 0.17;
-  const r1 = largura * 0.66;
-  const r2 = largura * 0.82;
-  const perimetro = 2 * Math.PI * r1;
+   E NENHUM TEM NÚMERO. O rótulo diz o assunto, que é verdade sobre o que
+   o app acompanha; o número seria o dado de uma pessoa que ainda não
+   existe. Sem ele, o cartão deixa de afirmar e passa a mostrar a forma —
+   que é tudo o que uma tela de abertura tem o direito de fazer. */
+const VIDRO_CARTAO = {
+  backgroundColor: 'rgba(255,255,255,0.10)',
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.18)',
+  borderRadius: radius.card,
+  padding: 13,
+  gap: 9,
+} as const;
+const ROTULO_VIDRO = { letterSpacing: 1 } as const;
+
+function Cartoes({ largura }: { largura: number }) {
   return (
-    <View style={SOBREPOSTO} pointerEvents="none">
-      {/* Os arcos do mostrador, centrados acima da tela: o que aparece é
-          a barriga de baixo de dois círculos, cruzando o terço superior. */}
-      <Svg width={largura} height={altura}>
-        <Circle cx={cx} cy={cy} r={r1} stroke="rgba(255,255,255,0.10)" strokeWidth={1} fill="none" />
-        <Circle cx={cx} cy={cy} r={r2} stroke="rgba(255,255,255,0.06)" strokeWidth={1} fill="none" />
-        {/* O trecho "aceso" é branco, e não lima: a única linha colorida
-            da tela é a curva do plano. Duas curvas na mesma cor, com a
-            barriga para lados contrários, viravam duas afirmações
-            brigando — e uma delas não afirma nada. */}
-        <Circle
-          cx={cx} cy={cy} r={r1}
-          stroke="#FFFFFF" strokeOpacity={0.22} strokeWidth={1.6} fill="none" strokeLinecap="round"
-          strokeDasharray={`${perimetro * 0.16} ${perimetro}`}
-          transform={`rotate(34 ${cx} ${cy})`}
+    <>
+      <View style={{ position: 'absolute', left: 22, top: 0, width: 168, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>PESO</Txt>
+        <AreaCurve
+          pts={CURVA_ABERTURA} width={142} height={44}
+          padT={6} padB={6} padX={0} strokeW={2} id="ab1"
+          dashed={false} fill={0.16} strokeFrom="#DDF62C" strokeTo="#15E4CB"
         />
-      </Svg>
-
-      {/* A RÉGUA DA BORDA, como a do app de projetor: traço curto, traço
-          longo a cada quatro. Sem números — número aqui seria a medida de
-          alguém, e não há ninguém ainda. */}
-      <View style={{ position: 'absolute', left: 0, top: altura * 0.3, gap: 9 }}>
-        {Array.from({ length: 13 }, (_, i) => (
-          <View
-            key={i}
-            style={{
-              height: 1,
-              width: i % 4 === 0 ? 26 : 14,
-              backgroundColor: `rgba(255,255,255,${i % 4 === 0 ? 0.22 : 0.13})`,
-            }}
-          />
-        ))}
       </View>
 
-      {/* O MEDIDOR, que é o instrumento do app para "onde isto cai dentro
-          de uma faixa". Ele encosta na borda de cima do vidro, e é o
-          vidro que o dissolve. */}
+      <View style={{ position: 'absolute', right: 20, top: 96, width: 150, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>ENJOO</Txt>
+        <MiniBars vals={[5, 4, 5, 3, 2, 1, 1]} height={38} color="#15E4CB" gap={7} />
+      </View>
+
       <View style={{
-        position: 'absolute', left: largura * 0.42, right: 24, top: altura * 0.5, opacity: 0.26,
+        position: 'absolute', left: Math.max(22, largura * 0.11), top: 192,
+        width: 182, ...VIDRO_CARTAO, flexDirection: 'row', alignItems: 'center', gap: 12,
       }}>
-        <Medidor pct={0.62} traços={16} altura={18} sobreEscuro cor="#FFFFFF" />
+        <Ring size={40} stroke={5} pct={0.72} color="#DDF62C" track="rgba(255,255,255,0.18)" id="ab3" />
+        <View style={{ flex: 1 }}>
+          <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO} numberOfLines={1}>PROTEÍNA</Txt>
+          <Txt v="caption" c="#FFFFFF" style={{ marginTop: 2 }}>hoje</Txt>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -832,18 +842,25 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         resizeMode="cover"
       />
 
-      <Camadas largura={width} altura={height} />
-
+      {/* A curva grande continua atrás de tudo: ela é o fundo, e os
+          cartões é que são a frente. */}
       <View
         pointerEvents="none"
-        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.3, opacity: 0.32 }}
+        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.34, opacity: 0.26 }}
       >
         <AreaCurve
-          pts={CURVA_ABERTURA} width={width} height={210}
+          pts={CURVA_ABERTURA} width={width} height={200}
           padT={10} padB={10} padX={0} strokeW={2.2}
           id="ab" dashed={false} fill={0.1}
           strokeFrom="#DDF62C" strokeTo="#15E4CB"
         />
+      </View>
+
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.15 }}
+      >
+        <Cartoes largura={width} />
       </View>
 
       <VidroDegrade altura={height * 0.52} intensidade={38} deBaixo />
@@ -852,7 +869,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         flex: 1, justifyContent: 'flex-end',
         paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
       }}>
-        <Marca />
+        <Marca altura={22} />
         {/* O CORPO É MENOR QUE O h1 DO APP, e por medida e não por gosto.
 
             Com 36/44, esta manchete ocupa três linhas e o apoio ocupa
@@ -860,7 +877,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             usa corpo maior no sistema perde a primeira linha. Trinta
             caber é melhor do que trinta e seis caber às vezes. */}
         <Txt c="#FFFFFF" style={TITULO_ABERTURA}>
-          Inteligência que acompanha sua transformação
+          A companhia na sua jornada de transformação
         </Txt>
         <Txt v="caption" c="rgba(255,255,255,0.7)" style={{ marginBottom: 12 }}>
           Mais do que acompanhar resultados, é entender a jornada por trás deles. Uma
