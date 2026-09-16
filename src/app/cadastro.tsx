@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
@@ -13,6 +13,7 @@ import { MO_LONG, doseTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
+import { Medidor } from '../ui/instrumentos';
 import { Lavagem } from '../ui/lavagem';
 import { VidroDegrade } from '../ui/vidro';
 import { AreaCurve } from '../ui/charts';
@@ -747,6 +748,75 @@ function Marca() {
   );
 }
 
+/* AS CAMADAS APAGADAS.
+
+   As referências desta leva — o app de projetor, a Oura — têm em comum
+   uma coisa: o fundo não é só gradiente, é gradiente COM INSTRUMENTO.
+   Arcos de mostrador, réguas de traço, escalas que atravessam a tela a
+   dez ou vinte por cento. Não se lê nenhum deles, e é justamente isso
+   que faz a tela parecer um aparelho de precisão em vez de um pôster.
+
+   AQUI SÃO OS INSTRUMENTOS DO PRÓPRIO APP, na mesma lógica da curva que
+   já estava: o medidor de faixa, a régua de traços, os arcos. O que some
+   é o número — sem ele, eles deixam de afirmar e passam a sugerir, que é
+   tudo o que uma tela de abertura tem o direito de fazer.
+
+   E TODOS FICAM ABAIXO DO VIDRO. O vidro sobe do pé e os apaga na metade
+   inferior, que é onde mora o texto: instrumento atrás de letra é ruído,
+   instrumento atrás de vidro é profundidade. */
+function Camadas({ largura, altura }: { largura: number; altura: number }) {
+  const cx = largura / 2;
+  const cy = altura * 0.17;
+  const r1 = largura * 0.66;
+  const r2 = largura * 0.82;
+  const perimetro = 2 * Math.PI * r1;
+  return (
+    <View style={SOBREPOSTO} pointerEvents="none">
+      {/* Os arcos do mostrador, centrados acima da tela: o que aparece é
+          a barriga de baixo de dois círculos, cruzando o terço superior. */}
+      <Svg width={largura} height={altura}>
+        <Circle cx={cx} cy={cy} r={r1} stroke="rgba(255,255,255,0.10)" strokeWidth={1} fill="none" />
+        <Circle cx={cx} cy={cy} r={r2} stroke="rgba(255,255,255,0.06)" strokeWidth={1} fill="none" />
+        {/* O trecho "aceso" é branco, e não lima: a única linha colorida
+            da tela é a curva do plano. Duas curvas na mesma cor, com a
+            barriga para lados contrários, viravam duas afirmações
+            brigando — e uma delas não afirma nada. */}
+        <Circle
+          cx={cx} cy={cy} r={r1}
+          stroke="#FFFFFF" strokeOpacity={0.22} strokeWidth={1.6} fill="none" strokeLinecap="round"
+          strokeDasharray={`${perimetro * 0.16} ${perimetro}`}
+          transform={`rotate(34 ${cx} ${cy})`}
+        />
+      </Svg>
+
+      {/* A RÉGUA DA BORDA, como a do app de projetor: traço curto, traço
+          longo a cada quatro. Sem números — número aqui seria a medida de
+          alguém, e não há ninguém ainda. */}
+      <View style={{ position: 'absolute', left: 0, top: altura * 0.3, gap: 9 }}>
+        {Array.from({ length: 13 }, (_, i) => (
+          <View
+            key={i}
+            style={{
+              height: 1,
+              width: i % 4 === 0 ? 26 : 14,
+              backgroundColor: `rgba(255,255,255,${i % 4 === 0 ? 0.22 : 0.13})`,
+            }}
+          />
+        ))}
+      </View>
+
+      {/* O MEDIDOR, que é o instrumento do app para "onde isto cai dentro
+          de uma faixa". Ele encosta na borda de cima do vidro, e é o
+          vidro que o dissolve. */}
+      <View style={{
+        position: 'absolute', left: largura * 0.42, right: 24, top: altura * 0.5, opacity: 0.26,
+      }}>
+        <Medidor pct={0.62} traços={16} altura={18} sobreEscuro cor="#FFFFFF" />
+      </View>
+    </View>
+  );
+}
+
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -761,6 +831,8 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
         resizeMode="cover"
       />
+
+      <Camadas largura={width} altura={height} />
 
       <View
         pointerEvents="none"
@@ -792,20 +864,25 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         </Txt>
         <Txt v="caption" c="rgba(255,255,255,0.7)" style={{ marginBottom: 12 }}>
           Mais do que acompanhar resultados, é entender a jornada por trás deles. Uma
-          experiência inteligente que aprende com você, entende seus momentos e se adapta
-          para tornar cada etapa mais sua.
+          experiência inteligente que aprende com você e se adapta a cada etapa.
         </Txt>
-        {/* Botão branco sobre escuro: o azul de ação do app desaparece
-            sobre o azul da aurora, e esta é a única tela em que o fundo
-            não é o branco. */}
+        {/* O BOTÃO É AZUL, e não branco: o vidro e a lavagem escurecem o
+            pé da tela o bastante para o azul de ação do app aparecer — e
+            ele é a mesma cor de avançar de todos os outros botões do app.
+            Branco ali era uma exceção que não precisava existir. */}
         <Pressable
           onPress={onComecar}
           style={({ pressed }) => [{
-            borderRadius: radius.pill, backgroundColor: '#FFFFFF', paddingVertical: 18,
-            alignItems: 'center', opacity: pressed ? 0.85 : 1,
+            borderRadius: radius.pill, overflow: 'hidden', opacity: pressed ? 0.85 : 1,
           }]}
         >
-          <Txt v="bodyMed" c={TINTA_CAPA}>Começar</Txt>
+          <LinearGradient
+            colors={['#3D7BFF', '#065CF5']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={{ paddingVertical: 18, alignItems: 'center' }}
+          >
+            <Txt v="bodyMed" c="#FFFFFF">Começar</Txt>
+          </LinearGradient>
         </Pressable>
       </View>
     </View>
