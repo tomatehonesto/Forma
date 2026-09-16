@@ -751,11 +751,19 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
       }}>
         <Marca />
+        {/* O TEXTO DIZ O OBJETIVO, e não a mecânica.
+
+            "Um dia de cada vez, e eu do seu lado" era acolhimento puro:
+            bonito, e sem dizer para onde se está indo. Quem baixa um app
+            destes não veio por companhia — veio por transformação, e a
+            primeira tela é onde isso se nomeia. A linha de baixo conta o
+            como, e ela cabe em três palavras: dose, sintoma, resultado. */}
         <Txt v="h1" c="#FFFFFF">
-          Um dia de cada vez,{'\n'}e eu do seu lado.
+          A sua transformação começa aqui.
         </Txt>
         <Txt v="note" c="rgba(255,255,255,0.72)" style={{ marginBottom: 12 }}>
-          As doses, os sintomas e o que muda ficam comigo. O resto do dia é seu.
+          Doses, sintomas e resultados num lugar só. O Morphi acompanha cada etapa da sua
+          jornada — e mostra o que está mudando.
         </Txt>
         {/* Botão branco sobre escuro: o azul de ação do app desaparece
             sobre uma foto de fim de tarde, e esta é a única tela do app em
