@@ -2,7 +2,7 @@
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
-import { MOMENTOS, nomeItem } from './prato';
+import { MOMENTOS, nomeItem, nutrientesDe, type ItemComida } from './prato';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
 
@@ -1169,6 +1169,35 @@ const FATOR_ATIVIDADE = [1.2, 1.375, 1.55, 1.725];
    ritmo que a pessoa escolheu (kg por semana) em déficit por dia. */
 const KCAL_POR_QUILO = 7700;
 
+/* ============================================================
+   A REPARTIÇÃO DA ENERGIA
+
+   Mora fora de planoDoCadastro porque a tela de Alimentação precisa dela
+   sem precisar do plano inteiro: quem já se cadastrou tem a meta de
+   energia guardada no perfil, e os três gramas saem dela pela mesma
+   conta que os escreveu na tela de plano. Duplicar a conta lá seria a
+   maneira mais rápida de o app dizer 210 g de carboidrato num lugar e
+   195 g no outro.
+
+   Arredondados para cinco: o app vai escrever estes números como meta, e
+   "96,4 g" afirma uma precisão que a conta não tem — ela nasce de uma
+   regra de bolso sobre um peso digitado.
+   ============================================================ */
+export function macrosDe(kcal: number, prot: number): { gord: number; carb: number; fibra: number } {
+  /* 28% da energia em gordura — o meio da faixa de 25 a 30% que as
+     diretrizes repetem. Nove quilocalorias por grama. */
+  const gord = Math.round((kcal * 0.28) / 9 / 5) * 5;
+  /* O carboidrato é o que sobra. É a ordem certa: a proteína protege
+     massa magra e tem alvo próprio, a gordura tem faixa, e o resto da
+     energia vira carboidrato — e não o contrário. */
+  const carb = Math.max(0, Math.round((kcal - prot * 4 - gord * 9) / 4 / 5) * 5);
+  /* 14 g de fibra por 1.000 kcal é a ingestão adequada do Institute of
+     Medicine, repetida na posição da Academy of Nutrition and Dietetics.
+     Ela é proporcional à energia, e não ao peso. */
+  const fibra = Math.round(((kcal / 1000) * 14) / 5) * 5;
+  return { gord, carb, fibra };
+}
+
 export function planoDoCadastro(d: {
   altura: number; peso: number; meta: number; ritmo: number | null;
   /** 0 sedentário, 1 leve, 2 moderado, 3 muito ativo */
@@ -1194,10 +1223,12 @@ export function planoDoCadastro(d: {
      não existem de outra forma. Os dois são fatia de uma meta de
      energia; sem ela, gramas de carboidrato são chute com cara de conta.
 
-     ⚠️ E É ALVO SEM LEITOR, por enquanto: nenhuma tela soma a caloria do
-     que a pessoa come. Enquanto /alimentacao não ler `targets.kcal`, este
-     número vive só na tela de plano — e meta que ninguém lê é dívida, não
-     recurso.
+     E AGORA ELE TEM LEITOR: /alimentacao soma a energia do prato do dia
+     contra este alvo, e tira dele carboidrato, gordura e fibra por
+     macrosDe. O contador de lá conta só o que veio da tabela de
+     alimentos, e diz de quantas refeições ele não fala — contar caloria
+     continua sendo coisa que a maioria abandona, e um total que finge
+     saber o que não sabe seria pior do que não ter total.
 
      MIFFLIN-ST JEOR, porque é a que a Academy of Nutrition and Dietetics
      designou como padrão baseado em evidência para gasto de repouso, e a
@@ -1230,21 +1261,8 @@ export function planoDoCadastro(d: {
   const bruto = gasto - deficit;
   const kcal = Math.max(piso, Math.round(bruto / 10) * 10);
 
-  /* Arredondados para cinco: o app vai escrever estes números como meta, e
-     "96,4 g" afirma uma precisão que a conta não tem — ela nasce de uma
-     regra de bolso sobre um peso digitado. */
   const prot = Math.round((d.peso * 1.2) / 5) * 5;
-  /* 28% da energia em gordura — o meio da faixa de 25 a 30% que as
-     diretrizes repetem. Nove quilocalorias por grama. */
-  const gord = Math.round((kcal * 0.28) / 9 / 5) * 5;
-  /* O carboidrato é o que sobra. É a ordem certa: a proteína protege
-     massa magra e tem alvo próprio, a gordura tem faixa, e o resto da
-     energia vira carboidrato — e não o contrário. */
-  const carb = Math.max(0, Math.round((kcal - prot * 4 - gord * 9) / 4 / 5) * 5);
-  /* 14 g de fibra por 1.000 kcal é a ingestão adequada do Institute of
-     Medicine, repetida na posição da Academy of Nutrition and Dietetics.
-     Ela é proporcional à energia, e não ao peso. */
-  const fibra = Math.round(((kcal / 1000) * 14) / 5) * 5;
+  const { gord, carb, fibra } = macrosDe(kcal, prot);
 
   return {
     imc: d.peso / (d.altura ** 2),
@@ -1283,6 +1301,76 @@ export function planoDoCadastro(d: {
     semanas,
     chegada: semanas ? +addDays(startOfDay(now()), semanas * 7) : null,
   };
+}
+
+/* ============================================================
+   O PLANO A PARTIR DO PERFIL
+
+   A mesma conta do cadastro, alimentada pelo que ficou guardado. Serve
+   duas telas: a porta /plano, que mostra o plano sem refazer o
+   formulário, e a meta de energia de quem se cadastrou antes de existir
+   um campo para ela.
+
+   É por aqui que a conta continua UMA SÓ. A alternativa — cada tela
+   remontando os argumentos de planoDoCadastro do seu jeito — é a receita
+   conhecida para duas telas do mesmo app discordarem sobre quantas
+   calorias a pessoa deve comer.
+   ============================================================ */
+export function planoDoPerfil(S: State): PlanoInicial {
+  const p: any = S.profile;
+  const nivel = Math.max(0, ATIVIDADES.findIndex((x) => x.id === p.atividade));
+  return planoDoCadastro({
+    altura: p.height,
+    peso: curWeight(S),
+    meta: p.goalWeight,
+    ritmo: typeof p.ritmo === 'number' ? p.ritmo : null,
+    atividade: nivel,
+    idade: idadeDe(S) ?? undefined,
+    sexo: p.identidade === 'f' ? 'f' : p.identidade === 'm' ? 'm' : null,
+  });
+}
+
+/* AS METAS DE COMIDA DO DIA, num lugar só.
+
+   A proteína vem do perfil porque é editável — o app tem uma tela onde
+   se muda a meta, e uma conta que ignorasse a edição faria a pessoa ver
+   dois alvos diferentes para a mesma coisa. A energia vem do perfil
+   quando ela foi gravada no cadastro, e da conta quando não foi: quem
+   entrou antes de a tela de plano existir não tem o campo, e é melhor
+   derivar dos mesmos dados dela do que mostrar um espaço vazio.
+
+   E carboidrato, gordura e fibra NUNCA são guardados. Eles são fatia da
+   energia; guardá-los seria criar quatro números que podem divergir do
+   quinto assim que alguém mexer nele. */
+export function metasDoDia(S: State): { kcal: number; prot: number; carb: number; gord: number; fibra: number } {
+  const t: any = S.profile.targets;
+  const prot = t.prot as number;
+  const kcal = typeof t.kcal === 'number' ? t.kcal : planoDoPerfil(S).kcal;
+  return { kcal, prot, ...macrosDe(kcal, prot) };
+}
+
+/* O QUE O PRATO DO DIA ENTREGOU, além da proteína.
+
+   Só entra refeição cujo prato está montado com alimentos da tabela — a
+   estimativa da foto responde por proteína, e nada mais. `fora` conta as
+   refeições que ficaram de fora inteiras ou pela metade, para a tela
+   poder dizer de quantas essa soma NÃO fala. Sem esse número, um dia de
+   três refeições estimadas apareceria como 0 kcal, e zero ali seria
+   mentira: a pessoa comeu. */
+export function energiaDoDia(S: State, t: number) {
+  const refeicoes = refeicoesDoDia(S, t);
+  const soma = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, refeicoes: refeicoes.length };
+  for (const m of refeicoes) {
+    const itens = (m.itens || []) as ItemComida[];
+    if (!itens.length) { soma.fora++; continue; }
+    const n = nutrientesDe(itens);
+    if (n.fora > 0 || n.contados === 0) soma.fora++;
+    soma.kcal += n.kcal;
+    soma.carb += n.carb;
+    soma.gord += n.gord;
+    soma.fibra += n.fibra;
+  }
+  return soma;
 }
 
 /* ============================================================

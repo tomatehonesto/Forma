@@ -99,6 +99,63 @@ export function somaDe(itens: ItemComida[]): number {
   return itens.reduce((s, it) => s + gramasItem(it), 0);
 }
 
+/* ============================================================
+   O RESTO DO PRATO: ENERGIA, CARBOIDRATO, GORDURA E FIBRA
+
+   A proteína de um item pode vir de três lugares — da tabela, da
+   estimativa da foto, ou de lugar nenhum. O resto do rótulo vem de um
+   só: a tabela. Quem estimou proteína olhando a foto estimou proteína, e
+   nada mais; tirar a caloria dali seria construir um número em cima de
+   outro que já era aproximação.
+
+   POR ISSO ESTA SOMA É UM PISO, E A TELA DIZ ISSO. Ela soma o que tem
+   rótulo conferido e conta à parte os itens que ficaram de fora, em vez
+   de somar zero por eles em silêncio. Um total que engole o que não sabe
+   vira meta cumprida por omissão — o contrário do que uma meta de
+   energia serve para fazer.
+
+   E quando a tabela traz caloria mas não traz fibra, a fibra daquele
+   item fica fora da soma dela e o item continua contando na energia:
+   cada nutriente responde pelo que foi medido, e nenhum herda zero de
+   uma célula vazia.
+   ============================================================ */
+export type Nutrientes = { kcal: number; carb: number; gord: number; fibra: number };
+
+/** Quantos GRAMAS DE COMIDA o item tem — o peso do prato, e não o da
+    proteína. Só existe para item de tabela: é gUn que dá a régua. */
+export function pesoItem(it: ItemComida): number | null {
+  const a = alimentoDe(it.id);
+  return a ? a.gUn * Math.max(0, it.qtd) : null;
+}
+
+export type SomaDoPrato = Nutrientes & {
+  /** quantos itens não entraram na conta */
+  fora: number;
+  /** quantos entraram */
+  contados: number;
+};
+
+export function nutrientesDe(itens: ItemComida[]): SomaDoPrato {
+  const s: SomaDoPrato = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, contados: 0 };
+  for (const it of itens) {
+    const a = alimentoDe(it.id);
+    const g = pesoItem(it);
+    if (!a || g == null || a.kcal == null) { s.fora++; continue; }
+    s.contados++;
+    s.kcal += (a.kcal / 100) * g;
+    if (a.carb != null) s.carb += (a.carb / 100) * g;
+    if (a.gord != null) s.gord += (a.gord / 100) * g;
+    if (a.fibra != null) s.fibra += (a.fibra / 100) * g;
+  }
+  return {
+    ...s,
+    kcal: Math.round(s.kcal),
+    carb: Math.round(s.carb),
+    gord: Math.round(s.gord),
+    fibra: Math.round(s.fibra),
+  };
+}
+
 /** Itens do prato numa dada origem. */
 export function itensDe(itens: ItemComida[], origem: Origem): ItemComida[] {
   return itens.filter((it) => origemDe(it) === origem);

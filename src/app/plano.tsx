@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import {
-  ATIVIDADES, FAIXAS_IMC, curWeight, faixaDoIMC, idadeDe, litros, planoDoCadastro,
+  FAIXAS_IMC, curWeight, faixaDoIMC, litros, planoDoPerfil,
 } from '../logic/derive';
 import type { PlanoInicial } from '../logic/derive';
 import { FONTES } from '../logic/fontes';
@@ -588,16 +588,7 @@ export default function PreviaDoPlano() {
   const router = useRouter();
   const p = S.profile as any;
   const peso = curWeight(S);
-  const nivel = Math.max(0, ATIVIDADES.findIndex((x) => x.id === p.atividade));
-  const plano = planoDoCadastro({
-    altura: p.height,
-    peso,
-    meta: p.goalWeight,
-    ritmo: typeof p.ritmo === 'number' ? p.ritmo : null,
-    atividade: nivel,
-    idade: idadeDe(S) ?? undefined,
-    sexo: p.identidade === 'f' ? 'f' : p.identidade === 'm' ? 'm' : null,
-  });
+  const plano = planoDoPerfil(S);
   return (
     <Plano
       dados={{

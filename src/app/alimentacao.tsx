@@ -3,14 +3,14 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  apagarRefeicao, checkinToday, diasDeRefeicao, favoritos, refeicoesDoDia,
-  semanaDeProteina,
+  apagarRefeicao, checkinToday, diasDeRefeicao, energiaDoDia, favoritos, metasDoDia,
+  refeicoesDoDia, semanaDeProteina,
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
-import { now, startOfDay } from '../logic/time';
+import { milhar, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  Bloco, CardSemana, Cartao, Linha, TiraDeDias,
+  Bloco, CardSemana, Cartao, Linha, Progresso, TiraDeDias,
 } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { Chevron } from '../ui/kit';
@@ -20,10 +20,18 @@ import { radius, shadowCard } from '../theme';
 /* ============================================================
    ALIMENTAÇÃO
 
-   A tela do que sustenta o tratamento. Ela não conta caloria de
-   propósito: num tratamento de GLP-1 a fome cai sozinha, e o risco
-   deixa de ser comer demais e passa a ser comer pouca PROTEÍNA — que é
-   o que segura a massa magra enquanto o peso desce.
+   A tela do que sustenta o tratamento, e a PROTEÍNA é a régua dela: num
+   tratamento de GLP-1 a fome cai sozinha, e o risco deixa de ser comer
+   demais e passa a ser comer pouca proteína — que é o que segura a massa
+   magra enquanto o peso desce.
+
+   A CALORIA ENTROU, E COMO LIMITE. Por muito tempo esta tela não contava
+   caloria nenhuma, e o argumento continua valendo para o dia a dia: quem
+   anota cada refeição para fechar uma conta costuma parar na segunda
+   semana. O que mudou é que o cadastro passou a montar uma meta de
+   energia, e dela saem carboidrato, gordura e fibra, que não existem de
+   outra forma. Meta que nenhuma tela lê é dívida; esta aqui lê — sem
+   virar contador, e dizendo de quantas refeições a soma não fala.
 
    Três resoluções, e é a mesma escada da tela de exercício: o dia (o
    número que muda o que se almoça), a semana (a unidade em que a meta
@@ -55,12 +63,17 @@ export default function Alimentacao() {
   const { c } = useTheme();
   const router = useRouter();
 
+  /* AS METAS DE COMIDA, todas do mesmo lugar: a proteína que a pessoa
+     pode editar, a energia que o cadastro gravou, e os três gramas que
+     saem dela. */
+  const metas = metasDoDia(S);
+  const energia = energiaDoDia(S, +startOfDay(now()));
   /* Zero é zero. O 70 de antes era um número inventado: quem ainda não
      tinha registrado nada abria a tela e via a barra em 78% de uma meta
      que ninguém tinha começado a cumprir. Proteína é acumulador como
      água e exercício — o dia começa vazio e isso é a verdade dele. */
   const prot = Math.round(checkinToday(S)?.prot || 0);
-  const alvo = (S.profile as any).targets.prot as number;
+  const alvo = metas.prot;
   const falta = Math.max(0, alvo - prot);
 
   const semana = semanaDeProteina(S);
@@ -68,6 +81,7 @@ export default function Alimentacao() {
   const mediaSemana = diasComRegistro
     ? Math.round(semana.reduce((x, d) => x + d.g, 0) / diasComRegistro)
     : 0;
+
 
   const favs = favoritos(S);
 
@@ -111,11 +125,13 @@ export default function Alimentacao() {
       <FolhaDeHabito>
         {/* A primeira seção da folha, e a única que não é número. Sem
             título ela era um parágrafo solto encostado na foto. */}
-        <Bloco titulo="Por que proteína, e não caloria">
+        <Bloco titulo="Por que a proteína vem primeiro">
           <Txt v="note" c={c.tx2}>
             Num tratamento de GLP-1 a fome cai sozinha, e o risco deixa de ser
             comer demais: passa a ser comer pouca proteína — que é o que segura
-            a massa magra enquanto o peso desce.
+            a massa magra enquanto o peso desce. Por isso ela é o número da
+            capa. A caloria aparece logo abaixo como limite do dia, e não como
+            tarefa: quem conta cada refeição costuma parar na segunda semana.
           </Txt>
         </Bloco>
 
@@ -153,6 +169,56 @@ export default function Alimentacao() {
 
       </View>
 
+      {/* A ENERGIA DO DIA — a meta que o cadastro montou, finalmente lida.
+
+          Ela vivia só na tela de plano: a pessoa via "1.780 kcal por dia"
+          no fim do cadastro e nunca mais. Meta que nenhuma tela lê é
+          dívida, não recurso.
+
+          FICA ABAIXO DA PROTEÍNA, e não acima, porque a ordem é o
+          argumento: a proteína é o que o tratamento pede que se persiga,
+          a energia é o limite dentro do qual isso acontece. Trocar a
+          ordem seria transformar esta tela num contador de caloria, que é
+          exatamente o que o bloco lá em cima diz que ela não é.
+
+          E A CONTA SÓ FALA DO QUE TEM RÓTULO. Prato montado pela tabela
+          tem caloria conferida; refeição estimada pela foto responde por
+          proteína, e nada mais. Em vez de somar zero pelas outras em
+          silêncio, a tela diz de quantas ela não está falando. */}
+      <Bloco titulo="A energia de hoje">
+        <View style={{ gap: 10 }}>
+          <Progresso
+            label="Calorias"
+            valor={`${milhar(energia.kcal)} de ${milhar(metas.kcal)} kcal`}
+            pct={Math.round((energia.kcal / metas.kcal) * 100)}
+            nota={energia.refeicoes === 0
+              ? 'Nada registrado hoje.'
+              : energia.fora > 0
+                ? `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`
+                : 'De tudo o que você registrou hoje.'}
+          />
+
+          {/* OS TRÊS SAEM DA META DE ENERGIA, e não de um campo guardado.
+              São fatia dela — guardá-los à parte seria criar números que
+              divergem do quinto no dia em que alguém mexer nele. */}
+          <Cartao>
+            {([
+              ['leaf', 'Carboidrato', energia.carb, metas.carb],
+              ['drop2', 'Gordura', energia.gord, metas.gord],
+              ['gut', 'Fibra', energia.fibra, metas.fibra],
+            ] as [string, string, number, number][]).map(([ic, nome, tem, meta]) => (
+              <Linha
+                key={nome}
+                ic={ic}
+                titulo={nome}
+                sub={`Meta de ${meta} g`}
+                selo={`${tem} g`}
+                seloTom="neutra"
+              />
+            ))}
+          </Cartao>
+        </View>
+      </Bloco>
       {/* O CADERNO DE REFEIÇÕES — um dia por vez, como o de treino.
 
           A lista corrida de "registro recente" mostrava as últimas

@@ -1097,10 +1097,11 @@ export default function Cadastro() {
          dez vezes cada um. */
       s.profile.targets.prot = plano.prot;
       s.profile.targets.waterMl = plano.agua;
-      /* ⚠️ A META DE ENERGIA FICA GUARDADA E AINDA NÃO TEM LEITOR: nenhuma
-         tela soma a caloria do que a pessoa come. Ela é gravada aqui para
-         que /alimentacao a encontre quando passar a contar — e enquanto
-         isso não acontecer, ela é dívida, e não recurso. */
+      /* A META DE ENERGIA É GUARDADA, e é lida: /alimentacao conta a
+         energia do prato do dia contra ela, e dela saem carboidrato,
+         gordura e fibra. Guardada só ela, e não os três: eles são fatia
+         desta, e quatro números guardados divergem no dia em que alguém
+         mexer num. */
       (s.profile.targets as any).kcal = plano.kcal;
       /* O peso de hoje entra como PESAGEM, e não só como número do perfil:
          a curva de evolução, o "de → para" da Jornada e a meta leem a
