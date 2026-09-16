@@ -355,13 +355,17 @@ export default function Alimentacao() {
                   queria apagar, queria corrigir. Na folha as duas moram
                   juntas, depois de a pessoa ver o que está prestes a
                   mexer. */}
-              {doDia.map((m: any, i: number) => (
+              {/* UM CARTÃO SÓ, com fios entre as linhas. Cada refeição num
+                  card próprio dava três objetos flutuando onde existe UMA
+                  coisa: o dia. Fio separa sem cortar, e é o que o resto do
+                  app já faz em toda lista de linhas. */}
+              <Cartao>
+                {doDia.map((m: any, i: number) => (
                 <Pressable
                   key={`${m.t}-${i}`}
                   onPress={() => router.push(`/refeicao?t=${m.t}` as any)}
                   style={({ pressed }) => [
-                    { backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
-                    shadowCard(c),
+                    { paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
                   ]}
                 >
                   <Row style={{ alignItems: 'flex-start' }}>
@@ -390,7 +394,8 @@ export default function Alimentacao() {
                     <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
                   </Row>
                 </Pressable>
-              ))}
+                ))}
+              </Cartao>
               {/* O total do dia embaixo da lista, e não em cima: em cima ele
                   seria um segundo cabeçalho competindo com a tira; embaixo
                   ele é o que a soma das linhas deu. */}
@@ -427,6 +432,7 @@ export default function Alimentacao() {
                 da lista de refeições: apagar é irreversível, e ao alcance
                 do polegar numa lista que se rola é um erro esperando
                 acontecer. */}
+            <Cartao>
             {favs.map((f) => {
               const g = somaDe((f.itens || []) as any);
               return (
@@ -434,8 +440,7 @@ export default function Alimentacao() {
                   key={f.nome}
                   onPress={() => router.push(`/favorito?nome=${encodeURIComponent(f.nome)}` as any)}
                   style={({ pressed }) => [
-                    { backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
-                    shadowCard(c),
+                    { paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
                   ]}
                 >
                   <Row style={{ alignItems: 'flex-start' }}>
@@ -454,6 +459,7 @@ export default function Alimentacao() {
                 </Pressable>
               );
             })}
+            </Cartao>
           </View>
         ) : (
           /* O vazio aponta a saída, porque aqui ela existe: o cadastro
