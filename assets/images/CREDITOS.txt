@@ -35,3 +35,15 @@ exercicio-hero.jpg — o topo da tela de Exercício
   nunca resolveu — num app de perda de peso, um corpo em foco no alto da
   tela de exercício cobra em vez de convidar. Aqui não dá para ver de
   quem é o corpo.
+
+abertura-hero.jpg — a tela que abre o cadastro
+  assunto: uma pessoa caminhando por uma rua na luz do fim da tarde
+  autor: Michael Fischer (@photo_fish)
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/iK8lRFxtS9U
+
+  A escolha seguiu a mesma regra da capa do exercício, e pelo mesmo
+  motivo: num app de perda de peso, corpo em foco cobra em vez de
+  convidar — e na PRIMEIRA tela cobra de quem ainda nem entrou. Aqui não
+  se vê rosto nem corpo em exibição: vê-se alguém de costas, andando na
+  direção da luz, que é o que a tela quer dizer sem escrever.

@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Animated, View, Pressable, ScrollView, TextInput, Platform } from 'react-native';
+import { Animated, View, Image, Pressable, ScrollView, TextInput, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
@@ -12,6 +14,7 @@ import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
+import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font } from '../theme';
 
 /* ============================================================
@@ -676,6 +679,102 @@ const GLIFOS: [string, number, number, number][] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* A ABERTURA — a primeira tela de todas
+
+   Ela era a lavagem azul do resto do cadastro, um coração dentro de um
+   quadradinho e "Vamos conhecer seu tratamento". Correta, e do tipo de
+   correção que não convida ninguém: parecia a antessala de um formulário
+   médico, que é exatamente o que vem depois e exatamente o que não se
+   quer prometer na porta.
+
+   FOTO SANGRANDO, VÉU ESCURO E O TEXTO NO PÉ. É a gramática que Nike,
+   Strivo e companhia usam para a primeira tela, e ela funciona porque
+   inverte a ordem: primeiro a imagem diz como é a vida com aquilo,
+   depois as palavras dizem o que é.
+
+   A FOTO NÃO TEM CORPO EM EXIBIÇÃO, e isso é regra e não gosto. O arquivo
+   de créditos desta pasta já a tinha escrito para a capa do exercício:
+   num app de perda de peso, corpo em foco cobra em vez de convidar. Na
+   primeira tela cobraria de quem ainda nem entrou. Aqui é alguém de
+   costas, andando na direção da luz — sem rosto, sem corpo, com a ideia.
+
+   O VÉU É UM DEGRADÊ LONGO, e não uma faixa preta. A referência da Nike
+   corta a foto numa reta e põe texto no bloco preto de baixo; o corte
+   funciona lá porque a foto tem fundo escuro do lado de dentro. Com uma
+   foto de fim de tarde, reta seria costura à mostra — o degradê começa a
+   meia altura e só fecha no pé.
+
+   A MARCA É A DA ÍCONE DO APP, desenhada aqui em vez de importada: são
+   três pontos e dois traços, e trazer um PNG para isso seria carregar
+   imagem para desenhar uma letra. */
+const CAPA = require('../../assets/images/abertura-hero.jpg');
+const TINTA_CAPA = '#0B0B0C';
+
+function Marca() {
+  return (
+    <Row style={{ alignItems: 'center', gap: 10 }}>
+      <Svg width={26} height={20} viewBox="0 0 26 20">
+        <Path
+          d="M3 17.5 L13 3.5 L23 17.5"
+          stroke="#FFFFFF" strokeWidth={4.6}
+          strokeLinecap="round" strokeLinejoin="round" fill="none"
+        />
+      </Svg>
+      <Txt v="title" c="#FFFFFF" style={{ fontFamily: font.bodySemi, letterSpacing: 0.2 }}>
+        Morphi
+      </Txt>
+    </Row>
+  );
+}
+
+function Abertura({ onComecar }: { onComecar: () => void }) {
+  const insets = useSafeAreaInsets();
+  useLightStatusBar();
+  return (
+    <View style={{ flex: 1, backgroundColor: TINTA_CAPA }}>
+      {/* Largura e altura explícitas: só com os quatro cantos presos, a
+          web escala a imagem pelo tamanho natural dela e o recorte sai
+          quatro vezes ampliado, mostrando um canto da foto. */}
+      <Image
+        source={CAPA}
+        style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
+        resizeMode="cover"
+      />
+      <LinearGradient
+        colors={['transparent', 'rgba(11,11,12,0.72)', TINTA_CAPA]}
+        locations={[0, 0.62, 0.92]}
+        style={SOBREPOSTO}
+        pointerEvents="none"
+      />
+      <View style={{
+        flex: 1, justifyContent: 'flex-end',
+        paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
+      }}>
+        <Marca />
+        <Txt v="h1" c="#FFFFFF">
+          Um dia de cada vez,{'\n'}e eu do seu lado.
+        </Txt>
+        <Txt v="note" c="rgba(255,255,255,0.72)" style={{ marginBottom: 12 }}>
+          As doses, os sintomas e o que muda ficam comigo. O resto do dia é seu.
+        </Txt>
+        {/* Botão branco sobre escuro: o azul de ação do app desaparece
+            sobre uma foto de fim de tarde, e esta é a única tela do app em
+            que o fundo não é o branco. */}
+        <Pressable
+          onPress={onComecar}
+          style={({ pressed }) => [{
+            borderRadius: radius.pill, backgroundColor: '#FFFFFF', paddingVertical: 18,
+            alignItems: 'center', opacity: pressed ? 0.85 : 1,
+          }]}
+        >
+          <Txt v="bodyMed" c={TINTA_CAPA}>Começar</Txt>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* MONTANDO O PLANO — os três segundos entre a conferência e o plano.
 
    Não é enfeite, e também não é mentira: o app de fato calcula aqui
@@ -996,32 +1095,7 @@ export default function Cadastro() {
   if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} />;
 
   /* ---------- abertura ---------- */
-  if (n === -1) {
-    return (
-      <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top, paddingHorizontal: 20 }}>
-        <Lavagem altura={insets.top + 380} />
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-          <View style={{
-            width: 56, height: 56, borderRadius: radius.card, backgroundColor: c.bg1,
-            alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon name="heart" size={26} color={c.accent} sw={1.8} />
-          </View>
-          <Txt v="h1" style={{ textAlign: 'center' }}>Vamos conhecer{'\n'}seu tratamento</Txt>
-          {/* A promessa mudou junto com a regra: onde o texto dizia "todas
-              opcionais, você pode pular", ele agora diz quanto custa e o
-              que muda depois. */}
-          <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', maxWidth: 290 }}>
-            Perguntas curtas, uma por tela. É com elas que o Morphi monta a sua Home e as
-            suas metas do dia — e qualquer uma muda depois, no perfil.
-          </Txt>
-        </View>
-        <View style={{ paddingBottom: insets.bottom + 20 }}>
-          <Botao pilula label="Começar" onPress={() => setN(0)} />
-        </View>
-      </View>
-    );
-  }
+  if (n === -1) return <Abertura onComecar={() => setN(0)} />;
 
   /* ---------- o plano ----------
 
