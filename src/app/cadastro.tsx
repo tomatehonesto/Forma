@@ -13,9 +13,8 @@ import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
-import { Marca, MarcaContorno } from '../ui/marca';
+import { Marca } from '../ui/marca';
 import { VidroDegrade } from '../ui/vidro';
-import { AreaCurve } from '../ui/charts';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
@@ -721,39 +720,6 @@ const TINTA_CAPA = '#05143F';
    que ele é usado. */
 const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 34, lineHeight: 42 };
 
-/* A MESMA FORMA DA CURVA DO PLANO, sem os números. Nove pontos porque é
-   o que deixa o traço liso; 30% de reta e 70% de afrouxamento porque é
-   assim que a perda se comporta, e desenhar outra coisa aqui seria a
-   marca da casa contradizendo a conta da casa. */
-const CURVA_ABERTURA = Array.from({ length: 9 }, (_, i) => {
-  const x = i / 8;
-  return { x, y: 1 - (0.3 * x + 0.7 * (1 - (1 - x) ** 2)) };
-});
-
-/* A MARCA GIGANTE E VAZADA, atrás de tudo.
-
-   Aqui estavam três cartões de vidro com os gráficos do app. Eles
-   mostravam o produto, que era o ponto, e enchiam a metade de cima de
-   caixas — numa tela cujo trabalho é dar a primeira impressão, e não
-   fazer demonstração.
-
-   O contorno do M resolve os dois lados: é textura, não informa nada e
-   não pede leitura, e ainda assim é a própria marca em tamanho de
-   pôster. E some junto com o resto sob o vidro que sobe do pé.
-
-   ELE SANGRA PELAS DUAS BORDAS de propósito. Marca inteira e centrada
-   vira logotipo de tela de abertura de slide; cortada, vira superfície. */
-function ContornoDeFundo({ largura, altura }: { largura: number; altura: number }) {
-  return (
-    <View
-      pointerEvents="none"
-      style={{ position: 'absolute', left: -largura * 0.18, top: altura * 0.16 }}
-    >
-      <MarcaContorno largura={largura * 1.36} opacidade={0.26} traco={2.2} />
-    </View>
-  );
-}
-
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -769,23 +735,32 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         resizeMode="cover"
       />
 
-      {/* A curva grande continua atrás de tudo: ela é o fundo, e os
-          cartões é que são a frente. */}
-      <View
+      {/* NADA ENTRE A AURORA E O VIDRO.
+
+          Passaram por aqui, em ordem: a curva do plano, três cartões de
+          gráfico, arcos de mostrador, uma régua de borda e o contorno da
+          marca. Cada um resolvia uma tela e sobrava na seguinte, e juntos
+          transformavam a primeira coisa que a pessoa vê numa vitrine.
+
+          A aurora já é a marca: o azul com verde, a granulação, o
+          desenho de luz que a Home usa. Em cima dela, qualquer traço a
+          mais é um a mais. */}
+
+      {/* O VIDRO SOBE MAIS ALTO E É AZUL.
+
+          Mais alto porque o texto ganhou três linhas de manchete e o
+          desfoque tem de começar antes delas, não na altura da primeira.
+          Azul porque o tom escuro do desfoque é cinza-neutro, e cinza
+          sobre a aurora acinzenta justamente a cor da marca: o véu de
+          azul profundo por cima devolve a temperatura que o desfoque
+          tirou. */}
+      <VidroDegrade altura={height * 0.66} intensidade={34} deBaixo />
+      <LinearGradient
+        colors={['transparent', 'rgba(9,40,120,0.5)', TINTA_CAPA]}
+        locations={[0, 0.42, 1]}
         pointerEvents="none"
-        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.34, opacity: 0.26 }}
-      >
-        <AreaCurve
-          pts={CURVA_ABERTURA} width={width} height={200}
-          padT={10} padB={10} padX={0} strokeW={2.2}
-          id="ab" dashed={false} fill={0.1}
-          strokeFrom="#DDF62C" strokeTo="#15E4CB"
-        />
-      </View>
-
-      <ContornoDeFundo largura={width} altura={height} />
-
-      <VidroDegrade altura={height * 0.52} intensidade={38} deBaixo />
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.66 }}
+      />
 
       <View style={{
         flex: 1, justifyContent: 'flex-end',
