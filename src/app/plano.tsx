@@ -105,7 +105,26 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
      E a referência desenha a curva ao contrário: a dela cai mais no fim.
      A titulação faz as primeiras semanas renderem menos que as seguintes,
      mas ao longo de meses quem afrouxa é o fim, não o começo. */
-  const forma = (x: number) => 0.45 * x + 0.55 * (1 - (1 - x) ** 2);
+  /* A CURVATURA DEPENDE DO TAMANHO DO PLANO, e não é enfeite regulável.
+
+     Um plano de dez semanas cabe inteiro dentro da fase rápida: ali a
+     queda é quase constante, e curvar muito seria desenhar um platô que
+     não vai acontecer nesse prazo. Um plano de oito meses atravessa a
+     janela em que o platô aparece — 24 a 36 semanas nos SURMOUNT —, e
+     nele o fim é mesmo quase reto.
+
+     Então a parte reta encolhe conforme o plano se estica: 45% para quem
+     tem poucas semanas, 25% para quem cruza a janela do platô. Em razão
+     de inclinação, o começo vai de três vezes o fim a sete vezes.
+
+     Aos 50% do tempo isso põe entre 64% e 70% do caminho andado — que é o
+     que se lê extrapolando a série de mundo real (~6,4% em doze semanas,
+     ~15% em 68) e o "a maior parte acontece nos primeiros quatro ou cinco
+     meses". Empurrar mais do que isso deixaria de ser realismo e passaria
+     a ser exagero com cara de gráfico. */
+  const cruzaPlato = Math.min(1, (plano.semanas ?? 0) / 34);
+  const reta = 0.45 - 0.20 * cruzaPlato;
+  const forma = (x: number) => reta * x + (1 - reta) * (1 - (1 - x) ** 2);
   const marcos = plano.semanas && d.ritmo
     ? (() => {
       const meio = Math.max(1, Math.round(plano.semanas / 2));
@@ -367,7 +386,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
                 <AreaCurve
                   pts={CURVA}
-                  height={104} padT={16} padB={12} padX={20} strokeW={2.6}
+                  height={140} padT={18} padB={14} padX={20} strokeW={2.6}
                   id="pl" dashed={false} tracejada nodes nosEm={[0, 4, 8]} fill={0.18}
                   strokeFrom={VERDE} strokeTo={VERDE_FIM}
                 />
