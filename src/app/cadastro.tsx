@@ -13,10 +13,9 @@ import { MO_LONG, doseTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
-import { Glifos, Malha, Nivel } from '../ui/instrumentos';
 import { Lavagem } from '../ui/lavagem';
 import { VidroDegrade } from '../ui/vidro';
-import { AreaCurve, MiniBars, Ring } from '../ui/charts';
+import { AreaCurve } from '../ui/charts';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
@@ -684,98 +683,48 @@ const GLIFOS: [string, number, number, number][] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* A ABERTURA — as três telas antes da primeira pergunta
+/* A ABERTURA — a primeira tela de todas
 
-   Era uma tela só, e uma tela só tem de dizer tudo de uma vez: ou promete
-   companhia, ou promete clareza, ou promete evolução. Três telas deixam
-   cada promessa ter a imagem dela — e a rolagem horizontal é o gesto que
-   a pessoa já faz sem instrução nenhuma.
+   Ela era a lavagem azul do resto do cadastro, um coração dentro de um
+   quadradinho e "Vamos conhecer seu tratamento". Correta, e do tipo de
+   correção que não convida ninguém: parecia a antessala de um formulário
+   médico, que é exatamente o que vem depois e exatamente o que não se
+   quer prometer na porta.
 
-   AS TRÊS SÃO GRADIENTE, E NENHUMA É FOTOGRAFIA. Passamos por duas fotos
-   — mãos na luz, alguém correndo num campo — e as duas eram boas. O que
-   as derruba é o mesmo de sempre: foto bonita é sempre a foto de OUTRA
-   pessoa, e a porta de um app de transformação é o pior lugar para
-   alguém encontrar um corpo que não é o dela. As auroras do próprio app
-   não têm esse problema, e de quebra fazem a abertura parecer o produto
+   IMAGEM SANGRANDO, VIDRO NO PÉ E O TEXTO DENTRO DELE. É a gramática que
+   Nike, NEOM e companhia usam na primeira tela, e ela funciona porque
+   inverte a ordem: primeiro a imagem diz como é, depois as palavras
+   dizem o que é.
+
+   A IMAGEM É A AURORA DO PRÓPRIO APP, e não uma fotografia. Passamos por
+   duas fotos antes — alguém caminhando no fim de tarde, depois alguém
+   correndo por um campo — e as duas tinham o mesmo problema de fundo:
+   uma foto bonita é sempre a foto de OUTRA pessoa, e a porta de um app
+   de transformação é o pior lugar para alguém encontrar um corpo que não
+   é o dela. A aurora resolve isso e ainda é o azul com verde da marca,
+   já usado na Home e no Insights — a primeira tela passa a parecer o app
    em vez de parecer uma campanha.
 
-   SÃO DUAS IMAGENS DIFERENTES E UMA MALHA GERADA, e não a mesma três
-   vezes: percorrer as telas tem de parecer andar.
+   A CURVA APAGADA ATRAVESSANDO O MEIO é a mesma forma da curva do plano:
+   rápida no começo, afrouxando depois. Aqui ela não mede nada e não tem
+   rótulo nenhum — é textura com significado, o desenho do que o app faz,
+   na intensidade de quem não quer ser lido, só notado.
 
-     companhia  a aurora do orbe, do Insights — uma presença acesa no
-                escuro, que é literalmente o assunto da frase.
-     clareza    a aurora da Home, de faixas largas que se cruzam.
-     evolucao   a malha de manchas, gerada em código, na família escura.
+   O VIDRO É O MESMO DE /alimento E /agua, virado de cabeça para baixo.
+   Lá ele desce do topo sobre a foto; aqui sobe do pé, forte embaixo e
+   sumindo no meio da tela. Faixa preta reta seria mais simples e seria
+   uma costura à mostra. */
+const CAPA = require('../../assets/images/aurora-hero.png');
+const TINTA_CAPA = '#05143F';
 
-   O VIDRO SOBE DO PÉ em todas as três, que é o mesmo de /alimento e
-   /agua virado de cabeça para baixo. Faixa preta reta seria mais simples
-   e seria costura à mostra.
-
-   A MARCA FICA FIXA NO TOPO, e não dentro do texto: ela não muda de tela
-   para tela, e repeti-la três vezes faria a rolagem parecer três telas
-   soltas em vez de um percurso.
-
-   ⚠️ O TEXTO DIZ "A MORPHI", no feminino, e o resto do app diz "o
-   Morphi". Veio assim da redação e ficou assim de propósito, para a
-   divergência aparecer em vez de eu escolher sozinho: é uma troca só,
-   nos dois sentidos, e vale decidir antes de crescer. */
-const AURORA_ABERTURA = require('../../assets/images/aurora-hero.png');
-
-/* QUASE-PRETO, E NÃO O AZUL DA AURORA.
-
-   A referência põe o brilho no alto e deixa o pé da tela virar preto
-   sólido: o texto passa a viver sobre uma superfície, e não sobre a
-   imagem. É o que faz aquelas telas parecerem caras — e o que resolve o
-   problema de legibilidade que nenhuma dose de véu resolve quando a foto
-   tem luz forte embaixo. */
-const FUNDO_ABERTURA = '#07080B';
-
-/* O TÍTULO DA ABERTURA É MENOR QUE O h1 DO APP.
-
-   Com 36/44, "Pequenas mudanças fazem parte do caminho" e as duas
-   manchetes de duas linhas empurravam o bloco para fora da tela em
-   aparelho mais curto — e quem usa corpo maior no sistema via a primeira
-   linha sumir por cima. Trinta caber é melhor do que trinta e seis
-   caber às vezes. */
+/* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
+   que ele é usado. */
 const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 30, lineHeight: 38 };
 
-type TelaDeAbertura = {
-  id: string;
-  selo: string;
-  titulo: string;
-  texto: string;
-  /** a imagem de fundo, ou null quando a malha desenha */
-  fundo: any;
-};
-
-const ABERTURA: TelaDeAbertura[] = [
-  {
-    id: 'companhia',
-    selo: 'Companhia',
-    titulo: 'Você não está sozinho nessa.',
-    texto: 'A Morphi acompanha sua jornada de perto, em cada etapa, todos os dias.',
-    fundo: require('../../assets/images/aurora-insights.png'),
-  },
-  {
-    id: 'clareza',
-    selo: 'Clareza',
-    titulo: 'Entenda o que está mudando.',
-    texto: 'A Morphi conecta seus momentos, sinais e resultados para transformar tudo em contexto.',
-    fundo: AURORA_ABERTURA,
-  },
-  {
-    id: 'evolucao',
-    selo: 'Evolução',
-    titulo: 'Veja sua jornada acontecer.',
-    texto: 'Pequenas mudanças fazem parte do caminho. A Morphi ajuda você a perceber cada uma delas.',
-    /* Sem imagem: a malha desenha o fundo desta em código. */
-    fundo: null,
-  },
-];
-
-/* A MESMA FORMA DA CURVA DO PLANO, sem os números: rápida no começo,
-   afrouxando depois. Desenhar outra coisa aqui seria a marca da casa
-   contradizendo a conta da casa. */
+/* A MESMA FORMA DA CURVA DO PLANO, sem os números. Nove pontos porque é
+   o que deixa o traço liso; 30% de reta e 70% de afrouxamento porque é
+   assim que a perda se comporta, e desenhar outra coisa aqui seria a
+   marca da casa contradizendo a conta da casa. */
 const CURVA_ABERTURA = Array.from({ length: 9 }, (_, i) => {
   const x = i / 8;
   return { x, y: 1 - (0.3 * x + 0.7 * (1 - (1 - x) ** 2)) };
@@ -783,284 +732,80 @@ const CURVA_ABERTURA = Array.from({ length: 9 }, (_, i) => {
 
 function Marca() {
   return (
-    <Row style={{ alignItems: 'center', gap: 9 }}>
-      <Svg width={22} height={17} viewBox="0 0 26 20">
+    <Row style={{ alignItems: 'center', gap: 10 }}>
+      <Svg width={26} height={20} viewBox="0 0 26 20">
         <Path
           d="M3 17.5 L13 3.5 L23 17.5"
           stroke="#FFFFFF" strokeWidth={4.6}
           strokeLinecap="round" strokeLinejoin="round" fill="none"
         />
       </Svg>
-      <Txt v="label" c="#FFFFFF" style={{ fontFamily: font.bodySemi, letterSpacing: 0.2 }}>
+      <Txt v="title" c="#FFFFFF" style={{ fontFamily: font.bodySemi, letterSpacing: 0.2 }}>
         Morphi
       </Txt>
     </Row>
   );
 }
 
-/* OS INSTRUMENTOS DAS TRÊS TELAS.
-
-   São os componentes de gráfico do PRÓPRIO app — a curva, as barras, o
-   anel, os glifos, o nível —, os mesmos que a Home e a Jornada usam,
-   dentro de cartões de vidro. Não são desenhos feitos para a abertura: é
-   o produto aparecendo antes de a pessoa entrar nele.
-
-   E NENHUM DELES TEM NÚMERO. O rótulo diz o assunto — peso, enjoo,
-   proteína, a semana —, que é verdade sobre o que o app acompanha; o
-   número seria o dado de uma pessoa que não existe, e mostrar isso logo
-   na tela em que se promete clareza seria começar mentindo.
-
-   Os três conjuntos mudam de composição de propósito: duas peças, três,
-   duas de novo, em posições diferentes. Percorrer as telas tem de
-   parecer andar, e três arranjos iguais com cores iguais parecem a mesma
-   tela piscando. */
-const VIDRO_CARTAO = {
-  backgroundColor: 'rgba(255,255,255,0.10)',
-  borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.18)',
-  borderRadius: radius.card,
-  padding: 13,
-  gap: 9,
-} as const;
-const ROTULO_VIDRO = { letterSpacing: 1 } as const;
-
-function InstrumentosCompanhia({ largura }: { largura: number }) {
-  return (
-    <>
-      <View style={{ position: 'absolute', left: 22, top: 0, width: 196, ...VIDRO_CARTAO }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>ESTA SEMANA</Txt>
-        <Glifos total={7} cheios={5} sobreEscuro altura={24} />
-      </View>
-
-      {/* A pergunta é uma das que o check-in faz de verdade. Frase de
-          exemplo inventada aqui viraria promessa de uma conversa que o
-          app não tem. */}
-      <View style={{
-        position: 'absolute', right: 20, top: 118, width: Math.min(232, largura - 60),
-        ...VIDRO_CARTAO, flexDirection: 'row', alignItems: 'center', gap: 11,
-      }}>
-        <View style={{
-          width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(221,246,44,0.16)',
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon name="companion" size={17} color="#DDF62C" sw={1.9} />
-        </View>
-        <Txt v="caption" c="#FFFFFF" style={{ flex: 1 }}>Como você dormiu ontem?</Txt>
-      </View>
-    </>
-  );
-}
-
-function InstrumentosClareza({ largura }: { largura: number }) {
-  return (
-    <>
-      <View style={{ position: 'absolute', left: 22, top: 0, width: 168, ...VIDRO_CARTAO }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>PESO</Txt>
-        <AreaCurve
-          pts={CURVA_ABERTURA} width={142} height={46}
-          padT={6} padB={6} padX={0} strokeW={2} id="ins1"
-          dashed={false} fill={0.16} strokeFrom="#DDF62C" strokeTo="#15E4CB"
-        />
-      </View>
-
-      <View style={{ position: 'absolute', right: 20, top: 104, width: 152, ...VIDRO_CARTAO }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>ENJOO</Txt>
-        <MiniBars vals={[5, 4, 5, 3, 2, 1, 1]} height={40} color="#15E4CB" gap={7} />
-      </View>
-
-      <View style={{
-        position: 'absolute', left: Math.max(22, largura * 0.12), top: 206,
-        width: 182, ...VIDRO_CARTAO, flexDirection: 'row', alignItems: 'center', gap: 12,
-      }}>
-        <Ring size={42} stroke={5} pct={0.72} color="#DDF62C" track="rgba(255,255,255,0.18)" id="ins3" />
-        <View style={{ flex: 1 }}>
-          <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO} numberOfLines={1}>PROTEÍNA</Txt>
-          <Txt v="caption" c="#FFFFFF" style={{ marginTop: 2 }}>hoje</Txt>
-        </View>
-      </View>
-    </>
-  );
-}
-
-function InstrumentosEvolucao({ largura }: { largura: number }) {
-  return (
-    <>
-      {/* A curva grande, e não mais uma miniatura: nesta tela ela é o
-          assunto, e o assunto ocupa a largura. */}
-      <View style={{
-        position: 'absolute', left: 22, top: 0, width: Math.min(280, largura - 44), ...VIDRO_CARTAO,
-      }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>PESO</Txt>
-        <AreaCurve
-          pts={CURVA_ABERTURA} width={Math.min(280, largura - 44) - 26} height={84}
-          padT={8} padB={8} padX={0} strokeW={2.4} id="ev1"
-          dashed={false} fill={0.18} strokeFrom="#DDF62C" strokeTo="#15E4CB"
-        />
-      </View>
-
-      <View style={{ position: 'absolute', right: 20, top: 172, width: 196, ...VIDRO_CARTAO }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>AS SEMANAS</Txt>
-        <Nivel total={16} cheios={11} sobreEscuro de="#DDF62C" para="#15E4CB" altura={10} />
-      </View>
-    </>
-  );
-}
-
-const INSTRUMENTOS: Record<string, (p: { largura: number }) => React.ReactElement> = {
-  companhia: InstrumentosCompanhia,
-  clareza: InstrumentosClareza,
-  evolucao: InstrumentosEvolucao,
-};
-
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const [pagina, setPagina] = React.useState(0);
-  const rolagem = React.useRef<ScrollView>(null);
   useLightStatusBar();
-
-  /* O RODAPÉ MEDE A SI MESMO.
-
-     Ele é fixo e as três telas passam por baixo, então o texto de cada
-     uma tem de parar antes dele. Esse número estava escrito à mão, e na
-     primeira vez que o rodapé cresceu — entrou o "Pular" — o texto
-     passou a correr por baixo do botão. Altura chutada envelhece na
-     primeira mudança; altura medida, não. O valor inicial é só o que
-     vale até a primeira medição. */
-  const [rodape, setRodape] = React.useState(170);
-  const RODAPE = rodape + 16;
-
-  const vai = (i: number) => {
-    if (i >= ABERTURA.length) { onComecar(); return; }
-    rolagem.current?.scrollTo({ x: i * width, animated: true });
-    setPagina(i);
-  };
-
   return (
-    <View style={{ flex: 1, backgroundColor: FUNDO_ABERTURA }}>
-      <ScrollView
-        ref={rolagem}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => setPagina(Math.round(e.nativeEvent.contentOffset.x / width))}
-        scrollEventThrottle={16}
-      >
-        {ABERTURA.map((t) => (
-          <View key={t.id} style={{ width, height }}>
-            {/* Largura e altura explícitas: só com os quatro cantos
-                presos, a web escala a imagem pelo tamanho natural dela e
-                o recorte sai ampliado, mostrando um canto. */}
-            {t.fundo ? (
-              <Image
-                source={t.fundo}
-                style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={SOBREPOSTO}>
-                <Malha id="ab-evo" forca={1} escura />
-              </View>
-            )}
-
-            <View
-              pointerEvents="none"
-              style={{ position: 'absolute', left: 0, right: 0, top: height * 0.19 }}
-            >
-              {React.createElement(INSTRUMENTOS[t.id], { largura: width })}
-            </View>
-
-            {/* O VIDRO DISSOLVE A IMAGEM e o degradê a apaga. Os dois
-                juntos, e não um só: degradê sozinho sobre foto deixa o
-                detalhe aparecendo por baixo do preto translúcido, e vidro
-                sozinho não chega a preto nenhum. */}
-            <VidroDegrade altura={height * 0.52} intensidade={30} deBaixo />
-            <LinearGradient
-              colors={['transparent', 'rgba(7,8,11,0.6)', FUNDO_ABERTURA, FUNDO_ABERTURA]}
-              locations={[0, 0.34, 0.66, 1]}
-              pointerEvents="none"
-              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.6 }}
-            />
-
-            <View style={{
-              flex: 1, justifyContent: 'flex-end',
-              paddingHorizontal: 24, paddingBottom: RODAPE, gap: 10,
-            }}>
-              <Txt v="micro" c="#DDF62C" style={{ letterSpacing: 1.4 }}>
-                {t.selo.toUpperCase()}
-              </Txt>
-              <Txt c="#FFFFFF" style={TITULO_ABERTURA}>{t.titulo}</Txt>
-              <Txt v="caption" c="rgba(255,255,255,0.68)">{t.texto}</Txt>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* A MARCA NÃO ROLA JUNTO: ela é a mesma nas três, e repeti-la faria
-          o percurso parecer três telas soltas. O véu curto atrás dela
-          existe porque o topo de uma das fotos é claro. */}
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0 }}>
-        <LinearGradient
-          colors={['rgba(0,0,0,0.45)', 'transparent']}
-          style={{ height: insets.top + 96 }}
-        />
-      </View>
-      <View style={{ position: 'absolute', left: 24, top: insets.top + 14 }} pointerEvents="none">
-        <Marca />
-      </View>
+    <View style={{ flex: 1, backgroundColor: TINTA_CAPA }}>
+      {/* Largura e altura explícitas: só com os quatro cantos presos, a
+          web escala a imagem pelo tamanho natural dela e o recorte sai
+          ampliado, mostrando um canto. */}
+      <Image
+        source={CAPA}
+        style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
+        resizeMode="cover"
+      />
 
       <View
-        onLayout={(e) => setRodape(Math.round(e.nativeEvent.layout.height))}
-        style={{
-          position: 'absolute', left: 0, right: 0, bottom: 0,
-          paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 18,
-        }}
+        pointerEvents="none"
+        style={{ position: 'absolute', left: 0, right: 0, top: height * 0.3, opacity: 0.32 }}
       >
-        <Row style={{ gap: 6, justifyContent: 'center' }}>
-          {ABERTURA.map((t, i) => (
-            <View
-              key={t.id}
-              style={{
-                width: i === pagina ? 20 : 6, height: 6, borderRadius: 3,
-                backgroundColor: i === pagina ? '#FFFFFF' : 'rgba(255,255,255,0.34)',
-              }}
-            />
-          ))}
-        </Row>
-        {/* O BOTÃO VOLTOU A SER AZUL. Ele era branco porque o azul do app
-            sumia sobre a aurora; agora o pé da tela é quase preto, e ali o
-            azul de ação é o que ele sempre foi — a cor de avançar, a mesma
-            de todos os outros botões do app. */}
-        <Pressable
-          onPress={() => vai(pagina + 1)}
-          style={({ pressed }) => [{
-            borderRadius: radius.pill, overflow: 'hidden', opacity: pressed ? 0.85 : 1,
-          }]}
-        >
-          <LinearGradient
-            colors={['#3D7BFF', '#065CF5']}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={{ paddingVertical: 18, alignItems: 'center' }}
-          >
-            <Txt v="bodyMed" c="#FFFFFF">
-              {pagina === ABERTURA.length - 1 ? 'Começar' : 'Continuar'}
-            </Txt>
-          </LinearGradient>
-        </Pressable>
+        <AreaCurve
+          pts={CURVA_ABERTURA} width={width} height={210}
+          padT={10} padB={10} padX={0} strokeW={2.2}
+          id="ab" dashed={false} fill={0.1}
+          strokeFrom="#DDF62C" strokeTo="#15E4CB"
+        />
+      </View>
 
-        {/* PULAR SALTA A APRESENTAÇÃO, e não as perguntas. Quem já sabe o
-            que o app faz — porque voltou, ou porque alguém contou — não
-            deve três telas de conversa a ninguém. Some na última, onde
-            não há mais o que pular. */}
+      <VidroDegrade altura={height * 0.52} intensidade={38} deBaixo />
+
+      <View style={{
+        flex: 1, justifyContent: 'flex-end',
+        paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
+      }}>
+        <Marca />
+        {/* O CORPO É MENOR QUE O h1 DO APP, e por medida e não por gosto.
+
+            Com 36/44, esta manchete ocupa três linhas e o apoio ocupa
+            seis: o bloco sai pela borda de cima em aparelho curto, e quem
+            usa corpo maior no sistema perde a primeira linha. Trinta
+            caber é melhor do que trinta e seis caber às vezes. */}
+        <Txt c="#FFFFFF" style={TITULO_ABERTURA}>
+          Inteligência que acompanha sua transformação
+        </Txt>
+        <Txt v="caption" c="rgba(255,255,255,0.7)" style={{ marginBottom: 12 }}>
+          Mais do que acompanhar resultados, é entender a jornada por trás deles. Uma
+          experiência inteligente que aprende com você, entende seus momentos e se adapta
+          para tornar cada etapa mais sua.
+        </Txt>
+        {/* Botão branco sobre escuro: o azul de ação do app desaparece
+            sobre o azul da aurora, e esta é a única tela em que o fundo
+            não é o branco. */}
         <Pressable
           onPress={onComecar}
-          disabled={pagina === ABERTURA.length - 1}
           style={({ pressed }) => [{
-            alignItems: 'center', paddingVertical: 4,
-            opacity: pagina === ABERTURA.length - 1 ? 0 : pressed ? 0.6 : 1,
+            borderRadius: radius.pill, backgroundColor: '#FFFFFF', paddingVertical: 18,
+            alignItems: 'center', opacity: pressed ? 0.85 : 1,
           }]}
         >
-          <Txt v="label" c="rgba(255,255,255,0.6)">Pular</Txt>
+          <Txt v="bodyMed" c={TINTA_CAPA}>Começar</Txt>
         </Pressable>
       </View>
     </View>
