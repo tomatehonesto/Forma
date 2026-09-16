@@ -38,6 +38,12 @@ export type Conselho = {
   texto: string;
   /** confirma o que já está acontecendo, em vez de pedir mudança */
   bom: boolean;
+  /* A PERGUNTA QUE O CARTÃO ABRE NO MORPHI. Ela existe porque um achado
+     termina sempre no mesmo lugar: "e agora?". A tela conta e sugere; o
+     resto é conversa, e conversa é de outra tela. Vai escrita em primeira
+     pessoa, como a pessoa perguntaria — o campo do Morphi recebe texto,
+     e um título de seção colado ali leria como comando de máquina. */
+  q: string;
 };
 
 /** Dias com pelo menos uma refeição registrada nas últimas duas semanas. */
@@ -89,6 +95,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'fibra',
         ic: 'gut',
         bom: false,
+        q: 'Como eu aumento a fibra do meu dia sem enjoar da comida?',
         titulo: `Fibra: ${media} g por dia`,
         texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. Feijão, aveia, folhas e frutas com casca são o caminho mais curto — e é a fibra que ajuda com o intestino preso, dos efeitos colaterais mais comuns da caneta.`,
       });
@@ -97,6 +104,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'fibra',
         ic: 'gut',
         bom: true,
+        q: 'O que a fibra muda no meu tratamento?',
         titulo: `Fibra: ${media} g por dia, acima da meta`,
         texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. É o que costuma segurar o intestino preso da caneta — vale manter do jeito que está.`,
       });
@@ -130,6 +138,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'momento-fraco',
         ic: pior.ic,
         bom: false,
+        q: `O que eu posso comer no ${pior.nome.toLowerCase()} para ter mais proteína?`,
         titulo: `${pior.nome}: ${pior.media} g de proteína, na média`,
         texto: `É o seu momento mais leve em proteína — o ${melhor.nome.toLowerCase()} vem com ${melhor.media} g. Um ovo, um iogurte ou um pedaço de queijo ali já mudam a conta do dia.`,
       });
@@ -138,6 +147,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'momento-forte',
         ic: melhor.ic,
         bom: true,
+        q: 'Por que a proteína importa tanto no tratamento com a caneta?',
         titulo: `${melhor.nome}: ${melhor.media} g de proteína, na média`,
         texto: 'É o momento que mais sustenta a sua meta do dia. Repetir o que já funciona ali é mais fácil do que consertar outro.',
       });
@@ -158,6 +168,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'verde',
         ic: 'leaf',
         bom: false,
+        q: 'Que verduras e legumes combinam com o que eu já costumo comer?',
         titulo: `Verduras e legumes em ${verdes.length} de ${comItens.length} dias registrados`,
         texto: 'Uma salada ou um legume no almoço enche o prato com pouca caloria — ajuda a chegar no fim da refeição satisfeita sem gastar o dia, e traz a fibra junto.',
       });

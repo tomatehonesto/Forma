@@ -118,7 +118,7 @@ export default function Alimentacao() {
         titulo="Alimentação"
         linha={prot === 0
           ? `Proteína: nada registrado · meta de ${alvo} g`
-          : `Proteína: ${prot} de ${alvo} g · ${falta > 0 ? `faltam ${falta} g` : 'meta alcançada'}`}
+          : `Proteína: ${prot} de ${alvo} g · ${falta > 0 ? `${falta} g para a meta` : 'meta alcançada'}`}
         pct={Math.round((prot / alvo) * 100)}
       >
         <AtalhoDaCapa
@@ -173,21 +173,26 @@ export default function Alimentacao() {
                 prato fora da conta, o que sobra é do que DÁ PARA CONTAR —
                 dizer "ainda cabem 500" para quem almoçou sem registrar o
                 prato seria o app autorizando um jantar que ele não tem
-                como calcular. */}
+                como calcular.
+
+                "ESCOLHA BEM COMO GASTAR" É O ÚNICO PEDIDO DA TELA, e ele
+                cabe aqui porque é o assunto dela: num prato que encolheu,
+                o que decide o tratamento não é o tamanho da sobra, é o
+                que entra nela. */}
             <Txt v="note" c={c.tx2}>
               {resta > 0
                 ? (energia.fora > 0
                   ? <>Sobram <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> do que dá para contar.</>
-                  : <>Ainda cabem <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> no seu dia.</>)
-                : <>Você passou a meta do dia em <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(-resta)} kcal</Txt>.</>}
+                  : <>Ainda cabem <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> no seu dia. Escolha bem como gastar.</>)
+                : <>Você passou a meta do dia em <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(-resta)} kcal</Txt>. Amanhã é outro dia.</>}
             </Txt>
-            <Txt v="caption" c={c.tx3}>
-              {energia.refeicoes === 0
-                ? 'Nada registrado hoje.'
-                : energia.fora > 0
-                  ? `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`
-                  : 'De tudo o que você registrou hoje.'}
-            </Txt>
+            {energia.refeicoes === 0 || energia.fora > 0 ? (
+              <Txt v="caption" c={c.tx3}>
+                {energia.refeicoes === 0
+                  ? 'Nada registrado hoje.'
+                  : `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`}
+              </Txt>
+            ) : null}
           </View>
 
           {/* OS TRÊS SAEM DA META DE ENERGIA, e não de um campo guardado.
@@ -228,7 +233,7 @@ export default function Alimentacao() {
 
           A semana fica porque ela contextualiza a meta DIÁRIA que se está
           perseguindo agora: sete barras contra a mesma linha de 90 g. */}
-      <View>
+      <Bloco titulo="A proteína da semana">
         {/* MÉDIA POR DIA, e não total da semana. A meta com que ela se
             compara é diária: 390 g na semana não é número que alguém
             carregue na cabeça, nem se compara com 90.
@@ -238,7 +243,7 @@ export default function Alimentacao() {
             registrou, e dividir por sete transformaria esquecimento em
             queda de proteína. */}
         <CardSemana
-          nome="Proteína esta semana"
+          nome="Esta semana"
           sub={diasComRegistro === 0
             ? 'Nada registrado nos últimos sete dias'
             : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
@@ -248,8 +253,7 @@ export default function Alimentacao() {
           alvo={alvo}
           rotuloMeta={`Meta: ${alvo} g`}
         />
-
-      </View>
+      </Bloco>
       {/* O QUE DÁ PARA NOTAR — a única parte da tela que não é contador.
 
           Cada frase sai de uma contagem sobre o que a pessoa registrou nas
@@ -262,28 +266,31 @@ export default function Alimentacao() {
           conselho sobre uma rotina que a pessoa ainda não viu. */}
       {conselhos.length ? (
         <Bloco
-          titulo="O que o Morphi notou"
+          titulo="O que notamos"
           nota="Da sua rotina das últimas duas semanas — e só do que você registrou."
         >
           <View style={{ gap: 10 }}>
             {conselhos.map((k) => (
-              <View
+              <Pressable
                 key={k.id}
-                style={[{
-                  backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10,
-                  overflow: 'hidden',
-                }, shadowCard(c)]}
+                onPress={() => router.push(`/companion?q=${encodeURIComponent(k.q)}` as any)}
+                style={({ pressed }) => [{
+                  backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine,
+                  borderRadius: radius.card, padding: 16, gap: 10,
+                  overflow: 'hidden', opacity: pressed ? 0.75 : 1,
+                }]}
               >
-                {/* O CLARÃO LIMA NO CANTO é a assinatura do Morphi, a
-                    mesma da descoberta da semana na aba Insights. Vale
-                    mais do que um selo escrito "IA": aparece em todo card
-                    que é fala dele e em nenhum que é contador, e o olho
-                    aprende isso sem ler nada. */}
+                {/* SEM SOMBRA E SOBRE COR, ao contrário de todos os cards
+                    acima. Os outros são superfície branca com dado em
+                    cima; este é fala. A diferença de matéria diz isso
+                    antes de qualquer rótulo — e o clarão lima no canto é a
+                    mesma assinatura que a descoberta da semana usa na aba
+                    Insights. */}
                 <Svg width={200} height={150} style={{ position: 'absolute', right: -50, top: -50 }} pointerEvents="none">
                   <Defs>
                     <RadialGradient id={`brilho-${k.id}`} cx="50%" cy="50%" r="50%">
-                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.5} />
-                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.18} />
+                      <Stop offset="0" stopColor={c.lime} stopOpacity={0.55} />
+                      <Stop offset="0.55" stopColor={c.lime} stopOpacity={0.2} />
                       <Stop offset="1" stopColor={c.lime} stopOpacity={0} />
                     </RadialGradient>
                   </Defs>
@@ -291,14 +298,23 @@ export default function Alimentacao() {
                 </Svg>
 
                 <Row gap={8} style={{ alignItems: 'center' }}>
-                  <Icon name="aura" size={14} color={c.limeSoftInk} sw={2} />
-                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>
+                  <Icon name="aura" size={14} color={c.accent} sw={2} />
+                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.2 }}>
                     {k.bom ? 'CONTINUE ASSIM' : 'UMA IDEIA'}
                   </Txt>
                 </Row>
                 <Txt v="bodyMed">{k.titulo}</Txt>
                 <Txt v="note" c={c.tx2}>{k.texto}</Txt>
-              </View>
+
+                {/* O ACHADO TERMINA NUMA CONVERSA, e não num beco.
+                    A tela conta e sugere; "e agora, o que eu faço no
+                    almoço de amanhã" é pergunta que só o Morphi responde,
+                    e ele já abre com ela escrita. */}
+                <Row gap={7} style={{ marginTop: 2, alignItems: 'center' }}>
+                  <Txt v="label" c={c.accent}>Conversar sobre isso</Txt>
+                  <Icon name="chev" size={13} color={c.accent} sw={2.2} />
+                </Row>
+              </Pressable>
             ))}
           </View>
         </Bloco>
