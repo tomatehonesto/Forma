@@ -1208,7 +1208,7 @@ export default function Cadastro() {
     ];
     return (
       <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <Lavagem altura={insets.top + 300} />
+        <Lavagem altura={insets.top + 270} />
         <ScrollView contentContainerStyle={{
           paddingHorizontal: 20, paddingTop: insets.top + 36, paddingBottom: 24,
         }}>
@@ -1319,7 +1319,7 @@ export default function Cadastro() {
       {/* A MALHA NÃO VAI PARA A TELA DE SAÚDE. Lá o desenho dos dois
           aplicativos é que é o assunto, e ele já tem a constelação atrás —
           duas texturas no mesmo lugar viram só borrão azul. */}
-      {id === 'saude' ? null : <Lavagem altura={insets.top + 320} />}
+      {id === 'saude' ? null : <Lavagem altura={insets.top + 280} />}
 
       {/* O TOPO diz onde a pessoa está e não oferece saída. "Pular tudo"
           ficava aqui; com as perguntas obrigatórias, o que sobra é a

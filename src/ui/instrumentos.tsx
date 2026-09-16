@@ -45,7 +45,19 @@ import type { Palette } from '../theme';
    texto por cima depende dela: o mesmo desenho a 0,5 é fundo de card
    claro, a 1,0 é superfície de destaque.
    ============================================================ */
-export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: string; escura?: boolean }) {
+export function Malha({ forca = 1, id, escura = false, cor }: {
+  forca?: number; id: string; escura?: boolean;
+  /* UMA COR SÓ, quando quem chama não quer a família inteira.
+
+     A família clara mistura accent2 com accent, e accent2 é um azul que
+     puxa para o violeta — bonito na aba Cuidado, onde a malha é o
+     assunto, e errado atrás de um formulário, onde ela devia ser
+     simplesmente "o azul do app mais claro". Com `cor`, as manchas
+     mantêm posição e opacidade e passam todas a usar o mesmo pigmento:
+     a variação continua vindo da sobreposição, que é como esta malha
+     sempre fez tom. */
+  cor?: string;
+}) {
   const { c } = useTheme();
 
   /* Duas famílias para o mesmo desenho.
@@ -85,7 +97,7 @@ export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: s
      Não vira terceira cor da marca: continua sendo o mesmo lima do
      veredito, aqui em opacidade baixa e sob outra cor. Pigmento diluído
      não é matiz nova. */
-  const blobs = escura
+  const familia = escura
     ? [
       { k: 'a', cor: c.accent, cx: 0.24, cy: 0.20, r: 0.72, o: 0.95 },
       { k: 'b', cor: c.accent2, cx: 0.88, cy: 0.10, r: 0.62, o: 0.92 },
@@ -99,6 +111,7 @@ export function Malha({ forca = 1, id, escura = false }: { forca?: number; id: s
       { k: 'c', cor: c.accent, cx: 0.66, cy: 0.06, r: 0.44, o: 0.4 },
       { k: 'd', cor: c.lime, cx: 0.98, cy: 1.0, r: 0.3, o: 0.22 },
     ];
+  const blobs = cor ? familia.map((b) => ({ ...b, cor })) : familia;
   /* Coordenadas em 0–100 e preserveAspectRatio="none": a malha se estica
      para o tamanho do pai sem precisar medi-lo. A primeira versão usava
      useWindowDimensions e desenhava com largura negativa no primeiro
