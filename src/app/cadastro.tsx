@@ -13,6 +13,7 @@ import { MO_LONG, doseTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
+import { Glifos, Malha, Nivel } from '../ui/instrumentos';
 import { Lavagem } from '../ui/lavagem';
 import { VidroDegrade } from '../ui/vidro';
 import { AreaCurve, MiniBars, Ring } from '../ui/charts';
@@ -690,22 +691,21 @@ const GLIFOS: [string, number, number, number][] = [
    cada promessa ter a imagem dela — e a rolagem horizontal é o gesto que
    a pessoa já faz sem instrução nenhuma.
 
-   CADA UMA TEM UM FUNDO DE NATUREZA DIFERENTE, e isso é escolha:
+   AS TRÊS SÃO GRADIENTE, E NENHUMA É FOTOGRAFIA. Passamos por duas fotos
+   — mãos na luz, alguém correndo num campo — e as duas eram boas. O que
+   as derruba é o mesmo de sempre: foto bonita é sempre a foto de OUTRA
+   pessoa, e a porta de um app de transformação é o pior lugar para
+   alguém encontrar um corpo que não é o dela. As auroras do próprio app
+   não têm esse problema, e de quebra fazem a abertura parecer o produto
+   em vez de parecer uma campanha.
 
-     companhia  foto de detalhe — duas mãos na luz. Detalhe, e não cena:
-                cena obriga a pessoa a olhar para o corpo de outra
-                pessoa, e num app de perda de peso isso cobra em vez de
-                convidar. É o registro que a Oura usa para a mão com o
-                anel, e funciona pelo mesmo motivo: perto o bastante para
-                ser íntimo, próximo o bastante para ser qualquer um.
-     clareza    a aurora do próprio app, com os gráficos do app flutuando
-                por cima. Nenhum deles tem número — são as FORMAS do que
-                o Morphi devolve (uma curva, umas barras, um anel), e
-                número ali seria o dado de alguém que não existe.
-     evolucao   foto de cena, e aqui ela cabe: uma pessoa correndo por um
-                campo de macacão jeans, por gosto e não treinando. O
-                borrão é panorâmica de câmera — energia fotografada como
-                energia.
+   SÃO DUAS IMAGENS DIFERENTES E UMA MALHA GERADA, e não a mesma três
+   vezes: percorrer as telas tem de parecer andar.
+
+     companhia  a aurora do orbe, do Insights — uma presença acesa no
+                escuro, que é literalmente o assunto da frase.
+     clareza    a aurora da Home, de faixas largas que se cruzam.
+     evolucao   a malha de manchas, gerada em código, na família escura.
 
    O VIDRO SOBE DO PÉ em todas as três, que é o mesmo de /alimento e
    /agua virado de cabeça para baixo. Faixa preta reta seria mais simples
@@ -744,9 +744,8 @@ type TelaDeAbertura = {
   selo: string;
   titulo: string;
   texto: string;
+  /** a imagem de fundo, ou null quando a malha desenha */
   fundo: any;
-  /* a aurora é a única que recebe os gráficos por cima */
-  instrumentos?: boolean;
 };
 
 const ABERTURA: TelaDeAbertura[] = [
@@ -755,7 +754,7 @@ const ABERTURA: TelaDeAbertura[] = [
     selo: 'Companhia',
     titulo: 'Você não está sozinho nessa.',
     texto: 'A Morphi acompanha sua jornada de perto, em cada etapa, todos os dias.',
-    fundo: require('../../assets/images/onboard-companhia.jpg'),
+    fundo: require('../../assets/images/aurora-insights.png'),
   },
   {
     id: 'clareza',
@@ -763,14 +762,14 @@ const ABERTURA: TelaDeAbertura[] = [
     titulo: 'Entenda o que está mudando.',
     texto: 'A Morphi conecta seus momentos, sinais e resultados para transformar tudo em contexto.',
     fundo: AURORA_ABERTURA,
-    instrumentos: true,
   },
   {
     id: 'evolucao',
     selo: 'Evolução',
     titulo: 'Veja sua jornada acontecer.',
     texto: 'Pequenas mudanças fazem parte do caminho. A Morphi ajuda você a perceber cada uma delas.',
-    fundo: require('../../assets/images/onboard-evolucao.jpg'),
+    /* Sem imagem: a malha desenha o fundo desta em código. */
+    fundo: null,
   },
 ];
 
@@ -799,27 +798,64 @@ function Marca() {
   );
 }
 
-/* OS INSTRUMENTOS DA TELA DE CLAREZA.
+/* OS INSTRUMENTOS DAS TRÊS TELAS.
 
-   São os componentes de gráfico do próprio app — a curva, as barras, o
-   anel — dentro de cartões de vidro, sem um número sequer. O rótulo diz
-   o assunto (peso, enjoo, proteína), que é verdade sobre o que o app
-   acompanha; o número seria o dado de uma pessoa que não existe, logo na
-   tela em que a gente promete clareza. */
-function Instrumentos({ largura }: { largura: number }) {
-  const cartao = {
-    backgroundColor: 'rgba(255,255,255,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    borderRadius: radius.card,
-    padding: 13,
-    gap: 9,
-  };
-  const rotulo = { letterSpacing: 1 } as const;
+   São os componentes de gráfico do PRÓPRIO app — a curva, as barras, o
+   anel, os glifos, o nível —, os mesmos que a Home e a Jornada usam,
+   dentro de cartões de vidro. Não são desenhos feitos para a abertura: é
+   o produto aparecendo antes de a pessoa entrar nele.
+
+   E NENHUM DELES TEM NÚMERO. O rótulo diz o assunto — peso, enjoo,
+   proteína, a semana —, que é verdade sobre o que o app acompanha; o
+   número seria o dado de uma pessoa que não existe, e mostrar isso logo
+   na tela em que se promete clareza seria começar mentindo.
+
+   Os três conjuntos mudam de composição de propósito: duas peças, três,
+   duas de novo, em posições diferentes. Percorrer as telas tem de
+   parecer andar, e três arranjos iguais com cores iguais parecem a mesma
+   tela piscando. */
+const VIDRO_CARTAO = {
+  backgroundColor: 'rgba(255,255,255,0.10)',
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.18)',
+  borderRadius: radius.card,
+  padding: 13,
+  gap: 9,
+} as const;
+const ROTULO_VIDRO = { letterSpacing: 1 } as const;
+
+function InstrumentosCompanhia({ largura }: { largura: number }) {
   return (
     <>
-      <View style={{ position: 'absolute', left: 22, top: 0, width: 168, ...cartao }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={rotulo}>PESO</Txt>
+      <View style={{ position: 'absolute', left: 22, top: 0, width: 196, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>ESTA SEMANA</Txt>
+        <Glifos total={7} cheios={5} sobreEscuro altura={24} />
+      </View>
+
+      {/* A pergunta é uma das que o check-in faz de verdade. Frase de
+          exemplo inventada aqui viraria promessa de uma conversa que o
+          app não tem. */}
+      <View style={{
+        position: 'absolute', right: 20, top: 118, width: Math.min(232, largura - 60),
+        ...VIDRO_CARTAO, flexDirection: 'row', alignItems: 'center', gap: 11,
+      }}>
+        <View style={{
+          width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(221,246,44,0.16)',
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name="companion" size={17} color="#DDF62C" sw={1.9} />
+        </View>
+        <Txt v="caption" c="#FFFFFF" style={{ flex: 1 }}>Como você dormiu ontem?</Txt>
+      </View>
+    </>
+  );
+}
+
+function InstrumentosClareza({ largura }: { largura: number }) {
+  return (
+    <>
+      <View style={{ position: 'absolute', left: 22, top: 0, width: 168, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>PESO</Txt>
         <AreaCurve
           pts={CURVA_ABERTURA} width={142} height={46}
           padT={6} padB={6} padX={0} strokeW={2} id="ins1"
@@ -827,24 +863,54 @@ function Instrumentos({ largura }: { largura: number }) {
         />
       </View>
 
-      <View style={{ position: 'absolute', right: 20, top: 104, width: 152, ...cartao }}>
-        <Txt v="micro" c="rgba(255,255,255,0.66)" style={rotulo}>ENJOO</Txt>
+      <View style={{ position: 'absolute', right: 20, top: 104, width: 152, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>ENJOO</Txt>
         <MiniBars vals={[5, 4, 5, 3, 2, 1, 1]} height={40} color="#15E4CB" gap={7} />
       </View>
 
       <View style={{
         position: 'absolute', left: Math.max(22, largura * 0.12), top: 206,
-        width: 182, ...cartao, flexDirection: 'row', alignItems: 'center', gap: 12,
+        width: 182, ...VIDRO_CARTAO, flexDirection: 'row', alignItems: 'center', gap: 12,
       }}>
         <Ring size={42} stroke={5} pct={0.72} color="#DDF62C" track="rgba(255,255,255,0.18)" id="ins3" />
         <View style={{ flex: 1 }}>
-          <Txt v="micro" c="rgba(255,255,255,0.66)" style={rotulo} numberOfLines={1}>PROTEÍNA</Txt>
+          <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO} numberOfLines={1}>PROTEÍNA</Txt>
           <Txt v="caption" c="#FFFFFF" style={{ marginTop: 2 }}>hoje</Txt>
         </View>
       </View>
     </>
   );
 }
+
+function InstrumentosEvolucao({ largura }: { largura: number }) {
+  return (
+    <>
+      {/* A curva grande, e não mais uma miniatura: nesta tela ela é o
+          assunto, e o assunto ocupa a largura. */}
+      <View style={{
+        position: 'absolute', left: 22, top: 0, width: Math.min(280, largura - 44), ...VIDRO_CARTAO,
+      }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>PESO</Txt>
+        <AreaCurve
+          pts={CURVA_ABERTURA} width={Math.min(280, largura - 44) - 26} height={84}
+          padT={8} padB={8} padX={0} strokeW={2.4} id="ev1"
+          dashed={false} fill={0.18} strokeFrom="#DDF62C" strokeTo="#15E4CB"
+        />
+      </View>
+
+      <View style={{ position: 'absolute', right: 20, top: 172, width: 196, ...VIDRO_CARTAO }}>
+        <Txt v="micro" c="rgba(255,255,255,0.66)" style={ROTULO_VIDRO}>AS SEMANAS</Txt>
+        <Nivel total={16} cheios={11} sobreEscuro de="#DDF62C" para="#15E4CB" altura={10} />
+      </View>
+    </>
+  );
+}
+
+const INSTRUMENTOS: Record<string, (p: { largura: number }) => React.ReactElement> = {
+  companhia: InstrumentosCompanhia,
+  clareza: InstrumentosClareza,
+  evolucao: InstrumentosEvolucao,
+};
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
@@ -885,20 +951,24 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             {/* Largura e altura explícitas: só com os quatro cantos
                 presos, a web escala a imagem pelo tamanho natural dela e
                 o recorte sai ampliado, mostrando um canto. */}
-            <Image
-              source={t.fundo}
-              style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
-              resizeMode="cover"
-            />
-
-            {t.instrumentos ? (
-              <View
-                pointerEvents="none"
-                style={{ position: 'absolute', left: 0, right: 0, top: height * 0.19 }}
-              >
-                <Instrumentos largura={width} />
+            {t.fundo ? (
+              <Image
+                source={t.fundo}
+                style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={SOBREPOSTO}>
+                <Malha id="ab-evo" forca={1} escura />
               </View>
-            ) : null}
+            )}
+
+            <View
+              pointerEvents="none"
+              style={{ position: 'absolute', left: 0, right: 0, top: height * 0.19 }}
+            >
+              {React.createElement(INSTRUMENTOS[t.id], { largura: width })}
+            </View>
 
             {/* O VIDRO DISSOLVE A IMAGEM e o degradê a apaga. Os dois
                 juntos, e não um só: degradê sozinho sobre foto deixa o
