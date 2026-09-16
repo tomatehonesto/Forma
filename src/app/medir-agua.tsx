@@ -4,6 +4,7 @@ import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { waterMlToday, litros, registrarAgua } from '../logic/derive';
+import { BEBIDAS, BEBIDA_PADRAO, bebidaDe, medidasDe } from '../logic/bebidas';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -27,14 +28,6 @@ import { radius } from '../theme';
    embaixo, longe do número que agora alimentam.
    ============================================================ */
 
-/* Os recipientes que existem na cozinha de qualquer um. Somam no slider,
-   e por isso o rótulo traz o sinal: o que o toque faz é acrescentar. */
-const MEDIDAS: [string, number][] = [
-  ['Copo', 250],
-  ['Garrafa', 500],
-  ['Garrafão', 1000],
-];
-
 export default function MedirAgua() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -45,6 +38,10 @@ export default function MedirAgua() {
      antes da pergunta, e "+ Copo" somava em cima dela: quem tocou uma vez
      no copo registrava dois. Em zero, cada toque vale o que diz. */
   const [escolhido, setEscolhido] = useState(0);
+  /* Água começa escolhida: é a resposta certa na maioria das vezes, e a
+     única que o app registrava até aqui. */
+  const [bebidaId, setBebidaId] = useState(BEBIDA_PADRAO);
+  const bebida = bebidaDe(bebidaId);
 
   const alvo = (S.profile as any).targets.waterMl as number;
   const atual = waterMlToday(S);
@@ -79,8 +76,12 @@ export default function MedirAgua() {
      desfazer. registrarAgua escreve os dois: o gole no diário e o total
      do dia. */
   const beber = (ml: number) => {
-    update((s: any) => registrarAgua(s, ml));
-    setSomado((v) => v + ml);
+    update((s: any) => registrarAgua(s, ml, bebidaId));
+    /* O "+0,3 L agora" conta o que ANDOU no dia, e não o que passou
+       pelo botão. Somando tudo, quem registrasse uma taça de vinho via a
+       confirmação subir e o total ao lado parado — duas contas
+       diferentes do mesmo gesto, a dois centímetros uma da outra. */
+    setSomado((v) => v + (bebida.conta ? ml : 0));
   };
 
   return (
@@ -103,7 +104,9 @@ export default function MedirAgua() {
             {/* A mesma unidade do número lá em cima, e da meta no cartão
                 de progresso: a tela inteira fala em litros. */}
             <Txt v="body" c={escolhido === 0 ? c.tx4 : c.accentInk}>
-              {escolhido === 0 ? 'Escolha a quantidade' : `Adicionar ${L(escolhido)} L`}
+              {escolhido === 0
+                ? 'Escolha a quantidade'
+                : `Adicionar ${L(escolhido)} L${bebida.id === BEBIDA_PADRAO ? '' : ` de ${bebida.nome.toLowerCase()}`}`}
             </Txt>
           </View>
         </Pressable>
@@ -125,6 +128,41 @@ export default function MedirAgua() {
             <Txt v="caption" c={c.accent}>+{L(somado)} L agora</Txt>
           </Row>
         )}
+      </View>
+
+      {/* O QUE VOCÊ BEBEU, antes de quanto.
+
+          A tela contava só água pura, e media isso contra uma meta de
+          líquido total — ver o porquê em src/logic/bebidas.ts. Quem tomou
+          três cafés via meio litro e estava devendo um litro já bebido.
+
+          AS PASTILHAS VÊM ANTES DO MONTADOR porque elas mudam o que ele
+          oferece: a xícara só existe para café e chá, e a lata só para o
+          que vem em lata. Um "+ Garrafão" ao lado de café seria atalho
+          para uma coisa que ninguém faz. */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7, gap: 12 }}>
+        <Txt v="caption" c={c.tx3}>O que você bebeu</Txt>
+        <Row style={{ flexWrap: 'wrap', gap: 7 }}>
+          {BEBIDAS.map((b) => {
+            const on = b.id === bebida.id;
+            return (
+              <Pressable key={b.id} onPress={() => setBebidaId(b.id)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                <Row gap={6} style={{
+                  backgroundColor: on ? c.accent : c.bg2,
+                  borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 9,
+                }}>
+                  <Icon name={b.ic} size={14} color={on ? c.accentInk : c.tx2} sw={1.9} />
+                  <Txt v="caption" c={on ? c.accentInk : c.tx}>{b.nome}</Txt>
+                </Row>
+              </Pressable>
+            );
+          })}
+        </Row>
+        {/* A RESSALVA APARECE COM A ESCOLHA, e não como nota de rodapé
+            permanente. O álcool continua podendo ser registrado — o
+            diário é da pessoa —, e o que ele não faz é somar. Dizer isso
+            aqui é melhor do que a pessoa gravar e o número não andar. */}
+        {bebida.nota ? <Txt v="caption" c={c.tx3}>{bebida.nota}</Txt> : null}
       </View>
 
       {/* O montador. Tudo que compõe a quantidade mora aqui — inclusive o
@@ -151,7 +189,7 @@ export default function MedirAgua() {
         </Row>
 
         <Row gap={7} style={{ marginTop: 16, alignItems: 'stretch' }}>
-          {MEDIDAS.map(([nome, ml]) => (
+          {medidasDe(bebida).map(([nome, ml]) => (
             <Pressable key={nome} onPress={() => somar(ml)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
               <View style={{
                 flex: 1, backgroundColor: c.bg2, borderRadius: radius.md,

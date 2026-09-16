@@ -14,6 +14,7 @@ import {
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { BEBIDA_PADRAO, bebidaDe } from '../logic/bebidas';
 
 /* ============================================================
    ÁGUA
@@ -75,7 +76,12 @@ export default function Agua() {
   const [diaSel, setDiaSel] = useState<number>(() => +startOfDay(now()));
   const calendario = diasDeAgua(S, DIAS_DA_TIRA);
   const doDia = golesDoDia(S, diaSel);
-  const mlDoDia = doDia.reduce((x, g) => x + g.ml, 0);
+  /* O TOTAL SÓ SOMA O QUE CONTA. Uma taça de vinho fica no diário e
+     fica fora da conta — e o rodapé diz quantas ficaram, para a soma do
+     app bater com a que o olho faz descendo a lista. */
+  const doDiaContam = doDia.filter((g) => bebidaDe(g.bebida).conta);
+  const mlDoDia = doDiaContam.reduce((x, g) => x + g.ml, 0);
+  const foraDaConta = doDia.length - doDiaContam.length;
 
   const lembrete = (S as any).reminders?.agua;
 
@@ -166,7 +172,7 @@ export default function Agua() {
               0,25 L, o que diferencia um do outro é "às 7:18". */}
           <Bloco
             titulo="Diário de água"
-            nota="Cada registro com a hora em que entrou. Apague o que tiver entrado errado."
+            nota="Café, chá, leite e suco contam: a meta é de líquido, e não de água pura. Apague o que tiver entrado errado."
           >
             <View style={{ gap: 10 }}>
               <TiraDeDias
@@ -187,27 +193,46 @@ export default function Agua() {
                         onApagar={() => update((s: any) => apagarGole(s, diaSel, g.t))}
                       >
                         <Row gap={12}>
-                          {/* Um glifo, e não o número em mililitros. O selo
-                              trazia "250" ao lado de "0,25 L" — o mesmo fato
-                              duas vezes em duas unidades, e sem dizer de qual
-                              delas eram os 250. */}
+                          {/* O GLIFO DIZ QUAL BEBIDA FOI, e é a única
+                              coisa da linha que mudou de assunto: ele era
+                              um copo d'água fixo porque água era tudo o
+                              que dava para registrar. Um número em
+                              mililitros nunca morou aqui — o selo trazia
+                              "250" ao lado de "0,25 L", o mesmo fato duas
+                              vezes em duas unidades. */}
                           <View style={{
                             width: 34, height: 34, borderRadius: radius.md,
-                            backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+                            backgroundColor: bebidaDe(g.bebida).conta ? c.accentWeak : c.bg2,
+                            alignItems: 'center', justifyContent: 'center',
                           }}>
-                            <Icon name="water" size={17} color={c.accent} sw={1.9} />
+                            <Icon
+                              name={bebidaDe(g.bebida).ic}
+                              size={17}
+                              color={bebidaDe(g.bebida).conta ? c.accent : c.tx3}
+                              sw={1.9}
+                            />
                           </View>
                           <View style={{ flex: 1 }}>
-                            <Txt v="body">{litros(g.ml)} L</Txt>
+                            <Txt v="body">
+                              {litros(g.ml)} L
+                              {g.bebida && g.bebida !== BEBIDA_PADRAO
+                                ? ` de ${bebidaDe(g.bebida).nome.toLowerCase()}`
+                                : ''}
+                            </Txt>
                             {/* O DIA SEM HORA é dito, e não maquiado. Um
                                 registro de antes de o diário existir sabe o
                                 total e não sabe quando: inventar "08:00" para
                                 preencher a linha seria escrever no diário da
-                                pessoa uma coisa que ela não escreveu. */}
+                                pessoa uma coisa que ela não escreveu.
+
+                                E a bebida que não conta diz isso aqui, na
+                                linha dela: sem isso, o total do dia não
+                                bateria com a soma que o olho faz. */}
                             <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-                              {g.t == null
+                              {(g.t == null
                                 ? 'Total do dia, sem registro de horário'
-                                : `às ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}`}
+                                : `às ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}`)
+                                + (bebidaDe(g.bebida).conta ? '' : ' · fora da conta')}
                             </Txt>
                           </View>
                         </Row>
@@ -217,6 +242,7 @@ export default function Agua() {
                   {/* O total embaixo, que é o que a soma das linhas deu. */}
                   <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
                     {doDia.length} {doDia.length === 1 ? 'registro' : 'registros'} · {litros(mlDoDia)} L
+                    {foraDaConta > 0 ? ` · ${foraDaConta} fora da conta` : ''}
                   </Txt>
                 </View>
               ) : (

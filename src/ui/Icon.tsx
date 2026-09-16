@@ -57,6 +57,10 @@ import Flag from 'lucide-react-native/icons/flag';
 import Flame from 'lucide-react-native/icons/flame';
 import Funnel from 'lucide-react-native/icons/funnel';
 import GlassWater from 'lucide-react-native/icons/glass-water';
+import Milk from 'lucide-react-native/icons/milk';
+import CupSoda from 'lucide-react-native/icons/cup-soda';
+import Citrus from 'lucide-react-native/icons/citrus';
+import Wine from 'lucide-react-native/icons/wine';
 import Heart from 'lucide-react-native/icons/heart';
 import House from 'lucide-react-native/icons/house';
 import Image from 'lucide-react-native/icons/image';
@@ -181,6 +185,12 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   book: BookOpen,
   spark: Sparkle,
   drop2: Droplet,
+  /* As bebidas que contam na hidratação — ver src/logic/bebidas.ts. O chá
+     usa a folha, que é o que ele é; o café tem xícara própria logo acima. */
+  milk: Milk,
+  soda: CupSoda,
+  citrus: Citrus,
+  wine: Wine,
   leaf: Leaf,
   arrowdown: ArrowDown,
   arrowup: ArrowUp,

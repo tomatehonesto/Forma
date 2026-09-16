@@ -3,6 +3,7 @@ import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, D
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import { MOMENTOS, nomeItem, nutrientesDe, type ItemComida } from './prato';
+import { BEBIDA_PADRAO, bebidaDe } from './bebidas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
 
@@ -2490,13 +2491,28 @@ export function apagarRefeicao(s: any, t: number, gramas: number) {
    ============================================================ */
 
 /** Um gole no caderno: quando e quanto. O instante é o id. */
-export type Gole = { t: number; ml: number };
+export type Gole = {
+  t: number;
+  ml: number;
+  /* QUAL BEBIDA — ver src/logic/bebidas.ts. Ausente quer dizer água: é o
+     que todo registro anterior a esta tela é, porque era a única coisa
+     que dava para registrar. */
+  bebida?: string;
+};
 
-/** Registra água hoje — entra na lista e sobe o total do dia. */
-export function registrarAgua(s: any, ml: number) {
+/** O que este gole soma no dia. Zero quando a bebida não conta. */
+export const mlQueContam = (g: Gole) => (bebidaDe(g.bebida).conta ? g.ml : 0);
+
+/* Registra o que se bebeu hoje — entra no diário e sobe o total do dia.
+
+   O DIÁRIO RECEBE TUDO, O TOTAL RECEBE O QUE CONTA. É a mesma regra das
+   refeições sem rótulo: o registro é da pessoa e guarda o que aconteceu;
+   a conta é do app e só soma o que ele sabe somar. */
+export function registrarAgua(s: any, ml: number, bebida: string = BEBIDA_PADRAO) {
   const c = registroDoDia(s, +startOfDay(now()));
-  c.aguas = [...((c.aguas || []) as Gole[]), { t: +now(), ml }];
-  c.agua = (c.agua || 0) + ml / CUP_ML;
+  const g: Gole = { t: +now(), ml, bebida };
+  c.aguas = [...((c.aguas || []) as Gole[]), g];
+  c.agua = (c.agua || 0) + mlQueContam(g) / CUP_ML;
 }
 
 /* Apagar devolve ao dia o que aquele gole tinha somado, e não zera: o dia
@@ -2511,7 +2527,7 @@ export function apagarGole(s: any, dia: number, t?: number | null) {
   const g = ((c.aguas || []) as Gole[]).find((x) => x.t === t);
   if (!g) return;
   c.aguas = ((c.aguas || []) as Gole[]).filter((x) => x.t !== t);
-  c.agua = Math.max(0, (c.agua || 0) - g.ml / CUP_ML);
+  c.agua = Math.max(0, (c.agua || 0) - mlQueContam(g) / CUP_ML);
 }
 
 /** Os sete últimos dias em ml, do mais antigo para hoje. */
@@ -2545,7 +2561,7 @@ export function diasDeAgua(S: State, dias: number): DiaDaTira[] {
 
 /** O caderno de um dia, do primeiro gole ao último. Um dia antigo devolve
     uma linha sem hora: o total é tudo o que se sabe dele. */
-export function golesDoDia(S: State, t: number): { t: number | null; ml: number }[] {
+export function golesDoDia(S: State, t: number): { t: number | null; ml: number; bebida?: string }[] {
   const c = (S.checkins as any[]).find((x) => x.t === t);
   if (!c) return [];
   const gs = ((c.aguas || []) as Gole[]).slice().sort((a, b) => a.t - b.t);
