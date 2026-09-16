@@ -720,7 +720,24 @@ const GLIFOS: [string, number, number, number][] = [
    divergência aparecer em vez de eu escolher sozinho: é uma troca só,
    nos dois sentidos, e vale decidir antes de crescer. */
 const AURORA_ABERTURA = require('../../assets/images/aurora-hero.png');
-const TINTA_CAPA = '#05143F';
+
+/* QUASE-PRETO, E NÃO O AZUL DA AURORA.
+
+   A referência põe o brilho no alto e deixa o pé da tela virar preto
+   sólido: o texto passa a viver sobre uma superfície, e não sobre a
+   imagem. É o que faz aquelas telas parecerem caras — e o que resolve o
+   problema de legibilidade que nenhuma dose de véu resolve quando a foto
+   tem luz forte embaixo. */
+const FUNDO_ABERTURA = '#07080B';
+
+/* O TÍTULO DA ABERTURA É MENOR QUE O h1 DO APP.
+
+   Com 36/44, "Pequenas mudanças fazem parte do caminho" e as duas
+   manchetes de duas linhas empurravam o bloco para fora da tela em
+   aparelho mais curto — e quem usa corpo maior no sistema via a primeira
+   linha sumir por cima. Trinta caber é melhor do que trinta e seis
+   caber às vezes. */
+const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 30, lineHeight: 38 };
 
 type TelaDeAbertura = {
   id: string;
@@ -836,9 +853,16 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
   const rolagem = React.useRef<ScrollView>(null);
   useLightStatusBar();
 
-  /* O rodapé é fixo e as três telas passam por baixo dele, então o texto
-     de cada uma precisa parar antes: dois pontos, o botão e a folga. */
-  const RODAPE = 132 + insets.bottom;
+  /* O RODAPÉ MEDE A SI MESMO.
+
+     Ele é fixo e as três telas passam por baixo, então o texto de cada
+     uma tem de parar antes dele. Esse número estava escrito à mão, e na
+     primeira vez que o rodapé cresceu — entrou o "Pular" — o texto
+     passou a correr por baixo do botão. Altura chutada envelhece na
+     primeira mudança; altura medida, não. O valor inicial é só o que
+     vale até a primeira medição. */
+  const [rodape, setRodape] = React.useState(170);
+  const RODAPE = rodape + 16;
 
   const vai = (i: number) => {
     if (i >= ABERTURA.length) { onComecar(); return; }
@@ -847,7 +871,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: TINTA_CAPA }}>
+    <View style={{ flex: 1, backgroundColor: FUNDO_ABERTURA }}>
       <ScrollView
         ref={rolagem}
         horizontal
@@ -876,17 +900,27 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
               </View>
             ) : null}
 
-            <VidroDegrade altura={height * 0.5} intensidade={38} deBaixo />
+            {/* O VIDRO DISSOLVE A IMAGEM e o degradê a apaga. Os dois
+                juntos, e não um só: degradê sozinho sobre foto deixa o
+                detalhe aparecendo por baixo do preto translúcido, e vidro
+                sozinho não chega a preto nenhum. */}
+            <VidroDegrade altura={height * 0.52} intensidade={30} deBaixo />
+            <LinearGradient
+              colors={['transparent', 'rgba(7,8,11,0.6)', FUNDO_ABERTURA, FUNDO_ABERTURA]}
+              locations={[0, 0.34, 0.66, 1]}
+              pointerEvents="none"
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.6 }}
+            />
 
             <View style={{
               flex: 1, justifyContent: 'flex-end',
-              paddingHorizontal: 24, paddingBottom: RODAPE, gap: 12,
+              paddingHorizontal: 24, paddingBottom: RODAPE, gap: 10,
             }}>
               <Txt v="micro" c="#DDF62C" style={{ letterSpacing: 1.4 }}>
                 {t.selo.toUpperCase()}
               </Txt>
-              <Txt v="h1" c="#FFFFFF">{t.titulo}</Txt>
-              <Txt v="note" c="rgba(255,255,255,0.74)">{t.texto}</Txt>
+              <Txt c="#FFFFFF" style={TITULO_ABERTURA}>{t.titulo}</Txt>
+              <Txt v="caption" c="rgba(255,255,255,0.68)">{t.texto}</Txt>
             </View>
           </View>
         ))}
@@ -905,10 +939,13 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         <Marca />
       </View>
 
-      <View style={{
-        position: 'absolute', left: 0, right: 0, bottom: 0,
-        paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 18,
-      }}>
+      <View
+        onLayout={(e) => setRodape(Math.round(e.nativeEvent.layout.height))}
+        style={{
+          position: 'absolute', left: 0, right: 0, bottom: 0,
+          paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 18,
+        }}
+      >
         <Row style={{ gap: 6, justifyContent: 'center' }}>
           {ABERTURA.map((t, i) => (
             <View
@@ -920,19 +957,40 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             />
           ))}
         </Row>
-        {/* Botão branco sobre escuro: o azul de ação do app desaparece
-            sobre a aurora, e estas são as únicas telas do app em que o
-            fundo não é o branco. */}
+        {/* O BOTÃO VOLTOU A SER AZUL. Ele era branco porque o azul do app
+            sumia sobre a aurora; agora o pé da tela é quase preto, e ali o
+            azul de ação é o que ele sempre foi — a cor de avançar, a mesma
+            de todos os outros botões do app. */}
         <Pressable
           onPress={() => vai(pagina + 1)}
           style={({ pressed }) => [{
-            borderRadius: radius.pill, backgroundColor: '#FFFFFF', paddingVertical: 18,
-            alignItems: 'center', opacity: pressed ? 0.85 : 1,
+            borderRadius: radius.pill, overflow: 'hidden', opacity: pressed ? 0.85 : 1,
           }]}
         >
-          <Txt v="bodyMed" c={TINTA_CAPA}>
-            {pagina === ABERTURA.length - 1 ? 'Começar' : 'Continuar'}
-          </Txt>
+          <LinearGradient
+            colors={['#3D7BFF', '#065CF5']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={{ paddingVertical: 18, alignItems: 'center' }}
+          >
+            <Txt v="bodyMed" c="#FFFFFF">
+              {pagina === ABERTURA.length - 1 ? 'Começar' : 'Continuar'}
+            </Txt>
+          </LinearGradient>
+        </Pressable>
+
+        {/* PULAR SALTA A APRESENTAÇÃO, e não as perguntas. Quem já sabe o
+            que o app faz — porque voltou, ou porque alguém contou — não
+            deve três telas de conversa a ninguém. Some na última, onde
+            não há mais o que pular. */}
+        <Pressable
+          onPress={onComecar}
+          disabled={pagina === ABERTURA.length - 1}
+          style={({ pressed }) => [{
+            alignItems: 'center', paddingVertical: 4,
+            opacity: pagina === ABERTURA.length - 1 ? 0 : pressed ? 0.6 : 1,
+          }]}
+        >
+          <Txt v="label" c="rgba(255,255,255,0.6)">Pular</Txt>
         </Pressable>
       </View>
     </View>
