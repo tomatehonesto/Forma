@@ -35,10 +35,9 @@ import { radius } from '../theme';
 
    O QUE NÃO VEIO DAS REFERÊNCIAS:
 
-     · "você começa a ver diferença em 30 de setembro". A linha do tempo
-       aqui é aritmética do ritmo escolhido, e diz isso.
-     · a curva caindo em exponencial. A linha é reta porque "1 kg por
-       semana" desenha uma reta, e tracejada porque nada disso aconteceu.
+     · "você começa a ver diferença em 30 de setembro". Ninguém sabe isso.
+       A curva aqui tem a forma que os ensaios mostram, e os dois extremos
+       são o ritmo que a pessoa escolheu — nem um nem outro é promessa.
      · o selo de "baseado em evidência" sem nada atrás. A etiqueta do topo
        só existe porque a última seção existe, e lá cada trabalho abre.
    ============================================================ */
@@ -384,10 +383,24 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                   </Row>
                 </Row>
 
+                {/* A LINHA SANGRA DE PONTA A PONTA, como a de peso na Home:
+                    é assim que este app desenha curva, e recuo lateral
+                    fazia o gráfico parecer uma figura colada dentro do
+                    cartão em vez de ser o cartão.
+
+                    SEM TRACEJADO. Ele dizia "isto ainda não aconteceu", o
+                    que continua sendo verdade — só que quem diz isso agora
+                    é a frase embaixo, e ela diz melhor: traço picotado é
+                    sinal que só lê quem já conhece a convenção.
+
+                    NÓ E FIO SÓ NO MEIO. Nas pontas a curva encosta na borda
+                    do cartão, e ali bolinha sai pela metade e fio vira
+                    moldura — o começo e a chegada já se marcam pelo próprio
+                    fim do traço, com o rótulo logo embaixo. */}
                 <AreaCurve
                   pts={CURVA}
-                  height={140} padT={18} padB={14} padX={20} strokeW={2.6}
-                  id="pl" dashed={false} tracejada nodes nosEm={[0, 4, 8]} fill={0.18}
+                  height={140} padT={18} padB={14} padX={0} strokeW={2.6}
+                  id="pl" dashed={false} nodes nosEm={[4]} eixosEm={[4]} fill={0.18}
                   strokeFrom={VERDE} strokeTo={VERDE_FIM}
                 />
 

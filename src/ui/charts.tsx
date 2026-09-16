@@ -38,7 +38,7 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
-  fill = 0.17, onScrub, scrub, tracejada = false, nosEm,
+  fill = 0.17, onScrub, scrub, nosEm, eixosEm,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
@@ -52,13 +52,6 @@ export function AreaCurve({
   onScrub?: (i: number | null) => void;
   /** índice destacado — controlado por fora, para o card poder reagir junto */
   scrub?: number | null;
-  /* A LINHA QUE AINDA NÃO ACONTECEU.
-
-     Traço cheio é medida: a curva passa pelos pontos que alguém registrou.
-     Projeção não é isso — é uma conta sobre o futuro —, e desenhá-la igual
-     seria o gráfico afirmando um dado que não existe. Tracejada, ela diz
-     sozinha o que é, sem precisar de legenda embaixo. */
-  tracejada?: boolean;
   /* EM QUAIS PONTOS O NÓ APARECE.
 
      `nodes` marca todos, o que serve quando cada ponto é uma medida. Uma
@@ -66,6 +59,16 @@ export function AreaCurve({
      medidas: tem três marcos e seis pontos de traçado, e nove bolinhas
      transformariam o traçado em informação que ele não é. */
   nosEm?: number[];
+  /* O FIO QUE LIGA O PONTO AO RÓTULO DE BAIXO.
+
+     Uma curva que sangra até a borda do card não tem eixo, e sem eixo um
+     ponto no meio do traço não diz a que altura do tempo ele está. O fio
+     desce do ponto até a base do desenho, onde o rótulo o espera — é o que
+     transforma "uma bolinha na curva" em "este dia, este peso".
+
+     Nos extremos ele não existe: ali o ponto encosta na borda do card, e
+     um fio na borda lê como moldura, não como marca. */
+  eixosEm?: number[];
 }) {
   const { c } = useTheme();
   const [medida, setW] = useState(0);
@@ -155,10 +158,15 @@ export function AreaCurve({
             <SvgGrad id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={sf} stopOpacity={fill} /><Stop offset="1" stopColor={sf} stopOpacity={0} /></SvgGrad>
           </Defs>
           <Path d={area} fill={`url(#${id}f)`} />
+          {eixosEm?.map((i) => (PX[i] ? (
+            <Line
+              key={`e${i}`} x1={PX[i].x} y1={PX[i].y} x2={PX[i].x} y2={height - padB}
+              stroke={st} strokeWidth={1} opacity={0.32}
+            />
+          ) : null))}
           <Path
             d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none"
             strokeLinecap="round" strokeLinejoin="round"
-            strokeDasharray={tracejada ? `${strokeW * 2} ${strokeW * 2.2}` : undefined}
           />
           {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
               vira um engrossamento do próprio traço e some. O miolo na cor
