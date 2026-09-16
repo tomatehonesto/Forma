@@ -1121,7 +1121,13 @@ export function Escala({ valores, valor, onChange, onLimpar, suave, legendas }: 
   const { c } = useTheme();
   const i = valores.findIndex((v) => v === valor);
   const respondido = i >= 0;
-  const meio = Math.floor((valores.length - 1) / 2);
+  /* SEM RESPOSTA, O CURSOR FICA NO INÍCIO — e não no meio da régua.
+
+     No meio, a barra em branco já parecia uma resposta dada, e das piores:
+     "médio". Quem só encostava para ver o que era saía com um 3 gravado, e
+     quem não encostava via a tela sugerindo que o dia tinha sido assim.
+     No início, a régua vazia parece o que ela é: vazia. */
+  const repouso = 0;
   const escolhe = (n: number) => {
     const idx = Math.max(0, Math.min(valores.length - 1, Math.round(n)));
     if (valores[idx] !== valor) onChange(valores[idx]);
@@ -1145,7 +1151,7 @@ export function Escala({ valores, valor, onChange, onLimpar, suave, legendas }: 
       </Row>
 
       <Slider
-        value={respondido ? i : meio}
+        value={respondido ? i : repouso}
         minimumValue={0}
         maximumValue={valores.length - 1}
         step={1}

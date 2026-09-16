@@ -111,7 +111,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
       <Aviso ic="spark" titulo="O que isso significa">
         <Txt v="caption" c={c.tx2}>{examExplain(e)}</Txt>
-        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar ao Morphi" style={{ marginTop: 12 }} />
+        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar sobre este exame" style={{ marginTop: 12 }} />
       </Aviso>
 
       <View />

@@ -188,11 +188,15 @@ export default function Alimentacao() {
                   : <>Ainda cabem <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> no seu dia. Escolha bem como gastar.</>)
                 : <>Você passou a meta do dia em <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(-resta)} kcal</Txt>. Amanhã é outro dia.</>}
             </Txt>
-            {energia.refeicoes === 0 || energia.fora > 0 ? (
+            {/* A RESSALVA SÓ APARECE QUANDO HÁ O QUE RESSALVAR.
+
+                "Nada registrado hoje" estava aqui e era ruído: num dia em
+                branco o cartão inteiro já diz isso — zero calorias, e o
+                dia todo cabendo. Repetir em letra miúda transformava um
+                começo de dia normal em aviso de pendência. */}
+            {energia.fora > 0 ? (
               <Txt v="caption" c={c.tx3}>
-                {energia.refeicoes === 0
-                  ? 'Nada registrado hoje.'
-                  : `${energia.fora} de ${energia.refeicoes} ${energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`}
+                {energia.fora} de {energia.refeicoes} {energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.
               </Txt>
             ) : null}
           </View>
@@ -310,8 +314,8 @@ export default function Alimentacao() {
 
                 {/* O ACHADO TERMINA NUMA CONVERSA, e não num beco.
                     A tela conta e sugere; "e agora, o que eu faço no
-                    almoço de amanhã" é pergunta que só o Morphi responde,
-                    e ele já abre com ela escrita. */}
+                    almoço de amanhã" é pergunta que só a conversa responde,
+                    e ela já abre com a pergunta escrita. */}
                 <Row gap={7} style={{ marginTop: 2, alignItems: 'center' }}>
                   <Txt v="label" c={c.accent}>Conversar sobre isso</Txt>
                   <Icon name="chev" size={13} color={c.accent} sw={2.2} />
@@ -445,18 +449,30 @@ export default function Alimentacao() {
                     { paddingHorizontal: 16, paddingVertical: 13, opacity: pressed ? 0.6 : 1 },
                   ]}
                 >
+                  {/* A MESMA LINHA DO DIÁRIO, e não uma variação dela.
+
+                      Os gramas moravam em letra miúda embaixo do nome, e
+                      são a razão de um prato ser favorito de quem persegue
+                      uma meta de proteína: a escolha entre dois favoritos
+                      se faz por esse número. À direita e em destaque, ele
+                      se compara de um prato para o outro sem ninguém
+                      precisar ler o resto. */}
                   <Row style={{ alignItems: 'flex-start' }}>
                     <View style={{ flex: 1, paddingRight: 10 }}>
                       <Txt v="body">{f.nome}</Txt>
-                      {/* Quantos gramas o prato rende, dito aqui: é a razão
-                          de ele ser favorito de quem está perseguindo uma
-                          meta de proteína, e sem isso a escolha entre dois
-                          favoritos é às cegas. */}
-                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
-                        {f.itens?.length ? `~${g} g de proteína` : 'Sem prato guardado — abre pela busca'}
-                      </Txt>
+                      {!f.itens?.length ? (
+                        <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
+                          Sem prato guardado — abre pela busca
+                        </Txt>
+                      ) : null}
                     </View>
-                    <Chevron size={15} />
+                    {f.itens?.length ? (
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Txt v="bodyMed" c={c.accent}>~{g} g</Txt>
+                        <Txt v="micro" c={c.tx4}>de proteína</Txt>
+                      </View>
+                    ) : null}
+                    <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
                   </Row>
                 </Pressable>
               );

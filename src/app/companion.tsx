@@ -227,7 +227,11 @@ export default function Companion() {
         <View style={{ height: Math.max(60, largura * ESFERA_BASE_FRACAO - 26) }} />
 
         <View style={{ alignItems: 'center' }}>
-          <Txt v="h2" c={c.onHero}>Morphi</Txt>
+          {/* SEM NOME. A esfera já diz quem fala, e quem atende não se
+              apresenta pelo nome próprio no meio da conversa. O que fica
+              é o que importa saber antes de perguntar: que do outro lado
+              tem o seu histórico, e que ali não é consulta. */}
+          <Txt v="h2" c={c.onHero}>Pode perguntar</Txt>
           <Txt v="micro" c={c.onHero2} style={{ marginTop: 6, lineHeight: 17, textAlign: 'center' }}>
             Conhece sua jornada inteira · não substitui sua equipe médica
           </Txt>

@@ -1,5 +1,8 @@
 import React from 'react';
-import { Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, TextProps, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import {
+  Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView,
+  Platform, TextProps, ViewStyle, StyleProp, TextStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -268,6 +271,18 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
       <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
       {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
           que a pessoa já conhece de outros apps. */}
+      {/* O TECLADO EMPURRA A FOLHA, EM VEZ DE COBRI-LA.
+
+          Metade das folhas deste app tem campo de texto — o nome do prato
+          favorito, a busca de alimentos, a anotação da refeição —, e sem
+          isto o teclado subia por cima de tudo: a pessoa digitava sem ver
+          o que estava escrevendo, e o botão de gravar ficava atrás do
+          teclado.
+
+          `padding` no iOS, que é o comportamento que respeita a âncora de
+          baixo; no Android o próprio sistema redimensiona a janela, e
+          duplicar isso aqui faria a folha pular duas vezes. */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={{
         backgroundColor: c.bg, maxHeight: height * 0.86,
         borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
@@ -305,6 +320,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           </View>
         ) : null}
       </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }

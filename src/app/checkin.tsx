@@ -141,39 +141,46 @@ export default function Checkin() {
   const [dias, setDias] = useState<number | null>(paraTela(hoje?.constip));
   const [vezes, setVezes] = useState<number | null>(paraTela(hoje?.diarreia));
 
-  /* Marcar um sintoma já grava 3 — o meio da régua — em vez de deixar a
-     intensidade em branco. Aqui o vazio não cabe: o sintoma só está na
-     lista porque a pessoa disse que teve, e salvar mandava 3 de qualquer
-     jeito. Com a escala nascendo em branco, a tela dizia "ainda não
-     respondi" e guardava "incomodou" — duas coisas diferentes sobre o
-     mesmo campo. Agora ela mostra o que vai salvar, e a pessoa ajusta. */
+  /* MARCAR UM SINTOMA JÁ GRAVA A INTENSIDADE, E ELA NASCE NO MÍNIMO.
+
+     Gravar alguma coisa é preciso: o sintoma só está na lista porque a
+     pessoa disse que teve, e salvar mandava um número de qualquer jeito.
+     Com a escala em branco, a tela dizia "ainda não respondi" e guardava
+     "incomodou" — duas coisas diferentes sobre o mesmo campo.
+
+     O QUE MUDOU FOI ONDE ELA NASCE. Em 3, o meio da régua, marcar "náusea"
+     para dizer que bateu um enjoo leve já acendia o aviso de sintoma
+     moderado — o app respondendo alto a uma coisa que a pessoa ainda não
+     tinha dito. Em 1, quem teve pouco não precisa corrigir nada, e quem
+     teve muito arrasta. Errar para menos aqui devolve o susto a quem o
+     merece: o número que a pessoa escolheu. */
   const alterna = (id: string) => {
     const tinha = marcados.includes(id);
     setMarcados((m) => (tinha ? m.filter((x) => x !== id) : [...m, id]));
-    if (!tinha && id !== OUTRO && id !== GUT) setGrau((g) => (g[id] == null ? { ...g, [id]: 3 } : g));
+    if (!tinha && id !== OUTRO && id !== GUT) setGrau((g) => (g[id] == null ? { ...g, [id]: 1 } : g));
   };
 
-  /* Escolher um lado já põe a contagem no meio, pelo mesmo motivo que
-     marcar um sintoma já põe a intensidade em 3: a tela mostra o que vai
-     salvar. */
+  /* Escolher um lado já põe a contagem no mínimo, pelo mesmo motivo que
+     marcar um sintoma põe a intensidade em 1: a tela mostra o que vai
+     salvar, e começa pelo caso mais brando. */
   const escolheGut = (k: string) => {
     setGut(k);
-    if (k === 'preso') setDias((d) => (d == null ? 3 : d));
-    if (k === 'solto') setVezes((v) => (v == null ? 3 : v));
+    if (k === 'preso') setDias((d) => (d == null ? 1 : d));
+    if (k === 'solto') setVezes((v) => (v == null ? 1 : v));
   };
 
   /* Zero quando o sintoma não está marcado: as leituras enxergam o dia
      como ele foi respondido, não o que ficou guardado no estado de um chip
      que a pessoa desmarcou. */
-  const nivel = (id: string) => (marcados.includes(id) ? (grau[id] ?? 3) : 0);
+  const nivel = (id: string) => (marcados.includes(id) ? (grau[id] ?? 1) : 0);
   const noGut = marcados.includes(GUT);
   const niveis: Niveis = {
     nausea: nivel('nausea'),
     dor: nivel('dor'),
     vomito: nivel('vomito'),
     tontura: nivel('tontura'),
-    preso: noGut && gut === 'preso' ? (dias ?? 3) : 0,
-    solto: noGut && gut === 'solto' ? (vezes ?? 3) : 0,
+    preso: noGut && gut === 'preso' ? (dias ?? 1) : 0,
+    solto: noGut && gut === 'solto' ? (vezes ?? 1) : 0,
   };
 
   const combinado = combinacao(niveis);
@@ -213,7 +220,7 @@ export default function Checkin() {
          as duas leituras coerentes sem reescrever quem já consome. */
       for (const x of SINTOMAS) {
         if (!x.store) continue;
-        c[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 3) * 2 : 0;
+        c[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 1) * 2 : 0;
       }
 
       /* `sint` guarda SÓ os sintomas sem coluna própria. Os três com coluna
@@ -221,7 +228,7 @@ export default function Checkin() {
       c.sint = Object.fromEntries(
         marcados
           .filter((id) => id !== OUTRO && id !== GUT && !SINTOMAS.find((x) => x.id === id)?.store)
-          .map((id) => [id, grau[id] ?? 3]),
+          .map((id) => [id, grau[id] ?? 1]),
       );
 
       /* INTESTINO — um eixo, gravado em dois lugares com papéis distintos.
@@ -240,8 +247,8 @@ export default function Checkin() {
       if (!marcouGut) { c.gut = 'normal'; c.constip = 0; c.diarreia = 0; }
       else if (gut) {
         c.gut = gut;
-        c.constip = gut === 'preso' ? (dias ?? 3) * 2 : 0;
-        c.diarreia = gut === 'solto' ? (vezes ?? 3) * 2 : 0;
+        c.constip = gut === 'preso' ? (dias ?? 1) * 2 : 0;
+        c.diarreia = gut === 'solto' ? (vezes ?? 1) * 2 : 0;
       }
 
       /* Desmarcar "Outro" apaga o texto: ele é a única prova de que o

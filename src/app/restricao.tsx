@@ -3,7 +3,7 @@ import { View, Switch } from 'react-native';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, Aviso } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Cartao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -42,7 +42,18 @@ export default function Restricao() {
     <TelaInterna titulo="Restrição alimentar">
       <Titulao
         titulo="Restrições alimentares"
-        lead="Marque o que fica fora do seu prato. Passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve."
+        /* TUDO O QUE PRECISA SER DITO, DITO AQUI EM CIMA.
+
+           Havia um aviso no pé da tela, e ele tinha dois problemas: quem
+           chega para marcar uma chave não rola até o fim para ler regra, e
+           o que ele dizia — "isto é orientação, e não garantia" — é uma
+           distinção clara para quem escreveu e vaga para quem lê.
+
+           O que sobra são as duas frases que mudam o que a pessoa faz: o
+           que acontece ao marcar, e o que continua sendo responsabilidade
+           do rótulo. Elas moram na abertura, que é onde alguém lê antes de
+           decidir. */
+        lead="Marque o que fica fora do seu prato: passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve — sem esconder o resto. Em caso de alergia, confira sempre o rótulo, porque a marca e o preparo a gente não tem como saber."
       />
 
       <Bloco>
@@ -63,17 +74,6 @@ export default function Restricao() {
           ))}
         </Cartao>
       </Bloco>
-
-      {/* O AVISO DIZ UMA COISA SÓ, e por isso ele tem título de frase e
-          não de seção. Antes ele dizia "isto é orientação, e não
-          garantia", que é uma distinção clara para quem escreveu e vaga
-          para quem lê: a pessoa fica sabendo que existe uma ressalva sem
-          saber o que fazer com ela. Agora ele diz o que fazer. */}
-      <Aviso
-        ic="info"
-        titulo="Nada some para sempre"
-        texto="O que fica fora da sua restrição sai da frente, e não da tabela: dá para ver a lista inteira quando quiser. E em caso de alergia, confira sempre o rótulo — não temos como saber a marca, o preparo nem o que encostou no que na cozinha."
-      />
     </TelaInterna>
   );
 }

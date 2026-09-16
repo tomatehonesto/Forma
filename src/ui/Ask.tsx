@@ -6,9 +6,10 @@ import { Txt } from './kit';
 import { useTheme } from './useTheme';
 import { radius } from '../theme';
 
-/* Morphi como camada transversal: todo contexto ganha um CTA que abre o chat
-   já com a pergunta certa. O usuário não "abre o Morphi" — ele pergunta. */
-export function AskCompanion({ q, label = 'Perguntar ao Morphi', tone = 'soft', style }: {
+/* A CONVERSA COMO CAMADA TRANSVERSAL: todo contexto ganha um botão que abre
+   o chat já com a pergunta certa. A pessoa não "abre o assistente" — ela
+   pergunta, e por isso o rótulo é um verbo e não um nome próprio. */
+export function AskCompanion({ q, label = 'Perguntar sobre isso', tone = 'soft', style }: {
   q: string; label?: string; tone?: 'soft' | 'line'; style?: any;
 }) {
   const { c } = useTheme();
