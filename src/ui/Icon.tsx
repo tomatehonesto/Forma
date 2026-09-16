@@ -61,6 +61,7 @@ import Milk from 'lucide-react-native/icons/milk';
 import CupSoda from 'lucide-react-native/icons/cup-soda';
 import Citrus from 'lucide-react-native/icons/citrus';
 import Wine from 'lucide-react-native/icons/wine';
+import IconBottle from '@tabler/icons-react-native/IconBottle';
 import Heart from 'lucide-react-native/icons/heart';
 import House from 'lucide-react-native/icons/house';
 import Image from 'lucide-react-native/icons/image';
@@ -191,6 +192,8 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   soda: CupSoda,
   citrus: Citrus,
   wine: Wine,
+  /* A garrafa de coqueteleira — o shake. */
+  shaker: IconBottle,
   leaf: Leaf,
   arrowdown: ArrowDown,
   arrowup: ArrowUp,

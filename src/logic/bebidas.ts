@@ -60,6 +60,23 @@ export const BEBIDAS: Bebida[] = [
   { id: 'cha', nome: 'Chá', ic: 'leaf', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
   { id: 'coco', nome: 'Água de coco', ic: 'drop2', conta: true, medidas: [['Copo', 250], ['Caixinha', 200], ['Garrafa', 500]] },
   { id: 'leite', nome: 'Leite', ic: 'milk', conta: true, medidas: [['Copo', 250], ['Caneca', 300], ['Garrafa', 500]] },
+  /* O SHAKE HIDRATA, E A PROTEÍNA DELE NÃO ENTRA POR AQUI.
+
+     Ele é quase todo água, então o líquido conta como qualquer outro.
+     Mas a proteína de um shake não se deduz do volume: 300 ml com uma
+     dose dão 24 g, com duas dão 48, e o copo é o mesmo. Contar por
+     mililitro seria inventar um número que muda de pessoa para pessoa —
+     e ele já tem lugar certo, que é o registro da refeição, onde a dose
+     é escolhida. A nota na tela diz isso em vez de deixar a pessoa
+     achando que registrou proteína duas vezes, ou nenhuma. */
+  {
+    id: 'shake',
+    nome: 'Shake ou whey',
+    ic: 'shaker',
+    conta: true,
+    medidas: [['Copo', 250], ['Coqueteleira', 400], ['Garrafa', 500]],
+    nota: 'O líquido conta aqui. A proteína entra quando você registrar o shake como refeição — assim ela não é contada duas vezes.',
+  },
   { id: 'suco', nome: 'Suco', ic: 'citrus', conta: true, medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 500]] },
   { id: 'refri', nome: 'Refrigerante', ic: 'soda', conta: true, medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 600]] },
   {
