@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput } from 'react-native';
+import { View, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ALIMENTOS, buscarAlimento, medidaDe, type Alimento } from '../logic/alimentos';
 import { cabe } from '../logic/restricoes';
-import { SeletorDeRestricao } from '../ui/restricao';
+import { RESTRICOES } from '../logic/restricoes';
 import { useStore } from '../logic/store';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Chips, Linha } from '../ui/internas';
@@ -50,6 +50,9 @@ export default function Alimentos() {
   const restricoes = ((S.profile as any).restricoes ?? []) as string[];
   const [semFiltro, setSemFiltro] = useState(false);
   const filtraRestricao = restricoes.length > 0 && !semFiltro;
+  const nomesDaRestricao = restricoes
+    .map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x)
+    .join(', ');
 
 
   const emOrdem = React.useMemo(
@@ -109,11 +112,6 @@ export default function Alimentos() {
           />
         </Row>
 
-        {/* O SELETOR FICA NO TOPO, junto da busca, porque é ele que
-            governa o que a lista inteira mostra. Embaixo, ele seria uma
-            configuração escondida depois do resultado que ela filtrou. */}
-        <SeletorDeRestricao compacto />
-
         {/* O filtro de prateleira, rolando na horizontal. Ele aparece
             sempre — inclusive com busca no ar, porque "frango" em
             "Pratos prontos" e "frango" em "Carnes e aves" são duas
@@ -128,6 +126,32 @@ export default function Alimentos() {
           valor={onde}
           onChange={setOnde}
         />
+
+        {/* A TARJA, NO LUGAR DO SELETOR.
+
+            Aqui teve uma fileira de pastilhas para escolher a restrição, e
+            ela estava no lugar errado: isto se responde uma vez e se
+            esquece, e como controle no alto da tela pedia atenção toda vez
+            que alguém só queria saber quanta proteína tem um ovo. O ajuste
+            foi para uma tela própria, atrás de uma linha na Alimentação.
+
+            O QUE FICA É O AVISO. Lista cortada em silêncio é a pessoa
+            achando que o app não tem o alimento — e a tarja diz o que
+            cortou, quanto cortou e como ver tudo. */}
+        {foraDaRestricao > 0 ? (
+          <Row style={{
+            backgroundColor: c.limeSoft, borderRadius: radius.md,
+            paddingHorizontal: 12, paddingVertical: 10, gap: 9, alignItems: 'center',
+          }}>
+            <Icon name="filter" size={14} color={c.limeSoftInk} sw={2} />
+            <Txt v="caption" c={c.limeSoftInk} style={{ flex: 1 }}>
+              {nomesDaRestricao}: {foraDaRestricao} fora da lista
+            </Txt>
+            <Pressable onPress={() => setSemFiltro(true)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Txt v="label" c={c.limeSoftInk}>Ver tudo</Txt>
+            </Pressable>
+          </Row>
+        ) : null}
 
         {achados.length ? (
           <Cartao>
@@ -148,18 +172,6 @@ export default function Alimentos() {
             Nenhum alimento com esse nome. Tente uma palavra mais curta.
           </Txt>
         )}
-
-        {/* O ESCAPE DA RESTRIÇÃO, com o número do que ele traz de volta.
-            Um botão que dissesse só "mostrar tudo" não contaria que a
-            lista estava sendo cortada — e lista cortada em silêncio é a
-            pessoa achando que o app não tem o alimento. */}
-        {foraDaRestricao > 0 ? (
-          <Linha
-            titulo={`Mostrar também os ${foraDaRestricao} fora da sua restrição`}
-            seta={false}
-            onPress={() => setSemFiltro(true)}
-          />
-        ) : null}
 
         {!procurando && !onde && !tudo && naRestricao.length > TETO ? (
           <Linha

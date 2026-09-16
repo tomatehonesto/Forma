@@ -8,7 +8,7 @@ import {
 } from '../logic/derive';
 import { somaDe } from '../logic/prato';
 import { conselhosDaRotina } from '../logic/conselhos';
-import { SeletorDeRestricao } from '../ui/restricao';
+import { RESTRICOES } from '../logic/restricoes';
 import { milhar, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -89,6 +89,7 @@ export default function Alimentacao() {
 
 
   const conselhos = conselhosDaRotina(S);
+  const restricoes = ((S.profile as any).restricoes ?? []) as string[];
 
   const favs = favoritos(S);
 
@@ -488,21 +489,20 @@ export default function Alimentacao() {
 
           E fica DEPOIS dos favoritos, que é a ordem do que se faz: o
           número do dia, o que eu comi, o que eu repito, e por último o
-          passeio. */}
-      {/* O SELETOR FICA NO PÉ DA TELA, e não no topo como na tabela de
-          alimentos. Lá ele governa a lista que a pessoa está olhando
-          naquele instante; aqui ele é ajuste de perfil — muda o conselho
-          e a busca das próximas vezes, e não o número de hoje. Ajuste de
-          perfil no alto de uma tela de acompanhamento é uma pergunta na
-          frente da resposta. */}
-      <Bloco
-        titulo="O que você não come"
-        nota="Muda o que o Morphi sugere e o que aparece primeiro na tabela de alimentos."
-      >
-        <SeletorDeRestricao />
-      </Bloco>
+      {/* A COMIDA FORA DO DIA DE HOJE — a tabela e o que a pessoa não
+          come. As duas moram juntas porque são a mesma conversa: uma diz
+          o que existe, a outra diz o que existe PARA VOCÊ.
 
-      <Bloco titulo="Explorar alimentos">
+          A tabela já vivia inteira dentro da folha de registro, e só
+          aparecia enquanto alguém montava um prato — três resultados por
+          vez, cada um dizendo uma linha de proteína e sumindo em
+          seguida. Quem quis saber quanta proteína tem um ovo sem estar
+          registrando um ovo não tinha onde olhar.
+
+          E ficam DEPOIS do diário, que é a ordem do que se faz: o número
+          do dia, o que eu comi, o que eu repito, e por último o passeio e
+          o ajuste. */}
+      <Bloco titulo="A sua comida">
         <Cartao>
           <Linha
             ic="book"
@@ -510,8 +510,19 @@ export default function Alimentacao() {
             sub="Procure um alimento e veja a proteína, a caloria e o resto do rótulo"
             onPress={() => router.push('/alimentos' as any)}
           />
+          {/* RESTRIÇÃO É AJUSTE, e ajuste mora atrás de uma linha.
+              Ver src/app/restricao.tsx. */}
+          <Linha
+            ic="leaf"
+            titulo="O que você não come"
+            sub={restricoes.length
+              ? restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
+              : 'Nenhuma restrição'}
+            onPress={() => router.push('/restricao' as any)}
+          />
         </Cartao>
       </Bloco>
+
       </FolhaDeHabito>
     </TelaDeHabito>
   );
