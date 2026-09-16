@@ -95,18 +95,37 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
     })()
     : null;
   const pos = (v: number) => Math.max(0, Math.min(1, (v - 15) / 25));
-  /* AS CORES DA RÉGUA SÃO UMA ESCALA CATEGÓRICA, e por isso são valores
-     fixos e não tokens: elas não querem dizer "fundo", "acento" ou
-     "alerta" — querem dizer primeira faixa, segunda, terceira. São os
-     tons da paleta do Morphi nas versões mais claras, que é o que
-     sobrevive sobre o branco sem virar mancha: lavanda, turquesa, lima,
-     ouro, rosa e coral. O que estava feio antes eram o verde-oliva e o
-     mostarda das cores de texto, e dois vermelhos iguais no fim. */
-  const CORES_IMC = ['#9D86FF', '#15E4CB', '#DDF62C', '#E0BC4A', '#F26A9B', '#FF5A5A'];
+  /* O VERDE DA LINHA QUE DESCE.
+
+     Não é token do tema, e é de propósito: no Morphi o lima é a cor do
+     feito e o azul é a cor de ação, e nenhuma das duas serve para uma
+     linha que representa peso caindo ao longo de meses. Verde descendente
+     é convenção da categoria inteira — quem abre a tela já sabe o que a
+     linha está dizendo antes de ler o rótulo. */
+  const VERDE = '#2FBF71';
+  const VERDE_FIM = '#1C9C58';
+
+  /* A RÉGUA DE IMC VAI DE AZUL A VERMELHO, e a direção é a informação.
+
+     Ela era lavanda, turquesa, lima, ouro, rosa e coral: seis cores
+     bonitas e sem ordem entre si, e régua sem ordem é arco-íris com uma
+     bolinha em cima. Abaixo do peso em azul e o excesso indo ao vermelho é
+     a convenção que a pessoa já leu em qualquer laudo — e o verde do meio
+     é o mesmo da linha ali de cima, para que "faixa boa" e "caminho até a
+     meta" falem a mesma cor.
+
+     São valores fixos, e não tokens, porque isto é escala categórica: não
+     querem dizer "fundo" nem "alerta", querem dizer primeira faixa,
+     segunda, terceira. */
+  const CORES_IMC = ['#5B9CFF', '#2FBF71', '#F0A23C', '#EE7B3C', '#E05038', '#C22E2E'];
   const fxHoje = faixaDoIMC(plano.imc);
   const fxMeta = faixaDoIMC(plano.imcMeta);
   const iHoje = FAIXAS_IMC.indexOf(fxHoje);
   const iMeta = FAIXAS_IMC.indexOf(fxMeta);
+  /* Um selo por instituição, e não por trabalho: a Academy of Nutrition
+     and Dietetics sustenta dois números, e o nome dela duas vezes lado a
+     lado parece erro de montagem. O toque abre o primeiro trabalho dela. */
+  const SELOS = FONTES.filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i);
   const AJUDA: [string, string, string][] = [
     ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da caneta, sem você contar'],
     ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
@@ -307,8 +326,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
                 <AreaCurve
                   pts={[{ x: 0, y: 1 }, { x: 0.5, y: 0.5 }, { x: 1, y: 0 }]}
-                  height={104} padT={16} padB={12} padX={20} strokeW={2.4}
-                  id="pl" dashed={false} tracejada nodes fill={0.15}
+                  height={104} padT={16} padB={12} padX={20} strokeW={2.6}
+                  id="pl" dashed={false} tracejada nodes fill={0.18}
+                  strokeFrom={VERDE} strokeTo={VERDE_FIM}
                 />
 
                 <Row style={{ paddingHorizontal: 14, paddingBottom: 16, gap: 6 }}>
@@ -318,7 +338,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                       alignItems: i === 0 ? 'flex-start' : i === 1 ? 'center' : 'flex-end',
                     }}>
                       <Row style={{ alignItems: 'baseline', gap: 3 }}>
-                        <Txt v="label" c={i === 2 ? c.accent : c.tx}>{nf(m.kg, 1)}</Txt>
+                        <Txt v="label" c={i === 2 ? VERDE_FIM : c.tx}>{nf(m.kg, 1)}</Txt>
                         <Txt v="micro" c={c.tx4}>kg</Txt>
                       </Row>
                       <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>
@@ -394,9 +414,12 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
           {/* ---------- como eu ajudo ---------- */}
           <View>
             <Secao t="COMO EU TE AJUDO" />
-            <View style={{ gap: 16 }}>
-              {AJUDA.map(([ic, t, sub]) => (
-                <Row key={t} style={{ gap: 13, alignItems: 'center' }}>
+            <View style={[cartao, { paddingHorizontal: 16 }]}>
+              {AJUDA.map(([ic, t, sub], i) => (
+                <Row key={t} style={{
+                  gap: 13, alignItems: 'center', paddingVertical: 14,
+                  borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
+                }}>
                   <View style={{
                     width: 42, height: 42, borderRadius: 13, backgroundColor: c.accentWeak,
                     alignItems: 'center', justifyContent: 'center',
@@ -414,39 +437,46 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
           {/* ---------- por que esses números ----------
 
-              O QUE SE LÊ É O QUE SE SABE, e não o nome do artigo. "Equação
-              de Mifflin-St Jeor para gasto energético de repouso" é o nome
-              certo da coisa e não diz nada a quem acabou de terminar um
-              cadastro; quem quer o nome certo toca na linha e chega ao
-              trabalho. Em tela fica o que aquilo quer dizer para essa
-              pessoa, com a instituição embaixo — que é o que dá lastro sem
-              virar aula.
+              A REFERÊNCIA FAZ UMA LISTA DE ARTIGOS COM SETINHA: quatro
+              títulos em inglês, o nome da revista embaixo. Impressiona e
+              ninguém abre — e três dos quatro são matéria sobre o tema, não
+              a fonte de número nenhum.
 
-              É o contrário do selo: em vez de pedir confiança, mostra o que
-              se sabe, quem estudou, e deixa conferir. */}
+              Aqui é uma frase e os nomes de quem publicou. A frase diz o
+              que importa — nada foi inventado —, e os selos dão o lastro e
+              abrem o trabalho no toque, para quem quiser conferir. O título
+              de cada artigo continua em fontes.ts, que é onde ele serve
+              para alguma coisa: auditoria, e não vitrine. */}
           <View>
             <Secao t="POR QUE ESSES NÚMEROS" />
-            <View style={[cartao, { paddingHorizontal: 16 }]}>
-              {FONTES.map((fo, i) => (
-                <Pressable
-                  key={fo.id}
-                  onPress={() => Linking.openURL(fo.url)}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Row style={{
-                    gap: 10, alignItems: 'center', paddingVertical: 14,
-                    borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
-                  }}>
-                    <View style={{ flex: 1, gap: 4 }}>
-                      <Txt v="caption">{fo.frase}</Txt>
-                      <Txt v="micro" c={c.tx4}>
-                        {`${fo.onde}${fo.ano ? `, ${fo.ano}` : ''}`}
-                      </Txt>
-                    </View>
-                    <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                  </Row>
-                </Pressable>
-              ))}
+            <View style={[cartao, { padding: 18, gap: 14 }]}>
+              <Row style={{ gap: 11, alignItems: 'center' }}>
+                <View style={{
+                  width: 38, height: 38, borderRadius: 12, backgroundColor: c.accentWeak,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name="book" size={18} color={c.accent} sw={1.9} />
+                </View>
+                <Txt v="bodyMed" style={{ flex: 1 }}>Nenhum número aqui foi inventado</Txt>
+              </Row>
+              <Txt v="caption" c={c.tx3}>
+                Cada meta desta tela sai de uma diretriz pública ou de um estudo publicado.
+                Toque para ler.
+              </Txt>
+              <Row style={{ gap: 8, flexWrap: 'wrap' }}>
+                {SELOS.map((fo) => (
+                  <Pressable
+                    key={fo.sigla}
+                    onPress={() => Linking.openURL(fo.url)}
+                    style={({ pressed }) => [{
+                      backgroundColor: c.bg2, borderRadius: radius.pill,
+                      paddingHorizontal: 12, paddingVertical: 7, opacity: pressed ? 0.6 : 1,
+                    }]}
+                  >
+                    <Txt v="micro" c={c.tx2}>{fo.sigla}</Txt>
+                  </Pressable>
+                ))}
+              </Row>
             </View>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
               São ponto de partida, não prescrição — e nada aqui substitui quem te acompanha.
