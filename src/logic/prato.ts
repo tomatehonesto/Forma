@@ -251,3 +251,62 @@ export function origemDoAlimento(a: Alimento): string {
 export function qtdPadrao(id: string): number {
   return alimentoDe(id)?.qtd ?? 1;
 }
+
+/* A QUE MOMENTO PERTENCE O QUE SE REGISTRA AGORA.
+
+   A hidratação cria refeições — um copo de leite é bebida e comida —, e
+   toda refeição precisa de um momento. Perguntar "isso foi café da manhã
+   ou lanche?" a quem só queria anotar um copo de leite é cobrar uma
+   decisão pelo trabalho do app; o relógio já sabe, e erra pouco.
+
+   As faixas são as do horário brasileiro de comer, e o que sobra é
+   lanche — que é o que um copo de leite às quatro da tarde é mesmo. */
+export function momentoDaHora(h: number): string {
+  if (h < 10) return 'Café da manhã';
+  if (h >= 11 && h < 15) return 'Almoço';
+  if (h >= 19 && h < 23) return 'Jantar';
+  return 'Lanche';
+}
+
+/* ============================================================
+   A COMIDA QUE HIDRATA
+
+   Uma sopa é 90% água, e o app mandava a pessoa registrar a sopa na
+   alimentação e um copo d'água na hidratação para dizer a mesma coisa
+   duas vezes. A referência que gera a meta — 35 ml por quilo — é de
+   líquido total, e a EFSA conta 20 a 30% dele vindo da comida. Ignorar o
+   prato era a mesma incoerência que ignorar o café.
+
+   O NÚMERO NÃO É INVENTADO, É O QUE SOBRA. Num rótulo por 100 g, o que
+   não é proteína, carboidrato, gordura ou cinza é água. É assim que a
+   própria tabela de composição chega à coluna de umidade, e sai dos
+   números que já estão aqui: leite dá 88%, suco de laranja 91%, sopa de
+   legumes 90% — que é o que essas coisas são mesmo.
+
+   A LISTA É QUE É JULGAMENTO, e por isso ela é curta e explícita. Pão
+   também tem água, e melancia tem mais do que sopa; contar os dois
+   transformaria a meta de hidratação numa contabilidade de tudo o que
+   entra pela boca, e a pessoa perderia a única coisa que a tela serve
+   para dizer: se ela precisa beber mais hoje. Aqui entra o que se toma
+   ou se serve na tigela — o que alguém chamaria de líquido sem pensar.
+   ============================================================ */
+const LIQUIDOS = new Set([
+  'sopa-legumes', 'sopa-feijao', 'sopa-carne', 'canja', 'caldo-verde',
+  'leite', 'achocolatado', 'suco-laranja', 'vitamina-banana', 'smoothie-proteico',
+  'mingau-aveia',
+]);
+
+/** Cinzas (minerais) por 100 g — o resto do rótulo que ninguém escreve. */
+const CINZAS = 1;
+
+/** Quantos mililitros de água este item do prato traz. */
+export function aguaItem(it: ItemComida): number {
+  const a = alimentoDe(it.id);
+  const g = pesoItem(it);
+  if (!a || g == null || !LIQUIDOS.has(a.id)) return 0;
+  if (a.carb == null || a.gord == null) return 0;
+  const pct = Math.max(0, 100 - (a.p + a.carb + a.gord + CINZAS));
+  return Math.round((pct / 100) * g);
+}
+
+export const aguaDe = (itens: ItemComida[]) => itens.reduce((s, it) => s + aguaItem(it), 0);

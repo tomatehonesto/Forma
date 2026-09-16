@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  apagarGole, diasDeAgua, golesDoDia, litros, registrarAgua, semanaDeAgua, waterMlToday,
+  aguaDaComida, apagarGole, diasDeAgua, golesDoDia, litros, registrarAgua, semanaDeAgua,
+  waterMlToday,
 } from '../logic/derive';
 import { hm, now, startOfDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
@@ -82,6 +83,7 @@ export default function Agua() {
   const doDiaContam = doDia.filter((g) => bebidaDe(g.bebida).conta);
   const mlDoDia = doDiaContam.reduce((x, g) => x + g.ml, 0);
   const foraDaConta = doDia.length - doDiaContam.length;
+  const daComida = aguaDaComida(S, diaSel);
 
   const lembrete = (S as any).reminders?.agua;
 
@@ -219,9 +221,14 @@ export default function Agua() {
                           <View style={{ flex: 1 }}>
                             <Txt v="body">
                               {litros(g.ml)} L
-                              {g.bebida && g.bebida !== BEBIDA_PADRAO
-                                ? ` de ${bebidaDe(g.bebida).nome.toLowerCase()}`
-                                : ''}
+                              {/* O nome que a pessoa escreveu ganha do
+                                  rótulo genérico: quem anotou "kombucha"
+                                  quer ler kombucha, e não "outro". */}
+                              {(g as any).nome
+                                ? ` de ${(g as any).nome.toLowerCase()}`
+                                : g.bebida && g.bebida !== BEBIDA_PADRAO
+                                  ? ` de ${bebidaDe(g.bebida).nome.toLowerCase()}`
+                                  : ''}
                             </Txt>
                             {/* O DIA SEM HORA é dito, e não maquiado. Um
                                 registro de antes de o diário existir sabe o
@@ -248,6 +255,16 @@ export default function Agua() {
                     {doDia.length} {doDia.length === 1 ? 'registro' : 'registros'} · {litros(mlDoDia)} L
                     {foraDaConta > 0 ? ` · ${foraDaConta} fora da conta` : ''}
                   </Txt>
+                  {/* A ÁGUA DO PRATO ENTRA NO TOTAL DO DIA, e não nesta
+                      lista: ela não foi bebida, foi comida, e tem diário
+                      próprio. Sem esta linha a capa diria 2,3 L e a soma
+                      dos goles daria 1,9 — e quem repara numa diferença
+                      dessas passa a não confiar em nenhum dos dois. */}
+                  {daComida > 0 ? (
+                    <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
+                      Mais {litros(daComida)} L da comida que você registrou
+                    </Txt>
+                  ) : null}
                 </View>
               ) : (
                 <Vazio

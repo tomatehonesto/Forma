@@ -2,8 +2,11 @@
 import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
-import { MOMENTOS, nomeItem, nutrientesDe, type ItemComida } from './prato';
-import { BEBIDA_PADRAO, bebidaDe } from './bebidas';
+import {
+  MOMENTOS, aguaDe, alimentoDe, momentoDaHora, nomeItem, nutrientesDe, somaDe, type ItemComida,
+} from './prato';
+import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
+import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
 
@@ -1593,7 +1596,25 @@ export function recoBucket(d: number): string {
     a Home exibe em litros, que é como o desenho fala. */
 export const CUP_ML = 250;
 
-export const waterMlToday = (S: State) => waterToday(S) * CUP_ML;
+/* A ÁGUA QUE VEIO DO PRATO, num dia.
+
+   Só de refeição que a pessoa registrou como comida: a que nasceu de uma
+   bebida (`fonte: 'bebida'`) já foi contada como gole, e contá-la de novo
+   faria o copo de leite entrar duas vezes no mesmo total. */
+export function aguaDaComida(S: State, t: number): number {
+  return refeicoesDoDia(S, t)
+    .filter((m: any) => m.fonte !== 'bebida')
+    .reduce((x, m: any) => x + aguaDe((m.itens || []) as ItemComida[]), 0);
+}
+
+/** Tudo o que hidratou naquele dia: o que foi bebido mais o que veio no prato. */
+export function aguaDoDia(S: State, t: number): number {
+  const c = (S.checkins as any[]).find((x) => x.t === t);
+  return Math.round((c?.agua || 0) * CUP_ML) + aguaDaComida(S, t);
+}
+
+/* O TOTAL DE HOJE, que é o que a capa e a Home mostram. */
+export const waterMlToday = (S: State) => aguaDoDia(S, +startOfDay(now()));
 
 /* COMO O APP ESCREVE UM VOLUME: em litros, e sem zero à toa no fim —
    "2,5", "1,75", "0,25", "1". Duas telas falam de água, e enquanto cada
@@ -2498,21 +2519,81 @@ export type Gole = {
      que todo registro anterior a esta tela é, porque era a única coisa
      que dava para registrar. */
   bebida?: string;
+  /** o nome que a pessoa escreveu, quando a bebida é "Outro" */
+  nome?: string;
 };
 
 /** O que este gole soma no dia. Zero quando a bebida não conta. */
 export const mlQueContam = (g: Gole) => (bebidaDe(g.bebida).conta ? g.ml : 0);
+
+/* ============================================================
+   UM REGISTRO, DOIS CAMPOS
+
+   Leite, suco e shake são bebida e comida ao mesmo tempo. Pedir para a
+   pessoa anotar o copo de leite na hidratação e de novo na alimentação é
+   cobrar duas vezes pelo mesmo gesto — e é assim que se ensina alguém a
+   não registrar nada.
+
+   Então o registro da bebida cria TAMBÉM a refeição, com o item da
+   tabela e a quantidade que o volume (ou a dose) determina. A partir
+   daí, proteína, caloria, carboidrato e gordura saem do caminho de
+   sempre: ninguém precisou inventar um número novo, e o diário de
+   refeições mostra a linha, porque ela existe de verdade.
+
+   E A MARCA `fonte: 'bebida'` EXISTE PARA A CONTA NÃO VOLTAR. A água
+   dessa refeição já foi contada como gole; sem a marca, o leite entraria
+   duas vezes no total do dia — uma pelo copo, outra pela comida.
+   ============================================================ */
+export function itensDaBebida(b: Bebida, ml: number, doses = 0): ItemComida[] {
+  if (b.porDose) return doses > 0 ? [{ id: b.porDose, qtd: doses }] : [];
+  if (!b.item) return [];
+  const a = alimentoDe(b.item);
+  return a ? [{ id: b.item, qtd: ml / a.gUn }] : [];
+}
 
 /* Registra o que se bebeu hoje — entra no diário e sobe o total do dia.
 
    O DIÁRIO RECEBE TUDO, O TOTAL RECEBE O QUE CONTA. É a mesma regra das
    refeições sem rótulo: o registro é da pessoa e guarda o que aconteceu;
    a conta é do app e só soma o que ele sabe somar. */
-export function registrarAgua(s: any, ml: number, bebida: string = BEBIDA_PADRAO) {
+export function registrarAgua(
+  s: any, ml: number, bebida: string = BEBIDA_PADRAO,
+  extra?: { nome?: string; doses?: number },
+) {
+  const b = bebidaDe(bebida);
   const c = registroDoDia(s, +startOfDay(now()));
-  const g: Gole = { t: +now(), ml, bebida };
+  const g: Gole = { t: +now(), ml, bebida, ...(extra?.nome ? { nome: extra.nome } : {}) };
   c.aguas = [...((c.aguas || []) as Gole[]), g];
   c.agua = (c.agua || 0) + mlQueContam(g) / CUP_ML;
+
+  const itens = itensDaBebida(b, ml, extra?.doses);
+  if (itens.length) {
+    registrarRefeicao(s, {
+      name: momentoDaHora(now().getHours()),
+      tag: b.nome,
+      itens,
+      fonte: 'bebida',
+    });
+  }
+}
+
+/* A REFEIÇÃO, GRAVADA NUM LUGAR SÓ.
+
+   A tela de registro montava o objeto na mão e somava a proteína no dia
+   na linha seguinte. Quando a hidratação passou a criar refeições
+   também, virariam duas cópias da mesma regra — e a segunda esquece o
+   acumulador do dia na primeira vez que alguém mexer numa delas. */
+export function registrarRefeicao(
+  s: any,
+  d: { name: string; tag: string; itens: ItemComida[]; fonte?: string; g?: number },
+) {
+  const g = d.g ?? somaDe(d.itens);
+  s.meals.unshift({
+    t: +now(), name: d.name, g, prot: faixaDe(g), tag: d.tag,
+    fonte: d.fonte ?? 'manual', itens: d.itens,
+  });
+  const c = registroDoDia(s, +startOfDay(now()));
+  c.prot = (c.prot || 0) + g;
 }
 
 /* Apagar devolve ao dia o que aquele gole tinha somado, e não zera: o dia
@@ -2533,12 +2614,13 @@ export function apagarGole(s: any, dia: number, t?: number | null) {
 /** Os sete últimos dias em ml, do mais antigo para hoje. */
 export function semanaDeAgua(S: State): { t: number; ml: number }[] {
   const hoje = +startOfDay(now());
-  const porDia = new Map<number, number>(
-    (S.checkins as any[]).map((c) => [c.t, Math.round((c.agua || 0) * CUP_ML)]),
-  );
+  /* A barra da semana conta o mesmo que a capa conta: o que foi bebido
+     mais a água do prato. Sem isso, o dia em que a pessoa almoçou sopa
+     apareceria menor na semana do que apareceu no dia — dois números
+     para o mesmo dia, a uma rolagem de distância. */
   return Array.from({ length: 7 }, (_, i) => {
     const t = hoje - (6 - i) * DAY;
-    return { t, ml: porDia.get(t) || 0 };
+    return { t, ml: aguaDoDia(S, t) };
   });
 }
 

@@ -45,6 +45,14 @@ export type Bebida = {
      dizer de cabeça quantos mililitros foram. O atalho só ajuda se o
      nome dele for o que a pessoa teria dito em voz alta. */
   medidas?: [string, number][];
+  /* O ALIMENTO QUE ESTA BEBIDA É, quando o volume responde por ele.
+     O registro vira também uma refeição, e proteína, caloria e macro
+     saem todos da tabela — nenhum número novo nasce aqui. */
+  item?: string;
+  /** o alimento medido em DOSES, e não em volume — ver o shake */
+  porDose?: string;
+  /** a pessoa escreve o nome: a lista nunca vai estar completa */
+  livre?: boolean;
 };
 
 /* Copo, garrafa, garrafão: o que existe na cozinha de qualquer um. */
@@ -59,25 +67,27 @@ export const BEBIDAS: Bebida[] = [
   { id: 'cafe', nome: 'Café', ic: 'coffee', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
   { id: 'cha', nome: 'Chá', ic: 'leaf', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
   { id: 'coco', nome: 'Água de coco', ic: 'drop2', conta: true, medidas: [['Copo', 250], ['Caixinha', 200], ['Garrafa', 500]] },
-  { id: 'leite', nome: 'Leite', ic: 'milk', conta: true, medidas: [['Copo', 250], ['Caneca', 300], ['Garrafa', 500]] },
-  /* O SHAKE HIDRATA, E A PROTEÍNA DELE NÃO ENTRA POR AQUI.
+  /* O leite e o suco TAMBÉM SÃO COMIDA, e o volume responde por eles:
+     250 ml de leite têm a proteína e a caloria que a tabela diz que 250
+     ml de leite têm. Por isso eles trazem o id do alimento — o registro
+     de um vira registro dos dois, e a pessoa não escreve nada duas
+     vezes. */
+  { id: 'leite', nome: 'Leite', ic: 'milk', conta: true, item: 'leite', medidas: [['Copo', 250], ['Caneca', 300], ['Garrafa', 500]] },
+  { id: 'suco', nome: 'Suco', ic: 'citrus', conta: true, item: 'suco-laranja', medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 500]] },
+  /* O SHAKE PRECISA DE UM SEGUNDO CAMPO, e é o único que precisa.
 
-     Ele é quase todo água, então o líquido conta como qualquer outro.
-     Mas a proteína de um shake não se deduz do volume: 300 ml com uma
-     dose dão 24 g, com duas dão 48, e o copo é o mesmo. Contar por
-     mililitro seria inventar um número que muda de pessoa para pessoa —
-     e ele já tem lugar certo, que é o registro da refeição, onde a dose
-     é escolhida. A nota na tela diz isso em vez de deixar a pessoa
-     achando que registrou proteína duas vezes, ou nenhuma. */
+     A proteína dele não se deduz do volume: 300 ml com uma dose dão 24 g
+     e com duas dão 48, e o copo é o mesmo. Quem responde é a dose, então
+     a tela pergunta a dose — e a conta sai da mesma tabela de alimentos
+     que o resto do app usa, onde um scoop são 30 g de whey. */
   {
     id: 'shake',
     nome: 'Shake ou whey',
     ic: 'shaker',
     conta: true,
+    porDose: 'whey',
     medidas: [['Copo', 250], ['Coqueteleira', 400], ['Garrafa', 500]],
-    nota: 'O líquido conta aqui. A proteína entra quando você registrar o shake como refeição — assim ela não é contada duas vezes.',
   },
-  { id: 'suco', nome: 'Suco', ic: 'citrus', conta: true, medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 500]] },
   { id: 'refri', nome: 'Refrigerante', ic: 'soda', conta: true, medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 600]] },
   {
     id: 'alcool',
@@ -87,6 +97,12 @@ export const BEBIDAS: Bebida[] = [
     medidas: [['Taça', 150], ['Lata', 350], ['Long neck', 355]],
     nota: 'Fica registrada, mas não entra no total: o álcool faz o corpo devolver mais líquido do que recebeu.',
   },
+  /* OUTRO EXISTE PORQUE A LISTA NUNCA VAI ESTAR COMPLETA. Kombucha,
+     isotônico, caldo de cana, o suco que a avó fez. O líquido conta —
+     é o que essa tela mede —, e o que a pessoa escreveu fica no diário
+     no lugar do nome genérico. O que o app não faz é adivinhar o que
+     tem dentro. */
+  { id: 'outro', nome: 'Outro', ic: 'more', conta: true, livre: true },
 ];
 
 /* ÁGUA É O PADRÃO, e é o que todo registro antigo é.

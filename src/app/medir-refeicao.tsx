@@ -4,14 +4,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   apagarRefeicao, checkinToday, editarRefeicao, favoritos, guardarFavorito,
-  refeicaoEm, registroDoDia,
+  refeicaoEm, registrarRefeicao,
 } from '../logic/derive';
-import { faixaDe } from '../logic/escalas';
 import { MOMENTOS, itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
-import { now, startOfDay } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Acordeao, Botao, Grade, Linha, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -150,22 +148,16 @@ export default function MedirRefeicao() {
       return;
     }
 
-    update((s: any) => {
-      s.meals.unshift({
-        t: +now(), name: quando,
-        /* Gramas é a verdade; a faixa virou rótulo derivado dela. */
-        g,
-        prot: faixaDe(g),
-        tag: nomes.join(', '),
-        /* De onde veio o número. A foto some do registro — a imagem em si
-           não é guardada enquanto não houver decisão sobre armazenar foto
-           de comida de alguém —, mas o fato de ter havido uma fica. */
-        fonte: foto ? 'foto' : 'manual',
-        itens,
-      });
-      const ci2 = registroDoDia(s, +startOfDay(now()));
-      ci2.prot = (ci2.prot || 0) + g;
-    });
+    /* Gravar mora em derive, e não aqui: a hidratação também cria
+       refeições — um copo de leite é bebida e comida —, e duas cópias da
+       mesma regra divergem na primeira vez que alguém mexer numa delas.
+
+       De onde veio o número vai junto. A foto some do registro — a imagem
+       em si não é guardada enquanto não houver decisão sobre armazenar
+       foto de comida de alguém —, mas o fato de ter havido uma fica. */
+    update((s: any) => registrarRefeicao(s, {
+      name: quando, g, tag: nomes.join(', '), itens, fonte: foto ? 'foto' : 'manual',
+    }));
     router.back();
   };
 

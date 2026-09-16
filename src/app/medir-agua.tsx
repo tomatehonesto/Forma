@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, TextInput } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { waterMlToday, litros, registrarAgua } from '../logic/derive';
 import { BEBIDAS, BEBIDA_PADRAO, bebidaDe, medidasDe } from '../logic/bebidas';
+import { somaDe } from '../logic/prato';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { font, radius } from '../theme';
 
 /* ============================================================
    QUANTO VOCÊ BEBEU
@@ -42,6 +43,10 @@ export default function MedirAgua() {
      única que o app registrava até aqui. */
   const [bebidaId, setBebidaId] = useState(BEBIDA_PADRAO);
   const bebida = bebidaDe(bebidaId);
+  /* Uma dose é o palpite certo para quem escolheu shake, e zero é uma
+     resposta válida: tem gente que bate a fruta sem whey nenhum. */
+  const [doses, setDoses] = useState(1);
+  const [nome, setNome] = useState('');
 
   const alvo = (S.profile as any).targets.waterMl as number;
   const atual = waterMlToday(S);
@@ -76,7 +81,7 @@ export default function MedirAgua() {
      desfazer. registrarAgua escreve os dois: o gole no diário e o total
      do dia. */
   const beber = (ml: number) => {
-    update((s: any) => registrarAgua(s, ml, bebidaId));
+    update((s: any) => registrarAgua(s, ml, bebidaId, { doses, nome: nome.trim() }));
     /* O "+0,3 L agora" conta o que ANDOU no dia, e não o que passou
        pelo botão. Somando tudo, quem registrasse uma taça de vinho via a
        confirmação subir e o total ao lado parado — duas contas
@@ -163,6 +168,54 @@ export default function MedirAgua() {
             diário é da pessoa —, e o que ele não faz é somar. Dizer isso
             aqui é melhor do que a pessoa gravar e o número não andar. */}
         {bebida.nota ? <Txt v="caption" c={c.tx3}>{bebida.nota}</Txt> : null}
+
+        {/* O SEGUNDO CAMPO, só para quem precisa dele.
+
+            O shake é o único em que o volume não responde pela comida:
+            300 ml com uma dose dão 24 g de proteína e com duas dão 48. A
+            dose aparece porque foi escolhida; para leite e suco ela não
+            existe, porque o copo já responde. */}
+        {bebida.porDose ? (
+          <View style={{ gap: 9 }}>
+            <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Txt v="caption" c={c.tx3}>Quantas doses de proteína</Txt>
+              <Txt v="caption" c={c.tx3}>
+                {doses === 0 ? 'nenhuma' : `~${somaDe([{ id: bebida.porDose, qtd: doses }])} g`}
+              </Txt>
+            </Row>
+            <Row gap={7}>
+              {[0, 1, 2].map((d) => (
+                <Pressable key={d} onPress={() => setDoses(d)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
+                  <View style={{
+                    backgroundColor: doses === d ? c.accent : c.bg2,
+                    borderRadius: radius.md, paddingVertical: 11, alignItems: 'center',
+                  }}>
+                    <Txt v="caption" c={doses === d ? c.accentInk : c.tx}>
+                      {d === 0 ? 'Sem whey' : `${d} ${d === 1 ? 'dose' : 'doses'}`}
+                    </Txt>
+                  </View>
+                </Pressable>
+              ))}
+            </Row>
+          </View>
+        ) : null}
+
+        {/* O CAMPO ABERTO, para o que a lista não tem. O nome entra no
+            diário no lugar de "Outro"; o que tem dentro, o app não
+            adivinha — e não finge que adivinha. */}
+        {bebida.livre ? (
+          <TextInput
+            value={nome}
+            onChangeText={setNome}
+            placeholder="Kombucha, isotônico, caldo de cana…"
+            placeholderTextColor={c.tx4}
+            style={{
+              backgroundColor: c.bg2, borderRadius: radius.md,
+              paddingHorizontal: 14, paddingVertical: 12,
+              fontFamily: font.body, fontSize: 15, color: c.tx,
+            }}
+          />
+        ) : null}
       </View>
 
       {/* O montador. Tudo que compõe a quantidade mora aqui — inclusive o
