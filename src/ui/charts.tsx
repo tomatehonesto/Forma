@@ -38,7 +38,7 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
-  fill = 0.17, onScrub, scrub, tracejada = false,
+  fill = 0.17, onScrub, scrub, tracejada = false, nosEm,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
@@ -59,6 +59,13 @@ export function AreaCurve({
      seria o gráfico afirmando um dado que não existe. Tracejada, ela diz
      sozinha o que é, sem precisar de legenda embaixo. */
   tracejada?: boolean;
+  /* EM QUAIS PONTOS O NÓ APARECE.
+
+     `nodes` marca todos, o que serve quando cada ponto é uma medida. Uma
+     curva desenhada com nove pontos só para ficar lisa não tem nove
+     medidas: tem três marcos e seis pontos de traçado, e nove bolinhas
+     transformariam o traçado em informação que ele não é. */
+  nosEm?: number[];
 }) {
   const { c } = useTheme();
   const [medida, setW] = useState(0);
@@ -156,7 +163,9 @@ export function AreaCurve({
           {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
               vira um engrossamento do próprio traço e some. O miolo na cor
               do cartão é o que faz cada marcação existir como marcação. */}
-          {nodes && PX.map((p, i) => <Circle key={i} cx={p.x} cy={p.y} r={3.6} fill={c.bg1} stroke={st} strokeWidth={2.2} />)}
+          {nodes && PX.map((p, i) => (nosEm && !nosEm.includes(i) ? null : (
+            <Circle key={i} cx={p.x} cy={p.y} r={3.6} fill={c.bg1} stroke={st} strokeWidth={2.2} />
+          )))}
           {mk && dashed && <Line x1={mk.x} y1={mk.y} x2={mk.x} y2={height - padB} stroke={st} strokeWidth={1.4} strokeDasharray="3 4" opacity={0.5} />}
           {mk && <><Circle cx={mk.x} cy={mk.y} r={6.5} fill={c.bg1} /><Circle cx={mk.x} cy={mk.y} r={4.3} fill={st} /></>}
 

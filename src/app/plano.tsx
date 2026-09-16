@@ -76,24 +76,65 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const inter = d.intervalo ?? padrao;
   const cadTexto = inter === 1 ? 'todos os dias'
     : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
-  /* A LINHA DO TEMPO É ARITMÉTICA, e não previsão. Três marcos: hoje, o
-     meio do caminho e a meta, cada um com a data que o ritmo escolhido
-     produz. A referência promete aqui "quando você começa a ver
-     efeito"; isso ninguém sabe, e a conta do ritmo, sim. */
+  /* A FORMA DA QUEDA — e por que ela deixou de ser uma reta.
+
+     A linha era reta porque "0,5 kg por semana" desenha uma reta, e eu
+     tinha recusado a curva da referência por afirmar um modelo que
+     ninguém calculou. Estava errado na segunda parte: o modelo existe e
+     está publicado.
+
+     O QUE OS ENSAIOS MOSTRAM é uma queda que AFROUXA. No STEP 1, cerca de
+     2% do peso por mês nos primeiros seis meses e cerca de 1% por mês
+     daí em diante. No mundo real, ~6,4% em doze semanas contra ~15% em
+     68 — o começo rende umas três vezes mais por semana do que o fim. E
+     no SURMOUNT-1 a mediana até o platô fica entre 24 e 36 semanas,
+     conforme o IMC de partida.
+
+     A função forma(x) é isso: a fração do total já perdida na fração x do
+     caminho. 45% em linha reta e 55% num afrouxamento quadrático deixa o
+     começo cerca de três vezes mais inclinado que o fim, que é a razão
+     que os ensaios mostram. Aos 50% do tempo, 64% do caminho — o que
+     também é o que se lê quando dizem que "a maior parte da perda
+     acontece nos primeiros quatro ou cinco meses".
+
+     O QUE CONTINUA NÃO SENDO PREVISÃO: os dois extremos. A partida é o
+     peso de hoje e a chegada é a meta na data que o ritmo escolhido
+     produz — o ritmo é a MÉDIA do caminho, e a forma diz como essa média
+     se distribui. Nenhum dos dois promete que vai acontecer.
+
+     E a referência desenha a curva ao contrário: a dela cai mais no fim.
+     A titulação faz as primeiras semanas renderem menos que as seguintes,
+     mas ao longo de meses quem afrouxa é o fim, não o começo. */
+  const forma = (x: number) => 0.45 * x + 0.55 * (1 - (1 - x) ** 2);
   const marcos = plano.semanas && d.ritmo
     ? (() => {
       const meio = Math.max(1, Math.round(plano.semanas / 2));
+      /* `dt`, e não `d`: o `d` desta tela são os DADOS, e uma data com o
+         mesmo nome dentro da função vizinha é o tipo de sombra que passa
+         despercebida até alguém mexer numa linha e ler a outra. */
       const quando = (sem: number) => {
-        const d = new Date(+startOfDay(now()) + sem * 7 * 86400000);
-        return `${d.getDate()} de ${MO_LONG[d.getMonth()].slice(0, 3)}`;
+        const dt = new Date(+startOfDay(now()) + sem * 7 * 86400000);
+        return `${dt.getDate()} de ${MO_LONG[dt.getMonth()].slice(0, 3)}`;
       };
+      /* O MARCO DO MEIO SEGUE A MESMA FORMA DA CURVA. Com a reta ele era
+         metade da distância; com o afrouxamento, aos 50% do tempo já se
+         andou mais do que a metade — e o número embaixo do gráfico tem de
+         dizer o que o gráfico desenha. */
+      const meioKg = d.peso - perder * forma(meio / (plano.semanas as number));
       return [
         { sem: 0, kg: d.peso, rot: 'hoje', quando: quando(0) },
-        { sem: meio, kg: d.peso - (d.ritmo as number) * meio, rot: `${meio} semanas`, quando: quando(meio) },
+        { sem: meio, kg: meioKg, rot: `${meio} semanas`, quando: quando(meio) },
         { sem: plano.semanas, kg: d.meta, rot: `${plano.semanas} semanas`, quando: quando(plano.semanas) },
       ];
     })()
     : null;
+  /* Nove pontos para o traço sair liso, e nó só em três: começo, meio e
+     chegada, que são os marcos que os rótulos embaixo nomeiam. */
+  const CURVA = Array.from({ length: 9 }, (_, i) => {
+    const x = i / 8;
+    const p = forma(x);
+    return { x, y: perder > 0.05 ? 1 - p : perder < -0.05 ? p : 0.5 };
+  });
   const pos = (v: number) => Math.max(0, Math.min(1, (v - 15) / 25));
   /* O VERDE DA LINHA QUE DESCE.
 
@@ -325,9 +366,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 </Row>
 
                 <AreaCurve
-                  pts={[{ x: 0, y: 1 }, { x: 0.5, y: 0.5 }, { x: 1, y: 0 }]}
+                  pts={CURVA}
                   height={104} padT={16} padB={12} padX={20} strokeW={2.6}
-                  id="pl" dashed={false} tracejada nodes fill={0.18}
+                  id="pl" dashed={false} tracejada nodes nosEm={[0, 4, 8]} fill={0.18}
                   strokeFrom={VERDE} strokeTo={VERDE_FIM}
                 />
 
@@ -349,7 +390,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 </Row>
               </View>
               <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-                {`É a conta de ${nf(d.ritmo ?? 0, 1)} kg por semana, o ritmo que você escolheu — não é previsão.`}
+                {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${nf(d.ritmo ?? 0, 1)} kg por semana que você escolheu são a média do caminho, não uma previsão.`}
               </Txt>
             </View>
           ) : null}
