@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, Switch, Linking, Platform, AppState } from 'react-native';
+import { View, Pressable, Switch, Linking, Platform, AppState, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -69,59 +69,65 @@ export default function Lembretes() {
     grava(true);
   };
 
-  /* ORDENADOS POR ASSUNTO, e depois pelo que toca primeiro.
-
-     Sem cabeçalhos, é a ordem que agrupa: os alertas do mesmo assunto
-     ficam vizinhos porque estão na mesma ordem da lista de tipos, e dentro
-     dela o mais cedo vem antes. O olho lê a coluna de ícones e enxerga os
-     grupos sem que ninguém tenha desenhado um. */
-  const alertas = [...(((S as any).alertas as Alerta[]) ?? [])].sort((x, y) => {
-    const t = ORDEM.indexOf(x.tipo) - ORDEM.indexOf(y.tipo);
-    if (t) return t;
-    return (+proximaDe(S, { ...x, on: true })! || 0) - (+proximaDe(S, { ...y, on: true })! || 0);
-  });
+  /* DENTRO DO GRUPO, O QUE TOCA ANTES VEM ANTES. Entre grupos quem manda
+     é a ordem dos assuntos, que a montagem abaixo respeita. */
+  const alertas = [...(((S as any).alertas as Alerta[]) ?? [])].sort(
+    (x, y) => (+proximaDe(S, { ...x, on: true })! || 0) - (+proximaDe(S, { ...y, on: true })! || 0),
+  );
 
   const bloqueado = permissao === 'negada' && alertas.some((a) => a.on);
   const semSuporte = permissao === 'indisponivel' && alertas.some((a) => a.on);
 
-  const Linha = ({ a }: { a: Alerta }) => {
+  /* AGRUPADOS POR ASSUNTO, dentro do mesmo cartão.
+
+     Sem agrupar, dois alertas de hidratação e um de dose viravam um
+     listão em que cada linha repetia o assunto para se identificar, e
+     quem quisesse conferir "como está a minha hidratação" tinha de varrer
+     a lista inteira procurando o mesmo ícone.
+
+     O assunto subiu para um rótulo de grupo, e a linha ficou com o que
+     muda de um alerta para o outro: quando ele toca. A moldura continua
+     sendo uma só — o que separa os grupos é o fio que o cartão já põe
+     entre os filhos dele, e o que separa as linhas de um grupo é um fio
+     recuado, mais leve. Agrupar não custou uma divisória nova.
+
+     Assunto sem nenhum alerta não aparece: aqui é a lista do que foi
+     criado, e não o catálogo do que dá para criar — esse mora na folha,
+     na primeira pergunta. */
+  const grupos = ORDEM
+    .map((tipo) => ({ tipo, itens: alertas.filter((a) => a.tipo === tipo) }))
+    .filter((g) => g.itens.length);
+
+  const Linha = ({ a, primeiro }: { a: Alerta; primeiro: boolean }) => {
     /* Ligado é a vontade da pessoa; avisar mesmo depende do aparelho. */
     const avisa = a.on && permissao === 'concedida';
     const prox = avisa ? quando(proximaDe(S, a)) : null;
     return (
-      <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13, alignItems: 'center' }}>
-        {/* O ícone do assunto no lugar onde havia um cabeçalho de seção.
-            Ele diz de que é o alerta em um glifo, e é a coluna dele que
-            agrupa a lista sem precisar de divisória. */}
-        {/* Alinhado com o título, e não com o centro do bloco: com três
-            linhas de texto, centrado ele descia para a legenda e deixava
-            de marcar onde o alerta começa. A chave continua centrada, que
-            é onde o polegar a procura. */}
-        <View style={{ width: 26, alignItems: 'center', alignSelf: 'flex-start', paddingTop: 2 }}>
-          <Icon name={TIPOS[a.tipo].ic} size={20} color={a.on ? c.accent : c.tx4} sw={1.8} />
-        </View>
-        {/* O TOQUE ABRE A FOLHA, e a chave fica de fora dele. São duas
-            ações diferentes no mesmo item — uma edita, a outra liga —, e é
-            assim que o despertador do celular faz: o alarme inteiro abre,
-            menos o pedaço onde mora a chave. */}
-        <Pressable
-          onPress={() => router.push(`/alerta?id=${a.id}` as any)}
-          style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}
-        >
-          <Txt v="bodyMed" c={a.on ? c.tx : c.tx3}>{TIPOS[a.tipo].titulo}</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{resumoDe(a)}</Txt>
-          <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
-            {prox ? `Próximo: ${prox}`
-              : !a.on ? 'Desligado'
-                : permissao === 'indisponivel' ? 'Guardado — os avisos saem pelo celular'
-                  : 'Sem aviso enquanto estiver bloqueado'}
-          </Txt>
-        </Pressable>
-        <Switch
-          value={a.on} onValueChange={(v) => alternar(a, v)}
-          trackColor={{ false: c.track, true: c.accent }} thumbColor="#fff"
-        />
-      </Row>
+      <View>
+        {!primeiro ? <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginLeft: 16 }} /> : null}
+        <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' }}>
+          {/* O TOQUE ABRE A FOLHA, e a chave fica de fora dele. São duas
+              ações diferentes no mesmo item — uma edita, a outra liga —, e
+              é assim que o despertador do celular faz: o alarme inteiro
+              abre, menos o pedaço onde mora a chave. */}
+          <Pressable
+            onPress={() => router.push(`/alerta?id=${a.id}` as any)}
+            style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Txt v="bodyMed" c={a.on ? c.tx : c.tx3}>{resumoDe(a)}</Txt>
+            <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
+              {prox ? `Próximo: ${prox}`
+                : !a.on ? 'Desligado'
+                  : permissao === 'indisponivel' ? 'Guardado — os avisos saem pelo celular'
+                    : 'Sem aviso enquanto estiver bloqueado'}
+            </Txt>
+          </Pressable>
+          <Switch
+            value={a.on} onValueChange={(v) => alternar(a, v)}
+            trackColor={{ false: c.track, true: c.accent }} thumbColor="#fff"
+          />
+        </Row>
+      </View>
     );
   };
 
@@ -165,8 +171,18 @@ export default function Lembretes() {
         </Row>
       ) : null}
 
-      {alertas.length ? (
-        <Cartao>{alertas.map((a) => <Linha key={a.id} a={a} />)}</Cartao>
+      {grupos.length ? (
+        <Cartao>
+          {grupos.map((g) => (
+            <View key={g.tipo}>
+              <Row gap={9} style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4, alignItems: 'center' }}>
+                <Icon name={TIPOS[g.tipo].ic} size={15} color={c.tx3} sw={2} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{TIPOS[g.tipo].titulo.toUpperCase()}</Txt>
+              </Row>
+              {g.itens.map((a, i) => <Linha key={a.id} a={a} primeiro={i === 0} />)}
+            </View>
+          ))}
+        </Cartao>
       ) : (
         /* O vazio não explica o que é um lembrete: diz que não há nenhum e
            aponta para o botão que está logo abaixo, à vista. */

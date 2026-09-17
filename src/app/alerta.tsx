@@ -3,11 +3,11 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, TIPOS, acharAlerta, horasDe, novoAlerta,
-  proximaDe, quando, rotuloDoLead,
+  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, SEMANA, TIPOS, acharAlerta, horasDe,
+  inicialDoDia, novoAlerta, proximaDe, quando, rotuloDoLead,
   type Alerta, type TipoDeAlerta,
 } from '../logic/alertas';
-import { DOW_SHORT, hm } from '../logic/time';
+import { hm } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Grade, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -140,12 +140,20 @@ export default function AlertaFolha() {
         ) : null}
 
         {t.temDias ? (
-          <Campo nu rotulo="Dias" ajuda="Sem nenhum marcado, o alerta toca todo dia.">
-            <Opcoes>
-              {[1, 2, 3, 4, 5, 6, 0].map((d) => (
-                <Opc key={d} label={DOW_SHORT[d]} on={a.dias.includes(d)} onPress={() => trocarDia(d)} />
+          /* OS SETE DIAS NUMA LINHA SÓ, pela inicial.
+
+             Com o nome curto — seg, ter, qua — a fileira quebrava em duas,
+             e uma semana partida ao meio deixa de ser uma semana: vira
+             duas listas. Pela inicial, os sete cabem lado a lado, na ordem
+             do calendário, e a pessoa vê a semana inteira de uma vez. A
+             ambiguidade das duas quartas e dos dois sábados é a mesma de
+             qualquer calendário de parede, e a posição resolve. */
+          <Campo nu rotulo="Dias da semana" ajuda="Sem nenhum marcado, o alerta toca todo dia.">
+            <Grade cols={7} gap={6}>
+              {SEMANA.map((d) => (
+                <Opc key={d} cheia label={inicialDoDia(d)} on={a.dias.includes(d)} onPress={() => trocarDia(d)} />
               ))}
-            </Opcoes>
+            </Grade>
           </Campo>
         ) : null}
 
@@ -157,8 +165,11 @@ export default function AlertaFolha() {
             pessoa trabalhar para dizer o que cabe numa frase. */}
         <Campo nu rotulo="Quando tocar">
           <Grade cols={2} gap={8}>
-            <Opc cheia label="Em horários" on={a.modo === 'horas'} onPress={() => mexer({ modo: 'horas' })} />
-            <Opc cheia label="Em intervalos" on={a.modo === 'intervalo'} onPress={() => mexer({ modo: 'intervalo' })} />
+            {/* O relógio marca uma hora; as setas em volta marcam a
+                repetição. São os dois desenhos que a diferença entre os
+                modos já tem — um é ponto no dia, o outro é ritmo. */}
+            <Opc cheia ic="clock" label="Horários" on={a.modo === 'horas'} onPress={() => mexer({ modo: 'horas' })} />
+            <Opc cheia ic="reset" label="Intervalo" on={a.modo === 'intervalo'} onPress={() => mexer({ modo: 'intervalo' })} />
           </Grade>
         </Campo>
 

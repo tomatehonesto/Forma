@@ -1010,10 +1010,19 @@ export function Opc({ label, ic, dir, cheia, on, onPress }: {
   return (
     <Pressable
       onPress={onPress}
+      /* O ESCOLHIDO É CHEIO, e não contornado.
+
+         Era borda azul com lavagem clara por dentro, e isso pede que o
+         olho COMPARE com os vizinhos para decidir qual está marcado —
+         funciona, mas depois de uma conferida. Preenchido, a resposta
+         salta antes da leitura. É o mesmo desenho que o cadastro já usa
+         nas suas treze perguntas, e ter dois jeitos de dizer "esta é a
+         sua escolha" em telas do mesmo app é o tipo de diferença que
+         ninguém descreve e todo mundo sente. */
       style={({ pressed }) => [{
         paddingHorizontal: cheia ? 12 : 14, paddingVertical: 10, borderRadius: radius.md,
         borderWidth: 1, borderColor: on ? c.accent : c.line,
-        backgroundColor: on ? c.accentWeak : c.bg1, opacity: pressed ? 0.7 : 1,
+        backgroundColor: on ? c.accent : c.bg1, opacity: pressed ? 0.7 : 1,
       }, cheia ? { flex: 1 } : null]}
     >
       {/* O check entra junto da cor. Só a lavagem azul pedia comparação
@@ -1025,14 +1034,20 @@ export function Opc({ label, ic, dir, cheia, on, onPress }: {
           terceiro sinal de uma informação só. E os 21 px que ele ocupava
           faziam "Café da manhã" caber com reticências numa coluna de
           metade da tela. */}
-      <Row gap={7}>
+      {/* CENTRADO QUANDO OCUPA A COLUNA INTEIRA. Numa grade, a peça tem
+          largura fixa e o texto tem a dele: encostado à esquerda, cada
+          rótulo começava no mesmo lugar e terminava num lugar diferente,
+          e a coluna ficava com um rio de espaço irregular à direita.
+          Centrado, a grade lê como grade. Com valor à direita não vale:
+          ali as duas pontas da linha têm dono. */}
+      <Row gap={7} style={cheia && !dir ? { justifyContent: 'center' } : undefined}>
         {ic
-          ? <Icon name={ic} size={15} color={on ? c.accent : c.tx3} sw={1.9} />
-          : on && !cheia ? <Icon name="check" size={14} color={c.accent} sw={2.6} /> : null}
-        <Txt v="label" c={on ? c.accent : c.tx2} numberOfLines={1} style={dir ? { flex: 1 } : undefined}>{label}</Txt>
+          ? <Icon name={ic} size={15} color={on ? c.accentInk : c.tx3} sw={1.9} />
+          : on && !cheia ? <Icon name="check" size={14} color={c.accentInk} sw={2.6} /> : null}
+        <Txt v="label" c={on ? c.accentInk : c.tx2} numberOfLines={1} style={dir ? { flex: 1 } : undefined}>{label}</Txt>
         {/* Um valor do lado direito — o que aquela escolha vale. Serve
             para listas em que as opções se comparam por número. */}
-        {dir ? <Txt v="caption" c={on ? c.accent : c.tx4}>{dir}</Txt> : null}
+        {dir ? <Txt v="caption" c={on ? 'rgba(255,255,255,0.78)' : c.tx4}>{dir}</Txt> : null}
       </Row>
     </Pressable>
   );

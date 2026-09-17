@@ -178,11 +178,17 @@ export const acharAlerta = (S: State, alertaId: string): Alerta | null =>
 const horasEmTexto = (horas: number[]) =>
   [...horas].sort((a, b) => a - b).map((h) => hm(h, 0)).join(', ');
 
+/* A SEMANA DO CALENDÁRIO, começando no domingo. É a ordem em que a fileira
+   de dias aparece na folha, e resumo e seletor discordarem seria a pessoa
+   marcar da esquerda para a direita e ler de outro jeito. */
+export const SEMANA = [0, 1, 2, 3, 4, 5, 6];
+
+/** D S T Q Q S S — a inicial de cada dia, para a fileira de sete. */
+export const inicialDoDia = (d: number) => DOW_SHORT[d].charAt(0).toUpperCase();
+
 const diasEmTexto = (dias: number[]) => {
   if (!dias.length) return 'Todo dia';
-  /* Começa na segunda: a semana de quem marca dia de pesagem começa
-     quando a rotina começa, e não no domingo do calendário. */
-  const ordem = [1, 2, 3, 4, 5, 6, 0].filter((d) => dias.includes(d));
+  const ordem = SEMANA.filter((d) => dias.includes(d));
   if (ordem.length === 7) return 'Todo dia';
   if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return 'Dias úteis';
   if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return 'Fim de semana';
