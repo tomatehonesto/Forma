@@ -1,19 +1,22 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, nf } from '../logic/time';
 import {
-  journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose, ATIVIDADES, MOTIVOS,
+  journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, font } from '../theme';
 
 /* ============================================================
    PERFIL — a ficha e os controles
@@ -78,36 +81,28 @@ const dataDoPerfil = (t: number) => {
 
     Valor e unidade como dois elementos (princípio 9): a fileira alinha
     pela base do valor e o olho compara antes de ler. */
-function Dado({ valor, unidade, label, fundo, tinta, destaque, editavel, onPress }: {
-  valor: string; unidade?: string; label: string;
-  fundo: string; tinta: string; destaque?: boolean; editavel?: boolean; onPress?: () => void;
+function Dado({ valor, unidade, label, fundo, destaque }: {
+  valor: string; unidade?: string; label: string; fundo: string; destaque?: boolean;
 }) {
   const { c } = useTheme();
   const corpo = (
-    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.lg, padding: 11, gap: 5 }}>
+    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.card, padding: 12, gap: 4 }}>
       {/* Uma linha só: três cartões de alturas diferentes numa fileira
-          leem como desalinho, e não como rótulo comprido. O lápis desceu
-          para o canto do número porque, disputando a linha do rótulo,
-          "Peso inicial" virava "Peso…" — e um rótulo cortado é pior do
-          que o lápis um pouco mais longe. */}
-      <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ fontSize: 11 }}>{label}</Txt>
+          leem como desalinho, e não como rótulo comprido.
+
+          O RÓTULO PESA MENOS E O NÚMERO PESA MAIS. Antes os dois eram o
+          mesmo cinza claro, um pequeno e outro grande, e a pastilha lia
+          como um bloco de texto uniforme. Agora o rótulo é médio em tinta
+          de apoio e o número é display grande em tinta cheia: a distância
+          entre eles é o que faz o olho cair no número primeiro. */}
+      <Txt v="micro" c={c.tx2} numberOfLines={1} style={{ fontSize: 11, fontFamily: font.bodyMed }}>{label}</Txt>
       <Row gap={3} style={{ alignItems: 'baseline' }}>
-        <Txt v="h1" c={tinta} style={{ fontSize: destaque ? 25 : 21 }}>{valor}</Txt>
-        {!!unidade && <Txt v="micro" c={c.tx3}>{unidade}</Txt>}
+        <Txt v="h1" c={c.tx} style={{ fontSize: destaque ? 28 : 23 }}>{valor}</Txt>
+        {!!unidade && <Txt v="micro" c={c.tx3} style={{ fontSize: 12 }}>{unidade}</Txt>}
       </Row>
-      {editavel ? (
-        <View style={{ position: 'absolute', right: 9, bottom: 11 }}>
-          <Icon name="pencil" size={12} color={c.tx4} sw={2} />
-        </View>
-      ) : null}
     </View>
   );
-  if (!onPress) return corpo;
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-      {corpo}
-    </Pressable>
-  );
+  return corpo;
 }
 
 /** Grupo de linhas dentro de um card, com fio entre elas.
@@ -175,54 +170,132 @@ export default function Perfil() {
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
 
+  /* ---- a foto do perfil ----
+
+     Guardada como data URI dentro do próprio estado, e não como caminho
+     de arquivo: o caminho que a galeria devolve é de um arquivo
+     temporário, e no dia seguinte ele pode não existir mais — o retrato
+     viraria um quadrado vazio sem ninguém ter mexido em nada.
+
+     E ela encolhe para 256 px antes de entrar. O estado inteiro é
+     serializado e regravado a cada alteração, então tudo que mora nele é
+     copiado o dia todo; uma foto crua de celular ali dentro é megabyte
+     indo e voltando a cada toque. */
+  const foto = (S.profile as any).foto as string | undefined;
+  const [ocupado, setOcupado] = React.useState(false);
+
+  const escolherFoto = async () => {
+    if (ocupado) return;
+    setOcupado(true);
+    try {
+      const r = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.9,
+      });
+      if (r.canceled || !r.assets?.[0]) return;
+      const ctx = ImageManipulator.manipulate(r.assets[0].uri);
+      ctx.resize({ width: 256 });
+      const render = await ctx.renderAsync();
+      const saida = await render.saveAsync({ format: SaveFormat.JPEG, compress: 0.8, base64: true });
+      if (!saida.base64) return;
+      update((st) => { (st.profile as any).foto = `data:image/jpeg;base64,${saida.base64}`; });
+    } catch {
+      /* Galeria negada ou imagem que não abre: o retrato continua sendo a
+         inicial, que é um estado completo. Alerta aqui seria barulho em
+         cima de uma coisa que a pessoa pode simplesmente tentar de novo. */
+    } finally {
+      setOcupado(false);
+    }
+  };
+
   const linked = hasClinic(S);
-  const med = M(S);
-  const p = penStock(S);
   const dose = medComDose(S);
 
   return (
     <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Perfil</Txt>
-      </Row>
-
       {/* ---- identidade ----
 
-          SEM CARD, SEM MALHA, SEM VÉU. O cabeçalho era um card alto com
-          textura e degradê por cima, e o retrato dentro dele: muita
-          superfície para apresentar duas linhas de texto e três números.
-          Agora a pessoa mora na própria folha — retrato, nome, e a
-          fileira de números logo abaixo, que é o que a tela veio dizer.
+          SEM TÍTULO "PERFIL". O rótulo dizia à pessoa em que tela ela
+          está, e logo abaixo dele havia um retrato com o nome dela: o
+          nome é o título, e um título por cima do nome era a mesma
+          informação duas vezes. Fica só a seta, que é o que a barra de
+          cima precisa ter. */}
+      <Row style={{ marginTop: 4 }} gap={12}>
+        <CircleBtn name="back" onPress={() => router.back()} />
+      </Row>
 
-          O RETRATO PERDEU O ANEL BRANCO: ele existia para separar o
-          degradê do avatar do azul do card atrás. Sem card atrás, o anel
-          era uma borda em volta de nada. */}
-      <Row gap={14} style={{ marginTop: 24, alignItems: 'center' }}>
-        {/* Inicial em degradê, não foto. Não existe upload de avatar no
-            app, e boneco genérico é pior que ausência: ele ocupa o lugar
-            da pessoa com uma que não é ela. A inicial em corpo grande
-            identifica sem fingir. */}
-        <LinearGradient
-          colors={[c.accent, c.accent2]}
-          start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-          style={{ width: 62, height: 62, borderRadius: 31, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Txt v="h1" c={c.accentInk} style={{ fontSize: 26 }}>{S.profile.name[0]}</Txt>
-        </LinearGradient>
-        <View style={{ flex: 1, gap: 3 }}>
+      <Row gap={14} style={{ marginTop: 18, alignItems: 'center' }}>
+        {/* O RETRATO É UM BOTÃO, e o lápis no canto é o que diz isso.
+
+            A inicial em degradê continua sendo o estado sem foto — não
+            existe boneco genérico aqui, que ocupa o lugar da pessoa com
+            uma que não é ela. Mas agora ela é o convite: um toque abre a
+            galeria, a foto escolhida entra recortada em quadrado e passa
+            a ser o retrato. Tocar de novo troca.
+
+            A FOTO ENCOLHE ANTES DE SER GUARDADA. O estado inteiro vira
+            uma string no armazenamento a cada alteração, e uma foto de
+            celular crua ali dentro é megabyte copiado a cada toque no
+            app. 256 px é mais do que um círculo de 72 precisa. */}
+        <Pressable onPress={escolherFoto} disabled={ocupado}>
+          <View style={{
+            width: 72, height: 72, borderRadius: 36, overflow: 'hidden',
+            backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+          }}>
+            {foto ? (
+              <Image source={{ uri: foto }} style={{ width: 72, height: 72 }} contentFit="cover" />
+            ) : (
+              <LinearGradient
+                colors={[c.accent, c.accent2]}
+                start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
+                style={{ width: 72, height: 72, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Txt v="h1" c={c.accentInk} style={{ fontSize: 28 }}>{S.profile.name[0]}</Txt>
+              </LinearGradient>
+            )}
+          </View>
+          {/* O selo do lápis encosta na borda do círculo e usa o fundo da
+              tela como anel: sem esse anel ele vira uma mancha grudada no
+              retrato, e não um botão sobre ele. */}
+          <View style={{
+            position: 'absolute', right: -2, bottom: -2,
+            width: 26, height: 26, borderRadius: 13,
+            backgroundColor: c.bg1, borderWidth: 2, borderColor: c.bg,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon name="pencil" size={12} color={c.tx2} sw={2} />
+          </View>
+        </Pressable>
+
+        <View style={{ flex: 1, gap: 5 }}>
           <Txt v="h2">{S.profile.name}</Txt>
-          {/* NO LUGAR DA CIDADE, O TRATAMENTO. A referência põe o país
-              embaixo do nome; aqui embaixo do nome vai a única coisa que
-              esta pessoa tem e um perfil comum não tem — há quantos dias
-              ela está nisso.
+          {/* NO LUGAR DA CIDADE, O TRATAMENTO — é a única coisa que esta
+              pessoa tem e um perfil comum não tem.
 
-              É UM FATO SÓ. O dia da jornada já é a data de início contada
-              de outro jeito: dizer "dia 71" e "desde julho de 2026" lado
-              a lado é a mesma informação ocupando duas. E a pastilha lima
-              que carregava esta frase saiu com ela — virou a linha, e uma
-              pastilha a menos é uma forma a menos disputando o retrato. */}
+              E É UM FATO SÓ: o dia da jornada já é a data de início
+              contada de outro jeito, então "por aqui desde julho de 2026"
+              saiu daqui. */}
           <Txt v="micro" c={c.tx3} numberOfLines={1}>Dia {journeyDay(S)} da sua jornada</Txt>
+
+          {/* O MEDICAMENTO VIRA TAG, e deixa de ser card.
+
+              Como card ele tinha o peso de uma seção inteira para dizer
+              um nome e uma dose — e ficava entre o retrato e a primeira
+              lista, cortando a cabeça da tela em duas. Encostado no nome,
+              ele lê pelo que é: o rótulo do tratamento desta pessoa.
+
+              O toque continua indo para as aplicações, que é onde ele tem
+              conteúdo próprio. O que ficou para trás foi "3 de 4 doses na
+              caneta", que já vive na Jornada e no Cuidado — e uma tag não
+              é lugar de estoque. */}
+          <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.7 : 1 }]}>
+            <Row gap={6} style={{
+              backgroundColor: c.accentWeak, borderRadius: radius.pill,
+              paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
+            }}>
+              <Icon name="syringe" size={13} color={c.accent} sw={2} />
+              <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodyMed }}>{dose}</Txt>
+            </Row>
+          </Pressable>
         </View>
       </Row>
 
@@ -236,43 +309,22 @@ export default function Perfil() {
 
           O do meio é o assunto — é a única coisa desta tela que a pessoa
           não escolheu, ela conquistou —, e por isso tem o corpo maior.
-          Os dois das pontas são os números que ela definiu, e trazem o
-          lápis para dizer isso: dá para mudar. O do meio não tem, e não
-          ter é a informação. */}
+
+          O LÁPIS SAIU DAS PASTILHAS. Ele prometia edição num lugar que é
+          de leitura: três números para bater o olho, com um alvo de toque
+          de doze pixels no canto de cada um. Peso inicial e meta entraram
+          na lista de respostas logo abaixo, que é onde todo o resto do
+          que o cadastro perguntou já se corrige — um caminho só para
+          mudar coisa, e não um por cartão. */}
       <Row gap={8} style={{ marginTop: 20 }}>
-        <Dado
-          valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
-          fundo={c.bg3} tinta={c.tx} onPress={corrige(passoDoPesoInicial)} editavel
-        />
+        <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial" fundo={c.bg3} />
         <Dado
           valor={kg(Math.abs(perdeu))} unidade="kg"
           label={perdeu >= 0 ? 'Já perdeu' : 'Ganhou'}
-          fundo={c.limeSoft} tinta={c.tx} destaque
+          fundo={c.limeSoft} destaque
         />
-        <Dado
-          valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
-          fundo={c.bluePale} tinta={c.tx} onPress={corrige('meta')} editavel
-        />
+        <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta" fundo={c.bluePale} />
       </Row>
-
-      {/* O medicamento sai da grade e vira linha inteira: ele não é um
-          número entre outros, é o que dá nome ao tratamento. O toque
-          abre as aplicações, que é onde ele tem conteúdo próprio; para
-          trocar a caneta ou a dose, a linha de baixo. */}
-      <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
-        <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-          <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="syringe" size={19} color={c.accent} sw={1.8} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt v="bodyMed">{dose}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
-              {cadenciaCurta(S)} · {p.left} de {p.total} doses na caneta
-            </Txt>
-          </View>
-          <Icon name="chev" size={14} color={c.tx4} sw={2} />
-        </Row>
-      </Pressable>
 
       {/* ---- as respostas ----
 
@@ -283,6 +335,15 @@ export default function Perfil() {
           a trouxe. Todos mudam com a vida, e nenhum tinha porta. */}
       <Grupo title="Suas respostas">
         <ListRow ic="ruler" title="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
+        {/* AS DUAS PONTAS DA FICHA, aqui e não em cima. As pastilhas do
+            cabeçalho são para bater o olho; mudar número é coisa de
+            lista, no mesmo lugar onde altura, ritmo e nascimento já se
+            corrigem. O peso inicial abre a tela que o escreveu, que não é
+            sempre a mesma: quem já estava em tratamento respondeu o peso
+            daquela época em "Comecei em"; quem ia começar não tem essa
+            distinção, e o peso de hoje é também o de partida. */}
+        <ListRow ic="scale" title="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
+        <ListRow ic="target" title="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
         <ListRow
           ic="trend" title="Ritmo escolhido"
           sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
