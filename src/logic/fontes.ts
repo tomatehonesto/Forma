@@ -68,7 +68,11 @@ export const FONTES: Fonte[] = [
   {
     id: 'desenho',
     sustenta: 'O que este app acompanha: proteína, movimento, água e sintomas',
-    sigla: 'Harvard T.H. Chan School of Public Health',
+    /* NO SELO, SÓ "HARVARD". O nome inteiro da escola é o correto na
+       citação, e por isso ele está em `onde` — mas numa pastilha ele
+       ocupa duas linhas para acrescentar o que ninguém estava em dúvida.
+       Quem reconhece, reconhece pela primeira palavra. */
+    sigla: 'Harvard',
     titulo: 'Diet, exercise still important when taking weight-loss medication',
     onde: 'Harvard T.H. Chan School of Public Health, sobre dois artigos do JAMA Internal Medicine',
     ano: 2025,
@@ -85,7 +89,7 @@ export const FONTES: Fonte[] = [
   {
     id: 'ritmo',
     sustenta: 'O ritmo seguro de perda e o piso de calorias',
-    sigla: 'NHS do Reino Unido',
+    sigla: 'National Health Service - UK',
     titulo: 'Calories and weight loss · Better Health',
     onde: 'NHS — serviço público de saúde do Reino Unido',
     url: 'https://www.nhs.uk/better-health/lose-weight/calorie-counting/',
@@ -98,6 +102,35 @@ export const FONTES: Fonte[] = [
     onde: 'New England Journal of Medicine',
     ano: 2021,
     url: 'https://pubmed.ncbi.nlm.nih.gov/33567185/',
+  },
+  {
+    id: 'fibra',
+    sustenta: 'A meta de fibra por mil quilocalorias',
+    sigla: 'Academy of Nutrition and Dietetics',
+    titulo: 'Position of the Academy of Nutrition and Dietetics: Health Implications of Dietary Fiber',
+    onde: 'Journal of the Academy of Nutrition and Dietetics',
+    ano: 2015,
+    url: 'https://www.jandonline.org/article/S2212-2672(15)01386-6/pdf',
+  },
+  {
+    id: 'energia',
+    sustenta: 'A estimativa de gasto do dia (Mifflin-St Jeor)',
+    sigla: 'Academy of Nutrition and Dietetics',
+    titulo: 'Mifflin-St Jeor: equação de gasto energético de repouso, na análise de evidência da Academy',
+    onde: 'Academy of Nutrition and Dietetics',
+    url: 'https://www.andeal.org/template.cfm?template=guide_summary&key=4341',
+  },
+  {
+    id: 'energia2',
+    sustenta: 'A escolha desta equação entre as disponíveis',
+    /* A MESMA CASA DO SELO ANTERIOR: JADA é o periódico da Academy of
+       Nutrition and Dietetics, e dois selos para a mesma instituição lado
+       a lado parecem duas fontes onde existe uma. */
+    sigla: 'Academy of Nutrition and Dietetics',
+    titulo: 'Comparison of Predictive Equations for Resting Metabolic Rate in Healthy Nonobese and Obese Adults',
+    onde: 'Journal of the American Dietetic Association',
+    ano: 2005,
+    url: 'https://www.jandonline.org/article/S0002-8223(05)00149-5/abstract',
   },
   {
     id: 'plato',
@@ -128,34 +161,5 @@ export const FONTES: Fonte[] = [
     onde: 'European Journal of Clinical Nutrition',
     ano: 2021,
     url: 'https://pubmed.ncbi.nlm.nih.gov/34327801/',
-  },
-  {
-    id: 'fibra',
-    sustenta: 'A meta de fibra por mil quilocalorias',
-    sigla: 'Academy of Nutrition and Dietetics',
-    titulo: 'Position of the Academy of Nutrition and Dietetics: Health Implications of Dietary Fiber',
-    onde: 'Journal of the Academy of Nutrition and Dietetics',
-    ano: 2015,
-    url: 'https://www.jandonline.org/article/S2212-2672(15)01386-6/pdf',
-  },
-  {
-    id: 'energia',
-    sustenta: 'A estimativa de gasto do dia (Mifflin-St Jeor)',
-    sigla: 'Academy of Nutrition and Dietetics',
-    titulo: 'Mifflin-St Jeor: equação de gasto energético de repouso, na análise de evidência da Academy',
-    onde: 'Academy of Nutrition and Dietetics',
-    url: 'https://www.andeal.org/template.cfm?template=guide_summary&key=4341',
-  },
-  {
-    id: 'energia2',
-    sustenta: 'A escolha desta equação entre as disponíveis',
-    /* A MESMA CASA DO SELO ANTERIOR: JADA é o periódico da Academy of
-       Nutrition and Dietetics, e dois selos para a mesma instituição lado
-       a lado parecem duas fontes onde existe uma. */
-    sigla: 'Academy of Nutrition and Dietetics',
-    titulo: 'Comparison of Predictive Equations for Resting Metabolic Rate in Healthy Nonobese and Obese Adults',
-    onde: 'Journal of the American Dietetic Association',
-    ano: 2005,
-    url: 'https://www.jandonline.org/article/S0002-8223(05)00149-5/abstract',
   },
 ];

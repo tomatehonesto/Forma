@@ -184,7 +184,17 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   /* Um selo por instituição, e não por trabalho: a Academy of Nutrition
      and Dietetics sustenta dois números, e o nome dela duas vezes lado a
      lado parece erro de montagem. O toque abre o primeiro trabalho dela. */
-  const SELOS = FONTES.filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i);
+  /* CINCO SELOS, E NÃO TODOS.
+
+     Oito nomes por extenso viram uma parede de texto, e a parede diz o
+     contrário do que a seção quer dizer: quantidade de fonte não é
+     lastro, é ruído. Ficam os cinco que qualquer pessoa reconhece — a
+     ordem da lista já é a do reconhecimento —, e as outras continuam em
+     fontes.ts sustentando as contas delas, que é onde elas servem para
+     alguma coisa. */
+  const SELOS = FONTES
+    .filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i)
+    .slice(0, 5);
   const AJUDA: [string, string, string][] = [
     ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da caneta, sem você contar'],
     ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
@@ -318,17 +328,6 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     </View>
                   ))}
               </Grade2>
-              {/* DE ONDE SAIU A CALORIA, agora que ela é um quadro entre
-                  quatro. E quando o ritmo não cabe, a tela diz: dois quilos
-                  por semana pedem 2.200 kcal de déficit por dia, mais do
-                  que o gasto inteiro de muita gente. A meta para no piso e
-                  a frase explica, em vez de o número aparecer menor do que
-                  a conta sem motivo visível. */}
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-                {plano.noPiso
-                  ? `A caloria decide o ritmo da perda. No que você escolheu, a conta pediria menos do que o mínimo seguro sem acompanhamento médico — a meta parou aí.`
-                  : `A caloria decide o ritmo da perda: saiu do seu gasto estimado de ${milhar(plano.gasto)} kcal, menos o déficit do ritmo que você escolheu.`}
-              </Txt>
             </View>
 
             <Row style={[cartao, { marginTop: 10, padding: 14, gap: 12, alignItems: 'center' }]}>
