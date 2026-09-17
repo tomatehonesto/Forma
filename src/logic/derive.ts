@@ -1796,8 +1796,34 @@ export const TL_LABEL: Record<TLKind, string> = {
 };
 
 export type TLEvent = {
-  key: string; kind: TLKind; day: number; time: string;
+  key: string; kind: TLKind; day: number;
+  /* HORA QUE NÃO É HORA — é ordem dentro do dia.
+
+     Este campo já se chamou `time` e era impresso como relógio: "16 set ·
+     08:30". Nenhum desses horários foi registrado. Check-in, peso e
+     refeição são guardados no começo do dia, sem hora; os valores aqui
+     são constantes escritas à mão para que dois eventos do mesmo dia
+     saiam sempre na mesma ordem — o treino antes do check-in, o check-in
+     antes da consulta.
+
+     Como ordenação, servem. Como texto na tela, eram o app afirmando que
+     alguém pesou às 07:45. Por isso o nome mudou: quem for imprimi-lo
+     agora lê o que ele é antes de tentar. */
+  ordemNoDia: string;
   ic: string; color: string; title: string; sub: string;
+  /* O MESMO EVENTO CONTADO SEM O NOME DO TIPO.
+
+     `title` serve à lista misturada — na semana, "Check-in" ao lado de
+     "Peso" e "Consulta presencial" é o que separa uma linha da outra.
+     Numa lista já filtrada por tipo, esse mesmo título vira a mesma
+     palavra repetida em treze linhas, e a coluna do título deixa de
+     informar qualquer coisa.
+
+     `detalhe` é o que sobra quando o tipo já é sabido: para o check-in,
+     a água e a proteína; para a aplicação, a dose e o local. Vem daqui, e
+     não de um recorte feito na tela, porque quem monta a frase é quem tem
+     os pedaços — a tela só teria a string pronta para cortar. */
+  detalhe: string;
   value: string; valueColor?: string;
 };
 
@@ -1812,9 +1838,11 @@ export function timelineEvents(S: State): TLEvent[] {
 
   for (const inj of S.injections as any[]) {
     out.push({
-      key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), time: '09:00',
+      key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
       ic: 'syringe', color: 'accent', title: `Aplicação ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit}`,
-      sub: `${med.mol} · ${siteLabel(inj.site)}`, value: '', valueColor: 'tx3',
+      sub: `${med.mol} · ${siteLabel(inj.site)}`,
+      detalhe: `${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${med.mol} · ${siteLabel(inj.site)}`,
+      value: '', valueColor: 'tx3',
     });
   }
 
@@ -1823,8 +1851,9 @@ export function timelineEvents(S: State): TLEvent[] {
     const prev = i > 0 ? w[i - 1] : null;
     const dl = prev ? cur.kg - prev.kg : 0;
     out.push({
-      key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), time: '07:45',
+      key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), ordemNoDia: '07:45',
       ic: 'scale', color: 'accent2', title: 'Peso', sub: `${kgf(cur.kg)} kg`,
+      detalhe: `${kgf(cur.kg)} kg`,
       value: prev ? `${dl <= 0 ? '−' : '+'}${kgf(Math.abs(dl))} kg` : 'Peso inicial',
       valueColor: prev ? (dl <= 0 ? 'good' : 'tx2') : 'tx3',
     });
@@ -1851,43 +1880,47 @@ export function timelineEvents(S: State): TLEvent[] {
       const partes = [`${litros((cc.agua || 0) * CUP_ML)} L`, `${Math.round(cc.prot || 0)} g proteína`];
       if (respondido(cc, 'sono')) partes.push(`${Math.floor(cc.sono)}h de sono`);
       out.push({
-        key: `ci-${day}`, kind: 'checkin', day, time: '08:30',
+        key: `ci-${day}`, kind: 'checkin', day, ordemNoDia: '08:30',
         ic: 'check', color: 'accent', title: 'Check-in',
-        sub: partes.join(' · '),
+        sub: partes.join(' · '), detalhe: partes.join(' · '),
         value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
         valueColor: cc.mood >= 4 ? 'good' : 'tx3',
       });
     }
     if (cc.exerc > 0) out.push({
-      key: `ex-${day}`, kind: 'exercicio', day, time: '07:00',
+      key: `ex-${day}`, kind: 'exercicio', day, ordemNoDia: '07:00',
       ic: 'dumbbell', color: 'teal', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
-      value: '', valueColor: 'tx3',
+      detalhe: `${cc.exerc} min de movimento`, value: '', valueColor: 'tx3',
     });
   }
 
   for (const p of S.photos as any[]) out.push({
-    key: `foto-${p.t}`, kind: 'foto', day: D(p.t), time: '10:00',
-    ic: 'camera', color: 'purple', title: 'Foto de progresso', sub: p.tag, value: '', valueColor: 'tx3',
+    key: `foto-${p.t}`, kind: 'foto', day: D(p.t), ordemNoDia: '10:00',
+    ic: 'camera', color: 'purple', title: 'Foto de progresso', sub: p.tag, detalhe: p.tag,
+    value: '', valueColor: 'tx3',
   });
 
   for (const m of S.meals as any[]) out.push({
-    key: `ref-${m.t}`, kind: 'refeicao', day: D(m.t), time: '12:30',
+    key: `ref-${m.t}`, kind: 'refeicao', day: D(m.t), ordemNoDia: '12:30',
     ic: 'utensils', color: 'amber', title: m.name, sub: m.tag,
+    detalhe: [m.name, m.tag].filter(Boolean).join(' · '),
     value: `Proteína ${m.prot}`, valueColor: 'tx3',
   });
 
   for (const ch of S.consultsHistory as any[]) out.push({
-    key: `con-${ch.t}`, kind: 'consulta', day: D(ch.t), time: '14:00',
-    ic: 'steth', color: 'accent2', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note, value: '', valueColor: 'tx3',
+    key: `con-${ch.t}`, kind: 'consulta', day: D(ch.t), ordemNoDia: '14:00',
+    ic: 'steth', color: 'accent2', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note,
+    detalhe: [ch.type, ch.note].filter(Boolean).join(' · '), value: '', valueColor: 'tx3',
   });
 
   for (const b of S.examBundles as any[]) out.push({
-    key: `exa-${b.t}`, kind: 'exame', day: D(b.t), time: '11:00',
+    key: `exa-${b.t}`, kind: 'exame', day: D(b.t), ordemNoDia: '11:00',
     ic: 'doc', color: 'amber', title: b.name, sub: `${b.n} marcadores · ${b.source}`,
+    detalhe: `${b.name} · ${b.n} marcadores · ${b.source}`,
     value: b.shared ? 'Compartilhado' : '', valueColor: 'tx3',
   });
 
-  out.sort((a, b) => b.day - a.day || (b.time > a.time ? 1 : b.time < a.time ? -1 : 0));
+  out.sort((a, b) => b.day - a.day || (b.ordemNoDia > a.ordemNoDia ? 1 : b.ordemNoDia < a.ordemNoDia ? -1 : 0));
   return out;
 }
 

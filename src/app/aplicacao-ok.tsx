@@ -39,6 +39,8 @@ export default function AplicacaoOk() {
   return (
     <TelaInterna
       titulo="Aplicação"
+      /* Sem Titulão: aqui a barra é o único lugar onde a tela se nomeia. */
+      tituloFixo
       rodape={
         <>
           <Botao label="Voltar para a Jornada" onPress={() => router.replace('/(tabs)/jornada' as any)} />

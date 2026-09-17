@@ -87,7 +87,15 @@ export default function Semana() {
   return (
     <TelaInterna
       titulo={`Semana ${w.semana}`}
-      iconeAcao="arrowup"
+      /* "EXPORTAR" ESCRITO, e não uma seta para cima.
+
+         A seta sozinha na barra lia como "voltar ao topo" — é o que uma
+         seta para cima quer dizer numa tela que rola. E era a única ação
+         de barra do app que não era um "+": as outras seis telas usam a
+         cruz para acrescentar, que ninguém precisa decifrar. Palavra
+         ocupa mais largura do que ícone, e neste caso é o preço de não
+         fazer a pessoa tocar para descobrir. */
+      acao="Exportar"
       onAcao={() => router.push('/exportar' as any)}
     >
       <Titulao
@@ -143,7 +151,9 @@ export default function Semana() {
               titulo={diaSemana(e.day)}
               selo={SELO[e.kind] ?? e.kind}
               seloTom="neutra"
-              sub={[e.title, e.sub, e.time].filter(Boolean).join(' · ')}
+              /* Sem a hora: ela nunca foi registrada — ver ordemNoDia
+                 em TLEvent, no derive. */
+              sub={[e.title, e.sub].filter(Boolean).join(' · ')}
               onPress={e.kind === 'peso' ? () => router.push(`/registro?m=peso&t=${e.day}` as any) : undefined}
             />
           ))}

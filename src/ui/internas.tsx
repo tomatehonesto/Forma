@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,7 +39,7 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, children,
+  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, tituloFixo, children,
 }: {
   titulo: string;
   /** rótulo curto da ação à direita ("Nova", "Salvar") */
@@ -49,6 +49,11 @@ export function TelaInterna({
   onAcao?: () => void;
   /** troca o "‹" por "✕" — fluxos de captura se fecham, não voltam */
   fechar?: boolean;
+  /* PARA AS TELAS SEM TITULÃO. A barra só mostra o título depois que o
+     título grande sobe — e quem não tem título grande precisa dele
+     desde o começo, senão a tela abre sem nome nenhum. Hoje é uma só:
+     a confirmação da aplicação. */
+  tituloFixo?: boolean;
   /* Nem todo voltar sai da tela. Onde uma tela guarda dois estados —
      a lista de exames e o detalhe de um marcador —, voltar significa
      desfazer a seleção, não desempilhar a rota. Sem isto a pessoa sairia
@@ -62,6 +67,24 @@ export function TelaInterna({
   const router = useRouter();
   const [rolou, setRolou] = useState(false);
   const temAcao = !!onAcao && (!!acao || !!iconeAcao);
+
+  /* O TÍTULO NÃO SE ESCREVE DUAS VEZES.
+
+     A barra sempre mostrou o título, e logo abaixo dela o Titulão mostrava
+     o MESMO título em corpo de manchete. Dezessete telas abriam dizendo o
+     próprio nome duas vezes, uma em cima da outra — e o comentário do
+     Titulão já dizia a regra certa sem que o código a seguisse: a barra de
+     cima serve para voltar, o titulão é o que se lê.
+
+     Agora a barra fica só com a seta enquanto a manchete está à vista, e
+     recebe o nome quando ela sai de cena. É o mesmo nome no mesmo lugar o
+     tempo todo — só que um de cada vez. */
+  const [passou, setPassou] = useState(false);
+  const tinta = useRef(new Animated.Value(tituloFixo ? 1 : 0)).current;
+  useEffect(() => {
+    if (tituloFixo) return;
+    Animated.timing(tinta, { toValue: passou ? 1 : 0, duration: 140, useNativeDriver: true }).start();
+  }, [passou, tituloFixo, tinta]);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -87,7 +110,9 @@ export function TelaInterna({
             <Icon name={fechar ? 'x' : 'back'} size={18} color={c.tx} sw={2} />
           </Pressable>
 
-          <Txt v="bodyMed" style={{ flex: 1, textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
+          <Animated.View style={{ flex: 1, opacity: tinta }} pointerEvents="none">
+            <Txt v="bodyMed" style={{ textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
+          </Animated.View>
 
           {/* Espelha a largura do botão da esquerda mesmo quando não há ação:
               sem isso o título centralizado desliza e a barra fica torta de
@@ -109,7 +134,15 @@ export function TelaInterna({
       <ScrollView
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        onScroll={(e) => setRolou(e.nativeEvent.contentOffset.y > 6)}
+        onScroll={(e) => {
+          /* Dois limiares para dois sinais. O fio aparece ao primeiro
+             movimento, porque ele existe para dizer "há conteúdo acima".
+             O título só entra quando a manchete já passou — 38 px é a
+             altura dela menos o que ainda aparece por baixo da barra. */
+          const y = e.nativeEvent.contentOffset.y;
+          setRolou(y > 6);
+          setPassou(y > 38);
+        }}
         contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 6, paddingBottom: rodape ? 160 : 110, gap: 26 }}
       >
         {children}

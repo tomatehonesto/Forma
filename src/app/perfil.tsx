@@ -444,8 +444,14 @@ export default function Perfil() {
       <Grupo title="Sobre você">
         <ListRow ic="user" title="Seus dados"
           sub="Altura, peso, ritmo e mais" onPress={go('/dados')} />
-        <ListRow ic="ruler" title="Histórico completo"
-          sub="Tudo o que você registrou, dia a dia" onPress={go('/historico')} />
+        {/* O NOME DO LINK É O NOME DO DESTINO. Esta linha se chamava
+            "Histórico completo" e abria uma tela chamada "Seu tratamento";
+            a Jornada, que leva ao mesmo lugar, já chamava de "Seu
+            tratamento". Dois nomes para uma porta fazem a pessoa achar que
+            chegou noutro lugar — e o nome certo é o da tela, porque ali não
+            há log de auditoria: há o tratamento contado por semana. */}
+        <ListRow ic="ruler" title="Seu tratamento"
+          sub="Tudo o que você registrou, semana a semana" onPress={go('/historico')} />
         <ListRow ic="trophy" title="Conquistas"
           sub="O que você já alcançou no tratamento" onPress={go('/conquistas')} />
         <ListRow ic="doc" title="Resumo para o médico"

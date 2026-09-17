@@ -57,12 +57,26 @@ export default function Historico() {
   return (
     <TelaInterna
       titulo="Seu tratamento"
-      iconeAcao="arrowup"
+      /* "EXPORTAR" ESCRITO, e não uma seta para cima.
+
+         A seta sozinha na barra lia como "voltar ao topo" — é o que uma
+         seta para cima quer dizer numa tela que rola. E era a única ação
+         de barra do app que não era um "+": as outras seis telas usam a
+         cruz para acrescentar, que ninguém precisa decifrar. Palavra
+         ocupa mais largura do que ícone, e neste caso é o preço de não
+         fazer a pessoa tocar para descobrir. */
+      acao="Exportar"
       onAcao={() => router.push('/exportar' as any)}
     >
+      {/* SAIU O "TOQUE EM QUALQUER LINHA PARA ABRIR". A frase só era
+          verdade na aba de semanas: nas outras — check-ins, aplicações,
+          exames — as linhas são registros e não abrem nada, e o próprio
+          código já as desenha sem seta. Instrução que vale em um quarto da
+          tela é instrução que a pessoa testa e descobre falsa. O chevron
+          diz o que abre, onde abre. */}
       <Titulao
         titulo="Seu tratamento"
-        lead={`Tudo que você registrou desde ${inicio.getDate()} de ${MO_LONG[inicio.getMonth()]}. Toque em qualquer linha para abrir.`}
+        lead={`Tudo que você registrou desde ${inicio.getDate()} de ${MO_LONG[inicio.getMonth()]}.`}
       />
 
       <Chips itens={chips} valor={aba} onChange={setAba} />
@@ -86,10 +100,16 @@ export default function Historico() {
           {eventos
             .filter((e) => e.kind === (aba as TLKind))
             .map((e) => (
+              /* A DATA É O TÍTULO AQUI. A lista já está filtrada por um
+                 tipo — o chip preto em cima diz qual —, e mesmo assim cada
+                 linha começava escrevendo o tipo de novo: treze "Check-in"
+                 em treze linhas, com o que muda de uma para a outra
+                 espremido na legenda. Quem abre "Check-ins" quer ver
+                 quando, e depois como foi. */
               <Linha
                 key={e.key}
-                titulo={e.title}
-                sub={`${curto(e.day)}${e.time ? ` · ${e.time}` : ''}${e.sub ? ` · ${e.sub}` : ''}`}
+                titulo={curto(e.day)}
+                sub={e.detalhe}
                 selo={e.value || undefined}
                 seloTom="neutra"
                 seta={false}
