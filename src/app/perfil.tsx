@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { kgCurto as kg, nf } from '../logic/time';
+import { kgCurto as kg, nf, relDay } from '../logic/time';
 import {
   journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
@@ -15,7 +15,11 @@ import {
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo } from '../ui/kit';
 import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
-import { ABAS } from '../ui/TabBar';
+
+/* A MESMA FOTO DA ABA CUIDADO. Uma pessoa, um retrato: se o app tivesse
+   duas imagens da mesma médica, elas divergiriam no dia em que uma fosse
+   trocada. */
+const FOTO_MEDICA = require('../../assets/images/especialista.png');
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 
@@ -172,9 +176,11 @@ export default function Perfil() {
     }
   };
 
-  const abreEm = S.abreEm ?? 'index';
-
   const linked = hasClinic(S);
+  /* A especialidade vem do perfil do profissional, e não de um texto
+     fixo: no dia em que quem acompanha for nutricionista, o card diz
+     nutricionista. Sem ela, a linha fica só com a clínica. */
+  const especialidade = (S.profile as any).doctorInfo?.especialidade ?? 'Especialista';
   const dose = medComDose(S);
 
   return (
@@ -316,27 +322,85 @@ export default function Perfil() {
         />
       </Row>
 
-      {/* ---- clínica ----
-          Ganha camada própria só quando há vínculo. Sem ele, o card é
-          convite e não item de configuração — por isso o texto explica o
-          que muda em vez de nomear uma tela. */}
+      {/* ---- quem te acompanha ----
+
+          CLÍNICA OU ESPECIALISTA? O especialista.
+
+          A seção se chamava "Sua clínica" e mostrava o nome da clínica em
+          cima, com o nome da médica na legenda. Mas o vínculo que esta
+          pessoa tem não é com uma razão social: é com quem responde a
+          mensagem dela, quem ajusta a dose, quem marca a consulta. A tela
+          do outro lado se chama "Meu médico", e a aba Cuidado apresenta
+          "Sua especialista" com foto e nome. Este card era o único lugar
+          do app que invertia a ordem.
+
+          A clínica não some — ela é o contexto, e vai na mesma linha da
+          especialidade: onde a pessoa atende, ao lado do que ela faz.
+
+          E O CARD PASSOU A DIZER O QUE TEM LÁ DENTRO. Antes, "mensagens,
+          consultas e equipe" era o índice de um menu — três substantivos
+          sem número, que não mudam nunca. A faixa de baixo traz os dois
+          fatos com prazo: quando é a próxima consulta e se há recado sem
+          ler. É o que faz alguém tocar, e é a diferença entre um atalho e
+          um card que sabe de alguma coisa. */}
       <View style={{ marginTop: 32 }}>
-        <SectionHead title="Sua clínica" />
+        <SectionHead title="Quem te acompanha" />
         <Pressable onPress={linked ? go('/medico') : undefined} style={({ pressed }) => [{ marginTop: 14, opacity: pressed && linked ? 0.7 : 1 }]}>
-          <Row gap={14} style={{ backgroundColor: linked ? c.bg1 : c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: linked ? c.bg2 : c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="steth" size={19} color={linked ? c.tx2 : c.accent} sw={1.8} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Txt v="bodyMed">{linked ? S.profile.clinic : 'Conectar a uma clínica'}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                {linked
-                  ? `${S.profile.doctor} · mensagens, consultas e equipe`
-                  : 'Opcional — o app funciona completo sem vínculo.'}
-              </Txt>
-            </View>
-            {linked && <Icon name="chev" size={14} color={c.tx4} sw={2} />}
-          </Row>
+          <View style={{ backgroundColor: linked ? c.bg1 : c.accentWeak, borderRadius: radius.lg, overflow: 'hidden' }}>
+            <Row gap={14} style={{ padding: 16 }}>
+              {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
+                  existe e já é usada na aba Cuidado; aqui ela entra
+                  enquadrada no rosto — a imagem é um busto inteiro, então
+                  o círculo recorta uma versão ampliada e deslocada dela,
+                  em vez de encolher a pessoa até virar um ponto. */}
+              <View style={{
+                width: 52, height: 52, borderRadius: 26, overflow: 'hidden',
+                backgroundColor: linked ? c.bg2 : c.bg1,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                {linked ? (
+                  <Image
+                    source={FOTO_MEDICA}
+                    style={{ position: 'absolute', width: 108, height: 160, left: -30, top: -12 }}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <Icon name="steth" size={22} color={c.accent} sw={1.8} />
+                )}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="bodyMed">{linked ? S.profile.doctor : 'Conectar a um especialista'}</Txt>
+                <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+                  {linked
+                    ? `${especialidade} · ${S.profile.clinic}`
+                    : 'Opcional — o app funciona completo sem vínculo.'}
+                </Txt>
+              </View>
+              {linked && <Icon name="chev" size={14} color={c.tx4} sw={2} />}
+            </Row>
+
+            {linked && (
+              <>
+                <View style={{ height: 1, backgroundColor: c.line }} />
+                <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+                  <Row gap={7} style={{ alignItems: 'center' }}>
+                    <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
+                    <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
+                  </Row>
+                  {/* O recado sem ler só aparece quando existe: "0 não
+                      lidas" é o app puxando assunto sobre nada. */}
+                  {S.unread > 0 && (
+                    <Row gap={7} style={{ alignItems: 'center' }}>
+                      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
+                      <Txt v="micro" c={c.tx2}>
+                        {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
+                      </Txt>
+                    </Row>
+                  )}
+                </Row>
+              </>
+            )}
+          </View>
         </Pressable>
       </View>
 
@@ -401,7 +465,13 @@ export default function Perfil() {
           mora onde moram as preferências. O que ele mantém é o desenho:
           segmentado, e não linha que alterna ao toque — a linha escondia
           o estado atrás da ação, e para saber em que tema se estava era
-          preciso ler o subtítulo. */}
+          preciso ler o subtítulo.
+
+          E A VERSÃO SAIU DA LISTA. "Morphi · versão 1.0.0" ocupava uma
+          linha inteira, com ícone e tudo, ao lado de coisas que se toca:
+          parecia um item e não era, e o dedo passava por ele toda vez.
+          Número de versão é rodapé — serve para citar num suporte, e não
+          para escolher nada. Foi para o fim da tela, em letra pequena. */}
       <Grupo title="O aplicativo">
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
@@ -415,73 +485,53 @@ export default function Perfil() {
           />
         </Row>
 
-        {/* POR ONDE O APP ABRE.
-
-            A árvore tem quatro portas e o app sempre entrava pela mesma.
-            Quem usa isto para registrar refeição abre o Cuidado seis
-            vezes por dia e passa pela Home em todas elas; quem usa para
-            acompanhar peso quase não sai da Jornada. É a personalização
-            mais barata que existe — não muda nenhuma tela, muda por onde
-            se chega.
-
-            O controle vai na linha de baixo, e não à direita do rótulo:
-            quatro nomes num segmentado não cabem ao lado de um título
-            numa tela de 375, e encolher a letra para caber é resolver o
-            problema errado. */}
-        <View>
-          <Row gap={12}>
-            <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="home" size={20} color={c.tx2} sw={1.8} />
-            </View>
-            <Txt v="body" style={{ flex: 1 }}>Abrir o app em</Txt>
-          </Row>
-          <Segmentado
-            opcoes={ABAS.map((a) => a.nome)}
-            valor={(ABAS.find((a) => a.id === abreEm) ?? ABAS[0]).nome}
-            onChange={(v) => {
-              const alvo = ABAS.find((a) => a.nome === v);
-              if (alvo) update((s: any) => { s.abreEm = alvo.id; });
-            }}
-          />
-        </View>
-
-        <Row gap={12}>
-          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="info" size={20} color={c.tx2} sw={1.8} />
-          </View>
-          <Txt v="body" style={{ flex: 1 }}>Morphi</Txt>
-          <Txt v="caption" c={c.tx3}>versão 1.0.0</Txt>
-        </Row>
       </Grupo>
 
-      {/* Sair em texto e não em card tingido de vermelho. O card vermelho
-          dava a "sair da conta" o peso visual de um alerta clínico, que é o
-          que a cor de erro precisa continuar significando neste app —
-          sintoma grave, exame fora da faixa. Sair é reversível: você
-          entra de novo.
+      {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do
+          tamanho de uma legenda e sem nada em volta — a única ação
+          irreversível-ish da tela parecia um rodapé, e um toque errado
+          nela devolve a pessoa ao formulário.
 
-          E AGORA ELE LEVA A ALGUM LUGAR. O botão era decorativo: tocava e
-          nada acontecia. Sair destranca a porta de entrada — `onboardDone`
-          volta a ser falso — e devolve a pessoa à abertura do cadastro,
-          que é onde o app começa.
+          CONTINUA SEM VERMELHO. O card vermelho dava a "sair" o peso de
+          um alerta clínico, que é o que a cor de erro precisa continuar
+          significando neste app — sintoma grave, exame fora da faixa.
+          Sair é reversível: você entra de novo. O que ele ganhou foi
+          corpo e contorno: superfície de card, fio de um pixel e alvo de
+          toque de largura inteira.
 
-          O QUE FOI REGISTRADO FICA. Não há conta nem servidor aqui: sair é
-          voltar para a porta, e não apagar a vida de alguém do aparelho.
-          Quem entrar de novo refaz o cadastro por cima do que já existe —
-          e apagar o histórico de tratamento de alguém por causa de um
-          toque num botão cinza seria o tipo de dano que não se desfaz. */}
+          E LEVA A ALGUM LUGAR: destranca a porta de entrada —
+          onboardDone volta a ser falso — e devolve a pessoa à abertura
+          do cadastro, que é onde o app começa.
+
+          O QUE FOI REGISTRADO FICA. Não há conta nem servidor aqui: sair
+          é voltar para a porta, e não apagar a vida de alguém do
+          aparelho. Quem entrar de novo refaz o cadastro por cima do que
+          já existe — e apagar o histórico de tratamento de alguém por
+          causa de um toque num botão cinza seria o tipo de dano que não
+          se desfaz. */}
       <Pressable
         onPress={() => {
           update((s: any) => { s.onboardDone = false; });
           router.replace('/cadastro' as any);
         }}
-        style={({ pressed }) => [{ marginTop: 32, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}
+        style={({ pressed }) => [{ marginTop: 32, opacity: pressed ? 0.75 : 1 }]}
       >
-        <Row gap={9}>
-          <Icon name="logout" size={17} color={c.tx3} sw={1.9} />
-          <Txt v="bodyMed" c={c.tx3}>Sair da conta</Txt>
+        <Row gap={9} style={{
+          justifyContent: 'center', backgroundColor: c.bg1,
+          borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
+          paddingVertical: 15,
+        }}>
+          <Icon name="logout" size={18} color={c.tx2} sw={1.9} />
+          <Txt v="bodyMed" c={c.tx2}>Sair da conta</Txt>
         </Row>
       </Pressable>
+
+      {/* A VERSÃO COMO RODAPÉ. Ela existe para ser citada num suporte, e
+          não para escolher nada: fora da lista, em letra pequena e no fim
+          de tudo, ela para de se parecer com um item tocável. */}
+      <Txt v="micro" c={c.tx4} style={{ marginTop: 22, textAlign: 'center' }}>
+        Morphi · versão 1.0.0
+      </Txt>
     </Screen>
   );
 }

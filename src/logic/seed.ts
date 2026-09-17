@@ -473,15 +473,6 @@ export function buildSeed() {
     ],
     onboardDone: true,
     theme: 'light' as 'light' | 'dark',
-    /* Por qual das quatro abas o app abre. 'index' é a Home, que é como
-       ele sempre abriu — a preferência começa concordando com o que já
-       acontecia, e quem nunca entrar nela não percebe que existe.
-
-       O tipo é escrito à mão, e não importado de ui/TabBar, porque lógica
-       não deve depender de tela. O compilador ainda casa os dois: quem
-       grava aqui grava um id vindo de ABAS, e um nome fora desta união
-       para de compilar na hora. */
-    abreEm: 'index' as 'index' | 'jornada' | 'cuidado' | 'insights',
     lastReplaySeen: 0,
   };
 }
