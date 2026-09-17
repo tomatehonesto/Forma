@@ -42,13 +42,42 @@ export type Fonte = {
 };
 
 /* A ORDEM É A DO RECONHECIMENTO, e não a das contas: em tela os nomes
-   viram selos lado a lado, e quem bate o olho reconhece OMS e NHS antes
-   de reconhecer o nome de um periódico. */
+   viram selos lado a lado, e quem bate o olho reconhece Harvard e a OMS
+   antes de reconhecer o nome de um periódico.
+
+   E OS SELOS VÃO POR EXTENSO. "OMS" e "NEJM" economizam espaço e só
+   funcionam para quem já conhece a sigla — numa tela que existe para
+   dizer de onde vem o número, a sigla é a única parte que pode não ser
+   entendida. */
 export const FONTES: Fonte[] = [
+  /* A ÚNICA FONTE QUE NÃO SUSTENTA UM NÚMERO, E SIM O DESENHO INTEIRO.
+
+     As outras respondem por uma conta — a faixa de IMC, o piso de
+     calorias, a meta de fibra. Esta responde pela pergunta anterior a
+     todas elas: por que um app de GLP-1 acompanha PROTEÍNA, MOVIMENTO,
+     ÁGUA e SINTOMA, e não peso e mais nada.
+
+     A Harvard Chan publicou em agosto de 2025 uma síntese de dois
+     artigos do JAMA Internal Medicine com exatamente essa lista: comer
+     proteína suficiente, fazer exercício aeróbico E de força, manter a
+     hidratação, comer em porções menores e cuidar dos efeitos
+     gastrointestinais — porque parte do peso perdido é massa magra e
+     porque é o efeito colateral que faz gente parar o tratamento.
+
+     São as quatro telas de hábito deste app, escritas por outra pessoa. */
+  {
+    id: 'desenho',
+    sustenta: 'O que este app acompanha: proteína, movimento, água e sintomas',
+    sigla: 'Harvard T.H. Chan School of Public Health',
+    titulo: 'Diet, exercise still important when taking weight-loss medication',
+    onde: 'Harvard T.H. Chan School of Public Health, sobre dois artigos do JAMA Internal Medicine',
+    ano: 2025,
+    url: 'https://hsph.harvard.edu/news/diet-exercise-still-important-when-taking-weight-loss-medication/',
+  },
   {
     id: 'imc',
     sustenta: 'As faixas de IMC',
-    sigla: 'OMS',
+    sigla: 'Organização Mundial da Saúde',
     titulo: 'Body mass index among adults',
     onde: 'Organização Mundial da Saúde',
     url: 'https://www.who.int/data/gho/data/themes/topics/indicator-groups/indicator-group-details/GHO/bmi-among-adults',
@@ -56,7 +85,7 @@ export const FONTES: Fonte[] = [
   {
     id: 'ritmo',
     sustenta: 'O ritmo seguro de perda e o piso de calorias',
-    sigla: 'NHS',
+    sigla: 'NHS do Reino Unido',
     titulo: 'Calories and weight loss · Better Health',
     onde: 'NHS — serviço público de saúde do Reino Unido',
     url: 'https://www.nhs.uk/better-health/lose-weight/calorie-counting/',
@@ -64,7 +93,7 @@ export const FONTES: Fonte[] = [
   {
     id: 'curva',
     sustenta: 'A forma da curva: rápida no começo, afrouxando depois',
-    sigla: 'NEJM',
+    sigla: 'New England Journal of Medicine',
     titulo: 'Once-Weekly Semaglutide in Adults with Overweight or Obesity (STEP 1)',
     onde: 'New England Journal of Medicine',
     ano: 2021,

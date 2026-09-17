@@ -260,50 +260,42 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
         <View style={{ paddingHorizontal: 20, gap: 30 }}>
           {/* ---------- o dia ---------- */}
           <View>
-            <Secao t="A SUA META DE ENERGIA" />
+            <Secao t="AS SUAS METAS DO DIA" />
 
-            {/* A ENERGIA É O NÚMERO GRANDE porque é dela que os outros
-                saem: carboidrato e gordura são fatia de uma meta de
-                energia, e não existem sem ela.
+            {/* A PROTEÍNA É O NÚMERO GRANDE, e não a caloria.
 
-                E AGORA ELA DIZ POR QUE EXISTE. "O seu dia" era um título
-                de gaveta: dizia onde o número mora e não o que ele faz.
-                Num tratamento de GLP-1 a caneta tira a fome, e o que
-                decide o ritmo da perda é o tamanho do déficit — esta é a
-                conta que transforma o remédio em quilo perdido, e é
-                também a que protege a massa magra quando alguém resolve
-                comer muito abaixo dela. */}
+                A caloria decide o RITMO da perda; a proteína decide o que
+                se perde. Num tratamento com a caneta a fome cai sozinha e
+                parte do peso que desce é músculo — entre 20 e 30% do
+                total, nos estudos —, e a proteína é a alavanca que existe
+                contra isso. É também o número que a pessoa vai perseguir
+                todo dia na tela de Alimentação, enquanto a caloria fica
+                como limite.
+
+                Ver a fonte da Harvard Chan em src/logic/fontes.ts: ela
+                sustenta esta escolha, e não um número. */}
             <View style={{
               backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 16, gap: 8,
             }}>
               <Row style={{ gap: 9, alignItems: 'center' }}>
-                <Icon name="flame" size={17} color={c.accent} sw={1.9} />
-                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS POR DIA</Txt>
+                <Icon name="utensils" size={17} color={c.accent} sw={1.9} />
+                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PROTEÍNA POR DIA</Txt>
               </Row>
               <Row style={{ alignItems: 'baseline', gap: 5 }}>
-                <Txt v="metric" c={c.accent}>{milhar(plano.kcal)}</Txt>
-                <Txt v="caption" c={c.tx2}>kcal</Txt>
+                <Txt v="metric" c={c.accent}>{plano.prot}</Txt>
+                <Txt v="caption" c={c.tx2}>g</Txt>
               </Row>
               <Txt v="caption" c={c.tx2}>
-                A caneta tira a fome; é este número que decide o ritmo da perda. Comer
-                muito abaixo dele não acelera nada — só cobra músculo no caminho.
-              </Txt>
-              {/* QUANDO O RITMO NÃO CABE, A TELA DIZ. Dois quilos por
-                  semana pedem 2.200 kcal de déficit por dia — mais do
-                  que o gasto inteiro de muita gente. A meta para no piso
-                  e a frase explica, em vez de o número aparecer menor do
-                  que a conta sem motivo visível. */}
-              <Txt v="caption" c={c.tx3}>
-                {plano.noPiso
-                  ? `No ritmo que você escolheu, a conta pediria menos do que o mínimo seguro sem acompanhamento médico. A meta parou aí.`
-                  : `Do seu gasto estimado de ${milhar(plano.gasto)} kcal, menos o déficit do ritmo que você escolheu.`}
+                É a primeira meta do dia. A caneta tira a fome, e parte do peso que desce
+                vem de músculo — a proteína é o que segura a massa magra enquanto a gordura
+                vai embora.
               </Txt>
             </View>
 
             <View style={{ marginTop: 10 }}>
               <Grade2>
                 {([
-                  ['utensils', c.rose, c.roseBg, 'Proteína', `${plano.prot}`, 'g'],
+                  ['flame', c.accent, c.accentWeak, 'Calorias', milhar(plano.kcal), 'kcal'],
                   ['leaf', c.ok, c.okBg, 'Carboidrato', `${plano.carb}`, 'g'],
                   ['drop2', c.amber, c.amberBg, 'Gordura', `${plano.gord}`, 'g'],
                   ['gut', c.purple, c.purpleBg, 'Fibra', `${plano.fibra}`, 'g'],
@@ -326,6 +318,17 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     </View>
                   ))}
               </Grade2>
+              {/* DE ONDE SAIU A CALORIA, agora que ela é um quadro entre
+                  quatro. E quando o ritmo não cabe, a tela diz: dois quilos
+                  por semana pedem 2.200 kcal de déficit por dia, mais do
+                  que o gasto inteiro de muita gente. A meta para no piso e
+                  a frase explica, em vez de o número aparecer menor do que
+                  a conta sem motivo visível. */}
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
+                {plano.noPiso
+                  ? `A caloria decide o ritmo da perda. No que você escolheu, a conta pediria menos do que o mínimo seguro sem acompanhamento médico — a meta parou aí.`
+                  : `A caloria decide o ritmo da perda: saiu do seu gasto estimado de ${milhar(plano.gasto)} kcal, menos o déficit do ritmo que você escolheu.`}
+              </Txt>
             </View>
 
             <Row style={[cartao, { marginTop: 10, padding: 14, gap: 12, alignItems: 'center' }]}>
@@ -454,10 +457,14 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     </View>
                   ))}
                 </Row>
+                {/* A RESSALVA MORA DENTRO DO CARTÃO, junto do gráfico que
+                    ela qualifica. Solta embaixo, ela lia como nota de
+                    rodapé da seção — e o que ela diz é sobre a curva: que
+                    aquele traço é média, e não promessa. */}
+                <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                  {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${nf(d.ritmo ?? 0, 1)} kg por semana que você escolheu são a média do caminho, não uma previsão.`}
+                </Txt>
               </View>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-                {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${nf(d.ritmo ?? 0, 1)} kg por semana que você escolheu são a média do caminho, não uma previsão.`}
-              </Txt>
             </View>
           ) : null}
 
@@ -512,9 +519,6 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 }} />
               </View>
 
-              <Txt v="caption" c={c.tx3}>
-                O IMC é ponto de partida: ele não separa músculo de gordura.
-              </Txt>
             </View>
           </View>
 
@@ -560,14 +564,19 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 }}>
                   <Icon name="book" size={18} color={c.accent} sw={1.9} />
                 </View>
-                <Txt v="bodyMed" style={{ flex: 1 }}>
-                  Cada número saiu de uma diretriz ou de um estudo publicado
-                </Txt>
+                {/* CURTO, E SOBRE O APP — não sobre cada número.
+
+                    "Cada número saiu de uma diretriz ou de um estudo
+                    publicado" é uma promessa item a item: quem lê fica
+                    conferindo se o número X também tem estudo. O que a
+                    seção quer dizer é mais simples e mais verdadeiro: o
+                    jeito como este app foi montado veio da literatura. */}
+                <Txt v="bodyMed" style={{ flex: 1 }}>Feito em cima de evidência</Txt>
               </Row>
               <Txt v="caption" c={c.tx3}>
-                Nada aqui foi estimado no olho: a sua meta de proteína, a de água, a de
-                energia e a curva de perda seguem recomendações de saúde pública e ensaios
-                clínicos revisados por pares.
+                As metas, a curva e as prioridades deste plano seguem diretrizes de saúde
+                pública e ensaios clínicos revisados por pares — inclusive a escolha de
+                acompanhar proteína, movimento, água e sintomas.
               </Txt>
               <Row style={{ gap: 8, flexWrap: 'wrap' }}>
                 {SELOS.map((fo) => (

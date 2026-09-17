@@ -1306,7 +1306,15 @@ export default function Cadastro() {
           plano,
         }}
         aoSair={() => router.replace('/(tabs)' as any)}
-        rotuloSair="Ir para a minha Home"
+        /* ⚠️ O RÓTULO JÁ É O DO FUNIL, E O DESTINO AINDA NÃO.
+
+           "Ver planos" promete uma tela de preço que não existe no
+           projeto: hoje este botão entra no app. Enquanto a tela de
+           assinatura não existir, o rótulo está adiantado em relação ao
+           que acontece — está escrito aqui para que a troca seja uma
+           linha quando ela existir, e para ninguém descobrir a divergência
+           pelo suporte. */
+        rotuloSair="Ver planos"
       />
     );
   }
