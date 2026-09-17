@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView, Linking } from 'react-native';
+import { View, Pressable, ScrollView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -56,6 +56,39 @@ export type DadosDoPlano = {
   plano: PlanoInicial;
 };
 
+/* A LARGURA É ESTIMADA, e a estimativa foi calibrada contra o desenho
+   real: no corpo micro do app, uma letra de caixa mista ocupa perto de
+   5,2 px e uma pastilha come 26 de respiro. Caixa alta é outra medida —
+   "OMS" tem três letras e a largura de sete —, e sem essa exceção a
+   única sigla da lista seria a única a estourar a linha.
+
+   Medir de verdade exigiria renderizar duas vezes e guardar o resultado
+   num estado: um quadro piscando para ganhar precisão que ninguém nota
+   num agrupamento de pastilhas. O erro sobra sempre para o mesmo lado —
+   uma pastilha a menos por linha —, e o `flexWrap` de cada linha
+   continua ali como rede. */
+const LETRA_MISTA = 5.2;
+const LETRA_CAIXA_ALTA = 9.5;
+const PADDING_DA_PASTILHA = 26;
+const VAO = 8;
+
+const larguraDe = (nome: string) =>
+  nome.length * (nome === nome.toUpperCase() ? LETRA_CAIXA_ALTA : LETRA_MISTA)
+  + PADDING_DA_PASTILHA;
+
+function empacotar(nomes: string[], largura: number): string[][] {
+  const linhas: string[][] = [];
+  const sobra: number[] = [];
+  for (const nome of nomes) {
+    const w = larguraDe(nome);
+    const i = sobra.findIndex((s) => s >= w);
+    if (i < 0) { linhas.push([nome]); sobra.push(largura - w); continue; }
+    linhas[i].push(nome);
+    sobra[i] -= w + VAO;
+  }
+  return linhas;
+}
+
 export function Plano({ dados: d, aoSair, rotuloSair }: {
   dados: DadosDoPlano;
   aoSair: () => void;
@@ -63,6 +96,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  /* A largura da coluna de conteúdo, para o empacotador saber onde a linha
+     acaba: a tela menos o respiro lateral da seção e o do cartão. */
+  const { width: largura } = useWindowDimensions();
   const med = MEDS[d.med] ?? null;
   const padrao = CADENCE_DAYS(d.med);
   const perder = d.peso - d.meta;
@@ -579,19 +615,23 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 As metas, a curva e as prioridades deste plano seguem diretrizes de saúde
                 pública e ensaios clínicos revisados por pares.
               </Txt>
-              <Row style={{ gap: 8, flexWrap: 'wrap' }}>
-                {SELOS.map((fo) => (
-                  <View
-                    key={fo.sigla}
-                    style={{
-                      backgroundColor: c.accentWeak, borderRadius: radius.pill,
-                      paddingHorizontal: 12, paddingVertical: 7,
-                    }}
-                  >
-                    <Txt v="micro" c={c.accent}>{fo.sigla}</Txt>
-                  </View>
+              <View style={{ gap: 8 }}>
+                {empacotar(SELOS.map((fo) => fo.sigla), largura - 76).map((linha) => (
+                  <Row key={linha.join()} style={{ gap: 8, flexWrap: 'wrap' }}>
+                    {linha.map((nome) => (
+                      <View
+                        key={nome}
+                        style={{
+                          backgroundColor: c.accentWeak, borderRadius: radius.pill,
+                          paddingHorizontal: 12, paddingVertical: 7,
+                        }}
+                      >
+                        <Txt v="micro" c={c.accent}>{nome}</Txt>
+                      </View>
+                    ))}
+                  </Row>
                 ))}
-              </Row>
+              </View>
             </View>
             {/* O NOSSO PAPEL, DITO POR INTEIRO — e a ordem importa: primeiro
                 o que fazemos, depois o que não fazemos. Dizer só "nada aqui
