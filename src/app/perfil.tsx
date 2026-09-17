@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, nf } from '../logic/time';
 import {
-  journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS,
+  journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
@@ -66,43 +66,51 @@ const dataDoPerfil = (t: number) => {
 /** Um número da ficha, em pastilha de cor.
 
     TRÊS CARTÕES EM LINHA, e a linha conta uma história: de onde saiu,
-    quanto andou, aonde vai. O do meio é o único que a pessoa não
-    escolheu — ela conquistou —, e por isso leva a cor de feito e o corpo
-    maior; os das pontas são os números que ela definiu.
+    onde está, aonde vai. Os três são pesos na mesma escala, e por isso
+    têm o mesmo corpo: 82,4 → 75,1 → 68 só se compara se os três números
+    tiverem o mesmo tamanho. O do meio não precisa ser maior para ser o
+    assunto — ele é o único em lima cheia, e é o único que carrega
+    quanto a pessoa andou.
 
-    O LÁPIS DIZ O QUE DÁ PARA MUDAR. Sem ele, os três cartões pareciam a
-    mesma coisa e dois deles guardavam um toque que ninguém tinha motivo
-    para tentar. Ele é pequeno e no canto: a informação é "isto é seu para
-    mexer", não "aperte aqui".
+    A COR SEGUE A MARCA, e a marca tem duas: o azul e o lima. O passado
+    é o azul mais lavado, o hoje é o lima cheio, e o alvo é o azul
+    cheio — a fileira termina na cor com que o app age.
 
-    A COR NÃO É DECORAÇÃO, é a que o app já deu a cada coisa: o lima é o
-    alcançado, na Jornada e aqui. Nenhuma cor nova entrou para esta tela
-    ficar bonita.
-
-    Valor e unidade como dois elementos (princípio 9): a fileira alinha
-    pela base do valor e o olho compara antes de ler. */
-function Dado({ valor, unidade, label, fundo, destaque }: {
-  valor: string; unidade?: string; label: string; fundo: string; destaque?: boolean;
+    O ESPAÇO É SIMÉTRICO DE PROPÓSITO. O número usava o h1 do tema, que
+    vem com entrelinha de 44: com a fonte reduzida para caber, sobrava
+    meia linha de ar embaixo do número e a pastilha ficava pesada para
+    baixo. Aqui a entrelinha acompanha o tamanho, e o que sobra acima e
+    abaixo é o mesmo padding. */
+function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta }: {
+  valor: string; unidade?: string; label: string;
+  fundo: string; tinta: string; tintaRotulo: string; delta?: string;
 }) {
-  const { c } = useTheme();
-  const corpo = (
-    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.card, padding: 12, gap: 4 }}>
+  return (
+    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.card, padding: 12, gap: 5 }}>
       {/* Uma linha só: três cartões de alturas diferentes numa fileira
-          leem como desalinho, e não como rótulo comprido.
-
-          O RÓTULO PESA MENOS E O NÚMERO PESA MAIS. Antes os dois eram o
-          mesmo cinza claro, um pequeno e outro grande, e a pastilha lia
-          como um bloco de texto uniforme. Agora o rótulo é médio em tinta
-          de apoio e o número é display grande em tinta cheia: a distância
-          entre eles é o que faz o olho cair no número primeiro. */}
-      <Txt v="micro" c={c.tx2} numberOfLines={1} style={{ fontSize: 11, fontFamily: font.bodyMed }}>{label}</Txt>
+          leem como desalinho, e não como rótulo comprido. A palavra
+          "peso" saiu dos três — numa fileira de quilos, repeti-la três
+          vezes gasta a largura que o rótulo precisa para crescer. */}
+      <Row gap={5} style={{ alignItems: 'center' }}>
+        <Txt v="micro" numberOfLines={1} c={tintaRotulo} style={{ fontFamily: font.bodyMed }}>{label}</Txt>
+        {/* O QUANTO ANDOU, colado no rótulo do hoje. Era um cartão
+            inteiro ("Já perdeu 7,3"), e um número de diferença no meio de
+            uma fileira de pesos quebrava a comparação: o olho lia 82,4 →
+            7,3 → 68. Como selo, ele diz a mesma coisa sem ocupar o lugar
+            de um peso. A unidade fica de fora porque a fileira toda é em
+            quilos e o selo não tem largura para repeti-la. */}
+        {!!delta && (
+          <View style={{ backgroundColor: 'rgba(10,10,10,0.10)', borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 1 }}>
+            <Txt v="micro" c={tinta} style={{ fontSize: 11, fontFamily: font.bodyMed }}>{delta}</Txt>
+          </View>
+        )}
+      </Row>
       <Row gap={3} style={{ alignItems: 'baseline' }}>
-        <Txt v="h1" c={c.tx} style={{ fontSize: destaque ? 28 : 23 }}>{valor}</Txt>
-        {!!unidade && <Txt v="micro" c={c.tx3} style={{ fontSize: 12 }}>{unidade}</Txt>}
+        <Txt v="h1" c={tinta} style={{ fontSize: 24, lineHeight: 28 }}>{valor}</Txt>
+        {!!unidade && <Txt v="micro" c={tintaRotulo} style={{ fontSize: 12 }}>{unidade}</Txt>}
       </Row>
     </View>
   );
-  return corpo;
 }
 
 /** Grupo de linhas dentro de um card, com fio entre elas.
@@ -269,33 +277,40 @@ export default function Perfil() {
         <View style={{ flex: 1, gap: 5 }}>
           <Txt v="h2">{S.profile.name}</Txt>
           {/* NO LUGAR DA CIDADE, O TRATAMENTO — é a única coisa que esta
-              pessoa tem e um perfil comum não tem.
+              pessoa tem e um perfil comum não tem. E ele cabe em duas
+              tags na mesma linha: o que ela toma e há quantos dias.
 
-              E É UM FATO SÓ: o dia da jornada já é a data de início
-              contada de outro jeito, então "por aqui desde julho de 2026"
-              saiu daqui. */}
-          <Txt v="micro" c={c.tx3} numberOfLines={1}>Dia {journeyDay(S)} da sua jornada</Txt>
+              O DIA DEIXOU DE SER FRASE. "Dia 71 da sua jornada" era uma
+              linha corrida de texto cinza embaixo do nome, no lugar onde
+              um perfil comum põe a cidade — ocupava largura inteira para
+              dizer um número. Como tag ao lado do medicamento, é o mesmo
+              fato lido de relance, e a cabeça da tela perde uma linha.
 
-          {/* O MEDICAMENTO VIRA TAG, e deixa de ser card.
-
-              Como card ele tinha o peso de uma seção inteira para dizer
-              um nome e uma dose — e ficava entre o retrato e a primeira
-              lista, cortando a cabeça da tela em duas. Encostado no nome,
-              ele lê pelo que é: o rótulo do tratamento desta pessoa.
-
-              O toque continua indo para as aplicações, que é onde ele tem
-              conteúdo próprio. O que ficou para trás foi "3 de 4 doses na
-              caneta", que já vive na Jornada e no Cuidado — e uma tag não
-              é lugar de estoque. */}
-          <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.7 : 1 }]}>
-            <Row gap={6} style={{
-              backgroundColor: c.accentWeak, borderRadius: radius.pill,
+              O MEDICAMENTO VIRA TAG, e deixa de ser card. Como card ele
+              tinha o peso de uma seção inteira para dizer um nome e uma
+              dose, e ficava entre o retrato e a primeira lista, cortando
+              a cabeça da tela em duas. O toque continua indo para as
+              aplicações, que é onde ele tem conteúdo próprio. O que ficou
+              para trás foi "3 de 4 doses na caneta", que já vive na
+              Jornada e no Cuidado — tag não é lugar de estoque. */}
+          <Row gap={6} style={{ flexWrap: 'wrap' }}>
+            <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <Row gap={6} style={{
+                backgroundColor: c.accentWeak, borderRadius: radius.pill,
+                paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
+              }}>
+                <Icon name="syringe" size={13} color={c.accent} sw={2} />
+                <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodyMed }}>{dose}</Txt>
+              </Row>
+            </Pressable>
+            <Row gap={5} style={{
+              backgroundColor: c.bg2, borderRadius: radius.pill,
               paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
             }}>
-              <Icon name="syringe" size={13} color={c.accent} sw={2} />
-              <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodyMed }}>{dose}</Txt>
+              <Icon name="spark" size={12} color={c.tx2} sw={2} />
+              <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>Dia {journeyDay(S)}</Txt>
             </Row>
-          </Pressable>
+          </Row>
         </View>
       </Row>
 
@@ -317,13 +332,29 @@ export default function Perfil() {
           que o cadastro perguntou já se corrige — um caminho só para
           mudar coisa, e não um por cartão. */}
       <Row gap={8} style={{ marginTop: 20 }}>
-        <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial" fundo={c.bg3} />
         <Dado
-          valor={kg(Math.abs(perdeu))} unidade="kg"
-          label={perdeu >= 0 ? 'Já perdeu' : 'Ganhou'}
-          fundo={c.limeSoft} destaque
+          label="Inicial" valor={kg(S.profile.startWeight)} unidade="kg"
+          fundo={c.bluePale} tinta={c.tx} tintaRotulo={c.tx2}
         />
-        <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta" fundo={c.bluePale} />
+        {/* O DO MEIO PASSOU A SER O PESO DE HOJE, e não o quanto já foi
+            perdido. Os três são pesos na mesma escala, e a diferença
+            entrava no lugar de um deles: a fileira dizia 82,4 → 7,3 → 68,
+            três números que não se comparam. Agora ela diz onde a pessoa
+            começou, onde está e aonde vai, e o quanto andou vem no selo.
+
+            O SINAL SEGUE O QUE ACONTECEU. Subiu, o selo mostra "+2,1" —
+            o app não tem por que esconder, e "já perdeu −2,1" seria ele
+            corrigindo a pessoa com um sinal de menos. */}
+        <Dado
+          label="Atual" valor={kg(curWeight(S))} unidade="kg"
+          delta={`${perdeu >= 0 ? '−' : '+'}${kg(Math.abs(perdeu))}`}
+          fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)"
+        />
+        <Dado
+          label="Meta" valor={kg(S.profile.goalWeight)} unidade="kg"
+          fundo={c.accent} tinta={c.accentInk}
+          tintaRotulo={isDark ? 'rgba(4,16,43,0.70)' : 'rgba(255,255,255,0.80)'}
+        />
       </Row>
 
       {/* ---- as respostas ----
