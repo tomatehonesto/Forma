@@ -45,10 +45,10 @@ export type Fonte = {
    viram selos lado a lado, e quem bate o olho reconhece Harvard e a OMS
    antes de reconhecer o nome de um periódico.
 
-   E OS SELOS VÃO POR EXTENSO. "OMS" e "NEJM" economizam espaço e só
-   funcionam para quem já conhece a sigla — numa tela que existe para
+   E OS SELOS VÃO POR EXTENSO, com uma exceção. "NEJM" e "JADA" só
+   funcionam para quem já conhece a sigla — numa seção que existe para
    dizer de onde vem o número, a sigla é a única parte que pode não ser
-   entendida. */
+   entendida. A exceção é OMS, que no Brasil se lê como palavra. */
 export const FONTES: Fonte[] = [
   /* A ÚNICA FONTE QUE NÃO SUSTENTA UM NÚMERO, E SIM O DESENHO INTEIRO.
 
@@ -81,7 +81,10 @@ export const FONTES: Fonte[] = [
   {
     id: 'imc',
     sustenta: 'As faixas de IMC',
-    sigla: 'Organização Mundial da Saúde',
+    /* A ÚNICA SIGLA QUE FICA. "OMS" é lida como palavra no Brasil — ninguém
+       precisa expandir —, e ela é curta o bastante para caber ao lado dos
+       nomes longos sem empurrar ninguém para outra linha. */
+    sigla: 'OMS',
     titulo: 'Body mass index among adults',
     onde: 'Organização Mundial da Saúde',
     url: 'https://www.who.int/data/gho/data/themes/topics/indicator-groups/indicator-group-details/GHO/bmi-among-adults',
@@ -102,6 +105,19 @@ export const FONTES: Fonte[] = [
     onde: 'New England Journal of Medicine',
     ano: 2021,
     url: 'https://pubmed.ncbi.nlm.nih.gov/33567185/',
+  },
+  {
+    id: 'agua',
+    sustenta: 'A meta de água por quilo, e a variação por idade',
+    /* O SELO É QUEM PUBLICOU, e não onde o resumo está hospedado. O selo
+       dizia "PubMed", que é o índice da biblioteca de medicina dos Estados
+       Unidos — citar PubMed como fonte é como citar a estante em vez do
+       livro. */
+    sigla: 'European Journal of Clinical Nutrition',
+    titulo: 'Total water intake by kilogram of body weight',
+    onde: 'European Journal of Clinical Nutrition',
+    ano: 2021,
+    url: 'https://pubmed.ncbi.nlm.nih.gov/34327801/',
   },
   {
     id: 'fibra',
@@ -148,18 +164,5 @@ export const FONTES: Fonte[] = [
     titulo: 'Lean Mass and Musculoskeletal Preservation in GLP-1-Based Obesity Treatment',
     onde: 'Metabolites',
     url: 'https://www.mdpi.com/2218-1989/16/6/364',
-  },
-  {
-    id: 'agua',
-    sustenta: 'A meta de água por quilo, e a variação por idade',
-    /* O SELO É QUEM PUBLICOU, e não onde o resumo está hospedado. O selo
-       dizia "PubMed", que é o índice da biblioteca de medicina dos Estados
-       Unidos — citar PubMed como fonte é como citar a estante em vez do
-       livro. */
-    sigla: 'European Journal of Clinical Nutrition',
-    titulo: 'Total water intake by kilogram of body weight',
-    onde: 'European Journal of Clinical Nutrition',
-    ano: 2021,
-    url: 'https://pubmed.ncbi.nlm.nih.gov/34327801/',
   },
 ];

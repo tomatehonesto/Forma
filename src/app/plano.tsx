@@ -184,17 +184,20 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   /* Um selo por instituição, e não por trabalho: a Academy of Nutrition
      and Dietetics sustenta dois números, e o nome dela duas vezes lado a
      lado parece erro de montagem. O toque abre o primeiro trabalho dela. */
-  /* CINCO SELOS, E NÃO TODOS.
+  /* TODAS AS INSTITUIÇÕES, UMA VEZ CADA.
 
-     Oito nomes por extenso viram uma parede de texto, e a parede diz o
-     contrário do que a seção quer dizer: quantidade de fonte não é
-     lastro, é ruído. Ficam os cinco que qualquer pessoa reconhece — a
-     ordem da lista já é a do reconhecimento —, e as outras continuam em
-     fontes.ts sustentando as contas delas, que é onde elas servem para
-     alguma coisa. */
-  const SELOS = FONTES
-    .filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i)
-    .slice(0, 5);
+     Chegou a mostrar cinco, pelo medo de virar parede de texto. O corte
+     tinha um efeito colateral pior do que o excesso: as fontes que
+     sustentam proteína, platô e água — três dos números desta tela —
+     eram exatamente as que ficavam de fora, porque são periódicos e não
+     instituições conhecidas. A seção existe para dizer de onde vem o
+     número; esconder metade dela para a fileira ficar bonita é trocar o
+     que ela serve pelo que ela parece.
+
+     A deduplição continua: a Academy of Nutrition and Dietetics sustenta
+     três contas, e o nome dela três vezes lado a lado parece erro de
+     montagem. */
+  const SELOS = FONTES.filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i);
   const AJUDA: [string, string, string][] = [
     ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da caneta, sem você contar'],
     ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
