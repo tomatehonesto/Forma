@@ -42,8 +42,27 @@ import { useTheme } from './useTheme';
    Morava dentro de cadastro.tsx e saiu de lá quando a tela de plano virou
    rota própria: duas telas usando a mesma superfície não podem depender de
    uma delas importar a outra. */
+/* TRANSPARENTE NÃO É "A MESMA COR COM ALFA ZERO".
+
+   `transparent` em React Native é rgba(0,0,0,0) — preto invisível. Num
+   degradê que termina no fundo claro da tela, o caminho entre os dois
+   passa por cinza: a rampa escurece antes de clarear, e o resultado é
+   uma faixa acinzentada atravessando a tela na altura em que o degradê
+   começa. Era isso que parecia "uma opacidade estranha" atrás da
+   manchete, e não a malha.
+
+   Com a própria cor do fundo em alfa zero, os dois extremos são o mesmo
+   pigmento e a rampa só muda de opacidade — que é o que ela sempre quis
+   fazer. */
+const semCor = (hex: string) => {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map((x) => x + x).join('') : h, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0)`;
+};
+
 export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: number }) {
   const { c } = useTheme();
+  const vazio = semCor(c.bg);
   return (
     <View
       pointerEvents="none"
@@ -52,18 +71,15 @@ export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: numb
       <Malha id="cad" forca={forca} cor={c.accent} />
       {/* O DEGRADÊ COBRE A ALTURA INTEIRA, e não só o pé dela.
 
-          Com dois pontos e metade da altura, a dissolução começava numa
-          linha: em cima dela a malha estava cheia, embaixo ela caía — e
-          essa quebra de ritmo aparecia como uma faixa horizontal atrás do
-          texto, exatamente na altura em que a manchete mora. Não era
-          opacidade errada, era derivada: o olho acha a dobra antes de
-          achar a cor.
+          A malha é desenhada num quadro de altura fixa, e uma mancha que
+          ainda tinha cor na borda de baixo era cortada em linha reta. O
+          degradê existe para matar a mancha antes do corte — por isso ele
+          chega ao fundo opaco no mesmo ponto em que o quadro acaba.
 
-          Três pontos e a altura toda tiram a dobra do caminho. O primeiro
-          terço fica transparente, que é onde a malha tem o direito de
-          aparecer, e daí até o fim ela se dissolve sem nenhum degrau. */}
+          O primeiro terço fica sem véu, que é onde a malha tem o direito
+          de aparecer. */}
       <LinearGradient
-        colors={['transparent', 'transparent', c.bg]}
+        colors={[vazio, vazio, c.bg]}
         locations={[0, 0.3, 1]}
         style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura }}
       />

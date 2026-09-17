@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
-  KeyboardAvoidingView,
+  KeyboardAvoidingView, Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -781,7 +781,11 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
           tirou. */}
       <VidroDegrade altura={height * 0.66} intensidade={34} deBaixo />
       <LinearGradient
-        colors={['transparent', 'rgba(9,40,120,0.5)', TINTA_CAPA]}
+        /* O ZERO DA RAMPA É O PRÓPRIO AZUL SEM OPACIDADE, e não
+           `transparent` — que é preto invisível, e faz a rampa escurecer
+           antes de chegar na cor. Sobre a aurora escura quase não se vê;
+           sobre fundo claro é a faixa cinza que aparecia no formulário. */
+        colors={['rgba(9,40,120,0)', 'rgba(9,40,120,0.5)', TINTA_CAPA]}
         locations={[0, 0.42, 1]}
         pointerEvents="none"
         style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.66 }}
@@ -932,15 +936,26 @@ function Sincronia() {
         ))}
       </View>
       <Row style={{ alignItems: 'center', gap: 6 }}>
-        {/* DE UM LADO, NÓS. Era um coração genérico, que é o símbolo do
-            app de saúde do outro lado — os dois quadrados diziam a mesma
-            coisa e a figura não mostrava troca nenhuma. Com a marca aqui,
-            o desenho volta a ter dois interlocutores. */}
+        {/* O NOSSO QUADRADO É A MARCA: o degradê da casa e o símbolo em
+            lima por cima — o mesmo par da imagem de marca.
+
+            ⚠️ É UMA RECONSTRUÇÃO, e não o arquivo fechado. O ícone com a
+            aurora granulada por trás do M existe como imagem, e quando
+            ele entrar em assets/images é esta View que vira um <Image>.
+            Enquanto isso, o degradê usa as duas pontas do azul da paleta,
+            que é de onde aquela imagem saiu. */}
         <View style={{
-          width: 84, height: 84, borderRadius: 26, backgroundColor: c.accent,
+          width: 84, height: 84, borderRadius: 26, overflow: 'hidden',
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <Simbolo altura={34} cor={c.lime} />
+          <LinearGradient
+            colors={[TINTA_CAPA, c.accent, '#1FA8D6']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={{ position: 'absolute', width: '100%', height: '100%' }}
+          />
+          <View style={{ zIndex: 1 }}>
+            <Simbolo altura={34} cor={c.lime} />
+          </View>
         </View>
         {/* AS DUAS SETAS, e não o círculo de recarregar. Recarregar é uma
             operação que alguém dispara; o assunto aqui é que os dois lados
@@ -992,6 +1007,24 @@ export default function Cadastro() {
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  /* O TECLADO ENCOSTA NO BOTÃO, e não fica a um dedo dele.
+
+     O rodapé reserva a faixa segura do aparelho embaixo — a barra de
+     gesto do iPhone —, e com o teclado aberto essa barra não existe: o
+     teclado já está ocupando aquele espaço. Sem trocar, sobrava o vão da
+     barra somado ao respiro do botão, e o "Continuar" ficava boiando
+     acima do teclado.
+
+     `willShow` no iOS porque ele avisa ANTES da animação, e o botão sobe
+     junto com o teclado em vez de dar um pulo no fim. */
+  const [teclado, setTeclado] = useState(false);
+  useEffect(() => {
+    const ios = Platform.OS === 'ios';
+    const abre = Keyboard.addListener(ios ? 'keyboardWillShow' : 'keyboardDidShow', () => setTeclado(true));
+    const fecha = Keyboard.addListener(ios ? 'keyboardWillHide' : 'keyboardDidHide', () => setTeclado(false));
+    return () => { abre.remove(); fecha.remove(); };
+  }, []);
 
   const [n, setN] = useState(-1);
   const [r, setR] = useState<Respostas>(VAZIO);
@@ -1975,7 +2008,8 @@ export default function Cadastro() {
           do botão e a última delas aparecia cortada ao meio atrás de uma
           pílula translúcida. */}
       <View style={{
-        paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
+        paddingHorizontal: 20, paddingTop: 12,
+        paddingBottom: teclado ? 24 : insets.bottom + 20,
         backgroundColor: c.bg,
       }}>
         {/* NA TELA DE SAÚDE, A RESPOSTA É O PRÓPRIO BOTÃO.
