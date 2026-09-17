@@ -349,20 +349,27 @@ export default function Perfil() {
           <View style={{ backgroundColor: linked ? c.bg1 : c.accentWeak, borderRadius: radius.lg, overflow: 'hidden' }}>
             <Row gap={14} style={{ padding: 16 }}>
               {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
-                  existe e já é usada na aba Cuidado; aqui ela entra
-                  enquadrada no rosto — a imagem é um busto inteiro, então
-                  o círculo recorta uma versão ampliada e deslocada dela,
-                  em vez de encolher a pessoa até virar um ponto. */}
+                  existe e já é usada na Home e na aba Cuidado.
+
+                  QUADRADO DE CANTO MACIO, E NÃO CÍRCULO: é a moldura que a
+                  Home já dá a esta mesma foto. Duas formas para o mesmo
+                  retrato em duas telas é o tipo de diferença que ninguém
+                  descreve e todo mundo sente. O recorte também é o mesmo —
+                  cobrir pelo topo, que é onde fica o rosto num busto.
+
+                  O fundo tingido existe porque a imagem é PNG transparente:
+                  sem ele o recorte flutuaria sobre o branco do card. */}
               <View style={{
-                width: 52, height: 52, borderRadius: 26, overflow: 'hidden',
-                backgroundColor: linked ? c.bg2 : c.bg1,
+                width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
+                backgroundColor: c.accentWeak,
                 alignItems: 'center', justifyContent: 'center',
               }}>
                 {linked ? (
                   <Image
                     source={FOTO_MEDICA}
-                    style={{ position: 'absolute', width: 108, height: 160, left: -30, top: -12 }}
+                    style={{ width: '100%', height: '100%' }}
                     contentFit="cover"
+                    contentPosition="top center"
                   />
                 ) : (
                   <Icon name="steth" size={22} color={c.accent} sw={1.8} />

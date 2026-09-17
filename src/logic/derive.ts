@@ -3503,7 +3503,10 @@ export function diaDoTratamento(S: State) {
   if (!S.injections.length) return { antes: true, texto: 'Antes da primeira dose' };
   const d = diffDays(now(), new Date(S.profile.startT));
   if (d < 0) return { antes: true, texto: d === -1 ? 'Começa amanhã' : `Começa em ${-d} dias` };
-  return { antes: false, texto: `Dia ${d + 1} do tratamento` };
+  /* "Dia 71", e não "Dia 71 do tratamento". A linha onde isto aparece já
+     termina em "Semana 10", e as duas juntas só podem estar contando a
+     mesma coisa — dizer de qual tratamento era a palavra que sobrava. */
+  return { antes: false, texto: `Dia ${d + 1}` };
 }
 
 export function journeySummary(S: State) {
