@@ -3,12 +3,13 @@ import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
   KeyboardAvoidingView, Keyboard,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
+import type { State } from '../logic/seed';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
-import { ATIVIDADES, planoDoCadastro } from '../logic/derive';
+import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -115,15 +116,6 @@ const RITMOS: { kg: number; nome: string }[] = [
   { kg: 1, nome: 'Ritmo constante' },
   { kg: 1.5, nome: 'Acelerado' },
   { kg: 2, nome: 'O mais rápido que der' },
-];
-
-/* A motivação, com as opções que os três apps oferecem em comum. */
-const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
-  { id: 'saude', titulo: 'Saúde', sub: 'Exames, pressão, glicemia', ic: 'heart' },
-  { id: 'energia', titulo: 'Energia', sub: 'Disposição no dia', ic: 'bolt' },
-  { id: 'espelho', titulo: 'Como me vejo', sub: 'No espelho e nas fotos', ic: 'camera' },
-  { id: 'confianca', titulo: 'Confiança', sub: 'Me sentir bem comigo', ic: 'spark' },
-  { id: 'medico', titulo: 'Orientação médica', sub: 'Foi indicação de quem me acompanha', ic: 'steth' },
 ];
 
 type Respostas = {
@@ -1067,7 +1059,53 @@ const mesEmNumero = (t: number) => {
   return `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 };
 
+/* ============================================================
+   O PERFIL DE VOLTA EM RESPOSTAS
+
+   O cadastro escrevia num sentido só: quinze perguntas viravam perfil, e
+   dali não havia volta. Quem digitou 1,70 de altura no lugar de 1,60
+   ficava com o IMC e a meta de caloria errados para sempre — e altura é
+   exatamente o tipo de coisa que se erra numa régua, no primeiro minuto
+   de uso.
+
+   Esta função é o caminho inverso: lê o perfil e devolve o formulário
+   como a pessoa o deixou. Com ela, a mesma tela que perguntou passa a
+   ser a tela que corrige — e o app não precisa de um segundo editor, com
+   uma segunda régua e uma segunda validação, para dizer a mesma coisa.
+
+   O QUE NÃO VOLTA, VOLTA COMO PADRÃO. Nascimento e peso inicial podem
+   não existir num perfil antigo; ali o formulário reabre no mesmo ponto
+   de partida que abriria para alguém novo, e não numa data em branco. */
+export function respostasDoPerfil(S: State): Partial<Respostas> {
+  const p: any = S.profile;
+  const nasc = p.nascimento ? new Date(p.nascimento) : null;
+  const inicio = p.startT ? new Date(p.startT) : now();
+  const emTratamento = (S.injections?.length ?? 0) > 0 || !!p.startT;
+  return {
+    nome: p.name ?? '',
+    identidade: p.identidade ?? null,
+    ...(nasc ? { dia: nasc.getDate(), mes: nasc.getMonth(), ano: nasc.getFullYear() } : {}),
+    emTratamento,
+    med: p.med ?? null,
+    dose: p.dose || null,
+    intervalo: p.intervalo ?? null,
+    altura: p.height,
+    peso: curWeight(S),
+    pesoInicial: p.startWeight,
+    meta: p.goalWeight,
+    ritmo: typeof p.ritmo === 'number' ? p.ritmo : null,
+    motivacao: p.motivacao ?? null,
+    atividade: p.atividade ?? null,
+    restricoes: p.restricoes ?? [],
+    saude: null,
+    iDia: inicio.getDate(), iMes: inicio.getMonth(), iAno: inicio.getFullYear(),
+    recomendado: p.convite ? true : false,
+    codigo: p.convite ?? '',
+  };
+}
+
 export default function Cadastro() {
+  const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
@@ -1091,8 +1129,35 @@ export default function Cadastro() {
     return () => { abre.remove(); fecha.remove(); };
   }, []);
 
+  /* ============================================================
+     DOIS MODOS NA MESMA TELA: cadastrar e corrigir.
+
+     `/cadastro` é o formulário inteiro, do zero. `/cadastro?editar=corpo`
+     abre a MESMA pergunta com a resposta que já existe no perfil, salva e
+     volta para onde a pessoa estava.
+
+     Uma segunda tela de edição significaria uma segunda régua de peso,
+     uma segunda roda de data e uma segunda validação — e é exatamente aí
+     que uma aceita 300 kg e a outra não. A tela que perguntou é a que
+     corrige.
+
+     E SALVAR CONTINUA SENDO UM SÓ. O modo de edição chama o mesmo
+     `salvar()` do fim do cadastro, com as respostas hidratadas do perfil:
+     muda um campo, e as metas diárias, o plano e o IMC se refazem juntos
+     em vez de ficarem coerentes com uma altura que não existe mais. */
+  const { editar } = useLocalSearchParams<{ editar?: string }>();
+  const editando = TODOS.includes(editar as Id) ? (editar as Id) : null;
+
   const [n, setN] = useState(-1);
   const [r, setR] = useState<Respostas>(VAZIO);
+  /* A hidratação roda uma vez, na entrada em modo de edição: depois disso
+     o formulário é do jeito que a pessoa está mexendo nele. */
+  const [hidratado, setHidratado] = useState(false);
+  useEffect(() => {
+    if (!editando || hidratado) return;
+    setR((v) => ({ ...v, ...respostasDoPerfil(S) }));
+    setHidratado(true);
+  }, [editando, hidratado, S]);
   const p = (x: Partial<Respostas>) => setR((v) => ({ ...v, ...x }));
 
   /* QUEM ENTROU PELO LÁPIS VOLTA PELO LÁPIS.
@@ -1140,14 +1205,29 @@ export default function Cadastro() {
     }),
     [r.emTratamento, r.med],
   );
+  /* EM MODO DE EDIÇÃO, A TELA ABRE NA PERGUNTA — e não na abertura da
+     marca. O índice só existe depois de `passos`, que depende das
+     respostas: quem não está em tratamento não tem o passo da data de
+     início, e a lista encolhe. */
+  useEffect(() => {
+    if (!editando || !hidratado) return;
+    const i = passos.indexOf(editando);
+    if (i >= 0) setN(i);
+  }, [editando, hidratado, passos]);
+
   const RESUMO = passos.length;
   const MONTANDO = passos.length + 1;
   const PLANO = passos.length + 2;
   const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
-  /* Ir para a próxima é uma coisa só, e agora dois rodapés diferentes
-     fazem isso: o "Continuar" de sempre e o "Conectar" da tela de saúde.
-     Quem veio do resumo volta para o resumo, dos dois jeitos. */
-  const avanca = () => (doResumo ? aoResumo() : setN(n + 1));
+  /* Ir para a próxima é uma coisa só, e agora três rodapés diferentes
+     fazem isso: o "Continuar" de sempre, o "Conectar" da tela de saúde e
+     o "Salvar" da edição. Quem veio do resumo volta para o resumo; quem
+     veio do perfil grava e sai. */
+  const avanca = () => {
+    if (editando) { salvar(); router.back(); return; }
+    if (doResumo) { aoResumo(); return; }
+    setN(n + 1);
+  };
   const appSaude = Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect';
 
   const plano = useMemo(
@@ -1279,8 +1359,13 @@ export default function Cadastro() {
   /* ---------- montando ---------- */
   if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} />;
 
-  /* ---------- abertura ---------- */
-  if (n === -1) return <Abertura onComecar={() => setN(0)} />;
+  /* ---------- abertura ----------
+
+     Ela não aparece na edição: quem veio do perfil corrigir a altura não
+     precisa ser apresentado ao app de novo. O quadro em branco enquanto o
+     índice não chega é de um piscar; abrir a manchete da marca ali seria
+     mostrar a tela errada por um instante e a certa depois. */
+  if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} />;
 
   /* ---------- o plano ----------
 
@@ -1504,8 +1589,12 @@ export default function Cadastro() {
           a tela de ponta a ponta, encostado no alto. Ele responde "quanto
           falta" pelo tamanho, que é como barra de progresso sempre
           respondeu, e não obriga ninguém a fazer conta. */}
+      {/* O FIO DE PROGRESSO SOME NA EDIÇÃO: não há fila de perguntas,
+          há uma. Uma barra de progresso de um passo só é sempre 100% e
+          nunca quis dizer nada. */}
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top + 4 }}>
         <View style={{
+          opacity: editando ? 0 : 1,
           position: 'absolute', left: 0, bottom: 0, height: 3,
           width: `${((n + 1) / passos.length) * 100}%`,
           backgroundColor: c.accent,
@@ -1515,7 +1604,11 @@ export default function Cadastro() {
 
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 12 }}>
         <Pressable
-          onPress={() => (doResumo ? aoResumo() : setN(n - 1))}
+          onPress={() => {
+            if (editando) { router.back(); return; }
+            if (doResumo) { aoResumo(); return; }
+            setN(n - 1);
+          }}
           hitSlop={14}
           style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.5 : 1 }]}
         >
@@ -2159,7 +2252,8 @@ export default function Cadastro() {
         ) : (
           <Botao
             pilula
-            label={doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
+            label={editando ? 'Salvar'
+              : doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
             desligado={!respondida(id)}
             onPress={avanca}
           />

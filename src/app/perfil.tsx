@@ -3,9 +3,10 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
+import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, nf } from '../logic/time';
 import {
-  journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose,
+  journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose, ATIVIDADES, MOTIVOS,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Malha, Segmentado } from '../ui/instrumentos';
@@ -45,6 +46,18 @@ import { radius } from '../theme';
    uma precisão que a pessoa não definiu, e num par lado a lado com
    "82,4 kg" a simetria dos dois faz o zero parecer medido */
 const kg = (n: number) => nf(n, n % 1 ? 1 : 0).replace('.', ',');
+
+/* O que cada resposta do cadastro vira em texto de ficha. Mora aqui, e
+   não solto no meio da tela, porque são seis traduções do mesmo tipo —
+   um código guardado virando a palavra que a pessoa escolheu. */
+const SEXO: Record<string, string> = {
+  f: 'Feminino', m: 'Masculino', o: 'Outro', n: 'Prefiro não informar',
+};
+
+const dataDoPerfil = (t: number) => {
+  const d = new Date(t);
+  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
+};
 
 /** Um número da ficha. Valor e unidade como dois elementos (princípio 9):
     a coluna alinha pela base do valor e o olho compara antes de ler. */
@@ -97,6 +110,14 @@ export default function Perfil() {
   const idade = idadeDe(S);
   const setTheme = useStore((s) => s.setTheme);
   const update = useStore((s) => s.update);
+  /* Corrigir é reabrir a pergunta original, e não um segundo editor com
+     uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
+  const corrige = (passo: string) => () => router.push(`/cadastro?editar=${passo}` as any);
+  const atividade = ATIVIDADES.find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
+  const motivo = MOTIVOS.find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
+  const restricoes = (((S.profile as any).restricoes ?? []) as string[])
+    .map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x)
+    .join(', ') || 'Nenhuma';
   const { c, isDark } = useTheme();
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
@@ -170,32 +191,47 @@ export default function Perfil() {
 
       {/* ---- a ficha ----
 
-          Estes cinco números não são configuração, são o tratamento. Peso
+          Estes números não são configuração, são o tratamento. Peso
           inicial define a perda; a meta define o quanto falta; a altura
-          define o IMC; medicamento e dose definem a cadência, o ciclo e o
-          estoque. Trocar qualquer um redesenha metade do app.
+          define o IMC e a meta de energia; medicamento e dose definem a
+          cadência, o ciclo e o estoque. Trocar qualquer um redesenha
+          metade do app.
 
-          Por isso ficam em forma de dado e no alto, e não escondidos atrás
-          de "Dados pessoais" numa lista. Numa tela de tratamento, os
-          parâmetros do tratamento são o conteúdo principal. */}
+          E AGORA TODOS TÊM CAMINHO DE VOLTA. O cadastro grava catorze
+          respostas e esta tela deixava corrigir três: quem digitou 1,70
+          no lugar de 1,60 ficava com o IMC e a meta de caloria errados
+          para sempre, sem nenhuma porta. Cada linha daqui reabre a
+          pergunta original — mesma régua, mesma validação —, e salvar
+          refaz o plano inteiro com o número novo.
+
+          O "PLANO DA EQUIPE" SAIU. Ele mostrava 16 semanas, e as 16
+          vinham de um `?? 16` na semente: nenhuma equipe combinou aquilo,
+          o cadastro nunca escreveu aquele campo, e o número estava ali
+          desde sempre com cara de fato. */}
       <View style={{ marginTop: 32 }}>
         <SectionHead title="Sua ficha" />
         <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-          Os números que o Morphi usa para calcular tudo o que te mostra.
+          Os números que usamos para calcular tudo o que a gente te mostra. Toque para corrigir.
         </Txt>
 
         <Row gap={10} style={{ marginTop: 14 }}>
-          <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="peso inicial" />
-          <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="meta de peso" onPress={go('/metas')} />
+          <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="peso inicial" onPress={corrige('corpo')} />
+          <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="meta de peso" onPress={corrige('meta')} />
         </Row>
         <Row gap={10} style={{ marginTop: 10 }}>
-          <Dado valor={nf(S.profile.height, 2).replace('.', ',')} unidade="m" label="altura" />
-          <Dado valor={String(S.profile.planoSemanas ?? 16)} unidade="semanas" label="plano da equipe" />
+          <Dado valor={nf(S.profile.height, 2).replace('.', ',')} unidade="m" label="altura" onPress={corrige('corpo')} />
+          <Dado
+            valor={S.profile.ritmo ? nf(S.profile.ritmo, 1).replace('.', ',') : '—'}
+            unidade={S.profile.ritmo ? 'kg/semana' : undefined}
+            label="ritmo escolhido"
+            onPress={corrige('ritmo')}
+          />
         </Row>
 
         {/* O medicamento sai da grade e vira linha inteira: ele não é um
-            número entre outros, é o que dá nome ao tratamento — e é o único
-            item da ficha que leva a algum lugar com conteúdo próprio. */}
+            número entre outros, é o que dá nome ao tratamento. O toque
+            abre as aplicações, que é onde ele tem conteúdo próprio; para
+            trocar a caneta ou a dose, a linha de baixo. */}
         <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
           <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
             <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
@@ -211,6 +247,28 @@ export default function Perfil() {
           </Row>
         </Pressable>
       </View>
+
+      {/* ---- as respostas ----
+
+          O resto do que o cadastro perguntou. Não são números de tela —
+          são as premissas das contas: a idade e o sexo entram na equação
+          de energia, o nível de atividade multiplica o gasto, a restrição
+          filtra o que o app sugere, e o motivo é o que a pessoa disse que
+          a trouxe. Todos mudam com a vida, e nenhum tinha porta. */}
+      <Grupo title="Suas respostas">
+        <ListRow ic="user" title="Nome" sub={S.profile.name} onPress={corrige('nome')} />
+        <ListRow ic="heart" title="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
+        <ListRow
+          ic="cal" title="Nascimento"
+          sub={S.profile.nascimento
+            ? `${dataDoPerfil(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
+            : 'Não informado'}
+          onPress={corrige('nascimento')}
+        />
+        <ListRow ic="dumbbell" title="Atividade física" sub={atividade} onPress={corrige('atividade')} />
+        <ListRow ic="leaf" title="Restrições alimentares" sub={restricoes} onPress={go('/restricao')} />
+        <ListRow ic="bolt" title="O que te trouxe" sub={motivo} onPress={corrige('motivacao')} />
+      </Grupo>
 
       {/* ---- clínica ----
           Ganha camada própria só quando há vínculo. Sem ele, o card é

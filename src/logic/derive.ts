@@ -1187,6 +1187,21 @@ export type PlanoInicial = {
   chegada: number | null;
 };
 
+/* O QUE TROUXE A PESSOA — as opções que os apps do ramo oferecem em
+   comum, e a tradução do código guardado.
+
+   Mora aqui, junto de ATIVIDADES e pelo mesmo motivo: a lista é do
+   cadastro, mas quem lê o código guardado é o perfil. Duas cópias da
+   mesma lista divergem no dia em que alguém acrescentar uma opção numa
+   delas. */
+export const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
+  { id: 'saude', titulo: 'Saúde', sub: 'Exames, pressão, glicemia', ic: 'heart' },
+  { id: 'energia', titulo: 'Energia', sub: 'Disposição no dia', ic: 'bolt' },
+  { id: 'espelho', titulo: 'Como me vejo', sub: 'No espelho e nas fotos', ic: 'camera' },
+  { id: 'confianca', titulo: 'Confiança', sub: 'Me sentir bem comigo', ic: 'spark' },
+  { id: 'medico', titulo: 'Orientação médica', sub: 'Foi indicação de quem me acompanha', ic: 'steth' },
+];
+
 /* OS QUATRO DEGRAUS DE ATIVIDADE, com o que cada um quer dizer em dias
    por semana — sem isso "levemente ativo" é autoavaliação, e cada pessoa
    se põe num degrau diferente.
