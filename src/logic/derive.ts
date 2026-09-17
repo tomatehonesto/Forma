@@ -1,5 +1,8 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
-import { DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay } from './time';
+import {
+  DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
+  doseTxt,
+} from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { ehForca, iconeDe } from './modalidades';
 import {
@@ -23,6 +26,39 @@ import type { State } from './seed';
 export const metaDeCopos = (S: State) => (S.profile as any).targets.waterMl / CUP_ML;
 
 export const M = (S: State) => MEDS[S.profile.med];
+
+/* ============================================================
+   QUANDO AINDA NÃO HÁ DOSE
+
+   O cadastro deixa responder "ainda não sei" no medicamento, e quem
+   responde isso não vê as telas de dose — sai do formulário sem número
+   nenhum. O perfil guardava `null` ali, e meia dúzia de telas faziam
+   `nf(profile.dose)` direto: a Home quebrava inteira na primeira
+   renderização, em branco, sem mensagem.
+
+   O PERFIL PASSA A GUARDAR ZERO, que é um número e não quebra conta
+   nenhuma. E zero aqui quer dizer "ainda não definida", não "zero
+   miligramas" — por isso quem escreve dose na tela usa `doseDoPerfil`, e
+   quem anuncia a próxima aplicação pergunta antes se existe uma.
+
+   É a mesma regra do resto da casa: zero é honesto quando é zero, e aqui
+   não é zero — é ausência, e ausência se diz com palavra. */
+export const temDose = (S: State) =>
+  S.profile.med !== 'indefinido' && !!(S.profile as any).dose;
+
+/* O MEDICAMENTO COM A DOSE, numa frase só — e sem a dose quando ela não
+   existe. "Ainda não definido ainda não definida" é o que sai de juntar
+   dois campos que não foram respondidos: cada um diz a sua ausência, e as
+   duas viram gagueira. Uma vez basta. */
+export const medComDose = (S: State) =>
+  (temDose(S) ? `${M(S).label} ${doseDoPerfil(S)}` : M(S).label);
+
+/** A dose do perfil escrita para gente, ou a ausência dela. */
+export function doseDoPerfil(S: State): string {
+  if (!temDose(S)) return 'ainda não definida';
+  return `${doseTxt((S.profile as any).dose)} ${M(S).unit}`;
+}
+
 export const curWeight = (S: State) => S.weights[S.weights.length - 1].kg;
 export const startWeight = (S: State) => S.profile.startWeight;
 export const lostKg = (S: State) => startWeight(S) - curWeight(S);

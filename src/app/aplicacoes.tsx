@@ -6,6 +6,7 @@ import {
   M, adesao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
   nextInjectionDate, nextSite, pharmaSeries, reminderWhen, rodizioDeLocais, siteLabel,
   cadenciaTexto,
+  doseDoPerfil,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
@@ -75,7 +76,7 @@ export default function Aplicacoes() {
   const tNow = +now();
   let mkIdx = 0; ph.pts.forEach((p, i) => { if (Math.abs(p.t - tNow) < Math.abs(ph.pts[mkIdx].t - tNow)) mkIdx = i; });
 
-  const doseStr = nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0);
+  const doseStr = doseDoPerfil(S);
 
   return (
     <TelaInterna
@@ -108,7 +109,7 @@ export default function Aplicacoes() {
               {ndDays <= 0 ? 'Hoje' : ndDays === 1 ? 'Amanhã' : `Em ${ndDays} dias`}
             </Txt>
             <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-              {fmtWD(nd)}, {fmtDate(nd)} · {doseStr} {med.unit}
+              {fmtWD(nd)}, {fmtDate(nd)} · {doseStr}
             </Txt>
           </View>
           {/* O anel conta a SEMANA, e o número conta os dias que faltam —

@@ -10,6 +10,7 @@ import {
   nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
+  doseDoPerfil, temDose,
 } from '../../logic/derive';
 import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
 import { Txt, Row, Card, SectionHead, ListRow, Metric } from '../../ui/kit';
@@ -127,12 +128,19 @@ export default function Home() {
   /* Carrossel do hero — tres leituras do dia, todas com dado real. */
   const slides = [
     { over: 'PARA HOJE', title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
-    {
+    /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
+
+       Quem respondeu "ainda não sei" no medicamento sai do cadastro sem
+       dose, e este slide anunciava a data de uma aplicação que ninguém
+       marcou — quando não quebrava a Home inteira ao formatar um número
+       que era nulo. Sem dose, o carrossel simplesmente tem um slide a
+       menos, que é o que a verdade sobre esse dia é. */
+    ...(temDose(S) ? [{
       over: 'PRÓXIMA APLICAÇÃO',
       title: ndDays <= 0 ? `${med.label} é hoje.` : `${med.label} ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`,
-      body: `${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit} · ${siteLabel(nextSite(S))} sugerido.`,
+      body: `${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
       cta: 'Ver a aplicação', to: '/aplicacoes',
-    },
+    }] : []),
     /* A descoberta já vem escrita como "achado — detalhe". Quebrar no
        travessão dá manchete e explicação sem precisar de texto genérico
        por baixo: a própria descoberta preenche os dois níveis. */

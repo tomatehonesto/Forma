@@ -235,13 +235,19 @@ function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
       <Txt v="micro" c={on ? c.accentInk : c.accent}>{selo}</Txt>
     </View>
   ) : null;
+  /* O ÍCONE SEM PASTILHA, como nas listas do resto do app.
+
+     Aqui a pastilha fazia mais do que enfeitar: ela trocava de cor com a
+     escolha, então parecia estado. Mas o estado já está dito duas vezes
+     no mesmo cartão — o fundo inteiro vira azul e a marca da direita
+     acende —, e uma terceira voz dizendo a mesma coisa só engrossa o
+     desenho. Sem ela, o ícone é o que sempre foi: a marca do assunto.
+
+     A LARGURA FIXA FICA, pelo motivo de sempre: é ela que alinha os
+     títulos de uma lista de opções entre si. */
   const pastilha = ic ? (
-    <View style={{
-      width: 32, height: 32, borderRadius: 16,
-      backgroundColor: on ? 'rgba(255,255,255,0.22)' : c.bg2,
-      alignItems: 'center', justifyContent: 'center',
-    }}>
-      <Icon name={ic} size={16} color={on ? c.accentInk : c.tx3} sw={1.9} />
+    <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name={ic} size={19} color={on ? c.accentInk : c.tx3} sw={1.9} />
     </View>
   ) : null;
   /* O ESCOLHIDO É CHEIO, e não contornado.
@@ -1093,7 +1099,12 @@ export default function Cadastro() {
       s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
       s.profile.height = r.altura;
       s.profile.med = r.med;
-      s.profile.dose = r.dose;
+      /* ZERO, E NÃO NULO, quando a dose ainda não existe — quem respondeu
+         "ainda não sei" no medicamento nem chega à pergunta da dose. Meia
+         dúzia de telas formatam este campo direto, e nulo quebrava a Home
+         inteira na primeira renderização. Quem escreve dose na tela usa
+         doseDoPerfil, que sabe dizer "ainda não definida". */
+      s.profile.dose = r.dose ?? 0;
       /* Só guarda intervalo quando ele DIFERE do catálogo. Igual, seria
          uma segunda cópia do mesmo fato — e no dia em que a bula mudar,
          a cópia não muda junto. */

@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { MO_LONG, nf } from '../logic/time';
-import { journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta } from '../logic/derive';
+import {
+  journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose,
+} from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Malha, Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
@@ -107,7 +109,7 @@ export default function Perfil() {
   const linked = hasClinic(S);
   const med = M(S);
   const p = penStock(S);
-  const dose = nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0);
+  const dose = medComDose(S);
 
   return (
     <Screen>
@@ -200,7 +202,7 @@ export default function Perfil() {
               <Icon name="syringe" size={19} color={c.accent} sw={1.8} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="bodyMed">{med.label} {dose} {med.unit}</Txt>
+              <Txt v="bodyMed">{dose}</Txt>
               <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
                 {cadenciaCurta(S)} · {p.left} de {p.total} doses na caneta
               </Txt>

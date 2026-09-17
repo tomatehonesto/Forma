@@ -9,6 +9,7 @@ import { useStore } from '../../logic/store';
 import {
   hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
+  medComDose,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
@@ -691,7 +692,7 @@ function Tratamento() {
   const go = (to: string) => () => router.push(to as any);
   const med = M(S);
   const p = penStock(S);
-  const dose = nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0);
+  const dose = medComDose(S);
   const receita = (S.prescriptions as any[])[0];
   const critico = p.left <= 1;
   const ctx = doseContext(S);
@@ -726,7 +727,7 @@ function Tratamento() {
               <Icon name="syringe" size={20} color={c.accent} sw={1.8} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="title">{med.label} {dose} {med.unit}</Txt>
+              <Txt v="title">{dose}</Txt>
               <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
                 {cadenciaCurta(S)} · {receita?.by ?? S.profile.doctor}
               </Txt>
