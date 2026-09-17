@@ -14,13 +14,24 @@ export default function Conquistas() {
   const router = useRouter();
   const done = achDone(S), locked = S.achievements.filter((a: any) => !a.done);
 
+  /* A MARCA CONQUISTADA É LIMA, como em toda tela deste app: é a cor do
+     alcançado na Jornada, nas metas e na ficha do perfil. Ela estava azul
+     aqui, que é a cor de ação — a mesma tinta do botão de registrar —, e
+     com isso a grade pedia leitura em vez de dar a resposta de relance.
+     Lima é feito, cinza é a caminho.
+
+     E O SELO DESCE PARA O PÉ do cartão. Os títulos têm uma ou duas linhas
+     conforme o nome, e sem isso o selo acompanhava o fim do texto: numa
+     fileira de dois, um ficava no meio e o outro embaixo. Com a margem
+     automática em cima, os cartões da mesma fileira terminam na mesma
+     linha, que é o que faz uma grade parecer uma grade. */
   const AchCard = ({ a, on }: { a: any; on: boolean }) => (
-    <View style={{ width: '48.5%', backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: 1, borderColor: c.line, padding: 15, marginTop: 12, alignItems: 'center', opacity: on ? 1 : 0.55 }}>
-      <IconBadge name={a.ic} size={44} color={on ? c.accent : c.tx4} bg={on ? c.accentWeak : c.bg3} />
+    <View style={{ width: '48.5%', backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: 1, borderColor: c.line, padding: 15, marginTop: 12, alignItems: 'center', opacity: on ? 1 : 0.6 }}>
+      <IconBadge name={a.ic} size={44} color={on ? c.tx : c.tx4} bg={on ? c.limeSoft : c.bg3} />
       <Txt v="title" style={{ marginTop: 10, textAlign: 'center' }}>{a.title}</Txt>
       <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center', lineHeight: 15 }}>{a.desc}</Txt>
-      <View style={{ marginTop: 8 }}>
-        <Pill label={on ? relDay(new Date(a.t)) : 'em progresso'} color={on ? c.accent : c.tx3} bg={on ? c.accentWeak : c.bg2} />
+      <View style={{ marginTop: 'auto', paddingTop: 10 }}>
+        <Pill label={on ? relDay(new Date(a.t)) : 'em progresso'} color={on ? c.tx2 : c.tx3} bg={on ? c.limeSoft : c.bg2} />
       </View>
     </View>
   );
@@ -29,11 +40,17 @@ export default function Conquistas() {
     <Screen>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Conquistas</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Marcos da jornada — discretos, nunca infantis</Txt>
-        </View>
+        <Txt v="h1" style={{ flex: 1 }}>Conquistas</Txt>
       </Row>
+      {/* O SUBTÍTULO DIZIA "marcos da jornada — discretos, nunca
+          infantis". A segunda metade era uma nota de projeto: a regra que
+          nós seguimos ao desenhar a tela, escrita para quem lê o código, e
+          entregue à pessoa como se fosse informação. Quem abre aqui quer
+          saber de onde saem essas marcas — e a resposta é que ninguém as
+          concede: elas caem sozinhas do que já foi registrado. */}
+      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
+        Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece.
+      </Txt>
 
       <Card tint={c.accentWeak} style={{ marginTop: 18, paddingVertical: 16 }}>
         <Row>
@@ -46,7 +63,10 @@ export default function Conquistas() {
         </Row>
       </Card>
 
-      <Txt v="h2" style={{ marginTop: 22 }}>Desbloqueadas</Txt>
+      {/* "DESBLOQUEADAS" É PALAVRA DE JOGO, e contradizia a própria tela:
+          aqui não há fase a vencer nem prêmio a liberar — há coisas que
+          aconteceram no tratamento de alguém. */}
+      <Txt v="h2" style={{ marginTop: 22 }}>Já conquistadas</Txt>
       {done.length === 0 ? (
         /* Quem abre no primeiro dia via um título e nada embaixo. A
            frase não promete conquista nenhuma: diz onde ela vai aparecer,

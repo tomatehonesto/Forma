@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { doseReminderDate, pesoReminderDate, dailyReminderDate, reminderWhen } from '../logic/derive';
 import { DOW_SHORT, hm } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Divider } from '../ui/kit';
+import { Screen, Txt, Card, Row, CircleBtn, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -28,11 +28,24 @@ export default function Lembretes() {
     </Pressable>
   );
 
-  const HourRow = ({ k }: { k: string }) => (
-    <Row style={{ marginTop: 10, flexWrap: 'wrap' }} gap={6}>
-      <Txt v="caption" c={c.tx3} style={{ width: 62 }}>Horário</Txt>
-      {HOURS.map((h) => <Chip key={h} on={R[k].hour === h} label={hm(h, 0)} onPress={() => set(k, 'hour', h)} />)}
+  /* RÓTULO E FILEIRA, com a quebra alinhada.
+
+     As pastilhas viviam no mesmo Row do rótulo, com wrap: ao passar da
+     largura, a segunda fileira voltava para a margem esquerda e ficava
+     embaixo da palavra "Horário", em vez de embaixo da primeira
+     pastilha. A correção é a fileira ter caixa própria — o rótulo ocupa
+     a coluna dele, e a quebra acontece dentro do que sobra. */
+  const Campo = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <Row style={{ marginTop: 10, alignItems: 'flex-start' }} gap={6}>
+      <Txt v="caption" c={c.tx3} style={{ width: 62, paddingTop: 6 }}>{label}</Txt>
+      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>{children}</View>
     </Row>
+  );
+
+  const HourRow = ({ k }: { k: string }) => (
+    <Campo label="Horário">
+      {HOURS.map((h) => <Chip key={h} on={R[k].hour === h} label={hm(h, 0)} onPress={() => set(k, 'hour', h)} />)}
+    </Campo>
   );
 
   const RemCard = ({ k, ic, title, desc, children, preview }: { k: string; ic: string; title: string; desc: string; children?: React.ReactNode; preview: string | null }) => {
@@ -40,7 +53,14 @@ export default function Lembretes() {
     return (
       <Card style={{ paddingVertical: 15 }}>
         <Row style={{ alignItems: 'flex-start' }} gap={12}>
-          <IconBadge name={ic} size={40} color={on ? c.accent : c.tx4} bg={on ? c.accentWeak : c.bg2} />
+          {/* O ÍCONE SOLTO, pela mesma regra do resto do app: a pastilha
+              de cor repetida numa coluna vira fileira de botões que não
+              são botões. A largura fixa fica, porque é ela que alinha os
+              títulos entre si — e a cor continua dizendo se o lembrete
+              está ligado, que é informação e não decoração. */}
+          <View style={{ width: 32, alignItems: 'center', paddingTop: 2 }}>
+            <Icon name={ic} size={21} color={on ? c.accent : c.tx4} sw={1.8} />
+          </View>
           <View style={{ flex: 1 }}>
             <Txt v="title">{title}</Txt>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 17 }}>{desc}</Txt>
@@ -65,48 +85,48 @@ export default function Lembretes() {
     <Screen>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Lembretes</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>No seu ritmo — você escolhe o quê e quando</Txt>
-        </View>
+        <Txt v="h1" style={{ flex: 1 }}>Lembretes</Txt>
       </Row>
+      {/* O SUBTÍTULO EM LINHA PRÓPRIA. Ao lado do botão de voltar ele
+          dividia a largura com o título e com o círculo, e terminava
+          cortado no meio da palavra. */}
+      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
+        No seu ritmo — você escolhe o quê e quando.
+      </Txt>
 
-      <View style={{ marginTop: 16, gap: 12 }}>
-        <RemCard k="dose" ic="syringe" title="Aplicação da caneta" desc="Um aviso antes da próxima dose, pra manter o tratamento em dia." preview={reminderWhen(doseReminderDate(S))}>
-          <Row style={{ marginTop: 8, flexWrap: 'wrap' }} gap={6}>
-            <Txt v="caption" c={c.tx3} style={{ width: 62 }}>Avisar</Txt>
+      <View style={{ marginTop: 18, gap: 12 }}>
+        <RemCard k="dose" ic="syringe" title="Aplicação da caneta" desc="Um aviso antes da próxima dose, para manter o tratamento em dia." preview={reminderWhen(doseReminderDate(S))}>
+          <Campo label="Avisar">
             {[0, 1, 2].map((n) => <Chip key={n} on={R.dose.lead === n} label={n === 0 ? 'no dia' : `${n} dia${n > 1 ? 's' : ''} antes`} onPress={() => set('dose', 'lead', n)} />)}
-          </Row>
+          </Campo>
           <HourRow k="dose" />
         </RemCard>
 
-        <RemCard k="peso" ic="scale" title="Pesagem" desc="No seu ritmo, sem obrigação. Pese quando fizer sentido pra você." preview={reminderWhen(pesoReminderDate(S))}>
-          <Row style={{ marginTop: 8, flexWrap: 'wrap' }} gap={6}>
-            <Txt v="caption" c={c.tx3} style={{ width: 62 }}>Frequência</Txt>
+        <RemCard k="peso" ic="scale" title="Pesagem" desc="No seu ritmo, sem obrigação. Pese quando fizer sentido para você." preview={reminderWhen(pesoReminderDate(S))}>
+          <Campo label="Frequência">
             <Chip on={R.peso.freq === 'semanal'} label="semanal" onPress={() => set('peso', 'freq', 'semanal')} />
             <Chip on={R.peso.freq === 'diaria'} label="diária" onPress={() => set('peso', 'freq', 'diaria')} />
-          </Row>
+          </Campo>
           {R.peso.freq === 'semanal' && (
-            <Row style={{ marginTop: 10, flexWrap: 'wrap' }} gap={6}>
-              <Txt v="caption" c={c.tx3} style={{ width: 62 }}>Dia</Txt>
+            <Campo label="Dia">
               {[1, 2, 3, 4, 5, 6, 0].map((n) => <Chip key={n} on={R.peso.dow === n} label={DOW_SHORT[n]} onPress={() => set('peso', 'dow', n)} />)}
-            </Row>
+            </Campo>
           )}
           <HourRow k="peso" />
         </RemCard>
 
-        <RemCard k="agua" ic="water" title="Hidratação" desc="Um empurrãozinho pra beber água — ajuda com saciedade e enjoo." preview={reminderWhen(dailyReminderDate(R.agua))}>
+        <RemCard k="agua" ic="water" title="Hidratação" desc="Um empurrãozinho para beber água — ajuda com saciedade e enjoo." preview={reminderWhen(dailyReminderDate(R.agua))}>
           <HourRow k="agua" />
         </RemCard>
 
-        <RemCard k="proteina" ic="flame" title="Proteína" desc="Lembrete pra priorizar proteína em uma refeição do dia." preview={reminderWhen(dailyReminderDate(R.proteina))}>
+        <RemCard k="proteina" ic="flame" title="Proteína" desc="Lembrete para priorizar proteína em uma refeição do dia." preview={reminderWhen(dailyReminderDate(R.proteina))}>
           <HourRow k="proteina" />
         </RemCard>
       </View>
 
       <Row gap={8} style={{ marginTop: 16, paddingHorizontal: 4, alignItems: 'flex-start' }}>
         <Icon name="info" size={13} color={c.tx4} sw={1.8} />
-        <Txt v="micro" c={c.tx4} style={{ flex: 1, lineHeight: 16 }}>São preferências suas, guardadas no aparelho. Os lembretes acolhem, não cobram — dá pra adiar, e se um dia passar, é só retomar.</Txt>
+        <Txt v="micro" c={c.tx4} style={{ flex: 1, lineHeight: 17 }}>Os lembretes acolhem, não cobram — dá para adiar, e se um dia passar, é só retomar.</Txt>
       </Row>
     </Screen>
   );

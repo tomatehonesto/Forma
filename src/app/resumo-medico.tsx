@@ -57,13 +57,16 @@ export default function ResumoMedico() {
     <Screen>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Resumo para o médico</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Um retrato do tratamento, pronto pra compartilhar</Txt>
-        </View>
+        <Txt v="h1" style={{ flex: 1 }}>Resumo para o médico</Txt>
       </Row>
+      {/* O SUBTÍTULO EM LINHA PRÓPRIA, como nas outras internas: dividindo
+          a largura com o título e com o círculo de voltar, ele terminava
+          cortado. */}
+      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
+        Um retrato do tratamento, pronto para compartilhar.
+      </Txt>
 
-      <Card style={{ marginTop: 16 }}>
+      <Card style={{ marginTop: 18 }}>
         <Row style={{ justifyContent: 'space-between' }}>
           <View>
             <Txt v="h2">{p.name}</Txt>
