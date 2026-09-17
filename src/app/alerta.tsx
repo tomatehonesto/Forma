@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  HORAS, LEADS, TIPOS, acharAlerta, novoAlerta, proximaDe, quando, rotuloDoLead,
+  CADAS, FINS, HORAS, INICIOS, LEADS, TIPOS, acharAlerta, horasDe, novoAlerta,
+  proximaDe, quando, rotuloDoLead,
   type Alerta, type TipoDeAlerta,
 } from '../logic/alertas';
 import { DOW_SHORT, hm } from '../logic/time';
@@ -121,17 +122,61 @@ export default function AlertaFolha() {
           </Campo>
         ) : null}
 
-        {/* OS HORÁRIOS EM GRADE, e não embrulhados: são dezessete peças do
-            mesmo tamanho e da mesma natureza, e embrulhadas elas formam um
-            mosaico com fileiras de comprimentos diferentes. Em quatro
-            colunas retas o olho corre a lista em vez de reler cada linha. */}
-        <Campo nu rotulo="Horários" ajuda="Dá para marcar mais de um — o alerta toca em cada um deles.">
-          <Grade cols={4} gap={8}>
-            {HORAS.map((h) => (
-              <Opc key={h} cheia label={hm(h, 0)} on={a.horas.includes(h)} onPress={() => trocarHora(h)} />
-            ))}
+        {/* DOIS JEITOS DE DIZER A QUE HORAS, e a escolha entre eles vem
+            antes deles: escolher hora a hora serve para o que acontece uma
+            ou duas vezes no dia; a hidratação é o oposto — não é um
+            momento, é o dia inteiro em intervalos, e marcar oito pastilhas
+            à mão para descrever "de duas em duas horas" é o app fazendo a
+            pessoa trabalhar para dizer o que cabe numa frase. */}
+        <Campo nu rotulo="Quando tocar">
+          <Grade cols={2} gap={8}>
+            <Opc cheia label="Em horários" on={a.modo === 'horas'} onPress={() => mexer({ modo: 'horas' })} />
+            <Opc cheia label="Em intervalos" on={a.modo === 'intervalo'} onPress={() => mexer({ modo: 'intervalo' })} />
           </Grade>
         </Campo>
+
+        {a.modo === 'horas' ? (
+          /* OS HORÁRIOS EM GRADE, e não embrulhados: são dezesseis peças do
+             mesmo tamanho e da mesma natureza, e embrulhadas elas formam um
+             mosaico com fileiras de comprimentos diferentes. Em quatro
+             colunas retas o olho corre a lista em vez de reler cada linha. */
+          <Campo nu rotulo="Horários" ajuda="Dá para marcar mais de um — o alerta toca em cada um deles.">
+            <Grade cols={4} gap={8}>
+              {HORAS.map((h) => (
+                <Opc key={h} cheia label={hm(h, 0)} on={a.horas.includes(h)} onPress={() => trocarHora(h)} />
+              ))}
+            </Grade>
+          </Campo>
+        ) : (
+          <>
+            <Campo nu rotulo="A cada">
+              <Opcoes>
+                {CADAS.map((n) => (
+                  <Opc key={n} label={`${n}h`} on={a.cada === n} onPress={() => mexer({ cada: n })} />
+                ))}
+              </Opcoes>
+            </Campo>
+            {/* A JANELA EM DUAS FILEIRAS, e não numa só: começo e fim são
+                duas respostas, e lado a lado a pessoa lê a segunda como
+                continuação da primeira. O fim nunca fica antes do começo —
+                escolher um começo mais tarde empurra o fim junto, em vez de
+                deixar gravado um alerta que não toca nunca. */}
+            <Campo nu rotulo="Começa">
+              <Opcoes>
+                {INICIOS.map((h) => (
+                  <Opc key={h} label={hm(h, 0)} on={a.de === h} onPress={() => mexer({ de: h, ate: Math.max(a.ate, h) })} />
+                ))}
+              </Opcoes>
+            </Campo>
+            <Campo nu rotulo="Até" ajuda={`${horasDe(a).length} avisos por dia, de ${a.cada} em ${a.cada} horas.`}>
+              <Opcoes>
+                {FINS.map((h) => (
+                  <Opc key={h} label={hm(h, 0)} on={a.ate === h} onPress={() => mexer({ ate: h, de: Math.min(a.de, h) })} />
+                ))}
+              </Opcoes>
+            </Campo>
+          </>
+        )}
 
         <Row gap={8} style={{ alignItems: 'center' }}>
           <Icon name="bell" size={14} color={c.accent} sw={2} />

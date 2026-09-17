@@ -434,7 +434,7 @@ export function buildSeed() {
        rotina, e ligá-los por conta própria seria o app decidindo a rotina
        de alguém. */
     alertas: [
-      { id: 'al-dose', tipo: 'dose', on: true, horas: [9], dias: [] as number[], lead: 1 },
+      { id: 'al-dose', tipo: 'dose', on: true, modo: 'horas', horas: [9], cada: 2, de: 8, ate: 20, dias: [] as number[], lead: 1 },
     ],
     /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
@@ -503,7 +503,7 @@ export function ensureDefaults(S: any) {
     const lista: any[] = [];
     const veio = (tipo: string, r: any, extra: any) => {
       if (!r) return;
-      lista.push({ id: `al-${tipo}`, tipo, on: !!r.on, horas: [r.hour ?? extra.hora], dias: extra.dias ?? [], ...(extra.lead != null ? { lead: extra.lead } : {}) });
+      lista.push({ id: `al-${tipo}`, tipo, on: !!r.on, modo: 'horas', horas: [r.hour ?? extra.hora], cada: 2, de: 8, ate: 20, dias: extra.dias ?? [], ...(extra.lead != null ? { lead: extra.lead } : {}) });
     };
     veio('dose', R.dose ?? { on: true, hour: 9 }, { hora: 9, lead: R.dose?.lead ?? 1 });
     veio('peso', R.peso, { hora: 8, dias: R.peso?.freq === 'diaria' ? [] : [R.peso?.dow ?? 1] });
@@ -512,6 +512,19 @@ export function ensureDefaults(S: any) {
     (S as any).alertas = lista;
   }
   delete S.reminders;
+  /* OS CAMPOS DO INTERVALO CHEGARAM DEPOIS DOS ALERTAS. Quem gravou um
+     alerta na primeira versão tem lista de horas e mais nada; sem estes
+     padrões, abrir a folha dele e tocar em "de tempos em tempos" leria
+     NaN como hora de início. O modo continua sendo o que já era — quem
+     escolheu horas a dedo não passa a ter intervalo por causa disto. */
+  for (const a of ((S as any).alertas ?? []) as any[]) {
+    if (a.modo !== 'intervalo') a.modo = 'horas';
+    if (!Array.isArray(a.horas)) a.horas = [9];
+    if (typeof a.cada !== 'number') a.cada = 2;
+    if (typeof a.de !== 'number') a.de = 8;
+    if (typeof a.ate !== 'number') a.ate = 20;
+    if (!Array.isArray(a.dias)) a.dias = [];
+  }
   if (!Array.isArray(S.asked)) S.asked = [];
   if (!Array.isArray(S.team)) S.team = buildSeed().team;
   if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;

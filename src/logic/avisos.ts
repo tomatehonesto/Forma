@@ -123,17 +123,24 @@ async function naData(date: Date, t: Texto) {
   });
 }
 
-/* O TETO DE AVISOS POR ALERTA.
+/* O ORÇAMENTO DE AVISOS, repartido entre os alertas ligados.
 
-   Um alerta de água com três horários todo dia daria vinte e uma datas
-   marcadas por semana, e o iOS guarda sessenta e quatro no total: dois
-   alertas assim e o terceiro não entraria na fila. Cada alerta marca as
-   próximas seis vezes, e as seguintes são remarcadas quando o app abre —
-   o mesmo mecanismo que já mantinha a data da aplicação em dia.
+   O iOS guarda sessenta e quatro notificações agendadas por app, e
+   descarta o excedente sem avisar. Um alerta de hidratação de duas em
+   duas horas das 8h às 22h são oito avisos por dia — sozinho, ele comeria
+   a fila inteira em uma semana e deixaria a aplicação de fora.
 
-   O limite é generoso para o caso comum, de um horário em alguns dias, e
-   contido para o extremo. */
-const POR_ALERTA = 6;
+   Então o teto é global e dividido: cada alerta ligado leva a sua parte,
+   com um mínimo de três para que nenhum fique sem nada. Dois alertas
+   cobrem quase quatro semanas cada; seis alertas cobrem uma boa semana
+   cada. E o resto é remarcado quando o app abre, que é o mesmo mecanismo
+   que já mantinha a data da aplicação em dia.
+
+   Cinquenta e seis, e não sessenta e quatro: a margem é para o dia em que
+   algo mais neste app precisar agendar um aviso e encontrar a fila
+   cheia. */
+const ORCAMENTO = 56;
+const MINIMO_POR_ALERTA = 3;
 
 /* TUDO VAI COMO DATA MARCADA.
 
@@ -163,11 +170,13 @@ export async function reagendar(S: State): Promise<void> {
     if (!perm.granted) return;
     await canal();
 
-    const alertas = ((S as any).alertas as Alerta[]) ?? [];
-    for (const a of alertas) {
-      if (!a.on) continue;
+    const ligados = (((S as any).alertas as Alerta[]) ?? []).filter((a) => a.on);
+    if (!ligados.length) return;
+    const cota = Math.max(MINIMO_POR_ALERTA, Math.floor(ORCAMENTO / ligados.length));
+
+    for (const a of ligados) {
       const texto = a.tipo === 'dose' ? textoDaDose(S, a.lead ?? 0) : TEXTO[a.tipo];
-      for (const d of proximasDe(S, a).slice(0, POR_ALERTA)) await naData(d, texto);
+      for (const d of proximasDe(S, a, cota)) await naData(d, texto);
     }
   } catch {
     /* Aparelho sem suporte, permissão revogada no meio do caminho,

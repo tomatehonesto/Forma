@@ -105,32 +105,31 @@ export default function Lembretes() {
     );
   };
 
+  /* UMA SEÇÃO POR ASSUNTO, e o mais leve que ela consegue ser.
+
+     A versão anterior dava a cada assunto um título, um parágrafo de
+     descrição e um cartão com a linha de "criar" dentro. Com três dos
+     quatro vazios, a tela era quatro blocos de moldura para uma única
+     linha de conteúdo — separação demais para o que há a separar.
+
+     Agora o criar mora no cabeçalho, à direita, como o "ver tudo" das
+     seções da Home. E a descrição só aparece quando NÃO há alerta: ela
+     existe para ajudar a decidir se vale criar um, e quem já criou não
+     precisa que o app explique de novo para que serve. Com alertas, o
+     cartão fica só com eles; sem nenhum, não há cartão. */
   const Secao = ({ tipo }: { tipo: TipoDeAlerta }) => {
     const t = TIPOS[tipo];
     const lista = alertasDe(S, tipo);
     return (
-      <Bloco titulo={t.titulo} nota={t.desc}>
-        <Cartao>
-          {lista.map((a) => <Linha key={a.id} a={a} />)}
-          {/* "ADICIONAR" É A ÚLTIMA LINHA DO CARTÃO, e não um botão solto
-              embaixo dele: ela pertence àquela lista, e solta ficaria à
-              mesma distância da lista de cima e da de baixo.
-
-              Sem nenhum alerta, ela é a única linha — e aí o cartão inteiro
-              é o convite, que é melhor do que um estado vazio explicando
-              que não há nada, seguido do botão de criar. */}
-          <Pressable
-            onPress={() => router.push(`/alerta?tipo=${tipo}` as any)}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Row gap={10} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'center' }}>
-              <Icon name="plus" size={17} color={c.accent} sw={2.4} />
-              <Txt v="label" c={c.accent}>
-                {lista.length ? 'Adicionar outro horário' : 'Criar um alerta'}
-              </Txt>
-            </Row>
-          </Pressable>
-        </Cartao>
+      <Bloco
+        titulo={t.titulo}
+        link="Criar alerta"
+        onLink={() => router.push(`/alerta?tipo=${tipo}` as any)}
+        nota={lista.length ? undefined : t.desc}
+      >
+        {lista.length ? (
+          <Cartao>{lista.map((a) => <Linha key={a.id} a={a} />)}</Cartao>
+        ) : null}
       </Bloco>
     );
   };

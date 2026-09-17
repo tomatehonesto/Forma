@@ -28,17 +28,57 @@ import { DOW_SHORT, addDays, hm, now, startOfDay } from './time';
 
 export type TipoDeAlerta = 'dose' | 'peso' | 'agua' | 'proteina';
 
+/* DOIS JEITOS DE DIZER A QUE HORAS.
+
+   Escolher hora a hora serve para o que acontece uma ou duas vezes no dia:
+   a pesagem de manhã, a proteína no almoço. Não serve para a hidratação,
+   que é o oposto — não é um momento, é o dia inteiro em intervalos. Marcar
+   oito horários a dedo para beber água é o app fazendo a pessoa trabalhar
+   para descrever uma coisa que cabe em uma frase: de duas em duas horas,
+   das oito às vinte e duas.
+
+   Os dois modos chegam no mesmo lugar, que é uma lista de horas — ver
+   horasDe. O modo é guardado, e não só a lista que ele gerou, porque quem
+   abre de novo para editar quer mexer no intervalo, e não em oito
+   pastilhas soltas que não se sabe mais de onde vieram. */
+export type ModoDeHora = 'horas' | 'intervalo';
+
 export type Alerta = {
   id: string;
   tipo: TipoDeAlerta;
   on: boolean;
-  /** um ou mais horários do dia, em hora cheia */
+  modo: ModoDeHora;
+  /** modo 'horas': os horários escolhidos a dedo */
   horas: number[];
+  /** modo 'intervalo': de quantas em quantas horas, e a janela do dia */
+  cada: number;
+  de: number;
+  ate: number;
   /** dias da semana, 0 = domingo. Vazio quer dizer todo dia. */
   dias: number[];
   /** só a dose usa: quantos dias antes da aplicação */
   lead?: number;
 };
+
+export const CADAS = [1, 2, 3, 4, 6];
+
+/* A JANELA TEM LISTAS PRÓPRIAS, e não a grade de horários.
+
+   O começo de uma janela de lembrete é de manhã e o fim é de noite — e as
+   22h, que saíram da grade por não fazer sentido como momento de alerta,
+   fazem todo sentido como FIM de janela: "até as dez da noite" é
+   exatamente o que alguém diz ao descrever o próprio dia. */
+export const INICIOS = [6, 7, 8, 9, 10, 11, 12];
+export const FINS = [16, 17, 18, 19, 20, 21, 22];
+
+/** As horas em que este alerta toca, venham da lista ou do intervalo. */
+export function horasDe(a: Alerta): number[] {
+  if (a.modo !== 'intervalo') return [...(a.horas ?? [])].sort((x, y) => x - y);
+  const passo = Math.max(1, a.cada || 1);
+  const saida: number[] = [];
+  for (let h = a.de; h <= a.ate; h += passo) saida.push(h);
+  return saida;
+}
 
 /* O QUE CADA ASSUNTO É, e o que ele deixa configurar.
 
@@ -100,15 +140,22 @@ const id = () => `al-${Date.now().toString(36)}-${Math.random().toString(36).sli
    uma folha que abre vazia obriga a pessoa a adivinhar o que falta antes
    de poder salvar. O padrão de cada assunto é o horário em que ele faz
    mais sentido — água à tarde, proteína no almoço, peso de manhã. */
-const PADRAO: Record<TipoDeAlerta, { horas: number[]; lead?: number }> = {
-  dose: { horas: [9], lead: 1 },
-  peso: { horas: [8] },
-  agua: { horas: [15] },
-  proteina: { horas: [12] },
+/* E A HIDRATAÇÃO JÁ NASCE EM INTERVALO, que é o jeito como ela é vivida:
+   ninguém decide beber água às 15h, decide beber de tempos em tempos. Os
+   outros três nascem com a hora em que fazem sentido. */
+const PADRAO: Record<TipoDeAlerta, Partial<Alerta>> = {
+  dose: { modo: 'horas', horas: [9], lead: 1 },
+  peso: { modo: 'horas', horas: [8] },
+  agua: { modo: 'intervalo', cada: 2, de: 8, ate: 20 },
+  proteina: { modo: 'horas', horas: [12] },
 };
 
 export function novoAlerta(tipo: TipoDeAlerta): Alerta {
-  return { id: id(), tipo, on: true, horas: [...PADRAO[tipo].horas], dias: [], lead: PADRAO[tipo].lead };
+  return {
+    id: id(), tipo, on: true, dias: [],
+    modo: 'horas', horas: [9], cada: 2, de: 8, ate: 20,
+    ...PADRAO[tipo],
+  } as Alerta;
 }
 
 export const alertasDe = (S: State, tipo: TipoDeAlerta): Alerta[] =>
@@ -140,7 +187,13 @@ const diasEmTexto = (dias: number[]) => {
 /** O alerta em uma linha: quando ele toca, e a que horas. */
 export function resumoDe(a: Alerta): string {
   const quando = a.tipo === 'dose' ? rotuloDoLead(a.lead ?? 0) : diasEmTexto(a.dias);
-  return `${quando} · ${horasEmTexto(a.horas)}`;
+  /* O INTERVALO SE DESCREVE, e não se lista. "De 2 em 2h, 8h às 20h" é
+     uma frase; as sete horas que ela gera não caberiam na linha, e caberiam
+     ainda menos na cabeça de quem só quer conferir o que configurou. */
+  const horas = a.modo === 'intervalo'
+    ? `a cada ${a.cada}h, ${a.de}h às ${a.ate}h`
+    : horasEmTexto(horasDe(a));
+  return `${quando} · ${horas}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -150,36 +203,47 @@ export function resumoDe(a: Alerta): string {
    e que o agendador usa para marcar no sistema. Uma conta só: dois jeitos
    de descobrir quando um alerta toca é como a tela passa a prometer um
    horário e o aparelho a tocar em outro. */
-export function proximasDe(S: State, a: Alerta): Date[] {
-  if (!a.on || !a.horas.length) return [];
+export function proximasDe(S: State, a: Alerta, quantas = 1): Date[] {
+  if (!a.on || !horasDe(a).length) return [];
   const agora = now();
   const saida: Date[] = [];
 
+  const horas = horasDe(a);
+
   if (a.tipo === 'dose') {
     const base = addDays(startOfDay(nextInjectionDate(S)), -(a.lead ?? 0)) as Date;
-    for (const h of a.horas) {
+    for (const h of horas) {
       const d = new Date(base); d.setHours(h, 0, 0, 0);
       if (d > agora) saida.push(d);
     }
     return saida.sort((x, y) => +x - +y);
   }
 
-  /* Para os demais, a próxima ocorrência de cada par (dia, hora) dentro
-     dos próximos sete dias. Sem dia escolhido, todo dia entra. */
+  /* Para os demais, a próxima ocorrência de cada par (dia, hora), dia a
+     dia, até juntar quantas foram pedidas. Sem dia escolhido, todo dia
+     entra.
+
+     O HORIZONTE ACOMPANHA O PEDIDO. Ele já foi fixo em sete dias, e isso
+     bastava enquanto quem chamava queria só a próxima vez. O agendador
+     passou a pedir dezenas — ele reparte um orçamento de avisos entre os
+     alertas ligados —, e um alerta semanal não teria o que dar dentro de
+     uma semana. Cinco semanas é onde a varredura para: além disso, o app
+     já terá aberto, e quem não abrir em cinco semanas tem outro assunto
+     com este aplicativo. */
   const dias = a.dias.length ? a.dias : [0, 1, 2, 3, 4, 5, 6];
   const hoje = startOfDay(agora);
-  for (let k = 0; k < 8; k++) {
+  for (let k = 0; k < 35 && saida.length < quantas; k++) {
     const d0 = addDays(hoje, k) as Date;
     if (!dias.includes(d0.getDay())) continue;
-    for (const h of a.horas) {
+    for (const h of horas) {
       const d = new Date(d0); d.setHours(h, 0, 0, 0);
       if (d > agora) saida.push(d);
     }
   }
-  return saida.sort((x, y) => +x - +y);
+  return saida.sort((x, y) => +x - +y).slice(0, quantas);
 }
 
-export const proximaDe = (S: State, a: Alerta): Date | null => proximasDe(S, a)[0] ?? null;
+export const proximaDe = (S: State, a: Alerta): Date | null => proximasDe(S, a, 1)[0] ?? null;
 
 /** "hoje · 09:00", "amanhã · 08:00", "sábado · 09:00" */
 export function quando(d: Date | null): string | null {
