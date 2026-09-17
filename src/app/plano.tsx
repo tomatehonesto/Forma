@@ -16,7 +16,7 @@ import { Botao, Grade2 } from '../ui/internas';
 import { AreaCurve } from '../ui/charts';
 import { Lavagem } from '../ui/lavagem';
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
+import { radius, font, ty } from '../theme';
 
 /* ============================================================
    O PLANO — o que as respostas do cadastro viraram
@@ -216,9 +216,12 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               assunto. O nome sozinho em cima é a pessoa sendo chamada; o
               resto, em regular, é o recado. */}
           <Txt v="h1" style={{ textAlign: 'center' }}>{primeiro},</Txt>
+          {/* MESMO CORPO DO NOME, e só o peso muda. A segunda linha
+              estava num corpo menor, e com isso o nome virava manchete e o
+              recado virava legenda — duas hierarquias onde existe uma
+              frase só, quebrada em duas linhas para o nome respirar. */}
           <Txt
-            v="title"
-            style={{ textAlign: 'center', fontFamily: font.body, marginTop: -6 }}
+            style={{ ...ty.h1, fontFamily: font.body, textAlign: 'center', marginTop: -8 }}
           >
             o seu plano personalizado está pronto
           </Txt>
