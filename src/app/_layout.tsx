@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -10,6 +10,8 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
+import { nextInjectionDate } from '../logic/derive';
+import { reagendar } from '../logic/avisos';
 import { light, APP_MAX_W } from '../theme';
 
 /* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
@@ -64,6 +66,50 @@ function Portao({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/* QUEM REMARCA OS AVISOS.
+
+   Dois dos quatro lembretes dependem de uma data que anda: a aplicação
+   segue a próxima dose, que muda quando uma é registrada, e a pesagem
+   semanal cai numa data nova a cada semana. Eles são agendados como data
+   marcada, e alguém precisa marcar a seguinte.
+
+   Esse alguém é este componente. Ele observa uma chave curta — as
+   preferências de lembrete e a data da próxima aplicação — e remarca
+   quando ela muda, o que inclui a abertura do app. Não observa o estado
+   inteiro de propósito: a gravação clona tudo a cada escrita, então
+   depender do objeto faria o app cancelar e reagendar quatro avisos a
+   cada copo d'água registrado.
+
+   Mora na raiz porque não é assunto de tela nenhuma: a pessoa liga um
+   lembrete em Lembretes e registra a aplicação em Aplicações, e as duas
+   coisas mexem no mesmo agendamento. */
+function Agendador() {
+  const ready = useStore((s) => s.ready);
+  const S = useStore((s) => s.S);
+  const chave = ready ? JSON.stringify([S.reminders, +nextInjectionDate(S)]) : '';
+  useEffect(() => {
+    if (!ready) return;
+    reagendar(useStore.getState().S);
+  }, [ready, chave]);
+
+  /* E DE NOVO AO VOLTAR PARA O APP.
+
+     A permissão mora no sistema, não aqui: alguém que a negou, foi às
+     configurações do aparelho e voltou tem lembretes ligados e nada
+     agendado — porque quando eles foram ligados não havia permissão. A
+     chave acima não mudou e nunca mudaria sozinha. Voltar ao foco é
+     exatamente o momento em que isso pode ter acontecido. */
+  useEffect(() => {
+    if (!ready) return;
+    const sub = AppState.addEventListener('change', (e) => {
+      if (e === 'active') reagendar(useStore.getState().S);
+    });
+    return () => sub.remove();
+  }, [ready]);
+
+  return null;
+}
+
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
   const ready = useStore((s) => s.ready);
@@ -79,6 +125,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar style="dark" />
+        <Agendador />
         <Moldura>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>

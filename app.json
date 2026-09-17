@@ -49,6 +49,14 @@
           "photosPermission": "Abrimos as suas fotos para você escolher a imagem de uma refeição ou a sua foto de perfil."
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#065CF5",
+          "defaultChannel": "lembretes"
+        }
+      ],
       "expo-status-bar",
       "expo-web-browser"
     ],
