@@ -1,22 +1,49 @@
 import React from 'react';
 import { View, Pressable, Switch, Linking, Platform, AppState } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useStore } from '../logic/store';
 import { doseReminderDate, pesoReminderDate, dailyReminderDate, reminderWhen } from '../logic/derive';
+import { useStore } from '../logic/store';
 import { DOW_SHORT, hm } from '../logic/time';
-import { Screen, Txt, Card, Row, CircleBtn, Divider } from '../ui/kit';
+import { Txt, Row } from '../ui/kit';
+import { TelaInterna, Titulao, Sanfona, Campo, Opcoes, Opc, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { estadoDaPermissao, pedirPermissao, type Permissao } from '../logic/avisos';
 
-const HOURS = [7, 8, 9, 12, 15, 20];
+/* ============================================================
+   LEMBRETES
+
+   A tela usava o cabeçalho antigo — botão redondo, título e legenda numa
+   fileira solta — enquanto as telas internas vizinhas já abrem com a
+   barra fixa e o titulão embaixo. Duas gramáticas de abertura em telas
+   que se alcançam uma da outra é o que faz um app parecer montado aos
+   pedaços.
+
+   E OS QUATRO LEMBRETES ERAM QUATRO CARTÕES FLUTUANDO, com espaço igual
+   entre eles: o olho contava blocos em vez de ler uma lista de quatro
+   coisas do mesmo tipo. Agora são quatro linhas de um cartão só,
+   separadas por um fio — o mesmo desenho do diário de refeições, das
+   notificações e do perfil.
+
+   CADA LINHA SE ABRE QUANDO É LIGADA. As opções de um lembrete desligado
+   não têm o que configurar, e mostrá-las apagadas fazia a tela abrir com
+   quatro painéis de controle inertes. A chave é a pergunta; o resto é a
+   resposta.
+
+   E AS OPÇÕES VIRARAM AS OPÇÕES DO APP — o mesmo botão do cadastro e do
+   check-in, em vez de uma pastilha desenhada só aqui. O rótulo saiu da
+   coluna de 62 px à esquerda e virou o rótulo em caixa alta que os campos
+   do app já usam: assim a fileira ocupa a largura inteira e a quebra cai
+   onde deve.
+   ============================================================ */
+
+const HORAS = [7, 8, 9, 12, 15, 20];
+const PAD = 16;
 
 export default function Lembretes() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
-  const router = useRouter();
   const R: any = S.reminders;
 
   const set = (key: string, field: string, val: any) => update((s: any) => { s.reminders[key][field] = val; });
@@ -27,26 +54,21 @@ export default function Lembretes() {
      não faz nada — e a pessoa só descobre no dia em que o aviso não vem.
      A tela pergunta ao sistema quando abre, e mostra o que ele respondeu.
 
-     Reconsultar ao voltar do foco é o que cobre o caminho mais provável:
-     a pessoa sai daqui para as configurações do aparelho, muda lá, e
-     volta. Sem isso o aviso ficaria na tela depois de resolvido. */
+     Reconsultar ao voltar do foco cobre o caminho mais provável: sair
+     daqui para as configurações do aparelho, mudar lá, e voltar. */
   const [permissao, setPermissao] = React.useState<Permissao>('concedida');
-  const conferir = React.useCallback(() => { estadoDaPermissao().then(setPermissao); }, []);
   React.useEffect(() => {
+    const conferir = () => { estadoDaPermissao().then(setPermissao); };
     conferir();
     const sub = AppState.addEventListener('change', (e) => { if (e === 'active') conferir(); });
     return () => sub.remove();
-  }, [conferir]);
+  }, []);
 
-  /* LIGAR UM LEMBRETE É PEDIR PERMISSÃO NA HORA CERTA.
-
-     O sistema só pergunta uma vez. Pedir na abertura do app, antes de a
-     pessoa querer aviso nenhum, é como se perde a permissão para sempre:
-     um "não" dado sem contexto não tem volta de dentro do app.
-
-     Negado, a chave não liga. Guardar "ligado" para algo que o sistema
-     vai engolir seria a tela mentindo em silêncio — e a faixa acima diz
-     onde resolver. */
+  /* LIGAR UM LEMBRETE É PEDIR PERMISSÃO NA HORA CERTA. O sistema só
+     pergunta uma vez, e um "não" dado antes de a pessoa querer aviso
+     nenhum não tem volta de dentro do app. Negado, a chave não liga:
+     guardar "ligado" para algo que o sistema vai engolir seria a tela
+     mentindo em silêncio. */
   const alternar = async (k: string, v: boolean) => {
     if (!v) { set(k, 'on', false); return; }
     const p = permissao === 'concedida' ? 'concedida' : await pedirPermissao();
@@ -59,108 +81,92 @@ export default function Lembretes() {
   const bloqueado = permissao === 'negada' && ligados;
   const semSuporte = permissao === 'indisponivel' && ligados;
 
-  const Chip = ({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) => (
-    <Pressable onPress={onPress}>
-      <View style={{ paddingHorizontal: 11, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: on ? c.accentWeak : c.bg2, borderWidth: 1.1, borderColor: on ? c.accent : c.line }}>
-        <Txt v="micro" c={on ? c.accent : c.tx3}>{label}</Txt>
-      </View>
-    </Pressable>
-  );
-
-  /* RÓTULO E FILEIRA, com a quebra alinhada.
-
-     As pastilhas viviam no mesmo Row do rótulo, com wrap: ao passar da
-     largura, a segunda fileira voltava para a margem esquerda e ficava
-     embaixo da palavra "Horário", em vez de embaixo da primeira
-     pastilha. A correção é a fileira ter caixa própria — o rótulo ocupa
-     a coluna dele, e a quebra acontece dentro do que sobra. */
-  const Campo = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <Row style={{ marginTop: 10, alignItems: 'flex-start' }} gap={6}>
-      <Txt v="caption" c={c.tx3} style={{ width: 62, paddingTop: 6 }}>{label}</Txt>
-      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>{children}</View>
-    </Row>
-  );
-
-  const HourRow = ({ k }: { k: string }) => (
-    <Campo label="Horário">
-      {HOURS.map((h) => <Chip key={h} on={R[k].hour === h} label={hm(h, 0)} onPress={() => set(k, 'hour', h)} />)}
+  const Hora = ({ k }: { k: string }) => (
+    <Campo nu rotulo="Horário">
+      <Opcoes>
+        {HORAS.map((h) => (
+          <Opc key={h} label={hm(h, 0)} on={R[k].hour === h} onPress={() => set(k, 'hour', h)} />
+        ))}
+      </Opcoes>
     </Campo>
   );
 
-  const RemCard = ({ k, ic, title, desc, children, preview }: { k: string; ic: string; title: string; desc: string; children?: React.ReactNode; preview: string | null }) => {
+  const Item = ({ k, ic, titulo, desc, proximo, children }: {
+    k: string; ic: string; titulo: string; desc: string;
+    proximo: string | null; children?: React.ReactNode;
+  }) => {
     const on = R[k].on;
     /* Ligado é a vontade da pessoa; avisar mesmo depende do aparelho. */
-    const avisaMesmo = on && permissao === 'concedida';
+    const avisa = on && permissao === 'concedida';
     return (
-      <Card style={{ paddingVertical: 15 }}>
-        <Row style={{ alignItems: 'flex-start' }} gap={12}>
-          {/* O ÍCONE SOLTO, pela mesma regra do resto do app: a pastilha
-              de cor repetida numa coluna vira fileira de botões que não
-              são botões. A largura fixa fica, porque é ela que alinha os
-              títulos entre si — e a cor continua dizendo se o lembrete
-              está ligado, que é informação e não decoração. */}
-          <View style={{ width: 32, alignItems: 'center', paddingTop: 2 }}>
-            <Icon name={ic} size={21} color={on ? c.accent : c.tx4} sw={1.8} />
+      <View>
+        <Row gap={12} style={{ paddingHorizontal: PAD, paddingVertical: 14, alignItems: 'flex-start' }}>
+          {/* O ícone solto, pela mesma regra do resto do app — e a cor
+              dele continua dizendo se o lembrete está ligado, que é
+              informação e não decoração. */}
+          <View style={{ width: 26, alignItems: 'center', paddingTop: 2 }}>
+            <Icon name={ic} size={20} color={on ? c.accent : c.tx4} sw={1.8} />
           </View>
           <View style={{ flex: 1 }}>
-            <Txt v="title">{title}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 17 }}>{desc}</Txt>
+            <Txt v="bodyMed">{titulo}</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 19 }}>{desc}</Txt>
           </View>
-          <Switch value={on} onValueChange={(v) => alternar(k, v)} trackColor={{ false: c.track, true: c.accent }} thumbColor="#fff" />
+          <Switch
+            value={on} onValueChange={(v) => alternar(k, v)}
+            trackColor={{ false: c.track, true: c.accent }} thumbColor="#fff"
+          />
         </Row>
-        {on && (
-          <View style={{ marginTop: 4 }}>
+
+        {on ? (
+          /* NA LARGURA INTEIRA DO CARTÃO, e não recuado até a coluna do
+             texto. O recuo alinhava bonito com o título e custava 38 px de
+             cada fileira de opções — o suficiente para "2 dias antes"
+             descer sozinho para uma segunda linha. O que prende esta
+             configuração ao lembrete de cima é o fio que separa dos
+             outros, não um degrau de margem. */
+          <View style={{ paddingHorizontal: PAD, paddingBottom: 16, gap: 14 }}>
             {children}
-            <Divider style={{ marginTop: 12 }} />
-            {/* A LINHA DO PRÓXIMO AVISO SÓ APARECE QUANDO ELE VAI SAIR.
+            <Hora k={k} />
+            {/* A LINHA DO PRÓXIMO AVISO SÓ PROMETE O QUE VAI ACONTECER.
                 Ela dizia "Próximo: quando chegar o dia" quando não havia
-                data — uma frase para um caso que não existe, já que sem
+                data — frase para um caso que não existe, já que sem
                 lembrete ligado este bloco nem é desenhado. E com o aviso
-                bloqueado no aparelho ela seria pior: um horário marcado
-                para algo que o sistema não vai deixar chegar. */}
-            <Row gap={6} style={{ marginTop: 10 }}>
-              <Icon name="bell" size={12} color={avisaMesmo ? c.accent : c.tx4} sw={2} />
+                barrado no aparelho, um horário marcado aqui seria a
+                promessa que esta tela acabou de deixar de fazer. */}
+            <Row gap={7} style={{ alignItems: 'center' }}>
+              <Icon name="bell" size={13} color={avisa ? c.accent : c.tx4} sw={2} />
               <Txt v="micro" c={c.tx3}>
-                {avisaMesmo && preview
-                  ? `Próximo: ${preview}`
+                {avisa && proximo
+                  ? `Próximo: ${proximo}`
                   : permissao === 'indisponivel'
                     ? 'Guardado — os avisos saem pelo celular'
                     : 'Sem aviso enquanto estiver bloqueado'}
               </Txt>
             </Row>
           </View>
-        )}
-      </Card>
+        ) : null}
+      </View>
     );
   };
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Lembretes</Txt>
-      </Row>
-      {/* O SUBTÍTULO EM LINHA PRÓPRIA. Ao lado do botão de voltar ele
-          dividia a largura com o título e com o círculo, e terminava
-          cortado no meio da palavra. */}
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-        No seu ritmo — você escolhe o quê e quando.
-      </Txt>
+    <TelaInterna titulo="Lembretes">
+      <Titulao titulo="Lembretes" lead="No seu ritmo — você escolhe o quê e quando." />
 
       {/* O QUE O APARELHO TEM A DIZER. Nas duas situações em que o aviso
           não sai — permissão negada no sistema, ou app aberto no
           navegador —, a tela conta antes de a pessoa descobrir pelo
-          silêncio. A faixa só aparece quando há lembrete ligado: sem
-          nenhum, não há promessa a desmentir. */}
+          silêncio. Só aparece com algum lembrete ligado: sem nenhum, não
+          há promessa a desmentir. */}
       {bloqueado || semSuporte ? (
         <Row gap={11} style={{
-          marginTop: 16, alignItems: 'flex-start',
-          backgroundColor: c.amberBg, borderRadius: radius.lg, padding: 14,
+          alignItems: 'flex-start', backgroundColor: c.amberBg,
+          borderRadius: radius.card, padding: PAD,
         }}>
           <Icon name="bell" size={18} color={c.amber} sw={1.9} />
           <View style={{ flex: 1 }}>
             <Txt v="bodyMed">{bloqueado ? 'Os avisos estão bloqueados' : 'No navegador não dá para avisar'}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 19 }}>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 3, lineHeight: 20 }}>
               {bloqueado
                 ? 'O aparelho está barrando as notificações deste app. Enquanto estiver assim, nada do que você ligar aqui vai chegar.'
                 : 'O que você escolher fica guardado e passa a valer quando abrir o app no celular.'}
@@ -177,44 +183,68 @@ export default function Lembretes() {
         </Row>
       ) : null}
 
-      <View style={{ marginTop: 18, gap: 12 }}>
-        <RemCard k="dose" ic="syringe" title="Aplicação da caneta" desc="Um aviso antes da próxima dose, para manter o tratamento em dia." preview={reminderWhen(doseReminderDate(S))}>
-          <Campo label="Avisar">
-            {[0, 1, 2].map((n) => <Chip key={n} on={R.dose.lead === n} label={n === 0 ? 'no dia' : `${n} dia${n > 1 ? 's' : ''} antes`} onPress={() => set('dose', 'lead', n)} />)}
+      <Sanfona>
+        <Item
+          k="dose" ic="syringe" titulo="Aplicação da caneta"
+          desc="Um aviso antes da próxima dose, para manter o tratamento em dia."
+          proximo={reminderWhen(doseReminderDate(S))}
+        >
+          {/* "1 DIA ANTES" VIROU "1 DIA", e o rótulo passou a carregar a
+              palavra que sobrava. Repetida em cada opção, "antes" empurrava
+              a terceira para uma linha só dela; dita uma vez no rótulo,
+              vale para as três. */}
+          <Campo nu rotulo="Antecedência">
+            <Opcoes>
+              {[0, 1, 2].map((n) => (
+                <Opc
+                  key={n} label={n === 0 ? 'No dia' : `${n} dia${n > 1 ? 's' : ''}`}
+                  on={R.dose.lead === n} onPress={() => set('dose', 'lead', n)}
+                />
+              ))}
+            </Opcoes>
           </Campo>
-          <HourRow k="dose" />
-        </RemCard>
+        </Item>
 
-        <RemCard k="peso" ic="scale" title="Pesagem" desc="Um toque no dia que você escolher — semanal ou todo dia." preview={reminderWhen(pesoReminderDate(S))}>
-          <Campo label="Frequência">
-            <Chip on={R.peso.freq === 'semanal'} label="semanal" onPress={() => set('peso', 'freq', 'semanal')} />
-            <Chip on={R.peso.freq === 'diaria'} label="diária" onPress={() => set('peso', 'freq', 'diaria')} />
+        <Item
+          k="peso" ic="scale" titulo="Pesagem"
+          desc="Um toque no dia que você escolher — semanal ou todo dia."
+          proximo={reminderWhen(pesoReminderDate(S))}
+        >
+          <Campo nu rotulo="Frequência">
+            <Opcoes>
+              <Opc label="Toda semana" on={R.peso.freq === 'semanal'} onPress={() => set('peso', 'freq', 'semanal')} />
+              <Opc label="Todo dia" on={R.peso.freq === 'diaria'} onPress={() => set('peso', 'freq', 'diaria')} />
+            </Opcoes>
           </Campo>
-          {R.peso.freq === 'semanal' && (
-            <Campo label="Dia">
-              {[1, 2, 3, 4, 5, 6, 0].map((n) => <Chip key={n} on={R.peso.dow === n} label={DOW_SHORT[n]} onPress={() => set('peso', 'dow', n)} />)}
+          {R.peso.freq === 'semanal' ? (
+            <Campo nu rotulo="Dia da semana">
+              <Opcoes>
+                {[1, 2, 3, 4, 5, 6, 0].map((n) => (
+                  <Opc key={n} label={DOW_SHORT[n]} on={R.peso.dow === n} onPress={() => set('peso', 'dow', n)} />
+                ))}
+              </Opcoes>
             </Campo>
-          )}
-          <HourRow k="peso" />
-        </RemCard>
+          ) : null}
+        </Item>
 
-        <RemCard k="agua" ic="water" title="Hidratação" desc="Um empurrãozinho para beber água — ajuda com saciedade e enjoo." preview={reminderWhen(dailyReminderDate(R.agua))}>
-          <HourRow k="agua" />
-        </RemCard>
+        <Item
+          k="agua" ic="water" titulo="Hidratação"
+          desc="Um empurrãozinho para beber água — ajuda com saciedade e enjoo."
+          proximo={reminderWhen(dailyReminderDate(R.agua))}
+        />
 
-        <RemCard k="proteina" ic="flame" title="Proteína" desc="Lembrete para priorizar proteína em uma refeição do dia." preview={reminderWhen(dailyReminderDate(R.proteina))}>
-          <HourRow k="proteina" />
-        </RemCard>
-      </View>
+        <Item
+          k="proteina" ic="flame" titulo="Proteína"
+          desc="Lembrete para priorizar proteína em uma refeição do dia."
+          proximo={reminderWhen(dailyReminderDate(R.proteina))}
+        />
+      </Sanfona>
 
-      <Row gap={8} style={{ marginTop: 16, paddingHorizontal: 4, alignItems: 'flex-start' }}>
-        <Icon name="info" size={13} color={c.tx4} sw={1.8} />
-        {/* "DÁ PARA ADIAR" SAIU: não existe adiar. O aviso chega na tela
-            de bloqueio e se dispensa como qualquer outro, e prometer um
-            botão de soneca que não está lá é a mesma espécie de promessa
-            que esta tela inteira acabou de deixar de fazer. */}
-        <Txt v="micro" c={c.tx4} style={{ flex: 1, lineHeight: 17 }}>Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso.</Txt>
-      </Row>
-    </Screen>
+      {/* "DÁ PARA ADIAR" SAIU: não existe adiar. O aviso chega na tela de
+          bloqueio e se dispensa como qualquer outro, e prometer uma
+          soneca que não está lá é a mesma espécie de promessa que esta
+          tela acabou de deixar de fazer. */}
+      <Aviso ic="info" texto="Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso." />
+    </TelaInterna>
   );
 }
