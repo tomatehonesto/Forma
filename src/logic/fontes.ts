@@ -90,7 +90,11 @@ export const FONTES: Fonte[] = [
   {
     id: 'agua',
     sustenta: 'A meta de água por quilo, e a variação por idade',
-    sigla: 'PubMed',
+    /* O SELO É QUEM PUBLICOU, e não onde o resumo está hospedado. O selo
+       dizia "PubMed", que é o índice da biblioteca de medicina dos Estados
+       Unidos — citar PubMed como fonte é como citar a estante em vez do
+       livro. */
+    sigla: 'European Journal of Clinical Nutrition',
     titulo: 'Total water intake by kilogram of body weight',
     onde: 'European Journal of Clinical Nutrition',
     ano: 2021,
@@ -116,7 +120,10 @@ export const FONTES: Fonte[] = [
   {
     id: 'energia2',
     sustenta: 'A escolha desta equação entre as disponíveis',
-    sigla: 'JADA',
+    /* A MESMA CASA DO SELO ANTERIOR: JADA é o periódico da Academy of
+       Nutrition and Dietetics, e dois selos para a mesma instituição lado
+       a lado parecem duas fontes onde existe uma. */
+    sigla: 'Academy of Nutrition and Dietetics',
     titulo: 'Comparison of Predictive Equations for Resting Metabolic Rate in Healthy Nonobese and Obese Adults',
     onde: 'Journal of the American Dietetic Association',
     ano: 2005,

@@ -223,7 +223,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               fim. */}
           <Txt style={{ ...ty.h1, fontFamily: font.body, lineHeight: 38, textAlign: 'center' }}>
             <Txt style={{ ...ty.h1, lineHeight: 38 }}>{primeiro},</Txt>
-            {' o seu plano personalizado está pronto'}
+            {' o seu plano personalizado está pronto!'}
           </Txt>
           {/* O PESO DA META EM DESTAQUE: é o número que a pessoa veio
               buscar, e ele estava diluído no meio da frase. */}
@@ -243,15 +243,15 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
             O seu plano foi elaborado pensando
           </Txt>
           <Row style={{ gap: 8, justifyContent: 'center', marginTop: -6 }}>
-            {([['user', 'nas suas respostas'], ['book', 'em estudos sobre GLP-1']] as [string, string][])
+            {([['user', 'Nas suas respostas'], ['book', 'Em estudos sobre GLP-1']] as [string, string][])
               .map(([ic, t]) => (
                 <Row key={t} style={{
-                  gap: 6, alignItems: 'center', backgroundColor: c.bg1,
-                  borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
+                  gap: 6, alignItems: 'center', backgroundColor: c.accentWeak,
+                  borderRadius: radius.pill,
                   paddingHorizontal: 11, paddingVertical: 7,
                 }}>
-                  <Icon name={ic} size={13} color={c.tx3} sw={2} />
-                  <Txt v="micro" c={c.tx2}>{t}</Txt>
+                  <Icon name={ic} size={13} color={c.accent} sw={2} />
+                  <Txt v="micro" c={c.accent}>{t}</Txt>
                 </Row>
               ))}
           </Row>
@@ -260,28 +260,40 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
         <View style={{ paddingHorizontal: 20, gap: 30 }}>
           {/* ---------- o dia ---------- */}
           <View>
-            <Secao t="O SEU DIA" />
+            <Secao t="A SUA META DE ENERGIA" />
 
             {/* A ENERGIA É O NÚMERO GRANDE porque é dela que os outros
                 saem: carboidrato e gordura são fatia de uma meta de
-                energia, e não existem sem ela. */}
+                energia, e não existem sem ela.
+
+                E AGORA ELA DIZ POR QUE EXISTE. "O seu dia" era um título
+                de gaveta: dizia onde o número mora e não o que ele faz.
+                Num tratamento de GLP-1 a caneta tira a fome, e o que
+                decide o ritmo da perda é o tamanho do déficit — esta é a
+                conta que transforma o remédio em quilo perdido, e é
+                também a que protege a massa magra quando alguém resolve
+                comer muito abaixo dela. */}
             <View style={{
               backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 16, gap: 8,
             }}>
               <Row style={{ gap: 9, alignItems: 'center' }}>
                 <Icon name="flame" size={17} color={c.accent} sw={1.9} />
-                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS</Txt>
+                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS POR DIA</Txt>
               </Row>
               <Row style={{ alignItems: 'baseline', gap: 5 }}>
                 <Txt v="metric" c={c.accent}>{milhar(plano.kcal)}</Txt>
-                <Txt v="caption" c={c.tx2}>kcal por dia</Txt>
+                <Txt v="caption" c={c.tx2}>kcal</Txt>
               </Row>
+              <Txt v="caption" c={c.tx2}>
+                A caneta tira a fome; é este número que decide o ritmo da perda. Comer
+                muito abaixo dele não acelera nada — só cobra músculo no caminho.
+              </Txt>
               {/* QUANDO O RITMO NÃO CABE, A TELA DIZ. Dois quilos por
                   semana pedem 2.200 kcal de déficit por dia — mais do
                   que o gasto inteiro de muita gente. A meta para no piso
                   e a frase explica, em vez de o número aparecer menor do
                   que a conta sem motivo visível. */}
-              <Txt v="caption" c={c.tx2}>
+              <Txt v="caption" c={c.tx3}>
                 {plano.noPiso
                   ? `No ritmo que você escolheu, a conta pediria menos do que o mínimo seguro sem acompanhamento médico. A meta parou aí.`
                   : `Do seu gasto estimado de ${milhar(plano.gasto)} kcal, menos o déficit do ritmo que você escolheu.`}
@@ -530,20 +542,16 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
             </View>
           </View>
 
-          {/* ---------- por que esses números ----------
+          {/* DE ONDE VIERAM OS NÚMEROS — e os nomes de quem publicou.
 
-              A REFERÊNCIA FAZ UMA LISTA DE ARTIGOS COM SETINHA: quatro
-              títulos em inglês, o nome da revista embaixo. Impressiona e
-              ninguém abre — e três dos quatro são matéria sobre o tema, não
-              a fonte de número nenhum.
-
-              Aqui é uma frase e os nomes de quem publicou. A frase diz o
-              que importa — nada foi inventado —, e os selos dão o lastro e
-              abrem o trabalho no toque, para quem quiser conferir. O título
-              de cada artigo continua em fontes.ts, que é onde ele serve
-              para alguma coisa: auditoria, e não vitrine. */}
+              Os selos deixaram de abrir link. Um toque que sai do app no
+              meio da tela de plano tira a pessoa do fluxo para entregar um
+              PDF em inglês de vinte páginas: a promessa é boa e a entrega
+              não é. O que eles fazem aqui é o que selo faz numa embalagem
+              — dizer de onde vem —, e o título de cada trabalho continua
+              em fontes.ts, que é onde ele serve para auditoria. */}
           <View>
-            <Secao t="POR QUE ESSES NÚMEROS" />
+            <Secao t="A CIÊNCIA POR TRÁS DO SEU PLANO" />
             <View style={[cartao, { padding: 18, gap: 14 }]}>
               <Row style={{ gap: 11, alignItems: 'center' }}>
                 <View style={{
@@ -552,29 +560,38 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 }}>
                   <Icon name="book" size={18} color={c.accent} sw={1.9} />
                 </View>
-                <Txt v="bodyMed" style={{ flex: 1 }}>Nenhum número aqui foi inventado</Txt>
+                <Txt v="bodyMed" style={{ flex: 1 }}>
+                  Cada número saiu de uma diretriz ou de um estudo publicado
+                </Txt>
               </Row>
               <Txt v="caption" c={c.tx3}>
-                Cada meta desta tela sai de uma diretriz pública ou de um estudo publicado.
-                Toque para ler.
+                Nada aqui foi estimado no olho: a sua meta de proteína, a de água, a de
+                energia e a curva de perda seguem recomendações de saúde pública e ensaios
+                clínicos revisados por pares.
               </Txt>
               <Row style={{ gap: 8, flexWrap: 'wrap' }}>
                 {SELOS.map((fo) => (
-                  <Pressable
+                  <View
                     key={fo.sigla}
-                    onPress={() => Linking.openURL(fo.url)}
-                    style={({ pressed }) => [{
-                      backgroundColor: c.bg2, borderRadius: radius.pill,
-                      paddingHorizontal: 12, paddingVertical: 7, opacity: pressed ? 0.6 : 1,
-                    }]}
+                    style={{
+                      backgroundColor: c.accentWeak, borderRadius: radius.pill,
+                      paddingHorizontal: 12, paddingVertical: 7,
+                    }}
                   >
-                    <Txt v="micro" c={c.tx2}>{fo.sigla}</Txt>
-                  </Pressable>
+                    <Txt v="micro" c={c.accent}>{fo.sigla}</Txt>
+                  </View>
                 ))}
               </Row>
             </View>
+            {/* O NOSSO PAPEL, DITO POR INTEIRO — e a ordem importa: primeiro
+                o que fazemos, depois o que não fazemos. Dizer só "nada aqui
+                substitui quem te acompanha" soava como isenção de
+                responsabilidade no rodapé; dito assim, é a divisão de
+                trabalho que a pessoa precisa entender para usar o app. */}
             <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-              São ponto de partida, não prescrição — e nada aqui substitui quem te acompanha.
+              A gente acompanha a sua jornada todos os dias e organiza o que você registra —
+              mas quem conduz o tratamento é a sua equipe de saúde. Estes números são ponto
+              de partida para essa conversa, e não prescrição.
             </Txt>
           </View>
         </View>
