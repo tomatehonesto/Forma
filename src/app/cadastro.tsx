@@ -10,7 +10,7 @@ import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
-import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
+import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
@@ -119,11 +119,11 @@ const RITMOS: { kg: number; nome: string }[] = [
 
 /* A motivação, com as opções que os três apps oferecem em comum. */
 const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
-  { id: 'saude', titulo: 'Saúde', sub: 'exames, pressão, glicemia', ic: 'heart' },
-  { id: 'energia', titulo: 'Energia', sub: 'disposição no dia', ic: 'bolt' },
-  { id: 'espelho', titulo: 'Como me vejo', sub: 'no espelho e nas fotos', ic: 'camera' },
-  { id: 'confianca', titulo: 'Confiança', sub: 'me sentir bem comigo', ic: 'spark' },
-  { id: 'medico', titulo: 'Orientação médica', sub: 'foi indicação de quem me acompanha', ic: 'steth' },
+  { id: 'saude', titulo: 'Saúde', sub: 'Exames, pressão, glicemia', ic: 'heart' },
+  { id: 'energia', titulo: 'Energia', sub: 'Disposição no dia', ic: 'bolt' },
+  { id: 'espelho', titulo: 'Como me vejo', sub: 'No espelho e nas fotos', ic: 'camera' },
+  { id: 'confianca', titulo: 'Confiança', sub: 'Me sentir bem comigo', ic: 'spark' },
+  { id: 'medico', titulo: 'Orientação médica', sub: 'Foi indicação de quem me acompanha', ic: 'steth' },
 ];
 
 type Respostas = {
@@ -267,10 +267,21 @@ function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
      lista que só mostra quatro de sete obriga a rolar para descobrir que
      existe uma oitava. Treze pontos ainda dão um alvo confortável de
      dedo, e a lista inteira passa a caber. */
+  /* ALTURA IGUAL PARA TODAS AS ALTERNATIVAS DA MESMA TELA.
+
+     A lista de doses tem subtítulo na primeira e na última ("Dose de
+     início", "Dose máxima") e nenhuma no meio; a de frequência só tem no
+     "Outro intervalo". Sem piso, o cartão com legenda ficava um degrau
+     mais alto que os vizinhos, e a lista parecia desalinhada por
+     descuido — quando a diferença era só o texto a mais.
+
+     O piso é a altura de um cartão COM legenda: quem não tem ganha ar em
+     vez de encolher. */
   const moldura = {
     backgroundColor: on ? c.accent : c.bg1,
     borderRadius: radius.lg,
     paddingHorizontal: 16, paddingVertical: 13,
+    minHeight: 66,
   };
   const tinta = on ? c.accentInk : c.tx;
   const tintaSub = on ? 'rgba(255,255,255,0.78)' : c.tx3;
@@ -746,7 +757,7 @@ const TINTA_CAPA = '#05143F';
 
 /* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
    que ele é usado. */
-const TITULO_ABERTURA = { fontFamily: font.display, fontSize: 34, lineHeight: 42 };
+const TITULO_ABERTURA = { fontFamily: font.body, fontSize: 38, lineHeight: 46 };
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const insets = useSafeAreaInsets();
@@ -798,17 +809,33 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
         flex: 1, justifyContent: 'flex-end',
         paddingHorizontal: 24, paddingBottom: insets.bottom + 24, gap: 16,
       }}>
-        <Marca altura={22} />
-        {/* O CORPO É MENOR QUE O h1 DO APP, e por medida e não por gosto.
+        <Marca altura={30} />
+        {/* A MANCHETE EM REGULAR, COM UMA PALAVRA EM PESO.
 
-            Com 36/44, esta manchete ocupa três linhas e o apoio ocupa
-            seis: o bloco sai pela borda de cima em aparelho curto, e quem
-            usa corpo maior no sistema perde a primeira linha. Trinta
-            caber é melhor do que trinta e seis caber às vezes. */}
+            Inteira em display, ela era um bloco de peso uniforme: bonita
+            e sem hierarquia, do tipo que o olho lê de uma vez e não guarda
+            nada. Em regular, a frase soa como alguém falando; e
+            "transformação" em peso é a única palavra que precisa ficar,
+            porque é ela que diz do que o app trata.
+
+            E ELA CRESCEU. Trinta e quatro era o tamanho de quando a frase
+            tinha de dividir a tela com três cartões de gráfico; sem eles,
+            o que sobra é texto, e texto pequeno numa tela vazia parece
+            legenda. */}
         <Txt c="#FFFFFF" style={TITULO_ABERTURA}>
-          A companhia na sua jornada de transformação
+          A companhia na sua jornada de{' '}
+          <Txt c="#FFFFFF" style={{ ...TITULO_ABERTURA, fontFamily: font.bold }}>
+            transformação
+          </Txt>
         </Txt>
-        <Txt v="caption" c="rgba(255,255,255,0.7)" style={{ marginBottom: 12 }}>
+        {/* O APOIO CRESCEU JUNTO, e o branco subiu para 80%: em 70% sobre
+            o azul profundo do pé da tela ele ficava no limite do legível
+            em aparelho com brilho baixo. */}
+        <Txt
+          v="note"
+          c="rgba(255,255,255,0.8)"
+          style={{ marginBottom: 12, lineHeight: 23 }}
+        >
           Mais do que acompanhar resultados, é entender a jornada por trás deles. Uma
           experiência inteligente que aprende com você e se adapta a cada etapa.
         </Txt>
@@ -976,20 +1003,16 @@ function Sincronia({ nome }: { nome: string }) {
   const { c } = useTheme();
   return (
     <View style={{ height: 176, alignItems: 'center', justifyContent: 'center' }}>
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute', width: 230, height: 230, borderRadius: 115,
-          backgroundColor: c.bg1, opacity: 0.9,
-        }}
-      />
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute', width: 168, height: 168, borderRadius: 84,
-          backgroundColor: c.accentWeak,
-        }}
-      />
+      {/* O MESMO BORRÃO DAS OUTRAS TELAS, e não um disco.
+
+          Aqui havia dois círculos chapados atrás das pastilhas, e um
+          círculo tem borda: ele lia como um objeto a mais na figura, e
+          não como luz. A lavagem é a textura que o formulário inteiro já
+          usa no topo — trazê-la para cá liga esta tela às outras catorze
+          em vez de inventar um fundo só dela. */}
+      <View style={{ position: 'absolute', left: -20, right: -20, top: 0, bottom: 0 }}>
+        <Lavagem altura={176} forca={0.5} />
+      </View>
       <Row style={{ alignItems: 'center', gap: 14 }}>
         {/* O APP DO APARELHO */}
         <View style={[{
@@ -1037,10 +1060,11 @@ const dataPorExtenso = (t: number) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
-/* Mês e ano, para projeção. Ver o comentário de RITMOS. */
-const mesPorExtenso = (t: number) => {
+/* A mesma projeção em número, para comparar de relance: entre quatro
+   alternativas empilhadas, 02/2027 e 11/2026 se comparam sem leitura. */
+const mesEmNumero = (t: number) => {
   const d = new Date(t);
-  return `${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
+  return `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 };
 
 export default function Cadastro() {
@@ -1458,24 +1482,37 @@ export default function Cadastro() {
           duas texturas no mesmo lugar viram só borrão azul. */}
       {id === 'saude' ? null : <Lavagem altura={insets.top + 280} />}
 
-      {/* O TOPO diz onde a pessoa está e não oferece saída. "Pular tudo"
-          ficava aqui; com as perguntas obrigatórias, o que sobra é a
-          barra, a contagem e o voltar — e os três flutuam sobre a
-          lavagem, sem faixa nem fio embaixo. */}
-      <View style={{ paddingHorizontal: 20, paddingTop: insets.top + 10 }}>
-        <Row gap={12}>
-          <CircleBtn name="back" size={38} bg={c.bg1} onPress={() => (doResumo ? aoResumo() : setN(n - 1))} />
-          <View style={{
-            flex: 1, height: 4, borderRadius: 2, overflow: 'hidden',
-            backgroundColor: 'rgba(255,255,255,0.6)',
-          }}>
-            <View style={{
-              width: `${((n + 1) / passos.length) * 100}%`,
-              height: '100%', borderRadius: 2, backgroundColor: c.accent,
-            }} />
-          </View>
-          <Txt v="micro" c={c.tx2}>{n + 1} de {passos.length}</Txt>
-        </Row>
+      {/* O TOPO: uma seta e um fio.
+
+          Tinha um botão redondo branco em volta da seta e um "14 de 15"
+          no canto. A moldura dava peso de ação a um gesto que é o mais
+          barato da tela — voltar —, e a contagem informava justamente o
+          que ninguém quer saber no meio de um formulário: quantas
+          perguntas ainda faltam. Quinze é um número que assusta em
+          qualquer tela em que ele apareça.
+
+          O QUE SOBRA DIZ A MESMA COISA MELHOR. A seta nua, maior, com
+          área de toque de sobra; e o progresso como um fio que atravessa
+          a tela de ponta a ponta, encostado no alto. Ele responde "quanto
+          falta" pelo tamanho, que é como barra de progresso sempre
+          respondeu, e não obriga ninguém a fazer conta. */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top + 4 }}>
+        <View style={{
+          position: 'absolute', left: 0, bottom: 0, height: 3,
+          width: `${((n + 1) / passos.length) * 100}%`,
+          backgroundColor: c.accent,
+          borderTopRightRadius: 2, borderBottomRightRadius: 2,
+        }} />
+      </View>
+
+      <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 12 }}>
+        <Pressable
+          onPress={() => (doResumo ? aoResumo() : setN(n - 1))}
+          hitSlop={14}
+          style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.5 : 1 }]}
+        >
+          <Icon name="back" size={26} color={c.tx} sw={2} />
+        </Pressable>
       </View>
 
       {/* O RODAPÉ SOBE COM O TECLADO.
@@ -1499,7 +1536,7 @@ export default function Cadastro() {
            frase, e a imagem ocupando a sobra. */
         contentContainerStyle={id === 'saude'
           ? { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 34, flexGrow: 1, justifyContent: 'center' }
-          : { paddingHorizontal: 20, paddingTop: 64, paddingBottom: 24 }}
+          : { paddingHorizontal: 20, paddingTop: 26, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* A pergunta mora DENTRO da lavagem, e não abaixo dela: é ela o
@@ -1666,7 +1703,7 @@ export default function Cadastro() {
                 <Escolha
                   key={d} cheia
                   titulo={`${doseTxt(d)} ${med.unit}`}
-                  sub={i === 0 ? 'dose de início' : i === med.doses.length - 1 ? 'dose máxima' : undefined}
+                  sub={i === 0 ? 'Dose de início' : i === med.doses.length - 1 ? 'Dose máxima' : undefined}
                   on={r.dose === d}
                   onPress={() => p({ dose: d })}
                 />
@@ -1676,7 +1713,7 @@ export default function Cadastro() {
                   a consulta que define isso. */}
               {futuro ? (
                 <Escolha
-                  cheia titulo="Ainda não sei" sub="quase todo mundo começa pela menor"
+                  cheia titulo="Ainda não sei" sub="Quase todo mundo começa pela menor"
                   on={r.dose === 0}
                   onPress={() => p({ dose: 0 })}
                 />
@@ -1713,7 +1750,7 @@ export default function Cadastro() {
               ))}
               <Escolha
                 cheia titulo="Outro intervalo"
-                sub={outroIntervalo ? `a cada ${r.intervalo} dias` : 'você diz de quantos em quantos dias'}
+                sub={outroIntervalo ? `A cada ${r.intervalo} dias` : 'Você diz de quantos em quantos dias'}
                 on={outroIntervalo}
                 onPress={() => p({ intervalo: padrao === 1 ? 2 : 9 })}
               />
@@ -1800,6 +1837,7 @@ export default function Cadastro() {
           perder > 0 ? (
             <View style={{ gap: 10 }}>
               {RITMOS.map((x) => {
+                const on = r.ritmo === x.kg;
                 const semanas = Math.ceil(perder / x.kg);
                 const quando = +startOfDay(now()) + semanas * 7 * 86400000;
                 return (
@@ -1812,19 +1850,24 @@ export default function Cadastro() {
                        aquilo significa depois que ela já viu o quanto. */
                     titulo={`${nf(x.kg, 1)} kg por semana`}
                     sub={x.nome}
-                    /* A DATA GANHOU LINHA PRÓPRIA, CALENDÁRIO E DESTINO.
+                    /* A PREVISÃO EM UMA LINHA, E EM OUTRA COR.
 
-                       Ela vinha emendada no apelido — "Devagar e sempre ·
-                       chega por volta de setembro de 2026" —, e o "chega"
-                       não dizia chega ONDE: dava para ler como o fim do
-                       tratamento, ou como o dia em que o medicamento
-                       acaba. Com o peso escrito, chega é chegar na meta
-                       que ela acabou de escolher. */
+                       Era uma frase: "Chega aos 70 kg por volta de
+                       fevereiro de 2027" — comprida o bastante para
+                       dobrar em duas linhas dentro do cartão, e com isso
+                       o ritmo, o apelido e a data pesavam igual. Encurtada
+                       e no azul, ela vira o dado que se compara entre uma
+                       alternativa e outra, que é a decisão que esta tela
+                       pede.
+
+                       O mês em número pelo mesmo motivo: "02/2027" se
+                       compara de relance com "11/2026"; "fevereiro de
+                       2027" se lê. */
                     rodape={(tinta) => (
                       <Row gap={6} style={{ marginTop: 5, alignItems: 'center' }}>
-                        <Icon name="cal" size={13} color={tinta} sw={2} />
-                        <Txt v="caption" c={tinta} style={{ flex: 1 }}>
-                          {`Chega aos ${kgTxt(r.meta)} kg por volta de ${mesPorExtenso(quando)}`}
+                        <Icon name="cal" size={13} color={on ? tinta : c.accent} sw={2} />
+                        <Txt v="caption" c={on ? tinta : c.accent} style={{ flex: 1 }}>
+                          {`Alcança os ${kgTxt(r.meta)} kg em ${mesEmNumero(quando)}`}
                         </Txt>
                       </Row>
                     )}
@@ -2028,11 +2071,11 @@ export default function Cadastro() {
           <View style={{ gap: 16 }}>
             <View style={{ gap: 10 }}>
               <Escolha
-                ic="steth" cheia titulo="Sim" sub="tenho um código de convite"
+                ic="steth" cheia titulo="Sim" sub="Tenho um código de convite"
                 on={r.recomendado === true} onPress={() => p({ recomendado: true })}
               />
               <Escolha
-                ic="user" cheia titulo="Não" sub="cheguei por conta própria"
+                ic="user" cheia titulo="Não" sub="Cheguei por conta própria"
                 on={r.recomendado === false} onPress={() => p({ recomendado: false, codigo: '' })}
               />
             </View>

@@ -16,7 +16,7 @@ import { Botao, Grade2 } from '../ui/internas';
 import { AreaCurve } from '../ui/charts';
 import { Lavagem } from '../ui/lavagem';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, font } from '../theme';
 
 /* ============================================================
    O PLANO — o que as respostas do cadastro viraram
@@ -69,9 +69,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const plano = d.plano;
   const primeiro = d.nome.trim().split(' ')[0];
   const marca = d.med !== 'indefinido' && med ? ` com o ${med.label}®` : '';
-  const alvo = perder > 0.05 ? `perder ${kgTxt(perder)} kg`
-    : perder < -0.05 ? `ganhar ${kgTxt(-perder)} kg`
-      : 'manter o seu peso';
+  /* O QUE VAI EM PESO na frase de abertura: os quilos, ou o verbo
+     inteiro quando não há quilo nenhum a percorrer. */
+  const alvoForte = Math.abs(perder) > 0.05 ? `${kgTxt(Math.abs(perder))} kg` : 'manter o seu peso';
   const inter = d.intervalo ?? padrao;
   const cadTexto = inter === 1 ? 'todos os dias'
     : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
@@ -209,19 +209,38 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
           }}>
             <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
           </View>
-          <Txt v="h1" style={{ textAlign: 'center' }}>
-            {`${primeiro}, seu plano personalizado está pronto!`}
+          {/* O NOME SOZINHO NA PRIMEIRA LINHA, e em peso.
+
+              "Ana, seu plano personalizado está pronto!" numa frase só,
+              tudo no mesmo peso, é um bloco de três linhas onde nada é o
+              assunto. O nome sozinho em cima é a pessoa sendo chamada; o
+              resto, em regular, é o recado. */}
+          <Txt v="h1" style={{ textAlign: 'center' }}>{primeiro},</Txt>
+          <Txt
+            v="title"
+            style={{ textAlign: 'center', fontFamily: font.body, marginTop: -6 }}
+          >
+            o seu plano personalizado está pronto
           </Txt>
+          {/* O PESO DA META EM DESTAQUE: é o número que a pessoa veio
+              buscar, e ele estava diluído no meio da frase. */}
           <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
-            {`Para ${alvo}${marca}.`}
+            Para {perder > 0.05 ? 'perder ' : perder < -0.05 ? 'ganhar ' : ''}
+            <Txt v="note" style={{ fontFamily: font.bodySemi, color: c.tx }}>{alvoForte}</Txt>
+            {marca}.
           </Txt>
-          {/* A SEGUNDA ETIQUETA SÓ PODE EXISTIR PORQUE A ÚLTIMA SEÇÃO
-              EXISTE. "Com base em estudos" é a frase mais fácil de
-              estampar e a mais fácil de mentir; aqui ela é um índice —
-              cada trabalho listado lá embaixo sustenta uma conta desta
-              tela, e abre no toque. */}
-          <Row style={{ gap: 8, justifyContent: 'center' }}>
-            {([['user', 'Das suas respostas'], ['book', 'Com base em estudos']] as [string, string][])
+          {/* AS ETIQUETAS VIRARAM UMA FRASE COM DUAS PONTAS.
+
+              "Das suas respostas" e "Com base em estudos" eram dois
+              carimbos soltos: cada um se defendia sozinho e nenhum dizia
+              do que estava falando. Com a linha em cima, as duas viram o
+              fim da mesma frase — o plano foi pensado a partir DISTO e
+              DAQUILO —, e o que era selo vira procedência. */}
+          <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>
+            O seu plano foi elaborado pensando
+          </Txt>
+          <Row style={{ gap: 8, justifyContent: 'center', marginTop: -6 }}>
+            {([['user', 'nas suas respostas'], ['book', 'em estudos sobre GLP-1']] as [string, string][])
               .map(([ic, t]) => (
                 <Row key={t} style={{
                   gap: 6, alignItems: 'center', backgroundColor: c.bg1,

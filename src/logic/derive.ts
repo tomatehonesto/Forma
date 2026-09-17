@@ -1196,7 +1196,7 @@ export type PlanoInicial = {
    informação em duas formas, e separá-los é como um ganha um degrau que o
    outro não tem. */
 export const ATIVIDADES: { id: string; titulo: string; sub: string }[] = [
-  { id: 'sedentario', titulo: 'Sedentário', sub: 'pouco ou nenhum exercício' },
+  { id: 'sedentario', titulo: 'Sedentário', sub: 'Pouco ou nenhum exercício' },
   { id: 'leve', titulo: 'Levemente ativo', sub: '1 a 3 dias por semana' },
   { id: 'moderado', titulo: 'Moderadamente ativo', sub: '3 a 5 dias por semana' },
   { id: 'muito', titulo: 'Muito ativo', sub: '6 a 7 dias por semana' },
