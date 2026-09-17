@@ -4,9 +4,10 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, nf } from '../logic/time';
+import { MO_LONG, milhar, nf } from '../logic/time';
 import {
   journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose, ATIVIDADES, MOTIVOS,
+  metasDoDia,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Malha, Segmentado } from '../ui/instrumentos';
@@ -59,19 +60,35 @@ const dataDoPerfil = (t: number) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
-/** Um número da ficha. Valor e unidade como dois elementos (princípio 9):
-    a coluna alinha pela base do valor e o olho compara antes de ler. */
-function Dado({ valor, unidade, label, onPress }: {
-  valor: string; unidade?: string; label: string; onPress?: () => void;
+/** Um número da ficha, em pastilha de cor.
+
+    TRÊS CARTÕES COLORIDOS EM LINHA, e não quatro brancos em grade. Em
+    branco eles eram do mesmo material do resto da tela e se perdiam
+    entre as listas; a cor os separa como o que são — os números que o
+    tratamento inteiro usa —, e a fileira única cabe numa olhada.
+
+    A COR NÃO É DECORAÇÃO, é a do significado que o app já deu a cada um:
+    o peso inicial é passado e fica neutro; a meta é alvo e usa o lima,
+    que é a cor do alcançado na Jornada; a energia do dia é meta ativa e
+    usa o azul, que é a cor de ação em todas as telas. Nenhuma cor nova
+    entrou para esta tela ficar bonita.
+
+    Valor e unidade como dois elementos (princípio 9): a fileira alinha
+    pela base do valor e o olho compara antes de ler. */
+function Dado({ valor, unidade, label, fundo, tinta, onPress }: {
+  valor: string; unidade?: string; label: string;
+  fundo: string; tinta: string; onPress?: () => void;
 }) {
   const { c } = useTheme();
   const corpo = (
-    <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-      <Row gap={4} style={{ alignItems: 'baseline' }}>
-        <Txt v="h1" style={{ fontSize: 24 }}>{valor}</Txt>
-        {!!unidade && <Txt v="caption" c={c.tx3}>{unidade}</Txt>}
+    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.lg, padding: 14, gap: 6 }}>
+      {/* Uma linha só: três cartões de alturas diferentes numa fileira
+          leem como desalinho, e não como rótulo comprido. */}
+      <Txt v="micro" c={c.tx3} numberOfLines={1}>{label}</Txt>
+      <Row gap={3} style={{ alignItems: 'baseline' }}>
+        <Txt v="h1" c={tinta} style={{ fontSize: 22 }}>{valor}</Txt>
+        {!!unidade && <Txt v="micro" c={c.tx3}>{unidade}</Txt>}
       </Row>
-      <Txt v="micro" c={c.tx3} style={{ marginTop: 6 }}>{label}</Txt>
     </View>
   );
   if (!onPress) return corpo;
@@ -82,20 +99,29 @@ function Dado({ valor, unidade, label, onPress }: {
   );
 }
 
-/** Grupo de linhas dentro de um card, com fio entre elas — o mesmo padrão
-    de "Gerar resumos" no Insights e da área médica na Home. Repetir poupa
-    a pessoa de aprender um terceiro jeito de ler a mesma coisa. */
+/** Grupo de linhas dentro de um card, com fio entre elas.
+
+    OS FIOS SANGRAM ATÉ A BORDA DIREITA, e começam alinhados com o texto.
+    Antes o card tinha padding de 16 e o fio vivia dentro dele, recuado
+    dos dois lados: a lista virava uma pilha de blocos separados por
+    traços flutuantes, e o toque só valia em cima da linha, não na faixa
+    inteira. É o mesmo desenho do Cartao das internas, que é o vocabulário
+    de lista mais novo do app — e ter dois jeitos de desenhar a mesma coisa
+    em telas vizinhas é o que faz um app parecer montado por duas pessoas
+    que não se falaram. */
 function Grupo({ title, children }: { title: string; children: React.ReactNode }) {
   const { c } = useTheme();
   const linhas = React.Children.toArray(children).filter(Boolean);
   return (
     <View style={{ marginTop: 32 }}>
       <SectionHead title={title} />
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 16 }}>
+      <View style={{
+        backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, overflow: 'hidden',
+      }}>
         {linhas.map((l, i) => (
           <React.Fragment key={i}>
-            {i > 0 && <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />}
-            {l}
+            {i > 0 && <View style={{ height: 1, backgroundColor: c.line, marginLeft: 16 }} />}
+            <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>{l}</View>
           </React.Fragment>
         ))}
       </View>
@@ -112,6 +138,7 @@ export default function Perfil() {
   const update = useStore((s) => s.update);
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
+  const metas = metasDoDia(S);
   const corrige = (passo: string) => () => router.push(`/cadastro?editar=${passo}` as any);
   const atividade = ATIVIDADES.find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
   const motivo = MOTIVOS.find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
@@ -160,7 +187,11 @@ export default function Perfil() {
               <LinearGradient
                 colors={[c.accent, c.accent2]}
                 start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-                style={{ width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}
+                /* REDONDO, e não quadrado de cantos macios. O quadrado é a
+                   forma de ícone de app, e num cabeçalho de perfil ele lia
+                   como logotipo; o círculo é a forma de retrato em todo
+                   aparelho que a pessoa já usou. */
+                style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' }}
               >
                 <Txt v="h1" c={c.accentInk} style={{ fontSize: 28 }}>{S.profile.name[0]}</Txt>
               </LinearGradient>
@@ -225,16 +256,17 @@ export default function Perfil() {
         </Txt>
 
         <Row gap={10} style={{ marginTop: 14 }}>
-          <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="peso inicial" onPress={corrige('corpo')} />
-          <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="meta de peso" onPress={corrige('meta')} />
-        </Row>
-        <Row gap={10} style={{ marginTop: 10 }}>
-          <Dado valor={nf(S.profile.height, 2).replace('.', ',')} unidade="m" label="altura" onPress={corrige('corpo')} />
           <Dado
-            valor={S.profile.ritmo ? nf(S.profile.ritmo, 1).replace('.', ',') : '—'}
-            unidade={S.profile.ritmo ? 'kg/semana' : undefined}
-            label="ritmo escolhido"
-            onPress={corrige('ritmo')}
+            valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
+            fundo={c.bg1} tinta={c.tx} onPress={corrige('corpo')}
+          />
+          <Dado
+            valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
+            fundo={c.limeWeak} tinta={c.tx} onPress={corrige('meta')}
+          />
+          <Dado
+            valor={milhar(metas.kcal)} unidade="kcal" label="Energia"
+            fundo={c.accentWeak} tinta={c.accent} onPress={go('/metas')}
           />
         </Row>
 
@@ -266,6 +298,12 @@ export default function Perfil() {
           filtra o que o app sugere, e o motivo é o que a pessoa disse que
           a trouxe. Todos mudam com a vida, e nenhum tinha porta. */}
       <Grupo title="Suas respostas">
+        <ListRow ic="ruler" title="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
+        <ListRow
+          ic="trend" title="Ritmo escolhido"
+          sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
+          onPress={corrige('ritmo')}
+        />
         <ListRow ic="user" title="Nome" sub={S.profile.name} onPress={corrige('nome')} />
         <ListRow ic="heart" title="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
         <ListRow
@@ -304,27 +342,6 @@ export default function Perfil() {
         </Pressable>
       </View>
 
-      {/* ---- aparência ----
-          Segmentado e não linha que alterna ao toque. A linha escondia o
-          estado atrás da ação: para saber em que tema estava, era preciso
-          ler o texto do subtítulo. Com dois recortes visíveis, o estado É
-          a interface, e o toque leva direto ao que se quer em vez de
-          alternar. */}
-      <View style={{ marginTop: 32 }}>
-        <SectionHead title="Aparência" />
-        <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 16 }}>
-          <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name={isDark ? 'moonToggle' : 'sun'} size={17} color={c.tx} sw={1.8} />
-          </View>
-          <Txt v="body" style={{ flex: 1 }}>Tema</Txt>
-          <Segmentado
-            opcoes={['Claro', 'Escuro']}
-            valor={isDark ? 'Escuro' : 'Claro'}
-            onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
-          />
-        </Row>
-      </View>
-
       <Grupo title="Acompanhamento">
         <ListRow ic="target" title="Metas diárias"
           sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
@@ -347,41 +364,61 @@ export default function Perfil() {
           sub="Documento com a evolução completa" onPress={go('/resumo-medico')} />
       </Grupo>
 
-      {/* ---- privacidade ----
+      {/* ---- o aplicativo ----
 
-          Estas três linhas não navegam, e é uma decisão e não uma pendência:
-          o que elas têm a dizer cabe na própria linha. Chevron que não leva
-          a lugar nenhum é a pior linha de uma lista — ela promete conteúdo
-          e cobra um toque para revelar que não há.
+          Aqui estavam três seções: "Aparência" com uma linha, "Privacidade"
+          com duas, e a versão pendurada no fim de uma delas. Três títulos
+          para três coisas que respondem à mesma pergunta — o que este app
+          faz com o que é meu, e como ele se comporta — numa tela que já
+          tinha sete seções e virou um rolo depois que a ficha cresceu.
 
-          O texto da privacidade é literal e verificável: não existe backend,
-          então os dados estão de fato só no aparelho. No dia em que houver
-          sincronização, esta frase muda antes do código. */}
-      <View style={{ marginTop: 32 }}>
-        <SectionHead title="Privacidade" />
-        <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 16 }}>
-          <Row gap={12} style={{ alignItems: 'flex-start' }}>
-            <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="lock" size={17} color={c.tx} sw={1.8} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Txt v="body">Seus dados ficam no seu aparelho</Txt>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
-                Peso, sintomas, aplicações e fotos não saem daqui. Nada é enviado
-                para a clínica sem você tocar em enviar.
-              </Txt>
-            </View>
-          </Row>
-          <View style={{ height: 1, backgroundColor: c.line, marginVertical: 14 }} />
-          <Row gap={12}>
-            <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="info" size={17} color={c.tx} sw={1.8} />
-            </View>
-            <Txt v="body" style={{ flex: 1 }}>Morphi</Txt>
-            <Txt v="caption" c={c.tx3}>versão 1.0.0</Txt>
-          </Row>
-        </View>
-      </View>
+          O TEMA NÃO É UMA SEÇÃO. Ele é uma preferência, e preferência mora
+          onde moram as preferências. O que ele mantém é o desenho:
+          segmentado, e não linha que alterna ao toque — a linha escondia o
+          estado atrás da ação, e para saber em que tema se estava era
+          preciso ler o subtítulo.
+
+          A PRIVACIDADE NÃO NAVEGA, e é decisão e não pendência: o que ela
+          tem a dizer cabe na própria linha. Chevron que não leva a lugar
+          nenhum é a pior linha de uma lista — promete conteúdo e cobra um
+          toque para revelar que não há. O texto é literal e verificável:
+          não existe backend, então os dados estão de fato só no aparelho.
+          No dia em que houver sincronização, esta frase muda antes do
+          código. */}
+      <Grupo title="O aplicativo">
+        <Row gap={12}>
+          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name={isDark ? 'moonToggle' : 'sun'} size={20} color={c.tx2} sw={1.8} />
+          </View>
+          <Txt v="body" style={{ flex: 1 }}>Tema</Txt>
+          <Segmentado
+            opcoes={['Claro', 'Escuro']}
+            valor={isDark ? 'Escuro' : 'Claro'}
+            onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
+          />
+        </Row>
+
+        <Row gap={12} style={{ alignItems: 'flex-start' }}>
+          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center', paddingTop: 1 }}>
+            <Icon name="lock" size={20} color={c.tx2} sw={1.8} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="body">Seus dados ficam no seu aparelho</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
+              Peso, sintomas, aplicações e fotos não saem daqui. Nada é enviado
+              para a clínica sem você tocar em enviar.
+            </Txt>
+          </View>
+        </Row>
+
+        <Row gap={12}>
+          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="info" size={20} color={c.tx2} sw={1.8} />
+          </View>
+          <Txt v="body" style={{ flex: 1 }}>Morphi</Txt>
+          <Txt v="caption" c={c.tx3}>versão 1.0.0</Txt>
+        </Row>
+      </Grupo>
 
       {/* Sair em texto e não em card tingido de vermelho. O card vermelho
           dava a "sair da conta" o peso visual de um alerta clínico, que é o
