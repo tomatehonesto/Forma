@@ -1078,6 +1078,14 @@ export default function Cadastro() {
          tratamento há dois meses começava a jornada com zero de
          diferença. Quem ainda vai começar não tem essa distinção, e para
          essa pessoa os dois são o mesmo número. */
+      /* A PORTA SE TRANCA ATRÁS DA PESSOA.
+
+         `onboardDone` é o que o _layout lê para decidir se mostra o app ou
+         manda para cá. Ele vira verdadeiro aqui, e não no botão do fim do
+         plano: quem chegou a esta linha já respondeu tudo e já tem perfil
+         escrito — fechar o app na tela de plano não pode devolver a pessoa
+         ao formulário que ela acabou de preencher. */
+      s.onboardDone = true;
       s.profile.startWeight = r.emTratamento ? r.pesoInicial : r.peso;
       s.profile.goalWeight = r.meta;
       s.profile.ritmo = r.ritmo;

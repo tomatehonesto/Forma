@@ -94,6 +94,7 @@ export default function Perfil() {
      envelhece errado — o perfil diria 38 anos para sempre. */
   const idade = idadeDe(S);
   const setTheme = useStore((s) => s.setTheme);
+  const update = useStore((s) => s.update);
   const { c, isDark } = useTheme();
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
@@ -316,8 +317,25 @@ export default function Perfil() {
           dava a "sair da conta" o peso visual de um alerta clínico, que é o
           que a cor de erro precisa continuar significando neste app —
           sintoma grave, exame fora da faixa. Sair é reversível: você
-          entra de novo. */}
-      <Pressable style={({ pressed }) => [{ marginTop: 32, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}>
+          entra de novo.
+
+          E AGORA ELE LEVA A ALGUM LUGAR. O botão era decorativo: tocava e
+          nada acontecia. Sair destranca a porta de entrada — `onboardDone`
+          volta a ser falso — e devolve a pessoa à abertura do cadastro,
+          que é onde o app começa.
+
+          O QUE FOI REGISTRADO FICA. Não há conta nem servidor aqui: sair é
+          voltar para a porta, e não apagar a vida de alguém do aparelho.
+          Quem entrar de novo refaz o cadastro por cima do que já existe —
+          e apagar o histórico de tratamento de alguém por causa de um
+          toque num botão cinza seria o tipo de dano que não se desfaz. */}
+      <Pressable
+        onPress={() => {
+          update((s: any) => { s.onboardDone = false; });
+          router.replace('/cadastro' as any);
+        }}
+        style={({ pressed }) => [{ marginTop: 32, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}
+      >
         <Row gap={9}>
           <Icon name="logout" size={17} color={c.tx3} sw={1.9} />
           <Txt v="bodyMed" c={c.tx3}>Sair da conta</Txt>

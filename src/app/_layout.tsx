@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -34,6 +34,36 @@ function Moldura({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* A PORTA DE ENTRADA.
+
+   O cadastro existia solto: dava para chegar nele por endereço, e o app
+   abria direto na Home com o perfil de exemplo. Quem instalasse pela
+   primeira vez entrava na vida de outra pessoa — peso, doses, histórico
+   — e tinha de descobrir sozinho onde se cadastra.
+
+   `onboardDone` já existia no estado e ninguém lia. Agora ele é a
+   tranca: enquanto for falso, qualquer endereço leva ao cadastro, e ele
+   só vira verdadeiro quando o plano é montado, no fim do formulário.
+
+   NÃO É AUTENTICAÇÃO, e não finge ser: não há conta, servidor nem senha.
+   É a diferença entre "este app já é seu" e "este app ainda é uma
+   demonstração", que é a única coisa que o aparelho tem como saber
+   sozinho. */
+function Portao({ children }: { children: React.ReactNode }) {
+  const ready = useStore((s) => s.ready);
+  const feito = useStore((s) => s.S.onboardDone);
+  const segmentos = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!ready) return;
+    const noCadastro = segmentos[0] === 'cadastro';
+    if (!feito && !noCadastro) router.replace('/cadastro' as any);
+  }, [ready, feito, segmentos, router]);
+
+  return <>{children}</>;
+}
+
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
   const ready = useStore((s) => s.ready);
@@ -50,6 +80,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <Moldura>
+        <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />
           {/* O cadastro não se fecha pelo lado. Ele é o único fluxo do app
@@ -124,6 +155,7 @@ export default function RootLayout() {
             />
           ))}
         </Stack>
+        </Portao>
         </Moldura>
       </SafeAreaProvider>
     </GestureHandlerRootView>
