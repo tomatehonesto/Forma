@@ -88,25 +88,31 @@ export function horasDe(a: Alerta): number[] {
    evento. É a mesma estrutura com dois campos que se alternam, e não dois
    tipos de alerta. */
 export const TIPOS: Record<TipoDeAlerta, {
-  titulo: string; ic: string; desc: string; temDias: boolean; temLead: boolean;
+  titulo: string;
+  /* O NOME QUE CABE NUMA COLUNA. Só a dose difere do título, e difere
+     porque "Aplicação da caneta" numa grade de duas colunas termina em
+     reticências — e um nome cortado numa lista de escolha é a única das
+     quatro opções que a pessoa não consegue ler antes de tocar. */
+  curto: string;
+  ic: string; desc: string; temDias: boolean; temLead: boolean;
 }> = {
   dose: {
-    titulo: 'Aplicação da caneta', ic: 'syringe',
+    titulo: 'Aplicação da caneta', curto: 'Aplicação', ic: 'syringe',
     desc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
     temDias: false, temLead: true,
   },
   peso: {
-    titulo: 'Pesagem', ic: 'scale',
+    titulo: 'Pesagem', curto: 'Pesagem', ic: 'scale',
     desc: 'Um toque nos dias em que você quer subir na balança.',
     temDias: true, temLead: false,
   },
   agua: {
-    titulo: 'Hidratação', ic: 'water',
+    titulo: 'Hidratação', curto: 'Hidratação', ic: 'water',
     desc: 'Empurrõezinhos para beber água — ajudam com saciedade e enjoo.',
     temDias: true, temLead: false,
   },
   proteina: {
-    titulo: 'Proteína', ic: 'flame',
+    titulo: 'Proteína', curto: 'Proteína', ic: 'flame',
     desc: 'Lembrete para priorizar proteína nas refeições do dia.',
     temDias: true, temLead: false,
   },

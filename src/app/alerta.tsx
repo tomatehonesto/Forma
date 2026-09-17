@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  CADAS, FINS, HORAS, INICIOS, LEADS, TIPOS, acharAlerta, horasDe, novoAlerta,
+  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, TIPOS, acharAlerta, horasDe, novoAlerta,
   proximaDe, quando, rotuloDoLead,
   type Alerta, type TipoDeAlerta,
 } from '../logic/alertas';
@@ -18,11 +18,16 @@ import { useTheme } from '../ui/useTheme';
 
    Dois modos na mesma folha, como a de meta e a de refeição já fazem:
 
-     ?tipo=agua   criar um alerta novo daquele assunto
+     (sem nada)   criar um alerta, escolhendo o assunto aqui dentro
      ?id=<id>     abrir um que existe, para mudar ou apagar
 
    Duas telas para isto seriam duas cópias do rodapé, dos horários e dos
    dias — e é exatamente aí que uma ganha o botão de apagar e a outra não.
+
+   O ASSUNTO É A PRIMEIRA PERGUNTA, e não um parâmetro da rota. A lista
+   atrás deixou de ter uma seção por assunto — ela é uma lista só, e o
+   botão de criar é da tela inteira. Alguém que vem de lá ainda não disse
+   de que é o alerta, e é aqui que ele diz.
 
    A EDIÇÃO É EM RASCUNHO, e só grava no Salvar. A lista atrás mostra
    "Seg, qui · 08:00" e reagenda os avisos a cada mudança do estado:
@@ -40,8 +45,20 @@ export default function AlertaFolha() {
 
   const existente = id ? acharAlerta(S, id) : null;
   const [a, setA] = useState<Alerta>(
-    () => existente ?? novoAlerta(((tipo as TipoDeAlerta) in TIPOS ? tipo : 'agua') as TipoDeAlerta),
+    () => existente ?? novoAlerta(((tipo as TipoDeAlerta) in TIPOS ? tipo : 'dose') as TipoDeAlerta),
   );
+
+  /* TROCAR O ASSUNTO RECOMEÇA O ALERTA, e não só muda o rótulo dele.
+
+     Cada assunto tem um jeito próprio de tocar: a dose conta dias antes
+     da aplicação e a hidratação nasce em intervalo. Guardar as opções da
+     pesagem ao trocar para hidratação daria um alerta de água às oito da
+     manhã, uma vez — que é o que a pessoa acabou de dizer que não queria.
+
+     Só vale enquanto o alerta é novo. Um que já existe não troca de
+     assunto: mudar o que ele avisa é criar outro, e a folha teria de
+     explicar o que aconteceu com o que estava ali. */
+  const trocarTipo = (t: TipoDeAlerta) => setA((x) => ({ ...novoAlerta(t), id: x.id }));
 
   const t = TIPOS[a.tipo];
   const fechar = () => router.back();
@@ -90,7 +107,7 @@ export default function AlertaFolha() {
   return (
     <SheetScreen
       titulo={existente ? 'Alerta de ' + t.titulo.toLowerCase() : 'Novo alerta'}
-      sub={existente ? undefined : t.titulo}
+      sub={existente ? t.desc : undefined}
       onClose={fechar}
       rodape={
         <View style={{ gap: 10 }}>
@@ -100,6 +117,16 @@ export default function AlertaFolha() {
       }
     >
       <View style={{ marginTop: 20, gap: 18 }}>
+        {!existente ? (
+          <Campo nu rotulo="O que avisar">
+            <Grade cols={2} gap={8}>
+              {ORDEM.map((k) => (
+                <Opc key={k} cheia ic={TIPOS[k].ic} label={TIPOS[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
+              ))}
+            </Grade>
+          </Campo>
+        ) : null}
+
         {/* A ANTECEDÊNCIA, só para a dose: ela não acontece num dia da
             semana, acontece antes da próxima aplicação — que anda. */}
         {t.temLead ? (
