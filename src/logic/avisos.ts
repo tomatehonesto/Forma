@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { State } from './seed';
-import { doseReminderDate, pesoReminderDate, M } from './derive';
+import { M } from './derive';
+import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
 import { nf } from './time';
 
 /* ============================================================
@@ -104,23 +105,13 @@ const textoDaDose = (S: State, lead: number) => {
   return { title: `A sua aplicação é em ${lead} dias`, body: `${dose}. Dá tempo de conferir o estoque da caneta.` };
 };
 
-const TEXTO = {
+const TEXTO: Record<Exclude<TipoDeAlerta, 'dose'>, Texto> = {
   peso: { title: 'Dia de pesagem', body: 'Suba na balança quando der. Um número por semana já desenha a curva.' },
   agua: { title: 'Um copo de água', body: 'Ajuda com a saciedade e com o enjoo — e conta para a meta do dia.' },
   proteina: { title: 'Proteína primeiro', body: 'Na próxima refeição, comece por ela. É o que segura a massa magra.' },
 };
 
 type Texto = { title: string; body: string };
-
-async function noDia(hour: number, min: number, t: Texto) {
-  await Notifications.scheduleNotificationAsync({
-    content: { ...t, sound: true },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour, minute: min, channelId: CANAL,
-    },
-  });
-}
 
 async function naData(date: Date, t: Texto) {
   await Notifications.scheduleNotificationAsync({
@@ -132,16 +123,34 @@ async function naData(date: Date, t: Texto) {
   });
 }
 
-/* O QUE REPETE E O QUE É MARCADO UMA VEZ.
+/* O TETO DE AVISOS POR ALERTA.
 
-   Água, proteína e pesagem diária são sempre no mesmo horário: repetem
-   sozinhos, todo dia, sem o app precisar abrir.
+   Um alerta de água com três horários todo dia daria vinte e uma datas
+   marcadas por semana, e o iOS guarda sessenta e quatro no total: dois
+   alertas assim e o terceiro não entraria na fila. Cada alerta marca as
+   próximas seis vezes, e as seguintes são remarcadas quando o app abre —
+   o mesmo mecanismo que já mantinha a data da aplicação em dia.
 
-   A aplicação e a pesagem semanal dependem de uma data que anda — a
-   próxima dose muda quando uma é registrada, e o dia da semana escolhido
-   cai numa data diferente a cada semana. Esses vão como data marcada, e
-   a próxima é remarcada toda vez que o app abre ou que algo muda. É por
-   isso que remarcar roda no _layout, e não aqui. */
+   O limite é generoso para o caso comum, de um horário em alguns dias, e
+   contido para o extremo. */
+const POR_ALERTA = 6;
+
+/* TUDO VAI COMO DATA MARCADA.
+
+   Houve uma versão com gatilho diário repetido para os lembretes de todo
+   dia: um agendamento só, e o sistema cuidava do resto. Ele deixou de
+   servir quando o alerta ganhou dias da semana — repetição semanal tem
+   convenção de índice de dia diferente em cada plataforma, e errar isso
+   significa a pessoa marcar segunda e o aviso chegar no domingo.
+
+   Data marcada não tem essa ambiguidade: o app calcula a data exata da
+   próxima vez, na MESMA função que a tela usa para escrever "próximo:
+   sábado · 09:00". Uma conta só para o que a tela promete e para o que o
+   sistema faz — dois jeitos de descobrir quando um alerta toca é como a
+   tela passa a prometer um horário e o aparelho a tocar em outro.
+
+   O preço é depender de o app abrir de vez em quando para marcar as
+   seguintes, e é por isso que remarcar roda no _layout. */
 export async function reagendar(S: State): Promise<void> {
   if (!daParaAvisar) return;
   try {
@@ -154,19 +163,12 @@ export async function reagendar(S: State): Promise<void> {
     if (!perm.granted) return;
     await canal();
 
-    const R: any = S.reminders ?? {};
-    const agora = new Date();
-
-    const dose = doseReminderDate(S);
-    if (dose && dose > agora) await naData(dose, textoDaDose(S, R.dose?.lead ?? 0));
-
-    if (R.peso?.on) {
-      if (R.peso.freq === 'diaria') await noDia(R.peso.hour ?? 8, R.peso.min ?? 0, TEXTO.peso);
-      else { const p = pesoReminderDate(S); if (p && p > agora) await naData(p, TEXTO.peso); }
+    const alertas = ((S as any).alertas as Alerta[]) ?? [];
+    for (const a of alertas) {
+      if (!a.on) continue;
+      const texto = a.tipo === 'dose' ? textoDaDose(S, a.lead ?? 0) : TEXTO[a.tipo];
+      for (const d of proximasDe(S, a).slice(0, POR_ALERTA)) await naData(d, texto);
     }
-
-    if (R.agua?.on) await noDia(R.agua.hour ?? 15, R.agua.min ?? 0, TEXTO.agua);
-    if (R.proteina?.on) await noDia(R.proteina.hour ?? 12, R.proteina.min ?? 0, TEXTO.proteina);
   } catch {
     /* Aparelho sem suporte, permissão revogada no meio do caminho,
        simulador sem serviço de notificação: nada disso pode derrubar a

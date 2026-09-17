@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
+import { alertasDe, proximaDe, quando } from '../logic/alertas';
 import {
   aguaDaComida, apagarGole, diasDeAgua, golesDoDia, litros, semanaDeAgua, waterMlToday,
 } from '../logic/derive';
@@ -76,7 +77,13 @@ export default function Agua() {
   const foraDaConta = doDia.length - doDiaContam.length;
   const daComida = aguaDaComida(S, diaSel);
 
-  const lembrete = (S as any).reminders?.agua;
+  /* OS ALERTAS DE HIDRATAÇÃO. Eram um só, com um horário; agora podem
+     ser vários, e a linha resume quantos estão ligados e quando toca o
+     próximo. */
+  const alertasDeAgua = alertasDe(S, 'agua').filter((a) => a.on);
+  const proximoDeAgua = quando(
+    alertasDeAgua.map((a) => proximaDe(S, a)).filter(Boolean).sort((x, y) => +x! - +y!)[0] ?? null,
+  );
 
   return (
     <TelaDeHabito>
@@ -261,10 +268,10 @@ export default function Agua() {
             <Cartao>
               <Linha
                 ic="bell"
-                titulo={lembrete?.on ? 'Lembrete ligado' : 'Lembrete desligado'}
-                sub={lembrete?.on
-                  ? `Todo dia às ${hm(lembrete.hour ?? 0, lembrete.min ?? 0)}`
-                  : 'Um toque por dia, na hora que você escolher'}
+                titulo={alertasDeAgua.length
+                  ? `${alertasDeAgua.length} alerta${alertasDeAgua.length === 1 ? '' : 's'} de hidratação`
+                  : 'Nenhum alerta de hidratação'}
+                sub={proximoDeAgua ? `Toca ${proximoDeAgua}` : 'Um toque por dia, na hora que você escolher'}
                 onPress={() => router.push('/lembretes' as any)}
               />
             </Cartao>

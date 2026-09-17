@@ -285,43 +285,18 @@ export type Alert = { ic: string; kind: string; text: string; act: string };
 export function alerts(S: State): Alert[] {
   const out: Alert[] = [];
   if (!checkinFeito(S)) out.push({ ic: 'leaf', kind: 'info', text: 'Check-in de hoje, quando quiser', act: 'sheet:checkin' });
-  const dr = doseReminderDate(S); const nd = diffDays(nextInjectionDate(S), now());
+  /* A APLICAÇÃO PRÓXIMA NÃO DEPENDE MAIS DO LEMBRETE.
+
+     Esta linha lia a data do lembrete de dose para decidir se avisava com
+     dois dias. Mas o aviso da Home é sobre o TRATAMENTO, não sobre a
+     preferência de notificação: quem desligou o lembrete não deixou de
+     ter aplicação marcada. A conta agora é só a distância até a próxima
+     dose, que é o fato. */
+  const nd = diffDays(nextInjectionDate(S), now());
   if (nd <= 1) out.push({ ic: 'syringe', kind: 'warn', text: `Aplicação ${nd <= 0 ? 'hoje' : 'amanhã'}`, act: 'nav:aplicacoes' });
-  else if (dr) { const dd = diffDays(startOfDay(dr), now()); if (dd <= 1) out.push({ ic: 'syringe', kind: 'info', text: `Lembrete: aplicação ${diffDays(nextInjectionDate(S), now()) === 2 ? 'em 2 dias' : 'em breve'}`, act: 'nav:aplicacoes' }); }
+  else if (nd === 2) out.push({ ic: 'syringe', kind: 'info', text: 'Aplicação em 2 dias', act: 'nav:aplicacoes' });
   out.push({ ic: 'pill', kind: 'info', text: 'Estoque em 3 doses — renovar receita', act: 'nav:aplicacoes' });
   return out;
-}
-
-/* lembretes configuráveis */
-export function doseReminderDate(S: State) {
-  const r = S.reminders && S.reminders.dose; if (!r || !r.on) return null;
-  const d = addDays(startOfDay(nextInjectionDate(S)), -(r.lead || 0)) as Date;
-  d.setHours(r.hour || 9, r.min || 0, 0, 0);
-  return d;
-}
-export function pesoReminderDate(S: State) {
-  const r: any = S.reminders && S.reminders.peso; if (!r || !r.on) return null;
-  const base = startOfDay(now());
-  if (r.freq === 'diaria') { const d = new Date(base); d.setHours(r.hour || 8, r.min || 0, 0, 0); return d <= now() ? addDays(d, 1) : d; }
-  const target = (r.dow == null ? 1 : r.dow); let add = (target - base.getDay() + 7) % 7;
-  const same = new Date(base); same.setHours(r.hour || 8, r.min || 0, 0, 0);
-  if (add === 0 && same <= now()) add = 7;
-  const d = addDays(base, add) as Date; d.setHours(r.hour || 8, r.min || 0, 0, 0); return d;
-}
-export function dailyReminderDate(r: any) {
-  if (!r || !r.on) return null;
-  const d = new Date(startOfDay(now())); d.setHours(r.hour || 12, r.min || 0, 0, 0);
-  return d <= now() ? addDays(d, 1) : d;
-}
-export function reminderWhen(d: Date | null) {
-  if (!d) return null;
-  const days = diffDays(startOfDay(d), startOfDay(now()));
-  const day = days <= 0 ? 'hoje' : days === 1 ? 'amanhã' : DOW_PT[d.getDay()];
-  return `${day} · ${hm(d.getHours(), d.getMinutes())}`;
-}
-export function activeReminderCount(S: State) {
-  const R: any = S.reminders || {};
-  return ['dose', 'peso', 'agua', 'proteina'].filter((k) => R[k] && R[k].on).length;
 }
 
 export function examStatus(e: any) {

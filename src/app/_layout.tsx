@@ -86,7 +86,7 @@ function Portao({ children }: { children: React.ReactNode }) {
 function Agendador() {
   const ready = useStore((s) => s.ready);
   const S = useStore((s) => s.S);
-  const chave = ready ? JSON.stringify([S.reminders, +nextInjectionDate(S)]) : '';
+  const chave = ready ? JSON.stringify([(S as any).alertas, +nextInjectionDate(S)]) : '';
   useEffect(() => {
     if (!ready) return;
     reagendar(useStore.getState().S);
@@ -194,7 +194,7 @@ export default function RootLayout() {
               próprio, e sem esta apresentação o scrim cobria a tela
               inteira em cinza opaco em vez de deixar ver o que está
               atrás. */
-           'treino','refeicao','favorito','protocolo','meta'].map((n) => (
+           'treino','refeicao','favorito','protocolo','meta','alerta'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}

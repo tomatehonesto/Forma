@@ -3,13 +3,14 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, adesao, canetaAtual, cicloFases, doseReminderDate, injCalendar,
-  nextInjectionDate, nextSite, pharmaSeries, reminderWhen, rodizioDeLocais, siteLabel,
+  M, adesao, canetaAtual, cicloFases, injCalendar,
+  nextInjectionDate, nextSite, pharmaSeries, rodizioDeLocais, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
+import { alertasDe, proximaDe, quando } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
 import { AreaCurve, Ring } from '../ui/charts';
 import { Corpo } from '../ui/corpo';
@@ -61,7 +62,11 @@ export default function Aplicacoes() {
   const k = canetaAtual(S);
   const cic = cicloFases(S);
   const rod = rodizioDeLocais(S);
-  const rem = reminderWhen(doseReminderDate(S));
+  /* OS ALERTAS DE DOSE, e não mais "o lembrete". Agora podem ser
+     vários: a linha conta quantos estão ligados e quando toca o primeiro
+     deles — que é o que interessa a quem está olhando o ciclo. */
+  const alertasDaDose = alertasDe(S, 'dose').filter((a) => a.on);
+  const rem = quando(alertasDaDose.map((a) => proximaDe(S, a)).filter(Boolean).sort((x, y) => +x! - +y!)[0] ?? null);
 
   /* Quantas doses o tratamento previa até hoje, e quantas foram
      registradas. Era "88% em dia" — e "em dia" fala de PONTUALIDADE,
@@ -162,8 +167,10 @@ export default function Aplicacoes() {
         />
         <Linha
           ic="bell"
-          titulo={S.reminders.dose.on ? 'Lembrete ligado' : 'Lembrete desligado'}
-          sub={S.reminders.dose.on ? `Próximo: ${rem || 'quando chegar o dia'}` : 'Um aviso antes da dose, na hora que você escolher'}
+          titulo={alertasDaDose.length
+            ? `${alertasDaDose.length} alerta${alertasDaDose.length === 1 ? '' : 's'} de aplicação`
+            : 'Nenhum alerta de aplicação'}
+          sub={rem ? `Toca ${rem}` : 'Um aviso antes da dose, na hora que você escolher'}
           onPress={() => router.push('/lembretes' as any)}
         />
       </Cartao>

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { activeReminderCount } from '../logic/derive';
+import { alertasAtivos } from '../logic/alertas';
 import { relDay } from '../logic/time';
 import { Screen, Txt, Row, CircleBtn, ListRow, Grupo } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -33,7 +33,7 @@ export default function Notificacoes() {
      recado que não abre nada não ganha toque nem seta — chevron que não
      leva a lugar nenhum cobra um toque para revelar que não há. */
   const navOf: Record<string, string> = { trat: '/aplicacoes', exame: '/exames' };
-  const nRem = activeReminderCount(S);
+  const nRem = alertasAtivos(S);
 
   return (
     <Screen>
@@ -86,7 +86,7 @@ export default function Notificacoes() {
       <Grupo title="Lembretes">
         <ListRow
           ic="bell" title="Configurar lembretes"
-          sub={`${nRem} ativo${nRem === 1 ? '' : 's'} · dose, pesagem, água e proteína`}
+          sub={nRem ? `${nRem} alerta${nRem === 1 ? '' : 's'} ligado${nRem === 1 ? '' : 's'}` : 'Nenhum alerta ligado'}
           onPress={() => router.push('/lembretes' as any)}
         />
       </Grupo>

@@ -55,7 +55,12 @@ export default function AplicacaoOk() {
         <Cartao>
           <Linha
             titulo="Próxima dose"
-            sub={`${dowProx.charAt(0).toUpperCase()}${dowProx.slice(1)}, ${prox.getDate()} de ${MO_LONG[prox.getMonth()]} · lembrete às ${S.reminders?.dose?.hour ?? 9}h`}
+            /* A HORA DO LEMBRETE SAIU DAQUI. Havia um horário só por
+              assunto, e esta linha o citava; agora podem ser vários
+              alertas de dose, com horas diferentes, e escolher um deles
+              para escrever aqui seria inventar. A data da próxima
+              aplicação é o que esta confirmação tem a dizer. */
+            sub={`${dowProx.charAt(0).toUpperCase()}${dowProx.slice(1)}, ${prox.getDate()} de ${MO_LONG[prox.getMonth()]}`}
             selo={dias === 0 ? 'hoje' : `${dias} dias`}
             seloTom="neutra"
             seta={false}

@@ -425,12 +425,17 @@ export function buildSeed() {
     integrations: { appleHealth: true, healthConnect: false, googleFit: false, garmin: false, fitbit: false, withings: true, scale: true, watch: false },
     history: { conditions: ['Pré-diabetes', 'Hipertensão leve'], allergies: ['Nenhuma conhecida'], meds: ['Losartana 50 mg'] },
     customSyms: ['Refluxo'],
-    reminders: {
-      dose: { on: true, lead: 1, hour: 9, min: 0 },
-      peso: { on: false, freq: 'semanal', dow: 1, hour: 8, min: 0 },
-      agua: { on: false, hour: 15, min: 0 },
-      proteina: { on: false, hour: 12, min: 0 },
-    },
+    /* OS ALERTAS, e não mais quatro interruptores fixos.
+
+       Cada assunto pode ter quantos alertas a pessoa quiser, com vários
+       horários e vários dias em cada um — ver src/logic/alertas.ts. O
+       perfil de exemplo começa com um só, o da aplicação, porque é o
+       único que o tratamento pede por si; os outros três são escolha de
+       rotina, e ligá-los por conta própria seria o app decidindo a rotina
+       de alguém. */
+    alertas: [
+      { id: 'al-dose', tipo: 'dose', on: true, horas: [9], dias: [] as number[], lead: 1 },
+    ],
     /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
     pen: { dosesLeft: 3, dosesPerPen: 4 },
@@ -481,12 +486,32 @@ export type State = ReturnType<typeof buildSeed>;
 
 /* migra estados salvos antes das novas áreas (mutação in-place). */
 export function ensureDefaults(S: any) {
-  if (!S.reminders) S.reminders = {};
-  const R = S.reminders;
-  R.dose = Object.assign({ on: true, lead: 1, hour: 9, min: 0 }, R.dose || {});
-  R.peso = Object.assign({ on: false, freq: 'semanal', dow: 1, hour: 8, min: 0 }, R.peso || {});
-  R.agua = Object.assign({ on: false, hour: 15, min: 0 }, R.agua || {});
-  R.proteina = Object.assign({ on: false, hour: 12, min: 0 }, R.proteina || {});
+  /* OS QUATRO INTERRUPTORES VIRAM UMA LISTA DE ALERTAS.
+
+     O formato antigo guardava um lembrete por assunto, com um horário
+     cada. Cada um vira um alerta com um horário só na lista — o mesmo
+     comportamento que a pessoa tinha, agora num formato que aceita o
+     segundo. A frequência semanal da pesagem vira o dia escolhido; a
+     diária vira lista de dias vazia, que é como o novo formato diz
+     "todo dia".
+
+     Depois disso `reminders` sai do estado: deixá-lo ali seria manter
+     uma segunda cópia de uma coisa que já mudou de lugar, e é dessa
+     cópia que sai a divergência no dia em que alguém ler a errada. */
+  if (!Array.isArray((S as any).alertas)) {
+    const R = S.reminders || {};
+    const lista: any[] = [];
+    const veio = (tipo: string, r: any, extra: any) => {
+      if (!r) return;
+      lista.push({ id: `al-${tipo}`, tipo, on: !!r.on, horas: [r.hour ?? extra.hora], dias: extra.dias ?? [], ...(extra.lead != null ? { lead: extra.lead } : {}) });
+    };
+    veio('dose', R.dose ?? { on: true, hour: 9 }, { hora: 9, lead: R.dose?.lead ?? 1 });
+    veio('peso', R.peso, { hora: 8, dias: R.peso?.freq === 'diaria' ? [] : [R.peso?.dow ?? 1] });
+    veio('agua', R.agua, { hora: 15 });
+    veio('proteina', R.proteina, { hora: 12 });
+    (S as any).alertas = lista;
+  }
+  delete S.reminders;
   if (!Array.isArray(S.asked)) S.asked = [];
   if (!Array.isArray(S.team)) S.team = buildSeed().team;
   if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
