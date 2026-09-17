@@ -268,28 +268,15 @@ export default function MedirRefeicao() {
           }}
         />
       </View>
-      {!cadastrando && favs.length ? (
-        <View style={{ marginTop: 14 }}>
-          <Acordeao
-            nu
-            ic="star"
-            titulo="Pratos favoritos"
-            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
-          >
-            {favs.map((f) => (
-              <Linha
-                key={f.nome}
-                titulo={f.nome}
-                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
-                seta={false}
-                onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
-              />
-            ))}
-          </Acordeao>
-        </View>
-      ) : null}
+      {/* O PRATO VEM ANTES DO ATALHO, assim que tem alguma coisa nele.
 
-
+          Os favoritos moravam aqui em cima o tempo todo, e isso estava
+          certo enquanto o prato estava vazio: ali eles são o caminho
+          curto para quem repete a mesma comida. Depois do primeiro
+          ingrediente eles viram interrupção — a pessoa está montando um
+          prato e tem de rolar por cima de uma lista de outros pratos
+          para ver o que já escolheu, ajustar a quantidade e conferir a
+          soma. O que está sendo feito agora manda na ordem da tela. */}
       {itens.length ? (
         <View style={{ gap: 7, marginTop: 8 }}>
           {itens.map((it, i) => (
@@ -328,6 +315,27 @@ export default function MedirRefeicao() {
               Parte deste total foi estimada pela foto, sem tabela por trás.
             </Txt>
           ) : null}
+        </View>
+      ) : null}
+
+      {!cadastrando && favs.length ? (
+        <View style={{ marginTop: 14 }}>
+          <Acordeao
+            nu
+            ic="star"
+            titulo="Pratos favoritos"
+            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
+          >
+            {favs.map((f) => (
+              <Linha
+                key={f.nome}
+                titulo={f.nome}
+                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
+                seta={false}
+                onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
+              />
+            ))}
+          </Acordeao>
         </View>
       ) : null}
 

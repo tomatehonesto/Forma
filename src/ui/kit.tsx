@@ -281,8 +281,25 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
 
           `padding` no iOS, que é o comportamento que respeita a âncora de
           baixo; no Android o próprio sistema redimensiona a janela, e
-          duplicar isso aqui faria a folha pular duas vezes. */}
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          duplicar isso aqui faria a folha pular duas vezes.
+
+          E A FAIXA DO PADDING É BRANCA, e não transparente. Ela fica
+          exatamente onde o teclado está, e transparente deixava o escuro
+          do fundo aparecer nos cantos entre a folha e o teclado — dois
+          recortes escuros emoldurando o teclado, como se a folha tivesse
+          descolado da base da tela. Branca, a folha continua encostada em
+          baixo e o teclado nasce dela. */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        /* O raio vem junto: a faixa branca começa na mesma altura da
+           folha, e sem o mesmo canto arredondado ela quadraria o topo da
+           folha por trás dela. */
+        style={{
+          backgroundColor: c.bg,
+          borderTopLeftRadius: radius.xl,
+          borderTopRightRadius: radius.xl,
+        }}
+      >
       <View style={{
         backgroundColor: c.bg, maxHeight: height * 0.86,
         borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
