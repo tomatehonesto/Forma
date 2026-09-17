@@ -15,7 +15,8 @@ import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
-import { Marca, Simbolo } from '../ui/marca';
+import { Marca } from '../ui/marca';
+import Svg, { Defs, LinearGradient as SvgGradiente, Path, Stop } from 'react-native-svg';
 import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
@@ -739,6 +740,8 @@ const GLIFOS: [string, number, number, number][] = [
    sumindo no meio da tela. Faixa preta reta seria mais simples e seria
    uma costura à mostra. */
 const CAPA = require('../../assets/images/aurora-hero.png');
+/* A marca num quadrado — o mesmo arquivo que vira ícone do app. */
+const MARCA_APP = require('../../assets/images/marca-app.png');
 const TINTA_CAPA = '#05143F';
 
 /* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
@@ -924,8 +927,35 @@ function Montando({ onFim }: { onFim: () => void }) {
    O QUE NÃO COPIAMOS: o logo da Apple. Marca de terceiro num cadastro é
    marca usada sem licença, e o desenho funciona igual com o símbolo
    genérico de saúde. */
+/* O CORAÇÃO DO APP DE SAÚDE.
+
+   ⚠️ É DESENHO NOSSO, E NÃO O ARQUIVO DA APPLE. O ícone do Apple Saúde é
+   marca registrada e tem regra de uso própria; o que está aqui é um
+   coração na paleta dele — reconhecível ao lado do nome do app, e sem
+   fingir ser o arquivo original. Quando o PNG oficial entrar em
+   assets/images, este componente vira um <Image> e some.
+
+   No Android o app é o Health Connect, que tem outro desenho e outra
+   cor. Enquanto o arquivo dele não existe, o mesmo coração vai no tom do
+   app — melhor um símbolo nosso do que a marca errada. */
+function CoracaoDeSaude({ tamanho = 40, cor }: { tamanho?: number; cor?: string }) {
+  const D = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+  return (
+    <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24">
+      <Defs>
+        <SvgGradiente id="coracao" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={cor ?? '#FB5E7E'} />
+          <Stop offset="1" stopColor={cor ?? '#F43B47'} />
+        </SvgGradiente>
+      </Defs>
+      <Path d={D} fill="url(#coracao)" />
+    </Svg>
+  );
+}
+
 function Sincronia() {
   const { c } = useTheme();
+  const apple = Platform.OS === 'ios';
   return (
     <View style={{ height: 184, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
       <View style={{ ...SOBREPOSTO, opacity: 0.085 }} pointerEvents="none">
@@ -936,27 +966,14 @@ function Sincronia() {
         ))}
       </View>
       <Row style={{ alignItems: 'center', gap: 6 }}>
-        {/* O NOSSO QUADRADO É A MARCA: o degradê da casa e o símbolo em
-            lima por cima — o mesmo par da imagem de marca.
-
-            ⚠️ É UMA RECONSTRUÇÃO, e não o arquivo fechado. O ícone com a
-            aurora granulada por trás do M existe como imagem, e quando
-            ele entrar em assets/images é esta View que vira um <Image>.
-            Enquanto isso, o degradê usa as duas pontas do azul da paleta,
-            que é de onde aquela imagem saiu. */}
-        <View style={{
-          width: 84, height: 84, borderRadius: 26, overflow: 'hidden',
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <LinearGradient
-            colors={[TINTA_CAPA, c.accent, '#1FA8D6']}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', width: '100%', height: '100%' }}
-          />
-          <View style={{ zIndex: 1 }}>
-            <Simbolo altura={34} cor={c.lime} />
-          </View>
-        </View>
+        {/* DE UM LADO, NÓS. Era um coração genérico, que é o símbolo do
+            app de saúde do outro lado — os dois quadrados diziam a mesma
+            coisa e a figura não mostrava troca nenhuma. */}
+        <Image
+          source={MARCA_APP}
+          style={{ width: 84, height: 84, borderRadius: 26 }}
+          resizeMode="cover"
+        />
         {/* AS DUAS SETAS, e não o círculo de recarregar. Recarregar é uma
             operação que alguém dispara; o assunto aqui é que os dois lados
             conversam, e quem desenha isso é a ida com a volta. */}
@@ -965,18 +982,14 @@ function Sincronia() {
           <Icon name="troca" size={20} color={c.accent} sw={2.2} />
           <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
         </Row>
-        {/* ⚠️ DO OUTRO LADO, UM SÍMBOLO NEUTRO — e não o ícone da Apple ou
-            do Google. Os dois são marca registrada, com regra de uso
-            própria, e desenhar uma imitação do coração colorido da Apple é
-            pior do que não ter: erra o desenho e usa a marca de outro sem
-            licença. Quando os arquivos oficiais entrarem no projeto, é
-            aqui que eles moram. */}
+        {/* DO OUTRO LADO, O APP DE SAÚDE do aparelho — branco com o
+            coração, que é como os dois se apresentam na tela inicial. */}
         <View style={{
-          width: 84, height: 84, borderRadius: 26, backgroundColor: c.bg1,
+          width: 84, height: 84, borderRadius: 26, backgroundColor: '#FFFFFF',
           borderWidth: 1, borderColor: c.line,
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon name="heart" size={38} color={c.rose} sw={2} />
+          <CoracaoDeSaude tamanho={42} cor={apple ? undefined : c.rose} />
         </View>
       </Row>
     </View>
