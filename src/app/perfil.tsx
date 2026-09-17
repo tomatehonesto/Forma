@@ -15,6 +15,7 @@ import {
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo } from '../ui/kit';
 import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
+import { ABAS } from '../ui/TabBar';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 
@@ -171,6 +172,8 @@ export default function Perfil() {
     }
   };
 
+  const abreEm = S.abreEm ?? 'index';
+
   const linked = hasClinic(S);
   const dose = medComDose(S);
 
@@ -313,26 +316,6 @@ export default function Perfil() {
         />
       </Row>
 
-      {/* ---- a porta da ficha ----
-
-          A SEÇÃO INTEIRA VIROU UMA LINHA. Eram nove respostas abertas no
-          meio do perfil: altura, pesos, ritmo, nome, sexo, nascimento,
-          atividade, restrições e motivo — nove linhas de configuração
-          empilhadas entre o retrato e a clínica, todas coisas que se
-          mexem uma vez por ano. Elas empurravam para baixo o que a
-          pessoa vem ver aqui, e transformavam a tela num formulário.
-
-          Agora são uma porta só. O que está atrás dela não mudou: é a
-          mesma lista, com o mesmo caminho de correção — a tela que
-          perguntou é a que corrige. Ver src/app/informacoes.tsx. */}
-      <Grupo>
-        <ListRow
-          ic="user" title="Minhas informações"
-          sub="Suas respostas do cadastro"
-          onPress={go('/informacoes')}
-        />
-      </Grupo>
-
       {/* ---- clínica ----
           Ganha camada própria só quando há vínculo. Sem ele, o card é
           convite e não item de configuração — por isso o texto explica o
@@ -370,7 +353,26 @@ export default function Perfil() {
           sub="Apple Health, Withings e mais" onPress={go('/integracoes')} />
       </Grupo>
 
-      <Grupo title="Seus registros">
+      {/* ---- sobre você ----
+
+          O GRUPO DEIXOU DE SER "SEUS REGISTROS" porque passou a guardar
+          mais do que registro: a ficha entrou aqui, e ficha não é registro
+          — é quem a pessoa é. O que os quatro têm em comum é o assunto,
+          e o assunto é ela. Acompanhamento é como o app ajuda; O
+          aplicativo é como o app se comporta; aqui é o paciente.
+
+          A PORTA DA FICHA ESTAVA LOGO ABAIXO DO RETRATO, sozinha, antes
+          de qualquer seção. Ali ela tinha o destaque de uma coisa que se
+          faz todo dia, e ninguém edita altura todo dia. Ela desceu para a
+          lista, junto do resto que fala da pessoa.
+
+          E NÃO SE CHAMA MAIS "RESPOSTAS DO CADASTRO": metade do que está
+          lá dentro pode já ter sido corrigido depois, e chamar de
+          resposta o que a pessoa mudou ontem é o app se lembrando de uma
+          conversa que ela já refez. */}
+      <Grupo title="Sobre você">
+        <ListRow ic="user" title="Seus dados"
+          sub="Altura, peso, ritmo e mais" onPress={go('/dados')} />
         <ListRow ic="ruler" title="Histórico completo"
           sub="Tudo o que você registrou, dia a dia" onPress={go('/historico')} />
         <ListRow ic="trophy" title="Conquistas"
@@ -381,25 +383,25 @@ export default function Perfil() {
 
       {/* ---- o aplicativo ----
 
-          Aqui estavam três seções: "Aparência" com uma linha, "Privacidade"
-          com duas, e a versão pendurada no fim de uma delas. Três títulos
-          para três coisas que respondem à mesma pergunta — o que este app
-          faz com o que é meu, e como ele se comporta — numa tela que já
-          tinha sete seções e virou um rolo depois que a ficha cresceu.
+          É a seção de como o app se comporta, e não do que ele sabe. As
+          outras duas dividem o resto: Acompanhamento é como ele ajuda,
+          Sobre você é o paciente.
 
-          O TEMA NÃO É UMA SEÇÃO. Ele é uma preferência, e preferência mora
-          onde moram as preferências. O que ele mantém é o desenho:
-          segmentado, e não linha que alterna ao toque — a linha escondia o
-          estado atrás da ação, e para saber em que tema se estava era
-          preciso ler o subtítulo.
+          SAIU DAQUI "SEUS DADOS FICAM NO SEU APARELHO". A frase era
+          verdadeira e ainda assim dizia a coisa errada: prometia
+          isolamento num app cujo ponto é o contrário — a pessoa tem uma
+          equipe do outro lado, e o valor de registrar sintoma é
+          justamente que ele chegue a quem acompanha quando precisar de
+          atenção. Vender enclausuramento como vantagem competiria com o
+          que o app tem de melhor. Quando houver a política de verdade,
+          ela entra como documento, e não como consolo numa linha de
+          lista.
 
-          A PRIVACIDADE NÃO NAVEGA, e é decisão e não pendência: o que ela
-          tem a dizer cabe na própria linha. Chevron que não leva a lugar
-          nenhum é a pior linha de uma lista — promete conteúdo e cobra um
-          toque para revelar que não há. O texto é literal e verificável:
-          não existe backend, então os dados estão de fato só no aparelho.
-          No dia em que houver sincronização, esta frase muda antes do
-          código. */}
+          O TEMA NÃO É UMA SEÇÃO. Ele é uma preferência, e preferência
+          mora onde moram as preferências. O que ele mantém é o desenho:
+          segmentado, e não linha que alterna ao toque — a linha escondia
+          o estado atrás da ação, e para saber em que tema se estava era
+          preciso ler o subtítulo. */}
       <Grupo title="O aplicativo">
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
@@ -413,18 +415,35 @@ export default function Perfil() {
           />
         </Row>
 
-        <Row gap={12} style={{ alignItems: 'flex-start' }}>
-          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center', paddingTop: 1 }}>
-            <Icon name="lock" size={20} color={c.tx2} sw={1.8} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt v="body">Seus dados ficam no seu aparelho</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
-              Peso, sintomas, aplicações e fotos não saem daqui. Nada é enviado
-              para a clínica sem você tocar em enviar.
-            </Txt>
-          </View>
-        </Row>
+        {/* POR ONDE O APP ABRE.
+
+            A árvore tem quatro portas e o app sempre entrava pela mesma.
+            Quem usa isto para registrar refeição abre o Cuidado seis
+            vezes por dia e passa pela Home em todas elas; quem usa para
+            acompanhar peso quase não sai da Jornada. É a personalização
+            mais barata que existe — não muda nenhuma tela, muda por onde
+            se chega.
+
+            O controle vai na linha de baixo, e não à direita do rótulo:
+            quatro nomes num segmentado não cabem ao lado de um título
+            numa tela de 375, e encolher a letra para caber é resolver o
+            problema errado. */}
+        <View>
+          <Row gap={12}>
+            <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="home" size={20} color={c.tx2} sw={1.8} />
+            </View>
+            <Txt v="body" style={{ flex: 1 }}>Abrir o app em</Txt>
+          </Row>
+          <Segmentado
+            opcoes={ABAS.map((a) => a.nome)}
+            valor={(ABAS.find((a) => a.id === abreEm) ?? ABAS[0]).nome}
+            onChange={(v) => {
+              const alvo = ABAS.find((a) => a.nome === v);
+              if (alvo) update((s: any) => { s.abreEm = alvo.id; });
+            }}
+          />
+        </View>
 
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>

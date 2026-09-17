@@ -8,12 +8,21 @@ import { Txt } from './kit';
 import { useTheme } from './useTheme';
 import { shadowCard } from '../theme';
 
-const ITEMS = [
-  { ic: 'home', label: 'Home' },
-  { ic: 'journey', label: 'Jornada' },
-  { ic: 'heart', label: 'Cuidado' },
-  { ic: 'spark', label: 'Insights' },
-];
+/* AS QUATRO ABAS, com o nome da rota junto do nome que a pessoa lê.
+
+   Antes esta lista só tinha ícone e rótulo, porque a ordem dela bastava:
+   a barra desenha na ordem, e o expo-router navega pelo índice. Passou a
+   precisar do id quando o app ganhou "abrir em" — uma preferência que
+   guarda uma aba tem de guardar o nome da rota, e o lugar de dizer qual
+   rota é cada aba é aqui, onde as abas já moram. */
+export const ABAS = [
+  { id: 'index', ic: 'home', nome: 'Home' },
+  { id: 'jornada', ic: 'journey', nome: 'Jornada' },
+  { id: 'cuidado', ic: 'heart', nome: 'Cuidado' },
+  { id: 'insights', ic: 'spark', nome: 'Insights' },
+] as const;
+
+export type AbaId = (typeof ABAS)[number]['id'];
 
 /* Tab bar custom com FAB central (abre o registrar). */
 export function TabBar({ state, navigation }: any) {
@@ -24,7 +33,7 @@ export function TabBar({ state, navigation }: any) {
   const Tab = ({ idx }: { idx: number }) => {
     const focused = state.index === idx;
     const route = state.routes[idx];
-    const { ic, label } = ITEMS[idx];
+    const { ic, nome } = ABAS[idx];
     return (
       <Pressable
         style={styles.tab}
@@ -34,7 +43,7 @@ export function TabBar({ state, navigation }: any) {
         }}
       >
         <Icon name={ic} size={24} color={focused ? c.accent : c.tx3} sw={focused ? 2.1 : 1.7} />
-        <Txt v="micro" c={focused ? c.accent : c.tx3} style={{ marginTop: 3 }}>{label}</Txt>
+        <Txt v="micro" c={focused ? c.accent : c.tx3} style={{ marginTop: 3 }}>{nome}</Txt>
       </Pressable>
     );
   };

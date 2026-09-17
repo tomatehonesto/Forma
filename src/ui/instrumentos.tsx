@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import Svg, { Circle, ClipPath, Defs, Ellipse, LinearGradient as SvgGrad, Path, RadialGradient, Stop } from 'react-native-svg';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
@@ -579,16 +579,21 @@ export function Segmentado({
       {opcoes.map((o) => {
         const on = o === valor;
         return (
-          <View
+          /* PRESSABLE, E NÃO onTouchEnd NUM VIEW. O toque funcionava no
+             celular e não no navegador: evento de toque não é disparado
+             por clique de mouse, e o segmentado ficava decorativo em
+             qualquer tela com cursor — inclusive na hora de testar. */
+          <Pressable
             key={o}
-            onTouchEnd={() => onChange(o)}
-            style={{
+            onPress={() => onChange(o)}
+            style={({ pressed }) => [{
               paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999,
               backgroundColor: on ? ativo : 'transparent',
-            }}
+              opacity: pressed && !on ? 0.6 : 1,
+            }]}
           >
             <Txt v="micro" c={on ? (sobreEscuro ? c.tx : c.bg1) : tinta}>{o}</Txt>
-          </View>
+          </Pressable>
         );
       })}
     </Row>

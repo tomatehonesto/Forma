@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -52,6 +52,7 @@ function Moldura({ children }: { children: React.ReactNode }) {
 function Portao({ children }: { children: React.ReactNode }) {
   const ready = useStore((s) => s.ready);
   const feito = useStore((s) => s.S.onboardDone);
+  const abreEm = useStore((s) => s.S.abreEm);
   const segmentos = useSegments();
   const router = useRouter();
 
@@ -60,6 +61,35 @@ function Portao({ children }: { children: React.ReactNode }) {
     const noCadastro = segmentos[0] === 'cadastro';
     if (!feito && !noCadastro) router.replace('/cadastro' as any);
   }, [ready, feito, segmentos, router]);
+
+  /* POR ONDE O APP ABRE.
+
+     A árvore tem quatro portas e o app sempre entrava pela mesma. Quem
+     usa isto para registrar refeição abre o Cuidado várias vezes por dia
+     e passa pela Home em todas elas.
+
+     UMA VEZ SÓ, E SÓ NA RAIZ. O desvio acontece na primeira vez que o app
+     fica pronto, e só quando ele abriu na raiz — voltar para a Home pela
+     barra de abas depois disso não pode ser sequestrado, senão a primeira
+     aba vira uma porta que não se atravessa. E um endereço direto continua
+     valendo pelo mesmo motivo: quem pediu uma tela específica pediu aquela
+     tela.
+
+     Troca em vez de empilhar: a Home nunca chegou a ser um passo, e ter de
+     apertar voltar para sair de uma tela em que não se entrou é o tipo de
+     história que a pilha de navegação não deveria contar. */
+  const jaAbriu = useRef(false);
+  useEffect(() => {
+    if (!ready || !feito || jaAbriu.current) return;
+    jaAbriu.current = true;
+    if (!abreEm || abreEm === 'index') return;
+    /* O tipo de useSegments é uma tupla de um elemento, e aqui se olha o
+       segundo: na raiz ele não existe, e é justamente a ausência dele que
+       diz que o app abriu na porta e não numa tela de dentro. */
+    const segs = segmentos as unknown as string[];
+    const naRaiz = segs.length === 0 || (segs[0] === '(tabs)' && !segs[1]);
+    if (naRaiz) router.replace(('/' + abreEm) as any);
+  }, [ready, feito, abreEm, segmentos, router]);
 
   return <>{children}</>;
 }
