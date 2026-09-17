@@ -51,6 +51,15 @@ export function Marca({ altura = 22, tinta = '#FFFFFF' }: { altura?: number; tin
   );
 }
 
+/** só o M, cheio — o Morphi de pé ao lado do app de saúde */
+export function Simbolo({ altura = 40, cor = LIMA_MARCA }: { altura?: number; cor?: string }) {
+  return (
+    <Svg width={altura * RAZAO_SIMBOLO} height={altura} viewBox={SIMBOLO}>
+      <Path d={D_SIMBOLO} fill={cor} />
+    </Svg>
+  );
+}
+
 /** só o M, vazado — o fundo da abertura */
 export function MarcaContorno({
   largura, cor = LIMA_MARCA, opacidade = 0.22, traco = 2.5,

@@ -98,9 +98,13 @@ export function ListRow({ ic, title, sub, dot, tone, right, onPress }: {
   const warn = tone === 'warn';
   const body = (
     <Row style={{ minHeight: 48 }}>
+      {/* O ÍCONE SOLTO, pelo mesmo motivo da Linha das internas: numa
+          lista, o quadrado de cor repetido vira coluna de botões que não
+          são botões. A largura fixa fica, porque é ela que alinha os
+          títulos entre si. */}
       <View>
-        <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: warn ? c.ctaWeak : c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name={ic} size={18} color={warn ? c.cta : c.tx} sw={1.8} />
+        <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name={ic} size={20} color={warn ? c.cta : c.tx2} sw={1.8} />
         </View>
         {dot ? <View style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, borderRadius: 4, backgroundColor: c.bad }} /> : null}
       </View>

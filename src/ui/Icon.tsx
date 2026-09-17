@@ -61,6 +61,7 @@ import Milk from 'lucide-react-native/icons/milk';
 import CupSoda from 'lucide-react-native/icons/cup-soda';
 import Citrus from 'lucide-react-native/icons/citrus';
 import Wine from 'lucide-react-native/icons/wine';
+import ArrowLeftRight from 'lucide-react-native/icons/arrow-left-right';
 import IconBottle from '@tabler/icons-react-native/IconBottle';
 import Heart from 'lucide-react-native/icons/heart';
 import House from 'lucide-react-native/icons/house';
@@ -192,6 +193,10 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   soda: CupSoda,
   citrus: Citrus,
   wine: Wine,
+  /* A troca: duas setas em sentidos opostos. O círculo de recarregar
+     dizia "atualizar", que é uma operação; aqui o assunto é que os dois
+     lados conversam. */
+  troca: ArrowLeftRight,
   /* A garrafa de coqueteleira — o shake. */
   shaker: IconBottle,
   leaf: Leaf,

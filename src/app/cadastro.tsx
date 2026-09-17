@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,13 +9,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, planoDoCadastro } from '../logic/derive';
-import { MO_LONG, doseTxt, now, startOfDay, nf } from '../logic/time';
+import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
-import { Marca } from '../ui/marca';
+import { Marca, Simbolo } from '../ui/marca';
 import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
@@ -185,8 +186,20 @@ const VAZIO: Respostas = {
    `cheia` deita o cartão. Quando a opção é uma frase — "me exercito 3 ou
    4 vezes por semana" —, duas colunas quebram o texto em quatro linhas e
    a lista vira parede. */
-function Escolha({ ic, titulo, sub, selo, on, cheia, onPress }: {
+function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
   ic?: string; titulo: string; sub?: string; on?: boolean; cheia?: boolean; onPress: () => void;
+  /* UMA SEGUNDA LINHA, quando ela não é texto corrido.
+
+     O ritmo precisa dizer duas coisas por opção — o apelido e quando a
+     meta chega —, e as duas emendadas numa frase só ("Devagar e sempre ·
+     chega por volta de setembro") viram uma linha longa que o olho lê
+     como uma coisa só. Separadas, a de cima qualifica o ritmo e a de
+     baixo é data, com ícone de calendário e tudo.
+
+     Vem como função porque a cor depende do estado: no cartão escolhido o
+     texto secundário é branco vazado, e quem sabe disso é este
+     componente. */
+  rodape?: (tinta: string) => React.ReactNode;
   /* A ETIQUETA — "Frequência padrão" ao lado de "a cada 7 dias". Diz qual
      das alternativas é a que o produto indica, sem transformar as outras
      em erro: quem aplica a cada dez dias faz isso com o médico, e o app
@@ -267,6 +280,7 @@ function Escolha({ ic, titulo, sub, selo, on, cheia, onPress }: {
         <View style={{ flex: 1 }}>
           <Txt v="bodyMed" c={tinta}>{titulo}</Txt>
           {sub ? <Txt v="caption" c={tintaSub} style={{ marginTop: 1 }}>{sub}</Txt> : null}
+          {rodape ? rodape(tintaSub) : null}
         </View>
         {etiqueta}
         {marca}
@@ -912,23 +926,36 @@ function Sincronia() {
         ))}
       </View>
       <Row style={{ alignItems: 'center', gap: 6 }}>
+        {/* DE UM LADO, NÓS. Era um coração genérico, que é o símbolo do
+            app de saúde do outro lado — os dois quadrados diziam a mesma
+            coisa e a figura não mostrava troca nenhuma. Com a marca aqui,
+            o desenho volta a ter dois interlocutores. */}
         <View style={{
           width: 84, height: 84, borderRadius: 26, backgroundColor: c.accent,
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon name="heart" size={38} color={c.accentInk} sw={1.9} />
+          <Simbolo altura={34} cor={c.lime} />
         </View>
+        {/* AS DUAS SETAS, e não o círculo de recarregar. Recarregar é uma
+            operação que alguém dispara; o assunto aqui é que os dois lados
+            conversam, e quem desenha isso é a ida com a volta. */}
         <Row style={{ width: 74, alignItems: 'center', gap: 8 }}>
           <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
-          <Icon name="reset" size={20} color={c.accent} sw={2.2} />
+          <Icon name="troca" size={20} color={c.accent} sw={2.2} />
           <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
         </Row>
+        {/* ⚠️ DO OUTRO LADO, UM SÍMBOLO NEUTRO — e não o ícone da Apple ou
+            do Google. Os dois são marca registrada, com regra de uso
+            própria, e desenhar uma imitação do coração colorido da Apple é
+            pior do que não ter: erra o desenho e usa a marca de outro sem
+            licença. Quando os arquivos oficiais entrarem no projeto, é
+            aqui que eles moram. */}
         <View style={{
           width: 84, height: 84, borderRadius: 26, backgroundColor: c.bg1,
           borderWidth: 1, borderColor: c.line,
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon name="activity" size={38} color={c.rose} sw={2} />
+          <Icon name="heart" size={38} color={c.rose} sw={2} />
         </View>
       </Row>
     </View>
@@ -1366,6 +1393,17 @@ export default function Cadastro() {
         </Row>
       </View>
 
+      {/* O RODAPÉ SOBE COM O TECLADO.
+
+          A primeira pergunta é o nome, e ela abre com o teclado já aberto:
+          o "Continuar" ficava atrás dele, e quem digitava o nome não tinha
+          como seguir sem fechar o teclado primeiro — um gesto a mais na
+          primeira tela do app, que é onde ele menos cabe. */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
       <ScrollView
         /* AR ENTRE O TOPO E A PERGUNTA. Colada na barra de progresso, a
            manchete lia como cabeçalho de tela; afastada, ela lê como a
@@ -1673,7 +1711,23 @@ export default function Cadastro() {
                        sem saber quanto cada um vale. O apelido diz o que
                        aquilo significa depois que ela já viu o quanto. */
                     titulo={`${nf(x.kg, 1)} kg por semana`}
-                    sub={`${x.nome} · chega por volta de ${mesPorExtenso(quando)}`}
+                    sub={x.nome}
+                    /* A DATA GANHOU LINHA PRÓPRIA, CALENDÁRIO E DESTINO.
+
+                       Ela vinha emendada no apelido — "Devagar e sempre ·
+                       chega por volta de setembro de 2026" —, e o "chega"
+                       não dizia chega ONDE: dava para ler como o fim do
+                       tratamento, ou como o dia em que o medicamento
+                       acaba. Com o peso escrito, chega é chegar na meta
+                       que ela acabou de escolher. */
+                    rodape={(tinta) => (
+                      <Row gap={6} style={{ marginTop: 5, alignItems: 'center' }}>
+                        <Icon name="cal" size={13} color={tinta} sw={2} />
+                        <Txt v="caption" c={tinta} style={{ flex: 1 }}>
+                          {`Chega aos ${kgTxt(r.meta)} kg por volta de ${mesPorExtenso(quando)}`}
+                        </Txt>
+                      </Row>
+                    )}
                     on={r.ritmo === x.kg}
                     onPress={() => p({ ritmo: x.kg })}
                   />
@@ -1837,36 +1891,38 @@ export default function Cadastro() {
             quando o módulo existir. Por isso o texto não diz "conectado":
             dizer isso seria o app afirmar um acesso que ele não tem. */}
         {id === 'saude' ? (
-          /* OS MOTIVOS PERDERAM O CARTÃO.
+          /* OS MOTIVOS PERDERAM O CARTÃO, E DEPOIS O SELO DE COR.
 
              Dentro de um cartão branco eles viravam um bloco à parte no
-             meio de uma tela que é toda ela um convite — e o cartão ainda
-             empurrava o botão para longe. Soltos, com o selo de cor à
-             esquerda, eles são a continuação da frase que está logo acima.
+             meio de uma tela que é toda ela um convite. O quadrado azul
+             atrás de cada ícone era o resto daquele bloco: três caixas
+             coloridas enfileiradas numa tela que já tem duas caixas
+             grandes no alto, e o ícone lia como botão. Solto e maior, ele
+             é o que sempre foi — a marca do assunto, ao lado do que ele
+             diz.
 
-             E OS ARGUMENTOS MUDARAM. Eram três descrições do mecanismo
-             ("peso, sono e treinos entram sozinhos", "quem pede é o
-             aparelho"): verdade, e nenhuma delas responde à pergunta que
-             a pessoa está realmente se fazendo, que é o que ela ganha
-             deixando um app ver isso. Agora são dois ganhos e uma
-             garantia — menos trabalho, curva mais completa, e o controle
-             continuando com ela. */
-          <View style={{ gap: 18 }}>
+             E O GRUPO É CENTRADO, como o título e a frase acima dele; os
+             ícones continuam alinhados entre si, porque é a coluna deles
+             que segura a lista de pé.
+
+             OS ARGUMENTOS: dois ganhos e uma garantia — menos trabalho,
+             curva mais completa, e o controle continuando com ela. Eram
+             três descrições do mecanismo, e nenhuma respondia à pergunta
+             que a pessoa se faz, que é o que ela ganha deixando um app ver
+             isso. */
+          <View style={{ gap: 20, alignSelf: 'center' }}>
             {([
               ['clock', 'Menos uma coisa para lembrar', 'peso, sono e treino entram sozinhos'],
               ['trend', 'A sua curva mais completa', 'o que o aparelho mede já entra aqui'],
               ['shield', 'Você decide o que liberar', 'e desliga quando quiser, no perfil'],
             ] as [string, string, string][]).map(([ic, t, sub]) => (
-              <Row key={t} style={{ gap: 13, alignItems: 'center' }}>
-                <View style={{
-                  width: 42, height: 42, borderRadius: 13, backgroundColor: c.accentWeak,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name={ic} size={20} color={c.accent} sw={1.9} />
+              <Row key={t} style={{ gap: 14, alignItems: 'center' }}>
+                <View style={{ width: 30, alignItems: 'center' }}>
+                  <Icon name={ic} size={24} color={c.accent} sw={1.9} />
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={{ flexShrink: 1 }}>
                   <Txt v="bodyMed">{t}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt>
                 </View>
               </Row>
             ))}
@@ -1946,6 +2002,7 @@ export default function Cadastro() {
           />
         )}
       </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }

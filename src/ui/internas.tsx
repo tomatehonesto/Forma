@@ -241,9 +241,19 @@ export function Linha({ ic, titulo, sub, selo, seloTom, seta, onPress }: {
   const mostraSeta = seta ?? !!onPress;
   const corpo = (
     <Row style={{ paddingHorizontal: PAD, paddingVertical: 14, gap: 12 }}>
+      {/* O ÍCONE SOLTO, E NÃO DENTRO DE UM QUADRADO DE COR.
+
+          Numa lista de quatro, cinco linhas, o quadrado azul repetido
+          vira uma coluna de botões — e nenhum deles é botão: quem leva a
+          algum lugar é a linha inteira. O peso visual ia todo para a
+          moldura, que é a única parte da linha que não diz nada.
+
+          A LARGURA FIXA FICA. É ela que alinha os títulos entre si; sem
+          ela, cada linha começaria onde o desenho do seu ícone terminou,
+          e uma lista de ícones de larguras diferentes vira uma escada. */}
       {ic ? (
-        <View style={{ width: 34, height: 34, borderRadius: radius.md, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name={ic} size={17} color={c.accent} sw={1.9} />
+        <View style={{ width: 34, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name={ic} size={20} color={c.accent} sw={1.9} />
         </View>
       ) : null}
       <View style={{ flex: 1 }}>

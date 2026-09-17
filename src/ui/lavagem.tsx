@@ -50,9 +50,22 @@ export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: numb
       style={{ position: 'absolute', top: 0, left: 0, right: 0, height: altura }}
     >
       <Malha id="cad" forca={forca} cor={c.accent} />
+      {/* O DEGRADÊ COBRE A ALTURA INTEIRA, e não só o pé dela.
+
+          Com dois pontos e metade da altura, a dissolução começava numa
+          linha: em cima dela a malha estava cheia, embaixo ela caía — e
+          essa quebra de ritmo aparecia como uma faixa horizontal atrás do
+          texto, exatamente na altura em que a manchete mora. Não era
+          opacidade errada, era derivada: o olho acha a dobra antes de
+          achar a cor.
+
+          Três pontos e a altura toda tiram a dobra do caminho. O primeiro
+          terço fica transparente, que é onde a malha tem o direito de
+          aparecer, e daí até o fim ela se dissolve sem nenhum degrau. */}
       <LinearGradient
-        colors={['transparent', c.bg]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: altura * 0.62 }}
+        colors={['transparent', 'transparent', c.bg]}
+        locations={[0, 0.3, 1]}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura }}
       />
     </View>
   );
