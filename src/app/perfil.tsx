@@ -10,7 +10,7 @@ import {
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
-import { Malha, Segmentado } from '../ui/instrumentos';
+import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -175,11 +175,6 @@ export default function Perfil() {
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
 
-  const startD = new Date(S.profile.startT);
-  /* mês por extenso: "membro desde Jun de 2026" tem o corte de abreviação
-     no meio de uma frase corrida, e abreviar economiza quatro letras num
-     lugar onde não falta espaço */
-  const desde = `${MO_LONG[startD.getMonth()]} de ${startD.getFullYear()}`;
   const linked = hasClinic(S);
   const med = M(S);
   const p = penStock(S);
@@ -194,97 +189,71 @@ export default function Perfil() {
 
       {/* ---- identidade ----
 
-          Card único e alto em vez de linha de avatar com texto ao lado. A
-          diferença é de assunto: linha apresenta um item de lista, card
-          apresenta uma pessoa — e esta tela é sobre ela.
+          SEM CARD, SEM MALHA, SEM VÉU. O cabeçalho era um card alto com
+          textura e degradê por cima, e o retrato dentro dele: muita
+          superfície para apresentar duas linhas de texto e três números.
+          Agora a pessoa mora na própria folha — retrato, nome, e a
+          fileira de números logo abaixo, que é o que a tela veio dizer.
 
-          A MALHA GANHOU UM DEGRADÊ POR CIMA, e o retrato ganhou corpo. Ela
-          sozinha era textura pálida atrás de texto preto: existia, e não
-          dava nada ao cabeçalho. O véu azul claro por cima concentra a cor
-          no alto, onde mora a pessoa, e deixa o pé do card voltar ao
-          branco — que é onde a próxima fileira começa.
-
-          É a mesma peça do banner da especialista em Cuidado, no mesmo
-          papel: dar corpo a um retrato sem virar superfície de marca.
-
-          E A FICHA COMEÇA AQUI DENTRO. Os três números viviam sob um
-          título "Sua ficha" e uma frase explicando o que eles eram — duas
-          linhas de texto para apresentar três cartões que se apresentam
-          sozinhos. Encostados no retrato, eles deixam de ser uma seção e
-          viram o que sempre foram: a pessoa em números. */}
-      <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 20, backgroundColor: c.bg1 }}>
-        <Malha id="perfilIdent" forca={0.55} />
+          O RETRATO PERDEU O ANEL BRANCO: ele existia para separar o
+          degradê do avatar do azul do card atrás. Sem card atrás, o anel
+          era uma borda em volta de nada. */}
+      <Row gap={14} style={{ marginTop: 24, alignItems: 'center' }}>
+        {/* Inicial em degradê, não foto. Não existe upload de avatar no
+            app, e boneco genérico é pior que ausência: ele ocupa o lugar
+            da pessoa com uma que não é ela. A inicial em corpo grande
+            identifica sem fingir. */}
         <LinearGradient
-          colors={[c.accentWeak, 'rgba(255,255,255,0)']}
-          style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 150 }}
-          pointerEvents="none"
-        />
-        <View style={{ padding: 22 }}>
-          <Row gap={16}>
-            <View>
-              {/* Inicial em degradê, não foto. Não existe upload de avatar
-                  no app, e boneco genérico é pior que ausência: ele ocupa o
-                  lugar da pessoa com uma que não é ela. A inicial em corpo
-                  grande identifica sem fingir.
+          colors={[c.accent, c.accent2]}
+          start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
+          style={{ width: 62, height: 62, borderRadius: 31, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Txt v="h1" c={c.accentInk} style={{ fontSize: 26 }}>{S.profile.name[0]}</Txt>
+        </LinearGradient>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Txt v="h2">{S.profile.name}</Txt>
+          {/* NO LUGAR DA CIDADE, O TRATAMENTO. A referência põe o país
+              embaixo do nome; aqui embaixo do nome vai a única coisa que
+              esta pessoa tem e um perfil comum não tem — há quantos dias
+              ela está nisso.
 
-                  REDONDO, e não quadrado de cantos macios: o quadrado é a
-                  forma de ícone de app, e num cabeçalho de perfil ele lia
-                  como logotipo. O anel branco em volta separa o degradê do
-                  azul do fundo, que estão na mesma família. */}
-              <View style={{
-                width: 76, height: 76, borderRadius: 38, backgroundColor: c.bg1,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <LinearGradient
-                  colors={[c.accent, c.accent2]}
-                  start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-                  style={{ width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Txt v="h1" c={c.accentInk} style={{ fontSize: 30 }}>{S.profile.name[0]}</Txt>
-                </LinearGradient>
-              </View>
-            </View>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Txt v="h2">{S.profile.name}</Txt>
-              {/* O E-MAIL SAIU, e com ele a única linha desta tela que era
-                  ficção: não há conta, não há login, e o cadastro nunca
-                  pergunta e-mail. O que fica é há quanto tempo a pessoa
-                  aparece, que é a informação que uma tela de conta
-                  normalmente não dá. A idade saiu daqui porque já está
-                  em Nascimento, logo abaixo: dizê-la duas vezes fazia a
-                  linha quebrar em duas para repetir o que a lista conta.  */}
-              <Txt v="micro" c={c.tx3} numberOfLines={1}>Por aqui desde {desde}</Txt>
-              <Row gap={6} style={{ alignSelf: 'flex-start', backgroundColor: c.limeWeak, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginTop: 2 }}>
-                <Icon name="spark" size={12} color={c.tx} sw={2} />
-                <Txt v="micro" c={c.tx}>Dia {journeyDay(S)} da sua jornada</Txt>
-              </Row>
-            </View>
-          </Row>
-
-          {/* A FICHA: de onde saiu, quanto andou, aonde vai.
-
-              O do meio é o assunto — é a única coisa desta tela que a
-              pessoa não escolheu, ela conquistou —, e por isso é o que tem
-              cor de feito e o corpo maior. Os dois das pontas são os
-              números que ela definiu, e trazem o lápis para dizer isso:
-              dá para mudar. O do meio não tem, e não ter é a informação. */}
-          <Row gap={8} style={{ marginTop: 22 }}>
-            <Dado
-              valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
-              fundo={c.bg2} tinta={c.tx} onPress={corrige(passoDoPesoInicial)} editavel
-            />
-            <Dado
-              valor={kg(Math.abs(perdeu))} unidade="kg"
-              label={perdeu >= 0 ? 'Já perdeu' : 'Ganhou'}
-              fundo={c.limeWeak} tinta={c.tx} destaque
-            />
-            <Dado
-              valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
-              fundo={c.bg2} tinta={c.tx} onPress={corrige('meta')} editavel
-            />
-          </Row>
+              É UM FATO SÓ. O dia da jornada já é a data de início contada
+              de outro jeito: dizer "dia 71" e "desde julho de 2026" lado
+              a lado é a mesma informação ocupando duas. E a pastilha lima
+              que carregava esta frase saiu com ela — virou a linha, e uma
+              pastilha a menos é uma forma a menos disputando o retrato. */}
+          <Txt v="micro" c={c.tx3} numberOfLines={1}>Dia {journeyDay(S)} da sua jornada</Txt>
         </View>
-      </View>
+      </Row>
+
+      {/* A FICHA: de onde saiu, quanto andou, aonde vai.
+
+          TRÊS PASTILHAS CHEIAS, encostadas no retrato, na fileira que a
+          referência usa para peso, meta e caloria. A cor não é decoração,
+          e nenhuma nova entrou: o cinza é o passado, que não é conquista
+          nem alvo; o lima é o alcançado, a mesma regra da Jornada e das
+          metas; o azul é para onde o app aponta.
+
+          O do meio é o assunto — é a única coisa desta tela que a pessoa
+          não escolheu, ela conquistou —, e por isso tem o corpo maior.
+          Os dois das pontas são os números que ela definiu, e trazem o
+          lápis para dizer isso: dá para mudar. O do meio não tem, e não
+          ter é a informação. */}
+      <Row gap={8} style={{ marginTop: 20 }}>
+        <Dado
+          valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
+          fundo={c.bg3} tinta={c.tx} onPress={corrige(passoDoPesoInicial)} editavel
+        />
+        <Dado
+          valor={kg(Math.abs(perdeu))} unidade="kg"
+          label={perdeu >= 0 ? 'Já perdeu' : 'Ganhou'}
+          fundo={c.limeSoft} tinta={c.tx} destaque
+        />
+        <Dado
+          valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
+          fundo={c.bluePale} tinta={c.tx} onPress={corrige('meta')} editavel
+        />
+      </Row>
 
       {/* O medicamento sai da grade e vira linha inteira: ele não é um
           número entre outros, é o que dá nome ao tratamento. O toque
