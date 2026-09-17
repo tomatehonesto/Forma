@@ -4,10 +4,10 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, milhar, nf } from '../logic/time';
+import { MO_LONG, nf } from '../logic/time';
 import {
   journeyDay, hasClinic, penStock, M, idadeDe, cadenciaCurta, medComDose, ATIVIDADES, MOTIVOS,
-  metasDoDia,
+  lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
 import { Malha, Segmentado } from '../ui/instrumentos';
@@ -62,33 +62,44 @@ const dataDoPerfil = (t: number) => {
 
 /** Um número da ficha, em pastilha de cor.
 
-    TRÊS CARTÕES COLORIDOS EM LINHA, e não quatro brancos em grade. Em
-    branco eles eram do mesmo material do resto da tela e se perdiam
-    entre as listas; a cor os separa como o que são — os números que o
-    tratamento inteiro usa —, e a fileira única cabe numa olhada.
+    TRÊS CARTÕES EM LINHA, e a linha conta uma história: de onde saiu,
+    quanto andou, aonde vai. O do meio é o único que a pessoa não
+    escolheu — ela conquistou —, e por isso leva a cor de feito e o corpo
+    maior; os das pontas são os números que ela definiu.
 
-    A COR NÃO É DECORAÇÃO, é a do significado que o app já deu a cada um:
-    o peso inicial é passado e fica neutro; a meta é alvo e usa o lima,
-    que é a cor do alcançado na Jornada; a energia do dia é meta ativa e
-    usa o azul, que é a cor de ação em todas as telas. Nenhuma cor nova
-    entrou para esta tela ficar bonita.
+    O LÁPIS DIZ O QUE DÁ PARA MUDAR. Sem ele, os três cartões pareciam a
+    mesma coisa e dois deles guardavam um toque que ninguém tinha motivo
+    para tentar. Ele é pequeno e no canto: a informação é "isto é seu para
+    mexer", não "aperte aqui".
+
+    A COR NÃO É DECORAÇÃO, é a que o app já deu a cada coisa: o lima é o
+    alcançado, na Jornada e aqui. Nenhuma cor nova entrou para esta tela
+    ficar bonita.
 
     Valor e unidade como dois elementos (princípio 9): a fileira alinha
     pela base do valor e o olho compara antes de ler. */
-function Dado({ valor, unidade, label, fundo, tinta, onPress }: {
+function Dado({ valor, unidade, label, fundo, tinta, destaque, editavel, onPress }: {
   valor: string; unidade?: string; label: string;
-  fundo: string; tinta: string; onPress?: () => void;
+  fundo: string; tinta: string; destaque?: boolean; editavel?: boolean; onPress?: () => void;
 }) {
   const { c } = useTheme();
   const corpo = (
-    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.lg, padding: 14, gap: 6 }}>
+    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.lg, padding: 11, gap: 5 }}>
       {/* Uma linha só: três cartões de alturas diferentes numa fileira
-          leem como desalinho, e não como rótulo comprido. */}
-      <Txt v="micro" c={c.tx3} numberOfLines={1}>{label}</Txt>
+          leem como desalinho, e não como rótulo comprido. O lápis desceu
+          para o canto do número porque, disputando a linha do rótulo,
+          "Peso inicial" virava "Peso…" — e um rótulo cortado é pior do
+          que o lápis um pouco mais longe. */}
+      <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ fontSize: 11 }}>{label}</Txt>
       <Row gap={3} style={{ alignItems: 'baseline' }}>
-        <Txt v="h1" c={tinta} style={{ fontSize: 22 }}>{valor}</Txt>
+        <Txt v="h1" c={tinta} style={{ fontSize: destaque ? 25 : 21 }}>{valor}</Txt>
         {!!unidade && <Txt v="micro" c={c.tx3}>{unidade}</Txt>}
       </Row>
+      {editavel ? (
+        <View style={{ position: 'absolute', right: 9, bottom: 11 }}>
+          <Icon name="pencil" size={12} color={c.tx4} sw={2} />
+        </View>
+      ) : null}
     </View>
   );
   if (!onPress) return corpo;
@@ -138,8 +149,23 @@ export default function Perfil() {
   const update = useStore((s) => s.update);
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
-  const metas = metasDoDia(S);
+  /* O que ela já andou: começo menos hoje. Negativo quando o peso subiu,
+     e aí o rótulo muda — "já perdeu −2,1 kg" seria o app corrigindo a
+     pessoa com um sinal de menos. */
+  const perdeu = lostKg(S);
   const corrige = (passo: string) => () => router.push(`/cadastro?editar=${passo}` as any);
+
+  /* ONDE MORA O PESO INICIAL depende de quando a pessoa começou.
+
+     O cadastro escreve `startWeight` de dois lugares: quem já estava em
+     tratamento responde o peso daquela época na tela "Comecei em"; quem
+     ainda vai começar não tem essa distinção, e o peso de hoje é também
+     o de partida. O lápis daqui precisa abrir a MESMA tela que escreveu
+     o número — mandar todo mundo para "medidas atuais" fazia o lápis
+     prometer corrigir o peso inicial e entregar a régua do peso de
+     hoje, que é outro número. */
+  const emTratamento = (S.injections?.length ?? 0) > 0 || !!S.profile.startT;
+  const passoDoPesoInicial = emTratamento ? 'inicio' : 'corpo';
   const atividade = ATIVIDADES.find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
   const motivo = MOTIVOS.find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])
@@ -172,123 +198,112 @@ export default function Perfil() {
           diferença é de assunto: linha apresenta um item de lista, card
           apresenta uma pessoa — e esta tela é sobre ela.
 
-          A malha entra em meia força, atrás. É a mesma peça do banner da
-          especialista em Cuidado, no mesmo papel: dar corpo a um retrato
-          sem virar superfície de marca. */}
+          A MALHA GANHOU UM DEGRADÊ POR CIMA, e o retrato ganhou corpo. Ela
+          sozinha era textura pálida atrás de texto preto: existia, e não
+          dava nada ao cabeçalho. O véu azul claro por cima concentra a cor
+          no alto, onde mora a pessoa, e deixa o pé do card voltar ao
+          branco — que é onde a próxima fileira começa.
+
+          É a mesma peça do banner da especialista em Cuidado, no mesmo
+          papel: dar corpo a um retrato sem virar superfície de marca.
+
+          E A FICHA COMEÇA AQUI DENTRO. Os três números viviam sob um
+          título "Sua ficha" e uma frase explicando o que eles eram — duas
+          linhas de texto para apresentar três cartões que se apresentam
+          sozinhos. Encostados no retrato, eles deixam de ser uma seção e
+          viram o que sempre foram: a pessoa em números. */}
       <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 20, backgroundColor: c.bg1 }}>
-        <Malha id="perfilIdent" forca={0.5} />
+        <Malha id="perfilIdent" forca={0.55} />
+        <LinearGradient
+          colors={[c.accentWeak, 'rgba(255,255,255,0)']}
+          style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 150 }}
+          pointerEvents="none"
+        />
         <View style={{ padding: 22 }}>
           <Row gap={16}>
             <View>
               {/* Inicial em degradê, não foto. Não existe upload de avatar
                   no app, e boneco genérico é pior que ausência: ele ocupa o
                   lugar da pessoa com uma que não é ela. A inicial em corpo
-                  grande identifica sem fingir. */}
-              <LinearGradient
-                colors={[c.accent, c.accent2]}
-                start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-                /* REDONDO, e não quadrado de cantos macios. O quadrado é a
-                   forma de ícone de app, e num cabeçalho de perfil ele lia
-                   como logotipo; o círculo é a forma de retrato em todo
-                   aparelho que a pessoa já usou. */
-                style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Txt v="h1" c={c.accentInk} style={{ fontSize: 28 }}>{S.profile.name[0]}</Txt>
-              </LinearGradient>
+                  grande identifica sem fingir.
+
+                  REDONDO, e não quadrado de cantos macios: o quadrado é a
+                  forma de ícone de app, e num cabeçalho de perfil ele lia
+                  como logotipo. O anel branco em volta separa o degradê do
+                  azul do fundo, que estão na mesma família. */}
+              <View style={{
+                width: 76, height: 76, borderRadius: 38, backgroundColor: c.bg1,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <LinearGradient
+                  colors={[c.accent, c.accent2]}
+                  start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
+                  style={{ width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Txt v="h1" c={c.accentInk} style={{ fontSize: 30 }}>{S.profile.name[0]}</Txt>
+                </LinearGradient>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, gap: 6 }}>
               <Txt v="h2">{S.profile.name}</Txt>
               {/* O E-MAIL SAIU, e com ele a única linha desta tela que era
-                  ficção.
-
-                  Ele existia só na semente: não há conta, não há login, e
-                  o cadastro nunca pergunta e-mail — num perfil de verdade
-                  aquela linha vinha vazia. Uma tela de conta sem conta
-                  imita o que outros apps têm em vez de dizer o que este é.
-
-                  O que fica é o que o app sabe de verdade: quem é a
-                  pessoa, a idade que ela informou e desde quando ela está
-                  aqui. */}
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 6 }}>
-                {idade != null ? idade + ' anos · ' : ''}por aqui desde {desde}
-              </Txt>
+                  ficção: não há conta, não há login, e o cadastro nunca
+                  pergunta e-mail. O que fica é há quanto tempo a pessoa
+                  aparece, que é a informação que uma tela de conta
+                  normalmente não dá. A idade saiu daqui porque já está
+                  em Nascimento, logo abaixo: dizê-la duas vezes fazia a
+                  linha quebrar em duas para repetir o que a lista conta.  */}
+              <Txt v="micro" c={c.tx3} numberOfLines={1}>Por aqui desde {desde}</Txt>
+              <Row gap={6} style={{ alignSelf: 'flex-start', backgroundColor: c.limeWeak, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginTop: 2 }}>
+                <Icon name="spark" size={12} color={c.tx} sw={2} />
+                <Txt v="micro" c={c.tx}>Dia {journeyDay(S)} da sua jornada</Txt>
+              </Row>
             </View>
           </Row>
 
-          {/* A linha de continuidade. Ela é o que transforma a ficha em
-              relação: "dia 71" diz há quanto tempo esta pessoa aparece, e é
-              a informação que uma tela de conta normalmente não dá. */}
-          <Row gap={7} style={{ marginTop: 18, alignSelf: 'flex-start', backgroundColor: c.limeWeak, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 }}>
-            <Icon name="spark" size={13} color={c.tx} sw={2} />
-            {/* Só o dia. A semana também estava aqui e vinha de
-                journeySummary, que a lê de protocol.week — uma terceira
-                definição de "semana atual", diferente da que a régua de
-                Cuidado usa. Duas contagens da mesma coisa em telas
-                vizinhas é pior que uma contagem a menos. */}
-            <Txt v="micro" c={c.tx}>Dia {journeyDay(S)} da sua jornada</Txt>
+          {/* A FICHA: de onde saiu, quanto andou, aonde vai.
+
+              O do meio é o assunto — é a única coisa desta tela que a
+              pessoa não escolheu, ela conquistou —, e por isso é o que tem
+              cor de feito e o corpo maior. Os dois das pontas são os
+              números que ela definiu, e trazem o lápis para dizer isso:
+              dá para mudar. O do meio não tem, e não ter é a informação. */}
+          <Row gap={8} style={{ marginTop: 22 }}>
+            <Dado
+              valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
+              fundo={c.bg2} tinta={c.tx} onPress={corrige(passoDoPesoInicial)} editavel
+            />
+            <Dado
+              valor={kg(Math.abs(perdeu))} unidade="kg"
+              label={perdeu >= 0 ? 'Já perdeu' : 'Ganhou'}
+              fundo={c.limeWeak} tinta={c.tx} destaque
+            />
+            <Dado
+              valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
+              fundo={c.bg2} tinta={c.tx} onPress={corrige('meta')} editavel
+            />
           </Row>
         </View>
       </View>
 
-      {/* ---- a ficha ----
-
-          Estes números não são configuração, são o tratamento. Peso
-          inicial define a perda; a meta define o quanto falta; a altura
-          define o IMC e a meta de energia; medicamento e dose definem a
-          cadência, o ciclo e o estoque. Trocar qualquer um redesenha
-          metade do app.
-
-          E AGORA TODOS TÊM CAMINHO DE VOLTA. O cadastro grava catorze
-          respostas e esta tela deixava corrigir três: quem digitou 1,70
-          no lugar de 1,60 ficava com o IMC e a meta de caloria errados
-          para sempre, sem nenhuma porta. Cada linha daqui reabre a
-          pergunta original — mesma régua, mesma validação —, e salvar
-          refaz o plano inteiro com o número novo.
-
-          O "PLANO DA EQUIPE" SAIU. Ele mostrava 16 semanas, e as 16
-          vinham de um `?? 16` na semente: nenhuma equipe combinou aquilo,
-          o cadastro nunca escreveu aquele campo, e o número estava ali
-          desde sempre com cara de fato. */}
-      <View style={{ marginTop: 32 }}>
-        <SectionHead title="Sua ficha" />
-        <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-          Os números que usamos para calcular tudo o que a gente te mostra. Toque para corrigir.
-        </Txt>
-
-        <Row gap={10} style={{ marginTop: 14 }}>
-          <Dado
-            valor={kg(S.profile.startWeight)} unidade="kg" label="Peso inicial"
-            fundo={c.bg1} tinta={c.tx} onPress={corrige('corpo')}
-          />
-          <Dado
-            valor={kg(S.profile.goalWeight)} unidade="kg" label="Meta"
-            fundo={c.limeWeak} tinta={c.tx} onPress={corrige('meta')}
-          />
-          <Dado
-            valor={milhar(metas.kcal)} unidade="kcal" label="Energia"
-            fundo={c.accentWeak} tinta={c.accent} onPress={go('/metas')}
-          />
+      {/* O medicamento sai da grade e vira linha inteira: ele não é um
+          número entre outros, é o que dá nome ao tratamento. O toque
+          abre as aplicações, que é onde ele tem conteúdo próprio; para
+          trocar a caneta ou a dose, a linha de baixo. */}
+      <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
+        <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+          <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="syringe" size={19} color={c.accent} sw={1.8} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed">{dose}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
+              {cadenciaCurta(S)} · {p.left} de {p.total} doses na caneta
+            </Txt>
+          </View>
+          <Icon name="chev" size={14} color={c.tx4} sw={2} />
         </Row>
-
-        {/* O medicamento sai da grade e vira linha inteira: ele não é um
-            número entre outros, é o que dá nome ao tratamento. O toque
-            abre as aplicações, que é onde ele tem conteúdo próprio; para
-            trocar a caneta ou a dose, a linha de baixo. */}
-        <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
-          <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-            <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="syringe" size={19} color={c.accent} sw={1.8} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Txt v="bodyMed">{dose}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
-                {cadenciaCurta(S)} · {p.left} de {p.total} doses na caneta
-              </Txt>
-            </View>
-            <Icon name="chev" size={14} color={c.tx4} sw={2} />
-          </Row>
-        </Pressable>
-      </View>
+      </Pressable>
 
       {/* ---- as respostas ----
 
