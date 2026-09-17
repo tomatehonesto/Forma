@@ -212,6 +212,39 @@ export function CircleBtn({ name, onPress, color, bg, size = 40 }: { name: strin
 }
 
 /* Container base de tela — SafeArea topo + scroll + fundo do app. */
+/** Grupo de linhas dentro de um card, com fio entre elas.
+
+    OS FIOS SANGRAM ATÉ A BORDA DIREITA, e começam alinhados com o texto.
+    Antes o card tinha padding de 16 e o fio vivia dentro dele, recuado
+    dos dois lados: a lista virava uma pilha de blocos separados por
+    traços flutuantes, e o toque só valia em cima da linha, não na faixa
+    inteira. É o mesmo desenho do Cartao das internas, que é o vocabulário
+    de lista mais novo do app — e ter dois jeitos de desenhar a mesma coisa
+    em telas vizinhas é o que faz um app parecer montado por duas pessoas
+    que não se falaram. */
+export function Grupo({ title, children }: { title?: string; children: React.ReactNode }) {
+  const { c } = useTheme();
+  const linhas = React.Children.toArray(children).filter(Boolean);
+  return (
+    /* SEM TÍTULO, O CARD SOBE. O espaço de 32 existe para separar um
+       cabeçalho de seção do que veio antes; um card solto só precisa do
+       respiro normal entre blocos. */
+    <View style={{ marginTop: title ? 32 : 20 }}>
+      {title ? <SectionHead title={title} /> : null}
+      <View style={{
+        backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: title ? 14 : 0, overflow: 'hidden',
+      }}>
+        {linhas.map((l, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <View style={{ height: 1, backgroundColor: c.line, marginLeft: 16 }} />}
+            <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>{l}</View>
+          </React.Fragment>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 export function Screen({ children, scroll = true, style }: { children: React.ReactNode; scroll?: boolean; style?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();

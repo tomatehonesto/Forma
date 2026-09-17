@@ -45,6 +45,13 @@ export const kg = (x: number) => nf(x, 1).replace('.', ',');
  *  "perder dez vírgula zero quilos". */
 export const kgTxt = (v: number) => nf(v, v % 1 === 0 ? 0 : 1);
 
+/** Casa decimal só quando existe: "68,0 kg" para uma meta redonda finge
+ *  uma precisão que a pessoa não definiu, e numa fileira ao lado de
+ *  "82,4 kg" a simetria dos dois faz o zero parecer medido. Difere de
+ *  kgTxt por sair já com a vírgula, que é como o número aparece na tela
+ *  e não no meio de uma frase. */
+export const kgCurto = (n: number) => nf(n, n % 1 ? 1 : 0).replace('.', ',');
+
 /** Mil e setecentas quilocalorias se escrevem "1.700". Sem o ponto, o
  *  número mais alto da tela é também o mais difícil de ler. */
 export const milhar = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');

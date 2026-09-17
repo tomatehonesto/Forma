@@ -7,12 +7,12 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, nf } from '../logic/time';
+import { kgCurto as kg, nf } from '../logic/time';
 import {
   journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
-import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow } from '../ui/kit';
+import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo } from '../ui/kit';
 import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -46,23 +46,6 @@ import { radius, font } from '../theme';
    de retrato, não superfície de marca.
    ============================================================ */
 
-/* casa decimal só quando existe: "68,0 kg" para uma meta redonda finge
-   uma precisão que a pessoa não definiu, e num par lado a lado com
-   "82,4 kg" a simetria dos dois faz o zero parecer medido */
-const kg = (n: number) => nf(n, n % 1 ? 1 : 0).replace('.', ',');
-
-/* O que cada resposta do cadastro vira em texto de ficha. Mora aqui, e
-   não solto no meio da tela, porque são seis traduções do mesmo tipo —
-   um código guardado virando a palavra que a pessoa escolheu. */
-const SEXO: Record<string, string> = {
-  f: 'Feminino', m: 'Masculino', o: 'Outro', n: 'Prefiro não informar',
-};
-
-const dataDoPerfil = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
-};
-
 /** Um número da ficha, em pastilha de cor.
 
     TRÊS CARTÕES EM LINHA, e a linha conta uma história: de onde saiu,
@@ -81,12 +64,16 @@ const dataDoPerfil = (t: number) => {
     meia linha de ar embaixo do número e a pastilha ficava pesada para
     baixo. Aqui a entrelinha acompanha o tamanho, e o que sobra acima e
     abaixo é o mesmo padding. */
-function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta }: {
+function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta, largo }: {
   valor: string; unidade?: string; label: string;
-  fundo: string; tinta: string; tintaRotulo: string; delta?: string;
+  fundo: string; tinta: string; tintaRotulo: string; delta?: string; largo?: boolean;
 }) {
   return (
-    <View style={{ flex: 1, backgroundColor: fundo, borderRadius: radius.card, padding: 12, gap: 5 }}>
+    /* O DO MEIO É UM POUCO MAIS LARGO porque carrega uma coisa a mais: o
+       rótulo dele divide a linha com o selo. Em três colunas iguais o
+       selo não cabia com a unidade junto, e a saída seria encolher a
+       letra do selo — largura é mais barata que legibilidade. */
+    <View style={{ flex: largo ? 1.16 : 1, backgroundColor: fundo, borderRadius: radius.card, padding: 12, gap: 5 }}>
       {/* Uma linha só: três cartões de alturas diferentes numa fileira
           leem como desalinho, e não como rótulo comprido. A palavra
           "peso" saiu dos três — numa fileira de quilos, repeti-la três
@@ -97,8 +84,7 @@ function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta }: {
             inteiro ("Já perdeu 7,3"), e um número de diferença no meio de
             uma fileira de pesos quebrava a comparação: o olho lia 82,4 →
             7,3 → 68. Como selo, ele diz a mesma coisa sem ocupar o lugar
-            de um peso. A unidade fica de fora porque a fileira toda é em
-            quilos e o selo não tem largura para repeti-la. */}
+            de um peso. */}
         {!!delta && (
           <View style={{ backgroundColor: 'rgba(10,10,10,0.10)', borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 1 }}>
             <Txt v="micro" c={tinta} style={{ fontSize: 11, fontFamily: font.bodyMed }}>{delta}</Txt>
@@ -109,36 +95,6 @@ function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta }: {
         <Txt v="h1" c={tinta} style={{ fontSize: 24, lineHeight: 28 }}>{valor}</Txt>
         {!!unidade && <Txt v="micro" c={tintaRotulo} style={{ fontSize: 12 }}>{unidade}</Txt>}
       </Row>
-    </View>
-  );
-}
-
-/** Grupo de linhas dentro de um card, com fio entre elas.
-
-    OS FIOS SANGRAM ATÉ A BORDA DIREITA, e começam alinhados com o texto.
-    Antes o card tinha padding de 16 e o fio vivia dentro dele, recuado
-    dos dois lados: a lista virava uma pilha de blocos separados por
-    traços flutuantes, e o toque só valia em cima da linha, não na faixa
-    inteira. É o mesmo desenho do Cartao das internas, que é o vocabulário
-    de lista mais novo do app — e ter dois jeitos de desenhar a mesma coisa
-    em telas vizinhas é o que faz um app parecer montado por duas pessoas
-    que não se falaram. */
-function Grupo({ title, children }: { title: string; children: React.ReactNode }) {
-  const { c } = useTheme();
-  const linhas = React.Children.toArray(children).filter(Boolean);
-  return (
-    <View style={{ marginTop: 32 }}>
-      <SectionHead title={title} />
-      <View style={{
-        backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, overflow: 'hidden',
-      }}>
-        {linhas.map((l, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <View style={{ height: 1, backgroundColor: c.line, marginLeft: 16 }} />}
-            <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>{l}</View>
-          </React.Fragment>
-        ))}
-      </View>
     </View>
   );
 }
@@ -347,8 +303,8 @@ export default function Perfil() {
             corrigindo a pessoa com um sinal de menos. */}
         <Dado
           label="Atual" valor={kg(curWeight(S))} unidade="kg"
-          delta={`${perdeu >= 0 ? '−' : '+'}${kg(Math.abs(perdeu))}`}
-          fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)"
+          delta={`${perdeu >= 0 ? '−' : '+'}${kg(Math.abs(perdeu))} kg`}
+          fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)" largo
         />
         <Dado
           label="Meta" valor={kg(S.profile.goalWeight)} unidade="kg"
@@ -357,41 +313,24 @@ export default function Perfil() {
         />
       </Row>
 
-      {/* ---- as respostas ----
+      {/* ---- a porta da ficha ----
 
-          O resto do que o cadastro perguntou. Não são números de tela —
-          são as premissas das contas: a idade e o sexo entram na equação
-          de energia, o nível de atividade multiplica o gasto, a restrição
-          filtra o que o app sugere, e o motivo é o que a pessoa disse que
-          a trouxe. Todos mudam com a vida, e nenhum tinha porta. */}
-      <Grupo title="Suas respostas">
-        <ListRow ic="ruler" title="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
-        {/* AS DUAS PONTAS DA FICHA, aqui e não em cima. As pastilhas do
-            cabeçalho são para bater o olho; mudar número é coisa de
-            lista, no mesmo lugar onde altura, ritmo e nascimento já se
-            corrigem. O peso inicial abre a tela que o escreveu, que não é
-            sempre a mesma: quem já estava em tratamento respondeu o peso
-            daquela época em "Comecei em"; quem ia começar não tem essa
-            distinção, e o peso de hoje é também o de partida. */}
-        <ListRow ic="scale" title="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
-        <ListRow ic="target" title="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
+          A SEÇÃO INTEIRA VIROU UMA LINHA. Eram nove respostas abertas no
+          meio do perfil: altura, pesos, ritmo, nome, sexo, nascimento,
+          atividade, restrições e motivo — nove linhas de configuração
+          empilhadas entre o retrato e a clínica, todas coisas que se
+          mexem uma vez por ano. Elas empurravam para baixo o que a
+          pessoa vem ver aqui, e transformavam a tela num formulário.
+
+          Agora são uma porta só. O que está atrás dela não mudou: é a
+          mesma lista, com o mesmo caminho de correção — a tela que
+          perguntou é a que corrige. Ver src/app/informacoes.tsx. */}
+      <Grupo>
         <ListRow
-          ic="trend" title="Ritmo escolhido"
-          sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
-          onPress={corrige('ritmo')}
+          ic="user" title="Minhas informações"
+          sub="Suas respostas do cadastro"
+          onPress={go('/informacoes')}
         />
-        <ListRow ic="user" title="Nome" sub={S.profile.name} onPress={corrige('nome')} />
-        <ListRow ic="heart" title="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
-        <ListRow
-          ic="cal" title="Nascimento"
-          sub={S.profile.nascimento
-            ? `${dataDoPerfil(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
-            : 'Não informado'}
-          onPress={corrige('nascimento')}
-        />
-        <ListRow ic="dumbbell" title="Atividade física" sub={atividade} onPress={corrige('atividade')} />
-        <ListRow ic="leaf" title="Restrições alimentares" sub={restricoes} onPress={go('/restricao')} />
-        <ListRow ic="bolt" title="O que te trouxe" sub={motivo} onPress={corrige('motivacao')} />
       </Grupo>
 
       {/* ---- clínica ----
