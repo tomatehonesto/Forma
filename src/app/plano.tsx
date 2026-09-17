@@ -209,21 +209,21 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
           }}>
             <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
           </View>
-          {/* O NOME SOZINHO NA PRIMEIRA LINHA, e em peso.
+          {/* UMA FRASE SÓ, e a quebra onde ela couber.
 
-              "Ana, seu plano personalizado está pronto!" numa frase só,
-              tudo no mesmo peso, é um bloco de três linhas onde nada é o
-              assunto. O nome sozinho em cima é a pessoa sendo chamada; o
-              resto, em regular, é o recado. */}
-          <Txt v="h1" style={{ textAlign: 'center' }}>{primeiro},</Txt>
-          {/* MESMO CORPO DO NOME, e só o peso muda. A segunda linha
-              estava num corpo menor, e com isso o nome virava manchete e o
-              recado virava legenda — duas hierarquias onde existe uma
-              frase só, quebrada em duas linhas para o nome respirar. */}
-          <Txt
-            style={{ ...ty.h1, fontFamily: font.body, textAlign: 'center', marginTop: -8 }}
-          >
-            o seu plano personalizado está pronto
+              O nome estava numa linha e o recado em outra, forçados: com
+              um nome curto sobrava um vão à direita, com um longo a linha
+              apertava, e a frase lia como duas. Solta, ela quebra onde o
+              texto pede — e o nome continua sendo o único em peso, que é
+              o que separa quem está sendo chamada do que está sendo dito.
+
+              A ENTRELINHA ENCOLHEU. Quarenta e quatro é a medida de uma
+              manchete de duas linhas; em três, o bloco vira uma escada
+              com degraus altos demais e o começo da frase se solta do
+              fim. */}
+          <Txt style={{ ...ty.h1, fontFamily: font.body, lineHeight: 38, textAlign: 'center' }}>
+            <Txt style={{ ...ty.h1, lineHeight: 38 }}>{primeiro},</Txt>
+            {' o seu plano personalizado está pronto'}
           </Txt>
           {/* O PESO DA META EM DESTAQUE: é o número que a pessoa veio
               buscar, e ele estava diluído no meio da frase. */}
