@@ -10,7 +10,7 @@ import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
-import { Txt, Row, CircleBtn } from '../ui/kit';
+import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
@@ -21,7 +21,7 @@ import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
-import { radius, ty, font } from '../theme';
+import { radius, ty, font, shadowCard } from '../theme';
 
 /* ============================================================
    CADASTRO — as doze perguntas antes da primeira tela
@@ -929,23 +929,24 @@ function Montando({ onFim }: { onFim: () => void }) {
    genérico de saúde. */
 /* O CORAÇÃO DO APP DE SAÚDE.
 
-   ⚠️ É DESENHO NOSSO, E NÃO O ARQUIVO DA APPLE. O ícone do Apple Saúde é
-   marca registrada e tem regra de uso própria; o que está aqui é um
-   coração na paleta dele — reconhecível ao lado do nome do app, e sem
-   fingir ser o arquivo original. Quando o PNG oficial entrar em
-   assets/images, este componente vira um <Image> e some.
-
-   No Android o app é o Health Connect, que tem outro desenho e outra
-   cor. Enquanto o arquivo dele não existe, o mesmo coração vai no tom do
-   app — melhor um símbolo nosso do que a marca errada. */
-function CoracaoDeSaude({ tamanho = 40, cor }: { tamanho?: number; cor?: string }) {
+   ⚠️ É DESENHO NOSSO, E NÃO O ARQUIVO DA APPLE OU DO GOOGLE. Os dois
+   ícones são marca registrada com regra de uso própria, e eu não tenho os
+   arquivos: o que está aqui é um coração na paleta de cada um —
+   reconhecível ao lado do nome do app, e sem se passar pelo original.
+   Quando os PNGs oficiais entrarem em assets/images, este componente
+   vira um <Image> e some. */
+function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number; de?: 'ios' | 'android' }) {
   const D = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+  /* Rosa para vermelho no Apple Saúde; o azul do Health Connect no
+     Android. É a única coisa que os dois ícones têm em comum para quem
+     olha de longe — a cor —, e é ela que faz a figura ser reconhecida. */
+  const par = de === 'ios' ? ['#FB5E7E', '#F43B47'] : ['#3E7BFA', '#1A56DB'];
   return (
     <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24">
       <Defs>
         <SvgGradiente id="coracao" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={cor ?? '#FB5E7E'} />
-          <Stop offset="1" stopColor={cor ?? '#F43B47'} />
+          <Stop offset="0" stopColor={par[0]} />
+          <Stop offset="1" stopColor={par[1]} />
         </SvgGradiente>
       </Defs>
       <Path d={D} fill="url(#coracao)" />
@@ -953,44 +954,71 @@ function CoracaoDeSaude({ tamanho = 40, cor }: { tamanho?: number; cor?: string 
   );
 }
 
-function Sincronia() {
+/* ============================================================
+   OS DOIS APLICATIVOS, LADO A LADO
+
+   A figura não é enfeite: ela é a pergunta da tela desenhada. Dois
+   ícones e três pontos entre eles dizem "um vai falar com o outro" antes
+   de qualquer frase — é a gramática que todo mundo já viu em tela de
+   permissão, e por isso ela não precisa ser aprendida aqui.
+
+   O NOME DEBAixO DO ÍCONE, dentro da pastilha. O aparelho tem um app de
+   saúde só, e ele tem nome: escrever "Health Connect" ali é o que
+   transforma um desenho genérico no aplicativo que a pessoa vai ver
+   abrir na próxima tela.
+
+   E UM HALO NO LUGAR DA CONSTELAÇÃO. Aqui havia dezenas de ícones soltos
+   no fundo, em opacidade baixa — bonito de perto e barulhento atrás de
+   duas pastilhas brancas. O halo faz o mesmo trabalho com uma forma só:
+   levanta o par do fundo e para de disputar atenção com ele.
+   ============================================================ */
+function Sincronia({ nome }: { nome: string }) {
   const { c } = useTheme();
-  const apple = Platform.OS === 'ios';
   return (
-    <View style={{ height: 184, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-      <View style={{ ...SOBREPOSTO, opacity: 0.085 }} pointerEvents="none">
-        {GLIFOS.map(([ic, x, y, t], i) => (
-          <View key={i} style={{ position: 'absolute', left: `${x}%`, top: y }}>
-            <Icon name={ic} size={t} color={c.tx} sw={1.6} />
-          </View>
-        ))}
-      </View>
-      <Row style={{ alignItems: 'center', gap: 6 }}>
-        {/* DE UM LADO, NÓS. Era um coração genérico, que é o símbolo do
-            app de saúde do outro lado — os dois quadrados diziam a mesma
-            coisa e a figura não mostrava troca nenhuma. */}
+    <View style={{ height: 176, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute', width: 230, height: 230, borderRadius: 115,
+          backgroundColor: c.bg1, opacity: 0.9,
+        }}
+      />
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute', width: 168, height: 168, borderRadius: 84,
+          backgroundColor: c.accentWeak,
+        }}
+      />
+      <Row style={{ alignItems: 'center', gap: 14 }}>
+        {/* O APP DO APARELHO */}
+        <View style={[{
+          width: 96, height: 96, borderRadius: 28, backgroundColor: c.bg1,
+          alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 6,
+        }, shadowCard(c)]}>
+          <CoracaoDeSaude tamanho={40} de={Platform.OS === 'android' ? 'android' : 'ios'} />
+          {/* Duas linhas: "Health Connect" não cabe numa só num quadrado
+              de 96, e cortar o nome do aplicativo em "Health Conn…" é pior
+              do que dobrar a linha. */}
+          <Txt v="micro" c={c.tx2} numberOfLines={2} style={{ textAlign: 'center', lineHeight: 14 }}>
+            {nome}
+          </Txt>
+        </View>
+
+        {/* OS TRÊS PONTOS, e não uma seta. Seta tem sentido, e aqui o dado
+            vai e volta; ponto é passagem, que é o que está acontecendo. */}
+        <Row gap={5}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
+          ))}
+        </Row>
+
+        {/* NÓS */}
         <Image
           source={MARCA_APP}
-          style={{ width: 84, height: 84, borderRadius: 26 }}
+          style={{ width: 96, height: 96, borderRadius: 28 }}
           resizeMode="cover"
         />
-        {/* AS DUAS SETAS, e não o círculo de recarregar. Recarregar é uma
-            operação que alguém dispara; o assunto aqui é que os dois lados
-            conversam, e quem desenha isso é a ida com a volta. */}
-        <Row style={{ width: 74, alignItems: 'center', gap: 8 }}>
-          <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
-          <Icon name="troca" size={20} color={c.accent} sw={2.2} />
-          <View style={{ flex: 1, height: 1.5, backgroundColor: c.accentLine }} />
-        </Row>
-        {/* DO OUTRO LADO, O APP DE SAÚDE do aparelho — branco com o
-            coração, que é como os dois se apresentam na tela inicial. */}
-        <View style={{
-          width: 84, height: 84, borderRadius: 26, backgroundColor: '#FFFFFF',
-          borderWidth: 1, borderColor: c.line,
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <CoracaoDeSaude tamanho={42} cor={apple ? undefined : c.rose} />
-        </View>
       </Row>
     </View>
   );
@@ -1416,7 +1444,7 @@ export default function Cadastro() {
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
-    saude: 'O seu aparelho já mede. A gente só lê.',
+    saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
   };
 
@@ -1477,8 +1505,23 @@ export default function Cadastro() {
         {/* A pergunta mora DENTRO da lavagem, e não abaixo dela: é ela o
             assunto da tela, e o gradiente existe para dar altura ao que
             ela pergunta. As respostas é que caem no branco. */}
-        {id === 'saude' ? <Sincronia /> : null}
-        <Txt v="h1" style={id === 'saude' ? { textAlign: 'center' } : null}>{titulos[id]}</Txt>
+        {id === 'saude' ? <Sincronia nome={appSaude} /> : null}
+        {/* A TELA DE SAÚDE TEM MANCHETE PRÓPRIA, e não a pergunta seca das
+            outras. Ela é a única do formulário que pede uma autorização em
+            vez de uma resposta, e o que decide alguém a autorizar não é
+            saber o que o app quer — é saber o que ela ganha.
+
+            O fecho vem em azul porque é ele que carrega a promessa: o
+            resto da frase é o assunto, "em um só lugar" é o benefício. */}
+        {id === 'saude' ? (
+          <Rich
+            v="h1"
+            text="Tudo o que seu corpo mostra, <b>em um só lugar</b>"
+            style={{ textAlign: 'center', marginTop: 10 }}
+          />
+        ) : (
+          <Txt v="h1">{titulos[id]}</Txt>
+        )}
         <Txt
           v="note" c={c.tx2}
           style={[
@@ -1948,36 +1991,31 @@ export default function Cadastro() {
             quando o módulo existir. Por isso o texto não diz "conectado":
             dizer isso seria o app afirmar um acesso que ele não tem. */}
         {id === 'saude' ? (
-          /* OS MOTIVOS PERDERAM O CARTÃO, E DEPOIS O SELO DE COR.
-
-             Dentro de um cartão branco eles viravam um bloco à parte no
-             meio de uma tela que é toda ela um convite. O quadrado azul
-             atrás de cada ícone era o resto daquele bloco: três caixas
-             coloridas enfileiradas numa tela que já tem duas caixas
-             grandes no alto, e o ícone lia como botão. Solto e maior, ele
-             é o que sempre foi — a marca do assunto, ao lado do que ele
-             diz.
-
-             E O GRUPO É CENTRADO, como o título e a frase acima dele; os
-             ícones continuam alinhados entre si, porque é a coluna deles
-             que segura a lista de pé.
-
-             OS ARGUMENTOS: dois ganhos e uma garantia — menos trabalho,
-             curva mais completa, e o controle continuando com ela. Eram
+          /* OS MOTIVOS: dois ganhos e uma garantia — menos trabalho, uma
+             leitura mais completa, e o controle continuando com ela. Eram
              três descrições do mecanismo, e nenhuma respondia à pergunta
              que a pessoa se faz, que é o que ela ganha deixando um app ver
-             isso. */
-          <View style={{ gap: 20, alignSelf: 'center' }}>
+             isso.
+
+             O SELO DE COR VOLTOU, e só aqui. A regra da casa é ícone solto
+             nas listas, porque lá o quadrado repetido vira uma coluna de
+             botões que não são botões. Esta não é uma lista de opções: são
+             três argumentos, e o quadrado é o que lhes dá o peso de cartaz
+             numa tela que está pedindo autorização. */
+          <View style={{ gap: 14 }}>
             {([
-              ['clock', 'Menos uma coisa para lembrar', 'peso, sono e treino entram sozinhos'],
-              ['trend', 'A sua curva mais completa', 'o que o aparelho mede já entra aqui'],
-              ['shield', 'Você decide o que liberar', 'e desliga quando quiser, no perfil'],
+              ['clock', 'Menos uma coisa para lembrar', 'Peso, sono e treino entram sozinhos.'],
+              ['barchart', 'A sua curva mais completa', 'O que o aparelho mede já entra aqui.'],
+              ['shield', 'Você continua no controle', 'Escolha o que liberar, e desligue quando quiser.'],
             ] as [string, string, string][]).map(([ic, t, sub]) => (
               <Row key={t} style={{ gap: 14, alignItems: 'center' }}>
-                <View style={{ width: 30, alignItems: 'center' }}>
-                  <Icon name={ic} size={24} color={c.accent} sw={1.9} />
+                <View style={{
+                  width: 46, height: 46, borderRadius: 15, backgroundColor: c.accentWeak,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name={ic} size={21} color={c.accent} sw={1.9} />
                 </View>
-                <View style={{ flexShrink: 1 }}>
+                <View style={{ flex: 1 }}>
                   <Txt v="bodyMed">{t}</Txt>
                   <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt>
                 </View>
@@ -2037,18 +2075,34 @@ export default function Cadastro() {
             abaixo dela, escrita por extenso em vez de escondida. */}
         {id === 'saude' ? (
           <View>
+            {/* O BOTÃO DIZ O QUE A PESSOA GANHA, e a letra miúda embaixo
+                diz por onde isso passa.
+
+                "Conectar ao Health Connect" punha o nome do intermediário
+                no lugar onde mora a ação — e o nome muda de aparelho para
+                aparelho, então a frase principal da tela mudava com ele.
+                "Conectar meus dados" é a mesma ação em qualquer telefone,
+                e o "via Health Connect" embaixo é a informação técnica no
+                tamanho que ela merece. */}
             <Botao
               pilula
-              label={`Conectar ao ${appSaude}`}
+              label="Conectar meus dados"
               onPress={() => { p({ saude: true }); avanca(); }}
             />
+            <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
+              via {appSaude}
+            </Txt>
+            {/* "FAZER ISSO DEPOIS", e não "agora não". A recusa que fecha
+                a porta é mais fácil de dar do que a que adia, e aqui ela
+                adia mesmo: a tela de Integrações continua no perfil, e a
+                pessoa liga quando quiser. */}
             <Pressable
               onPress={() => { p({ saude: false }); avanca(); }}
               style={({ pressed }) => [{
-                alignItems: 'center', paddingVertical: 14, opacity: pressed ? 0.6 : 1,
+                alignItems: 'center', paddingTop: 16, paddingBottom: 2, opacity: pressed ? 0.6 : 1,
               }]}
             >
-              <Txt v="label" c={c.tx3}>Agora não</Txt>
+              <Txt v="label" c={c.accent}>Fazer isso depois</Txt>
             </Pressable>
           </View>
         ) : (
