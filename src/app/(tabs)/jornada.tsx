@@ -467,7 +467,7 @@ export default function Jornada() {
             para onde a pessoa quer chegar, e por isso vem logo depois do
             que já mudou: passado e destino lado a lado. */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="Onde quero chegar" link="Metas" onPress={go('/metas')} />
+          <SectionHead title="Metas" link="Ver todas" onPress={go('/metas')} />
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 4 }}>
             {metas.map((m, i) => (
               <React.Fragment key={m.id}>

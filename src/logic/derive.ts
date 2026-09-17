@@ -2687,16 +2687,27 @@ export type TarefaDoProtocolo = {
   feita: boolean;
   /** medida: o app conta. manual: a pessoa marca. */
   medida: boolean;
+  /* DE ONDE VEM O NÚMERO, e para onde ir para mexer nele.
+
+     A linha medida não se marca, e dizer isso com um cadeado responde
+     só metade: a pessoa fica sabendo que não pode tocar e continua sem
+     saber onde aquilo se cumpre. O nome da tela responde a outra metade,
+     e o toque leva até ela. */
+  origem?: string;
+  para?: string;
 };
 
 /* Como cada meta medida se escreve e se conta. O alvo — em quantos dias
    da semana — vem da tarefa, porque é ele que a equipe negocia. */
-const MEDIDAS: Record<string, (S: State, alvo: number) => { texto: string; feito: number }> = {
+const MEDIDAS: Record<string, (S: State, alvo: number) => {
+  texto: string; feito: number; origem: string; para: string;
+}> = {
   agua: (S, alvo) => {
     const ml = (S.profile as any).targets.waterMl as number;
     return {
       texto: alvo >= 7 ? `Beber ${litros(ml)} L todo dia` : `Beber ${litros(ml)} L em ${alvo} dias`,
       feito: semanaDeAgua(S).filter((d) => d.ml >= ml).length,
+      origem: 'Hidratação', para: '/agua',
     };
   },
   prot: (S, alvo) => {
@@ -2704,6 +2715,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => { texto: string; feito
     return {
       texto: alvo >= 7 ? `Comer ${g} g de proteína todo dia` : `Comer ${g} g de proteína em ${alvo} dias`,
       feito: semanaDeProteina(S).filter((d) => d.g >= g).length,
+      origem: 'Alimentação', para: '/alimentacao',
     };
   },
   /* Dias COM MOVIMENTO, e não minutos: é o que o item pede — sair do
@@ -2713,6 +2725,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => { texto: string; feito
   exerc: (S, alvo) => ({
     texto: `Se mexer em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
     feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
+    origem: 'Exercício', para: '/exercicio',
   }),
 };
 
@@ -2726,12 +2739,14 @@ export function protocoloDaSemana(S: State) {
       return { i, texto: x.t, nota: x.note || '', feita: !!x.done, medida: false };
     }
     const alvo = x.alvo || 7;
-    const { texto, feito } = m(S, alvo);
+    const { texto, feito, origem, para } = m(S, alvo);
     return {
       i, texto,
       nota: `${feito} de ${alvo} ${alvo === 1 ? 'dia' : 'dias'}`,
       feita: feito >= alvo,
       medida: true,
+      origem,
+      para,
     };
   });
   const feitas = tarefas.filter((t) => t.feita).length;
@@ -2884,13 +2899,13 @@ export function semanaDoHistorico(S: State, ate: number) {
 /* ============================================================
    OS ALVOS — os quatro números que o app cobra
 
-   Proteína, água, exercício e o peso de referência. Eles não são enfeite
+   Proteína, água, exercício e a meta de peso. Eles não são enfeite
    de perfil: a tela de alimentação cobra o de proteína, a de água cobra o
    dela, o protocolo conta os três e a Jornada mede a viagem inteira
    contra o de peso.
 
    E NÃO HAVIA COMO MUDAR NENHUM. O perfil tinha duas linhas apontando
-   para /metas — "peso de referência" e "metas diárias" — e a tela de
+   para /metas — "meta de peso" e "metas diárias" — e a tela de
    metas não mostrava nem um nem outro: dois becos sem saída para os
    números mais usados do app. A meta de 90 g de proteína valia para
    sempre porque ninguém tinha onde escrever outra.
@@ -2935,9 +2950,13 @@ export const ALVOS: Record<ChaveDeAlvo, {
     escreve: (v) => String(Math.round(v)),
   },
   peso: {
-    /* Referência, e não alvo: é o ponto de chegada que a equipe combinou,
-       e o app usa ele para medir o caminho — não para cobrar. */
-    ic: 'scale', nome: 'Peso de referência', onde: 'Mede a viagem inteira, na Jornada',
+    /* O MESMO NOME DO CADASTRO. A pergunta lá é "qual é a sua meta de
+       peso?", e aqui o campo se chamava "peso de referência" — dois nomes
+       para o mesmo número, e quem quisesse mudar o que respondeu no
+       cadastro tinha de adivinhar qual dos dois era. O app usa este peso
+       para medir o caminho, e não para cobrar; isso continua verdade com o
+       nome que a pessoa reconhece. */
+    ic: 'scale', nome: 'Meta de peso', onde: 'Mede a viagem inteira, na Jornada',
     un: 'kg', passo: 0.5, min: 40, max: 200,
     le: (S) => S.profile.goalWeight,
     /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e

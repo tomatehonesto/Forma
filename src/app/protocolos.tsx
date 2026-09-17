@@ -8,7 +8,7 @@ import {
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Bloco, Cartao, Aviso } from '../ui/internas';
+import { Bloco, Cartao, Aviso, Selo } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 
@@ -43,27 +43,24 @@ const AURORA = require('../../assets/images/aurora-hero.png');
    com visto para o que o app já contou. Três formas para duas ideias — e
    o gráfico ainda precisava ser decifrado antes de dizer o que queria.
 
-   A lista volta a ser uma lista: a mesma caixinha nas cinco. O que muda é
-   o CADEADO, e ele diz de perto o que a nota lá em cima diz de longe —
-   essa linha não é sua para marcar, ela se cumpre bebendo, comendo e
-   andando.
+   A lista volta a ser uma lista: a mesma caixinha nas cinco. Quem diz
+   que a linha não é sua para marcar é a ETIQUETA do lado direito, com o
+   nome da tela onde aquilo se cumpre — e ela responde o que o cadeado
+   que morava aqui não respondia: não "você não pode tocar", mas "isto se
+   cumpre na Hidratação, e é para lá que este toque leva".
 
-   E cumprida é cumprida: alcançada, a caixa acende igual nas cinco. O
-   cadeado responde "dá para tocar?", e essa pergunta some quando não há
-   mais nada para marcar. */
-function Marcador({ feita, travada }: { feita: boolean; travada: boolean }) {
+   E cumprida é cumprida: alcançada, a caixa acende igual nas cinco. */
+function Marcador({ feita }: { feita: boolean }) {
   const { c } = useTheme();
   return (
     <View style={{
       width: 26, height: 26, borderRadius: 9,
       alignItems: 'center', justifyContent: 'center',
-      backgroundColor: feita ? c.accent : travada ? c.bg3 : 'transparent',
-      borderWidth: feita || travada ? 0 : 1.6,
+      backgroundColor: feita ? c.accent : 'transparent',
+      borderWidth: feita ? 0 : 1.6,
       borderColor: c.line2,
     }}>
-      {feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} />
-        : travada ? <Icon name="lock" size={13} color={c.tx4} sw={2} />
-          : null}
+      {feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} /> : null}
     </View>
   );
 }
@@ -140,20 +137,46 @@ export default function Protocolos() {
             {p.tarefas.map((t) => {
               const corpo = (
                 <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-                  <Marcador feita={t.feita} travada={t.medida} />
+                  <Marcador feita={t.feita} />
                   <View style={{ flex: 1 }}>
                     {/* Sem risco em cima do texto cumprido. O risco diz
                         "isto saiu da lista", e numa meta que se refaz toda
                         semana ela não sai de lugar nenhum — ela foi
                         alcançada, que é outra coisa. */}
                     <Txt v="body" c={t.feita ? c.tx3 : c.tx}>{t.texto}</Txt>
-                    {t.nota ? (
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{t.nota}</Txt>
+                    {/* A ETIQUETA DIVIDE A LINHA COM A CONTAGEM, e não com
+                        o título. À direita do título ela roubava metade da
+                        largura e quebrava "Beber 2,5 L todo dia" no meio;
+                        aqui embaixo ela fica no mesmo lugar do olho — a
+                        direita da linha — e o texto respira.
+
+                        E as duas dizem a mesma coisa em ordens diferentes:
+                        a contagem é o quanto já foi, a etiqueta é onde
+                        isso acontece. */}
+                    {t.nota || t.origem ? (
+                      <Row style={{ marginTop: 3, alignItems: 'center', gap: 8 }}>
+                        <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>{t.nota}</Txt>
+                        {t.medida && t.origem ? <Selo label={t.origem} tom="neutra" /> : null}
+                      </Row>
                     ) : null}
                   </View>
                 </Row>
               );
-              if (t.medida) return <View key={t.i}>{corpo}</View>;
+              /* A MEDIDA NÃO SE MARCA, MAS LEVA A ALGUM LUGAR. Antes ela
+                 era um bloco morto: tocar não fazia nada, e a pessoa
+                 ficava sem saber onde aquilo acontece. Agora o toque abre
+                 a tela que alimenta a contagem. */
+              if (t.medida) {
+                return (
+                  <Pressable
+                    key={t.i}
+                    onPress={() => router.push((t.para ?? '/') as any)}
+                    style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                  >
+                    {corpo}
+                  </Pressable>
+                );
+              }
               return (
                 <Pressable
                   key={t.i}

@@ -23,7 +23,7 @@ import { radius } from '../theme';
    com um número aqui e outro na Jornada.
 
    E ERA UM BECO SEM SAÍDA DUPLO. O perfil manda para cá em duas linhas:
-   "peso de referência" e "metas diárias". Nenhuma das duas existia aqui.
+   "meta de peso" e "metas diárias". Nenhuma das duas existia aqui.
    Os quatro números que o app cobra todo dia — proteína, água, exercício
    e o peso — não tinham onde ser mudados em lugar nenhum do app.
 
@@ -59,7 +59,7 @@ export default function Metas() {
     <TelaDeHabito>
       <CapaDeHabito
         foto={AURORA}
-        titulo="Onde quero chegar"
+        titulo="Metas"
         linha={`${kg(perdido)} de ${kg(total)} kg até ${ALVOS.peso.escreve(S.profile.goalWeight)} kg`}
         pct={pct}
       >
@@ -109,7 +109,12 @@ export default function Metas() {
             aconteceu — ela perdeu a barra, porque não existe sessenta por
             cento de caber numa calça. */}
         <Bloco
-          titulo="Onde quero chegar"
+          /* "As suas" porque a capa da tela já se chama Metas, e uma seção
+             com o nome da tela lê como se a anterior não fosse meta — e
+             a anterior são os números do dia, que são meta também. O que
+             separa as duas é quem cobra: aquelas o app conta sozinho,
+             estas a pessoa escreveu. */
+          titulo="As suas metas"
           nota="As medidas o app acompanha pelos check-ins. As suas, você marca."
         >
           {metas.length ? (

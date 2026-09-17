@@ -184,7 +184,7 @@ export default function Perfil() {
 
         <Row gap={10} style={{ marginTop: 14 }}>
           <Dado valor={kg(S.profile.startWeight)} unidade="kg" label="peso inicial" />
-          <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="peso de referência" onPress={go('/metas')} />
+          <Dado valor={kg(S.profile.goalWeight)} unidade="kg" label="meta de peso" onPress={go('/metas')} />
         </Row>
         <Row gap={10} style={{ marginTop: 10 }}>
           <Dado valor={nf(S.profile.height, 2).replace('.', ',')} unidade="m" label="altura" />
