@@ -574,8 +574,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               </Row>
               <Txt v="caption" c={c.tx3}>
                 As metas, a curva e as prioridades deste plano seguem diretrizes de saúde
-                pública e ensaios clínicos revisados por pares — inclusive a escolha de
-                acompanhar proteína, movimento, água e sintomas.
+                pública e ensaios clínicos revisados por pares.
               </Txt>
               <Row style={{ gap: 8, flexWrap: 'wrap' }}>
                 {SELOS.map((fo) => (
