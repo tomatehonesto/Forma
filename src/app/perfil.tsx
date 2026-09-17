@@ -167,9 +167,19 @@ export default function Perfil() {
             </View>
             <View style={{ flex: 1 }}>
               <Txt v="h2">{S.profile.name}</Txt>
-              <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{S.profile.email}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 8 }}>
-                {idade != null ? idade + ' anos · ' : ''}membro desde {desde}
+              {/* O E-MAIL SAIU, e com ele a única linha desta tela que era
+                  ficção.
+
+                  Ele existia só na semente: não há conta, não há login, e
+                  o cadastro nunca pergunta e-mail — num perfil de verdade
+                  aquela linha vinha vazia. Uma tela de conta sem conta
+                  imita o que outros apps têm em vez de dizer o que este é.
+
+                  O que fica é o que o app sabe de verdade: quem é a
+                  pessoa, a idade que ela informou e desde quando ela está
+                  aqui. */}
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 6 }}>
+                {idade != null ? idade + ' anos · ' : ''}por aqui desde {desde}
               </Txt>
             </View>
           </Row>

@@ -263,8 +263,7 @@ export function buildSeed() {
       /* Horizonte do plano que a equipe traçou até a dose de manutenção.
          Não é alta: é até onde a titulação foi programada, e é o número
          que dá sentido a "você está na semana 11". */
-      planoSemanas: 16,
-      nutri: 'Renata Alves', email: 'mariana.silva@email.com',
+      nutri: 'Renata Alves',
       /* A DATA, e não a idade: idade muda sozinha todo aniversário, e um
          número guardado envelhece errado. Quem precisa dela usa idadeDe. */
       nascimento: +new Date(1988, 4, 12),
@@ -522,6 +521,5 @@ export function ensureDefaults(S: any) {
     (S as any).favMeals = ((S as any).favMeals as any[])
       .map((f) => (typeof f === 'string' ? { nome: f } : f));
   }
-  if (S.profile && !S.profile.planoSemanas) S.profile.planoSemanas = 16;
   return S;
 }

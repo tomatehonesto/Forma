@@ -3759,11 +3759,21 @@ export function careState(S: State) {
      sem saber quantos existem ao todo. Barra sem denominador é decoração
      com aparência de dado.
 
-     Estes três números dão o denominador — previstas, atual, cumpridas —
-     e é a partir deles que a forma passa a ter o que mostrar. O
-     horizonte vem do plano que a equipe traçou (profile.planoSemanas),
-     não de uma alta: tratamento com GLP-1 não tem data de alta, tem
-     data em que a titulação chega à dose de manutenção. */
+     ⚠️ E O DENOMINADOR ERA INVENTADO. Ele saía de `profile.planoSemanas`,
+     um campo que só existia na semente com o valor 16: nenhuma equipe
+     combinou aquilo, o cadastro nunca o escreveu, e a tela dizia "de 16
+     previstas no seu plano" para todo mundo. Número inventado com cara
+     de plano médico é a pior espécie dos dois.
+
+     AGORA O HORIZONTE É O DA META. São as semanas que o ritmo escolhido
+     leva para chegar ao peso combinado — a mesma conta que a tela de
+     plano mostra, e que muda quando a pessoa muda o ritmo ou a meta.
+     Tratamento com GLP-1 não tem data de alta; o que tem data é a meta
+     que a pessoa escolheu perseguir.
+
+     E O HORIZONTE NUNCA É MENOR QUE O PRESENTE. Quem passou da conta
+     continua andando: a régua cresce com a pessoa em vez de deixá-la
+     fora dela. */
   const grade = weekGrid(S, 0);
   /* A semana corrente vem da grade, não de `semanas`.
 
@@ -3771,8 +3781,11 @@ export function careState(S: State) {
      está vivendo é a seguinte. Usar uma no lugar da outra deslocava a
      régua em um: o marcador de "agora" caía sobre uma semana já cumprida,
      e a semana de fato corrente aparecia como prevista. */
+  const ateAMeta = planoDoPerfil(S).semanas;
   const plano = {
-    previstas: (S.profile as any).planoSemanas ?? 16,
+    previstas: Math.max(grade.length, ateAMeta ?? 0),
+    /** há meta a perseguir, e portanto um horizonte de verdade */
+    temHorizonte: ateAMeta != null,
     atual: grade.length,
     cumpridas: grade.filter((g) => !g.futura && g.aplicou).length,
   };

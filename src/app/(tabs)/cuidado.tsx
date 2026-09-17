@@ -244,7 +244,7 @@ function LinhaDoPlano() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const st = careState(S);
-  const { previstas, atual, cumpridas } = st.plano;
+  const { previstas, atual, cumpridas, temHorizonte } = st.plano;
   const grade = weekGrid(S, 0);
   const feitas = new Set(grade.filter((g) => g.aplicou).map((g) => g.n));
 
@@ -331,7 +331,11 @@ function LinhaDoPlano() {
           Invertido, a frase seria lida primeiro e a régua viraria enfeite
           do que já foi dito. */}
       <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, lineHeight: 20 }}>
-        Semana <Txt v="bodyMed" c={c.onHero}>{atual}</Txt> de {previstas} previstas no seu plano ·{' '}
+        {/* O DENOMINADOR SÓ APARECE QUANDO EXISTE. Sem meta a perseguir
+            não há horizonte, e "de N previstas" seria um plano que
+            ninguém traçou — a régua vira o registro do que já andou. */}
+        Semana <Txt v="bodyMed" c={c.onHero}>{atual}</Txt>
+        {temHorizonte ? ` de ${previstas} até a sua meta` : ` do seu tratamento`} ·{' '}
         <Txt v="bodyMed" c={c.lime}>{cumpridas}</Txt> com aplicação em dia
       </Txt>
     </View>
