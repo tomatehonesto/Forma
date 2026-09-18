@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { latestMeasure, firstMeasure } from '../logic/derive';
 import { MO, nf } from '../logic/time';
+import { Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, Grade2, Metrica, Botao, Aviso, CardCurva,
+  TelaInterna, Titulao, Bloco, Cartao, Grade2, Metrica, Botao, Aviso, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
@@ -45,6 +46,11 @@ const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[
 function CardMedida({ nome, chave, onPress }: { nome: string; chave: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
   const pts = (S.measures as any[]).map((m) => ({ t: m.t, v: m[chave] as number }));
+  /* ⚠️ SEM MEDIDA NENHUMA, NÃO HÁ CARTÃO. A lista sempre teve três
+     medições na semente, então este componente nunca leu o primeiro
+     ponto de uma lista vazia — e quebrava a tela inteira quando leu.
+     Quem chega agora tem a lista vazia até pegar a fita. */
+  if (!pts.length) return null;
   const primeiro = pts[0], ultimo = pts[pts.length - 1];
   const delta = ultimo.v - primeiro.v;
 
@@ -81,7 +87,16 @@ export default function Medidas() {
         lead="O corpo mudando de forma, além da balança. Toque numa medida para ver o histórico e corrigir registros."
       />
 
-      <Bloco titulo="Você registra" nota="Medido por você, com fita.">
+      <Bloco titulo="Você registra" nota={m1 ? "Medido por você, com fita." : undefined}>
+        {!m1 ? (
+          <Cartao>
+            <Vazio
+              ic="ruler"
+              titulo="Nenhuma medida ainda"
+              texto="Cintura, quadril, braço e coxa contam o que a balança não conta."
+            />
+          </Cartao>
+        ) : null}
         <View style={{ gap: 10 }}>
           {CIRC.map((r) => (
             <CardMedida

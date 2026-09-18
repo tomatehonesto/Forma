@@ -103,6 +103,53 @@ function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta, largo }
   );
 }
 
+/** Apagar tudo — a linha que se arma antes de agir.
+
+    Duas perguntas, e não uma. A primeira é o toque na linha; a segunda é
+    a frase que diz o que vai embora e que não há cópia em lugar nenhum.
+    "Tem certeza?" é a pergunta que não informa nada, e é exatamente a que
+    as pessoas respondem "sim" no automático.
+
+    O desarmado não usa vermelho: a cor de erro deste app significa coisa
+    clínica — sintoma grave, exame fora da faixa. Ele aparece no "Apagar"
+    da confirmação, que é onde de fato há perigo. */
+function Apagar({ onApagar }: { onApagar: () => void }) {
+  const { c } = useTheme();
+  const [armado, setArmado] = React.useState(false);
+
+  if (armado) {
+    return (
+      <Row gap={12} style={{ alignItems: 'center' }}>
+        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+          Apagar tudo? Não há cópia em lugar nenhum.
+        </Txt>
+        <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.tx3}>Cancelar</Txt>
+        </Pressable>
+        <Pressable onPress={onApagar} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.cta}>Apagar</Txt>
+        </Pressable>
+      </Row>
+    );
+  }
+
+  return (
+    <Pressable onPress={() => setArmado(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+      <Row gap={12}>
+        <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="trash" size={20} color={c.tx2} sw={1.8} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Txt v="body">Apagar meus dados</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
+            Pesagens, aplicações, check-ins e exames
+          </Txt>
+        </View>
+      </Row>
+    </Pressable>
+  );
+}
+
 export default function Perfil() {
   const S = useStore((s) => s.S);
   /* Contada do ano de nascimento, e não guardada: idade guardada
@@ -110,6 +157,7 @@ export default function Perfil() {
   const idade = idadeDe(S);
   const setTheme = useStore((s) => s.setTheme);
   const update = useStore((s) => s.update);
+  const reset = useStore((s) => s.reset);
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
   /* O que ela já andou: começo menos hoje. Negativo quando o peso subiu,
@@ -533,22 +581,18 @@ export default function Perfil() {
         <ListRow ic="info" title="Ajuda"
           sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
 
-        {/* ⚠️ "APAGAR MEUS DADOS" NÃO ENTRA AINDA, e o motivo é que ele
-            não teria como dizer a verdade.
+        {/* APAGAR É IR PARA O ESTADO VAZIO, e não repor a semente.
 
-            Ele seria a linha mais padrão que falta aqui, e o `reset()` do
-            store — escrito desde sempre e nunca chamado por nenhuma tela
-            — parecia o encaixe pronto. Só que reset devolve a SEMENTE:
-            quem tocasse em "apagar meus dados" veria voltar o tratamento
-            de exemplo, com setenta e um dias de registros de outra
-            pessoa. Um botão de apagar que repõe dados é pior do que a
-            ausência dele.
+            O `reset()` do store existia desde sempre e nenhuma tela o
+            chamava — e ainda bem, porque até agora ele devolvia o
+            tratamento de exemplo. Um botão de apagar que repõe dados é
+            pior do que a ausência dele.
 
-            Para existir de verdade, ele precisa de um estado inicial
-            vazio, que é uma decisão de produto e não um ajuste de tela:
-            hoje o app nasce com a semana da Mariana montada. Quando isso
-            mudar, a linha entra aqui, atrás de uma frase que diga o que
-            some — e não de um "tem certeza?". */}
+            Fica atrás de duas perguntas, e a segunda diz O QUE some em vez
+            de perguntar "tem certeza?". Não há conta nem servidor: o que
+            sai daqui não volta de lugar nenhum, e é isso que a frase
+            precisa dizer. */}
+        <Apagar onApagar={() => { reset(); router.replace('/cadastro' as any); }} />
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do

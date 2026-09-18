@@ -60,13 +60,28 @@ export function doseDoPerfil(S: State): string {
   return `${doseTxt((S.profile as any).dose)} ${M(S).unit}`;
 }
 
-export const curWeight = (S: State) => S.weights[S.weights.length - 1].kg;
+/* ⚠️ LISTA VAZIA EXISTE, e antes não podia existir: a semente sempre
+   trouxe pesagens, então ninguém nunca leu a última de uma lista com
+   zero. Com o estado vazio isso passa a acontecer no instante entre
+   apagar tudo e responder o cadastro — e uma tela que quebra nesse
+   instante quebra em cima de quem acabou de apagar os próprios dados.
+
+   O recuo é o peso do perfil, que é de onde a pessoa partiu; sem ele,
+   zero. Não é um peso inventado: é a ausência, escrita como número.
+   Quem precisa saber se existe pesagem pergunta pela lista. */
+export const curWeight = (S: State) =>
+  S.weights.length ? S.weights[S.weights.length - 1].kg : (S.profile.startWeight || 0);
 export const startWeight = (S: State) => S.profile.startWeight;
 export const lostKg = (S: State) => startWeight(S) - curWeight(S);
-export const lostPct = (S: State) => (lostKg(S) / startWeight(S)) * 100;
+/* Sem peso de partida não há porcentagem de nada, e zero dividido por
+   zero vira NaN na tela — que é pior do que não mostrar. */
+export const lostPct = (S: State) => (startWeight(S) ? (lostKg(S) / startWeight(S)) * 100 : 0);
 export const imc = (S: State, w: number) => w / (S.profile.height ** 2);
-export const goalProgress = (S: State) =>
-  Math.max(0, Math.min(100, ((startWeight(S) - curWeight(S)) / (startWeight(S) - S.profile.goalWeight)) * 100));
+export const goalProgress = (S: State) => {
+  const caminho = startWeight(S) - S.profile.goalWeight;
+  if (!caminho) return 0;
+  return Math.max(0, Math.min(100, ((startWeight(S) - curWeight(S)) / caminho) * 100));
+};
 export const lastInjection = (S: State) => (S.injections.length ? S.injections[S.injections.length - 1] : null);
 
 /* A CADÊNCIA REAL, que nem sempre é a do catálogo.
@@ -350,6 +365,14 @@ export function examGaugeData(e: any) {
    Aqui a pergunta continua a mesma de antes — existe alguém do outro
    lado? —, e agora ela olha para os dois campos. */
 export const hasClinic = (S: State) => !!(S.profile.doctor || S.profile.clinic);
+
+/* TER CONSULTA MARCADA é outra pergunta.
+
+   Quem chega hoje não tem uma, e o estado vazio guarda zero na data —
+   que vira primeiro de janeiro de 1970 em qualquer tela que formatar sem
+   perguntar. As que escrevem a data da próxima consulta perguntam aqui
+   antes. */
+export const temConsulta = (S: State) => ((S as any).consult?.t ?? 0) > 0;
 
 /* Marcos do tratamento — a narrativa da jornada em eventos (cronológico desc). */
 export type Milestone = { t: number; ic: string; title: string; sub: string };

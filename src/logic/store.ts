@@ -1,7 +1,7 @@
 /* Store — zustand + persistência AsyncStorage (equivale ao load/save/localStorage do protótipo). */
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { buildSeed, ensureDefaults, type State } from './seed';
+import { buildSeed, estadoVazio, ensureDefaults, type State } from './seed';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -46,8 +46,13 @@ export const useStore = create<Store>((set, get) => ({
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s });
   },
+  /* ⚠️ RESET DEVOLVIA A SEMENTE, e por isso não podia ser oferecido como
+     "apagar meus dados": quem tocasse veria voltar o tratamento de
+     exemplo, com setenta e um dias de registros de outra pessoa. Apagar
+     é ir para o estado vazio, e a porta se tranca junto — sem cadastro o
+     app não abre. */
   reset: () => {
-    const s = semente();
+    const s = estadoVazio();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s });
   },

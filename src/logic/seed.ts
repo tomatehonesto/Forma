@@ -580,3 +580,104 @@ export function ensureDefaults(S: any) {
   }
   return S;
 }
+
+/* ============================================================
+   O ESTADO VAZIO — de onde parte quem chega agora
+
+   ⚠️ ELE NÃO EXISTIA, E ISSO ERA UM PROBLEMA MAIOR DO QUE PARECIA.
+
+   O cadastro escrevia POR CIMA da semente: mexia em `profile`,
+   `integrations`, `onboardDone` e nas pesagens de hoje, e em mais nada.
+   Quem instalasse o aplicativo e respondesse tudo abria a Jornada com
+   setenta e um dias de tratamento, dez aplicações, quinze exames e uma
+   conversa com uma médica que nunca viu — os registros da pessoa de
+   exemplo, agora com o nome de quem acabou de chegar.
+
+   E a mesma falta travava o outro lado: `reset()` devolvia a semente, o
+   que faz de "apagar meus dados" um botão que REPÕE dados. Sem um estado
+   vazio de verdade, apagar não tinha para onde apagar.
+
+   O QUE É ZERADO AQUI É REGISTRO E É IDENTIDADE. Tudo que a pessoa
+   produz — pesagens, aplicações, check-ins, exames, fotos, notas,
+   mensagens, documentos — nasce lista vazia; e o nome, a equipe e a
+   consulta nascem em branco, porque são de outra pessoa.
+
+   O QUE FICA É ESTRUTURA E CATÁLOGO: as metas diárias padrão, os alertas
+   que todo mundo começa com, o estoque da caneta, a biblioteca. Nada
+   disso é registro de ninguém.
+
+   ⚠️ CAMPO NOVO NO ESTADO ENTRA AQUI TAMBÉM. Um campo que guarde
+   registro e não apareça nesta função volta a vazar a pessoa de exemplo
+   para quem se cadastrar — que é exatamente o defeito que esta função
+   existe para fechar.
+   ============================================================ */
+export function estadoVazio(): State {
+  /* Parte da semente para herdar a FORMA — todo campo existe, com o tipo
+     certo — e depois esvazia o que é conteúdo. Montar um objeto do zero
+     daria o mesmo resultado hoje e perderia um campo no dia em que a
+     semente ganhasse um. */
+  const S: any = buildSeed();
+
+  /* a pessoa: o cadastro escreve por cima, mas o que não for perguntado
+     não pode sobrar da Mariana */
+  S.profile.name = '';
+  S.profile.startWeight = 0;
+  S.profile.goalWeight = 0;
+  S.profile.startT = 0;
+  S.profile.convite = '';
+  /* A EQUIPE É DE QUEM TEM EQUIPE. `hasClinic` lê estes dois campos, e é
+     ele que decide entre "você é acompanhada" e o convite para se
+     vincular — o app inteiro já sabe viver sem clínica. */
+  S.profile.doctor = '';
+  S.profile.clinic = '';
+  S.profile.nutri = '';
+  S.profile.restricoes = [];
+
+  /* os registros */
+  S.weights = [];
+  S.injections = [];
+  S.checkins = [];
+  S.photos = [];
+  S.measures = [];
+  S.exams = [];
+  S.examBundles = [];
+  S.prescriptions = [];
+  S.meals = [];
+  S.favMeals = [];
+  S.notes = [];
+  S.consultNotes = '';
+  S.consultsHistory = [];
+  S.documents = [];
+  S.goals = [];
+  S.asked = [];
+  S.notifications = [];
+  S.customSyms = [];
+  S.history = { conditions: [], allergies: [], meds: [] };
+
+  /* a conversa com a equipe */
+  S.messages = [];
+  S.unread = 0;
+  S.team = [];
+
+  /* A CONSULTA NASCE SEM DATA, e zero é a resposta honesta: quem lê deve
+     perguntar antes se existe uma. Ver `temConsulta`. */
+  S.consult = { t: 0, type: '', doctor: '' };
+
+  /* o protocolo começa na primeira semana, sem nada cumprido */
+  S.protocol = { week: 1, tasks: (S.protocol?.tasks ?? []).map((t: any) => (t.t ? { ...t, done: false } : t)) };
+
+  /* a porta se destranca: sem cadastro, o app não abre */
+  S.onboardDone = false;
+  S.heroSeen = { milestone: 0, insight: null, replay: null };
+  S.lastReplaySeen = 0;
+
+  /* A MARCA D'ÁGUA DAS CONQUISTAS VOLTA A ZERO, e não é detalhe: sem
+     isto, quem apagou tudo e recomeçou passaria pelo primeiro check-in
+     sem a comemoração — a marca ainda diria que ele já foi visto. */
+  S.vistoEmConquistas = {};
+
+  /* as integrações são permissões, e permissão não se herda */
+  S.integrations = { appleHealth: false, healthConnect: false, garmin: false, fitbit: false, withings: false };
+
+  return ensureDefaults(S) as State;
+}

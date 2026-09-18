@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { notas } from '../logic/derive';
+import { notas, temConsulta } from '../logic/derive';
 import { MO_LONG } from '../logic/time';
 import { Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/internas';
@@ -32,7 +32,7 @@ export default function Notas() {
   const feitas = todas.filter((n) => n.done);
   const lista = aba === 'abertas' ? abertas : feitas;
 
-  const consulta = new Date(S.consult.t);
+  const ate = temConsulta(S) ? dataLonga(S.consult.t) : null;
 
   return (
     <TelaInterna
@@ -43,7 +43,7 @@ export default function Notas() {
     >
       <Titulao
         titulo="Notas"
-        lead={`Guardadas até a consulta de ${dataLonga(+consulta)}. Marque as que você já conversou.`}
+        lead={`${ate ? `Guardadas até a consulta de ${ate}.` : 'Guardadas até a sua próxima consulta.'} Marque as que você já conversou.`}
       />
 
       <Chips

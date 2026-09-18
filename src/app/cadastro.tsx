@@ -7,7 +7,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import type { State } from '../logic/seed';
+import { estadoVazio, type State } from '../logic/seed';
+import { marcarComoVistas } from '../logic/conquistas';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
@@ -1245,6 +1246,19 @@ export default function Cadastro() {
 
   const salvar = () => {
     update((s: any) => {
+      /* ⚠️ O CADASTRO INTEIRO COMEÇA DO ZERO, e antes não começava.
+
+         Ele escrevia por cima do estado que estivesse ali — que, para
+         quem acabou de instalar, é o de exemplo. Mexia em perfil,
+         integrações e nas pesagens de hoje, e em mais nada: as
+         aplicações, os check-ins, os exames, as fotos e a conversa com a
+         médica da Mariana continuavam inteiros, agora com o nome de quem
+         respondeu o formulário.
+
+         Editar uma resposta NÃO passa por aqui — e não pode passar: o
+         estado vazio apagaria o tratamento de quem só queria corrigir a
+         altura. */
+      if (!editando) Object.assign(s, estadoVazio());
       s.profile.name = r.nome.trim();
       s.profile.identidade = r.identidade;
       s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
@@ -1335,6 +1349,18 @@ export default function Cadastro() {
           pesagens.push({ t: +startOfDay(new Date(inicio)), kg: r.pesoInicial });
         }
         s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
+        /* ⚠️ E A MARCA D'ÁGUA DAS CONQUISTAS NASCE AQUI, depois da
+           primeira pesagem — não antes.
+
+           O cadastro grava o peso de hoje, e isso fecha o nível 1 da
+           trilha de pesagens no mesmo instante. Sem esta linha, a tela
+           de conquista subia por cima do plano recém-montado: "1 peso
+           registrado", comemorando o formulário que a pessoa acabou de
+           preencher em vez de alguma coisa que ela fez.
+
+           A regra é a mesma do ensureDefaults: a marca guarda o que a
+           pessoa já sabe, e ela já sabe do peso que acabou de digitar. */
+        marcarComoVistas(s);
       }
 
       /* ---- na edição, o peso se acrescenta ou se corrige. Nunca se apaga.

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { notas } from '../logic/derive';
+import { notas, temConsulta } from '../logic/derive';
 import { MO_LONG, now } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Texto, Botao } from '../ui/internas';
@@ -31,7 +31,9 @@ export default function Nota() {
   const existente = quando ? notas(S).find((n) => n.t === quando) : null;
   const [texto, setTexto] = useState(existente?.text ?? '');
 
-  const consulta = new Date(S.consult.t);
+  /* Sem consulta marcada não há "até quando", e inventar uma data aqui
+     seria o app marcando consulta por conta própria. */
+  const ate = temConsulta(S) ? dataLonga(S.consult.t) : null;
 
   const guardar = () => {
     const v = texto.trim();
@@ -58,7 +60,7 @@ export default function Nota() {
   return (
     <SheetScreen
       titulo="Nota para a consulta"
-      sub={`Fica guardada até a consulta de ${dataLonga(+consulta)}.`}
+      sub={ate ? `Fica guardada até a consulta de ${ate}.` : 'Fica guardada até a sua próxima consulta.'}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
