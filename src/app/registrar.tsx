@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, litros,
-  notasAbertas, streak,
+  ATALHOS, checkinToday, checkinFeito, waterMlToday, litros, streak,
   type QuickKey,
 } from '../logic/derive';
-import { now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -30,19 +28,15 @@ import { radius, ty } from '../theme';
      · leva um minuto — os registros que pedem mais informação
    ============================================================ */
 
-type Item = { ic: string; titulo: string; sub: string; to?: string; acao?: () => void; destaque?: boolean };
+type Item = { ic: string; titulo: string; sub?: string; to?: string; acao?: () => void };
 
 export default function Registrar() {
   const S = useStore((s) => s.S);
-  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height: alturaJanela } = useWindowDimensions();
 
-  const [feito, setFeito] = useState<string | null>(null);
-
-  const piscar = (k: string) => { setFeito(k); setTimeout(() => setFeito(null), 1600); };
   const fechar = () => router.back();
   /* fecha antes de navegar: tela empilhada sobre sheet prende a pessoa em
      duas camadas de volta */
@@ -71,9 +65,6 @@ export default function Registrar() {
   const alvoProt = (S.profile as any).targets.prot as number;
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
      escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
-  /* As que ainda não foram conversadas — as marcadas saíram da pauta, e
-     contá-las aqui prometeria uma lista que a consulta já resolveu. */
-  const abertas = notasAbertas(S).length;
   const bebido = litros(waterMlToday(S));
   const alvoL = litros((S.profile as any).targets.waterMl);
   const acoes = ATALHOS;
@@ -121,14 +112,27 @@ export default function Registrar() {
      duas vezes é registrar duas coisas. Aquela tela escrevia dentro do
      registro de HOJE, sobrescrevendo — era estado do dia, não evento, e
      estava na lista pelo critério errado (esforço). Suas três perguntas
-     agora vivem no check-in, que é onde o dia se descreve. */
+     agora vivem no check-in, que é onde o dia se descreve.
+
+     ⚠️ AQUI NÃO HÁ SUBTÍTULO, e nos atalhos de cima há. A diferença não é
+     de capricho: lá embaixo do rótulo vem o número que DECIDE — "0,5 de
+     2,5 L" é o que faz alguém tocar em "me hidratei" ou deixar para
+     depois. Aqui o verbo já decide sozinho: quem acabou de se pesar não
+     precisa saber o peso anterior para escolher a linha do peso.
+
+     As seis linhas tinham subtítulo assim mesmo, e o que eles diziam era
+     uma de duas coisas: o próprio título de novo ("Recebi um exame —
+     anotar o resultado") ou uma prévia da tela seguinte ("Abdômen
+     (esq.)", "último: 75,1 kg"), que a tela seguinte mostra de novo duas
+     linhas depois. Seis linhas de leitura para zero decisão, e cento e
+     vinte pixels de altura num sheet que já não cabia na tela. */
   const completos: Item[] = [
-    { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
-    { ic: 'scale', titulo: 'Acabei de me pesar', sub: `último: ${nf(curWeight(S), 1).replace('.', ',')} kg`, to: '/medir-peso' },
-    { ic: 'utensils', titulo: 'Fiz uma refeição', sub: 'o que comi e a proteína', to: '/medir-refeicao' },
-    { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/medir-foto' },
-    { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, braço e coxa', to: '/medir-medidas' },
-    { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar o resultado', to: '/medir-exame' },
+    { ic: 'syringe', titulo: 'Apliquei a dose', to: '/aplicacao' },
+    { ic: 'scale', titulo: 'Acabei de me pesar', to: '/medir-peso' },
+    { ic: 'utensils', titulo: 'Fiz uma refeição', to: '/medir-refeicao' },
+    { ic: 'camera', titulo: 'Tirei uma foto de progresso', to: '/medir-foto' },
+    { ic: 'ruler', titulo: 'Medi meu corpo', to: '/medir-medidas' },
+    { ic: 'doc', titulo: 'Recebi um exame', to: '/medir-exame' },
     /* A ANOTAÇÃO É EVENTO como as outras desta lista: cada uma é um
        registro novo, e anotar duas vezes é anotar duas coisas.
 
@@ -141,12 +145,7 @@ export default function Registrar() {
        uma orientação e lembrar de uma pergunta na terça são a mesma
        lista — a que vira a pauta do resumo do médico. Dois itens aqui
        seriam duas portas para o mesmo lugar, com nomes diferentes. */
-    {
-      ic: 'pencil',
-      titulo: 'Anotei algo para a consulta',
-      sub: abertas ? `${abertas} ${abertas === 1 ? 'nota' : 'notas'} na pauta` : 'pergunta, sintoma ou orientação',
-      to: '/medir-anotacao',
-    },
+    { ic: 'pencil', titulo: 'Anotei algo para a consulta', to: '/medir-anotacao' },
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
   return (
@@ -155,7 +154,7 @@ export default function Registrar() {
 
       {/* Ancorado na base, cobrindo a tab bar — padrão de bottom sheet. */}
       <View style={{
-        backgroundColor: c.bg, maxHeight: alturaJanela * 0.86,
+        backgroundColor: c.bg, maxHeight: alturaJanela * 0.92,
         borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
         paddingBottom: (insets.bottom || 12) + 16,
       }}>
@@ -250,8 +249,6 @@ export default function Registrar() {
           <Row gap={7} style={{ marginTop: 7, alignItems: 'stretch' }}>
             {acoes.map((k) => {
               const it = CATALOGO[k];
-              const ok = feito === k;
-              const lima = !!it.destaque;
               return (
                 <Pressable
                   key={k}
@@ -269,19 +266,14 @@ export default function Registrar() {
                       o rótulo fica centrado nela: o curto não cola no ícone
                       nem abre buraco embaixo, e os três subtítulos caem na
                       mesma linha. */}
-                  <View style={{ flex: 1, backgroundColor: ok || lima ? c.lime : c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
-                    <Icon name={ok ? 'check' : it.ic} size={19} color={ok || lima ? c.limeInk : c.accent} sw={2} />
+                  <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
+                    <Icon name={it.ic} size={19} color={c.accent} sw={2} />
                     <View style={{ height: ty.caption.lineHeight * 2, marginTop: 8, justifyContent: 'center' }}>
-                      <Txt
-                        v="caption"
-                        c={ok || lima ? c.limeInk : c.tx}
-                        style={{ textAlign: 'center' }}
-                        numberOfLines={2}
-                      >
+                      <Txt v="caption" style={{ textAlign: 'center' }} numberOfLines={2}>
                         {it.titulo}
                       </Txt>
                     </View>
-                    <Txt v="micro" c={ok || lima ? c.limeInk : c.tx3} style={{ textAlign: 'center', opacity: lima && !ok ? 0.7 : 1 }} numberOfLines={1}>{it.sub}</Txt>
+                    <Txt v="micro" c={c.tx3} style={{ textAlign: 'center' }} numberOfLines={1}>{it.sub}</Txt>
                   </View>
                 </Pressable>
               );
@@ -289,7 +281,7 @@ export default function Registrar() {
           </Row>
 
           {/* --- separação pelo esforço, não por categoria --- */}
-          <Row gap={10} style={{ marginTop: 24, marginBottom: 12 }}>
+          <Row gap={10} style={{ marginTop: 18, marginBottom: 10 }}>
             <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>LEVA UM MINUTO</Txt>
             <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
           </Row>
@@ -302,12 +294,15 @@ export default function Registrar() {
                 <Divider />
                 <Pressable onPress={irPara(it.to!)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                   <Row style={{ paddingVertical: 14 }}>
-                    <View style={{ width: 32, height: 32, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name={it.ic} size={17} color={c.tx} sw={1.9} />
+                    {/* O ÍCONE SOLTO, como em toda lista do app. A pastilha
+                        cinza aqui era a última que restava — e era ela que
+                        fixava o piso de altura da linha em 32 px, mesmo
+                        sem nada para mostrar além do desenho. */}
+                    <View style={{ width: 34, alignItems: 'center' }}>
+                      <Icon name={it.ic} size={20} color={c.accent} sw={1.9} />
                     </View>
-                    <View style={{ flex: 1, marginLeft: 12 }}>
+                    <View style={{ flex: 1, marginLeft: 10 }}>
                       <Txt v="body">{it.titulo}</Txt>
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }} numberOfLines={1}>{it.sub}</Txt>
                     </View>
                     <Icon name="chev" size={15} color={c.tx4} sw={2} />
                   </Row>
