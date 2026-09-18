@@ -50,17 +50,26 @@ export type Integracao = {
    app está rodando aparece. Oferecer o Apple Saúde a quem está num
    Android é uma chave que nunca vai ligar, e oferecer os dois é o app
    admitindo que não sabe em que aparelho está. */
+/* A DESCRIÇÃO DIZ O QUE O APP LÊ HOJE, e não o que o depósito guarda.
+
+   Ela prometia "peso, sono e treinos", e a leitura traz só o peso — ver
+   o porquê em src/logic/saude-do-aparelho.ts. Descrição que promete três
+   coisas e entrega uma é a que a pessoa cobra depois, e ela cobra com
+   razão. */
 export const APARELHO: Record<'ios' | 'android', Integracao> = {
   ios: {
     id: 'appleHealth', nome: 'Apple Saúde', cor: '#F43B47',
-    traz: 'Peso, sono e treinos — e o que a sua balança e o seu relógio já mandam para lá.',
+    traz: 'As suas pesagens — inclusive as que a sua balança manda para lá.',
   },
   android: {
     id: 'healthConnect', nome: 'Health Connect', cor: '#1A56DB',
-    traz: 'Peso, sono e treinos — e o que a sua balança e o seu relógio já mandam para lá.',
+    traz: 'As suas pesagens — inclusive as que a sua balança manda para lá.',
   },
 };
 
+/* O que CADA UMA traria, no dia em que houver servidor. Aqui a promessa
+   pode ser o que a API delas entrega, porque a linha não oferece ligar —
+   ela diz o que está por vir. */
 export const CONTAS: Integracao[] = [
   { id: 'garmin', nome: 'Garmin', traz: 'Treinos e frequência cardíaca', cor: '#0B2C3D', letra: 'G' },
   { id: 'fitbit', nome: 'Fitbit', traz: 'Sono e passos', cor: '#00B0B9', letra: 'F' },

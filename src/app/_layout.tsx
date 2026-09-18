@@ -12,6 +12,7 @@ import {
 import { useStore } from '../logic/store';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
+import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
 import { light, APP_MAX_W } from '../theme';
 
 /* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
@@ -110,6 +111,49 @@ function Agendador() {
   return null;
 }
 
+/* QUEM TRAZ AS PESAGENS DO APARELHO.
+
+   O depósito de saúde não avisa ninguém: a balança de wi-fi escreve lá e
+   o número fica esperando alguém ler. Se a leitura só acontecesse na tela
+   de integrações, a pessoa se pesaria de manhã e o ponto apareceria na
+   curva no dia em que ela lembrasse de visitar uma tela de configuração.
+
+   Então ele lê quando o app abre e quando volta para o foco — os dois
+   momentos em que alguém vai olhar a curva. Uma vez por abertura, e não
+   em laço: ler o depósito é uma chamada nativa com permissão por trás, e
+   repeti-la a cada render não traria nada que a primeira já não tivesse.
+
+   SÓ COM A CHAVE LIGADA. A permissão do sistema é do sistema, mas a
+   decisão de trazer é da pessoa, e ela está em Integrações. Sem a chave,
+   este componente não toca no assunto.
+
+   O QUE ENTRA NÃO SOBRESCREVE NADA: a junção respeita o que já existe
+   naquele dia. Ver juntarPesagens em src/logic/saude-do-aparelho.ts. */
+function SaudeDoAparelho() {
+  const ready = useStore((s) => s.ready);
+  const ligado = useStore((s) => {
+    const i: any = (s.S as any).integrations ?? {};
+    return !!(Platform.OS === 'ios' ? i.appleHealth : Platform.OS === 'android' ? i.healthConnect : false);
+  });
+
+  useEffect(() => {
+    if (!ready || !ligado) return;
+    let vivo = true;
+    const ler = async () => {
+      const pesagens = await pesagensDoAparelho();
+      if (!vivo || !pesagens.length) return;
+      useStore.getState().update((s: any) => {
+        s.weights = juntarPesagens(s.weights ?? [], pesagens).lista;
+      });
+    };
+    ler();
+    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') ler(); });
+    return () => { vivo = false; sub.remove(); };
+  }, [ready, ligado]);
+
+  return null;
+}
+
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
   const ready = useStore((s) => s.ready);
@@ -126,6 +170,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <Agendador />
+        <SaudeDoAparelho />
         <Moldura>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
