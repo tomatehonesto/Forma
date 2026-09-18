@@ -39,7 +39,22 @@
 export const EMPRESA = {
   nome: 'The Delusional Company Desenvolvimento de Software sob Encomenda Ltda.',
   cnpj: '67.758.390/0001-34',
-  endereco: 'Rua Carvalho de Freitas, 325, apto. 141 — Vila Andrade, São Paulo/SP, CEP 05728-030',
+  /* ⚠️ O ENDEREÇO SAIU, E VOLTA QUANDO A ASSINATURA ENTRAR.
+
+     O do cartão do CNPJ é residencial, e publicá-lo aqui expõe muito
+     mais do que o cadastro público já expõe: lá alguém precisa ir
+     procurar; aqui ele chega junto do aplicativo, na mão de quem usa. A
+     LGPD pede identificação e canal de contato do controlador
+     (art. 9º, III), e o e-mail atende.
+
+     A exigência de endereço FÍSICO vem de outro lugar: o Decreto
+     7.962/2013, que regula a venda pela internet, manda o fornecedor
+     exibir endereço físico e eletrônico em local de destaque. Ele passa
+     a valer no dia em que houver assinatura paga — e aí o certo é entrar
+     com um endereço comercial ou fiscal, e não voltar com o de casa.
+
+     Vazio, a frase de identificação simplesmente não cita sede. */
+  endereco: '',
   /* ⚠️ FALTAM OS DOIS CANAIS, e são eles que fazem o documento funcionar.
 
      O e-mail do cartão do CNPJ é o da contabilidade, e não serve: quem
@@ -97,7 +112,7 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '1. Quem trata os seus dados',
       paragrafos: [
-        `O controlador dos seus dados é ${QUEM()}, com sede em ${EMPRESA.endereco || '[endereço pendente]'}.`,
+        `O controlador dos seus dados é ${QUEM()}${EMPRESA.endereco ? `, com sede em ${EMPRESA.endereco}` : ''}.`,
         `Encarregado pelo tratamento de dados pessoais: ${EMPRESA.encarregado || '[encarregado pendente]'}. É por esse canal que você pede acesso, correção ou eliminação — e é ele que responde.`,
       ],
     },

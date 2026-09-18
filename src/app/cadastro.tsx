@@ -1236,13 +1236,14 @@ export default function Cadastro() {
 
        O cadastro perguntava a data de nascimento e seguia com qualquer
        resposta. Dado de saúde de menor de idade tem regra própria na
-       LGPD (art. 14) e exige consentimento de quem responde por ele —
-       um fluxo que este aplicativo não tem. Enquanto não tiver, quem
-       não alcança a idade não passa daqui.
+       LGPD (art. 14) e exige consentimento de quem responde por ele. A
+       decisão de produto é ser exclusivo para maiores, e a tranca é aqui.
 
        E o botão desligado não basta sozinho: a tela diz por quê, logo
        abaixo da roda. Botão que não obedece sem explicar é o app
-       culpando a pessoa por um limite que ele não contou. */
+       culpando a pessoa por um limite que ele não contou — e o texto
+       aponta para onde esse cuidado de fato acontece, em vez de falar
+       das limitações do aplicativo, que não são problema de quem lê. */
     if (x === 'nascimento') return idade >= IDADE_MINIMA;
     if (x === 'identidade') return r.identidade != null;
     if (x === 'tratamento') return r.emTratamento != null;
@@ -1815,10 +1816,9 @@ export default function Cadastro() {
                 motivo de o botão ter apagado. */}
             {idade < IDADE_MINIMA ? (
               <Txt v="caption" c={c.tx2} style={{ marginTop: 14, lineHeight: 21 }}>
-                O Morphi é para maiores de {IDADE_MINIMA} anos. Acompanhamento de
-                tratamento com dado de saúde de menor de idade precisa do
-                consentimento de quem responde por ele, e isso o aplicativo
-                ainda não sabe fazer.
+                O Morphi é exclusivo para maiores de {IDADE_MINIMA} anos. O tratamento
+                de quem ainda não tem essa idade é acompanhado pela equipe de
+                saúde, junto com quem responde legalmente por essa pessoa.
               </Txt>
             ) : null}
           </View>
