@@ -313,9 +313,21 @@ export const shadowSoft = (p: Palette) => ({
    que já foi feito virarem a mesma coisa. Oferecer o erro como opção não
    é dar liberdade; é terceirizar um problema.
 
-   Agora são dez paletas fechadas. Cada uma é um conjunto que já foi
+   Agora são cinco paletas fechadas. Cada uma é um conjunto que já foi
    olhado junto: a cor que age, a cor que celebra e a aurora do fundo.
    Quem escolhe escolhe um clima, não dois valores.
+
+   ⚠️ E ERAM DOZE. Doze cabem numa grade de quatro por três e não cabem
+   numa decisão: metade delas era vizinha de outra — oceano ao lado de
+   original, menta ao lado de floresta, índigo ao lado de amora —, e
+   escolher entre dois azuis parecidos é trabalho, não personalização. As
+   cinco que ficaram dividem a roda inteira, e cada uma se reconhece de
+   longe: azul, violeta, magenta, laranja, verde.
+
+   O que sai daqui sai junto: a aurora, o ícone e a linha do plugin. Os
+   dois geradores leem esta lista, e quem a encurtar precisa rodar
+   `node scripts/gerar-aurora.mjs` e `node scripts/gerar-icones.mjs`, e
+   colar o plugin.json novo em app.json.
 
    CADA PALETA TEM TRÊS PARTES
 
@@ -391,7 +403,12 @@ export const PALETAS: Paleta[] = [
     auroraHue: 40, auroraSat: 1.05,
   },
   {
-    id: 'framboesa', nome: 'Framboesa',
+    /* ⚠️ CHAMAVA-SE FRAMBOESA, e o nome não cabia. As cinco ficam numa
+       fileira só, e numa fileira de cinco cada rótulo tem 65 pixels:
+       "Framboesa" pedia 66 e aparecia como "Framboe…". Nome de paleta é
+       rótulo antes de ser poesia — e pitaia, que é magenta por dentro e
+       âmbar por fora, diz a mesma cor em seis letras. */
+    id: 'pitaia', nome: 'Pitaia',
     acaoClara: '#C4187F', acaoEscura: '#F06FB4', inkClaro: '#FFFFFF', inkEscuro: '#2B0418',
     alcancado: '#FFC93C', alcancadoInk: '#2B1E04',
     auroraHue: 110, auroraSat: 1.1,
@@ -403,55 +420,10 @@ export const PALETAS: Paleta[] = [
     auroraHue: 165, auroraSat: 1.05,
   },
   {
-    id: 'oceano', nome: 'Oceano',
-    acaoClara: '#0E7490', acaoEscura: '#38BDF8', inkClaro: '#FFFFFF', inkEscuro: '#04202B',
-    alcancado: '#FFC93C', alcancadoInk: '#2B1E04',
-    auroraHue: -40, auroraSat: 1,
-  },
-  {
     id: 'floresta', nome: 'Floresta',
     acaoClara: '#15803D', acaoEscura: '#4ADE80', inkClaro: '#FFFFFF', inkEscuro: '#042B14',
     alcancado: '#FFD84D', alcancadoInk: '#2B2004',
     auroraHue: -85, auroraSat: 0.95,
-  },
-  {
-    id: 'indigo', nome: 'Índigo',
-    acaoClara: '#3730A3', acaoEscura: '#818CF8', inkClaro: '#FFFFFF', inkEscuro: '#0B0A2B',
-    alcancado: '#FF8A5B', alcancadoInk: '#2B0F04',
-    auroraHue: 18, auroraSat: 0.9,
-  },
-  {
-    id: 'vinho', nome: 'Vinho',
-    acaoClara: '#9F1239', acaoEscura: '#FB7185', inkClaro: '#FFFFFF', inkEscuro: '#2B040F',
-    alcancado: '#2BE8C8', alcancadoInk: '#04211C',
-    auroraHue: 140, auroraSat: 1.05,
-  },
-  {
-    id: 'menta', nome: 'Menta',
-    acaoClara: '#0D9488', acaoEscura: '#5EEAD4', inkClaro: '#FFFFFF', inkEscuro: '#042B26',
-    alcancado: '#FF85B3', alcancadoInk: '#2B0715',
-    auroraHue: -65, auroraSat: 0.95,
-  },
-  {
-    id: 'cacau', nome: 'Cacau',
-    acaoClara: '#6F4226', acaoEscura: '#C89268', inkClaro: '#FFFFFF', inkEscuro: '#231206',
-    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
-    auroraHue: 172, auroraSat: 0.8,
-  },
-  {
-    id: 'salvia', nome: 'Sálvia',
-    acaoClara: '#55705C', acaoEscura: '#A8C4AE', inkClaro: '#FFFFFF', inkEscuro: '#101A13',
-    alcancado: '#FF9E6B', alcancadoInk: '#2B1204',
-    auroraHue: -95, auroraSat: 0.55,
-  },
-  {
-    /* A ÚNICA SEM MATIZ. Aqui a aurora não gira: ela perde cor, e o
-       alcançado fica sendo a única coisa saturada da tela — que é
-       exatamente o que esta paleta quer dizer. */
-    id: 'grafite', nome: 'Grafite',
-    acaoClara: '#2E3440', acaoEscura: '#B6BECC', inkClaro: '#FFFFFF', inkEscuro: '#14181F',
-    alcancado: '#DDF62C', alcancadoInk: '#0A0A0A',
-    auroraHue: 0, auroraSat: 0.12,
   },
 ];
 

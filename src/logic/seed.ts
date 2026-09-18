@@ -5,6 +5,7 @@ export type Tema = 'light' | 'dark' | 'system';
 import { daysAgo, addDays, startOfDay, now } from './time';
 import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
+import { PALETAS } from '../theme';
 
 export const HEIGHT = 1.67;
 
@@ -589,7 +590,18 @@ export function ensureDefaults(S: any) {
      ação e uma de alcançado soltas — saem: duas escolhas que viraram uma
      não podem ficar guardadas ao lado da nova, ou a divergência começa no
      primeiro mês. */
-  if (!(S as any).paleta) (S as any).paleta = 'original';
+  /* ⚠️ E PALETA REMOVIDA VOLTA PARA A ORIGINAL. Eram doze e ficaram
+     cinco; quem tinha escolhido Menta ficou com um id que não existe
+     mais. Sem esta linha o aplicativo ainda abriria — `paletaDe` e
+     `useAurora` caem no padrão sozinhos —, mas a tela de Aparência
+     mostraria as cinco bolinhas com nenhuma marcada, e o valor errado
+     continuaria guardado esperando confundir a próxima migração. */
+  /* E FRAMBOESA VIROU PITAIA — mesma cor, nome novo, porque o antigo
+     não cabia na fileira. Quem tinha escolhido continua com ela; sem
+     esta linha a regra acima jogaria essa pessoa de volta para o azul,
+     que é perder uma escolha por causa de uma troca de rótulo. */
+  if ((S as any).paleta === 'framboesa') (S as any).paleta = 'pitaia';
+  if (!PALETAS.some((p) => p.id === (S as any).paleta)) (S as any).paleta = 'original';
   delete (S as any).cor;
   delete (S as any).destaque;
   /* E o tema ganhou 'system'. Quem tinha claro ou escuro escolhido

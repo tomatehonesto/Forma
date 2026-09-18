@@ -8,7 +8,7 @@ import { useStore } from '../logic/store';
    superfície colorida do aplicativo — o hero da Home, o Insights, o
    check-in concluído, o companion e as metas.
 
-   Então existem vinte arquivos, dois por paleta, gerados antes da
+   Então existem dez arquivos, dois por paleta, gerados antes da
    compilação por scripts/gerar-aurora.mjs a partir dos dois originais.
 
    ⚠️ E O MAPA É ESCRITO À MÃO PORQUE PRECISA SER. O empacotador resolve
@@ -27,45 +27,17 @@ const AURORAS: Record<string, { hero: number; insights: number }> = {
     hero: require('../../assets/auroras/hero-amora.webp'),
     insights: require('../../assets/auroras/insights-amora.webp'),
   },
-  'framboesa': {
-    hero: require('../../assets/auroras/hero-framboesa.webp'),
-    insights: require('../../assets/auroras/insights-framboesa.webp'),
+  'pitaia': {
+    hero: require('../../assets/auroras/hero-pitaia.webp'),
+    insights: require('../../assets/auroras/insights-pitaia.webp'),
   },
   'brasa': {
     hero: require('../../assets/auroras/hero-brasa.webp'),
     insights: require('../../assets/auroras/insights-brasa.webp'),
   },
-  'oceano': {
-    hero: require('../../assets/auroras/hero-oceano.webp'),
-    insights: require('../../assets/auroras/insights-oceano.webp'),
-  },
   'floresta': {
     hero: require('../../assets/auroras/hero-floresta.webp'),
     insights: require('../../assets/auroras/insights-floresta.webp'),
-  },
-  'indigo': {
-    hero: require('../../assets/auroras/hero-indigo.webp'),
-    insights: require('../../assets/auroras/insights-indigo.webp'),
-  },
-  'vinho': {
-    hero: require('../../assets/auroras/hero-vinho.webp'),
-    insights: require('../../assets/auroras/insights-vinho.webp'),
-  },
-  'menta': {
-    hero: require('../../assets/auroras/hero-menta.webp'),
-    insights: require('../../assets/auroras/insights-menta.webp'),
-  },
-  'cacau': {
-    hero: require('../../assets/auroras/hero-cacau.webp'),
-    insights: require('../../assets/auroras/insights-cacau.webp'),
-  },
-  'salvia': {
-    hero: require('../../assets/auroras/hero-salvia.webp'),
-    insights: require('../../assets/auroras/insights-salvia.webp'),
-  },
-  'grafite': {
-    hero: require('../../assets/auroras/hero-grafite.webp'),
-    insights: require('../../assets/auroras/insights-grafite.webp'),
   },
 };
 

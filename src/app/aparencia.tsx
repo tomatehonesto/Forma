@@ -20,13 +20,17 @@ import type { Tema } from '../logic/seed';
    ⚠️ A ESCOLHA ERA DE DUAS CORES SOLTAS, e isso empurrava para a pessoa
    uma decisão que é de design: ação e alcançado próximas fazem o botão
    que leva a algum lugar e a marca do que já foi feito virarem a mesma
-   coisa. São doze paletas fechadas agora, cada uma um conjunto já olhado
+   coisa. São cinco paletas fechadas agora, cada uma um conjunto já olhado
    junto.
 
+   ⚠️ E ERAM DOZE, EM TRÊS FILEIRAS. Doze bolinhas viram uma grade, e uma
+   grade se examina: a pessoa compara, volta, desiste. Cinco numa linha só
+   se veem de uma vez — a escolha inteira cabe num olhar, que é o tamanho
+   certo para uma decisão que não tem resposta errada.
+
    ⚠️ E A GRADE JÁ FOI DE ÍCONES. Cada opção era o ícone do aplicativo
-   naquela paleta — bonito, e ruim para escolher: doze quadrados com a
-   mesma marca dentro obrigam a comparar doze desenhos iguais para achar
-   duas cores. A bolinha partida ao meio diz a mesma coisa num relance, e
+   naquela paleta — bonito, e ruim para escolher: quadrados com a mesma
+   marca dentro obrigam a comparar desenhos iguais para achar duas cores. A bolinha partida ao meio diz a mesma coisa num relance, e
    é a forma que qualquer pessoa já reconhece de "esta é a cor".
 
    O ÍCONE NÃO SUMIU: subiu para a prévia, onde ele é o que de fato é —
@@ -200,7 +204,7 @@ export default function Aparencia() {
       {/* ⚠️ SEM NOTA NOS DOIS BLOCOS. Elas explicavam o que as opções
           logo abaixo já mostram — "pode acompanhar o seu telefone" acima
           de uma pastilha escrita "Sistema", "toque na que você mais
-          gosta" acima de doze bolinhas coloridas. Texto que descreve o
+          gosta" acima de cinco bolinhas coloridas. Texto que descreve o
           controle que está a um centímetro dele é o app lendo a tela em
           voz alta para quem está olhando. */}
       <Bloco titulo="Escolha o tema">
@@ -235,8 +239,12 @@ export default function Aparencia() {
       </Bloco>
 
       {/* ---- as paletas ---- */}
+      {/* ⚠️ SEM `flexWrap`, E ISSO É A REGRA E NÃO O ACASO. A fileira é
+          uma linha só por definição: se uma sexta paleta entrar um dia, o
+          certo é ela não caber e alguém ter de decidir — e não a grade
+          quebrar sozinha numa segunda fileira com um item solto. */}
       <Bloco titulo="Escolha a sua cor">
-        <Row style={{ flexWrap: 'wrap' }}>
+        <Row>
           {PALETAS.map((p) => {
             const on = p.id === paletaId;
             const acao = isDark ? p.acaoEscura : p.acaoClara;
@@ -244,20 +252,29 @@ export default function Aparencia() {
               <Pressable
                 key={p.id}
                 onPress={() => escolher(p.id)}
-                style={({ pressed }) => [{ width: '25%', alignItems: 'center', paddingVertical: 10, opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [{ flex: 1, alignItems: 'center', paddingVertical: 4, opacity: pressed ? 0.7 : 1 }]}
               >
+                {/* O ANEL FICA FORA DA BOLINHA, com ar no meio: encostado
+                    nela ele vira borda — parte do desenho da cor, e não
+                    sinal de escolha. */}
                 <View style={{
-                  width: 74, height: 74, borderRadius: 37,
+                  width: 66, height: 66, borderRadius: 33,
                   alignItems: 'center', justifyContent: 'center',
-                  borderWidth: 2, borderColor: on ? c.tx : 'transparent',
+                  borderWidth: 1.5, borderColor: on ? c.tx : 'transparent',
                 }}>
-                  <Duas acao={acao} alcancado={p.alcancado} lado={62} />
+                  <Duas acao={acao} alcancado={p.alcancado} lado={54} />
                 </View>
+                {/* ⚠️ O NOME PRECISA CABER NUMA COLUNA DE 65 PIXELS, e é
+                    por isso que nenhum deles passa de oito letras: num
+                    telefone de 360pt "Framboesa" pedia 66,1 e virava
+                    "Framboe…". A regra mora na lista, em src/theme.ts. O
+                    `numberOfLines` fica de rede — com o texto do sistema
+                    aumentado, truncar é melhor do que empurrar a fileira. */}
                 <Txt
                   v="micro"
                   c={on ? c.tx : c.tx3}
                   numberOfLines={1}
-                  style={[{ marginTop: 7 }, on ? { fontFamily: font.bodyMed } : null]}
+                  style={[{ marginTop: 6 }, on ? { fontFamily: font.bodyMed } : null]}
                 >
                   {p.nome}
                 </Txt>

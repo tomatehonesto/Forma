@@ -6,7 +6,7 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 
    A paleta escolhida na aparência vai até a tela inicial do telefone.
    Não é pintura em tempo de execução: o sistema só troca entre ícones que
-   já estavam no pacote, declarados antes da compilação. Os dez são
+   já estavam no pacote, declarados antes da compilação. Os cinco são
    gerados por scripts/gerar-icones.mjs, do mesmo caminho que a marca usa
    dentro do app.
 

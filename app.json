@@ -97,10 +97,10 @@
             }
           },
           {
-            "name": "framboesa",
-            "ios": "./assets/icones/framboesa.png",
+            "name": "pitaia",
+            "ios": "./assets/icones/pitaia.png",
             "android": {
-              "foregroundImage": "./assets/icones/framboesa-frente.png",
+              "foregroundImage": "./assets/icones/pitaia-frente.png",
               "backgroundColor": "#C4187F"
             }
           },
@@ -113,67 +113,11 @@
             }
           },
           {
-            "name": "oceano",
-            "ios": "./assets/icones/oceano.png",
-            "android": {
-              "foregroundImage": "./assets/icones/oceano-frente.png",
-              "backgroundColor": "#0E7490"
-            }
-          },
-          {
             "name": "floresta",
             "ios": "./assets/icones/floresta.png",
             "android": {
               "foregroundImage": "./assets/icones/floresta-frente.png",
               "backgroundColor": "#15803D"
-            }
-          },
-          {
-            "name": "indigo",
-            "ios": "./assets/icones/indigo.png",
-            "android": {
-              "foregroundImage": "./assets/icones/indigo-frente.png",
-              "backgroundColor": "#3730A3"
-            }
-          },
-          {
-            "name": "vinho",
-            "ios": "./assets/icones/vinho.png",
-            "android": {
-              "foregroundImage": "./assets/icones/vinho-frente.png",
-              "backgroundColor": "#9F1239"
-            }
-          },
-          {
-            "name": "menta",
-            "ios": "./assets/icones/menta.png",
-            "android": {
-              "foregroundImage": "./assets/icones/menta-frente.png",
-              "backgroundColor": "#0D9488"
-            }
-          },
-          {
-            "name": "cacau",
-            "ios": "./assets/icones/cacau.png",
-            "android": {
-              "foregroundImage": "./assets/icones/cacau-frente.png",
-              "backgroundColor": "#6F4226"
-            }
-          },
-          {
-            "name": "salvia",
-            "ios": "./assets/icones/salvia.png",
-            "android": {
-              "foregroundImage": "./assets/icones/salvia-frente.png",
-              "backgroundColor": "#55705C"
-            }
-          },
-          {
-            "name": "grafite",
-            "ios": "./assets/icones/grafite.png",
-            "android": {
-              "foregroundImage": "./assets/icones/grafite-frente.png",
-              "backgroundColor": "#2E3440"
             }
           }
         ]
