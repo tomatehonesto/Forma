@@ -1575,7 +1575,13 @@ export default function Cadastro() {
     atividade: 'Qual é o seu nível de atividade física?',
     restricao: 'Você tem alguma restrição alimentar?',
     saude: 'Conecte o seu app de saúde',
-    acompanhamento: 'Você tem acompanhamento médico?',
+    /* Mesma conjugação que medicamento, dose e frequência já fazem: quem
+       ainda vai começar não tem nada no presente para responder, e
+       perguntar "você tem" obriga a traduzir a pergunta antes de
+       respondê-la. */
+    acompanhamento: futuro
+      ? 'Você pretende ter o acompanhamento de um especialista?'
+      : 'Você possui o acompanhamento de um especialista?',
     recomendacao: 'Você chegou até nós por indicação de um especialista?',
     consentimento: 'Antes de montar o seu plano',
   };
@@ -1607,7 +1613,22 @@ export default function Cadastro() {
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
     saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
-    acompanhamento: 'A resposta liga ou desliga uma parte do aplicativo — a que cuida das suas consultas. O resto funciona igual dos dois jeitos.',
+    /* ⚠️ ESTE TEXTO NÃO PODE SOAR COMO UMA OFERTA.
+
+       A versão anterior listava, em três tópicos com ícone, o que o app
+       passa a fazer "com acompanhamento" — e lida de fora, era um
+       cardápio: responda sim e ganhe agenda, resumo e preparo de
+       perguntas. Numa pergunta em que ninguém confere a resposta, isso é
+       um convite a mentir para destravar a versão melhor. E a pessoa que
+       mente aqui recebe um aplicativo que passa a falar de consultas que
+       ela não tem — o oposto do que ela queria ao mentir.
+
+       Então a frase nomeia a natureza do que a resposta liga, e não a
+       vantagem: são funcionalidades LIGADAS A CONSULTA, e quem não tem
+       consulta não perde nada por não vê-las. A última oração é a parte
+       que mais importa, e é por isso que ela fica no fim: o resto do
+       aplicativo é o mesmo nas duas respostas. */
+    acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico — anotações e planejamento para consultas, o resumo do tratamento para levar e o aviso de consulta chegando. O resto do aplicativo é o mesmo nas duas respostas.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
     consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
@@ -2239,42 +2260,19 @@ export default function Cadastro() {
                 insistir numa escolha que ela já tomou. Sem perguntar, o
                 app errava com as duas — e errava adivinhando pelo campo
                 do nome, que é vazio nos dois casos. */}
-            {/* ⚠️ O QUE A RESPOSTA MUDA, ANTES DE ELA SER DADA — e miúdo.
-
-                Sem isto a pergunta parece cadastral, e a pessoa responde
-                sem saber que está ligando ou desligando uma parte do
-                aplicativo. Informação para decidir vem antes do controle.
-
-                ⚠️ MAS ELE JÁ FOI UM CARTÃO, com fundo, título e legenda
-                em cada item — e aí competia de igual para igual com as
-                duas respostas, que são cartões também. Numa tela de
-                pergunta, o maior bloco visível deveria ser sempre a
-                resposta; ali o maior era a explicação, e o olho pousava
-                nela primeiro.
-
-                Sem fundo e em uma linha por item, ele volta a ser o que
-                é: uma nota de rodapé que subiu para antes da pergunta,
-                porque é lá que serve. O ícone em cinza pelo mesmo motivo
-                — em cor de ação, três marcas azuis puxavam o olhar
-                exatamente para onde ele não precisava ir. */}
-            <View style={{ gap: 9, paddingHorizontal: 2 }}>
-              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>COM ACOMPANHAMENTO, O APP</Txt>
-              {([
-                ['cal', 'Avisa quando a consulta chega perto'],
-                ['doc', 'Endereça o resumo que você leva'],
-                ['companion', 'Sugere o que perguntar'],
-              ] as [string, string][]).map(([ic, t]) => (
-                <Row key={t} gap={10} style={{ alignItems: 'center' }}>
-                  <Icon name={ic} size={15} color={c.tx3} sw={1.9} />
-                  <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{t}</Txt>
-                </Row>
-              ))}
-            </View>
-
+            {/* ⚠️ AQUI HAVIA UMA LISTA DO QUE A RESPOSTA DESTRAVA, e ela
+                saiu inteira. Passou por duas formas — cartão com legendas,
+                depois três linhas miúdas — e as duas tinham o mesmo
+                defeito de origem: eram uma vitrine de funcionalidades
+                dentro de uma pergunta que ninguém confere. A explicação
+                agora está na frase da pergunta, onde ela informa sem
+                anunciar. */}
             <View style={{ gap: 10 }}>
               <Escolha
                 ic="steth" cheia titulo="Sim"
-                sub="Um médico ou clínica acompanha o meu tratamento"
+                sub={futuro
+                  ? 'Vou me tratar com um médico ou clínica'
+                  : 'Um médico ou clínica acompanha o meu tratamento'}
                 on={r.acompanhamento === 'proprio'}
                 onPress={() => p({ acompanhamento: 'proprio' })}
               />
@@ -2288,7 +2286,7 @@ export default function Cadastro() {
 
             {r.acompanhamento === 'proprio' ? (
               <View style={{ gap: 8 }}>
-                <Rotulo>QUEM ACOMPANHA VOCÊ</Rotulo>
+                <Rotulo>{futuro ? 'QUEM VAI ACOMPANHAR VOCÊ' : 'QUEM ACOMPANHA VOCÊ'}</Rotulo>
                 <CampoTexto
                   valor={r.profissional}
                   onChange={(v) => p({ profissional: v })}
