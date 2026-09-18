@@ -114,7 +114,7 @@ export default function Aparencia() {
     <TelaInterna titulo="Aparência">
       <Titulao
         titulo="Aparência"
-        lead="O Morphi pode ter a sua cara. Escolha uma paleta e ela vai para tudo — inclusive para o ícone na sua tela inicial."
+        lead="O Morphi pode ter a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial."
       />
 
       {/* ---- a prévia ----
@@ -222,7 +222,16 @@ export default function Aparencia() {
       {/* ---- as paletas ---- */}
       <Bloco
         titulo="Escolha a sua cor"
-        nota={`Você está no ${paleta.nome}, e ele já está valendo em todo o aplicativo. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}
+        /* ⚠️ ESTA FRASE JÁ DISSE "ele já está valendo em todo o
+           aplicativo", que é uma nota de implementação com roupa de
+           texto: explicava o comportamento do programa a quem só queria
+           uma cor bonita. E repetia o nome da paleta, que já está ali
+           embaixo do círculo escolhido, em negrito.
+
+           O que sobrou faz duas coisas: convida e tira o medo. "Muda na
+           hora" responde a dúvida de quem acha que precisa salvar, e
+           "quantas vezes quiser" é o que faz alguém tocar na segunda. */
+        nota="Toque na que você mais gosta. Muda na hora — e dá para trocar quantas vezes quiser."
       >
         <Row style={{ flexWrap: 'wrap' }}>
           {PALETAS.map((p) => {
