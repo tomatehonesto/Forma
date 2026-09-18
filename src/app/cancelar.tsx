@@ -66,21 +66,38 @@ type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
    acontecido alguma coisa. Numa tela que oferece alternativa, a
    alternativa precisa aparecer no mesmo gesto — senão ela não existe.
 
-   ⚠️ E OS RÓTULOS ENCOLHERAM PARA CABER, o que é o custo desta escolha:
-   "Tive problemas no aplicativo" virou "Problemas no aplicativo". Peça
-   que quebra em duas linhas desmonta a fila, então rótulo novo aqui se
-   mede antes de entrar.
+   ⚠️⚠️ E TODO MOTIVO TEM ÍCONE PARA QUE A FILA NÃO SE MEXA. ⚠️⚠️
 
-   Os três primeiros são os que têm resposta e os três últimos são os que
-   têm campo de texto — a ordem continua valendo, mesmo em fila: quem lê
-   encontra a alternativa antes do formulário. */
-const MOTIVOS: [Motivo, string][] = [
-  ['caro', 'Está caro'],
-  ['esqueco', 'Não estou usando'],
-  ['terminei', 'Terminei o tratamento'],
-  ['problema', 'Problemas no aplicativo'],
-  ['faltou', 'Faltou alguma coisa'],
-  ['outro', 'Outro motivo'],
+   Sem ícone, `Opc` põe um check ao marcar — e um check é largura: a peça
+   escolhida crescia uns vinte pixels e empurrava a vizinha para a linha
+   de baixo. Tocar em "Terminei o tratamento" fazia "Problemas no
+   aplicativo" pular sozinho, e a tela inteira parecia ter se
+   reorganizado por causa de um toque.
+
+   Com ícone, o check não entra: a largura é a mesma marcada ou não, e a
+   fila fica onde está. A cor cheia já diz qual está escolhida — é a mesma
+   regra que a <Grade> usa, e pelo mesmo motivo.
+
+   ⚠️ QUALQUER RÓTULO NOVO AQUI SE MEDE ANTES DE ENTRAR, e medir é o verbo
+   certo: com 335 px de linha e 8 de vão, as seis peças cabem em quatro
+   fileiras só porque duas somam 305 e outras duas somam 293. "Tive
+   problemas no aplicativo" virou "Problemas no aplicativo" e "Faltou
+   alguma coisa" virou "Faltou algo" — cada palavra a mais aqui custa uma
+   fileira inteira, e a fileira empurra a resposta para fora da dobra, que
+   é o defeito que esta fila veio consertar.
+
+   ⚠️ E A ORDEM NÃO É SOLTA: os três primeiros têm resposta, os três
+   últimos têm campo de texto, e "Outro motivo" é sempre o último. Quem lê
+   encontra a alternativa antes do formulário, e a saída genérica depois
+   de todas as específicas — senão ela vira a resposta de quem não quis
+   procurar a sua. */
+const MOTIVOS: [Motivo, string, string][] = [
+  ['caro', 'wallet', 'Está caro'],
+  ['esqueco', 'moon', 'Não estou usando'],
+  ['terminei', 'journey', 'Terminei o tratamento'],
+  ['problema', 'alerta', 'Problemas no aplicativo'],
+  ['faltou', 'bulb', 'Faltou algo'],
+  ['outro', 'more', 'Outro motivo'],
 ];
 
 export default function Cancelar() {
@@ -204,8 +221,8 @@ export default function Cancelar() {
           diferença que ninguém descreve e todo mundo sente. */}
       <Bloco titulo="Por que você está cancelando?">
         <Opcoes>
-          {MOTIVOS.map(([id, label]) => (
-            <Opc key={id} label={label} on={motivo === id} onPress={() => escolher(id)} />
+          {MOTIVOS.map(([id, ic, label]) => (
+            <Opc key={id} ic={ic} label={label} on={motivo === id} onPress={() => escolher(id)} />
           ))}
         </Opcoes>
       </Bloco>
