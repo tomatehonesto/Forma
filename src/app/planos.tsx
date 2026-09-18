@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
@@ -221,6 +221,21 @@ export default function Planos() {
      Fechado, é uma linha. Só vira campo quando alguém diz que tem um —
      um teclado aberto embaixo de um botão de compra é a tela tentando
      fazer duas coisas ao mesmo tempo. */
+  /* ⚠️ PORTA DE DESENVOLVIMENTO — `?compra=1`.
+
+     A semente é a Mariana, que tem clínica parceira, e por isso a tela
+     abre no estado isento em toda conferência: não havia como olhar a
+     versão que cobra sem editar o estado à mão.
+
+     Este parâmetro NÃO muda nada do que está guardado. Ele só finge, para
+     o desenho desta tela, que não há vínculo — e só responde em build de
+     desenvolvimento. Em produção `__DEV__` é falso e a linha inteira
+     desaparece na compilação, junto com a linha do perfil que leva aqui.
+
+     Ver PENDENCIAS.md, item 5: quando a cobrança existir, isto sai. */
+  const { compra } = useLocalSearchParams<{ compra?: string }>();
+  const fingindoPagante = __DEV__ && compra === '1';
+
   const guardado = ((S.profile as any).convite as string) || '';
   const [abrindoCodigo, setAbrindoCodigo] = React.useState(false);
   const [codigo, setCodigo] = React.useState('');
@@ -234,6 +249,7 @@ export default function Planos() {
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
+  const ehIsenta = isento(S) && !fingindoPagante;
 
   const comprar = async () => {
     const r = await assinar(escolhido);
@@ -243,7 +259,7 @@ export default function Planos() {
   /* Quem tem vínculo não vê preço. Ela não está fora de uma oferta: está
      dentro do acordo que a clínica já fez por ela, e os Termos prometem
      aviso antes de qualquer cobrança começar. */
-  if (isento(S) && !verPrecos) {
+  if (ehIsenta && !verPrecos) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 12 }}>
         <Row style={{ paddingHorizontal: 20, justifyContent: 'flex-end' }}>
@@ -472,7 +488,7 @@ export default function Planos() {
             </Txt>
           ) : null}
 
-          {isento(S) ? null : recusa ? (
+          {ehIsenta ? null : recusa ? (
             /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
                responde o que é verdade — e não com um erro genérico, que
                faria a pessoa tentar de novo. */
@@ -495,7 +511,7 @@ export default function Planos() {
               Sai o botão, sai a letra miúda, sai o campo do código: os
               três são da compra, e não do preço. Fica o que ela veio
               ver. */}
-          {isento(S) ? null : (
+          {ehIsenta ? null : (
             <>
               <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
                 <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
@@ -516,7 +532,7 @@ export default function Planos() {
           )}
 
           {/* ---- o código do parceiro ---- */}
-          {TEM_REDE_PARCEIRA && !isento(S) ? (
+          {TEM_REDE_PARCEIRA && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
               {guardado ? (
                 <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>

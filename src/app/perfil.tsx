@@ -479,6 +479,19 @@ export default function Perfil() {
             sub="Para vincular a clínica que acompanha você"
             onPress={go('/parceiros')} />
         ) : null}
+        {/* ⚠️ SÓ EM DESENVOLVIMENTO. A semente tem clínica parceira, então
+            a tela de planos abre sempre no estado isento e a versão que
+            cobra ficava inalcançável sem editar o estado à mão.
+
+            `__DEV__` é falso na build de produção e esta linha some na
+            compilação — a porta não tem como viajar junto para a loja.
+            Ela não muda nada do que está guardado: só pede à tela que se
+            desenhe como se não houvesse vínculo. */}
+        {__DEV__ ? (
+          <ListRow ic="bolt" title="Ver planos como pagante"
+            sub="Atalho de desenvolvimento — não aparece em produção"
+            onPress={go('/planos?compra=1')} />
+        ) : null}
       </Grupo>
 
       {/* ---- acompanhamento ----

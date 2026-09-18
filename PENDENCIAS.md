@@ -71,6 +71,14 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
   é a mesma promessa vazia.
 
+⚠️ **E há uma porta de desenvolvimento a tirar junto.** A semente tem
+clínica parceira, então a tela abre sempre no estado isento e a versão
+que cobra ficava inalcançável sem editar o estado à mão. O parâmetro
+`?compra=1` finge, só no desenho, que não há vínculo, e a linha do perfil
+que leva até ele existe só sob `__DEV__` — em produção as duas somem na
+compilação. Nenhuma das duas escreve nada no estado. Saem quando a
+cobrança entrar.
+
 ⚠️ E ela **não é linkada de lugar nenhum**: chega-se por rota. No dia em
 que a cobrança existir, o primeiro link é o fim do cadastro — e é aí que
 o passo `recomendacao` sai de lá.
