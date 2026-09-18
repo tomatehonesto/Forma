@@ -248,8 +248,10 @@ function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
   );
   const etiqueta = selo ? (
     <View style={{
-      backgroundColor: on ? 'rgba(255,255,255,0.18)' : c.accentWeak,
-      borderWidth: 1, borderColor: on ? 'rgba(255,255,255,0.28)' : 'transparent',
+      /* Pelo mesmo motivo do sub: um véu branco sobre o azul-claro do
+         modo escuro some, e a etiqueta fica sem moldura. */
+      backgroundColor: on ? alfa(c.accentInk, 0.14) : c.accentWeak,
+      borderWidth: 1, borderColor: on ? alfa(c.accentInk, 0.24) : 'transparent',
       borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4,
     }}>
       <Txt v="micro" c={on ? c.accentInk : c.accent}>{selo}</Txt>
@@ -303,7 +305,21 @@ function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
     minHeight: 66,
   };
   const tinta = on ? c.accentInk : c.tx;
-  const tintaSub = on ? 'rgba(255,255,255,0.78)' : c.tx3;
+  /* ⚠️ A SEGUNDA LINHA ERA BRANCA, FIXA NO CÓDIGO.
+
+     Enquanto o app tinha uma cor só, isso funcionava: azul cheio no
+     claro, texto branco por cima. Mas no escuro a cor de ação é a clara
+     da rampa — o cartão escolhido fica azul-claro —, e branco a 78% em
+     cima dele é o borrão que a leitura perde. O título já estava certo,
+     em `accentInk`, e era justamente o contraste entre os dois que
+     denunciava: mesma pastilha, duas regras.
+
+     Agora as duas saem da mesma tinta, com a de baixo um pouco mais
+     apagada — 0,92, e não menos, porque abaixo disso o contraste cai de
+     4,5:1 no modo claro e a segunda linha volta a custar esforço. A
+     hierarquia entre título e legenda é sutil de propósito: ela já está
+     dita pelo tamanho e pelo peso da fonte. */
+  const tintaSub = on ? alfa(c.accentInk, 0.92) : c.tx3;
 
   if (cheia) {
     return (
@@ -2223,30 +2239,34 @@ export default function Cadastro() {
                 insistir numa escolha que ela já tomou. Sem perguntar, o
                 app errava com as duas — e errava adivinhando pelo campo
                 do nome, que é vazio nos dois casos. */}
-            {/* ⚠️ O QUE A RESPOSTA MUDA, ANTES DE ELA SER DADA.
+            {/* ⚠️ O QUE A RESPOSTA MUDA, ANTES DE ELA SER DADA — e miúdo.
 
-                Sem isto a pergunta parece cadastral — mais um campo de
-                ficha —, e a pessoa responde sem saber que está ligando ou
-                desligando três coisas do aplicativo. Informação para
-                decidir vem antes do controle, e não num aviso depois.
+                Sem isto a pergunta parece cadastral, e a pessoa responde
+                sem saber que está ligando ou desligando uma parte do
+                aplicativo. Informação para decidir vem antes do controle.
 
-                E vem em três linhas concretas, e não numa promessa: quem
-                lê "prepara a consulta" não sabe o que vai receber. */}
-            <View style={{ gap: 12, backgroundColor: c.bg1, borderRadius: 16, padding: 16 }}>
+                ⚠️ MAS ELE JÁ FOI UM CARTÃO, com fundo, título e legenda
+                em cada item — e aí competia de igual para igual com as
+                duas respostas, que são cartões também. Numa tela de
+                pergunta, o maior bloco visível deveria ser sempre a
+                resposta; ali o maior era a explicação, e o olho pousava
+                nela primeiro.
+
+                Sem fundo e em uma linha por item, ele volta a ser o que
+                é: uma nota de rodapé que subiu para antes da pergunta,
+                porque é lá que serve. O ícone em cinza pelo mesmo motivo
+                — em cor de ação, três marcas azuis puxavam o olhar
+                exatamente para onde ele não precisava ir. */}
+            <View style={{ gap: 9, paddingHorizontal: 2 }}>
               <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>COM ACOMPANHAMENTO, O APP</Txt>
               {([
-                ['cal', 'Cuida da agenda', 'Guarda a data, conta os dias e avisa quando ela chega perto.'],
-                ['doc', 'Endereça o resumo', 'Peso, adesão, sintomas e exames num documento pronto para levar.'],
-                ['companion', 'Ajuda a preparar', 'Sugere o que perguntar, a partir do que aconteceu no seu mês.'],
-              ] as [string, string, string][]).map(([ic, t, sub]) => (
-                <Row key={t} style={{ gap: 12, alignItems: 'flex-start' }}>
-                  <View style={{ marginTop: 1 }}>
-                    <Icon name={ic} size={17} color={c.accent} sw={1.9} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="label">{t}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 18 }}>{sub}</Txt>
-                  </View>
+                ['cal', 'Avisa quando a consulta chega perto'],
+                ['doc', 'Endereça o resumo que você leva'],
+                ['companion', 'Sugere o que perguntar'],
+              ] as [string, string][]).map(([ic, t]) => (
+                <Row key={t} gap={10} style={{ alignItems: 'center' }}>
+                  <Icon name={ic} size={15} color={c.tx3} sw={1.9} />
+                  <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{t}</Txt>
                 </Row>
               ))}
             </View>
