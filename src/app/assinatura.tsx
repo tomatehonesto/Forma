@@ -382,9 +382,21 @@ export default function Assinatura() {
             ⚠️ E ELA DIZ QUEM AVISA A GENTE. "Se o vínculo terminar" fazia
             parecer que o aplicativo percebe sozinho, e ele não percebe:
             ninguém aqui sabe que uma pessoa deixou de ser paciente de uma
-            clínica. Quem sabe é a clínica, e é ela que informa. A frase
-            precisa dizer isso, porque a promessa que vem depois depende
-            inteira disso acontecer;
+            clínica. Quem sabe é a clínica, e é ela que informa.
+
+            ⚠️⚠️ E DIZ O QUE ACONTECE DEPOIS, que é a parte que faltava. A
+            frase antiga — "avisamos antes de qualquer cobrança" — dizia o
+            que NÃO acontece e deixava a pessoa deduzir o resto. O que
+            acontece é a suspensão até ela aderir a um plano Personal, e
+            omitir isso era prometer, por silêncio, que o acesso continua.
+
+            ⚠️ POR ISSO A LINHA DOS DADOS ANDA JUNTO. Suspender o acesso de
+            um diário de tratamento é trancar alguém do lado de fora do
+            próprio peso, das próprias aplicações e dos próprios exames —
+            e isso este aplicativo não faz. A suspensão é da assinatura, e
+            a exportação continua aberta. As duas frases andam juntas
+            aqui, nos Termos e no extrato: separadas, a primeira vira uma
+            ameaça;
           · sem nada — dizer "você não assinou" sem dizer que NINGUÉM pode
             assinar deixa a pessoa procurando um botão que não existe. Esta
             sai no dia em que a cobrança entrar. */}
@@ -394,7 +406,7 @@ export default function Assinatura() {
           : atual
             ? null
             : ehIsenta
-              ? 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro.'
+              ? 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.'
               : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.';
         if (!miuda) return null;
         return (

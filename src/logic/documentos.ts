@@ -381,7 +381,8 @@ export const TERMOS = (): Documento => ({
       titulo: '7. Assinatura e pagamento',
       paragrafos: [
         'O acesso ao Morphi é por assinatura, com preço e periodicidade informados no momento da contratação. Quando a contratação ocorrer pela <b>App Store</b> ou pelo <b>Google Play</b>, a cobrança e a renovação são administradas por essas plataformas.',
-        'Quem chega por indicação de <b>profissional parceiro</b>, com código de convite válido, tem o acesso isento enquanto o vínculo estiver ativo. Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, você é avisado antes de qualquer cobrança começar.',
+        'Quem chega por indicação de <b>profissional parceiro</b>, com código de convite válido, tem o acesso isento enquanto o vínculo estiver ativo. Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso ao aplicativo fica suspenso até você aderir a um plano Personal — e <b>nenhuma cobrança acontece sem que você escolha assinar</b>.',
+        'A suspensão não apaga nada e não tranca os seus dados: os registros continuam no seu aparelho e podem ser <b>exportados a qualquer momento</b>, com ou sem assinatura.',
         '<b>Direito de arrependimento (CDC art. 49).</b> Você tem 7 dias corridos contados da contratação para desistir e receber reembolso integral, sem ônus. Quando a compra for pela loja, o reembolso segue o fluxo nativo dela.',
         'Você pode cancelar quando quiser, pela própria loja. O cancelamento interrompe a renovação seguinte; o período já pago segue valendo até o fim. Cancelar <b>não apaga os seus registros</b> — eles estão no seu aparelho.',
       ],

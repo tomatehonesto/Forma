@@ -131,6 +131,26 @@ cancelamento à vista. **Fechar isso é trabalho da integração de cobrança**
 — cancelamento pelo servidor no momento em que o vínculo nasce, e
 provavelmente reembolso proporcional do período já pago.
 
+⚠️⚠️ **A SUSPENSÃO POR FIM DE VÍNCULO É UMA REGRA SEM MECANISMO.**
+
+Os Termos e duas telas passaram a dizer que, se a clínica informar o fim
+do vínculo de tratamento, o acesso fica suspenso até a pessoa aderir a um
+plano Personal. Nada disso existe ainda: não há canal pelo qual a clínica
+informe (é o mesmo Supabase do item 10), não há estado de "suspenso" no
+aplicativo, e não há a tela que a pessoa vê quando isso acontece.
+
+Três coisas precisam ser verdade no dia em que entrar, e as três já estão
+prometidas por escrito:
+
+- **ninguém é cobrado sem escolher** — a suspensão não vira cobrança
+  automática;
+- **a pessoa é avisada**, e não descobre ao abrir o aplicativo trancado;
+- ⚠️ **a suspensão não tranca os dados dela.** Um diário de tratamento não
+  pode deixar alguém do lado de fora do próprio peso, das próprias
+  aplicações e dos próprios exames. Exportar continua aberto com ou sem
+  assinatura — está nos Termos, seção 7, e é a parte mais fácil de
+  esquecer quando se implementa um portão.
+
 ⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
 CUMPRIR.** A tela anuncia "Começar os 3 dias grátis" em corpo grande, e
 quem concede período gratuito não é o aplicativo: é a **oferta
