@@ -1316,19 +1316,15 @@ export default function Cadastro() {
          lista de pesagens. Desduplica por DIA, e não por instante:
          pesagem gravada às três da tarde tem hora no carimbo.
 
-         ⚠️ SÓ QUANDO O PESO FOI O ASSUNTO. Este bloco rodava em TODA
-         gravação, e no modo de edição isso virou dano: corrigir o próprio
-         nome reescrevia o histórico de pesagens. Ele apagava as pesagens
-         de hoje e punha uma no lugar, perdendo a hora do carimbo e
-         qualquer segunda pesagem do dia; e ressuscitava a pesagem do dia
-         de início para quem tinha apagado aquela linha de propósito.
+         ⚠️ SÓ NO CADASTRO INTEIRO. Este bloco APAGA as pesagens de hoje
+         para pôr uma no lugar, e isso é correto quando a lista está
+         nascendo: ela ainda não é o registro de ninguém. Depois disso ela
+         é, e corrigir uma resposta não pode limpar registro nenhum —
+         nem a segunda pesagem do dia, nem a hora do carimbo, nem uma
+         linha que a pessoa apagou de propósito.
 
-         Nenhum desses efeitos tem a ver com trocar o sexo ou a atividade
-         física. Agora o bloco só roda no cadastro inteiro e nas duas
-         perguntas que de fato escrevem peso: "medidas atuais" e "comecei
-         em". */
-      const mexeuNoPeso = !editando || editando === 'corpo' || editando === 'inicio';
-      if (mexeuNoPeso) {
+         A edição faz a coisa oposta e está logo abaixo: acrescenta. */
+      if (!editando) {
         const t = +startOfDay(now());
         const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
         const pesagens = [...resto, { t, kg: r.peso }];
@@ -1339,6 +1335,32 @@ export default function Cadastro() {
           pesagens.push({ t: +startOfDay(new Date(inicio)), kg: r.pesoInicial });
         }
         s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
+      }
+
+      /* ---- na edição, o peso se acrescenta ou se corrige. Nunca se apaga.
+
+         MEDIDAS ATUAIS acrescenta. Quem abriu aquela tela para arrumar a
+         altura não mexeu no peso, e o valor volta igual ao último — então
+         nada acontece. Quem mexeu na régua disse um peso novo, e peso
+         novo é uma pesagem: entra com a hora de agora, ao lado das que já
+         existem. Substituir a de hoje seria sumir com a da manhã de quem
+         se pesa duas vezes.
+
+         COMECEI EM corrige no lugar. Ali não há pesagem nova: é a MESMA
+         medição, daquele dia, com o número errado. Acrescentar criaria
+         duas pesagens no dia de início, e a curva começaria com um
+         degrau que não aconteceu. */
+      if (editando === 'corpo' && r.peso !== curWeight(s)) {
+        s.weights = [...(s.weights || []), { t: +now(), kg: r.peso }]
+          .sort((a: any, b: any) => a.t - b.t);
+      }
+      if (editando === 'inicio') {
+        const diaZero = +startOfDay(new Date(inicio));
+        const lista = (s.weights || []) as any[];
+        const i = lista.findIndex((w) => +startOfDay(new Date(w.t)) === diaZero);
+        if (i >= 0) lista[i] = { ...lista[i], kg: r.pesoInicial };
+        else lista.push({ t: diaZero, kg: r.pesoInicial });
+        s.weights = lista.sort((a: any, b: any) => a.t - b.t);
       }
     });
     setN(MONTANDO);
