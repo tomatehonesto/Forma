@@ -102,6 +102,14 @@ export default function Planos() {
 
   const aurora = useAurora();
   const [escolhido, setEscolhido] = React.useState<Plano['id']>(RECOMENDADO);
+  /* ⚠️ QUEM É ISENTA TAMBÉM PODE QUERER VER O PREÇO, e até aqui não
+     podia: a tela dela era uma folha só, com "você não paga" e nenhuma
+     saída. Era um beco, e um beco em cima da única pergunta que essa
+     pessoa tem motivo para fazer — quanto custaria se o vínculo
+     terminasse. Os próprios Termos prometem avisá-la antes de qualquer
+     cobrança começar; esconder o valor até lá é prometer um aviso sobre
+     um número secreto. */
+  const [verPrecos, setVerPrecos] = React.useState(false);
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
@@ -114,7 +122,7 @@ export default function Planos() {
   /* Quem tem vínculo não vê preço. Ela não está fora de uma oferta: está
      dentro do acordo que a clínica já fez por ela, e os Termos prometem
      aviso antes de qualquer cobrança começar. */
-  if (isento(S)) {
+  if (isento(S) && !verPrecos) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 12 }}>
         <Row style={{ paddingHorizontal: 20, justifyContent: 'flex-end' }}>
@@ -131,6 +139,13 @@ export default function Planos() {
             O acesso vem do seu vínculo com {S.profile.clinic || 'a clínica que acompanha você'}, e
             vale enquanto ele durar. Se ele terminar, avisamos antes de qualquer cobrança.
           </Txt>
+          <Pressable
+            onPress={() => setVerPrecos(true)}
+            hitSlop={8}
+            style={({ pressed }) => [{ marginTop: 6, opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Txt v="label" c={c.accent2}>Ver os planos mesmo assim</Txt>
+          </Pressable>
         </View>
       </View>
     );
@@ -184,6 +199,17 @@ export default function Planos() {
         </View>
 
         <View style={{ paddingHorizontal: 20 }}>
+        {/* A faixa existe para a isenta não achar que perdeu o benefício
+            ao chegar aqui. Ela veio ver um número, e não trocar de
+            condição. */}
+        {isento(S) ? (
+          <View style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, padding: 14, marginBottom: 18 }}>
+            <Txt v="caption" c={c.tx} style={{ lineHeight: 19 }}>
+              Você não paga nada hoje — isto é o que valeria se o vínculo com a clínica
+              terminasse.
+            </Txt>
+          </View>
+        ) : null}
         {/* ⚠️ UMA LINHA POR ITEM, E NÃO UM PARÁGRAFO.
 
             Cada um destes já foi uma frase de duas linhas — "o registro do
