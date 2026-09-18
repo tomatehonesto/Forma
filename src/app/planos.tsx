@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { PLANOS, RECOMENDADO, reais, economiaEmReais, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
+import { Marca, D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -74,12 +74,27 @@ function IconeDoApp({ lado }: { lado: number }) {
 /* O QUE A ASSINATURA DÁ É O APLICATIVO, e a lista diz isso em coisas que
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
    Cinco linhas, porque a sexta ninguém lê. */
-const ENTRA: [string, string][] = [
-  ['check', 'O dia registrado, do peso ao sintoma'],
-  ['spark', 'As leituras dos seus próprios números'],
-  ['doc', 'O resumo pronto para qualquer consulta'],
-  ['chart', 'Exames, medidas e fotos com histórico'],
-  ['companion', 'O assistente e a leitura do prato por foto'],
+/* ⚠️ UM SÓ MARCADOR PARA AS CINCO, e não um ícone por assunto.
+
+   No resto do aplicativo o ícone solto é a marca do assunto — água,
+   prato, movimento —, e ali ele ajuda: são destinos diferentes. Aqui não
+   são. As cinco linhas respondem à mesma pergunta, "o que vem junto", e
+   cinco desenhos distintos fazem a lista parecer um menu de seções em
+   vez de uma conta de inclusão.
+
+   O visto é o que a pessoa já leu em toda tela de plano que viu na vida,
+   e é a única convenção deste desenho que vale copiar de fora: ele diz
+   "isto está incluído" sem precisar de legenda. */
+/* ⚠️ E CADA UMA CABE NUMA LINHA. Em corpo maior, as frases de antes
+   quebravam todas em duas — e uma lista de cinco itens com dez linhas
+   deixa de ser lista. A referência tem razão no tamanho da frase:
+   'Turn anything into audio' cabe porque foi escrita para caber. */
+const ENTRA: string[] = [
+  'O dia inteiro registrado',
+  'As leituras dos seus números',
+  'O resumo para qualquer consulta',
+  'Exames, medidas e fotos',
+  'O assistente, e o prato por foto',
 ];
 
 export default function Planos() {
@@ -186,8 +201,20 @@ export default function Planos() {
             </Pressable>
           </Row>
 
+          {/* ⚠️ A MARCA, E NÃO O ÍCONE DO APLICATIVO.
+
+              O ícone é o quadrado com gradiente que mora na tela inicial
+              do telefone: ele serve para ser achado entre outros ícones,
+              e é por isso que tem moldura. Dentro do próprio aplicativo
+              ele vira o retrato de uma coisa que a pessoa já está usando
+              — e numa tela que pede dinheiro, o que precisa aparecer é
+              quem cobra, com nome e tudo.
+
+              A marca por extenso é o lockup, com o símbolo em lima e o
+              letreiro em branco. É a mesma peça da abertura do cadastro,
+              que foi a última vez que essa pessoa viu o nome. */}
           <View style={{ alignItems: 'center', gap: 12, marginTop: 10 }}>
-            <IconeDoApp lado={64} />
+            <Marca altura={26} />
             <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
               O tratamento inteiro,{'\n'}num lugar só
             </Txt>
@@ -217,17 +244,35 @@ export default function Planos() {
             movimento" —, e cinco parágrafos empilhados numa tela de preço
             é o texto que ninguém lê exatamente onde a pessoa mais precisa
             entender. A lista é uma varredura, não uma leitura. */}
-        <View style={{ gap: 11, marginTop: 4 }}>
-          {ENTRA.map(([ic, t]) => (
-            <Row key={t} gap={11} style={{ alignItems: 'center' }}>
-              <Icon name={ic} size={16} color={c.accent} sw={2} />
-              <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{t}</Txt>
+        <View style={{ gap: 16, marginTop: 6 }}>
+          {ENTRA.map((t) => (
+            <Row key={t} gap={14} style={{ alignItems: 'center' }}>
+              <Icon name="check" size={17} color={c.accent} sw={2.4} />
+              <Txt v="body" style={{ flex: 1 }}>{t}</Txt>
             </Row>
           ))}
         </View>
 
+        {/* O FIO SEPARA O QUE VEM DO QUE CUSTA. Sem ele a lista e os
+            preços viram um bloco só, e a pessoa lê o valor antes de ter
+            terminado de ler o que ele compra. */}
+        <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginTop: 24 }} />
+
         {/* ---- os planos ---- */}
-        <Row gap={10} style={{ marginTop: 28, alignItems: 'stretch' }}>
+        {/* ⚠️ OS DOIS CARTÕES TÊM A MESMA ALTURA, e isso precisou de uma
+            linha a mais no mensal, e não de um `height` fixo.
+
+            O anual carrega um terceiro dado — o preço cheio do ano — e
+            por isso crescia; com `minHeight` ele passava do piso e o
+            mensal ficava. Dois cartões lado a lado com alturas diferentes
+            dizem, antes de qualquer texto, que um vale mais do que o
+            outro — e a escolha já é sinalizada pela cor e pela borda, que
+            é onde ela deve ser feita.
+
+            A linha nova do mensal não é enchimento: "cobrado todo mês" é
+            a informação que o anual dá em "R$ 199,90 por ano", e faltava
+            do lado de cá. */}
+        <Row gap={10} style={{ marginTop: 22, alignItems: 'stretch' }}>
           {PLANOS.map((p) => {
             const on = p.id === escolhido;
             return (
@@ -249,10 +294,11 @@ export default function Planos() {
                   <Txt v="micro" c={c.tx3}>por mês</Txt>
                   {/* ⚠️ O PREÇO CHEIO FICA À VISTA. Mostrar só "por mês" num
                       plano anual é a conta que o anúncio faz e a fatura
-                      desmente. */}
-                  {p.id === 'anual' ? (
-                    <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{reais(p.preco)} {p.periodo}</Txt>
-                  ) : null}
+                      desmente. E o mensal responde a mesma pergunta na
+                      mesma linha, para os dois cartões terminarem juntos. */}
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
+                    {p.id === 'anual' ? `${reais(p.preco)} ${p.periodo}` : 'cobrado todo mês'}
+                  </Txt>
                 </View>
               </Pressable>
             );
