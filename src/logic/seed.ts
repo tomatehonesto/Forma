@@ -265,15 +265,17 @@ export function buildSeed() {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
       startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
-      /* O VÍNCULO RESOLVIDO, que é coisa diferente do código digitado.
+      /* O VÍNCULO, que nasce junto com o código e não depois dele.
 
-         `convite` é o que a pessoa escreveu no cadastro — uma intenção,
-         que nenhum servidor conferiu ainda. `vinculo` é o que sobra
-         depois de alguém do outro lado dizer "sim, esta clínica é nossa e
-         esta pessoa é dela": é ele que libera mensagem, envio e receita.
+         `convite` é o que a pessoa escreveu; `vinculo` é o que o
+         aplicativo fez com isso. Os dois se criam no mesmo toque, porque
+         quem tem o código recebeu o código da clínica — não há nada para
+         a clínica confirmar depois. Ver src/logic/assinatura.ts, em
+         `vinculoDoConvite`, e MODOS.md.
 
-         Hoje só a semente tem um, porque só ela tem uma médica. Ver
-         MODOS.md. */
+         A semente não passou por essa porta: ela chega com o vínculo
+         pronto, de setenta dias atrás, e por isso não tem `convite`. É de
+         propósito — os dois campos precisam saber viver um sem o outro. */
       vinculo: { desde: +daysAgo(70) },
       /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
          deduzido de haver um nome guardado.
@@ -645,6 +647,21 @@ export function ensureDefaults(S: any) {
   if (S.profile && (S.profile as any).vinculo === undefined) {
     (S.profile as any).vinculo =
       (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;
+  }
+  /* ⚠️ QUEM JÁ TINHA CÓDIGO GANHA O VÍNCULO, uma vez.
+
+     O aplicativo guardava o convite e esperava uma confirmação que nunca
+     vinha — quem digitou o código na versão anterior ficou com `convite`
+     preenchido e `vinculo` nulo, que sob a regra nova é um estado que
+     não existe mais: ter o código É ter o vínculo.
+
+     Esta linha é de mão única, como as outras daqui: ela dá, nunca tira.
+     Ninguém perde acesso por causa de uma migração. */
+  if (S.profile && (S.profile as any).convite && !(S.profile as any).vinculo) {
+    (S.profile as any).vinculo = {
+      desde: S.profile.startT || +now(),
+      convite: (S.profile as any).convite,
+    };
   }
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
   /* ============================================================

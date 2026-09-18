@@ -8,6 +8,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
+import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
@@ -1315,7 +1316,15 @@ export default function Cadastro() {
          quem. Quem liga à plataforma continua sendo só o código. */
       s.profile.acompanhamento = r.acompanhamento ?? 'nenhum';
       s.profile.doctor = r.acompanhamento === 'proprio' ? r.profissional.trim() : '';
-      s.profile.convite = r.recomendado ? r.codigo.trim().toUpperCase() : '';
+      /* ⚠️ O CÓDIGO LIGA AQUI TAMBÉM, e não só na folha de /codigo.
+
+         São três portas para o mesmo convite — o cadastro, /parceiros e a
+         folha do paywall — e uma delas guardando sem ligar faria a mesma
+         pessoa entrar de graça ou não dependendo de por onde passou. O
+         que transforma código em vínculo mora em assinatura.ts, e as três
+         chamam a mesma função. */
+      s.profile.convite = r.recomendado ? normalizarConvite(r.codigo) : '';
+      s.profile.vinculo = s.profile.convite ? vinculoDoConvite(s.profile.convite) : null;
       /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína e água
          vinham fixas em 90 g e 2,5 L — os números de outra pessoa, lidos
          dez vezes cada um. */
@@ -2375,7 +2384,7 @@ export default function Cadastro() {
                   caixa="characters"
                 />
                 <Txt v="caption" c={c.tx3}>
-                  É ele que liga a sua conta ao profissional. A conferência acontece depois.
+                  É ele que liga a sua conta ao profissional.
                 </Txt>
               </View>
             ) : null}

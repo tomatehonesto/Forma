@@ -389,7 +389,6 @@ export default function Planos() {
   const { compra } = useLocalSearchParams<{ compra?: string }>();
   const fingindoPagante = __DEV__ && compra === '1';
 
-  const guardado = ((S.profile as any).convite as string) || '';
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
@@ -779,29 +778,29 @@ export default function Planos() {
               digitava com o botão de assinar encostado no dedo e o preço
               sumindo atrás do teclado.
 
-              Na folha o teclado empurra em vez de cobrir, e fechar devolve
-              a pessoa aqui, com o código guardado dito nesta mesma linha. */}
+              Na folha o teclado empurra em vez de cobrir, e fechar
+              devolve a pessoa aqui — e aqui já mudou, porque o código liga
+              o vínculo na hora e esta barra inteira deixa de pedir
+              dinheiro. É a própria tela dizendo que deu certo.
+
+              ⚠️ AQUI HAVIA UM "CÓDIGO XYZ GUARDADO", e ele morreu com essa
+              mudança: sob a regra nova, ter código é ter vínculo, e ter
+              vínculo é estar isento — então nunca mais existe alguém
+              vendo esta barra COM um código guardado. A linha só aparecia
+              pela porta de `?compra=1`, e uma linha viva só em
+              desenvolvimento é uma linha morta com plateia. */}
           {TEM_REDE_PARCEIRA && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
-              {guardado ? (
-                <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon name="check" size={14} color={c.lime} sw={2.4} />
-                    <Txt v="micro" c={c.tx3}>Código {guardado} guardado</Txt>
-                  </Row>
-                </Pressable>
-              ) : (
-                <Pressable
-                  onPress={() => router.push('/codigo' as any)}
-                  hitSlop={8}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Row gap={7} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon name="steth" size={14} color={c.accent2} sw={1.9} />
-                    <Txt v="label" c={c.accent2}>Tenho um código de convite</Txt>
-                  </Row>
-                </Pressable>
-              )}
+              <Pressable
+                onPress={() => router.push('/codigo' as any)}
+                hitSlop={8}
+                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Row gap={7} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="steth" size={14} color={c.accent2} sw={1.9} />
+                  <Txt v="label" c={c.accent2}>Tenho um código de convite</Txt>
+                </Row>
+              </Pressable>
             </View>
           ) : null}
 

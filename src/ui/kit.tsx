@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView,
-  Platform, TextProps, ViewStyle, StyleProp, TextStyle,
+  Keyboard, Platform, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -343,6 +343,27 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+
+  /* ⚠️ O PÉ DA FOLHA MUDA DE TAMANHO QUANDO O TECLADO SOBE.
+
+     Parado, o respiro de baixo tem que passar do indicador de gesto —
+     daí `insets.bottom` mais dezesseis. Com o teclado aberto o indicador
+     está coberto pelo próprio teclado, e aquele mesmo número vira uma
+     faixa vazia de cinquenta pixels entre o botão e as teclas: o botão
+     parecia flutuando no meio da folha.
+
+     Vinte e quatro é a distância de quem vai tocar no botão logo depois
+     de digitar. Não dá para medir isto no navegador — lá não existe
+     teclado —, e é por isso que este comentário existe. */
+  const [teclado, setTeclado] = React.useState(false);
+  React.useEffect(() => {
+    const sobe = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setTeclado(true));
+    const desce = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setTeclado(false));
+    return () => { sobe.remove(); desce.remove(); };
+  }, []);
+
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
       <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
@@ -380,7 +401,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
       <View style={{
         backgroundColor: c.bg, maxHeight: height * 0.86,
         borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
-        paddingBottom: (insets.bottom || 12) + 16,
+        paddingBottom: teclado ? 24 : (insets.bottom || 12) + 16,
       }}>
         <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />

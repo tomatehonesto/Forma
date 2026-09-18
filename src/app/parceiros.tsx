@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { clinicaConectada } from '../logic/derive';
-import { normalizarConvite } from '../logic/assinatura';
+import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -55,12 +55,17 @@ export default function Parceiros() {
      começa. Peso, aplicações, check-ins, sintomas, exames, fotos e
      anotações são da pessoa, e ela chegou com eles.
 
-     Esta função escreve UM campo. Se um dia ela crescer para mais de
-     um, a pergunta a fazer é: o que estou apagando de alguém que só
-     digitou oito letras? */
+     Esta função escreve DOIS campos, e nenhum deles é de ninguém mais.
+     Se um dia ela crescer para além disso, a pergunta a fazer é: o que
+     estou apagando de alguém que só digitou oito letras? */
   const guardar = () => {
     const v = normalizarConvite(codigo);
-    update((s: any) => { s.profile.convite = v; });
+    update((s: any) => {
+      s.profile.convite = v;
+      /* ⚠️ O VÍNCULO SAI DAQUI JUNTO, e não de uma confirmação que nunca
+         chega. O porquê está inteiro em assinatura.ts. */
+      s.profile.vinculo = vinculoDoConvite(v);
+    });
     setCodigo(v);
     setTrocando(false);
   };
@@ -107,20 +112,18 @@ export default function Parceiros() {
           que é o caminho mais comum dos que existem — não tinha por onde
           entrar com o convite depois.
 
-          E O CAMPO É HONESTO SOBRE O QUE FAZ. Ele guarda o código; quem
-          transforma código em vínculo é um servidor que ainda não existe.
-          Dizer "pronto, você está conectada" seria a porta emparedada de
-          sempre. A mesma frase que o cadastro usa desde o começo — a
-          conferência acontece depois — vale aqui, e é verdade. */}
+          E O CAMPO LIGA NA HORA. Ele já disse "a conferência acontece
+          depois", e isso era a pessoa esperando uma clínica que não tem
+          nada a conferir: o código veio dela. Digitar é entrar. */}
       {guardado && !trocando ? (
-        <Campo rotulo="Código de convite" ajuda="Assim que a clínica confirmar, a sua equipe aparece aqui.">
+        <Campo rotulo="Código de convite" ajuda="É ele que liga você à sua clínica.">
           <Txt v="h2" style={{ letterSpacing: 2 }}>{guardado}</Txt>
           <Botao label="Usar outro código" onPress={() => { setCodigo(''); setTrocando(true); }} tom="fantasma" />
         </Campo>
       ) : (
-        <Campo rotulo="Tenho um código de convite" ajuda="É o código que a clínica te passou. A conferência acontece depois.">
+        <Campo rotulo="Tenho um código de convite" ajuda="É o código que a clínica te passou.">
           <Texto valor={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder="Digite o código" linhas={1} />
-          <Botao label="Guardar código" onPress={guardar} desligado={codigo.trim().length < 4} />
+          <Botao label="Confirmar código" onPress={guardar} desligado={codigo.trim().length < 4} />
         </Campo>
       )}
 

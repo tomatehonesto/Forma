@@ -108,6 +108,37 @@ export const isento = (S: State) => clinicaConectada(S);
    um servidor for conferi-los. */
 export const normalizarConvite = (v: string) => v.trim().toUpperCase();
 
+export type Vinculo = { desde: number; convite: string };
+
+/* ⚠️ O CÓDIGO É O VÍNCULO, E NÃO UM PEDIDO DE VÍNCULO.
+
+   O aplicativo nasceu com dois estados: `convite`, o que a pessoa
+   digitou, e `vinculo`, o que sobrava depois de alguém da clínica
+   confirmar. Duas telas diziam a ela "a conferência acontece depois" — e
+   a conta não fecha.
+
+   Quem tem o código recebeu o código DA clínica. Não há nada para a
+   clínica confirmar: ela já confirmou quando entregou o papel. O que a
+   espera criava era uma pessoa parada na quinta à noite, com o código na
+   mão e o aplicativo trancado, esperando a segunda-feira abrir.
+
+   Então digitar é entrar. `convite` continua existindo porque é o que
+   ela escreveu, e `vinculo` é o que o aplicativo faz com isso — mas
+   agora os dois nascem no mesmo toque.
+
+   ⚠️⚠️ E NINGUÉM CONFERE O CÓDIGO, QUE É O BURACO DESTA DECISÃO. ⚠️⚠️
+
+   Não existe lista de códigos válidos em lugar nenhum: qualquer quatro
+   caracteres ligam o vínculo e isentam a assinatura. Hoje isso é
+   inofensivo, porque não há cobrança para burlar. No dia em que houver,
+   é o aplicativo inteiro de graça para quem digitar "ABCD".
+
+   É esta função que vira a chamada ao servidor — ela já é o único lugar
+   que transforma código em vínculo, e por isso já está no formato certo
+   para virar assíncrona. Ver PENDENCIAS.md, item 5. */
+export const vinculoDoConvite = (codigo: string): Vinculo =>
+  ({ desde: Date.now(), convite: normalizarConvite(codigo) });
+
 export type Resultado = { ok: false; motivo: 'nao-implementado' };
 
 /* ⚠️ A COSTURA. Quando a loja entrar, é esta função que passa a abrir a

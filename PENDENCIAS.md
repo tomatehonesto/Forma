@@ -75,6 +75,22 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
   é a mesma promessa vazia.
 
+⚠️⚠️ **QUALQUER CÓDIGO DE QUATRO LETRAS DÁ O APLICATIVO DE GRAÇA.**
+
+O convite deixou de esperar confirmação da clínica: quem tem o código
+recebeu o código dela, e mandar a pessoa esperar a segunda-feira abrir
+com o aplicativo trancado não fazia sentido nenhum. Digitar passou a
+ligar o vínculo na hora, e vínculo isenta a assinatura.
+
+**Só que ninguém confere o código.** Não existe lista de códigos válidos
+em lugar nenhum. Hoje é inofensivo, porque não há cobrança para burlar —
+no dia em que houver, "ABCD" vale uma assinatura. As três portas do
+convite (o cadastro, `/parceiros` e a folha `/codigo`) chamam a mesma
+função, `vinculoDoConvite` em `src/logic/assinatura.ts`, e é ela que
+precisa virar uma chamada ao servidor — já está no formato certo para
+isso. **Ligar a cobrança antes de a conferência existir é abrir a porta
+dos fundos no mesmo dia em que se põe a fechadura na da frente.**
+
 ⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
 CUMPRIR.** A tela anuncia "Começar os 3 dias grátis" em corpo grande, e
 quem concede período gratuito não é o aplicativo: é a **oferta

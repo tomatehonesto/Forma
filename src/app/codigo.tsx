@@ -2,7 +2,7 @@ import React from 'react';
 import { TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { normalizarConvite } from '../logic/assinatura';
+import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { SheetScreen, Txt } from '../ui/kit';
 import { Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -32,6 +32,13 @@ import { ty, radius } from '../theme';
    mão; a explicação do que o vínculo muda mora em /parceiros, que é para
    quem ainda não tem. Uma folha que ensina antes de deixar digitar é a
    mesma fricção que tirar o campo do lugar.
+
+   ⚠️ E CONFIRMAR LIGA NA HORA. A folha já disse que a clínica conferia
+   depois, e isso punha uma pessoa parada na quinta à noite, com o código
+   na mão e o aplicativo trancado, esperando a segunda abrir — para uma
+   clínica que não tem nada a conferir, porque foi ela quem entregou o
+   código. O porquê inteiro está em assinatura.ts, em `vinculoDoConvite`,
+   junto com o buraco que essa decisão abre.
    ============================================================ */
 
 export default function Codigo() {
@@ -46,9 +53,17 @@ export default function Codigo() {
   const vale = limpo.length >= 4;
 
   /* A normalização é a de assinatura.ts, e não uma cópia: "abc123 " e
-     "ABC123" precisam virar o mesmo convite nas três telas que o pedem. */
-  const guardar = () => {
-    update((st: any) => { st.profile.convite = limpo; });
+     "ABC123" precisam virar o mesmo convite nas três telas que o pedem.
+
+     ⚠️ E FECHAR A FOLHA É A CONFIRMAÇÃO, sem tela de parabéns no meio. A
+     pessoa volta para o paywall e ele não pede mais dinheiro — é a
+     própria tela que ela veio resolver dizendo que foi resolvida. Um
+     aviso de sucesso por cima disso seria contar o que já está à vista. */
+  const confirmar = () => {
+    update((st: any) => {
+      st.profile.convite = limpo;
+      st.profile.vinculo = vinculoDoConvite(limpo);
+    });
     router.back();
   };
 
@@ -57,7 +72,7 @@ export default function Codigo() {
       titulo="Código de convite"
       sub="O código que a clínica parceira te passou."
       onClose={() => router.back()}
-      rodape={<Botao label="Guardar código" onPress={guardar} desligado={!vale} />}
+      rodape={<Botao label="Confirmar código" onPress={confirmar} desligado={!vale} />}
     >
       {/* ⚠️ O CAMPO SÓ VESTE O CORPO GRANDE QUANDO EXISTE O QUE VESTIR, e
           isso não é enfeite: no React Native o texto de exemplo não tem
@@ -108,18 +123,21 @@ export default function Codigo() {
         <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>Digite pelo menos 4 caracteres.</Txt>
       ) : null}
 
-      {/* ⚠️ A FOLHA DIZ QUE GUARDAR NÃO CONECTA NADA, porque não conecta:
-          quem transforma código em vínculo é um servidor que ainda não
-          existe. Sem esta linha, fechar a folha depois de digitar parece
-          ter dado certo — e a pessoa fica esperando a equipe aparecer.
+      {/* ⚠️ DUAS FRASES, E CADA UMA RESPONDE UM MEDO DIFERENTE.
 
-          A frase anterior começava com "o código fica guardado com você",
-          que soava a consolo e não a informação: ninguém digita um
-          convite para ficar com ele. O que ela precisa saber é o que
-          falta acontecer, e quem faz acontecer. */}
+          A primeira é "vou ter que esperar?", que é a pergunta de quem
+          digita um código à noite. A segunda é a regra da casa, e ela
+          precisa estar dita AQUI: mudar de clínica, ou entrar numa, é
+          exatamente o momento em que um aplicativo se sente autorizado a
+          "começar do zero com a equipe". Não começa. Peso, aplicações,
+          check-ins, sintomas, exames e fotos são dela, e ela chegou com
+          eles.
+
+          Duas frases anteriores morreram nesta linha: "o código fica
+          guardado com você", que soava a consolo, e "quem confirma é a
+          clínica", que mandava esperar quem não tinha o que esperar. */}
       <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>
-        Guardar o código ainda não liga o vínculo. Quem confirma é a clínica — e é a
-        confirmação dela que abre as mensagens, o envio do resumo e a agenda.
+        O código libera o aplicativo na hora. Nada do que você já registrou muda de lugar.
       </Txt>
     </SheetScreen>
   );
