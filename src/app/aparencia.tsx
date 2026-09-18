@@ -197,21 +197,30 @@ export default function Aparencia() {
           opções, no meio de uma tela cujo assunto é outro. A escolha de
           tema não é o que traz alguém aqui — a cor é. Em pastilha de uma
           linha ela ocupa um terço e continua dizendo a mesma coisa. */}
-      <Bloco titulo="Claro ou escuro" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
+      <Bloco titulo="Escolha o tema" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
         <Row gap={8}>
           {MODOS.map((m) => {
             const on = tema === m.id;
             return (
               <Pressable key={m.id} onPress={() => setTheme(m.id)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
+                {/* ⚠️ O CHIP ESCOLHIDO ERA PRETO, e preto não é cor deste
+                    app: quem marca o escolhido em toda tela daqui é a cor
+                    de ação — a mesma do botão, da aba ativa, do link. Um
+                    neutro aqui fazia a única seleção do aplicativo que não
+                    se parece com as outras.
+
+                    O anel das bolinhas continua neutro, e por um motivo
+                    oposto: ali a cor de ação é a metade de cima do próprio
+                    círculo escolhido, e o anel sumiria dentro dele. */}
                 <Row gap={7} style={{
                   justifyContent: 'center', alignItems: 'center',
-                  backgroundColor: on ? c.tx : c.bg1,
+                  backgroundColor: on ? c.accent : c.bg1,
                   borderRadius: radius.pill,
-                  borderWidth: 1, borderColor: on ? c.tx : c.line,
+                  borderWidth: 1, borderColor: on ? c.accent : c.line,
                   paddingVertical: 10,
                 }}>
-                  <Icon name={m.ic} size={15} color={on ? c.bg1 : c.tx3} sw={1.9} />
-                  <Txt v="label" c={on ? c.bg1 : c.tx2}>{m.nome}</Txt>
+                  <Icon name={m.ic} size={15} color={on ? c.accentInk : c.tx3} sw={1.9} />
+                  <Txt v="label" c={on ? c.accentInk : c.tx2}>{m.nome}</Txt>
                 </Row>
               </Pressable>
             );
