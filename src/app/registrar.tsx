@@ -61,13 +61,37 @@ export default function Registrar() {
      uma tela inteira comemorando o mesmo fato. */
   const tinta = fez ? c.limeInk : c.accentInk;
   const veu = fez ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.18)';
+  const alvos = (S.profile as any).targets;
   const protHoje = Math.round((ci as any)?.prot || 0);
-  const alvoProt = (S.profile as any).targets.prot as number;
+  const alvoProt = alvos.prot as number;
+  const exercHoje = Math.round((ci as any)?.exerc || 0);
+  const alvoExerc = alvos.exercMin as number;
+  const mlHoje = waterMlToday(S);
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
      escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
-  const bebido = litros(waterMlToday(S));
-  const alvoL = litros((S.profile as any).targets.waterMl);
+  const bebido = litros(mlHoje);
+  const alvoL = litros(alvos.waterMl);
   const acoes = ATALHOS;
+
+  /* O CHECK DO ATALHO É A META DO DIA BATIDA, e não "registrei alguma
+     coisa". Um copo d'água não fecha a hidratação do dia, e um atalho que
+     ficasse verde no primeiro copo estaria comemorando o começo — no app
+     inteiro o lima é a cor do alcançado, e alcançado aqui é o alvo que a
+     própria pessoa definiu no perfil.
+
+     Ele passou um bom tempo sem aparecer: o estado dependia de um
+     `piscar` de 1,6 s que nenhuma linha chamava — sobra da época em que a
+     água salvava com um toque aqui dentro. E o lampejo não poderia voltar
+     como era: hoje o atalho fecha a folha e abre a tela de registro, e a
+     comemoração aconteceria atrás de um sheet que já saiu.
+
+     Isto não pisca. É o estado do dia, e continua lá na próxima vez que a
+     folha abrir. */
+  const batida: Record<QuickKey, boolean> = {
+    agua: mlHoje >= alvos.waterMl,
+    refeicao: protHoje >= alvoProt,
+    exercicio: exercHoje >= alvoExerc,
+  };
 
   /* A aplicação era o único item que salvava aqui dentro, num toque, com
      dose e local no automático. Deixou de ser: ela é o registro que mais
@@ -94,7 +118,9 @@ export default function Registrar() {
      sempre coube. */
   const CATALOGO: Record<QuickKey, Item> = {
     agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${bebido} de ${alvoL} L`, to: '/medir-agua' },
-    exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
+    /* "0 min hoje" não dizia contra o quê. Os três comparam com o alvo do
+       perfil agora, que é o mesmo número que acende o lima. */
+    exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${exercHoje} de ${alvoExerc} min`, to: '/medir-exercicio' },
     /* A proteína do dia, como a água e o exercício. "12 registradas" era
        o total desde que o app foi instalado — não responde nada que se
        pergunte antes de comer. */
@@ -249,6 +275,10 @@ export default function Registrar() {
           <Row gap={7} style={{ marginTop: 7, alignItems: 'stretch' }}>
             {acoes.map((k) => {
               const it = CATALOGO[k];
+              /* O mesmo par do banner logo acima: lima cheio e marca de
+                 check. O ícone do assunto dá lugar ao check porque o
+                 rótulo fica logo abaixo e continua dizendo qual é qual. */
+              const ok = batida[k];
               return (
                 <Pressable
                   key={k}
@@ -266,14 +296,17 @@ export default function Registrar() {
                       o rótulo fica centrado nela: o curto não cola no ícone
                       nem abre buraco embaixo, e os três subtítulos caem na
                       mesma linha. */}
-                  <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
-                    <Icon name={it.ic} size={19} color={c.accent} sw={2} />
+                  <View style={{ flex: 1, backgroundColor: ok ? c.lime : c.bg1, borderRadius: radius.lg, paddingHorizontal: 10, paddingVertical: 12, alignItems: 'center' }}>
+                    <Icon name={ok ? 'check' : it.ic} size={19} color={ok ? c.limeInk : c.accent} sw={ok ? 2.6 : 2} />
                     <View style={{ height: ty.caption.lineHeight * 2, marginTop: 8, justifyContent: 'center' }}>
-                      <Txt v="caption" style={{ textAlign: 'center' }} numberOfLines={2}>
+                      <Txt v="caption" c={ok ? c.limeInk : c.tx} style={{ textAlign: 'center' }} numberOfLines={2}>
                         {it.titulo}
                       </Txt>
                     </View>
-                    <Txt v="micro" c={c.tx3} style={{ textAlign: 'center' }} numberOfLines={1}>{it.sub}</Txt>
+                    {/* O número fica, e é ele que explica o lima: "2,6 de
+                        2,5 L" mostra de onde veio o check, em vez de pedir
+                        que a cor seja acreditada. */}
+                    <Txt v="micro" c={ok ? c.limeInk : c.tx3} style={{ textAlign: 'center', opacity: ok ? 0.75 : 1 }} numberOfLines={1}>{it.sub}</Txt>
                   </View>
                 </Pressable>
               );
