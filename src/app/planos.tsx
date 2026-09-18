@@ -1,19 +1,21 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { PLANOS, RECOMENDADO, reais, economiaEmReais, isento, assinar, type Plano } from '../logic/assinatura';
+import {
+  PLANOS, RECOMENDADO, reais, economiaEmReais, isento, assinar, normalizarConvite, type Plano,
+} from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { Marca, D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { paletaDe, mix, alfa, radius, font } from '../theme';
+import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme';
 
 /* ============================================================
    PLANOS — a tela que pede dinheiro
@@ -88,33 +90,80 @@ function IconeDoApp({ lado }: { lado: number }) {
 /* O QUE A ASSINATURA DÁ É O APLICATIVO, e a lista diz isso em coisas que
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
    Cinco linhas, porque a sexta ninguém lê. */
-/* ⚠️ UM SÓ MARCADOR PARA AS CINCO, e não um ícone por assunto.
+/* ⚠️ A LISTA VOLTOU A TER TÍTULO E DESCRIÇÃO, depois de uma passagem só
+   com vistos e uma frase curta.
 
-   No resto do aplicativo o ícone solto é a marca do assunto — água,
-   prato, movimento —, e ali ele ajuda: são destinos diferentes. Aqui não
-   são. As cinco linhas respondem à mesma pergunta, "o que vem junto", e
-   cinco desenhos distintos fazem a lista parecer um menu de seções em
-   vez de uma conta de inclusão.
+   O visto funciona quando o item é óbvio pelo nome — "50 vozes", "sem
+   anúncios". Aqui não é: "as leituras dos seus números" não diz o que a
+   pessoa recebe, e "o assistente" é um substantivo esperando explicação.
+   Quatro itens com uma linha de contexto cada dizem mais do que cinco
+   que a pessoa precisa adivinhar.
 
-   O visto é o que a pessoa já leu em toda tela de plano que viu na vida,
-   e é a única convenção deste desenho que vale copiar de fora: ele diz
-   "isto está incluído" sem precisar de legenda. */
-/* ⚠️ E CADA UMA CABE NUMA LINHA. Em corpo maior, as frases de antes
-   quebravam todas em duas — e uma lista de cinco itens com dez linhas
-   deixa de ser lista. A referência tem razão no tamanho da frase:
-   'Turn anything into audio' cabe porque foi escrita para caber. */
-const ENTRA: string[] = [
-  'O dia inteiro registrado',
-  'As leituras dos seus números',
-  'O resumo para qualquer consulta',
-  'Exames, medidas e fotos',
-  'O assistente, e o prato por foto',
+   QUATRO, E NÃO CINCO: com descrição, o quinto empurrava a barra de
+   decisão para fora da primeira dobra — e uma lista que ninguém termina
+   de ler não ganha nada com o último item. */
+const ENTRA: [string, string, string][] = [
+  ['journey', 'Seu tratamento em um só lugar',
+    'Peso, aplicações, sintomas, exames e fotos no mesmo diário.'],
+  ['chart', 'Seus números, interpretados',
+    'O que a sua evolução mostra, lido a cada semana.'],
+  ['doc', 'O resumo para a consulta',
+    'Tudo organizado num documento pronto para levar.'],
+  ['companion', 'Um assistente para o dia a dia',
+    'Pergunte sobre a sua jornada e registre o prato por foto.'],
 ];
 
 export default function Planos() {
   const S = useStore((s) => s.S);
-  const { c } = useTheme();
+  const update = useStore((s) => s.update);
   const router = useRouter();
+
+  /* ⚠️ ESTA TELA É SEMPRE ESCURA, e é a única do aplicativo que ignora a
+     escolha de tema da pessoa.
+
+     Não é capricho de composição: o alto dela é a aurora, que é uma
+     imagem escura com véu por cima, e no tema claro o resto da tela
+     ficava branco embaixo de um cabeçalho noturno — a emenda aparecia no
+     meio e a barra do pé virava uma faixa clara colada numa tela escura.
+
+     E há a razão maior: o paywall é uma interrupção, não um lugar onde se
+     mora. Ele chega por cima do aplicativo, entrega uma decisão e sai. As
+     telas que se comportam assim no resto do app — o hero da Home, o
+     check-in concluído, o Insights — também são escuras por baixo da
+     aurora, e o tema claro nunca as clareou.
+
+     A paleta escolhida continua valendo: o que se fixa é o modo, e não a
+     cor. Quem está no Pitaia vê o paywall em magenta.
+
+     ⚠️ MAS A COR DE AÇÃO É A CLARA, E NÃO A DO MODO ESCURO.
+
+     Cada paleta tem dois tons de ação: o cheio, que é o do Figma e o da
+     marca — #065CF5 no azul —, e um mais claro que o tema escuro usa
+     para não afundar num fundo já escuro. Fixar o modo trouxe o segundo
+     junto, e o botão desta tela apareceu num azul que não é o da marca.
+
+     O motivo do tom claro existir não vale aqui: ele serve a telas
+     escuras em que a cor precisa competir com muito conteúdo. Esta tela
+     é quase toda preta, e o azul cheio salta nela do mesmo jeito que
+     salta no claro — com a vantagem de ser o azul que a pessoa viu na
+     loja, no ícone e na abertura.
+
+     Então o modo é escuro e a cor de ação é a da marca. O resto da
+     paleta escura fica como está: fundo, tinta, fios e o lima. */
+  const c = React.useMemo(() => {
+    const base = comPaleta(dark, (S as any).paleta, true);
+    const pal = paletaDe((S as any).paleta);
+    return {
+      ...base,
+      accent: pal.acaoClara,
+      /* No escuro o segundo tom clareia, e é ele que veste link e texto
+         sobre fundo preto — a mesma regra do resto do aplicativo. */
+      accent2: mix(pal.acaoClara, '#FFFFFF', 0.22),
+      accentInk: pal.inkClaro,
+      accentWeak: alfa(pal.acaoClara, 0.22),
+      accentLine: alfa(pal.acaoClara, 0.38),
+    };
+  }, [(S as any).paleta]);
   const insets = useSafeAreaInsets();
 
   /* ⚠️ O X PRECISA FUNCIONAR NAS DUAS ENTRADAS.
@@ -144,6 +193,31 @@ export default function Planos() {
      chutado aqui deixaria a última linha do rolo escondida atrás dela
      justamente para quem aumentou a letra. */
   const [alturaDaBarra, setAlturaDaBarra] = React.useState(230);
+
+  /* ⚠️ O CÓDIGO ENTRA AQUI, E NÃO NUMA TELA AO LADO.
+
+     Ele já tem casa em /parceiros, que explica o que o vínculo muda. Mas
+     quem chega ao paywall com o código do consultório na mão quer digitar
+     AGORA: mandá-la para uma tela de explicação primeiro é pedir que ela
+     leia sobre a coisa que já veio decidida a fazer.
+
+     E fica na área fixa pelo mesmo motivo que o preço fica: é uma das
+     duas saídas desta tela, e a outra está a um dedo de distância. Quem
+     tem código não deveria precisar rolar para não pagar.
+
+     Fechado, é uma linha. Só vira campo quando alguém diz que tem um —
+     um teclado aberto embaixo de um botão de compra é a tela tentando
+     fazer duas coisas ao mesmo tempo. */
+  const guardado = ((S.profile as any).convite as string) || '';
+  const [abrindoCodigo, setAbrindoCodigo] = React.useState(false);
+  const [codigo, setCodigo] = React.useState('');
+
+  const guardarCodigo = () => {
+    const v = normalizarConvite(codigo);
+    update((st: any) => { st.profile.convite = v; });
+    setAbrindoCodigo(false);
+    setCodigo('');
+  };
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
@@ -200,7 +274,7 @@ export default function Planos() {
             É a diferença entre "parece um app bonito" e "é o app que eu
             estou usando", e é de graça: a peça já existe, já segue a
             paleta e já veste o resto do aplicativo. */}
-        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 30 }}>
+        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 22 }}>
           <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
           <LinearGradient
             colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
@@ -221,14 +295,13 @@ export default function Planos() {
               A marca por extenso é o lockup, com o símbolo em lima e o
               letreiro em branco. É a mesma peça da abertura do cadastro,
               que foi a última vez que essa pessoa viu o nome. */}
-          <View style={{ alignItems: 'center', gap: 12, marginTop: 34 }}>
+          <View style={{ alignItems: 'center', gap: 10, marginTop: 30 }}>
             <Marca altura={26} />
             <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
               O tratamento inteiro,{'\n'}num lugar só
             </Txt>
             <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
-              Um plano só, com tudo dentro. Não existe função melhor guardada atrás de
-              um plano melhor.
+              Um plano só, com o aplicativo inteiro dentro.
             </Txt>
           </View>
         </View>
@@ -252,11 +325,23 @@ export default function Planos() {
             movimento" —, e cinco parágrafos empilhados numa tela de preço
             é o texto que ninguém lê exatamente onde a pessoa mais precisa
             entender. A lista é uma varredura, não uma leitura. */}
-        <View style={{ gap: 16, marginTop: 6 }}>
-          {ENTRA.map((t) => (
-            <Row key={t} gap={14} style={{ alignItems: 'center' }}>
-              <Icon name="check" size={17} color={c.accent} sw={2.4} />
-              <Txt v="body" style={{ flex: 1 }}>{t}</Txt>
+        <View style={{ gap: 18, marginTop: 6 }}>
+          {ENTRA.map(([ic, t, sub]) => (
+            <Row key={t} gap={14} style={{ alignItems: 'flex-start' }}>
+              {/* A PASTILHA VOLTA AQUI, e só aqui. No resto do app o ícone
+                  fica solto na lista; nesta o item tem duas linhas, e sem
+                  a caixa o desenho flutuava ao lado de um bloco de texto
+                  em vez de ancorá-lo. */}
+              <View style={{
+                width: 38, height: 38, borderRadius: radius.md,
+                backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name={ic} size={18} color={c.accent} sw={1.9} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="bodyMed">{t}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 19 }}>{sub}</Txt>
+              </View>
             </Row>
           ))}
         </View>
@@ -265,19 +350,6 @@ export default function Planos() {
             preços viram um bloco só, e a pessoa lê o valor antes de ter
             terminado de ler o que ele compra. */}
         <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginTop: 24 }} />
-
-        {/* ---- o código ---- */}
-        {TEM_REDE_PARCEIRA ? (
-          <Pressable
-            onPress={() => router.push('/parceiros' as any)}
-            style={({ pressed }) => [{ marginTop: 22, opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
-              <Icon name="steth" size={15} color={c.accent2} sw={1.9} />
-              <Txt v="label" c={c.accent2}>Tenho um código de um especialista parceiro</Txt>
-            </Row>
-          </Pressable>
-        ) : null}
 
         <Row gap={16} style={{ marginTop: 24, justifyContent: 'center' }}>
           {([
@@ -342,14 +414,21 @@ export default function Planos() {
                         </View>
                       ) : null}
                     </Row>
-                    <Txt v="h2" style={{ marginTop: 4 }}>{reais(p.porMes)}</Txt>
-                    <Txt v="micro" c={c.tx3}>por mês</Txt>
-                    {/* ⚠️ O PREÇO CHEIO FICA À VISTA. Mostrar só "por mês" num
-                        plano anual é a conta que o anúncio faz e a fatura
-                        desmente. E o mensal responde a mesma pergunta na
-                        mesma linha, para os dois cartões terminarem juntos. */}
+                    {/* ⚠️ O NÚMERO GRANDE É O QUE A LOJA COBRA, e não o
+                        equivalente mensal. Estava ao contrário: o anual
+                        anunciava R$ 16,66 em corpo grande e escondia os
+                        R$ 199,90 numa linha miúda embaixo — que é
+                        exatamente "a conta que o anúncio faz e a fatura
+                        desmente", escrita por mim no comentário de cima
+                        enquanto eu fazia a conta do anúncio.
+
+                        Agora o corpo grande é a cobrança e o equivalente
+                        por mês vem embaixo, onde ele é o argumento que é:
+                        uma ajuda para comparar, e não o preço. */}
+                    <Txt v="h2" style={{ marginTop: 4 }}>{reais(p.preco)}</Txt>
+                    <Txt v="micro" c={c.tx3}>{p.periodo}</Txt>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
-                      {p.id === 'anual' ? `${reais(p.preco)} ${p.periodo}` : 'cobrado todo mês'}
+                      {p.id === 'anual' ? `${reais(p.porMes)} por mês` : 'cobrado todo mês'}
                     </Txt>
                   </View>
                 </Pressable>
@@ -394,6 +473,57 @@ export default function Planos() {
             Renova {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar, pela loja.
             Sete dias para desistir, e cancelar não apaga registro nenhum.
           </Txt>
+
+          {/* ---- o código do parceiro ---- */}
+          {TEM_REDE_PARCEIRA ? (
+            <View style={{ marginTop: 14 }}>
+              {guardado ? (
+                <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="check" size={14} color={c.lime} sw={2.4} />
+                  <Txt v="micro" c={c.tx3}>Código {guardado} guardado</Txt>
+                </Row>
+              ) : abrindoCodigo ? (
+                <Row gap={8} style={{ alignItems: 'center' }}>
+                  <TextInput
+                    value={codigo}
+                    onChangeText={(v) => setCodigo(v.toUpperCase())}
+                    placeholder="Código da clínica"
+                    placeholderTextColor={c.tx4}
+                    autoFocus
+                    autoCapitalize="characters"
+                    style={[ty.caption, {
+                      flex: 1, color: c.tx, backgroundColor: c.bg1,
+                      borderWidth: 1, borderColor: c.line,
+                      borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11,
+                    }]}
+                  />
+                  <Pressable
+                    onPress={guardarCodigo}
+                    disabled={normalizarConvite(codigo).length < 4}
+                    style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                  >
+                    <View style={{
+                      backgroundColor: normalizarConvite(codigo).length < 4 ? c.bg3 : c.accentWeak,
+                      borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12,
+                    }}>
+                      <Txt v="label" c={normalizarConvite(codigo).length < 4 ? c.tx4 : c.accent2}>Guardar</Txt>
+                    </View>
+                  </Pressable>
+                </Row>
+              ) : (
+                <Pressable
+                  onPress={() => setAbrindoCodigo(true)}
+                  hitSlop={8}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Row gap={7} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon name="steth" size={14} color={c.accent2} sw={1.9} />
+                    <Txt v="label" c={c.accent2}>Tenho um código de convite</Txt>
+                  </Row>
+                </Pressable>
+              )}
+            </View>
+          ) : null}
 
         </View>
       </View>

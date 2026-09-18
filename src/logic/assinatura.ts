@@ -68,6 +68,13 @@ export const economiaEmReais = () => {
     que os Termos prometem na seção de assinatura. */
 export const isento = (S: State) => clinicaConectada(S);
 
+/* ⚠️ O CÓDIGO SE GUARDA NUM LUGAR SÓ, e agora há duas telas que o
+   pedem: a de parceiros, que explica o que ele faz, e a de planos, que é
+   onde a pessoa está quando ele importa. Normalizar em dois lugares é
+   como "ABC123" e "abc123 " viram dois convites diferentes no dia em que
+   um servidor for conferi-los. */
+export const normalizarConvite = (v: string) => v.trim().toUpperCase();
+
 export type Resultado = { ok: false; motivo: 'nao-implementado' };
 
 /* ⚠️ A COSTURA. Quando a loja entrar, é esta função que passa a abrir a

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { clinicaConectada } from '../logic/derive';
+import { normalizarConvite } from '../logic/assinatura';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -58,7 +59,7 @@ export default function Parceiros() {
      um, a pergunta a fazer é: o que estou apagando de alguém que só
      digitou oito letras? */
   const guardar = () => {
-    const v = codigo.trim().toUpperCase();
+    const v = normalizarConvite(codigo);
     update((s: any) => { s.profile.convite = v; });
     setCodigo(v);
     setTrocando(false);
