@@ -6,7 +6,7 @@ import Svg, { Path } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { PLANOS, RECOMENDADO, TESTE_DIAS, reais, isento, assinar, type Plano } from '../logic/assinatura';
+import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
@@ -644,11 +644,29 @@ export default function Planos() {
                     borderWidth: 1.5, borderColor: on ? c.accent : c.line,
                     borderRadius: radius.lg, padding: 12, gap: 2, justifyContent: 'center',
                   }}>
+                    {/* ⚠️ UM SELO POR CARTÃO, E CADA UM DE UMA COR, porque
+                        são argumentos diferentes e não graus do mesmo.
+
+                        O desconto usa a cor de ação: ele é a razão de
+                        escolher ESTE plano, e acompanha a seleção. O teste
+                        usa o lima, que no resto do aplicativo é a cor do
+                        alcançado — a meta batida, o check-in feito —, e
+                        aqui cai sobre a única coisa da tela que não custa
+                        nada. Ele não acompanha a seleção porque não é uma
+                        preferência: é um fato do plano.
+
+                        Os dois nunca aparecem juntos no mesmo cartão. Se um
+                        dia aparecerem, este Row precisa de outra solução —
+                        não cabem dois selos em 139 px de linha. */}
                     <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                       <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
                       {p.economia ? (
                         <View style={{ backgroundColor: on ? c.accent : c.bg3, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
                           <Txt v="micro" c={on ? c.accentInk : c.tx3}>−{p.economia}%</Txt>
+                        </View>
+                      ) : p.teste ? (
+                        <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
+                          <Txt v="micro" c={c.limeInk}>{p.teste} dias grátis</Txt>
                         </View>
                       ) : null}
                     </Row>
@@ -735,7 +753,7 @@ export default function Planos() {
               <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
                 <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
                   <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-                    {TESTE_DIAS > 0 ? `Começar os ${TESTE_DIAS} dias grátis` : `Assinar — ${reais(plano.preco)}`}
+                    {plano.teste ? `Começar os ${plano.teste} dias grátis` : `Assinar — ${reais(plano.preco)}`}
                   </Txt>
                 </View>
               </Pressable>
@@ -762,8 +780,8 @@ export default function Planos() {
               </Row>
 
               <Txt v="micro" c={c.tx4} style={{ marginTop: 8, textAlign: 'center', lineHeight: 16 }}>
-                {TESTE_DIAS > 0
-                  ? `Depois de ${TESTE_DIAS} dias, ${reais(plano.preco)} ${plano.periodo}. Cancele antes e não paga nada.`
+                {plano.teste
+                  ? `Depois de ${plano.teste} dias, ${reais(plano.preco)} ${plano.periodo}. Cancele antes e não paga nada.`
                   : `${reais(plano.preco)} ${plano.periodo}, renovando até você cancelar.`}
               </Txt>
             </>

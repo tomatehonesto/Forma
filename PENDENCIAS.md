@@ -94,9 +94,14 @@ dos fundos no mesmo dia em que se põe a fechadura na da frente.**
 ⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
 CUMPRIR.** A tela anuncia "Começar os 3 dias grátis" em corpo grande, e
 quem concede período gratuito não é o aplicativo: é a **oferta
-introdutória** configurada na App Store Connect e no Google Play Console,
-presa ao mesmo produto de assinatura. Enquanto ela não existir lá, ligar
-a cobrança é cobrar alguém que leu "comece o teste".
+introdutória** configurada na App Store Connect e no Google Play Console.
+Enquanto ela não existir lá, ligar a cobrança é cobrar alguém que leu
+"comece o teste".
+
+**E ela é do produto MENSAL, e só dele.** O teste é o argumento do plano
+de quem ainda não decidiu; o anual defende o desconto. Configurar a
+oferta introdutória no produto anual por engano dá um ano de graça a cada
+três dias de teste.
 
 E ele **não é** o arrependimento do CDC. Os Termos descrevem sete dias
 para desistir com reembolso (art. 49) — direito de quem já comprou. O

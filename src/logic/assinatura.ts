@@ -32,7 +32,9 @@ import { clinicaConectada } from './derive';
    `TESTE_DIAS` abaixo é decisão de produto, e a tela a anuncia em corpo
    grande. Mas quem concede período gratuito não é o aplicativo: é a
    oferta introdutória configurada na App Store Connect e no Google Play
-   Console, presa ao mesmo produto de assinatura.
+   Console — e agora presa ao produto MENSAL, que é o único que oferece o
+   teste. Configurá-la no anual por engano dá um ano de graça a cada três
+   dias de teste.
 
    Enquanto ela não estiver configurada lá, a tela promete três dias que
    a loja não vai dar — e o dia em que a cobrança for ligada sem isso é o
@@ -45,6 +47,11 @@ import { clinicaConectada } from './derive';
    nenhum dos dois pode ser anunciado no lugar do outro, e a seção 7 dos
    Termos ainda não fala do teste. Ver o mesmo item.
    ============================================================ */
+
+/** Dias de teste gratuito antes da primeira cobrança, no plano que o
+    oferece. Zero desliga o anúncio do teste na tela inteira — é assim que
+    se tira, e não apagando frase por frase. */
+export const TESTE_DIAS = 3;
 
 export type Plano = {
   id: 'mensal' | 'anual';
@@ -64,6 +71,20 @@ export type Plano = {
   outraUnidade: { valor: number; periodo: string };
   /** quanto se economiza contra o mensal, em pontos percentuais */
   economia?: number;
+  /* ⚠️ O TESTE É DE UM PLANO SÓ, E ISSO É A TELA INTEIRA EM UMA LINHA.
+
+     Ele era global: os dois cartões ofereciam três dias grátis e o botão
+     dizia a mesma coisa em qualquer escolha, o que deixava os dois planos
+     com o mesmo argumento e uma diferença de preço no meio.
+
+     Cada cartão passa a defender uma coisa. O mensal oferece o teste —
+     é o plano de quem ainda não decidiu, e o que ele precisa é de uma
+     porta barata para experimentar. O anual oferece o desconto — é o
+     plano de quem já decidiu, e o que ele precisa é de uma razão para
+     comprometer o ano. Oferecer os dois nos dois é não oferecer nenhum.
+
+     Zero, ou ausente, desliga o anúncio do teste na tela inteira. */
+  teste?: number;
 };
 
 /* ⚠️ O SELO DE ECONOMIA É UMA CONTA, e ela precisa fechar: 299 contra
@@ -74,7 +95,7 @@ export type Plano = {
 export const PLANOS: Plano[] = [
   {
     id: 'mensal', nome: 'Mensal', preco: 49.9, periodo: 'por mês', sufixo: '/mês',
-    outraUnidade: { valor: 49.9 * 12, periodo: 'por ano' },
+    outraUnidade: { valor: 49.9 * 12, periodo: 'por ano' }, teste: TESTE_DIAS,
   },
   {
     id: 'anual', nome: 'Anual', preco: 299, periodo: 'por ano', sufixo: '/ano',
@@ -83,11 +104,6 @@ export const PLANOS: Plano[] = [
 ];
 
 export const RECOMENDADO: Plano['id'] = 'anual';
-
-/** Dias de teste gratuito antes da primeira cobrança. Zero desliga o
-    anúncio do teste na tela inteira — é assim que se tira, e não
-    apagando frase por frase. */
-export const TESTE_DIAS = 3;
 
 export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 
