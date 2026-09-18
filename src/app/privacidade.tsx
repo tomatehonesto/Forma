@@ -1,10 +1,12 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useStore } from '../logic/store';
 import { aparelhoDaVez } from '../logic/integracoes';
 import { temIdentificacao } from '../logic/documentos';
-import { Txt } from '../ui/kit';
+import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -47,9 +49,62 @@ function Bloquinho({ titulo, children }: { titulo: string; children: React.React
   );
 }
 
+/** Apagar tudo — a linha que se arma antes de agir.
+
+    Duas perguntas, e não uma. A primeira é o toque na linha; a segunda é
+    a frase que diz o que vai embora e que não há cópia em lugar nenhum.
+    "Tem certeza?" é a pergunta que não informa nada, e é exatamente a que
+    as pessoas respondem "sim" no automático.
+
+    O desarmado não usa vermelho: a cor de erro deste app significa coisa
+    clínica — sintoma grave, exame fora da faixa. Ele aparece no "Apagar"
+    da confirmação, que é onde de fato há perigo.
+
+    MUDOU DE TELA. Estava no perfil, ao lado de tema e ajuda; agora mora
+    aqui, junto da explicação do que some — que é a informação que a
+    segunda pergunta precisa ter por trás. */
+function Apagar({ onApagar }: { onApagar: () => void }) {
+  const { c } = useTheme();
+  const [armado, setArmado] = React.useState(false);
+
+  if (armado) {
+    return (
+      <Row gap={12} style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+          Apagar tudo? Não há cópia em lugar nenhum.
+        </Txt>
+        <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.tx3}>Cancelar</Txt>
+        </Pressable>
+        <Pressable onPress={onApagar} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.cta}>Apagar</Txt>
+        </Pressable>
+      </Row>
+    );
+  }
+
+  return (
+    <Pressable onPress={() => setArmado(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+      <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+        <View style={{ width: 34, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="trash" size={20} color={c.accent} sw={1.9} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Txt v="body">Apagar meus dados</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
+            Tudo que você registrou, sem volta
+          </Txt>
+        </View>
+      </Row>
+    </Pressable>
+  );
+}
+
 export default function Privacidade() {
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
+  const reset = useStore((s) => s.reset);
+  const apagarTudo = () => { reset(); router.replace('/cadastro' as any); };
 
   return (
     <TelaInterna titulo="Privacidade e dados">
@@ -112,6 +167,15 @@ export default function Privacidade() {
         </Cartao>
       </Bloco>
 
+      {/* ⚠️ AS CINCO PORTAS DOS DADOS MORAM AQUI, e não espalhadas pelo
+          perfil. Exportar, apagar e os dois documentos estavam listados
+          lá fora, ao lado de tema e ajuda — cinco linhas de um assunto só,
+          longe da tela que explica esse assunto.
+
+          Quem abre "Privacidade e dados" quer saber o que acontece com os
+          seus dados E poder agir sobre eles. Ler a explicação e ter de
+          voltar para achar o botão é a tela dizendo o que fazer sem
+          deixar fazer. */}
       <Bloco titulo="O que você pode fazer agora">
         <Cartao>
           <Linha ic="doc" titulo="Exportar seus dados"
@@ -120,6 +184,7 @@ export default function Privacidade() {
             sub={`Ligar ou desligar o ${APP_DE_SAUDE}`} onPress={go('/integracoes')} />
           <Linha ic="doc" titulo="Resumo para o médico"
             sub="Ver exatamente o que a sua equipe recebe" onPress={go('/resumo-medico')} />
+          <Apagar onApagar={apagarTudo} />
         </Cartao>
       </Bloco>
 

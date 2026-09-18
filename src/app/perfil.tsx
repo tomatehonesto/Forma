@@ -13,7 +13,6 @@ import {
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
-import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
 
 /* A MESMA FOTO DA ABA CUIDADO. Uma pessoa, um retrato: se o app tivesse
@@ -21,8 +20,8 @@ import { Icon } from '../ui/Icon';
    trocada. */
 const FOTO_MEDICA = require('../../assets/images/especialista.png');
 import { useTheme } from '../ui/useTheme';
-import { radius, font, CORES, corDe } from '../theme';
-import { CANAL, temIdentificacao } from '../logic/documentos';
+import { radius, font, corDe, destaqueDe } from '../theme';
+import { CANAL } from '../logic/documentos';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
 
@@ -113,119 +112,12 @@ function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta, largo }
   );
 }
 
-/** Apagar tudo — a linha que se arma antes de agir.
-
-    Duas perguntas, e não uma. A primeira é o toque na linha; a segunda é
-    a frase que diz o que vai embora e que não há cópia em lugar nenhum.
-    "Tem certeza?" é a pergunta que não informa nada, e é exatamente a que
-    as pessoas respondem "sim" no automático.
-
-    O desarmado não usa vermelho: a cor de erro deste app significa coisa
-    clínica — sintoma grave, exame fora da faixa. Ele aparece no "Apagar"
-    da confirmação, que é onde de fato há perigo. */
-function Apagar({ onApagar }: { onApagar: () => void }) {
-  const { c } = useTheme();
-  const [armado, setArmado] = React.useState(false);
-
-  if (armado) {
-    return (
-      <Row gap={12} style={{ alignItems: 'center' }}>
-        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-          Apagar tudo? Não há cópia em lugar nenhum.
-        </Txt>
-        <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-          <Txt v="label" c={c.tx3}>Cancelar</Txt>
-        </Pressable>
-        <Pressable onPress={onApagar} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-          <Txt v="label" c={c.cta}>Apagar</Txt>
-        </Pressable>
-      </Row>
-    );
-  }
-
-  return (
-    <Pressable onPress={() => setArmado(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-      <Row gap={12}>
-        <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="trash" size={20} color={c.tx2} sw={1.8} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Txt v="body">Apagar meus dados</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-            Pesagens, aplicações, check-ins e exames
-          </Txt>
-        </View>
-      </Row>
-    </Pressable>
-  );
-}
-
-/** A cor do aplicativo — cinco pastilhas que trocam a cor de ação.
-
-    ESCOLHER É VER. Uma tela separada com nomes de cor pediria um toque
-    para entrar, um para escolher e um para voltar, e no meio disso a
-    pessoa não veria o que mudou. Aqui o toque é o resultado: o app
-    inteiro vira daquela cor atrás do dedo, e a própria pastilha marcada
-    já está na cor nova.
-
-    O NOME FICA À DIREITA, e não debaixo de cada pastilha: cinco rótulos
-    de cinco letras numa linha de 300 px seriam ilegíveis, e o que
-    importa saber é qual está valendo — não como se chama cada uma das
-    que não estão.
-
-    O LIMA NÃO ESTÁ AQUI, e é a única regra desta peça: ele é a cor do
-    alcançado em toda tela do app, e não uma preferência. Ver CORES, em
-    src/theme.ts. */
-function Cores() {
-  const { c, isDark } = useTheme();
-  const atual = useStore((s) => (s.S as any).cor as string | undefined) ?? 'azul';
-  const setCor = useStore((s) => s.setCor);
-
-  return (
-    <View style={{ gap: 12 }}>
-      <Row gap={12}>
-        <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="palette" size={20} color={c.tx2} sw={1.8} />
-        </View>
-        <Txt v="body" style={{ flex: 1 }}>Cor do aplicativo</Txt>
-        <Txt v="caption" c={c.tx3}>{corDe(atual).nome}</Txt>
-      </Row>
-
-      <Row gap={10} style={{ paddingLeft: 44 }}>
-        {CORES.map((x) => {
-          const on = x.id === atual;
-          const tom = isDark ? x.escuro : x.claro;
-          return (
-            <Pressable key={x.id} onPress={() => setCor(x.id)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-              {/* O ANEL MARCA A ESCOLHIDA, e ele é da própria cor com um
-                  vão do fundo no meio: um check branco por cima
-                  funcionaria no azul e sumiria no âmbar. */}
-              <View style={{
-                width: 32, height: 32, borderRadius: 16,
-                alignItems: 'center', justifyContent: 'center',
-                borderWidth: on ? 2 : 0, borderColor: tom,
-              }}>
-                <View style={{
-                  width: on ? 22 : 28, height: on ? 22 : 28,
-                  borderRadius: 14, backgroundColor: tom,
-                }} />
-              </View>
-            </Pressable>
-          );
-        })}
-      </Row>
-    </View>
-  );
-}
-
 export default function Perfil() {
   const S = useStore((s) => s.S);
   /* Contada do ano de nascimento, e não guardada: idade guardada
      envelhece errado — o perfil diria 38 anos para sempre. */
   const idade = idadeDe(S);
-  const setTheme = useStore((s) => s.setTheme);
   const update = useStore((s) => s.update);
-  const reset = useStore((s) => s.reset);
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
   /* O que ela já andou: começo menos hoje. Negativo quando o peso subiu,
@@ -647,58 +539,42 @@ export default function Perfil() {
           parecia um item e não era, e o dedo passava por ele toda vez.
           Número de versão é rodapé — serve para citar num suporte, e não
           para escolher nada. Foi para o fim da tela, em letra pequena. */}
+      {/* ---- personalize o aplicativo ----
+
+          ⚠️ A ESCOLHA DE COR ERA UMA FILEIRA DE PASTILHAS AQUI DENTRO, e
+          ela só dava conta de uma cor. São duas, e o que importa não é
+          cada uma: é o PAR — uma cor de ação e uma de alcançado muito
+          próximas fazem o botão e a marca do que já foi feito virarem a
+          mesma coisa, e não há como perceber isso olhando pastilhas
+          soltas numa lista de configuração.
+
+          Virou tela, com a prévia em cima: ícone, botão e selo juntos, na
+          combinação atual. E o tema foi junto, porque claro/escuro é a
+          terceira decisão do mesmo assunto. */}
       <Grupo title="Personalize o aplicativo">
-        <Row gap={12}>
-          <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name={isDark ? 'moonToggle' : 'sun'} size={20} color={c.tx2} sw={1.8} />
-          </View>
-          <Txt v="body" style={{ flex: 1 }}>Tema</Txt>
-          <Segmentado
-            opcoes={['Claro', 'Escuro']}
-            valor={isDark ? 'Escuro' : 'Claro'}
-            onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
-          />
-        </Row>
-        <Cores />
+        <ListRow ic="palette" title="Aparência"
+          sub={`${corDe((S as any).cor).nome} e ${destaqueDe((S as any).destaque).nome} · tema ${isDark ? 'escuro' : 'claro'}`}
+          onPress={go('/aparencia')} />
       </Grupo>
 
-      {/* ---- privacidade e dados ---- */}
-      <Grupo title="Privacidade e dados">
-        {/* PRIVACIDADE VEM ANTES DE EXPORTAR, porque uma explica a outra:
-            quem abre esta seção querendo saber o que o app faz com os
-            dados dele encontra primeiro a resposta, e depois o botão. */}
+      {/* ---- ajuda e dados ----
+
+          ⚠️ ISTO JÁ FOI "CONFIGURAÇÕES" COM OITO LINHAS, e depois três
+          seções. Três era demais para o que sobrou: privacidade,
+          exportação, apagar, termos e política são o MESMO assunto — os
+          seus dados — e quatro deles viraram linha de dentro da tela de
+          Privacidade, que é onde a explicação deles já mora.
+
+          O perfil não precisa listar as cinco portas; precisa de uma que
+          leve ao lugar onde elas estão explicadas. Aqui ficam três: os
+          dados, a ajuda e o relato de problema. */}
+      <Grupo title="Ajuda e dados">
         <ListRow ic="lock" title="Privacidade e dados"
-          sub="O que fica no aparelho e o que sai dele" onPress={go('/privacidade')} />
-        <ListRow ic="doc" title="Exportar seus dados"
-          sub="Monte um arquivo com o que você registrou" onPress={go('/exportar')} />
-        <Apagar onApagar={() => { reset(); router.replace('/cadastro' as any); }} />
-      </Grupo>
-
-      {/* ---- ajuda e documentos ----
-
-          ⚠️ ISTO ERA UMA SEÇÃO SÓ, CHAMADA "CONFIGURAÇÕES", e ela não
-          aguentou crescer. Tema, privacidade, exportação, apagar, ajuda,
-          termos, política e reportar problema não são o mesmo assunto:
-          são a aparência do app, o que ele faz com os seus dados, e onde
-          pedir ajuda. Oito linhas debaixo de um nome genérico viram um
-          depósito — e é assim que uma pessoa procura "termos" e não acha.
-
-          Os documentos só aparecem quando a identificação da empresa
-          estiver completa. Um link para "Termos de Uso" que abre um texto
-          sem quem responde por ele é pior do que não ter link. */}
-      <Grupo title="Ajuda e documentos">
+          sub="O que fica no aparelho, exportar, apagar e os documentos" onPress={go('/privacidade')} />
         <ListRow ic="info" title="Ajuda"
           sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
         <ListRow ic="journey" title="Reportar um problema"
           sub="Conte o que aconteceu — vai com a versão do app" onPress={reportar} />
-        {temIdentificacao() ? (
-          <ListRow ic="doc" title="Termos de Uso"
-            sub="O que o Morphi é, e o que cada lado pode esperar" onPress={go('/documento?id=termos')} />
-        ) : null}
-        {temIdentificacao() ? (
-          <ListRow ic="lock" title="Política de Privacidade"
-            sub="O documento completo, com base legal e prazos" onPress={go('/documento?id=privacidade')} />
-        ) : null}
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do

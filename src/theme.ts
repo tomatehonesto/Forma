@@ -379,6 +379,14 @@ export const corDe = (id?: string) => CORES.find((x) => x.id === id) ?? CORES[0]
    muda cinco vezes por ano. */
 const guardadas = new Map<string, Palette>();
 
+/* AS DUAS ESCOLHAS, NUMA CHAMADA SÓ. A ação e o destaque são
+   independentes — trocar uma não mexe na outra — e quem combina as duas
+   é esta função, para que nenhuma tela precise saber que existe escolha
+   de cor. */
+export function comPaleta(p: Palette, cor: string | undefined, destaque: string | undefined, isDark: boolean): Palette {
+  return comDestaque(comCor(p, cor, isDark), destaque, isDark);
+}
+
 export function comCor(p: Palette, id: string | undefined, isDark: boolean): Palette {
   const cor = corDe(id);
   if (cor.id === 'azul') return p;
@@ -417,4 +425,69 @@ export function comCor(p: Palette, id: string | undefined, isDark: boolean): Pal
 
   guardadas.set(chave, paleta);
   return paleta;
+}
+
+/* ============================================================
+   A COR DE DESTAQUE
+
+   O lima é a cor do ALCANÇADO neste app: check-in feito, meta batida,
+   nível de conquista, botão de começar. Essa função não muda — o que
+   muda é a tinta que a cumpre.
+
+   E é uma função, não decoração: o app inteiro lê "esta coisa aconteceu"
+   quando vê essa cor. Por isso todas as opções são claras e saturadas,
+   com tinta escura por cima: uma cor de destaque escura inverteria a
+   leitura, e "alcançado" passaria a parecer "desativado".
+
+   ⚠️ NENHUMA DELAS É A COR DE AÇÃO. Destaque e ação precisam se separar
+   à primeira vista — se as duas forem azuis, o botão que leva a algum
+   lugar e a marca do que já foi feito viram a mesma coisa. Quem escolhe
+   as duas pode chegar perto; a tela de aparência mostra o par junto,
+   justamente para essa escolha ser feita olhando.
+   ============================================================ */
+export type Destaque = {
+  id: string;
+  nome: string;
+  /** a cor cheia */
+  claro: string;
+  /** a tinta que vai por cima dela — escura em todas, de propósito */
+  ink: string;
+};
+
+export const DESTAQUES: Destaque[] = [
+  { id: 'lima', nome: 'Lima', claro: '#DDF62C', ink: '#0A0A0A' },
+  { id: 'turquesa', nome: 'Turquesa', claro: '#2BE8C8', ink: '#04211C' },
+  { id: 'coral', nome: 'Coral', claro: '#FF8A5B', ink: '#2B0F04' },
+  { id: 'ouro', nome: 'Ouro', claro: '#FFC93C', ink: '#2B1E04' },
+  { id: 'rosa', nome: 'Rosa', claro: '#FF85B3', ink: '#2B0715' },
+];
+
+export const destaqueDe = (id?: string) => DESTAQUES.find((x) => x.id === id) ?? DESTAQUES[0];
+
+/* A FAMÍLIA DO DESTAQUE, derivada da cor cheia como a da ação é da dela.
+
+   São sete tons e cada um tem um papel que já existia no tema: o cheio,
+   o rebaixado da barra, a tinta por cima, o véu de fundo, a lavagem do
+   selo com a sua tinta escura, e a pálida da barra de meta. */
+function comDestaque(p: Palette, id: string | undefined, isDark: boolean): Palette {
+  const d = destaqueDe(id);
+  if (d.id === 'lima') return p;
+
+  const base = d.claro;
+  return {
+    ...p,
+    lime: base,
+    limeDim: escurecer(base, 0.1),
+    limeInk: d.ink,
+    limeWeak: alfa(base, isDark ? 0.16 : 0.18),
+    /* O selo é lavagem com tinta escura por cima, e no escuro é o
+       contrário: véu da cor com a própria cor por tinta. */
+    limeSoft: isDark ? alfa(base, 0.16) : mix(base, BRANCO, 0.62),
+    limeSoftInk: isDark ? base : escurecer(base, 0.62),
+    limePale: isDark ? escurecer(base, 0.68) : mix(base, BRANCO, 0.82),
+    /* `green` é legado do tema v1 e aponta para o mesmo lima; segue
+       junto para não ficar um verde solto no meio de uma paleta rosa. */
+    green: base,
+    greenDim: escurecer(base, 0.1),
+  };
 }

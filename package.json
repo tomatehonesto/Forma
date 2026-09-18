@@ -12,6 +12,7 @@
     "@tabler/icons-react-native": "^3.46.0",
     "babel-preset-expo": "~57.0.0",
     "expo": "^57.0.22",
+    "expo-alternate-app-icons": "^8.0.0",
     "expo-blur": "~57.0.3",
     "expo-build-properties": "~57.0.21",
     "expo-camera": "~57.0.5",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "sharp": "^0.35.4",
     "typescript": "~6.0.3"
   },
   "scripts": {

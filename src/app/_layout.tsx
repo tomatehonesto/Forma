@@ -266,6 +266,7 @@ export default function RootLayout() {
           <Stack.Screen name="privacidade" />
           <Stack.Screen name="ajuda" />
           <Stack.Screen name="documento" />
+          <Stack.Screen name="aparencia" />
           {/* telas internas da primeira leva — desenho em ui/internas */}
           <Stack.Screen name="marcador" />
           <Stack.Screen name="caneta" />

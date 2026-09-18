@@ -13,6 +13,7 @@ type Store = {
   update: (mut: (s: State) => void) => void;
   reset: () => void;
   setCor: (id: string) => void;
+  setDestaque: (id: string) => void;
   setTheme: (t: 'light' | 'dark') => void;
 };
 
@@ -61,4 +62,5 @@ export const useStore = create<Store>((set, get) => ({
   /* A cor de ação mora no estado como o tema mora: é preferência, e
      preferência sobrevive a fechar o app. */
   setCor: (id) => get().update((s: any) => { s.cor = id; }),
+  setDestaque: (id) => get().update((s: any) => { s.destaque = id; }),
 }));

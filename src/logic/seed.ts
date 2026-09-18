@@ -476,6 +476,8 @@ export function buildSeed() {
     /* A cor de ação. 'azul' é o que o Figma desenhou, e quem não escolher
        nada continua vendo exatamente aquilo — ver CORES em src/theme.ts. */
     cor: 'azul' as string,
+    /* A cor do alcançado. 'lima' é o lima da marca. */
+    destaque: 'lima' as string,
     lastReplaySeen: 0,
   };
 }
@@ -577,6 +579,7 @@ export function ensureDefaults(S: any) {
   /* Quem gravou o estado antes de a cor existir fica com o azul, que é o
      aplicativo que essa pessoa já conhece. */
   if (!(S as any).cor) (S as any).cor = 'azul';
+  if (!(S as any).destaque) (S as any).destaque = 'lima';
   /* Favorito virou prato. Os que existirem como string continuam
      valendo — viram { nome } e seguem abrindo o registro com o nome na
      busca, que é o que sempre fizeram. */

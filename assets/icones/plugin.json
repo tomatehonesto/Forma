@@ -1,0 +1,202 @@
+[
+  {
+    "name": "azul-lima",
+    "ios": "./assets/icones/azul-lima.png",
+    "android": {
+      "foregroundImage": "./assets/icones/azul-lima-frente.png",
+      "backgroundColor": "#065CF5"
+    }
+  },
+  {
+    "name": "azul-turquesa",
+    "ios": "./assets/icones/azul-turquesa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/azul-turquesa-frente.png",
+      "backgroundColor": "#065CF5"
+    }
+  },
+  {
+    "name": "azul-coral",
+    "ios": "./assets/icones/azul-coral.png",
+    "android": {
+      "foregroundImage": "./assets/icones/azul-coral-frente.png",
+      "backgroundColor": "#065CF5"
+    }
+  },
+  {
+    "name": "azul-ouro",
+    "ios": "./assets/icones/azul-ouro.png",
+    "android": {
+      "foregroundImage": "./assets/icones/azul-ouro-frente.png",
+      "backgroundColor": "#065CF5"
+    }
+  },
+  {
+    "name": "azul-rosa",
+    "ios": "./assets/icones/azul-rosa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/azul-rosa-frente.png",
+      "backgroundColor": "#065CF5"
+    }
+  },
+  {
+    "name": "violeta-lima",
+    "ios": "./assets/icones/violeta-lima.png",
+    "android": {
+      "foregroundImage": "./assets/icones/violeta-lima-frente.png",
+      "backgroundColor": "#6B3BF5"
+    }
+  },
+  {
+    "name": "violeta-turquesa",
+    "ios": "./assets/icones/violeta-turquesa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/violeta-turquesa-frente.png",
+      "backgroundColor": "#6B3BF5"
+    }
+  },
+  {
+    "name": "violeta-coral",
+    "ios": "./assets/icones/violeta-coral.png",
+    "android": {
+      "foregroundImage": "./assets/icones/violeta-coral-frente.png",
+      "backgroundColor": "#6B3BF5"
+    }
+  },
+  {
+    "name": "violeta-ouro",
+    "ios": "./assets/icones/violeta-ouro.png",
+    "android": {
+      "foregroundImage": "./assets/icones/violeta-ouro-frente.png",
+      "backgroundColor": "#6B3BF5"
+    }
+  },
+  {
+    "name": "violeta-rosa",
+    "ios": "./assets/icones/violeta-rosa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/violeta-rosa-frente.png",
+      "backgroundColor": "#6B3BF5"
+    }
+  },
+  {
+    "name": "magenta-lima",
+    "ios": "./assets/icones/magenta-lima.png",
+    "android": {
+      "foregroundImage": "./assets/icones/magenta-lima-frente.png",
+      "backgroundColor": "#C4187F"
+    }
+  },
+  {
+    "name": "magenta-turquesa",
+    "ios": "./assets/icones/magenta-turquesa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/magenta-turquesa-frente.png",
+      "backgroundColor": "#C4187F"
+    }
+  },
+  {
+    "name": "magenta-coral",
+    "ios": "./assets/icones/magenta-coral.png",
+    "android": {
+      "foregroundImage": "./assets/icones/magenta-coral-frente.png",
+      "backgroundColor": "#C4187F"
+    }
+  },
+  {
+    "name": "magenta-ouro",
+    "ios": "./assets/icones/magenta-ouro.png",
+    "android": {
+      "foregroundImage": "./assets/icones/magenta-ouro-frente.png",
+      "backgroundColor": "#C4187F"
+    }
+  },
+  {
+    "name": "magenta-rosa",
+    "ios": "./assets/icones/magenta-rosa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/magenta-rosa-frente.png",
+      "backgroundColor": "#C4187F"
+    }
+  },
+  {
+    "name": "ambar-lima",
+    "ios": "./assets/icones/ambar-lima.png",
+    "android": {
+      "foregroundImage": "./assets/icones/ambar-lima-frente.png",
+      "backgroundColor": "#B4610A"
+    }
+  },
+  {
+    "name": "ambar-turquesa",
+    "ios": "./assets/icones/ambar-turquesa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/ambar-turquesa-frente.png",
+      "backgroundColor": "#B4610A"
+    }
+  },
+  {
+    "name": "ambar-coral",
+    "ios": "./assets/icones/ambar-coral.png",
+    "android": {
+      "foregroundImage": "./assets/icones/ambar-coral-frente.png",
+      "backgroundColor": "#B4610A"
+    }
+  },
+  {
+    "name": "ambar-ouro",
+    "ios": "./assets/icones/ambar-ouro.png",
+    "android": {
+      "foregroundImage": "./assets/icones/ambar-ouro-frente.png",
+      "backgroundColor": "#B4610A"
+    }
+  },
+  {
+    "name": "ambar-rosa",
+    "ios": "./assets/icones/ambar-rosa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/ambar-rosa-frente.png",
+      "backgroundColor": "#B4610A"
+    }
+  },
+  {
+    "name": "grafite-lima",
+    "ios": "./assets/icones/grafite-lima.png",
+    "android": {
+      "foregroundImage": "./assets/icones/grafite-lima-frente.png",
+      "backgroundColor": "#2E3440"
+    }
+  },
+  {
+    "name": "grafite-turquesa",
+    "ios": "./assets/icones/grafite-turquesa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/grafite-turquesa-frente.png",
+      "backgroundColor": "#2E3440"
+    }
+  },
+  {
+    "name": "grafite-coral",
+    "ios": "./assets/icones/grafite-coral.png",
+    "android": {
+      "foregroundImage": "./assets/icones/grafite-coral-frente.png",
+      "backgroundColor": "#2E3440"
+    }
+  },
+  {
+    "name": "grafite-ouro",
+    "ios": "./assets/icones/grafite-ouro.png",
+    "android": {
+      "foregroundImage": "./assets/icones/grafite-ouro-frente.png",
+      "backgroundColor": "#2E3440"
+    }
+  },
+  {
+    "name": "grafite-rosa",
+    "ios": "./assets/icones/grafite-rosa.png",
+    "android": {
+      "foregroundImage": "./assets/icones/grafite-rosa-frente.png",
+      "backgroundColor": "#2E3440"
+    }
+  }
+]
