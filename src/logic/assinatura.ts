@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { State } from './seed';
 import { clinicaConectada } from './derive';
 
@@ -158,6 +159,52 @@ export const vinculoDoConvite = (codigo: string): Vinculo =>
   ({ desde: Date.now(), convite: normalizarConvite(codigo) });
 
 export type Resultado = { ok: false; motivo: 'nao-implementado' };
+
+/* ============================================================
+   O QUE A PESSOA TEM HOJE
+
+   ⚠️ ISTO NÃO SE DEDUZ DO ESTADO LOCAL, e é por isso que é uma função e
+   não um campo. Uma assinatura não mora no aparelho: ela mora no recibo
+   da loja, e quem sabe se ela está viva, quando renova e se ainda está em
+   teste é a App Store ou o Google Play. Guardar "assinou: true" aqui
+   dentro seria o aplicativo tendo opinião sobre uma coisa que não é dele
+   — e a opinião ficaria errada no dia seguinte ao cancelamento.
+
+   Devolve nulo, e vai devolver nulo enquanto a cobrança não existir:
+   ninguém pode ter assinado, porque `assinar()` recusa. A tela de gestão
+   lê daqui e desenha o que encontra.
+
+   ⚠️ E É POR AQUI QUE A TELA DE GESTÃO FICA PRONTA. Quando a loja entrar,
+   esta função passa a ler o recibo e a devolver o plano, a data de
+   renovação e se está no teste — e nenhuma tela precisa mudar de forma.
+   O que hoje não se sabe vem como nulo, e quem desenha já trata isso. */
+export type Assinatura = {
+  plano: Plano['id'];
+  /** quando a loja cobra de novo — nulo enquanto o recibo não for lido */
+  renovaEm: number | null;
+  /** está nos dias grátis, antes da primeira cobrança */
+  emTeste: boolean;
+};
+
+export function assinaturaAtual(_S: State): Assinatura | null {
+  return null;
+}
+
+/* ⚠️ CANCELAR E TROCAR DE PLANO É NA LOJA, E NÃO AQUI.
+
+   Não é escolha de desenho: a Apple e o Google exigem que a gestão da
+   assinatura aconteça nas telas deles. Um botão "cancelar" dentro do
+   aplicativo que chamasse só a nossa API seria recusado na revisão — e,
+   pior, não cancelaria nada, porque quem cobra é a loja.
+
+   O que o aplicativo deve fazer é abrir a porta certa e dizer que ela é
+   de lá. Esconder isso é o que produz o cancelamento que não cancela e a
+   reclamação de cobrança indevida no mês seguinte. */
+export const GESTAO_NA_LOJA = Platform.OS === 'ios'
+  ? 'https://apps.apple.com/account/subscriptions'
+  : 'https://play.google.com/store/account/subscriptions';
+
+export const NOME_DA_LOJA = Platform.OS === 'ios' ? 'App Store' : 'Google Play';
 
 /* ⚠️ A COSTURA. Quando a loja entrar, é esta função que passa a abrir a
    folha de compra nativa e a devolver o resultado dela — e é o único

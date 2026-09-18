@@ -73,7 +73,14 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
 - **o botão não compra** — `assinar()` devolve "não implementado", e a
   tela mostra isso em voz alta em vez de fingir sucesso;
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
-  é a mesma promessa vazia.
+  é a mesma promessa vazia;
+- **o estado de assinante de `/assinatura` nunca aparece.** A tela de
+  gestão tem os três estados desenhados, mas o terceiro lê de
+  `assinaturaAtual()`, que devolve nulo enquanto não houver recibo de loja
+  para ler. Quando a cobrança entrar, é essa função que passa a devolver o
+  plano, a data de renovação e se está no teste — e nenhuma tela precisa
+  mudar de forma. A data vem nula até lá, e a linha some em vez de mostrar
+  uma data falsa.
 
 ⚠️⚠️ **QUALQUER CÓDIGO DE QUATRO LETRAS DÁ O APLICATIVO DE GRAÇA.**
 

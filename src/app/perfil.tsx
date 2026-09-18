@@ -468,12 +468,20 @@ export default function Perfil() {
             cadastro. Quem fecha a tela de planos naquele dia não a
             encontra nunca mais — e "onde eu vejo o que estou pagando?"
             é a pergunta que manda gente para o suporte em todo app de
-            assinatura. Para quem tem vínculo, a mesma linha responde
-            outra coisa: por que não paga. */}
+            assinatura.
+
+            ⚠️ E ELA LEVA A /assinatura, E NÃO MAIS AO PAYWALL. Levar ao
+            paywall era responder "quanto custa" a quem perguntou "o que
+            eu tenho" — e, para quem é isenta, oferecer de novo o que ela
+            já tem. A vitrine continua a um toque de distância, dentro da
+            tela que responde primeiro a pergunta que foi feita.
+
+            O rótulo é o título da tela que abre, nos dois estados. O que
+            muda é a segunda linha, que já adianta a resposta. */}
         <ListRow ic="spark"
-          title={conectada ? 'Sua assinatura' : 'Ver planos'}
-          sub={conectada ? 'Isenta pelo vínculo com a clínica' : 'O que entra, e quanto custa'}
-          onPress={go('/planos')} />
+          title="Sua assinatura"
+          sub={conectada ? 'Isenta pelo vínculo com a clínica' : 'O que você tem, e quanto custa'}
+          onPress={go('/assinatura')} />
         {!conectada && TEM_REDE_PARCEIRA ? (
           <ListRow ic="steth" title="Tenho um código de convite"
             sub="Para vincular a clínica que acompanha você"
