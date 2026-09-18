@@ -10,8 +10,10 @@
    política de privacidade — que é o pior lugar possível para uma.
 
    Não reescreva antes: descrever tratamento que ainda não acontece é o
-   erro simétrico. A lista frase por frase, e a decisão de região que é
-   difícil de desfazer, estão em PENDENCIAS.md, item 10.
+   erro simétrico. A lista frase por frase está em PENDENCIAS.md, item 10
+   — junto com a região já escolhida, São Paulo (sa-east-1), que mantém o
+   histórico de saúde no Brasil e poupa a seção de transferência
+   internacional.
 
    ⚠️ NÃO HAVIA NENHUM. O cadastro perguntava altura, peso, medicamento,
    dose, restrição alimentar e autorização para ler o aplicativo de saúde

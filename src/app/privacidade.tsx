@@ -21,8 +21,10 @@ import { useTheme } from '../ui/useTheme';
    política de privacidade — que é o pior lugar possível para uma.
 
    Não reescreva antes: descrever tratamento que ainda não acontece é o
-   erro simétrico. A lista frase por frase, e a decisão de região que é
-   difícil de desfazer, estão em PENDENCIAS.md, item 10.
+   erro simétrico. A lista frase por frase está em PENDENCIAS.md, item 10
+   — junto com a região já escolhida, São Paulo (sa-east-1), que mantém o
+   histórico de saúde no Brasil e poupa a seção de transferência
+   internacional.
 
    ⚠️ O APP JÁ TEVE UMA LINHA SOBRE ISSO E ELA FOI REMOVIDA, com razão:
    dizia "seus dados ficam no seu aparelho" no meio de uma lista de

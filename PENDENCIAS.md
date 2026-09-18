@@ -130,7 +130,7 @@ acontece é o erro simétrico. Esta lista existe para que a troca aconteça
 | 5 | "**não existe um servidor nosso de onde eles possam vazar**" |
 | 5 | "desinstalar o aplicativo apaga tudo, sem cópia para restaurar" |
 | 7 | falta o Supabase na lista de **operadores** |
-| 8 | **transferência internacional** passa a valer para TODOS os dados de saúde, e não só para a foto do prato — depende da região do projeto, ver abaixo |
+| 8 | com o banco em São Paulo, a **transferência internacional** continua valendo só para a foto do prato — o que entra é uma linha dizendo que o banco fica em território nacional |
 | 10 | retenção "no seu aparelho, enquanto você quiser" |
 | 14 | segurança: entra senha, hash, sessão e o que protege o banco |
 
@@ -165,17 +165,32 @@ acontece é o erro simétrico. Esta lista existe para que a troca aconteça
   sobre o que está no servidor.
 - **`estadoVazio()`** e o cadastro pressupõem que o estado nasce local.
 
-### ⚠️ A decisão que é difícil de desfazer: a região
+### ✅ Decidido: o projeto nasce em São Paulo (sa-east-1)
 
-Supabase pergunta a região do projeto na criação e **não dá para mudar
-depois sem migrar**. As duas saídas:
+Supabase pergunta a região na criação do projeto e **não dá para mudar
+depois sem migrar** — por isso isto estava aqui como decisão, e não como
+detalhe de infraestrutura. Está decidida: **São Paulo, `sa-east-1`**.
 
-- **São Paulo (sa-east-1)** — os dados de saúde ficam no Brasil, e a
-  transferência internacional continua sendo só a foto do prato. A
-  política quase não muda na seção 8.
-- **Qualquer região fora do Brasil** — todo o histórico de saúde passa a
-  ser transferência internacional (LGPD art. 33), e isso precisa de base
-  legal, de cláusulas contratuais e de estar escrito na política.
+O que essa escolha compra:
 
-Para um aplicativo de dado sensível de saúde vendido no Brasil, **São
-Paulo é a escolha que evita o problema** em vez de administrá-lo.
+- O histórico de tratamento — peso, sintomas, aplicações, exames,
+  anotações — **não sai do Brasil**. Transferência internacional (LGPD
+  art. 33) continua valendo só para a foto do prato na leitura por
+  imagem, que é o que a política já declara hoje.
+- A **seção 8 da Política de Privacidade quase não muda**. Ela continua
+  dizendo que o que atravessa a fronteira é a foto, e agora pode dizer
+  também que o banco fica em território nacional — o que é um argumento a
+  favor, e não uma ressalva.
+- Nada de cláusulas contratuais padrão nem de base legal específica de
+  transferência para o corpo principal dos dados.
+
+**Se alguém mudar de ideia**, o custo não é técnico: é reescrever a seção
+8 inteira, nomear o país de destino, a salvaguarda adotada e a base legal,
+e — como o tratamento declarado muda — subir a `VERSAO` do consentimento
+outra vez. Migrar um banco de dado sensível depois de ter gente usando é
+mais caro do que escolher certo agora.
+
+⚠️ E a região do banco não é a única fronteira: a **autenticação, o
+armazenamento de arquivos e as Edge Functions** precisam ficar no mesmo
+projeto. Um bucket ou uma função em outra região devolve o problema pela
+porta dos fundos.
