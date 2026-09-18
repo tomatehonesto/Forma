@@ -7,13 +7,13 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  temAcompanhamento, clinicaConectada, nextConsult, lastMessage, carePending, careDocs, careState,
+  clinicaConectada, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
-import { Txt, Card, Row, IconBadge, SectionHead, Divider, ListRow } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { radius } from '../../theme';
@@ -771,7 +771,10 @@ function Tratamento() {
             <View style={{ flex: 1 }}>
               <Txt v="title">{dose}</Txt>
               <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
-                {cadenciaCurta(S)} · {receita?.by ?? S.profile.doctor}
+                {/* O separador some junto com o nome. Sem receita
+                    guardada e sem médico anotado, a linha terminava em
+                    "1× por semana ·" — um ponto esperando alguém. */}
+                {cadenciaCurta(S)}{(receita?.by ?? S.profile.doctor) ? ` · ${receita?.by ?? S.profile.doctor}` : ''}
               </Txt>
             </View>
           </Row>
@@ -882,73 +885,77 @@ function Documentos() {
   );
 }
 
-/* ------------------------------------------------------------------ *
- * SEM VÍNCULO — descoberta
+/* ------------------------------------------------------------------ */
+/**
+ * QUEM ACOMPANHA VOCÊ — o bloco das pessoas, sem plataforma
  *
- * O diretório real de profissionais depende de backend, que o app ainda
- * não tem. Então aqui não existe lista falsa: existe o convite e o que o
- * vínculo muda na prática.
+ * ⚠️ AQUI MORAVA A "DESCOBERTA", E ELA ERA A TELA INTEIRA.
+ *
+ * Quem não tinha médico não via a aba Cuidado: via uma vitrine. Um card
+ * grande — "Encontre quem acompanhe seu tratamento" — e três promessas
+ * embaixo: especialistas credenciados, os seus dados já organizados,
+ * conversa direta. Nenhuma das três era coisa que a pessoa pudesse fazer
+ * ali, e a primeira descrevia uma rede credenciada que não existe hoje e
+ * não vai existir fora do Brasil, onde o aplicativo também vai rodar.
+ *
+ * O PREÇO NÃO ERA A VITRINE, ERA O QUE ELA OCUPAVA. Uma pessoa na semana
+ * 11, com 91% de adesão, um exame pendente e a caneta acabando, abria a
+ * aba do cuidado e recebia um anúncio. Tudo o que o app sabia sobre o
+ * tratamento dela — e ele sabia tudo — ficava atrás de uma condição que
+ * não era sobre o tratamento: ter ou não ter médico cadastrado.
+ *
+ * Agora ela vê a mesma aba que todo mundo. O que era a tela virou um
+ * bloco, do tamanho que o assunto tem: quem acompanha você, com a ficha
+ * quando há alguém e o convite quando não há. E o convite leva a uma
+ * porta que existe — a de anotar, que não promete rede nenhuma.
  * ------------------------------------------------------------------ */
-function Descoberta() {
+function QuemAcompanha() {
+  const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const pontos: [string, string, string][] = [
-    ['steth', 'Especialistas credenciados', 'Médicos que acompanham tratamento com GLP-1 de perto.'],
-    ['doc', 'Seus dados já organizados', 'Peso, aplicações, sintomas e exames prontos para a primeira consulta.'],
-    ['companion', 'Conversa direta', 'Mensagens e retorno sem precisar remarcar consulta.'],
-  ];
+  const router = useRouter();
+  const quem = S.profile.doctor || S.profile.clinic;
+  const especialidade = (S.profile as any).doctorInfo?.especialidade as string | undefined;
+
   return (
-    <>
-      <Card tint={c.accentWeak} style={{ marginTop: 24 }}>
-        <IconBadge name="heart" size={48} bg={c.bg1} />
-        <Txt v="h2" style={{ marginTop: 14 }}>Encontre quem acompanhe seu tratamento</Txt>
-        {/* ⚠️ ESTA FRASE SUPUNHA O GÊNERO DE QUEM LÊ — "seguir sozinha",
-            "tomar sozinha" —, e a linha imediatamente acima dela, na
-            própria tela, diz "Ninguém precisa fazer isso sozinho". O app
-            se contradizia em dois centímetros, e escolhia por alguém que
-            ele nem tinha perguntado ainda.
+    <View style={{ marginTop: 36 }}>
+      <SectionHead title="Quem acompanha você" />
+      <Pressable
+        onPress={() => router.push('/acompanhamento' as any)}
+        style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}
+      >
+        <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, alignItems: 'center' }}>
+          <View style={{
+            width: 52, height: 52, borderRadius: radius.md, backgroundColor: c.bg3,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon name="steth" size={22} color={quem ? c.tx3 : c.tx4} sw={1.8} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed" c={quem ? c.tx : c.tx2}>{quem || 'Ninguém registrado ainda'}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+              {quem
+                ? (especialidade || 'Acompanha o seu tratamento')
+                : 'Se você se trata com alguém, anote aqui — o resumo sai pronto para a consulta.'}
+            </Txt>
+          </View>
+          <Icon name="chev" size={14} color={c.tx4} sw={2} />
+        </Row>
+      </Pressable>
 
-            O cadastro pergunta identidade, mas nada aqui lia a resposta.
-            Sair do adjetivo resolve as duas coisas de uma vez: sem
-            concordância não há suposição, e a frase continua dizendo o
-            mesmo. */}
-        <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>
-          Dá para seguir por aqui sem acompanhamento. Mas quem tem um profissional
-          junto ajusta dose e protocolo com mais segurança — e essa não é uma decisão
-          para tomar por conta própria.
+      {/* ⚠️ A ÚNICA COISA QUE SOBREVIVEU DA VITRINE, e sem as promessas.
+          Não é propaganda de rede: é o que separa ajustar dose por conta
+          própria de ajustar com quem sabe — e isso vale em qualquer país,
+          com ou sem plataforma. Fica embaixo, e não em cima: quem já tem
+          médico não precisa ler, e quem não tem lê depois de ver que o
+          app funciona para ela do mesmo jeito. */}
+      {!quem ? (
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 12, lineHeight: 20, paddingHorizontal: 2 }}>
+          Dá para seguir por aqui sem acompanhamento. Mas quem tem um profissional junto
+          ajusta dose e protocolo com mais segurança — e essa não é uma decisão para tomar
+          por conta própria.
         </Txt>
-      </Card>
-
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 16 }}>
-        {pontos.map(([ic, t, sub], i) => (
-          <React.Fragment key={t}>
-            {i > 0 && <Divider style={{ marginVertical: 14 }} />}
-            <Row style={{ alignItems: 'flex-start' }}>
-              <IconBadge name={ic} size={38} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="body">{t}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{sub}</Txt>
-              </View>
-            </Row>
-          </React.Fragment>
-        ))}
-      </View>
-
-      {/* ⚠️ AQUI HAVIA UM BOTÃO CHEIO, "Vincular uma clínica", que
-          levava ao Perfil — onde o card de especialista era um Pressable
-          sem `onPress`. O caminho inteiro era um círculo: a pessoa tocava
-          no botão mais destacado desta tela, chegava no Perfil, tocava no
-          card que a esperava lá e não acontecia nada.
-
-          Vincular não é uma coisa que este aplicativo saiba fazer.
-          Nenhuma tela escreve `doctor` ou `clinic`, a plataforma da
-          clínica ainda não existe (PENDENCIAS.md, item 6), e o modelo que
-          os Termos descrevem é o oposto: quem convida é a clínica.
-
-          Sem o botão, o que fica acima deixa de ser uma vitrine com a
-          porta trancada e passa a ser o que sempre foi de verdade — o
-          motivo de procurar acompanhamento, que se faz no mundo e não
-          neste aplicativo. Quando a porta existir, ela volta para cá. */}
-    </>
+      ) : null}
+    </View>
   );
 }
 
@@ -956,7 +963,6 @@ export default function Cuidado() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const linked = temAcompanhamento(S);
   const conectada = clinicaConectada(S);
 
   return (
@@ -967,15 +973,14 @@ export default function Cuidado() {
       >
         {/* Sem título de tela. A tab bar já diz onde a pessoa está, e
             repetir "Cuidado" no topo gasta a primeira dobra com informação
-            que ela acabou de dar. O banner da especialista abre direto —
-            é ele que responde por que se veio aqui.
+            que ela acabou de dar. O hero abre direto — é ele que responde
+            por que se veio aqui.
 
-            No estado sem vínculo o título fica, porque ali não há
-            especialista para abrir a tela e a frase é o convite. */}
-        {!linked && (
-          <Txt v="note" c={c.tx3}>Ninguém precisa fazer isso sozinho.</Txt>
-        )}
-
+            ⚠️ HAVIA UMA LINHA AQUI, "Ninguém precisa fazer isso sozinho",
+            só para quem não tinha médico. Ela era a chamada da vitrine, e
+            sem a vitrine vira o quê? Uma frase de consolo no alto da tela
+            de alguém que não pediu consolo — e que está, de fato, tocando
+            o próprio tratamento. */}
         {conectada ? (
           /* Oito blocos, e cada assunto aparece em exatamente um.
 
@@ -998,8 +1003,8 @@ export default function Cuidado() {
             <Materiais />
             <Documentos />
           </>
-        ) : linked ? (
-          /* ⚠️ MÉDICO SEM PLATAFORMA — SEIS DOS OITO BLOCOS.
+        ) : (
+          /* ⚠️ SEM PLATAFORMA — SEIS DOS OITO BLOCOS, COM OU SEM MÉDICO.
 
              A aba foi construída em volta da clínica, mas o nome dela
              nunca foi "Clínica" nem "Médico": é Cuidado, e cuidado do
@@ -1010,19 +1015,23 @@ export default function Cuidado() {
 
              Sem esta ramificação, quem registrasse o próprio médico veria
              a foto da Dra. Helena e uma equipe de apoio que não existe:
-             `linked` aqui era `temAcompanhamento`, e o banner não
-             pergunta de onde veio o nome. */
+             o banner não pergunta de onde veio o nome.
+
+             ⚠️ E ERAM TRÊS RAMOS, não dois. O terceiro — sem médico
+             nenhum — trocava a aba inteira por uma vitrine. Não troca
+             mais: ter ou não ter médico cadastrado mudou de tamanho, e
+             agora é um bloco desta lista, no lugar onde a versão com
+             plataforma põe o retrato da especialista e a equipe. */
           <>
             <Topo />
 
             <Pendencias />
             <Consulta />
+            <QuemAcompanha />
             <Tratamento />
             <Materiais />
             <Documentos />
           </>
-        ) : (
-          <Descoberta />
         )}
       </ScrollView>
     </View>

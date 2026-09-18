@@ -3765,8 +3765,8 @@ export function careStatus(S: State) {
 
          Com plataforma, a agenda é da clínica e um retorno sem data é
          mesmo coisa a resolver. Sem plataforma, quem marca consulta é a
-         pessoa, no consultório dela — e o app não tem nem por onde ela
-         anotar a data ainda. Em atenção nos dois casos, o hero contava
+         pessoa, no consultório dela, e ela anota quando quiser. Em
+         atenção nos dois casos, o hero contava
          "três pendências" em cima de uma lista com duas: o quadro
          acusava a consulta, e `carePending` não tem linha para ela.
 
@@ -3801,44 +3801,20 @@ export function careStatus(S: State) {
   ];
 
   const n = tiles.filter((t) => t.nivel !== 'ok').length;
-  const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
-  const r = journeySummary(S);
-  const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
 
-  /* Duas frases, não uma.
+  /* ⚠️ AQUI HAVIA TRÊS TEXTOS QUE NINGUÉM LIA.
 
-     A primeira diz como o tratamento está indo — e sai do dado real de
-     evolução, não de otimismo genérico. A segunda dimensiona o que falta.
-     Separadas nessa ordem, a pendência chega depois de a pessoa já saber
-     que está no caminho certo, que é a diferença entre acompanhamento e
-     cobrança. Uma frase só, começando por "2 coisas precisam", faz da
-     tela um aviso. */
-  const indoBem = r.verdict.good;
-  const titulo = !temAcompanhamento(S)
-    ? 'Você ainda não tem uma equipe por aqui'
-    : indoBem
-      ? 'Seu tratamento está evoluindo bem'
-      : 'Sua equipe está acompanhando de perto';
+     `titulo`, `sub` e `subCurto` eram montados a cada chamada — com
+     nome de médica, contagem de semanas e concordância de plural — e não
+     tinham um único consumidor: quem usa `careStatus` é o `careState`
+     logo abaixo, e ele só lê `tiles` e `quantos`.
 
-  /* ⚠️ AQUI DIZIA "Encontre um especialista", que era instrução para
-     uma porta que o aplicativo não tem — e não vai ter fora do Brasil.
-     O que é verdade sem equipe é o que a pessoa já pode fazer. */
-  const sub = !temAcompanhamento(S)
-    ? 'Dá para seguir por aqui sem acompanhamento, e o resumo do seu tratamento fica pronto para qualquer consulta.'
-    : n === 0
-      ? `${S.profile.doctor} acompanha você há ${semanas} semanas, e está tudo em dia por aqui.`
-      : `${S.profile.doctor} acompanha você há ${semanas} semanas. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
-
-  /* A mesma frase sem a duração. Onde o card já mostra "10 semanas" em
-     corpo grande, repetir "acompanha você há 10 semanas" logo acima é
-     dizer o número duas vezes — e a segunda gasta uma linha inteira. */
-  const subCurto = !temAcompanhamento(S)
-    ? sub
-    : n === 0
-      ? `${S.profile.doctor} está com você, e não há nada pendente.`
-      : `Com ${S.profile.doctor}. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
-
-  return { tiles, quantos: n, titulo, sub, subCurto };
+     Escondiam duas mentiras que sobreviveram a várias passagens
+     justamente por serem invisíveis: "Você ainda não tem uma equipe por
+     aqui" e "Encontre um especialista para acompanhar seu tratamento de
+     perto" — a promessa de uma porta que o aplicativo não tem. Texto
+     morto não é inofensivo: é onde o erro dorme. */
+  return { tiles, quantos: n };
 }
 
 /* ============================================================
@@ -3857,7 +3833,7 @@ export function careStatus(S: State) {
    concatenação: cada momento tem manchete própria, e a ordem em que os
    estados são testados é a ordem de precedência entre eles.
    ============================================================ */
-export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'emDia' | 'semClinica';
+export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'emDia';
 
 /* "a, b e c" — vírgula até o penúltimo, "e" só antes do último. Com join
    simples saía "mensagens e receita e exames", que é como uma máquina
@@ -3931,13 +3907,19 @@ export function careState(S: State) {
 
   const base = { metricas, semanas, adesaoRotulo: adRotulo, plano };
 
-  if (!temAcompanhamento(S)) return {
-    ...base, momento: 'semClinica' as CareMomento, nivel: 'atencao' as CareNivel,
-    kicker: 'SEU ACOMPANHAMENTO',
-    titulo: 'Você ainda não tem uma equipe.',
-    texto: 'O tratamento continua sendo seu, e o resumo fica pronto para qualquer consulta.',
-    pulso: 'Sem vínculo com clínica',
-  };
+  /* ⚠️ AQUI O ESTADO SEM MÉDICO SAÍA PELA PORTA DOS FUNDOS.
+
+     Antes de qualquer leitura do tratamento, quem não tinha equipe
+     recebia uma frase sobre não ter equipe — e perdia todo o resto. A
+     pessoa abria a aba Cuidado no meio da semana 11, com a adesão em
+     91% e um exame pendente, e o aplicativo respondia falando da
+     ausência de um médico. O único assunto que ele tinha para ela era o
+     que faltava.
+
+     O estado saiu. Sem médico, o hero passa a ler exatamente o que lê
+     para todo mundo: as pendências quando há, e a continuidade quando
+     não há. Quem acompanha virou um bloco da tela, que é o tamanho certo
+     disso — e não a manchete. */
 
   /* A consulta chegando vence tudo: nos dias que a antecedem, ela é o
      acompanhamento. Três dias é a janela em que dá tempo de preparar
@@ -3959,11 +3941,17 @@ export function careState(S: State) {
   /* Logo depois da consulta o tratamento costuma ter mudado, e é isso que
      a pessoa volta aqui para conferir. */
   const ultima = (S.consultsHistory as any[]).slice().sort((a, b) => b.t - a.t)[0];
+  /* ⚠️ "SUA EQUIPE ATUALIZOU SEU TRATAMENTO" SÓ É VERDADE COM
+     PLATAFORMA — é ela que traz a orientação nova. Sem servidor, o app
+     não sabe o que foi decidido na sala: ele sabe que a consulta
+     aconteceu, porque a pessoa disse. A frase muda de dono. */
   if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) return {
     ...base, momento: 'posConsulta' as CareMomento, nivel: 'ok' as CareNivel,
     kicker: 'SEU ACOMPANHAMENTO',
-    titulo: 'Sua equipe atualizou seu tratamento.',
-    texto: 'Confira as orientações da consulta e o que muda na sua dose a partir de agora.',
+    titulo: clinicaConectada(S) ? 'Sua equipe atualizou seu tratamento.' : 'Você teve uma consulta há pouco.',
+    texto: clinicaConectada(S)
+      ? 'Confira as orientações da consulta e o que muda na sua dose a partir de agora.'
+      : 'Se a dose ou o intervalo mudaram, vale atualizar por aqui — é o que mantém as contas do app certas.',
     pulso: 'Tratamento atualizado',
   };
 
@@ -3977,11 +3965,18 @@ export function careState(S: State) {
     pulso: `${st.quantos} ${st.quantos === 1 ? 'item pendente' : 'itens pendentes'}`,
   };
 
+  /* ⚠️ E ESTA FRASE COMEÇAVA PELO NOME DA MÉDICA. Sem ninguém
+     registrado ela abria com um espaço em branco: " acompanha seu
+     tratamento há 10 semanas". Quem conduz o tratamento sozinha conduz
+     há o mesmo tanto de tempo, e é isso que a frase passa a dizer. */
+  const quem = S.profile.doctor || S.profile.clinic;
   return {
     ...base, momento: 'emDia' as CareMomento, nivel: 'ok' as CareNivel,
     kicker: 'SEU ACOMPANHAMENTO',
     titulo: 'Seu cuidado está em dia.',
-    texto: `${S.profile.doctor} acompanha seu tratamento há ${semanas} semanas. Você está com boa adesão e não há nenhuma pendência importante no momento.`,
+    texto: quem
+      ? `${quem} acompanha seu tratamento há ${semanas} semanas. Você está com boa adesão e não há nenhuma pendência importante no momento.`
+      : `Você está há ${semanas} semanas de tratamento, com boa adesão e nenhuma pendência importante no momento.`,
     pulso: 'Acompanhamento em dia',
   };
 }
