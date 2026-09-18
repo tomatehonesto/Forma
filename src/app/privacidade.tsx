@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { aparelhoDaVez } from '../logic/integracoes';
+import { temIdentificacao } from '../logic/documentos';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -122,15 +123,31 @@ export default function Privacidade() {
         </Cartao>
       </Bloco>
 
-      {/* ⚠️ E O QUE AINDA NÃO EXISTE VAI DITO, em vez de ficar subentendido
-          por omissão. Uma tela de privacidade sem política publicada é
-          comum; uma que deixa a pessoa achar que leu a política é que não
-          pode acontecer. */}
-      <Aviso
-        ic="info"
-        titulo="Isto descreve o aplicativo, não é a política de privacidade"
-        texto="Aqui está o que o programa faz com os seus dados. O documento jurídico, com as obrigações de quem opera o serviço, ainda vai ser publicado — e quando existir, aparece nesta tela."
-      />
+      {/* ESTA TELA É O RESUMO; OS DOCUMENTOS SÃO O INTEIRO. Ela descreve
+          o comportamento do programa em linguagem de quem usa; eles
+          descrevem as obrigações de quem opera o serviço. As duas coisas
+          precisam existir, e uma não substitui a outra — por isso o
+          caminho para eles fica aqui embaixo, e não no lugar disto. */}
+      {temIdentificacao() ? (
+        <Bloco titulo="Os documentos">
+          <Cartao>
+            <Linha ic="doc" titulo="Política de Privacidade"
+              sub="O documento completo, com base legal e prazos" onPress={go('/documento?id=privacidade')} />
+            <Linha ic="doc" titulo="Termos de Uso"
+              sub="O que o Morphi é, o que não é, e o que cada lado pode esperar" onPress={go('/documento?id=termos')} />
+          </Cartao>
+        </Bloco>
+      ) : (
+        /* ⚠️ E O QUE AINDA NÃO EXISTE VAI DITO, em vez de ficar
+           subentendido por omissão. Uma tela de privacidade sem política
+           publicada é comum; uma que deixa a pessoa achar que leu a
+           política é que não pode acontecer. */
+        <Aviso
+          ic="info"
+          titulo="Isto descreve o aplicativo, não é a política de privacidade"
+          texto="Aqui está o que o programa faz com os seus dados. O documento jurídico, com as obrigações de quem opera o serviço, ainda vai ser publicado — e quando existir, aparece nesta tela."
+        />
+      )}
 
       <View />
     </TelaInterna>

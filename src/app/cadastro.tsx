@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
-  KeyboardAvoidingView, Keyboard, Linking,
+  KeyboardAvoidingView, Keyboard,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,6 +10,7 @@ import { useStore } from '../logic/store';
 import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
@@ -1231,6 +1232,18 @@ export default function Cadastro() {
      sem ele, "vim por indicação" é afirmação sem lastro. */
   const respondida = (x: Id): boolean => {
     if (x === 'nome') return r.nome.trim().length > 1;
+    /* ⚠️ A IDADE MÍNIMA PASSA A SER UMA TRANCA, e não um aviso.
+
+       O cadastro perguntava a data de nascimento e seguia com qualquer
+       resposta. Dado de saúde de menor de idade tem regra própria na
+       LGPD (art. 14) e exige consentimento de quem responde por ele —
+       um fluxo que este aplicativo não tem. Enquanto não tiver, quem
+       não alcança a idade não passa daqui.
+
+       E o botão desligado não basta sozinho: a tela diz por quê, logo
+       abaixo da roda. Botão que não obedece sem explicar é o app
+       culpando a pessoa por um limite que ele não contou. */
+    if (x === 'nascimento') return idade >= IDADE_MINIMA;
     if (x === 'identidade') return r.identidade != null;
     if (x === 'tratamento') return r.emTratamento != null;
     if (x === 'medicamento') return r.med != null;
@@ -1771,7 +1784,8 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'nascimento' ? (
-          <Row style={{ gap: 10 }}>
+          <View>
+            <Row style={{ gap: 10 }}>
             <Roda
               largura={78}
               itens={Array.from({ length: diasNoMes }, (_, k) => ({ v: k + 1, label: String(k + 1) }))}
@@ -1795,7 +1809,19 @@ export default function Cadastro() {
               valor={r.ano}
               onEscolhe={(v) => p({ ano: v, dia: Math.min(r.dia, new Date(v, r.mes + 1, 0).getDate()) })}
             />
-          </Row>
+            </Row>
+            {/* A EXPLICAÇÃO FICA COLADA NA RODA, e não no rodapé: é ali
+                que a pessoa acabou de mexer, e é ali que ela procura o
+                motivo de o botão ter apagado. */}
+            {idade < IDADE_MINIMA ? (
+              <Txt v="caption" c={c.tx2} style={{ marginTop: 14, lineHeight: 21 }}>
+                O Morphi é para maiores de {IDADE_MINIMA} anos. Acompanhamento de
+                tratamento com dado de saúde de menor de idade precisa do
+                consentimento de quem responde por ele, e isso o aplicativo
+                ainda não sabe fazer.
+              </Txt>
+            ) : null}
+          </View>
         ) : null}
 
         {id === 'tratamento' ? (
@@ -2258,14 +2284,20 @@ export default function Cadastro() {
                 <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
               </View>
             ))}
-            {/* OS DOCUMENTOS SÓ APARECEM QUANDO EXISTIREM. Um link para
-                "Termos de uso" que não abre nada, numa tela de aceite, é a
-                pior linha possível: ela é a prova que a pessoa aceitou uma
-                coisa que ninguém escreveu. */}
-            {TERMOS || POLITICA ? (
-              <Pressable onPress={() => Linking.openURL(TERMOS || POLITICA)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <Txt v="label" c={c.accent} style={{ textAlign: 'center', paddingVertical: 8 }}>Ler os termos por inteiro</Txt>
-              </Pressable>
+            {/* OS DOCUMENTOS SÓ APARECEM QUANDO ESTIVEREM COMPLETOS. Um
+                link para "Termos de uso" que abre um texto sem quem
+                responde por ele, numa tela de aceite, é a pior linha
+                possível: ela é a prova de que a pessoa aceitou uma coisa
+                que ninguém assinou. */}
+            {temIdentificacao() ? (
+              <Row gap={16} style={{ justifyContent: 'center', paddingVertical: 10 }}>
+                <Pressable onPress={() => router.push(TERMOS as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Txt v="label" c={c.accent}>Termos de Uso</Txt>
+                </Pressable>
+                <Pressable onPress={() => router.push(POLITICA as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Txt v="label" c={c.accent}>Política de Privacidade</Txt>
+                </Pressable>
+              </Row>
             ) : null}
           </View>
         ) : null}

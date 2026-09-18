@@ -25,19 +25,23 @@
    relevante, a versão sobe, e quem concordou com a anterior precisa ver
    a nova.
 
-   ⚠️ E ISTO NÃO É A POLÍTICA DE PRIVACIDADE. É o aviso que a precede. O
-   documento jurídico, com o nome de quem opera o serviço e as obrigações
-   dele, ainda vai existir — e quando existir, `TERMOS` e `POLITICA`
-   deixam de ser vazios e o passo passa a linkar os dois.
+   ⚠️ E ISTO NÃO É A POLÍTICA DE PRIVACIDADE. É o aviso que a precede: o
+   que cabe numa tela de cadastro, antes de alguém decidir se continua.
+   Os documentos por inteiro estão em src/logic/documentos.ts, e o passo
+   linka os dois assim que a identificação da empresa estiver completa.
    ============================================================ */
 
 /** Sobe quando o texto abaixo mudar de forma relevante. */
 export const VERSAO = 1;
 
-/** Endereços dos documentos. Vazios enquanto eles não existirem — e o
-    passo do cadastro não desenha link para o que não há. */
-export const TERMOS = '';
-export const POLITICA = '';
+/* Os documentos moram DENTRO do aplicativo, e não numa página na
+   internet: um link que depende de rede escolheria a pior hora para
+   falhar — a pessoa no cadastro, sem contexto, decidindo se confia.
+
+   Eles só aparecem quando a identificação da empresa estiver completa;
+   quem decide isso é `temIdentificacao`, em src/logic/documentos.ts. */
+export const TERMOS = '/documento?id=termos';
+export const POLITICA = '/documento?id=privacidade';
 
 export type ItemDoAviso = { titulo: string; texto: string };
 
