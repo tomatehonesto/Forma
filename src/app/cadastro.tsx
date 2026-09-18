@@ -1625,10 +1625,16 @@ export default function Cadastro() {
 
        Então a frase nomeia a natureza do que a resposta liga, e não a
        vantagem: são funcionalidades LIGADAS A CONSULTA, e quem não tem
-       consulta não perde nada por não vê-las. A última oração é a parte
-       que mais importa, e é por isso que ela fica no fim: o resto do
-       aplicativo é o mesmo nas duas respostas. */
-    acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico — anotações e planejamento para consultas, o resumo do tratamento para levar e o aviso de consulta chegando. O resto do aplicativo é o mesmo nas duas respostas.',
+       consulta não perde nada por não vê-las.
+
+       ⚠️ E ELA PAROU DE SE DEFENDER. Havia uma oração final garantindo
+       que "o resto do aplicativo é o mesmo nas duas respostas" — bem
+       intencionada, e contraproducente: ninguém desconfia de um cardápio
+       até o garçom jurar que não há prato melhor. Quatro linhas de
+       explicação numa pergunta de duas alternativas também é peso
+       demais. Uma frase, um exemplo, e a pergunta volta a ser a maior
+       coisa da tela. */
+    acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico, como anotações e planejamento para consultas.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
     consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
@@ -2286,15 +2292,19 @@ export default function Cadastro() {
 
             {r.acompanhamento === 'proprio' ? (
               <View style={{ gap: 8 }}>
-                <Rotulo>{futuro ? 'QUEM VAI ACOMPANHAR VOCÊ' : 'QUEM ACOMPANHA VOCÊ'}</Rotulo>
+                {/* O "opcional" sobe para o rótulo. Embaixo ele chegava
+                    depois de a pessoa já ter decidido se ia preencher —
+                    e quem não quer escrever o nome do próprio médico
+                    passava pelo campo achando que era obrigatório. */}
+                <Rotulo>{futuro ? 'QUEM VAI ACOMPANHAR VOCÊ (OPCIONAL)' : 'QUEM ACOMPANHA VOCÊ (OPCIONAL)'}</Rotulo>
                 <CampoTexto
                   valor={r.profissional}
                   onChange={(v) => p({ profissional: v })}
                   placeholder="Dra. Helena Costa"
                 />
                 <Txt v="caption" c={c.tx3}>
-                  Opcional, e fica só com você — nada é enviado a essa pessoa. Serve para o
-                  resumo saber para quem é.
+                  Serve para referenciar o especialista ao longo da sua jornada. Nada é
+                  enviado a essa pessoa.
                 </Txt>
               </View>
             ) : null}
@@ -2308,15 +2318,24 @@ export default function Cadastro() {
                 de tratamento de saúde é a última coisa que alguém precisa
                 receber de um app.
 
-                Fixo, ele é o que sempre foi verdade: quem decide dose e
-                protocolo é gente habilitada, e este aplicativo não é.
-                Vale igual para quem respondeu sim — e dito assim, não
-                cobra nada de ninguém. */}
+                ⚠️ E ELE ERA UM SERMÃO. "O remédio é de prescrição, e dose
+                e protocolo são decisão de quem tem formação para isso" diz
+                a alguém que acabou de responder sobre o próprio tratamento
+                o que ela já sabe — e diz no tom de quem está corrigindo.
+                Um aviso que soa como reprimenda é lido como reprimenda, e
+                aí ninguém lê a segunda frase, que é a que pode importar.
+
+                Agora ele faz duas coisas úteis e nenhuma cerimônia: diz o
+                que o aplicativo não é, e diz quando não esperar. Os
+                sintomas são os mesmos que o app já usa em leituras.ts e
+                derive.ts — dor abdominal forte e vômito que não passa —,
+                porque um app que nomeia sinais de alerta de dois jeitos
+                ensina os dois pela metade. */}
             <View style={{ height: 1, backgroundColor: c.line, marginHorizontal: 2 }} />
             <Txt v="caption" c={c.tx3} style={{ lineHeight: 20, paddingHorizontal: 2 }}>
-              Seja qual for a resposta: o remédio é de prescrição, e dose e protocolo são
-              decisão de quem tem formação para isso. O aplicativo organiza, acompanha e
-              prepara — ele não prescreve, não ajusta dose e não substitui consulta.
+              O aplicativo acompanha e organiza, mas não substitui acompanhamento médico.
+              Se aparecer dor abdominal forte ou vômito que não passa, procure atendimento
+              o quanto antes — não espere a próxima consulta.
             </Txt>
           </View>
         ) : null}
