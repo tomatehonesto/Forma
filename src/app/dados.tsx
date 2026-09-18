@@ -3,18 +3,23 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, nf, kgCurto as kg } from '../logic/time';
-import { idadeDe, ATIVIDADES, MOTIVOS } from '../logic/derive';
-import { Screen, Txt, Row, CircleBtn, ListRow, Grupo } from '../ui/kit';
+import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS } from '../logic/derive';
+import { Txt } from '../ui/kit';
+import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
-   MINHAS INFORMAÇÕES — o que o cadastro perguntou, e onde se corrige
+   SEUS DADOS — o que o cadastro perguntou, e onde se corrige
 
    Esta lista morava aberta no meio do Perfil. Eram nove linhas de
-   configuração entre o retrato e a clínica — altura, pesos, ritmo, nome,
-   sexo, nascimento, atividade, restrições e motivo —, todas coisas que
-   se mexem uma vez por ano, empurrando para baixo o que a pessoa vem ver
-   naquela tela. Aqui elas são o assunto, e lá viraram uma porta.
+   configuração entre o retrato e a clínica — todas coisas que se mexem
+   uma vez por ano, empurrando para baixo o que a pessoa vem ver naquela
+   tela. Aqui elas são o assunto, e lá viraram uma porta.
+
+   O NOME DA TELA É O NOME DA PORTA. Ela se chamava "Minhas informações"
+   e era aberta por uma linha chamada "Seus dados" — dois nomes para o
+   mesmo lugar fazem a pessoa achar que chegou noutro. É a mesma correção
+   que "Histórico completo" recebeu quando abria "Seu tratamento".
 
    NÃO EXISTE SEGUNDO EDITOR. Cada linha reabre a pergunta original do
    cadastro, com a mesma régua e a mesma validação que escreveram o valor
@@ -27,6 +32,13 @@ import { useTheme } from '../ui/useTheme';
    a altura faz o IMC, o ritmo faz a previsão, e a restrição filtra o que
    o app sugere. Por isso a frase do alto avisa que mexer aqui refaz
    número em outras telas — e não é ameaça, é o que de fato acontece.
+
+   E O TRATAMENTO GANHOU PORTA. O cadastro pergunta caneta, dose e
+   frequência, e nenhuma das três tinha por onde ser corrigida aqui: a
+   dose só mudava ao registrar uma aplicação, e a frequência não mudava
+   em lugar nenhum do app. Numa terapia em que a dose SOBE por protocolo
+   e o intervalo é o que o médico ajusta, faltava justamente o que mais
+   muda.
    ============================================================ */
 
 const SEXO: Record<string, string> = {
@@ -38,7 +50,7 @@ const dataDoPerfil = (t: number) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
-export default function Informacoes() {
+export default function Dados() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -57,6 +69,13 @@ export default function Informacoes() {
   const emTratamento = (S.injections?.length ?? 0) > 0 || !!S.profile.startT;
   const passoDoPesoInicial = emTratamento ? 'inicio' : 'corpo';
 
+  /* DOSE E FREQUÊNCIA SÓ EXISTEM COM CANETA ESCOLHIDA. Quem respondeu
+     "ainda não sei" no cadastro não viu essas duas perguntas — a escada
+     de dose é do medicamento —, e oferecer aqui a correção de uma
+     resposta que ninguém deu abriria um formulário no vazio. */
+  const comDose = temDose(S);
+  const med = M(S);
+
   const atividade = ATIVIDADES.find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
   const motivo = MOTIVOS.find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])
@@ -64,45 +83,68 @@ export default function Informacoes() {
     .join(', ') || 'Nenhuma';
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Minhas informações</Txt>
-      </Row>
+    <TelaInterna titulo="Seus dados">
+      <Titulao
+        titulo="Seus dados"
+        lead="São as respostas do seu cadastro, e é delas que saem o seu IMC, as suas metas do dia e a previsão do plano. Mexer aqui refaz esses números."
+      />
 
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 14 }}>
-        São as respostas do seu cadastro, e é delas que saem o seu IMC, as
-        suas metas do dia e a previsão do plano. Mexer aqui refaz esses
-        números.
+      {/* O TRATAMENTO PRIMEIRO: é o que muda mais, e o que muda mais
+          rápido. Numa titulação, a dose sobe a cada poucas semanas. */}
+      <Bloco titulo="Tratamento">
+        <Cartao>
+          <Linha ic="syringe" titulo="Medicamento" sub={med.label} onPress={corrige('medicamento')} />
+          {comDose ? (
+            <Linha
+              ic="dose" titulo="Dose"
+              sub={`${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`}
+              onPress={corrige('dose')}
+            />
+          ) : null}
+          {comDose ? (
+            <Linha ic="clock" titulo="Frequência" sub={cadenciaCurta(S)} onPress={corrige('frequencia')} />
+          ) : null}
+        </Cartao>
+      </Bloco>
+
+      {/* O CORPO E O RITMO: os quatro que entram em conta todo dia. */}
+      <Bloco titulo="Corpo e ritmo">
+        <Cartao>
+          <Linha ic="ruler" titulo="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
+          <Linha ic="scale" titulo="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
+          <Linha ic="target" titulo="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
+          <Linha
+            ic="trend" titulo="Ritmo escolhido"
+            sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
+            onPress={corrige('ritmo')}
+          />
+        </Cartao>
+      </Bloco>
+
+      <Bloco titulo="Sobre você">
+        <Cartao>
+          <Linha ic="user" titulo="Nome" sub={S.profile.name} onPress={corrige('nome')} />
+          <Linha ic="heart" titulo="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
+          <Linha
+            ic="cal" titulo="Nascimento"
+            sub={S.profile.nascimento
+              ? `${dataDoPerfil(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
+              : 'Não informado'}
+            onPress={corrige('nascimento')}
+          />
+          <Linha ic="dumbbell" titulo="Atividade física" sub={atividade} onPress={corrige('atividade')} />
+          <Linha ic="leaf" titulo="Restrições alimentares" sub={restricoes} onPress={go('/restricao')} />
+          <Linha ic="bolt" titulo="O que te trouxe" sub={motivo} onPress={corrige('motivacao')} />
+        </Cartao>
+      </Bloco>
+
+      {/* O peso de hoje não está aqui de propósito: ele não é uma
+          resposta de cadastro, é um registro — muda toda semana e tem
+          tela própria para isso. Corrigir a altura é raro; subir na
+          balança é rotina, e as duas não moram no mesmo lugar. */}
+      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', lineHeight: 17 }}>
+        Para registrar uma pesagem nova, use o botão de registrar.
       </Txt>
-
-      {/* O CORPO E O RITMO primeiro: são os quatro que entram em conta
-          todo dia, e os únicos que a pessoa costuma voltar para mudar. */}
-      <Grupo title="Corpo e ritmo">
-        <ListRow ic="ruler" title="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
-        <ListRow ic="scale" title="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
-        <ListRow ic="target" title="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
-        <ListRow
-          ic="trend" title="Ritmo escolhido"
-          sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
-          onPress={corrige('ritmo')}
-        />
-      </Grupo>
-
-      <Grupo title="Sobre você">
-        <ListRow ic="user" title="Nome" sub={S.profile.name} onPress={corrige('nome')} />
-        <ListRow ic="heart" title="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
-        <ListRow
-          ic="cal" title="Nascimento"
-          sub={S.profile.nascimento
-            ? `${dataDoPerfil(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
-            : 'Não informado'}
-          onPress={corrige('nascimento')}
-        />
-        <ListRow ic="dumbbell" title="Atividade física" sub={atividade} onPress={corrige('atividade')} />
-        <ListRow ic="leaf" title="Restrições alimentares" sub={restricoes} onPress={go('/restricao')} />
-        <ListRow ic="bolt" title="O que te trouxe" sub={motivo} onPress={corrige('motivacao')} />
-      </Grupo>
-    </Screen>
+    </TelaInterna>
   );
 }

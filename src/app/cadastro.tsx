@@ -1314,17 +1314,32 @@ export default function Cadastro() {
       /* O peso de hoje entra como PESAGEM, e não só como número do perfil:
          a curva de evolução, o "de → para" da Jornada e a meta leem a
          lista de pesagens. Desduplica por DIA, e não por instante:
-         pesagem gravada às três da tarde tem hora no carimbo. */
-      const t = +startOfDay(now());
-      const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
-      const pesagens = [...resto, { t, kg: r.peso }];
-      /* Quem já começou tem DUAS pesagens de largada: a de quando começou
-         e a de hoje. Sem a primeira, a curva de evolução nasce com um
-         ponto só e não tem o que desenhar. */
-      if (r.emTratamento && +startOfDay(new Date(inicio)) !== t) {
-        pesagens.push({ t: +startOfDay(new Date(inicio)), kg: r.pesoInicial });
+         pesagem gravada às três da tarde tem hora no carimbo.
+
+         ⚠️ SÓ QUANDO O PESO FOI O ASSUNTO. Este bloco rodava em TODA
+         gravação, e no modo de edição isso virou dano: corrigir o próprio
+         nome reescrevia o histórico de pesagens. Ele apagava as pesagens
+         de hoje e punha uma no lugar, perdendo a hora do carimbo e
+         qualquer segunda pesagem do dia; e ressuscitava a pesagem do dia
+         de início para quem tinha apagado aquela linha de propósito.
+
+         Nenhum desses efeitos tem a ver com trocar o sexo ou a atividade
+         física. Agora o bloco só roda no cadastro inteiro e nas duas
+         perguntas que de fato escrevem peso: "medidas atuais" e "comecei
+         em". */
+      const mexeuNoPeso = !editando || editando === 'corpo' || editando === 'inicio';
+      if (mexeuNoPeso) {
+        const t = +startOfDay(now());
+        const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
+        const pesagens = [...resto, { t, kg: r.peso }];
+        /* Quem já começou tem DUAS pesagens de largada: a de quando
+           começou e a de hoje. Sem a primeira, a curva de evolução nasce
+           com um ponto só e não tem o que desenhar. */
+        if (r.emTratamento && +startOfDay(new Date(inicio)) !== t) {
+          pesagens.push({ t: +startOfDay(new Date(inicio)), kg: r.pesoInicial });
+        }
+        s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
       }
-      s.weights = pesagens.sort((a: any, b: any) => a.t - b.t);
     });
     setN(MONTANDO);
   };
