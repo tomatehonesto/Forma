@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Pressable, Linking } from 'react-native';
+import { View, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   PLANOS, assinaturaAtual, reais, resgatarDesconto, DESCONTO_DE_RETENCAO,
   GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
-import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto, Opcoes, Opc } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -59,57 +59,29 @@ import { radius } from '../theme';
 
 type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
 
-/* ⚠️ CADA MOTIVO TEM ÍCONE, e não é enfeite: seis pílulas iguais
-   empilhadas são seis retângulos que só se diferenciam lendo, e esta é
-   uma tela que ninguém quer ler. O desenho dá um ponto de entrada para
-   cada linha e deixa a lista se varrer em vez de se ler.
+/* ⚠️ OS MOTIVOS SÃO PEÇAS LADO A LADO, e não uma lista empilhada.
 
-   ⚠️ E A ORDEM NÃO É ALFABÉTICA NEM ALEATÓRIA. Os três primeiros são os
-   que têm resposta; os três últimos são os que têm campo de texto. Quem
-   lê de cima para baixo encontra a alternativa antes de encontrar o
-   formulário, que é a única ordem que faz sentido numa tela de saída. */
-const MOTIVOS: [Motivo, string, string][] = [
-  ['caro', 'wallet', 'Está caro'],
-  ['esqueco', 'moon', 'Não estou usando'],
-  ['terminei', 'journey', 'Terminei o tratamento'],
-  ['problema', 'alerta', 'Tive problemas no aplicativo'],
-  ['faltou', 'bulb', 'Faltou alguma coisa'],
-  ['outro', 'more', 'Outro motivo'],
+   Empilhados, os seis ocupavam a tela inteira: escolher um empurrava a
+   resposta para baixo da dobra, e a pessoa tocava sem ver que tinha
+   acontecido alguma coisa. Numa tela que oferece alternativa, a
+   alternativa precisa aparecer no mesmo gesto — senão ela não existe.
+
+   ⚠️ E OS RÓTULOS ENCOLHERAM PARA CABER, o que é o custo desta escolha:
+   "Tive problemas no aplicativo" virou "Problemas no aplicativo". Peça
+   que quebra em duas linhas desmonta a fila, então rótulo novo aqui se
+   mede antes de entrar.
+
+   Os três primeiros são os que têm resposta e os três últimos são os que
+   têm campo de texto — a ordem continua valendo, mesmo em fila: quem lê
+   encontra a alternativa antes do formulário. */
+const MOTIVOS: [Motivo, string][] = [
+  ['caro', 'Está caro'],
+  ['esqueco', 'Não estou usando'],
+  ['terminei', 'Terminei o tratamento'],
+  ['problema', 'Problemas no aplicativo'],
+  ['faltou', 'Faltou alguma coisa'],
+  ['outro', 'Outro motivo'],
 ];
-
-/* ⚠️ O SELECIONADO É CHEIO, e não contornado com um check.
-
-   Tentei o contrário aqui — fundo lavado, fio na cor e um check discreto
-   —, com o argumento de que uma tela de cancelamento não deve comemorar a
-   resposta. O argumento é bonito e está errado na prática: numa lista de
-   seis, o preenchido responde antes da leitura, e o contornado obriga o
-   olho a COMPARAR com os vizinhos para descobrir qual está marcado.
-
-   É o mesmo desenho do resto do aplicativo, e essa é a segunda razão:
-   inventar um estado de seleção próprio para uma tela é ensinar um
-   vocabulário novo no pior momento possível. */
-function Escolha({ ic, label, on, onPress }: {
-  ic: string; label: string; on: boolean; onPress: () => void;
-}) {
-  const { c } = useTheme();
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-      <Row
-        gap={12}
-        style={{
-          alignItems: 'center',
-          paddingHorizontal: 16, paddingVertical: 15,
-          borderRadius: radius.lg, borderWidth: 1.5,
-          backgroundColor: on ? c.accent : c.bg1,
-          borderColor: on ? c.accent : 'transparent',
-        }}
-      >
-        <Icon name={ic} size={19} color={on ? c.accentInk : c.tx3} sw={1.9} />
-        <Txt v="body" c={on ? c.accentInk : c.tx2} style={{ flex: 1 }}>{label}</Txt>
-      </Row>
-    </Pressable>
-  );
-}
 
 export default function Cancelar() {
   const S = useStore((s) => s.S);
@@ -226,12 +198,16 @@ export default function Cancelar() {
         lead="Responder é opcional e não muda nada: o cancelamento continua a um toque, no botão lá embaixo."
       />
 
+      {/* `Opcoes` e `Opc` são os da casa, e é por isso que estão aqui: o
+          preenchido, o check e o raio já existem em treze telas, e ter um
+          segundo jeito de dizer "esta é a sua escolha" é o tipo de
+          diferença que ninguém descreve e todo mundo sente. */}
       <Bloco titulo="Por que você está cancelando?">
-        <View style={{ gap: 8 }}>
-          {MOTIVOS.map(([id, ic, label]) => (
-            <Escolha key={id} ic={ic} label={label} on={motivo === id} onPress={() => escolher(id)} />
+        <Opcoes>
+          {MOTIVOS.map(([id, label]) => (
+            <Opc key={id} label={label} on={motivo === id} onPress={() => escolher(id)} />
           ))}
-        </View>
+        </Opcoes>
       </Bloco>
 
       {resposta ? (
@@ -307,6 +283,12 @@ export default function Cancelar() {
           meio do vão é a primeira coisa que o olho pula. */}
       <Cartao>
         <View style={{ padding: 18, gap: 12 }}>
+          {/* ⚠️ O TÍTULO É O RESUMO DOS TRÊS, e não um rótulo de seção. As
+              três linhas respondem a mesma pergunta — "o que eu perco?" —,
+              e quem está com o dedo no botão de cancelar lê a primeira
+              palavra antes de ler o resto. Se ela for "FIQUE TRANQUILO", o
+              resto vira confirmação em vez de descoberta. */}
+          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1, marginBottom: 2 }}>FIQUE TRANQUILO</Txt>
           {([
             ['cal', 'O acesso continua até o fim do período já pago.'],
             ['shield', 'Nada do que você registrou se perde — tudo continua no aparelho.'],
