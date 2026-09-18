@@ -147,7 +147,7 @@ const MOCKUP_PROPORCAO = 900 / 1959;
    ele a página parece terminar na barra e ninguém rola. Crescer a janela
    sem medir de novo apaga essa pista. */
 const MOCKUP_JANELA = 252;
-const MOCKUP_LARGURA = 304;
+const MOCKUP_LARGURA = 286;
 
 function PecaDoAlto({ c }: { c: any }) {
   return (
@@ -176,12 +176,14 @@ function PecaDoAlto({ c }: { c: any }) {
           fatia da imagem que um véu fixo come.
 
           56 px resolve mantendo a mesma ideia — o corte continua sendo
-          uma dissolução e não uma tesoura —, e `0.9` empurra o preto para
-          os últimos dez por cento, onde ele só tem que encostar no fundo
-          da página. Quem mexer em MOCKUP_JANELA olha para cá. */}
+          uma dissolução e não uma tesoura —, e `0.94` empurra o preto
+          para os últimos seis por cento — a mesma parada da aurora aqui
+          atrás, de propósito: as duas camadas precisam chegar ao fundo da
+          página juntas, senão uma delas aparece sozinha e vira risca.
+          Quem mexer em MOCKUP_JANELA olha para cá. */}
       <LinearGradient
         colors={['transparent', c.bg]}
-        locations={[0, 0.9]}
+        locations={[0, 0.94]}
         style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 56 }}
         pointerEvents="none"
       />
@@ -393,14 +395,36 @@ export default function Planos() {
             É a diferença entre "parece um app bonito" e "é o app que eu
             estou usando", e é de graça: a peça já existe, já segue a
             paleta e já veste o resto do aplicativo. */}
-        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 8 }}>
-          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <LinearGradient
-            colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
-            locations={[0, 0.5, 1]}
-            style={StyleSheet.absoluteFill}
+        <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
+          {/* ⚠️ A AURORA TERMINA EXATAMENTE ONDE A PEÇA TERMINA, e isso não
+              é estética: é o que impede um corte seco.
+
+              Antes ela cobria o alto inteiro e ia se apagando até o fim do
+              bloco — só que o bloco acaba muito depois da peça, lá embaixo
+              no subtítulo. Na altura em que a janela da peça fechava, o
+              véu ainda estava aceso: dentro da janela o desvanecimento
+              pintava preto puro, e um pixel abaixo dela voltava a aurora.
+              Dava uma risca reta atravessando a tela de ponta a ponta.
+
+              ⚠️ E A CORREÇÃO NÃO PODE SER UMA FRAÇÃO CHUTADA. Bastaria
+              mandar o gradiente chegar ao preto em "62%" para a risca
+              sumir hoje — e voltar no dia em que o subtítulo ganhasse uma
+              linha e mudasse a altura do bloco. Então a aurora ganha
+              altura própria, a mesma da peça, e as duas chegam ao fundo
+              da página no mesmo pixel por construção. Uma conta só, e ela
+              vem de MOCKUP_JANELA. */}
+          <View
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + MOCKUP_JANELA }}
             pointerEvents="none"
-          />
+          >
+            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <LinearGradient
+              colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
+              locations={[0, 0.5, 0.94]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+          </View>
 
           {/* ⚠️ AQUI FICAVA A MARCA, E ELA SAIU DE PROPÓSITO.
 
