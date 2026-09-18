@@ -3,7 +3,8 @@ import { View, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  PLANOS, assinaturaAtual, isento, reais, GESTAO_NA_LOJA, PAGAMENTO_NA_LOJA, NOME_DA_LOJA,
+  PLANOS, assinaturaAtual, historicoDeCobranca, isento, reais,
+  GESTAO_NA_LOJA, PAGAMENTO_NA_LOJA, NOME_DA_LOJA,
   NOME_DO_TIPO, type TipoAssinatura,
 } from '../logic/assinatura';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
@@ -84,6 +85,16 @@ export default function Assinatura() {
   const convite = ((S.profile as any).convite as string) || vinculo?.convite || '';
   const clinica = S.profile.clinic || 'a clínica que acompanha você';
   const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
+
+  /* ⚠️ O EXTRATO SÓ EXISTE PARA QUEM JÁ TEVE COBRANÇA, e o teste é esse —
+     não "é Personal", não "não é isenta".
+
+     Quem nunca assinou abria uma tela que só podia estar vazia: um extrato
+     de uma conta que nunca foi cobrada é uma gaveta sem fundo. E quem
+     assinou e depois virou Care PRECISA da linha, porque tem cobranças
+     passadas para conferir — é por isso que a condição olha o histórico, e
+     não o plano de acesso. */
+  const jaTeveCobranca = !!atual || historicoDeCobranca(S).length > 0;
 
   /* ⚠️ O QUE A ETIQUETA MOSTRA É O PLANO DE ACESSO, e não o estado da
      cobrança. Ela já disse "Ativa", "Isenta" e "Inativa" — três palavras
@@ -230,16 +241,13 @@ export default function Assinatura() {
           />
         ) : null}
 
-        {/* ⚠️ O EXTRATO APARECE SEMPRE, inclusive vazio, e isso é de
-            propósito. "Onde eu vejo o que já paguei" é uma pergunta que se
-            faz antes de haver resposta — e uma lista vazia com uma frase
-            explicando por que está vazia responde melhor do que a ausência
-            da linha, que manda a pessoa procurar no lugar errado. */}
-        <Linha
-          ic="doc"
-          titulo="Histórico de cobrança"
-          onPress={() => router.push('/cobrancas' as any)}
-        />
+        {jaTeveCobranca ? (
+          <Linha
+            ic="doc"
+            titulo="Histórico de cobrança"
+            onPress={() => router.push('/cobrancas' as any)}
+          />
+        ) : null}
       </Cartao>
 
       {/* ---- a clínica ---- */}
@@ -350,27 +358,42 @@ export default function Assinatura() {
         </Cartao>
       ) : null}
 
-      {/* ⚠️ A LETRA MIÚDA TAMBÉM É UMA SÓ, e diz a coisa que vale para o
-          estado. Para quem é isenta, é a mesma promessa da tela de planos,
-          palavra por palavra: ela é um compromisso, não uma frase de tela,
-          e se as duas se afastarem uma delas vira a versão errada para
-          quem leu a outra.
+      {/* ⚠️ A LETRA MIÚDA SÓ APARECE QUANDO TEM O QUE DIZER, e para quem
+          assina ela não tinha.
 
-          Para quem não assinou, é o que a tela inteira tem de mais
-          honesto: dizer "você não assinou" sem dizer que NINGUÉM pode
-          assinar deixa a pessoa procurando um botão que não existe. Esta
-          frase sai no dia em que a cobrança entrar. */}
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
-        <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
-          {ehIsenta && assinaturaAtual(S)
-            ? `Você tem vínculo com a clínica e não precisa pagar, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e o aplicativo continua inteiro pelo vínculo.`
-            : atual
-            ? `A cobrança é feita pela ${NOME_DA_LOJA}, e é lá que ela se cancela — o aplicativo não consegue fazer isso por você. Cancelar mantém o acesso até o fim do período já pago.`
+          Havia ali um parágrafo explicando que a cobrança é da loja e que
+          cancelar mantém o acesso até o fim do período — as duas coisas
+          que /cancelar diz, em corpo maior, a um toque de distância, na
+          tela onde a pessoa está quando a pergunta existe. Repetir aqui
+          era gastar o fim da tela com o aviso que ninguém leu porque ainda
+          não precisava.
+
+          Os outros três casos ficam, e cada um diz uma coisa que não está
+          em lugar nenhum:
+
+          · isenta com assinatura ativa — o estado que não deveria existir,
+            e o único jeito de a pessoa descobrir que está pagando à toa;
+          · isenta — a mesma promessa da tela de planos, palavra por
+            palavra: é compromisso, não frase de tela, e se as duas se
+            afastarem uma vira a versão errada para quem leu a outra;
+          · sem nada — dizer "você não assinou" sem dizer que NINGUÉM pode
+            assinar deixa a pessoa procurando um botão que não existe. Esta
+            sai no dia em que a cobrança entrar. */}
+      {(() => {
+        const miuda = ehIsenta && assinaturaAtual(S)
+          ? `Você tem vínculo com a clínica e não precisa pagar, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e o aplicativo continua inteiro pelo vínculo.`
+          : atual
+            ? null
             : ehIsenta
               ? 'Se o vínculo terminar, avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro.'
-              : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.'}
-        </Txt>
-      </View>
+              : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.';
+        if (!miuda) return null;
+        return (
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{miuda}</Txt>
+          </View>
+        );
+      })()}
     </TelaInterna>
   );
 }
