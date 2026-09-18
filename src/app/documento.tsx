@@ -1,55 +1,65 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { documentoDe, type Secao } from '../logic/documentos';
-import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao } from '../ui/internas';
+import {
+  documentoDe, VERSAO_DOS_DOCUMENTOS, VIGENTE_DESDE, FASE, type Secao,
+} from '../logic/documentos';
+import { Txt, Row, Rich } from '../ui/kit';
+import { TelaInterna } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
    UM DOCUMENTO — Termos de Uso ou Política de Privacidade
 
-   Uma tela para os dois, porque são o mesmo objeto: título, uma frase de
-   entrada e seções numeradas. Duas telas quase iguais divergiriam no
-   primeiro ajuste de entrelinha, e num documento jurídico a diferença
-   entre as duas viraria dúvida sobre qual é a versão boa.
+   Uma tela para os dois, porque são o mesmo objeto: sobrelinha, título,
+   versão, abertura e seções numeradas. Duas telas quase iguais
+   divergiriam no primeiro ajuste de entrelinha, e num documento jurídico
+   a diferença entre as duas viraria dúvida sobre qual é a versão boa.
 
-   O DESENHO AQUI É DE LEITURA LONGA, e não de lista de configuração.
-   Medida de linha confortável, entrelinha generosa, seção separada por
-   espaço em vez de fio — quem abre isto vai ler parágrafos, não bater o
-   olho num valor.
+   O CABEÇALHO VEIO DO SELLO, e ele carrega três coisas que um Titulão
+   comum não tem:
 
-   E NÃO É PAPEL. A tela do resumo para o médico já ensinou a lição: quem
-   lê aqui é a pessoa, no telefone dela, e imitar a folha impressa só
-   piora o que ela veio fazer. O documento continua sendo documento pela
-   estrutura — seções numeradas, linguagem precisa —, e não por fingir
-   ter margem de impressora.
+     · a SOBRELINHA diz de que lei o documento vive — "POLÍTICA · LGPD" —,
+       e isso enquadra a leitura antes da primeira linha;
+     · a VERSÃO e a VIGÊNCIA existem porque documento jurídico sem data é
+       documento sem efeito: quem aceitou precisa saber o que aceitou, e
+       a versão é o que liga o aceite guardado no perfil a este texto;
+     · o FIO fecha o cabeçalho e abre o corpo, que é a única régua desta
+       tela — as seções depois se separam por espaço, e não por fios.
+
+   O DESENHO É DE LEITURA LONGA, e não de lista de configuração. Medida de
+   linha confortável, entrelinha generosa, ênfase em negrito dentro do
+   parágrafo em vez de cor. Quem abre isto vai ler parágrafos.
    ============================================================ */
 
 function Bloco({ s }: { s: Secao }) {
   const { c } = useTheme();
+  const Paragrafo = ({ t }: { t: string }) => (
+    <Rich text={t} v="caption" base={c.tx2} bold={c.tx} style={{ lineHeight: 22 }} />
+  );
+
   return (
     <View style={{ gap: 10 }}>
       <Txt v="bodyMed" style={{ letterSpacing: -0.2 }}>{s.titulo}</Txt>
-      {(s.paragrafos ?? []).map((p, i) => (
-        <Txt key={`p${i}`} v="caption" c={c.tx2} style={{ lineHeight: 22 }}>{p}</Txt>
-      ))}
+      {(s.paragrafos ?? []).map((p, i) => <Paragrafo key={`p${i}`} t={p} />)}
+
       {s.itens?.length ? (
-        <View style={{ gap: 8, marginTop: 2 }}>
+        <View style={{ gap: 9, marginTop: 2 }}>
           {s.itens.map((it, i) => (
             /* O MARCADOR É UM PONTO ALINHADO COM A PRIMEIRA LINHA, e o
                texto tem coluna própria: sem isso a segunda linha de cada
                item volta para debaixo do marcador e a lista deixa de se
                ler como lista. */
-            <Row key={`i${i}`} gap={9} style={{ alignItems: 'flex-start' }}>
+            <Row key={`i${i}`} gap={10} style={{ alignItems: 'flex-start' }}>
               <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.tx4, marginTop: 9 }} />
-              <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 22 }}>{it}</Txt>
+              <View style={{ flex: 1 }}><Paragrafo t={it} /></View>
             </Row>
           ))}
         </View>
       ) : null}
+
       {(s.depois ?? []).map((p, i) => (
-        <Txt key={`d${i}`} v="caption" c={c.tx2} style={{ lineHeight: 22, marginTop: 2 }}>{p}</Txt>
+        <View key={`d${i}`} style={{ marginTop: 2 }}><Paragrafo t={p} /></View>
       ))}
     </View>
   );
@@ -65,9 +75,19 @@ export default function DocumentoTela() {
 
   return (
     <TelaInterna titulo={doc.titulo}>
-      <Titulao titulo={doc.titulo} lead={doc.lead} />
+      <View style={{ gap: 10 }}>
+        <Txt v="micro" c={c.cta} style={{ letterSpacing: 2 }}>{doc.sobre}</Txt>
+        <Txt v="h1" style={{ letterSpacing: -1 }}>{doc.titulo}</Txt>
+        <Txt v="caption" c={c.tx3}>
+          Versão {VERSAO_DOS_DOCUMENTOS} — {FASE} · Vigente desde {VIGENTE_DESDE}
+        </Txt>
+      </View>
 
-      <View style={{ gap: 26 }}>
+      <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line }} />
+
+      <Rich text={doc.abertura} v="caption" base={c.tx2} bold={c.tx} style={{ lineHeight: 22 }} />
+
+      <View style={{ gap: 28 }}>
         {doc.secoes.map((s) => <Bloco key={s.titulo} s={s} />)}
       </View>
 
