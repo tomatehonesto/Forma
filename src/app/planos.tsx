@@ -147,11 +147,21 @@ const MOCKUP_PROPORCAO = 900 / 1959;
    ele a página parece terminar na barra e ninguém rola. Crescer a janela
    sem medir de novo apaga essa pista. */
 const MOCKUP_JANELA = 252;
-const MOCKUP_LARGURA = 276;
+const MOCKUP_LARGURA = 304;
 
 function PecaDoAlto({ c }: { c: any }) {
   return (
-    <View style={{ height: MOCKUP_JANELA, overflow: 'hidden', alignItems: 'center' }}>
+    /* ⚠️ A JANELA SANGRA PARA FORA DA CALHA, e o −20 é o padding do alto.
+
+       A peça mora dentro de um bloco com `paddingHorizontal: 20`, então o
+       desvanecimento parava a 20 px de cada borda — e os 20 px que sobravam
+       continuavam com a aurora acesa. O resultado eram duas lascas claras
+       nos cantos, exatamente na altura em que a imagem deveria ter sumido:
+       o corte que não se vê no meio da tela aparecia nas pontas.
+
+       Um véu que termina antes da borda não é um véu. Se o padding do alto
+       mudar, este número muda junto. */
+    <View style={{ height: MOCKUP_JANELA, marginHorizontal: -20, overflow: 'hidden', alignItems: 'center' }}>
       <Image
         source={MOCKUP}
         style={{ width: MOCKUP_LARGURA, height: MOCKUP_LARGURA / MOCKUP_PROPORCAO }}
@@ -165,14 +175,14 @@ function PecaDoAlto({ c }: { c: any }) {
           não de valor absoluto: quanto mais a janela encolhe, maior a
           fatia da imagem que um véu fixo come.
 
-          72 px resolve mantendo a mesma ideia — o corte continua sendo
-          uma dissolução e não uma tesoura —, e `0.88` empurra o preto
-          para os últimos oito por cento, onde ele só tem que encostar no
-          fundo da página. Quem mexer em MOCKUP_JANELA olha para cá. */}
+          56 px resolve mantendo a mesma ideia — o corte continua sendo
+          uma dissolução e não uma tesoura —, e `0.9` empurra o preto para
+          os últimos dez por cento, onde ele só tem que encostar no fundo
+          da página. Quem mexer em MOCKUP_JANELA olha para cá. */}
       <LinearGradient
         colors={['transparent', c.bg]}
-        locations={[0, 0.88]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 72 }}
+        locations={[0, 0.9]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 56 }}
         pointerEvents="none"
       />
     </View>
