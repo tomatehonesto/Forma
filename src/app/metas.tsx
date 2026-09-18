@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -41,9 +42,9 @@ import { radius } from '../theme';
    existe, enquanto as outras metas ocupam o corpo da tela.
    ============================================================ */
 
-const AURORA = require('../../assets/images/aurora-insights.png');
 
 export default function Metas() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function Metas() {
   return (
     <TelaDeHabito>
       <CapaDeHabito
-        foto={AURORA}
+        foto={aurora.insights}
         titulo="Metas"
         linha={`${kg(perdido)} de ${kg(total)} kg até ${ALVOS.peso.escreve(S.profile.goalWeight)} kg`}
         pct={pct}

@@ -4,11 +4,11 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 /* ============================================================
    O ÍCONE DO APLICATIVO — a escolha que sai da tela
 
-   A cor escolhida na aparência vai até a tela inicial do telefone. Não é
-   pintura em tempo de execução: o sistema só troca entre ícones que já
-   estavam no pacote, declarados antes da compilação. Os vinte e cinco
-   são gerados por scripts/gerar-icones.mjs, do mesmo caminho que a marca
-   usa dentro do app.
+   A paleta escolhida na aparência vai até a tela inicial do telefone.
+   Não é pintura em tempo de execução: o sistema só troca entre ícones que
+   já estavam no pacote, declarados antes da compilação. Os dez são
+   gerados por scripts/gerar-icones.mjs, do mesmo caminho que a marca usa
+   dentro do app.
 
    ⚠️ A PORTA SE FECHA ANTES DO REQUIRE, e não depois.
 
@@ -41,8 +41,10 @@ const modulo = () => {
   }
 };
 
-/** O nome do ícone de uma combinação — o mesmo que o gerador escreve. */
-export const nomeDoIcone = (cor: string, destaque: string) => `${cor}-${destaque}`;
+/* O NOME DO ÍCONE É O ID DA PALETA, e isso não é coincidência: o
+   gerador escreve o arquivo com esse nome, o plugin o declara com esse
+   nome, e o sistema o procura por esse nome. Uma tradução no meio seria
+   um terceiro lugar para errar. */
 
 /** Se este aparelho troca de ícone. Falso no navegador e no Expo Go. */
 export function suportaIcone(): boolean {
@@ -57,11 +59,11 @@ export function suportaIcone(): boolean {
 /* TROCA E ESQUECE. Devolve se deu certo, para quem quiser saber — e a
    tela de aparência não quer: ela já mudou a cor, que é o que a pessoa
    pediu. O ícone é o extra que acontece quando dá. */
-export async function trocarIcone(cor: string, destaque: string): Promise<boolean> {
+export async function trocarIcone(paleta: string): Promise<boolean> {
   try {
     const m = modulo();
     if (!m?.supportsAlternateIcons) return false;
-    await m.setAlternateAppIcon(nomeDoIcone(cor, destaque));
+    await m.setAlternateAppIcon(paleta);
     return true;
   } catch {
     return false;

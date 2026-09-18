@@ -89,13 +89,17 @@ lembretes tocando e a leitura de peso chegando, em build de verdade.
 
 ## 9. Os ícones alternativos precisam de prebuild
 
-`expo-alternate-app-icons` entra por projeto nativo: os 25 ícones são
+`expo-alternate-app-icons` entra por projeto nativo: os 10 ícones são
 declarados no plugin do `app.json` e o arquivo nativo é escrito no
 `prebuild`. No EAS isso acontece no próprio build; num dev client local,
-rodar `npx expo prebuild --clean` depois de mexer em `CORES` ou
-`DESTAQUES`.
+rodar `npx expo prebuild --clean` depois de mexer em `PALETAS`.
 
-E regerar os arquivos antes: `node scripts/gerar-icones.mjs`.
+E regerar os arquivos antes — os dois geradores:
+
+```
+node scripts/gerar-icones.mjs
+node scripts/gerar-aurora.mjs
+```
 
 A troca de ícone não roda no navegador nem no Expo Go — a tela de
 Aparência diz isso na própria tela quando é o caso, e as cores mudam do

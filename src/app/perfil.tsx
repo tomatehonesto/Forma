@@ -20,7 +20,7 @@ import { Icon } from '../ui/Icon';
    trocada. */
 const FOTO_MEDICA = require('../../assets/images/especialista.png');
 import { useTheme } from '../ui/useTheme';
-import { radius, font, corDe, destaqueDe } from '../theme';
+import { radius, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
@@ -167,7 +167,7 @@ export default function Perfil() {
       '---',
       `Morphi ${VERSAO_DO_APP}`,
       `Sistema: ${Platform.OS} ${Platform.Version}`,
-      `Cor: ${corDe((S as any).cor).nome} · Tema: ${isDark ? 'escuro' : 'claro'}`,
+      `Paleta: ${paletaDe((S as any).paleta).nome} · Tema: ${isDark ? 'escuro' : 'claro'}`,
       '',
       'Conte o que você estava fazendo e o que aconteceu.',
     ].join('\n');
@@ -553,7 +553,7 @@ export default function Perfil() {
           terceira decisão do mesmo assunto. */}
       <Grupo title="Personalize o aplicativo">
         <ListRow ic="palette" title="Aparência"
-          sub={`${corDe((S as any).cor).nome} e ${destaqueDe((S as any).destaque).nome} · tema ${isDark ? 'escuro' : 'claro'}`}
+          sub={`Paleta ${paletaDe((S as any).paleta).nome} · tema ${isDark ? 'escuro' : 'claro'}`}
           onPress={go('/aparencia')} />
       </Grupo>
 

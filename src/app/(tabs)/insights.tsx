@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
+import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,7 +37,6 @@ import { radius, font, shadowCard, type Palette } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
-const AURORA_INSIGHTS = require('../../../assets/images/aurora-insights.png');
 
 /* O ORBE NÃO É MAIS UM ARQUIVO.
 
@@ -129,6 +129,7 @@ const CHIPS_MAX = 3;
    nao mora dentro de um deles. */
 
 export default function Insights() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -233,7 +234,7 @@ export default function Insights() {
               mesma família da Home, em outro corte — a Home é vertical e
               recortada, esta é a faixa larga. */}
           <Image
-            source={AURORA_INSIGHTS}
+            source={aurora.insights}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             /* ancorada no topo, não centralizada.

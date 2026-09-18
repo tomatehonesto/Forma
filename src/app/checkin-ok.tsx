@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, Animated, ScrollView, StyleSheet } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,10 +46,10 @@ import { radius, font } from '../theme';
    seria rebaixá-lo.
    ============================================================ */
 
-const AURORA = require('../../assets/images/aurora-hero.png');
 const PAD = 16;
 
 export default function CheckinOk() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -176,7 +177,7 @@ export default function CheckinOk() {
       {/* A aurora parada. Na Home ela deriva devagar, e ali o movimento é
           ambiente; aqui o que se move é o número, e duas coisas em
           movimento disputam o mesmo olhar. */}
-      <Image source={AURORA} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
       <LinearGradient
         colors={['rgba(3,10,38,0.42)', 'rgba(3,10,38,0.54)', 'rgba(3,10,38,0.88)']}
         locations={[0, 0.38, 1]}

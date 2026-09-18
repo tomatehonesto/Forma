@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -58,7 +59,6 @@ import { radius, font } from '../theme';
 
 const PAD = 24;
 const SOBREPOSICAO = 36;
-const AURORA = require('../../assets/images/aurora-insights.png');
 
 /* Onde a base da esfera cai, em fração da LARGURA da tela.
 
@@ -141,6 +141,7 @@ function Pensando() {
 }
 
 export default function Companion() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
@@ -207,7 +208,7 @@ export default function Companion() {
           informação. */}
       <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 24 + SOBREPOSICAO }}>
         <Image
-          source={AURORA}
+          source={aurora.insights}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           contentPosition="top center"

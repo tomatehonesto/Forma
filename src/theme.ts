@@ -293,29 +293,36 @@ export const shadowSoft = (p: Palette) => ({
   elevation: 1,
 });
 
+
 /* ============================================================
-   A COR DO APLICATIVO
+   AS PALETAS
 
-   O azul e o lima são a marca, e o lima não se mexe: ele é a cor do
-   alcançado em toda tela deste app — check-in feito, meta batida, nível
-   de conquista —, e trocá-lo por escolha de preferência quebraria a
-   única regra de cor que o aplicativo inteiro obedece.
+   ⚠️ ERAM DUAS ESCOLHAS SOLTAS — uma cor de ação e uma de alcançado — e
+   isso empurrava para a pessoa uma decisão que é de design. As duas
+   juntas dão vinte e cinco combinações, e algumas delas são ruins: ação e
+   alcançado próximos fazem o botão que leva a algum lugar e a marca do
+   que já foi feito virarem a mesma coisa. Oferecer o erro como opção não
+   é dar liberdade; é terceirizar um problema.
 
-   O que se troca é a COR DE AÇÃO: botão, link, tab ativa, painel de
-   destaque, gradiente do retrato. Ela é azul por padrão e continua
-   sendo até alguém decidir o contrário.
+   Agora são dez paletas fechadas. Cada uma é um conjunto que já foi
+   olhado junto: a cor que age, a cor que celebra e a aurora do fundo.
+   Quem escolhe escolhe um clima, não dois valores.
 
-   ⚠️ NENHUMA PALETA CHEGA PERTO DO LIMA NEM DO TEAL. Verde e amarelo
-   ficaram de fora de propósito: lima já significa "alcançado" e o teal
-   já é a barra de exercício. Uma cor de ação vizinha delas faria a tela
-   inteira dizer a mesma coisa em dois tons parecidos, que é como se
-   perde um código de cor que levou o app inteiro para ser construído.
+   CADA PALETA TEM TRÊS PARTES
 
-   UMA COR-BASE POR MODO, E O RESTO SAI DELA. Ajustar doze tons à mão
-   para cada paleta seria doze chances de uma delas divergir; aqui a
-   família inteira — véu, fio, gradiente do painel, rampa do fundo
-   escuro — é calculada da base, com as mesmas proporções do azul
-   original. Adicionar uma paleta é escrever duas cores.
+     ação        botão, link, aba ativa, painel da Jornada
+     alcançado   check-in feito, meta batida, conquista
+     aurora      o gradiente que é fundo da Home e do Insights
+
+   A AURORA É IMAGEM, e por isso entra como receita e não como cor: o
+   arquivo original é girado no matiz e ajustado na saturação por
+   scripts/gerar-aurora.mjs, uma vez, antes da compilação. Sem isso a
+   paleta trocaria tudo menos a maior superfície de cor do aplicativo —
+   que é justamente a primeira coisa que alguém vê ao abrir.
+
+   A PRIMEIRA É A DO FIGMA, com os valores exatos: quem não escolher nada
+   vê o aplicativo que foi desenhado, e não uma aproximação calculada
+   dele.
    ============================================================ */
 
 const canal = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
@@ -329,79 +336,131 @@ export const mix = (a: string, b: string, t: number) =>
 export const alfa = (hex: string, a: number) =>
   `rgba(${canal(hex, 0)},${canal(hex, 1)},${canal(hex, 2)},${a})`;
 
-const BRANCO = '#FFFFFF';
-
 /* ⚠️ ESCURECER NÃO É MISTURAR COM O AZUL DA NOITE.
 
-   A primeira versão fazia as pontas escuras da rampa misturando a cor
-   com #05143F, que é o azul-noite do tema. Funcionava para o azul, e
-   virava lama para o resto: âmbar misturado com azul é cinza, porque são
-   complementares — a tela de Insights ficou um borrão sem cor nenhuma.
+   A primeira versão fazia as pontas escuras da rampa misturando a cor com
+   o azul-noite do tema. Funcionava para o azul e virava lama para o
+   resto: âmbar misturado com azul é cinza, porque são complementares — a
+   tela de Insights ficou um borrão sem cor nenhuma.
 
    Multiplicar os canais em direção ao preto preserva a matiz: âmbar
    escuro continua âmbar, violeta escuro continua violeta. */
 const escurecer = (hex: string, t: number) =>
   `#${[0, 1, 2].map((i) => hex2(canal(hex, i) * (1 - t))).join('')}`;
 
-export type Cor = {
+const BRANCO = '#FFFFFF';
+
+export type Paleta = {
   id: string;
   nome: string;
-  /** a cor de ação no tema claro e no escuro — o resto sai daqui */
-  claro: string;
-  escuro: string;
-  /** a tinta que vai POR CIMA da cor cheia, em cada modo */
+  /** a cor de ação, em cada modo — o resto da família sai daqui */
+  acaoClara: string;
+  acaoEscura: string;
+  /** a tinta por cima da cor de ação cheia */
   inkClaro: string;
   inkEscuro: string;
+  /** a cor do alcançado, e a tinta escura que vai por cima dela */
+  alcancado: string;
+  alcancadoInk: string;
+  /** giro de matiz, em graus, sobre a aurora original — que é azul */
+  auroraHue: number;
+  /** fator de saturação da aurora: 1 mantém, abaixo de 1 lava */
+  auroraSat: number;
 };
 
-export const CORES: Cor[] = [
-  /* O AZUL É O PRIMEIRO E É O PADRÃO, com os valores exatos do Figma:
-     quem não escolher nada continua vendo o aplicativo que foi
-     desenhado, e não uma aproximação calculada dele. */
-  { id: 'azul', nome: 'Azul', claro: '#065CF5', escuro: '#4C8BFF', inkClaro: '#FFFFFF', inkEscuro: '#04102B' },
-  { id: 'violeta', nome: 'Violeta', claro: '#6B3BF5', escuro: '#9B7BFF', inkClaro: '#FFFFFF', inkEscuro: '#150B2B' },
-  { id: 'magenta', nome: 'Magenta', claro: '#C4187F', escuro: '#F06FB4', inkClaro: '#FFFFFF', inkEscuro: '#2B0418' },
-  { id: 'ambar', nome: 'Âmbar', claro: '#B4610A', escuro: '#F0A24A', inkClaro: '#FFFFFF', inkEscuro: '#2B1604' },
-  { id: 'grafite', nome: 'Grafite', claro: '#2E3440', escuro: '#B6BECC', inkClaro: '#FFFFFF', inkEscuro: '#14181F' },
+export const PALETAS: Paleta[] = [
+  {
+    id: 'original', nome: 'Original',
+    acaoClara: '#065CF5', acaoEscura: '#4C8BFF', inkClaro: '#FFFFFF', inkEscuro: '#04102B',
+    alcancado: '#DDF62C', alcancadoInk: '#0A0A0A',
+    auroraHue: 0, auroraSat: 1,
+  },
+  {
+    id: 'amora', nome: 'Amora',
+    acaoClara: '#6B3BF5', acaoEscura: '#9B7BFF', inkClaro: '#FFFFFF', inkEscuro: '#150B2B',
+    alcancado: '#2BE8C8', alcancadoInk: '#04211C',
+    auroraHue: 40, auroraSat: 1.05,
+  },
+  {
+    id: 'framboesa', nome: 'Framboesa',
+    acaoClara: '#C4187F', acaoEscura: '#F06FB4', inkClaro: '#FFFFFF', inkEscuro: '#2B0418',
+    alcancado: '#FFC93C', alcancadoInk: '#2B1E04',
+    auroraHue: 110, auroraSat: 1.1,
+  },
+  {
+    id: 'brasa', nome: 'Brasa',
+    acaoClara: '#C2410C', acaoEscura: '#FB923C', inkClaro: '#FFFFFF', inkEscuro: '#2B1004',
+    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
+    auroraHue: 165, auroraSat: 1.05,
+  },
+  {
+    id: 'oceano', nome: 'Oceano',
+    acaoClara: '#0E7490', acaoEscura: '#38BDF8', inkClaro: '#FFFFFF', inkEscuro: '#04202B',
+    alcancado: '#FFC93C', alcancadoInk: '#2B1E04',
+    auroraHue: -40, auroraSat: 1,
+  },
+  {
+    id: 'floresta', nome: 'Floresta',
+    acaoClara: '#15803D', acaoEscura: '#4ADE80', inkClaro: '#FFFFFF', inkEscuro: '#042B14',
+    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
+    auroraHue: -85, auroraSat: 0.95,
+  },
+  {
+    id: 'indigo', nome: 'Índigo',
+    acaoClara: '#3730A3', acaoEscura: '#818CF8', inkClaro: '#FFFFFF', inkEscuro: '#0B0A2B',
+    alcancado: '#FF8A5B', alcancadoInk: '#2B0F04',
+    auroraHue: 18, auroraSat: 0.9,
+  },
+  {
+    id: 'vinho', nome: 'Vinho',
+    acaoClara: '#9F1239', acaoEscura: '#FB7185', inkClaro: '#FFFFFF', inkEscuro: '#2B040F',
+    alcancado: '#2BE8C8', alcancadoInk: '#04211C',
+    auroraHue: 140, auroraSat: 1.05,
+  },
+  {
+    id: 'menta', nome: 'Menta',
+    acaoClara: '#0D9488', acaoEscura: '#5EEAD4', inkClaro: '#FFFFFF', inkEscuro: '#042B26',
+    alcancado: '#FF85B3', alcancadoInk: '#2B0715',
+    auroraHue: -65, auroraSat: 0.95,
+  },
+  {
+    /* A ÚNICA SEM MATIZ. Aqui a aurora não gira: ela perde cor, e o
+       alcançado fica sendo a única coisa saturada da tela — que é
+       exatamente o que esta paleta quer dizer. */
+    id: 'grafite', nome: 'Grafite',
+    acaoClara: '#2E3440', acaoEscura: '#B6BECC', inkClaro: '#FFFFFF', inkEscuro: '#14181F',
+    alcancado: '#DDF62C', alcancadoInk: '#0A0A0A',
+    auroraHue: 0, auroraSat: 0.12,
+  },
 ];
 
-export const corDe = (id?: string) => CORES.find((x) => x.id === id) ?? CORES[0];
+export const paletaDe = (id?: string) => PALETAS.find((x) => x.id === id) ?? PALETAS[0];
 
-/* A PALETA INTEIRA, COM A COR DE AÇÃO TROCADA.
-
-   Devolve o mesmo objeto quando a cor é o azul padrão: sem isso, cada
-   render recalcularia doze tons para chegar exatamente onde o Figma já
-   estava — e o `===` que o React usa para comparar deixaria de valer. */
-/* A paleta calculada fica guardada por cor e modo. `useTheme` roda em
-   toda tela e a cada render: sem isto, cada um deles receberia um objeto
-   novo e recém-misturado, e a comparação por identidade que o React usa
-   para decidir o que redesenhar pararia de valer em cima de um valor que
-   muda cinco vezes por ano. */
+/* A paleta calculada fica guardada por id e modo. `useTheme` roda em toda
+   tela e a cada render: sem isto, cada um deles receberia um objeto novo
+   e recém-misturado, e a comparação por identidade que o React usa para
+   decidir o que redesenhar pararia de valer em cima de um valor que muda
+   cinco vezes por ano. */
 const guardadas = new Map<string, Palette>();
 
-/* AS DUAS ESCOLHAS, NUMA CHAMADA SÓ. A ação e o destaque são
-   independentes — trocar uma não mexe na outra — e quem combina as duas
-   é esta função, para que nenhuma tela precise saber que existe escolha
-   de cor. */
-export function comPaleta(p: Palette, cor: string | undefined, destaque: string | undefined, isDark: boolean): Palette {
-  return comDestaque(comCor(p, cor, isDark), destaque, isDark);
-}
+export function comPaleta(p: Palette, id: string | undefined, isDark: boolean): Palette {
+  const pal = paletaDe(id);
+  if (pal.id === 'original') return p;
 
-export function comCor(p: Palette, id: string | undefined, isDark: boolean): Palette {
-  const cor = corDe(id);
-  if (cor.id === 'azul') return p;
-
-  const chave = `${cor.id}:${isDark ? 'd' : 'l'}`;
+  const chave = `${pal.id}:${isDark ? 'd' : 'l'}`;
   const pronta = guardadas.get(chave);
   if (pronta) return pronta;
 
-  const base = isDark ? cor.escuro : cor.claro;
-  const ink = isDark ? cor.inkEscuro : cor.inkClaro;
+  const base = isDark ? pal.acaoEscura : pal.acaoClara;
+  const ink = isDark ? pal.inkEscuro : pal.inkClaro;
+  const alc = pal.alcancado;
 
-  const paleta: Palette = {
+  const feita: Palette = {
     ...p,
+
+    /* ---- a cor que age ---- */
     accent: base,
-    /* No claro o segundo tom é mais FUNDO que o primeiro; no escuro é
+    /* No claro o segundo tom é mais fundo que o primeiro; no escuro é
        mais claro — a mesma inversão que o azul do tema já fazia. */
     accent2: isDark ? mix(base, BRANCO, 0.18) : escurecer(base, 0.24),
     accentInk: ink,
@@ -411,83 +470,32 @@ export function comCor(p: Palette, id: string | undefined, isDark: boolean): Pal
     gradTo: escurecer(base, isDark ? 0.3 : 0.24),
     /* O painel de destaque é a rampa curta: claro em cima, cheio no meio,
        fundo embaixo. */
-    panelFrom: mix(base, BRANCO, isDark ? 0.0 : 0.22),
+    panelFrom: mix(base, BRANCO, isDark ? 0 : 0.22),
     panelMid: base,
     panelTo: escurecer(base, 0.5),
-    /* A rampa longa do Insights começa quase noturna e termina no fundo
-       da tela. */
+    /* A rampa longa começa quase noturna e termina no fundo da tela. */
     altFrom: mix(base, BRANCO, 0.1),
     altMid: escurecer(base, 0.58),
     altTo: escurecer(base, 0.88),
     /* A pastilha do "Inicial", no perfil: a lavagem mais pálida da cor. */
     bluePale: isDark ? escurecer(base, 0.7) : mix(base, p.bg, 0.78),
-  };
 
-  guardadas.set(chave, paleta);
-  return paleta;
-}
-
-/* ============================================================
-   A COR DE DESTAQUE
-
-   O lima é a cor do ALCANÇADO neste app: check-in feito, meta batida,
-   nível de conquista, botão de começar. Essa função não muda — o que
-   muda é a tinta que a cumpre.
-
-   E é uma função, não decoração: o app inteiro lê "esta coisa aconteceu"
-   quando vê essa cor. Por isso todas as opções são claras e saturadas,
-   com tinta escura por cima: uma cor de destaque escura inverteria a
-   leitura, e "alcançado" passaria a parecer "desativado".
-
-   ⚠️ NENHUMA DELAS É A COR DE AÇÃO. Destaque e ação precisam se separar
-   à primeira vista — se as duas forem azuis, o botão que leva a algum
-   lugar e a marca do que já foi feito viram a mesma coisa. Quem escolhe
-   as duas pode chegar perto; a tela de aparência mostra o par junto,
-   justamente para essa escolha ser feita olhando.
-   ============================================================ */
-export type Destaque = {
-  id: string;
-  nome: string;
-  /** a cor cheia */
-  claro: string;
-  /** a tinta que vai por cima dela — escura em todas, de propósito */
-  ink: string;
-};
-
-export const DESTAQUES: Destaque[] = [
-  { id: 'lima', nome: 'Lima', claro: '#DDF62C', ink: '#0A0A0A' },
-  { id: 'turquesa', nome: 'Turquesa', claro: '#2BE8C8', ink: '#04211C' },
-  { id: 'coral', nome: 'Coral', claro: '#FF8A5B', ink: '#2B0F04' },
-  { id: 'ouro', nome: 'Ouro', claro: '#FFC93C', ink: '#2B1E04' },
-  { id: 'rosa', nome: 'Rosa', claro: '#FF85B3', ink: '#2B0715' },
-];
-
-export const destaqueDe = (id?: string) => DESTAQUES.find((x) => x.id === id) ?? DESTAQUES[0];
-
-/* A FAMÍLIA DO DESTAQUE, derivada da cor cheia como a da ação é da dela.
-
-   São sete tons e cada um tem um papel que já existia no tema: o cheio,
-   o rebaixado da barra, a tinta por cima, o véu de fundo, a lavagem do
-   selo com a sua tinta escura, e a pálida da barra de meta. */
-function comDestaque(p: Palette, id: string | undefined, isDark: boolean): Palette {
-  const d = destaqueDe(id);
-  if (d.id === 'lima') return p;
-
-  const base = d.claro;
-  return {
-    ...p,
-    lime: base,
-    limeDim: escurecer(base, 0.1),
-    limeInk: d.ink,
-    limeWeak: alfa(base, isDark ? 0.16 : 0.18),
-    /* O selo é lavagem com tinta escura por cima, e no escuro é o
+    /* ---- a cor do alcançado ---- */
+    lime: alc,
+    limeDim: escurecer(alc, 0.1),
+    limeInk: pal.alcancadoInk,
+    limeWeak: alfa(alc, isDark ? 0.16 : 0.18),
+    /* O selo é lavagem com tinta escura por cima; no escuro é o
        contrário: véu da cor com a própria cor por tinta. */
-    limeSoft: isDark ? alfa(base, 0.16) : mix(base, BRANCO, 0.62),
-    limeSoftInk: isDark ? base : escurecer(base, 0.62),
-    limePale: isDark ? escurecer(base, 0.68) : mix(base, BRANCO, 0.82),
-    /* `green` é legado do tema v1 e aponta para o mesmo lima; segue
-       junto para não ficar um verde solto no meio de uma paleta rosa. */
-    green: base,
-    greenDim: escurecer(base, 0.1),
+    limeSoft: isDark ? alfa(alc, 0.16) : mix(alc, BRANCO, 0.62),
+    limeSoftInk: isDark ? alc : escurecer(alc, 0.62),
+    limePale: isDark ? escurecer(alc, 0.68) : mix(alc, BRANCO, 0.82),
+    /* `green` é legado do tema v1 e aponta para o mesmo alcançado; segue
+       junto para não ficar um verde solto no meio de uma paleta vinho. */
+    green: alc,
+    greenDim: escurecer(alc, 0.1),
   };
+
+  guardadas.set(chave, feita);
+  return feita;
 }

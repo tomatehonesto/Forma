@@ -1,3 +1,6 @@
+/** Claro, escuro, ou o que o telefone estiver usando. */
+export type Tema = 'light' | 'dark' | 'system';
+
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
 import { daysAgo, addDays, startOfDay, now } from './time';
 import { nomeItem, somaDe, type ItemComida } from './prato';
@@ -472,12 +475,15 @@ export function buildSeed() {
       { t: +daysAgo(45), text: 'Pedir os exames de acompanhamento', done: true },
     ],
     onboardDone: true,
-    theme: 'light' as 'light' | 'dark',
+    /* SISTEMA É O PADRÃO, e não claro. Quem instala o app já escolheu
+       claro ou escuro uma vez, nos ajustes do telefone — repetir a
+       pergunta é ignorar a resposta que a pessoa já deu. */
+    theme: 'system' as Tema,
     /* A cor de ação. 'azul' é o que o Figma desenhou, e quem não escolher
        nada continua vendo exatamente aquilo — ver CORES em src/theme.ts. */
-    cor: 'azul' as string,
-    /* A cor do alcançado. 'lima' é o lima da marca. */
-    destaque: 'lima' as string,
+    /* A paleta: a cor que age, a que celebra e a aurora do fundo, num
+       conjunto só. 'original' é o azul com o lima do Figma. */
+    paleta: 'original' as string,
     lastReplaySeen: 0,
   };
 }
@@ -578,8 +584,17 @@ export function ensureDefaults(S: any) {
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
   /* Quem gravou o estado antes de a cor existir fica com o azul, que é o
      aplicativo que essa pessoa já conhece. */
-  if (!(S as any).cor) (S as any).cor = 'azul';
-  if (!(S as any).destaque) (S as any).destaque = 'lima';
+  /* Quem gravou antes das paletas existirem fica com a original, que é o
+     aplicativo que essa pessoa já conhece. As chaves antigas — uma cor de
+     ação e uma de alcançado soltas — saem: duas escolhas que viraram uma
+     não podem ficar guardadas ao lado da nova, ou a divergência começa no
+     primeiro mês. */
+  if (!(S as any).paleta) (S as any).paleta = 'original';
+  delete (S as any).cor;
+  delete (S as any).destaque;
+  /* E o tema ganhou 'system'. Quem tinha claro ou escuro escolhido
+     continua com ele — foi escolha, não padrão. */
+  if (!['light', 'dark', 'system'].includes((S as any).theme)) (S as any).theme = 'system';
   /* Favorito virou prato. Os que existirem como string continuam
      valendo — viram { nome } e seguem abrindo o registro com o nome na
      busca, que é o que sempre fizeram. */

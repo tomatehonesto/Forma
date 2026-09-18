@@ -73,6 +73,7 @@ import Lock from 'lucide-react-native/icons/lock';
 import LogOut from 'lucide-react-native/icons/log-out';
 import MessageCircle from 'lucide-react-native/icons/message-circle';
 import Moon from 'lucide-react-native/icons/moon';
+import Contrast from 'lucide-react-native/icons/contrast';
 import Palette from 'lucide-react-native/icons/palette';
 import Pencil from 'lucide-react-native/icons/pencil';
 import Pill from 'lucide-react-native/icons/pill';
@@ -146,6 +147,9 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   water: GlassWater,
   flame: Flame,
   moon: Moon,
+  /* O disco meio cheio — o desenho que os sistemas usam para "siga o
+     aparelho" na escolha de tema. */
+  contrast: Contrast,
   bolt: Zap,
   mood: FaceSlightlySmiling,
   meh: FaceNeutral,

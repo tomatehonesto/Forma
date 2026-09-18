@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,7 +22,6 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, type Palette } from '../../theme';
 
-const AURORA = require('../../../assets/images/aurora-hero.png');
 const PAD = 24;                     // margem lateral do frame
 const FOTO_MEDICA = require('../../../assets/images/especialista.png');
 const GOAL_W = 323;                 // largura do card de meta
@@ -93,6 +93,7 @@ function TrendDot({ up, good, c }: { up: boolean; good: boolean; c: Palette }) {
 
 /* ------------------------------------------------------------------ */
 export default function Home() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -215,7 +216,7 @@ export default function Home() {
               ],
             }]}
           >
-            <Image source={AURORA} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
           </Animated.View>
 
           {/* Véu sobre a aurora, mais pesado nas pontas que no meio.

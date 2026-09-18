@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -34,7 +35,6 @@ import { useTheme } from '../ui/useTheme';
    valer a pena numa família de telas.
    ============================================================ */
 
-const AURORA = require('../../assets/images/aurora-hero.png');
 
 /* UM SÓ MARCADOR PARA AS CINCO LINHAS.
 
@@ -66,6 +66,7 @@ function Marcador({ feita }: { feita: boolean }) {
 }
 
 export default function Protocolos() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
@@ -78,7 +79,7 @@ export default function Protocolos() {
   return (
     <TelaDeHabito>
       <CapaDeHabito
-        foto={AURORA}
+        foto={aurora.hero}
         titulo="Protocolos"
         /* A SEMANA, e não o dia. As outras três capas contam hoje porque
            água, proteína e movimento se refazem todo dia; um protocolo é

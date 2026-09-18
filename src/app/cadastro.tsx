@@ -3,6 +3,7 @@ import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
   KeyboardAvoidingView, Keyboard,
 } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -750,7 +751,6 @@ const GLIFOS: [string, number, number, number][] = [
    Lá ele desce do topo sobre a foto; aqui sobe do pé, forte embaixo e
    sumindo no meio da tela. Faixa preta reta seria mais simples e seria
    uma costura à mostra. */
-const CAPA = require('../../assets/images/aurora-hero.png');
 /* A marca num quadrado — o mesmo arquivo que vira ícone do app. */
 const MARCA_APP = require('../../assets/images/marca-app.png');
 const TINTA_CAPA = '#05143F';
@@ -760,6 +760,7 @@ const TINTA_CAPA = '#05143F';
 const TITULO_ABERTURA = { fontFamily: font.body, fontSize: 38, lineHeight: 46 };
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
+  const aurora = useAurora();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   useLightStatusBar();
@@ -769,7 +770,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
           web escala a imagem pelo tamanho natural dela e o recorte sai
           ampliado, mostrando um canto. */}
       <Image
-        source={CAPA}
+        source={aurora.hero}
         style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
         resizeMode="cover"
       />

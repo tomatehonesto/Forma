@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
+import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,9 +42,9 @@ import { radius } from '../theme';
    para sair de um lugar onde ninguém pediu para entrar.
    ============================================================ */
 
-const AURORA = require('../../assets/images/aurora-hero.png');
 
 export default function ConquistaOk() {
+  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
@@ -87,7 +88,7 @@ export default function ConquistaOk() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#05143F' }}>
-      <Image source={AURORA} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
       {/* O véu escurece o alto e o pé, onde mora texto pequeno, e deixa a
           aurora aparecer no meio — é o mesmo tratamento do check-in
           concluído. */}

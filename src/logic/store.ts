@@ -1,7 +1,7 @@
 /* Store — zustand + persistência AsyncStorage (equivale ao load/save/localStorage do protótipo). */
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { buildSeed, estadoVazio, ensureDefaults, type State } from './seed';
+import { buildSeed, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -12,9 +12,8 @@ type Store = {
   hydrate: () => Promise<void>;
   update: (mut: (s: State) => void) => void;
   reset: () => void;
-  setCor: (id: string) => void;
-  setDestaque: (id: string) => void;
-  setTheme: (t: 'light' | 'dark') => void;
+  setPaleta: (id: string) => void;
+  setTheme: (t: Tema) => void;
 };
 
 /* O ESTADO NOVO PASSA PELAS MESMAS GARANTIAS QUE O GRAVADO.
@@ -61,6 +60,7 @@ export const useStore = create<Store>((set, get) => ({
   setTheme: (t) => get().update((s) => { s.theme = t; }),
   /* A cor de ação mora no estado como o tema mora: é preferência, e
      preferência sobrevive a fechar o app. */
-  setCor: (id) => get().update((s: any) => { s.cor = id; }),
-  setDestaque: (id) => get().update((s: any) => { s.destaque = id; }),
+  /* A paleta mora no estado como o tema mora: é preferência, e
+     preferência sobrevive a fechar o app. */
+  setPaleta: (id) => get().update((s: any) => { s.paleta = id; }),
 }));
