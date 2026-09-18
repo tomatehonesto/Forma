@@ -276,7 +276,7 @@ export default function Assinatura() {
           <Linha
             ic="steth"
             titulo="Inserir código"
-            sub="Se você se trata numa clínica parceira, o código libera o aplicativo e você deixa de pagar"
+            sub="Pacientes de clínicas parceiras possuem isenção do custo do aplicativo"
             onPress={() => router.push('/codigo' as any)}
           />
         ) : TEM_REDE_PARCEIRA ? (
@@ -290,17 +290,23 @@ export default function Assinatura() {
       </Cartao>
 
       {/* ---- cancelar ---- */}
-      {/* ⚠️ O CANCELAMENTO FICA SOZINHO, e leva à loja.
+      {/* ⚠️ O CANCELAMENTO FICA SOZINHO, e passa por /cancelar.
 
           Sozinho porque é a única ação desta tela que desfaz alguma coisa:
           no meio das outras, um toque errado numa lista vira um
           cancelamento que ninguém quis.
 
-          E que ele leve para fora não é escolha de desenho: a Apple e o
-          Google exigem que a gestão da assinatura aconteça nas telas
-          deles, e um "cancelar" que chamasse só a nossa API seria recusado
-          na revisão — e, pior, não cancelaria nada, porque quem cobra é a
-          loja. O rótulo diz para onde vai.
+          ⚠️ E A TELA DO MEIO PERGUNTA, MAS NÃO SEGURA. Lá o botão que leva
+          à loja está no rodapé, ligado, sem depender de responder nada —
+          um toque a mais do que antes, e nenhum a mais do que isso. A
+          regra está escrita em /cancelar e vale mais do que a intenção de
+          quem mexer nela depois: quem abriu já decidiu, e a pergunta é
+          para a gente, não contra ela.
+
+          Quem cancela de verdade é a loja. A Apple e o Google exigem que a
+          gestão da assinatura aconteça nas telas deles, e um "cancelar"
+          que chamasse só a nossa API seria recusado na revisão — e, pior,
+          não cancelaria nada.
 
           ⚠️ E ELE APARECE QUANDO HÁ O QUE CANCELAR. Um botão de cancelar
           numa conta sem assinatura é a porta emparedada clássica das telas
@@ -316,7 +322,7 @@ export default function Assinatura() {
           <Linha
             ic="logout"
             titulo="Cancelar assinatura"
-            onPress={() => Linking.openURL(GESTAO_NA_LOJA)}
+            onPress={() => router.push((fingindoAssinante ? '/cancelar?assinante=1' : '/cancelar') as any)}
           />
         </Cartao>
       ) : null}

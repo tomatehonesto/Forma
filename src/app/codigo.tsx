@@ -47,7 +47,14 @@ export default function Codigo() {
   const router = useRouter();
   const { c } = useTheme();
 
-  const guardado = ((S.profile as any).convite as string) || '';
+  /* ⚠️ O CAMPO NASCE COM O QUE JÁ EXISTE, e o vínculo é a segunda fonte
+     porque a primeira pode estar vazia: quem chegou com o vínculo pronto
+     — a semente, e quem vier de uma migração — tem `vinculo.convite` e não
+     tem `profile.convite`. Lendo só o primeiro, a folha abria em branco
+     para quem tem código, e quem veio TROCAR de clínica não tinha como
+     saber qual era o atual. */
+  const vinculo = (S.profile as any).vinculo as { convite?: string } | null;
+  const guardado = ((S.profile as any).convite as string) || vinculo?.convite || '';
   const [codigo, setCodigo] = React.useState(guardado);
   const limpo = normalizarConvite(codigo);
   const vale = limpo.length >= 4;

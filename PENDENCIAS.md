@@ -75,6 +75,11 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
   Apple e do Google, e as duas mudam de endereço sem avisar. Abrir os dois
   antes de publicar: um link morto numa tela de cobrança é onde a
   confiança quebra mais rápido;
+- **o motivo de cancelamento não sai do aparelho** — `/cancelar` pergunta
+  por que a pessoa está saindo e grava a resposta em `profile.cancelamento`
+  com a data. Não há para onde enviar: entra na mesma fila do Supabase do
+  item 10. Até lá, a tela retém (as alternativas são reais) mas não
+  descobre nada;
 - **o botão não compra** — `assinar()` devolve "não implementado", e a
   tela mostra isso em voz alta em vez de fingir sucesso;
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
