@@ -13,7 +13,8 @@ import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme';
+import { paletaDe, mix, alfa, radius, font, ty } from '../theme';
+import { usePaletaDeVenda } from '../ui/paletaVenda';
 
 /* ============================================================
    PLANOS — a tela que pede dinheiro
@@ -291,7 +292,7 @@ export default function Planos() {
      ⚠️⚠️ E POR ISSO TODO `Txt` DESTA TELA PRECISA DE `c`. ⚠️⚠️
 
      `Txt` sem cor cai no `useTheme()`, que lê o tema DO APARELHO — e
-     não o `c` montado aqui. No navegador, com o tema escuro ligado, a
+     não a paleta montada aqui. No navegador, com o tema escuro ligado, a
      diferença não aparecia; no telefone de quem está no claro, os títulos
      dos tópicos e os preços saíam em tinta escura sobre o fundo escuro, e
      a tela chegou a ficar ilegível em produção de teste.
@@ -301,35 +302,10 @@ export default function Planos() {
      aplicativo no claro, que é o jeito mais silencioso de um defeito
      existir.
 
-     ⚠️ MAS A COR DE AÇÃO É A CLARA, E NÃO A DO MODO ESCURO.
-
-     Cada paleta tem dois tons de ação: o cheio, que é o do Figma e o da
-     marca — #065CF5 no azul —, e um mais claro que o tema escuro usa
-     para não afundar num fundo já escuro. Fixar o modo trouxe o segundo
-     junto, e o botão desta tela apareceu num azul que não é o da marca.
-
-     O motivo do tom claro existir não vale aqui: ele serve a telas
-     escuras em que a cor precisa competir com muito conteúdo. Esta tela
-     é quase toda preta, e o azul cheio salta nela do mesmo jeito que
-     salta no claro — com a vantagem de ser o azul que a pessoa viu na
-     loja, no ícone e na abertura.
-
-     Então o modo é escuro e a cor de ação é a da marca. O resto da
-     paleta escura fica como está: fundo, tinta, fios e o lima. */
-  const c = React.useMemo(() => {
-    const base = comPaleta(dark, (S as any).paleta, true);
-    const pal = paletaDe((S as any).paleta);
-    return {
-      ...base,
-      accent: pal.acaoClara,
-      /* No escuro o segundo tom clareia, e é ele que veste link e texto
-         sobre fundo preto — a mesma regra do resto do aplicativo. */
-      accent2: mix(pal.acaoClara, '#FFFFFF', 0.22),
-      accentInk: pal.inkClaro,
-      accentWeak: alfa(pal.acaoClara, 0.22),
-      accentLine: alfa(pal.acaoClara, 0.38),
-    };
-  }, [(S as any).paleta]);
+     O CÁLCULO MORA EM src/ui/paletaVenda.ts, e não aqui, porque são duas
+     telas: a folha do código abre por cima desta e precisa do mesmo
+     escuro. Uma cópia por tela dava folha branca sobre tela preta. */
+  const c = usePaletaDeVenda();
   const insets = useSafeAreaInsets();
 
   /* ⚠️ O X PRECISA FUNCIONAR NAS DUAS ENTRADAS.
@@ -784,7 +760,7 @@ export default function Planos() {
           {TEM_REDE_PARCEIRA && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
               {guardado ? (
-                <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <Pressable onPress={() => router.push('/codigo?venda=1' as any)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                   <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <Icon name="check" size={14} color={c.lime} sw={2.4} />
                     <Txt v="micro" c={c.tx3}>Código {guardado} guardado</Txt>
@@ -792,7 +768,7 @@ export default function Planos() {
                 </Pressable>
               ) : (
                 <Pressable
-                  onPress={() => router.push('/codigo' as any)}
+                  onPress={() => router.push('/codigo?venda=1' as any)}
                   hitSlop={8}
                   style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
                 >
