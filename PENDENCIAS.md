@@ -64,8 +64,12 @@ mas o fluxo precisa existir antes de a loja cobrar alguém.
 `src/logic/assinatura.ts`, que é a costura por onde a loja entra. Três
 coisas dela são de marcação e precisam de decisão antes da publicação:
 
-- **os preços** — R$ 29,90/mês e R$ 199,90/ano são números para a tela
-  ter o que desenhar; ninguém decidiu nenhum deles;
+- **os preços já foram decididos — R$ 49,90/mês e R$ 299,00/ano — mas
+  não existem na loja.** Enquanto os produtos não forem criados na App
+  Store Connect e no Google Play com exatamente estes valores, a tela
+  anuncia um preço que ninguém consegue cobrar. O selo de −50% é a conta
+  entre os dois (299 contra 49,90 × 12 = 598,80), e ele quebra junto se
+  algum dos dois mudar;
 - **o botão não compra** — `assinar()` devolve "não implementado", e a
   tela mostra isso em voz alta em vez de fingir sucesso;
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja

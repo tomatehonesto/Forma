@@ -12,9 +12,15 @@ import { clinicaConectada } from './derive';
    estado em vez de fingir uma compra — a sessão inteira foi gasta
    removendo portas emparedadas, e não é agora que se constrói uma.
 
-   ⚠️ E OS PREÇOS SÃO DE MARCAÇÃO. Os números abaixo existem para a tela
-   ter o que desenhar; ninguém decidiu nenhum deles. Ver PENDENCIAS.md,
-   item 5 — e trocá-los é mudar este arquivo, e só ele.
+   ⚠️ E OS PREÇOS ESTÃO DECIDIDOS, MAS NÃO EXISTEM NA LOJA. R$ 49,90 por
+   mês e R$ 299,00 por ano são os números escolhidos — não são mais de
+   marcação. O que falta é o outro lado: enquanto os produtos não forem
+   criados na App Store Connect e no Google Play com exatamente estes
+   valores, a tela anuncia um preço que a loja não cobra. Ver
+   PENDENCIAS.md, item 5.
+
+   Trocá-los é mudar este arquivo, e só ele — mas trocar aqui sem trocar
+   na loja é pior do que não trocar.
 
    O MODELO É DE CAMADA ÚNICA, e isso não é uma escolha desta tela: os
    Termos já dizem que "o acesso é por assinatura", sem plano melhor nem
@@ -45,30 +51,34 @@ export type Plano = {
   nome: string;
   /** o que a loja cobra, na periodicidade do plano */
   preco: number;
-  /** por extenso, para frase corrida: "R$ 199,90 por ano, renovando…" */
+  /** por extenso, para frase corrida: "R$ 299,00 por ano, renovando…" */
   periodo: string;
-  /** curto, para colar no número: "R$ 199,90 /ano" */
+  /** curto, para colar no número: "R$ 299,00 /ano" */
   sufixo: string;
   /* ⚠️ O MESMO PREÇO NA OUTRA UNIDADE, e para os dois planos.
      Antes só o anual trazia o equivalente mensal, e o mensal ficava com
      uma frase de recheio. Mas o desconto anunciado no selo é uma conta
      entre as duas unidades, e quem afirma o desconto deve mostrar os dois
      lados dele: R$ 16,66 por mês de um lado, R$ 358,80 por ano do outro.
-     Só com os dois números na tela a pessoa consegue conferir os −44%. */
+     Só com os dois números na tela a pessoa consegue conferir os −50%. */
   outraUnidade: { valor: number; periodo: string };
   /** quanto se economiza contra o mensal, em pontos percentuais */
   economia?: number;
 };
 
-/* ⚠️ PREÇOS DE MARCAÇÃO — nenhum destes números foi decidido. */
+/* ⚠️ O SELO DE ECONOMIA É UMA CONTA, e ela precisa fechar: 299 contra
+   49,90 × 12 = 598,80 dá 50,07% — arredondado para baixo, para 50, porque
+   o número anunciado nunca deve ser maior do que o real. Mexer em
+   `preco` sem refazer esta conta faz a tela mentir em voz alta, e os dois
+   valores de `outraUnidade` estão logo abaixo para quem quiser conferir. */
 export const PLANOS: Plano[] = [
   {
-    id: 'mensal', nome: 'Mensal', preco: 29.9, periodo: 'por mês', sufixo: '/mês',
-    outraUnidade: { valor: 29.9 * 12, periodo: 'por ano' },
+    id: 'mensal', nome: 'Mensal', preco: 49.9, periodo: 'por mês', sufixo: '/mês',
+    outraUnidade: { valor: 49.9 * 12, periodo: 'por ano' },
   },
   {
-    id: 'anual', nome: 'Anual', preco: 199.9, periodo: 'por ano', sufixo: '/ano',
-    outraUnidade: { valor: 199.9 / 12, periodo: 'por mês' }, economia: 44,
+    id: 'anual', nome: 'Anual', preco: 299, periodo: 'por ano', sufixo: '/ano',
+    outraUnidade: { valor: 299 / 12, periodo: 'por mês' }, economia: 50,
   },
 ];
 
@@ -84,7 +94,7 @@ export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 /* A economia em reais viveu aqui por uma passagem, e saiu com a linha
    que a mostrava: com o teste grátis anunciado embaixo do botão, a barra
    tinha três textos disputando o mesmo lugar, e o desconto é o menos
-   urgente dos três. O "−44%" no cartão continua dizendo a mesma coisa em
+   urgente dos três. O "−50%" no cartão continua dizendo a mesma coisa em
    dois caracteres. */
 
 /** Quem não paga: o vínculo com clínica parceira é o que isenta, e é o

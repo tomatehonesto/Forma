@@ -137,7 +137,16 @@ const MOCKUP_PROPORCAO = 900 / 1959;
    no fundo, lê como um aparelho que sobe de dentro da página. É o mesmo
    recurso do fio da barra de decisão, pela mesma razão: emenda dura
    anuncia a montagem, emenda macia some. */
-const MOCKUP_JANELA = 358;
+/* ⚠️ A JANELA É MEDIDA CONTRA A BARRA DE DECISÃO, e não escolhida por
+   gosto. Ela é o único regulador da primeira dobra: tudo que vem depois
+   — título, subtítulo, lista — desce junto quando ela cresce.
+
+   252 px é o número que deixa o primeiro tópico assomar por baixo da
+   barra em vez de ficar escondido atrás dela. Isso não é sobra de
+   espaço, é a única coisa na tela que diz que existe mais para ler; sem
+   ele a página parece terminar na barra e ninguém rola. Crescer a janela
+   sem medir de novo apaga essa pista. */
+const MOCKUP_JANELA = 252;
 const MOCKUP_LARGURA = 276;
 
 function PecaDoAlto({ c }: { c: any }) {
@@ -148,10 +157,22 @@ function PecaDoAlto({ c }: { c: any }) {
         style={{ width: MOCKUP_LARGURA, height: MOCKUP_LARGURA / MOCKUP_PROPORCAO }}
         contentFit="contain"
       />
+      {/* ⚠️ O DESVANECIMENTO É CURTO DE PROPÓSITO, e foi longo demais.
+
+          Com 110 px ele cobria quase metade da janela, e o que devia ser
+          o fim da peça virou uma faixa escura atravessando o aparelho —
+          a pessoa via a sombra, e não o telefone. O erro é de relação e
+          não de valor absoluto: quanto mais a janela encolhe, maior a
+          fatia da imagem que um véu fixo come.
+
+          72 px resolve mantendo a mesma ideia — o corte continua sendo
+          uma dissolução e não uma tesoura —, e `0.88` empurra o preto
+          para os últimos oito por cento, onde ele só tem que encostar no
+          fundo da página. Quem mexer em MOCKUP_JANELA olha para cá. */}
       <LinearGradient
         colors={['transparent', c.bg]}
-        locations={[0, 0.85]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 110 }}
+        locations={[0, 0.88]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 72 }}
         pointerEvents="none"
       />
     </View>
@@ -362,7 +383,7 @@ export default function Planos() {
             É a diferença entre "parece um app bonito" e "é o app que eu
             estou usando", e é de graça: a peça já existe, já segue a
             paleta e já veste o resto do aplicativo. */}
-        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 18 }}>
+        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
           <LinearGradient
             colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
@@ -426,7 +447,7 @@ export default function Planos() {
           </View>
         </View>
 
-        <View style={{ paddingHorizontal: 20, marginTop: 26 }}>
+        <View style={{ paddingHorizontal: 20, marginTop: 18 }}>
         {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
             repetia a tela anterior. Quem é isenta só chega nesta vista
             depois de ler, em corpo grande, que não paga pelo aplicativo e
@@ -525,7 +546,7 @@ export default function Planos() {
                     flex: 1,
                     backgroundColor: on ? c.accentWeak : c.bg1,
                     borderWidth: 1.5, borderColor: on ? c.accent : c.line,
-                    borderRadius: radius.lg, padding: 14, gap: 2, justifyContent: 'center',
+                    borderRadius: radius.lg, padding: 12, gap: 2, justifyContent: 'center',
                   }}>
                     <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                       <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
@@ -538,7 +559,7 @@ export default function Planos() {
                     {/* ⚠️ O NÚMERO GRANDE É O QUE A LOJA COBRA, e não o
                         equivalente mensal. Estava ao contrário: o anual
                         anunciava R$ 16,66 em corpo grande e escondia os
-                        R$ 199,90 numa linha miúda embaixo — que é
+                        R$ 299,00 numa linha miúda embaixo — que é
                         exatamente "a conta que o anúncio faz e a fatura
                         desmente", escrita por mim no comentário de cima
                         enquanto eu fazia a conta do anúncio.
@@ -547,8 +568,8 @@ export default function Planos() {
                         por mês vem embaixo, onde ele é o argumento que é:
                         uma ajuda para comparar, e não o preço. */}
                     {/* ⚠️ O PERÍODO ENCOSTA NO NÚMERO, e não mora numa linha
-                        própria. "R$ 29,90" sozinho não é um preço, é um
-                        valor; o preço é "R$ 29,90 por mês", e separar as
+                        própria. "R$ 49,90" sozinho não é um preço, é um
+                        valor; o preço é "R$ 49,90 por mês", e separar as
                         duas coisas em duas linhas fazia o olho ler o número
                         grande primeiro e a condição depois — que é a ordem
                         de quem anuncia, não a de quem compra.
@@ -557,9 +578,23 @@ export default function Planos() {
                         terço do corpo do número, e centralizado ele flutua
                         no meio do algarismo. `baseline` é do Yoga e vale
                         nos dois lados, não é um truque de navegador. */}
-                    <Row gap={3} style={{ alignItems: 'baseline', marginTop: 4 }}>
-                      <Txt v="h2" c={c.tx}>{reais(p.preco)}</Txt>
-                      <Txt v="micro" c={c.tx3}>{p.sufixo}</Txt>
+                    <Row gap={2} style={{ alignItems: 'baseline', marginTop: 4 }}>
+                      {/* ⚠️ O CORPO É MEDIDO, E A MEDIDA É APERTADA. Dentro de
+                          um cartão de 163 px sobram 137 px de linha, e o
+                          preço mais largo que os dois planos podem produzir
+                          — "R$ 299,00", com três algarismos gordos — pede
+                          107 px em h2 cheio. Com o "/ano" ao lado dá 135, e
+                          a 23 px com `padding: 14` dava 136 contra 133: a
+                          linha quebrava e o cartão anual crescia sozinho.
+
+                          22 px com o rastro fechado devolve 9 px de folga,
+                          que é o que sobrevive à diferença de desenho entre
+                          a web e o aparelho. `numberOfLines` é o cinto de
+                          segurança: se um preço maior aparecer um dia, ele
+                          aperta em vez de empurrar a altura do cartão —
+                          mas quem passar dos R$ 999,00 tem que voltar aqui. */}
+                      <Txt v="h2" c={c.tx} numberOfLines={1} style={{ fontSize: 22, letterSpacing: -0.3 }}>{reais(p.preco)}</Txt>
+                      <Txt v="micro" c={c.tx3} numberOfLines={1}>{p.sufixo}</Txt>
                     </Row>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
                       {`${reais(p.outraUnidade.valor)} ${p.outraUnidade.periodo}`}
@@ -573,7 +608,7 @@ export default function Planos() {
           {/* Aqui havia "São R$ 158,90 a menos que no mensal". Saiu com a
               chegada do teste grátis: a barra passou a ter o preço, a
               promessa do teste e as duas garantias disputando o mesmo
-              lugar, e o desconto é o menos urgente dos quatro. O "−44%"
+              lugar, e o desconto é o menos urgente dos quatro. O "−50%"
               no cartão diz a mesma coisa em dois caracteres. */}
 
           {ehIsenta ? null : recusa ? (
