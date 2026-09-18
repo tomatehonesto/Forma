@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
-  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, M,
+  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, clinicaConectada, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
@@ -124,6 +124,7 @@ export default function Home() {
   const stk = streak(S);
   const feitoHoje = checkinFeito(S);
   const linked = temAcompanhamento(S);
+  const conectada = clinicaConectada(S);
   const consultD = new Date(S.consult.t);
 
   /* Carrossel do hero — tres leituras do dia, todas com dado real. */
@@ -433,11 +434,11 @@ export default function Home() {
                 aqui. */}
             <SectionHead
               title="Seu acompanhamento"
-              link={linked ? 'Ir para área médica' : undefined}
-              onPress={linked ? go('/medico') : undefined}
+              link={conectada ? 'Ir para área médica' : undefined}
+              onPress={conectada ? go('/medico') : undefined}
             />
 
-            {linked ? (
+            {conectada ? (
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
                 <Row>
                   {/* O retrato, no lugar da inicial.
@@ -477,6 +478,37 @@ export default function Home() {
                     onPress={go('/consultas')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   <ListRow ic="doc" title="Solicitar nova receita" sub="Renove seu tratamento" onPress={go('/medico')} />
+                </View>
+              </View>
+            ) : linked ? (
+              /* ⚠️ MÉDICO SEM PLATAFORMA. Três linhas viram uma: mensagens
+                 e receita são conversa com a equipe, e não há equipe. A que
+                 sobra é a que funciona em qualquer consulta — o resumo, que
+                 a pessoa leva no telefone, imprime ou manda por fora.
+
+                 Sem retrato, pelo mesmo motivo do Perfil: não existe foto
+                 de um médico que não é da rede, e um boneco genérico
+                 ocuparia o lugar de alguém real. */
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
+                <Row gap={14} style={{ alignItems: 'center' }}>
+                  <View style={{
+                    width: 52, height: 52, borderRadius: radius.md, backgroundColor: c.bg3,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon name="steth" size={22} color={c.tx3} sw={1.8} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="bodyMed">{S.profile.doctor || S.profile.clinic}</Txt>
+                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
+                      {(S.profile as any).doctorInfo?.especialidade || 'Acompanha o seu tratamento'}
+                    </Txt>
+                  </View>
+                </Row>
+
+                <View style={{ marginTop: 20 }}>
+                  <ListRow ic="doc" title="Resumo para a consulta"
+                    sub="Peso, adesão, sintomas e exames num documento só"
+                    onPress={go('/resumo-medico')} />
                 </View>
               </View>
             ) : (

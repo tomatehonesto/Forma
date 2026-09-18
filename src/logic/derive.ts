@@ -3752,7 +3752,19 @@ export function careStatus(S: State) {
     {
       ic: 'cal', label: 'Consulta',
       valor: cs ? (cs.dias <= 0 ? 'Hoje' : cs.dias === 1 ? 'Amanhã' : `Em ${cs.dias} dias`) : 'Sem consulta',
-      nivel: !cs ? 'atencao' : cs.dias <= 1 ? 'acao' : 'ok',
+      /* ⚠️ NÃO TER CONSULTA MARCADA SÓ É PENDÊNCIA QUANDO ALGUÉM MARCA.
+
+         Com plataforma, a agenda é da clínica e um retorno sem data é
+         mesmo coisa a resolver. Sem plataforma, quem marca consulta é a
+         pessoa, no consultório dela — e o app não tem nem por onde ela
+         anotar a data ainda. Em atenção nos dois casos, o hero contava
+         "três pendências" em cima de uma lista com duas: o quadro
+         acusava a consulta, e `carePending` não tem linha para ela.
+
+         Duas fontes para o mesmo fato de novo, e é sempre o mesmo
+         defeito. O quadro continua dizendo "Sem consulta", que é
+         verdade; ele só deixa de chamar isso de pendência. */
+      nivel: (!cs ? (clinicaConectada(S) ? 'atencao' : 'ok') : cs.dias <= 1 ? 'acao' : 'ok') as CareNivel,
       to: '/consultas',
     },
     /* ⚠️ A CAIXA DE MENSAGENS SÓ EXISTE COM PLATAFORMA. Sem ela o quadro

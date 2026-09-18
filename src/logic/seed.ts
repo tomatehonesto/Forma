@@ -695,6 +695,17 @@ export function estadoVazio(): State {
   S.profile.doctor = '';
   S.profile.clinic = '';
   (S.profile as any).vinculo = null;
+  /* ⚠️ E A FICHA DA MÉDICA TAMBÉM. `doctorInfo` guarda CRM, formação e
+     especialidade da Dra. Helena, e ficava de pé: quem chegava agora
+     herdava a carteira profissional de outra pessoa. Passava despercebido
+     porque só telas com vínculo liam o campo — mas a de "Quem acompanha
+     você" lê a especialidade para preencher o formulário, e alguém sem
+     médico nenhum abriria a tela com "Endocrinologista" já escrito.
+
+     Objeto vazio, e não `delete`: `ensureDefaults` repõe a ficha da
+     semente quando o campo falta, e um campo apagado voltaria cheio no
+     carregamento seguinte. */
+  (S.profile as any).doctorInfo = {};
   S.profile.nutri = '';
   S.profile.restricoes = [];
 

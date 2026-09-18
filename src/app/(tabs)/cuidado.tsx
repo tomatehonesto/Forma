@@ -7,7 +7,7 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
+  temAcompanhamento, clinicaConectada, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose,
 } from '../../logic/derive';
@@ -525,11 +525,16 @@ function Materiais() {
   const { c } = useTheme();
   const router = useRouter();
   const mats = ((S as any).materials ?? []) as { name: string; kind: string; meta: string; ic: string; motivo: string }[];
-  if (!mats.length) return null;
+  if (!mats.length || !clinicaConectada(S)) return null;
 
   return (
     <View style={{ marginTop: 36 }}>
       <SectionHead title="Preparado para você" />
+      {/* ⚠️ "SUA EQUIPE MONTOU" PRECISA DE EQUIPE. Sem plataforma, o
+          material que existisse aqui não teria sido montado por ninguém —
+          e o bloco inteiro some, porque `materials` só se enche pelo
+          outro lado. A frase fica como está porque só aparece quando é
+          verdade. */}
       <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
         Material que sua equipe montou a partir do seu tratamento.
       </Txt>
@@ -783,7 +788,11 @@ function Tratamento() {
             {p.left} de {p.total} · cerca de {p.semanas} {p.semanas === 1 ? 'semana' : 'semanas'}
           </Txt>
 
-          {!p.verdict.good && (
+          {/* ⚠️ "PEDIR RENOVAÇÃO" É PEDIR A ALGUÉM. O botão abre a conversa
+              com a equipe, e sem equipe ele levava a uma tela vazia. A
+              caneta acabando continua dita logo acima, em número de doses
+              e semanas — o fato não depende de plataforma, o pedido sim. */}
+          {clinicaConectada(S) && !p.verdict.good && (
             <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 18, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
                 <Txt v="label" c={c.accent2}>Pedir renovação</Txt>
@@ -915,6 +924,7 @@ export default function Cuidado() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const linked = temAcompanhamento(S);
+  const conectada = clinicaConectada(S);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -933,7 +943,7 @@ export default function Cuidado() {
           <Txt v="note" c={c.tx3}>Ninguém precisa fazer isso sozinho.</Txt>
         )}
 
-        {linked ? (
+        {conectada ? (
           /* Oito blocos, e cada assunto aparece em exatamente um.
 
              Estado (hero) → ação (Precisa de você) → compromisso
@@ -951,6 +961,29 @@ export default function Cuidado() {
             <Consulta />
             <BannerMedica />
             <Time />
+            <Tratamento />
+            <Materiais />
+            <Documentos />
+          </>
+        ) : linked ? (
+          /* ⚠️ MÉDICO SEM PLATAFORMA — SEIS DOS OITO BLOCOS.
+
+             A aba foi construída em volta da clínica, mas o nome dela
+             nunca foi "Clínica" nem "Médico": é Cuidado, e cuidado do
+             tratamento existe sem servidor nenhum. O que sai é o que
+             precisa de alguém do outro lado — o retrato da especialista e
+             a equipe de apoio. O que fica é a maior parte, e é justamente
+             o tratamento.
+
+             Sem esta ramificação, quem registrasse o próprio médico veria
+             a foto da Dra. Helena e uma equipe de apoio que não existe:
+             `linked` aqui era `temAcompanhamento`, e o banner não
+             pergunta de onde veio o nome. */
+          <>
+            <Topo />
+
+            <Pendencias />
+            <Consulta />
             <Tratamento />
             <Materiais />
             <Documentos />

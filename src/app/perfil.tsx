@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgCurto as kg, nf, relDay } from '../logic/time';
 import {
-  journeyDay, temAcompanhamento, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
+  journeyDay, temAcompanhamento, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
@@ -213,6 +213,9 @@ export default function Perfil() {
   };
 
   const linked = temAcompanhamento(S);
+  const conectada = clinicaConectada(S);
+  /* A segunda linha do card sem vinculo: o que a pessoa preencheu, e so. */
+  const linhaDois = [(S.profile as any).doctorInfo?.especialidade, S.profile.clinic].filter(Boolean).join(' · ');
   /* A especialidade vem do perfil do profissional, e não de um texto
      fixo: no dia em que quem acompanha for nutricionista, o card diz
      nutricionista. Sem ela, a linha fica só com a clínica. */
@@ -382,9 +385,13 @@ export default function Perfil() {
           ler. É o que faz alguém tocar, e é a diferença entre um atalho e
           um card que sabe de alguma coisa. */}
       <View style={{ marginTop: 32 }}>
-        <SectionHead title="Quem te acompanha" />
+        {/* O NOME DA SEÇÃO É O NOME DA PORTA. Ela abre a tela "Quem
+            acompanha você", e "Quem te acompanha" era a mesma coisa dita
+            com outras palavras — a distância entre as duas é onde alguém
+            acha que chegou noutro lugar. */}
+        <SectionHead title="Quem acompanha você" />
 
-        {linked ? (
+        {conectada ? (
           <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
               <Row gap={14} style={{ padding: 16 }}>
@@ -439,6 +446,42 @@ export default function Perfil() {
               </Row>
             </View>
           </Pressable>
+        ) : linked ? (
+          /* ⚠️ MÉDICO SEM PLATAFORMA — O ESTADO DO MEIO.
+
+             Mesma moldura do card de cima, e três diferenças que dizem
+             tudo: não há retrato, porque o app não tem a foto de um médico
+             que não é da rede e um boneco genérico ocuparia o lugar de uma
+             pessoa real; não há faixa de mensagens e consulta, porque não
+             há caixa de mensagens; e o toque leva à ficha, que é o único
+             lugar que existe para ir.
+
+             O ícone em cinza, e não em cor de ação: aqui ele é retrato
+             ausente, e não botão. */
+          <Pressable onPress={go('/acompanhamento')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+              <Row gap={14} style={{ alignItems: 'center' }}>
+                <View style={{
+                  width: 56, height: 56, borderRadius: radius.md,
+                  backgroundColor: c.bg3,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name="steth" size={22} color={c.tx3} sw={1.8} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt v="bodyMed">{S.profile.doctor || S.profile.clinic}</Txt>
+                  {/* Especialidade e lugar sao opcionais na ficha. Sem os
+                      dois, a segunda linha nao existe — um Txt vazio
+                      continua ocupando altura, e o card fica torto sem
+                      dizer nada. */}
+                  {linhaDois ? (
+                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>{linhaDois}</Txt>
+                  ) : null}
+                </View>
+                <Icon name="chev" size={14} color={c.tx4} sw={2} />
+              </Row>
+            </View>
+          </Pressable>
         ) : (
           /* ⚠️ SEM VÍNCULO, ISTO ERA UM BOTÃO QUE NÃO FAZIA NADA.
 
@@ -456,30 +499,31 @@ export default function Perfil() {
              item 6), e o modelo documentado nos Termos é o contrário
              deste botão: quem convida é a clínica, com um código.
 
-             Então aqui fica o que é verdade — uma vaga vazia, em cinza de
-             vaga vazia, sem toque e sem promessa. Vínculo é opcional, e a
-             frase diz isso sem soar como consolo. */
-          <View style={{
-            marginTop: 14, backgroundColor: c.bg1,
-            borderRadius: radius.lg, padding: 16,
-          }}>
-            <Row gap={14} style={{ alignItems: 'center' }}>
-              <View style={{
-                width: 56, height: 56, borderRadius: radius.md,
-                backgroundColor: c.bg3,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Icon name="steth" size={22} color={c.tx4} sw={1.8} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Txt v="bodyMed" c={c.tx2}>Sem especialista vinculado</Txt>
-                <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                  Você acompanha o tratamento inteiro por aqui. Havendo
-                  vínculo com uma clínica, ele aparece neste lugar.
-                </Txt>
-              </View>
-            </Row>
-          </View>
+             Virou uma vaga vazia, sem toque e sem promessa — e agora
+             tem porta: a ficha de quem acompanha, que é a primeira coisa
+             do aplicativo a escrever `doctor`. Continua sem prometer
+             vínculo, porque ela não dá nenhum. */
+          <Pressable onPress={go('/acompanhamento')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+              <Row gap={14} style={{ alignItems: 'center' }}>
+                <View style={{
+                  width: 56, height: 56, borderRadius: radius.md,
+                  backgroundColor: c.bg3,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon name="steth" size={22} color={c.tx4} sw={1.8} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt v="bodyMed" c={c.tx2}>Ninguém registrado ainda</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+                    Se você se trata com alguém, anote aqui — o resumo sai
+                    pronto para a consulta.
+                  </Txt>
+                </View>
+                <Icon name="chev" size={14} color={c.tx4} sw={2} />
+              </Row>
+            </View>
+          </Pressable>
         )}
       </View>
 
