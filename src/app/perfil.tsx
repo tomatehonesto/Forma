@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgCurto as kg, nf, relDay } from '../logic/time';
 import {
-  journeyDay, temAcompanhamento, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
+  journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
@@ -212,10 +212,7 @@ export default function Perfil() {
     }
   };
 
-  const linked = temAcompanhamento(S);
   const conectada = clinicaConectada(S);
-  /* A segunda linha do card sem vinculo: o que a pessoa preencheu, e so. */
-  const linhaDois = [(S.profile as any).doctorInfo?.especialidade, S.profile.clinic].filter(Boolean).join(' · ');
   /* A especialidade vem do perfil do profissional, e não de um texto
      fixo: no dia em que quem acompanha for nutricionista, o card diz
      nutricionista. Sem ela, a linha fica só com a clínica. */
@@ -363,176 +360,92 @@ export default function Perfil() {
         />
       </Row>
 
-      {/* ---- quem te acompanha ----
+      {/* ---- quem acompanha você ----
 
           CLÍNICA OU ESPECIALISTA? O especialista.
 
           A seção se chamava "Sua clínica" e mostrava o nome da clínica em
           cima, com o nome da médica na legenda. Mas o vínculo que esta
           pessoa tem não é com uma razão social: é com quem responde a
-          mensagem dela, quem ajusta a dose, quem marca a consulta. A tela
-          do outro lado se chama "Meu médico", e a aba Cuidado apresenta
-          "Sua especialista" com foto e nome. Este card era o único lugar
-          do app que invertia a ordem.
+          mensagem dela, quem ajusta a dose, quem marca a consulta.
 
-          A clínica não some — ela é o contexto, e vai na mesma linha da
-          especialidade: onde a pessoa atende, ao lado do que ela faz.
+          ⚠️ E A SEÇÃO É SÓ DE QUEM TEM VÍNCULO DE VERDADE.
 
-          E O CARD PASSOU A DIZER O QUE TEM LÁ DENTRO. Antes, "mensagens,
-          consultas e equipe" era o índice de um menu — três substantivos
-          sem número, que não mudam nunca. A faixa de baixo traz os dois
-          fatos com prazo: quando é a próxima consulta e se há recado sem
-          ler. É o que faz alguém tocar, e é a diferença entre um atalho e
-          um card que sabe de alguma coisa. */}
-      <View style={{ marginTop: 32 }}>
-        {/* O NOME DA SEÇÃO É O NOME DA PORTA. Ela abre a tela "Quem
-            acompanha você", e "Quem te acompanha" era a mesma coisa dita
-            com outras palavras — a distância entre as duas é onde alguém
-            acha que chegou noutro lugar. */}
-        <SectionHead title="Quem acompanha você" />
+          Ela já teve três estados aqui: a clínica parceira, o médico que
+          a pessoa anotou para referência, e a vaga vazia de quem não tem
+          ninguém. Os dois últimos saíram, e a razão é o que esta tela é.
 
-        {conectada ? (
-          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
-              <Row gap={14} style={{ padding: 16 }}>
-                {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
-                    existe e já é usada na Home e na aba Cuidado.
+          O perfil é a conta: quem é a pessoa, o que ela contratou, quem
+          presta o serviço. Vínculo com clínica parceira pertence a essa
+          lista — é relação com quem fornece, e um dia decide cobrança.
+          Um nome de médico digitado para o resumo saber a quem se dirige
+          é dado do TRATAMENTO, e tratamento mora na aba Cuidado, onde ele
+          aparece junto da consulta, da caneta e dos exames.
 
-                    QUADRADO DE CANTO MACIO, E NÃO CÍRCULO: é a moldura que a
-                    Home já dá a esta mesma foto. Duas formas para o mesmo
-                    retrato em duas telas é o tipo de diferença que ninguém
-                    descreve e todo mundo sente. O recorte também é o mesmo —
-                    cobrir pelo topo, que é onde fica o rosto num busto.
+          Quem anotou o médico continua editando a ficha: pelo bloco
+          "Quem acompanha você" da aba Cuidado, e pelo card da Home
+          enquanto o nome estiver em branco. O que deixou de haver é a
+          terceira cópia da mesma porta, numa tela que fala de outra
+          coisa. */}
+      {conectada ? (
+        <View style={{ marginTop: 32 }}>
+          <SectionHead title="Quem acompanha você" />
+            <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
+                <Row gap={14} style={{ padding: 16 }}>
+                  {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
+                      existe e já é usada na Home e na aba Cuidado.
 
-                    O fundo tingido existe porque a imagem é PNG transparente:
-                    sem ele o recorte flutuaria sobre o branco do card. */}
-                <View style={{
-                  width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
-                  backgroundColor: c.accentWeak,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Image
-                    source={FOTO_MEDICA}
-                    style={{ width: '100%', height: '100%' }}
-                    contentFit="cover"
-                    contentPosition="top center"
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Txt v="bodyMed">{S.profile.doctor}</Txt>
-                  <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                    {especialidade} · {S.profile.clinic}
-                  </Txt>
-                </View>
-                <Icon name="chev" size={14} color={c.tx4} sw={2} />
-              </Row>
+                      QUADRADO DE CANTO MACIO, E NÃO CÍRCULO: é a moldura que a
+                      Home já dá a esta mesma foto. Duas formas para o mesmo
+                      retrato em duas telas é o tipo de diferença que ninguém
+                      descreve e todo mundo sente. O recorte também é o mesmo —
+                      cobrir pelo topo, que é onde fica o rosto num busto.
 
-              <View style={{ height: 1, backgroundColor: c.line }} />
-              <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-                <Row gap={7} style={{ alignItems: 'center' }}>
-                  <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
-                  <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
-                </Row>
-                {/* O recado sem ler só aparece quando existe: "0 não
-                    lidas" é o app puxando assunto sobre nada. */}
-                {S.unread > 0 && (
-                  <Row gap={7} style={{ alignItems: 'center' }}>
-                    <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
-                    <Txt v="micro" c={c.tx2}>
-                      {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
+                      O fundo tingido existe porque a imagem é PNG transparente:
+                      sem ele o recorte flutuaria sobre o branco do card. */}
+                  <View style={{
+                    width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
+                    backgroundColor: c.accentWeak,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Image
+                      source={FOTO_MEDICA}
+                      style={{ width: '100%', height: '100%' }}
+                      contentFit="cover"
+                      contentPosition="top center"
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="bodyMed">{S.profile.doctor}</Txt>
+                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+                      {especialidade} · {S.profile.clinic}
                     </Txt>
+                  </View>
+                  <Icon name="chev" size={14} color={c.tx4} sw={2} />
+                </Row>
+
+                <View style={{ height: 1, backgroundColor: c.line }} />
+                <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+                  <Row gap={7} style={{ alignItems: 'center' }}>
+                    <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
+                    <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
                   </Row>
-                )}
-              </Row>
-            </View>
-          </Pressable>
-        ) : (S.profile.doctor || S.profile.clinic) ? (
-          /* ⚠️ MÉDICO SEM PLATAFORMA — O ESTADO DO MEIO.
-
-             ⚠️ E A CONDIÇÃO É O NOME, E NÃO `temAcompanhamento`. Quem
-             respondeu "sim" no cadastro e não digitou o nome — que é
-             opcional — caía aqui, e este card começa pelo nome: o título
-             saía vazio, um retângulo com um estetoscópio cinza e nada
-             escrito. Sem nome, o lugar certo é o convite de baixo, que é
-             exatamente o que falta preencher.
-
-             Mesma moldura do card de cima, e três diferenças que dizem
-             tudo: não há retrato, porque o app não tem a foto de um médico
-             que não é da rede e um boneco genérico ocuparia o lugar de uma
-             pessoa real; não há faixa de mensagens e consulta, porque não
-             há caixa de mensagens; e o toque leva à ficha, que é o único
-             lugar que existe para ir.
-
-             O ícone em cinza, e não em cor de ação: aqui ele é retrato
-             ausente, e não botão. */
-          <Pressable onPress={go('/acompanhamento')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-              <Row gap={14} style={{ alignItems: 'center' }}>
-                <View style={{
-                  width: 56, height: 56, borderRadius: radius.md,
-                  backgroundColor: c.bg3,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name="steth" size={22} color={c.tx3} sw={1.8} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Txt v="bodyMed">{S.profile.doctor || S.profile.clinic}</Txt>
-                  {/* Especialidade e lugar sao opcionais na ficha. Sem os
-                      dois, a segunda linha nao existe — um Txt vazio
-                      continua ocupando altura, e o card fica torto sem
-                      dizer nada. */}
-                  {linhaDois ? (
-                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>{linhaDois}</Txt>
-                  ) : null}
-                </View>
-                <Icon name="chev" size={14} color={c.tx4} sw={2} />
-              </Row>
-            </View>
-          </Pressable>
-        ) : (
-          /* ⚠️ SEM VÍNCULO, ISTO ERA UM BOTÃO QUE NÃO FAZIA NADA.
-
-             O card dizia "Conectar a um especialista", vinha tingido de
-             cor de ação e era um Pressable — com `onPress` indefinido. Um
-             convite completo, com a porta emparedada atrás. E não era um
-             esquecimento pontual: a aba Cuidado, sem vínculo, termina num
-             botão cheio escrito "Vincular uma clínica" que empurra a
-             pessoa para cá. Ela vinha, tocava, e não acontecia nada.
-
-             ⚠️ E NÃO HÁ O QUE LIGAR NELE. Nenhuma tela deste aplicativo
-             escreve `doctor` ou `clinic` — os dois só existiam porque o
-             seed já vinha com a Dra. Helena. O vínculo é coisa da
-             plataforma da clínica, que ainda não existe (PENDENCIAS.md,
-             item 6), e o modelo documentado nos Termos é o contrário
-             deste botão: quem convida é a clínica, com um código.
-
-             Virou uma vaga vazia, sem toque e sem promessa — e agora
-             tem porta: a ficha de quem acompanha, que é a primeira coisa
-             do aplicativo a escrever `doctor`. Continua sem prometer
-             vínculo, porque ela não dá nenhum. */
-          <Pressable onPress={go('/acompanhamento')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-              <Row gap={14} style={{ alignItems: 'center' }}>
-                <View style={{
-                  width: 56, height: 56, borderRadius: radius.md,
-                  backgroundColor: c.bg3,
-                  alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon name="steth" size={22} color={c.tx4} sw={1.8} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Txt v="bodyMed" c={c.tx2}>Ninguém registrado ainda</Txt>
-                  <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                    Se você se trata com alguém, anote aqui — o resumo sai
-                    pronto para a consulta.
-                  </Txt>
-                </View>
-                <Icon name="chev" size={14} color={c.tx4} sw={2} />
-              </Row>
-            </View>
-          </Pressable>
-        )}
-      </View>
+                  {/* O recado sem ler só aparece quando existe: "0 não
+                      lidas" é o app puxando assunto sobre nada. */}
+                  {S.unread > 0 && (
+                    <Row gap={7} style={{ alignItems: 'center' }}>
+                      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
+                      <Txt v="micro" c={c.tx2}>
+                        {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
+                      </Txt>
+                    </Row>
+                  )}
+                </Row>
+              </View>
+            </Pressable>
+        </View>
+      ) : null}
 
       {/* ---- acompanhamento ----
 
