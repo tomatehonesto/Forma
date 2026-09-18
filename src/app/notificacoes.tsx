@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { alertasAtivos } from '../logic/alertas';
 import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
-import { TelaInterna, Titulao, Chips, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
+import { TelaInterna, Titulao, Chips, Bloco, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 
@@ -124,10 +124,12 @@ export default function Notificacoes() {
         </Cartao>
       </Bloco>
 
-      {/* "PODE ADIAR SEMPRE" SAIU: não existe adiar. O aviso chega na tela
-          de bloqueio e se dispensa como qualquer outro — é a mesma frase
-          que já tinha saído da tela de Lembretes, e que continuava aqui. */}
-      <Aviso ic="info" texto="Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso." />
+      {/* NÃO HÁ RECADO SOBRE LEMBRETES AQUI. "Um aviso é um convite, não
+          uma cobrança" é a única frase da tela que não fala do que está
+          nela: esta lista é o que JÁ chegou, e aquilo é uma promessa sobre
+          o que vai chegar. Ela mora em Lembretes, que é onde se decide o
+          que vem — e dita duas vezes, no fim de duas telas vizinhas, ela
+          vira o app repetindo a própria boa intenção. */}
     </TelaInterna>
   );
 }
