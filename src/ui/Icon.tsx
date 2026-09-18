@@ -95,6 +95,7 @@ import Stethoscope from 'lucide-react-native/icons/stethoscope';
 import Sun from 'lucide-react-native/icons/sun';
 import Trash from 'lucide-react-native/icons/trash';
 import Watch from 'lucide-react-native/icons/watch';
+import Wallet from 'lucide-react-native/icons/wallet';
 import Coffee from 'lucide-react-native/icons/coffee';
 import Sandwich from 'lucide-react-native/icons/sandwich';
 import UtensilsCrossed from 'lucide-react-native/icons/utensils-crossed';
@@ -142,6 +143,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   x: X,
   trash: Trash,
   watch: Watch,
+  wallet: Wallet,
   chev: ChevronRight,
   check: Check,
   water: GlassWater,
