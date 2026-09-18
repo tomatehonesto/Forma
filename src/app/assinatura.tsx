@@ -10,6 +10,7 @@ import {
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { TelaInterna, Cartao, Linha, Selo, Aviso } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
@@ -355,6 +356,12 @@ export default function Assinatura() {
             sub="Atalho de desenvolvimento — não aparece em produção"
             onPress={() => router.push('/assinatura?assinante=1&compra=1' as any)}
           />
+          <Linha
+            ic="bolt"
+            titulo="Ver a tela de acesso suspenso"
+            sub="Atalho de desenvolvimento — não aparece em produção"
+            onPress={() => router.push('/suspenso' as any)}
+          />
         </Cartao>
       ) : null}
 
@@ -401,18 +408,49 @@ export default function Assinatura() {
             assinar deixa a pessoa procurando um botão que não existe. Esta
             sai no dia em que a cobrança entrar. */}
       {(() => {
-        const miuda = ehIsenta && assinaturaAtual(S)
-          ? `Você tem vínculo com a clínica e não precisa pagar, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e o aplicativo continua inteiro pelo vínculo.`
-          : atual
-            ? null
-            : ehIsenta
-              ? 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.'
-              : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.';
-        if (!miuda) return null;
+        /* ⚠️ COM ÍCONE E TÍTULO, e não um parágrafo cinza solto no pé.
+
+           Era a última coisa da tela e a primeira que o olho pulava: um
+           bloco de texto pequeno, sem entrada, do mesmo tom do resto.
+           Nenhuma das três frases é decoração — uma delas é a única
+           maneira de a pessoa descobrir que está pagando à toa —, e coisa
+           que precisa ser lida precisa de uma porta por onde entrar.
+
+           ⚠️ E O TÍTULO NÃO É O MESMO NOS TRÊS. "É bom você saber" serve
+           ao aviso que é só informação; a que avisa de dinheiro parado
+           tem que dizer isso no título, senão ela vira mais uma nota de
+           rodapé com cara de nota de rodapé. */
+        const nota: { ic: string; titulo: string; texto: string } | null =
+          ehIsenta && assinaturaAtual(S)
+            ? {
+              ic: 'alerta',
+              titulo: 'Você está pagando sem precisar',
+              texto: `O vínculo com a clínica já cobre o aplicativo, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e nada muda para você.`,
+            }
+            : atual
+              ? null
+              : ehIsenta
+                ? {
+                  ic: 'info',
+                  titulo: 'É bom você saber',
+                  texto: 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.',
+                }
+                : {
+                  ic: 'info',
+                  titulo: 'A cobrança ainda não está ligada',
+                  texto: 'Esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.',
+                };
+        if (!nota) return null;
         return (
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
-            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{miuda}</Txt>
-          </View>
+          <Cartao>
+            <View style={{ padding: 18, gap: 8 }}>
+              <Row gap={10} style={{ alignItems: 'center' }}>
+                <Icon name={nota.ic} size={19} color={c.accent} sw={1.9} />
+                <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{nota.titulo}</Txt>
+              </Row>
+              <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{nota.texto}</Txt>
+            </View>
+          </Cartao>
         );
       })()}
     </TelaInterna>

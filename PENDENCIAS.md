@@ -135,9 +135,13 @@ provavelmente reembolso proporcional do período já pago.
 
 Os Termos e duas telas passaram a dizer que, se a clínica informar o fim
 do vínculo de tratamento, o acesso fica suspenso até a pessoa aderir a um
-plano Personal. Nada disso existe ainda: não há canal pelo qual a clínica
-informe (é o mesmo Supabase do item 10), não há estado de "suspenso" no
-aplicativo, e não há a tela que a pessoa vê quando isso acontece.
+plano Personal. **A tela existe** — `/suspenso`, desenhada e pronta, com as
+três saídas: assinar, exportar e entrar com o código de outra clínica.
+
+O que falta é o que a liga: não há canal pelo qual a clínica informe (é o
+mesmo Supabase do item 10), não há estado de "suspenso" guardado, e não
+há o ponto do aplicativo que intercepta e manda para lá. Hoje só se chega
+por um atalho `__DEV__` na tela de assinatura.
 
 Três coisas precisam ser verdade no dia em que entrar, e as três já estão
 prometidas por escrito:
