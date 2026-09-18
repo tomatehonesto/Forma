@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
-  KeyboardAvoidingView, Keyboard,
+  KeyboardAvoidingView, Keyboard, Linking,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
+import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
@@ -65,7 +66,7 @@ import { radius, ty, font, shadowCard } from '../theme';
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
   | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
-  | 'restricao' | 'saude' | 'recomendacao';
+  | 'restricao' | 'saude' | 'recomendacao' | 'consentimento';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -78,6 +79,11 @@ const TODOS: Id[] = [
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
   'saude', 'recomendacao',
+  /* O CONSENTIMENTO É O ÚLTIMO PASSO, e não o primeiro. Concordar antes
+     de saber o que o aplicativo faz é assinar em branco: aqui a pessoa já
+     viu as perguntas, já sabe que ele fala de peso, dose e sintoma, e é aí
+     que o aviso significa alguma coisa. O botão do rodapé É o aceite. */
+  'consentimento',
 ];
 
 /* O NÍVEL DE ATIVIDADE DESCREVE O CENÁRIO, e não define meta.
@@ -1238,6 +1244,9 @@ export default function Cadastro() {
     /* A roda não deixa escolher um dia que ainda não aconteceu, então
        chegar aqui já significa uma data válida. */
     if (x === 'inicio') return inicio <= +startOfDay(now());
+    /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
+       resposta a marcar antes dele. */
+    if (x === 'consentimento') return true;
     if (x === 'recomendacao') {
       return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
     }
@@ -1289,6 +1298,11 @@ export default function Cadastro() {
          escrito — fechar o app na tela de plano não pode devolver a pessoa
          ao formulário que ela acabou de preencher. */
       s.onboardDone = true;
+      /* O CONSENTIMENTO FICA GUARDADO COM A DATA E A VERSÃO do texto que
+         a pessoa leu. Só a data diria que ela concordou um dia, com um
+         aviso que ninguém sabe qual era — e é a versão que permite pedir
+         de novo quando o texto mudar. */
+      if (!editando) s.profile.consentimento = { em: +now(), versao: VERSAO_DO_AVISO };
       s.profile.startWeight = r.emTratamento ? r.pesoInicial : r.peso;
       s.profile.goalWeight = r.meta;
       s.profile.ritmo = r.ritmo;
@@ -1569,6 +1583,7 @@ export default function Cadastro() {
     restricao: 'Você tem alguma restrição alimentar?',
     saude: 'Conecte o seu app de saúde',
     recomendacao: 'Você chegou até nós por indicação de um especialista?',
+    consentimento: 'Antes de montar o seu plano',
   };
   const subs: Record<Id, string> = {
     nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
@@ -1599,6 +1614,7 @@ export default function Cadastro() {
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
     saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
+    consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
@@ -2233,6 +2249,26 @@ export default function Cadastro() {
             ) : null}
           </View>
         ) : null}
+
+        {id === 'consentimento' ? (
+          <View style={{ gap: 10 }}>
+            {AVISO.map((a) => (
+              <View key={a.titulo} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
+                <Txt v="bodyMed">{a.titulo}</Txt>
+                <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
+              </View>
+            ))}
+            {/* OS DOCUMENTOS SÓ APARECEM QUANDO EXISTIREM. Um link para
+                "Termos de uso" que não abre nada, numa tela de aceite, é a
+                pior linha possível: ela é a prova que a pessoa aceitou uma
+                coisa que ninguém escreveu. */}
+            {TERMOS || POLITICA ? (
+              <Pressable onPress={() => Linking.openURL(TERMOS || POLITICA)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <Txt v="label" c={c.accent} style={{ textAlign: 'center', paddingVertical: 8 }}>Ler os termos por inteiro</Txt>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
       </ScrollView>
 
       {/* O RODAPÉ É OPACO. Sem fundo, a lista de opções passava por baixo
@@ -2253,7 +2289,21 @@ export default function Cadastro() {
             delicado do cadastro, e é o único aqui que a pessoa vai
             reconhecer de outros apps: a ação embaixo, e a recusa logo
             abaixo dela, escrita por extenso em vez de escondida. */}
-        {id === 'saude' ? (
+        {/* Em modo de edição o aceite não se refaz: quem corrige a
+            altura não está consentindo de novo, e o rodapé continua sendo
+            o 'Salvar' de todas as outras. */}
+        {id === 'consentimento' && !editando ? (
+          <View>
+            {/* O RÓTULO DIZ O QUE O TOQUE SIGNIFICA. "Continuar" seria a
+                pessoa consentindo sem saber que consentiu — e consentimento
+                para dado de saúde precisa ser um ato claro, não o efeito
+                colateral de avançar uma tela. */}
+            <Botao pilula label="Concordar e montar meu plano" onPress={avanca} />
+            <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
+              Fica registrado com a data de hoje.
+            </Txt>
+          </View>
+        ) : id === 'saude' ? (
           <View>
             {/* O BOTÃO DIZ O QUE A PESSOA GANHA, e a letra miúda embaixo
                 diz por onde isso passa.
