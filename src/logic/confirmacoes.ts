@@ -267,18 +267,18 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
     }
 
     case 'agua': {
-      /* ESTA SÓ APARECE QUANDO A META FECHA. A folha da água é feita para
-         ficar aberta — "toque quantas vezes precisar" —, e ela já move o
-         número na frente da pessoa a cada gole. Uma confirmação a cada
-         copo trocaria um retorno que acontece na hora por um que exige
-         fechar uma tela, cinco vezes ao dia. */
       const ml = waterMlToday(S);
+      const alvo = alvos.waterMl as number;
+      const f = falta(ml, alvo, (v) => `faltam ${litros(v)} L`);
+      /* O TÍTULO MUDA QUANDO A META FECHA, e é só aí que ele vira
+         notícia. "Hidratação do dia fechada" todo copo seria a mesma
+         mentira de sempre: dizer que acabou quando ainda falta. */
       return {
-        titulo: 'Hidratação do dia fechada',
-        texto: `${litros(ml)} de ${litros(alvos.waterMl)} L`,
-        lima: true,
+        titulo: f ? 'Água registrada' : 'Hidratação do dia fechada',
+        texto: `${litros(ml)} de ${litros(alvo)} L hoje`,
+        lima: !f,
         linhas: [
-          { titulo: 'Hoje', sub: `meta de ${litros(alvos.waterMl)} L`, selo: 'meta batida', seloTom: 'lima' },
+          { titulo: 'Hidratação do dia', sub: `meta de ${litros(alvo)} L`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
         ],
         caminho: { label: 'Ver a hidratação', to: '/agua' },
       };

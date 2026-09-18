@@ -34,7 +34,6 @@ export default function MedirAgua() {
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
-  const [somado, setSomado] = useState(0);
   /* Começa em ZERO. Começando em 250 a tela já tinha uma resposta pronta
      antes da pergunta, e "+ Copo" somava em cima dela: quem tocou uma vez
      no copo registrava dois. Em zero, cada toque vale o que diz. */
@@ -80,30 +79,19 @@ export default function MedirAgua() {
      era por isso que beber virava a única coisa do app que não se podia
      desfazer. registrarAgua escreve os dois: o gole no diário e o total
      do dia. */
-  const beber = (ml: number) => {
-    /* ESTA FOLHA NÃO FECHA A CADA GOLE, e é de propósito: ela diz "toque
-       quantas vezes precisar", e o número sobe na frente da pessoa. É o
-       retorno mais rápido que uma captura deste app tem, e trocá-lo por
-       uma folha de confirmação a cada copo seria pedir um toque a mais,
-       cinco vezes ao dia, para saber o que já estava na tela.
+  /* A FOLHA FECHA E A CONFIRMAÇÃO ABRE, como em toda captura do app.
 
-       A exceção é o gole que FECHA a meta do dia. Isso acontece uma vez
-       por dia no máximo, é a única notícia que a barra de progresso não
-       consegue dar sozinha, e é a mesma que os atalhos do registrar
-       passaram a acender em lima. */
-    const antes = waterMlToday(S);
+     Os toques que a tela pede — "toque quantas vezes precisar" — são os
+     das medidas, que SOMAM no mostrador antes de gravar; gravar continua
+     sendo um toque só, no botão de baixo, e é ele que fecha a folha.
+
+     Por isso o "+0,3 L agora" saiu junto: ele confirmava dentro de uma
+     tela que agora sai de cena no mesmo instante, e ficaria escrito para
+     ninguém. Quem dá essa resposta é a folha de confirmação, com o total
+     do dia e o quanto falta. */
+  const beber = (ml: number) => {
     update((s: any) => registrarAgua(s, ml, bebidaId, { doses, nome: nome.trim() }));
-    /* O "+0,3 L agora" conta o que ANDOU no dia, e não o que passou
-       pelo botão. Somando tudo, quem registrasse uma taça de vinho via a
-       confirmação subir e o total ao lado parado — duas contas
-       diferentes do mesmo gesto, a dois centímetros uma da outra. */
-    setSomado((v) => v + (bebida.conta ? ml : 0));
-    /* O DEPOIS SAI DO ESTADO, e não de `antes + ml`. Nem tudo que passa
-       por aqui hidrata na mesma proporção, e a conta do dia ainda soma o
-       que veio no prato — prever o total daria a folha de meta fechada um
-       copo antes ou um copo depois da hora. */
-    const depois = waterMlToday(useStore.getState().S);
-    if (antes < alvo && depois >= alvo) router.replace('/registro-ok?tipo=agua' as any);
+    router.replace('/registro-ok?tipo=agua' as any);
   };
 
   return (
@@ -144,12 +132,6 @@ export default function MedirAgua() {
         <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 14 }}>
           <View style={{ width: `${Math.max(2, pct * 100)}%`, height: 6, borderRadius: radius.pill, backgroundColor: c.accent }} />
         </View>
-        {somado > 0 && (
-          <Row gap={7} style={{ marginTop: 12 }}>
-            <Icon name="check" size={14} color={c.accent} sw={2.4} />
-            <Txt v="caption" c={c.accent}>+{L(somado)} L agora</Txt>
-          </Row>
-        )}
       </View>
 
       {/* O QUE VOCÊ BEBEU, antes de quanto.
