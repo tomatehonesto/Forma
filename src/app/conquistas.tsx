@@ -7,7 +7,7 @@ import {
 } from '../logic/conquistas';
 import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Chips, Grade, Selo } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Chips, Grade } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -93,7 +93,13 @@ function Cartao({ q }: { q: Conquista }) {
           duas linhas conforme o nome, e a margem automática faz os dois de
           uma fileira terminarem na mesma altura. */}
       <View style={{ marginTop: 'auto', paddingTop: 12, width: '100%', alignItems: 'center', gap: 8 }}>
-        {on && q.t != null ? <Selo label={relDay(new Date(q.t))} tom="lima" /> : null}
+        {/* A DATA É LEGENDA, e não veredito. Ela era uma pastilha lima, e
+            o lima neste cartão já tem dono: o ícone e as bolinhas do nível.
+            Três coisas em lima no mesmo cartão fazem o olho procurar qual
+            delas é a notícia — e a notícia é o nível, não o dia em que ele
+            caiu. Em texto pequeno e cinza, a data continua ali para quem
+            for buscá-la. */}
+        {on && q.t != null ? <Txt v="micro" c={c.tx4}>{relDay(new Date(q.t))}</Txt> : null}
         {completa ? (
           <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>Trilha completa</Txt>
         ) : (
