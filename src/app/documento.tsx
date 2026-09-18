@@ -76,7 +76,12 @@ export default function DocumentoTela() {
   return (
     <TelaInterna titulo={doc.titulo}>
       <View style={{ gap: 10 }}>
-        <Txt v="micro" c={c.cta} style={{ letterSpacing: 2 }}>{doc.sobre}</Txt>
+        {/* A SOBRELINHA NA COR DE AÇÃO, e não na de alerta. O vermelho
+           deste app significa coisa clínica — sintoma grave, exame fora
+           da faixa —, e "POLÍTICA · LGPD" em vermelho no alto de um
+           documento diz à pessoa que há algo errado ali. Ele veio junto
+           com o desenho do Sello, onde vermelho é a cor da marca. */}
+        <Txt v="micro" c={c.accent} style={{ letterSpacing: 2 }}>{doc.sobre}</Txt>
         <Txt v="h1" style={{ letterSpacing: -1 }}>{doc.titulo}</Txt>
         <Txt v="caption" c={c.tx3}>
           Versão {VERSAO_DOS_DOCUMENTOS} — {FASE} · Vigente desde {VIGENTE_DESDE}

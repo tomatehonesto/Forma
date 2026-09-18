@@ -1,6 +1,18 @@
 /* ============================================================
    OS DOCUMENTOS — Termos de Uso e Política de Privacidade
 
+   ⚠️⚠️ O SUPABASE VAI DERRUBAR METADE DISTO. ⚠️⚠️
+
+   O aplicativo vai passar a ter conta, autenticação e banco. Hoje não
+   tem, e por isso o que está escrito aqui é verdade: um app sem
+   servidor, sem login e sem cópia. No dia em que o Supabase entrar,
+   cada frase sobre "fica no seu aparelho" vira declaração falsa numa
+   política de privacidade — que é o pior lugar possível para uma.
+
+   Não reescreva antes: descrever tratamento que ainda não acontece é o
+   erro simétrico. A lista frase por frase, e a decisão de região que é
+   difícil de desfazer, estão em PENDENCIAS.md, item 10.
+
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
    mas quem publica documento jurídico de aplicativo de saúde é advogado.

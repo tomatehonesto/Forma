@@ -104,3 +104,78 @@ node scripts/gerar-aurora.mjs
 A troca de ícone não roda no navegador nem no Expo Go — a tela de
 Aparência diz isso na própria tela quando é o caso, e as cores mudam do
 mesmo jeito. **Confirmar em aparelho** que o ícone troca de verdade.
+
+---
+
+## 🔴 10. O Supabase derruba metade do que os documentos dizem
+
+O aplicativo vai passar a usar **Supabase** — conta, autenticação e banco
+de dados. Hoje ele não tem nada disso, e **os textos estão certos**: eles
+descrevem um app sem servidor, sem login e sem cópia. No dia em que o
+Supabase entrar, cada uma das frases abaixo vira **declaração falsa numa
+política de privacidade**, que é o pior lugar para uma.
+
+Nada disso deve ser reescrito antes — descrever tratamento que ainda não
+acontece é o erro simétrico. Esta lista existe para que a troca aconteça
+**no mesmo commit** que ligar o Supabase.
+
+### O que fica falso
+
+**`src/logic/documentos.ts` — Política de Privacidade**
+
+| seção | frase |
+|---|---|
+| 5 | "gravados no armazenamento do aplicativo, **no seu próprio aparelho**" |
+| 5 | "Não há conta nem senha: ninguém acessa os seus dados com um login" |
+| 5 | "**não existe um servidor nosso de onde eles possam vazar**" |
+| 5 | "desinstalar o aplicativo apaga tudo, sem cópia para restaurar" |
+| 7 | falta o Supabase na lista de **operadores** |
+| 8 | **transferência internacional** passa a valer para TODOS os dados de saúde, e não só para a foto do prato — depende da região do projeto, ver abaixo |
+| 10 | retenção "no seu aparelho, enquanto você quiser" |
+| 14 | segurança: entra senha, hash, sessão e o que protege o banco |
+
+**`src/logic/documentos.ts` — Termos de Uso**
+
+| seção | frase |
+|---|---|
+| 5 | "funciona **sem conta e sem senha**"; "a guarda dos registros é sua" |
+| 8 | "Cancelar não apaga os seus registros — eles estão no seu aparelho" |
+| 12 | encerramento passa a envolver apagar do servidor |
+
+**Outras telas**
+
+- `src/logic/consentimento.ts` — o item "**O que você registra fica no seu
+  aparelho**". E a `VERSAO` do aviso **precisa subir**: quem consentiu com
+  o texto antigo consentiu com outro tratamento, e tem de ver o novo.
+- `src/app/privacidade.tsx` — os blocos "No aparelho, dentro do
+  aplicativo" e "**Desinstalar leva tudo junto**".
+- `src/app/ajuda.tsx` — a resposta de "E se eu desinstalar o aplicativo?",
+  e a premissa de que não há conta nem senha.
+- `src/app/_layout.tsx` — o comentário do `Portao`: "não há conta,
+  servidor nem senha. **NÃO É AUTENTICAÇÃO, e não finge ser**". Com o
+  Supabase, ele passa a ser — ou é substituído por autenticação de
+  verdade.
+
+### O que muda de comportamento, e não só de texto
+
+- **Apagar meus dados** hoje chama `reset()`, que limpa o aparelho. Com
+  servidor, ele tem de apagar lá também — senão o botão mente, e mente
+  sobre o direito de eliminação da LGPD (art. 18, VI).
+- **Exportar** continua valendo, e passa a ser a garantia de portabilidade
+  sobre o que está no servidor.
+- **`estadoVazio()`** e o cadastro pressupõem que o estado nasce local.
+
+### ⚠️ A decisão que é difícil de desfazer: a região
+
+Supabase pergunta a região do projeto na criação e **não dá para mudar
+depois sem migrar**. As duas saídas:
+
+- **São Paulo (sa-east-1)** — os dados de saúde ficam no Brasil, e a
+  transferência internacional continua sendo só a foto do prato. A
+  política quase não muda na seção 8.
+- **Qualquer região fora do Brasil** — todo o histórico de saúde passa a
+  ser transferência internacional (LGPD art. 33), e isso precisa de base
+  legal, de cláusulas contratuais e de estar escrito na política.
+
+Para um aplicativo de dado sensível de saúde vendido no Brasil, **São
+Paulo é a escolha que evita o problema** em vez de administrá-lo.

@@ -12,6 +12,18 @@ import { useTheme } from '../ui/useTheme';
 /* ============================================================
    PRIVACIDADE E DADOS
 
+   ⚠️⚠️ O SUPABASE VAI DERRUBAR METADE DISTO. ⚠️⚠️
+
+   O aplicativo vai passar a ter conta, autenticação e banco. Hoje não
+   tem, e por isso o que está escrito aqui é verdade: um app sem
+   servidor, sem login e sem cópia. No dia em que o Supabase entrar,
+   cada frase sobre "fica no seu aparelho" vira declaração falsa numa
+   política de privacidade — que é o pior lugar possível para uma.
+
+   Não reescreva antes: descrever tratamento que ainda não acontece é o
+   erro simétrico. A lista frase por frase, e a decisão de região que é
+   difícil de desfazer, estão em PENDENCIAS.md, item 10.
+
    ⚠️ O APP JÁ TEVE UMA LINHA SOBRE ISSO E ELA FOI REMOVIDA, com razão:
    dizia "seus dados ficam no seu aparelho" no meio de uma lista de
    configurações, e vendia enclausuramento como vantagem num aplicativo
