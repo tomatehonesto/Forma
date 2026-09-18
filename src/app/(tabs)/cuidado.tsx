@@ -849,7 +849,6 @@ function Documentos() {
  * ------------------------------------------------------------------ */
 function Descoberta() {
   const { c } = useTheme();
-  const router = useRouter();
   const pontos: [string, string, string][] = [
     ['steth', 'Especialistas credenciados', 'Médicos que acompanham tratamento com GLP-1 de perto.'],
     ['doc', 'Seus dados já organizados', 'Peso, aplicações, sintomas e exames prontos para a primeira consulta.'],
@@ -860,10 +859,20 @@ function Descoberta() {
       <Card tint={c.accentWeak} style={{ marginTop: 24 }}>
         <IconBadge name="heart" size={48} bg={c.bg1} />
         <Txt v="h2" style={{ marginTop: 14 }}>Encontre quem acompanhe seu tratamento</Txt>
+        {/* ⚠️ ESTA FRASE SUPUNHA O GÊNERO DE QUEM LÊ — "seguir sozinha",
+            "tomar sozinha" —, e a linha imediatamente acima dela, na
+            própria tela, diz "Ninguém precisa fazer isso sozinho". O app
+            se contradizia em dois centímetros, e escolhia por alguém que
+            ele nem tinha perguntado ainda.
+
+            O cadastro pergunta identidade, mas nada aqui lia a resposta.
+            Sair do adjetivo resolve as duas coisas de uma vez: sem
+            concordância não há suposição, e a frase continua dizendo o
+            mesmo. */}
         <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>
-          Você pode seguir sozinha por aqui. Mas quem tem acompanhamento profissional
-          ajusta dose e protocolo com mais segurança — e essa decisão não é sua para
-          tomar sozinha.
+          Dá para seguir por aqui sem acompanhamento. Mas quem tem um profissional
+          junto ajusta dose e protocolo com mais segurança — e essa não é uma decisão
+          para tomar por conta própria.
         </Txt>
       </Card>
 
@@ -882,11 +891,21 @@ function Descoberta() {
         ))}
       </View>
 
-      <Pressable onPress={() => router.push('/perfil' as any)} style={({ pressed }) => [{ marginTop: 16, opacity: pressed ? 0.8 : 1 }]}>
-        <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
-          <Txt v="body" c={c.accentInk}>Vincular uma clínica</Txt>
-        </View>
-      </Pressable>
+      {/* ⚠️ AQUI HAVIA UM BOTÃO CHEIO, "Vincular uma clínica", que
+          levava ao Perfil — onde o card de especialista era um Pressable
+          sem `onPress`. O caminho inteiro era um círculo: a pessoa tocava
+          no botão mais destacado desta tela, chegava no Perfil, tocava no
+          card que a esperava lá e não acontecia nada.
+
+          Vincular não é uma coisa que este aplicativo saiba fazer.
+          Nenhuma tela escreve `doctor` ou `clinic`, a plataforma da
+          clínica ainda não existe (PENDENCIAS.md, item 6), e o modelo que
+          os Termos descrevem é o oposto: quem convida é a clínica.
+
+          Sem o botão, o que fica acima deixa de ser uma vitrine com a
+          porta trancada e passa a ser o que sempre foi de verdade — o
+          motivo de procurar acompanhamento, que se faz no mundo e não
+          neste aplicativo. Quando a porta existir, ela volta para cá. */}
     </>
   );
 }

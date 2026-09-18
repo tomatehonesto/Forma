@@ -383,70 +383,104 @@ export default function Perfil() {
           um card que sabe de alguma coisa. */}
       <View style={{ marginTop: 32 }}>
         <SectionHead title="Quem te acompanha" />
-        <Pressable onPress={linked ? go('/medico') : undefined} style={({ pressed }) => [{ marginTop: 14, opacity: pressed && linked ? 0.7 : 1 }]}>
-          <View style={{ backgroundColor: linked ? c.bg1 : c.accentWeak, borderRadius: radius.lg, overflow: 'hidden' }}>
-            <Row gap={14} style={{ padding: 16 }}>
-              {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
-                  existe e já é usada na Home e na aba Cuidado.
 
-                  QUADRADO DE CANTO MACIO, E NÃO CÍRCULO: é a moldura que a
-                  Home já dá a esta mesma foto. Duas formas para o mesmo
-                  retrato em duas telas é o tipo de diferença que ninguém
-                  descreve e todo mundo sente. O recorte também é o mesmo —
-                  cobrir pelo topo, que é onde fica o rosto num busto.
+        {linked ? (
+          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
+              <Row gap={14} style={{ padding: 16 }}>
+                {/* O RETRATO DELA, e não um ícone de estetoscópio. A foto já
+                    existe e já é usada na Home e na aba Cuidado.
 
-                  O fundo tingido existe porque a imagem é PNG transparente:
-                  sem ele o recorte flutuaria sobre o branco do card. */}
-              <View style={{
-                width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
-                backgroundColor: c.accentWeak,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                {linked ? (
+                    QUADRADO DE CANTO MACIO, E NÃO CÍRCULO: é a moldura que a
+                    Home já dá a esta mesma foto. Duas formas para o mesmo
+                    retrato em duas telas é o tipo de diferença que ninguém
+                    descreve e todo mundo sente. O recorte também é o mesmo —
+                    cobrir pelo topo, que é onde fica o rosto num busto.
+
+                    O fundo tingido existe porque a imagem é PNG transparente:
+                    sem ele o recorte flutuaria sobre o branco do card. */}
+                <View style={{
+                  width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
+                  backgroundColor: c.accentWeak,
+                  alignItems: 'center', justifyContent: 'center',
+                }}>
                   <Image
                     source={FOTO_MEDICA}
                     style={{ width: '100%', height: '100%' }}
                     contentFit="cover"
                     contentPosition="top center"
                   />
-                ) : (
-                  <Icon name="steth" size={22} color={c.accent} sw={1.8} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt v="bodyMed">{S.profile.doctor}</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+                    {especialidade} · {S.profile.clinic}
+                  </Txt>
+                </View>
+                <Icon name="chev" size={14} color={c.tx4} sw={2} />
+              </Row>
+
+              <View style={{ height: 1, backgroundColor: c.line }} />
+              <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+                <Row gap={7} style={{ alignItems: 'center' }}>
+                  <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
+                  <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
+                </Row>
+                {/* O recado sem ler só aparece quando existe: "0 não
+                    lidas" é o app puxando assunto sobre nada. */}
+                {S.unread > 0 && (
+                  <Row gap={7} style={{ alignItems: 'center' }}>
+                    <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
+                    <Txt v="micro" c={c.tx2}>
+                      {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
+                    </Txt>
+                  </Row>
                 )}
+              </Row>
+            </View>
+          </Pressable>
+        ) : (
+          /* ⚠️ SEM VÍNCULO, ISTO ERA UM BOTÃO QUE NÃO FAZIA NADA.
+
+             O card dizia "Conectar a um especialista", vinha tingido de
+             cor de ação e era um Pressable — com `onPress` indefinido. Um
+             convite completo, com a porta emparedada atrás. E não era um
+             esquecimento pontual: a aba Cuidado, sem vínculo, termina num
+             botão cheio escrito "Vincular uma clínica" que empurra a
+             pessoa para cá. Ela vinha, tocava, e não acontecia nada.
+
+             ⚠️ E NÃO HÁ O QUE LIGAR NELE. Nenhuma tela deste aplicativo
+             escreve `doctor` ou `clinic` — os dois só existiam porque o
+             seed já vinha com a Dra. Helena. O vínculo é coisa da
+             plataforma da clínica, que ainda não existe (PENDENCIAS.md,
+             item 6), e o modelo documentado nos Termos é o contrário
+             deste botão: quem convida é a clínica, com um código.
+
+             Então aqui fica o que é verdade — uma vaga vazia, em cinza de
+             vaga vazia, sem toque e sem promessa. Vínculo é opcional, e a
+             frase diz isso sem soar como consolo. */
+          <View style={{
+            marginTop: 14, backgroundColor: c.bg1,
+            borderRadius: radius.lg, padding: 16,
+          }}>
+            <Row gap={14} style={{ alignItems: 'center' }}>
+              <View style={{
+                width: 56, height: 56, borderRadius: radius.md,
+                backgroundColor: c.bg3,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name="steth" size={22} color={c.tx4} sw={1.8} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="bodyMed">{linked ? S.profile.doctor : 'Conectar a um especialista'}</Txt>
+                <Txt v="bodyMed" c={c.tx2}>Sem especialista vinculado</Txt>
                 <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                  {linked
-                    ? `${especialidade} · ${S.profile.clinic}`
-                    : 'Opcional — o app funciona completo sem vínculo.'}
+                  Você acompanha o tratamento inteiro por aqui. Havendo
+                  vínculo com uma clínica, ele aparece neste lugar.
                 </Txt>
               </View>
-              {linked && <Icon name="chev" size={14} color={c.tx4} sw={2} />}
             </Row>
-
-            {linked && (
-              <>
-                <View style={{ height: 1, backgroundColor: c.line }} />
-                <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-                  <Row gap={7} style={{ alignItems: 'center' }}>
-                    <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
-                    <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
-                  </Row>
-                  {/* O recado sem ler só aparece quando existe: "0 não
-                      lidas" é o app puxando assunto sobre nada. */}
-                  {S.unread > 0 && (
-                    <Row gap={7} style={{ alignItems: 'center' }}>
-                      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
-                      <Txt v="micro" c={c.tx2}>
-                        {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
-                      </Txt>
-                    </Row>
-                  )}
-                </Row>
-              </>
-            )}
           </View>
-        </Pressable>
+        )}
       </View>
 
       {/* ---- acompanhamento ----

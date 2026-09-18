@@ -66,6 +66,34 @@ A Política descreve o envio do resumo e das mensagens à equipe de saúde.
 Hoje isso é gravado localmente: não há plataforma do outro lado. Antes de
 publicar, ou o servidor existe, ou a redação muda.
 
+**E vincular também não existe.** Nenhuma tela do aplicativo escreve
+`doctor` ou `clinic` — os dois só apareciam porque o seed já vinha com a
+Dra. Helena, e desde que o cadastro passou a limpar o seed, quem chega
+hoje não tem como ter equipe nunca. O aplicativo tinha **quatro portas**
+para um quarto que não foi construído, e as quatro saíram:
+
+| onde | o que prometia | para onde ia |
+|---|---|---|
+| Home, card sem equipe | "Conhecer especialistas" | `/medico` — a conversa, com o nome da médica vazio |
+| Home, cabeçalho | "Ir para área médica" | `/medico`, o mesmo, nos dois estados |
+| Cuidado, sem vínculo | botão cheio "Vincular uma clínica" | `/perfil` |
+| Perfil, sem vínculo | card "Conectar a um especialista" | **nada** — `onPress` indefinido |
+
+As duas primeiras agora só aparecem com vínculo, a terceira saiu e a
+quarta virou uma vaga vazia que não se toca.
+
+**Quando a porta existir**, o modelo é o que os Termos já descrevem
+(seção sobre profissional parceiro): quem convida é a clínica, com um
+código — e não a pessoa que procura um médico dentro do aplicativo. É o
+contrário do que os botões antigos sugeriam, e vale desenhar a tela a
+partir do código de convite, não de uma busca.
+
+⚠️ E ainda há uma afirmação sem dono na aba Cuidado: "**Especialistas
+credenciados** — médicos que acompanham tratamento com GLP-1 de perto"
+descreve uma rede credenciada. Sem o botão ela lê como benefício do
+acompanhamento, e não como catálogo; com a rede no ar, precisa ser
+verdade sobre quem está nela.
+
 ---
 
 ## 🟢 Confirmar em aparelho

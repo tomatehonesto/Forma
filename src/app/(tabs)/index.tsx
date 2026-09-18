@@ -425,7 +425,17 @@ export default function Home() {
 
           {/* acompanhamento */}
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
-            <SectionHead title="Seu acompanhamento" link="Ir para área médica" onPress={go('/medico')} />
+            {/* ⚠️ E O ATALHO DO CABEÇALHO IA JUNTO, sem perguntar. "Ir
+                para área médica" apontava para /medico nos dois estados —
+                era a quarta porta a levar, sem vínculo, para a conversa
+                com uma médica sem nome. Sem equipe não há área médica, e
+                o convite do card abaixo é a única porta que faz sentido
+                aqui. */}
+            <SectionHead
+              title="Seu acompanhamento"
+              link={linked ? 'Ir para área médica' : undefined}
+              onPress={linked ? go('/medico') : undefined}
+            />
 
             {linked ? (
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
@@ -470,14 +480,33 @@ export default function Home() {
                 </View>
               </View>
             ) : (
-              /* sem clinica vinculada — o acompanhamento vira convite */
-              <Card style={{ marginTop: 16 }} onPress={go('/medico')}>
+              /* ⚠️ SEM VÍNCULO, ESTE CARD ABRIA A CONVERSA COM QUEM NÃO
+                 EXISTE. "Conhecer especialistas" levava a /medico — a
+                 thread da médica —, que escreve `S.profile.doctor` sem
+                 perguntar se há um. Sem clínica, a tela abria com o nome
+                 vazio: "· acompanha sua evolução", e uma equipe de duas
+                 pessoas em que a primeira não tem nome.
+
+                 Era a terceira porta falsa do mesmo assunto. As outras
+                 duas: a aba Cuidado terminava num botão "Vincular uma
+                 clínica" que levava ao Perfil, e lá o card de especialista
+                 era um Pressable sem `onPress`. Nenhuma tela deste
+                 aplicativo escreve `doctor` ou `clinic` — vincular não é
+                 coisa que ele saiba fazer (PENDENCIAS.md, item 6).
+
+                 O card fica, porque a ausência de equipe é um fato da
+                 Home. O que muda é para onde ele leva: a aba Cuidado, que
+                 é onde o assunto mora de verdade e onde o convite está
+                 escrito por extenso. E `navigate`, e não `push`: trocar
+                 de aba é ir para uma tela que já existe, não empilhar
+                 outra em cima. */
+              <Card style={{ marginTop: 16 }} onPress={() => router.navigate('/cuidado' as any)}>
                 <Txt v="title">Você ainda não tem uma equipe por aqui</Txt>
                 <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
-                  Encontre um especialista credenciado para acompanhar seu tratamento de perto.
+                  Quem tem acompanhamento profissional ajusta dose e protocolo com mais segurança.
                 </Txt>
                 <Row gap={6} style={{ marginTop: 14 }}>
-                  <Txt v="label" c={c.accent2}>Conhecer especialistas</Txt>
+                  <Txt v="label" c={c.accent2}>Por que isso importa</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </Card>
