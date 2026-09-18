@@ -1591,7 +1591,7 @@ export default function Cadastro() {
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
     saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
-    acompanhamento: 'Com ele, o app prepara a consulta e organiza o que levar. Sem ele, segue com você do mesmo jeito.',
+    acompanhamento: 'A resposta liga ou desliga uma parte do aplicativo — a que cuida das suas consultas. O resto funciona igual dos dois jeitos.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
     consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
@@ -2223,6 +2223,34 @@ export default function Cadastro() {
                 insistir numa escolha que ela já tomou. Sem perguntar, o
                 app errava com as duas — e errava adivinhando pelo campo
                 do nome, que é vazio nos dois casos. */}
+            {/* ⚠️ O QUE A RESPOSTA MUDA, ANTES DE ELA SER DADA.
+
+                Sem isto a pergunta parece cadastral — mais um campo de
+                ficha —, e a pessoa responde sem saber que está ligando ou
+                desligando três coisas do aplicativo. Informação para
+                decidir vem antes do controle, e não num aviso depois.
+
+                E vem em três linhas concretas, e não numa promessa: quem
+                lê "prepara a consulta" não sabe o que vai receber. */}
+            <View style={{ gap: 12, backgroundColor: c.bg1, borderRadius: 16, padding: 16 }}>
+              <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.2 }}>COM ACOMPANHAMENTO, O APP</Txt>
+              {([
+                ['cal', 'Cuida da agenda', 'Guarda a data, conta os dias e avisa quando ela chega perto.'],
+                ['doc', 'Endereça o resumo', 'Peso, adesão, sintomas e exames num documento pronto para levar.'],
+                ['companion', 'Ajuda a preparar', 'Sugere o que perguntar, a partir do que aconteceu no seu mês.'],
+              ] as [string, string, string][]).map(([ic, t, sub]) => (
+                <Row key={t} style={{ gap: 12, alignItems: 'flex-start' }}>
+                  <View style={{ marginTop: 1 }}>
+                    <Icon name={ic} size={17} color={c.accent} sw={1.9} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="label">{t}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 18 }}>{sub}</Txt>
+                  </View>
+                </Row>
+              ))}
+            </View>
+
             <View style={{ gap: 10 }}>
               <Escolha
                 ic="steth" cheia titulo="Sim"
@@ -2252,6 +2280,26 @@ export default function Cadastro() {
                 </Txt>
               </View>
             ) : null}
+
+            {/* ⚠️ O AVISO FICA NAS DUAS RESPOSTAS, E ISSO É A DECISÃO.
+
+                Mostrá-lo só depois do "não" faria dele uma reação: a
+                pessoa marca uma opção e o aplicativo responde com um
+                lembrete sobre a importância de ter médico. Isso é
+                julgamento com cara de informação, e numa tela de cadastro
+                de tratamento de saúde é a última coisa que alguém precisa
+                receber de um app.
+
+                Fixo, ele é o que sempre foi verdade: quem decide dose e
+                protocolo é gente habilitada, e este aplicativo não é.
+                Vale igual para quem respondeu sim — e dito assim, não
+                cobra nada de ninguém. */}
+            <View style={{ height: 1, backgroundColor: c.line, marginHorizontal: 2 }} />
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20, paddingHorizontal: 2 }}>
+              Seja qual for a resposta: o remédio é de prescrição, e dose e protocolo são
+              decisão de quem tem formação para isso. O aplicativo organiza, acompanha e
+              prepara — ele não prescreve, não ajusta dose e não substitui consulta.
+            </Txt>
           </View>
         ) : null}
 
