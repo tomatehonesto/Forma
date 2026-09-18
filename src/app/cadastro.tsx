@@ -1635,7 +1635,19 @@ export default function Cadastro() {
        demais. Uma frase, um exemplo, e a pergunta volta a ser a maior
        coisa da tela. */
     acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico, como anotações e planejamento para consultas.',
-    recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
+    /* ⚠️ AQUI DIZIA "quem chega por um profissional parceiro não paga
+       pelo app", e a frase estava no pior lugar possível: anunciando o
+       prêmio na mesma tela em que faz a pergunta que o concede. Não é
+       informação, é incentivo — e o que ela incentiva é tentar.
+
+       Quem tem código não precisa da promessa para digitá-lo; quem não
+       tem passa a ter um motivo para procurar um. Benefício se apresenta
+       onde ele é cobrado, e não onde ele é perguntado.
+
+       No lugar dela, o que a pergunta de fato faz: o código é o que liga
+       a conta à equipe. Ver PENDENCIAS.md — este passo sai daqui quando
+       a tela de planos existir. */
+    recomendacao: 'O código é o que liga a sua conta à equipe que acompanha você.',
     consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
 

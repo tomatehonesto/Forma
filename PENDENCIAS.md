@@ -60,6 +60,34 @@ cancelamento e arrependimento de 7 dias (CDC art. 49). Nada disso está
 implementado. Descrever a mais não é violação — descrever a menos é —,
 mas o fluxo precisa existir antes de a loja cobrar alguém.
 
+**E a tela de planos leva o código junto.** Decidido em 18 de setembro de
+2026, quando o passo do convite voltou a ser uma pergunta separada no
+cadastro:
+
+- O código não é um dado do tratamento: ele decide **quem paga**. O lugar
+  natural de resgatá-lo é onde o preço aparece — "Ver planos", com os
+  valores em cima e **"Tenho um código de um especialista parceiro"**
+  embaixo, que é como qualquer pessoa já espera resgatar um código.
+- **Ali ninguém tenta burlar.** No cadastro, a pergunta "veio por
+  indicação?" concede um benefício, e por isso a tela não pode anunciar
+  esse benefício — a frase "quem chega por um profissional parceiro não
+  paga pelo app" saiu de lá justamente por isso. No paywall a ordem se
+  inverte: a pessoa já viu o preço, e quem tem código digita porque tem.
+- **Quando a tela de planos existir, o passo `recomendacao` sai do
+  cadastro.** São treze perguntas antes da primeira tela, e uma delas
+  passa a ser respondida melhor dez segundos depois. Enquanto o paywall
+  não existe o passo fica, porque a clínica manda a pessoa baixar o app
+  *com o código na mão* e ela precisa de onde escrevê-lo.
+
+⚠️ O que **não** pode sair junto é a porta permanente: `/parceiros`, com
+entrada pelo perfil, existe para quem recebe o código depois — e esse é o
+caminho mais comum de todos. A tela de planos é onde ele se resgata na
+primeira vez; o perfil é onde ele entra em qualquer outra.
+
+⚠️ E vale conferir a regra de loja antes de desenhar: Apple e Google têm
+posição sobre desbloquear assinatura por código fora da compra no app.
+Ver "A loja olha código que libera conteúdo pago", em MODOS.md.
+
 ### 6. A transmissão para a equipe não existe no código
 
 A Política descreve o envio do resumo e das mensagens à equipe de saúde.
