@@ -168,11 +168,41 @@ const X_DO_ALTO = 12;
 
 const ALTURA_DA_ARTE = MOCKUP_LARGURA / MOCKUP_PROPORCAO;
 
+/* ⚠️ O DESVANECIMENTO É MAIOR DO QUE A JANELA, e é essa a ideia inteira.
+
+   Ele já foi de 110 px, depois de 72, depois de 56 — sempre encaixado
+   dentro da janela, sempre atravessando o aparelho como uma faixa. O
+   problema nunca foi o tamanho: era o véu ter que apagar a imagem toda
+   dentro do mesmo espaço em que ela ainda precisa se ler. Quanto mais
+   curto, mais seco; quanto mais longo, mais ele come o telefone.
+
+   A saída é o véu deixar de caber na janela. A peça continua ocupando
+   252 px de fluxo — nada abaixo se move —, mas a imagem segue existindo
+   até os 400, por trás do título, apagando devagar. O que era um corte
+   vira uma presença: o aparelho não termina em lugar nenhum, ele só fica
+   cada vez mais fraco até o título passar por cima dele.
+
+   ⚠️ A CURVA NÃO É RETA, E NÃO PODE SER. Linear, o véu chegaria à altura
+   do título com 43% e o aparelho competiria com a frase. Os quatro
+   pontos abaixo fazem o contrário: o telefone se lê inteiro até 160,
+   perde a maior parte entre 232 e 275 — logo antes do título —, e o que
+   sobra dali para baixo é um fantasma de 10% que desce atrás do texto e
+   morre sozinho. É a mesma razão de sempre: o que se vê tem que ser o
+   telefone, nunca a sombra.
+
+   ⚠️ E A PEÇA MENTE SOBRE A ALTURA DELA para conseguir isso: a caixa tem
+   400 de alto e uma margem de baixo negativa que devolve a diferença. É
+   o que deixa o título, que é irmão seguinte no fluxo, ser desenhado por
+   cima da imagem em vez de embaixo dela. Trocar essa margem por
+   `overflow` no pai apaga o efeito. */
+const PECA_FADE_DE = 160;
+const PECA_FADE_ATE = 400;
+
 function PecaDoAlto({ c }: { c: any }) {
   return (
-    /* ⚠️ A JANELA SANGRA PARA FORA DA CALHA, e o −20 é o padding do alto.
+    /* ⚠️ A PEÇA SANGRA PARA FORA DA CALHA, e o −20 é o padding do alto.
 
-       A peça mora dentro de um bloco com `paddingHorizontal: 20`, então o
+       Ela mora dentro de um bloco com `paddingHorizontal: 20`, então o
        desvanecimento parava a 20 px de cada borda — e os 20 px que sobravam
        continuavam com a aurora acesa. O resultado eram duas lascas claras
        nos cantos, exatamente na altura em que a imagem deveria ter sumido:
@@ -180,7 +210,16 @@ function PecaDoAlto({ c }: { c: any }) {
 
        Um véu que termina antes da borda não é um véu. Se o padding do alto
        mudar, este número muda junto. */
-    <View style={{ height: MOCKUP_JANELA, marginHorizontal: -20, overflow: 'hidden', alignItems: 'center' }}>
+    <View
+      style={{
+        height: PECA_FADE_ATE,
+        marginBottom: MOCKUP_JANELA - PECA_FADE_ATE,
+        marginHorizontal: -20,
+        overflow: 'hidden',
+        alignItems: 'center',
+      }}
+      pointerEvents="none"
+    >
       <Image
         source={MOCKUP}
         style={{
@@ -191,24 +230,13 @@ function PecaDoAlto({ c }: { c: any }) {
         }}
         contentFit="contain"
       />
-      {/* ⚠️ O DESVANECIMENTO É CURTO DE PROPÓSITO, e foi longo demais.
-
-          Com 110 px ele cobria quase metade da janela, e o que devia ser
-          o fim da peça virou uma faixa escura atravessando o aparelho —
-          a pessoa via a sombra, e não o telefone. O erro é de relação e
-          não de valor absoluto: quanto mais a janela encolhe, maior a
-          fatia da imagem que um véu fixo come.
-
-          56 px resolve mantendo a mesma ideia — o corte continua sendo
-          uma dissolução e não uma tesoura —, e `0.94` empurra o preto
-          para os últimos seis por cento — a mesma parada da aurora aqui
-          atrás, de propósito: as duas camadas precisam chegar ao fundo da
-          página juntas, senão uma delas aparece sozinha e vira risca.
-          Quem mexer em MOCKUP_JANELA olha para cá. */}
       <LinearGradient
-        colors={['transparent', c.bg]}
-        locations={[0, 0.94]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 56 }}
+        colors={['transparent', alfa(c.bg, 0.55), alfa(c.bg, 0.9), c.bg]}
+        locations={[0, 0.3, 0.48, 1]}
+        style={{
+          position: 'absolute', left: 0, right: 0,
+          top: PECA_FADE_DE, height: PECA_FADE_ATE - PECA_FADE_DE,
+        }}
         pointerEvents="none"
       />
     </View>
