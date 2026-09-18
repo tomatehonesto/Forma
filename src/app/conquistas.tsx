@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { checkins30, journeyDay } from '../logic/derive';
-import { conquistas, feitas, aCaminho, type Conquista } from '../logic/conquistas';
+import { conquistas, feitas, aCaminho, FAMILIAS, type Conquista } from '../logic/conquistas';
 import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Grade, Selo } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Chips, Grade, Selo } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -29,6 +29,17 @@ import { radius } from '../theme';
    faltar nove não são o mesmo estado, e a diferença é o que faz alguém
    continuar: agora cada uma traz a frase do que falta e uma barra com o
    quanto já andou.
+
+   E SÃO TRINTA E QUATRO, o que muda o problema da tela. Com oito, duas
+   grades resolviam; com trinta e quatro, "a caminho" vira um paredão em
+   que a conquista a um passo fica perdida entre a de um ano de caneta.
+
+   Duas coisas resolvem isso, e nenhuma delas é esconder. As que faltam
+   vêm ordenadas DA MAIS PERTO PARA A MAIS LONGE — a que está a duzentos
+   gramas é a única que muda o que alguém faz hoje. E as pastilhas de
+   cima filtram por assunto, para quem veio ver de hidratação e não de
+   aplicação: são as mesmas do Histórico e das Notificações, com a
+   contagem de feitas em cada uma.
    ============================================================ */
 
 function Cartao({ q }: { q: Conquista }) {
@@ -78,10 +89,24 @@ function Cartao({ q }: { q: Conquista }) {
 export default function Conquistas() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const [aba, setAba] = useState('todas');
 
   const todas = useMemo(() => conquistas(S), [S]);
-  const done = feitas(todas);
-  const faltam = aCaminho(todas);
+
+  /* A CONTAGEM DA PASTILHA É DE FEITAS, e não do total. "Peso 8" quer
+     dizer oito conquistas de peso na lista, o que é informação sobre o
+     catálogo; "Peso 3" quer dizer três alcançadas, que é informação sobre
+     a pessoa — e é ela que alguém vem conferir. */
+  const chips = useMemo(() => [
+    { id: 'todas', label: 'Todas', n: feitas(todas).length },
+    ...FAMILIAS
+      .map((f) => ({ id: f.id, label: f.nome, n: feitas(todas.filter((q) => q.familia === f.id)).length }))
+      .filter((f) => todas.some((q) => q.familia === f.id)),
+  ], [todas]);
+
+  const lista = aba === 'todas' ? todas : todas.filter((q) => q.familia === aba);
+  const done = feitas(lista);
+  const faltam = aCaminho(lista);
 
   return (
     <TelaInterna titulo="Conquistas">
@@ -91,9 +116,12 @@ export default function Conquistas() {
       />
 
       <Row style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, paddingVertical: 16 }}>
+        {/* O placar é sempre do TOTAL, e não do filtro: ele é o resumo da
+            jornada, e mudar de número ao tocar numa pastilha faria parecer
+            que a pessoa perdeu conquistas ao olhar para um assunto. */}
         {[
           [String(checkins30(S)), 'check-ins no mês'],
-          [`${done.length}/${todas.length}`, 'conquistas'],
+          [`${feitas(todas).length}/${todas.length}`, 'conquistas'],
           [String(journeyDay(S)), 'dias de jornada'],
         ].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.accentLine }}>
@@ -102,6 +130,8 @@ export default function Conquistas() {
           </View>
         ))}
       </Row>
+
+      <Chips itens={chips} valor={aba} onChange={setAba} />
 
       {/* "DESBLOQUEADAS" ERA PALAVRA DE JOGO, e contradizia a própria
           tela: aqui não há fase a vencer nem prêmio a liberar — há coisas
@@ -115,7 +145,7 @@ export default function Conquistas() {
           /* Quem abre no primeiro dia via um título e nada embaixo. A frase
              não promete conquista nenhuma: diz onde ela vai aparecer, e a
              lista de "a caminho" logo abaixo já mostra quais são. */
-          <Vazio ic="trophy" titulo="Nenhuma conquista ainda" texto="As que estão a caminho aparecem logo abaixo." />
+          <Vazio ic="trophy" titulo="Nenhuma ainda" texto="As que estão a caminho aparecem logo abaixo." />
         )}
       </Bloco>
 
