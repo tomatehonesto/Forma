@@ -178,10 +178,23 @@ export default function Cancelar() {
       };
     }
     if (motivo === 'terminei') {
+      /* ⚠️ AQUI A TELA PARA DE VENDER E DÁ PARABÉNS.
+
+         É o único motivo da lista em que sair é o desfecho certo: a
+         pessoa terminou o que veio fazer. Oferecer desconto a quem
+         concluiu o tratamento é não ter lido a resposta que ela acabou de
+         dar — e é o momento em que uma tela de retenção fica indecente.
+
+         ⚠️ E O PARABÉNS É CONDICIONAL, de propósito. "Esperamos que você
+         tenha alcançado" e não "você conseguiu": nem todo tratamento que
+         termina termina bem, e este aplicativo não tem como saber qual
+         dos dois foi. Afirmar a vitória para quem parou por efeito
+         colateral, por custo ou por desistência é a frase mais cruel que
+         a tela poderia ter. */
       return {
         ic: 'journey',
-        titulo: 'Seus registros continuam aqui',
-        texto: 'Cancelar não apaga nada: o peso, as aplicações, os exames e as fotos ficam no aparelho. Se um dia você recomeçar, está tudo no lugar.',
+        titulo: 'Parabéns por chegar até aqui',
+        texto: 'Esperamos que você tenha alcançado o que buscava quando começou. Obrigado por ter feito esse caminho com a gente — e por ter confiado à gente o registro dele.',
         rotulo: null,
         acao: null,
       };
@@ -225,7 +238,12 @@ export default function Cancelar() {
         <Cartao>
           <View style={{ padding: 18, gap: 10 }}>
             <Row gap={10} style={{ alignItems: 'center' }}>
-              <Icon name={resposta.ic} size={19} color={c.lime} sw={1.9} />
+              {/* ⚠️ AZUL, E NÃO LIMA. O lima aqui é a cor do alcançado —
+                  a meta batida, o check-in feito —, e nada nestes cartões
+                  foi alcançado: são propostas. Usada onde não houve
+                  conquista, ela vira decoração e deixa de significar
+                  alguma coisa nas telas onde significa. */}
+              <Icon name={resposta.ic} size={19} color={c.accent} sw={1.9} />
               <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{resposta.titulo}</Txt>
             </Row>
             <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{resposta.texto}</Txt>
@@ -258,7 +276,7 @@ export default function Cancelar() {
         <Cartao>
           <View style={{ padding: 18, gap: 10 }}>
             <Row gap={10} style={{ alignItems: 'center' }}>
-              <Icon name="companion" size={19} color={c.lime} sw={1.9} />
+              <Icon name="companion" size={19} color={c.accent} sw={1.9} />
               <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{rotuloDoCampo}</Txt>
             </Row>
             {/* ⚠️ E A FRASE NÃO PROMETE RESPOSTA. Não há para onde esse
