@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, litros, streak,
+  ATALHOS, nextSite, siteLabel, curWeight, checkinToday, checkinFeito, waterMlToday, litros,
+  notasAbertas, streak,
   type QuickKey,
 } from '../logic/derive';
 import { now, startOfDay, nf } from '../logic/time';
@@ -70,6 +71,9 @@ export default function Registrar() {
   const alvoProt = (S.profile as any).targets.prot as number;
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
      escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
+  /* As que ainda não foram conversadas — as marcadas saíram da pauta, e
+     contá-las aqui prometeria uma lista que a consulta já resolveu. */
+  const abertas = notasAbertas(S).length;
   const bebido = litros(waterMlToday(S));
   const alvoL = litros((S.profile as any).targets.waterMl);
   const acoes = ATALHOS;
@@ -89,17 +93,21 @@ export default function Registrar() {
      dois cabiam numa — as três pastilhas ficavam com o texto começando em
      alturas diferentes. Quebrando aqui, os três abrem com uma palavra
      curta na primeira linha e o verbo na segunda. */
+  /* ⚠️ O CATÁLOGO TINHA SETE ITENS PARA TRÊS LUGARES. Os outros quatro
+     eram herança dos atalhos que giravam com o dia — e como `ATALHOS`
+     virou uma lista fixa de três, nenhuma tela chegava a desenhá-los.
+     Três eram inofensivos, porque check-in tem banner próprio e aplicação
+     e exame estão na lista de baixo. O quarto não: a anotação da consulta
+     só existia aqui, e com isso `/medir-anotacao` ficou sem uma porta no
+     app inteiro. Ela agora está em "leva um minuto", que é onde ela
+     sempre coube. */
   const CATALOGO: Record<QuickKey, Item> = {
     agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${bebido} de ${alvoL} L`, to: '/medir-agua' },
     exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${ci?.exerc || 0} min hoje`, to: '/medir-exercicio' },
-    aplicacao: { ic: 'syringe', titulo: 'Apliquei a dose', sub: siteLabel(nextSite(S)), to: '/aplicacao' },
-    checkin: { ic: 'leaf', titulo: fez ? 'Revisar como estou' : 'Como estou agora', sub: fez ? 'já registrei hoje' : stk > 0 ? `${stk} dias seguidos` : 'menos de 30s', to: '/checkin', destaque: !fez },
     /* A proteína do dia, como a água e o exercício. "12 registradas" era
        o total desde que o app foi instalado — não responde nada que se
        pergunte antes de comer. */
     refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${protHoje} de ${alvoProt} g`, to: '/medir-refeicao' },
-    exame: { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar resultado', to: '/medir-exame' },
-    anotacoes: { ic: 'pencil', titulo: 'Anotei da consulta', sub: 'o que a médica orientou', to: '/medir-anotacao' },
   };
 
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
@@ -121,6 +129,24 @@ export default function Registrar() {
     { ic: 'camera', titulo: 'Tirei uma foto de progresso', sub: 'para comparar depois', to: '/medir-foto' },
     { ic: 'ruler', titulo: 'Medi meu corpo', sub: 'cintura, quadril, braço e coxa', to: '/medir-medidas' },
     { ic: 'doc', titulo: 'Recebi um exame', sub: 'anotar o resultado', to: '/medir-exame' },
+    /* A ANOTAÇÃO É EVENTO como as outras desta lista: cada uma é um
+       registro novo, e anotar duas vezes é anotar duas coisas.
+
+       Ela fica por último porque é a única que não tem número — as de
+       cima produzem um dado que o app soma, e esta produz uma frase que
+       só a pessoa lê. E vem em primeira pessoa, como as vizinhas: o que
+       acontece não é "abrir as notas", é lembrar de uma coisa.
+
+       Um item só para os dois momentos, e não dois. Sair da consulta com
+       uma orientação e lembrar de uma pergunta na terça são a mesma
+       lista — a que vira a pauta do resumo do médico. Dois itens aqui
+       seriam duas portas para o mesmo lugar, com nomes diferentes. */
+    {
+      ic: 'pencil',
+      titulo: 'Anotei algo para a consulta',
+      sub: abertas ? `${abertas} ${abertas === 1 ? 'nota' : 'notas'} na pauta` : 'pergunta, sintoma ou orientação',
+      to: '/medir-anotacao',
+    },
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
   return (

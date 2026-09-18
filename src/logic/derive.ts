@@ -2189,9 +2189,15 @@ export function journeyGoals(S: State): JourneyGoal[] {
    uma vez a cada sete dias, então em seis deles ocuparia um dos três
    espaços de maior destaque sem ser usada.
 
-   Os três lugares vão para o que a pessoa faz todo dia — e mudam quando o
-   dia pede outra coisa. */
-export type QuickKey = 'agua' | 'refeicao' | 'checkin' | 'exercicio' | 'aplicacao' | 'exame' | 'anotacoes';
+   Os três lugares vão para o que a pessoa faz todo dia.
+
+   ⚠️ O TIPO LISTAVA SETE CHAVES para uma lista de três, e quatro delas
+   não eram opção nenhuma: eram restos da época em que os atalhos giravam
+   com o dia. O sheet mantinha um catálogo com as sete, e as quatro
+   sobrando desenhavam itens que nenhuma tela renderizava — entre elas a
+   anotação da consulta, cuja tela de captura ficou, por isso, sem porta
+   no app inteiro. */
+export type QuickKey = 'agua' | 'refeicao' | 'exercicio';
 
 /* Os três atalhos do sheet de registrar. Fixos, sempre os mesmos.
 
