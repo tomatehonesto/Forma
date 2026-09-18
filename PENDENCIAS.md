@@ -194,3 +194,52 @@ mais caro do que escolher certo agora.
 armazenamento de arquivos e as Edge Functions** precisam ficar no mesmo
 projeto. Um bucket ou uma função em outra região devolve o problema pela
 porta dos fundos.
+
+---
+
+## 🟡 11. As paletas definitivas ainda vão ser desenhadas
+
+As cinco que estão no código — Original, Amora, Pitaia, Brasa, Floresta —
+são **provisórias**: valores escolhidos à mão para a tela existir e ser
+testada. As definitivas vêm depois, junto com as auroras feitas de
+propósito para cada uma, em vez de giradas no matiz a partir da azul.
+
+Quando isso acontecer, o contrato é este — e ele não perdoa erro de nome,
+porque o empacotador resolve cada `require` em tempo de compilação:
+
+**Os arquivos**
+
+```
+assets/auroras/hero-<id>.webp        fundo da Home
+assets/auroras/insights-<id>.webp    fundo do Insights e das Metas
+assets/icones/<id>.png               ícone iOS, 1024×1024
+assets/icones/<id>-frente.png        camada de frente do Android
+```
+
+**Os quatro lugares que precisam concordar**
+
+| onde | o que tem |
+|---|---|
+| `src/theme.ts` › `PALETAS` | a lista, e a fonte de tudo |
+| `src/ui/aurora.ts` | o mapa de `require`, escrito à mão |
+| `app.json` › `expo-alternate-app-icons` | uma entrada por ícone |
+| `assets/icones/plugin.json` | o mesmo, gerado |
+
+Os dois geradores leem `PALETAS` e escrevem o resto:
+`node scripts/gerar-aurora.mjs` e `node scripts/gerar-icones.mjs` — o
+segundo reescreve `plugin.json`, que depois se cola em `app.json`. Quem
+mudar a lista sem rodar os dois deixa a tela oferecendo uma cor sem fundo
+e sem ícone.
+
+**As regras que a tela impõe**
+
+- **Cinco, numa fileira só.** Não há `flexWrap`: uma sexta paleta não
+  cabe, e é para não caber.
+- **Oito letras no nome, no máximo.** A coluna tem 65 pixels num telefone
+  de 360pt. Foi por isso que "Framboesa" virou "Pitaia".
+- **Ação e alcançado bem separadas.** Se as duas forem próximas, o botão
+  que leva a algum lugar e a marca do que já foi feito viram a mesma
+  coisa — que é o problema que as paletas fechadas existem para evitar.
+- **Um id que sai da lista precisa de uma linha em `ensureDefaults`**, em
+  `src/logic/seed.ts`: ou traduzindo para o novo, ou caindo na original.
+  Sem ela a pessoa perde a escolha em silêncio.
