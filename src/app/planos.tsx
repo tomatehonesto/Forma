@@ -46,6 +46,20 @@ import { paletaDe, mix, alfa, radius, font } from '../theme';
      · não esconde o preço cheio atrás do "por mês". O anual aparece
        pelos dois números, porque quem decide precisa dos dois.
 
+   ⚠️ A DECISÃO É FIXA E O RESTO ROLA.
+
+   O preço e o botão moram numa barra ancorada no pé da tela; o que se lê
+   — a marca, a promessa, o que vem junto, a letra miúda, o código —
+   passa por baixo dela. É o padrão das telas de plano que funcionam, e a
+   razão é simples: quem decidiu no terceiro item não pode ser obrigada a
+   rolar até o fim para pagar, e quem ainda está lendo não pode perder de
+   vista quanto custa o que está lendo.
+
+   O FIO DE CIMA É UM DEGRADÊ, e não uma borda. Borda corta a tela em
+   duas; o degradê deixa o conteúdo se dissolver na barra, o que diz que
+   há mais coisa ali atrás — e a barra deixa de parecer uma segunda tela
+   grudada embaixo da primeira.
+
    A LINHA DO CÓDIGO FICA EMBAIXO DOS PREÇOS, e é o lugar certo dela: no
    cadastro, perguntar por indicação antes de mostrar o custo era
    anunciar um prêmio e depois fazer a pergunta que o concede. Aqui a
@@ -125,6 +139,11 @@ export default function Planos() {
      cobrança começar; esconder o valor até lá é prometer um aviso sobre
      um número secreto. */
   const [verPrecos, setVerPrecos] = React.useState(false);
+  /* A barra é medida, e não estimada: o texto miúdo muda de altura com o
+     plano escolhido e com o tamanho de fonte do sistema, e um número
+     chutado aqui deixaria a última linha do rolo escondida atrás dela
+     justamente para quem aumentou a letra. */
+  const [alturaDaBarra, setAlturaDaBarra] = React.useState(230);
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
@@ -168,7 +187,7 @@ export default function Planos() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 28 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: alturaDaBarra + 24 }}>
         {/* ---- o alto ----
 
             ⚠️ A AURORA, E NÃO UM FUNDO CHAPADO. As telas de plano que se
@@ -190,17 +209,6 @@ export default function Planos() {
             pointerEvents="none"
           />
 
-          {/* O X, E NÃO A SETA. Seta diz "volte um passo"; X diz "isto é
-              uma interrupção, e você pode encerrá-la". Numa tela que pede
-              dinheiro, a diferença entre as duas é quem está no comando. */}
-          <Row style={{ justifyContent: 'flex-end' }}>
-            <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="x" size={16} color="#FFFFFF" sw={2.2} />
-              </View>
-            </Pressable>
-          </Row>
-
           {/* ⚠️ A MARCA, E NÃO O ÍCONE DO APLICATIVO.
 
               O ícone é o quadrado com gradiente que mora na tela inicial
@@ -213,7 +221,7 @@ export default function Planos() {
               A marca por extenso é o lockup, com o símbolo em lima e o
               letreiro em branco. É a mesma peça da abertura do cadastro,
               que foi a última vez que essa pessoa viu o nome. */}
-          <View style={{ alignItems: 'center', gap: 12, marginTop: 10 }}>
+          <View style={{ alignItems: 'center', gap: 12, marginTop: 34 }}>
             <Marca altura={26} />
             <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
               O tratamento inteiro,{'\n'}num lugar só
@@ -258,93 +266,6 @@ export default function Planos() {
             terminado de ler o que ele compra. */}
         <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginTop: 24 }} />
 
-        {/* ---- os planos ---- */}
-        {/* ⚠️ OS DOIS CARTÕES TÊM A MESMA ALTURA, e isso precisou de uma
-            linha a mais no mensal, e não de um `height` fixo.
-
-            O anual carrega um terceiro dado — o preço cheio do ano — e
-            por isso crescia; com `minHeight` ele passava do piso e o
-            mensal ficava. Dois cartões lado a lado com alturas diferentes
-            dizem, antes de qualquer texto, que um vale mais do que o
-            outro — e a escolha já é sinalizada pela cor e pela borda, que
-            é onde ela deve ser feita.
-
-            A linha nova do mensal não é enchimento: "cobrado todo mês" é
-            a informação que o anual dá em "R$ 199,90 por ano", e faltava
-            do lado de cá. */}
-        <Row gap={10} style={{ marginTop: 22, alignItems: 'stretch' }}>
-          {PLANOS.map((p) => {
-            const on = p.id === escolhido;
-            return (
-              <Pressable key={p.id} onPress={() => { setEscolhido(p.id); setRecusa(false); }} style={{ flex: 1 }}>
-                <View style={{
-                  backgroundColor: on ? c.accentWeak : c.bg1,
-                  borderWidth: 1.5, borderColor: on ? c.accent : c.line,
-                  borderRadius: radius.lg, padding: 16, gap: 3, minHeight: 116, justifyContent: 'center',
-                }}>
-                  <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
-                    {p.economia ? (
-                      <View style={{ backgroundColor: on ? c.accent : c.bg3, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
-                        <Txt v="micro" c={on ? c.accentInk : c.tx3}>−{p.economia}%</Txt>
-                      </View>
-                    ) : null}
-                  </Row>
-                  <Txt v="h2" style={{ marginTop: 6 }}>{reais(p.porMes)}</Txt>
-                  <Txt v="micro" c={c.tx3}>por mês</Txt>
-                  {/* ⚠️ O PREÇO CHEIO FICA À VISTA. Mostrar só "por mês" num
-                      plano anual é a conta que o anúncio faz e a fatura
-                      desmente. E o mensal responde a mesma pergunta na
-                      mesma linha, para os dois cartões terminarem juntos. */}
-                  <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
-                    {p.id === 'anual' ? `${reais(p.preco)} ${p.periodo}` : 'cobrado todo mês'}
-                  </Txt>
-                </View>
-              </Pressable>
-            );
-          })}
-        </Row>
-
-        {/* ⚠️ A ECONOMIA EM DINHEIRO, e não só em porcentagem. "−44%"
-            é o número do anúncio; quanto se deixa de gastar é a conta que
-            a pessoa faz. Ela aparece só quando o anual está escolhido,
-            porque no mensal ela é uma cutucada. */}
-        {escolhido === 'anual' ? (
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 12, textAlign: 'center' }}>
-            São {reais(economiaEmReais())} a menos do que doze meses no mensal.
-          </Txt>
-        ) : null}
-
-        {recusa ? (
-          /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
-             responde o que é verdade — e não com um erro genérico, que
-             faria a pessoa tentar de novo. */
-          <View style={{ marginTop: 16, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
-            <Txt v="bodyMed">A assinatura ainda não está ligada</Txt>
-            <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
-              Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
-              segue inteiro do jeito que está.
-            </Txt>
-          </View>
-        ) : null}
-
-        <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 18, opacity: pressed ? 0.85 : 1 }]}>
-          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
-            <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-              Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
-            </Txt>
-          </View>
-        </Pressable>
-
-        {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta em
-            quase toda tela de plano: quando renova, como cancela, e o
-            prazo de arrependimento que a lei dá. */}
-        <Txt v="micro" c={c.tx4} style={{ marginTop: 12, textAlign: 'center', lineHeight: 17 }}>
-          Renova automaticamente {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar,
-          pela própria loja. Sete dias para desistir com reembolso integral, e cancelar não apaga
-          nenhum registro seu.
-        </Txt>
-
         {/* ---- o código ---- */}
         {TEM_REDE_PARCEIRA ? (
           <Pressable
@@ -375,9 +296,123 @@ export default function Planos() {
           ))}
         </Row>
 
-        <View style={{ height: insets.bottom + 8 }} />
         </View>
       </ScrollView>
+
+      {/* ---- a barra de decisão ---- */}
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }} pointerEvents="box-none">
+        <LinearGradient
+          colors={['transparent', c.bg]}
+          style={{ height: 22 }}
+          pointerEvents="none"
+        />
+        <View
+          onLayout={(e) => setAlturaDaBarra(e.nativeEvent.layout.height)}
+          style={{ backgroundColor: c.bg, paddingHorizontal: 20, paddingTop: 2, paddingBottom: insets.bottom + 12 }}
+        >
+          {/* ---- os planos ---- */}
+          {/* ⚠️ OS DOIS CARTÕES TÊM A MESMA ALTURA, e isso precisou de uma
+              linha a mais no mensal, e não de um `height` fixo.
+
+              O anual carrega um terceiro dado — o preço cheio do ano — e
+              por isso crescia; com `minHeight` ele passava do piso e o
+              mensal ficava. Dois cartões lado a lado com alturas diferentes
+              dizem, antes de qualquer texto, que um vale mais do que o
+              outro — e a escolha já é sinalizada pela cor e pela borda, que
+              é onde ela deve ser feita.
+
+              A linha nova do mensal não é enchimento: "cobrado todo mês" é
+              a informação que o anual dá em "R$ 199,90 por ano", e faltava
+              do lado de cá. */}
+          <Row gap={10} style={{ alignItems: 'stretch' }}>
+            {PLANOS.map((p) => {
+              const on = p.id === escolhido;
+              return (
+                <Pressable key={p.id} onPress={() => { setEscolhido(p.id); setRecusa(false); }} style={{ flex: 1 }}>
+                  <View style={{
+                    backgroundColor: on ? c.accentWeak : c.bg1,
+                    borderWidth: 1.5, borderColor: on ? c.accent : c.line,
+                    borderRadius: radius.lg, padding: 14, gap: 2, minHeight: 106, justifyContent: 'center',
+                  }}>
+                    <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
+                      {p.economia ? (
+                        <View style={{ backgroundColor: on ? c.accent : c.bg3, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
+                          <Txt v="micro" c={on ? c.accentInk : c.tx3}>−{p.economia}%</Txt>
+                        </View>
+                      ) : null}
+                    </Row>
+                    <Txt v="h2" style={{ marginTop: 4 }}>{reais(p.porMes)}</Txt>
+                    <Txt v="micro" c={c.tx3}>por mês</Txt>
+                    {/* ⚠️ O PREÇO CHEIO FICA À VISTA. Mostrar só "por mês" num
+                        plano anual é a conta que o anúncio faz e a fatura
+                        desmente. E o mensal responde a mesma pergunta na
+                        mesma linha, para os dois cartões terminarem juntos. */}
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
+                      {p.id === 'anual' ? `${reais(p.preco)} ${p.periodo}` : 'cobrado todo mês'}
+                    </Txt>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </Row>
+
+          {/* ⚠️ A ECONOMIA EM DINHEIRO, e não só em porcentagem. "−44%"
+              é o número do anúncio; quanto se deixa de gastar é a conta que
+              a pessoa faz. Ela aparece só quando o anual está escolhido,
+              porque no mensal ela é uma cutucada. */}
+          {escolhido === 'anual' ? (
+            <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ marginTop: 10, textAlign: 'center' }}>
+              São {reais(economiaEmReais())} a menos que no mensal.
+            </Txt>
+          ) : null}
+
+          {recusa ? (
+            /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
+               responde o que é verdade — e não com um erro genérico, que
+               faria a pessoa tentar de novo. */
+            <View style={{ marginTop: 12, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
+              <Txt v="bodyMed">A assinatura ainda não está ligada</Txt>
+              <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
+                Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
+                segue inteiro do jeito que está.
+              </Txt>
+            </View>
+          ) : null}
+          <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
+            <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
+              <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
+                Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
+              </Txt>
+            </View>
+          </Pressable>
+
+          {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta em
+              quase toda tela de plano: quando renova, como cancela, e o
+              prazo de arrependimento que a lei dá. */}
+          <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center', lineHeight: 16 }}>
+            Renova {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar, pela loja.
+            Sete dias para desistir, e cancelar não apaga registro nenhum.
+          </Txt>
+
+        </View>
+      </View>
+
+      {/* O X FICA POR CIMA DE TUDO, e não dentro do rolo: numa tela que
+          pede dinheiro, a saída não pode depender de rolar de volta até o
+          alto. Seta diria "volte um passo"; X diz "isto é uma interrupção,
+          e você pode encerrá-la", que é quem está no comando. */}
+      <Pressable
+        onPress={fechar}
+        hitSlop={10}
+        style={({ pressed }) => [{
+          position: 'absolute', top: insets.top + 12, right: 20, opacity: pressed ? 0.6 : 1,
+        }]}
+      >
+        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="x" size={16} color="#FFFFFF" sw={2.2} />
+        </View>
+      </Pressable>
     </View>
   );
 }
