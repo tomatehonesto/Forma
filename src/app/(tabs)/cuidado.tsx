@@ -7,7 +7,7 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  clinicaConectada, nextConsult, lastMessage, carePending, careDocs, careState,
+  clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose,
 } from '../../logic/derive';
@@ -15,6 +15,7 @@ import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
+import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
 import { radius } from '../../theme';
 
@@ -644,9 +645,15 @@ function Consulta() {
      para anotar uma. Quem marca pela clínica não perde nada com isso: a
      agenda chega de lá. Quem anota sozinha perdia a descoberta da
      funcionalidade, que é o jeito mais silencioso de uma tela não
-     existir. */
+     existir.
+
+     ⚠️ MAS O CONVITE NÃO VALE PARA TODO MUNDO. Quem respondeu que conduz
+     o tratamento por conta própria não precisa ver "anote uma consulta"
+     toda vez que abrir a aba: ela não esqueceu de marcar, ela decidiu.
+     Insistir transforma uma escolha legítima numa pendência — e é
+     exatamente o que faz um aplicativo parecer que não ouviu. */
   if (!cs) {
-    if (clinicaConectada(S)) return null;
+    if (clinicaConectada(S) || !temAcompanhamento(S)) return null;
     return (
       <View style={{ marginTop: 36 }}>
         <SectionHead title="Sua próxima consulta" />
@@ -914,6 +921,13 @@ function QuemAcompanha() {
   const { c } = useTheme();
   const router = useRouter();
   const quem = S.profile.doctor || S.profile.clinic;
+
+  /* ⚠️ E ELE NÃO APARECE PARA QUEM ESCOLHEU SEGUIR SOZINHA. Uma seção
+     chamada "Quem acompanha você" com "Ninguém registrado ainda" dentro é
+     uma lacuna desenhada — o app apontando, toda vez, para a resposta que
+     ele gostaria de ter recebido. Para essa pessoa a porta existe no
+     perfil e no convite do rodapé, que é onde uma oferta não atrapalha. */
+  if (!temAcompanhamento(S)) return null;
   const especialidade = (S.profile as any).doctorInfo?.especialidade as string | undefined;
 
   return (
@@ -942,18 +956,65 @@ function QuemAcompanha() {
         </Row>
       </Pressable>
 
-      {/* ⚠️ A ÚNICA COISA QUE SOBREVIVEU DA VITRINE, e sem as promessas.
-          Não é propaganda de rede: é o que separa ajustar dose por conta
-          própria de ajustar com quem sabe — e isso vale em qualquer país,
-          com ou sem plataforma. Fica embaixo, e não em cima: quem já tem
-          médico não precisa ler, e quem não tem lê depois de ver que o
-          app funciona para ela do mesmo jeito. */}
-      {!quem ? (
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 12, lineHeight: 20, paddingHorizontal: 2 }}>
-          Dá para seguir por aqui sem acompanhamento. Mas quem tem um profissional junto
-          ajusta dose e protocolo com mais segurança — e essa não é uma decisão para tomar
-          por conta própria.
-        </Txt>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/**
+ * O CONVITE, NO FIM DA TELA
+ *
+ * ⚠️ É A VITRINE ANTIGA, REDUZIDA AO QUE ELA PODIA SER. Ela ocupava a aba
+ * inteira de quem não tinha médico, com três promessas e nenhuma porta.
+ * Aqui é um bloco, e é o último: a pessoa lê depois de ter visto a semana
+ * dela, as pendências, a caneta e os documentos. Oferta depois do
+ * serviço, e não no lugar dele.
+ *
+ * Fica para os dois estados sem plataforma — quem tem médico de fora
+ * também pode querer um que use o aplicativo —, e some inteiro onde não
+ * há rede (ver src/logic/mercado.ts).
+ * ------------------------------------------------------------------ */
+function Parceiros() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  if (!TEM_REDE_PARCEIRA) return null;
+
+  return (
+    <View style={{ marginTop: 36 }}>
+      <SectionHead title="Acompanhamento profissional" />
+
+      <Pressable
+        onPress={() => router.push('/parceiros' as any)}
+        style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
+      >
+        <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
+          <Row gap={12} style={{ alignItems: 'center' }}>
+            <Icon name="steth" size={20} color={c.accent} sw={1.9} />
+            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Conheça os médicos parceiros</Txt>
+            <Icon name="chev" size={14} color={c.accent2} sw={2} />
+          </Row>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>
+            Algumas clínicas acompanham o tratamento por aqui junto com você — mensagens
+            entre as consultas, o seu resumo chegando na equipe e a agenda já preenchida.
+          </Txt>
+        </View>
+      </Pressable>
+
+      {/* ⚠️ UMA LINHA, E SÓ. É a porta para quem mudou de ideia sobre
+          seguir sozinha, e ela precisa existir em algum lugar da aba —
+          mas como linha de texto no rodapé, e não como seção com título e
+          card, que é o que ela era antes e o que transformava a escolha
+          da pessoa numa lacuna a preencher. */}
+      {!temAcompanhamento(S) ? (
+        <Pressable
+          onPress={() => router.push('/acompanhamento' as any)}
+          style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
+            Passou a ter acompanhamento médico? <Txt v="caption" c={c.accent2}>Anote quem é.</Txt>
+          </Txt>
+        </Pressable>
       ) : null}
     </View>
   );
@@ -1031,6 +1092,7 @@ export default function Cuidado() {
             <Tratamento />
             <Materiais />
             <Documentos />
+            <Parceiros />
           </>
         )}
       </ScrollView>

@@ -275,6 +275,23 @@ export function buildSeed() {
          Hoje só a semente tem um, porque só ela tem uma médica. Ver
          MODOS.md. */
       vinculo: { desde: +daysAgo(70) },
+      /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
+         deduzido de haver um nome guardado.
+
+         'proprio'   alguém acompanha o tratamento desta pessoa
+         'nenhum'    escolheu conduzir o tratamento por conta própria
+
+         ⚠️ NÃO EXISTE 'parceiro' AQUI. Chegar por uma clínica da rede é
+         outra pergunta do cadastro, e mora em `convite` e `vinculo` —
+         quem entra por lá tem acompanhamento por consequência, e
+         `temAcompanhamento` resolve isso lendo os dois.
+
+         ⚠️ A TERCEIRA NÃO É A AUSÊNCIA DAS OUTRAS DUAS. Deduzir "não tem
+         médico" de "não há nome gravado" junta quem decidiu se tratar
+         sozinha com quem só não preencheu o campo — e para a primeira,
+         cada menção a consulta e a especialista é o app insistindo numa
+         escolha que ela já fez. */
+      acompanhamento: 'proprio' as 'proprio' | 'nenhum',
       /* Horizonte do plano que a equipe traçou até a dose de manutenção.
          Não é alta: é até onde a titulação foi programada, e é o número
          que dá sentido a "você está na semana 11". */
@@ -602,6 +619,15 @@ export function ensureDefaults(S: any) {
      sinal único: bastaria alguém digitar o nome do médico dela para o app
      decidir, no carregamento seguinte, que existe uma clínica conectada —
      que é exatamente a mentira que a separação veio desfazer. */
+  /* ⚠️ E DAÍ SAI A FORMA DE SE TRATAR, uma vez só. Quem gravou antes
+     desta pergunta existir responde pelo que tinha: vínculo é parceiro,
+     nome sem vínculo é próprio, nada é nenhum. Depois disso o campo
+     existe e a dedução não volta a rodar — senão apagar o nome do médico
+     jogaria a pessoa para "por conta própria" sem ela ter dito isso. */
+  if (S.profile && (S.profile as any).acompanhamento === undefined) {
+    (S.profile as any).acompanhamento =
+      ((S.profile as any).vinculo || S.profile.doctor || S.profile.clinic) ? 'proprio' : 'nenhum';
+  }
   if (S.profile && (S.profile as any).vinculo === undefined) {
     (S.profile as any).vinculo =
       (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;
@@ -695,6 +721,10 @@ export function estadoVazio(): State {
   S.profile.doctor = '';
   S.profile.clinic = '';
   (S.profile as any).vinculo = null;
+  /* Nasce em branco, e não em 'nenhum': quem ainda não respondeu não
+     escolheu nada. O cadastro escreve a resposta antes de a primeira
+     tela abrir. */
+  (S.profile as any).acompanhamento = 'nenhum';
   /* ⚠️ E A FICHA DA MÉDICA TAMBÉM. `doctorInfo` guarda CRM, formação e
      especialidade da Dra. Helena, e ficava de pé: quem chegava agora
      herdava a carteira profissional de outra pessoa. Passava despercebido

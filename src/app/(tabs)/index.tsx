@@ -424,7 +424,21 @@ export default function Home() {
             </Row>
           </View>
 
-          {/* acompanhamento */}
+          {/* ---- acompanhamento ----
+
+              ⚠️ A SEÇÃO INTEIRA SOME PARA QUEM SEGUE POR CONTA PRÓPRIA.
+
+              Ela existia nos três estados, e no terceiro era um card
+              dizendo "Você ainda não tem uma equipe por aqui" — na Home,
+              todo santo dia, para alguém que respondeu no cadastro que
+              decidiu conduzir o tratamento sozinha. Repetir isso não é
+              informar: é discordar em silêncio de uma escolha que a
+              pessoa já comunicou.
+
+              A oferta não desapareceu do aplicativo — ela está no fim da
+              aba Cuidado, depois do que importa, onde quem quiser olhar
+              olha. O que ela deixou de ter é a primeira tela. */}
+          {linked ? (
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
             {/* ⚠️ E O ATALHO DO CABEÇALHO IA JUNTO, sem perguntar. "Ir
                 para área médica" apontava para /medico nos dois estados —
@@ -480,7 +494,7 @@ export default function Home() {
                   <ListRow ic="doc" title="Solicitar nova receita" sub="Renove seu tratamento" onPress={go('/medico')} />
                 </View>
               </View>
-            ) : linked ? (
+            ) : (S.profile.doctor || S.profile.clinic) ? (
               /* ⚠️ MÉDICO SEM PLATAFORMA. Três linhas viram uma: mensagens
                  e receita são conversa com a equipe, e não há equipe. A que
                  sobra é a que funciona em qualquer consulta — o resumo, que
@@ -543,18 +557,26 @@ export default function Home() {
                  escrito por extenso. E `navigate`, e não `push`: trocar
                  de aba é ir para uma tela que já existe, não empilhar
                  outra em cima. */
-              <Card style={{ marginTop: 16 }} onPress={() => router.navigate('/cuidado' as any)}>
-                <Txt v="title">Você ainda não tem uma equipe por aqui</Txt>
+              /* ⚠️ E AQUI FICOU O ESTADO DO MEIO SEM NOME REGISTRADO.
+                 Quem respondeu "tenho um profissional" e não escreveu o
+                 nome continua tendo consulta, resumo e preparo — o que
+                 falta é a ficha, e é ela que o card oferece. Não é o
+                 convite antigo com outra roupa: aquele empurrava para uma
+                 rede, este completa um dado que a própria pessoa disse
+                 ter. */
+              <Card style={{ marginTop: 16 }} onPress={go('/acompanhamento')}>
+                <Txt v="title">Quem acompanha você?</Txt>
                 <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
-                  Quem tem acompanhamento profissional ajusta dose e protocolo com mais segurança.
+                  Anote o nome e o resumo já sai endereçado para a próxima consulta.
                 </Txt>
                 <Row gap={6} style={{ marginTop: 14 }}>
-                  <Txt v="label" c={c.accent2}>Por que isso importa</Txt>
+                  <Txt v="label" c={c.accent2}>Preencher a ficha</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </Card>
             )}
           </View>
+          ) : null}
         </View>
       </ScrollView>
     </View>

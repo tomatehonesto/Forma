@@ -68,7 +68,7 @@ import { radius, ty, font, shadowCard, alfa } from '../theme';
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
   | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
-  | 'restricao' | 'saude' | 'recomendacao' | 'consentimento';
+  | 'restricao' | 'saude' | 'acompanhamento' | 'recomendacao' | 'consentimento';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -80,7 +80,7 @@ type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medi
 const TODOS: Id[] = [
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
-  'saude', 'recomendacao',
+  'saude', 'acompanhamento', 'recomendacao',
   /* O CONSENTIMENTO É O ÚLTIMO PASSO, e não o primeiro. Concordar antes
      de saber o que o aplicativo faz é assinar em branco: aqui a pessoa já
      viu as perguntas, já sabe que ele fala de peso, dose e sintoma, e é aí
@@ -153,6 +153,24 @@ type Respostas = {
      de cada vez, e o dia 31 tem que sobreviver a um passeio por
      fevereiro. Vira carimbo só na hora de salvar. */
   iDia: number; iMes: number; iAno: number;
+  /* ⚠️ ERA `recomendado: boolean` — "tem código de convite, sim ou
+     não" —, e a resposta "não" cobria duas pessoas diferentes: quem se
+     trata com um médico de fora da rede e quem decidiu se tratar
+     sozinha. O aplicativo precisa saber a diferença: é ela que liga
+     consulta, preparo de perguntas e resumo, e é ela que decide se
+     mencionar especialista é serviço ou insistência. */
+  acompanhamento: 'proprio' | 'nenhum' | null;
+  /** só quando há acompanhamento, e opcional — o nome vem para a ficha */
+  profissional: string;
+  /* ⚠️ E O CÓDIGO CONTINUA SENDO OUTRA PERGUNTA.
+
+     Houve uma versão em que "tenho clínica parceira" era a terceira
+     opção do acompanhamento, e o código aparecia dentro dela. Parecia
+     economia de um passo e era perda de uma distinção: ter alguém
+     acompanhando é um fato do tratamento; chegar por indicação de um
+     parceiro é por onde a pessoa entrou — e é isso que decide a isenção.
+     As duas se cruzam quase sempre e não são a mesma, e uma responder
+     pela outra quebra as duas no dia em que divergirem. */
   recomendado: boolean | null;
   codigo: string;
 };
@@ -168,7 +186,7 @@ const VAZIO: Respostas = {
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
-  recomendado: null, codigo: '',
+  acompanhamento: null, profissional: '', recomendado: null, codigo: '',
 };
 
 /* ------------------------------------------------------------------ */
@@ -1009,6 +1027,8 @@ export function respostasDoPerfil(S: State): Partial<Respostas> {
     restricoes: p.restricoes ?? [],
     saude: null,
     iDia: inicio.getDate(), iMes: inicio.getMonth(), iAno: inicio.getFullYear(),
+    acompanhamento: p.acompanhamento ?? 'nenhum',
+    profissional: p.doctor ?? '',
     recomendado: p.convite ? true : false,
     codigo: p.convite ?? '',
   };
@@ -1190,6 +1210,11 @@ export default function Cadastro() {
     /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
        resposta a marcar antes dele. */
     if (x === 'consentimento') return true;
+    /* O nome do profissional é opcional: quem tem médico e não quer
+       escrever o nome agora continua tendo médico, e a ficha fica para
+       depois. O código, não — sem ele "vim por indicação" é uma
+       afirmação sem nada por trás. */
+    if (x === 'acompanhamento') return r.acompanhamento !== null;
     if (x === 'recomendacao') {
       return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
     }
@@ -1267,9 +1292,13 @@ export default function Cadastro() {
          cadastro é o único marco que existe. Não vira "dia 1 do
          tratamento": diaDoTratamento só conta a partir da primeira dose. */
       s.profile.startT = r.emTratamento ? +startOfDay(new Date(inicio)) : +startOfDay(now());
-      /* O CÓDIGO, e só ele. O nome do profissional saiu: o app não tem
-         como conferir um nome digitado, e o que liga a pessoa à clínica é
-         o código — resolver código em nome é trabalho de servidor. */
+      /* ⚠️ O NOME VOLTOU, E POR OUTRO MOTIVO. Ele tinha saído porque o
+         app não consegue conferir um nome digitado — verdade, e
+         irrelevante: ele não liga ninguém a clínica nenhuma. É a ficha da
+         pessoa, para o resumo saber para quem é e a consulta saber com
+         quem. Quem liga à plataforma continua sendo só o código. */
+      s.profile.acompanhamento = r.acompanhamento ?? 'nenhum';
+      s.profile.doctor = r.acompanhamento === 'proprio' ? r.profissional.trim() : '';
       s.profile.convite = r.recomendado ? r.codigo.trim().toUpperCase() : '';
       /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína e água
          vinham fixas em 90 g e 2,5 L — os números de outra pessoa, lidos
@@ -1448,7 +1477,12 @@ export default function Cadastro() {
       ]],
       ['NO APP', [
         ['activity', 'App de saúde', r.saude ? 'Conectar' : 'Agora não', 'saude'],
-        ['steth', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Por conta própria', 'recomendacao'],
+        ['steth', 'Acompanhamento',
+          r.acompanhamento === 'proprio'
+            ? (r.profissional.trim() || 'Com um profissional')
+            : 'Por conta própria',
+          'acompanhamento'],
+        ['heart', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
       ]],
     ];
     return (
@@ -1525,6 +1559,7 @@ export default function Cadastro() {
     atividade: 'Qual é o seu nível de atividade física?',
     restricao: 'Você tem alguma restrição alimentar?',
     saude: 'Conecte o seu app de saúde',
+    acompanhamento: 'Você tem acompanhamento médico?',
     recomendacao: 'Você chegou até nós por indicação de um especialista?',
     consentimento: 'Antes de montar o seu plano',
   };
@@ -1556,6 +1591,7 @@ export default function Cadastro() {
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
     saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
+    acompanhamento: 'Com ele, o app prepara a consulta e organiza o que levar. Sem ele, segue com você do mesmo jeito.',
     recomendacao: 'Quem chega por um profissional parceiro não paga pelo app.',
     consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
   };
@@ -2175,11 +2211,55 @@ export default function Cadastro() {
           </View>
         ) : null}
 
+        {id === 'acompanhamento' ? (
+          <View style={{ gap: 16 }}>
+            {/* ⚠️ ESTA PERGUNTA NÃO EXISTIA, e a sua falta juntava duas
+                pessoas muito diferentes debaixo do mesmo aplicativo: quem
+                se trata com um médico que não usa a plataforma, e quem
+                decidiu conduzir o tratamento sozinha.
+
+                Para a primeira, esconder consulta e resumo é tirar o que
+                ela mais usaria. Para a segunda, oferecê-los toda hora é
+                insistir numa escolha que ela já tomou. Sem perguntar, o
+                app errava com as duas — e errava adivinhando pelo campo
+                do nome, que é vazio nos dois casos. */}
+            <View style={{ gap: 10 }}>
+              <Escolha
+                ic="steth" cheia titulo="Sim"
+                sub="Um médico ou clínica acompanha o meu tratamento"
+                on={r.acompanhamento === 'proprio'}
+                onPress={() => p({ acompanhamento: 'proprio' })}
+              />
+              <Escolha
+                ic="companion" cheia titulo="Não, por conta própria"
+                sub="Dá para adicionar depois, quando quiser"
+                on={r.acompanhamento === 'nenhum'}
+                onPress={() => p({ acompanhamento: 'nenhum', profissional: '' })}
+              />
+            </View>
+
+            {r.acompanhamento === 'proprio' ? (
+              <View style={{ gap: 8 }}>
+                <Rotulo>QUEM ACOMPANHA VOCÊ</Rotulo>
+                <CampoTexto
+                  valor={r.profissional}
+                  onChange={(v) => p({ profissional: v })}
+                  placeholder="Dra. Helena Costa"
+                />
+                <Txt v="caption" c={c.tx3}>
+                  Opcional, e fica só com você — nada é enviado a essa pessoa. Serve para o
+                  resumo saber para quem é.
+                </Txt>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
         {id === 'recomendacao' ? (
           <View style={{ gap: 16 }}>
             <View style={{ gap: 10 }}>
               <Escolha
-                ic="steth" cheia titulo="Sim" sub="Tenho um código de convite"
+                ic="heart" cheia titulo="Sim" sub="Tenho um código de convite"
                 on={r.recomendado === true} onPress={() => p({ recomendado: true })}
               />
               <Escolha

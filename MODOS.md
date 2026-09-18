@@ -203,6 +203,14 @@ fácil das cinco:
 
 ## A ordem recomendada
 
+> **Feito até aqui:** os dois sinais (1), a ficha de quem acompanha e a
+> data da consulta (2), e o interruptor de mercado (5), em
+> `src/logic/mercado.ts`. O cadastro passou a fazer as DUAS perguntas —
+> "você tem acompanhamento médico?" e "chegou por indicação?" —, que são
+> os dois eixos deste documento, e por isso são dois passos e não um.
+> Falta a cobrança (3), a porta do convite que resolve o código (4) e a
+> tradução (6).
+
 1. **Separar os dois sinais** (`temAcompanhamento` / `clinicaConectada`).
    É o que destrava o modo 2, e é quase todo renomeação com critério.
 2. **A porta de quem acompanha** — registrar médico, especialidade,

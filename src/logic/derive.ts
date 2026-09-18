@@ -384,12 +384,34 @@ export function examGaugeData(e: any) {
    ============================================================ */
 
 /** Alguém acompanha esta pessoa — venha do vínculo ou digitado por ela.
-    Liga a consulta, o preparo de perguntas e o resumo como documento. */
-export const temAcompanhamento = (S: State) => !!(S.profile.doctor || S.profile.clinic);
+    Liga a consulta, o preparo de perguntas e o resumo como documento.
+
+    ⚠️ ISTO LIA O NOME GUARDADO, e por isso não distinguia duas pessoas
+    muito diferentes: quem tem médico e não preencheu o campo, e quem
+    decidiu conduzir o tratamento sozinha. Para a segunda, cada lembrete
+    de consulta e cada convite a registrar um especialista é o aplicativo
+    insistindo numa escolha que ela já tomou.
+
+    Agora é resposta, e não dedução — o cadastro pergunta. */
+export const temAcompanhamento = (S: State) =>
+  ((S.profile as any).acompanhamento ?? 'nenhum') !== 'nenhum' || clinicaConectada(S);
+
+/** Escolheu conduzir o tratamento sem acompanhamento médico. É o oposto
+    do de cima, e existe com nome próprio porque algumas telas precisam
+    dizer alguma coisa para ela — e não apenas esconder o que sobrou. */
+export const semAcompanhamento = (S: State) => !temAcompanhamento(S);
 
 /** Existe plataforma do outro lado. Só um código de convite liga isto, e
     é ele que libera mensagem, envio do resumo, receita e a isenção. */
 export const clinicaConectada = (S: State) => !!(S.profile as any).vinculo;
+
+/* ⚠️ VÍNCULO IMPLICA ACOMPANHAMENTO, e a recíproca não vale. São duas
+   perguntas separadas no cadastro — uma sobre o tratamento, outra sobre
+   por onde a pessoa entrou —, e elas podem sair de lá em desacordo: quem
+   chegou por uma clínica parceira e respondeu "por conta própria" na
+   primeira deixaria o aplicativo escondendo dela a consulta que a própria
+   clínica marca. Na dúvida, o app resolve para o lado de quem tem
+   alguém. */
 
 /* TER CONSULTA MARCADA é outra pergunta.
 
