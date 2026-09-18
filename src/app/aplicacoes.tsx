@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, adesao, canetaAtual, cicloFases, injCalendar,
+  M, adesao, canetaAtual, cicloFases, dosesPrevistas, injCalendar,
   nextInjectionDate, nextSite, pharmaSeries, rodizioDeLocais, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
@@ -73,7 +73,7 @@ export default function Aplicacoes() {
      que é coisa que esta conta não mede: quem aplicou as dez doses
      sempre com três dias de atraso também dava 100%. A fração diz o que
      a conta de fato sabe. */
-  const previstas = Math.round((S.injections.length * 100) / Math.max(1, adesao(S)));
+  const previstas = dosesPrevistas(S);
 
   const ph = pharmaSeries(S);
   const t0 = ph.pts[0].t, t1 = ph.pts[ph.pts.length - 1].t;

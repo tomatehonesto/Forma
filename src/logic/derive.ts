@@ -133,10 +133,19 @@ export function nextInjectionDate(S: State) {
   const li = lastInjection(S); if (!li) return startOfDay(now());
   return addDays(startOfDay(new Date(li.t)), cadenciaDias(S));
 }
+/* QUANTAS DOSES O TRATAMENTO PREVIA ATÉ HOJE.
+
+   Ela existia escondida dentro de adesao(), e duas telas precisavam do
+   número — o resumo médico e a de aplicações. As duas o reconstruíam
+   dividindo as doses pela porcentagem: `Math.round(doses * 100 / adesao)`,
+   uma conta que desfaz um arredondamento com outro e erra por um sempre
+   que a porcentagem cai num meio. Agora é uma função, e a adesão é que
+   sai dela. */
+export const dosesPrevistas = (S: State) =>
+  Math.floor(diffDays(now(), new Date(S.profile.startT)) / cadenciaDias(S)) + 1;
+
 export function adesao(S: State) {
-  const days = diffDays(now(), new Date(S.profile.startT));
-  const expected = Math.floor(days / cadenciaDias(S)) + 1;
-  return Math.max(0, Math.min(100, Math.round((S.injections.length / expected) * 100)));
+  return Math.max(0, Math.min(100, Math.round((S.injections.length / dosesPrevistas(S)) * 100)));
 }
 /* O REGISTRO DO DIA e o CHECK-IN FEITO são duas perguntas diferentes.
 

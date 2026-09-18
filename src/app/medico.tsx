@@ -21,6 +21,20 @@ export default function Medico() {
 
   useEffect(() => { if (S.unread) update((s: any) => { s.unread = 0; }); }, []);
 
+  /* A CONVERSA ABRE NO FIM, e não no começo.
+
+     A caixa tem 250 px e a conversa cresce: abrir no topo é abrir na
+     mensagem mais velha, que é a única que já foi lida. E há um caminho em
+     que isso vira erro de verdade — quem manda o resumo para a equipe cai
+     aqui, e via a conversa de seis dias atrás, sem nenhum sinal de que a
+     mensagem que acabou de enviar tinha chegado.
+
+     Sem animação: não é um movimento, é o lugar onde a tela começa. */
+  useEffect(() => {
+    const t = setTimeout(() => threadRef.current?.scrollToEnd({ animated: false }), 60);
+    return () => clearTimeout(t);
+  }, [S.messages.length]);
+
   const nd = new Date(S.consult.t);
   const send = () => {
     const t = msg.trim(); if (!t) return;
