@@ -977,15 +977,26 @@ function QuemAcompanha() {
  * dela, as pendências, a caneta e os documentos. Oferta depois do
  * serviço, e não no lugar dele.
  *
- * Fica para os dois estados sem plataforma — quem tem médico de fora
- * também pode querer um que use o aplicativo —, e some inteiro onde não
- * há rede (ver src/logic/mercado.ts).
+ * ⚠️ E ELE É SÓ DE QUEM NÃO TEM NINGUÉM.
+ *
+ * Ficava também para quem anotou o próprio médico, com o argumento de
+ * que essa pessoa poderia querer um que usasse o aplicativo. O argumento
+ * é fraco e o custo é alto: ela ACABOU de responder que tem alguém, e o
+ * app abre a aba do cuidado dela oferecendo outros profissionais. Isso
+ * não lê como opção — lê como se o aplicativo achasse a escolha dela
+ * insuficiente, toda vez que ela entra.
+ *
+ * Quem não tem acompanhamento nenhum é outra conversa: ali não há
+ * escolha sendo contrariada, e a oferta responde a uma lacuna real que a
+ * própria pessoa declarou.
+ *
+ * Some inteiro onde não há rede (ver src/logic/mercado.ts).
  * ------------------------------------------------------------------ */
 function Parceiros() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  if (!TEM_REDE_PARCEIRA) return null;
+  if (!TEM_REDE_PARCEIRA || temAcompanhamento(S)) return null;
 
   return (
     <View style={{ marginTop: 36 }}>
@@ -1012,17 +1023,19 @@ function Parceiros() {
           seguir sozinha, e ela precisa existir em algum lugar da aba —
           mas como linha de texto no rodapé, e não como seção com título e
           card, que é o que ela era antes e o que transformava a escolha
-          da pessoa numa lacuna a preencher. */}
-      {!temAcompanhamento(S) ? (
-        <Pressable
-          onPress={() => router.push('/acompanhamento' as any)}
-          style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
-        >
-          <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-            Passou a ter acompanhamento médico? <Txt v="caption" c={c.accent2}>Anote quem é.</Txt>
-          </Txt>
-        </Pressable>
-      ) : null}
+          da pessoa numa lacuna a preencher.
+
+          Ela não tem condição própria: este bloco inteiro só existe para
+          quem não tem acompanhamento, e é exatamente essa pessoa que
+          pode passar a ter. */}
+      <Pressable
+        onPress={() => router.push('/acompanhamento' as any)}
+        style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
+      >
+        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
+          Passou a ter acompanhamento médico? <Txt v="caption" c={c.accent2}>Anote quem é.</Txt>
+        </Txt>
+      </Pressable>
     </View>
   );
 }

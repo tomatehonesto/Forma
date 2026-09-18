@@ -769,8 +769,29 @@ export function estadoVazio(): State {
      perguntar antes se existe uma. Ver `temConsulta`. */
   S.consult = { t: 0, type: '', doctor: '' };
 
-  /* o protocolo começa na primeira semana, sem nada cumprido */
-  S.protocol = { week: 1, tasks: (S.protocol?.tasks ?? []).map((t: any) => (t.t ? { ...t, done: false } : t)) };
+  /* O PROTOCOLO COMEÇA NA PRIMEIRA SEMANA, SEM NADA CUMPRIDO.
+
+     ⚠️ E SEM A TAREFA QUE A CLÍNICA DA SEMENTE ESCREVEU. As cinco linhas
+     não têm todas a mesma origem: três são métricas que o próprio app
+     conta — água, proteína e movimento, contra as metas que o cadastro
+     calculou — e "Aplicação da semana" é a agenda de dose que o app já
+     mantém. Essas quatro se sustentam sozinhas, para qualquer pessoa.
+
+     "Agendar exame de sangue" é a única clinicamente autoral, e vinha de
+     graça para todo mundo: quem chegava sem médico nenhum encontrava, na
+     primeira semana, uma ordem de exame que ninguém deu. Um aplicativo
+     que não prescreve também não pede exame.
+
+     Sai para todo mundo que chega, sem condição: ninguém nasce com
+     vínculo — ele vem de um servidor que ainda não existe —, e quando
+     ele existir é a clínica que escreve as tarefas dela, e não a
+     semente. Uma clínica de mentira não deixa herança. */
+  S.protocol = {
+    week: 1,
+    tasks: (S.protocol?.tasks ?? [])
+      .filter((t: any) => !(t.t && /exame/i.test(t.t)))
+      .map((t: any) => (t.t ? { ...t, done: false } : t)),
+  };
 
   /* a porta se destranca: sem cadastro, o app não abre */
   S.onboardDone = false;
