@@ -818,7 +818,14 @@ function Tratamento() {
               alerta precisa continuar significando neste app. */}
           <Row>
             <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Doses na caneta</Txt>
-            <Txt v="caption" c={critico ? c.cta : p.verdict.good ? c.tx3 : c.accent2}>{p.verdict.label}</Txt>
+            {/* ⚠️ A COR DE LINK SÓ VALE SE HOUVER LINK. "Vale renovar a
+                receita" é estado, não ação — ele ficava em cor de ação
+                porque o botão "Pedir renovação" vinha logo abaixo, e os
+                dois liam como um par. Sem plataforma o botão não existe, e
+                o texto sozinho em azul vira um link que não leva a lugar
+                nenhum. O crítico continua em vermelho: ali a cor é
+                gravidade, e não convite. */}
+            <Txt v="caption" c={critico ? c.cta : p.verdict.good ? c.tx3 : clinicaConectada(S) ? c.accent2 : c.tx2}>{p.verdict.label}</Txt>
           </Row>
           <View style={{ marginTop: 14 }}>
             <Nivel
