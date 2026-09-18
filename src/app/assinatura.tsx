@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   PLANOS, assinaturaAtual, isento, reais, GESTAO_NA_LOJA, PAGAMENTO_NA_LOJA, NOME_DA_LOJA,
-  tipoDaAssinatura, NOME_DO_TIPO,
+  NOME_DO_TIPO, type TipoAssinatura,
 } from '../logic/assinatura';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { TelaInterna, Cartao, Linha, Selo, Aviso } from '../ui/internas';
@@ -76,8 +76,9 @@ export default function Assinatura() {
   const { assinante, compra } = useLocalSearchParams<{ assinante?: string; compra?: string }>();
   const fingindoAssinante = __DEV__ && assinante === '1';
   /* `?compra=1` é o mesmo parâmetro da tela de planos, com o mesmo
-     significado: finge que não há vínculo. Combinado com o de cima, dá o
-     quarto estado — Individual pagando. */
+     significado: finge que não há vínculo. Os dois andam juntos, porque
+     assinante É quem não tem vínculo — a regra diz que código e cobrança
+     não coexistem. */
   const fingindoPagante = __DEV__ && compra === '1';
   const atual = assinaturaAtual(S) ?? (fingindoAssinante
     ? { plano: 'anual' as const, renovaEm: Date.now() + 365 * 864e5, emTeste: false }
@@ -88,68 +89,66 @@ export default function Assinatura() {
   const clinica = S.profile.clinic || 'a clínica que acompanha você';
   const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
 
-  /* ⚠️ O NOME DO CARTÃO É O TIPO, E NÃO O PLANO. Ele era "Plano anual",
-     "Acesso pela clínica" e "Sem assinatura" — três nomes para três
-     estados, o que é a mesma doença das três telas, agora na tipografia.
+  /* ⚠️ O QUE A ETIQUETA MOSTRA É O PLANO DE ACESSO, e não o estado da
+     cobrança. Ela já disse "Ativa", "Isenta" e "Inativa" — três palavras
+     sobre uma coisa que a ficha logo abaixo responde com data e valor,
+     roubando o lugar da única informação que não estava em parte nenhuma:
+     em qual dos dois planos a pessoa está.
 
-     Care e Individual não mudam quando a pessoa troca de mensal para
-     anual, nem quando a assinatura vence: é o trilho em que ela está. A
-     periodicidade desceu para a ficha, que é onde moram os detalhes da
-     cobrança, e o estado ficou na etiqueta. */
-  const tipo = tipoDaAssinatura(S);
+     Care e Personal não mudam quando ela troca de mensal para anual nem
+     quando a assinatura vence: é o trilho. A periodicidade desceu para a
+     ficha, onde moram os detalhes da cobrança, e o rótulo do cartão virou
+     "Sua assinatura" — o assunto, dito uma vez. */
+  /* ⚠️ SAI DE `ehIsenta`, E NÃO DE `tipoDaAssinatura(S)` DIRETO — a
+     diferença é a porta de desenvolvimento. A função lê o estado real; a
+     tela precisa obedecer também ao `?compra=1`, senão a etiqueta dizia
+     "Care" numa tela que estava fingindo não ter vínculo. Foi assim que
+     apareceu na primeira conferência. */
+  const tipo: TipoAssinatura = ehIsenta ? 'care' : 'personal';
 
   /* ---- o estado vigente, resolvido uma vez ---- */
   type Item = [string, string];
   const vigente: {
-    nome: string;
-    selo: string;
-    seloTom: 'lima' | 'verde' | 'neutra';
     valor: string;
     unidade?: string;
     abaixo?: string;
     itens: Item[];
-  } = atual && plano
+  } = ehIsenta
     ? {
-      /* ⚠️ CARE E ASSINANTE AO MESMO TEMPO É UM ESTADO REAL, e foi o que
-         apareceu na primeira conferência: alguém assina, depois passa a se
-         tratar numa clínica parceira e digita o código. O vínculo não
-         cancela a assinatura da loja — ninguém tem como cancelar por ela
-         —, então a pessoa fica pagando por uma coisa que já é de graça.
+      /* ⚠️ A ISENÇÃO VEM PRIMEIRO, E ISSO É UMA REGRA DE PRODUTO.
 
-         O cartão mostra o que é verdade: ela É Care e a cobrança ESTÁ
-         ativa. Quem resolve a contradição é o aviso logo abaixo, e não um
-         desses dois campos mentindo para esconder o outro. */
-      nome: NOME_DO_TIPO[tipo],
-      selo: atual.emTeste ? 'Em teste' : 'Ativa',
-      seloTom: atual.emTeste ? 'lima' : 'verde',
-      valor: reais(plano.preco),
-      unidade: plano.sufixo,
-      abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
+         Entrou código, não se cobra mais — então quem tem vínculo vê
+         "sem custo", mesmo que exista uma assinatura da loja pendurada
+         de antes. A alternativa seria a tela exibir uma cobrança que a
+         regra diz que não deveria existir.
+
+         ⚠️ MAS A REGRA AINDA NÃO TEM MECANISMO: nenhum aplicativo cancela
+         assinatura de loja por ninguém. Enquanto a integração não fizer
+         isso, o cancelamento fica à vista para quem está nesse estado —
+         é a única coisa que esta tela pode fazer a respeito, e está logo
+         abaixo. O porquê inteiro está em src/logic/assinatura.ts. */
+      valor: 'Sem custo',
+      abaixo: `O vínculo com ${clinica} cobre o aplicativo inteiro.`,
       itens: [
-        ['Plano', plano.nome],
-        ...(atual.renovaEm
-          ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataLonga(atual.renovaEm)]] as Item[])
-          : []),
-        ['Cobrança pela', NOME_DA_LOJA],
+        ...(vinculo?.desde ? ([['Vinculada desde', dataLonga(vinculo.desde)]] as Item[]) : []),
+        ...(convite ? ([['Código de convite', convite]] as Item[]) : []),
+        ['Próxima cobrança', 'Não há'],
       ],
     }
-    : ehIsenta
+    : atual && plano
       ? {
-        nome: NOME_DO_TIPO[tipo],
-        selo: 'Isenta',
-        seloTom: 'lima',
-        valor: 'Sem custo',
-        abaixo: `O vínculo com ${clinica} cobre o aplicativo inteiro.`,
+        valor: reais(plano.preco),
+        unidade: plano.sufixo,
+        abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
         itens: [
-          ...(vinculo?.desde ? ([['Vinculada desde', dataLonga(vinculo.desde)]] as Item[]) : []),
-          ...(convite ? ([['Código de convite', convite]] as Item[]) : []),
-          ['Próxima cobrança', 'Não há'],
+          ['Periodicidade', plano.nome],
+          ...(atual.renovaEm
+            ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataLonga(atual.renovaEm)]] as Item[])
+            : []),
+          ['Cobrança pela', NOME_DA_LOJA],
         ],
       }
       : {
-        nome: NOME_DO_TIPO[tipo],
-        selo: 'Inativa',
-        seloTom: 'neutra',
         valor: 'Sem custo',
         abaixo: `O aplicativo está inteiro do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.`,
         itens: [['Próxima cobrança', 'Não há']],
@@ -161,8 +160,8 @@ export default function Assinatura() {
       <Cartao>
         <View style={{ padding: 18, gap: 4 }}>
           <Row style={{ alignItems: 'center' }}>
-            <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{vigente.nome}</Txt>
-            <Selo label={vigente.selo} tom={vigente.seloTom} />
+            <Txt v="label" c={c.tx2} style={{ flex: 1 }}>Sua assinatura</Txt>
+            <Selo label={NOME_DO_TIPO[tipo]} tom={tipo === 'care' ? 'lima' : 'neutra'} />
           </Row>
 
           {/* ⚠️ O VALOR NO MESMO LUGAR EM TODOS OS ESTADOS, e isso é o que
@@ -198,34 +197,24 @@ export default function Assinatura() {
         ) : null}
       </Cartao>
 
-      {/* ⚠️ O AVISO DE QUEM ESTÁ PAGANDO SEM PRECISAR.
-
-          Este é o único lugar do aplicativo onde a gente pede para a
-          pessoa cancelar uma coisa que nos paga. Não é generosidade: ela
-          já tem o acesso pelo vínculo, e cobrar por isso é cobrar duas
-          vezes pela mesma entrega. Um aplicativo que sabe disso e fica
-          calado está contando com o esquecimento dela.
-
-          E o aviso diz o que ela não perde ao cancelar, porque é essa a
-          dúvida que segura o dedo. */}
-      {atual && ehIsenta ? (
-        <Aviso
-          ic="info"
-          titulo="Você está pagando sem precisar"
-          texto={`O vínculo com ${clinica} já cobre o aplicativo inteiro. Cancelar a assinatura não tira nada de você: tudo continua igual, e o acesso segue pelo vínculo.`}
-        />
-      ) : null}
-
       {/* ---- o plano e a cobrança ---- */}
       <Cartao>
         {/* Mudar de plano leva à mesma vitrine em qualquer estado; o que
             muda é o nome, porque quem já assina não vai "ver os planos",
             vai trocar o seu — e trocar é na loja, que é onde a assinatura
             vive. */}
+        {/* ⚠️ ESTAS TRÊS PERDERAM O SUBTÍTULO, e a lista ficou legível.
+
+            "Trocar entre mensal e anual na Google Play", "O cartão
+            cadastrado na Google Play", "Cada cobrança, com data e valor":
+            três linhas de duas alturas, repetindo o nome da loja duas
+            vezes, para dizer o que os títulos já diziam. Numa lista de
+            ações, o subtítulo só se paga quando avisa de uma consequência
+            — e nenhuma destas tem consequência nenhuma, elas abrem uma
+            tela. A letra miúda no pé já diz que a cobrança é da loja. */}
         <Linha
           ic="spark"
           titulo={atual ? 'Mudar de plano' : 'Ver os planos'}
-          sub={atual ? `Trocar entre mensal e anual na ${NOME_DA_LOJA}` : 'O que entra, e quanto custa'}
           onPress={atual ? () => Linking.openURL(GESTAO_NA_LOJA) : () => router.push('/planos' as any)}
         />
 
@@ -241,7 +230,6 @@ export default function Assinatura() {
           <Linha
             ic="dose"
             titulo="Forma de pagamento"
-            sub={`O cartão cadastrado na ${NOME_DA_LOJA}`}
             onPress={() => Linking.openURL(PAGAMENTO_NA_LOJA)}
           />
         ) : null}
@@ -254,7 +242,6 @@ export default function Assinatura() {
         <Linha
           ic="doc"
           titulo="Histórico de cobrança"
-          sub={atual ? 'Cada cobrança, com data e valor' : 'O que já foi cobrado de você'}
           onPress={() => router.push('/cobrancas' as any)}
         />
       </Cartao>
@@ -277,6 +264,19 @@ export default function Assinatura() {
             ic="steth"
             titulo="Código de convite"
             sub="Trocar a clínica que acompanha você"
+            onPress={() => router.push('/codigo' as any)}
+          />
+        ) : atual ? (
+          /* ⚠️ AQUI O SUBTÍTULO FICA, e pelo motivo contrário ao das
+              outras: esta linha tem consequência, e é a maior da tela.
+              Quem está pagando e digita um código de clínica parceira
+              deixa de pagar — e essa é exatamente a informação que a
+              pessoa não tem como adivinhar de um rótulo que diz "inserir
+              código". Sem ela, a linha parece burocracia. */
+          <Linha
+            ic="steth"
+            titulo="Inserir código"
+            sub="Se você se trata numa clínica parceira, o código libera o aplicativo e você deixa de pagar"
             onPress={() => router.push('/codigo' as any)}
           />
         ) : TEM_REDE_PARCEIRA ? (
@@ -311,12 +311,11 @@ export default function Assinatura() {
           Hoje ele nunca aparece, porque ninguém consegue assinar — a porta
           de desenvolvimento logo abaixo existe para conferir esta tela
           inteira. */}
-      {atual ? (
+      {atual || (ehIsenta && assinaturaAtual(S)) ? (
         <Cartao>
           <Linha
             ic="logout"
             titulo="Cancelar assinatura"
-            sub={`Abre a ${NOME_DA_LOJA}, que é onde a cobrança acontece`}
             onPress={() => Linking.openURL(GESTAO_NA_LOJA)}
           />
         </Cartao>
@@ -346,12 +345,6 @@ export default function Assinatura() {
             sub="Atalho de desenvolvimento — não aparece em produção"
             onPress={() => router.push('/assinatura?assinante=1&compra=1' as any)}
           />
-          <Linha
-            ic="bolt"
-            titulo="Ver como assinante COM clínica"
-            sub="Atalho de desenvolvimento — o caso de quem paga sem precisar"
-            onPress={() => router.push('/assinatura?assinante=1' as any)}
-          />
         </Cartao>
       ) : null}
 
@@ -367,8 +360,8 @@ export default function Assinatura() {
           frase sai no dia em que a cobrança entrar. */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
         <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
-          {atual && ehIsenta
-            ? `A cobrança é feita pela ${NOME_DA_LOJA}, e é lá que ela se cancela. Cancelando, você continua com o aplicativo inteiro pelo vínculo com a clínica — e se o vínculo terminar um dia, avisamos antes de qualquer cobrança voltar.`
+          {ehIsenta && assinaturaAtual(S)
+            ? `Você tem vínculo com a clínica e não precisa pagar, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e o aplicativo continua inteiro pelo vínculo.`
             : atual
             ? `A cobrança é feita pela ${NOME_DA_LOJA}, e é lá que ela se cancela — o aplicativo não consegue fazer isso por você. Cancelar mantém o acesso até o fim do período já pago.`
             : ehIsenta

@@ -119,38 +119,56 @@ export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 export const isento = (S: State) => clinicaConectada(S);
 
 /* ============================================================
-   OS DOIS TIPOS DE ASSINATURA
+   OS DOIS PLANOS DE ACESSO
 
-   ⚠️ TIPO NÃO É PLANO, e confundir os dois é o caminho curto para uma
-   tela que mente. O PLANO é mensal ou anual — a periodicidade da
-   cobrança. O TIPO é de onde vem o acesso: Care, para quem é paciente de
-   uma clínica parceira, e Individual, para quem chegou por conta própria.
+   ⚠️ CARE E PERSONAL NÃO SÃO A PERIODICIDADE, e confundir os dois é o
+   caminho curto para uma tela que mente. Mensal e anual são o intervalo
+   da cobrança; Care e Personal são de onde vem o acesso — Care para quem
+   é paciente de uma clínica parceira, Personal para quem chegou por
+   conta própria.
 
-   Uma pessoa Individual pode estar sem assinatura nenhuma, e continua
-   Individual: o tipo diz em qual trilho ela está, não se pagou. Quem diz
-   se pagou é `assinaturaAtual()`, e quem diz se precisa pagar é
-   `isento()`.
+   Uma pessoa Personal pode estar sem assinatura nenhuma e continua
+   Personal: o plano diz em qual trilho ela está, não se pagou.
 
-   ⚠️ E O TIPO SE DEDUZ, NÃO SE ESCOLHE. Ninguém "vira Care" num menu: o
+   ⚠️ E O PLANO SE DEDUZ, NÃO SE ESCOLHE. Ninguém "vira Care" num menu: o
    vínculo com a clínica é o que decide, e ele nasce do código de convite.
-   Guardar o tipo num campo do perfil criaria um segundo lugar dizendo a
+   Guardar isto num campo do perfil criaria um segundo lugar dizendo a
    mesma coisa — e no dia em que um vínculo terminasse, o campo ficaria
-   para trás dizendo "Care" para quem já não é. */
-export type TipoAssinatura = 'care' | 'individual';
+   para trás dizendo "Care" para quem já não é.
+
+   ⚠️⚠️ CARE E COBRANÇA NÃO PODEM COEXISTIR, E ISSO AINDA NÃO ESTÁ
+   GARANTIDO. ⚠️⚠️
+
+   A regra é simples: entrou código, não se cobra mais. O problema é que
+   quem cobra é a loja, e nenhum aplicativo consegue cancelar uma
+   assinatura da App Store ou do Google Play em nome de alguém — só a
+   própria pessoa, ou o servidor, pelas APIs de servidor das duas lojas.
+
+   Então a regra existe, o mecanismo não. Quem confirmar um código estando
+   com assinatura ativa vai continuar sendo cobrado até que alguém cancele
+   — e isso é trabalho da integração de cobrança, não desta tela. Ver
+   PENDENCIAS.md, item 5.
+
+   Enquanto isso, `isento()` manda no que a tela mostra: quem tem vínculo
+   vê Care e "sem custo", porque é isso que a regra promete. A tela de
+   gestão mantém o cancelamento à vista nesse caso, que é a única coisa
+   que ela pode fazer a respeito.
+   ============================================================ */
+export type TipoAssinatura = 'care' | 'personal';
 
 export const tipoDaAssinatura = (S: State): TipoAssinatura =>
-  isento(S) ? 'care' : 'individual';
+  isento(S) ? 'care' : 'personal';
 
 export const NOME_DO_TIPO: Record<TipoAssinatura, string> = {
   care: 'Care',
-  individual: 'Individual',
+  personal: 'Personal',
 };
 
-/* ⚠️ O CÓDIGO SE GUARDA NUM LUGAR SÓ, e agora há duas telas que o
-   pedem: a de parceiros, que explica o que ele faz, e a de planos, que é
-   onde a pessoa está quando ele importa. Normalizar em dois lugares é
-   como "ABC123" e "abc123 " viram dois convites diferentes no dia em que
-   um servidor for conferi-los. */
+/* ⚠️ O CÓDIGO SE GUARDA NUM LUGAR SÓ, e há três telas que o pedem: o
+   cadastro, a de parceiros, que explica o que ele faz, e a folha do
+   paywall, que é onde a pessoa está quando ele importa. Normalizar em
+   três lugares é como "ABC123" e "abc123 " viram três convites
+   diferentes no dia em que um servidor for conferi-los. */
 export const normalizarConvite = (v: string) => v.trim().toUpperCase();
 
 export type Vinculo = { desde: number; convite: string };
@@ -159,7 +177,7 @@ export type Vinculo = { desde: number; convite: string };
 
    O aplicativo nasceu com dois estados: `convite`, o que a pessoa
    digitou, e `vinculo`, o que sobrava depois de alguém da clínica
-   confirmar. Duas telas diziam a ela "a conferência acontece depois" — e
+   confirmar. Três telas diziam a ela "a conferência acontece depois" — e
    a conta não fecha.
 
    Quem tem o código recebeu o código DA clínica. Não há nada para a

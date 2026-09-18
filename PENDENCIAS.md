@@ -105,6 +105,20 @@ ganham um estado de espera e um de recusa, que hoje não existem porque
 não há como recusar. **Ligar a cobrança antes de a conferência existir é abrir a porta
 dos fundos no mesmo dia em que se põe a fechadura na da frente.**
 
+⚠️⚠️ **CÓDIGO E COBRANÇA NÃO PODEM COEXISTIR, E O MECANISMO NÃO EXISTE.**
+
+A regra é: entrou código, não se cobra mais. Mas quem cobra é a loja, e
+nenhum aplicativo cancela uma assinatura da App Store ou do Google Play
+em nome de alguém — só a própria pessoa, pelas telas da loja, ou o
+servidor, pelas APIs de servidor das duas.
+
+Então hoje quem confirma um código estando com assinatura ativa continua
+sendo cobrado até alguém cancelar. A tela de gestão faz a única coisa que
+pode: mostra "sem custo", que é o que a regra promete, e mantém o
+cancelamento à vista. **Fechar isso é trabalho da integração de cobrança**
+— cancelamento pelo servidor no momento em que o vínculo nasce, e
+provavelmente reembolso proporcional do período já pago.
+
 ⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
 CUMPRIR.** A tela anuncia "Começar os 3 dias grátis" em corpo grande, e
 quem concede período gratuito não é o aplicativo: é a **oferta

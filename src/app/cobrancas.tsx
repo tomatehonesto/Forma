@@ -28,7 +28,7 @@ import { MO_LONG } from '../logic/time';
 
    ⚠️ O VAZIO TEM DOIS MOTIVOS, e eles não são a mesma coisa. Quem é Care
    nunca vai ter cobrança nenhuma, e dizer "ainda" a ela é prometer uma
-   fatura que não vem. Quem é Individual ainda não tem, e o "ainda" é a
+   fatura que não vem. Quem é Personal ainda não tem, e o "ainda" é a
    palavra certa.
    ============================================================ */
 
