@@ -2300,7 +2300,7 @@ export default function Cadastro() {
                 <CampoTexto
                   valor={r.profissional}
                   onChange={(v) => p({ profissional: v })}
-                  placeholder="Dra. Helena Costa"
+                  placeholder="Digite o nome"
                 />
                 <Txt v="caption" c={c.tx3}>
                   Serve para referenciar o especialista ao longo da sua jornada. Nada é

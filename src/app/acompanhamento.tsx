@@ -31,9 +31,13 @@ import { useTheme } from '../ui/useTheme';
 
    Um nome, uma especialidade e um lugar não têm régua. Não entram em
    conta nenhuma, não têm faixa válida, não mudam número em outra tela.
-   Não há o que divergir — e o cadastro não faz esta pergunta, porque
-   alongar o onboarding de todo mundo por um dado que só parte das
-   pessoas tem é caro no lugar errado.
+   Não há o que divergir.
+
+   O CADASTRO PERGUNTA SE HÁ ACOMPANHAMENTO, e oferece o nome ali como
+   campo opcional. Esta tela é onde ele se corrige depois, e onde entram
+   a especialidade e o lugar — que no cadastro seriam três campos a mais
+   numa fila de treze perguntas, por um dado que ninguém precisa no
+   primeiro dia.
 
    O QUE ESTA TELA DELIBERADAMENTE NÃO FAZ
 
@@ -41,10 +45,8 @@ import { useTheme } from '../ui/useTheme';
        seria pior do que não perguntar;
      · não conecta nada — para isso existe o código de convite, que é
        outra porta e depende de servidor;
-     · não guarda a data da consulta. Ela é assunto de /consultas, que
-       hoje só sabe ler. Enquanto essa porta não existir, quem registrar
-       o médico aqui ainda não vai ver contagem de consulta — e é por
-       isso, e não porque o dado sumiu.
+     · não guarda a data da consulta. Ela é assunto de /anotar-consulta,
+       que é a porta de /consultas — aqui é quem acompanha, lá é quando.
    ============================================================ */
 
 export default function Acompanhamento() {
@@ -126,7 +128,7 @@ export default function Acompanhamento() {
       />
 
       <Campo rotulo="Nome" ajuda="Como você chama essa pessoa. Pode ser o nome do consultório, se preferir.">
-        <Texto valor={nome} onChange={setNome} placeholder="Dra. Helena Costa" linhas={1} />
+        <Texto valor={nome} onChange={setNome} placeholder="Digite o nome" linhas={1} />
       </Campo>
 
       <Campo rotulo="Especialidade" ajuda="Opcional.">
@@ -134,7 +136,7 @@ export default function Acompanhamento() {
       </Campo>
 
       <Campo rotulo="Onde atende" ajuda="Opcional — clínica, hospital ou consultório.">
-        <Texto valor={onde} onChange={setOnde} placeholder="Clínica Vitalis" linhas={1} />
+        <Texto valor={onde} onChange={setOnde} placeholder="Digite a clínica ou consultório" linhas={1} />
       </Campo>
 
       {/* ⚠️ A FRASE QUE EVITA A EXPECTATIVA ERRADA. Sem ela, uma tela que
