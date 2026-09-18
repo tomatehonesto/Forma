@@ -104,13 +104,13 @@ function IconeDoApp({ lado }: { lado: number }) {
    de ler não ganha nada com o último item. */
 const ENTRA: [string, string, string][] = [
   ['journey', 'Seu tratamento em um só lugar',
-    'Peso, aplicações, sintomas, exames e fotos no mesmo diário.'],
-  ['chart', 'Seus números, interpretados',
-    'O que a sua evolução mostra, lido a cada semana.'],
-  ['doc', 'O resumo para a consulta',
-    'Tudo organizado num documento pronto para levar.'],
+    'Tudo organizado para você acompanhar sua jornada.'],
+  ['barchart', 'Seus números interpretados',
+    'Os seus dados viram informação que faz sentido.'],
+  ['spark', 'Evolução que você consegue enxergar',
+    'Peso, medidas, sintomas, exames e registros ao longo do tempo.'],
   ['companion', 'Um assistente para o dia a dia',
-    'Pergunte sobre a sua jornada e registre o prato por foto.'],
+    'Pergunte, registre e entenda melhor a sua jornada.'],
 ];
 
 export default function Planos() {
@@ -297,27 +297,32 @@ export default function Planos() {
               que foi a última vez que essa pessoa viu o nome. */}
           <View style={{ alignItems: 'center', gap: 10, marginTop: 30 }}>
             <Marca altura={26} />
+            {/* ⚠️ "DE VERDADE" EM LIMA, e só isso. O lima é a cor do
+                alcançado no resto do aplicativo — a meta batida, o
+                check-in feito —, e aqui ela cai exatamente sobre a
+                diferença que a frase está afirmando. Duas palavras; a
+                terceira faria o título virar decoração.
+
+                AS TRÊS QUEBRAS SÃO ESCRITAS À MÃO. Deixada solta, a frase
+                caía como "Tudo muda quando você / acompanha de /
+                verdade." — e a linha do meio com duas palavras órfãs faz
+                um título de tela de preço parecer erro de composição. */}
             <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
-              O tratamento inteiro,{'\n'}num lugar só
+              Tudo muda quando{'\n'}você acompanha{'\n'}<Txt v="h1" c={c.lime}>de verdade.</Txt>
             </Txt>
             <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
-              Um plano só, com o aplicativo inteiro dentro.
+              Seus dados reunidos, a sua evolução organizada, e clareza em cada etapa do
+              tratamento.
             </Txt>
           </View>
         </View>
 
         <View style={{ paddingHorizontal: 20 }}>
-        {/* A faixa existe para a isenta não achar que perdeu o benefício
-            ao chegar aqui. Ela veio ver um número, e não trocar de
-            condição. */}
-        {isento(S) ? (
-          <View style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, padding: 14, marginBottom: 18 }}>
-            <Txt v="caption" c={c.tx} style={{ lineHeight: 19 }}>
-              Você não paga nada hoje — isto é o que valeria se o vínculo com a clínica
-              terminasse.
-            </Txt>
-          </View>
-        ) : null}
+        {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
+            repetia a tela anterior. Quem é isenta só chega nesta vista
+            depois de ler, em corpo grande, que não paga pelo aplicativo e
+            por quê; dizer de novo, num aviso, é o app achando que ela não
+            leu. O que muda para ela não é o texto: é não ter botão. */}
         {/* ⚠️ UMA LINHA POR ITEM, E NÃO UM PARÁGRAFO.
 
             Cada um destes já foi uma frase de duas linhas — "o registro do
@@ -446,7 +451,7 @@ export default function Planos() {
             </Txt>
           ) : null}
 
-          {recusa ? (
+          {isento(S) ? null : recusa ? (
             /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
                responde o que é verdade — e não com um erro genérico, que
                faria a pessoa tentar de novo. */
@@ -458,24 +463,39 @@ export default function Planos() {
               </Txt>
             </View>
           ) : null}
-          <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
-            <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
-              <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-                Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
-              </Txt>
-            </View>
-          </Pressable>
+          {/* ⚠️ QUEM É ISENTA VÊ O PREÇO E NÃO VÊ O BOTÃO.
 
-          {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta em
-              quase toda tela de plano: quando renova, como cancela, e o
-              prazo de arrependimento que a lei dá. */}
-          <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center', lineHeight: 16 }}>
-            Renova {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar, pela loja.
-            Sete dias para desistir, e cancelar não apaga registro nenhum.
-          </Txt>
+              Ela veio saber quanto custa — é a pergunta que os Termos
+              prometem responder antes de qualquer cobrança começar —, e
+              não comprar o que já tem. Um botão de assinar aqui venderia
+              a ela a mesma coisa duas vezes, e a letra miúda falaria de
+              uma renovação que não existe no caso dela.
+
+              Sai o botão, sai a letra miúda, sai o campo do código: os
+              três são da compra, e não do preço. Fica o que ela veio
+              ver. */}
+          {isento(S) ? null : (
+            <>
+              <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
+                <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
+                  <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
+                    Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
+                  </Txt>
+                </View>
+              </Pressable>
+
+              {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta
+                  em quase toda tela de plano: quando renova, como cancela,
+                  e o prazo de arrependimento que a lei dá. */}
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center', lineHeight: 16 }}>
+                Renova {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar, pela loja.
+                Sete dias para desistir, e cancelar não apaga registro nenhum.
+              </Txt>
+            </>
+          )}
 
           {/* ---- o código do parceiro ---- */}
-          {TEM_REDE_PARCEIRA ? (
+          {TEM_REDE_PARCEIRA && !isento(S) ? (
             <View style={{ marginTop: 14 }}>
               {guardado ? (
                 <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
