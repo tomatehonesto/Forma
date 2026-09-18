@@ -391,16 +391,6 @@ export function buildSeed() {
       { t: +daysAgo(3), name: 'Painel metabólico', n: 12, source: 'PDF', shared: true },
       { t: +daysAgo(120), name: 'Exames de base', n: 8, source: 'foto', shared: true },
     ],
-    achievements: [
-      { id: 'a1', ic: 'leaf', title: 'Primeiro passo', desc: 'Primeira aplicação registrada', t: +daysAgo(70), done: true },
-      { id: 'a2', ic: 'trend', title: 'Primeiros 5%', desc: '5% do peso inicial perdidos', t: +daysAgo(30), done: true },
-      { id: 'a3', ic: 'check', title: 'Semana completa', desc: '7 check-ins na semana', t: +daysAgo(14), done: true },
-      { id: 'a4', ic: 'water', title: 'Hidratação em dia', desc: '8 copos em 5 dias da semana', t: +daysAgo(20), done: true },
-      { id: 'a5', ic: 'leaf', title: 'Dez semanas', desc: 'Dez semanas de tratamento constante', t: +daysAgo(4), done: true },
-      { id: 'a6', ic: 'dose', title: 'Dose de manutenção', desc: 'Concluir a titulação', t: 0, done: false },
-      { id: 'a7', ic: 'scale', title: '−10 kg', desc: 'Marca de 10 kg a menos', t: 0, done: false },
-      { id: 'a8', ic: 'flame', title: 'Proteína em foco', desc: '90 g/dia por 2 semanas', t: 0, done: false },
-    ],
     prescriptions: [
       { t: +daysAgo(70), name: 'Mounjaro (tirzepatida)', detail: 'Titulação 2,5 → 5 mg · 1×/semana, subcutânea', by: 'Dra. Helena Costa' },
       { t: +daysAgo(70), name: 'Suplemento de proteína', detail: 'Conforme necessidade, para atingir a meta diária', by: 'Renata Alves (Nutrição)' },
@@ -516,6 +506,12 @@ export function ensureDefaults(S: any) {
     (S as any).alertas = lista;
   }
   delete S.reminders;
+  /* AS CONQUISTAS DEIXARAM DE SER GUARDADAS. Eram uma lista com
+     `done: true` escrito à mão — cinco marcadas como feitas desde o
+     primeiro segundo do app, uma delas para uma marca que a pessoa ainda
+     não tinha alcançado. Agora são calculadas dos registros, em
+     src/logic/conquistas.ts, e a lista velha só serviria para divergir. */
+  delete S.achievements;
   /* AS INTEGRAÇÕES QUE SAÍRAM DO CATÁLOGO SAEM DO ESTADO. Google Fit
      fechou para novos cadastros; "balança inteligente" e "smartwatch"
      nunca foram serviços, e sim aparelhos que escrevem no app de saúde do

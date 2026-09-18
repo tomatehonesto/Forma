@@ -1,87 +1,131 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { checkins30, journeyDay, achDone } from '../logic/derive';
+import { checkins30, journeyDay } from '../logic/derive';
+import { conquistas, feitas, aCaminho, type Conquista } from '../logic/conquistas';
 import { relDay } from '../logic/time';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Vazio } from '../ui/kit';
+import { Txt, Row, Vazio } from '../ui/kit';
+import { TelaInterna, Titulao, Bloco, Grade, Selo } from '../ui/internas';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+
+/* ============================================================
+   CONQUISTAS
+
+   ⚠️ ELAS ERAM UMA LISTA FIXA, com `done: true` escrito à mão no arquivo
+   de exemplo. Cinco vinham marcadas como feitas — com data — desde o
+   primeiro segundo do aplicativo, e quem instalasse hoje abriria a tela
+   com "Primeiros 5% · há 30 dias" antes de ter se pesado uma vez. E a
+   própria tela dizia "ninguém aqui decide se você merece", que era
+   exatamente o contrário do que acontecia.
+
+   Agora cada uma é uma conta sobre os registros, em
+   src/logic/conquistas.ts — e some se o registro que a fechou for
+   apagado, porque aí ela deixou de ter acontecido.
+
+   O QUE FALTA VIROU O ASSUNTO DAS QUE FALTAM. Elas diziam "em progresso",
+   que serve para qualquer uma delas em qualquer dia. Faltar dois quilos e
+   faltar nove não são o mesmo estado, e a diferença é o que faz alguém
+   continuar: agora cada uma traz a frase do que falta e uma barra com o
+   quanto já andou.
+   ============================================================ */
+
+function Cartao({ q }: { q: Conquista }) {
+  const { c } = useTheme();
+  const on = q.t != null;
+  return (
+    <View style={{
+      flex: 1, backgroundColor: c.bg1, borderRadius: radius.card,
+      borderWidth: 1, borderColor: c.line, padding: 15, alignItems: 'center',
+    }}>
+      {/* A MARCA CONQUISTADA É LIMA, como em toda tela deste app: é a cor
+          do alcançado na Jornada, nas metas e na ficha do perfil. Cinza é
+          a caminho. */}
+      <View style={{
+        width: 44, height: 44, borderRadius: 16,
+        backgroundColor: on ? c.limeSoft : c.bg3,
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name={q.ic} size={21} color={on ? c.tx : c.tx4} sw={1.8} />
+      </View>
+
+      <Txt v="bodyMed" style={{ marginTop: 10, textAlign: 'center' }}>{q.titulo}</Txt>
+      <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center', lineHeight: 16 }}>{q.desc}</Txt>
+
+      {/* O SELO DESCE PARA O PÉ do cartão: os títulos têm uma ou duas
+          linhas conforme o nome, e sem isso os dois de uma fileira
+          terminavam em alturas diferentes. */}
+      <View style={{ marginTop: 'auto', paddingTop: 12, width: '100%', alignItems: 'center' }}>
+        {on ? (
+          <Selo label={relDay(new Date(q.t!))} tom="lima" />
+        ) : (
+          <View style={{ width: '100%', gap: 7 }}>
+            {/* A BARRA É O QUANTO ANDOU, e ela é fina e cinza de propósito:
+                o assunto desta metade da tela é o que ainda não veio, e uma
+                barra colorida faria o não-feito competir com o feito. */}
+            <View style={{ height: 4, borderRadius: 2, backgroundColor: c.track, overflow: 'hidden' }}>
+              <View style={{ width: `${Math.round(q.pct * 100)}%`, height: 4, backgroundColor: c.tx4 }} />
+            </View>
+            <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ textAlign: 'center', lineHeight: 15 }}>{q.falta}</Txt>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
 
 export default function Conquistas() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const router = useRouter();
-  const done = achDone(S), locked = S.achievements.filter((a: any) => !a.done);
 
-  /* A MARCA CONQUISTADA É LIMA, como em toda tela deste app: é a cor do
-     alcançado na Jornada, nas metas e na ficha do perfil. Ela estava azul
-     aqui, que é a cor de ação — a mesma tinta do botão de registrar —, e
-     com isso a grade pedia leitura em vez de dar a resposta de relance.
-     Lima é feito, cinza é a caminho.
-
-     E O SELO DESCE PARA O PÉ do cartão. Os títulos têm uma ou duas linhas
-     conforme o nome, e sem isso o selo acompanhava o fim do texto: numa
-     fileira de dois, um ficava no meio e o outro embaixo. Com a margem
-     automática em cima, os cartões da mesma fileira terminam na mesma
-     linha, que é o que faz uma grade parecer uma grade. */
-  const AchCard = ({ a, on }: { a: any; on: boolean }) => (
-    <View style={{ width: '48.5%', backgroundColor: c.bg1, borderRadius: radius.lg, borderWidth: 1, borderColor: c.line, padding: 15, marginTop: 12, alignItems: 'center', opacity: on ? 1 : 0.6 }}>
-      <IconBadge name={a.ic} size={44} color={on ? c.tx : c.tx4} bg={on ? c.limeSoft : c.bg3} />
-      <Txt v="title" style={{ marginTop: 10, textAlign: 'center' }}>{a.title}</Txt>
-      <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center', lineHeight: 15 }}>{a.desc}</Txt>
-      <View style={{ marginTop: 'auto', paddingTop: 10 }}>
-        <Pill label={on ? relDay(new Date(a.t)) : 'em progresso'} color={on ? c.tx2 : c.tx3} bg={on ? c.limeSoft : c.bg2} />
-      </View>
-    </View>
-  );
+  const todas = useMemo(() => conquistas(S), [S]);
+  const done = feitas(todas);
+  const faltam = aCaminho(todas);
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Conquistas</Txt>
+    <TelaInterna titulo="Conquistas">
+      <Titulao
+        titulo="Conquistas"
+        lead="Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece."
+      />
+
+      <Row style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, paddingVertical: 16 }}>
+        {[
+          [String(checkins30(S)), 'check-ins no mês'],
+          [`${done.length}/${todas.length}`, 'conquistas'],
+          [String(journeyDay(S)), 'dias de jornada'],
+        ].map(([v, l], i) => (
+          <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.accentLine }}>
+            <Txt v="h1" style={{ fontSize: 24 }}>{v}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 2, textAlign: 'center' }}>{l}</Txt>
+          </View>
+        ))}
       </Row>
-      {/* O SUBTÍTULO DIZIA "marcos da jornada — discretos, nunca
-          infantis". A segunda metade era uma nota de projeto: a regra que
-          nós seguimos ao desenhar a tela, escrita para quem lê o código, e
-          entregue à pessoa como se fosse informação. Quem abre aqui quer
-          saber de onde saem essas marcas — e a resposta é que ninguém as
-          concede: elas caem sozinhas do que já foi registrado. */}
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-        Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece.
-      </Txt>
 
-      <Card tint={c.accentWeak} style={{ marginTop: 18, paddingVertical: 16 }}>
-        <Row>
-          {[[String(checkins30(S)), 'check-ins no mês'], [`${done.length}/${S.achievements.length}`, 'conquistas'], [String(journeyDay(S)), 'dias de jornada']].map(([v, l], i) => (
-            <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.line }}>
-              <Txt v="h1" style={{ fontSize: 24 }}>{v}</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 2, textAlign: 'center' }}>{l}</Txt>
-            </View>
-          ))}
-        </Row>
-      </Card>
+      {/* "DESBLOQUEADAS" ERA PALAVRA DE JOGO, e contradizia a própria
+          tela: aqui não há fase a vencer nem prêmio a liberar — há coisas
+          que aconteceram no tratamento de alguém. */}
+      <Bloco titulo="Já conquistadas">
+        {done.length ? (
+          <Grade cols={2} gap={12}>
+            {done.map((q) => <Cartao key={q.id} q={q} />)}
+          </Grade>
+        ) : (
+          /* Quem abre no primeiro dia via um título e nada embaixo. A frase
+             não promete conquista nenhuma: diz onde ela vai aparecer, e a
+             lista de "a caminho" logo abaixo já mostra quais são. */
+          <Vazio ic="trophy" titulo="Nenhuma conquista ainda" texto="As que estão a caminho aparecem logo abaixo." />
+        )}
+      </Bloco>
 
-      {/* "DESBLOQUEADAS" É PALAVRA DE JOGO, e contradizia a própria tela:
-          aqui não há fase a vencer nem prêmio a liberar — há coisas que
-          aconteceram no tratamento de alguém. */}
-      <Txt v="h2" style={{ marginTop: 22 }}>Já conquistadas</Txt>
-      {done.length === 0 ? (
-        /* Quem abre no primeiro dia via um título e nada embaixo. A
-           frase não promete conquista nenhuma: diz onde ela vai aparecer,
-           e a lista de "a caminho" logo abaixo já mostra quais são. */
-        <Vazio ic="trophy" titulo="Nenhuma conquista ainda" texto="As que estão a caminho aparecem logo abaixo." />
-      ) : (
-        <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          {done.map((a: any) => <AchCard key={a.id} a={a} on />)}
-        </Row>
-      )}
-
-      <Txt v="h2" style={{ marginTop: 22 }}>A caminho</Txt>
-      <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-        {locked.map((a: any) => <AchCard key={a.id} a={a} on={false} />)}
-      </Row>
-    </Screen>
+      {faltam.length ? (
+        <Bloco titulo="A caminho">
+          <Grade cols={2} gap={12}>
+            {faltam.map((q) => <Cartao key={q.id} q={q} />)}
+          </Grade>
+        </Bloco>
+      ) : null}
+    </TelaInterna>
   );
 }

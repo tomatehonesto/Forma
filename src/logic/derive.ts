@@ -4,6 +4,7 @@ import {
   doseTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
+import { conquistas, feitas } from './conquistas';
 import { ehForca, iconeDe } from './modalidades';
 import {
   MOMENTOS, aguaDe, alimentoDe, momentoDaHora, nomeItem, nutrientesDe, somaDe, type ItemComida,
@@ -279,7 +280,14 @@ export function vitalLast(S: State, k: string) { const a = (S.vitals as any)[k];
 export function examBy(S: State, m: string) { return S.exams.find((e: any) => e.marker === m); }
 export const examLast = (e: any) => e.values[e.values.length - 1];
 export const examFirst = (e: any) => e.values[0];
-export const achDone = (S: State) => S.achievements.filter((a: any) => a.done);
+/* AS CONQUISTAS SÃO CALCULADAS, e não guardadas — ver
+   src/logic/conquistas.ts. Aqui ficou só o atalho que o resto do derive
+   usa, para não importar a tela inteira.
+
+   A função antiga lia `S.achievements`, uma lista fixa com `done: true`
+   escrito à mão: quem instalasse o app abria a Jornada com cinco
+   conquistas de alguém que nunca existiu. */
+export const achDone = (S: State) => feitas(conquistas(S));
 
 export type Alert = { ic: string; kind: string; text: string; act: string };
 export function alerts(S: State): Alert[] {
@@ -346,7 +354,7 @@ export function milestones(S: State): Milestone[] {
   if (w5) out.push({ t: w5.t, ic: 'trend', title: '5% do peso inicial', sub: 'Marca clínica, com benefícios além da balança' });
   S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note }));
   S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: `${b.n} marcadores importados` }));
-  achDone(S).forEach((a: any) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc }));
+  achDone(S).forEach((a) => out.push({ t: a.t!, ic: a.ic, title: a.titulo, sub: a.desc }));
   out.sort((a, b) => b.t - a.t);
   return out;
 }
@@ -611,8 +619,12 @@ export function todayTasks(S: State): TodayTask[] {
 
 /* Conquista recente (≤7 dias) — só aparece quando há o que celebrar. */
 export function recentAchievement(S: State) {
-  const done = achDone(S).filter((a: any) => diffDays(now(), new Date(a.t)) <= 7);
-  return done.length ? done[done.length - 1] : null;
+  const done = achDone(S).filter((a) => diffDays(now(), new Date(a.t!)) <= 7);
+  if (!done.length) return null;
+  const a = done[done.length - 1];
+  /* O formato que as telas já liam: título e descrição com os nomes
+     antigos. A conta mudou de lugar; o contrato de quem lê, não. */
+  return { id: a.id, ic: a.ic, title: a.titulo, desc: a.desc, t: a.t!, done: true };
 }
 
 /* ============================================================
