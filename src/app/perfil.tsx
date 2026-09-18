@@ -16,7 +16,6 @@ import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } fro
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
-import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 
 /* A MESMA FOTO DA ABA CUIDADO. Uma pessoa, um retrato: se o app tivesse
    duas imagens da mesma médica, elas divergiriam no dia em que uma fosse
@@ -495,24 +494,15 @@ export default function Perfil() {
               <Icon name="chev" size={15} color={c.tx2} sw={2} />
             </Row>
           } />
-        {!conectada && TEM_REDE_PARCEIRA ? (
-          <ListRow ic="steth" title="Tenho um código de convite"
-            sub="Para vincular a clínica que acompanha você"
-            onPress={go('/parceiros')} />
-        ) : null}
-        {/* ⚠️ SÓ EM DESENVOLVIMENTO. A semente tem clínica parceira, então
-            a tela de planos abre sempre no estado isento e a versão que
-            cobra ficava inalcançável sem editar o estado à mão.
+        {/* ⚠️ AQUI HAVIA MAIS DUAS LINHAS — o código de convite e a porta
+            de desenvolvimento —, e as duas desceram para dentro de
+            /assinatura.
 
-            `__DEV__` é falso na build de produção e esta linha some na
-            compilação — a porta não tem como viajar junto para a loja.
-            Ela não muda nada do que está guardado: só pede à tela que se
-            desenhe como se não houvesse vínculo. */}
-        {__DEV__ ? (
-          <ListRow ic="bolt" title="Ver planos como pagante"
-            sub="Atalho de desenvolvimento — não aparece em produção"
-            onPress={go('/planos?compra=1')} />
-        ) : null}
+            O perfil é um índice: cada linha é um assunto, e o assunto
+            aqui é um só. Três linhas sobre cobrança na lista, sendo que a
+            primeira abre uma tela que fala de cobrança, é o índice
+            competindo com o capítulo — e quem procura o código passa a ter
+            dois lugares onde ele poderia estar. */}
       </Grupo>
 
       {/* ---- acompanhamento ----

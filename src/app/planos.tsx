@@ -2,14 +2,12 @@ import React from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -66,24 +64,6 @@ import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme
    ordem se inverte — a pessoa já viu o preço, e quem tem código digita
    porque tem.
    ============================================================ */
-
-function IconeDoApp({ lado }: { lado: number }) {
-  const S = useStore((s) => s.S);
-  const p = paletaDe((S as any).paleta);
-  const largura = lado * 0.56;
-  return (
-    <LinearGradient
-      colors={[mix(p.acaoClara, '#FFFFFF', 0.2), mix(p.acaoClara, '#000000', 0.42)]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{ width: lado, height: lado, borderRadius: lado * 0.225, alignItems: 'center', justifyContent: 'center' }}
-    >
-      <Svg width={largura} height={largura / RAZAO_SIMBOLO} viewBox="0 0 533 222">
-        <Path d={D_SIMBOLO} fill={p.alcancado} />
-      </Svg>
-    </LinearGradient>
-  );
-}
 
 /* O QUE A ASSINATURA DÁ É O APLICATIVO, e a lista diz isso em coisas que
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
@@ -346,14 +326,16 @@ export default function Planos() {
 
   const aurora = useAurora();
   const [escolhido, setEscolhido] = React.useState<Plano['id']>(RECOMENDADO);
-  /* ⚠️ QUEM É ISENTA TAMBÉM PODE QUERER VER O PREÇO, e até aqui não
-     podia: a tela dela era uma folha só, com "você não paga" e nenhuma
-     saída. Era um beco, e um beco em cima da única pergunta que essa
-     pessoa tem motivo para fazer — quanto custaria se o vínculo
-     terminasse. Os próprios Termos prometem avisá-la antes de qualquer
-     cobrança começar; esconder o valor até lá é prometer um aviso sobre
-     um número secreto. */
-  const [verPrecos, setVerPrecos] = React.useState(false);
+  /* ⚠️ QUEM É ISENTA VÊ O PREÇO DIRETO, sem anteparo nenhum.
+
+     Já foram duas voltas nisto. Primeiro ela não via preço: a tela dela
+     era uma folha com "você não paga" e nenhuma saída — um beco em cima
+     da única pergunta que essa pessoa tem motivo para fazer, que é quanto
+     custaria se o vínculo terminasse. Depois a folha ganhou um "ver os
+     planos mesmo assim", o que resolvia o beco e criava um pedágio.
+
+     Agora não há folha: /assinatura já diz "Sem custo" com a etiqueta
+     Care, e esta tela mostra o que foi pedido. */
   /* A barra é medida, e não estimada: o texto miúdo muda de altura com o
      plano escolhido e com o tamanho de fonte do sistema, e um número
      chutado aqui deixaria a última linha do rolo escondida atrás dela
@@ -399,37 +381,19 @@ export default function Planos() {
     if (!r.ok) setRecusa(true);
   };
 
-  /* Quem tem vínculo não vê preço. Ela não está fora de uma oferta: está
-     dentro do acordo que a clínica já fez por ela, e os Termos prometem
-     aviso antes de qualquer cobrança começar. */
-  if (ehIsenta && !verPrecos) {
-    return (
-      <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 12 }}>
-        <Row style={{ paddingHorizontal: 20, justifyContent: 'flex-end' }}>
-          <Pressable onPress={fechar} hitSlop={10}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="x" size={16} color={c.tx2} sw={2.2} />
-            </View>
-          </Pressable>
-        </Row>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
-          <IconeDoApp lado={64} />
-          <Txt v="h2" c={c.tx} style={{ textAlign: 'center' }}>Você não paga pelo aplicativo</Txt>
-          <Txt v="note" c={c.tx3} style={{ textAlign: 'center', lineHeight: 22 }}>
-            O acesso vem do seu vínculo com {S.profile.clinic || 'a clínica que acompanha você'}, e
-            vale enquanto ele durar. Se ele terminar, avisamos antes de qualquer cobrança.
-          </Txt>
-          <Pressable
-            onPress={() => setVerPrecos(true)}
-            hitSlop={8}
-            style={({ pressed }) => [{ marginTop: 6, opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Txt v="label" c={c.accent2}>Ver os planos mesmo assim</Txt>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
+  /* ⚠️ AQUI HAVIA UMA TELA INTEIRA SÓ PARA QUEM NÃO PAGA — "Você não
+     paga pelo aplicativo", com um link "ver os planos mesmo assim" — e ela
+     saiu porque passou a ser a segunda vez que a pessoa lia a mesma frase.
+
+     /assinatura já diz isso, em corpo grande, com a etiqueta Care e o
+     "Sem custo" no lugar do preço. Quem chega aqui vem de lá, tocando em
+     "Ver os planos": abrir uma anteparo repetindo o que ela acabou de ler,
+     antes de mostrar o que ela pediu para ver, é o aplicativo achando que
+     ela não leu.
+
+     O que muda para ela nesta tela continua sendo o que sempre foi: não
+     ter botão. E a linha no lugar do botão explica a falta — sem isso, a
+     tela vira um preço sem saída, que é pior do que o anteparo. */
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -740,7 +704,23 @@ export default function Planos() {
               lugar, e o desconto é o menos urgente dos quatro. O "−50%"
               no cartão diz a mesma coisa em dois caracteres. */}
 
-          {ehIsenta ? null : recusa ? (
+          {/* ⚠️ A FALTA DO BOTÃO PRECISA SER DITA ONDE ELA É NOTADA.
+
+              Sem a folha anterior, esta tela é a primeira coisa que uma
+              pessoa isenta vê ao vir do cadastro — e uma tela de preço sem
+              nenhuma forma de pagar, sem uma palavra sobre o motivo, lê
+              como defeito. Uma linha, no lugar exato onde o botão estaria,
+              custa menos do que uma tela inteira e responde a pergunta no
+              instante em que ela nasce.
+
+              Em lima porque é a cor do que já está resolvido, e não em
+              vermelho de aviso: não há nada errado com ela. */}
+          {ehIsenta ? (
+            <Row gap={7} style={{ marginTop: 16, justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="check" size={13} color={c.lime} sw={2.6} />
+              <Txt v="label" c={c.lime}>Você não paga — o acesso vem do vínculo</Txt>
+            </Row>
+          ) : recusa ? (
             /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
                responde o que é verdade — e não com um erro genérico, que
                faria a pessoa tentar de novo. */

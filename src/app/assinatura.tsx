@@ -213,6 +213,24 @@ export default function Assinatura() {
             onPress={() => router.push('/parceiros' as any)}
           />
         ) : null}
+
+        {/* ⚠️ SÓ EM DESENVOLVIMENTO, e mora aqui porque é aqui que se fala
+            de cobrança. A semente tem clínica parceira, então as telas de
+            plano abrem sempre no estado isento e a versão que cobra ficava
+            inalcançável sem editar o estado à mão.
+
+            `__DEV__` é falso na build de produção e esta linha some na
+            compilação — a porta não tem como viajar junto para a loja. Ela
+            não muda nada do que está guardado: só pede à tela de planos que
+            se desenhe como se não houvesse vínculo. */}
+        {__DEV__ ? (
+          <Linha
+            ic="bolt"
+            titulo="Ver planos como pagante"
+            sub="Atalho de desenvolvimento — não aparece em produção"
+            onPress={() => router.push('/planos?compra=1' as any)}
+          />
+        ) : null}
       </Cartao>
 
       {/* ⚠️ A LETRA MIÚDA TAMBÉM É UMA SÓ, e diz a coisa que vale para o
