@@ -82,7 +82,11 @@ export default function Suspenso() {
         </Txt>
 
         <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 14, marginTop: 24 }}>
-          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>É BOM VOCÊ SABER</Txt>
+          {/* O MESMO RÓTULO DE /cancelar, e de propósito. Os dois cartões
+              fazem o mesmo trabalho — responder "o que eu perco?" antes de
+              a pessoa perguntar — e dois nomes para a mesma peça é o tipo
+              de diferença que ninguém descreve e todo mundo sente. */}
+          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>FIQUE TRANQUILO</Txt>
           {FATOS.map(([ic, t]) => (
             <Row key={t} gap={12} style={{ alignItems: 'flex-start' }}>
               <View style={{ marginTop: 1 }}>
