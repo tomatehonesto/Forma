@@ -78,13 +78,25 @@ type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
    fila fica onde está. A cor cheia já diz qual está escolhida — é a mesma
    regra que a <Grade> usa, e pelo mesmo motivo.
 
-   ⚠️ QUALQUER RÓTULO NOVO AQUI SE MEDE ANTES DE ENTRAR, e medir é o verbo
-   certo: com 335 px de linha e 8 de vão, as seis peças cabem em quatro
-   fileiras só porque duas somam 305 e outras duas somam 293. "Tive
-   problemas no aplicativo" virou "Problemas no aplicativo" e "Faltou
-   alguma coisa" virou "Faltou algo" — cada palavra a mais aqui custa uma
-   fileira inteira, e a fileira empurra a resposta para fora da dobra, que
-   é o defeito que esta fila veio consertar.
+   ⚠️⚠️ E OS RÓTULOS SÃO MEDIDOS, NÃO ESCOLHIDOS. ⚠️⚠️
+
+   Com 335 px de linha e 8 de vão, cada fileira comporta 327 px de peça.
+   As seis fecham em TRÊS fileiras, e fecham por pouco:
+
+       Está caro 119 + Não estou usando 178 = 297
+       Já terminei 132 + Faltou algo 131    = 263
+       Deu problema 153 + Outro motivo 147  = 300
+
+   Foi isso que encurtou "Terminei o tratamento" para "Já terminei" e
+   "Problemas no aplicativo" para "Deu problema": nos rótulos longos as
+   mesmas seis peças pediam quatro fileiras, e a fileira a mais empurrava
+   o cartão de resposta para fora da dobra — que é o defeito que esta fila
+   veio consertar. Uma palavra a mais aqui custa uma fileira inteira.
+
+   As duas frases perderam o complemento e não perderam o sentido, porque
+   a pergunta acima já o dá: sob "por que você está cancelando?", "já
+   terminei" é o tratamento e "deu problema" é o que ela vai descrever no
+   campo que abre.
 
    ⚠️ E A ORDEM NÃO É SOLTA: os três primeiros têm resposta, os três
    últimos têm campo de texto, e "Outro motivo" é sempre o último. Quem lê
@@ -94,9 +106,9 @@ type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
 const MOTIVOS: [Motivo, string, string][] = [
   ['caro', 'wallet', 'Está caro'],
   ['esqueco', 'moon', 'Não estou usando'],
-  ['terminei', 'journey', 'Terminei o tratamento'],
-  ['problema', 'alerta', 'Problemas no aplicativo'],
+  ['terminei', 'journey', 'Já terminei'],
   ['faltou', 'bulb', 'Faltou algo'],
+  ['problema', 'alerta', 'Deu problema'],
   ['outro', 'more', 'Outro motivo'],
 ];
 
@@ -283,7 +295,7 @@ export default function Cancelar() {
             <Texto
               valor={detalhe}
               onChange={escrever}
-              placeholder={motivo === 'problema' ? 'Onde travou, o que deu errado…' : 'Pode escrever à vontade'}
+              placeholder={motivo === 'problema' ? 'O que deu errado, e quando…' : 'Pode escrever à vontade'}
               linhas={3}
             />
           </View>
