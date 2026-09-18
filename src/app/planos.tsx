@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { PLANOS, RECOMENDADO, TESTE_DIAS, reais, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { Marca, D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
+import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -49,7 +49,7 @@ import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme
    ⚠️ A DECISÃO É FIXA E O RESTO ROLA.
 
    O preço e o botão moram numa barra ancorada no pé da tela; o que se lê
-   — a marca, a promessa, o que vem junto, a letra miúda, o código —
+   — a peça, a promessa, o que vem junto, a letra miúda, o código —
    passa por baixo dela. É o padrão das telas de plano que funcionam, e a
    razão é simples: quem decidiu no terceiro item não pode ser obrigada a
    rolar até o fim para pagar, e quem ainda está lendo não pode perder de
@@ -137,12 +137,12 @@ const MOCKUP_PROPORCAO = 900 / 1959;
    no fundo, lê como um aparelho que sobe de dentro da página. É o mesmo
    recurso do fio da barra de decisão, pela mesma razão: emenda dura
    anuncia a montagem, emenda macia some. */
-const MOCKUP_JANELA = 300;
-const MOCKUP_LARGURA = 260;
+const MOCKUP_JANELA = 358;
+const MOCKUP_LARGURA = 276;
 
 function PecaDoAlto({ c }: { c: any }) {
   return (
-    <View style={{ height: MOCKUP_JANELA, marginTop: 4, overflow: 'hidden', alignItems: 'center' }}>
+    <View style={{ height: MOCKUP_JANELA, overflow: 'hidden', alignItems: 'center' }}>
       <Image
         source={MOCKUP}
         style={{ width: MOCKUP_LARGURA, height: MOCKUP_LARGURA / MOCKUP_PROPORCAO }}
@@ -362,7 +362,7 @@ export default function Planos() {
             É a diferença entre "parece um app bonito" e "é o app que eu
             estou usando", e é de graça: a peça já existe, já segue a
             paleta e já veste o resto do aplicativo. */}
-        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 22 }}>
+        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 18 }}>
           <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
           <LinearGradient
             colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
@@ -371,20 +371,28 @@ export default function Planos() {
             pointerEvents="none"
           />
 
-          {/* ⚠️ A MARCA, E NÃO O ÍCONE DO APLICATIVO.
+          {/* ⚠️ AQUI FICAVA A MARCA, E ELA SAIU DE PROPÓSITO.
 
-              O ícone é o quadrado com gradiente que mora na tela inicial
-              do telefone: ele serve para ser achado entre outros ícones,
-              e é por isso que tem moldura. Dentro do próprio aplicativo
-              ele vira o retrato de uma coisa que a pessoa já está usando
-              — e numa tela que pede dinheiro, o que precisa aparecer é
-              quem cobra, com nome e tudo.
+              O argumento para tê-la era bom: numa tela que pede dinheiro,
+              quem cobra aparece com nome e tudo. O argumento contra é que
+              a pessoa acabou de sair do aplicativo para chegar aqui — ela
+              sabe de quem é a tela —, e o lockup custava sessenta pixels
+              da única dobra que existe, empurrando o título para debaixo
+              da barra de decisão.
 
-              A marca por extenso é o lockup, com o símbolo em lima e o
-              letreiro em branco. É a mesma peça da abertura do cadastro,
-              que foi a última vez que essa pessoa viu o nome. */}
-          <View style={{ alignItems: 'center', gap: 10, marginTop: 30 }}>
-            <Marca altura={22} />
+              ⚠️ ENTÃO A PEÇA É A PRIMEIRA COISA, e é ela quem se apresenta:
+              a marca continua na tela, dentro do aparelho fotografado, do
+              jeito que a pessoa vê todo dia. Quem quiser o lockup de volta
+              precisa achar os sessenta pixels em outro lugar — encolher a
+              janela do aparelho é o candidato óbvio.
+
+              ⚠️ E O X MORA NESTE CANTO. Ele é fixo, em cima à direita, e a
+              peça passa por baixo dele: a arte tem respiro nas laterais,
+              então o que fica sob o botão é fundo. Trocar a peça por uma
+              sangrada até a borda traz o problema de volta. */}
+          <PecaDoAlto c={c} />
+
+          <View style={{ alignItems: 'center', gap: 10 }}>
             {/* ⚠️ "DE VERDADE" EM LIMA, e só isso. O lima é a cor do
                 alcançado no resto do aplicativo — a meta batida, o
                 check-in feito —, e aqui ela cai exatamente sobre a
@@ -417,8 +425,6 @@ export default function Planos() {
             </Txt>
           </View>
         </View>
-
-        <PecaDoAlto c={c} />
 
         <View style={{ paddingHorizontal: 20, marginTop: 26 }}>
         {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
