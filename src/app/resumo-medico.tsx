@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { examStatus, clinicaConectada } from '../logic/derive';
+import { examStatus, clinicaConectada, temAcompanhamento } from '../logic/derive';
 import {
   resumoDoTratamento, resumoEmTexto, valorDoExame, enviosDoResumo, registrarEnvio,
   type SecaoDoResumo,
@@ -123,7 +123,15 @@ export default function ResumoMedico() {
         <Linha
           ic="doc"
           titulo={`Resumo de ${fmtDate(now())}`}
-          sub={temEquipe ? `Para ${p.doctor}${p.clinic ? ` · ${p.clinic}` : ''}` : 'Você ainda não tem equipe vinculada'}
+          /* ⚠️ PARA QUEM É O RESUMO NÃO DEPENDE DE PLATAFORMA. Isto lia
+             `temEquipe`, que hoje quer dizer "clínica conectada", e
+             dizia "Você ainda não tem equipe vinculada" para quem acabou
+             de anotar o próprio médico — negando, na cara dela, o dado
+             que ela mesma escreveu. O documento é PARA quem acompanha;
+             o que precisa de servidor é enviá-lo. */
+          sub={temAcompanhamento(S)
+            ? `Para ${p.doctor || p.clinic}${p.doctor && p.clinic ? ` · ${p.clinic}` : ''}`
+            : 'Para levar na próxima consulta'}
           seta={false}
         />
         {ultimo ? (

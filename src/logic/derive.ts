@@ -573,7 +573,16 @@ export function examExplain(e: any) {
     'Triglicerídeos': 'Caíram bastante — costumam responder rápido à perda de peso e à redução de açúcar e álcool.',
     'Vitamina D': 'Subiu para uma faixa adequada, importante para ossos, humor e imunidade.',
   };
-  return map[e.marker] || `Este marcador está ${examStatus(e) === 'ok' ? 'dentro da referência' : 'fora da referência'}. Vale acompanhar a evolução ao longo do tratamento e conversar com a Dra. Helena. Não interpreto exames isoladamente nem substituo a avaliação médica.`;
+  /* ⚠️ O NOME DA MÉDICA DA SEMENTE ESTAVA ESCRITO AQUI. Esta é a
+     frase que aparece para qualquer marcador sem leitura própria — a
+     mais genérica do arquivo, e a que mais gente vê. Ela citava a Dra.
+     Helena para todo mundo, inclusive para quem não tem médico nenhum.
+
+     Não passa a citar o nome novo: esta função recebe o exame e nada
+     mais, e puxar o estado inteiro até aqui para escrever um nome seria
+     caro pelo que entrega. "Quem acompanha você" é verdade nos três
+     modos. */
+  return map[e.marker] || `Este marcador está ${examStatus(e) === 'ok' ? 'dentro da referência' : 'fora da referência'}. Vale acompanhar a evolução ao longo do tratamento e conversar com quem acompanha você. Não interpreto exames isoladamente nem substituo a avaliação médica.`;
 }
 
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */

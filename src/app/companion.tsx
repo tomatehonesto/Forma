@@ -8,6 +8,7 @@ import type { State } from '../logic/seed';
 import {
   M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
   lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
+  temConsulta, clinicaConectada,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
@@ -75,7 +76,20 @@ const ESFERA_BASE_FRACAO = 0.504;
 type Msg = { who: 'me' | 'ai'; text: string; mini?: string };
 
 /* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados reais */
+/* ⚠️ A DRA. HELENA ESTAVA ESCRITA À MÃO AQUI DENTRO.
+
+   Três respostas prontas citavam a médica da semente pelo nome, e uma
+   quarta montava o resumo da consulta sem perguntar se havia consulta —
+   com o estado zerado, ela respondia "pra sua  há vinte mil dias com a ".
+   Enquanto a única médica possível era a da semente, as duas coisas
+   passavam; com a ficha de quem acompanha, a primeira pessoa que anotar
+   o próprio médico ouve o companion falar de outra.
+
+   Quem acompanha sai do perfil, e some da frase quando não há ninguém —
+   um assistente que inventa um nome é pior do que um que não cita
+   nenhum. */
 function companionReply(S: State, text: string): Msg {
+  const quemAcompanha = S.profile.doctor || S.profile.clinic;
   const t = text.toLowerCase();
   const has = (...k: string[]) => k.some((x) => t.includes(x));
   const med = M(S);
@@ -84,18 +98,20 @@ function companionReply(S: State, text: string): Msg {
     return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${kg(S.profile.startWeight)} para <b>${kg(curWeight(S))} kg</b> — menos ${kg(lostKg(S))} kg (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, mini: `Ritmo saudável e constante: cerca de ${kg(lostKg(S) / (days / 7))} kg por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
   }
   if (has('consulta', 'prepar', 'médic', 'doutora', 'helena')) {
-    return { who: 'ai', text: `Montei um resumo pra sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b> com a ${S.consult.doctor}:`, mini: `• Peso: ${kg(curWeight(S))} kg (−${kg(lostKg(S))} kg / ${nf(lostPct(S), 1)}%)\n• Dose atual: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}%\n• Sintomas: náusea leve nos dias pós-aplicação, já melhorando\n• Perguntas sugeridas: manter ou ajustar a dose? o platô é esperado? exames a repetir?` };
+    return { who: 'ai', text: temConsulta(S)
+      ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}:`
+      : `Montei um resumo do seu tratamento para levar na consulta:`, mini: `• Peso: ${kg(curWeight(S))} kg (−${kg(lostKg(S))} kg / ${nf(lostPct(S), 1)}%)\n• Dose atual: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}%\n• Sintomas: náusea leve nos dias pós-aplicação, já melhorando\n• Perguntas sugeridas: manter ou ajustar a dose? o platô é esperado? exames a repetir?` };
   }
   if (has('fome', 'saciedade', 'vontade de comer')) {
     const hf = hungerForecast(S);
-    return { who: 'ai', text: `A fome acompanha o nível da ${med.mol.toLowerCase()} no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar pra conversar com a Dra. Helena — quem ajusta dose é ela.` };
+    return { who: 'ai', text: `A fome acompanha o nível da ${med.mol.toLowerCase()} no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
   }
   if (has('náusea', 'nausea', 'enjoo', 'enjôo', 'mal estar', 'sintoma')) {
-    return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, me avisa que eu destaco isso pra sua equipe.` };
+    return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
   }
   if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta')) {
     const nd = nextInjectionDate(S); const li = lastInjection(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão da Dra. Helena. Posso te lembrar no dia e registrar a aplicação.` };
+    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
     return { who: 'ai', text: `Hoje você registrou <b>${litros(waterMlToday(S))} de ${litros((S.profile as any).targets.waterMl)} L</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
@@ -110,7 +126,7 @@ function companionReply(S: State, text: string): Msg {
     return { who: 'ai', text: `Seus exames vêm melhorando junto com o tratamento. Destaques: <b>HbA1c 6,3 → 5,6%</b>, LDL e triglicerídeos em queda, HDL e vitamina D em alta.`, mini: `Posso abrir um marcador específico e explicar o que ele significa — é só ir em Exames. Não substituo a leitura da sua médica.` };
   }
   if (has('medicament', 'remédio', 'remedio', 'tirzep', 'semaglut', 'bula', 'como funciona')) {
-    return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com a Dra. Helena.` };
+    return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com ${quemAcompanha || 'quem acompanha você'}.` };
   }
   if (has('protocolo', 'missão', 'missao', 'tarefa', 'checklist')) {
     const p = S.protocol, done = p.tasks.filter((x: any) => x.done).length;
@@ -120,7 +136,7 @@ function companionReply(S: State, text: string): Msg {
   if (has('oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'obrigad', 'valeu')) {
     return { who: 'ai', text: `Tô aqui com você. Pode me perguntar sobre sua evolução, sintomas, exames, a próxima dose ou a consulta — o que fizer sua semana mais leve.` };
   }
-  return { who: 'ai', text: `Entendi. Posso te ajudar melhor com algo específico da sua jornada — sua evolução, um sintoma, a linha da medicação, ou preparar a consulta com a Dra. Helena. Só lembrando que <b>não tomo decisões médicas</b>: pra dose e protocolo, quem decide é sua equipe.` };
+  return { who: 'ai', text: `Entendi. Posso te ajudar melhor com algo específico da sua jornada — sua evolução, um sintoma, a linha da medicação, ou preparar a consulta${quemAcompanha ? ` com ${quemAcompanha}` : ''}. Só lembrando que <b>não tomo decisões médicas</b>: para dose e protocolo, quem decide é quem acompanha você.` };
 }
 
 /** Os três pontos da espera.
