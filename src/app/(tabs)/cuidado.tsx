@@ -639,7 +639,40 @@ function Consulta() {
   const { c } = useTheme();
   const router = useRouter();
   const cs = nextConsult(S);
-  if (!cs) return null;
+
+  /* ⚠️ SEM CONSULTA, O BLOCO SUMIA INTEIRO — e com ele a única porta
+     para anotar uma. Quem marca pela clínica não perde nada com isso: a
+     agenda chega de lá. Quem anota sozinha perdia a descoberta da
+     funcionalidade, que é o jeito mais silencioso de uma tela não
+     existir. */
+  if (!cs) {
+    if (clinicaConectada(S)) return null;
+    return (
+      <View style={{ marginTop: 36 }}>
+        <SectionHead title="Sua próxima consulta" />
+        <Pressable
+          onPress={() => router.push('/anotar-consulta' as any)}
+          style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}
+        >
+          <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, alignItems: 'center' }}>
+            <View style={{
+              width: 46, height: 46, borderRadius: radius.md, backgroundColor: c.bg3,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon name="cal" size={20} color={c.tx3} sw={1.8} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt v="bodyMed">Anotar uma consulta</Txt>
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
+                Com a data aqui, o resumo fica pronto e o app avisa quando ela chegar perto.
+              </Txt>
+            </View>
+            <Icon name="chev" size={14} color={c.tx4} sw={2} />
+          </Row>
+        </Pressable>
+      </View>
+    );
+  }
 
   const go = (to: string) => () => router.push(to as any);
   /* fmtDate devolve "14 ago" — dia e mês separados por espaço, não por

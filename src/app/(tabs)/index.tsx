@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
-  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, clinicaConectada, M,
+  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, clinicaConectada, temConsulta, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
@@ -509,6 +509,17 @@ export default function Home() {
                   <ListRow ic="doc" title="Resumo para a consulta"
                     sub="Peso, adesão, sintomas e exames num documento só"
                     onPress={go('/resumo-medico')} />
+                  <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+                  {/* A consulta entra como linha, e não como card: sem
+                      plataforma ela é um compromisso anotado, e não um
+                      evento que chegou de fora. A linha diz a data quando
+                      há uma, e convida quando não há. */}
+                  <ListRow ic="cal"
+                    title={temConsulta(S) ? 'Próxima consulta' : 'Anotar uma consulta'}
+                    sub={temConsulta(S)
+                      ? `${fmtDate(new Date(S.consult.t))} • ${DOW_PT[new Date(S.consult.t).getDay()]}`
+                      : 'Para o app avisar quando ela chegar perto'}
+                    onPress={go(temConsulta(S) ? '/consultas' : '/anotar-consulta')} />
                 </View>
               </View>
             ) : (

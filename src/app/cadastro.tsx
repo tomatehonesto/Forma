@@ -17,7 +17,7 @@ import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao } from '../ui/internas';
+import { Botao, Roda } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -458,78 +458,6 @@ function Contador({ valor, unidade, nota, onMenos, onMais, onDigitar }: {
    A rolagem programática acontece uma vez, na montagem. Mandá-la para o
    valor a cada render criaria a briga clássica: o dedo empurra, o código
    devolve, e a lista treme no lugar. */
-function Roda({ itens, valor, onEscolhe, largura }: {
-  itens: { v: number; label: string }[];
-  valor: number; onEscolhe: (v: number) => void; largura?: number;
-}) {
-  const { c } = useTheme();
-  const ALT = 44;
-  const VISIVEIS = 5;
-  const ref = React.useRef<ScrollView>(null);
-  const montou = React.useRef(false);
-  const i = Math.max(0, itens.findIndex((x) => x.v === valor));
-
-  /* PRIMEIRO POSICIONA, DEPOIS ESCUTA.
-
-     Sem esta trava a roda estragava a resposta que já existia: ao montar,
-     a lista reporta deslocamento zero, o onScroll lê zero como "parou no
-     primeiro item" e grava 1920 por cima de 1990 — antes mesmo de o
-     scrollTo ter acontecido. O quadro de folga garante que o salto
-     inicial já passou quando a escuta começa. */
-  const pronto = React.useRef(false);
-  React.useEffect(() => {
-    if (montou.current) return;
-    montou.current = true;
-    const t = setTimeout(() => {
-      ref.current?.scrollTo({ y: i * ALT, animated: false });
-      setTimeout(() => { pronto.current = true; }, 60);
-    }, 0);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <View style={{ width: largura, height: ALT * VISIVEIS }}>
-      {/* A faixa do meio marca onde a lista para. Fica atrás dos números e
-          não recebe toque — é régua, não botão.
-
-          Em bg2 ela sumia: o fundo da tela é #F5F6FA e ela era #EDF1F3,
-          dois cinzas a três pontos de distância. Na lavagem azul do
-          cadastro, então, desaparecia de vez. Agora ela usa a cor de
-          seleção do app, que é a mesma coisa que a faixa significa. */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute', left: 0, right: 0, top: ALT * 2, height: ALT,
-          backgroundColor: c.accentWeak, borderRadius: radius.md,
-          borderWidth: 1, borderColor: c.accentLine,
-        }}
-      />
-      <ScrollView
-        ref={ref}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={ALT}
-        decelerationRate="fast"
-        scrollEventThrottle={16}
-        onScroll={(e) => {
-          if (!pronto.current) return;
-          const k = Math.round(e.nativeEvent.contentOffset.y / ALT);
-          const item = itens[Math.max(0, Math.min(itens.length - 1, k))];
-          if (item && item.v !== valor) onEscolhe(item.v);
-        }}
-        contentContainerStyle={{ paddingVertical: ALT * 2 }}
-      >
-        {itens.map((x) => (
-          <View key={x.v} style={{ height: ALT, alignItems: 'center', justifyContent: 'center' }}>
-            <Txt v={x.v === valor ? 'bodyMed' : 'body'} c={x.v === valor ? c.accent : c.tx4}>
-              {x.label}
-            </Txt>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* A RÉGUA — o número que se arrasta, ou se digita.
 

@@ -5,8 +5,8 @@ import { useStore } from '../logic/store';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { notasAbertas } from '../logic/derive';
-import { fmtWD, fmtDate, relDay } from '../logic/time';
+import { notasAbertas, temConsulta, clinicaConectada } from '../logic/derive';
+import { fmtWD, fmtDate, relDay, diffDays, now } from '../logic/time';
 import { radius } from '../theme';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -17,9 +17,30 @@ export default function Consultas() {
   const { c } = useTheme();
   const router = useRouter();
   const [pre, setPre] = useState<boolean[]>([false, false, false, false]);
+  const update = useStore((st) => st.update);
   const pauta = notasAbertas(S);
 
+  const marcada = temConsulta(S);
+  const conectada = clinicaConectada(S);
   const nd = new Date(S.consult.t);
+  /* Negativo quer dizer que a data já passou. A consulta anotada não sai
+     sozinha de lá: ninguém avisou o app de que ela aconteceu, e apagar
+     por conta própria uma coisa que a pessoa escreveu é o tipo de zelo
+     que vira perda de dado. */
+  const faltam = marcada ? diffDays(nd, now()) : 0;
+  const passou = marcada && faltam < 0;
+
+  /* Ela vira linha do histórico, e não desaparece. O texto fica vazio
+     porque o app não estava lá: quem quiser contar o que foi decidido
+     tem as anotações, que são de quem viveu a consulta. */
+  const realizada = () => {
+    update((st: any) => {
+      (st.consultsHistory ?? (st.consultsHistory = [])).unshift({
+        t: st.consult.t, type: st.consult.type || 'Consulta', note: '',
+      });
+      st.consult = { t: 0, type: '', doctor: '' };
+    });
+  };
 
   return (
     <Screen>
@@ -31,27 +52,78 @@ export default function Consultas() {
         </View>
       </Row>
 
-      {/* próxima */}
-      <Card tint={c.accentWeak} style={{ marginTop: 18 }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Row gap={6}><Icon name="cal" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PRÓXIMA</Txt></Row>
-          <Pill label={S.consult.type} />
-        </Row>
-        <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{cap(relDay(nd))}</Txt>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{fmtWD(nd)}, {fmtDate(nd)} · {S.consult.doctor}</Txt>
-        <Row gap={10} style={{ marginTop: 14 }}>
-          <Pressable style={{ flex: 1 }}>
-            <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-              <Icon name="companion" size={15} color="#fff" sw={2} /><Txt v="label" c="#fff">Videoconsulta</Txt>
-            </View>
-          </Pressable>
-          <Pressable style={{ flex: 1 }} onPress={() => router.push('/resumo-medico' as any)}>
-            <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-              <Icon name="doc" size={15} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Preparação</Txt>
-            </View>
-          </Pressable>
-        </Row>
-      </Card>
+      {/* ---- a próxima ----
+
+          ⚠️ ESTE CARD NÃO PERGUNTAVA SE HAVIA CONSULTA. Sem data, o
+          estado guarda zero, e zero formatado é 1º de janeiro de 1970:
+          a tela abria dizendo "há vinte mil dias", com o tipo em branco e
+          o nome do médico vazio. Enquanto a data só vinha da semente
+          ninguém via; a partir da porta de anotar, qualquer pessoa vê. */}
+      {marcada ? (
+        <Card tint={c.accentWeak} style={{ marginTop: 18 }}>
+          <Row style={{ justifyContent: 'space-between' }}>
+            <Row gap={6}>
+              <Icon name="cal" size={14} color={c.accent} sw={2} />
+              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{passou ? 'JÁ PASSOU' : 'PRÓXIMA'}</Txt>
+            </Row>
+            {S.consult.type ? <Pill label={S.consult.type} /> : null}
+          </Row>
+          <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{cap(relDay(nd))}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
+            {fmtWD(nd)}, {fmtDate(nd)}{S.consult.doctor ? ` · ${S.consult.doctor}` : ''}
+          </Txt>
+
+          {/* ⚠️ "VIDEOCONSULTA" ERA UM BOTÃO CHEIO SEM onPress — o mais
+              destacado da tela, e não fazia nada. Chamada de vídeo é coisa
+              da plataforma, e nem com ela existe ainda; um botão cheio
+              prometendo entrar numa sala é a promessa mais cara que esta
+              tela podia fazer. Fica a preparação, que funciona. */}
+          {passou ? (
+            <Pressable onPress={realizada} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+              <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+                <Icon name="check" size={15} color={c.accentInk} sw={2} />
+                <Txt v="label" c={c.accentInk}>Já aconteceu</Txt>
+              </View>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => router.push('/resumo-medico' as any)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+                <Icon name="doc" size={15} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Preparação</Txt>
+              </View>
+            </Pressable>
+          )}
+
+          {!conectada ? (
+            <Pressable onPress={() => router.push('/anotar-consulta' as any)} style={({ pressed }) => [{ marginTop: 10, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}>
+              <Txt v="label" c={c.accent2}>Mudar a data</Txt>
+            </Pressable>
+          ) : null}
+        </Card>
+      ) : (
+        /* Sem consulta, a diferença é de quem marca: com plataforma, a
+           agenda é da clínica e não há o que fazer aqui; sem ela, quem
+           anota é a pessoa, e o botão é a porta que faltava. */
+        <Card style={{ marginTop: 18 }}>
+          <Row gap={6}>
+            <Icon name="cal" size={14} color={c.tx3} sw={2} />
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>PRÓXIMA</Txt>
+          </Row>
+          <Txt v="bodyMed" style={{ marginTop: 8 }}>Nenhuma consulta anotada</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
+            {conectada
+              ? 'Quando a sua equipe marcar a próxima, ela aparece aqui.'
+              : 'Com a data aqui, o app avisa quando ela estiver perto e deixa o resumo pronto para levar.'}
+          </Txt>
+          {!conectada ? (
+            <Pressable onPress={() => router.push('/anotar-consulta' as any)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+              <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+                <Icon name="cal" size={15} color={c.accentInk} sw={2} />
+                <Txt v="label" c={c.accentInk}>Anotar consulta</Txt>
+              </View>
+            </Pressable>
+          ) : null}
+        </Card>
+      )}
 
       {/* checklist */}
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Checklist pré-consulta</Txt>
@@ -120,6 +192,11 @@ export default function Consultas() {
       {/* histórico */}
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Histórico</Txt>
       <Card style={{ paddingVertical: 4 }}>
+        {!S.consultsHistory.length ? (
+          <Txt v="bodyMed" c={c.tx4} style={{ paddingVertical: 12 }}>
+            As consultas que já aconteceram ficam aqui.
+          </Txt>
+        ) : null}
         {S.consultsHistory.map((h: any, i: number) => (
           <View key={h.t}>
             {i > 0 && <Divider style={{ marginLeft: 52 }} />}
@@ -127,7 +204,9 @@ export default function Consultas() {
               <IconBadge name="steth" size={40} />
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Txt v="title">{h.type} · {fmtDate(new Date(h.t))}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 18 }}>{h.note}</Txt>
+                {h.note ? (
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 18 }}>{h.note}</Txt>
+                ) : null}
               </View>
             </Row>
           </View>
