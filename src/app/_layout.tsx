@@ -301,6 +301,11 @@ export default function RootLayout() {
               substitui a folha de captura no lugar onde a captura estava,
               e uma tela cheia no meio faria o app parecer que mudou de
               assunto quando só terminou uma frase. */
+           /* O código de convite entra aqui porque ele nasce em cima da
+              barra de planos, e o teclado subiria exatamente por cima
+              dela: numa folha o teclado empurra em vez de cobrir, e
+              fechar devolve a pessoa onde ela estava. */
+           'codigo',
            'registro-ok'].map((n) => (
             <Stack.Screen
               key={n}

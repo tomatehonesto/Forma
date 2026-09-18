@@ -71,6 +71,22 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
   é a mesma promessa vazia.
 
+⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
+CUMPRIR.** A tela anuncia "Começar os 3 dias grátis" em corpo grande, e
+quem concede período gratuito não é o aplicativo: é a **oferta
+introdutória** configurada na App Store Connect e no Google Play Console,
+presa ao mesmo produto de assinatura. Enquanto ela não existir lá, ligar
+a cobrança é cobrar alguém que leu "comece o teste".
+
+E ele **não é** o arrependimento do CDC. Os Termos descrevem sete dias
+para desistir com reembolso (art. 49) — direito de quem já comprou. O
+teste é antes da compra, os dois convivem, e **a seção 7 dos Termos ainda
+não fala do teste**: ela precisa passar pela revisão do item 2 com essa
+frase dentro.
+
+ em  desliga o anúncio na tela
+inteira — é assim que se tira, e não apagando frase por frase.
+
 ⚠️ **E há uma porta de desenvolvimento a tirar junto.** A semente tem
 clínica parceira, então a tela abre sempre no estado isento e a versão
 que cobra ficava inalcançável sem editar o estado à mão. O parâmetro

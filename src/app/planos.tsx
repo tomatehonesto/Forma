@@ -6,9 +6,9 @@ import Svg, { Path } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import {
-  PLANOS, RECOMENDADO, reais, economiaEmReais, isento, assinar, normalizarConvite, type Plano,
-} from '../logic/assinatura';
+import { PLANOS, RECOMENDADO, TESTE_DIAS, reais, isento, assinar, type Plano } from '../logic/assinatura';
+import { curWeight, lostKg, nextInjectionDate, M } from '../logic/derive';
+import { kg, nf, relDay } from '../logic/time';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { Marca, D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
@@ -90,6 +90,122 @@ function IconeDoApp({ lado }: { lado: number }) {
 /* O QUE A ASSINATURA DÁ É O APLICATIVO, e a lista diz isso em coisas que
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
    Cinco linhas, porque a sexta ninguém lê. */
+/* ============================================================
+   A MINIATURA — o aplicativo dentro de um telefone
+
+   ⚠️ NÃO É UMA IMAGEM, E ISSO É A PARTE QUE IMPORTA.
+
+   As telas de plano que se copiam por aí trazem um print montado no
+   Figma: um telefone com dados de mentira, feito uma vez e envelhecendo
+   em silêncio a cada mudança do produto. Aqui a miniatura é DESENHADA
+   pelo próprio aplicativo, com os componentes e a paleta que ele usa —
+   se a cor mudar, ela muda junto; se o hero mudar, ela fica errada e
+   alguém conserta.
+
+   ⚠️ E OS NÚMEROS SÃO DELA. O peso é o peso que ela registrou, a data é a
+   aplicação que vem, o nome é o nome que ela deu. Um print genérico
+   mostra "78,4 kg" para todo mundo; isto mostra o tratamento de quem
+   está olhando, que é exatamente o argumento que a tela está fazendo.
+
+   O que ela não tem, ela não mostra: quem acabou de terminar o cadastro
+   não perdeu peso nenhum, e a pastilha do "−x kg" simplesmente não
+   aparece em vez de aparecer zerada.
+
+   ⚠️ E A MOLDURA PRECISOU DE LUZ PARA EXISTIR. Na primeira tentativa ela
+   era quase preta sobre um fundo quase preto: o bloco lia como mais um
+   card da tela, e o telefone — que é o que diz "isto é o aplicativo" sem
+   precisar de legenda — simplesmente não aparecia.
+
+   Três coisas resolvem, e as três são de contraste e não de desenho: a
+   tela dentro do aparelho usa o cinza de card em vez do fundo da página,
+   a borda é um véu claro, e a ilha em cima é a única forma que ninguém
+   confunde com outra coisa.
+
+   ⚠️⚠️ ISTO É UM SUPORTE ATÉ A PEÇA DE VERDADE CHEGAR. ⚠️⚠️
+
+   O mockup vai ser montado à mão, fora daqui. Quando o arquivo existir,
+   este componente inteiro vira uma linha:
+
+     <Image
+       source={require('../../assets/images/mockup-planos.png')}
+       style={{ width: 208, height: 260 }}
+       contentFit="contain"
+     />
+
+   O que o desenho de agora ocupa — 208 px de largura, canto de 32 e uma
+   margem de 26 acima — é a caixa que a peça precisa respeitar para a
+   tela não mudar de ritmo. Fundo transparente, porque a página é escura
+   e vai continuar sendo.
+
+   E VALE PERDER UMA COISA NA TROCA, de propósito: a peça montada mostra
+   os mesmos números para todo mundo, enquanto este desenho mostra o peso
+   que a pessoa registrou e a aplicação que vem. Se a fidelidade da
+   imagem valer mais do que isso, é uma escolha legítima — mas é uma
+   escolha, e não um detalhe. */
+function Miniatura({ c }: { c: any }) {
+  const S = useStore((s) => s.S);
+  const aurora = useAurora();
+  const perdido = lostKg(S);
+  const proxima = nextInjectionDate(S);
+  const med = M(S);
+
+  return (
+    <View style={{ alignItems: 'center', marginTop: 26 }}>
+      <View style={{
+        width: 208, borderRadius: 32,
+        borderWidth: 5, borderColor: 'rgba(255,255,255,0.16)',
+        backgroundColor: c.bg1, overflow: 'hidden',
+      }}>
+        {/* o alto: a mesma composição da Home, em escala */}
+        <View style={{ height: 82, justifyContent: 'flex-end', padding: 12 }}>
+          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <LinearGradient
+            colors={[alfa(c.veu, 0.5), alfa(c.veu, 0.62)]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          {/* A ILHA. Ela não tem função nenhuma além de dizer o que a
+              coisa é — e é justamente por isso que funciona: nenhuma
+              outra peça de interface tem esta forma neste lugar. */}
+          <View style={{
+            position: 'absolute', top: 8, alignSelf: 'center',
+            width: 52, height: 12, borderRadius: 6, backgroundColor: 'rgba(0,0,0,0.55)',
+          }} />
+          <Txt v="micro" c="rgba(255,255,255,0.72)">Bom dia,</Txt>
+          <Txt v="label" c="#FFFFFF" numberOfLines={1}>{S.profile.name || 'você'}</Txt>
+        </View>
+
+        <View style={{ padding: 12, gap: 10 }}>
+          <View style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 11 }}>
+            <Txt v="micro" c={c.tx3}>Peso atual</Txt>
+            <Row gap={7} style={{ alignItems: 'baseline', marginTop: 2 }}>
+              <Txt v="h2" c={c.tx} style={{ fontSize: 22, lineHeight: 26 }}>{kg(curWeight(S))}</Txt>
+              <Txt v="micro" c={c.tx3}>kg</Txt>
+            </Row>
+            {perdido > 0.05 ? (
+              <View style={{
+                alignSelf: 'flex-start', marginTop: 7,
+                backgroundColor: c.limeWeak, borderRadius: radius.pill,
+                paddingHorizontal: 8, paddingVertical: 3,
+              }}>
+                <Txt v="micro" c={c.lime}>−{nf(perdido, 1).replace('.', ',')} kg desde o início</Txt>
+              </View>
+            ) : null}
+          </View>
+
+          <Row gap={9} style={{ alignItems: 'center', paddingBottom: 2 }}>
+            <Icon name="syringe" size={14} color={c.accent2} sw={1.9} />
+            <View style={{ flex: 1 }}>
+              <Txt v="micro" c={c.tx3}>Próxima aplicação</Txt>
+              <Txt v="micro" c={c.tx} numberOfLines={1}>{med.label} · {relDay(proxima)}</Txt>
+            </View>
+          </Row>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 /* ⚠️ A LISTA VOLTOU A TER TÍTULO E DESCRIÇÃO, depois de uma passagem só
    com vistos e uma frase curta.
 
@@ -237,15 +353,6 @@ export default function Planos() {
   const fingindoPagante = __DEV__ && compra === '1';
 
   const guardado = ((S.profile as any).convite as string) || '';
-  const [abrindoCodigo, setAbrindoCodigo] = React.useState(false);
-  const [codigo, setCodigo] = React.useState('');
-
-  const guardarCodigo = () => {
-    const v = normalizarConvite(codigo);
-    update((st: any) => { st.profile.convite = v; });
-    setAbrindoCodigo(false);
-    setCodigo('');
-  };
   const [recusa, setRecusa] = React.useState(false);
 
   const plano = PLANOS.find((x) => x.id === escolhido)!;
@@ -332,20 +439,25 @@ export default function Planos() {
                 diferença que a frase está afirmando. Duas palavras; a
                 terceira faria o título virar decoração.
 
-                DUAS LINHAS, E O CORPO MENOR PARA CABEREM. A frase tem
+                DUAS LINHAS, E O CORPO MEDIDO PARA CABEREM. A frase tem
                 duas metades de vinte e um caracteres cada, e em h1 cheio
                 (36 px) a segunda estourava a largura e quebrava sozinha
                 num terceiro pedaço — "acompanha de / verdade.", com duas
-                palavras órfãs embaixo. A 30 px as duas metades cabem
-                inteiras, e o título passa a ter o ritmo que a frase tem
-                quando alguém a diz em voz alta. */}
+                palavras órfãs embaixo.
+
+                31 px, e o número é medido e não chutado. Num telefone de
+                375 pt sobram 335 px de linha; as duas metades pedem 321 e
+                323 px a 31, 332 e 334 a 32, e 343 a 33 — onde a frase
+                quebra de novo. A 32 caberia por um pixel, que não é folga:
+                é sorte, e some no primeiro aparelho mais estreito ou com
+                o texto do sistema um passo maior. */}
             <Txt
               v="h1"
               c="#FFFFFF"
-              style={{ textAlign: 'center', letterSpacing: -0.8, fontSize: 30, lineHeight: 37 }}
+              style={{ textAlign: 'center', letterSpacing: -0.8, fontSize: 31, lineHeight: 38 }}
             >
               Tudo muda quando você{'\n'}acompanha{' '}
-              <Txt v="h1" c={c.lime} style={{ fontSize: 30, lineHeight: 37 }}>de verdade.</Txt>
+              <Txt v="h1" c={c.lime} style={{ fontSize: 31, lineHeight: 38 }}>de verdade.</Txt>
             </Txt>
             <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
               Seus dados reunidos, a sua evolução organizada, e clareza em cada etapa do
@@ -354,7 +466,9 @@ export default function Planos() {
           </View>
         </View>
 
-        <View style={{ paddingHorizontal: 20 }}>
+        <Miniatura c={c} />
+
+        <View style={{ paddingHorizontal: 20, marginTop: 26 }}>
         {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
             repetia a tela anterior. Quem é isenta só chega nesta vista
             depois de ler, em corpo grande, que não paga pelo aplicativo e
@@ -373,10 +487,16 @@ export default function Planos() {
               {/* A PASTILHA VOLTA AQUI, e só aqui. No resto do app o ícone
                   fica solto na lista; nesta o item tem duas linhas, e sem
                   a caixa o desenho flutuava ao lado de um bloco de texto
-                  em vez de ancorá-lo. */}
+                  em vez de ancorá-lo.
+
+                  ⚠️ E ELA É UM VÉU BRANCO, e não o `bg1` da paleta. Num
+                  fundo quase preto, o cinza de cartão do tema escuro fica
+                  a três pontos do fundo: a caixa existia no código e não
+                  na tela. O véu sobe com o fundo, seja ele qual for. */}
               <View style={{
                 width: 38, height: 38, borderRadius: radius.md,
-                backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center',
+                backgroundColor: 'rgba(255,255,255,0.09)',
+                alignItems: 'center', justifyContent: 'center',
               }}>
                 <Icon name={ic} size={18} color={c.accent} sw={1.9} />
               </View>
@@ -478,15 +598,11 @@ export default function Planos() {
             })}
           </Row>
 
-          {/* ⚠️ A ECONOMIA EM DINHEIRO, e não só em porcentagem. "−44%"
-              é o número do anúncio; quanto se deixa de gastar é a conta que
-              a pessoa faz. Ela aparece só quando o anual está escolhido,
-              porque no mensal ela é uma cutucada. */}
-          {escolhido === 'anual' ? (
-            <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ marginTop: 10, textAlign: 'center' }}>
-              São {reais(economiaEmReais())} a menos que no mensal.
-            </Txt>
-          ) : null}
+          {/* Aqui havia "São R$ 158,90 a menos que no mensal". Saiu com a
+              chegada do teste grátis: a barra passou a ter o preço, a
+              promessa do teste e as duas garantias disputando o mesmo
+              lugar, e o desconto é o menos urgente dos quatro. O "−44%"
+              no cartão diz a mesma coisa em dois caracteres. */}
 
           {ehIsenta ? null : recusa ? (
             /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
@@ -516,60 +632,63 @@ export default function Planos() {
               <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
                 <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
                   <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-                    Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
+                    {TESTE_DIAS > 0 ? `Começar os ${TESTE_DIAS} dias grátis` : `Assinar — ${reais(plano.preco)}`}
                   </Txt>
                 </View>
               </Pressable>
 
-              {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta
-                  em quase toda tela de plano: quando renova, como cancela,
-                  e o prazo de arrependimento que a lei dá. */}
-              <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center', lineHeight: 16 }}>
-                Renova {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar, pela loja.
-                Sete dias para desistir, e cancelar não apaga registro nenhum.
+              {/* ⚠️ AS DUAS GARANTIAS, E O PREÇO JUNTO COM ELAS.
+
+                  A referência põe "cancele quando quiser" e "sem
+                  compromisso" embaixo do botão, e funciona: são as duas
+                  perguntas que seguram o dedo. Mas ela para aí, e é aí que
+                  um teste grátis vira reclamação — quem começa sem saber
+                  quanto vem depois descobre pela fatura.
+
+                  Então as garantias vêm com o número: o que é grátis, por
+                  quantos dias, quanto custa depois, e que cancelar antes
+                  não cobra nada. É a mesma frase que a loja vai mostrar na
+                  folha de compra, dita antes dela. */}
+              <Row gap={16} style={{ marginTop: 12, justifyContent: 'center' }}>
+                {['Cancele quando quiser', 'Sem compromisso'].map((t) => (
+                  <Row key={t} gap={5} style={{ alignItems: 'center' }}>
+                    <Icon name="check" size={12} color={c.lime} sw={2.6} />
+                    <Txt v="micro" c={c.tx3}>{t}</Txt>
+                  </Row>
+                ))}
+              </Row>
+
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 8, textAlign: 'center', lineHeight: 16 }}>
+                {TESTE_DIAS > 0
+                  ? `Depois de ${TESTE_DIAS} dias, ${reais(plano.preco)} ${plano.periodo}. Cancele antes e não paga nada.`
+                  : `${reais(plano.preco)} ${plano.periodo}, renovando até você cancelar.`}
               </Txt>
             </>
           )}
 
           {/* ---- o código do parceiro ---- */}
+          {/* ⚠️ O CÓDIGO ABRE UMA FOLHA, e não um campo aqui dentro.
+
+              Ele já foi um campo nesta barra, e o problema não era o
+              campo: era onde ele abria. Esta é a área de decisão, ancorada
+              no pé, e o teclado sobe exatamente por cima dela — a pessoa
+              digitava com o botão de assinar encostado no dedo e o preço
+              sumindo atrás do teclado.
+
+              Na folha o teclado empurra em vez de cobrir, e fechar devolve
+              a pessoa aqui, com o código guardado dito nesta mesma linha. */}
           {TEM_REDE_PARCEIRA && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
               {guardado ? (
-                <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                  <Icon name="check" size={14} color={c.lime} sw={2.4} />
-                  <Txt v="micro" c={c.tx3}>Código {guardado} guardado</Txt>
-                </Row>
-              ) : abrindoCodigo ? (
-                <Row gap={8} style={{ alignItems: 'center' }}>
-                  <TextInput
-                    value={codigo}
-                    onChangeText={(v) => setCodigo(v.toUpperCase())}
-                    placeholder="Código da clínica"
-                    placeholderTextColor={c.tx4}
-                    autoFocus
-                    autoCapitalize="characters"
-                    style={[ty.caption, {
-                      flex: 1, color: c.tx, backgroundColor: c.bg1,
-                      borderWidth: 1, borderColor: c.line,
-                      borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11,
-                    }]}
-                  />
-                  <Pressable
-                    onPress={guardarCodigo}
-                    disabled={normalizarConvite(codigo).length < 4}
-                    style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-                  >
-                    <View style={{
-                      backgroundColor: normalizarConvite(codigo).length < 4 ? c.bg3 : c.accentWeak,
-                      borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12,
-                    }}>
-                      <Txt v="label" c={normalizarConvite(codigo).length < 4 ? c.tx4 : c.accent2}>Guardar</Txt>
-                    </View>
-                  </Pressable>
-                </Row>
+                <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon name="check" size={14} color={c.lime} sw={2.4} />
+                    <Txt v="micro" c={c.tx3}>Código {guardado} guardado</Txt>
+                  </Row>
+                </Pressable>
               ) : (
                 <Pressable
-                  onPress={() => setAbrindoCodigo(true)}
+                  onPress={() => router.push('/codigo' as any)}
                   hitSlop={8}
                   style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
                 >

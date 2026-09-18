@@ -21,12 +21,23 @@ import { clinicaConectada } from './derive';
    função guardada atrás dele. Quem assina tem o aplicativo; quem tem
    vínculo com clínica parceira tem o mesmo aplicativo sem pagar.
 
-   ⚠️ NÃO EXISTE "TESTE GRÁTIS" AQUI, e a ausência é deliberada. Os Termos
-   descrevem o direito de arrependimento do CDC (art. 49) — sete dias para
-   desistir e receber o dinheiro de volta —, que é outra coisa: um direito
-   de quem comprou, e não um período antes da compra. Anunciar "7 dias
-   grátis" apoiado nesse artigo seria vender um como o outro. Se um dia
-   houver trial, ele entra pela loja e é declarado aqui.
+   ⚠️⚠️ O TESTE GRÁTIS É UMA PROMESSA QUE A LOJA PRECISA CUMPRIR. ⚠️⚠️
+
+   `TESTE_DIAS` abaixo é decisão de produto, e a tela a anuncia em corpo
+   grande. Mas quem concede período gratuito não é o aplicativo: é a
+   oferta introdutória configurada na App Store Connect e no Google Play
+   Console, presa ao mesmo produto de assinatura.
+
+   Enquanto ela não estiver configurada lá, a tela promete três dias que
+   a loja não vai dar — e o dia em que a cobrança for ligada sem isso é o
+   dia em que o aplicativo cobra alguém que leu "comece o teste". Está em
+   PENDENCIAS.md, item 5.
+
+   E ELE NÃO É O ARREPENDIMENTO DO CDC. Os Termos descrevem sete dias
+   para desistir e receber o dinheiro de volta (art. 49): um direito de
+   quem JÁ comprou. O teste é antes da compra, e os dois convivem — mas
+   nenhum dos dois pode ser anunciado no lugar do outro, e a seção 7 dos
+   Termos ainda não fala do teste. Ver o mesmo item.
    ============================================================ */
 
 export type Plano = {
@@ -49,20 +60,18 @@ export const PLANOS: Plano[] = [
 
 export const RECOMENDADO: Plano['id'] = 'anual';
 
+/** Dias de teste gratuito antes da primeira cobrança. Zero desliga o
+    anúncio do teste na tela inteira — é assim que se tira, e não
+    apagando frase por frase. */
+export const TESTE_DIAS = 3;
+
 export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 
-/* ⚠️ QUANTO SE ECONOMIZA, EM DINHEIRO E NÃO EM PORCENTAGEM.
-
-   "−44%" é o número do anúncio: some do bolso e não responde a pergunta
-   que a pessoa faz, que é quanto ela deixa de gastar. A conta é a
-   diferença entre doze mensalidades e o anual, e ela sai daqui para
-   ninguém escrever à mão um número que depois muda de preço. */
-export const economiaEmReais = () => {
-  const mensal = PLANOS.find((p) => p.id === 'mensal');
-  const anual = PLANOS.find((p) => p.id === 'anual');
-  if (!mensal || !anual) return 0;
-  return mensal.preco * 12 - anual.preco;
-};
+/* A economia em reais viveu aqui por uma passagem, e saiu com a linha
+   que a mostrava: com o teste grátis anunciado embaixo do botão, a barra
+   tinha três textos disputando o mesmo lugar, e o desconto é o menos
+   urgente dos três. O "−44%" no cartão continua dizendo a mesma coisa em
+   dois caracteres. */
 
 /** Quem não paga: o vínculo com clínica parceira é o que isenta, e é o
     que os Termos prometem na seção de assinatura. */
