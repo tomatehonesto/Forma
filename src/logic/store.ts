@@ -12,6 +12,7 @@ type Store = {
   hydrate: () => Promise<void>;
   update: (mut: (s: State) => void) => void;
   reset: () => void;
+  setCor: (id: string) => void;
   setTheme: (t: 'light' | 'dark') => void;
 };
 
@@ -57,4 +58,7 @@ export const useStore = create<Store>((set, get) => ({
     set({ S: s });
   },
   setTheme: (t) => get().update((s) => { s.theme = t; }),
+  /* A cor de ação mora no estado como o tema mora: é preferência, e
+     preferência sobrevive a fechar o app. */
+  setCor: (id) => get().update((s: any) => { s.cor = id; }),
 }));

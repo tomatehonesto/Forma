@@ -292,3 +292,129 @@ export const shadowSoft = (p: Palette) => ({
   shadowRadius: 8,
   elevation: 1,
 });
+
+/* ============================================================
+   A COR DO APLICATIVO
+
+   O azul e o lima são a marca, e o lima não se mexe: ele é a cor do
+   alcançado em toda tela deste app — check-in feito, meta batida, nível
+   de conquista —, e trocá-lo por escolha de preferência quebraria a
+   única regra de cor que o aplicativo inteiro obedece.
+
+   O que se troca é a COR DE AÇÃO: botão, link, tab ativa, painel de
+   destaque, gradiente do retrato. Ela é azul por padrão e continua
+   sendo até alguém decidir o contrário.
+
+   ⚠️ NENHUMA PALETA CHEGA PERTO DO LIMA NEM DO TEAL. Verde e amarelo
+   ficaram de fora de propósito: lima já significa "alcançado" e o teal
+   já é a barra de exercício. Uma cor de ação vizinha delas faria a tela
+   inteira dizer a mesma coisa em dois tons parecidos, que é como se
+   perde um código de cor que levou o app inteiro para ser construído.
+
+   UMA COR-BASE POR MODO, E O RESTO SAI DELA. Ajustar doze tons à mão
+   para cada paleta seria doze chances de uma delas divergir; aqui a
+   família inteira — véu, fio, gradiente do painel, rampa do fundo
+   escuro — é calculada da base, com as mesmas proporções do azul
+   original. Adicionar uma paleta é escrever duas cores.
+   ============================================================ */
+
+const canal = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+const hex2 = (n: number) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
+
+/** Mistura duas cores. t=0 devolve a primeira, t=1 a segunda. */
+export const mix = (a: string, b: string, t: number) =>
+  `#${[0, 1, 2].map((i) => hex2(canal(a, i) + (canal(b, i) - canal(a, i)) * t)).join('')}`;
+
+/** A mesma cor, com alfa. É como o véu e o fio da cor de ação nascem. */
+export const alfa = (hex: string, a: number) =>
+  `rgba(${canal(hex, 0)},${canal(hex, 1)},${canal(hex, 2)},${a})`;
+
+const BRANCO = '#FFFFFF';
+
+/* ⚠️ ESCURECER NÃO É MISTURAR COM O AZUL DA NOITE.
+
+   A primeira versão fazia as pontas escuras da rampa misturando a cor
+   com #05143F, que é o azul-noite do tema. Funcionava para o azul, e
+   virava lama para o resto: âmbar misturado com azul é cinza, porque são
+   complementares — a tela de Insights ficou um borrão sem cor nenhuma.
+
+   Multiplicar os canais em direção ao preto preserva a matiz: âmbar
+   escuro continua âmbar, violeta escuro continua violeta. */
+const escurecer = (hex: string, t: number) =>
+  `#${[0, 1, 2].map((i) => hex2(canal(hex, i) * (1 - t))).join('')}`;
+
+export type Cor = {
+  id: string;
+  nome: string;
+  /** a cor de ação no tema claro e no escuro — o resto sai daqui */
+  claro: string;
+  escuro: string;
+  /** a tinta que vai POR CIMA da cor cheia, em cada modo */
+  inkClaro: string;
+  inkEscuro: string;
+};
+
+export const CORES: Cor[] = [
+  /* O AZUL É O PRIMEIRO E É O PADRÃO, com os valores exatos do Figma:
+     quem não escolher nada continua vendo o aplicativo que foi
+     desenhado, e não uma aproximação calculada dele. */
+  { id: 'azul', nome: 'Azul', claro: '#065CF5', escuro: '#4C8BFF', inkClaro: '#FFFFFF', inkEscuro: '#04102B' },
+  { id: 'violeta', nome: 'Violeta', claro: '#6B3BF5', escuro: '#9B7BFF', inkClaro: '#FFFFFF', inkEscuro: '#150B2B' },
+  { id: 'magenta', nome: 'Magenta', claro: '#C4187F', escuro: '#F06FB4', inkClaro: '#FFFFFF', inkEscuro: '#2B0418' },
+  { id: 'ambar', nome: 'Âmbar', claro: '#B4610A', escuro: '#F0A24A', inkClaro: '#FFFFFF', inkEscuro: '#2B1604' },
+  { id: 'grafite', nome: 'Grafite', claro: '#2E3440', escuro: '#B6BECC', inkClaro: '#FFFFFF', inkEscuro: '#14181F' },
+];
+
+export const corDe = (id?: string) => CORES.find((x) => x.id === id) ?? CORES[0];
+
+/* A PALETA INTEIRA, COM A COR DE AÇÃO TROCADA.
+
+   Devolve o mesmo objeto quando a cor é o azul padrão: sem isso, cada
+   render recalcularia doze tons para chegar exatamente onde o Figma já
+   estava — e o `===` que o React usa para comparar deixaria de valer. */
+/* A paleta calculada fica guardada por cor e modo. `useTheme` roda em
+   toda tela e a cada render: sem isto, cada um deles receberia um objeto
+   novo e recém-misturado, e a comparação por identidade que o React usa
+   para decidir o que redesenhar pararia de valer em cima de um valor que
+   muda cinco vezes por ano. */
+const guardadas = new Map<string, Palette>();
+
+export function comCor(p: Palette, id: string | undefined, isDark: boolean): Palette {
+  const cor = corDe(id);
+  if (cor.id === 'azul') return p;
+
+  const chave = `${cor.id}:${isDark ? 'd' : 'l'}`;
+  const pronta = guardadas.get(chave);
+  if (pronta) return pronta;
+
+  const base = isDark ? cor.escuro : cor.claro;
+  const ink = isDark ? cor.inkEscuro : cor.inkClaro;
+
+  const paleta: Palette = {
+    ...p,
+    accent: base,
+    /* No claro o segundo tom é mais FUNDO que o primeiro; no escuro é
+       mais claro — a mesma inversão que o azul do tema já fazia. */
+    accent2: isDark ? mix(base, BRANCO, 0.18) : escurecer(base, 0.24),
+    accentInk: ink,
+    accentWeak: alfa(base, isDark ? 0.14 : 0.08),
+    accentLine: alfa(base, isDark ? 0.28 : 0.2),
+    gradFrom: base,
+    gradTo: escurecer(base, isDark ? 0.3 : 0.24),
+    /* O painel de destaque é a rampa curta: claro em cima, cheio no meio,
+       fundo embaixo. */
+    panelFrom: mix(base, BRANCO, isDark ? 0.0 : 0.22),
+    panelMid: base,
+    panelTo: escurecer(base, 0.5),
+    /* A rampa longa do Insights começa quase noturna e termina no fundo
+       da tela. */
+    altFrom: mix(base, BRANCO, 0.1),
+    altMid: escurecer(base, 0.58),
+    altTo: escurecer(base, 0.88),
+    /* A pastilha do "Inicial", no perfil: a lavagem mais pálida da cor. */
+    bluePale: isDark ? escurecer(base, 0.7) : mix(base, p.bg, 0.78),
+  };
+
+  guardadas.set(chave, paleta);
+  return paleta;
+}

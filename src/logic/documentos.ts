@@ -56,16 +56,24 @@ export const EMPRESA = {
      a valer no dia em que houver assinatura paga — e aí o certo é entrar
      com um endereço comercial ou fiscal, e não voltar com o de casa. */
   endereco: '',
-  /* ⚠️ FALTA O CANAL, e é ele que faz o documento funcionar.
+  /* ⚠️⚠️ ENDEREÇO DE MARCAÇÃO — TROCAR ANTES DE SUBIR PARA A LOJA. ⚠️⚠️
+
+     O domínio do Morphi ainda não foi registrado. Este endereço está aqui
+     para que os documentos existam e sejam lidos durante o
+     desenvolvimento, e ele NÃO RECEBE NADA: quem escrever para ele hoje
+     escreve para o vazio.
+
+     Ele aparece em oito lugares — abertura da política, controlador,
+     direitos, revisão humana, menores, encarregado, contato dos termos e
+     o relato de problema do perfil —, e em todos sai deste campo. Trocar
+     é mudar esta linha.
 
      O e-mail do cartão do CNPJ é o da contabilidade e não serve: quem
      escreve para um canal de privacidade espera resposta de quem opera o
-     serviço, com prazo de quinze dias. No Sello esse canal é
-     contato@selloapp.com.br; aqui ele precisa ser o do Morphi.
+     serviço, com prazo de quinze dias.
 
-     Um endereço só atende os dois papéis — contato geral e encarregado —,
-     como no Sello. Se um dia forem caixas diferentes, este bloco separa. */
-  email: '',
+     Ver PENDENCIAS.md, na raiz do projeto. */
+  email: 'contato@morphi.app.br',
 };
 
 /* O ENCARREGADO É O MESMO CANAL, e isso é uma escolha declarada, não um

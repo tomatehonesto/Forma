@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Platform, Linking } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgCurto as kg, nf, relDay } from '../logic/time';
@@ -20,7 +21,16 @@ import { Icon } from '../ui/Icon';
    trocada. */
 const FOTO_MEDICA = require('../../assets/images/especialista.png');
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
+import { radius, font, CORES, corDe } from '../theme';
+import { CANAL, temIdentificacao } from '../logic/documentos';
+
+/* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
+
+   Ela aparecia à mão no rodapé — "Morphi · versão 1.0.0" — e agora
+   também vai dentro de todo relato de problema. Duas cópias de um número
+   que muda a cada publicação é uma delas errada no dia seguinte, e a
+   errada seria justamente a que chega no suporte. */
+const VERSAO_DO_APP = (Constants.expoConfig?.version ?? '—');
 
 /* ============================================================
    PERFIL — a ficha e os controles
@@ -150,6 +160,64 @@ function Apagar({ onApagar }: { onApagar: () => void }) {
   );
 }
 
+/** A cor do aplicativo — cinco pastilhas que trocam a cor de ação.
+
+    ESCOLHER É VER. Uma tela separada com nomes de cor pediria um toque
+    para entrar, um para escolher e um para voltar, e no meio disso a
+    pessoa não veria o que mudou. Aqui o toque é o resultado: o app
+    inteiro vira daquela cor atrás do dedo, e a própria pastilha marcada
+    já está na cor nova.
+
+    O NOME FICA À DIREITA, e não debaixo de cada pastilha: cinco rótulos
+    de cinco letras numa linha de 300 px seriam ilegíveis, e o que
+    importa saber é qual está valendo — não como se chama cada uma das
+    que não estão.
+
+    O LIMA NÃO ESTÁ AQUI, e é a única regra desta peça: ele é a cor do
+    alcançado em toda tela do app, e não uma preferência. Ver CORES, em
+    src/theme.ts. */
+function Cores() {
+  const { c, isDark } = useTheme();
+  const atual = useStore((s) => (s.S as any).cor as string | undefined) ?? 'azul';
+  const setCor = useStore((s) => s.setCor);
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Row gap={12}>
+        <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="palette" size={20} color={c.tx2} sw={1.8} />
+        </View>
+        <Txt v="body" style={{ flex: 1 }}>Cor do aplicativo</Txt>
+        <Txt v="caption" c={c.tx3}>{corDe(atual).nome}</Txt>
+      </Row>
+
+      <Row gap={10} style={{ paddingLeft: 44 }}>
+        {CORES.map((x) => {
+          const on = x.id === atual;
+          const tom = isDark ? x.escuro : x.claro;
+          return (
+            <Pressable key={x.id} onPress={() => setCor(x.id)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              {/* O ANEL MARCA A ESCOLHIDA, e ele é da própria cor com um
+                  vão do fundo no meio: um check branco por cima
+                  funcionaria no azul e sumiria no âmbar. */}
+              <View style={{
+                width: 32, height: 32, borderRadius: 16,
+                alignItems: 'center', justifyContent: 'center',
+                borderWidth: on ? 2 : 0, borderColor: tom,
+              }}>
+                <View style={{
+                  width: on ? 22 : 28, height: on ? 22 : 28,
+                  borderRadius: 14, backgroundColor: tom,
+                }} />
+              </View>
+            </Pressable>
+          );
+        })}
+      </Row>
+    </View>
+  );
+}
+
 export default function Perfil() {
   const S = useStore((s) => s.S);
   /* Contada do ano de nascimento, e não guardada: idade guardada
@@ -185,6 +253,35 @@ export default function Perfil() {
   const { c, isDark } = useTheme();
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
+
+  /* REPORTAR UM PROBLEMA ABRE O E-MAIL COM O CONTEXTO JÁ ESCRITO.
+
+     Um formulário dentro do app pareceria mais cuidadoso e seria pior:
+     ele precisaria de servidor para entregar, e sem servidor entregaria
+     no nada. O e-mail é o canal que existe — e o que ele leva junto é o
+     que separa um relato útil de "não funciona": versão, sistema e
+     aparelho, que ninguém sabe de cor e todo mundo precisa informar.
+
+     NADA DO DIÁRIO VAI JUNTO. A tentação de anexar o estado para
+     facilitar o diagnóstico existe e está recusada: peso, dose e sintoma
+     não saem daqui sem a pessoa mandar, e um relato de bug não é mandar.
+
+     Se não houver aplicativo de e-mail, a tentativa falha em silêncio —
+     e o endereço continua escrito na tela de Ajuda. */
+  const reportar = () => {
+    const contexto = [
+      '',
+      '',
+      '---',
+      `Morphi ${VERSAO_DO_APP}`,
+      `Sistema: ${Platform.OS} ${Platform.Version}`,
+      `Cor: ${corDe((S as any).cor).nome} · Tema: ${isDark ? 'escuro' : 'claro'}`,
+      '',
+      'Conte o que você estava fazendo e o que aconteceu.',
+    ].join('\n');
+    const url = `mailto:${CANAL()}?subject=${encodeURIComponent('Morphi — problema')}&body=${encodeURIComponent(contexto)}`;
+    Linking.openURL(url).catch(() => {});
+  };
 
   /* ---- a foto do perfil ----
 
@@ -550,7 +647,7 @@ export default function Perfil() {
           parecia um item e não era, e o dedo passava por ele toda vez.
           Número de versão é rodapé — serve para citar num suporte, e não
           para escolher nada. Foi para o fim da tela, em letra pequena. */}
-      <Grupo title="Configurações">
+      <Grupo title="Personalize o aplicativo">
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={isDark ? 'moonToggle' : 'sun'} size={20} color={c.tx2} sw={1.8} />
@@ -562,37 +659,46 @@ export default function Perfil() {
             onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
           />
         </Row>
+        <Cores />
+      </Grupo>
 
+      {/* ---- privacidade e dados ---- */}
+      <Grupo title="Privacidade e dados">
         {/* PRIVACIDADE VEM ANTES DE EXPORTAR, porque uma explica a outra:
             quem abre esta seção querendo saber o que o app faz com os
             dados dele encontra primeiro a resposta, e depois o botão. */}
         <ListRow ic="lock" title="Privacidade e dados"
           sub="O que fica no aparelho e o que sai dele" onPress={go('/privacidade')} />
-
-        {/* LEVAR OS DADOS EMBORA é item de configurações em qualquer app
-            que guarda alguma coisa de alguém, e aqui ele já existia sem
-            porta nesta tela: /exportar monta o período e escolhe o que
-            entra. */}
         <ListRow ic="doc" title="Exportar seus dados"
           sub="Monte um arquivo com o que você registrou" onPress={go('/exportar')} />
+        <Apagar onApagar={() => { reset(); router.replace('/cadastro' as any); }} />
+      </Grupo>
 
-        {/* AJUDA É A ÚLTIMA, e é onde ela é procurada: depois de já ter
-            tentado resolver nas outras. */}
+      {/* ---- ajuda e documentos ----
+
+          ⚠️ ISTO ERA UMA SEÇÃO SÓ, CHAMADA "CONFIGURAÇÕES", e ela não
+          aguentou crescer. Tema, privacidade, exportação, apagar, ajuda,
+          termos, política e reportar problema não são o mesmo assunto:
+          são a aparência do app, o que ele faz com os seus dados, e onde
+          pedir ajuda. Oito linhas debaixo de um nome genérico viram um
+          depósito — e é assim que uma pessoa procura "termos" e não acha.
+
+          Os documentos só aparecem quando a identificação da empresa
+          estiver completa. Um link para "Termos de Uso" que abre um texto
+          sem quem responde por ele é pior do que não ter link. */}
+      <Grupo title="Ajuda e documentos">
         <ListRow ic="info" title="Ajuda"
           sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
-
-        {/* APAGAR É IR PARA O ESTADO VAZIO, e não repor a semente.
-
-            O `reset()` do store existia desde sempre e nenhuma tela o
-            chamava — e ainda bem, porque até agora ele devolvia o
-            tratamento de exemplo. Um botão de apagar que repõe dados é
-            pior do que a ausência dele.
-
-            Fica atrás de duas perguntas, e a segunda diz O QUE some em vez
-            de perguntar "tem certeza?". Não há conta nem servidor: o que
-            sai daqui não volta de lugar nenhum, e é isso que a frase
-            precisa dizer. */}
-        <Apagar onApagar={() => { reset(); router.replace('/cadastro' as any); }} />
+        <ListRow ic="journey" title="Reportar um problema"
+          sub="Conte o que aconteceu — vai com a versão do app" onPress={reportar} />
+        {temIdentificacao() ? (
+          <ListRow ic="doc" title="Termos de Uso"
+            sub="O que o Morphi é, e o que cada lado pode esperar" onPress={go('/documento?id=termos')} />
+        ) : null}
+        {temIdentificacao() ? (
+          <ListRow ic="lock" title="Política de Privacidade"
+            sub="O documento completo, com base legal e prazos" onPress={go('/documento?id=privacidade')} />
+        ) : null}
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do
@@ -638,7 +744,7 @@ export default function Perfil() {
           não para escolher nada: fora da lista, em letra pequena e no fim
           de tudo, ela para de se parecer com um item tocável. */}
       <Txt v="micro" c={c.tx4} style={{ marginTop: 22, textAlign: 'center' }}>
-        Morphi · versão 1.0.0
+        Morphi · versão {VERSAO_DO_APP}
       </Txt>
     </Screen>
   );
