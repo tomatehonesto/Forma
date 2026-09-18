@@ -24,9 +24,11 @@ import { paletaDe, mix, radius, font } from '../theme';
    sucesso. Um paywall que finge cobrar é a pior porta emparedada que um
    aplicativo pode ter, porque a pessoa sai dela achando que pagou.
 
-   ⚠️ E ELA NÃO É LINKADA DE LUGAR NENHUM AINDA. Chega-se por rota, para
-   desenvolvimento. No dia em que a cobrança existir, os links entram —
-   e o primeiro deles é o fim do cadastro.
+   ⚠️ ELA JÁ É O FIM DO CADASTRO, e é a única porta por enquanto: o
+   botão "Ver planos" da tela de plano inicial entrega aqui. Nenhuma
+   outra tela do aplicativo empurra para cá, e nenhuma função está
+   trancada atrás dela — quem fechar segue com tudo, porque a cobrança
+   não existe. Os outros gatilhos entram com a loja.
 
    O QUE ESTA TELA DELIBERADAMENTE NÃO FAZ
 
@@ -84,6 +86,18 @@ export default function Planos() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
+  /* ⚠️ O X PRECISA FUNCIONAR NAS DUAS ENTRADAS.
+
+     Quem chega pelo fim do cadastro chega por `replace`: não há tela
+     atrás, e um `back` puro não faria nada — o botão de fechar de uma
+     tela que pede dinheiro é o último lugar do aplicativo onde um toque
+     pode não responder. Havendo história, volta; não havendo, entra no
+     aplicativo, que é para onde essa pessoa ia de qualquer jeito. */
+  const fechar = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)' as any);
+  };
+
   const [escolhido, setEscolhido] = React.useState<Plano['id']>(RECOMENDADO);
   const [recusa, setRecusa] = React.useState(false);
 
@@ -101,7 +115,7 @@ export default function Planos() {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 12 }}>
         <Row style={{ paddingHorizontal: 20, justifyContent: 'flex-end' }}>
-          <Pressable onPress={() => router.back()} hitSlop={10}>
+          <Pressable onPress={fechar} hitSlop={10}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="x" size={16} color={c.tx2} sw={2.2} />
             </View>
@@ -129,7 +143,7 @@ export default function Planos() {
             interrupção, e você pode encerrá-la". Numa tela que pede
             dinheiro, a diferença entre as duas é quem está no comando. */}
         <Row style={{ justifyContent: 'flex-end' }}>
-          <Pressable onPress={() => router.back()} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="x" size={16} color={c.tx2} sw={2.2} />
             </View>

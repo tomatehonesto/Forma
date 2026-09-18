@@ -1428,15 +1428,15 @@ export default function Cadastro() {
           intervalo: r.intervalo,
           plano,
         }}
-        aoSair={() => router.replace('/(tabs)' as any)}
-        /* ⚠️ O RÓTULO JÁ É O DO FUNIL, E O DESTINO AINDA NÃO.
+        /* O RÓTULO E O DESTINO VOLTARAM A CONCORDAR. Este botão se
+           chamava "Ver planos" e entrava no aplicativo — o nome estava
+           escrito adiantado, esperando a tela existir. Ela existe.
 
-           "Ver planos" promete uma tela de preço que não existe no
-           projeto: hoje este botão entra no app. Enquanto a tela de
-           assinatura não existir, o rótulo está adiantado em relação ao
-           que acontece — está escrito aqui para que a troca seja uma
-           linha quando ela existir, e para ninguém descobrir a divergência
-           pelo suporte. */
+           `replace` e não `push`: o cadastro não fica atrás na pilha,
+           porque não há para onde voltar depois de salvar. Quem fecha a
+           tela de planos cai no aplicativo, e quem cuida disso é o X de
+           lá — ele pergunta se há história antes de tentar voltar. */
+        aoSair={() => router.replace('/planos' as any)}
         rotuloSair="Ver planos"
       />
     );
