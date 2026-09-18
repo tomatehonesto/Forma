@@ -2,7 +2,7 @@
 export type Tema = 'light' | 'dark' | 'system';
 
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
-import { daysAgo, addDays, startOfDay, now } from './time';
+import { daysAgo, addDays, startOfDay, now, diffDays } from './time';
 import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
@@ -365,8 +365,12 @@ export function buildSeed() {
        resposta: o app não sabe se a dose foi aplicada nem se o exame foi
        agendado. */
     protocol: {
-      week: 10, tasks: [
-        { t: 'Aplicação da semana', done: true },
+      /* ONZE, E NÃO DEZ. A Mariana começou há setenta dias, o que dá dia
+         71 e semana 11 — o número guardado aqui discordava do que todo o
+         resto do app calcula, e a virada de semana abaixo iria corrigi-lo
+         no primeiro carregamento, zerando os checks dela de brinde. */
+      week: 11, tasks: [
+        { metrica: 'aplicacao', alvo: 1 },
         { metrica: 'agua', alvo: 7 },
         { metrica: 'prot', alvo: 7 },
         { metrica: 'exerc', alvo: 3 },
@@ -633,6 +637,47 @@ export function ensureDefaults(S: any) {
       (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;
   }
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
+  /* ============================================================
+     A SEMANA DO PROTOCOLO VIRA SOZINHA
+
+     ⚠️ ELA ESTAVA CONGELADA. `protocol.week` era gravado uma vez, no
+     estado vazio, e nada no aplicativo inteiro voltava a tocá-lo — a
+     busca por atribuições encontrava exatamente uma. A tela de
+     Protocolos dizia "Semana 1" para sempre, o companion e a área médica
+     repetiam o mesmo número, e o histórico, que monta as semanas
+     anteriores como `week - k`, chegava a semana zero e a semanas
+     negativas.
+
+     O NÚMERO AGORA É DERIVADO, da mesma conta que o resto do app usa:
+     dia da jornada dividido por sete. O que fica guardado deixa de ser
+     "em que semana a pessoa está" e passa a ser DE QUE SEMANA SÃO OS
+     CHECKS — e é isso que permite virá-los.
+
+     OS CHECKS RESETAM na virada, e só os manuais: as três métricas —
+     água, proteína, movimento — não têm `done`, são contadas dos
+     registros da semana corrente e viram sozinhas. Um "Aplicação da
+     semana" que ficasse marcado para sempre transformaria a única lista
+     do app que pergunta "e esta semana?" numa lista que já respondeu.
+
+     ⚠️ E O QUE FOI CUMPRIDO NÃO SE PERDE onde ele é lido:
+     `historicoDeProtocolos` remonta cada semana passada dos check-ins,
+     e não destes campos. O que some é o estado de marcação de uma semana
+     que acabou, que é exatamente o que devia sumir.
+
+     Quem ainda não começou fica na semana 1: sem data de início não há
+     jornada, e dividir por sete uma data que é zero devolveria a semana
+     em que o mundo começou a contar o tempo.
+     ============================================================ */
+  if (S.protocol) {
+    const semanaAgora = S.profile?.startT
+      ? Math.max(1, Math.ceil((diffDays(now(), new Date(S.profile.startT)) + 1) / 7))
+      : 1;
+    if (S.protocol.week !== semanaAgora) {
+      S.protocol.week = semanaAgora;
+      S.protocol.tasks = (S.protocol.tasks as any[])
+        .map((t) => (t.t ? { ...t, done: false } : t));
+    }
+  }
   /* Quem gravou o estado antes de a cor existir fica com o azul, que é o
      aplicativo que essa pessoa já conhece. */
   /* Quem gravou antes das paletas existirem fica com a original, que é o

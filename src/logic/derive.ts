@@ -2869,6 +2869,8 @@ export type TarefaDoProtocolo = {
    da semana — vem da tarefa, porque é ele que a equipe negocia. */
 const MEDIDAS: Record<string, (S: State, alvo: number) => {
   texto: string; feito: number; origem: string; para: string;
+  /** o que se conta, quando não são dias — "1 de 1 dia" não descreve uma injeção */
+  unidade?: [string, string];
 }> = {
   agua: (S, alvo) => {
     const ml = (S.profile as any).targets.waterMl as number;
@@ -2895,6 +2897,30 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
     feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
     origem: 'Exercício', para: '/exercicio',
   }),
+  /* ⚠️ A APLICAÇÃO ERA UMA CAIXA PARA MARCAR À MÃO, e o app já sabia a
+     resposta: cada aplicação é um registro com data, e é dele que a Home
+     tira "próxima aplicação em 3 dias" e a grade de adesão tira os
+     quadradinhos verdes.
+
+     Enquanto a semana ficou congelada ninguém percebeu — a caixa foi
+     marcada uma vez, em algum momento, e continuou marcada para sempre.
+     No instante em que a virada de semana passou a zerar os manuais, a
+     contradição apareceu na tela: "Aplicação da semana" desmarcada logo
+     abaixo de um hero dizendo "com aplicação em dia".
+
+     Duas fontes para o mesmo fato, de novo, e é sempre o mesmo defeito.
+     Agora é uma medida: conta os dias com injeção na semana corrente,
+     como as outras três contam água, proteína e movimento. */
+  aplicacao: (S, alvo) => {
+    const de = +startOfDay(now()) - 6 * DAY;
+    const feito = (S.injections as any[]).filter((x) => +startOfDay(new Date(x.t)) >= de).length;
+    return {
+      texto: alvo === 1 ? 'Aplicação da semana' : `${alvo} aplicações na semana`,
+      unidade: ['aplicação', 'aplicações'],
+      feito: Math.min(feito, alvo),
+      origem: 'Aplicações', para: '/aplicacoes',
+    };
+  },
 };
 
 export function protocoloDaSemana(S: State) {
@@ -2907,10 +2933,11 @@ export function protocoloDaSemana(S: State) {
       return { i, texto: x.t, nota: x.note || '', feita: !!x.done, medida: false };
     }
     const alvo = x.alvo || 7;
-    const { texto, feito, origem, para } = m(S, alvo);
+    const { texto, feito, origem, para, unidade } = m(S, alvo);
+    const [un1, unN] = unidade ?? ['dia', 'dias'];
     return {
       i, texto,
-      nota: `${feito} de ${alvo} ${alvo === 1 ? 'dia' : 'dias'}`,
+      nota: `${feito} de ${alvo} ${alvo === 1 ? un1 : unN}`,
       feita: feito >= alvo,
       medida: true,
       origem,
