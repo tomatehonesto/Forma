@@ -13,6 +13,7 @@ import { useStore } from '../logic/store';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
+import { novosNiveis } from '../logic/conquistas';
 import { light, APP_MAX_W } from '../theme';
 
 /* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
@@ -158,6 +159,49 @@ function SaudeDoAparelho() {
   return null;
 }
 
+/* QUEM PERCEBE QUE UMA CONQUISTA CHEGOU.
+
+   As conquistas são calculadas: elas passam a ser verdade no instante em
+   que o registro entra, sem nenhum código dizendo "aconteceu agora". Para
+   o app contar, alguém precisa reparar — e esse alguém está aqui, e não
+   nas telas de registro.
+
+   NA RAIZ PORQUE O REGISTRO ENTRA POR TODA PARTE. Check-in, pesagem,
+   água, refeição, treino, foto, aplicação: são dez folhas diferentes, e
+   qualquer uma delas pode fechar uma trilha. Pôr a verificação em cada
+   uma seria dez cópias da mesma regra — e a décima primeira, criada no
+   mês que vem, nasceria sem ela.
+
+   ESPERA A FOLHA FECHAR. O nível chega no mesmo instante em que a folha
+   de registro grava, e ela ainda está saindo de cena. Sem o respiro, a
+   comemoração subiria por cima de uma folha em movimento. Meio segundo é
+   o bastante para a animação de saída terminar.
+
+   E NÃO INTERROMPE O CADASTRO. Quem está respondendo as quinze perguntas
+   iniciais não quer uma tela cheia de lima no meio — e o cadastro grava
+   peso e aplicação, que fechariam trilha na hora. */
+function VigiaDeConquistas() {
+  const ready = useStore((s) => s.ready);
+  const S = useStore((s) => s.S);
+  const segmentos = useSegments();
+  const router = useRouter();
+
+  /* A chave é quantos níveis existem, e não o estado inteiro: `update`
+     clona tudo a cada gravação, e depender do objeto faria este efeito
+     rodar a cada toque em qualquer lugar do app. */
+  const quantas = ready ? novosNiveis(S).length : 0;
+  const segs = segmentos as unknown as string[];
+  const ocupado = segs[0] === 'cadastro' || segs[0] === 'conquista-ok';
+
+  useEffect(() => {
+    if (!ready || !quantas || ocupado) return;
+    const t = setTimeout(() => router.push('/conquista-ok' as any), 500);
+    return () => clearTimeout(t);
+  }, [ready, quantas, ocupado, router]);
+
+  return null;
+}
+
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
   const ready = useStore((s) => s.ready);
@@ -175,6 +219,7 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <Agendador />
         <SaudeDoAparelho />
+        <VigiaDeConquistas />
         <Moldura>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
@@ -192,6 +237,10 @@ export default function RootLayout() {
           {/* Confirmação do check-in. Em fade porque ela não é o próximo
               passo de um fluxo, é o mesmo assunto mudando de estado. */}
           <Stack.Screen name="checkin-ok" options={{ animation: 'fade' }} />
+          {/* A conquista sobe por cima do que estiver aberto, e em fade:
+              ela não é o próximo passo de um fluxo, é um recado que
+              aparece. */}
+          <Stack.Screen name="conquista-ok" options={{ animation: 'fade', gestureEnabled: false }} />
           <Stack.Screen name="ciclo" />
           <Stack.Screen name="evolucao" />
           <Stack.Screen name="historico" />
@@ -243,7 +292,7 @@ export default function RootLayout() {
               próprio, e sem esta apresentação o scrim cobria a tela
               inteira em cinza opaco em vez de deixar ver o que está
               atrás. */
-           'treino','refeicao','favorito','protocolo','meta','alerta'].map((n) => (
+           'treino','refeicao','favorito','protocolo','meta','alerta','trilha'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}

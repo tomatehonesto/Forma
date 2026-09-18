@@ -37,6 +37,7 @@ const ORIGENS: { id: string; label: string }[] = [
   { id: 'trat', label: 'Tratamento' },
   { id: 'clin', label: 'Mensagens' },
   { id: 'ia', label: 'Insights' },
+  { id: 'conquista', label: 'Conquistas' },
   { id: 'exame', label: 'Exames' },
 ];
 
@@ -49,7 +50,7 @@ export default function Notificacoes() {
   /* Só dois tipos de aviso levam a algum lugar. Os outros são recado, e
      recado que não abre nada não ganha toque nem seta — chevron que não
      leva a lugar nenhum cobra um toque para revelar que não há. */
-  const navOf: Record<string, string> = { trat: '/aplicacoes', exame: '/exames' };
+  const navOf: Record<string, string> = { trat: '/aplicacoes', exame: '/exames', conquista: '/conquistas' };
   const nRem = alertasAtivos(S);
 
   const todos = (S.notifications ?? []) as any[];

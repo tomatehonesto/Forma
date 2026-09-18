@@ -1,6 +1,7 @@
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
 import { daysAgo, addDays, startOfDay, now } from './time';
 import { nomeItem, somaDe, type ItemComida } from './prato';
+import { marcarComoVistas } from './conquistas';
 
 export const HEIGHT = 1.67;
 
@@ -512,6 +513,14 @@ export function ensureDefaults(S: any) {
      não tinha alcançado. Agora são calculadas dos registros, em
      src/logic/conquistas.ts, e a lista velha só serviria para divergir. */
   delete S.achievements;
+  /* A MARCA D'ÁGUA DAS CONQUISTAS NASCE NO NÍVEL DE AGORA. Sem isto,
+     quem já usa o app abriria uma vez e receberia trinta e nove
+     comemorações de coisas que aconteceram há meses. O que ela guarda é
+     o que a pessoa já sabe, e ela já sabe de tudo que está na tela.
+
+     Só na primeira vez: depois disso quem escreve é a tela de conquista
+     alcançada, quando a pessoa a fecha. */
+  if (!(S as any).vistoEmConquistas) { (S as any).vistoEmConquistas = {}; marcarComoVistas(S); }
   /* AS INTEGRAÇÕES QUE SAÍRAM DO CATÁLOGO SAEM DO ESTADO. Google Fit
      fechou para novos cadastros; "balança inteligente" e "smartwatch"
      nunca foram serviços, e sim aparelhos que escrevem no app de saúde do

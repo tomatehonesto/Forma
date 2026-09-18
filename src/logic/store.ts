@@ -15,15 +15,28 @@ type Store = {
   setTheme: (t: 'light' | 'dark') => void;
 };
 
+/* O ESTADO NOVO PASSA PELAS MESMAS GARANTIAS QUE O GRAVADO.
+
+   `ensureDefaults` rodava só no que vinha do armazenamento, como se ele
+   fosse "a migração" e a semente já nascesse pronta. Mas ele não migra
+   só: ele também estabelece invariantes que nenhum dos dois pode
+   quebrar — e a semente quebrou um. A marca d'água das conquistas nasce
+   ali, e instalar o app do zero deixava a marca vazia: a primeira
+   pesagem comemoraria trinta e nove níveis de uma vez.
+
+   Rodar nos dois é a regra certa, e é barata: a função é idempotente por
+   construção, porque toda linha dela pergunta antes de escrever. */
+const semente = () => ensureDefaults(buildSeed());
+
 export const useStore = create<Store>((set, get) => ({
-  S: buildSeed(),
+  S: semente(),
   ready: false,
   hydrate: async () => {
     try {
       const raw = await AsyncStorage.getItem(KEY);
       if (raw) { const s = ensureDefaults(JSON.parse(raw)); set({ S: s, ready: true }); return; }
     } catch {}
-    const s = buildSeed();
+    const s = semente();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s, ready: true });
   },
@@ -34,7 +47,7 @@ export const useStore = create<Store>((set, get) => ({
     set({ S: s });
   },
   reset: () => {
-    const s = buildSeed();
+    const s = semente();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s });
   },

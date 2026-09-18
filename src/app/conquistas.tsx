@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { checkins30, journeyDay } from '../logic/derive';
 import {
@@ -44,15 +45,22 @@ import { radius } from '../theme';
    contagem de feitas em cada uma.
    ============================================================ */
 
-function Cartao({ q }: { q: Conquista }) {
+function Cartao({ q, onPress }: { q: Conquista; onPress: () => void }) {
   const { c } = useTheme();
   const on = q.nivel > 0;
   const completa = q.nivel === q.niveis;
   return (
-    <View style={{
-      flex: 1, backgroundColor: c.bg1, borderRadius: radius.card,
-      borderWidth: 1, borderColor: c.line, padding: 15, alignItems: 'center',
-    }}>
+    /* O CARTÃO INTEIRO ABRE A TRILHA. Ele já mostra o nível e o que
+       falta; o que ele não tem espaço para mostrar é o caminho até aqui,
+       e é isso que o toque entrega. */
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [{
+        flex: 1, backgroundColor: c.bg1, borderRadius: radius.card,
+        borderWidth: 1, borderColor: c.line, padding: 15, alignItems: 'center',
+        opacity: pressed ? 0.7 : 1,
+      }]}
+    >
       {/* A MARCA CONQUISTADA É LIMA, como em toda tela deste app: é a cor
           do alcançado na Jornada, nas metas e na ficha do perfil. Cinza é
           a caminho. */}
@@ -116,13 +124,14 @@ function Cartao({ q }: { q: Conquista }) {
           </View>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 export default function Conquistas() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const router = useRouter();
   const [aba, setAba] = useState('todas');
 
   const todas = useMemo(() => conquistas(S), [S]);
@@ -173,7 +182,7 @@ export default function Conquistas() {
       <Bloco titulo="Conquistadas">
         {done.length ? (
           <Grade cols={2} gap={12}>
-            {done.map((q) => <Cartao key={q.id} q={q} />)}
+            {done.map((q) => <Cartao key={q.id} q={q} onPress={() => router.push(`/trilha?id=${q.id}` as any)} />)}
           </Grade>
         ) : (
           /* Quem abre no primeiro dia via um título e nada embaixo. A frase
@@ -186,7 +195,7 @@ export default function Conquistas() {
       {faltam.length ? (
         <Bloco titulo="A caminho">
           <Grade cols={2} gap={12}>
-            {faltam.map((q) => <Cartao key={q.id} q={q} />)}
+            {faltam.map((q) => <Cartao key={q.id} q={q} onPress={() => router.push(`/trilha?id=${q.id}` as any)} />)}
           </Grade>
         </Bloco>
       ) : null}

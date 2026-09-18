@@ -441,6 +441,67 @@ export function conquistas(S: State): Conquista[] {
     });
 }
 
+/* A TRILHA INTEIRA, degrau a degrau, com a data de cada um.
+
+   A conquista resumida guarda só o nível atual, que é o que o cartão da
+   grade precisa. Quem abre a trilha quer a progressão — e ela existe: a
+   medida sabe responder "quando cheguei a cada altura", e é essa resposta
+   que o resumo joga fora ao ficar com uma data só. */
+export function degrausDe(S: State, id: string) {
+  const t = CATALOGO.find((x) => x.id === id);
+  if (!t || (t.vale && !t.vale(S))) return null;
+  const niveis = niveisDaTrilha(t, S);
+  const { feito, quando } = t.medida(S);
+  let nivel = 0;
+  for (const alvo of niveis) if (feito >= alvo) nivel++;
+  const proximo = nivel < niveis.length ? niveis[nivel] : null;
+  return {
+    id: t.id, titulo: t.titulo, ic: t.ic, nivel,
+    degraus: niveis.map((alvo) => ({
+      alvo, desc: t.desc(alvo),
+      /* A data existe só para o degrau passado. Guardar a de um degrau
+         que não veio seria inventar futuro. */
+      t: feito >= alvo ? quando(alvo) : null,
+    })),
+    falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo),
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * O QUE AINDA NÃO FOI VISTO
+ *
+ * A conquista é calculada, e por isso ela não tem um "aconteceu agora":
+ * ela simplesmente passa a ser verdade na hora em que o registro entra.
+ * Para o app poder DIZER que aconteceu, falta uma coisa que a conta não
+ * dá — o que a pessoa já sabe.
+ *
+ * É o que esta marca d'água guarda: o último nível de cada trilha que já
+ * foi mostrado. Um número por trilha, nada mais. Não é uma segunda fonte
+ * da conquista — a conquista continua saindo dos registros —, é a
+ * memória do que já foi contado.
+ *
+ * ELA NASCE NO NÍVEL ATUAL, e não em zero. Quem já usa o app tem trinta
+ * e nove níveis; começar do zero faria a primeira abertura depois desta
+ * mudança comemorar trinta e nove coisas de uma vez, a maioria de meses
+ * atrás. Ver ensureDefaults em seed.ts.
+ * ------------------------------------------------------------------ */
+
+export type VistoEm = Record<string, number>;
+
+export const vistoEm = (S: State): VistoEm => ((S as any).vistoEmConquistas ?? {}) as VistoEm;
+
+/** As trilhas que subiram de nível desde a última vez que o app contou. */
+export const novosNiveis = (S: State): Conquista[] => {
+  const visto = vistoEm(S);
+  return conquistas(S).filter((q) => q.nivel > (visto[q.id] ?? 0));
+};
+
+/** A marca d'água no nível de agora — o que a pessoa passou a saber. */
+export const marcarComoVistas = (S: any) => {
+  const visto: VistoEm = S.vistoEmConquistas ?? (S.vistoEmConquistas = {});
+  for (const q of conquistas(S)) visto[q.id] = q.nivel;
+};
+
 /** Quantos níveis foram alcançados, somando as trilhas. */
 export const niveisFeitos = (l: Conquista[]) => l.reduce((n, q) => n + q.nivel, 0);
 export const niveisTotais = (l: Conquista[]) => l.reduce((n, q) => n + q.niveis, 0);
