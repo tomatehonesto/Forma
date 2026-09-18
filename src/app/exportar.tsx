@@ -20,8 +20,8 @@ import {
    consulta de endocrinologia. O padrão deixa esse bloco fora, e quem
    quiser inclui.
 
-   E nada sai daqui sem passar pela prévia: a pessoa lê exatamente o que a
-   outra vai ler, antes de existir link nenhum.
+   E nada sai daqui sem a pessoa poder ler antes: a prévia abre o resumo
+   para o médico, que é o documento com os números.
    ============================================================ */
 
 const dataLonga = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
@@ -31,7 +31,6 @@ export default function Exportar() {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const [per, setPer] = useState('consulta');
-  const [fmt, setFmt] = useState('pdf');
   const [inclui, setInclui] = useState<Record<string, boolean>>({
     aplicacoes: true, peso: true, sintomas: true, notas: true, habitos: false,
   });
@@ -136,22 +135,24 @@ export default function Exportar() {
         </Cartao>
       </Bloco>
 
-      <Campo
-        rotulo="Formato"
-        ajuda={fmt === 'link'
-          ? 'O link expira em 30 dias e pode ser revogado a qualquer momento por você.'
-          : 'O documento é gerado no seu aparelho e você escolhe para onde enviar.'}
-      >
-        <Opcoes>
-          <Opc label="PDF" on={fmt === 'pdf'} onPress={() => setFmt('pdf')} />
-          <Opc label="Link" on={fmt === 'link'} onPress={() => setFmt('link')} />
-        </Opcoes>
-      </Campo>
+      {/* ⚠️ O CAMPO "FORMATO" SAIU, E ELE ERA A PIOR LINHA DESTA TELA.
+
+          PDF e Link eram dois botões que faziam exatamente a mesma coisa:
+          os dois abriam a folha de compartilhamento do sistema com o
+          mesmo texto. Nenhum PDF era gerado, e link nenhum existia — e
+          ainda assim a ajuda do "Link" prometia que ele "expira em 30
+          dias e pode ser revogado a qualquer momento por você".
+
+          Prometer revogação de um link que não existe é a espécie de
+          mentira que faz alguém compartilhar uma coisa achando que pode
+          desfazer depois. O que a tela de fato faz é montar um texto e
+          deixar a pessoa escolher por onde mandar, e é só isso que ela
+          diz agora. */}
 
       <Aviso
         ic="doc"
         titulo="Revise antes de enviar"
-        texto="A prévia mostra exatamente o que a outra pessoa vai ler."
+        texto="A prévia abre o resumo para o médico, com os números do período."
       />
 
       <View />

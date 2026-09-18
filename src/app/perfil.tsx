@@ -412,21 +412,31 @@ export default function Perfil() {
         </Pressable>
       </View>
 
+      {/* ---- acompanhamento ----
+
+          As três continuam aqui, e não em Configurações. Metas, lembretes
+          e aparelhos são a forma do app ACOMPANHAR alguém — mudar um alvo
+          de proteína é decidir o que o tratamento persegue, e não ajustar
+          uma preferência do aplicativo. Empurrá-las para configurações
+          encheria a gaveta de coisas que a pessoa procura por assunto, e
+          esvaziaria a seção que ela abre quando quer mexer no app. */}
+      <Grupo title="Acompanhamento">
+        <ListRow ic="target" title="Metas diárias"
+          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
+          onPress={go('/metas')} />
+        <ListRow ic="clock" title="Lembretes"
+          sub="Dose, pesagem, água e proteína" onPress={go('/lembretes')} />
+        <ListRow ic="trend" title="Dispositivos e integrações"
+          sub="Apple Health, Withings e mais" onPress={go('/integracoes')} />
+      </Grupo>
+
       {/* ---- sobre você ----
 
           O GRUPO DEIXOU DE SER "SEUS REGISTROS" porque passou a guardar
           mais do que registro: a ficha entrou aqui, e ficha não é registro
-          — é quem a pessoa é.
-
-          E AGORA SÃO DOIS GRUPOS, E NÃO TRÊS. Eram "Acompanhamento",
-          "Sobre você" e "O aplicativo", divididos por ASSUNTO — e por
-          assunto qualquer linha cabe em qualquer grupo. A divisão que se
-          sustenta é outra: aqui é o que o app sabe sobre a pessoa; em
-          Configurações é o que a pessoa manda o app fazer. Nesse corte,
-          as quatro linhas de "Acompanhamento" eram todas configuração —
-          metas são alvos que se mudam, lembretes são quando o app fala,
-          integrações são de onde ele lê —, menos o sino, que subiu para
-          o alto da tela.
+          — é quem a pessoa é. O que os três têm em comum é o assunto,
+          e o assunto é ela. Acompanhamento é como o app ajuda;
+          Configurações é como o app se comporta; aqui é o paciente.
 
           A PORTA DA FICHA ESTAVA LOGO ABAIXO DO RETRATO, sozinha, antes
           de qualquer seção. Ali ela tinha o destaque de uma coisa que se
@@ -460,15 +470,16 @@ export default function Perfil() {
 
       {/* ---- configurações ----
 
-          ⚠️ ELA SE CHAMAVA "O APLICATIVO" E TINHA UMA LINHA SÓ: o tema.
-          Um app inteiro de tratamento, com alvos diários, horários de
-          alerta e aparelhos conectados, e a única coisa que se
-          configurava era claro ou escuro — porque as outras três estavam
-          espalhadas num grupo chamado por assunto.
+          O NOME É O QUE A PESSOA PROCURA. A seção se chamava "O
+          aplicativo", e ninguém abre um perfil atrás de "o aplicativo" —
+          abre atrás de configurações, que é onde todo app põe o que se
+          mexe nele mesmo.
 
-          Elas voltaram para cá, e o nome passou a ser o que a pessoa
-          procura. Ninguém abre o perfil atrás de "o aplicativo"; abre
-          atrás de configurações.
+          E É SÓ ISSO QUE ENTRA AQUI: aparência, os dados que a pessoa
+          leva embora, e os que ela apaga. O que acompanha o tratamento
+          fica em Acompanhamento — enfiar metas e lembretes nesta gaveta
+          faria dela um depósito, que é o destino de toda seção de
+          configurações que aceita tudo.
 
           SAIU DAQUI "SEUS DADOS FICAM NO SEU APARELHO". A frase era
           verdadeira e ainda assim dizia a coisa errada: prometia
@@ -492,18 +503,6 @@ export default function Perfil() {
           Número de versão é rodapé — serve para citar num suporte, e não
           para escolher nada. Foi para o fim da tela, em letra pequena. */}
       <Grupo title="Configurações">
-        {/* AS METAS SÃO CONFIGURAÇÃO, e é aqui que elas sempre deveriam
-            ter estado: /metas é a tela onde a pessoa MUDA os alvos de
-            proteína, água, exercício e peso. Ela estava em
-            "Acompanhamento" por assunto, e assunto não era a pergunta
-            certa. */}
-        <ListRow ic="target" title="Metas diárias"
-          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
-          onPress={go('/metas')} />
-        <ListRow ic="clock" title="Lembretes"
-          sub="Quando e sobre o que o app te avisa" onPress={go('/lembretes')} />
-        <ListRow ic="trend" title="Dispositivos e integrações"
-          sub="De onde o app pode ler os seus dados" onPress={go('/integracoes')} />
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={isDark ? 'moonToggle' : 'sun'} size={20} color={c.tx2} sw={1.8} />
@@ -515,6 +514,30 @@ export default function Perfil() {
             onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
           />
         </Row>
+
+        {/* LEVAR OS DADOS EMBORA é item de configurações em qualquer app
+            que guarda alguma coisa de alguém, e aqui ele já existia sem
+            porta nesta tela: /exportar monta o período e escolhe o que
+            entra. */}
+        <ListRow ic="doc" title="Exportar seus dados"
+          sub="Monte um arquivo com o que você registrou" onPress={go('/exportar')} />
+
+        {/* ⚠️ "APAGAR MEUS DADOS" NÃO ENTRA AINDA, e o motivo é que ele
+            não teria como dizer a verdade.
+
+            Ele seria a linha mais padrão que falta aqui, e o `reset()` do
+            store — escrito desde sempre e nunca chamado por nenhuma tela
+            — parecia o encaixe pronto. Só que reset devolve a SEMENTE:
+            quem tocasse em "apagar meus dados" veria voltar o tratamento
+            de exemplo, com setenta e um dias de registros de outra
+            pessoa. Um botão de apagar que repõe dados é pior do que a
+            ausência dele.
+
+            Para existir de verdade, ele precisa de um estado inicial
+            vazio, que é uma decisão de produto e não um ajuste de tela:
+            hoje o app nasce com a semana da Mariana montada. Quando isso
+            mudar, a linha entra aqui, atrás de uma frase que diga o que
+            some — e não de um "tem certeza?". */}
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do
