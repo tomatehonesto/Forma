@@ -632,6 +632,16 @@ export function ensureDefaults(S: any) {
     (S.profile as any).acompanhamento =
       ((S.profile as any).vinculo || S.profile.doctor || S.profile.clinic) ? 'proprio' : 'nenhum';
   }
+  /* ⚠️ VÍNCULO CONFIRMADO SOBRESCREVE A RESPOSTA, e isto roda sempre —
+     não é migração. Quem respondeu "por conta própria" no cadastro e
+     depois teve um código confirmado por uma clínica passou a ter
+     acompanhamento, ponto: a resposta declarada era sobre o dia em que
+     ela respondeu, e o vínculo é um fato posterior.
+
+     A regra tem uma direção só. Vínculo implica acompanhamento; perder o
+     nome do médico NÃO implica perder o acompanhamento — é por isso que a
+     dedução de baixo continua sendo de uma vez só, e esta é de todas. */
+  if (S.profile && (S.profile as any).vinculo) (S.profile as any).acompanhamento = 'proprio';
   if (S.profile && (S.profile as any).vinculo === undefined) {
     (S.profile as any).vinculo =
       (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;

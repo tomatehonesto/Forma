@@ -396,6 +396,12 @@ export function examGaugeData(e: any) {
 export const temAcompanhamento = (S: State) =>
   ((S.profile as any).acompanhamento ?? 'nenhum') !== 'nenhum' || clinicaConectada(S);
 
+/* O `|| clinicaConectada` acima não é uma segunda fonte: `ensureDefaults`
+   já grava 'proprio' em quem tem vínculo, e as duas linhas dizem a mesma
+   regra. Ele cobre a janela entre um servidor confirmar o vínculo e o
+   próximo carregamento — no instante da confirmação, esconder a consulta
+   de quem acabou de ganhar uma equipe seria o pior momento possível. */
+
 /** Escolheu conduzir o tratamento sem acompanhamento médico. É o oposto
     do de cima, e existe com nome próprio porque algumas telas precisam
     dizer alguma coisa para ela — e não apenas esconder o que sobrou. */
