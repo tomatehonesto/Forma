@@ -45,17 +45,31 @@ export type Plano = {
   nome: string;
   /** o que a loja cobra, na periodicidade do plano */
   preco: number;
+  /** por extenso, para frase corrida: "R$ 199,90 por ano, renovando…" */
   periodo: string;
-  /** quanto sai por mês — é a conta que a pessoa faz de cabeça */
-  porMes: number;
+  /** curto, para colar no número: "R$ 199,90 /ano" */
+  sufixo: string;
+  /* ⚠️ O MESMO PREÇO NA OUTRA UNIDADE, e para os dois planos.
+     Antes só o anual trazia o equivalente mensal, e o mensal ficava com
+     uma frase de recheio. Mas o desconto anunciado no selo é uma conta
+     entre as duas unidades, e quem afirma o desconto deve mostrar os dois
+     lados dele: R$ 16,66 por mês de um lado, R$ 358,80 por ano do outro.
+     Só com os dois números na tela a pessoa consegue conferir os −44%. */
+  outraUnidade: { valor: number; periodo: string };
   /** quanto se economiza contra o mensal, em pontos percentuais */
   economia?: number;
 };
 
 /* ⚠️ PREÇOS DE MARCAÇÃO — nenhum destes números foi decidido. */
 export const PLANOS: Plano[] = [
-  { id: 'mensal', nome: 'Mensal', preco: 29.9, periodo: 'por mês', porMes: 29.9 },
-  { id: 'anual', nome: 'Anual', preco: 199.9, periodo: 'por ano', porMes: 199.9 / 12, economia: 44 },
+  {
+    id: 'mensal', nome: 'Mensal', preco: 29.9, periodo: 'por mês', sufixo: '/mês',
+    outraUnidade: { valor: 29.9 * 12, periodo: 'por ano' },
+  },
+  {
+    id: 'anual', nome: 'Anual', preco: 199.9, periodo: 'por ano', sufixo: '/ano',
+    outraUnidade: { valor: 199.9 / 12, periodo: 'por mês' }, economia: 44,
+  },
 ];
 
 export const RECOMENDADO: Plano['id'] = 'anual';

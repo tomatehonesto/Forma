@@ -503,28 +503,29 @@ export default function Planos() {
           style={{ backgroundColor: c.bg, paddingHorizontal: 20, paddingTop: 2, paddingBottom: insets.bottom + 12 }}
         >
           {/* ---- os planos ---- */}
-          {/* ⚠️ OS DOIS CARTÕES TÊM A MESMA ALTURA, e isso precisou de uma
-              linha a mais no mensal, e não de um `height` fixo.
+          {/* ⚠️ OS DOIS CARTÕES TÊM A MESMA ALTURA, e agora sem `minHeight`.
 
-              O anual carrega um terceiro dado — o preço cheio do ano — e
-              por isso crescia; com `minHeight` ele passava do piso e o
-              mensal ficava. Dois cartões lado a lado com alturas diferentes
-              dizem, antes de qualquer texto, que um vale mais do que o
-              outro — e a escolha já é sinalizada pela cor e pela borda, que
-              é onde ela deve ser feita.
+              Dois cartões lado a lado com alturas diferentes dizem, antes
+              de qualquer texto, que um vale mais do que o outro — e a
+              escolha já é sinalizada pela cor e pela borda, que é onde ela
+              deve ser feita.
 
-              A linha nova do mensal não é enchimento: "cobrado todo mês" é
-              a informação que o anual dá em "R$ 199,90 por ano", e faltava
-              do lado de cá. */}
+              Antes isso custava um piso de 106 px: o anual tinha um dado a
+              mais e o mensal precisava de uma linha para alcançá-lo. Agora
+              os dois têm exatamente as mesmas três linhas — nome, preço,
+              equivalente —, então `flex: 1` dentro de uma Row esticada
+              basta, e a altura passa a ser a que o conteúdo pede. Mexer no
+              conteúdo de um lado só traz o piso de volta. */}
           <Row gap={10} style={{ alignItems: 'stretch' }}>
             {PLANOS.map((p) => {
               const on = p.id === escolhido;
               return (
                 <Pressable key={p.id} onPress={() => { setEscolhido(p.id); setRecusa(false); }} style={{ flex: 1 }}>
                   <View style={{
+                    flex: 1,
                     backgroundColor: on ? c.accentWeak : c.bg1,
                     borderWidth: 1.5, borderColor: on ? c.accent : c.line,
-                    borderRadius: radius.lg, padding: 14, gap: 2, minHeight: 106, justifyContent: 'center',
+                    borderRadius: radius.lg, padding: 14, gap: 2, justifyContent: 'center',
                   }}>
                     <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                       <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
@@ -545,10 +546,23 @@ export default function Planos() {
                         Agora o corpo grande é a cobrança e o equivalente
                         por mês vem embaixo, onde ele é o argumento que é:
                         uma ajuda para comparar, e não o preço. */}
-                    <Txt v="h2" c={c.tx} style={{ marginTop: 4 }}>{reais(p.preco)}</Txt>
-                    <Txt v="micro" c={c.tx3}>{p.periodo}</Txt>
-                    <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
-                      {p.id === 'anual' ? `${reais(p.porMes)} por mês` : 'cobrado todo mês'}
+                    {/* ⚠️ O PERÍODO ENCOSTA NO NÚMERO, e não mora numa linha
+                        própria. "R$ 29,90" sozinho não é um preço, é um
+                        valor; o preço é "R$ 29,90 por mês", e separar as
+                        duas coisas em duas linhas fazia o olho ler o número
+                        grande primeiro e a condição depois — que é a ordem
+                        de quem anuncia, não a de quem compra.
+
+                        ALINHADO PELA BASE, e não pelo centro: o sufixo é um
+                        terço do corpo do número, e centralizado ele flutua
+                        no meio do algarismo. `baseline` é do Yoga e vale
+                        nos dois lados, não é um truque de navegador. */}
+                    <Row gap={3} style={{ alignItems: 'baseline', marginTop: 4 }}>
+                      <Txt v="h2" c={c.tx}>{reais(p.preco)}</Txt>
+                      <Txt v="micro" c={c.tx3}>{p.sufixo}</Txt>
+                    </Row>
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
+                      {`${reais(p.outraUnidade.valor)} ${p.outraUnidade.periodo}`}
                     </Txt>
                   </View>
                 </Pressable>
