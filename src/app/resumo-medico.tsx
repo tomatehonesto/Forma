@@ -1,40 +1,63 @@
 import React, { useState } from 'react';
-import { View, Share, StyleSheet } from 'react-native';
+import { View, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { hasClinic } from '../logic/derive';
-import { resumoDoTratamento, resumoEmTexto } from '../logic/resumo';
-import { fmtDate, now } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Cartao, Botao, Aviso } from '../ui/internas';
+import { examStatus, hasClinic } from '../logic/derive';
+import {
+  resumoDoTratamento, resumoEmTexto, valorDoExame, enviosDoResumo, registrarEnvio,
+  type SecaoDoResumo,
+} from '../logic/resumo';
+import { fmtDate, now, relDay } from '../logic/time';
+import { Txt, Row, Vazio } from '../ui/kit';
+import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
 
 /* ============================================================
    RESUMO PARA O MÉDICO
 
-   ⚠️ OS DOIS BOTÕES FAZIAM A MESMA COISA. "Compartilhar resumo" abria a
-   folha do sistema, e "Enviar à Dra. Helena" — que promete entregar a
-   alguém — abria a mesma folha do sistema. Um botão com nome de destino
-   que não leva ao destino é a pior espécie de mentira de interface: a
-   pessoa toca, vê o compartilhamento abrir, escolhe qualquer coisa, e sai
-   de lá achando que a médica recebeu.
+   ⚠️ ELE SE FANTASIAVA DE PDF. Papel branco sem raio, cabeçalho com fio
+   fino, rótulos em caixa alta, valores alinhados à direita como uma
+   coluna de laudo. O problema não é estético: quem abre esta tela é a
+   PESSOA, não o médico — ela vem conferir o que está indo, e um
+   documento imita mal a tela que ela sabe usar. O papel é o que sai daqui
+   pelo envio e pelo compartilhar; aqui dentro é aplicativo.
 
-   Agora ele envia de verdade, pela conversa que o app já tem com a
-   equipe — a mesma de /medico —, e só existe quando há equipe. Sem
-   vínculo, resta o compartilhar, que é honesto: a pessoa escolhe por onde.
+   ⚠️ E OS EXAMES ESTAVAM ILEGÍVEIS. Cada linha dizia "Glicemia jejum ·
+   96 mg/dL · ref 70–99", que é leitura para quem lê exame o dia inteiro.
+   Para quem registrou, a faixa crua é ruído: o que ela quer saber é se
+   está dentro. Agora o veredito vem como selo — o mesmo de /exames, com
+   as mesmas palavras — e a faixa completa continua a um toque.
 
-   ⚠️ E A TELA E O TEXTO ERAM DOIS RESUMOS. O cartão montava suas linhas
-   com as funções do app; o texto compartilhado remontava tudo por conta
-   própria, e discordava — a cadência, por exemplo. Agora os dois leem as
-   mesmas seções, em src/logic/resumo.ts.
+   ⚠️ E "ENVIAR" MANDAVA UM TEXTO NO CHAT. Do outro lado existe a
+   plataforma da equipe; o que chega lá é um documento datado, e não um
+   muro de texto no meio de uma conversa. Ver src/logic/resumo.ts.
 
-   O DOCUMENTO SE PARECE COM UM DOCUMENTO. Papel branco, cabeçalho com
-   nome e data, seções com rótulo e linhas de chave e valor. Ele vai ser
-   lido por quem lê exame o dia inteiro, e a forma que essa pessoa
-   reconhece não é a de um cartão de aplicativo.
+   ⚠️ E A SEÇÃO DE ANOTAÇÕES ERA UMA PLACA. Quando não havia nenhuma, ela
+   dizia "elas se escrevem em Notas para a consulta" — uma frase que
+   nomeia um lugar sem levar a ele, na única tela em que a pessoa descobre
+   que a seção existe. Agora cada nota abre onde se edita, e o vazio tem
+   porta.
    ============================================================ */
+
+/* Uma linha de chave e valor. É o mesmo desenho de Linha, com o valor no
+   lugar do selo: rótulo em tinta média à esquerda, número em peso médio à
+   direita, que é como se lê uma coluna de resultados sem virar tabela. */
+function Valor({ k, v }: { k: string; v: string }) {
+  const { c } = useTheme();
+  return (
+    <Row style={{ paddingHorizontal: 16, paddingVertical: 13, gap: 12, alignItems: 'baseline' }}>
+      <Txt v="body" c={c.tx2} style={{ flex: 1 }}>{k}</Txt>
+      <Txt v="bodyMed">{v}</Txt>
+    </Row>
+  );
+}
+
+const VEREDITO: Record<string, [string, 'verde' | 'neutra']> = {
+  ok: ['na referência', 'verde'],
+  alto: ['acima', 'neutra'],
+  baixo: ['abaixo', 'neutra'],
+};
 
 export default function ResumoMedico() {
   const S = useStore((s) => s.S);
@@ -44,22 +67,28 @@ export default function ResumoMedico() {
 
   const p: any = S.profile;
   const secoes = resumoDoTratamento(S);
+  const sec = (id: string) => secoes.find((s) => s.id === id) as SecaoDoResumo | undefined;
   const temEquipe = hasClinic(S);
+  const envios = enviosDoResumo(S);
+  const ultimo = envios[0];
   const [enviado, setEnviado] = useState(false);
 
   const compartilhar = () => { Share.share({ message: resumoEmTexto(S) }).catch(() => {}); };
 
-  /* ENVIAR É ESCREVER NA CONVERSA, como qualquer mensagem que a pessoa
-     manda. O resumo vira o texto da mensagem, e a tela de mensagens
-     abre logo em seguida — quem enviou precisa ver onde a coisa caiu,
-     senão "enviado" é mais uma palavra sem prova. */
+  /* ENVIAR É DEIXAR UM DOCUMENTO NA PLATAFORMA DA EQUIPE. O que fica
+     guardado aqui é o envio, com data — o conteúdo se remonta dos
+     registros sempre que alguém abrir, e guardar uma segunda cópia
+     congelada seria criar a divergência de novo.
+
+     A tela não sai do lugar: quem enviou quer ver que enviou, e não ser
+     levado para outra tela onde a prova está no rodapé. */
   const enviar = () => {
-    update((s: any) => {
-      (s.messages ?? (s.messages = [])).push({ t: +now(), from: 'me', text: resumoEmTexto(s) });
-    });
+    update((s: any) => { registrarEnvio(s); });
     setEnviado(true);
-    router.push('/medico' as any);
   };
+
+  const notas = sec('notas')?.notas ?? [];
+  const exames = sec('exames')?.exames ?? [];
 
   return (
     <TelaInterna
@@ -68,7 +97,7 @@ export default function ResumoMedico() {
         <View style={{ gap: 10 }}>
           {temEquipe ? (
             <Botao
-              label={enviado ? 'Enviado à sua equipe' : `Enviar a ${p.doctor}`}
+              label={enviado ? 'Enviado' : ultimo ? `Enviar de novo a ${p.doctor}` : `Enviar a ${p.doctor}`}
               desligado={enviado}
               onPress={enviar}
             />
@@ -77,48 +106,100 @@ export default function ResumoMedico() {
         </View>
       }
     >
-      <Titulao titulo="Resumo para o médico" lead="Tudo que você registrou, no formato de quem vai ler." />
+      <Titulao
+        titulo="Resumo para o médico"
+        lead="Tudo que você registrou, do jeito que vai chegar na consulta."
+      />
 
-      {/* O PAPEL. Fundo branco sem as bordas macias do resto do app: um
-          documento tem margem e não tem canto redondo, e é isso que o faz
-          ler como algo para ser impresso ou colado numa conversa. */}
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
-        <View style={{ padding: 20, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line }}>
-          <Txt v="h2">{p.name}</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
-            {fmtDate(now())}{p.doctor ? ` · para ${p.doctor}` : ''}
-          </Txt>
-        </View>
+      {/* A CAPA DIZ PARA QUEM E DE QUANDO, que são as duas coisas que
+          mudam de um envio para o outro. E, quando já houve envio, ele
+          vira linha com caminho: o documento que a equipe tem está na
+          tela dela, e é para lá que esta linha leva. */}
+      <Cartao>
+        <Linha
+          ic="doc"
+          titulo={`Resumo de ${fmtDate(now())}`}
+          sub={temEquipe ? `Para ${p.doctor}${p.clinic ? ` · ${p.clinic}` : ''}` : 'Você ainda não tem equipe vinculada'}
+          seta={false}
+        />
+        {ultimo ? (
+          <Linha
+            ic="check"
+            titulo={`Enviado ${relDay(new Date(ultimo.t))}`}
+            sub={`${envios.length} ${envios.length === 1 ? 'envio' : 'envios'} · fica com a sua equipe`}
+            onPress={() => router.push('/medico' as any)}
+          />
+        ) : null}
+      </Cartao>
 
-        {secoes.map((s) => (
-          <View key={s.titulo} style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
-            <Row gap={8} style={{ alignItems: 'baseline' }}>
-              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{s.titulo.toUpperCase()}</Txt>
-            </Row>
-            {s.nota ? <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{s.nota}</Txt> : null}
+      {['medicacao', 'peso', 'sintomas'].map((id) => {
+        const s = sec(id);
+        if (!s) return null;
+        return (
+          <Bloco key={id} titulo={s.titulo} nota={s.nota}>
+            <Cartao>
+              {s.linhas.map((l) => <Valor key={l.k} k={l.k} v={l.v} />)}
+            </Cartao>
+          </Bloco>
+        );
+      })}
 
-            {s.linhas.map((l) => (
-              <Row key={l.k} gap={12} style={{ justifyContent: 'space-between', alignItems: 'baseline', marginTop: 10 }}>
-                <Txt v="caption" c={c.tx3}>{l.k}</Txt>
-                {/* O VALOR ALINHADO À DIREITA, que é como se lê uma coluna
-                    de resultados: o olho desce pelos números e não pelos
-                    rótulos, que têm comprimentos diferentes. */}
-                <Txt v="label" style={{ flex: 1, textAlign: 'right' }}>{l.v}</Txt>
-              </Row>
+      {exames.length ? (
+        <Bloco titulo="Exames recentes" link="Ver todos" onLink={() => router.push('/exames' as any)}>
+          <Cartao>
+            {exames.map((e: any) => {
+              const [rotulo, tom] = VEREDITO[examStatus(e)] ?? VEREDITO.ok;
+              return (
+                <Linha
+                  key={e.marker}
+                  titulo={e.marker}
+                  sub={valorDoExame(e)}
+                  selo={rotulo}
+                  seloTom={tom}
+                  seta={false}
+                  onPress={() => router.push('/exames' as any)}
+                />
+              );
+            })}
+          </Cartao>
+        </Bloco>
+      ) : null}
+
+      {/* AS ANOTAÇÕES SÃO A ÚNICA PARTE ESCRITA À MÃO deste resumo, e a
+          única que some se a pessoa esquecer. Por isso elas são tocáveis
+          aqui: quem lê a prévia dois dias antes da consulta é exatamente
+          quem lembra da pergunta que faltava. */}
+      <Bloco
+        titulo="Anotações para a consulta"
+        link="Anotar"
+        onLink={() => router.push('/nota' as any)}
+        nota={notas.length ? 'Só as que você ainda não marcou como conversadas.' : undefined}
+      >
+        {notas.length ? (
+          <Cartao>
+            {notas.map((n) => (
+              <Linha
+                key={n.t}
+                titulo={n.text}
+                sub={relDay(new Date(n.t))}
+                onPress={() => router.push(`/nota?t=${n.t}` as any)}
+              />
             ))}
+          </Cartao>
+        ) : (
+          <Cartao>
+            <Vazio
+              ic="pencil"
+              titulo="Nada anotado"
+              texto="O que você quiser perguntar na consulta se escreve aqui, e entra no resumo."
+            />
+          </Cartao>
+        )}
+      </Bloco>
 
-            {s.texto !== undefined ? (
-              <Txt v="caption" c={s.texto ? c.tx2 : c.tx4} style={{ marginTop: 8, lineHeight: 21 }}>
-                {s.texto || 'Sem anotações. Elas se escrevem em Notas para a consulta.'}
-              </Txt>
-            ) : null}
-          </View>
-        ))}
-      </View>
-
-      {/* O QUE ESTE PAPEL NÃO É. Ele parece um documento clínico e não é
-          um: são os registros de uma pessoa, do jeito que ela os fez.
-          Dizer isso aqui protege quem lê e quem escreveu. */}
+      {/* O QUE ESTE RESUMO NÃO É. Ele vira documento na mão de quem lê
+          exame, e não é um: são os registros de uma pessoa, do jeito que
+          ela os fez. Dizer isso aqui protege quem lê e quem escreveu. */}
       <Aviso
         ic="info"
         titulo="É um relato, não um exame"
@@ -128,7 +209,7 @@ export default function ResumoMedico() {
       {enviado ? (
         <Row gap={8} style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="check" size={14} color={c.ok} sw={2.6} />
-          <Txt v="micro" c={c.tx3}>O resumo foi para a conversa com a sua equipe.</Txt>
+          <Txt v="micro" c={c.tx3}>Enviado. {p.doctor} vê na plataforma dela.</Txt>
         </Row>
       ) : (
         <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>

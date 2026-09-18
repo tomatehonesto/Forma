@@ -1,7 +1,7 @@
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
-  lostKg, lostPct, mediaDe, notasTexto, respondido,
+  lostKg, lostPct, mediaDe, notasAbertas, respondido, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
 
@@ -22,6 +22,11 @@ import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
 
    Aqui as duas leem a mesma lista de seções. Uma muda, as duas mudam.
 
+   AS SEÇÕES TÊM IDENTIDADE, e não só ordem. A tela desenha cada assunto
+   do jeito que o assunto pede — exame quer veredito, nota quer ser
+   tocada e aberta — e é o `id` que deixa ela fazer isso sem remontar os
+   números por fora. O texto continua lendo `linhas`, que toda seção tem.
+
    NADA AQUI É INTERPRETAÇÃO. Este arquivo transcreve registros: peso,
    dose, médias de sintoma, exames e as anotações que a própria pessoa
    escreveu. Quem lê é quem sabe interpretar — e um app que mandasse a
@@ -29,11 +34,18 @@ import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
    ============================================================ */
 
 export type LinhaDoResumo = { k: string; v: string };
+export type IdDeSecao = 'medicacao' | 'peso' | 'sintomas' | 'exames' | 'notas';
+
 export type SecaoDoResumo = {
+  id: IdDeSecao;
   titulo: string;
   /** o recorte do que está ali — "média de 6 dias respondidos" */
   nota?: string;
   linhas: LinhaDoResumo[];
+  /** os exames como estão guardados, para a tela dar o veredito e o caminho */
+  exames?: any[];
+  /** as notas abertas, para a tela abrir cada uma onde ela se edita */
+  notas?: Nota[];
   /** seção de texto corrido, como as anotações */
   texto?: string;
 };
@@ -53,6 +65,11 @@ const media = (cs: any[], k: string, casas = 1, sufixo = '') => {
   return m == null ? '—' : `${nf(m, casas)}${sufixo}`;
 };
 
+export const valorDoExame = (e: any) => {
+  const u = examLast(e);
+  return `${nf(u.v, u.v % 1 ? 1 : 0)} ${e.unit}`;
+};
+
 export function resumoDoTratamento(S: State): SecaoDoResumo[] {
   const p: any = S.profile;
   const med = M(S);
@@ -69,6 +86,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
 
   const secoes: SecaoDoResumo[] = [
     {
+      id: 'medicacao',
       titulo: 'Medicação',
       linhas: [
         { k: 'Medicamento', v: `${med.label} (${med.mol})` },
@@ -83,6 +101,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       ],
     },
     {
+      id: 'peso',
       titulo: 'Peso',
       linhas: [
         { k: 'Início → atual', v: `${kg(p.startWeight)} → ${kg(cur)} kg` },
@@ -95,6 +114,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       ],
     },
     {
+      id: 'sintomas',
       titulo: 'Sintomas',
       nota: comResposta
         ? `Média dos últimos 14 dias · ${comResposta} com resposta`
@@ -115,26 +135,32 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
   const exames = (S.exams as any[]).slice(0, 6);
   if (exames.length) {
     secoes.push({
+      id: 'exames',
       titulo: 'Exames recentes',
-      linhas: exames.map((e) => {
-        const u = examLast(e);
-        return { k: e.marker, v: `${nf(u.v, u.v % 1 ? 1 : 0)} ${e.unit} · ref ${e.ref}` };
-      }),
+      exames,
+      /* A FAIXA DE REFERÊNCIA VAI NO TEXTO, e não na tela. Quem lê o
+         texto é quem sabe o que "ref 70–99" quer dizer; na tela quem lê é
+         a pessoa, e para ela a faixa crua é ruído — lá o mesmo dado vira
+         "na referência", com o número completo a um toque. */
+      linhas: exames.map((e) => ({ k: e.marker, v: `${valorDoExame(e)} · ref ${e.ref}` })),
     });
   }
 
+  const abertas = notasAbertas(S);
   secoes.push({
+    id: 'notas',
     titulo: 'Anotações para a consulta',
     linhas: [],
-    texto: notasTexto(S),
+    notas: abertas,
+    texto: abertas.length ? abertas.map((n) => `• ${n.text}`).join('\n') : '',
   });
 
   return secoes;
 }
 
-/* O MESMO RESUMO, EM TEXTO. É o que sai pelo compartilhar e pela
-   mensagem à equipe — e agora ele é uma transcrição das seções acima, e
-   não uma segunda montagem. */
+/* O MESMO RESUMO, EM TEXTO. É o que sai pelo compartilhar e pelo envio à
+   equipe — e agora ele é uma transcrição das seções acima, e não uma
+   segunda montagem. */
 export function resumoEmTexto(S: State): string {
   const p: any = S.profile;
   const linhas: string[] = [
@@ -151,4 +177,40 @@ export function resumoEmTexto(S: State): string {
      prontuário — e que os números são o que a pessoa registrou. */
   linhas.push('', 'Gerado pelo aplicativo a partir dos registros da própria pessoa.');
   return linhas.join('\n');
+}
+
+/* ============================================================
+   O ENVIO
+
+   ⚠️ ENVIAR NÃO É MANDAR UM TEXTO NO CHAT. O botão escrevia o resumo
+   inteiro como mensagem na conversa com a equipe, e do outro lado chegava
+   um muro de texto no meio de um bate-papo — um lugar que serve para
+   perguntar "como está a náusea?", e não para receber documento.
+
+   Do outro lado existe a plataforma da equipe, e o que chega lá é um
+   DOCUMENTO datado. `documents` já é a lista do que o app e a clínica têm
+   em comum — é ela que a tela do médico mostra em "Documentos e exames" e
+   que a aba Cuidado lista. O envio entra ali, e não numa segunda lista
+   que começaria a divergir da primeira no primeiro mês.
+   ============================================================ */
+
+export const NOME_DO_DOCUMENTO = 'Resumo de tratamento';
+
+/** Os resumos que a própria pessoa mandou, do mais recente para o mais antigo. */
+export const enviosDoResumo = (S: State) =>
+  (((S as any).documents as any[]) || [])
+    .filter((d) => d.mine && d.name === NOME_DO_DOCUMENTO)
+    .slice()
+    .sort((a, b) => b.t - a.t);
+
+/** Escreve o envio no estado. Recebe o rascunho do update, não o estado. */
+export function registrarEnvio(s: any) {
+  const doc = {
+    t: +now(),
+    name: NOME_DO_DOCUMENTO,
+    kind: s.profile?.doctor ? `Enviado por você a ${s.profile.doctor}` : 'Enviado por você',
+    mine: true,
+  };
+  (s.documents ?? (s.documents = [])).unshift(doc);
+  return doc;
 }
