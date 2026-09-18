@@ -515,12 +515,23 @@ export default function Perfil() {
           />
         </Row>
 
+        {/* PRIVACIDADE VEM ANTES DE EXPORTAR, porque uma explica a outra:
+            quem abre esta seção querendo saber o que o app faz com os
+            dados dele encontra primeiro a resposta, e depois o botão. */}
+        <ListRow ic="lock" title="Privacidade e dados"
+          sub="O que fica no aparelho e o que sai dele" onPress={go('/privacidade')} />
+
         {/* LEVAR OS DADOS EMBORA é item de configurações em qualquer app
             que guarda alguma coisa de alguém, e aqui ele já existia sem
             porta nesta tela: /exportar monta o período e escolhe o que
             entra. */}
         <ListRow ic="doc" title="Exportar seus dados"
           sub="Monte um arquivo com o que você registrou" onPress={go('/exportar')} />
+
+        {/* AJUDA É A ÚLTIMA, e é onde ela é procurada: depois de já ter
+            tentado resolver nas outras. */}
+        <ListRow ic="info" title="Ajuda"
+          sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
 
         {/* ⚠️ "APAGAR MEUS DADOS" NÃO ENTRA AINDA, e o motivo é que ele
             não teria como dizer a verdade.
