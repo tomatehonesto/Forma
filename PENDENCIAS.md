@@ -89,7 +89,7 @@ lembretes tocando e a leitura de peso chegando, em build de verdade.
 
 ## 9. Os ícones alternativos precisam de prebuild
 
-`expo-alternate-app-icons` entra por projeto nativo: os 10 ícones são
+`expo-alternate-app-icons` entra por projeto nativo: os 12 ícones são
 declarados no plugin do `app.json` e o arquivo nativo é escrito no
 `prebuild`. No EAS isso acontece no próprio build; num dev client local,
 rodar `npx expo prebuild --clean` depois de mexer em `PALETAS`.

@@ -433,6 +433,18 @@ export const PALETAS: Paleta[] = [
     auroraHue: -65, auroraSat: 0.95,
   },
   {
+    id: 'cacau', nome: 'Cacau',
+    acaoClara: '#6F4226', acaoEscura: '#C89268', inkClaro: '#FFFFFF', inkEscuro: '#231206',
+    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
+    auroraHue: 172, auroraSat: 0.8,
+  },
+  {
+    id: 'salvia', nome: 'Sálvia',
+    acaoClara: '#55705C', acaoEscura: '#A8C4AE', inkClaro: '#FFFFFF', inkEscuro: '#101A13',
+    alcancado: '#FF9E6B', alcancadoInk: '#2B1204',
+    auroraHue: -95, auroraSat: 0.55,
+  },
+  {
     /* A ÚNICA SEM MATIZ. Aqui a aurora não gira: ela perde cor, e o
        alcançado fica sendo a única coisa saturada da tela — que é
        exatamente o que esta paleta quer dizer. */

@@ -72,6 +72,22 @@
     }
   },
   {
+    "name": "cacau",
+    "ios": "./assets/icones/cacau.png",
+    "android": {
+      "foregroundImage": "./assets/icones/cacau-frente.png",
+      "backgroundColor": "#6F4226"
+    }
+  },
+  {
+    "name": "salvia",
+    "ios": "./assets/icones/salvia.png",
+    "android": {
+      "foregroundImage": "./assets/icones/salvia-frente.png",
+      "backgroundColor": "#55705C"
+    }
+  },
+  {
     "name": "grafite",
     "ios": "./assets/icones/grafite.png",
     "android": {

@@ -46,15 +46,16 @@ const modulo = () => {
    nome, e o sistema o procura por esse nome. Uma tradução no meio seria
    um terceiro lugar para errar. */
 
-/** Se este aparelho troca de ícone. Falso no navegador e no Expo Go. */
-export function suportaIcone(): boolean {
-  try {
-    const m = modulo();
-    return !!m?.supportsAlternateIcons;
-  } catch {
-    return false;
-  }
-}
+/* ⚠️ NÃO EXISTE MAIS UM `suportaIcone` PARA A TELA PERGUNTAR.
+
+   Ele existia para a Aparência avisar, num aviso, que ali o ícone não
+   trocava — o que é verdade no navegador e no Expo Go, e não é verdade
+   em nenhum telefone com o aplicativo instalado. Era um aviso sobre o
+   ambiente de desenvolvimento aparecendo para quem usa o produto.
+
+   A troca continua sendo silenciosa quando não dá, que é o comportamento
+   certo: a paleta muda do mesmo jeito, e ninguém escolhe uma cor para ler
+   sobre limitações de build. */
 
 /* TROCA E ESQUECE. Devolve se deu certo, para quem quiser saber — e a
    tela de aparência não quer: ela já mudou a cor, que é o que a pessoa

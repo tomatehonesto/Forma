@@ -1,35 +1,42 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useStore } from '../logic/store';
-import { trocarIcone, suportaIcone } from '../logic/icone';
+import { trocarIcone } from '../logic/icone';
+import { useAurora } from '../ui/aurora';
 import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Aviso } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { PALETAS, paletaDe, radius, font } from '../theme';
+import { PALETAS, paletaDe, alfa, mix, radius, font } from '../theme';
 import type { Tema } from '../logic/seed';
 
 /* ============================================================
    APARÊNCIA
 
-   ⚠️ A ESCOLHA ERA DE DUAS CORES SOLTAS — uma de ação e uma de alcançado
-   — e isso empurrava para a pessoa uma decisão que é de design. As duas
-   juntas dão vinte e cinco combinações, e algumas delas são ruins: cores
-   próximas fazem o botão que leva a algum lugar e a marca do que já foi
-   feito virarem a mesma coisa. Oferecer o erro como opção não é dar
-   liberdade.
+   ⚠️ A ESCOLHA ERA DE DUAS CORES SOLTAS, e isso empurrava para a pessoa
+   uma decisão que é de design: ação e alcançado próximas fazem o botão
+   que leva a algum lugar e a marca do que já foi feito virarem a mesma
+   coisa. São doze paletas fechadas agora, cada uma um conjunto já olhado
+   junto.
 
-   Agora são dez paletas fechadas, e a forma de mostrá-las é o ÍCONE. Ele
-   não é ilustração da paleta: é literalmente o arquivo que vai para a
-   tela inicial do telefone se aquela for escolhida. A grade mostra o
-   resultado, e não uma representação dele.
+   ⚠️ E A GRADE JÁ FOI DE ÍCONES. Cada opção era o ícone do aplicativo
+   naquela paleta — bonito, e ruim para escolher: doze quadrados com a
+   mesma marca dentro obrigam a comparar doze desenhos iguais para achar
+   duas cores. A bolinha partida ao meio diz a mesma coisa num relance, e
+   é a forma que qualquer pessoa já reconhece de "esta é a cor".
 
-   O ESQUEMA DE COR VEM ANTES, e ganhou "Sistema". Quem instala o app já
-   escolheu claro ou escuro uma vez, nos ajustes do telefone — repetir a
-   pergunta é ignorar a resposta que a pessoa já deu. Escolher aqui passa
-   a ser o gesto de quem quer o contrário do sistema.
+   O ÍCONE NÃO SUMIU: subiu para a prévia, onde ele é o que de fato é —
+   uma consequência da escolha, e não o seletor dela.
+
+   A PRÉVIA É WIREFRAME DE PROPÓSITO. Ela não tenta parecer o aplicativo:
+   tenta mostrar ONDE cada cor cai. Barra cinza é texto, retângulo cheio é
+   botão, pastilha é o alcançado, e a faixa de cima é a aurora com o véu
+   por cima. Uma miniatura realista competiria com a coisa real e perderia;
+   um esqueleto responde a única pergunta que a tela faz.
    ============================================================ */
 
 const MODOS: { id: Tema; nome: string; ic: string }[] = [
@@ -38,38 +45,45 @@ const MODOS: { id: Tema; nome: string; ic: string }[] = [
   { id: 'dark', nome: 'Escuro', ic: 'moon' },
 ];
 
-/* O ÍCONE DESENHADO, e não uma das dez imagens: a grade precisa responder
-   no toque, e carregar dez PNG de um megapixel para mostrar dez
-   quadradinhos seria pagar caro por nada. É o mesmo caminho que gerou os
-   arquivos. */
-function IconeDaPaleta({ fundo, marca, lado }: { fundo: string; marca: string; lado: number }) {
+/* O ÍCONE DESENHADO, com a mesma rampa e as mesmas proporções de
+   scripts/gerar-icones.mjs. Prévia e arquivo precisam ser o mesmo
+   desenho: senão a tela promete um ícone e o telefone mostra outro. */
+function IconeDaPaleta({ acao, marca, lado }: { acao: string; marca: string; lado: number }) {
   const largura = lado * 0.56;
   return (
-    <View style={{
-      width: lado, height: lado, borderRadius: lado * 0.225,
-      backgroundColor: fundo, alignItems: 'center', justifyContent: 'center',
-    }}>
+    <LinearGradient
+      colors={[mix(acao, '#FFFFFF', 0.2), mix(acao, '#000000', 0.42)]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{
+        width: lado, height: lado, borderRadius: lado * 0.225,
+        alignItems: 'center', justifyContent: 'center',
+      }}
+    >
       <Svg width={largura} height={largura / RAZAO_SIMBOLO} viewBox="0 0 533 222">
         <Path d={D_SIMBOLO} fill={marca} />
       </Svg>
-    </View>
+    </LinearGradient>
   );
+}
+
+/** Uma barra de esqueleto — é o que representa texto na prévia. */
+function Barra({ larg, alt = 7, cor }: { larg: any; alt?: number; cor: string }) {
+  return <View style={{ width: larg, height: alt, borderRadius: alt / 2, backgroundColor: cor }} />;
 }
 
 export default function Aparencia() {
   const { c, isDark } = useTheme();
+  const aurora = useAurora();
   const setTheme = useStore((s) => s.setTheme);
   const setPaleta = useStore((s) => s.setPaleta);
   const tema = useStore((s) => s.S.theme) as Tema;
   const paletaId = useStore((s) => (s.S as any).paleta as string) ?? 'original';
   const paleta = paletaDe(paletaId);
 
-  const [temIcone] = React.useState(() => suportaIcone());
-
   /* A PALETA MUDA NA HORA, E O ÍCONE TENTA. A cor do app não espera o
-     sistema responder: se o aparelho recusar a troca do ícone — iPad com
-     restrição, versão antiga —, o aplicativo já está da cor nova. Ver por
-     que o erro é engolido em src/logic/icone.ts. */
+     sistema responder: se o aparelho recusar a troca do ícone, o
+     aplicativo já está da cor nova. Ver src/logic/icone.ts. */
   const escolher = (id: string) => { setPaleta(id); trocarIcone(id); };
 
   return (
@@ -79,7 +93,61 @@ export default function Aparencia() {
         lead="O Morphi pode ter a sua cara. Escolha uma paleta e ela vai para tudo — inclusive para o ícone na sua tela inicial."
       />
 
-      {/* ---- esquema de cor ---- */}
+      {/* ---- a prévia ---- */}
+      <View style={{
+        borderRadius: radius.xl, overflow: 'hidden',
+        backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+      }}>
+        {/* A faixa de cima é o hero: a aurora da paleta com o véu dela por
+            cima, que é exatamente a composição das telas de verdade. */}
+        <View style={{ height: 132, justifyContent: 'space-between', paddingBottom: 14 }}>
+          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <LinearGradient
+            colors={[alfa(c.veu, 0.5), alfa(c.veu, 0.3), alfa(c.veu, 0.72)]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <Row gap={12} style={{ padding: 16, alignItems: 'center' }}>
+            <IconeDaPaleta acao={paleta.acaoClara} marca={paleta.alcancado} lado={40} />
+            <View style={{ gap: 6, flex: 1 }}>
+              <Barra larg={96} cor="rgba(255,255,255,0.85)" />
+              <Barra larg={62} alt={6} cor="rgba(255,255,255,0.45)" />
+            </View>
+          </Row>
+          {/* A pastilha do alcançado sobre a aurora: é onde ela aparece na
+              Home, no botão de check-in. */}
+          <View style={{ paddingHorizontal: 16 }}>
+            <View style={{
+              alignSelf: 'flex-start', backgroundColor: paleta.alcancado,
+              borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
+            }}>
+              <Txt v="tag" c={paleta.alcancadoInk} style={{ fontFamily: font.bodyMed }}>Feito hoje</Txt>
+            </View>
+          </View>
+        </View>
+
+        {/* E embaixo a folha, com as duas coisas que a cor de ação faz: o
+            botão cheio e o link. */}
+        <View style={{ padding: 16, gap: 14 }}>
+          <View style={{ gap: 7 }}>
+            <Barra larg="70%" cor={c.bg3} />
+            <Barra larg="46%" cor={c.bg3} />
+          </View>
+          <Row gap={12} style={{ alignItems: 'center' }}>
+            <View style={{
+              backgroundColor: isDark ? paleta.acaoEscura : paleta.acaoClara,
+              borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 9,
+            }}>
+              <Txt v="tag" c={isDark ? paleta.inkEscuro : paleta.inkClaro} style={{ fontFamily: font.bodyMed }}>
+                Registrar
+              </Txt>
+            </View>
+            <Txt v="tag" c={isDark ? paleta.acaoEscura : paleta.acaoClara}>Ver a jornada</Txt>
+          </Row>
+        </View>
+      </View>
+
+      {/* ---- claro ou escuro ---- */}
       <Bloco titulo="Claro ou escuro" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
         <Row gap={10}>
           {MODOS.map((m) => {
@@ -101,42 +169,39 @@ export default function Aparencia() {
       </Bloco>
 
       {/* ---- as paletas ---- */}
-      <Bloco titulo="Escolha a sua cor" nota={`Agora você está no ${paleta.nome}. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}>
-        <Row gap={14} style={{ flexWrap: 'wrap' }}>
+      <Bloco
+        titulo="Escolha a sua cor"
+        nota={`Agora você está no ${paleta.nome}. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}
+      >
+        <Row style={{ flexWrap: 'wrap' }}>
           {PALETAS.map((p) => {
             const on = p.id === paletaId;
+            const acao = isDark ? p.acaoEscura : p.acaoClara;
             return (
               <Pressable
                 key={p.id}
                 onPress={() => escolher(p.id)}
-                style={({ pressed }) => [{ width: '30%', alignItems: 'center', gap: 8, opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [{ width: '25%', alignItems: 'center', paddingVertical: 10, opacity: pressed ? 0.7 : 1 }]}
               >
-                <View>
-                  {/* O ANEL FICA POR FORA DO ÍCONE, e não em cima dele:
-                      uma borda desenhada dentro do quadrado comeria a cor
-                      que a pessoa está justamente tentando ver. */}
-                  <View style={{
-                    padding: 3, borderRadius: 20,
-                    borderWidth: 2, borderColor: on ? c.accent : 'transparent',
-                  }}>
-                    <IconeDaPaleta fundo={p.acaoClara} marca={p.alcancado} lado={64} />
+                {/* A BOLINHA É PARTIDA AO MEIO: em cima a cor que age,
+                    embaixo a do alcançado. Corte na diagonal ficaria mais
+                    bonito e diria menos — na horizontal as duas metades têm
+                    o mesmo peso, que é o que elas têm no aplicativo. */}
+                <View style={{
+                  width: 54, height: 54, borderRadius: 27,
+                  alignItems: 'center', justifyContent: 'center',
+                  borderWidth: 2, borderColor: on ? c.tx : 'transparent',
+                }}>
+                  <View style={{ width: 42, height: 42, borderRadius: 21, overflow: 'hidden' }}>
+                    <View style={{ height: '50%', backgroundColor: acao }} />
+                    <View style={{ height: '50%', backgroundColor: p.alcancado }} />
                   </View>
-                  {on ? (
-                    <View style={{
-                      position: 'absolute', right: -3, top: -3,
-                      width: 22, height: 22, borderRadius: 11,
-                      backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center',
-                      borderWidth: 2, borderColor: c.bg,
-                    }}>
-                      <Icon name="check" size={11} color={c.accentInk} sw={3} />
-                    </View>
-                  ) : null}
                 </View>
                 <Txt
-                  v="caption"
+                  v="micro"
                   c={on ? c.tx : c.tx3}
                   numberOfLines={1}
-                  style={on ? { fontFamily: font.bodyMed } : undefined}
+                  style={[{ marginTop: 7 }, on ? { fontFamily: font.bodyMed } : null]}
                 >
                   {p.nome}
                 </Txt>
@@ -145,14 +210,6 @@ export default function Aparencia() {
           })}
         </Row>
       </Bloco>
-
-      <Aviso
-        ic="palette"
-        titulo={temIcone ? 'O ícone vai junto' : 'O ícone só muda no telefone'}
-        texto={temIcone
-          ? 'O desenho que você tocar aqui é o mesmo que vai aparecer na sua tela inicial. Bonito de ver no meio dos outros aplicativos.'
-          : 'Por aqui o ícone continua o mesmo — ele troca quando o Morphi está instalado no celular. As cores das telas você já vê mudando agora.'}
-      />
 
       <View />
     </TelaInterna>

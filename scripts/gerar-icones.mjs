@@ -52,17 +52,43 @@ async function paletas() {
 
 let CAMINHO = '';
 
+/* ⚠️ O FUNDO É GRADIENTE, E NÃO COR CHAPADA.
+
+   Chapado, o ícone ficava plano no meio dos outros da tela inicial — que
+   hoje são quase todos volumétricos. A rampa é a diagonal da cor de
+   ação: um tom acima dela no alto, um bem abaixo no pé, o mesmo
+   tratamento do painel da Jornada. E a marca vai na cor do ALCANÇADO, a
+   segunda da paleta: assim o ícone carrega as duas, e não só uma.
+
+   ⚠️ E AS PROPORÇÕES SÃO AS MESMAS DE aparencia.tsx. A prévia da tela e o
+   arquivo do telefone precisam ser o mesmo desenho — senão a grade mostra
+   uma coisa e a tela inicial mostra outra, e a promessa da tela vira
+   mentira no primeiro toque. */
+const canal = (hex, i) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+const hex2 = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
+const clarear = (hex, t) => '#' + [0, 1, 2].map((i) => hex2(canal(hex, i) + (255 - canal(hex, i)) * t)).join('');
+const escurecer = (hex, t) => '#' + [0, 1, 2].map((i) => hex2(canal(hex, i) * (1 - t))).join('');
+
 /* O símbolo centrado no quadrado. A viewBox dele é 533×222; entra
    escalado para ocupar 56% da largura, que é onde a marca respira sem
    sumir na grade de ícones. */
-function svg(fundo, marca, ocupacao) {
+function svg(acao, marca, ocupacao) {
   const L = 533, A = 222;
   const escala = (LADO * ocupacao) / L;
   const x = (LADO - L * escala) / 2;
   const y = (LADO - A * escala) / 2;
   const corpo = `<g transform="translate(${x} ${y}) scale(${escala})"><path d="${CAMINHO}" fill="${marca}"/></g>`;
-  const atras = fundo ? `<rect width="${LADO}" height="${LADO}" fill="${fundo}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${LADO}" height="${LADO}" viewBox="0 0 ${LADO} ${LADO}">${atras}${corpo}</svg>`;
+  const cabeca = `<svg xmlns="http://www.w3.org/2000/svg" width="${LADO}" height="${LADO}" viewBox="0 0 ${LADO} ${LADO}">`;
+
+  /* Sem cor de ação é a camada de frente do Android: transparente, porque
+     o fundo ali é composto pelo sistema. */
+  if (!acao) return `${cabeca}${corpo}</svg>`;
+
+  const rampa = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">`
+    + `<stop offset="0" stop-color="${clarear(acao, 0.2)}"/>`
+    + `<stop offset="1" stop-color="${escurecer(acao, 0.42)}"/>`
+    + `</linearGradient></defs>`;
+  return `${cabeca}${rampa}<rect width="${LADO}" height="${LADO}" fill="url(#g)"/>${corpo}</svg>`;
 }
 
 const png = (texto) => sharp(Buffer.from(texto)).png({ compressionLevel: 9, palette: true }).toBuffer();

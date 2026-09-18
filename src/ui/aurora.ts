@@ -55,6 +55,14 @@ const AURORAS: Record<string, { hero: number; insights: number }> = {
     hero: require('../../assets/auroras/hero-menta.webp'),
     insights: require('../../assets/auroras/insights-menta.webp'),
   },
+  'cacau': {
+    hero: require('../../assets/auroras/hero-cacau.webp'),
+    insights: require('../../assets/auroras/insights-cacau.webp'),
+  },
+  'salvia': {
+    hero: require('../../assets/auroras/hero-salvia.webp'),
+    insights: require('../../assets/auroras/insights-salvia.webp'),
+  },
   'grafite': {
     hero: require('../../assets/auroras/hero-grafite.webp'),
     insights: require('../../assets/auroras/insights-grafite.webp'),
