@@ -2198,10 +2198,13 @@ export const ATALHOS: QuickKey[] = ['agua', 'refeicao', 'exercicio'];
 const FONTES_MOVIMENTO: [string, string][] = [
   ['appleHealth', 'Apple Saúde'],
   ['healthConnect', 'Health Connect'],
-  ['googleFit', 'Google Fit'],
+  /* Google Fit e "smartwatch" saíram com o catálogo de integrações: o
+     primeiro está fechado para novos cadastros desde 2024, e o segundo
+     nunca foi um serviço — o relógio escreve no app de saúde do celular,
+     e é de lá que os minutos chegam. Ver src/logic/integracoes.ts. */
   ['garmin', 'Garmin'],
   ['fitbit', 'Fitbit'],
-  ['watch', 'seu smartwatch'],
+  ['withings', 'Withings'],
 ];
 
 /* TODAS as fontes ligadas, e não a primeira que aparece.

@@ -422,7 +422,11 @@ export function buildSeed() {
       { t: +daysAgo(2), ic: 'doc', kind: 'exame', title: 'Exames importados', body: 'Painel metabólico lido e organizado por data.' },
       { t: +daysAgo(4), ic: 'spark', kind: 'ia', title: 'Dez semanas de tratamento', body: 'Seu corpo vem respondendo de forma constante. Um sinal entre vários, no seu ritmo.' },
     ],
-    integrations: { appleHealth: true, healthConnect: false, googleFit: false, garmin: false, fitbit: false, withings: true, scale: true, watch: false },
+    /* Só o que dá para ligar de verdade — ver src/logic/integracoes.ts.
+       O Apple Saúde ligado é o que explica a Mariana ter minutos de
+       movimento que ela não digitou; a Withings é a balança dela, e é de
+       onde vem o peso sem pesagem manual. */
+    integrations: { appleHealth: true, healthConnect: false, garmin: false, fitbit: false, withings: true },
     history: { conditions: ['Pré-diabetes', 'Hipertensão leve'], allergies: ['Nenhuma conhecida'], meds: ['Losartana 50 mg'] },
     customSyms: ['Refluxo'],
     /* OS ALERTAS, e não mais quatro interruptores fixos.
@@ -512,6 +516,16 @@ export function ensureDefaults(S: any) {
     (S as any).alertas = lista;
   }
   delete S.reminders;
+  /* AS INTEGRAÇÕES QUE SAÍRAM DO CATÁLOGO SAEM DO ESTADO. Google Fit
+     fechou para novos cadastros; "balança inteligente" e "smartwatch"
+     nunca foram serviços, e sim aparelhos que escrevem no app de saúde do
+     celular. Deixá-las gravadas faria a lista de fontes de movimento
+     continuar citando um smartwatch que nenhuma tela sabe ligar. */
+  if (S.integrations) {
+    delete S.integrations.googleFit;
+    delete S.integrations.scale;
+    delete S.integrations.watch;
+  }
   /* OS CAMPOS DO INTERVALO CHEGARAM DEPOIS DOS ALERTAS. Quem gravou um
      alerta na primeira versão tem lista de horas e mais nada; sem estes
      padrões, abrir a folha dele e tocar em "de tempos em tempos" leria

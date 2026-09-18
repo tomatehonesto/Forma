@@ -77,3 +77,34 @@ export function MarcaContorno({
     </Svg>
   );
 }
+
+/* ============================================================
+   AS MARCAS DOS SERVIÇOS DE SAÚDE
+
+   ⚠️ SÃO DESENHOS NOSSOS, E NÃO OS LOGOTIPOS DELES. Apple Saúde, Health
+   Connect, Garmin, Fitbit e Withings são marcas registradas com regra de
+   uso própria, e usar o arquivo de cada uma sem licença é o tipo de
+   economia que vira carta de advogado. O que está aqui é uma peça na COR
+   de cada serviço — o suficiente para a fileira ser lida de relance, e
+   longe o bastante de se passar pelo original.
+
+   A cor faz quase todo o trabalho. Num quadrado de 34 px, ninguém lê o
+   desenho: lê o tom. Por isso o Apple Saúde é o rosa-vermelho, o Health
+   Connect é o azul, a Garmin é o azul-escuro dela, a Fitbit é o turquesa
+   e a Withings é o verde-água — e a figura em cima é genérica.
+
+   No dia em que houver licença e os arquivos entrarem em assets/images,
+   estas duas funções viram <Image> e somem.
+   ============================================================ */
+
+const CORACAO = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+
+/** O coração do app de saúde do aparelho — rosa no iOS, azul no Android. */
+export function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number; de?: 'ios' | 'android' }) {
+  const cor = de === 'ios' ? '#F43B47' : '#1A56DB';
+  return (
+    <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24">
+      <Path d={CORACAO} fill={cor} />
+    </Svg>
+  );
+}

@@ -1,79 +1,116 @@
 import React from 'react';
-import { View, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Switch, Platform } from 'react-native';
 import { useStore } from '../logic/store';
-import { Screen, Txt, Row, CircleBtn, Grupo } from '../ui/kit';
+import { CONTAS, aparelhoDaVez, type Integracao } from '../logic/integracoes';
+import { Txt, Row } from '../ui/kit';
+import { TelaInterna, Titulao, Bloco, Cartao, Aviso } from '../ui/internas';
+import { CoracaoDeSaude } from '../ui/marca';
 import { useTheme } from '../ui/useTheme';
+import { radius } from '../theme';
 
 /* ============================================================
    INTEGRAÇÕES — de onde os números podem vir sozinhos
 
-   O QUE CADA UMA DIZ TEM DE SER O QUE O APP LÊ. Apple Health e Health
-   Connect ganharam uma tela no cadastro, e lá elas prometem peso, sono e
-   treino. Aqui a mesma integração dizia "passos, sono e treinos": passo
-   nenhuma tela mostra, e o peso — que vira ponto na curva de evolução —
-   ficava de fora da lista. Duas descrições da mesma coisa, e a que a
-   pessoa lê primeiro é a que ela cobra depois.
+   A LISTA ENCOLHEU PORQUE FOI CONFERIDA. Ela tinha oito serviços
+   escritos de olho no que os apps de saúde costumam oferecer, e não no
+   que este app consegue receber: o Google Fit está fechado para novos
+   cadastros desde 2024, e "balança inteligente" e "smartwatch" não são
+   serviços, são categorias de aparelho — elas falam com o app de saúde
+   do celular, e é de lá que o número chega aqui. O porquê de cada corte
+   está em src/logic/integracoes.ts.
 
-   SEM COLUNA DE ÍCONE. As oito linhas mostravam o MESMO desenho de seta
-   oito vezes, dentro de oito pastilhas: uma coluna inteira de tinta que
-   não distinguia nada — e não distinguia porque não havia como. Não dá
-   para usar o logotipo de cada serviço (são marcas de terceiros), e
-   inventar um símbolo para a Garmin seria pior do que não ter. Sem a
-   coluna, o nome lidera, que é o que a pessoa procura quando abre esta
-   tela.
+   E A LISTA PASSOU A DEPENDER DO APARELHO. Apple Saúde num Android é uma
+   chave que nunca vai ligar; os dois ao mesmo tempo é o app admitindo que
+   não sabe onde está rodando.
+
+   O QUADRADO DE COR AO LADO DO NOME é a marca do serviço — desenhada por
+   nós, na cor dele. Logotipo de terceiro não se usa sem licença, e num
+   quadrado de 34 px quem identifica é o tom, não o desenho. Ver
+   src/ui/marca.tsx.
+
+   AS CONTAS NÃO TÊM CHAVE, e isso é o estado delas dito em voz alta:
+   Garmin, Fitbit e Withings entregam dados para um SERVIDOR, por OAuth —
+   não para o telefone. Sem esse servidor, uma chave ali seria uma
+   promessa que ninguém do outro lado ia cumprir.
    ============================================================ */
 
-const ITEMS: [string, string, string][] = [
-  ['appleHealth', 'Apple Health', 'Peso, sono e treinos'],
-  ['healthConnect', 'Health Connect', 'Android · peso, sono e treinos'],
-  ['googleFit', 'Google Fit', 'Atividade e passos'],
-  ['garmin', 'Garmin', 'Treinos e frequência'],
-  ['fitbit', 'Fitbit', 'Sono e passos'],
-  ['withings', 'Withings', 'Balança e pressão'],
-  ['scale', 'Balança inteligente', 'Peso e composição'],
-  ['watch', 'Smartwatch', 'Frequência e atividade'],
-];
+function Marca({ it }: { it: Integracao }) {
+  return (
+    <View style={{
+      width: 34, height: 34, borderRadius: radius.sm + 2,
+      backgroundColor: it.letra ? it.cor : 'rgba(0,0,0,0.04)',
+      alignItems: 'center', justifyContent: 'center',
+    }}>
+      {it.letra
+        ? <Txt v="bodyMed" c="#FFFFFF">{it.letra}</Txt>
+        : <CoracaoDeSaude tamanho={21} de={Platform.OS === 'android' ? 'android' : 'ios'} />}
+    </View>
+  );
+}
 
 export default function Integracoes() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
-  const router = useRouter();
+
+  const aparelho = aparelhoDaVez();
+
+  const Linha = ({ it, direita }: { it: Integracao; direita: React.ReactNode }) => (
+    <Row gap={13} style={{ paddingHorizontal: 16, paddingVertical: 13, alignItems: 'center' }}>
+      <Marca it={it} />
+      <View style={{ flex: 1 }}>
+        <Txt v="bodyMed">{it.nome}</Txt>
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 1, lineHeight: 19 }}>{it.traz}</Txt>
+      </View>
+      {direita}
+    </Row>
+  );
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Integrações</Txt>
-      </Row>
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-        Ligadas, elas trazem peso, sono e treino sem você digitar.
-      </Txt>
+    <TelaInterna titulo="Integrações">
+      <Titulao titulo="Integrações" lead="Ligadas, elas trazem peso, sono e treino sem você digitar." />
 
-      <Grupo>
-        {ITEMS.map(([k, t, sub]) => {
-          const on = !!(S.integrations as any)[k];
-          return (
-            <Row key={k} gap={12}>
-              <View style={{ flex: 1 }}>
-                <Txt v="body">{t}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
-              </View>
-              <Switch
-                value={on}
-                onValueChange={(v) => update((s: any) => { s.integrations[k] = v; })}
-                trackColor={{ false: c.track, true: c.accent }}
-                thumbColor="#fff"
-              />
-            </Row>
-          );
-        })}
-      </Grupo>
+      {aparelho ? (
+        <Bloco titulo="Do seu aparelho" nota="Um depósito local: o app pede permissão e lê. Sem conta e sem senha.">
+          <Cartao>
+            <Linha
+              it={aparelho}
+              direita={
+                <Switch
+                  value={!!(S.integrations as any)[aparelho.id]}
+                  onValueChange={(v) => update((s: any) => { s.integrations[aparelho.id] = v; })}
+                  trackColor={{ false: c.track, true: c.accent }} thumbColor="#fff"
+                />
+              }
+            />
+          </Cartao>
+        </Bloco>
+      ) : (
+        /* No navegador não há app de saúde do sistema para ligar. Dizer
+           isso é melhor do que mostrar uma chave que não tem o que ligar
+           — ou do que não mostrar seção nenhuma e deixar a pessoa achar
+           que o app não lê o celular dela. */
+        <Aviso
+          ic="info"
+          titulo="O app de saúde do aparelho aparece no celular"
+          texto="Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar."
+        />
+      )}
 
-      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 16, paddingHorizontal: 16, lineHeight: 17 }}>
-        Demonstração — conexões reais pedem autorização de cada serviço.
-      </Txt>
-    </Screen>
+      <Bloco
+        titulo="Contas de serviço"
+        nota="Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé."
+      >
+        <Cartao>
+          {CONTAS.map((it) => (
+            <Linha
+              key={it.id}
+              it={it}
+              direita={<Txt v="micro" c={c.tx4}>Em breve</Txt>}
+            />
+          ))}
+        </Cartao>
+      </Bloco>
+    </TelaInterna>
   );
 }

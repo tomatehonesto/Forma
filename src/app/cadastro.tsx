@@ -16,7 +16,7 @@ import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
-import { Marca } from '../ui/marca';
+import { Marca, CoracaoDeSaude } from '../ui/marca';
 import Svg, { Defs, LinearGradient as SvgGradiente, Path, Stop } from 'react-native-svg';
 import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
@@ -946,33 +946,6 @@ function Montando({ onFim }: { onFim: () => void }) {
    O QUE NÃO COPIAMOS: o logo da Apple. Marca de terceiro num cadastro é
    marca usada sem licença, e o desenho funciona igual com o símbolo
    genérico de saúde. */
-/* O CORAÇÃO DO APP DE SAÚDE.
-
-   ⚠️ É DESENHO NOSSO, E NÃO O ARQUIVO DA APPLE OU DO GOOGLE. Os dois
-   ícones são marca registrada com regra de uso própria, e eu não tenho os
-   arquivos: o que está aqui é um coração na paleta de cada um —
-   reconhecível ao lado do nome do app, e sem se passar pelo original.
-   Quando os PNGs oficiais entrarem em assets/images, este componente
-   vira um <Image> e some. */
-function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number; de?: 'ios' | 'android' }) {
-  const D = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
-  /* Rosa para vermelho no Apple Saúde; o azul do Health Connect no
-     Android. É a única coisa que os dois ícones têm em comum para quem
-     olha de longe — a cor —, e é ela que faz a figura ser reconhecida. */
-  const par = de === 'ios' ? ['#FB5E7E', '#F43B47'] : ['#3E7BFA', '#1A56DB'];
-  return (
-    <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24">
-      <Defs>
-        <SvgGradiente id="coracao" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={par[0]} />
-          <Stop offset="1" stopColor={par[1]} />
-        </SvgGradiente>
-      </Defs>
-      <Path d={D} fill="url(#coracao)" />
-    </Svg>
-  );
-}
-
 /* ============================================================
    OS DOIS APLICATIVOS, LADO A LADO
 
