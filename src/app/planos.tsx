@@ -135,6 +135,19 @@ export default function Planos() {
      A paleta escolhida continua valendo: o que se fixa é o modo, e não a
      cor. Quem está no Pitaia vê o paywall em magenta.
 
+     ⚠️⚠️ E POR ISSO TODO `Txt` DESTA TELA PRECISA DE `c`. ⚠️⚠️
+
+     `Txt` sem cor cai no `useTheme()`, que lê o tema DO APARELHO — e
+     não o `c` montado aqui. No navegador, com o tema escuro ligado, a
+     diferença não aparecia; no telefone de quem está no claro, os títulos
+     dos tópicos e os preços saíam em tinta escura sobre o fundo escuro, e
+     a tela chegou a ficar ilegível em produção de teste.
+
+     Quatro textos estavam assim. Se você acrescentar um `Txt` aqui e
+     esquecer o `c`, ele volta a sumir — e some só para quem usa o
+     aplicativo no claro, que é o jeito mais silencioso de um defeito
+     existir.
+
      ⚠️ MAS A COR DE AÇÃO É A CLARA, E NÃO A DO MODO ESCURO.
 
      Cada paleta tem dois tons de ação: o cheio, que é o do Figma e o da
@@ -242,7 +255,7 @@ export default function Planos() {
         </Row>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
           <IconeDoApp lado={64} />
-          <Txt v="h2" style={{ textAlign: 'center' }}>Você não paga pelo aplicativo</Txt>
+          <Txt v="h2" c={c.tx} style={{ textAlign: 'center' }}>Você não paga pelo aplicativo</Txt>
           <Txt v="note" c={c.tx3} style={{ textAlign: 'center', lineHeight: 22 }}>
             O acesso vem do seu vínculo com {S.profile.clinic || 'a clínica que acompanha você'}, e
             vale enquanto ele durar. Se ele terminar, avisamos antes de qualquer cobrança.
@@ -296,19 +309,27 @@ export default function Planos() {
               letreiro em branco. É a mesma peça da abertura do cadastro,
               que foi a última vez que essa pessoa viu o nome. */}
           <View style={{ alignItems: 'center', gap: 10, marginTop: 30 }}>
-            <Marca altura={26} />
+            <Marca altura={22} />
             {/* ⚠️ "DE VERDADE" EM LIMA, e só isso. O lima é a cor do
                 alcançado no resto do aplicativo — a meta batida, o
                 check-in feito —, e aqui ela cai exatamente sobre a
                 diferença que a frase está afirmando. Duas palavras; a
                 terceira faria o título virar decoração.
 
-                AS TRÊS QUEBRAS SÃO ESCRITAS À MÃO. Deixada solta, a frase
-                caía como "Tudo muda quando você / acompanha de /
-                verdade." — e a linha do meio com duas palavras órfãs faz
-                um título de tela de preço parecer erro de composição. */}
-            <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
-              Tudo muda quando{'\n'}você acompanha{'\n'}<Txt v="h1" c={c.lime}>de verdade.</Txt>
+                DUAS LINHAS, E O CORPO MENOR PARA CABEREM. A frase tem
+                duas metades de vinte e um caracteres cada, e em h1 cheio
+                (36 px) a segunda estourava a largura e quebrava sozinha
+                num terceiro pedaço — "acompanha de / verdade.", com duas
+                palavras órfãs embaixo. A 30 px as duas metades cabem
+                inteiras, e o título passa a ter o ritmo que a frase tem
+                quando alguém a diz em voz alta. */}
+            <Txt
+              v="h1"
+              c="#FFFFFF"
+              style={{ textAlign: 'center', letterSpacing: -0.8, fontSize: 30, lineHeight: 37 }}
+            >
+              Tudo muda quando você{'\n'}acompanha{' '}
+              <Txt v="h1" c={c.lime} style={{ fontSize: 30, lineHeight: 37 }}>de verdade.</Txt>
             </Txt>
             <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
               Seus dados reunidos, a sua evolução organizada, e clareza em cada etapa do
@@ -344,7 +365,7 @@ export default function Planos() {
                 <Icon name={ic} size={18} color={c.accent} sw={1.9} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="bodyMed">{t}</Txt>
+                <Txt v="bodyMed" c={c.tx}>{t}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 19 }}>{sub}</Txt>
               </View>
             </Row>
@@ -430,7 +451,7 @@ export default function Planos() {
                         Agora o corpo grande é a cobrança e o equivalente
                         por mês vem embaixo, onde ele é o argumento que é:
                         uma ajuda para comparar, e não o preço. */}
-                    <Txt v="h2" style={{ marginTop: 4 }}>{reais(p.preco)}</Txt>
+                    <Txt v="h2" c={c.tx} style={{ marginTop: 4 }}>{reais(p.preco)}</Txt>
                     <Txt v="micro" c={c.tx3}>{p.periodo}</Txt>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>
                       {p.id === 'anual' ? `${reais(p.porMes)} por mês` : 'cobrado todo mês'}
@@ -456,7 +477,7 @@ export default function Planos() {
                responde o que é verdade — e não com um erro genérico, que
                faria a pessoa tentar de novo. */
             <View style={{ marginTop: 12, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
-              <Txt v="bodyMed">A assinatura ainda não está ligada</Txt>
+              <Txt v="bodyMed" c={c.tx}>A assinatura ainda não está ligada</Txt>
               <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
                 Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
                 segue inteiro do jeito que está.
