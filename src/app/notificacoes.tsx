@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { alertasAtivos } from '../logic/alertas';
 import { relDay } from '../logic/time';
-import { Screen, Txt, Row, CircleBtn, ListRow, Grupo } from '../ui/kit';
+import { Txt, Row, Vazio } from '../ui/kit';
+import { TelaInterna, Titulao, Chips, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 
@@ -20,14 +21,30 @@ import { useTheme } from '../ui/useTheme';
 
    E UMA LISTA É UM CARD, não seis. Card por item transforma seis avisos
    em seis blocos flutuando com espaço igual entre eles, e o olho conta
-   blocos em vez de ler a sequência. É o mesmo desenho do diário de
-   refeições e do perfil — o vocabulário de lista do app.
+   blocos em vez de ler a sequência.
+
+   O FILTRO É O QUE A COR TENTAVA SER. A origem do aviso é informação
+   útil — "o que a minha equipe me mandou?" é uma pergunta que alguém faz
+   —, e ela estava codificada num tom de pastilha que ninguém decifra. Em
+   pastilhas de filtro, a mesma informação vira uma pergunta que se
+   responde com um toque.
    ============================================================ */
+
+/* As origens, com o nome que a pessoa lê. Só aparecem as que existem na
+   lista: pastilha de filtro que devolve tela vazia é um caminho sem
+   saída, e uma origem sem nenhum aviso não tem por que ser oferecida. */
+const ORIGENS: { id: string; label: string }[] = [
+  { id: 'trat', label: 'Tratamento' },
+  { id: 'clin', label: 'Mensagens' },
+  { id: 'ia', label: 'Insights' },
+  { id: 'exame', label: 'Exames' },
+];
 
 export default function Notificacoes() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
+  const [aba, setAba] = useState('todos');
 
   /* Só dois tipos de aviso levam a algum lugar. Os outros são recado, e
      recado que não abre nada não ganha toque nem seta — chevron que não
@@ -35,68 +52,82 @@ export default function Notificacoes() {
   const navOf: Record<string, string> = { trat: '/aplicacoes', exame: '/exames' };
   const nRem = alertasAtivos(S);
 
+  const todos = (S.notifications ?? []) as any[];
+
+  const chips = useMemo(() => [
+    { id: 'todos', label: 'Todos', n: todos.length },
+    ...ORIGENS
+      .map((o) => ({ ...o, n: todos.filter((x) => x.kind === o.id).length }))
+      .filter((o) => o.n > 0),
+  ], [todos]);
+
+  /* A ABA ESCOLHIDA PODE DEIXAR DE EXISTIR. Quem filtrou por Exames e
+     volta depois que o último saiu da lista ficaria olhando um vazio sem
+     entender por quê. Sem a pastilha, a tela volta para Todos. */
+  const filtro = chips.some((x) => x.id === aba) ? aba : 'todos';
+  const lista = filtro === 'todos' ? todos : todos.filter((x) => x.kind === filtro);
+
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="h1" style={{ flex: 1 }}>Notificações</Txt>
-      </Row>
-      {/* O SUBTÍTULO EM LINHA PRÓPRIA. Ao lado do botão de voltar ele
-          dividia a largura com o título e com o círculo, e terminava
-          cortado no meio da palavra. */}
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-        O que o app te contou nos últimos dias.
-      </Txt>
+    <TelaInterna titulo="Notificações">
+      <Titulao titulo="Notificações" lead="O que o app te contou nos últimos dias." />
 
-      <Grupo>
-        {S.notifications.map((n: any) => {
-          const to = navOf[n.kind];
-          const corpo = (
-            /* AVISO NÃO É LINHA DE NAVEGAÇÃO, e por isso não usa a linha
-               de lista do app: ele tem data, e data quer o canto de cima.
+      {/* Com uma origem só na lista, o filtro seria uma pastilha de
+          "Todos" e mais nada — um controle que não controla. */}
+      {chips.length > 2 ? <Chips itens={chips} valor={filtro} onChange={setAba} /> : null}
 
-               Com o quando na coluna da direita, como a linha comum faz
-               com o chevron, ele roubava largura do texto na altura toda —
-               o título quebrava em duas e o corpo era cortado no meio da
-               frase, justamente nos avisos mais longos, que são os que têm
-               algo a dizer. Aqui a data divide só a primeira linha com o
-               título, e o corpo corre embaixo na largura inteira. */
-            <Row gap={12} style={{ alignItems: 'flex-start' }}>
-              <View style={{ width: 32, alignItems: 'center', paddingTop: 2 }}>
-                <Icon name={n.ic} size={20} color={c.tx2} sw={1.8} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Row gap={10} style={{ alignItems: 'baseline' }}>
-                  <Txt v="body" style={{ flex: 1 }}>{n.title}</Txt>
-                  <Txt v="micro" c={c.tx4}>{relDay(new Date(n.t))}</Txt>
-                </Row>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 20 }}>{n.body}</Txt>
-              </View>
-            </Row>
-          );
-          if (!to) return <View key={n.t}>{corpo}</View>;
-          return (
-            <Pressable key={n.t} onPress={() => router.push(to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-              {corpo}
-            </Pressable>
-          );
-        })}
-      </Grupo>
+      {lista.length ? (
+        <Cartao>
+          {lista.map((n: any) => {
+            const to = navOf[n.kind];
+            const corpo = (
+              /* AVISO NÃO É LINHA DE NAVEGAÇÃO, e por isso não usa a linha
+                 de lista do app: ele tem data, e data quer o canto de cima.
 
-      <Grupo title="Lembretes">
-        <ListRow
-          ic="bell" title="Configurar lembretes"
-          sub={nRem ? `${nRem} alerta${nRem === 1 ? '' : 's'} ligado${nRem === 1 ? '' : 's'}` : 'Nenhum alerta ligado'}
-          onPress={() => router.push('/lembretes' as any)}
-        />
-      </Grupo>
+                 Com o quando na coluna da direita, como a linha comum faz
+                 com o chevron, ele roubava largura do texto na altura toda
+                 — o título quebrava em duas e o corpo era cortado no meio
+                 da frase, justamente nos avisos mais longos, que são os que
+                 têm algo a dizer. Aqui a data divide só a primeira linha
+                 com o título, e o corpo corre embaixo na largura inteira. */
+              <Row gap={12} style={{ alignItems: 'flex-start', paddingHorizontal: 16, paddingVertical: 14 }}>
+                <View style={{ width: 28, alignItems: 'center', paddingTop: 2 }}>
+                  <Icon name={n.ic} size={20} color={c.tx2} sw={1.8} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Row gap={10} style={{ alignItems: 'baseline' }}>
+                    <Txt v="bodyMed" style={{ flex: 1 }}>{n.title}</Txt>
+                    <Txt v="micro" c={c.tx4}>{relDay(new Date(n.t))}</Txt>
+                  </Row>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 20 }}>{n.body}</Txt>
+                </View>
+              </Row>
+            );
+            if (!to) return <View key={n.t}>{corpo}</View>;
+            return (
+              <Pressable key={n.t} onPress={() => router.push(to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                {corpo}
+              </Pressable>
+            );
+          })}
+        </Cartao>
+      ) : (
+        <Vazio ic="bell" titulo="Nada por aqui" texto="Quando o app tiver algo a dizer, ele aparece nesta lista." />
+      )}
 
-      <Row gap={7} style={{ marginTop: 16, alignItems: 'flex-start' }}>
-        <Icon name="info" size={14} color={c.tx4} sw={1.8} />
-        <Txt v="micro" c={c.tx4} style={{ flex: 1, lineHeight: 17 }}>
-          Lembretes acolhem, não cobram — você escolhe o quê, quando, e pode adiar sempre.
-        </Txt>
-      </Row>
-    </Screen>
+      <Bloco titulo="Lembretes">
+        <Cartao>
+          <Linha
+            ic="bell" titulo="Configurar lembretes"
+            sub={nRem ? `${nRem} alerta${nRem === 1 ? '' : 's'} ligado${nRem === 1 ? '' : 's'}` : 'Nenhum alerta ligado'}
+            onPress={() => router.push('/lembretes' as any)}
+          />
+        </Cartao>
+      </Bloco>
+
+      {/* "PODE ADIAR SEMPRE" SAIU: não existe adiar. O aviso chega na tela
+          de bloqueio e se dispensa como qualquer outro — é a mesma frase
+          que já tinha saído da tela de Lembretes, e que continuava aqui. */}
+      <Aviso ic="info" texto="Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso." />
+    </TelaInterna>
   );
 }
