@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   PLANOS, assinaturaAtual, isento, reais, GESTAO_NA_LOJA, NOME_DA_LOJA,
+  tipoDaAssinatura, NOME_DO_TIPO,
 } from '../logic/assinatura';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { TelaInterna, Cartao, Linha, Selo } from '../ui/internas';
@@ -69,6 +70,16 @@ export default function Assinatura() {
   const clinica = S.profile.clinic || 'a clínica que acompanha você';
   const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
 
+  /* ⚠️ O NOME DO CARTÃO É O TIPO, E NÃO O PLANO. Ele era "Plano anual",
+     "Acesso pela clínica" e "Sem assinatura" — três nomes para três
+     estados, o que é a mesma doença das três telas, agora na tipografia.
+
+     Care e Individual não mudam quando a pessoa troca de mensal para
+     anual, nem quando a assinatura vence: é o trilho em que ela está. A
+     periodicidade desceu para a ficha, que é onde moram os detalhes da
+     cobrança, e o estado ficou na etiqueta. */
+  const tipo = tipoDaAssinatura(S);
+
   /* ---- o estado vigente, resolvido uma vez ---- */
   type Item = [string, string];
   const vigente: {
@@ -81,13 +92,14 @@ export default function Assinatura() {
     itens: Item[];
   } = atual && plano
     ? {
-      nome: `Plano ${plano.nome.toLowerCase()}`,
+      nome: NOME_DO_TIPO[tipo],
       selo: atual.emTeste ? 'Em teste' : 'Ativa',
       seloTom: atual.emTeste ? 'lima' : 'verde',
       valor: reais(plano.preco),
       unidade: plano.sufixo,
       abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
       itens: [
+        ['Plano', plano.nome],
         ...(atual.renovaEm
           ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataLonga(atual.renovaEm)]] as Item[])
           : []),
@@ -96,7 +108,7 @@ export default function Assinatura() {
     }
     : ehIsenta
       ? {
-        nome: 'Acesso pela clínica',
+        nome: NOME_DO_TIPO[tipo],
         selo: 'Isenta',
         seloTom: 'lima',
         valor: 'Sem custo',
@@ -108,7 +120,7 @@ export default function Assinatura() {
         ],
       }
       : {
-        nome: 'Sem assinatura',
+        nome: NOME_DO_TIPO[tipo],
         selo: 'Inativa',
         seloTom: 'neutra',
         valor: 'Sem custo',
@@ -122,7 +134,7 @@ export default function Assinatura() {
       <Cartao>
         <View style={{ padding: 18, gap: 4 }}>
           <Row style={{ alignItems: 'center' }}>
-            <Txt v="label" c={c.tx2} style={{ flex: 1 }}>{vigente.nome}</Txt>
+            <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{vigente.nome}</Txt>
             <Selo label={vigente.selo} tom={vigente.seloTom} />
           </Row>
 

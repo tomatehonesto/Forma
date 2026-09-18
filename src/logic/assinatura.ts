@@ -118,6 +118,34 @@ export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
     que os Termos prometem na seção de assinatura. */
 export const isento = (S: State) => clinicaConectada(S);
 
+/* ============================================================
+   OS DOIS TIPOS DE ASSINATURA
+
+   ⚠️ TIPO NÃO É PLANO, e confundir os dois é o caminho curto para uma
+   tela que mente. O PLANO é mensal ou anual — a periodicidade da
+   cobrança. O TIPO é de onde vem o acesso: Care, para quem é paciente de
+   uma clínica parceira, e Individual, para quem chegou por conta própria.
+
+   Uma pessoa Individual pode estar sem assinatura nenhuma, e continua
+   Individual: o tipo diz em qual trilho ela está, não se pagou. Quem diz
+   se pagou é `assinaturaAtual()`, e quem diz se precisa pagar é
+   `isento()`.
+
+   ⚠️ E O TIPO SE DEDUZ, NÃO SE ESCOLHE. Ninguém "vira Care" num menu: o
+   vínculo com a clínica é o que decide, e ele nasce do código de convite.
+   Guardar o tipo num campo do perfil criaria um segundo lugar dizendo a
+   mesma coisa — e no dia em que um vínculo terminasse, o campo ficaria
+   para trás dizendo "Care" para quem já não é. */
+export type TipoAssinatura = 'care' | 'individual';
+
+export const tipoDaAssinatura = (S: State): TipoAssinatura =>
+  isento(S) ? 'care' : 'individual';
+
+export const NOME_DO_TIPO: Record<TipoAssinatura, string> = {
+  care: 'Care',
+  individual: 'Individual',
+};
+
 /* ⚠️ O CÓDIGO SE GUARDA NUM LUGAR SÓ, e agora há duas telas que o
    pedem: a de parceiros, que explica o que ele faz, e a de planos, que é
    onde a pessoa está quando ele importa. Normalizar em dois lugares é

@@ -13,6 +13,8 @@ import {
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
+import { Selo } from '../ui/internas';
+import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 
@@ -476,12 +478,23 @@ export default function Perfil() {
             já tem. A vitrine continua a um toque de distância, dentro da
             tela que responde primeiro a pergunta que foi feita.
 
-            O rótulo é o título da tela que abre, nos dois estados. O que
-            muda é a segunda linha, que já adianta a resposta. */}
+            O rótulo é o título da tela que abre.
+
+            ⚠️ E A SEGUNDA LINHA VIROU ETIQUETA. Ela dizia "Isenta pelo
+            vínculo com a clínica" — uma frase inteira para uma informação
+            de uma palavra, e uma frase que só servia a metade das pessoas.
+            O tipo cabe numa etiqueta, vale para todo mundo, e é o mesmo
+            nome que a tela de dentro mostra em corpo grande: quem toca
+            aqui reconhece onde chegou. */}
         <ListRow ic="spark"
           title="Sua assinatura"
-          sub={conectada ? 'Isenta pelo vínculo com a clínica' : 'O que você tem, e quanto custa'}
-          onPress={go('/assinatura')} />
+          onPress={go('/assinatura')}
+          right={
+            <Row gap={8} style={{ alignItems: 'center' }}>
+              <Selo label={NOME_DO_TIPO[tipoDaAssinatura(S)]} tom={conectada ? 'lima' : 'neutra'} />
+              <Icon name="chev" size={15} color={c.tx2} sw={2} />
+            </Row>
+          } />
         {!conectada && TEM_REDE_PARCEIRA ? (
           <ListRow ic="steth" title="Tenho um código de convite"
             sub="Para vincular a clínica que acompanha você"
