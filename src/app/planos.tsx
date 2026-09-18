@@ -471,7 +471,18 @@ export default function Planos() {
               sangrada até a borda traz o problema de volta. */}
           <PecaDoAlto c={c} />
 
-          <View style={{ alignItems: 'center', gap: 10 }}>
+          {/* ⚠️ O RESPIRO AQUI É CONTRA O DESVANECIMENTO, e não contra a
+              imagem. A peça não termina numa borda: ela se dissolve, e os
+              últimos pixels dela são quase pretos sobre preto. Sem folga,
+              o título encostava no que ainda era telefone — parecia
+              legenda da foto em vez de frase da tela.
+
+              ⚠️ E ELE CUSTA A ESPIADA NOS TÓPICOS, que é a única pista de
+              que a página rola. Empurrar o título para baixo empurra a
+              lista junto; 16 px foi o que coube sem afundar o primeiro
+              tópico atrás da barra de decisão. Crescer daqui exige
+              devolver o mesmo tanto em MOCKUP_JANELA. */}
+          <View style={{ alignItems: 'center', gap: 10, marginTop: 16 }}>
             {/* ⚠️ "DE VERDADE" EM LIMA, e só isso. O lima é a cor do
                 alcançado no resto do aplicativo — a meta batida, o
                 check-in feito —, e aqui ela cai exatamente sobre a
