@@ -311,9 +311,14 @@ export async function assinar(_plano: Plano['id']): Promise<Resultado> {
 /* ============================================================
    O DESCONTO DE RETENÇÃO
 
-   ⚠️ A PORCENTAGEM E O PRAZO SÃO DECISÃO DE PRODUTO, e estes números
-   ainda não foram confirmados — 50% por um mês é o ponto de partida.
-   Trocá-los é mudar esta constante, e só ela.
+   ⚠️ A PORCENTAGEM É DECISÃO DE PRODUTO, e ainda não foi confirmada —
+   50% é o ponto de partida. Trocá-la é mudar esta constante, e só ela.
+
+   ⚠️ E ELE VALE PARA A PRÓXIMA COBRANÇA, seja ela qual for. Havia um
+   `meses: 1` aqui, que ninguém lia e que era falso para metade das
+   pessoas: no mensal a próxima cobrança é daqui a um mês, no anual é
+   daqui a um ano. O desconto é do próximo débito, e o que muda entre os
+   dois planos é quando ele acontece — não quanto tempo ele dura.
 
    ⚠️⚠️ E QUEM DÁ DESCONTO É A LOJA, NÃO O APLICATIVO. ⚠️⚠️
 
@@ -327,7 +332,7 @@ export async function assinar(_plano: Plano['id']): Promise<Resultado> {
    pessoa que aceitou um desconto para NÃO cancelar e descobre no mês
    seguinte que foi cobrada inteira é a pior versão desta tela que dá para
    imaginar. Ver PENDENCIAS.md, item 5. */
-export const DESCONTO_DE_RETENCAO = { porcento: 50, meses: 1 };
+export const DESCONTO_DE_RETENCAO = { porcento: 50 };
 
 export async function resgatarDesconto(): Promise<Resultado> {
   return { ok: false, motivo: 'nao-implementado' };

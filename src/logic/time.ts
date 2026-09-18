@@ -14,6 +14,18 @@ export const DOW_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
 export const fmtDate = (d: Date) => `${d.getDate()} ${MO[d.getMonth()]}`;
 
+/* ⚠️ COM ANO, e é essa a diferença para os `dataLonga` espalhados pelas
+   telas de registro. Lá o ano é ruído: ninguém precisa dele para ler a
+   refeição de ontem. Aqui ele é o dado — "próxima cobrança em 18 de
+   setembro" sem o ano não diz se é daqui a um mês ou a treze, e é
+   exatamente essa a pergunta de quem está olhando uma tela de cobrança.
+
+   As três telas de assinatura tinham a mesma função copiada. */
+export const dataComAno = (t: number | Date) => {
+  const d = new Date(t);
+  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
+};
+
 /* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:
    "1 a 7 set", e "28 jul a 3 ago" quando a semana vira o mês. */
 export const fmtPeriodo = (a: Date, b: Date) =>

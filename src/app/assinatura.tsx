@@ -10,7 +10,7 @@ import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { TelaInterna, Cartao, Linha, Selo, Aviso } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
-import { MO_LONG } from '../logic/time';
+import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -47,10 +47,6 @@ import { radius } from '../theme';
    numa tela de cobrança.
    ============================================================ */
 
-const dataLonga = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
-};
 
 /* O menor preço por mês entre os planos. Sai da lista e não de um número
    escrito à mão: mudar preço em assinatura.ts não pode deixar uma frase
@@ -130,7 +126,7 @@ export default function Assinatura() {
       valor: 'Sem custo',
       abaixo: `O vínculo com ${clinica} cobre o aplicativo inteiro.`,
       itens: [
-        ...(vinculo?.desde ? ([['Vinculada desde', dataLonga(vinculo.desde)]] as Item[]) : []),
+        ...(vinculo?.desde ? ([['Vinculada desde', dataComAno(vinculo.desde)]] as Item[]) : []),
         ...(convite ? ([['Código de convite', convite]] as Item[]) : []),
         ['Próxima cobrança', 'Não há'],
       ],
@@ -143,7 +139,7 @@ export default function Assinatura() {
         itens: [
           ['Periodicidade', plano.nome],
           ...(atual.renovaEm
-            ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataLonga(atual.renovaEm)]] as Item[])
+            ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataComAno(atual.renovaEm)]] as Item[])
             : []),
           ['Cobrança pela', NOME_DA_LOJA],
         ],

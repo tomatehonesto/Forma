@@ -7,7 +7,7 @@ import {
 import { TelaInterna, Cartao, Linha } from '../ui/internas';
 import { Txt, Vazio } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
-import { MO_LONG } from '../logic/time';
+import { dataComAno } from '../logic/time';
 
 /* ============================================================
    HISTÓRICO DE COBRANÇA — o extrato
@@ -32,10 +32,6 @@ import { MO_LONG } from '../logic/time';
    palavra certa.
    ============================================================ */
 
-const dataLonga = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
-};
 
 export default function Cobrancas() {
   const S = useStore((s) => s.S);
@@ -69,7 +65,7 @@ export default function Cobrancas() {
               <Linha
                 key={l.t}
                 titulo={l.estado === 'teste' ? 'Início do teste grátis' : reais(l.valor)}
-                sub={`${dataLonga(l.t)}${plano ? ` · plano ${plano.nome.toLowerCase()}` : ''}`}
+                sub={`${dataComAno(l.t)}${plano ? ` · plano ${plano.nome.toLowerCase()}` : ''}`}
                 selo={l.estado === 'reembolsada' ? 'Reembolsada' : undefined}
                 seloTom="neutra"
                 seta={false}

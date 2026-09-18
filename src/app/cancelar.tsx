@@ -7,6 +7,7 @@ import {
   GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
 import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto, Opcoes, Opc } from '../ui/internas';
+import { dataComAno } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -125,10 +126,14 @@ export default function Cancelar() {
   /* ⚠️ PORTA DE DESENVOLVIMENTO — o mesmo `?assinante=1` de /assinatura,
      pelo mesmo motivo: sem assinatura não há plano, e sem plano as duas
      respostas condicionais desta tela nunca aparecem para ser conferidas.
-     Em produção `__DEV__` é falso e some na compilação. */
+     `?assinante=anual` finge o outro plano, que é o que tem a resposta
+     mais diferente — a do ano já pago. Em produção `__DEV__` é falso e o
+     bloco some na compilação. */
   const { assinante } = useLocalSearchParams<{ assinante?: string }>();
-  const atual = assinaturaAtual(S) ?? (__DEV__ && assinante === '1'
-    ? { plano: 'mensal' as const, renovaEm: Date.now() + 20 * 864e5, emTeste: false }
+  const atual = assinaturaAtual(S) ?? (__DEV__ && (assinante === '1' || assinante === 'anual')
+    ? assinante === 'anual'
+      ? { plano: 'anual' as const, renovaEm: Date.now() + 250 * 864e5, emTeste: false }
+      : { plano: 'mensal' as const, renovaEm: Date.now() + 20 * 864e5, emTeste: false }
     : null);
   const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
   const anual = PLANOS.find((x) => x.id === 'anual')!;
@@ -159,12 +164,46 @@ export default function Cancelar() {
   const resposta = (() => {
     if (motivo === 'caro' && plano) {
       const comDesconto = plano.preco * (1 - DESCONTO_DE_RETENCAO.porcento / 100);
+
+      /* ⚠️ NO ANUAL, O DESCONTO NÃO É A NOTÍCIA — A DATA É.
+
+         Quem paga por ano e diz que está caro não tem cobrança chegando:
+         ela já pagou, e a próxima é daqui a meses. Oferecer "desconto na
+         próxima cobrança" a essa pessoa é responder uma pergunta que ela
+         não fez, e ainda por cima com um alívio que só chega no ano que
+         vem.
+
+         O que muda a decisão dela é o que ninguém disse ainda: o ano está
+         pago, cancelar agora NÃO devolve o dinheiro, e o aplicativo
+         continua até a data. Quem descobre isso costuma adiar a decisão em
+         vez de cancelar — e adiar aqui é honesto, porque é a informação
+         que estava faltando, não uma barreira.
+
+         ⚠️ E O REEMBOLSO É DITO, mesmo custando. A pessoa que quer o
+         dinheiro de volta vai procurar de qualquer jeito; ficar calado só
+         garante que ela procure irritada, e no lugar errado. Quem devolve
+         é a loja, e é lá que se pede.
+
+         O desconto continua oferecido — na renovação, com esse nome. */
+      if (plano.id === 'anual') {
+        return {
+          ic: 'wallet',
+          titulo: 'O seu ano já está pago',
+          texto: [
+            atual?.renovaEm
+              ? `A próxima cobrança é só em ${dataComAno(atual.renovaEm)}, e o aplicativo continua seu até lá — cancelar agora não devolve o que já foi pago.`
+              : 'O aplicativo continua seu até o fim do período já pago — cancelar agora não devolve esse valor.',
+            `Reembolso, quando cabe, é pedido na ${NOME_DA_LOJA}. E se o problema for o valor, a renovação pode sair por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.`,
+          ].join(' '),
+          rotulo: 'Quero o desconto na renovação',
+          acao: aceitarDesconto,
+        };
+      }
+
       return {
         ic: 'wallet',
         titulo: `${DESCONTO_DE_RETENCAO.porcento}% de desconto no próximo mês`,
-        texto: plano.id === 'mensal'
-          ? `A próxima cobrança sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}. E se o mensal for o problema, o anual fica em ${reais(anual.outraUnidade.valor)} por mês.`
-          : `O próximo período sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.`,
+        texto: `A próxima cobrança sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}. E se o mensal for o problema, o anual fica em ${reais(anual.outraUnidade.valor)} por mês.`,
         rotulo: 'Quero o desconto',
         acao: aceitarDesconto,
       };
