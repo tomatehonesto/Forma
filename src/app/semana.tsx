@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { INDICADORES, sintomasEm, timelineWeeks, notas } from '../logic/derive';
+import { INDICADORES, sintomasEm, timelineWeeks, notas, temAcompanhamento } from '../logic/derive';
 import { MO_LONG, DAY, DOW_PT, MO, nf } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
@@ -160,6 +160,10 @@ export default function Semana() {
         </Sanfona>
       </Bloco>
 
+      {/* Mesmo motivo da folha de registro: sem ninguém para quem
+          levar, a pauta da consulta não é um bloco em branco a preencher
+          — é um assunto que não é dela. */}
+      {temAcompanhamento(S) ? (
       <Bloco titulo="Nota para a consulta" link="Ver todas" onLink={() => router.push('/notas' as any)}>
         <Cartao>
           <Linha
@@ -169,6 +173,7 @@ export default function Semana() {
           />
         </Cartao>
       </Bloco>
+      ) : null}
     </TelaInterna>
   );
 }

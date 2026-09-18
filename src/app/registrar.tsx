@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
-  ATALHOS, checkinToday, checkinFeito, waterMlToday, litros, streak,
+  ATALHOS, checkinToday, checkinFeito, waterMlToday, litros, streak, temAcompanhamento,
   type QuickKey,
 } from '../logic/derive';
 import { Txt, Row, Divider } from '../ui/kit';
@@ -171,7 +171,14 @@ export default function Registrar() {
        uma orientação e lembrar de uma pergunta na terça são a mesma
        lista — a que vira a pauta do resumo do médico. Dois itens aqui
        seriam duas portas para o mesmo lugar, com nomes diferentes. */
-    { ic: 'pencil', titulo: 'Anotei algo para a consulta', to: '/medir-anotacao' },
+    /* ⚠️ E ELE SÓ EXISTE PARA QUEM TEM PARA QUEM ANOTAR. Nota de
+       consulta é pauta: ela nasce para ser dita a alguém, e o resumo a
+       carrega até lá. Quem respondeu que conduz o tratamento por conta
+       própria não tem esse alguém — e a linha, para ela, é o app
+       oferecendo guardar perguntas que ninguém vai responder. */
+    ...(temAcompanhamento(S)
+      ? [{ ic: 'pencil', titulo: 'Anotei algo para a consulta', to: '/medir-anotacao' }]
+      : []),
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
   return (

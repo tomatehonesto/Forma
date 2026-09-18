@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { clinicaConectada } from '../logic/derive';
 import { Txt } from '../ui/kit';
-import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -38,8 +38,31 @@ const MUDA: [string, string, string][] = [
 
 export default function Parceiros() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const conectada = clinicaConectada(S);
+
+  const guardado = ((S.profile as any).convite as string) || '';
+  const [codigo, setCodigo] = React.useState(guardado);
+  const [trocando, setTrocando] = React.useState(!guardado);
+
+  /* ⚠️ GUARDAR O CÓDIGO NÃO ENCOSTA EM MAIS NADA.
+
+     É a regra da casa levada ao caso que mais a tenta: virar cliente de
+     uma clínica parceira muda quem paga, e é exatamente aí que um
+     aplicativo se sente autorizado a "começar do zero com a equipe". Não
+     começa. Peso, aplicações, check-ins, sintomas, exames, fotos e
+     anotações são da pessoa, e ela chegou com eles.
+
+     Esta função escreve UM campo. Se um dia ela crescer para mais de
+     um, a pergunta a fazer é: o que estou apagando de alguém que só
+     digitou oito letras? */
+  const guardar = () => {
+    const v = codigo.trim().toUpperCase();
+    update((s: any) => { s.profile.convite = v; });
+    setCodigo(v);
+    setTrocando(false);
+  };
 
   if (conectada) {
     return (
@@ -75,8 +98,34 @@ export default function Parceiros() {
         texto="Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela."
       />
 
+      {/* ---- o código ----
+
+          ⚠️ A PORTA PRECISA SER PERMANENTE, e até agora ela passava uma
+          vez: o cadastro perguntava o código e nunca mais. Quem chegou
+          por conta própria e passou a se tratar numa clínica parceira —
+          que é o caminho mais comum dos que existem — não tinha por onde
+          entrar com o convite depois.
+
+          E O CAMPO É HONESTO SOBRE O QUE FAZ. Ele guarda o código; quem
+          transforma código em vínculo é um servidor que ainda não existe.
+          Dizer "pronto, você está conectada" seria a porta emparedada de
+          sempre. A mesma frase que o cadastro usa desde o começo — a
+          conferência acontece depois — vale aqui, e é verdade. */}
+      {guardado && !trocando ? (
+        <Campo rotulo="Código de convite" ajuda="Assim que a clínica confirmar, a sua equipe aparece aqui.">
+          <Txt v="h2" style={{ letterSpacing: 2 }}>{guardado}</Txt>
+          <Botao label="Usar outro código" onPress={() => { setCodigo(''); setTrocando(true); }} tom="fantasma" />
+        </Campo>
+      ) : (
+        <Campo rotulo="Tenho um código de convite" ajuda="É o código que a clínica te passou. A conferência acontece depois.">
+          <Texto valor={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder="Digite o código" linhas={1} />
+          <Botao label="Guardar código" onPress={guardar} desligado={codigo.trim().length < 4} />
+        </Campo>
+      )}
+
       <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
         Sem vínculo, nada do seu diário sai do aparelho — e nada muda no que você já registra.
+        Se o vínculo vier, ele também não recomeça nada: tudo o que você registrou continua aqui.
       </Txt>
 
       <View />

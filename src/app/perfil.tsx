@@ -14,6 +14,7 @@ import {
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
 import { Icon } from '../ui/Icon';
+import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 
 /* A MESMA FOTO DA ABA CUIDADO. Uma pessoa, um retrato: se o app tivesse
    duas imagens da mesma médica, elas divergiriam no dia em que uma fosse
@@ -445,6 +446,29 @@ export default function Perfil() {
               </View>
             </Pressable>
         </View>
+      ) : null}
+
+      {/* ---- clínica parceira ----
+
+          ⚠️ NÃO É A OFERTA DE VOLTA. A vitrine dos parceiros vive no fim
+          da aba Cuidado e só aparece para quem declarou não ter
+          acompanhamento — oferecer outro médico a quem acabou de dizer
+          que tem um é discordar da escolha dela toda vez que ela abre o
+          app.
+
+          Isto é outra coisa: a porta de quem JÁ RECEBEU um código. Ela
+          vale para os dois estados sem vínculo, porque a clínica de quem
+          se trata por fora pode se credenciar amanhã — e o convite, em
+          qualquer caso, chega por fora do aplicativo.
+
+          E mora no perfil porque é assunto de conta: o vínculo é quem
+          presta o serviço, e um dia é quem decide a cobrança. */}
+      {!conectada && TEM_REDE_PARCEIRA ? (
+        <Grupo title="Clínica parceira">
+          <ListRow ic="steth" title="Tenho um código de convite"
+            sub="Para vincular a clínica que acompanha você"
+            onPress={go('/parceiros')} />
+        </Grupo>
       ) : null}
 
       {/* ---- acompanhamento ----
