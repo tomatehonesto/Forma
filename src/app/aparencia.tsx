@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import { trocarIcone } from '../logic/icone';
 import { useAurora } from '../ui/aurora';
@@ -67,6 +67,30 @@ function IconeDaPaleta({ acao, marca, lado }: { acao: string; marca: string; lad
   );
 }
 
+/* A BOLINHA DE DUAS CORES — em cima a que age, embaixo a do alcançado.
+
+   ⚠️ O CORTE ERA HORIZONTAL E PASSOU A SER DIAGONAL. Reto, a bolinha lia
+   como duas faixas empilhadas — e faixa empilhada é gráfico, é barra de
+   progresso, é qualquer coisa menos "aqui estão duas cores". Na diagonal
+   as duas metades se encostam pelo canto, que é como amostra de cor se
+   apresenta desde sempre.
+
+   E é SVG, e não duas Views cortadas: um triângulo com hipotenusa curva
+   não se desenha com borda e raio. O caminho é o círculo inteiro na cor
+   de ação, com a metade de baixo-esquerda por cima — arco de 135° a 315°,
+   que é a diagonal. */
+function Duas({ acao, alcancado, lado }: { acao: string; alcancado: string; lado: number }) {
+  const r = lado / 2;
+  const d = r * 0.70710678;
+  const metade = `M ${r - d} ${r - d} A ${r} ${r} 0 0 0 ${r + d} ${r + d} Z`;
+  return (
+    <Svg width={lado} height={lado} viewBox={`0 0 ${lado} ${lado}`}>
+      <Circle cx={r} cy={r} r={r} fill={acao} />
+      <Path d={metade} fill={alcancado} />
+    </Svg>
+  );
+}
+
 /** Uma barra de esqueleto — é o que representa texto na prévia. */
 function Barra({ larg, alt = 7, cor }: { larg: any; alt?: number; cor: string }) {
   return <View style={{ width: larg, height: alt, borderRadius: alt / 2, backgroundColor: cor }} />;
@@ -93,75 +117,102 @@ export default function Aparencia() {
         lead="O Morphi pode ter a sua cara. Escolha uma paleta e ela vai para tudo — inclusive para o ícone na sua tela inicial."
       />
 
-      {/* ---- a prévia ---- */}
-      <View style={{
-        borderRadius: radius.xl, overflow: 'hidden',
-        backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-      }}>
-        {/* A faixa de cima é o hero: a aurora da paleta com o véu dela por
-            cima, que é exatamente a composição das telas de verdade. */}
-        <View style={{ height: 132, justifyContent: 'space-between', paddingBottom: 14 }}>
-          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <LinearGradient
-            colors={[alfa(c.veu, 0.5), alfa(c.veu, 0.3), alfa(c.veu, 0.72)]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          <Row gap={12} style={{ padding: 16, alignItems: 'center' }}>
-            <IconeDaPaleta acao={paleta.acaoClara} marca={paleta.alcancado} lado={40} />
-            <View style={{ gap: 6, flex: 1 }}>
-              <Barra larg={96} cor="rgba(255,255,255,0.85)" />
-              <Barra larg={62} alt={6} cor="rgba(255,255,255,0.45)" />
-            </View>
-          </Row>
-          {/* A pastilha do alcançado sobre a aurora: é onde ela aparece na
-              Home, no botão de check-in. */}
-          <View style={{ paddingHorizontal: 16 }}>
-            <View style={{
-              alignSelf: 'flex-start', backgroundColor: paleta.alcancado,
-              borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
-            }}>
-              <Txt v="tag" c={paleta.alcancadoInk} style={{ fontFamily: font.bodyMed }}>Feito hoje</Txt>
-            </View>
-          </View>
-        </View>
+      {/* ---- a prévia ----
 
-        {/* E embaixo a folha, com as duas coisas que a cor de ação faz: o
-            botão cheio e o link. */}
-        <View style={{ padding: 16, gap: 14 }}>
-          <View style={{ gap: 7 }}>
-            <Barra larg="70%" cor={c.bg3} />
-            <Barra larg="46%" cor={c.bg3} />
-          </View>
-          <Row gap={12} style={{ alignItems: 'center' }}>
-            <View style={{
-              backgroundColor: isDark ? paleta.acaoEscura : paleta.acaoClara,
-              borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 9,
-            }}>
-              <Txt v="tag" c={isDark ? paleta.inkEscuro : paleta.inkClaro} style={{ fontFamily: font.bodyMed }}>
-                Registrar
-              </Txt>
+          ⚠️ ELA PRECISA DIZER QUE É PRÉVIA. Sem o rótulo em cima, um cartão
+          com aurora, ícone e botão no alto de uma tela de ajuste lê como
+          conteúdo de verdade — e a pessoa tenta tocar no "Registrar". */}
+      <View style={{ gap: 10 }}>
+        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.4 }}>EXEMPLO DE COMO FICA</Txt>
+
+        <View style={{
+          borderRadius: radius.xl, overflow: 'hidden',
+          backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+        }}>
+          {/* A faixa de cima é o hero: a aurora da paleta com o véu dela
+              por cima, que é exatamente a composição das telas de verdade. */}
+          <View style={{ height: 136, justifyContent: 'space-between', paddingBottom: 14 }}>
+            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <LinearGradient
+              colors={[alfa(c.veu, 0.5), alfa(c.veu, 0.3), alfa(c.veu, 0.72)]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+
+            {/* TEXTO DE EXEMPLO, e não nome de gente: "Bom dia, Ana" numa
+                prévia faria a pessoa achar que o app trocou o nome dela.
+                As frases são genéricas de propósito — o que a prévia
+                mostra é onde a cor cai, não quem usa o aplicativo. */}
+            <Row gap={12} style={{ padding: 16, alignItems: 'center' }}>
+              <IconeDaPaleta acao={paleta.acaoClara} marca={paleta.alcancado} lado={40} />
+              <View style={{ flex: 1, gap: 3 }}>
+                <Txt v="bodyMed" c="#FFFFFF">Bom dia</Txt>
+                <Txt v="micro" c="rgba(255,255,255,0.72)">Dia 12 · semana 2</Txt>
+              </View>
+            </Row>
+
+            {/* ⚠️ A PASTILHA GANHOU UM CHECK. Sem ele, um retângulo
+                arredondado e cheio de cor a dois centímetros de um botão
+                arredondado e cheio de cor lê como um segundo botão — e o
+                que ela é na Home é o contrário: a marca do que já
+                aconteceu, e não algo a tocar. */}
+            <View style={{ paddingHorizontal: 16 }}>
+              <Row gap={6} style={{
+                alignSelf: 'flex-start', alignItems: 'center',
+                backgroundColor: paleta.alcancado, borderRadius: radius.pill,
+                paddingLeft: 9, paddingRight: 12, paddingVertical: 6,
+              }}>
+                <Icon name="check" size={12} color={paleta.alcancadoInk} sw={3} />
+                <Txt v="tag" c={paleta.alcancadoInk} style={{ fontFamily: font.bodyMed }}>Check-in feito</Txt>
+              </Row>
             </View>
-            <Txt v="tag" c={isDark ? paleta.acaoEscura : paleta.acaoClara}>Ver a jornada</Txt>
-          </Row>
+          </View>
+
+          {/* E embaixo a folha, com as duas coisas que a cor de ação faz:
+              o botão cheio e o link. */}
+          <View style={{ padding: 16, gap: 14 }}>
+            <View style={{ gap: 6 }}>
+              <Txt v="bodyMed">Suas metas de hoje</Txt>
+              <Barra larg="62%" cor={c.bg3} />
+            </View>
+            <Row gap={14} style={{ alignItems: 'center' }}>
+              <View style={{
+                backgroundColor: isDark ? paleta.acaoEscura : paleta.acaoClara,
+                borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 9,
+              }}>
+                <Txt v="tag" c={isDark ? paleta.inkEscuro : paleta.inkClaro} style={{ fontFamily: font.bodyMed }}>
+                  Registrar
+                </Txt>
+              </View>
+              <Txt v="tag" c={isDark ? paleta.acaoEscura : paleta.acaoClara}>Ver a jornada</Txt>
+            </Row>
+          </View>
         </View>
       </View>
 
-      {/* ---- claro ou escuro ---- */}
+      {/* ---- claro ou escuro ----
+
+          ⚠️ ERAM TRÊS CARTÕES ALTOS, com o ícone numa linha e o rótulo em
+          outra: quase cento e vinte pixels para uma decisão de três
+          opções, no meio de uma tela cujo assunto é outro. A escolha de
+          tema não é o que traz alguém aqui — a cor é. Em pastilha de uma
+          linha ela ocupa um terço e continua dizendo a mesma coisa. */}
       <Bloco titulo="Claro ou escuro" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
-        <Row gap={10}>
+        <Row gap={8}>
           {MODOS.map((m) => {
             const on = tema === m.id;
             return (
               <Pressable key={m.id} onPress={() => setTheme(m.id)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-                <View style={{
-                  backgroundColor: c.bg1, borderRadius: radius.lg,
-                  borderWidth: on ? 2 : 1, borderColor: on ? c.tx : c.line,
-                  paddingHorizontal: 12, paddingVertical: 14, gap: 12,
+                <Row gap={7} style={{
+                  justifyContent: 'center', alignItems: 'center',
+                  backgroundColor: on ? c.tx : c.bg1,
+                  borderRadius: radius.pill,
+                  borderWidth: 1, borderColor: on ? c.tx : c.line,
+                  paddingVertical: 10,
                 }}>
-                  <Icon name={m.ic} size={20} color={on ? c.tx : c.tx4} sw={1.9} />
-                  <Txt v="bodyMed" c={on ? c.tx : c.tx3}>{m.nome}</Txt>
-                </View>
+                  <Icon name={m.ic} size={15} color={on ? c.bg1 : c.tx3} sw={1.9} />
+                  <Txt v="label" c={on ? c.bg1 : c.tx2}>{m.nome}</Txt>
+                </Row>
               </Pressable>
             );
           })}
@@ -171,7 +222,7 @@ export default function Aparencia() {
       {/* ---- as paletas ---- */}
       <Bloco
         titulo="Escolha a sua cor"
-        nota={`Agora você está no ${paleta.nome}. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}
+        nota={`Você está no ${paleta.nome}, e ele já está valendo em todo o aplicativo. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}
       >
         <Row style={{ flexWrap: 'wrap' }}>
           {PALETAS.map((p) => {
@@ -183,19 +234,12 @@ export default function Aparencia() {
                 onPress={() => escolher(p.id)}
                 style={({ pressed }) => [{ width: '25%', alignItems: 'center', paddingVertical: 10, opacity: pressed ? 0.7 : 1 }]}
               >
-                {/* A BOLINHA É PARTIDA AO MEIO: em cima a cor que age,
-                    embaixo a do alcançado. Corte na diagonal ficaria mais
-                    bonito e diria menos — na horizontal as duas metades têm
-                    o mesmo peso, que é o que elas têm no aplicativo. */}
                 <View style={{
-                  width: 54, height: 54, borderRadius: 27,
+                  width: 74, height: 74, borderRadius: 37,
                   alignItems: 'center', justifyContent: 'center',
                   borderWidth: 2, borderColor: on ? c.tx : 'transparent',
                 }}>
-                  <View style={{ width: 42, height: 42, borderRadius: 21, overflow: 'hidden' }}>
-                    <View style={{ height: '50%', backgroundColor: acao }} />
-                    <View style={{ height: '50%', backgroundColor: p.alcancado }} />
-                  </View>
+                  <Duas acao={acao} alcancado={p.alcancado} lado={62} />
                 </View>
                 <Txt
                   v="micro"
