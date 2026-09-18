@@ -84,7 +84,7 @@ teste é antes da compra, os dois convivem, e **a seção 7 dos Termos ainda
 não fala do teste**: ela precisa passar pela revisão do item 2 com essa
 frase dentro.
 
- em  desliga o anúncio na tela
+`TESTE_DIAS = 0` em `src/logic/assinatura.ts` desliga o anúncio na tela
 inteira — é assim que se tira, e não apagando frase por frase.
 
 ⚠️ **E há uma porta de desenvolvimento a tirar junto.** A semente tem
