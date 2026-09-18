@@ -373,9 +373,18 @@ export default function Assinatura() {
 
           · isenta com assinatura ativa — o estado que não deveria existir,
             e o único jeito de a pessoa descobrir que está pagando à toa;
-          · isenta — a mesma promessa da tela de planos, palavra por
-            palavra: é compromisso, não frase de tela, e se as duas se
-            afastarem uma vira a versão errada para quem leu a outra;
+          · isenta — a mesma promessa da seção 4 dos Termos, e o texto
+            nasce de lá. Não é frase de tela: é o compromisso que o
+            documento assume, repetido onde ele importa. Se os dois se
+            afastarem, um vira a versão errada para quem leu o outro — e
+            quem tem razão é o documento.
+
+            ⚠️ E ELA DIZ QUEM AVISA A GENTE. "Se o vínculo terminar" fazia
+            parecer que o aplicativo percebe sozinho, e ele não percebe:
+            ninguém aqui sabe que uma pessoa deixou de ser paciente de uma
+            clínica. Quem sabe é a clínica, e é ela que informa. A frase
+            precisa dizer isso, porque a promessa que vem depois depende
+            inteira disso acontecer;
           · sem nada — dizer "você não assinou" sem dizer que NINGUÉM pode
             assinar deixa a pessoa procurando um botão que não existe. Esta
             sai no dia em que a cobrança entrar. */}
@@ -385,7 +394,7 @@ export default function Assinatura() {
           : atual
             ? null
             : ehIsenta
-              ? 'Se o vínculo terminar, avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro.'
+              ? 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro.'
               : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.';
         if (!miuda) return null;
         return (

@@ -53,7 +53,7 @@ export default function Cobrancas() {
             ic="doc"
             titulo={ehIsenta ? 'Nenhuma cobrança' : 'Nenhuma cobrança ainda'}
             texto={ehIsenta
-              ? 'O acesso vem do vínculo com a clínica, e vínculo não gera cobrança. Se um dia ele terminar, avisamos antes de qualquer valor aparecer aqui.'
+              ? 'O acesso vem do vínculo com a clínica, e vínculo não gera cobrança. Caso a clínica nos informe que ele foi encerrado, avisamos antes de qualquer valor aparecer aqui.'
               : 'Quando a assinatura começar, cada cobrança aparece aqui com a data e o valor.'}
           />
         </Cartao>
