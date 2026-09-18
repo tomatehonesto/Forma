@@ -8,7 +8,7 @@ import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
 import { useTheme } from './useTheme';
-import { ty, font, radius, shadowCard, type Palette } from '../theme';
+import { ty, font, radius, shadowCard } from '../theme';
 
 /* ============================================================
    TELAS INTERNAS — o vocabulário das telas de dentro
@@ -1401,7 +1401,7 @@ export function ItemApagavel({ pergunta, onApagar, children }: {
 
    Desligado ele NÃO CHAMA onPress: um botão que parece apagado e mesmo
    assim funciona é pior do que um que não parece nada. */
-export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, paleta }: {
+export function Botao({ label, onPress, tom = 'cheio', desligado, pilula }: {
   label: string; onPress?: () => void; tom?: 'cheio' | 'fantasma' | 'perigo'; desligado?: boolean;
   /* PÍLULA — o botão que fecha uma tela inteira, e não um cartão.
 
@@ -1411,14 +1411,8 @@ export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, paleta
      um cartão continua valendo o raio de cartão — daí ser opção, e não
      troca. */
   pilula?: boolean;
-  /* ⚠️ MESMA PORTA ESTREITA DO SheetScreen, e pela mesma razão: dentro da
-     folha do código de convite, que é escura por ser tela de venda, um
-     botão lendo o tema do aparelho saía claro sobre preto — e desligado,
-     que é como ele nasce ali, saía numa faixa quase branca. */
-  paleta?: Palette;
 }) {
-  const { c: doTema } = useTheme();
-  const c = paleta ?? doTema;
+  const { c } = useTheme();
   const fundo = desligado ? c.bg2 : tom === 'cheio' ? c.accent : c.bg1;
   const tinta = desligado ? c.tx4 : tom === 'cheio' ? c.accentInk : tom === 'perigo' ? c.cta : c.tx;
   const borda = desligado || tom === 'cheio' ? 'transparent' : tom === 'perigo' ? c.ctaLine : c.line;

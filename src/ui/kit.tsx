@@ -6,7 +6,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ty, font, radius, space, shadowCard, type Palette } from '../theme';
+import { ty, font, radius, space, shadowCard } from '../theme';
 import { useTheme } from './useTheme';
 import { Icon } from './Icon';
 
@@ -336,23 +336,11 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
    ação principal de uma captura: dentro do cartão ela descia junto com o
    conteúdo e, em folha cheia, saía de vista bem quando a pessoa terminava
    de montar o que ia registrar. */
-/* ⚠️ `paleta` É PARA A FOLHA QUE ABRE POR CIMA DE UMA TELA DE VENDA.
-
-   O paywall fixa o modo escuro, e a folha do código de convite abre
-   ancorada nele. Lendo o tema do aparelho, ela deslizava branca por cima
-   de uma tela preta — o gesto parecia trocar de aplicativo.
-
-   É a única razão de esta porta existir, e ela é estreita de propósito:
-   a folha recebe a paleta já montada, não um sinalizador de "escuro".
-   Quem passar isto para seguir moda vai ter que responder por que uma
-   folha desobedece ao tema que a pessoa escolheu no telefone. */
-export function SheetScreen({ titulo, sub, rodape, children, onClose, paleta }: {
+export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
   titulo: string; sub?: string; rodape?: React.ReactNode;
   children: React.ReactNode; onClose: () => void;
-  paleta?: Palette;
 }) {
-  const { c: doTema } = useTheme();
-  const c = paleta ?? doTema;
+  const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   return (
@@ -404,11 +392,10 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose, paleta }: 
         >
           <Row style={{ alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
-              {/* ⚠️ COM `c`, E NÃO SEM. Um `Txt` sem cor cai no
-                  `useTheme()`, que lê o tema do APARELHO — e com uma
-                  paleta emprestada o título saía em tinta clara sobre
-                  folha clara, ou escura sobre escura. É o mesmo defeito
-                  que já apagou quatro textos do paywall. */}
+              {/* Com `c`, e não sem: um `Txt` sem cor cai no
+                  `useTheme()`, e o dia em que alguém emprestar outra
+                  paleta a esta folha o título é o primeiro a sumir. É o
+                  mesmo defeito que já apagou quatro textos do paywall. */}
               <Txt v="h2" c={c.tx}>{titulo}</Txt>
               {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
             </View>
