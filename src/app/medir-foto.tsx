@@ -27,7 +27,7 @@ export default function MedirFoto() {
 
   const salvar = () => {
     update((s: any) => { s.photos.push({ t: +now(), tag: tag.trim() || `semana ${semana}` }); });
-    router.back();
+    router.replace('/registro-ok?tipo=foto' as any);
   };
 
   return (

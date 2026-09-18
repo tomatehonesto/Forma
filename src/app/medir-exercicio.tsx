@@ -118,7 +118,10 @@ export default function MedirExercicio() {
       c2.exerc = (c2.exerc || 0) + min;
       c2.treinos = [...(c2.treinos || []), { tipo: nome, min }];
     });
-    router.back();
+    /* Corrigir um treino de outro dia não é registrar um treino hoje, e a
+       confirmação fala do dia de hoje. */
+    if (editando) { router.back(); return; }
+    router.replace('/registro-ok?tipo=exercicio' as any);
   };
 
   const apagar = () => {

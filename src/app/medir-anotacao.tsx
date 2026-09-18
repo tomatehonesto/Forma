@@ -36,7 +36,7 @@ export default function MedirAnotacao() {
     /* Entra no topo da lista com a data de hoje: é a data que dá sentido à
        nota quando ela for lida na consulta, semanas depois. */
     update((s: any) => { s.notes = [{ t: +now(), text: t, done: false }, ...(s.notes || [])]; });
-    router.back();
+    router.replace('/registro-ok?tipo=anotacao' as any);
   };
 
   return (

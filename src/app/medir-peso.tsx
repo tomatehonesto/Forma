@@ -86,7 +86,7 @@ export default function MedirPeso() {
         });
       }
     });
-    router.back();
+    router.replace('/registro-ok?tipo=peso' as any);
   };
 
   return (

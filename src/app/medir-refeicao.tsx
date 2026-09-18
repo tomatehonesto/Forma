@@ -158,7 +158,11 @@ export default function MedirRefeicao() {
     update((s: any) => registrarRefeicao(s, {
       name: quando, g, tag: nomes.join(', '), itens, fonte: foto ? 'foto' : 'manual',
     }));
-    router.back();
+    /* Só o registro novo confirma. Editar e cadastrar favorito voltam
+       como sempre voltaram: nenhum dos dois é um acontecimento do dia, e
+       uma folha dizendo "refeição registrada" depois de corrigir a de
+       ontem afirmaria uma coisa que não houve. */
+    router.replace('/registro-ok?tipo=refeicao' as any);
   };
 
   if (camera) {

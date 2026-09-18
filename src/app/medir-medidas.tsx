@@ -45,7 +45,7 @@ export default function MedirMedidas() {
         musculo: ultima ? ultima.musculo : 0,
       });
     });
-    router.back();
+    router.replace('/registro-ok?tipo=medidas' as any);
   };
 
   return (

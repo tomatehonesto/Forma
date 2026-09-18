@@ -81,12 +81,29 @@ export default function MedirAgua() {
      desfazer. registrarAgua escreve os dois: o gole no diário e o total
      do dia. */
   const beber = (ml: number) => {
+    /* ESTA FOLHA NÃO FECHA A CADA GOLE, e é de propósito: ela diz "toque
+       quantas vezes precisar", e o número sobe na frente da pessoa. É o
+       retorno mais rápido que uma captura deste app tem, e trocá-lo por
+       uma folha de confirmação a cada copo seria pedir um toque a mais,
+       cinco vezes ao dia, para saber o que já estava na tela.
+
+       A exceção é o gole que FECHA a meta do dia. Isso acontece uma vez
+       por dia no máximo, é a única notícia que a barra de progresso não
+       consegue dar sozinha, e é a mesma que os atalhos do registrar
+       passaram a acender em lima. */
+    const antes = waterMlToday(S);
     update((s: any) => registrarAgua(s, ml, bebidaId, { doses, nome: nome.trim() }));
     /* O "+0,3 L agora" conta o que ANDOU no dia, e não o que passou
        pelo botão. Somando tudo, quem registrasse uma taça de vinho via a
        confirmação subir e o total ao lado parado — duas contas
        diferentes do mesmo gesto, a dois centímetros uma da outra. */
     setSomado((v) => v + (bebida.conta ? ml : 0));
+    /* O DEPOIS SAI DO ESTADO, e não de `antes + ml`. Nem tudo que passa
+       por aqui hidrata na mesma proporção, e a conta do dia ainda soma o
+       que veio no prato — prever o total daria a folha de meta fechada um
+       copo antes ou um copo depois da hora. */
+    const depois = waterMlToday(useStore.getState().S);
+    if (antes < alvo && depois >= alvo) router.replace('/registro-ok?tipo=agua' as any);
   };
 
   return (

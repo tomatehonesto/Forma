@@ -34,7 +34,9 @@ export default function MedirExame() {
       if (e) e.values.push({ t: +now(), v: num });
       else s.exams.push({ marker: marcador, unit: '', ref: '', good: '', values: [{ t: +now(), v: num }] });
     });
-    router.back();
+    /* O marcador vai no caminho porque a confirmação fala dele: sem saber
+       qual chegou, ela só poderia dizer "resultado registrado". */
+    router.replace(`/registro-ok?tipo=exame&ref=${encodeURIComponent(marcador)}` as any);
   };
 
   return (

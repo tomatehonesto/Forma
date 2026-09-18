@@ -292,7 +292,12 @@ export default function RootLayout() {
               próprio, e sem esta apresentação o scrim cobria a tela
               inteira em cinza opaco em vez de deixar ver o que está
               atrás. */
-           'treino','refeicao','favorito','protocolo','meta','alerta','trilha'].map((n) => (
+           'treino','refeicao','favorito','protocolo','meta','alerta','trilha',
+           /* A confirmação de registro entra aqui pelo mesmo motivo: ela
+              substitui a folha de captura no lugar onde a captura estava,
+              e uma tela cheia no meio faria o app parecer que mudou de
+              assunto quando só terminou uma frase. */
+           'registro-ok'].map((n) => (
             <Stack.Screen
               key={n}
               name={n}
