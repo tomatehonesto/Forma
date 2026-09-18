@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -7,8 +7,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { PLANOS, RECOMENDADO, TESTE_DIAS, reais, isento, assinar, type Plano } from '../logic/assinatura';
-import { curWeight, lostKg, nextInjectionDate, M } from '../logic/derive';
-import { kg, nf, relDay } from '../logic/time';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { Marca, D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
@@ -91,118 +89,64 @@ function IconeDoApp({ lado }: { lado: number }) {
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
    Cinco linhas, porque a sexta ninguém lê. */
 /* ============================================================
-   A MINIATURA — o aplicativo dentro de um telefone
+   A PEÇA DO ALTO — o aplicativo, fotografado
 
-   ⚠️ NÃO É UMA IMAGEM, E ISSO É A PARTE QUE IMPORTA.
+   ⚠️ AQUI HAVIA UM APARELHO DESENHADO EM CÓDIGO, e ele cumpriu o papel de
+   suporte até esta imagem existir: moldura, ilha, a aurora em escala e os
+   números da própria pessoa — o peso que ela registrou, a aplicação que
+   vem. Era o argumento da tela feito com o produto.
 
-   As telas de plano que se copiam por aí trazem um print montado no
-   Figma: um telefone com dados de mentira, feito uma vez e envelhecendo
-   em silêncio a cada mudança do produto. Aqui a miniatura é DESENHADA
-   pelo próprio aplicativo, com os componentes e a paleta que ele usa —
-   se a cor mudar, ela muda junto; se o hero mudar, ela fica errada e
-   alguém conserta.
+   O QUE SE PERDEU NA TROCA, e vale saber que se perdeu: a peça mostra os
+   mesmos números para todo mundo. Quem está na semana 20 vê o dia 35 de
+   outra pessoa. Foi uma escolha — fidelidade de composição no lugar de
+   dado vivo —, e é reversível: o componente antigo está no histórico, no
+   commit que trouxe esta linha.
 
-   ⚠️ E OS NÚMEROS SÃO DELA. O peso é o peso que ela registrou, a data é a
-   aplicação que vem, o nome é o nome que ela deu. Um print genérico
-   mostra "78,4 kg" para todo mundo; isto mostra o tratamento de quem
-   está olhando, que é exatamente o argumento que a tela está fazendo.
+   ⚠️ E A IMAGEM ENVELHECE SOZINHA. Ela é um retrato da Home de hoje; no
+   dia em que o hero, a cor ou a tipografia mudarem, a tela de planos
+   continua mostrando o aplicativo antigo sem avisar ninguém. Quem mexer
+   na Home passa por aqui.
 
-   O que ela não tem, ela não mostra: quem acabou de terminar o cadastro
-   não perdeu peso nenhum, e a pastilha do "−x kg" simplesmente não
-   aparece em vez de aparecer zerada.
+   O ARQUIVO É WEBP DE 1200 px, e não o PNG de 4000 que chegou: renderizada
+   a 375 pt, a peça nunca precisa de mais do que 1200 px mesmo em tela de
+   3×, e a conversão levou 2,4 MB para 50 KB sem diferença visível. É a
+   mesma régua das auroras, em src/ui/aurora.ts.
+   ============================================================ */
+const MOCKUP = require('../../assets/images/mockup-planos.webp');
 
-   ⚠️ E A MOLDURA PRECISOU DE LUZ PARA EXISTIR. Na primeira tentativa ela
-   era quase preta sobre um fundo quase preto: o bloco lia como mais um
-   card da tela, e o telefone — que é o que diz "isto é o aplicativo" sem
-   precisar de legenda — simplesmente não aparecia.
+/* 4000×3000 na origem. A altura sai da proporção e não de um número
+   escrito à mão: trocar a peça por uma de outro formato não deve exigir
+   caçar um `height` perdido aqui dentro. */
+const MOCKUP_PROPORCAO = 4 / 3;
 
-   Três coisas resolvem, e as três são de contraste e não de desenho: a
-   tela dentro do aparelho usa o cinza de card em vez do fundo da página,
-   a borda é um véu claro, e a ilha em cima é a única forma que ninguém
-   confunde com outra coisa.
+/* ⚠️ A ARTE É MAIS LARGA DO QUE A TELA, DE PROPÓSITO.
 
-   ⚠️⚠️ ISTO É UM SUPORTE ATÉ A PEÇA DE VERDADE CHEGAR. ⚠️⚠️
+   O telefone ocupa 46% da largura do quadro: medido com sharp, são 556
+   px de aparelho num quadro de 1200. Desenhada na largura da tela, a
+   peça rendia um telefone de 173 px com dois vazios de 100 px dos lados
+   — o respiro da arte somado ao respiro da tela, duas vezes a mesma
+   coisa.
 
-   O mockup vai ser montado à mão, fora daqui. Quando o arquivo existir,
-   este componente inteiro vira uma linha:
+   Ela é desenhada a 1,2× e recuada pela metade da sobra. A arte sangra
+   para fora nos dois lados, onde só há transparência, e o aparelho
+   chega a 208 px sem custar altura proporcional. Mexer no número é uma
+   linha, e não uma reexportação. */
+const MOCKUP_ESCALA = 1.2;
 
-     <Image
-       source={require('../../assets/images/mockup-planos.png')}
-       style={{ width: 208, height: 260 }}
-       contentFit="contain"
-     />
-
-   O que o desenho de agora ocupa — 208 px de largura, canto de 32 e uma
-   margem de 26 acima — é a caixa que a peça precisa respeitar para a
-   tela não mudar de ritmo. Fundo transparente, porque a página é escura
-   e vai continuar sendo.
-
-   E VALE PERDER UMA COISA NA TROCA, de propósito: a peça montada mostra
-   os mesmos números para todo mundo, enquanto este desenho mostra o peso
-   que a pessoa registrou e a aplicação que vem. Se a fidelidade da
-   imagem valer mais do que isso, é uma escolha legítima — mas é uma
-   escolha, e não um detalhe. */
-function Miniatura({ c }: { c: any }) {
-  const S = useStore((s) => s.S);
-  const aurora = useAurora();
-  const perdido = lostKg(S);
-  const proxima = nextInjectionDate(S);
-  const med = M(S);
-
+function PecaDoAlto() {
+  const { width } = useWindowDimensions();
+  const larg = width * MOCKUP_ESCALA;
   return (
-    <View style={{ alignItems: 'center', marginTop: 26 }}>
-      <View style={{
-        width: 208, borderRadius: 32,
-        borderWidth: 5, borderColor: 'rgba(255,255,255,0.16)',
-        backgroundColor: c.bg1, overflow: 'hidden',
-      }}>
-        {/* o alto: a mesma composição da Home, em escala */}
-        <View style={{ height: 82, justifyContent: 'flex-end', padding: 12 }}>
-          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <LinearGradient
-            colors={[alfa(c.veu, 0.5), alfa(c.veu, 0.62)]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          {/* A ILHA. Ela não tem função nenhuma além de dizer o que a
-              coisa é — e é justamente por isso que funciona: nenhuma
-              outra peça de interface tem esta forma neste lugar. */}
-          <View style={{
-            position: 'absolute', top: 8, alignSelf: 'center',
-            width: 52, height: 12, borderRadius: 6, backgroundColor: 'rgba(0,0,0,0.55)',
-          }} />
-          <Txt v="micro" c="rgba(255,255,255,0.72)">Bom dia,</Txt>
-          <Txt v="label" c="#FFFFFF" numberOfLines={1}>{S.profile.name || 'você'}</Txt>
-        </View>
-
-        <View style={{ padding: 12, gap: 10 }}>
-          <View style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 11 }}>
-            <Txt v="micro" c={c.tx3}>Peso atual</Txt>
-            <Row gap={7} style={{ alignItems: 'baseline', marginTop: 2 }}>
-              <Txt v="h2" c={c.tx} style={{ fontSize: 22, lineHeight: 26 }}>{kg(curWeight(S))}</Txt>
-              <Txt v="micro" c={c.tx3}>kg</Txt>
-            </Row>
-            {perdido > 0.05 ? (
-              <View style={{
-                alignSelf: 'flex-start', marginTop: 7,
-                backgroundColor: c.limeWeak, borderRadius: radius.pill,
-                paddingHorizontal: 8, paddingVertical: 3,
-              }}>
-                <Txt v="micro" c={c.lime}>−{nf(perdido, 1).replace('.', ',')} kg desde o início</Txt>
-              </View>
-            ) : null}
-          </View>
-
-          <Row gap={9} style={{ alignItems: 'center', paddingBottom: 2 }}>
-            <Icon name="syringe" size={14} color={c.accent2} sw={1.9} />
-            <View style={{ flex: 1 }}>
-              <Txt v="micro" c={c.tx3}>Próxima aplicação</Txt>
-              <Txt v="micro" c={c.tx} numberOfLines={1}>{med.label} · {relDay(proxima)}</Txt>
-            </View>
-          </Row>
-        </View>
-      </View>
-    </View>
+    <Image
+      source={MOCKUP}
+      style={{
+        width: larg,
+        height: larg / MOCKUP_PROPORCAO,
+        marginTop: 2,
+        marginHorizontal: -(larg - width) / 2,
+      }}
+      contentFit="contain"
+    />
   );
 }
 
@@ -466,7 +410,7 @@ export default function Planos() {
           </View>
         </View>
 
-        <Miniatura c={c} />
+        <PecaDoAlto />
 
         <View style={{ paddingHorizontal: 20, marginTop: 26 }}>
         {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
