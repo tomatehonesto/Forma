@@ -1,0 +1,256 @@
+import React from 'react';
+import { View, Pressable, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useStore } from '../logic/store';
+import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
+import { TEM_REDE_PARCEIRA } from '../logic/mercado';
+import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
+import { Txt, Row } from '../ui/kit';
+import { Icon } from '../ui/Icon';
+import { useTheme } from '../ui/useTheme';
+import { paletaDe, mix, radius, font } from '../theme';
+
+/* ============================================================
+   PLANOS — a tela que pede dinheiro
+
+   ⚠️ O BOTÃO NÃO COMPRA NADA, E ELE DIZ ISSO.
+
+   Não há loja ligada (ver src/logic/assinatura.ts e PENDENCIAS.md, item
+   5). A tela está inteira — é o desenho que a integração vai vestir —, e
+   o toque no botão devolve o estado real em vez de uma animação de
+   sucesso. Um paywall que finge cobrar é a pior porta emparedada que um
+   aplicativo pode ter, porque a pessoa sai dela achando que pagou.
+
+   ⚠️ E ELA NÃO É LINKADA DE LUGAR NENHUM AINDA. Chega-se por rota, para
+   desenvolvimento. No dia em que a cobrança existir, os links entram —
+   e o primeiro deles é o fim do cadastro.
+
+   O QUE ESTA TELA DELIBERADAMENTE NÃO FAZ
+
+     · não inventa prêmio nem depoimento. As telas de plano que se
+       copiam por aí abrem com "Apple Design Award" e cinco estrelas de
+       um usuário chamado Volan_deMort — e uma recomendação que não
+       existe é mentira mesmo quando é só um rascunho de layout, porque
+       é exatamente o tipo de coisa que sobrevive até a produção;
+     · não anuncia teste grátis. Os Termos dão sete dias de
+       arrependimento (CDC art. 49), que é direito de quem JÁ comprou.
+       Vender um como o outro é o tipo de atalho que depois vira
+       reclamação com razão;
+     · não esconde o preço cheio atrás do "por mês". O anual aparece
+       pelos dois números, porque quem decide precisa dos dois.
+
+   A LINHA DO CÓDIGO FICA EMBAIXO DOS PREÇOS, e é o lugar certo dela: no
+   cadastro, perguntar por indicação antes de mostrar o custo era
+   anunciar um prêmio e depois fazer a pergunta que o concede. Aqui a
+   ordem se inverte — a pessoa já viu o preço, e quem tem código digita
+   porque tem.
+   ============================================================ */
+
+function IconeDoApp({ lado }: { lado: number }) {
+  const S = useStore((s) => s.S);
+  const p = paletaDe((S as any).paleta);
+  const largura = lado * 0.56;
+  return (
+    <LinearGradient
+      colors={[mix(p.acaoClara, '#FFFFFF', 0.2), mix(p.acaoClara, '#000000', 0.42)]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ width: lado, height: lado, borderRadius: lado * 0.225, alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Svg width={largura} height={largura / RAZAO_SIMBOLO} viewBox="0 0 533 222">
+        <Path d={D_SIMBOLO} fill={p.alcancado} />
+      </Svg>
+    </LinearGradient>
+  );
+}
+
+/* O QUE A ASSINATURA DÁ É O APLICATIVO, e a lista diz isso em coisas que
+   a pessoa reconhece de tê-las usado — não em substantivos de marketing.
+   Cinco linhas, porque a sexta ninguém lê. */
+const ENTRA: [string, string][] = [
+  ['check', 'O registro do dia inteiro — peso, aplicações, sintomas, água, proteína e movimento'],
+  ['spark', 'As leituras da sua evolução, com o que os seus próprios números mostram'],
+  ['doc', 'O resumo do tratamento, pronto para levar em qualquer consulta'],
+  ['chart', 'Exames, medidas e fotos com o histórico que dá sentido a eles'],
+  ['companion', 'O assistente que responde sobre a sua jornada, e a leitura do prato por foto'],
+];
+
+export default function Planos() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const [escolhido, setEscolhido] = React.useState<Plano['id']>(RECOMENDADO);
+  const [recusa, setRecusa] = React.useState(false);
+
+  const plano = PLANOS.find((x) => x.id === escolhido)!;
+
+  const comprar = async () => {
+    const r = await assinar(escolhido);
+    if (!r.ok) setRecusa(true);
+  };
+
+  /* Quem tem vínculo não vê preço. Ela não está fora de uma oferta: está
+     dentro do acordo que a clínica já fez por ela, e os Termos prometem
+     aviso antes de qualquer cobrança começar. */
+  if (isento(S)) {
+    return (
+      <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 12 }}>
+        <Row style={{ paddingHorizontal: 20, justifyContent: 'flex-end' }}>
+          <Pressable onPress={() => router.back()} hitSlop={10}>
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="x" size={16} color={c.tx2} sw={2.2} />
+            </View>
+          </Pressable>
+        </Row>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
+          <IconeDoApp lado={64} />
+          <Txt v="h2" style={{ textAlign: 'center' }}>Você não paga pelo aplicativo</Txt>
+          <Txt v="note" c={c.tx3} style={{ textAlign: 'center', lineHeight: 22 }}>
+            O acesso vem do seu vínculo com {S.profile.clinic || 'a clínica que acompanha você'}, e
+            vale enquanto ele durar. Se ele terminar, avisamos antes de qualquer cobrança.
+          </Txt>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 28 }}
+      >
+        {/* O X, E NÃO A SETA. Seta diz "volte um passo"; X diz "isto é uma
+            interrupção, e você pode encerrá-la". Numa tela que pede
+            dinheiro, a diferença entre as duas é quem está no comando. */}
+        <Row style={{ justifyContent: 'flex-end' }}>
+          <Pressable onPress={() => router.back()} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="x" size={16} color={c.tx2} sw={2.2} />
+            </View>
+          </Pressable>
+        </Row>
+
+        <View style={{ alignItems: 'center', gap: 14, marginTop: 8 }}>
+          <IconeDoApp lado={72} />
+          <Txt v="h1" style={{ textAlign: 'center', letterSpacing: -1 }}>Tudo o que você usa aqui</Txt>
+          <Txt v="note" c={c.tx3} style={{ textAlign: 'center', lineHeight: 22 }}>
+            Um plano só, com o aplicativo inteiro dentro. Não existe função melhor guardada
+            atrás de um plano melhor.
+          </Txt>
+        </View>
+
+        <View style={{ gap: 12, marginTop: 28 }}>
+          {ENTRA.map(([ic, t]) => (
+            <Row key={t} gap={12} style={{ alignItems: 'flex-start' }}>
+              <View style={{ marginTop: 2 }}>
+                <Icon name={ic} size={16} color={c.accent} sw={2} />
+              </View>
+              <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{t}</Txt>
+            </Row>
+          ))}
+        </View>
+
+        {/* ---- os planos ---- */}
+        <Row gap={10} style={{ marginTop: 28, alignItems: 'stretch' }}>
+          {PLANOS.map((p) => {
+            const on = p.id === escolhido;
+            return (
+              <Pressable key={p.id} onPress={() => { setEscolhido(p.id); setRecusa(false); }} style={{ flex: 1 }}>
+                <View style={{
+                  backgroundColor: on ? c.accentWeak : c.bg1,
+                  borderWidth: 1.5, borderColor: on ? c.accent : c.line,
+                  borderRadius: radius.lg, padding: 16, gap: 3, minHeight: 116, justifyContent: 'center',
+                }}>
+                  <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
+                    {p.economia ? (
+                      <View style={{ backgroundColor: on ? c.accent : c.bg3, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
+                        <Txt v="micro" c={on ? c.accentInk : c.tx3}>−{p.economia}%</Txt>
+                      </View>
+                    ) : null}
+                  </Row>
+                  <Txt v="h2" style={{ marginTop: 6 }}>{reais(p.porMes)}</Txt>
+                  <Txt v="micro" c={c.tx3}>por mês</Txt>
+                  {/* ⚠️ O PREÇO CHEIO FICA À VISTA. Mostrar só "por mês" num
+                      plano anual é a conta que o anúncio faz e a fatura
+                      desmente. */}
+                  {p.id === 'anual' ? (
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{reais(p.preco)} {p.periodo}</Txt>
+                  ) : null}
+                </View>
+              </Pressable>
+            );
+          })}
+        </Row>
+
+        {recusa ? (
+          /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
+             responde o que é verdade — e não com um erro genérico, que
+             faria a pessoa tentar de novo. */
+          <View style={{ marginTop: 16, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
+            <Txt v="bodyMed">A assinatura ainda não está ligada</Txt>
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
+              Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
+              segue inteiro do jeito que está.
+            </Txt>
+          </View>
+        ) : null}
+
+        <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 18, opacity: pressed ? 0.85 : 1 }]}>
+          <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
+            <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
+              Assinar {plano.nome.toLowerCase()} — {reais(plano.preco)}
+            </Txt>
+          </View>
+        </Pressable>
+
+        {/* A LETRA MIÚDA DIZ O QUE ACONTECE DEPOIS, que é o que falta em
+            quase toda tela de plano: quando renova, como cancela, e o
+            prazo de arrependimento que a lei dá. */}
+        <Txt v="micro" c={c.tx4} style={{ marginTop: 12, textAlign: 'center', lineHeight: 17 }}>
+          Renova automaticamente {plano.id === 'anual' ? 'a cada ano' : 'a cada mês'} até você cancelar,
+          pela própria loja. Sete dias para desistir com reembolso integral, e cancelar não apaga
+          nenhum registro seu.
+        </Txt>
+
+        {/* ---- o código ---- */}
+        {TEM_REDE_PARCEIRA ? (
+          <Pressable
+            onPress={() => router.push('/parceiros' as any)}
+            style={({ pressed }) => [{ marginTop: 22, opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Row gap={8} style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="steth" size={15} color={c.accent2} sw={1.9} />
+              <Txt v="label" c={c.accent2}>Tenho um código de um especialista parceiro</Txt>
+            </Row>
+          </Pressable>
+        ) : null}
+
+        <Row gap={16} style={{ marginTop: 24, justifyContent: 'center' }}>
+          {([
+            ['Restaurar compras', null],
+            ['Termos', '/documento?id=termos'],
+            ['Privacidade', '/documento?id=privacidade'],
+          ] as [string, string | null][]).map(([rotulo, to]) => (
+            <Pressable
+              key={rotulo}
+              onPress={() => { if (to) router.push(to as any); else setRecusa(true); }}
+              hitSlop={8}
+              style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Txt v="micro" c={c.tx3}>{rotulo}</Txt>
+            </Pressable>
+          ))}
+        </Row>
+
+        <View style={{ height: insets.bottom + 8 }} />
+      </ScrollView>
+    </View>
+  );
+}

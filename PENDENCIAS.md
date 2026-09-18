@@ -60,6 +60,21 @@ cancelamento e arrependimento de 7 dias (CDC art. 49). Nada disso está
 implementado. Descrever a mais não é violação — descrever a menos é —,
 mas o fluxo precisa existir antes de a loja cobrar alguém.
 
+**A TELA EXISTE, A COBRANÇA NÃO.** `/planos` está desenhada e ligada em
+`src/logic/assinatura.ts`, que é a costura por onde a loja entra. Três
+coisas dela são de marcação e precisam de decisão antes da publicação:
+
+- **os preços** — R$ 29,90/mês e R$ 199,90/ano são números para a tela
+  ter o que desenhar; ninguém decidiu nenhum deles;
+- **o botão não compra** — `assinar()` devolve "não implementado", e a
+  tela mostra isso em voz alta em vez de fingir sucesso;
+- **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
+  é a mesma promessa vazia.
+
+⚠️ E ela **não é linkada de lugar nenhum**: chega-se por rota. No dia em
+que a cobrança existir, o primeiro link é o fim do cadastro — e é aí que
+o passo `recomendacao` sai de lá.
+
 **E a tela de planos leva o código junto.** Decidido em 18 de setembro de
 2026, quando o passo do convite voltou a ser uma pergunta separada no
 cadastro:
