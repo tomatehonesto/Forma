@@ -9,7 +9,7 @@ import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgCurto as kg, nf, relDay } from '../logic/time';
 import {
-  journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
+  journeyDay, temAcompanhamento, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
@@ -212,7 +212,7 @@ export default function Perfil() {
     }
   };
 
-  const linked = hasClinic(S);
+  const linked = temAcompanhamento(S);
   /* A especialidade vem do perfil do profissional, e não de um texto
      fixo: no dia em que quem acompanha for nutricionista, o card diz
      nutricionista. Sem ela, a linha fica só com a clínica. */

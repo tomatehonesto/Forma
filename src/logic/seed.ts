@@ -265,6 +265,16 @@ export function buildSeed() {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
       startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      /* O VÍNCULO RESOLVIDO, que é coisa diferente do código digitado.
+
+         `convite` é o que a pessoa escreveu no cadastro — uma intenção,
+         que nenhum servidor conferiu ainda. `vinculo` é o que sobra
+         depois de alguém do outro lado dizer "sim, esta clínica é nossa e
+         esta pessoa é dela": é ele que libera mensagem, envio e receita.
+
+         Hoje só a semente tem um, porque só ela tem uma médica. Ver
+         MODOS.md. */
+      vinculo: { desde: +daysAgo(70) },
       /* Horizonte do plano que a equipe traçou até a dose de manutenção.
          Não é alta: é até onde a titulação foi programada, e é o número
          que dá sentido a "você está na semana 11". */
@@ -582,6 +592,20 @@ export function ensureDefaults(S: any) {
   /* Quem gravou o perfil antes desta pergunta existir não tem a lista, e
      ausente quer dizer "nenhuma" — o comportamento que o app já tinha. */
   if (S.profile && !(S.profile as any).restricoes) (S.profile as any).restricoes = [];
+  /* ⚠️ O VÍNCULO NASCE UMA VEZ, E NUNCA MAIS. A condição é `=== undefined`
+     de propósito: quem gravou antes de o campo existir e tinha médica
+     tinha, por construção, a plataforma imaginária junto — então herda um
+     vínculo. Depois disso o campo existe (objeto ou null) e esta linha
+     não volta a tocar nele.
+
+     Escrever a regra como "tem médico, logo tem vínculo" seria recriar o
+     sinal único: bastaria alguém digitar o nome do médico dela para o app
+     decidir, no carregamento seguinte, que existe uma clínica conectada —
+     que é exatamente a mentira que a separação veio desfazer. */
+  if (S.profile && (S.profile as any).vinculo === undefined) {
+    (S.profile as any).vinculo =
+      (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;
+  }
   if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
   /* Quem gravou o estado antes de a cor existir fica com o azul, que é o
      aplicativo que essa pessoa já conhece. */
@@ -661,11 +685,16 @@ export function estadoVazio(): State {
   S.profile.goalWeight = 0;
   S.profile.startT = 0;
   S.profile.convite = '';
-  /* A EQUIPE É DE QUEM TEM EQUIPE. `hasClinic` lê estes dois campos, e é
-     ele que decide entre "você é acompanhada" e o convite para se
-     vincular — o app inteiro já sabe viver sem clínica. */
+  /* A EQUIPE É DE QUEM TEM EQUIPE. Estes dois campos guardam o nome de
+     quem acompanha, e `temAcompanhamento` lê os dois — o app inteiro já
+     sabe viver sem ninguém do outro lado.
+
+     E o vínculo sai junto: quem chega agora não tem plataforma
+     resolvida, e o código que ela porventura digite fica em `convite`
+     esperando um servidor que o traduza. */
   S.profile.doctor = '';
   S.profile.clinic = '';
+  (S.profile as any).vinculo = null;
   S.profile.nutri = '';
   S.profile.restricoes = [];
 

@@ -56,7 +56,7 @@ import { radius, ty, font, shadowCard, alfa } from '../theme';
      meta e ritmo   → a barra da Jornada e a data projetada
      movimento      → a meta diária de exercício
      início         → "semana N do tratamento", em toda parte
-     acompanhamento → hasClinic, a aba Cuidado e o resumo médico
+     acompanhamento → temAcompanhamento, a aba Cuidado e o resumo
 
    A ÚNICA QUE AINDA NÃO TEM LEITOR é a MOTIVAÇÃO, e isso está dito aqui
    em vez de escondido. Ela entrou porque o lugar dela é a voz do

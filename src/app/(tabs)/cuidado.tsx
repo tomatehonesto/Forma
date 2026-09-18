@@ -7,7 +7,7 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  hasClinic, nextConsult, lastMessage, carePending, careDocs, careState,
+  temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose,
 } from '../../logic/derive';
@@ -914,7 +914,7 @@ export default function Cuidado() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const linked = hasClinic(S);
+  const linked = temAcompanhamento(S);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>

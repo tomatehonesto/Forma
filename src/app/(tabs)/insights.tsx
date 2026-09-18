@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, balanceSeries, companionMemoria, hasClinic, journeySummary, respostaNoDia,
+  balanceRead, balanceSeries, companionMemoria, temAcompanhamento, journeySummary, respostaNoDia,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
@@ -695,7 +695,7 @@ export default function Insights() {
               onPress={perguntar('Como está minha evolução?')} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="cal" title="Resumo para a consulta"
-              sub={hasClinic(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
+              sub={temAcompanhamento(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
               onPress={perguntar('Prepare minha consulta')} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="doc" title="Resumo para o médico"

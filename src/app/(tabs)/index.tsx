@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
-  nextInjectionDate, siteLabel, nextSite, streak, insights, hasClinic, M,
+  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
@@ -123,7 +123,7 @@ export default function Home() {
   const bf = bodyFat(S);
   const stk = streak(S);
   const feitoHoje = checkinFeito(S);
-  const linked = hasClinic(S);
+  const linked = temAcompanhamento(S);
   const consultD = new Date(S.consult.t);
 
   /* Carrossel do hero — tres leituras do dia, todas com dado real. */

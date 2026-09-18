@@ -352,19 +352,44 @@ export function examGaugeData(e: any) {
   return { pos: clamp(v), bandL: clamp(bandL), bandR: clamp(bandR), min, max, status: examStatus(e) };
 }
 
-/* Modo clínica — recursos de equipe médica só aparecem com vínculo ativo. */
-/* TER ACOMPANHAMENTO não é ter uma clínica.
+/* ============================================================
+   OS DOIS SINAIS DO ACOMPANHAMENTO
 
-   Isto lia só `clinic`, e por isso quem é acompanhado por uma médica sem
-   clínica no nome — a maioria — aparecia para o app como pessoa sozinha:
-   a aba Cuidado escondia o preparo de consulta e o resumo médico dizia
-   que não havia para quem mandar.
+   ⚠️ ERA UM SÓ, E ELE DECIDIA DUAS COISAS DIFERENTES.
 
-   O cadastro pergunta uma coisa só, "alguém acompanha você?", e guarda um
-   nome, porque se ele é de pessoa ou de lugar é assunto de quem responde.
-   Aqui a pergunta continua a mesma de antes — existe alguém do outro
-   lado? —, e agora ela olha para os dois campos. */
-export const hasClinic = (S: State) => !!(S.profile.doctor || S.profile.clinic);
+     export const hasClinic = (S) => !!(S.profile.doctor || S.profile.clinic);
+
+   Enquanto a única forma de ter médico era o seed, isso funcionava: quem
+   tinha nome de médica tinha, junto, uma plataforma imaginária do outro
+   lado. Mas o aplicativo vai ter gente que tem médico e NÃO tem
+   plataforma — quem se trata com alguém que não é credenciado, e quem
+   usa o app fora do Brasil, onde a rede não existe.
+
+   Para essa pessoa o sinal único mente: ela escreve "Dr. João" no perfil
+   e o aplicativo passa a oferecer mandar mensagem para ele, enviar o
+   resumo para a plataforma dele e pedir receita a ele. Nada disso existe,
+   e é mentira sobre saúde.
+
+   A RÉGUA PARA ESCOLHER ENTRE OS DOIS: ter acompanhamento é sobre a vida
+   da pessoa; clínica conectada é sobre a existência de um servidor. Na
+   dúvida, pergunte se a funcionalidade precisa de alguém respondendo do
+   outro lado.
+
+   O NOME CONTINUA VINDO DOS DOIS CAMPOS. O cadastro pergunta uma coisa
+   só, "alguém acompanha você?", e guarda um nome — se ele é de pessoa ou
+   de lugar é assunto de quem responde. Quem é acompanhado por uma médica
+   sem clínica no nome, que é a maioria, conta igual.
+
+   Ver MODOS.md, na raiz do projeto.
+   ============================================================ */
+
+/** Alguém acompanha esta pessoa — venha do vínculo ou digitado por ela.
+    Liga a consulta, o preparo de perguntas e o resumo como documento. */
+export const temAcompanhamento = (S: State) => !!(S.profile.doctor || S.profile.clinic);
+
+/** Existe plataforma do outro lado. Só um código de convite liga isto, e
+    é ele que libera mensagem, envio do resumo, receita e a isenção. */
+export const clinicaConectada = (S: State) => !!(S.profile as any).vinculo;
 
 /* TER CONSULTA MARCADA é outra pergunta.
 
@@ -630,7 +655,7 @@ export function todayTasks(S: State): TodayTask[] {
   if (wDays >= 4) out.push({ ic: 'scale', text: 'Registrar peso', sub: `Último registro há ${wDays} dias`, to: '/registrar' });
   const examTask = exameNoProtocolo(S);
   if (examTask) out.push({ ic: 'doc', text: examTask, sub: 'Do protocolo desta semana', to: '/protocolos' });
-  if (hasClinic(S)) {
+  if (temConsulta(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
   }
@@ -1523,7 +1548,7 @@ export function libraryPicks(S: State): Leitura[] {
     out.push({ motivo: `Semana ${r.semana}, com ${nf(r.lost, 1).replace('.', ',')} kg no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
   }
 
-  if (hasClinic(S)) {
+  if (temConsulta(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 14) out.push({ motivo: `Sua consulta é daqui a ${cd} dias`, titulo: 'Como aproveitar melhor sua consulta', desc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.', ic: 'steth', min: 3 });
   }
@@ -1561,7 +1586,7 @@ export function companionSuggestions(S: State): string[] {
   if (a1c && a1c.values.length >= 2) out.push('O que meus exames mostram?');
 
   out.push('Analise meu progresso');
-  if (hasClinic(S)) out.push('Prepare minha consulta');
+  if (temAcompanhamento(S)) out.push('Prepare minha consulta');
 
   /* sem repetir e no máximo quatro — lista longa vira menu, não conversa */
   return [...new Set(out)].slice(0, 4);
@@ -1639,7 +1664,7 @@ export function recommendations(S: State): Reco[] {
     porque: 'Está aberto no protocolo desta semana, e o resultado costuma demorar alguns dias',
     to: '/exames',
   });
-  if (hasClinic(S)) {
+  if (temConsulta(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 14) out.push({
       emDias: cd, ic: 'cal', texto: 'Prepare suas perguntas para a consulta',
@@ -3619,7 +3644,11 @@ export function lastMessage(S: State) {
 
 /** A próxima consulta, com o quanto falta e se já dá para se preparar. */
 export function nextConsult(S: State) {
-  if (!hasClinic(S)) return null;
+  /* ⚠️ A PERGUNTA CERTA É SE HÁ CONSULTA, e não se há equipe. Ter médico
+     não é ter data marcada — e no modo sem plataforma a data é a própria
+     pessoa que anota. Com `hasClinic`, alguém com médico e sem consulta
+     recebia uma consulta em 1º de janeiro de 1970. */
+  if (!temConsulta(S)) return null;
   const d = new Date(S.consult.t);
   const dias = diffDays(d, now());
   return {
@@ -3647,14 +3676,32 @@ export function carePending(S: State) {
     sub: 'aguardando sua resposta',
     to: '/medico', urgente: true,
   });
+  /* ⚠️ A RECEITA ACABANDO É UM FATO, E O DESTINO É QUE MUDAVA.
+
+     A primeira tentativa foi esconder a linha sem plataforma — e isso
+     quebrou uma regra mais antiga: o hero conta as pendências pelos
+     quadros do careStatus, e a lista vem daqui. Escondida num lugar só,
+     a tela dizia "duas pendências" em cima de uma lista com uma. Duas
+     fontes para o mesmo fato é o defeito, não a linha.
+
+     A caneta está acabando para todo mundo. O que muda é para onde a
+     pessoa vai resolver: com plataforma, a conversa com a equipe; sem
+     ela, o estoque, onde estão as doses e a data. */
   const p = penStock(S);
   if (!p.verdict.good) out.push({
     ic: 'pill', texto: 'Peça a renovação da receita',
     sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
-    to: '/medico',
+    to: clinicaConectada(S) ? '/medico' : '/aplicacoes',
   });
   const exame = exameNoProtocolo(S);
-  if (exame) out.push({ ic: 'doc', texto: exame, sub: 'pedido pela sua equipe', to: '/exames' });
+  /* O exame vem do protocolo. Com equipe, foi ela que pediu; sem
+     equipe, quem pede é o próprio plano — e dizer "pedido pela sua
+     equipe" inventaria uma. */
+  if (exame) out.push({
+    ic: 'doc', texto: exame,
+    sub: clinicaConectada(S) ? 'pedido pela sua equipe' : 'do protocolo desta semana',
+    to: '/exames',
+  });
   if (cs?.prepararAgora) out.push({
     ic: 'cal', texto: 'Prepare o que levar para a consulta',
     sub: `${cs.tipo.toLowerCase()} ${cs.label} · com ${cs.doutor}`,
@@ -3708,12 +3755,16 @@ export function careStatus(S: State) {
       nivel: !cs ? 'atencao' : cs.dias <= 1 ? 'acao' : 'ok',
       to: '/consultas',
     },
-    {
+    /* ⚠️ A CAIXA DE MENSAGENS SÓ EXISTE COM PLATAFORMA. Sem ela o quadro
+       mostrava "Mensagens · Tudo em dia" — uma caixa vazia que nunca vai
+       receber nada, e um toque que leva à conversa com ninguém. Três
+       quadrinhos dizem a verdade melhor do que quatro com um fingindo. */
+    ...(clinicaConectada(S) ? [{
       ic: 'companion', label: 'Mensagens',
       valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Tudo em dia',
-      nivel: S.unread > 0 ? 'atencao' : 'ok',
+      nivel: (S.unread > 0 ? 'atencao' : 'ok') as CareNivel,
       to: '/medico',
-    },
+    }] : []),
     {
       ic: 'pill', label: 'Receita',
       valor: p.semanas <= 0 ? 'Vencida' : `Vence em ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
@@ -3742,14 +3793,17 @@ export function careStatus(S: State) {
      cobrança. Uma frase só, começando por "2 coisas precisam", faz da
      tela um aviso. */
   const indoBem = r.verdict.good;
-  const titulo = !hasClinic(S)
+  const titulo = !temAcompanhamento(S)
     ? 'Você ainda não tem uma equipe por aqui'
     : indoBem
       ? 'Seu tratamento está evoluindo bem'
       : 'Sua equipe está acompanhando de perto';
 
-  const sub = !hasClinic(S)
-    ? 'Encontre um especialista para acompanhar seu tratamento de perto.'
+  /* ⚠️ AQUI DIZIA "Encontre um especialista", que era instrução para
+     uma porta que o aplicativo não tem — e não vai ter fora do Brasil.
+     O que é verdade sem equipe é o que a pessoa já pode fazer. */
+  const sub = !temAcompanhamento(S)
+    ? 'Dá para seguir por aqui sem acompanhamento, e o resumo do seu tratamento fica pronto para qualquer consulta.'
     : n === 0
       ? `${S.profile.doctor} acompanha você há ${semanas} semanas, e está tudo em dia por aqui.`
       : `${S.profile.doctor} acompanha você há ${semanas} semanas. Nesta semana, ${nomes[n] ?? n} ${n === 1 ? 'coisa merece' : 'coisas merecem'} sua atenção.`;
@@ -3757,7 +3811,7 @@ export function careStatus(S: State) {
   /* A mesma frase sem a duração. Onde o card já mostra "10 semanas" em
      corpo grande, repetir "acompanha você há 10 semanas" logo acima é
      dizer o número duas vezes — e a segunda gasta uma linha inteira. */
-  const subCurto = !hasClinic(S)
+  const subCurto = !temAcompanhamento(S)
     ? sub
     : n === 0
       ? `${S.profile.doctor} está com você, e não há nada pendente.`
@@ -3856,11 +3910,11 @@ export function careState(S: State) {
 
   const base = { metricas, semanas, adesaoRotulo: adRotulo, plano };
 
-  if (!hasClinic(S)) return {
+  if (!temAcompanhamento(S)) return {
     ...base, momento: 'semClinica' as CareMomento, nivel: 'atencao' as CareNivel,
     kicker: 'SEU ACOMPANHAMENTO',
     titulo: 'Você ainda não tem uma equipe.',
-    texto: 'Encontre um especialista para acompanhar seu tratamento de perto.',
+    texto: 'O tratamento continua sendo seu, e o resumo fica pronto para qualquer consulta.',
     pulso: 'Sem vínculo com clínica',
   };
 

@@ -4,7 +4,8 @@ import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  hasClinic, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
+  clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
+  temConsulta,
 } from '../logic/derive';
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
@@ -94,7 +95,10 @@ export default function Protocolos() {
             esta tela tem além de marcar as linhas — e ela existe porque a
             pergunta que sobra depois de ler os cinco itens costuma ser
             para a equipe, não para o app. */}
-        {hasClinic(S) ? (
+        {/* FALAR COM A EQUIPE PRECISA DE EQUIPE DO OUTRO LADO — é a
+            conversa, e não o fato de ter médico. Quem se trata com alguém
+            fora da plataforma não tem para onde este botão ir. */}
+        {clinicaConectada(S) ? (
           <AtalhoDaCapa
             titulo="Falar com a equipe"
             cheio
@@ -207,7 +211,7 @@ export default function Protocolos() {
           titulo={`Semana ${p.semana + 1}`}
           texto={[
             `Aplicação ${relDay(nextInjectionDate(S))}`,
-            hasClinic(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
+            temConsulta(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
           ].filter(Boolean).join(', ') + '.'}
         />
 

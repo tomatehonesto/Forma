@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { examStatus, hasClinic } from '../logic/derive';
+import { examStatus, clinicaConectada } from '../logic/derive';
 import {
   resumoDoTratamento, resumoEmTexto, valorDoExame, enviosDoResumo, registrarEnvio,
   type SecaoDoResumo,
@@ -68,7 +68,11 @@ export default function ResumoMedico() {
   const p: any = S.profile;
   const secoes = resumoDoTratamento(S);
   const sec = (id: string) => secoes.find((s) => s.id === id) as SecaoDoResumo | undefined;
-  const temEquipe = hasClinic(S);
+  /* ⚠️ ENVIAR PRECISA DE PLATAFORMA, e o resumo não. Quem se trata com
+     um médico fora da rede continua tendo o documento inteiro — ela
+     compartilha por fora, imprime, leva no telefone. O que depende de um
+     servidor é o botão que diz "enviei", e só ele. */
+  const temEquipe = clinicaConectada(S);
   const envios = enviosDoResumo(S);
   const ultimo = envios[0];
   const [enviado, setEnviado] = useState(false);
