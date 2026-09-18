@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -107,46 +107,54 @@ function IconeDoApp({ lado }: { lado: number }) {
    continua mostrando o aplicativo antigo sem avisar ninguém. Quem mexer
    na Home passa por aqui.
 
-   O ARQUIVO É WEBP DE 1200 px, e não o PNG de 4000 que chegou: renderizada
-   a 375 pt, a peça nunca precisa de mais do que 1200 px mesmo em tela de
-   3×, e a conversão levou 2,4 MB para 50 KB sem diferença visível. É a
-   mesma régua das auroras, em src/ui/aurora.ts.
+   O ARQUIVO É WEBP, e não o PNG que chegou: desenhada a 260 pt, a peça
+   nunca precisa de mais do que 900 px de largura, nem numa tela de 3×. A
+   conversão levou 1,4 MB para 138 KB sem diferença visível — a mesma
+   régua das auroras, em src/ui/aurora.ts.
    ============================================================ */
 const MOCKUP = require('../../assets/images/mockup-planos.webp');
 
-/* 4000×3000 na origem. A altura sai da proporção e não de um número
-   escrito à mão: trocar a peça por uma de outro formato não deve exigir
-   caçar um `height` perdido aqui dentro. */
-const MOCKUP_PROPORCAO = 4 / 3;
+/* 900×1959, retrato. A proporção sai daqui e a altura se calcula: trocar
+   a peça por uma de outro formato não deve exigir caçar um `height`
+   perdido lá embaixo. */
+const MOCKUP_PROPORCAO = 900 / 1959;
 
-/* ⚠️ A ARTE É MAIS LARGA DO QUE A TELA, DE PROPÓSITO.
+/* ⚠️ O APARELHO NÃO CABE INTEIRO, E É POR ISSO QUE ELE DESAPARECE.
 
-   O telefone ocupa 46% da largura do quadro: medido com sharp, são 556
-   px de aparelho num quadro de 1200. Desenhada na largura da tela, a
-   peça rendia um telefone de 173 px com dois vazios de 100 px dos lados
-   — o respiro da arte somado ao respiro da tela, duas vezes a mesma
-   coisa.
+   A primeira peça era um quadro deitado com o telefone pequeno no meio;
+   esta é o telefone de corpo inteiro, em retrato, e o problema virou o
+   oposto. Desenhada na largura da tela, ela pediria 817 px de altura —
+   mais do que o telefone tem de tela, com a barra de decisão ocupando
+   325 deles.
 
-   Ela é desenhada a 1,2× e recuada pela metade da sobra. A arte sangra
-   para fora nos dois lados, onde só há transparência, e o aparelho
-   chega a 208 px sem custar altura proporcional. Mexer no número é uma
-   linha, e não uma reexportação. */
-const MOCKUP_ESCALA = 1.2;
+   Encolher até caber devolveria o aparelho minúsculo que a peça anterior
+   já era. Então ela é desenhada num tamanho que se lê — 210 px de
+   aparelho — e a janela mostra só o alto: o resto continua existindo,
+   embaixo do recorte.
 
-function PecaDoAlto() {
-  const { width } = useWindowDimensions();
-  const larg = width * MOCKUP_ESCALA;
+   ⚠️ E O CORTE É UM DESVANECIMENTO, E NÃO UMA TESOURA. Um telefone
+   cortado com régua no meio da tela lê como imagem quebrada; dissolvido
+   no fundo, lê como um aparelho que sobe de dentro da página. É o mesmo
+   recurso do fio da barra de decisão, pela mesma razão: emenda dura
+   anuncia a montagem, emenda macia some. */
+const MOCKUP_JANELA = 300;
+const MOCKUP_LARGURA = 260;
+
+function PecaDoAlto({ c }: { c: any }) {
   return (
-    <Image
-      source={MOCKUP}
-      style={{
-        width: larg,
-        height: larg / MOCKUP_PROPORCAO,
-        marginTop: 2,
-        marginHorizontal: -(larg - width) / 2,
-      }}
-      contentFit="contain"
-    />
+    <View style={{ height: MOCKUP_JANELA, marginTop: 4, overflow: 'hidden', alignItems: 'center' }}>
+      <Image
+        source={MOCKUP}
+        style={{ width: MOCKUP_LARGURA, height: MOCKUP_LARGURA / MOCKUP_PROPORCAO }}
+        contentFit="contain"
+      />
+      <LinearGradient
+        colors={['transparent', c.bg]}
+        locations={[0, 0.85]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 110 }}
+        pointerEvents="none"
+      />
+    </View>
   );
 }
 
@@ -410,7 +418,7 @@ export default function Planos() {
           </View>
         </View>
 
-        <PecaDoAlto />
+        <PecaDoAlto c={c} />
 
         <View style={{ paddingHorizontal: 20, marginTop: 26 }}>
         {/* ⚠️ AQUI HAVIA UMA FAIXA — "Você não paga nada hoje" — e ela
