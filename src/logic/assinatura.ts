@@ -307,3 +307,28 @@ export function historicoDeCobranca(_S: State): Cobranca[] {
 export async function assinar(_plano: Plano['id']): Promise<Resultado> {
   return { ok: false, motivo: 'nao-implementado' };
 }
+
+/* ============================================================
+   O DESCONTO DE RETENÇÃO
+
+   ⚠️ A PORCENTAGEM E O PRAZO SÃO DECISÃO DE PRODUTO, e estes números
+   ainda não foram confirmados — 50% por um mês é o ponto de partida.
+   Trocá-los é mudar esta constante, e só ela.
+
+   ⚠️⚠️ E QUEM DÁ DESCONTO É A LOJA, NÃO O APLICATIVO. ⚠️⚠️
+
+   Um desconto de assinatura existe como OFERTA PROMOCIONAL configurada na
+   App Store Connect e no Google Play Console, presa ao mesmo produto —
+   igual ao teste grátis, e com a mesma armadilha: enquanto ela não
+   existir lá, a tela oferece um abatimento que ninguém consegue conceder.
+
+   `resgatarDesconto` é a costura. Hoje recusa, como `assinar`, e a tela
+   mostra a recusa em voz alta em vez de fingir que deu certo — porque uma
+   pessoa que aceitou um desconto para NÃO cancelar e descobre no mês
+   seguinte que foi cobrada inteira é a pior versão desta tela que dá para
+   imaginar. Ver PENDENCIAS.md, item 5. */
+export const DESCONTO_DE_RETENCAO = { porcento: 50, meses: 1 };
+
+export async function resgatarDesconto(): Promise<Resultado> {
+  return { ok: false, motivo: 'nao-implementado' };
+}

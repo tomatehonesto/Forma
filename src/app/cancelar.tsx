@@ -3,10 +3,10 @@ import { View, Pressable, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  PLANOS, assinaturaAtual, reais, GESTAO_NA_LOJA, NOME_DA_LOJA,
+  PLANOS, assinaturaAtual, reais, resgatarDesconto, DESCONTO_DE_RETENCAO,
+  GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
-import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { TelaInterna, Titulao, Cartao, Bloco, Botao } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -34,75 +34,78 @@ import { radius } from '../theme';
    transformar esta tela num funil — se alguém fizer isso um dia, terá que
    apagar este parágrafo antes.
 
-   ⚠️ E AS OFERTAS SÃO CONDICIONAIS, PORQUE SENÃO VIRAM MENTIRA. Quem já
-   está no anual não recebe "o anual é mais barato"; quem não tem rede
-   parceira no mercado dela não recebe a linha do código. Uma alternativa
-   que não se aplica ao caso é publicidade travestida de ajuda, e custa
-   mais caro do que não oferecer nada.
+   ⚠️ E AS RESPOSTAS SÃO CONDICIONAIS, PORQUE SENÃO VIRAM MENTIRA. O
+   desconto só aparece para quem tem assinatura para descontar; a conta do
+   anual, só para quem está no mensal. Uma alternativa que não se aplica
+   ao caso é publicidade travestida de ajuda, e custa mais caro do que não
+   oferecer nada.
+
+   ⚠️ "ME TRATO NUMA CLÍNICA PARCEIRA" NÃO ESTÁ NA LISTA, e saiu de
+   propósito: não é motivo para cancelar, é motivo para não estar pagando.
+   Quem tem código resolve isso em /assinatura, na linha "Inserir código",
+   e sai de lá sem assinatura nenhuma. Oferecer isso aqui era transformar
+   uma correção de cobrança num motivo de saída.
 
    ⚠️ O MOTIVO FICA GUARDADO E NÃO VAI A LUGAR NENHUM — ainda. Não há
-   servidor para receber. Ele é escrito no perfil com a data, para ser
-   enviado quando o Supabase entrar, e é só isso que se pode prometer
-   hoje. Ver PENDENCIAS.md, item 5.
+   servidor para receber, nem o motivo nem o texto que a pessoa escrever.
+   Os dois são gravados no perfil com a data, para serem enviados quando o
+   Supabase entrar, e é só isso que se pode prometer hoje. A tela NÃO diz
+   "vamos responder", porque não há para onde responder. Ver
+   PENDENCIAS.md, item 5.
 
    ⚠️ E O APLICATIVO NÃO CANCELA NADA AQUI. Quem cobra é a loja e é lá que
-   se cancela — esta tela conversa e abre a porta. Um botão "cancelar" que
-   parecesse cancelar, e não cancelasse, seria a pior porta emparedada que
-   este projeto poderia ter.
+   se cancela — esta tela conversa e abre a porta.
    ============================================================ */
 
-type Motivo = 'caro' | 'pouco-uso' | 'clinica' | 'faltou' | 'outro';
+type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
 
-/* ⚠️ CADA MOTIVO TEM ÍCONE, e não é enfeite: cinco pílulas iguais
-   empilhadas são cinco retângulos que só se diferenciam lendo, e esta é
+/* ⚠️ CADA MOTIVO TEM ÍCONE, e não é enfeite: seis pílulas iguais
+   empilhadas são seis retângulos que só se diferenciam lendo, e esta é
    uma tela que ninguém quer ler. O desenho dá um ponto de entrada para
    cada linha e deixa a lista se varrer em vez de se ler.
 
-   Solto, sem pastilha de cor, que é a regra da casa em lista. */
+   ⚠️ E A ORDEM NÃO É ALFABÉTICA NEM ALEATÓRIA. Os três primeiros são os
+   que têm resposta; os três últimos são os que têm campo de texto. Quem
+   lê de cima para baixo encontra a alternativa antes de encontrar o
+   formulário, que é a única ordem que faz sentido numa tela de saída. */
 const MOTIVOS: [Motivo, string, string][] = [
   ['caro', 'wallet', 'Está caro'],
-  ['pouco-uso', 'moon', 'Não estou usando'],
-  ['clinica', 'steth', 'Me trato numa clínica parceira'],
+  ['esqueco', 'moon', 'Não estou usando'],
+  ['terminei', 'journey', 'Terminei o tratamento'],
+  ['problema', 'alerta', 'Tive problemas no aplicativo'],
   ['faltou', 'bulb', 'Faltou alguma coisa'],
   ['outro', 'more', 'Outro motivo'],
 ];
 
-/* ⚠️ A ESCOLHA É UM CHECK, E NÃO UM BLOCO PREENCHIDO.
+/* ⚠️ O SELECIONADO É CHEIO, e não contornado com um check.
 
-   O componente de opção da casa acende em azul cheio, e funciona onde
-   funciona: no cadastro, escolher é avançar. Aqui escolher é dizer um
-   motivo para ir embora — um retângulo azul comemorando a resposta soa
-   errado, e cinco deles numa tela de cancelamento soam pior.
+   Tentei o contrário aqui — fundo lavado, fio na cor e um check discreto
+   —, com o argumento de que uma tela de cancelamento não deve comemorar a
+   resposta. O argumento é bonito e está errado na prática: numa lista de
+   seis, o preenchido responde antes da leitura, e o contornado obriga o
+   olho a COMPARAR com os vizinhos para descobrir qual está marcado.
 
-   O selecionado ganha o fundo lavado, o fio na cor de ação e um check.
-   Três sinais fracos, que juntos dizem a mesma coisa que um forte sem
-   levantar a voz. */
+   É o mesmo desenho do resto do aplicativo, e essa é a segunda razão:
+   inventar um estado de seleção próprio para uma tela é ensinar um
+   vocabulário novo no pior momento possível. */
 function Escolha({ ic, label, on, onPress }: {
   ic: string; label: string; on: boolean; onPress: () => void;
 }) {
   const { c } = useTheme();
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
       <Row
         gap={12}
         style={{
           alignItems: 'center',
           paddingHorizontal: 16, paddingVertical: 15,
           borderRadius: radius.lg, borderWidth: 1.5,
-          backgroundColor: on ? c.accentWeak : c.bg1,
+          backgroundColor: on ? c.accent : c.bg1,
           borderColor: on ? c.accent : 'transparent',
         }}
       >
-        <Icon name={ic} size={19} color={on ? c.accent : c.tx3} sw={1.9} />
-        <Txt v="body" c={on ? c.tx : c.tx2} style={{ flex: 1 }}>{label}</Txt>
-        <View style={{
-          width: 22, height: 22, borderRadius: 11,
-          alignItems: 'center', justifyContent: 'center',
-          backgroundColor: on ? c.accent : 'transparent',
-          borderWidth: on ? 0 : 1.5, borderColor: c.line,
-        }}>
-          {on ? <Icon name="check" size={13} color={c.accentInk} sw={2.8} /> : null}
-        </View>
+        <Icon name={ic} size={19} color={on ? c.accentInk : c.tx3} sw={1.9} />
+        <Txt v="body" c={on ? c.accentInk : c.tx2} style={{ flex: 1 }}>{label}</Txt>
       </Row>
     </Pressable>
   );
@@ -115,11 +118,13 @@ export default function Cancelar() {
   const { c } = useTheme();
 
   const [motivo, setMotivo] = React.useState<Motivo | null>(null);
+  const [detalhe, setDetalhe] = React.useState('');
+  const [recusa, setRecusa] = React.useState(false);
 
   /* ⚠️ PORTA DE DESENVOLVIMENTO — o mesmo `?assinante=1` de /assinatura,
-     pelo mesmo motivo: sem assinatura não há plano, e sem plano a oferta
-     do anual — que é a única condicional desta tela — nunca aparece para
-     ser conferida. Em produção `__DEV__` é falso e some na compilação. */
+     pelo mesmo motivo: sem assinatura não há plano, e sem plano as duas
+     respostas condicionais desta tela nunca aparecem para ser conferidas.
+     Em produção `__DEV__` é falso e some na compilação. */
   const { assinante } = useLocalSearchParams<{ assinante?: string }>();
   const atual = assinaturaAtual(S) ?? (__DEV__ && assinante === '1'
     ? { plano: 'mensal' as const, renovaEm: Date.now() + 20 * 864e5, emTeste: false }
@@ -127,46 +132,71 @@ export default function Cancelar() {
   const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
   const anual = PLANOS.find((x) => x.id === 'anual')!;
 
-  /* O motivo é gravado no toque, e não no botão de sair: quem responde e
-     fecha a tela pelo gesto de voltar também respondeu. */
+  /* A resposta é gravada no toque, e não num botão de enviar: quem
+     responde e fecha a tela pelo gesto de voltar também respondeu. */
+  const gravar = (m: Motivo, d: string) => {
+    update((st: any) => { st.profile.cancelamento = { motivo: m, detalhe: d.trim(), t: Date.now() }; });
+  };
   const escolher = (m: Motivo) => {
     setMotivo(m);
-    update((st: any) => { st.profile.cancelamento = { motivo: m, t: Date.now() }; });
+    setRecusa(false);
+    gravar(m, detalhe);
+  };
+  const escrever = (v: string) => {
+    setDetalhe(v);
+    if (motivo) gravar(motivo, v);
   };
 
   const irParaLoja = () => Linking.openURL(GESTAO_NA_LOJA);
 
-  /* ---- a alternativa, quando existe ---- */
-  const oferta = (() => {
-    if (motivo === 'caro' && plano?.id === 'mensal') {
+  const aceitarDesconto = async () => {
+    const r = await resgatarDesconto();
+    if (!r.ok) setRecusa(true);
+  };
+
+  /* ---- a resposta, quando há uma ---- */
+  const resposta = (() => {
+    if (motivo === 'caro' && plano) {
+      const comDesconto = plano.preco * (1 - DESCONTO_DE_RETENCAO.porcento / 100);
       return {
         ic: 'wallet',
-        titulo: `No anual sai ${reais(anual.outraUnidade.valor)} por mês`,
-        texto: `São ${reais(anual.preco)} uma vez por ano, em vez de ${reais(plano.preco)} todo mês. A troca é feita na ${NOME_DA_LOJA}, na mesma tela do cancelamento.`,
-        rotulo: 'Mudar de plano',
-        acao: irParaLoja,
+        titulo: `${DESCONTO_DE_RETENCAO.porcento}% de desconto no próximo mês`,
+        texto: plano.id === 'mensal'
+          ? `A próxima cobrança sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}. E se o mensal for o problema, o anual fica em ${reais(anual.outraUnidade.valor)} por mês.`
+          : `O próximo período sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.`,
+        rotulo: 'Quero o desconto',
+        acao: aceitarDesconto,
       };
     }
-    if (motivo === 'clinica' && TEM_REDE_PARCEIRA) {
-      return {
-        ic: 'steth',
-        titulo: 'Pacientes de clínicas parceiras não pagam',
-        texto: 'Se a sua clínica é parceira, o código que ela te passou libera o aplicativo — e aí cancelar a assinatura é o caminho certo mesmo, sem perder nada.',
-        rotulo: 'Inserir código',
-        acao: () => router.push('/codigo' as any),
-      };
-    }
-    if (motivo === 'pouco-uso') {
+    if (motivo === 'esqueco') {
       return {
         ic: 'bell',
-        titulo: 'Os lembretes existem para isso',
-        texto: 'Dose, pesagem, água e proteína no horário que você escolher. É o que costuma faltar quando o registro para.',
-        rotulo: 'Lembretes',
+        titulo: 'Se o problema é esquecer, dá para avisar',
+        texto: 'Dose, pesagem, água e proteína têm lembrete, no horário que você escolher. Dá para ligar só o que faz falta e desligar o resto.',
+        rotulo: 'Configurar lembretes',
         acao: () => router.push('/lembretes' as any),
+      };
+    }
+    if (motivo === 'terminei') {
+      return {
+        ic: 'journey',
+        titulo: 'Seus registros continuam aqui',
+        texto: 'Cancelar não apaga nada: o peso, as aplicações, os exames e as fotos ficam no aparelho. Se um dia você recomeçar, está tudo no lugar.',
+        rotulo: null,
+        acao: null,
       };
     }
     return null;
   })();
+
+  /* Os motivos sem resposta ganham a palavra. É a troca justa: a gente não
+     tem nada a oferecer, então ouve. */
+  const pedeTexto = motivo === 'problema' || motivo === 'faltou' || motivo === 'outro';
+
+  const rotuloDoCampo =
+    motivo === 'problema' ? 'O que aconteceu?'
+      : motivo === 'faltou' ? 'O que faltou?'
+        : 'Conta pra gente';
 
   return (
     <TelaInterna
@@ -191,31 +221,60 @@ export default function Cancelar() {
         </View>
       </Bloco>
 
-      {/* ⚠️ A RESPOSTA VEM SEMPRE, com oferta ou sem. Escolher um motivo e
-          não acontecer nada faz a pergunta inteira parecer pedágio — e faz
-          a pessoa se perguntar o que deixou de ganhar por ter respondido a
-          opção errada. */}
-      {motivo ? (
-        <Cartao style={oferta ? { borderWidth: 1, borderColor: c.limeWeak } : undefined}>
+      {resposta ? (
+        <Cartao>
           <View style={{ padding: 18, gap: 10 }}>
             <Row gap={10} style={{ alignItems: 'center' }}>
-              <Icon name={oferta ? oferta.ic : 'heart'} size={19} color={c.lime} sw={1.9} />
-              <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>
-                {oferta ? oferta.titulo : 'Obrigado por dizer'}
-              </Txt>
+              <Icon name={resposta.ic} size={19} color={c.lime} sw={1.9} />
+              <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{resposta.titulo}</Txt>
             </Row>
-            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
-              {oferta
-                ? oferta.texto
-                : 'Não temos uma alternativa melhor para esse caso — o que a gente faz com isso é melhorar o aplicativo.'}
-            </Txt>
-            {oferta ? (
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{resposta.texto}</Txt>
+
+            {/* ⚠️ A RECUSA HONESTA, igual à da tela de planos: enquanto a
+                loja não está ligada, nenhum desconto pode ser concedido, e
+                o botão diz isso em vez de fingir que deu certo.
+
+                Uma pessoa que aceitou desconto para NÃO cancelar e é
+                cobrada inteira no mês seguinte é a pior versão desta tela
+                que dá para imaginar. */}
+            {recusa ? (
+              <View style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 14, gap: 4 }}>
+                <Txt v="label" c={c.tx}>O desconto ainda não pode ser aplicado</Txt>
+                <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
+                  A cobrança não está ligada nesta versão, então não há o que descontar. Nada
+                  mudou na sua assinatura.
+                </Txt>
+              </View>
+            ) : resposta.rotulo && resposta.acao ? (
               /* Fantasma, e não cheio: a alternativa não pode pesar mais do
                  que a saída. Ver o segundo aviso do cabeçalho. */
               <View style={{ marginTop: 2 }}>
-                <Botao label={oferta.rotulo} onPress={oferta.acao} tom="fantasma" />
+                <Botao label={resposta.rotulo} onPress={resposta.acao} tom="fantasma" />
               </View>
             ) : null}
+          </View>
+        </Cartao>
+      ) : pedeTexto ? (
+        <Cartao>
+          <View style={{ padding: 18, gap: 10 }}>
+            <Row gap={10} style={{ alignItems: 'center' }}>
+              <Icon name="companion" size={19} color={c.lime} sw={1.9} />
+              <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{rotuloDoCampo}</Txt>
+            </Row>
+            {/* ⚠️ E A FRASE NÃO PROMETE RESPOSTA. Não há para onde esse
+                texto ir ainda, e mesmo depois não haverá caixa de entrada
+                ligada a ele. "Vamos te responder" seria a promessa mais
+                fácil e mais cara desta tela. */}
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
+              Escrever é opcional, e ninguém vai te responder por aqui — isso vira lista de
+              conserto, e é assim que a gente decide o que arrumar primeiro.
+            </Txt>
+            <Texto
+              valor={detalhe}
+              onChange={escrever}
+              placeholder={motivo === 'problema' ? 'Onde travou, o que deu errado…' : 'Pode escrever à vontade'}
+              linhas={3}
+            />
           </View>
         </Cartao>
       ) : null}
@@ -231,7 +290,7 @@ export default function Cancelar() {
       <Cartao>
         <View style={{ padding: 18, gap: 12 }}>
           {([
-            ['cal', `O acesso continua até o fim do período já pago.`],
+            ['cal', 'O acesso continua até o fim do período já pago.'],
             ['shield', 'Nada do que você registrou se perde — tudo continua no aparelho.'],
             ['send', `O cancelamento é feito na ${NOME_DA_LOJA}: o aplicativo não consegue fazer isso por você.`],
           ] as [string, string][]).map(([ic, t]) => (

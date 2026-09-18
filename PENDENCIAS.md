@@ -75,9 +75,16 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
   Apple e do Google, e as duas mudam de endereço sem avisar. Abrir os dois
   antes de publicar: um link morto numa tela de cobrança é onde a
   confiança quebra mais rápido;
+- **o desconto de retenção não existe na loja** — `/cancelar` oferece `50% no próximo mês`
+  a quem responde "está caro", e quem concede abatimento é a **oferta
+  promocional** configurada na App Store Connect e no Google Play, presa
+  ao mesmo produto de assinatura — a mesma armadilha do teste grátis.
+  `resgatarDesconto()` recusa até lá, e a tela mostra a recusa; a
+  porcentagem e o prazo em `DESCONTO_DE_RETENCAO` também ainda não foram
+  confirmados;
 - **o motivo de cancelamento não sai do aparelho** — `/cancelar` pergunta
-  por que a pessoa está saindo e grava a resposta em `profile.cancelamento`
-  com a data. Não há para onde enviar: entra na mesma fila do Supabase do
+  por que a pessoa está saindo e grava a resposta — e o texto que a pessoa escrever — em
+  `profile.cancelamento` com a data. Não há para onde enviar: entra na mesma fila do Supabase do
   item 10. Até lá, a tela retém (as alternativas são reais) mas não
   descobre nada;
 - **o botão não compra** — `assinar()` devolve "não implementado", e a
