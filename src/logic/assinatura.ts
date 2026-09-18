@@ -234,6 +234,51 @@ export const GESTAO_NA_LOJA = Platform.OS === 'ios'
 
 export const NOME_DA_LOJA = Platform.OS === 'ios' ? 'App Store' : 'Google Play';
 
+/* ⚠️ AS OUTRAS DUAS PORTAS DA LOJA, pelo mesmo motivo da de cima: o
+   cartão de crédito e o histórico de compras são da conta da pessoa na
+   App Store ou no Google Play, não do aplicativo. Não temos como ler o
+   número do cartão nem como trocá-lo — e um "atualizar forma de
+   pagamento" que abrisse um formulário nosso seria pedir o cartão dela
+   para uma cobrança que quem faz é a loja.
+
+   ⚠️ E ESTES ENDEREÇOS ENVELHECEM. São páginas da Apple e do Google, e as
+   duas mudam de URL sem avisar ninguém. Conferir antes de publicar está
+   no PENDENCIAS.md, item 5 — um link morto numa tela de cobrança é onde
+   a confiança quebra mais rápido. */
+export const PAGAMENTO_NA_LOJA = Platform.OS === 'ios'
+  ? 'https://apps.apple.com/account/billing'
+  : 'https://play.google.com/store/paymentmethods';
+
+export const HISTORICO_NA_LOJA = Platform.OS === 'ios'
+  ? 'https://reportaproblem.apple.com'
+  : 'https://play.google.com/store/account/orderhistory';
+
+/* ============================================================
+   O EXTRATO
+
+   ⚠️ A LOJA É A FONTE, E O APLICATIVO É A CÓPIA. Cada cobrança existe num
+   recibo da App Store ou do Google Play; o que esta função vai fazer é
+   ler esses recibos e devolvê-los em ordem. Enquanto isso não existe, ela
+   devolve vazio — e a tela mostra o vazio, que é verdade, em vez de
+   inventar três linhas de exemplo.
+
+   ⚠️ E O EXTRATO DAQUI NUNCA É DOCUMENTO FISCAL. Quem emite recibo é a
+   loja, e a tela diz isso e leva até lá. Um aplicativo que apresenta a
+   própria lista como se fosse a fatura cria a discussão mais cara que
+   existe: a pessoa comparando dois números que vieram de lugares
+   diferentes e acreditando no errado. */
+export type Cobranca = {
+  t: number;
+  valor: number;
+  plano: Plano['id'];
+  /** 'teste' é a linha de valor zero que abre o período gratuito */
+  estado: 'paga' | 'reembolsada' | 'teste';
+};
+
+export function historicoDeCobranca(_S: State): Cobranca[] {
+  return [];
+}
+
 /* ⚠️ A COSTURA. Quando a loja entrar, é esta função que passa a abrir a
    folha de compra nativa e a devolver o resultado dela — e é o único
    lugar do aplicativo que precisa saber disso.

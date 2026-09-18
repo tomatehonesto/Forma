@@ -70,6 +70,11 @@ coisas dela são de marcação e precisam de decisão antes da publicação:
   anuncia um preço que ninguém consegue cobrar. O selo de −50% é a conta
   entre os dois (299 contra 49,90 × 12 = 598,80), e ele quebra junto se
   algum dos dois mudar;
+- **os dois links de loja envelhecem** — `PAGAMENTO_NA_LOJA` e
+  `HISTORICO_NA_LOJA` em `src/logic/assinatura.ts` apontam para páginas da
+  Apple e do Google, e as duas mudam de endereço sem avisar. Abrir os dois
+  antes de publicar: um link morto numa tela de cobrança é onde a
+  confiança quebra mais rápido;
 - **o botão não compra** — `assinar()` devolve "não implementado", e a
   tela mostra isso em voz alta em vez de fingir sucesso;
 - **"Restaurar compras" cai no mesmo lugar**, porque restaurar sem loja
