@@ -149,9 +149,11 @@ export type Vinculo = { desde: number; convite: string };
    inofensivo, porque não há cobrança para burlar. No dia em que houver,
    é o aplicativo inteiro de graça para quem digitar "ABCD".
 
-   É esta função que vira a chamada ao servidor — ela já é o único lugar
+   É esta função que vira a chamada ao Supabase — ela já é o único lugar
    que transforma código em vínculo, e por isso já está no formato certo
-   para virar assíncrona. Ver PENDENCIAS.md, item 5. */
+   para virar assíncrona. O que muda quando isso acontecer: ela passa a
+   devolver uma promessa, e as três telas que a chamam passam a ter um
+   estado de espera e um de recusa. Ver PENDENCIAS.md, itens 5 e 10. */
 export const vinculoDoConvite = (codigo: string): Vinculo =>
   ({ desde: Date.now(), convite: normalizarConvite(codigo) });
 

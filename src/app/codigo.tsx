@@ -51,6 +51,16 @@ export default function Codigo() {
   const [codigo, setCodigo] = React.useState(guardado);
   const limpo = normalizarConvite(codigo);
   const vale = limpo.length >= 4;
+  /* ⚠️ O AVISO ESPERA O DEDO SAIR DO CAMPO.
+
+     Ele aparecia na primeira tecla, e quem digita um código de oito
+     letras passava pelo "faltam caracteres" quatro vezes antes de chegar
+     ao fim — o aplicativo reclamando de alguém que está no meio da
+     palavra. Um aviso que nasce enquanto a pessoa ainda escreve não é
+     ajuda, é interrupção.
+
+     Fora do foco, a frase vale: ela parou, e o que ela parou não serve. */
+  const [focado, setFocado] = React.useState(true);
 
   /* A normalização é a de assinatura.ts, e não uma cópia: "abc123 " e
      "ABC123" precisam virar o mesmo convite nas três telas que o pedem.
@@ -89,6 +99,8 @@ export default function Codigo() {
         placeholder="Digite o código"
         placeholderTextColor={c.tx4}
         autoFocus
+        onFocus={() => setFocado(true)}
+        onBlur={() => setFocado(false)}
         autoCapitalize="characters"
         autoCorrect={false}
         autoComplete="off"
@@ -117,9 +129,11 @@ export default function Codigo() {
           inventar uma regra alheia. O que se pode afirmar é o que este
           campo faz.
 
-          E ela só aparece depois da primeira tecla: nascer com um aviso
-          de erro é repreender quem ainda não fez nada. */}
-      {codigo.length > 0 && !vale ? (
+          E ela espera o campo perder o foco, além de precisar de algo
+          escrito: nascer com um aviso de erro é repreender quem não fez
+          nada, e aparecer no meio da digitação é repreender quem está
+          fazendo. */}
+      {!focado && codigo.length > 0 && !vale ? (
         <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>Digite pelo menos 4 caracteres.</Txt>
       ) : null}
 

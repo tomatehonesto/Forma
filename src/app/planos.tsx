@@ -636,12 +636,27 @@ export default function Planos() {
           <Row gap={10} style={{ alignItems: 'stretch' }}>
             {PLANOS.map((p) => {
               const on = p.id === escolhido;
+              /* ⚠️ CADA CARTÃO SE ACENDE NA COR DO PRÓPRIO ARGUMENTO.
+
+                 O mensal vende o teste grátis e o seu selo é lima; aceso
+                 em azul, ele ficava com duas cores disputando dentro de
+                 163 px — a pastilha puxando para um lado e a borda para o
+                 outro, e nenhuma das duas dizendo o que o cartão é.
+
+                 O anual vende o desconto, que é a cor de ação porque é uma
+                 razão de escolher, e continua azul.
+
+                 Isto é uma cor por ARGUMENTO, e não uma cor por posição:
+                 se um dia o teste mudar de plano, a lima vai junto. */
+              const tom = p.teste
+                ? { linha: c.lime, veu: c.limeWeak, tinta: c.lime }
+                : { linha: c.accent, veu: c.accentWeak, tinta: c.accent2 };
               return (
                 <Pressable key={p.id} onPress={() => { setEscolhido(p.id); setRecusa(false); }} style={{ flex: 1 }}>
                   <View style={{
                     flex: 1,
-                    backgroundColor: on ? c.accentWeak : c.bg1,
-                    borderWidth: 1.5, borderColor: on ? c.accent : c.line,
+                    backgroundColor: on ? tom.veu : c.bg1,
+                    borderWidth: 1.5, borderColor: on ? tom.linha : c.line,
                     borderRadius: radius.lg, padding: 12, gap: 2, justifyContent: 'center',
                   }}>
                     {/* ⚠️ UM SELO POR CARTÃO, E CADA UM DE UMA COR, porque
@@ -659,7 +674,7 @@ export default function Planos() {
                         dia aparecerem, este Row precisa de outra solução —
                         não cabem dois selos em 139 px de linha. */}
                     <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Txt v="label" c={on ? c.accent2 : c.tx2}>{p.nome}</Txt>
+                      <Txt v="label" c={on ? tom.tinta : c.tx2}>{p.nome}</Txt>
                       {p.economia ? (
                         <View style={{ backgroundColor: on ? c.accent : c.bg3, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
                           <Txt v="micro" c={on ? c.accentInk : c.tx3}>−{p.economia}%</Txt>
@@ -769,9 +784,17 @@ export default function Planos() {
                   Então as garantias vêm com o número: o que é grátis, por
                   quantos dias, quanto custa depois, e que cancelar antes
                   não cobra nada. É a mesma frase que a loja vai mostrar na
-                  folha de compra, dita antes dela. */}
+                  folha de compra, dita antes dela.
+
+                  ⚠️ E A SEGUNDA MUDA COM O PLANO. "Sem compromisso" é o que
+                  acalma quem vai experimentar três dias; para quem está
+                  comprometendo um ano inteiro, a mesma frase soa a
+                  promessa vazia — ela ACABOU de se comprometer. O que vale
+                  dizer ali é o que ela ganha em troca, e o menor preço é a
+                  razão do plano existir. A primeira serve aos dois, e é
+                  verdade nos dois: cancelar é na loja, a qualquer hora. */}
               <Row gap={16} style={{ marginTop: 12, justifyContent: 'center' }}>
-                {['Cancele quando quiser', 'Sem compromisso'].map((t) => (
+                {['Cancele quando quiser', plano.teste ? 'Sem compromisso' : 'Menor preço'].map((t) => (
                   <Row key={t} gap={5} style={{ alignItems: 'center' }}>
                     <Icon name="check" size={12} color={c.lime} sw={2.6} />
                     <Txt v="micro" c={c.tx3}>{t}</Txt>

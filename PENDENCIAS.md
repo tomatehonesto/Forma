@@ -87,8 +87,10 @@ em lugar nenhum. Hoje é inofensivo, porque não há cobrança para burlar —
 no dia em que houver, "ABCD" vale uma assinatura. As três portas do
 convite (o cadastro, `/parceiros` e a folha `/codigo`) chamam a mesma
 função, `vinculoDoConvite` em `src/logic/assinatura.ts`, e é ela que
-precisa virar uma chamada ao servidor — já está no formato certo para
-isso. **Ligar a cobrança antes de a conferência existir é abrir a porta
+precisa virar uma chamada ao **Supabase** — já está no formato certo para
+isso, e a decisão de região está no item 10. Quando virar, as três telas
+ganham um estado de espera e um de recusa, que hoje não existem porque
+não há como recusar. **Ligar a cobrança antes de a conferência existir é abrir a porta
 dos fundos no mesmo dia em que se põe a fechadura na da frente.**
 
 ⚠️⚠️ **O TESTE GRÁTIS DE 3 DIAS É UMA PROMESSA QUE A LOJA PRECISA
