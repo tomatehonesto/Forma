@@ -16,35 +16,33 @@ const metaDeExerc = (S: State) => (S.profile as any).targets?.exercMin ?? 0;
 const M = (S: State) => MEDS[S.profile.med];
 
 /* ============================================================
-   CONQUISTAS — calculadas, e não concedidas
+   CONQUISTAS — trilhas de nível, calculadas dos registros
 
-   ⚠️ ELAS ERAM UMA LISTA FIXA NO ESTADO, com `done: true` escrito à mão.
-   Cinco vinham marcadas como feitas desde o primeiro segundo do
-   aplicativo, e uma delas estava errada: "Dez semanas" vinha comemorada
-   no dia 67.
+   ⚠️ ELAS JÁ FORAM UMA LISTA FIXA NO ESTADO, com `done: true` escrito à
+   mão — cinco marcadas como feitas desde o primeiro segundo do app, uma
+   delas errada. Aqui cada uma é uma conta, e some se o registro que a
+   fechou for apagado.
 
-   Aqui cada uma é uma conta sobre os registros, e sabe QUANDO aconteceu:
-   a data vem do registro que fechou a conta. Apagar esse registro desfaz
-   a conquista, porque ela deixou de ter acontecido.
+   E ELAS DEIXARAM DE SER AVULSAS. "5 check-ins", "10 check-ins" e "50
+   check-ins" são a mesma conquista em três alturas, e como cartões
+   separados elas enchiam a tela com o mesmo ícone e o mesmo título três
+   vezes — enquanto a pergunta que interessa ("onde eu estou nisso?")
+   ficava espalhada entre eles.
 
-   O CATÁLOGO É DECLARATIVO porque são mais de trinta. Cada uma diz o que
-   conta, quanto precisa e onde buscar — e a máquina lá embaixo transforma
-   isso em "feito / a caminho / faltam tantos". Trinta funções escritas à
-   mão divergiriam na décima: uma arredondaria diferente, outra esqueceria
-   o caso de lista vazia.
+   Agora cada assunto é uma TRILHA com níveis. O cartão mostra o nível
+   alcançado, quando ele veio, e quanto falta para o próximo. Vinte
+   cartões dizem o que quarenta e seis diziam, e dizem melhor: a trilha
+   guarda a progressão, que é a informação que os cartões avulsos
+   perdiam.
 
-   TODA CONQUISTA É UM MARCO DE CONTAGEM ou um marco de VALOR:
+   OS NÍVEIS SÃO CRESCENTES E ESPAÇADOS. Cinco, dez, vinte e cinco, e daí
+   por diante: perto no começo, para quem está começando ter o que
+   alcançar, e longe no fim, para quem está há um ano ainda ter. Um nível
+   a cada dez seria uma escada que cansa antes de acabar.
 
-     contar   a enésima vez que algo aconteceu — a data é a da enésima
-     valor    uma linha que foi cruzada — a data é a do registro que cruzou
-
-   Não há conquista de "faça isso todo dia para sempre", e isso é
-   decisão: uma que só se perde é uma que cobra. Aqui o que foi
-   conquistado fica.
-
-   E NENHUMA DEPENDE DE JULGAMENTO. Não há "semana perfeita" nem "você
-   falhou": as trinta e quatro contam coisas que a pessoa fez, e a que
-   ainda não veio diz quanto falta, não o que deu errado.
+   NENHUM NÍVEL SE PERDE, e isso é decisão: não há "semana perfeita" nem
+   nada que só exista enquanto a pessoa não falhar. Conquista que se perde
+   é conquista que cobra.
    ============================================================ */
 
 export type Familia =
@@ -67,429 +65,403 @@ export type Conquista = {
   familia: Familia;
   ic: string;
   titulo: string;
+  /** quantos níveis já foram alcançados — 0 quando nenhum */
+  nivel: number;
+  /** quantos níveis a trilha tem */
+  niveis: number;
+  /** o que o nível atual (ou o primeiro, quando nenhum) representa */
   desc: string;
-  /** o instante do registro que fechou a conta; null enquanto não fechou */
+  /** quando o nível atual foi alcançado; null enquanto nenhum foi */
   t: number | null;
-  /** 0..1, o quanto já andou */
+  /** 0..1 rumo ao PRÓXIMO nível; 1 quando a trilha acabou */
   pct: number;
-  /** o que falta, em palavras curtas */
+  /** o que falta para o próximo; vazio quando a trilha acabou */
   falta: string;
 };
 
 /* ------------------------------------------------------------------ *
  * AS DUAS MÁQUINAS
+ *
+ * Toda trilha é uma contagem ou um valor que cresce, e as duas se
+ * resumem à mesma dupla: quanto já foi feito, e em que instante cada
+ * marca foi batida. O resto — nível, progresso, o que falta — sai daí.
  * ------------------------------------------------------------------ */
 
-type Conta = { feito: number; alvo: number; t: number | null };
+type Medida = { feito: number; quando: (alvo: number) => number | null };
 
-/** A enésima vez. `datas` vem ordenada; a data da conquista é a enésima. */
-const aEnesima = (datas: number[], n: number): Conta => {
+/** A enésima vez que algo aconteceu. */
+const porContagem = (datas: number[]): Medida => {
   const d = [...datas].sort((a, b) => a - b);
-  return { feito: d.length, alvo: n, t: d.length >= n ? d[n - 1] : null };
+  return { feito: d.length, quando: (n) => (d.length >= n ? d[n - 1] : null) };
 };
 
-/** A linha cruzada. `quando` é o instante em que ela foi cruzada. */
-const aLinha = (feito: number, alvo: number, quando: number | null): Conta =>
-  ({ feito, alvo, t: feito >= alvo && quando != null ? quando : null });
+/** Um valor que cresce: a data é a do primeiro registro que cruzou. */
+const porValor = (serie: { t: number; v: number }[], atual: number): Medida => {
+  const s = [...serie].sort((a, b) => a.t - b.t);
+  return { feito: atual, quando: (alvo) => s.find((x) => x.v >= alvo)?.t ?? null };
+};
 
 const diaDe = (t: number) => +startOfDay(new Date(t));
 
-/** A maior sequência de dias colados em que a condição valeu. */
-function maiorSequencia(S: State, vale: (c: any) => boolean): Conta & { n: number } {
+/* A MAIOR SEQUÊNCIA de dias colados, e o dia em que ela passou por cada
+   altura. Sem esse segundo dado a trilha saberia que a pessoa chegou a
+   trinta dias e não saberia quando chegou a sete. */
+function porSequencia(S: State, vale: (c: any) => boolean): Medida {
   const bons = (S.checkins as any[]).filter(vale).map((c) => diaDe(c.t)).sort((a, b) => a - b);
-  let melhor = 0; let fim: number | null = null;
-  let n = 0; let anterior: number | null = null;
+  const primeiraVez = new Map<number, number>();
+  let melhor = 0; let n = 0; let anterior: number | null = null;
   for (const d of bons) {
     n = anterior != null && d - anterior === DAY ? n + 1 : 1;
-    if (n > melhor) { melhor = n; fim = d; }
+    if (!primeiraVez.has(n)) primeiraVez.set(n, d);
+    if (n > melhor) melhor = n;
     anterior = d;
   }
-  return { feito: melhor, alvo: 0, t: fim, n: melhor };
+  return { feito: melhor, quando: (alvo) => primeiraVez.get(alvo) ?? null };
 }
 
 /* QUANTOS DIAS DE UMA MESMA SEMANA bateram a condição. A semana é a
    janela de sete dias que mais rendeu, e não a do calendário: quem bebe
    água de quinta a segunda cumpriu cinco dias, e dizer que não porque a
    semana virou no domingo seria o app discutindo calendário com alguém. */
-function melhorJanela(S: State, vale: (c: any) => boolean): { n: number; fim: number | null } {
+function porJanela(S: State, vale: (c: any) => boolean): Medida {
   const bons = new Set((S.checkins as any[]).filter(vale).map((c) => diaDe(c.t)));
   const todos = [...bons].sort((a, b) => a - b);
-  let melhor = 0; let fim: number | null = null;
+  const primeiraVez = new Map<number, number>();
+  let melhor = 0;
   for (const d0 of todos) {
-    let n = 0; let ultimo: number | null = null;
+    let n = 0; let ultimo = d0;
     for (let k = 0; k < 7; k++) {
       const d = d0 + k * DAY;
       if (bons.has(d)) { n++; ultimo = d; }
     }
-    if (n > melhor) { melhor = n; fim = ultimo; }
+    for (let k = 1; k <= n; k++) if (!primeiraVez.has(k)) primeiraVez.set(k, ultimo);
+    if (n > melhor) melhor = n;
   }
-  return { n: melhor, fim };
+  return { feito: melhor, quando: (alvo) => primeiraVez.get(alvo) ?? null };
 }
 
-/** Os dias, em ordem, em que a condição valeu. */
 const diasEm = (S: State, vale: (c: any) => boolean) =>
   (S.checkins as any[]).filter(vale).map((c) => diaDe(c.t)).sort((a, b) => a - b);
 
 const respondeu = (c: any, campo: string) => c?.[campo] != null && !Number.isNaN(c[campo]);
 const um = (n: number) => n.toFixed(1).replace('.', ',');
+const inteiro = (n: number) => String(Math.ceil(n));
 
 /* ------------------------------------------------------------------ *
  * O CATÁLOGO
  * ------------------------------------------------------------------ */
 
-type Def = {
-  id: string; familia: Familia; ic: string; titulo: string; desc: string;
-  conta: (S: State) => Conta;
-  /** o que falta, em palavras. Recebe o que falta, já no positivo. */
-  falta: (resta: number, S: State) => string;
+type Trilha = {
+  id: string; familia: Familia; ic: string; titulo: string;
+  /** as alturas da trilha, em ordem crescente */
+  niveis: number[];
+  /** o que aquele nível representa, escrito por extenso */
+  desc: (alvo: number) => string;
+  /** o que falta para ele */
+  falta: (resta: number, alvo: number) => string;
+  medida: (S: State) => Medida;
   /** some da lista quando a pergunta não faz sentido para esta pessoa */
   vale?: (S: State) => boolean;
 };
 
-const vezes = (n: number, s: string, p = s + 's') => `${n} ${n === 1 ? s : p}`;
+const plural = (n: number, s: string, p = s + 's') => `${n} ${n === 1 ? s : p}`;
 
-const CATALOGO: Def[] = [
+const CATALOGO: Trilha[] = [
   /* ---------------- tratamento ---------------- */
   {
-    id: 'dose-1', familia: 'tratamento', ic: 'leaf',
-    titulo: 'Primeiro passo', desc: 'Primeira aplicação registrada',
-    conta: (S) => aEnesima((S.injections as any[]).map((i) => i.t), 1),
-    falta: () => 'Ao registrar a primeira aplicação',
+    id: 'doses', familia: 'tratamento', ic: 'syringe', titulo: 'Aplicações',
+    niveis: [1, 4, 12, 26, 52, 104],
+    desc: (a) => `${plural(a, 'aplicação', 'aplicações')} registrada${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'aplicação', 'aplicações')}`,
+    medida: (S) => porContagem((S.injections as any[]).map((i) => i.t)),
   },
   {
-    id: 'dose-4', familia: 'tratamento', ic: 'syringe',
-    titulo: 'Um mês de caneta', desc: '4 aplicações registradas',
-    conta: (S) => aEnesima((S.injections as any[]).map((i) => i.t), 4),
-    falta: (r) => `Faltam ${vezes(r, 'aplicação', 'aplicações')}`,
-  },
-  {
-    id: 'dose-12', familia: 'tratamento', ic: 'syringe',
-    titulo: 'Três meses', desc: '12 aplicações registradas',
-    conta: (S) => aEnesima((S.injections as any[]).map((i) => i.t), 12),
-    falta: (r) => `Faltam ${vezes(r, 'aplicação', 'aplicações')}`,
-  },
-  {
-    id: 'dose-26', familia: 'tratamento', ic: 'syringe',
-    titulo: 'Meio ano', desc: '26 aplicações registradas',
-    conta: (S) => aEnesima((S.injections as any[]).map((i) => i.t), 26),
-    falta: (r) => `Faltam ${vezes(r, 'aplicação', 'aplicações')}`,
-  },
-  {
-    id: 'dose-52', familia: 'tratamento', ic: 'cal',
-    titulo: 'Um ano', desc: '52 aplicações registradas',
-    conta: (S) => aEnesima((S.injections as any[]).map((i) => i.t), 52),
-    falta: (r) => `Faltam ${vezes(r, 'aplicação', 'aplicações')}`,
+    id: 'tempo', familia: 'tratamento', ic: 'cal', titulo: 'Tempo de tratamento',
+    niveis: [30, 90, 180, 365, 730],
+    desc: (a) => (a < 365 ? `${a / 30} ${a === 30 ? 'mês' : 'meses'} desde a primeira dose` : `${a / 365} ano${a > 365 ? 's' : ''} desde a primeira dose`),
+    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    medida: (S) => {
+      const i1 = (S.injections as any[])[0];
+      if (!i1) return { feito: 0, quando: () => null };
+      const d0 = diaDe(i1.t);
+      return { feito: diffDays(now(), new Date(d0)), quando: (a) => (diffDays(now(), new Date(d0)) >= a ? d0 + a * DAY : null) };
+    },
   },
   {
     /* O RODÍZIO NÃO É ENFEITE: repetir o mesmo ponto causa nódulo, e
-       alternar é orientação de bula. A conquista é a única da lista que
-       premia uma prática de segurança. */
-    id: 'rodizio', familia: 'tratamento', ic: 'troca',
-    titulo: 'Rodízio completo', desc: 'Aplicou nos seis locais',
-    conta: (S) => {
+       alternar é orientação de bula. É a única trilha que premia uma
+       prática de segurança, e a única com um teto natural — são seis
+       locais, e não há sétimo. */
+    id: 'rodizio', familia: 'tratamento', ic: 'troca', titulo: 'Rodízio',
+    niveis: [2, 4, 6],
+    desc: (a) => `${plural(a, 'local', 'locais')} de aplicação usado${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'local', 'locais')}`,
+    medida: (S) => {
       const vistos = new Set<string>();
-      let quando: number | null = null;
+      const quando = new Map<number, number>();
       for (const i of S.injections as any[]) {
         vistos.add(i.site);
-        if (vistos.size === 6 && quando == null) quando = i.t;
+        if (!quando.has(vistos.size)) quando.set(vistos.size, i.t);
       }
-      return aLinha(vistos.size, 6, quando);
+      return { feito: vistos.size, quando: (a) => quando.get(a) ?? null };
     },
-    falta: (r) => `Faltam ${vezes(r, 'local', 'locais')}`,
   },
   {
-    id: 'dez-semanas', familia: 'tratamento', ic: 'cal',
-    titulo: 'Dez semanas', desc: 'Dez semanas desde a primeira dose',
-    conta: (S) => {
-      const i1 = (S.injections as any[])[0];
-      if (!i1) return { feito: 0, alvo: 70, t: null };
-      const d0 = diaDe(i1.t);
-      const d = diffDays(now(), new Date(d0));
-      return aLinha(d, 70, d0 + 70 * DAY);
-    },
-    falta: (r, S) => ((S.injections as any[]).length ? `Faltam ${vezes(r, 'dia')}` : 'Começa na primeira aplicação'),
-  },
-  {
-    id: 'manutencao', familia: 'tratamento', ic: 'dose',
-    titulo: 'Dose de manutenção', desc: 'Chegar ao fim da titulação',
-    vale: (S) => (M(S).doses?.length ?? 0) > 0,
-    conta: (S) => {
-      const escada = M(S).doses ?? [];
-      const alvo = escada[escada.length - 1];
-      const inj = (S.injections as any[]).find((i) => i.dose >= alvo) ?? null;
-      return aLinha(S.profile.dose || 0, alvo, inj ? inj.t : null);
-    },
-    falta: (_r, S) => {
-      const escada = M(S).doses ?? [];
-      return `Você está em ${S.profile.dose || 0} de ${escada[escada.length - 1]} ${M(S).unit}`;
+    id: 'titulacao', familia: 'tratamento', ic: 'dose', titulo: 'Titulação',
+    vale: (S) => (M(S).doses?.length ?? 0) > 1,
+    niveis: [], // preenchida abaixo, a partir da escada do medicamento
+    desc: (a) => `Chegar à dose de ${a}`,
+    falta: (_r, a) => `Próxima: ${a}`,
+    medida: (S) => {
+      const injs = (S.injections as any[]).slice().sort((x, y) => x.t - y.t);
+      return {
+        feito: S.profile.dose || 0,
+        quando: (a) => injs.find((i) => i.dose >= a)?.t ?? null,
+      };
     },
   },
 
   /* ---------------- peso ---------------- */
   {
-    id: 'peso-1', familia: 'peso', ic: 'scale',
-    titulo: 'Primeira pesagem', desc: 'Um peso registrado',
-    conta: (S) => aEnesima((S.weights as any[]).map((w) => w.t), 1),
-    falta: () => 'Ao registrar a primeira pesagem',
+    id: 'kg', familia: 'peso', ic: 'scale', titulo: 'Quilos a menos',
+    niveis: [2, 5, 10, 15, 20, 30],
+    desc: (a) => `${a} kg abaixo do peso inicial`,
+    falta: (r) => `Faltam ${um(r)} kg`,
+    medida: (S) => {
+      const ini = S.profile.startWeight;
+      const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ini - w.kg }));
+      const atual = pesos.length ? ini - (S.weights as any[])[S.weights.length - 1].kg : 0;
+      return porValor(pesos, Math.max(0, atual));
+    },
   },
   {
-    id: 'peso-20', familia: 'peso', ic: 'scale',
-    titulo: 'Vinte pesagens', desc: 'A curva com vinte pontos',
-    conta: (S) => aEnesima((S.weights as any[]).map((w) => w.t), 20),
-    falta: (r) => `Faltam ${vezes(r, 'pesagem', 'pesagens')}`,
+    /* A PORCENTAGEM É OUTRA CONVERSA, e não uma repetição dos quilos: os
+       cinco por cento são a marca clínica que a literatura usa, e dez
+       quilos significam coisas diferentes em corpos diferentes. */
+    id: 'pct', familia: 'peso', ic: 'trend', titulo: 'Percentual perdido',
+    niveis: [5, 10, 15, 20],
+    desc: (a) => `${a}% do peso inicial`,
+    falta: (r) => `Faltam ${um(r)} pontos`,
+    medida: (S) => {
+      const ini = S.profile.startWeight;
+      const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ((ini - w.kg) / ini) * 100 }));
+      const ultimo = (S.weights as any[])[S.weights.length - 1];
+      const atual = ultimo ? ((ini - ultimo.kg) / ini) * 100 : 0;
+      return porValor(pesos, Math.max(0, atual));
+    },
   },
-  ...([
-    ['5', 5, '5% do peso inicial perdidos'],
-    ['10', 10, '10% do peso inicial perdidos'],
-  ] as const).map(([suf, pct, desc]): Def => ({
-    id: `pct-${suf}`, familia: 'peso', ic: 'trend',
-    titulo: `${pct}% do peso`, desc,
-    conta: (S) => {
-      const ini = S.profile.startWeight;
-      const alvo = ini * (1 - pct / 100);
-      const pesos = (S.weights as any[]).slice().sort((a, b) => a.t - b.t);
-      const w = pesos.find((x) => x.kg <= alvo) ?? null;
-      const atual = pesos.length ? pesos[pesos.length - 1].kg : ini;
-      return aLinha(ini - atual, ini * (pct / 100), w ? w.t : null);
-    },
-    falta: (r) => `Faltam ${um(r)} kg`,
-  })),
-  ...([5, 10, 15, 20] as const).map((n): Def => ({
-    id: `menos-${n}`, familia: 'peso', ic: 'scale',
-    titulo: `−${n} kg`, desc: `Marca de ${n} kg a menos`,
-    conta: (S) => {
-      const ini = S.profile.startWeight;
-      const pesos = (S.weights as any[]).slice().sort((a, b) => a.t - b.t);
-      const w = pesos.find((x) => x.kg <= ini - n) ?? null;
-      const atual = pesos.length ? pesos[pesos.length - 1].kg : ini;
-      return aLinha(ini - atual, n, w ? w.t : null);
-    },
-    falta: (r) => `Faltam ${um(r)} kg`,
-  })),
   {
-    id: 'meta-peso', familia: 'peso', ic: 'target',
-    titulo: 'Meta alcançada', desc: 'Chegar ao peso que você definiu',
-    conta: (S) => {
-      const ini = S.profile.startWeight;
-      const alvo = S.profile.goalWeight;
-      const pesos = (S.weights as any[]).slice().sort((a, b) => a.t - b.t);
-      const w = pesos.find((x) => x.kg <= alvo) ?? null;
-      const atual = pesos.length ? pesos[pesos.length - 1].kg : ini;
-      /* A fração é do CAMINHO, e não do peso: chegar a 68 partindo de
-         82,4 é catorze quilos, e mostrar 82% porque 68 é 82% de 82,4
-         seria uma barra quase cheia no primeiro dia. */
-      return aLinha(Math.max(0, ini - atual), Math.max(0.1, ini - alvo), w ? w.t : null);
-    },
-    falta: (r) => `Faltam ${um(r)} kg`,
+    id: 'pesagens', familia: 'peso', ic: 'scale', titulo: 'Pesagens',
+    niveis: [1, 10, 25, 50, 100],
+    desc: (a) => `${plural(a, 'peso')} registrado${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'pesagem', 'pesagens')}`,
+    medida: (S) => porContagem((S.weights as any[]).map((w) => w.t)),
   },
 
   /* ---------------- constância ---------------- */
   {
-    id: 'checkin-1', familia: 'constancia', ic: 'check',
-    titulo: 'Primeiro check-in', desc: 'Um dia respondido',
-    conta: (S) => aEnesima(diasEm(S, (c) => respondeu(c, 'mood')), 1),
-    falta: () => 'Ao responder o primeiro check-in',
+    id: 'checkins', familia: 'constancia', ic: 'check', titulo: 'Check-ins',
+    niveis: [1, 5, 10, 25, 50, 100, 200, 365],
+    desc: (a) => `${plural(a, 'dia')} respondido${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    medida: (S) => porContagem(diasEm(S, (c) => respondeu(c, 'mood'))),
   },
-  ...([
-    ['100', 100, 'Cem dias respondidos'],
-    ['200', 200, 'Duzentos dias respondidos'],
-  ] as const).map(([suf, n, desc]): Def => ({
-    id: `checkin-${suf}`, familia: 'constancia', ic: 'check',
-    titulo: `${n} check-ins`, desc,
-    conta: (S) => aEnesima(diasEm(S, (c) => respondeu(c, 'mood')), n),
-    falta: (r) => `Faltam ${vezes(r, 'dia')}`,
-  })),
-  ...([
-    [7, 'Semana completa'],
-    [15, 'Quinze dias seguidos'],
-    [30, 'Um mês seguido'],
-  ] as const).map(([n, titulo]): Def => ({
-    id: `seguidos-${n}`, familia: 'constancia', ic: 'spark',
-    titulo, desc: `${n} check-ins em dias seguidos`,
-    conta: (S) => {
-      const s = maiorSequencia(S, (c) => respondeu(c, 'mood'));
-      return aLinha(s.n, n, s.t);
-    },
-    falta: (_r, S) => `Maior sequência: ${maiorSequencia(S, (c) => respondeu(c, 'mood')).n} de ${n} dias`,
-  })),
+  {
+    id: 'sequencia', familia: 'constancia', ic: 'spark', titulo: 'Dias seguidos',
+    niveis: [3, 7, 15, 30, 60, 100],
+    desc: (a) => `${plural(a, 'check-in')} em dias seguidos`,
+    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    medida: (S) => porSequencia(S, (c) => respondeu(c, 'mood')),
+  },
 
   /* ---------------- hidratação ---------------- */
   {
-    id: 'agua-1', familia: 'hidratacao', ic: 'water',
-    titulo: 'Primeira meta de água', desc: 'Um dia inteiro na meta',
-    conta: (S) => aEnesima(diasEm(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S)), 1),
-    falta: () => 'No primeiro dia em que você bater a meta',
+    id: 'agua-dias', familia: 'hidratacao', ic: 'water', titulo: 'Dias na meta de água',
+    niveis: [1, 7, 30, 100, 200],
+    desc: (a) => `${plural(a, 'dia')} de água cumprida`,
+    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    medida: (S) => porContagem(diasEm(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S))),
   },
   {
-    id: 'agua-semana', familia: 'hidratacao', ic: 'water',
-    titulo: 'Hidratação em dia', desc: '5 dias na meta, na mesma semana',
-    conta: (S) => {
-      const j = melhorJanela(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S));
-      return aLinha(j.n, 5, j.fim);
-    },
-    falta: (_r, S) => `Melhor semana: ${melhorJanela(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S)).n} de 5 dias`,
+    id: 'agua-semana', familia: 'hidratacao', ic: 'drop', titulo: 'Semana hidratada',
+    niveis: [3, 5, 7],
+    desc: (a) => `${plural(a, 'dia')} na meta, na mesma semana`,
+    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    medida: (S) => porJanela(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S)),
   },
-  ...([30, 100] as const).map((n): Def => ({
-    id: `agua-${n}`, familia: 'hidratacao', ic: 'drop',
-    titulo: `${n} dias na meta`, desc: `${n} dias de água cumprida`,
-    conta: (S) => aEnesima(diasEm(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S)), n),
-    falta: (r) => `Faltam ${vezes(r, 'dia')}`,
-  })),
 
   /* ---------------- proteína ---------------- */
   {
-    id: 'prot-1', familia: 'proteina', ic: 'flame',
-    titulo: 'Primeira meta de proteína', desc: 'Um dia inteiro na meta',
+    id: 'prot-dias', familia: 'proteina', ic: 'flame', titulo: 'Dias na meta de proteína',
     vale: (S) => metaDeProt(S) > 0,
-    conta: (S) => aEnesima(diasEm(S, (c) => (c?.prot ?? 0) >= metaDeProt(S)), 1),
-    falta: () => 'No primeiro dia em que você bater a meta',
+    niveis: [1, 7, 30, 100, 200],
+    desc: (a) => `${plural(a, 'dia')} na meta do perfil`,
+    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    medida: (S) => porContagem(diasEm(S, (c) => (c?.prot ?? 0) >= metaDeProt(S))),
   },
   {
-    id: 'prot-14', familia: 'proteina', ic: 'flame',
-    titulo: 'Proteína em foco', desc: '14 dias seguidos na meta',
+    id: 'prot-seq', familia: 'proteina', ic: 'flame', titulo: 'Proteína seguida',
     vale: (S) => metaDeProt(S) > 0,
-    conta: (S) => {
-      const s = maiorSequencia(S, (c) => (c?.prot ?? 0) >= metaDeProt(S));
-      return aLinha(s.n, 14, s.t);
-    },
-    falta: (_r, S) => `Maior sequência: ${maiorSequencia(S, (c) => (c?.prot ?? 0) >= metaDeProt(S)).n} de 14 dias`,
+    niveis: [3, 7, 14, 30],
+    desc: (a) => `${plural(a, 'dia')} seguidos na meta`,
+    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    medida: (S) => porSequencia(S, (c) => (c?.prot ?? 0) >= metaDeProt(S)),
   },
-  ...([30, 100] as const).map((n): Def => ({
-    id: `prot-${n}`, familia: 'proteina', ic: 'flame',
-    titulo: `${n} dias de proteína`, desc: `${n} dias na meta do perfil`,
-    vale: (S) => metaDeProt(S) > 0,
-    conta: (S) => aEnesima(diasEm(S, (c) => (c?.prot ?? 0) >= metaDeProt(S)), n),
-    falta: (r) => `Faltam ${vezes(r, 'dia')}`,
-  })),
 
   /* ---------------- movimento ---------------- */
   {
-    id: 'treino-1', familia: 'movimento', ic: 'dumbbell',
-    titulo: 'Primeiro treino', desc: 'Uma sessão registrada',
-    conta: (S) => aEnesima(diasEm(S, (c) => (c?.treinos?.length ?? 0) > 0), 1),
-    falta: () => 'Ao registrar o primeiro treino',
-  },
-  ...([10, 50, 150] as const).map((n): Def => ({
-    id: `treino-${n}`, familia: 'movimento', ic: 'dumbbell',
-    titulo: `${n} treinos`, desc: `${n} sessões registradas`,
-    conta: (S) => {
+    id: 'treinos', familia: 'movimento', ic: 'dumbbell', titulo: 'Treinos',
+    niveis: [1, 10, 25, 50, 100, 250],
+    desc: (a) => `${plural(a, 'sessão', 'sessões')} registrada${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'treino')}`,
+    medida: (S) => {
       /* Conta SESSÕES, e não dias: quem treina de manhã e à noite fez
-         dois treinos. A data é a do dia em que a enésima aconteceu. */
+         dois treinos. */
       const datas: number[] = [];
       for (const c of (S.checkins as any[]).slice().sort((a, b) => a.t - b.t)) {
         for (let k = 0; k < (c.treinos?.length ?? 0); k++) datas.push(diaDe(c.t));
       }
-      return aEnesima(datas, n);
+      return porContagem(datas);
     },
-    falta: (r) => `Faltam ${vezes(r, 'treino')}`,
-  })),
+  },
   {
-    id: 'exerc-semana', familia: 'movimento', ic: 'activity',
-    titulo: 'Semana ativa', desc: '5 dias na meta de movimento, na mesma semana',
+    id: 'exerc-semana', familia: 'movimento', ic: 'activity', titulo: 'Semana ativa',
     vale: (S) => metaDeExerc(S) > 0,
-    conta: (S) => {
-      const j = melhorJanela(S, (c) => (c?.exerc ?? 0) >= metaDeExerc(S));
-      return aLinha(j.n, 5, j.fim);
-    },
-    falta: (_r, S) => `Melhor semana: ${melhorJanela(S, (c) => (c?.exerc ?? 0) >= metaDeExerc(S)).n} de 5 dias`,
+    niveis: [3, 5, 7],
+    desc: (a) => `${plural(a, 'dia')} na meta de movimento, na mesma semana`,
+    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    medida: (S) => porJanela(S, (c) => (c?.exerc ?? 0) >= metaDeExerc(S)),
   },
 
   /* ---------------- alimentação ---------------- */
   {
-    id: 'refeicao-1', familia: 'comida', ic: 'utensils',
-    titulo: 'Primeira refeição', desc: 'Um prato registrado',
-    conta: (S) => aEnesima((S.meals as any[]).map((m) => m.t), 1),
-    falta: () => 'Ao registrar o primeiro prato',
+    id: 'refeicoes', familia: 'comida', ic: 'utensils', titulo: 'Refeições',
+    niveis: [1, 25, 100, 365, 1000],
+    desc: (a) => `${plural(a, 'prato')} registrado${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'refeição', 'refeições')}`,
+    medida: (S) => porContagem((S.meals as any[]).map((m) => m.t)),
   },
-  ...([50, 200] as const).map((n): Def => ({
-    id: `refeicao-${n}`, familia: 'comida', ic: 'utensils',
-    titulo: `${n} refeições`, desc: `${n} pratos registrados`,
-    conta: (S) => aEnesima((S.meals as any[]).map((m) => m.t), n),
-    falta: (r) => `Faltam ${vezes(r, 'refeição', 'refeições')}`,
-  })),
   {
-    id: 'favorito-1', familia: 'comida', ic: 'star',
-    titulo: 'Primeiro favorito', desc: 'Um prato guardado para repetir',
-    conta: (S) => {
-      /* O favorito não guarda data. O que existe é a lista: ter o
-         primeiro é a conquista, e a data do primeiro é a da refeição
-         mais antiga — o dia em que a comida entrou na rotina. */
+    id: 'favoritos', familia: 'comida', ic: 'star', titulo: 'Pratos favoritos',
+    niveis: [1, 5, 12],
+    desc: (a) => `${plural(a, 'prato')} guardado${a === 1 ? '' : 's'} para repetir`,
+    falta: (r) => `Faltam ${plural(r, 'prato')}`,
+    medida: (S) => {
+      /* O favorito não guarda data. O que existe é a lista — então a
+         data de cada nível é a da refeição mais antiga, que é quando a
+         comida entrou na rotina. É uma aproximação, e está dita aqui em
+         vez de virar um carimbo que finge precisão. */
       const n = ((S as any).favMeals ?? []).length;
       const primeira = (S.meals as any[]).map((m) => m.t).sort((a, b) => a - b)[0] ?? null;
-      return aLinha(n, 1, primeira);
+      return { feito: n, quando: (a) => (n >= a ? primeira : null) };
     },
-    falta: () => 'Ao guardar o primeiro prato favorito',
   },
 
   /* ---------------- acompanhamento ---------------- */
   {
-    id: 'foto-1', familia: 'acompanhamento', ic: 'camera',
-    titulo: 'Primeira foto', desc: 'Um registro de progresso',
-    conta: (S) => aEnesima((S.photos as any[]).map((p) => p.t), 1),
-    falta: () => 'Ao guardar a primeira foto',
+    id: 'fotos', familia: 'acompanhamento', ic: 'camera', titulo: 'Fotos de progresso',
+    niveis: [1, 3, 6, 12],
+    desc: (a) => `${plural(a, 'foto')} guardada${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'foto')}`,
+    medida: (S) => porContagem((S.photos as any[]).map((p) => p.t)),
   },
   {
-    id: 'foto-5', familia: 'acompanhamento', ic: 'camera',
-    titulo: 'Cinco fotos', desc: 'A mudança em cinco momentos',
-    conta: (S) => aEnesima((S.photos as any[]).map((p) => p.t), 5),
-    falta: (r) => `Faltam ${vezes(r, 'foto')}`,
+    id: 'medidas', familia: 'acompanhamento', ic: 'ruler', titulo: 'Medidas de fita',
+    niveis: [1, 3, 6, 12],
+    desc: (a) => `${plural(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'medição', 'medições')}`,
+    medida: (S) => porContagem((S.measures as any[]).map((m) => m.t)),
   },
   {
-    id: 'medida-1', familia: 'acompanhamento', ic: 'ruler',
-    titulo: 'Primeira medida', desc: 'Fita métrica registrada',
-    conta: (S) => aEnesima((S.measures as any[]).map((m) => m.t), 1),
-    falta: () => 'Ao registrar as primeiras medidas',
-  },
-  {
-    id: 'cintura-5', familia: 'acompanhamento', ic: 'ruler',
-    titulo: '−5 cm de cintura', desc: 'A medida que a balança não mostra',
-    vale: (S) => (S.measures as any[]).length > 0,
-    conta: (S) => {
-      const ms = (S.measures as any[]).filter((m) => m.cintura != null).sort((a, b) => a.t - b.t);
-      if (!ms.length) return { feito: 0, alvo: 5, t: null };
-      const ini = ms[0].cintura;
-      const m5 = ms.find((m) => ini - m.cintura >= 5) ?? null;
-      return aLinha(ini - ms[ms.length - 1].cintura, 5, m5 ? m5.t : null);
-    },
+    id: 'cintura', familia: 'acompanhamento', ic: 'ruler', titulo: 'Centímetros de cintura',
+    vale: (S) => (S.measures as any[]).some((m) => m.cintura != null),
+    niveis: [2, 5, 10, 15],
+    desc: (a) => `${a} cm a menos na cintura`,
     falta: (r) => `Faltam ${um(r)} cm`,
+    medida: (S) => {
+      const ms = (S.measures as any[]).filter((m) => m.cintura != null).sort((a, b) => a.t - b.t);
+      if (!ms.length) return { feito: 0, quando: () => null };
+      const ini = ms[0].cintura;
+      const serie = ms.map((m) => ({ t: m.t, v: ini - m.cintura }));
+      return porValor(serie, Math.max(0, ini - ms[ms.length - 1].cintura));
+    },
   },
   {
-    id: 'exame-1', familia: 'acompanhamento', ic: 'doc',
-    titulo: 'Primeiro exame', desc: 'Um painel importado',
-    conta: (S) => aEnesima((S.examBundles as any[]).map((b) => b.t), 1),
-    falta: () => 'Ao importar o primeiro exame',
+    id: 'exames', familia: 'acompanhamento', ic: 'doc', titulo: 'Exames',
+    niveis: [1, 3, 6],
+    desc: (a) => `${plural(a, 'painel', 'painéis')} importado${a === 1 ? '' : 's'}`,
+    falta: (r) => `Faltam ${plural(r, 'exame')}`,
+    medida: (S) => porContagem((S.examBundles as any[]).map((b) => b.t)),
   },
   {
-    id: 'consulta-1', familia: 'acompanhamento', ic: 'steth',
-    titulo: 'Primeira consulta', desc: 'Uma consulta no histórico',
-    conta: (S) => aEnesima((S.consultsHistory as any[]).map((c) => c.t), 1),
-    falta: () => 'Depois da primeira consulta registrada',
+    id: 'consultas', familia: 'acompanhamento', ic: 'steth', titulo: 'Consultas',
+    niveis: [1, 3, 6, 12],
+    desc: (a) => `${plural(a, 'consulta')} no histórico`,
+    falta: (r) => `Faltam ${plural(r, 'consulta')}`,
+    medida: (S) => porContagem((S.consultsHistory as any[]).map((c) => c.t)),
   },
 ];
 
+/* A TITULAÇÃO TEM OS NÍVEIS DO MEDICAMENTO, e não uma escada escrita
+   aqui: cada caneta tem a sua, e o catálogo de medicamentos é quem sabe.
+   A primeira dose não entra como nível — chegar nela é o próprio começo,
+   e já é a primeira aplicação. */
+const niveisDaTrilha = (t: Trilha, S: State): number[] =>
+  (t.id === 'titulacao' ? (M(S).doses ?? []).slice(1) : t.niveis);
+
 export function conquistas(S: State): Conquista[] {
   return CATALOGO
-    .filter((d) => !d.vale || d.vale(S))
-    .map((d) => {
-      const { feito, alvo, t } = d.conta(S);
-      const resta = Math.max(0, alvo - feito);
+    .filter((t) => !t.vale || t.vale(S))
+    .map((t): Conquista => {
+      const niveis = niveisDaTrilha(t, S);
+      const { feito, quando } = t.medida(S);
+
+      /* O NÍVEL É QUANTAS ALTURAS FORAM PASSADAS. Conta pelo valor, e não
+         pela data: quem apagou o registro que cruzou uma marca antiga mas
+         está acima dela hoje continua tendo passado por ali. */
+      let nivel = 0;
+      for (const alvo of niveis) if (feito >= alvo) nivel++;
+
+      const atual = nivel > 0 ? niveis[nivel - 1] : null;
+      const proximo = nivel < niveis.length ? niveis[nivel] : null;
+      const anterior = nivel > 0 ? niveis[nivel - 1] : 0;
+
       return {
-        id: d.id, familia: d.familia, ic: d.ic, titulo: d.titulo, desc: d.desc,
-        t,
-        pct: alvo > 0 ? Math.max(0, Math.min(1, feito / alvo)) : 0,
-        falta: d.falta(resta, S),
+        id: t.id, familia: t.familia, ic: t.ic, titulo: t.titulo,
+        nivel, niveis: niveis.length,
+        desc: t.desc(atual ?? niveis[0] ?? 0),
+        t: atual != null ? quando(atual) : null,
+        /* O PROGRESSO É DENTRO DO NÍVEL, e não do total. De cinquenta para
+           cem check-ins, estar em setenta é quarenta por cento do trecho —
+           e setenta por cento seria uma barra quase cheia que não anda mais
+           por trinta dias. */
+        pct: proximo == null ? 1 : Math.max(0, Math.min(1, (feito - anterior) / (proximo - anterior))),
+        falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo),
       };
     });
 }
 
-/* AS FEITAS, DA MAIS RECENTE PARA A MAIS ANTIGA — a última conquista é a
-   notícia; as antigas são a estante. */
-export const feitas = (l: Conquista[]) =>
-  l.filter((x) => x.t != null).sort((a, b) => b.t! - a.t!);
+/** Quantos níveis foram alcançados, somando as trilhas. */
+export const niveisFeitos = (l: Conquista[]) => l.reduce((n, q) => n + q.nivel, 0);
+export const niveisTotais = (l: Conquista[]) => l.reduce((n, q) => n + q.niveis, 0);
 
-/* AS QUE FALTAM, DA MAIS PERTO PARA A MAIS LONGE. Com trinta e quatro na
-   lista, a ordem do catálogo colocaria "um ano de caneta" na frente de
-   "faltam 200 gramas" — e a que está a um passo é a única que muda o que
-   a pessoa faz hoje. */
+/* COM NÍVEL, DA MAIS RECENTE PARA A MAIS ANTIGA — o último nível é a
+   notícia; os antigos são a estante. */
+export const feitas = (l: Conquista[]) =>
+  l.filter((x) => x.nivel > 0).sort((a, b) => (b.t ?? 0) - (a.t ?? 0));
+
+/* SEM NÍVEL, DA MAIS PERTO PARA A MAIS LONGE: a que está a um passo é a
+   única que muda o que a pessoa faz hoje. */
 export const aCaminho = (l: Conquista[]) =>
-  l.filter((x) => x.t == null).sort((a, b) => b.pct - a.pct);
+  l.filter((x) => x.nivel === 0).sort((a, b) => b.pct - a.pct);
+
+/* O QUE O RESTO DO APP LÊ. A linha do tempo e o aviso de conquista
+   recente querem um evento com título e data — o nível alcançado, e não a
+   trilha inteira. */
+export const eventosDeConquista = (S: State) =>
+  feitas(conquistas(S))
+    .filter((q) => q.t != null)
+    .map((q) => ({
+      id: `${q.id}-${q.nivel}`, ic: q.ic, t: q.t!,
+      title: `${q.titulo} · nível ${q.nivel}`, desc: q.desc,
+    }));

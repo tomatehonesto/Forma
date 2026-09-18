@@ -2,7 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { checkins30, journeyDay } from '../logic/derive';
-import { conquistas, feitas, aCaminho, FAMILIAS, type Conquista } from '../logic/conquistas';
+import {
+  conquistas, feitas, aCaminho, niveisFeitos, niveisTotais, FAMILIAS, type Conquista,
+} from '../logic/conquistas';
 import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Chips, Grade, Selo } from '../ui/internas';
@@ -44,7 +46,8 @@ import { radius } from '../theme';
 
 function Cartao({ q }: { q: Conquista }) {
   const { c } = useTheme();
-  const on = q.t != null;
+  const on = q.nivel > 0;
+  const completa = q.nivel === q.niveis;
   return (
     <View style={{
       flex: 1, backgroundColor: c.bg1, borderRadius: radius.card,
@@ -62,19 +65,44 @@ function Cartao({ q }: { q: Conquista }) {
       </View>
 
       <Txt v="bodyMed" style={{ marginTop: 10, textAlign: 'center' }}>{q.titulo}</Txt>
-      <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center', lineHeight: 16 }}>{q.desc}</Txt>
 
-      {/* O SELO DESCE PARA O PÉ do cartão: os títulos têm uma ou duas
-          linhas conforme o nome, e sem isso os dois de uma fileira
-          terminavam em alturas diferentes. */}
-      <View style={{ marginTop: 'auto', paddingTop: 12, width: '100%', alignItems: 'center' }}>
-        {on ? (
-          <Selo label={relDay(new Date(q.t!))} tom="lima" />
+      {/* AS BOLINHAS SÃO A TRILHA INTEIRA numa olhada. Com "nível 3 de 6"
+          escrito, a pessoa lê dois números e faz a conta; com seis pontos e
+          três cheios, ela vê. E o número continua logo abaixo para quem
+          quiser a precisão — as duas formas dizem o mesmo, e a rápida vem
+          primeiro. */}
+      <Row gap={4} style={{ marginTop: 8, justifyContent: 'center' }}>
+        {Array.from({ length: q.niveis }, (_, i) => (
+          <View
+            key={i}
+            style={{
+              width: 6, height: 6, borderRadius: 3,
+              backgroundColor: i < q.nivel ? c.lime : c.bg3,
+            }}
+          />
+        ))}
+      </Row>
+      <Txt v="micro" c={c.tx3} style={{ marginTop: 6, textAlign: 'center' }}>
+        {on ? `Nível ${q.nivel} de ${q.niveis}` : `${q.niveis} níveis`}
+      </Txt>
+      <Txt v="micro" c={c.tx3} style={{ marginTop: 2, textAlign: 'center', lineHeight: 16 }}>{q.desc}</Txt>
+
+      {/* O PÉ DO CARTÃO DIZ DUAS COISAS DIFERENTES conforme o estado, e as
+          duas importam para quem está no meio da trilha: quando o nível
+          atual veio, e quanto falta para o próximo. Os títulos têm uma ou
+          duas linhas conforme o nome, e a margem automática faz os dois de
+          uma fileira terminarem na mesma altura. */}
+      <View style={{ marginTop: 'auto', paddingTop: 12, width: '100%', alignItems: 'center', gap: 8 }}>
+        {on && q.t != null ? <Selo label={relDay(new Date(q.t))} tom="lima" /> : null}
+        {completa ? (
+          <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>Trilha completa</Txt>
         ) : (
           <View style={{ width: '100%', gap: 7 }}>
-            {/* A BARRA É O QUANTO ANDOU, e ela é fina e cinza de propósito:
-                o assunto desta metade da tela é o que ainda não veio, e uma
-                barra colorida faria o não-feito competir com o feito. */}
+            {/* A BARRA É O TRECHO ATÉ O PRÓXIMO NÍVEL, e não a trilha
+                inteira: de cinquenta para cem check-ins, estar em setenta é
+                quarenta por cento do trecho — e mostrar setenta por cento
+                seria uma barra quase cheia que não anda mais por trinta
+                dias. */}
             <View style={{ height: 4, borderRadius: 2, backgroundColor: c.track, overflow: 'hidden' }}>
               <View style={{ width: `${Math.round(q.pct * 100)}%`, height: 4, backgroundColor: c.tx4 }} />
             </View>
@@ -121,7 +149,7 @@ export default function Conquistas() {
             que a pessoa perdeu conquistas ao olhar para um assunto. */}
         {[
           [String(checkins30(S)), 'check-ins no mês'],
-          [`${feitas(todas).length}/${todas.length}`, 'conquistas'],
+          [`${niveisFeitos(todas)}/${niveisTotais(todas)}`, 'níveis'],
           [String(journeyDay(S)), 'dias de jornada'],
         ].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.accentLine }}>
@@ -136,7 +164,7 @@ export default function Conquistas() {
       {/* "DESBLOQUEADAS" ERA PALAVRA DE JOGO, e contradizia a própria
           tela: aqui não há fase a vencer nem prêmio a liberar — há coisas
           que aconteceram no tratamento de alguém. */}
-      <Bloco titulo="Já conquistadas">
+      <Bloco titulo="Conquistadas">
         {done.length ? (
           <Grade cols={2} gap={12}>
             {done.map((q) => <Cartao key={q.id} q={q} />)}

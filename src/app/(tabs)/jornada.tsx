@@ -4,10 +4,11 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
+import { conquistas, niveisFeitos } from '../../logic/conquistas';
 import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
-  milestones, achDone, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
+  milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
 } from '../../logic/derive';
@@ -520,7 +521,12 @@ export default function Jornada() {
 
         {/* ---------- MOMENTOS — fita horizontal ---------- */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="Momentos" link={`${achDone(S).length} conquistas`} onPress={go('/conquistas')} />
+          {/* O LINK DIZ O QUE O DESTINO DIZ. Ele contava trilhas com algum
+              nível — "21 conquistas" — e a tela de Conquistas conta níveis
+              alcançados, "39 de 101". Dois números para a mesma coisa em
+              telas que se ligam é a pessoa achando que uma das duas está
+              errada. */}
+          <SectionHead title="Momentos" link={`${niveisFeitos(conquistas(S))} níveis`} onPress={go('/conquistas')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}
             style={{ marginHorizontal: -PAD, marginTop: 14 }}
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
