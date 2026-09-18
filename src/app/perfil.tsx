@@ -4,7 +4,6 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgCurto as kg, nf, relDay } from '../logic/time';
@@ -12,7 +11,7 @@ import {
   journeyDay, hasClinic, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
-import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo } from '../ui/kit';
+import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
 import { Segmentado } from '../ui/instrumentos';
 import { Icon } from '../ui/Icon';
 
@@ -192,8 +191,23 @@ export default function Perfil() {
           nome é o título, e um título por cima do nome era a mesma
           informação duas vezes. Fica só a seta, que é o que a barra de
           cima precisa ter. */}
-      <Row style={{ marginTop: 4 }} gap={12}>
+      {/* O SINO FICA ONDE ELE JÁ FICA NA HOME: no alto, à direita, com o
+          ponto de não lidas. Ele era uma linha da lista de
+          "Acompanhamento", e avisos não são acompanhamento — são o app
+          falando com a pessoa, de qualquer assunto. Como linha, ainda
+          obrigava a descer três seções para ver o que já estava a um
+          toque na primeira tela do app. */}
+      <Row style={{ marginTop: 4, alignItems: 'center' }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
+        <View style={{ flex: 1 }} />
+        <Pressable hitSlop={8} onPress={go('/notificacoes')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="bell" size={20} color={c.tx2} sw={1.8} />
+          </View>
+          {S.unread > 0 ? (
+            <View style={{ position: 'absolute', top: 1, right: 1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.lime }} />
+          ) : null}
+        </Pressable>
       </Row>
 
       <Row gap={14} style={{ marginTop: 18, alignItems: 'center' }}>
@@ -210,22 +224,9 @@ export default function Perfil() {
             celular crua ali dentro é megabyte copiado a cada toque no
             app. 256 px é mais do que um círculo de 72 precisa. */}
         <Pressable onPress={escolherFoto} disabled={ocupado}>
-          <View style={{
-            width: 72, height: 72, borderRadius: 36, overflow: 'hidden',
-            backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
-          }}>
-            {foto ? (
-              <Image source={{ uri: foto }} style={{ width: 72, height: 72 }} contentFit="cover" />
-            ) : (
-              <LinearGradient
-                colors={[c.accent, c.accent2]}
-                start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-                style={{ width: 72, height: 72, alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Txt v="h1" c={c.accentInk} style={{ fontSize: 28 }}>{S.profile.name[0]}</Txt>
-              </LinearGradient>
-            )}
-          </View>
+          {/* O MESMO RETRATO DA HOME, e não uma segunda cópia com outro
+              degradê: a foto escolhida aqui é a que aparece lá. */}
+          <Retrato foto={foto} nome={S.profile.name} tam={72} />
           {/* O selo do lápis encosta na borda do círculo e usa o fundo da
               tela como anel: sem esse anel ele vira uma mancha grudada no
               retrato, e não um botão sobre ele. */}
@@ -411,26 +412,21 @@ export default function Perfil() {
         </Pressable>
       </View>
 
-      <Grupo title="Acompanhamento">
-        <ListRow ic="target" title="Metas diárias"
-          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
-          onPress={go('/metas')} />
-        <ListRow ic="clock" title="Lembretes"
-          sub="Dose, pesagem, água e proteína" onPress={go('/lembretes')} />
-        <ListRow ic="bell" title="Notificações" dot={S.notifications.length > 0}
-          sub={`${S.notifications.length} ${S.notifications.length === 1 ? 'aviso recente' : 'avisos recentes'}`}
-          onPress={go('/notificacoes')} />
-        <ListRow ic="trend" title="Dispositivos e integrações"
-          sub="Apple Health, Withings e mais" onPress={go('/integracoes')} />
-      </Grupo>
-
       {/* ---- sobre você ----
 
           O GRUPO DEIXOU DE SER "SEUS REGISTROS" porque passou a guardar
           mais do que registro: a ficha entrou aqui, e ficha não é registro
-          — é quem a pessoa é. O que os quatro têm em comum é o assunto,
-          e o assunto é ela. Acompanhamento é como o app ajuda; O
-          aplicativo é como o app se comporta; aqui é o paciente.
+          — é quem a pessoa é.
+
+          E AGORA SÃO DOIS GRUPOS, E NÃO TRÊS. Eram "Acompanhamento",
+          "Sobre você" e "O aplicativo", divididos por ASSUNTO — e por
+          assunto qualquer linha cabe em qualquer grupo. A divisão que se
+          sustenta é outra: aqui é o que o app sabe sobre a pessoa; em
+          Configurações é o que a pessoa manda o app fazer. Nesse corte,
+          as quatro linhas de "Acompanhamento" eram todas configuração —
+          metas são alvos que se mudam, lembretes são quando o app fala,
+          integrações são de onde ele lê —, menos o sino, que subiu para
+          o alto da tela.
 
           A PORTA DA FICHA ESTAVA LOGO ABAIXO DO RETRATO, sozinha, antes
           de qualquer seção. Ali ela tinha o destaque de uma coisa que se
@@ -454,15 +450,25 @@ export default function Perfil() {
           sub="Tudo o que você registrou, semana a semana" onPress={go('/historico')} />
         <ListRow ic="trophy" title="Conquistas"
           sub="O que você já alcançou no tratamento" onPress={go('/conquistas')} />
-        <ListRow ic="doc" title="Resumo para o médico"
-          sub="Documento com a evolução completa" onPress={go('/resumo-medico')} />
+        {/* O RESUMO PARA O MÉDICO SAIU DAQUI. Ele não fala sobre a pessoa
+            para ela — fala dela para outra pessoa, e o lugar de tudo que
+            atravessa para o outro lado é o Cuidado: a tela do médico o
+            abre na preparação da consulta, e Consultas também. Aqui ele
+            era a única linha do grupo que não terminava na própria
+            pessoa. */}
       </Grupo>
 
-      {/* ---- o aplicativo ----
+      {/* ---- configurações ----
 
-          É a seção de como o app se comporta, e não do que ele sabe. As
-          outras duas dividem o resto: Acompanhamento é como ele ajuda,
-          Sobre você é o paciente.
+          ⚠️ ELA SE CHAMAVA "O APLICATIVO" E TINHA UMA LINHA SÓ: o tema.
+          Um app inteiro de tratamento, com alvos diários, horários de
+          alerta e aparelhos conectados, e a única coisa que se
+          configurava era claro ou escuro — porque as outras três estavam
+          espalhadas num grupo chamado por assunto.
+
+          Elas voltaram para cá, e o nome passou a ser o que a pessoa
+          procura. Ninguém abre o perfil atrás de "o aplicativo"; abre
+          atrás de configurações.
 
           SAIU DAQUI "SEUS DADOS FICAM NO SEU APARELHO". A frase era
           verdadeira e ainda assim dizia a coisa errada: prometia
@@ -485,7 +491,19 @@ export default function Perfil() {
           parecia um item e não era, e o dedo passava por ele toda vez.
           Número de versão é rodapé — serve para citar num suporte, e não
           para escolher nada. Foi para o fim da tela, em letra pequena. */}
-      <Grupo title="O aplicativo">
+      <Grupo title="Configurações">
+        {/* AS METAS SÃO CONFIGURAÇÃO, e é aqui que elas sempre deveriam
+            ter estado: /metas é a tela onde a pessoa MUDA os alvos de
+            proteína, água, exercício e peso. Ela estava em
+            "Acompanhamento" por assunto, e assunto não era a pergunta
+            certa. */}
+        <ListRow ic="target" title="Metas diárias"
+          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
+          onPress={go('/metas')} />
+        <ListRow ic="clock" title="Lembretes"
+          sub="Quando e sobre o que o app te avisa" onPress={go('/lembretes')} />
+        <ListRow ic="trend" title="Dispositivos e integrações"
+          sub="De onde o app pode ler os seus dados" onPress={go('/integracoes')} />
         <Row gap={12}>
           <View style={{ width: 32, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={isDark ? 'moonToggle' : 'sun'} size={20} color={c.tx2} sw={1.8} />
@@ -497,7 +515,6 @@ export default function Perfil() {
             onChange={(v) => setTheme(v === 'Escuro' ? 'dark' : 'light')}
           />
         </Row>
-
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do

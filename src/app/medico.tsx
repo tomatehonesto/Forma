@@ -66,11 +66,20 @@ export default function Medico() {
         <Txt v="h1" style={{ fontSize: 26, marginTop: 10 }}>{cap(relDay(nd))}</Txt>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{fmtWD(nd)}, {fmtDate(nd)} · {S.consult.doctor}</Txt>
         <View style={{ marginTop: 14, backgroundColor: c.bg1, borderRadius: radius.md, padding: 13 }}>
-          <Row gap={6}><Icon name="aura" size={13} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PREPARAÇÃO AUTOMÁTICA</Txt></Row>
-          <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 6, lineHeight: 19 }}>Seu resumo para a consulta já está sendo montado: peso, adesão, sintomas e perguntas sugeridas. Fica pronto na véspera.</Txt>
+          {/* ⚠️ ELE PROMETIA UM RESUMO QUE FICAVA "PRONTO NA VÉSPERA", e
+              não há véspera nenhuma: o resumo se monta dos registros na
+              hora em que a tela abre, hoje, amanhã ou daqui a um mês. E o
+              botão se chamava "Ver preparação da consulta" para abrir uma
+              tela chamada "Resumo para o médico" — dois nomes para uma
+              porta fazem a pessoa achar que chegou noutro lugar.
+
+              Esta é a porta principal do resumo agora que ele saiu do
+              perfil: o que atravessa para o outro lado mora aqui. */}
+          <Row gap={6}><Icon name="aura" size={13} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt></Row>
+          <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 6, lineHeight: 19 }}>Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta dos seus registros e está pronto agora.</Txt>
           <Pressable onPress={() => router.push('/resumo-medico' as any)}>
             <View style={{ marginTop: 10, backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 11, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-              <Icon name="doc" size={15} color="#fff" sw={2} /><Txt v="label" c="#fff">Ver preparação da consulta</Txt>
+              <Icon name="doc" size={15} color="#fff" sw={2} /><Txt v="label" c="#fff">Ver o resumo para o médico</Txt>
             </View>
           </Pressable>
         </View>

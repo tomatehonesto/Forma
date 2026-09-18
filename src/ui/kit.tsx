@@ -168,6 +168,46 @@ export function IconBadge({ name, size = 44, iconSize, color, bg, sw }: { name: 
    Mora aqui no kit, e não no vocabulário das telas internas, porque
    vazio não é assunto de tela interna: a Jornada tem, as fotos têm, o
    diário tem. */
+/* ------------------------------------------------------------------ */
+/* RETRATO — a foto da pessoa, ou a inicial dela.
+
+   ⚠️ ERAM DUAS CÓPIAS. A Home desenhava um círculo em degradê com a
+   inicial; o Perfil desenhava outro, com outro degradê e outra tinta. Aí
+   o Perfil ganhou a escolha de foto e a Home não soube: a pessoa punha o
+   retrato dela e continuava vendo a letra na tela que ela mais abre.
+
+   Uma peça só, e quem tem foto tem foto em todo lugar. A inicial em
+   degradê continua sendo o estado sem foto — não existe boneco genérico
+   aqui, que ocupa o lugar de alguém com uma figura que não é ela.
+
+   Sem `useStore`: o kit desenha, e quem sabe de onde vêm nome e foto é a
+   tela. */
+export function Retrato({ foto, nome, tam = 40, tinta }: {
+  foto?: string; nome: string; tam?: number; tinta?: string;
+}) {
+  const { c } = useTheme();
+  const r = tam / 2;
+  return (
+    <View style={{ width: tam, height: tam, borderRadius: r, overflow: 'hidden', backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+      {foto ? (
+        <Image source={{ uri: foto }} style={{ width: tam, height: tam }} contentFit="cover" />
+      ) : (
+        <LinearGradient
+          colors={[c.gradFrom, c.gradTo]}
+          start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
+          style={{ width: tam, height: tam, alignItems: 'center', justifyContent: 'center' }}
+        >
+          {/* A letra acompanha o círculo: num retrato de 72 a inicial de
+              um de 40 ficaria perdida no meio. */}
+          <Text style={[ty.h1, { fontSize: Math.round(tam * 0.4), lineHeight: Math.round(tam * 0.5), color: tinta ?? '#FFFFFF' }]}>
+            {nome.trim()[0] ?? '?'}
+          </Text>
+        </LinearGradient>
+      )}
+    </View>
+  );
+}
+
 export function Vazio({ ic, titulo, texto }: {
   ic: string; titulo: string; texto?: string;
 }) {

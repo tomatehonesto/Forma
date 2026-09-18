@@ -13,7 +13,7 @@ import {
   doseDoPerfil, temDose,
 } from '../../logic/derive';
 import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
-import { Txt, Row, Card, SectionHead, ListRow, Metric } from '../../ui/kit';
+import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
@@ -238,10 +238,11 @@ export default function Home() {
 
           {/* cabecalho */}
           <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 26, alignItems: 'center' }}>
+            {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
+                escolhe para o app inteiro — e esta é a tela que ela mais
+                abre. Ver Retrato, em ui/kit. */}
             <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-              <LinearGradient colors={[c.gradFrom, c.gradTo]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
-                <Txt v="title" c="#FFFFFF">{first[0]}</Txt>
-              </LinearGradient>
+              <Retrato foto={(S.profile as any).foto} nome={first} tam={40} />
             </Pressable>
             <View style={{ flex: 1, marginLeft: 16 }}>
               <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
