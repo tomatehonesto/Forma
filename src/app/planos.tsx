@@ -149,6 +149,25 @@ const MOCKUP_PROPORCAO = 900 / 1959;
 const MOCKUP_JANELA = 252;
 const MOCKUP_LARGURA = 286;
 
+/* ⚠️ A CAIXA DA IMAGEM NÃO É O APARELHO, e essa diferença é medida no
+   arquivo: 109 px de transparência no alto dos 1959 de altura, 5,56%.
+   A arte foi exportada com respiro — o que é certo, porque sangrar o
+   telefone na borda do arquivo tira a sombra dele —, mas isso significa
+   que encostar a imagem no topo da janela deixa o telefone 35 pt abaixo
+   dela, pairando sem razão aparente.
+
+   Refeita a peça, este número muda. Ele sai de contar pixels opacos na
+   primeira linha do arquivo, e não de olhar a tela. */
+const MOCKUP_RESPIRO = 109 / 1959;
+
+/* ⚠️ O APARELHO COMEÇA NA MESMA LINHA DO X, e o 12 é o mesmo 12 de
+   `top: insets.top + 12` lá no botão de fechar. São duas peças soltas no
+   alto da tela; alinhadas, o alto lê como uma borda só. Mexer no botão
+   sem mexer aqui desalinha os dois. */
+const X_DO_ALTO = 12;
+
+const ALTURA_DA_ARTE = MOCKUP_LARGURA / MOCKUP_PROPORCAO;
+
 function PecaDoAlto({ c }: { c: any }) {
   return (
     /* ⚠️ A JANELA SANGRA PARA FORA DA CALHA, e o −20 é o padding do alto.
@@ -164,7 +183,12 @@ function PecaDoAlto({ c }: { c: any }) {
     <View style={{ height: MOCKUP_JANELA, marginHorizontal: -20, overflow: 'hidden', alignItems: 'center' }}>
       <Image
         source={MOCKUP}
-        style={{ width: MOCKUP_LARGURA, height: MOCKUP_LARGURA / MOCKUP_PROPORCAO }}
+        style={{
+          width: MOCKUP_LARGURA,
+          height: ALTURA_DA_ARTE,
+          /* sobe o tanto de respiro que sobra depois de descontar a linha do X */
+          marginTop: X_DO_ALTO - Math.round(ALTURA_DA_ARTE * MOCKUP_RESPIRO),
+        }}
         contentFit="contain"
       />
       {/* ⚠️ O DESVANECIMENTO É CURTO DE PROPÓSITO, e foi longo demais.
