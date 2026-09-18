@@ -446,8 +446,15 @@ export default function Perfil() {
               </Row>
             </View>
           </Pressable>
-        ) : linked ? (
+        ) : (S.profile.doctor || S.profile.clinic) ? (
           /* ⚠️ MÉDICO SEM PLATAFORMA — O ESTADO DO MEIO.
+
+             ⚠️ E A CONDIÇÃO É O NOME, E NÃO `temAcompanhamento`. Quem
+             respondeu "sim" no cadastro e não digitou o nome — que é
+             opcional — caía aqui, e este card começa pelo nome: o título
+             saía vazio, um retângulo com um estetoscópio cinza e nada
+             escrito. Sem nome, o lugar certo é o convite de baixo, que é
+             exatamente o que falta preencher.
 
              Mesma moldura do card de cima, e três diferenças que dizem
              tudo: não há retrato, porque o app não tem a foto de um médico
