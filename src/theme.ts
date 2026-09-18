@@ -36,6 +36,12 @@ export type Palette = {
   gradFrom: string; gradTo: string;
   onHero: string; onHero2: string; onHeroWeak: string; onHeroLine: string;
   track: string; shadow: string; scrim: string;
+  /* O VÉU DO HERO. A aurora é imagem e vive atrás de texto branco; o que
+     garante a leitura é um gradiente escuro por cima dela. Esse escuro
+     era o azul-noite cravado em seis lugares — e com a aurora seguindo a
+     paleta, um véu azul sobre um fundo verde puxa o verde de volta para o
+     azul e come metade da troca. */
+  veu: string;
 };
 
 export const light: Palette = {
@@ -121,6 +127,8 @@ export const light: Palette = {
   track: '#EDF1F3',
   shadow: 'rgba(0,0,0,0.05)',                              // [figma]
   scrim: 'rgba(0,0,0,0.45)',
+  /* O azul-noite que já estava cravado nos gradientes do hero. */
+  veu: '#030A26',
 };
 
 /* Dark — NÃO existe frame de referência. Derivado da paleta clara
@@ -164,6 +172,7 @@ export const dark: Palette = {
   track: 'rgba(255,255,255,0.10)',
   shadow: 'rgba(0,0,0,0.45)',
   scrim: 'rgba(0,0,0,0.60)',
+  veu: '#030A26',
 };
 
 /* Largura máxima do app.
@@ -479,6 +488,10 @@ export function comPaleta(p: Palette, id: string | undefined, isDark: boolean): 
     altTo: escurecer(base, 0.88),
     /* A pastilha do "Inicial", no perfil: a lavagem mais pálida da cor. */
     bluePale: isDark ? escurecer(base, 0.7) : mix(base, p.bg, 0.78),
+    /* O VÉU É A PRÓPRIA COR, quase preta. Assim ele escurece a aurora sem
+       arrastá-la de volta para o azul — e a paleta chega até a maior
+       superfície do aplicativo inteira, e não só até a imagem. */
+    veu: escurecer(base, 0.93),
 
     /* ---- a cor do alcançado ---- */
     lime: alc,

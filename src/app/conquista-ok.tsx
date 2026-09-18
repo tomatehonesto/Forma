@@ -10,7 +10,7 @@ import { marcarComoVistas, novosNiveis, type Conquista } from '../logic/conquist
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
+import { radius, alfa } from '../theme';
 
 /* ============================================================
    CONQUISTA ALCANÇADA
@@ -93,7 +93,7 @@ export default function ConquistaOk() {
           aurora aparecer no meio — é o mesmo tratamento do check-in
           concluído. */}
       <LinearGradient
-        colors={['rgba(3,10,38,0.55)', 'rgba(3,10,38,0.20)', 'rgba(3,10,38,0.75)']}
+        colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.2), alfa(c.veu, 0.75)]}
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"

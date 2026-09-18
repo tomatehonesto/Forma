@@ -20,7 +20,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, type Palette } from '../../theme';
+import { radius, alfa, type Palette } from '../../theme';
 
 const PAD = 24;                     // margem lateral do frame
 const FOTO_MEDICA = require('../../../assets/images/especialista.png');
@@ -231,7 +231,7 @@ export default function Home() {
               e embaixo (onde a faixa de check-in encosta), e mais leve no
               meio, para a aurora ainda aparecer onde ela é bonita. */}
           <LinearGradient
-            colors={['rgba(3,10,38,0.62)', 'rgba(3,10,38,0.34)', 'rgba(3,10,38,0.58)']}
+            colors={[alfa(c.veu, 0.62), alfa(c.veu, 0.34), alfa(c.veu, 0.58)]}
             locations={[0, 0.46, 1]}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"

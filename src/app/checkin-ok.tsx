@@ -13,7 +13,7 @@ import { lembretesDoDia, niveisDoRegistro, diasAnteriores, marcoDe, marcasDaSema
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius, font } from '../theme';
+import { radius, font, alfa } from '../theme';
 
 /* ============================================================
    CHECK-IN CONCLUÍDO
@@ -179,7 +179,7 @@ export default function CheckinOk() {
           movimento disputam o mesmo olhar. */}
       <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
       <LinearGradient
-        colors={['rgba(3,10,38,0.42)', 'rgba(3,10,38,0.54)', 'rgba(3,10,38,0.88)']}
+        colors={[alfa(c.veu, 0.42), alfa(c.veu, 0.54), alfa(c.veu, 0.88)]}
         locations={[0, 0.38, 1]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
@@ -318,7 +318,7 @@ export default function CheckinOk() {
         paddingBottom: (insets.bottom || 12) + 16,
       }}>
         <LinearGradient
-          colors={['rgba(3,10,38,0)', 'rgba(3,10,38,0.92)']}
+          colors={[alfa(c.veu, 0), alfa(c.veu, 0.92)]}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />

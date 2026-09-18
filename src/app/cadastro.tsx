@@ -26,7 +26,7 @@ import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
-import { radius, ty, font, shadowCard } from '../theme';
+import { radius, ty, font, shadowCard, alfa } from '../theme';
 
 /* ============================================================
    CADASTRO — as doze perguntas antes da primeira tela
@@ -753,7 +753,6 @@ const GLIFOS: [string, number, number, number][] = [
    uma costura à mostra. */
 /* A marca num quadrado — o mesmo arquivo que vira ícone do app. */
 const MARCA_APP = require('../../assets/images/marca-app.png');
-const TINTA_CAPA = '#05143F';
 
 /* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
    que ele é usado. */
@@ -761,11 +760,12 @@ const TITULO_ABERTURA = { fontFamily: font.body, fontSize: 38, lineHeight: 46 };
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
   const aurora = useAurora();
+  const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   useLightStatusBar();
   return (
-    <View style={{ flex: 1, backgroundColor: TINTA_CAPA }}>
+    <View style={{ flex: 1, backgroundColor: c.veu }}>
       {/* Largura e altura explícitas: só com os quatro cantos presos, a
           web escala a imagem pelo tamanho natural dela e o recorte sai
           ampliado, mostrando um canto. */}
@@ -800,7 +800,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
            `transparent` — que é preto invisível, e faz a rampa escurecer
            antes de chegar na cor. Sobre a aurora escura quase não se vê;
            sobre fundo claro é a faixa cinza que aparecia no formulário. */
-        colors={['rgba(9,40,120,0)', 'rgba(9,40,120,0.5)', TINTA_CAPA]}
+        colors={[alfa(c.veu, 0), alfa(c.veu, 0.5), c.veu]}
         locations={[0, 0.42, 1]}
         pointerEvents="none"
         style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.66 }}

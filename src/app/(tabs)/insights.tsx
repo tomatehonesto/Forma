@@ -19,7 +19,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
-import { radius, font, shadowCard, type Palette } from '../../theme';
+import { radius, font, shadowCard, alfa, type Palette } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -263,7 +263,7 @@ export default function Insights() {
               borda clara da folha aparecer contra alguma coisa em vez de
               contra mais claridade. */}
           <LinearGradient
-            colors={['rgba(4,15,51,0.26)', 'rgba(4,15,51,0.30)', 'rgba(4,15,51,0.62)']}
+            colors={[alfa(c.veu, 0.26), alfa(c.veu, 0.3), alfa(c.veu, 0.62)]}
             locations={[0, 0.45, 1]}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"

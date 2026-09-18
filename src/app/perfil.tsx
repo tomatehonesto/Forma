@@ -553,7 +553,7 @@ export default function Perfil() {
           terceira decisão do mesmo assunto. */}
       <Grupo title="Personalize o aplicativo">
         <ListRow ic="palette" title="Aparência"
-          sub={`Paleta ${paletaDe((S as any).paleta).nome} · tema ${isDark ? 'escuro' : 'claro'}`}
+          sub={`${paletaDe((S as any).paleta).nome}, no ${isDark ? 'escuro' : 'claro'} · escolha a cor do seu Morphi`}
           onPress={go('/aparencia')} />
       </Grupo>
 

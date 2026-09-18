@@ -76,11 +76,11 @@ export default function Aparencia() {
     <TelaInterna titulo="Aparência">
       <Titulao
         titulo="Aparência"
-        lead="Dez paletas fechadas. Cada uma muda as cores do aplicativo, o fundo das telas e o ícone no seu telefone."
+        lead="O Morphi pode ter a sua cara. Escolha uma paleta e ela vai para tudo — inclusive para o ícone na sua tela inicial."
       />
 
       {/* ---- esquema de cor ---- */}
-      <Bloco titulo="Esquema de cor" nota="Deixe o Morphi seguir o telefone, ou escolha o contrário dele.">
+      <Bloco titulo="Claro ou escuro" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
         <Row gap={10}>
           {MODOS.map((m) => {
             const on = tema === m.id;
@@ -101,7 +101,7 @@ export default function Aparencia() {
       </Bloco>
 
       {/* ---- as paletas ---- */}
-      <Bloco titulo="Paleta" nota={`${paleta.nome} · muda as cores, o fundo e o ícone do aplicativo.`}>
+      <Bloco titulo="Escolha a sua cor" nota={`Agora você está no ${paleta.nome}. Toque em qualquer uma para experimentar — dá para trocar quantas vezes quiser.`}>
         <Row gap={14} style={{ flexWrap: 'wrap' }}>
           {PALETAS.map((p) => {
             const on = p.id === paletaId;
@@ -148,10 +148,10 @@ export default function Aparencia() {
 
       <Aviso
         ic="palette"
-        titulo={temIcone ? 'O ícone muda junto' : 'Aqui o ícone não muda'}
+        titulo={temIcone ? 'O ícone vai junto' : 'O ícone só muda no telefone'}
         texto={temIcone
-          ? 'A paleta escolhida também vira o ícone do Morphi na tela inicial do telefone — é o mesmo desenho que você toca aqui.'
-          : 'Neste ambiente o aplicativo não troca o próprio ícone; isso acontece no aplicativo instalado. As cores das telas mudam do mesmo jeito.'}
+          ? 'O desenho que você tocar aqui é o mesmo que vai aparecer na sua tela inicial. Bonito de ver no meio dos outros aplicativos.'
+          : 'Por aqui o ícone continua o mesmo — ele troca quando o Morphi está instalado no celular. As cores das telas você já vê mudando agora.'}
       />
 
       <View />
