@@ -51,6 +51,19 @@ export const RECOMENDADO: Plano['id'] = 'anual';
 
 export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
 
+/* ⚠️ QUANTO SE ECONOMIZA, EM DINHEIRO E NÃO EM PORCENTAGEM.
+
+   "−44%" é o número do anúncio: some do bolso e não responde a pergunta
+   que a pessoa faz, que é quanto ela deixa de gastar. A conta é a
+   diferença entre doze mensalidades e o anual, e ela sai daqui para
+   ninguém escrever à mão um número que depois muda de preço. */
+export const economiaEmReais = () => {
+  const mensal = PLANOS.find((p) => p.id === 'mensal');
+  const anual = PLANOS.find((p) => p.id === 'anual');
+  if (!mensal || !anual) return 0;
+  return mensal.preco * 12 - anual.preco;
+};
+
 /** Quem não paga: o vínculo com clínica parceira é o que isenta, e é o
     que os Termos prometem na seção de assinatura. */
 export const isento = (S: State) => clinicaConectada(S);

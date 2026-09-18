@@ -448,7 +448,7 @@ export default function Perfil() {
         </View>
       ) : null}
 
-      {/* ---- clínica parceira ----
+      {/* ---- plano e cobrança ----
 
           ⚠️ NÃO É A OFERTA DE VOLTA. A vitrine dos parceiros vive no fim
           da aba Cuidado e só aparece para quem declarou não ter
@@ -463,13 +463,23 @@ export default function Perfil() {
 
           E mora no perfil porque é assunto de conta: o vínculo é quem
           presta o serviço, e um dia é quem decide a cobrança. */}
-      {!conectada && TEM_REDE_PARCEIRA ? (
-        <Grupo title="Clínica parceira">
+      <Grupo title="Plano e cobrança">
+        {/* ⚠️ O PLANO PRECISA DE UM LUGAR FIXO, e não só do fim do
+            cadastro. Quem fecha a tela de planos naquele dia não a
+            encontra nunca mais — e "onde eu vejo o que estou pagando?"
+            é a pergunta que manda gente para o suporte em todo app de
+            assinatura. Para quem tem vínculo, a mesma linha responde
+            outra coisa: por que não paga. */}
+        <ListRow ic="spark"
+          title={conectada ? 'Sua assinatura' : 'Ver planos'}
+          sub={conectada ? 'Isenta pelo vínculo com a clínica' : 'O que entra, e quanto custa'}
+          onPress={go('/planos')} />
+        {!conectada && TEM_REDE_PARCEIRA ? (
           <ListRow ic="steth" title="Tenho um código de convite"
             sub="Para vincular a clínica que acompanha você"
             onPress={go('/parceiros')} />
-        </Grupo>
-      ) : null}
+        ) : null}
+      </Grupo>
 
       {/* ---- acompanhamento ----
 

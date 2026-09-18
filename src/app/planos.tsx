@@ -1,17 +1,19 @@
 import React from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
+import { PLANOS, RECOMENDADO, reais, economiaEmReais, isento, assinar, type Plano } from '../logic/assinatura';
+import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
 import { D_SIMBOLO, RAZAO_SIMBOLO } from '../ui/marca';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { paletaDe, mix, radius, font } from '../theme';
+import { paletaDe, mix, alfa, radius, font } from '../theme';
 
 /* ============================================================
    PLANOS — a tela que pede dinheiro
@@ -73,11 +75,11 @@ function IconeDoApp({ lado }: { lado: number }) {
    a pessoa reconhece de tê-las usado — não em substantivos de marketing.
    Cinco linhas, porque a sexta ninguém lê. */
 const ENTRA: [string, string][] = [
-  ['check', 'O registro do dia inteiro — peso, aplicações, sintomas, água, proteína e movimento'],
-  ['spark', 'As leituras da sua evolução, com o que os seus próprios números mostram'],
-  ['doc', 'O resumo do tratamento, pronto para levar em qualquer consulta'],
-  ['chart', 'Exames, medidas e fotos com o histórico que dá sentido a eles'],
-  ['companion', 'O assistente que responde sobre a sua jornada, e a leitura do prato por foto'],
+  ['check', 'O dia registrado, do peso ao sintoma'],
+  ['spark', 'As leituras dos seus próprios números'],
+  ['doc', 'O resumo pronto para qualquer consulta'],
+  ['chart', 'Exames, medidas e fotos com histórico'],
+  ['companion', 'O assistente e a leitura do prato por foto'],
 ];
 
 export default function Planos() {
@@ -98,6 +100,7 @@ export default function Planos() {
     else router.replace('/(tabs)' as any);
   };
 
+  const aurora = useAurora();
   const [escolhido, setEscolhido] = React.useState<Plano['id']>(RECOMENDADO);
   const [recusa, setRecusa] = React.useState(false);
 
@@ -135,37 +138,64 @@ export default function Planos() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 28 }}
-      >
-        {/* O X, E NÃO A SETA. Seta diz "volte um passo"; X diz "isto é uma
-            interrupção, e você pode encerrá-la". Numa tela que pede
-            dinheiro, a diferença entre as duas é quem está no comando. */}
-        <Row style={{ justifyContent: 'flex-end' }}>
-          <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="x" size={16} color={c.tx2} sw={2.2} />
-            </View>
-          </Pressable>
-        </Row>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 28 }}>
+        {/* ---- o alto ----
 
-        <View style={{ alignItems: 'center', gap: 14, marginTop: 8 }}>
-          <IconeDoApp lado={72} />
-          <Txt v="h1" style={{ textAlign: 'center', letterSpacing: -1 }}>Tudo o que você usa aqui</Txt>
-          <Txt v="note" c={c.tx3} style={{ textAlign: 'center', lineHeight: 22 }}>
-            Um plano só, com o aplicativo inteiro dentro. Não existe função melhor guardada
-            atrás de um plano melhor.
-          </Txt>
+            ⚠️ A AURORA, E NÃO UM FUNDO CHAPADO. As telas de plano que se
+            copiam por aí abrem com gradiente, orbe ou foto — e a razão é
+            boa: uma tela que pede dinheiro precisa parecer o produto, e
+            não um formulário. Só que o gradiente delas é decoração
+            genérica; este é a mesma imagem que abre a Home e o Insights,
+            na cor que a pessoa escolheu.
+
+            É a diferença entre "parece um app bonito" e "é o app que eu
+            estou usando", e é de graça: a peça já existe, já segue a
+            paleta e já veste o resto do aplicativo. */}
+        <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 30 }}>
+          <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <LinearGradient
+            colors={[alfa(c.veu, 0.55), alfa(c.veu, 0.34), c.bg]}
+            locations={[0, 0.5, 1]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+
+          {/* O X, E NÃO A SETA. Seta diz "volte um passo"; X diz "isto é
+              uma interrupção, e você pode encerrá-la". Numa tela que pede
+              dinheiro, a diferença entre as duas é quem está no comando. */}
+          <Row style={{ justifyContent: 'flex-end' }}>
+            <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="x" size={16} color="#FFFFFF" sw={2.2} />
+              </View>
+            </Pressable>
+          </Row>
+
+          <View style={{ alignItems: 'center', gap: 12, marginTop: 10 }}>
+            <IconeDoApp lado={64} />
+            <Txt v="h1" c="#FFFFFF" style={{ textAlign: 'center', letterSpacing: -1 }}>
+              O tratamento inteiro,{'\n'}num lugar só
+            </Txt>
+            <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
+              Um plano só, com tudo dentro. Não existe função melhor guardada atrás de
+              um plano melhor.
+            </Txt>
+          </View>
         </View>
 
-        <View style={{ gap: 12, marginTop: 28 }}>
+        <View style={{ paddingHorizontal: 20 }}>
+        {/* ⚠️ UMA LINHA POR ITEM, E NÃO UM PARÁGRAFO.
+
+            Cada um destes já foi uma frase de duas linhas — "o registro do
+            dia inteiro, peso, aplicações, sintomas, água, proteína e
+            movimento" —, e cinco parágrafos empilhados numa tela de preço
+            é o texto que ninguém lê exatamente onde a pessoa mais precisa
+            entender. A lista é uma varredura, não uma leitura. */}
+        <View style={{ gap: 11, marginTop: 4 }}>
           {ENTRA.map(([ic, t]) => (
-            <Row key={t} gap={12} style={{ alignItems: 'flex-start' }}>
-              <View style={{ marginTop: 2 }}>
-                <Icon name={ic} size={16} color={c.accent} sw={2} />
-              </View>
-              <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{t}</Txt>
+            <Row key={t} gap={11} style={{ alignItems: 'center' }}>
+              <Icon name={ic} size={16} color={c.accent} sw={2} />
+              <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{t}</Txt>
             </Row>
           ))}
         </View>
@@ -202,6 +232,16 @@ export default function Planos() {
             );
           })}
         </Row>
+
+        {/* ⚠️ A ECONOMIA EM DINHEIRO, e não só em porcentagem. "−44%"
+            é o número do anúncio; quanto se deixa de gastar é a conta que
+            a pessoa faz. Ela aparece só quando o anual está escolhido,
+            porque no mensal ela é uma cutucada. */}
+        {escolhido === 'anual' ? (
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 12, textAlign: 'center' }}>
+            São {reais(economiaEmReais())} a menos do que doze meses no mensal.
+          </Txt>
+        ) : null}
 
         {recusa ? (
           /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
@@ -264,6 +304,7 @@ export default function Planos() {
         </Row>
 
         <View style={{ height: insets.bottom + 8 }} />
+        </View>
       </ScrollView>
     </View>
   );
