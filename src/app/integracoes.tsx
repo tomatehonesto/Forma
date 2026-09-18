@@ -62,7 +62,7 @@ export default function Integracoes() {
      instalar. */
   const [estado, setEstado] = React.useState<EstadoDaSaude>('pronto');
   React.useEffect(() => {
-    const conferir = () => { estadoDaSaude().then(setEstado); };
+    const conferir = () => { estadoDaSaude().then(setEstado).catch(() => setEstado('indisponivel')); };
     conferir();
     const sub = AppState.addEventListener('change', (e) => { if (e === 'active') conferir(); });
     return () => sub.remove();

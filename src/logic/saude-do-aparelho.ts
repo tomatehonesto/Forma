@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { startOfDay } from './time';
 
 /* ============================================================
@@ -26,10 +27,19 @@ import { startOfDay } from './time';
    regra de precedência é uma decisão de produto, e ela vem depois.
 
    NADA DISTO RODA NO EXPO GO. São módulos nativos: precisam de um dev
-   client. Por isso todo acesso passa por um require preguiçoso dentro de
-   try — sem ele, abrir o app no Expo Go quebraria na importação, e a
-   tela de integrações é justamente a que precisa continuar de pé para
-   dizer que ali não dá.
+   client.
+
+   E A PORTA SE FECHA ANTES DO REQUIRE, e não depois. A primeira versão
+   confiava num try em volta do require, e não bastou: o HealthKit usa
+   Nitro, e o Nitro estoura ao ser AVALIADO — "Failed to get NitroModules"
+   —, num ponto em que o try local já não está no caminho. A tela de
+   integrações abria e quebrava, que é exatamente o contrário do que ela
+   precisa fazer quando não dá.
+
+   Então a pergunta passou a ser outra: este build pode ter módulo nativo?
+   O Expo Go não pode, e ele se identifica. Perguntar isso é mais honesto
+   do que tentar e cair — e é a diferença entre uma tela que explica e uma
+   tela vermelha.
    ============================================================ */
 
 export type Pesagem = { t: number; kg: number };
@@ -45,15 +55,20 @@ export type EstadoDaSaude =
 const ios = Platform.OS === 'ios';
 const android = Platform.OS === 'android';
 
-/* O require preguiçoso. Estático, o bundler resolveria o pacote e o
-   módulo nativo faltando derrubaria a tela na hora de montar; assim, a
-   falta vira um null que o resto do arquivo sabe tratar. */
+/* O Expo Go roda o JS do app dentro de um aplicativo pronto da loja: o
+   que ele tem de nativo é o que a Expo pôs lá, e nada do que instalamos
+   depois. É ele que se identifica aqui. */
+const noExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+/* O require preguiçoso — e só quando há chance de dar certo. O try
+   continua, como segunda rede: aparelho antigo, build meio feito, versão
+   de biblioteca trocada. Mas ele deixou de ser a única. */
 const hk = () => {
-  if (!ios) return null;
+  if (!ios || noExpoGo) return null;
   try { return require('@kingstinct/react-native-healthkit'); } catch { return null; }
 };
 const hc = () => {
-  if (!android) return null;
+  if (!android || noExpoGo) return null;
   try { return require('react-native-health-connect'); } catch { return null; }
 };
 
@@ -67,47 +82,50 @@ const hc = () => {
 const TIPO_IOS = 'HKQuantityTypeIdentifierBodyMass' as const;
 const TIPO_ANDROID = 'Weight' as const;
 
+/* O TRY COBRE A BUSCA DO MÓDULO JUNTO COM A CHAMADA. Ele cobria só a
+   chamada, com o `hk()` de fora, e uma biblioteca que estoura ao ser
+   carregada passa por esse buraco — foi assim que a tela quebrou no Expo
+   Go. Aqui dentro, qualquer tropeço vira "indisponível", que é o estado
+   que a tela sabe explicar. */
 export async function estadoDaSaude(): Promise<EstadoDaSaude> {
-  if (ios) {
-    const m = hk();
-    if (!m) return 'indisponivel';
-    try { return (await m.isHealthDataAvailable()) ? 'pronto' : 'sem-app'; } catch { return 'indisponivel'; }
-  }
-  if (android) {
-    const m = hc();
-    if (!m) return 'indisponivel';
-    try {
+  try {
+    if (ios) {
+      const m = hk();
+      if (!m) return 'indisponivel';
+      return (await m.isHealthDataAvailable()) ? 'pronto' : 'sem-app';
+    }
+    if (android) {
+      const m = hc();
+      if (!m) return 'indisponivel';
       /* 3 é SDK_AVAILABLE. 1 e 2 são "não tem" e "precisa atualizar" — os
          dois levam a pessoa para a loja, e não para uma permissão. */
       return (await m.getSdkStatus()) === 3 ? 'pronto' : 'sem-app';
-    } catch { return 'indisponivel'; }
-  }
+    }
+  } catch { /* cai no indisponível abaixo */ }
   return 'indisponivel';
 }
 
 /** Abre a permissão do sistema. Devolve se ficou com acesso de leitura. */
 export async function pedirAcesso(): Promise<boolean> {
-  if (ios) {
-    const m = hk();
-    if (!m) return false;
-    try {
+  try {
+    if (ios) {
+      const m = hk();
+      if (!m) return false;
       await m.requestAuthorization({ toRead: [TIPO_IOS] });
       /* O iOS NÃO DIZ SE A PESSOA DEIXOU LER. É de propósito: revelar que
          a permissão foi negada já contaria algo sobre a saúde de alguém.
          Então a resposta aqui é "a caixa abriu e não deu erro" — e quem
          descobre se veio dado é a leitura, que volta vazia. */
       return true;
-    } catch { return false; }
-  }
-  if (android) {
-    const m = hc();
-    if (!m) return false;
-    try {
+    }
+    if (android) {
+      const m = hc();
+      if (!m) return false;
       await m.initialize();
       const dadas = await m.requestPermission([{ accessType: 'read', recordType: TIPO_ANDROID }]);
       return (dadas ?? []).some((p: any) => p.recordType === TIPO_ANDROID);
-    } catch { return false; }
-  }
+    }
+  } catch { /* cai no false abaixo */ }
   return false;
 }
 
@@ -116,30 +134,28 @@ export async function pesagensDoAparelho(dias = 180): Promise<Pesagem[]> {
   const ate = new Date();
   const de = new Date(+ate - dias * 86400000);
 
-  if (ios) {
-    const m = hk();
-    if (!m) return [];
-    try {
+  try {
+    if (ios) {
+      const m = hk();
+      if (!m) return [];
       const amostras = await m.queryQuantitySamples(TIPO_IOS, {
         limit: 0,
         unit: 'kg',
         filter: { date: { from: de, to: ate } },
       });
       return (amostras ?? []).map((a: any) => ({ t: +new Date(a.endDate ?? a.startDate), kg: a.quantity }));
-    } catch { return []; }
-  }
+    }
 
-  if (android) {
-    const m = hc();
-    if (!m) return [];
-    try {
+    if (android) {
+      const m = hc();
+      if (!m) return [];
       await m.initialize();
       const r = await m.readRecords(TIPO_ANDROID, {
         timeRangeFilter: { operator: 'between', startTime: de.toISOString(), endTime: ate.toISOString() },
       });
       return (r?.records ?? []).map((x: any) => ({ t: +new Date(x.time), kg: x.weight?.inKilograms }));
-    } catch { return []; }
-  }
+    }
+  } catch { /* sem leitura é lista vazia, e a tela já diz o estado */ }
 
   return [];
 }

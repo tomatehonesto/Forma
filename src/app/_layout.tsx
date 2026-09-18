@@ -146,8 +146,12 @@ function SaudeDoAparelho() {
         s.weights = juntarPesagens(s.weights ?? [], pesagens).lista;
       });
     };
-    ler();
-    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') ler(); });
+    /* Promessa sem rede num efeito vira rejeição não tratada, e no
+       desenvolvimento isso é uma tela vermelha por cima do app inteiro —
+       por uma leitura de peso que simplesmente não veio. */
+    const tentar = () => { ler().catch(() => {}); };
+    tentar();
+    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') tentar(); });
     return () => { vivo = false; sub.remove(); };
   }, [ready, ligado]);
 
