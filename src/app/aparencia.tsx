@@ -114,7 +114,7 @@ export default function Aparencia() {
     <TelaInterna titulo="Aparência">
       <Titulao
         titulo="Aparência"
-        lead="O Morphi pode ter a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial."
+        lead="Deixe o aplicativo com a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial."
       />
 
       {/* ---- a prévia ----
@@ -197,7 +197,13 @@ export default function Aparencia() {
           opções, no meio de uma tela cujo assunto é outro. A escolha de
           tema não é o que traz alguém aqui — a cor é. Em pastilha de uma
           linha ela ocupa um terço e continua dizendo a mesma coisa. */}
-      <Bloco titulo="Escolha o tema" nota="Pode deixar o Morphi acompanhar o seu telefone — ou decidir por conta própria.">
+      {/* ⚠️ SEM NOTA NOS DOIS BLOCOS. Elas explicavam o que as opções
+          logo abaixo já mostram — "pode acompanhar o seu telefone" acima
+          de uma pastilha escrita "Sistema", "toque na que você mais
+          gosta" acima de doze bolinhas coloridas. Texto que descreve o
+          controle que está a um centímetro dele é o app lendo a tela em
+          voz alta para quem está olhando. */}
+      <Bloco titulo="Escolha o tema">
         <Row gap={8}>
           {MODOS.map((m) => {
             const on = tema === m.id;
@@ -229,19 +235,7 @@ export default function Aparencia() {
       </Bloco>
 
       {/* ---- as paletas ---- */}
-      <Bloco
-        titulo="Escolha a sua cor"
-        /* ⚠️ ESTA FRASE JÁ DISSE "ele já está valendo em todo o
-           aplicativo", que é uma nota de implementação com roupa de
-           texto: explicava o comportamento do programa a quem só queria
-           uma cor bonita. E repetia o nome da paleta, que já está ali
-           embaixo do círculo escolhido, em negrito.
-
-           O que sobrou faz duas coisas: convida e tira o medo. "Muda na
-           hora" responde a dúvida de quem acha que precisa salvar, e
-           "quantas vezes quiser" é o que faz alguém tocar na segunda. */
-        nota="Toque na que você mais gosta. Muda na hora — e dá para trocar quantas vezes quiser."
-      >
+      <Bloco titulo="Escolha a sua cor">
         <Row style={{ flexWrap: 'wrap' }}>
           {PALETAS.map((p) => {
             const on = p.id === paletaId;

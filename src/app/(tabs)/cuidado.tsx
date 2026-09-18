@@ -861,7 +861,7 @@ function Descoberta() {
         <IconBadge name="heart" size={48} bg={c.bg1} />
         <Txt v="h2" style={{ marginTop: 14 }}>Encontre quem acompanhe seu tratamento</Txt>
         <Txt v="note" c={c.tx2} style={{ marginTop: 8 }}>
-          Você pode seguir sozinha no Morphi. Mas quem tem acompanhamento profissional
+          Você pode seguir sozinha por aqui. Mas quem tem acompanhamento profissional
           ajusta dose e protocolo com mais segurança — e essa decisão não é sua para
           tomar sozinha.
         </Txt>

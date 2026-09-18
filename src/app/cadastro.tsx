@@ -1817,7 +1817,7 @@ export default function Cadastro() {
                 motivo de o botão ter apagado. */}
             {idade < IDADE_MINIMA ? (
               <Txt v="caption" c={c.tx2} style={{ marginTop: 14, lineHeight: 21 }}>
-                O Morphi é exclusivo para maiores de {IDADE_MINIMA} anos. O tratamento
+                Este aplicativo é exclusivo para maiores de {IDADE_MINIMA} anos. O tratamento
                 de quem ainda não tem essa idade é acompanhado pela equipe de
                 saúde, junto com quem responde legalmente por essa pessoa.
               </Txt>

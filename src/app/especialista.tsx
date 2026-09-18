@@ -181,7 +181,7 @@ export default function Especialista() {
               </View>
               <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
                 Dose, protocolo e qualquer ajuste no tratamento são decisão de {S.profile.doctor}.
-                O Morphi organiza seus registros e prepara o que levar — não prescreve.
+                A gente organiza os seus registros e prepara o que levar — não prescreve.
               </Txt>
             </Row>
           </View>
