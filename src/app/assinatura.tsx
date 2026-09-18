@@ -1,42 +1,49 @@
 import React from 'react';
-import { Linking } from 'react-native';
+import { View, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   PLANOS, assinaturaAtual, isento, reais, GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { TelaInterna, Titulao, Cartao, Linha, Aviso, Bloco } from '../ui/internas';
-import { Txt } from '../ui/kit';
+import { TelaInterna, Cartao, Linha, Selo } from '../ui/internas';
+import { Txt, Row } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { MO_LONG } from '../logic/time';
+import { radius } from '../theme';
 
 /* ============================================================
-   SUA ASSINATURA — o que você tem, quanto custa, e onde se mexe
+   SUA ASSINATURA — o que está valendo, quanto custa, onde se mexe
 
-   ⚠️ ELA EXISTIA COMO UM ATALHO PARA /planos, e não é a mesma coisa.
+   ⚠️ ELA ERA UM ATALHO PARA /planos, e não é a mesma coisa. A tela de
+   planos é vitrine: ela vende. Esta responde "o que eu tenho hoje e o que
+   acontece se eu não fizer nada" — a pergunta que manda gente para o
+   suporte em todo aplicativo de assinatura, e a única que a vitrine não
+   responde. Para quem é isenta, mandá-la ao paywall era oferecer de novo
+   o que ela já tem.
 
-   A tela de planos é uma vitrine: ela vende. Esta responde "o que eu
-   tenho hoje e o que acontece se eu não fizer nada" — que é a pergunta
-   que manda gente para o suporte em todo aplicativo de assinatura, e a
-   única que a vitrine não responde. Mandar a pessoa para o paywall para
-   descobrir o próprio estado é oferecer de novo o que ela já tem.
+   ⚠️⚠️ E É UMA TELA SÓ, COM UMA ETIQUETA. ⚠️⚠️
 
-   ⚠️ TRÊS ESTADOS, E DOIS DELES SÃO ALCANÇÁVEIS HOJE.
+   A primeira versão tinha três telas dentro de um arquivo: uma para quem
+   é isenta, uma para quem assina, uma para quem não tem nada. Três
+   desenhos para o mesmo assunto — e a pessoa isenta nunca via a forma da
+   assinatura, só uma página de explicação.
 
-   · isenta — tem vínculo com clínica parceira e não paga;
-   · sem assinatura — nem vínculo nem assinatura;
-   · assinante — impossível por enquanto, porque `assinar()` recusa.
+   O acesso pela clínica não é outra tela: é o MESMO cartão com outros
+   valores e uma etiqueta dizendo de onde vem. Quem é paciente de clínica
+   parceira olha para o lugar onde os outros veem "R$ 299,00 por ano" e vê
+   "sem custo", com "Isenta" ao lado. A estrutura não muda porque o
+   assunto não mudou.
 
-   O terceiro está desenhado assim mesmo, e lê de `assinaturaAtual()`, que
-   devolve nulo até a loja entrar. Não é tela de mentira: é a forma que
-   recebe o dado no dia em que ele existir, sem nenhuma outra mudar. O que
-   ela NÃO faz é inventar o dado — data de renovação vem como nulo e a
-   linha some, em vez de mostrar uma data bonita e falsa.
+   Na prática: um objeto `vigente` resolve o estado, e há um render só. Se
+   um dia aparecer um quarto estado — assinatura em atraso, em pausa, em
+   período de carência —, ele entra como mais um caso no objeto e não como
+   mais um `return`.
 
-   ⚠️ E NÃO HÁ BOTÃO DE CANCELAR. A razão está inteira em
-   src/logic/assinatura.ts: quem cobra é a loja, e é lá que se cancela. O
-   que esta tela faz é abrir a porta certa e dizer de quem ela é.
+   ⚠️ E O QUE NÃO SE SABE NÃO APARECE. A data de renovação vem do recibo da
+   loja, que ainda não é lido; ela chega nula e a linha simplesmente não é
+   desenhada. Uma data bonita e inventada aqui é a pior linha possível
+   numa tela de cobrança.
    ============================================================ */
 
 const dataLonga = (t: number) => {
@@ -44,169 +51,177 @@ const dataLonga = (t: number) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
+/* O menor preço por mês entre os planos. Sai da lista e não de um número
+   escrito à mão: mudar preço em assinatura.ts não pode deixar uma frase
+   velha viva aqui. */
+const menorPorMes = () =>
+  Math.min(...PLANOS.map((p) => (p.sufixo === '/mês' ? p.preco : p.outraUnidade.valor)));
+
 export default function Assinatura() {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const { c } = useTheme();
 
-  const go = (to: string) => () => router.push(to as any);
-
-  const ehIsenta = isento(S);
   const atual = assinaturaAtual(S);
+  const ehIsenta = isento(S);
   const vinculo = (S.profile as any).vinculo as { desde?: number; convite?: string } | null;
   const convite = ((S.profile as any).convite as string) || vinculo?.convite || '';
   const clinica = S.profile.clinic || 'a clínica que acompanha você';
+  const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
 
-  /* ---------------------------------------------------------- */
-  /* ISENTA — o acesso vem do vínculo                            */
-  /* ---------------------------------------------------------- */
-  if (ehIsenta) {
-    return (
-      <TelaInterna titulo="Sua assinatura">
-        <Titulao
-          titulo="Você não paga pelo aplicativo"
-          lead={`O acesso vem do seu vínculo com ${clinica}, e vale enquanto ele durar.`}
-        />
+  /* ---- o estado vigente, resolvido uma vez ---- */
+  type Item = [string, string];
+  const vigente: {
+    nome: string;
+    selo: string;
+    seloTom: 'lima' | 'verde' | 'neutra';
+    valor: string;
+    unidade?: string;
+    abaixo?: string;
+    itens: Item[];
+  } = atual && plano
+    ? {
+      nome: `Plano ${plano.nome.toLowerCase()}`,
+      selo: atual.emTeste ? 'Em teste' : 'Ativa',
+      seloTom: atual.emTeste ? 'lima' : 'verde',
+      valor: reais(plano.preco),
+      unidade: plano.sufixo,
+      abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
+      itens: [
+        ...(atual.renovaEm
+          ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataLonga(atual.renovaEm)]] as Item[])
+          : []),
+        ['Cobrança pela', NOME_DA_LOJA],
+      ],
+    }
+    : ehIsenta
+      ? {
+        nome: 'Acesso pela clínica',
+        selo: 'Isenta',
+        seloTom: 'lima',
+        valor: 'Sem custo',
+        abaixo: `O vínculo com ${clinica} cobre o aplicativo inteiro.`,
+        itens: [
+          ...(vinculo?.desde ? ([['Vinculada desde', dataLonga(vinculo.desde)]] as Item[]) : []),
+          ...(convite ? ([['Código de convite', convite]] as Item[]) : []),
+          ['Próxima cobrança', 'Não há'],
+        ],
+      }
+      : {
+        nome: 'Sem assinatura',
+        selo: 'Inativa',
+        seloTom: 'neutra',
+        valor: 'Sem custo',
+        abaixo: `O aplicativo está inteiro do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.`,
+        itens: [['Próxima cobrança', 'Não há']],
+      };
 
-        <Cartao>
-          <Linha
-            ic="steth"
-            titulo={clinica}
-            sub={vinculo?.desde ? `Vinculada desde ${dataLonga(vinculo.desde)}` : 'Clínica parceira'}
-            selo="Ativo"
-            seloTom="lima"
-            seta={false}
-          />
-          {/* O código só aparece se existir. A semente tem vínculo sem
-              convite — ela não passou por essa porta —, e uma linha
-              "Código " com o campo vazio seria o app mostrando a falta de
-              um dado como se fosse um dado. */}
-          {convite ? (
-            <Linha ic="lock" titulo={convite} sub="O convite que ligou as duas pontas" seta={false} />
-          ) : null}
-        </Cartao>
-
-        {/* A MESMA PROMESSA DA TELA DE PLANOS, PALAVRA POR PALAVRA. Ela é
-            um compromisso, não uma frase de tela: se as duas se
-            afastarem, uma delas vira a versão errada para quem leu a
-            outra. */}
-        <Aviso
-          ic="info"
-          titulo="Se o vínculo terminar"
-          texto="Avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro."
-        />
-
-        <Bloco titulo="O que custaria">
-          <Cartao>
-            <Linha
-              ic="spark"
-              titulo="Ver os planos"
-              sub={`De ${reais(menorPorMes())} por mês, se um dia você precisar assinar`}
-              onPress={go('/planos')}
-            />
-          </Cartao>
-        </Bloco>
-      </TelaInterna>
-    );
-  }
-
-  /* ---------------------------------------------------------- */
-  /* ASSINANTE — hoje inalcançável; a forma espera o recibo      */
-  /* ---------------------------------------------------------- */
-  if (atual) {
-    const plano = PLANOS.find((x) => x.id === atual.plano)!;
-    return (
-      <TelaInterna titulo="Sua assinatura">
-        <Titulao
-          titulo={`Plano ${plano.nome.toLowerCase()}`}
-          lead={`${reais(plano.preco)} ${plano.periodo}.`}
-        />
-
-        <Cartao>
-          {atual.emTeste ? (
-            <Linha
-              ic="spark"
-              titulo="Você está no teste grátis"
-              sub={atual.renovaEm ? `A primeira cobrança é em ${dataLonga(atual.renovaEm)}` : undefined}
-              selo="Grátis"
-              seloTom="lima"
-              seta={false}
-            />
-          ) : null}
-          {atual.renovaEm ? (
-            <Linha
-              ic="cal"
-              titulo={atual.emTeste ? 'Primeira cobrança' : 'Renova em'}
-              sub={dataLonga(atual.renovaEm)}
-              seta={false}
-            />
-          ) : null}
-        </Cartao>
-
-        <Cartao>
-          <Linha
-            ic="send"
-            titulo={`Gerenciar na ${NOME_DA_LOJA}`}
-            sub="Cancelar, trocar de plano ou ver a fatura"
-            onPress={() => Linking.openURL(GESTAO_NA_LOJA)}
-          />
-        </Cartao>
-
-        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-          A cobrança é feita pela {NOME_DA_LOJA}, e é lá que ela se cancela — o aplicativo não
-          consegue fazer isso por você. Cancelar mantém o acesso até o fim do período já pago.
-        </Txt>
-      </TelaInterna>
-    );
-  }
-
-  /* ---------------------------------------------------------- */
-  /* SEM NADA — nem vínculo, nem assinatura                      */
-  /* ---------------------------------------------------------- */
   return (
     <TelaInterna titulo="Sua assinatura">
-      <Titulao
-        titulo="Você ainda não assinou"
-        lead="O aplicativo está inteiro do jeito que está. Quando a assinatura existir, é por aqui que ela aparece."
-      />
+      {/* ---- o cartão do que está valendo ---- */}
+      <Cartao>
+        <View style={{ padding: 18, gap: 4 }}>
+          <Row style={{ alignItems: 'center' }}>
+            <Txt v="label" c={c.tx2} style={{ flex: 1 }}>{vigente.nome}</Txt>
+            <Selo label={vigente.selo} tom={vigente.seloTom} />
+          </Row>
 
-      {/* ⚠️ ESTA FRASE É A TELA INTEIRA SENDO HONESTA, e ela sai no dia em
-          que a cobrança entrar. Dizer "você ainda não assinou" sem dizer
-          que ninguém pode assinar deixa a pessoa procurando o botão que
-          não existe — e a resposta "a cobrança não está ligada" é melhor
-          do que qualquer tela de erro que ela encontraria tentando. */}
-      <Aviso
-        ic="info"
-        titulo="A cobrança ainda não está ligada"
-        texto="Esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso."
-      />
+          {/* ⚠️ O VALOR NO MESMO LUGAR EM TODOS OS ESTADOS, e isso é o que
+              faz a etiqueta funcionar. Quem assina lê "R$ 299,00" ali;
+              quem é paciente de clínica parceira lê "Sem custo" no mesmo
+              ponto da tela, com o "Isenta" logo acima. A comparação é
+              imediata porque o lugar é o mesmo — e é exatamente isso que
+              três telas diferentes destruíam. */}
+          <Row gap={3} style={{ alignItems: 'baseline', marginTop: 2 }}>
+            <Txt v="display" c={c.tx} numberOfLines={1} style={{ letterSpacing: -0.6 }}>{vigente.valor}</Txt>
+            {vigente.unidade ? <Txt v="note" c={c.tx3}>{vigente.unidade}</Txt> : null}
+          </Row>
 
-      <Bloco titulo="O que existe hoje">
-        <Cartao>
-          <Linha
-            ic="spark"
-            titulo="Ver os planos"
-            sub={`O que entra, e quanto vai custar — a partir de ${reais(menorPorMes())} por mês`}
-            onPress={go('/planos')}
-          />
-          {TEM_REDE_PARCEIRA ? (
-            <Linha
-              ic="steth"
-              titulo="Tenho um código de convite"
-              sub="Quem se trata numa clínica parceira não paga"
-              onPress={go('/parceiros')}
-            />
+          {vigente.abaixo ? (
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 19 }}>{vigente.abaixo}</Txt>
           ) : null}
-        </Cartao>
-      </Bloco>
+        </View>
+
+        {/* ⚠️ RÓTULO À ESQUERDA, VALOR À DIREITA — e não `Linha`, que é
+            título e subtítulo empilhados. Uma ficha de cobrança se lê em
+            coluna: o olho desce pelos rótulos e cruza para o número que
+            interessa. Empilhado, cada item vira um parágrafo e a pessoa
+            tem que ler os seis para achar a data. */}
+        {vigente.itens.length ? (
+          <View style={{ paddingHorizontal: 18, paddingVertical: 6 }}>
+            {vigente.itens.map(([rotulo, valor]) => (
+              <Row key={rotulo} gap={12} style={{ paddingVertical: 10, alignItems: 'center' }}>
+                <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>{rotulo}</Txt>
+                <Txt v="label" c={c.tx}>{valor}</Txt>
+              </Row>
+            ))}
+          </View>
+        ) : null}
+      </Cartao>
+
+      {/* ---- o que dá para fazer com isso ---- */}
+      <Cartao>
+        {/* Mudar de plano leva à mesma vitrine em qualquer estado; o que
+            muda é o nome, porque quem já assina não vai "ver os planos",
+            vai trocar o seu. */}
+        <Linha
+          ic="spark"
+          titulo={atual ? 'Mudar de plano' : 'Ver os planos'}
+          sub={atual ? `Trocar entre mensal e anual na ${NOME_DA_LOJA}` : 'O que entra, e quanto custa'}
+          onPress={atual ? () => Linking.openURL(GESTAO_NA_LOJA) : () => router.push('/planos' as any)}
+        />
+
+        {/* ⚠️ O CANCELAMENTO APARECE QUANDO HÁ O QUE CANCELAR, e leva à
+            loja.
+
+            Que ele leve para fora não é escolha de desenho: a Apple e o
+            Google exigem que a gestão da assinatura aconteça nas telas
+            deles, e um "cancelar" que chamasse só a nossa API seria
+            recusado na revisão — e, pior, não cancelaria nada, porque quem
+            cobra é a loja. O rótulo diz para onde vai.
+
+            E ele não aparece para quem é isenta ou não assinou: um botão
+            de cancelar que não cancela nada é a porta emparedada clássica
+            das telas de conta. Quem é isenta encerra o vínculo com a
+            clínica, e não com um botão daqui. */}
+        {atual ? (
+          <Linha
+            ic="logout"
+            titulo="Cancelar assinatura"
+            sub={`Abre a ${NOME_DA_LOJA}, que é onde a cobrança acontece`}
+            onPress={() => Linking.openURL(GESTAO_NA_LOJA)}
+          />
+        ) : null}
+
+        {!atual && !ehIsenta && TEM_REDE_PARCEIRA ? (
+          <Linha
+            ic="steth"
+            titulo="Tenho um código de convite"
+            sub="Quem se trata numa clínica parceira não paga"
+            onPress={() => router.push('/parceiros' as any)}
+          />
+        ) : null}
+      </Cartao>
+
+      {/* ⚠️ A LETRA MIÚDA TAMBÉM É UMA SÓ, e diz a coisa que vale para o
+          estado. Para quem é isenta, é a mesma promessa da tela de planos,
+          palavra por palavra: ela é um compromisso, não uma frase de tela,
+          e se as duas se afastarem uma delas vira a versão errada para
+          quem leu a outra.
+
+          Para quem não assinou, é o que a tela inteira tem de mais
+          honesto: dizer "você não assinou" sem dizer que NINGUÉM pode
+          assinar deixa a pessoa procurando um botão que não existe. Esta
+          frase sai no dia em que a cobrança entrar. */}
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }}>
+        <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
+          {atual
+            ? `A cobrança é feita pela ${NOME_DA_LOJA}, e é lá que ela se cancela — o aplicativo não consegue fazer isso por você. Cancelar mantém o acesso até o fim do período já pago.`
+            : ehIsenta
+              ? 'Se o vínculo terminar, avisamos antes de qualquer cobrança. Nada do que você registrou se perde, e o aplicativo não some do seu aparelho de um dia para o outro.'
+              : 'A cobrança ainda não está ligada: esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.'}
+        </Txt>
+      </View>
     </TelaInterna>
   );
-}
-
-/* O menor preço por mês entre os planos — é o número que responde "quanto
-   custa" sem obrigar a pessoa a abrir a vitrine para descobrir. Sai da
-   lista e não de uma constante escrita à mão: mudar preço em
-   assinatura.ts não pode deixar uma frase velha viva aqui. */
-function menorPorMes() {
-  return Math.min(...PLANOS.map((p) => (p.sufixo === '/mês' ? p.preco : p.outraUnidade.valor)));
 }
