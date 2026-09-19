@@ -387,19 +387,38 @@ function BannerMedica() {
           recorte sangrado; com o retrato dentro da linha, o cartão passa a
           ter a altura do conteúdo, como qualquer outro. */}
       <View style={{ overflow: 'hidden', backgroundColor: c.bg1 }}>
-        {/* ⚠️ A MALHA CAIU DE 0,55 PARA 0,3 e passou a viver só à direita.
+        {/* ⚠️ A MALHA VIROU UM CANTO, e ocupava o cartão inteiro a 0,55.
 
-            Ela é o que faz este cartão ser sobre alguém do outro lado e
-            não mais um cartão de lista, então não sai — mas em meia força
-            atrás de uma foto sangrada ela era o assunto, e agora o assunto
-            é a pessoa. O véu horizontal empurra a cor para a direita: na
-            paleta clara a malha já se concentra lá, na escura ela se
-            espalha, e o véu faz as duas se comportarem igual. */}
-        <Malha id="cuidadoBanner" forca={0.3} />
+            Ela é o que faz este cartão ser sobre alguém do outro lado, e
+            não mais um cartão de lista — então não sai. Mas atrás de um
+            retrato e de quatro linhas de texto ela estava competindo com
+            os dois, e o assunto aqui é a pessoa. A 0,16 ela deixa de ser
+            fundo tingido e passa a ser o que devia: um respiro de cor na
+            quina, que o olho registra sem ler.
+
+            ⚠️ E SÃO DOIS VÉUS, um por eixo, porque "no alto à direita" são
+            duas restrições e cada uma precisa da sua.
+
+            · O HORIZONTAL existe porque as duas famílias da malha se
+              comportam diferente: na paleta clara as manchas já se
+              concentram à direita, na escura elas se espalham pelo cartão
+              inteiro. Sem ele, "cor à direita" só valeria no tema claro.
+
+            · O VERTICAL sobe a cor para o topo e limpa a base, que é onde
+              moram o registro e o nome da clínica — as duas linhas mais
+              fracas do cartão, e as que primeiro somem sobre um fundo
+              tingido. */}
+        <Malha id="cuidadoBanner" forca={0.16} />
         <LinearGradient
           colors={[c.bg1, alfa(c.bg1, 0.88), alfa(c.bg1, 0)]}
           locations={[0, 0.42, 0.9]}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <LinearGradient
+          colors={[alfa(c.bg1, 0), alfa(c.bg1, 0.55), c.bg1]}
+          locations={[0, 0.5, 1]}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
