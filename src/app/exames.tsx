@@ -82,8 +82,6 @@ const RESPIRO_ENTRE_FILEIRAS = 5;
 function Regua({ e }: { e: any }) {
   const { c } = useTheme();
   const g = examGaugeData(e);
-  const dentro = g.status === 'ok';
-  const col = dentro ? c.accent : c.cta;
 
   /* Quanto este ponto está longe da borda mais próxima da faixa, de 0
      (encostado) a 1 (o mais longe que dá dentro dela). */
@@ -106,47 +104,45 @@ function Regua({ e }: { e: any }) {
       : mix(c.accent, c.accent2, (t - 0.5) * 2);
   };
 
+  /* ⚠️ O MARCADOR SÃO OS DOIS PONTOS DA COLUNA, e já foi bola e já foi
+     cápsula. As duas eram peças NOVAS pousadas sobre a régua — e peça
+     pousada tem sombra, tem borda, tem forma própria, e vira alfinete de
+     mapa. Aqui não se acrescenta nada: os dois pontos que já estavam
+     naquela coluna simplesmente acendem. O marcador não é um objeto sobre
+     a régua, é a régua dizendo onde você está. */
+  const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
+
   const fileira = (chave: string) => (
     <Row key={chave} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-      {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => (
-        <View
-          key={i}
-          style={{
-            width: ALTURA_DA_FILEIRA, height: ALTURA_DA_FILEIRA, borderRadius: RAIO_DO_PONTO,
-            backgroundColor: corDoPonto((i / (PONTOS_DA_REGUA - 1)) * 100),
-          }}
-        />
-      ))}
+      {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
+        const ehValor = i === iValor;
+        return (
+          <View
+            key={i}
+            style={{
+              width: ehValor ? ALTURA_DA_FILEIRA + 2 : ALTURA_DA_FILEIRA,
+              height: ehValor ? ALTURA_DA_FILEIRA + 2 : ALTURA_DA_FILEIRA,
+              borderRadius: RAIO_DO_PONTO + 1,
+              marginVertical: ehValor ? -1 : 0,
+              backgroundColor: ehValor ? c.tx : corDoPonto((i / (PONTOS_DA_REGUA - 1)) * 100),
+            }}
+          />
+        );
+      })}
     </Row>
   );
+
+  /* ⚠️ O BALÃO SAIU DAQUI, e o veredito voltou para baixo do número.
+     Ele ficava preso ao ponto do valor, então mudava de lugar a cada
+     marcador e encolhia perto das bordas — a resposta mais importante da
+     tela dependendo de onde o dado tinha caído. Sem ele a régua faz só o
+     que régua faz: mostra a faixa e onde você está nela. */
 
   return (
     <View>
       <View style={{ gap: RESPIRO_ENTRE_FILEIRAS }}>
         {fileira('cima')}
         {fileira('baixo')}
-
-        {/* ⚠️ O MARCADOR É UMA CÁPSULA, E ERA UMA BOLA MAIOR.
-
-            Uma bola de 14 flutuando no meio de pontos de 5, centrada
-            entre as duas fileiras e mais alta que elas, tem exatamente a
-            forma de um pino de mapa: o olho lê "alfinete espetado na
-            faixa", e alfinete é peça de outra família.
-
-            A cápsula tem a largura de um ponto e a altura das duas
-            fileiras — ela não é um objeto pousado sobre a régua, é a
-            COLUNA da régua que está acesa. E o anel na cor do fundo a
-            separa dos vizinhos mesmo no meio da faixa, onde a cor por
-            baixo é quase a dela. */}
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute', top: -3, left: `${g.pos}%`, marginLeft: -6,
-            width: 12, height: ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS + 6,
-            borderRadius: 6, borderWidth: 3, borderColor: c.bg,
-            backgroundColor: col,
-          }}
-        />
       </View>
 
       {/* Os limites, cada um na sua altura. */}
@@ -412,21 +408,34 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
               apoio, ela acompanha sem competir. */}
           <Txt v="body" c={c.tx3} style={{ fontSize: 22 }}>{e.unit}</Txt>
         </Row>
-        {/* O <Selo> tem `alignSelf: 'flex-start'` embutido — ele nasceu
-            para etiquetar linhas de lista, onde encostar à esquerda é o
-            certo. Aqui ele é o veredito do número, e veredito fica sob o
-            número. O invólucro é o que desfaz o alinhamento de origem sem
-            mexer na peça compartilhada. */}
+        {/* ⚠️ O VEREDITO É UM SELO AQUI, e por um tempo foi um balão
+            preso à régua.
+
+            O balão amarrava as duas informações — o que é e onde cai —
+            numa leitura só, e essa parte era boa. Mas ele andava: nascia
+            em cima do ponto do valor, então mudava de lugar a cada
+            marcador, e perto das bordas encolhia para não sair da tela. O
+            veredito é a resposta mais importante da tela e passava a
+            depender de onde o valor tinha caído na fita.
+
+            Embaixo do número ele abre sempre no mesmo ponto, com a mesma
+            largura, e responde a pergunta que trouxe a pessoa aqui antes
+            de ela precisar ler a régua. A régua continua dizendo o "onde"
+            sozinha — os dois pontos acesos são o marcador, e não precisam
+            de etiqueta para serem entendidos.
+
+            O <Selo> tem `alignSelf: 'flex-start'` embutido, porque nasceu
+            para etiquetar linhas de lista. O invólucro é o que desfaz esse
+            alinhamento de origem sem mexer na peça compartilhada. */}
         <View style={{ alignItems: 'center' }}>
+          {/* "Fora da referência — alto" era o rótulo antigo, e um travessão
+              seguido de minúscula lê como remendo. Acima/abaixo diz a mesma
+              coisa e ainda entrega a direção na primeira palavra. */}
           <Selo
-            label={st === 'ok' ? 'Na referência' : `Fora da referência — ${st}`}
+            label={st === 'ok' ? 'Na referência' : st === 'alto' ? 'Acima da referência' : 'Abaixo da referência'}
             tom={st === 'ok' ? 'verde' : 'neutra'}
           />
         </View>
-        {/* ⚠️ A DATA DA COLETA SUBIU PARA A BARRA. Solta aqui embaixo ela
-            flutuava: uma frase sozinha entre o veredito e a régua, sem
-            grupo a que pertencer. Na barra ela vira a legenda do título,
-            que é o papel dela — o "quando" do que está na tela. */}
       </View>
 
       {/* ⚠️ O PARÁGRAFO SOBRE O QUE É UMA FAIXA DE REFERÊNCIA SAIU DAQUI.
