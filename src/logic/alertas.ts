@@ -11,8 +11,9 @@ import { DOW_SHORT, addDays, hm, now, startOfDay } from './time';
    assunto e o aviso eram a mesma coisa, e por isso nenhum dos dois podia
    se repetir.
 
-   Aqui eles se separam. O assunto continua sendo quatro — dose, pesagem,
-   hidratação, proteína —, e cada um passa a ter QUANTOS ALERTAS QUISER.
+   Aqui eles se separam. O assunto continua sendo uma lista curta — dose,
+   check-in, pesagem, hidratação, proteína —, e cada um passa a ter
+   QUANTOS ALERTAS QUISER.
    É o modelo do despertador do celular, e não é coincidência: o problema
    é o mesmo. Ninguém acha estranho ter três alarmes de manhã.
 
@@ -26,7 +27,7 @@ import { DOW_SHORT, addDays, hm, now, startOfDay } from './time';
    está dizendo que vale sempre.
    ============================================================ */
 
-export type TipoDeAlerta = 'dose' | 'peso' | 'agua' | 'proteina';
+export type TipoDeAlerta = 'dose' | 'checkin' | 'peso' | 'agua' | 'proteina';
 
 /* DOIS JEITOS DE DIZER A QUE HORAS.
 
@@ -101,6 +102,17 @@ export const TIPOS: Record<TipoDeAlerta, {
     desc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
     temDias: false, temLead: true,
   },
+  /* ⚠️ O CHECK-IN ENTROU DEPOIS, e era o único registro diário do
+     aplicativo sem lembrete. Os quatro originais avisavam sobre coisas
+     que a pessoa FAZ — aplicar, pesar, beber, comer —, e o check-in é a
+     única em que o app pergunta em vez de cobrar: sono, fome, energia e
+     humor. Justamente por isso ele é o que mais se perde, porque nada no
+     dia lembra de responder. */
+  checkin: {
+    titulo: 'Check-in do dia', curto: 'Check-in', ic: 'mood',
+    desc: 'Um toque para responder como foi o dia — sono, fome, energia e humor.',
+    temDias: true, temLead: false,
+  },
   peso: {
     titulo: 'Pesagem', curto: 'Pesagem', ic: 'scale',
     desc: 'Um toque nos dias em que você quer subir na balança.',
@@ -118,7 +130,10 @@ export const TIPOS: Record<TipoDeAlerta, {
   },
 };
 
-export const ORDEM: TipoDeAlerta[] = ['dose', 'peso', 'agua', 'proteina'];
+/* A ORDEM É A DO CICLO, e não a do alfabeto nem a da idade do recurso:
+   dose e check-in são o que o aplicativo pede por si — um por semana, um
+   por dia —, e peso, água e proteína são as medidas que acompanham. */
+export const ORDEM: TipoDeAlerta[] = ['dose', 'checkin', 'peso', 'agua', 'proteina'];
 
 /* DE HORA EM HORA, das seis da manhã às nove da noite.
 
@@ -151,6 +166,11 @@ const id = () => `al-${Date.now().toString(36)}-${Math.random().toString(36).sli
    outros três nascem com a hora em que fazem sentido. */
 const PADRAO: Record<TipoDeAlerta, Partial<Alerta>> = {
   dose: { modo: 'horas', horas: [9], lead: 1 },
+  /* ⚠️ ÀS 21H, E NÃO DE MANHÃ. O check-in pergunta como foi o DIA, e às
+     nove da manhã o dia ainda não foi. É o único dos cinco cuja resposta
+     depende de o dia já ter acontecido — os outros avisam antes da coisa,
+     este avisa depois. */
+  checkin: { modo: 'horas', horas: [21] },
   peso: { modo: 'horas', horas: [8] },
   agua: { modo: 'intervalo', cada: 2, de: 8, ate: 20 },
   proteina: { modo: 'horas', horas: [12] },

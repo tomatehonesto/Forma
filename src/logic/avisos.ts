@@ -106,6 +106,11 @@ const textoDaDose = (S: State, lead: number) => {
 };
 
 const TEXTO: Record<Exclude<TipoDeAlerta, 'dose'>, Texto> = {
+  /* ⚠️ ELE PERGUNTA, E NÃO MANDA — é o único dos cinco assim, e é assim
+     porque o check-in é uma pergunta. "Faça o check-in" trata de tarefa
+     uma coisa que é conversa; "como foi o seu dia?" é o que alguém
+     perguntaria, e é o que a tela do outro lado vai perguntar de novo. */
+  checkin: { title: 'Como foi o seu dia?', body: 'Sono, fome, energia e humor — quatro respostas, e o dia fica registrado.' },
   peso: { title: 'Dia de pesagem', body: 'Suba na balança quando der. Um número por semana já desenha a curva.' },
   agua: { title: 'Um copo de água', body: 'Ajuda com a saciedade e com o enjoo — e conta para a meta do dia.' },
   proteina: { title: 'Proteína primeiro', body: 'Na próxima refeição, comece por ela. É o que segura a massa magra.' },
