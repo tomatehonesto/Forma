@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
 import {
   protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
+  notasAbertas, clinicaConectada,
 } from '../logic/derive';
 import { Screen, Txt, Card, Row, CircleBtn, Chevron, SectionHead } from '../ui/kit';
 import { Grade2, Cartao, Linha } from '../ui/internas';
@@ -56,6 +57,13 @@ export default function Medico() {
   const go = (to: string) => () => router.push(to as any);
 
   const equipe = fichaDaEquipe(S);
+
+  /* As dúvidas ainda não conversadas, e o material que veio da clínica.
+     Os dois são listas do estado que esta tela apenas lê — quem escreve
+     são /nota e o outro lado, que ainda não existe. */
+  const abertas = notasAbertas(S);
+  const materiais = ((S as any).materials ?? []) as
+    { name: string; kind: string; meta: string; ic: string; motivo: string }[];
   const responsavel = equipe.find((f) => f.responsavel);
 
   const nd = new Date(S.consult.t);
@@ -303,6 +311,65 @@ export default function Medico() {
           ))}
         </Grade2>
 
+        {/* ---- as suas anotações ----
+
+            ⚠️ ELAS NÃO TINHAM LUGAR NENHUM. `/nota` escreve uma e `/nota?t=`
+            edita aquela, mas nenhuma tela do aplicativo mostrava as quatro
+            juntas — elas só reapareciam dentro do resumo, na hora de levar
+            à consulta. Uma lista que só existe no PDF é uma lista que
+            ninguém revisa: a pessoa anota a dúvida e nunca mais a vê até
+            estar sentada na frente da médica.
+
+            ⚠️ E É AQUI QUE ELAS MORAM, e não na aba Cuidado. O resumo logo
+            acima já diz "as suas anotações, num documento só" — as duas
+            peças são a mesma errand, uma é o que se leva e a outra é o que
+            está dentro. Separá-las em telas diferentes é o que estava
+            errado.
+
+            ⚠️ SÓ AS ABERTAS. A nota marcada como conversada cumpriu o que
+            tinha para cumprir; mantê-la na lista faz a pessoa reler na
+            consulta seguinte uma pergunta que já foi respondida. O
+            histórico continua no estado, e `/nota` sabe desmarcar.
+
+            ⚠️ E A SEÇÃO NÃO SOME QUANDO ESTÁ VAZIA, que é o contrário da
+            regra do resto do aplicativo. Aqui a lista vazia não é ausência
+            de dado: é o convite. Sumindo, quem nunca anotou nada nunca
+            descobre que dá para anotar — e o link "Anotar" no título é a
+            única porta para `/nota` que existe fora da consulta.
+
+            ⚠️ E O TÍTULO É "SUAS ANOTAÇÕES", e era "Anotações para a
+            consulta". Medido: o título longo quebrava em duas linhas e
+            empurrava o link "Anotar" para o canto de cima, deslocado do
+            título que ele acompanha. O possessivo faz o trabalho que o
+            resto da frase fazia — separa as SUAS das prescrições e dos
+            documentos, que são deles. */}
+        <SectionHead
+          title="Suas anotações"
+          link="Anotar"
+          onPress={go('/nota')}
+          style={{ marginTop: 32, marginBottom: 10 }}
+        />
+        <Cartao>
+          {abertas.length ? (
+            abertas.map((n) => (
+              <Linha
+                key={n.t}
+                ic="pencil"
+                titulo={n.text}
+                sub={fmtDate(new Date(n.t))}
+                onPress={go(`/nota?t=${n.t}`)}
+              />
+            ))
+          ) : (
+            <Linha
+              ic="pencil"
+              titulo="Anotar uma dúvida"
+              sub="O que você quiser perguntar na próxima consulta"
+              onPress={go('/nota')}
+            />
+          )}
+        </Cartao>
+
         {/* ---- prescrições ----
 
             ⚠️ A AÇÃO SAIU DE DENTRO DA LISTA, e virou o link do título.
@@ -363,6 +430,53 @@ export default function Medico() {
             Com isso a linha vira uma <Linha> da casa, sem desenho próprio:
             ícone solto, título, subtítulo, seta. Uma peça a menos para
             divergir do resto do aplicativo. */}
+        {/* ---- o que a clínica mandou ----
+
+            ⚠️ A TELA SÓ TINHA UMA DIREÇÃO. Prescrições e Documentos são o
+            que saiu de você e o que ficou registrado sobre você; o que a
+            clínica MANDOU — o guia do enjoo, o vídeo da aplicação, o
+            protocolo alimentar — vivia só na aba Cuidado. Numa tela que se
+            chama área médica, o material que a equipe preparou não devia
+            estar em outro lugar.
+
+            ⚠️ LISTA, E NÃO O CARROSSEL DA ABA CUIDADO. Lá ele é vitrine,
+            no fim da rolagem, para descobrir; aqui é acervo, ao lado dos
+            documentos, para procurar. Um carrossel dentro de uma sequência
+            de três listas seria a única peça que esconde item fora da
+            borda.
+
+            ⚠️ O MOTIVO É A SEGUNDA LINHA, e o formato é a terceira. "Para a
+            fase de titulação" é o que separa curadoria de biblioteca: sem
+            ele a linha diz o que a coisa É, com ele diz por que ela está
+            aqui. O tipo e o tamanho vêm depois porque respondem "quanto
+            tempo isso vai me tomar", que é a segunda pergunta.
+
+            ⚠️ E SOME SEM VÍNCULO, como na aba Cuidado: sem clínica não há
+            quem tenha montado nada, e `materials` só se enche pelo outro
+            lado. */}
+        {!!materiais.length && clinicaConectada(S) && (
+          <>
+            <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>O que a clínica preparou</Txt>
+            <Cartao>
+              {materiais.map((m) => (
+                <Pressable key={m.name} onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                  <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
+                    <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
+                      <Icon name={m.ic} size={20} color={c.accent} sw={1.9} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Txt v="body">{m.name}</Txt>
+                      <Txt v="caption" c={c.accent2} style={{ marginTop: 2, lineHeight: 20 }}>{m.motivo}</Txt>
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>{m.kind} · {m.meta}</Txt>
+                    </View>
+                    <View style={{ marginTop: 3 }}><Chevron /></View>
+                  </Row>
+                </Pressable>
+              ))}
+            </Cartao>
+          </>
+        )}
+
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
         <Cartao>
           {S.documents.map((d: any, i: number) => (

@@ -11,7 +11,7 @@ import { RETRATOS, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
-import { radius, shadowCard, alfa } from '../theme';
+import { radius } from '../theme';
 import { Image } from 'expo-image';
 
 /* ============================================================
@@ -193,17 +193,6 @@ export default function Clinica() {
               style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
               pointerEvents="none"
             />
-            {/* ⚠️ E A QUEDA NO PÉ USA `c.bg`, como em /especialista. Ela é o
-                que substitui o cartão: sem ela a foto termina num corte
-                reto e o nome vira uma legenda pendurada; com ela a imagem
-                dissolve no fundo da página e o texto começa dentro do mesmo
-                plano. */}
-            <LinearGradient
-              colors={[alfa(c.bg, 0), alfa(c.bg, 0.55), c.bg]}
-              locations={[0, 0.6, 1]}
-              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 120 }}
-              pointerEvents="none"
-            />
             <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
               <Row>
                 {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
@@ -220,6 +209,27 @@ export default function Clinica() {
           </View>
         )}
 
+        {/* ---- a página, montada sobre a foto ----
+
+            ⚠️ ABA COM CANTO, E NÃO DEGRADÊ — a mesma troca de /especialista,
+            e pelo mesmo motivo. A foto dissolvia no fundo por uma queda de
+            120px, e uma dissolução gasta 120px de foto para esconder uma
+            emenda. Aqui a emenda deixa de ser escondida e passa a ser
+            DESENHADA: a página é uma superfície com canto que sobe 26px
+            sobre a imagem, e a foto termina inteira, no corte reto, atrás
+            dela.
+
+            É mais honesto com foto ruim também. A queda empurrava a cor do
+            fundo para dentro da imagem e, numa recepção escura, a faixa de
+            baixo virava mancha; o canto não toca a foto, só a cobre. */}
+        <View style={{
+          backgroundColor: c.bg,
+          borderTopLeftRadius: imagens.foto ? 28 : 0,
+          borderTopRightRadius: imagens.foto ? 28 : 0,
+          marginTop: imagens.foto ? -26 : 0,
+          paddingTop: imagens.foto ? 24 : 0,
+        }}>
+
         {/* ---- a identidade ----
 
             ⚠️ A MARCA SÓ APARECE QUANDO É A MARCA. Com logo, ele entra nos
@@ -232,7 +242,7 @@ export default function Clinica() {
             genérico no lugar da marca é a pior reserva possível numa tela
             cujo propósito é APRESENTAR a clínica — um coração que não é
             dela diz menos do que duas letras que são. */}
-        <View style={{ paddingHorizontal: PAD, marginTop: imagens.foto ? 4 : 20 }}>
+        <View style={{ paddingHorizontal: PAD, marginTop: imagens.foto ? 0 : 20 }}>
           {imagens.logo ? (
             <Image
               source={imagens.logo}
@@ -478,6 +488,7 @@ export default function Clinica() {
             </Row>
           </Pressable>
         )}
+        </View>
         </View>
       </ScrollView>
     </View>
