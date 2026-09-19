@@ -126,23 +126,27 @@ function Regua({ e }: { e: any }) {
         {fileira('cima')}
         {fileira('baixo')}
 
-        {/* O marcador vive por cima das duas, centrado na posição do
-            valor. `marginLeft` de meia largura é o que faz a porcentagem
-            apontar para o centro dele, e não para a borda esquerda. */}
+        {/* ⚠️ O MARCADOR É UMA CÁPSULA, E ERA UMA BOLA MAIOR.
+
+            Uma bola de 14 flutuando no meio de pontos de 5, centrada
+            entre as duas fileiras e mais alta que elas, tem exatamente a
+            forma de um pino de mapa: o olho lê "alfinete espetado na
+            faixa", e alfinete é peça de outra família.
+
+            A cápsula tem a largura de um ponto e a altura das duas
+            fileiras — ela não é um objeto pousado sobre a régua, é a
+            COLUNA da régua que está acesa. E o anel na cor do fundo a
+            separa dos vizinhos mesmo no meio da faixa, onde a cor por
+            baixo é quase a dela. */}
         <View
           pointerEvents="none"
           style={{
-            position: 'absolute', top: -2, left: `${g.pos}%`, marginLeft: -8,
-            width: 16, height: ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS + 4,
-            alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <View style={{
-            width: 14, height: 14, borderRadius: 7,
-            borderWidth: 3, borderColor: c.bg,
+            position: 'absolute', top: -3, left: `${g.pos}%`, marginLeft: -6,
+            width: 12, height: ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS + 6,
+            borderRadius: 6, borderWidth: 3, borderColor: c.bg,
             backgroundColor: col,
-          }} />
-        </View>
+          }}
+        />
       </View>
 
       {/* Os limites, cada um na sua altura. */}
@@ -216,8 +220,10 @@ function Regua({ e }: { e: any }) {
    fina, lê papel quadriculado e passa direto para os pontos que importam.
    E a malha fina é o que permite a haste ser fina — numa grade de nove
    linhas, cada degrau da coluna vale um pedaço grande demais do eixo. */
-const COLS = 37;
+const COLS = 33;
 const LINS = 13;
+const PONTO = 4;
+const RESPIRO_LIN = 8;
 
 function HistoricoEmPontos({ e }: { e: any }) {
   const { c } = useTheme();
@@ -228,34 +234,57 @@ function HistoricoEmPontos({ e }: { e: any }) {
   const spanT = Math.max(1, t1 - t0);
   const spanV = Math.max(1e-9, g.max - g.min);
 
+  const pctDe = (v: number) => Math.min(100, Math.max(0, ((v - g.min) / spanV) * 100));
   const linDe = (pct: number) => (LINS - 1) - (pct / 100) * (LINS - 1);
+  const valorDaLin = (lin: number) => g.min + ((LINS - 1 - lin) / (LINS - 1)) * spanV;
   const linBandaTopo = Math.round(linDe(g.bandR));
   const linBandaBase = Math.round(linDe(g.bandL));
 
-  /* Cada coleta vira uma coluna: a posição pela DATA de verdade, e não
-     pela ordem — duas coletas em semanas seguidas ficam coladas, e um
-     intervalo de dois anos fica largo, que é o que aconteceu. */
   const marcas = vals.map((x) => {
-    const pct = Math.min(100, Math.max(0, ((x.v - g.min) / spanV) * 100));
+    const pct = pctDe(x.v);
     return {
       col: Math.round(((x.t - t0) / spanT) * (COLS - 1)),
       lin: Math.round(linDe(pct)),
       dentro: pct >= g.bandL && pct <= g.bandR,
+      v: x.v,
+      t: x.t,
     };
   });
-  const ultima = marcas[marcas.length - 1];
+
+  /* ⚠️ O EIXO GANHOU ESCALA, e tinha só as bordas da faixa.
+
+     Eu tinha tirado os números das pontas argumentando que eles descrevem
+     a moldura e não o dado — verdade, e irrelevante: TODO eixo descreve a
+     moldura, e é para isso que ele serve. Sem nenhum degrau entre as duas
+     bordas, a altura de um ponto no meio do quadro não tinha como ser
+     lida; o gráfico virava um desenho bonito de onde não se tirava
+     número.
+
+     Um a cada três linhas é o que cabe sem virar tabela. As bordas da
+     faixa continuam sendo as únicas em tinta forte — elas são o dado, o
+     resto é régua. */
+  /* ⚠️ AS BORDAS MANDAM, E OS DEGRAUS CEDEM. Com os dois conjuntos
+     entrando juntos, `5,7` da borda e `4,8` do degrau caíam em linhas
+     vizinhas e se atropelavam — dois números a oito pixels um do outro,
+     e o que importa é o de cima. O degrau só entra quando está a duas
+     linhas de distância de qualquer borda. */
+  const bordas = [linBandaTopo, linBandaBase].filter((l) => l >= 0 && l < LINS);
+  const rotulos = new Set<number>(bordas);
+  for (const l of [0, 3, 6, 9, 12]) {
+    if (bordas.every((b) => Math.abs(b - l) >= 2)) rotulos.add(l);
+  }
 
   return (
     <View style={{ gap: 10 }}>
       <Row gap={8} style={{ alignItems: 'stretch' }}>
-        <View style={{ width: 30 }}>
+        <View style={{ width: 34, alignItems: 'flex-end' }}>
           {Array.from({ length: LINS }).map((_, lin) => {
-            const topo = lin === linBandaTopo && g.temMax;
-            const base = lin === linBandaBase && g.temMin;
-            const valor = topo ? g.min + (g.bandR / 100) * spanV : g.min + (g.bandL / 100) * spanV;
+            const borda = (lin === linBandaTopo && g.temMax) || (lin === linBandaBase && (g.temMin || g.min === 0));
             return (
-              <View key={lin} style={{ height: 5, marginBottom: lin === LINS - 1 ? 0 : 9, justifyContent: 'center' }}>
-                {topo || base ? <Txt v="micro" c={c.tx3}>{fmtV(valor)}</Txt> : null}
+              <View key={lin} style={{ height: PONTO, marginBottom: lin === LINS - 1 ? 0 : RESPIRO_LIN, justifyContent: 'center' }}>
+                {rotulos.has(lin) ? (
+                  <Txt v="micro" c={borda ? c.tx2 : c.tx4}>{fmtV(valorDaLin(lin))}</Txt>
+                ) : null}
               </View>
             );
           })}
@@ -265,10 +294,10 @@ function HistoricoEmPontos({ e }: { e: any }) {
           {Array.from({ length: LINS }).map((_, lin) => {
             const naFaixa = lin >= linBandaTopo && lin <= linBandaBase;
             return (
-              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center', height: 5, marginBottom: lin === LINS - 1 ? 0 : 9 }}>
+              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center', height: PONTO, marginBottom: lin === LINS - 1 ? 0 : RESPIRO_LIN }}>
                 {Array.from({ length: COLS }).map((__, col) => {
                   const marca = marcas.find((m) => m.col === col);
-                  const naHaste = !!marca && lin >= marca.lin;
+                  const naHaste = !!marca && lin > marca.lin;
                   const noTopo = !!marca && lin === marca.lin;
 
                   if (noTopo) {
@@ -276,7 +305,7 @@ function HistoricoEmPontos({ e }: { e: any }) {
                       <View
                         key={col}
                         style={{
-                          width: 11, height: 11, borderRadius: 6,
+                          width: 10, height: 10, borderRadius: 5,
                           borderWidth: 2.5, borderColor: c.bg1,
                           backgroundColor: marca!.dentro ? c.accent2 : c.cta,
                           marginVertical: -3,
@@ -285,28 +314,18 @@ function HistoricoEmPontos({ e }: { e: any }) {
                     );
                   }
                   if (naHaste) {
-                    /* ⚠️ A HASTE É MAIS CLARA QUE O TOPO, e é isso que a
-                       impede de virar barra. Barra afirma quantidade a
-                       partir do zero, e o zero de um exame não é o pé
-                       deste quadro — ele é um número arbitrário do
-                       desenho. Em tom baixo, a coluna é um FIO que liga o
-                       ponto ao eixo, como numa haste de pirulito: ela
-                       ajuda a achar a altura e não afirma grandeza. */
-                    /* ⚠️ A HASTE NÃO CARREGA O VEREDITO, e carregava: ela
-                       vinha vermelha quando o ponto estava fora da faixa,
-                       e descia vermelha atravessando a faixa azul —
-                       dizendo "fora" sobre linhas que são o dentro.
-
-                       Contradizia a própria regra desta peça: se a haste é
-                       RÉGUA, ela não opina. O veredito é do ponto de cima,
-                       e ele já o diz sozinho. */
-                    const fundura = (lin - marca!.lin) / Math.max(1, LINS - 1 - marca!.lin);
+                    /* ⚠️ A HASTE ESCURECE PARA CIMA, e é isso que a faz ler
+                       como coluna e não como fileira de pontos soltos. O
+                       degradê aponta para o dado: o olho sobe por ele e
+                       para no ponto cheio, que é onde está a resposta. */
+                    const altura = Math.max(1, LINS - 1 - marca!.lin);
+                    const fundura = (lin - marca!.lin) / altura;
                     return (
                       <View
                         key={col}
                         style={{
-                          width: 5, height: 5, borderRadius: 3,
-                          backgroundColor: mix(c.bg1, c.accent, 0.42 - fundura * 0.24),
+                          width: PONTO + 1, height: PONTO + 1, borderRadius: 3,
+                          backgroundColor: mix(c.bg1, c.accent, 0.52 - fundura * 0.34),
                         }}
                       />
                     );
@@ -315,13 +334,8 @@ function HistoricoEmPontos({ e }: { e: any }) {
                     <View
                       key={col}
                       style={{
-                        width: 4, height: 4, borderRadius: 2,
-                        /* A faixa de referência desenhada como REGIÃO, e
-                           não como duas linhas: é a mesma leitura da
-                           régua de cima, deitada. Sem ela o quadro é uma
-                           grade neutra e "estive sempre dentro?" volta a
-                           depender de conferir número por número. */
-                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.26) : c.track,
+                        width: PONTO, height: PONTO, borderRadius: 2,
+                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.22) : c.track,
                       }}
                     />
                   );
@@ -332,9 +346,24 @@ function HistoricoEmPontos({ e }: { e: any }) {
         </View>
       </Row>
 
-      <Row style={{ justifyContent: 'space-between', paddingLeft: 38 }}>
-        <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t0))}</Txt>
-        <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t1))}</Txt>
+      {/* ⚠️ AS COLETAS DESCERAM PARA CÁ, e eram um bloco inteiro com
+          título, cartão e uma linha alta por valor. Três linhas repetindo
+          os mesmos três números que o gráfico logo acima acabou de
+          desenhar — a mesma informação contada duas vezes, em dois pesos
+          diferentes.
+
+          Aqui elas são a LEGENDA do gráfico: cada coleta com a sua data,
+          na ordem em que aparecem no quadro, e o ponto colorido dizendo se
+          aquela caiu dentro ou fora. É onde os números exatos ficam sem
+          virar seção. */}
+      <Row gap={14} style={{ flexWrap: 'wrap', paddingLeft: 42 }}>
+        {marcas.map((m) => (
+          <Row key={m.t} gap={6} style={{ alignItems: 'center' }}>
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: m.dentro ? c.accent2 : c.cta }} />
+            <Txt v="micro" c={c.tx2}>{fmtV(m.v)}</Txt>
+            <Txt v="micro" c={c.tx4}>{fmtDate(new Date(m.t))}</Txt>
+          </Row>
+        ))}
       </Row>
     </View>
   );
@@ -360,7 +389,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
        Sem isto a tela abre dizendo "5,6 %" e mais nada: o marcador só se
        identificaria depois de rolar, e um valor de exame sem o nome do
        exame não é informação, é um número solto. */
-    <TelaInterna titulo={e.marker} onVoltar={onVoltar} tituloFixo>
+    <TelaInterna titulo={e.marker} sub={`Colhido em ${porExtenso(l.t)}`} onVoltar={onVoltar} tituloFixo>
       {/* ---- o resultado ----
 
           ⚠️ O NÚMERO É A TELA, e ele estava numa manchete alinhada à
@@ -376,7 +405,12 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
       <View style={{ alignItems: 'center', gap: 14 }}>
         <Row style={{ alignItems: 'baseline', justifyContent: 'center' }} gap={7}>
           <Txt v="display" style={{ fontSize: 56, lineHeight: 62, letterSpacing: -1.5 }}>{fmtV(l.v)}</Txt>
-          <Txt v="h2" c={c.tx3}>{e.unit}</Txt>
+          {/* ⚠️ A UNIDADE EM PESO REGULAR, e estava em `h2`, que é semibold.
+              Em negrito ela disputava com o número: "5,6" e "%" viravam
+              duas coisas do mesmo tamanho de voz, quando uma é o dado e a
+              outra é a régua em que ele se mede. Em regular e na cor de
+              apoio, ela acompanha sem competir. */}
+          <Txt v="body" c={c.tx3} style={{ fontSize: 22 }}>{e.unit}</Txt>
         </Row>
         {/* O <Selo> tem `alignSelf: 'flex-start'` embutido — ele nasceu
             para etiquetar linhas de lista, onde encostar à esquerda é o
@@ -389,11 +423,10 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             tom={st === 'ok' ? 'verde' : 'neutra'}
           />
         </View>
-        {/* ⚠️ A DATA DA COLETA VOLTOU. Ela morava no lead da manchete, que
-            saiu junto com ela — e um resultado sem data é um resultado sem
-            validade: ninguém sabe se está olhando o exame de ontem ou o de
-            dois anos atrás. */}
-        <Txt v="caption" c={c.tx3}>Colhido em {porExtenso(l.t)}</Txt>
+        {/* ⚠️ A DATA DA COLETA SUBIU PARA A BARRA. Solta aqui embaixo ela
+            flutuava: uma frase sozinha entre o veredito e a régua, sem
+            grupo a que pertencer. Na barra ela vira a legenda do título,
+            que é o papel dela — o "quando" do que está na tela. */}
       </View>
 
       {/* ⚠️ O PARÁGRAFO SOBRE O QUE É UMA FAIXA DE REFERÊNCIA SAIU DAQUI.
@@ -412,6 +445,12 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
           Vem antes da evolução de propósito: não dá para acompanhar a
           curva de uma coisa que ainda não se sabe o que é. */}
+      {/* ⚠️ SOBRE E EVOLUÇÃO ANDAM JUNTOS, com o respiro curto da Home.
+          A <TelaInterna> separa os filhos por 26, que é a distância entre
+          ASSUNTOS — e estes dois são o mesmo: o que o marcador é, e o que
+          ele fez. A 10 de distância eles leem como um bloco de duas
+          partes; a 26, como duas seções que por acaso ficaram vizinhas. */}
+      <View style={{ gap: 10 }}>
       {sobre ? (
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 8 }, shadowCard(c)]}>
           <Row gap={7}>
@@ -479,20 +518,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         </View>
       ) : null}
 
-      {varios ? (
-        <Bloco titulo="Coletas">
-          <Cartao>
-            {e.values.slice().reverse().map((x: any) => (
-              <Linha
-                key={x.t}
-                titulo={`${fmtV(x.v)} ${e.unit}`}
-                sub={fmtDate(new Date(x.t))}
-                seta={false}
-              />
-            ))}
-          </Cartao>
-        </Bloco>
-      ) : null}
+      </View>
 
       {/* ---- o cartão que lê o resultado ----
 

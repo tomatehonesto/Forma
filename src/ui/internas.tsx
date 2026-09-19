@@ -39,9 +39,11 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, tituloFixo, children,
+  titulo, sub, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, tituloFixo, children,
 }: {
   titulo: string;
+  /** a legenda do título na barra — data, origem, o que situa a tela */
+  sub?: string;
   /** rótulo curto da ação à direita ("Nova", "Salvar") */
   acao?: string;
   /** ícone no lugar do rótulo, quando a ação é um gesto e não uma palavra */
@@ -112,6 +114,19 @@ export function TelaInterna({
 
           <Animated.View style={{ flex: 1, opacity: tinta }} pointerEvents="none">
             <Txt v="bodyMed" style={{ textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
+            {/* ⚠️ A SEGUNDA LINHA DA BARRA — o "quando" do que está na tela.
+
+                Ela nasceu para o detalhe de um marcador de exame, onde a
+                data da coleta não tinha lugar: solta embaixo do valor ela
+                flutuava, e dentro do cartão do resultado ela competia com
+                o número. Na barra ela vira o que é — a legenda do título,
+                como o subtítulo de um documento.
+
+                Opcional e sem altura própria: quem não passa `sub` tem a
+                barra de sempre, do mesmo tamanho de sempre. */}
+            {sub ? (
+              <Txt v="micro" c={c.tx3} style={{ textAlign: 'center', marginTop: 1 }} numberOfLines={1}>{sub}</Txt>
+            ) : null}
           </Animated.View>
 
           {/* Espelha a largura do botão da esquerda mesmo quando não há ação:

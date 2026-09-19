@@ -628,53 +628,58 @@ export const EXAM_CATS: [string, string[]][] = [
 export type SobreOMarcador = { oQueE: string; porQue: string };
 
 const SOBRE: Record<string, SobreOMarcador> = {
+  /* ⚠️ NENHUMA DEFINIÇÃO CITA OUTRO MARCADOR NEM TERMO DE LAUDO. A do
+     colesterol total dizia "como essa soma se divide entre HDL e LDL", o
+     que só ajuda quem já sabe o que são HDL e LDL — e quem sabe não
+     precisava da definição. A regra: se a frase precisa de uma segunda
+     frase para ser entendida, ela não é uma definição, é um verbete. */
   'HbA1c': {
-    oQueE: 'A fração da hemoglobina que ficou ligada ao açúcar do sangue.',
-    porQue: 'Como a hemácia vive cerca de três meses, ela conta a média da glicose nesse período — e não só a do dia da coleta.',
+    oQueE: 'O quanto de açúcar ficou grudado nos glóbulos vermelhos do sangue.',
+    porQue: 'Como esses glóbulos vivem cerca de três meses, o resultado conta a média do açúcar nesse período, e não só o do dia do exame.',
   },
   'Glicemia jejum': {
     oQueE: 'A quantidade de açúcar no sangue depois de horas sem comer.',
     porQue: 'É a medida mais direta de como o corpo administra a glicose em repouso.',
   },
   'Insulina': {
-    oQueE: 'O hormônio que faz o açúcar do sangue entrar nas células.',
-    porQue: 'Quando ela está alta com glicose normal, costuma indicar que o corpo precisa de mais hormônio para o mesmo trabalho.',
+    oQueE: 'O hormônio que faz o açúcar sair do sangue e entrar nas células.',
+    porQue: 'Quando ele está alto, costuma ser sinal de que o corpo precisa produzir mais para dar conta do mesmo serviço.',
   },
   'Colesterol total': {
-    oQueE: 'A soma de todas as frações de colesterol que circulam no sangue.',
-    porQue: 'Sozinho ele diz pouco: o que importa é como essa soma se divide entre HDL e LDL.',
+    oQueE: 'Todo o colesterol que está circulando no seu sangue, somado.',
+    porQue: 'Sozinho ele diz pouco, porque junta numa conta só tipos de colesterol que fazem coisas opostas no corpo.',
   },
   'HDL': {
-    oQueE: 'A fração do colesterol que recolhe gordura das artérias e leva de volta ao fígado.',
-    porQue: 'É a única em que um número mais alto é o desejável.',
+    oQueE: 'O colesterol que faz a limpeza: recolhe gordura das artérias e leva embora.',
+    porQue: 'É o único exame de colesterol em que um número mais alto é a boa notícia.',
   },
   'LDL': {
-    oQueE: 'A fração do colesterol que leva gordura do fígado para os tecidos.',
-    porQue: 'Em excesso, é a que se deposita na parede das artérias.',
+    oQueE: 'O colesterol que leva gordura para os tecidos do corpo.',
+    porQue: 'Em excesso, é ele que vai se acumulando na parede das artérias ao longo dos anos.',
   },
   'Triglicerídeos': {
     oQueE: 'A gordura que circula no sangue vinda da comida e do fígado.',
     porQue: 'Responde rápido ao que se come e ao peso, e por isso costuma ser o primeiro a se mexer num tratamento.',
   },
   'Creatinina': {
-    oQueE: 'Um resíduo do músculo que os rins filtram e eliminam.',
-    porQue: 'Como a saída depende do rim, o quanto sobra no sangue é uma das formas de medir o trabalho dele.',
+    oQueE: 'Um resto que o músculo produz o tempo todo e que o rim joga fora.',
+    porQue: 'Como quem tira do sangue é o rim, o tanto que sobra ali é uma das formas de ver se ele está dando conta.',
   },
   'TGO': {
-    oQueE: 'Uma enzima que existe dentro das células do fígado e de outros tecidos.',
-    porQue: 'Ela aparece no sangue quando essas células se rompem, então funciona como um sinal de irritação do fígado.',
+    oQueE: 'Uma substância que fica guardada dentro das células do fígado e do músculo.',
+    porQue: 'Ela só aparece no sangue quando essas células se rompem — por isso serve de aviso de que alguma coisa está irritando o fígado.',
   },
   'TGP': {
-    oQueE: 'Uma enzima que existe quase só dentro das células do fígado.',
-    porQue: 'Por ser mais exclusiva dele, costuma ser a mais específica das duas para avaliar o fígado.',
+    oQueE: 'Uma substância que fica guardada quase só dentro das células do fígado.',
+    porQue: 'Como ela quase não existe em outro lugar do corpo, quando aparece no sangue o endereço é bem mais certo.',
   },
   'TSH': {
-    oQueE: 'O hormônio que a hipófise manda para a tireoide pedindo trabalho.',
+    oQueE: 'O recado que o cérebro manda para a tireoide pedindo que ela trabalhe.',
     porQue: 'Ele sobe quando a tireoide está devagar e cai quando está acelerada — é o termostato, e não a temperatura.',
   },
   'T4 livre': {
-    oQueE: 'O hormônio da tireoide na forma que o corpo consegue usar.',
-    porQue: 'Lido junto do TSH, mostra se a tireoide está entregando o que foi pedido.',
+    oQueE: 'O hormônio que a tireoide produz, na parte dele que o corpo consegue usar.',
+    porQue: 'Ele mostra o que a tireoide está de fato entregando, e é por isso que vem sempre em dupla com o exame anterior.',
   },
   'Vitamina D': {
     oQueE: 'A vitamina que o corpo produz com sol e absorve da comida.',
@@ -685,8 +690,8 @@ const SOBRE: Record<string, SobreOMarcador> = {
     porQue: 'É necessária para os glóbulos vermelhos e para os nervos, e quem come menos costuma repô-la de olho.',
   },
   'Ferritina': {
-    oQueE: 'A proteína que guarda ferro dentro das células.',
-    porQue: 'Por isso ela mede o estoque de ferro do corpo, e não o ferro que está circulando agora.',
+    oQueE: 'A despensa de ferro do corpo — o que fica guardado dentro das células.',
+    porQue: 'Por isso ela mostra o estoque, e não o ferro que está circulando no sangue hoje.',
   },
 };
 
@@ -1028,8 +1033,8 @@ export function examExplain(e: any) {
      frase — dizer "subiu" sem dizer o que isso significa é melhor do que
      chutar o significado. */
   const onde = dentro
-    ? 'Este resultado está dentro da faixa de referência do laboratório.'
-    : 'Este resultado está fora da faixa de referência do laboratório.';
+    ? 'O seu resultado está dentro do que o laboratório considera esperado.'
+    : 'O seu resultado está fora do que o laboratório considera esperado.';
 
   const desde = !varios || delta === 0
     ? ''
@@ -1037,7 +1042,7 @@ export function examExplain(e: any) {
       ? ` Desde a primeira coleta ele ${melhorou ? 'caminhou na direção esperada' : 'foi na direção oposta à esperada'}.`
       : ` Desde a primeira coleta ele ${delta > 0 ? 'subiu' : 'caiu'}.`;
 
-  return `${onde}${desde} Quem lê exame junto do resto do seu quadro é quem acompanha você — a gente organiza os números e mostra a evolução, não interpreta.`;
+  return `${onde}${desde} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
 }
 
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */
