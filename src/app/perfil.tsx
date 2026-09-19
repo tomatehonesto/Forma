@@ -16,11 +16,12 @@ import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } fro
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
+import { RETRATOS } from '../ui/retratos';
 
-/* A MESMA FOTO DA ABA CUIDADO. Uma pessoa, um retrato: se o app tivesse
-   duas imagens da mesma médica, elas divergiriam no dia em que uma fosse
-   trocada. */
-const FOTO_MEDICA = require('../../assets/images/especialista.png');
+/* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
+   segunda linha apontando para o mesmo arquivo. Uma pessoa, um retrato:
+   duas imagens da mesma médica divergem no dia em que uma for trocada. */
+const FOTO_MEDICA = RETRATOS.responsavel;
 import { useTheme } from '../ui/useTheme';
 import { radius, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
@@ -404,8 +405,9 @@ export default function Perfil() {
                       descreve e todo mundo sente. O recorte também é o mesmo —
                       cobrir pelo topo, que é onde fica o rosto num busto.
 
-                      O fundo tingido existe porque a imagem é PNG transparente:
-                      sem ele o recorte flutuaria sobre o branco do card. */}
+                      O fundo tingido sobrou do recorte em PNG; com foto ele
+                      só aparece enquanto ela carrega, e é melhor do que um
+                      quadrado branco piscando. */}
                   <View style={{
                     width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
                     backgroundColor: c.accentWeak,
@@ -415,7 +417,7 @@ export default function Perfil() {
                       source={FOTO_MEDICA}
                       style={{ width: '100%', height: '100%' }}
                       contentFit="cover"
-                      contentPosition="top center"
+                      contentPosition="center"
                     />
                   </View>
                   <View style={{ flex: 1 }}>

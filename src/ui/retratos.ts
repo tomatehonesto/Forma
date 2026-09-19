@@ -22,8 +22,25 @@
    por aqui e estas saem.
    ============================================================ */
 export const RETRATOS: Record<string, any> = {
-  responsavel: require('../../assets/images/especialista.png'),
+  responsavel: require('../../assets/images/equipe/responsavel.jpg'),
 };
+
+/* ⚠️ E AGORA É UMA FOTO, E ERA UM RECORTE EM PNG.
+
+   A troca não é de arquivo, é de premissa. O recorte vinha com fundo
+   transparente e a pessoa inteira dentro do quadro: a ficha podia
+   desenhar um degradê atrás dela, encaixá-la `contain` e escrever o nome
+   por cima, porque o rodapé da imagem era o degradê e não a foto.
+
+   Ninguém manda recorte. O que chega de uma clínica é o que a assessoria
+   tirou: a pessoa sentada numa poltrona, fora do centro, com planta,
+   janela e parede. Projetar em cima do recorte era projetar para o único
+   caso que não vai acontecer — então o recorte saiu, e o desenho passou a
+   ser o da foto comum.
+
+   ⚠️ ISTO CONTINUA SENDO SEMENTE. São rostos reais numa tela que fala de
+   profissionais de saúde: no dia em que a clínica mandar as fotos dela,
+   estas saem. */
 
 /* ============================================================
    A IMAGEM DA CLÍNICA
@@ -42,15 +59,11 @@ export const RETRATOS: Record<string, any> = {
    clínica por pessoa isso é excesso; no dia em que a rede tiver várias, é
    o que impede a foto de uma aparecer na tela da outra. */
 export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {
-  /* ⚠️ FOTO DE ESTUDO, E SÓ EM __DEV__. O cabeçalho com imagem é metade
-     do desenho da tela e não dá para julgá-lo com o mapa vazio — mas uma
-     folha de acelga não é a recepção de ninguém, e ela não pode sair
-     daqui. O `require` é estático, então o Metro resolve; o que o
-     `__DEV__` tira é a ENTRADA do mapa, e em produção a tela cai no
-     cabeçalho sem foto, que é o que ela vai fazer mesmo.
-
-     Sai no dia em que a clínica mandar a dela. */
-  ...(__DEV__ ? { 'Clínica Vitalis': { foto: require('../../assets/images/alimentacao-hero.jpg') } } : {}),
+  /* ⚠️ FOTO DE SEMENTE, do mesmo tipo dos retratos acima: é uma sala de
+     verdade que não é a desta clínica. Ela existe porque o cabeçalho com
+     imagem é metade do desenho da tela e não dá para julgá-lo com o mapa
+     vazio — e sai no dia em que a clínica mandar a dela. */
+  'Clínica Vitalis': { foto: require('../../assets/images/clinicas/vitalis.jpg') },
 };
 
 /** As duas primeiras iniciais: "Clínica Vitalis" dá "CV". É o que um logo

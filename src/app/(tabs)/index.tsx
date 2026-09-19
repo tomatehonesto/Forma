@@ -21,9 +21,10 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette } from '../../theme';
+import { RETRATOS } from '../../ui/retratos';
 
 const PAD = 24;                     // margem lateral do frame
-const FOTO_MEDICA = require('../../../assets/images/especialista.png');
+const FOTO_MEDICA = RETRATOS.responsavel;   // um mapa, três leitores
 const GOAL_W = 323;                 // largura do card de meta
 const GOAL_GAP = 4;
 const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
@@ -463,16 +464,18 @@ export default function Home() {
                       a pessoa, e esta seção é justamente a que diz "tem
                       alguém do outro lado".
 
-                      Fundo tingido embaixo do recorte porque a imagem é PNG
-                      com fundo transparente: sem ele o retrato flutuaria
-                      sobre o branco do card e perderia a moldura que o faz
-                      ler como avatar. */}
+                      ⚠️ O FUNDO TINGIDO SOBROU DO RECORTE. Ele existia
+                      porque a imagem era PNG transparente e precisava de
+                      moldura; agora a foto cobre o quadrado inteiro e ele
+                      só aparece enquanto ela carrega. Fica por isso — um
+                      quadrado que pisca branco antes da foto é pior. */}
                   <View style={{ width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, overflow: 'hidden' }}>
                     <Image
                       source={FOTO_MEDICA}
                       style={{ width: '100%', height: '100%' }}
                       contentFit="cover"
-                      contentPosition="top center"
+                      /* pelo centro: ver a nota em medico.tsx */
+                      contentPosition="center"
                     />
                   </View>
                   <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>

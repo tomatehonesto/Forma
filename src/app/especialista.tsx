@@ -45,6 +45,11 @@ import { RETRATOS, inicialDoNome } from '../ui/retratos';
 
 const PAD = 24;
 
+/* 330, e a conta é a do rosto: a foto entra `cover` com a largura da tela,
+   a queda ocupa os 130 de baixo, e o que sobra limpo são os 200 do alto.
+   Mais que isso empurra o nome para fora da dobra; menos vira uma faixa. */
+const ALTURA_DO_RETRATO = 330;
+
 export default function Especialista() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
@@ -93,99 +98,130 @@ export default function Especialista() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}
       >
-        {/* Retrato sangrando de borda a borda. É o único lugar do app onde
-            uma pessoa ocupa a tela inteira — proposital: a escala comunica
-            que ali há alguém, não um registro.
+        {/* ---- o retrato ----
 
-            O nome fica SOBRE a foto, no rodapé dela, apoiado por uma queda
-            ao fundo da tela. Pôr o nome abaixo da imagem separaria a pessoa
-            do nome dela em dois blocos; sobreposto, é a mesma coisa. */}
-        <View style={{ height: retrato ? 430 : 300 }}>
-          {/* fundo próprio, porque o retrato é recorte com transparência —
-              sem ele a pessoa apareceria flutuando sobre o cinza da página */}
-          <LinearGradient
-            colors={[c.bluePale, c.bg1, c.bg]}
-            locations={[0, 0.62, 1]}
-            start={{ x: 0.2, y: 0 }} end={{ x: 0.85, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
+            ⚠️ ELE DEIXOU DE SER UM RECORTE, e com isso o cabeçalho inteiro
+            mudou de regra.
 
-          {retrato ? (
+            Antes: PNG com fundo transparente, `contain` encostado embaixo,
+            um degradê azul atrás da pessoa e o nome escrito POR CIMA da
+            imagem. Funcionava porque o rodapé do quadro era o degradê — o
+            texto nunca caía sobre a foto de verdade.
+
+            Ninguém manda recorte. Chega a foto que a assessoria tirou:
+            pessoa fora do centro, poltrona verde, janela estourada. Escrever
+            por cima disso é sortear a legibilidade a cada clínica nova.
+
+            Agora: `cover` de borda a borda, a foto DISSOLVE no fundo da
+            página, e o nome começa do outro lado da dissolução — em `c.bg`
+            sólido, sempre legível, com qualquer foto. É o mesmo cabeçalho
+            de /clinica, e agora as duas telas têm a mesma estrutura: uma
+            imagem que se desfaz, e a identidade embaixo dela.
+
+            ⚠️ O CORTE É PELO CENTRO, e não pelo topo. Medido nesta foto: o
+            rosto está a 39% da altura do arquivo; com `top center` ele cai
+            a 51% do cabeçalho, dentro da faixa que a dissolução já come.
+            Pelo centro ele sobe para 31% e fica limpo. `center` também é a
+            aposta mais segura para foto desconhecida — as pessoas se
+            enquadram no meio do quadro.
+
+            ⚠️ E ISSO AINDA É UMA APOSTA. A saída certa é a foto trazer um
+            ponto de foco junto, e não a tela adivinhar. Está anotado em
+            PENDENCIAS.
+
+            ⚠️ SEM RETRATO NÃO HÁ CABEÇALHO DE IMAGEM. Não é a versão
+            degradada desta: é a outra, inteira — voltar, título e o círculo
+            com a inicial. Reservar 330px de degradê para uma foto que não
+            chegou é a tela dizendo que falta alguma coisa. */}
+        {retrato ? (
+          <View style={{ height: ALTURA_DO_RETRATO }}>
             <Image
               source={retrato}
-              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 400 }}
-              contentFit="contain"
-              contentPosition="bottom center"
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              contentPosition="center"
             />
-          ) : null}
+            {/* O botão de voltar fica sobre a foto, e a foto pode ser uma
+                sala clara com a janela estourada. Sem o véu ele desaparece
+                justamente nas fotos mais comuns — e é o único jeito de sair
+                da tela. */}
+            <LinearGradient
+              colors={['rgba(0,0,0,0.38)', 'rgba(0,0,0,0.12)', 'rgba(0,0,0,0)']}
+              locations={[0, 0.55, 1]}
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
+              pointerEvents="none"
+            />
+            {/* ⚠️ A QUEDA USA `c.bg`, E NÃO UM CINZA ESCRITO À MÃO.
 
-          {/* ⚠️ A QUEDA USA `c.bg`, E NÃO UM CINZA CLARO ESCRITO À MÃO.
-
-              Estavam aqui cinco paradas em 'rgba(245,246,250,…)' — a cor de
-              fundo do tema CLARO, cravada. No escuro o retrato caía num véu
-              esbranquiçado antes de chegar ao preto, e a emenda que devia
-              sumir era a coisa mais visível da tela. Com alfa sobre `c.bg`,
-              a queda é sempre para o fundo que existe. */}
-          <LinearGradient
-            colors={[alfa(c.bg, 0), alfa(c.bg, 0.04), alfa(c.bg, 0.35), alfa(c.bg, 0.85), c.bg]}
-            locations={[0, 0.5, 0.74, 0.9, 1]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-
-          <View style={{ flex: 1, paddingHorizontal: PAD, paddingTop: insets.top + 12, justifyContent: 'space-between' }}>
+                Estavam aqui cinco paradas em 'rgba(245,246,250,…)' — a cor
+                de fundo do tema CLARO, cravada. No escuro o retrato caía
+                num véu esbranquiçado antes de chegar ao preto, e a emenda
+                que devia sumir era a coisa mais visível da tela. */}
+            <LinearGradient
+              colors={[alfa(c.bg, 0), alfa(c.bg, 0.5), c.bg]}
+              locations={[0, 0.6, 1]}
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 130 }}
+              pointerEvents="none"
+            />
+            <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
+              <Row>
+                {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
+                <CircleBtn name="back" onPress={() => router.back()} bg="#FFFFFF" color="#1A1D23" />
+              </Row>
+            </View>
+          </View>
+        ) : (
+          <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
             <Row>
               <CircleBtn name="back" onPress={() => router.back()} />
             </Row>
-
-            {/* ⚠️ 34 E NÃO 8, e o número sai da peça de baixo: o cartão
-                de ações sobe 26 px por cima desta faixa para costurar a
-                foto com a página. Com 8, os 26 comiam a linha da clínica —
-                ela existia no código e ficava atrás do vidro. A folga tem
-                que ser maior que a subida, e quem mexer numa mexe na
-                outra. */}
-            <View style={{ paddingBottom: 34 }}>
-              {/* Sem retrato, o círculo com a inicial ocupa o lugar dele — o
-                  mesmo desenho do carrossel, para a pessoa reconhecer que
-                  chegou na ficha de quem tocou. */}
-              {!retrato ? (
-                <View style={{
-                  width: 72, height: 72, borderRadius: 36, marginBottom: 18,
-                  backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Txt v="h1" c={c.accent} style={{ fontSize: 30 }}>{inicialDoNome(f.nome)}</Txt>
-                </View>
-              ) : null}
-
-              {!!f.rating && (
-                <Row gap={6} style={{
-                  alignSelf: 'flex-start', marginBottom: 12,
-                  backgroundColor: alfa(c.bg, 0.72), borderWidth: 1, borderColor: alfa(c.tx, 0.12),
-                  borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6,
-                }}>
-                  <Icon name="trophy" size={13} color={c.accent} sw={2} />
-                  <Txt v="micro" c={c.tx}>{String(f.rating).replace('.', ',')}</Txt>
-                  {!!f.avaliacoes && <Txt v="micro" c={c.tx3}>· {f.avaliacoes} avaliações</Txt>}
-                </Row>
-              )}
-              <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
-              <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
-                {[f.papel, f.registro].filter(Boolean).join(' · ')}
-              </Txt>
-              {!!S.profile.clinic && (
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
-              )}
-            </View>
           </View>
+        )}
+
+        {/* ---- a identidade ---- */}
+        <View style={{ paddingHorizontal: PAD, marginTop: retrato ? 4 : 22 }}>
+          {/* Sem retrato, o círculo com a inicial ocupa o lugar dele — o
+              mesmo desenho da lista da clínica, para a pessoa reconhecer
+              que chegou na ficha de quem tocou. */}
+          {!retrato ? (
+            <View style={{
+              width: 72, height: 72, borderRadius: 36, marginBottom: 18,
+              backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Txt v="h1" c={c.accent} style={{ fontSize: 30 }}>{inicialDoNome(f.nome)}</Txt>
+            </View>
+          ) : null}
+
+          {/* ⚠️ A NOTA PERDEU O VIDRO. Ela era translúcida com borda porque
+              flutuava sobre a foto; sobre a página isso vira uma pastilha
+              de vidro sem nada atrás para deixar passar. */}
+          {!!f.rating && (
+            <Row gap={6} style={{
+              alignSelf: 'flex-start', marginBottom: 12,
+              backgroundColor: c.bg1, borderRadius: radius.pill,
+              paddingHorizontal: 12, paddingVertical: 6,
+            }}>
+              <Icon name="trophy" size={13} color={c.accent} sw={2} />
+              <Txt v="micro" c={c.tx}>{String(f.rating).replace('.', ',')}</Txt>
+              {!!f.avaliacoes && <Txt v="micro" c={c.tx3}>· {f.avaliacoes} avaliações</Txt>}
+            </Row>
+          )}
+          <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
+            {[f.papel, f.registro].filter(Boolean).join(' · ')}
+          </Txt>
+          {!!S.profile.clinic && (
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+          )}
         </View>
 
-        {/* Ações em vidro, montadas na divisa entre a foto e a página. É a
-            peça que costura os dois planos — e translúcida ela deixa a
-            passagem acontecer por trás em vez de tapá-la. */}
-        <View style={{ paddingHorizontal: PAD, marginTop: -26 }}>
+        {/* ⚠️ AS AÇÕES DEIXARAM DE SUBIR SOBRE A FOTO. O cartão de vidro
+            montado na divisa existia para costurar dois planos — a imagem
+            e a página. Agora quem costura é a dissolução, e o cartão passa
+            a ser o que é: a fileira de ações da ficha, apoiada na página. */}
+        <View style={{ paddingHorizontal: PAD, marginTop: 22 }}>
           <Row gap={8} style={{
-            backgroundColor: alfa(c.bg1, 0.92),
-            borderWidth: 1, borderColor: alfa(c.tx, 0.08),
+            backgroundColor: c.bg1,
             borderRadius: radius.xl, paddingVertical: 16,
             ...shadowSoft(c),
           }}>

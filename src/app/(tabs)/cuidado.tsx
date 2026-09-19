@@ -17,7 +17,8 @@ import { Txt, Row, SectionHead, Divider, ListRow } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
-import { radius } from '../../theme';
+import { radius, alfa } from '../../theme';
+import { RETRATOS } from '../../ui/retratos';
 
 /* ============================================================
    CUIDADO — a aba das pessoas
@@ -37,7 +38,12 @@ import { radius } from '../../theme';
    ============================================================ */
 
 const PAD = 24;
-const FOTO_MEDICA = require('../../../assets/images/especialista.png');
+/* ⚠️ VEM DE `RETRATOS`, e era um `require` escrito aqui. A mesma foto
+   aparecia por três caminhos diferentes — esta aba, a Home e o Perfil —
+   e cada uma tinha a sua linha. No dia em que a clínica mandar a foto
+   dela, uma das três ia ficar para trás, e seria a que ninguém abre com
+   frequência. Agora há um mapa e três leitores. */
+const FOTO_MEDICA = RETRATOS.responsavel;
 
 /* ------------------------------------------------------------------ *
  * COM VÍNCULO
@@ -362,22 +368,50 @@ function BannerMedica() {
     <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
       {/* metade de cima: quem é ela */}
       <View style={{ height: 168, overflow: 'hidden', backgroundColor: c.bg1 }}>
-        {/* a mesma malha do topo, em meia força: aqui ela é fundo para um
-            retrato recortado, e a foto é que precisa ganhar o olho */}
+        {/* a mesma malha do topo, em meia força: aqui ela é fundo, e é a
+            foto que precisa ganhar o olho */}
         <Malha id="cuidadoBanner" forca={0.55} />
 
-        {/* alinhada pela base: retrato flutuando no meio parece adesivo */}
-        <Image
-          source={FOTO_MEDICA}
-          style={{ position: 'absolute', right: -6, bottom: 0, width: 128, height: 182 }}
-          contentFit="contain"
-          contentPosition="bottom center"
-        />
+        {/* ⚠️ UM PLANO DE FOTO, E ERA UM RECORTE SANGRANDO PELA DIREITA.
+
+            O desenho antigo dependia de PNG com fundo transparente: a
+            pessoa encostava na base do card, `contain`, e a malha aparecia
+            em volta dela. Com a foto que uma clínica manda — pessoa
+            sentada numa sala, com parede e planta atrás — isso vira um
+            retângulo de sala colado na quina.
+
+            Agora a foto ocupa uma faixa da direita, `cover`, e se desfaz
+            para dentro do card por um degradê horizontal. A malha continua
+            atrás, o texto continua na frente, e a emenda entre foto e
+            cartão deixa de existir — é o mesmo gesto do cabeçalho de
+            /especialista e de /clinica, deitado.
+
+            ⚠️ E SEM FOTO A FAIXA NÃO EXISTE. O texto ocupa o card inteiro,
+            e ninguém percebe que havia um lugar reservado para ela. */}
+        {FOTO_MEDICA ? (
+          <View style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 148 }}>
+            <Image
+              source={FOTO_MEDICA}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              contentPosition="center"
+            />
+            <LinearGradient
+              colors={[c.bg1, alfa(c.bg1, 0.75), alfa(c.bg1, 0)]}
+              locations={[0, 0.3, 1]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+          </View>
+        ) : null}
 
         <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
           <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
             <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
-            <Txt v="h2" style={{ marginTop: 7, maxWidth: '66%' }}>{S.profile.doctor}</Txt>
+            {/* 60% e não 66%: a faixa da foto come 148 dos ~327 do card, e
+                o nome não pode entrar na parte opaca do degradê. */}
+            <Txt v="h2" style={{ marginTop: 7, maxWidth: '60%' }}>{S.profile.doctor}</Txt>
             <Row gap={6} style={{ marginTop: 5 }}>
               <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
               <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>

@@ -371,7 +371,19 @@ function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: n
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.md, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition="top center"
+        /* ⚠️ PELO CENTRO, e não pelo topo. `top center` é a regra de
+           retrato de estúdio, onde o rosto está no terço de cima. A foto
+           que uma clínica manda é a que a assessoria tirou — a pessoa
+           sentada numa sala, rosto perto da metade do quadro —, e pelo
+           topo ela cai na parte de baixo do quadrado. Pelo centro sobe.
+
+           ⚠️ E NENHUM `contentPosition` RESOLVE O QUADRADO PEQUENO. Numa
+           foto de corpo inteiro, 76px de largura deixam o rosto com uns
+           doze: dá para ver que ali há uma pessoa, não QUEM. Isso não é
+           ajuste de enquadramento, é recorte — e recorte se faz na hora
+           do envio, com a clínica escolhendo o quadro. Está em
+           PENDENCIAS. */
+        contentPosition="center"
       />
     );
   }

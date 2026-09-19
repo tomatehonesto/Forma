@@ -567,7 +567,7 @@ function Avatar({ ficha }: { ficha: { id: string; nome: string } }) {
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.sm, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition="top center"
+        contentPosition="center"
       />
     );
   }

@@ -283,6 +283,30 @@ outras portas de desenvolvimento (`?compra=1`, `?assinante=1`,
    `profile.clinicInfo`, que é a SUA clínica. Uma parceira que você não
    tem precisa de um `?id=` e de uma origem de dados — e aí `vinculada`
    deixa de ser a porta de desenvolvimento e passa a ser derivável.
+2a. **As fotos precisam de recorte na hora do envio.** As telas hoje
+   enquadram sozinhas, com `contentFit="cover"` e `contentPosition="center"`,
+   e isso resolve o cabeçalho grande: a foto entra de borda a borda, o
+   rosto fica na metade de cima e a imagem dissolve no fundo antes de
+   chegar ao texto.
+
+   **O que não resolve é o quadrado pequeno.** Numa foto de corpo inteiro
+   — que é o que uma assessoria manda —, os 76px do cartão de Sua equipe
+   deixam o rosto com uns doze. Dá para ver que ali há uma pessoa; não dá
+   para ver quem. Nenhuma posição de recorte conserta isso, porque o
+   problema é a escala e não o enquadramento.
+
+   Duas saídas, e as duas são do lado de quem envia:
+
+   · **um recortador no envio**, com a clínica escolhendo o quadro do
+     rosto — é o que praticamente todo cadastro de equipe faz;
+   · **um ponto de foco guardado junto da imagem**, e as telas passam a
+     enquadrar por ele em vez de pelo centro.
+
+   Enquanto não houver nenhuma das duas, vale pedir à clínica uma foto
+   enquadrada do peito para cima — e a semente usa uma foto de corpo
+   inteiro DE PROPÓSITO, para o caso ruim ficar visível em vez de
+   aparecer só depois da primeira clínica real.
+
 2b. **A foto de estudo sai.** `IMAGENS_DA_CLINICA` tem uma entrada de
    desenvolvimento — uma foto de comida servindo de recepção — para que o
    cabeçalho com imagem possa ser julgado. Ela está atrás de `__DEV__` e
