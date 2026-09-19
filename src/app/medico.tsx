@@ -7,6 +7,7 @@ import {
   protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
 } from '../logic/derive';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider, SectionHead } from '../ui/kit';
+import { Grade2 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
@@ -193,55 +194,24 @@ export default function Medico() {
             </Row>
           </View>
         ) : null}
-      </View>
 
-      {/* ---- próximos passos ---- */}
-      <Txt v="h2" style={{ marginTop: 30, marginBottom: 12, paddingHorizontal: 20 }}>Próximos passos</Txt>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
-      >
-        {/* ⚠️ O ÍCONE SOLTO, E NÃO NUMA PASTILHA DE COR. Numa fila de
-            quatro, o quadradinho azul repetido vira uma coluna de botões
-            — e nenhum deles é botão: quem leva a algum lugar é o cartão
-            inteiro. O peso ia todo para a moldura, que é a única parte da
-            peça que não diz nada. É a mesma regra das listas da casa.
-
-            E a seta no canto diz que o cartão é porta, que era o que a
-            pastilha estava tentando dizer errado. */}
-        {passos.map((p) => (
-          <Pressable key={p.titulo} onPress={go(p.to)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{
-              width: 164, height: 132, backgroundColor: c.bg1,
-              borderRadius: radius.lg, padding: 15, justifyContent: 'space-between',
-            }}>
-              <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Icon name={p.ic} size={20} color={c.accent} sw={1.9} />
-                <Icon name="chev" size={13} color={c.tx4} sw={2.2} />
-              </Row>
-              <View>
-                <Txt v="bodyMed" numberOfLines={2}>{p.titulo}</Txt>
-                <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ marginTop: 3, lineHeight: 16 }}>{p.sub}</Txt>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
-
-      <View style={{ paddingHorizontal: 20 }}>
         {/* ---- o resumo ----
 
-            ⚠️ ELE NÃO É UM CARTÃO DE PRÓXIMO PASSO, e por isso não entrou
-            na fila acima. Os outros são coisas a fazer; este é a coisa
-            que se LEVA para elas — o único conteúdo desta tela que
-            atravessa para o outro lado. Na fila ele viraria o quinto
-            item de uma lista que se rola; aqui ele é o que a tela pede.
+            ⚠️ ELE SUBIU PARA O TOPO, e o motivo é o mesmo que o mantinha
+            fora da grade: ele não é um próximo passo, é a coisa que se
+            LEVA para eles. É o único conteúdo desta tela que atravessa
+            para o outro lado.
+
+            Embaixo da grade ele era a peça mais pesada da tela — azul
+            cheio, olho-de-boi, botão — parada no meio, entre dois blocos
+            leves, quebrando o ritmo no lugar em que ele deveria estar
+            assentando. Encostado no cabeçalho, o peso dos dois soma em vez
+            de brigar: quem cuida de você, e o que você leva para ela.
 
             ⚠️ E ELE JÁ PROMETEU UM RESUMO "PRONTO NA VÉSPERA", e não há
-            véspera nenhuma: o resumo se monta dos registros na hora em
-            que a tela abre, hoje, amanhã ou daqui a um mês. */}
-        <Card style={{ marginTop: 24 }} tint={c.accentWeak}>
+            véspera nenhuma: o resumo se monta dos registros na hora em que
+            a tela abre, hoje, amanhã ou daqui a um mês. */}
+        <Card style={{ marginTop: 16 }} tint={c.accentWeak}>
           <Row gap={6}>
             <Icon name="aura" size={13} color={c.accent} sw={2} />
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt>
@@ -263,9 +233,47 @@ export default function Medico() {
             </View>
           </Pressable>
         </Card>
-      </View>
 
-      <View style={{ paddingHorizontal: 20 }}>
+        {/* ---- próximos passos ----
+
+            ⚠️ GRADE, E NÃO CARROSSEL. A fila horizontal só se paga quando
+            há mais itens do que cabem na tela — e aqui há dois na maior
+            parte do tempo: o exame só entra quando o protocolo pede um, e
+            a receita só quando a caneta está acabando. Dois cartões numa
+            fileira que mal rola é o mesmo defeito que tirou o carrossel da
+            equipe: o gesto é anunciado e não leva a lugar nenhum.
+
+            Em grade os dois ocupam a largura inteira, e quando viram
+            quatro eles descem numa segunda fileira em vez de se esconderem
+            fora da borda. O que estava escondido passa a ser visto — que é
+            o ponto de uma seção chamada "próximos passos".
+
+            ⚠️ O ÍCONE FICA SOLTO, E NÃO NUMA PASTILHA DE COR. O quadradinho
+            azul repetido vira uma grade de botões — e nenhum deles é
+            botão: quem leva a algum lugar é o cartão inteiro. A seta no
+            canto diz que o cartão é porta, que era o que a pastilha estava
+            tentando dizer errado. */}
+        <Txt v="h2" style={{ marginTop: 30, marginBottom: 12 }}>Próximos passos</Txt>
+        <Grade2>
+          {passos.map((p) => (
+            <Pressable key={p.titulo} onPress={go(p.to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
+              <View style={{
+                flex: 1, minHeight: 124, backgroundColor: c.bg1,
+                borderRadius: radius.lg, padding: 15, justifyContent: 'space-between',
+              }}>
+                <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <Icon name={p.ic} size={20} color={c.accent} sw={1.9} />
+                  <Icon name="chev" size={13} color={c.tx4} sw={2.2} />
+                </Row>
+                <View style={{ marginTop: 14 }}>
+                  <Txt v="bodyMed" numberOfLines={2}>{p.titulo}</Txt>
+                  <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ marginTop: 3, lineHeight: 16 }}>{p.sub}</Txt>
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </Grade2>
+
         {/* ---- prescrições ----
 
             ⚠️ A AÇÃO SAIU DE DENTRO DA LISTA, e virou o link do título.
