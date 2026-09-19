@@ -341,15 +341,33 @@ export function examStatus(e: any) {
   if (rg) { const lo = parseFloat(rg[1].replace(',', '.')), hi = parseFloat(rg[2].replace(',', '.')); return v < lo ? 'baixo' : v > hi ? 'alto' : 'ok'; }
   return 'ok';
 }
+/* ⚠️ A GAUGE PASSOU A DIZER QUAIS BORDAS SÃO DE VERDADE.
+
+   `bandL` e `bandR` sempre existiram, mas nem sempre significam a mesma
+   coisa: numa referência "15–150" as duas são limites que o laboratório
+   escreveu; numa "< 5,7" só a direita é — a esquerda é o zero que o
+   desenho precisou inventar para ter onde começar.
+
+   Enquanto a régua era uma barra, a diferença não aparecia. Agora que ela
+   desenha a faixa por DISTÂNCIA ATÉ O LIMITE, ela precisa saber quais
+   limites contar: sem isso, numa referência "< 5,7" o ponto mais forte
+   cairia no meio entre zero e 5,7 — o aplicativo dizendo que 2,8% de
+   HbA1c é o lugar ideal, o que não é verdade nem é coisa que ele saiba. */
 export function examGaugeData(e: any) {
   const v = examLast(e).v, r = e.ref;
   let min = 0, max = 1, bandL = 0, bandR = 1;
+  let temMin = false, temMax = false;
   const rng = r.match(/([\d,\.]+)\s*[–-]\s*([\d,\.]+)/), one = r.match(/([<>])\s*([\d,\.]+)/);
-  if (rng) { const lo = parseFloat(rng[1].replace(',', '.')), hi = parseFloat(rng[2].replace(',', '.')), pad = (hi - lo) * 0.6 || hi * 0.2; min = Math.max(0, lo - pad); max = hi + pad; bandL = lo; bandR = hi; }
-  else if (one) { const lim = parseFloat(one[2].replace(',', '.')); if (one[1] === '<') { min = 0; max = lim * 1.7; bandL = 0; bandR = lim; } else { min = 0; max = lim * 2.2; bandL = lim; bandR = max; } }
+  if (rng) { const lo = parseFloat(rng[1].replace(',', '.')), hi = parseFloat(rng[2].replace(',', '.')), pad = (hi - lo) * 0.6 || hi * 0.2; min = Math.max(0, lo - pad); max = hi + pad; bandL = lo; bandR = hi; temMin = true; temMax = true; }
+  else if (one) { const lim = parseFloat(one[2].replace(',', '.')); if (one[1] === '<') { min = 0; max = lim * 1.7; bandL = 0; bandR = lim; temMax = true; } else { min = 0; max = lim * 2.2; bandL = lim; bandR = max; temMin = true; } }
   else { min = 0; max = (v * 1.6) || 1; bandL = min; bandR = max; }
   const clamp = (x: number) => Math.max(1, Math.min(99, ((x - min) / ((max - min) || 1)) * 100));
-  return { pos: clamp(v), bandL: clamp(bandL), bandR: clamp(bandR), min, max, status: examStatus(e) };
+  return {
+    pos: clamp(v), bandL: clamp(bandL), bandR: clamp(bandR),
+    min, max, temMin, temMax,
+    limMin: bandL, limMax: bandR,
+    status: examStatus(e),
+  };
 }
 
 /* ============================================================

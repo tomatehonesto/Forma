@@ -33,83 +33,117 @@ import { radius, shadowCard, alfa } from '../theme';
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
 const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
-/* A RÉGUA É PONTILHADA, e era uma barra com uma bolinha em cima.
+/* A RÉGUA RESPONDE DUAS COISAS DE UMA VEZ: ONDE EU PRECISO ESTAR, E
+   ONDE EU ESTOU.
 
-   ⚠️ A BARRA PROMETIA PRECISÃO QUE O DADO NÃO TEM. Um trilho contínuo com
-   um marcador em cima convida a ler a posição exata — e a posição exata
-   não quer dizer nada: a faixa de referência é do laboratório, varia de um
-   para outro, e estar em 5,5 ou 5,6 dentro dela é a mesma informação.
+   ⚠️ E ELA JÁ FOI UMA BARRA, DEPOIS UM PONTILHADO CHAPADO, e as duas
+   respondiam só a segunda.
 
-   Em pontos, a leitura vira contável e aproximada, que é o que ela é: "meu
-   valor está aqui, perto do começo da faixa". O olho lê a POSIÇÃO no
-   conjunto sem tentar ler o número, que já está grande em cima.
+   A barra prometia precisão que o dado não tem — trilho contínuo com um
+   marcador convida a ler a posição exata, e a posição exata não quer
+   dizer nada: a faixa é do laboratório, varia de um para outro, e estar
+   em 5,5 ou 5,6 dentro dela é a mesma informação.
 
-   ⚠️ E OS PONTOS DE FORA DA FAIXA CONTINUAM VISÍVEIS, apagados. Uma régua
-   que só desenha a faixa normal esconde justamente o que a pessoa precisa
-   ver quando o valor sai dela — a distância. */
-const PONTOS_DA_REGUA = 29;
+   O pontilhado chapado consertou isso e parou no meio do caminho: a
+   faixa virava uma região de um tom só, que diz "dentro ou fora" e mais
+   nada. Mas estar dentro tem graus — encostado no limite não é a mesma
+   coisa que no meio da faixa, e essa é justamente a diferença que a
+   pessoa quer ver quando volta a olhar o exame três meses depois.
+
+   ⚠️ ENTÃO A INTENSIDADE É A DISTÂNCIA ATÉ O LIMITE MAIS PRÓXIMO. Ponto
+   mais forte é ponto mais longe da borda do normal. Isso NÃO é uma
+   opinião sobre qual lado da faixa é melhor — é a geometria da própria
+   faixa, e vale igual para creatinina, TSH e ferritina, que não declaram
+   lado nenhum.
+
+   ⚠️ E O QUE É LIMITE DE VERDADE VEM DA REFERÊNCIA, não do desenho. Numa
+   "< 5,7" só existe a borda de cima: a de baixo é o zero que o quadro
+   precisou inventar. Contar esse zero como limite faria o ponto mais
+   forte cair em 2,8% — o aplicativo afirmando que metade do normal é o
+   ideal. Com `temMin`/`temMax`, a rampa só corre a partir das bordas que
+   alguém escreveu.
+
+   ⚠️ OS NÚMEROS FICAM SOB AS BORDAS, e ficavam nas pontas do quadro. Nas
+   pontas eles descreviam a moldura; sob as bordas eles respondem a
+   pergunta — "de 13,5 a 18" é o intervalo, e é isso que a pessoa
+   precisa levar embora. */
+const PONTOS_DA_REGUA = 33;
 
 function Regua({ e }: { e: any }) {
   const { c } = useTheme();
   const g = examGaugeData(e);
   const dentro = g.status === 'ok';
   const col = dentro ? c.accent : c.cta;
-
-  /* O ponto do valor é o mais próximo da posição dele, e não uma peça
-     solta por cima: assim ele nunca cai entre dois e nunca some atrás da
-     borda do quadro. */
   const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
 
-  /* ⚠️ A FAIXA TEM DIREÇÃO QUANDO O MARCADOR TEM, E SÓ AÍ.
-
-     A referência que inspirou esta tela usa um degradê quente do começo
-     ao fim da faixa — e isso, num exame, afirma uma coisa que quase
-     sempre é falsa: que um canto da normalidade é melhor que o outro.
-     Para creatinina, TSH, TGO, estar embaixo ou em cima dentro do normal
-     é a mesma notícia, e pintar um lado mais forte inventaria uma
-     preferência que nenhum laboratório declara.
-
-     Mas alguns marcadores DECLARAM o lado bom: `good: 'up'` no HDL,
-     `good: 'down'` no LDL e nos triglicerídeos. Nesses, o degradê não
-     inventa nada — ele desenha o que o dado já diz, e a faixa passa a
-     responder "estou no canto bom do normal?", que é uma pergunta de
-     verdade.
-
-     Sem `good`, a faixa é chapada. A mesma peça, duas leituras, e nenhuma
-     das duas afirma o que não sabe. */
-  const forca = (pct: number) => {
-    if (!e.good) return 0.3;
-    const largura = Math.max(1, g.bandR - g.bandL);
-    const t = Math.min(1, Math.max(0, (pct - g.bandL) / largura));
-    const bom = e.good === 'up' ? t : 1 - t;
-    return 0.16 + bom * 0.46;
+  /* Quanto este ponto está longe da borda mais próxima da faixa, de 0
+     (encostado) a 1 (o mais longe que dá dentro dela). */
+  const profundidade = (pct: number) => {
+    const distL = g.temMin ? pct - g.bandL : Infinity;
+    const distR = g.temMax ? g.bandR - pct : Infinity;
+    const dist = Math.min(distL, distR);
+    if (!isFinite(dist)) return 1;
+    /* A escala da profundidade é metade da faixa quando ela tem as duas
+       bordas, e a faixa inteira quando só tem uma — nos dois casos, o
+       ponto mais fundo chega a 1. */
+    const alcance = (g.temMin && g.temMax)
+      ? Math.max(1, (g.bandR - g.bandL) / 2)
+      : Math.max(1, g.bandR - g.bandL);
+    return Math.min(1, Math.max(0, dist / alcance));
   };
 
   return (
     <View>
-      <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center', height: 14 }}>
         {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
           const pct = (i / (PONTOS_DA_REGUA - 1)) * 100;
           const naFaixa = pct >= g.bandL && pct <= g.bandR;
           const ehValor = i === iValor;
+
+          if (ehValor) {
+            /* O anel é o que separa "este é o seu" de "este é mais um da
+               faixa". Sem ele, um valor bem no fundo da faixa some entre
+               os vizinhos, que ali são quase da mesma cor. */
+            return (
+              <View key={i} style={{
+                width: 14, height: 14, borderRadius: 7,
+                alignItems: 'center', justifyContent: 'center',
+                backgroundColor: alfa(col, 0.22),
+              }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: col }} />
+              </View>
+            );
+          }
           return (
             <View
               key={i}
               style={{
-                width: ehValor ? 9 : 5,
-                height: ehValor ? 9 : 5,
-                borderRadius: 5,
-                  backgroundColor: ehValor ? col : naFaixa ? alfa(c.accent, forca(pct)) : c.track,
+                width: 5, height: 5, borderRadius: 3,
+                backgroundColor: naFaixa ? alfa(c.accent, 0.16 + profundidade(pct) * 0.62) : c.track,
               }}
             />
           );
         })}
       </Row>
-      <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
-        <Txt v="micro" c={c.tx4}>{fmtV(g.min)}</Txt>
-        <Txt v="micro" c={c.tx3}>referência {e.ref} {e.unit}</Txt>
-        <Txt v="micro" c={c.tx4}>{fmtV(g.max)}</Txt>
-      </Row>
+
+      {/* Os limites, cada um na sua altura. `left` em porcentagem com meia
+          largura de recuo centraliza o número sob o ponto da borda. */}
+      <View style={{ height: 18, marginTop: 8 }}>
+        {g.temMin ? (
+          <View style={{ position: 'absolute', left: `${g.bandL}%`, width: 60, marginLeft: -30, alignItems: 'center' }}>
+            <Txt v="micro" c={c.tx3}>{fmtV(g.limMin)}</Txt>
+          </View>
+        ) : null}
+        {g.temMax ? (
+          <View style={{ position: 'absolute', left: `${g.bandR}%`, width: 60, marginLeft: -30, alignItems: 'center' }}>
+            <Txt v="micro" c={c.tx3}>{fmtV(g.limMax)}</Txt>
+          </View>
+        ) : null}
+      </View>
+
+      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
+        {g.temMin && g.temMax ? 'faixa de referência' : g.temMax ? 'abaixo daqui é o esperado' : 'acima daqui é o esperado'} · {e.ref} {e.unit}
+      </Txt>
     </View>
   );
 }
