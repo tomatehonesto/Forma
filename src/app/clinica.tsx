@@ -13,7 +13,6 @@ import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 import { Image } from 'expo-image';
-import { VidroDegrade } from '../ui/vidro';
 
 /* ============================================================
    A CLÍNICA — quem está do outro lado, como instituição
@@ -108,8 +107,12 @@ const PAD = 24;
    verdade em vez de uma faixa.
 
    Abaixo dela a página começa com o endereço, que é o que a pessoa veio
-   consultar, e continua acima da dobra. */
-const ALTURA_DA_FOTO = 360;
+   consultar, e continua acima da dobra.
+
+   ⚠️ 400 DESDE QUE A FAIXA FICOU CHAPADA. O degradê comia 200px de imagem
+   para se desfazer; a faixa chapada ocupa a altura do texto, então os
+   mesmos 400 mostram muito mais foto do que os 360 mostravam antes. */
+const ALTURA_DA_FOTO = 400;
 
 export default function Clinica() {
   const S = useStore((s) => s.S);
@@ -152,7 +155,12 @@ export default function Clinica() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+      {/* ⚠️ `insets.bottom`, E ERA 60 CRAVADO. Na web o inset é zero e os 60
+          sobravam; no aparelho com barra de gestos ele é 34, e os mesmos 60
+          viravam 26 de folga real — o botão do pé encostava na barra e a
+          tela terminava parecendo cortada. É um defeito que só existe no
+          telefone, que é justamente onde ela roda. */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}>
         {/* ---- o cabeçalho ----
 
             ⚠️ A IDENTIDADE SAIU DO CARTÃO, e ficava num cartão branco que
@@ -215,8 +223,28 @@ export default function Clinica() {
                 a primeira linha de um bloco de texto; aqui ele pertence à
                 imagem, que é o que um nome de lugar faz. A página começa
                 direto no endereço. */}
-            <VidroDegrade altura={200} deBaixo intensidade={48} />
-            <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: PAD, paddingBottom: 48 }}>
+            {/* ⚠️ CORTE SECO, E ERA DEGRADÊ. O <VidroDegrade> se desfaz
+                subindo, e a faixa que ele precisa para isso come 200px de
+                imagem — numa foto de recepção, a metade de baixo inteira
+                ficava sob um véu que não dizia nada. A faixa chapada com
+                canto em cima ocupa a altura do texto e mais nada, e o que
+                está acima dela continua sendo foto.
+
+                ⚠️ É A MESMA FAIXA DO CHECK-IN NA HOME — mesmo desenho,
+                tinta diferente, e a diferença tem motivo. Lá ela é cinza a
+                20%, que CLAREIA: o que está atrás é a aurora escura, e um
+                véu claro sobre fundo escuro sustenta texto branco. Aqui
+                atrás há uma recepção fotografada com a janela aberta, e o
+                mesmo cinza a 20% não muda quase nada — medido nesta foto, a
+                especialidade em onHero2 sumia na parede. Preto a 34% é o
+                que faz o mesmo trabalho sobre imagem clara, e continua
+                deixando a foto passar. */}
+            <View style={{
+              position: 'absolute', left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.34)',
+              borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+              paddingHorizontal: PAD, paddingTop: 20, paddingBottom: 48,
+            }}>
               {imagens.logo ? (
                 <Image
                   source={imagens.logo}

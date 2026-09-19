@@ -7,8 +7,8 @@ import {
   protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
   notasAbertas, clinicaConectada,
 } from '../logic/derive';
-import { Screen, Txt, Card, Row, CircleBtn, Chevron, SectionHead } from '../ui/kit';
-import { Grade2, Cartao, Linha } from '../ui/internas';
+import { Txt, Card, Row, Chevron, SectionHead } from '../ui/kit';
+import { TelaInterna, Titulao, Grade2, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
@@ -127,7 +127,7 @@ export default function Medico() {
   ];
 
   return (
-    <Screen style={{ paddingHorizontal: 0 }}>
+    <TelaInterna titulo="Área médica">
       {/* ---- o cabeçalho de quem cuida ----
 
           ⚠️ ELE JÁ FOI UMA LINHA DE LISTA E JÁ FOI UMA VITRINE, e nenhum
@@ -151,9 +151,19 @@ export default function Medico() {
           com um profissional sozinho — que é o caso mais provável de
           todos — vê o mesmo cartão sem os pedaços que não existem, em vez
           de ver buracos onde eles estariam. */}
-      <View style={{ paddingHorizontal: 20 }}>
-        <Row style={{ marginTop: 4 }} gap={12}>
-          <CircleBtn name="back" onPress={() => router.back()} />
+      {/* ⚠️ <TelaInterna> E <Titulao>, COMO TODA TELA INTERNA DA CASA.
+          Era um <Screen> com a seta e o nome lado a lado, que é o desenho
+          de outra família: nele o nome fica pequeno para sempre e a tela
+          abre sem manchete. Aqui a barra só ganha o título quando a
+          manchete sobe — o nome está sempre num lugar só, e a rolagem é
+          que troca qual.
+
+          ⚠️ E O RESPIRO LATERAL CAIU DE 20 PARA 16, que é o da casa. Não
+          é detalhe: com a <TelaInterna> pondo os 16 dela, os 20 daqui
+          somariam 36 de um lado e o cartão desta tela ficaria mais estreito
+          que o de todas as outras. */}
+      <View>
+        <View style={{ marginTop: 4 }}>
           {/* ⚠️ "ÁREA MÉDICA", E ERA "SUA EQUIPE".
 
               A Home já chamava esta tela assim: a seção "Seu
@@ -182,11 +192,14 @@ export default function Medico() {
               do paciente, então a leitura não tem para onde ir — mas se um
               dia existir alguma coisa para a clínica, este nome fica
               ocupado e é este título que muda. */}
-          <Txt v="title" style={{ flex: 1 }}>Área médica</Txt>
-        </Row>
+          <Titulao
+            titulo="Área médica"
+            lead="Quem cuida de você, e o que atravessa para o outro lado."
+          />
+        </View>
 
         {responsavel ? (
-          <View style={{ marginTop: 16, backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
+          <View style={{ marginTop: 26, backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
             <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
               <Row gap={14} style={{ padding: 16, alignItems: 'center' }}>
                 <Retrato ficha={responsavel} lado={76} />
@@ -375,8 +388,8 @@ export default function Medico() {
             real, e é exatamente o que uma fileira horizontal serve bem. */}
         <ScrollView
           horizontal showsHorizontalScrollIndicator={false}
-          style={{ marginHorizontal: -20 }}
-          contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+          style={{ marginHorizontal: -16 }}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
         >
           {abertas.length ? (
             abertas.map((n) => (
@@ -427,12 +440,18 @@ export default function Medico() {
             o resto é leitura ensina errado nos dois sentidos: faz tocar no
             que não abre e faz duvidar do que abre.
 
-            ⚠️⚠️ E ESTA LISTA NÃO ABRE NADA, DE PROPÓSITO — não existe tela
-            de prescrição, e não deveria existir: o que há para saber sobre
-            uma receita está inteiro na linha dela. Por isso ela não tem
-            seta, e a de Documentos tem. Duas listas quase idênticas, uma
-            que abre e outra que não, só se distinguem se a diferença
-            estiver desenhada. A seta é a diferença.
+            ⚠️ E AGORA ELA ABRE. Eu tinha escrito aqui que "o que há para
+            saber sobre uma receita está inteiro na linha dela" — e não
+            está: falta a coisa que se procura com pressa, que é o que
+            fazer quando a receita venceu e a caneta vai acabar. A tela do
+            outro lado responde isso.
+
+            ⚠️⚠️ E ELA NÃO É UMA RECEITA. O pedido que abriu esta porta foi
+            "poder usar na farmácia"; não dá, e fingir que dá seria o erro
+            mais grave possível aqui. Receita é documento assinado, com
+            validade e número; isto é o REGISTRO de uma. A tela diz isso na
+            cara e leva ao único caminho que existe — pedir uma nova à
+            clínica.
 
             ⚠️ O ÍCONE FICA SOLTO, e saiu da pastilha azul. Numa lista, o
             quadrado de cor repetido vira uma coluna de botões — e aqui
@@ -447,18 +466,21 @@ export default function Medico() {
         />
         <Cartao>
           {S.prescriptions.map((p: any) => (
-            <Row key={p.name} gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-              <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
-                <Icon name="pill" size={20} color={c.accent} sw={1.9} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Txt v="body">{p.name}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 2, lineHeight: 20 }}>{p.detail}</Txt>
-                {/* Quem prescreveu e quando: é o que torna a linha
-                    verificável, e é a única parte dela que envelhece. */}
-                <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
-              </View>
-            </Row>
+            <Pressable key={p.name} onPress={go(`/prescricao?t=${p.t}`)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
+                <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
+                  <Icon name="pill" size={20} color={c.accent} sw={1.9} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Txt v="body">{p.name}</Txt>
+                  <Txt v="caption" c={c.tx2} style={{ marginTop: 2, lineHeight: 20 }}>{p.detail}</Txt>
+                  {/* Quem prescreveu e quando: é o que torna a linha
+                      verificável, e é a única parte dela que envelhece. */}
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
+                </View>
+                <View style={{ marginTop: 3 }}><Chevron /></View>
+              </Row>
+            </Pressable>
           ))}
         </Cartao>
 
@@ -510,8 +532,8 @@ export default function Medico() {
             <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>O que a clínica preparou</Txt>
             <ScrollView
               horizontal showsHorizontalScrollIndicator={false}
-              style={{ marginHorizontal: -20 }}
-              contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+              style={{ marginHorizontal: -16 }}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
             >
               {materiais.map((m) => (
                 <Pressable key={m.name} onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
@@ -549,7 +571,7 @@ export default function Medico() {
           ))}
         </Cartao>
       </View>
-    </Screen>
+    </TelaInterna>
   );
 }
 

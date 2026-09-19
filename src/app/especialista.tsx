@@ -96,7 +96,9 @@ export default function Especialista() {
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 60 }}
+        /* insets.bottom: ver a nota em clinica.tsx — 60 cravado encosta na
+           barra de gestos do aparelho, onde o inset não é zero. */
+        contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
       >
         {/* ---- o retrato ----
 

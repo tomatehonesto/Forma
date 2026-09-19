@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { periodoDaConsulta } from '../logic/derive';
-import { Screen, Txt, Row, CircleBtn, Card } from '../ui/kit';
-import { Cartao, Linha } from '../ui/internas';
+import { Txt, Row, Card } from '../ui/kit';
+import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
@@ -46,36 +46,32 @@ export default function Consulta() {
 
   if (!p) {
     return (
-      <Screen>
-        <Row style={{ marginTop: 4 }} gap={12}>
-          <CircleBtn name="back" onPress={() => router.back()} />
-          <Txt v="title" style={{ flex: 1 }}>Consulta</Txt>
-        </Row>
-        <Txt v="note" c={c.tx3} style={{ marginTop: 28, lineHeight: 23 }}>
+      <TelaInterna titulo="Consulta" tituloFixo>
+        <Txt v="note" c={c.tx3} style={{ lineHeight: 23 }}>
           Esta consulta não está mais no seu histórico.
         </Txt>
-      </Screen>
+      </TelaInterna>
     );
   }
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <Txt v="title" style={{ flex: 1 }}>Consulta</Txt>
-      </Row>
+    <TelaInterna titulo={dataComAno(p.t)}>
+      {/* ⚠️ A MANCHETE É A DATA, e não a palavra "Consulta". O que
+          distingue esta tela de outra do mesmo tipo é QUANDO foi — e a
+          barra de cima já carrega a mesma data para quando a manchete
+          subir. O tipo vira a sobrelinha, que é o papel dele: enquadrar a
+          leitura antes da primeira linha.
 
-      {/* ---- quando foi ---- */}
-      <View style={{ marginTop: 22 }}>
-        <Row gap={6}>
+          ⚠️ E SUMIU O DIA DA SEMANA. "ter" sozinho, sob "18 de agosto de
+          2026", não situa ninguém: ele serve quando a data é próxima e a
+          pessoa pensa em dias da semana, não num registro de meses
+          atrás. */}
+      <View>
+        <Row gap={6} style={{ marginBottom: 8 }}>
           <Icon name="steth" size={14} color={c.accent} sw={2} />
           <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{p.tipo.toUpperCase()}</Txt>
         </Row>
-        {/* ⚠️ SÓ A DATA, E TINHA O DIA DA SEMANA EMBAIXO. "ter" sozinho,
-            sob "18 de agosto de 2026", não ajuda ninguém a situar nada —
-            ele serve quando a data é próxima e a pessoa pensa em dias da
-            semana ("seg, 28 set"), e não num registro de um ano atrás. */}
-        <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{dataComAno(p.t)}</Txt>
+        <Titulao titulo={dataComAno(p.t)} />
       </View>
 
       {/* ---- a nota ----
@@ -84,20 +80,21 @@ export default function Consulta() {
           Cuidado: é a mesma natureza de conteúdo — alguém escreveu — e
           duas aparências para frases escritas seria o começo de duas. */}
       {p.nota ? (
-        <Card style={{ marginTop: 20 }}>
+        <Card>
           <Txt v="body" style={{ lineHeight: 25, fontStyle: 'italic' }}>“{p.nota}”</Txt>
         </Card>
       ) : null}
 
       {/* ---- o intervalo ---- */}
-      <Txt v="h2" style={{ marginTop: 32 }}>
-        {p.emAberto ? 'Desde então' : 'Até a consulta seguinte'}
-      </Txt>
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 6, marginBottom: 12, lineHeight: 21 }}>
-        {p.emAberto
-          ? 'O que os seus registros mostram deste dia até agora.'
-          : `O que os seus registros mostram entre este dia e ${dataComAno(p.ate)}.`}
-      </Txt>
+      <View style={{ gap: 12 }}>
+        <View>
+          <Txt v="h2">{p.emAberto ? 'Desde então' : 'Até a consulta seguinte'}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 6, lineHeight: 21 }}>
+            {p.emAberto
+              ? 'O que os seus registros mostram deste dia até agora.'
+              : `O que os seus registros mostram entre este dia e ${dataComAno(p.ate)}.`}
+          </Txt>
+        </View>
 
       {p.mudancas.length ? (
         <Cartao>
@@ -117,6 +114,7 @@ export default function Consulta() {
           </Txt>
         </Card>
       )}
-    </Screen>
+      </View>
+    </TelaInterna>
   );
 }

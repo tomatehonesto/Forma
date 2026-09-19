@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { Screen, Txt, Card, Row, CircleBtn, Pill, SectionHead } from '../ui/kit';
-import { Cartao, Linha } from '../ui/internas';
+import { Txt, Card, Row, Pill } from '../ui/kit';
+import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { preparoDaConsulta, temConsulta, clinicaConectada } from '../logic/derive';
@@ -75,17 +75,22 @@ export default function Consultas() {
   };
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        {/* ⚠️ `title` E NÃO `h1` COM SUBTÍTULO. O cabeçalho era um bloco de
-            duas linhas — "Consultas" grande e "Agenda, preparação e
-            histórico" embaixo —, e nenhuma outra tela interna deste
-            aplicativo se apresenta assim. O subtítulo também era um índice
-            do que vinha depois, o que só é útil quando o que vem depois
-            não se explica. */}
-        <Txt v="title" style={{ flex: 1 }}>Consultas</Txt>
-      </Row>
+    /* ⚠️ <TelaInterna> E <Titulao>, COMO TODA TELA INTERNA DA CASA — e
+       aqui era um <Screen> com a seta e o nome na mesma linha, que é o
+       desenho de outra família.
+
+       A diferença não é de gosto: a barra da casa só ganha o título
+       depois que a manchete sobe, então o nome da tela está sempre num
+       lugar só, e a rolagem é que troca qual. Com o nome fixo ao lado da
+       seta, ele fica pequeno para sempre e a tela abre sem manchete
+       nenhuma — que é o que esta fazia. */
+    <TelaInterna titulo="Consultas">
+      <Titulao
+        titulo="Consultas"
+        lead={marcada
+          ? 'A próxima, o que levar nela, e as que já aconteceram.'
+          : 'O que levar na próxima, e as que já aconteceram.'}
+      />
 
       {/* ---- a próxima ----
 
@@ -95,7 +100,7 @@ export default function Consultas() {
           do médico vazio. Enquanto a data só vinha da semente ninguém
           via; a partir da porta de anotar, qualquer pessoa vê. */}
       {marcada ? (
-        <Card tint={c.accentWeak} style={{ marginTop: 18 }}>
+        <Card tint={c.accentWeak}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Row gap={6}>
               <Icon name="cal" size={14} color={c.accent} sw={2} />
@@ -142,7 +147,7 @@ export default function Consultas() {
         /* Sem consulta, a diferença é de quem marca: com plataforma, a
            agenda é da clínica e não há o que fazer aqui; sem ela, quem
            anota é a pessoa, e o botão é a porta que faltava. */
-        <Card style={{ marginTop: 18 }}>
+        <Card>
           <Row gap={6}>
             <Icon name="cal" size={14} color={c.tx3} sw={2} />
             <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>PRÓXIMA</Txt>
@@ -175,17 +180,17 @@ export default function Consultas() {
           transforma a lista de lembrete em painel. Uma lista em que
           metade dos itens deixa de responder ao toque é a lista que
           ensinou errado em /medico, e não volta aqui. */}
-      <SectionHead
-        title="Para levar"
-        style={{ marginTop: 30, marginBottom: 4 }}
-      />
-      <Txt v="caption" c={c.tx3} style={{ marginBottom: 12, lineHeight: 21 }}>
-        {faltando === 0
-          ? 'Está tudo em dia — o resumo já se monta com isso.'
-          : faltando === 1
-            ? 'Falta uma coisa para o resumo ficar completo.'
-            : `Faltam ${faltando} coisas para o resumo ficar completo.`}
-      </Txt>
+      <View style={{ gap: 12 }}>
+        <View>
+          <Txt v="h2">Para levar</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 6, lineHeight: 21 }}>
+            {faltando === 0
+              ? 'Está tudo em dia — o resumo já se monta com isso.'
+              : faltando === 1
+                ? 'Falta uma coisa para o resumo ficar completo.'
+                : `Faltam ${faltando} coisas para o resumo ficar completo.`}
+          </Txt>
+        </View>
       <Cartao>
         {preparo.map((i) => (
           <Pressable key={i.id} onPress={go(i.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
@@ -216,6 +221,7 @@ export default function Consultas() {
           </Pressable>
         ))}
       </Cartao>
+      </View>
 
       {/* ---- histórico ----
 
@@ -235,8 +241,8 @@ export default function Consultas() {
           uma causa: o que os registros mostram entre esta consulta e a
           seguinte. O aplicativo não estava na sala, e data não é causa. */}
       {S.consultsHistory.length ? (
-        <>
-          <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Consultas anteriores</Txt>
+        <View style={{ gap: 10 }}>
+          <Txt v="h2">Consultas anteriores</Txt>
           <Cartao>
             {S.consultsHistory.map((h: any) => (
               <Linha
@@ -248,8 +254,8 @@ export default function Consultas() {
               />
             ))}
           </Cartao>
-        </>
+        </View>
       ) : null}
-    </Screen>
+    </TelaInterna>
   );
 }
