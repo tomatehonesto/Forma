@@ -327,6 +327,13 @@ export function buildSeed() {
         avaliacoes: 128,
         sobre: 'Especialista em tratamento clínico da obesidade, modulação hormonal e saúde metabólica. Meu objetivo é promover saúde com acolhimento, ciência e personalização em cada etapa do tratamento.',
         abordagens: ['Emagrecimento', 'Modulação hormonal', 'Metabolismo', 'Saúde intestinal'],
+        /* A formação é a parte verificável da ficha, e é ela que separa
+           "alguém está te acompanhando" de "alguém habilitado está". */
+        formacao: [
+          'Residência em Endocrinologia e Metabologia — HC-FMUSP',
+          'Título de Especialista pela SBEM',
+          'Pós-graduação em Nutrologia',
+        ],
       },
       /* metas diárias — antes ficavam espalhadas como número fixo no
          código (proteína 90 g em derive, água na constante GOAL_WATER).
@@ -472,11 +479,42 @@ export function buildSeed() {
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
     pen: { dosesLeft: 3, dosesPerPen: 4 },
     /* A equipe além da médica. Cada pessoa tem um papel distinto no
-       tratamento — não é lista de contatos, é quem faz o quê. */
+       tratamento — não é lista de contatos, é quem faz o quê.
+
+       ⚠️ E CADA UMA TEM FICHA, e não só nome e papel. Elas ganharam tela
+       própria — /especialista?id= —, e uma tela de profissional de saúde
+       com duas linhas dentro é pior do que nenhuma: a pessoa toca
+       esperando saber quem cuida dela e encontra o que já estava na
+       lista.
+
+       `id` é explícito, e não derivado do nome: é ele que vai na URL do
+       perfil, e um nome corrigido não pode quebrar um link guardado.
+
+       ⚠️ ISTO É FICÇÃO DE SEMENTE, como o resto dela. Registro, formação
+       e áreas são plausíveis e inventados; quando a clínica existir, quem
+       manda essa ficha é ela. */
     team: [
-      { name: 'Renata Alves', role: 'Nutricionista', sobre: 'Ajusta o plano alimentar conforme a fase do ciclo.' },
-      { name: 'Carla Mendes', role: 'Enfermeira', sobre: 'Orienta aplicação, locais e conservação da caneta.' },
-      { name: 'Rafael Lima', role: 'Psicólogo', sobre: 'Acompanha a relação com a comida e com o corpo.' },
+      {
+        id: 'renata', name: 'Renata Alves', role: 'Nutricionista',
+        registro: 'CRN-3 45821',
+        sobre: 'Ajusta o plano alimentar conforme a fase do ciclo, e trabalha com o que você já come — não com uma dieta pronta.',
+        formacao: ['Nutrição — USP', 'Especialização em Nutrição Clínica Funcional'],
+        areas: ['Plano alimentar', 'Proteína', 'Saciedade', 'Efeitos digestivos'],
+      },
+      {
+        id: 'carla', name: 'Carla Mendes', role: 'Enfermeira',
+        registro: 'COREN-SP 412.905',
+        sobre: 'Orienta aplicação, locais e conservação da caneta. É com ela que se tira dúvida de agulha, rodízio e viagem.',
+        formacao: ['Enfermagem — UNIFESP', 'Capacitação em terapia injetável'],
+        areas: ['Aplicação', 'Rodízio de locais', 'Conservação', 'Descarte'],
+      },
+      {
+        id: 'rafael', name: 'Rafael Lima', role: 'Psicólogo',
+        registro: 'CRP 06/152340',
+        sobre: 'Acompanha a relação com a comida e com o corpo — o que muda de humor, de imagem e de vontade ao longo do tratamento.',
+        formacao: ['Psicologia — PUC-SP', 'Formação em Terapia Cognitivo-Comportamental'],
+        areas: ['Compulsão', 'Imagem corporal', 'Ansiedade', 'Adesão'],
+      },
     ],
 
     /* Material que a clínica mandou para você — diferente de `documents`,

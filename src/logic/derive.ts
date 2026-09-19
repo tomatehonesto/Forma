@@ -3792,6 +3792,103 @@ export function careDocs(S: State, n = 3) {
 }
 
 /* ============================================================
+   A EQUIPE, NUM FORMATO SÓ
+
+   ⚠️ O ESTADO GUARDA A EQUIPE EM DUAS CASAS, e as telas liam as duas.
+
+   A responsável mora em `profile.doctor`, `profile.clinic` e
+   `profile.doctorInfo`; o resto mora em `S.team`. São formatos
+   diferentes para a mesma coisa — uma tem `crm` e `especialidade`, a
+   outra tem `role` —, e cada tela que precisava das duas juntava do seu
+   jeito. A tela de equipe chegou a reescrever a lista à mão dentro do
+   JSX, com uma pessoa de fora e dois papéis divergindo da fonte.
+
+   Unificar as duas casas tocaria o cadastro, a ficha de acompanhamento e
+   a aba Cuidado, e não é o que a reforma da tela pede. O que entra é um
+   adaptador: o estado continua com duas casas, e QUEM LÊ passa a ter uma.
+
+   ⚠️ E ELE DEVOLVE CAMPOS OPCIONAIS DE PROPÓSITO. Quem vier da clínica um
+   dia pode não ter registro, formação ou foto. A tela que consome isto
+   some com a seção em vez de desenhar um cabeçalho vazio — é a regra da
+   casa, e ela só funciona se a ausência chegar como ausência.
+   ============================================================ */
+
+export type FichaDaEquipe = {
+  /** estável e legível — vira `?id=` na URL do perfil */
+  id: string;
+  nome: string;
+  papel: string;
+  responsavel: boolean;
+  registro?: string;
+  sobre?: string;
+  formacao?: string[];
+  areas?: string[];
+  anos?: number;
+  pacientes?: number;
+  rating?: number;
+  avaliacoes?: number;
+};
+
+const semAcento = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/* O id sai do primeiro nome, sem o tratamento: "Dra. Helena Costa" vira
+   "helena".
+
+   ⚠️ E ELE É CALCULADO NA LEITURA, E NÃO GRAVADO POR MIGRAÇÃO. Quem já
+   tinha equipe guardada no formato antigo — só nome, papel e sobre — não
+   tem `id`, e a alternativa seria escrever um campo novo no estado de
+   alguém para resolver um problema que o leitor resolve sozinho. Uma
+   migração a menos, e o estado continua sendo o que a pessoa tem. */
+export const idDoNome = (nome: string) =>
+  semAcento(nome.split(/\s+/).find((w) => !w.endsWith('.')) ?? nome)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+export function fichaDaEquipe(S: State): FichaDaEquipe[] {
+  const p: any = S.profile ?? {};
+  const info: any = p.doctorInfo ?? {};
+
+  /* ⚠️ A RESPONSÁVEL TEM ID FIXO, e não derivado do nome. Ela é um
+     PAPEL antes de ser uma pessoa: trocar de médica na clínica não pode
+     quebrar um link guardado nem mudar o endereço do perfil. */
+  const responsavel: FichaDaEquipe[] = p.doctor ? [{
+    id: 'responsavel',
+    nome: p.doctor,
+    papel: info.especialidade || 'Responsável pelo tratamento',
+    responsavel: true,
+    registro: info.crm || undefined,
+    sobre: info.sobre || undefined,
+    formacao: info.formacao?.length ? info.formacao : undefined,
+    areas: info.abordagens?.length ? info.abordagens : undefined,
+    anos: info.anos,
+    pacientes: info.pacientes,
+    rating: info.rating,
+    avaliacoes: info.avaliacoes,
+  }] : [];
+
+  const resto: FichaDaEquipe[] = (((S as any).team ?? []) as any[])
+    .filter((m) => m?.name)
+    .map((m) => ({
+      id: m.id || idDoNome(m.name),
+      nome: m.name,
+      papel: m.role || '',
+      responsavel: false,
+      registro: m.registro || undefined,
+      sobre: m.sobre || undefined,
+      formacao: m.formacao?.length ? m.formacao : undefined,
+      areas: m.areas?.length ? m.areas : undefined,
+    }));
+
+  return [...responsavel, ...resto];
+}
+
+/** Sem `id`, a responsável — que é o comportamento antigo de /especialista. */
+export const fichaDe = (S: State, id?: string): FichaDaEquipe | undefined => {
+  const todas = fichaDaEquipe(S);
+  return id ? todas.find((f) => f.id === id) : todas[0];
+};
+
+/* ============================================================
    ESTADO DO ACOMPANHAMENTO
 
    Responde à pergunta que traz a pessoa à aba Cuidado: "como está meu
