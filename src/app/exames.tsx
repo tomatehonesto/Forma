@@ -31,6 +31,22 @@ import { radius, shadowCard, alfa, mix } from '../theme';
    ============================================================ */
 
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
+
+/* ⚠️ O CINZA DE FORA DA FAIXA NÃO É O `c.track`, e era.
+
+   O `track` nasceu para ser a calha de uma barra de progresso: uma FORMA
+   grande e contínua, que se enxerga pelo tamanho mesmo sendo quase da cor
+   do papel. Aqui ele vira um ponto de cinco pixels sobre o fundo da tela,
+   e dois cinzas a essa distância simplesmente não se separam — a metade
+   de fora da régua sumia, e com ela a informação de que existe uma metade
+   de fora.
+
+   Um cinza de texto rebaixado dá presença sem virar dado: é um ponto que
+   se vê e que continua sendo, claramente, o fundo da escala. Sai do
+   `tx4` porque ele é o cinza mais apagado de CADA tema — no claro puxa
+   para baixo, no escuro para cima, e a régua não precisa saber em qual
+   dos dois está. */
+const pista = (c: any) => alfa(c.tx4, 0.42);
 const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 /* A FAIXA DITA EM PORTUGUÊS, e no laudo ela vem como "< 5,7" ou "15–150".
@@ -45,10 +61,15 @@ const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()
    novo seria uma segunda verdade sobre o mesmo dado. */
 const faixaEmPalavras = (e: any) => {
   const g = examGaugeData(e);
-  if (g.temMin && g.temMax) return `entre ${fmtV(g.limMin)} e ${fmtV(g.limMax)}`;
-  if (g.temMax) return `abaixo de ${fmtV(g.limMax)}`;
-  if (g.temMin) return `acima de ${fmtV(g.limMin)}`;
-  return e.ref;
+  /* ⚠️ COM A UNIDADE, e antes ela era subentendida pelo número logo acima.
+     Subentendido funciona enquanto os dois estão na mesma tela e na mesma
+     leitura — mas o selo é a frase que a pessoa repete para alguém, e
+     "abaixo de 5,7" sozinho não é um limite, é um número. */
+  const u = e.unit ? ` ${e.unit}` : '';
+  if (g.temMin && g.temMax) return `entre ${fmtV(g.limMin)} e ${fmtV(g.limMax)}${u}`;
+  if (g.temMax) return `abaixo de ${fmtV(g.limMax)}${u}`;
+  if (g.temMin) return `acima de ${fmtV(g.limMin)}${u}`;
+  return `${e.ref}${u}`;
 };
 
 /* A RÉGUA RESPONDE DUAS COISAS DE UMA VEZ: ONDE EU PRECISO ESTAR, E
@@ -115,7 +136,7 @@ function Regua({ e }: { e: any }) {
   };
 
   const corDoPonto = (pct: number) => {
-    if (pct < g.bandL || pct > g.bandR) return c.track;
+    if (pct < g.bandL || pct > g.bandR) return pista(c);
     const t = profundidade(pct);
     return t < 0.5
       ? mix(c.bg, c.accent, 0.45 + t * 1.1)
@@ -135,12 +156,27 @@ function Regua({ e }: { e: any }) {
      forma vertical numa tela de pontos horizontais. Nada foi acrescentado:
      é a mesma coluna, fechada.
 
-     ⚠️ E ELE É VERDE OU VERMELHO, e era preto. Preto dizia "é aqui" e
-     parava aí; quem quisesse o veredito tinha que voltar ao selo. Com a
-     cor do estado, a régua responde as duas perguntas sozinha — onde eu
-     estou, e isso é bom. */
+     ⚠️ DENTRO DA FAIXA ELE É O TEAL DA CASA, E FORA É VERMELHO. Já foi
+     preto, já foi o verde dos selos e já foi o lima, e a escolha aqui é
+     sempre a mesma conta: o traço tem seis pixels de largura, e nessa
+     escala a cor não é enfeite, é a única coisa que o torna legível.
+
+     Medido na tela contra o fundo claro: lima 1,12, teal puro 1,50,
+     preto 19. Nenhuma das duas cores é ruim — elas foram escolhidas para
+     FORMAS GRANDES. A barra de exercício da Home tem oito pixels de
+     altura e cento e cinquenta de largura, e nessa área o teal aceso
+     canta; em seis pixels ele vira um vinco no papel. É a mesma lição do
+     `c.track` logo acima nesta tela.
+
+     Por isso ele vai puxado para a TINTA DO TEMA, e não escurecido: no
+     claro o `tx` é preto e o teal aprofunda (4,65, que lê); no escuro o
+     `tx` é branco e ele clareia, que é o que um fundo escuro pede. A
+     régua não precisa saber em qual dos dois está.
+
+     O vermelho fica puro porque é a exceção — ele precisa parar o olho,
+     e já dá 4,87 sozinho. */
   const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
-  const corDoValor = g.status === 'ok' ? c.ok : c.cta;
+  const corDoValor = g.status === 'ok' ? mix(c.teal, c.tx, 0.45) : c.cta;
   const LARGURA_DO_TRACO = ALTURA_DA_FILEIRA + 1;
   const ALTURA_DO_TRACO = ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS;
 
@@ -373,7 +409,7 @@ function HistoricoEmPontos({ e }: { e: any }) {
                       key={col}
                       style={{
                         width: PONTO, height: PONTO, borderRadius: 2,
-                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.22) : c.track,
+                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.22) : pista(c),
                       }}
                     />
                   );
