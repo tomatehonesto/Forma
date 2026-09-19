@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
-import { protocoloDaSemana } from '../logic/derive';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider } from '../ui/kit';
+import {
+  protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe,
+} from '../logic/derive';
+import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider } from '../ui/kit';
 import { Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
+import { RETRATOS, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { fmtWD, fmtDate, relDay } from '../logic/time';
 import { radius } from '../theme';
@@ -13,45 +17,34 @@ import { radius } from '../theme';
 /* ============================================================
    SUA EQUIPE — o lado de lá do tratamento
 
-   ⚠️ ELA SE CHAMAVA "MEU MÉDICO", E A PRÓPRIA TELA JÁ DISCORDAVA.
+   ⚠️ ELA SE CHAMAVA "MEU MÉDICO", E A PRÓPRIA TELA JÁ DISCORDAVA: a
+   conversa era "com a equipe", o campo escrevia "para a equipe" e a
+   última seção se chamava "Equipe", com a endocrinologista E a
+   nutricionista. "Médico" nomeava uma pessoa num lugar que guarda uma
+   clínica inteira, "meu" é posse numa relação que é o contrário, e o
+   nome brigava com /acompanhamento, que se chama "Quem acompanha você".
 
-   Três linhas abaixo do título vinha "Conversa com a equipe"; o campo
-   dizia "Escrever para a equipe"; e a última seção era "Equipe", com a
-   endocrinologista E a nutricionista. O nome falava de uma pessoa num
-   lugar que guarda uma clínica inteira — consultas, protocolos,
-   prescrições, documentos, duas profissionais.
+   ⚠️ E A CONVERSA SAIU DAQUI. Era um card de 250 px no meio desta página:
+   uma rolagem dentro de outra, o teclado por cima do que a pessoa
+   escrevia, e a parte viva da relação com a clínica com o mesmo peso
+   visual que a lista de documentos. Virou /conversa, tela cheia.
 
-   Três coisas estavam erradas nele, e cada uma sozinha bastava:
+   ⚠️⚠️ E A LISTA "NA CLÍNICA" SE DISSOLVEU, que é a mudança de estrutura
+   desta reforma.
 
-   · "médico" nomeia UMA pessoa, e a tela tem duas na própria lista — e
-     exclui a nutricionista que já estava nela, a enfermeira, o
-     psicólogo, o educador físico;
-   · "meu" é posse, e a relação é o contrário: quem é de quem aqui é ela
-     que é paciente da clínica;
-   · e ele brigava com /acompanhamento, que se chama "Quem acompanha
-     você" — duas portas com nomes quase iguais é o defeito que este
-     projeto passou a semana apagando.
+   Ela juntava três coisas de naturezas diferentes só porque as três
+   tinham a ver com a clínica: uma agenda, um arquivo e uma promessa que
+   não abria. Consultas virou ação do cabeçalho — é acesso, não assunto —,
+   o exame virou cartão de próximo passo, e a terceira já tinha saído por
+   ser porta emparedada.
 
-   "Sua equipe" não escolhe uma pessoa, não presume posse e é o nome que
-   a tela já usava por dentro em dois lugares. Funciona também quando a
-   clínica não tem nome guardado — o que acontece com quem entrou só pelo
-   código de convite.
-
-   ⚠️ E A CONVERSA SAIU DAQUI. Ela era um card de 250 px no meio desta
-   página: uma rolagem dentro de outra, o teclado por cima do que a
-   pessoa escrevia, e a parte viva da relação com a clínica com o mesmo
-   peso visual que a lista de documentos. Virou /conversa, tela cheia.
-
-   O que morreu junto: o estado do campo, a referência da thread, o
-   rascunho da receita e a leitura das mensagens. Zerar o contador de não
-   lidas foi para lá, e é onde tem que ser — enquanto a caixa era um card,
-   "lido" acontecia ao abrir uma tela que tem outras seis coisas, e a
-   pessoa zerava o aviso sem nunca ter rolado até a mensagem.
+   ⚠️ E OS MATERIAIS NÃO ENTRAM AQUI, apesar de o desenho pedir. Eles já
+   têm carrossel na aba Cuidado, de onde esta tela é empurrada: a mesma
+   lista em duas telas seguidas é a segunda porta para a mesma sala.
 
    ⚠️ A ROTA CONTINUA /medico, e isso é dívida consciente: são quinze
-   chamadas espalhadas, incluindo quatro dentro de derive.ts. O nome que
-   a pessoa lê é o que importa, e ele mudou; o outro é endereço interno e
-   troca quando alguém encostar nos quinze de uma vez.
+   chamadas espalhadas, quatro delas dentro de derive.ts. O nome que a
+   pessoa lê é o que importa, e ele mudou.
    ============================================================ */
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -60,238 +53,268 @@ export default function Medico() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const quem = [S.profile.clinic, S.profile.doctor].filter(Boolean).join(' · ');
+  const go = (to: string) => () => router.push(to as any);
 
-  /* ============================================================
-     A EQUIPE VEM DO ESTADO, E VINHA DO ARQUIVO
-
-     ⚠️ ESTAVA CRAVADA NO JSX, e errada de quatro maneiras ao mesmo tempo:
-
-         [[S.profile.doctor, 'Endocrinologia · responsável', 'H'],
-          ['Renata Alves', 'Nutrição', 'R']]
-
-     · "Renata Alves" aparecia para TODO MUNDO — quem entrou por código de
-       convite, sem clínica nenhuma guardada, via uma nutricionista que
-       nunca falou com ela;
-     · a equipe tem TRÊS pessoas em `S.team` — a nutricionista, a
-       enfermeira e o psicólogo — e a tela mostrava uma. Duas profissionais
-       existiam no estado e não existiam na tela;
-     · os papéis estavam reescritos à mão e divergiam da fonte:
-       "Nutrição" contra `role: 'Nutricionista'`, "Endocrinologia" contra
-       `especialidade: 'Endocrinologista'`;
-     · e as iniciais eram letras digitadas. Trocar "Renata" por outro nome
-       deixava o "R" para trás.
-
-     ⚠️ E NADA DISSO PRECISAVA SER INVENTADO: os dados já estavam todos no
-     estado, e a aba Cuidado já os lia. Esta tela escreveu de novo, por
-     fora, uma versão pior de algo que existia — que é como duas fontes
-     para o mesmo fato nascem.
-
-     ⚠️ A SEÇÃO SOME QUANDO NÃO HÁ EQUIPE, e isso é o oposto do defeito
-     antigo: quem tem vínculo mas nenhum nome guardado não vê uma lista com
-     gente inventada, vê a ausência — que é a verdade. */
-  const inicial = (n: string) =>
-    (n.split(/\s+/).find((w) => !w.endsWith('.')) ?? n).charAt(0).toUpperCase();
-
-  const equipe: { nome: string; papel: string }[] = [
-    /* A responsável primeiro, e com o papel montado da ficha dela: a
-       especialidade é um fato guardado, "responsável" é o lugar que ela
-       ocupa nesta lista. */
-    ...(S.profile.doctor
-      ? [{
-        nome: S.profile.doctor,
-        papel: [(S.profile as any).doctorInfo?.especialidade, 'responsável'].filter(Boolean).join(' · '),
-      }]
-      : []),
-    ...(((S as any).team ?? []) as any[]).map((m) => ({ nome: m.name, papel: m.role })),
-  ];
+  const equipe = fichaDaEquipe(S);
+  const responsavel = equipe.find((f) => f.responsavel);
+  const outros = equipe.filter((f) => !f.responsavel);
 
   const nd = new Date(S.consult.t);
+  const protocolo = protocoloDaSemana(S);
+  const exame = exameNoProtocolo(S);
+  const estoque = penStock(S);
 
-  /* ⚠️ AQUI HAVIA UMA TERCEIRA LINHA — "Compartilhar evolução · Peso,
-     medidas e adesão com a equipe" — e ela era a quinta porta emparedada
-     deste aplicativo. Tinha ícone, subtítulo e chevron, e o `onPress` era
-     `undefined`: a lista inteira parecia tocável e uma das três não
-     respondia ao dedo. É a pior variante do defeito, porque não leva a
-     lugar errado — não leva a lugar nenhum, e a pessoa acha que o toque
-     falhou.
+  /* ============================================================
+     PRÓXIMOS PASSOS — o que tem passo, e só isso
 
-     ⚠️ E ELA NÃO GANHOU DESTINO, PORQUE O DESTINO JÁ EXISTE DUAS VEZES NA
-     MESMA TELA. Peso, adesão, sintomas, exames e anotações são o resumo —
-     e o resumo é o botão azul lá em cima, dentro de "PARA LEVAR À
-     CONSULTA", com essa lista escrita por extenso. Apontar esta linha
-     para lá seria trocar uma porta que não abre por duas portas para a
-     mesma sala.
+     ⚠️ CADA CARTÃO SÓ EXISTE QUANDO HÁ O QUE FAZER. O exame aparece
+     quando o protocolo pede um; a receita, quando a caneta está
+     acabando. Com o estoque em dia, não há cartão de receita — porque
+     não há passo nenhum a dar sobre ela.
 
-     ⚠️ SE UM DIA "COMPARTILHAR" FOR OUTRA COISA — a equipe acompanhando o
-     peso continuamente, e não um documento levado à consulta —, ela volta
-     como AJUSTE e não como linha de navegação: é uma permissão que se liga
-     e se desliga, e precisa de servidor para significar alguma coisa. Ver
-     PENDENCIAS.md, item 6. */
-  const clinRows: [string, string, string, () => void][] = [
-    ['cal', 'Consultas', 'Agenda, histórico e videoconsulta', () => router.push('/consultas' as any)],
-    ['doc', 'Exames enviados', `${S.examBundles.filter((b: any) => b.shared).length} arquivos compartilhados`, () => router.push('/exames' as any)],
+     ⚠️ E A RECEITA NÃO VIROU "RECEITA ATIVA · ATÉ 30/10". O desenho de
+     referência mostra uma validade, e `prescriptions` guarda nome, data e
+     quem prescreveu — validade não existe no estado. Um cartão com data
+     de validade inventada numa tela de tratamento é a pior linha que esta
+     tela poderia ter. O que existe é o estoque, e é ele que o cartão diz.
+     ============================================================ */
+  type Passo = { ic: string; titulo: string; sub: string; to: string };
+  const passos: Passo[] = [
+    ...(S.consult.t ? [{
+      ic: 'cal',
+      titulo: 'Próxima consulta',
+      sub: `${cap(relDay(nd))} · ${fmtWD(nd)}, ${fmtDate(nd)}`,
+      to: '/consultas',
+    }] : []),
+    {
+      ic: 'target',
+      titulo: `Protocolo da semana ${S.protocol.week}`,
+      sub: `${protocolo.feitas} de ${protocolo.total} cumpridas`,
+      to: '/protocolos',
+    },
+    ...(exame ? [{
+      ic: 'doc',
+      titulo: 'Exame do protocolo',
+      sub: exame,
+      to: '/exames',
+    }] : []),
+    ...(!estoque.verdict.good ? [{
+      ic: 'pill',
+      titulo: 'Renovar a receita',
+      sub: `${estoque.left} ${estoque.left === 1 ? 'dose restante' : 'doses restantes'}`,
+      to: '/conversa?pedir=receita',
+    }] : []),
   ];
 
   return (
-    <Screen>
-      <Row style={{ marginTop: 4 }} gap={12}>
-        <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Sua equipe</Txt>
-          {/* ⚠️ O SUBTÍTULO MOSTRA O QUE EXISTE, E SOME QUANDO NÃO EXISTE.
+    <Screen style={{ paddingHorizontal: 0 }}>
+      {/* ---- o cabeçalho de quem cuida ----
 
-              Ele dizia "{nome} · acompanha sua evolução" — e o "acompanha
-              sua evolução" é uma frase que a tela inteira já demonstra,
-              gasta na única linha que poderia dizer QUAL equipe é esta.
-              Com o nome da clínica e o da responsável, quem abre reconhece
-              onde chegou antes de rolar.
+          ⚠️ O RETRATO E O NOME LEVAM À FICHA; A FILEIRA DE AÇÕES NÃO.
+          São alvos separados, e o de baixo ganha — tocar em "Protocolos"
+          não pode cair no perfil por a peça inteira ser tocável.
 
-              Quem entrou só pelo código pode não ter nenhum dos dois
-              guardados; aí a linha não aparece, em vez de aparecer com um
-              separador solto no meio do nada. */}
-          {quem ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{quem}</Txt> : null}
-        </View>
-      </Row>
-
-      {/* próxima consulta */}
-      <Card tint={c.accentWeak} style={{ marginTop: 18 }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Row gap={6}><Icon name="cal" size={14} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PRÓXIMA CONSULTA</Txt></Row>
-          <Pill label={S.consult.type} />
+          ⚠️ E SÃO TRÊS AÇÕES, E NÃO QUATRO. O desenho de referência tem
+          uma quarta, "Clínica", que abre uma página de clínica com
+          endereço, telefone, site e Instagram — e o estado guarda da
+          clínica só o nome. Três que abrem valem mais do que quatro com
+          uma parada. */}
+      <View style={{ paddingHorizontal: 20 }}>
+        <Row style={{ marginTop: 4 }} gap={12}>
+          <CircleBtn name="back" onPress={() => router.back()} />
+          <Txt v="h1" style={{ flex: 1 }}>Sua equipe</Txt>
         </Row>
-        <Txt v="h1" style={{ fontSize: 26, marginTop: 10 }}>{cap(relDay(nd))}</Txt>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{fmtWD(nd)}, {fmtDate(nd)} · {S.consult.doctor}</Txt>
-        <View style={{ marginTop: 14, backgroundColor: c.bg1, borderRadius: radius.md, padding: 13 }}>
-          {/* ⚠️ ELE PROMETIA UM RESUMO QUE FICAVA "PRONTO NA VÉSPERA", e
-              não há véspera nenhuma: o resumo se monta dos registros na
-              hora em que a tela abre, hoje, amanhã ou daqui a um mês. E o
-              botão se chamava "Ver preparação da consulta" para abrir uma
-              tela chamada "Resumo para o médico" — dois nomes para uma
-              porta fazem a pessoa achar que chegou noutro lugar.
 
-              Esta é a porta principal do resumo agora que ele saiu do
-              perfil: o que atravessa para o outro lado mora aqui. */}
-          <Row gap={6}><Icon name="aura" size={13} color={c.accent} sw={2} /><Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt></Row>
-          <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 6, lineHeight: 19 }}>Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta dos seus registros e está pronto agora.</Txt>
-          <Pressable onPress={() => router.push('/resumo-medico' as any)}>
-            <View style={{ marginTop: 10, backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 11, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-              <Icon name="doc" size={15} color="#fff" sw={2} /><Txt v="label" c="#fff">Ver o resumo para o médico</Txt>
+        {responsavel ? (
+          <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ marginTop: 18, opacity: pressed ? 0.8 : 1 }]}>
+            <Row gap={14} style={{ alignItems: 'center' }}>
+              <Retrato ficha={responsavel} lado={62} />
+              <View style={{ flex: 1 }}>
+                <Txt v="title" numberOfLines={1}>{responsavel.nome}</Txt>
+                <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>
+                  {[responsavel.papel, S.profile.clinic].filter(Boolean).join(' · ')}
+                </Txt>
+              </View>
+              <Chevron />
+            </Row>
+          </Pressable>
+        ) : null}
+
+        <Row gap={10} style={{ marginTop: 18 }}>
+          {([
+            ['companion', 'Mensagem', '/conversa'],
+            ['cal', 'Consultas', '/consultas'],
+            ['doc', 'Protocolos', '/protocolos'],
+          ] as [string, string, string][]).map(([ic, label, to]) => (
+            <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingVertical: 15, alignItems: 'center', gap: 8 }}>
+                <Icon name={ic} size={19} color={c.accent} sw={1.9} />
+                <Txt v="micro" c={c.tx2}>{label}</Txt>
+              </View>
+            </Pressable>
+          ))}
+        </Row>
+      </View>
+
+      {/* ---- próximos passos ---- */}
+      <Txt v="h2" style={{ marginTop: 30, marginBottom: 12, paddingHorizontal: 20 }}>Próximos passos</Txt>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+      >
+        {passos.map((p) => (
+          <Pressable key={p.titulo} onPress={go(p.to)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ width: 168, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 10 }}>
+              <View style={{ width: 36, height: 36, borderRadius: radius.sm, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={p.ic} size={18} color={c.accent} sw={1.9} />
+              </View>
+              <View>
+                <Txt v="bodyMed" numberOfLines={2}>{p.titulo}</Txt>
+                <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ marginTop: 3, lineHeight: 16 }}>{p.sub}</Txt>
+              </View>
             </View>
           </Pressable>
-        </View>
-      </Card>
-
-      {/* protocolos */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Protocolos</Txt>
-      <Card style={{ paddingVertical: 14 }} onPress={() => router.push('/protocolos' as any)}>
-        <Row>
-          <IconBadge name="target" size={40} />
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Txt v="title">Semana {S.protocol.week}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{protocoloDaSemana(S).feitas} de {protocoloDaSemana(S).total} cumpridas</Txt>
-          </View>
-          <Chevron />
-        </Row>
-      </Card>
-
-      {/* na clínica */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Na clínica</Txt>
-      <Card style={{ paddingVertical: 4 }}>
-        {clinRows.map(([ic, t, sub, onPress], i) => (
-          <View key={t}>
-            {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-            <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Row style={{ paddingVertical: 13 }}>
-                <IconBadge name={ic} size={40} />
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Txt v="title">{t}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{sub}</Txt>
-                </View>
-                <Chevron />
-              </Row>
-            </Pressable>
-          </View>
         ))}
-      </Card>
+      </ScrollView>
 
-      {/* prescrições */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Prescrições</Txt>
-      {/* ⚠️ A AÇÃO MORA ONDE O ASSUNTO MORA, e não só na ponta de um link.
+      <View style={{ paddingHorizontal: 20 }}>
+        {/* ---- o resumo ----
 
-          Fazer o pedido funcionar pelo parâmetro resolvia quem chega pela
-          Home e deixava de fora quem chega aqui por conta própria, rola
-          até as prescrições e pensa "essa está vencendo". Uma
-          funcionalidade que só existe quando alguém a alcança pelo caminho
-          certo não existe.
+            ⚠️ ELE NÃO É UM CARTÃO DE PRÓXIMO PASSO, e por isso não entrou
+            na fila acima. Os outros são coisas a fazer; este é a coisa
+            que se LEVA para elas — o único conteúdo desta tela que
+            atravessa para o outro lado. Na fila ele viraria o quinto
+            item de uma lista que se rola; aqui ele é o que a tela pede.
 
-          Fica no alto do cartão porque é o que se FAZ com prescrições; o
-          resto da lista é o que se lê. */}
-      <Card style={{ paddingVertical: 4 }}>
-        <Linha
-          ic="send"
-          titulo="Pedir nova receita"
-          sub="Abre uma mensagem para a equipe, para você revisar e enviar"
-          onPress={() => router.push('/conversa?pedir=receita' as any)}
-        />
-        <Divider style={{ marginLeft: 52 }} />
-        {S.prescriptions.map((p: any, i: number) => (
-          <View key={p.name}>
-            {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-            <Row style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-              <IconBadge name="pill" size={40} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="title">{p.name}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{p.detail}</Txt>
-                <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
-              </View>
-            </Row>
-          </View>
-        ))}
-      </Card>
+            ⚠️ E ELE JÁ PROMETEU UM RESUMO "PRONTO NA VÉSPERA", e não há
+            véspera nenhuma: o resumo se monta dos registros na hora em
+            que a tela abre, hoje, amanhã ou daqui a um mês. */}
+        <Card style={{ marginTop: 24 }} tint={c.accentWeak}>
+          <Row gap={6}>
+            <Icon name="aura" size={13} color={c.accent} sw={2} />
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt>
+          </Row>
+          <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 8, lineHeight: 20 }}>
+            Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta
+            dos seus registros e está pronto agora.
+          </Txt>
+          <Pressable onPress={go('/resumo-medico')}>
+            <View style={{ marginTop: 14, backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+              <Icon name="doc" size={16} color={c.accentInk} sw={2} />
+              <Txt v="label" c={c.accentInk}>Ver o resumo para o médico</Txt>
+            </View>
+          </Pressable>
+        </Card>
+      </View>
 
-      {/* documentos */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Documentos e exames</Txt>
-      <Card style={{ paddingVertical: 4 }}>
-        {S.documents.map((d: any, i: number) => (
-          <View key={`${d.name}-${i}`}>
-            {i > 0 && <Divider />}
-            <Row style={{ justifyContent: 'space-between', paddingVertical: 11 }}>
-              <Row gap={8} style={{ flex: 1 }}>
-                <Icon name="doc" size={15} color={c.tx3} sw={1.8} />
-                <View style={{ flex: 1 }}>
-                  <Txt v="bodyMed">{d.name}</Txt>
-                  <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{d.kind}</Txt>
-                </View>
-              </Row>
-              <Txt v="caption" c={c.tx3}>{fmtDate(new Date(d.t))}</Txt>
-            </Row>
-          </View>
-        ))}
-      </Card>
+      {/* ---- a equipe ----
 
-      {/* equipe */}
-      {equipe.length ? (
+          ⚠️ CADA PESSOA LEVA À FICHA DELA, que é o que esta seção não
+          fazia. Eram quatro nomes listados e nenhum tocável — quem quisesse
+          saber quem é a enfermeira que orienta a aplicação tinha onde ler
+          o nome e mais nada.
+
+          A responsável não se repete aqui: ela é o cabeçalho. */}
+      {outros.length ? (
         <>
-          <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Equipe</Txt>
-          <Card style={{ paddingVertical: 4 }}>
-            {equipe.map((m, i) => (
-              <View key={m.nome}>
-                {i > 0 && <Divider style={{ marginLeft: 48 }} />}
-                <Row style={{ paddingVertical: 12 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-                    <Txt v="title" c={c.accent}>{inicial(m.nome)}</Txt>
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Txt v="title">{m.nome}</Txt>
-                    {m.papel ? <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{m.papel}</Txt> : null}
-                  </View>
-                </Row>
-              </View>
+          <Txt v="h2" style={{ marginTop: 32, marginBottom: 12, paddingHorizontal: 20 }}>Quem mais acompanha você</Txt>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+          >
+            {outros.map((f) => (
+              <Pressable key={f.id} onPress={go(`/especialista?id=${f.id}`)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                <View style={{ width: 150, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, alignItems: 'center' }}>
+                  <Retrato ficha={f} lado={64} />
+                  <Txt v="bodyMed" numberOfLines={1} style={{ marginTop: 12 }}>{f.nome}</Txt>
+                  <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{f.papel}</Txt>
+                </View>
+              </Pressable>
             ))}
-          </Card>
+          </ScrollView>
         </>
       ) : null}
+
+      <View style={{ paddingHorizontal: 20 }}>
+        {/* ---- prescrições ---- */}
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Prescrições</Txt>
+        {/* ⚠️ A AÇÃO MORA ONDE O ASSUNTO MORA, e não só na ponta de um link.
+            Resolver o pedido de receita só pelo parâmetro atenderia quem
+            chega pela Home e deixaria de fora quem rola até aqui e pensa
+            "essa está vencendo". Fica no alto do cartão porque é o que se
+            FAZ com prescrições; o resto da lista é o que se lê. */}
+        <Card style={{ paddingVertical: 4 }}>
+          <Linha
+            ic="send"
+            titulo="Pedir nova receita"
+            sub="Abre uma mensagem para a equipe, para você revisar e enviar"
+            onPress={go('/conversa?pedir=receita')}
+          />
+          <Divider style={{ marginLeft: 52 }} />
+          {S.prescriptions.map((p: any, i: number) => (
+            <View key={p.name}>
+              {i > 0 && <Divider style={{ marginLeft: 52 }} />}
+              <Row style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
+                <IconBadge name="pill" size={40} />
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Txt v="title">{p.name}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{p.detail}</Txt>
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
+                </View>
+              </Row>
+            </View>
+          ))}
+        </Card>
+
+        {/* ---- documentos ---- */}
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
+        <Card style={{ paddingVertical: 4 }}>
+          {S.documents.map((d: any, i: number) => (
+            <View key={`${d.name}-${i}`}>
+              {i > 0 && <Divider />}
+              <Row style={{ justifyContent: 'space-between', paddingVertical: 11 }}>
+                <Row gap={8} style={{ flex: 1 }}>
+                  <Icon name="doc" size={15} color={c.tx3} sw={1.8} />
+                  <View style={{ flex: 1 }}>
+                    <Txt v="bodyMed">{d.name}</Txt>
+                    <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{d.kind}</Txt>
+                  </View>
+                </Row>
+                <Txt v="caption" c={c.tx3}>{fmtDate(new Date(d.t))}</Txt>
+              </Row>
+            </View>
+          ))}
+        </Card>
+      </View>
     </Screen>
+  );
+}
+
+/* O retrato de alguém da equipe, ou a inicial de quem ainda não tem foto.
+   Os dois desenhos no mesmo componente porque as duas telas que mostram
+   gente precisam concordar: a mesma pessoa com foto numa e inicial na
+   outra confunde sem que ninguém saiba dizer por quê. */
+function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: number }) {
+  const { c } = useTheme();
+  const foto = RETRATOS[ficha.id];
+  if (foto) {
+    return (
+      <Image
+        source={foto}
+        style={{ width: lado, height: lado, borderRadius: lado / 2, backgroundColor: c.bg2 }}
+        contentFit="cover"
+        contentPosition="top center"
+      />
+    );
+  }
+  return (
+    <View style={{
+      width: lado, height: lado, borderRadius: lado / 2,
+      backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Txt v="h2" c={c.accent} style={{ fontSize: lado * 0.38 }}>{inicialDoNome(ficha.nome)}</Txt>
+    </View>
   );
 }

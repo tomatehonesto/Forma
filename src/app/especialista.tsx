@@ -10,6 +10,7 @@ import { Txt, Row, CircleBtn, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowSoft, alfa } from '../theme';
+import { RETRATOS, inicialDoNome } from '../ui/retratos';
 
 /* ============================================================
    A FICHA DE QUEM CUIDA DE VOCÊ
@@ -42,27 +43,7 @@ import { radius, shadowSoft, alfa } from '../theme';
    cuidado.
    ============================================================ */
 
-/* ⚠️ MAPA DE RETRATOS ESCRITO À MÃO, e não montado por template.
-
-   O Metro resolve `require` em tempo de compilação: `require(caminho)`
-   com variável não existe, e um caminho para arquivo que não existe
-   QUEBRA O BUILD — não degrada.
-
-   Por isso só entra aqui quem já tem arquivo. Faltam Renata, Carla e
-   Rafael; até chegarem, as três caem no círculo com a inicial, que é o
-   mesmo desenho do carrossel. Quando chegarem, são três linhas.
-
-   ⚠️ E RETRATO ENVELHECE. São rostos numa tela que fala de profissionais
-   de saúde: no dia em que a clínica mandar as fotos de verdade, elas
-   entram por aqui e estas saem. */
-const RETRATOS: Record<string, any> = {
-  responsavel: require('../../assets/images/especialista.png'),
-};
-
 const PAD = 24;
-
-const inicial = (n: string) =>
-  (n.split(/\s+/).find((w) => !w.endsWith('.')) ?? n).charAt(0).toUpperCase();
 
 export default function Especialista() {
   const S = useStore((s) => s.S);
@@ -172,7 +153,7 @@ export default function Especialista() {
                   width: 72, height: 72, borderRadius: 36, marginBottom: 18,
                   backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Txt v="h1" c={c.accent} style={{ fontSize: 30 }}>{inicial(f.nome)}</Txt>
+                  <Txt v="h1" c={c.accent} style={{ fontSize: 30 }}>{inicialDoNome(f.nome)}</Txt>
                 </View>
               ) : null}
 
