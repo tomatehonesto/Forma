@@ -263,9 +263,12 @@ verdade sobre quem está nela.
 
 `/clinica` tem duas versões. A **sua clínica** é a que se alcança pela
 ficha da equipe. A **parceira** — a mesma tela vista por quem assina o
-Personal, sem vínculo: sem o botão de conversa, com telefone, WhatsApp,
-site, e-mail e Instagram no lugar dele — **não se alcança de lugar
-nenhum**, porque não existe diretório de clínicas parceiras.
+Personal, sem vínculo: sem o botão de conversa, com a nota da parceria no
+lugar do cartão do vínculo e a equipe sem ficha — **não se alcança de
+lugar nenhum**, porque não existe diretório de clínicas parceiras. Os
+canais da clínica (telefone, WhatsApp, site, e-mail, Instagram) aparecem
+nas duas: ter a conversa do aplicativo não dispensa ninguém de remarcar
+uma consulta pelo telefone.
 
 Hoje ela se olha por `?parceira=1`, que é `__DEV__` e sai junto com as
 outras portas de desenvolvimento (`?compra=1`, `?assinante=1`,

@@ -66,15 +66,19 @@ import { Image } from 'expo-image';
    Três coisas mudam, e só três:
 
    · o cartão do vínculo vira a nota de como a parceria funciona;
-   · o botão "Escrever para a equipe" vira a lista "Entre em contato";
+   · o botão "Escrever para a equipe" some, porque a conversa é entre uma
+     clínica e SEUS pacientes — para quem não é, ele escreveria para
+     ninguém;
    · a equipe deixa de abrir ficha — ver quem trabalha lá é informação,
      mas a ficha de /especialista é a de quem CUIDA DE VOCÊ, com mensagem,
      consultas e protocolos. Nenhuma dessas ações existe para quem não é
      paciente, e uma tela cheia de ações que não respondem é pior do que
      uma linha que não abre.
 
-   Todo o resto — foto, nome, sobre, endereço, convênios — é idêntico,
-   porque a clínica é a mesma nas duas.
+   Todo o resto — foto, nome, sobre, endereço, convênios e OS CANAIS DA
+   CLÍNICA — é idêntico, porque a clínica é a mesma nas duas. Telefone e
+   WhatsApp valem para os dois lados: ter a conversa do aplicativo não
+   dispensa ninguém de remarcar uma consulta pelo telefone.
 
    ⚠️ ELA VAI SERVIR PARA APRESENTAR PARCEIROS — é a tela que alguém vê
    antes de decidir. Por isso o que ela diz precisa ser o que a clínica
@@ -291,6 +295,50 @@ export default function Clinica() {
           </View>
         )}
 
+        {/* ---- os canais da clínica ----
+
+            ⚠️ APARECE NAS DUAS VERSÕES, e por um tempo só apareceu em uma.
+            O raciocínio era que quem é paciente tem a conversa do
+            aplicativo e não precisa do telefone — e isso confunde "o
+            melhor canal para o tratamento" com "todos os canais". Remarcar
+            uma consulta, avisar que está no estacionamento, perguntar se a
+            recepção atende no feriado: nada disso é assunto de prontuário,
+            e mandar para uma conversa clínica o que é da recepção atrapalha
+            os dois lados.
+
+            ⚠️ O QUE MUDA É O TÍTULO, E ELE RANQUEIA. Para quem é paciente
+            estes são OUTROS canais — o primeiro é a conversa, que fica
+            registrada e chega à equipe inteira. Para quem não é, são OS
+            canais. Chamar de "Entre em contato" na tela de quem já tem
+            conversa colocaria o telefone acima dela, e o telefone não
+            guarda nada.
+
+            ⚠️ E CADA LINHA SÓ EXISTE COM O DADO DELA. "Telefone —" numa
+            lista de contatos é a tela prometendo um canal que não existe;
+            a clínica que só tem WhatsApp mandou só o WhatsApp, e a seção
+            inteira some quando ela não mandou nada.
+
+            ⚠️ ESTA LISTA FICA SEPARADA DE "ONDE FICA" de propósito, mesmo
+            as duas sendo o bloco prático da clínica. Lá são duas linhas de
+            leitura; aqui são cinco portas que saem do aplicativo. Misturar
+            o que se lê com o que se toca num cartão só é o defeito que
+            saiu das prescrições em /medico. */}
+        {!!contatos.length && (
+          <View style={{ marginTop: 30 }}>
+            <Txt v="h2">{vinculada ? 'Outros canais' : 'Entre em contato'}</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 6, marginBottom: 12, lineHeight: 21 }}>
+              {vinculada
+                ? 'Para falar com a recepção. O que é do tratamento fica melhor na conversa do aplicativo, que chega à equipe inteira.'
+                : 'Fale com a clínica para saber como começar o acompanhamento.'}
+            </Txt>
+            <Cartao>
+              {contatos.map((ct) => (
+                <Linha key={ct.titulo} ic={ct.ic} titulo={ct.titulo} sub={ct.sub} onPress={abrir(ct.url)} />
+              ))}
+            </Cartao>
+          </View>
+        )}
+
         {/* ---- convênios ----
 
             ⚠️ EM CHIPS, E NÃO EM LISTA. Convênio é um conjunto que se VARRE:
@@ -432,42 +480,25 @@ export default function Clinica() {
           </View>
         )}
 
-        {/* ---- o fim da tela ----
+        {/* ---- a conversa ----
 
-            ⚠️ SÃO DUAS COISAS DIFERENTES, E NÃO A MESMA COM OUTRO RÓTULO.
+            ⚠️ SÓ COM VÍNCULO, e não é uma restrição: é que ela não existe
+            do outro lado. A conversa do aplicativo é melhor do que
+            qualquer telefone — fica registrada, chega à equipe inteira e
+            não depende de ninguém ter o número certo —, mas ela é entre
+            uma clínica e SEUS pacientes. Oferecê-la a quem não é seria um
+            botão que escreve para ninguém.
 
-            Com vínculo: um botão, e ele abre a conversa de dentro do
-            aplicativo — que é melhor do que qualquer telefone, porque fica
-            registrada, chega à equipe inteira e não depende de ninguém ter
-            o número certo.
-
-            Sem vínculo: uma lista, e cada linha SAI do aplicativo. Não é
-            uma degradação da primeira: é o único conjunto de canais que
-            existe para quem ainda é de fora.
-
-            ⚠️ E CADA LINHA SÓ EXISTE COM O DADO DELA. "Telefone —" numa
-            lista de contatos é a tela prometendo um canal que não existe,
-            e a clínica que só tem WhatsApp mandou só o WhatsApp. */}
-        {vinculada ? (
+            Quem não tem vínculo tem os canais da clínica, logo acima, que
+            é o que existe para quem ainda é de fora. */}
+        {vinculada && (
           <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 26, opacity: pressed ? 0.85 : 1 }]}>
             <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
               <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
               <Txt v="body" c={c.accentInk}>Escrever para a equipe</Txt>
             </Row>
           </Pressable>
-        ) : contatos.length ? (
-          <View style={{ marginTop: 30 }}>
-            <Txt v="h2">Entre em contato</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 6, marginBottom: 12, lineHeight: 21 }}>
-              Fale com a clínica para saber como começar o acompanhamento.
-            </Txt>
-            <Cartao>
-              {contatos.map((ct) => (
-                <Linha key={ct.titulo} ic={ct.ic} titulo={ct.titulo} sub={ct.sub} onPress={abrir(ct.url)} />
-              ))}
-            </Cartao>
-          </View>
-        ) : null}
+        )}
         </View>
       </ScrollView>
     </View>
