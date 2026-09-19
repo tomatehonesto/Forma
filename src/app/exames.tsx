@@ -500,7 +500,12 @@ function MalhaDaEvolucao({ e }: { e: any }) {
             pointerEvents="none"
             style={{
               position: 'absolute',
-              left: Math.min(Math.max(0, alvo.x - LARGURA_DO_BALAO / 2), Math.max(0, w - LARGURA_DO_BALAO)),
+              /* ⚠️ ELE PARA NA CALHA, e antes parava em zero. A primeira
+                 coleta nasce encostada no eixo, e um balão centrado nela
+                 recuava até a borda do cartão — em cima dos números do
+                 eixo, que é justamente a régua que a pessoa precisa para
+                 ler o ponto que ela está apontando. */
+              left: Math.min(Math.max(CALHA, alvo.x - LARGURA_DO_BALAO / 2), Math.max(CALHA, w - LARGURA_DO_BALAO)),
               width: LARGURA_DO_BALAO,
               top: balaoEmCima ? alvo.y - ALTURA_DO_BALAO - 6 : alvo.y + 14,
               alignItems: 'center',
@@ -552,9 +557,6 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const sobre = examAbout(e);
   const mexe = examInfluences(e);
   const ajudam = examWays(e);
-  /* Os extremos do período, que é o que o cartão de evolução anuncia. */
-  const vs = (e.values as any[]).map((x) => x.v);
-  const vMin = Math.min(...vs), vMax = Math.max(...vs);
   const varios = e.values.length > 1;
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
@@ -680,60 +682,70 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
            calha, calha pede margem, e uma malha cortada rente à borda lê
            como pedaço de uma malha maior que ficou de fora. */
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 16 }, shadowCard(c)]}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <View style={{ flex: 1 }}>
+          {/* ⚠️ O SELO SUBIU PARA A LINHA DO OVERLINE, e morava ao lado da
+              manchete.
+
+              Ali ele comia a largura dela: com o selo à direita, a manchete
+              vivia num flex de uns 160, e "De 118 a 96 mg/dL" quebrava em
+              duas linhas. Na linha do overline não há disputa — os dois são
+              informação SOBRE o cartão, não o conteúdo dele —, e a manchete
+              passa a ter a largura inteira. */}
+          <View>
+            <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
               <Row gap={7}>
                 <Icon name="trend" size={13} color={c.tx4} sw={2} />
                 <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>EVOLUÇÃO</Txt>
               </Row>
-              {/* ⚠️ O TÍTULO É A FAIXA EM QUE O NÚMERO VIVEU, e era o
-                  quanto ele mudou.
+              {/* ⚠️ A ETIQUETA GANHOU SINAL E UNIDADE, e tinha seta e número
+                  pelado.
 
-                  "Caiu 48" responde uma pergunta boa e só ela. "132 a 180"
-                  responde duas: para onde foi E onde esteve — e a segunda
-                  é a que interessa num marcador com quatro, seis coletas,
-                  onde a diferença entre a primeira e a última esconde tudo
-                  que aconteceu no meio. Com três coletas, "caiu 0,7" não
-                  diz que a do meio foi a mais alta de todas.
+                  A seta e o sinal diziam a mesma coisa, e com a manchete
+                  logo abaixo anunciando "De 118 a 96" a direção já estava
+                  dita duas vezes antes de chegar aqui. O sinal é mais
+                  preciso que a seta e ocupa um oitavo do espaço dela — e a
+                  sobra pagou a unidade, sem a qual "−22" é um número de
+                  nada: a diferença entre dois valores tem a mesma unidade
+                  deles, e sem ela a etiqueta obriga a pessoa a voltar na
+                  manchete para saber do que se trata.
 
-                  A direção não se perde: ela está na etiqueta ao lado, que
-                  é onde ela tem companhia — o julgamento de se aquele lado
-                  era o esperado. */}
-              {/* ⚠️ A FAIXA VIROU MANCHETE, e era uma linha de corpo.
-                  Ela é o assunto do cartão — onde este número morou —, e em
-                  corpo 19 lia como legenda do overline. A unidade fica em
-                  regular e na cor de apoio, como no número grande lá em
-                  cima: uma é o dado, a outra é a régua em que ele se mede. */}
-              <Row gap={6} style={{ alignItems: 'baseline', marginTop: 6 }}>
-                <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }}>
-                  {vMin === vMax ? fmtV(vMin) : `${fmtV(vMin)} a ${fmtV(vMax)}`}
-                </Txt>
-                <Txt v="body" c={c.tx3} style={{ fontSize: 20 }}>{e.unit}</Txt>
-              </Row>
-              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-                {e.values.length} coletas desde {porExtenso(f.t)}
+                  ⚠️ E ELA APARECE MESMO SEM `good`. Antes sumia inteira nos
+                  marcadores que não declaram lado bom — e com ela ia embora
+                  também o quanto mudou, que é um fato e não um juízo. Sem
+                  `good`, ela fica neutra: número, unidade, e nenhuma palavra
+                  sobre se isso é boa notícia. */}
+              {delta !== 0 ? (
+                <View style={{ backgroundColor: e.good ? (bom ? c.okBg : c.bg2) : c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
+                  <Txt v="micro" c={e.good && bom ? c.ok : c.tx3}>
+                    {delta > 0 ? '+' : '−'}{fmtV(Math.abs(delta))} {e.unit}{e.good ? (bom ? ' · esperado' : ' · oposto') : ''}
+                  </Txt>
+                </View>
+              ) : null}
+            </Row>
+
+            {/* ⚠️ A MANCHETE É A CRONOLOGIA, e era a faixa em que o número
+                viveu — o menor e o maior, nessa ordem.
+
+                A faixa respondia "onde ele esteve", que é uma pergunta boa,
+                e apagava a única que a pessoa faz de verdade: para onde
+                isto está indo. Pior: em ordem de tamanho ela INVERTIA a
+                história de quem melhorou. Uma glicemia que caiu de 118 para
+                96 aparecia como "96 a 118", que é a leitura de quem piorou.
+
+                "De 118 a 96" tem começo e fim, e a ordem das palavras é a
+                ordem do tempo. O que a faixa dizia a mais — o pico do meio
+                — não se perde: ele está desenhado no gráfico logo abaixo, e
+                acessível no toque, que é onde um valor intermediário
+                pertence. */}
+            <Row gap={6} style={{ alignItems: 'baseline', marginTop: 8 }}>
+              <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }}>
+                {f.v === l.v ? fmtV(l.v) : `De ${fmtV(f.v)} a ${fmtV(l.v)}`}
               </Txt>
-            </View>
-            {/* A seta só aparece quando o marcador declara qual lado é o
-                bom. Sem isso ela seria uma opinião sobre a direção. */}
-            {delta !== 0 ? (
-              /* ⚠️ A ETIQUETA PASSOU A DIZER O QUANTO, e dizia só o rumo. O
-                 número saiu do título quando ele virou faixa, e este é o
-                 lugar dele: ao lado da seta, que é o que o qualifica.
-
-                 ⚠️ E ELA APARECE MESMO SEM `good`. Antes sumia inteira nos
-                 marcadores que não declaram lado bom — e com ela ia embora
-                 também o quanto mudou, que é um fato e não um juízo. Sem
-                 `good`, ela fica neutra: seta, número, e nenhuma palavra
-                 sobre se isso é boa notícia. */
-              <Row gap={5} style={{ alignItems: 'center', backgroundColor: e.good ? (bom ? c.okBg : c.bg2) : c.bg2, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }}>
-                <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={13} color={e.good && bom ? c.ok : c.tx3} sw={2.4} />
-                <Txt v="micro" c={e.good && bom ? c.ok : c.tx3}>
-                  {fmtV(Math.abs(delta))}{e.good ? (bom ? ' · esperado' : ' · oposto') : ''}
-                </Txt>
-              </Row>
-            ) : null}
-          </Row>
+              <Txt v="body" c={c.tx3} style={{ fontSize: 20 }}>{e.unit}</Txt>
+            </Row>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
+              {e.values.length} coletas desde {porExtenso(f.t)}
+            </Txt>
+          </View>
 
           <MalhaDaEvolucao e={e} />
         </View>
