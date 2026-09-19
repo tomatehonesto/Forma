@@ -666,10 +666,52 @@ export function ensureDefaults(S: any) {
   if (!Array.isArray(S.asked)) S.asked = [];
   if (!Array.isArray(S.team)) S.team = buildSeed().team;
   if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
-  if (S.profile && !S.profile.doctorInfo) S.profile.doctorInfo = buildSeed().profile.doctorInfo;
-  /* A ficha da clínica é opcional e pode ficar vazia: quem não tem
-     clínica não ganha uma por migração. */
-  if (S.profile && !(S.profile as any).clinicInfo) (S.profile as any).clinicInfo = {};
+  /* ============================================================
+     AS FICHAS DA SEMENTE CRESCEM COM O APLICATIVO
+
+     ⚠️ ELAS NASCIAM VAZIAS E FICAVAM VAZIAS PARA SEMPRE, e isso só
+     aparecia no aparelho.
+
+     A linha antiga era `if (!clinicInfo) clinicInfo = {}`. Quem instalou o
+     aplicativo ANTES de `clinicInfo` existir na semente recebeu o objeto
+     vazio uma vez — e `{}` é verdadeiro, então a condição nunca mais se
+     cumpriu. Endereço, horário, convênios, contato e até o "sobre"
+     entraram na semente depois disso e nunca chegaram a esses aparelhos:
+     a tela da clínica abria mostrando só a equipe, porque `S.team` tem
+     migração e `clinicInfo` não tinha.
+
+     No navegador isso passava batido porque a base é limpa a cada teste;
+     no telefone, que guarda de verdade, é a única coisa que se vê.
+
+     ⚠️ O MERGE É COM O GUARDADO POR CIMA, e não o contrário. O que já
+     está no aparelho vence a semente sempre: migração completa o que
+     falta e não desfaz o que existe — a regra desta casa é que atualizar
+     informação nunca apaga registro.
+
+     ⚠️ E SÓ QUANDO O NOME BATE COM O DA SEMENTE. É o que separa "repor a
+     ficha de demonstração" de "inventar o endereço da clínica de
+     alguém": se a pessoa se trata na Clínica Bom Jesus, ela não pode
+     receber a rua, o horário e os convênios da Clínica Vitalis por
+     migração. Sem o nome batendo, o campo continua vazio e a tela
+     esconde as seções — que é o comportamento honesto até um servidor
+     preencher.
+     ============================================================ */
+  if (S.profile) {
+    const semente = buildSeed().profile as any;
+    const perfil = S.profile as any;
+
+    if (perfil.doctor && perfil.doctor === semente.doctor) {
+      perfil.doctorInfo = { ...semente.doctorInfo, ...(perfil.doctorInfo || {}) };
+    } else if (!perfil.doctorInfo) {
+      perfil.doctorInfo = {};
+    }
+
+    if (perfil.clinic && perfil.clinic === semente.clinic) {
+      perfil.clinicInfo = { ...semente.clinicInfo, ...(perfil.clinicInfo || {}) };
+    } else if (!perfil.clinicInfo) {
+      perfil.clinicInfo = {};
+    }
+  }
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
   /* Migração do texto corrido para a lista: cada linha do campo antigo
      vira uma nota, datada de hoje porque a data original nunca existiu.
