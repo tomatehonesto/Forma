@@ -368,8 +368,11 @@ function BannerMedica() {
     <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
       {/* metade de cima: quem é ela */}
       <View style={{ height: 168, overflow: 'hidden', backgroundColor: c.bg1 }}>
-        {/* a mesma malha do topo, em meia força: aqui ela é fundo, e é a
-            foto que precisa ganhar o olho */}
+        {/* ⚠️ A MALHA FICA, E É ELA QUE DÁ A COR AO CARTÃO. Com a foto
+            ocupando a esquerda, seria fácil tratar o resto como fundo
+            branco e economizar a peça — mas é a malha em accent que faz
+            este cartão ser sobre alguém do outro lado, e não mais um
+            cartão de lista. Ela mora atrás de tudo, em meia força. */}
         <Malha id="cuidadoBanner" forca={0.55} />
 
         {/* ⚠️ UM PLANO DE FOTO, E ERA UM RECORTE SANGRANDO PELA DIREITA.
@@ -388,8 +391,22 @@ function BannerMedica() {
 
             ⚠️ E SEM FOTO A FAIXA NÃO EXISTE. O texto ocupa o card inteiro,
             e ninguém percebe que havia um lugar reservado para ela. */}
+        {/* ⚠️ A FOTO PASSOU PARA A ESQUERDA, e o recorte em PNG vivia à
+            direita. Não é gosto: o recorte era uma silhueta sem moldura,
+            que do lado direito encostava na quina e sangrava para fora — o
+            desenho pedia a borda. Uma foto de verdade é um RETÂNGULO com
+            conteúdo até o último pixel, e retângulo de imagem à esquerda do
+            texto é como todo cartão de pessoa deste aplicativo é montado:
+            a lista da clínica, o cartão de Sua equipe, a linha do perfil.
+
+            Era a única peça do aplicativo com a imagem do outro lado, e
+            era assim porque o recorte exigia. O recorte saiu.
+
+            ⚠️ E A DISSOLUÇÃO MUDOU DE SENTIDO junto: ela corre da foto para
+            dentro do cartão, da esquerda para a direita, para o texto
+            começar em superfície limpa. */}
         {FOTO_MEDICA ? (
-          <View style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 148 }}>
+          <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 148 }}>
             <Image
               source={FOTO_MEDICA}
               style={StyleSheet.absoluteFill}
@@ -397,8 +414,8 @@ function BannerMedica() {
               contentPosition="center"
             />
             <LinearGradient
-              colors={[c.bg1, alfa(c.bg1, 0.75), alfa(c.bg1, 0)]}
-              locations={[0, 0.3, 1]}
+              colors={[alfa(c.bg1, 0), alfa(c.bg1, 0.75), c.bg1]}
+              locations={[0, 0.7, 1]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={StyleSheet.absoluteFill}
               pointerEvents="none"
@@ -407,11 +424,12 @@ function BannerMedica() {
         ) : null}
 
         <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
-          <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+          {/* 128 à esquerda: a faixa tem 148, e o texto começa 20px antes do
+              fim dela — já dentro da parte opaca da dissolução, e com os
+              179px que o nome inteiro pede numa linha só. */}
+          <View style={{ flex: 1, paddingLeft: 128, paddingRight: 20, paddingVertical: 20, justifyContent: 'center' }}>
             <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
-            {/* 60% e não 66%: a faixa da foto come 148 dos ~327 do card, e
-                o nome não pode entrar na parte opaca do degradê. */}
-            <Txt v="h2" style={{ marginTop: 7, maxWidth: '60%' }}>{S.profile.doctor}</Txt>
+            <Txt v="h2" style={{ marginTop: 7 }}>{S.profile.doctor}</Txt>
             <Row gap={6} style={{ marginTop: 5 }}>
               <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
               <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>

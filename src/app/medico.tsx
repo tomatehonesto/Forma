@@ -181,8 +181,20 @@ export default function Medico() {
               ] as [string, string, string][]).map(([ic, label, to]) => (
                 <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                   <View style={{ alignItems: 'center' }}>
+                    {/* ⚠️ O MESMO CÍRCULO DA FICHA. Era `c.bg2` aqui e virou
+                        `accentWeak` lá, e são as MESMAS QUATRO AÇÕES para a
+                        MESMA PESSOA, a um toque de distância uma tela da
+                        outra. Duas aparências para o mesmo controle é o
+                        tipo de diferença que ninguém descreve e todo mundo
+                        sente — e foi assim que a equipe já tinha sido
+                        escrita à mão dentro de um JSX uma vez.
+
+                        Fica menor que o da ficha (42 contra 52) porque
+                        aqui a fileira mora dentro do cartão, sob um fio, e
+                        lá ela é a peça solta logo abaixo do nome. O
+                        tamanho é do lugar; a cor é do controle. */}
                     <View style={{
-                      width: 42, height: 42, borderRadius: 21, backgroundColor: c.bg2,
+                      width: 42, height: 42, borderRadius: 21, backgroundColor: c.accentWeak,
                       alignItems: 'center', justifyContent: 'center',
                     }}>
                       <Icon name={ic} size={19} color={c.accent} sw={1.9} />
