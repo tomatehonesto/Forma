@@ -9,7 +9,7 @@ import {
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Bloco, Cartao, Aviso } from '../ui/internas';
+import { Bloco, Cartao } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 
@@ -242,12 +242,24 @@ export default function Protocolos() {
             ⚠️ "RECOMEÇA NA PRÓXIMA" É FATO, E NÃO AFAGO: os manuais
             resetam na virada da semana e as métricas contam os registros
             da semana corrente. Consolo que não se sustenta em mecanismo
-            vira promessa, e esta tela não faz promessa. */}
-        <Aviso
-          ic="bulb"
-          titulo="Não fechar tudo está tudo bem"
-          texto="Estas metas são jeitos de tirar mais do tratamento, e não uma lista de cobranças — quem conduz é a dose e o acompanhamento. O que não fechar recomeça na semana que vem, e as contagens acendem sozinhas pelos seus registros."
-        />
+            vira promessa, e esta tela não faz promessa.
+
+            ⚠️ E É TEXTO SOLTO, E NÃO UM CARTÃO — chegou a ser um <Aviso>
+            com ícone e título. O cartão dava a esta frase o peso de um
+            alerta: superfície própria, lâmpada, manchete. Uma tela que
+            acabou de mostrar duas metas em aberto e responde com um bloco
+            destacado faz do "está tudo bem" um assunto, quando ele é o
+            contrário disso — é o comentário que desarma, e comentário que
+            desarma não grita.
+
+            Miúdo e na cor de apoio, ele fica onde uma ressalva fica: no
+            fim da leitura, disponível para quem precisar dela, invisível
+            para quem não. */}
+        <Txt v="micro" c={c.tx3} style={{ marginTop: -8, lineHeight: 19 }}>
+          Estas metas são jeitos de tirar mais do tratamento, e não uma lista de cobranças —
+          não fechar tudo está tudo bem. Quem conduz é a dose e o acompanhamento. O que ficar
+          aberto recomeça na semana que vem, e as contagens acendem sozinhas pelos seus registros.
+        </Txt>
 
         {/* ⚠️ O CARTÃO "SEMANA 12" SAIU DAQUI, e ele já tinha sido bloco de
             conselho, depois aviso de duas datas, e agora nada.
