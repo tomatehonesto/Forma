@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
-  doseTxt,
+  doseTxt, MO_LONG,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -997,7 +997,8 @@ export const examInfluences = (e: any): string[] => INFLUENCIAS[e.marker] ?? [];
     porque um parágrafo que serve para qualquer exame não explica nenhum. */
 export const examAbout = (e: any): SobreOMarcador | null => SOBRE[e.marker] ?? null;
 
-export function examExplain(e: any) {
+export type LeituraDoExame = { titulo: string; texto: string };
+export function examExplain(e: any): LeituraDoExame {
   /* ⚠️ AS FRASES ESTAVAM ESCRITAS COM OS NÚMEROS DA SEMENTE.
 
      A de HbA1c dizia "a queda de 6,3 para 5,6% mostra um controle bem
@@ -1009,7 +1010,7 @@ export function examExplain(e: any) {
      interpretação precisa dos números de quem lê, e texto fixo não tem
      como tê-los. Agora o que é fixo é a definição (examAbout), e o que
      é variável se monta do histórico. */
-  const map: Record<string, string> = {};
+  const map: Record<string, LeituraDoExame> = {};
   /* ⚠️ O NOME DA MÉDICA DA SEMENTE ESTAVA ESCRITO AQUI. Esta é a
      frase que aparece para qualquer marcador sem leitura própria — a
      mais genérica do arquivo, e a que mais gente vê. Ela citava a Dra.
@@ -1032,17 +1033,63 @@ export function examExplain(e: any) {
      coleta. Quando `good` não diz qual lado é o bom, a direção sai da
      frase — dizer "subiu" sem dizer o que isso significa é melhor do que
      chutar o significado. */
-  const onde = dentro
-    ? 'O seu resultado está dentro do que o laboratório considera esperado.'
-    : 'O seu resultado está fora do que o laboratório considera esperado.';
+  /* ⚠️ SÃO DUAS PEÇAS, E ERA UM PARÁGRAFO SÓ.
 
-  const desde = !varios || delta === 0
-    ? ''
+     Um bloco de texto corrido obriga a pessoa a ler tudo para descobrir se
+     a notícia é boa — e numa tela de exame ela quer saber isso na primeira
+     linha. A manchete responde; o parágrafo mostra a conta.
+
+     ⚠️ A MANCHETE NÃO REPETE O SELO. O selo lá em cima diz onde o valor
+     caiu; o cartão de evolução diz o quanto mudou. O que ainda não foi
+     dito em lugar nenhum é a JUNÇÃO das duas — "está fora, mas vem
+     melhorando" é uma frase que nenhuma das outras peças consegue formar,
+     e é a que muda o que a pessoa sente ao fechar a tela.
+
+     ⚠️ E ELA NÃO DIZ O NOME DO MARCADOR. "Seu HbA1c" / "Sua ferritina"
+     pediria uma tabela de gênero por marcador para escrever certo em
+     português, e errar o artigo numa frase sobre a saúde de alguém é um
+     tropeço barato de evitar. "Este resultado" é sempre correto, e o nome
+     está na barra do topo. */
+  const lado = examStatus(e) === 'alto' ? 'acima' : 'abaixo';
+
+  const titulo = !varios || delta === 0
+    ? (dentro
+        ? 'Este resultado está dentro da faixa de referência do laboratório.'
+        : `Este resultado está ${lado} da faixa de referência do laboratório.`)
     : e.good
-      ? ` Desde a primeira coleta ele ${melhorou ? 'caminhou na direção esperada' : 'foi na direção oposta à esperada'}.`
-      : ` Desde a primeira coleta ele ${delta > 0 ? 'subiu' : 'caiu'}.`;
+      ? (dentro
+          ? (melhorou
+              ? 'Este resultado está na faixa, e vem caminhando na direção esperada.'
+              : 'Este resultado está na faixa, mas vem caminhando na direção oposta.')
+          : (melhorou
+              ? `Este resultado ainda está ${lado} da faixa, mas vem caminhando na direção esperada.`
+              : `Este resultado está ${lado} da faixa, e vem se afastando dela.`))
+      : (dentro
+          ? `Este resultado está dentro da faixa, e ${delta > 0 ? 'subiu' : 'caiu'} desde a primeira coleta.`
+          : `Este resultado está ${lado} da faixa, e ${delta > 0 ? 'subiu' : 'caiu'} desde a primeira coleta.`);
 
-  return `${onde}${desde} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+  /* O parágrafo é a conta por extenso: o valor desta coleta, a faixa que o
+     laboratório escreveu, e o quanto andou desde a primeira. Nada aqui é
+     interpretação — são os números que já estão na tela, ditos em frase,
+     para quem prefere ler a ler gráfico. */
+  const dia = (t: number) => { const x = new Date(t); return `${x.getDate()} de ${MO_LONG[x.getMonth()]}`; };
+  const num = (v: number) => nf(v, v % 1 ? 1 : 0).replace('.', ',');
+  const faixa = (() => {
+    const gg = examGaugeData(e);
+    const u = e.unit ? ` ${e.unit}` : '';
+    if (gg.temMin && gg.temMax) return `entre ${num(gg.limMin)} e ${num(gg.limMax)}${u}`;
+    if (gg.temMax) return `abaixo de ${num(gg.limMax)}${u}`;
+    if (gg.temMin) return `acima de ${num(gg.limMin)}${u}`;
+    return `${e.ref}${u}`;
+  })();
+
+  const andou = !varios || delta === 0
+    ? ''
+    : ` Desde ${dia(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${num(Math.abs(delta))}${e.unit ? ` ${e.unit}` : ''}.`;
+
+  const texto = `Na coleta de ${dia(l.t)} o valor foi ${num(l.v)}${e.unit ? ` ${e.unit}` : ''}, e a referência do laboratório é ${faixa}.${andou} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+
+  return { titulo, texto };
 }
 
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */

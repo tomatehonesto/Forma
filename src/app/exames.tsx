@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Path, Line as SvgLine } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -406,6 +407,12 @@ function MalhaDaEvolucao({ e }: { e: any }) {
   const refP = React.useRef(P);
   refP.current = P;
   const [sel, setSel] = useState<number | null>(null);
+  /* ⚠️ O TIQUE SÓ NA TROCA, e não a cada quadro do arrasto. `onUpdate`
+     dispara dezenas de vezes por segundo; disparar o háptico ali vira um
+     zumbido contínuo, que é ruído e não informação. Guardando o último
+     índice, o dedo sente exatamente o que o olho vê: uma batida por coleta
+     ultrapassada. */
+  const ultimo = React.useRef<number | null>(null);
 
   const gesto = React.useMemo(
     () => Gesture.Pan()
@@ -415,7 +422,7 @@ function MalhaDaEvolucao({ e }: { e: any }) {
       .onTouchesMove((_ev, estado) => estado.activate())
       .onBegin((ev) => aponta(ev.x))
       .onUpdate((ev) => aponta(ev.x))
-      .onFinalize(() => setSel(null)),
+      .onFinalize(() => { ultimo.current = null; setSel(null); }),
     [],
   );
 
@@ -427,6 +434,12 @@ function MalhaDaEvolucao({ e }: { e: any }) {
       const d = Math.abs(q.x - px);
       if (d < perto2) { perto2 = d; melhor = i; }
     });
+    if (ultimo.current !== melhor) {
+      ultimo.current = melhor;
+      /* Engolido de propósito: um telefone sem motor de vibração, ou um
+         navegador, não é motivo para derrubar o gesto. */
+      Haptics.selectionAsync().catch(() => {});
+    }
     setSel(melhor);
   }
 
@@ -555,6 +568,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const { c } = useTheme();
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
   const sobre = examAbout(e);
+  const leitura = examExplain(e);
   const mexe = examInfluences(e);
   const ajudam = examWays(e);
   const varios = e.values.length > 1;
@@ -775,7 +789,15 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             <Icon name="spark" size={13} color={c.accent} sw={2} />
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE ISSO SIGNIFICA</Txt>
           </Row>
-          <Txt v="body" style={{ lineHeight: 25 }}>{examExplain(e)}</Txt>
+          {/* ⚠️ MANCHETE E PARÁGRAFO, e era um bloco de texto corrido.
+
+              Corrido, ele obrigava a ler tudo para descobrir se a notícia
+              era boa. A manchete responde na primeira linha — e, por ser a
+              junção de "onde caiu" com "para onde vem indo", ela é a única
+              peça da tela que forma essa frase. O parágrafo embaixo mostra
+              a conta, para quem prefere ler a ler gráfico. */}
+          <Txt v="h2" style={{ lineHeight: 30 }}>{leitura.titulo}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ lineHeight: 22 }}>{leitura.texto}</Txt>
         </View>
 
         {ajudam.length ? (
