@@ -37,58 +37,42 @@ import { useTheme } from '../ui/useTheme';
    ============================================================ */
 
 
-/* DOIS MARCADORES, E POR UM TEMPO FOI UM SÓ.
+/* A CAIXA É A MESMA NAS CINCO — E QUATRO DELAS NÃO SÃO SUAS PARA MARCAR.
 
-   ⚠️ A CAIXINHA IGUAL NAS CINCO ERA O ERRO, e eu a defendi aqui dizendo
-   que a ETIQUETA da direita — "Hidratação", "Aplicações" — bastava para
-   avisar que a linha não era sua para marcar. Não basta. Caixa de marcar
-   é caixa de marcar: ela CONVIDA ao toque antes de qualquer rótulo ser
-   lido, e quem toca na linha da água esperando acender descobre que não
-   acende. Afirmação escrita não vence affordance desenhada.
+   ⚠️ A LISTA JÁ TEVE AS CINCO IGUAIS E JÁ TEVE DUAS FORMAS, e nenhuma das
+   duas estava certa.
 
-   Agora são duas formas para as duas ideias que a lista tem:
+   Iguais e todas tocáveis: a pessoa marcava "beber 2,5 L todo dia" com um
+   toque, e o "3 de 5 cumpridas" do topo passava a dizer que a semana foi
+   cumprida porque alguém tocou, e não porque alguma coisa aconteceu.
 
-   · QUADRADO, para o que só a pessoa sabe — "agendar exame de sangue". O
-     aplicativo não tem como descobrir isso, então a resposta é dela e a
-     caixa é de marcar mesmo.
+   Duas formas — quadrado para marcar, redondo para ler: resolvia o
+   engano e criava outro. A meta da água TEM conclusão, e ela é tão
+   binária quanto a do exame; o redondo a transformava em medidor, como
+   se ela nunca fechasse. Quem cumpre sete dias de proteína merece o
+   mesmo visto de quem agendou o exame.
 
-   · REDONDO, para o que vem dos registros. Não é caixa: é leitura. Com a
-     meta alcançada, visto verde; sem ela, o ícone da coisa em azul. O
-     mesmo par do preparo da consulta, e pelo mesmo motivo — o valor não
-     é da pessoa, ela resolve bebendo água e aplicando a caneta, não
-     marcando um quadrado.
+   ⚠️ ENTÃO A CAIXA FICA, E O QUE MUDA É DE QUEM ELA É. A do exame é da
+   pessoa: vazia com borda, convidando o toque. As quatro medidas são do
+   aplicativo: vazias, elas são uma caixa CHAPADA e sem borda — o desenho
+   de controle desligado, que não pede toque. Cheias, as cinco são
+   idênticas, porque cumprida é cumprida e a origem da conclusão não muda
+   o que ela vale.
 
-   E a seta à direita continua dizendo que a linha redonda leva a algum
-   lugar, que é onde aquilo se cumpre. */
-function Marcador({ feita }: { feita: boolean }) {
+   A de baixo acende sozinha quando os registros da semana fecham a meta.
+   Não há como marcá-la à mão, e não deveria haver: o que ela afirma é um
+   fato, e fato não se digita. */
+function Marcador({ feita, desligado }: { feita: boolean; desligado?: boolean }) {
   const { c } = useTheme();
   return (
     <View style={{
       width: 26, height: 26, borderRadius: 9,
       alignItems: 'center', justifyContent: 'center',
-      backgroundColor: feita ? c.accent : 'transparent',
-      borderWidth: feita ? 0 : 1.6,
+      backgroundColor: feita ? c.accent : desligado ? c.bg3 : 'transparent',
+      borderWidth: feita || desligado ? 0 : 1.6,
       borderColor: c.line2,
     }}>
       {feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} /> : null}
-    </View>
-  );
-}
-
-function Leitura({ feita, ic }: { feita: boolean; ic: string }) {
-  const { c } = useTheme();
-  return (
-    <View style={{
-      width: 26, height: 26, borderRadius: 13,
-      alignItems: 'center', justifyContent: 'center',
-      backgroundColor: feita ? c.okBg : c.accentWeak,
-    }}>
-      <Icon
-        name={feita ? 'check' : ic}
-        size={feita ? 14 : 14}
-        color={feita ? c.ok : c.accent}
-        sw={feita ? 2.6 : 1.9}
-      />
     </View>
   );
 }
@@ -163,15 +147,13 @@ export default function Protocolos() {
             tocando na linha da água esperando que ela acenda. */}
         <Bloco
           titulo="Esta semana"
-          nota="O que tem caixa você marca. O resto vem dos seus registros."
+          nota="As caixas apagadas acendem sozinhas, pelos seus registros."
         >
           <Cartao>
             {p.tarefas.map((t) => {
               const corpo = (
                 <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-                  {t.medida
-                    ? <Leitura feita={t.feita} ic={t.ic ?? 'chart'} />
-                    : <Marcador feita={t.feita} />}
+                  <Marcador feita={t.feita} desligado={t.medida} />
                   <View style={{ flex: 1 }}>
                     {/* Sem risco em cima do texto cumprido. O risco diz
                         "isto saiu da lista", e numa meta que se refaz toda
