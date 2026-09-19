@@ -50,6 +50,19 @@ import { radius } from '../theme';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/* ⚠️ A MESMA LARGURA DA ABA CUIDADO, e é de propósito que o número
+   esteja escrito aqui e lá. São três fileiras horizontais no aplicativo —
+   o material na aba Cuidado e estas duas — e cartão de 178 com respiro de
+   10 deixa o segundo item mostrando um terço de si na borda do aparelho.
+   É esse terço que diz que a fileira anda; com cartão mais largo, o
+   segundo some e a fileira parece uma lista de um item.
+
+   ⚠️ E AS DUAS FILEIRAS DESTA TELA TÊM A MESMA MEDIDA porque ficam a uma
+   rolagem uma da outra. Duas fileiras de larguras diferentes na mesma
+   tela leem como erro de alinhamento antes de lerem como duas coisas
+   diferentes. */
+const LARGURA_DO_CARD = 178;
+
 export default function Medico() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
@@ -349,26 +362,61 @@ export default function Medico() {
           onPress={go('/nota')}
           style={{ marginTop: 32, marginBottom: 10 }}
         />
-        <Cartao>
+        {/* ⚠️ FILEIRA, E NÃO LISTA — e a diferença é o que a nota É.
+
+            Numa lista, cada anotação vira uma linha de mesmo peso com uma
+            seta no canto, e quatro linhas de texto corrido empilhadas leem
+            como itens de configuração. A anotação não é um item de menu:
+            é uma frase que a pessoa escreveu, e ela merece respirar num
+            cartão em vez de caber numa linha.
+
+            E são poucas por natureza. Quem anota quinze dúvidas para uma
+            consulta não vai revisar quinze — quatro ou cinco é o número
+            real, e é exatamente o que uma fileira horizontal serve bem. */}
+        <ScrollView
+          horizontal showsHorizontalScrollIndicator={false}
+          style={{ marginHorizontal: -20 }}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+        >
           {abertas.length ? (
             abertas.map((n) => (
-              <Linha
-                key={n.t}
-                ic="pencil"
-                titulo={n.text}
-                sub={fmtDate(new Date(n.t))}
-                onPress={go(`/nota?t=${n.t}`)}
-              />
+              <Pressable key={n.t} onPress={go(`/nota?t=${n.t}`)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                <View style={{
+                  width: LARGURA_DO_CARD, minHeight: 148, backgroundColor: c.bg1,
+                  borderRadius: radius.lg, padding: 16, justifyContent: 'space-between',
+                }}>
+                  <View>
+                    <Icon name="pencil" size={18} color={c.accent} sw={1.9} />
+                    {/* Quatro linhas: a mais longa da semente ocupa três, e
+                        a quarta é a folga de quem escreve mais. Depois
+                        disso corta — a nota inteira está a um toque. */}
+                    <Txt v="caption" style={{ marginTop: 12, lineHeight: 21 }} numberOfLines={4}>{n.text}</Txt>
+                  </View>
+                  {/* ⚠️ A DATA FICA. Sem ela a nota chega na consulta sem o
+                      contexto que a explica — "isso foi antes ou depois de
+                      eu subir a dose?" é a primeira pergunta que a médica
+                      faz, e é a própria anotação que deveria responder. */}
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 12 }}>{fmtDate(new Date(n.t))}</Txt>
+                </View>
+              </Pressable>
             ))
           ) : (
-            <Linha
-              ic="pencil"
-              titulo="Anotar uma dúvida"
-              sub="O que você quiser perguntar na próxima consulta"
-              onPress={go('/nota')}
-            />
+            <Pressable onPress={go('/nota')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <View style={{
+                width: LARGURA_DO_CARD, minHeight: 148, backgroundColor: c.bg1,
+                borderRadius: radius.lg, padding: 16, justifyContent: 'space-between',
+              }}>
+                <Icon name="pencil" size={18} color={c.accent} sw={1.9} />
+                <View>
+                  <Txt v="caption" style={{ lineHeight: 21 }}>Anotar uma dúvida</Txt>
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 4, lineHeight: 16 }}>
+                    Para perguntar na próxima consulta
+                  </Txt>
+                </View>
+              </View>
+            </Pressable>
           )}
-        </Cartao>
+        </ScrollView>
 
         {/* ---- prescrições ----
 
@@ -439,17 +487,20 @@ export default function Medico() {
             chama área médica, o material que a equipe preparou não devia
             estar em outro lugar.
 
-            ⚠️ LISTA, E NÃO O CARROSSEL DA ABA CUIDADO. Lá ele é vitrine,
-            no fim da rolagem, para descobrir; aqui é acervo, ao lado dos
-            documentos, para procurar. Um carrossel dentro de uma sequência
-            de três listas seria a única peça que esconde item fora da
-            borda.
+            ⚠️ A MESMA FILEIRA DA ABA CUIDADO, e por um tempo foi lista.
+            O argumento da lista era que aqui o material é acervo e lá é
+            vitrine — e é verdade que as duas telas o usam diferente, mas
+            não é verdade que isso mude a PEÇA. Um guia de dois minutos com
+            um motivo escrito embaixo é um cartão nas duas; transformá-lo
+            em linha aqui fazia a mesma coisa ter duas aparências no mesmo
+            aplicativo, que é o defeito que este arquivo passou a sessão
+            inteira removendo.
 
-            ⚠️ O MOTIVO É A SEGUNDA LINHA, e o formato é a terceira. "Para a
-            fase de titulação" é o que separa curadoria de biblioteca: sem
-            ele a linha diz o que a coisa É, com ele diz por que ela está
-            aqui. O tipo e o tamanho vêm depois porque respondem "quanto
-            tempo isso vai me tomar", que é a segunda pergunta.
+            ⚠️ O MOTIVO VEM ANTES DO FORMATO. "Para a fase de titulação" é
+            o que separa curadoria de biblioteca: sem ele o cartão diz o
+            que a coisa É, com ele diz por que ela está aqui. O tipo e o
+            tamanho vêm depois porque respondem "quanto tempo isso vai me
+            tomar", que é a segunda pergunta.
 
             ⚠️ E SOME SEM VÍNCULO, como na aba Cuidado: sem clínica não há
             quem tenha montado nada, e `materials` só se enche pelo outro
@@ -457,23 +508,31 @@ export default function Medico() {
         {!!materiais.length && clinicaConectada(S) && (
           <>
             <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>O que a clínica preparou</Txt>
-            <Cartao>
+            <ScrollView
+              horizontal showsHorizontalScrollIndicator={false}
+              style={{ marginHorizontal: -20 }}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+            >
               {materiais.map((m) => (
-                <Pressable key={m.name} onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-                    <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
-                      <Icon name={m.ic} size={20} color={c.accent} sw={1.9} />
+                <Pressable key={m.name} onPress={go('/protocolos')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                  <View style={{
+                    width: LARGURA_DO_CARD, minHeight: 148, backgroundColor: c.bg1,
+                    borderRadius: radius.lg, padding: 16, justifyContent: 'space-between',
+                  }}>
+                    {/* o ícone diz o formato antes do rótulo dizer: vídeo,
+                        guia e checklist se consomem de maneiras diferentes,
+                        e saber isso antes de tocar evita abrir a coisa
+                        errada com pressa */}
+                    <Icon name={m.ic} size={18} color={c.accent} sw={1.9} />
+                    <View style={{ marginTop: 12 }}>
+                      <Txt v="caption" style={{ lineHeight: 21 }} numberOfLines={2}>{m.name}</Txt>
+                      <Txt v="micro" c={c.accent2} style={{ marginTop: 6, lineHeight: 16 }} numberOfLines={2}>{m.motivo}</Txt>
+                      <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.kind} · {m.meta}</Txt>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Txt v="body">{m.name}</Txt>
-                      <Txt v="caption" c={c.accent2} style={{ marginTop: 2, lineHeight: 20 }}>{m.motivo}</Txt>
-                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>{m.kind} · {m.meta}</Txt>
-                    </View>
-                    <View style={{ marginTop: 3 }}><Chevron /></View>
-                  </Row>
+                  </View>
                 </Pressable>
               ))}
-            </Cartao>
+            </ScrollView>
           </>
         )}
 
