@@ -9,11 +9,11 @@ import { useStore } from '../../logic/store';
 import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose,
+  medComDose, fichaDe,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, ListRow } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Chevron } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
@@ -363,82 +363,78 @@ function BannerMedica() {
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
   const msg = lastMessage(S);
+  /* Papel e registro vêm de `fichaDe`, que é quem sabe juntar doctorInfo
+     com S.team — os mesmos dados que /medico e /especialista mostram. */
+  const medica = fichaDe(S);
 
   return (
     <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
-      {/* metade de cima: quem é ela */}
-      <View style={{ height: 168, overflow: 'hidden', backgroundColor: c.bg1 }}>
-        {/* ⚠️ A MALHA FICA, E É ELA QUE DÁ A COR AO CARTÃO. Com a foto
-            ocupando a esquerda, seria fácil tratar o resto como fundo
-            branco e economizar a peça — mas é a malha em accent que faz
-            este cartão ser sobre alguém do outro lado, e não mais um
-            cartão de lista. Ela mora atrás de tudo, em meia força. */}
-        <Malha id="cuidadoBanner" forca={0.55} />
+      {/* ---- metade de cima: quem é ela ----
 
-        {/* ⚠️ UM PLANO DE FOTO, E ERA UM RECORTE SANGRANDO PELA DIREITA.
+          ⚠️ É A MESMA LINHA DO CARTÃO DE "SUA EQUIPE", e era um desenho só
+          desta tela. Retrato quadrado à esquerda, nome, papel, registro e
+          clínica ao lado, seta à direita. A mesma pessoa aparecia aqui de
+          um jeito e lá de outro, e as duas telas estão a um toque uma da
+          outra.
 
-            O desenho antigo dependia de PNG com fundo transparente: a
-            pessoa encostava na base do card, `contain`, e a malha aparecia
-            em volta dela. Com a foto que uma clínica manda — pessoa
-            sentada numa sala, com parede e planta atrás — isso vira um
-            retângulo de sala colado na quina.
+          ⚠️ O QUE SUMIU NA TROCA: o olho-de-boi "SUA ESPECIALISTA" e o
+          link "Ver perfil". O primeiro nomeava o que a linha já diz — nome,
+          papel e clínica não são ambíguos —, e o segundo repetia a seta ao
+          lado dele. Duas promessas de abrir a mesma tela, uma escrita e
+          uma desenhada.
 
-            Agora a foto ocupa uma faixa da direita, `cover`, e se desfaz
-            para dentro do card por um degradê horizontal. A malha continua
-            atrás, o texto continua na frente, e a emenda entre foto e
-            cartão deixa de existir — é o mesmo gesto do cabeçalho de
-            /especialista e de /clinica, deitado.
+          ⚠️ E A ALTURA DEIXOU DE SER 168 FIXOS. Ela existia para segurar o
+          recorte sangrado; com o retrato dentro da linha, o cartão passa a
+          ter a altura do conteúdo, como qualquer outro. */}
+      <View style={{ overflow: 'hidden', backgroundColor: c.bg1 }}>
+        {/* ⚠️ A MALHA CAIU DE 0,55 PARA 0,3 e passou a viver só à direita.
 
-            ⚠️ E SEM FOTO A FAIXA NÃO EXISTE. O texto ocupa o card inteiro,
-            e ninguém percebe que havia um lugar reservado para ela. */}
-        {/* ⚠️ A FOTO PASSOU PARA A ESQUERDA, e o recorte em PNG vivia à
-            direita. Não é gosto: o recorte era uma silhueta sem moldura,
-            que do lado direito encostava na quina e sangrava para fora — o
-            desenho pedia a borda. Uma foto de verdade é um RETÂNGULO com
-            conteúdo até o último pixel, e retângulo de imagem à esquerda do
-            texto é como todo cartão de pessoa deste aplicativo é montado:
-            a lista da clínica, o cartão de Sua equipe, a linha do perfil.
+            Ela é o que faz este cartão ser sobre alguém do outro lado e
+            não mais um cartão de lista, então não sai — mas em meia força
+            atrás de uma foto sangrada ela era o assunto, e agora o assunto
+            é a pessoa. O véu horizontal empurra a cor para a direita: na
+            paleta clara a malha já se concentra lá, na escura ela se
+            espalha, e o véu faz as duas se comportarem igual. */}
+        <Malha id="cuidadoBanner" forca={0.3} />
+        <LinearGradient
+          colors={[c.bg1, alfa(c.bg1, 0.88), alfa(c.bg1, 0)]}
+          locations={[0, 0.42, 0.9]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
 
-            Era a única peça do aplicativo com a imagem do outro lado, e
-            era assim porque o recorte exigia. O recorte saiu.
-
-            ⚠️ E A DISSOLUÇÃO MUDOU DE SENTIDO junto: ela corre da foto para
-            dentro do cartão, da esquerda para a direita, para o texto
-            começar em superfície limpa. */}
-        {FOTO_MEDICA ? (
-          <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 148 }}>
-            <Image
-              source={FOTO_MEDICA}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-              contentPosition="center"
-            />
-            <LinearGradient
-              colors={[alfa(c.bg1, 0), alfa(c.bg1, 0.75), c.bg1]}
-              locations={[0, 0.7, 1]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
-          </View>
-        ) : null}
-
-        <Pressable onPress={go('/especialista')} style={{ flex: 1 }}>
-          {/* 128 à esquerda: a faixa tem 148, e o texto começa 20px antes do
-              fim dela — já dentro da parte opaca da dissolução, e com os
-              179px que o nome inteiro pede numa linha só. */}
-          <View style={{ flex: 1, paddingLeft: 128, paddingRight: 20, paddingVertical: 20, justifyContent: 'center' }}>
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.1 }}>SUA ESPECIALISTA</Txt>
-            <Txt v="h2" style={{ marginTop: 7 }}>{S.profile.doctor}</Txt>
-            <Row gap={6} style={{ marginTop: 5 }}>
-              <Icon name="heart" size={13} color={c.tx3} sw={1.9} />
-              <Txt v="caption" c={c.tx2}>{S.profile.clinic}</Txt>
-            </Row>
-            <Row gap={6} style={{ marginTop: 12 }}>
-              <Txt v="label" c={c.accent2}>Ver perfil</Txt>
-              <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
-            </Row>
-          </View>
+        <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <Row gap={14} style={{ padding: 16, alignItems: 'center' }}>
+            {FOTO_MEDICA ? (
+              <Image
+                source={FOTO_MEDICA}
+                style={{ width: 76, height: 76, borderRadius: radius.md, backgroundColor: c.bg2 }}
+                contentFit="cover"
+                contentPosition="center"
+              />
+            ) : (
+              <View style={{
+                width: 76, height: 76, borderRadius: radius.md,
+                backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Txt v="h2" c={c.accent}>{(S.profile.doctor || '?').trim()[0]}</Txt>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Txt v="title" numberOfLines={2}>{S.profile.doctor}</Txt>
+              {!!medica?.papel && (
+                <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 3 }}>{medica.papel}</Txt>
+              )}
+              {!!medica?.registro && (
+                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{medica.registro}</Txt>
+              )}
+              {!!S.profile.clinic && (
+                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+              )}
+            </View>
+            <Chevron />
+          </Row>
         </Pressable>
       </View>
 
