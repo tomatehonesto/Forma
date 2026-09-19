@@ -151,7 +151,7 @@ export default function Privacidade() {
       >
         <Cartao>
           <Bloquinho titulo="O que você envia para a sua equipe">
-            O resumo para o médico sai quando você toca em enviar, e vira
+            O resumo para consulta sai quando você toca em enviar, e vira
             um documento datado no que a sua equipe tem. As mensagens saem
             quando você escreve. Nada do seu diário viaja sozinho — nem
             peso, nem sintoma, nem refeição.
@@ -196,7 +196,7 @@ export default function Privacidade() {
             sub="Montar um arquivo com o que você registrou" onPress={go('/exportar')} />
           <Linha ic="trend" titulo="Dispositivos e integrações"
             sub={`Ligar ou desligar o ${APP_DE_SAUDE}`} onPress={go('/integracoes')} />
-          <Linha ic="doc" titulo="Resumo para o médico"
+          <Linha ic="doc" titulo="Resumo para consulta"
             sub="Ver exatamente o que a sua equipe recebe" onPress={go('/resumo-medico')} />
           <Apagar onApagar={apagarTudo} />
         </Cartao>

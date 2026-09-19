@@ -97,7 +97,7 @@ export default function Exportar() {
             desligado={estado === 'gerando'}
             onPress={gerar}
           />
-          <Botao label="Ver o resumo para o médico" tom="fantasma" onPress={() => router.push('/resumo-medico' as any)} />
+          <Botao label="Ver o resumo para consulta" tom="fantasma" onPress={() => router.push('/resumo-medico' as any)} />
         </>
       }
     >
@@ -135,7 +135,7 @@ export default function Exportar() {
       <Aviso
         ic="doc"
         titulo="Sai um arquivo .json"
-        texto="É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para o médico."
+        texto="É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para consulta."
       />
 
       {estado === 'pronto' ? (

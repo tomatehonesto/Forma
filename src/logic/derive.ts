@@ -4515,6 +4515,123 @@ export function preparoDaConsulta(S: State): ItemDoPreparo[] {
   return itens;
 }
 
+/* ============================================================
+   O PERÍODO DE UMA CONSULTA
+
+   ⚠️ NÃO É "O QUE VEIO DESTA CONSULTA", E A DIFERENÇA É TUDO.
+
+   A tentação é ligar as coisas à consulta: a receita de 18 de agosto foi
+   dada NAQUELA consulta, a dose subiu POR CAUSA dela. Provavelmente sim —
+   e "provavelmente" sobre a medicação de alguém não é uma coisa que este
+   aplicativo pode afirmar. Ele não estava na sala. O que ele sabe é a
+   data de cada registro, e data não é causa.
+
+   Então o que esta leitura devolve é um INTERVALO: o que aconteceu entre
+   esta consulta e a seguinte. Isso é verificável, e responde a mesma
+   pergunta sem inventar a parte que falta — "o que mudou desde que eu
+   estive lá" é, afinal, o que alguém quer saber ao abrir uma consulta
+   passada.
+
+   ⚠️ E O ÚLTIMO INTERVALO AINDA CORRE. A consulta mais recente não tem
+   uma seguinte, então o período dela vai até hoje e é dito assim: "até
+   agora", e não uma data fechada que ele não tem.
+   ============================================================ */
+export type MudancaDoPeriodo = { id: string; ic: string; titulo: string; sub?: string };
+
+export type PeriodoDaConsulta = {
+  t: number;
+  tipo: string;
+  nota?: string;
+  /** o fim do intervalo: a consulta seguinte, ou agora */
+  ate: number;
+  /** o intervalo ainda não fechou */
+  emAberto: boolean;
+  mudancas: MudancaDoPeriodo[];
+};
+
+export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null {
+  const historico = (((S as any).consultsHistory ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
+  const i = historico.findIndex((h) => h.t === t);
+  if (i < 0) return null;
+  const h = historico[i];
+
+  /* O fim do intervalo é a PRÓXIMA consulta do histórico. A consulta
+     marcada para o futuro não conta: ela não aconteceu, e fechar um
+     período numa data que ainda não chegou diria que o que vem depois
+     dela já está contado. */
+  const seguinte = historico[i + 1];
+  const ate = seguinte ? seguinte.t : +now();
+  const emAberto = !seguinte;
+  const dentro = (x: number) => x > h.t && x <= ate;
+
+  const mudancas: MudancaDoPeriodo[] = [];
+
+  /* ---- peso ----
+     Os dois extremos do intervalo, e não a diferença com hoje: a pergunta
+     é o que mudou NAQUELE tempo. */
+  const pesos = ((S.weights ?? []) as any[]).filter((w) => dentro(w.t));
+  if (pesos.length >= 2) {
+    const de = pesos[0].kg;
+    const para = pesos[pesos.length - 1].kg;
+    const d = para - de;
+    mudancas.push({
+      id: 'peso', ic: 'scale',
+      titulo: d === 0 ? 'Peso estável' : `${d < 0 ? '−' : '+'}${nf(Math.abs(d), 1)} kg`,
+      sub: `De ${nf(de, 1)} para ${nf(para, 1)} kg`,
+    });
+  }
+
+  /* ---- dose ----
+     Só o ajuste, e não a dose de cada aplicação: uma lista de dez linhas
+     iguais dizendo "5 mg" é ruído; a linha que importa é aquela em que o
+     número mudou. */
+  const injs = ((S.injections ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
+  let anterior: number | null = null;
+  let ajuste: { de: number; para: number } | null = null;
+  let aplicacoes = 0;
+  for (const inj of injs) {
+    if (dentro(inj.t)) {
+      aplicacoes++;
+      if (anterior != null && inj.dose !== anterior) ajuste = { de: anterior, para: inj.dose };
+    }
+    if (inj.t <= ate) anterior = inj.dose;
+  }
+  if (ajuste) {
+    mudancas.push({
+      id: 'dose', ic: 'dose',
+      titulo: `Dose para ${nf(ajuste.para, ajuste.para % 1 ? 1 : 0)} mg`,
+      sub: `Vinha de ${nf(ajuste.de, ajuste.de % 1 ? 1 : 0)} mg`,
+    });
+  }
+  if (aplicacoes) {
+    mudancas.push({
+      id: 'aplicacoes', ic: 'syringe',
+      titulo: aplicacoes === 1 ? '1 aplicação' : `${aplicacoes} aplicações`,
+    });
+  }
+
+  /* ---- o que a clínica registrou no intervalo ---- */
+  const receitas = ((S.prescriptions ?? []) as any[]).filter((x) => dentro(x.t));
+  for (const r of receitas) {
+    mudancas.push({ id: 'receita-' + r.t, ic: 'pill', titulo: r.name, sub: r.detail });
+  }
+
+  const exames = (((S as any).examBundles ?? []) as any[]).filter((x) => dentro(x.t));
+  for (const ex of exames) {
+    mudancas.push({ id: 'exame-' + ex.t, ic: 'chart', titulo: ex.name, sub: `${ex.n} marcadores` });
+  }
+
+  const orientacoes = ((S.messages ?? []) as any[]).filter((m) => m.from === 'doc' && dentro(m.t)).length;
+  if (orientacoes) {
+    mudancas.push({
+      id: 'orientacoes', ic: 'companion',
+      titulo: orientacoes === 1 ? '1 orientação da equipe' : `${orientacoes} orientações da equipe`,
+    });
+  }
+
+  return { t: h.t, tipo: h.type || 'Consulta', nota: h.note || undefined, ate, emAberto, mudancas };
+}
+
 /** "hoje", "ontem", "há 4 dias" — a mesma frase em todas as linhas do
     preparo, para o olho comparar as datas em vez de traduzi-las. */
 function rotuloDeDias(d: number) {

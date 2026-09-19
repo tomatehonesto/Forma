@@ -39,7 +39,7 @@ const PERGUNTAS: QA[] = [
   },
   {
     q: 'Posso corrigir ou apagar um registro?',
-    a: 'Pode, e no lugar onde ele aparece. Pesagens e medidas se apagam no detalhe do marcador; refeições e treinos, abrindo o registro no diário do dia. O que você apagar some das contas na hora — inclusive dos gráficos e do resumo para o médico.',
+    a: 'Pode, e no lugar onde ele aparece. Pesagens e medidas se apagam no detalhe do marcador; refeições e treinos, abrindo o registro no diário do dia. O que você apagar some das contas na hora — inclusive dos gráficos e do resumo para consulta.',
   },
   {
     q: 'Por que uma conquista desapareceu?',

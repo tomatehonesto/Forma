@@ -23,7 +23,7 @@ import { now } from './time';
    POR QUE JSON. Portabilidade quer dizer poder levar embora para outro
    lugar, e para isso o formato precisa ser lido por máquina — é um
    arquivo que outro aplicativo consegue abrir, e não uma foto de tela.
-   Quem quer a versão para pessoa ler já tem o resumo para o médico, que
+   Quem quer a versão para pessoa ler já tem o resumo para consulta, que
    é a outra porta desta mesma tela.
 
    NOMES EM PORTUGUÊS, e não as chaves internas do estado. `kg`, `t`,

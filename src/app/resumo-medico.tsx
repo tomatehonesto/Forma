@@ -96,7 +96,7 @@ export default function ResumoMedico() {
 
   return (
     <TelaInterna
-      titulo="Resumo para o médico"
+      titulo="Resumo para consulta"
       rodape={
         <View style={{ gap: 10 }}>
           {temEquipe ? (
@@ -111,7 +111,7 @@ export default function ResumoMedico() {
       }
     >
       <Titulao
-        titulo="Resumo para o médico"
+        titulo="Resumo para consulta"
         lead="Tudo que você registrou, do jeito que vai chegar na consulta."
       />
 

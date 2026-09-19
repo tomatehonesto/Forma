@@ -225,10 +225,15 @@ export default function Consultas() {
           repetida ela vira uma fileira de botões, e nenhuma destas linhas
           é botão.
 
-          ⚠️ E ELAS NÃO ABREM NADA, DE PROPÓSITO. Não existe tela de
-          consulta passada, e o que há para saber sobre uma está inteiro
-          na linha dela. Por isso não têm seta — a mesma regra das
-          prescrições em /medico. */}
+          ⚠️ E AGORA ELAS ABREM. A regra que as mantinha fechadas era
+          verdadeira enquanto não havia tela: "o que há para saber sobre
+          uma consulta está inteiro na linha dela". Não estava — a linha
+          diz a data e o que ficou combinado, e não diz O QUE MUDOU
+          DEPOIS, que é a pergunta de quem abre uma consulta passada.
+
+          A tela do outro lado responde isso com um INTERVALO, e não com
+          uma causa: o que os registros mostram entre esta consulta e a
+          seguinte. O aplicativo não estava na sala, e data não é causa. */}
       {S.consultsHistory.length ? (
         <>
           <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Consultas anteriores</Txt>
@@ -239,7 +244,7 @@ export default function Consultas() {
                 ic="steth"
                 titulo={`${h.type} · ${fmtDate(new Date(h.t))}`}
                 sub={h.note || undefined}
-                seta={false}
+                onPress={go(`/consulta?t=${h.t}`)}
               />
             ))}
           </Cartao>

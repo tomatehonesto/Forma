@@ -222,12 +222,12 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
         linhas: [
           {
             titulo: 'Na pauta da consulta',
-            sub: p.doctor ? `vai no resumo para ${p.doctor}` : 'vai no resumo para o médico',
+            sub: p.doctor ? `vai no resumo para ${p.doctor}` : 'vai no resumo para consulta',
             selo: `${abertas.length}`,
             seloTom: 'neutra',
           },
         ],
-        caminho: { label: 'Ver o resumo para o médico', to: '/resumo-medico' },
+        caminho: { label: 'Ver o resumo para consulta', to: '/resumo-medico' },
       };
     }
 

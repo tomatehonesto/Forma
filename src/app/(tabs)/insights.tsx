@@ -698,7 +698,7 @@ export default function Insights() {
               sub={temAcompanhamento(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
               onPress={perguntar('Prepare minha consulta')} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-            <ListRow ic="doc" title="Resumo para o médico"
+            <ListRow ic="doc" title="Resumo para consulta"
               sub="documento com a evolução completa" onPress={go('/resumo-medico')} />
           </View>
         </View>

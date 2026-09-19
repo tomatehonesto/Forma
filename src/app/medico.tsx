@@ -279,7 +279,7 @@ export default function Medico() {
           <Pressable onPress={go('/resumo-medico')}>
             <View style={{ marginTop: 14, backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
               <Icon name="doc" size={16} color={c.accentInk} sw={2} />
-              <Txt v="label" c={c.accentInk}>Ver o resumo para o médico</Txt>
+              <Txt v="label" c={c.accentInk}>Ver o resumo para consulta</Txt>
             </View>
           </Pressable>
         </Card>

@@ -210,7 +210,7 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '6. O que sai do seu aparelho',
       paragrafos: ['São duas situações, e as duas dependem de um toque seu.'],
       itens: [
-        '<b>O que você envia à sua equipe</b> — o resumo para o médico e as mensagens que você escreve. Nada do seu diário é transmitido automaticamente.',
+        '<b>O que você envia à sua equipe</b> — o resumo para consulta e as mensagens que você escreve. Nada do seu diário é transmitido automaticamente.',
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
       ],
       depois: [
