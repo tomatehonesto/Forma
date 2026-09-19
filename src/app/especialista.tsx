@@ -39,7 +39,7 @@ export default function Especialista() {
   const info: any = (S.profile as any).doctorInfo ?? {};
 
   const acoes: [string, string, string][] = [
-    ['companion', 'Mensagem', '/medico'],
+    ['companion', 'Mensagem', '/conversa'],
     ['cal', 'Consultas', '/consultas'],
     ['doc', 'Protocolos', '/protocolos'],
     ['heart', 'Clínica', '/medico'],
@@ -188,7 +188,7 @@ export default function Especialista() {
 
           <Divider style={{ marginTop: 28 }} />
 
-          <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 20, opacity: pressed ? 0.85 : 1 }]}>
+          <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 20, opacity: pressed ? 0.85 : 1 }]}>
             <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
               <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
               <Txt v="body" c={c.accentInk}>Enviar mensagem</Txt>

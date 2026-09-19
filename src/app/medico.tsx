@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { protocoloDaSemana, penStock, medComDose } from '../logic/derive';
+import { protocoloDaSemana } from '../logic/derive';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider } from '../ui/kit';
 import { Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { now, fmtWD, fmtDate, fmtTime, relDay } from '../logic/time';
-import { radius, font } from '../theme';
+import { fmtWD, fmtDate, relDay } from '../logic/time';
+import { radius } from '../theme';
 
 /* ============================================================
    SUA EQUIPE — o lado de lá do tratamento
@@ -37,6 +37,17 @@ import { radius, font } from '../theme';
    clínica não tem nome guardado — o que acontece com quem entrou só pelo
    código de convite.
 
+   ⚠️ E A CONVERSA SAIU DAQUI. Ela era um card de 250 px no meio desta
+   página: uma rolagem dentro de outra, o teclado por cima do que a
+   pessoa escrevia, e a parte viva da relação com a clínica com o mesmo
+   peso visual que a lista de documentos. Virou /conversa, tela cheia.
+
+   O que morreu junto: o estado do campo, a referência da thread, o
+   rascunho da receita e a leitura das mensagens. Zerar o contador de não
+   lidas foi para lá, e é onde tem que ser — enquanto a caixa era um card,
+   "lido" acontecia ao abrir uma tela que tem outras seis coisas, e a
+   pessoa zerava o aviso sem nunca ter rolado até a mensagem.
+
    ⚠️ A ROTA CONTINUA /medico, e isso é dívida consciente: são quinze
    chamadas espalhadas, incluindo quatro dentro de derive.ts. O nome que
    a pessoa lê é o que importa, e ele mudou; o outro é endereço interno e
@@ -47,29 +58,8 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Medico() {
   const S = useStore((s) => s.S);
-  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
-  const [msg, setMsg] = useState('');
-  const threadRef = useRef<ScrollView>(null);
-  const telaRef = useRef<ScrollView>(null);
-  const campoRef = useRef<TextInput>(null);
-  const [yConversa, setYConversa] = useState(0);
-
-  useEffect(() => { if (S.unread) update((s: any) => { s.unread = 0; }); }, []);
-
-  /* A CONVERSA ABRE NO FIM, e não no começo.
-
-     A caixa tem 250 px e a conversa cresce: abrir no topo é abrir na
-     mensagem mais velha, que é a única que já foi lida — e a recente, que
-     é o motivo de alguém entrar aqui, fica fora da caixa.
-
-     Sem animação: não é um movimento, é o lugar onde a tela começa. */
-  useEffect(() => {
-    const t = setTimeout(() => threadRef.current?.scrollToEnd({ animated: false }), 60);
-    return () => clearTimeout(t);
-  }, [S.messages.length]);
-
   const quem = [S.profile.clinic, S.profile.doctor].filter(Boolean).join(' · ');
 
   /* ============================================================
@@ -116,58 +106,7 @@ export default function Medico() {
     ...(((S as any).team ?? []) as any[]).map((m) => ({ nome: m.name, papel: m.role })),
   ];
 
-  /* ============================================================
-     PEDIR RECEITA É MANDAR UMA MENSAGEM
-
-     ⚠️ AQUI HAVIA UMA PORTA EMPAREDADA, e ela vinha de dois lugares: a
-     Home tinha "Solicitar nova receita" e o pendente da aba Cuidado tinha
-     "Peça a renovação da receita", e os dois abriam esta tela NO ALTO.
-     Não existia ação nenhuma de pedir receita aqui dentro — o bloco de
-     Prescrições é leitura. A pessoa chegava, procurava o botão, e o botão
-     não existia.
-
-     A resposta não era inventar um fluxo de pedido: pedir receita a uma
-     clínica É uma mensagem para a clínica. O canal já estava na tela.
-
-     ⚠️⚠️ E O RASCUNHO NÃO SE ENVIA SOZINHO. ⚠️⚠️
-
-     O aplicativo escreve a frase e para. Quem manda é ela, no mesmo botão
-     de sempre, depois de ler e mudar o que quiser — porque isto vai para
-     um profissional de saúde, com o nome dela em cima, e um aplicativo
-     que fala por alguém numa conversa clínica é o tipo de atalho que
-     ninguém pediu.
-
-     O rascunho carrega o que a equipe precisa para responder sem
-     perguntar de volta: o medicamento com a dose e quantas doses sobraram
-     na caneta. Os dois saem do estado, e não de um texto fixo. */
-  const { pedir } = useLocalSearchParams<{ pedir?: string }>();
-  const estoque = penStock(S);
-
-  const rascunhoDaReceita = () =>
-    `Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${
-      estoque.left === 1 ? 'Resta 1 dose' : `Restam ${estoque.left} doses`
-    } na caneta.`;
-
-  const pedirReceita = () => {
-    setMsg(rascunhoDaReceita());
-    /* O atraso é o tempo de a tela existir: rolar e focar antes da
-       primeira pintura não leva a lugar nenhum. */
-    setTimeout(() => {
-      telaRef.current?.scrollTo({ y: Math.max(0, yConversa - 16), animated: true });
-      campoRef.current?.focus();
-    }, 80);
-  };
-
-  /* Chegando pela Home ou pelo pendente, o pedido já vem pedido. */
-  useEffect(() => { if (pedir === 'receita') pedirReceita(); }, [pedir]);
-
   const nd = new Date(S.consult.t);
-  const send = () => {
-    const t = msg.trim(); if (!t) return;
-    update((s: any) => { s.messages.push({ t: +now(), from: 'me', text: t }); });
-    setMsg('');
-    setTimeout(() => threadRef.current?.scrollToEnd({ animated: true }), 80);
-  };
 
   /* ⚠️ AQUI HAVIA UMA TERCEIRA LINHA — "Compartilhar evolução · Peso,
      medidas e adesão com a equipe" — e ela era a quinta porta emparedada
@@ -195,7 +134,7 @@ export default function Medico() {
   ];
 
   return (
-    <Screen scrollRef={telaRef}>
+    <Screen>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
         <View style={{ flex: 1 }}>
@@ -241,41 +180,6 @@ export default function Medico() {
             </View>
           </Pressable>
         </View>
-      </Card>
-
-      {/* thread */}
-      <View onLayout={(e) => setYConversa(e.nativeEvent.layout.y)}>
-        <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Conversa com a equipe</Txt>
-      </View>
-      <Card style={{ padding: 14 }}>
-        <ScrollView ref={threadRef} style={{ maxHeight: 250 }} showsVerticalScrollIndicator={false}>
-          {S.messages.map((m: any, i: number) => (
-            <View key={i} style={{
-              alignSelf: m.from === 'doc' ? 'flex-start' : 'flex-end', maxWidth: '85%', marginBottom: 8,
-              backgroundColor: m.from === 'doc' ? c.bg2 : c.accent, borderRadius: radius.md, padding: 11,
-              borderBottomLeftRadius: m.from === 'doc' ? 4 : radius.md, borderBottomRightRadius: m.from === 'doc' ? radius.md : 4,
-            }}>
-              {m.from === 'doc' && <Txt v="micro" c={c.tx3} style={{ marginBottom: 2 }}>{S.profile.doctor}</Txt>}
-              <Txt v="bodyMed" c={m.from === 'doc' ? c.tx : '#fff'} style={{ lineHeight: 19 }}>{m.text}</Txt>
-              <Txt v="micro" c={m.from === 'doc' ? c.tx4 : 'rgba(255,255,255,0.7)'} style={{ marginTop: 4 }}>{relDay(new Date(m.t))} · {fmtTime(new Date(m.t))}</Txt>
-            </View>
-          ))}
-        </ScrollView>
-        <Divider style={{ marginTop: 6 }} />
-        <Row style={{ marginTop: 10 }} gap={8}>
-          <TextInput
-            ref={campoRef}
-            value={msg} onChangeText={setMsg} onSubmitEditing={send}
-            placeholder="Escrever para a equipe..." placeholderTextColor={c.tx4}
-            style={{ flex: 1, backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, color: c.tx, fontFamily: font.body, fontSize: 19 }}
-          />
-          <Pressable onPress={send} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="send" size={18} color="#fff" sw={2} />
-            </View>
-          </Pressable>
-        </Row>
-        <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 8 }}>Canal organizado com a clínica — some do WhatsApp, entra no seu histórico</Txt>
       </Card>
 
       {/* protocolos */}
@@ -328,7 +232,7 @@ export default function Medico() {
           ic="send"
           titulo="Pedir nova receita"
           sub="Abre uma mensagem para a equipe, para você revisar e enviar"
-          onPress={pedirReceita}
+          onPress={() => router.push('/conversa?pedir=receita' as any)}
         />
         <Divider style={{ marginLeft: 52 }} />
         {S.prescriptions.map((p: any, i: number) => (

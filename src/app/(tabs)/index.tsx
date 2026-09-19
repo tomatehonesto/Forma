@@ -485,7 +485,7 @@ export default function Home() {
                 <View style={{ marginTop: 24 }}>
                   <ListRow ic="companion" title="Mensagens" dot={S.unread > 0}
                     sub={S.unread > 0 ? `${S.unread} ${S.unread === 1 ? 'nova mensagem' : 'novas mensagens'}` : 'Nenhuma mensagem nova'}
-                    onPress={go('/medico')} />
+                    onPress={go('/conversa')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   <ListRow ic="cal" title="Próxima consulta"
                     sub={`${fmtDate(consultD)} • ${DOW_PT[consultD.getDay()]}`}
@@ -497,7 +497,7 @@ export default function Home() {
                       manual. O parâmetro abre a conversa com o rascunho
                       pronto; quem envia continua sendo ela. */}
                   <ListRow ic="doc" title="Solicitar nova receita" sub="Uma mensagem para a sua equipe"
-                    onPress={go('/medico?pedir=receita')} />
+                    onPress={go('/conversa?pedir=receita')} />
                 </View>
               </View>
             ) : (S.profile.doctor || S.profile.clinic) ? (

@@ -402,7 +402,7 @@ function BannerMedica() {
           são a mesma coisa, e separá-las em dois blocos fazia a tela
           apresentar duas vezes a mesma relação. */}
       {msg ? (
-        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+        <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
           <View style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
             {/* "Última orientação" e não "última mensagem": vindo dela, o
                 que chega não é recado, é conduta — e nomear assim muda o
@@ -437,7 +437,7 @@ function BannerMedica() {
       ) : (
         /* sem histórico não há frase para mostrar, e aí o botão volta a ser
            a única coisa que faz sentido */
-        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+        <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
           <Row gap={10} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
             <Icon name="companion" size={18} color={c.accent} sw={1.9} />
             <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Enviar a primeira mensagem</Txt>
@@ -843,7 +843,7 @@ function Tratamento() {
               caneta acabando continua dita logo acima, em número de doses
               e semanas — o fato não depende de plataforma, o pedido sim. */}
           {clinicaConectada(S) && !p.verdict.good && (
-            <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 18, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
+            <Pressable onPress={go('/conversa?pedir=receita')} style={({ pressed }) => [{ marginTop: 18, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
                 <Txt v="label" c={c.accent2}>Pedir renovação</Txt>
                 <Icon name="chev" size={13} color={c.accent2} sw={2.2} />

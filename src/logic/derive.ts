@@ -3738,7 +3738,7 @@ export function carePending(S: State) {
     ic: 'companion',
     texto: `Responder ${S.unread === 1 ? 'a mensagem' : `as ${S.unread} mensagens`} da sua equipe`,
     sub: 'aguardando sua resposta',
-    to: '/medico', urgente: true,
+    to: '/conversa', urgente: true,
   });
   /* ⚠️ A RECEITA ACABANDO É UM FATO, E O DESTINO É QUE MUDAVA.
 
@@ -3760,7 +3760,7 @@ export function carePending(S: State) {
        procurando o botão de pedir — que não existia. Pedir receita É uma
        mensagem para a equipe, e o parâmetro leva direto à conversa com o
        rascunho escrito. Sem equipe, quem resolve é o estoque. */
-    to: clinicaConectada(S) ? '/medico?pedir=receita' : '/aplicacoes',
+    to: clinicaConectada(S) ? '/conversa?pedir=receita' : '/aplicacoes',
   });
   const exame = exameNoProtocolo(S);
   /* O exame vem do protocolo. Com equipe, foi ela que pediu; sem
@@ -3941,7 +3941,7 @@ export function careStatus(S: State) {
       ic: 'companion', label: 'Mensagens',
       valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Tudo em dia',
       nivel: (S.unread > 0 ? 'atencao' : 'ok') as CareNivel,
-      to: '/medico',
+      to: '/conversa',
     }] : []),
     {
       ic: 'pill', label: 'Receita',

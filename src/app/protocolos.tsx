@@ -102,7 +102,7 @@ export default function Protocolos() {
           <AtalhoDaCapa
             titulo="Falar com a equipe"
             cheio
-            onPress={() => router.push('/medico' as any)}
+            onPress={() => router.push('/conversa' as any)}
           />
         ) : null}
       </CapaDeHabito>
