@@ -73,6 +73,50 @@ export default function Medico() {
   const quem = [S.profile.clinic, S.profile.doctor].filter(Boolean).join(' · ');
 
   /* ============================================================
+     A EQUIPE VEM DO ESTADO, E VINHA DO ARQUIVO
+
+     ⚠️ ESTAVA CRAVADA NO JSX, e errada de quatro maneiras ao mesmo tempo:
+
+         [[S.profile.doctor, 'Endocrinologia · responsável', 'H'],
+          ['Renata Alves', 'Nutrição', 'R']]
+
+     · "Renata Alves" aparecia para TODO MUNDO — quem entrou por código de
+       convite, sem clínica nenhuma guardada, via uma nutricionista que
+       nunca falou com ela;
+     · a equipe tem TRÊS pessoas em `S.team` — a nutricionista, a
+       enfermeira e o psicólogo — e a tela mostrava uma. Duas profissionais
+       existiam no estado e não existiam na tela;
+     · os papéis estavam reescritos à mão e divergiam da fonte:
+       "Nutrição" contra `role: 'Nutricionista'`, "Endocrinologia" contra
+       `especialidade: 'Endocrinologista'`;
+     · e as iniciais eram letras digitadas. Trocar "Renata" por outro nome
+       deixava o "R" para trás.
+
+     ⚠️ E NADA DISSO PRECISAVA SER INVENTADO: os dados já estavam todos no
+     estado, e a aba Cuidado já os lia. Esta tela escreveu de novo, por
+     fora, uma versão pior de algo que existia — que é como duas fontes
+     para o mesmo fato nascem.
+
+     ⚠️ A SEÇÃO SOME QUANDO NÃO HÁ EQUIPE, e isso é o oposto do defeito
+     antigo: quem tem vínculo mas nenhum nome guardado não vê uma lista com
+     gente inventada, vê a ausência — que é a verdade. */
+  const inicial = (n: string) =>
+    (n.split(/\s+/).find((w) => !w.endsWith('.')) ?? n).charAt(0).toUpperCase();
+
+  const equipe: { nome: string; papel: string }[] = [
+    /* A responsável primeiro, e com o papel montado da ficha dela: a
+       especialidade é um fato guardado, "responsável" é o lugar que ela
+       ocupa nesta lista. */
+    ...(S.profile.doctor
+      ? [{
+        nome: S.profile.doctor,
+        papel: [(S.profile as any).doctorInfo?.especialidade, 'responsável'].filter(Boolean).join(' · '),
+      }]
+      : []),
+    ...(((S as any).team ?? []) as any[]).map((m) => ({ nome: m.name, papel: m.role })),
+  ];
+
+  /* ============================================================
      PEDIR RECEITA É MANDAR UMA MENSAGEM
 
      ⚠️ AQUI HAVIA UMA PORTA EMPAREDADA, e ela vinha de dois lugares: a
@@ -323,23 +367,27 @@ export default function Medico() {
       </Card>
 
       {/* equipe */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Equipe</Txt>
-      <Card style={{ paddingVertical: 4 }}>
-        {[[S.profile.doctor, 'Endocrinologia · responsável', 'H'], ['Renata Alves', 'Nutrição', 'R']].map(([n, s, a], i) => (
-          <View key={n}>
-            {i > 0 && <Divider style={{ marginLeft: 48 }} />}
-            <Row style={{ paddingVertical: 12 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-                <Txt v="title" c={c.accent}>{a}</Txt>
+      {equipe.length ? (
+        <>
+          <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Equipe</Txt>
+          <Card style={{ paddingVertical: 4 }}>
+            {equipe.map((m, i) => (
+              <View key={m.nome}>
+                {i > 0 && <Divider style={{ marginLeft: 48 }} />}
+                <Row style={{ paddingVertical: 12 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Txt v="title" c={c.accent}>{inicial(m.nome)}</Txt>
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Txt v="title">{m.nome}</Txt>
+                    {m.papel ? <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{m.papel}</Txt> : null}
+                  </View>
+                </Row>
               </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="title">{n}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{s}</Txt>
-              </View>
-            </Row>
-          </View>
-        ))}
-      </Card>
+            ))}
+          </Card>
+        </>
+      ) : null}
     </Screen>
   );
 }
