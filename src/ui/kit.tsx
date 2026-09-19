@@ -69,8 +69,19 @@ export function Card({ children, style, onPress, tint }: { children: React.React
   return <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.97 : 1, transform: [{ scale: pressed ? 0.994 : 1 }] }]}>{body}</Pressable>;
 }
 
-/* Cabeçalho de seção — título + link "Ir para ...". Padrão da Home,
-   usado em todas as telas que agrupam conteúdo em seções. */
+/* Cabeçalho de seção — título + link. Padrão da Home, usado em todas as
+   telas que agrupam conteúdo em seções.
+
+   ⚠️ O LINK É O NOME DO DESTINO, E NÃO O GESTO. Era "Ir para metas", "Ir
+   para evolução", "Ir para área médica" — e o "ir para" é exatamente o
+   que a seta ao lado já diz. Duas vezes a mesma informação, uma escrita e
+   uma desenhada, e a escrita ocupando a largura que o nome precisaria
+   para caber.
+
+   "Ver todas" continua valendo onde continua sendo verdade: ali o link
+   não nomeia uma tela, ele promete MAIS do que está à vista — três notas
+   de dez, cinco exames de quinze. São duas coisas diferentes com dois
+   rótulos diferentes. */
 export function SectionHead({ title, link, onPress, style }: { title: string; link?: string; onPress?: () => void; style?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   return (

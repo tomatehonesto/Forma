@@ -46,12 +46,17 @@ import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 
 const PAD = 24;
 
-/* ⚠️ 420, E ERA 330. A conta mudou quando o nome saiu da página e entrou
-   no vidro: antes cada pixel de foto empurrava o texto para baixo, e o
-   limite era a dobra. Agora a foto CARREGA o nome, então ela pode ocupar
-   o que precisa para ser um retrato em vez de uma faixa — e a faixa de
-   vidro come só a altura das três linhas que moram nela. */
-const ALTURA_DO_RETRATO = 420;
+/* ⚠️ 500, E JÁ FOI 330 E 420. A conta mudou quando o nome saiu da página
+   e entrou no vidro: antes cada pixel de foto empurrava o texto para
+   baixo, e o limite era a dobra. Agora a foto CARREGA o nome, e a única
+   coisa que ela empurra é ela mesma.
+
+   ⚠️ O TETO NÃO É ESTÉTICO, É A PRIMEIRA AÇÃO. Numa tela de 812, os 500
+   deixam a fileira de Mensagem/Consultas/Protocolos começando por volta
+   de 640 — dentro da dobra, e é isso que importa. Passar disso empurra a
+   ação principal para fora da primeira tela, e aí a foto deixa de ser
+   generosa e passa a estar no caminho. */
+const ALTURA_DO_RETRATO = 500;
 
 export default function Especialista() {
   const S = useStore((s) => s.S);
@@ -252,6 +257,49 @@ export default function Especialista() {
           </View>
         ) : null}
 
+        <View style={{ paddingHorizontal: PAD }}>
+          {/* ---- os números que sustentam a credencial ----
+
+              ⚠️ DOIS, E ERAM TRÊS. "Avaliações" saiu junto com a nota: uma
+              contagem de avaliações sem avaliação nenhuma no aplicativo é
+              um número que não tem de onde vir.
+
+              ⚠️ E CADA UM GANHOU ÍCONE. Sem eles a fileira era dois pares
+              de texto separados por um fio — tempo e volume, duas grandezas
+              diferentes lidas com o mesmo peso. O relógio e as pessoas
+              dizem de que espécie é cada número antes de alguém ler o
+              número. */}
+          {!!f.anos && !!f.pacientes && (
+            <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 20, paddingVertical: 18 }}>
+              {([
+                ['clock', `${f.anos} anos`, 'de experiência'],
+                ['user', `${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
+              ] as [string, string, string][]).map(([ic, valor, label], i) => (
+                <React.Fragment key={label}>
+                  {i > 0 && <View style={{ width: 1, backgroundColor: c.line2, marginVertical: 2 }} />}
+                  <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 6 }}>
+                    <Icon name={ic} size={19} color={c.accent} sw={1.9} />
+                    <Txt v="h2" style={{ marginTop: 8 }}>{valor}</Txt>
+                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center' }}>{label}</Txt>
+                  </View>
+                </React.Fragment>
+              ))}
+            </Row>
+          )}
+
+
+          {/* ⚠️ AS AÇÕES DESCERAM PARA DEPOIS DOS NÚMEROS, e vinham antes.
+
+              A ordem antiga punha a fileira de botões colada no nome, e os
+              números — 12 anos, 2,4 mil pacientes — depois dela. Mas os
+              números são a CONTINUAÇÃO da identidade: eles respondem "quem
+              é essa pessoa", que é a mesma pergunta do nome e do registro
+              logo acima. Separá-los da identidade por uma fileira de botões
+              partia a resposta no meio.
+
+              Agora a tela diz quem é — nome, papel, registro, tempo,
+              volume — e só então oferece o que fazer. É a ordem de uma
+              apresentação: primeiro se sabe com quem se está falando. */}
         {/* ---- as ações ----
 
             ⚠️ SEM CARTÃO, e elas moravam num. O cartão de vidro existia
@@ -269,7 +317,6 @@ export default function Especialista() {
 
             Uma cor por ação seria um arco-íris: são quatro caminhos para a
             mesma pessoa, e uma família só de cor é o que diz isso. */}
-        <View style={{ paddingHorizontal: PAD, marginTop: 22 }}>
           <Row gap={8}>
             {acoes.map(([ic, label, to]) => (
               <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
@@ -282,37 +329,6 @@ export default function Especialista() {
               </Pressable>
             ))}
           </Row>
-        </View>
-
-        <View style={{ paddingHorizontal: PAD }}>
-          {/* ---- os números que sustentam a credencial ----
-
-              ⚠️ DOIS, E ERAM TRÊS. "Avaliações" saiu junto com a nota: uma
-              contagem de avaliações sem avaliação nenhuma no aplicativo é
-              um número que não tem de onde vir.
-
-              ⚠️ E CADA UM GANHOU ÍCONE. Sem eles a fileira era dois pares
-              de texto separados por um fio — tempo e volume, duas grandezas
-              diferentes lidas com o mesmo peso. O relógio e as pessoas
-              dizem de que espécie é cada número antes de alguém ler o
-              número. */}
-          {!!f.anos && !!f.pacientes && (
-            <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 18, paddingVertical: 18 }}>
-              {([
-                ['clock', `${f.anos} anos`, 'de experiência'],
-                ['user', `${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
-              ] as [string, string, string][]).map(([ic, valor, label], i) => (
-                <React.Fragment key={label}>
-                  {i > 0 && <View style={{ width: 1, backgroundColor: c.line2, marginVertical: 2 }} />}
-                  <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 6 }}>
-                    <Icon name={ic} size={19} color={c.accent} sw={1.9} />
-                    <Txt v="h2" style={{ marginTop: 8 }}>{valor}</Txt>
-                    <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center' }}>{label}</Txt>
-                  </View>
-                </React.Fragment>
-              ))}
-            </Row>
-          )}
 
           {!!f.sobre && (
             <View style={{ marginTop: 32 }}>

@@ -110,10 +110,15 @@ const PAD = 24;
    Abaixo dela a página começa com o endereço, que é o que a pessoa veio
    consultar, e continua acima da dobra.
 
-   ⚠️ 400 DESDE QUE A FAIXA FICOU CHAPADA. O degradê comia 200px de imagem
-   para se desfazer; a faixa chapada ocupa a altura do texto, então os
-   mesmos 400 mostram muito mais foto do que os 360 mostravam antes. */
-const ALTURA_DA_FOTO = 400;
+   ⚠️ 480 DESDE QUE A FAIXA VIROU VIDRO DE CORTE SECO. O degradê comia
+   200px de imagem para se desfazer; o vidro ocupa a altura do texto, e
+   o que sobra é foto.
+
+   ⚠️ O TETO É O ENDEREÇO. Numa tela de 812, os 480 deixam a primeira
+   linha da página — rua e número — começando por volta de 520, dentro da
+   dobra. É o dado mais consultado desta tela, e ele não pode depender de
+   rolagem para existir. */
+const ALTURA_DA_FOTO = 480;
 
 export default function Clinica() {
   const S = useStore((s) => s.S);

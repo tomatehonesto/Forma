@@ -358,7 +358,12 @@ export default function Home() {
 
           {/* metas diarias */}
           <View style={{ paddingHorizontal: PAD }}>
-            <SectionHead title="Suas metas diárias" link="Ir para metas" onPress={go('/metas')} />
+            {/* ⚠️ "METAS", E NÃO "IR PARA METAS". O link de seção é o NOME
+                da tela do outro lado, e "ir para" é o que a seta ao lado
+                já diz — duas vezes a mesma informação, uma escrita e uma
+                desenhada. Vale para toda a casa: os links de seção nomeiam
+                destino, não descrevem o gesto. */}
+            <SectionHead title="Suas metas diárias" link="Metas" onPress={go('/metas')} />
           </View>
           <ScrollView
             horizontal showsHorizontalScrollIndicator={false}
@@ -370,7 +375,7 @@ export default function Home() {
 
           {/* evolucao */}
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
-            <SectionHead title="Sua evolução" link="Ir para evolução" onPress={go('/evolucao')} />
+            <SectionHead title="Sua evolução" link="Evolução" onPress={go('/evolucao')} />
 
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, overflow: 'hidden' }}>
               <Row style={{ padding: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
