@@ -133,18 +133,35 @@ export default function Medico() {
       <View style={{ paddingHorizontal: 20 }}>
         <Row style={{ marginTop: 4 }} gap={12}>
           <CircleBtn name="back" onPress={() => router.back()} />
-          {/* ⚠️ "SUA EQUIPE" MESMO QUANDO É UMA PESSOA SÓ, e foi decisão.
+          {/* ⚠️ "ÁREA MÉDICA", E ERA "SUA EQUIPE".
 
-              Um título condicional — "Sua equipe" com time, outra coisa
-              sem — daria ao aplicativo um TERCEIRO nome muito parecido com
-              os dois que já existem: /acompanhamento se chama "Quem
-              acompanha você" e a Home tem a seção "Seu acompanhamento".
-              Três nomes quase iguais para três lugares diferentes custa
-              mais do que a licença de chamar de equipe um time de um.
+              A Home já chamava esta tela assim: a seção "Seu
+              acompanhamento" tem o link "Ir para área médica", e ele vem
+              para cá. Dois nomes para um destino é o mesmo defeito que
+              tirou a equipe escrita à mão e as duas aparências do mesmo
+              botão de ação — quem toca em "área médica" e chega numa tela
+              chamada "Sua equipe" não sabe se chegou onde queria.
 
-              E a licença é pequena: o cartão logo abaixo mostra quem é,
-              com nome e registro, antes de qualquer dúvida. */}
-          <Txt v="title" style={{ flex: 1 }}>Sua equipe</Txt>
+              ⚠️ E O NOME ANTIGO DESCREVIA SÓ O PRIMEIRO CARTÃO. Abaixo
+              dele moram o resumo para levar à consulta, os próximos
+              passos, as prescrições e os documentos — nada disso é a
+              equipe, tudo isso é o tratamento do lado clínico. "Sua
+              equipe" nomeava a peça de cima e deixava o resto sem nome.
+
+              ⚠️ A RAZÃO ANTIGA CONTINUA VALENDO, e é por isso que o nome
+              novo serve: o problema era ter um TERCEIRO nome parecido com
+              /acompanhamento ("Quem acompanha você") e com a seção da Home
+              ("Seu acompanhamento"). "Área médica" não entra nessa família
+              — some a semelhança e some também o título condicional, que
+              mudaria de nome conforme o tamanho do time.
+
+              ⚠️ A RESSALVA, PARA QUEM MEXER DEPOIS: em aplicativo
+              brasileiro, "área médica" também é como se chama o portal DOS
+              médicos. Aqui não há portal nenhum e o aplicativo inteiro é
+              do paciente, então a leitura não tem para onde ir — mas se um
+              dia existir alguma coisa para a clínica, este nome fica
+              ocupado e é este título que muda. */}
+          <Txt v="title" style={{ flex: 1 }}>Área médica</Txt>
         </Row>
 
         {responsavel ? (

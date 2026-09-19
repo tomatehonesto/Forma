@@ -141,7 +141,7 @@ export default function Clinica() {
           <Txt v="title" style={{ flex: 1 }}>Clínica</Txt>
         </Row>
         <Txt v="note" c={c.tx3} style={{ marginTop: 28, lineHeight: 23 }}>
-          Você não tem clínica vinculada. Quem acompanha o seu tratamento aparece em Sua equipe.
+          Você não tem clínica vinculada. Quem acompanha o seu tratamento aparece na área médica.
         </Txt>
       </View>
     );
