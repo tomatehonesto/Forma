@@ -14,7 +14,7 @@ import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard, alfa } from '../theme';
+import { radius, shadowCard, alfa, mix } from '../theme';
 
 /* ============================================================
    EXAMES
@@ -67,7 +67,15 @@ const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()
    pontas eles descreviam a moldura; sob as bordas eles respondem a
    pergunta — "de 13,5 a 18" é o intervalo, e é isso que a pessoa
    precisa levar embora. */
-const PONTOS_DA_REGUA = 33;
+/* ⚠️ 45 E NÃO 33, E ISSO MUDA O QUE A PEÇA É.
+
+   Com 33 pontos espalhados na largura inteira, o espaço entre eles é
+   maior que eles: o olho lê PONTOS, conta, e tenta atribuir valor a cada
+   um. Com 45 quase encostados, ele para de contar e lê uma FITA com
+   textura — que é o que a referência faz e o que a peça precisa ser. A
+   régua não é uma escala de 45 casas; é uma região contínua desenhada
+   com grão. */
+const PONTOS_DA_REGUA = 45;
 
 function Regua({ e }: { e: any }) {
   const { c } = useTheme();
@@ -94,24 +102,36 @@ function Regua({ e }: { e: any }) {
 
   return (
     <View>
-      <Row style={{ justifyContent: 'space-between', alignItems: 'center', height: 14 }}>
+      {/* ⚠️ A RAMPA É DE COR, E NÃO DE TRANSPARÊNCIA.
+
+          Em alfa, os pontos do começo da faixa ficavam translúcidos — e
+          translúcido lê como "apagado", como coisa desativada. O ponto
+          encostado no limite não está desativado: ele está dentro da
+          faixa, só que na beira dela. Misturando a cor com o fundo em vez
+          de diluí-la, todos os pontos são igualmente sólidos e o que muda
+          entre eles é o TOM, que é o que a referência faz.
+
+          E a rampa não começa no fundo: o ponto mais claro da faixa ainda
+          é visivelmente da cor da faixa, senão a borda dela se confunde
+          com o trilho cinza de fora. */}
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center', height: 12 }}>
         {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
           const pct = (i / (PONTOS_DA_REGUA - 1)) * 100;
           const naFaixa = pct >= g.bandL && pct <= g.bandR;
           const ehValor = i === iValor;
 
           if (ehValor) {
-            /* O anel é o que separa "este é o seu" de "este é mais um da
-               faixa". Sem ele, um valor bem no fundo da faixa some entre
-               os vizinhos, que ali são quase da mesma cor. */
+            /* ⚠️ O ANEL ENCOLHEU. Ele era um halo de 14 com um miolo de 8 —
+               uma peça de outra escala no meio de uma fita de grão fino,
+               que roubava a leitura da faixa inteira. Aqui ele é um ponto
+               do mesmo tamanho dos outros, só que cheio e cercado por um
+               fio da cor do fundo: destaca sem virar outro objeto. */
             return (
               <View key={i} style={{
-                width: 14, height: 14, borderRadius: 7,
-                alignItems: 'center', justifyContent: 'center',
-                backgroundColor: alfa(col, 0.22),
-              }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: col }} />
-              </View>
+                width: 11, height: 11, borderRadius: 6,
+                borderWidth: 2.5, borderColor: c.bg,
+                backgroundColor: col,
+              }} />
             );
           }
           return (
@@ -119,7 +139,9 @@ function Regua({ e }: { e: any }) {
               key={i}
               style={{
                 width: 5, height: 5, borderRadius: 3,
-                backgroundColor: naFaixa ? alfa(c.accent, 0.16 + profundidade(pct) * 0.62) : c.track,
+                backgroundColor: naFaixa
+                  ? mix(c.bg, c.accent, 0.3 + profundidade(pct) * 0.7)
+                  : c.track,
               }}
             />
           );
