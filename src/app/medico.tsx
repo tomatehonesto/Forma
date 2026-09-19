@@ -9,6 +9,39 @@ import { useTheme } from '../ui/useTheme';
 import { now, fmtWD, fmtDate, fmtTime, relDay } from '../logic/time';
 import { radius, font } from '../theme';
 
+/* ============================================================
+   SUA EQUIPE — o lado de lá do tratamento
+
+   ⚠️ ELA SE CHAMAVA "MEU MÉDICO", E A PRÓPRIA TELA JÁ DISCORDAVA.
+
+   Três linhas abaixo do título vinha "Conversa com a equipe"; o campo
+   dizia "Escrever para a equipe"; e a última seção era "Equipe", com a
+   endocrinologista E a nutricionista. O nome falava de uma pessoa num
+   lugar que guarda uma clínica inteira — consultas, protocolos,
+   prescrições, documentos, duas profissionais.
+
+   Três coisas estavam erradas nele, e cada uma sozinha bastava:
+
+   · "médico" nomeia UMA pessoa, e a tela tem duas na própria lista — e
+     exclui a nutricionista que já estava nela, a enfermeira, o
+     psicólogo, o educador físico;
+   · "meu" é posse, e a relação é o contrário: quem é de quem aqui é ela
+     que é paciente da clínica;
+   · e ele brigava com /acompanhamento, que se chama "Quem acompanha
+     você" — duas portas com nomes quase iguais é o defeito que este
+     projeto passou a semana apagando.
+
+   "Sua equipe" não escolhe uma pessoa, não presume posse e é o nome que
+   a tela já usava por dentro em dois lugares. Funciona também quando a
+   clínica não tem nome guardado — o que acontece com quem entrou só pelo
+   código de convite.
+
+   ⚠️ A ROTA CONTINUA /medico, e isso é dívida consciente: são quinze
+   chamadas espalhadas, incluindo quatro dentro de derive.ts. O nome que
+   a pessoa lê é o que importa, e ele mudou; o outro é endereço interno e
+   troca quando alguém encostar nos quinze de uma vez.
+   ============================================================ */
+
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Medico() {
@@ -33,6 +66,8 @@ export default function Medico() {
     return () => clearTimeout(t);
   }, [S.messages.length]);
 
+  const quem = [S.profile.clinic, S.profile.doctor].filter(Boolean).join(' · ');
+
   const nd = new Date(S.consult.t);
   const send = () => {
     const t = msg.trim(); if (!t) return;
@@ -52,8 +87,19 @@ export default function Medico() {
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
         <View style={{ flex: 1 }}>
-          <Txt v="h1">Meu médico</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.doctor} · acompanha sua evolução</Txt>
+          <Txt v="h1">Sua equipe</Txt>
+          {/* ⚠️ O SUBTÍTULO MOSTRA O QUE EXISTE, E SOME QUANDO NÃO EXISTE.
+
+              Ele dizia "{nome} · acompanha sua evolução" — e o "acompanha
+              sua evolução" é uma frase que a tela inteira já demonstra,
+              gasta na única linha que poderia dizer QUAL equipe é esta.
+              Com o nome da clínica e o da responsável, quem abre reconhece
+              onde chegou antes de rolar.
+
+              Quem entrou só pelo código pode não ter nenhum dos dois
+              guardados; aí a linha não aparece, em vez de aparecer com um
+              separador solto no meio do nada. */}
+          {quem ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{quem}</Txt> : null}
         </View>
       </Row>
 
