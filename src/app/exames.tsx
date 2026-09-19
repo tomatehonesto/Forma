@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData,
-  examExplain, examAbout, examInfluences, SOBRE_A_REFERENCIA,
+  examExplain, examAbout, examInfluences, examWays,
 } from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
@@ -147,9 +147,21 @@ function Regua({ e }: { e: any }) {
 
       {/* Os limites, cada um na sua altura. */}
       <View style={{ height: 18, marginTop: 10 }}>
-        {g.temMin ? (
+        {/* ⚠️ O ZERO APARECE NAS REFERÊNCIAS DO TIPO "< X", e é a única
+            borda inventada que pode virar número na tela.
+
+            Numa "> 30" a borda de cima é o teto que o quadro escolheu e
+            não existe no mundo — rotulá-la seria o aplicativo afirmando
+            um limite que ninguém escreveu. Já o zero de uma concentração
+            é chão de verdade: não existe ferritina negativa, nem HbA1c
+            abaixo de zero.
+
+            E com ele a faixa volta a ser um intervalo legível — "de 0 a
+            5,7" em vez de um número solto na ponta de uma fita colorida,
+            que era o que sobrava. */}
+        {g.temMin || g.min === 0 ? (
           <View style={{ position: 'absolute', left: `${g.bandL}%`, width: 60, marginLeft: -30, alignItems: 'center' }}>
-            <Txt v="micro" c={c.tx3}>{fmtV(g.limMin)}</Txt>
+            <Txt v="micro" c={c.tx3}>{fmtV(g.temMin ? g.limMin : 0)}</Txt>
           </View>
         ) : null}
         {g.temMax ? (
@@ -160,7 +172,7 @@ function Regua({ e }: { e: any }) {
       </View>
 
       <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-        {g.temMin && g.temMax ? 'faixa de referência' : g.temMax ? 'abaixo daqui é o esperado' : 'acima daqui é o esperado'} · {e.ref} {e.unit}
+        faixa de referência · {e.ref} {e.unit}
       </Txt>
     </View>
   );
@@ -334,6 +346,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
   const sobre = examAbout(e);
   const mexe = examInfluences(e);
+  const ajudam = examWays(e);
   /* Os extremos do período, que é o que o cartão de evolução anuncia. */
   const vs = (e.values as any[]).map((x) => x.v);
   const vMin = Math.min(...vs), vMax = Math.max(...vs);
@@ -383,19 +396,12 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         <Txt v="caption" c={c.tx3}>Colhido em {porExtenso(l.t)}</Txt>
       </View>
 
-      <View style={{ gap: 12 }}>
-        <Regua e={e} />
-        {/* ⚠️ O QUE É UMA FAIXA DE REFERÊNCIA — a frase mais útil da tela,
-            e ela não existia. O aplicativo mostrava "referência 15–150" e
-            deixava a pessoa concluir sozinha que fora dali é doença. Não
-            é: a faixa é onde cai a maioria das pessoas saudáveis testadas
-            naquele laboratório, com o método dele — e por construção,
-            algumas pessoas saudáveis caem fora.
-
-            Fica logo abaixo da régua porque é a legenda dela, e não um
-            aviso: quem entendeu a régua já parou de ler. */}
-        <Txt v="micro" c={c.tx3} style={{ lineHeight: 19 }}>{SOBRE_A_REFERENCIA}</Txt>
-      </View>
+      {/* ⚠️ O PARÁGRAFO SOBRE O QUE É UMA FAIXA DE REFERÊNCIA SAIU DAQUI.
+          Ele explicava bem e explicava sempre: cinco linhas de teoria
+          entre a régua e o conteúdo, lidas uma vez e atravessadas em
+          todas as visitas seguintes. Régua boa dispensa legenda, e esta
+          já diz "faixa de referência · 15–150" embaixo dela. */}
+      <Regua e={e} />
 
       {/* ---- sobre o marcador ----
 
@@ -488,47 +494,75 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         </Bloco>
       ) : null}
 
-      {/* ---- o que mexe neste número ----
+      {/* ---- o cartão que lê o resultado ----
 
-          ⚠️ É A SEÇÃO QUE TRANSFORMA O EXAME EM COISA COMPREENSÍVEL.
-          Saber que ferritina é o estoque de ferro ajuda a ler a palavra;
-          não ajuda a entender por que ela mudou — e "por que mudou" é a
-          pergunta que a pessoa leva da tela para a vida. Um número de
-          exame sem causas é um veredito; com causas, vira uma coisa que
-          tem história e que ela reconhece.
+          ⚠️ ERAM DOIS CARTÕES E VIRARAM UM. "O que mexe neste número" e
+          "O que isso significa" respondiam a mesma pergunta em dois
+          lugares, com a leitura do resultado no segundo e as causas no
+          primeiro — a pessoa lia as causas antes de saber o que o número
+          dela queria dizer.
 
-          ⚠️ E NENHUM ITEM DIZ O QUE FAZER. "Álcool nos dias anteriores" é
-          um fato sobre o marcador; "pare de beber" seria conduta, e
-          conduta é de quem acompanha a pessoa. A linha entre educar e
-          prescrever passa exatamente aqui.
+          Um cartão, na ordem em que a cabeça pergunta: o que este
+          resultado diz, o que costuma ajudar, o que também mexe nele.
 
-          ⚠️ O PONTO É SOLTO, e não numerado. Numerar sugere ordem de
-          importância, e não há: são causas comuns, não um ranking. */}
-      {mexe.length ? (
-        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 12 }, shadowCard(c)]}>
+          ⚠️ E O "O QUE COSTUMA AJUDAR" É A PARTE QUE PRECISA DE FREIO. As
+          travas estão escritas em derive.ts, junto do conteúdo: nada
+          sobre medicação, nada com dose ou prazo, nada prometendo
+          resultado, e marcador sem item honesto — tireoide, rim — não
+          ganha seção. Aqui fica a última: a linha de fecho, que não é
+          rodapé jurídico. Ela é o fato. */}
+      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 16 }, shadowCard(c)]}>
+        <View style={{ gap: 9 }}>
           <Row gap={7}>
-            <Icon name="bulb" size={13} color={c.tx4} sw={2} />
-            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>O QUE MEXE NESTE NÚMERO</Txt>
+            <Icon name="spark" size={13} color={c.accent} sw={2} />
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE ISSO SIGNIFICA</Txt>
           </Row>
-          <View style={{ gap: 10 }}>
+          <Txt v="body" style={{ lineHeight: 25 }}>{examExplain(e)}</Txt>
+        </View>
+
+        {ajudam.length ? (
+          <View style={{ gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 16 }}>
+            <Txt v="bodyMed">O que costuma ajudar</Txt>
+            {ajudam.map((g) => (
+              <View key={g.grupo} style={{ gap: 9 }}>
+                <Txt v="caption" c={c.accent2}>{g.grupo}</Txt>
+                {g.itens.map((it) => (
+                  /* O fio à esquerda em vez do ponto: o item tem duas
+                     alturas de texto — nome e explicação —, e um marcador
+                     redondo alinhado com a primeira linha deixaria a
+                     segunda solta. O fio acompanha o bloco inteiro. */
+                  <Row key={it.nome} gap={11} style={{ alignItems: 'stretch' }}>
+                    <View style={{ width: 2, borderRadius: 1, backgroundColor: c.line2 }} />
+                    <View style={{ flex: 1 }}>
+                      <Txt v="caption" style={{ lineHeight: 22 }}>{it.nome}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ lineHeight: 22 }}>{it.detalhe}</Txt>
+                    </View>
+                  </Row>
+                ))}
+              </View>
+            ))}
+          </View>
+        ) : null}
+
+        {mexe.length ? (
+          <View style={{ gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 16 }}>
+            <Txt v="bodyMed">O que também mexe no resultado</Txt>
             {mexe.map((x) => (
               <Row key={x} gap={10} style={{ alignItems: 'flex-start' }}>
-                <View style={{ marginTop: 8, width: 5, height: 5, borderRadius: 3, backgroundColor: c.accent }} />
+                <View style={{ marginTop: 8, width: 5, height: 5, borderRadius: 3, backgroundColor: c.tx4 }} />
                 <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 22 }}>{x}</Txt>
               </Row>
             ))}
           </View>
-          <Txt v="micro" c={c.tx4} style={{ lineHeight: 18 }}>
-            São as causas mais comuns, e não a lista inteira. O que vale para o seu caso é
-            quem lê o conjunto que diz.
-          </Txt>
-        </View>
-      ) : null}
+        ) : null}
 
-      <Aviso ic="spark" titulo="O que isso significa">
-        <Txt v="caption" c={c.tx2}>{examExplain(e)}</Txt>
-        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar sobre este exame" style={{ marginTop: 12 }} />
-      </Aviso>
+        <Txt v="micro" c={c.tx4} style={{ lineHeight: 18 }}>
+          São as causas e os caminhos mais comuns, e não a lista inteira. Mudança de dose ou de
+          medicação é decisão de quem acompanha você.
+        </Txt>
+
+        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar sobre este exame" />
+      </View>
 
       <View />
     </TelaInterna>

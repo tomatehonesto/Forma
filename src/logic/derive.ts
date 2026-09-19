@@ -790,26 +790,202 @@ const INFLUENCIAS: Record<string, string[]> = {
   ],
 };
 
+/* ============================================================
+   O QUE COSTUMA AJUDAR
+
+   ⚠️ ESTA É A PARTE PERIGOSA DO ARQUIVO, E ELA TEM QUATRO TRAVAS.
+
+   Uma lista de "como melhorar o seu exame" é, sem cuidado, prescrição
+   com roupa de dica — e prescrição é de quem acompanha a pessoa. O que
+   justifica ela existir é o oposto do que a faria errada: o exame de
+   sangue é o documento de saúde que menos gente entende, e deixar alguém
+   sozinha com um número e uma faixa é abandoná-la no lugar mais difícil.
+
+   AS TRAVAS:
+
+   1. NADA AQUI É SOBRE MEDICAÇÃO. Nenhum item manda começar, parar,
+      aumentar ou diminuir nada — e onde reposição é o assunto, a frase
+      diz "quando indicada por quem acompanha você", que é o fato.
+
+   2. NADA AQUI TEM DOSE, QUANTIDADE OU PRAZO. "Exposição ao sol é a
+      principal fonte" é informação; "vinte minutos por dia" é receita,
+      e receita tem que ser de alguém que examinou a pessoa.
+
+   3. NADA AQUI PROMETE RESULTADO. Os itens dizem o que se SABE sobre o
+      marcador — que comer ferro com vitamina C melhora a absorção —, e
+      não o que vai acontecer com o número de quem lê.
+
+   4. NADA AQUI É DE TIREOIDE NEM DE RIM. TSH, T4 e creatinina ficaram de
+      fora de propósito: no primeiro caso o que move o número é
+      medicação, no segundo os conselhos mais óbvios (beber água, comer
+      proteína) são justamente os que uma pessoa com rim ruim não deve
+      seguir por conta própria. Marcador sem item honesto não ganha
+      seção.
+   ============================================================ */
+export type JeitoDeAjudar = { grupo: string; itens: { nome: string; detalhe: string }[] };
+
+const AJUDAR: Record<string, JeitoDeAjudar[]> = {
+  'HbA1c': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Carboidrato de absorção lenta', detalhe: 'Grãos integrais, feijões e legumes elevam a glicose mais devagar que farinha branca e açúcar' },
+        { nome: 'Proteína e fibra na mesma refeição', detalhe: 'Reduzem o pico de glicose do que se come junto' },
+      ],
+    },
+    {
+      grupo: 'No movimento',
+      itens: [
+        { nome: 'Caminhar depois de comer', detalhe: 'Músculo em atividade consome glicose sem depender de insulina' },
+        { nome: 'Exercício regular', detalhe: 'Melhora a sensibilidade à insulina, e o efeito se acumula ao longo de semanas' },
+      ],
+    },
+  ],
+  'Glicemia jejum': [
+    {
+      grupo: 'Na rotina',
+      itens: [
+        { nome: 'Sono', detalhe: 'Noites curtas elevam a glicose da manhã seguinte' },
+        { nome: 'Última refeição mais cedo', detalhe: 'Comer muito perto de dormir costuma aparecer no jejum do dia seguinte' },
+      ],
+    },
+    {
+      grupo: 'No movimento',
+      itens: [
+        { nome: 'Atividade aeróbica', detalhe: 'Reduz a glicose de jejum ao longo de semanas, não de dias' },
+      ],
+    },
+  ],
+  'Insulina': [
+    {
+      grupo: 'No peso e no movimento',
+      itens: [
+        { nome: 'Redução de gordura corporal', detalhe: 'É o que mais reduz a insulina necessária para o mesmo trabalho' },
+        { nome: 'Treino de força', detalhe: 'Mais massa muscular significa mais lugar para a glicose ir' },
+      ],
+    },
+  ],
+  'Colesterol total': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Menos gordura saturada e trans', detalhe: 'Frituras, embutidos e industrializados são as fontes mais comuns' },
+        { nome: 'Fibras solúveis', detalhe: 'Aveia, feijão e frutas reduzem a absorção de colesterol no intestino' },
+      ],
+    },
+  ],
+  'HDL': [
+    {
+      grupo: 'No movimento',
+      itens: [
+        { nome: 'Exercício aeróbico', detalhe: 'É o que mais eleva o HDL, e o efeito depende de regularidade' },
+      ],
+    },
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Gorduras boas', detalhe: 'Azeite, abacate, castanhas e peixes gordos' },
+      ],
+    },
+  ],
+  'LDL': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Menos gordura saturada', detalhe: 'É a que mais eleva o LDL — carnes gordas, laticínios integrais, frituras' },
+        { nome: 'Fibras solúveis', detalhe: 'Aveia, feijão, lentilha e frutas com casca' },
+      ],
+    },
+    {
+      grupo: 'No peso',
+      itens: [
+        { nome: 'Perda de peso', detalhe: 'Costuma reduzir LDL e triglicerídeos juntos' },
+      ],
+    },
+  ],
+  'Triglicerídeos': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Menos açúcar e farinha', detalhe: 'O excesso vira gordura no fígado, e é o que mais eleva este marcador' },
+        { nome: 'Álcool', detalhe: 'É a causa isolada mais comum de triglicerídeos altos' },
+      ],
+    },
+    {
+      grupo: 'No movimento',
+      itens: [
+        { nome: 'Atividade aeróbica', detalhe: 'Os triglicerídeos são dos marcadores que respondem mais rápido' },
+      ],
+    },
+  ],
+  'TGO': [
+    {
+      grupo: 'No fígado',
+      itens: [
+        { nome: 'Álcool', detalhe: 'É a causa mais comum de alteração nas duas enzimas' },
+        { nome: 'Perda de peso', detalhe: 'Reduz a gordura no fígado, que é a outra causa comum' },
+      ],
+    },
+  ],
+  'TGP': [
+    {
+      grupo: 'No fígado',
+      itens: [
+        { nome: 'Perda de peso', detalhe: 'A gordura no fígado é a causa mais comum de alteração leve, e ela responde ao peso' },
+        { nome: 'Álcool', detalhe: 'Some da conta quando some da rotina' },
+      ],
+    },
+  ],
+  'Vitamina D': [
+    {
+      grupo: 'No sol',
+      itens: [
+        { nome: 'Exposição da pele', detalhe: 'É a principal fonte — protetor solar e roupa cobrindo reduzem a produção' },
+      ],
+    },
+    {
+      grupo: 'Na comida e na reposição',
+      itens: [
+        { nome: 'Peixes gordos, gema e cogumelos', detalhe: 'São as fontes alimentares, e costumam ser insuficientes sozinhas' },
+        { nome: 'Suplementação', detalhe: 'Quando indicada por quem acompanha você — a dose depende do seu nível' },
+      ],
+    },
+  ],
+  'Vitamina B12': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Origem animal', detalhe: 'Carnes, ovos, leite e derivados são as únicas fontes naturais' },
+      ],
+    },
+    {
+      grupo: 'Na absorção',
+      itens: [
+        { nome: 'Remédios para estômago', detalhe: 'Uso prolongado reduz a absorção — assunto para levar à consulta' },
+        { nome: 'Suplementação', detalhe: 'Quando indicada por quem acompanha você, sobretudo após cirurgia bariátrica' },
+      ],
+    },
+  ],
+  'Ferritina': [
+    {
+      grupo: 'Na comida',
+      itens: [
+        { nome: 'Ferro de origem animal', detalhe: 'Carne vermelha, fígado e frutos do mar são os mais bem absorvidos' },
+        { nome: 'Vitamina C junto', detalhe: 'Laranja, acerola e pimentão melhoram a absorção do ferro dos vegetais' },
+        { nome: 'Café e chá longe da refeição', detalhe: 'Eles atrapalham a absorção quando tomados junto' },
+      ],
+    },
+  ],
+};
+
+/** Os jeitos conhecidos de mexer no marcador para o lado esperado. Vazio
+    para quem não tem item honesto — ver as travas acima. */
+export const examWays = (e: any): JeitoDeAjudar[] => AJUDAR[e.marker] ?? [];
+
 /** O que costuma mexer no marcador. Lista vazia para quem não está no
     mapa: inventar causas para um exame desconhecido é pior do que não
     dizer nada sobre ele. */
 export const examInfluences = (e: any): string[] => INFLUENCIAS[e.marker] ?? [];
-
-/* ============================================================
-   O QUE É UMA FAIXA DE REFERÊNCIA
-
-   ⚠️ A FRASE MAIS ÚTIL DA TELA, E ELA NÃO EXISTIA. O aplicativo mostrava
-   "referência 15–150" e deixava a pessoa concluir sozinha que fora dali
-   é doença. Não é: a faixa é a região onde cai a maioria das pessoas
-   saudáveis de um laboratório específico, com o método dele — e por
-   construção, algumas pessoas saudáveis caem fora.
-
-   É uma frase só, igual para todos os marcadores, porque a ideia é uma
-   só. Escrever uma versão por exame seria multiplicar a mesma
-   explicação em quinze lugares para ela divergir em três.
-   ============================================================ */
-export const SOBRE_A_REFERENCIA =
-  'A faixa de referência é a região onde caem a maioria das pessoas saudáveis testadas naquele laboratório, com o método dele — por isso ela muda de um laboratório para outro. Estar um pouco fora não quer dizer doença, e estar dentro não descarta tudo: o número só ganha sentido junto do resto do seu quadro.';
 
 /** A definição do marcador, quando ela existe. Sem invenção para quem não
     está na lista: marcador desconhecido não ganha um "sobre" genérico,
