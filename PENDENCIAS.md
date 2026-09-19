@@ -283,6 +283,13 @@ outras portas de desenvolvimento (`?compra=1`, `?assinante=1`,
    `profile.clinicInfo`, que é a SUA clínica. Uma parceira que você não
    tem precisa de um `?id=` e de uma origem de dados — e aí `vinculada`
    deixa de ser a porta de desenvolvimento e passa a ser derivável.
+1b. **A migração das tarefas do protocolo sai.** `ensureDefaults` converte
+   a lista antiga — texto puro, sem `metrica` — para o formato atual,
+   usando a lista da semente. Enquanto o protocolo vem da semente isso é
+   um conserto; no dia em que a clínica mandar o dela, a migração passa a
+   ter opinião sobre dado de outra pessoa e precisa sair, ou ganhar um
+   marcador de versão no próprio protocolo.
+
 2a. **As fotos precisam de recorte na hora do envio.** As telas hoje
    enquadram sozinhas, com `contentFit="cover"` e `contentPosition="center"`,
    e isso resolve o cabeçalho grande: a foto entra de borda a borda, o

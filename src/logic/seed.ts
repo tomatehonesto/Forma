@@ -814,6 +814,49 @@ export function ensureDefaults(S: any) {
      jornada, e dividir por sete uma data que é zero devolveria a semana
      em que o mundo começou a contar o tempo.
      ============================================================ */
+  /* ============================================================
+     AS TAREFAS DO PROTOCOLO PODEM SER DO FORMATO ANTIGO
+
+     ⚠️ E NESSE FORMATO TODAS SÃO MARCÁVEIS, inclusive as que o
+     aplicativo conta sozinho.
+
+     A lista nasceu como texto puro — `{ t: 'Beber 2,5 L todo dia', done }`
+     — e depois ganhou `metrica`, que é o que liga a linha ao registro e
+     faz `marcarTarefa` recusar o toque. Quem instalou antes disso continua
+     com as cinco em texto: as cinco viram caixa de marcar, e a pessoa
+     pode "cumprir" dois litros de água tocando num quadrado.
+
+     Não é só cosmético. A linha marcada à mão conta para o "3 de 5
+     cumpridas" do topo e para o histórico das semanas — o protocolo
+     passa a dizer que a semana foi cumprida porque alguém tocou, e não
+     porque alguma coisa aconteceu. É o oposto do que esta tela existe
+     para fazer.
+
+     ⚠️ A CONDIÇÃO É O FORMATO, E NÃO O CONTEÚDO: só migra quando NENHUMA
+     tarefa tem `metrica` e todas são `{t, done}` puros, que é a assinatura
+     exata da lista velha. Uma lista que já tenha uma métrica qualquer
+     ficou como está.
+
+     ⚠️ E O QUE FOI MARCADO À MÃO SOBREVIVE onde ainda faz sentido: o
+     `done` das tarefas manuais é reaproveitado pelo texto. O das que
+     viraram métrica é descartado de propósito — aquele "cumprido" nunca
+     foi um fato, era um toque.
+
+     ⚠️ ISTO SAI QUANDO A CLÍNICA MANDAR PROTOCOLO DE VERDADE. Aí a lista
+     deixa de vir da semente e esta migração passa a ter opinião sobre
+     dado de outra pessoa. Está em PENDENCIAS.
+     ============================================================ */
+  if (S.protocol && Array.isArray(S.protocol.tasks)) {
+    const tarefas = S.protocol.tasks as any[];
+    const formatoAntigo = tarefas.length > 0
+      && tarefas.every((t) => typeof t?.t === 'string' && t.metrica == null);
+    if (formatoAntigo) {
+      const feito = new Map(tarefas.map((t) => [String(t.t).trim().toLowerCase(), !!t.done]));
+      S.protocol.tasks = (buildSeed().protocol.tasks as any[]).map((t) =>
+        (t.t ? { ...t, done: feito.get(String(t.t).trim().toLowerCase()) ?? false } : { ...t }));
+    }
+  }
+
   if (S.protocol) {
     const semanaAgora = S.profile?.startT
       ? Math.max(1, Math.ceil((diffDays(now(), new Date(S.profile.startT)) + 1) / 7))
