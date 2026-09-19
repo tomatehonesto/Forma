@@ -36,53 +36,54 @@ const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()
 /* A RÉGUA RESPONDE DUAS COISAS DE UMA VEZ: ONDE EU PRECISO ESTAR, E
    ONDE EU ESTOU.
 
-   ⚠️ E ELA JÁ FOI UMA BARRA, DEPOIS UM PONTILHADO CHAPADO, e as duas
-   respondiam só a segunda.
+   ⚠️ SÃO DUAS FILEIRAS DE PONTOS, e por três versões foi uma.
 
-   A barra prometia precisão que o dado não tem — trilho contínuo com um
-   marcador convida a ler a posição exata, e a posição exata não quer
-   dizer nada: a faixa é do laboratório, varia de um para outro, e estar
-   em 5,5 ou 5,6 dentro dela é a mesma informação.
+   Uma fileira só, por mais densa que fique, continua sendo uma LINHA — e
+   linha é eixo: o olho a percorre da esquerda para a direita procurando
+   uma posição, como faria numa régua de escola. Duas fileiras deixam de
+   ser eixo e passam a ser SUPERFÍCIE: a faixa de referência vira uma
+   área com altura, que se enxerga de relance como região em vez de se
+   ler como intervalo.
 
-   O pontilhado chapado consertou isso e parou no meio do caminho: a
-   faixa virava uma região de um tom só, que diz "dentro ou fora" e mais
-   nada. Mas estar dentro tem graus — encostado no limite não é a mesma
-   coisa que no meio da faixa, e essa é justamente a diferença que a
-   pessoa quer ver quando volta a olhar o exame três meses depois.
+   É a diferença entre "o normal vai de 13,5 a 18" e "o normal é este
+   pedaço aqui". A segunda é a que serve para quem não lê exame.
 
-   ⚠️ ENTÃO A INTENSIDADE É A DISTÂNCIA ATÉ O LIMITE MAIS PRÓXIMO. Ponto
-   mais forte é ponto mais longe da borda do normal. Isso NÃO é uma
-   opinião sobre qual lado da faixa é melhor — é a geometria da própria
-   faixa, e vale igual para creatinina, TSH e ferritina, que não declaram
-   lado nenhum.
+   ⚠️ E AS DUAS FILEIRAS SÃO IDÊNTICAS, coluna a coluna. A tentação seria
+   dar significado à segunda — outra métrica, outra coleta, o valor
+   anterior. Não: ela existe para dar corpo à faixa, e qualquer dado que
+   morasse nela transformaria uma leitura de relance em duas leituras.
+
+   ⚠️ A INTENSIDADE É A DISTÂNCIA ATÉ O LIMITE MAIS PRÓXIMO. Ponto mais
+   forte é ponto mais longe da borda do normal. Isso NÃO é uma opinião
+   sobre qual lado da faixa é melhor — é a geometria da própria faixa, e
+   vale igual para creatinina, TSH e ferritina, que não declaram lado
+   nenhum.
 
    ⚠️ E O QUE É LIMITE DE VERDADE VEM DA REFERÊNCIA, não do desenho. Numa
    "< 5,7" só existe a borda de cima: a de baixo é o zero que o quadro
-   precisou inventar. Contar esse zero como limite faria o ponto mais
-   forte cair em 2,8% — o aplicativo afirmando que metade do normal é o
-   ideal. Com `temMin`/`temMax`, a rampa só corre a partir das bordas que
-   alguém escreveu.
+   precisou inventar. Contar esse zero faria o ponto mais forte cair em
+   2,8% — o aplicativo afirmando que metade do normal é o ideal.
+
+   ⚠️ O MARCADOR ATRAVESSA AS DUAS FILEIRAS, em vez de morar numa delas.
+   Dentro de uma fileira ele seria mais um ponto da série, um pouco
+   maior; por cima das duas, ele é outra coisa — o que ele é. E o anel na
+   cor do fundo o descola da faixa mesmo quando cai bem no meio dela,
+   onde a cor por baixo é quase a dele.
 
    ⚠️ OS NÚMEROS FICAM SOB AS BORDAS, e ficavam nas pontas do quadro. Nas
    pontas eles descreviam a moldura; sob as bordas eles respondem a
-   pergunta — "de 13,5 a 18" é o intervalo, e é isso que a pessoa
-   precisa levar embora. */
-/* ⚠️ 45 E NÃO 33, E ISSO MUDA O QUE A PEÇA É.
-
-   Com 33 pontos espalhados na largura inteira, o espaço entre eles é
-   maior que eles: o olho lê PONTOS, conta, e tenta atribuir valor a cada
-   um. Com 45 quase encostados, ele para de contar e lê uma FITA com
-   textura — que é o que a referência faz e o que a peça precisa ser. A
-   régua não é uma escala de 45 casas; é uma região contínua desenhada
-   com grão. */
-const PONTOS_DA_REGUA = 45;
+   pergunta — "de 13,5 a 18" é o intervalo, e é isso que a pessoa leva
+   embora. */
+const PONTOS_DA_REGUA = 41;
+const RAIO_DO_PONTO = 2.5;
+const ALTURA_DA_FILEIRA = 5;
+const RESPIRO_ENTRE_FILEIRAS = 5;
 
 function Regua({ e }: { e: any }) {
   const { c } = useTheme();
   const g = examGaugeData(e);
   const dentro = g.status === 'ok';
   const col = dentro ? c.accent : c.cta;
-  const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
 
   /* Quanto este ponto está longe da borda mais próxima da faixa, de 0
      (encostado) a 1 (o mais longe que dá dentro dela). */
@@ -91,79 +92,61 @@ function Regua({ e }: { e: any }) {
     const distR = g.temMax ? g.bandR - pct : Infinity;
     const dist = Math.min(distL, distR);
     if (!isFinite(dist)) return 1;
-    /* A escala da profundidade é metade da faixa quando ela tem as duas
-       bordas, e a faixa inteira quando só tem uma — nos dois casos, o
-       ponto mais fundo chega a 1. */
     const alcance = (g.temMin && g.temMax)
       ? Math.max(1, (g.bandR - g.bandL) / 2)
       : Math.max(1, g.bandR - g.bandL);
     return Math.min(1, Math.max(0, dist / alcance));
   };
 
+  const corDoPonto = (pct: number) => {
+    if (pct < g.bandL || pct > g.bandR) return c.track;
+    const t = profundidade(pct);
+    return t < 0.5
+      ? mix(c.bg, c.accent, 0.45 + t * 1.1)
+      : mix(c.accent, c.accent2, (t - 0.5) * 2);
+  };
+
+  const fileira = (chave: string) => (
+    <Row key={chave} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+      {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            width: ALTURA_DA_FILEIRA, height: ALTURA_DA_FILEIRA, borderRadius: RAIO_DO_PONTO,
+            backgroundColor: corDoPonto((i / (PONTOS_DA_REGUA - 1)) * 100),
+          }}
+        />
+      ))}
+    </Row>
+  );
+
   return (
     <View>
-      {/* ⚠️ A RAMPA É DE COR, E NÃO DE TRANSPARÊNCIA.
+      <View style={{ gap: RESPIRO_ENTRE_FILEIRAS }}>
+        {fileira('cima')}
+        {fileira('baixo')}
 
-          Em alfa, os pontos do começo da faixa ficavam translúcidos — e
-          translúcido lê como "apagado", como coisa desativada. O ponto
-          encostado no limite não está desativado: ele está dentro da
-          faixa, só que na beira dela. Misturando a cor com o fundo em vez
-          de diluí-la, todos os pontos são igualmente sólidos e o que muda
-          entre eles é o TOM, que é o que a referência faz.
+        {/* O marcador vive por cima das duas, centrado na posição do
+            valor. `marginLeft` de meia largura é o que faz a porcentagem
+            apontar para o centro dele, e não para a borda esquerda. */}
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute', top: -2, left: `${g.pos}%`, marginLeft: -8,
+            width: 16, height: ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS + 4,
+            alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <View style={{
+            width: 14, height: 14, borderRadius: 7,
+            borderWidth: 3, borderColor: c.bg,
+            backgroundColor: col,
+          }} />
+        </View>
+      </View>
 
-          E a rampa não começa no fundo: o ponto mais claro da faixa ainda
-          é visivelmente da cor da faixa, senão a borda dela se confunde
-          com o trilho cinza de fora. */}
-      <Row style={{ justifyContent: 'space-between', alignItems: 'center', height: 12 }}>
-        {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
-          const pct = (i / (PONTOS_DA_REGUA - 1)) * 100;
-          const naFaixa = pct >= g.bandL && pct <= g.bandR;
-          const ehValor = i === iValor;
-
-          if (ehValor) {
-            /* ⚠️ O ANEL ENCOLHEU. Ele era um halo de 14 com um miolo de 8 —
-               uma peça de outra escala no meio de uma fita de grão fino,
-               que roubava a leitura da faixa inteira. Aqui ele é um ponto
-               do mesmo tamanho dos outros, só que cheio e cercado por um
-               fio da cor do fundo: destaca sem virar outro objeto. */
-            return (
-              <View key={i} style={{
-                width: 11, height: 11, borderRadius: 6,
-                borderWidth: 2.5, borderColor: c.bg,
-                backgroundColor: col,
-              }} />
-            );
-          }
-          return (
-            <View
-              key={i}
-              style={{
-                width: 5, height: 5, borderRadius: 3,
-                /* ⚠️ A RAMPA VAI ATÉ `accent2`, E PARAVA EM `accent`. Do
-                   claro ao accent ela percorre meia oitava e o meio da
-                   faixa ficava quase igual à beira — o gradiente existia
-                   no código e não na tela. Com o accent2 no fundo da
-                   faixa, o percurso é de verdade: da beira, que é a cor
-                   mais clara que ainda se lê como cor, até o tom mais
-                   fechado da paleta.
-
-                   ⚠️ E COMEÇA EM 0,45, e começava em 0,3: a 30% de mistura
-                   o ponto da borda quase se confundia com o cinza de fora,
-                   e a borda é justamente o que a peça veio dizer. */
-                backgroundColor: naFaixa
-                  ? (profundidade(pct) < 0.5
-                    ? mix(c.bg, c.accent, 0.45 + profundidade(pct) * 1.1)
-                    : mix(c.accent, c.accent2, (profundidade(pct) - 0.5) * 2))
-                  : c.track,
-              }}
-            />
-          );
-        })}
-      </Row>
-
-      {/* Os limites, cada um na sua altura. `left` em porcentagem com meia
-          largura de recuo centraliza o número sob o ponto da borda. */}
-      <View style={{ height: 18, marginTop: 8 }}>
+      {/* Os limites, cada um na sua altura. */}
+      <View style={{ height: 18, marginTop: 10 }}>
         {g.temMin ? (
           <View style={{ position: 'absolute', left: `${g.bandL}%`, width: 60, marginLeft: -30, alignItems: 'center' }}>
             <Txt v="micro" c={c.tx3}>{fmtV(g.limMin)}</Txt>
