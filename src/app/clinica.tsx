@@ -80,6 +80,16 @@ import { Image } from 'expo-image';
    WhatsApp valem para os dois lados: ter a conversa do aplicativo não
    dispensa ninguém de remarcar uma consulta pelo telefone.
 
+   ⚠️ A ORDEM DAS SEÇÕES É A ORDEM DAS PERGUNTAS, e não a da importância
+   do texto. Duas coisas trazem alguém a esta tela — ONDE FICA e SE
+   ATENDE O MEU CONVÊNIO —, e as duas são respostas de um olhar só: um
+   endereço e uma fileira de nomes. Elas vêm primeiro, encostadas no
+   cartão da identidade, que termina justamente na cidade.
+
+   A apresentação da clínica vem depois. Ela é o que se lê quando a
+   decisão ainda não foi tomada; endereço e convênio são o que se
+   CONSULTA, inclusive por quem já é paciente e vai à consulta amanhã.
+
    ⚠️ ELA VAI SERVIR PARA APRESENTAR PARCEIROS — é a tela que alguém vê
    antes de decidir. Por isso o que ela diz precisa ser o que a clínica
    afirmou sobre si, e não o que o aplicativo inferiu: `sobre`,
@@ -254,22 +264,21 @@ export default function Clinica() {
         )}
 
         <View style={{ paddingHorizontal: PAD }}>
-        {!!f.sobre && (
-          <Txt v="body" c={c.tx2} style={{ marginTop: 22, lineHeight: 26 }}>{f.sobre}</Txt>
-        )}
-
         {/* ---- onde fica ----
 
             ⚠️ O ENDEREÇO NÃO ABRE O MAPA, e é texto de propósito: ele vem de
             semente, e um endereço clicável falso manda alguém até a porta de
             um estranho. A ação entra junto com o dado de verdade.
 
-            A cidade se repete aqui embaixo da rua, e não é engano: no alto
-            ela é identidade ("esta clínica é de São Paulo"), aqui ela é a
-            segunda linha de um endereço. Quem lê um endereço espera a cidade
-            nele. */}
+            ⚠️ E A CIDADE NÃO SE REPETE AQUI. Ela estava sob a rua, com o
+            argumento de que quem lê um endereço espera a cidade nele — o
+            que é verdade quando o endereço está sozinho. Com a seção
+            encostada na identidade, "São Paulo, SP" aparecia duas vezes a
+            26px de distância, e a segunda não acrescentava nada. A regra é
+            a do bloco inteiro, e não a da linha: o endereço aqui é a
+            continuação da cidade logo acima, não um endereço solto. */}
         {(!!f.endereco || !!f.horario) && (
-          <View style={{ marginTop: 30 }}>
+          <View style={{ marginTop: 26 }}>
             <Txt v="h2" style={{ marginBottom: 10 }}>Onde fica</Txt>
             <Card style={{ gap: 14 }}>
               {!!f.endereco && (
@@ -277,10 +286,7 @@ export default function Clinica() {
                   <View style={{ width: 20, alignItems: 'center', marginTop: 1 }}>
                     <Icon name="pin" size={18} color={c.accent} sw={1.9} />
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="body" style={{ lineHeight: 23 }}>{f.endereco}</Txt>
-                    {!!f.cidade && <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{f.cidade}</Txt>}
-                  </View>
+                  <Txt v="body" style={{ flex: 1, lineHeight: 23 }}>{f.endereco}</Txt>
                 </Row>
               )}
               {!!f.horario && (
@@ -292,6 +298,56 @@ export default function Clinica() {
                 </Row>
               )}
             </Card>
+          </View>
+        )}
+
+        {/* ---- convênios ----
+
+            ⚠️ EM CHIPS, E NÃO EM LISTA. Convênio é um conjunto que se VARRE:
+            a pessoa procura o nome do dela e não lê os outros. Numa lista,
+            cada um vira uma linha de mesmo peso e ela lê todas para achar
+            uma. É o mesmo desenho das áreas de atuação na ficha de quem
+            atende, e pelo mesmo motivo.
+
+            ⚠️ E A SEÇÃO SOME QUANDO A CLÍNICA NÃO INFORMOU. "Não informou" e
+            "só atende particular" são coisas diferentes, e a tela não tem
+            como saber qual é — então ela não chuta. Quem atende só
+            particular manda uma lista de um item. */}
+        {!!f.convenios?.length && (
+          <View style={{ marginTop: 30 }}>
+            <Txt v="h2" style={{ marginBottom: 12 }}>Convênios atendidos</Txt>
+            <Row gap={8} style={{ flexWrap: 'wrap' }}>
+              {f.convenios.map((v) => (
+                <View
+                  key={v}
+                  style={{
+                    borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
+                    paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
+                  }}
+                >
+                  <Txt v="caption" c={c.tx2}>{v}</Txt>
+                </View>
+              ))}
+            </Row>
+          </View>
+        )}
+
+        {/* ---- sobre ----
+
+            ⚠️ ELE DESCEU, e era a primeira coisa depois do nome. Seis
+            linhas de texto corrido entre a identidade e o endereço
+            empurravam para baixo da dobra justamente as duas perguntas que
+            trazem alguém a esta tela: onde fica e se atende o meu
+            convênio. Quem quer ler a apresentação rola; quem quer o
+            endereço não deveria ter que rolar.
+
+            ⚠️ E GANHOU TÍTULO POR CAUSA DA MUDANÇA. Um parágrafo sem
+            cabeçalho funcionava colado no nome — era a continuação dele.
+            Entre duas seções tituladas, ele passaria a ler como sobra. */}
+        {!!f.sobre && (
+          <View style={{ marginTop: 30 }}>
+            <Txt v="h2">Sobre</Txt>
+            <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 26 }}>{f.sobre}</Txt>
           </View>
         )}
 
@@ -336,37 +392,6 @@ export default function Clinica() {
                 <Linha key={ct.titulo} ic={ct.ic} titulo={ct.titulo} sub={ct.sub} onPress={abrir(ct.url)} />
               ))}
             </Cartao>
-          </View>
-        )}
-
-        {/* ---- convênios ----
-
-            ⚠️ EM CHIPS, E NÃO EM LISTA. Convênio é um conjunto que se VARRE:
-            a pessoa procura o nome do dela e não lê os outros. Numa lista,
-            cada um vira uma linha de mesmo peso e ela lê todas para achar
-            uma. É o mesmo desenho das áreas de atuação na ficha de quem
-            atende, e pelo mesmo motivo.
-
-            ⚠️ E A SEÇÃO SOME QUANDO A CLÍNICA NÃO INFORMOU. "Não informou" e
-            "só atende particular" são coisas diferentes, e a tela não tem
-            como saber qual é — então ela não chuta. Quem atende só
-            particular manda uma lista de um item. */}
-        {!!f.convenios?.length && (
-          <View style={{ marginTop: 30 }}>
-            <Txt v="h2" style={{ marginBottom: 12 }}>Convênios atendidos</Txt>
-            <Row gap={8} style={{ flexWrap: 'wrap' }}>
-              {f.convenios.map((v) => (
-                <View
-                  key={v}
-                  style={{
-                    borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
-                    paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
-                  }}
-                >
-                  <Txt v="caption" c={c.tx2}>{v}</Txt>
-                </View>
-              ))}
-            </Row>
           </View>
         )}
 
