@@ -139,8 +139,21 @@ function Regua({ e }: { e: any }) {
               key={i}
               style={{
                 width: 5, height: 5, borderRadius: 3,
+                /* ⚠️ A RAMPA VAI ATÉ `accent2`, E PARAVA EM `accent`. Do
+                   claro ao accent ela percorre meia oitava e o meio da
+                   faixa ficava quase igual à beira — o gradiente existia
+                   no código e não na tela. Com o accent2 no fundo da
+                   faixa, o percurso é de verdade: da beira, que é a cor
+                   mais clara que ainda se lê como cor, até o tom mais
+                   fechado da paleta.
+
+                   ⚠️ E COMEÇA EM 0,45, e começava em 0,3: a 30% de mistura
+                   o ponto da borda quase se confundia com o cinza de fora,
+                   e a borda é justamente o que a peça veio dizer. */
                 backgroundColor: naFaixa
-                  ? mix(c.bg, c.accent, 0.3 + profundidade(pct) * 0.7)
+                  ? (profundidade(pct) < 0.5
+                    ? mix(c.bg, c.accent, 0.45 + profundidade(pct) * 1.1)
+                    : mix(c.accent, c.accent2, (profundidade(pct) - 0.5) * 2))
                   : c.track,
               }}
             />
@@ -181,9 +194,16 @@ function Regua({ e }: { e: any }) {
    ligar uma à outra afirma por onde o valor passou nos quatro meses em
    que ninguém mediu nada. Não passou por lugar nenhum: não se sabe.
 
-   Em pontos soltos, cada coleta é o que ela é: um fato isolado, numa
+   Em colunas de pontos, cada coleta é o que ela é: um fato isolado, numa
    data, com um valor. O olho junta os três sozinho, e o que ele junta é
    uma tendência — que é exatamente o grau de certeza que o dado permite.
+
+   ⚠️ E A COLUNA É HASTE, E NÃO BARRA. A diferença está no tom: barra
+   afirma quantidade a partir do zero, e o zero de um exame não é o pé
+   deste quadro — é um número que o desenho inventou para ter onde
+   começar. Em tom baixo, a coluna vira um fio que liga o ponto ao eixo e
+   ajuda a achar a altura, sem afirmar grandeza. O dado é o ponto de cima;
+   o resto é régua.
 
    ⚠️ A FAIXA DE REFERÊNCIA ATRAVESSA O QUADRO, e é a mesma da régua de
    cima, na mesma escala. É o que amarra as duas peças: a faixa que a
@@ -196,7 +216,7 @@ function Regua({ e }: { e: any }) {
    eles é muita ou pouca. A malha dá a régua, e apagada ela não disputa
    com os pontos que importam.
    ============================================================ */
-const COLS = 19;
+const COLS = 21;
 const LINS = 9;
 
 function HistoricoEmPontos({ e }: { e: any }) {
@@ -208,64 +228,77 @@ function HistoricoEmPontos({ e }: { e: any }) {
   const spanT = Math.max(1, t1 - t0);
   const spanV = Math.max(1e-9, g.max - g.min);
 
-  /* Cada coleta vira uma coordenada na malha: a coluna pela DATA de
-     verdade, e não pela ordem — duas coletas em semanas seguidas ficam
-     coladas, e um intervalo de dois anos fica largo, que é o que
-     aconteceu. */
-  const marcas = vals.map((x) => ({
-    col: Math.round(((x.t - t0) / spanT) * (COLS - 1)),
-    lin: (LINS - 1) - Math.round(Math.min(1, Math.max(0, (x.v - g.min) / spanV)) * (LINS - 1)),
-    v: x.v,
-    t: x.t,
-    dentro: x.v >= g.bandL / 100 * spanV + g.min && x.v <= g.bandR / 100 * spanV + g.min,
-  }));
-  const ultima = marcas[marcas.length - 1];
-
   const linDe = (pct: number) => (LINS - 1) - (pct / 100) * (LINS - 1);
-  const linBandaTopo = linDe(g.bandR);
-  const linBandaBase = linDe(g.bandL);
+  const linBandaTopo = Math.round(linDe(g.bandR));
+  const linBandaBase = Math.round(linDe(g.bandL));
+
+  /* Cada coleta vira uma coluna: a posição pela DATA de verdade, e não
+     pela ordem — duas coletas em semanas seguidas ficam coladas, e um
+     intervalo de dois anos fica largo, que é o que aconteceu. */
+  const marcas = vals.map((x) => {
+    const pct = Math.min(100, Math.max(0, ((x.v - g.min) / spanV) * 100));
+    return {
+      col: Math.round(((x.t - t0) / spanT) * (COLS - 1)),
+      lin: Math.round(linDe(pct)),
+      dentro: pct >= g.bandL && pct <= g.bandR,
+    };
+  });
+  const ultima = marcas[marcas.length - 1];
 
   return (
     <View style={{ gap: 10 }}>
-      <Row gap={10} style={{ alignItems: 'stretch' }}>
-        {/* ⚠️ A ESCALA MOSTRA OS LIMITES DA REFERÊNCIA, e mostrava as
-            pontas do quadro. As pontas são um número inventado pelo
-            desenho — a moldura que `examGaugeData` calcula para caber o
-            valor com folga —, e ninguém precisa saber que o eixo vai até
-            9,7. Os números que importam são os que separam o esperado do
-            não esperado, e são esses que ficam, na altura em que a faixa
-            começa e termina. */}
+      <Row gap={8} style={{ alignItems: 'stretch' }}>
         <View style={{ width: 30 }}>
           {Array.from({ length: LINS }).map((_, lin) => {
-            const topo = lin === Math.round(linBandaTopo);
-            const base = lin === Math.round(linBandaBase);
-            const mostra = topo || base;
+            const topo = lin === linBandaTopo && g.temMax;
+            const base = lin === linBandaBase && g.temMin;
             const valor = topo ? g.min + (g.bandR / 100) * spanV : g.min + (g.bandL / 100) * spanV;
             return (
-              <View key={lin} style={{ height: 4, marginBottom: lin === LINS - 1 ? 0 : 9, justifyContent: 'center' }}>
-                {mostra ? <Txt v="micro" c={c.tx3}>{fmtV(valor)}</Txt> : null}
+              <View key={lin} style={{ height: 5, marginBottom: lin === LINS - 1 ? 0 : 9, justifyContent: 'center' }}>
+                {topo || base ? <Txt v="micro" c={c.tx3}>{fmtV(valor)}</Txt> : null}
               </View>
             );
           })}
         </View>
 
-        <View style={{ flex: 1, gap: 9 }}>
+        <View style={{ flex: 1 }}>
           {Array.from({ length: LINS }).map((_, lin) => {
-            const naFaixa = lin >= Math.floor(linBandaTopo) && lin <= Math.ceil(linBandaBase);
+            const naFaixa = lin >= linBandaTopo && lin <= linBandaBase;
             return (
-              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center', height: 5, marginBottom: lin === LINS - 1 ? 0 : 9 }}>
                 {Array.from({ length: COLS }).map((__, col) => {
-                  const marca = marcas.find((m) => m.col === col && m.lin === lin);
-                  if (marca) {
-                    const ehUltima = marca === ultima;
-                    const cor = marca.dentro ? c.accent : c.cta;
+                  const marca = marcas.find((m) => m.col === col);
+                  const naHaste = !!marca && lin >= marca.lin;
+                  const noTopo = !!marca && lin === marca.lin;
+
+                  if (noTopo) {
                     return (
                       <View
                         key={col}
                         style={{
-                          width: ehUltima ? 10 : 8, height: ehUltima ? 10 : 8,
-                          borderRadius: 5, backgroundColor: cor,
-                          borderWidth: ehUltima ? 2 : 0, borderColor: c.bg1,
+                          width: 11, height: 11, borderRadius: 6,
+                          borderWidth: 2.5, borderColor: c.bg1,
+                          backgroundColor: marca!.dentro ? c.accent2 : c.cta,
+                          marginVertical: -3,
+                        }}
+                      />
+                    );
+                  }
+                  if (naHaste) {
+                    /* ⚠️ A HASTE É MAIS CLARA QUE O TOPO, e é isso que a
+                       impede de virar barra. Barra afirma quantidade a
+                       partir do zero, e o zero de um exame não é o pé
+                       deste quadro — ele é um número arbitrário do
+                       desenho. Em tom baixo, a coluna é um FIO que liga o
+                       ponto ao eixo, como numa haste de pirulito: ela
+                       ajuda a achar a altura e não afirma grandeza. */
+                    const fundura = (lin - marca!.lin) / Math.max(1, LINS - 1 - marca!.lin);
+                    return (
+                      <View
+                        key={col}
+                        style={{
+                          width: 5, height: 5, borderRadius: 3,
+                          backgroundColor: mix(c.bg1, marca!.dentro ? c.accent : c.cta, 0.55 - fundura * 0.32),
                         }}
                       />
                     );
@@ -275,7 +308,7 @@ function HistoricoEmPontos({ e }: { e: any }) {
                       key={col}
                       style={{
                         width: 4, height: 4, borderRadius: 2,
-                        backgroundColor: naFaixa ? alfa(c.accent, 0.28) : c.track,
+                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.16) : c.track,
                       }}
                     />
                   );
@@ -286,7 +319,7 @@ function HistoricoEmPontos({ e }: { e: any }) {
         </View>
       </Row>
 
-      <Row style={{ justifyContent: 'space-between', paddingLeft: 40 }}>
+      <Row style={{ justifyContent: 'space-between', paddingLeft: 38 }}>
         <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t0))}</Txt>
         <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t1))}</Txt>
       </Row>
