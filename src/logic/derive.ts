@@ -672,6 +672,127 @@ const SOBRE: Record<string, SobreOMarcador> = {
   },
 };
 
+/* ============================================================
+   O QUE MEXE NESTE NÚMERO
+
+   ⚠️ É A PARTE QUE TRANSFORMA O EXAME EM COISA COMPREENSÍVEL, e ela
+   faltava inteira.
+
+   Saber que ferritina é o estoque de ferro ajuda a ler a palavra. Não
+   ajuda a entender por que ela mudou — e "por que mudou" é a pergunta
+   que a pessoa leva da tela para a vida. Um número de exame sem causas é
+   um veredito; com causas, vira uma coisa que tem história e que ela
+   reconhece: "jejum curto", "treino forte na véspera", "perdi peso".
+
+   ⚠️ E NENHUM ITEM DIZ O QUE FAZER. "Álcool nos dias anteriores" é um
+   fato sobre o marcador; "pare de beber" seria conduta, e conduta é de
+   quem acompanha a pessoa. A linha entre educar e prescrever é essa, e
+   ela passa exatamente aqui.
+
+   ⚠️ SÃO CAUSAS COMUNS, E NÃO A LISTA COMPLETA. Por isso a seção termina
+   dizendo que o que vale para o caso de alguém é quem lê o conjunto que
+   diz — a frase não é rodapé jurídico, é a verdade sobre o que uma lista
+   dessas pode e não pode fazer.
+   ============================================================ */
+const INFLUENCIAS: Record<string, string[]> = {
+  'HbA1c': [
+    'A média de glicose dos últimos dois a três meses, e não o que você comeu ontem',
+    'Anemia e doenças do sangue, que mudam a vida das hemácias e distorcem o resultado',
+    'Perda de peso e medicações para glicose, que costumam baixá-la ao longo de meses',
+  ],
+  'Glicemia jejum': [
+    'Quantas horas de jejum antes da coleta',
+    'Sono ruim e estresse na véspera, que elevam o açúcar da manhã',
+    'Exercício e perda de peso, que tendem a baixá-la',
+  ],
+  'Insulina': [
+    'O jejum antes da coleta, tanto quanto na glicemia',
+    'A quantidade de gordura corporal, que é o que mais pesa na conta',
+    'Costuma ser lida junto da glicemia, e não sozinha',
+  ],
+  'Colesterol total': [
+    'O que se come de gordura, mas menos do que a fama sugere',
+    'Genética — algumas famílias produzem mais colesterol independentemente da dieta',
+    'Tireoide devagar, que eleva sem relação com comida',
+  ],
+  'HDL': [
+    'Exercício aeróbico regular, que é o que mais o eleva',
+    'Tabagismo, que o reduz',
+    'Genética, com peso grande neste em particular',
+  ],
+  'LDL': [
+    'Gordura saturada e trans na alimentação',
+    'Perda de peso, que costuma reduzi-lo junto com os triglicerídeos',
+    'Genética, que em algumas famílias domina o resultado',
+  ],
+  'Triglicerídeos': [
+    'O jejum — comer perto da coleta altera muito, mais do que em qualquer outro do painel',
+    'Álcool nos dias anteriores',
+    'Açúcar e farinha em excesso, que o corpo converte em gordura',
+  ],
+  'Creatinina': [
+    'Quanta massa muscular a pessoa tem, porque ela vem do músculo',
+    'Hidratação no dia da coleta',
+    'Treino pesado na véspera, que pode elevá-la temporariamente',
+  ],
+  'TGO': [
+    'Exercício intenso nos dias anteriores, porque ela também existe no músculo',
+    'Álcool',
+    'Gordura no fígado, comum em quem tem excesso de peso',
+  ],
+  'TGP': [
+    'Gordura no fígado, que é a causa mais comum de alteração leve',
+    'Álcool e alguns medicamentos',
+    'Perda de peso, que costuma reduzi-la ao longo dos meses',
+  ],
+  'TSH': [
+    'A hora da coleta — ele é mais alto de madrugada e no começo da manhã',
+    'Doenças agudas e alguns medicamentos',
+    'Reposição de hormônio de tireoide, quando existe',
+  ],
+  'T4 livre': [
+    'O funcionamento da tireoide, lido sempre junto do TSH',
+    'Gravidez e estrogênio, que mudam as proteínas que o transportam',
+  ],
+  'Vitamina D': [
+    'Sol na pele — quantidade, horário e quanto do corpo fica exposto',
+    'Pele mais escura e protetor solar, que reduzem a produção',
+    'Suplementação, quando existe',
+    'A estação do ano: inverno costuma derrubar',
+  ],
+  'Vitamina B12': [
+    'Alimentos de origem animal na dieta',
+    'Cirurgia bariátrica e alguns remédios para estômago, que reduzem a absorção',
+    'Suplementação, quando existe',
+  ],
+  'Ferritina': [
+    'O estoque de ferro do corpo',
+    'Inflamação e infecção, que a elevam mesmo sem ferro sobrando — por isso ela nunca se lê sozinha',
+    'Menstruação volumosa, que ao longo do tempo reduz o estoque',
+  ],
+};
+
+/** O que costuma mexer no marcador. Lista vazia para quem não está no
+    mapa: inventar causas para um exame desconhecido é pior do que não
+    dizer nada sobre ele. */
+export const examInfluences = (e: any): string[] => INFLUENCIAS[e.marker] ?? [];
+
+/* ============================================================
+   O QUE É UMA FAIXA DE REFERÊNCIA
+
+   ⚠️ A FRASE MAIS ÚTIL DA TELA, E ELA NÃO EXISTIA. O aplicativo mostrava
+   "referência 15–150" e deixava a pessoa concluir sozinha que fora dali
+   é doença. Não é: a faixa é a região onde cai a maioria das pessoas
+   saudáveis de um laboratório específico, com o método dele — e por
+   construção, algumas pessoas saudáveis caem fora.
+
+   É uma frase só, igual para todos os marcadores, porque a ideia é uma
+   só. Escrever uma versão por exame seria multiplicar a mesma
+   explicação em quinze lugares para ela divergir em três.
+   ============================================================ */
+export const SOBRE_A_REFERENCIA =
+  'A faixa de referência é a região onde caem a maioria das pessoas saudáveis testadas naquele laboratório, com o método dele — por isso ela muda de um laboratório para outro. Estar um pouco fora não quer dizer doença, e estar dentro não descarta tudo: o número só ganha sentido junto do resto do seu quadro.';
+
 /** A definição do marcador, quando ela existe. Sem invenção para quem não
     está na lista: marcador desconhecido não ganha um "sobre" genérico,
     porque um parágrafo que serve para qualquer exame não explica nenhum. */

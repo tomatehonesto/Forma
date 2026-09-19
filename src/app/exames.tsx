@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examExplain, examAbout } from '../logic/derive';
+import {
+  EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData,
+  examExplain, examAbout, examInfluences, SOBRE_A_REFERENCIA,
+} from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo, CardCurva,
+  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard, alfa } from '../theme';
@@ -57,6 +60,31 @@ function Regua({ e }: { e: any }) {
      borda do quadro. */
   const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
 
+  /* ⚠️ A FAIXA TEM DIREÇÃO QUANDO O MARCADOR TEM, E SÓ AÍ.
+
+     A referência que inspirou esta tela usa um degradê quente do começo
+     ao fim da faixa — e isso, num exame, afirma uma coisa que quase
+     sempre é falsa: que um canto da normalidade é melhor que o outro.
+     Para creatinina, TSH, TGO, estar embaixo ou em cima dentro do normal
+     é a mesma notícia, e pintar um lado mais forte inventaria uma
+     preferência que nenhum laboratório declara.
+
+     Mas alguns marcadores DECLARAM o lado bom: `good: 'up'` no HDL,
+     `good: 'down'` no LDL e nos triglicerídeos. Nesses, o degradê não
+     inventa nada — ele desenha o que o dado já diz, e a faixa passa a
+     responder "estou no canto bom do normal?", que é uma pergunta de
+     verdade.
+
+     Sem `good`, a faixa é chapada. A mesma peça, duas leituras, e nenhuma
+     das duas afirma o que não sabe. */
+  const forca = (pct: number) => {
+    if (!e.good) return 0.3;
+    const largura = Math.max(1, g.bandR - g.bandL);
+    const t = Math.min(1, Math.max(0, (pct - g.bandL) / largura));
+    const bom = e.good === 'up' ? t : 1 - t;
+    return 0.16 + bom * 0.46;
+  };
+
   return (
     <View>
       <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
@@ -71,13 +99,7 @@ function Regua({ e }: { e: any }) {
                 width: ehValor ? 9 : 5,
                 height: ehValor ? 9 : 5,
                 borderRadius: 5,
-                /* ⚠️ A FAIXA PRECISA SER VISÍVEL SEM SER LIDA. Em
-                   `accentLine` ela quase não se distinguia do trilho, e a
-                   régua virava uma fileira de pontos iguais com um maior
-                   no meio — sem a faixa, a posição não diz nada. Em
-                   accent a 30% ela aparece como região e continua atrás
-                   do ponto do valor, que é quem tem que ganhar o olho. */
-                backgroundColor: ehValor ? col : naFaixa ? alfa(c.accent, 0.3) : c.track,
+                  backgroundColor: ehValor ? col : naFaixa ? alfa(c.accent, forca(pct)) : c.track,
               }}
             />
           );
@@ -92,11 +114,136 @@ function Regua({ e }: { e: any }) {
   );
 }
 
+/* ============================================================
+   O HISTÓRICO EM PONTOS — e antes era a curva da casa
+
+   ⚠️ UMA LINHA ENTRE DUAS COLETAS DESENHA DADO QUE NÃO EXISTE.
+
+   A curva contínua é a peça certa para peso: a pessoa se pesa toda
+   semana, e o traço entre dois pontos descreve um caminho que de fato
+   foi percorrido. Exame é o contrário — três coletas em cinco meses —, e
+   ligar uma à outra afirma por onde o valor passou nos quatro meses em
+   que ninguém mediu nada. Não passou por lugar nenhum: não se sabe.
+
+   Em pontos soltos, cada coleta é o que ela é: um fato isolado, numa
+   data, com um valor. O olho junta os três sozinho, e o que ele junta é
+   uma tendência — que é exatamente o grau de certeza que o dado permite.
+
+   ⚠️ A FAIXA DE REFERÊNCIA ATRAVESSA O QUADRO, e é a mesma da régua de
+   cima, na mesma escala. É o que amarra as duas peças: a faixa que a
+   pessoa acabou de ver como uma fileira de pontos reaparece aqui como
+   uma região, e a pergunta "sempre estive dentro?" se responde sem
+   número nenhum.
+
+   ⚠️ E A MALHA DE FUNDO NÃO É ENFEITE. Sem ela, três pontos soltos num
+   retângulo vazio não têm escala: não dá para dizer se a diferença entre
+   eles é muita ou pouca. A malha dá a régua, e apagada ela não disputa
+   com os pontos que importam.
+   ============================================================ */
+const COLS = 19;
+const LINS = 9;
+
+function HistoricoEmPontos({ e }: { e: any }) {
+  const { c } = useTheme();
+  const g = examGaugeData(e);
+  const vals = (e.values as any[]).slice().sort((a, b) => a.t - b.t);
+
+  const t0 = vals[0].t, t1 = vals[vals.length - 1].t;
+  const spanT = Math.max(1, t1 - t0);
+  const spanV = Math.max(1e-9, g.max - g.min);
+
+  /* Cada coleta vira uma coordenada na malha: a coluna pela DATA de
+     verdade, e não pela ordem — duas coletas em semanas seguidas ficam
+     coladas, e um intervalo de dois anos fica largo, que é o que
+     aconteceu. */
+  const marcas = vals.map((x) => ({
+    col: Math.round(((x.t - t0) / spanT) * (COLS - 1)),
+    lin: (LINS - 1) - Math.round(Math.min(1, Math.max(0, (x.v - g.min) / spanV)) * (LINS - 1)),
+    v: x.v,
+    t: x.t,
+    dentro: x.v >= g.bandL / 100 * spanV + g.min && x.v <= g.bandR / 100 * spanV + g.min,
+  }));
+  const ultima = marcas[marcas.length - 1];
+
+  const linDe = (pct: number) => (LINS - 1) - (pct / 100) * (LINS - 1);
+  const linBandaTopo = linDe(g.bandR);
+  const linBandaBase = linDe(g.bandL);
+
+  return (
+    <View style={{ gap: 10 }}>
+      <Row gap={10} style={{ alignItems: 'stretch' }}>
+        {/* ⚠️ A ESCALA MOSTRA OS LIMITES DA REFERÊNCIA, e mostrava as
+            pontas do quadro. As pontas são um número inventado pelo
+            desenho — a moldura que `examGaugeData` calcula para caber o
+            valor com folga —, e ninguém precisa saber que o eixo vai até
+            9,7. Os números que importam são os que separam o esperado do
+            não esperado, e são esses que ficam, na altura em que a faixa
+            começa e termina. */}
+        <View style={{ width: 30 }}>
+          {Array.from({ length: LINS }).map((_, lin) => {
+            const topo = lin === Math.round(linBandaTopo);
+            const base = lin === Math.round(linBandaBase);
+            const mostra = topo || base;
+            const valor = topo ? g.min + (g.bandR / 100) * spanV : g.min + (g.bandL / 100) * spanV;
+            return (
+              <View key={lin} style={{ height: 4, marginBottom: lin === LINS - 1 ? 0 : 9, justifyContent: 'center' }}>
+                {mostra ? <Txt v="micro" c={c.tx3}>{fmtV(valor)}</Txt> : null}
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={{ flex: 1, gap: 9 }}>
+          {Array.from({ length: LINS }).map((_, lin) => {
+            const naFaixa = lin >= Math.floor(linBandaTopo) && lin <= Math.ceil(linBandaBase);
+            return (
+              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                {Array.from({ length: COLS }).map((__, col) => {
+                  const marca = marcas.find((m) => m.col === col && m.lin === lin);
+                  if (marca) {
+                    const ehUltima = marca === ultima;
+                    const cor = marca.dentro ? c.accent : c.cta;
+                    return (
+                      <View
+                        key={col}
+                        style={{
+                          width: ehUltima ? 10 : 8, height: ehUltima ? 10 : 8,
+                          borderRadius: 5, backgroundColor: cor,
+                          borderWidth: ehUltima ? 2 : 0, borderColor: c.bg1,
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <View
+                      key={col}
+                      style={{
+                        width: 4, height: 4, borderRadius: 2,
+                        backgroundColor: naFaixa ? alfa(c.accent, 0.28) : c.track,
+                      }}
+                    />
+                  );
+                })}
+              </Row>
+            );
+          })}
+        </View>
+      </Row>
+
+      <Row style={{ justifyContent: 'space-between', paddingLeft: 40 }}>
+        <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t0))}</Txt>
+        <Txt v="micro" c={c.tx4}>{fmtDate(new Date(t1))}</Txt>
+      </Row>
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const { c } = useTheme();
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
   const sobre = examAbout(e);
+  const mexe = examInfluences(e);
   const varios = e.values.length > 1;
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
@@ -143,7 +290,19 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         <Txt v="caption" c={c.tx3}>Colhido em {porExtenso(l.t)}</Txt>
       </View>
 
-      <Regua e={e} />
+      <View style={{ gap: 12 }}>
+        <Regua e={e} />
+        {/* ⚠️ O QUE É UMA FAIXA DE REFERÊNCIA — a frase mais útil da tela,
+            e ela não existia. O aplicativo mostrava "referência 15–150" e
+            deixava a pessoa concluir sozinha que fora dali é doença. Não
+            é: a faixa é onde cai a maioria das pessoas saudáveis testadas
+            naquele laboratório, com o método dele — e por construção,
+            algumas pessoas saudáveis caem fora.
+
+            Fica logo abaixo da régua porque é a legenda dela, e não um
+            aviso: quem entendeu a régua já parou de ler. */}
+        <Txt v="micro" c={c.tx3} style={{ lineHeight: 19 }}>{SOBRE_A_REFERENCIA}</Txt>
+      </View>
 
       {/* ---- sobre o marcador ----
 
@@ -165,24 +324,38 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         </View>
       ) : null}
 
-      {/* Mesmo desenho dos cards de Peso e Medidas, e deslizar pela curva
-          mostra o valor de cada coleta com a data.
-
-          ⚠️ O SUBTÍTULO DIZ O PERÍODO, e dizia só "N coletas". Uma queda de
-          0,7 em três meses e a mesma queda em três anos são fatos
-          diferentes, e o número de coletas não distingue os dois. */}
+      {/* ---- a evolução ---- */}
       {varios ? (
-        <CardCurva
-          id={`ex-${e.marker}`}
-          nome={e.marker}
-          sub={`${fmtDate(new Date(f.t))} a ${fmtDate(new Date(l.t))} · ${e.values.length} coletas`}
-          valor={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`}
-          unidade={e.unit}
-          altura={110}
-          pontos={e.values.map((x: any) => ({
-            v: x.v, rotulo: fmtV(x.v), quando: porExtenso(x.t),
-          }))}
-        />
+        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 16 }, shadowCard(c)]}>
+          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <Row gap={7}>
+                <Icon name="trend" size={13} color={c.tx4} sw={2} />
+                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>EVOLUÇÃO</Txt>
+              </Row>
+              {/* ⚠️ A FRASE DIZ O QUE MUDOU E EM QUANTO TEMPO, e o cartão
+                  antigo dizia só o número de coletas. "Caiu 0,7 em quatro
+                  meses" e "caiu 0,7 em quatro anos" são fatos diferentes,
+                  e três coletas não distinguem os dois. */}
+              <Txt v="body" style={{ marginTop: 7 }}>
+                {delta === 0 ? 'Sem mudança' : `${delta > 0 ? 'Subiu' : 'Caiu'} ${fmtV(Math.abs(delta))} ${e.unit}`}
+              </Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
+                em {e.values.length} coletas, desde {porExtenso(f.t)}
+              </Txt>
+            </View>
+            {/* A seta só aparece quando o marcador declara qual lado é o
+                bom. Sem isso ela seria uma opinião sobre a direção. */}
+            {e.good && delta !== 0 ? (
+              <Row gap={5} style={{ alignItems: 'center', backgroundColor: bom ? c.okBg : c.bg2, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }}>
+                <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={13} color={bom ? c.ok : c.tx3} sw={2.4} />
+                <Txt v="micro" c={bom ? c.ok : c.tx3}>{bom ? 'na direção esperada' : 'na direção oposta'}</Txt>
+              </Row>
+            ) : null}
+          </Row>
+
+          <HistoricoEmPontos e={e} />
+        </View>
       ) : null}
 
       {varios ? (
@@ -198,6 +371,43 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             ))}
           </Cartao>
         </Bloco>
+      ) : null}
+
+      {/* ---- o que mexe neste número ----
+
+          ⚠️ É A SEÇÃO QUE TRANSFORMA O EXAME EM COISA COMPREENSÍVEL.
+          Saber que ferritina é o estoque de ferro ajuda a ler a palavra;
+          não ajuda a entender por que ela mudou — e "por que mudou" é a
+          pergunta que a pessoa leva da tela para a vida. Um número de
+          exame sem causas é um veredito; com causas, vira uma coisa que
+          tem história e que ela reconhece.
+
+          ⚠️ E NENHUM ITEM DIZ O QUE FAZER. "Álcool nos dias anteriores" é
+          um fato sobre o marcador; "pare de beber" seria conduta, e
+          conduta é de quem acompanha a pessoa. A linha entre educar e
+          prescrever passa exatamente aqui.
+
+          ⚠️ O PONTO É SOLTO, e não numerado. Numerar sugere ordem de
+          importância, e não há: são causas comuns, não um ranking. */}
+      {mexe.length ? (
+        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 12 }, shadowCard(c)]}>
+          <Row gap={7}>
+            <Icon name="bulb" size={13} color={c.tx4} sw={2} />
+            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>O QUE MEXE NESTE NÚMERO</Txt>
+          </Row>
+          <View style={{ gap: 10 }}>
+            {mexe.map((x) => (
+              <Row key={x} gap={10} style={{ alignItems: 'flex-start' }}>
+                <View style={{ marginTop: 8, width: 5, height: 5, borderRadius: 3, backgroundColor: c.accent }} />
+                <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 22 }}>{x}</Txt>
+              </Row>
+            ))}
+          </View>
+          <Txt v="micro" c={c.tx4} style={{ lineHeight: 18 }}>
+            São as causas mais comuns, e não a lista inteira. O que vale para o seu caso é
+            quem lê o conjunto que diz.
+          </Txt>
+        </View>
       ) : null}
 
       <Aviso ic="spark" titulo="O que isso significa">
