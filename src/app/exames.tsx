@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import Svg, { Rect, Line as SvgLine } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -10,6 +11,7 @@ import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
+import { AreaCurve } from '../ui/charts';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo,
 } from '../ui/internas';
@@ -119,7 +121,7 @@ const ALTURA_DA_FILEIRA = 5;
 const RESPIRO_ENTRE_FILEIRAS = 5;
 
 function Regua({ e }: { e: any }) {
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
   const g = examGaugeData(e);
 
   /* Quanto este ponto está longe da borda mais próxima da faixa, de 0
@@ -168,15 +170,21 @@ function Regua({ e }: { e: any }) {
      canta; em seis pixels ele vira um vinco no papel. É a mesma lição do
      `c.track` logo acima nesta tela.
 
-     Por isso ele vai puxado para a TINTA DO TEMA, e não escurecido: no
-     claro o `tx` é preto e o teal aprofunda (4,65, que lê); no escuro o
-     `tx` é branco e ele clareia, que é o que um fundo escuro pede. A
-     régua não precisa saber em qual dos dois está.
+     ⚠️ E POR ISSO ELE É DIFERENTE NOS DOIS TEMAS, o que normalmente é
+     cheiro de remendo.
 
-     O vermelho fica puro porque é a exceção — ele precisa parar o olho,
-     e já dá 4,87 sozinho. */
+     Aqui não é: o mesmo teal aclarado sobre fundo escuro é uma cor viva,
+     e aprofundado sobre papel branco vira verde-petróleo — a matiz não
+     sobrevive à viagem, porque escurecer um ciano é caminhar para o
+     verde. No escuro ele fica sendo o teal da casa; no claro, onde não
+     dava para ter a cor sem estragá-la, o preto faz o serviço e não
+     finge ser uma cor. O "está bom" já está dito no selo, em palavras,
+     logo acima.
+
+     O vermelho fica puro nos dois: ele é a exceção, precisa parar o
+     olho, e já dá 4,87 sozinho sobre o fundo claro. */
   const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
-  const corDoValor = g.status === 'ok' ? mix(c.teal, c.tx, 0.45) : c.cta;
+  const corDoValor = g.status === 'ok' ? (isDark ? mix(c.teal, c.tx, 0.45) : c.tx) : c.cta;
   const LARGURA_DO_TRACO = ALTURA_DA_FILEIRA + 1;
   const ALTURA_DO_TRACO = ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS;
 
@@ -257,188 +265,196 @@ function Regua({ e }: { e: any }) {
 }
 
 /* ============================================================
-   O HISTÓRICO EM PONTOS — e antes era a curva da casa
+   A EVOLUÇÃO EM LINHA — e antes era uma malha de pontos
 
-   ⚠️ UMA LINHA ENTRE DUAS COLETAS DESENHA DADO QUE NÃO EXISTE.
+   ⚠️ A RESSALVA PRIMEIRO, porque ela continua de pé: uma linha entre duas
+   coletas desenha caminho que ninguém mediu. São três exames em cinco
+   meses, e o traço entre o primeiro e o segundo afirma por onde o valor
+   passou nos oitenta dias em que não houve coleta nenhuma. Não passou por
+   lugar nenhum — não se sabe.
 
-   A curva contínua é a peça certa para peso: a pessoa se pesa toda
-   semana, e o traço entre dois pontos descreve um caminho que de fato
-   foi percorrido. Exame é o contrário — três coletas em cinco meses —, e
-   ligar uma à outra afirma por onde o valor passou nos quatro meses em
-   que ninguém mediu nada. Não passou por lugar nenhum: não se sabe.
+   A malha de pontos era a resposta honesta a isso, e cobrava caro demais:
+   para achar a altura de um ponto era preciso contar linhas, e o eixo
+   vertical era mandado pela FAIXA e não pelos dados — num HbA1c de 5,6 a
+   6,3 com referência "< 5,7", o quadro ia de 0 a 9,7 e as três coletas se
+   espremiam nos dez por cento de cima. O gráfico era honesto sobre o que
+   não sabia e mudo sobre o que sabia.
 
-   Em colunas de pontos, cada coleta é o que ela é: um fato isolado, numa
-   data, com um valor. O olho junta os três sozinho, e o que ele junta é
-   uma tendência — que é exatamente o grau de certeza que o dado permite.
+   Duas coisas seguram a honestidade sem custar a leitura:
 
-   ⚠️ E A COLUNA É HASTE, E NÃO BARRA. A diferença está no tom: barra
-   afirma quantidade a partir do zero, e o zero de um exame não é o pé
-   deste quadro — é um número que o desenho inventou para ter onde
-   começar. Em tom baixo, a coluna vira um fio que liga o ponto ao eixo e
-   ajuda a achar a altura, sem afirmar grandeza. O dado é o ponto de cima;
-   o resto é régua.
+   ⚠️ O EIXO X É O TEMPO DE VERDADE, e não uma coleta por casa. Com
+   espaçamento igual, quatro meses de silêncio e três semanas viram o
+   mesmo pedaço de tela, e aí sim o gráfico mente. Proporcional, o vão
+   longo APARECE como vão longo: a pessoa vê que entre aqueles dois
+   pontos há um deserto, e o fio esticado por cima dele se lê pelo que é —
+   um traço ligando duas medidas, não uma medida contínua.
 
-   ⚠️ A FAIXA DE REFERÊNCIA ATRAVESSA O QUADRO, e é a mesma da régua de
-   cima, na mesma escala. É o que amarra as duas peças: a faixa que a
-   pessoa acabou de ver como uma fileira de pontos reaparece aqui como
-   uma região, e a pergunta "sempre estive dentro?" se responde sem
-   número nenhum.
+   ⚠️ O FIO É FINO E OS PONTOS SÃO GORDOS. O que tem anel, cor e tamanho
+   é a coleta; o fio é só o que leva o olho de uma à outra. Invertesse
+   isso — fio grosso, ponto pequeno — e o desenho passaria a afirmar a
+   trajetória.
 
-   ⚠️ E A MALHA DE FUNDO NÃO É ENFEITE. Sem ela, três pontos soltos num
-   retângulo vazio não têm escala: não dá para dizer se a diferença entre
-   eles é muita ou pouca. A malha dá a régua, e apagada ela não disputa
-   com os pontos que importam.
+   ⚠️ E O EIXO Y É MANDADO PELOS DADOS. A faixa entra na moldura quando
+   está perto deles, e quando está longe ela continua ali como região
+   pintada até a borda do quadro, sem puxar a escala. É a diferença entre
+   "onde eu estive" legível e um gráfico correto que ninguém lê.
    ============================================================ */
-/* ⚠️ 37 × 13, E ERA 21 × 9. Pela mesma razão da régua: com a malha
-   larga, o olho lê CÉLULAS e tenta atribuir valor a cada uma; com ela
-   fina, lê papel quadriculado e passa direto para os pontos que importam.
-   E a malha fina é o que permite a haste ser fina — numa grade de nove
-   linhas, cada degrau da coluna vale um pedaço grande demais do eixo. */
-const COLS = 33;
-const LINS = 13;
-const PONTO = 4;
-const RESPIRO_LIN = 8;
+/* ⚠️ A CURVA SANGRA ATÉ A BORDA DO CARTÃO, e antes era um desenho com
+   calha à esquerda e folga dos dois lados.
 
-function HistoricoEmPontos({ e }: { e: any }) {
-  const { c } = useTheme();
+   É assim que este app desenha série temporal — o peso na Home, a
+   projeção no plano —, e recuo lateral fazia o gráfico parecer uma figura
+   COLADA dentro do cartão em vez de ser o cartão. O eixo saiu junto: sem
+   folga não há onde pôr uma calha, e a calha existia só para os números
+   da faixa não brigarem com os das coletas.
+
+   ⚠️ E OS NÚMEROS DESCERAM PARA UMA FILEIRA EMBAIXO, um por coleta, no x
+   dela. O fio vertical que sai do ponto e desce até o rótulo é o que
+   amarra os dois — é o mesmo "eixo" do gráfico do plano. Assim o quadro
+   fica só com o desenho, e a leitura exata mora fora dele.
+
+   Nas pontas não há fio nem nó: ali a curva encosta na borda do cartão,
+   bolinha sai pela metade e fio vira moldura. O começo e a chegada já se
+   marcam pelo próprio fim do traço, com o rótulo logo embaixo. */
+const ALTURA_DO_QUADRO = 150;
+const FOLGA_TOPO = 18;
+const FOLGA_BASE = 10;
+
+function LinhaDaEvolucao({ e }: { e: any }) {
+  const { c, isDark } = useTheme();
   const g = examGaugeData(e);
   const vals = (e.values as any[]).slice().sort((a, b) => a.t - b.t);
+  const [w, setW] = useState(0);
 
+  const limAlto = g.temMax ? g.limMax : null;
+  const limBaixo = g.temMin ? g.limMin : null;
+
+  /* O domínio nasce dos DADOS, com folga, e só depois abre espaço para
+     uma borda da faixa que esteja perto. "Perto" é um terço da variação
+     do próprio marcador — assim a borda entra quando ela é a próxima
+     pergunta de quem olha, e fica de fora quando está a uma distância que
+     só serviria para achatar o desenho.
+
+     ⚠️ E ISTO É O QUE CONSERTOU O GRÁFICO. Na malha de pontos o eixo era
+     mandado pela FAIXA: num HbA1c de 5,6 a 6,3 com referência "< 5,7", o
+     quadro ia de 0 a 9,7 e as três coletas se espremiam nos dez por cento
+     de cima. O desenho era correto e mudo. */
+  const vs = vals.map((x) => x.v);
+  let lo = Math.min(...vs), hi = Math.max(...vs);
+  const span = Math.max(hi - lo, Math.abs(hi) * 0.06, 1e-6);
+  lo -= span * 0.35; hi += span * 0.35;
+  const perto = span * 0.35;
+  if (limAlto != null && limAlto <= hi + perto) hi = Math.max(hi, limAlto + span * 0.15);
+  if (limBaixo != null && limBaixo >= lo - perto) lo = Math.min(lo, limBaixo - span * 0.15);
+
+  /* ⚠️ O X É O TEMPO DE VERDADE, e não uma coleta por casa. Com
+     espaçamento igual, quatro meses de silêncio e três semanas viram o
+     mesmo pedaço de tela — e aí sim o gráfico mente sobre o que houve
+     entre as medidas. Proporcional, o vão longo aparece como vão longo, e
+     o traço esticado por cima dele se lê pelo que é: um fio ligando duas
+     medidas, não uma medida contínua. */
   const t0 = vals[0].t, t1 = vals[vals.length - 1].t;
-  const spanT = Math.max(1, t1 - t0);
-  const spanV = Math.max(1e-9, g.max - g.min);
+  const pts = vals.map((x) => ({
+    x: (x.t - t0) / Math.max(1, t1 - t0),
+    y: (x.v - lo) / (hi - lo),
+  }));
 
-  const pctDe = (v: number) => Math.min(100, Math.max(0, ((v - g.min) / spanV) * 100));
-  const linDe = (pct: number) => (LINS - 1) - (pct / 100) * (LINS - 1);
-  const valorDaLin = (lin: number) => g.min + ((LINS - 1 - lin) / (LINS - 1)) * spanV;
-  const linBandaTopo = Math.round(linDe(g.bandR));
-  const linBandaBase = Math.round(linDe(g.bandL));
+  const dentroDe = (v: number) =>
+    (limBaixo == null || v >= limBaixo) && (limAlto == null || v <= limAlto);
 
-  const marcas = vals.map((x) => {
-    const pct = pctDe(x.v);
-    return {
-      col: Math.round(((x.t - t0) / spanT) * (COLS - 1)),
-      lin: Math.round(linDe(pct)),
-      dentro: pct >= g.bandL && pct <= g.bandR,
-      v: x.v,
-      t: x.t,
-    };
-  });
+  /* A mesma conta que a <AreaCurve> faz por dentro, para a faixa cair na
+     altura exata em que a curva vai cair. */
+  const yPix = (v: number) =>
+    FOLGA_TOPO + (1 - (v - lo) / (hi - lo)) * (ALTURA_DO_QUADRO - FOLGA_TOPO - FOLGA_BASE);
+  const yTopo = limAlto != null ? yPix(limAlto) : 0;
+  const yBase = limBaixo != null ? yPix(limBaixo) : ALTURA_DO_QUADRO;
+  const naMoldura = (y: number) => y > 8 && y < ALTURA_DO_QUADRO - 8;
+  const topoPintado = Math.max(0, Math.min(yTopo, ALTURA_DO_QUADRO));
+  const basePintada = Math.max(0, Math.min(yBase, ALTURA_DO_QUADRO));
 
-  /* ⚠️ O EIXO GANHOU ESCALA, e tinha só as bordas da faixa.
-
-     Eu tinha tirado os números das pontas argumentando que eles descrevem
-     a moldura e não o dado — verdade, e irrelevante: TODO eixo descreve a
-     moldura, e é para isso que ele serve. Sem nenhum degrau entre as duas
-     bordas, a altura de um ponto no meio do quadro não tinha como ser
-     lida; o gráfico virava um desenho bonito de onde não se tirava
-     número.
-
-     Um a cada três linhas é o que cabe sem virar tabela. As bordas da
-     faixa continuam sendo as únicas em tinta forte — elas são o dado, o
-     resto é régua. */
-  /* ⚠️ AS BORDAS MANDAM, E OS DEGRAUS CEDEM. Com os dois conjuntos
-     entrando juntos, `5,7` da borda e `4,8` do degrau caíam em linhas
-     vizinhas e se atropelavam — dois números a oito pixels um do outro,
-     e o que importa é o de cima. O degrau só entra quando está a duas
-     linhas de distância de qualquer borda. */
-  const bordas = [linBandaTopo, linBandaBase].filter((l) => l >= 0 && l < LINS);
-  const rotulos = new Set<number>(bordas);
-  for (const l of [0, 3, 6, 9, 12]) {
-    if (bordas.every((b) => Math.abs(b - l) >= 2)) rotulos.add(l);
-  }
+  /* Nó e fio só nas coletas do meio — ver a nota do bloco. */
+  const meio = vals.map((_, i) => i).filter((i) => i > 0 && i < vals.length - 1);
 
   return (
-    <View style={{ gap: 10 }}>
-      <Row gap={8} style={{ alignItems: 'stretch' }}>
-        <View style={{ width: 34, alignItems: 'flex-end' }}>
-          {Array.from({ length: LINS }).map((_, lin) => {
-            const borda = (lin === linBandaTopo && g.temMax) || (lin === linBandaBase && (g.temMin || g.min === 0));
-            return (
-              <View key={lin} style={{ height: PONTO, marginBottom: lin === LINS - 1 ? 0 : RESPIRO_LIN, justifyContent: 'center' }}>
-                {rotulos.has(lin) ? (
-                  <Txt v="micro" c={borda ? c.tx2 : c.tx4}>{fmtV(valorDaLin(lin))}</Txt>
+    <View>
+      <View style={{ height: ALTURA_DO_QUADRO }} onLayout={(ev) => setW(Math.round(ev.nativeEvent.layout.width))}>
+        {w > 0 ? (
+          <>
+            {/* A faixa fica ATRÁS da curva, e é a única coisa azul do
+                quadro: o traço é tinta, não cor de marca, justamente para
+                a região não ter com quem disputar. */}
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <Svg width={w} height={ALTURA_DO_QUADRO}>
+                {/* A mesma tinta em dois pesos: sobre papel branco 10% já é uma
+                    região; sobre um cartão escuro ela some, porque o contraste
+                    disponível ABAIXO do fundo é menor que o disponível acima
+                    dele. */}
+                <Rect x={0} y={topoPintado} width={w} height={Math.max(0, basePintada - topoPintado)} fill={alfa(c.accent, isDark ? 0.2 : 0.1)} />
+                {limAlto != null && naMoldura(yTopo) ? (
+                  <SvgLine x1={0} y1={yTopo} x2={w} y2={yTopo} stroke={alfa(c.accent, 0.4)} strokeWidth={1} strokeDasharray="3 4" />
                 ) : null}
+                {limBaixo != null && naMoldura(yBase) ? (
+                  <SvgLine x1={0} y1={yBase} x2={w} y2={yBase} stroke={alfa(c.accent, 0.4)} strokeWidth={1} strokeDasharray="3 4" />
+                ) : null}
+              </Svg>
+            </View>
+
+            <AreaCurve
+              pts={pts} width={w} height={ALTURA_DO_QUADRO}
+              padT={FOLGA_TOPO} padB={FOLGA_BASE} padX={0} strokeW={2.4}
+              id="ev" dashed={false} nodes nosEm={meio} eixosEm={meio} fill={0.1}
+              strokeFrom={c.tx2} strokeTo={c.tx2}
+            />
+
+            {/* O limite, deitado na linha que ele nomeia. O fundo do cartão
+                por baixo do número é o que abre espaço no tracejado sem
+                precisar interromper o traço no desenho. */}
+            {limAlto != null && naMoldura(yTopo) ? (
+              <View pointerEvents="none" style={{ position: 'absolute', left: 14, top: yTopo - 9, backgroundColor: c.bg1, paddingHorizontal: 4 }}>
+                <Txt v="micro" c={c.tx3}>{fmtV(limAlto)}</Txt>
               </View>
-            );
-          })}
-        </View>
+            ) : null}
+            {limBaixo != null && naMoldura(yBase) ? (
+              <View pointerEvents="none" style={{ position: 'absolute', left: 14, top: yBase - 9, backgroundColor: c.bg1, paddingHorizontal: 4 }}>
+                <Txt v="micro" c={c.tx3}>{fmtV(limBaixo)}</Txt>
+              </View>
+            ) : null}
+          </>
+        ) : null}
+      </View>
 
-        <View style={{ flex: 1 }}>
-          {Array.from({ length: LINS }).map((_, lin) => {
-            const naFaixa = lin >= linBandaTopo && lin <= linBandaBase;
-            return (
-              <Row key={lin} style={{ justifyContent: 'space-between', alignItems: 'center', height: PONTO, marginBottom: lin === LINS - 1 ? 0 : RESPIRO_LIN }}>
-                {Array.from({ length: COLS }).map((__, col) => {
-                  const marca = marcas.find((m) => m.col === col);
-                  const naHaste = !!marca && lin > marca.lin;
-                  const noTopo = !!marca && lin === marca.lin;
+      {/* ---- a fileira de rótulos ----
 
-                  if (noTopo) {
-                    return (
-                      <View
-                        key={col}
-                        style={{
-                          width: 10, height: 10, borderRadius: 5,
-                          borderWidth: 2.5, borderColor: c.bg1,
-                          backgroundColor: marca!.dentro ? c.accent2 : c.cta,
-                          marginVertical: -3,
-                        }}
-                      />
-                    );
-                  }
-                  if (naHaste) {
-                    /* ⚠️ A HASTE ESCURECE PARA CIMA, e é isso que a faz ler
-                       como coluna e não como fileira de pontos soltos. O
-                       degradê aponta para o dado: o olho sobe por ele e
-                       para no ponto cheio, que é onde está a resposta. */
-                    const altura = Math.max(1, LINS - 1 - marca!.lin);
-                    const fundura = (lin - marca!.lin) / altura;
-                    return (
-                      <View
-                        key={col}
-                        style={{
-                          width: PONTO + 1, height: PONTO + 1, borderRadius: 3,
-                          backgroundColor: mix(c.bg1, c.accent, 0.52 - fundura * 0.34),
-                        }}
-                      />
-                    );
-                  }
-                  return (
-                    <View
-                      key={col}
-                      style={{
-                        width: PONTO, height: PONTO, borderRadius: 2,
-                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.22) : pista(c),
-                      }}
-                    />
-                  );
-                })}
+          Cada coleta no x dela, e não em colunas de larguras iguais: o
+          rótulo tem que cair embaixo do ponto, senão o fio que desce do
+          ponto aponta para o vizinho. Nas pontas ele encosta na margem do
+          cartão em vez de ficar centrado, que é o que impede a primeira e
+          a última caixa de sangrarem para fora. */}
+      <View style={{ height: 42, marginTop: 2, marginBottom: 16 }}>
+        {w > 0 ? pts.map((q, i) => {
+          const x = q.x * w;
+          const naEsq = x < 62, naDir = x > w - 62;
+          const v = vals[i].v;
+          return (
+            <View
+              key={vals[i].t}
+              style={{
+                position: 'absolute',
+                left: naEsq ? 16 : naDir ? undefined : x - 50,
+                right: naDir ? 16 : undefined,
+                width: naEsq || naDir ? undefined : 100,
+                alignItems: naEsq ? 'flex-start' : naDir ? 'flex-end' : 'center',
+              }}
+            >
+              <Row gap={3} style={{ alignItems: 'baseline' }}>
+                <Txt v="label" c={dentroDe(v) ? c.tx : c.cta}>{fmtV(v)}</Txt>
+                <Txt v="micro" c={c.tx4}>{e.unit}</Txt>
               </Row>
-            );
-          })}
-        </View>
-      </Row>
-
-      {/* ⚠️ AS COLETAS DESCERAM PARA CÁ, e eram um bloco inteiro com
-          título, cartão e uma linha alta por valor. Três linhas repetindo
-          os mesmos três números que o gráfico logo acima acabou de
-          desenhar — a mesma informação contada duas vezes, em dois pesos
-          diferentes.
-
-          Aqui elas são a LEGENDA do gráfico: cada coleta com a sua data,
-          na ordem em que aparecem no quadro, e o ponto colorido dizendo se
-          aquela caiu dentro ou fora. É onde os números exatos ficam sem
-          virar seção. */}
-      <Row gap={14} style={{ flexWrap: 'wrap', paddingLeft: 42 }}>
-        {marcas.map((m) => (
-          <Row key={m.t} gap={6} style={{ alignItems: 'center' }}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: m.dentro ? c.accent2 : c.cta }} />
-            <Txt v="micro" c={c.tx2}>{fmtV(m.v)}</Txt>
-            <Txt v="micro" c={c.tx4}>{fmtDate(new Date(m.t))}</Txt>
-          </Row>
-        ))}
-      </Row>
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>{fmtDate(new Date(vals[i].t))}</Txt>
+            </View>
+          );
+        }) : null}
+      </View>
     </View>
   );
 }
@@ -565,8 +581,11 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
       {/* ---- a evolução ---- */}
       {varios ? (
-        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 16 }, shadowCard(c)]}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        /* ⚠️ O CARTÃO PERDEU O PADDING, e ele passou para o cabeçalho.
+           Curva que sangra não pode nascer dentro de uma caixa de 18 de
+           recuo; o recuo agora é de quem precisa dele. */
+        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start', padding: 18, paddingBottom: 12 }}>
             <View style={{ flex: 1 }}>
               <Row gap={7}>
                 <Icon name="trend" size={13} color={c.tx4} sw={2} />
@@ -615,7 +634,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             ) : null}
           </Row>
 
-          <HistoricoEmPontos e={e} />
+          <LinhaDaEvolucao e={e} />
         </View>
       ) : null}
 
