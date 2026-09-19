@@ -269,8 +269,16 @@ export default function Especialista() {
               diferentes lidas com o mesmo peso. O relógio e as pessoas
               dizem de que espécie é cada número antes de alguém ler o
               número. */}
+          {/* ⚠️ SEM MARGEM DE TOPO, e ele tinha 20. Os 20 somavam aos 24
+              que a folha já põe em cima, e o cartão ficava a 44 do corte
+              de cima da página enquanto estava a 24 das laterais — a mesma
+              peça com duas distâncias diferentes para a mesma borda.
+
+              Agora a folha manda sozinha: 24 em cima, 24 dos lados, o
+              mesmo número nos três, e o cartão fica encaixado na quina em
+              vez de flutuando dentro dela. */}
           {!!f.anos && !!f.pacientes && (
-            <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 20, paddingVertical: 18 }}>
+            <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingVertical: 18 }}>
               {([
                 ['clock', `${f.anos} anos`, 'de experiência'],
                 ['user', `${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
@@ -316,8 +324,15 @@ export default function Especialista() {
             vez de um cinza fixo.
 
             Uma cor por ação seria um arco-íris: são quatro caminhos para a
-            mesma pessoa, e uma família só de cor é o que diz isso. */}
-          <Row gap={8}>
+            mesma pessoa, e uma família só de cor é o que diz isso.
+
+            ⚠️ E ELAS GANHARAM 30 DE FOLGA, que não tinham nenhuma. Coladas
+            no cartão dos números, as duas peças liam como um bloco só — e
+            são coisas de naturezas opostas: uma é o que se LÊ sobre a
+            pessoa, a outra é o que se FAZ com ela. A folga é maior que os
+            24 da borda de propósito: dentro de um grupo as distâncias são
+            iguais, e entre grupos elas crescem. */}
+          <Row gap={8} style={{ marginTop: 30 }}>
             {acoes.map(([ic, label, to]) => (
               <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                 <View style={{ alignItems: 'center' }}>
