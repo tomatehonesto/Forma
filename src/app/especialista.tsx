@@ -6,10 +6,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDe, type FichaDaEquipe } from '../logic/derive';
-import { Txt, Row, CircleBtn, Divider } from '../ui/kit';
+import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowSoft, alfa } from '../theme';
+import { radius } from '../theme';
 import { RETRATOS, inicialDoNome } from '../ui/retratos';
 
 /* ============================================================
@@ -151,18 +151,6 @@ export default function Especialista() {
               style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
               pointerEvents="none"
             />
-            {/* ⚠️ A QUEDA USA `c.bg`, E NÃO UM CINZA ESCRITO À MÃO.
-
-                Estavam aqui cinco paradas em 'rgba(245,246,250,…)' — a cor
-                de fundo do tema CLARO, cravada. No escuro o retrato caía
-                num véu esbranquiçado antes de chegar ao preto, e a emenda
-                que devia sumir era a coisa mais visível da tela. */}
-            <LinearGradient
-              colors={[alfa(c.bg, 0), alfa(c.bg, 0.5), c.bg]}
-              locations={[0, 0.6, 1]}
-              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 130 }}
-              pointerEvents="none"
-            />
             <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
               <Row>
                 {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
@@ -178,8 +166,27 @@ export default function Especialista() {
           </View>
         )}
 
-        {/* ---- a identidade ---- */}
-        <View style={{ paddingHorizontal: PAD, marginTop: retrato ? 4 : 22 }}>
+        {/* ---- a página, montada sobre a foto ----
+
+            ⚠️ ABA COM CANTO, E NÃO DEGRADÊ. A foto dissolvia no fundo por
+            uma queda de 130px — e uma dissolução gasta 130px de foto para
+            esconder uma emenda. Aqui a emenda deixa de ser escondida e
+            passa a ser DESENHADA: a página é uma superfície com canto
+            arredondado que sobe 26px sobre a imagem, e a foto termina
+            inteira, no corte reto, atrás dela.
+
+            É mais honesto com fotos ruins também. A queda empurrava a cor
+            do fundo para dentro da imagem e, numa foto escura, o terço de
+            baixo virava uma mancha; o canto arredondado não toca a foto,
+            só a cobre. */}
+        <View style={{
+          backgroundColor: c.bg,
+          borderTopLeftRadius: retrato ? 28 : 0,
+          borderTopRightRadius: retrato ? 28 : 0,
+          marginTop: retrato ? -26 : 0,
+          paddingTop: retrato ? 24 : 0,
+        }}>
+        <View style={{ paddingHorizontal: PAD, marginTop: retrato ? 0 : 22 }}>
           {/* Sem retrato, o círculo com a inicial ocupa o lugar dele — o
               mesmo desenho da lista da clínica, para a pessoa reconhecer
               que chegou na ficha de quem tocou. */}
@@ -192,20 +199,16 @@ export default function Especialista() {
             </View>
           ) : null}
 
-          {/* ⚠️ A NOTA PERDEU O VIDRO. Ela era translúcida com borda porque
-              flutuava sobre a foto; sobre a página isso vira uma pastilha
-              de vidro sem nada atrás para deixar passar. */}
-          {!!f.rating && (
-            <Row gap={6} style={{
-              alignSelf: 'flex-start', marginBottom: 12,
-              backgroundColor: c.bg1, borderRadius: radius.pill,
-              paddingHorizontal: 12, paddingVertical: 6,
-            }}>
-              <Icon name="trophy" size={13} color={c.accent} sw={2} />
-              <Txt v="micro" c={c.tx}>{String(f.rating).replace('.', ',')}</Txt>
-              {!!f.avaliacoes && <Txt v="micro" c={c.tx3}>· {f.avaliacoes} avaliações</Txt>}
-            </Row>
-          )}
+          {/* ⚠️ A NOTA SAIU DA TELA, e com ela a contagem de avaliações.
+
+              Nota serve para ESCOLHER, e esta tela não é de escolha: quem
+              a abre já é paciente de quem está nela. Depois de escolhida,
+              a estrela vira ruído sobre alguém em quem a pessoa já decidiu
+              confiar — e, pior, insinua um mecanismo de avaliação que o
+              aplicativo não tem. Ninguém avalia ninguém aqui.
+
+              No dia em que houver diretório de parceiros, ela volta — lá,
+              onde a pergunta é "qual deles?" e o número tem uma origem. */}
           <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
           <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
             {[f.papel, f.registro].filter(Boolean).join(' · ')}
@@ -215,23 +218,32 @@ export default function Especialista() {
           )}
         </View>
 
-        {/* ⚠️ AS AÇÕES DEIXARAM DE SUBIR SOBRE A FOTO. O cartão de vidro
-            montado na divisa existia para costurar dois planos — a imagem
-            e a página. Agora quem costura é a dissolução, e o cartão passa
-            a ser o que é: a fileira de ações da ficha, apoiada na página. */}
+        {/* ---- as ações ----
+
+            ⚠️ SEM CARTÃO, e elas moravam num. O cartão de vidro existia
+            para costurar a foto com a página, montado na divisa entre as
+            duas; quando a aba assumiu a costura, ele virou uma caixa em
+            volta de quatro botões que já se leem como quatro botões. É a
+            mesma regra dos ícones soltos nas listas do aplicativo — a
+            moldura é a única parte da peça que não diz nada.
+
+            ⚠️ E O CÍRCULO GANHOU COR. Era `c.bg2`, o cinza de superfície, o
+            que fazia quatro ações de verdade parecerem quatro lugares
+            desativados. Em `accentWeak` com o ícone em `accent` elas leem
+            como o que são, e acompanham a paleta que a pessoa escolheu em
+            vez de um cinza fixo.
+
+            Uma cor por ação seria um arco-íris: são quatro caminhos para a
+            mesma pessoa, e uma família só de cor é o que diz isso. */}
         <View style={{ paddingHorizontal: PAD, marginTop: 22 }}>
-          <Row gap={8} style={{
-            backgroundColor: c.bg1,
-            borderRadius: radius.xl, paddingVertical: 16,
-            ...shadowSoft(c),
-          }}>
+          <Row gap={8}>
             {acoes.map(([ic, label, to]) => (
               <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                 <View style={{ alignItems: 'center' }}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={ic} size={19} color={c.tx} sw={1.8} />
+                  <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={ic} size={21} color={c.accent} sw={1.9} />
                   </View>
-                  <Txt v="micro" c={c.tx2} style={{ marginTop: 7 }}>{label}</Txt>
+                  <Txt v="micro" c={c.tx2} style={{ marginTop: 8 }}>{label}</Txt>
                 </View>
               </Pressable>
             ))}
@@ -239,18 +251,28 @@ export default function Especialista() {
         </View>
 
         <View style={{ paddingHorizontal: PAD }}>
-          {/* números que sustentam a credencial */}
-          {!!f.anos && !!f.pacientes && !!f.avaliacoes && (
+          {/* ---- os números que sustentam a credencial ----
+
+              ⚠️ DOIS, E ERAM TRÊS. "Avaliações" saiu junto com a nota: uma
+              contagem de avaliações sem avaliação nenhuma no aplicativo é
+              um número que não tem de onde vir.
+
+              ⚠️ E CADA UM GANHOU ÍCONE. Sem eles a fileira era dois pares
+              de texto separados por um fio — tempo e volume, duas grandezas
+              diferentes lidas com o mesmo peso. O relógio e as pessoas
+              dizem de que espécie é cada número antes de alguém ler o
+              número. */}
+          {!!f.anos && !!f.pacientes && (
             <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 18, paddingVertical: 18 }}>
-              {[
-                [`${f.anos} anos`, 'de experiência'],
-                [`${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
-                [`${f.avaliacoes}`, 'avaliações'],
-              ].map(([valor, label], i) => (
+              {([
+                ['clock', `${f.anos} anos`, 'de experiência'],
+                ['user', `${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
+              ] as [string, string, string][]).map(([ic, valor, label], i) => (
                 <React.Fragment key={label}>
                   {i > 0 && <View style={{ width: 1, backgroundColor: c.line2, marginVertical: 2 }} />}
                   <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 6 }}>
-                    <Txt v="h2">{valor}</Txt>
+                    <Icon name={ic} size={19} color={c.accent} sw={1.9} />
+                    <Txt v="h2" style={{ marginTop: 8 }}>{valor}</Txt>
                     <Txt v="micro" c={c.tx3} style={{ marginTop: 3, textAlign: 'center' }}>{label}</Txt>
                   </View>
                 </React.Fragment>
@@ -287,9 +309,20 @@ export default function Especialista() {
             <View style={{ marginTop: 30 }}>
               <Txt v="h2">{f.responsavel ? 'Abordagens' : 'Áreas'}</Txt>
               <Row gap={8} style={{ flexWrap: 'wrap', marginTop: 14 }}>
+                {/* ⚠️ PREENCHIDAS, E ERAM CONTORNO CINZA. O contorno é o
+                    desenho de chip de FILTRO — uma coisa que se liga e se
+                    desliga —, e aqui nada se liga: são afirmações da
+                    pessoa sobre o trabalho dela. Preenchidas em accentWeak
+                    elas param de pedir toque e passam a ler como
+                    etiquetas, que é o que são.
+
+                    ⚠️ E ISSO AS SEPARA DOS CONVÊNIOS DE /clinica, que
+                    continuam em contorno de propósito: lá é uma lista que
+                    se varre à procura do nome do seu plano, aqui é um
+                    punhado de atributos de quem cuida de você. */}
                 {f.areas.map((a) => (
-                  <View key={a} style={{ borderWidth: 1, borderColor: c.line, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8 }}>
-                    <Txt v="caption" c={c.tx2}>{a}</Txt>
+                  <View key={a} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8 }}>
+                    <Txt v="caption" c={c.accent}>{a}</Txt>
                   </View>
                 ))}
               </Row>
@@ -318,18 +351,17 @@ export default function Especialista() {
             </View>
           )}
 
-          <Divider style={{ marginTop: 28 }} />
+          {/* ⚠️ O BOTÃO DO RODAPÉ SAIU, e ele dizia "Escrever para a
+              equipe". Era a mesma ação de "Mensagem", que está lá em cima
+              na fileira, com outro nome e outro peso — e a fileira de ações
+              é o lugar dela: logo abaixo de quem a pessoa é, antes de todo
+              o texto. Repetida no fim, ela pedia de novo o que já tinha
+              sido oferecido, e obrigava quem só queria ler a ficha a rolar
+              por cima de um botão azul.
 
-          <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 20, opacity: pressed ? 0.85 : 1 }]}>
-            <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
-              <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
-              {/* ⚠️ "A EQUIPE", E NÃO "ELA". A conversa é uma só, com a
-                  clínica — um botão dizendo "enviar mensagem" na ficha da
-                  nutricionista prometeria conversa privada com ela, e a
-                  mensagem cairia no mesmo canal de todo mundo. */}
-              <Txt v="body" c={c.accentInk}>Escrever para a equipe</Txt>
-            </Row>
-          </Pressable>
+              A tela termina no limite: dose e protocolo são decisão de quem
+              está nela. É um fecho melhor do que uma chamada para ação. */}
+        </View>
         </View>
       </ScrollView>
     </View>
