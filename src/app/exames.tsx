@@ -122,33 +122,27 @@ function Regua({ e }: { e: any }) {
       : mix(c.accent, c.accent2, (t - 0.5) * 2);
   };
 
-  /* ⚠️ O MARCADOR SÃO OS DOIS PONTOS DA COLUNA, e já foi bola e já foi
-     cápsula. As duas eram peças NOVAS pousadas sobre a régua — e peça
-     pousada tem sombra, tem borda, tem forma própria, e vira alfinete de
-     mapa. Aqui não se acrescenta nada: os dois pontos que já estavam
-     naquela coluna simplesmente acendem. O marcador não é um objeto sobre
-     a régua, é a régua dizendo onde você está. */
-  const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
+  /* ⚠️ O MARCADOR É A COLUNA FECHADA, e já foi bola, cápsula e dois
+     pontos escuros soltos.
 
-  const fileira = (chave: string) => (
-    <Row key={chave} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-      {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
-        const ehValor = i === iValor;
-        return (
-          <View
-            key={i}
-            style={{
-              width: ehValor ? ALTURA_DA_FILEIRA + 2 : ALTURA_DA_FILEIRA,
-              height: ehValor ? ALTURA_DA_FILEIRA + 2 : ALTURA_DA_FILEIRA,
-              borderRadius: RAIO_DO_PONTO + 1,
-              marginVertical: ehValor ? -1 : 0,
-              backgroundColor: ehValor ? c.tx : corDoPonto((i / (PONTOS_DA_REGUA - 1)) * 100),
-            }}
-          />
-        );
-      })}
-    </Row>
-  );
+     A bola e a cápsula eram peças NOVAS pousadas sobre a régua — e peça
+     pousada tem borda, tem forma própria, e vira alfinete de mapa. Os dois
+     pontos escuros resolveram isso, mas custaram o contrário: dois pontos
+     soltos entre outros oitenta pontos soltos, e o olho tinha que juntá-los
+     para entender que eram uma coisa só.
+
+     Ligando os dois, a coluna inteira vira um traço vertical — a única
+     forma vertical numa tela de pontos horizontais. Nada foi acrescentado:
+     é a mesma coluna, fechada.
+
+     ⚠️ E ELE É VERDE OU VERMELHO, e era preto. Preto dizia "é aqui" e
+     parava aí; quem quisesse o veredito tinha que voltar ao selo. Com a
+     cor do estado, a régua responde as duas perguntas sozinha — onde eu
+     estou, e isso é bom. */
+  const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
+  const corDoValor = g.status === 'ok' ? c.ok : c.cta;
+  const LARGURA_DO_TRACO = ALTURA_DA_FILEIRA + 1;
+  const ALTURA_DO_TRACO = ALTURA_DA_FILEIRA * 2 + RESPIRO_ENTRE_FILEIRAS;
 
   /* ⚠️ O BALÃO SAIU DAQUI, e o veredito voltou para baixo do número.
      Ele ficava preso ao ponto do valor, então mudava de lugar a cada
@@ -156,12 +150,42 @@ function Regua({ e }: { e: any }) {
      tela dependendo de onde o dado tinha caído. Sem ele a régua faz só o
      que régua faz: mostra a faixa e onde você está nela. */
 
+  /* ⚠️ A RÉGUA É UMA FILEIRA DE COLUNAS, e eram duas fileiras de pontos.
+
+     Ligar os dois pontos da mesma coluna, com duas <Row> independentes,
+     pedia uma peça absoluta por cima em `left: ${g.pos}%` — e porcentagem
+     não cai onde o `space-between` põe o ponto, porque ele reserva a
+     largura de um ponto em cada ponta. O erro é de uns dois pixels, que
+     numa régua de pontos de cinco é meio ponto de deslocamento: o traço
+     nasceria torto em relação à coluna que ele diz ser.
+
+     Por colunas o problema não existe — o marcador não é desenhado SOBRE
+     a coluna, ele É a coluna. */
   return (
     <View>
-      <View style={{ gap: RESPIRO_ENTRE_FILEIRAS }}>
-        {fileira('cima')}
-        {fileira('baixo')}
-      </View>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
+          if (i === iValor) {
+            return (
+              <View
+                key={i}
+                style={{
+                  width: LARGURA_DO_TRACO, height: ALTURA_DO_TRACO,
+                  borderRadius: LARGURA_DO_TRACO / 2,
+                  backgroundColor: corDoValor,
+                }}
+              />
+            );
+          }
+          const cor = corDoPonto((i / (PONTOS_DA_REGUA - 1)) * 100);
+          return (
+            <View key={i} style={{ gap: RESPIRO_ENTRE_FILEIRAS }}>
+              <View style={{ width: ALTURA_DA_FILEIRA, height: ALTURA_DA_FILEIRA, borderRadius: RAIO_DO_PONTO, backgroundColor: cor }} />
+              <View style={{ width: ALTURA_DA_FILEIRA, height: ALTURA_DA_FILEIRA, borderRadius: RAIO_DO_PONTO, backgroundColor: cor }} />
+            </View>
+          );
+        })}
+      </Row>
 
       {/* Os limites, cada um na sua altura. */}
       <View style={{ height: 18, marginTop: 10 }}>
