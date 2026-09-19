@@ -99,11 +99,14 @@ import { Image } from 'expo-image';
 
 const PAD = 24;
 
-/* A foto tem 300 e não 430 como o retrato de /especialista: lá a pessoa é
+/* A foto tem 260 e não 430 como o retrato de /especialista: lá a pessoa é
    o assunto da tela e ocupa quase a dobra inteira; aqui a recepção é o
-   contexto, e o que a pessoa veio ler — nome, endereço, equipe — precisa
-   começar acima da dobra. */
-const ALTURA_DA_FOTO = 300;
+   contexto, e o que a pessoa veio ler — nome, endereço, convênios —
+   precisa caber acima da dobra.
+
+   Eram 300 enquanto o cartão da identidade subia 44px sobre ela. Sem o
+   cartão nada mais sobe, e os 40 que faltavam voltam para o conteúdo. */
+const ALTURA_DA_FOTO = 260;
 
 export default function Clinica() {
   const S = useStore((s) => s.S);
@@ -147,107 +150,109 @@ export default function Clinica() {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
-        {imagens.foto ? (
-          <>
-            {/* ---- cabeçalho com foto ----
+        {/* ---- o cabeçalho ----
 
-                A imagem sobe até o topo do aparelho, POR TRÁS da barra de
+            ⚠️ A IDENTIDADE SAIU DO CARTÃO, e ficava num cartão branco que
+            subia 44px sobre a foto. O cartão fazia duas coisas ao mesmo
+            tempo: costurava o nome à imagem e encaixotava o conteúdo. Só a
+            primeira era necessária, e a queda da foto para `c.bg` já faz
+            essa costura sozinha — a imagem não termina num corte, ela
+            dissolve no fundo da página, e o nome começa do outro lado da
+            dissolução.
+
+            O que o cartão custava: uma caixa branca sobre outro fundo
+            claro, uma sombra, um segundo raio de canto, e um respiro de 20
+            que estreitava o endereço a ponto de "Jardim Modelo" quebrar
+            sozinho numa linha. Nada disso dizia nada.
+
+            ⚠️ E AGORA OS DOIS CABEÇALHOS TERMINAM NO MESMO BLOCO. Com foto
+            ou sem, o que vem depois é a mesma identidade na mesma posição:
+            marca, nome, especialidade, onde fica. A foto é um cabeçalho
+            diferente, não uma tela diferente — e antes eram duas estruturas
+            paralelas que precisavam ser mantidas juntas na mão. */}
+        {imagens.foto ? (
+          <View style={{ height: ALTURA_DA_FOTO }}>
+            {/* A imagem sobe até o topo do aparelho, POR TRÁS da barra de
                 status, e não começa depois dela. Uma foto que respeita a
                 safe area vira um cartão com uma faixa de fundo em cima; uma
-                que a atravessa vira o cabeçalho.
-
-                ⚠️ O VÉU ESCURO NO ALTO NÃO É ESTILO. O botão de voltar fica
+                que a atravessa vira o cabeçalho. */}
+            <Image
+              source={imagens.foto}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              contentPosition="center"
+            />
+            {/* ⚠️ O VÉU ESCURO NO ALTO NÃO É ESTILO. O botão de voltar fica
                 sobre a foto, e a foto é da clínica: pode ser uma recepção
                 clara com a janela estourada. Sem o véu, o botão desaparece
-                exatamente nas fotos mais comuns — e é o único jeito de
-                sair da tela. */}
-            <View style={{ height: ALTURA_DA_FOTO }}>
-              <Image
-                source={imagens.foto}
-                style={StyleSheet.absoluteFill}
-                contentFit="cover"
-                contentPosition="center"
-              />
-              <LinearGradient
-                colors={['rgba(0,0,0,0.38)', 'rgba(0,0,0,0.12)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.55, 1]}
-                style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
-                pointerEvents="none"
-              />
-              {/* ⚠️ E A QUEDA NO PÉ USA `c.bg`, como em /especialista. Sem ela
-                  a foto termina num corte reto a meia altura do cartão que
-                  sobe — e o cartão passa a parecer colado, e não apoiado. */}
-              <LinearGradient
-                colors={[alfa(c.bg, 0), alfa(c.bg, 0.5), c.bg]}
-                locations={[0, 0.62, 1]}
-                style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 96 }}
-                pointerEvents="none"
-              />
-              <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
-                <Row>
-                  {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
-                  <CircleBtn name="back" onPress={() => router.back()} bg="#FFFFFF" color="#1A1D23" />
-                </Row>
-              </View>
+                exatamente nas fotos mais comuns — e é o único jeito de sair
+                da tela. */}
+            <LinearGradient
+              colors={['rgba(0,0,0,0.38)', 'rgba(0,0,0,0.12)', 'rgba(0,0,0,0)']}
+              locations={[0, 0.55, 1]}
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
+              pointerEvents="none"
+            />
+            {/* ⚠️ E A QUEDA NO PÉ USA `c.bg`, como em /especialista. Ela é o
+                que substitui o cartão: sem ela a foto termina num corte
+                reto e o nome vira uma legenda pendurada; com ela a imagem
+                dissolve no fundo da página e o texto começa dentro do mesmo
+                plano. */}
+            <LinearGradient
+              colors={[alfa(c.bg, 0), alfa(c.bg, 0.55), c.bg]}
+              locations={[0, 0.6, 1]}
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 120 }}
+              pointerEvents="none"
+            />
+            <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
+              <Row>
+                {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
+                <CircleBtn name="back" onPress={() => router.back()} bg="#FFFFFF" color="#1A1D23" />
+              </Row>
             </View>
-
-            {/* ⚠️ O CARTÃO SOBE 44px SOBRE A FOTO, e não encosta nela. A
-                sobreposição é o que costura os dois: o nome pertence à
-                imagem, e empilhados eles viravam duas peças com uma emenda
-                no meio. O logo fica na quina de cima, meio dentro e meio
-                fora, que é onde uma marca se apoia. */}
-            <View style={{ paddingHorizontal: PAD, marginTop: -44 }}>
-              <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 20 }, shadowCard(c)]}>
-                {imagens.logo ? (
-                  <Image
-                    source={imagens.logo}
-                    style={{ width: 52, height: 52, borderRadius: radius.md, marginBottom: 14, backgroundColor: c.bg }}
-                    contentFit="contain"
-                  />
-                ) : null}
-                <Txt v="h1" style={{ fontSize: 26 }}>{f.nome}</Txt>
-                {!!f.especialidade && (
-                  <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
-                )}
-                <Local f={f} />
-              </View>
-            </View>
-          </>
+          </View>
         ) : (
-          /* ---- cabeçalho sem foto ----
-
-              ⚠️ O QUADRADO MOSTRA AS INICIAIS, e mostrava um coração. Um
-              ícone genérico no lugar da marca é a pior reserva possível
-              numa tela cujo propósito é APRESENTAR a clínica — um coração
-              que não é dela diz menos do que duas letras que são. */
           <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 20 }}>
             <Row style={{ marginTop: 4 }} gap={12}>
               <CircleBtn name="back" onPress={() => router.back()} />
               <Txt v="title" style={{ flex: 1 }}>Clínica</Txt>
             </Row>
-            <View style={{ marginTop: 20 }}>
-              {imagens.logo ? (
-                <Image
-                  source={imagens.logo}
-                  style={{ width: 56, height: 56, borderRadius: radius.md, backgroundColor: c.bg1 }}
-                  contentFit="contain"
-                />
-              ) : (
-                <View style={{
-                  width: 56, height: 56, borderRadius: radius.md,
-                  backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Txt v="h2" c={c.accent}>{iniciaisDaClinica(f.nome)}</Txt>
-                </View>
-              )}
-              <Txt v="h1" style={{ fontSize: 28, marginTop: 16 }}>{f.nome}</Txt>
-              {!!f.especialidade && (
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
-              )}
-              <Local f={f} />
-            </View>
           </View>
         )}
+
+        {/* ---- a identidade ----
+
+            ⚠️ A MARCA SÓ APARECE QUANDO É A MARCA. Com logo, ele entra nos
+            dois casos. Sem logo, as iniciais entram só quando NÃO há foto —
+            com foto, a imagem já disse de quem é a tela, e um quadrado com
+            duas letras embaixo dela seria um segundo emblema para a mesma
+            clínica.
+
+            ⚠️ O QUADRADO DAS INICIAIS SUBSTITUIU UM CORAÇÃO. Um ícone
+            genérico no lugar da marca é a pior reserva possível numa tela
+            cujo propósito é APRESENTAR a clínica — um coração que não é
+            dela diz menos do que duas letras que são. */}
+        <View style={{ paddingHorizontal: PAD, marginTop: imagens.foto ? 4 : 20 }}>
+          {imagens.logo ? (
+            <Image
+              source={imagens.logo}
+              style={{ width: 56, height: 56, borderRadius: radius.md, marginBottom: 16, backgroundColor: c.bg1 }}
+              contentFit="contain"
+            />
+          ) : !imagens.foto ? (
+            <View style={{
+              width: 56, height: 56, borderRadius: radius.md, marginBottom: 16,
+              backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Txt v="h2" c={c.accent}>{iniciaisDaClinica(f.nome)}</Txt>
+            </View>
+          ) : null}
+          <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
+          {!!f.especialidade && (
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
+          )}
+          <Local f={f} />
+        </View>
 
         <View style={{ paddingHorizontal: PAD }}>
         {/* ---- convênios ----
@@ -493,9 +498,9 @@ export default function Clinica() {
    pino. O endereço era a continuação dela separada por um título.
 
    Aqui os dois viram o que são: a parte de baixo da identidade. Quem é a
-   clínica, e onde ela está — separados por um fio, no mesmo cartão. Some
-   um título, some uma caixa, e o dado mais consultado da tela passa a
-   morar no lugar mais visível dela.
+   clínica, e onde ela está — separados por um fio. Some um título, some
+   uma caixa, e o dado mais consultado da tela passa a morar no lugar mais
+   visível dela.
 
    ⚠️ O ENDEREÇO CONTINUA SEM ABRIR MAPA. Ele vem de semente, e um
    endereço clicável falso manda alguém até a porta de um estranho. A ação
