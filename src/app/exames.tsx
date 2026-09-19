@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path, Line as SvgLine } from 'react-native-svg';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -300,9 +301,15 @@ function degrauBonito(bruto: number) {
   return dez * 10;
 }
 
-const LINHAS_POR_DEGRAU = 3;
-const ESPACO_LINHA = 12;
-const RAIO_DA_MALHA = 2;
+/* ⚠️ MALHA FINA, e ela já foi larga em duas telas desta mesma jornada.
+   Com o ponto grande e espaçado, o olho lê CÉLULAS e tenta atribuir valor
+   a cada uma; fina, ele lê papel quadriculado e passa direto para o que
+   está desenhado em cima. Quatro linhas por degrau do eixo, e não três,
+   pelo mesmo motivo: quanto mais perto de uma trama, menos ela pede
+   atenção. */
+const LINHAS_POR_DEGRAU = 4;
+const ESPACO_LINHA = 9;
+const RAIO_DA_MALHA = 1.7;
 const RAIO_DA_COLETA = 4;
 const CALHA = 32;
 const RESPIRO_DAS_DATAS = 10;
@@ -352,14 +359,17 @@ function MalhaDaEvolucao({ e }: { e: any }) {
   const valorDaLinha = (i: number) => yHi - (i / (LINHAS - 1)) * (yHi - yLo);
   const yDe = (v: number) => (1 - (v - yLo) / Math.max(1e-9, yHi - yLo)) * ALTURA;
 
-  /* ⚠️ A MALHA QUANTIZA A FRONTEIRA, E O PONTO NÃO. Uma linha de pontos
-     está dentro da janela quando o VALOR dela está dentro — então a borda
-     cai em algum lugar do vão entre duas linhas, que é o melhor que uma
-     textura consegue. O veredito de cada coleta não passa por aqui: ele
-     sai do valor exato, e é por isso que um resultado a um décimo do
-     limite ainda aparece vermelho mesmo pousado sobre um ponto claro. */
+  /* ⚠️ A MALHA QUANTIZA A FRONTEIRA, E O VEREDITO NÃO. Uma linha de
+     pontos está dentro da janela quando o VALOR dela está dentro — então a
+     borda cai em algum lugar do vão entre duas linhas, que é o melhor que
+     uma textura consegue. Já o veredito de cada coleta sai do valor
+     exato, e é por isso que ele mora no balão do toque e não na malha:
+     uma coleta a um décimo do limite pousa num ponto claro e mesmo assim
+     diz "acima da faixa" quando a pessoa encosta nela. */
   const dentroDe = (v: number) =>
     (limBaixo == null || v >= limBaixo) && (limAlto == null || v <= limAlto);
+  const ondeCaiu = (v: number) =>
+    dentroDe(v) ? null : (limAlto != null && v > limAlto ? 'acima da faixa' : 'abaixo da faixa');
 
   const x0 = CALHA + RAIO_DA_COLETA;
   const x1 = Math.max(x0 + 1, w - RAIO_DA_COLETA);
@@ -375,12 +385,69 @@ function MalhaDaEvolucao({ e }: { e: any }) {
   const P = vals.map((x) => ({ x: xDe(x.t), y: yDe(x.v), v: x.v, t: x.t }));
   const traco = P.map((q, i) => `${i ? 'L' : 'M'}${q.x},${q.y}`).join(' ');
 
+  /* ---- o toque ----
+
+     ⚠️ É AQUI QUE OS NÚMEROS EXATOS VOLTARAM A CABER. O gráfico tinha uma
+     fileira de rótulos embaixo, um por coleta, e ela era o gráfico contado
+     de novo em texto — e ainda assim não cabia em marcadores com muitas
+     coletas. Sob demanda, a mesma informação não custa espaço nenhum: quem
+     quer o número encosta no ponto.
+
+     ⚠️ E O VEREDITO DA COLETA VEIO JUNTO, tirando o vermelho das bolinhas.
+     Uma bolinha vermelha grita o tempo todo por um fato que a pessoa já
+     leu no selo lá em cima, e grita sobre uma coleta de meses atrás, que é
+     justamente a que menos importa. Em palavras, dentro do balão, o fato
+     continua disponível e para de gritar.
+
+     O Pan com ativação manual, e não o responder do JS: o ScrollView desta
+     tela rouba o dedo no meio do arrasto, e o Gesture Handler disputa no
+     mesmo nível dos reconhecedores nativos. Tocar sem arrastar já aponta,
+     porque `onBegin` dispara no toque. */
+  const refP = React.useRef(P);
+  refP.current = P;
+  const [sel, setSel] = useState<number | null>(null);
+
+  const gesto = React.useMemo(
+    () => Gesture.Pan()
+      .runOnJS(true)
+      .manualActivation(true)
+      .shouldCancelWhenOutside(false)
+      .onTouchesMove((_ev, estado) => estado.activate())
+      .onBegin((ev) => aponta(ev.x))
+      .onUpdate((ev) => aponta(ev.x))
+      .onFinalize(() => setSel(null)),
+    [],
+  );
+
+  function aponta(px: number) {
+    const pts = refP.current;
+    if (!pts.length) return;
+    let melhor = 0, perto2 = Infinity;
+    pts.forEach((q, i) => {
+      const d = Math.abs(q.x - px);
+      if (d < perto2) { perto2 = d; melhor = i; }
+    });
+    setSel(melhor);
+  }
+
+  const alvo = sel != null ? P[sel] : null;
+  const LARGURA_DO_BALAO = 150;
+  /* O balão tem duas ou três linhas, e a altura dele decide de que lado do
+     ponto ele abre — por isso ela é contada, e não estimada no olho. */
+  const foraDaFaixa = alvo ? ondeCaiu(alvo.v) : null;
+  const ALTURA_DO_BALAO = foraDaFaixa ? 68 : 50;
+  /* ⚠️ ELE ABRE PARA BAIXO QUANDO O PONTO ESTÁ NO ALTO. Sempre por cima,
+     uma coleta perto do teto do quadro empurrava o balão para fora do
+     cartão — e encostado no teto ele cobria justamente o ponto que estava
+     sendo consultado. */
+  const balaoEmCima = alvo ? alvo.y > ALTURA * 0.42 : true;
+
   return (
     <View>
+      <GestureDetector gesture={gesto}>
       <View style={{ height: ALTURA + RAIO_DA_MALHA * 2 }} onLayout={(ev) => setW(Math.round(ev.nativeEvent.layout.width))}>
         {w > 0 ? (
           <Svg width={w} height={ALTURA + RAIO_DA_MALHA * 2}>
-            <Path d="" fill="none" />
             {Array.from({ length: LINHAS }).map((_, i) => {
               const naJanela = dentroDe(valorDaLinha(i));
               const y = i * ESPACO_LINHA + RAIO_DA_MALHA;
@@ -399,19 +466,60 @@ function MalhaDaEvolucao({ e }: { e: any }) {
               strokeLinecap="round" strokeLinejoin="round"
               transform={`translate(0,${RAIO_DA_MALHA})`}
             />
-            {/* ⚠️ A BOLINHA DA COLETA É CHEIA, e já foi um anel vazado. O
-                anel precisa de um miolo da cor do cartão para existir, e
-                sobre a malha esse miolo vira um buraco branco de pontos.
-                Cheia, ela é só um nó mais grosso do mesmo traço — e o
-                vermelho, quando aparece, é o único lugar do quadro onde
-                uma cor afirma alguma coisa. */}
-            {P.map((q) => (
+            {/* A bolinha da coleta é cheia, e já foi um anel vazado: o anel
+                precisa de um miolo da cor do cartão para existir, e sobre a
+                malha esse miolo vira um buraco branco de pontos. Cheia, ela
+                é só um nó mais grosso do mesmo traço.
+
+                Todas na cor do traço. O vermelho saiu daqui e virou palavra
+                dentro do balão — ver a nota do toque, acima. */}
+            {P.map((q, i) => (
               <Circle
-                key={q.t} cx={q.x} cy={q.y + RAIO_DA_MALHA} r={RAIO_DA_COLETA}
-                fill={dentroDe(q.v) ? c.accent : c.cta}
+                key={q.t} cx={q.x} cy={q.y + RAIO_DA_MALHA}
+                r={i === sel ? RAIO_DA_COLETA + 1.5 : RAIO_DA_COLETA}
+                fill={c.accent}
               />
             ))}
+            {alvo ? (
+              <SvgLine
+                x1={alvo.x} y1={0} x2={alvo.x} y2={ALTURA + RAIO_DA_MALHA * 2}
+                stroke={alfa(c.tx, 0.22)} strokeWidth={1}
+              />
+            ) : null}
           </Svg>
+        ) : null}
+
+        {/* ---- o balão ----
+
+            Ele vive acima do ponto e se recolhe nas bordas para não sair do
+            cartão. Não tem ponta: com a linha vertical passando pelo ponto,
+            a ligação entre os dois já está desenhada — e uma ponta em cima
+            da linha seria a terceira peça dizendo a mesma coisa. */}
+        {alvo ? (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              left: Math.min(Math.max(0, alvo.x - LARGURA_DO_BALAO / 2), Math.max(0, w - LARGURA_DO_BALAO)),
+              width: LARGURA_DO_BALAO,
+              top: balaoEmCima ? alvo.y - ALTURA_DO_BALAO - 6 : alvo.y + 14,
+              alignItems: 'center',
+            }}
+          >
+            <View style={{ backgroundColor: c.tx, borderRadius: radius.md, paddingHorizontal: 11, paddingVertical: 7, alignItems: 'center' }}>
+              <Row gap={4} style={{ alignItems: 'baseline' }}>
+                <Txt v="label" c={c.bg1}>{fmtV(alvo.v)}</Txt>
+                <Txt v="micro" c={alfa(c.bg1, 0.62)}>{e.unit}</Txt>
+              </Row>
+              {/* Uma informação por linha. Juntas com um ponto no meio, a
+                  data e o veredito quebravam no meio da palavra num balão
+                  estreito — e balão estreito é o que ele tem que ser. */}
+              <Txt v="micro" c={alfa(c.bg1, 0.62)} style={{ marginTop: 1 }}>{porExtenso(alvo.t)}</Txt>
+              {foraDaFaixa ? (
+                <Txt v="micro" c={alfa(c.bg1, 0.62)} style={{ marginTop: 1 }}>{foraDaFaixa}</Txt>
+              ) : null}
+            </View>
+          </View>
         ) : null}
 
         {/* O eixo, encostado à direita da calha e na altura da sua linha. */}
@@ -424,6 +532,7 @@ function MalhaDaEvolucao({ e }: { e: any }) {
           </View>
         ) : null))}
       </View>
+      </GestureDetector>
 
       {/* As datas das pontas, e não uma por coleta: a fileira cheia era
           uma segunda leitura do gráfico em texto, e o que ela acrescentava
