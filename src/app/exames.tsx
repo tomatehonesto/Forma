@@ -313,12 +313,22 @@ function Regua({ e }: { e: any }) {
    amarra os dois — é o mesmo "eixo" do gráfico do plano. Assim o quadro
    fica só com o desenho, e a leitura exata mora fora dele.
 
-   Nas pontas não há fio nem nó: ali a curva encosta na borda do cartão,
-   bolinha sai pela metade e fio vira moldura. O começo e a chegada já se
-   marcam pelo próprio fim do traço, com o rótulo logo embaixo. */
+   ⚠️ E TODA COLETA GANHA NÓ E FIO, inclusive as das pontas.
+
+   Na primeira versão as pontas ficavam sem nenhum dos dois, copiando o
+   gráfico do plano — e lá faz sentido, porque as pontas dele são "hoje" e
+   "a meta", que não são medidas. Aqui são: num marcador de três coletas,
+   duas ficavam sem marca nenhuma no desenho, e a que sobrava era a do
+   meio. A coleta mais recente — o resultado que trouxe a pessoa para esta
+   tela — era justamente uma das invisíveis.
+
+   O preço é uma folga de 14 de cada lado, para a bolinha não sair pela
+   metade na borda. A curva continua sangrando: catorze pixels num cartão
+   de 343 não fazem ela parecer uma figura colada dentro dele. */
 const ALTURA_DO_QUADRO = 150;
 const FOLGA_TOPO = 18;
 const FOLGA_BASE = 10;
+const FOLGA_LADO = 14;
 
 function LinhaDaEvolucao({ e }: { e: any }) {
   const { c, isDark } = useTheme();
@@ -372,8 +382,22 @@ function LinhaDaEvolucao({ e }: { e: any }) {
   const topoPintado = Math.max(0, Math.min(yTopo, ALTURA_DO_QUADRO));
   const basePintada = Math.max(0, Math.min(yBase, ALTURA_DO_QUADRO));
 
-  /* Nó e fio só nas coletas do meio — ver a nota do bloco. */
-  const meio = vals.map((_, i) => i).filter((i) => i > 0 && i < vals.length - 1);
+  const todas = vals.map((_, i) => i);
+
+  /* ⚠️ O NÚMERO DO LIMITE ESCOLHE O LADO, e ficava sempre no mesmo.
+
+     Com a curva sangrando, as duas pontas dela encostam nas duas pontas
+     da linha tracejada — então qualquer canto fixo acaba, um dia, embaixo
+     de um nó. E é o pior dia possível: acontece justamente quando a
+     coleta está PERTO do limite, que é quando o número dele mais importa.
+
+     Fica do lado onde a curva está mais longe dele. */
+  const yPrimeira = yPix(vals[0].v);
+  const yUltima = yPix(vals[vals.length - 1].v);
+  const ladoLivre = (y: number) =>
+    (Math.abs(yPrimeira - y) >= Math.abs(yUltima - y)
+      ? { left: 12 as number | undefined, right: undefined }
+      : { left: undefined, right: 12 as number | undefined });
 
   return (
     <View>
@@ -385,38 +409,53 @@ function LinhaDaEvolucao({ e }: { e: any }) {
                 a região não ter com quem disputar. */}
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
               <Svg width={w} height={ALTURA_DO_QUADRO}>
-                {/* A mesma tinta em dois pesos: sobre papel branco 10% já é uma
-                    região; sobre um cartão escuro ela some, porque o contraste
-                    disponível ABAIXO do fundo é menor que o disponível acima
-                    dele. */}
-                <Rect x={0} y={topoPintado} width={w} height={Math.max(0, basePintada - topoPintado)} fill={alfa(c.accent, isDark ? 0.2 : 0.1)} />
+                {/* ⚠️ A FAIXA É VERDE, E ERA AZUL COMO O RESTO.
+
+                    Azul é a cor do DADO neste app — é ela que desenha a
+                    curva, e uma região azul atrás de um traço azul faz o
+                    olho tratar as duas como a mesma camada. Verde é a cor
+                    que o selo lá em cima já usa para "na referência": a
+                    região passa a ser a mesma afirmação, desenhada.
+
+                    E ela vem em dois pesos: sobre papel branco 12% já é
+                    uma região; sobre um cartão escuro some, porque o
+                    contraste disponível ABAIXO do fundo é menor que o
+                    disponível acima dele. */}
+                <Rect x={0} y={topoPintado} width={w} height={Math.max(0, basePintada - topoPintado)} fill={alfa(c.ok, isDark ? 0.18 : 0.12)} />
                 {limAlto != null && naMoldura(yTopo) ? (
-                  <SvgLine x1={0} y1={yTopo} x2={w} y2={yTopo} stroke={alfa(c.accent, 0.4)} strokeWidth={1} strokeDasharray="3 4" />
+                  <SvgLine x1={0} y1={yTopo} x2={w} y2={yTopo} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
                 ) : null}
                 {limBaixo != null && naMoldura(yBase) ? (
-                  <SvgLine x1={0} y1={yBase} x2={w} y2={yBase} stroke={alfa(c.accent, 0.4)} strokeWidth={1} strokeDasharray="3 4" />
+                  <SvgLine x1={0} y1={yBase} x2={w} y2={yBase} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
                 ) : null}
               </Svg>
             </View>
 
+            {/* ⚠️ SEM ÁREA PREENCHIDA, e a curva da casa tem uma.
+
+                Ela existe lá porque o gráfico de peso está sozinho no
+                branco e precisa de corpo. Aqui já existe uma lavagem no
+                quadro — a faixa —, e duas lavagens sobrepostas viram
+                borra: a faixa deixa de ser uma região com limite e vira
+                mais um tom no meio de outros. Fica o traço, que é o que
+                tem informação. */}
             <AreaCurve
               pts={pts} width={w} height={ALTURA_DO_QUADRO}
-              padT={FOLGA_TOPO} padB={FOLGA_BASE} padX={0} strokeW={2.4}
-              id="ev" dashed={false} nodes nosEm={meio} eixosEm={meio} fill={0.1}
-              strokeFrom={c.tx2} strokeTo={c.tx2}
+              padT={FOLGA_TOPO} padB={FOLGA_BASE} padX={FOLGA_LADO} strokeW={2.4}
+              id="ev" dashed={false} nodes eixosEm={todas} fill={0}
             />
 
             {/* O limite, deitado na linha que ele nomeia. O fundo do cartão
                 por baixo do número é o que abre espaço no tracejado sem
                 precisar interromper o traço no desenho. */}
             {limAlto != null && naMoldura(yTopo) ? (
-              <View pointerEvents="none" style={{ position: 'absolute', left: 14, top: yTopo - 9, backgroundColor: c.bg1, paddingHorizontal: 4 }}>
-                <Txt v="micro" c={c.tx3}>{fmtV(limAlto)}</Txt>
+              <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yTopo), top: yTopo - 9, backgroundColor: c.bg1, paddingHorizontal: 5 }}>
+                <Txt v="micro" c={c.ok}>{fmtV(limAlto)}</Txt>
               </View>
             ) : null}
             {limBaixo != null && naMoldura(yBase) ? (
-              <View pointerEvents="none" style={{ position: 'absolute', left: 14, top: yBase - 9, backgroundColor: c.bg1, paddingHorizontal: 4 }}>
-                <Txt v="micro" c={c.tx3}>{fmtV(limBaixo)}</Txt>
+              <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yBase), top: yBase - 9, backgroundColor: c.bg1, paddingHorizontal: 5 }}>
+                <Txt v="micro" c={c.ok}>{fmtV(limBaixo)}</Txt>
               </View>
             ) : null}
           </>
@@ -432,7 +471,11 @@ function LinhaDaEvolucao({ e }: { e: any }) {
           a última caixa de sangrarem para fora. */}
       <View style={{ height: 42, marginTop: 2, marginBottom: 16 }}>
         {w > 0 ? pts.map((q, i) => {
-          const x = q.x * w;
+          /* ⚠️ O MESMO X QUE A CURVA USA, e não `q.x * w`. A <AreaCurve>
+             mapeia para `padX + x * (w - padX*2)` — com folga zero as duas
+             contas davam no mesmo, e no dia em que a folga deixou de ser
+             zero o rótulo passaria a apontar para o lado do ponto. */
+          const x = FOLGA_LADO + q.x * Math.max(1, w - FOLGA_LADO * 2);
           const naEsq = x < 62, naDir = x > w - 62;
           const v = vals[i].v;
           return (
@@ -562,11 +605,18 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
           Vem antes da evolução de propósito: não dá para acompanhar a
           curva de uma coisa que ainda não se sabe o que é. */}
-      {/* ⚠️ SOBRE E EVOLUÇÃO ANDAM JUNTOS, com o respiro curto da Home.
+      {/* ⚠️ OS TRÊS CARTÕES ANDAM JUNTOS, com o respiro curto da Home, e
+          por um tempo só os dois primeiros andavam.
+
           A <TelaInterna> separa os filhos por 26, que é a distância entre
-          ASSUNTOS — e estes dois são o mesmo: o que o marcador é, e o que
-          ele fez. A 10 de distância eles leem como um bloco de duas
-          partes; a 26, como duas seções que por acaso ficaram vizinhas. */}
+          ASSUNTOS — e estes três são o mesmo assunto: o que o marcador é,
+          o que ele fez, e o que isso quer dizer. A 10 de distância eles
+          leem como um bloco de três partes; a 26, como seções que por
+          acaso ficaram vizinhas.
+
+          Deixar o terceiro de fora era pior que não ter agrupado nada: os
+          dois de cima colados e o de baixo longe sugeriam que a leitura
+          do resultado pertencia a outra parte da tela. */}
       <View style={{ gap: 10 }}>
       {sobre ? (
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 8 }, shadowCard(c)]}>
@@ -638,7 +688,6 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         </View>
       ) : null}
 
-      </View>
 
       {/* ---- o cartão que lê o resultado ----
 
@@ -708,6 +757,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         </Txt>
 
         <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar sobre este exame" />
+      </View>
       </View>
 
       <View />
