@@ -4444,6 +4444,87 @@ export const notas = (S: State): Nota[] =>
 
 export const notasAbertas = (S: State) => notas(S).filter((n) => !n.done);
 
+/* ============================================================
+   O PREPARO DA CONSULTA
+
+   ⚠️ ERA UM CHECKLIST DE QUATRO FRASES FIXAS, marcado à mão e guardado em
+   `useState` — ou seja, esquecido ao sair da tela. Alguém marcava
+   "pesar-se na véspera", voltava no dia seguinte e encontrava tudo em
+   branco. Lista de preparação que esquece é pior do que nenhuma: ela
+   pede o trabalho duas vezes e não credita nenhuma.
+
+   ⚠️ MAS O DEFEITO MAIOR ERA OUTRO: TRÊS DOS QUATRO ITENS SÃO COISAS QUE
+   O APLICATIVO JÁ SABE. Ele sabe quando foi a última pesagem, quantas
+   dúvidas estão anotadas e se há exame recente — e mesmo assim pedia que
+   a pessoa marcasse à mão que fez aquilo. Um aplicativo que registra o
+   peso e depois pergunta "você se pesou?" está desperdiçando a única
+   coisa que ele tem de especial.
+
+   Aqui cada item é uma LEITURA do estado. Ele não pergunta: ele responde,
+   e a ação leva para onde a resposta muda. O que não pode ser derivado
+   não entra — não há item de "ter os exames em mãos" porque estar com o
+   papel na bolsa é do mundo, e o aplicativo não tem como saber.
+   ============================================================ */
+export type ItemDoPreparo = {
+  id: string;
+  ic: string;
+  titulo: string;
+  sub: string;
+  /** o estado já está resolvido — a linha vira confirmação, e não tarefa */
+  pronto: boolean;
+  to: string;
+};
+
+/** Pesagem fresca é a de até três dias: a consulta olha tendência, e o
+    peso de uma semana atrás já não é o de hoje. */
+const DIAS_DE_PESO_FRESCO = 3;
+/** Exame de até três meses ainda descreve o tratamento atual. */
+const DIAS_DE_EXAME_RECENTE = 90;
+
+export function preparoDaConsulta(S: State): ItemDoPreparo[] {
+  const itens: ItemDoPreparo[] = [];
+
+  const w = (S.weights as any[])[S.weights.length - 1];
+  const diasDoPeso = w ? diffDays(now(), new Date(w.t)) : null;
+  itens.push(
+    diasDoPeso == null
+      ? { id: 'peso', ic: 'scale', titulo: 'Registrar o peso', sub: 'Nenhuma pesagem ainda', pronto: false, to: '/medir-peso' }
+      : diasDoPeso <= DIAS_DE_PESO_FRESCO
+        ? { id: 'peso', ic: 'scale', titulo: 'Peso em dia', sub: `${nf(w.kg, 1)} kg · ${rotuloDeDias(diasDoPeso)}`, pronto: true, to: '/medir-peso' }
+        : { id: 'peso', ic: 'scale', titulo: 'Pesar-se antes', sub: `Última pesagem ${rotuloDeDias(diasDoPeso)}`, pronto: false, to: '/medir-peso' },
+  );
+
+  const abertas = notasAbertas(S).length;
+  itens.push(abertas
+    ? { id: 'notas', ic: 'pencil', titulo: 'Dúvidas anotadas', sub: `${abertas} para levar`, pronto: true, to: '/notas' }
+    : { id: 'notas', ic: 'pencil', titulo: 'Anotar dúvidas', sub: 'Nada anotado ainda', pronto: false, to: '/nota' });
+
+  /* ⚠️ O PACOTE, E NÃO O MARCADOR SOLTO. `exams` guarda cada marcador com
+     a série inteira dele; `examBundles` guarda o dia em que um exame foi
+     entregue. A pergunta aqui é "tem exame recente?", e quem responde isso
+     é a entrega. */
+  const pacotes = ((S as any).examBundles ?? []) as { t: number; name: string }[];
+  const ultimo = pacotes.slice().sort((a, b) => b.t - a.t)[0];
+  const diasDoExame = ultimo ? diffDays(now(), new Date(ultimo.t)) : null;
+  itens.push(
+    ultimo && diasDoExame != null && diasDoExame <= DIAS_DE_EXAME_RECENTE
+      ? { id: 'exames', ic: 'chart', titulo: 'Exames recentes', sub: `${ultimo.name} · ${rotuloDeDias(diasDoExame)}`, pronto: true, to: '/exames' }
+      : { id: 'exames', ic: 'chart', titulo: 'Exames', sub: ultimo ? `O último foi ${rotuloDeDias(diasDoExame!)}` : 'Nenhum exame guardado', pronto: false, to: '/exames' },
+  );
+
+  return itens;
+}
+
+/** "hoje", "ontem", "há 4 dias" — a mesma frase em todas as linhas do
+    preparo, para o olho comparar as datas em vez de traduzi-las. */
+function rotuloDeDias(d: number) {
+  if (d <= 0) return 'hoje';
+  if (d === 1) return 'ontem';
+  if (d < 30) return `há ${d} dias`;
+  const meses = Math.round(d / 30);
+  return meses <= 1 ? 'há um mês' : `há ${meses} meses`;
+}
+
 /** As notas ainda não conversadas, em texto, para o resumo do médico. */
 export function notasTexto(S: State) {
   const abertas = notasAbertas(S);

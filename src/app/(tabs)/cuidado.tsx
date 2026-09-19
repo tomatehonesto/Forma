@@ -823,7 +823,7 @@ function Consulta() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Sua próxima consulta" link="Histórico" onPress={go('/consultas')} />
+      <SectionHead title="Sua próxima consulta" link="Consultas" onPress={go('/consultas')} />
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 20 }}>
         <Row gap={18}>
           {/* bloco de calendário: dia grande e mês pequeno, que é como a

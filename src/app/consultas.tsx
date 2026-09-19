@@ -1,27 +1,59 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Pill, Divider } from '../ui/kit';
+import { Screen, Txt, Card, Row, CircleBtn, Pill, SectionHead } from '../ui/kit';
+import { Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { notasAbertas, temConsulta, clinicaConectada } from '../logic/derive';
+import { preparoDaConsulta, temConsulta, clinicaConectada } from '../logic/derive';
 import { fmtWD, fmtDate, relDay, diffDays, now } from '../logic/time';
 import { radius } from '../theme';
 
+/* ============================================================
+   CONSULTAS — a próxima, o que levar nela, e as que já foram
+
+   ⚠️ O CHECKLIST DE QUATRO FRASES SAIU, e com ele o defeito que
+   sustentava a tela: ele era marcado à mão e guardado em `useState`, ou
+   seja, esquecido ao sair. Alguém marcava "pesar-se na véspera", voltava
+   no dia seguinte e encontrava tudo em branco.
+
+   E três dos quatro itens eram coisas que o aplicativo JÁ SABE. Ele
+   registra o peso, guarda as dúvidas anotadas e tem os exames — e mesmo
+   assim pedia que a pessoa marcasse à mão que tinha feito aquilo. Agora
+   cada linha é uma leitura do estado: ela não pergunta, responde, e o
+   toque leva para onde a resposta muda.
+
+   ⚠️ "TER OS EXAMES À MÃO" NÃO VIROU LINHA, e era um dos quatro. Estar
+   com o papel na bolsa é do mundo, não do estado — e um item que só a
+   pessoa pode confirmar nos devolveria o checklist manual, com a
+   persistência que ele não tinha. O que ficou é o que se pode afirmar.
+
+   ⚠️ A PAUTA DEIXOU DE SER LISTADA AQUI. Ela é uma lista só, e a casa
+   dela é a área médica — onde ela aparece em cartões, ao lado do resumo
+   que a leva para a consulta. Aqui ficou o PONTEIRO: quantas dúvidas
+   existem, e a porta. Três telas mostrando a mesma lista era o caminho
+   para três telas divergindo.
+
+   ⚠️ E "VIDEOCONSULTA" NÃO VOLTA. Era um botão cheio sem `onPress` — o
+   mais destacado da tela, e não fazia nada. Chamada de vídeo é coisa da
+   plataforma, e nem a plataforma existe.
+   ============================================================ */
+
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const PRE = ['Pesar-se na véspera', 'Anotar dúvidas para a médica', 'Ter os exames recentes à mão', 'Revisar o resumo automático'];
 
 export default function Consultas() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const [pre, setPre] = useState<boolean[]>([false, false, false, false]);
   const update = useStore((st) => st.update);
-  const pauta = notasAbertas(S);
+  const go = (to: string) => () => router.push(to as any);
 
   const marcada = temConsulta(S);
   const conectada = clinicaConectada(S);
+  const preparo = preparoDaConsulta(S);
+  const faltando = preparo.filter((i) => !i.pronto).length;
+
   const nd = new Date(S.consult.t);
   /* Negativo quer dizer que a data já passou. A consulta anotada não sai
      sozinha de lá: ninguém avisou o app de que ela aconteceu, e apagar
@@ -46,19 +78,22 @@ export default function Consultas() {
     <Screen>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
-        <View style={{ flex: 1 }}>
-          <Txt v="h1">Consultas</Txt>
-          <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>Agenda, preparação e histórico</Txt>
-        </View>
+        {/* ⚠️ `title` E NÃO `h1` COM SUBTÍTULO. O cabeçalho era um bloco de
+            duas linhas — "Consultas" grande e "Agenda, preparação e
+            histórico" embaixo —, e nenhuma outra tela interna deste
+            aplicativo se apresenta assim. O subtítulo também era um índice
+            do que vinha depois, o que só é útil quando o que vem depois
+            não se explica. */}
+        <Txt v="title" style={{ flex: 1 }}>Consultas</Txt>
       </Row>
 
       {/* ---- a próxima ----
 
-          ⚠️ ESTE CARD NÃO PERGUNTAVA SE HAVIA CONSULTA. Sem data, o
-          estado guarda zero, e zero formatado é 1º de janeiro de 1970:
-          a tela abria dizendo "há vinte mil dias", com o tipo em branco e
-          o nome do médico vazio. Enquanto a data só vinha da semente
-          ninguém via; a partir da porta de anotar, qualquer pessoa vê. */}
+          ⚠️ ELE NÃO PERGUNTAVA SE HAVIA CONSULTA. Sem data, o estado
+          guarda zero, e zero formatado é 1º de janeiro de 1970: a tela
+          abria dizendo "há vinte mil dias", com o tipo em branco e o nome
+          do médico vazio. Enquanto a data só vinha da semente ninguém
+          via; a partir da porta de anotar, qualquer pessoa vê. */}
       {marcada ? (
         <Card tint={c.accentWeak} style={{ marginTop: 18 }}>
           <Row style={{ justifyContent: 'space-between' }}>
@@ -73,28 +108,32 @@ export default function Consultas() {
             {fmtWD(nd)}, {fmtDate(nd)}{S.consult.doctor ? ` · ${S.consult.doctor}` : ''}
           </Txt>
 
-          {/* ⚠️ "VIDEOCONSULTA" ERA UM BOTÃO CHEIO SEM onPress — o mais
-              destacado da tela, e não fazia nada. Chamada de vídeo é coisa
-              da plataforma, e nem com ela existe ainda; um botão cheio
-              prometendo entrar numa sala é a promessa mais cara que esta
-              tela podia fazer. Fica a preparação, que funciona. */}
+          {/* ⚠️ UM BOTÃO SÓ, e eram dois de contorno com o mesmo destino:
+              "Preparação" e "Ver resumo para o médico" abriam os dois
+              /resumo-medico, com nomes diferentes. Duas portas para a
+              mesma sala ensinam que as portas desta tela não são de
+              confiança.
+
+              E ele é cheio, não de contorno: é a única ação do cartão, e
+              é a coisa que se leva. */}
           {passou ? (
             <Pressable onPress={realizada} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
-              <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+              <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
                 <Icon name="check" size={15} color={c.accentInk} sw={2} />
                 <Txt v="label" c={c.accentInk}>Já aconteceu</Txt>
-              </View>
+              </Row>
             </Pressable>
           ) : (
-            <Pressable onPress={() => router.push('/resumo-medico' as any)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
-              <View style={{ backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-                <Icon name="doc" size={15} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Preparação</Txt>
-              </View>
+            <Pressable onPress={go('/resumo-medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+              <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
+                <Icon name="doc" size={15} color={c.accentInk} sw={2} />
+                <Txt v="label" c={c.accentInk}>Ver o resumo para levar</Txt>
+              </Row>
             </Pressable>
           )}
 
           {!conectada ? (
-            <Pressable onPress={() => router.push('/anotar-consulta' as any)} style={({ pressed }) => [{ marginTop: 10, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}>
+            <Pressable onPress={go('/anotar-consulta')} style={({ pressed }) => [{ marginTop: 12, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}>
               <Txt v="label" c={c.accent2}>Mudar a data</Txt>
             </Pressable>
           ) : null}
@@ -115,103 +154,97 @@ export default function Consultas() {
               : 'Com a data aqui, o app avisa quando ela estiver perto e deixa o resumo pronto para levar.'}
           </Txt>
           {!conectada ? (
-            <Pressable onPress={() => router.push('/anotar-consulta' as any)} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
-              <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
+            <Pressable onPress={go('/anotar-consulta')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
+              <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
                 <Icon name="cal" size={15} color={c.accentInk} sw={2} />
                 <Txt v="label" c={c.accentInk}>Anotar consulta</Txt>
-              </View>
+              </Row>
             </Pressable>
           ) : null}
         </Card>
       )}
 
-      {/* checklist */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Checklist pré-consulta</Txt>
-      <View style={{ gap: 10 }}>
-        {PRE.map((t, i) => (
-          <Pressable key={t} onPress={() => setPre((p) => p.map((x, j) => (j === i ? !x : x)))}>
-            <Card style={{ paddingVertical: 14 }}>
-              <Row gap={12}>
-                <View style={{ width: 24, height: 24, borderRadius: 8, borderWidth: 1.6, borderColor: pre[i] ? c.accent : c.line2, backgroundColor: pre[i] ? c.accent : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                  {pre[i] && <Icon name="check" size={14} color="#fff" sw={2.4} />}
-                </View>
-                <Txt v="title" c={pre[i] ? c.tx3 : c.tx} style={pre[i] ? { textDecorationLine: 'line-through' } : undefined}>{t}</Txt>
-              </Row>
-            </Card>
+      {/* ---- o que levar ----
+
+          ⚠️ O TÍTULO DIZ O QUE FALTA, e não "checklist". Uma tela que
+          abre com "3 de 3 prontos" responde antes de ser lida; "Checklist
+          pré-consulta" só nomeia o formato da coisa.
+
+          ⚠️ E A LINHA PRONTA CONTINUA TOCÁVEL. Ela vira confirmação, não
+          se apaga: ver o peso registrado e poder abrir a pesagem é o que
+          transforma a lista de lembrete em painel. Uma lista em que
+          metade dos itens deixa de responder ao toque é a lista que
+          ensinou errado em /medico, e não volta aqui. */}
+      <SectionHead
+        title="Para levar"
+        style={{ marginTop: 30, marginBottom: 4 }}
+      />
+      <Txt v="caption" c={c.tx3} style={{ marginBottom: 12, lineHeight: 21 }}>
+        {faltando === 0
+          ? 'Está tudo em dia — o resumo já se monta com isso.'
+          : faltando === 1
+            ? 'Falta uma coisa para o resumo ficar completo.'
+            : `Faltam ${faltando} coisas para o resumo ficar completo.`}
+      </Txt>
+      <Cartao>
+        {preparo.map((i) => (
+          <Pressable key={i.id} onPress={go(i.to)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+            <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'center' }}>
+              {/* ⚠️ O ESTADO É O ÍCONE, e não uma caixa de marcar. Caixa de
+                  marcar pede toque para MUDAR o valor; aqui o valor não é
+                  da pessoa, é do estado — ela resolve pesando, anotando ou
+                  guardando exame, e não marcando um quadrado. O visto
+                  fechado diz "já está"; o ícone da coisa diz o que fazer. */}
+              <View style={{
+                width: 34, height: 34, borderRadius: 17,
+                backgroundColor: i.pronto ? c.okBg : c.accentWeak,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon
+                  name={i.pronto ? 'check' : i.ic}
+                  size={i.pronto ? 16 : 17}
+                  color={i.pronto ? c.ok : c.accent}
+                  sw={i.pronto ? 2.6 : 1.9}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="body">{i.titulo}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{i.sub}</Txt>
+              </View>
+              <Icon name="chev" size={14} color={c.tx4} sw={2} />
+            </Row>
           </Pressable>
         ))}
-      </View>
+      </Cartao>
 
-      {/* anotações
+      {/* ---- histórico ----
 
-          Aqui havia uma caixa de texto corrido, e ela era a segunda forma
-          de anotar no app — a outra sendo a lista de /notas, que guarda
-          data e estado por nota. Dois editores para a mesma coisa,
-          gravando em campos diferentes: o que a pessoa escrevesse aqui não
-          apareceria lá, e vice-versa.
+          ⚠️ É O <Cartao> DA CASA, e era um <Card> com IconBadge e um
+          <Divider> de margem calculada à mão. A pastilha de cor saiu de
+          todas as listas deste aplicativo pelo mesmo motivo: numa coluna
+          repetida ela vira uma fileira de botões, e nenhuma destas linhas
+          é botão.
 
-          Ficou a lista. Esta tela mostra a pauta e leva para lá; escrever
-          acontece em um lugar só. */}
-      <Row style={{ marginTop: 24, marginBottom: 10, justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <Txt v="h2" style={{ flex: 1 }}>Anotações para a próxima consulta</Txt>
-        <Pressable onPress={() => router.push('/notas' as any)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-          <Row gap={4}>
-            <Txt v="label" c={c.accent2}>Ver todas</Txt>
-            <Icon name="chev" size={12} color={c.accent2} sw={2.2} />
-          </Row>
-        </Pressable>
-      </Row>
-      <Card>
-        {pauta.length ? (
-          pauta.slice(0, 3).map((n, i) => (
-            <View key={n.t}>
-              {i > 0 && <Divider style={{ marginVertical: 10 }} />}
-              <Pressable onPress={() => router.push(`/nota?t=${n.t}` as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <Txt v="body">“{n.text}”</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{fmtDate(new Date(n.t))}</Txt>
-              </Pressable>
-            </View>
-          ))
-        ) : (
-          <Txt v="bodyMed" c={c.tx4}>
-            Dúvidas, sintomas que quer comentar, mudanças que notou — o que você não quer esquecer de falar com a médica.
-          </Txt>
-        )}
-        <Pressable onPress={() => router.push('/nota' as any)}>
-          <View style={{ marginTop: 12, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-            <Icon name="pencil" size={15} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Nova nota</Txt>
-          </View>
-        </Pressable>
-        <Pressable onPress={() => router.push('/resumo-medico' as any)}>
-          <View style={{ marginTop: 8, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line2, borderRadius: radius.pill, paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
-            <Icon name="doc" size={15} color={c.tx2} sw={2} /><Txt v="label" c={c.tx2}>Ver resumo para o médico</Txt>
-          </View>
-        </Pressable>
-      </Card>
-
-      {/* histórico */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Histórico</Txt>
-      <Card style={{ paddingVertical: 4 }}>
-        {!S.consultsHistory.length ? (
-          <Txt v="bodyMed" c={c.tx4} style={{ paddingVertical: 12 }}>
-            As consultas que já aconteceram ficam aqui.
-          </Txt>
-        ) : null}
-        {S.consultsHistory.map((h: any, i: number) => (
-          <View key={h.t}>
-            {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-            <Row style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-              <IconBadge name="steth" size={40} />
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <Txt v="title">{h.type} · {fmtDate(new Date(h.t))}</Txt>
-                {h.note ? (
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 18 }}>{h.note}</Txt>
-                ) : null}
-              </View>
-            </Row>
-          </View>
-        ))}
-      </Card>
+          ⚠️ E ELAS NÃO ABREM NADA, DE PROPÓSITO. Não existe tela de
+          consulta passada, e o que há para saber sobre uma está inteiro
+          na linha dela. Por isso não têm seta — a mesma regra das
+          prescrições em /medico. */}
+      {S.consultsHistory.length ? (
+        <>
+          <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Consultas anteriores</Txt>
+          <Cartao>
+            {S.consultsHistory.map((h: any) => (
+              <Linha
+                key={h.t}
+                ic="steth"
+                titulo={`${h.type} · ${fmtDate(new Date(h.t))}`}
+                sub={h.note || undefined}
+                seta={false}
+              />
+            ))}
+          </Cartao>
+        </>
+      ) : null}
     </Screen>
   );
 }
