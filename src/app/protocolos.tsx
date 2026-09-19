@@ -5,12 +5,11 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
-  temConsulta,
 } from '../logic/derive';
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Bloco, Cartao, Aviso, Selo } from '../ui/internas';
+import { Bloco, Cartao } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 
@@ -96,10 +95,19 @@ export default function Protocolos() {
         /* A SEMANA, e não o dia. As outras três capas contam hoje porque
            água, proteína e movimento se refazem todo dia; um protocolo é
            um acordo de sete dias, e cobrar dele um número diário seria
-           inventar um prazo que ninguém combinou. */
-        linha={faltam === 0
-          ? `Semana ${p.semana} · tudo cumprido`
-          : `Semana ${p.semana} · ${p.feitas} de ${p.total} cumpridas`}
+           inventar um prazo que ninguém combinou.
+
+           ⚠️ E O PRAZO ENTROU AQUI, vindo de um cartão que morava no pé da
+           tela. Lá ele era um bloco com título "Semana 12" e duas datas
+           que não abriam nada — a peça mais formal da tela dizendo a coisa
+           menos acionável dela, depois de tudo. A data da próxima
+           aplicação pertence à linha que já conta a semana: é o quando da
+           mesma frase que diz o quanto. */
+        linha={[
+          `Semana ${p.semana}`,
+          faltam === 0 ? 'tudo cumprido' : `${p.feitas} de ${p.total} cumpridas`,
+          `aplicação ${relDay(nextInjectionDate(S))}`,
+        ].join(' · ')}
         pct={p.pct}
       >
         {/* O atalho leva a quem escreveu o protocolo. É a única ação que
@@ -147,7 +155,23 @@ export default function Protocolos() {
             tocando na linha da água esperando que ela acenda. */}
         <Bloco
           titulo="Esta semana"
-          nota="As caixas apagadas acendem sozinhas, pelos seus registros."
+          /* ⚠️ O QUE ESTA LISTA É, E O QUE ELA NÃO É — e antes a nota só
+              explicava a mecânica das caixas.
+
+              Cinco linhas com caixa de marcar, numa tela que veio da
+              clínica, leem como cobrança: quem abre e vê "0 de 7 dias"
+              na água sente que falhou com alguém. E não é isso — o
+              tratamento é a dose e o acompanhamento; isto aqui é o que
+              ajuda em volta.
+
+              ⚠️ E A FRASE VEM ANTES DA LISTA, não depois. Acolhimento
+              depois de três caixas vazias chega como consolo; antes,
+              chega como enquadramento, que é o que ele é.
+
+              "Recomeça na próxima" é fato, e não afago: os manuais
+              resetam na virada da semana e as métricas contam os
+              registros da semana corrente. */
+          nota="Jeitos de tirar mais do tratamento nesta semana, e não uma lista de cobranças. O que não fechar recomeça na próxima — as contagens acendem sozinhas, pelos seus registros."
         >
           <Cartao>
             {p.tarefas.map((t) => {
@@ -160,20 +184,18 @@ export default function Protocolos() {
                         semana ela não sai de lugar nenhum — ela foi
                         alcançada, que é outra coisa. */}
                     <Txt v="body" c={t.feita ? c.tx3 : c.tx}>{t.texto}</Txt>
-                    {/* A ETIQUETA DIVIDE A LINHA COM A CONTAGEM, e não com
-                        o título. À direita do título ela roubava metade da
-                        largura e quebrava "Beber 2,5 L todo dia" no meio;
-                        aqui embaixo ela fica no mesmo lugar do olho — a
-                        direita da linha — e o texto respira.
+                    {/* ⚠️ A ETIQUETA SAIU — "Hidratação", "Aplicações". Ela
+                        nasceu para dizer que a linha não era da pessoa para
+                        marcar, e esse trabalho passou para a caixa
+                        desligada, que diz a mesma coisa sem ocupar largura
+                        nem pedir leitura. O que sobrava dela era o nome da
+                        tela de destino, e para isso já existe a seta.
 
-                        E as duas dizem a mesma coisa em ordens diferentes:
-                        a contagem é o quanto já foi, a etiqueta é onde
-                        isso acontece. */}
-                    {t.nota || t.origem ? (
-                      <Row style={{ marginTop: 3, alignItems: 'center', gap: 8 }}>
-                        <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>{t.nota}</Txt>
-                        {t.medida && t.origem ? <Selo label={t.origem} tom="neutra" /> : null}
-                      </Row>
+                        Cinco etiquetas cinzas empilhadas à direita também
+                        eram uma coluna de ruído numa lista de cinco linhas:
+                        o olho lia dez coisas onde havia cinco. */}
+                    {t.nota ? (
+                      <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{t.nota}</Txt>
                     ) : null}
                   </View>
                   {/* ⚠️ A SETA SÓ NA LINHA QUE LEVA A ALGUM LUGAR. A linha
@@ -212,25 +234,20 @@ export default function Protocolos() {
           </Cartao>
         </Bloco>
 
-        {/* O QUE VEM AÍ — uma linha, e não um cartão de conselho.
+        {/* ⚠️ O CARTÃO "SEMANA 12" SAIU DAQUI, e ele já tinha sido bloco de
+            conselho, depois aviso de duas datas, e agora nada.
 
-            Aqui houve um bloco com título, três linhas de texto e um "o
-            que fazer". Dele só as duas datas mudavam alguma coisa: o
-            resto era a fome perto da dose, que a Home diz todo dia, e uma
-            frase dizendo que a equipe revisa o protocolo na consulta —
-            explicação de como o app funciona, vestida de conselho.
+            O que restava dele era o prazo — a data da próxima aplicação —,
+            e ele estava no pior lugar possível: a peça mais formal da
+            tela, no pé, depois de tudo, dizendo a coisa menos acionável
+            dela. Não abria nada, não pedia nada, e o título "Semana 12"
+            nomeava uma semana que ainda não existe.
 
-            Antes disso, o mesmo bloco prometia "vou preparar o protocolo
-            da semana 12", que o app não faz. Cada volta tirou uma camada;
-            o que restou é o que a semana tem de concreto. */}
-        <Aviso
-          ic="cal"
-          titulo={`Semana ${p.semana + 1}`}
-          texto={[
-            `Aplicação ${relDay(nextInjectionDate(S))}`,
-            temConsulta(S) ? `consulta ${relDay(new Date(S.consult.t))}` : null,
-          ].filter(Boolean).join(', ') + '.'}
-        />
+            O prazo subiu para a linha da capa, junto do "Semana 11 · 3 de
+            5 cumpridas": é o QUANDO da mesma frase que já diz o QUANTO. A
+            consulta não foi junto de propósito — ela tem tela própria, o
+            cartão da aba Cuidado e a contagem do preparo, e repeti-la aqui
+            seria a quarta cópia da mesma data. */}
 
         {/* AS SEMANAS ANTERIORES — três números por semana, sem uma linha
             de texto.

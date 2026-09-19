@@ -2905,7 +2905,11 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
      modalidade. O item já foi "Caminhada 3× na semana", e o app não tem
      como saber se aqueles trinta minutos foram uma caminhada. */
   exerc: (S, alvo) => ({
-    texto: `Se mexer em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
+    /* "Se exercitar", e era "se mexer". O informal servia quando a meta
+       era um empurrão; numa lista que a clínica prescreve, ao lado de
+       dose e proteína, ele destoa — e "mexer" é a palavra que a gente usa
+       para levantar do sofá, não para a coisa que vai no protocolo. */
+    texto: `Se exercitar em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
     feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
     origem: 'Exercício', para: '/exercicio', ic: 'dumbbell',
   }),
@@ -3096,7 +3100,7 @@ export function semanaDoHistorico(S: State, ate: number) {
         (c) => (typeof c.prot === 'number' ? Math.round(c.prot) : null),
         (v) => v >= t.prot,
         (m) => (m == null ? 'sem registro na semana' : `média de ${Math.round(m)} g por dia`)),
-      monta('dumbbell', `Se mexer em ${alvoDe('exerc', 3)} dias da semana`, alvoDe('exerc', 3),
+      monta('dumbbell', `Se exercitar em ${alvoDe('exerc', 3)} dias da semana`, alvoDe('exerc', 3),
         (c) => (typeof c.exerc === 'number' ? Math.round(c.exerc) : null),
         (v) => v > 0,
         (_m, soma) => (soma ? `${soma} min na semana` : 'nenhum movimento registrado')),
