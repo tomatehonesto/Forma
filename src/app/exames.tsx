@@ -33,6 +33,24 @@ import { radius, shadowCard, alfa, mix } from '../theme';
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
 const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
+/* A FAIXA DITA EM PORTUGUÊS, e no laudo ela vem como "< 5,7" ou "15–150".
+
+   Essa notação é de quem já sabe lê-la — e quem já sabe não precisava de
+   nós. Para o resto, "<" é um símbolo que exige tradução antes de virar
+   informação, e ninguém traduz símbolo no meio de uma frase sobre a
+   própria saúde.
+
+   Sai da `examGaugeData` e não do texto do laudo porque `temMin`/`temMax` já
+   sabem quais bordas o laboratório de fato escreveu — parsear a string de
+   novo seria uma segunda verdade sobre o mesmo dado. */
+const faixaEmPalavras = (e: any) => {
+  const g = examGaugeData(e);
+  if (g.temMin && g.temMax) return `entre ${fmtV(g.limMin)} e ${fmtV(g.limMax)}`;
+  if (g.temMax) return `abaixo de ${fmtV(g.limMax)}`;
+  if (g.temMin) return `acima de ${fmtV(g.limMin)}`;
+  return e.ref;
+};
+
 /* A RÉGUA RESPONDE DUAS COISAS DE UMA VEZ: ONDE EU PRECISO ESTAR, E
    ONDE EU ESTOU.
 
@@ -170,10 +188,10 @@ function Regua({ e }: { e: any }) {
           </View>
         ) : null}
       </View>
-
-      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-        faixa de referência · {e.ref} {e.unit}
-      </Txt>
+      {/* ⚠️ O RODAPÉ "faixa de referência · < 5,7 %" SAIU DAQUI, e virou a
+          segunda metade do selo lá em cima. Ele repetia em notação de laudo
+          os mesmos limites que a régua já escreve em cima das bordas, três
+          linhas depois do veredito que ele existia para sustentar. */}
     </View>
   );
 }
@@ -378,6 +396,10 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const varios = e.values.length > 1;
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
+  /* Acima/abaixo em vez de "Fora da referência — alto": um travessão
+     seguido de minúscula lê como remendo, e a direção cabe na primeira
+     palavra. */
+  const veredito = st === 'ok' ? 'Na referência' : st === 'alto' ? 'Acima da referência' : 'Abaixo da referência';
 
   return (
     /* ⚠️ `tituloFixo` PORQUE NÃO HÁ MANCHETE. A barra da casa só mostra o
@@ -427,14 +449,24 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             O <Selo> tem `alignSelf: 'flex-start'` embutido, porque nasceu
             para etiquetar linhas de lista. O invólucro é o que desfaz esse
             alinhamento de origem sem mexer na peça compartilhada. */}
+        {/* ⚠️ O SELO DIZ O VEREDITO E A FAIXA, e a faixa morava numa linha
+            de rodapé embaixo da régua.
+
+            Lá embaixo ela era uma nota de rodapé: a pessoa lia o número,
+            lia o veredito, olhava a régua e só então, se ainda estivesse
+            lendo, descobria qual era a faixa. Mas a faixa é o que TORNA o
+            veredito verificável — "na referência" sem dizer qual
+            referência é o aplicativo pedindo para ser acreditado.
+
+            Juntas num selo só, o veredito passa a vir com a sua prova:
+            "Na referência: abaixo de 5,7" se explica sem nenhuma outra
+            leitura na tela.
+
+            O <Selo> tem `alignSelf: 'flex-start'` embutido, porque nasceu
+            para etiquetar linhas de lista. O invólucro é o que desfaz esse
+            alinhamento de origem sem mexer na peça compartilhada. */}
         <View style={{ alignItems: 'center' }}>
-          {/* "Fora da referência — alto" era o rótulo antigo, e um travessão
-              seguido de minúscula lê como remendo. Acima/abaixo diz a mesma
-              coisa e ainda entrega a direção na primeira palavra. */}
-          <Selo
-            label={st === 'ok' ? 'Na referência' : st === 'alto' ? 'Acima da referência' : 'Abaixo da referência'}
-            tom={st === 'ok' ? 'verde' : 'neutra'}
-          />
+          <Selo label={`${veredito}: ${faixaEmPalavras(e)}`} tom={st === 'ok' ? 'verde' : 'neutra'} />
         </View>
       </View>
 
