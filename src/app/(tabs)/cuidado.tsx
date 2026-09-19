@@ -9,7 +9,7 @@ import { useStore } from '../../logic/store';
 import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe,
+  medComDose, fichaDe, fichaDaEquipe,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
@@ -62,27 +62,47 @@ const FOTO_MEDICA = RETRATOS.responsavel;
    as duas. Fica registrada aqui porque o dia em que a Jornada precisar
    de uma linha do tempo compacta, é esta. */
 
-/** Inicial dentro de um bloco tingido, para quem não tem foto. Só a médica
-    tem retrato; a equipe de apoio entra assim até haver imagens delas — e
-    não finge ter: nome próprio em corpo grande identifica uma pessoa tão
-    bem quanto um retrato, e melhor que um boneco genérico. */
-function Retrato({ nome, size = 56 }: { nome: string; size?: number }) {
+/** O retrato de alguém da equipe: a foto quando ela existe, a inicial
+    quando não.
+
+    ⚠️ ELE NÃO SABIA DE FOTO NENHUMA, e era só a inicial. O comentário
+    antigo dizia "só a médica tem retrato" e isso deixou de ser verdade no
+    dia em que `RETRATOS` passou a aceitar a equipe inteira — faltava esta
+    peça olhar o mapa. Enquanto não olhava, a pilha mostrava letra mesmo
+    para quem já tivesse imagem.
+
+    ⚠️ E A INICIAL ESTAVA LAVADA. O degradê era `bluePale → accentWeak`, dois
+    tons que no tema claro ficam a um passo do branco do cartão: o círculo
+    sumia no fundo e a letra, em `accent2`, boiava. Agora é `accentWeak`
+    cheio com a letra em `accent` — o mesmo par das outras iniciais do
+    aplicativo, na lista da clínica e na área médica.
+
+    ⚠️ E É CÍRCULO, e era quadrado de canto 0,32 dentro de uma moldura
+    redonda: a borda que separa um retrato do outro na pilha é circular, e
+    o miolo quadrado deixava quatro falhas brancas nas quinas. Pilha
+    encavalada é o único lugar do aplicativo onde o retrato é redondo, e é
+    o desenho certo lá — três quadrados sobrepostos leem como cartas de
+    baralho. */
+function Retrato({ nome, id, size = 56 }: { nome: string; id?: string; size?: number }) {
   const { c } = useTheme();
+  const foto = id ? RETRATOS[id] : undefined;
+  if (foto) {
+    return (
+      <Image
+        source={foto}
+        style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.bg2 }}
+        contentFit="cover"
+        contentPosition="center"
+      />
+    );
+  }
   const letra = nome.replace(/^Dr[a]?\.\s*/, '')[0];
   return (
     <View style={{
-      width: size, height: size, borderRadius: size * 0.32,
-      overflow: 'hidden', alignItems: 'center', justifyContent: 'center',
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
     }}>
-      {/* degradê e não cor chapada: um bloco de tom único ao lado de uma
-          foto de verdade denuncia na hora que ali falta a imagem. Com luz
-          caindo na diagonal ele vira um objeto, não um espaço vazio. */}
-      <LinearGradient
-        colors={[c.bluePale, c.accentWeak]}
-        start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <Txt v="h1" c={c.accent2} style={{ fontSize: size * 0.4 }}>{letra}</Txt>
+      <Txt v="h1" c={c.accent} style={{ fontSize: Math.round(size * 0.42) }}>{letra}</Txt>
     </View>
   );
 }
@@ -557,13 +577,18 @@ function Equipe() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const time = ((S as any).team ?? []) as { name: string; role: string }[];
+  /* ⚠️ VEM DE `fichaDaEquipe`, E NÃO DE `S.team` CRU. É a ficha que sabe
+     derivar o `id` de cada pessoa, e sem id não há como procurar a foto
+     dela em `RETRATOS` — era por isso que esta faixa mostrava letra para
+     todo mundo. De quebra, a responsável sai daqui: ela é o topo deste
+     mesmo cartão, e apareceria duas vezes. */
+  const time = fichaDaEquipe(S).filter((f) => !f.responsavel);
   if (!time.length) return null;
 
   /* Os primeiros nomes, e não "Sua equipe de apoio". Um rótulo descreve o
      grupo; os nomes apresentam as pessoas — e apresentar é o que este
      cartão inteiro faz. */
-  const nomes = time.map((p) => p.name.split(' ')[0]);
+  const nomes = time.map((p) => p.nome.split(' ')[0]);
   const lista = nomes.length > 1
     ? `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`
     : nomes[0];
@@ -575,8 +600,8 @@ function Equipe() {
             meia, que é todo o espaço que uma terceira faixa tem */}
         <Row style={{ width: 30 + (time.length - 1) * 19, height: 30 }}>
           {time.map((p, i) => (
-            <View key={p.name} style={{ position: 'absolute', left: i * 19, borderWidth: 2, borderColor: c.bg1, borderRadius: 17 }}>
-              <Retrato nome={p.name} size={30} />
+            <View key={p.id} style={{ position: 'absolute', left: i * 19, borderWidth: 2, borderColor: c.bg1, borderRadius: 17 }}>
+              <Retrato nome={p.nome} id={p.id} size={30} />
             </View>
           ))}
         </Row>
@@ -591,7 +616,7 @@ function Equipe() {
               cartão, e o título dele é a médica lá em cima. */}
           <Txt v="caption" numberOfLines={1}>{lista}</Txt>
           <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
-            {time.map((p) => p.role).join(' · ')}
+            {time.map((p) => p.papel).join(' · ')}
           </Txt>
         </View>
         <Icon name="chev" size={14} color={c.tx4} sw={2} />
