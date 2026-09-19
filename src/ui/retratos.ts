@@ -41,7 +41,17 @@ export const RETRATOS: Record<string, any> = {
    ⚠️ E O MAPA É POR CLÍNICA, com o nome como chave. Enquanto houver uma
    clínica por pessoa isso é excesso; no dia em que a rede tiver várias, é
    o que impede a foto de uma aparecer na tela da outra. */
-export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {};
+export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {
+  /* ⚠️ FOTO DE ESTUDO, E SÓ EM __DEV__. O cabeçalho com imagem é metade
+     do desenho da tela e não dá para julgá-lo com o mapa vazio — mas uma
+     folha de acelga não é a recepção de ninguém, e ela não pode sair
+     daqui. O `require` é estático, então o Metro resolve; o que o
+     `__DEV__` tira é a ENTRADA do mapa, e em produção a tela cai no
+     cabeçalho sem foto, que é o que ela vai fazer mesmo.
+
+     Sai no dia em que a clínica mandar a dela. */
+  ...(__DEV__ ? { 'Clínica Vitalis': { foto: require('../../assets/images/alimentacao-hero.jpg') } } : {}),
+};
 
 /** As duas primeiras iniciais: "Clínica Vitalis" dá "CV". É o que um logo
     ausente vira — e duas letras leem como marca, uma lê como falta. */

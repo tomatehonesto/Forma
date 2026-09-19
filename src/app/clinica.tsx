@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { fichaDaClinica, contatosDaClinica } from '../logic/derive';
+import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
 import { Txt, Card, Row, CircleBtn, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
@@ -209,12 +209,7 @@ export default function Clinica() {
                 {!!f.especialidade && (
                   <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
                 )}
-                {!!f.cidade && (
-                  <Row gap={5} style={{ alignItems: 'center', marginTop: 3 }}>
-                    <Icon name="pin" size={13} color={c.tx4} sw={1.9} />
-                    <Txt v="caption" c={c.tx3}>{f.cidade}</Txt>
-                  </Row>
-                )}
+                <Local f={f} />
               </View>
             </View>
           </>
@@ -249,58 +244,12 @@ export default function Clinica() {
               {!!f.especialidade && (
                 <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
               )}
-              {!!f.cidade && (
-                <Row gap={5} style={{ alignItems: 'center', marginTop: 3 }}>
-                  {/* O ícone `pin` entrou no jogo para isto. Estava aqui o
-                      `target`, que no resto do aplicativo é a mira das
-                      metas — dois significados para o mesmo desenho é o
-                      começo de nenhum. */}
-                  <Icon name="pin" size={13} color={c.tx4} sw={1.9} />
-                  <Txt v="caption" c={c.tx3}>{f.cidade}</Txt>
-                </Row>
-              )}
+              <Local f={f} />
             </View>
           </View>
         )}
 
         <View style={{ paddingHorizontal: PAD }}>
-        {/* ---- onde fica ----
-
-            ⚠️ O ENDEREÇO NÃO ABRE O MAPA, e é texto de propósito: ele vem de
-            semente, e um endereço clicável falso manda alguém até a porta de
-            um estranho. A ação entra junto com o dado de verdade.
-
-            ⚠️ E A CIDADE NÃO SE REPETE AQUI. Ela estava sob a rua, com o
-            argumento de que quem lê um endereço espera a cidade nele — o
-            que é verdade quando o endereço está sozinho. Com a seção
-            encostada na identidade, "São Paulo, SP" aparecia duas vezes a
-            26px de distância, e a segunda não acrescentava nada. A regra é
-            a do bloco inteiro, e não a da linha: o endereço aqui é a
-            continuação da cidade logo acima, não um endereço solto. */}
-        {(!!f.endereco || !!f.horario) && (
-          <View style={{ marginTop: 26 }}>
-            <Txt v="h2" style={{ marginBottom: 10 }}>Onde fica</Txt>
-            <Card style={{ gap: 14 }}>
-              {!!f.endereco && (
-                <Row gap={13} style={{ alignItems: 'flex-start' }}>
-                  <View style={{ width: 20, alignItems: 'center', marginTop: 1 }}>
-                    <Icon name="pin" size={18} color={c.accent} sw={1.9} />
-                  </View>
-                  <Txt v="body" style={{ flex: 1, lineHeight: 23 }}>{f.endereco}</Txt>
-                </Row>
-              )}
-              {!!f.horario && (
-                <Row gap={13} style={{ alignItems: 'center' }}>
-                  <View style={{ width: 20, alignItems: 'center' }}>
-                    <Icon name="clock" size={18} color={c.accent} sw={1.9} />
-                  </View>
-                  <Txt v="body" style={{ flex: 1 }}>{f.horario}</Txt>
-                </Row>
-              )}
-            </Card>
-          </View>
-        )}
-
         {/* ---- convênios ----
 
             ⚠️ EM CHIPS, E NÃO EM LISTA. Convênio é um conjunto que se VARRE:
@@ -314,7 +263,7 @@ export default function Clinica() {
             como saber qual é — então ela não chuta. Quem atende só
             particular manda uma lista de um item. */}
         {!!f.convenios?.length && (
-          <View style={{ marginTop: 30 }}>
+          <View style={{ marginTop: 26 }}>
             <Txt v="h2" style={{ marginBottom: 12 }}>Convênios atendidos</Txt>
             <Row gap={8} style={{ flexWrap: 'wrap' }}>
               {f.convenios.map((v) => (
@@ -526,6 +475,77 @@ export default function Clinica() {
         )}
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+/* ============================================================
+   ONDE FICA — dentro do cabeçalho, e não numa seção própria
+
+   ⚠️ ERA UMA SEÇÃO COM TÍTULO E CARTÃO BRANCO, e o cartão era o problema.
+   Duas linhas de texto dentro de uma caixa com respiro de 20 pesam como
+   um cartão de conteúdo e carregam o conteúdo de uma legenda — e ele
+   ficava logo abaixo do cartão da identidade, que é branco, do mesmo
+   tamanho e da mesma forma. Duas caixas iguais empilhadas com um título
+   no meio, a segunda quase vazia.
+
+   ⚠️ E A CIDADE JÁ ESTAVA NO CABEÇALHO, três linhas acima, com o mesmo
+   pino. O endereço era a continuação dela separada por um título.
+
+   Aqui os dois viram o que são: a parte de baixo da identidade. Quem é a
+   clínica, e onde ela está — separados por um fio, no mesmo cartão. Some
+   um título, some uma caixa, e o dado mais consultado da tela passa a
+   morar no lugar mais visível dela.
+
+   ⚠️ O ENDEREÇO CONTINUA SEM ABRIR MAPA. Ele vem de semente, e um
+   endereço clicável falso manda alguém até a porta de um estranho. A ação
+   entra junto com o dado de verdade.
+
+   ⚠️ E SEM ENDEREÇO NEM HORÁRIO ELE VOLTA A SER A LINHA DA CIDADE, sem
+   fio e sem coluna de ícones: uma régua de alinhamento para um item só é
+   desenho a mais para informação a menos.
+   ============================================================ */
+function Local({ f }: { f: FichaDaClinica }) {
+  const { c } = useTheme();
+  const detalhado = !!f.endereco || !!f.horario;
+
+  if (!detalhado) {
+    if (!f.cidade) return null;
+    return (
+      <Row gap={5} style={{ alignItems: 'center', marginTop: 3 }}>
+        {/* O ícone `pin` entrou no jogo para isto. Estava aqui o `target`,
+            que no resto do aplicativo é a mira das metas — dois
+            significados para o mesmo desenho é o começo de nenhum. */}
+        <Icon name="pin" size={13} color={c.tx4} sw={1.9} />
+        <Txt v="caption" c={c.tx3}>{f.cidade}</Txt>
+      </Row>
+    );
+  }
+
+  return (
+    <View style={{
+      marginTop: 16, paddingTop: 16, gap: 12,
+      borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
+    }}>
+      {!!f.endereco && (
+        <Row gap={11} style={{ alignItems: 'flex-start' }}>
+          <View style={{ width: 18, alignItems: 'center', marginTop: 2 }}>
+            <Icon name="pin" size={16} color={c.accent} sw={1.9} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="caption" style={{ lineHeight: 22 }}>{f.endereco}</Txt>
+            {!!f.cidade && <Txt v="caption" c={c.tx3}>{f.cidade}</Txt>}
+          </View>
+        </Row>
+      )}
+      {!!f.horario && (
+        <Row gap={11} style={{ alignItems: 'center' }}>
+          <View style={{ width: 18, alignItems: 'center' }}>
+            <Icon name="clock" size={16} color={c.accent} sw={1.9} />
+          </View>
+          <Txt v="caption" style={{ flex: 1 }}>{f.horario}</Txt>
+        </Row>
+      )}
     </View>
   );
 }

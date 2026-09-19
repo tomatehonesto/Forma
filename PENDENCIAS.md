@@ -283,6 +283,12 @@ outras portas de desenvolvimento (`?compra=1`, `?assinante=1`,
    `profile.clinicInfo`, que é a SUA clínica. Uma parceira que você não
    tem precisa de um `?id=` e de uma origem de dados — e aí `vinculada`
    deixa de ser a porta de desenvolvimento e passa a ser derivável.
+2b. **A foto de estudo sai.** `IMAGENS_DA_CLINICA` tem uma entrada de
+   desenvolvimento — uma foto de comida servindo de recepção — para que o
+   cabeçalho com imagem possa ser julgado. Ela está atrás de `__DEV__` e
+   nunca sai daqui, mas sai do arquivo no dia em que a clínica mandar a
+   dela.
+
 3. **Os contatos de verdade.** O tipo `ContatoDaClinica` existe inteiro,
    mas a semente **não tem telefone nem WhatsApp**, de propósito: um
    telefone inventado a um toque de uma linha que disca sozinha faz
