@@ -125,10 +125,29 @@ export default function Medico() {
     setTimeout(() => threadRef.current?.scrollToEnd({ animated: true }), 80);
   };
 
-  const clinRows: [string, string, string, (() => void) | undefined][] = [
+  /* ⚠️ AQUI HAVIA UMA TERCEIRA LINHA — "Compartilhar evolução · Peso,
+     medidas e adesão com a equipe" — e ela era a quinta porta emparedada
+     deste aplicativo. Tinha ícone, subtítulo e chevron, e o `onPress` era
+     `undefined`: a lista inteira parecia tocável e uma das três não
+     respondia ao dedo. É a pior variante do defeito, porque não leva a
+     lugar errado — não leva a lugar nenhum, e a pessoa acha que o toque
+     falhou.
+
+     ⚠️ E ELA NÃO GANHOU DESTINO, PORQUE O DESTINO JÁ EXISTE DUAS VEZES NA
+     MESMA TELA. Peso, adesão, sintomas, exames e anotações são o resumo —
+     e o resumo é o botão azul lá em cima, dentro de "PARA LEVAR À
+     CONSULTA", com essa lista escrita por extenso. Apontar esta linha
+     para lá seria trocar uma porta que não abre por duas portas para a
+     mesma sala.
+
+     ⚠️ SE UM DIA "COMPARTILHAR" FOR OUTRA COISA — a equipe acompanhando o
+     peso continuamente, e não um documento levado à consulta —, ela volta
+     como AJUSTE e não como linha de navegação: é uma permissão que se liga
+     e se desliga, e precisa de servidor para significar alguma coisa. Ver
+     PENDENCIAS.md, item 6. */
+  const clinRows: [string, string, string, () => void][] = [
     ['cal', 'Consultas', 'Agenda, histórico e videoconsulta', () => router.push('/consultas' as any)],
     ['doc', 'Exames enviados', `${S.examBundles.filter((b: any) => b.shared).length} arquivos compartilhados`, () => router.push('/exames' as any)],
-    ['trend', 'Compartilhar evolução', 'Peso, medidas e adesão com a equipe', undefined],
   ];
 
   return (
@@ -234,7 +253,7 @@ export default function Medico() {
         {clinRows.map(([ic, t, sub, onPress], i) => (
           <View key={t}>
             {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-            <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed && onPress ? 0.6 : 1 }]}>
+            <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
               <Row style={{ paddingVertical: 13 }}>
                 <IconBadge name={ic} size={40} />
                 <View style={{ flex: 1, marginLeft: 12 }}>

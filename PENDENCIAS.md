@@ -234,9 +234,18 @@ para um quarto que não foi construído, e as quatro saíram:
 | Home, cabeçalho | "Ir para área médica" | `/medico`, o mesmo, nos dois estados |
 | Cuidado, sem vínculo | botão cheio "Vincular uma clínica" | `/perfil` |
 | Perfil, sem vínculo | card "Conectar a um especialista" | **nada** — `onPress` indefinido |
+| Sua equipe, "Na clínica" | linha "Compartilhar evolução" | **nada** — `onPress` indefinido |
 
-As duas primeiras agora só aparecem com vínculo, a terceira saiu e a
-quarta virou uma vaga vazia que não se toca.
+As duas primeiras agora só aparecem com vínculo, a terceira saiu, a
+quarta virou uma vaga vazia que não se toca e a quinta saiu da lista.
+
+**A quinta não ganhou destino de propósito.** Peso, adesão, sintomas,
+exames e anotações são o resumo, e o resumo já é o botão azul no alto da
+mesma tela — apontar a linha para lá trocaria uma porta que não abre por
+duas portas para a mesma sala. Se um dia "compartilhar" for outra coisa —
+a equipe acompanhando o peso **continuamente**, e não um documento levado
+à consulta —, ela volta como ajuste que se liga e se desliga, e não como
+linha de navegação.
 
 **Quando a porta existir**, o modelo é o que os Termos já descrevem
 (seção sobre profissional parceiro): quem convida é a clínica, com um
