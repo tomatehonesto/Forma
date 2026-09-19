@@ -3918,6 +3918,20 @@ export type FichaDaClinica = {
   especialidade?: string;
   cidade?: string;
   sobre?: string;
+  /** rua, número e bairro — a cidade vem separada porque aparece sozinha */
+  endereco?: string;
+  horario?: string;
+  convenios?: string[];
+  /* ⚠️ TELEFONE, SITE E INSTAGRAM NÃO ESTÃO AQUI, e a ausência é a
+     decisão. Eles existem no mundo e vão existir no estado quando a
+     clínica mandar — o que não pode existir é a versão inventada deles
+     numa semente: um registro profissional falso não faz nada, um
+     telefone falso faz alguém ligar para a casa de um estranho e um
+     endereço clicável falso manda alguém até a porta dela.
+
+     O endereço fica, e fica como TEXTO: saber onde é resolve a dúvida de
+     quem já é paciente, e um mapa que abre é outra coisa — essa entra
+     junto com o dado de verdade. */
   /** desde quando o vínculo existe, para a tela poder dizer há quanto tempo */
   desde?: number;
   equipe: FichaDaEquipe[];
@@ -3932,6 +3946,9 @@ export function fichaDaClinica(S: State): FichaDaClinica | null {
     especialidade: info.especialidade || undefined,
     cidade: info.cidade || undefined,
     sobre: info.sobre || undefined,
+    endereco: info.endereco || undefined,
+    horario: info.horario || undefined,
+    convenios: info.convenios?.length ? info.convenios : undefined,
     desde: p.vinculo?.desde,
     equipe: fichaDaEquipe(S),
   };

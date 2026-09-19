@@ -96,6 +96,7 @@ import Sun from 'lucide-react-native/icons/sun';
 import Trash from 'lucide-react-native/icons/trash';
 import Watch from 'lucide-react-native/icons/watch';
 import Wallet from 'lucide-react-native/icons/wallet';
+import MapPin from 'lucide-react-native/icons/map-pin';
 import TriangleAlert from 'lucide-react-native/icons/triangle-alert';
 import Coffee from 'lucide-react-native/icons/coffee';
 import Sandwich from 'lucide-react-native/icons/sandwich';
@@ -145,6 +146,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   trash: Trash,
   watch: Watch,
   wallet: Wallet,
+  pin: MapPin,
   alerta: TriangleAlert,
   chev: ChevronRight,
   check: Check,

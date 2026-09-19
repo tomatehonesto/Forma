@@ -25,6 +25,29 @@ export const RETRATOS: Record<string, any> = {
   responsavel: require('../../assets/images/especialista.png'),
 };
 
+/* ============================================================
+   A IMAGEM DA CLÍNICA
+
+   Duas peças diferentes, e as duas podem faltar:
+
+   · `logo` é a marca, e aparece no quadrado ao lado do nome;
+   · `foto` é a fachada ou a recepção, e aparece como faixa no alto.
+
+   ⚠️ NENHUMA DAS DUAS EXISTE AINDA, e este mapa vazio é o lugar certo
+   para elas — com os arquivos em `assets/images/clinicas/`, entram como
+   duas linhas e as duas telas mudam juntas. Vazio, a tela cai nas
+   iniciais e pula a faixa, sem buraco nenhum.
+
+   ⚠️ E O MAPA É POR CLÍNICA, com o nome como chave. Enquanto houver uma
+   clínica por pessoa isso é excesso; no dia em que a rede tiver várias, é
+   o que impede a foto de uma aparecer na tela da outra. */
+export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {};
+
+/** As duas primeiras iniciais: "Clínica Vitalis" dá "CV". É o que um logo
+    ausente vira — e duas letras leem como marca, uma lê como falta. */
+export const iniciaisDaClinica = (n: string) =>
+  n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
+
 /** A inicial do nome, pulando o tratamento: "Dra. Helena Costa" dá "H". */
 export const inicialDoNome = (n: string) =>
   (n.split(/\s+/).find((w) => !w.endsWith('.')) ?? n).charAt(0).toUpperCase();

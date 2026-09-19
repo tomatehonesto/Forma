@@ -292,6 +292,13 @@ export function buildSeed() {
         especialidade: 'Endocrinologia e Metabologia',
         cidade: 'São Paulo, SP',
         sobre: 'Clínica especializada no cuidado integral do paciente, com foco em tratamento clínico da obesidade e saúde metabólica. O acompanhamento é feito por uma equipe que conversa entre si — o que você registra aqui chega a todo mundo que cuida de você.',
+        endereco: 'Rua Ficção Exemplar, 100 — Jardim Modelo',
+        horario: 'Seg a sex, 8h às 18h',
+        /* ⚠️ "PARTICULAR" É UM ITEM DA LISTA, e não a ausência dela. Clínica
+           que não atende convênio nenhum tem uma lista com um item, e não
+           uma seção vazia — e quem lê precisa saber a diferença entre "não
+           informou" e "só atende particular". */
+        convenios: ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Particular'],
       },
       /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
          deduzido de haver um nome guardado.
