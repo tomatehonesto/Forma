@@ -591,16 +591,105 @@ export const EXAM_CATS: [string, string[]][] = [
   ['Tireoide', ['TSH', 'T4 livre']],
   ['Vitaminas', ['Vitamina D', 'Vitamina B12', 'Ferritina']],
 ];
+/* ============================================================
+   O QUE O MARCADOR É — e não o que o SEU resultado quer dizer
+
+   ⚠️ SÃO DUAS PERGUNTAS DIFERENTES, e o aplicativo respondia as duas com
+   o mesmo parágrafo. "O que é HbA1c" é uma definição: vale para qualquer
+   pessoa, em qualquer resultado, e não envelhece. "O que o seu HbA1c quer
+   dizer" é leitura, muda a cada coleta e não deveria existir sem os
+   números de quem está lendo.
+
+   Aqui fica só a primeira. Duas frases: o que a coisa é, e por que ela é
+   medida — na ordem em que alguém sem formação precisa delas.
+
+   ⚠️ E NENHUMA DELAS DIZ SE ESTÁ BOM. Definição que insinua diagnóstico é
+   diagnóstico com roupa de glossário; quem lê o resultado é quem
+   acompanha a pessoa.
+   ============================================================ */
+export type SobreOMarcador = { oQueE: string; porQue: string };
+
+const SOBRE: Record<string, SobreOMarcador> = {
+  'HbA1c': {
+    oQueE: 'A fração da hemoglobina que ficou ligada ao açúcar do sangue.',
+    porQue: 'Como a hemácia vive cerca de três meses, ela conta a média da glicose nesse período — e não só a do dia da coleta.',
+  },
+  'Glicemia jejum': {
+    oQueE: 'A quantidade de açúcar no sangue depois de horas sem comer.',
+    porQue: 'É a medida mais direta de como o corpo administra a glicose em repouso.',
+  },
+  'Insulina': {
+    oQueE: 'O hormônio que faz o açúcar do sangue entrar nas células.',
+    porQue: 'Quando ela está alta com glicose normal, costuma indicar que o corpo precisa de mais hormônio para o mesmo trabalho.',
+  },
+  'Colesterol total': {
+    oQueE: 'A soma de todas as frações de colesterol que circulam no sangue.',
+    porQue: 'Sozinho ele diz pouco: o que importa é como essa soma se divide entre HDL e LDL.',
+  },
+  'HDL': {
+    oQueE: 'A fração do colesterol que recolhe gordura das artérias e leva de volta ao fígado.',
+    porQue: 'É a única em que um número mais alto é o desejável.',
+  },
+  'LDL': {
+    oQueE: 'A fração do colesterol que leva gordura do fígado para os tecidos.',
+    porQue: 'Em excesso, é a que se deposita na parede das artérias.',
+  },
+  'Triglicerídeos': {
+    oQueE: 'A gordura que circula no sangue vinda da comida e do fígado.',
+    porQue: 'Responde rápido ao que se come e ao peso, e por isso costuma ser o primeiro a se mexer num tratamento.',
+  },
+  'Creatinina': {
+    oQueE: 'Um resíduo do músculo que os rins filtram e eliminam.',
+    porQue: 'Como a saída depende do rim, o quanto sobra no sangue é uma das formas de medir o trabalho dele.',
+  },
+  'TGO': {
+    oQueE: 'Uma enzima que existe dentro das células do fígado e de outros tecidos.',
+    porQue: 'Ela aparece no sangue quando essas células se rompem, então funciona como um sinal de irritação do fígado.',
+  },
+  'TGP': {
+    oQueE: 'Uma enzima que existe quase só dentro das células do fígado.',
+    porQue: 'Por ser mais exclusiva dele, costuma ser a mais específica das duas para avaliar o fígado.',
+  },
+  'TSH': {
+    oQueE: 'O hormônio que a hipófise manda para a tireoide pedindo trabalho.',
+    porQue: 'Ele sobe quando a tireoide está devagar e cai quando está acelerada — é o termostato, e não a temperatura.',
+  },
+  'T4 livre': {
+    oQueE: 'O hormônio da tireoide na forma que o corpo consegue usar.',
+    porQue: 'Lido junto do TSH, mostra se a tireoide está entregando o que foi pedido.',
+  },
+  'Vitamina D': {
+    oQueE: 'A vitamina que o corpo produz com sol e absorve da comida.',
+    porQue: 'Ela participa da absorção de cálcio e do funcionamento de músculo e imunidade.',
+  },
+  'Vitamina B12': {
+    oQueE: 'Uma vitamina que vem de alimentos de origem animal.',
+    porQue: 'É necessária para os glóbulos vermelhos e para os nervos, e quem come menos costuma repô-la de olho.',
+  },
+  'Ferritina': {
+    oQueE: 'A proteína que guarda ferro dentro das células.',
+    porQue: 'Por isso ela mede o estoque de ferro do corpo, e não o ferro que está circulando agora.',
+  },
+};
+
+/** A definição do marcador, quando ela existe. Sem invenção para quem não
+    está na lista: marcador desconhecido não ganha um "sobre" genérico,
+    porque um parágrafo que serve para qualquer exame não explica nenhum. */
+export const examAbout = (e: any): SobreOMarcador | null => SOBRE[e.marker] ?? null;
+
 export function examExplain(e: any) {
-  const map: Record<string, string> = {
-    'HbA1c': 'A HbA1c reflete sua glicose média dos últimos ~3 meses. A queda de 6,3 para 5,6% mostra um controle bem melhor — saiu da faixa de pré-diabetes, algo comum com a perda de peso no tratamento com GLP-1.',
-    'Glicemia jejum': 'Sua glicose em jejum voltou à faixa normal, refletindo a melhora da sensibilidade à insulina que costuma acompanhar a redução de peso.',
-    'Colesterol total': 'Caiu para dentro da faixa desejável, acompanhando a melhora dos triglicerídeos e do LDL.',
-    'HDL': 'O HDL (colesterol "bom") subiu — protege o coração. Atividade física e perda de peso ajudam a elevá-lo.',
-    'LDL': 'O LDL ("ruim") caiu para uma faixa saudável, reduzindo o risco cardiovascular.',
-    'Triglicerídeos': 'Caíram bastante — costumam responder rápido à perda de peso e à redução de açúcar e álcool.',
-    'Vitamina D': 'Subiu para uma faixa adequada, importante para ossos, humor e imunidade.',
-  };
+  /* ⚠️ AS FRASES ESTAVAM ESCRITAS COM OS NÚMEROS DA SEMENTE.
+
+     A de HbA1c dizia "a queda de 6,3 para 5,6% mostra um controle bem
+     melhor". Para a Mariana da semente isso é verdade; para qualquer
+     outra pessoa é uma afirmação inventada sobre o exame dela — e para
+     quem PIOROU, o aplicativo dizia que tinha melhorado.
+
+     Não é um erro de redação, é a leitura estando no lugar errado:
+     interpretação precisa dos números de quem lê, e texto fixo não tem
+     como tê-los. Agora o que é fixo é a definição (examAbout), e o que
+     é variável se monta do histórico. */
+  const map: Record<string, string> = {};
   /* ⚠️ O NOME DA MÉDICA DA SEMENTE ESTAVA ESCRITO AQUI. Esta é a
      frase que aparece para qualquer marcador sem leitura própria — a
      mais genérica do arquivo, e a que mais gente vê. Ela citava a Dra.
@@ -610,7 +699,30 @@ export function examExplain(e: any) {
      mais, e puxar o estado inteiro até aqui para escrever um nome seria
      caro pelo que entrega. "Quem acompanha você" é verdade nos três
      modos. */
-  return map[e.marker] || `Este marcador está ${examStatus(e) === 'ok' ? 'dentro da referência' : 'fora da referência'}. Vale acompanhar a evolução ao longo do tratamento e conversar com quem acompanha você. Não interpreto exames isoladamente nem substituo a avaliação médica.`;
+  if (map[e.marker]) return map[e.marker];
+
+  const dentro = examStatus(e) === 'ok';
+  const l = examLast(e), f = examFirst(e);
+  const varios = (e.values?.length ?? 0) > 1 && l.t !== f.t;
+  const delta = l.v - f.v;
+  const melhorou = e.good === 'up' ? delta > 0 : delta < 0;
+
+  /* A frase se monta do que ESTE histórico mostra: onde o valor caiu em
+     relação à referência, e para que lado ele foi desde a primeira
+     coleta. Quando `good` não diz qual lado é o bom, a direção sai da
+     frase — dizer "subiu" sem dizer o que isso significa é melhor do que
+     chutar o significado. */
+  const onde = dentro
+    ? 'Este resultado está dentro da faixa de referência do laboratório.'
+    : 'Este resultado está fora da faixa de referência do laboratório.';
+
+  const desde = !varios || delta === 0
+    ? ''
+    : e.good
+      ? ` Desde a primeira coleta ele ${melhorou ? 'caminhou na direção esperada' : 'foi na direção oposta à esperada'}.`
+      : ` Desde a primeira coleta ele ${delta > 0 ? 'subiu' : 'caiu'}.`;
+
+  return `${onde}${desde} Quem lê exame junto do resto do seu quadro é quem acompanha você — a gente organiza os números e mostra a evolução, não interpreta.`;
 }
 
 /* Ciclo da dose — fase atual, dia no ciclo e stepper (mockups neurosafe). */

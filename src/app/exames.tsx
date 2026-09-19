@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examExplain } from '../logic/derive';
+import { EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examExplain, examAbout } from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
+import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard } from '../theme';
+import { radius, shadowCard, alfa } from '../theme';
 
 /* ============================================================
    EXAMES
@@ -29,20 +30,60 @@ import { radius, shadowCard } from '../theme';
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
 const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
-/* Régua de referência — faixa normal em lavagem azul, valor como marcador.
-   Fora da faixa o marcador fica vermelho: aqui o alarme é legítimo, porque
-   é a única leitura da tela que pode pedir médico. */
+/* A RÉGUA É PONTILHADA, e era uma barra com uma bolinha em cima.
+
+   ⚠️ A BARRA PROMETIA PRECISÃO QUE O DADO NÃO TEM. Um trilho contínuo com
+   um marcador em cima convida a ler a posição exata — e a posição exata
+   não quer dizer nada: a faixa de referência é do laboratório, varia de um
+   para outro, e estar em 5,5 ou 5,6 dentro dela é a mesma informação.
+
+   Em pontos, a leitura vira contável e aproximada, que é o que ela é: "meu
+   valor está aqui, perto do começo da faixa". O olho lê a POSIÇÃO no
+   conjunto sem tentar ler o número, que já está grande em cima.
+
+   ⚠️ E OS PONTOS DE FORA DA FAIXA CONTINUAM VISÍVEIS, apagados. Uma régua
+   que só desenha a faixa normal esconde justamente o que a pessoa precisa
+   ver quando o valor sai dela — a distância. */
+const PONTOS_DA_REGUA = 29;
+
 function Regua({ e }: { e: any }) {
   const { c } = useTheme();
   const g = examGaugeData(e);
-  const col = g.status === 'ok' ? c.accent : c.cta;
+  const dentro = g.status === 'ok';
+  const col = dentro ? c.accent : c.cta;
+
+  /* O ponto do valor é o mais próximo da posição dele, e não uma peça
+     solta por cima: assim ele nunca cai entre dois e nunca some atrás da
+     borda do quadro. */
+  const iValor = Math.round((g.pos / 100) * (PONTOS_DA_REGUA - 1));
+
   return (
     <View>
-      <View style={{ height: 10, borderRadius: 5, backgroundColor: c.track }}>
-        <View style={{ position: 'absolute', left: `${g.bandL}%`, width: `${Math.max(3, g.bandR - g.bandL)}%`, top: 0, bottom: 0, borderRadius: 5, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }} />
-        <View style={{ position: 'absolute', left: `${g.pos}%`, top: -3, width: 16, height: 16, marginLeft: -8, borderRadius: 8, backgroundColor: col, borderWidth: 3, borderColor: c.bg1 }} />
-      </View>
-      <Row style={{ justifyContent: 'space-between', marginTop: 8 }}>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        {Array.from({ length: PONTOS_DA_REGUA }).map((_, i) => {
+          const pct = (i / (PONTOS_DA_REGUA - 1)) * 100;
+          const naFaixa = pct >= g.bandL && pct <= g.bandR;
+          const ehValor = i === iValor;
+          return (
+            <View
+              key={i}
+              style={{
+                width: ehValor ? 9 : 5,
+                height: ehValor ? 9 : 5,
+                borderRadius: 5,
+                /* ⚠️ A FAIXA PRECISA SER VISÍVEL SEM SER LIDA. Em
+                   `accentLine` ela quase não se distinguia do trilho, e a
+                   régua virava uma fileira de pontos iguais com um maior
+                   no meio — sem a faixa, a posição não diz nada. Em
+                   accent a 30% ela aparece como região e continua atrás
+                   do ponto do valor, que é quem tem que ganhar o olho. */
+                backgroundColor: ehValor ? col : naFaixa ? alfa(c.accent, 0.3) : c.track,
+              }}
+            />
+          );
+        })}
+      </Row>
+      <Row style={{ justifyContent: 'space-between', marginTop: 10 }}>
         <Txt v="micro" c={c.tx4}>{fmtV(g.min)}</Txt>
         <Txt v="micro" c={c.tx3}>referência {e.ref} {e.unit}</Txt>
         <Txt v="micro" c={c.tx4}>{fmtV(g.max)}</Txt>
@@ -55,36 +96,86 @@ function Regua({ e }: { e: any }) {
 function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const { c } = useTheme();
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
+  const sobre = examAbout(e);
   const varios = e.values.length > 1;
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
 
   return (
-    <TelaInterna titulo={e.marker} onVoltar={onVoltar}>
-      <Titulao
-        titulo={fmtV(l.v)}
-        unidade={e.unit}
-        lead={`Colhido em ${porExtenso(l.t)} · referência ${e.ref} ${e.unit}`}
-      />
+    /* ⚠️ `tituloFixo` PORQUE NÃO HÁ MANCHETE. A barra da casa só mostra o
+       nome depois que o titulão sobe — e aqui o titulão virou o número.
+       Sem isto a tela abre dizendo "5,6 %" e mais nada: o marcador só se
+       identificaria depois de rolar, e um valor de exame sem o nome do
+       exame não é informação, é um número solto. */
+    <TelaInterna titulo={e.marker} onVoltar={onVoltar} tituloFixo>
+      {/* ---- o resultado ----
 
-      <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 14 }, shadowCard(c)]}>
-        <Row style={{ justifyContent: 'space-between', gap: 10 }}>
+          ⚠️ O NÚMERO É A TELA, e ele estava numa manchete alinhada à
+          esquerda como qualquer outro título. Quem abre um marcador de
+          exame vem por um número só, e a pergunta seguinte é sempre a
+          mesma: está bom? Centrado, com a unidade ao lado e o veredito
+          logo abaixo, as duas respostas chegam juntas e sem leitura.
+
+          ⚠️ E O CARTÃO SUMIU DAQUI. A superfície branca em volta fazia do
+          resultado um dos blocos da tela; sem ela ele é a abertura dela.
+          A régua vem logo abaixo porque é a mesma frase — o valor, e onde
+          ele cai. */}
+      <View style={{ alignItems: 'center', gap: 14 }}>
+        <Row style={{ alignItems: 'baseline', justifyContent: 'center' }} gap={7}>
+          <Txt v="display" style={{ fontSize: 56, lineHeight: 62, letterSpacing: -1.5 }}>{fmtV(l.v)}</Txt>
+          <Txt v="h2" c={c.tx3}>{e.unit}</Txt>
+        </Row>
+        {/* O <Selo> tem `alignSelf: 'flex-start'` embutido — ele nasceu
+            para etiquetar linhas de lista, onde encostar à esquerda é o
+            certo. Aqui ele é o veredito do número, e veredito fica sob o
+            número. O invólucro é o que desfaz o alinhamento de origem sem
+            mexer na peça compartilhada. */}
+        <View style={{ alignItems: 'center' }}>
           <Selo
             label={st === 'ok' ? 'Na referência' : `Fora da referência — ${st}`}
             tom={st === 'ok' ? 'verde' : 'neutra'}
           />
-          {varios ? <Selo label={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))} ${e.unit}`} tom={bom ? 'lima' : 'neutra'} /> : null}
-        </Row>
-        <Regua e={e} />
+        </View>
+        {/* ⚠️ A DATA DA COLETA VOLTOU. Ela morava no lead da manchete, que
+            saiu junto com ela — e um resultado sem data é um resultado sem
+            validade: ninguém sabe se está olhando o exame de ontem ou o de
+            dois anos atrás. */}
+        <Txt v="caption" c={c.tx3}>Colhido em {porExtenso(l.t)}</Txt>
       </View>
 
+      <Regua e={e} />
+
+      {/* ---- sobre o marcador ----
+
+          ⚠️ O QUE A COISA É, e não o que o SEU resultado quer dizer. As
+          duas perguntas viviam no mesmo parágrafo lá embaixo, e só a
+          segunda aparecia — quem nunca ouviu falar de ferritina lia a
+          leitura de um número sem saber do que ele era.
+
+          Vem antes da evolução de propósito: não dá para acompanhar a
+          curva de uma coisa que ainda não se sabe o que é. */}
+      {sobre ? (
+        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 8 }, shadowCard(c)]}>
+          <Row gap={7}>
+            <Icon name="book" size={13} color={c.tx4} sw={2} />
+            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>SOBRE</Txt>
+          </Row>
+          <Txt v="body" style={{ lineHeight: 25 }}>{sobre.oQueE}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>{sobre.porQue}</Txt>
+        </View>
+      ) : null}
+
       {/* Mesmo desenho dos cards de Peso e Medidas, e deslizar pela curva
-          mostra o valor de cada coleta com a data. */}
+          mostra o valor de cada coleta com a data.
+
+          ⚠️ O SUBTÍTULO DIZ O PERÍODO, e dizia só "N coletas". Uma queda de
+          0,7 em três meses e a mesma queda em três anos são fatos
+          diferentes, e o número de coletas não distingue os dois. */}
       {varios ? (
         <CardCurva
           id={`ex-${e.marker}`}
           nome={e.marker}
-          sub={`${fmtV(f.v)} › ${fmtV(l.v)} ${e.unit} · ${e.values.length} coletas`}
+          sub={`${fmtDate(new Date(f.t))} a ${fmtDate(new Date(l.t))} · ${e.values.length} coletas`}
           valor={`${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`}
           unidade={e.unit}
           altura={110}
