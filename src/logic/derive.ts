@@ -3779,11 +3779,19 @@ export function carePending(S: State) {
   return out;
 }
 
+/* ⚠️ ONDE UM DOCUMENTO ABRE depende do que ele é, e essa regra vivia
+   escondida dentro de careDocs. A tela de equipe lista os mesmos
+   documentos e não abria nenhum; para abrir, ela ia ter que repetir o
+   teste — e duas cópias de "isto é um exame?" divergem na primeira vez
+   que alguém acrescentar um tipo. */
+export const destinoDoDocumento = (kind: string) =>
+  /exame/i.test(kind) ? '/exames' : '/resumo-medico';
+
 /** Documentos e exames em uma lista só, do mais recente para o mais antigo. */
 export function careDocs(S: State, n = 3) {
   const docs = (S.documents as any[]).map((d) => ({
     t: d.t, nome: d.name, tipo: d.kind,
-    to: /exame/i.test(d.kind) ? '/exames' : '/resumo-medico',
+    to: destinoDoDocumento(d.kind),
   }));
   const recs = (S.prescriptions as any[]).map((r) => ({
     t: r.t, nome: r.name, tipo: 'Receita', to: '/medico',

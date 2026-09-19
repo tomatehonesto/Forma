@@ -5,10 +5,9 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
-  protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe,
+  protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
 } from '../logic/derive';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider } from '../ui/kit';
-import { Linha } from '../ui/internas';
+import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider, SectionHead } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
@@ -281,7 +280,13 @@ export default function Medico() {
             <Icon name="aura" size={13} color={c.accent} sw={2} />
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt>
           </Row>
-          <Txt v="bodyMed" c={c.tx2} style={{ marginTop: 8, lineHeight: 20 }}>
+          {/* ⚠️ SEM NEGRITO. O parágrafo estava em `bodyMed`, que é peso de
+              rótulo, não de leitura: quatro linhas em semibold dentro de um
+              cartão que já tem o olho-de-boi azul em cima e um botão cheio
+              embaixo davam três vozes altas na mesma peça. Em `caption`,
+              com entrelinha maior, ele volta a ser o que é — a explicação
+              entre o título e a ação. */}
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 9, lineHeight: 21 }}>
             Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta
             dos seus registros e está pronto agora.
           </Txt>
@@ -324,21 +329,26 @@ export default function Medico() {
       ) : null}
 
       <View style={{ paddingHorizontal: 20 }}>
-        {/* ---- prescrições ---- */}
-        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Prescrições</Txt>
-        {/* ⚠️ A AÇÃO MORA ONDE O ASSUNTO MORA, e não só na ponta de um link.
-            Resolver o pedido de receita só pelo parâmetro atenderia quem
-            chega pela Home e deixaria de fora quem rola até aqui e pensa
-            "essa está vencendo". Fica no alto do cartão porque é o que se
-            FAZ com prescrições; o resto da lista é o que se lê. */}
+        {/* ---- prescrições ----
+
+            ⚠️ A AÇÃO SAIU DE DENTRO DA LISTA, e virou o link do título.
+
+            Ela era a primeira linha do cartão: mesma altura, mesmo ícone e
+            mesma seta das prescrições debaixo dela — só que as outras não
+            respondiam ao toque. Uma lista em que o primeiro item é botão e
+            o resto é leitura ensina errado nos dois sentidos: faz tocar no
+            que não abre e faz duvidar do que abre.
+
+            No título ela continua a um toque de quem rola até aqui —
+            que era o motivo de ela existir fora do link da Home — e a
+            lista volta a ser uma lista. */}
+        <SectionHead
+          title="Prescrições"
+          link="Pedir nova receita"
+          onPress={go('/conversa?pedir=receita')}
+          style={{ marginTop: 32, marginBottom: 10 }}
+        />
         <Card style={{ paddingVertical: 4 }}>
-          <Linha
-            ic="send"
-            titulo="Pedir nova receita"
-            sub="Abre uma mensagem para a equipe, para você revisar e enviar"
-            onPress={go('/conversa?pedir=receita')}
-          />
-          <Divider style={{ marginLeft: 52 }} />
           {S.prescriptions.map((p: any, i: number) => (
             <View key={p.name}>
               {i > 0 && <Divider style={{ marginLeft: 52 }} />}
@@ -354,22 +364,32 @@ export default function Medico() {
           ))}
         </Card>
 
-        {/* ---- documentos ---- */}
+        {/* ---- documentos ----
+
+            ⚠️ ELES ABREM AGORA, e antes eram texto. Uma lista de exames e
+            resumos numa tela de tratamento é a primeira coisa em que
+            alguém toca — e nenhum dos três respondia. Não era porta
+            emparedada por não ter seta: era pior, porque parecia leitura e
+            guardava conteúdo.
+
+            Onde cada um abre sai de `destinoDoDocumento`, que é a mesma
+            regra que a aba Cuidado usa na lista dela. */}
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
         <Card style={{ paddingVertical: 4 }}>
           {S.documents.map((d: any, i: number) => (
             <View key={`${d.name}-${i}`}>
               {i > 0 && <Divider />}
-              <Row style={{ justifyContent: 'space-between', paddingVertical: 11 }}>
-                <Row gap={8} style={{ flex: 1 }}>
+              <Pressable onPress={go(destinoDoDocumento(d.kind))} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <Row gap={8} style={{ paddingVertical: 12 }}>
                   <Icon name="doc" size={15} color={c.tx3} sw={1.8} />
                   <View style={{ flex: 1 }}>
                     <Txt v="bodyMed">{d.name}</Txt>
                     <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{d.kind}</Txt>
                   </View>
+                  <Txt v="caption" c={c.tx3}>{fmtDate(new Date(d.t))}</Txt>
+                  <Chevron />
                 </Row>
-                <Txt v="caption" c={c.tx3}>{fmtDate(new Date(d.t))}</Txt>
-              </Row>
+              </Pressable>
             </View>
           ))}
         </Card>
