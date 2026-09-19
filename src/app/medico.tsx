@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useStore } from '../logic/store';
 import {
   protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
@@ -11,9 +10,8 @@ import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider, Section
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
-import { useAurora } from '../ui/aurora';
 import { fmtWD, fmtDate, relDay } from '../logic/time';
-import { radius, alfa } from '../theme';
+import { radius } from '../theme';
 
 /* ============================================================
    SUA EQUIPE — o lado de lá do tratamento
@@ -56,11 +54,8 @@ export default function Medico() {
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
 
-  const aurora = useAurora();
-
   const equipe = fichaDaEquipe(S);
   const responsavel = equipe.find((f) => f.responsavel);
-  const outros = equipe.filter((f) => !f.responsavel);
 
   const nd = new Date(S.consult.t);
   const protocolo = protocoloDaSemana(S);
@@ -113,118 +108,89 @@ export default function Medico() {
     <Screen style={{ paddingHorizontal: 0 }}>
       {/* ---- o cabeçalho de quem cuida ----
 
-          ⚠️ ELE ERA UMA LINHA DE LISTA, e virou a peça da tela.
+          ⚠️ ELE JÁ FOI UMA LINHA DE LISTA E JÁ FOI UMA VITRINE, e nenhum
+          dos dois servia.
 
-          Foto de 62 px, nome, chevron, e três retângulos chapados
-          embaixo: o desenho de um item de configuração, numa tela cuja
-          primeira pergunta é "quem cuida de mim?". A pessoa que abre isto
-          quer ver alguém, e via uma linha.
+          A linha era o desenho de um item de configuração numa tela cuja
+          primeira pergunta é "quem cuida de mim?". A vitrine — aurora da
+          paleta, retrato sangrando pela direita — resolvia isso e criava
+          outro problema: ela só funciona com foto boa, e quem manda a
+          foto é a clínica. Foto tremida, recortada torto ou com fundo
+          errado virava um borrão de 160 px ocupando metade do cartão, e
+          foto nenhuma virava um cartão grande e vazio.
 
-          A aurora é a mesma imagem que abre a Home e o Insights, na cor
-          que a pessoa escolheu — a mesma peça, e de graça. O retrato
-          sangra pela direita e é cortado pelo cartão, como na ficha.
+          ⚠️ ENTÃO A FOTO DEIXOU DE SER ESTRUTURA E VIROU DETALHE. Ela mora
+          num quadrado de 76 px, de tamanho fixo: com foto boa fica bonito,
+          com foto ruim fica pequeno, sem foto cai na inicial. O cartão é o
+          mesmo nos três casos, e nenhum deles parece defeito.
 
-          ⚠️ TODO `Txt` AQUI DENTRO PRECISA DE `c`. Sobre a aurora a tinta
-          é branca, e `Txt` sem cor cai no `useTheme()` — no tema claro o
-          texto sairia escuro sobre a imagem e sumiria. É o mesmo defeito
-          que já apagou quatro textos da tela de planos.
-
-          ⚠️ E O CARTÃO TEM DOIS ALVOS. O bloco do nome leva à ficha; a
-          fileira de ações, não. Tocar em "Protocolos" não pode cair no
-          perfil por a peça inteira ser tocável. */}
+          ⚠️ E ELE NÃO PRESSUPÕE CLÍNICA NEM EQUIPE. A linha da clínica só
+          aparece quando há clínica; a ação "Clínica" idem. Quem se trata
+          com um profissional sozinho — que é o caso mais provável de
+          todos — vê o mesmo cartão sem os pedaços que não existem, em vez
+          de ver buracos onde eles estariam. */}
       <View style={{ paddingHorizontal: 20 }}>
         <Row style={{ marginTop: 4 }} gap={12}>
           <CircleBtn name="back" onPress={() => router.back()} />
+          {/* ⚠️ "SUA EQUIPE" MESMO QUANDO É UMA PESSOA SÓ, e foi decisão.
+
+              Um título condicional — "Sua equipe" com time, outra coisa
+              sem — daria ao aplicativo um TERCEIRO nome muito parecido com
+              os dois que já existem: /acompanhamento se chama "Quem
+              acompanha você" e a Home tem a seção "Seu acompanhamento".
+              Três nomes quase iguais para três lugares diferentes custa
+              mais do que a licença de chamar de equipe um time de um.
+
+              E a licença é pequena: o cartão logo abaixo mostra quem é,
+              com nome e registro, antes de qualquer dúvida. */}
           <Txt v="title" style={{ flex: 1 }}>Sua equipe</Txt>
         </Row>
 
         {responsavel ? (
-          <View style={{
-            /* ⚠️ 272 É MEDIDO, E NÃO ESCOLHIDO: o bloco do nome pede 182 px
-               com o nome em duas linhas, e a faixa de ações pede 90. Com 236
-               a faixa era cortada por baixo e os rótulos sumiam — ficavam
-               três círculos sem nome, que é pior do que não ter ícone.
-
-               Nome de três linhas estoura de novo. Quem encostar aqui mede
-               os dois blocos antes de mexer. */
-            marginTop: 16, height: 272, borderRadius: radius.card, overflow: 'hidden',
-            backgroundColor: c.bg1,
-          }}>
-            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-            {/* Véu para a tinta branca ficar legível onde a aurora clareia,
-                mais pesado embaixo, onde as ações encostam. */}
-            <LinearGradient
-              colors={[alfa(c.veu, 0.42), alfa(c.veu, 0.28), alfa(c.veu, 0.72)]}
-              locations={[0, 0.45, 1]}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
-
-            <RetratoSangrado ficha={responsavel} />
-
-            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-              <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ padding: 18, opacity: pressed ? 0.75 : 1 }]}>
-                <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
-                  <Txt v="micro" c="#FFFFFF">Sua especialista</Txt>
+          <View style={{ marginTop: 16, backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
+            <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <Row gap={14} style={{ padding: 16, alignItems: 'center' }}>
+                <Retrato ficha={responsavel} lado={76} />
+                <View style={{ flex: 1 }}>
+                  <Txt v="title" numberOfLines={2}>{responsavel.nome}</Txt>
+                  {!!responsavel.papel && (
+                    <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 3 }}>{responsavel.papel}</Txt>
+                  )}
+                  {/* O registro é a parte verificável, e num cartão de
+                      apresentação ele vale mais do que o nome da cidade. */}
+                  {!!responsavel.registro && (
+                    <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{responsavel.registro}</Txt>
+                  )}
+                  {!!S.profile.clinic && (
+                    <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+                  )}
                 </View>
-                <Txt v="h1" c="#FFFFFF" numberOfLines={2} style={{ fontSize: 26, lineHeight: 31, marginTop: 10, maxWidth: 190 }}>
-                  {responsavel.nome}
-                </Txt>
-                {!!responsavel.papel && (
-                  <Txt v="caption" c="rgba(255,255,255,0.86)" numberOfLines={1} style={{ marginTop: 5 }}>
-                    {responsavel.papel}
-                  </Txt>
-                )}
-                {!!S.profile.clinic && (
-                  <Txt v="caption" c="rgba(255,255,255,0.62)" numberOfLines={1}>{S.profile.clinic}</Txt>
-                )}
-              </Pressable>
-
-              {/* ⚠️ A FAIXA TEM FUNDO PRÓPRIO, e não é enfeite: sem ele o
-                  rótulo "Protocolos" caía em cima do jaleco branco do
-                  retrato e sumia. Texto branco sobre uma foto só é legível
-                  quando alguém garante o que está atrás dele — e numa peça
-                  em que a foto é conteúdo, o véu do cartão não basta, ele
-                  clareia junto com a imagem.
-
-                  Ela sangra de ponta a ponta, o que também resolve o
-                  desenho: vira uma barra de ações, e não três botões
-                  soltos boiando sobre uma pessoa.
-
-                  ⚠️ TRÊS AÇÕES, E NÃO QUATRO. O desenho de referência tem
-                  uma quarta, "Clínica", que abre uma página com endereço,
-                  telefone, site e Instagram — e o estado guarda da clínica
-                  só o nome. Três que abrem valem mais do que quatro com
-                  uma parada. */}
-              <Row
-                gap={4}
-                style={{
-                  backgroundColor: alfa(c.veu, 0.62),
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: 'rgba(255,255,255,0.14)',
-                  paddingVertical: 12, paddingHorizontal: 8,
-                }}
-              >
-                {([
-                  ['companion', 'Mensagem', '/conversa'],
-                  ['cal', 'Consultas', '/consultas'],
-                  ['doc', 'Protocolos', '/protocolos'],
-                ] as [string, string, string][]).map(([ic, label, to]) => (
-                  <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
-                    <View style={{ alignItems: 'center' }}>
-                      <View style={{
-                        width: 42, height: 42, borderRadius: 21,
-                        backgroundColor: 'rgba(255,255,255,0.94)',
-                        alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <Icon name={ic} size={19} color="#14161C" sw={1.9} />
-                      </View>
-                      <Txt v="micro" c="rgba(255,255,255,0.92)" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
-                    </View>
-                  </Pressable>
-                ))}
+                <Chevron />
               </Row>
-            </View>
+            </Pressable>
+
+            <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line }} />
+
+            <Row gap={4} style={{ paddingVertical: 14, paddingHorizontal: 8 }}>
+              {([
+                ['companion', 'Mensagem', '/conversa'],
+                ['cal', 'Consultas', '/consultas'],
+                ['doc', 'Protocolos', '/protocolos'],
+                ...(S.profile.clinic ? [['heart', 'Clínica', '/clinica']] : []),
+              ] as [string, string, string][]).map(([ic, label, to]) => (
+                <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
+                  <View style={{ alignItems: 'center' }}>
+                    <View style={{
+                      width: 42, height: 42, borderRadius: 21, backgroundColor: c.bg2,
+                      alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon name={ic} size={19} color={c.accent} sw={1.9} />
+                    </View>
+                    <Txt v="micro" c={c.tx2} numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
+                  </View>
+                </Pressable>
+              ))}
+            </Row>
           </View>
         ) : null}
       </View>
@@ -299,35 +265,6 @@ export default function Medico() {
         </Card>
       </View>
 
-      {/* ---- a equipe ----
-
-          ⚠️ CADA PESSOA LEVA À FICHA DELA, que é o que esta seção não
-          fazia. Eram quatro nomes listados e nenhum tocável — quem quisesse
-          saber quem é a enfermeira que orienta a aplicação tinha onde ler
-          o nome e mais nada.
-
-          A responsável não se repete aqui: ela é o cabeçalho. */}
-      {outros.length ? (
-        <>
-          <Txt v="h2" style={{ marginTop: 32, marginBottom: 12, paddingHorizontal: 20 }}>Quem mais acompanha você</Txt>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
-          >
-            {outros.map((f) => (
-              <Pressable key={f.id} onPress={go(`/especialista?id=${f.id}`)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-                <View style={{ width: 152, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, alignItems: 'center' }}>
-                  <Retrato ficha={f} lado={76} />
-                  <Txt v="bodyMed" numberOfLines={1} style={{ marginTop: 13 }}>{f.nome}</Txt>
-                  <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 3 }}>{f.papel}</Txt>
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </>
-      ) : null}
-
       <View style={{ paddingHorizontal: 20 }}>
         {/* ---- prescrições ----
 
@@ -398,32 +335,17 @@ export default function Medico() {
   );
 }
 
-/* O retrato dentro do cartão do alto: sangra pela direita e é cortado
-   por ele, do mesmo jeito que sangra na ficha. Sem foto o cartão fica só
-   com a aurora — a inicial gigante ali dentro competiria com o nome, que
-   já está escrito ao lado em corpo grande. */
-function RetratoSangrado({ ficha }: { ficha: { id: string } }) {
-  const foto = RETRATOS[ficha.id];
-  if (!foto) return null;
-  return (
-    <Image
-      source={foto}
-      /* ⚠️ ELE PARA ONDE A FAIXA COMEÇA, e não no fundo do cartão. Atrás
-         da faixa o retrato só apareceria como um borrão escurecido por
-         trás dos botões — e a parte dele que importa, o rosto, está em
-         cima. Cortado na altura da barra, o corte lê como enquadramento. */
-      style={{ position: 'absolute', right: -10, bottom: 90, width: 158, height: 176 }}
-      contentFit="contain"
-      contentPosition="bottom center"
-      pointerEvents="none"
-    />
-  );
-}
-
 /* O retrato de alguém da equipe, ou a inicial de quem ainda não tem foto.
-   Os dois desenhos no mesmo componente porque as duas telas que mostram
-   gente precisam concordar: a mesma pessoa com foto numa e inicial na
-   outra confunde sem que ninguém saiba dizer por quê. */
+   Os dois desenhos no mesmo componente porque as telas que mostram gente
+   precisam concordar: a mesma pessoa com foto numa e inicial na outra
+   confunde sem que ninguém saiba dizer por quê.
+
+   ⚠️ QUADRADO DE CANTO REDONDO, E NÃO CÍRCULO. O círculo corta as pontas
+   da imagem, e é justamente nas pontas que mora o erro de uma foto mal
+   recortada — ombro cortado, fundo entrando, cabeça encostando na borda.
+   O quadrado mostra o enquadramento inteiro: uma foto ruim continua
+   ruim, mas fica ruim de um jeito que se entende, em vez de virar um
+   recorte estranho que parece defeito do aplicativo. */
 function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: number }) {
   const { c } = useTheme();
   const foto = RETRATOS[ficha.id];
@@ -431,7 +353,7 @@ function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: n
     return (
       <Image
         source={foto}
-        style={{ width: lado, height: lado, borderRadius: lado / 2, backgroundColor: c.bg2 }}
+        style={{ width: lado, height: lado, borderRadius: radius.md, backgroundColor: c.bg2 }}
         contentFit="cover"
         contentPosition="top center"
       />
@@ -439,7 +361,7 @@ function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: n
   }
   return (
     <View style={{
-      width: lado, height: lado, borderRadius: lado / 2,
+      width: lado, height: lado, borderRadius: radius.md,
       backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
     }}>
       <Txt v="h2" c={c.accent} style={{ fontSize: lado * 0.38 }}>{inicialDoNome(ficha.nome)}</Txt>

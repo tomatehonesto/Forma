@@ -3890,6 +3890,53 @@ export function fichaDaEquipe(S: State): FichaDaEquipe[] {
   return [...responsavel, ...resto];
 }
 
+/* ============================================================
+   A FICHA DA CLÍNICA
+
+   ⚠️ ELA PODE NÃO EXISTIR, e esse é o caso mais provável de todos.
+
+   Três cenários chegam por aí, e o aplicativo tem que servir os três sem
+   fingir o que falta:
+
+   · um profissional sozinho, sem clínica nenhuma;
+   · uma clínica que é uma médica com uma sala;
+   · uma clínica com equipe.
+
+   Desenhar para o terceiro e deixar os outros dois com buracos é o
+   caminho fácil — e é o que produz tela com cabeçalho de seção vazia e
+   botão que não leva a lugar nenhum. Aqui a regra é a de sempre: existe
+   clínica, existe a ficha; não existe, não existe entrada para ela.
+
+   ⚠️ E NÃO HÁ BLOCO DE CONTATO. Telefone, site e endereço não estão no
+   estado, e inventá-los na semente seria diferente de inventar um CRN:
+   um CRN falso não faz nada, um TELEFONE falso liga para a casa de
+   alguém. Quando a clínica mandar os dados, eles entram — até lá o canal
+   que existe é a conversa, que já está na tela.
+   ============================================================ */
+export type FichaDaClinica = {
+  nome: string;
+  especialidade?: string;
+  cidade?: string;
+  sobre?: string;
+  /** desde quando o vínculo existe, para a tela poder dizer há quanto tempo */
+  desde?: number;
+  equipe: FichaDaEquipe[];
+};
+
+export function fichaDaClinica(S: State): FichaDaClinica | null {
+  const p: any = S.profile ?? {};
+  if (!p.clinic) return null;
+  const info: any = p.clinicInfo ?? {};
+  return {
+    nome: p.clinic,
+    especialidade: info.especialidade || undefined,
+    cidade: info.cidade || undefined,
+    sobre: info.sobre || undefined,
+    desde: p.vinculo?.desde,
+    equipe: fichaDaEquipe(S),
+  };
+}
+
 /** Sem `id`, a responsável — que é o comportamento antigo de /especialista. */
 export const fichaDe = (S: State, id?: string): FichaDaEquipe | undefined => {
   const todas = fichaDaEquipe(S);

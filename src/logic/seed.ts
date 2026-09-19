@@ -277,6 +277,22 @@ export function buildSeed() {
          pronto, de setenta dias atrás, e por isso não tem `convite`. É de
          propósito — os dois campos precisam saber viver um sem o outro. */
       vinculo: { desde: +daysAgo(70) },
+      /* ⚠️ A FICHA DA CLÍNICA, e ela é OPCIONAL de ponta a ponta.
+
+         `clinic` guarda o nome e já existia; isto é o resto — o que a
+         clínica diria de si para alguém que chega por ela. Nenhum campo é
+         obrigatório, porque o aplicativo também serve quem se trata com
+         um profissional sozinho, sem clínica nenhuma.
+
+         ⚠️ E NÃO HÁ TELEFONE, SITE NEM ENDEREÇO. Inventar um CRN na
+         semente é inofensivo; inventar um telefone é fazer alguém ligar
+         para a casa de um estranho. Contato entra quando a clínica
+         mandar. */
+      clinicInfo: {
+        especialidade: 'Endocrinologia e Metabologia',
+        cidade: 'São Paulo, SP',
+        sobre: 'Clínica especializada no cuidado integral do paciente, com foco em tratamento clínico da obesidade e saúde metabólica. O acompanhamento é feito por uma equipe que conversa entre si — o que você registra aqui chega a todo mundo que cuida de você.',
+      },
       /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
          deduzido de haver um nome guardado.
 
@@ -631,6 +647,9 @@ export function ensureDefaults(S: any) {
   if (!Array.isArray(S.team)) S.team = buildSeed().team;
   if (!Array.isArray(S.materials)) S.materials = buildSeed().materials;
   if (S.profile && !S.profile.doctorInfo) S.profile.doctorInfo = buildSeed().profile.doctorInfo;
+  /* A ficha da clínica é opcional e pode ficar vazia: quem não tem
+     clínica não ganha uma por migração. */
+  if (S.profile && !(S.profile as any).clinicInfo) (S.profile as any).clinicInfo = {};
   if (typeof S.consultNotes !== 'string') S.consultNotes = '';
   /* Migração do texto corrido para a lista: cada linha do campo antigo
      vira uma nota, datada de hoje porque a data original nunca existiu.
