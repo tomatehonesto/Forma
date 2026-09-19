@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { protocoloDaSemana } from '../logic/derive';
+import { protocoloDaSemana, penStock, medComDose } from '../logic/derive';
 import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Pill, Divider } from '../ui/kit';
+import { Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { now, fmtWD, fmtDate, fmtTime, relDay } from '../logic/time';
@@ -51,6 +52,9 @@ export default function Medico() {
   const router = useRouter();
   const [msg, setMsg] = useState('');
   const threadRef = useRef<ScrollView>(null);
+  const telaRef = useRef<ScrollView>(null);
+  const campoRef = useRef<TextInput>(null);
+  const [yConversa, setYConversa] = useState(0);
 
   useEffect(() => { if (S.unread) update((s: any) => { s.unread = 0; }); }, []);
 
@@ -68,6 +72,51 @@ export default function Medico() {
 
   const quem = [S.profile.clinic, S.profile.doctor].filter(Boolean).join(' · ');
 
+  /* ============================================================
+     PEDIR RECEITA É MANDAR UMA MENSAGEM
+
+     ⚠️ AQUI HAVIA UMA PORTA EMPAREDADA, e ela vinha de dois lugares: a
+     Home tinha "Solicitar nova receita" e o pendente da aba Cuidado tinha
+     "Peça a renovação da receita", e os dois abriam esta tela NO ALTO.
+     Não existia ação nenhuma de pedir receita aqui dentro — o bloco de
+     Prescrições é leitura. A pessoa chegava, procurava o botão, e o botão
+     não existia.
+
+     A resposta não era inventar um fluxo de pedido: pedir receita a uma
+     clínica É uma mensagem para a clínica. O canal já estava na tela.
+
+     ⚠️⚠️ E O RASCUNHO NÃO SE ENVIA SOZINHO. ⚠️⚠️
+
+     O aplicativo escreve a frase e para. Quem manda é ela, no mesmo botão
+     de sempre, depois de ler e mudar o que quiser — porque isto vai para
+     um profissional de saúde, com o nome dela em cima, e um aplicativo
+     que fala por alguém numa conversa clínica é o tipo de atalho que
+     ninguém pediu.
+
+     O rascunho carrega o que a equipe precisa para responder sem
+     perguntar de volta: o medicamento com a dose e quantas doses sobraram
+     na caneta. Os dois saem do estado, e não de um texto fixo. */
+  const { pedir } = useLocalSearchParams<{ pedir?: string }>();
+  const estoque = penStock(S);
+
+  const rascunhoDaReceita = () =>
+    `Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${
+      estoque.left === 1 ? 'Resta 1 dose' : `Restam ${estoque.left} doses`
+    } na caneta.`;
+
+  const pedirReceita = () => {
+    setMsg(rascunhoDaReceita());
+    /* O atraso é o tempo de a tela existir: rolar e focar antes da
+       primeira pintura não leva a lugar nenhum. */
+    setTimeout(() => {
+      telaRef.current?.scrollTo({ y: Math.max(0, yConversa - 16), animated: true });
+      campoRef.current?.focus();
+    }, 80);
+  };
+
+  /* Chegando pela Home ou pelo pendente, o pedido já vem pedido. */
+  useEffect(() => { if (pedir === 'receita') pedirReceita(); }, [pedir]);
+
   const nd = new Date(S.consult.t);
   const send = () => {
     const t = msg.trim(); if (!t) return;
@@ -83,7 +132,7 @@ export default function Medico() {
   ];
 
   return (
-    <Screen>
+    <Screen scrollRef={telaRef}>
       <Row style={{ marginTop: 4 }} gap={12}>
         <CircleBtn name="back" onPress={() => router.back()} />
         <View style={{ flex: 1 }}>
@@ -132,7 +181,9 @@ export default function Medico() {
       </Card>
 
       {/* thread */}
-      <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Conversa com a equipe</Txt>
+      <View onLayout={(e) => setYConversa(e.nativeEvent.layout.y)}>
+        <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Conversa com a equipe</Txt>
+      </View>
       <Card style={{ padding: 14 }}>
         <ScrollView ref={threadRef} style={{ maxHeight: 250 }} showsVerticalScrollIndicator={false}>
           {S.messages.map((m: any, i: number) => (
@@ -150,6 +201,7 @@ export default function Medico() {
         <Divider style={{ marginTop: 6 }} />
         <Row style={{ marginTop: 10 }} gap={8}>
           <TextInput
+            ref={campoRef}
             value={msg} onChangeText={setMsg} onSubmitEditing={send}
             placeholder="Escrever para a equipe..." placeholderTextColor={c.tx4}
             style={{ flex: 1, backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 15, paddingVertical: 11, color: c.tx, fontFamily: font.body, fontSize: 19 }}
@@ -198,7 +250,24 @@ export default function Medico() {
 
       {/* prescrições */}
       <Txt v="h2" style={{ marginTop: 24, marginBottom: 10 }}>Prescrições</Txt>
+      {/* ⚠️ A AÇÃO MORA ONDE O ASSUNTO MORA, e não só na ponta de um link.
+
+          Fazer o pedido funcionar pelo parâmetro resolvia quem chega pela
+          Home e deixava de fora quem chega aqui por conta própria, rola
+          até as prescrições e pensa "essa está vencendo". Uma
+          funcionalidade que só existe quando alguém a alcança pelo caminho
+          certo não existe.
+
+          Fica no alto do cartão porque é o que se FAZ com prescrições; o
+          resto da lista é o que se lê. */}
       <Card style={{ paddingVertical: 4 }}>
+        <Linha
+          ic="send"
+          titulo="Pedir nova receita"
+          sub="Abre uma mensagem para a equipe, para você revisar e enviar"
+          onPress={pedirReceita}
+        />
+        <Divider style={{ marginLeft: 52 }} />
         {S.prescriptions.map((p: any, i: number) => (
           <View key={p.name}>
             {i > 0 && <Divider style={{ marginLeft: 52 }} />}

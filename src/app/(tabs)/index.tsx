@@ -491,7 +491,13 @@ export default function Home() {
                     sub={`${fmtDate(consultD)} • ${DOW_PT[consultD.getDay()]}`}
                     onPress={go('/consultas')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-                  <ListRow ic="doc" title="Solicitar nova receita" sub="Renove seu tratamento" onPress={go('/medico')} />
+                  {/* ⚠️ LEVA AO PEDIDO, e não à tela onde ele poderia estar.
+                      Esta linha abria a tela de equipe no alto, num hub sem
+                      nenhuma ação de pedir receita — porta emparedada de
+                      manual. O parâmetro abre a conversa com o rascunho
+                      pronto; quem envia continua sendo ela. */}
+                  <ListRow ic="doc" title="Solicitar nova receita" sub="Uma mensagem para a sua equipe"
+                    onPress={go('/medico?pedir=receita')} />
                 </View>
               </View>
             ) : (S.profile.doctor || S.profile.clinic) ? (

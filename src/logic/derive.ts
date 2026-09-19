@@ -3755,7 +3755,12 @@ export function carePending(S: State) {
   if (!p.verdict.good) out.push({
     ic: 'pill', texto: 'Peça a renovação da receita',
     sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
-    to: clinicaConectada(S) ? '/medico' : '/aplicacoes',
+    /* ⚠️ COM EQUIPE, LEVA AO PEDIDO E NÃO À TELA. "Peça a renovação da
+       receita" abria a tela de equipe no alto, e a pessoa ficava
+       procurando o botão de pedir — que não existia. Pedir receita É uma
+       mensagem para a equipe, e o parâmetro leva direto à conversa com o
+       rascunho escrito. Sem equipe, quem resolve é o estoque. */
+    to: clinicaConectada(S) ? '/medico?pedir=receita' : '/aplicacoes',
   });
   const exame = exameNoProtocolo(S);
   /* O exame vem do protocolo. Com equipe, foi ela que pediu; sem

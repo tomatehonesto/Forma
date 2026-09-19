@@ -285,7 +285,15 @@ export function Grupo({ title, children }: { title?: string; children: React.Rea
   );
 }
 
-export function Screen({ children, scroll = true, style }: { children: React.ReactNode; scroll?: boolean; style?: StyleProp<ViewStyle> }) {
+/* ⚠️ `scrollRef` existe para quem precisa ROLAR A TELA por código, e
+   hoje é uma só: a de equipe, que abre no alto e precisa levar a pessoa
+   até a conversa quando ela chega pedindo receita. Sem a referência, a
+   única forma de mover a tela seria trocar o `Screen` por um ScrollView
+   próprio — e aí a tela deixaria de herdar o respiro e o fundo daqui. */
+export function Screen({ children, scroll = true, style, scrollRef }: {
+  children: React.ReactNode; scroll?: boolean; style?: StyleProp<ViewStyle>;
+  scrollRef?: React.RefObject<ScrollView | null>;
+}) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   /* +20 acima da safe area: encostar o conteúdo na status bar aperta a
@@ -293,6 +301,7 @@ export function Screen({ children, scroll = true, style }: { children: React.Rea
   if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20 }, style]}>{children}</View>;
   return (
     <ScrollView
+      ref={scrollRef}
       style={{ flex: 1, backgroundColor: c.bg }}
       contentContainerStyle={[{ paddingTop: insets.top + 20, paddingBottom: 120, paddingHorizontal: space.xl }, style]}
       showsVerticalScrollIndicator={false}
