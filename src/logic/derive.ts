@@ -2861,6 +2861,12 @@ export type TarefaDoProtocolo = {
   feita: boolean;
   /** medida: o app conta. manual: a pessoa marca. */
   medida: boolean;
+  /* O ÍCONE DA COISA, só para a linha medida. Ele entra no lugar da caixa
+     de marcar enquanto a meta não fecha — e a caixa não pode estar lá,
+     porque caixa convida ao toque e esta linha não é da pessoa para
+     marcar. Vem daqui, e não da tela, porque quem sabe que "prot" é
+     proteína é a mesma função que sabe onde ela se cumpre. */
+  ic?: string;
   /* DE ONDE VEM O NÚMERO, e para onde ir para mexer nele.
 
      A linha medida não se marca, e dizer isso com um cadeado responde
@@ -2874,7 +2880,7 @@ export type TarefaDoProtocolo = {
 /* Como cada meta medida se escreve e se conta. O alvo — em quantos dias
    da semana — vem da tarefa, porque é ele que a equipe negocia. */
 const MEDIDAS: Record<string, (S: State, alvo: number) => {
-  texto: string; feito: number; origem: string; para: string;
+  texto: string; feito: number; origem: string; para: string; ic: string;
   /** o que se conta, quando não são dias — "1 de 1 dia" não descreve uma injeção */
   unidade?: [string, string];
 }> = {
@@ -2883,7 +2889,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
     return {
       texto: alvo >= 7 ? `Beber ${litros(ml)} L todo dia` : `Beber ${litros(ml)} L em ${alvo} dias`,
       feito: semanaDeAgua(S).filter((d) => d.ml >= ml).length,
-      origem: 'Hidratação', para: '/agua',
+      origem: 'Hidratação', para: '/agua', ic: 'water',
     };
   },
   prot: (S, alvo) => {
@@ -2891,7 +2897,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
     return {
       texto: alvo >= 7 ? `Comer ${g} g de proteína todo dia` : `Comer ${g} g de proteína em ${alvo} dias`,
       feito: semanaDeProteina(S).filter((d) => d.g >= g).length,
-      origem: 'Alimentação', para: '/alimentacao',
+      origem: 'Alimentação', para: '/alimentacao', ic: 'cutlery',
     };
   },
   /* Dias COM MOVIMENTO, e não minutos: é o que o item pede — sair do
@@ -2901,7 +2907,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
   exerc: (S, alvo) => ({
     texto: `Se mexer em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
     feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
-    origem: 'Exercício', para: '/exercicio',
+    origem: 'Exercício', para: '/exercicio', ic: 'dumbbell',
   }),
   /* ⚠️ A APLICAÇÃO ERA UMA CAIXA PARA MARCAR À MÃO, e o app já sabia a
      resposta: cada aplicação é um registro com data, e é dele que a Home
@@ -2924,7 +2930,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
       texto: alvo === 1 ? 'Aplicação da semana' : `${alvo} aplicações na semana`,
       unidade: ['aplicação', 'aplicações'],
       feito: Math.min(feito, alvo),
-      origem: 'Aplicações', para: '/aplicacoes',
+      origem: 'Aplicações', para: '/aplicacoes', ic: 'syringe',
     };
   },
 };
@@ -2939,7 +2945,7 @@ export function protocoloDaSemana(S: State) {
       return { i, texto: x.t, nota: x.note || '', feita: !!x.done, medida: false };
     }
     const alvo = x.alvo || 7;
-    const { texto, feito, origem, para, unidade } = m(S, alvo);
+    const { texto, feito, origem, para, unidade, ic } = m(S, alvo);
     const [un1, unN] = unidade ?? ['dia', 'dias'];
     return {
       i, texto,
@@ -2948,6 +2954,7 @@ export function protocoloDaSemana(S: State) {
       medida: true,
       origem,
       para,
+      ic,
     };
   });
   const feitas = tarefas.filter((t) => t.feita).length;

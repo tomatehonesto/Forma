@@ -37,20 +37,29 @@ import { useTheme } from '../ui/useTheme';
    ============================================================ */
 
 
-/* UM SÓ MARCADOR PARA AS CINCO LINHAS.
+/* DOIS MARCADORES, E POR UM TEMPO FOI UM SÓ.
 
-   Eram três desenhos na mesma lista: quadrado com borda para o que se
-   marca, redondo com um gráfico dentro para o que o app conta, e redondo
-   com visto para o que o app já contou. Três formas para duas ideias — e
-   o gráfico ainda precisava ser decifrado antes de dizer o que queria.
+   ⚠️ A CAIXINHA IGUAL NAS CINCO ERA O ERRO, e eu a defendi aqui dizendo
+   que a ETIQUETA da direita — "Hidratação", "Aplicações" — bastava para
+   avisar que a linha não era sua para marcar. Não basta. Caixa de marcar
+   é caixa de marcar: ela CONVIDA ao toque antes de qualquer rótulo ser
+   lido, e quem toca na linha da água esperando acender descobre que não
+   acende. Afirmação escrita não vence affordance desenhada.
 
-   A lista volta a ser uma lista: a mesma caixinha nas cinco. Quem diz
-   que a linha não é sua para marcar é a ETIQUETA do lado direito, com o
-   nome da tela onde aquilo se cumpre — e ela responde o que o cadeado
-   que morava aqui não respondia: não "você não pode tocar", mas "isto se
-   cumpre na Hidratação, e é para lá que este toque leva".
+   Agora são duas formas para as duas ideias que a lista tem:
 
-   E cumprida é cumprida: alcançada, a caixa acende igual nas cinco. */
+   · QUADRADO, para o que só a pessoa sabe — "agendar exame de sangue". O
+     aplicativo não tem como descobrir isso, então a resposta é dela e a
+     caixa é de marcar mesmo.
+
+   · REDONDO, para o que vem dos registros. Não é caixa: é leitura. Com a
+     meta alcançada, visto verde; sem ela, o ícone da coisa em azul. O
+     mesmo par do preparo da consulta, e pelo mesmo motivo — o valor não
+     é da pessoa, ela resolve bebendo água e aplicando a caneta, não
+     marcando um quadrado.
+
+   E a seta à direita continua dizendo que a linha redonda leva a algum
+   lugar, que é onde aquilo se cumpre. */
 function Marcador({ feita }: { feita: boolean }) {
   const { c } = useTheme();
   return (
@@ -62,6 +71,24 @@ function Marcador({ feita }: { feita: boolean }) {
       borderColor: c.line2,
     }}>
       {feita ? <Icon name="check" size={15} color={c.accentInk} sw={2.4} /> : null}
+    </View>
+  );
+}
+
+function Leitura({ feita, ic }: { feita: boolean; ic: string }) {
+  const { c } = useTheme();
+  return (
+    <View style={{
+      width: 26, height: 26, borderRadius: 13,
+      alignItems: 'center', justifyContent: 'center',
+      backgroundColor: feita ? c.okBg : c.accentWeak,
+    }}>
+      <Icon
+        name={feita ? 'check' : ic}
+        size={feita ? 14 : 14}
+        color={feita ? c.ok : c.accent}
+        sw={feita ? 2.6 : 1.9}
+      />
     </View>
   );
 }
@@ -136,13 +163,15 @@ export default function Protocolos() {
             tocando na linha da água esperando que ela acenda. */}
         <Bloco
           titulo="Esta semana"
-          nota="O que tem contagem vem dos seus registros."
+          nota="O que tem caixa você marca. O resto vem dos seus registros."
         >
           <Cartao>
             {p.tarefas.map((t) => {
               const corpo = (
                 <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
-                  <Marcador feita={t.feita} />
+                  {t.medida
+                    ? <Leitura feita={t.feita} ic={t.ic ?? 'chart'} />
+                    : <Marcador feita={t.feita} />}
                   <View style={{ flex: 1 }}>
                     {/* Sem risco em cima do texto cumprido. O risco diz
                         "isto saiu da lista", e numa meta que se refaz toda
@@ -165,6 +194,12 @@ export default function Protocolos() {
                       </Row>
                     ) : null}
                   </View>
+                  {/* ⚠️ A SETA SÓ NA LINHA QUE LEVA A ALGUM LUGAR. A linha
+                      manual se resolve aqui mesmo, com o toque na própria
+                      caixa; a derivada se resolve em outra tela, e a seta é
+                      o que diz isso. Duas linhas que respondem ao toque de
+                      maneiras diferentes precisam parecer diferentes. */}
+                  {t.medida ? <View style={{ marginTop: 3 }}><Chevron /></View> : null}
                 </Row>
               );
               /* A MEDIDA NÃO SE MARCA, MAS LEVA A ALGUM LUGAR. Antes ela

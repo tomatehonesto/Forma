@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -45,10 +46,12 @@ import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 
 const PAD = 24;
 
-/* 330, e a conta é a do rosto: a foto entra `cover` com a largura da tela,
-   a queda ocupa os 130 de baixo, e o que sobra limpo são os 200 do alto.
-   Mais que isso empurra o nome para fora da dobra; menos vira uma faixa. */
-const ALTURA_DO_RETRATO = 330;
+/* ⚠️ 420, E ERA 330. A conta mudou quando o nome saiu da página e entrou
+   no vidro: antes cada pixel de foto empurrava o texto para baixo, e o
+   limite era a dobra. Agora a foto CARREGA o nome, então ela pode ocupar
+   o que precisa para ser um retrato em vez de uma faixa — e a faixa de
+   vidro come só a altura das três linhas que moram nela. */
+const ALTURA_DO_RETRATO = 420;
 
 export default function Especialista() {
   const S = useStore((s) => s.S);
@@ -153,6 +156,35 @@ export default function Especialista() {
               style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
               pointerEvents="none"
             />
+            {/* ---- o vidro, e o nome dentro dele ----
+
+                ⚠️ É A MESMA FAIXA DE /clinica, e as duas telas mostram a
+                mesma coisa: uma foto que alguém mandou, com um nome que
+                precisa ser legível em cima dela. Fazer isso de dois jeitos
+                era o começo de dois.
+
+                O corte é seco, com canto em cima; o miolo é desfoque. Uma
+                tarja chapada esconderia a foto justamente onde ela tem
+                rosto — e é rosto que esta tela veio mostrar. */}
+            <BlurView
+              intensity={60}
+              tint="dark"
+              style={{
+                position: 'absolute', left: 0, right: 0, bottom: 0,
+                borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+                overflow: 'hidden',
+                paddingHorizontal: PAD, paddingTop: 18, paddingBottom: 44,
+              }}
+            >
+              <Txt v="h1" c={c.onHero} style={{ fontSize: 28 }}>{f.nome}</Txt>
+              <Txt v="caption" c={c.onHero2} style={{ marginTop: 5 }}>
+                {[f.papel, f.registro].filter(Boolean).join(' · ')}
+              </Txt>
+              {!!S.profile.clinic && (
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+              )}
+            </BlurView>
+
             <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
               <Row>
                 {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
@@ -188,37 +220,37 @@ export default function Especialista() {
           marginTop: retrato ? -26 : 0,
           paddingTop: retrato ? 24 : 0,
         }}>
-        <View style={{ paddingHorizontal: PAD, marginTop: retrato ? 0 : 22 }}>
-          {/* Sem retrato, o círculo com a inicial ocupa o lugar dele — o
-              mesmo desenho da lista da clínica, para a pessoa reconhecer
-              que chegou na ficha de quem tocou. */}
-          {!retrato ? (
+        {/* ⚠️ COM RETRATO, A PÁGINA NÃO REPETE O NOME — ele está no vidro,
+            24px acima. Sem retrato, é aqui que a identidade inteira mora,
+            com o círculo da inicial no lugar da foto. Não é a mesma tela
+            com uma imagem a menos: são dois cabeçalhos, cada um completo
+            no que lhe cabe.
+
+            ⚠️ A NOTA SAIU DA TELA, e com ela a contagem de avaliações.
+            Nota serve para ESCOLHER, e esta tela não é de escolha: quem a
+            abre já é paciente de quem está nela. Depois de escolhida, a
+            estrela vira ruído sobre alguém em quem a pessoa já decidiu
+            confiar — e, pior, insinua um mecanismo de avaliação que o
+            aplicativo não tem. No dia em que houver diretório de
+            parceiros, ela volta: lá a pergunta é "qual deles?" e o número
+            tem origem. */}
+        {!retrato ? (
+          <View style={{ paddingHorizontal: PAD, marginTop: 22 }}>
             <View style={{
               width: 72, height: 72, borderRadius: 36, marginBottom: 18,
               backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
             }}>
               <Txt v="h1" c={c.accent} style={{ fontSize: 30 }}>{inicialDoNome(f.nome)}</Txt>
             </View>
-          ) : null}
-
-          {/* ⚠️ A NOTA SAIU DA TELA, e com ela a contagem de avaliações.
-
-              Nota serve para ESCOLHER, e esta tela não é de escolha: quem
-              a abre já é paciente de quem está nela. Depois de escolhida,
-              a estrela vira ruído sobre alguém em quem a pessoa já decidiu
-              confiar — e, pior, insinua um mecanismo de avaliação que o
-              aplicativo não tem. Ninguém avalia ninguém aqui.
-
-              No dia em que houver diretório de parceiros, ela volta — lá,
-              onde a pergunta é "qual deles?" e o número tem uma origem. */}
-          <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
-            {[f.papel, f.registro].filter(Boolean).join(' · ')}
-          </Txt>
-          {!!S.profile.clinic && (
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
-          )}
-        </View>
+            <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>
+              {[f.papel, f.registro].filter(Boolean).join(' · ')}
+            </Txt>
+            {!!S.profile.clinic && (
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+            )}
+          </View>
+        ) : null}
 
         {/* ---- as ações ----
 
