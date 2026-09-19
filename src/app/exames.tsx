@@ -313,22 +313,32 @@ function Regua({ e }: { e: any }) {
    amarra os dois — é o mesmo "eixo" do gráfico do plano. Assim o quadro
    fica só com o desenho, e a leitura exata mora fora dele.
 
-   ⚠️ E TODA COLETA GANHA NÓ E FIO, inclusive as das pontas.
+   ⚠️ CADA COLETA É UM FIO, E NÃO UMA BOLINHA.
 
-   Na primeira versão as pontas ficavam sem nenhum dos dois, copiando o
-   gráfico do plano — e lá faz sentido, porque as pontas dele são "hoje" e
-   "a meta", que não são medidas. Aqui são: num marcador de três coletas,
-   duas ficavam sem marca nenhuma no desenho, e a que sobrava era a do
-   meio. A coleta mais recente — o resultado que trouxe a pessoa para esta
-   tela — era justamente uma das invisíveis.
+   O nó em cima do traço tenta ser duas coisas: marca de posição e objeto
+   com forma própria. Com três ou quatro coletas ele vira miçanga em cima
+   da linha, e a linha — que é o que se lê — passa a ser o que está ATRÁS
+   das bolinhas. O fio vertical faz o mesmo trabalho sem disputar: ele diz
+   "aqui houve medida" apontando para o rótulo embaixo, e some do caminho
+   do olho.
 
-   O preço é uma folga de 14 de cada lado, para a bolinha não sair pela
-   metade na borda. A curva continua sangrando: catorze pixels num cartão
-   de 343 não fazem ela parecer uma figura colada dentro dele. */
-const ALTURA_DO_QUADRO = 150;
-const FOLGA_TOPO = 18;
+   Por isso ele é cinza: é régua, não dado. Um fio na cor do traço seria
+   uma segunda linha azul dizendo outra coisa.
+
+   ⚠️ E A ZONA DE REFERÊNCIA VAI ATÉ A BORDA DO CARTÃO.
+
+   Ela era um retângulo dentro do quadro do gráfico, com branco em volta —
+   e retângulo com branco em volta é uma FIGURA, uma coisa desenhada ali.
+   Faixa de referência não é figura: é a condição de fundo do marcador, e
+   ela não termina onde o desenho termina. Correndo até a borda, ela deixa
+   de ser um objeto no cartão e vira o chão (ou o teto) dele. */
+const ALTURA_DO_QUADRO = 162;
+const FOLGA_TOPO = 30;
 const FOLGA_BASE = 10;
 const FOLGA_LADO = 14;
+const ALTURA_DOS_ROTULOS = 42;
+const RESPIRO_FINAL = 16;
+const ALTURA_TOTAL = ALTURA_DO_QUADRO + ALTURA_DOS_ROTULOS + RESPIRO_FINAL;
 
 function LinhaDaEvolucao({ e }: { e: any }) {
   const { c, isDark } = useTheme();
@@ -379,10 +389,11 @@ function LinhaDaEvolucao({ e }: { e: any }) {
   const yTopo = limAlto != null ? yPix(limAlto) : 0;
   const yBase = limBaixo != null ? yPix(limBaixo) : ALTURA_DO_QUADRO;
   const naMoldura = (y: number) => y > 8 && y < ALTURA_DO_QUADRO - 8;
-  const topoPintado = Math.max(0, Math.min(yTopo, ALTURA_DO_QUADRO));
-  const basePintada = Math.max(0, Math.min(yBase, ALTURA_DO_QUADRO));
-
-  const todas = vals.map((_, i) => i);
+  /* A pintura é recortada pelo CARTÃO, e não pelo quadro do gráfico: um
+     limite que existe corta a região onde ele está, e o lado que não tem
+     limite corre até a borda. */
+  const topoPintado = limAlto != null ? Math.max(0, yTopo) : 0;
+  const basePintada = limBaixo != null ? Math.min(ALTURA_TOTAL, yBase) : ALTURA_TOTAL;
 
   /* ⚠️ O NÚMERO DO LIMITE ESCOLHE O LADO, e ficava sempre no mesmo.
 
@@ -400,15 +411,14 @@ function LinhaDaEvolucao({ e }: { e: any }) {
       : { left: undefined, right: 12 as number | undefined });
 
   return (
-    <View>
-      <View style={{ height: ALTURA_DO_QUADRO }} onLayout={(ev) => setW(Math.round(ev.nativeEvent.layout.width))}>
-        {w > 0 ? (
-          <>
-            {/* A faixa fica ATRÁS da curva, e é a única coisa azul do
-                quadro: o traço é tinta, não cor de marca, justamente para
-                a região não ter com quem disputar. */}
-            <View style={StyleSheet.absoluteFill} pointerEvents="none">
-              <Svg width={w} height={ALTURA_DO_QUADRO}>
+    <View style={{ height: ALTURA_TOTAL }} onLayout={(ev) => setW(Math.round(ev.nativeEvent.layout.width))}>
+      {w > 0 ? (
+        <>
+          {/* A faixa e os fios ficam ATRÁS da curva, e cobrem o corpo
+              inteiro do cartão — é o que permite a região correr até a
+              borda de baixo em vez de parar no pé do desenho. */}
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            <Svg width={w} height={ALTURA_TOTAL}>
                 {/* ⚠️ A FAIXA É VERDE, E ERA AZUL COMO O RESTO.
 
                     Azul é a cor do DADO neste app — é ela que desenha a
@@ -421,83 +431,104 @@ function LinhaDaEvolucao({ e }: { e: any }) {
                     uma região; sobre um cartão escuro some, porque o
                     contraste disponível ABAIXO do fundo é menor que o
                     disponível acima dele. */}
-                <Rect x={0} y={topoPintado} width={w} height={Math.max(0, basePintada - topoPintado)} fill={alfa(c.ok, isDark ? 0.18 : 0.12)} />
-                {limAlto != null && naMoldura(yTopo) ? (
-                  <SvgLine x1={0} y1={yTopo} x2={w} y2={yTopo} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
-                ) : null}
-                {limBaixo != null && naMoldura(yBase) ? (
-                  <SvgLine x1={0} y1={yBase} x2={w} y2={yBase} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
-                ) : null}
-              </Svg>
-            </View>
+              <Rect x={0} y={topoPintado} width={w} height={Math.max(0, basePintada - topoPintado)} fill={alfa(c.ok, isDark ? 0.18 : 0.12)} />
+              {limAlto != null && naMoldura(yTopo) ? (
+                <SvgLine x1={0} y1={yTopo} x2={w} y2={yTopo} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
+              ) : null}
+              {limBaixo != null && naMoldura(yBase) ? (
+                <SvgLine x1={0} y1={yBase} x2={w} y2={yBase} stroke={alfa(c.ok, 0.45)} strokeWidth={1} strokeDasharray="3 4" />
+              ) : null}
+              {/* O fio de cada coleta, do ponto até o rótulo que o espera
+                  embaixo. Ele é a marca da medida agora que o nó saiu. */}
+              {pts.map((q, i) => (
+                <SvgLine
+                  key={vals[i].t}
+                  x1={FOLGA_LADO + q.x * Math.max(1, w - FOLGA_LADO * 2)}
+                  y1={FOLGA_TOPO + (1 - q.y) * (ALTURA_DO_QUADRO - FOLGA_TOPO - FOLGA_BASE)}
+                  x2={FOLGA_LADO + q.x * Math.max(1, w - FOLGA_LADO * 2)}
+                  y2={ALTURA_DO_QUADRO}
+                  stroke={alfa(c.tx4, 0.55)} strokeWidth={1}
+                />
+              ))}
+            </Svg>
+          </View>
 
-            {/* ⚠️ SEM ÁREA PREENCHIDA, e a curva da casa tem uma.
+          {/* ⚠️ SEM ÁREA PREENCHIDA E SEM NÓS — só o traço.
 
-                Ela existe lá porque o gráfico de peso está sozinho no
-                branco e precisa de corpo. Aqui já existe uma lavagem no
-                quadro — a faixa —, e duas lavagens sobrepostas viram
-                borra: a faixa deixa de ser uma região com limite e vira
-                mais um tom no meio de outros. Fica o traço, que é o que
-                tem informação. */}
-            <AreaCurve
-              pts={pts} width={w} height={ALTURA_DO_QUADRO}
-              padT={FOLGA_TOPO} padB={FOLGA_BASE} padX={FOLGA_LADO} strokeW={2.4}
-              id="ev" dashed={false} nodes eixosEm={todas} fill={0}
-            />
+              A área existe na curva da casa porque o gráfico de peso está
+              sozinho no branco e precisa de corpo. Aqui já existe uma
+              lavagem no quadro — a faixa —, e duas sobrepostas viram
+              borra: a faixa deixa de ser uma região com limite e vira mais
+              um tom no meio de outros.
+
+              E os nós saíram porque os fios cinzas já dizem onde houve
+              medida, sem pôr miçanga em cima da linha. */}
+          <AreaCurve
+            pts={pts} width={w} height={ALTURA_DO_QUADRO}
+            padT={FOLGA_TOPO} padB={FOLGA_BASE} padX={FOLGA_LADO} strokeW={2.4}
+            id="ev" dashed={false} fill={0}
+          />
 
             {/* O limite, deitado na linha que ele nomeia. O fundo do cartão
                 por baixo do número é o que abre espaço no tracejado sem
                 precisar interromper o traço no desenho. */}
-            {limAlto != null && naMoldura(yTopo) ? (
-              <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yTopo), top: yTopo - 9, backgroundColor: c.bg1, paddingHorizontal: 5 }}>
-                <Txt v="micro" c={c.ok}>{fmtV(limAlto)}</Txt>
-              </View>
-            ) : null}
-            {limBaixo != null && naMoldura(yBase) ? (
-              <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yBase), top: yBase - 9, backgroundColor: c.bg1, paddingHorizontal: 5 }}>
-                <Txt v="micro" c={c.ok}>{fmtV(limBaixo)}</Txt>
-              </View>
-            ) : null}
-          </>
-        ) : null}
-      </View>
+          {/* ⚠️ O NÚMERO FICA DO LADO DE FORA DA FAIXA, e antes ficava em
+              cima da linha com uma tarjinha da cor do cartão por baixo.
 
-      {/* ---- a fileira de rótulos ----
+              Sobre a região pintada, aquela tarjinha virava um adesivo
+              branco colado no verde. Fora da faixa ele pousa no papel
+              limpo, sem precisar apagar nada — e o lado de fora é sempre
+              conhecido: para o teto é acima da linha, para o piso é
+              abaixo. */}
+          {limAlto != null && naMoldura(yTopo) ? (
+            <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yTopo), top: yTopo - 19 }}>
+              <Txt v="micro" c={c.ok}>{fmtV(limAlto)}</Txt>
+            </View>
+          ) : null}
+          {limBaixo != null && naMoldura(yBase) ? (
+            <View pointerEvents="none" style={{ position: 'absolute', ...ladoLivre(yBase), top: yBase + 3 }}>
+              <Txt v="micro" c={c.ok}>{fmtV(limBaixo)}</Txt>
+            </View>
+          ) : null}
 
-          Cada coleta no x dela, e não em colunas de larguras iguais: o
-          rótulo tem que cair embaixo do ponto, senão o fio que desce do
-          ponto aponta para o vizinho. Nas pontas ele encosta na margem do
-          cartão em vez de ficar centrado, que é o que impede a primeira e
-          a última caixa de sangrarem para fora. */}
-      <View style={{ height: 42, marginTop: 2, marginBottom: 16 }}>
-        {w > 0 ? pts.map((q, i) => {
+          {/* ---- a fileira de rótulos ----
+
+              Cada coleta no x dela, e não em colunas de larguras iguais: o
+              rótulo tem que cair embaixo do ponto, senão o fio que desce
+              do ponto aponta para o vizinho. Nas pontas ele encosta na
+              margem do cartão em vez de ficar centrado, que é o que impede
+              a primeira e a última caixa de sangrarem para fora. */}
+          <View style={{ position: 'absolute', left: 0, right: 0, top: ALTURA_DO_QUADRO + 2, height: ALTURA_DOS_ROTULOS }}>
+            {pts.map((q, i) => {
           /* ⚠️ O MESMO X QUE A CURVA USA, e não `q.x * w`. A <AreaCurve>
              mapeia para `padX + x * (w - padX*2)` — com folga zero as duas
              contas davam no mesmo, e no dia em que a folga deixou de ser
              zero o rótulo passaria a apontar para o lado do ponto. */
-          const x = FOLGA_LADO + q.x * Math.max(1, w - FOLGA_LADO * 2);
-          const naEsq = x < 62, naDir = x > w - 62;
-          const v = vals[i].v;
-          return (
-            <View
-              key={vals[i].t}
-              style={{
-                position: 'absolute',
-                left: naEsq ? 16 : naDir ? undefined : x - 50,
-                right: naDir ? 16 : undefined,
-                width: naEsq || naDir ? undefined : 100,
-                alignItems: naEsq ? 'flex-start' : naDir ? 'flex-end' : 'center',
-              }}
-            >
-              <Row gap={3} style={{ alignItems: 'baseline' }}>
-                <Txt v="label" c={dentroDe(v) ? c.tx : c.cta}>{fmtV(v)}</Txt>
-                <Txt v="micro" c={c.tx4}>{e.unit}</Txt>
-              </Row>
-              <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>{fmtDate(new Date(vals[i].t))}</Txt>
-            </View>
-          );
-        }) : null}
-      </View>
+              const x = FOLGA_LADO + q.x * Math.max(1, w - FOLGA_LADO * 2);
+              const naEsq = x < 62, naDir = x > w - 62;
+              const v = vals[i].v;
+              return (
+                <View
+                  key={vals[i].t}
+                  style={{
+                    position: 'absolute',
+                    left: naEsq ? 16 : naDir ? undefined : x - 50,
+                    right: naDir ? 16 : undefined,
+                    width: naEsq || naDir ? undefined : 100,
+                    alignItems: naEsq ? 'flex-start' : naDir ? 'flex-end' : 'center',
+                  }}
+                >
+                  <Row gap={3} style={{ alignItems: 'baseline' }}>
+                    <Txt v="label" c={dentroDe(v) ? c.tx : c.cta}>{fmtV(v)}</Txt>
+                    <Txt v="micro" c={c.tx4}>{e.unit}</Txt>
+                  </Row>
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>{fmtDate(new Date(vals[i].t))}</Txt>
+                </View>
+              );
+            })}
+          </View>
+        </>
+      ) : null}
     </View>
   );
 }
@@ -635,7 +666,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
            Curva que sangra não pode nascer dentro de uma caixa de 18 de
            recuo; o recuo agora é de quem precisa dele. */
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start', padding: 18, paddingBottom: 12 }}>
+          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start', padding: 18, paddingBottom: 0 }}>
             <View style={{ flex: 1 }}>
               <Row gap={7}>
                 <Icon name="trend" size={13} color={c.tx4} sw={2} />
