@@ -216,8 +216,13 @@ function Regua({ e }: { e: any }) {
    eles é muita ou pouca. A malha dá a régua, e apagada ela não disputa
    com os pontos que importam.
    ============================================================ */
-const COLS = 21;
-const LINS = 9;
+/* ⚠️ 37 × 13, E ERA 21 × 9. Pela mesma razão da régua: com a malha
+   larga, o olho lê CÉLULAS e tenta atribuir valor a cada uma; com ela
+   fina, lê papel quadriculado e passa direto para os pontos que importam.
+   E a malha fina é o que permite a haste ser fina — numa grade de nove
+   linhas, cada degrau da coluna vale um pedaço grande demais do eixo. */
+const COLS = 37;
+const LINS = 13;
 
 function HistoricoEmPontos({ e }: { e: any }) {
   const { c } = useTheme();
@@ -292,13 +297,21 @@ function HistoricoEmPontos({ e }: { e: any }) {
                        desenho. Em tom baixo, a coluna é um FIO que liga o
                        ponto ao eixo, como numa haste de pirulito: ela
                        ajuda a achar a altura e não afirma grandeza. */
+                    /* ⚠️ A HASTE NÃO CARREGA O VEREDITO, e carregava: ela
+                       vinha vermelha quando o ponto estava fora da faixa,
+                       e descia vermelha atravessando a faixa azul —
+                       dizendo "fora" sobre linhas que são o dentro.
+
+                       Contradizia a própria regra desta peça: se a haste é
+                       RÉGUA, ela não opina. O veredito é do ponto de cima,
+                       e ele já o diz sozinho. */
                     const fundura = (lin - marca!.lin) / Math.max(1, LINS - 1 - marca!.lin);
                     return (
                       <View
                         key={col}
                         style={{
                           width: 5, height: 5, borderRadius: 3,
-                          backgroundColor: mix(c.bg1, marca!.dentro ? c.accent : c.cta, 0.55 - fundura * 0.32),
+                          backgroundColor: mix(c.bg1, c.accent, 0.42 - fundura * 0.24),
                         }}
                       />
                     );
@@ -308,7 +321,12 @@ function HistoricoEmPontos({ e }: { e: any }) {
                       key={col}
                       style={{
                         width: 4, height: 4, borderRadius: 2,
-                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.16) : c.track,
+                        /* A faixa de referência desenhada como REGIÃO, e
+                           não como duas linhas: é a mesma leitura da
+                           régua de cima, deitada. Sem ela o quadro é uma
+                           grade neutra e "estive sempre dentro?" volta a
+                           depender de conferir número por número. */
+                        backgroundColor: naFaixa ? mix(c.bg1, c.accent, 0.26) : c.track,
                       }}
                     />
                   );
@@ -333,6 +351,9 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
   const sobre = examAbout(e);
   const mexe = examInfluences(e);
+  /* Os extremos do período, que é o que o cartão de evolução anuncia. */
+  const vs = (e.values as any[]).map((x) => x.v);
+  const vMin = Math.min(...vs), vMax = Math.max(...vs);
   const varios = e.values.length > 1;
   const delta = l.v - f.v;
   const bom = e.good === 'up' ? delta > 0 : delta < 0;
@@ -422,23 +443,45 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
                 <Icon name="trend" size={13} color={c.tx4} sw={2} />
                 <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>EVOLUÇÃO</Txt>
               </Row>
-              {/* ⚠️ A FRASE DIZ O QUE MUDOU E EM QUANTO TEMPO, e o cartão
-                  antigo dizia só o número de coletas. "Caiu 0,7 em quatro
-                  meses" e "caiu 0,7 em quatro anos" são fatos diferentes,
-                  e três coletas não distinguem os dois. */}
+              {/* ⚠️ O TÍTULO É A FAIXA EM QUE O NÚMERO VIVEU, e era o
+                  quanto ele mudou.
+
+                  "Caiu 48" responde uma pergunta boa e só ela. "132 a 180"
+                  responde duas: para onde foi E onde esteve — e a segunda
+                  é a que interessa num marcador com quatro, seis coletas,
+                  onde a diferença entre a primeira e a última esconde tudo
+                  que aconteceu no meio. Com três coletas, "caiu 0,7" não
+                  diz que a do meio foi a mais alta de todas.
+
+                  A direção não se perde: ela está na etiqueta ao lado, que
+                  é onde ela tem companhia — o julgamento de se aquele lado
+                  era o esperado. */}
               <Txt v="body" style={{ marginTop: 7 }}>
-                {delta === 0 ? 'Sem mudança' : `${delta > 0 ? 'Subiu' : 'Caiu'} ${fmtV(Math.abs(delta))} ${e.unit}`}
+                {vMin === vMax
+                  ? `${fmtV(vMin)} ${e.unit}`
+                  : `${fmtV(vMin)} a ${fmtV(vMax)} ${e.unit}`}
               </Txt>
               <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-                em {e.values.length} coletas, desde {porExtenso(f.t)}
+                {e.values.length} coletas desde {porExtenso(f.t)}
               </Txt>
             </View>
             {/* A seta só aparece quando o marcador declara qual lado é o
                 bom. Sem isso ela seria uma opinião sobre a direção. */}
-            {e.good && delta !== 0 ? (
-              <Row gap={5} style={{ alignItems: 'center', backgroundColor: bom ? c.okBg : c.bg2, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }}>
-                <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={13} color={bom ? c.ok : c.tx3} sw={2.4} />
-                <Txt v="micro" c={bom ? c.ok : c.tx3}>{bom ? 'na direção esperada' : 'na direção oposta'}</Txt>
+            {delta !== 0 ? (
+              /* ⚠️ A ETIQUETA PASSOU A DIZER O QUANTO, e dizia só o rumo. O
+                 número saiu do título quando ele virou faixa, e este é o
+                 lugar dele: ao lado da seta, que é o que o qualifica.
+
+                 ⚠️ E ELA APARECE MESMO SEM `good`. Antes sumia inteira nos
+                 marcadores que não declaram lado bom — e com ela ia embora
+                 também o quanto mudou, que é um fato e não um juízo. Sem
+                 `good`, ela fica neutra: seta, número, e nenhuma palavra
+                 sobre se isso é boa notícia. */
+              <Row gap={5} style={{ alignItems: 'center', backgroundColor: e.good ? (bom ? c.okBg : c.bg2) : c.bg2, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 }}>
+                <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={13} color={e.good && bom ? c.ok : c.tx3} sw={2.4} />
+                <Txt v="micro" c={e.good && bom ? c.ok : c.tx3}>
+                  {fmtV(Math.abs(delta))}{e.good ? (bom ? ' · esperado' : ' · oposto') : ''}
+                </Txt>
               </Row>
             ) : null}
           </Row>
