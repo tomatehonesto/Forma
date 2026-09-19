@@ -625,7 +625,19 @@ export const EXAM_CATS: [string, string[]][] = [
    diagnóstico com roupa de glossário; quem lê o resultado é quem
    acompanha a pessoa.
    ============================================================ */
-export type SobreOMarcador = { oQueE: string; porQue: string };
+/* ⚠️ `afeta` É UM COMPLEMENTO, E NÃO UMA FRASE. Ele entra sempre depois
+   de um verbo que já carrega a ressalva — "faz diferença…", "é um bom
+   sinal…" —, e por isso começa na preposição: escrito como frase inteira,
+   cada marcador precisaria concordar em gênero com o próprio nome, e
+   "Sua HbA1c" / "Seu ferritina" é o tipo de erro que só aparece em
+   produção.
+
+   ⚠️ E ELE NOMEIA O QUE ESTÁ EM JOGO, NÃO O QUE VAI ACONTECER. "para a
+   saúde das artérias ao longo dos anos" é o território; "pode causar
+   entupimento" seria prognóstico, que é de médico. A moldura da frase
+   ("faz diferença para") é o que mantém a distância entre as duas
+   coisas. */
+export type SobreOMarcador = { oQueE: string; porQue: string; afeta: string };
 
 const SOBRE: Record<string, SobreOMarcador> = {
   /* ⚠️ NENHUMA DEFINIÇÃO CITA OUTRO MARCADOR NEM TERMO DE LAUDO. A do
@@ -636,62 +648,77 @@ const SOBRE: Record<string, SobreOMarcador> = {
   'HbA1c': {
     oQueE: 'O quanto de açúcar ficou grudado nos glóbulos vermelhos do sangue.',
     porQue: 'Como esses glóbulos vivem cerca de três meses, o resultado conta a média do açúcar nesse período, e não só o do dia do exame.',
+    afeta: 'para o controle do açúcar ao longo dos meses',
   },
   'Glicemia jejum': {
     oQueE: 'A quantidade de açúcar no sangue depois de horas sem comer.',
     porQue: 'É a medida mais direta de como o corpo administra a glicose em repouso.',
+    afeta: 'para como o corpo lida com o açúcar',
   },
   'Insulina': {
     oQueE: 'O hormônio que faz o açúcar sair do sangue e entrar nas células.',
     porQue: 'Quando ele está alto, costuma ser sinal de que o corpo precisa produzir mais para dar conta do mesmo serviço.',
+    afeta: 'para o esforço do corpo em manter o açúcar em ordem',
   },
   'Colesterol total': {
     oQueE: 'Todo o colesterol que está circulando no seu sangue, somado.',
     porQue: 'Sozinho ele diz pouco, porque junta numa conta só tipos de colesterol que fazem coisas opostas no corpo.',
+    afeta: 'para a saúde das artérias ao longo dos anos',
   },
   'HDL': {
     oQueE: 'O colesterol que faz a limpeza: recolhe gordura das artérias e leva embora.',
     porQue: 'É o único exame de colesterol em que um número mais alto é a boa notícia.',
+    afeta: 'para a limpeza de gordura das artérias',
   },
   'LDL': {
     oQueE: 'O colesterol que leva gordura para os tecidos do corpo.',
     porQue: 'Em excesso, é ele que vai se acumulando na parede das artérias ao longo dos anos.',
+    afeta: 'para a saúde das artérias ao longo dos anos',
   },
   'Triglicerídeos': {
     oQueE: 'A gordura que circula no sangue vinda da comida e do fígado.',
     porQue: 'Responde rápido ao que se come e ao peso, e por isso costuma ser o primeiro a se mexer num tratamento.',
+    afeta: 'para a gordura no sangue e para o coração',
   },
   'Creatinina': {
     oQueE: 'Um resto que o músculo produz o tempo todo e que o rim joga fora.',
     porQue: 'Como quem tira do sangue é o rim, o tanto que sobra ali é uma das formas de ver se ele está dando conta.',
+    afeta: 'para o trabalho dos rins',
   },
   'TGO': {
     oQueE: 'Uma substância que fica guardada dentro das células do fígado e do músculo.',
     porQue: 'Ela só aparece no sangue quando essas células se rompem — por isso serve de aviso de que alguma coisa está irritando o fígado.',
+    afeta: 'para a saúde do fígado',
   },
   'TGP': {
     oQueE: 'Uma substância que fica guardada quase só dentro das células do fígado.',
     porQue: 'Como ela quase não existe em outro lugar do corpo, quando aparece no sangue o endereço é bem mais certo.',
+    afeta: 'para a saúde do fígado',
   },
   'TSH': {
     oQueE: 'O recado que o cérebro manda para a tireoide pedindo que ela trabalhe.',
     porQue: 'Ele sobe quando a tireoide está devagar e cai quando está acelerada — é o termostato, e não a temperatura.',
+    afeta: 'para o ritmo do metabolismo',
   },
   'T4 livre': {
     oQueE: 'O hormônio que a tireoide produz, na parte dele que o corpo consegue usar.',
     porQue: 'Ele mostra o que a tireoide está de fato entregando, e é por isso que vem sempre em dupla com o exame anterior.',
+    afeta: 'para o ritmo do metabolismo',
   },
   'Vitamina D': {
     oQueE: 'A vitamina que o corpo produz com sol e absorve da comida.',
     porQue: 'Ela participa da absorção de cálcio e do funcionamento de músculo e imunidade.',
+    afeta: 'para ossos, músculo e imunidade',
   },
   'Vitamina B12': {
     oQueE: 'Uma vitamina que vem de alimentos de origem animal.',
     porQue: 'É necessária para os glóbulos vermelhos e para os nervos, e quem come menos costuma repô-la de olho.',
+    afeta: 'para os nervos e a produção de sangue',
   },
   'Ferritina': {
     oQueE: 'A despensa de ferro do corpo — o que fica guardado dentro das células.',
     porQue: 'Por isso ela mostra o estoque, e não o ferro que está circulando no sangue hoje.',
+    afeta: 'para o estoque de ferro, que sustenta a disposição',
   },
 };
 
@@ -998,7 +1025,11 @@ export const examInfluences = (e: any): string[] => INFLUENCIAS[e.marker] ?? [];
 export const examAbout = (e: any): SobreOMarcador | null => SOBRE[e.marker] ?? null;
 
 export type LeituraDoExame = { titulo: string; texto: string };
-export function examExplain(e: any): LeituraDoExame {
+/* `todos` é o painel inteiro da pessoa, e é opcional de propósito: a
+   leitura tem que funcionar com o exame sozinho. Quando ele chega, entra
+   no texto a única frase desta tela que não sai deste marcador — onde
+   este resultado se encaixa no meio dos outros. */
+export function examExplain(e: any, todos?: any[]): LeituraDoExame {
   /* ⚠️ AS FRASES ESTAVAM ESCRITAS COM OS NÚMEROS DA SEMENTE.
 
      A de HbA1c dizia "a queda de 6,3 para 5,6% mostra um controle bem
@@ -1033,17 +1064,23 @@ export function examExplain(e: any): LeituraDoExame {
      coleta. Quando `good` não diz qual lado é o bom, a direção sai da
      frase — dizer "subiu" sem dizer o que isso significa é melhor do que
      chutar o significado. */
-  /* ⚠️ SÃO DUAS PEÇAS, E ERA UM PARÁGRAFO SÓ.
+  /* ⚠️ A MANCHETE É ESTADO + O QUE ESTÁ EM JOGO, e já foi estado + rumo.
 
-     Um bloco de texto corrido obriga a pessoa a ler tudo para descobrir se
-     a notícia é boa — e numa tela de exame ela quer saber isso na primeira
-     linha. A manchete responde; o parágrafo mostra a conta.
+     "Está na faixa, e vem caminhando na direção esperada" é uma frase
+     correta que não acrescenta: o rumo é exatamente o que o cartão de
+     evolução, três centímetros acima, anuncia em manchete própria e em
+     etiqueta colorida. A manchete da leitura repetia o vizinho.
 
-     ⚠️ A MANCHETE NÃO REPETE O SELO. O selo lá em cima diz onde o valor
-     caiu; o cartão de evolução diz o quanto mudou. O que ainda não foi
-     dito em lugar nenhum é a JUNÇÃO das duas — "está fora, mas vem
-     melhorando" é uma frase que nenhuma das outras peças consegue formar,
-     e é a que muda o que a pessoa sente ao fechar a tela.
+     O que nenhuma outra peça da tela diz é POR QUE este número importa.
+     Um valor fora da faixa sem isso é um alarme sem assunto — e é essa a
+     diferença entre um aplicativo que informa e um que assusta. O rumo não
+     se perde: ele desceu para o parágrafo, onde vira "subiu 20, se
+     afastando da faixa".
+
+     ⚠️ A MOLDURA DA FRASE É QUE SEGURA A RESSALVA. "faz diferença para a
+     saúde das artérias" fala do território; "vai entupir suas artérias"
+     seria prognóstico, que é de médico. O complemento (`afeta`) nomeia só
+     o assunto, e o verbo é sempre um que não promete nada.
 
      ⚠️ E ELA NÃO DIZ O NOME DO MARCADOR. "Seu HbA1c" / "Sua ferritina"
      pediria uma tabela de gênero por marcador para escrever certo em
@@ -1051,22 +1088,15 @@ export function examExplain(e: any): LeituraDoExame {
      tropeço barato de evitar. "Este resultado" é sempre correto, e o nome
      está na barra do topo. */
   const lado = examStatus(e) === 'alto' ? 'acima' : 'abaixo';
+  const afeta = SOBRE[e.marker]?.afeta;
 
-  const titulo = !varios || delta === 0
+  const titulo = !afeta
     ? (dentro
         ? 'Este resultado está dentro da faixa de referência do laboratório.'
         : `Este resultado está ${lado} da faixa de referência do laboratório.`)
-    : e.good
-      ? (dentro
-          ? (melhorou
-              ? 'Este resultado está na faixa, e vem caminhando na direção esperada.'
-              : 'Este resultado está na faixa, mas vem caminhando na direção oposta.')
-          : (melhorou
-              ? `Este resultado ainda está ${lado} da faixa, mas vem caminhando na direção esperada.`
-              : `Este resultado está ${lado} da faixa, e vem se afastando dela.`))
-      : (dentro
-          ? `Este resultado está dentro da faixa, e ${delta > 0 ? 'subiu' : 'caiu'} desde a primeira coleta.`
-          : `Este resultado está ${lado} da faixa, e ${delta > 0 ? 'subiu' : 'caiu'} desde a primeira coleta.`);
+    : dentro
+      ? `Este resultado está dentro da faixa de referência, o que é um bom sinal ${afeta}.`
+      : `Este resultado está ${lado} da faixa de referência, o que faz diferença ${afeta}.`;
 
   /* O parágrafo é a conta por extenso: o valor desta coleta, a faixa que o
      laboratório escreveu, e o quanto andou desde a primeira. Nada aqui é
@@ -1074,20 +1104,54 @@ export function examExplain(e: any): LeituraDoExame {
      para quem prefere ler a ler gráfico. */
   const dia = (t: number) => { const x = new Date(t); return `${x.getDate()} de ${MO_LONG[x.getMonth()]}`; };
   const num = (v: number) => nf(v, v % 1 ? 1 : 0).replace('.', ',');
+  const uni = e.unit ? ` ${e.unit}` : '';
   const faixa = (() => {
     const gg = examGaugeData(e);
-    const u = e.unit ? ` ${e.unit}` : '';
-    if (gg.temMin && gg.temMax) return `entre ${num(gg.limMin)} e ${num(gg.limMax)}${u}`;
-    if (gg.temMax) return `abaixo de ${num(gg.limMax)}${u}`;
-    if (gg.temMin) return `acima de ${num(gg.limMin)}${u}`;
-    return `${e.ref}${u}`;
+    if (gg.temMin && gg.temMax) return `entre ${num(gg.limMin)} e ${num(gg.limMax)}${uni}`;
+    if (gg.temMax) return `abaixo de ${num(gg.limMax)}${uni}`;
+    if (gg.temMin) return `acima de ${num(gg.limMin)}${uni}`;
+    return `${e.ref}${uni}`;
   })();
+
+  /* O rumo ganhou a conclusão que estava na manchete: não é só que subiu,
+     é que subiu PARA ONDE. Sem `good`, o marcador não declara qual lado é
+     o bom, e aí a frase para no fato. */
+  const rumo = !e.good
+    ? ''
+    : dentro
+      ? (melhorou ? ', na direção esperada' : ', na direção oposta à esperada')
+      : (melhorou ? ', caminhando na direção da faixa' : ', se afastando da faixa');
 
   const andou = !varios || delta === 0
     ? ''
-    : ` Desde ${dia(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${num(Math.abs(delta))}${e.unit ? ` ${e.unit}` : ''}.`;
+    : ` Desde ${dia(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${num(Math.abs(delta))}${uni}${rumo}.`;
 
-  const texto = `Na coleta de ${dia(l.t)} o valor foi ${num(l.v)}${e.unit ? ` ${e.unit}` : ''}, e a referência do laboratório é ${faixa}.${andou} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+  /* ⚠️ ESTA É A ÚNICA FRASE DA TELA QUE OLHA PARA FORA DESTE MARCADOR.
+
+     Um número fora da faixa lido sozinho vira o mundo inteiro de quem
+     lê — e a informação que desarma isso não está no marcador, está no
+     painel: saber que os outros catorze foram bem muda o tamanho deste
+     um. É o mesmo serviço que um médico presta na primeira frase da
+     consulta, e é factual: conta quantos, não opina sobre o conjunto.
+
+     Só entra com painel de verdade. Com dois ou três marcadores
+     importados, "dos 3 marcadores deste exame" não é contexto, é uma
+     conta pequena demais para significar alguma coisa. */
+  const painel = (() => {
+    if (!todos || todos.length < 5) return '';
+    const fora = todos.filter((x) => examStatus(x) !== 'ok').length;
+    const n = todos.length;
+    if (dentro) {
+      return fora === 0
+        ? ` Os ${n} marcadores deste exame estão dentro da faixa.`
+        : ` Dos ${n} marcadores deste exame, ${fora} ${fora === 1 ? 'ficou' : 'ficaram'} fora da faixa; este não.`;
+    }
+    return fora === 1
+      ? ` Dos ${n} marcadores deste exame, este é o único fora da faixa.`
+      : ` Dos ${n} marcadores deste exame, ${fora} estão fora da faixa, e este é um deles.`;
+  })();
+
+  const texto = `Na coleta de ${dia(l.t)} o valor foi ${num(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
 
   return { titulo, texto };
 }

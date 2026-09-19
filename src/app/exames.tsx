@@ -566,9 +566,12 @@ function MalhaDaEvolucao({ e }: { e: any }) {
 /* ------------------------------------------------------------------ */
 function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   const { c } = useTheme();
+  /* O painel inteiro, só para a leitura poder dizer onde este marcador se
+     encaixa no meio dos outros. */
+  const todosOsExames = useStore((st) => st.S.exams) as any[];
   const l = examLast(e), f = examFirst(e), st = examStatus(e);
   const sobre = examAbout(e);
-  const leitura = examExplain(e);
+  const leitura = examExplain(e, todosOsExames);
   const mexe = examInfluences(e);
   const ajudam = examWays(e);
   const varios = e.values.length > 1;
