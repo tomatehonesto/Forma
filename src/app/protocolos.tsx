@@ -9,7 +9,7 @@ import {
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Bloco, Cartao } from '../ui/internas';
+import { Bloco, Cartao, Aviso } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 
@@ -155,23 +155,14 @@ export default function Protocolos() {
             tocando na linha da água esperando que ela acenda. */}
         <Bloco
           titulo="Esta semana"
-          /* ⚠️ O QUE ESTA LISTA É, E O QUE ELA NÃO É — e antes a nota só
-              explicava a mecânica das caixas.
+          /* ⚠️ SEM NOTA, e ela já foi duas: a mecânica das caixas e, depois,
+              o enquadramento inteiro da lista.
 
-              Cinco linhas com caixa de marcar, numa tela que veio da
-              clínica, leem como cobrança: quem abre e vê "0 de 7 dias"
-              na água sente que falhou com alguém. E não é isso — o
-              tratamento é a dose e o acompanhamento; isto aqui é o que
-              ajuda em volta.
-
-              ⚠️ E A FRASE VEM ANTES DA LISTA, não depois. Acolhimento
-              depois de três caixas vazias chega como consolo; antes,
-              chega como enquadramento, que é o que ele é.
-
-              "Recomeça na próxima" é fato, e não afago: os manuais
-              resetam na virada da semana e as métricas contam os
-              registros da semana corrente. */
-          nota="Jeitos de tirar mais do tratamento nesta semana, e não uma lista de cobranças. O que não fechar recomeça na próxima — as contagens acendem sozinhas, pelos seus registros."
+              Nenhuma das duas cabia aqui. Um parágrafo entre o título e a
+              primeira linha atrasa a lista — e esta lista tem cinco itens
+              curtos que se explicam com a contagem embaixo de cada um. O
+              que precisava ser dito virou o cartão logo abaixo dela, onde
+              ele é leitura e não pedágio. */
         >
           <Cartao>
             {p.tarefas.map((t) => {
@@ -233,6 +224,30 @@ export default function Protocolos() {
             })}
           </Cartao>
         </Bloco>
+
+        {/* ---- o enquadramento, depois da lista ----
+
+            ⚠️ CINCO CAIXAS DE MARCAR NUMA TELA QUE VEIO DA CLÍNICA LEEM
+            COMO COBRANÇA. Quem abre e vê "0 de 7 dias" na água sente que
+            falhou com alguém — e não é isso: quem conduz o tratamento é a
+            dose e o acompanhamento, e estas metas são o que ajuda em
+            volta.
+
+            ⚠️ E ELE FICA DEPOIS DA LISTA, e por um tempo esteve antes. Em
+            cima ele era um parágrafo entre o título e a primeira linha —
+            um pedágio para chegar ao que a pessoa veio ver. Embaixo, ele
+            responde o que a lista acabou de provocar, que é quando a
+            frase tem para quem falar.
+
+            ⚠️ "RECOMEÇA NA PRÓXIMA" É FATO, E NÃO AFAGO: os manuais
+            resetam na virada da semana e as métricas contam os registros
+            da semana corrente. Consolo que não se sustenta em mecanismo
+            vira promessa, e esta tela não faz promessa. */}
+        <Aviso
+          ic="bulb"
+          titulo="Não fechar tudo está tudo bem"
+          texto="Estas metas são jeitos de tirar mais do tratamento, e não uma lista de cobranças — quem conduz é a dose e o acompanhamento. O que não fechar recomeça na semana que vem, e as contagens acendem sozinhas pelos seus registros."
+        />
 
         {/* ⚠️ O CARTÃO "SEMANA 12" SAIU DAQUI, e ele já tinha sido bloco de
             conselho, depois aviso de duas datas, e agora nada.
