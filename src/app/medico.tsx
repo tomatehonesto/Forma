@@ -6,8 +6,8 @@ import { useStore } from '../logic/store';
 import {
   protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
 } from '../logic/derive';
-import { Screen, Txt, Card, Row, IconBadge, CircleBtn, Chevron, Divider, SectionHead } from '../ui/kit';
-import { Grade2 } from '../ui/internas';
+import { Screen, Txt, Card, Row, CircleBtn, Chevron, SectionHead } from '../ui/kit';
+import { Grade2, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
@@ -277,67 +277,75 @@ export default function Medico() {
         {/* ---- prescrições ----
 
             ⚠️ A AÇÃO SAIU DE DENTRO DA LISTA, e virou o link do título.
-
             Ela era a primeira linha do cartão: mesma altura, mesmo ícone e
             mesma seta das prescrições debaixo dela — só que as outras não
             respondiam ao toque. Uma lista em que o primeiro item é botão e
             o resto é leitura ensina errado nos dois sentidos: faz tocar no
             que não abre e faz duvidar do que abre.
 
-            No título ela continua a um toque de quem rola até aqui —
-            que era o motivo de ela existir fora do link da Home — e a
-            lista volta a ser uma lista. */}
+            ⚠️⚠️ E ESTA LISTA NÃO ABRE NADA, DE PROPÓSITO — não existe tela
+            de prescrição, e não deveria existir: o que há para saber sobre
+            uma receita está inteiro na linha dela. Por isso ela não tem
+            seta, e a de Documentos tem. Duas listas quase idênticas, uma
+            que abre e outra que não, só se distinguem se a diferença
+            estiver desenhada. A seta é a diferença.
+
+            ⚠️ O ÍCONE FICA SOLTO, e saiu da pastilha azul. Numa lista, o
+            quadrado de cor repetido vira uma coluna de botões — e aqui
+            nenhum item é botão. É a mesma regra da <Linha> da casa, e é
+            por segui-la que as duas listas se alinham pela mesma coluna,
+            mesmo sendo desenhadas por lugares diferentes. */}
         <SectionHead
           title="Prescrições"
           link="Pedir nova receita"
           onPress={go('/conversa?pedir=receita')}
           style={{ marginTop: 32, marginBottom: 10 }}
         />
-        <Card style={{ paddingVertical: 4 }}>
-          {S.prescriptions.map((p: any, i: number) => (
-            <View key={p.name}>
-              {i > 0 && <Divider style={{ marginLeft: 52 }} />}
-              <Row style={{ paddingVertical: 13, alignItems: 'flex-start' }}>
-                <IconBadge name="pill" size={40} />
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Txt v="title">{p.name}</Txt>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{p.detail}</Txt>
-                  <Txt v="micro" c={c.tx4} style={{ marginTop: 3 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
-                </View>
-              </Row>
-            </View>
+        <Cartao>
+          {S.prescriptions.map((p: any) => (
+            <Row key={p.name} gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
+              <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
+                <Icon name="pill" size={20} color={c.accent} sw={1.9} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt v="body">{p.name}</Txt>
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 2, lineHeight: 20 }}>{p.detail}</Txt>
+                {/* Quem prescreveu e quando: é o que torna a linha
+                    verificável, e é a única parte dela que envelhece. */}
+                <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>{p.by} · {fmtDate(new Date(p.t))}</Txt>
+              </View>
+            </Row>
           ))}
-        </Card>
+        </Cartao>
 
         {/* ---- documentos ----
 
-            ⚠️ ELES ABREM AGORA, e antes eram texto. Uma lista de exames e
-            resumos numa tela de tratamento é a primeira coisa em que
-            alguém toca — e nenhum dos três respondia. Não era porta
-            emparedada por não ter seta: era pior, porque parecia leitura e
-            guardava conteúdo.
+            ⚠️ ELES ABREM, e antes eram texto. Uma lista de exames e resumos
+            numa tela de tratamento é a primeira coisa em que alguém toca —
+            e nenhum dos três respondia. Não era porta emparedada por não
+            ter seta: era pior, porque parecia leitura e guardava conteúdo.
 
-            Onde cada um abre sai de `destinoDoDocumento`, que é a mesma
-            regra que a aba Cuidado usa na lista dela. */}
+            ⚠️ E A DATA DESCEU PARA O SUBTÍTULO. Ela morava à direita,
+            encostada na seta, e as duas disputavam o mesmo canto: o olho
+            batia numa data e num chevron grudados sem saber qual dos dois
+            era o assunto. No subtítulo ela vira o que é — parte da
+            descrição do documento, junto do tipo.
+
+            Com isso a linha vira uma <Linha> da casa, sem desenho próprio:
+            ícone solto, título, subtítulo, seta. Uma peça a menos para
+            divergir do resto do aplicativo. */}
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
-        <Card style={{ paddingVertical: 4 }}>
+        <Cartao>
           {S.documents.map((d: any, i: number) => (
-            <View key={`${d.name}-${i}`}>
-              {i > 0 && <Divider />}
-              <Pressable onPress={go(destinoDoDocumento(d.kind))} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                <Row gap={8} style={{ paddingVertical: 12 }}>
-                  <Icon name="doc" size={15} color={c.tx3} sw={1.8} />
-                  <View style={{ flex: 1 }}>
-                    <Txt v="bodyMed">{d.name}</Txt>
-                    <Txt v="micro" c={c.tx3} style={{ marginTop: 1 }}>{d.kind}</Txt>
-                  </View>
-                  <Txt v="caption" c={c.tx3}>{fmtDate(new Date(d.t))}</Txt>
-                  <Chevron />
-                </Row>
-              </Pressable>
-            </View>
+            <Linha
+              key={`${d.name}-${i}`}
+              ic="doc"
+              titulo={d.name}
+              sub={`${d.kind} · ${fmtDate(new Date(d.t))}`}
+              onPress={go(destinoDoDocumento(d.kind))}
+            />
           ))}
-        </Card>
+        </Cartao>
       </View>
     </Screen>
   );
