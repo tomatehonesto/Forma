@@ -85,11 +85,11 @@ export default function Especialista() {
       ['companion', 'Mensagem', '/conversa'],
       ['cal', 'Consultas', '/consultas'],
       ['doc', 'Protocolos', '/protocolos'],
-      ...(S.profile.clinic ? [['heart', 'Clínica', '/clinica'] as [string, string, string]] : []),
+      ...(S.profile.clinic ? [['clinica', 'Clínica', '/clinica'] as [string, string, string]] : []),
     ]
     : [
       ['companion', 'Mensagem', '/conversa'],
-      ...(S.profile.clinic ? [['heart', 'Clínica', '/clinica'] as [string, string, string]] : []),
+      ...(S.profile.clinic ? [['clinica', 'Clínica', '/clinica'] as [string, string, string]] : []),
     ];
 
   return (

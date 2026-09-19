@@ -228,7 +228,7 @@ export default function Medico() {
                 ['companion', 'Mensagem', '/conversa'],
                 ['cal', 'Consultas', '/consultas'],
                 ['doc', 'Protocolos', '/protocolos'],
-                ...(S.profile.clinic ? [['heart', 'Clínica', '/clinica']] : []),
+                ...(S.profile.clinic ? [['clinica', 'Clínica', '/clinica']] : []),
               ] as [string, string, string][]).map(([ic, label, to]) => (
                 <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                   <View style={{ alignItems: 'center' }}>

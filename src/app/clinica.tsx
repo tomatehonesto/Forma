@@ -13,6 +13,7 @@ import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
 
 /* ============================================================
    A CLÍNICA — quem está do outro lado, como instituição
@@ -223,28 +224,37 @@ export default function Clinica() {
                 a primeira linha de um bloco de texto; aqui ele pertence à
                 imagem, que é o que um nome de lugar faz. A página começa
                 direto no endereço. */}
-            {/* ⚠️ CORTE SECO, E ERA DEGRADÊ. O <VidroDegrade> se desfaz
-                subindo, e a faixa que ele precisa para isso come 200px de
-                imagem — numa foto de recepção, a metade de baixo inteira
-                ficava sob um véu que não dizia nada. A faixa chapada com
-                canto em cima ocupa a altura do texto e mais nada, e o que
-                está acima dela continua sendo foto.
+            {/* ⚠️ VIDRO DE VERDADE, COM CORTE SECO — e passou por duas
+                versões erradas antes desta.
 
-                ⚠️ É A MESMA FAIXA DO CHECK-IN NA HOME — mesmo desenho,
-                tinta diferente, e a diferença tem motivo. Lá ela é cinza a
-                20%, que CLAREIA: o que está atrás é a aurora escura, e um
-                véu claro sobre fundo escuro sustenta texto branco. Aqui
-                atrás há uma recepção fotografada com a janela aberta, e o
-                mesmo cinza a 20% não muda quase nada — medido nesta foto, a
-                especialidade em onHero2 sumia na parede. Preto a 34% é o
-                que faz o mesmo trabalho sobre imagem clara, e continua
-                deixando a foto passar. */}
-            <View style={{
-              position: 'absolute', left: 0, right: 0, bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.34)',
-              borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
-              paddingHorizontal: PAD, paddingTop: 20, paddingBottom: 48,
-            }}>
+                A primeira era <VidroDegrade>, que se desfaz subindo: a
+                faixa que ele precisa para isso come 200px de imagem, e
+                numa foto de recepção a metade de baixo inteira ficava sob
+                um véu que não dizia nada.
+
+                A segunda foi tinta chapada sem desfoque, que resolve a
+                altura e perde a matéria: preto a 34% sobre uma foto é uma
+                tarja, e tarja esconde o que está atrás em vez de deixar
+                passar.
+
+                Esta é o desenho das duas: o CORTE é seco, com canto em
+                cima como a faixa do check-in na Home, e o MIOLO é desfoque
+                — a recepção continua ali, reconhecível e fora de foco, e o
+                texto branco tem sobre o que se apoiar.
+
+                ⚠️ O `overflow: 'hidden'` NÃO É ZELO. Sem ele o desfoque
+                vaza pelos cantos arredondados e a quina que devia ser
+                limpa fica com dois triângulos borrados. */}
+            <BlurView
+              intensity={60}
+              tint="dark"
+              style={{
+                position: 'absolute', left: 0, right: 0, bottom: 0,
+                borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+                overflow: 'hidden',
+                paddingHorizontal: PAD, paddingTop: 20, paddingBottom: 48,
+              }}
+            >
               {imagens.logo ? (
                 <Image
                   source={imagens.logo}
@@ -256,7 +266,7 @@ export default function Clinica() {
               {!!f.especialidade && (
                 <Txt v="caption" c={c.onHero2} style={{ marginTop: 5 }}>{f.especialidade}</Txt>
               )}
-            </View>
+            </BlurView>
 
             <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
               <Row>

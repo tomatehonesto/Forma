@@ -57,6 +57,7 @@ import Flag from 'lucide-react-native/icons/flag';
 import Flame from 'lucide-react-native/icons/flame';
 import Funnel from 'lucide-react-native/icons/funnel';
 import AtSign from 'lucide-react-native/icons/at-sign';
+import Hospital from 'lucide-react-native/icons/hospital';
 import Globe from 'lucide-react-native/icons/globe';
 import Mail from 'lucide-react-native/icons/mail';
 import Phone from 'lucide-react-native/icons/phone';
@@ -156,6 +157,12 @@ const MAPA: Record<string, React.ComponentType<any>> = {
      está escrito na linha, que é o que a pessoa precisa para saber onde
      o toque vai dar. Reproduzir o logotipo alheio é outra conversa, e
      esta casa não tem essa conversa com ninguém. */
+  /* ⚠️ A CLÍNICA NÃO É UM CORAÇÃO. O coração estava na ação "Clínica" da
+     área médica e da ficha de quem atende, e ele é o desenho de "salvar
+     nos favoritos" em metade dos aplicativos do mundo — quem toca espera
+     marcar, e chega numa tela de endereço e convênios. É um prédio: o
+     que está do outro lado do toque é um LUGAR. */
+  clinica: Hospital,
   phone: Phone,
   mail: Mail,
   site: Globe,
