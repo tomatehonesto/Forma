@@ -386,13 +386,16 @@ export default function Perfil() {
           aparece junto da consulta, da caneta e dos exames.
 
           Quem anotou o médico continua editando a ficha: pelo bloco
-          "Quem acompanha você" da aba Cuidado, e pelo card da Home
+          "Quem cuida de você" da aba Cuidado, e pelo card da Home
           enquanto o nome estiver em branco. O que deixou de haver é a
           terceira cópia da mesma porta, numa tela que fala de outra
           coisa. */}
       {conectada ? (
         <View style={{ marginTop: 32 }}>
-          <SectionHead title="Quem acompanha você" />
+          {/* O mesmo título da Home e da aba Cuidado: é a mesma médica
+              nas três telas, e ela não pode ser apresentada com um nome
+              diferente em cada uma. */}
+          <SectionHead title="Quem cuida de você" />
             <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
                 <Row gap={14} style={{ padding: 16 }}>

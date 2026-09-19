@@ -447,9 +447,25 @@ export default function Home() {
                 com uma médica sem nome. Sem equipe não há área médica, e
                 o convite do card abaixo é a única porta que faz sentido
                 aqui. */}
+            {/* ⚠️ "QUEM CUIDA DE VOCÊ", e era "Seu acompanhamento".
+
+                O nome antigo entrava numa família de três quase iguais —
+                /acompanhamento se chama "Quem acompanha você" e a aba
+                Cuidado tinha "Sua equipe de apoio" —, e nenhum dos três
+                dizia o que a seção MOSTRA: uma pessoa, com nome e rosto.
+                "Seu acompanhamento" podia ser o gráfico de peso.
+
+                Agora é o mesmo título nos três lugares onde a mesma médica
+                aparece — Home, Cuidado e Perfil. Uma pergunta, uma
+                resposta, três telas.
+
+                ⚠️ E O LINK PERDEU O "IR PARA". "Área médica" é o nome da
+                tela do outro lado, escrito igual ao título dela; "Ir para"
+                é o que a seta ao lado já diz, e os outros links desta Home
+                não têm verbo nenhum. */}
             <SectionHead
-              title="Seu acompanhamento"
-              link={conectada ? 'Ir para área médica' : undefined}
+              title="Quem cuida de você"
+              link={conectada ? 'Área médica' : undefined}
               onPress={conectada ? go('/medico') : undefined}
             />
 

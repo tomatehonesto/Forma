@@ -368,7 +368,25 @@ function BannerMedica() {
   const medica = fichaDe(S);
 
   return (
-    <View style={{ borderRadius: radius.xl, overflow: 'hidden', marginTop: 36 }}>
+    <View style={{ marginTop: 36 }}>
+      {/* ⚠️ O TÍTULO ENTROU, e o cartão vivia solto no meio da rolagem.
+
+          Toda seção desta aba tem cabeçalho — "Sua próxima consulta",
+          "Seu tratamento", "Preparado para você" — menos esta, que era a
+          única peça sem nome entre duas que têm. E o nome importa aqui
+          mais do que nas outras: um retrato grande sem rótulo, no meio de
+          uma tela de dados, não diz se aquilo é a médica DELA ou uma
+          sugestão de alguém para contratar.
+
+          ⚠️ E O LINK É "ÁREA MÉDICA", que é o nome da tela do outro lado.
+          A Home já usa essa palavra no mesmo lugar e pelo mesmo motivo. */}
+      <SectionHead
+        title="Quem cuida de você"
+        link="Área médica"
+        onPress={go('/medico')}
+        style={{ marginBottom: 12 }}
+      />
+      <View style={{ borderRadius: radius.xl, overflow: 'hidden' }}>
       {/* ---- metade de cima: quem é ela ----
 
           ⚠️ É A MESMA LINHA DO CARTÃO DE "SUA EQUIPE", e era um desenho só
@@ -512,7 +530,73 @@ function BannerMedica() {
           </Row>
         </Pressable>
       )}
+
+      {/* ---- terceira faixa: o resto da equipe ----
+
+          ⚠️ ERA UM CARTÃO SEPARADO, logo abaixo deste. Dois cartões
+          seguidos sobre a mesma pergunta — quem cuida de você — faziam a
+          tela apresentar a relação duas vezes, e o segundo, com retratos
+          menores e texto menor, lia como uma versão rebaixada do primeiro.
+          São as mesmas pessoas do mesmo lugar: é um cartão, com a
+          responsável em cima e o resto embaixo.
+
+          ⚠️ E ELA APONTA PARA /clinica, e não para /medico. O link do
+          título já leva à área médica; repetir o destino aqui seria a
+          terceira porta para a mesma tela no mesmo cartão. A lista inteira
+          da equipe mora em /clinica — que é, aliás, para onde o comentário
+          desta peça dizia que ela ia desde sempre, enquanto o código ia
+          para outro lugar. */}
+      <Equipe />
     </View>
+    </View>
+  );
+}
+
+/** O resto da equipe, na terceira faixa do cartão de quem cuida de você. */
+function Equipe() {
+  const S = useStore((s) => s.S);
+  const { c } = useTheme();
+  const router = useRouter();
+  const time = ((S as any).team ?? []) as { name: string; role: string }[];
+  if (!time.length) return null;
+
+  /* Os primeiros nomes, e não "Sua equipe de apoio". Um rótulo descreve o
+     grupo; os nomes apresentam as pessoas — e apresentar é o que este
+     cartão inteiro faz. */
+  const nomes = time.map((p) => p.name.split(' ')[0]);
+  const lista = nomes.length > 1
+    ? `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`
+    : nomes[0];
+
+  return (
+    <Pressable onPress={() => router.push('/clinica' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+      <Row gap={14} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18, alignItems: 'center' }}>
+        {/* encavalados: a pilha diz "são várias" com a largura de uma e
+            meia, que é todo o espaço que uma terceira faixa tem */}
+        <Row style={{ width: 30 + (time.length - 1) * 19, height: 30 }}>
+          {time.map((p, i) => (
+            <View key={p.name} style={{ position: 'absolute', left: i * 19, borderWidth: 2, borderColor: c.bg1, borderRadius: 17 }}>
+              <Retrato nome={p.name} size={30} />
+            </View>
+          ))}
+        </Row>
+        <View style={{ flex: 1 }}>
+          {/* ⚠️ `caption` E NÃO `bodyMed`, e a razão é medida: a pilha de
+              retratos come 68px e a seta mais 14, sobrando 181 para o
+              texto — "Renata, Carla e Rafael" pede 200 em 19px e cortava
+              no "Raf...". Em 16 cabe inteiro, e cabe com folga para um
+              quarto nome.
+
+              A escala também está certa assim: esta é a terceira faixa do
+              cartão, e o título dele é a médica lá em cima. */}
+          <Txt v="caption" numberOfLines={1}>{lista}</Txt>
+          <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
+            {time.map((p) => p.role).join(' · ')}
+          </Txt>
+        </View>
+        <Icon name="chev" size={14} color={c.tx4} sw={2} />
+      </Row>
+    </Pressable>
   );
 }
 
@@ -543,48 +627,6 @@ function BannerMedica() {
 /* A seção solta de última mensagem morava aqui. Foi para dentro do
    card da médica: a pessoa e a fala dela são a mesma coisa, e mantê-las
    em dois blocos fazia a tela apresentar duas vezes a mesma relação. */
-
-/** O apoio, compacto.
-
-    Era um carrossel de cards de 150 px, que dava a três profissionais de
-    apoio o mesmo peso visual da consulta e do tratamento. Virou uma linha
-    só, com os retratos encavalados à esquerda e a contagem à direita —
-    presença suficiente para dizer "não é só ela", pequena o bastante para
-    não disputar com o que se usa toda semana. */
-function Time() {
-  const S = useStore((s) => s.S);
-  const { c } = useTheme();
-  const router = useRouter();
-  const time = ((S as any).team ?? []) as { name: string; role: string }[];
-  if (!time.length) return null;
-
-  return (
-    <Pressable onPress={() => router.push('/medico' as any)} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
-      <Row gap={14} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-        <Row style={{ width: 34 + (time.length - 1) * 22 }}>
-          {time.map((p, i) => (
-            <View key={p.name} style={{ position: 'absolute', left: i * 22, borderWidth: 2, borderColor: c.bg1, borderRadius: 19 }}>
-              <Retrato nome={p.name} size={34} />
-            </View>
-          ))}
-        </Row>
-        {/* A linha de baixo é convite e não legenda: este card é a porta
-            para a tela da clínica, e "Nutricionista · Enfermeira" sozinho
-            parece um rótulo do que já está à vista nos retratos. */}
-        <View style={{ flex: 1 }}>
-          <Txt v="bodyMed">Sua equipe de apoio</Txt>
-          <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
-            {time.map((p) => p.role).join(' · ')}
-          </Txt>
-          <Row gap={5} style={{ marginTop: 7 }}>
-            <Txt v="label" c={c.accent2} style={{ fontSize: 15 }}>Conheça toda a equipe</Txt>
-            <Icon name="chev" size={12} color={c.accent2} sw={2.2} />
-          </Row>
-        </View>
-      </Row>
-    </Pressable>
-  );
-}
 
 /** O que a clínica mandou para você — orientação recebida, não prova
     enviada. Por isso não se mistura com Documentos. */
@@ -1146,7 +1188,6 @@ export default function Cuidado() {
             <Pendencias />
             <Consulta />
             <BannerMedica />
-            <Time />
             <Tratamento />
             <Materiais />
             <Documentos />
