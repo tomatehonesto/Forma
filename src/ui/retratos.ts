@@ -21,9 +21,48 @@
    saúde: no dia em que a clínica mandar as fotos de verdade, elas entram
    por aqui e estas saem.
    ============================================================ */
-export const RETRATOS: Record<string, any> = {
-  responsavel: require('../../assets/images/equipe/responsavel.jpg'),
+export type Retrato = {
+  src: any;
+  /* ⚠️ O PONTO DE FOCO, E ELE EXISTE PORQUE FOTO NÃO SE ENQUADRA SOZINHA.
+
+     O aplicativo corta a mesma imagem em cinco tamanhos: a pilha de 30px
+     da aba Cuidado, o quadrado de 48 da lista da clínica, o de 76 da área
+     médica e o cabeçalho de 330. Em todos eles o corte é `cover`, e `cover`
+     precisa saber que pedaço manter.
+
+     'topo' é o certo para retrato de estúdio, com o rosto no terço de
+     cima — que é o enquadramento de três das quatro fotos aqui. 'centro'
+     é o certo para foto de ambiente, com a pessoa sentada no meio do
+     quadro. Medido na responsável: pelo topo o rosto dela cai a 51% do
+     cabeçalho, dentro da faixa que a página cobre; pelo centro sobe para
+     31% e fica limpo. Nas outras três é o contrário — pelo centro o corte
+     quadrado come a testa.
+
+     Era um `contentPosition` escrito à mão em cada tela, e cada tela
+     escolhia um. Aqui ele vive junto da imagem que descreve, que é o
+     único lugar onde a resposta é a mesma em todas elas.
+
+     ⚠️ E ISTO NÃO SUBSTITUI O RECORTE NO ENVIO. Escolher entre duas
+     posições à mão resolve ESTAS quatro fotos; mil fotos de mil clínicas
+     pedem um recortador na hora do upload — continua em PENDENCIAS. */
+  foco?: 'topo' | 'centro';
 };
+
+export const RETRATOS: Record<string, Retrato> = {
+  responsavel: { src: require('../../assets/images/equipe/responsavel.jpg'), foco: 'centro' },
+  renata: { src: require('../../assets/images/equipe/renata.jpg') },
+  carla: { src: require('../../assets/images/equipe/carla.jpg') },
+  rafael: { src: require('../../assets/images/equipe/rafael.jpg') },
+};
+
+/** A imagem de quem tem, e `undefined` para quem não tem. */
+export const fotoDe = (id?: string) => (id ? RETRATOS[id]?.src : undefined);
+
+/** Onde ancorar o corte. Sem resposta, o topo — é o enquadramento da
+    maioria dos retratos profissionais, e errar para cima corta o queixo,
+    enquanto errar para baixo corta os olhos. */
+export const focoDe = (id?: string) =>
+  (id && RETRATOS[id]?.foco === 'centro' ? 'center' : 'top center');
 
 /* ⚠️ E AGORA É UMA FOTO, E ERA UM RECORTE EM PNG.
 

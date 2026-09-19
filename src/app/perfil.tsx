@@ -16,12 +16,12 @@ import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } fro
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
-import { RETRATOS } from '../ui/retratos';
+import { fotoDe, focoDe } from '../ui/retratos';
 
 /* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
    segunda linha apontando para o mesmo arquivo. Uma pessoa, um retrato:
    duas imagens da mesma médica divergem no dia em que uma for trocada. */
-const FOTO_MEDICA = RETRATOS.responsavel;
+const FOTO_MEDICA = fotoDe('responsavel');
 import { useTheme } from '../ui/useTheme';
 import { radius, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
@@ -420,7 +420,7 @@ export default function Perfil() {
                       source={FOTO_MEDICA}
                       style={{ width: '100%', height: '100%' }}
                       contentFit="cover"
-                      contentPosition="center"
+                      contentPosition={focoDe('responsavel')}
                     />
                   </View>
                   <View style={{ flex: 1 }}>

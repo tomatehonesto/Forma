@@ -10,7 +10,7 @@ import { Txt, Row, CircleBtn } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
-import { RETRATOS, inicialDoNome } from '../ui/retratos';
+import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 
 /* ============================================================
    A FICHA DE QUEM CUIDA DE VOCÊ
@@ -74,7 +74,7 @@ export default function Especialista() {
     );
   }
 
-  const retrato = RETRATOS[f.id];
+  const retrato = fotoDe(f.id);
 
   /* ⚠️ AS AÇÕES SEGUEM O PAPEL, e não a tela. Consultas e Protocolos são
      da responsável — a nutricionista não marca consulta nem assina
@@ -139,7 +139,7 @@ export default function Especialista() {
               source={retrato}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
-              contentPosition="center"
+              contentPosition={focoDe(f.id)}
             />
             {/* O botão de voltar fica sobre a foto, e a foto pode ser uma
                 sala clara com a janela estourada. Sem o véu ele desaparece

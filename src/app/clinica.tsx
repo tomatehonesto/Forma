@@ -7,12 +7,13 @@ import { useStore } from '../logic/store';
 import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
 import { Txt, Card, Row, CircleBtn, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { RETRATOS, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
+import { fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 import { Image } from 'expo-image';
+import { VidroDegrade } from '../ui/vidro';
 
 /* ============================================================
    A CLÍNICA — quem está do outro lado, como instituição
@@ -99,14 +100,16 @@ import { Image } from 'expo-image';
 
 const PAD = 24;
 
-/* A foto tem 260 e não 430 como o retrato de /especialista: lá a pessoa é
-   o assunto da tela e ocupa quase a dobra inteira; aqui a recepção é o
-   contexto, e o que a pessoa veio ler — nome, endereço, convênios —
-   precisa caber acima da dobra.
+/* ⚠️ 360, E JÁ FOI 300 E 260. A conta mudou porque o NOME mudou de
+   lugar: ele morava na página, abaixo da foto, e cada pixel de imagem
+   empurrava o conteúdo para baixo. Agora ele mora DENTRO da foto, sobre o
+   vidro — a imagem deixou de disputar espaço com o texto e passou a
+   carregá-lo, então pode ocupar o que precisa para ser uma foto de
+   verdade em vez de uma faixa.
 
-   Eram 300 enquanto o cartão da identidade subia 44px sobre ela. Sem o
-   cartão nada mais sobe, e os 40 que faltavam voltam para o conteúdo. */
-const ALTURA_DA_FOTO = 260;
+   Abaixo dela a página começa com o endereço, que é o que a pessoa veio
+   consultar, e continua acima da dobra. */
+const ALTURA_DA_FOTO = 360;
 
 export default function Clinica() {
   const S = useStore((s) => s.S);
@@ -193,6 +196,40 @@ export default function Clinica() {
               style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
               pointerEvents="none"
             />
+            {/* ---- o vidro, e o nome dentro dele ----
+
+                ⚠️ É A MESMA PEÇA DAS CAPAS DE HÁBITO: foto em cima, vidro
+                subindo do pé, texto claro sobre ele. Lá ela existe porque
+                o título tem que ser legível sobre uma trilha ao sol e
+                sobre uma piscina escura; aqui é a mesma aposta com a
+                recepção de uma clínica que ninguém viu ainda.
+
+                ⚠️ E O VIDRO É O QUE FAZ O NOME CABER NA FOTO. Escrito
+                direto sobre a imagem ele dependeria da sorte; com uma
+                sombra chapada atrás ele viraria uma tarja. O vidro escuro
+                se desfazendo para cima não corta a imagem — ela continua
+                visível através dele, mais escura —, e é isso que o
+                distingue de uma faixa preta.
+
+                ⚠️ O NOME SAIU DA PÁGINA E VEIO PARA CÁ. Embaixo, ele era
+                a primeira linha de um bloco de texto; aqui ele pertence à
+                imagem, que é o que um nome de lugar faz. A página começa
+                direto no endereço. */}
+            <VidroDegrade altura={200} deBaixo intensidade={48} />
+            <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: PAD, paddingBottom: 48 }}>
+              {imagens.logo ? (
+                <Image
+                  source={imagens.logo}
+                  style={{ width: 48, height: 48, borderRadius: radius.sm, marginBottom: 12 }}
+                  contentFit="contain"
+                />
+              ) : null}
+              <Txt v="h1" c={c.onHero} style={{ fontSize: 30 }}>{f.nome}</Txt>
+              {!!f.especialidade && (
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 5 }}>{f.especialidade}</Txt>
+              )}
+            </View>
+
             <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
               <Row>
                 {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
@@ -242,26 +279,35 @@ export default function Clinica() {
             genérico no lugar da marca é a pior reserva possível numa tela
             cujo propósito é APRESENTAR a clínica — um coração que não é
             dela diz menos do que duas letras que são. */}
+        {/* ⚠️ COM FOTO, A PÁGINA NÃO REPETE O NOME — ele está no vidro,
+            24px acima. Sem foto, é aqui que a identidade inteira mora: as
+            iniciais, o nome, a especialidade e o endereço. Não é a mesma
+            tela com uma imagem a menos; são dois cabeçalhos, e cada um é
+            completo no que lhe cabe. */}
         <View style={{ paddingHorizontal: PAD, marginTop: imagens.foto ? 0 : 20 }}>
-          {imagens.logo ? (
-            <Image
-              source={imagens.logo}
-              style={{ width: 56, height: 56, borderRadius: radius.md, marginBottom: 16, backgroundColor: c.bg1 }}
-              contentFit="contain"
-            />
-          ) : !imagens.foto ? (
-            <View style={{
-              width: 56, height: 56, borderRadius: radius.md, marginBottom: 16,
-              backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Txt v="h2" c={c.accent}>{iniciaisDaClinica(f.nome)}</Txt>
-            </View>
+          {!imagens.foto ? (
+            <>
+              {imagens.logo ? (
+                <Image
+                  source={imagens.logo}
+                  style={{ width: 56, height: 56, borderRadius: radius.md, marginBottom: 16, backgroundColor: c.bg1 }}
+                  contentFit="contain"
+                />
+              ) : (
+                <View style={{
+                  width: 56, height: 56, borderRadius: radius.md, marginBottom: 16,
+                  backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Txt v="h2" c={c.accent}>{iniciaisDaClinica(f.nome)}</Txt>
+                </View>
+              )}
+              <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
+              {!!f.especialidade && (
+                <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
+              )}
+            </>
           ) : null}
-          <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
-          {!!f.especialidade && (
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
-          )}
-          <Local f={f} />
+          <Local f={f} fio={!imagens.foto} />
         </View>
 
         <View style={{ paddingHorizontal: PAD }}>
@@ -282,14 +328,26 @@ export default function Clinica() {
             <Txt v="h2" style={{ marginBottom: 12 }}>Convênios atendidos</Txt>
             <Row gap={8} style={{ flexWrap: 'wrap' }}>
               {f.convenios.map((v) => (
+                /* ⚠️ PREENCHIDAS, E ERAM CONTORNO CINZA. O contorno é o
+                    desenho de chip de FILTRO, coisa que se liga e se
+                    desliga, e aqui nada liga: é uma lista de fatos sobre a
+                    clínica. Preenchidas elas param de pedir toque.
+
+                    ⚠️ E É `limeSoft`, E NÃO O AZUL DAS ABORDAGENS EM
+                    /especialista. As duas telas têm uma fileira de chips no
+                    mesmo lugar da rolagem, e no mesmo tom elas virariam a
+                    mesma seção vista duas vezes. Área de atuação é do
+                    accent porque descreve o trabalho de quem cuida;
+                    convênio é outra categoria de fato — administrativo, e
+                    não clínico — e ganha a outra cor da casa. */
                 <View
                   key={v}
                   style={{
-                    borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
+                    backgroundColor: c.limeSoft, borderRadius: radius.pill,
                     paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
                   }}
                 >
-                  <Txt v="caption" c={c.tx2}>{v}</Txt>
+                  <Txt v="caption" c={c.limeSoftInk}>{v}</Txt>
                 </View>
               ))}
             </Row>
@@ -521,7 +579,7 @@ export default function Clinica() {
    fio e sem coluna de ícones: uma régua de alinhamento para um item só é
    desenho a mais para informação a menos.
    ============================================================ */
-function Local({ f }: { f: FichaDaClinica }) {
+function Local({ f, fio = true }: { f: FichaDaClinica; fio?: boolean }) {
   const { c } = useTheme();
   const detalhado = !!f.endereco || !!f.horario;
 
@@ -539,10 +597,15 @@ function Local({ f }: { f: FichaDaClinica }) {
   }
 
   return (
-    <View style={{
-      marginTop: 16, paddingTop: 16, gap: 12,
-      borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
-    }}>
+    /* ⚠️ O FIO SÓ EXISTE QUANDO HÁ O QUE SEPARAR. Ele divide a identidade
+       do endereço dentro do mesmo bloco; com o nome no vidro, o endereço é
+       a primeira coisa da página e um fio no alto dela separaria o texto
+       da foto — que é justamente a emenda que o canto arredondado já
+       desenha. */
+    <View style={[
+      { marginTop: fio ? 16 : 0, paddingTop: fio ? 16 : 0, gap: 12 },
+      fio && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line },
+    ]}>
       {!!f.endereco && (
         <Row gap={11} style={{ alignItems: 'flex-start' }}>
           <View style={{ width: 18, alignItems: 'center', marginTop: 2 }}>
@@ -570,7 +633,7 @@ function Local({ f }: { f: FichaDaClinica }) {
    nas duas telas, e ela não pode mudar de forma no caminho. */
 function Avatar({ ficha }: { ficha: { id: string; nome: string } }) {
   const { c } = useTheme();
-  const foto = RETRATOS[ficha.id];
+  const foto = fotoDe(ficha.id);
   const lado = 48;
   if (foto) {
     return (
@@ -578,7 +641,7 @@ function Avatar({ ficha }: { ficha: { id: string; nome: string } }) {
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.sm, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition="center"
+        contentPosition={focoDe(ficha.id)}
       />
     );
   }

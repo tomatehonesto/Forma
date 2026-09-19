@@ -21,10 +21,10 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette } from '../../theme';
-import { RETRATOS } from '../../ui/retratos';
+import { fotoDe, focoDe } from '../../ui/retratos';
 
 const PAD = 24;                     // margem lateral do frame
-const FOTO_MEDICA = RETRATOS.responsavel;   // um mapa, três leitores
+const FOTO_MEDICA = fotoDe('responsavel');   // um mapa, três leitores
 const GOAL_W = 323;                 // largura do card de meta
 const GOAL_GAP = 4;
 const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
@@ -490,13 +490,16 @@ export default function Home() {
                       source={FOTO_MEDICA}
                       style={{ width: '100%', height: '100%' }}
                       contentFit="cover"
-                      /* pelo centro: ver a nota em medico.tsx */
-                      contentPosition="center"
+                      contentPosition={focoDe('responsavel')}
                     />
                   </View>
                   <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
-                    <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.6 }}>SUA ESPECIALISTA</Txt>
-                    <Txt v="h2" style={{ marginTop: 3 }}>{S.profile.doctor}</Txt>
+                    {/* ⚠️ O OLHO-DE-BOI SAIU. Ele dizia "SUA ESPECIALISTA"
+                        a três pixels de um título de seção que já diz
+                        "Quem cuida de você" — duas etiquetas para a mesma
+                        pessoa, uma em cima da outra. Com o título acima do
+                        cartão, ele virou eco. */}
+                    <Txt v="h2">{S.profile.doctor}</Txt>
                     <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{S.profile.clinic}</Txt>
                   </View>
                 </Row>

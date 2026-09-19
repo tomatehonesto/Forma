@@ -10,7 +10,7 @@ import {
 import { Screen, Txt, Card, Row, CircleBtn, Chevron, SectionHead } from '../ui/kit';
 import { Grade2, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
-import { RETRATOS, inicialDoNome } from '../ui/retratos';
+import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { fmtWD, fmtDate, relDay } from '../logic/time';
 import { radius } from '../theme';
@@ -566,26 +566,23 @@ export default function Medico() {
    recorte estranho que parece defeito do aplicativo. */
 function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: number }) {
   const { c } = useTheme();
-  const foto = RETRATOS[ficha.id];
+  const foto = fotoDe(ficha.id);
   if (foto) {
     return (
       <Image
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.md, backgroundColor: c.bg2 }}
         contentFit="cover"
-        /* ⚠️ PELO CENTRO, e não pelo topo. `top center` é a regra de
-           retrato de estúdio, onde o rosto está no terço de cima. A foto
-           que uma clínica manda é a que a assessoria tirou — a pessoa
-           sentada numa sala, rosto perto da metade do quadro —, e pelo
-           topo ela cai na parte de baixo do quadrado. Pelo centro sobe.
+        /* ⚠️ O ENQUADRAMENTO VEM DA FOTO, e não desta tela. Cada imagem
+           sabe se o rosto dela está no topo ou no meio do quadro; a tela
+           só pergunta. Era `contentPosition` cravado aqui, e cada tela
+           cravava um valor diferente para a mesma pessoa.
 
-           ⚠️ E NENHUM `contentPosition` RESOLVE O QUADRADO PEQUENO. Numa
-           foto de corpo inteiro, 76px de largura deixam o rosto com uns
-           doze: dá para ver que ali há uma pessoa, não QUEM. Isso não é
-           ajuste de enquadramento, é recorte — e recorte se faz na hora
-           do envio, com a clínica escolhendo o quadro. Está em
-           PENDENCIAS. */
-        contentPosition="center"
+           ⚠️ E NENHUM FOCO RESOLVE O QUADRADO PEQUENO COM FOTO DE CORPO
+           INTEIRO: 76px de largura deixam o rosto com uns doze. Isso não é
+           enquadramento, é recorte — e recorte se faz na hora do envio.
+           Está em PENDENCIAS. */
+        contentPosition={focoDe(ficha.id)}
       />
     );
   }

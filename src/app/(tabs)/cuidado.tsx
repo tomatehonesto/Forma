@@ -18,7 +18,7 @@ import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
 import { radius, alfa } from '../../theme';
-import { RETRATOS } from '../../ui/retratos';
+import { fotoDe, focoDe } from '../../ui/retratos';
 
 /* ============================================================
    CUIDADO — a aba das pessoas
@@ -43,7 +43,7 @@ const PAD = 24;
    e cada uma tinha a sua linha. No dia em que a clínica mandar a foto
    dela, uma das três ia ficar para trás, e seria a que ninguém abre com
    frequência. Agora há um mapa e três leitores. */
-const FOTO_MEDICA = RETRATOS.responsavel;
+const FOTO_MEDICA = fotoDe('responsavel');
 
 /* ------------------------------------------------------------------ *
  * COM VÍNCULO
@@ -85,14 +85,14 @@ const FOTO_MEDICA = RETRATOS.responsavel;
     baralho. */
 function Retrato({ nome, id, size = 56 }: { nome: string; id?: string; size?: number }) {
   const { c } = useTheme();
-  const foto = id ? RETRATOS[id] : undefined;
+  const foto = fotoDe(id);
   if (foto) {
     return (
       <Image
         source={foto}
         style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition="center"
+        contentPosition={focoDe(id)}
       />
     );
   }
@@ -468,7 +468,7 @@ function BannerMedica() {
                 source={FOTO_MEDICA}
                 style={{ width: 76, height: 76, borderRadius: radius.md, backgroundColor: c.bg2 }}
                 contentFit="cover"
-                contentPosition="center"
+                contentPosition={focoDe('responsavel')}
               />
             ) : (
               <View style={{
