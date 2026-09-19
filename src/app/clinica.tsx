@@ -1,14 +1,14 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { fichaDaClinica } from '../logic/derive';
+import { fichaDaClinica, contatosDaClinica } from '../logic/derive';
 import { Txt, Card, Row, CircleBtn, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { RETRATOS, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
-import { Cartao } from '../ui/internas';
+import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius, shadowCard, alfa } from '../theme';
@@ -56,9 +56,29 @@ import { Image } from 'expo-image';
    Reservar 300px de cinza para uma imagem que não chegou é a tela dizendo
    que falta alguma coisa, e o que falta não é culpa de quem está lendo.
 
-   ⚠️ E ELA VAI SERVIR PARA APRESENTAR PARCEIROS um dia — é a tela que
-   alguém vê antes de decidir. Por isso o que ela diz precisa ser o que a
-   clínica afirmou sobre si, e não o que o aplicativo inferiu: `sobre`,
+   ⚠️ E ELA TEM DUAS VERSÕES: A SUA CLÍNICA E UMA PARCEIRA.
+
+   A diferença não é de conteúdo — é de RELAÇÃO. Quem é paciente tem uma
+   conversa dentro do aplicativo, e a tela termina nela. Quem assina o
+   Personal e está olhando uma parceira não tem conversa nenhuma: termina
+   em telefone, WhatsApp, site — os canais de quem ainda é de fora.
+
+   Três coisas mudam, e só três:
+
+   · o cartão do vínculo vira a nota de como a parceria funciona;
+   · o botão "Escrever para a equipe" vira a lista "Entre em contato";
+   · a equipe deixa de abrir ficha — ver quem trabalha lá é informação,
+     mas a ficha de /especialista é a de quem CUIDA DE VOCÊ, com mensagem,
+     consultas e protocolos. Nenhuma dessas ações existe para quem não é
+     paciente, e uma tela cheia de ações que não respondem é pior do que
+     uma linha que não abre.
+
+   Todo o resto — foto, nome, sobre, endereço, convênios — é idêntico,
+   porque a clínica é a mesma nas duas.
+
+   ⚠️ ELA VAI SERVIR PARA APRESENTAR PARCEIROS — é a tela que alguém vê
+   antes de decidir. Por isso o que ela diz precisa ser o que a clínica
+   afirmou sobre si, e não o que o aplicativo inferiu: `sobre`,
    especialidade e cidade vêm de `clinicInfo`, e sumem inteiros quando
    ela não mandou nada.
    ============================================================ */
@@ -78,7 +98,19 @@ export default function Clinica() {
   const insets = useSafeAreaInsets();
   const go = (to: string) => () => router.push(to as any);
 
+  /* ⚠️ PORTA DE DESENVOLVIMENTO, e está listada em PENDENCIAS.
+
+     A versão de parceira não tem entrada: para chegar nela é preciso um
+     diretório de clínicas, que não existe. Enquanto não existir, `?parceira=1`
+     é como se olha para ela — e é `__DEV__` porque uma porta que mostra a
+     tela errada da clínica de alguém é exatamente o tipo de coisa que não
+     pode sair daqui. */
+  const { parceira } = useLocalSearchParams<{ parceira?: string }>();
+  const vinculada = !(__DEV__ && parceira === '1');
+
   const f = fichaDaClinica(S);
+  const contatos = contatosDaClinica(f?.contato);
+  const abrir = (url: string) => () => { Linking.openURL(url).catch(() => {}); };
   /* Vazio enquanto a clínica não mandar logo nem foto — e vazio é um
      estado inteiro, não um estado degradado: a faixa não aparece e o
      quadrado mostra as iniciais. */
@@ -313,10 +345,16 @@ export default function Clinica() {
                 o par pedia 210. */}
             <Cartao>
               {f.equipe.map((m) => (
+                /* ⚠️ SEM VÍNCULO, A LINHA NÃO É BOTÃO — e não ganha seta.
+                    É a mesma regra das prescrições em /medico: duas listas
+                    quase idênticas, uma que abre e outra que não, só se
+                    distinguem se a diferença estiver desenhada. A seta é a
+                    diferença. */
                 <Pressable
                   key={m.id}
-                  onPress={go(`/especialista?id=${m.id}`)}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                  onPress={vinculada ? go(`/especialista?id=${m.id}`) : undefined}
+                  disabled={!vinculada}
+                  style={({ pressed }) => [{ opacity: pressed && vinculada ? 0.6 : 1 }]}
                 >
                   <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' }}>
                     <Avatar ficha={m} />
@@ -346,7 +384,7 @@ export default function Clinica() {
                         {[m.responsavel ? 'Responsável' : null, m.papel].filter(Boolean).join(' · ')}
                       </Txt>
                     </View>
-                    <Chevron />
+                    {vinculada ? <Chevron /> : null}
                   </Row>
                 </Pressable>
               ))}
@@ -355,7 +393,7 @@ export default function Clinica() {
         ) : null}
 
         {/* ---- o vínculo ---- */}
-        {!!f.desde && (
+        {vinculada && !!f.desde && (
           <View style={{ marginTop: 26, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
             <Row gap={10} style={{ alignItems: 'flex-start' }}>
               <View style={{ marginTop: 2 }}>
@@ -373,16 +411,63 @@ export default function Clinica() {
           </View>
         )}
 
-        {/* ⚠️ UMA AÇÃO, E ELA É A QUE EXISTE. O desenho de referência tem
-            quatro — WhatsApp, telefone, site e Instagram — e nenhuma das
-            quatro tem dado no estado. Uma que abre vale mais do que quatro
-            que param. */}
-        <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 26, opacity: pressed ? 0.85 : 1 }]}>
-          <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
-            <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
-            <Txt v="body" c={c.accentInk}>Escrever para a equipe</Txt>
-          </Row>
+        {/* ---- como funciona a parceria ----
+
+            ⚠️ AQUI O DINHEIRO ENTRA, e na outra versão ele sai. Para quem
+            já é paciente, falar de custo numa tela sobre quem cuida dela é
+            ruído — /assinatura já diz. Para quem está olhando de fora, é a
+            informação mais útil da tela: é a diferença entre "uma clínica"
+            e "uma clínica que muda o que eu pago aqui". */}
+        {!vinculada && (
+          <View style={{ marginTop: 30, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18 }}>
+            <Row gap={10} style={{ alignItems: 'flex-start' }}>
+              <View style={{ marginTop: 2 }}>
+                <Icon name="check" size={16} color={c.lime} sw={2.4} />
+              </View>
+              <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
+                Pacientes de clínicas parceiras não pagam pelo aplicativo. Ao iniciar tratamento
+                aqui, a clínica passa um código e a sua assinatura deixa de ser cobrada.
+              </Txt>
+            </Row>
+          </View>
+        )}
+
+        {/* ---- o fim da tela ----
+
+            ⚠️ SÃO DUAS COISAS DIFERENTES, E NÃO A MESMA COM OUTRO RÓTULO.
+
+            Com vínculo: um botão, e ele abre a conversa de dentro do
+            aplicativo — que é melhor do que qualquer telefone, porque fica
+            registrada, chega à equipe inteira e não depende de ninguém ter
+            o número certo.
+
+            Sem vínculo: uma lista, e cada linha SAI do aplicativo. Não é
+            uma degradação da primeira: é o único conjunto de canais que
+            existe para quem ainda é de fora.
+
+            ⚠️ E CADA LINHA SÓ EXISTE COM O DADO DELA. "Telefone —" numa
+            lista de contatos é a tela prometendo um canal que não existe,
+            e a clínica que só tem WhatsApp mandou só o WhatsApp. */}
+        {vinculada ? (
+          <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 26, opacity: pressed ? 0.85 : 1 }]}>
+            <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
+              <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
+              <Txt v="body" c={c.accentInk}>Escrever para a equipe</Txt>
+            </Row>
           </Pressable>
+        ) : contatos.length ? (
+          <View style={{ marginTop: 30 }}>
+            <Txt v="h2">Entre em contato</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 6, marginBottom: 12, lineHeight: 21 }}>
+              Fale com a clínica para saber como começar o acompanhamento.
+            </Txt>
+            <Cartao>
+              {contatos.map((ct) => (
+                <Linha key={ct.titulo} ic={ct.ic} titulo={ct.titulo} sub={ct.sub} onPress={abrir(ct.url)} />
+              ))}
+            </Cartao>
+          </View>
+        ) : null}
         </View>
       </ScrollView>
     </View>

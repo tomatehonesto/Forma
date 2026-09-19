@@ -56,6 +56,10 @@ import FileText from 'lucide-react-native/icons/file-text';
 import Flag from 'lucide-react-native/icons/flag';
 import Flame from 'lucide-react-native/icons/flame';
 import Funnel from 'lucide-react-native/icons/funnel';
+import AtSign from 'lucide-react-native/icons/at-sign';
+import Globe from 'lucide-react-native/icons/globe';
+import Mail from 'lucide-react-native/icons/mail';
+import Phone from 'lucide-react-native/icons/phone';
 import GlassWater from 'lucide-react-native/icons/glass-water';
 import Milk from 'lucide-react-native/icons/milk';
 import CupSoda from 'lucide-react-native/icons/cup-soda';
@@ -147,6 +151,15 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   watch: Watch,
   wallet: Wallet,
   pin: MapPin,
+  /* ⚠️ NENHUM DESTES É A MARCA DE NINGUÉM. A linha do WhatsApp usa o
+     balão de conversa e a do Instagram usa o arroba — o nome do serviço
+     está escrito na linha, que é o que a pessoa precisa para saber onde
+     o toque vai dar. Reproduzir o logotipo alheio é outra conversa, e
+     esta casa não tem essa conversa com ninguém. */
+  phone: Phone,
+  mail: Mail,
+  site: Globe,
+  at: AtSign,
   alerta: TriangleAlert,
   chev: ChevronRight,
   check: Check,

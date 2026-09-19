@@ -259,6 +259,40 @@ descreve uma rede credenciada. Sem o botão ela lê como benefício do
 acompanhamento, e não como catálogo; com a rede no ar, precisa ser
 verdade sobre quem está nela.
 
+#### A tela da clínica parceira não tem entrada
+
+`/clinica` tem duas versões. A **sua clínica** é a que se alcança pela
+ficha da equipe. A **parceira** — a mesma tela vista por quem assina o
+Personal, sem vínculo: sem o botão de conversa, com telefone, WhatsApp,
+site, e-mail e Instagram no lugar dele — **não se alcança de lugar
+nenhum**, porque não existe diretório de clínicas parceiras.
+
+Hoje ela se olha por `?parceira=1`, que é `__DEV__` e sai junto com as
+outras portas de desenvolvimento (`?compra=1`, `?assinante=1`,
+`?assinante=anual`, o atalho para `/suspenso`).
+
+**Três coisas precisam existir antes de ela valer:**
+
+1. **O diretório.** Uma lista de clínicas parceiras que alguém possa
+   abrir — e com ela a decisão de quem entra na lista e por quê. A tela é
+   a vitrine; a vitrine sem loja é a parte fácil.
+2. **A ficha vir do servidor, e não do perfil.** Hoje `fichaDaClinica` lê
+   `profile.clinicInfo`, que é a SUA clínica. Uma parceira que você não
+   tem precisa de um `?id=` e de uma origem de dados — e aí `vinculada`
+   deixa de ser a porta de desenvolvimento e passa a ser derivável.
+3. **Os contatos de verdade.** O tipo `ContatoDaClinica` existe inteiro,
+   mas a semente **não tem telefone nem WhatsApp**, de propósito: um
+   telefone inventado a um toque de uma linha que disca sozinha faz
+   alguém ligar para a casa de um estranho. Site e e-mail estão em
+   `.example`, TLD reservado pela RFC 2606, que nunca vai pertencer a
+   ninguém. Quando a clínica mandar os dados, os campos já estão lá.
+
+⚠️ E há uma afirmação de dinheiro nessa versão: "**Pacientes de clínicas
+parceiras não pagam pelo aplicativo**". Ela é verdade no modelo de hoje
+(`isento(S) = clinicaConectada(S)`) e é o motivo de a tela existir para
+quem assina — mas é uma promessa comercial numa tela que apresenta um
+terceiro. Se a regra mudar, ela muda aqui também.
+
 ---
 
 ## 🟢 Confirmar em aparelho

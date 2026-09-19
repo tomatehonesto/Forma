@@ -299,6 +299,19 @@ export function buildSeed() {
            uma seção vazia — e quem lê precisa saber a diferença entre "não
            informou" e "só atende particular". */
         convenios: ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Particular'],
+        /* ⚠️ SEM TELEFONE E SEM WHATSAPP, DE PROPÓSITO. O campo existe e a
+           tela sabe desenhá-lo; o que não existe é um número inventado.
+           Um CRM falso não faz nada, um telefone falso faz alguém ligar
+           para a casa de um estranho — e este aqui ficaria a um toque de
+           distância numa linha que disca sozinha.
+
+           Site e e-mail podem: `.example` é TLD reservado (RFC 2606) e
+           nunca vai pertencer a ninguém. Para telefone não há reserva
+           equivalente, então não há semente. */
+        contato: {
+          site: 'www.clinicavitalis.example',
+          email: 'contato@clinicavitalis.example',
+        },
       },
       /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
          deduzido de haver um nome guardado.

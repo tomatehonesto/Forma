@@ -3913,6 +3913,52 @@ export function fichaDaEquipe(S: State): FichaDaEquipe[] {
    alguém. Quando a clínica mandar os dados, eles entram — até lá o canal
    que existe é a conversa, que já está na tela.
    ============================================================ */
+/* ============================================================
+   COMO SE FALA COM A CLÍNICA
+
+   ⚠️ ISTO EXISTE PARA QUEM NÃO É PACIENTE DELA. Quem é paciente tem a
+   conversa dentro do aplicativo, e ela é melhor: fica registrada, chega
+   à equipe inteira e não depende de ninguém ter o número certo. Quem
+   ainda não é não tem conversa nenhuma — e mandar essa pessoa para um
+   botão que não existe é pior do que mandá-la para o telefone.
+
+   ⚠️ E CADA CAMPO É OPCIONAL, UM POR UM. A clínica que só tem WhatsApp
+   manda só o WhatsApp. Nenhuma linha aparece sem o dado dela, porque
+   "Telefone —" numa lista de contatos é a tela prometendo um canal que
+   não existe.
+
+   ⚠️ TELEFONE E WHATSAPP NÃO TÊM VALOR DE SEMENTE, e a ausência é a
+   decisão. Um registro profissional inventado não faz nada; um telefone
+   inventado faz alguém ligar para a casa de um estranho. Site e e-mail
+   podem porque existe TLD reservado — nada em `.example` pertence a
+   ninguém, hoje nem nunca (RFC 2606). Para telefone não existe
+   equivalente, então não existe semente.
+   ============================================================ */
+export type ContatoDaClinica = {
+  /** só dígitos, com DDI: é o que vai na URL, e formatar isso é da tela */
+  whatsapp?: string;
+  /** como se lê, com parênteses e traço — o link tira o que não é dígito */
+  telefone?: string;
+  site?: string;
+  email?: string;
+  /** sem arroba; a tela põe */
+  instagram?: string;
+};
+
+/* As linhas da lista de contato, na ordem em que fazem sentido: o canal
+   mais rápido primeiro, o mais formal por último. */
+export function contatosDaClinica(ct?: ContatoDaClinica) {
+  if (!ct) return [];
+  const soDigitos = (v: string) => v.replace(/\D/g, '');
+  const linhas: { ic: string; titulo: string; sub: string; url: string }[] = [];
+  if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: 'WhatsApp', sub: 'Falar com a clínica', url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
+  if (ct.telefone) linhas.push({ ic: 'phone', titulo: 'Telefone', sub: ct.telefone, url: `tel:${soDigitos(ct.telefone)}` });
+  if (ct.site) linhas.push({ ic: 'site', titulo: 'Site', sub: ct.site, url: /^https?:/.test(ct.site) ? ct.site : `https://${ct.site}` });
+  if (ct.email) linhas.push({ ic: 'mail', titulo: 'E-mail', sub: ct.email, url: `mailto:${ct.email}` });
+  if (ct.instagram) linhas.push({ ic: 'at', titulo: 'Instagram', sub: `@${ct.instagram}`, url: `https://instagram.com/${ct.instagram}` });
+  return linhas;
+}
+
 export type FichaDaClinica = {
   nome: string;
   especialidade?: string;
@@ -3922,16 +3968,10 @@ export type FichaDaClinica = {
   endereco?: string;
   horario?: string;
   convenios?: string[];
-  /* ⚠️ TELEFONE, SITE E INSTAGRAM NÃO ESTÃO AQUI, e a ausência é a
-     decisão. Eles existem no mundo e vão existir no estado quando a
-     clínica mandar — o que não pode existir é a versão inventada deles
-     numa semente: um registro profissional falso não faz nada, um
-     telefone falso faz alguém ligar para a casa de um estranho e um
-     endereço clicável falso manda alguém até a porta dela.
-
-     O endereço fica, e fica como TEXTO: saber onde é resolve a dúvida de
-     quem já é paciente, e um mapa que abre é outra coisa — essa entra
-     junto com o dado de verdade. */
+  /* ⚠️ O ENDEREÇO É TEXTO, e não um mapa que abre. Um endereço clicável
+     manda alguém até uma porta, e enquanto o dado vier de semente essa
+     porta é de um estranho. A ação entra junto com o dado de verdade. */
+  contato?: ContatoDaClinica;
   /** desde quando o vínculo existe, para a tela poder dizer há quanto tempo */
   desde?: number;
   equipe: FichaDaEquipe[];
@@ -3949,6 +3989,7 @@ export function fichaDaClinica(S: State): FichaDaClinica | null {
     endereco: info.endereco || undefined,
     horario: info.horario || undefined,
     convenios: info.convenios?.length ? info.convenios : undefined,
+    contato: info.contato,
     desde: p.vinculo?.desde,
     equipe: fichaDaEquipe(S),
   };
