@@ -122,7 +122,10 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
             seloTom: paraMeta > 0 ? ('neutra' as const) : ('verde' as const),
           },
         ],
-        caminho: { label: 'Ver a curva do peso', to: '/marcador?id=peso' },
+        /* ⚠️ ERA `?id=peso`, E A TELA LÊ `m`. Funcionava por acidente: sem
+           `m` o catálogo cai no peso, que é o padrão. Copiada para a
+           cintura, a linha abriria o peso calada. */
+        caminho: { label: 'Ver a curva do peso', to: '/marcador?m=peso' },
       };
     }
 

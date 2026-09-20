@@ -3,9 +3,9 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { DAY, nf, dataLonga } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Vazio } from '../ui/kit';
 import {
-  TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, CardCurva,
+  TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, CardCurva, Aviso,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
@@ -35,8 +35,23 @@ type Def = {
   pontos: (S: any) => { t: number; v: number }[];
   /** "manhã" para peso; medidas não têm hora do dia */
   nota?: string;
-  /** para onde o "+" leva — cada marcador tem a sua captura */
-  capturar: string;
+  /** para onde o "+" leva. Sem captura não há "+": ninguém digita
+      composição corporal, ela chega da balança. */
+  capturar?: string;
+  /** o número não é produzido pela pessoa, então não há o que corrigir */
+  leitura?: boolean;
+  /** o que vale saber sobre medir ESTE marcador */
+  aviso?: { titulo: string; texto: string };
+};
+
+/* ⚠️ ELE MORAVA NA TELA DE MEDIDAS, solto no pé da lista das quatro
+   circunferências. Ali ele era um aviso geral sobre um assunto; aqui ele
+   chega junto do número que ele explica — e é quando a pessoa está
+   olhando a própria cintura que ela precisa saber que a comparação só
+   vale se as duas medições foram feitas igual. */
+const MESMO_JEITO = {
+  titulo: 'Medir sempre do mesmo jeito',
+  texto: 'Mesma hora do dia, sem roupa apertada e com a fita rente à pele, sem apertar. A comparação entre duas medidas só vale se as duas foram feitas igual.',
 };
 
 /* As quatro circunferências têm a mesma forma — um número em cm vindo da
@@ -45,7 +60,22 @@ type Def = {
 const circunferencia = (k: string, nome: string): Def => ({
   nome, unidade: 'cm', casas: 0,
   capturar: '/medir-medidas',
-  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })),
+  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })).filter((p) => p.v > 0),
+  aviso: MESMO_JEITO,
+});
+
+/* ⚠️ GORDURA E MASSA MAGRA ENTRARAM, e não tinham tela própria: os dois
+   cards da Jornada levavam a /medidas, uma lista onde eles são o segundo
+   bloco — a pessoa tocava em "Gordura corporal" e caía numa tela que abre
+   com quatro cards de circunferência.
+
+   Eles cabem aqui pela forma: um número, uma unidade, uma série no tempo.
+   O que muda é a origem — vêm da bioimpedância, não da mão da pessoa —, e
+   é isso que o `leitura` diz: sem "+" no cabeçalho e sem a lista que
+   promete corrigir. */
+const daBalanca = (k: string, nome: string, unidade: string): Def => ({
+  nome, unidade, casas: 1, leitura: true,
+  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })).filter((p) => p.v > 0),
 });
 
 const DEFS: Record<string, Def> = {
@@ -58,6 +88,8 @@ const DEFS: Record<string, Def> = {
   quadril: circunferencia('quadril', 'Quadril'),
   braco: circunferencia('braco', 'Braço'),
   coxa: circunferencia('coxa', 'Coxa'),
+  gordura: daBalanca('gordura', 'Gordura corporal', '%'),
+  musculo: daBalanca('musculo', 'Massa magra', 'kg'),
 };
 
 
@@ -92,11 +124,31 @@ export default function Marcador() {
     .slice()
     .reverse();
 
+  /* ⚠️ SEM SÉRIE, NÃO HÁ TELA — e sem esta guarda ela quebrava inteira.
+     `todos[todos.length - 1]` de uma lista vazia é undefined, e a linha
+     seguinte lê `.v` dele. A tela de medidas já tinha aprendido isso uma
+     vez, no cartão que sumia quando a lista estava vazia. */
+  if (!todos.length) {
+    return (
+      <TelaInterna titulo={def.nome}>
+        <Cartao>
+          <Vazio
+            ic="ruler"
+            titulo={`Nenhum registro de ${def.nome.toLowerCase()}`}
+            texto={def.leitura
+              ? 'Esta medida vem da balança de bioimpedância, e ainda não chegou nenhuma.'
+              : 'Registre a primeira para começar a acompanhar.'}
+          />
+        </Cartao>
+      </TelaInterna>
+    );
+  }
+
   return (
     <TelaInterna
       titulo={def.nome}
-      iconeAcao="plus"
-      onAcao={() => router.push(def.capturar as any)}
+      iconeAcao={def.capturar ? 'plus' : undefined}
+      onAcao={def.capturar ? () => router.push(def.capturar as any) : undefined}
     >
       <Titulao
         titulo={fmt(ultimo.v)}
@@ -132,9 +184,15 @@ export default function Marcador() {
         pontos={pts.map((p) => ({ v: p.v, rotulo: fmt(p.v), quando: dataLonga(p.t) }))}
       />
 
+      {/* ⚠️ A NOTA MUDA DE VOZ QUANDO O NÚMERO NÃO É DA PESSOA. "Toque
+          para corrigir" numa leitura de bioimpedância promete uma edição
+          que não existe — e a linha nem abre. O que ela guarda de
+          verdade, nos dois casos, é que aquilo vai para o relatório. */}
       <Bloco
         titulo="Registros"
-        nota="Toque para corrigir ou apagar. O que estiver aqui vai para o relatório do seu médico."
+        nota={def.leitura
+          ? 'Leituras da balança de bioimpedância. Não há o que corrigir por aqui — elas chegam prontas.'
+          : 'Toque para corrigir ou apagar. O que estiver aqui vai para o relatório do seu médico.'}
       >
         <Cartao>
           {registros.map((r) => (
@@ -145,11 +203,13 @@ export default function Marcador() {
               selo={r.delta == null ? '—' : `${r.delta > 0 ? '+' : '−'}${fmt(Math.abs(r.delta))} ${def.unidade}`}
               seloTom={r.delta == null ? 'neutra' : 'lima'}
               seta={false}
-              onPress={() => router.push(`/registro?m=${m ?? 'peso'}&t=${r.t}` as any)}
+              onPress={def.leitura ? undefined : () => router.push(`/registro?m=${m ?? 'peso'}&t=${r.t}` as any)}
             />
           ))}
         </Cartao>
       </Bloco>
+
+      {def.aviso ? <Aviso ic="ruler" titulo={def.aviso.titulo} texto={def.aviso.texto} /> : null}
     </TelaInterna>
   );
 }

@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Path, Line as SvgLine } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
@@ -963,7 +963,14 @@ export default function Exames() {
   const { c } = useTheme();
   const router = useRouter();
   const aurora = useAurora();
-  const [sel, setSel] = useState<string | null>(null);
+  /* ⚠️ O DETALHE PASSOU A TER ROTA, e antes só existia como estado desta
+     tela. Quem vinha de fora atrás de UM marcador — o card de HbA1c na
+     Jornada, por exemplo — caía na lista dos quinze e tinha que procurar
+     o seu no meio dela. O detalhe é a melhor tela de marcador da casa:
+     régua, curva, faixa do laboratório e o que aquilo significa junto do
+     resto. Ele não podia depender de a pessoa achar a linha certa. */
+  const { m } = useLocalSearchParams<{ m?: string }>();
+  const [sel, setSel] = useState<string | null>(m ?? null);
 
   /* ⚠️ `examesComValor` JÁ NA ENTRADA, e não só no cálculo de `fora`.
 
@@ -981,7 +988,9 @@ export default function Exames() {
 
   if (sel) {
     const e = examBy(S, sel);
-    if (e) return <Detalhe e={e} onVoltar={() => setSel(null)} />;
+    /* Chegando pela rota, a seta volta para quem empurrou. Levar à lista
+       seria mandar a pessoa para uma tela que ela nunca pediu. */
+    if (e) return <Detalhe e={e} onVoltar={sel === m ? () => router.back() : () => setSel(null)} />;
   }
 
   return (
