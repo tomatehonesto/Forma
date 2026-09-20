@@ -35,6 +35,29 @@ import { radius, shadowCard, alfa, mix } from '../theme';
    que é a única leitura que a pessoa consegue fazer sem formação.
    ============================================================ */
 
+/* ============================================================
+   O TERMO CURTO É "REFERÊNCIA", E FOI "FAIXA"
+
+   O nome completo continua sendo "faixa de referência", que é o termo
+   certo. O que mudou foi por qual metade dele a gente encurta.
+
+   ⚠️ "REFERÊNCIA" É A PALAVRA QUE ESTÁ NO PAPEL. Todo laudo de
+   laboratório brasileiro imprime "Valores de referência" em cima da
+   coluna dos limites. "Faixa" não aparece em lugar nenhum daquela folha —
+   quem chega aqui com o exame na mão reconhece uma e não a outra.
+
+   ⚠️ E ELA NOMEIA DE QUEM É O LIMITE. "Fora da faixa" soa como veredito
+   nosso; "fora da referência" aponta para quem escreveu a referência, que
+   é o laboratório. Numa tela que existe para não dar diagnóstico, a
+   diferença não é de estilo.
+
+   ⚠️ E NÃO É "NORMAL"/"ALTERADO", que é como as pessoas falam. Esse par
+   importa um juízo que o aplicativo não tem como fazer: um valor fora da
+   referência não é necessariamente anormal para aquela pessoa, e um
+   dentro não é necessariamente tranquilo. "Alterado" é, das palavras
+   possíveis, a que mais assusta antes de haver alguém para conversar.
+   ============================================================ */
+
 const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
 
 /* ⚠️ O CINZA DE FORA DA FAIXA NÃO É O `c.track`, e era.
@@ -368,11 +391,11 @@ function MalhaDaEvolucao({ e }: { e: any }) {
      uma textura consegue. Já o veredito de cada coleta sai do valor
      exato, e é por isso que ele mora no balão do toque e não na malha:
      uma coleta a um décimo do limite pousa num ponto claro e mesmo assim
-     diz "acima da faixa" quando a pessoa encosta nela. */
+     diz "acima da referência" quando a pessoa encosta nela. */
   const dentroDe = (v: number) =>
     (limBaixo == null || v >= limBaixo) && (limAlto == null || v <= limAlto);
   const ondeCaiu = (v: number) =>
-    dentroDe(v) ? null : (limAlto != null && v > limAlto ? 'acima da faixa' : 'abaixo da faixa');
+    dentroDe(v) ? null : (limAlto != null && v > limAlto ? 'acima da referência' : 'abaixo da referência');
 
   const x0 = CALHA + RAIO_DA_COLETA;
   const x1 = Math.max(x0 + 1, w - RAIO_DA_COLETA);
@@ -889,7 +912,11 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
          diferentes — "estou bem?" e "estou indo bem?" — e um marcador pode
          responder sim para uma e não para a outra, que é justamente o caso
          que mais importa. Juntas num sinal só, esse caso desaparecia. */
-      selo={st === 'ok' ? 'na faixa' : st === 'alto' ? 'acima' : 'abaixo'}
+      /* ⚠️ "REFERÊNCIA", E NÃO "FAIXA" — ver a nota do termo, no topo do
+         arquivo. As duas de fora ficam curtas porque a cor e a seta já
+         dizem que é exceção; o que falta ali é a DIREÇÃO, e é só isso que
+         elas carregam. */
+      selo={st === 'ok' ? 'na referência' : st === 'alto' ? 'acima' : 'abaixo'}
       seloTom={st === 'ok' ? 'verde' : 'alerta'}
       sub={
         <Row gap={4} style={{ alignItems: 'center' }}>
@@ -897,7 +924,19 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
             <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={12} color={corDaSeta} sw={2.8} />
           ) : null}
           <Txt v="label">{fmtV(l.v)}</Txt>
-          <Txt v="caption" c={c.tx3}>{e.unit} · ref {e.ref}</Txt>
+          {/* A REFERÊNCIA SÓ APARECE NAS LINHAS DE FORA.
+
+              Numa lista de quinze, "ref 2,6–24,9" é ruído em catorze delas:
+              quem está dentro não precisa conferir a conta, porque a
+              pastilha já conferiu. Na linha que destoa ela vira a
+              informação que falta — não só que está acima, mas acima DE
+              QUE —, e ali o selo é curto e sobra largura para ela.
+
+              E foi o que destravou o marcador mais largo: com o selo em
+              "na referência", a insulina quebrava "12 µUI/mL · ref
+              2,6–24,9" em duas linhas, e uma linha mais alta que as
+              vizinhas lê como defeito. */}
+          <Txt v="caption" c={c.tx3}>{e.unit}{st === 'ok' ? '' : ` · ref ${e.ref}`}</Txt>
         </Row>
       }
     />
@@ -980,12 +1019,12 @@ export default function Exames() {
             <Row style={{ alignItems: 'flex-end' }}>
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{fora.length}</Txt>
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da faixa</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da referência</Txt>
               </View>
               <View style={{ width: 1, height: 50, backgroundColor: c.onHeroLine, marginBottom: 16 }} />
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{dentro}</Txt>
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na faixa</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na referência</Txt>
               </View>
             </Row>
 
@@ -1022,7 +1061,7 @@ export default function Exames() {
           Sem nenhum fora, o bloco não existe — e não vira um vazio dizendo
           "nada por aqui", que é ruído com cara de conteúdo. */}
       {fora.length ? (
-        <Bloco titulo="Fora da faixa">
+        <Bloco titulo="Fora da referência">
           <Cartao>
             {fora.map((e) => (
               <LinhaDoMarcador key={e.marker} e={e} onPress={() => setSel(e.marker)} />

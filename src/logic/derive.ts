@@ -1075,12 +1075,12 @@ export function examSummary(S: State): string | null {
   const fora = todos.filter((e) => examStatus(e) !== 'ok');
 
   const estado = fora.length === 0
-    ? `Os ${n} marcadores desta coleta estão dentro da faixa do laboratório.`
+    ? `Os ${n} marcadores desta coleta estão dentro da referência do laboratório.`
     : fora.length === 1
-      ? `Um dos ${n} marcadores desta coleta ficou fora da faixa: ${marcadorNoMeio(fora[0].marker)}.`
+      ? `Um dos ${n} marcadores desta coleta ficou fora da referência: ${marcadorNoMeio(fora[0].marker)}.`
       : fora.length <= LISTA_MAXIMA
-        ? `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`
-        : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa.`;
+        ? `${fora.length} dos ${n} marcadores desta coleta ficaram fora da referência: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`
+        : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da referência.`;
 
   /* Só entram no rumo os marcadores que declaram qual lado é o bom. Sem
      isso, chamar uma direção de melhora seria opinião — e creatinina ou
@@ -1215,7 +1215,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
     ? ''
     : dentro
       ? (melhorou ? ', na direção esperada' : ', na direção oposta à esperada')
-      : (melhorou ? ', caminhando na direção da faixa' : ', se afastando da faixa');
+      : (melhorou ? ', caminhando na direção da referência' : ', se afastando dela');
 
   const andou = !varios || delta === 0
     ? ''
@@ -1238,12 +1238,12 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
     const n = todos.length;
     if (dentro) {
       return fora === 0
-        ? ` Os ${n} marcadores deste exame estão dentro da faixa.`
-        : ` Dos ${n} marcadores deste exame, ${fora} ${fora === 1 ? 'ficou' : 'ficaram'} fora da faixa; este não.`;
+        ? ` Os ${n} marcadores deste exame estão dentro da referência.`
+        : ` Dos ${n} marcadores deste exame, ${fora} ${fora === 1 ? 'ficou' : 'ficaram'} fora da referência; este não.`;
     }
     return fora === 1
-      ? ` Dos ${n} marcadores deste exame, este é o único fora da faixa.`
-      : ` Dos ${n} marcadores deste exame, ${fora} estão fora da faixa, e este é um deles.`;
+      ? ` Dos ${n} marcadores deste exame, este é o único fora da referência.`
+      : ` Dos ${n} marcadores deste exame, ${fora} estão fora da referência, e este é um deles.`;
   })();
 
   const texto = `Na coleta de ${dia(l.t)} o valor foi ${num(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
@@ -2813,7 +2813,7 @@ export function journeyChanges(S: State): Change[] {
     const f = examFirst(a1c), l = examLast(a1c);
     out.push({
       ic: 'doc', label: 'HbA1c', from: `${n1(f.v)}%`, to: `${n1(l.v)}%`,
-      delta: examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da faixa',
+      delta: examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência',
       good: examStatus(a1c) === 'ok', to_: '/exames',
     });
   }

@@ -326,7 +326,20 @@ export function Linha({ ic, titulo, sub, selo, seloTom, seta, onPress }: {
           ? <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{sub}</Txt>
           : <View style={{ marginTop: 2 }}>{sub}</View>}
       </View>
-      {selo ? <Selo label={selo} tom={seloTom} /> : null}
+      {/* ⚠️ O INVÓLUCRO É QUE CENTRA O SELO, e sem ele a pastilha
+          encostava no alto da linha.
+
+          O <Selo> nasceu com `alignSelf: 'flex-start'` embutido, porque no
+          corpo de um card ele etiqueta o começo de um parágrafo. Aqui ele
+          é filho de uma <Row> que centra tudo — e `alignSelf` no filho
+          ganha do `alignItems` do pai. Numa linha de duas alturas, título
+          e subtítulo, a pastilha ficava alinhada com o título e treze
+          pixels acima do centro: em lista, isso lê como desalinho, não
+          como intenção.
+
+          O invólucro tem a altura do selo e é ELE que a Row centra. A peça
+          compartilhada não muda. */}
+      {selo ? <View style={{ alignSelf: 'center' }}><Selo label={selo} tom={seloTom} /></View> : null}
       {mostraSeta ? <Icon name="chev" size={14} color={c.tx4} sw={2} /> : null}
     </Row>
   );
