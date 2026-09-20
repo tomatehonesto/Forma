@@ -7,6 +7,7 @@ import { startOfDay, now, diffDays, nf, dataComDiaDaSemana, maiuscula } from '..
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { useTrocarDeTela } from '../ui/navegar';
 
 /* ============================================================
    UM DIA
@@ -54,7 +55,7 @@ export default function Dia() {
 
   /* Fechar antes de navegar: o sheet é um transparentModal, e empilhar uma
      tela cheia por cima dele deixaria o scrim vivo atrás dela. */
-  const ir = (rota: string) => { router.back(); setTimeout(() => router.push(rota as any), 60); };
+  const ir = useTrocarDeTela();
 
   return (
     <SheetScreen titulo={titulo} sub={sub || 'Registros deste dia'} onClose={() => router.back()}>

@@ -8,6 +8,7 @@ import { Txt, Row } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { useTrocarDeTela } from '../ui/navegar';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -53,7 +54,7 @@ export default function RegistroOk() {
      `replace`, então aqui embaixo está a tela de origem — e não um
      formulário já salvo que o botão de voltar do sistema reabriria. */
   const sair = () => router.back();
-  const seguir = (to: string) => { router.back(); setTimeout(() => router.push(to as any), 60); };
+  const seguir = useTrocarDeTela();
 
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
