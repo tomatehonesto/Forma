@@ -2454,7 +2454,12 @@ export function dailyTargets(S: State): DailyTarget[] {
 /* Todo número exibido vem com um veredito. O valor diz a medida; a palavra
    diz se está bom — e é a palavra que a pessoa procura primeiro. Sem isso
    ela faz a conta sozinha, e num tratamento médico faz errado. */
-export type Verdict = { label: string; good: boolean };
+/* ⚠️ O `tom` E OPCIONAL E O `good` FICA, porque a maioria dos vereditos
+   do app é binária de verdade: proteína na meta ou abaixo, estoque em dia
+   ou não. Só um deles tem um terceiro estado — o ritmo de perda, onde
+   "rápido demais" não é fracasso nem sucesso, e sim assunto para a
+   equipe. Quem nao declara `tom` continua caindo no par de sempre. */
+export type Verdict = { label: string; good: boolean; tom?: 'bom' | 'ruim' | 'atencao' };
 
 /** Média de proteína dos últimos 7 dias, contra a meta. */
 export function protein7d(S: State) {
@@ -4394,12 +4399,16 @@ export function journeySummary(S: State) {
      "Acima do início" é o fato, sem adjetivo: a etiqueta abre /ritmo, e é
      lá que se explica o que ela mede e o que não mede. */
   const verdict: Verdict = lost < 0
-    ? { label: 'Acima do início', good: false }
+    ? { label: 'Acima do início', good: false, tom: 'ruim' }
     : ritmo >= 0.5 && ritmo <= 1.5
-      ? { label: 'Em ritmo saudável', good: true }
+      ? { label: 'Em ritmo saudável', good: true, tom: 'bom' }
+      /* ⚠️ ACELERADO NÃO É RUIM, E ERA PINTADO COMO RUIM. Perder mais de
+         1,5 kg por semana é motivo para conversar com a equipe — massa
+         magra, hidratação —, e não um erro que a pessoa cometeu. Vermelho
+         cobra; âmbar chama. */
       : ritmo > 1.5
-        ? { label: 'Ritmo acelerado', good: false }
-        : { label: 'Ritmo mais lento', good: true };
+        ? { label: 'Ritmo acelerado', good: false, tom: 'atencao' }
+        : { label: 'Ritmo mais lento', good: true, tom: 'bom' };
   return {
     dia: journeyDay(S), semana: S.protocol.week,
     /* O rótulo já vem com o sinal: quem consome só imprime. Antes ele era

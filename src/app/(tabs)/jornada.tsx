@@ -52,6 +52,18 @@ function Painel() {
   const insets = useSafeAreaInsets();
   const largura = useLarguraApp();
   const r = journeySummary(S);
+  /* ⚠️ TRÊS TONS, E NÃO DOIS. O par verde/vermelho não tem onde pôr
+     "acelerado": perder mais de 1,5 kg por semana não é fracasso nem
+     sucesso, é assunto para a equipe. Vermelho cobra; âmbar chama.
+
+     A tinta é o bg1 nos dois primeiros e não um branco cravado: no tema
+     claro ele é branco sobre o verde e o âmbar escuros, no escuro é quase
+     preto sobre os claros. O vermelho já tem o ctaInk, que faz o mesmo. */
+  const tomDoVeredito = r.verdict.tom ?? (r.verdict.good ? 'bom' : 'ruim');
+  const [fundoDoVeredito, tintaDoVeredito] =
+    tomDoVeredito === 'bom' ? [c.ok, c.bg1]
+      : tomDoVeredito === 'atencao' ? [c.amber, c.bg1]
+        : [c.cta, c.ctaInk];
   const cyc = doseCycle(S);
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
@@ -106,8 +118,8 @@ function Painel() {
               A tinta é o bg1 e não um branco cravado: no tema claro ele é
               branco sobre o verde escuro, e no escuro é quase preto sobre
               o verde claro. Uma cor só, que vira duas onde precisa. */}
-          <View style={{ backgroundColor: r.verdict.good ? c.ok : c.cta, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
-            <Txt v="tag" c={r.verdict.good ? c.bg1 : c.ctaInk}>{r.verdict.label}</Txt>
+          <View style={{ backgroundColor: fundoDoVeredito, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
+            <Txt v="tag" c={tintaDoVeredito}>{r.verdict.label}</Txt>
           </View>
         </Pressable>
       </Row>
