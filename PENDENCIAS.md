@@ -39,6 +39,33 @@ jurídico sem revisão profissional.
 As lojas exigem um endereço na internet para a política de privacidade. O
 texto está em dados justamente para poder ser publicado; falta a página.
 
+### 4. O "Resumo da IA" dos exames é texto fixo da semente
+
+`src/app/exames.tsx` → o `<Aviso ic="spark" titulo="Resumo da IA">`
+
+Ele diz, com todas as letras: *"Seus marcadores metabólicos melhoraram de
+forma consistente: HbA1c 6,3 → 5,6%, triglicerídeos e LDL em queda, HDL e
+vitamina D em alta."*
+
+São os números da Mariana da semente, escritos à mão. Para qualquer outra
+pessoa isso é **uma afirmação inventada sobre os exames dela** — e para
+quem piorou, o aplicativo diz que melhorou, citando valores que ela nunca
+teve. É o mesmo defeito que já foi consertado na leitura de cada marcador
+(`examExplain`, em `src/logic/derive.ts`, que hoje se monta do histórico de
+quem lê); este sobrou porque o cartão promete uma IA que ainda não existe.
+
+Duas saídas, e as duas servem:
+
+- **derivar**, como o `examExplain` faz: quantos estão dentro e fora,
+  quais estão fora, e o que mais andou desde a primeira coleta. Sem IA
+  nenhuma, e verdadeiro para todo mundo;
+- **gerar de verdade** no servidor, e aí o rótulo "Resumo da IA" passa a
+  ser honesto.
+
+O que **não** pode é subir para a loja como está: é um aplicativo de saúde
+afirmando fatos clínicos falsos sobre o exame de sangue de uma pessoa
+real.
+
 ---
 
 ## 🟡 Passa a valer quando a assinatura entrar

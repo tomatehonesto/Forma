@@ -282,7 +282,16 @@ export function Cartao({ children, style }: { children: React.ReactNode; style?:
 /* Linha de cartão — ícone opcional, título, sub, e um fecho à direita que
    pode ser selo, chevron ou nada, quando a linha é só leitura. */
 export function Linha({ ic, titulo, sub, selo, seloTom, seta, onPress }: {
-  ic?: string; titulo: string; sub?: string;
+  ic?: string; titulo: string;
+  /* ⚠️ O SUBTÍTULO ACEITA PEÇA MONTADA, e só aceitava texto.
+
+     Quase toda lista quer uma frase cinza embaixo do título, e para essas
+     a string continua sendo o caminho — passar JSX ali seria cerimônia. Mas
+     existe um caso em que o subtítulo carrega VEREDITO, e não descrição: a
+     lista de exames, onde o valor precisa sair vermelho e com seta quando
+     está fora da faixa. Sem isto, aquela tela precisaria de uma cópia local
+     da Linha, e uma cópia é onde as duas começam a divergir. */
+  sub?: React.ReactNode;
   selo?: string; seloTom?: SeloTom; seta?: boolean; onPress?: () => void;
 }) {
   const { c } = useTheme();
@@ -306,7 +315,9 @@ export function Linha({ ic, titulo, sub, selo, seloTom, seta, onPress }: {
       ) : null}
       <View style={{ flex: 1 }}>
         <Txt v="body">{titulo}</Txt>
-        {sub ? <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{sub}</Txt> : null}
+        {sub == null || sub === false ? null : typeof sub === 'string'
+          ? <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{sub}</Txt>
+          : <View style={{ marginTop: 2 }}>{sub}</View>}
       </View>
       {selo ? <Selo label={selo} tom={seloTom} /> : null}
       {mostraSeta ? <Icon name="chev" size={14} color={c.tx4} sw={2} /> : null}

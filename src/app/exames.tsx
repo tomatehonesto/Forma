@@ -854,11 +854,49 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* ⚠️ A LINHA DA LISTA MOSTRA O VEREDITO, E MOSTRAVA A VARIAÇÃO.
+
+   O selo da direita trazia "−0,7" — o quanto mudou desde a primeira
+   coleta. É um fato bom, e era o fato errado para esta tela: numa lista de
+   quinze marcadores a pergunta não é "quanto andou", é "tem algum fora?".
+   A variação exige comparar com a referência de cabeça para virar
+   resposta; a cor não exige nada.
+
+   Agora o valor sai vermelho e com seta quando está fora, e em tinta
+   normal quando está dentro. Quem está bem não ganha decoração nenhuma —
+   é assim que a lista fica com três pontos vermelhos em vez de quinze
+   etiquetas. A variação continua existindo, no detalhe, onde ela tem
+   espaço para dizer de quanto para quanto. */
+function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
+  const { c } = useTheme();
+  const l = examLast(e);
+  const st = examStatus(e);
+  return (
+    <Linha
+      titulo={e.marker}
+      onPress={onPress}
+      sub={
+        <Row gap={4} style={{ alignItems: 'center' }}>
+          {st !== 'ok' ? (
+            <Icon name={st === 'alto' ? 'arrowup' : 'arrowdown'} size={12} color={c.cta} sw={2.8} />
+          ) : null}
+          <Txt v="label" c={st === 'ok' ? c.tx : c.cta}>{fmtV(l.v)}</Txt>
+          <Txt v="caption" c={c.tx3}>{e.unit} · ref {e.ref}</Txt>
+        </Row>
+      }
+    />
+  );
+}
+
 export default function Exames() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
+
+  const todos = (S.exams as any[]) ?? [];
+  const fora = todos.filter((e) => examStatus(e) !== 'ok');
+  const dentro = todos.length - fora.length;
 
   if (sel) {
     const e = examBy(S, sel);
@@ -877,10 +915,56 @@ export default function Exames() {
         </>
       }
     >
-      <Titulao
-        titulo="Exames"
-        lead="Importados, organizados por sistema e explicados em português. Toque num marcador para ver a faixa de referência e o histórico."
-      />
+      {/* ⚠️ O LEAD ENCOLHEU PORQUE A CONTAGEM CHEGOU. Ele explicava como a
+          tela funciona — "organizados por sistema", "toque num marcador" —,
+          que é instrução, não informação. Quem abre Exames quer saber se
+          tem alguma coisa errada, e essa resposta agora está logo abaixo,
+          em dois números. */}
+      <Titulao titulo="Exames" lead="Importados do laboratório e explicados em português." />
+
+      {/* ---- a contagem ----
+
+          ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
+          alarme sem denominador: três de quinze e três de quatro são
+          situações diferentes, e a pessoa não tem como saber qual é a dela
+          sem contar a lista inteira. O par diz o tamanho do problema e o
+          tamanho do que está bem, na mesma olhada.
+
+          ⚠️ E O ZERO NÃO FICA VERMELHO. A cor aqui é do FATO de haver algo
+          fora, não da casa onde o número mora — um zero vermelho seria a
+          tela gritando exatamente quando não há nada para gritar. */}
+      {todos.length ? (
+        <Row style={{ alignItems: 'stretch', paddingVertical: 4 }}>
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Txt v="display" style={{ fontSize: 42, lineHeight: 48 }} c={fora.length ? c.cta : c.tx}>{fora.length}</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>fora da faixa</Txt>
+          </View>
+          <View style={{ width: StyleSheet.hairlineWidth, backgroundColor: c.line, marginVertical: 6 }} />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Txt v="display" style={{ fontSize: 42, lineHeight: 48 }}>{dentro}</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>na faixa</Txt>
+          </View>
+        </Row>
+      ) : null}
+
+      {/* ---- os que estão fora ----
+
+          ⚠️ ELES APARECEM DUAS VEZES NA TELA, aqui e na categoria deles, e
+          a repetição é o serviço. A contagem diz QUANTOS estão fora; sem
+          este bloco, descobrir QUAIS é rolar cinco categorias procurando
+          tinta vermelha. É a mesma linha, no atalho.
+
+          Sem nenhum fora, o bloco não existe — e não vira um vazio dizendo
+          "nada por aqui", que é ruído com cara de conteúdo. */}
+      {fora.length ? (
+        <Bloco titulo="Fora da faixa">
+          <Cartao>
+            {fora.map((e) => (
+              <LinhaDoMarcador key={e.marker} e={e} onPress={() => setSel(e.marker)} />
+            ))}
+          </Cartao>
+        </Bloco>
+      ) : null}
 
       <Aviso ic="spark" titulo="Resumo da IA">
         <Rich
@@ -897,22 +981,7 @@ export default function Exames() {
             {ms.map((mk) => {
               const e = examBy(S, mk);
               if (!e) return null;
-              const l = examLast(e), st = examStatus(e);
-              const varios = e.values.length > 1;
-              const delta = varios ? l.v - examFirst(e).v : 0;
-              const bom = e.good === 'up' ? delta > 0 : delta < 0;
-              return (
-                <Linha
-                  key={mk}
-                  titulo={mk}
-                  sub={`${fmtV(l.v)} ${e.unit} · ref ${e.ref}`}
-                  selo={varios
-                    ? `${delta > 0 ? '+' : '−'}${fmtV(Math.abs(delta))}`
-                    : (st === 'ok' ? 'normal' : st)}
-                  seloTom={varios ? (bom ? 'lima' : 'neutra') : (st === 'ok' ? 'verde' : 'neutra')}
-                  onPress={() => setSel(mk)}
-                />
-              );
+              return <LinhaDoMarcador key={mk} e={e} onPress={() => setSel(mk)} />;
             })}
           </Cartao>
         </Bloco>
