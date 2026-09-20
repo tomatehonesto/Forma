@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarTreino, ehManual, origemDoTreino, treinoEm } from '../logic/derive';
 import { ehForca, iconeDe } from '../logic/modalidades';
-import { MO_LONG, DOW_PT, semanaDoTratamento } from '../logic/time';
+import { semanaDoTratamento, dataComDiaDaSemana } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -51,7 +51,7 @@ export default function Treino() {
   const treino = treinoEm(S, dia, idx);
 
   const d = new Date(dia);
-  const dataLonga = `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+  const data = dataComDiaDaSemana(d);
   const semana = semanaDoTratamento(d, S.profile.startT);
 
   const apagar = () => {
@@ -75,7 +75,7 @@ export default function Treino() {
   return (
     <SheetScreen
       titulo={treino.tipo}
-      sub={dataLonga}
+      sub={data}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 20, gap: 10 }}>

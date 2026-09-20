@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { MO_LONG, DAY, nf } from '../logic/time';
+import { DAY, nf, dataLonga } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, CardCurva,
@@ -60,7 +60,6 @@ const DEFS: Record<string, Def> = {
   coxa: circunferencia('coxa', 'Coxa'),
 };
 
-const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 export default function Marcador() {
   const S = useStore((s) => s.S);
@@ -102,7 +101,7 @@ export default function Marcador() {
       <Titulao
         titulo={fmt(ultimo.v)}
         unidade={def.unidade}
-        lead={`Registrado em ${porExtenso(ultimo.t)} · ${fmt(primeiro.v)} ${def.unidade} no início do tratamento`}
+        lead={`Registrado em ${dataLonga(ultimo.t)} · ${fmt(primeiro.v)} ${def.unidade} no início do tratamento`}
       />
 
       {/* Os chips saíram de dentro do card. A curva agora encosta na borda
@@ -130,7 +129,7 @@ export default function Marcador() {
         valor={variacao != null ? `${variacao > 0 ? '+' : '−'}${fmt(Math.abs(variacao))}` : '—'}
         unidade={def.unidade}
         altura={120}
-        pontos={pts.map((p) => ({ v: p.v, rotulo: fmt(p.v), quando: porExtenso(p.t) }))}
+        pontos={pts.map((p) => ({ v: p.v, rotulo: fmt(p.v), quando: dataLonga(p.t) }))}
       />
 
       <Bloco
@@ -142,7 +141,7 @@ export default function Marcador() {
             <Linha
               key={r.t}
               titulo={`${fmt(r.v)} ${def.unidade}`}
-              sub={`${porExtenso(r.t)}${def.nota ? ` · ${def.nota}` : ''}`}
+              sub={`${dataLonga(r.t)}${def.nota ? ` · ${def.nota}` : ''}`}
               selo={r.delta == null ? '—' : `${r.delta > 0 ? '+' : '−'}${fmt(Math.abs(r.delta))} ${def.unidade}`}
               seloTom={r.delta == null ? 'neutra' : 'lima'}
               seta={false}

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { timelineWeeks, timelineEvents, timelineCounts, type TLKind } from '../logic/derive';
-import { MO, MO_LONG, DAY } from '../logic/time';
+import { MO, MO_LONG, DAY, dataLonga } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
@@ -76,7 +76,7 @@ export default function Historico() {
           diz o que abre, onde abre. */}
       <Titulao
         titulo="Seu tratamento"
-        lead={`Tudo que você registrou desde ${inicio.getDate()} de ${MO_LONG[inicio.getMonth()]}.`}
+        lead={`Tudo que você registrou desde ${dataLonga(inicio)}.`}
       />
 
       <Chips itens={chips} valor={aba} onChange={setAba} />

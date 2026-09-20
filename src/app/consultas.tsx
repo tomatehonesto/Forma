@@ -7,7 +7,7 @@ import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { preparoDaConsulta, temConsulta, clinicaConectada } from '../logic/derive';
-import { fmtWD, fmtDate, relDay, diffDays, now } from '../logic/time';
+import { fmtWD, fmtDate, relDay, diffDays, now, maiuscula } from '../logic/time';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -40,7 +40,6 @@ import { radius } from '../theme';
    plataforma, e nem a plataforma existe.
    ============================================================ */
 
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Consultas() {
   const S = useStore((s) => s.S);
@@ -108,7 +107,7 @@ export default function Consultas() {
             </Row>
             {S.consult.type ? <Pill label={S.consult.type} /> : null}
           </Row>
-          <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{cap(relDay(nd))}</Txt>
+          <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{maiuscula(relDay(nd))}</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
             {fmtWD(nd)}, {fmtDate(nd)}{S.consult.doctor ? ` · ${S.consult.doctor}` : ''}
           </Txt>

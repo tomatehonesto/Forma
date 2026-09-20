@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { MO_LONG, fmtTime, nf, semanaDoTratamento } from '../logic/time';
+import { fmtTime, nf, semanaDoTratamento, dataLonga } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -40,7 +40,7 @@ export default function Registro() {
     ? (ponto ? `${ponto.cintura} cm` : '—')
     : (ponto ? `${nf(ponto.kg, 1).replace('.', ',')} kg` : '—');
 
-  const dataLonga = `${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+  const data = dataLonga(d);
 
   const apagar = () => {
     update((s: any) => {
@@ -53,13 +53,13 @@ export default function Registro() {
   return (
     <SheetScreen
       titulo={valor}
-      sub={`${dataLonga}, manhã · registrado por você`}
+      sub={`${data}, manhã · registrado por você`}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 8 }}>
         <Cartao>
           <Linha titulo="Valor" sub={valor} seta={false} />
-          <Linha titulo="Data e hora" sub={`${dataLonga}, ${fmtTime(d)}`} seta={false} />
+          <Linha titulo="Data e hora" sub={`${data}, ${fmtTime(d)}`} seta={false} />
           <Linha titulo="Semana" sub={`Semana ${semana} do tratamento`} seta={false} />
         </Cartao>
 

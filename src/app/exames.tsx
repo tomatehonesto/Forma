@@ -9,7 +9,7 @@ import {
   EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
   examExplain, examAbout, examInfluences, examWays, examesComValor, examesForaDaRef,
 } from '../logic/derive';
-import { fmtDate, MO_LONG, nf } from '../logic/time';
+import { fmtDate, nf, dataLonga } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
@@ -75,7 +75,6 @@ const fmtV = (v: number) => nf(v, v % 1 ? 1 : 0);
    para baixo, no escuro para cima, e a régua não precisa saber em qual
    dos dois está. */
 const pista = (c: any) => alfa(c.tx4, 0.42);
-const porExtenso = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 /* A FAIXA DITA EM PORTUGUÊS, e no laudo ela vem como "< 5,7" ou "15–150".
 
@@ -557,7 +556,7 @@ function MalhaDaEvolucao({ e }: { e: any }) {
               {/* Uma informação por linha. Juntas com um ponto no meio, a
                   data e o veredito quebravam no meio da palavra num balão
                   estreito — e balão estreito é o que ele tem que ser. */}
-              <Txt v="micro" c={alfa(c.bg1, 0.62)} style={{ marginTop: 1 }}>{porExtenso(alvo.t)}</Txt>
+              <Txt v="micro" c={alfa(c.bg1, 0.62)} style={{ marginTop: 1 }}>{dataLonga(alvo.t)}</Txt>
               {foraDaFaixa ? (
                 <Txt v="micro" c={alfa(c.bg1, 0.62)} style={{ marginTop: 1 }}>{foraDaFaixa}</Txt>
               ) : null}
@@ -613,7 +612,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
        Sem isto a tela abre dizendo "5,6 %" e mais nada: o marcador só se
        identificaria depois de rolar, e um valor de exame sem o nome do
        exame não é informação, é um número solto. */
-    <TelaInterna titulo={e.marker} sub={`Colhido em ${porExtenso(l.t)}`} onVoltar={onVoltar} tituloFixo>
+    <TelaInterna titulo={e.marker} sub={`Colhido em ${dataLonga(l.t)}`} onVoltar={onVoltar} tituloFixo>
       {/* ---- o resultado ----
 
           ⚠️ O NÚMERO É A TELA, e ele estava numa manchete alinhada à
@@ -785,7 +784,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
               <Txt v="body" c={c.tx3} style={{ fontSize: 20 }}>{e.unit}</Txt>
             </Row>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-              {e.values.length} coletas desde {porExtenso(f.t)}
+              {e.values.length} coletas desde {dataLonga(f.t)}
             </Txt>
           </View>
 
@@ -1006,7 +1005,7 @@ export default function Exames() {
       <CapaDeHabito
         foto={aurora.hero}
         titulo="Exames"
-        linha={`${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? porExtenso(ultima) : '—'}`}
+        linha={`${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? dataLonga(ultima) : '—'}`}
         valor={
           <View>
             {/* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um

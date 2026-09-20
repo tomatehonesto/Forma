@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, penStock, diasParaAplicar, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
-import { MO_LONG, DOW_PT, now, fmtTime, nf } from '../logic/time';
+import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Campo, Chips, Opcoes, Opc, Stepper, Botao } from '../ui/internas';
 import { Corpo, ZONAS } from '../ui/corpo';
@@ -111,7 +111,7 @@ export default function Aplicacao() {
           linhas de titulão para duas palavras que sempre andam juntas. */}
       <Titulao
         titulo="Registrar aplicação"
-        lead={`${DOW_PT[hoje.getDay()].charAt(0).toUpperCase()}${DOW_PT[hoje.getDay()].slice(1)}, ${hoje.getDate()} de ${MO_LONG[hoje.getMonth()]} · dose prevista para hoje`}
+        lead={`${maiuscula(dataComDiaDaSemana(hoje))} · dose prevista para hoje`}
       />
 
       {/* O DIA, e só ele.

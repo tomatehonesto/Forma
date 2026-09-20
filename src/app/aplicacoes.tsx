@@ -312,7 +312,7 @@ export default function Aplicacoes() {
             <View style={{ flex: 1 }}>
               <Txt v="body" c={c.tx3}>Próxima · {siteLabel(site)}</Txt>
               <Txt v="caption" c={c.tx4} style={{ marginTop: 1 }}>
-                {relDay(nd).charAt(0).toUpperCase() + relDay(nd).slice(1)} · {fmtDate(nd)}
+                {maiuscula(relDay(nd))} · {fmtDate(nd)}
               </Txt>
             </View>
           </Row>

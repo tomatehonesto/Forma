@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { INDICADORES, sintomasEm, timelineWeeks, notas, temAcompanhamento } from '../logic/derive';
-import { MO_LONG, DAY, DOW_PT, MO, nf } from '../logic/time';
+import { MO_LONG, DAY, DOW_PT, MO, nf, maiuscula } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
@@ -38,7 +38,7 @@ const SELO: Record<string, string> = {
 const diaSemana = (t: number) => {
   const d = new Date(t);
   const nome = DOW_PT[d.getDay()];
-  return `${nome.charAt(0).toUpperCase()}${nome.slice(1)}, ${curto(t)}`;
+  return `${maiuscula(nome)}, ${curto(t)}`;
 };
 
 export default function Semana() {

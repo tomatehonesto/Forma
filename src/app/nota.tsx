@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notas, temConsulta } from '../logic/derive';
-import { MO_LONG, now } from '../logic/time';
+import { now, dataLonga } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Texto, Botao } from '../ui/internas';
 
@@ -19,7 +19,6 @@ import { Campo, Texto, Botao } from '../ui/internas';
    ônibus. Dentro do sheet, o gesto é deliberado.
    ============================================================ */
 
-const dataLonga = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 export default function Nota() {
   const S = useStore((s) => s.S);

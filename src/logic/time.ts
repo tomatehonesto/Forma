@@ -26,6 +26,38 @@ export const dataComAno = (t: number | Date) => {
   return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
 };
 
+/** "20 de setembro".
+
+    ⚠️ ESTAVA COPIADA SEIS VEZES, E COM DOIS NOMES. Chamava-se `dataLonga`
+    em exportar, nota e notas, e `porExtenso` em exames e marcador — e a
+    tela de registro escrevia a expressão direto no corpo. Dois nomes para
+    a mesma frase é pior que seis cópias de um: quem procura por um deles
+    conclui que o outro não existe e escreve o sétimo.
+
+    Fica ao lado de `dataComAno`, que é esta mesma com o ano, e que já
+    tinha nascido de uma consolidação igual a esta. */
+export const dataLonga = (t: number | Date) => {
+  const d = new Date(t);
+  return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+};
+
+/** "quarta, 20 de setembro".
+
+    ⚠️ ESTAVA COPIADA OITO VEZES, E AS CÓPIAS DISCORDAVAM. Cinco delas
+    vinham com a inicial maiúscula embutida — aplicação, aplicação-ok
+    (duas), dia e peso — e três em minúscula: caneta, ciclo e refeição.
+
+    Nenhuma das duas estava errada, e é isso que torna a cópia ruim: em
+    "Última dose desta caneta: quarta, 23 de setembro" a minúscula é a
+    certa, e como título de tela a maiúscula é. A forma natural da frase é
+    a minúscula; quem abre uma frase com ela envolve em `maiuscula`, e a
+    decisão fica visível na linha que a toma em vez de escondida em cinco
+    formatadores parecidos. */
+export const dataComDiaDaSemana = (t: number | Date) => {
+  const d = new Date(t);
+  return `${DOW_PT[d.getDay()]}, ${dataLonga(d)}`;
+};
+
 /* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:
    "1 a 7 set", e "28 jul a 3 ago" quando a semana vira o mês. */
 export const fmtPeriodo = (a: Date, b: Date) =>

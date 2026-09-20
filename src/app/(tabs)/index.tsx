@@ -14,7 +14,7 @@ import {
   doseDoPerfil, temDose,
   diasAteAplicar,
 } from '../../logic/derive';
-import { now, nf, fmtDate, DOW_PT, quandoEm } from '../../logic/time';
+import { now, nf, fmtDate, DOW_PT, quandoEm, maiuscula } from '../../logic/time';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -155,7 +155,7 @@ export default function Home() {
       return {
         over: 'DESCOBERTA',
         title: achado.replace(/\.$/, ''),
-        body: detalhe ? detalhe.charAt(0).toUpperCase() + detalhe.slice(1) : '',
+        body: detalhe ? maiuscula(detalhe) : '',
         cta: 'Ver descobertas', to: '/insights',
       };
     })()] : []),

@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, nf, kgCurto as kg } from '../logic/time';
+import { MO_LONG, nf, kgCurto as kg, dataComAno } from '../logic/time';
 import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
@@ -45,10 +45,6 @@ const SEXO: Record<string, string> = {
   f: 'Feminino', m: 'Masculino', o: 'Outro', n: 'Prefiro não informar',
 };
 
-const dataDoPerfil = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
-};
 
 export default function Dados() {
   const S = useStore((s) => s.S);
@@ -127,7 +123,7 @@ export default function Dados() {
           <Linha
             ic="cal" titulo="Nascimento"
             sub={S.profile.nascimento
-              ? `${dataDoPerfil(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
+              ? `${dataComAno(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
               : 'Não informado'}
             onPress={corrige('nascimento')}
           />

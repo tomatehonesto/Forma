@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
-import { MO_LONG, DOW_PT, diffDays, now, nf } from '../logic/time';
+import { diffDays, now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { TelaInterna, Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
 
 /* ============================================================
@@ -30,9 +30,7 @@ export default function AplicacaoOk() {
   const dias = Math.max(0, diffDays(prox, now()));
 
   const d = li ? new Date(li.t) : now();
-  const dow = DOW_PT[d.getDay()];
-  const quando = `${dow.charAt(0).toUpperCase()}${dow.slice(1)}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
-  const dowProx = DOW_PT[prox.getDay()];
+  const quando = maiuscula(dataComDiaDaSemana(d));
 
   const acabou = est.left <= 0;
 
@@ -60,7 +58,7 @@ export default function AplicacaoOk() {
               alertas de dose, com horas diferentes, e escolher um deles
               para escrever aqui seria inventar. A data da próxima
               aplicação é o que esta confirmação tem a dizer. */
-            sub={`${dowProx.charAt(0).toUpperCase()}${dowProx.slice(1)}, ${prox.getDate()} de ${MO_LONG[prox.getMonth()]}`}
+            sub={maiuscula(dataComDiaDaSemana(prox))}
             selo={dias === 0 ? 'hoje' : `${dias} dias`}
             seloTom="neutra"
             seta={false}

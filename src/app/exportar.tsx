@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notasAbertas } from '../logic/derive';
 import { dadosParaExportar, nomeDoArquivo, gerarArquivo } from '../logic/exportacao';
-import { MO_LONG, DAY, now } from '../logic/time';
+import { DAY, now, dataLonga } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Campo, Opcoes, Opc, Cartao, Linha, Aviso, Botao,
@@ -35,7 +35,6 @@ import { useTheme } from '../ui/useTheme';
    sobre eles. Ver src/logic/exportacao.ts.
    ============================================================ */
 
-const dataLonga = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 const semanas = (ms: number) => Math.max(1, Math.round(ms / (7 * DAY)));
 
 export default function Exportar() {

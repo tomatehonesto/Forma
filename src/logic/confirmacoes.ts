@@ -3,7 +3,7 @@ import {
   checkinToday, curWeight, examBy, examLast, examStatus,
   journeyDay, notasAbertas, waterMlToday, litros,
 } from './derive';
-import { MO_LONG, nf, now } from './time';
+import { nf, now, dataLonga } from './time';
 
 /* ============================================================
    O QUE ACONTECEU DEPOIS DE SALVAR
@@ -68,7 +68,6 @@ const delta = (v: number, un: string, casas = 1) => {
 };
 const tomDoDelta = (v: number, casas = 1) =>
   (Math.abs(v) < (casas ? 0.05 : 0.5) ? 'neutra' : 'lima') as 'neutra' | 'lima';
-const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 /* ⚠️ "DESDE A ÚLTIMA VEZ" É OUTRO DIA, e não o registro anterior.
 
@@ -105,11 +104,11 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const paraMeta = atual - p.goalWeight;
       return {
         titulo: 'Peso registrado',
-        texto: `${n1(atual)} kg · ${dia(+now())}`,
+        texto: `${n1(atual)} kg · ${dataLonga(+now())}`,
         linhas: [
           ...(anterior ? [{
             titulo: 'Desde a última pesagem',
-            sub: dia(anterior.t),
+            sub: dataLonga(anterior.t),
             selo: delta(atual - anterior.kg, 'kg'),
             /* Lima é a variação que a pessoa mediu, e não um juízo sobre
                ela: o mesmo selo vale para quem subiu e para quem desceu.
@@ -135,7 +134,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const nomes: [string, string][] = [['cintura', 'Cintura'], ['quadril', 'Quadril'], ['braco', 'Braço'], ['coxa', 'Coxa']];
       return {
         titulo: 'Medidas registradas',
-        texto: `Cintura ${n1(u?.cintura ?? 0)} cm · ${dia(+now())}`,
+        texto: `Cintura ${n1(u?.cintura ?? 0)} cm · ${dataLonga(+now())}`,
         /* Só o que MUDOU desde a última fita. Quatro linhas com quatro
            deltas, três deles zero, transformam a confirmação num
            formulário de leitura — e o que a pessoa quer ver é onde o
@@ -156,7 +155,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
 
     case 'exame': {
       const e = ref ? examBy(S, ref) : null;
-      if (!e) return { titulo: 'Resultado registrado', texto: dia(+now()), linhas: [] };
+      if (!e) return { titulo: 'Resultado registrado', texto: dataLonga(+now()), linhas: [] };
       const u = examLast(e);
       const varios = e.values.length > 1;
       const ant = varios ? deOutroDia(e.values, u.t) : null;
@@ -178,7 +177,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
           }] : []),
           ...(ant ? [{
             titulo: 'Desde a coleta anterior',
-            sub: dia(ant.t),
+            sub: dataLonga(ant.t),
             selo: delta(u.v - ant.v, e.unit || '', (u.v - ant.v) % 1 ? 1 : 0),
             seloTom: tomDoDelta(u.v - ant.v, (u.v - ant.v) % 1 ? 1 : 0),
           }] : []),
@@ -195,7 +194,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const abertas = notasAbertas(S);
       return {
         titulo: 'Anotação guardada',
-        texto: abertas[0]?.text ?? dia(+now()),
+        texto: abertas[0]?.text ?? dataLonga(+now()),
         linhas: [
           {
             titulo: 'Na pauta da consulta',

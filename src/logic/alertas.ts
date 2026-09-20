@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { DOW_SHORT, addDays, hm, now, startOfDay, quandoEm } from './time';
+import { DOW_SHORT, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -213,7 +213,7 @@ const diasEmTexto = (dias: number[]) => {
   if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return 'Dias úteis';
   if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return 'Fim de semana';
   const nomes = ordem.map((d) => DOW_SHORT[d]);
-  return nomes[0].charAt(0).toUpperCase() + nomes[0].slice(1) + (nomes.length > 1 ? `, ${nomes.slice(1).join(', ')}` : '');
+  return maiuscula(nomes[0]) + (nomes.length > 1 ? `, ${nomes.slice(1).join(', ')}` : '');
 };
 
 /** O alerta em uma linha: quando ele toca, e a que horas. */

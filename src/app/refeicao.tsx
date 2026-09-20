@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarRefeicao, refeicaoEm } from '../logic/derive';
 import { iconeDaRefeicao } from '../logic/prato';
-import { MO_LONG, DOW_PT, semanaDoTratamento } from '../logic/time';
+import { semanaDoTratamento, dataComDiaDaSemana } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -37,7 +37,7 @@ export default function Refeicao() {
   const m = refeicaoEm(S, quando);
 
   const d = new Date(quando);
-  const dataLonga = `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+  const data = dataComDiaDaSemana(d);
   const hora = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   const semana = semanaDoTratamento(d, S.profile.startT);
 
@@ -60,7 +60,7 @@ export default function Refeicao() {
   const pelaFoto = m.fonte === 'foto';
 
   return (
-    <SheetScreen titulo={m.name} sub={dataLonga} onClose={() => router.back()}>
+    <SheetScreen titulo={m.name} sub={data} onClose={() => router.back()}>
       <View style={{ marginTop: 20, gap: 10 }}>
         {/* O FATO: quanta proteína.
 

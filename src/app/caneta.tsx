@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
-import { MO, MO_LONG, DOW_PT, nf } from '../logic/time';
+import { MO, nf, dataComDiaDaSemana, dataLonga } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
@@ -28,8 +28,6 @@ import {
 
 const n1 = (x: number) => nf(x, 1).replace('.', ',');
 const curto = (t: number | Date) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
-const longo = (t: number | Date) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
-const porExtenso = (d: Date) => `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
 
 export default function Caneta() {
   const S = useStore((s) => s.S);
@@ -52,7 +50,7 @@ export default function Caneta() {
       <Titulao
         titulo={`${med.label} ${n1(dose)} ${med.unit}`}
         lead={atual?.abertaEm
-          ? `Caneta aberta em ${longo(atual.abertaEm)} · ${total} doses por caneta`
+          ? `Caneta aberta em ${dataLonga(atual.abertaEm)} · ${total} doses por caneta`
           : `Nenhuma caneta aberta · ${total} doses por caneta`}
       />
 
@@ -60,7 +58,7 @@ export default function Caneta() {
         label="Doses usadas"
         valor={`${usadas} de ${total}`}
         pct={(usadas / total) * 100}
-        nota={`Última dose desta caneta: ${porExtenso(k.cobreAte)}`}
+        nota={`Última dose desta caneta: ${dataComDiaDaSemana(k.cobreAte)}`}
       />
 
       <Grade2>

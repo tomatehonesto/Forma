@@ -15,7 +15,7 @@ import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/con
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
-import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
+import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Roda, Regua, NUMERO, SEM_ANEL } from '../ui/internas';
@@ -818,10 +818,6 @@ const dataCurta = (t: number) => {
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 
-const dataPorExtenso = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
-};
 
 /* A mesma projeção em número, para comparar de relance: entre quatro
    alternativas empilhadas, 02/2027 e 11/2026 se comparam sem leitura. */

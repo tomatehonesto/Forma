@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { curWeight, latestMeasure } from '../logic/derive';
-import { DOW_PT, MO_LONG, now, nf } from '../logic/time';
+import { now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Selo, Botao, Regua } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -63,7 +63,6 @@ export default function MedirPeso() {
 
   const delta = peso - ultimo;
   const hoje = now();
-  const dow = DOW_PT[hoje.getDay()];
 
   const salvar = () => {
     update((s: any) => {
@@ -95,7 +94,7 @@ export default function MedirPeso() {
   return (
     <SheetScreen
       titulo="Peso e medidas"
-      sub={`${dow.charAt(0).toUpperCase()}${dow.slice(1)}, ${hoje.getDate()} de ${MO_LONG[hoje.getMonth()]}`}
+      sub={maiuscula(dataComDiaDaSemana(hoje))}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>

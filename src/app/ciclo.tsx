@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { cicloFases, M } from '../logic/derive';
-import { DOW_PT, MO_LONG } from '../logic/time';
+import { dataComDiaDaSemana } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Sanfona, SanfonaLinha, Aviso, Botao,
@@ -28,7 +28,6 @@ import { useTheme } from '../ui/useTheme';
    o que a pessoa veio ler.
    ============================================================ */
 
-const porExtenso = (d: Date) => `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
 
 export default function Ciclo() {
   const S = useStore((s) => s.S);
@@ -51,7 +50,7 @@ export default function Ciclo() {
         label="Ciclo atual"
         valor={`dia ${cic.dayIn} de ${cic.total}`}
         pct={cic.pct}
-        nota={`Próxima dose ${porExtenso(cic.nextDose)}`}
+        nota={`Próxima dose ${dataComDiaDaSemana(cic.nextDose)}`}
       />
 
       <Bloco titulo="As quatro fases">

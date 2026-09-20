@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notas, temConsulta } from '../logic/derive';
-import { MO_LONG } from '../logic/time';
+import { dataLonga } from '../logic/time';
 import { Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/internas';
 
@@ -20,7 +20,6 @@ import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/
    dia é uma lista curta do que ainda falta.
    ============================================================ */
 
-const dataLonga = (t: number) => { const d = new Date(t); return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`; };
 
 export default function Notas() {
   const S = useStore((s) => s.S);

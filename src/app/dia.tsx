@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { nextInjectionDate, M, respostaNoDia, respondido } from '../logic/derive';
-import { MO_LONG, DOW_PT, startOfDay, now, diffDays, nf } from '../logic/time';
+import { startOfDay, now, diffDays, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -29,8 +29,7 @@ export default function Dia() {
 
   const dia = t ? +startOfDay(new Date(Number(t))) : +startOfDay(now());
   const d = new Date(dia);
-  const dow = DOW_PT[d.getDay()];
-  const titulo = `${dow.charAt(0).toUpperCase()}${dow.slice(1)}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+  const titulo = maiuscula(dataComDiaDaSemana(d));
 
   const med = M(S);
   const aplicou = (S.injections as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
