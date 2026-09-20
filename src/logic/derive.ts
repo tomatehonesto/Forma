@@ -4384,65 +4384,78 @@ export type MetaPessoal = {
 };
 
 export const METAS_PESSOAIS: MetaPessoal[] = [
+  /* ⚠️⚠️ DUAS COISAS FORAM ARRUMADAS AQUI DE UMA VEZ, e a segunda é a que
+     dói mais.
+
+     1. O TEMPO VERBAL ESTAVA ESCOLHENDO A VIDA DA PESSOA. "Voltar a
+        praticar" pressupõe que ela praticou; quem quer começar natação aos
+        quarenta não cabia na categoria chamada "Um esporte" — a única do
+        aplicativo que falava do assunto. O mesmo com "Conseguir X sem
+        perder o fôlego", que decide qual é a barreira: pode ser joelho,
+        pode ser dor, pode ser vergonha.
+
+        As frases neutras ficam neutras. A única que continua pressupondo é
+        a do lugar — e ela passou a DIZER isso no nome ("um lugar que você
+        deixou de ir"), que é a diferença entre pressupor e perguntar.
+
+     2. A PERGUNTA ERA UM FORMULÁRIO. "Que foto você quer tirar?" é
+        correto e é frio, e esta lista é a parte do aplicativo que fala da
+        vida de alguém que está atravessando um tratamento difícil.
+
+        ⚠️ E OS EXEMPLOS VÃO NA PERGUNTA, NÃO NO CAMPO. O campo continua
+        abrindo vazio, pela razão que já estava escrita na tela: exemplo
+        dentro de campo é sugestão, e quem lê um antes de pensar na
+        própria meta escreve a meta do exemplo. Na pergunta eles são o que
+        devem ser — a forma da resposta, não a resposta. */
   {
     id: 'roupa', ic: 'ruler', nome: 'Uma peça de roupa',
-    pergunta: 'Qual peça você quer vestir?',
+    pergunta: 'Qual peça você quer vestir? A do fundo do armário, uma que você viu numa vitrine — a que vier à cabeça.',
     dica: 'Digite a peça de roupa',
     monta: (r) => `Vestir ${r}`,
   },
   {
     id: 'esporte', ic: 'run', nome: 'Um esporte',
-    pergunta: 'Qual esporte você quer voltar a praticar?',
+    pergunta: 'Qual esporte você quer praticar? Vale o que você já fez um dia e o que nunca experimentou.',
     dica: 'Digite o esporte',
-    monta: (r) => `Voltar a praticar ${r}`,
+    monta: (r) => `Praticar ${r}`,
   },
   {
     id: 'folego', ic: 'walk', nome: 'Algo do dia a dia',
-    pergunta: 'O que você quer fazer sem perder o fôlego?',
+    pergunta: 'O que você quer conseguir fazer sem se cansar? Subir a escada de casa, carregar as compras, andar até ali sem parar no meio.',
     dica: 'Digite a atividade',
-    monta: (r) => `Conseguir ${r} sem perder o fôlego`,
+    monta: (r) => `Conseguir ${r}`,
   },
   {
     id: 'sentir', ic: 'heart', nome: 'Como eu me sinto',
-    pergunta: 'Como você quer se sentir?',
+    pergunta: 'Como você quer se sentir? Com mais disposição, mais à vontade no próprio corpo — do jeito que fizer sentido para você.',
     dica: 'Digite como você quer se sentir',
     monta: (r) => `Me sentir ${r}`,
   },
   {
     id: 'foto', ic: 'photo', nome: 'Uma foto',
-    pergunta: 'Que foto você quer tirar?',
-    dica: 'Digite a foto que você quer tirar',
+    pergunta: 'Que foto você quer ter? Uma na praia, uma com quem você ama, ou só uma em que você se reconheça.',
+    dica: 'Digite a foto',
     monta: (r) => `Tirar ${r}`,
   },
-  /* ⚠️ AS TRÊS DE BAIXO ENTRARAM DEPOIS, e a lista tinha cinco.
-
-     Cinco categorias cobriam capacidade — vestir, praticar, aguentar — e
-     duas leituras do corpo, como me sinto e uma foto. Faltava o que mais
-     aparece na vida de quem faz esse tratamento e não é nenhuma das duas:
-     o que se deixou de fazer, e o que se quer passar a fazer.
-
-     ⚠️ E NENHUMA DELAS É CLÍNICA, de propósito. "Parar de tomar o remédio
-     da pressão" é uma meta que muita gente tem e que este aplicativo não
-     vai ajudar a escrever: quem decide isso é quem prescreveu. As
-     categorias ficam do lado da vida. */
   {
-    /* O LUGAR QUE SE DEIXOU DE IR é diferente do esporte e do fôlego: não
-       é sobre conseguir, é sobre voltar. Praia, piscina, festa — quem
-       evita não evita por não dar conta. */
-    id: 'lugar', ic: 'sun', nome: 'Um lugar ou um momento',
-    pergunta: 'Onde você quer voltar a ir?',
-    dica: 'Digite o lugar ou o momento',
+    /* ⚠️ O NOME DIZ A PRESSUPOSIÇÃO, e é a única que sobrou. Aqui ela é o
+       assunto: não é sobre conseguir, é sobre voltar — quem deixa de ir à
+       praia raramente deixou por não dar conta. Quem quer um lugar novo
+       tem "Outra meta". */
+    id: 'lugar', ic: 'sun', nome: 'Um lugar que você deixou de ir',
+    pergunta: 'Aonde você quer voltar? A praia, a piscina, a festa de alguém — o lugar que anda ficando de fora.',
+    dica: 'Digite o lugar',
     monta: (r) => `Voltar a ${r}`,
   },
   {
     id: 'comecar', ic: 'leaf', nome: 'Um hábito para criar',
-    pergunta: 'O que você quer começar a fazer?',
+    pergunta: 'O que você quer começar a fazer? Caminhar de manhã, cozinhar no domingo, dormir mais cedo.',
     dica: 'Digite o hábito',
     monta: (r) => `Começar a ${r}`,
   },
   {
     id: 'largar', ic: 'check', nome: 'Um hábito para largar',
-    pergunta: 'O que você quer parar de fazer?',
+    pergunta: 'O que você quer parar de fazer? Comer em pé, beliscar de madrugada — o que for seu.',
     dica: 'Digite o hábito',
     monta: (r) => `Parar de ${r}`,
   },
@@ -4453,7 +4466,7 @@ export const METAS_PESSOAIS: MetaPessoal[] = [
    frase inteira é de quem escreve. */
 export const META_LIVRE: MetaPessoal = {
   id: 'livre', ic: 'more', nome: 'Outra meta',
-  pergunta: 'O que você quer conseguir?',
+  pergunta: 'O que você quer conseguir? Escreva do seu jeito — guardamos exatamente como você escrever.',
   dica: 'Digite a sua meta',
   monta: (r) => r,
 };

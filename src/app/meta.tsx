@@ -177,7 +177,7 @@ export default function Meta() {
             <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
               {frase
                 ? `Vai aparecer assim: "${frase}"${quando ? `, até ${fmtDate(new Date(quando))}` : ''}.`
-                : 'Ela fica em ainda não até você marcar. No dia em que acontecer, o app guarda a data junto.'}
+                : 'Ela fica em ainda não até você marcar. No dia em que acontecer, guardamos a data junto.'}
             </Txt>
           </View>
         </SheetScreen>
@@ -187,7 +187,7 @@ export default function Meta() {
     return (
       <SheetScreen
         titulo="Nova meta"
-        sub="Uma coisa sua — o app guarda, e quem marca é você"
+        sub="Uma coisa sua. Guardamos para você, e quem marca é você"
         onClose={() => router.back()}
       >
         {/* ⚠️⚠️ ESTA FOLHA VIROU O LUGAR DAS METAS QUE NÃO SÃO CLÍNICAS, e
@@ -305,7 +305,7 @@ export default function Meta() {
             <Aviso
               ic="leaf"
               dentro
-              titulo={meta.conta || 'Esta o app conta sozinho'}
+              titulo={meta.conta || 'Esta nós contamos por você'}
               texto="Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa."
             />
             {/* APAGAR EXISTE NAS DUAS. A medida não se marca, mas ela é uma
