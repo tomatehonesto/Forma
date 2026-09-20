@@ -471,6 +471,8 @@ export default function Jornada() {
      e não teve nada lê 'sem queixas'. */
   const sint = sintomasDaSemana(S);
   const diasSint = diasDeSintomas(S);
+  const pas = ((S.vitals as any)?.pa ?? []) as any[];
+  const pa = pas.length ? pas[pas.length - 1] : null;
   const temas: [string, string, string, string][] = [
     ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
     /* A água ia para o MENU de registros enquanto as vizinhas iam para a
@@ -486,6 +488,23 @@ export default function Jornada() {
     /* Contado por protocoloDaSemana, e não somando os `done`: os itens
        medidos não têm esse campo — eles se cumprem pelos registros. */
     ['target', 'Protocolos', `${proto.feitas} de ${proto.total}`, '/protocolos'],
+    /* ⚠️ SAÚDE E FOTOS ENTRARAM PORQUE NÃO TINHAM PORTA NENHUMA.
+
+       /saude era alcançável por um lugar só — a pastilha de Pressão em "O
+       que já mudou" —, e ela só existe com duas medidas guardadas. Quem
+       nunca registrou pressão não tinha como chegar na tela que serve
+       justamente para registrar a primeira.
+
+       /fotos era pior: o único caminho era o cartão de confirmação que
+       aparece DEPOIS de tirar uma foto, e só a partir da segunda. A tela
+       de comparação não tinha porta para quem ainda não usou a tela de
+       comparação.
+
+       É o mesmo defeito que /exames tinha, e a razão de ele se repetir é
+       sempre a mesma: a porta nasce no fluxo que produz o dado, e o fluxo
+       que produz o dado só roda para quem já tem o dado. */
+    ['heart', 'Saúde', pa ? `${pa.sys}/${pa.dia} mmHg` : 'sem registro', '/saude'],
+    ['camera', 'Fotos', S.photos.length ? `${S.photos.length} ${S.photos.length === 1 ? 'foto' : 'fotos'}` : 'sem registro', '/fotos'],
   ];
 
   return (
@@ -532,32 +551,65 @@ export default function Jornada() {
             para onde a pessoa quer chegar, e por isso vem logo depois do
             que já mudou: passado e destino lado a lado. */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="Metas" link="Ver todas" onPress={go('/metas')} />
+          {/* O LINK DIZ O NOME DO DESTINO, e dizia "Ver todas" — que é uma
+              instrução, não um lugar. É a mesma regra que tirou o "Ir para"
+              dos botões da Home. E o título ganhou o possessivo das
+              vizinhas: "O que já mudou", "Seu tratamento", "Suas metas". */}
+          <SectionHead title="Suas metas" link="Metas" onPress={go('/metas')} />
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 4 }}>
-            {metas.map((m, i) => (
+            {metas.map((m, i) => {
+              const feita = !!(m as any).feita;
+              const pessoal = !!(m as any).pessoal;
+              const cheia = m.pct >= 100;
+              return (
               <React.Fragment key={m.id}>
                 {i > 0 && <Divider />}
-                <View style={{ paddingVertical: 15 }}>
+                <View style={{ paddingVertical: 16 }}>
+                  {/* ⚠️ O RÓTULO EM CORPO, E ERA EM LEGENDA. Numa lista de
+                      quatro metas, tudo do mesmo tamanho e da mesma cor faz
+                      o olho varrer sem parar em lugar nenhum — o nome da
+                      meta é o que se lê primeiro, e ele estava no mesmo peso
+                      da dica embaixo dela.
+
+                      ⚠️ E A PORCENTAGEM SUBIU DE PESO junto: ela é a
+                      resposta da linha. Em micro cinza ela era um detalhe
+                      ao lado do título; em corpo médio ela vira o número
+                      que a barra ilustra. */}
                   <Row gap={11}>
-                    <Icon name={(m as any).feita ? 'check' : m.ic} size={16} color={(m as any).feita ? c.accent : c.tx3} sw={1.9} />
-                    <Txt v="caption" c={c.tx} style={{ flex: 1 }} numberOfLines={1}>{m.label}</Txt>
+                    <Icon
+                      name={feita ? 'check' : m.ic} size={17} sw={1.9}
+                      /* ⚠️ META CUMPRIDA SAI EM LIMA, e saía em azul.
+                         Azul é a cor de AÇÃO deste app — é o que leva a
+                         algum lugar —, e uma meta fechada não leva a lugar
+                         nenhum: ela já aconteceu. Lima é a cor de
+                         alcançado, e o `limeSoftInk` é a versão dela que
+                         sobrevive no papel branco (o lima puro dá 1,12 de
+                         contraste ali; no escuro esse token já é o próprio
+                         lima aceso). */
+                      color={feita || cheia ? c.limeSoftInk : c.tx3}
+                    />
+                    <Txt v="bodyMed" style={{ flex: 1 }} numberOfLines={1}>{m.label}</Txt>
                     {/* A PESSOAL NÃO TEM PORCENTAGEM. Ela é uma coisa que
                         acontece num dia: 0% ou 100% seria a caixinha dita
                         em número, e a barra em 2px diria "você não saiu do
                         lugar" sobre algo que não tem lugar intermediário. */}
-                    {(m as any).pessoal ? null : (
-                      <Txt v="micro" c={m.pct >= 100 ? c.limeInk : c.tx3}>{Math.round(m.pct)}%</Txt>
+                    {pessoal ? null : (
+                      <Txt v="label" c={cheia ? c.limeSoftInk : c.tx2}>{Math.round(m.pct)}%</Txt>
                     )}
                   </Row>
-                  {(m as any).pessoal ? null : (
-                    <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 9 }}>
-                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: m.pct >= 100 ? c.lime : c.accent }} />
+                  {pessoal ? null : (
+                    <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 12 }}>
+                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 6, borderRadius: radius.pill, backgroundColor: cheia ? c.lime : c.accent }} />
                     </View>
                   )}
-                  <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.hint}</Txt>
+                  {/* A dica alinha com o rótulo, e não com o ícone: recuada,
+                      ela lê como parte da meta; encostada na margem, como
+                      uma terceira coisa na linha. */}
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 9, marginLeft: 28 }}>{m.hint}</Txt>
                 </View>
               </React.Fragment>
-            ))}
+              );
+            })}
           </View>
         </View>
 
