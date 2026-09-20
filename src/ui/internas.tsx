@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WD, nf } from '../logic/time';
@@ -8,7 +9,7 @@ import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
 import { useTheme } from './useTheme';
-import { ty, font, radius, shadowCard } from '../theme';
+import { ty, font, radius, shadowCard, alfa } from '../theme';
 
 /* ============================================================
    TELAS INTERNAS — o vocabulário das telas de dentro
@@ -371,6 +372,11 @@ export const NUMERO = { fontFamily: font.light, fontSize: 52, lineHeight: 60, le
    web; no aparelho essa propriedade não existe e o objeto é nulo. */
 export const SEM_ANEL = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : null;
 
+/* Quanto o traçado da régua avança para fora da coluna de conteúdo, de
+   cada lado — e, no mesmo tanto, quanto dura o esmaecido das pontas. É o
+   PAD do cartão: dentro de um <Campo> a régua encosta na borda dele. */
+const RESPIRO = 16;
+
 /* ------------------------------------------------------------------ */
 /* A RÉGUA — o número que se arrasta, ou se digita.
 
@@ -387,7 +393,7 @@ export const SEM_ANEL = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any
    vistas numa lista que rola. O traço marca a meia unidade; a parada
    continua sendo a do passo, porque ela é do deslocamento, não do
    desenho. */
-export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe }: {
+export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe, fundo }: {
   min: number; max: number; passo: number; tracoCada: number; casas: number;
   /* pixels por PASSO. O peso anda de cem em cem gramas e a altura de
      centímetro em centímetro: com o mesmo espaçamento, atravessar quarenta
@@ -396,9 +402,14 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
   /** quanto os botões movem por toque */
   salto: number;
   valor: number; unidade: string; onEscolhe: (v: number) => void;
+  /** a cor atrás da régua, para o esmaecido das pontas. O padrão é o
+      fundo de cartão, que é onde ela vive na maioria das folhas; o
+      cadastro, que a põe direto na tela, passa a sua. */
+  fundo?: string;
 }) {
   const { c } = useTheme();
   const ESP = esp;
+  const fundoDaRegua = fundo ?? c.bg1;
   const ref = React.useRef<ScrollView>(null);
   const montou = React.useRef(false);
   const [larg, setLarg] = useState(0);
@@ -485,7 +496,24 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
         </Pressable>
       </Row>
 
-      <View style={{ height: 74 }} onLayout={(e) => setLarg(Math.round(e.nativeEvent.layout.width))}>
+      {/* ⚠️ O RESPIRO LATERAL, e antes o traçado parava na coluna de texto.
+
+          O rótulo de um traço tem vinte e oito pixels e nasce centrado
+          nele. O traço que calhava de cair a menos de catorze pixels da
+          borda tinha o número cortado ao meio — e um número cortado não
+          parece cortado, parece OUTRO número: "120" virava "12", e a
+          régua passava a mentir a escala parada na tela.
+
+          Nenhuma borda dura resolve isso, porque ela corta na mesma
+          frequência onde quer que esteja. Então são duas coisas juntas: o
+          traçado avança dezesseis pixels para cada lado, para fora da
+          coluna onde mora o resto do conteúdo, e as pontas esmaecem no
+          fundo ao longo desse avanço. O que sai da coluna se dissolve em
+          vez de ser fatiado, e nada é cortado onde a pessoa lê. */}
+      <View
+        style={{ height: 74, marginHorizontal: -RESPIRO }}
+        onLayout={(e) => setLarg(Math.round(e.nativeEvent.layout.width))}
+      >
         {larg > 0 ? (
           <>
             <ScrollView
@@ -521,6 +549,21 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
                 </View>
               ))}
             </ScrollView>
+            {/* As pontas, por cima do traçado e antes do marcador —
+                ele fica no meio, longe delas. */}
+            <LinearGradient
+              pointerEvents="none"
+              colors={[fundoDaRegua, alfa(fundoDaRegua, 0)]}
+              start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
+              style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: RESPIRO }}
+            />
+            <LinearGradient
+              pointerEvents="none"
+              colors={[alfa(fundoDaRegua, 0), fundoDaRegua]}
+              start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
+              style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: RESPIRO }}
+            />
+
             {/* O marcador do meio, em cima de tudo e sem toque. */}
             <View
               pointerEvents="none"

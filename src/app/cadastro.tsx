@@ -1810,14 +1810,14 @@ export default function Cadastro() {
               <Rotulo>ALTURA</Rotulo>
               <Regua
                 min={1.2} max={2.2} passo={0.01} tracoCada={0.01} casas={2} esp={12} salto={0.01}
-                valor={r.altura} unidade="m" onEscolhe={(v) => p({ altura: v })}
+                valor={r.altura} unidade="m" onEscolhe={(v) => p({ altura: v })} fundo={c.bg}
               />
             </View>
             <View>
               <Rotulo>PESO DE HOJE</Rotulo>
               <Regua
                 min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
-                valor={r.peso} unidade="kg" onEscolhe={(v) => p({ peso: v })}
+                valor={r.peso} unidade="kg" onEscolhe={(v) => p({ peso: v })} fundo={c.bg}
               />
             </View>
           </View>
@@ -1827,7 +1827,7 @@ export default function Cadastro() {
           <View style={{ gap: 16 }}>
             <Regua
               min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.5}
-              valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })}
+              valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })} fundo={c.bg}
             />
             {/* A DISTÂNCIA É O ASSUNTO DA TELA, e não o número absoluto.
 
@@ -2035,7 +2035,7 @@ export default function Cadastro() {
               <Rotulo>PESO DE QUANDO COMEÇOU</Rotulo>
               <Regua
                 min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
-                valor={r.pesoInicial} unidade="kg" onEscolhe={(v) => p({ pesoInicial: v })}
+                valor={r.pesoInicial} unidade="kg" onEscolhe={(v) => p({ pesoInicial: v })} fundo={c.bg}
               />
             </View>
           </View>
