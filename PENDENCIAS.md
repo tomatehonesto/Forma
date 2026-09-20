@@ -34,6 +34,25 @@ aplicativo faz — cada afirmação é conferível no código — mas são
 **minuta**. Aplicativo de saúde com dado sensível não publica documento
 jurídico sem revisão profissional.
 
+**E a voz dos dois vai junto na revisão.** O aplicativo inteiro fala em
+primeira pessoa do plural — "guardamos para você", "não coletamos a sua
+localização" — e estes dois documentos estão no meio do caminho: contei
+**11 verbos em primeira pessoa contra cerca de 12 construções em
+terceira**, e as duas vozes se alternam dentro do mesmo parágrafo:
+
+> "**O aplicativo** não usa serviço de telemetria, analytics ou
+> monitoramento de erro. **Não compartilhamos** com anunciantes…"
+
+Duas frases seguidas, duas vozes. Não é escolha de registro, é
+inconsistência — mas não se conserta antes da revisão, ou o advogado
+revisa um texto e a loja recebe outro.
+
+O que fazer quando ela vier: unificar em **primeira pessoa do plural** no
+corpo, mantendo "o Morphi" nas seções de identificação — quem é o
+controlador (art. 9º) e quem é o encarregado (art. 41) precisam de nome
+próprio, não de "nós". Política em linguagem simples faz assim, e a
+leitura melhora bastante.
+
 ### 3. A política precisa de uma URL pública
 
 As lojas exigem um endereço na internet para a política de privacidade. O
