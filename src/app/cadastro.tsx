@@ -14,7 +14,7 @@ import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
-import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro } from '../logic/derive';
+import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -851,12 +851,11 @@ export function respostasDoPerfil(S: State): Partial<Respostas> {
   const p: any = S.profile;
   const nasc = p.nascimento ? new Date(p.nascimento) : null;
   const inicio = p.startT ? new Date(p.startT) : now();
-  const emTratamento = (S.injections?.length ?? 0) > 0 || !!p.startT;
   return {
     nome: p.name ?? '',
     identidade: p.identidade ?? null,
     ...(nasc ? { dia: nasc.getDate(), mes: nasc.getMonth(), ano: nasc.getFullYear() } : {}),
-    emTratamento,
+    emTratamento: emTratamento(S),
     med: p.med ?? null,
     dose: p.dose || null,
     intervalo: p.intervalo ?? null,

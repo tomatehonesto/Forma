@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { weekGrid, journeySummary, cadenciaDias } from '../logic/derive';
+import { semanasDaGrade, journeySummary, cadenciaDias } from '../logic/derive';
 import { DAY } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Aviso, Botao } from '../ui/internas';
@@ -26,9 +26,7 @@ export default function Ritmo() {
   const S = useStore((s) => s.S);
   const router = useRouter();
 
-  const grade = weekGrid(S, 0);
-  const vividas = grade.filter((g) => !g.futura).length;
-  const aplicadas = grade.filter((g) => !g.futura && g.aplicou).length;
+  const { vividas, aplicadas } = semanasDaGrade(S);
   const r = journeySummary(S);
 
   /* Maior intervalo entre duas aplicações seguidas contra a cadência do

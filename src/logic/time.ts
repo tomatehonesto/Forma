@@ -41,6 +41,35 @@ export function relDay(d: Date) {
   if (n === 0) return 'hoje'; if (n === -1) return 'ontem'; if (n === 1) return 'amanhã';
   if (n < 0) return `há ${-n} dias`; return `em ${n} dias`;
 }
+/** O "daqui a quanto" das coisas marcadas: aplicação e consulta.
+
+    ⚠️ A MESMA ESCADA ESTAVA ESCRITA SETE VEZES — na Home, na Jornada, em
+    Aplicações, no `doseContext`, no `nextConsult`, no `todayBrief` e no aviso
+    do dia. Idênticas as sete, e o que importa nelas não é o texto: é o
+    DEGRAU. Bastava alguém decidir que atrasado não é "hoje" para o
+    aplicativo passar a dizer duas coisas sobre a mesma dose, e nada no
+    código apontaria as outras seis.
+
+    ⚠️ E NÃO É O `relDay` logo acima. Ele sabe olhar para trás — "ontem",
+    "há 3 dias" — e é o certo para uma coleta ou uma consulta que já
+    passou. Aqui o passado não existe: dose vencida é dose para tomar
+    AGORA, e por isso tudo que é ≤ 0 lê "hoje". Misturar os dois faria a
+    aplicação atrasada aparecer como "há 2 dias", que é descrição de
+    arquivo, não de tarefa.
+
+    Devolve o rótulo e o degrau, e não só o rótulo: cada tela escreve a
+    própria frase — "Mounjaro é hoje", "dose hoje", "Hoje" — e precisa
+    saber qual ramo está escrevendo sem repetir o teste. */
+export const quandoEm = (dias: number) => ({
+  dias,
+  hoje: dias <= 0,
+  label: dias <= 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`,
+});
+
+/** A primeira letra em caixa alta. Existe porque um rótulo que nasce no
+    meio de uma frase — "em 3 dias" — às vezes abre uma. */
+export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 export const nf = (x: number, d = 1) => x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
 export const kg = (x: number) => nf(x, 1).replace('.', ',');
 

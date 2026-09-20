@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { DOW_SHORT, addDays, hm, now, startOfDay } from './time';
+import { DOW_SHORT, addDays, hm, now, startOfDay, quandoEm } from './time';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -282,6 +282,10 @@ export function quando(d: Date | null): string | null {
   if (!d) return null;
   const dias = Math.round((+startOfDay(d) - +startOfDay(now())) / 86400000);
   const DOW = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-  const dia = dias <= 0 ? 'hoje' : dias === 1 ? 'amanhã' : DOW[d.getDay()];
+  /* Os dois primeiros degraus são os mesmos de qualquer "daqui a
+     quanto" do aplicativo, e por isso vêm de lá; o terceiro é próprio
+     daqui — um alerta a quatro dias se diz pelo nome do dia da semana,
+     que é como alguém guarda um horário, e não por "em 4 dias". */
+  const dia = dias <= 1 ? quandoEm(dias).label : DOW[d.getDay()];
   return `${dia} · ${hm(d.getHours(), d.getMinutes())}`;
 }

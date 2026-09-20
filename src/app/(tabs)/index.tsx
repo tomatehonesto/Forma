@@ -12,8 +12,9 @@ import {
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
+  diasAteAplicar,
 } from '../../logic/derive';
-import { now, diffDays, nf, fmtDate, DOW_PT } from '../../logic/time';
+import { now, nf, fmtDate, DOW_PT, quandoEm } from '../../logic/time';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -115,7 +116,7 @@ export default function Home() {
 
   const brief = todayBrief(S);
   const med = M(S);
-  const ndDays = diffDays(nextInjectionDate(S), now());
+  const nd = diasAteAplicar(S);
   const ins = insights(S);
   const targets = dailyTargets(S);
   const wc = weightCard(S);
@@ -140,7 +141,7 @@ export default function Home() {
        menos, que é o que a verdade sobre esse dia é. */
     ...(temDose(S) ? [{
       over: 'PRÓXIMA APLICAÇÃO',
-      title: ndDays <= 0 ? `${med.label} é hoje.` : `${med.label} ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`,
+      title: quandoEm(nd).hoje ? `${med.label} é hoje.` : `${med.label} ${quandoEm(nd).label}.`,
       body: `${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
       cta: 'Ver a aplicação', to: '/aplicacoes',
     }] : []),

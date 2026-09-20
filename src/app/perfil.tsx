@@ -13,7 +13,7 @@ import {
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
-import { marcosDeConquista } from '../logic/derive';
+import { marcosDeConquista, emTratamento } from '../logic/derive';
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
@@ -139,8 +139,7 @@ export default function Perfil() {
      o número — mandar todo mundo para "medidas atuais" fazia o lápis
      prometer corrigir o peso inicial e entregar a régua do peso de
      hoje, que é outro número. */
-  const emTratamento = (S.injections?.length ?? 0) > 0 || !!S.profile.startT;
-  const passoDoPesoInicial = emTratamento ? 'inicio' : 'corpo';
+  const passoDoPesoInicial = emTratamento(S) ? 'inicio' : 'corpo';
   const atividade = ATIVIDADES.find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
   const motivo = MOTIVOS.find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])

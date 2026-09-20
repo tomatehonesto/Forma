@@ -11,8 +11,9 @@ import {
   milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
+  diasAteAplicar, semanasDaGrade,
 } from '../../logic/derive';
-import { now, diffDays, fmtDate, relDay, nf } from '../../logic/time';
+import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -79,14 +80,12 @@ function Painel() {
   const cyc = doseCycle(S);
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
-  const ndDays = diffDays(nd, now());
+  const ndDays = diasAteAplicar(S);
   const dias = last7Days(S);
   const feitos = dias.filter((d) => d.feito).length;
   /* a contagem de semanas continua, agora só como frase: o número diz
      a constância longa que sete dias não alcançam */
-  const grade = weekGrid(S, 0);
-  const vividas = grade.filter((g) => !g.futura).length;
-  const aplicadas = grade.filter((g) => !g.futura && g.aplicou).length;
+  const { vividas, aplicadas } = semanasDaGrade(S);
 
   return (
     /* Sobe até o topo da tela: o rótulo da aba já diz "Jornada", então o
@@ -197,7 +196,7 @@ function Painel() {
               SEUS ÚLTIMOS 7 DIAS
             </Txt>
             <Txt v="tag" c={c.onHero}>
-              {ndDays <= 0 ? 'dose hoje' : ndDays === 1 ? 'dose amanhã' : `dose em ${ndDays} dias`}
+              dose {quandoEm(ndDays).label}
             </Txt>
           </Row>
 

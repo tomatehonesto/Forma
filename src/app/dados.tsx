@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, nf, kgCurto as kg } from '../logic/time';
-import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS } from '../logic/derive';
+import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -66,8 +66,7 @@ export default function Dados() {
      em"; quem ainda vai começar não tem essa distinção, e o peso de hoje
      é também o de partida. A linha precisa abrir a tela que escreveu o
      número, e não a régua do peso de hoje, que é outro número. */
-  const emTratamento = (S.injections?.length ?? 0) > 0 || !!S.profile.startT;
-  const passoDoPesoInicial = emTratamento ? 'inicio' : 'corpo';
+  const passoDoPesoInicial = emTratamento(S) ? 'inicio' : 'corpo';
 
   /* DOSE E FREQUÊNCIA SÓ EXISTEM COM CANETA ESCOLHIDA. Quem respondeu
      "ainda não sei" no cadastro não viu essas duas perguntas — a escada

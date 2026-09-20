@@ -7,8 +7,9 @@ import {
   nextInjectionDate, nextSite, pharmaSeries, rodizioDeLocais, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
+  diasAteAplicar,
 } from '../logic/derive';
-import { now, diffDays, fmtWD, fmtDate, relDay, nf } from '../logic/time';
+import { now, diffDays, fmtWD, fmtDate, relDay, nf, quandoEm, maiuscula } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { alertasDe, proximaDe, quando } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
@@ -56,7 +57,7 @@ export default function Aplicacoes() {
 
   const med = M(S);
   const nd = nextInjectionDate(S);
-  const ndDays = diffDays(nd, now());
+  const ndDays = diasAteAplicar(S);
   const site = nextSite(S);
   const cal = injCalendar(S);
   const k = canetaAtual(S);
@@ -111,7 +112,7 @@ export default function Aplicacoes() {
           <View style={{ flex: 1 }}>
             <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PRÓXIMA APLICAÇÃO</Txt>
             <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
-              {ndDays <= 0 ? 'Hoje' : ndDays === 1 ? 'Amanhã' : `Em ${ndDays} dias`}
+              {maiuscula(quandoEm(ndDays).label)}
             </Txt>
             <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
               {fmtWD(nd)}, {fmtDate(nd)} · {doseStr}

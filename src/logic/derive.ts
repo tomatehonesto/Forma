@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
-  doseTxt, MO_LONG, semanaDoTratamento,
+  doseTxt, MO_LONG, semanaDoTratamento, quandoEm,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -326,8 +326,8 @@ export function alerts(S: State): Alert[] {
      preferência de notificação: quem desligou o lembrete não deixou de
      ter aplicação marcada. A conta agora é só a distância até a próxima
      dose, que é o fato. */
-  const nd = diffDays(nextInjectionDate(S), now());
-  if (nd <= 1) out.push({ ic: 'syringe', kind: 'warn', text: `Aplicação ${nd <= 0 ? 'hoje' : 'amanhã'}`, act: 'nav:aplicacoes' });
+  const nd = diasAteAplicar(S);
+  if (nd <= 1) out.push({ ic: 'syringe', kind: 'warn', text: `Aplicação ${quandoEm(nd).label}`, act: 'nav:aplicacoes' });
   else if (nd === 2) out.push({ ic: 'syringe', kind: 'info', text: 'Aplicação em 2 dias', act: 'nav:aplicacoes' });
   out.push({ ic: 'pill', kind: 'info', text: 'Estoque em 3 doses — renovar receita', act: 'nav:aplicacoes' });
   return out;
@@ -608,6 +608,38 @@ export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
 }
 
 const MES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+/** A grade lida: quantas semanas já foram vividas e em quantas houve
+    aplicação.
+
+    ⚠️ `grade.filter((g) => !g.futura && g.aplicou).length` ESTAVA ESCRITO
+    TRÊS VEZES — no hero de Cuidado, no da Jornada e na tela de Ritmo —,
+    e as três chamam `weekGrid(S, 0)` uma linha antes para poder escrevê-lo.
+    É a mesma leitura da mesma grade, feita três vezes. */
+export function semanasDaGrade(S: State) {
+  const grade = weekGrid(S, 0);
+  return {
+    grade,
+    vividas: grade.filter((g) => !g.futura).length,
+    aplicadas: grade.filter((g) => !g.futura && g.aplicou).length,
+  };
+}
+
+/** Daqui a quantos dias é a próxima aplicação. Negativo quer dizer
+    atrasada.
+
+    ⚠️ ESTAVA ESCRITO OITO VEZES, cinco delas dentro deste arquivo. */
+export const diasAteAplicar = (S: State) => diffDays(nextInjectionDate(S), now());
+
+/** Já começou a tomar, ou já marcou quando começou.
+
+    ⚠️ A MESMA DISJUNÇÃO EM TRÊS ARQUIVOS — cadastro, dados e perfil —, e
+    nos três ela decide a mesma coisa: se existe um "peso de quando
+    começou" separado do peso de hoje. Duas respostas diferentes para essa
+    pergunta mandariam a pessoa para dois passos diferentes do cadastro a
+    partir de duas telas que mostram a mesma linha. */
+export const emTratamento = (S: State) =>
+  (S.injections?.length ?? 0) > 0 || !!S.profile.startT;
 
 /** Os últimos sete dias, com o que foi registrado em cada um.
 
@@ -1314,7 +1346,7 @@ export function doseCycle(S: State) {
    Determinística (mesmo dia → mesma mensagem), muda conforme o ciclo anda. */
 export function todayBrief(S: State) {
   const cyc = doseCycle(S);
-  const ndDays = diffDays(nextInjectionDate(S), now());
+  const ndDays = diasAteAplicar(S);
   let head = '', body = '', q = '';
   switch (cyc.phase.key) {
     case 'aplic':
@@ -1338,7 +1370,9 @@ export function todayBrief(S: State) {
       q = 'Por que sinto mais fome?';
       break;
     default:
-      head = ndDays <= 0 ? 'Fome no ponto alto — a aplicação é hoje.' : `Fome no ponto alto do ciclo — aplicação ${ndDays === 1 ? 'amanhã' : `em ${ndDays} dias`}.`;
+      head = quandoEm(ndDays).hoje
+        ? 'Fome no ponto alto — a aplicação é hoje.'
+        : `Fome no ponto alto do ciclo — aplicação ${quandoEm(ndDays).label}.`;
       body = 'Não pule refeições: volumes menores, mais vezes, com proteína.';
       q = 'Por que sinto mais fome?';
   }
@@ -1355,7 +1389,7 @@ export type TodayTask = { ic: string; text: string; sub?: string; to: string; wa
 export function todayTasks(S: State): TodayTask[] {
   const out: TodayTask[] = [];
   const nd = nextInjectionDate(S);
-  const ndDays = diffDays(nd, now());
+  const ndDays = diasAteAplicar(S);
   if (ndDays <= 3)
     out.push({ ic: 'syringe', text: ndDays <= 0 ? 'Aplicação hoje' : ndDays === 1 ? 'Aplicação amanhã' : `Aplicação em ${ndDays} dias`, sub: `${siteLabel(nextSite(S))} sugerido`, to: '/aplicacoes', warn: ndDays <= 1 });
   out.push({ ic: 'pill', text: 'Renovar receita', sub: 'Restam 3 doses na caneta', to: '/aplicacoes' });
@@ -2227,7 +2261,7 @@ export function libraryPicks(S: State): Leitura[] {
   const r = journeySummary(S);
   const m = M(S);
 
-  const dia = Math.max(0, cadenciaDias(S) - diffDays(nextInjectionDate(S), now()));
+  const dia = Math.max(0, cadenciaDias(S) - diasAteAplicar(S));
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
     out.push({ motivo: `Você está no dia ${dia} do ciclo, quando a fome volta`, titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
@@ -2281,7 +2315,7 @@ export function recentQuestions(S: State): string[] {
 export function companionSuggestions(S: State): string[] {
   const out: string[] = [];
   const cyc = doseCycle(S);
-  const nd = diffDays(nextInjectionDate(S), now());
+  const nd = diasAteAplicar(S);
   const ci: any = checkinToday(S);
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push('Por que senti mais fome hoje?');
@@ -2322,7 +2356,7 @@ export type Reco = {
 export function recommendations(S: State): Reco[] {
   const out: Reco[] = [];
   const cyc = doseCycle(S);
-  const nd = diffDays(nextInjectionDate(S), now());
+  const nd = diasAteAplicar(S);
   const t: any = S.profile.targets;
   const cs = S.checkins as any[];
   const recentes = cs.slice(-4);
@@ -4528,7 +4562,7 @@ export function journeySummary(S: State) {
     goal, pct: Math.round((lost / goal) * 100),
     faltamLabel: nf(Math.max(0, goal - lost), 1).replace('.', ','),
     aplicacoes: S.injections.length,
-    proximaEmDias: diffDays(nextInjectionDate(S), now()),
+    proximaEmDias: diasAteAplicar(S),
     /* ritmo semanal — diz mais que "71 dias de tratamento", que é trivia */
     ritmo, ritmoLabel: nf(ritmo, 1).replace('.', ','),
     adesao: adesao(S), streak: streak(S),
@@ -4573,7 +4607,7 @@ export function nextConsult(S: State) {
     /* uma semana antes é quando faz sentido começar a juntar perguntas —
        antes disso ainda vai acontecer coisa que vale levar */
     prepararAgora: dias >= 0 && dias <= 7,
-    label: dias <= 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`,
+    label: quandoEm(dias).label,
   };
 }
 
@@ -4990,7 +5024,7 @@ export function careState(S: State) {
      E O HORIZONTE NUNCA É MENOR QUE O PRESENTE. Quem passou da conta
      continua andando: a régua cresce com a pessoa em vez de deixá-la
      fora dela. */
-  const grade = weekGrid(S, 0);
+  const { grade, aplicadas } = semanasDaGrade(S);
   /* A semana corrente vem da grade, não de `semanas`.
 
      `semanas` é quantas se COMPLETARAM — floor(dias/7) —, e a que a pessoa
@@ -5003,7 +5037,7 @@ export function careState(S: State) {
     /** há meta a perseguir, e portanto um horizonte de verdade */
     temHorizonte: ateAMeta != null,
     atual: grade.length,
-    cumpridas: grade.filter((g) => !g.futura && g.aplicou).length,
+    cumpridas: aplicadas,
   };
 
   const base = { metricas, semanas, adesaoRotulo: adRotulo, plano };
@@ -5090,7 +5124,7 @@ export function careState(S: State) {
 /* Contexto do tratamento — as três frases curtas que fazem a dose parecer
    acompanhada em vez de só registrada. */
 export function doseContext(S: State) {
-  const nd = diffDays(nextInjectionDate(S), now());
+  const nd = diasAteAplicar(S);
   const injs = S.injections as any[];
 
   /* há quanto tempo a dose atual não muda: acha a primeira aplicação da
@@ -5102,7 +5136,7 @@ export function doseContext(S: State) {
 
   const cs = nextConsult(S);
   return {
-    proxima: nd <= 0 ? 'Aplicação hoje' : nd === 1 ? 'Próxima aplicação amanhã' : `Próxima aplicação em ${nd} dias`,
+    proxima: quandoEm(nd).hoje ? 'Aplicação hoje' : `Próxima aplicação ${quandoEm(nd).label}`,
     naDose: desde > 0 ? `Nesta dose há ${desde} ${desde === 1 ? 'semana' : 'semanas'}` : null,
     /* cs.label já vem como "em 9 dias" / "amanhã" / "hoje", então a
        preposição não entra aqui — "consulta de em 9 dias" */
