@@ -7,13 +7,13 @@ import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
-  clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
+  clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examStatus,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose, fichaDe, fichaDaEquipe,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
-import { fmtDate, relDay, DOW_PT, nf, now, diffDays } from '../../logic/time';
+import { fmtDate, DOW_PT } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Chevron } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
@@ -654,57 +654,18 @@ function Equipe() {
    card da médica: a pessoa e a fala dela são a mesma coisa, e mantê-las
    em dois blocos fazia a tela apresentar duas vezes a mesma relação. */
 
-/** O que a clínica mandou para você — orientação recebida, não prova
-    enviada. Por isso não se mistura com Documentos. */
-function Materiais() {
-  const S = useStore((s) => s.S);
-  const { c } = useTheme();
-  const router = useRouter();
-  const mats = ((S as any).materials ?? []) as { name: string; kind: string; meta: string; ic: string; motivo: string }[];
-  if (!mats.length || !clinicaConectada(S)) return null;
+/* ⚠️ "PREPARADO PARA VOCÊ" MORAVA AQUI, e era o carrossel de materiais
+   da clínica — o mesmo array `S.materials`, no mesmo cartão de 178, que
+   a Área médica mostra em "O que a clínica preparou".
 
-  return (
-    <View style={{ marginTop: 36 }}>
-      <SectionHead title="Preparado para você" />
-      {/* ⚠️ "SUA EQUIPE MONTOU" PRECISA DE EQUIPE. Sem plataforma, o
-          material que existisse aqui não teria sido montado por ninguém —
-          e o bloco inteiro some, porque `materials` só se enche pelo
-          outro lado. A frase fica como está porque só aparece quando é
-          verdade. */}
-      <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-        Material que sua equipe montou a partir do seu tratamento.
-      </Txt>
-      <ScrollView
-        horizontal showsHorizontalScrollIndicator={false}
-        style={{ marginTop: 14, marginHorizontal: -PAD }}
-        contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}
-      >
-        {mats.map((m) => (
-          <Pressable key={m.name} onPress={() => router.push('/protocolos' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-            <View style={{ width: 178, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-              {/* o ícone diz o formato antes do rótulo dizer: vídeo, guia e
-                  checklist se consomem de maneiras diferentes, e saber isso
-                  antes de tocar evita abrir a coisa errada com pressa */}
-              <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <View style={{ width: 36, height: 36, borderRadius: radius.sm, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={m.ic} size={17} color={c.tx} sw={1.9} />
-                </View>
-                <View style={{ backgroundColor: c.bg2, borderRadius: radius.sm, paddingHorizontal: 7, paddingVertical: 3 }}>
-                  <Txt v="micro" c={c.tx2}>{m.kind}</Txt>
-                </View>
-              </Row>
-              <Txt v="bodyMed" style={{ marginTop: 12, lineHeight: 21 }} numberOfLines={2}>{m.name}</Txt>
-              {/* o motivo é o que separa curadoria de biblioteca: sem ele o
-                  card diz o que É, com ele diz por que está aqui */}
-              <Txt v="micro" c={c.accent2} style={{ marginTop: 7, lineHeight: 16 }} numberOfLines={2}>{m.motivo}</Txt>
-              <Txt v="micro" c={c.tx4} style={{ marginTop: 6 }}>{m.meta}</Txt>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
+   Material é o que ELES mandaram: só existe porque existe alguém do
+   outro lado, e por isso mora do lado de lá. Esta aba responde o que o
+   tratamento pede de VOCÊ.
+
+   (O próprio /medico já sabia disso e se contradisse: o comentário de
+   cabeçalho dele dizia que os materiais não entravam lá para não ser "a
+   segunda porta para a mesma sala", e quinhentas linhas abaixo eles
+   entravam. A porta era esta.) */
 
 /* "Converse com sua clínica" morava aqui, fechando a aba. Saiu quando o
    banner da especialista voltou: os dois eram o mesmo convite em lima,
@@ -1005,17 +966,32 @@ function Tratamento() {
    item do cartão, existe sempre, e traz no subtítulo a mesma conta que a
    tela de destino abre — quantos marcadores, quantos fora. Link lateral
    de cabeçalho é para "ver mais do mesmo"; isto é outro lugar. */
-function Documentos() {
+/** Os exames — o único arquivo desta aba, porque é o único que é da
+    pessoa.
+
+    ⚠️ ELA SE CHAMAVA "DOCUMENTOS", e listava exames, resumos e receitas
+    juntos: `careDocs` é `S.documents` somado a `S.prescriptions`, cortado
+    em três. Ou seja, era uma prévia de três linhas das DUAS últimas
+    seções da Área médica — sem link para elas, e com a receita levando a
+    /medico do mesmo jeito.
+
+    Documento e receita são o registro da relação com a clínica: ninguém
+    neste aplicativo os cria, eles só chegam do outro lado. Exame é o
+    contrário — a pessoa importa o dela, com clínica ou sem, e por isso
+    ele é o que fica.
+
+    E nada se perde para quem não tem clínica: sem ela as duas listas
+    estão vazias, porque só o outro lado as enche. */
+function Exames() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const docs = careDocs(S);
   const exames = ((S as any).exams as any[]) ?? [];
   const foraDaRef = exames.filter((e) => examStatus(e) !== 'ok').length;
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Documentos" />
+      <SectionHead title="Exames" />
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18 }}>
         <Pressable onPress={() => router.push('/exames' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Row gap={14} style={{ paddingVertical: 18 }}>
@@ -1023,46 +999,25 @@ function Documentos() {
               <Icon name="chart" size={16} color={c.tx2} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="bodyMed">Exames</Txt>
+              <Txt v="bodyMed">
+                {exames.length
+                  ? `${exames.length} ${exames.length === 1 ? 'marcador acompanhado' : 'marcadores acompanhados'}`
+                  : 'Nenhum resultado guardado'}
+              </Txt>
               {/* O vermelho só quando há o que ver: a linha não é um alerta,
                   é uma porta — e porta que acende todo dia deixa de ser
                   lida no dia em que tem motivo. */}
               <Txt v="micro" c={foraDaRef ? c.cta : c.tx3} style={{ marginTop: 5 }}>
                 {!exames.length
-                  ? 'Nenhum resultado guardado'
+                  ? 'Importe um exame para começar a acompanhar'
                   : foraDaRef
-                    ? `${exames.length} marcadores · ${foraDaRef} fora da referência`
-                    : `${exames.length} marcadores · todos na referência`}
+                    ? `${foraDaRef} fora da referência`
+                    : 'Todos na referência'}
               </Txt>
             </View>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />
           </Row>
         </Pressable>
-        {docs.map((d) => (
-          <React.Fragment key={d.nome + d.t}>
-            <View style={{ height: 1, backgroundColor: c.line2 }} />
-            <Pressable onPress={() => router.push(d.to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Row gap={14} style={{ paddingVertical: 18 }}>
-                <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={d.tipo === 'Receita' ? 'pill' : 'doc'} size={16} color={c.tx2} sw={1.9} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Txt v="bodyMed" numberOfLines={1}>{d.nome}</Txt>
-                  {/* o tipo em selo e não em texto corrido: numa lista
-                      misturando exame, resumo e receita, é ele que a pessoa
-                      varre para achar o que procura */}
-                  <Row gap={7} style={{ marginTop: 5 }}>
-                    <View style={{ backgroundColor: c.bg2, borderRadius: radius.sm, paddingHorizontal: 7, paddingVertical: 3 }}>
-                      <Txt v="micro" c={c.tx2}>{d.tipo}</Txt>
-                    </View>
-                    <Txt v="micro" c={c.tx3}>{relDay(new Date(d.t))}</Txt>
-                  </Row>
-                </View>
-                <Icon name="chev" size={14} color={c.tx4} sw={2} />
-              </Row>
-            </Pressable>
-          </React.Fragment>
-        ))}
       </View>
     </View>
   );
@@ -1236,7 +1191,7 @@ export default function Cuidado() {
 
              Estado (hero) → ação (Precisa de você) → compromisso
              (Consulta) → pessoas (Especialista, Equipe) → medicamento
-             (Tratamento) → recursos (Materiais, Documentos).
+             (Tratamento) → seus exames.
 
              A regra que a iteração passada quebrou e esta restabelece:
              consulta só na Consulta, mensagem só no card da especialista,
@@ -1249,8 +1204,7 @@ export default function Cuidado() {
             <Consulta />
             <BannerMedica />
             <Tratamento />
-            <Materiais />
-            <Documentos />
+            <Exames />
           </>
         ) : (
           /* ⚠️ SEM PLATAFORMA — SEIS DOS OITO BLOCOS, COM OU SEM MÉDICO.
@@ -1278,8 +1232,7 @@ export default function Cuidado() {
             <Consulta />
             <QuemAcompanha />
             <Tratamento />
-            <Materiais />
-            <Documentos />
+            <Exames />
             <Parceiros />
           </>
         )}

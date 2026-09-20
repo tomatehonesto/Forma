@@ -36,9 +36,16 @@ import { radius } from '../theme';
    o exame virou cartão de próximo passo, e a terceira já tinha saído por
    ser porta emparedada.
 
-   ⚠️ E OS MATERIAIS NÃO ENTRAM AQUI, apesar de o desenho pedir. Eles já
-   têm carrossel na aba Cuidado, de onde esta tela é empurrada: a mesma
-   lista em duas telas seguidas é a segunda porta para a mesma sala.
+   ⚠️ E OS MATERIAIS ENTRARAM, DEPOIS DE ESTE COMENTÁRIO DIZER QUE NÃO.
+   Ele dizia que eles não vinham para cá porque já tinham carrossel na
+   aba Cuidado — "a mesma lista em duas telas seguidas é a segunda porta
+   para a mesma sala" —, e quinhentas linhas abaixo eles vieram assim
+   mesmo. As duas decisões conviveram no mesmo arquivo por um tempo.
+
+   O diagnóstico estava certo e o veredito é que estava trocado: a
+   segunda porta era a da aba. Material é o que a clínica MANDOU, e só
+   existe porque existe alguém do outro lado — que é exatamente o que
+   esta tela é. A aba ficou com o que o tratamento pede da pessoa.
 
    ⚠️⚠️ E "PRÓXIMOS PASSOS" SAIU, que é a mudança desta rodada.
 
