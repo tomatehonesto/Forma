@@ -1562,6 +1562,21 @@ export type Pattern = {
      pessoa faria em seguida — "e daí?". É a diferença entre dado e
      análise, e é o que faz a tela parecer escrita e não gerada. */
   significa: string;
+  /* ⚠️ QUANTO A EVIDÊNCIA PASSOU DO PRÓPRIO LIMIAR, de 0 (raspou) a 1
+     (dobrou) — e é a nota que faltava para a Home poder escolher.
+
+     `surpresa` é autoral: vale o mesmo para todo mundo que dispara o
+     mesmo achado. Quem teve 1,5 copo de diferença no fim de semana — o
+     limiar exato — pontuava igual a quem teve 5. Cada um destes achados
+     JÁ CALCULA essa diferença, para escrever a frase, e jogava fora o
+     número logo depois.
+
+     ⚠️ AUSENTE NÃO É ZERO: é "não é descoberta". Os dois retratos do fim
+     da fila (ritmo, adesão) não têm limiar nenhum para passar — eles
+     descrevem um número que a pessoa já vê na Home. Sem `forca` eles
+     seguem valendo para a aba, e a Home sabe que não são para ela. Um
+     valor padrão aqui seria número inventado com cara de nota. */
+  forca?: number;
   /* Por que o fenômeno acontece. Só os achados de maior surpresa têm —
      são os candidatos a virar a matéria da semana, e matéria precisa de
      um meio entre a manchete e a conclusão. Nos demais, explicar o
@@ -1573,6 +1588,23 @@ export const PAT_LABEL: Record<PatKey, string> = {
   alimentacao: 'Alimentação', sono: 'Sono', sintomas: 'Sintomas',
   peso: 'Peso', aplicacoes: 'Aplicações',
 };
+
+/** A nota que ordena a lista: a surpresa manda, e a força decide dentro
+    dela.
+
+    `surpresa * forca` puro seria cruel — um cruzamento que raspou no
+    limiar zeraria e empataria com os retratos, e um cruzamento fraco
+    ainda é mais interessante que "seu ritmo é de 0,7 kg por semana".
+    Meio a meio deixa a força mexer meia banda: um achado de surpresa 2
+    com evidência forte (2,0) passa na frente de um de surpresa 3 que
+    raspou (1,5), e é isso mesmo que deve acontecer. */
+export const nota = (p: Pattern) => p.surpresa * (0.5 + 0.5 * (p.forca ?? 0));
+
+/** Quanto uma evidência passou do limiar que a deixou entrar: 0 quando
+    raspou, 1 quando dobrou. É a régua que separa o achado forte do achado
+    que só não foi barrado. */
+const forcaDe = (medido: number, limiar: number) =>
+  Math.max(0, Math.min(1, (medido - limiar) / limiar));
 
 export function patterns(S: State): Pattern[] {
   const out: Pattern[] = [];
@@ -1597,7 +1629,7 @@ export function patterns(S: State): Pattern[] {
       const prot = dProt >= 8 ? ` e come ${Math.round(dProt)} g menos de proteína` : '';
       const sono = dSono >= 0.4 ? ` — mas dorme ${nf(dSono, 1)} h a mais. O descanso melhora; a rotina é que se solta.` : '.';
       out.push({
-        key: 'alimentacao', cat: 'Alimentação', ic: 'cal', cor: 'water', surpresa: 3,
+        key: 'alimentacao', cat: 'Alimentação', ic: 'cal', cor: 'water', surpresa: 3, forca: forcaDe(dAgua, 1.5),
         titulo: 'Seu fim de semana funciona como outro tratamento',
         texto: `Sábado e domingo você bebe ${nf(dAgua, 1)} copos a menos${prot}${sono}`,
         q: 'Como cuidar melhor do fim de semana?',
@@ -1622,7 +1654,7 @@ export function patterns(S: State): Pattern[] {
     const outros = med(cs.filter((c) => new Date(c.t).getDay() !== piorDia).map((c) => c.agua));
     const nomes = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
     if (outros - piorMedia >= 1) out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2,
+      key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2, forca: forcaDe(outros - piorMedia, 1),
       /* ⚠️ O SUJEITO É A HIDRATAÇÃO, E ERA A PESSOA. "Você bebe bem menos
          água aos domingos" é o mesmo fato com o dedo apontado — e era o
          único dos cinco insights com essa forma: os outros quatro dizem
@@ -1646,7 +1678,7 @@ export function patterns(S: State): Pattern[] {
   if (bateu.length >= 2 && naoBateu.length >= 2) {
     const fSim = med(bateu.map((p) => p.fomeDepois)), fNao = med(naoBateu.map((p) => p.fomeDepois));
     if (fNao - fSim >= 0.5) out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3,
+      key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3, forca: forcaDe(fNao - fSim, 0.5),
       titulo: 'Nos dias em que você bate a proteína, o dia seguinte é mais fácil',
       texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${nf(fSim, 1)}. Quando não chegou, ${nf(fNao, 1)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
       q: 'Como está minha proteína?',
@@ -1662,7 +1694,7 @@ export function patterns(S: State): Pattern[] {
   if (bem.length >= 2 && mal.length >= 2) {
     const fBem = med(bem.map((p) => p.fomeDepois)), fMal = med(mal.map((p) => p.fomeDepois));
     if (fMal - fBem >= 0.5) out.push({
-      key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3,
+      key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3, forca: forcaDe(fMal - fBem, 0.5),
       titulo: 'Dormir mais de sete horas segura sua fome no dia seguinte',
       texto: `Depois de noites completas sua fome ficou em ${nf(fBem, 1)}; depois de noites curtas, ${nf(fMal, 1)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
       q: 'O que registrar antes de dormir?',
@@ -1684,7 +1716,7 @@ export function patterns(S: State): Pattern[] {
   if (perto.length >= 2 && longe.length >= 2) {
     const ePerto = med(perto.map((c) => c.nausea)), eLonge = med(longe.map((c) => c.nausea));
     if (ePerto - eLonge >= 0.5) out.push({
-      key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2,
+      key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2, forca: forcaDe(ePerto - eLonge, 0.5),
       titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
       texto: `Ele fica em ${nf(ePerto, 1)} nos dois primeiros dias e cai para ${nf(eLonge, 1)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
       q: 'Por que sinto enjoo?',
@@ -1715,7 +1747,7 @@ export function patterns(S: State): Pattern[] {
   if (hidratados.length >= 3 && secos.length >= 3) {
     const eSim = med(hidratados.map((c) => c.nausea)), eNao = med(secos.map((c) => c.nausea));
     if (eNao - eSim >= 0.5) out.push({
-      key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3,
+      key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3, forca: forcaDe(eNao - eSim, 0.5),
       titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
       texto: `Com ${litros(corteAgua * CUP_ML)} L ou mais, seu enjoo médio foi ${nf(eSim, 1)}. Abaixo disso, ${nf(eNao, 1)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
       q: 'Como diminuir o enjoo?',
@@ -1732,7 +1764,7 @@ export function patterns(S: State): Pattern[] {
     const subidas = ws.slice(1).filter((w, i) => w.kg > ws[i].kg).length;
     const total = ws[0].kg - ws[ws.length - 1].kg;
     if (subidas >= 1 && total > 0) out.push({
-      key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3,
+      key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3, forca: forcaDe(subidas, 1),
       titulo: `A balança subiu ${subidas} vezes e você perdeu ${nf(total, 1)} kg mesmo assim`,
       texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
       q: 'Como está minha evolução?',
@@ -1753,7 +1785,7 @@ export function patterns(S: State): Pattern[] {
        "Sua proteína subiu Infinity% desde o começo". */
     const pct = antes > 0 ? Math.round(((depois - antes) / antes) * 100) : 0;
     if (Math.abs(pct) >= 5) out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1,
+      key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1, forca: forcaDe(Math.abs(pct), 5),
       titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}% desde o começo`,
       texto: pct > 0
         ? `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g no início. Proteína preserva massa magra durante a perda de peso.`
@@ -1822,7 +1854,7 @@ export function patterns(S: State): Pattern[] {
   });
 
   /* o mais surpreendente primeiro — a ordem da tela é a ordem do valor */
-  return out.sort((a, b) => b.surpresa - a.surpresa);
+  return out.sort((a, b) => nota(b) - nota(a));
 }
 
 /* ============================================================
