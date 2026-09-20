@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
-  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgCurto,
+  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -1172,7 +1172,7 @@ export function examSummary(S: State): string | null {
     : '';
 
   const melhora = bons.length
-    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${kgCurto(bons[0].f.v)} para ${kgCurto(bons[0].l.v)} ${bons[0].e.unit}.`
+    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${kgTxt(bons[0].f.v)} para ${kgTxt(bons[0].l.v)} ${bons[0].e.unit}.`
     : '';
 
   const piora = maus.length
@@ -1265,9 +1265,9 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
   const uni = e.unit ? ` ${e.unit}` : '';
   const faixa = (() => {
     const gg = examGaugeData(e);
-    if (gg.temMin && gg.temMax) return `entre ${kgCurto(gg.limMin)} e ${kgCurto(gg.limMax)}${uni}`;
-    if (gg.temMax) return `abaixo de ${kgCurto(gg.limMax)}${uni}`;
-    if (gg.temMin) return `acima de ${kgCurto(gg.limMin)}${uni}`;
+    if (gg.temMin && gg.temMax) return `entre ${kgTxt(gg.limMin)} e ${kgTxt(gg.limMax)}${uni}`;
+    if (gg.temMax) return `abaixo de ${kgTxt(gg.limMax)}${uni}`;
+    if (gg.temMin) return `acima de ${kgTxt(gg.limMin)}${uni}`;
     return `${e.ref}${uni}`;
   })();
 
@@ -1282,7 +1282,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
 
   const andou = !varios || delta === 0
     ? ''
-    : ` Desde ${dataLonga(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${kgCurto(Math.abs(delta))}${uni}${rumo}.`;
+    : ` Desde ${dataLonga(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${kgTxt(Math.abs(delta))}${uni}${rumo}.`;
 
   /* ⚠️ ESTA É A ÚNICA FRASE DA TELA QUE OLHA PARA FORA DESTE MARCADOR.
 
@@ -1309,7 +1309,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
       : ` Dos ${n} marcadores deste exame, ${fora} estão fora da referência, e este é um deles.`;
   })();
 
-  const texto = `Na coleta de ${dataLonga(l.t)} o valor foi ${kgCurto(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+  const texto = `Na coleta de ${dataLonga(l.t)} o valor foi ${kgTxt(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
 
   return { titulo, texto };
 }
@@ -1466,7 +1466,6 @@ export const PAT_LABEL: Record<PatKey, string> = {
 export function patterns(S: State): Pattern[] {
   const out: Pattern[] = [];
   const cs = S.checkins as any[];
-  const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const med = (arr: number[]) => (arr.length ? arr.reduce((s, x) => s + x, 0) / arr.length : 0);
 
   /* --- o fim de semana como outro tratamento ---
@@ -1485,13 +1484,13 @@ export function patterns(S: State): Pattern[] {
          bastante para significar alguma coisa — 5 g de gap não sustentam
          uma manchete, e insight que exagera o dado deixa de ser insight */
       const prot = dProt >= 8 ? ` e come ${Math.round(dProt)} g menos de proteína` : '';
-      const sono = dSono >= 0.4 ? ` — mas dorme ${n1(dSono)} h a mais. O descanso melhora; a rotina é que se solta.` : '.';
+      const sono = dSono >= 0.4 ? ` — mas dorme ${nf(dSono, 1)} h a mais. O descanso melhora; a rotina é que se solta.` : '.';
       out.push({
         key: 'alimentacao', cat: 'Alimentação', ic: 'cal', cor: 'water', surpresa: 3,
         titulo: 'Seu fim de semana funciona como outro tratamento',
-        texto: `Sábado e domingo você bebe ${n1(dAgua)} copos a menos${prot}${sono}`,
+        texto: `Sábado e domingo você bebe ${nf(dAgua, 1)} copos a menos${prot}${sono}`,
         q: 'Como cuidar melhor do fim de semana?',
-        evid: { valor: `−${n1(dAgua)}`, unidade: 'copos', legenda: 'no sábado e no domingo' },
+        evid: { valor: `−${nf(dAgua, 1)}`, unidade: 'copos', legenda: 'no sábado e no domingo' },
         porque: 'A rotina da semana carrega sua hidratação e suas refeições sem que você precise pensar nelas: horários fixos, garrafa na mesa, almoço na mesma hora. No sábado essa estrutura some, e o que sobra é decidir tudo na hora — que é exatamente quando a decisão fica mais difícil.',
         significa: 'Dois dias por semana o tratamento fica com um pé fora, e são justamente os dias em que você tem mais tempo. Não precisa de disciplina nova — precisa que o fim de semana tenha uma rotina própria, não a ausência da rotina da semana.',
       });
@@ -1532,9 +1531,9 @@ export function patterns(S: State): Pattern[] {
     if (fNao - fSim >= 0.5) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3,
       titulo: 'Nos dias em que você bate a proteína, o dia seguinte é mais fácil',
-      texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${n1(fSim)}. Quando não chegou, ${n1(fNao)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
+      texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${nf(fSim, 1)}. Quando não chegou, ${nf(fNao, 1)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
       q: 'Como está minha proteína?',
-      evid: { valor: `−${n1(fNao - fSim)}`, unidade: 'de fome', legenda: 'no dia seguinte a bater a meta' },
+      evid: { valor: `−${nf(fNao - fSim, 1)}`, unidade: 'de fome', legenda: 'no dia seguinte a bater a meta' },
       porque: 'A proteína age na saciedade por um caminho mais lento que o do açúcar: ela demora a esvaziar do estômago e sustenta os sinais de saciedade por muitas horas. Por isso o efeito atravessa a noite e reaparece no apetite da manhã seguinte.',
       significa: `Bater a meta de proteína não é só cumprir tabela: é comprar um dia seguinte mais tranquilo. Quando a fome apertar, o que resolve não é o que você come naquela hora — é o que você comeu ontem.`,
     });
@@ -1548,7 +1547,7 @@ export function patterns(S: State): Pattern[] {
     if (fMal - fBem >= 0.5) out.push({
       key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3,
       titulo: 'Dormir mais de sete horas segura sua fome no dia seguinte',
-      texto: `Depois de noites completas sua fome ficou em ${n1(fBem)}; depois de noites curtas, ${n1(fMal)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
+      texto: `Depois de noites completas sua fome ficou em ${nf(fBem, 1)}; depois de noites curtas, ${nf(fMal, 1)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
       q: 'O que registrar antes de dormir?',
       evid: { valor: '7h', unidade: '+', legenda: 'o ponto em que sua fome muda' },
       porque: 'Dormir pouco mexe nos dois hormônios que regulam apetite: sobe o que dá fome e cai o que avisa que já deu. Não é falta de disciplina no dia seguinte — é o corpo pedindo energia rápida para compensar o que faltou de descanso.',
@@ -1570,7 +1569,7 @@ export function patterns(S: State): Pattern[] {
     if (ePerto - eLonge >= 0.5) out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2,
       titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
-      texto: `Ele fica em ${n1(ePerto)} nos dois primeiros dias e cai para ${n1(eLonge)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
+      texto: `Ele fica em ${nf(ePerto, 1)} nos dois primeiros dias e cai para ${nf(eLonge, 1)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
       q: 'Por que sinto enjoo?',
       evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
       significa: `Isso se repetiu em ${perto.length} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
@@ -1601,9 +1600,9 @@ export function patterns(S: State): Pattern[] {
     if (eNao - eSim >= 0.5) out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3,
       titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
-      texto: `Com ${litros(corteAgua * CUP_ML)} L ou mais, seu enjoo médio foi ${n1(eSim)}. Abaixo disso, ${n1(eNao)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
+      texto: `Com ${litros(corteAgua * CUP_ML)} L ou mais, seu enjoo médio foi ${nf(eSim, 1)}. Abaixo disso, ${nf(eNao, 1)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
       q: 'Como diminuir o enjoo?',
-      evid: { valor: `−${n1(eNao - eSim)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
+      evid: { valor: `−${nf(eNao - eSim, 1)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
       significa: 'De tudo o que aparece ligado ao seu enjoo, a água é o que está mais na sua mão. Não substitui conversar com a equipe se ele apertar, mas é a primeira coisa que vale testar antes.',
     });
   }
@@ -1617,10 +1616,10 @@ export function patterns(S: State): Pattern[] {
     const total = ws[0].kg - ws[ws.length - 1].kg;
     if (subidas >= 1 && total > 0) out.push({
       key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3,
-      titulo: `A balança subiu ${subidas} vezes e você perdeu ${n1(total)} kg mesmo assim`,
+      titulo: `A balança subiu ${subidas} vezes e você perdeu ${nf(total, 1)} kg mesmo assim`,
       texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
       q: 'Como está minha evolução?',
-      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${n1(total)} kg no período` },
+      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${nf(total, 1)} kg no período` },
       porque: 'O peso do dia é gordura, mas também é água, sal, intestino e o ciclo hormonal — variações de um a dois quilos acontecem sem que nada tenha mudado na gordura corporal. A gordura sai devagar e em linha; o resto oscila por cima dela e é o que a balança mostra primeiro.',
       significa: 'Isso importa mais do que parece: a semana em que a balança sobe é a semana em que as pessoas costumam desistir. Nos seus próprios números, ela nunca significou o que parecia significar.',
     });
@@ -1652,10 +1651,10 @@ export function patterns(S: State): Pattern[] {
     key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent', surpresa: 0,
     titulo: `Seu ritmo é de ${r.ritmoLabel} kg por semana`,
     texto: r.verdict.good
-      ? `${n1(r.lost)} kg em ${r.semana} semanas, dentro do esperado para a sua fase.`
-      : `${n1(r.lost)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
+      ? `${nf(r.lost, 1)} kg em ${r.semana} semanas, dentro do esperado para a sua fase.`
+      : `${nf(r.lost, 1)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
-    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${n1(r.lost)} kg em ${r.semana} semanas` },
+    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${nf(r.lost, 1)} kg em ${r.semana} semanas` },
     significa: r.verdict.good
       ? 'É um ritmo sustentável, e sustentável é o que importa: perdas rápidas demais costumam levar massa magra junto e voltar depois. O seu está no intervalo que a literatura associa a resultado que se mantém.'
       : 'Ritmo é uma conversa para ter com sua equipe, não comigo. Levo o número organizado para a consulta se você quiser.',
@@ -2281,11 +2280,11 @@ export function libraryPicks(S: State): Leitura[] {
 
   const sonoMed = cs.length ? cs.reduce((s, c) => s + c.sono, 0) / cs.length : 0;
   if (sonoMed < 7) {
-    out.push({ motivo: `Sua média de sono está em ${nf(sonoMed, 1).replace('.', ',')} h`, titulo: 'O sono como parte do tratamento', desc: 'Dormir pouco muda os hormônios da fome no dia seguinte — nos seus próprios registros isso já aparece.', ic: 'moon', min: 4 });
+    out.push({ motivo: `Sua média de sono está em ${nf(sonoMed, 1)} h`, titulo: 'O sono como parte do tratamento', desc: 'Dormir pouco muda os hormônios da fome no dia seguinte — nos seus próprios registros isso já aparece.', ic: 'moon', min: 4 });
   }
 
   if (r.semana >= 8) {
-    out.push({ motivo: `Semana ${r.semana}, com ${nf(r.lost, 1).replace('.', ',')} kg no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
+    out.push({ motivo: `Semana ${r.semana}, com ${nf(r.lost, 1)} kg no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
   }
 
   if (temConsulta(S)) {
@@ -2464,7 +2463,6 @@ export const waterMlToday = (S: State) => aguaDoDia(S, +startOfDay(now()));
    que às vezes quer "de 2,5 L hoje" e às vezes só o número. */
 export const litros = (ml: number) => (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
 
-const nfBR = (v: number, d = 0) => nf(v, d).replace('.', ',');
 
 export type DailyTarget = {
   key: 'prot' | 'agua' | 'exerc';
@@ -2655,7 +2653,6 @@ export type TLEvent = {
 export function timelineEvents(S: State): TLEvent[] {
   const out: TLEvent[] = [];
   const med = M(S);
-  const kgf = (x: number) => nf(x, 1).replace('.', ',');
   const D = (t: number) => +startOfDay(new Date(t));
 
   for (const inj of S.injections as any[]) {
@@ -2674,9 +2671,9 @@ export function timelineEvents(S: State): TLEvent[] {
     const dl = prev ? cur.kg - prev.kg : 0;
     out.push({
       key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), ordemNoDia: '07:45',
-      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${kgf(cur.kg)} kg`,
-      detalhe: `${kgf(cur.kg)} kg`,
-      value: prev ? `${dl <= 0 ? '−' : '+'}${kgf(Math.abs(dl))} kg` : 'Peso inicial',
+      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${nf(cur.kg, 1)} kg`,
+      detalhe: `${nf(cur.kg, 1)} kg`,
+      value: prev ? `${dl <= 0 ? '−' : '+'}${nf(Math.abs(dl), 1)} kg` : 'Peso inicial',
       valueColor: prev ? (dl <= 0 ? 'good' : 'tx2') : 'tx3',
     });
   });
@@ -2789,7 +2786,6 @@ export function timelineWeeks(S: State): JourneyWeek[] {
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
   const med = M(S);
   const out: JourneyWeek[] = [];
-  const n1 = (x: number) => nf(x, 1).replace('.', ',');
 
   /* Médias do ciclo — o que o corpo recebeu naquela semana. Calculadas
      para todos os ciclos antes do laço, porque cada semana precisa da
@@ -2819,7 +2815,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     let deltaPeso: string | null = null;
     if (base != null && pesos.length) {
       const d = pesos[pesos.length - 1].kg - base;
-      deltaPeso = `${d <= 0 ? '−' : '+'}${nf(Math.abs(d), 1).replace('.', ',')} kg`;
+      deltaPeso = `${d <= 0 ? '−' : '+'}${nf(Math.abs(d), 1)} kg`;
     }
 
     /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
@@ -2850,9 +2846,9 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     });
     if (at) {
       const varia = (agora: number, antes: number | undefined, suf: string) =>
-        antes == null ? null : `${agora >= antes ? '+' : '−'}${n1(Math.abs(agora - antes))} ${suf}`;
+        antes == null ? null : `${agora >= antes ? '+' : '−'}${nf(Math.abs(agora - antes), 1)} ${suf}`;
       metricas.push({
-        ic: 'water', label: 'Hidratação', valor: `${n1(at.agua)} L/dia`,
+        ic: 'water', label: 'Hidratação', valor: `${nf(at.agua, 1)} L/dia`,
         delta: varia(at.agua, ant?.agua, 'L'), good: !ant || at.agua >= ant.agua,
       });
       metricas.push({
@@ -2928,10 +2924,9 @@ export type Change = {
    única no aplicativo. */
 export type TomDaVariacao = 'bom' | 'ruim' | 'neutro';
 export function variacaoDe(d: number, unidade = '', bomSeCai = true) {
-  const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const abs = Math.abs(d);
-  const parado = Number(n1(abs).replace(',', '.')) === 0;
-  const numero = parado ? n1(0) : `${d > 0 ? '+' : '−'}${n1(abs)}`;
+  const parado = Number(nf(abs, 1).replace(',', '.')) === 0;
+  const numero = parado ? nf(0, 1) : `${d > 0 ? '+' : '−'}${nf(abs, 1)}`;
   /* ⚠️ SÃO TRÊS TONS, E ERAM DOIS. Com `good` booleano, "parado" caía no
      mesmo balde de "piorou" — e pintar de vermelho um número que não se
      mexeu é dizer que ficar igual é má notícia. Não é: é notícia nenhuma. */
@@ -2948,7 +2943,6 @@ export function variacaoDe(d: number, unidade = '', bomSeCai = true) {
 
 export function journeyChanges(S: State): Change[] {
   const out: Change[] = [];
-  const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const fm = firstMeasure(S), lm = latestMeasure(S);
   const variacao = (d: number, unidade: string, bomSeCai = true) => {
     const v = variacaoDe(d, unidade, bomSeCai);
@@ -2961,7 +2955,7 @@ export function journeyChanges(S: State): Change[] {
      caminho para corrigir. Os de baixo vêm de exame ou de balança, não
      têm lista para auditar, e seguem levando para onde o laudo mora. */
   out.push({
-    ic: 'scale', label: 'Peso', from: `${n1(startWeight(S))} kg`, to: `${n1(curWeight(S))} kg`,
+    ic: 'scale', label: 'Peso', from: `${nf(startWeight(S), 1)} kg`, to: `${nf(curWeight(S), 1)} kg`,
     ...variacao(curWeight(S) - startWeight(S), 'kg'), to_: '/marcador?m=peso',
   });
 
@@ -2971,13 +2965,13 @@ export function journeyChanges(S: State): Change[] {
       ...variacao(lm.cintura - fm.cintura, 'cm'), to_: '/marcador?m=cintura',
     });
     if (lm.gordura !== fm.gordura) out.push({
-      ic: 'activity', label: 'Gordura corporal', from: `${n1(fm.gordura)}%`, to: `${n1(lm.gordura)}%`,
+      ic: 'activity', label: 'Gordura corporal', from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
       ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/medidas',
     });
     /* A única em que subir é a boa notícia: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. */
     if (lm.musculo !== fm.musculo) out.push({
-      ic: 'dumbbell', label: 'Massa magra', from: `${n1(fm.musculo)} kg`, to: `${n1(lm.musculo)} kg`,
+      ic: 'dumbbell', label: 'Massa magra', from: `${nf(fm.musculo, 1)} kg`, to: `${nf(lm.musculo, 1)} kg`,
       ...variacao(lm.musculo - fm.musculo, 'kg', false), to_: '/medidas',
     });
   }
@@ -2987,7 +2981,7 @@ export function journeyChanges(S: State): Change[] {
     const f = examFirst(a1c), l = examLast(a1c);
     const naRef = examStatus(a1c) === 'ok';
     out.push({
-      ic: 'doc', label: 'HbA1c', from: `${n1(f.v)}%`, to: `${n1(l.v)}%`,
+      ic: 'doc', label: 'HbA1c', from: `${nf(f.v, 1)}%`, to: `${nf(l.v, 1)}%`,
       delta: naRef ? 'Na referência' : 'Fora da referência',
       good: naRef, tom: naRef ? 'bom' : 'ruim', to_: '/exames',
     });
@@ -4029,7 +4023,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
     le: (S) => S.profile.goalWeight,
     /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e
        "68,0 kg" numa pastilha de meta parece precisão de balança. */
-    escreve: (v) => nf(v, 1).replace('.', ',').replace(/,0$/, ''),
+    escreve: (v) => nf(v, 1).replace(/,0$/, ''),
   },
 };
 
@@ -4557,11 +4551,11 @@ export function journeySummary(S: State) {
        o número cru e cada tela grudava um "−" na frente. */
     lost, lostLabel: variacaoDe(-lost, '').numero,
     goal, pct: Math.round((lost / goal) * 100),
-    faltamLabel: nf(Math.max(0, goal - lost), 1).replace('.', ','),
+    faltamLabel: nf(Math.max(0, goal - lost), 1),
     aplicacoes: S.injections.length,
     proximaEmDias: diasAteAplicar(S),
     /* ritmo semanal — diz mais que "71 dias de tratamento", que é trivia */
-    ritmo, ritmoLabel: nf(ritmo, 1).replace('.', ','),
+    ritmo, ritmoLabel: nf(ritmo, 1),
     adesao: adesao(S), streak: streak(S),
     verdict,
   };

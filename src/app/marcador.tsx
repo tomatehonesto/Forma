@@ -74,7 +74,7 @@ export default function Marcador() {
   const desde = corte === Infinity ? -Infinity : Date.now() - corte * DAY;
   const pts = todos.filter((p) => p.t >= desde);
 
-  const fmt = (v: number) => nf(v, def.casas).replace('.', ',');
+  const fmt = (v: number) => nf(v, def.casas);
   const ultimo = todos[todos.length - 1];
   const primeiro = todos[0];
 

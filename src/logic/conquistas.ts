@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { MEDS } from './meds';
-import { DAY, startOfDay, now, diffDays } from './time';
+import { DAY, startOfDay, now, diffDays, nf } from './time';
 
 /* ESTE ARQUIVO NÃO IMPORTA O DERIVE, e o derive importa este. O caminho
    tem uma direção só de propósito: o derive já chama as conquistas — a
@@ -144,7 +144,6 @@ const diasEm = (S: State, vale: (c: any) => boolean) =>
   (S.checkins as any[]).filter(vale).map((c) => diaDe(c.t)).sort((a, b) => a - b);
 
 const respondeu = (c: any, campo: string) => c?.[campo] != null && !Number.isNaN(c[campo]);
-const um = (n: number) => n.toFixed(1).replace('.', ',');
 const inteiro = (n: number) => String(Math.ceil(n));
 
 /* ------------------------------------------------------------------ *
@@ -226,7 +225,7 @@ const CATALOGO: Trilha[] = [
     id: 'kg', familia: 'peso', ic: 'scale', titulo: 'Quilos a menos',
     niveis: [2, 5, 10, 15, 20, 30],
     desc: (a) => `${a} kg abaixo do peso inicial`,
-    falta: (r) => `Faltam ${um(r)} kg`,
+    falta: (r) => `Faltam ${nf(r, 1)} kg`,
     medida: (S) => {
       const ini = S.profile.startWeight;
       const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ini - w.kg }));
@@ -241,7 +240,7 @@ const CATALOGO: Trilha[] = [
     id: 'pct', familia: 'peso', ic: 'trend', titulo: 'Percentual perdido',
     niveis: [5, 10, 15, 20],
     desc: (a) => `${a}% do peso inicial`,
-    falta: (r) => `Faltam ${um(r)} pontos`,
+    falta: (r) => `Faltam ${nf(r, 1)} pontos`,
     medida: (S) => {
       const ini = S.profile.startWeight;
       const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ((ini - w.kg) / ini) * 100 }));
@@ -370,7 +369,7 @@ const CATALOGO: Trilha[] = [
     vale: (S) => (S.measures as any[]).some((m) => m.cintura != null),
     niveis: [2, 5, 10, 15],
     desc: (a) => `${a} cm a menos na cintura`,
-    falta: (r) => `Faltam ${um(r)} cm`,
+    falta: (r) => `Faltam ${nf(r, 1)} cm`,
     medida: (S) => {
       const ms = (S.measures as any[]).filter((m) => m.cintura != null).sort((a, b) => a.t - b.t);
       if (!ms.length) return { feito: 0, quando: () => null };

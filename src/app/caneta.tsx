@@ -26,7 +26,6 @@ import {
    mais um número na grade.
    ============================================================ */
 
-const n1 = (x: number) => nf(x, 1).replace('.', ',');
 
 export default function Caneta() {
   const S = useStore((s) => s.S);
@@ -47,7 +46,7 @@ export default function Caneta() {
       rodape={<Botao label="Lembrar de renovar" onPress={() => router.push('/lembretes' as any)} />}
     >
       <Titulao
-        titulo={`${med.label} ${n1(dose)} ${med.unit}`}
+        titulo={`${med.label} ${nf(dose, 1)} ${med.unit}`}
         lead={atual?.abertaEm
           ? `Caneta aberta em ${dataLonga(atual.abertaEm)} · ${total} doses por caneta`
           : `Nenhuma caneta aberta · ${total} doses por caneta`}
@@ -101,7 +100,7 @@ export default function Caneta() {
           {k.lista.map((p) => (
             <SanfonaLinha
               key={p.id}
-              titulo={`${p.label} ${n1(p.dose)} ${p.unit}`}
+              titulo={`${p.label} ${nf(p.dose, 1)} ${p.unit}`}
               selo={p.estado === 'uso' ? 'em uso' : 'encerrada'}
               seloTom="neutra"
               sub={p.estado === 'uso'

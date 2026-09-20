@@ -74,7 +74,7 @@ export default function CanetaNova() {
             {catalogo.doses.slice(0, 4).map((d) => (
               <Opc
                 key={d}
-                label={`${nf(d, d % 1 ? 1 : 0).replace('.', ',')} ${catalogo.unit}`}
+                label={`${nf(d, d % 1 ? 1 : 0)} ${catalogo.unit}`}
                 on={dose === d}
                 onPress={() => setDose(d)}
               />

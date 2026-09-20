@@ -35,7 +35,6 @@ const MEDIDAS: [string, string, number, number, number][] = [
   ['braco', 'Braço', 15, 70, 32],
 ];
 
-const n1 = (x: number) => nf(x, 1).replace('.', ',');
 
 export default function MedirPeso() {
   const S = useStore((s) => s.S);
@@ -118,7 +117,7 @@ export default function MedirPeso() {
           {Math.abs(delta) >= 0.05 ? (
             <Row style={{ justifyContent: 'center' }}>
               <Selo
-                label={`${delta < 0 ? '−' : '+'}${n1(Math.abs(delta))} kg desde o último`}
+                label={`${delta < 0 ? '−' : '+'}${nf(Math.abs(delta), 1)} kg desde o último`}
                 tom={delta < 0 ? 'lima' : 'neutra'}
               />
             </Row>
@@ -163,7 +162,7 @@ export default function MedirPeso() {
           })}
         </Campo>
 
-        <Botao label={`Salvar ${n1(peso)} kg`} onPress={salvar} />
+        <Botao label={`Salvar ${nf(peso, 1)} kg`} onPress={salvar} />
       </View>
     </SheetScreen>
   );

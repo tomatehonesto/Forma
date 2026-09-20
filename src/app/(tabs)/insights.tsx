@@ -691,7 +691,7 @@ export default function Insights() {
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
             <ListRow ic="chart" title="Resumo da semana"
-              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1).replace('.', ',')} kg`}
+              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1)} kg`}
               onPress={perguntar('Como está minha evolução?')} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="cal" title="Resumo para a consulta"

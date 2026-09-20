@@ -135,9 +135,9 @@ export default function Aplicacao() {
         <Chips itens={dias} valor={dia} onChange={setDia} />
       </Campo>
 
-      <Campo rotulo="Dose" ajuda={`Sua dose atual é ${nf(S.profile.dose, 1).replace('.', ',')} ${med.unit}.`}>
+      <Campo rotulo="Dose" ajuda={`Sua dose atual é ${nf(S.profile.dose, 1)} ${med.unit}.`}>
         <Stepper
-          valor={nf(dose, 1).replace('.', ',')}
+          valor={nf(dose, 1)}
           unidade={med.unit}
           onMenos={() => passo(-1)}
           onMais={() => passo(1)}
@@ -182,7 +182,7 @@ export default function Aplicacao() {
       >
         <Opcoes>
           <Opc
-            label={`${med.label} ${nf(dose, 1).replace('.', ',')} ${med.unit} · ${est.total - est.left + 1}ª dose`}
+            label={`${med.label} ${nf(dose, 1)} ${med.unit} · ${est.total - est.left + 1}ª dose`}
             on={!outraCaneta}
             onPress={() => setOutraCaneta(false)}
           />

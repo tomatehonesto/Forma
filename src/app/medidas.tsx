@@ -37,7 +37,6 @@ const CIRC: { k: string; nome: string }[] = [
   { k: 'coxa', nome: 'Coxa' },
 ];
 
-const n1 = (x: number) => nf(x, 1).replace('.', ',');
 const n0 = (x: number) => nf(x, 0);
 
 /* Card de circunferência — CardCurva com os rótulos que a leitura ao
@@ -58,7 +57,7 @@ function CardMedida({ nome, chave, onPress }: { nome: string; chave: string; onP
       id={`md-${chave}`}
       nome={nome}
       sub={`${n0(primeiro.v)} › ${n0(ultimo.v)} cm · ${fmtDate(ultimo.t)}`}
-      valor={`${delta > 0 ? '+' : '−'}${n1(Math.abs(delta))}`}
+      valor={`${delta > 0 ? '+' : '−'}${nf(Math.abs(delta), 1)}`}
       unidade="cm"
       altura={92}
       pontos={pts.map((p) => ({ v: p.v, rotulo: n0(p.v), quando: fmtDate(p.t) }))}
@@ -117,9 +116,9 @@ export default function Medidas() {
             <Metrica
               ic="activity"
               nome="Gordura corporal"
-              selo={`${m1.gordura <= m0.gordura ? '−' : '+'}${n1(Math.abs(m0.gordura - m1.gordura))} pp`}
-              de={`${n1(m0.gordura)}%`}
-              para={`${n1(m1.gordura)}%`}
+              selo={`${m1.gordura <= m0.gordura ? '−' : '+'}${nf(Math.abs(m0.gordura - m1.gordura), 1)} pp`}
+              de={`${nf(m0.gordura, 1)}%`}
+              para={`${nf(m1.gordura, 1)}%`}
             />
             {/* Estava rotulada em "%" e mostrava 29,0 % — o estado guarda
                 massa magra em QUILOS. O número certo é 29,0 kg, e a unidade
@@ -127,9 +126,9 @@ export default function Medidas() {
             <Metrica
               ic="dumbbell"
               nome="Massa magra"
-              selo={`${m1.musculo >= m0.musculo ? '+' : '−'}${n1(Math.abs(m1.musculo - m0.musculo))} kg`}
-              de={`${n1(m0.musculo)} kg`}
-              para={`${n1(m1.musculo)} kg`}
+              selo={`${m1.musculo >= m0.musculo ? '+' : '−'}${nf(Math.abs(m1.musculo - m0.musculo), 1)} kg`}
+              de={`${nf(m0.musculo, 1)} kg`}
+              para={`${nf(m1.musculo, 1)} kg`}
             />
           </Grade2>
         </Bloco>

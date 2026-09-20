@@ -42,7 +42,6 @@ const CAMPOS: [string, string, number, number, number][] = [
   ['coxa', 'Coxa', 25, 110, 55],
 ];
 
-const n1 = (x: number) => nf(x, 1).replace('.', ',');
 
 export default function MedirMedidas() {
   const S = useStore((s) => s.S);
@@ -120,7 +119,7 @@ export default function MedirMedidas() {
                 />
                 {Math.abs(d) >= 0.1 ? (
                   <Txt v="micro" c={d < 0 ? c.limeSoftInk : c.tx3} style={{ textAlign: 'center' }}>
-                    {d < 0 ? '−' : '+'}{n1(Math.abs(d))} cm desde a última
+                    {d < 0 ? '−' : '+'}{nf(Math.abs(d), 1)} cm desde a última
                   </Txt>
                 ) : null}
               </View>

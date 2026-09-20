@@ -52,7 +52,6 @@ export type Confirmado = {
   caminho?: { label: string; to: string };
 };
 
-const n1 = (v: number) => nf(v, 1).replace('.', ',');
 const n0 = (v: number) => String(Math.round(v));
 /* O SINAL É PARTE DO NÚMERO, e o menos é o travessão do app, não o
    hífen do teclado. Quem perdeu peso lê "−0,4 kg"; quem ganhou lê
@@ -64,7 +63,7 @@ const n0 = (v: number) => String(Math.round(v));
 const delta = (v: number, un: string, casas = 1) => {
   const piso = casas ? 0.05 : 0.5;
   if (Math.abs(v) < piso) return 'sem mudança';
-  return `${v > 0 ? '+' : '−'}${casas ? n1(Math.abs(v)) : n0(Math.abs(v))} ${un}`;
+  return `${v > 0 ? '+' : '−'}${casas ? nf(Math.abs(v), 1) : n0(Math.abs(v))} ${un}`;
 };
 const tomDoDelta = (v: number, casas = 1) =>
   (Math.abs(v) < (casas ? 0.05 : 0.5) ? 'neutra' : 'lima') as 'neutra' | 'lima';
@@ -104,7 +103,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const paraMeta = atual - p.goalWeight;
       return {
         titulo: 'Peso registrado',
-        texto: `${n1(atual)} kg · ${dataLonga(+now())}`,
+        texto: `${nf(atual, 1)} kg · ${dataLonga(+now())}`,
         linhas: [
           ...(anterior ? [{
             titulo: 'Desde a última pesagem',
@@ -118,8 +117,8 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
           }] : []),
           {
             titulo: 'Meta de peso',
-            sub: `${n1(p.goalWeight)} kg`,
-            selo: paraMeta > 0 ? `faltam ${n1(paraMeta)} kg` : 'alcançada',
+            sub: `${nf(p.goalWeight, 1)} kg`,
+            selo: paraMeta > 0 ? `faltam ${nf(paraMeta, 1)} kg` : 'alcançada',
             seloTom: paraMeta > 0 ? ('neutra' as const) : ('verde' as const),
           },
         ],
@@ -134,7 +133,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const nomes: [string, string][] = [['cintura', 'Cintura'], ['quadril', 'Quadril'], ['braco', 'Braço'], ['coxa', 'Coxa']];
       return {
         titulo: 'Medidas registradas',
-        texto: `Cintura ${n1(u?.cintura ?? 0)} cm · ${dataLonga(+now())}`,
+        texto: `Cintura ${nf(u?.cintura ?? 0, 1)} cm · ${dataLonga(+now())}`,
         /* Só o que MUDOU desde a última fita. Quatro linhas com quatro
            deltas, três deles zero, transformam a confirmação num
            formulário de leitura — e o que a pessoa quer ver é onde o
@@ -144,11 +143,11 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
             .filter(([k]) => Math.abs((u?.[k] ?? 0) - ant[k]) >= 0.1)
             .map(([k, nome]) => ({
               titulo: nome,
-              sub: `${n1(ant[k])} › ${n1(u[k])} cm`,
+              sub: `${nf(ant[k], 1)} › ${nf(u[k], 1)} cm`,
               selo: delta((u[k] ?? 0) - ant[k], 'cm'),
               seloTom: tomDoDelta((u[k] ?? 0) - ant[k]),
             }))
-          : nomes.map(([k, nome]) => ({ titulo: nome, selo: `${n1(u?.[k] ?? 0)} cm`, seloTom: 'neutra' as const })),
+          : nomes.map(([k, nome]) => ({ titulo: nome, selo: `${nf(u?.[k] ?? 0, 1)} cm`, seloTom: 'neutra' as const })),
         caminho: { label: 'Ver as medidas', to: '/medidas' },
       };
     }

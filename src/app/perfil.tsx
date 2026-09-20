@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { kgCurto as kg, nf, relDay, fmtDate } from '../logic/time';
+import { kgTxt as kg, nf, relDay, fmtDate } from '../logic/time';
 import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
@@ -522,7 +522,7 @@ export default function Perfil() {
           esvaziaria a seção que ela abre quando quer mexer no app. */}
       <Grupo title="Acompanhamento">
         <ListRow ic="target" title="Metas diárias"
-          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1).replace('.', ',')} L de água`}
+          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1)} L de água`}
           onPress={go('/metas')} />
         <ListRow ic="clock" title="Lembretes"
           sub="Dose, pesagem, água e proteína" onPress={go('/lembretes')} />

@@ -118,8 +118,32 @@ export const quandoEm = (dias: number) => ({
     meio de uma frase — "em 3 dias" — às vezes abre uma. */
 export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export const nf = (x: number, d = 1) => x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
-export const kg = (x: number) => nf(x, 1).replace('.', ',');
+/** O número como o Brasil escreve: vírgula decimal e ponto de milhar.
+
+    ⚠️⚠️ A VÍRGULA É GARANTIDA AQUI, E ANTES ERA ESPERANÇA.
+
+    Isto era `toLocaleString('pt-BR')`, e essa chamada só cumpre o que
+    promete onde existe ICU completo. No React Native ela cai para o
+    comportamento do `toString`: ignora o locale, ignora as casas pedidas
+    e devolve "75.1" com ponto. Foi por isso que quarenta e dois lugares
+    do aplicativo penduraram um `.replace('.', ',')` no fim da chamada — e
+    foi por isso que os outros, que não penduraram, ficavam com o ponto.
+    Metade dos números do aplicativo dependia de quem tinha lembrado.
+
+    ⚠️ E O `.replace` NÃO ERA UM CONSERTO, era outro defeito esperando o
+    número certo. Onde o ICU funciona, `nf(1700, 1)` devolve "1.700,5" — e
+    trocar o primeiro ponto por vírgula produz "1,700,5". Ninguém tinha
+    visto porque nenhum dos quarenta e dois formatava mil.
+
+    Agora a conta é feita aqui, sem locale nenhum: `toFixed` garante as
+    casas com ponto, o ponto vira vírgula, e os milhares ganham o ponto
+    deles depois — nessa ordem, que é a que não confunde os dois. */
+export const nf = (x: number, d = 1) => {
+  const [inteiro, frac] = Math.abs(x).toFixed(d).split('.');
+  const comMilhar = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${x < 0 ? '-' : ''}${comMilhar}${frac ? `,${frac}` : ''}`;
+};
+export const kg = (x: number) => nf(x, 1);
 
 /* ------------------------------------------------------------------ *
  * OS TRÊS FORMATADORES DE NÚMERO EM TEXTO
@@ -134,16 +158,14 @@ export const kg = (x: number) => nf(x, 1).replace('.', ',');
  *  "perder dez vírgula zero quilos". */
 export const kgTxt = (v: number) => nf(v, v % 1 === 0 ? 0 : 1);
 
-/** Casa decimal só quando existe: "68,0 kg" para uma meta redonda finge
- *  uma precisão que a pessoa não definiu, e numa fileira ao lado de
- *  "82,4 kg" a simetria dos dois faz o zero parecer medido. Difere de
- *  kgTxt por sair já com a vírgula, que é como o número aparece na tela
- *  e não no meio de uma frase. */
-export const kgCurto = (n: number) => nf(n, n % 1 ? 1 : 0).replace('.', ',');
+/* ⚠️ O kgCurto MORREU AQUI, e ele era o kgTxt com um replace no fim.
+   A diferença que o comentário dele defendia — "sai já com a vírgula" —
+   deixou de existir no instante em que o nf passou a garantir a vírgula
+   para todo mundo. Os seis usos dele foram para o kgTxt. */
 
 /** Mil e setecentas quilocalorias se escrevem "1.700". Sem o ponto, o
  *  número mais alto da tela é também o mais difícil de ler. */
-export const milhar = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+export const milhar = (n: number) => nf(n, 0);
 
 /** Em que semana do tratamento cai uma data — 1 no primeiro dia.
 

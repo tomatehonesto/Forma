@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, nf, kgCurto as kg, dataComAno } from '../logic/time';
+import { MO_LONG, nf, kgTxt as kg, dataComAno } from '../logic/time';
 import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
@@ -105,12 +105,12 @@ export default function Dados() {
       {/* O CORPO E O RITMO: os quatro que entram em conta todo dia. */}
       <Bloco titulo="Corpo e ritmo">
         <Cartao>
-          <Linha ic="ruler" titulo="Altura" sub={`${nf(S.profile.height, 2).replace('.', ',')} m`} onPress={corrige('corpo')} />
+          <Linha ic="ruler" titulo="Altura" sub={`${nf(S.profile.height, 2)} m`} onPress={corrige('corpo')} />
           <Linha ic="scale" titulo="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
           <Linha ic="target" titulo="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
           <Linha
             ic="trend" titulo="Ritmo escolhido"
-            sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1).replace('.', ',')} kg por semana` : 'Sem peso a perder'}
+            sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1)} kg por semana` : 'Sem peso a perder'}
             onPress={corrige('ritmo')}
           />
         </Cartao>

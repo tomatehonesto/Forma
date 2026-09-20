@@ -155,10 +155,10 @@ function Painel() {
       )}
       <Row style={{ justifyContent: 'space-between', marginTop: 10, alignItems: 'baseline' }}>
         <Row gap={5} style={{ alignItems: 'baseline' }}>
-          <Txt v="caption" c={c.onHero2}>{nf(startWeight(S), 1).replace('.', ',')} kg no início</Txt>
+          <Txt v="caption" c={c.onHero2}>{nf(startWeight(S), 1)} kg no início</Txt>
           <Txt v="caption" c={c.onHero2}>·</Txt>
           {/* o peso de hoje é o outro número que importa: fica em branco */}
-          <Txt v="bodyMed" c={c.onHero}>{nf(curWeight(S), 1).replace('.', ',')} kg</Txt>
+          <Txt v="bodyMed" c={c.onHero}>{nf(curWeight(S), 1)} kg</Txt>
           <Txt v="caption" c={c.onHero2}>hoje</Txt>
         </Row>
         <Txt v="caption" c={c.onHero2}>faltam {r.faltamLabel} kg</Txt>

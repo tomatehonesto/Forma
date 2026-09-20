@@ -419,7 +419,7 @@ export default function Home() {
                 <Txt v="body">Gordura{'\n'}corporal</Txt>
                 <View style={{ marginTop: 'auto' }}>
                   <Row style={{ marginTop: 28, alignItems: 'center' }}>
-                    <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0).replace('.', ',') : '—'}</Txt>
+                    <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0) : '—'}</Txt>
                     {bf && <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>%</Txt>}
                     {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
                   </Row>

@@ -29,7 +29,6 @@ import { useTheme } from '../ui/useTheme';
    de formas diferentes.
    ============================================================ */
 
-const n1 = (x: number) => nf(x, 1).replace('.', ',');
 
 const PERIODOS = [
   { id: '12s', label: '12 semanas', dias: 84 },
@@ -72,10 +71,10 @@ export default function Evolucao() {
           <CardCurva
             id="ev-peso"
             nome="Peso"
-            sub={`${n1(startWeight(S))} › ${n1(curWeight(S))} kg · ${fmtDate(ultimoPeso.t)}`}
+            sub={`${nf(startWeight(S), 1)} › ${nf(curWeight(S), 1)} kg · ${fmtDate(ultimoPeso.t)}`}
             valor={variacaoDe(curWeight(S) - startWeight(S)).numero}
             unidade="kg"
-            pontos={pesos.map((p) => ({ v: p.v, rotulo: n1(p.v), quando: fmtDate(p.t) }))}
+            pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
           />
           {fm && lm ? (
@@ -105,7 +104,7 @@ export default function Evolucao() {
                  gordura caindo: o número mudava de sinal e a cor não. */
               selo={variacaoDe(lm.gordura - fm.gordura, 'pp').delta}
               seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'lima' : 'neutra'}
-              de={`${n1(fm.gordura)}%`} para={`${n1(lm.gordura)}%`}
+              de={`${nf(fm.gordura, 1)}%`} para={`${nf(lm.gordura, 1)}%`}
             />
           ) : null}
           {fm && lm ? (
@@ -113,7 +112,7 @@ export default function Evolucao() {
               ic="dumbbell" nome="Massa magra"
               selo={variacaoDe(lm.musculo - fm.musculo, 'kg', false).delta}
               seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'lima' : 'neutra'}
-              de={`${n1(fm.musculo)} kg`} para={`${n1(lm.musculo)} kg`}
+              de={`${nf(fm.musculo, 1)} kg`} para={`${nf(lm.musculo, 1)} kg`}
             />
           ) : null}
           {a1c && a1c.values.length >= 2 ? (
@@ -121,7 +120,7 @@ export default function Evolucao() {
               ic="doc" nome="HbA1c"
               selo={examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência'}
               seloTom={examStatus(a1c) === 'ok' ? 'verde' : 'neutra'}
-              de={`${n1(examFirst(a1c).v)}%`} para={`${n1(examLast(a1c).v)}%`}
+              de={`${nf(examFirst(a1c).v, 1)}%`} para={`${nf(examLast(a1c).v, 1)}%`}
             />
           ) : null}
           {pa && pa.length >= 2 ? (

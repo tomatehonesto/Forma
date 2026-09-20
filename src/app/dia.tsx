@@ -63,8 +63,8 @@ export default function Dia() {
           <Linha
             titulo="Aplicação"
             sub={aplicou
-              ? `${med.label} ${nf(aplicou.dose, 1).replace('.', ',')} ${med.unit}`
-              : `${med.label} ${nf(S.profile.dose, 1).replace('.', ',')} ${med.unit} · ${prevista ? 'prevista para hoje' : 'sem registro'}`}
+              ? `${med.label} ${nf(aplicou.dose, 1)} ${med.unit}`
+              : `${med.label} ${nf(S.profile.dose, 1)} ${med.unit} · ${prevista ? 'prevista para hoje' : 'sem registro'}`}
             selo={aplicou ? 'feita' : 'registrar'}
             seloTom={aplicou ? 'verde' : 'neutra'}
             seta={false}
@@ -80,7 +80,7 @@ export default function Dia() {
           />
           <Linha
             titulo="Peso"
-            sub={peso ? `${nf(peso.kg, 1).replace('.', ',')} kg` : 'Sem registro'}
+            sub={peso ? `${nf(peso.kg, 1)} kg` : 'Sem registro'}
             selo={peso ? 'feito' : 'registrar'}
             seloTom={peso ? 'verde' : 'neutra'}
             seta={false}

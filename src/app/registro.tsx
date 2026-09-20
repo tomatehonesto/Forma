@@ -38,7 +38,7 @@ export default function Registro() {
 
   const valor = marcador === 'cintura'
     ? (ponto ? `${ponto.cintura} cm` : '—')
-    : (ponto ? `${nf(ponto.kg, 1).replace('.', ',')} kg` : '—');
+    : (ponto ? `${nf(ponto.kg, 1)} kg` : '—');
 
   const data = dataLonga(d);
 

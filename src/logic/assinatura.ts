@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import type { State } from './seed';
 import { clinicaConectada } from './derive';
+import { nf } from './time';
 
 /* ============================================================
    A ASSINATURA — um lugar só para dizer quanto custa e quem paga
@@ -106,7 +107,13 @@ export const PLANOS: Plano[] = [
 
 export const RECOMENDADO: Plano['id'] = 'anual';
 
-export const reais = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
+/* ⚠️ PASSA PELO nf, e antes era toFixed com um replace.
+
+   Não é só consistência: toFixed não agrupa milhar, e um plano anual de
+   mil e duzentos reais saía "R$ 1299,00". O preço é o número que a
+   pessoa mais olha antes de decidir, e é o único do aplicativo em que
+   três dígitos seguidos mudam a ordem de grandeza sem avisar. */
+export const reais = (v: number) => `R$ ${nf(v, 2)}`;
 
 /* A economia em reais viveu aqui por uma passagem, e saiu com a linha
    que a mostrava: com o teste grátis anunciado embaixo do botão, a barra

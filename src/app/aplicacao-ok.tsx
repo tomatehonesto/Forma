@@ -48,7 +48,7 @@ export default function AplicacaoOk() {
     >
       <Confirmacao
         titulo="Aplicação registrada"
-        texto={`${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1).replace('.', ',')} ${med.unit} · ${li ? siteLabel(li.site).toLowerCase() : '—'}.`}
+        texto={`${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1)} ${med.unit} · ${li ? siteLabel(li.site).toLowerCase() : '—'}.`}
       >
         <Cartao>
           <Linha
