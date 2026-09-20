@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
-  examStatus,
+  examesComValor, examesForaDaRef,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose, fichaDe,
 } from '../../logic/derive';
@@ -806,8 +806,8 @@ function Exames() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  const exames = ((S as any).exams as any[]) ?? [];
-  const foraDaRef = exames.filter((e) => examStatus(e) !== 'ok').length;
+  const exames = examesComValor(((S as any).exams as any[]) ?? []);
+  const foraDaRef = examesForaDaRef(exames).length;
 
   return (
     <View style={{ marginTop: 36 }}>

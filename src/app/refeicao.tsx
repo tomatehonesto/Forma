@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarRefeicao, refeicaoEm } from '../logic/derive';
 import { iconeDaRefeicao } from '../logic/prato';
-import { MO_LONG, DOW_PT, diffDays } from '../logic/time';
+import { MO_LONG, DOW_PT, semanaDoTratamento } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -39,7 +39,7 @@ export default function Refeicao() {
   const d = new Date(quando);
   const dataLonga = `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
   const hora = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  const semana = Math.max(1, Math.ceil((diffDays(d, new Date(S.profile.startT)) + 1) / 7));
+  const semana = semanaDoTratamento(d, S.profile.startT);
 
   const apagar = () => {
     update((s: any) => apagarRefeicao(s, quando, m?.g ?? 0));

@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { MO_LONG, diffDays, fmtTime, nf } from '../logic/time';
+import { MO_LONG, fmtTime, nf, semanaDoTratamento } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -30,7 +30,7 @@ export default function Registro() {
   const quando = Number(t);
   const marcador = m ?? 'peso';
   const d = new Date(quando);
-  const semana = Math.max(1, Math.ceil((diffDays(d, new Date(S.profile.startT)) + 1) / 7));
+  const semana = semanaDoTratamento(d, S.profile.startT);
 
   const ponto: any = marcador === 'cintura'
     ? (S.measures as any[]).find((x) => x.t === quando)

@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
-  examExplain, examAbout, examInfluences, examWays,
+  examExplain, examAbout, examInfluences, examWays, examesComValor, examesForaDaRef,
 } from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
@@ -966,8 +966,14 @@ export default function Exames() {
   const aurora = useAurora();
   const [sel, setSel] = useState<string | null>(null);
 
-  const todos = (S.exams as any[]) ?? [];
-  const fora = todos.filter((e) => examStatus(e) !== 'ok');
+  /* ⚠️ `examesComValor` JÁ NA ENTRADA, e não só no cálculo de `fora`.
+
+     Os três números desta capa — total, fora e dentro — precisam falar do
+     mesmo conjunto, ou a soma dos dois últimos deixa de bater com o
+     primeiro. Filtrar só `fora` resolveria a contagem e criaria a
+     divergência um degrau acima. */
+  const todos = examesComValor((S.exams as any[]) ?? []);
+  const fora = examesForaDaRef(todos);
   const dentro = todos.length - fora.length;
   const resumo = examSummary(S);
   /* A coleta mais recente entre todos os marcadores — a linha da capa diz

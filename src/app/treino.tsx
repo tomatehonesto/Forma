@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarTreino, ehManual, origemDoTreino, treinoEm } from '../logic/derive';
 import { ehForca, iconeDe } from '../logic/modalidades';
-import { MO_LONG, DOW_PT, diffDays } from '../logic/time';
+import { MO_LONG, DOW_PT, semanaDoTratamento } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -52,7 +52,7 @@ export default function Treino() {
 
   const d = new Date(dia);
   const dataLonga = `${DOW_PT[d.getDay()]}, ${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
-  const semana = Math.max(1, Math.ceil((diffDays(d, new Date(S.profile.startT)) + 1) / 7));
+  const semana = semanaDoTratamento(d, S.profile.startT);
 
   const apagar = () => {
     update((s: any) => apagarTreino(s, dia, idx));

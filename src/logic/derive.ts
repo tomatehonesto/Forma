@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
-  doseTxt, MO_LONG,
+  doseTxt, MO_LONG, semanaDoTratamento,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -333,6 +333,28 @@ export function alerts(S: State): Alert[] {
   return out;
 }
 
+/** Os marcadores que têm o que dizer. Sem coleta não há valor, e sem
+    valor `examStatus` compara `undefined` com o limite do laboratório — o
+    que devolve "alto" para um exame do qual não se sabe nada.
+
+    ⚠️ E ERA O `examSummary` QUEM FILTRAVA, sozinho entre quatro. Os outros
+    três lugares que contam marcadores fora da faixa não filtravam, então
+    um marcador sem coleta entraria na conta de três telas e ficaria fora
+    da quarta. Hoje isso não acontece — toda entrada de `exams` nasce com
+    um valor —, e é por isso que a guarda cabe aqui em vez de virar
+    conserto: ela impede a divergência antes de a primeira entrada vazia
+    existir. */
+export const examesComValor = (exames: any[]): any[] =>
+  (exames ?? []).filter((e) => e?.values?.length);
+
+/** Os marcadores fora da faixa de referência do laboratório.
+
+    ⚠️ ESTA LINHA ESTAVA ESCRITA QUATRO VEZES — em `examSummary`, no painel
+    do `examExplain`, na tela de Exames e na aba Cuidado. Idênticas as
+    quatro, o que só quer dizer que ainda não tinham divergido. */
+export const examesForaDaRef = (exames: any[]): any[] =>
+  examesComValor(exames).filter((e) => examStatus(e) !== 'ok');
+
 export function examStatus(e: any) {
   const v = examLast(e).v; const r = e.ref;
   const m = r.match(/([<>])\s*([\d,\.]+)/);
@@ -565,7 +587,7 @@ export type SemanaCelula = {
 export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
   const ini = startOfDay(new Date(S.profile.startT));
   const hoje = +startOfDay(now());
-  const decorridas = Math.max(1, Math.floor(diffDays(now(), ini) / 7) + 1);
+  const decorridas = semanaDoTratamento(now(), S.profile.startT);
   const total = decorridas + adiante;
 
   const apl = S.injections.map((i: any) => +startOfDay(new Date(i.t)));
@@ -1080,11 +1102,11 @@ const emLista = (xs: string[]) =>
 const LISTA_MAXIMA = 3;
 
 export function examSummary(S: State): string | null {
-  const todos = ((S.exams as any[]) ?? []).filter((e) => e?.values?.length);
+  const todos = examesComValor((S.exams as any[]) ?? []);
   if (todos.length < 3) return null;
 
   const n = todos.length;
-  const fora = todos.filter((e) => examStatus(e) !== 'ok');
+  const fora = examesForaDaRef(todos);
 
   const estado = fora.length === 0
     ? `Os ${n} marcadores desta coleta estão dentro da referência do laboratório.`
@@ -1246,7 +1268,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
      conta pequena demais para significar alguma coisa. */
   const painel = (() => {
     if (!todos || todos.length < 5) return '';
-    const fora = todos.filter((x) => examStatus(x) !== 'ok').length;
+    const fora = examesForaDaRef(todos).length;
     const n = todos.length;
     if (dentro) {
       return fora === 0

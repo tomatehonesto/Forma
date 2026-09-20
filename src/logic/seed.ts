@@ -2,7 +2,7 @@
 export type Tema = 'light' | 'dark' | 'system';
 
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
-import { daysAgo, addDays, startOfDay, now, diffDays } from './time';
+import { daysAgo, addDays, startOfDay, now, semanaDoTratamento } from './time';
 import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
@@ -877,9 +877,7 @@ export function ensureDefaults(S: any) {
   }
 
   if (S.protocol) {
-    const semanaAgora = S.profile?.startT
-      ? Math.max(1, Math.ceil((diffDays(now(), new Date(S.profile.startT)) + 1) / 7))
-      : 1;
+    const semanaAgora = semanaDoTratamento(now(), S.profile?.startT ?? 0);
     if (S.protocol.week !== semanaAgora) {
       S.protocol.week = semanaAgora;
       S.protocol.tasks = (S.protocol.tasks as any[])

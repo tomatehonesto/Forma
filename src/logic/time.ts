@@ -68,6 +68,25 @@ export const kgCurto = (n: number) => nf(n, n % 1 ? 1 : 0).replace('.', ',');
  *  número mais alto da tela é também o mais difícil de ler. */
 export const milhar = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
+/** Em que semana do tratamento cai uma data — 1 no primeiro dia.
+
+    ⚠️ ELA ESTAVA ESCRITA CINCO VEZES, em duas grafias diferentes:
+    `floor(dias/7) + 1` no `weekGrid`, e `ceil((dias + 1) / 7)` nas telas de
+    refeição, de registro, de treino e no `ensureDefaults`. As duas dão o
+    mesmo número — é uma identidade aritmética para inteiro não negativo —
+    e essa é justamente a parte perigosa: quem mexesse numa não teria
+    como desconfiar que estava separando-a das outras quatro.
+
+    Mora aqui, e não em derive, porque é conta de calendário e porque a
+    semente também precisa dela: `derive` importa `State` da semente, e um
+    `import` de valor no sentido contrário fecharia o ciclo. Todos os cinco
+    lugares já liam deste arquivo.
+
+    Sem data de início não há jornada: dividir por sete uma data que é
+    zero devolveria a semana em que o mundo começou a contar o tempo. */
+export const semanaDoTratamento = (quando: Date | number, inicio: number) =>
+  inicio ? Math.max(1, Math.floor(diffDays(quando, new Date(inicio)) / 7) + 1) : 1;
+
 /** A dose com as casas que ela tem, e não com uma casa fixa: 0,25 mg
  *  precisa de duas, 2,5 de uma, 15 de nenhuma. */
 export const doseTxt = (d: number) =>
