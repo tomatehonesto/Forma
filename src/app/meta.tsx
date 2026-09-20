@@ -92,7 +92,19 @@ export default function Meta() {
 
   if (novo === '1') {
     const livres = indicadoresLivres(S);
-    const abrir = (i: Indicador) => { setInd(i); setRegua(padraoDe(i, S)); };
+    /* ⚠️ QUEM JÁ TEM ALVO NO PERFIL PULA A RÉGUA, e antes todos passavam
+       por ela. Perguntar "quantos gramas por dia?" a quem acabou de
+       definir 90 g em "Os números do dia" é pedir o mesmo número de novo —
+       e guardar a resposta num segundo lugar, que é como os dois passam a
+       divergir. A meta desses três acrescenta a constância, não o número. */
+    const abrir = (i: Indicador) => {
+      if (i.doPerfil) {
+        update((s: any) => guardarMetaMedida(s, i.id, 0));
+        router.back();
+        return;
+      }
+      setInd(i); setRegua(padraoDe(i, S));
+    };
     const guardar = () => {
       if (!ind) return;
       update((s: any) => guardarMetaMedida(s, ind.id, regua));

@@ -3,6 +3,7 @@ export type Tema = 'light' | 'dark' | 'system';
 
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
 import { daysAgo, addDays, startOfDay, now, semanaDoTratamento } from './time';
+import { indicadorDe } from './derive';
 import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
@@ -418,7 +419,7 @@ export function buildSeed() {
          semente é o retrato do que o aplicativo oferece: mostrar uma meta
          de sintoma aqui ensinaria a fazer o que a tela de criar não deixa
          mais. */
-      { id: 'g4', ic: 'utensils', label: 'Comer 90 g de proteína', indicador: 'prot', alvo: 90 },
+      { id: 'g4', ic: 'utensils', indicador: 'prot' },
       { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
@@ -877,6 +878,30 @@ export function ensureDefaults(S: any) {
       const feito = new Map(tarefas.map((t) => [String(t.t).trim().toLowerCase(), !!t.done]));
       S.protocol.tasks = (buildSeed().protocol.tasks as any[]).map((t) =>
         (t.t ? { ...t, done: feito.get(String(t.t).trim().toLowerCase()) ?? false } : { ...t }));
+    }
+  }
+
+  /* ============================================================
+     A META DO NÚMERO DO DIA LARGA A CÓPIA DO ALVO
+
+     ⚠️ ELA GUARDAVA UM SEGUNDO NÚMERO. A meta de proteína nascia com uma
+     cópia de `targets.prot` e ficava independente: mudar o alvo para 110 g
+     deixava a meta contando 90, e as duas telas — Alimentação e Metas —
+     passavam a cobrar números diferentes da mesma proteína no mesmo dia.
+
+     Apagar a cópia não perde nada: sem `alvo`, a conta cai no alvo do
+     perfil, que é de onde a cópia tinha saído. O rótulo vai junto, porque
+     "Comer 90 g" gravado viraria mentira na primeira mudança do alvo.
+
+     Só os indicadores que TÊM alvo no perfil. Sono guarda o seu, e é o
+     único número que ele tem. ============================================================ */
+  if (Array.isArray(S.goals)) {
+    for (const g of S.goals as any[]) {
+      const ind = indicadorDe(g?.indicador);
+      if (ind?.doPerfil && (g.alvo != null || g.label != null)) {
+        delete g.alvo;
+        delete g.label;
+      }
     }
   }
 

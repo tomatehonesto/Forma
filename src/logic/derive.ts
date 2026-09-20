@@ -4433,11 +4433,34 @@ export function guardarMetaPessoal(s: any, label: string, ic = 'target', prazo: 
 /** Uma meta amarrada a um indicador e a um número — o app conta, ela não
     se marca. O rótulo sai do indicador com o alvo dentro, para a lista
     não ter de remontar a frase. */
+/* ⚠️⚠️ A META DO NÚMERO DO DIA NÃO GUARDA O NÚMERO, e guardava.
+
+   Proteína, hidratação e movimento já têm um número: o ALVO, que a pessoa
+   define em "Os números do dia" e que a Home, a Alimentação, a Hidratação
+   e o protocolo cobram. A meta nascia com uma CÓPIA dele — `padraoDe` lê
+   do perfil — e a cópia ficava independente para sempre. Mudar o alvo
+   para 110 g não mexia na meta, que seguia contando 90: a Alimentação
+   cobrava um número e a meta contava outro, sobre a mesma proteína, no
+   mesmo dia, nas duas telas que a pessoa abre todo dia.
+
+   Sem `alvo` guardado, `journeyGoals` já cai no `padraoDe` — que é o alvo do
+   perfil. Um número só, e a meta passa a acrescentar o que o alvo não
+   diz: a CONSTÂNCIA, "11 de 14 dias".
+
+   ⚠️ E NEM O RÓTULO, pelo mesmo motivo. "Comer 90 g de proteína" gravado
+   viraria mentira no dia em que o alvo virasse 110 — o título dizendo um
+   número e a conta embaixo usando outro. Sem ele, `journeyGoals` monta a
+   frase com o alvo de hoje.
+
+   Sono continua guardando os dois: ele não tem alvo no perfil, então o
+   número da meta é o único que existe. */
 export function guardarMetaMedida(s: any, idIndicador: string, alvo: number) {
   const i = indicadorDe(idIndicador);
   if (!i) return;
+  const doPerfil = !!i.doPerfil;
   s.goals = [...(s.goals || []), {
-    id: 'g' + Date.now(), ic: i.ic, label: i.rotulo(alvo), indicador: i.id, alvo,
+    id: 'g' + Date.now(), ic: i.ic, indicador: i.id,
+    ...(doPerfil ? {} : { label: i.rotulo(alvo), alvo }),
   }];
 }
 
