@@ -2949,11 +2949,23 @@ export function journeyChanges(S: State): Change[] {
     return { delta: v.delta, good: v.good, tom: v.tom };
   };
 
-  /* Peso e cintura vão para /marcador, e não para a tela da área: são os
-     dois marcadores que a própria pessoa registra, então existe um
-     histórico linha a linha para abrir — com a série, cada registro e o
-     caminho para corrigir. Os de baixo vêm de exame ou de balança, não
-     têm lista para auditar, e seguem levando para onde o laudo mora. */
+  /* ⚠️⚠️ CADA CARD ABRE O SEU PRÓPRIO NÚMERO, e antes só dois abriam.
+
+     Peso e cintura iam para /marcador — a tela daquele marcador, com a
+     série, os registros e o caminho para corrigir. Os outros quatro iam
+     para a tela da ÁREA: gordura e massa magra caíam em /medidas, que
+     abre com quatro cards de circunferência e tem a composição lá
+     embaixo; HbA1c caía na lista de quinze exames.
+
+     Dois cards cumpriam a promessa e quatro não. A pessoa aprendia nos
+     dois primeiros que tocar abre o detalhe daquele número, e levava um
+     susto nos outros — o card dizia "Gordura corporal" e a tela que
+     abria falava de cintura.
+
+     Agora os cinco primeiros abrem o seu. A pressão fica em /saude por
+     uma razão de forma, e não por descuido: ela são DOIS números
+     (sistólica e diastólica), que não cabem no desenho de valor único do
+     /marcador — e /saude já abre com ela no topo. */
   out.push({
     ic: 'scale', label: 'Peso', from: `${nf(startWeight(S), 1)} kg`, to: `${nf(curWeight(S), 1)} kg`,
     ...variacao(curWeight(S) - startWeight(S), 'kg'), to_: '/marcador?m=peso',
@@ -2966,13 +2978,13 @@ export function journeyChanges(S: State): Change[] {
     });
     if (lm.gordura !== fm.gordura) out.push({
       ic: 'activity', label: 'Gordura corporal', from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
-      ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/medidas',
+      ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/marcador?m=gordura',
     });
     /* A única em que subir é a boa notícia: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. */
     if (lm.musculo !== fm.musculo) out.push({
       ic: 'dumbbell', label: 'Massa magra', from: `${nf(fm.musculo, 1)} kg`, to: `${nf(lm.musculo, 1)} kg`,
-      ...variacao(lm.musculo - fm.musculo, 'kg', false), to_: '/medidas',
+      ...variacao(lm.musculo - fm.musculo, 'kg', false), to_: '/marcador?m=musculo',
     });
   }
 
@@ -2983,7 +2995,7 @@ export function journeyChanges(S: State): Change[] {
     out.push({
       ic: 'doc', label: 'HbA1c', from: `${nf(f.v, 1)}%`, to: `${nf(l.v, 1)}%`,
       delta: naRef ? 'Na referência' : 'Fora da referência',
-      good: naRef, tom: naRef ? 'bom' : 'ruim', to_: '/exames',
+      good: naRef, tom: naRef ? 'bom' : 'ruim', to_: '/exames?m=HbA1c',
     });
   }
 
