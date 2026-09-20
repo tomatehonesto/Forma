@@ -6,15 +6,16 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
+import { descobertaDaHome, marcarDescobertaVista } from '../../logic/descobertas';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
-  nextInjectionDate, siteLabel, nextSite, streak, insights, temAcompanhamento, clinicaConectada, temConsulta, M,
+  nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
   diasAteAplicar,
 } from '../../logic/derive';
-import { now, nf, fmtDate, DOW_PT, quandoEm, maiuscula } from '../../logic/time';
+import { now, nf, fmtDate, DOW_PT, quandoEm } from '../../logic/time';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -97,6 +98,7 @@ function TrendDot({ up, good, c }: { up: boolean; good: boolean; c: Palette }) {
 export default function Home() {
   const aurora = useAurora();
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -114,10 +116,19 @@ export default function Home() {
   const hour = now().getHours();
   const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
+  /* ⚠️ ESCOLHER É PURO, MARCAR É EFEITO. `descobertaDaHome` roda a cada
+     desenho da tela e não escreve nada; a marca de "já mostrei isto" vai
+     no efeito abaixo, uma vez por montagem. Gravar durante o render seria
+     escrever no estado no meio de um desenho — e, pior, a cada desenho:
+     o teto de três aparições do convite queimaria numa rolagem. */
+  const desc = descobertaDaHome(S);
+  useEffect(() => {
+    if (desc) update((s: any) => marcarDescobertaVista(s, desc.id));
+  }, [desc?.id]);
+
   const brief = todayBrief(S);
   const med = M(S);
   const nd = diasAteAplicar(S);
-  const ins = insights(S);
   const targets = dailyTargets(S);
   const wc = weightCard(S);
   const wSeries = weightSeries(S);
@@ -145,20 +156,25 @@ export default function Home() {
       body: `${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
       cta: 'Ver a aplicação', to: '/aplicacoes',
     }] : []),
-    /* A descoberta já vem escrita como "achado — detalhe". Quebrar no
-       travessão dá manchete e explicação sem precisar de texto genérico
-       por baixo: a própria descoberta preenche os dois níveis. */
-    ...(ins.length ? [(() => {
-      const limpo = ins[0].text.replace(/<\/?b>/g, '');
-      const [achado, ...resto] = limpo.split(' — ');
-      const detalhe = resto.join(' — ');
-      return {
-        over: 'DESCOBERTA',
-        title: achado.replace(/\.$/, ''),
-        body: detalhe ? maiuscula(detalhe) : '',
-        cta: 'Ver descobertas', to: '/insights',
-      };
-    })()] : []),
+    /* ⚠️ O SLIDE NÃO É MAIS SÓ "DESCOBERTA", e o chapéu vem do motor.
+
+       São três coisas diferentes que podem cair neste slot, e a palavra
+       de cima é o que avisa qual delas é: DESCOBERTA para o cruzamento
+       que ela não veria sozinha, O QUE VEM para o padrão dela que se
+       repete nos próximos dias, UM CONVITE para uma parte do aplicativo
+       que ela ainda não abriu. Anunciar as três como descoberta seria
+       chamar de achado um convite — e a palavra perde o valor na segunda
+       vez que isso acontece.
+
+       Quando não há nenhuma das três, o carrossel fica com um slide a
+       menos, igual ao da aplicação de quem não tem dose. Ver o comentário
+       em `descobertaDaHome`. */
+    ...(desc ? [{
+      over: desc.chapeu,
+      title: desc.titulo,
+      body: desc.texto,
+      cta: desc.cta, to: desc.to,
+    }] : []),
   ];
 
   const total = slides.length;

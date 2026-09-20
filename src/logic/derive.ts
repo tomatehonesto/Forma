@@ -335,72 +335,24 @@ export function enjooAposDormir(S: State) {
   return mal - bem >= DIF_MINIMA ? { bem, mal, noites: longas.length } : null;
 }
 
-export type Insight = { ic: string; text: string };
-// insights automáticos (parte computada, parte heurística). Texto mantém marcador <b>..</b>.
-export function insights(S: State): Insight[] {
-  const out: Insight[] = [];
-  const byWd: Record<number, number[]> = {};
-  /* Só os dias que TÊM água registrada. Os check-ins antigos guardam
-     exercício e proteína e mais nada, e um undefined no meio fazia a
-     média virar NaN — todas as sete viravam, nenhuma ganhava a
-     comparação, e o padrão nunca aparecia para ninguém. */
-  S.checkins.forEach((c: any) => {
-    if (typeof c.agua !== 'number') return;
-    const w = new Date(c.t).getDay();
-    (byWd[w] = byWd[w] || []).push(c.agua);
-  });
-  let minWd: number | null = null, minV = 99;
-  Object.entries(byWd).forEach(([w, a]) => { const m = a.reduce((s, x) => s + x, 0) / a.length; if (m < minV) { minV = m; minWd = +w; } });
-  /* "CONTRA A META", e não "contra os outros dias". A frase terminava em
-     "contra 8 nos outros dias" e os 8 eram a meta, não o que a pessoa
-     bebe de segunda a sábado: o texto atribuía a ela um hábito que talvez
-     nunca tivesse tido. E em litros, que é como as duas telas de água
-     falam. */
-  if (minWd !== null)
-    out.push({ ic: 'water', text: `Você bebe menos água <b>${['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'][minWd]}</b> — cerca de ${litros(minV * CUP_ML)} L, contra a meta de ${litros(metaDeCopos(S) * CUP_ML)} L.` });
-  const c = S.checkins;
-  if (c.length >= 8) {
-    const half = Math.floor(c.length / 2);
-    const a = c.slice(0, half).reduce((s: number, x: any) => s + x.prot, 0) / half;
-    const b = c.slice(half).reduce((s: number, x: any) => s + x.prot, 0) / (c.length - half);
-    /* ⚠️ `a` PODE SER ZERO: oito check-ins bastam para entrar aqui, e os
-       oito primeiros de quem ainda não registrava comida trazem `prot: 0`.
-       A divisão dava Infinity, `Infinity > 0` é verdade, e a Home anunciava
-       "sua ingestão de proteína subiu Infinity%". */
-    const pct = a > 0 ? Math.round(((b - a) / a) * 100) : 0;
-    if (pct > 0) out.push({ ic: 'flame', text: `Sua ingestão de proteína <b>subiu ${pct}%</b> nas últimas semanas. Isso ajuda a preservar massa magra durante a perda de peso.` });
-  }
-  const hf = hungerForecast(S);
-  if (hf) out.push({ ic: 'drop2', text: `Sua fome tende a subir <b>${hf.inDays <= 0 ? 'nestes dias' : `nos próximos ${hf.inDays} dias`}</b>, quando o nível da ${M(S).mol.toLowerCase()} chega ao ponto mais baixo antes da próxima aplicação.` });
-  /* ⚠️⚠️ ESTA FRASE ERA UM ACHADO INVENTADO, e era o que ia para a Home.
+/* ⚠️⚠️ O `insights()` MORAVA AQUI, e era o motor de descobertas da Home.
 
-     Ela saía deste `out.push` sem uma linha de conta antes — empurrada
-     para todo mundo, sempre, dizendo "SEUS registros de náusea". O "seus"
-     prometia que alguém tinha olhado os dados da pessoa; ninguém tinha. E
-     a Home mostra o primeiro achado sob o rótulo DESCOBERTA, que é a
-     mesma promessa dita de novo, em maiúsculas.
+   Ele tinha quatro achados. Dois já viviam no `patterns()` em versão
+   melhor e com limiar mais exigente — a água por dia da semana e a
+   proteína metade-contra-metade — de modo que a Home podia anunciar como
+   descoberta um padrão que a aba Insights, olhando o mesmo dado, julgava
+   fraco demais para mostrar. O terceiro, a previsão de fome, virou
+   ANTECIPAÇÃO no motor novo, e é o `hungerForecast` logo acima que a
+   alimenta — por isso ele fica. O quarto, sono contra enjoo, virou
+   Pattern no `patterns()`, e por isso o `enjooAposDormir` também fica.
 
-     Pior no primeiro dia de uso: sem água registrada e sem oito
-     check-ins, nenhum dos outros achados entra, e este era o único — o
-     primeiro slide de quem acabou de instalar o aplicativo era uma
-     descoberta sobre um enjoo que a pessoa nunca registrou.
+   E a Home mostrava só `ins[0]`: os outros três eram calculados a cada
+   abertura e jogados fora.
 
-     Agora a conta existe, e é a conta que a frase sempre afirmou ter
-     feito. As guardas estão em `enjooAposDormir`, e a frase MOSTRA OS DOIS
-     NÚMEROS: quem lê julga o achado, que é exatamente o que a versão fixa
-     não deixava ninguém fazer.
-
-     ⚠️ E NÃO SE DIZ QUE UM CAUSA O OUTRO. "Tem sido menor" é o que os
-     registros mostram. "Dormir mais tira o enjoo" seria conselho clínico
-     tirado de uma amostra de um paciente — e, quando errado, vira culpa:
-     o enjoo passaria a ser falha de quem dormiu mal. */
-  const sn = enjooAposDormir(S);
-  if (sn) out.push({
-    ic: 'moon',
-    text: `Depois das noites de <b>${SONO_REF_H}h ou mais</b>, o seu enjoo tem sido menor — ${nf(sn.bem, 1)} contra ${nf(sn.mal, 1)}, numa escala de 5.`,
-  });
-  return out;
-}
+   Quem faz esse trabalho agora é src/logic/descobertas.ts, e a diferença
+   não é de implementação — é de desenho. Produzir o que é verdade sobre
+   a pessoa e ESCOLHER o que merece o único slot da Home são dois
+   trabalhos, e agora estão em dois lugares. */
 
 /* seletores das áreas complementares */
 export const journeyDay = (S: State) => diffDays(now(), new Date(S.profile.startT)) + 1;
@@ -1589,6 +1541,68 @@ export const PAT_LABEL: Record<PatKey, string> = {
   peso: 'Peso', aplicacoes: 'Aplicações',
 };
 
+/* ============================================================
+   OS CRUZAMENTOS QUE TÊM DUAS CARAS
+
+   Um achado sobre o passado — "a sua hidratação cai aos domingos" — é o
+   mesmo fato que uma antecipação sobre o futuro: no sábado, "amanhã é o
+   dia em que ela cai". Mesma conta, duas frases, e quem escolhe é a tela.
+
+   Por isso estes dois saíram de dentro do `patterns()`: lá dentro a conta
+   virava frase na mesma linha e o número morria ali. Quem quisesse a
+   outra cara teria de calcular de novo — que é como as duas versões
+   passam a discordar.
+
+   ⚠️ E O FILTRO DE `typeof` VEIO JUNTO, porque ele faltava aqui. Os
+   check-ins antigos guardam exercício e proteína e mais nada; um
+   `undefined` no meio fazia a média virar NaN, e NaN perde toda
+   comparação em silêncio — o achado simplesmente nunca aparecia. O
+   `insights()` tinha esse filtro e um comentário explicando; o
+   `patterns()`, que é o que vai para a tela, não tinha.
+   ============================================================ */
+
+export const NOMES_DIA = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
+
+/** O dia da semana em que a hidratação cai, quando existe um que caia o
+    bastante para ser dito. */
+export function diaFracoDeAgua(S: State) {
+  const porDia: Record<number, number[]> = {};
+  (S.checkins as any[]).forEach((c) => {
+    if (typeof c.agua !== 'number') return;
+    (porDia[new Date(c.t).getDay()] = porDia[new Date(c.t).getDay()] || []).push(c.agua);
+  });
+  const media = (a: number[]) => a.reduce((s, x) => s + x, 0) / a.length;
+  let dia: number | null = null, dele = Infinity;
+  for (const [k, arr] of Object.entries(porDia)) {
+    const m = media(arr);
+    if (m < dele) { dele = m; dia = +k; }
+  }
+  if (dia === null) return null;
+  const resto = (S.checkins as any[]).filter((c) => typeof c.agua === 'number' && new Date(c.t).getDay() !== dia).map((c) => c.agua as number);
+  if (!resto.length) return null;
+  const outros = media(resto);
+  return outros - dele >= 1 ? { dia, dele, outros, nome: NOMES_DIA[dia] } : null;
+}
+
+/** A janela de enjoo depois da aplicação: quanto ele pesa nos dois
+    primeiros dias contra o resto do ciclo. */
+export function janelaDoEnjoo(S: State) {
+  const diasInj = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t)));
+  if (!diasInj.length) return null;
+  const desde = (c: any) => {
+    const dia = +startOfDay(new Date(c.t));
+    const ds = diasInj.filter((x) => x <= dia).map((x) => (dia - x) / DAY);
+    return ds.length ? Math.min(...ds) : 99;
+  };
+  const com = (S.checkins as any[]).filter((c) => typeof c.nausea === 'number');
+  const perto = com.filter((c) => desde(c) <= 2);
+  const longe = com.filter((c) => desde(c) > 2 && desde(c) < 99);
+  if (perto.length < 2 || longe.length < 2) return null;
+  const media = (a: any[]) => a.reduce((s, c) => s + c.nausea, 0) / a.length;
+  const ePerto = media(perto), eLonge = media(longe);
+  return ePerto - eLonge >= 0.5 ? { perto: ePerto, longe: eLonge, dias: perto.length } : null;
+}
+
 /** A nota que ordena a lista: a surpresa manda, e a força decide dentro
     dela.
 
@@ -1641,19 +1655,12 @@ export function patterns(S: State): Pattern[] {
   }
 
   /* --- água por dia da semana --- */
-  const porDia: Record<number, number[]> = {};
-  cs.forEach((c) => { const d = new Date(c.t).getDay(); (porDia[d] = porDia[d] || []).push(c.agua); });
-  let piorDia: number | null = null, piorMedia = 99;
-  Object.entries(porDia).forEach(([d, arr]) => {
-    const m = med(arr);
-    if (m < piorMedia) { piorMedia = m; piorDia = +d; }
-  });
   /* se o card do fim de semana já falou disso, este vira eco: dois cards
      dizendo a mesma coisa gastam a confiança que o primeiro construiu */
-  if (piorDia !== null && !(fdsDito && [0, 6].includes(piorDia))) {
-    const outros = med(cs.filter((c) => new Date(c.t).getDay() !== piorDia).map((c) => c.agua));
-    const nomes = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
-    if (outros - piorMedia >= 1) out.push({
+  const fraco = diaFracoDeAgua(S);
+  if (fraco && !(fdsDito && [0, 6].includes(fraco.dia))) {
+    const { dele: piorMedia, outros } = fraco;
+    out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2, forca: forcaDe(outros - piorMedia, 1),
       /* ⚠️ O SUJEITO É A HIDRATAÇÃO, E ERA A PESSOA. "Você bebe bem menos
          água aos domingos" é o mesmo fato com o dedo apontado — e era o
@@ -1661,7 +1668,7 @@ export function patterns(S: State): Pattern[] {
          "a balança subiu", "sua proteína caiu", "seu ritmo é de". O
          companion, aliás, já contava este mesmo fato do jeito certo:
          "reparei que aos fins de semana a hidratação cai". */
-      titulo: `A sua hidratação cai ${nomes[piorDia]}`,
+      titulo: `A sua hidratação cai ${fraco.nome}`,
       texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
       q: 'Como está minha água?',
       evid: { valor: piorMedia.toFixed(0), unidade: `de ${outros.toFixed(0)} copos`, legenda: 'a média nesse dia da semana' },
@@ -1704,24 +1711,41 @@ export function patterns(S: State): Pattern[] {
     });
   }
 
+  /* --- sono contra enjoo do dia seguinte ---
+     ⚠️ ESTE ACHADO VEIO DO `insights()`, QUE MORREU. Ele nasceu hoje de
+     manhã, no lugar de uma frase que afirmava exatamente isto sem ter
+     calculado nada, e o motor da Home passou a ler o `patterns()` — que é
+     onde um achado ganha evidência, porquê e significado em vez de uma
+     linha solta.
+
+     ⚠️ A EXIGÊNCIA AQUI É MAIOR QUE A DOS VIZINHOS: sete noites de cada
+     lado, contra as duas ou três que os outros pedem. Não é capricho —
+     é o único achado da lista que liga sono a um SINTOMA CLÍNICO, e
+     errar nele não custa um conselho ruim sobre água, custa fazer alguém
+     concluir que o enjoo dela é culpa de ter dormido mal. */
+  const sn = enjooAposDormir(S);
+  if (sn) out.push({
+    key: 'sintomas', cat: 'Sintomas', ic: 'moon', cor: 'purple', surpresa: 3,
+    forca: forcaDe(sn.mal - sn.bem, DIF_MINIMA),
+    titulo: 'Depois das noites longas, o seu enjoo tem sido menor',
+    texto: `Nos dias seguintes a dormir ${SONO_REF_H}h ou mais, seu enjoo ficou em ${nf(sn.bem, 1)}. Depois das noites curtas, ${nf(sn.mal, 1)} — numa escala de 5.`,
+    q: 'Por que sinto enjoo?',
+    evid: { valor: `${nf(sn.bem, 1)}`, unidade: `de ${nf(sn.mal, 1)}`, legenda: `o enjoo depois de ${sn.noites} noites longas` },
+    significa: 'Isto é o que os seus registros mostram, e não uma relação de causa: o ciclo da aplicação mexe no enjoo mais do que qualquer outra coisa, e ele pode estar por trás dos dois lados da conta. Vale como pista para levar à sua equipe, não como explicação fechada.',
+  });
+
   /* --- enjoo: onde ele começa e onde termina ---
      O achado não é que existe enjoo — é que ele tem hora para acabar. */
-  const diasInj = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t)));
-  const desde = (c: any) => {
-    const dia = +startOfDay(new Date(c.t));
-    const ds = diasInj.filter((x) => x <= dia).map((x) => (dia - x) / DAY);
-    return ds.length ? Math.min(...ds) : 99;
-  };
-  const perto = cs.filter((c) => desde(c) <= 2), longe = cs.filter((c) => desde(c) > 2 && desde(c) < 99);
-  if (perto.length >= 2 && longe.length >= 2) {
-    const ePerto = med(perto.map((c) => c.nausea)), eLonge = med(longe.map((c) => c.nausea));
-    if (ePerto - eLonge >= 0.5) out.push({
+  const jan = janelaDoEnjoo(S);
+  if (jan) {
+    const { perto: ePerto, longe: eLonge } = jan;
+    out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2, forca: forcaDe(ePerto - eLonge, 0.5),
       titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
       texto: `Ele fica em ${nf(ePerto, 1)} nos dois primeiros dias e cai para ${nf(eLonge, 1)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
       q: 'Por que sinto enjoo?',
       evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
-      significa: `Isso se repetiu em ${perto.length} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
+      significa: `Isso se repetiu em ${jan.dias} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
     });
   }
 

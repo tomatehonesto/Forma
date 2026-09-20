@@ -268,7 +268,6 @@ export default function Checkin() {
          por isso o que já estiver gravado continua onde está em vez de ser
          apagado por um campo ausente. */
 
-      s.heroSeen = { milestone: 0, insight: null, replay: null };
     });
     router.replace(`/checkin-ok?de=${antes}` as any);
   };

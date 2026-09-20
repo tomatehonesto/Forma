@@ -458,7 +458,19 @@ export function buildSeed() {
       { t: +daysAgo(2), from: 'doc', text: 'Ótimo sinal. Mantém a hidratação e a proteína que combinamos. Na consulta a gente revê a dose com calma.' },
     ],
     unread: 1,
-    heroSeen: { milestone: 0, insight: null as string | null, replay: null as string | null },
+    /* ⚠️ O `heroSeen` MORAVA AQUI, e era `{ milestone, insight, replay }`.
+
+       Ele foi escrito para guardar qual descoberta a Home já tinha
+       mostrado — o slot `insight` é literalmente isso. Nunca foi lido: um
+       `grep` acha três atribuições e uma reinicialização, e nenhuma
+       leitura. A Home mostrava a mesma frase para sempre porque ninguém
+       nunca perguntou a este campo o que já tinha passado por lá.
+
+       `descobertasVistas` é o campo vivo que ele queria ser. O formato
+       segue o do `vistoEmConquistas`, que é o único outro "já mostrei
+       isso" do aplicativo: mapa por id, lido com `?? {}`, escrito
+       preguiçosamente. Ver src/logic/descobertas.ts. */
+    descobertasVistas: {} as Record<string, { em: number; vezes: number }>,
     documents: [
       { t: +daysAgo(40), name: 'Hemograma completo', kind: 'Exame' },
       { t: +daysAgo(40), name: 'Perfil lipídico', kind: 'Exame' },
@@ -756,7 +768,10 @@ export function ensureDefaults(S: any) {
       : buildSeed().notes;
   }
   if (typeof S.onboardDone !== 'boolean') S.onboardDone = true;
-  if (!S.heroSeen) S.heroSeen = { milestone: 0, insight: null, replay: null };
+  /* Aditivo, e o `heroSeen` some de quem já o tinha: ele nunca guardou
+     nada que alguém lesse, então não há registro para perder. */
+  if (!S.descobertasVistas) S.descobertasVistas = {};
+  delete S.heroSeen;
   if (!S.theme) S.theme = 'light';
   /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
      depende da pessoa, e um padrão fixo não serve para todo mundo. */
@@ -1081,7 +1096,6 @@ export function estadoVazio(): State {
 
   /* a porta se destranca: sem cadastro, o app não abre */
   S.onboardDone = false;
-  S.heroSeen = { milestone: 0, insight: null, replay: null };
   S.lastReplaySeen = 0;
 
   /* A MARCA D'ÁGUA DAS CONQUISTAS VOLTA A ZERO, e não é detalhe: sem
