@@ -1024,6 +1024,88 @@ export const examInfluences = (e: any): string[] => INFLUENCIAS[e.marker] ?? [];
     porque um parágrafo que serve para qualquer exame não explica nenhum. */
 export const examAbout = (e: any): SobreOMarcador | null => SOBRE[e.marker] ?? null;
 
+/* ============================================================
+   O RESUMO DA COLETA — e era um parágrafo escrito à mão
+
+   ⚠️ O TEXTO FIXO AFIRMAVA FATOS CLÍNICOS SOBRE QUEM LÊ.
+
+   Ele dizia "seus marcadores metabólicos melhoraram de forma consistente:
+   HbA1c 6,3 → 5,6%, triglicerídeos e LDL em queda". Para a pessoa da
+   semente isso é verdade; para qualquer outra são números que ela nunca
+   teve, e para quem piorou o aplicativo afirmava que tinha melhorado. Num
+   aplicativo de saúde isso não é um deslize de redação — é o produto
+   mentindo sobre um exame de sangue.
+
+   ⚠️ E O CARTÃO SE CHAMAVA "RESUMO DA IA". Não havia IA nenhuma: havia um
+   parágrafo. O nome passou a ser o que a coisa é, e volta a ser "da IA"
+   no dia em que houver uma do outro lado.
+
+   O que se monta aqui é aritmética sobre os valores de quem abriu a tela:
+   quantos ficaram fora, quais, quantos andaram para o lado esperado, e
+   qual foi a maior mudança. Nenhuma frase opina; todas contam.
+   ============================================================ */
+
+/* Marcador em meio de frase. "Vitamina D" vira "vitamina D", mas "HbA1c"
+   e "HDL" continuam como estão: só cai a maiúscula de quem tem a PRIMEIRA
+   PALAVRA inteira em minúsculas depois da inicial, que é o desenho de um
+   nome comum e não de uma sigla. */
+const marcadorNoMeio = (m: string) => {
+  const p1 = m.split(' ')[0];
+  return /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+$/.test(p1) ? m[0].toLowerCase() + m.slice(1) : m;
+};
+
+/* "a", "a e b", "a, b e c" — a vírgula de série do português. */
+const emLista = (xs: string[]) =>
+  xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`;
+
+export function examSummary(S: State): string | null {
+  const todos = ((S.exams as any[]) ?? []).filter((e) => e?.values?.length);
+  if (todos.length < 3) return null;
+
+  const n = todos.length;
+  const fora = todos.filter((e) => examStatus(e) !== 'ok');
+
+  const estado = fora.length === 0
+    ? `Os ${n} marcadores desta coleta estão dentro da faixa do laboratório.`
+    : fora.length === 1
+      ? `Um dos ${n} marcadores desta coleta ficou fora da faixa: ${marcadorNoMeio(fora[0].marker)}.`
+      : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`;
+
+  /* Só entram no rumo os marcadores que declaram qual lado é o bom. Sem
+     isso, chamar uma direção de melhora seria opinião — e creatinina ou
+     TSH subindo não é notícia boa nem ruim por si. */
+  const comRumo = todos
+    .map((e) => {
+      const l = examLast(e), f = examFirst(e);
+      if (!e.good || e.values.length < 2 || l.t === f.t || l.v === f.v) return null;
+      const delta = l.v - f.v;
+      const melhorou = e.good === 'up' ? delta > 0 : delta < 0;
+      /* A mudança é relativa, e não absoluta: 20 mg/dL de LDL e 20 µUI/mL
+         de insulina são grandezas que não se comparam em números crus. */
+      const peso = Math.abs(delta) / Math.max(1e-9, Math.abs(f.v));
+      return { e, f, l, delta, melhorou, peso };
+    })
+    .filter(Boolean) as { e: any; f: any; l: any; delta: number; melhorou: boolean; peso: number }[];
+
+  const bons = comRumo.filter((x) => x.melhorou).sort((a, b) => b.peso - a.peso);
+  const maus = comRumo.filter((x) => !x.melhorou).sort((a, b) => b.peso - a.peso);
+  const num = (v: number) => nf(v, v % 1 ? 1 : 0).replace('.', ',');
+
+  const desde = comRumo.length
+    ? ` Desde ${(() => { const t = new Date(Math.min(...comRumo.map((x) => x.f.t))); return `${t.getDate()} de ${MO_LONG[t.getMonth()]}`; })()},`
+    : '';
+
+  const melhora = bons.length
+    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${num(bons[0].f.v)} para ${num(bons[0].l.v)} ${bons[0].e.unit}.`
+    : '';
+
+  const piora = maus.length
+    ? ` ${maus.length === 1 ? 'Um marcador foi' : `${maus.length} marcadores foram`} na direção oposta: ${emLista(maus.map((x) => marcadorNoMeio(x.e.marker)))}.`
+    : '';
+
+  return `${estado}${melhora}${piora}`;
+}
+
 export type LeituraDoExame = { titulo: string; texto: string };
 /* `todos` é o painel inteiro da pessoa, e é opcional de propósito: a
    leitura tem que funcionar com o exame sozinho. Quando ele chega, entra

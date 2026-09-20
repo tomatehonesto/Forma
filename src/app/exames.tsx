@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData,
+  EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
   examExplain, examAbout, examInfluences, examWays,
 } from '../logic/derive';
 import { fmtDate, MO_LONG, nf } from '../logic/time';
@@ -869,18 +869,32 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
    espaço para dizer de quanto para quanto. */
 function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
   const { c } = useTheme();
-  const l = examLast(e);
+  const l = examLast(e), f = examFirst(e);
   const st = examStatus(e);
+  const delta = e.values.length > 1 && l.t !== f.t ? l.v - f.v : 0;
+  /* ⚠️ A SETA SÓ GANHA COR QUANDO O MARCADOR DECLARA O LADO BOM. Sem
+     `good`, subir não é boa nem má notícia — creatinina ou TSH é o
+     conjunto que diz, não a direção —, e pintar a seta ali seria o
+     aplicativo opinando sobre o que não sabe. Cinza, ela continua
+     informando o fato: mudou, e para que lado. */
+  const melhorou = e.good ? (e.good === 'up' ? delta > 0 : delta < 0) : null;
+  const corDaSeta = melhorou == null ? c.tx4 : melhorou ? c.ok : c.cta;
   return (
     <Linha
       titulo={e.marker}
       onPress={onPress}
+      /* ⚠️ O SELO É O ESTADO, E A SETA É O RUMO. São duas perguntas
+         diferentes — "estou bem?" e "estou indo bem?" — e um marcador pode
+         responder sim para uma e não para a outra, que é justamente o caso
+         que mais importa. Juntas num sinal só, esse caso desaparecia. */
+      selo={st === 'ok' ? 'na faixa' : st === 'alto' ? 'acima' : 'abaixo'}
+      seloTom={st === 'ok' ? 'verde' : 'alerta'}
       sub={
         <Row gap={4} style={{ alignItems: 'center' }}>
-          {st !== 'ok' ? (
-            <Icon name={st === 'alto' ? 'arrowup' : 'arrowdown'} size={12} color={c.cta} sw={2.8} />
+          {delta !== 0 ? (
+            <Icon name={delta > 0 ? 'arrowup' : 'arrowdown'} size={12} color={corDaSeta} sw={2.8} />
           ) : null}
-          <Txt v="label" c={st === 'ok' ? c.tx : c.cta}>{fmtV(l.v)}</Txt>
+          <Txt v="label">{fmtV(l.v)}</Txt>
           <Txt v="caption" c={c.tx3}>{e.unit} · ref {e.ref}</Txt>
         </Row>
       }
@@ -897,6 +911,7 @@ export default function Exames() {
   const todos = (S.exams as any[]) ?? [];
   const fora = todos.filter((e) => examStatus(e) !== 'ok');
   const dentro = todos.length - fora.length;
+  const resumo = examSummary(S);
 
   if (sel) {
     const e = examBy(S, sel);
@@ -934,15 +949,21 @@ export default function Exames() {
           fora, não da casa onde o número mora — um zero vermelho seria a
           tela gritando exatamente quando não há nada para gritar. */}
       {todos.length ? (
-        <Row style={{ alignItems: 'stretch', paddingVertical: 4 }}>
+        <Row style={{ alignItems: 'stretch' }}>
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Txt v="display" style={{ fontSize: 42, lineHeight: 48 }} c={fora.length ? c.cta : c.tx}>{fora.length}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>fora da faixa</Txt>
+            {/* ⚠️ O ZERO NÃO FICA VERMELHO, e os outros números ficam.
+
+                A cor aqui é do FATO de haver algo fora, não da casa onde o
+                número mora. Um zero vermelho seria a tela acendendo o
+                alarme exatamente no dia em que não há nada para alarmar —
+                e quem bate o olho lê a cor antes do algarismo. */}
+            <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }} c={fora.length ? c.cta : c.tx3}>{fora.length}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>fora da faixa</Txt>
           </View>
-          <View style={{ width: StyleSheet.hairlineWidth, backgroundColor: c.line, marginVertical: 6 }} />
+          <View style={{ width: StyleSheet.hairlineWidth, backgroundColor: c.line, marginVertical: 4 }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Txt v="display" style={{ fontSize: 42, lineHeight: 48 }}>{dentro}</Txt>
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>na faixa</Txt>
+            <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }} c={c.ok}>{dentro}</Txt>
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>na faixa</Txt>
           </View>
         </Row>
       ) : null}
@@ -966,14 +987,17 @@ export default function Exames() {
         </Bloco>
       ) : null}
 
-      <Aviso ic="spark" titulo="Resumo da IA">
-        <Rich
-          v="caption"
-          base={c.tx2}
-          bold={c.tx}
-          text="Seus marcadores metabólicos <b>melhoraram de forma consistente</b>: HbA1c 6,3 → 5,6%, triglicerídeos e LDL em queda, HDL e vitamina D em alta. Evolução alinhada com a perda de peso e o tratamento."
-        />
-      </Aviso>
+      {/* ⚠️ O RESUMO É ARITMÉTICA, E ERA UM PARÁGRAFO ESCRITO À MÃO com os
+          números da semente — ver a nota do `examSummary`, em derive.ts.
+
+          ⚠️ E O CARTÃO NÃO SE CHAMA MAIS "RESUMO DA IA". Não havia IA
+          nenhuma; havia um parágrafo. O nome volta a ser esse no dia em
+          que houver uma do outro lado. */}
+      {resumo ? (
+        <Aviso ic="trend" titulo="Resumo desta coleta">
+          <Txt v="caption" c={c.tx2} style={{ lineHeight: 22 }}>{resumo}</Txt>
+        </Aviso>
+      ) : null}
 
       {EXAM_CATS.map(([cat, ms]) => (
         <Bloco key={cat} titulo={cat}>

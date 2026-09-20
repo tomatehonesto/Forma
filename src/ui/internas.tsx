@@ -243,7 +243,13 @@ export function Bloco({ titulo, link, onLink, nota, children }: {
    Não existe selo vermelho aqui, de propósito: nenhuma leitura destas
    telas é uma falha da pessoa. O que precisa de atenção vira Aviso, com
    texto e espaço para explicar. */
-export type SeloTom = 'lima' | 'verde' | 'neutra';
+/* ⚠️ `alerta` É O ÚNICO TOM QUE PARA O OLHO, e por isso ele é o último
+   a entrar numa tela. Lima e verde são lavagens de boa notícia; neutra é
+   o lugar onde mora o que não tem juízo. O vermelho lavado existe para o
+   caso em que a lista precisa que uma linha entre quinze seja encontrada
+   sem leitura — e num aplicativo de saúde isso é raro o bastante para
+   caber num tom só. */
+export type SeloTom = 'lima' | 'verde' | 'neutra' | 'alerta';
 
 export function Selo({ label, tom = 'lima' }: { label: string; tom?: SeloTom }) {
   const { c } = useTheme();
@@ -251,6 +257,7 @@ export function Selo({ label, tom = 'lima' }: { label: string; tom?: SeloTom }) 
     lima: [c.limeSoft, c.limeSoftInk],
     verde: [c.okBg, c.ok],
     neutra: [c.bg2, c.tx2],
+    alerta: [c.ctaWeak, c.cta],
   };
   const [bg, fg] = par[tom];
   return (
