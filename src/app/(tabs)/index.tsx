@@ -109,7 +109,23 @@ export default function Home() {
   const progress = useRef(new Animated.Value(0)).current;
   const deriva = useRef(new Animated.Value(0)).current;
 
-  const go = (to: string) => () => router.push(to as any);
+  /* ⚠️ navigate, E NÃO push, PORQUE UM DOS DESTINOS É UMA ABA.
+
+     A CTA da descoberta leva a /insights, que é irmã desta tela dentro
+     do grupo (tabs) — e é a única ligação do aplicativo inteiro para
+     uma aba: um grep por /insights acha esta linha e mais nada.
+
+     Com push, a URL ia para /insights e voltava sozinha para / logo em
+     seguida, enquanto a tela da aba abria. Endereço e tela discordando
+     é o bastante para trocar: no navegador o histórico fica errado, e
+     um push numa irmã de aba pede uma segunda instância de uma tela
+     que já está montada.
+
+     A doc da v57 descreve push como "using a push operation if
+     possible" e navigate como simplesmente "navigates to the provided
+     href". navigate é o geral; push é o caso especial de querer uma
+     cópia nova por cima, e nenhuma CTA daqui quer isso. */
+  const go = (to: string) => () => router.navigate(to as any);
   useLightStatusBar();
   const first = S.profile.name.split(' ')[0];
   const dia = diaDoTratamento(S);
