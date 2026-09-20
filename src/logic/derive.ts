@@ -2353,6 +2353,19 @@ export type Reco = {
   /* ordem cronológica real, em dias — é ela que agrupa e ordena */
   emDias: number;
   ic: string;
+  /* ⚠️ O IMPERATIVO AQUI É DE PROPÓSITO — "Beba mais água ainda hoje",
+     "Separe a caneta", "Peça a renovação". Numa varredura atrás de texto
+     que cobra a pessoa, esta lista aparece inteira e parece o pior
+     achado do aplicativo; não é.
+
+     Cobrança é o aplicativo julgando o que já passou. Isto é o formato de
+     uma lista de tarefas, e é o que a pessoa abriu a tela para ver: ela
+     veio aqui perguntando o que fazer. Trocar por substantivo — "mais um
+     copo hoje" — não deixa o texto mais gentil, deixa a sugestão mais
+     tímida, e uma sugestão tímida numa lista de quatro vira decoração.
+
+     O que NÃO pode ser imperativo é o `porque` logo abaixo: lá mora o
+     fato, e fato com verbo de ordem vira sermão. */
   texto: string;
   /* a razão de a IA estar sugerindo isso agora */
   porque: string;
