@@ -4555,27 +4555,53 @@ export function nextConsult(S: State) {
   };
 }
 
-/** O que está esperando uma ação da pessoa — e só isso. */
+/** O que está esperando uma ação da pessoa — e só isso.
+
+    ⚠️⚠️ E É A ÚNICA FONTE DISSO, desde que o `careStatus` foi embora. O
+    hero da aba Cuidado conta e nomeia as pendências a partir desta lista,
+    e não de um segundo cálculo paralelo — o `rotulo` de cada item existe
+    para isso: é a palavra curta que entra na frase "duas pendências
+    precisam de você — receita e exames".
+
+    Enquanto eram dois cálculos, eles divergiram em três lugares ao mesmo
+    tempo, e um deles estava na tela: a mensagem entrava aqui sem exigir
+    clínica e lá exigindo; a preparação da consulta entrava aqui e não
+    tinha quadro lá; e o quadro da consulta contava "sem consulta
+    marcada" como pendência sem ter linha nenhuma aqui. Duas fontes para
+    o mesmo fato divergem — é só questão de quando. */
 export function carePending(S: State) {
   /* Título curto e sub explicando: a lista virou ListRow, e ListRow tem
      duas linhas. O título diz O QUE fazer, o sub diz por que agora — que
-     é a informação que decide se a pessoa toca hoje ou semana que vem. */
-  const out: { ic: string; texto: string; sub?: string; to: string; urgente?: boolean }[] = [];
+     é a informação que decide se a pessoa toca hoje ou semana que vem.
+
+     O `rotulo` é outra coisa: é como o hero chama este item quando os
+     lista numa frase só. "Agendar exame de sangue" é o que se faz; para
+     a frase, o assunto é "exames". */
+  const out: { ic: string; texto: string; sub?: string; rotulo: string; to: string; urgente?: boolean }[] = [];
   const cs = nextConsult(S);
 
-  if (S.unread > 0) out.push({
+  /* ⚠️ MENSAGEM PEDE CLÍNICA, e esta linha não pedia.
+
+     Sem vínculo não há quem escreva — `unread` só desce, nunca sobe, e
+     /conversa abre um fio com ninguém. O quadro do hero já exigia
+     clínica para contar mensagens, e era exatamente nisso que os dois
+     números discordavam: "duas pendências" escrito em cima de uma lista
+     com três. */
+  if (S.unread > 0 && clinicaConectada(S)) out.push({
     ic: 'companion',
     texto: `Responder ${S.unread === 1 ? 'a mensagem' : `as ${S.unread} mensagens`} da sua equipe`,
     sub: 'aguardando sua resposta',
+    rotulo: 'mensagens',
     to: '/conversa', urgente: true,
   });
   /* ⚠️ A RECEITA ACABANDO É UM FATO, E O DESTINO É QUE MUDAVA.
 
-     A primeira tentativa foi esconder a linha sem plataforma — e isso
-     quebrou uma regra mais antiga: o hero conta as pendências pelos
-     quadros do careStatus, e a lista vem daqui. Escondida num lugar só,
-     a tela dizia "duas pendências" em cima de uma lista com uma. Duas
-     fontes para o mesmo fato é o defeito, não a linha.
+     A primeira tentativa foi esconder a linha sem plataforma — e, na
+     época, isso quebrava uma regra mais antiga: o hero contava as
+     pendências por um cálculo separado, e escondida num lugar só a tela
+     dizia "duas pendências" em cima de uma lista com uma. Hoje o cálculo
+     separado não existe mais e esconder aqui esconderia nos dois — mas
+     a linha continua, porque o motivo dela nunca foi o outro cálculo.
 
      A caneta está acabando para todo mundo. O que muda é para onde a
      pessoa vai resolver: com plataforma, a conversa com a equipe; sem
@@ -4584,6 +4610,7 @@ export function carePending(S: State) {
   if (!p.verdict.good) out.push({
     ic: 'pill', texto: 'Peça a renovação da receita',
     sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
+    rotulo: 'receita',
     /* ⚠️ COM EQUIPE, LEVA AO PEDIDO E NÃO À TELA. "Peça a renovação da
        receita" abria a tela de equipe no alto, e a pessoa ficava
        procurando o botão de pedir — que não existia. Pedir receita É uma
@@ -4598,11 +4625,13 @@ export function carePending(S: State) {
   if (exame) out.push({
     ic: 'doc', texto: exame,
     sub: clinicaConectada(S) ? 'pedido pela sua equipe' : 'do protocolo desta semana',
+    rotulo: 'exames',
     to: '/exames',
   });
   if (cs?.prepararAgora) out.push({
     ic: 'cal', texto: 'Prepare o que levar para a consulta',
     sub: `${cs.tipo.toLowerCase()} ${cs.label} · com ${cs.doutor}`,
+    rotulo: 'consulta',
     to: '/consultas',
   });
   return out;
@@ -4830,98 +4859,49 @@ export const fichaDe = (S: State, id?: string): FichaDaEquipe | undefined => {
   return id ? todas.find((f) => f.id === id) : todas[0];
 };
 
-/* ============================================================
-   ESTADO DO ACOMPANHAMENTO
+/* ⚠️⚠️ AQUI MORAVA O `careStatus`, E ELE ERA A SEGUNDA FONTE.
 
-   Responde à pergunta que traz a pessoa à aba Cuidado: "como está meu
-   cuidado agora?". Diferente de carePending, que lista o que exige ação,
-   aqui TODAS as dimensões aparecem — inclusive as que estão bem. É a
-   diferença entre um painel e uma lista de tarefas: o painel também
-   precisa poder dizer "está tudo certo", e essa é justamente a
-   informação que mais tranquiliza.
-   ============================================================ */
+   Ele montava quatro quadros — consulta, mensagens, receita, exames —
+   com nível cada um, para um painel chamado "Seu cuidado hoje" que saiu
+   da aba há várias rodadas. Sem o painel, sobrou um único consumidor: o
+   `careState` logo abaixo, que só lia dele a CONTAGEM dos quadros fora
+   do "ok" e os nomes deles.
+
+   Ou seja, o aplicativo calculava as pendências duas vezes — uma para
+   dizer quantas são, outra para listá-las — e as duas contas discordavam
+   em três pontos:
+
+   · a MENSAGEM entrava na lista sem exigir clínica e no quadro exigindo;
+   · a PREPARAÇÃO DA CONSULTA entrava na lista, entre quatro e sete dias
+     antes, e não tinha quadro nenhum;
+   · o quadro da CONSULTA contava "sem consulta marcada" como pendência,
+     e para isso não há linha na lista.
+
+   O terceiro já tinha sido caçado uma vez, e o comentário que o
+   registrava morreu junto com o quadro: ele dizia, com todas as letras,
+   "duas fontes para o mesmo fato de novo, e é sempre o mesmo defeito".
+   Era, e continuou sendo enquanto houve duas.
+
+   Agora há uma: `carePending`. O hero conta o comprimento dela e nomeia
+   os itens pelo `rotulo` de cada um. O que a lista mostra e o que a
+   frase diz não podem mais divergir, porque são a mesma coisa lida duas
+   vezes. */
+
 /* Três níveis e não dois. "Precisa de atenção" junta coisas muito
    diferentes: uma receita que vence em três semanas e um exame já
    atrasado não pedem a mesma reação, e tratá-los igual ensina a pessoa a
    ignorar os dois. */
 export type CareNivel = 'ok' | 'atencao' | 'acao';
-export type CareTile = {
-  ic: string; label: string; valor: string;
-  nivel: CareNivel;
-  to: string;
-};
-
-export function careStatus(S: State) {
-  const cs = nextConsult(S);
-  const p = penStock(S);
-  const exame = S.protocol.tasks.find((t: any) => !t.done && /exame/i.test(t.t));
-
-  const tiles: CareTile[] = [
-    {
-      ic: 'cal', label: 'Consulta',
-      valor: cs ? (cs.dias <= 0 ? 'Hoje' : cs.dias === 1 ? 'Amanhã' : `Em ${cs.dias} dias`) : 'Sem consulta',
-      /* ⚠️ NÃO TER CONSULTA MARCADA SÓ É PENDÊNCIA QUANDO ALGUÉM MARCA.
-
-         Com plataforma, a agenda é da clínica e um retorno sem data é
-         mesmo coisa a resolver. Sem plataforma, quem marca consulta é a
-         pessoa, no consultório dela, e ela anota quando quiser. Em
-         atenção nos dois casos, o hero contava
-         "três pendências" em cima de uma lista com duas: o quadro
-         acusava a consulta, e `carePending` não tem linha para ela.
-
-         Duas fontes para o mesmo fato de novo, e é sempre o mesmo
-         defeito. O quadro continua dizendo "Sem consulta", que é
-         verdade; ele só deixa de chamar isso de pendência. */
-      nivel: (!cs ? (clinicaConectada(S) ? 'atencao' : 'ok') : cs.dias <= 1 ? 'acao' : 'ok') as CareNivel,
-      to: '/consultas',
-    },
-    /* ⚠️ A CAIXA DE MENSAGENS SÓ EXISTE COM PLATAFORMA. Sem ela o quadro
-       mostrava "Mensagens · Tudo em dia" — uma caixa vazia que nunca vai
-       receber nada, e um toque que leva à conversa com ninguém. Três
-       quadrinhos dizem a verdade melhor do que quatro com um fingindo. */
-    ...(clinicaConectada(S) ? [{
-      ic: 'companion', label: 'Mensagens',
-      valor: S.unread > 0 ? `${S.unread} não ${S.unread === 1 ? 'lida' : 'lidas'}` : 'Tudo em dia',
-      nivel: (S.unread > 0 ? 'atencao' : 'ok') as CareNivel,
-      to: '/conversa',
-    }] : []),
-    {
-      ic: 'pill', label: 'Receita',
-      valor: p.semanas <= 0 ? 'Vencida' : `Vence em ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
-      nivel: p.left <= 1 ? 'acao' : p.verdict.good ? 'ok' : 'atencao',
-      to: '/aplicacoes',
-    },
-    {
-      ic: 'doc', label: 'Exames',
-      valor: exame ? 'Pendente' : 'Em dia',
-      nivel: exame ? 'acao' : 'ok',
-      to: '/exames',
-    },
-  ];
-
-  const n = tiles.filter((t) => t.nivel !== 'ok').length;
-
-  /* ⚠️ AQUI HAVIA TRÊS TEXTOS QUE NINGUÉM LIA.
-
-     `titulo`, `sub` e `subCurto` eram montados a cada chamada — com
-     nome de médica, contagem de semanas e concordância de plural — e não
-     tinham um único consumidor: quem usa `careStatus` é o `careState`
-     logo abaixo, e ele só lê `tiles` e `quantos`.
-
-     Escondiam duas mentiras que sobreviveram a várias passagens
-     justamente por serem invisíveis: "Você ainda não tem uma equipe por
-     aqui" e "Encontre um especialista para acompanhar seu tratamento de
-     perto" — a promessa de uma porta que o aplicativo não tem. Texto
-     morto não é inofensivo: é onde o erro dorme. */
-  return { tiles, quantos: n };
-}
 
 /* ============================================================
    O ESTADO DO ACOMPANHAMENTO, EM UMA FRASE
 
-   careStatus responde "como está cada dimensão" — quatro linhas, quatro
-   níveis. Serve a um painel. Mas o hero não é painel: ele tem que dizer,
-   numa frase só, o que está acontecendo com o acompanhamento AGORA.
+   carePending responde "o que exige um toque meu" — uma lista, item por
+   item. Serve a uma lista. Mas o hero não é lista: ele tem que dizer,
+   numa frase só, o que está acontecendo com o acompanhamento AGORA. E
+   quando o que está acontecendo é justamente a pilha de pendências, é
+   dela que a frase se monta — contagem e nomes —, para que a manchete e
+   a lista logo abaixo nunca digam números diferentes.
 
    E o que está acontecendo muda de natureza ao longo do mês. Faltando
    três dias para a consulta, o assunto do cuidado é a consulta. No dia
@@ -4943,7 +4923,7 @@ const lista = (xs: string[]) =>
 
 export function careState(S: State) {
   const cs = nextConsult(S);
-  const st = careStatus(S);
+  const pend = carePending(S);
   const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
   const ad = adesao(S);
   const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
@@ -5054,14 +5034,19 @@ export function careState(S: State) {
     pulso: 'Tratamento atualizado',
   };
 
-  if (st.quantos > 0) return {
+  if (pend.length > 0) return {
     ...base, momento: 'pendencia' as CareMomento, nivel: 'acao' as CareNivel,
     kicker: 'SEU ACOMPANHAMENTO',
     titulo: 'Temos algumas coisas para cuidar.',
     /* nomeia o que é, em vez de contar quantos: "duas coisas" obriga a
-       rolar para descobrir se importa */
-    texto: `${nomes[st.quantos] ?? st.quantos} ${st.quantos === 1 ? 'pendência precisa' : 'pendências precisam'} de você — ${lista(st.tiles.filter((t) => t.nivel !== 'ok').map((t) => t.label.toLowerCase()))}. Nada urgente, mas vale resolver esta semana.`,
-    pulso: `${st.quantos} ${st.quantos === 1 ? 'item pendente' : 'itens pendentes'}`,
+       rolar para descobrir se importa.
+
+       ⚠️ E OS NOMES SÃO OS DA PRÓPRIA LISTA, item por item. Vinham dos
+       rótulos dos quadros do `careStatus`, que eram outro conjunto: dava
+       para a frase nomear um assunto que a lista não tinha, e para a
+       lista ter um item que a frase não nomeava. */
+    texto: `${nomes[pend.length] ?? pend.length} ${pend.length === 1 ? 'pendência precisa' : 'pendências precisam'} de você — ${lista(pend.map((it) => it.rotulo))}. Nada urgente, mas vale resolver esta semana.`,
+    pulso: `${pend.length} ${pend.length === 1 ? 'item pendente' : 'itens pendentes'}`,
   };
 
   /* ⚠️ E ESTA FRASE COMEÇAVA PELO NOME DA MÉDICA. Sem ninguém
