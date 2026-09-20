@@ -252,21 +252,48 @@ export default function Meta() {
               seguinte — a lista diz de QUE coisa se trata, e a régua é de
               quem está criando a meta. */}
           <Campo rotulo="O que conseguimos medir" nu>
-            {livres.length ? (
-              <Cartao>
-                {livres.map((i) => (
-                  <Linha
-                    key={i.id}
-                    ic={i.ic}
-                    titulo={i.nome}
-                    sub={i.origem}
-                    onPress={() => abrir(i)}
-                  />
-                ))}
-              </Cartao>
-            ) : (
-              <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
-                Você já tem uma meta para cada coisa que o app sabe contar.
+            <Cartao>
+              {/* ⚠️⚠️ O PESO ABRE A LISTA, e não estava em lista nenhuma.
+
+                  Ele não é coluna de check-in, então não entrava no
+                  catálogo de indicadores — e a lista de baixo, a das que
+                  "você marca quando chegar", era o único lugar onde uma
+                  meta de peso cabia. Quem quisesse "chegar a 68 kg"
+                  escrevia à mão e depois marcava à mão o dia em que
+                  chegou, num aplicativo que pesa essa pessoa toda semana.
+
+                  É o contrário de uma calça: caber numa calça é coisa que
+                  só quem veste sabe dizer, e por isso ela é marcada. O
+                  peso a gente sabe.
+
+                  ⚠️ E ELE NÃO CRIA UMA META NOVA — abre a que já existe. A
+                  meta de peso nasce no cadastro e vive em
+                  `profile.goalWeight`; deixar criar uma segunda seria ter
+                  dois números para a mesma pergunta, cada um com a sua
+                  barra, divergindo na primeira vez que alguém mexesse num
+                  só. */}
+              <Linha
+                ic="scale"
+                titulo="Peso"
+                sub="Do peso que você registra"
+                /* replace, e não push: a folha TROCA de assunto em vez de
+                    empilhar uma segunda por cima da primeira — que é o que
+                    as outras linhas desta lista já fazem, por estado. */
+                onPress={() => router.replace('/meta?alvo=peso' as any)}
+              />
+              {livres.map((i) => (
+                <Linha
+                  key={i.id}
+                  ic={i.ic}
+                  titulo={i.nome}
+                  sub={i.origem}
+                  onPress={() => abrir(i)}
+                />
+              ))}
+            </Cartao>
+            {livres.length ? null : (
+              <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, marginTop: 10 }}>
+                Você já tem uma meta para cada coisa que o app conta nos check-ins.
               </Txt>
             )}
           </Campo>

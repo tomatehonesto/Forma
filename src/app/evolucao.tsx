@@ -118,6 +118,19 @@ export default function Evolucao() {
         </View>
       </Bloco>
 
+      {/* ⚠️ AS QUATRO PASTILHAS NO MESMO VERDE, e duas saíam em lima.
+
+          Gordura e massa magra usavam `lima`; HbA1c e pressão, `verde`. São
+          dois verdes diferentes, lado a lado numa grade de dois por dois,
+          dizendo a mesma coisa — "esta foi boa notícia". Cor que muda sem
+          o significado mudar é a pessoa procurando a diferença que não
+          existe.
+
+          O `verde` é o que ganha porque é o que a Jornada já usa nos cards
+          de "O que já mudou", que são estes mesmos quatro marcadores. O
+          `lima` deste aplicativo é a cor do ALCANÇADO — meta fechada,
+          check-in do dia —, e nenhum destes quatro é uma linha de
+          chegada. */}
       <Bloco
         titulo="Vem de exame"
         nota="Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico."
@@ -130,7 +143,7 @@ export default function Evolucao() {
                  isto a gordura subindo aparecia na mesma pastilha verde da
                  gordura caindo: o número mudava de sinal e a cor não. */
               selo={variacaoDe(lm.gordura - fm.gordura, 'pp').delta}
-              seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'lima' : 'neutra'}
+              seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'verde' : 'neutra'}
               de={`${nf(fm.gordura, 1)}%`} para={`${nf(lm.gordura, 1)}%`}
               onPress={() => router.push('/marcador?m=gordura' as any)}
             />
@@ -139,7 +152,7 @@ export default function Evolucao() {
             <Metrica
               ic="dumbbell" nome="Massa magra"
               selo={variacaoDe(lm.musculo - fm.musculo, 'kg', false).delta}
-              seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'lima' : 'neutra'}
+              seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'verde' : 'neutra'}
               de={`${nf(fm.musculo, 1)} kg`} para={`${nf(lm.musculo, 1)} kg`}
               onPress={() => router.push('/marcador?m=musculo' as any)}
             />
