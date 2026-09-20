@@ -1061,20 +1061,48 @@ export function CardCurva({
 
   const ativo = i != null ? pontos[i] : null;
 
-  const corpo = (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
-      <Row style={{ paddingHorizontal: PAD, paddingTop: PAD, paddingBottom: 12, alignItems: 'flex-start' }}>
-        <View style={{ flex: 1 }}>
+  /* ⚠️ O CABEÇALHO É A PORTA, E ERA O CARTÃO INTEIRO.
+
+     O <Pressable> envolvia tudo, e o comentário de baixo afirmava que a
+     curva ficava com o dedo — "tocar no cabeçalho navega, tocar no
+     gráfico lê". Não ficava: a curva usa o Gesture Handler e o Pressable
+     usa o responder do JS, e os dois não disputam entre si. O arrasto
+     lia, e ao soltar o Pressable — que nunca soube que houve um gesto —
+     disparava a navegação. Quem deslizava para ler saía da tela.
+
+     Dá para remendar com uma bandeira ("houve arrasto, ignore o toque"),
+     mas ela vira uma corrida entre dois sistemas que terminam o toque na
+     mesma hora. Some o problema em vez de arbitrá-lo: a porta encolhe
+     para o cabeçalho, e a curva fica sozinha com o dedo. É o que o
+     comentário já dizia — o código só passou a dizer também.
+
+     E a seta entrou junto. Com o cartão inteiro clicável ela era
+     dispensável; com metade, a pessoa precisa saber qual metade. */
+  const cabecalho = (
+    <Row style={{ paddingHorizontal: PAD, paddingTop: PAD, paddingBottom: 12, alignItems: 'flex-start' }}>
+      <View style={{ flex: 1 }}>
+        <Row gap={6}>
           <Txt v="body">{nome}</Txt>
-          <Txt v="note" c={ativo ? c.accent : c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
-            {ativo ? ativo.quando : sub}
-          </Txt>
-        </View>
-        <Txt v="metric">
-          {ativo ? ativo.rotulo : valor}
-          {unidade ? <Txt v="label" c={c.tx3}>{` ${unidade}`}</Txt> : null}
+          {onPress ? <Icon name="chev" size={13} color={c.tx4} sw={2.2} /> : null}
+        </Row>
+        <Txt v="note" c={ativo ? c.accent : c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
+          {ativo ? ativo.quando : sub}
         </Txt>
-      </Row>
+      </View>
+      <Txt v="metric">
+        {ativo ? ativo.rotulo : valor}
+        {unidade ? <Txt v="label" c={c.tx3}>{` ${unidade}`}</Txt> : null}
+      </Txt>
+    </Row>
+  );
+
+  return (
+    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+      {onPress ? (
+        <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
+          {cabecalho}
+        </Pressable>
+      ) : cabecalho}
 
       {curva.length > 1 ? (
         /* A CURVA MARCADA.
@@ -1105,16 +1133,6 @@ export function CardCurva({
         </Txt>
       )}
     </View>
-  );
-
-  if (!onPress) return corpo;
-  /* O toque na curva é do scrub, não da navegação: quem arrasta quer ler,
-     não sair da tela. Por isso o Pressable envolve o card mas a curva fica
-     com o responder — tocar no cabeçalho navega, tocar no gráfico lê. */
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-      {corpo}
-    </Pressable>
   );
 }
 
