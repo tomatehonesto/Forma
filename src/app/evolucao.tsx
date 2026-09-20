@@ -13,21 +13,47 @@ import {
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
-   EVOLUÇÃO
+   EVOLUÇÃO — o índice de todos os números
 
    A tela separa os marcadores por QUEM OS PRODUZ, não por assunto:
 
-     você registra — peso e cintura. Têm histórico navegável, entram em
-       /marcador, e a pessoa pode corrigir ou apagar cada linha.
+     você registra — peso e as quatro circunferências. Têm histórico
+       navegável e a pessoa pode corrigir ou apagar cada linha.
      vem de exame  — gordura, massa magra, HbA1c, pressão. Dependem de
-       laudo ou de balança de bioimpedância. Nesta fase são só leitura, e
-       dizer isso em voz alta evita a frustração de tocar num card que não
-       abre nada.
+       laudo ou de balança de bioimpedância, e são só leitura.
 
    A divisão importa porque muda o que a pessoa pode FAZER. Agrupar tudo
    como "seus números" prometeria a mesma coisa de itens que se comportam
    de formas diferentes.
+
+   ⚠️⚠️ ELA ABSORVEU A /medidas, e as duas eram a mesma tela.
+
+   Mesma divisão — "Você registra" contra "Vem de exame" e "Vem da
+   balança" —, mesmo desenho de card, e cintura, gordura e massa magra
+   apareciam nas duas. Esta aqui ainda tinha, no pé, um link "Todas as
+   medidas" que levava a uma versão reduzida de si mesma.
+
+   A /medidas só existia porque esta escondia três circunferências
+   (quadril, braço, coxa) atrás daquele link. Com as cinco aqui, a
+   pergunta que ela respondia — "quais medidas eu tenho?" — passa a ser a
+   mesma que esta responde, e uma das duas era a mais.
+
+   ⚠️ E OS QUATRO DE LEITURA PASSARAM A ABRIR. O comentário antigo
+   defendia que eles NÃO abrissem, "para evitar a frustração de tocar num
+   card que não abre nada" — e o argumento estava certo enquanto não
+   havia para onde levar. Só que os mesmos quatro já eram tocáveis na
+   Jornada, no card de "O que já mudou": o aplicativo dizia duas coisas
+   sobre as mesmas quatro medidas. Hoje todos têm tela, e a resposta é
+   uma só.
    ============================================================ */
+
+/* As quatro da fita, na ordem em que a fita passa. */
+const CIRC: [string, string][] = [
+  ['cintura', 'Cintura'],
+  ['quadril', 'Quadril'],
+  ['braco', 'Braço'],
+  ['coxa', 'Coxa'],
+];
 
 
 const PERIODOS = [
@@ -46,9 +72,9 @@ export default function Evolucao() {
   const desde = corte === Infinity ? -Infinity : Date.now() - corte * DAY;
 
   const pesos = (S.weights as any[]).filter((w) => w.t >= desde).map((w) => ({ t: w.t, v: w.kg }));
-  const cinturas = (S.measures as any[]).filter((m) => m.t >= desde).map((m) => ({ t: m.t, v: m.cintura }));
+  const medidas = (S.measures as any[]).filter((m) => m.t >= desde);
 
-  const fm = firstMeasure(S), lm = latestMeasure(S);
+  const fm: any = firstMeasure(S), lm: any = latestMeasure(S);
   const ultimoPeso = (S.weights as any[])[S.weights.length - 1];
   const a1c = examBy(S, 'HbA1c');
   const pa = (S.vitals as any).pa as { sys: number; dia: number }[];
@@ -66,7 +92,7 @@ export default function Evolucao() {
 
       <Chips itens={PERIODOS.map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
 
-      <Bloco titulo="Você registra" nota="Marcadores que dependem só de você.">
+      <Bloco titulo="Você registra" nota="Marcadores que dependem só de você — toque para ver o histórico e corrigir.">
         <View style={{ gap: 10 }}>
           <CardCurva
             id="ev-peso"
@@ -77,23 +103,24 @@ export default function Evolucao() {
             pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
           />
-          {fm && lm ? (
+          {fm && lm ? CIRC.map(([k, nome]) => (
             <CardCurva
-              id="ev-cint"
-              nome="Cintura"
-              sub={`${fm.cintura} › ${lm.cintura} cm · ${fmtDate(lm.t)}`}
-              valor={variacaoDe(lm.cintura - fm.cintura).numero}
+              key={k}
+              id={`ev-${k}`}
+              nome={nome}
+              sub={`${nf(fm[k], 0)} › ${nf(lm[k], 0)} cm · ${fmtDate(lm.t)}`}
+              valor={variacaoDe(lm[k] - fm[k]).numero}
               unidade="cm"
-              pontos={cinturas.map((p) => ({ v: p.v, rotulo: String(p.v), quando: fmtDate(p.t) }))}
-              onPress={() => router.push('/marcador?m=cintura' as any)}
+              pontos={medidas.map((p) => ({ v: p[k] as number, rotulo: nf(p[k], 0), quando: fmtDate(p.t) }))}
+              onPress={() => router.push(`/marcador?m=${k}` as any)}
             />
-          ) : null}
+          )) : null}
         </View>
       </Bloco>
 
       <Bloco
         titulo="Vem de exame"
-        nota="Precisam de laudo ou balança de bioimpedância — nesta fase, só leitura."
+        nota="Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico."
       >
         <Grade2>
           {fm && lm ? (
@@ -105,6 +132,7 @@ export default function Evolucao() {
               selo={variacaoDe(lm.gordura - fm.gordura, 'pp').delta}
               seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'lima' : 'neutra'}
               de={`${nf(fm.gordura, 1)}%`} para={`${nf(lm.gordura, 1)}%`}
+              onPress={() => router.push('/marcador?m=gordura' as any)}
             />
           ) : null}
           {fm && lm ? (
@@ -113,6 +141,7 @@ export default function Evolucao() {
               selo={variacaoDe(lm.musculo - fm.musculo, 'kg', false).delta}
               seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'lima' : 'neutra'}
               de={`${nf(fm.musculo, 1)} kg`} para={`${nf(lm.musculo, 1)} kg`}
+              onPress={() => router.push('/marcador?m=musculo' as any)}
             />
           ) : null}
           {a1c && a1c.values.length >= 2 ? (
@@ -121,6 +150,7 @@ export default function Evolucao() {
               selo={examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência'}
               seloTom={examStatus(a1c) === 'ok' ? 'verde' : 'neutra'}
               de={`${nf(examFirst(a1c).v, 1)}%`} para={`${nf(examLast(a1c).v, 1)}%`}
+              onPress={() => router.push('/exames?m=HbA1c' as any)}
             />
           ) : null}
           {pa && pa.length >= 2 ? (
@@ -132,23 +162,21 @@ export default function Evolucao() {
                 : pa[pa.length - 1].sys > pa[0].sys ? 'Em alta' : 'Estável'}
               seloTom={pa[pa.length - 1].sys < pa[0].sys ? 'verde' : 'neutra'}
               de={`${pa[0].sys}/${pa[0].dia}`} para={`${pa[pa.length - 1].sys}/${pa[pa.length - 1].dia}`}
+              onPress={() => router.push('/saude' as any)}
             />
           ) : null}
         </Grade2>
       </Bloco>
 
+      {/* "Todas as medidas" saiu junto com a tela que ele abria: as quatro
+          estão logo acima. Exames fica, porque a lista dos quinze é outra
+          coisa do que os dois marcadores que a Evolução destaca. */}
       <Cartao>
         <Linha
           ic="doc"
           titulo="Todos os exames"
           sub="Laudos, faixas de referência e histórico completo"
           onPress={() => router.push('/exames' as any)}
-        />
-        <Linha
-          ic="ruler"
-          titulo="Todas as medidas"
-          sub="Cintura, quadril, braço e coxa"
-          onPress={() => router.push('/medidas' as any)}
         />
       </Cartao>
     </TelaInterna>

@@ -151,7 +151,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
               seloTom: tomDoDelta((u[k] ?? 0) - ant[k]),
             }))
           : nomes.map(([k, nome]) => ({ titulo: nome, selo: `${nf(u?.[k] ?? 0, 1)} cm`, seloTom: 'neutra' as const })),
-        caminho: { label: 'Ver as medidas', to: '/medidas' },
+        caminho: { label: 'Ver a evolução', to: '/evolucao' },
       };
     }
 
