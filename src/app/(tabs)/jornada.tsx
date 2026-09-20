@@ -474,6 +474,7 @@ export default function Jornada() {
   const filtrados = filtro ? eventos.filter((e) => e.kind === filtro) : [];
   const pen = penStock(S);
   const ci = checkinToday(S);
+  const mlHoje = waterMlToday(S);
   const proto = protocoloDaSemana(S);
 
   /* SINTOMAS ENTRA NA LISTA, e por isso ela não se chama mais só de
@@ -502,7 +503,20 @@ export default function Jornada() {
        levava a lugar nenhum sobre si mesma. E o número usava um
        formatador próprio, que escrevia 1,8 L onde a tela de água escreve
        1,75 L. */
-    ['water', 'Hidratação', ci ? `${litros(waterMlToday(S))} L hoje` : 'sem registro', '/agua'],
+    /* ⚠️ A CONDIÇÃO ERA `ci`, E O NÚMERO É OUTRA CONTA.
+
+       `ci` só diz que EXISTE linha de hoje, e a linha nasce em qualquer
+       registro — uma refeição, um treino, um copo. O volume vem de
+       `waterMlToday`, que lê os goles e a água da comida. Duas contas
+       diferentes decidindo uma frase só: quem registrou o almoço e não
+       bebeu nada lia "0 L hoje", que é o aplicativo AFIRMANDO zero sobre
+       um dia em que ele não sabe de nada.
+
+       A vizinha de baixo já fazia certo — `ci && ci.exerc` —, e o
+       comentário de Sintomas, vinte linhas acima, escreve a regra com
+       todas as letras: distinguir os dois silêncios. Agora quem decide é
+       o mesmo número que aparece. */
+    ['water', 'Hidratação', mlHoje > 0 ? `${litros(mlHoje)} L hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
     ['waves', 'Sintomas', !diasSint ? 'sem registro'
       : !sint.length ? 'sem queixas na semana'
