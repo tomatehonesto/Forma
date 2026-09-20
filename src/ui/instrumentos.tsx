@@ -3,7 +3,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import Svg, { Circle, ClipPath, Defs, Ellipse, LinearGradient as SvgGrad, Path, RadialGradient, Stop } from 'react-native-svg';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
-import type { Palette } from '../theme';
+import { mix, type Palette } from '../theme';
 
 /* ============================================================
    INSTRUMENTOS — o vocabulário de forma do Forma
@@ -173,15 +173,6 @@ export function Medidor({
   const base = sobreEscuro ? 'rgba(255,255,255,0.28)' : c.line;
   const dentro = sobreEscuro ? 'rgba(255,255,255,0.55)' : c.accentLine;
 
-  /* interpolação em hex, sem lib: a régua tem 28 traços e cada um precisa
-     de uma cor própria para a passagem ser contínua */
-  const mistura = (a: string, b: string, t: number) => {
-    const n = (s: string) => [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16));
-    const [r1, g1, b1] = n(a), [r2, g2, b2] = n(b);
-    const m = (x: number, y: number) => Math.round(x + (y - x) * t);
-    return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`;
-  };
-
   return (
     <View style={{ height: altura + 14 }}>
       {/* marcador acima da régua: sobreposto aos traços ele os apagaria
@@ -201,7 +192,7 @@ export function Medidor({
              vezes para o mesmo lugar, de cima e de baixo */
           const perto = Math.abs(t - marca) < 0.5 / traços;
           const tom = escala
-            ? mistura(escala[0], escala[1], t)
+            ? mix(escala[0], escala[1], t)
             : naFaixa ? dentro : base;
           return (
             <View
@@ -381,7 +372,7 @@ export function Nivel({
             key={i}
             style={{
               flex: 1, height: altura, borderRadius: 2,
-              backgroundColor: cheio ? mixHex(topo, base, t) : apagado,
+              backgroundColor: cheio ? mix(topo, base, t) : apagado,
             }}
           />
         );
@@ -390,13 +381,16 @@ export function Nivel({
   );
 }
 
-/** Interpolação em hex sem lib — usada pelo Medidor e pelo Nível. */
-function mixHex(a: string, b: string, t: number) {
-  const n = (s: string) => [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16));
-  const [r1, g1, b1] = n(a), [r2, g2, b2] = n(b);
-  const m = (x: number, y: number) => Math.round(x + (y - x) * t);
-  return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`;
-}
+/* ⚠️ O mixHex MORAVA AQUI, e o comentário dele dizia "usada pelo Medidor
+   e pelo Nível" — mas o Medidor tinha a própria cópia, palavra por
+   palavra, dentro do corpo do componente. Uma função compartilhada, um
+   comentário afirmando que os dois a compartilhavam, e um dos dois
+   escrevendo-a de novo trinta linhas acima.
+
+   As duas eram o `mix` do theme.ts com outra saída: ele devolve
+   "#rrggbb" e elas devolviam "rgb(r,g,b)", que para o React Native é a
+   mesma cor. Três implementações da mesma interpolação, e a do tema é a
+   que o resto do aplicativo já usava. */
 
 /* ------------------------------------------------------------------ *
  * GRADE — o calendário do acompanhamento
