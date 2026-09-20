@@ -221,7 +221,7 @@ export default function Assinatura() {
             — e nenhuma destas tem consequência nenhuma, elas abrem uma
             tela. A letra miúda no pé já diz que a cobrança é da loja. */}
         <Linha
-          ic="spark"
+          ic="shield"
           titulo={atual ? 'Mudar de plano' : 'Ver os planos'}
           onPress={atual ? () => Linking.openURL(GESTAO_NA_LOJA) : () => router.push('/planos' as any)}
         />

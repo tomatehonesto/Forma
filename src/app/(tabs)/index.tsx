@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import { descobertaDaHome, marcarDescobertaVista } from '../../logic/descobertas';
+import { alertasDe } from '../../logic/alertas';
 import {
   todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
@@ -156,8 +157,25 @@ export default function Home() {
   const conectada = clinicaConectada(S);
   const consultD = new Date(S.consult.t);
 
+  /* ⚠️⚠️ A ESTRELINHA NÃO É ENFEITE DE BOTÃO, e estava em todos.
+
+     Ela é a marca de "isto saiu de uma análise dos seus dados", e o
+     carrossel a punha em toda CTA — inclusive em "Ver a aplicação", que
+     leva a uma tela de calendário, e em "Entenda o por quê", que abre uma
+     pergunta escrita à mão. Marca que aparece em tudo deixa de marcar
+     coisa nenhuma, e a que mais perde é a descoberta: quando tudo brilha,
+     o único lugar em que o brilho era verdade fica igual ao resto.
+
+     Fica só onde é verdade: cruzamento e antecipação, que saem dos
+     registros da pessoa. O CONVITE NÃO LEVA ESTRELA — ele é o aplicativo
+     mostrando uma porta que ela ainda não abriu, e isso não é análise de
+     nada. O resto ganha a seta, que é o que esses botões sempre foram:
+     uma porta para outra tela. */
+  const temLembreteDeDose = alertasDe(S, 'dose').some((a) => a.on);
+  type SlideHero = { over: string; title: string; body: string; cta: string; to: string; ia?: boolean; ic?: string };
+
   /* Carrossel do hero — tres leituras do dia, todas com dado real. */
-  const slides = [
+  const slides: SlideHero[] = [
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
 
@@ -175,7 +193,14 @@ export default function Home() {
          e do local, que é onde ele é informação e não manchete. */
       title: quandoEm(nd).hoje ? 'Hoje é dia de aplicar sua dose.' : `Sua próxima dose é ${quandoEm(nd).label}.`,
       body: `${med.label} ${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
-      cta: 'Ver a aplicação', to: '/aplicacoes',
+      /* ⚠️ A SEGUNDA AÇÃO DEPENDE DE ELA JÁ TER A PRIMEIRA. Oferecer
+         "criar um lembrete" a quem já tem um lembrete de dose ligado é uma
+         porta que não leva a nada novo — e a lista de alertas sabe
+         responder isso numa linha. Quem já tem continua indo para a tela
+         da aplicação, que é onde se registra a dose. */
+      ...(temLembreteDeDose
+        ? { cta: 'Ver a aplicação', to: '/aplicacoes' }
+        : { cta: 'Criar um lembrete', to: '/lembretes', ic: 'bell' }),
     }] : []),
     /* ⚠️ O SLIDE NÃO É MAIS SÓ "DESCOBERTA", e o chapéu vem do motor.
 
@@ -195,6 +220,7 @@ export default function Home() {
       title: desc.titulo,
       body: desc.texto,
       cta: desc.cta, to: desc.to,
+      ia: desc.tipo !== 'convite',
     }] : []),
   ];
 
@@ -322,7 +348,12 @@ export default function Home() {
                 <Pressable onPress={go(s.to)} style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 16, opacity: pressed ? 0.7 : 1 }]}>
                   <Row gap={7} style={{ backgroundColor: c.onHeroWeak, borderRadius: radius.xl, paddingHorizontal: 14, paddingVertical: 6 }}>
                     <Txt v="note" c={c.onHero}>{s.cta}</Txt>
-                    <Icon name="spark" size={13} color={c.lime} sw={2} />
+                    <Icon
+                      name={s.ia ? 'spark' : (s.ic ?? 'chev')}
+                      size={13}
+                      color={s.ia ? c.lime : c.onHero2}
+                      sw={2}
+                    />
                   </Row>
                 </Pressable>
               </View>

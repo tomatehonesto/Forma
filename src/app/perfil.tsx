@@ -315,7 +315,7 @@ export default function Perfil() {
               backgroundColor: c.bg2, borderRadius: radius.pill,
               paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
             }}>
-              <Icon name="spark" size={12} color={c.tx2} sw={2} />
+              <Icon name="cal" size={12} color={c.tx2} sw={2} />
               <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>Dia {journeyDay(S)}</Txt>
             </Row>
           </Row>
@@ -492,7 +492,7 @@ export default function Perfil() {
             O tipo cabe numa etiqueta, vale para todo mundo, e é o mesmo
             nome que a tela de dentro mostra em corpo grande: quem toca
             aqui reconhece onde chegou. */}
-        <ListRow ic="spark"
+        <ListRow ic="shield"
           title="Sua assinatura"
           onPress={go('/assinatura')}
           right={
