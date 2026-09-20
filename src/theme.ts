@@ -21,6 +21,7 @@ export type Palette = {
   accentWeak: string; accentLine: string;
   lime: string; limeDim: string; limeInk: string; limeWeak: string;
   limePale: string; bluePale: string; teal: string; tealPale: string;
+  tealBg: string; tealInk: string;
   panelFrom: string; panelMid: string; panelTo: string;
   altFrom: string; altMid: string; altTo: string;
   glass: string; glassLine: string;
@@ -67,6 +68,27 @@ export const light: Palette = {
   // teal.                                                    [figma]
   limePale: '#F5F8DF', bluePale: '#D7DDEF',
   teal: '#15E4CB', tealPale: '#C5EAE6',
+
+  /* ⚠️ O PAR DA MÁ NOTÍCIA QUE NÃO COBRA.
+
+     O `cta` existe para o que é destrutivo e para o que precisa parar o
+     olho. Num aplicativo de tratamento de obesidade existe uma terceira
+     categoria que ele não serve: a notícia ruim que a pessoa não escolheu
+     e não pode desfazer — o peso que subiu, a cintura que cresceu, a
+     pressão em alta. Vermelho ali acusa, e a semana em que a balança sobe
+     é a semana em que as pessoas desistem.
+
+     O teal é a única cor viva da paleta sem juízo embutido: ela marca sem
+     cobrar. Estas duas viraram token quando o mesmo par apareceu na
+     segunda tela, montado à mão nas duas.
+
+     ⚠️ E ELE NÃO SEGUE A PALETA, como o lima e o azul seguem. As cinco
+     paletas trocam a cor de AÇÃO e a de ALCANÇADO, que são as duas que
+     dizem quem o aplicativo é; esta aqui diz o estado de um número, e um
+     estado que muda de cor conforme o gosto de quem instalou deixa de ser
+     um código. O teal já era fixo para a barra de exercício, pelo mesmo
+     motivo. */
+  tealBg: '#D5FAF6', tealInk: '#08574D',
 
   /* Painel de destaque — azul saturado em gradiente. Precisa ler como
      CARD, não como fundo: o app inteiro é claro, então a superfície de
@@ -145,6 +167,9 @@ export const dark: Palette = {
   lime: '#DDF62C', limeDim: '#C7DD2A', limeInk: '#0A0A0A',
   limeWeak: 'rgba(221,246,44,0.16)',
   limePale: '#4A5220', bluePale: '#1E2A4D', teal: '#15E4CB', tealPale: '#12463F',
+  /* No escuro o fundo é véu da cor, e a tinta é a cor clareada — o mesmo
+     inverso que o `okBg`/`ok` faz do lado verde. */
+  tealBg: 'rgba(21,228,203,0.16)', tealInk: '#A6F5EB',
   panelFrom: '#4C8BFF', panelMid: '#1F5FE0', panelTo: '#0A2E9E',
   altFrom: '#5B84EE', altMid: '#123A9E', altTo: '#040F33',
   glass: 'rgba(255,255,255,0.11)', glassLine: 'rgba(255,255,255,0.17)',

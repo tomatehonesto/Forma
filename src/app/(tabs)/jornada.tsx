@@ -20,7 +20,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, alfa, mix } from '../../theme';
+import { radius } from '../../theme';
 
 /* ============================================================
    JORNADA
@@ -298,13 +298,11 @@ function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
      ele acusa, e a semana em que a balança sobe é a semana em que as
      pessoas desistem. O teal marca sem cobrar.
 
-     O par é montado e não tokenizado porque o app não tem um tealBg/
-     tealInk: o fundo é o teal a 18 por cento, que funciona translúcido
-     sobre cartão claro e escuro, e a tinta é o teal puxado para a tinta
-     do tema — escura no claro, clara no escuro. É a mesma mecânica do
-     okBg/ok, montada na mão. */
+     O par tem token — `tealBg`/`tealInk` —, e por um commit foi montado
+     aqui na mão. Virou token quando o mesmo par apareceu na segunda tela:
+     duas cópias de uma conta de cor é como começam as divergências. */
   const [fundo, tinta] = ch.tom === 'bom' ? [c.okBg, c.ok]
-    : ch.tom === 'ruim' ? [alfa(c.teal, 0.18), mix(c.teal, c.tx, 0.62)]
+    : ch.tom === 'ruim' ? [c.tealBg, c.tealInk]
       : [c.bg2, c.tx3];
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ width: '49%', opacity: pressed ? 0.7 : 1 }]}>
