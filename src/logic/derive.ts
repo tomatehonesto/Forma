@@ -38,6 +38,52 @@ export const metaDeCopos = (S: State) => (S.profile as any).targets.waterMl / CU
    pessoa. Por isso mora aqui e não em `targets` — mas mora UMA vez. */
 export const SONO_REF_H = 7;
 
+/* ============================================================
+   AS DUAS METAS DE PESO, E POR QUE NENHUMA MANDA NA OUTRA
+
+   `profile.goalWeight` é o destino que a PESSOA escolheu no cadastro. Ele
+   mede a Jornada, e é a viagem dela: repontá-lo em silêncio mudaria o que
+   todas as telas dizem sobre o progresso dela sem que ela tivesse pedido.
+
+   `protocol.metaPeso` é o que a EQUIPE definiu — ou melhor, o que a
+   pessoa anotou do que a equipe disse, porque não existe servidor e nada
+   do lado da clínica transmite para cá. Por isso ele carrega a data e o
+   nome de quem disse: um número sem procedência afirmando ter vindo de
+   uma médica é pior do que número nenhum.
+
+   ⚠️ AS DUAS PODEM DISCORDAR, E DISCORDAR É INFORMAÇÃO. Quem quer chegar
+   a 68 e tem equipe mirando 72 não está errada, e a equipe também não —
+   é uma conversa para a consulta. O aplicativo mostra as duas e não
+   arbitra. O ÚNICO lugar que prefere a clínica é a etapa de MANUTENÇÃO,
+   porque manutenção é um estado clínico: estar na faixa que a equipe
+   definiu é um fato sobre o tratamento, e estar na que ela sonhou é um
+   fato sobre o desejo dela.
+   ============================================================ */
+
+/** A meta de peso que a equipe definiu, como a pessoa anotou. */
+export const metaClinica = (S: State) =>
+  ((S.protocol as any)?.metaPeso ?? null) as { kg: number; em: number; por: string } | null;
+
+/** O peso de referência para leitura CLÍNICA — a da equipe quando existe,
+    a dela quando não. Nunca usado para medir a Jornada: ver o comentário
+    acima. */
+export const pesoDeReferencia = (S: State) => {
+  const mc = metaClinica(S);
+  return mc
+    ? { kg: mc.kg, daEquipe: true, por: mc.por, em: mc.em }
+    : { kg: (S.profile as any).goalWeight as number, daEquipe: false, por: '', em: 0 };
+};
+
+/** As duas discordam o bastante para valer uma pergunta na consulta? */
+export const metasDiscordam = (S: State) => {
+  const mc = metaClinica(S);
+  if (!mc) return false;
+  /* Um quilo é ruído de balança; o que merece conversa é a diferença que
+     muda o plano. Dois quilos é o menor degrau que não se explica por
+     água — e é um limiar escolhido, como os do platô: PENDENCIAS 13. */
+  return Math.abs(mc.kg - ((S.profile as any).goalWeight as number)) >= 2;
+};
+
 export const M = (S: State) => MEDS[S.profile.med];
 
 /* ============================================================

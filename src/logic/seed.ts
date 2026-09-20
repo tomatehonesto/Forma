@@ -444,6 +444,23 @@ export function buildSeed() {
          71 e semana 11 — o número guardado aqui discordava do que todo o
          resto do app calcula, e a virada de semana abaixo iria corrigi-lo
          no primeiro carregamento, zerando os checks dela de brinde. */
+      /* ⚠️⚠️ A META DE PESO DA EQUIPE, E ELA NÃO CHEGA SOZINHA.
+
+         Não existe servidor: nada do lado da clínica transmite para cá —
+         é o item 6 do PENDENCIAS, e vale aqui inteiro. Este número é o
+         que a PESSOA ANOTOU do que a equipe dela disse, e é por isso que
+         ele guarda `em` e `por` junto: sem a data e sem o nome, seria um
+         número afirmando uma procedência que ninguém tem como conferir.
+
+         Toda tela que o mostra mostra a procedência na mesma frase. O dia
+         em que houver servidor, o campo é o mesmo e passa a ser
+         preenchido do outro lado — o que muda é a frase, não o formato.
+
+         ⚠️ MORA NO `protocol`, e não em `profile.targets`, de propósito.
+         `targets` é o que a pessoa edita em "Os números do dia"; `protocol`
+         é o que vem da clínica. Um número da equipe dentro da gaveta que
+         a pessoa mexe seria os dois se misturando no primeiro toque. */
+      metaPeso: { kg: 72, em: +daysAgo(34), por: 'Dra. Helena Costa' },
       week: 11, tasks: [
         { metrica: 'aplicacao', alvo: 1 },
         { metrica: 'agua', alvo: 7 },
@@ -771,6 +788,9 @@ export function ensureDefaults(S: any) {
   /* Aditivo, e o `heroSeen` some de quem já o tinha: ele nunca guardou
      nada que alguém lesse, então não há registro para perder. */
   if (!S.descobertasVistas) S.descobertasVistas = {};
+  /* Aditivo: quem não anotou nada continua sem meta clínica, e null é a
+     resposta certa para "a sua equipe ainda não definiu um número aqui". */
+  if (S.protocol && (S.protocol as any).metaPeso === undefined) (S.protocol as any).metaPeso = null;
   delete S.heroSeen;
   if (!S.theme) S.theme = 'light';
   /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
@@ -1089,6 +1109,8 @@ export function estadoVazio(): State {
      semente. Uma clínica de mentira não deixa herança. */
   S.protocol = {
     week: 1,
+    /* Nem a meta de peso: ela é o que a pessoa anotou da equipe DELA. */
+    metaPeso: null,
     tasks: (S.protocol?.tasks ?? [])
       .filter((t: any) => !(t.t && /exame/i.test(t.t)))
       .map((t: any) => (t.t ? { ...t, done: false } : t)),

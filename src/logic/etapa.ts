@@ -52,7 +52,7 @@
 
 import { DAY, diffDays, startOfDay, now, nf, doseTxt } from './time';
 import {
-  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M,
+  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia,
 } from './derive';
 import type { State } from './seed';
 
@@ -208,17 +208,32 @@ function daEtapa(S: State): Mensagem | null {
      para a consulta. Chamar de platô quem chegou onde queria chegar seria
      o aplicativo transformando a conquista dela em problema. */
   const agora = mediaDaSemana(S, 0);
-  const meta = (S.profile as any).goalWeight as number;
-  const naMeta = agora != null && meta > 0 && agora <= meta + 0.5;
+  /* ⚠️ O ÚNICO LUGAR DO APLICATIVO QUE PREFERE A RÉGUA DA EQUIPE.
+
+     Manutenção é um ESTADO CLÍNICO: estar na faixa que a equipe definiu é
+     um fato sobre o tratamento; estar na que a pessoa escolheu no
+     cadastro é um fato sobre o desejo dela. As duas merecem existir, e só
+     uma responde "o tratamento chegou onde queria chegar".
+
+     A Jornada continua medindo contra a meta DELA, e é de propósito: a
+     viagem é dela, e repontar o destino em silêncio mudaria o que todas
+     as telas dizem sobre o progresso sem que ela tivesse pedido nada. */
+  const ref = pesoDeReferencia(S);
+  const naMeta = agora != null && ref.kg > 0 && agora <= ref.kg + 0.5;
   const jaEstavaNaMeta = (() => {
     const antes = mediaDaSemana(S, PLATO_SEMANAS);
-    return antes != null && meta > 0 && antes <= meta + 0.5;
+    return antes != null && ref.kg > 0 && antes <= ref.kg + 0.5;
   })();
   if (naMeta && jaEstavaNaMeta) {
     return {
       chapeu: 'MANUTENÇÃO',
-      head: 'Você está no peso que definiu como meta.',
-      body: `${nf(agora!, 1)} kg, contra a meta de ${nf(meta, 1)} kg — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
+      /* A procedência entra na frase, sempre. "A faixa que a sua equipe
+         definiu" só pode ser dito quando alguém anotou de quem veio — ver
+         o comentário no alto de meta-clinica.tsx. */
+      head: ref.daEquipe
+        ? 'Você está na faixa que a sua equipe definiu.'
+        : 'Você está no peso que definiu como meta.',
+      body: `${nf(agora!, 1)} kg, contra ${nf(ref.kg, 1)} kg${ref.daEquipe ? ` anotados de ${ref.por}` : ''} — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
       q: 'Como está minha evolução?',
       fonte: 'etapa',
     };

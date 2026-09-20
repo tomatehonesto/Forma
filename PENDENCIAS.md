@@ -647,9 +647,29 @@ manutenção. Vale a mesma pergunta do item 12: **o ciclo da dose explica
 quase tudo o que oscila neste aplicativo**, e a semana da dose mexe no
 peso pela água que ela segura.
 
-**Fica registrado também:** a etapa de manutenção compara com
-`profile.goalWeight`, que é um número que a PESSOA digitou no cadastro, e
-não um alvo que a equipe dela definiu. O aplicativo hoje não tem onde
-guardar uma meta clínica. Enquanto não tiver, "você está no peso que
-definiu como meta" é a frase correta — e é de propósito que ela diz
-*definiu*, e não *deveria*.
+**A meta clínica passou a existir, e ela é ANOTADA, não recebida.**
+`protocol.metaPeso` guarda `{ kg, em, por }` — o número, a data e quem
+definiu —, e a folha `/meta-clinica` é a pessoa escrevendo o que a equipe
+dela disse na consulta. Não há servidor, então não há transmissão: todo
+texto dessa folha foi escrito para nunca sugerir o contrário, e o verbo é
+sempre *anotar*.
+
+**O que revisar junto com os limiares acima:**
+
+- **A procedência não é verificável.** "Dra. Helena Costa, 12 de março" é
+  o que a pessoa lembrou, e o aplicativo passa a dizer *"você está na
+  faixa que a sua equipe definiu"* com base nisso. É a razão de o nome e
+  a data serem obrigatórios — sem eles, o número afirmaria uma origem que
+  nem ela conseguiria conferir depois. Ainda assim, alguém precisa
+  decidir se essa frase pode ser dita a partir de um dado transcrito.
+- **Só a MANUTENÇÃO usa a meta clínica.** A Jornada, a evolução e as
+  conquistas continuam medindo contra `profile.goalWeight`, que é a meta
+  da pessoa — decisão de produto, tomada com o usuário: a viagem é dela,
+  e repontar o destino em silêncio mudaria o que todas as telas dizem
+  sobre o progresso sem que ela tivesse pedido.
+- **O limiar de divergência é 2 kg**, e é escolhido como os de cima.
+  Acima disso a área médica mostra um aviso sugerindo levar a diferença
+  para a consulta.
+- **Quando houver servidor**, o campo é o mesmo e passa a ser preenchido
+  do outro lado. O que muda é a frase da tela, não o formato — e aí a
+  procedência vira verificável.

@@ -3,13 +3,13 @@ import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
-import { fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada } from '../logic/derive';
+import { fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada, metaClinica, metasDiscordam } from '../logic/derive';
 import { Txt, Card, Row, Chevron, SectionHead } from '../ui/kit';
-import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
-import { fmtDate } from '../logic/time';
+import { fmtDate, dataLonga, nf } from '../logic/time';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -88,6 +88,8 @@ export default function Medico() {
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
+  const mc = metaClinica(S);
+  const discordam = metasDiscordam(S);
 
   const equipe = fichaDaEquipe(S);
 
@@ -490,6 +492,35 @@ export default function Medico() {
             </ScrollView>
           </>
         )}
+
+        {/* ⚠️ A META DA EQUIPE MORA AQUI, e não em "Os números do dia".
+
+            Aquela gaveta é a que a pessoa edita: proteína, hidratação,
+            movimento, a meta de peso dela. Esta é da clínica. Misturar as
+            duas faria o número da equipe virar mais um campo que se
+            arrasta numa régua — e, no primeiro toque, ninguém saberia
+            mais de quem era qual.
+
+            Quando não há nada anotado, a linha diz o que ela é em vez de
+            mostrar um vazio: a porta existe porque a conversa da consulta
+            acontece antes de haver número. */}
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Meta de peso da equipe</Txt>
+        <Cartao>
+          <Linha
+            ic="scale"
+            titulo={mc ? `${nf(mc.kg, 1)} kg` : 'Ainda não anotada'}
+            sub={mc
+              ? `${mc.por} · anotado em ${dataLonga(mc.em)}`
+              : 'Anote aqui o número que a sua equipe definiu na consulta'}
+            onPress={go('/meta-clinica')}
+          />
+        </Cartao>
+        {mc && discordam ? (
+          <Aviso
+            ic="steth"
+            texto={`A sua meta de peso, no aplicativo, é ${nf((S.profile as any).goalWeight, 1)} kg. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`}
+          />
+        ) : null}
 
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
         <Cartao>
