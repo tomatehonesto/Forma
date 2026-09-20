@@ -1370,7 +1370,11 @@ export function todayBrief(S: State) {
       head = quandoEm(ndDays).hoje
         ? 'Fome no ponto alto — a aplicação é hoje.'
         : `Fome no ponto alto do ciclo — aplicação ${quandoEm(ndDays).label}.`;
-      body = 'Não pule refeições: volumes menores, mais vezes, com proteína.';
+      /* ⚠️ "NÃO PULE REFEIÇÕES" PRESSUPÕE QUE ELA PULA, e no ponto alto
+         da fome quem menos pula é quem está com fome. A frase nasceu como
+         conselho e chegava como repreensão — e a versão afirmativa diz a
+         mesma coisa útil sem acusar ninguém de nada. */
+      body = 'Porções menores e mais vezes, com proteína, seguram melhor a fome.';
       q = 'Por que sinto mais fome?';
   }
   // sinal extra: noite bem dormida muda o tom do dia
@@ -1512,7 +1516,13 @@ export function patterns(S: State): Pattern[] {
     const nomes = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
     if (outros - piorMedia >= 1) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2,
-      titulo: `Você bebe bem menos água ${nomes[piorDia]}`,
+      /* ⚠️ O SUJEITO É A HIDRATAÇÃO, E ERA A PESSOA. "Você bebe bem menos
+         água aos domingos" é o mesmo fato com o dedo apontado — e era o
+         único dos cinco insights com essa forma: os outros quatro dizem
+         "a balança subiu", "sua proteína caiu", "seu ritmo é de". O
+         companion, aliás, já contava este mesmo fato do jeito certo:
+         "reparei que aos fins de semana a hidratação cai". */
+      titulo: `A sua hidratação cai ${nomes[piorDia]}`,
       texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
       q: 'Como está minha água?',
       evid: { valor: piorMedia.toFixed(0), unidade: `de ${outros.toFixed(0)} copos`, legenda: 'a média nesse dia da semana' },
@@ -2361,9 +2371,19 @@ export function recommendations(S: State): Reco[] {
   if (waterMlToday(S) < t.waterMl * 0.6) {
     out.push({
       emDias: 0, ic: 'water', texto: 'Beba mais água ainda hoje',
+      /* ⚠️ O MOTIVO ERA UM DÉFICIT COM O NOME DA PESSOA NA FRENTE.
+
+         "Você está abaixo da metade da meta" põe o sujeito no lugar de
+         quem falhou, e é o único desta lista com essa forma: os vizinhos
+         dizem "restam 3 doses na caneta", "a aplicação da semana está
+         chegando", "você está na fase do ciclo em que a fome volta" —
+         fatos sobre a caneta, sobre a agenda, sobre o ciclo.
+
+         O que falta de água é fato do dia, não defeito de caráter: "o dia
+         está na metade da meta" diz o mesmo e aponta para o copo. */
       porque: enjoo >= 2
-        ? 'Nos seus dias bem hidratados o enjoo aparece menos — e você está na metade da meta'
-        : 'Você está abaixo da metade da meta, e a água segura a saciedade até o fim do dia',
+        ? 'Nos seus dias bem hidratados o enjoo aparece menos — e o dia ainda está na metade da meta'
+        : 'O dia ainda está na metade da meta, e a água segura a saciedade até o fim dele',
       to: '/medir-agua',
     });
   }
@@ -5167,7 +5187,30 @@ export function careState(S: State) {
      Os dois que ficaram são contagens de verdade — duração e volume — e
      por isso ganham a leitura de relance que o princípio 9 pede: valor
      em cima, unidade embaixo. */
-  const adRotulo = ad >= 90 ? 'Boa adesão' : ad >= 70 ? 'Adesão regular' : 'Adesão baixa';
+  /* ⚠️⚠️ A CONTA, E ERA UMA NOTA.
+
+     A pastilha do hero dizia "Boa adesão", "Adesão regular" ou "Adesão
+     baixa", e a terceira é a que importa: ela aparece no alto da aba de
+     quem perdeu duas doses — e perdeu, quase sempre, porque passou mal.
+     O aplicativo transformava uma consequência do tratamento numa nota
+     sobre a pessoa, no primeiro lugar em que o olho cai.
+
+     "8 de 11 aplicações" diz a mesma coisa sem julgar, e diz MAIS: a nota
+     achatava 70% e 89% no mesmo rótulo, e o número não achata nada. É
+     também como o resto do aplicativo fala — "9 de 13 noites
+     registradas", "3 de 4 doses na caneta", "2 de 5 cumpridas". A
+     pastilha era a única que dava nota.
+
+     ⚠️ E NÃO É ESCONDER O FATO. Quem está com metade das doses continua
+     vendo metade das doses, no mesmo lugar e com o mesmo destaque. O que
+     sai é o adjetivo. */
+  const previstas = dosesPrevistas(S);
+  /* "doses" e não "aplicações": a pastilha divide a linha com o pulso,
+     que pode ser "3 itens pendentes", e a palavra longa empurrava o pulso
+     para duas linhas. O estoque da caneta diz "3 de 4 doses na caneta",
+     com o qualificador — aqui, ao lado da contagem de pendências, doses
+     sem qualificador são as que foram tomadas. */
+  const adRotulo = `${S.injections.length} de ${previstas} ${previstas === 1 ? 'dose' : 'doses'}`;
   const metricas: { valor: string; label: string }[] = [
     { valor: String(semanas), label: 'semanas\nde acompanhamento' },
     { valor: String(S.injections.length), label: 'aplicações\nregistradas' },
