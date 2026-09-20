@@ -3,13 +3,13 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, METAS_PESSOAIS, META_LIVRE, PRAZOS, apagarMeta, guardarMetaMedida,
-  guardarMetaPessoal, indicadoresLivres, padraoDe, journeyGoals, marcarMeta,
-  mudarAlvo, type ChaveDeAlvo, type Indicador, type MetaPessoal,
+  ALVOS, METAS_PESSOAIS, META_LIVRE, PRAZOS, apagarMeta,
+  guardarMetaPessoal, journeyGoals, marcarMeta,
+  mudarAlvo, type ChaveDeAlvo, type MetaPessoal,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
 import { DAY, fmtDate, now, startOfDay } from '../logic/time';
-import { Campo, Chips, Escala, Stepper, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { Campo, Chips, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -113,91 +113,8 @@ export default function Meta() {
      segundo. Sem categoria, a folha mostra a lista. */
   const [pess, setPess] = useState<MetaPessoal | null>(null);
   const [prazo, setPrazo] = useState('nao');
-  /* O indicador escolhido no primeiro passo, e o número que a pessoa está
-     ajustando no segundo. */
-  const [ind, setInd] = useState<Indicador | null>(null);
-  const [regua, setRegua] = useState(0);
 
   if (novo === '1') {
-    const livres = indicadoresLivres(S);
-    /* ⚠️ QUEM JÁ TEM ALVO NO PERFIL PULA A RÉGUA, e antes todos passavam
-       por ela. Perguntar "quantos gramas por dia?" a quem acabou de
-       definir 90 g em "Os números do dia" é pedir o mesmo número de novo —
-       e guardar a resposta num segundo lugar, que é como os dois passam a
-       divergir. A meta desses três acrescenta a constância, não o número. */
-    const abrir = (i: Indicador) => {
-      if (i.doPerfil) {
-        update((s: any) => guardarMetaMedida(s, i.id, 0));
-        router.back();
-        return;
-      }
-      setInd(i); setRegua(padraoDe(i, S));
-    };
-    const guardar = () => {
-      if (!ind) return;
-      update((s: any) => guardarMetaMedida(s, ind.id, regua));
-      router.back();
-    };
-
-    /* SEGUNDO PASSO: A RÉGUA.
-
-       A lista oferecia a régua pronta — "Dormir 7h+", "Enjoo em 2 ou
-       menos". Sete horas é o que a literatura repete e ainda assim é um
-       palpite sobre a vida de alguém: quem dorme cinco e quer chegar a
-       seis não tinha onde dizer isso, e quem já dorme oito recebia uma
-       meta que já nasceu cumprida.
-
-       Escolher a COISA e escolher o NÚMERO são duas decisões, e a segunda
-       é a que é pessoal. */
-    if (ind) {
-      const passos = ind.passos;
-      const mexe = (n: number) => passos && setRegua((x) => Math.max(
-        passos.min, Math.min(passos.max, Math.round((x + n * passos.passo) * 100) / 100),
-      ));
-      return (
-        <SheetScreen
-          titulo={ind.nome}
-          sub={ind.pergunta}
-          onClose={() => setInd(null)}
-          rodape={<Botao label="Guardar meta" onPress={guardar} />}
-        >
-          <View style={{ marginTop: 20, gap: 14 }}>
-            {/* A MESMA RÉGUA DO CHECK-IN, com as mesmas palavras. Energia e
-                fome são guardadas de 0 a 10 e perguntadas de 1 a 5; a meta
-                dizia "energia de 7 para cima", que é um número que ninguém
-                nunca viu em tela nenhuma. */}
-            {/* Sem rótulo de campo: a pergunta já é o subtítulo da folha, e
-                repeti-la um centímetro abaixo em caixa alta é o mesmo texto
-                pedindo a mesma coisa duas vezes. */}
-            {ind.escala ? (
-              <Escala
-                valores={ind.escala.valores}
-                valor={regua}
-                legendas={ind.escala.legendas}
-                onChange={(v) => setRegua(Number(v))}
-              />
-            ) : passos ? (
-              <Stepper
-                valor={ind.escreve(regua)}
-                unidade=""
-                onMenos={() => mexe(-1)}
-                onMais={() => mexe(1)}
-              />
-            ) : null}
-
-            {/* O QUE A META VAI DIZER, montada com o número escolhido. É a
-                única forma de escolher sabendo o que se vai ver depois — e
-                ela muda enquanto a pessoa mexe. */}
-            <Aviso
-              ic="target"
-              dentro
-              titulo={ind.rotulo(regua)}
-              texto={`O app conta assim: ${ind.conta(regua).toLowerCase()}. Só os dias que você respondeu entram na conta.`}
-            />
-          </View>
-        </SheetScreen>
-      );
-    }
 
     /* SEGUNDO PASSO DA PESSOAL: ESPECIFICAR.
 
@@ -270,65 +187,41 @@ export default function Meta() {
     return (
       <SheetScreen
         titulo="Nova meta"
-        sub="Uma que o app acompanha, ou uma que só você sabe dizer"
+        sub="Uma coisa sua — o app guarda, e quem marca é você"
         onClose={() => router.back()}
       >
-        {/* DUAS SEÇÕES, E A DIVISÃO É O ASSUNTO DA TELA.
+        {/* ⚠️⚠️ ESTA FOLHA VIROU O LUGAR DAS METAS QUE NÃO SÃO CLÍNICAS, e
+            tinha duas seções.
 
-            Elas estavam na mesma lista, com a de baixo separada só por um
-            cartão — e a diferença entre as duas não é de categoria, é de
-            NATUREZA: uma o app conta sozinho, a outra ninguém tem como
-            medir. Com título, a pessoa escolhe sabendo em qual das duas
-            vidas ela está entrando.
+            A de cima oferecia o que o aplicativo conta sozinho — sono,
+            e por um tempo proteína, hidratação e movimento. Ela encolheu
+            commit a commit, por razões separadas que apontavam todas para
+            o mesmo lugar: sintoma não vira placar, e número do dia já se
+            edita em Os números do dia. No fim sobrou o sono, uma seção de
+            uma linha.
 
-            O TÍTULO É O RÓTULO DE CAMPO, e não o de bloco. Bloco é o
-            cabeçalho de seção das TELAS, no mesmo corpo do título da
-            folha — dentro de um bottom sheet ele empatava com "Nova meta"
-            e a tela ficava com dois títulos do mesmo tamanho brigando.
-            Maiúsculas miúdas é o que as outras folhas já usam para dizer
-            "começa aqui outra parte": A META, NOVO VALOR. */}
+            E o sono foi junto porque a premissa mudou: quem cria a conta
+            já sai do cadastro com um PLANO — proteína, hidratação e
+            movimento calculados do corpo dela. O lado clínico das metas
+            chega pronto e se ajusta em Os números do dia; o protocolo da
+            semana cobra a constância. Não sobrou pergunta para esta folha
+            fazer sobre números.
+
+            O que sobrou é o que nenhuma conta alcança: caber numa calça,
+            voltar à praia, largar um hábito. É uma folha melhor por ser
+            uma coisa só — e o subtítulo passou a dizer o que ela é, em vez
+            de anunciar uma escolha entre duas naturezas que não existe
+            mais.
+
+            ⚠️ O CATÁLOGO DE INDICADORES FICA. Quem tem uma meta de sono
+            criada antes continua com ela, com a porcentagem e tudo — a
+            regra é a mesma que valeu para enjoo e humor: paramos de
+            oferecer, não tiramos de ninguém. */}
         <View style={{ marginTop: 18, gap: 22 }}>
-          {/* AS QUE O APP CONTA, pelo nome genérico. O número vem no toque
-              seguinte — a lista diz de QUE coisa se trata, e a régua é de
-              quem está criando a meta. */}
-          {/* ⚠️ O PESO SAIU DAQUI, e por um commit ele abriu esta lista.
-
-              Ele entrou para resolver um problema real — não havia onde
-              criar uma meta de peso, e ela acabava na lista de baixo, a
-              das que se marcam à mão — e resolveu do jeito errado: a linha
-              não criava meta nenhuma, abria o editor do alvo que já
-              existe. Uma porta com nome de outra coisa.
-
-              Peso, proteína, hidratação e movimento se editam em Metas ›
-              Os números do dia, que é a seção logo acima desta folha na
-              mesma tela. Quem procura a meta de peso a encontra lá, com o
-              número dela escrito ao lado. */}
-          <Campo rotulo="O que conseguimos medir" nu>
-            {livres.length ? (
-              <Cartao>
-                {livres.map((i) => (
-                  <Linha
-                    key={i.id}
-                    ic={i.ic}
-                    titulo={i.nome}
-                    sub={i.origem}
-                    onPress={() => abrir(i)}
-                  />
-                ))}
-              </Cartao>
-            ) : (
-              <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
-                Você já tem uma meta para cada coisa que o app conta sozinho. Os
-                números do dia — peso, proteína, hidratação e movimento — se
-                ajustam na tela de Metas.
-              </Txt>
-            )}
-          </Campo>
-
           {/* AS QUE ELE NÃO MEDE. Os cinco exemplos não gravam direto:
               preenchem o campo e deixam a pessoa terminar a frase — é aí
               que "entrar numa peça de roupa" vira a peça dela. */}
-          <Campo rotulo="Você marca quando chegar" nu>
+          <Campo rotulo="Escolha o tipo" nu>
             <Cartao>
               {/* CATEGORIAS, e não frases prontas — a mesma forma da lista
                   de cima. "Um esporte" pergunta qual esporte; a frase

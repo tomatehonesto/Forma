@@ -414,13 +414,19 @@ export function buildSeed() {
        número que ninguém tinha como mexer. Ela é o que sempre foi —
        ainda não, ou conseguiu em tal dia. */
     goals: [
-      { id: 'g2', ic: 'moon', label: 'Dormir 7h por noite', indicador: 'sono', alvo: 7 },
+      /* ⚠️ ERA UMA META DE SONO, e ela não se cria mais: a folha de nova
+         meta virou o lugar das que o aplicativo não mede. A semente é o
+         retrato do que ele oferece, então as três aqui são do tipo que
+         ainda nasce — e uma delas já conquistada, que é um estado que
+         nenhuma outra tela demonstra. */
       /* ⚠️ ERAM TRÊS, e a terceira já foi "Energia 4 ou mais" e depois
          "Comer 90 g de proteína". As duas saíram pelo mesmo motivo: a
          semente é o retrato do que o aplicativo oferece, e nenhuma das
          duas se cria mais na tela de nova meta — energia é coisa que se
          sente, e proteína se ajusta em Os números do dia. */
-      { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
+      { id: 'g3', ic: 'ruler', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
+      { id: 'g5', ic: 'sun', label: 'Voltar a ir à praia', indicador: null, feita: false, em: null },
+      { id: 'g6', ic: 'leaf', label: 'Começar a caminhar de manhã', indicador: null, feita: true, em: +daysAgo(21) },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
 

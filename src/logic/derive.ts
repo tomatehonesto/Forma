@@ -4482,29 +4482,14 @@ export const indicadorDe = (id?: string | null) =>
 /** O número com que o seletor abre: a meta do perfil quando existe. */
 export const padraoDe = (i: Indicador, S: State) => (i.doPerfil ? i.doPerfil(S) : i.padrao);
 
-/* Os indicadores que ainda não viraram meta. Duas metas medindo a mesma
-   coluna seriam duas linhas quase iguais, e a segunda teria de explicar
-   por que difere da primeira.
+/* ⚠️ O `indicadoresLivres` MORAVA AQUI, e servia à lista de "o que
+   conseguimos medir" da folha de nova meta. A folha deixou de ter essa
+   lista: quem cria a conta já sai do cadastro com o plano, e o lado
+   clínico das metas passou a viver em Os números do dia.
 
-   E ficam de fora dois grupos inteiros:
-
-   · OS DE SINTOMA — a razão está no campo `sintoma`, lá em cima.
-
-   · ⚠️⚠️ OS QUE JÁ TÊM ALVO NO PERFIL — proteína, hidratação e movimento.
-     Eles se editam em Metas › Os números do dia, que é onde o número
-     mora e de onde a Home, a Alimentação, a Hidratação e o protocolo o
-     leem. Oferecê-los também aqui dava duas portas para o mesmo número,
-     e a desta lista era a pior das duas: ela se chamava "nova meta" e não
-     criava número nenhum — só acrescentava uma segunda leitura, em
-     catorze dias, de uma coisa que o protocolo já lê por semana.
-
-     O teste é o próprio `doPerfil`: ter alvo no perfil É ser um dos
-     números do dia. Sono não tem, e por isso continua sendo o único que
-     esta lista cria. */
-export function indicadoresLivres(S: State): Indicador[] {
-  const usados = new Set(((S.goals || []) as any[]).map((g) => g.indicador || KIND_ANTIGO[g.kind]));
-  return INDICADORES.filter((i) => !i.sintoma && !i.doPerfil && !usados.has(i.id));
-}
+   O catálogo abaixo continua — ele é lido por quem já tem uma meta
+   medida guardada, e é o que dá a ela a porcentagem e a frase. O que
+   sumiu foi a porta de criar mais. */
 
 /* As metas guardadas antes de existir indicador traziam `kind`, e as da
    primeira versão do catálogo traziam a régua no id ('sono7u'). As duas
