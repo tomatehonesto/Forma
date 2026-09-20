@@ -2782,6 +2782,32 @@ export function journeyChanges(S: State): Change[] {
   const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const fm = firstMeasure(S), lm = latestMeasure(S);
 
+  /* ⚠️ O SINAL SAI DA CONTA, E ERA UM "−" CRAVADO NA STRING.
+
+     Três destes quatro números eram escritos como `−${diferença}` — o
+     desenho de quem está emagrecendo, que é o caso da semente e de quase
+     todo mundo. Para quem ganhou peso, a diferença já vinha negativa e a
+     pílula mostrava "−−3,3 kg": um menos que é sinal, outro que é o
+     próprio número, e nenhuma pessoa lendo aquilo sabe o que aconteceu com
+     ela. O peso ainda trazia `good: true` fixo, então a tela comemorava
+     em lima três quilos a mais.
+
+     É o mesmo defeito que a leitura dos exames tinha e que já foi
+     consertado lá: texto escrito para o caso feliz, num aplicativo em que
+     o caso infeliz é exatamente quem mais precisa de clareza.
+
+     ⚠️ E ZERO NÃO É "−0,0". Um número que não se mexeu não variou para
+     lado nenhum, e a palavra é essa. Ele sai em cinza, como todo estado
+     que não é boa notícia — porque também não é má. */
+  const variacao = (d: number, unidade: string, bomSeCai = true) => {
+    const abs = Math.abs(d);
+    if (Number(n1(abs).replace(',', '.')) === 0) return { delta: 'Estável', good: false };
+    return {
+      delta: `${d > 0 ? '+' : '−'}${n1(abs)} ${unidade}`,
+      good: bomSeCai ? d < 0 : d > 0,
+    };
+  };
+
   /* Peso e cintura vão para /marcador, e não para a tela da área: são os
      dois marcadores que a própria pessoa registra, então existe um
      histórico linha a linha para abrir — com a série, cada registro e o
@@ -2789,22 +2815,23 @@ export function journeyChanges(S: State): Change[] {
      têm lista para auditar, e seguem levando para onde o laudo mora. */
   out.push({
     ic: 'scale', label: 'Peso', from: `${n1(startWeight(S))} kg`, to: `${n1(curWeight(S))} kg`,
-    delta: `−${n1(lostKg(S))} kg`, good: true, to_: '/marcador?m=peso',
+    ...variacao(curWeight(S) - startWeight(S), 'kg'), to_: '/marcador?m=peso',
   });
 
   if (fm && lm && fm !== lm) {
     if (lm.cintura !== fm.cintura) out.push({
       ic: 'ruler', label: 'Cintura', from: `${fm.cintura} cm`, to: `${lm.cintura} cm`,
-      delta: `−${n1(fm.cintura - lm.cintura)} cm`, good: lm.cintura < fm.cintura, to_: '/marcador?m=cintura',
+      ...variacao(lm.cintura - fm.cintura, 'cm'), to_: '/marcador?m=cintura',
     });
     if (lm.gordura !== fm.gordura) out.push({
       ic: 'activity', label: 'Gordura corporal', from: `${n1(fm.gordura)}%`, to: `${n1(lm.gordura)}%`,
-      delta: `−${n1(fm.gordura - lm.gordura)} pp`, good: lm.gordura < fm.gordura, to_: '/medidas',
+      ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/medidas',
     });
+    /* A única em que subir é a boa notícia: músculo perdido num
+       emagrecimento é o que o tratamento tenta evitar. */
     if (lm.musculo !== fm.musculo) out.push({
       ic: 'dumbbell', label: 'Massa magra', from: `${n1(fm.musculo)} kg`, to: `${n1(lm.musculo)} kg`,
-      delta: `${lm.musculo >= fm.musculo ? '+' : '−'}${n1(Math.abs(lm.musculo - fm.musculo))} kg`,
-      good: lm.musculo >= fm.musculo, to_: '/medidas',
+      ...variacao(lm.musculo - fm.musculo, 'kg', false), to_: '/medidas',
     });
   }
 
@@ -2821,9 +2848,13 @@ export function journeyChanges(S: State): Change[] {
   const pa = (S.vitals as any).pa;
   if (pa && pa.length >= 2) {
     const f = pa[0], l = pa[pa.length - 1];
+    /* ⚠️ "ESTÁVEL" ERA O QUE SOBRAVA DE TUDO QUE NÃO FOSSE QUEDA, e a
+       pressão subindo catorze pontos saía como estável — em lima, porque
+       `good` aceitava o empate junto com a melhora. Subir tem nome. */
     out.push({
       ic: 'heart', label: 'Pressão', from: `${f.sys}/${f.dia}`, to: `${l.sys}/${l.dia}`,
-      delta: l.sys < f.sys ? 'Em queda' : 'Estável', good: l.sys <= f.sys, to_: '/saude',
+      delta: l.sys < f.sys ? 'Em queda' : l.sys > f.sys ? 'Em alta' : 'Estável',
+      good: l.sys < f.sys, to_: '/saude',
     });
   }
 
