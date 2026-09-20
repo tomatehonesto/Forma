@@ -106,7 +106,14 @@ export default function MedirMedidas() {
             const d = antes != null ? medidas[k] - antes : 0;
             return (
               <View key={k} style={{ gap: 10 }}>
-                <Txt v="caption" c={c.tx3}>{campo[1]}</Txt>
+                {/* O RÓTULO SÓ APARECE QUANDO HÁ MAIS DE UMA RÉGUA ABERTA.
+
+                    Com uma só, o chip aceso logo acima já diz qual é — e
+                    "Cintura", "Cintura", "96,0" em três linhas seguidas é a
+                    tela repetindo a palavra que a pessoa acabou de tocar.
+                    Com duas ou mais ele deixa de ser eco: passa a ser o que
+                    diz qual régua é qual. */}
+                {abertas.length > 1 ? <Txt v="caption" c={c.tx3}>{campo[1]}</Txt> : null}
                 <Regua
                   min={campo[2]} max={campo[3]} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
                   valor={medidas[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
