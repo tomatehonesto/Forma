@@ -38,7 +38,7 @@ function smooth(P: Pt[]) {
 export function AreaCurve({
   pts, height = 150, width, marker, dashed = true, strokeFrom, strokeTo,
   padT = 18, padB = 24, padX = 8, strokeW = 2.6, id = 'c', nodes = false,
-  fill = 0.17, onScrub, scrub, nosEm, eixosEm,
+  fill = 0.17, onScrub, scrub, onToque, nosEm, eixosEm,
 }: {
   pts: Pt[]; height?: number; /** largura conhecida — evita esperar o onLayout */ width?: number;
   marker?: number | null; dashed?: boolean;
@@ -52,6 +52,23 @@ export function AreaCurve({
   onScrub?: (i: number | null) => void;
   /** índice destacado — controlado por fora, para o card poder reagir junto */
   scrub?: number | null;
+  /* ⚠️⚠️ O TOQUE NA CURVA MORA AQUI, e não no <Pressable> de quem a
+     envolve — e é essa mudança de casa que conserta o arrasto virando
+     navegação.
+
+     Enquanto o toque era um Pressable por fora, os dois gestos viviam em
+     sistemas diferentes: o arrasto no Gesture Handler, o toque no
+     responder do JS. Sistemas diferentes não disputam entre si, então
+     nenhum dos dois sabia do outro — o dedo arrastava para ler e, ao
+     soltar, o Pressable navegava.
+
+     Dentro da mesma biblioteca eles disputam: o Tap falha sozinho quando
+     o dedo anda além da distância dele, e o Exclusive dá a preferência ao
+     arrasto. Quem desliza lê; quem encosta e solta no mesmo lugar, abre.
+
+     Não é elegância — é a única forma que não depende de ordem de
+     eventos entre dois sistemas que terminam o toque no mesmo instante. */
+  onToque?: () => void;
   /* EM QUAIS PONTOS O NÓ APARECE.
 
      `nodes` marca todos, o que serve quando cada ponto é uma medida. Uma
@@ -146,6 +163,18 @@ export function AreaCurve({
     [onScrub, w, pts.length, padX],
   );
 
+  /* A distância é a do toque parado: dez pixels de folga para a mão que
+     treme, e um pixel a mais já é intenção de ler. */
+  const toque = React.useMemo(
+    () => Gesture.Tap()
+      .enabled(!!onToque)
+      .runOnJS(true)
+      .maxDistance(10)
+      .onEnd((_e, ok) => { if (ok) onToque?.(); }),
+    [onToque],
+  );
+  const gestos = React.useMemo(() => Gesture.Exclusive(pan, toque), [pan, toque]);
+
   const corpo = (
     <View
       onLayout={(e) => setW(Math.round(e.nativeEvent.layout.width))}
@@ -192,7 +221,7 @@ export function AreaCurve({
   );
 
   if (!onScrub) return corpo;
-  return <GestureDetector gesture={pan}>{corpo}</GestureDetector>;
+  return <GestureDetector gesture={gestos}>{corpo}</GestureDetector>;
 }
 
 /* Anel de progresso com gradiente verde→azul. */

@@ -1061,23 +1061,32 @@ export function CardCurva({
 
   const ativo = i != null ? pontos[i] : null;
 
-  /* ⚠️ O CABEÇALHO É A PORTA, E ERA O CARTÃO INTEIRO.
+  /* ⚠️⚠️ O CARTÃO INTEIRO É A PORTA — DE NOVO, E AGORA SEM O BUG.
 
-     O <Pressable> envolvia tudo, e o comentário de baixo afirmava que a
-     curva ficava com o dedo — "tocar no cabeçalho navega, tocar no
-     gráfico lê". Não ficava: a curva usa o Gesture Handler e o Pressable
-     usa o responder do JS, e os dois não disputam entre si. O arrasto
-     lia, e ao soltar o Pressable — que nunca soube que houve um gesto —
-     disparava a navegação. Quem deslizava para ler saía da tela.
+     A história em três tempos, porque as duas primeiras voltas ensinam
+     algo sobre a terceira:
 
-     Dá para remendar com uma bandeira ("houve arrasto, ignore o toque"),
-     mas ela vira uma corrida entre dois sistemas que terminam o toque na
-     mesma hora. Some o problema em vez de arbitrá-lo: a porta encolhe
-     para o cabeçalho, e a curva fica sozinha com o dedo. É o que o
-     comentário já dizia — o código só passou a dizer também.
+     1. O <Pressable> envolvia o cartão e um comentário afirmava que a
+        curva ficava com o dedo. Não ficava: a curva usa o Gesture Handler
+        e o Pressable usa o responder do JS, e os dois não disputam entre
+        si. Quem deslizava para ler saía da tela ao soltar.
 
-     E a seta entrou junto. Com o cartão inteiro clicável ela era
-     dispensável; com metade, a pessoa precisa saber qual metade. */
+     2. A porta encolheu para o cabeçalho. O bug sumiu, e com ele metade
+        do alvo: um cartão em que só a faixa de cima abre não se parece
+        com nada no resto do aplicativo, e ninguém adivinha qual metade
+        responde. Consertar a mecânica quebrou a leitura.
+
+     3. Agora o cartão inteiro abre de novo, e por dois caminhos, cada um
+        no sistema que já mandava naquele pedaço: o cabeçalho segue no
+        <Pressable>, e a curva ganhou um Tap do PRÓPRIO Gesture Handler,
+        irmão do arrasto que já morava lá. Irmãos disputam — o Tap falha
+        quando o dedo anda, e o arrasto tem preferência.
+
+     ⚠️ A TENTAÇÃO ERA UMA BANDEIRA: "houve arrasto, ignore o toque". Ela
+     funciona no papel e depende de ordem de eventos entre dois sistemas
+     que terminam o toque no mesmo instante — e foi exatamente essa
+     independência que criou o bug na volta 1. Um remendo cuja correção
+     depende de quem roda primeiro não é correção, é sorte com prazo. */
   const cabecalho = (
     <Row style={{ paddingHorizontal: PAD, paddingTop: PAD, paddingBottom: 12, alignItems: 'flex-start' }}>
       <View style={{ flex: 1 }}>
@@ -1125,7 +1134,7 @@ export function CardCurva({
           pts={curva} height={altura} padT={12} padB={12} padX={11} strokeW={2.8}
           strokeFrom={c.limeDim} strokeTo={c.limeDim} dashed={false} id={id}
           nodes={pontos.length <= 14} fill={0.26}
-          onScrub={desliza} scrub={i}
+          onScrub={desliza} scrub={i} onToque={onPress}
         />
       ) : (
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: PAD, paddingBottom: 20 }}>
