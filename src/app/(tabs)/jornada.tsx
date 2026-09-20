@@ -471,6 +471,10 @@ export default function Jornada() {
      e não teve nada lê 'sem queixas'. */
   const sint = sintomasDaSemana(S);
   const diasSint = diasDeSintomas(S);
+  /* Quais eventos da lista filtrada estão abertos. Mora aqui e não no
+     item porque a lista se remonta a cada troca de filtro, e estado
+     dentro de um item que some não sobrevive à volta dele. */
+  const [eventosAbertos, setEventosAbertos] = useState<Record<string, boolean>>({});
   const pas = ((S.vitals as any)?.pa ?? []) as any[];
   const pa = pas.length ? pas[pas.length - 1] : null;
   const temas: [string, string, string, string][] = [
@@ -740,24 +744,68 @@ export default function Jornada() {
             /* Nos filtros de tipo o ciclo não é a unidade — a leitura é
                cronológica, do mais recente para trás. */
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 16, paddingVertical: 4 }}>
-              {filtrados.slice(0, 30).map((ev, i) => (
-                <React.Fragment key={ev.key}>
-                  {i > 0 && <Divider />}
-                  <Row style={{ alignItems: 'flex-start', paddingVertical: 14 }}>
-                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: cor(ev.color) + '1F', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 12 }}>
-                      <Row style={{ justifyContent: 'space-between' }}>
-                        <Txt v="body" style={{ flex: 1, marginRight: 8 }}>{ev.title}</Txt>
-                        {ev.value ? <Txt v="micro" c={ev.valueColor ? cor(ev.valueColor) : c.tx4}>{ev.value}</Txt> : null}
-                      </Row>
-                      <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{ev.sub}</Txt>
-                      <Txt v="micro" c={c.tx4} style={{ marginTop: 4, textTransform: 'capitalize' }}>{relDay(new Date(ev.day))}</Txt>
-                    </View>
-                  </Row>
-                </React.Fragment>
-              ))}
+              {/* ⚠️ O EVENTO COM RESPOSTA ABRE, e nenhum abria.
+
+                  O check-in mostrava três acumuladores e uma palavra de
+                  humor. O resto do que a pessoa respondeu — enjoo, fome,
+                  energia, intestino, o sintoma que ela digitou — estava
+                  guardado e sem tela nenhuma: ela respondeu e nunca mais
+                  viu. Num aplicativo que pede registro todo dia, isso é o
+                  contrato quebrado do lado de cá.
+
+                  Só quem TEM o que mostrar vira botão. Peso, refeição e
+                  aplicação continuam linhas de leitura, sem seta e sem
+                  toque — seta que abre o vazio é pior do que linha
+                  parada. */}
+              {filtrados.slice(0, 30).map((ev, i) => {
+                const temResposta = !!ev.respostas?.length;
+                const aberto = !!eventosAbertos[ev.key];
+                const corpo = (
+                  <>
+                    <Row style={{ alignItems: 'flex-start', paddingTop: 14, paddingBottom: aberto ? 10 : 14 }}>
+                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: cor(ev.color) + '1F', alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon name={ev.ic} size={15} color={cor(ev.color)} sw={1.9} />
+                      </View>
+                      <View style={{ flex: 1, marginLeft: 12 }}>
+                        <Row style={{ justifyContent: 'space-between' }}>
+                          <Txt v="body" style={{ flex: 1, marginRight: 8 }}>{ev.title}</Txt>
+                          {ev.value ? <Txt v="micro" c={ev.valueColor ? cor(ev.valueColor) : c.tx4}>{ev.value}</Txt> : null}
+                          {temResposta ? (
+                            <Icon name={aberto ? 'chevup' : 'chevdown'} size={14} color={c.tx4} sw={2} />
+                          ) : null}
+                        </Row>
+                        <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{ev.sub}</Txt>
+                        <Txt v="micro" c={c.tx4} style={{ marginTop: 4, textTransform: 'capitalize' }}>{relDay(new Date(ev.day))}</Txt>
+                      </View>
+                    </Row>
+                    {aberto && temResposta ? (
+                      /* Recuado até a coluna do título: aberto, o bloco é
+                         continuação daquela linha, e não um item novo. */
+                      <View style={{ marginLeft: 44, paddingBottom: 14, gap: 7 }}>
+                        {ev.respostas!.map((r) => (
+                          <Row key={r.k} style={{ justifyContent: 'space-between', alignItems: 'flex-start' }} gap={12}>
+                            <Txt v="micro" c={c.tx4}>{r.k}</Txt>
+                            <Txt v="micro" c={c.tx2} style={{ flex: 1, textAlign: 'right' }}>{r.v}</Txt>
+                          </Row>
+                        ))}
+                      </View>
+                    ) : null}
+                  </>
+                );
+                return (
+                  <React.Fragment key={ev.key}>
+                    {i > 0 && <Divider />}
+                    {temResposta ? (
+                      <Pressable
+                        onPress={() => setEventosAbertos((a) => ({ ...a, [ev.key]: !a[ev.key] }))}
+                        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                      >
+                        {corpo}
+                      </Pressable>
+                    ) : corpo}
+                  </React.Fragment>
+                );
+              })}
             </View>
           ))}
         </View>

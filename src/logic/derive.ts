@@ -2556,6 +2556,19 @@ export type TLEvent = {
      agora lê o que ele é antes de tentar. */
   ordemNoDia: string;
   ic: string; color: string; title: string; sub: string;
+  /* ⚠️ O QUE A PESSOA RESPONDEU, para o evento poder abrir.
+
+     A linha do check-in mostrava três acumuladores — água, proteína,
+     sono — e um veredito de humor em uma palavra. Tudo o que ela de fato
+     respondeu ficava guardado e sem tela: o enjoo, a fome, a energia, o
+     intestino, o sintoma que ela digitou à mão.
+
+     ⚠️ E VEM EM FRASE, NÃO EM NÚMERO. A pessoa não respondeu "4 de 5":
+     ela tocou em "Um bom dia". Guardar a régua e devolver o número é o
+     app traduzindo a resposta dela para uma escala que ela nunca viu — e
+     as réguas existem em escalas.ts justamente para isso não acontecer
+     em cada tela por conta própria. */
+  respostas?: { k: string; v: string }[];
   /* O MESMO EVENTO CONTADO SEM O NOME DO TIPO.
 
      `title` serve à lista misturada — na semana, "Check-in" ao lado de
@@ -2624,12 +2637,35 @@ export function timelineEvents(S: State): TLEvent[] {
          sem resposta sai da frase em vez de virar zero. */
       const partes = [`${litros((cc.agua || 0) * CUP_ML)} L`, `${Math.round(cc.prot || 0)} g proteína`];
       if (respondido(cc, 'sono')) partes.push(`${Math.floor(cc.sono)}h de sono`);
+      /* As respostas, na régua em que foram dadas. `paraTela` traz as
+         colunas de 0–10 de volta para o 1–5 da pergunta; `mood` já nasce
+         em 1–5. Cada uma só entra se existir: campo ausente é pergunta
+         não respondida, e inventar um degrau para ela seria pôr palavra
+         na boca de quem ficou em silêncio. */
+      const respostas: { k: string; v: string }[] = [];
+      const degrau = (regua: string[], g: number | null) =>
+        (g == null ? null : regua[Math.max(0, Math.min(regua.length - 1, g - 1))]);
+      const humor = degrau(HUMOR, respondido(cc, 'mood') ? cc.mood : null);
+      if (humor) respostas.push({ k: 'Humor', v: humor });
+      const energia = degrau(ENERGIA, paraTela(cc.energia));
+      if (energia) respostas.push({ k: 'Energia', v: energia });
+      const fome = degrau(FOME, paraTela(cc.fome));
+      if (fome) respostas.push({ k: 'Fome', v: fome });
+      for (const sx of SINTOMAS_LIDOS) {
+        const frase = degrau(sx.regua, grauDoSintoma(cc, sx.id));
+        if (frase) respostas.push({ k: sx.label, v: frase });
+      }
+      /* O texto livre é o único campo em que a pessoa escreveu, e não
+         escolheu — ele fecha a lista porque é o que menos se repete. */
+      if (String(cc.outroTexto || '').trim()) respostas.push({ k: 'Outro sintoma', v: String(cc.outroTexto).trim() });
+
       out.push({
         key: `ci-${day}`, kind: 'checkin', day, ordemNoDia: '08:30',
         ic: 'check', color: 'accent', title: 'Check-in',
         sub: partes.join(' · '), detalhe: partes.join(' · '),
         value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
         valueColor: cc.mood >= 4 ? 'good' : 'tx3',
+        respostas,
       });
     }
     if (cc.exerc > 0) out.push({
