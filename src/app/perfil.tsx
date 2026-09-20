@@ -548,6 +548,20 @@ export default function Perfil() {
       <Grupo title="Sobre você">
         <ListRow ic="user" title="Seus dados"
           sub="Altura, peso, ritmo e mais" onPress={go('/dados')} />
+        {/* ⚠️ EXAMES ENTRA AQUI, e a tela não tinha porta fixa em lugar
+            nenhum. Ela era alcançável por sete caminhos — alerta, tarefa,
+            prescrição, resumo, área médica —, e todos contextuais: existem
+            quando alguma coisa acontece, e somem quando não acontece nada.
+            Quem só quer reler o próprio exame não tinha por onde entrar.
+
+            Este grupo tem uma regra, escrita quando o resumo para o médico
+            saiu daqui: só mora nele o que termina na própria pessoa. Exame
+            é exatamente isso — a medida do corpo dela, guardada para ela.
+            E fica logo abaixo de "Seus dados" porque os dois são números
+            sobre o corpo: um que ela informou, outro que o laboratório
+            mediu. */}
+        <ListRow ic="chart" title="Exames"
+          sub="Os resultados do laboratório, explicados" onPress={go('/exames')} />
         {/* O NOME DO LINK É O NOME DO DESTINO. Esta linha se chamava
             "Histórico completo" e abria uma tela chamada "Seu tratamento";
             a Jornada, que leva ao mesmo lugar, já chamava de "Seu

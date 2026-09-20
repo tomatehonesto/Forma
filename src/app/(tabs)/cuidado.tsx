@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careDocs, careState,
+  examStatus,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
   medComDose, fichaDe, fichaDaEquipe,
 } from '../../logic/derive';
@@ -992,20 +993,54 @@ function Tratamento() {
 
 /** Exames, resumos e receitas numa lista só, por data — é assim que a
     pessoa procura ("o que veio depois da última consulta?"), não por tipo. */
+/* ⚠️ ESTA SEÇÃO VOLTAVA `null` SEM DOCUMENTO, e levava a porta dos
+   exames junto.
+
+   O link para /exames vivia no cabeçalho dela, como link lateral. Isso
+   fazia a única porta estável da tela de exames depender de haver PDF
+   guardado — ou seja, ela sumia exatamente para quem ainda não importou
+   nada, que é justamente quem precisa achar "Importar exame".
+
+   Agora a porta é uma LINHA, e não um link de cabeçalho: ela é o primeiro
+   item do cartão, existe sempre, e traz no subtítulo a mesma conta que a
+   tela de destino abre — quantos marcadores, quantos fora. Link lateral
+   de cabeçalho é para "ver mais do mesmo"; isto é outro lugar. */
 function Documentos() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const docs = careDocs(S);
-  if (!docs.length) return null;
+  const exames = ((S as any).exams as any[]) ?? [];
+  const foraDaRef = exames.filter((e) => examStatus(e) !== 'ok').length;
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Documentos" link="Exames" onPress={() => router.push('/exames' as any)} />
+      <SectionHead title="Documentos" />
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18 }}>
-        {docs.map((d, i) => (
+        <Pressable onPress={() => router.push('/exames' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Row gap={14} style={{ paddingVertical: 18 }}>
+            <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="chart" size={16} color={c.tx2} sw={1.9} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt v="bodyMed">Exames</Txt>
+              {/* O vermelho só quando há o que ver: a linha não é um alerta,
+                  é uma porta — e porta que acende todo dia deixa de ser
+                  lida no dia em que tem motivo. */}
+              <Txt v="micro" c={foraDaRef ? c.cta : c.tx3} style={{ marginTop: 5 }}>
+                {!exames.length
+                  ? 'Nenhum resultado guardado'
+                  : foraDaRef
+                    ? `${exames.length} marcadores · ${foraDaRef} fora da referência`
+                    : `${exames.length} marcadores · todos na referência`}
+              </Txt>
+            </View>
+            <Icon name="chev" size={14} color={c.tx4} sw={2} />
+          </Row>
+        </Pressable>
+        {docs.map((d) => (
           <React.Fragment key={d.nome + d.t}>
-            {i > 0 && <View style={{ height: 1, backgroundColor: c.line2 }} />}
+            <View style={{ height: 1, backgroundColor: c.line2 }} />
             <Pressable onPress={() => router.push(d.to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
               <Row gap={14} style={{ paddingVertical: 18 }}>
                 <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
