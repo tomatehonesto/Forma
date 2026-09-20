@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import { descobertaDaHome, marcarDescobertaVista } from '../../logic/descobertas';
 import { alertasDe } from '../../logic/alertas';
+import { mensagemDoDia } from '../../logic/etapa';
 import {
-  todayBrief, dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
+  dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
@@ -143,7 +144,7 @@ export default function Home() {
     if (desc) update((s: any) => marcarDescobertaVista(s, desc.id));
   }, [desc?.id]);
 
-  const brief = todayBrief(S);
+  const brief = mensagemDoDia(S);
   const med = M(S);
   const nd = diasAteAplicar(S);
   const targets = dailyTargets(S);
