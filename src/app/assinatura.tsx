@@ -158,7 +158,7 @@ export default function Assinatura() {
       }
       : {
         valor: 'Sem custo',
-        abaixo: `O aplicativo está inteiro do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.`,
+        abaixo: `Você tem tudo do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.`,
         itens: [['Próxima cobrança', 'Não há']],
       };
 

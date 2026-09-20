@@ -58,7 +58,7 @@ const PERGUNTAS: QA[] = [
     a: 'Só o que você enviar. Nada sai daqui sozinho: o resumo vai quando você toca em enviar, as mensagens quando você escreve. O que fica de fora continua sendo seu, inclusive de quem te acompanha.',
   },
   {
-    q: 'O aplicativo substitui a orientação de quem me acompanha?',
+    q: 'Vocês substituem a orientação de quem me acompanha?',
     a: 'Não, e em nenhuma tela. O que ele faz é organizar o que aconteceu e mostrar padrões nos seus próprios registros — dose, sintoma e conduta são conversa de consulta. Quando um texto do app toca nesses assuntos, ele diz isso junto.',
   },
   {

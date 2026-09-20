@@ -191,8 +191,8 @@ export default function Cancelar() {
           titulo: 'O seu ano já está pago',
           texto: [
             atual?.renovaEm
-              ? `A próxima cobrança é só em ${dataComAno(atual.renovaEm)}, e o aplicativo continua seu até lá — cancelar agora não devolve o que já foi pago.`
-              : 'O aplicativo continua seu até o fim do período já pago — cancelar agora não devolve esse valor.',
+              ? `A próxima cobrança é só em ${dataComAno(atual.renovaEm)}, e você continua com tudo até lá — cancelar agora não devolve o que já foi pago.`
+              : 'Você continua com tudo até o fim do período já pago — cancelar agora não devolve esse valor.',
             `Reembolso, quando cabe, é pedido na ${NOME_DA_LOJA}. E se o problema for o valor, a renovação pode sair por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.`,
           ].join(' '),
           rotulo: 'Quero o desconto na renovação',

@@ -86,7 +86,7 @@ export default function Parceiros() {
     <TelaInterna titulo="Médicos parceiros">
       <Titulao
         titulo="Médicos parceiros"
-        lead="Algumas clínicas acompanham o tratamento por aqui junto com você. O aplicativo funciona inteiro sem isso — o que muda é o que passa a ser possível com a sua equipe dentro dele."
+        lead="Algumas clínicas acompanham o tratamento por aqui junto com você. Sem isso você continua com tudo — o que muda é o que passa a ser possível com a sua equipe dentro do aplicativo."
       />
 
       <Cartao>
