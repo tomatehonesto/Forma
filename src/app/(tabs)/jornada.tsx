@@ -90,8 +90,24 @@ function Painel() {
             toque abre /ritmo, que mostra de onde ela saiu e — mais
             importante — o que ela NÃO mede. */}
         <Pressable onPress={() => router.push('/ritmo' as any)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
-          <View style={{ backgroundColor: r.verdict.good ? c.lime : c.onHeroWeak, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
-            <Txt v="tag" c={r.verdict.good ? c.limeInk : c.onHero}>{r.verdict.label}</Txt>
+          {/* A ETIQUETA É CHEIA, e era lima ou vidro.
+
+              Sobre o gradiente azul não existe versão LAVADA de verde ou
+              vermelho: o okBg some no azul e o ctaWeak, com oito por cento
+              de tinta, é invisível. E o par lima/vidro que estava aqui
+              dizia boa notícia com a cor de "alcançado" da casa e má
+              notícia com ausência de cor — que lê como desligado, não como
+              alerta.
+
+              Cheia, a pastilha carrega o mesmo verde e vermelho das
+              pastilhas la embaixo, e o marcador para de mudar de
+              vocabulário dentro da mesma tela.
+
+              A tinta é o bg1 e não um branco cravado: no tema claro ele é
+              branco sobre o verde escuro, e no escuro é quase preto sobre
+              o verde claro. Uma cor só, que vira duas onde precisa. */}
+          <View style={{ backgroundColor: r.verdict.good ? c.ok : c.cta, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
+            <Txt v="tag" c={r.verdict.good ? c.bg1 : c.ctaInk}>{r.verdict.label}</Txt>
           </View>
         </Pressable>
       </Row>
