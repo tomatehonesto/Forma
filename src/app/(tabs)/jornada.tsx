@@ -456,7 +456,6 @@ export default function Jornada() {
 
   const semanasVisiveis = todasSemanas ? semanas : semanas.slice(0, FEED_SEMANAS);
   const filtrados = filtro ? eventos.filter((e) => e.kind === filtro) : [];
-  const marcos = milestones(S).slice(0, 8);
   const pen = penStock(S);
   const ci = checkinToday(S);
   const proto = protocoloDaSemana(S);
@@ -652,47 +651,27 @@ export default function Jornada() {
           </Row>
         </View>
 
-        {/* ---------- O QUE VOCÊ JÁ FEZ — fita horizontal ---------- */}
-        <View style={{ marginTop: 34 }}>
-          {/* ⚠️ O TÍTULO DIZ DE QUEM É O FEITO, e dizia "Momentos".
+        {/* ⚠️ A FITA DE MARCOS SAIU DAQUI, e ela era a seção entre as metas
+            e a história.
 
-              "Momento" é uma palavra de álbum: ela nomeia a coisa como
-              lembrança, e o que está nesta fita é o que a pessoa fez —
-              começou o tratamento, mudou de dose, cumpriu a primeira meta.
-              O verbo devolve a autoria, que numa tela de tratamento é a
-              única coisa que sustenta a pessoa nas semanas ruins.
+            Dois motivos, e o segundo é o que decide.
 
-              ⚠️ E O LINK É O NOME DO DESTINO. Ele contava níveis, e o
-              número já aparece dentro da tela que ele abre — nome de
-              lugar leva, número informa, e no cabeçalho de uma seção quem
-              está ali é para levar. */}
-          <SectionHead title="O que você já fez" link="Conquistas" onPress={go('/conquistas')} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}
-            style={{ marginHorizontal: -PAD, marginTop: 14 }}
-            contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
-            {/* ⚠️ CADA CARTÃO ABRE O REGISTRO QUE O PROVA, e nenhum abria
-                nada: era a única lista da Jornada que só se olhava. A
-                conquista abre a trilha dela, como na tela de Conquistas; a
-                dose abre as aplicações; o exame, os exames. O destino vem
-                do marco, montado onde se sabe de onde ele veio. */}
-            {marcos.map((m) => (
-              <Pressable
-                key={`${m.t}-${m.title}`}
-                onPress={go(m.to)}
-                style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-              >
-                <View style={{ width: 178, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14 }}>
-                  <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
-                  </View>
-                  <Txt v="bodyMed" style={{ marginTop: 11 }} numberOfLines={2}>{m.title}</Txt>
-                  <Txt v="micro" c={c.tx3} style={{ marginTop: 4 }} numberOfLines={2}>{m.sub}</Txt>
-                  <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>{fmtDate(new Date(m.t))}</Txt>
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
+            A parte de CONQUISTA não combinava com esta aba. A Jornada
+            responde "como vai o meu tratamento", e uma fita de troféus é
+            outro registro: ela premia, e o resto da tela mede. Foi para o
+            perfil, que é onde a pessoa vai olhar para si e não para o
+            tratamento.
+
+            E o que sobrava depois de tirar as conquistas era quase tudo
+            duplicata do que vem logo abaixo: consulta, exame e mudança de
+            dose já estão em "Seu tratamento", com filtro por tipo e com o
+            check-in abrindo. Dois desenhos da mesma lista, um deles sem
+            filtro e sem abrir, separados por trinta pixels.
+
+            Sobravam dois marcos que a linha do tempo não tem — o início do
+            tratamento e os 5% do peso. Eles continuam existindo:
+            `milestones` segue alimentando os destaques de cada semana,
+            dentro do acordeão de "Por semana". */}
 
         {/* ---------- A HISTÓRIA — por semana, com destaques ---------- */}
         <View style={{ marginTop: 34 }}>

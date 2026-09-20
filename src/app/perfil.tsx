@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, Platform, Linking } from 'react-native';
+import { View, Pressable, Platform, Linking, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
@@ -7,12 +7,13 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { kgCurto as kg, nf, relDay } from '../logic/time';
+import { kgCurto as kg, nf, relDay, fmtDate } from '../logic/time';
 import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
+import { marcosDeConquista } from '../logic/derive';
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
@@ -23,7 +24,7 @@ import { fotoDe, focoDe } from '../ui/retratos';
    duas imagens da mesma médica divergem no dia em que uma for trocada. */
 const FOTO_MEDICA = fotoDe('responsavel');
 import { useTheme } from '../ui/useTheme';
-import { radius, font, paletaDe } from '../theme';
+import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
@@ -148,6 +149,8 @@ export default function Perfil() {
   const { c, isDark } = useTheme();
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
+  /* Da mais recente para a mais antiga, como a fita da Jornada fazia. */
+  const badges = marcosDeConquista(S).slice().sort((a, b) => b.t - a.t);
 
   /* REPORTAR UM PROBLEMA ABRE O E-MAIL COM O CONTEXTO JÁ ESCRITO.
 
@@ -527,6 +530,55 @@ export default function Perfil() {
         <ListRow ic="trend" title="Dispositivos e integrações"
           sub="Apple Health, Withings e mais" onPress={go('/integracoes')} />
       </Grupo>
+
+      {/* ---- o que você já fez ----
+
+          ⚠️ ESTA FITA VEIO DA JORNADA, e lá ela misturava conquista com
+          consulta, exame e mudança de dose.
+
+          Troféu não é medida. A Jornada responde "como vai o meu
+          tratamento" e mede o tempo todo; uma fita de conquistas premia, e
+          as duas coisas na mesma rolagem fazem uma enfraquecer a outra. O
+          perfil é onde a pessoa vai olhar para SI — e é aqui que uma
+          coleção do que ela já fez tem com quem conversar.
+
+          ⚠️ E AQUI ELA É SÓ CONQUISTA. O resto dos marcos ficou na
+          Jornada, onde já estava contado: consulta e exame vivem em "Seu
+          tratamento", com filtro e com data.
+
+          ⚠️ ALTURA FIXA. Os cartões tinham a altura do próprio texto, e
+          numa fita horizontal isso vira uma serra: um título de duas
+          linhas ao lado de um de uma, e a data de cada um numa altura
+          diferente. O vão elástico empurra a data para o pé de todos, e é
+          a data que alinha a fileira. */}
+      {badges.length ? (
+        <View style={{ marginTop: 32 }}>
+          <SectionHead title="O que você já fez" link="Conquistas" onPress={go('/conquistas')} />
+          <ScrollView
+            horizontal showsHorizontalScrollIndicator={false}
+            style={{ marginHorizontal: -space.xl, marginTop: 14 }}
+            contentContainerStyle={{ paddingHorizontal: space.xl, gap: 6 }}
+          >
+            {badges.map((b) => (
+              <Pressable
+                key={b.id}
+                onPress={go(`/trilha?id=${b.trilha}`)}
+                style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+              >
+                <View style={{ width: 178, height: 166, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14 }}>
+                  <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={b.ic} size={15} color={c.limeInk} sw={2} />
+                  </View>
+                  <Txt v="bodyMed" style={{ marginTop: 11 }} numberOfLines={2}>{b.title}</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ marginTop: 4 }} numberOfLines={2}>{b.desc}</Txt>
+                  <View style={{ flex: 1 }} />
+                  <Txt v="micro" c={c.tx4}>{fmtDate(new Date(b.t))}</Txt>
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
 
       {/* ---- sobre você ----
 
