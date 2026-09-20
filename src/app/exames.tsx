@@ -14,9 +14,9 @@ import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
 import {
-  TelaInterna, Bloco, Cartao, Linha, Selo,
+  TelaInterna, Bloco, Cartao, Linha, Selo, Botao,
 } from '../ui/internas';
-import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
+import { CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard, alfa, mix } from '../theme';
@@ -941,40 +941,74 @@ export default function Exames() {
   }
 
   return (
-    <TelaDeHabito>
+    /* ⚠️ OS BOTÕES SAÍRAM DA CAPA E VIRARAM RODAPÉ FIXO.
+
+       No pé da capa, um atalho significa "faça isto agora, a partir do que
+       você acabou de ver" — é o que ele é nas outras telas da família,
+       onde o número do dia e o botão de registrar são a mesma frase.
+       Importar um laudo e mandar para a equipe não nascem da contagem: são
+       o que se faz com a TELA, e não com o número. E, fixos embaixo,
+       continuam alcançáveis depois de rolar quinze marcadores, que é
+       justamente quando a vontade de mandar para a equipe aparece. */
+    <TelaDeHabito
+      rodape={
+        <>
+          <Botao label="Importar exame" onPress={() => router.push('/medir-exame' as any)} />
+          <Botao label="Enviar ao médico" tom="fantasma" onPress={() => router.push('/exportar' as any)} />
+        </>
+      }
+    >
       <CapaDeHabito
         foto={aurora.hero}
         titulo="Exames"
         linha={`${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? porExtenso(ultima) : '—'}`}
         valor={
-          /* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
-             alarme sem denominador: três de quinze e três de quatro são
-             situações diferentes, e ninguém sabe qual é a sua sem contar a
-             lista inteira. O par diz o tamanho do problema e o tamanho do
-             que está bem, na mesma olhada.
+          <View>
+            {/* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
+                alarme sem denominador: três de quinze e três de quatro são
+                situações diferentes, e ninguém sabe qual é a sua sem contar
+                a lista inteira. O par diz o tamanho do problema e o tamanho
+                do que está bem, na mesma olhada.
 
-             ⚠️ E AQUI OS DOIS SÃO BRANCOS, e no fundo claro um era
-             vermelho e o outro verde. Sobre a aurora não há cor de estado
-             que sobreviva: verde e vermelho lavados somem no gradiente, e
-             saturados brigam com ele. O que separa os dois números é o
-             RÓTULO, que já os separa em qualquer fundo — e sobre foto, o
-             branco com sombra difusa é a única tinta que lê sempre. */
-          <Row style={{ alignItems: 'flex-end' }}>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Txt v="display" c={c.onHero} style={{ fontSize: 64, lineHeight: 70, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{fora.length}</Txt>
-              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da faixa</Txt>
-            </View>
-            <View style={{ width: 1, height: 52, backgroundColor: c.onHeroLine, marginBottom: 16 }} />
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Txt v="display" c={c.onHero} style={{ fontSize: 64, lineHeight: 70, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{dentro}</Txt>
-              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na faixa</Txt>
-            </View>
-          </Row>
+                ⚠️ E AQUI OS DOIS SÃO BRANCOS, e no fundo claro um era
+                vermelho e o outro verde. Sobre a aurora não há cor de
+                estado que sobreviva: verde e vermelho lavados somem no
+                gradiente, e saturados brigam com ele. O que separa os dois
+                números é o RÓTULO, que já os separa em qualquer fundo — e
+                sobre foto, o branco com sombra difusa é a única tinta que
+                lê sempre. */}
+            <Row style={{ alignItems: 'flex-end' }}>
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{fora.length}</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da faixa</Txt>
+              </View>
+              <View style={{ width: 1, height: 50, backgroundColor: c.onHeroLine, marginBottom: 16 }} />
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{dentro}</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na faixa</Txt>
+              </View>
+            </Row>
+
+            {/* ⚠️ O RESUMO SUBIU PARA A CAPA, e morava solto no alto da
+                folha.
+
+                Lá ele era um parágrafo cinza entre a contagem e a primeira
+                lista — o comentário sobre os números separado dos números
+                por uma dobra de superfície. Aqui ele é a legenda deles: a
+                contagem diz quantos, e a frase logo abaixo diz o que isso
+                quer dizer, sem precisar mudar de lugar para juntar as duas
+                coisas.
+
+                Em branco de apoio ele acompanha sem disputar com o par de
+                números, que continua sendo o que se lê primeiro. */}
+            {resumo ? (
+              <Txt v="micro" c={c.onHero2} numberOfLines={6} style={{ marginTop: 16, textAlign: 'center', lineHeight: 19 }}>
+                {resumo}
+              </Txt>
+            ) : null}
+          </View>
         }
-      >
-        <AtalhoDaCapa titulo="Importar exame" cheio onPress={() => router.push('/medir-exame' as any)} />
-        <AtalhoDaCapa titulo="Enviar ao médico" onPress={() => router.push('/exportar' as any)} />
-      </CapaDeHabito>
+      />
 
       <FolhaDeHabito>
 
@@ -995,24 +1029,6 @@ export default function Exames() {
             ))}
           </Cartao>
         </Bloco>
-      ) : null}
-
-      {/* ⚠️ O RESUMO É ARITMÉTICA, E ERA UM PARÁGRAFO ESCRITO À MÃO com os
-          números da semente — ver a nota do `examSummary`, em derive.ts.
-
-          ⚠️ E ELE É TEXTO SOLTO, E NÃO UM CARTÃO — chegou a ser um <Aviso>
-          com ícone e título "Resumo da IA". O cartão dava a estas três
-          frases o peso de um alerta: superfície própria, lâmpada,
-          manchete. Mas a notícia já foi dada na capa, em dois números do
-          tamanho da tela; o que sobra aqui é o comentário sobre ela, e
-          comentário não precisa de moldura. É a mesma decisão da frase de
-          enquadramento em Protocolos.
-
-          Na cor de apoio e logo abaixo da contagem, ele funciona como o
-          lead de uma notícia: quem quer o detalhe lê, quem já entendeu
-          pela capa passa direto para as listas. */}
-      {resumo ? (
-        <Txt v="caption" c={c.tx3} style={{ lineHeight: 22, marginBottom: -6 }}>{resumo}</Txt>
       ) : null}
 
       {EXAM_CATS.map(([cat, ms]) => (

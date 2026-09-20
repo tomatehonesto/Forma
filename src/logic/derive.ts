@@ -1058,6 +1058,15 @@ const marcadorNoMeio = (m: string) => {
 const emLista = (xs: string[]) =>
   xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`;
 
+/* A ENUMERAÇÃO PARA EM TRÊS, e o resto vira só a contagem.
+
+   O resumo mora na capa, que tem altura fixa. Oito nomes em sequência
+   empurram o parágrafo para debaixo da folha — e mesmo que coubesse, uma
+   lista de oito no meio de uma frase não se lê, se conta. Passando disso,
+   a contagem basta: a lista dos que ficaram fora está logo abaixo, no
+   bloco que existe exatamente para isso. */
+const LISTA_MAXIMA = 3;
+
 export function examSummary(S: State): string | null {
   const todos = ((S.exams as any[]) ?? []).filter((e) => e?.values?.length);
   if (todos.length < 3) return null;
@@ -1069,7 +1078,9 @@ export function examSummary(S: State): string | null {
     ? `Os ${n} marcadores desta coleta estão dentro da faixa do laboratório.`
     : fora.length === 1
       ? `Um dos ${n} marcadores desta coleta ficou fora da faixa: ${marcadorNoMeio(fora[0].marker)}.`
-      : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`;
+      : fora.length <= LISTA_MAXIMA
+        ? `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`
+        : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da faixa.`;
 
   /* Só entram no rumo os marcadores que declaram qual lado é o bom. Sem
      isso, chamar uma direção de melhora seria opinião — e creatinina ou
@@ -1100,7 +1111,9 @@ export function examSummary(S: State): string | null {
     : '';
 
   const piora = maus.length
-    ? ` ${maus.length === 1 ? 'Um marcador foi' : `${maus.length} marcadores foram`} na direção oposta: ${emLista(maus.map((x) => marcadorNoMeio(x.e.marker)))}.`
+    ? (maus.length <= LISTA_MAXIMA
+        ? ` ${maus.length === 1 ? 'Um marcador foi' : `${maus.length} marcadores foram`} na direção oposta: ${emLista(maus.map((x) => marcadorNoMeio(x.e.marker)))}.`
+        : ` ${maus.length} marcadores foram na direção oposta.`)
     : '';
 
   return `${estado}${melhora}${piora}`;

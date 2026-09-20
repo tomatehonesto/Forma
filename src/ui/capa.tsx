@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
@@ -223,15 +223,44 @@ export function FolhaDeHabito({ children }: { children: React.ReactNode }) {
 }
 
 /* A rolagem inteira de uma tela de hábito: capa, folha, e a folga de
-   baixo que o aparelho pede. */
-export function TelaDeHabito({ children }: { children: React.ReactNode }) {
+   baixo que o aparelho pede.
+
+   ⚠️ E UM RODAPÉ FIXO, OPCIONAL. Água, prato e movimento não têm: a ação
+   delas é registrar, e registrar mora no atalho da capa, onde a pessoa
+   acabou de ver o número do dia. Uma tela cuja ação NÃO nasce do número —
+   importar um laudo, mandar para a equipe — não tem por que emprestar o
+   pé da capa: o atalho lá em cima significa "faça isto agora, a partir
+   disto que você está vendo", e não é o caso.
+
+   É a mesma faixa da <TelaInterna>, com o mesmo fio em cima. O fio não é
+   enfeite: sem ele o conteúdo parece cortado numa linha reta sem
+   explicação, e um degradê no lugar dele lia como vidro embaçado. Ele
+   declara que ali começa outra superfície. */
+export function TelaDeHabito({ children, rodape }: {
+  children: React.ReactNode;
+  rodape?: React.ReactNode;
+}) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + (rodape ? 150 : 28) }}
+      >
         {children}
       </ScrollView>
+      {rodape ? (
+        <View style={{
+          position: 'absolute', left: 0, right: 0, bottom: 0,
+          paddingHorizontal: 16, paddingTop: 14,
+          paddingBottom: (insets.bottom || 12) + 14,
+          backgroundColor: c.bg, gap: 8,
+          borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
+        }}>
+          {rodape}
+        </View>
+      ) : null}
     </View>
   );
 }
