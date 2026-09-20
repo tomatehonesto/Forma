@@ -4,24 +4,25 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { latestMeasure } from '../logic/derive';
 import { now, nf } from '../logic/time';
-import { Txt, SheetScreen, Divider } from '../ui/kit';
-import { Regua, Botao } from '../ui/internas';
+import { Txt, SheetScreen } from '../ui/kit';
+import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { radius } from '../theme';
 
-/* Novas medidas — captura, não a tela de histórico. Abre com a última
-   medição preenchida: circunferência muda devagar, então quase sempre é
-   ajuste de um ou dois campos, não digitar os quatro.
+/* Novas medidas — captura, não a tela de histórico. É a sessão de fita
+   métrica: a pessoa chegou aqui por "Medi meu corpo", e não por ter subido
+   na balança (esse caminho é /medir-peso, que traz três medidas de carona).
 
-   ⚠️ SÃO RÉGUAS, E ERAM QUATRO CAMPOS DE TECLADO.
+   ⚠️ SÃO CHIPS, E ERAM QUATRO CAMPOS SEMPRE ABERTOS.
 
-   É a mesma pergunta que o peso faz uma tela antes, e o peso já tinha
-   deixado o campo pela régua: mais e menos servem para corrigir um passo,
-   e o teclado serve para quem já sabe o número — mas nenhum dos dois
-   mostra a VIZINHANÇA, que é o que diz se 94 é perto ou longe do que a
-   pessoa mediu da última vez. Dois controles diferentes para medir o
-   próprio corpo em duas telas seguidas é a pessoa reaprendendo a cada
-   sheet.
+   Exigir as quatro fazia a tela decidir o que é uma medição completa. Só
+   que fita métrica não é balança: a cintura se mede sozinha em dez
+   segundos, a coxa pede outra posição, e quem mediu só uma tinha duas
+   saídas — inventar as outras três ou não registrar nada. Agora a pessoa
+   diz o que mediu, e a régua só aparece para isso.
+
+   É o mesmo gesto de /medir-peso, que já perguntava assim. Duas telas
+   vizinhas que fazem a mesma pergunta de dois jeitos é a pessoa
+   reaprendendo a cada folha.
 
    ⚠️ CADA UMA TEM A SUA FAIXA. Uma régua só, de 20 a 200, faria o braço
    viver num canto de uma fita gigante — a régua ganha dos botões porque
@@ -30,10 +31,9 @@ import { radius } from '../theme';
 
    ⚠️ E O PADRÃO SÓ VALE DEPOIS DE TOCADO. Régua precisa começar em algum
    lugar, e quem nunca mediu não tem esse lugar: os números abaixo são
-   ponto de partida do controle, não sugestão de corpo. Por isso, sem
-   medição anterior, o botão só acende quando a pessoa passou por todas as
-   quatro — senão um toque em "Registrar" gravaria quatro números que
-   ninguém mediu. */
+   ponto de partida do controle, não sugestão de corpo. Com histórico,
+   abrir o chip já é a afirmação — sem histórico, não há número para
+   afirmar, e o chip aberto e intocado não grava. */
 const CAMPOS: [string, string, number, number, number][] = [
   // chave, rótulo, mínimo, máximo, onde a régua abre sem histórico
   ['cintura', 'Cintura', 50, 180, 90],
@@ -51,29 +51,33 @@ export default function MedirMedidas() {
   const router = useRouter();
 
   const ultima: any = latestMeasure(S);
-  const [vals, setVals] = useState<Record<string, number>>(
+  const [abertas, setAbertas] = useState<string[]>([]);
+  const [tocadas, setTocadas] = useState<string[]>([]);
+  const [medidas, setMedidas] = useState<Record<string, number>>(
     Object.fromEntries(CAMPOS.map(([k, , , , padrao]) => [k, ultima?.[k] || padrao])),
   );
-  const [tocados, setTocados] = useState<string[]>([]);
 
+  const alterna = (k: string) =>
+    setAbertas((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k]));
   const mexer = (k: string, v: number) => {
-    setVals((x) => ({ ...x, [k]: v }));
-    setTocados((t) => (t.includes(k) ? t : [...t, k]));
+    setMedidas((m) => ({ ...m, [k]: v }));
+    setTocadas((t) => (t.includes(k) ? t : [...t, k]));
   };
 
-  const valido = CAMPOS.every(([k]) => vals[k] > 0 && (!!ultima || tocados.includes(k)));
+  const gravaveis = abertas.filter((k) => ultima || tocadas.includes(k));
 
   const salvar = () => {
-    if (!valido) return;
+    if (!gravaveis.length) return;
     update((s: any) => {
+      /* As que ficaram fechadas herdam a última leitura, e não zero: o
+         gráfico de cintura não pode cair a zero porque hoje a pessoa só
+         mediu o braço. Composição não se mede com fita e herda do mesmo
+         jeito, até existir balança de bioimpedância conectada. */
+      const base = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
       s.measures.push({
+        ...base,
         t: +now(),
-        cintura: vals.cintura, quadril: vals.quadril,
-        braco: vals.braco, coxa: vals.coxa,
-        /* composição não é medida com fita — herda a última leitura até
-           existir balança de bioimpedância conectada */
-        gordura: ultima ? ultima.gordura : 0,
-        musculo: ultima ? ultima.musculo : 0,
+        ...Object.fromEntries(gravaveis.map((k) => [k, medidas[k]])),
       });
     });
     router.replace('/registro-ok?tipo=medidas' as any);
@@ -82,24 +86,30 @@ export default function MedirMedidas() {
   return (
     <SheetScreen
       titulo="Quais são suas medidas?"
-      sub={ultima ? 'começa da última medição — ajuste o que mudou' : undefined}
+      sub={ultima ? 'as réguas abrem na última medição' : undefined}
       onClose={() => router.back()}
     >
-      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 18, paddingHorizontal: 18 }}>
-        {CAMPOS.map(([k, rotulo, min, max], i) => {
-          const antes = ultima ? ultima[k] : null;
-          const d = antes != null ? vals[k] - antes : 0;
-          return (
-            <React.Fragment key={k}>
-              {i > 0 && <Divider />}
-              <View style={{ paddingVertical: 16, gap: 12 }}>
-                {/* O rótulo fica em cima da régua, e não ao lado do número:
-                    o número já é a coisa maior da linha, e disputar a mesma
-                    altura com ele faria os dois encolherem. */}
-                <Txt v="bodyMed">{rotulo}</Txt>
+      <View style={{ marginTop: 18, gap: 10 }}>
+        <Campo
+          rotulo="O que você mediu"
+          ajuda="Nenhuma delas é obrigatória. Medir só a cintura é um registro tão bom quanto medir as quatro."
+        >
+          <Opcoes>
+            {CAMPOS.map(([k, rotulo]) => (
+              <Opc key={k} label={rotulo} on={abertas.includes(k)} onPress={() => alterna(k)} />
+            ))}
+          </Opcoes>
+
+          {abertas.map((k) => {
+            const campo = CAMPOS.find(([id]) => id === k)!;
+            const antes = ultima ? ultima[k] : null;
+            const d = antes != null ? medidas[k] - antes : 0;
+            return (
+              <View key={k} style={{ gap: 10 }}>
+                <Txt v="caption" c={c.tx3}>{campo[1]}</Txt>
                 <Regua
-                  min={min} max={max} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
-                  valor={vals[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
+                  min={campo[2]} max={campo[3]} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
+                  valor={medidas[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
                 />
                 {Math.abs(d) >= 0.1 ? (
                   <Txt v="micro" c={d < 0 ? c.limeSoftInk : c.tx3} style={{ textAlign: 'center' }}>
@@ -107,17 +117,15 @@ export default function MedirMedidas() {
                   </Txt>
                 ) : null}
               </View>
-            </React.Fragment>
-          );
-        })}
-      </View>
+            );
+          })}
+        </Campo>
 
-      {/* O <Botao> do resto do aplicativo, e era um Pressable desenhado à
-          mão aqui dentro. Ele já sabe ficar desligado — e o desligado passa
-          a importar mais: sem medição anterior, é ele que segura o registro
-          até a pessoa ter passado pelas quatro réguas. */}
-      <View style={{ marginTop: 16 }}>
-        <Botao label="Registrar medidas" onPress={salvar} desligado={!valido} />
+        <Botao
+          label={gravaveis.length === 1 ? 'Registrar a medida' : 'Registrar as medidas'}
+          onPress={salvar}
+          desligado={!gravaveis.length}
+        />
       </View>
     </SheetScreen>
   );
