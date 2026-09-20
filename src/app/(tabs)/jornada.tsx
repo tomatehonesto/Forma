@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 
 import {
-  journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
+  journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
   milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
@@ -446,7 +446,10 @@ export default function Jornada() {
   const r = journeySummary(S);
   const changes = journeyChanges(S);
   const semanas = useMemo(() => timelineWeeks(S), [S]);
-  const metas = journeyGoals(S);
+  /* A de peso vem primeiro porque é a que traz a pessoa para cá. Ela
+     mora fora de `journeyGoals` — ver a nota lá — e cada tela decide se
+     a mostra; a de Metas não mostra, porque já a tem na capa. */
+  const metas = [metaDePeso(S), ...journeyGoals(S)].filter(Boolean) as ReturnType<typeof journeyGoals>;
   const eventos = useMemo(() => timelineEvents(S), [S]);
   const contagens = useMemo(() => timelineCounts(S), [S]);
   const cor = (k: string) => (c as any)[k] as string;
@@ -475,8 +478,8 @@ export default function Jornada() {
      item porque a lista se remonta a cada troca de filtro, e estado
      dentro de um item que some não sobrevive à volta dele. */
   const [eventosAbertos, setEventosAbertos] = useState<Record<string, boolean>>({});
-  const pas = ((S.vitals as any)?.pa ?? []) as any[];
-  const pa = pas.length ? pas[pas.length - 1] : null;
+  const vitais = ['pa', 'glic', 'fc', 'spo2', 'fr']
+    .filter((k) => (((S.vitals as any)?.[k] ?? []) as any[]).length).length;
   const temas: [string, string, string, string][] = [
     ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
     /* A água ia para o MENU de registros enquanto as vizinhas iam para a
@@ -507,7 +510,17 @@ export default function Jornada() {
        É o mesmo defeito que /exames tinha, e a razão de ele se repetir é
        sempre a mesma: a porta nasce no fluxo que produz o dado, e o fluxo
        que produz o dado só roda para quem já tem o dado. */
-    ['heart', 'Saúde', pa ? `${pa.sys}/${pa.dia} mmHg` : 'sem registro', '/saude'],
+    /* ⚠️ O CARTÃO SE CHAMA COMO A TELA QUE ELE ABRE, e se chamava
+       "Saúde" — um nome largo demais para um app em que tudo é saúde. A
+       tela é "Sinais vitais", e o nome dela diz o que tem lá dentro.
+
+       ⚠️ E O SUBTÍTULO DEIXOU DE SER A PRESSÃO. "127/82 mmHg" solto num
+       cartão chamado Saúde não diz de que número se trata nem se ele
+       está bom — é um dado clínico sem a régua ao lado, que é
+       exatamente o que esta tela toda evita. A contagem de indicadores
+       diz o que a pessoa vai encontrar, que é o trabalho de um
+       subtítulo de porta. */
+    ['heart', 'Sinais vitais', vitais ? `${vitais} ${vitais === 1 ? 'indicador' : 'indicadores'}` : 'sem registro', '/saude'],
     ['camera', 'Fotos', S.photos.length ? `${S.photos.length} ${S.photos.length === 1 ? 'foto' : 'fotos'}` : 'sem registro', '/fotos'],
   ];
 

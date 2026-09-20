@@ -2459,7 +2459,18 @@ export function dailyTargets(S: State): DailyTarget[] {
     mk('exerc', 'Exercitar diariamente', ex, t.exercMin,
       `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
       ex >= t.exercMin ? 'Meta batida' : `Faltam ${Math.round(t.exercMin - ex)} min`,
-      'tealPale', 'teal'),
+      /* ⚠️ ROSA, E ERA TEAL. O teal virou a cor do ESTADO — a notícia
+         ruim que não cobra, na Jornada —, e uma cor não pode ser
+         categoria e estado ao mesmo tempo: na linha do tempo os ícones
+         de exercício sairiam em teal ao lado de pastilhas em teal
+         dizendo outra coisa, na mesma tela.
+
+         Das cores livres, o rosa é a única que não esbarra em nada ali:
+         azul é ação, lima é alcançado, roxo é foto, âmbar é refeição e
+         atenção. Trocar a CATEGORIA foi mais barato do que trocar o
+         estado — categoria tem alternativa, estado já tinha passado por
+         verde, vermelho e âmbar antes de assentar. */
+      'roseBg', 'rose'),
   ];
 }
 
@@ -2670,7 +2681,7 @@ export function timelineEvents(S: State): TLEvent[] {
     }
     if (cc.exerc > 0) out.push({
       key: `ex-${day}`, kind: 'exercicio', day, ordemNoDia: '07:00',
-      ic: 'dumbbell', color: 'teal', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
+      ic: 'dumbbell', color: 'rose', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
       detalhe: `${cc.exerc} min de movimento`, value: '', valueColor: 'tx3',
     });
   }
@@ -2966,6 +2977,43 @@ export type JourneyGoal = {
   /** o que o indicador conta, em uma frase; vazio nas pessoais */
   conta: string;
 };
+
+/* ⚠️ A META DE PESO NÃO MORA EM `S.goals`, e por isso não estava na
+   lista de metas de lugar nenhum.
+
+   Ela é do PERFIL — `goalWeight` —, porque nasce no cadastro e porque
+   metade do aplicativo depende dela: a projeção do plano, o "faltam 7,1
+   kg" do hero, a capa da tela de Metas. Pôr uma cópia dela dentro de
+   `S.goals` criaria duas verdades para o mesmo número.
+
+   Mas ela É uma meta, e a principal. Fora da lista, "Suas metas" abria
+   com dormir e energia e silenciava sobre o peso — como se a razão de o
+   tratamento existir fosse assunto de outra tela.
+
+   ⚠️ E ELA TEM BARRA, porque tem conta fechada: quantos quilos de quantos
+   quilos. É o oposto da meta pessoal, que é sim ou não num dia. Sai
+   separada de `journeyGoals` para cada tela decidir — a de Metas já a
+   mostra na capa, e repetir na lista seria o mesmo número duas vezes na
+   mesma rolagem. */
+export function metaDePeso(S: State): JourneyGoal | null {
+  const alvo = startWeight(S) - S.profile.goalWeight;
+  if (!(alvo > 0)) return null;
+  const andado = lostKg(S);
+  /* Travada em 0: quem ganhou peso tem `andado` negativo, e barra
+     negativa não existe — o número negativo já está dito no hero, aqui
+     ele viraria uma barra vazia com um menos do lado. */
+  const pct = Math.max(0, Math.min(100, Math.round((andado / alvo) * 100)));
+  const falta = Math.max(0, alvo - andado);
+  return {
+    id: 'peso', ic: 'scale',
+    label: `Chegar a ${kg(S.profile.goalWeight)} kg`,
+    pct,
+    hint: falta === 0 ? 'meta alcançada' : `faltam ${kg(falta)} kg`,
+    pessoal: false,
+    feita: falta === 0,
+    conta: '',
+  };
+}
 
 export function journeyGoals(S: State): JourneyGoal[] {
   /* Catorze dias, e só os RESPONDIDOS entram na conta: quatorze dias com
