@@ -598,61 +598,75 @@ export default function Jornada() {
               dos botões da Home. E o título ganhou o possessivo das
               vizinhas: "O que já mudou", "Seu tratamento", "Suas metas". */}
           <SectionHead title="Suas metas" link="Metas" onPress={go('/metas')} />
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18, paddingVertical: 4 }}>
-            {metas.map((m, i) => {
+
+          {/* ⚠️ FILEIRA DE CARTÕES, E ERA UMA LISTA EMPILHADA.
+
+              Quatro metas em linhas de 16 px de respiro, cada uma com
+              rótulo, porcentagem, barra e dica, ocupavam quase uma dobra
+              inteira da aba — e a Jornada é a tela mais longa do
+              aplicativo, com o que já mudou, o tratamento, o dia a dia e
+              a história ainda por baixo.
+
+              O que a seção precisa responder de relance é "como vão as
+              minhas metas", e isso cabe num cartão pequeno: o nome, o
+              número e a barra. A dica — "9 de 13 noites registradas" —
+              some daqui e continua na tela de Metas, que é onde se olha
+              uma meta de perto.
+
+              ⚠️ E A FILEIRA ROLA, EM VEZ DE QUEBRAR EM GRADE. Meta é lista
+              aberta: são três hoje e podem ser seis depois de a pessoa
+              criar as suas. Em grade de dois, seis metas viram três
+              fileiras e a seção volta a ocupar a dobra que ela acabou de
+              devolver. Rolando, seis custam o mesmo que três. */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: 14, marginHorizontal: -PAD }}
+            contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}
+          >
+            {metas.map((m) => {
               const feita = !!(m as any).feita;
               const pessoal = !!(m as any).pessoal;
               const cheia = m.pct >= 100;
               return (
-              <React.Fragment key={m.id}>
-                {i > 0 && <Divider />}
-                <View style={{ paddingVertical: 16 }}>
-                  {/* ⚠️ O RÓTULO EM CORPO, E ERA EM LEGENDA. Numa lista de
-                      quatro metas, tudo do mesmo tamanho e da mesma cor faz
-                      o olho varrer sem parar em lugar nenhum — o nome da
-                      meta é o que se lê primeiro, e ele estava no mesmo peso
-                      da dica embaixo dela.
-
-                      ⚠️ E A PORCENTAGEM SUBIU DE PESO junto: ela é a
-                      resposta da linha. Em micro cinza ela era um detalhe
-                      ao lado do título; em corpo médio ela vira o número
-                      que a barra ilustra. */}
-                  <Row gap={11}>
+                <View
+                  key={m.id}
+                  style={{ width: 142, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 15, gap: 10 }}
+                >
+                  <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                     <Icon
-                      name={feita ? 'check' : m.ic} size={17} sw={1.9}
-                      /* ⚠️ META CUMPRIDA SAI EM LIMA, e saía em azul.
-                         Azul é a cor de AÇÃO deste app — é o que leva a
-                         algum lugar —, e uma meta fechada não leva a lugar
-                         nenhum: ela já aconteceu. Lima é a cor de
-                         alcançado, e o `limeSoftInk` é a versão dela que
-                         sobrevive no papel branco (o lima puro dá 1,12 de
-                         contraste ali; no escuro esse token já é o próprio
-                         lima aceso). */
+                      name={feita ? 'check' : m.ic} size={16} sw={1.9}
+                      /* ⚠️ META CUMPRIDA SAI EM LIMA, e saía em azul. Azul é
+                         a cor de AÇÃO deste app — é o que leva a algum
+                         lugar —, e uma meta fechada não leva a lugar
+                         nenhum: ela já aconteceu. */
                       color={feita || cheia ? c.limeSoftInk : c.tx3}
                     />
-                    <Txt v="bodyMed" style={{ flex: 1 }} numberOfLines={1}>{m.label}</Txt>
                     {/* A PESSOAL NÃO TEM PORCENTAGEM. Ela é uma coisa que
                         acontece num dia: 0% ou 100% seria a caixinha dita
-                        em número, e a barra em 2px diria "você não saiu do
-                        lugar" sobre algo que não tem lugar intermediário. */}
-                    {pessoal ? null : (
-                      <Txt v="label" c={cheia ? c.limeSoftInk : c.tx2}>{Math.round(m.pct)}%</Txt>
-                    )}
+                        em número. No lugar dela vai o estado, em palavra. */}
+                    <Txt v="micro" c={feita || cheia ? c.limeSoftInk : c.tx3}>
+                      {pessoal ? (feita ? 'feita' : 'aberta') : `${Math.round(m.pct)}%`}
+                    </Txt>
                   </Row>
+
+                  {/* Duas linhas de altura fixa: sem isso "Vestir a calça
+                      jeans antiga" empurra a barra dele para baixo da dos
+                      vizinhos, e a fileira fica com os cartões desalinhados
+                      por dentro. */}
+                  <Txt v="caption" numberOfLines={2} style={{ minHeight: 42, lineHeight: 21 }}>{m.label}</Txt>
+
+                  {/* A barra some na pessoal, e não vira uma barra vazia:
+                      não existe sessenta por cento de caber numa calça. */}
                   {pessoal ? null : (
-                    <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 12 }}>
-                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 6, borderRadius: radius.pill, backgroundColor: cheia ? c.lime : c.accent }} />
+                    <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
+                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: cheia ? c.lime : c.accent }} />
                     </View>
                   )}
-                  {/* A dica alinha com o rótulo, e não com o ícone: recuada,
-                      ela lê como parte da meta; encostada na margem, como
-                      uma terceira coisa na linha. */}
-                  <Txt v="micro" c={c.tx4} style={{ marginTop: 9, marginLeft: 28 }}>{m.hint}</Txt>
                 </View>
-              </React.Fragment>
               );
             })}
-          </View>
+          </ScrollView>
         </View>
 
         {/* ---------- O DIA A DIA — uma porta por assunto ----------

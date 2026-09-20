@@ -3058,7 +3058,11 @@ export function metaDePeso(S: State): JourneyGoal | null {
   const falta = Math.max(0, alvo - andado);
   return {
     id: 'peso', ic: 'scale',
-    label: `Chegar a ${kg(S.profile.goalWeight)} kg`,
+    /* `kgTxt` e não `kg`: a meta redonda é 68 kg, e "68,0 kg" numa
+       lista de metas finge uma precisão que ninguém definiu — é o mesmo
+       formatador que a capa de /metas e a folha de editar já usam. O que
+       falta abaixo mantém a casa, porque 7,1 kg de fato tem uma. */
+    label: `Chegar a ${kgTxt(S.profile.goalWeight)} kg`,
     pct,
     hint: falta === 0 ? 'meta alcançada' : `faltam ${kg(falta)} kg`,
     pessoal: false,
