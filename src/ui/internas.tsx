@@ -393,7 +393,7 @@ const RESPIRO = 16;
    vistas numa lista que rola. O traço marca a meia unidade; a parada
    continua sendo a do passo, porque ela é do deslocamento, não do
    desenho. */
-export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe, fundo }: {
+export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe, escreve, fundo }: {
   min: number; max: number; passo: number; tracoCada: number; casas: number;
   /* pixels por PASSO. O peso anda de cem em cem gramas e a altura de
      centímetro em centímetro: com o mesmo espaçamento, atravessar quarenta
@@ -402,6 +402,17 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
   /** quanto os botões movem por toque */
   salto: number;
   valor: number; unidade: string; onEscolhe: (v: number) => void;
+  /* ⚠️ COMO O NÚMERO SE ESCREVE, quando não é o `nf` com as casas fixas.
+
+     A régua nasceu para peso e altura, em que a casa decimal é sempre a
+     mesma — e aí `casas` dá conta. Hidratação não: ela anda de copo em
+     copo e o aplicativo inteiro escreve "2,5 L" e "2,25 L", tirando o
+     zero à direita. Com `casas` fixo em 2 a régua diria "2,50", que é um
+     número que não aparece em nenhuma outra tela.
+
+     Quem tem formatador próprio passa o seu, e a régua deixa de ter
+     opinião sobre isso. */
+  escreve?: (v: number) => string;
   /** a cor atrás da régua, para o esmaecido das pontas. O padrão é o
       fundo de cartão, que é onde ela vive na maioria das folhas; o
       cadastro, que a põe direto na tela, passa a sua. */
@@ -409,6 +420,7 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
 }) {
   const { c } = useTheme();
   const ESP = esp;
+  const escrito = escreve ?? ((v: number) => nf(v, casas));
   const fundoDaRegua = fundo ?? c.bg1;
   const ref = React.useRef<ScrollView>(null);
   const montou = React.useRef(false);
@@ -437,8 +449,21 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
     return () => clearTimeout(t);
   }, [larg]);
 
+  /* ⚠️ OS TRAÇOS COMEÇAM NUM MÚLTIPLO DE `tracoCada`, e começavam no
+     mínimo da faixa.
+
+     O traço forte — o que leva o número embaixo — é o que cai em múltiplo
+     de dez tracinhos. Partindo do mínimo, a régua da hidratação começava
+     em 0,75 L e andava de 0,1 em 0,1: 0,85, 0,95, 1,05… nunca passava por
+     1,00, então NENHUM traço era forte e a régua ficava sem um único
+     número embaixo. Uma régua sem número é textura.
+
+     O mínimo continua sendo o mínimo — o que muda é onde o desenho
+     começa. Para peso, altura e circunferência nada muda: os mínimos
+     deles já caem em múltiplo. */
   const tracos: { v: number; forte: boolean }[] = [];
-  for (let v = min; v <= max + 1e-9; v = +(v + tracoCada).toFixed(6)) {
+  const primeiro = +(Math.ceil(min / tracoCada - 1e-9) * tracoCada).toFixed(6);
+  for (let v = primeiro; v <= max + 1e-9; v = +(v + tracoCada).toFixed(6)) {
     tracos.push({ v: +v.toFixed(casas), forte: Math.abs(v / (tracoCada * 10) - Math.round(v / (tracoCada * 10))) < 1e-6 });
   }
 
@@ -485,8 +510,8 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
             style={[NUMERO, SEM_ANEL, { color: c.tx, textAlign: 'right', width: 130, paddingVertical: 0 }]}
           />
         ) : (
-          <Pressable onPress={() => { setRascunho(nf(valor, casas)); setDigitando(true); }}>
-            <Txt style={NUMERO}>{nf(valor, casas)}</Txt>
+          <Pressable onPress={() => { setRascunho(escrito(valor)); setDigitando(true); }}>
+            <Txt style={NUMERO}>{escrito(valor)}</Txt>
           </Pressable>
         )}
           <Txt v="body" c={c.tx2}>{unidade}</Txt>
@@ -543,7 +568,10 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
                   }} />
                   {t.forte ? (
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 6, marginLeft: -12, width: 28, textAlign: 'center' }}>
-                      {nf(t.v, casas === 2 ? 2 : 0)}
+                      {/* Com formatador próprio, o rótulo do traço usa o
+                          mesmo: a régua da hidratação escreve "1" e "2", e
+                          não "1,00" e "2,00". */}
+                      {escreve ? escreve(t.v) : nf(t.v, casas === 2 ? 2 : 0)}
                     </Txt>
                   ) : null}
                 </View>

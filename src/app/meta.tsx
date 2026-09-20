@@ -9,7 +9,7 @@ import {
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
 import { DAY, fmtDate, now, startOfDay } from '../logic/time';
-import { Campo, Chips, Escala, Stepper, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { Campo, Chips, Escala, Stepper, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -40,7 +40,18 @@ export default function Meta() {
   const [v, setV] = useState<number>(() => (def ? def.le(S) : 0));
 
   if (def && chave) {
-    const passo = (n: number) => setV((x) => Math.max(def.min, Math.min(def.max, Math.round((x + n * def.passo) * 100) / 100)));
+    /* ⚠️ A RÉGUA, E ERAM OS QUATRO NO <Stepper>.
+
+       O peso já se arrasta em toda tela que o pergunta — no cadastro, no
+       registro, na medição. Aqui ele era mais e menos, e a proteína e a
+       hidratação também: a mesma pergunta com dois controles, dependendo
+       de qual folha a pessoa abriu.
+
+       A conversão mora na fronteira: a régua da hidratação anda em
+       litros, que é como o número se lê, e o estado segue em mililitros. */
+    const r = def.regua;
+    const paraRegua = def.paraRegua ?? ((x: number) => x);
+    const deRegua = def.deRegua ?? ((x: number) => x);
     const salvar = () => {
       update((s: any) => mudarAlvo(s, chave, v));
       router.back();
@@ -54,11 +65,12 @@ export default function Meta() {
       >
         <View style={{ marginTop: 20, gap: 14 }}>
           <Campo rotulo="Novo valor" nu>
-            <Stepper
-              valor={def.escreve(v)}
-              unidade={def.un}
-              onMenos={() => passo(-1)}
-              onMais={() => passo(1)}
+            <Regua
+              min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
+              casas={r.casas} esp={r.esp} salto={r.salto}
+              valor={paraRegua(v)} unidade={def.un}
+              escreve={(x) => def.escreve(deRegua(x))}
+              onEscolhe={(x) => setV(deRegua(x))}
             />
           </Campo>
 
@@ -81,6 +93,15 @@ export default function Meta() {
               ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
               : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`}
           />
+
+          {/* ⚠️ A RESSALVA É OUTRO AVISO, e não uma terceira frase do de
+              cima. O primeiro explica o número; este diz o que mexer nele
+              faz do lado da clínica — são duas coisas de naturezas
+              diferentes, e empilhadas no mesmo parágrafo a segunda vira
+              rodapé da primeira. */}
+          {def.ressalva ? (
+            <Aviso ic="steth" dentro titulo="Este é o valor recomendado" texto={def.ressalva} />
+          ) : null}
         </View>
       </SheetScreen>
     );

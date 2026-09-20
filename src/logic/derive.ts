@@ -4009,6 +4009,28 @@ export const ALVOS: Record<ChaveDeAlvo, {
      outro número de proteína. Editar segue sendo direito da pessoa — ela
      só passa a saber o que está sobrescrevendo. */
   origem: string;
+  /* ⚠️ O QUE MEXER AQUI PODE FAZER DO LADO DE LÁ.
+
+     Os três números do dia não são só da pessoa: o protocolo da semana
+     conta DIAS contra eles. "7 dias com a meta de proteína" usa o número
+     que está aqui — então baixar a proteína faz o protocolo marcar
+     cumprido sem que nada tenha mudado no prato.
+
+     A ressalva não trava e não julga: ela diz o que a pessoa não tem como
+     saber olhando a folha. A meta de peso não tem ressalva porque nenhum
+     protocolo conta contra ela. */
+  ressalva?: string;
+  /* A RÉGUA DESTA GRANDEZA. Os quatro eram <Stepper> — mais e menos, um
+     passo por toque —, e o peso já tinha virado régua em toda tela que o
+     pergunta. Mais e menos servem para corrigir; para dizer QUANTO, a
+     régua mostra a vizinhança.
+
+     `paraRegua` e `deRegua` existem porque a hidratação é guardada em
+     mililitros e lida em litros: a régua trabalha na unidade em que a
+     pessoa lê, e converte na fronteira. */
+  regua: { min: number; max: number; passo: number; tracoCada: number; casas: number; esp: number; salto: number };
+  paraRegua?: (v: number) => number;
+  deRegua?: (v: number) => number;
   un: string;
   passo: number;
   min: number;
@@ -4020,6 +4042,8 @@ export const ALVOS: Record<ChaveDeAlvo, {
   prot: {
     ic: 'utensils', nome: 'Proteína por dia', onde: 'Cobrada na alimentação e no protocolo',
     origem: 'Calculado do seu peso, a 1,2 g por quilo',
+    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    regua: { min: 40, max: 220, passo: 5, tracoCada: 5, casas: 0, esp: 10, salto: 5 },
     un: 'g', passo: 5, min: 40, max: 220,
     le: (S) => (S.profile as any).targets.prot,
     escreve: (v) => String(Math.round(v)),
@@ -4029,6 +4053,12 @@ export const ALVOS: Record<ChaveDeAlvo, {
        passo de 250 ml é um copo, que é a unidade em que se bebe. */
     ic: 'water', nome: 'Hidratação por dia', onde: 'Cobrada na hidratação e no protocolo',
     origem: 'Calculado do seu peso, da sua idade e do seu nível de atividade',
+    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    /* Em LITROS, e o estado guarda mililitros: a régua mostra o número
+       que a pessoa lê em toda outra tela. O passo é um copo. */
+    regua: { min: 0.75, max: 5, passo: 0.25, tracoCada: 0.1, casas: 2, esp: 40, salto: 0.25 },
+    paraRegua: (v) => v / 1000,
+    deRegua: (v) => Math.round(v * 1000),
     un: 'L', passo: 250, min: 750, max: 5000,
     le: (S) => (S.profile as any).targets.waterMl,
     escreve: (v) => litros(v),
@@ -4039,6 +4069,8 @@ export const ALVOS: Record<ChaveDeAlvo, {
        ficar igual às outras duas. São 60 minutos para todo mundo, e o
        cadastro não pergunta nada que mudasse isso. */
     origem: 'O padrão do aplicativo, igual para todo mundo',
+    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    regua: { min: 10, max: 180, passo: 10, tracoCada: 5, casas: 0, esp: 20, salto: 10 },
     un: 'min', passo: 10, min: 10, max: 180,
     le: (S) => (S.profile as any).targets.exercMin,
     escreve: (v) => String(Math.round(v)),
@@ -4054,6 +4086,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
     /* A única dos quatro que a pessoa escolheu de verdade — e é por isso
        que a frase dela não fala de conta nenhuma. */
     origem: 'Você escolheu no cadastro',
+    regua: { min: 40, max: 200, passo: 0.5, tracoCada: 0.5, casas: 1, esp: 6, salto: 0.5 },
     un: 'kg', passo: 0.5, min: 40, max: 200,
     le: (S) => S.profile.goalWeight,
     /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e
