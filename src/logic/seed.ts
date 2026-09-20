@@ -414,7 +414,11 @@ export function buildSeed() {
        ainda não, ou conseguiu em tal dia. */
     goals: [
       { id: 'g2', ic: 'moon', label: 'Dormir 7h por noite', indicador: 'sono', alvo: 7 },
-      { id: 'g4', ic: 'bolt', label: 'Energia 4 ou mais', indicador: 'energia', alvo: 4 },
+      /* ⚠️ ERA "ENERGIA 4 OU MAIS", e energia é coisa que se sente. A
+         semente é o retrato do que o aplicativo oferece: mostrar uma meta
+         de sintoma aqui ensinaria a fazer o que a tela de criar não deixa
+         mais. */
+      { id: 'g4', ic: 'utensils', label: 'Comer 90 g de proteína', indicador: 'prot', alvo: 90 },
       { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.

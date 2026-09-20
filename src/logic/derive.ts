@@ -4124,6 +4124,35 @@ export type Indicador = {
   un?: string;
   /** quando o padrão sai da meta do perfil */
   doPerfil?: (S: State) => number;
+  /* ⚠️⚠️ O QUE A PESSOA SENTE NÃO VIRA META NOVA.
+
+     Os oito indicadores se dividem em dois grupos que a tela tratava
+     igual: o que a pessoa FAZ — proteína, água, movimento, hora de deitar
+     — e o que ela SENTE: enjoo, fome, humor, energia.
+
+     Enjoo e fome num tratamento com GLP-1 são o remédio funcionando, ou a
+     dose pedindo ajuste. A alavanca não é esforço, é a prescrição. Uma
+     meta "Enjoo 2 ou menos" marcando 40% diz "você está falhando" sobre a
+     única coisa ali cuja ação certa é falar com a clínica.
+
+     ⚠️ E O PIOR NÃO É DESANIMAR, É ENVIESAR. A conta da meta sai do
+     check-in — o mesmo check-in que alimenta a tela de sintomas e o
+     resumo que vai para a consulta. Quem vê a própria meta de enjoo em
+     vermelho ganha um incentivo para marcar enjoo menor do que teve. A
+     meta corrompe o único registro clínico que o aplicativo produz.
+
+     Humor tem o mesmo desenho. Energia é resultado de sono, dose e
+     comida, não de uma decisão. Sono fica, porque tem alavanca: a hora
+     de deitar.
+
+     ⚠️ ELES NÃO SAEM DO CATÁLOGO, SÓ DA LISTA DE CRIAR. Quem já tem uma
+     meta de energia continua com ela funcionando, com a porcentagem e
+     tudo — tirar o indicador do array a rebaixaria calada para uma meta
+     de marcar à mão. Paramos de oferecer; não tiramos de ninguém.
+
+     Onde eles seguem vivos é em /sintomas, que mostra histórico em vez de
+     nota — que é a leitura honesta de uma coisa que se sente. */
+  sintoma?: boolean;
   /** escolha por régua, com as legendas do check-in */
   escala?: { valores: number[]; legendas?: string[] };
   /** escolha por passos, quando o número é aberto */
@@ -4156,6 +4185,7 @@ export const INDICADORES: Indicador[] = [
        leitura converte com paraTela, que é a mesma função que o check-in
        usa para reabrir uma resposta salva. */
     id: 'energia', ic: 'bolt', nome: 'Energia no dia',
+    sintoma: true,
     pergunta: 'De que nível para cima conta?', origem: 'Da energia que você responde no check-in',
     nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA },
@@ -4166,6 +4196,7 @@ export const INDICADORES: Indicador[] = [
   },
   {
     id: 'humor', ic: 'mood', nome: 'Humor no dia',
+    sintoma: true,
     pergunta: 'De que nível para cima conta?', origem: 'Do humor que você responde no check-in',
     nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR },
@@ -4179,6 +4210,7 @@ export const INDICADORES: Indicador[] = [
        baixo. Sem o sentido, "menos enjoo" mostraria a barra crescendo
        junto com o enjoo. */
     id: 'enjoo', ic: 'waves', nome: 'Enjoo',
+    sintoma: true,
     pergunta: 'Até que nível ainda conta como bom?', origem: 'Do enjoo que você marca no check-in',
     nomes: ['dia', 'dias'], sentido: 'max', padrao: 2, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA.nausea },
@@ -4189,6 +4221,7 @@ export const INDICADORES: Indicador[] = [
   },
   {
     id: 'fome', ic: 'soup', nome: 'Fome',
+    sintoma: true,
     pergunta: 'Até que nível ainda conta como bom?', origem: 'Da fome que você responde no check-in',
     nomes: ['dia', 'dias'], sentido: 'max', padrao: 3, un: 'de 5',
     escala: { valores: [1, 2, 3, 4, 5], legendas: FOME },
@@ -4353,10 +4386,13 @@ export const padraoDe = (i: Indicador, S: State) => (i.doPerfil ? i.doPerfil(S) 
 
 /* Os indicadores que ainda não viraram meta. Duas metas medindo a mesma
    coluna seriam duas linhas quase iguais, e a segunda teria de explicar
-   por que difere da primeira. */
+   por que difere da primeira.
+
+   E os de sintoma não entram: a razão inteira está no campo `sintoma`, lá
+   em cima. */
 export function indicadoresLivres(S: State): Indicador[] {
   const usados = new Set(((S.goals || []) as any[]).map((g) => g.indicador || KIND_ANTIGO[g.kind]));
-  return INDICADORES.filter((i) => !usados.has(i.id));
+  return INDICADORES.filter((i) => !i.sintoma && !usados.has(i.id));
 }
 
 /* As metas guardadas antes de existir indicador traziam `kind`, e as da
