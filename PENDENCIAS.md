@@ -576,3 +576,35 @@ e sem ícone.
 - **Um id que sai da lista precisa de uma linha em `ensureDefaults`**, em
   `src/logic/seed.ts`: ou traduzindo para o novo, ou caindo na original.
   Sem ela a pessoa perde a escolha em silêncio.
+
+---
+
+## 🟡 12. O achado de sono e enjoo é heurística, não estatística
+
+`enjooAposDormir`, em `src/logic/derive.ts`, separa o enjoo do dia
+seguinte em dois grupos — noites de 7h ou mais e noites mais curtas — e
+só devolve algo quando há **7 noites de cada lado** e a diferença passa
+de **0,7 ponto** numa escala de 5. A frase que sai dele mostra as duas
+médias, de propósito, para quem lê poder julgar.
+
+Isso substituiu uma frase que não tinha conta nenhuma por trás: ela era
+empurrada para todo mundo, sempre, dizendo "seus registros de náusea".
+
+**O que ainda não é verdade:** duas médias e um limiar não são um teste.
+Nada aqui controla o **ciclo da aplicação**, que é o que move o enjoo de
+verdade — na semana da dose ele sobe por conta dela, e se o sono daquela
+semana tiver sido curto por acaso, os dois andam juntos sem ter relação.
+Os limiares altos fazem isso acontecer pouco; não fazem não acontecer.
+
+**Antes da loja, decidir uma das três:**
+
+1. Deixar como está, e aceitar que é uma leitura dos registros da pessoa
+   — que é o que a frase diz ser, sem afirmar causa.
+2. Controlar o ciclo: comparar só dias com a mesma distância da última
+   aplicação, o que reduz muito a amostra.
+3. Tirar o achado do ar até haver método revisado por quem entende.
+
+Vale a mesma pergunta para qualquer achado futuro que cruze dois sinais
+do check-in: **o ciclo da dose explica quase tudo o que oscila neste
+aplicativo**, e um achado que não olha para ele está olhando para o ciclo
+sem saber.

@@ -26,6 +26,18 @@ import type { State } from './seed';
    copos que estas contas comparam. Quem traduz para litro é a frase. */
 export const metaDeCopos = (S: State) => (S.profile as any).targets.waterMl / CUP_ML;
 
+/* QUANTO É UMA NOITE INTEIRA — a resposta num lugar só.
+
+   O radar dividia por 8 e o indicador de sono trazia `padrao: 7`: as duas
+   únicas contas do aplicativo que respondem isso, discordando em uma
+   hora. Quem dormisse 7h por noite cumpria a meta no check-in e aparecia
+   no radar com 88% de sono, na mesma tela, no mesmo dia.
+
+   É convenção, não alvo do perfil: ao contrário de proteína, água e
+   movimento, o cadastro não calcula sono nenhum a partir do corpo da
+   pessoa. Por isso mora aqui e não em `targets` — mas mora UMA vez. */
+export const SONO_REF_H = 7;
+
 export const M = (S: State) => MEDS[S.profile.med];
 
 /* ============================================================
@@ -218,7 +230,7 @@ export function radar(S: State) {
   const põe = (k: string, v: number | null) => { if (v != null) eixos.push({ k, v }); };
   const esc = (m: number | null, f: (x: number) => number) => (m == null ? null : f(m));
 
-  põe('Sono', esc(mediaDe(recent, 'sono'), (m) => Math.min(100, (m / 8) * 100)));
+  põe('Sono', esc(mediaDe(recent, 'sono'), (m) => Math.min(100, (m / SONO_REF_H) * 100)));
   põe('Energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
   põe('Humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
   /* Acumuladores não somem: zero de água é uma resposta, não uma lacuna. */
@@ -226,7 +238,19 @@ export function radar(S: State) {
   põe('Exercício', recent.length
     ? Math.min(100, (recent.filter((c: any) => (c.exerc || 0) > 0).length / recent.length) * 100)
     : 0);
-  põe('Proteína', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / 100) * 100));
+  /* ⚠️ ERA `/ 100` FIXO, e o eixo de cima já mostrava o conserto.
+
+     A hidratação aqui do lado lê `metaDeCopos(S)` desde que alguém
+     descobriu que o radar dava como 100% hidratada uma pessoa a quem a
+     barra do dia dizia "faltam 2 L" — o comentário está no alto deste
+     arquivo. A proteína ficou para trás com os 100 g de ninguém: o perfil
+     calcula a meta do peso da pessoa (1,2 g por quilo, 90 g na semente).
+
+     Quem tem meta de 70 g e bate os 70 aparecia com 70% de proteína;
+     quem tem 120 g e faz 100 aparecia com 100%. O radar é a tela que
+     compara a pessoa com ela mesma — era a única em que a régua era de
+     outro. */
+  põe('Proteína', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / (S.profile as any).targets.prot) * 100));
   põe('Saciedade', esc(mediaDe(recent, 'fome'), (m) => (10 - m) * 10));
   põe('Adesão', adesao(S));
   return eixos;
@@ -249,14 +273,66 @@ export function pharmaSeries(S: State) {
   const pts: { t: number; v: number; n: number }[] = []; let max = 0;
   for (let t = from; t <= to; t += DAY / 2) { const v = pharmaLevel(S, t); pts.push({ t, v, n: 0 }); if (v > max) max = v; }
   pts.forEach((p) => (p.n = max ? p.v / max : 0));
+  /* ⚠️ LINHA RETA NÃO TEM PONTO MAIS BAIXO, e era daqui que saía a
+     previsão de fome de quem nunca aplicou nada.
+
+     Sem aplicação no passado, `pharmaLevel` devolve 0 em todo instante:
+     `max` é 0, `p.n` é 0 em todos os pontos, e o laço abaixo elegia o
+     PRIMEIRO ponto como vale — porque `0 < 0` é falso e `!trough` é
+     verdadeiro uma vez. Um vale de mentira, numa curva que não desce.
+
+     `hungerForecast` lia esse vale e a Home escrevia, sob o rótulo
+     DESCOBERTA: "sua fome tende a subir nestes dias, quando o nível da
+     tirzepatida chega ao ponto mais baixo antes da próxima aplicação" —
+     para alguém sem uma aplicação registrada, e às vezes sem nem ter
+     escolhido o medicamento que a frase nomeia. Era o ÚNICO achado de
+     quem acabou de instalar o aplicativo, então era esse o primeiro
+     slide que essa pessoa via.
+
+     `trough` já era `| null` no tipo, e `hungerForecast` já devolvia null
+     quando ele falta. O que faltava era ele faltar. */
   const nd = +nextInjectionDate(S); let trough: { t: number; v: number; n: number } | null = null;
-  for (const p of pts) { if (p.t >= +startOfDay(now()) && p.t <= nd) { if (!trough || p.n < trough.n) trough = p; } }
+  if (max > 0) for (const p of pts) { if (p.t >= +startOfDay(now()) && p.t <= nd) { if (!trough || p.n < trough.n) trough = p; } }
   return { pts, trough, nextDose: nd };
 }
 export function hungerForecast(S: State) {
   const { trough } = pharmaSeries(S); if (!trough) return null;
   const d = diffDays(new Date(trough.t), now());
   return { when: new Date(trough.t), inDays: d };
+}
+
+/* O enjoo do dia seguinte, separado pelas noites longas e pelas curtas.
+
+   Devolve null quando não dá para dizer nada, e são três as guardas —
+   porque achado frágil é achado inventado com aritmética por cima:
+
+   · as duas noites precisam existir em número (`MIN_NOITES` de cada lado),
+   · a diferença precisa passar de `DIF_MINIMA` numa escala de 5, abaixo do
+     que é só ruído de quem respondeu 2 num dia e 3 no outro,
+   · e só falamos da direção que tem o que dizer.
+
+   ⚠️ ISTO É HEURÍSTICA, NÃO TESTE ESTATÍSTICO — está no PENDENCIAS. Duas
+   médias e um limiar não controlam o ciclo da aplicação, que é o que
+   move o enjoo de verdade; numa semana de dose o enjoo sobe por conta
+   dela, e se o sono daquela semana for curto por acaso os dois andam
+   juntos sem terem relação. Os limiares altos existem para que isso
+   aconteça pouco, não para que não aconteça. */
+const MIN_NOITES = 7;
+const DIF_MINIMA = 0.7;
+export function enjooAposDormir(S: State) {
+  const porDia = new Map<number, any>();
+  S.checkins.forEach((c: any) => porDia.set(+startOfDay(new Date(c.t)), c));
+  const longas: number[] = [], curtas: number[] = [];
+  S.checkins.forEach((c: any) => {
+    if (typeof c.sono !== 'number') return;
+    const seg = porDia.get(+startOfDay(addDays(new Date(c.t), 1)));
+    if (!seg || typeof seg.nausea !== 'number') return;
+    (c.sono >= SONO_REF_H ? longas : curtas).push(seg.nausea);
+  });
+  if (longas.length < MIN_NOITES || curtas.length < MIN_NOITES) return null;
+  const media = (a: number[]) => a.reduce((s, x) => s + x, 0) / a.length;
+  const bem = media(longas), mal = media(curtas);
+  return mal - bem >= DIF_MINIMA ? { bem, mal, noites: longas.length } : null;
 }
 
 export type Insight = { ic: string; text: string };
@@ -287,12 +363,42 @@ export function insights(S: State): Insight[] {
     const half = Math.floor(c.length / 2);
     const a = c.slice(0, half).reduce((s: number, x: any) => s + x.prot, 0) / half;
     const b = c.slice(half).reduce((s: number, x: any) => s + x.prot, 0) / (c.length - half);
-    const pct = Math.round(((b - a) / a) * 100);
+    /* ⚠️ `a` PODE SER ZERO: oito check-ins bastam para entrar aqui, e os
+       oito primeiros de quem ainda não registrava comida trazem `prot: 0`.
+       A divisão dava Infinity, `Infinity > 0` é verdade, e a Home anunciava
+       "sua ingestão de proteína subiu Infinity%". */
+    const pct = a > 0 ? Math.round(((b - a) / a) * 100) : 0;
     if (pct > 0) out.push({ ic: 'flame', text: `Sua ingestão de proteína <b>subiu ${pct}%</b> nas últimas semanas. Isso ajuda a preservar massa magra durante a perda de peso.` });
   }
   const hf = hungerForecast(S);
   if (hf) out.push({ ic: 'drop2', text: `Sua fome tende a subir <b>${hf.inDays <= 0 ? 'nestes dias' : `nos próximos ${hf.inDays} dias`}</b>, quando o nível da ${M(S).mol.toLowerCase()} chega ao ponto mais baixo antes da próxima aplicação.` });
-  out.push({ ic: 'moon', text: `Nas noites em que você dorme <b>7h ou mais</b>, seus registros de náusea no dia seguinte são menores.` });
+  /* ⚠️⚠️ ESTA FRASE ERA UM ACHADO INVENTADO, e era o que ia para a Home.
+
+     Ela saía deste `out.push` sem uma linha de conta antes — empurrada
+     para todo mundo, sempre, dizendo "SEUS registros de náusea". O "seus"
+     prometia que alguém tinha olhado os dados da pessoa; ninguém tinha. E
+     a Home mostra o primeiro achado sob o rótulo DESCOBERTA, que é a
+     mesma promessa dita de novo, em maiúsculas.
+
+     Pior no primeiro dia de uso: sem água registrada e sem oito
+     check-ins, nenhum dos outros achados entra, e este era o único — o
+     primeiro slide de quem acabou de instalar o aplicativo era uma
+     descoberta sobre um enjoo que a pessoa nunca registrou.
+
+     Agora a conta existe, e é a conta que a frase sempre afirmou ter
+     feito. As guardas estão em `enjooAposDormir`, e a frase MOSTRA OS DOIS
+     NÚMEROS: quem lê julga o achado, que é exatamente o que a versão fixa
+     não deixava ninguém fazer.
+
+     ⚠️ E NÃO SE DIZ QUE UM CAUSA O OUTRO. "Tem sido menor" é o que os
+     registros mostram. "Dormir mais tira o enjoo" seria conselho clínico
+     tirado de uma amostra de um paciente — e, quando errado, vira culpa:
+     o enjoo passaria a ser falha de quem dormiu mal. */
+  const sn = enjooAposDormir(S);
+  if (sn) out.push({
+    ic: 'moon',
+    text: `Depois das noites de <b>${SONO_REF_H}h ou mais</b>, o seu enjoo tem sido menor — ${nf(sn.bem, 1)} contra ${nf(sn.mal, 1)}, numa escala de 5.`,
+  });
   return out;
 }
 
@@ -315,23 +421,24 @@ export const achDone = (S: State) => feitas(conquistas(S));
 /** Os níveis alcançados como eventos datados — para a linha do tempo. */
 export const marcosDeConquista = (S: State) => eventosDeConquista(S);
 
-export type Alert = { ic: string; kind: string; text: string; act: string };
-export function alerts(S: State): Alert[] {
-  const out: Alert[] = [];
-  if (!checkinFeito(S)) out.push({ ic: 'leaf', kind: 'info', text: 'Check-in de hoje, quando quiser', act: 'sheet:checkin' });
-  /* A APLICAÇÃO PRÓXIMA NÃO DEPENDE MAIS DO LEMBRETE.
+/* ⚠️ O `alerts()` MORAVA AQUI, com um número inventado na última linha.
 
-     Esta linha lia a data do lembrete de dose para decidir se avisava com
-     dois dias. Mas o aviso da Home é sobre o TRATAMENTO, não sobre a
-     preferência de notificação: quem desligou o lembrete não deixou de
-     ter aplicação marcada. A conta agora é só a distância até a próxima
-     dose, que é o fato. */
-  const nd = diasAteAplicar(S);
-  if (nd <= 1) out.push({ ic: 'syringe', kind: 'warn', text: `Aplicação ${quandoEm(nd).label}`, act: 'nav:aplicacoes' });
-  else if (nd === 2) out.push({ ic: 'syringe', kind: 'info', text: 'Aplicação em 2 dias', act: 'nav:aplicacoes' });
-  out.push({ ic: 'pill', kind: 'info', text: 'Estoque em 3 doses — renovar receita', act: 'nav:aplicacoes' });
-  return out;
-}
+   Ela era esta, sem condição nenhuma em volta:
+
+       out.push({ ic: 'pill', text: 'Estoque em 3 doses — renovar receita' });
+
+   Três doses para todo mundo, sempre — enquanto `penStock(S).left`, neste
+   mesmo arquivo, sabe quantas a pessoa tem. Uma pessoa sem caneta nenhuma
+   ia ler que tinha três, e uma com dez, a mesma coisa.
+
+   A função inteira saiu em vez de a linha ser corrigida: `grep` não acha um
+   único chamador de `alerts()`, nem do tipo `Alert` — a Home monta os avisos
+   dela por outro caminho. Código morto carregando número inventado é pior
+   do que código morto: quem for ligá-lo um dia liga junto a mentira, e
+   ela chega à tela parecendo que sempre esteve certa.
+
+   Os outros dois avisos daqui (check-in do dia, aplicação chegando) já
+   existem vivos em `todayBrief` e em `carePending`. */
 
 /** Os marcadores que têm o que dizer. Sem coleta não há valor, e sem
     valor `examStatus` compara `undefined` com o limite do laboratório — o
@@ -1640,7 +1747,11 @@ export function patterns(S: State): Pattern[] {
     const meio = Math.floor(cs.length / 2);
     const antes = med(cs.slice(0, meio).map((x) => x.prot));
     const depois = med(cs.slice(meio).map((x) => x.prot));
-    const pct = Math.round(((depois - antes) / antes) * 100);
+    /* Mesma divisão por zero do achado curto da Home: `antes` é a média
+       dos primeiros check-ins, e ela é 0 para quem só começou a registrar
+       comida depois. `Math.abs(Infinity) >= 5` é verdade, e o título dizia
+       "Sua proteína subiu Infinity% desde o começo". */
+    const pct = antes > 0 ? Math.round(((depois - antes) / antes) * 100) : 0;
     if (Math.abs(pct) >= 5) out.push({
       key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1,
       titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}% desde o começo`,
@@ -4266,7 +4377,7 @@ export const INDICADORES: Indicador[] = [
   {
     id: 'sono', ic: 'moon', nome: 'Horas de sono',
     pergunta: 'Quantas horas por noite?', origem: 'Do sono que você responde no check-in',
-    nomes: ['noite', 'noites'], sentido: 'min', padrao: 7, un: 'h',
+    nomes: ['noite', 'noites'], sentido: 'min', padrao: SONO_REF_H, un: 'h',
     escala: { valores: [5, 6, 7, 8, 9], legendas: SONO },
     leitura: (c) => num(c, 'sono'),
     escreve: (v) => `${v} h`,
