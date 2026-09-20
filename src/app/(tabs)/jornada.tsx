@@ -451,7 +451,23 @@ export default function Jornada() {
      a mostra; a de Metas não mostra, porque já a tem na capa. */
   const metas = [metaDePeso(S), ...journeyGoals(S)].filter(Boolean) as ReturnType<typeof journeyGoals>;
   const eventos = useMemo(() => timelineEvents(S), [S]);
-  const contagens = useMemo(() => timelineCounts(S), [S]);
+  /* ⚠️ CONSULTA NÃO VIRA FILTRO AQUI, e o evento continua existindo.
+
+     "Seu tratamento" filtra o que se REPETE: check-in, refeição,
+     aplicação, pesagem — dezenas de linhas cada, e é isso que faz um
+     filtro valer. Consulta são duas em três meses, e a aba abria uma lista
+     de dois itens que a pessoa já tinha visto na semana onde eles caíram.
+
+     E ela tem tela própria: /consultas, com preparo, resumo e receita.
+     Uma segunda porta menor, no meio de uma fila de chips, é a
+     desimportância dizendo o contrário do que a outra tela diz.
+
+     O evento fica na linha do tempo: dentro de "Por semana" ele é um
+     destaque do ciclo, que é onde consulta pertence. */
+  const contagens = useMemo(
+    () => timelineCounts(S).filter((f) => f.kind !== 'consulta'),
+    [S],
+  );
   const cor = (k: string) => (c as any)[k] as string;
 
   const semanasVisiveis = todasSemanas ? semanas : semanas.slice(0, FEED_SEMANAS);

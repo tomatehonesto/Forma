@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { curWeight, latestMeasure } from '../logic/derive';
 import { DOW_PT, MO_LONG, now, nf } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Campo, Opcoes, Opc, Stepper, Selo, Botao } from '../ui/internas';
+import { Campo, Opcoes, Opc, Stepper, Selo, Botao, Regua } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -44,22 +44,11 @@ export default function MedirPeso() {
   const ultima: any = latestMeasure(S);
 
   const [peso, setPeso] = useState(ultimo);
-  const [texto, setTexto] = useState(n1(ultimo));
   const [abertas, setAbertas] = useState<string[]>([]);
   const [medidas, setMedidas] = useState<Record<string, number>>(
     Object.fromEntries(MEDIDAS.map(([k]) => [k, ultima?.[k] ?? 0])),
   );
 
-  const ajustar = (d: number) => {
-    const v = Math.round((peso + d) * 10) / 10;
-    if (v < 30 || v > 250) return;
-    setPeso(v); setTexto(n1(v));
-  };
-  const digitar = (t: string) => {
-    setTexto(t);
-    const v = parseFloat(t.replace(',', '.'));
-    if (v >= 30 && v <= 250) setPeso(v);
-  };
 
   const alterna = (k: string) =>
     setAbertas((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k]));
@@ -96,13 +85,22 @@ export default function MedirPeso() {
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
+        {/* ⚠️ A RÉGUA, E ERA O <Stepper>.
+
+            Mais e menos servem para corrigir um passo; não servem para
+            dizer quanto alguém pesa. E é a MESMA pergunta que o cadastro
+            faz na primeira abertura do aplicativo, onde ela sempre teve
+            régua — a pessoa aprendia a mexer no próprio peso de um jeito
+            no primeiro dia e de outro em todos os seguintes.
+
+            A faixa é mais larga que a do cadastro (30 a 250, e não 40 a
+            180): ali é o cadastro sugerindo uma faixa plausível para quem
+            está começando; aqui é o registro de um número que já existe, e
+            um limite apertado viraria um valor que não entra. */}
         <Campo rotulo="Peso">
-          <Stepper
-            valor={texto}
-            unidade="kg"
-            onMenos={() => ajustar(-0.1)}
-            onMais={() => ajustar(0.1)}
-            onDigitar={digitar}
+          <Regua
+            min={30} max={250} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
+            valor={peso} unidade="kg" onEscolhe={setPeso}
           />
           {Math.abs(delta) >= 0.05 ? (
             <Row style={{ justifyContent: 'center' }}>

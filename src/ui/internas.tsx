@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native';
+import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WD } from '../logic/time';
+import { WD, nf } from '../logic/time';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
@@ -345,6 +345,195 @@ export function Linha({ ic, titulo, sub, selo, seloTom, seta, onPress }: {
   );
   if (!onPress) return corpo;
   return <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>{corpo}</Pressable>;
+}
+
+/* ------------------------------------------------------------------ */
+/* ⚠️ A RÉGUA VEIO DO CADASTRO, e por um tempo viveu só lá.
+
+   Ela nasceu para o "quanto você pesa hoje" da primeira abertura, e ficou
+   dentro daquela tela porque era a única que perguntava isso. Só que a
+   pergunta se repete toda semana, em Registrar › Peso — e lá a pessoa
+   encontrava um <Stepper>, que é o campo de formulário: um número de
+   quarenta com dois quadradinhos do lado.
+
+   Duas perguntas idênticas com dois controles diferentes é a pessoa
+   aprendendo a mexer no próprio peso duas vezes. Mudou de casa, e o
+   cadastro passou a importá-la daqui. */
+
+/* O corpo do número grande — o mesmo no contador e na régua. */
+export const NUMERO = { fontFamily: font.light, fontSize: 52, lineHeight: 60, letterSpacing: -1.5 };
+
+/* O ANEL DE FOCO DO NAVEGADOR não pertence a esta tela.
+
+   No web, todo campo focado ganha o contorno do sistema — e no campo do
+   nome, que é grande e não tem moldura nenhuma, ele aparecia como uma
+   caixa amarela em volta de quarenta e quatro pixels de texto. Some só no
+   web; no aparelho essa propriedade não existe e o objeto é nulo. */
+export const SEM_ANEL = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : null;
+
+/* ------------------------------------------------------------------ */
+/* A RÉGUA — o número que se arrasta, ou se digita.
+
+   Mais e menos servem para corrigir em um passo; não servem para dizer
+   quanto alguém pesa. A régua atravessa a faixa inteira num gesto e
+   mostra a vizinhança do valor — quem está em 82 vê 78 e 86 ao mesmo
+   tempo, e isso é o que um par de botões nunca mostra.
+
+   E o número em cima é tocável: para quem já sabe o seu, digitar é mais
+   rápido do que qualquer arrasto.
+
+   OS TRAÇOS SÃO MAIS ESPAÇADOS DO QUE O PASSO. O peso anda de cem em cem
+   gramas, e desenhar um traço por decigrama seriam mil e quatrocentas
+   vistas numa lista que rola. O traço marca a meia unidade; a parada
+   continua sendo a do passo, porque ela é do deslocamento, não do
+   desenho. */
+export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor, unidade, onEscolhe }: {
+  min: number; max: number; passo: number; tracoCada: number; casas: number;
+  /* pixels por PASSO. O peso anda de cem em cem gramas e a altura de
+     centímetro em centímetro: com o mesmo espaçamento, atravessar quarenta
+     quilos viraria uma maratona de arrasto. */
+  esp?: number;
+  /** quanto os botões movem por toque */
+  salto: number;
+  valor: number; unidade: string; onEscolhe: (v: number) => void;
+}) {
+  const { c } = useTheme();
+  const ESP = esp;
+  const ref = React.useRef<ScrollView>(null);
+  const montou = React.useRef(false);
+  const [larg, setLarg] = useState(0);
+  const [digitando, setDigitando] = useState(false);
+  const [rascunho, setRascunho] = useState('');
+
+  const aX = (v: number) => ((v - min) / passo) * ESP;
+  /* O SALTO INICIAL DEPENDE DA LARGURA, e a largura só existe depois do
+     primeiro layout — o recuo lateral do conteúdo é metade dela. Amarrado
+     a onContentSizeChange, o salto acontecia cedo demais e a régua abria
+     no lugar errado: o número dizia 80 e o marcador apontava 113.
+
+     Por efeito, ele espera a medida chegar e só então salta. E a escuta
+     começa depois do salto: ao montar, a lista reporta deslocamento zero,
+     e zero lido como resposta grava o mínimo da faixa por cima do valor
+     que já estava lá. */
+  const pronto = React.useRef(false);
+  React.useEffect(() => {
+    if (!larg || montou.current) return;
+    montou.current = true;
+    const t = setTimeout(() => {
+      ref.current?.scrollTo({ x: aX(valor), animated: false });
+      setTimeout(() => { pronto.current = true; }, 60);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [larg]);
+
+  const tracos: { v: number; forte: boolean }[] = [];
+  for (let v = min; v <= max + 1e-9; v = +(v + tracoCada).toFixed(6)) {
+    tracos.push({ v: +v.toFixed(casas), forte: Math.abs(v / (tracoCada * 10) - Math.round(v / (tracoCada * 10))) < 1e-6 });
+  }
+
+  /* MAIS E MENOS AO LADO DA RÉGUA, e não no lugar dela.
+
+     A régua atravessa a faixa num gesto e mostra a vizinhança do valor; o
+     botão acerta a última casa sem ninguém precisar mirar. Cada um é bom
+     numa coisa, e a conversa entre os dois é o que faltava: o botão move
+     o número E arrasta a régua junto, senão o marcador diria uma coisa e
+     o número outra. */
+  const mover = (d: number) => {
+    const v = +Math.min(max, Math.max(min, valor + d)).toFixed(casas);
+    onEscolhe(v);
+    ref.current?.scrollTo({ x: aX(v), animated: true });
+  };
+  const botao = {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: c.bg1,
+    alignItems: 'center' as const, justifyContent: 'center' as const,
+  };
+
+  return (
+    <View style={{ gap: 18 }}>
+      <Row style={{ justifyContent: 'center', alignItems: 'center', gap: 5 }}>
+        <Pressable onPress={() => mover(-salto)} style={({ pressed }) => [botao, { opacity: pressed ? 0.6 : 1 }]}>
+          <View style={{ width: 16, height: 2, borderRadius: 1, backgroundColor: c.tx }} />
+        </Pressable>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', gap: 5 }}>
+        {digitando ? (
+          <TextInput
+            value={rascunho}
+            onChangeText={setRascunho}
+            onBlur={() => {
+              const x = parseFloat(rascunho.replace(',', '.'));
+              setDigitando(false);
+              if (!Number.isNaN(x)) {
+                const v = +Math.min(max, Math.max(min, x)).toFixed(casas);
+                onEscolhe(v);
+                ref.current?.scrollTo({ x: aX(v), animated: false });
+              }
+            }}
+            keyboardType="decimal-pad"
+            autoFocus
+            selectTextOnFocus
+            style={[NUMERO, SEM_ANEL, { color: c.tx, textAlign: 'right', width: 130, paddingVertical: 0 }]}
+          />
+        ) : (
+          <Pressable onPress={() => { setRascunho(nf(valor, casas)); setDigitando(true); }}>
+            <Txt style={NUMERO}>{nf(valor, casas)}</Txt>
+          </Pressable>
+        )}
+          <Txt v="body" c={c.tx2}>{unidade}</Txt>
+        </View>
+        <Pressable onPress={() => mover(salto)} style={({ pressed }) => [botao, { opacity: pressed ? 0.6 : 1 }]}>
+          <Icon name="plus" size={20} color={c.tx} sw={2.2} />
+        </Pressable>
+      </Row>
+
+      <View style={{ height: 74 }} onLayout={(e) => setLarg(Math.round(e.nativeEvent.layout.width))}>
+        {larg > 0 ? (
+          <>
+            <ScrollView
+              ref={ref}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={ESP}
+              decelerationRate="fast"
+              scrollEventThrottle={16}
+              onScroll={(e) => {
+                if (!pronto.current) return;
+                const v = +(min + Math.round(e.nativeEvent.contentOffset.x / ESP) * passo).toFixed(casas);
+                const dentro = Math.min(max, Math.max(min, v));
+                if (dentro !== valor) onEscolhe(dentro);
+              }}
+              contentContainerStyle={{ paddingHorizontal: larg / 2 }}
+            >
+              {/* O traço forte leva o número embaixo. Régua sem número é
+                  textura: ela mostra que existe uma faixa e não diz qual.
+                  Com o rótulo, a pessoa vê a vizinhança do próprio valor,
+                  que é a razão de a régua ganhar dos botões. */}
+              {tracos.map((t) => (
+                <View key={t.v} style={{ width: (tracoCada / passo) * ESP, height: 74 }}>
+                  <View style={{
+                    width: 1.5, height: t.forte ? 30 : 15, borderRadius: 1,
+                    backgroundColor: t.forte ? c.tx4 : c.line,
+                  }} />
+                  {t.forte ? (
+                    <Txt v="micro" c={c.tx4} style={{ marginTop: 6, marginLeft: -12, width: 28, textAlign: 'center' }}>
+                      {nf(t.v, casas === 2 ? 2 : 0)}
+                    </Txt>
+                  ) : null}
+                </View>
+              ))}
+            </ScrollView>
+            {/* O marcador do meio, em cima de tudo e sem toque. */}
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute', left: larg / 2 - 1.5, top: 0,
+                width: 3, height: 38, borderRadius: 2, backgroundColor: c.accent,
+              }}
+            />
+          </>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 /* ------------------------------------------------------------------ */
