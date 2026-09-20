@@ -380,7 +380,7 @@ export default function Home() {
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, overflow: 'hidden' }}>
               <Row style={{ padding: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
                 <View style={{ flex: 1 }}>
-                  <Txt v="body">Peso perdido</Txt>
+                  <Txt v="body">{wc.titulo}</Txt>
                   <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{wc.goalLabel}</Txt>
                 </View>
                 <Txt v="metric">{wc.lostLabel}</Txt>

@@ -1,7 +1,7 @@
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
-  lostKg, lostPct, mediaDe, notasAbertas, respondido, type Nota,
+  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
 
@@ -105,7 +105,10 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       titulo: 'Peso',
       linhas: [
         { k: 'Início → atual', v: `${kg(p.startWeight)} → ${kg(cur)} kg` },
-        { k: 'Variação', v: `−${kg(lostKg(S))} kg (${nf(lostPct(S), 1)}%)` },
+        /* ⚠️ ESTA LINHA VAI PARA O MÉDICO. Ela dizia "−−3,3 kg" para quem
+           ganhou peso — um documento clínico com um número ilegível é
+           pior do que um documento sem aquele número. */
+        { k: 'Variação', v: `${variacaoDe(cur - p.startWeight, 'kg').delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
         { k: 'Em', v: `${diffDays(now(), new Date(p.startT))} dias` },
         /* O NOME É O DO CADASTRO. Esta linha já se chamou "referência
            combinada", que é um terceiro nome para o número que o app

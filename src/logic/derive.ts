@@ -2490,7 +2490,16 @@ export function bodyFat(S: State) {
 export function weightCard(S: State) {
   const lost = lostKg(S);
   const goal = startWeight(S) - S.profile.goalWeight;
-  return { lost, goal, lostLabel: `-${nfBR(lost, 1)} kg`, goalLabel: `Meta: -${nfBR(goal, 1)} kg` };
+  /* ⚠️ O TÍTULO TAMBÉM MUDA, e não só o número. "Peso perdido" em cima de
+     "+3,3 kg" é uma contradição dentro do mesmo cartão — e a palavra
+     errada dói mais do que o número. "Variação do peso" é o nome neutro
+     do que aquele número é, e só aparece quando precisa. */
+  return {
+    lost, goal,
+    titulo: lost >= 0 ? 'Peso perdido' : 'Variação do peso',
+    lostLabel: variacaoDe(-lost, 'kg').delta,
+    goalLabel: `Meta: ${variacaoDe(-goal, 'kg').numero} kg`,
+  };
 }
 
 /** Série de peso normalizada (x,y ∈ 0..1) para o sparkline do card. */
@@ -2777,35 +2786,48 @@ export function timelineCounts(S: State): { kind: TLKind; label: string; n: numb
    trava mas cintura, exames e composição seguem melhorando. */
 export type Change = { ic: string; label: string; from: string; to: string; delta: string; good: boolean; to_: string };
 
+/* ⚠️ O SINAL SAI DA CONTA, E NÃO DA ESPERANÇA.
+
+   Meia dúzia de lugares escreviam a variação como `−${diferença}` — o
+   desenho de quem está emagrecendo, que é o caso da semente e de quase
+   todo mundo. Para quem ganhou peso a diferença já vinha negativa, e a
+   tela mostrava "−−3,3 kg": um menos que é sinal, outro que é o próprio
+   número, e ninguém lendo aquilo sabe o que aconteceu com ela. Em vários
+   deles o veredito também era fixo, então o aplicativo comemorava em lima
+   três quilos a mais.
+
+   É o mesmo defeito que a leitura dos exames tinha: texto escrito para o
+   caso feliz, num aplicativo em que o caso infeliz é exatamente quem mais
+   precisa de clareza. Por isso virou uma peça só — enquanto cada tela
+   montava a própria string, cada tela podia errar sozinha.
+
+   ⚠️ E ZERO NÃO É "−0,0". Um número que não se mexeu não variou para lado
+   nenhum, e a palavra é essa. Ele sai como "não boa notícia", porque
+   também não é má.
+
+   `bomSeCai` é falso só onde subir é o que se quer — massa magra é a
+   única no aplicativo. */
+export function variacaoDe(d: number, unidade = '', bomSeCai = true) {
+  const n1 = (x: number) => nf(x, 1).replace('.', ',');
+  const abs = Math.abs(d);
+  const parado = Number(n1(abs).replace(',', '.')) === 0;
+  const numero = parado ? n1(0) : `${d > 0 ? '+' : '−'}${n1(abs)}`;
+  return {
+    /** só o número, com sinal — para quem já tem coluna de unidade */
+    numero,
+    /** número, sinal e unidade, ou "Estável" quando não houve mudança */
+    delta: parado ? 'Estável' : `${numero}${unidade ? ` ${unidade}` : ''}`,
+    good: parado ? false : (bomSeCai ? d < 0 : d > 0),
+  };
+}
+
 export function journeyChanges(S: State): Change[] {
   const out: Change[] = [];
   const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const fm = firstMeasure(S), lm = latestMeasure(S);
-
-  /* ⚠️ O SINAL SAI DA CONTA, E ERA UM "−" CRAVADO NA STRING.
-
-     Três destes quatro números eram escritos como `−${diferença}` — o
-     desenho de quem está emagrecendo, que é o caso da semente e de quase
-     todo mundo. Para quem ganhou peso, a diferença já vinha negativa e a
-     pílula mostrava "−−3,3 kg": um menos que é sinal, outro que é o
-     próprio número, e nenhuma pessoa lendo aquilo sabe o que aconteceu com
-     ela. O peso ainda trazia `good: true` fixo, então a tela comemorava
-     em lima três quilos a mais.
-
-     É o mesmo defeito que a leitura dos exames tinha e que já foi
-     consertado lá: texto escrito para o caso feliz, num aplicativo em que
-     o caso infeliz é exatamente quem mais precisa de clareza.
-
-     ⚠️ E ZERO NÃO É "−0,0". Um número que não se mexeu não variou para
-     lado nenhum, e a palavra é essa. Ele sai em cinza, como todo estado
-     que não é boa notícia — porque também não é má. */
   const variacao = (d: number, unidade: string, bomSeCai = true) => {
-    const abs = Math.abs(d);
-    if (Number(n1(abs).replace(',', '.')) === 0) return { delta: 'Estável', good: false };
-    return {
-      delta: `${d > 0 ? '+' : '−'}${n1(abs)} ${unidade}`,
-      good: bomSeCai ? d < 0 : d > 0,
-    };
+    const v = variacaoDe(d, unidade, bomSeCai);
+    return { delta: v.delta, good: v.good };
   };
 
   /* Peso e cintura vão para /marcador, e não para a tela da área: são os
@@ -4346,14 +4368,25 @@ export function journeySummary(S: State) {
   const ritmo = lost / semanas;                       // kg por semana
   /* 0,5–1,5 kg/semana é a faixa que o tratamento costuma render. Fora dela
      o texto não alarma: aponta para conversar com a equipe. */
-  const verdict: Verdict = ritmo >= 0.5 && ritmo <= 1.5
-    ? { label: 'Em ritmo saudável', good: true }
-    : ritmo > 1.5
-      ? { label: 'Ritmo acelerado', good: false }
-      : { label: 'Ritmo mais lento', good: true };
+  /* ⚠️ RITMO NEGATIVO NÃO É "RITMO MAIS LENTO". Sem este primeiro ramo,
+     quem ganhou peso caía no último — e o hero da Jornada dizia "Ritmo
+     mais lento" em lima, ao lado de um número que subiu. Lento e ao
+     contrário são coisas diferentes, e só uma delas é ritmo.
+
+     "Acima do início" é o fato, sem adjetivo: a etiqueta abre /ritmo, e é
+     lá que se explica o que ela mede e o que não mede. */
+  const verdict: Verdict = lost < 0
+    ? { label: 'Acima do início', good: false }
+    : ritmo >= 0.5 && ritmo <= 1.5
+      ? { label: 'Em ritmo saudável', good: true }
+      : ritmo > 1.5
+        ? { label: 'Ritmo acelerado', good: false }
+        : { label: 'Ritmo mais lento', good: true };
   return {
     dia: journeyDay(S), semana: S.protocol.week,
-    lost, lostLabel: nf(lost, 1).replace('.', ','),
+    /* O rótulo já vem com o sinal: quem consome só imprime. Antes ele era
+       o número cru e cada tela grudava um "−" na frente. */
+    lost, lostLabel: variacaoDe(-lost, '').numero,
     goal, pct: Math.round((lost / goal) * 100),
     faltamLabel: nf(Math.max(0, goal - lost), 1).replace('.', ','),
     aplicacoes: S.injections.length,

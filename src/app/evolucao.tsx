@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   startWeight, curWeight, lostKg, firstMeasure, latestMeasure,
-  examBy, examFirst, examLast, examStatus,
+  examBy, examFirst, examLast, examStatus, variacaoDe,
 } from '../logic/derive';
 import { MO, nf, DAY } from '../logic/time';
 import {
@@ -74,7 +74,7 @@ export default function Evolucao() {
             id="ev-peso"
             nome="Peso"
             sub={`${n1(startWeight(S))} › ${n1(curWeight(S))} kg · ${dia(ultimoPeso.t)}`}
-            valor={`−${n1(lostKg(S))}`}
+            valor={variacaoDe(curWeight(S) - startWeight(S)).numero}
             unidade="kg"
             pontos={pesos.map((p) => ({ v: p.v, rotulo: n1(p.v), quando: dia(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
@@ -84,7 +84,7 @@ export default function Evolucao() {
               id="ev-cint"
               nome="Cintura"
               sub={`${fm.cintura} › ${lm.cintura} cm · ${dia(lm.t)}`}
-              valor={`−${n1(fm.cintura - lm.cintura)}`}
+              valor={variacaoDe(lm.cintura - fm.cintura).numero}
               unidade="cm"
               pontos={cinturas.map((p) => ({ v: p.v, rotulo: String(p.v), quando: dia(p.t) }))}
               onPress={() => router.push('/marcador?m=cintura' as any)}
@@ -101,21 +101,26 @@ export default function Evolucao() {
           {fm && lm ? (
             <Metrica
               ic="activity" nome="Gordura corporal"
-              selo={`−${n1(fm.gordura - lm.gordura)} pp`}
+              /* O TOM VEM DO VEREDITO, e era o lima padrão do <Selo>. Sem
+                 isto a gordura subindo aparecia na mesma pastilha verde da
+                 gordura caindo: o número mudava de sinal e a cor não. */
+              selo={variacaoDe(lm.gordura - fm.gordura, 'pp').delta}
+              seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'lima' : 'neutra'}
               de={`${n1(fm.gordura)}%`} para={`${n1(lm.gordura)}%`}
             />
           ) : null}
           {fm && lm ? (
             <Metrica
               ic="dumbbell" nome="Massa magra"
-              selo={`${lm.musculo >= fm.musculo ? '+' : '−'}${n1(Math.abs(lm.musculo - fm.musculo))} kg`}
+              selo={variacaoDe(lm.musculo - fm.musculo, 'kg', false).delta}
+              seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'lima' : 'neutra'}
               de={`${n1(fm.musculo)} kg`} para={`${n1(lm.musculo)} kg`}
             />
           ) : null}
           {a1c && a1c.values.length >= 2 ? (
             <Metrica
               ic="doc" nome="HbA1c"
-              selo={examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da faixa'}
+              selo={examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência'}
               seloTom={examStatus(a1c) === 'ok' ? 'verde' : 'neutra'}
               de={`${n1(examFirst(a1c).v)}%`} para={`${n1(examLast(a1c).v)}%`}
             />
@@ -123,8 +128,11 @@ export default function Evolucao() {
           {pa && pa.length >= 2 ? (
             <Metrica
               ic="heart" nome="Pressão"
-              selo={pa[pa.length - 1].sys < pa[0].sys ? 'Em queda' : 'Estável'}
-              seloTom={pa[pa.length - 1].sys <= pa[0].sys ? 'verde' : 'neutra'}
+              /* "Estável" era tudo que não fosse queda, e uma subida de
+                 catorze pontos saía como estável. Subir tem nome. */
+              selo={pa[pa.length - 1].sys < pa[0].sys ? 'Em queda'
+                : pa[pa.length - 1].sys > pa[0].sys ? 'Em alta' : 'Estável'}
+              seloTom={pa[pa.length - 1].sys < pa[0].sys ? 'verde' : 'neutra'}
               de={`${pa[0].sys}/${pa[0].dia}`} para={`${pa[pa.length - 1].sys}/${pa[pa.length - 1].dia}`}
             />
           ) : null}

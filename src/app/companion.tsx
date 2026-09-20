@@ -8,7 +8,7 @@ import type { State } from '../logic/seed';
 import {
   M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
   lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
-  temConsulta, clinicaConectada,
+  temConsulta, clinicaConectada, startWeight, variacaoDe,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
@@ -100,7 +100,7 @@ function companionReply(S: State, text: string): Msg {
   if (has('consulta', 'prepar', 'médic', 'doutora', 'helena')) {
     return { who: 'ai', text: temConsulta(S)
       ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}:`
-      : `Montei um resumo do seu tratamento para levar na consulta:`, mini: `• Peso: ${kg(curWeight(S))} kg (−${kg(lostKg(S))} kg / ${nf(lostPct(S), 1)}%)\n• Dose atual: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}%\n• Sintomas: náusea leve nos dias pós-aplicação, já melhorando\n• Perguntas sugeridas: manter ou ajustar a dose? o platô é esperado? exames a repetir?` };
+      : `Montei um resumo do seu tratamento para levar na consulta:`, mini: `• Peso: ${kg(curWeight(S))} kg (${variacaoDe(curWeight(S) - startWeight(S), 'kg').delta} / ${nf(Math.abs(lostPct(S)), 1)}%)\n• Dose atual: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}%\n• Sintomas: náusea leve nos dias pós-aplicação, já melhorando\n• Perguntas sugeridas: manter ou ajustar a dose? o platô é esperado? exames a repetir?` };
   }
   if (has('fome', 'saciedade', 'vontade de comer')) {
     const hf = hungerForecast(S);
