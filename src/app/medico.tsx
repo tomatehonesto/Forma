@@ -3,16 +3,13 @@ import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
-import {
-  protocoloDaSemana, exameNoProtocolo, penStock, fichaDaEquipe, destinoDoDocumento,
-  notasAbertas, clinicaConectada,
-} from '../logic/derive';
+import { fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada } from '../logic/derive';
 import { Txt, Card, Row, Chevron, SectionHead } from '../ui/kit';
-import { TelaInterna, Titulao, Grade2, Cartao, Linha } from '../ui/internas';
+import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
-import { fmtWD, fmtDate, relDay } from '../logic/time';
+import { fmtDate } from '../logic/time';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -43,12 +40,28 @@ import { radius } from '../theme';
    têm carrossel na aba Cuidado, de onde esta tela é empurrada: a mesma
    lista em duas telas seguidas é a segunda porta para a mesma sala.
 
+   ⚠️⚠️ E "PRÓXIMOS PASSOS" SAIU, que é a mudança desta rodada.
+
+   Era uma grade de quatro cartões — próxima consulta, protocolo da
+   semana, exame do protocolo, renovar a receita — e três deles eram
+   LITERALMENTE os itens de "Precisa de você", na aba Cuidado: mesmo
+   texto, mesma origem (`penStock`, `exameNoProtocolo`, `nextConsult`) e
+   mesma rota. Duas telas a um toque uma da outra dizendo à pessoa o que
+   ela tem para fazer, com listas que quase batem — e no dia em que não
+   batessem, ela não teria como saber qual acreditar.
+
+   Uma delas tinha que ceder, e é esta: "o que fazer agora" é a vocação
+   da aba, que abre várias vezes por semana; esta tela é o que atravessa
+   entre a pessoa e a clínica. Nada se perdeu no caminho — /protocolos e
+   /consultas são dois dos quatro botões do cartão de quem cuida,
+   "Pedir nova receita" é o link da seção Prescrições, e o exame já
+   estava em "Precisa de você". A grade era a terceira porta para portas
+   que já existiam duas vezes.
+
    ⚠️ A ROTA CONTINUA /medico, e isso é dívida consciente: são quinze
    chamadas espalhadas, quatro delas dentro de derive.ts. O nome que a
    pessoa lê é o que importa, e ele mudou.
    ============================================================ */
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ⚠️ A MESMA LARGURA DA ABA CUIDADO, e é de propósito que o número
    esteja escrito aqui e lá. São três fileiras horizontais no aplicativo —
@@ -78,53 +91,6 @@ export default function Medico() {
   const materiais = ((S as any).materials ?? []) as
     { name: string; kind: string; meta: string; ic: string; motivo: string }[];
   const responsavel = equipe.find((f) => f.responsavel);
-
-  const nd = new Date(S.consult.t);
-  const protocolo = protocoloDaSemana(S);
-  const exame = exameNoProtocolo(S);
-  const estoque = penStock(S);
-
-  /* ============================================================
-     PRÓXIMOS PASSOS — o que tem passo, e só isso
-
-     ⚠️ CADA CARTÃO SÓ EXISTE QUANDO HÁ O QUE FAZER. O exame aparece
-     quando o protocolo pede um; a receita, quando a caneta está
-     acabando. Com o estoque em dia, não há cartão de receita — porque
-     não há passo nenhum a dar sobre ela.
-
-     ⚠️ E A RECEITA NÃO VIROU "RECEITA ATIVA · ATÉ 30/10". O desenho de
-     referência mostra uma validade, e `prescriptions` guarda nome, data e
-     quem prescreveu — validade não existe no estado. Um cartão com data
-     de validade inventada numa tela de tratamento é a pior linha que esta
-     tela poderia ter. O que existe é o estoque, e é ele que o cartão diz.
-     ============================================================ */
-  type Passo = { ic: string; titulo: string; sub: string; to: string };
-  const passos: Passo[] = [
-    ...(S.consult.t ? [{
-      ic: 'cal',
-      titulo: 'Próxima consulta',
-      sub: `${cap(relDay(nd))} · ${fmtWD(nd)}, ${fmtDate(nd)}`,
-      to: '/consultas',
-    }] : []),
-    {
-      ic: 'target',
-      titulo: `Protocolo da semana ${S.protocol.week}`,
-      sub: `${protocolo.feitas} de ${protocolo.total} cumpridas`,
-      to: '/protocolos',
-    },
-    ...(exame ? [{
-      ic: 'doc',
-      titulo: 'Exame do protocolo',
-      sub: exame,
-      to: '/exames',
-    }] : []),
-    ...(!estoque.verdict.good ? [{
-      ic: 'pill',
-      titulo: 'Renovar a receita',
-      sub: `${estoque.left} ${estoque.left === 1 ? 'dose restante' : 'doses restantes'}`,
-      to: '/conversa?pedir=receita',
-    }] : []),
-  ];
 
   return (
     <TelaInterna titulo="Área médica">
@@ -296,46 +262,6 @@ export default function Medico() {
             </View>
           </Pressable>
         </Card>
-
-        {/* ---- próximos passos ----
-
-            ⚠️ GRADE, E NÃO CARROSSEL. A fila horizontal só se paga quando
-            há mais itens do que cabem na tela — e aqui há dois na maior
-            parte do tempo: o exame só entra quando o protocolo pede um, e
-            a receita só quando a caneta está acabando. Dois cartões numa
-            fileira que mal rola é o mesmo defeito que tirou o carrossel da
-            equipe: o gesto é anunciado e não leva a lugar nenhum.
-
-            Em grade os dois ocupam a largura inteira, e quando viram
-            quatro eles descem numa segunda fileira em vez de se esconderem
-            fora da borda. O que estava escondido passa a ser visto — que é
-            o ponto de uma seção chamada "próximos passos".
-
-            ⚠️ O ÍCONE FICA SOLTO, E NÃO NUMA PASTILHA DE COR. O quadradinho
-            azul repetido vira uma grade de botões — e nenhum deles é
-            botão: quem leva a algum lugar é o cartão inteiro. A seta no
-            canto diz que o cartão é porta, que era o que a pastilha estava
-            tentando dizer errado. */}
-        <Txt v="h2" style={{ marginTop: 30, marginBottom: 12 }}>Próximos passos</Txt>
-        <Grade2>
-          {passos.map((p) => (
-            <Pressable key={p.titulo} onPress={go(p.to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
-              <View style={{
-                flex: 1, minHeight: 124, backgroundColor: c.bg1,
-                borderRadius: radius.lg, padding: 15, justifyContent: 'space-between',
-              }}>
-                <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Icon name={p.ic} size={20} color={c.accent} sw={1.9} />
-                  <Icon name="chev" size={13} color={c.tx4} sw={2.2} />
-                </Row>
-                <View style={{ marginTop: 14 }}>
-                  <Txt v="bodyMed" numberOfLines={2}>{p.titulo}</Txt>
-                  <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ marginTop: 3, lineHeight: 16 }}>{p.sub}</Txt>
-                </View>
-              </View>
-            </Pressable>
-          ))}
-        </Grade2>
 
         {/* ---- as suas anotações ----
 
