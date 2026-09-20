@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { curWeight, latestMeasure } from '../logic/derive';
 import { DOW_PT, MO_LONG, now, nf } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Campo, Opcoes, Opc, Stepper, Selo, Botao, Regua } from '../ui/internas';
+import { Campo, Opcoes, Opc, Selo, Botao, Regua } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -26,10 +26,13 @@ import { useTheme } from '../ui/useTheme';
    /medir-medidas. Aqui ficam as três que mudam entre uma sessão e outra.
    ============================================================ */
 
-const MEDIDAS: [string, string][] = [
-  ['cintura', 'Cintura'],
-  ['quadril', 'Quadril'],
-  ['braco', 'Braço'],
+/* As faixas são as mesmas de /medir-medidas: é o mesmo corpo e a mesma
+   fita, e duas telas com limites diferentes para a cintura da mesma pessoa
+   é uma delas errada. */
+const MEDIDAS: [string, string, number, number, number][] = [
+  ['cintura', 'Cintura', 50, 180, 90],
+  ['quadril', 'Quadril', 60, 190, 100],
+  ['braco', 'Braço', 15, 70, 32],
 ];
 
 const n1 = (x: number) => nf(x, 1).replace('.', ',');
@@ -45,15 +48,18 @@ export default function MedirPeso() {
 
   const [peso, setPeso] = useState(ultimo);
   const [abertas, setAbertas] = useState<string[]>([]);
+  const [tocadas, setTocadas] = useState<string[]>([]);
   const [medidas, setMedidas] = useState<Record<string, number>>(
-    Object.fromEntries(MEDIDAS.map(([k]) => [k, ultima?.[k] ?? 0])),
+    Object.fromEntries(MEDIDAS.map(([k, , , , padrao]) => [k, ultima?.[k] || padrao])),
   );
 
 
   const alterna = (k: string) =>
     setAbertas((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k]));
-  const mexer = (k: string, d: number) =>
-    setMedidas((m) => ({ ...m, [k]: Math.max(0, Math.round((m[k] + d) * 10) / 10) }));
+  const mexer = (k: string, v: number) => {
+    setMedidas((m) => ({ ...m, [k]: v }));
+    setTocadas((t) => (t.includes(k) ? t : [...t, k]));
+  };
 
   const delta = peso - ultimo;
   const hoje = now();
@@ -66,12 +72,20 @@ export default function MedirPeso() {
          da última sessão repetidos entraria no gráfico como se a pessoa
          tivesse medido de novo e não mudado nada — que é uma afirmação
          diferente de não ter medido. */
-      if (abertas.length) {
+      /* ⚠️ E QUEM NUNCA MEDIU PRECISA TER MEXIDO.
+
+         Abrir o chip é a afirmação, e isso continua valendo — mas só
+         afirma um número que existe. Sem medição anterior, a régua abre
+         num ponto de partida escolhido pelo controle, não pela pessoa: o
+         chip aberto e intocado gravaria noventa centímetros de cintura
+         que ninguém passou a fita para saber. */
+      const gravaveis = abertas.filter((k) => ultima || tocadas.includes(k));
+      if (gravaveis.length) {
         const base = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
         s.measures.push({
           ...base,
           t: +now(),
-          ...Object.fromEntries(abertas.map((k) => [k, medidas[k]])),
+          ...Object.fromEntries(gravaveis.map((k) => [k, medidas[k]])),
         });
       }
     });
@@ -122,16 +136,21 @@ export default function MedirPeso() {
             ))}
           </Opcoes>
 
+          {/* ⚠️ RÉGUA AQUI TAMBÉM, e o peso logo acima já tinha uma.
+
+              Três controles para três circunferências, no mesmo sheet em
+              que o peso se arrasta, é a mesma inconsistência que acabou de
+              sair dali — só que a dois centímetros de distância. E elas
+              abrem uma de cada vez, por escolha da pessoa: a altura extra
+              da régua só chega para quem pediu aquela medida. */}
           {abertas.map((k) => {
-            const label = MEDIDAS.find(([id]) => id === k)![1];
+            const campo = MEDIDAS.find(([id]) => id === k)!;
             return (
-              <View key={k} style={{ gap: 6 }}>
-                <Txt v="caption" c={c.tx3}>{label}</Txt>
-                <Stepper
-                  valor={n1(medidas[k])}
-                  unidade="cm"
-                  onMenos={() => mexer(k, -0.5)}
-                  onMais={() => mexer(k, 0.5)}
+              <View key={k} style={{ gap: 10 }}>
+                <Txt v="caption" c={c.tx3}>{campo[1]}</Txt>
+                <Regua
+                  min={campo[2]} max={campo[3]} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
+                  valor={medidas[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
                 />
               </View>
             );
