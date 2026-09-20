@@ -131,12 +131,24 @@ export default function Saude() {
         </Grade2>
       </Bloco>
 
+      {/* ⚠️⚠️ AQUI DIZIA "WITHINGS CONECTADA", e nada estava conectado.
+
+          A linha era texto fixo — não lia `S.integrations` nem coisa
+          nenhuma — afirmando uma balança ligada e um peso que chega
+          sozinho. E o próprio integracoes.ts diz, num comentário, que
+          Garmin, Fitbit e Withings são "o que cada uma traria, no dia em
+          que houver servidor": a linha prometia justamente a coisa que o
+          módulo da promessa marca como inexistente.
+
+          Status falso é pior que status nenhum. Quem lê "conectada" e não
+          vê o peso aparecer conclui que o aplicativo está quebrado — e
+          quem lê e acredita para de pesar. */}
       <Bloco titulo="De onde vêm">
         <Cartao>
           <Linha
-            ic="check"
-            titulo="Withings conectada"
-            sub="Peso e pressão sincronizam sozinhos, sem você digitar nada"
+            ic="trend"
+            titulo="Aparelhos e contas"
+            sub="Ver o que dá para ligar hoje, e o que ainda está por vir"
             onPress={() => router.push('/integracoes' as any)}
           />
         </Cartao>
@@ -149,7 +161,13 @@ export default function Saude() {
       <Aviso
         ic="info"
         titulo="Estes números não se digitam"
-        texto="Pressão, saturação e frequência chegam do aparelho conectado. Para acrescentar um resultado de laboratório, use Exames."
+        /* ⚠️ E ELES TAMBÉM NÃO CHEGAM, ainda. O texto dizia que pressão,
+           saturação e frequência "chegam do aparelho conectado", no
+           presente: a leitura do aparelho traz só PESO, e as contas que
+           trariam pressão dependem de um servidor que não existe. Nada,
+           hoje, escreve um sinal vital — só a semente. Dizer de onde eles
+           virão é honesto; dizer que já vêm não é. */
+        texto="Pressão, saturação e frequência chegam de um aparelho conectado — e essa ligação ainda não existe nesta versão. Um resultado de laboratório entra por Exames."
       />
 
       <View />

@@ -241,6 +241,26 @@ A Política descreve o envio do resumo e das mensagens à equipe de saúde.
 Hoje isso é gravado localmente: não há plataforma do outro lado. Antes de
 publicar, ou o servidor existe, ou a redação muda.
 
+**E não era só a Política — a TELA de privacidade dizia o mesmo**, para
+todo mundo, sem depender de vínculo com clínica: "o resumo sai quando você
+toca em enviar e vira um documento datado no que a sua equipe tem; as
+mensagens saem quando você escreve". A frase foi reescrita para o que de
+fato acontece ("por enquanto, nada"), com a versão futura dita no
+condicional. Quando o servidor existir, é lá que a redação volta ao
+presente — `src/app/privacidade.tsx`, bloco "O que sai daqui".
+
+Para o registro: o aplicativo inteiro tem **uma** chamada de rede,
+`analise.ts`, a da leitura da foto do prato. Nenhuma outra. É o teste mais
+rápido para conferir qualquer afirmação de envio no texto.
+
+**A tela de Sinais vitais tem o mesmo problema, por outro caminho.** Nada
+no código escreve `S.vitals` — só a semente —, então em produção ela é uma
+tela permanentemente vazia. Ela dizia "Withings conectada · peso e pressão
+sincronizam sozinhos" em texto fixo, sem ler `S.integrations`, e que
+pressão e saturação "chegam do aparelho conectado": a leitura do aparelho
+traz só PESO, e Garmin, Fitbit e Withings dependem deste mesmo servidor.
+As duas frases foram corrigidas; o que falta é a fonte de dados.
+
 **E vincular também não existe.** Nenhuma tela do aplicativo escreve
 `doctor` ou `clinic` — os dois só apareciam porque o seed já vinha com a
 Dra. Helena, e desde que o cadastro passou a limpar o seed, quem chega

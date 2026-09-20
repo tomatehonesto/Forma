@@ -145,16 +145,40 @@ export default function Privacidade() {
       {/* A SEÇÃO MAIS IMPORTANTE DA TELA, e a que um app costuma
           esconder. Ela lista TUDO que atravessa para fora do aparelho —
           são duas coisas —, e diz o gesto exato que faz cada uma sair. */}
+      {/* ⚠️⚠️ O PRIMEIRO BLOQUINHO DESCREVIA UM ENVIO QUE NÃO ACONTECE.
+
+          Ele dizia, no presente, que o resumo "sai quando você toca em
+          enviar e vira um documento datado no que a sua equipe tem" e que
+          as mensagens "saem quando você escreve". Não saem: o aplicativo
+          inteiro tem UMA chamada de rede, a da leitura da foto do prato em
+          analise.ts, e nenhuma para clínica nenhuma. O resumo se monta no
+          aparelho e as mensagens ficam guardadas aqui.
+
+          Numa tela de privacidade essa é a frase que menos pode estar
+          errada — é onde a pessoa vai conferir o que sai do aparelho
+          dela. O erro é para o lado seguro (promete mais saída do que
+          existe), e mesmo assim é erro: quem acredita pode deixar de
+          registrar um sintoma por achar que ele já foi para alguém.
+
+          E repare no vizinho de baixo: a foto do prato é verdade, e está
+          escrita com a mesma confiança. Uma tela com uma afirmação
+          verdadeira e uma falsa lado a lado não tem como a pessoa
+          distinguir qual é qual.
+
+          A garantia que a seção existe para dar continua inteira, e agora
+          é mais forte do que era: nada viaja sozinho porque, para a
+          clínica, nada viaja. Ver PENDENCIAS, item 6. */}
       <Bloco
         titulo="O que sai daqui"
-        nota="São duas coisas, e as duas só saem com um toque seu."
+        nota="Nada sai daqui sem um gesto seu."
       >
         <Cartao>
-          <Bloquinho titulo="O que você envia para a sua equipe">
-            O resumo para consulta sai quando você toca em enviar, e vira
-            um documento datado no que a sua equipe tem. As mensagens saem
-            quando você escreve. Nada do seu diário viaja sozinho — nem
-            peso, nem sintoma, nem refeição.
+          <Bloquinho titulo="O que vai para a sua equipe">
+            Por enquanto, nada. O resumo para consulta se monta no seu
+            aparelho e é você que mostra ou exporta; as mensagens ficam
+            guardadas aqui. Quando a ligação com a clínica existir, as duas
+            só vão sair com um toque seu — e nada do seu diário viaja
+            sozinho, nem peso, nem sintoma, nem refeição.
           </Bloquinho>
           <Bloquinho titulo="A foto do prato, quando você usa a leitura por foto">
             Ela é reduzida no aparelho e enviada para ser lida por um
@@ -196,8 +220,13 @@ export default function Privacidade() {
             sub="Montar um arquivo com o que você registrou" onPress={go('/exportar')} />
           <Linha ic="trend" titulo="Dispositivos e integrações"
             sub={`Ligar ou desligar o ${APP_DE_SAUDE}`} onPress={go('/integracoes')} />
+          {/* ⚠️ "O QUE A SUA EQUIPE RECEBE", no presente, e ela não recebe
+              nada: a transmissão para a clínica não existe no código (ver
+              PENDENCIAS, item 6). Numa tela de privacidade, essa é a frase
+              que menos pode estar errada — é justamente onde a pessoa vai
+              conferir o que sai daqui. O resumo é o que ela LEVA. */}
           <Linha ic="doc" titulo="Resumo para consulta"
-            sub="Ver exatamente o que a sua equipe recebe" onPress={go('/resumo-medico')} />
+            sub="Ver tudo o que entra no resumo da consulta" onPress={go('/resumo-medico')} />
           <Apagar onApagar={apagarTudo} />
         </Cartao>
       </Bloco>
