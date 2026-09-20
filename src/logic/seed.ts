@@ -415,11 +415,11 @@ export function buildSeed() {
        ainda não, ou conseguiu em tal dia. */
     goals: [
       { id: 'g2', ic: 'moon', label: 'Dormir 7h por noite', indicador: 'sono', alvo: 7 },
-      /* ⚠️ ERA "ENERGIA 4 OU MAIS", e energia é coisa que se sente. A
-         semente é o retrato do que o aplicativo oferece: mostrar uma meta
-         de sintoma aqui ensinaria a fazer o que a tela de criar não deixa
-         mais. */
-      { id: 'g4', ic: 'utensils', indicador: 'prot' },
+      /* ⚠️ ERAM TRÊS, e a terceira já foi "Energia 4 ou mais" e depois
+         "Comer 90 g de proteína". As duas saíram pelo mesmo motivo: a
+         semente é o retrato do que o aplicativo oferece, e nenhuma das
+         duas se cria mais na tela de nova meta — energia é coisa que se
+         sente, e proteína se ajusta em Os números do dia. */
       { id: 'g3', ic: 'target', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.

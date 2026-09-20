@@ -4318,7 +4318,13 @@ export const INDICADORES: Indicador[] = [
   {
     id: 'exerc', ic: 'dumbbell', nome: 'Minutos de movimento',
     pergunta: 'Quantos minutos por dia?', origem: 'Dos treinos que você registra',
+    /* ⚠️ ELE NÃO TINHA `doPerfil`, E OS VIZINHOS TINHAM — e por isso a
+       meta de movimento abria em 30 min enquanto o aplicativo cobrava 60.
+       Não era só divergir depois de editada: ela já NASCIA discordando do
+       alvo, e ninguém percebeu porque a lista tem três números do dia e
+       só dois liam o perfil. */
     nomes: ['dia', 'dias'], sentido: 'min', padrao: 30,
+    doPerfil: (S) => (S.profile as any).targets.exercMin,
     passos: { min: 10, max: 180, passo: 10, un: 'min' },
     leitura: (c) => num(c, 'exerc'),
     escreve: (v) => `${Math.round(v)} min`,
@@ -4408,6 +4414,38 @@ export const METAS_PESSOAIS: MetaPessoal[] = [
     dica: 'Digite a foto que você quer tirar',
     monta: (r) => `Tirar ${r}`,
   },
+  /* ⚠️ AS TRÊS DE BAIXO ENTRARAM DEPOIS, e a lista tinha cinco.
+
+     Cinco categorias cobriam capacidade — vestir, praticar, aguentar — e
+     duas leituras do corpo, como me sinto e uma foto. Faltava o que mais
+     aparece na vida de quem faz esse tratamento e não é nenhuma das duas:
+     o que se deixou de fazer, e o que se quer passar a fazer.
+
+     ⚠️ E NENHUMA DELAS É CLÍNICA, de propósito. "Parar de tomar o remédio
+     da pressão" é uma meta que muita gente tem e que este aplicativo não
+     vai ajudar a escrever: quem decide isso é quem prescreveu. As
+     categorias ficam do lado da vida. */
+  {
+    /* O LUGAR QUE SE DEIXOU DE IR é diferente do esporte e do fôlego: não
+       é sobre conseguir, é sobre voltar. Praia, piscina, festa — quem
+       evita não evita por não dar conta. */
+    id: 'lugar', ic: 'sun', nome: 'Um lugar ou um momento',
+    pergunta: 'Onde você quer voltar a ir?',
+    dica: 'Digite o lugar ou o momento',
+    monta: (r) => `Voltar a ${r}`,
+  },
+  {
+    id: 'comecar', ic: 'leaf', nome: 'Um hábito para criar',
+    pergunta: 'O que você quer começar a fazer?',
+    dica: 'Digite o hábito',
+    monta: (r) => `Começar a ${r}`,
+  },
+  {
+    id: 'largar', ic: 'check', nome: 'Um hábito para largar',
+    pergunta: 'O que você quer parar de fazer?',
+    dica: 'Digite o hábito',
+    monta: (r) => `Parar de ${r}`,
+  },
 ];
 
 /* A saída para o que não cabe em nenhuma categoria. Ela é a mesma coisa
@@ -4448,11 +4486,24 @@ export const padraoDe = (i: Indicador, S: State) => (i.doPerfil ? i.doPerfil(S) 
    coluna seriam duas linhas quase iguais, e a segunda teria de explicar
    por que difere da primeira.
 
-   E os de sintoma não entram: a razão inteira está no campo `sintoma`, lá
-   em cima. */
+   E ficam de fora dois grupos inteiros:
+
+   · OS DE SINTOMA — a razão está no campo `sintoma`, lá em cima.
+
+   · ⚠️⚠️ OS QUE JÁ TÊM ALVO NO PERFIL — proteína, hidratação e movimento.
+     Eles se editam em Metas › Os números do dia, que é onde o número
+     mora e de onde a Home, a Alimentação, a Hidratação e o protocolo o
+     leem. Oferecê-los também aqui dava duas portas para o mesmo número,
+     e a desta lista era a pior das duas: ela se chamava "nova meta" e não
+     criava número nenhum — só acrescentava uma segunda leitura, em
+     catorze dias, de uma coisa que o protocolo já lê por semana.
+
+     O teste é o próprio `doPerfil`: ter alvo no perfil É ser um dos
+     números do dia. Sono não tem, e por isso continua sendo o único que
+     esta lista cria. */
 export function indicadoresLivres(S: State): Indicador[] {
   const usados = new Set(((S.goals || []) as any[]).map((g) => g.indicador || KIND_ANTIGO[g.kind]));
-  return INDICADORES.filter((i) => !i.sintoma && !usados.has(i.id));
+  return INDICADORES.filter((i) => !i.sintoma && !i.doPerfil && !usados.has(i.id));
 }
 
 /* As metas guardadas antes de existir indicador traziam `kind`, e as da
