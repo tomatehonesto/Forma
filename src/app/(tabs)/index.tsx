@@ -158,7 +158,7 @@ export default function Home() {
 
   /* Carrossel do hero — tres leituras do dia, todas com dado real. */
   const slides = [
-    { over: 'PARA HOJE', title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
+    { over: brief.chapeu, title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
 
        Quem respondeu "ainda não sei" no medicamento sai do cadastro sem
@@ -168,8 +168,13 @@ export default function Home() {
        menos, que é o que a verdade sobre esse dia é. */
     ...(temDose(S) ? [{
       over: 'PRÓXIMA APLICAÇÃO',
-      title: quandoEm(nd).hoje ? `${med.label} é hoje.` : `${med.label} ${quandoEm(nd).label}.`,
-      body: `${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
+      /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
+         caixinha como se ela tivesse agenda, e obriga quem lê a traduzir
+         para o que a frase queria dizer: que hoje ela aplica. O nome do
+         medicamento não some — desce para a linha de baixo, junto da dose
+         e do local, que é onde ele é informação e não manchete. */
+      title: quandoEm(nd).hoje ? 'Hoje é dia de aplicar sua dose.' : `Sua próxima dose é ${quandoEm(nd).label}.`,
+      body: `${med.label} ${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
       cta: 'Ver a aplicação', to: '/aplicacoes',
     }] : []),
     /* ⚠️ O SLIDE NÃO É MAIS SÓ "DESCOBERTA", e o chapéu vem do motor.

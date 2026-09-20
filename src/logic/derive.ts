@@ -1404,9 +1404,29 @@ export function todayBrief(S: State) {
   const cyc = doseCycle(S);
   const ndDays = diasAteAplicar(S);
   let head = '', body = '', q = '';
+
+  /* ⚠️ O CHAPÉU DEIXA DE SER "PARA HOJE" E PASSA A DIZER O DIA DO CICLO.
+
+     "Sua fome pode começar a aumentar nas próximas 24 horas" é verdade e
+     chega sem chão: por que hoje? A resposta já estava calculada a uma
+     linha daqui — `doseCycle` devolve `dayIn` e `total` desde sempre — e não
+     ia para lugar nenhum. Com ela em cima, a frase deixa de ser um palpite
+     do dia e vira a leitura de uma posição: dia 5 de 7, e é por isso que a
+     fome volta agora.
+
+     ⚠️ E SÓ QUANDO HÁ CICLO. Sem aplicação registrada, `doseCycle` usa hoje
+     como data da última dose e `dayIn` vira 1 — um "DIA 1 DE 7" para quem
+     nunca aplicou nada, que é a mesma invenção que saiu do resto da Home
+     esta semana. Sem ciclo, o chapéu continua PARA HOJE. */
+  const temCiclo = !!lastInjection(S) && temDose(S);
+  const chapeu = temCiclo ? `DIA ${cyc.dayIn} DE ${cyc.total}` : 'PARA HOJE';
   switch (cyc.phase.key) {
     case 'aplic':
-      head = 'Hoje é dia de aplicação.';
+      /* ⚠️ NÃO ANUNCIA QUE HOJE É DIA DE APLICAR: o slide seguinte da Home
+         é inteiro sobre isso, com a dose e o local. Dois slides seguidos
+         dando a mesma notícia gastam o carrossel — este fica com o que o
+         outro não diz, que é o que acontece no corpo depois de aplicar. */
+      head = 'O efeito começa a subir nas próximas horas.';
       body = 'Enjoo leve pode aparecer — prefira refeições menores ao longo do dia.';
       q = 'O que esperar no dia da aplicação?';
       break;
@@ -1426,8 +1446,10 @@ export function todayBrief(S: State) {
       q = 'Por que sinto mais fome?';
       break;
     default:
+      /* Mesma razão do 'aplic': quando a aplicação é hoje, quem conta é o
+         slide da aplicação. */
       head = quandoEm(ndDays).hoje
-        ? 'Fome no ponto alto — a aplicação é hoje.'
+        ? 'Fome no ponto mais alto do ciclo.'
         : `Fome no ponto alto do ciclo — aplicação ${quandoEm(ndDays).label}.`;
       /* ⚠️ "NÃO PULE REFEIÇÕES" PRESSUPÕE QUE ELA PULA, e no ponto alto
          da fome quem menos pula é quem está com fome. A frase nasceu como
@@ -1441,7 +1463,7 @@ export function todayBrief(S: State) {
   if (last && last.sono >= 7.5 && cyc.phase.key !== 'aplic') {
     body = 'Você dormiu bem — seu corpo tende a responder melhor hoje. ' + body;
   }
-  return { head, body, q, cyc };
+  return { head, body, q, cyc, chapeu };
 }
 
 /* Tarefas inteligentes do dia — cada uma só aparece quando faz sentido agora. */
