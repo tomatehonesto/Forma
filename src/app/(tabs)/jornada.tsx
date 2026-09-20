@@ -56,14 +56,26 @@ function Painel() {
      "acelerado": perder mais de 1,5 kg por semana não é fracasso nem
      sucesso, é assunto para a equipe. Vermelho cobra; âmbar chama.
 
-     A tinta é o bg1 nos dois primeiros e não um branco cravado: no tema
-     claro ele é branco sobre o verde e o âmbar escuros, no escuro é quase
-     preto sobre os claros. O vermelho já tem o ctaInk, que faz o mesmo. */
+     ⚠️ E O TERCEIRO NÃO É VERMELHO, e chegou a ser. Vermelho cheio, do
+     tamanho da etiqueta e em cima do hero, é a tela acusando alguém: a
+     pessoa abre a Jornada para ver como vai, e a primeira cor que ela
+     encontra diz que errou. Estar acima do peso inicial é um fato do
+     período, não uma falta — e quem trata obesidade sabe que a semana em
+     que a balança sobe é a semana em que as pessoas desistem.
+
+     O teal não absolve nem acusa: ele é a única cor viva da paleta que
+     não carrega juízo, e por isso é a que sobra para dizer "olha isto"
+     sem dizer "você falhou".
+
+     A tinta é o bg1 nos dois primeiros: no tema claro ela é branca sobre
+     o verde e o âmbar escuros, no escuro é quase preta sobre os claros. O
+     teal é a mesma cor nos dois temas, então a dele é o limeInk, que é a
+     tinta escura fixa das superfícies acesas. */
   const tomDoVeredito = r.verdict.tom ?? (r.verdict.good ? 'bom' : 'ruim');
   const [fundoDoVeredito, tintaDoVeredito] =
     tomDoVeredito === 'bom' ? [c.ok, c.bg1]
       : tomDoVeredito === 'atencao' ? [c.amber, c.bg1]
-        : [c.cta, c.ctaInk];
+        : [c.teal, c.limeInk];
   const cyc = doseCycle(S);
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
