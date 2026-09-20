@@ -3995,6 +3995,20 @@ export const ALVOS: Record<ChaveDeAlvo, {
   nome: string;
   /** o que este número muda no resto do app */
   onde: string;
+  /* ⚠️ DE ONDE O NÚMERO VEIO, e a folha de editar não dizia.
+
+     Três destes quatro não foram escolhidos por ninguém: saíram de uma
+     conta feita com as respostas do cadastro. Sem dizer isso, a folha
+     parece um campo vazio que a pessoa preenche — e mexer num número
+     calculado sabendo que ele foi calculado é uma decisão diferente de
+     mexer num número que parecia não ter dono.
+
+     Não é aviso para travar nada. A conta é um bom palpite, não uma
+     prescrição: quem tem restrição renal não bebe 2,5 L, quem está
+     lesionado não faz 60 min, e a nutricionista de alguém pode ter dito
+     outro número de proteína. Editar segue sendo direito da pessoa — ela
+     só passa a saber o que está sobrescrevendo. */
+  origem: string;
   un: string;
   passo: number;
   min: number;
@@ -4005,6 +4019,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
 }> = {
   prot: {
     ic: 'utensils', nome: 'Proteína por dia', onde: 'Cobrada na alimentação e no protocolo',
+    origem: 'Calculado do seu peso, a 1,2 g por quilo',
     un: 'g', passo: 5, min: 40, max: 220,
     le: (S) => (S.profile as any).targets.prot,
     escreve: (v) => String(Math.round(v)),
@@ -4013,12 +4028,17 @@ export const ALVOS: Record<ChaveDeAlvo, {
     /* Guardada em mililitros e escrita em litros, como em toda parte: o
        passo de 250 ml é um copo, que é a unidade em que se bebe. */
     ic: 'water', nome: 'Hidratação por dia', onde: 'Cobrada na hidratação e no protocolo',
+    origem: 'Calculado do seu peso, da sua idade e do seu nível de atividade',
     un: 'L', passo: 250, min: 750, max: 5000,
     le: (S) => (S.profile as any).targets.waterMl,
     escreve: (v) => litros(v),
   },
   exercMin: {
     ic: 'dumbbell', nome: 'Exercício por dia', onde: 'É a tracejada da semana, no exercício',
+    /* ⚠️ ESTE NÃO É CALCULADO, e seria fácil escrever que é para a frase
+       ficar igual às outras duas. São 60 minutos para todo mundo, e o
+       cadastro não pergunta nada que mudasse isso. */
+    origem: 'O padrão do aplicativo, igual para todo mundo',
     un: 'min', passo: 10, min: 10, max: 180,
     le: (S) => (S.profile as any).targets.exercMin,
     escreve: (v) => String(Math.round(v)),
@@ -4031,6 +4051,9 @@ export const ALVOS: Record<ChaveDeAlvo, {
        para medir o caminho, e não para cobrar; isso continua verdade com o
        nome que a pessoa reconhece. */
     ic: 'scale', nome: 'Meta de peso', onde: 'Mede a viagem inteira, na Jornada',
+    /* A única dos quatro que a pessoa escolheu de verdade — e é por isso
+       que a frase dela não fala de conta nenhuma. */
+    origem: 'Você escolheu no cadastro',
     un: 'kg', passo: 0.5, min: 40, max: 200,
     le: (S) => S.profile.goalWeight,
     /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e

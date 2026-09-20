@@ -65,14 +65,21 @@ export default function Meta() {
           {/* O QUE MUDA COM ISSO. Um número de meta não vive na tela de
               metas: ele reaparece amanhã na barra da alimentação e na
               contagem do protocolo. Quem sobe a proteína de 90 para 110
-              merece saber onde vai encontrar a conta nova. */}
+              merece saber onde vai encontrar a conta nova.
+
+              ⚠️ E DE ONDE ELE VEIO, que a folha não dizia. Três dos quatro
+              saíram de uma conta com as respostas do cadastro — peso,
+              idade, nível de atividade —, e sem dizer isso a folha parece
+              um campo vazio à espera de um palpite. Mexer num número
+              calculado sabendo que ele foi calculado é uma decisão
+              diferente de mexer num número que parecia não ter dono. */}
           <Aviso
             ic="info"
             dentro
             titulo={`Hoje: ${def.escreve(def.le(S))} ${def.un}`}
-            texto={chave === 'peso'
-              ? 'A referência é o ponto de chegada combinado com a equipe. Mexer nela muda a régua da Jornada e da evolução, e não apaga nada do que já foi registrado.'
-              : 'A mudança vale a partir de agora. Os dias já registrados continuam valendo o que valiam — o que muda é contra o que eles passam a ser comparados.'}
+            texto={`${def.origem}. ${chave === 'peso'
+              ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
+              : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`}
           />
         </View>
       </SheetScreen>

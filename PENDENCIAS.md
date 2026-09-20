@@ -333,6 +333,33 @@ parceiras não pagam pelo aplicativo**". Ela é verdade no modelo de hoje
 quem assina — mas é uma promessa comercial numa tela que apresenta um
 terceiro. Se a regra mudar, ela muda aqui também.
 
+**E o protocolo não traz os números dele.** A tarefa da clínica diz
+`{ metrica: 'prot', alvo: 7 }` — sete **dias**. Quantos gramas contam como
+dia cumprido sai de `profile.targets.prot`, que é da pessoa e ela edita em
+Metas › Os números do dia.
+
+Isso significa que **dá para mover a trave e relatar o gol**: baixar a
+proteína de 90 g para 40 g faz o protocolo marcar 7 de 7, e a clínica lê
+"cumpriu a semana" sem saber que a régua mudou. Vale igual para
+hidratação (750 ml a 5 L) e exercício (10 a 180 min).
+
+A saída não é travar a edição. Ela é clinicamente necessária — quem tem
+restrição renal não bebe 2,5 L, quem está lesionado não faz 60 min, e a
+nutricionista de alguém pode ter dito outro número de proteína. Hoje a
+folha de editar já diz de onde o número veio (`ALVOS[k].origem`) e o que
+ele muda, para a pessoa saber que está sobrescrevendo uma conta.
+
+**O que falta é o número da clínica ser da clínica.** Quando o protocolo
+vier do outro lado, a tarefa medida precisa trazer o alvo junto —
+`{ metrica: 'prot', alvo: 7, referencia: 90 }` — e a contagem do protocolo
+passa a usar `referencia` quando ela existe, caindo no alvo do perfil
+quando não. Aí existem dois números com donos diferentes, o que a clínica
+pediu e o que a pessoa se propôs, e isso é legítimo: o defeito de hoje não
+é haver dois, é haver um só fingindo ser de dois.
+
+Onde mexer: `protocoloDaSemana` e `historicoDeProtocolos`, em
+`src/logic/derive.ts`, mais o formato de `protocol.tasks`.
+
 ---
 
 ## 🟢 Confirmar em aparelho
