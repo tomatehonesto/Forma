@@ -238,15 +238,29 @@ function Painel() {
 
 /* Tile de mudança — grade densa de 2 colunas. Forma diferente das linhas
    de lista, de propósito: quebra a monotonia entre blocos. */
+/* ⚠️ A PASTILHA É VERDE, VERMELHA OU CINZA, e era lima ou cinza.
+
+   Lima é a cor de "alcançado" da casa — ela marca meta batida, streak,
+   check-in feito. Aqui o que a pastilha carrega não é conquista: é o
+   estado de um marcador do corpo, que é a mesma pergunta que os exames
+   respondem duas telas adiante. Verde e vermelho são o par que aquela
+   tela já usa, e um marcador não pode mudar de vocabulário quando muda
+   de tela.
+
+   E o cinza continua existindo para o terceiro caso, que é o que o par
+   verde/vermelho sozinho não sabe dizer: o número que não se mexeu. */
 function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
   const { c } = useTheme();
+  const [fundo, tinta] = ch.tom === 'bom' ? [c.okBg, c.ok]
+    : ch.tom === 'ruim' ? [c.ctaWeak, c.cta]
+      : [c.bg2, c.tx3];
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ width: '49%', opacity: pressed ? 0.7 : 1 }]}>
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginBottom: 7 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Icon name={ch.ic} size={17} color={c.tx3} sw={1.8} />
-          <View style={{ backgroundColor: ch.good ? c.limeWeak : c.bg2, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill }}>
-            <Txt v="tag" c={ch.good ? c.limeInk : c.tx3}>{ch.delta}</Txt>
+          <View style={{ backgroundColor: fundo, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill }}>
+            <Txt v="tag" c={tinta}>{ch.delta}</Txt>
           </View>
         </Row>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 20 }} numberOfLines={1}>{ch.label}</Txt>

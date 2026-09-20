@@ -2784,7 +2784,16 @@ export function timelineCounts(S: State): { kind: TLKind; label: string; n: numb
    Listar links para telas não responde. Mostrar de-onde-para-onde responde —
    e cobre justamente o que mais sustenta alguém num platô, quando a balança
    trava mas cintura, exames e composição seguem melhorando. */
-export type Change = { ic: string; label: string; from: string; to: string; delta: string; good: boolean; to_: string };
+export type Change = {
+  ic: string; label: string; from: string; to: string; delta: string;
+  good: boolean;
+  /* ⚠️ O TOM É SEPARADO DO `good`, e não derivado dele na tela. O que a
+     pastilha precisa saber é se aquilo é boa notícia, má notícia ou
+     nenhuma — e `!good` não distingue as duas últimas. Um peso que não
+     mudou e um peso que subiu três quilos não podem sair da mesma cor. */
+  tom: TomDaVariacao;
+  to_: string;
+};
 
 /* ⚠️ O SINAL SAI DA CONTA, E NÃO DA ESPERANÇA.
 
@@ -2807,17 +2816,23 @@ export type Change = { ic: string; label: string; from: string; to: string; delt
 
    `bomSeCai` é falso só onde subir é o que se quer — massa magra é a
    única no aplicativo. */
+export type TomDaVariacao = 'bom' | 'ruim' | 'neutro';
 export function variacaoDe(d: number, unidade = '', bomSeCai = true) {
   const n1 = (x: number) => nf(x, 1).replace('.', ',');
   const abs = Math.abs(d);
   const parado = Number(n1(abs).replace(',', '.')) === 0;
   const numero = parado ? n1(0) : `${d > 0 ? '+' : '−'}${n1(abs)}`;
+  /* ⚠️ SÃO TRÊS TONS, E ERAM DOIS. Com `good` booleano, "parado" caía no
+     mesmo balde de "piorou" — e pintar de vermelho um número que não se
+     mexeu é dizer que ficar igual é má notícia. Não é: é notícia nenhuma. */
+  const tom: TomDaVariacao = parado ? 'neutro' : ((bomSeCai ? d < 0 : d > 0) ? 'bom' : 'ruim');
   return {
     /** só o número, com sinal — para quem já tem coluna de unidade */
     numero,
     /** número, sinal e unidade, ou "Estável" quando não houve mudança */
     delta: parado ? 'Estável' : `${numero}${unidade ? ` ${unidade}` : ''}`,
-    good: parado ? false : (bomSeCai ? d < 0 : d > 0),
+    good: tom === 'bom',
+    tom,
   };
 }
 
@@ -2827,7 +2842,7 @@ export function journeyChanges(S: State): Change[] {
   const fm = firstMeasure(S), lm = latestMeasure(S);
   const variacao = (d: number, unidade: string, bomSeCai = true) => {
     const v = variacaoDe(d, unidade, bomSeCai);
-    return { delta: v.delta, good: v.good };
+    return { delta: v.delta, good: v.good, tom: v.tom };
   };
 
   /* Peso e cintura vão para /marcador, e não para a tela da área: são os
@@ -2860,10 +2875,11 @@ export function journeyChanges(S: State): Change[] {
   const a1c = examBy(S, 'HbA1c');
   if (a1c && a1c.values.length >= 2) {
     const f = examFirst(a1c), l = examLast(a1c);
+    const naRef = examStatus(a1c) === 'ok';
     out.push({
       ic: 'doc', label: 'HbA1c', from: `${n1(f.v)}%`, to: `${n1(l.v)}%`,
-      delta: examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência',
-      good: examStatus(a1c) === 'ok', to_: '/exames',
+      delta: naRef ? 'Na referência' : 'Fora da referência',
+      good: naRef, tom: naRef ? 'bom' : 'ruim', to_: '/exames',
     });
   }
 
@@ -2876,7 +2892,9 @@ export function journeyChanges(S: State): Change[] {
     out.push({
       ic: 'heart', label: 'Pressão', from: `${f.sys}/${f.dia}`, to: `${l.sys}/${l.dia}`,
       delta: l.sys < f.sys ? 'Em queda' : l.sys > f.sys ? 'Em alta' : 'Estável',
-      good: l.sys < f.sys, to_: '/saude',
+      good: l.sys < f.sys,
+      tom: l.sys < f.sys ? 'bom' : l.sys > f.sys ? 'ruim' : 'neutro',
+      to_: '/saude',
     });
   }
 
