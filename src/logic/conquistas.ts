@@ -524,5 +524,10 @@ export const eventosDeConquista = (S: State) =>
     .filter((q) => q.t != null)
     .map((q) => ({
       id: `${q.id}-${q.nivel}`, ic: q.ic, t: q.t!,
+      /* O id do EVENTO tem o nível junto, porque dois níveis da mesma
+         trilha são dois momentos distintos na linha do tempo. A trilha
+         em si não tem nível: é a ela que se abre, e é por isso que o id
+         dela vai separado em vez de ser extraído do outro com um split. */
+      trilha: q.id,
       title: `${q.titulo} · nível ${q.nivel}`, desc: q.desc,
     }));

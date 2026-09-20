@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
-import { conquistas, niveisFeitos } from '../../logic/conquistas';
+
 import {
   journeySummary, journeyChanges, journeyGoals, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight,
@@ -635,26 +635,44 @@ export default function Jornada() {
           </Row>
         </View>
 
-        {/* ---------- MOMENTOS — fita horizontal ---------- */}
+        {/* ---------- O QUE VOCÊ JÁ FEZ — fita horizontal ---------- */}
         <View style={{ marginTop: 34 }}>
-          {/* O LINK DIZ O QUE O DESTINO DIZ. Ele contava trilhas com algum
-              nível — "21 conquistas" — e a tela de Conquistas conta níveis
-              alcançados, "39 de 101". Dois números para a mesma coisa em
-              telas que se ligam é a pessoa achando que uma das duas está
-              errada. */}
-          <SectionHead title="Momentos" link={`${niveisFeitos(conquistas(S))} níveis`} onPress={go('/conquistas')} />
+          {/* ⚠️ O TÍTULO DIZ DE QUEM É O FEITO, e dizia "Momentos".
+
+              "Momento" é uma palavra de álbum: ela nomeia a coisa como
+              lembrança, e o que está nesta fita é o que a pessoa fez —
+              começou o tratamento, mudou de dose, cumpriu a primeira meta.
+              O verbo devolve a autoria, que numa tela de tratamento é a
+              única coisa que sustenta a pessoa nas semanas ruins.
+
+              ⚠️ E O LINK É O NOME DO DESTINO. Ele contava níveis, e o
+              número já aparece dentro da tela que ele abre — nome de
+              lugar leva, número informa, e no cabeçalho de uma seção quem
+              está ali é para levar. */}
+          <SectionHead title="O que você já fez" link="Conquistas" onPress={go('/conquistas')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}
             style={{ marginHorizontal: -PAD, marginTop: 14 }}
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
+            {/* ⚠️ CADA CARTÃO ABRE O REGISTRO QUE O PROVA, e nenhum abria
+                nada: era a única lista da Jornada que só se olhava. A
+                conquista abre a trilha dela, como na tela de Conquistas; a
+                dose abre as aplicações; o exame, os exames. O destino vem
+                do marco, montado onde se sabe de onde ele veio. */}
             {marcos.map((m) => (
-              <View key={`${m.t}-${m.title}`} style={{ width: 178, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14 }}>
-                <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
+              <Pressable
+                key={`${m.t}-${m.title}`}
+                onPress={go(m.to)}
+                style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+              >
+                <View style={{ width: 178, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14 }}>
+                  <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.limeWeak, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name={m.ic} size={15} color={c.limeInk} sw={2} />
+                  </View>
+                  <Txt v="bodyMed" style={{ marginTop: 11 }} numberOfLines={2}>{m.title}</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ marginTop: 4 }} numberOfLines={2}>{m.sub}</Txt>
+                  <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>{fmtDate(new Date(m.t))}</Txt>
                 </View>
-                <Txt v="bodyMed" style={{ marginTop: 11 }} numberOfLines={2}>{m.title}</Txt>
-                <Txt v="micro" c={c.tx3} style={{ marginTop: 4 }} numberOfLines={2}>{m.sub}</Txt>
-                <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>{fmtDate(new Date(m.t))}</Txt>
-              </View>
+              </Pressable>
             ))}
           </ScrollView>
         </View>

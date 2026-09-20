@@ -446,20 +446,32 @@ export const clinicaConectada = (S: State) => !!(S.profile as any).vinculo;
 export const temConsulta = (S: State) => ((S as any).consult?.t ?? 0) > 0;
 
 /* Marcos do tratamento — a narrativa da jornada em eventos (cronológico desc). */
-export type Milestone = { t: number; ic: string; title: string; sub: string };
+/* ⚠️ TODO MARCO TEM DESTINO, e nenhum tinha.
+
+   A fita de marcos era a única lista da Jornada que não levava a lugar
+   nenhum: oito cartões de coisas que aconteceram, e nenhuma delas abria o
+   registro que a prova. Para uma conquista isso é pior ainda, porque a
+   tela de Conquistas — logo ali, no link do cabeçalho — abre a trilha
+   inteira de cada uma.
+
+   O destino sai do TIPO do marco, e não de um campo escrito à mão: dose
+   vai para as aplicações, consulta para as consultas, exame para os
+   exames, conquista para a trilha dela. É por isso que ele é montado
+   aqui, junto de quem sabe de onde cada marco veio. */
+export type Milestone = { t: number; ic: string; title: string; sub: string; to: string };
 export function milestones(S: State): Milestone[] {
   const out: Milestone[] = [];
-  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${kg(S.profile.startWeight)} kg` });
+  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${kg(S.profile.startWeight)} kg`, to: '/historico' });
   let prev: number | null = null;
   for (const inj of S.injections as any[]) {
-    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: `Dose ajustada para ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} mg`, sub: 'Titulação conforme orientação médica' });
+    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: `Dose ajustada para ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} mg`, sub: 'Titulação conforme orientação médica', to: '/aplicacoes' });
     prev = inj.dose;
   }
   const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
-  if (w5) out.push({ t: w5.t, ic: 'trend', title: '5% do peso inicial', sub: 'Marca clínica, com benefícios além da balança' });
-  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note }));
-  S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: `${b.n} marcadores importados` }));
-  marcosDeConquista(S).forEach((a) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc }));
+  if (w5) out.push({ t: w5.t, ic: 'trend', title: '5% do peso inicial', sub: 'Marca clínica, com benefícios além da balança', to: '/marcador?m=peso' });
+  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note, to: '/consultas' }));
+  S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: `${b.n} marcadores importados`, to: '/exames' }));
+  marcosDeConquista(S).forEach((a) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc, to: `/trilha?id=${a.trilha}` }));
   out.sort((a, b) => b.t - a.t);
   return out;
 }
