@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
@@ -10,7 +9,7 @@ import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examStatus,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe, fichaDaEquipe,
+  medComDose, fichaDe,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, DOW_PT } from '../../logic/time';
@@ -18,7 +17,7 @@ import { Txt, Row, SectionHead, Divider, ListRow, Chevron } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
-import { radius, alfa } from '../../theme';
+import { radius } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
 
 /* ============================================================
@@ -62,51 +61,6 @@ const FOTO_MEDICA = fotoDe('responsavel');
    de mim. A régua narrava — e narrativa repetida em duas abas enfraquece
    as duas. Fica registrada aqui porque o dia em que a Jornada precisar
    de uma linha do tempo compacta, é esta. */
-
-/** O retrato de alguém da equipe: a foto quando ela existe, a inicial
-    quando não.
-
-    ⚠️ ELE NÃO SABIA DE FOTO NENHUMA, e era só a inicial. O comentário
-    antigo dizia "só a médica tem retrato" e isso deixou de ser verdade no
-    dia em que `RETRATOS` passou a aceitar a equipe inteira — faltava esta
-    peça olhar o mapa. Enquanto não olhava, a pilha mostrava letra mesmo
-    para quem já tivesse imagem.
-
-    ⚠️ E A INICIAL ESTAVA LAVADA. O degradê era `bluePale → accentWeak`, dois
-    tons que no tema claro ficam a um passo do branco do cartão: o círculo
-    sumia no fundo e a letra, em `accent2`, boiava. Agora é `accentWeak`
-    cheio com a letra em `accent` — o mesmo par das outras iniciais do
-    aplicativo, na lista da clínica e na área médica.
-
-    ⚠️ E É CÍRCULO, e era quadrado de canto 0,32 dentro de uma moldura
-    redonda: a borda que separa um retrato do outro na pilha é circular, e
-    o miolo quadrado deixava quatro falhas brancas nas quinas. Pilha
-    encavalada é o único lugar do aplicativo onde o retrato é redondo, e é
-    o desenho certo lá — três quadrados sobrepostos leem como cartas de
-    baralho. */
-function Retrato({ nome, id, size = 56 }: { nome: string; id?: string; size?: number }) {
-  const { c } = useTheme();
-  const foto = fotoDe(id);
-  if (foto) {
-    return (
-      <Image
-        source={foto}
-        style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.bg2 }}
-        contentFit="cover"
-        contentPosition={focoDe(id)}
-      />
-    );
-  }
-  const letra = nome.replace(/^Dr[a]?\.\s*/, '')[0];
-  return (
-    <View style={{
-      width: size, height: size, borderRadius: size / 2,
-      backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-    }}>
-      <Txt v="h1" c={c.accent} style={{ fontSize: Math.round(size * 0.42) }}>{letra}</Txt>
-    </View>
-  );
-}
 
 /** O topo — a leitura do estado, não o painel dele.
 
@@ -370,259 +324,125 @@ function LinhaDoPlano() {
   );
 }
 
-/** O banner da especialista, agora no meio da rolagem.
+/** A porta para o lado de lá — e a última coisa que veio de lá.
 
-    No topo ele fazia a tela ser sobre ela; aqui, depois do estado do
-    cuidado, das pendências e da consulta, a escala grande volta a ser um
-    ganho — a pergunta "como está meu cuidado?" já foi respondida antes
-    dele.
+    ⚠️ ERA UM CARTÃO DE TRÊS FAIXAS, e o que ele fazia na primeira era
+    apresentar a médica: retrato de 76, nome, papel, registro e nome da
+    clínica, sobre uma malha de cor com dois véus por cima. Exatamente o
+    cartão que a Área médica tem no alto dela — mesma pessoa, mesmos
+    quatro campos, mesmo desenho, a um toque de distância.
 
-    O card tem duas metades: quem é ela em cima, o que ela disse embaixo. */
+    Apresentar quem cuida de você é trabalho de UMA tela, e é da outra:
+    lá a pergunta "quem é essa pessoa?" é a primeira da página, e há as
+    quatro ações e o perfil logo abaixo. Aqui ela era uma ficha parada no
+    meio de uma aba que fala do tratamento.
+
+    ⚠️ MAS A PORTA NÃO PODIA VIRAR SÓ UM NOME COM UMA SETA. Porta que não
+    diz o que tem atrás é a mesma coisa que não ter porta: a pessoa
+    aprende a passar reto. O que tem atrás e muda é a última orientação —
+    e é ela que fica, inteira, porque é a única coisa nesta aba em que a
+    clínica FALA. O retrato encolhe para 44 e a linha de cima vira o que
+    sempre foi: o caminho para a Área médica.
+
+    ⚠️ E A TERCEIRA FAIXA SAIU, a do resto da equipe. Ela apresentava
+    mais gente numa aba que parou de apresentar gente, e a lista inteira
+    já mora em /clinica — a um toque daqui pelo botão "Clínica" da Área
+    médica. */
 function BannerMedica() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
   const msg = lastMessage(S);
-  /* Papel e registro vêm de `fichaDe`, que é quem sabe juntar doctorInfo
-     com S.team — os mesmos dados que /medico e /especialista mostram. */
+  /* O papel vem de `fichaDe`, que é quem sabe juntar doctorInfo com
+     S.team. O registro e o nome da clínica não vêm mais: numa porta eles
+     são duas linhas que ninguém lê, e na ficha da Área médica eles são a
+     parte verificável. */
   const medica = fichaDe(S);
 
   return (
     <View style={{ marginTop: 36 }}>
-      {/* ⚠️ O TÍTULO ENTROU, e o cartão vivia solto no meio da rolagem.
+      {/* O título fica, e o link sai. Ele dizia "Área médica" ao lado de
+          um cartão cuja primeira linha agora leva exatamente para lá —
+          duas promessas de abrir a mesma tela, uma escrita e uma
+          desenhada, que é o par que este arquivo já desfez uma vez. */}
+      <SectionHead title="Quem cuida de você" style={{ marginBottom: 12 }} />
 
-          Toda seção desta aba tem cabeçalho — "Sua próxima consulta",
-          "Seu tratamento", "Preparado para você" — menos esta, que era a
-          única peça sem nome entre duas que têm. E o nome importa aqui
-          mais do que nas outras: um retrato grande sem rótulo, no meio de
-          uma tela de dados, não diz se aquilo é a médica DELA ou uma
-          sugestão de alguém para contratar.
-
-          ⚠️ E O LINK É "ÁREA MÉDICA", que é o nome da tela do outro lado.
-          A Home já usa essa palavra no mesmo lugar e pelo mesmo motivo. */}
-      <SectionHead
-        title="Quem cuida de você"
-        link="Área médica"
-        onPress={go('/medico')}
-        style={{ marginBottom: 12 }}
-      />
-      <View style={{ borderRadius: radius.xl, overflow: 'hidden' }}>
-      {/* ---- metade de cima: quem é ela ----
-
-          ⚠️ É A MESMA LINHA DO CARTÃO DE "SUA EQUIPE", e era um desenho só
-          desta tela. Retrato quadrado à esquerda, nome, papel, registro e
-          clínica ao lado, seta à direita. A mesma pessoa aparecia aqui de
-          um jeito e lá de outro, e as duas telas estão a um toque uma da
-          outra.
-
-          ⚠️ O QUE SUMIU NA TROCA: o olho-de-boi "SUA ESPECIALISTA" e o
-          link "Ver perfil". O primeiro nomeava o que a linha já diz — nome,
-          papel e clínica não são ambíguos —, e o segundo repetia a seta ao
-          lado dele. Duas promessas de abrir a mesma tela, uma escrita e
-          uma desenhada.
-
-          ⚠️ E A ALTURA DEIXOU DE SER 168 FIXOS. Ela existia para segurar o
-          recorte sangrado; com o retrato dentro da linha, o cartão passa a
-          ter a altura do conteúdo, como qualquer outro. */}
-      <View style={{ overflow: 'hidden', backgroundColor: c.bg1 }}>
-        {/* ⚠️ A MALHA VIROU UM CANTO, e ocupava o cartão inteiro a 0,55.
-
-            Ela é o que faz este cartão ser sobre alguém do outro lado, e
-            não mais um cartão de lista — então não sai. Mas atrás de um
-            retrato e de quatro linhas de texto ela estava competindo com
-            os dois, e o assunto aqui é a pessoa. A 0,16 ela deixa de ser
-            fundo tingido e passa a ser o que devia: um respiro de cor na
-            quina, que o olho registra sem ler.
-
-            ⚠️ E SÃO DOIS VÉUS, um por eixo, porque "no alto à direita" são
-            duas restrições e cada uma precisa da sua.
-
-            · O HORIZONTAL existe porque as duas famílias da malha se
-              comportam diferente: na paleta clara as manchas já se
-              concentram à direita, na escura elas se espalham pelo cartão
-              inteiro. Sem ele, "cor à direita" só valeria no tema claro.
-
-            · O VERTICAL sobe a cor para o topo e limpa a base, que é onde
-              moram o registro e o nome da clínica — as duas linhas mais
-              fracas do cartão, e as que primeiro somem sobre um fundo
-              tingido. */}
-        <Malha id="cuidadoBanner" forca={0.16} />
-        <LinearGradient
-          colors={[c.bg1, alfa(c.bg1, 0.88), alfa(c.bg1, 0)]}
-          locations={[0, 0.42, 0.9]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <LinearGradient
-          colors={[alfa(c.bg1, 0), alfa(c.bg1, 0.55), c.bg1]}
-          locations={[0, 0.5, 1]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-
-        <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-          <Row gap={14} style={{ padding: 16, alignItems: 'center' }}>
+      <View style={{ borderRadius: radius.lg, overflow: 'hidden' }}>
+        <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <Row gap={13} style={{ backgroundColor: c.bg1, padding: 16, alignItems: 'center' }}>
             {FOTO_MEDICA ? (
               <Image
                 source={FOTO_MEDICA}
-                style={{ width: 76, height: 76, borderRadius: radius.md, backgroundColor: c.bg2 }}
+                style={{ width: 44, height: 44, borderRadius: radius.sm, backgroundColor: c.bg2 }}
                 contentFit="cover"
                 contentPosition={focoDe('responsavel')}
               />
             ) : (
               <View style={{
-                width: 76, height: 76, borderRadius: radius.md,
+                width: 44, height: 44, borderRadius: radius.sm,
                 backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
               }}>
-                <Txt v="h2" c={c.accent}>{(S.profile.doctor || '?').trim()[0]}</Txt>
+                <Txt v="bodyMed" c={c.accent}>{(S.profile.doctor || '?').trim()[0]}</Txt>
               </View>
             )}
             <View style={{ flex: 1 }}>
-              <Txt v="title" numberOfLines={2}>{S.profile.doctor}</Txt>
+              <Txt v="bodyMed" numberOfLines={1}>{S.profile.doctor}</Txt>
               {!!medica?.papel && (
-                <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 3 }}>{medica.papel}</Txt>
-              )}
-              {!!medica?.registro && (
-                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{medica.registro}</Txt>
-              )}
-              {!!S.profile.clinic && (
-                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{S.profile.clinic}</Txt>
+                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{medica.papel}</Txt>
               )}
             </View>
             <Chevron />
           </Row>
         </Pressable>
-      </View>
 
-      {/* metade de baixo: o que ela disse.
-
-          Substitui o botão "Enviar mensagem". Um botão genérico ao lado do
-          retrato pedia uma ação sem dar motivo; a frase que ela escreveu É
-          o motivo — e transforma o card de ficha em conversa. A ação
-          continua ali, agora nomeada pelo que se vai fazer de fato:
-          responder, não enviar.
-
-          Colada no mesmo card e não solta acima: a pessoa e a fala dela
-          são a mesma coisa, e separá-las em dois blocos fazia a tela
-          apresentar duas vezes a mesma relação. */}
-      {msg ? (
-        <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-          <View style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
-            {/* "Última orientação" e não "última mensagem": vindo dela, o
-                que chega não é recado, é conduta — e nomear assim muda o
-                peso do que se lê. Quando é a paciente que escreveu, volta a
-                ser "você escreveu", porque orientação ela não dá. */}
-            <Row gap={8}>
-              <Row gap={7} style={{ flex: 1 }}>
-                <Icon name={msg.daEquipe ? 'steth' : 'pencil'} size={13} color={c.tx3} sw={2} />
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>
-                  {msg.daEquipe ? 'ÚLTIMA ORIENTAÇÃO' : 'VOCÊ ESCREVEU'}
-                </Txt>
-              </Row>
-              {S.unread > 0 && msg.daEquipe && (
-                <Row gap={5}>
-                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
-                  <Txt v="micro" c={c.accent2}>não lida</Txt>
+        {/* A fala dela, que é o motivo de a porta existir. */}
+        {msg ? (
+          <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <View style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
+              {/* "Última orientação" e não "última mensagem": vindo dela, o
+                  que chega não é recado, é conduta — e nomear assim muda o
+                  peso do que se lê. Quando é a paciente que escreveu, volta
+                  a ser "você escreveu", porque orientação ela não dá. */}
+              <Row gap={8}>
+                <Row gap={7} style={{ flex: 1 }}>
+                  <Icon name={msg.daEquipe ? 'steth' : 'pencil'} size={13} color={c.tx3} sw={2} />
+                  <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>
+                    {msg.daEquipe ? 'ÚLTIMA ORIENTAÇÃO' : 'VOCÊ ESCREVEU'}
+                  </Txt>
                 </Row>
-              )}
-            </Row>
-            <Txt v="body" c={c.tx} style={{ marginTop: 10, lineHeight: 24, fontStyle: 'italic' }} numberOfLines={2}>
-              “{msg.text}”
-            </Txt>
-            <Row style={{ marginTop: 12 }}>
-              <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>{msg.quando}</Txt>
-              <Row gap={6}>
-                <Txt v="label" c={c.accent2}>Responder</Txt>
-                <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                {S.unread > 0 && msg.daEquipe && (
+                  <Row gap={5}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
+                    <Txt v="micro" c={c.accent2}>não lida</Txt>
+                  </Row>
+                )}
               </Row>
-            </Row>
-          </View>
-        </Pressable>
-      ) : (
-        /* sem histórico não há frase para mostrar, e aí o botão volta a ser
-           a única coisa que faz sentido */
-        <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-          <Row gap={10} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
-            <Icon name="companion" size={18} color={c.accent} sw={1.9} />
-            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Enviar a primeira mensagem</Txt>
-            <Icon name="chev" size={14} color={c.accent2} sw={2} />
-          </Row>
-        </Pressable>
-      )}
-
-      {/* ---- terceira faixa: o resto da equipe ----
-
-          ⚠️ ERA UM CARTÃO SEPARADO, logo abaixo deste. Dois cartões
-          seguidos sobre a mesma pergunta — quem cuida de você — faziam a
-          tela apresentar a relação duas vezes, e o segundo, com retratos
-          menores e texto menor, lia como uma versão rebaixada do primeiro.
-          São as mesmas pessoas do mesmo lugar: é um cartão, com a
-          responsável em cima e o resto embaixo.
-
-          ⚠️ E ELA APONTA PARA /clinica, e não para /medico. O link do
-          título já leva à área médica; repetir o destino aqui seria a
-          terceira porta para a mesma tela no mesmo cartão. A lista inteira
-          da equipe mora em /clinica — que é, aliás, para onde o comentário
-          desta peça dizia que ela ia desde sempre, enquanto o código ia
-          para outro lugar. */}
-      <Equipe />
-    </View>
-    </View>
-  );
-}
-
-/** O resto da equipe, na terceira faixa do cartão de quem cuida de você. */
-function Equipe() {
-  const S = useStore((s) => s.S);
-  const { c } = useTheme();
-  const router = useRouter();
-  /* ⚠️ VEM DE `fichaDaEquipe`, E NÃO DE `S.team` CRU. É a ficha que sabe
-     derivar o `id` de cada pessoa, e sem id não há como procurar a foto
-     dela em `RETRATOS` — era por isso que esta faixa mostrava letra para
-     todo mundo. De quebra, a responsável sai daqui: ela é o topo deste
-     mesmo cartão, e apareceria duas vezes. */
-  const time = fichaDaEquipe(S).filter((f) => !f.responsavel);
-  if (!time.length) return null;
-
-  /* Os primeiros nomes, e não "Sua equipe de apoio". Um rótulo descreve o
-     grupo; os nomes apresentam as pessoas — e apresentar é o que este
-     cartão inteiro faz. */
-  const nomes = time.map((p) => p.nome.split(' ')[0]);
-  const lista = nomes.length > 1
-    ? `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`
-    : nomes[0];
-
-  return (
-    <Pressable onPress={() => router.push('/clinica' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-      <Row gap={14} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18, alignItems: 'center' }}>
-        {/* encavalados: a pilha diz "são várias" com a largura de uma e
-            meia, que é todo o espaço que uma terceira faixa tem */}
-        <Row style={{ width: 30 + (time.length - 1) * 19, height: 30 }}>
-          {time.map((p, i) => (
-            <View key={p.id} style={{ position: 'absolute', left: i * 19, borderWidth: 2, borderColor: c.bg1, borderRadius: 17 }}>
-              <Retrato nome={p.nome} id={p.id} size={30} />
+              <Txt v="body" c={c.tx} style={{ marginTop: 10, lineHeight: 24, fontStyle: 'italic' }} numberOfLines={2}>
+                “{msg.text}”
+              </Txt>
+              <Row style={{ marginTop: 12 }}>
+                <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>{msg.quando}</Txt>
+                <Row gap={6}>
+                  <Txt v="label" c={c.accent2}>Responder</Txt>
+                  <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+                </Row>
+              </Row>
             </View>
-          ))}
-        </Row>
-        <View style={{ flex: 1 }}>
-          {/* ⚠️ `caption` E NÃO `bodyMed`, e a razão é medida: a pilha de
-              retratos come 68px e a seta mais 14, sobrando 181 para o
-              texto — "Renata, Carla e Rafael" pede 200 em 19px e cortava
-              no "Raf...". Em 16 cabe inteiro, e cabe com folga para um
-              quarto nome.
-
-              A escala também está certa assim: esta é a terceira faixa do
-              cartão, e o título dele é a médica lá em cima. */}
-          <Txt v="caption" numberOfLines={1}>{lista}</Txt>
-          <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>
-            {time.map((p) => p.papel).join(' · ')}
-          </Txt>
-        </View>
-        <Icon name="chev" size={14} color={c.tx4} sw={2} />
-      </Row>
-    </Pressable>
+          </Pressable>
+        ) : (
+          /* sem histórico não há frase para mostrar, e aí o botão volta a
+             ser a única coisa que faz sentido */
+          <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+            <Row gap={10} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
+              <Icon name="companion" size={18} color={c.accent} sw={1.9} />
+              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Enviar a primeira mensagem</Txt>
+              <Icon name="chev" size={14} color={c.accent2} sw={2} />
+            </Row>
+          </Pressable>
+        )}
+      </View>
+    </View>
   );
 }
 
