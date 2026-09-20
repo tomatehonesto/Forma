@@ -50,13 +50,24 @@ import { radius } from '../theme';
    pessoa veio ver; deixá-lo meio apagado era estilo cobrando pedágio da
    informação.
    ============================================================ */
-export function CapaDeHabito({ foto, titulo, linha, pct, posicao, children }: {
+export function CapaDeHabito({ foto, titulo, linha, pct, valor, posicao, children }: {
   foto: any;
   titulo: string;
   /** "Hoje: 0,5 de 2,5 L" — a quantidade por extenso, com a meta */
   linha: string;
   /** a proporção do dia, já arredondada */
-  pct: number;
+  pct?: number;
+  /* ⚠️ UM NÚMERO QUE NÃO É PORCENTAGEM, para quando a tela não tem uma.
+
+     Água, proteína e movimento têm meta, e meta vira fração: 60% é uma
+     frase completa. Exame não tem meta — ninguém persegue "90% dos
+     marcadores na faixa", e transformar resultado de sangue em placar é
+     inventar um jogo onde há um laudo. O que aquela tela tem são duas
+     contagens, e elas precisam do mesmo lugar de honra que o 60% ocupa
+     aqui.
+
+     Quem passa `valor` manda no miolo da capa e dispensa `pct`. */
+  valor?: React.ReactNode;
   /* QUAL PEDAÇO DA FOTO FICA VISÍVEL. A capa é larga e as fotos são
      retratos: sobra altura, e o corte padrão tira metade de cima e
      metade de baixo. Isso serve para textura — água, comida — e não
@@ -117,18 +128,20 @@ export function CapaDeHabito({ foto, titulo, linha, pct, posicao, children }: {
             O "%" acompanha o branco do número. Ele já é menor; escurecê-lo
             também seria hierarquia demais para um símbolo de um glifo. */}
         <View style={{ flex: 1, justifyContent: 'center' }}>
-          <Txt
-            v="display"
-            c={c.onHero}
-            style={{
-              fontSize: 84, lineHeight: 92, letterSpacing: -2,
-              textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26,
-              textShadowOffset: { width: 0, height: 2 },
-            }}
-          >
-            {pct}
-            <Txt v="display" c={c.onHero} style={{ fontSize: 40, lineHeight: 92 }}>%</Txt>
-          </Txt>
+          {valor ?? (
+            <Txt
+              v="display"
+              c={c.onHero}
+              style={{
+                fontSize: 84, lineHeight: 92, letterSpacing: -2,
+                textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26,
+                textShadowOffset: { width: 0, height: 2 },
+              }}
+            >
+              {pct}
+              <Txt v="display" c={c.onHero} style={{ fontSize: 40, lineHeight: 92 }}>%</Txt>
+            </Txt>
+          )}
         </View>
 
         {children ? <Row gap={8}>{children}</Row> : null}

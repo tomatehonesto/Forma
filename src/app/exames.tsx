@@ -14,8 +14,10 @@ import { Txt, Row, Rich } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
 import {
-  TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso, Botao, Selo,
+  TelaInterna, Bloco, Cartao, Linha, Selo,
 } from '../ui/internas';
+import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
+import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard, alfa, mix } from '../theme';
 
@@ -902,16 +904,36 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
   );
 }
 
+/* ============================================================
+   A LISTA ABRE COM A AURORA, e abria com um titulão e dois números
+   soltos no fundo cinza.
+
+   ⚠️ A CONTAGEM PRECISAVA DE UM LUGAR DE HONRA, e não tinha nenhum. Dois
+   números grandes pousados entre o lead e o primeiro cartão são a coisa
+   mais importante da tela desenhada como se fosse um rodapé: nada em
+   volta deles diz "isto é a resposta". Na capa eles têm a tela inteira.
+
+   ⚠️ E A AURORA COLOCA ESTA TELA DO LADO CERTO DA DIVISÃO, que é a mesma
+   razão que ela tem em Protocolos. As capas de água, prato e movimento
+   são fotos da MATÉRIA do hábito — coisas do mundo que a pessoa registra.
+   Exame não é isso: é um laudo que um laboratório escreveu e uma equipe
+   vai ler. A aurora é, no resto do aplicativo, a cara do que o aplicativo
+   e a equipe produzem, e é o que ela diz aqui.
+   ============================================================ */
 export default function Exames() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
+  const aurora = useAurora();
   const [sel, setSel] = useState<string | null>(null);
 
   const todos = (S.exams as any[]) ?? [];
   const fora = todos.filter((e) => examStatus(e) !== 'ok');
   const dentro = todos.length - fora.length;
   const resumo = examSummary(S);
+  /* A coleta mais recente entre todos os marcadores — a linha da capa diz
+     de quando é o retrato que a tela está mostrando. */
+  const ultima = todos.length ? Math.max(...todos.map((e) => examLast(e).t)) : 0;
 
   if (sel) {
     const e = examBy(S, sel);
@@ -919,54 +941,42 @@ export default function Exames() {
   }
 
   return (
-    <TelaInterna
-      titulo="Exames"
-      iconeAcao="plus"
-      onAcao={() => router.push('/medir-exame' as any)}
-      rodape={
-        <>
-          <Botao label="Importar exame" onPress={() => router.push('/medir-exame' as any)} />
-          <Botao label="Enviar ao médico" tom="fantasma" onPress={() => router.push('/exportar' as any)} />
-        </>
-      }
-    >
-      {/* ⚠️ O LEAD ENCOLHEU PORQUE A CONTAGEM CHEGOU. Ele explicava como a
-          tela funciona — "organizados por sistema", "toque num marcador" —,
-          que é instrução, não informação. Quem abre Exames quer saber se
-          tem alguma coisa errada, e essa resposta agora está logo abaixo,
-          em dois números. */}
-      <Titulao titulo="Exames" lead="Importados do laboratório e explicados em português." />
+    <TelaDeHabito>
+      <CapaDeHabito
+        foto={aurora.hero}
+        titulo="Exames"
+        linha={`${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? porExtenso(ultima) : '—'}`}
+        valor={
+          /* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
+             alarme sem denominador: três de quinze e três de quatro são
+             situações diferentes, e ninguém sabe qual é a sua sem contar a
+             lista inteira. O par diz o tamanho do problema e o tamanho do
+             que está bem, na mesma olhada.
 
-      {/* ---- a contagem ----
+             ⚠️ E AQUI OS DOIS SÃO BRANCOS, e no fundo claro um era
+             vermelho e o outro verde. Sobre a aurora não há cor de estado
+             que sobreviva: verde e vermelho lavados somem no gradiente, e
+             saturados brigam com ele. O que separa os dois números é o
+             RÓTULO, que já os separa em qualquer fundo — e sobre foto, o
+             branco com sombra difusa é a única tinta que lê sempre. */
+          <Row style={{ alignItems: 'flex-end' }}>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Txt v="display" c={c.onHero} style={{ fontSize: 64, lineHeight: 70, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{fora.length}</Txt>
+              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da faixa</Txt>
+            </View>
+            <View style={{ width: 1, height: 52, backgroundColor: c.onHeroLine, marginBottom: 16 }} />
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Txt v="display" c={c.onHero} style={{ fontSize: 64, lineHeight: 70, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{dentro}</Txt>
+              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na faixa</Txt>
+            </View>
+          </Row>
+        }
+      >
+        <AtalhoDaCapa titulo="Importar exame" cheio onPress={() => router.push('/medir-exame' as any)} />
+        <AtalhoDaCapa titulo="Enviar ao médico" onPress={() => router.push('/exportar' as any)} />
+      </CapaDeHabito>
 
-          ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
-          alarme sem denominador: três de quinze e três de quatro são
-          situações diferentes, e a pessoa não tem como saber qual é a dela
-          sem contar a lista inteira. O par diz o tamanho do problema e o
-          tamanho do que está bem, na mesma olhada.
-
-          ⚠️ E O ZERO NÃO FICA VERMELHO. A cor aqui é do FATO de haver algo
-          fora, não da casa onde o número mora — um zero vermelho seria a
-          tela gritando exatamente quando não há nada para gritar. */}
-      {todos.length ? (
-        <Row style={{ alignItems: 'stretch' }}>
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            {/* ⚠️ O ZERO NÃO FICA VERMELHO, e os outros números ficam.
-
-                A cor aqui é do FATO de haver algo fora, não da casa onde o
-                número mora. Um zero vermelho seria a tela acendendo o
-                alarme exatamente no dia em que não há nada para alarmar —
-                e quem bate o olho lê a cor antes do algarismo. */}
-            <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }} c={fora.length ? c.cta : c.tx3}>{fora.length}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>fora da faixa</Txt>
-          </View>
-          <View style={{ width: StyleSheet.hairlineWidth, backgroundColor: c.line, marginVertical: 4 }} />
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }} c={c.ok}>{dentro}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>na faixa</Txt>
-          </View>
-        </Row>
-      ) : null}
+      <FolhaDeHabito>
 
       {/* ---- os que estão fora ----
 
@@ -990,13 +1000,19 @@ export default function Exames() {
       {/* ⚠️ O RESUMO É ARITMÉTICA, E ERA UM PARÁGRAFO ESCRITO À MÃO com os
           números da semente — ver a nota do `examSummary`, em derive.ts.
 
-          ⚠️ E O CARTÃO NÃO SE CHAMA MAIS "RESUMO DA IA". Não havia IA
-          nenhuma; havia um parágrafo. O nome volta a ser esse no dia em
-          que houver uma do outro lado. */}
+          ⚠️ E ELE É TEXTO SOLTO, E NÃO UM CARTÃO — chegou a ser um <Aviso>
+          com ícone e título "Resumo da IA". O cartão dava a estas três
+          frases o peso de um alerta: superfície própria, lâmpada,
+          manchete. Mas a notícia já foi dada na capa, em dois números do
+          tamanho da tela; o que sobra aqui é o comentário sobre ela, e
+          comentário não precisa de moldura. É a mesma decisão da frase de
+          enquadramento em Protocolos.
+
+          Na cor de apoio e logo abaixo da contagem, ele funciona como o
+          lead de uma notícia: quem quer o detalhe lê, quem já entendeu
+          pela capa passa direto para as listas. */}
       {resumo ? (
-        <Aviso ic="trend" titulo="Resumo desta coleta">
-          <Txt v="caption" c={c.tx2} style={{ lineHeight: 22 }}>{resumo}</Txt>
-        </Aviso>
+        <Txt v="caption" c={c.tx3} style={{ lineHeight: 22, marginBottom: -6 }}>{resumo}</Txt>
       ) : null}
 
       {EXAM_CATS.map(([cat, ms]) => (
@@ -1026,8 +1042,7 @@ export default function Exames() {
           ))}
         </Cartao>
       </Bloco>
-
-      <View />
-    </TelaInterna>
+      </FolhaDeHabito>
+    </TelaDeHabito>
   );
 }
