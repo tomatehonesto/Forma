@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { timelineWeeks, timelineEvents, timelineCounts, type TLKind } from '../logic/derive';
-import { MO, MO_LONG, DAY, dataLonga } from '../logic/time';
+import { MO_LONG, DAY, dataLonga, fmtDate } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
@@ -34,7 +34,6 @@ import { useTheme } from '../ui/useTheme';
    recorte — para quem veio procurar "quando foi aquele exame".
    ============================================================ */
 
-const curto = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 export default function Historico() {
   const S = useStore((s) => s.S);
@@ -89,7 +88,7 @@ export default function Historico() {
               titulo={`Semana ${w.semana}`}
               selo={w.deltaPeso ?? 'sem pesagem'}
               seloTom={w.deltaPeso ? 'lima' : 'neutra'}
-              sub={`${curto(w.t)} a ${curto(w.t + 6 * DAY)} · ${w.dose} · ${w.site}`}
+              sub={`${fmtDate(w.t)} a ${fmtDate(w.t + 6 * DAY)} · ${w.dose} · ${w.site}`}
               meta={w.resumo}
               onPress={() => router.push(`/semana?s=${w.semana}` as any)}
             />
@@ -108,7 +107,7 @@ export default function Historico() {
                  quando, e depois como foi. */
               <Linha
                 key={e.key}
-                titulo={curto(e.day)}
+                titulo={fmtDate(e.day)}
                 sub={e.detalhe}
                 selo={e.value || undefined}
                 seloTom="neutra"

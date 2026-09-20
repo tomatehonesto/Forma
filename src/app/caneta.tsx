@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
-import { MO, nf, dataComDiaDaSemana, dataLonga } from '../logic/time';
+import { nf, fmtDate, dataComDiaDaSemana, dataLonga } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
@@ -27,7 +27,6 @@ import {
    ============================================================ */
 
 const n1 = (x: number) => nf(x, 1).replace('.', ',');
-const curto = (t: number | Date) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 export default function Caneta() {
   const S = useStore((s) => s.S);
@@ -67,13 +66,13 @@ export default function Caneta() {
           nome="Validade após aberta"
           selo={`${k.validadeDias} dias`}
           seloTom="neutra"
-          para={k.vence ? `vence ${curto(k.vence)}` : '—'}
+          para={k.vence ? `vence ${fmtDate(k.vence)}` : '—'}
         />
         <Metrica
           ic="pill"
           nome="Receita atual"
           selo={`${Math.round(k.semanas)} semanas`}
-          para={`cobre até ${curto(k.cobreAte)}`}
+          para={`cobre até ${fmtDate(k.cobreAte)}`}
         />
       </Grade2>
 
@@ -106,9 +105,9 @@ export default function Caneta() {
               selo={p.estado === 'uso' ? 'em uso' : 'encerrada'}
               seloTom="neutra"
               sub={p.estado === 'uso'
-                ? `Aberta em ${curto(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
-                : `${curto(p.abertaEm!)} a ${curto(p.ultimaEm!)} · ${p.usadas} de ${p.total} doses`}
-              itens={p.aplicacoes.map((a) => [curto(a.t), siteLabel(a.site).toLowerCase()] as [string, string])}
+                ? `Aberta em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
+                : `${fmtDate(p.abertaEm!)} a ${fmtDate(p.ultimaEm!)} · ${p.usadas} de ${p.total} doses`}
+              itens={p.aplicacoes.map((a) => [fmtDate(a.t), siteLabel(a.site).toLowerCase()] as [string, string])}
             />
           ))}
         </Sanfona>

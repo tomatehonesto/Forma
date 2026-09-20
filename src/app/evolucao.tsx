@@ -6,7 +6,7 @@ import {
   startWeight, curWeight, lostKg, firstMeasure, latestMeasure,
   examBy, examFirst, examLast, examStatus, variacaoDe,
 } from '../logic/derive';
-import { MO, nf, DAY } from '../logic/time';
+import { nf, DAY, fmtDate } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, Metrica, Grade2, CardCurva,
 } from '../ui/internas';
@@ -30,7 +30,6 @@ import { useTheme } from '../ui/useTheme';
    ============================================================ */
 
 const n1 = (x: number) => nf(x, 1).replace('.', ',');
-const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 const PERIODOS = [
   { id: '12s', label: '12 semanas', dias: 84 },
@@ -73,20 +72,20 @@ export default function Evolucao() {
           <CardCurva
             id="ev-peso"
             nome="Peso"
-            sub={`${n1(startWeight(S))} › ${n1(curWeight(S))} kg · ${dia(ultimoPeso.t)}`}
+            sub={`${n1(startWeight(S))} › ${n1(curWeight(S))} kg · ${fmtDate(ultimoPeso.t)}`}
             valor={variacaoDe(curWeight(S) - startWeight(S)).numero}
             unidade="kg"
-            pontos={pesos.map((p) => ({ v: p.v, rotulo: n1(p.v), quando: dia(p.t) }))}
+            pontos={pesos.map((p) => ({ v: p.v, rotulo: n1(p.v), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
           />
           {fm && lm ? (
             <CardCurva
               id="ev-cint"
               nome="Cintura"
-              sub={`${fm.cintura} › ${lm.cintura} cm · ${dia(lm.t)}`}
+              sub={`${fm.cintura} › ${lm.cintura} cm · ${fmtDate(lm.t)}`}
               valor={variacaoDe(lm.cintura - fm.cintura).numero}
               unidade="cm"
-              pontos={cinturas.map((p) => ({ v: p.v, rotulo: String(p.v), quando: dia(p.t) }))}
+              pontos={cinturas.map((p) => ({ v: p.v, rotulo: String(p.v), quando: fmtDate(p.t) }))}
               onPress={() => router.push('/marcador?m=cintura' as any)}
             />
           ) : null}

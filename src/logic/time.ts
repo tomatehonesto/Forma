@@ -12,7 +12,23 @@ export const MO_LONG = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junh
 export const DOW_PT = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 export const DOW_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
-export const fmtDate = (d: Date) => `${d.getDate()} ${MO[d.getMonth()]}`;
+/** "20 set".
+
+    ⚠️ ACEITA NÚMERO, e antes só aceitava Date — e era por isso que seis
+    telas tinham a própria cópia dela. Caneta, histórico e semana
+    chamavam-na de `curto`; evolução, medidas e saúde, de `dia`. Todas as
+    seis faziam a mesma coisa: `new Date(t)` e depois o que esta linha
+    faz.
+
+    A barreira era de tipo, não de formato. Quem tinha um timestamp na mão
+    — que é o que o estado guarda — não conseguia usar a função da casa
+    sem escrever um `new Date` antes, e escrever a função inteira era só
+    um caractere a mais de trabalho. A conversão desce para cá, como já
+    tinha descido em `dataComAno` e `dataLonga`. */
+export const fmtDate = (t: number | Date) => {
+  const d = new Date(t);
+  return `${d.getDate()} ${MO[d.getMonth()]}`;
+};
 
 /* ⚠️ COM ANO, e é essa a diferença para os `dataLonga` espalhados pelas
    telas de registro. Lá o ano é ruído: ninguém precisa dele para ler a

@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
-  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga,
+  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgCurto,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -1166,14 +1166,13 @@ export function examSummary(S: State): string | null {
 
   const bons = comRumo.filter((x) => x.melhorou).sort((a, b) => b.peso - a.peso);
   const maus = comRumo.filter((x) => !x.melhorou).sort((a, b) => b.peso - a.peso);
-  const num = (v: number) => nf(v, v % 1 ? 1 : 0).replace('.', ',');
 
   const desde = comRumo.length
     ? ` Desde ${dataLonga(Math.min(...comRumo.map((x) => x.f.t)))},`
     : '';
 
   const melhora = bons.length
-    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${num(bons[0].f.v)} para ${num(bons[0].l.v)} ${bons[0].e.unit}.`
+    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${kgCurto(bons[0].f.v)} para ${kgCurto(bons[0].l.v)} ${bons[0].e.unit}.`
     : '';
 
   const piora = maus.length
@@ -1263,13 +1262,12 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
      laboratório escreveu, e o quanto andou desde a primeira. Nada aqui é
      interpretação — são os números que já estão na tela, ditos em frase,
      para quem prefere ler a ler gráfico. */
-  const num = (v: number) => nf(v, v % 1 ? 1 : 0).replace('.', ',');
   const uni = e.unit ? ` ${e.unit}` : '';
   const faixa = (() => {
     const gg = examGaugeData(e);
-    if (gg.temMin && gg.temMax) return `entre ${num(gg.limMin)} e ${num(gg.limMax)}${uni}`;
-    if (gg.temMax) return `abaixo de ${num(gg.limMax)}${uni}`;
-    if (gg.temMin) return `acima de ${num(gg.limMin)}${uni}`;
+    if (gg.temMin && gg.temMax) return `entre ${kgCurto(gg.limMin)} e ${kgCurto(gg.limMax)}${uni}`;
+    if (gg.temMax) return `abaixo de ${kgCurto(gg.limMax)}${uni}`;
+    if (gg.temMin) return `acima de ${kgCurto(gg.limMin)}${uni}`;
     return `${e.ref}${uni}`;
   })();
 
@@ -1284,7 +1282,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
 
   const andou = !varios || delta === 0
     ? ''
-    : ` Desde ${dataLonga(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${num(Math.abs(delta))}${uni}${rumo}.`;
+    : ` Desde ${dataLonga(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${kgCurto(Math.abs(delta))}${uni}${rumo}.`;
 
   /* ⚠️ ESTA É A ÚNICA FRASE DA TELA QUE OLHA PARA FORA DESTE MARCADOR.
 
@@ -1311,7 +1309,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
       : ` Dos ${n} marcadores deste exame, ${fora} estão fora da referência, e este é um deles.`;
   })();
 
-  const texto = `Na coleta de ${dataLonga(l.t)} o valor foi ${num(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+  const texto = `Na coleta de ${dataLonga(l.t)} o valor foi ${kgCurto(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
 
   return { titulo, texto };
 }

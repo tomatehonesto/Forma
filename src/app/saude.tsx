@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { vitalLast } from '../logic/derive';
-import { MO } from '../logic/time';
+import { fmtDate } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import {
@@ -46,7 +46,6 @@ function Regua({ k, num }: { k: string; num: number }) {
   );
 }
 
-const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 export default function Saude() {
   const S = useStore((s) => s.S);
@@ -87,7 +86,7 @@ export default function Saude() {
             valor={`${pa.sys}/${pa.dia}`}
             unidade="mmHg"
             pontos={(S.vitals.pa as any[]).map((x) => ({
-              v: x.sys, rotulo: `${x.sys}/${x.dia}`, quando: dia(x.t),
+              v: x.sys, rotulo: `${x.sys}/${x.dia}`, quando: fmtDate(x.t),
             }))}
           />
           <CardCurva
@@ -97,7 +96,7 @@ export default function Saude() {
             valor={`${gl.v}`}
             unidade="mg/dL"
             pontos={(S.vitals.glic as any[]).map((x) => ({
-              v: x.v, rotulo: `${x.v}`, quando: dia(x.t),
+              v: x.v, rotulo: `${x.v}`, quando: fmtDate(x.t),
             }))}
           />
         </View>

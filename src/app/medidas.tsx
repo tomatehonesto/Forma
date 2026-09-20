@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { latestMeasure, firstMeasure } from '../logic/derive';
-import { MO, nf } from '../logic/time';
+import { nf, fmtDate } from '../logic/time';
 import { Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Grade2, Metrica, Botao, Aviso, CardCurva,
@@ -39,7 +39,6 @@ const CIRC: { k: string; nome: string }[] = [
 
 const n1 = (x: number) => nf(x, 1).replace('.', ',');
 const n0 = (x: number) => nf(x, 0);
-const dia = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 /* Card de circunferência — CardCurva com os rótulos que a leitura ao
    deslizar precisa: cada ponto vira "96 · 29 ago" no cabeçalho. */
@@ -58,11 +57,11 @@ function CardMedida({ nome, chave, onPress }: { nome: string; chave: string; onP
     <CardCurva
       id={`md-${chave}`}
       nome={nome}
-      sub={`${n0(primeiro.v)} › ${n0(ultimo.v)} cm · ${dia(ultimo.t)}`}
+      sub={`${n0(primeiro.v)} › ${n0(ultimo.v)} cm · ${fmtDate(ultimo.t)}`}
       valor={`${delta > 0 ? '+' : '−'}${n1(Math.abs(delta))}`}
       unidade="cm"
       altura={92}
-      pontos={pts.map((p) => ({ v: p.v, rotulo: n0(p.v), quando: dia(p.t) }))}
+      pontos={pts.map((p) => ({ v: p.v, rotulo: n0(p.v), quando: fmtDate(p.t) }))}
       onPress={onPress}
     />
   );

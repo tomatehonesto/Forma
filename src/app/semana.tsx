@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { INDICADORES, sintomasEm, timelineWeeks, notas, temAcompanhamento } from '../logic/derive';
-import { MO_LONG, DAY, DOW_PT, MO, nf, maiuscula } from '../logic/time';
+import { MO_LONG, DAY, DOW_PT, nf, maiuscula, fmtDate } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
@@ -26,7 +26,6 @@ import { useTheme } from '../ui/useTheme';
    de palavras, a pessoa teria que ler as três para saber qual pesou mais.
    ============================================================ */
 
-const curto = (t: number) => { const d = new Date(t); return `${d.getDate()} ${MO[d.getMonth()]}`; };
 
 /* TL_LABEL é plural ("Refeições") porque nasceu para rotular filtros. Num
    selo de linha o que cabe é o singular em caixa baixa: ali ele qualifica
@@ -38,7 +37,7 @@ const SELO: Record<string, string> = {
 const diaSemana = (t: number) => {
   const d = new Date(t);
   const nome = DOW_PT[d.getDay()];
-  return `${maiuscula(nome)}, ${curto(t)}`;
+  return `${maiuscula(nome)}, ${fmtDate(t)}`;
 };
 
 export default function Semana() {
@@ -168,7 +167,7 @@ export default function Semana() {
         <Cartao>
           <Linha
             titulo={nota ? `“${nota.text}”` : 'Nenhuma nota nesta semana'}
-            sub={nota ? `Anotada em ${curto(nota.t)}` : 'Toque para escrever uma'}
+            sub={nota ? `Anotada em ${fmtDate(nota.t)}` : 'Toque para escrever uma'}
             onPress={() => router.push(nota ? `/nota?t=${nota.t}` as any : '/nota' as any)}
           />
         </Cartao>
