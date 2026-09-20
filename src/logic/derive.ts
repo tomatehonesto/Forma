@@ -1767,8 +1767,32 @@ export function patterns(S: State): Pattern[] {
   }
 
   /* --- os dois óbvios, no fim da fila --- */
+
+  /* ⚠️⚠️ ESTES DOIS ERAM OS ÚNICOS SEM `if` EM VOLTA, e por isso eram os
+     únicos que apareciam no primeiro dia — quando não há nada para
+     dizer e eles diziam assim mesmo.
+
+     A aba Insights abria, para quem tinha acabado de instalar o
+     aplicativo, com o destaque:
+
+         "Você manteve 0% das aplicações em dia
+          São 0 aplicações desde o início do tratamento, com alguns
+          atrasos pelo caminho."
+
+     Zero de zero é 0%, e a frase seguinte fala dos atrasos dessa pessoa.
+     Ela nunca teve uma aplicação marcada. Logo abaixo, "Seu ritmo é de
+     0,0 kg por semana — dentro do esperado para a sua fase": um veredito
+     sobre uma semana que não aconteceu.
+
+     Os dois são RETRATO, não descoberta: descrevem um número que a
+     pessoa já vê na Home. Retrato de nada é invenção, e por serem os
+     últimos da fila ninguém reparava — só apareciam sozinhos, que é
+     exatamente quando ninguém devia estar lendo. */
+
   const r = journeySummary(S);
-  out.push({
+  /* Ritmo POR SEMANA precisa de semanas: com uma pesagem não há ritmo, e
+     com uma semana o número é o primeiro intervalo, não uma tendência. */
+  if (S.weights.length >= 3 && r.semana >= 2) out.push({
     key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent', surpresa: 0,
     titulo: `Seu ritmo é de ${r.ritmoLabel} kg por semana`,
     texto: r.verdict.good
@@ -1782,7 +1806,9 @@ export function patterns(S: State): Pattern[] {
   });
 
   const ade = adesao(S);
-  out.push({
+  /* Três aplicações é o mínimo para a palavra "manteve" significar algo:
+     com uma, a porcentagem é 0% ou 100% e nenhum dos dois é um hábito. */
+  if (S.injections.length >= 3) out.push({
     key: 'aplicacoes', cat: 'Aplicações', ic: 'syringe', cor: 'accent2', surpresa: 0,
     titulo: ade >= 100
       ? 'Você não atrasou nenhuma aplicação desde o começo'
