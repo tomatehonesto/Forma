@@ -156,7 +156,6 @@ export default function Registrar() {
     { ic: 'syringe', titulo: 'Apliquei a dose', to: '/aplicacao' },
     { ic: 'scale', titulo: 'Acabei de me pesar', to: '/medir-peso' },
     { ic: 'utensils', titulo: 'Fiz uma refeição', to: '/medir-refeicao' },
-    { ic: 'camera', titulo: 'Tirei uma foto de progresso', to: '/medir-foto' },
     { ic: 'ruler', titulo: 'Medi meu corpo', to: '/medir-medidas' },
     { ic: 'doc', titulo: 'Recebi um exame', to: '/medir-exame' },
     /* A ANOTAÇÃO É EVENTO como as outras desta lista: cada uma é um

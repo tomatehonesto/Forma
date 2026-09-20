@@ -163,7 +163,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Identificação</b> — nome ou apelido, data de nascimento e como você se identifica.',
         '<b>Dados de saúde</b> — altura, peso, medidas corporais, medicamento, dose, datas e locais de aplicação, sintomas, sono, humor, energia, resultados de exames, restrições alimentares e as anotações que você escreve.',
         '<b>Hábitos</b> — refeições, proteína, hidratação e exercício que você registra.',
-        '<b>Fotos</b> — a foto de perfil, quando você escolhe uma, e as fotos de progresso que você guarda.',
+        '<b>Fotos</b> — a foto de perfil, quando você escolhe uma.',
         '<b>Preferências</b> — metas diárias, horários de lembrete e tema do aplicativo.',
         '<b>Registro do consentimento</b> — a data e a versão do aviso que você aceitou.',
       ],

@@ -289,7 +289,7 @@ export default function RootLayout() {
             }}
           />
           {/* capturas dedicadas — mesma apresentação do registrar */}
-          {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-medidas','medir-foto','medir-exame','medir-anotacao',
+          {['medir-agua','medir-exercicio','medir-refeicao','medir-peso','medir-medidas','medir-exame','medir-anotacao',
            'registro','nota','caneta-nova','ritmo','dia',
            /* As folhas de DETALHE entram aqui pelo mesmo motivo das de
               captura: elas se desenham como bottom sheet, com scrim

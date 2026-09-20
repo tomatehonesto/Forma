@@ -2544,10 +2544,10 @@ export function weightSeries(S: State) {
 /* Os oito tipos da árvore de informação. O filtro da Linha do tempo é
    exatamente esta lista — e cada chip carrega sua contagem, para a pessoa
    saber o que tem atrás dele antes de tocar. */
-export type TLKind = 'checkin' | 'aplicacao' | 'peso' | 'foto' | 'refeicao' | 'exercicio' | 'consulta' | 'exame';
+export type TLKind = 'checkin' | 'aplicacao' | 'peso' | 'refeicao' | 'exercicio' | 'consulta' | 'exame';
 
 export const TL_LABEL: Record<TLKind, string> = {
-  checkin: 'Check-ins', aplicacao: 'Aplicações', peso: 'Peso', foto: 'Fotos',
+  checkin: 'Check-ins', aplicacao: 'Aplicações', peso: 'Peso',
   refeicao: 'Refeições', exercicio: 'Exercícios', consulta: 'Consultas', exame: 'Exames',
 };
 
@@ -2686,12 +2686,6 @@ export function timelineEvents(S: State): TLEvent[] {
     });
   }
 
-  for (const p of S.photos as any[]) out.push({
-    key: `foto-${p.t}`, kind: 'foto', day: D(p.t), ordemNoDia: '10:00',
-    ic: 'camera', color: 'purple', title: 'Foto de progresso', sub: p.tag, detalhe: p.tag,
-    value: '', valueColor: 'tx3',
-  });
-
   for (const m of S.meals as any[]) out.push({
     key: `ref-${m.t}`, kind: 'refeicao', day: D(m.t), ordemNoDia: '12:30',
     ic: 'utensils', color: 'amber', title: m.name, sub: m.tag,
@@ -2781,7 +2775,6 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     const nome: Partial<Record<TLKind, [string, string]>> = {
       checkin: ['check-in', 'check-ins'],
       peso: ['pesagem', 'pesagens'],
-      foto: ['foto', 'fotos'],
       refeicao: ['refeição', 'refeições'],
       exercicio: ['exercício', 'exercícios'],
       consulta: ['consulta', 'consultas'],

@@ -40,7 +40,7 @@ import { radius } from '../../theme';
 const PAD = 24;
 const FEED_SEMANAS = 3;
 /* eventos que merecem virar destaque; o resto é rotina e vira contagem */
-const NOTAVEIS: TLKind[] = ['consulta', 'exame', 'foto'];
+const NOTAVEIS: TLKind[] = ['consulta', 'exame'];
 
 /* ------------------------------------------------------------------ */
 /* Painel — sangra até as bordas e é o único bloco que quebra a margem,
@@ -501,14 +501,12 @@ export default function Jornada() {
        nunca registrou pressão não tinha como chegar na tela que serve
        justamente para registrar a primeira.
 
-       /fotos era pior: o único caminho era o cartão de confirmação que
-       aparece DEPOIS de tirar uma foto, e só a partir da segunda. A tela
-       de comparação não tinha porta para quem ainda não usou a tela de
-       comparação.
-
        É o mesmo defeito que /exames tinha, e a razão de ele se repetir é
        sempre a mesma: a porta nasce no fluxo que produz o dado, e o fluxo
-       que produz o dado só roda para quem já tem o dado. */
+       que produz o dado só roda para quem já tem o dado.
+
+       (A porta de /fotos morava aqui também, e saiu junto com a foto de
+       progresso — ver a nota do recurso, em seed.ts.) */
     /* ⚠️ O CARTÃO SE CHAMA COMO A TELA QUE ELE ABRE, e se chamava
        "Saúde" — um nome largo demais para um app em que tudo é saúde. A
        tela é "Sinais vitais", e o nome dela diz o que tem lá dentro.
@@ -520,7 +518,6 @@ export default function Jornada() {
        diz o que a pessoa vai encontrar, que é o trabalho de um
        subtítulo de porta. */
     ['heart', 'Sinais vitais', vitais ? `${vitais} ${vitais === 1 ? 'indicador' : 'indicadores'}` : 'sem registro', '/saude'],
-    ['camera', 'Fotos', S.photos.length ? `${S.photos.length} ${S.photos.length === 1 ? 'foto' : 'fotos'}` : 'sem registro', '/fotos'],
   ];
 
   return (

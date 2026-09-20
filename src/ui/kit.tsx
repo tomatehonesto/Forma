@@ -324,7 +324,7 @@ export function Screen({ children, scroll = true, style, scrollRef }: {
 
 /* Card de mídia — imagem sangrada, canto grande, texto sobre um véu
    escuro no rodapé. É o padrão que dá caráter ao app fora da Home:
-   biblioteca, marcos, fotos de progresso, conteúdo recomendado. */
+   biblioteca, marcos e conteúdo recomendado. */
 export function MediaCard({ source, over, title, sub, height = 200, onPress, style }: {
   source: any; over?: string; title: string; sub?: string;
   height?: number; onPress?: () => void; style?: StyleProp<ViewStyle>;

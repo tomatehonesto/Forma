@@ -381,7 +381,26 @@ export function buildSeed() {
       targets: { prot: 90, waterMl: 2500, exercMin: 60, bodyFat: 28 },
     },
     weights, injections, checkins,
-    photos: [{ t: +daysAgo(70), tag: 'início' }, { t: +daysAgo(35), tag: 'semana 5' }, { t: +daysAgo(4), tag: 'semana 10' }],
+    /* ============================================================
+       A FOTO DE PROGRESSO SAIU DO APLICATIVO — por ora.
+
+       Saíram as duas telas (a de captura e a de antes-e-depois com a
+       comparação escrita), o atalho de registrar, a porta na Jornada, a
+       confirmação depois de salvar, a trilha de conquista, o evento da
+       linha do tempo e o item do filtro.
+
+       ⚠️ O CAMPO FICA, E VAZIO. `S.photos` continua no estado por dois
+       motivos: quem já guardou fotos não as perde quando o recurso
+       voltar, e nada no aplicativo lê o campo hoje — um array parado não
+       custa nada e é o que torna a volta um commit revertido em vez de
+       uma migração.
+
+       ⚠️ E A POLÍTICA DE PRIVACIDADE FOI JUNTO. Ela listava "as fotos de
+       progresso que você guarda" entre os dados coletados, e documento
+       que afirma coletar o que o aplicativo não coleta mais é falso na
+       direção que mais importa.
+       ============================================================ */
+    photos: [],
     /* ONDE QUERO CHEGAR — as metas de vida, e só elas.
 
        O PESO SAIU DAQUI. Ele era a primeira da lista, numa tela que se

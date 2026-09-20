@@ -32,7 +32,7 @@ const curto = (t: number) => { const d = new Date(t); return `${d.getDate()} ${M
    selo de linha o que cabe é o singular em caixa baixa: ali ele qualifica
    UM dia, não uma coleção. */
 const SELO: Record<string, string> = {
-  aplicacao: 'aplicação', checkin: 'check-in', peso: 'pesagem', foto: 'foto',
+  aplicacao: 'aplicação', checkin: 'check-in', peso: 'pesagem',
   refeicao: 'refeição', exercicio: 'exercício', consulta: 'consulta', exame: 'exame',
 };
 const diaSemana = (t: number) => {

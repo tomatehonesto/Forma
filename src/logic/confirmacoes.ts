@@ -32,7 +32,7 @@ import { MO_LONG, nf, now } from './time';
    ============================================================ */
 
 export type TipoDeRegistro =
-  | 'peso' | 'medidas' | 'exame' | 'foto' | 'anotacao'
+  | 'peso' | 'medidas' | 'exame' | 'anotacao'
   | 'refeicao' | 'exercicio' | 'agua';
 
 export type LinhaConfirmada = {
@@ -188,29 +188,6 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
           }]),
         ],
         caminho: { label: 'Ver no painel de exames', to: '/exames' },
-      };
-    }
-
-    case 'foto': {
-      const n = (S.photos as any[]).length;
-      const primeira = (S.photos as any[])[0];
-      return {
-        titulo: 'Foto registrada',
-        texto: `${n} ${n === 1 ? 'registro' : 'registros'} de progresso · ${dia(+now())}`,
-        linhas: [
-          /* SEM SEMANA. Este app tem três contas de semana diferentes
-             espalhadas por aí — a Home lê o protocolo, duas telas dividem o
-             dia por sete —, e uma quarta nascendo aqui só somaria ao
-             problema. O dia do tratamento tem uma fonte só. */
-          { titulo: 'No tratamento', sub: 'contado desde o primeiro dia', selo: `dia ${journeyDay(S)}`, seloTom: 'neutra' },
-          ...(primeira && n > 1 ? [{
-            titulo: 'A primeira foi em',
-            sub: dia(primeira.t),
-            selo: 'comparar',
-            seloTom: 'neutra' as const,
-          }] : []),
-        ],
-        caminho: n > 1 ? { label: 'Comparar com as anteriores', to: '/fotos' } : undefined,
       };
     }
 

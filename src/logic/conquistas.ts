@@ -359,13 +359,6 @@ const CATALOGO: Trilha[] = [
 
   /* ---------------- acompanhamento ---------------- */
   {
-    id: 'fotos', familia: 'acompanhamento', ic: 'camera', titulo: 'Fotos de progresso',
-    niveis: [1, 3, 6, 12],
-    desc: (a) => `${plural(a, 'foto')} guardada${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'foto')}`,
-    medida: (S) => porContagem((S.photos as any[]).map((p) => p.t)),
-  },
-  {
     id: 'medidas', familia: 'acompanhamento', ic: 'ruler', titulo: 'Medidas de fita',
     niveis: [1, 3, 6, 12],
     desc: (a) => `${plural(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
