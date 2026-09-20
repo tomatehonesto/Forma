@@ -566,7 +566,7 @@ export default function Home() {
                     title={temConsulta(S) ? 'Próxima consulta' : 'Anotar uma consulta'}
                     sub={temConsulta(S)
                       ? `${fmtDate(new Date(S.consult.t))} • ${DOW_PT[new Date(S.consult.t).getDay()]}`
-                      : 'Para o app avisar quando ela chegar perto'}
+                      : 'Para avisarmos quando ela chegar perto'}
                     onPress={go(temConsulta(S) ? '/consultas' : '/anotar-consulta')} />
                 </View>
               </View>

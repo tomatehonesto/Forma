@@ -134,7 +134,7 @@ export default function Integracoes() {
       <Titulao titulo="Integrações" lead="Ligadas, elas trazem as suas pesagens sem você digitar." />
 
       {aparelho && estado === 'pronto' ? (
-        <Bloco titulo="Do seu aparelho" nota="Um depósito local: o app pede permissão e lê. Sem conta e sem senha.">
+        <Bloco titulo="Do seu aparelho" nota="Um depósito local: pedimos permissão e lemos. Sem conta e sem senha.">
           <Cartao>
             <Linha
               it={aparelho}

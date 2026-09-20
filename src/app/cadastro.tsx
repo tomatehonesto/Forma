@@ -1437,7 +1437,7 @@ export default function Cadastro() {
       : 'Na ordem da titulação.',
     frequencia: 'É daqui que saem a contagem do ciclo, os lembretes e o estoque da caneta.',
     corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
-    meta: 'É a referência que o app usa para mostrar o quanto você já andou. Dá para mudar quando quiser.',
+    meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',

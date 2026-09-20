@@ -155,7 +155,7 @@ export default function Consultas() {
           <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
             {conectada
               ? 'Quando a sua equipe marcar a próxima, ela aparece aqui.'
-              : 'Com a data aqui, o app avisa quando ela estiver perto e deixa o resumo pronto para levar.'}
+              : 'Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para levar.'}
           </Txt>
           {!conectada ? (
             <Pressable onPress={go('/anotar-consulta')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>

@@ -91,7 +91,7 @@ export default function Alimentos() {
     <TelaInterna titulo="Alimentos">
       <Titulao
         titulo="Alimentos"
-        lead={`A tabela que o app usa para contar, com ${ALIMENTOS.length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.`}
+        lead={`A tabela que usamos para contar, com ${ALIMENTOS.length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.`}
       />
 
       <View style={{ gap: 12 }}>

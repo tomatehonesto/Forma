@@ -34,7 +34,7 @@ type QA = { q: string; a: string };
    último o que acontece com os dados. */
 const PERGUNTAS: QA[] = [
   {
-    q: 'De onde saem os números que o app mostra?',
+    q: 'De onde saem os números que aparecem aqui?',
     a: 'Todos eles são contas feitas em cima do que você registrou — peso, aplicações, check-ins, refeições, exames. O aplicativo não completa o que faltou nem estima o que você não disse: dia sem resposta aparece como dia sem resposta, e não como zero.',
   },
   {
@@ -51,7 +51,7 @@ const PERGUNTAS: QA[] = [
   },
   {
     q: 'O meu peso pode vir da balança sozinho?',
-    a: 'Se a sua balança, relógio ou anel escrevem no Apple Saúde (iPhone) ou no Health Connect (Android), sim — o app lê de lá. Ele lê só o peso, e só lê: nunca escreve nada nesses aplicativos. Garmin, Fitbit, Withings, Oura e Whoop chegam por esse caminho.',
+    a: 'Se a sua balança, relógio ou anel escrevem no Apple Saúde (iPhone) ou no Health Connect (Android), sim — lemos de lá. Lemos só o peso, e só lemos: nunca escrevemos nada nesses aplicativos. Garmin, Fitbit, Withings, Oura e Whoop chegam por esse caminho.',
   },
   {
     q: 'O que a minha equipe consegue ver?',

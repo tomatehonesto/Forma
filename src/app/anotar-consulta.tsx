@@ -120,7 +120,7 @@ export default function AnotarConsulta() {
     <TelaInterna titulo="Anotar consulta">
       <Titulao
         titulo={jaTem ? 'A sua próxima consulta' : 'Anote a sua consulta'}
-        lead="Com a data aqui, o app avisa quando ela estiver perto e deixa o resumo pronto para você levar."
+        lead="Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para você levar."
       />
 
       <Campo rotulo="Quando">
@@ -162,7 +162,7 @@ export default function AnotarConsulta() {
       <Aviso
         ic="shield"
         titulo="A data fica com você"
-        texto="Anotar aqui não avisa o consultório nem entra no calendário do telefone. É o app que passa a saber que a consulta está chegando."
+        texto="Anotar aqui não avisa o consultório nem entra no calendário do telefone. Somos nós que passamos a saber que a consulta está chegando."
       />
 
       <Botao label={jaTem ? 'Salvar' : 'Anotar consulta'} onPress={salvar} />

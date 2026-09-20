@@ -70,7 +70,7 @@ export default function Notificacoes() {
 
   return (
     <TelaInterna titulo="Notificações">
-      <Titulao titulo="Notificações" lead="O que o app te contou nos últimos dias." />
+      <Titulao titulo="Notificações" lead="O que contamos para você nos últimos dias." />
 
       {/* Com uma origem só na lista, o filtro seria uma pastilha de
           "Todos" e mais nada — um controle que não controla. */}
@@ -112,7 +112,7 @@ export default function Notificacoes() {
           })}
         </Cartao>
       ) : (
-        <Vazio ic="bell" titulo="Nada por aqui" texto="Quando o app tiver algo a dizer, ele aparece nesta lista." />
+        <Vazio ic="bell" titulo="Nada por aqui" texto="Quando tivermos algo a dizer, aparece nesta lista." />
       )}
 
       <Bloco titulo="Lembretes">

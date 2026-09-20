@@ -116,7 +116,7 @@ export default function Metas() {
              separa as duas é quem cobra: aquelas o app conta sozinho,
              estas a pessoa escreveu. */
           titulo="As suas metas"
-          nota="As medidas o app acompanha pelos seus registros. As suas, você marca."
+          nota="As medidas nós acompanhamos pelos seus registros. As suas, você marca."
         >
           {metas.length ? (
             <Cartao>
