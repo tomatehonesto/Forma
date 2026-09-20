@@ -19,6 +19,14 @@
    tratamento inteiro. Quando nenhuma etapa está acontecendo, o ciclo
    volta a falar, que é o seu trabalho nas outras cinquenta semanas.
 
+   ⚠️ E POR ISSO O PLATÔ TEM PRAZO. As três primeiras etapas são EVENTOS:
+   acontecem, valem uma semana e passam. Platô e manutenção são ESTADOS —
+   duram meses — e um estado que preempta o ciclo faria a Home repetir a
+   mesma frase por trinta dias seguidos, que é como um cartão vira papel
+   de parede. Os dois só falam enquanto são NOTÍCIA: platô, entre a quarta
+   e a sétima semana parada; manutenção, do primeiro mês na faixa em
+   diante, e o ciclo assume quando ela deixa de ser novidade.
+
    ============================================================
    PADRÃO E PERSONALIZADA NÃO SÃO DUAS FAMÍLIAS
 
@@ -42,7 +50,7 @@
    descobertas.ts: uma camada que ESCOLHE, sobre uma que CALCULA.
    ============================================================ */
 
-import { diffDays, startOfDay, now, nf, doseTxt } from './time';
+import { DAY, diffDays, startOfDay, now, nf, doseTxt } from './time';
 import {
   todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M,
 } from './derive';
@@ -72,6 +80,53 @@ function subiuDeDose(S: State) {
   const ultima = injs[injs.length - 1], anterior = injs[injs.length - 2];
   if (ultima.dose === anterior.dose) return null;
   return { de: anterior.dose, para: ultima.dose, t: ultima.t };
+}
+
+/* ============================================================
+   O PESO PARADO, E OS DOIS NÚMEROS QUE ALGUÉM TEVE DE ESCOLHER
+
+   ⚠️⚠️ ESTES LIMIARES SÃO ESCOLHA, NÃO MEDIDA — estão no PENDENCIAS para
+   revisão de quem entende. O aplicativo não tem como derivá-los dos
+   dados: "quanto tempo parada é um platô" é pergunta clínica, e a
+   resposta muda com a fase do tratamento e com a pessoa.
+
+   O que está escrito aqui, e por quê:
+
+   · QUATRO SEMANAS. Menos que isso é ruído: o próprio aplicativo diz, na
+     tela de evolução, que variações de um a dois quilos acontecem por
+     água, sal e intestino sem nada ter mudado na gordura. Uma quinzena
+     parada não é um platô, é uma quinzena.
+
+   · MEIO QUILO. É o quanto o peso pode ter caído em quatro semanas e
+     ainda assim contar como parado — cerca de 125 g por semana, bem
+     abaixo de qualquer ritmo terapêutico.
+
+   · E A COMPARAÇÃO É ENTRE MÉDIAS DE SETE DIAS, nunca entre duas
+     pesagens. Duas pesagens comparam dois dias, e dois dias é onde a
+     água mora. A média da semana tira isso da conta — e é por isso que
+     cada janela exige DUAS pesagens para valer.
+   ============================================================ */
+const PLATO_SEMANAS = 4;
+const PLATO_KG = 0.5;
+/* Depois de tantas semanas, peso parado deixou de ser notícia e passou a
+   ser a situação dela: o ciclo volta a falar, porque é ele que ajuda no
+   dia a dia. Ver o comentário sobre preempção no alto do arquivo. */
+const PLATO_VELHO_SEMANAS = 7;
+
+/** A média das pesagens numa janela de sete dias que terminou há
+    `semanasAtras` semanas — ou null quando não há duas pesagens ali. */
+function mediaDaSemana(S: State, semanasAtras: number): number | null {
+  const fim = +startOfDay(now()) - semanasAtras * 7 * DAY;
+  const ini = fim - 7 * DAY;
+  const ws = (S.weights as any[]).filter((w) => w.t > ini && w.t <= fim + DAY);
+  return ws.length >= 2 ? ws.reduce((s, w) => s + w.kg, 0) / ws.length : null;
+}
+
+/** Quanto o peso caiu entre a semana de `atras` semanas atrás e a de agora.
+    Positivo é perda. null quando falta pesagem de um dos lados. */
+function quedaEm(S: State, atras: number): number | null {
+  const agora = mediaDaSemana(S, 0), antes = mediaDaSemana(S, atras);
+  return agora == null || antes == null ? null : antes - agora;
 }
 
 /* Uma etapa vale por uma semana — o tempo de um ciclo inteiro, que é
@@ -142,6 +197,61 @@ function daEtapa(S: State): Mensagem | null {
       head: 'Esta é a sua primeira semana de tratamento.',
       body: 'O corpo ainda está conhecendo o remédio. Enjoo leve, menos fome e um pouco de cansaço são os relatos mais comuns nos primeiros dias, e costumam diminuir com as semanas.',
       q: 'O que esperar no dia da aplicação?',
+      fonte: 'etapa',
+    };
+  }
+
+  /* ---------- 4. manutenção ----------
+     ⚠️ ANTES DO PLATÔ, E A ORDEM É O ASSUNTO INTEIRO. Peso parado em quem
+     chegou à meta e peso parado em quem ainda está longe dela são o mesmo
+     número e notícias opostas: uma é o objetivo, a outra é uma pergunta
+     para a consulta. Chamar de platô quem chegou onde queria chegar seria
+     o aplicativo transformando a conquista dela em problema. */
+  const agora = mediaDaSemana(S, 0);
+  const meta = (S.profile as any).goalWeight as number;
+  const naMeta = agora != null && meta > 0 && agora <= meta + 0.5;
+  const jaEstavaNaMeta = (() => {
+    const antes = mediaDaSemana(S, PLATO_SEMANAS);
+    return antes != null && meta > 0 && antes <= meta + 0.5;
+  })();
+  if (naMeta && jaEstavaNaMeta) {
+    return {
+      chapeu: 'MANUTENÇÃO',
+      head: 'Você está no peso que definiu como meta.',
+      body: `${nf(agora!, 1)} kg, contra a meta de ${nf(meta, 1)} kg — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
+      q: 'Como está minha evolução?',
+      fonte: 'etapa',
+    };
+  }
+
+  /* ---------- 5. platô ---------- */
+  const queda = quedaEm(S, PLATO_SEMANAS);
+  const quedaVelha = quedaEm(S, PLATO_VELHO_SEMANAS);
+  const parado = queda != null && queda < PLATO_KG;
+  /* Parado há muito tempo não é mais notícia — e nenhuma pesagem tão
+     antiga também não é: quem começou a se pesar há cinco semanas não
+     tem como saber se isto começou agora. Nos dois casos o ciclo fala. */
+  const aindaENoticia = quedaVelha == null || quedaVelha >= PLATO_KG;
+  if (parado && aindaENoticia && agora != null) {
+    const antes = mediaDaSemana(S, PLATO_SEMANAS)!;
+    return {
+      chapeu: 'PESO ESTÁVEL',
+      head: 'Seu peso está parado há cerca de um mês.',
+      /* ⚠️ A EXPLICAÇÃO VEM ANTES DE QUALQUER SUGESTÃO, e a sugestão não é
+         "se esforce mais". Platô é fisiologia: o corpo gasta menos à
+         medida que pesa menos, e a mesma dose passa a encontrar um corpo
+         diferente. Quem lê isto está fazendo o mesmo de sempre e vendo a
+         balança parar — a última coisa de que precisa é de um aplicativo
+         sugerindo que o problema é ela. */
+      /* ⚠️ QUANDO OS DOIS ARREDONDAM IGUAL, NÃO SE DIZ DUAS VEZES. "78,2 kg
+         há quatro semanas, 78,2 kg agora" é exato e parece defeito de
+         código — e um número que parece defeito derruba a frase inteira
+         junto. Mostrar os dois continua sendo a regra quando eles são
+         dois. */
+      body: `${nf(antes, 1) === nf(agora, 1)
+        ? `A média das suas pesagens está em ${nf(agora, 1)} kg desde então.`
+        : `${nf(antes, 1)} kg há quatro semanas, ${nf(agora, 1)} kg agora.`} Platô é parte esperada do tratamento: o corpo passa a gastar menos conforme o peso cai. É assunto de consulta, não de esforço.`,
+      q: 'Como está minha evolução?',
       fonte: 'etapa',
     };
   }

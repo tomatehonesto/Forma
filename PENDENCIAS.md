@@ -608,3 +608,48 @@ Vale a mesma pergunta para qualquer achado futuro que cruze dois sinais
 do check-in: **o ciclo da dose explica quase tudo o que oscila neste
 aplicativo**, e um achado que não olha para ele está olhando para o ciclo
 sem saber.
+
+---
+
+## 🔴 13. Os limiares de platô são escolha de código, não decisão clínica
+
+`src/logic/etapa.ts` passou a reconhecer duas etapas do tratamento a
+partir do peso, e as duas dependem de números que **eu escolhi**:
+
+| constante | valor | o que decide |
+|---|---|---|
+| `PLATO_SEMANAS` | 4 | quanto tempo parada conta como platô |
+| `PLATO_KG` | 0,5 | quanto o peso pode ter caído e ainda contar como parado |
+| `PLATO_VELHO_SEMANAS` | 7 | quando o platô deixa de ser notícia na Home |
+| faixa da meta | +0,5 kg | quão perto da meta conta como "na meta" |
+
+**O raciocínio, para quem for revisar:** quatro semanas porque o próprio
+aplicativo diz, na tela de evolução, que variações de um a dois quilos
+acontecem por água, sal e intestino — uma quinzena parada é ruído. Meio
+quilo em quatro semanas dá cerca de 125 g por semana, bem abaixo de
+qualquer ritmo terapêutico. A comparação é entre **médias de sete dias**,
+nunca entre duas pesagens, e cada janela exige duas pesagens para valer.
+
+**O que está em jogo se estiver errado.** A frase que sai daqui é *"Seu
+peso está parado há cerca de um mês — platô é parte esperada do
+tratamento, é assunto de consulta, não de esforço."* Ela foi escrita para
+não culpar ninguém e para empurrar para a consulta em vez de para o
+esforço. Ainda assim:
+
+- **cedo demais** e o aplicativo chama de platô uma oscilação normal,
+  o que assusta quem está indo bem;
+- **tarde demais** e alguém passa dois meses achando que o problema é
+  ela, quando havia conversa de ajuste de dose a ser tida.
+
+**Decidir antes da loja:** se 4 semanas / 0,5 kg é a régua, ou se a régua
+muda com a fase do tratamento — o platô da titulação não é o mesmo da
+manutenção. Vale a mesma pergunta do item 12: **o ciclo da dose explica
+quase tudo o que oscila neste aplicativo**, e a semana da dose mexe no
+peso pela água que ela segura.
+
+**Fica registrado também:** a etapa de manutenção compara com
+`profile.goalWeight`, que é um número que a PESSOA digitou no cadastro, e
+não um alvo que a equipe dela definiu. O aplicativo hoje não tem onde
+guardar uma meta clínica. Enquanto não tiver, "você está no peso que
+definiu como meta" é a frase correta — e é de propósito que ela diz
+*definiu*, e não *deveria*.
