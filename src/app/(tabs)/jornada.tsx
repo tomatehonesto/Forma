@@ -20,7 +20,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius } from '../../theme';
+import { radius, alfa, mix } from '../../theme';
 
 /* ============================================================
    JORNADA
@@ -291,8 +291,20 @@ function Painel() {
    verde/vermelho sozinho não sabe dizer: o número que não se mexeu. */
 function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
   const { c } = useTheme();
+  /* ⚠️ O TOM CONTINUA SE CHAMANDO 'ruim', E A COR NÃO É VERMELHA.
+
+     O nome é do FATO — a notícia é má —, e a cor é de como se conta. O
+     vermelho saiu da Jornada inteira pelo mesmo motivo que saiu do hero:
+     ele acusa, e a semana em que a balança sobe é a semana em que as
+     pessoas desistem. O teal marca sem cobrar.
+
+     O par é montado e não tokenizado porque o app não tem um tealBg/
+     tealInk: o fundo é o teal a 18 por cento, que funciona translúcido
+     sobre cartão claro e escuro, e a tinta é o teal puxado para a tinta
+     do tema — escura no claro, clara no escuro. É a mesma mecânica do
+     okBg/ok, montada na mão. */
   const [fundo, tinta] = ch.tom === 'bom' ? [c.okBg, c.ok]
-    : ch.tom === 'ruim' ? [c.ctaWeak, c.cta]
+    : ch.tom === 'ruim' ? [alfa(c.teal, 0.18), mix(c.teal, c.tx, 0.62)]
       : [c.bg2, c.tx3];
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ width: '49%', opacity: pressed ? 0.7 : 1 }]}>
