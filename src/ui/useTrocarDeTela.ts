@@ -1,15 +1,18 @@
 import { useRouter } from 'expo-router';
 
-/* ============================================================
-   NAVEGAR — os gestos de troca de tela que têm regra dentro
+/* ⚠️ UM GESTO DE NAVEGAÇÃO NÃO GANHA UM ARQUIVO DESTES POR SER
+   NAVEGAÇÃO — ganha por ter regra dentro.
 
-   Aqui não mora `router.push`. Empurrar uma rota é uma chamada, não uma
-   decisão: não existe versão dela que possa divergir de outra, e por
-   isso as quatorze telas que escrevem `go = (to) => () => router.push(to)`
-   continuam escrevendo. O que mora aqui é o que tem NÚMERO ou ORDEM
-   dentro — as coisas que, copiadas, divergem no dia em que alguém ajusta
-   uma e não acha a outra.
-   ============================================================ */
+   Este começou como `ui/navegar.ts`, um lugar para "os gestos de troca de
+   tela", e o nome era um convite: qualquer coisa que empurrasse uma rota
+   acabaria caindo aqui. As quatorze telas que escrevem
+   `go = (to) => () => router.push(to)` continuam escrevendo, e devem —
+   empurrar uma rota é uma chamada, não uma decisão, e não existe versão
+   dela que possa divergir de outra.
+
+   O que está abaixo tem um NÚMERO dentro, e é só por isso que saiu de
+   onde estava. Um hook por arquivo, como useTheme e useLarguraApp: o
+   próximo gesto com regra ganha o arquivo dele, com o nome dele. */
 
 /** Fecha a folha atual e abre outra rota.
 

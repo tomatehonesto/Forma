@@ -8,7 +8,7 @@ import { Txt, Row } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { useTrocarDeTela } from '../ui/navegar';
+import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 import { radius } from '../theme';
 
 /* ============================================================

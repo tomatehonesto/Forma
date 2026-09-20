@@ -7,7 +7,7 @@ import { startOfDay, now, diffDays, nf, dataComDiaDaSemana, maiuscula } from '..
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { useTrocarDeTela } from '../ui/navegar';
+import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 
 /* ============================================================
    UM DIA
