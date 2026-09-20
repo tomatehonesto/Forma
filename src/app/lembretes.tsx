@@ -156,8 +156,8 @@ export default function Lembretes() {
             <Txt v="bodyMed">{bloqueado ? 'Os avisos estão bloqueados' : 'No navegador não dá para avisar'}</Txt>
             <Txt v="caption" c={c.tx2} style={{ marginTop: 3, lineHeight: 20 }}>
               {bloqueado
-                ? 'O aparelho está barrando as notificações deste app. Enquanto estiver assim, nada do que você ligar aqui vai chegar.'
-                : 'O que você criar fica guardado e passa a valer quando abrir o app no celular.'}
+                ? 'O aparelho está barrando as notificações deste aplicativo. Enquanto estiver assim, nada do que você ligar aqui vai chegar.'
+                : 'O que você criar fica guardado e passa a valer quando abrir o aplicativo no celular.'}
             </Txt>
             {bloqueado && Platform.OS !== 'web' ? (
               <Pressable onPress={() => Linking.openSettings()} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.6 : 1 }]}>

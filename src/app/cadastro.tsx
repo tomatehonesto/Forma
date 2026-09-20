@@ -1404,7 +1404,7 @@ export default function Cadastro() {
     motivacao: 'O que está te levando a essa jornada?',
     atividade: 'Qual é o seu nível de atividade física?',
     restricao: 'Você tem alguma restrição alimentar?',
-    saude: 'Conecte o seu app de saúde',
+    saude: 'Conecte o seu aplicativo de saúde',
     /* Mesma conjugação que medicamento, dose e frequência já fazem: quem
        ainda vai começar não tem nada no presente para responder, e
        perguntar "você tem" obriga a traduzir a pergunta antes de

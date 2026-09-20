@@ -172,21 +172,21 @@ export default function Integracoes() {
         <Aviso
           ic="info"
           titulo={
-            !aparelho ? 'O app de saúde do aparelho aparece no celular'
+            !aparelho ? 'O aplicativo de saúde do aparelho aparece no celular'
               : estado === 'sem-app' ? `${aparelho.nome} não está disponível neste aparelho`
-                : 'Esta versão do app ainda não lê o aparelho'
+                : 'Esta versão do aplicativo ainda não lê o aparelho'
           }
           texto={
             !aparelho ? 'Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar.'
               : estado === 'sem-app' ? 'O Health Connect vem no Android 14 em diante e pode ser instalado nas versões anteriores. Depois de instalar, volte aqui.'
-                : 'A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do app, e não da prévia. No Expo Go ela não existe.'
+                : 'A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do aplicativo, e não da prévia. No Expo Go ela não existe.'
           }
         />
       )}
 
       <Bloco
         titulo="Contas de serviço"
-        nota="Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o app de saúde do seu aparelho já chega aqui."
+        nota="Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o aplicativo de saúde do seu aparelho já chega aqui."
       >
         <Cartao>
           {CONTAS.map((it) => (

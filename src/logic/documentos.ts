@@ -392,7 +392,7 @@ export const TERMOS = (): Documento => ({
       paragrafos: ['Você concorda em não:'],
       itens: [
         'Usar o aplicativo para finalidade ilegal ou contrária à ordem pública.',
-        'Descompilar, modificar, redistribuir ou criar trabalhos derivados a partir do app.',
+        'Descompilar, modificar, redistribuir ou criar trabalhos derivados a partir do aplicativo.',
         'Registrar dados de saúde de outra pessoa sem que ela saiba e autorize.',
         'Apresentar o que o aplicativo mostra como diagnóstico, laudo ou prescrição.',
         'Tentar burlar limites técnicos, automatizar acesso ou interferir no funcionamento do serviço.',

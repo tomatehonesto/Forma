@@ -67,7 +67,7 @@ export const FONTES: Fonte[] = [
      São as quatro telas de hábito deste app, escritas por outra pessoa. */
   {
     id: 'desenho',
-    sustenta: 'O que este app acompanha: proteína, movimento, água e sintomas',
+    sustenta: 'O que este aplicativo acompanha: proteína, movimento, água e sintomas',
     /* NO SELO, SÓ "HARVARD". O nome inteiro da escola é o correto na
        citação, e por isso ele está em `onde` — mas numa pastilha ele
        ocupa duas linhas para acrescentar o que ninguém estava em dúvida.

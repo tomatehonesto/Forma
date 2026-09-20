@@ -377,7 +377,7 @@ export default function Exercicio() {
         <Cartao>
           <Linha
             ic="watch"
-            titulo={fontes.length ? listaPt(fontes) : 'Conectar um relógio ou app'}
+            titulo={fontes.length ? listaPt(fontes) : 'Conectar um relógio ou aplicativo'}
             sub={fontes.length ? 'Lançam os minutos sozinhos' : 'Apple Saúde, Health Connect, Garmin e outros'}
             onPress={() => router.push('/integracoes' as any)}
           />

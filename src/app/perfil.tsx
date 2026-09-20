@@ -702,7 +702,7 @@ export default function Perfil() {
         <ListRow ic="info" title="Ajuda"
           sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
         <ListRow ic="journey" title="Reportar um problema"
-          sub="Conte o que aconteceu — vai com a versão do app" onPress={reportar} />
+          sub="Conte o que aconteceu — vai com a versão do aplicativo" onPress={reportar} />
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do
