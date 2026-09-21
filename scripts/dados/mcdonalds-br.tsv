@@ -1,0 +1,117 @@
+# COLHEITA — McDonald's Brasil, cardápio publicado em mcdonalds.com.br
+#
+# Colhido em 21 de setembro de 2026, das páginas de produto do próprio
+# site. Cada linha é o que a rede publica na aba "Informação nutricional"
+# daquele produto.
+#
+# ⚠️ OS VALORES SÃO POR PORÇÃO, E NÃO POR 100 g. O McDonald's Brasil
+# publica "Por Porção" e NÃO publica o peso da porção — restaurante é
+# isento da RDC 429, que obriga isso em alimento embalado. É por causa
+# disto que o Alimento ganhou `porUnidade`: sem o peso, não há como
+# converter para a base de 100 g que a TACO usa.
+#
+# ⚠️ E É COLHEITA MANUAL DE PROPÓSITO. O site responde 403 a qualquer
+# cliente que não seja um navegador de verdade, então o gerador não busca
+# sozinho como o da TACO e o da FNDDS fazem. Para atualizar, abra o site
+# num navegador e rode o colhedor descrito em scripts/gerar-fastfood-br.mjs.
+#
+# colunas: slug, nome, categoria, proteína g, kcal, carboidrato g,
+#          gordura g, fibra g, sódio mg, alérgenos declarados
+#
+quarterao-saja-vibes	Quarterão Saja Vibes	sanduiches-de-carne-bovina	36	666	40	40	3.9	1441	Leite+Soja+Ovo
+brabo-smokehouse	Brabo SmokeHouse	sanduiches-de-carne-bovina	61	1211	55	83	4	1895.96	Leite+Soja+Ovo+Glúten
+brabo-brabissimo-carne	Brabo Brabissímo Carne	sanduiches-de-carne-bovina	58	1244	51	90	4.4	1759.14	Leite+Soja+Ovo+Glúten
+duplo-cheeseburger	Duplo Cheeseburger	sanduiches-de-carne-bovina	25	428	31	22	2	963.38
+cheddar-mcmelt	Cheddar McMelt	sanduiches-de-carne-bovina	29	509	33	29	3.2	905.84	Leite+Soja+Ovo+Glúten
+duplo-cheddar-mcmelt	Duplo Cheddar McMelt	sanduiches-de-carne-bovina	52	854	36	56	4.7	1482.39	Leite+Soja+Ovo+Glúten
+big-mac	Big Mac	sanduiches-de-carne-bovina	26	524	43	27	1.9	928	Leite+Soja+Ovo+Glúten
+duplo-quarterao	Duplo Quarterão	sanduiches-de-carne-bovina	52	836	39	52	3.2	1257	Leite+Soja+Ovo+Glúten
+quarterao-com-queijo	Quarterão com Queijo	sanduiches-de-carne-bovina	32	566	39	31	2.8	1052.04	Leite+Soja+Ovo+Glúten
+mcnifico-bacon	McNífico Bacon	sanduiches-de-carne-bovina	32	595	40	34	4	1101	Leite+Soja+Ovo+Glúten
+duplo-burger-bacon	Duplo Burger Bacon	sanduiches-de-carne-bovina	27	441	35	22	2.6	958.14	Leite+Soja+Ovo+Glúten
+triplo-burger	Triplo Burger	sanduiches-de-carne-bovina	34	549	36	29	3	1152.09	Leite+Soja+Ovo+Glúten
+cheeseburger	Cheeseburger	sanduiches-de-carne-bovina	15	291	30	12	1.7	647.13	Leite+Soja+Ovo+Glúten
+hamburger	Hamburger	sanduiches-de-carne-bovina	13	242	29	8	1.7	469.34	Leite+Soja+Ovo+Glúten
+supermc	SuperMc	sanduiches-de-carne-bovina	38	795	42	54	4	1371.17	Leite+Soja+Ovo+Glúten
+mcchicken-duplo	McChicken Duplo	sanduiches-de-frango	31	665	53	36	4.2	1408.1	Leite+Soja+Ovo+Glúten
+mccrispy-chicken-legend	McCrispy Chicken Legend	sanduiches-de-frango	37	900	65	55	4.3	1636	Leite+Soja+Ovo+Glúten
+mccrispy-chicken-deluxe	McCrispy Chicken Deluxe	sanduiches-de-frango	32	593	53	28	4.8	1125	Leite+Soja+Ovo+Glúten
+mcchicken-bacon	McChicken Bacon	sanduiches-de-frango	18	409	42	19	2.9	778.46
+mcchicken	McChicken	sanduiches-de-frango	17	403	42	18	3	712.12
+chicken-jr	Chicken Jr.	sanduiches-de-frango	12	349	43	15	2.4	738.75	Leite+Soja+Ovo+Glúten
+tasty-turbo-bacon-3-carnes	Tasty Turbo Bacon 3 carnes	familia-tasty	84	1428	41	103	5	1767.93	Leite+Soja+Ovo+Glúten
+tasty-turbo-bacon-2-carnes	Tasty Turbo Bacon 2 carnes	familia-tasty	63	1158	41	82	4	1562.73	Leite+Soja+Ovo+Glúten
+tasty-turbo-bacon-1-carne	Tasty Turbo Bacon 1 carne	familia-tasty	43	888	41	61	4	1357.53	Leite+Soja+Ovo+Glúten
+tasty-turbo-1-carne	Tasty Turbo 1 carne	familia-tasty	36	800	41	55	3.9	850.77	Leite+Soja+Ovo+Glúten
+tasty-turbo-2-carnes	Tasty Turbo 2 carnes	familia-tasty	56	1070	41	76	4.4	1055.9	Leite+Soja+Ovo+Glúten
+tasty-turbo-3-carnes	Tasty Turbo 3 carnes	familia-tasty	77	1340	41	97	4.8	1261.17	Leite+Soja+Ovo+Glúten
+duplo-mcfish-deluxe	Duplo McFish Deluxe	peixe	26	596	52	32	3.5	1246.67	Leite+Soja+Ovo+Glúten+Peixe
+mcfish-deluxe	McFish Deluxe	peixe	26	591	51	31	2.7	1237.4	Leite+Soja+Ovo+Glúten+Peixe
+duplo-mcfish	Duplo McFish	peixe	17	396	40	19	2.7	827.89	Leite+Soja+Ovo+Glúten+Peixe
+mcfish	McFish	peixe	17	391	39	19	1.9	818.62	Leite+Soja+Ovo+Glúten+Peixe
+salada-fish	Salada Fish	salada	16	222	13	12	3.5	755.89	Leite+Soja+Ovo+Peixe
+salada-mix-crispy-chicken	Salada Mix Crispy Chicken	salada	30	423	24	23	4.5	1374.62	Soja+Ovo
+salada-mix-crispy-beef	Salada Mix Crispy Beef	salada	28	368	3	23	3.4	824.62	Soja+Ovo
+side-salad	Side Salad	salada	1	10	1	0	1	10
+mcfritas-cheddar-bacon	McFritas Cheddar Bacon	acompanhamentos	9	431	38	26	4.2	996.18
+mcfritas-grande	McFritas Grande	acompanhamentos	6.9	422	50	22	5.8	375.22	Soja
+mcfritas-media	McFritas Média	acompanhamentos	4.8	295	35	15	4.1	262.14	Soja
+batata-p	Batata P	acompanhamentos	2	171	25	7	2	173.6	Soja
+chicken-mcnuggets-4-unidades	Chicken McNuggets 4 unidades	acompanhamentos	9	155	10	8.6	0.77	300.16	Leite+Soja+Glúten
+chicken-mcnuggets-6-unidades	Chicken McNuggets 6 unidades	acompanhamentos	14	232	16	13	1.2	450.24	Leite+Soja+Glúten
+chicken-mcnuggets-10-unidades	Chicken McNuggets 10 unidades	acompanhamentos	24	387	26	21	1.9	750.4	Leite+Soja+Glúten
+chicken-mcnuggets-15-unidades	Chicken McNuggets 15 unidades	acompanhamentos	34	581	39	32	2.9	1125.6	Leite+Soja+Glúten
+tomatinho	Tomatinho	acompanhamentos	0.54	11	1.6	0.27	0.86	7.72
+pao-de-queijo	Pão de Queijo	cafe-da-manha	3.2	145	19	6.9	0.86	269.55	Leite+Soja+Ovo+Glúten
+mini-pao-de-queijo	Mini Pão de Queijo	cafe-da-manha	6.5	227	24	11	0.63	447.08	Leite+Soja+Ovo+Amendoim
+pao-de-queijo-recheado	Pão de queijo recheado com molho com queijo tipo cheddar	cafe-da-manha	4.5	189	21	9.5	0.8	489.7	Leite+Soja+Ovo+Glúten
+queijo-quente	Queijo Quente	cafe-da-manha	12	314	41	11	1.7	718.65	Leite+Soja+Ovo+Glúten
+pao-tipo-brioche-na-chapa	Pão tipo Brioche na Chapa	cafe-da-manha	7.3	280.5	38.6	10.8	2.6	362.3	Leite+Soja+Ovo+Glúten
+egg-burger	Egg Burger	cafe-da-manha	22	414	41	18	1.8	635.49	Leite+Soja+Ovo+Glúten
+egg-cheese-bacon	Egg Cheese Bacon	cafe-da-manha	20	383	41	16	1.7	941.79	Leite+Soja+Ovo+Glúten
+duplo-egg-cheese-bacon	Duplo Egg Cheese Bacon	cafe-da-manha	25	443	42	20	1.7	1014.64	Leite+Soja+Ovo+Glúten
+cookies-de-baunilha	Cookies de baunilha	mccafe	2.2	205	30	8.6	1.7	102.6	Leite+Soja+Ovo+Glúten
+cookies-de-chocolate	Cookies de chocolate	mccafe	2.6	199	28	8.5	2.2	109.35	Leite+Soja+Ovo+Glúten
+panini-com-queijo-e-bacon	Panini com queijo e bacon	mccafe	7.8	220	21	12	0.6	580.41	Leite+Soja+Ovo+Glúten
+folhado-com-queijo-e-tomate	Folhado com Queijo e Tomate	mccafe	8	416	36	26	1.5	545	Leite+Soja+Ovo+Glúten
+croissant-de-chocolate	Croissant de Chocolate	mccafe	6.9	407	42	23	3	333	Leite+Soja+Ovo+Glúten
+mccolosso-sabor-cereja-com-laranja	McColosso sabor cereja com laranja	sobremesas	4	220	43	4	0.5	57.09
+top-sundae-sabor-cereja-com-laranja	Top Sundae sabor cereja com laranja	sobremesas	12	530	84	16	1.3	214.28
+sundae-sabor-cereja-com-laranja	Sundae sabor cereja com laranja	sobremesas	6	290	48	9	0.9	96.4	Leite+Soja+Amendoim
+derpy-sundae	Derpy Sundae	sobremesas	3	227	42	5	0.1	101.88	Leite+Soja
+casquinha-creme-crocante	Casquinha Creme Crocante	sobremesas	4	285	44	10	1	95.07	Leite+Soja+Glúten+Amendoim
+mccolosso-creme-crocante	McColosso Creme Crocante	sobremesas	5	286	46	9	1	75.07
+mcflurry-creme-crocante	McFlurry Creme Crocante	sobremesas	8	551	87	19	1	212.7	Leite+Soja+Glúten+Amendoim
+mcshake-creme-crocante	McShake Creme Crocante	sobremesas	11	800	137	23	2	334.7	Leite+Soja+Glúten+Amendoim
+mcshake-do-grimace	McShake do Grimace	sobremesas	7	459	84	11	0.2	192.9	Leite+Soja+Ovo
+mcflurry-trufa-lingua-de-gato-duo-morango	McFlurry Trufa Língua de Gato DUO morango	sobremesas	9	654	93	28	0.3	178.82	Leite+Soja+Amendoim
+mcflurry-trufa-lingua-de-gato-duo-chocolate	McFlurry Trufa Língua de Gato DUO chocolate	sobremesas	10	678	93	31	2	245.92	Leite+Soja+Amendoim
+casquinha-baunilha	Casquinha Baunilha	sobremesas	3.2	170	31	3.9	0.37	62.41	Leite+Soja+Glúten
+casquinha-chocolate	Casquinha Chocolate	sobremesas	3.4	165	29	3.9	0.4	62.41	Leite+Soja+Glúten
+casquinha-mista	Casquinha Mista	sobremesas	3.3	167	30	3.9	0.4	62.41	Leite+Soja+Glúten
+casquinha-recheada-chocolate	Casquinha recheada chocolate	sobremesas	3.5	226.5	42	5.2	1.2	156.27	Leite+Soja
+casquinha-recheada-caramelo	Casquinha recheada caramelo	sobremesas	3.5	229.5	44.1	4.3	0.5	155.84
+mccolosso-chocolate	McColosso Chocolate	sobremesas	4	245	47	5	0.5	123.07	Soja+Ovo
+mccolosso-caramelo	McColosso Caramelo	sobremesas	4.4	269	52	5	0.58	102.84
+mccolosso-recheado-chocolate	McColosso recheado chocolate	sobremesas	4.6	313.6	59.2	7	2.1	192.45	Leite+Soja+Ovo+Glúten
+sundae-chocolate	Sundae chocolate	sobremesas	6	322	50	12	2.5	165.3	Leite+Amendoim
+sundae-morango	Sundae morango	sobremesas	6	298	50	9	0.8	98.2	Leite+Amendoim
+sundae-caramelo	Sundae caramelo	sobremesas	5.4	307	51	9.2	0.97	153.58	Leite+Soja+Glúten+Amendoim
+top-sundae-chocolate	Top Sundae chocolate	sobremesas	10	466	76	14	0.9	197.49
+top-sundae-morango	Top Sundae morango	sobremesas	10	485	80	14	0.9	199.69	Soja+Glúten+Amendoim
+top-sundae-caramelo	Top Sundae caramelo	sobremesas	7.1	401	67	12	1.3	190.81	Leite+Soja+Glúten
+mcflurry-mms-chocolate	McFlurry M&M's chocolate	sobremesas	6.2	502	81	17	3.6	195.81	Leite+Soja+Glúten+Amendoim
+mcflurry-mms-morango	McFlurry M&M's morango	sobremesas	5.9	467	80	14	2.2	128.19	Leite+Soja+Glúten+Amendoim
+mcflurry-ovomaltine-rocks-chocolate	McFlurry Ovomaltine Rocks chocolate	sobremesas	5.2	431	74	13	3.4	205.56	Leite+Soja+Glúten
+mcflurry-ovomaltine-rocks-morango	McFlurry Ovomaltine Rocks morango	sobremesas	5.6	453	86	9.8	2.3	187.14	Leite+Soja+Glúten
+mcshake-ovomaltine	McShake Ovomaltine	sobremesas	10	635	120	13	2.5	321.68	Leite+Soja+Glúten
+mcshake-kopenhagen	McShake Kopenhagen	sobremesas	11	758	110	30	6.1	346.86	Leite+Soja+Glúten+Amendoim
+mcshake-morango	McShake Morango	sobremesas	8	575	111	11	0	213.25	Leite+Soja+Glúten
+mcshake-caramelo	McShake Caramelo com farofa crocante de amendoim	sobremesas	5.4	437	79	9.2	0.97	153.58
+torta-de-maca	Torta de Maçã	sobremesas	1.8	154	27	4.5	0.8	61.5	Leite+Soja+Ovo
+torta-de-banana	Torta de Banana	sobremesas	2.1	152	26	4.4	0.6	76.62	Leite+Soja+Ovo
+petit-suisse-do-mequi	Petit Suisse do Méqui	sobremesas	2.3	40	4.7	1.3	0	10.84	Leite
+caldofreddo-chocolate	Caldo&Freddo Chocolate	sobremesas	5.6	483	77	17	3.1	256.23	Leite+Soja+Ovo+Glúten
+caldofreddo-morango	Caldo&Freddo Morango	sobremesas	5.4	468	81	13	1.8	188.92	Leite+Soja+Ovo+Glúten
+caldofreddo-caramelo	Caldo&Freddo Caramelo	sobremesas	5.8	488	83	15	1.3	253.91	Leite+Soja+Ovo+Glúten
+mcfloat	McFloat	sobremesas	2.3	144	27	3.2	0	78.75	Leite

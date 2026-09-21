@@ -31,13 +31,15 @@
    ============================================================ */
 
 import { MERCADO } from './mercado';
+import { REDES_BR } from './alimentos-rede-br';
 
 export type Alimento = {
   id: string;
   nome: string;
   /** Termos sem acento para a busca encontrar o que a pessoa digita. */
   busca: string;
-  /** Proteína por 100 g. */
+  /* ⚠️ PROTEÍNA POR 100 g — OU POR UNIDADE, quando `porUnidade` é verdade.
+     Ver o campo lá embaixo antes de fazer conta com este número. */
   p: number;
   /* O RESTO DO RÓTULO, por 100 g.
 
@@ -50,7 +52,28 @@ export type Alimento = {
   gord: number | null;
   fibra: number | null;
   /** Gramas de UMA unidade: um filé, uma colher, uma concha. */
-  gUn: number;
+  /* ⚠️ GRAMAS DE UMA UNIDADE, e `null` quando a fonte NÃO PUBLICA o peso.
+
+     A TACO e a FNDDS descrevem 100 g, e a unidade caseira é o que permite
+     perguntar "quantas colheres?" em vez de "quantos gramas?". Já a rede
+     de fast food publica o contrário: o valor da porção inteira, sem
+     dizer quanto ela pesa — restaurante é isento da RDC 429, que obriga
+     o peso em alimento embalado.
+
+     Com `null` aqui, `porUnidade` é verdade e os valores JÁ SÃO da unidade. */
+  gUn: number | null;
+
+  /* ⚠️⚠️ OS VALORES SÃO DA UNIDADE, E NÃO DE 100 g.
+
+     Isto não é uma variação de formato: é outra base de medida. `p: 26` num
+     alimento comum quer dizer 26 g de proteína em 100 g; aqui quer dizer
+     26 g no sanduíche inteiro. Toda conta que divide por 100 tem de
+     perguntar isto antes.
+
+     Existe porque a fonte é outra: a rede publica o rótulo do produto
+     dela, e não uma tabela de composição. Inventar um peso para converter
+     seria fabricar o dado que falta. */
+  porUnidade?: boolean;
   /** Quantas unidades vêm marcadas ao escolher o alimento. */
   qtd: number;
   /** A unidade no singular, e no plural. */
@@ -318,13 +341,25 @@ const ALIMENTOS_BR: Alimento[] = [
    por mercado de verdade, é ela que escolhe o arquivo — está anotado em
    PENDENCIAS.
    ============================================================ */
+let listaBR: Alimento[] | null = null;
+
 export function ALIMENTOS(): Alimento[] {
-  if (MERCADO !== 'us') return ALIMENTOS_BR;
+  if (MERCADO !== 'us') {
+    /* ⚠️ A TACO E AS REDES SÃO DUAS FONTES NA MESMA LISTA, e continuam
+       separadas no arquivo de propósito: a TACO mede composição, a rede
+       publica o rótulo do produto dela. Cada item diz de onde veio, e é
+       isso que a tela do rótulo mostra. */
+    if (!listaBR) listaBR = [...ALIMENTOS_BR, ...REDES_BR];
+    return listaBR;
+  }
   /* eslint-disable-next-line @typescript-eslint/no-var-requires, global-require */
   return (require('./alimentos-us') as typeof import('./alimentos-us')).alimentosUS();
 }
 
 /** "2 colheres", "1 filé" — o plural só quando é mais de um. */
+/* Lido pelo quê? Uma pergunta, duas respostas possíveis. */
+export const porUnidadeDe = (a: Alimento) => a.porUnidade === true;
+
 export function medidaDe(a: Alimento, qtd: number): string {
   return `${qtd} ${qtd === 1 ? a.un : a.unp}`;
 }
@@ -416,5 +451,7 @@ export function buscarAlimento(termo: string, limite = 6): Alimento[] {
 /** Gramas de proteína de N unidades. Sempre arredondado: a precisão que
     existe aqui não chega na casa decimal. */
 export function gramasDe(a: Alimento, qtd: number): number {
-  return Math.round((a.p / 100) * a.gUn * Math.max(0, qtd));
+  const n = Math.max(0, qtd);
+  if (porUnidadeDe(a)) return Math.round(a.p * n);
+  return Math.round((a.p / 100) * (a.gUn ?? 0) * n);
 }

@@ -122,10 +122,15 @@ export function somaDe(itens: ItemComida[]): number {
 export type Nutrientes = { kcal: number; carb: number; gord: number; fibra: number };
 
 /** Quantos GRAMAS DE COMIDA o item tem — o peso do prato, e não o da
-    proteína. Só existe para item de tabela: é gUn que dá a régua. */
+    proteína. Só existe para item de tabela: é gUn que dá a régua.
+
+    ⚠️ E É `null` TAMBÉM QUANDO O PESO NÃO FOI PUBLICADO. O rótulo de uma
+    rede de fast food traz o valor da porção sem dizer quanto ela pesa, e
+    devolver zero aqui faria o prato somar um item de peso nenhum. Quem
+    pergunta o peso tem de saber lidar com não saber. */
 export function pesoItem(it: ItemComida): number | null {
   const a = alimentoDe(it.id);
-  return a ? a.gUn * Math.max(0, it.qtd) : null;
+  return a && a.gUn != null ? a.gUn * Math.max(0, it.qtd) : null;
 }
 
 export type SomaDoPrato = Nutrientes & {
@@ -238,6 +243,16 @@ export function insightDe(a: Alimento): Insight | null {
    é a forma mais rápida de um app parecer que não foi escrito para
    quem está lendo. */
 export function origemDoAlimento(a: Alimento): string {
+  /* ⚠️ O QUE O ITEM DECLARA VALE MAIS QUE O RECUO. Um produto de rede
+     traz a tabela da própria rede em `fonte`, e a frase de recuo — "a
+     tabela da Unicamp não analisa este" — é verdade e é inútil: ela
+     descreve o que a fonte NÃO é, quando o item sabe dizer o que ela é.
+
+     Um Big Mac dizendo "os números vêm do rótulo de produtos comuns no
+     mercado" esconde que eles vêm do McDonald's. */
+  if (a.porUnidade && a.fonte) {
+    return `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`;
+  }
   if (a.taco) {
     return 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.';
   }

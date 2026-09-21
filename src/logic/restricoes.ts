@@ -1,4 +1,5 @@
 import { ALIMENTOS, type Alimento } from './alimentos';
+import { CONTEM_REDE_BR } from './alimentos-rede-br';
 
 /* ============================================================
    O QUE A PESSOA NÃO COME
@@ -215,8 +216,17 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'sanduiche-ovo': ['ovo'],
 };
 
+/* ⚠️ A PRATELEIRA NÃO SALVA O FAST FOOD. O recuo de `contemDe` é o
+   corredor — "Carnes e aves" contém carne —, e "Lanches de rede" não diz
+   nada: tem sanduíche de carne, de frango, de peixe e casquinha de
+   sorvete no mesmo lugar. Sem o mapa da rede, um Big Mac apareceria para
+   quem marcou vegano.
+
+   O que a rede declara é melhor do que prateleira, aliás: são os
+   alérgenos do produto, item por item, ditos por quem o faz. */
 export function contemDe(a: Alimento): Ingrediente[] {
-  return CONTEM[a.id] ?? POR_CORREDOR[a.onde] ?? [];
+  const daRede = CONTEM_REDE_BR[a.id] as Ingrediente[] | undefined;
+  return CONTEM[a.id] ?? daRede ?? POR_CORREDOR[a.onde] ?? [];
 }
 
 /** O que as restrições escolhidas tiram do prato, somadas. */

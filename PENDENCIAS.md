@@ -883,7 +883,12 @@ nele —, então cai no que a PRATELEIRA contém. Funciona, e é mais grosso:
 lactose do que não tem. O mapa por id precisa ser escrito para os
 alimentos americanos que importam.
 
-**E o fast food brasileiro ainda não existe.** O americano veio junto com
-a FNDDS, que traz Big Mac e Whopper com os valores medidos lá. O do Brasil
-tem de ser curado das tabelas que cada rede publica aqui — os números são
-outros, e é por isso que a lista é por país.
+**d) O fast food brasileiro tem uma rede só.** O McDonald's entrou, com os
+97 itens que ele publica e a colheita guardada em `scripts/dados/`. Faltam
+Burger King, Bob's, Subway, Habib's e as outras — cada uma publica de um
+jeito, e o caminho é o mesmo: colher num navegador, guardar o TSV com a
+data, e o gerador faz o resto.
+
+**e) A colheita envelhece.** As redes mudam receita e cardápio, e a nossa
+cópia tem a data em que foi feita — 21/09/2026. Não há nada que avise
+quando ela ficar velha. Antes de subir para a loja, vale recolher.

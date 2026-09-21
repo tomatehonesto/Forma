@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { VidroDegrade } from '../ui/vidro';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
-import { medidaDe } from '../logic/alimentos';
+import { medidaDe, porUnidadeDe } from '../logic/alimentos';
 import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -105,8 +105,13 @@ export default function Alimento() {
     ['Gordura', a.gord],
   ];
   const teto = Math.max(...macros.map(([, v]) => v ?? 0), 0.1);
+  /* ⚠️ O QUE A COLUNA DA ESQUERDA DIZ MUDA COM A FONTE. Alimento de
+     tabela traz 100 g e a porção se calcula; produto de rede já traz a
+     porção, e não há 100 g para converter. */
   const naPorcao = (v: number | null) =>
-    v == null ? null : Math.round((v / 100) * a.gUn * a.qtd * 10) / 10;
+    (v == null ? null
+      : porUnidadeDe(a) ? Math.round(v * a.qtd * 10) / 10
+        : Math.round((v / 100) * (a.gUn ?? 0) * a.qtd * 10) / 10);
 
   /* Até onde o vidro desce: a barra, a pílula e a frase, mais um dedo
      de folga para a transição não encostar na última linha de texto. */
@@ -139,7 +144,7 @@ export default function Alimento() {
         }}
       >
         <Txt v="caption" c={c.onHero} style={{ paddingHorizontal: 13, paddingVertical: 6 }}>
-          Porção de 100 g
+          {porUnidadeDe(a) ? `Porção: ${medidaDe(a, a.qtd)}` : 'Porção de 100 g'}
         </Txt>
       </BlurView>
 
@@ -164,7 +169,8 @@ export default function Alimento() {
         {d ? <Txt v="h2" c={c.onHero}>{n1(d.valor)}{d.un}</Txt> : null}
       </Row>
       <Txt v="caption" c={c.onHero2} style={{ marginTop: 4 }}>
-        {d ? `${d.pct}% do que uma pessoa precisa por dia` : 'Valores por 100 g'}
+        {d ? `${d.pct}% do que uma pessoa precisa por dia`
+          : porUnidadeDe(a) ? `Valores de ${medidaDe(a, a.qtd)}` : 'Valores por 100 g'}
       </Txt>
     </View>
   );
@@ -295,7 +301,7 @@ export default function Alimento() {
           {/* A fibra fica fora das barras: ela não compete com as três que
               somam a energia, e nem sempre foi analisada. */}
           <Row style={{ marginTop: 16, justifyContent: 'space-between' }}>
-            <Txt v="caption" c={c.tx3}>Fibra por 100 g</Txt>
+            <Txt v="caption" c={c.tx3}>{porUnidadeDe(a) ? `Fibra em ${medidaDe(a, a.qtd)}` : 'Fibra por 100 g'}</Txt>
             <Txt v="caption" c={a.fibra == null ? c.tx4 : c.tx2}>
               {a.fibra == null ? 'não medida' : `${n1(a.fibra)} g`}
             </Txt>
@@ -307,7 +313,12 @@ export default function Alimento() {
 
           {/* DE ONDE VEIO O NÚMERO, dito para gente e não em sigla. */}
           <Txt v="micro" c={c.tx4} style={{ marginTop: 16, lineHeight: 18 }}>
-            {medidaDe(a, a.qtd)} pesa perto de {a.gUn * a.qtd} g. {origemDoAlimento(a)}
+            {/* ⚠️ SEM PESO PUBLICADO A FRASE NÃO INVENTA UM. A tabela
+                diz quanto a porção pesa; a rede diz o que ela TEM, e
+                "pesa perto de 0 g" seria pior do que não dizer nada. De
+                que porção os números são, quem conta é a procedência. */}
+            {a.gUn != null ? `${medidaDe(a, a.qtd)} pesa perto de ${a.gUn * a.qtd} g. ` : ''}
+            {origemDoAlimento(a)}
           </Txt>
 
           <View style={{ marginTop: 20 }}>

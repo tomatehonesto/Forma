@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ALIMENTOS, buscarAlimento, medidaDe, type Alimento } from '../logic/alimentos';
+import { ALIMENTOS, buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alimentos';
 import { cabe } from '../logic/restricoes';
 import { RESTRICOES } from '../logic/restricoes';
 import { useStore } from '../logic/store';
@@ -162,7 +162,7 @@ export default function Alimentos() {
                 /* A porção padrão junto do nome: é ela que transforma
                    "32 g de proteína por 100 g" em "um filé", que é a
                    única forma em que alguém come frango. */
-                sub={`${medidaDe(a, a.qtd)} · ~${Math.round((a.p / 100) * a.gUn * a.qtd)} g de proteína`}
+                sub={`${medidaDe(a, a.qtd)} · ~${gramasDe(a, a.qtd)} g de proteína`}
                 onPress={() => router.push(`/alimento?id=${a.id}` as any)}
               />
             ))}

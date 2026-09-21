@@ -3613,7 +3613,9 @@ export function itensDaBebida(b: Bebida, ml: number, doses = 0): ItemComida[] {
   if (b.porDose) return doses > 0 ? [{ id: b.porDose, qtd: doses }] : [];
   if (!b.item) return [];
   const a = alimentoDe(b.item);
-  return a ? [{ id: b.item, qtd: (ml * (b.fracao ?? 1)) / a.gUn }] : [];
+  /* Sem peso publicado não há como converter mililitro em unidade — e
+     nenhuma bebida da tabela cai nesse caso hoje. */
+  return a && a.gUn ? [{ id: b.item, qtd: (ml * (b.fracao ?? 1)) / a.gUn }] : [];
 }
 
 /* Registra o que se bebeu hoje — entra no diário e sobe o total do dia.
