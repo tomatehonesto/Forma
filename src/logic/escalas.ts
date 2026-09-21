@@ -20,16 +20,18 @@
    o app, seja quem for.
    ============================================================ */
 
+import { T } from '../textos';
+
 /** 1–5 na tela, 0–10 no armazenamento (dobrado na fronteira). */
-export const ENERGIA = ['Sem força', 'Arrastando o dia', 'Deu para o dia', 'Com disposição', 'Energia de sobra'];
+export const ENERGIA = () => T.escalas.energia;
 
 /** Horas dormidas — as pontas absorvem o que passa delas. */
 /* Espaço fino inquebrável entre o número e o 'h': em caixa estreita a
    linha quebrava entre os dois e sobrava um 'h' órfão na segunda linha. */
-export const SONO = ['5 h ou menos', 'Cerca de 6 h', 'Cerca de 7 h', 'Cerca de 8 h', '9 h ou mais'];
+export const SONO = () => T.escalas.sono;
 
 /** 1–5 dos dois lados, sem conversão. */
-export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um bom dia', 'Um ótimo dia'];
+export const HUMOR = () => T.escalas.humor;
 
 /* PROTEÍNA POR REFEIÇÃO — a faixa saiu da pergunta.
 
@@ -50,6 +52,13 @@ export const HUMOR = ['Um dia difícil', 'Meio para baixo', 'Um dia normal', 'Um
    gramasDaFaixa sobe da palavra para os gramas, e existe SÓ para ler
    refeição gravada antes de tudo isso: elas têm 'alta' e não têm `g`.
    Não use em registro novo — em registro novo o grama vem do prato. */
+/* ⚠️⚠️ ESTAS TRÊS PALAVRAS NÃO VÃO PARA O CATÁLOGO, e é o contrário do
+   resto do arquivo: 'alta', 'média' e 'baixa' ficaram GRAVADAS em toda
+   refeição registrada antes de o grama existir, e `gramasDaFaixa` lê o
+   registro velho por elas. Traduzir apagaria a proteína dessas refeições.
+
+   Quem MOSTRA a faixa para alguém é a tela de alimentação, e é lá que a
+   palavra vira texto. Aqui ela é chave. */
 export function faixaDe(g: number): string {
   if (g >= 24) return 'alta';
   if (g >= 13) return 'média';
@@ -65,7 +74,7 @@ export function gramasDaFaixa(prot: string | null | undefined): number | null {
 
 /** Régua genérica de sintoma — a rede de segurança para um sintoma que
     ainda não tem a sua. Ver `SINTOMA` logo abaixo. */
-export const INTENSIDADE = ['Mal percebi', 'Leve', 'Incomodou', 'Atrapalhou o dia', 'Tomou conta do dia'];
+export const INTENSIDADE = () => T.escalas.intensidade;
 
 /* Cada sintoma tem a SUA régua, porque cada um piora de um jeito.
 
@@ -80,7 +89,9 @@ export const INTENSIDADE = ['Mal percebi', 'Leve', 'Incomodou', 'Atrapalhou o di
 
    Só as pontas aparecem embaixo do trilho, então elas são as mais curtas
    das cinco. */
-export const SINTOMA: Record<string, string[]> = {
+export const SINTOMA = (): Record<string, string[]> => T.escalas.sintoma;
+
+const SINTOMA_ANTIGO: Record<string, string[]> = {
   nausea: ['Um leve embrulho', 'Enjoo indo e vindo', 'Enjoo constante', 'Quase vomitei', 'Vomitei'],
   constip: ['Fui com esforço', 'Um dia sem ir', 'Dois dias sem ir', 'Três dias sem ir', 'Quatro dias ou mais'],
   /* O lado solto se conta em idas no dia, como o preso se conta em dias
@@ -126,16 +137,14 @@ export const SINTOMA: Record<string, string[]> = {
    e "como o corpo reagiu" — precisam concordar sobre quais valores
    existem. Separadas, uma podia gravar um estado que a outra não sabia
    exibir. */
-export const INTESTINO: [string, string][] = [
-  ['normal', 'Normal'],
-  ['preso', 'Preso'],
-  ['solto', 'Solto'],
-  ['alterna', 'Alternou'],
-];
+export const INTESTINO = (): [string, string][] => {
+  const t = T.escalas.intestino;
+  return [['normal', t.normal], ['preso', t.preso], ['solto', t.solto], ['alterna', t.alterna]];
+};
 
 /** Fome é o contrário de saciedade, e o radar lê como saciedade. Por isso
     1 é a fome menor: a régua sobe junto com o sintoma, como as outras. */
-export const FOME = ['Sem fome', 'Pouca fome', 'Fome normal', 'Bastante fome', 'Fome o dia todo'];
+export const FOME = () => T.escalas.fome;
 
 /* A fronteira entre as duas réguas. O armazenamento é 0–10 desde o começo
    — radar, metas, série do balanço e histórico leem nessa escala —, e as
@@ -186,17 +195,20 @@ export function grauDoSintoma(c: any, id: string): number | null {
    Mora junto das réguas porque quem lê um registro já salvo — a
    confirmação do check-in, por exemplo — precisa da mesma lista para dar
    nome ao que encontrou. */
-export const SINTOMAS: { id: string; label: string; store?: string }[] = [
-  { id: 'nausea', label: 'Náusea', store: 'nausea' },
-  { id: 'intestino', label: 'Intestino' },
-  { id: 'vomito', label: 'Vômito' },
-  { id: 'dor', label: 'Dor abdominal' },
-  { id: 'refluxo', label: 'Refluxo', store: 'refluxo' },
-  { id: 'fadiga', label: 'Fadiga' },
-  { id: 'cefaleia', label: 'Dor de cabeça' },
-  { id: 'tontura', label: 'Tontura' },
-  { id: 'outro', label: 'Outro' },
-];
+export const SINTOMAS = (): { id: string; label: string; store?: string }[] => {
+  const n = T.escalas.nomes;
+  return [
+    { id: 'nausea', label: n.nausea, store: 'nausea' },
+    { id: 'intestino', label: n.intestino },
+    { id: 'vomito', label: n.vomito },
+    { id: 'dor', label: n.dor },
+    { id: 'refluxo', label: n.refluxo, store: 'refluxo' },
+    { id: 'fadiga', label: n.fadiga },
+    { id: 'cefaleia', label: n.cefaleia },
+    { id: 'tontura', label: n.tontura },
+    { id: 'outro', label: n.outro },
+  ];
+};
 
 /* OS SINTOMAS COMO SE LÊ DEPOIS — com os dois lados do intestino separados.
 
@@ -210,14 +222,18 @@ export const SINTOMAS: { id: string; label: string; store?: string }[] = [
    palavra do grau: o 4 da náusea é "quase vomitei" e o 4 da constipação é
    "três dias sem ir". Sem a régua junto, a tela teria que escrever "4 de
    5" e deixar a pessoa lembrar do resto. */
-export const SINTOMAS_LIDOS: { id: string; label: string; regua: string[] }[] = [
-  { id: 'nausea', label: 'Náusea', regua: SINTOMA.nausea },
-  { id: 'preso', label: 'Intestino preso', regua: SINTOMA.constip },
-  { id: 'solto', label: 'Intestino solto', regua: SINTOMA.diarreia },
-  { id: 'vomito', label: 'Vômito', regua: SINTOMA.vomito },
-  { id: 'dor', label: 'Dor abdominal', regua: SINTOMA.dor },
-  { id: 'refluxo', label: 'Refluxo', regua: SINTOMA.refluxo },
-  { id: 'fadiga', label: 'Fadiga', regua: SINTOMA.fadiga },
-  { id: 'cefaleia', label: 'Dor de cabeça', regua: SINTOMA.cefaleia },
-  { id: 'tontura', label: 'Tontura', regua: SINTOMA.tontura },
-];
+export const SINTOMAS_LIDOS = (): { id: string; label: string; regua: string[] }[] => {
+  const n = T.escalas.nomes;
+  const s = SINTOMA();
+  return [
+    { id: 'nausea', label: n.nausea, regua: s.nausea },
+    { id: 'preso', label: n.preso, regua: s.constip },
+    { id: 'solto', label: n.solto, regua: s.diarreia },
+    { id: 'vomito', label: n.vomito, regua: s.vomito },
+    { id: 'dor', label: n.dor, regua: s.dor },
+    { id: 'refluxo', label: n.refluxo, regua: s.refluxo },
+    { id: 'fadiga', label: n.fadiga, regua: s.fadiga },
+    { id: 'cefaleia', label: n.cefaleia, regua: s.cefaleia },
+    { id: 'tontura', label: n.tontura, regua: s.tontura },
+  ];
+};

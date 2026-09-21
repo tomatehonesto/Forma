@@ -105,7 +105,7 @@ export default function Checkin() {
        sua prova de existência: "Outro" é o texto, e o intestino é `gut`
        fora do normal — `normal` gravado é uma resposta ("foi bem"), não
        um sintoma, e deixa o chip desmarcado como o zero de náusea faz. */
-    for (const x of SINTOMAS) {
+    for (const x of SINTOMAS()) {
       if (x.id === OUTRO) {
         if (String(hoje?.outroTexto || '').trim()) m.push(OUTRO);
         continue;
@@ -218,7 +218,7 @@ export default function Checkin() {
 
       /* A escala da tela é 1–5; as colunas legadas são 0–10. Dobrar mantém
          as duas leituras coerentes sem reescrever quem já consome. */
-      for (const x of SINTOMAS) {
+      for (const x of SINTOMAS()) {
         if (!x.store) continue;
         c[x.store] = marcados.includes(x.id) ? (grau[x.id] ?? 1) * 2 : 0;
       }
@@ -227,7 +227,7 @@ export default function Checkin() {
          vivem na coluna e em lugar nenhum além dela. */
       c.sint = Object.fromEntries(
         marcados
-          .filter((id) => id !== OUTRO && id !== GUT && !SINTOMAS.find((x) => x.id === id)?.store)
+          .filter((id) => id !== OUTRO && id !== GUT && !SINTOMAS().find((x) => x.id === id)?.store)
           .map((id) => [id, grau[id] ?? 1]),
       );
 
@@ -299,7 +299,7 @@ export default function Checkin() {
             valor={energia}
             onChange={(v) => setEnergia(Number(v))}
             onLimpar={() => setEnergia(null)}
-            legendas={ENERGIA}
+            legendas={ENERGIA()}
           />
         </Campo>
 
@@ -309,7 +309,7 @@ export default function Checkin() {
             valor={fome}
             onChange={(v) => setFome(Number(v))}
             onLimpar={() => setFome(null)}
-            legendas={FOME}
+            legendas={FOME()}
           />
         </Campo>
 
@@ -319,7 +319,7 @@ export default function Checkin() {
             valor={sono}
             onChange={(v) => setSono(Number(v))}
             onLimpar={() => setSono(null)}
-            legendas={SONO}
+            legendas={SONO()}
           />
         </Campo>
 
@@ -329,7 +329,7 @@ export default function Checkin() {
             valor={humor}
             onChange={(v) => setHumor(Number(v))}
             onLimpar={() => setHumor(null)}
-            legendas={HUMOR}
+            legendas={HUMOR()}
           />
         </Campo>
       </View>
@@ -346,7 +346,7 @@ export default function Checkin() {
       <View style={{ gap: 14 }}>
         <Campo rotulo="Teve algum sintoma?" nu>
           <Opcoes>
-            {SINTOMAS.map((x) => (
+            {SINTOMAS().map((x) => (
               <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />
             ))}
           </Opcoes>
@@ -364,7 +364,7 @@ export default function Checkin() {
               tocados: a lista não se reembaralha conforme a pessoa marca,
               e o que ela vê embaixo tem a mesma sequência do que está em
               cima. */}
-          {SINTOMAS.filter((x) => marcados.includes(x.id)).map((s) => {
+          {SINTOMAS().filter((x) => marcados.includes(x.id)).map((s) => {
             const id = s.id;
 
             if (id === GUT) {
@@ -376,7 +376,7 @@ export default function Checkin() {
               return (
                 <Campo key={id} rotulo="Como foi o intestino?">
                   <Opcoes>
-                    {INTESTINO.filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
+                    {INTESTINO().filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
                     ))}
                   </Opcoes>
@@ -391,7 +391,7 @@ export default function Checkin() {
                       valor={dias}
                       onChange={(v) => setDias(Number(v))}
                       onLimpar={() => setDias(null)}
-                      legendas={SINTOMA.constip}
+                      legendas={SINTOMA().constip}
                     />
                   ) : null}
 
@@ -402,7 +402,7 @@ export default function Checkin() {
                       valor={vezes}
                       onChange={(v) => setVezes(Number(v))}
                       onLimpar={() => setVezes(null)}
-                      legendas={SINTOMA.diarreia}
+                      legendas={SINTOMA().diarreia}
                     />
                   ) : null}
 
@@ -435,7 +435,7 @@ export default function Checkin() {
                   valores={[1, 2, 3, 4, 5]}
                   valor={grau[id] ?? null}
                   onChange={(v) => setGrau((g) => ({ ...g, [id]: Number(v) }))}
-                  legendas={SINTOMA[id] ?? INTENSIDADE}
+                  legendas={SINTOMA()[id] ?? INTENSIDADE()}
                 />
 
                 {mostra ? (

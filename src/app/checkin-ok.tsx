@@ -104,14 +104,14 @@ export default function CheckinOk() {
      respondida: a lista é das perguntas que a tela faz todo dia, e some-
      -las esconderia o que ficou em branco. */
   const respostas: [string, string | null][] = [
-    ['Energia', energia ? ENERGIA[energia - 1] : null],
-    ['Sono', sono != null ? SONO[sono - 5] : null],
-    ['Humor', humor != null ? HUMOR[humor - 1] : null],
+    ['Energia', energia ? ENERGIA()[energia - 1] : null],
+    ['Sono', sono != null ? SONO()[sono - 5] : null],
+    ['Humor', humor != null ? HUMOR()[humor - 1] : null],
   ];
 
   /* Os sintomas, pelo nome. Cada um tem a sua prova de existência: coluna
      própria, entrada no mapa `sint`, `gut` fora do normal ou texto livre. */
-  const sintomas = SINTOMAS.filter((x) => {
+  const sintomas = SINTOMAS().filter((x) => {
     if (x.id === 'intestino') return !!registro?.gut && registro.gut !== 'normal';
     if (x.id === 'outro') return !!String(registro?.outroTexto || '').trim();
     if (x.store) return (registro?.[x.store] ?? 0) > 0;

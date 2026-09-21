@@ -1802,7 +1802,7 @@ export function sintomasDaSemana(S: State, n = 7): SintomaLido[] {
    silêncio somado como zero. A janela é de quem chama; a régua, não. */
 export function sintomasEm(cs: any[]): SintomaLido[] {
   const fora: SintomaLido[] = [];
-  for (const s of SINTOMAS_LIDOS) {
+  for (const s of SINTOMAS_LIDOS()) {
     const graus = cs.map((c) => grauDoSintoma(c, s.id)).filter((v): v is number => v != null);
     if (!graus.length) continue;
     const pior = Math.max(...graus);
@@ -2730,13 +2730,13 @@ export function timelineEvents(S: State): TLEvent[] {
       const respostas: { k: string; v: string }[] = [];
       const degrau = (regua: string[], g: number | null) =>
         (g == null ? null : regua[Math.max(0, Math.min(regua.length - 1, g - 1))]);
-      const humor = degrau(HUMOR, respondido(cc, 'mood') ? cc.mood : null);
+      const humor = degrau(HUMOR(), respondido(cc, 'mood') ? cc.mood : null);
       if (humor) respostas.push({ k: V().respostaHumor, v: humor });
-      const energia = degrau(ENERGIA, paraTela(cc.energia));
+      const energia = degrau(ENERGIA(), paraTela(cc.energia));
       if (energia) respostas.push({ k: V().respostaEnergia, v: energia });
-      const fome = degrau(FOME, paraTela(cc.fome));
+      const fome = degrau(FOME(), paraTela(cc.fome));
       if (fome) respostas.push({ k: V().respostaFome, v: fome });
-      for (const sx of SINTOMAS_LIDOS) {
+      for (const sx of SINTOMAS_LIDOS()) {
         const frase = degrau(sx.regua, grauDoSintoma(cc, sx.id));
         if (frase) respostas.push({ k: sx.label, v: frase });
       }
@@ -4305,7 +4305,7 @@ const doTexto = (id: keyof typeof T.metas.indicadores) => {
 export const INDICADORES = (): Indicador[] => [
   {
     id: 'sono', ic: 'moon', ...doTexto('sono'), sentido: 'min', padrao: SONO_REF_H,
-    escala: { valores: [5, 6, 7, 8, 9], legendas: SONO },
+    escala: { valores: [5, 6, 7, 8, 9], legendas: SONO() },
     leitura: (c) => num(c, 'sono'),
     escreve: (v) => I().sono.escreve(v),
     rotulo: (v) => I().sono.rotulo(v),
@@ -4318,7 +4318,7 @@ export const INDICADORES = (): Indicador[] => [
     id: 'energia', ic: 'bolt', ...doTexto('energia'),
     sintoma: true,
     sentido: 'min', padrao: 4,
-    escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA },
+    escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA() },
     leitura: (c) => paraTela(c.energia),
     escreve: (v) => I().energia.escreve(v),
     rotulo: (v) => I().energia.rotulo(v),
@@ -4328,7 +4328,7 @@ export const INDICADORES = (): Indicador[] => [
     id: 'humor', ic: 'mood', ...doTexto('humor'),
     sintoma: true,
     sentido: 'min', padrao: 4,
-    escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR },
+    escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR() },
     leitura: (c) => num(c, 'mood'),
     escreve: (v) => I().humor.escreve(v),
     rotulo: (v) => I().humor.rotulo(v),
@@ -4341,7 +4341,7 @@ export const INDICADORES = (): Indicador[] => [
     id: 'enjoo', ic: 'waves', ...doTexto('enjoo'),
     sintoma: true,
     sentido: 'max', padrao: 2,
-    escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA.nausea },
+    escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA().nausea },
     leitura: (c) => num(c, 'nausea'),
     escreve: (v) => I().enjoo.escreve(v),
     rotulo: (v) => I().enjoo.rotulo(v),
@@ -4351,7 +4351,7 @@ export const INDICADORES = (): Indicador[] => [
     id: 'fome', ic: 'soup', ...doTexto('fome'),
     sintoma: true,
     sentido: 'max', padrao: 3,
-    escala: { valores: [1, 2, 3, 4, 5], legendas: FOME },
+    escala: { valores: [1, 2, 3, 4, 5], legendas: FOME() },
     leitura: (c) => paraTela(c.fome),
     escreve: (v) => I().fome.escreve(v),
     rotulo: (v) => I().fome.rotulo(v),

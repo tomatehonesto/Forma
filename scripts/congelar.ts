@@ -58,6 +58,10 @@ import {
   niveisDoRegistro, combinacao, leituraDoDia, avisosDoDia, lembretesDoDia, marcoDe,
 } from '../src/logic/leituras';
 import { conquistas } from '../src/logic/conquistas';
+import {
+  ENERGIA, SONO, HUMOR, FOME, INTENSIDADE, SINTOMA, INTESTINO,
+  SINTOMAS, SINTOMAS_LIDOS, faixaDe, gramasDaFaixa,
+} from '../src/logic/escalas';
 import { dadosParaExportar } from '../src/logic/exportacao';
 
 /* Uma chamada que não existe mais — porque alguém renomeou a função — não
@@ -179,6 +183,23 @@ for (const [nome, ajusta] of CENARIOS) {
     };
   });
   c.marcos = [1, 3, 7, 14, 30, 60, 100].map((n) => [n, tenta('marcoDe', () => marcoDe(n))]);
+
+  /* ⚠️ AS RÉGUAS SÃO TABELAS CONSTANTES, e por isso não dependem do
+     cenário — mas entram aqui do mesmo jeito. São o texto que a pessoa
+     TOCA para responder o check-in: se um degrau trocar de lugar, o 4 de
+     hoje passa a significar outra coisa que o 4 de ontem, e a série
+     inteira que o aplicativo lê depois fica sem sentido. */
+  c.escalas = {
+    energia: ENERGIA(), sono: SONO(), humor: HUMOR(), fome: FOME(),
+    intensidade: INTENSIDADE(), sintoma: SINTOMA(), intestino: INTESTINO(),
+    sintomas: SINTOMAS(),
+    sintomasLidos: SINTOMAS_LIDOS().map((x) => [x.id, x.label, x.regua]),
+    /* ⚠️ A FAIXA DE PROTEÍNA É VALOR GRAVADO, e a volta existe só para ler
+       refeição antiga. Se o rótulo mudar, a leitura do registro velho
+       para de achar o número. */
+    faixas: [40, 24, 23, 13, 12, 0].map((g) => [g, tenta('faixaDe', () => faixaDe(g))]),
+    daFaixa: ['alta', 'média', 'baixa', 'outra'].map((f) => [f, tenta('gramasDaFaixa', () => gramasDaFaixa(f))]),
+  };
   c.variacoes = [-2.4, -0.04, 0, 1.7].map((v) => [v, tenta('variacaoDe', () => variacaoDe(v, 'kg'))]);
 
   /* ⚠️ O DOMÍNIO DOS EXAMES ENTRA INTEIRO, e ele estava fora da rede.
