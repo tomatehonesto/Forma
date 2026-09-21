@@ -12,6 +12,7 @@ import { exames as examesPt } from './pt-BR/exames';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
 import { rotina as rotinaPt } from './pt-BR/rotina';
+import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 /* ============================================================
@@ -77,6 +78,7 @@ export type Textos = {
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
   rotina: typeof rotinaPt;
+  tempo: typeof tempoPt;
   tratamento: typeof tratamentoPt;
 };
 
@@ -95,7 +97,7 @@ const CATALOGOS: Partial<Record<Local, Textos>> = {
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, home: homePt,
     marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
-    tratamento: tratamentoPt,
+    tempo: tempoPt, tratamento: tratamentoPt,
   },
 };
 

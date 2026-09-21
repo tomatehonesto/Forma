@@ -701,6 +701,13 @@ export function milestones(S: State): Milestone[] {
 /* ⚠️ A CHAVE É DADO: 'abd-e' é o que fica gravado em cada aplicação. Só o
    rótulo vem do catálogo, e é por isso que `siteLabel` devolve a própria
    chave quando não conhece o local — registro antigo não some da tela. */
+/* ⚠️ E O MESMO VALE PARA O MARCADOR DE EXAME: "HbA1c" e "Glicemia jejum"
+   são o que fica gravado em `e.marker`, e eram também o que a tela
+   mostrava. Quem não estiver na tabela aparece com a própria chave, para
+   que exame antigo não suma por causa de um nome que mudou. */
+export const nomeDoMarcador = (m: string) =>
+  (T.marcadores.nome as Record<string, string>)[m] || m;
+
 export const SITE_LABEL = (): Record<string, string> => T.tratamento.locais;
 export const siteLabel = (s: string) => SITE_LABEL()[s] || s;
 /* ============================================================
@@ -944,14 +951,9 @@ export const examAbout = (e: any): SobreOMarcador | null =>
    qual foi a maior mudança. Nenhuma frase opina; todas contam.
    ============================================================ */
 
-/* Marcador em meio de frase. "Vitamina D" vira "vitamina D", mas "HbA1c"
-   e "HDL" continuam como estão: só cai a maiúscula de quem tem a PRIMEIRA
-   PALAVRA inteira em minúsculas depois da inicial, que é o desenho de um
-   nome comum e não de uma sigla. */
-const marcadorNoMeio = (m: string) => {
-  const p1 = m.split(' ')[0];
-  return /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+$/.test(p1) ? m[0].toLowerCase() + m.slice(1) : m;
-};
+/* A caixa no meio da frase é regra de idioma, e mora no catálogo com o
+   resto da gramática. Ver textos/pt-BR/marcadores. */
+const marcadorNoMeio = (m: string) => T.marcadores.noMeio(nomeDoMarcador(m));
 
 /* A ENUMERAÇÃO PARA EM TRÊS, e o resto vira só a contagem.
 

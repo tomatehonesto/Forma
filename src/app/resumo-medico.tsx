@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { examStatus, clinicaConectada, temAcompanhamento } from '../logic/derive';
+import { examStatus, clinicaConectada, nomeDoMarcador, temAcompanhamento } from '../logic/derive';
 import {
   resumoDoTratamento, resumoEmTexto, valorDoExame, enviosDoResumo, registrarEnvio,
   type SecaoDoResumo,
@@ -164,7 +164,7 @@ export default function ResumoMedico() {
               return (
                 <Linha
                   key={e.marker}
-                  titulo={e.marker}
+                  titulo={nomeDoMarcador(e.marker)}
                   sub={valorDoExame(e)}
                   selo={rotulo}
                   seloTom={tom}

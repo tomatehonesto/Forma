@@ -11,10 +11,13 @@
    `e.marker` — não são rótulo de tela, são dado. Traduzi-las quebraria o
    vínculo entre o exame que alguém anotou ano passado e a tabela nova.
 
-   O efeito colateral disso é que o NOME do marcador aparece hoje em
-   português para quem lê em outro idioma, porque a tela mostra a própria
-   chave. Separar nome de exibição de chave de registro é trabalho da peça
-   do idioma, e está anotado em PENDENCIAS.
+   ⚠️⚠️ POR ISSO EXISTE O `nome`, logo abaixo: a chave é dado e o nome é
+   tela, e eram a mesma string. Em português os dois coincidem — a chave
+   FOI escrita em português —, e é justamente por coincidirem que a
+   separação parecia supérflua até existir um segundo idioma.
+
+   E não é tradução de rótulo: nos Estados Unidos TGO e TGP se chamam AST
+   e ALT, que é outro nome no laudo, não a mesma palavra em outra língua.
 
    ⚠️ E NENHUM DESTES TEXTOS PODE VIRAR CONDUTA NA TRADUÇÃO. As travas
    estão escritas em cada seção abaixo, e elas não são preferência de
@@ -55,6 +58,47 @@ export type SobreOMarcador = { oQueE: string; porQue: string; afeta: string };
    alargaria a chave para `string` e o inglês poderia esquecer um marcador
    em silêncio. Com `satisfies`, o conjunto de chaves faz parte do
    contrato, e o `tsc` acusa o que faltou. */
+/* ============================================================
+   O NOME QUE APARECE NA TELA
+
+   ⚠️ EM PORTUGUÊS ELE É A PRÓPRIA CHAVE, uma a uma, e escrever a tabela
+   inteira só para repetir a chave parece trabalho à toa. Não é: é o que
+   dá ao inglês um lugar para existir sem tocar no que está gravado. Sem
+   esta tabela, ou a chave se traduz — e todo exame anotado perde o
+   vínculo — ou a tela mostra "Glicemia jejum" para quem lê em inglês.
+
+   ⚠️ E QUEM NÃO ESTIVER AQUI APARECE COM A PRÓPRIA CHAVE. É a mesma regra
+   do `siteLabel`: registro antigo não some da tela por causa de uma
+   tabela que não o conhece. */
+const NOME: Record<string, string> = {
+  'HbA1c': 'HbA1c',
+  'Glicemia jejum': 'Glicemia jejum',
+  'Insulina': 'Insulina',
+  'Colesterol total': 'Colesterol total',
+  'HDL': 'HDL',
+  'LDL': 'LDL',
+  'Triglicerídeos': 'Triglicerídeos',
+  'Creatinina': 'Creatinina',
+  'TGO': 'TGO',
+  'TGP': 'TGP',
+  'TSH': 'TSH',
+  'T4 livre': 'T4 livre',
+  'Vitamina D': 'Vitamina D',
+  'Vitamina B12': 'Vitamina B12',
+  'Ferritina': 'Ferritina',
+};
+
+/* ⚠️ A CAIXA NO MEIO DA FRASE É REGRA DE IDIOMA, e estava em derive como
+   uma expressão regular com os acentos do português dentro. "Vitamina D"
+   vira "vitamina D" no meio de uma frase, mas "HbA1c" e "HDL" continuam
+   como estão: só cai a maiúscula de quem tem a PRIMEIRA PALAVRA inteira
+   em minúsculas depois da inicial, que é o desenho de um nome comum e
+   não de uma sigla. */
+const NO_MEIO = (nome: string) => {
+  const p1 = nome.split(' ')[0];
+  return /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+$/.test(p1) ? nome[0].toLowerCase() + nome.slice(1) : nome;
+};
+
 const SOBRE = {
   /* ⚠️ NENHUMA DEFINIÇÃO CITA OUTRO MARCADOR NEM TERMO DE LAUDO. A do
      colesterol total dizia "como essa soma se divide entre HDL e LDL", o
@@ -438,6 +482,8 @@ export const marcadores = {
   catTireoide: 'Tireoide',
   catVitaminas: 'Vitaminas',
 
+  nome: NOME,
+  noMeio: NO_MEIO,
   sobre: SOBRE,
   influencias: INFLUENCIAS,
   ajudar: AJUDAR,

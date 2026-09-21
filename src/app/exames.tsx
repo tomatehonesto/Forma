@@ -8,6 +8,7 @@ import { useStore } from '../logic/store';
 import {
   examCats, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
   examExplain, examAbout, examInfluences, examWays, examesComValor, examesForaDaRef,
+  nomeDoMarcador,
 } from '../logic/derive';
 import { fmtDate, nf, dataLonga } from '../logic/time';
 import { Txt, Row, Rich } from '../ui/kit';
@@ -612,7 +613,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
        Sem isto a tela abre dizendo "5,6 %" e mais nada: o marcador só se
        identificaria depois de rolar, e um valor de exame sem o nome do
        exame não é informação, é um número solto. */
-    <TelaInterna titulo={e.marker} sub={`Colhido em ${dataLonga(l.t)}`} onVoltar={onVoltar} tituloFixo>
+    <TelaInterna titulo={nomeDoMarcador(e.marker)} sub={`Colhido em ${dataLonga(l.t)}`} onVoltar={onVoltar} tituloFixo>
       {/* ---- o resultado ----
 
           ⚠️ O NÚMERO É A TELA, e ele estava numa manchete alinhada à
@@ -868,7 +869,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
           medicação é decisão de quem acompanha você.
         </Txt>
 
-        <AskCompanion q={`Explique meu exame de ${e.marker}`} label="Perguntar sobre este exame" />
+        <AskCompanion q={`Explique meu exame de ${nomeDoMarcador(e.marker)}`} label="Perguntar sobre este exame" />
       </View>
       </View>
 
@@ -905,7 +906,7 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
   const corDaSeta = melhorou == null ? c.tx4 : melhorou ? c.ok : c.cta;
   return (
     <Linha
-      titulo={e.marker}
+      titulo={nomeDoMarcador(e.marker)}
       onPress={onPress}
       /* ⚠️ O SELO É O ESTADO, E A SETA É O RUMO. São duas perguntas
          diferentes — "estou bem?" e "estou indo bem?" — e um marcador pode

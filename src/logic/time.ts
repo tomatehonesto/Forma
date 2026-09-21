@@ -1,4 +1,5 @@
 import { formato, hora12, numero } from './local';
+import { T } from '../textos';
 
 /* Tempo — helpers determinísticos (porta verbatim do protótipo). */
 export const DAY = 864e5;
@@ -97,6 +98,12 @@ export const fmtPeriodo = (a: Date, b: Date) =>
     : formato().junta(fmtDate(a), fmtDate(b));
 export const fmtWD = (d: Date) => WD()[d.getDay()];
 
+/** "maio de 2026" — o cabeçalho do calendário.
+
+    ⚠️ ERA MONTADO NA PRÓPRIA TELA, com o "de" no meio da interpolação. O
+    inglês não tem esse "de": lá é "May 2026". */
+export const fmtMesAno = (d: Date) => formato().mesAno(d.getMonth(), d.getFullYear());
+
 /** "13 a 19 de maio" — o intervalo com o mês por extenso.
 
     ⚠️ ESTAVA ESCRITO À MÃO na tela da semana, com o nome do mês vindo da
@@ -104,12 +111,6 @@ export const fmtWD = (d: Date) => WD()[d.getDay()];
     19 de May": a frase era portuguesa por dentro e ninguém veria isso até
     a tradução chegar. É o mesmo motivo de todos os outros formatadores
     daqui existirem. */
-/** "maio de 2026" — o cabeçalho do calendário.
-
-    ⚠️ ERA MONTADO NA PRÓPRIA TELA, com o "de" no meio da interpolação. O
-    inglês não tem esse "de": lá é "May 2026". */
-export const fmtMesAno = (d: Date) => formato().mesAno(d.getMonth(), d.getFullYear());
-
 export const fmtPeriodoLongo = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth()
     ? formato().periodoLongo(a.getDate(), b.getDate(), b.getMonth())
@@ -131,8 +132,7 @@ export const hm = (h: number, m: number) => relogio(h, m, true);
 
 export function relDay(d: Date) {
   const n = diffDays(d, now());
-  if (n === 0) return 'hoje'; if (n === -1) return 'ontem'; if (n === 1) return 'amanhã';
-  if (n < 0) return `há ${-n} dias`; return `em ${n} dias`;
+  return T.tempo.relativo(n);
 }
 /** O "daqui a quanto" das coisas marcadas: aplicação e consulta.
 
@@ -156,7 +156,7 @@ export function relDay(d: Date) {
 export const quandoEm = (dias: number) => ({
   dias,
   hoje: dias <= 0,
-  label: dias <= 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`,
+  label: T.tempo.daquiA(dias),
 });
 
 /** A primeira letra em caixa alta. Existe porque um rótulo que nasce no
