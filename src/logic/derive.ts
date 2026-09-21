@@ -2312,18 +2312,19 @@ export function companionSuggestions(S: State): string[] {
   const nd = diasAteAplicar(S);
   const ci: any = checkinToday(S);
 
-  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push('Por que senti mais fome hoje?');
-  else if (cyc.phase.key === 'pico') out.push('Por que estou sem fome?');
-  else if (cyc.phase.key === 'aplic') out.push('O que esperar depois da aplicação?');
+  const P = T.rotina.perguntas;
+  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push(P.maisFome);
+  else if (cyc.phase.key === 'pico') out.push(P.semFome);
+  else if (cyc.phase.key === 'aplic') out.push(P.depoisDaAplicacao);
 
-  if (ci && ci.nausea >= 5) out.push('Como diminuir o enjoo?');
-  if (nd <= 2) out.push('Posso trocar o dia da aplicação?');
+  if (ci && ci.nausea >= 5) out.push(P.diminuirEnjoo);
+  if (nd <= 2) out.push(P.trocarODia);
 
   const a1c = examBy(S, 'HbA1c');
-  if (a1c && a1c.values.length >= 2) out.push('O que meus exames mostram?');
+  if (a1c && a1c.values.length >= 2) out.push(P.meusExames);
 
-  out.push('Analise meu progresso');
-  if (temAcompanhamento(S)) out.push('Prepare minha consulta');
+  out.push(P.meuProgresso);
+  if (temAcompanhamento(S)) out.push(P.prepararConsulta);
 
   /* sem repetir e no máximo quatro — lista longa vira menu, não conversa */
   return [...new Set(out)].slice(0, 4);
@@ -2361,6 +2362,7 @@ export type Reco = {
 };
 
 export function recommendations(S: State): Reco[] {
+  const E = T.rotina.empurroes;
   const out: Reco[] = [];
   const cyc = doseCycle(S);
   const nd = diasAteAplicar(S);
@@ -2371,7 +2373,7 @@ export function recommendations(S: State): Reco[] {
 
   if (waterMlToday(S) < t.waterMl * 0.6) {
     out.push({
-      emDias: 0, ic: 'water', texto: 'Beba mais água ainda hoje',
+      emDias: 0, ic: 'water', texto: E.agua,
       /* ⚠️ O MOTIVO ERA UM DÉFICIT COM O NOME DA PESSOA NA FRENTE.
 
          "Você está abaixo da metade da meta" põe o sujeito no lugar de
@@ -2382,23 +2384,21 @@ export function recommendations(S: State): Reco[] {
 
          O que falta de água é fato do dia, não defeito de caráter: "o dia
          está na metade da meta" diz o mesmo e aponta para o copo. */
-      porque: enjoo >= 2
-        ? 'Nos seus dias bem hidratados o enjoo aparece menos — e o dia ainda está na metade da meta'
-        : 'O dia ainda está na metade da meta, e a água segura a saciedade até o fim dele',
+      porque: enjoo >= 2 ? E.aguaPorqueComEnjoo : E.aguaPorque,
       to: '/medir-agua',
     });
   }
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
     out.push({
-      emDias: 0, ic: 'leaf', texto: 'Reforce a proteína no jantar',
-      porque: 'Você está na fase do ciclo em que a fome volta, e a proteína de hoje aparece na fome de amanhã',
+      emDias: 0, ic: 'leaf', texto: E.proteina,
+      porque: E.proteinaPorque,
       to: '/medir-refeicao',
     });
   }
   if (!checkinFeito(S)) {
     out.push({
-      emDias: 0, ic: 'check', texto: 'Faça o check-in de hoje',
-      porque: 'É o registro que alimenta tudo o que eu consigo enxergar sobre você',
+      emDias: 0, ic: 'check', texto: E.checkin,
+      porque: E.checkinPorque,
       to: '/checkin',
     });
   }
@@ -2406,30 +2406,30 @@ export function recommendations(S: State): Reco[] {
   if (nd >= 0 && nd <= 3) {
     out.push({
       emDias: nd, ic: 'syringe',
-      texto: `Separe ${oA(formaDe(S))} ${FORMAS[formaDe(S)].recipiente} e escolha o local`,
-      porque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
+      texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS[formaDe(S)].recipiente}`),
+      porque: E.aplicacaoPorque,
       to: '/aplicacoes',
     });
   }
   const p = penStock(S);
   if (!p.verdict.good) {
     out.push({
-      emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: 'Peça a renovação da receita',
-      porque: `Restam ${p.left} doses ${noNa(formaDe(S))} — pedindo agora, ela chega antes de acabar`,
+      emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: E.receita,
+      porque: E.receitaPorque(`${p.left} doses ${noNa(formaDe(S))}`),
       to: '/aplicacoes',
     });
   }
   const exame = exameNoProtocolo(S);
   if (exame) out.push({
     emDias: 5, ic: 'doc', texto: exame,
-    porque: 'Está aberto no protocolo desta semana, e o resultado costuma demorar alguns dias',
+    porque: E.examePorque,
     to: '/exames',
   });
   if (temConsulta(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
     if (cd >= 0 && cd <= 14) out.push({
-      emDias: cd, ic: 'cal', texto: 'Prepare suas perguntas para a consulta',
-      porque: `${S.consult.type} com ${S.consult.doctor} — eu monto o resumo, você escolhe o que quer perguntar`,
+      emDias: cd, ic: 'cal', texto: E.consulta,
+      porque: E.consultaPorque(S.consult.type, S.consult.doctor),
       to: '/consultas',
     });
   }
@@ -2438,10 +2438,11 @@ export function recommendations(S: State): Reco[] {
 
 /* O rótulo do grupo sai do prazo, e o prazo sai do dado. */
 export function recoBucket(d: number): string {
-  if (d <= 0) return 'Hoje';
-  if (d === 1) return 'Amanhã';
-  if (d <= 7) return 'Esta semana';
-  return `Daqui a ${d} dias`;
+  const P = T.rotina.prazo;
+  if (d <= 0) return P.hoje;
+  if (d === 1) return P.amanha;
+  if (d <= 7) return P.estaSemana;
+  return P.daquiA(d);
 }
 
 /* ============================================================
@@ -3262,10 +3263,10 @@ export type Treino = { t: number; i: number; tipo: string; min: number; ic: stri
    haver origem — e todo registro antigo é manual de fato. Mas a tela
    nunca mostra a ausência: ela mostra "Você", porque ausência não
    responde "quem registrou isto", responde "não sei". */
-export const ORIGEM_MANUAL = 'Você';
+export const ORIGEM_MANUAL = () => T.rotina.origemManual;
 export const origemDoTreino = (tr: { fonte?: string } | null | undefined): string =>
-  (tr && tr.fonte) || ORIGEM_MANUAL;
-export const ehManual = (fonte: string) => fonte === ORIGEM_MANUAL;
+  (tr && tr.fonte) || ORIGEM_MANUAL();
+export const ehManual = (fonte: string) => fonte === ORIGEM_MANUAL();
 
 /** As sessões registradas à mão, da mais nova para a mais velha. */
 export function treinosRecentes(S: State, dias = 30): Treino[] {
@@ -3769,6 +3770,8 @@ export type TarefaDoProtocolo = {
 
 /* Como cada meta medida se escreve e se conta. O alvo — em quantos dias
    da semana — vem da tarefa, porque é ele que a equipe negocia. */
+const K = () => T.rotina.protocolo;
+
 const MEDIDAS: Record<string, (S: State, alvo: number) => {
   texto: string; feito: number; origem: string; para: string; ic: string;
   /** o que se conta, quando não são dias — "1 de 1 dia" não descreve uma injeção */
@@ -3777,17 +3780,17 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
   agua: (S, alvo) => {
     const ml = (S.profile as any).targets.waterMl as number;
     return {
-      texto: alvo >= 7 ? `Beber ${aguaTxt(S, ml)} todo dia` : `Beber ${aguaTxt(S, ml)} em ${alvo} dias`,
+      texto: alvo >= 7 ? K().aguaTodoDia(aguaTxt(S, ml)) : K().aguaEmDias(aguaTxt(S, ml), alvo),
       feito: semanaDeAgua(S).filter((d) => d.ml >= ml).length,
-      origem: 'Hidratação', para: '/agua', ic: 'water',
+      origem: K().origemAgua, para: '/agua', ic: 'water',
     };
   },
   prot: (S, alvo) => {
     const g = (S.profile as any).targets.prot as number;
     return {
-      texto: alvo >= 7 ? `Comer ${g} g de proteína todo dia` : `Comer ${g} g de proteína em ${alvo} dias`,
+      texto: alvo >= 7 ? K().proteinaTodoDia(g) : K().proteinaEmDias(g, alvo),
       feito: semanaDeProteina(S).filter((d) => d.g >= g).length,
-      origem: 'Alimentação', para: '/alimentacao', ic: 'cutlery',
+      origem: K().origemProteina, para: '/alimentacao', ic: 'cutlery',
     };
   },
   /* Dias COM MOVIMENTO, e não minutos: é o que o item pede — sair do
@@ -3799,9 +3802,9 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
        era um empurrão; numa lista que a clínica prescreve, ao lado de
        dose e proteína, ele destoa — e "mexer" é a palavra que a gente usa
        para levantar do sofá, não para a coisa que vai no protocolo. */
-    texto: `Se exercitar em ${alvo} ${alvo === 1 ? 'dia' : 'dias'} da semana`,
+    texto: K().exercicio(alvo),
     feito: semanaDeMovimento(S).filter((d) => d.min > 0).length,
-    origem: 'Exercício', para: '/exercicio', ic: 'dumbbell',
+    origem: K().origemExercicio, para: '/exercicio', ic: 'dumbbell',
   }),
   /* ⚠️ A APLICAÇÃO ERA UMA CAIXA PARA MARCAR À MÃO, e o app já sabia a
      resposta: cada aplicação é um registro com data, e é dele que a Home
@@ -3821,10 +3824,10 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
     const de = +startOfDay(now()) - 6 * DAY;
     const feito = (S.injections as any[]).filter((x) => +startOfDay(new Date(x.t)) >= de).length;
     return {
-      texto: alvo === 1 ? 'Aplicação da semana' : `${alvo} aplicações na semana`,
-      unidade: ['aplicação', 'aplicações'],
+      texto: alvo === 1 ? K().aplicacaoUma : K().aplicacaoVarias(alvo),
+      unidade: K().unidadeAplicacao,
       feito: Math.min(feito, alvo),
-      origem: 'Aplicações', para: '/aplicacoes', ic: 'syringe',
+      origem: K().origemAplicacao, para: '/aplicacoes', ic: 'syringe',
     };
   },
 };
@@ -3840,10 +3843,10 @@ export function protocoloDaSemana(S: State) {
     }
     const alvo = x.alvo || 7;
     const { texto, feito, origem, para, unidade, ic } = m(S, alvo);
-    const [un1, unN] = unidade ?? ['dia', 'dias'];
+    const [un1, unN] = unidade ?? K().unidadeDia;
     return {
       i, texto,
-      nota: `${feito} de ${alvo} ${alvo === 1 ? un1 : unN}`,
+      nota: K().nota(feito, alvo, alvo === 1 ? un1 : unN),
       feita: feito >= alvo,
       medida: true,
       origem,
@@ -3977,23 +3980,24 @@ export function semanaDoHistorico(S: State, ate: number) {
     return { ic, texto, alvo, feito: ds.filter((d) => d.ok).length, resumo: resumoDe(media(vs), soma), dias: ds };
   };
 
+  const W = T.rotina.semanas;
   return {
     semana: S.protocol.week - Math.round((+startOfDay(now()) - ate) / (7 * DAY)),
     de,
     ate,
     metas: [
-      monta('water', `Beber ${aguaTxt(S, t.waterMl)} todo dia`, alvoDe('agua', 7),
+      monta('water', W.aguaMeta(aguaTxt(S, t.waterMl)), alvoDe('agua', 7),
         (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
         (v) => v >= t.waterMl,
-        (m) => (m == null ? 'sem registro na semana' : `média de ${aguaTxt(S, Math.round(m))} por dia`)),
-      monta('utensils', `Comer ${t.prot} g de proteína todo dia`, alvoDe('prot', 7),
+        (m) => (m == null ? W.semRegistro : W.mediaDeAgua(aguaTxt(S, Math.round(m))))),
+      monta('utensils', W.proteinaMeta(t.prot), alvoDe('prot', 7),
         (c) => (typeof c.prot === 'number' ? Math.round(c.prot) : null),
         (v) => v >= t.prot,
-        (m) => (m == null ? 'sem registro na semana' : `média de ${Math.round(m)} g por dia`)),
-      monta('dumbbell', `Se exercitar em ${alvoDe('exerc', 3)} dias da semana`, alvoDe('exerc', 3),
+        (m) => (m == null ? W.semRegistro : W.mediaDeProteina(Math.round(m)))),
+      monta('dumbbell', W.exercicioMeta(alvoDe('exerc', 3)), alvoDe('exerc', 3),
         (c) => (typeof c.exerc === 'number' ? Math.round(c.exerc) : null),
         (v) => v > 0,
-        (_m, soma) => (soma ? `${soma} min na semana` : 'nenhum movimento registrado')),
+        (_m, soma) => (soma ? W.minutosNaSemana(soma) : W.semMovimento)),
     ],
   };
 }
@@ -5412,7 +5416,10 @@ export function cicloFases(S: State) {
       dayIn > f.ate ? 'passou'
         : dayIn >= f.de ? 'agora'
           : f.de === dayIn + 1 ? 'amanha' : 'depois';
-    const selo = estado === 'passou' ? 'passou' : estado === 'agora' ? 'agora' : estado === 'amanha' ? 'amanhã' : `em ${f.de - dayIn} dias`;
+    const Se = T.rotina.selo;
+    const selo = estado === 'passou' ? Se.passou
+      : estado === 'agora' ? Se.agora
+        : estado === 'amanha' ? Se.amanha : Se.emDias(f.de - dayIn);
     return { ...f, estado, selo };
   });
   const atual = fases.find((f) => f.estado === 'agora') ?? fases[fases.length - 1];
@@ -5574,18 +5581,19 @@ export function preparoDaConsulta(S: State): ItemDoPreparo[] {
 
   const w = (S.weights as any[])[S.weights.length - 1];
   const diasDoPeso = w ? diffDays(now(), new Date(w.t)) : null;
+  const R = T.rotina.preparo;
   itens.push(
     diasDoPeso == null
-      ? { id: 'peso', ic: 'scale', titulo: 'Registrar o peso', sub: 'Nenhuma pesagem ainda', pronto: false, to: '/medir-peso' }
+      ? { id: 'peso', ic: 'scale', titulo: R.pesoNenhum, sub: R.pesoNenhumSub, pronto: false, to: '/medir-peso' }
       : diasDoPeso <= DIAS_DE_PESO_FRESCO
-        ? { id: 'peso', ic: 'scale', titulo: 'Peso em dia', sub: `${pesoTxt(S, w.kg)} · ${rotuloDeDias(diasDoPeso)}`, pronto: true, to: '/medir-peso' }
-        : { id: 'peso', ic: 'scale', titulo: 'Pesar-se antes', sub: `Última pesagem ${rotuloDeDias(diasDoPeso)}`, pronto: false, to: '/medir-peso' },
+        ? { id: 'peso', ic: 'scale', titulo: R.pesoEmDia, sub: R.pesoSub(pesoTxt(S, w.kg), rotuloDeDias(diasDoPeso)), pronto: true, to: '/medir-peso' }
+        : { id: 'peso', ic: 'scale', titulo: R.pesoAntigo, sub: R.pesoAntigoSub(rotuloDeDias(diasDoPeso)), pronto: false, to: '/medir-peso' },
   );
 
   const abertas = notasAbertas(S).length;
   itens.push(abertas
-    ? { id: 'notas', ic: 'pencil', titulo: 'Dúvidas anotadas', sub: `${abertas} para levar`, pronto: true, to: '/notas' }
-    : { id: 'notas', ic: 'pencil', titulo: 'Anotar dúvidas', sub: 'Nada anotado ainda', pronto: false, to: '/nota' });
+    ? { id: 'notas', ic: 'pencil', titulo: R.notasProntas, sub: R.notasProntasSub(abertas), pronto: true, to: '/notas' }
+    : { id: 'notas', ic: 'pencil', titulo: R.notasVazias, sub: R.notasVaziasSub, pronto: false, to: '/nota' });
 
   /* ⚠️ O PACOTE, E NÃO O MARCADOR SOLTO. `exams` guarda cada marcador com
      a série inteira dele; `examBundles` guarda o dia em que um exame foi
@@ -5596,8 +5604,8 @@ export function preparoDaConsulta(S: State): ItemDoPreparo[] {
   const diasDoExame = ultimo ? diffDays(now(), new Date(ultimo.t)) : null;
   itens.push(
     ultimo && diasDoExame != null && diasDoExame <= DIAS_DE_EXAME_RECENTE
-      ? { id: 'exames', ic: 'chart', titulo: 'Exames recentes', sub: `${ultimo.name} · ${rotuloDeDias(diasDoExame)}`, pronto: true, to: '/exames' }
-      : { id: 'exames', ic: 'chart', titulo: 'Exames', sub: ultimo ? `O último foi ${rotuloDeDias(diasDoExame!)}` : 'Nenhum exame guardado', pronto: false, to: '/exames' },
+      ? { id: 'exames', ic: 'chart', titulo: R.examesRecentes, sub: R.examesRecentesSub(ultimo.name, rotuloDeDias(diasDoExame)), pronto: true, to: '/exames' }
+      : { id: 'exames', ic: 'chart', titulo: R.exames, sub: ultimo ? R.examesAntigosSub(rotuloDeDias(diasDoExame!)) : R.examesNenhumSub, pronto: false, to: '/exames' },
   );
 
   return itens;
@@ -5657,6 +5665,7 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
   /* ---- peso ----
      Os dois extremos do intervalo, e não a diferença com hoje: a pergunta
      é o que mudou NAQUELE tempo. */
+  const C_ = T.rotina.periodo;
   const pesos = ((S.weights ?? []) as any[]).filter((w) => dentro(w.t));
   if (pesos.length >= 2) {
     const de = pesos[0].kg;
@@ -5664,8 +5673,8 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
     const d = para - de;
     mudancas.push({
       id: 'peso', ic: 'scale',
-      titulo: d === 0 ? 'Peso estável' : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`,
-      sub: `De ${pesoTxt(S, de, 1)} para ${nf(para)}`,
+      titulo: d === 0 ? C_.pesoEstavel : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`,
+      sub: C_.pesoDe(pesoTxt(S, de, 1), nf(para)),
     });
   }
 
@@ -5687,14 +5696,14 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
   if (ajuste) {
     mudancas.push({
       id: 'dose', ic: 'dose',
-      titulo: `Dose para ${nf(ajuste.para, ajuste.para % 1 ? 1 : 0)} mg`,
-      sub: `Vinha de ${nf(ajuste.de, ajuste.de % 1 ? 1 : 0)} mg`,
+      titulo: C_.doseNova(nf(ajuste.para, ajuste.para % 1 ? 1 : 0)),
+      sub: C_.doseAnterior(nf(ajuste.de, ajuste.de % 1 ? 1 : 0)),
     });
   }
   if (aplicacoes) {
     mudancas.push({
       id: 'aplicacoes', ic: 'syringe',
-      titulo: aplicacoes === 1 ? '1 aplicação' : `${aplicacoes} aplicações`,
+      titulo: aplicacoes === 1 ? C_.umaAplicacao : C_.aplicacoes(aplicacoes),
     });
   }
 
@@ -5706,28 +5715,29 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
 
   const exames = (((S as any).examBundles ?? []) as any[]).filter((x) => dentro(x.t));
   for (const ex of exames) {
-    mudancas.push({ id: 'exame-' + ex.t, ic: 'chart', titulo: ex.name, sub: `${ex.n} marcadores` });
+    mudancas.push({ id: 'exame-' + ex.t, ic: 'chart', titulo: ex.name, sub: C_.marcadores(ex.n) });
   }
 
   const orientacoes = ((S.messages ?? []) as any[]).filter((m) => m.from === 'doc' && dentro(m.t)).length;
   if (orientacoes) {
     mudancas.push({
       id: 'orientacoes', ic: 'companion',
-      titulo: orientacoes === 1 ? '1 orientação da equipe' : `${orientacoes} orientações da equipe`,
+      titulo: orientacoes === 1 ? C_.umaOrientacao : C_.orientacoes(orientacoes),
     });
   }
 
-  return { t: h.t, tipo: h.type || 'Consulta', nota: h.note || undefined, ate, emAberto, mudancas };
+  return { t: h.t, tipo: h.type || C_.consultaSemTipo, nota: h.note || undefined, ate, emAberto, mudancas };
 }
 
 /** "hoje", "ontem", "há 4 dias" — a mesma frase em todas as linhas do
     preparo, para o olho comparar as datas em vez de traduzi-las. */
 function rotuloDeDias(d: number) {
-  if (d <= 0) return 'hoje';
-  if (d === 1) return 'ontem';
-  if (d < 30) return `há ${d} dias`;
+  const Q = T.rotina.quando;
+  if (d <= 0) return Q.hoje;
+  if (d === 1) return Q.ontem;
+  if (d < 30) return Q.haDias(d);
   const meses = Math.round(d / 30);
-  return meses <= 1 ? 'há um mês' : `há ${meses} meses`;
+  return meses <= 1 ? Q.haUmMes : Q.haMeses(meses);
 }
 
 /** As notas ainda não conversadas, em texto, para o resumo do médico. */

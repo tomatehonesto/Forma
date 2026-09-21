@@ -9,6 +9,7 @@ import { etapa as etapaPt } from './pt-BR/etapa';
 import { exames as examesPt } from './pt-BR/exames';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
+import { rotina as rotinaPt } from './pt-BR/rotina';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 /* ============================================================
@@ -68,6 +69,7 @@ export type Textos = {
   exames: typeof examesPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
+  rotina: typeof rotinaPt;
   tratamento: typeof tratamentoPt;
 };
 
@@ -76,7 +78,8 @@ const CATALOGOS: Record<Idioma, Textos> = {
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, etapa: etapaPt,
     exames: examesPt, home: homePt,
-    marcadores: marcadoresPt, metas: metasPt, tratamento: tratamentoPt,
+    marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
+    tratamento: tratamentoPt,
   },
 };
 
