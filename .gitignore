@@ -51,3 +51,6 @@ expo-dev.log
 
 # imagens de referencia externa (material de terceiros - nao versionar)
 .ui-refs/
+
+# a varredura de textos é relatório, não fonte
+inventario-textos.txt
