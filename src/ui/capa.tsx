@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
@@ -10,6 +10,17 @@ import { Icon } from './Icon';
 import { VidroDegrade } from './vidro';
 import { useTheme } from './useTheme';
 import { radius } from '../theme';
+
+/* ⚠️ O TÍTULO ATRAVESSA O CONTEXTO, e não vira mais um parâmetro.
+
+   A barra que colapsa mora no `TelaDeHabito`, e o título mora na
+   `CapaDeHabito` — que é filha dela. Pedir o mesmo texto nos dois lugares
+   faria cada uma das seis telas escrevê-lo duas vezes, e o dia em que
+   alguém trocasse um só teria a barra dizendo uma coisa e a capa outra.
+
+   A capa avisa quem é, quando monta. Uma linha nas seis telas continua
+   sendo uma linha. */
+const CapaCtx = React.createContext<((titulo: string) => void) | null>(null);
 
 /* ============================================================
    A CAPA DE UM HÁBITO
@@ -78,8 +89,9 @@ export function CapaDeHabito({ foto, titulo, linha, pct, valor, posicao, childre
   children?: React.ReactNode;
 }) {
   const { c } = useTheme();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
+  const avisar = React.useContext(CapaCtx);
+  React.useEffect(() => { avisar?.(titulo); }, [avisar, titulo]);
 
   /* Até onde o vidro desce: a barra de voltar, o título e a linha do
      número. Abaixo disso a foto fica limpa, que é onde o número grande
@@ -108,14 +120,18 @@ export function CapaDeHabito({ foto, titulo, linha, pct, valor, posicao, childre
       />
 
       <View style={{ flex: 1, paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 46 }}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.6 : 1 }]}>
-          <View style={{
-            width: 36, height: 36, borderRadius: 18,
-            backgroundColor: c.onHeroLine, alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon name="back" size={16} color={c.onHero} sw={2.2} />
-          </View>
-        </Pressable>
+        {/* ⚠️ O BOTÃO DE VOLTAR SAIU DAQUI, e sobrou o espaço dele.
+
+            Ele morava dentro de uma capa de 398 px que é o primeiro filho
+            do scroll — então rolar a tela levava embora a única saída
+            dela. Quem descia até o fim de Exames tinha de subir tudo de
+            volta só para voltar.
+
+            Agora ele mora na barra fixa do TelaDeHabito, sempre no mesmo
+            ponto da tela. O vão continua aqui para o título começar onde
+            sempre começou: as seis telas não mudam de desenho, só param
+            de perder a saída. */}
+        <View style={{ height: 36 }} />
 
         <Txt v="display" c={c.onHero} style={{ marginTop: 22 }}>{titulo}</Txt>
         <Txt v="note" c={c.onHero2} style={{ marginTop: 2 }}>{linha}</Txt>
@@ -236,20 +252,107 @@ export function FolhaDeHabito({ children }: { children: React.ReactNode }) {
    enfeite: sem ele o conteúdo parece cortado numa linha reta sem
    explicação, e um degradê no lugar dele lia como vidro embaçado. Ele
    declara que ali começa outra superfície. */
+/* Quando a barra deixa de ser transparente e assume o título.
+
+   O vidro da capa desce até `insets.top + 122` e leva o título e a linha
+   dentro dele; a barra ocupa `insets.top + 48`. A diferença é o quanto
+   precisa rolar para o texto da capa passar por baixo da barra — e é aí
+   que ela precisa assumir, nem antes (tapando a capa inteira à toa) nem
+   depois (com o título sumido e nada no lugar). */
+const LIMITE = 74;
+
 export function TelaDeHabito({ children, rodape }: {
   children: React.ReactNode;
   rodape?: React.ReactNode;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [titulo, setTitulo] = React.useState('');
+  const [passou, setPassou] = React.useState(false);
+  const tinta = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(tinta, { toValue: passou ? 1 : 0, duration: 160, useNativeDriver: true }).start();
+  }, [passou, tinta]);
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + (rodape ? 150 : 28) }}
+        scrollEventThrottle={16}
+        onScroll={(e) => setPassou(e.nativeEvent.contentOffset.y > LIMITE)}
       >
-        {children}
+        <CapaCtx.Provider value={setTitulo}>{children}</CapaCtx.Provider>
       </ScrollView>
+
+      {/* ---- a barra que colapsa ----
+
+          ⚠️ ELA EXISTE O TEMPO TODO, e o que muda é o fundo. Aparecer só
+          depois de rolar deixaria a capa sem saída nos primeiros pixels —
+          e a saída é justamente o que esta barra veio resolver.
+
+          Sobre a capa ela é invisível: só o botão, em vidro claro, no
+          mesmo ponto em que ele já era desenhado. Passando o LIMITE o
+          fundo entra, o título aparece, e o botão troca de roupa.
+
+          ⚠️ SÃO DOIS BOTÕES CRUZANDO, e não um mudando de cor. Animar
+          backgroundColor obriga a largar o useNativeDriver, e aí a
+          animação passa a disputar a thread do JS com a rolagem que a
+          disparou — que é onde ela engasga. Dois desenhos empilhados
+          trocando de opacidade rodam na thread nativa e custam uma View a
+          mais. */}
+      <View
+        pointerEvents="box-none"
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20 }}
+      >
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+            backgroundColor: c.bg,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: c.line,
+            opacity: tinta,
+          }}
+        />
+        <Row style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12 }}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={10}
+            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          >
+            <View style={{ width: 36, height: 36 }}>
+              <Animated.View
+                style={{
+                  position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 18,
+                  backgroundColor: c.onHeroLine, alignItems: 'center', justifyContent: 'center',
+                  opacity: tinta.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+                }}
+              >
+                <Icon name="back" size={16} color={c.onHero} sw={2.2} />
+              </Animated.View>
+              <Animated.View
+                style={{
+                  position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: radius.md,
+                  backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+                  opacity: tinta,
+                }}
+              >
+                <Icon name="back" size={18} color={c.tx} sw={2} />
+              </Animated.View>
+            </View>
+          </Pressable>
+
+          {/* O título centra na tela, com o espaçador do tamanho do botão
+              do outro lado — a mesma conta do cabeçalho do companion. */}
+          <Animated.View style={{ flex: 1, opacity: tinta }} pointerEvents="none">
+            <Txt v="bodyMed" style={{ textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
+          </Animated.View>
+          <View style={{ width: 36 }} />
+        </Row>
+      </View>
       {rodape ? (
         <View style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,
