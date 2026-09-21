@@ -3,7 +3,10 @@ import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
-import { fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada, metaClinica, metasDiscordam } from '../logic/derive';
+import {
+  fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada,
+  metaClinica, metasDiscordam, ALVOS, type ChaveDeAlvo,
+} from '../logic/derive';
 import { Txt, Card, Row, Chevron, SectionHead } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -88,7 +91,6 @@ export default function Medico() {
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
-  const mc = metaClinica(S);
   const discordam = metasDiscordam(S);
 
   const equipe = fichaDaEquipe(S);
@@ -504,18 +506,27 @@ export default function Medico() {
             Quando não há nada anotado, a linha diz o que ela é em vez de
             mostrar um vazio: a porta existe porque a conversa da consulta
             acontece antes de haver número. */}
-        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Meta de peso da equipe</Txt>
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Os números da sua equipe</Txt>
         <Cartao>
-          <Linha
-            ic="scale"
-            titulo={mc ? `${nf(mc.kg, 1)} kg` : 'Ainda não anotada'}
-            sub={mc
-              ? `${mc.por} · anotado em ${dataLonga(mc.em)}`
-              : 'Anote aqui o número que a sua equipe definiu na consulta'}
-            onPress={go('/meta-clinica')}
-          />
+          {(Object.keys(ALVOS) as ChaveDeAlvo[]).map((k) => {
+            const a = ALVOS[k];
+            const m = metaClinica(S, k);
+            return (
+              <Linha
+                key={k}
+                ic={a.ic}
+                titulo={a.nome}
+                selo={m ? `${a.escreve(m.valor)} ${a.un}` : 'não anotada'}
+                seloTom={m ? 'lima' : 'neutra'}
+                sub={m
+                  ? `${m.por} · anotado em ${dataLonga(m.em)}`
+                  : 'Anote o número que ela definiu na consulta'}
+                onPress={go(`/meta-clinica?alvo=${k}`)}
+              />
+            );
+          })}
         </Cartao>
-        {mc && discordam ? (
+        {metaClinica(S, 'peso') && discordam ? (
           <Aviso
             ic="steth"
             texto={`A sua meta de peso, no aplicativo, é ${nf((S.profile as any).goalWeight, 1)} kg. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`}

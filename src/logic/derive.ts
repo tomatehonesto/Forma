@@ -60,28 +60,73 @@ export const SONO_REF_H = 7;
    fato sobre o desejo dela.
    ============================================================ */
 
-/** A meta de peso que a equipe definiu, como a pessoa anotou. */
-export const metaClinica = (S: State) =>
-  ((S.protocol as any)?.metaPeso ?? null) as { kg: number; em: number; por: string } | null;
+export type MetaDaEquipe = { valor: number; em: number; por: string };
+
+/** O que a equipe definiu para este alvo, como a pessoa anotou. */
+export const metaClinica = (S: State, chave: ChaveDeAlvo = 'peso') =>
+  (((S.protocol as any)?.metas?.[chave]) ?? null) as MetaDaEquipe | null;
+
+/** Todos os alvos que têm número da equipe, na ordem dos ALVOS. */
+export const metasDaEquipe = (S: State) =>
+  (Object.keys(ALVOS) as ChaveDeAlvo[])
+    .map((k) => ({ chave: k, meta: metaClinica(S, k) }))
+    .filter((x): x is { chave: ChaveDeAlvo; meta: MetaDaEquipe } => !!x.meta);
+
+/* ⚠️⚠️ O PESO SEGUE UMA REGRA E OS OUTROS TRÊS SEGUEM OUTRA, e a diferença
+   não é inconsistência — é a natureza dos números.
+
+   A META DE PESO É UM DESTINO, e é dela. Duas podem conviver: a que ela
+   quer alcançar e a que a equipe mira. Nenhuma tela conta nada contra
+   elas todo dia; a Jornada mede a viagem, e a viagem é dela.
+
+   OS TRÊS NÚMEROS DO DIA SÃO PARÂMETROS OPERACIONAIS. O anel da
+   hidratação enche contra um número. O protocolo da semana conta dias
+   contra um número. A barra da alimentação cobra um número. Ter dois
+   seria a mesma pergunta com duas respostas — exatamente o defeito que
+   este projeto passou a semana desfazendo, e no lugar mais caro possível:
+   a pessoa veria "faltam 20 g" numa tela e "meta cumprida" na outra.
+
+   Por isso, para os três, anotar o número da equipe ESCREVE em
+   `profile.targets`. Continua existindo um número só, e o que a tag conta
+   é DE QUEM ELE É. E ela pode mudá-lo depois: é o corpo dela e o
+   aplicativo dela. O que o aplicativo não faz é esconder que mudou. */
+
+/** De quem é o número que o aplicativo usa hoje para este alvo. */
+export function procedenciaDoAlvo(S: State, chave: ChaveDeAlvo) {
+  const meta = metaClinica(S, chave);
+  if (!meta) return { daEquipe: false, alterada: false, convivem: false, meta: null as MetaDaEquipe | null };
+  /* ⚠️ O PESO NÃO É "DA EQUIPE", ELE CONVIVE — e a primeira versão disto
+     mentia na tela. Ela devolvia `daEquipe: true` sempre que houvesse
+     anotação, e a linha de "Os números do dia" mostra o número DELA: a
+     tela ficou com a tag "Da sua equipe · Dra. Helena Costa" ao lado dos
+     68 kg que a Mariana escolheu no cadastro, enquanto a médica tinha
+     dito 72.
+
+     Aqui não há origem para atribuir: são dois números respondendo a duas
+     perguntas. A tela mostra o dela e conta que existe o outro. */
+  if (chave === 'peso') return { daEquipe: false, alterada: false, convivem: true, meta };
+  const emUso = ALVOS[chave].le(S);
+  return { daEquipe: emUso === meta.valor, alterada: emUso !== meta.valor, convivem: false, meta };
+}
 
 /** O peso de referência para leitura CLÍNICA — a da equipe quando existe,
     a dela quando não. Nunca usado para medir a Jornada: ver o comentário
     acima. */
 export const pesoDeReferencia = (S: State) => {
-  const mc = metaClinica(S);
+  const mc = metaClinica(S, 'peso');
   return mc
-    ? { kg: mc.kg, daEquipe: true, por: mc.por, em: mc.em }
+    ? { kg: mc.valor, daEquipe: true, por: mc.por, em: mc.em }
     : { kg: (S.profile as any).goalWeight as number, daEquipe: false, por: '', em: 0 };
 };
 
 /** As duas discordam o bastante para valer uma pergunta na consulta? */
 export const metasDiscordam = (S: State) => {
-  const mc = metaClinica(S);
+  const mc = metaClinica(S, 'peso');
   if (!mc) return false;
   /* Um quilo é ruído de balança; o que merece conversa é a diferença que
      muda o plano. Dois quilos é o menor degrau que não se explica por
      água — e é um limiar escolhido, como os do platô: PENDENCIAS 13. */
-  return Math.abs(mc.kg - ((S.profile as any).goalWeight as number)) >= 2;
+  return Math.abs(mc.valor - ((S.profile as any).goalWeight as number)) >= 2;
 };
 
 export const M = (S: State) => MEDS[S.profile.med];

@@ -4,12 +4,12 @@ import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ALVOS, curWeight, goalProgress, journeyGoals, startWeight, type ChaveDeAlvo,
+  ALVOS, curWeight, goalProgress, journeyGoals, startWeight, procedenciaDoAlvo, type ChaveDeAlvo,
 } from '../logic/derive';
 import { kg } from '../logic/time';
 import { Txt, Row, Vazio, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Bloco, Cartao, Linha } from '../ui/internas';
+import { Bloco, Cartao, Linha, Selo } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -84,6 +84,18 @@ export default function Metas() {
           <Cartao>
             {chaves.map((k) => {
               const a = ALVOS[k];
+              /* ⚠️ A TAG DIZ DE QUEM É O NÚMERO, e antes não havia como
+                 saber. Três destes quatro saíam de uma conta com as
+                 respostas do cadastro — e agora qualquer um deles pode ter
+                 sido definido pela equipe, anotado na consulta.
+
+                 São três estados, e o terceiro é o que importa: quando a
+                 pessoa MUDA um número que a equipe definiu, a tag não some
+                 nem mente. Ela passa a dizer que foi alterada, e a folha
+                 de edição mostra qual era o número da equipe. Ela pode
+                 mudar — é o corpo dela —, o que o aplicativo não faz é
+                 esconder que mudou. */
+              const p = procedenciaDoAlvo(S, k);
               return (
                 /* SEM O "onde" NA LISTA. Ele explica o que aquele número
                    muda no resto do app — e isso interessa a quem está
@@ -94,6 +106,17 @@ export default function Metas() {
                   key={k}
                   ic={a.ic}
                   titulo={a.nome}
+                  sub={p.meta ? (
+                    <Row gap={6} style={{ marginTop: 3 }}>
+                      <Selo
+                        label={p.convivem
+                          ? `Sua equipe mira ${a.escreve(p.meta.valor)} ${a.un}`
+                          : p.alterada ? 'Alterada por você' : 'Da sua equipe'}
+                        tom={p.alterada || p.convivem ? 'neutra' : 'lima'}
+                      />
+                      <Txt v="note">{p.meta.por}</Txt>
+                    </Row>
+                  ) : undefined}
                   selo={`${a.escreve(a.le(S))} ${a.un}`}
                   seloTom="neutra"
                   onPress={() => router.push(`/meta?alvo=${k}` as any)}

@@ -5,10 +5,10 @@ import { useStore } from '../logic/store';
 import {
   ALVOS, METAS_PESSOAIS, META_LIVRE, PRAZOS, apagarMeta,
   guardarMetaPessoal, journeyGoals, marcarMeta,
-  mudarAlvo, type ChaveDeAlvo, type MetaPessoal,
+  mudarAlvo, procedenciaDoAlvo, type ChaveDeAlvo, type MetaPessoal,
 } from '../logic/derive';
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
-import { DAY, fmtDate, now, startOfDay } from '../logic/time';
+import { DAY, fmtDate, now, startOfDay, dataLonga } from '../logic/time';
 import { Campo, Chips, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
@@ -56,6 +56,7 @@ export default function Meta() {
       update((s: any) => mudarAlvo(s, chave, v));
       router.back();
     };
+    const proc = procedenciaDoAlvo(S, chave);
     return (
       <SheetScreen
         titulo={def.nome}
@@ -89,7 +90,27 @@ export default function Meta() {
             ic="info"
             dentro
             titulo={`Hoje: ${def.escreve(def.le(S))} ${def.un}`}
-            texto={`${def.origem}. ${chave === 'peso'
+            /* ⚠️ A ORIGEM DEIXA DE SER SEMPRE A CONTA DO CADASTRO, e são
+               três respostas possíveis para "de onde veio este número":
+
+               · da equipe, quando alguém definiu e a pessoa anotou —
+                 "calculado do seu peso, a 1,2 g por quilo" seria falso,
+                 porque o número saiu de uma consulta e não de uma conta;
+               · dela, quando ela sobrescreveu o da equipe — e aqui a
+                 frase da conta é falsa do mesmo jeito;
+               · da conta do cadastro, que é o caso de quem nunca mexeu.
+
+               ⚠️ SOBRA UM CASO QUE ESTA TELA AINDA ERRA, e é anterior a
+               tudo isto: quem edita um número CALCULADO, sem meta de
+               equipe nenhuma, continua lendo "calculado do seu peso"
+               depois de ter mudado. O aplicativo não guarda que ela
+               editou — só saberia com um campo novo no estado, e este
+               commit não é a hora. */
+            texto={`${proc.meta
+              ? (proc.alterada
+                ? 'Um número seu'   /* e não "você mudou este número": o aviso de baixo já abre com essa frase, e as duas empilhadas dizem a mesma coisa duas vezes. Aqui a pergunta é de quem o número é. */
+                : `Definido por ${proc.meta.por}, anotado em ${dataLonga(proc.meta.em)}`)
+              : def.origem}. ${chave === 'peso'
               ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
               : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`}
           />
@@ -99,7 +120,32 @@ export default function Meta() {
               faz do lado da clínica — são duas coisas de naturezas
               diferentes, e empilhadas no mesmo parágrafo a segunda vira
               rodapé da primeira. */}
-          {def.ressalva ? (
+          {/* ⚠️ TRÊS RESSALVAS DIFERENTES, PARA TRÊS SITUAÇÕES DIFERENTES.
+
+              A antiga servia a um caso só: número calculado pelo
+              aplicativo, com o protocolo contando dias contra ele. Agora
+              o número pode ter dono, e mexer num número que uma
+              profissional definiu não é a mesma decisão que mexer num
+              palpite do cadastro — nem de longe.
+
+              ⚠️ NENHUMA DELAS TRAVA NADA. É o corpo dela e o aplicativo
+              dela, e ela pode mudar o que quiser. O que muda entre as
+              três é o que ela SABE ao mudar: quem sobrescreve 110 g de
+              uma nutricionista merece ler isso antes, e merece continuar
+              vendo, depois, que aquele 110 existiu. */}
+          {proc.meta && !proc.alterada ? (
+            <Aviso
+              ic="steth" dentro
+              titulo={`Quem definiu foi ${proc.meta.por}`}
+              texto={`Você pode mudar este número — ele continua sendo seu. Mudando, o aplicativo passa a cobrar o seu valor, e guarda que o de ${proc.meta.por} era ${def.escreve(proc.meta.valor)} ${def.un}.`}
+            />
+          ) : proc.meta && proc.alterada ? (
+            <Aviso
+              ic="steth" dentro
+              titulo="Você já mudou este número"
+              texto={`${proc.meta.por} tinha definido ${def.escreve(proc.meta.valor)} ${def.un}. O aplicativo cobra o seu — e continua guardando o dela, para você poder voltar ou levar a diferença para a consulta.`}
+            />
+          ) : def.ressalva ? (
             <Aviso ic="steth" dentro titulo="Este é o valor recomendado" texto={def.ressalva} />
           ) : null}
         </View>

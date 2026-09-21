@@ -460,7 +460,20 @@ export function buildSeed() {
          `targets` é o que a pessoa edita em "Os números do dia"; `protocol`
          é o que vem da clínica. Um número da equipe dentro da gaveta que
          a pessoa mexe seria os dois se misturando no primeiro toque. */
-      metaPeso: { kg: 72, em: +daysAgo(34), por: 'Dra. Helena Costa' },
+      metas: {
+        peso: { valor: 72, em: +daysAgo(34), por: 'Dra. Helena Costa' },
+        /* ⚠️ 90, E NÃO UM NÚMERO DIFERENTE DO CALCULADO. A semente é o
+           retrato do estado normal, e o normal é a profissional
+           CONFIRMANDO a conta do cadastro — 1,2 g por quilo dá 90 para a
+           Mariana, e a nutricionista concordou.
+
+           Um valor diferente aqui faria a tela abrir em "Alterada por
+           você" para alguém que nunca alterou nada: o terceiro estado da
+           tag existe para quando a pessoa sobrescreve de fato, e uma
+           semente que já nasce nele ensina o estado errado a quem for
+           mexer nesta tela depois. */
+        prot: { valor: 90, em: +daysAgo(34), por: 'Renata Alves' },
+      } as Record<string, { valor: number; em: number; por: string }>,
       week: 11, tasks: [
         { metrica: 'aplicacao', alvo: 1 },
         { metrica: 'agua', alvo: 7 },
@@ -790,7 +803,15 @@ export function ensureDefaults(S: any) {
   if (!S.descobertasVistas) S.descobertasVistas = {};
   /* Aditivo: quem não anotou nada continua sem meta clínica, e null é a
      resposta certa para "a sua equipe ainda não definiu um número aqui". */
-  if (S.protocol && (S.protocol as any).metaPeso === undefined) (S.protocol as any).metaPeso = null;
+  if (S.protocol && !(S.protocol as any).metas) (S.protocol as any).metas = {};
+  /* ⚠️ A META DE PESO DA EQUIPE NASCEU SOZINHA, num campo só dela, e virou
+     uma das quatro. Quem anotou a dela antes disso não a perde aqui: o
+     formato antigo entra no mapa novo e só então some. */
+  const mp = (S.protocol as any)?.metaPeso;
+  if (mp && typeof mp.kg === 'number') {
+    (S.protocol as any).metas.peso = { valor: mp.kg, em: mp.em, por: mp.por };
+  }
+  if (S.protocol) delete (S.protocol as any).metaPeso;
   delete S.heroSeen;
   if (!S.theme) S.theme = 'light';
   /* bodyFat sai daqui quando a meta virar campo do perfil — o valor certo
@@ -1109,8 +1130,9 @@ export function estadoVazio(): State {
      semente. Uma clínica de mentira não deixa herança. */
   S.protocol = {
     week: 1,
-    /* Nem a meta de peso: ela é o que a pessoa anotou da equipe DELA. */
-    metaPeso: null,
+    /* Nem as metas da equipe: elas são o que a pessoa anotou da equipe
+       DELA, e uma clínica de mentira não deixa herança. */
+    metas: {},
     tasks: (S.protocol?.tasks ?? [])
       .filter((t: any) => !(t.t && /exame/i.test(t.t)))
       .map((t: any) => (t.t ? { ...t, done: false } : t)),
