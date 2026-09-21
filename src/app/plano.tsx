@@ -104,7 +104,12 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const perder = d.peso - d.meta;
   const plano = d.plano;
   const primeiro = d.nome.trim().split(' ')[0];
-  const marca = d.med !== 'indefinido' && med ? ` com o ${med.label}®` : '';
+  /* ⚠️ O ® SÓ ONDE ELE É VERDADE. Manipulado é categoria, não produto:
+     'com o Semaglutida manipulada®' seria o aplicativo afirmando uma marca
+     registrada que não existe. E o artigo também muda — 'com o Mounjaro',
+     mas 'com semaglutida manipulada'. Ver `marca` em logic/meds. */
+  const marca = d.med === 'indefinido' || !med ? ''
+    : med.marca ? ` com o ${med.label}®` : ` com ${med.label.toLowerCase()}`;
   /* O QUE VAI EM PESO na frase de abertura: os quilos, ou o verbo
      inteiro quando não há quilo nenhum a percorrer. */
   const alvoForte = Math.abs(perder) > 0.05 ? `${kgTxt(Math.abs(perder))} kg` : 'manter o seu peso';
@@ -413,7 +418,8 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                       <Icon name="syringe" size={21} color={c.accent} sw={1.9} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Txt v="body">{`${med?.label}®`}</Txt>
+                      {/* o ® só para marca registrada — ver plano acima */}
+                      <Txt v="body">{`${med?.label}${med?.marca ? '®' : ''}`}</Txt>
                       <Txt v="note" c={c.tx3} style={{ marginTop: 1 }}>{cadTexto}</Txt>
                     </View>
                     {d.dose ? (

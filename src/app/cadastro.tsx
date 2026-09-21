@@ -14,8 +14,9 @@ import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
+import { FORMAS, faixaDaMolecula, type Forma } from '../logic/formas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
-import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno } from '../logic/time';
+import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Roda, Regua, NUMERO, SEM_ANEL } from '../ui/internas';
@@ -68,7 +69,7 @@ import { radius, ty, font, shadowCard, alfa } from '../theme';
    ============================================================ */
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
-  | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
+  | 'forma' | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
   | 'restricao' | 'saude' | 'acompanhamento' | 'recomendacao' | 'consentimento';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
@@ -78,8 +79,31 @@ type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medi
    importa é a da primeira dose, e ela vai ser registrada quando
    acontecer. Para quem já aplicou, a pergunta fica: é ela que dá sentido
    a "semana 11 do tratamento". */
+/* ⚠️ O MEIO DA FAIXA, para uma régua que precisa abrir em algum lugar.
+
+   Não é recomendação de dose, e o texto da pergunta diz isso: é onde o
+   controle nasce, do mesmo jeito que a régua de peso deste formulário
+   nasce em 80 kg. Mora fora do componente porque o seletor de medicamento
+   precisa dele no mesmo toque em que troca o medicamento — antes de
+   qualquer coisa derivada do novo medicamento existir.
+
+   ⚠️ A VIA VEM DO PRÓPRIO CATÁLOGO, e não da resposta da pessoa: ela
+   ainda não respondeu a forma quando isto roda. Para manipulado as duas
+   formas possíveis são injetáveis, então a faixa é a mesma nas duas. */
+const meioDaFaixa = (id: string): number | null => {
+  const m = MEDS[id];
+  if (!m || m.doses.length) return null;
+  const f = faixaDaMolecula(m.mol, m.formas[0]);
+  return f ? Math.round(((f.min + f.max) / 2) * 20) / 20 : null;
+};
+
 const TODOS: Id[] = [
-  'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'dose',
+  /* ⚠️ A FORMA VEM LOGO DEPOIS DO MEDICAMENTO, e antes da dose, porque é
+     ela que decide COMO a dose se pergunta: com escada, quando é uma
+     caneta de marca; com régua, quando é manipulado e a receita é quem
+     define o número. Perguntar a dose antes da forma seria perguntar
+     numa ordem que a própria tela não consegue montar. */
+  'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
   'saude', 'acompanhamento', 'recomendacao',
   /* O CONSENTIMENTO É O ÚLTIMO PASSO, e não o primeiro. Concordar antes
@@ -136,6 +160,8 @@ type Respostas = {
   dia: number; mes: number; ano: number;
   emTratamento: boolean | null;
   med: string | null;
+  /** null quando o medicamento só vem numa forma — a pergunta nem aparece */
+  forma: Forma | null;
   dose: number | null;
   intervalo: number | null;
   altura: number;
@@ -183,7 +209,7 @@ const VAZIO: Respostas = {
      para a pessoa arrastar a partir dali. Não são recomendação nenhuma —
      são o meio da faixa. */
   dia: 1, mes: 0, ano: 1990,
-  emTratamento: null, med: null, dose: null, intervalo: null,
+  emTratamento: null, med: null, forma: null, dose: null, intervalo: null,
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
@@ -962,12 +988,19 @@ export default function Cadastro() {
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
      quem ainda vai começar não responde QUANDO começou. */
-  /* Duas perguntas saem da fila conforme as respostas anteriores: quem
-     ainda não começou não responde QUANDO começou, e quem não sabe qual
-     caneta vai usar não tem escada de dose para escolher. */
+  /* Três perguntas saem da fila conforme as respostas anteriores: quem
+     ainda não começou não responde QUANDO começou, quem não sabe qual
+     medicamento vai usar não tem escada de dose para escolher, e a FORMA
+     só se pergunta quando o catálogo não sabe.
+
+     ⚠️ A FORMA SÓ APARECE COM MAIS DE UMA. Toda caneta de marca vem numa
+     forma só, e perguntar ali seria cobrar um toque por uma resposta que
+     o catálogo já tem. Manipulado vem em frasco ou em seringa preenchida,
+     e aí quem sabe é quem está com ela na mão. */
   const passos = useMemo(
     () => TODOS.filter((x) => {
       if (x === 'inicio') return r.emTratamento === true;
+      if (x === 'forma') return (MEDS[r.med ?? '']?.formas.length ?? 1) > 1;
       if (x === 'dose' || x === 'frequencia') return r.med !== 'indefinido';
       return true;
     }),
@@ -1035,6 +1068,7 @@ export default function Cadastro() {
     if (x === 'identidade') return r.identidade != null;
     if (x === 'tratamento') return r.emTratamento != null;
     if (x === 'medicamento') return r.med != null;
+    if (x === 'forma') return r.forma != null;
     if (x === 'dose') return r.dose != null;
     if (x === 'ritmo') return perder <= 0 || r.ritmo != null;
     if (x === 'motivacao') return r.motivacao != null;
@@ -1079,6 +1113,13 @@ export default function Cadastro() {
       s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
       s.profile.height = r.altura;
       s.profile.med = r.med;
+      /* ⚠️ SÓ GRAVA QUANDO ELA RESPONDEU. Com uma forma só, a pergunta não
+         apareceu, e escrever aqui o único item do catálogo seria guardar
+         como resposta dela o que é fato do medicamento. Quem lê usa
+         `formaDe(S)`, que cai no catálogo sozinho — e no dia em que um
+         medicamento passar a vir em duas formas, quem não respondeu
+         continua certo em vez de carregar uma resposta velha. */
+      s.profile.forma = r.forma ?? undefined;
       /* ZERO, E NÃO NULO, quando a dose ainda não existe — quem respondeu
          "ainda não sei" no medicamento nem chega à pergunta da dose. Meia
          dúzia de telas formatam este campo direto, e nulo quebrava a Home
@@ -1310,7 +1351,12 @@ export default function Cadastro() {
       ['O TRATAMENTO', [
         ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
         ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as L]),
-        ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei' : `${med?.label}®`, 'medicamento'],
+        /* O ® só onde ele é verdade — ver `marca` em logic/meds. */
+        ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei'
+          : `${med?.label}${med?.marca ? '®' : ''}`, 'medicamento'],
+        ...((MEDS[r.med ?? '']?.formas.length ?? 1) > 1 && r.forma
+          ? [['syringe', 'Forma', maiuscula(FORMAS[r.forma].recipiente), 'forma'] as L]
+          : []),
         ...(r.med === 'indefinido' ? [] : [
           ['syringe', 'Dose', r.dose === 0 ? 'Ainda não sei' : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}`, 'dose'] as L,
           ['reset', 'Frequência', freq, 'frequencia'] as L,
@@ -1387,6 +1433,15 @@ export default function Cadastro() {
     );
   }
 
+  /* ⚠️ A FAIXA PRECISA DE UMA FORMA, e no cadastro ela pode ainda não ter
+     sido respondida — o passo da forma vem antes do da dose, mas quem
+     edita pelo resumo pula direto. O primeiro item do catálogo é a
+     resposta certa nesse vão: para manipulado as duas formas são
+     injetáveis, então a faixa sai igual de qualquer jeito. */
+  const formaEmUso: Forma = r.forma ?? MEDS[r.med ?? '']?.formas[0] ?? 'caneta';
+  const faixa = (med && !med.doses.length ? faixaDaMolecula(med.mol, formaEmUso) : null)
+    ?? { min: 0.25, max: 2.4 };
+
   /* ---------- as perguntas ---------- */
   const id = passos[n];
   const titulos: Record<Id, string> = {
@@ -1396,6 +1451,7 @@ export default function Cadastro() {
     tratamento: 'Você já está em tratamento?',
     inicio: 'Quando você começou?',
     medicamento: futuro ? 'Qual medicamento você pretende usar?' : 'Qual medicamento você usa?',
+    forma: futuro ? 'Como você vai aplicar?' : 'Como você aplica?',
     dose: futuro ? 'Com qual dose você pretende começar?' : 'Qual é a sua dose atual?',
     frequencia: futuro ? 'De quanto em quanto tempo você vai aplicar?' : 'De quanto em quanto tempo você aplica?',
     corpo: 'Quais são suas medidas atuais?',
@@ -1432,9 +1488,12 @@ export default function Cadastro() {
     tratamento: 'Só para saber onde você está agora.',
     inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.',
     medicamento: 'É dele que saem a escada de doses e o intervalo entre as aplicações.',
+    forma: 'Manipulado sai da farmácia dos dois jeitos, e o que muda é o que você tem na mão na hora de aplicar.',
     dose: med && med.doses.length
       ? `Na ordem da titulação do ${med.label}.`
-      : 'Na ordem da titulação.',
+      /* Sem escada não há titulação a seguir: manipulado não tem degraus
+         de bula, e quem define o número é a receita. */
+      : 'Manipulado não tem escada de bula — o número é o da sua receita.',
     frequencia: 'É daqui que saem a contagem do ciclo, os lembretes e o estoque da caneta.',
     corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
     meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
@@ -1712,14 +1771,56 @@ export default function Cadastro() {
             {Object.entries(MEDS).filter(([k]) => k !== 'indefinido').map(([k, m]) => (
               <Escolha
                 key={k} cheia
-                /* O ® é da marca, e escrevê-lo é o mínimo: são sete nomes
+                /* O ® é da marca, e escrevê-lo é o mínimo: são nomes
                    registrados de três fabricantes, e o app os lista de
-                   graça numa tela de cadastro. */
-                titulo={`${m.label}®`} sub={m.mol}
+                   graça numa tela de cadastro.
+
+                   ⚠️ E SÓ ONDE ELE É VERDADE. Manipulado é categoria, não
+                   produto — sem dono, sem registro. "Semaglutida
+                   manipulada®" seria o aplicativo afirmando uma marca que
+                   não existe, numa tela de saúde. */
+                titulo={`${m.label}${m.marca ? '®' : ''}`}
+                /* A molécula debaixo do nome da marca informa; debaixo de
+                   "Semaglutida manipulada" ela repetiria a palavra que a
+                   pessoa acabou de ler. Ali o que falta dizer é de onde
+                   aquilo vem. */
+                sub={m.marca ? m.mol : 'Preparada em farmácia de manipulação'}
                 on={r.med === k}
-                /* Trocar de caneta zera a dose e o intervalo: a escada é
-                   outra e a cadência também. */
-                onPress={() => p(r.med === k ? { med: k } : { med: k, dose: null, intervalo: null })}
+                /* Trocar de medicamento zera dose, forma e intervalo: a
+                   escada é outra, a cadência também, e a forma pode nem
+                   ser perguntada no próximo.
+
+                   ⚠️ A DOSE NASCE NO MEIO DA FAIXA QUANDO NÃO HÁ ESCADA.
+                   Sem degraus, a pergunta seguinte é uma régua, e régua
+                   precisa de um ponto de partida. É o mesmo critério que
+                   altura, peso e meta já usam neste formulário: o meio da
+                   faixa não é recomendação nenhuma, é onde o controle
+                   abre. Com escada, segue nulo — ali a pessoa escolhe um
+                   degrau, e nenhum degrau é "o do meio". */
+                onPress={() => p(r.med === k ? { med: k } : {
+                  med: k, forma: null, intervalo: null,
+                  dose: MEDS[k].doses.length ? null : meioDaFaixa(k),
+                })}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {/* ⚠️ SÓ CHEGA AQUI QUEM TEM MAIS DE UMA FORMA — ver o filtro da
+            fila. Uma lista de uma opção só não é pergunta, é aviso. */}
+        {id === 'forma' && med ? (
+          <View style={{ gap: 8 }}>
+            {med.formas.map((fm) => (
+              <Escolha
+                key={fm} cheia
+                titulo={maiuscula(FORMAS[fm].recipiente)}
+                sub={fm === 'frasco'
+                  ? 'Você aspira a dose com uma seringa'
+                  : fm === 'seringa'
+                    ? 'Já vem preenchida, pronta para aplicar'
+                    : undefined}
+                on={r.forma === fm}
+                onPress={() => p({ forma: fm })}
               />
             ))}
           </View>
@@ -1727,6 +1828,31 @@ export default function Cadastro() {
 
         {id === 'dose' && med ? (
           <View style={{ gap: 16 }}>
+            {/* ⚠️⚠️ SEM ESCADA, A PERGUNTA MUDA DE CONTROLE.
+
+                Um manipulado não tem degraus de bula: quem define o número
+                é a receita. A lista de escolhas fica VAZIA para ele — não
+                é uma lista curta, é nenhuma —, e sem isto o passo
+                apareceria em branco, com o botão de continuar desligado e
+                nada na tela explicando por quê.
+
+                A régua é o controle de um número livre, e é o mesmo gesto
+                que altura, peso e meta já usam duas telas antes.
+
+                ⚠️ A FAIXA É DERIVADA, e não chutada: o menor e o maior que
+                existem em bula para a mesma molécula NA MESMA VIA. Ver
+                faixaDaMolecula, em logic/formas, e a nota sobre por que a
+                via separa. */}
+            {!med.doses.length ? (
+              <Regua
+                min={faixa.min} max={faixa.max} passo={0.05} tracoCada={0.5} casas={2}
+                esp={7} salto={0.05}
+                valor={r.dose ?? meioDaFaixa(r.med ?? '') ?? faixa.min}
+                unidade={med.unit}
+                onEscolhe={(v) => p({ dose: v })}
+              />
+            ) : null}
+
             <View style={{ gap: 8 }}>
               {med.doses.map((d, i) => (
                 <Escolha

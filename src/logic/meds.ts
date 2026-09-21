@@ -85,6 +85,52 @@ export const MEDS: Record<string, Med> = {
   trulicity: { label: 'Trulicity', mol: 'Dulaglutida', cad: 'weekly', doses: [0.75, 1.5, 3, 4.5],         unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 14, formas: ['caneta'], marca: true },
   saxenda:   { label: 'Saxenda',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8, 2.4, 3],     unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true },
   victoza:   { label: 'Victoza',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8],             unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true },
+
+  /* ⚠️ O PRIMEIRO QUE NÃO SE INJETA.
+
+     Semaglutida oral, um comprimido por dia. A meia-vida é a da molécula
+     — a mesma que Ozempic e Wegovy já declaram —, e não um número novo:
+     o que muda entre as vias é a absorção, não a eliminação.
+
+     ⚠️ E A ESCALA DE DOSE É OUTRA ORDEM DE GRANDEZA: 3 a 14 mg, contra
+     0,25 a 2,4 mg da injetável. É a mesma molécula e são números que não
+     se comparam. Quem for somar doses por molécula PRECISA separar por
+     via — ver `faixaDaMolecula`, em logic/formas.
+
+     `shelf: 0` aqui quer dizer NÃO SE APLICA, e não "não sabemos":
+     cartela de comprimido não vence depois de aberta do jeito que uma
+     caneta vence. Quem pergunta validade exige `injetavel` antes do zero. */
+  rybelsus:  { label: 'Rybelsus',  mol: 'Semaglutida', cad: 'daily',  doses: [3, 7, 14],                  unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 0,  formas: ['comprimido'], marca: true },
+};
+
+/* ============================================================
+   OS MANIPULADOS — categoria, e não produto.
+
+   Saem de farmácia de manipulação, e é por isso que quase tudo que o
+   catálogo sabe de um medicamento de marca aqui não existe:
+
+   · `doses: []` — não há escada. Quem define a dose é a receita, caso a
+     caso. A tela que precisa de um número usa a faixa da molécula.
+   · `shelf: 0` — não há prazo de bula. Quem define é quem preparou, e o
+     aplicativo pergunta em vez de inventar.
+   · `maker: '—'` e `marca: false` — não há fabricante nem registro.
+     Escrever "Semaglutida manipulada®" seria afirmar uma marca que não
+     existe, numa tela de saúde.
+
+   A meia-vida é a da molécula, que é o que ela é independentemente de
+   quem preparou.
+
+   ⚠️ DUAS FORMAS, e é daqui que a pergunta do cadastro nasce: sai da
+   farmácia em frasco, para aspirar com seringa, ou em seringa já
+   preenchida. Quem sabe qual é quem está com ela na mão.
+   ============================================================ */
+MEDS['semaglutida-manipulada'] = {
+  label: 'Semaglutida manipulada', mol: 'Semaglutida', cad: 'weekly', doses: [], unit: 'mg',
+  hl: 7, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false,
+};
+MEDS['tirzepatida-manipulada'] = {
+  label: 'Tirzepatida manipulada', mol: 'Tirzepatida', cad: 'weekly', doses: [], unit: 'mg',
+  hl: 5, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false,
 };
 
 /* AINDA NÃO DEFINIDO — para quem vai começar e não sabe qual caneta.
@@ -118,23 +164,3 @@ export const CADENCE_DAYS = (m: string) => (MEDS[m]?.cad === 'daily' ? 1 : 7);
 /** Validade da caneta aberta, em dias, para o medicamento em uso. */
 export const SHELF_DAYS = (m: string) => MEDS[m]?.shelf ?? 21;
 
-/* ⚠️ A FAIXA DA MOLÉCULA, para quem não tem escada.
-
-   Um manipulado não tem degraus: quem define a dose é a receita, caso a
-   caso. A folha de registrar precisa de um mínimo e um máximo para a
-   régua, e esses números não podem ser chutados.
-
-   Então eles são DERIVADOS: o menor e o maior que existem em bula para a
-   mesma molécula, somando todas as marcas que a usam. Semaglutida vai de
-   0,25 a 2,4 porque é o que Ozempic e Wegovy somam. É a diferença entre
-   um limite que vem de algum lugar e um palpite com cara de dado.
-
-   Devolve null quando não há marca alguma com aquela molécula — e aí quem
-   chamou decide o que fazer, em vez de receber um zero fingindo ser
-   resposta. */
-export function faixaDaMolecula(mol: string): { min: number; max: number } | null {
-  const todas = Object.values(MEDS)
-    .filter((m) => m.mol === mol && m.doses.length)
-    .flatMap((m) => m.doses);
-  return todas.length ? { min: Math.min(...todas), max: Math.max(...todas) } : null;
-}

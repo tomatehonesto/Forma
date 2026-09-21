@@ -91,6 +91,32 @@ dizer "não se aplica", e não "pergunte". Está escrito no bloco de `shelf`.
 aparecer; voltar e escolher Mounjaro e ver o passo sumir da fila, com a
 numeração se ajustando (o cadastro já faz isso para `'inicio'` e `'dose'`).
 
+### ⚠️⚠️ O erro grave que esta fase quase cometeu: a via
+
+`faixaDaMolecula` somava as doses de todas as entradas com a mesma
+molécula. Com o Rybelsus no catálogo isso vira um defeito clínico:
+semaglutida **injetável** vai de 0,25 a 2,4 mg; semaglutida **oral** vai de
+3 a 14 mg. É a mesma molécula e são números que não se comparam.
+
+Somadas, a régua de dose de um frasco injetável iria até 14 mg — seis vezes
+a dose máxima daquela via, oferecida num controle que a pessoa arrasta.
+
+A função passou a pedir a FORMA, e não só a molécula, e só soma
+medicamentos cuja via bate com a de quem perguntou. Por isso ela **mudou de
+arquivo**: saiu de `meds.ts` e foi para `formas.ts`, que é quem sabe o que
+é via.
+
+Verificado: escolhendo semaglutida manipulada, a dose nasce em **1,35 mg** —
+o meio de 0,25–2,4 — e não no meio de uma faixa misturada.
+
+### Escopo a mais, obrigatório: o `®` em `plano.tsx`
+
+`plano.tsx` escrevia `${med.label}®` em dois lugares, sem condição. Com um
+manipulado selecionável isso vira "Semaglutida manipulada®" — a mesma marca
+registrada inventada que o `marca` da fase 1 existe para impedir, só que
+noutra tela. Consertado junto, porque foi esta fase que o tornou alcançável.
+O artigo também muda: "com o Mounjaro®", mas "com semaglutida manipulada".
+
 ---
 
 ## Fase 3 — o calendário

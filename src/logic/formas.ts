@@ -75,3 +75,40 @@ export const formaDe = (S: { profile: { med: string; forma?: Forma } }): Forma =
 
 /** O que a forma em uso implica, em uma linha. */
 export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FORMAS[formaDe(S)];
+
+/* ============================================================
+   A FAIXA DA MOLÉCULA, para quem não tem escada.
+
+   Um manipulado não tem degraus: quem define a dose é a receita, caso a
+   caso. A tela que precisa de um número usa uma régua, e régua precisa de
+   um mínimo e um máximo que não podem ser chutados.
+
+   Então eles são DERIVADOS: o menor e o maior que existem em bula para a
+   mesma molécula. É a diferença entre um limite que vem de algum lugar e
+   um palpite com cara de dado.
+
+   ⚠️⚠️ E A VIA SEPARA, o que quase virou um erro grave.
+
+   Semaglutida injetável vai de 0,25 a 2,4 mg. Semaglutida ORAL, que é a
+   mesma molécula, vai de 3 a 14 mg — mais de dez vezes. Somando as duas,
+   a régua de um frasco injetável iria até 14 mg, e o aplicativo estaria
+   oferecendo, num controle de dose, um número seis vezes acima da dose
+   máxima daquela via.
+
+   Por isso a função pede a FORMA, e não só a molécula: ela só soma
+   medicamentos cuja via bate com a de quem perguntou. E por isso ela mora
+   aqui, e não em meds.ts — quem sabe o que é via é o FORMAS.
+
+   Devolve null quando não há nenhuma marca com aquela molécula naquela
+   via — e aí quem chamou decide o que fazer, em vez de receber um zero
+   fingindo ser resposta.
+   ============================================================ */
+export function faixaDaMolecula(mol: string, forma: Forma): { min: number; max: number } | null {
+  const injetavel = FORMAS[forma].injetavel;
+  const todas = Object.values(MEDS)
+    .filter((m) => m.mol === mol
+      && m.doses.length
+      && FORMAS[m.formas[0]].injetavel === injetavel)
+    .flatMap((m) => m.doses);
+  return todas.length ? { min: Math.min(...todas), max: Math.max(...todas) } : null;
+}
