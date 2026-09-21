@@ -1819,7 +1819,7 @@ export default function Cadastro() {
             {med.formas.map((fm) => (
               <Escolha
                 key={fm} cheia
-                titulo={maiuscula(FORMAS[fm].recipiente)}
+                titulo={maiuscula(FORMAS()[fm].recipiente)}
                 sub={fm === 'frasco'
                   ? 'Você aspira a dose com uma seringa'
                   : fm === 'seringa'

@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, penStock, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
-import { FORMAS, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
+import { FORMAS, concordar, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
 import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
 import { radius } from '../theme';
 import { Txt, Row, SheetScreen } from '../ui/kit';
@@ -72,7 +72,7 @@ export default function Aplicacao() {
 
   const med = M(S);
   const forma = formaDe(S);
-  const vocab = FORMAS[forma];
+  const vocab = FORMAS()[forma];
   const sugerido = nextSite(S);
   const rod = rodizioDeLocais(S);
   const est = penStock(S);
@@ -296,7 +296,7 @@ export default function Aplicacao() {
             <Campo
               rotulo={maiuscula(vocab.recipiente)}
               ajuda={est.left <= 1
-                ? `Esta é a última dose ${vocab.genero === 'f' ? 'desta' : 'deste'} ${vocab.recipiente}.`
+                ? `Esta é a última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}.`
                 : `Restam ${est.left} doses.`}
             >
               <Opcoes>

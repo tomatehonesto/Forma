@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
 import { diffDays, now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { FORMAS, formaDe, umOutro, oA } from '../logic/formas';
+import { FORMAS, concordar, formaDe, oA } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
 import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
 
@@ -40,7 +40,7 @@ export default function AplicacaoOk() {
   const quando = maiuscula(dataComDiaDaSemana(d));
 
   const acabou = est.left <= 0;
-  const vocab = FORMAS[formaDe(S)];
+  const vocab = FORMAS()[formaDe(S)];
 
   return (
     <SheetScreen
@@ -53,7 +53,7 @@ export default function AplicacaoOk() {
         <>
           <Botao label="Voltar para a Jornada" onPress={() => router.replace('/(tabs)/jornada' as any)} />
           {acabou && vocab.injetavel
-            ? <Botao label={`Registrar ${vocab.genero === 'f' ? 'nova' : 'novo'} ${vocab.recipiente}`} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
+            ? <Botao label={`Registrar ${concordar(formaDe(S), 'novo', 'nova')} ${vocab.recipiente}`} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
             : null}
         </>
       }
@@ -82,7 +82,7 @@ export default function AplicacaoOk() {
             <Linha
               titulo={maiuscula(vocab.recipiente)}
               sub={acabou
-                ? `${est.total} de ${est.total} doses usadas · abrir ${oA(formaDe(S))} ${vocab.genero === 'f' ? 'próxima' : 'próximo'}`
+                ? `${est.total} de ${est.total} doses usadas · abrir ${oA(formaDe(S))} ${concordar(formaDe(S), 'próximo', 'próxima')}`
                 : `${est.total - est.left} de ${est.total} doses usadas`}
               selo={acabou ? 'fim' : `restam ${est.left}`}
               seloTom="neutra"

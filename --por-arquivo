@@ -1,0 +1,1767 @@
+# INVENTÁRIO — 1221 frases em 99 arquivos
+
+
+## src/app/cadastro.tsx  (94)
+  · O mais rápido que der
+  · Calculando as suas metas do dia
+  · Desenhando a sua jornada
+  · Apple Saúde
+  · Ver planos
+  · Como você se identifica?
+  · Quando você nasceu?
+  · Você já está em tratamento?
+  · Quando você começou?
+  · Qual medicamento você pretende usar?
+  · Qual medicamento você usa?
+  · Como você vai aplicar?
+  · Como você aplica?
+  · Com qual dose você pretende começar?
+  · Qual é a sua dose atual?
+  · De quanto em quanto tempo você vai aplicar?
+  · De quanto em quanto tempo você aplica?
+  · Quais são suas medidas atuais?
+  · Qual é a sua meta de peso?
+  · Qual ritmo você quer seguir para chegar lá?
+  · O que está te levando a essa jornada?
+  · Qual é o seu nível de atividade física?
+  · Você tem alguma restrição alimentar?
+  · Conecte o seu aplicativo de saúde
+  · Você pretende ter o acompanhamento de um especialista?
+  · Você possui o acompanhamento de um especialista?
+  · Informações importantes
+  · Pode ser só o primeiro nome, ou o apelido que você gosta.
+  · É para falarmos com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.
+  · Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.
+  · Só para saber onde você está agora.
+  · Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.
+  · É dele que saem a escada de doses e o intervalo entre as aplicações.
+  · Manipulado sai da farmácia dos dois jeitos, e o que muda é o que você tem na mão na hora de aplicar.
+  · Na ordem da titulação do ${med.label}.
+  · Manipulado não tem escada de bula — o número é o da sua receita.
+  · É daqui que saem a contagem do ciclo, os lembretes e o estoque ${doDa(formaEmUso)}.
+  · É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.
+  · É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.
+  · Não existe resposta certa. Vale a que você lembraria num dia difícil.
+  · Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.
+  · Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.
+  · Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.
+  · Essa resposta habilita funcionalidades ligadas ao acompanhamento médico, como anotações e planejamento para consultas.
+  · Duas coisas antes de começar: o que fazemos pelo seu tratamento, e o que acontece com o que você registra.
+  · Tudo o que seu corpo mostra, <b>em um só lugar</b>
+  · Seu nome
+  · Prefiro não informar
+  · Já iniciei o tratamento
+  · Já apliquei pelo menos uma dose
+  · Vou começar em breve
+  · Ainda não apliquei
+  · Ainda não sei
+  · Você pode definir depois no seu perfil
+  · Preparada em farmácia de manipulação
+  · Você aspira a dose com uma seringa
+  · Já vem preenchida, pronta para aplicar
+  · Dose de início
+  · Dose máxima
+  · Ainda não sei
+  · Quase todo mundo começa pela menor
+  · Todos os dias
+  · A cada ${d} dias
+  · Padrão
+  · A cada ${r.intervalo} dias
+  · Você diz de quantos em quantos dias
+  · Métrico
+  · peso-${r.sistema}
+  · meta-${r.sistema}
+  · Você quer perder
+  · Você quer ganhar
+  · ${pesoTxt(S, x.kg)} por semana
+  · Alcança os ${pesoProsaTxt(S, r.meta)} em ${mesEmNumero(quando)}
+  · Como de tudo
+  · Menos uma coisa para lembrar
+  · Peso, sono e treino entram sozinhos.
+  · A sua curva mais completa
+  · O que o aparelho mede já entra aqui.
+  · Você continua no controle
+  · Escolha o que liberar, e desligue quando quiser.
+  · Vou me tratar com um médico ou clínica
+  · Um médico ou clínica acompanha o meu tratamento
+  · Não, por conta própria
+  · Dá para adicionar depois, quando quiser
+  · QUEM VAI ACOMPANHAR VOCÊ (OPCIONAL)
+  · QUEM ACOMPANHA VOCÊ (OPCIONAL)
+  · Começar
+  · Montando o seu plano
+  · em um só lugar
+  · PESO DE HOJE
+  · PESO DE QUANDO COMEÇOU
+  · Termos de Uso
+  · Política de Privacidade
+  · Fazer isso depois
+
+## src/app/companion.tsx  (47)
+  · , text: `Nos <b>${days} dias</b> de tratamento você saiu de ${pesoTxt(S, S.profile.startWeight)} para <b>${pesoTxt(S, curWeight(S))}</b> — menos ${pesoTxt(S, lostKg(S))} (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, fonte: { rotulo:
+  · Ritmo saudável e constante: cerca de ${pesoTxt(S, lostKg(S) / (days / 7))} por semana. O peso é um sinal entre vários — energia, sono e exames também contam.
+  · médic
+  · Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ?
+  · Montei um resumo do seu tratamento para levar na consulta.
+  · ## O que levar
+  · - Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)
+  · - Dose: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)
+  · - Sintomas: náusea leve nos dias pós-aplicação, já melhorando
+  · ## Perguntas que valem a pena
+  · - Manter ou ajustar a dose?
+  · - O ritmo está dentro do esperado para esta fase?
+  · - Há exame a repetir antes da próxima consulta?
+  · ), mini: `Levo isso organizado, mas quem lê os seus números é ${quemAcompanha ||
+  · };
+  }
+  if (has('fome', 'saciedade', 'vontade de comer')) {
+    const hf = hungerForecast(S);
+    return { who: 'ai', text:
+  · No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' :
+  · Suas aplicações
+  · Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ?
+  · : 'na consulta'} — quem ajusta dose é quem acompanha você.
+  · náusea
+  · enjôo
+  · , text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, fonte: { rotulo:
+  · }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ?
+  · };
+  }
+                                                                      
+                                      
+ 
+                                                                        
+                                                         
+                                                                    
+                                                                         
+                
+  if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
+    const nd = nextInjectionDate(S); const li = lastInjection(S);
+    return { who: 'ai', text:
+  · abdômen
+  · , fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini:
+  · quem acompanha você
+  · };
+  }
+  if (has('água', 'agua', 'hidrat')) {
+    return { who: 'ai', text:
+  · , fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini:
+  · };
+  }
+  if (has('proteína', 'proteina')) {
+    return { who: 'ai', text:
+  · , fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini:
+  · };
+  }
+  if (has('meta', 'objetivo', 'jeans', 'roupa', 'energia', 'dormir', 'sono')) {
+    return { who: 'ai', text:
+  · };
+  }
+  if (has('exame', 'hba1c', 'colesterol', 'glicemia', 'ldl', 'hdl', 'triglic', 'vitamina', 'ferritina', 'tsh', 'insulina', 'creatinina')) {
+                                                                    
+                                                                       
+                                                      
+    return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: [
+      'Seus exames vêm melhorando junto com o tratamento.',
+      '',
+      '## Os que mais mudaram',
+      '- [HbA1c](/exames?m=HbA1c): <b>6,3 → 5,6%</b>, fora da faixa de risco',
+      '- [LDL](/exames?m=LDL) e [triglicerídeos](/exames?m=Triglicerídeos): em queda',
+      '- [HDL](/exames?m=HDL) e [vitamina D](/exames?m=Vitamina D): em alta',
+    ].join('\n'), mini:
+  · };
+  }
+  if (has('medicament', 'remédio', 'remedio', 'tirzep', 'semaglut', 'bula', 'como funciona')) {
+    return { who: 'ai', text:
+  · 1×/semana
+  · , fonte: { rotulo: 'Sua medicação', to: '/protocolo' }, mini:
+  · quem acompanha você
+  · };
+  }
+  if (has('protocolo', 'missão', 'missao', 'tarefa', 'checklist')) {
+    const p = S.protocol, done = p.tasks.filter((x: any) => x.done).length;
+    const next = p.tasks.find((x: any) => !x.done);
+    return { who: 'ai', text:
+  · Tudo em dia.
+  · , fonte: { rotulo: 'Seu protocolo', to: '/protocolo' }, mini:
+  · };
+  }
+  if (has('oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'obrigad', 'valeu')) {
+    return { who: 'ai', text:
+  · com ${quemAcompanha}
+  · Pergunte sobre sua jornada
+  · perto da próxima dose ele cai
+  · diminuir com o tempo
+  · protege sua massa magra
+  · não tomo decisões médicas
+
+## src/app/(tabs)/index.tsx  (40)
+  · Bom dia
+  · A aplicação de ontem não está registrada.
+  · A aplicação de ${atraso} dias atrás não está registrada.
+  · Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.
+  · Registrar aplicação
+  · Sua consulta é hoje.
+  · Sua consulta é amanhã.
+  · Levo o seu período organizado — peso, adesão, sintomas e as perguntas que valem a pena.
+  · Ver o resumo
+  · Resta uma dose ${noNa(forma)}.
+  · Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.
+  · Pedir renovação
+  · Ver ${oA(forma)} ${recipiente}
+  · Entenda o por quê
+  · PRÓXIMA APLICAÇÃO
+  · Hoje é dia de aplicar sua dose.
+  · Sua próxima dose é ${quandoEm(nd).label}.
+  · Ver a aplicação
+  · Criar um lembrete
+  · Fazer check-in
+  · dia de check‑in
+  · dias seguidos de check‑in
+  · Suas metas diárias
+  · Sua evolução
+  · Evolução
+  · Quem cuida de você
+  · Área médica
+  · Próxima consulta
+  · Uma mensagem para a sua equipe
+  · Acompanha o seu tratamento
+  · Resumo para a consulta
+  · Peso, adesão, sintomas e exames num documento só
+  · Próxima consulta
+  · Anotar uma consulta
+  · Para avisarmos quando ela chegar perto
+  · ${dia.texto} • Semana ${S.protocol.week}
+  · ${dia.texto} • Semana ${S.protocol.week}
+  · Ingestão de proteína
+  · g/dia
+  · Quem acompanha você?
+
+## src/app/assinatura.tsx  (36)
+  · /mês
+  · a clínica que acompanha você
+  · O vínculo com ${clinica} cobre o aplicativo inteiro.
+  · Código de convite
+  · Próxima cobrança
+  · Não há
+  · Primeira cobrança
+  · Próxima cobrança
+  · Cobrança pela
+  · Você tem tudo do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.
+  · Próxima cobrança
+  · Não há
+  · Sua assinatura
+  · Mudar de plano
+  · Ver os planos
+  · Forma de pagamento
+  · Histórico de cobrança
+  · Código de convite
+  · Trocar a clínica que acompanha você
+  · Inserir código
+  · Pacientes de clínicas parceiras possuem isenção do custo do aplicativo
+  · Médicos parceiros
+  · Quem se trata numa clínica parceira não paga
+  · Ver planos como pagante
+  · Atalho de desenvolvimento — não aparece em produção
+  · Ver esta tela como assinante
+  · Atalho de desenvolvimento — não aparece em produção
+  · Ver a tela de acesso suspenso
+  · Atalho de desenvolvimento — não aparece em produção
+  · Você está pagando sem precisar
+  · O vínculo com a clínica já cobre o aplicativo, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e nada muda para você.
+  · É bom você saber
+  · Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.
+  · A cobrança ainda não está ligada
+  · Esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.
+  · Sua assinatura
+
+## src/app/alimentacao.tsx  (34)
+  · por você
+  · Alimentação
+  · Proteína: nada registrado · meta de ${alvo} g
+  · Proteína: ${prot} de ${alvo} g · ${falta > 0 ?
+  · : 'meta alcançada'}
+  · Registrar uma refeição
+  · A energia de hoje
+  · refeição não entra
+  · refeições não entram
+  · A proteína da semana
+  · Esta semana
+  · Nada registrado nos últimos sete dias
+  · Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}
+  · Meta: ${alvo} g
+  · O que notamos
+  · Da sua rotina das últimas duas semanas — e só do que você registrou.
+  · UMA IDEIA
+  · Diário de refeições
+  · Toque numa refeição para ver, corrigir ou apagar.
+  · refeição
+  · refeições
+  · Nenhuma refeição neste dia
+  · O que você registrar entra na proteína do dia.
+  · Monte o prato uma vez e ele entra no registro com um toque.
+  · Cadastre um prato que você repete e ele entra com um toque.
+  · Dicionário de alimentos
+  · Restrições alimentares
+  · Nenhuma restrição
+  · do que dá para contar.
+  · no seu dia. Escolha bem como gastar.
+  · Você passou a meta do dia em
+  · . Amanhã é outro dia.
+  · de proteína
+  · de proteína
+
+## src/app/plano.tsx  (30)
+  · com o ${med.label}®
+  · com ${med.label.toLowerCase()}
+  · manter o seu peso
+  · todos os dias
+  · uma vez por semana
+  · a cada ${inter} dias
+  · Cada dose no lugar certo
+  · o rodízio dos locais e o ciclo da dose, sem você contar
+  · O enjoo em números
+  · o que você sente vira padrão, e o padrão vai para a consulta
+  · A sua curva de peso
+  · cada pesagem entra na linha, com a leitura do que mudou
+  · Um resumo para a consulta
+  · doses, sintomas e peso organizados numa página só
+  · o seu plano personalizado está pronto!
+  · Em estudos sobre GLP-1
+  · AS SUAS METAS DO DIA
+  · A SUA DOSE
+  · ATÉ A SUA META
+  · Peso a perder
+  · Peso a ganhar
+  · em ${plano.semanas} semanas
+  · A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${pesoTxt(d.sistema, d.ritmo ?? 0)} por semana que você escolheu são a média do caminho, não uma previsão.
+  · O SEU CORPO
+  · IMC de hoje
+  · Na sua meta
+  · A CIÊNCIA POR TRÁS DO SEU PLANO
+  · PROTEÍNA POR DIA
+  · Água
+  · Feito em cima de evidência
+
+## src/app/perfil.tsx  (29)
+  · Não informado
+  · Não informado
+  · Conte o que você estava fazendo e o que aconteceu.
+  · Meta
+  · Quem cuida de você
+  · não lida
+  · não lidas
+  · Plano e cobrança
+  · Sua assinatura
+  · Metas diárias
+  · ${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1)} L de água
+  · Dose, pesagem, água e proteína
+  · Dispositivos e integrações
+  · O que você já fez
+  · Sobre você
+  · Altura, peso, ritmo e mais
+  · Os resultados do laboratório, explicados
+  · Seu tratamento
+  · Tudo o que você registrou, semana a semana
+  · O que você já alcançou no tratamento
+  · Aparência
+  · ${paletaDe((S as any).paleta).nome}, no ${isDark ? 'escuro' : 'claro'} · escolha a cor do aplicativo
+  · Português · Brasil
+  · Unidades de medida
+  · ${sistemaDe(S) === 'imperial' ? 'Imperial' : 'Métrico'} · ${unidadesDe(sistemaDe(S))}
+  · O que fica no aparelho, exportar, apagar e os documentos
+  · Reportar um problema
+  · Conte o que aconteceu — vai com a versão do aplicativo
+  · Sair da conta
+
+## src/app/(tabs)/cuidado.tsx  (27)
+  · Seu resumo já está pronto
+  · Vou preparar seu resumo
+  · de ${previstas} até a sua meta
+  · do seu tratamento
+  · Quem cuida de você
+  · ÚLTIMA ORIENTAÇÃO
+  · VOCÊ ESCREVEU
+  · Precisa de você
+  · Precisa de você
+  · Sua próxima consulta
+  · Sua próxima consulta
+  · Seu tratamento
+  · Aplicações
+  · Importe um exame para começar a acompanhar
+  · ${foraDaRef} fora da referência
+  · Todos na referência
+  · Quem acompanha você
+  · Ninguém registrado ainda
+  · Acompanha o seu tratamento
+  · Se você se trata com alguém, anote aqui — o resumo sai pronto para a consulta.
+  · não lida
+  · Nada precisa de você agora.
+  · Seu acompanhamento está em dia.
+  · Anotar uma consulta
+  · Pedir renovação
+  · Conheça os médicos parceiros
+  · Anote quem é.
+
+## src/app/cancelar.tsx  (26)
+  · Está caro
+  · Não estou usando
+  · Já terminei
+  · O seu ano já está pago
+  · A próxima cobrança é só em ${dataComAno(atual.renovaEm)}, e você continua com tudo até lá — cancelar agora não devolve o que já foi pago.
+  · Você continua com tudo até o fim do período já pago — cancelar agora não devolve esse valor.
+  · Reembolso, quando cabe, é pedido na ${NOME_DA_LOJA}. E se o problema for o valor, a renovação pode sair por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.
+  · Quero o desconto na renovação
+  · ${DESCONTO_DE_RETENCAO.porcento}% de desconto no próximo mês
+  · A próxima cobrança sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}. E se o mensal for o problema, o anual fica em ${reais(anual.outraUnidade.valor)} por mês.
+  · Se o problema é esquecer, dá para avisar
+  · Dose, pesagem, água e proteína têm lembrete, no horário que você escolher. Dá para ligar só o que faz falta e desligar o resto.
+  · Parabéns por chegar até aqui
+  · Esperamos que você tenha alcançado o que buscava quando começou. Obrigado por ter feito esse caminho com a gente — e por ter confiado à gente o registro dele.
+  · O que aconteceu?
+  · O que faltou?
+  · Continuar para a ${NOME_DA_LOJA}
+  · Antes de ir, uma pergunta
+  · Responder é opcional e não muda nada: o cancelamento continua a um toque, no botão lá embaixo.
+  · Por que você está cancelando?
+  · O que deu errado, e quando…
+  · Pode escrever à vontade
+  · O acesso continua até o fim do período já pago.
+  · Nada do que você registrou se perde — tudo continua no aparelho.
+  · O cancelamento é feito na ${NOME_DA_LOJA}: o aplicativo não consegue fazer isso por você.
+  · O desconto ainda não pode ser aplicado
+
+## src/app/meta.tsx  (26)
+  · Definido pela sua equipe
+  · Hoje: ${def.escreve(def.le(S), S)} ${def.un(S)}
+  · ${proc.meta
+              ? (proc.alterada
+                                                                            
+                                                                            
+                                                                       
+                ? 'Um número seu'
+                :
+  · : def.origem}. ${proc.travado
+                                                                           
+ 
+                                                                
+                                                                      
+                                                                       
+                                                                          
+                                                                       
+                                        
+              ? ''
+              : chave === 'peso'
+                ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
+                : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}
+  · Quem definiu foi ${proc.meta.por}
+  · Este número é parte do seu tratamento, e por isso não se muda aqui. Se ele não serve mais — outra orientação, uma restrição que apareceu, uma equipe nova —, remova a anotação na Área médica e ele volta a ser seu.
+  · Este número não é o da sua equipe
+  · ${proc.meta.por} definiu ${def.escreve(proc.meta.valor, S)} ${def.un(S)}, e o aplicativo está cobrando ${def.escreve(def.le(S), S)} ${def.un(S)}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.
+  · Este é o valor recomendado
+  · Ver a anotação da sua equipe
+  · ${proc.meta.por} · ${def.escreve(proc.meta.valor, S)} ${def.un(S)}
+  · /meta-clinica?alvo=${chave}
+  · Guardar meta
+  · Responda para guardar
+  · Ela fica em ainda não até você marcar. No dia em que acontecer, guardamos a data junto.
+  · Nova meta
+  · Uma coisa sua. Guardamos para você, e quem marca é você
+  · Escreva do seu jeito
+  · Meta
+  · Não encontrei esta meta
+  · Meta sua, marcada por você
+  · Meta medida pelos seus check-ins
+  · Ainda não
+  · Ainda não consegui
+  · Esta nós contamos por você
+  · Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa.
+
+## src/app/aplicacoes.tsx  (24)
+  · Aplicações
+  · Registrar aplicação
+  · Aplicações
+  · Ciclo da dose
+  · Dia ${cic.dayIn} de ${cic.total} · ${(cic.fases.find((f) => f.estado === 'agora')?.sub ?? 'em curso').toLowerCase()}
+  · ${k.atual?.usadas ?? 0} de ${k.atual?.total ?? 4} doses usadas ${nesteNesta(formaDe(S))}
+  · ${k.verdict.label} — cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}
+  · ${alertasDaDose.length} alerta${alertasDaDose.length === 1 ? '' : 's'} de aplicação
+  · Nenhum alerta de aplicação
+  · Um aviso antes da dose, na hora que você escolher
+  · Rodízio dos locais
+  · Ainda não usado — é a vez dele.
+  · É o próximo da rotação, mesmo tendo sido usado esta semana.
+  · Descansando há ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'} — é a vez dele.
+  · Constância
+  · ${S.injections.length} de ${previstas} doses previstas desde o começo do tratamento.
+  · Nível no corpo
+  · ${med.hl} dias
+  · cerca de 13 horas
+  · Histórico
+  · PRÓXIMA APLICAÇÃO
+  · usado há pouco
+  · o próximo
+  · próxima
+
+## src/app/agua.tsx  (23)
+  · Hidratação
+  · Hoje: nada registrado · meta de ${aguaTxt(S, alvo)}
+  · Hoje: ${aguaN(S, hoje)} de ${aguaTxt(S, alvo)} · ${falta > 0 ?
+  · : 'meta alcançada'}
+  · Registrar o que você bebeu
+  · A sua semana
+  · Esta semana
+  · Nada registrado nos últimos sete dias
+  · Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}
+  · Meta: ${aguaTxt(S, alvo)}
+  · Diário de bebidas
+  · Café, chá, leite e suco contam: a meta é de líquido, e não de água pura. Apague o que tiver entrado errado.
+  · Apagar a água deste dia?
+  · de ${(g as any).nome.toLowerCase()}
+  · de ${bebidaDe(g.bebida).nome.toLowerCase()}
+  · Total do dia, sem registro de horário
+  · às ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}
+  · · ${foraDaConta} fora da conta
+  · Nada registrado neste dia
+  · O que você anotar entra no total do dia.
+  · ${alertasDeAgua.length} alerta${alertasDeAgua.length === 1 ? '' : 's'} de hidratação
+  · Nenhum alerta de hidratação
+  · Um toque por dia, na hora que você escolher
+
+## src/app/ajuda.tsx  (23)
+  · De onde saem os números que aparecem aqui?
+  · Todos eles são contas feitas em cima do que você registrou — peso, aplicações, check-ins, refeições, exames. O aplicativo não completa o que faltou nem estima o que você não disse: dia sem resposta aparece como dia sem resposta, e não como zero.
+  · Posso corrigir ou apagar um registro?
+  · Pode, e no lugar onde ele aparece. Pesagens e medidas se apagam no detalhe do marcador; refeições e treinos, abrindo o registro no diário do dia. O que você apagar some das contas na hora — inclusive dos gráficos e do resumo para consulta.
+  · Por que uma conquista desapareceu?
+  · Porque ela nunca foi guardada. As conquistas são contadas dos seus registros toda vez que a tela abre, e não marcadas como feitas em algum lugar. Se o registro que fechou um nível for apagado, o nível sai junto — ele deixou de ter acontecido.
+  · Marquei um lembrete e ele não tocou.
+  · Quem toca é o celular, e ele só toca com permissão. Se os avisos estiverem negados para o Morphi nos ajustes do sistema, os seus alertas continuam guardados aqui e nada soa. A tela de Lembretes mostra quando é esse o caso e leva à permissão.
+  · O meu peso pode vir da balança sozinho?
+  · Se a sua balança, relógio ou anel escrevem no Apple Saúde (iPhone) ou no Health Connect (Android), sim — lemos de lá. Lemos só o peso, e só lemos: nunca escrevemos nada nesses aplicativos. Garmin, Fitbit, Withings, Oura e Whoop chegam por esse caminho.
+  · O que a minha equipe consegue ver?
+  · Só o que você enviar. Nada sai daqui sozinho: o resumo vai quando você toca em enviar, as mensagens quando você escreve. O que fica de fora continua sendo seu, inclusive de quem te acompanha.
+  · Vocês substituem a orientação de quem me acompanha?
+  · Não, e em nenhuma tela. O que ele faz é organizar o que aconteceu e mostrar padrões nos seus próprios registros — dose, sintoma e conduta são conversa de consulta. Quando um texto do app toca nesses assuntos, ele diz isso junto.
+  · Os seus registros moram no aparelho, dentro do aplicativo — sem conta e sem servidor. Desinstalar leva tudo junto, e não há cópia em lugar nenhum de onde recuperar. Antes disso, dá para montar um arquivo com o que você registrou, em Exportar.
+  · As dúvidas que este aplicativo costuma provocar, respondidas pelo que ele de fato faz.
+  · Criar, editar e conferir a permissão de avisos
+  · Dispositivos e integrações
+  · Ligar o Apple Saúde ou o Health Connect
+  · O que fica no aparelho e o que sai dele
+  · Montar um arquivo com o que você registrou
+  · Em caso de sintoma grave
+  · Esta tela é sobre o aplicativo. Se alguma coisa no seu corpo pede atenção agora, procure a sua equipe ou um serviço de emergência — não espere a próxima consulta.
+
+## src/app/semana.tsx  (22)
+  · aplicação
+  · refeição
+  · exercício
+  · Semana
+  · Semana ${w.semana}
+  · Semana ${w.semana}
+  · ${fmtPeriodoLongo(ini, fim)} · ${w.dose}
+  · Aplicação
+  · Peso
+  · Peso
+  · Como você se sentiu
+  · ${respondidos} de 7 dias respondidos
+  · ${x.legenda.toLowerCase()} · ${x.dias} ${x.dias === 1 ? 'dia' : 'dias'}
+  · ${nf(mediaEnergia, 1)} de 5
+  · Dia a dia
+  · /registro?m=peso&t=${e.day}
+  · Nota para a consulta
+  · Ver todas
+  · Nenhuma nota nesta semana
+  · Anotada em ${fmtDate(nota.t)}
+  · Toque para escrever uma
+  · Ainda não há semanas registradas.
+
+## src/app/exportar.tsx  (21)
+  · incluído
+  · Ver o resumo para consulta
+  · Um arquivo com os seus registros, para guardar ou levar para outro lugar.
+  · Período
+  · De ${dataLonga(desde)} a ${dataLonga(+now())} · ${semanas(+now() - desde)} semanas
+  · Últimas 4 semanas
+  · Desde a última consulta
+  · O que entra
+  · Toque para incluir ou tirar. O que ficar de fora não entra no arquivo.
+  · Aplicações
+  · ${conta.aplicacoes} ${conta.aplicacoes === 1 ? 'registro' : 'registros'} · data, dose e local
+  · Peso e medidas
+  · ${conta.checkins} ${conta.checkins === 1 ? 'dia' : 'dias'} · sintoma a sintoma
+  · ${conta.exames} ${conta.exames === 1 ? 'coleta' : 'coletas'} · valor e referência
+  · Notas para a consulta
+  · ${conta.notas} ${conta.notas === 1 ? 'anotação' : 'anotações'}
+  · Refeições, água e exercício
+  · ${conta.refeicoes} ${conta.refeicoes === 1 ? 'refeição' : 'refeições'} e o diário do dia
+  · Sai um arquivo .json
+  · É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para consulta.
+  · Arquivo gerado. Ele só vai para onde você escolher.
+
+## src/app/parceiros.tsx  (21)
+  · Conversa com a equipe
+  · Mensagens entre as consultas, sem precisar remarcar para tirar uma dúvida.
+  · O seu resumo chega lá
+  · Um toque envia peso, adesão, sintomas e exames — organizados, do jeito que a consulta usa.
+  · Pedir renovação e receber o protocolo da semana dentro do aplicativo.
+  · As consultas aparecem aqui sem você precisar anotar nada.
+  · Médicos parceiros
+  · Você já está com uma clínica parceira
+  · Tudo o que está nesta lista já vale para você.
+  · Médicos parceiros
+  · Médicos parceiros
+  · Algumas clínicas acompanham o tratamento por aqui junto com você. Sem isso você continua com tudo — o que muda é o que passa a ser possível com a sua equipe dentro do aplicativo.
+  · O convite vem da clínica
+  · Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.
+  · Código de convite
+  · É ele que liga você à sua clínica.
+  · Usar outro código
+  · Tenho um código de convite
+  · É o código que a clínica te passou.
+  · Digite o código
+  · Confirmar código
+
+## src/app/privacidade.tsx  (21)
+  · aplicativo de saúde do celular
+  · Onde os seus registros ficam, o que sai daqui e o que o aplicativo lê de fora.
+  · No aparelho, dentro do aplicativo
+  · O que sai daqui
+  · Nada sai daqui sem um gesto seu.
+  · O que vai para a sua equipe
+  · A foto do prato, quando você usa a leitura por foto
+  · O que o aplicativo lê de fora
+  · ${APP_DE_SAUDE}, e só o peso
+  · A permissão é sua, e se tira quando quiser
+  · O que você pode fazer agora
+  · Montar um arquivo com o que você registrou
+  · Dispositivos e integrações
+  · Resumo para consulta
+  · Ver tudo o que entra no resumo da consulta
+  · Política de Privacidade
+  · O documento completo, com base legal e prazos
+  · Termos de Uso
+  · O que o Morphi é, o que não é, e o que cada lado pode esperar
+  · Isto descreve o aplicativo, não é a política de privacidade
+  · Aqui está o que o programa faz com os seus dados. O documento jurídico, com as obrigações de quem opera o serviço, ainda vai ser publicado — e quando existir, aparece nesta tela.
+
+## src/app/sintomas.tsx  (21)
+  · Nos dias respondidos até agora, o enjoo aparece parecido ao longo de todo o ciclo — ele não está seguindo a dose.
+  · Ainda são poucos dias respondidos para dizer se o enjoo acompanha o ciclo. Respondendo mais dias, essa conta fica de pé.
+  · O enjoo pesa mais no dia da aplicação.
+  · O enjoo pesa mais nos ${n} primeiros dias depois da aplicação.
+  · O enjoo pesa mais na véspera da próxima aplicação.
+  · O enjoo pesa mais nos ${n} dias que antecedem a próxima aplicação.
+  · no dia da aplicação
+  · no ${d}º dia depois
+  · ${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'} nos últimos ${DIAS}
+  · Nenhum dia respondido nos últimos ${DIAS}
+  · Nesta semana
+  · Fazer o check-in
+  · Nenhum sintoma nesta semana
+  · ${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'}, nenhum com queixa.
+  · ${s.dias} de ${respondidos} ${respondidos === 1 ? 'dia' : 'dias'}
+  · No pior dia: ${s.legenda.toLowerCase()}
+  · Você escreveu em ${fmtDate(new Date(x.t))}
+  · Ao longo do ciclo
+  · Média do enjoo em cada dia depois da aplicação, de ${diasNoCiclo} ${diasNoCiclo === 1 ? 'dia respondido' : 'dias respondidos'}.
+  · Como você se sentiu
+  · ${serie.length} ${serie.length === 1 ? 'resposta' : 'respostas'} em 14 dias
+
+## src/app/(tabs)/jornada.tsx  (20)
+  · /dia?t=${d.t}
+  · ${w.dose} · ${w.site}
+  · Alimentação
+  · ${S.meals.length} refeições
+  · Hidratação
+  · ${aguaTxt(S, mlHoje)} hoje
+  · Exercício
+  · ${ci.exerc} min hoje
+  · sem queixas na semana
+  · ${sint[0].label.toLowerCase()} em ${sint[0].dias} ${sint[0].dias === 1 ? 'dia' : 'dias'}
+  · ${proto.feitas} de ${proto.total}
+  · O que já mudou
+  · Evolução
+  · O dia a dia
+  · Seu tratamento
+  · Ver tudo
+  · hoje
+  · dose ajustada
+  · Sem registros nesta semana.
+  · Por semana
+
+## src/app/caneta.tsx  (18)
+  · Lembrar de renovar
+  · ${med.label} ${nf(dose, 1)} ${med.unit}
+  · ${maiuscula(vocab.recipiente)} ${aberto} em ${dataLonga(atual.abertaEm)} · ${total} doses por ${vocab.recipiente}
+  · ${usadas} de ${total}
+  · Última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}: ${dataComDiaDaSemana(k.cobreAte)}
+  · Validade após ${aberto}
+  · ${k.validadeDias} dias
+  · não informada
+  · cobre até ${fmtDate(k.cobreAte)}
+  · ${maiuscula(oA(forma))} ${vocab.recipiente} vence antes de acabar
+  · ${med.label} dura ${k.validadeDias ?? 0} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.
+  · Momento de pedir a renovação
+  · Sua receita cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem ${oA(forma)} ${vocab.recipiente} entre uma consulta e outra.
+  · Histórico de ${vocab.plural}
+  · ${p.label} ${nf(p.dose, 1)} ${p.unit}
+  · em uso
+  · ${maiuscula(aberto)} em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses
+  · ${fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!))} · ${p.usadas} de ${p.total} doses
+
+## src/app/integracoes.tsx  (18)
+  · Nada novo por lá — as suas pesagens já estavam todas aqui.
+  · ${novas} ${novas === 1 ? 'pesagem trazida' : 'pesagens trazidas'} do ${aparelho?.nome}.
+  · Não deu para ler agora. Tente de novo em instantes.
+  · O acesso não foi liberado. Dá para mudar isso nas configurações do aparelho.
+  · Integrações
+  · Integrações
+  · Ligadas, elas trazem as suas pesagens sem você digitar.
+  · Do seu aparelho
+  · Um depósito local: pedimos permissão e lemos. Sem conta e sem senha.
+  · O aplicativo de saúde do aparelho aparece no celular
+  · ${aparelho.nome} não está disponível neste aparelho
+  · Esta versão do aplicativo ainda não lê o aparelho
+  · Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar.
+  · O Health Connect vem no Android 14 em diante e pode ser instalado nas versões anteriores. Depois de instalar, volte aqui.
+  · A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do aplicativo, e não da prévia. No Expo Go ela não existe.
+  · Contas de serviço
+  · Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o aplicativo de saúde do seu aparelho já chega aqui.
+  · Em breve
+
+## src/app/dados.tsx  (17)
+  · Prefiro não informar
+  · Não informado
+  · Não informado
+  · São as respostas do seu cadastro, e é delas que saem o seu IMC, as suas metas do dia e a previsão do plano. Mexer aqui refaz esses números.
+  · Dose
+  · ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}
+  · Frequência
+  · Peso inicial
+  · Meta de peso
+  · ${pesoTxt(S, S.profile.ritmo)} por semana
+  · Sem peso a perder
+  · Sobre você
+  · Não informado
+  · Não informado
+  · Atividade física
+  · Restrições alimentares
+  · O que te trouxe
+
+## src/app/evolucao.tsx  (17)
+  · Braço
+  · Evolução
+  · Evolução
+  · Doze semanas de tratamento. Toque num marcador para ver o histórico e corrigir registros.
+  · Você registra
+  · Marcadores que dependem só de você — toque para ver o histórico e corrigir.
+  · Peso
+  · /marcador?m=peso
+  · Vem de exame
+  · Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico.
+  · Pressão
+  · Em queda
+  · Em alta
+  · Estável
+  · ${pa[0].sys}/${pa[0].dia}
+  · ${pa[pa.length - 1].sys}/${pa[pa.length - 1].dia}
+  · Laudos, faixas de referência e histórico completo
+
+## src/logic/local.ts  (17)
+  · Português
+  · , DO:
+  · março
+  · sáb
+  · terça
+  · sábado
+  · ${d} de ${PT.mesLongo[m]}
+  · ${d} de ${PT.mesLongo[m]} de ${a}
+  · ${dia}, ${resto}
+  · ${de} a ${ate} ${PT.mesCurto[m]}
+  · ${de} a ${ate} de ${PT.mesLongo[m]}
+  · ${PT.mesLongo[m]} de ${a}
+  · ${de} a ${ate}
+  · ${dia}, ${resto}
+  · ${EN.mesCurto[m]} ${de}–${ate}
+  · ${EN.mesLongo[m]} ${de}–${ate}
+  · ${de} – ${ate}
+
+## src/app/acompanhamento.tsx  (16)
+  · Quem acompanha você
+  · Quem acompanha você
+  · Estes dados vêm da clínica que acompanha o seu tratamento.
+  · Onde você é atendida
+  · Quem corrige é a clínica
+  · Se algum dado estiver errado, fale com a equipe — é ela que mantém esta ficha, e o que for corrigido lá chega aqui.
+  · Quem acompanha você
+  · Quem acompanha você
+  · Se você se trata com alguém, anote aqui. É o que faz o resumo sair pronto para a consulta e o preparo de perguntas aparecer na hora certa.
+  · Como você chama essa pessoa. Pode ser o nome do consultório, se preferir.
+  · Opcional — clínica, hospital ou consultório.
+  · Digite a clínica ou consultório
+  · Nada disto é enviado a ninguém
+  · O nome fica no aplicativo, com você. Para que a sua equipe receba os seus dados é preciso um código de convite da clínica — e aí quem passa a cuidar desta ficha é ela.
+  · Os seus registros continuam todos aqui — peso, aplicações, sintomas, exames e anotações. O que sai é só o nome.
+  · Não tenho mais acompanhamento
+
+## src/app/aplicacao.tsx  (16)
+  · Braço
+  · Abdômen
+  · Ainda não usado neste tratamento.
+  · Usado esta semana.
+  · Descansando há ${l.semanas} ${l.semanas === 1 ? 'semana' : 'semanas'}.
+  · Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.
+  · Medicamento e ${med.doses.length ? 'dose' : 'dose da receita'}
+  · Manipulado não tem escada de bula — o número é o da sua receita.
+  · ${med.label} · ${nf(dose, 1)} ${med.unit}
+  · Local da aplicação
+  · Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele.
+  · É o próximo da rotação.
+  · Fora da rotação sugerida — sem problema, é só um lembrete.
+  · Esta é a última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}.
+  · ${est.total - est.left + 1}ª dose
+  · Mudei a dose
+
+## src/app/exames.tsx  (16)
+  · abaixo de ${fmtV(g.limMax)}${u}
+  · acima de ${fmtV(g.limMin)}${u}
+  · acima da referência
+  · abaixo da referência
+  · Colhido em ${dataLonga(l.t)}
+  · De ${fmtV(f.v)} a ${fmtV(l.v)}
+  · Explique meu exame de ${nomeDoMarcador(e.marker)}
+  · Enviar ao médico
+  · ${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? dataLonga(ultima) : '—'}
+  · Fora da referência
+  · EVOLUÇÃO
+  · O QUE ISSO SIGNIFICA
+  · O que costuma ajudar
+  · O que também mexe no resultado
+  · fora da referência
+  · na referência
+
+## src/app/medico.tsx  (16)
+  · Área médica
+  · Área médica
+  · Quem cuida de você, e o que atravessa para o outro lado.
+  · Clínica
+  · Suas anotações
+  · Prescrições
+  · não anotada
+  · ${m.por} · anotado em ${dataLonga(m.em)}
+  · Anote o número que ela definiu na consulta
+  · /meta-clinica?alvo=${k}
+  · A sua meta de peso, no aplicativo, é ${pesoTxt(S, (S.profile as any).goalWeight)}. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.
+  · PARA LEVAR À CONSULTA
+  · Ver o resumo para consulta
+  · Anotar uma dúvida
+  · O que a clínica preparou
+  · Os números da sua equipe
+
+## src/app/medir-refeicao.tsx  (16)
+  · Café da manhã
+  · Almoço
+  · Um prato favorito
+  · Corrigir a refeição
+  · O que você comeu?
+  · Monte o prato uma vez e ele fica a um toque
+  · O que ficou errado no registro
+  · ${hojeProt} de ${alvo} g de proteína hoje
+  · Diga o que tinha no prato
+  · Salvar a correção
+  · ${nomeItem(semConta[0])} não entra nessa conta — ainda não tenho a proteína desse prato.
+  · ${semConta.length} itens não entram nessa conta — ainda não tenho a proteína deles.
+  · ~${somaDe((f.itens || []) as ItemComida[])} g de proteína
+  · Apagar esta refeição
+  · O QUE TINHA NO PRATO
+  · Proteína desta refeição
+
+## src/app/planos.tsx  (16)
+  · Seu tratamento em um só lugar
+  · Tudo organizado para você acompanhar sua jornada.
+  · Seus números interpretados
+  · Os seus dados viram informação que faz sentido.
+  · Evolução que você consegue enxergar
+  · Peso, medidas, sintomas, exames e registros ao longo do tempo.
+  · Um assistente para o dia a dia
+  · Pergunte, registre e entenda melhor a sua jornada.
+  · Começar os ${plano.teste} dias grátis
+  · Menor preço
+  · Depois de ${plano.teste} dias, ${reais(plano.preco)} ${plano.periodo}. Cancele antes e não paga nada.
+  · ${reais(plano.preco)} ${plano.periodo}, renovando até você cancelar.
+  · de verdade.
+  · Você não paga — o acesso vem do vínculo
+  · A assinatura ainda não está ligada
+  · Tenho um código de convite
+
+## src/app/registrar.tsx  (16)
+  · ${bebido} de ${alvoL} L
+  · ${exercHoje} de ${alvoExerc} min
+  · Fiz uma refeição
+  · ${protHoje} de ${alvoProt} g
+  · Apliquei a dose
+  · Acabei de me pesar
+  · Fiz uma refeição
+  · Recebi um exame
+  · Anotei algo para a consulta
+  · Concluído hoje
+  · Como foi o seu dia?
+  · dia seguido
+  · dias seguidos
+  · O que deseja registrar?
+  · CHECK-IN DIÁRIO
+  · LEVA UM MINUTO
+
+## src/app/resumo-medico.tsx  (16)
+  · na referência
+  · Resumo para consulta
+  · Enviar de novo a ${p.doctor}
+  · Compartilhar de outro jeito
+  · Resumo para consulta
+  · Tudo que você registrou, do jeito que vai chegar na consulta.
+  · Resumo de ${fmtDate(now())}
+  · Para ${p.doctor || p.clinic}${p.doctor && p.clinic ?
+  · Para levar na próxima consulta
+  · ${envios.length} ${envios.length === 1 ? 'envio' : 'envios'} · fica com a sua equipe
+  · Ver todos
+  · Anotações para a consulta
+  · Só as que você ainda não marcou como conversadas.
+  · O que você quiser perguntar na consulta se escreve aqui, e entra no resumo.
+  · É um relato, não um exame
+  · Os números vêm do que você registrou no aplicativo. Servem para a conversa da consulta, e não substituem avaliação nem laudo.
+
+## src/app/alimento.tsx  (15)
+  · proteína
+  · cálcio
+  · magnésio
+  · fósforo
+  · proteína
+  · Proteína
+  · Porção: ${medidaDe(a, a.qtd)}
+  · Porção de 100 g
+  · ${d.pct}% do que uma pessoa precisa por dia
+  · Valores de ${medidaDe(a, a.qtd)}
+  · Fibra em ${medidaDe(a, a.qtd)}
+  · não medida
+  · ${medidaDe(a, a.qtd)} pesa perto de ${massaTxt(S, a.gUn * a.qtd)}.
+  · Registrar uma refeição com isto
+  · Não encontrei este alimento.
+
+## src/app/exercicio.tsx  (15)
+  · Exercício
+  · Hoje: sem treino ainda · ${daSemana} min nesta semana
+  · Hoje: ${hoje} de ${alvoDia} min · ${hoje >= alvoDia ? 'meta alcançada' :
+  · }
+        pct={Math.round((hoje / alvoDia) * 100)}
+      >
+        <AtalhoDaCapa
+          titulo="Registrar um treino"
+          cheio
+          onPress={() => router.push('/medir-exercicio' as any)}
+        />
+      </CapaDeHabito>
+
+      <FolhaDeHabito>
+      {                                                               
+ 
+                                                                      
+                                                                    
+                                                                       
+                                                                       
+                                                       }
+      <Bloco titulo="O seu movimento">
+      <View style={{ gap: 10 }}>
+      {                                                      
+ 
+                                                                    
+                                                                    
+                                                                 
+                                                  
+ 
+                                                                        
+                                                                        
+                                                                          
+                                                              }
+      <CardSemana
+        nome="Esta semana"
+        sub={comMovimento === 0
+          ? 'Nenhum dia com movimento'
+          :
+  · }
+        valor={String(daSemana)}
+        unidade="min"
+        dias={semana.map((d) => ({ t: d.t, v: d.min }))}
+        alvo={alvoDia}
+        rotuloMeta={
+  · }
+        rodape={(
+                                                                      
+                                                                          
+                                                                        
+                      
+          <Row gap={8} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+            <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
+              {forca === 0
+                ? 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.'
+                :
+  · }
+            </Txt>
+          </Row>
+        )}
+      />
+
+      {                                                              
+ 
+                                                                          
+                                                                       
+                                                                        
+                                        }
+      {comHistorico ? (
+        <View>
+          <CardCurva
+            id="ex"
+            nome="Minutos por semana"
+            sub="Média das últimas 8 semanas"
+            valor={String(mediaSemanal)}
+            unidade="min"
+                                                                            
+                                                                         
+                                                                            
+                                                                      
+                                              
+            altura={140}
+            pontos={semanas.map((w) => ({
+              v: w.min,
+              rotulo: String(w.min),
+              quando:
+  · ,
+            }))}
+          />
+        </View>
+      ) : null}
+      </View>
+      </Bloco>
+
+      {                           
+ 
+                                                                       
+                                                                         
+                                                                      
+                                                                          
+ 
+                                                                          
+                                                                         
+                        }
+      <Bloco titulo="No período" nota="Só o que foi registrado aqui — o que vem do relógio não tem modalidade.">
+        <View style={{ gap: 10 }}>
+          <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={escolhePeriodo} />
+          {                                                             
+ 
+                                                                           
+                                                                     
+                                                                           
+                                                                         
+ 
+                                                                            
+                                                                         
+                                                            }
+          <View style={{ gap: 10 }}>
+            <Grade2>
+              <Metrica ic="dumbbell" nome="Treinos" para={String(resumo.treinos)} />
+              <Metrica ic="clock" nome="Tempo" para={duracao(resumo.min)} />
+            </Grade2>
+            <Grade2>
+              <Metrica ic="run" nome="Mais longo" para={duracao(resumo.maisLongo)} />
+              <Metrica
+                ic="shield"
+                nome="De força"
+                para={duracao(resumo.forca)}
+                selo={resumo.forca ?
+  · : undefined}
+                seloTom="verde"
+              />
+            </Grade2>
+          </View>
+        </View>
+      </Bloco>
+
+      {            
+ 
+                                                                      
+                                                                           
+                                                                          
+                                                 }
+      <Bloco
+        titulo="Diário de treino"
+        nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
+      >
+        {                                                               
+                                                                      
+                                                              }
+        <View style={{ gap: 10 }}>
+          <TiraDeDias
+            dias={calendario.map((d) => ({ t: d.t, marcado: d.itens > 0, hoje: d.hoje }))}
+            sel={diaSel}
+            onEscolhe={setDiaSel}
+          />
+
+          {doDia.length ? (
+            <Cartao>
+              {                                                          
+                                                                           
+                                                                           
+                                                                               }
+              {doDia.map((t) => (
+                <Linha
+                  key={
+  · Nenhum treino neste dia
+  · Descanso também faz parte.
+  · Integrações
+  · Conectar um relógio ou aplicativo
+  · Lançam os minutos sozinhos
+  · Apple Saúde, Health Connect, Garmin e outros
+
+## src/app/saude.tsx  (15)
+  · Saturação O₂
+  · Indicadores que melhoram junto com o peso — e que a balança sozinha não mostra.
+  · Acompanhados ao longo do tempo
+  · Pressão arterial
+  · ${pa0.sys}/${pa0.dia} no início · ${paSerie.length} medições
+  · ${pa.sys}/${pa.dia}
+  · ${x.sys}/${x.dia}
+  · Glicemia de jejum
+  · ${gl0.v} mg/dL no início · ${glSerie.length} medições
+  · Última leitura
+  · Medida pontual: estes números dizem se você está dentro da faixa, não para onde está indo.
+  · De onde vêm
+  · Ver o que dá para ligar hoje, e o que ainda está por vir
+  · Estes números não se digitam
+  · Pressão, saturação e frequência chegam de um aparelho conectado — e essa ligação ainda não existe nesta versão. Um resultado de laboratório entra por Exames.
+
+## src/logic/derive.ts  (15)
+  · ${doseTxt((S.profile as any).dose)} ${M(S).unit}
+  · /marcador?m=peso
+  · Triglicerídeos
+  · ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${med.mol} · ${siteLabel(inj.site)}
+  · peso-${cur.t}
+  · ${med.label} ${nf(injs[i].dose, injs[i].dose % 1 ? 1 : 0)} ${med.unit}
+  · /marcador?m=peso
+  · ${f.sys}/${f.dia}
+  · ${l.sys}/${l.dia}
+  · = de && t
+  · = de && t
+  · = de && hoje
+  · = de && c.t
+  · = 0 && dias
+  · = 0 && cs.dias
+
+## src/app/(tabs)/insights.tsx  (13)
+  · Escreva sua pergunta...
+  · O que mais percebi
+  · Próximas ações
+  · Resumo da semana
+  · semana ${r.semana} · ${ci7} check-ins, ${pesoTxt(S, Math.abs(dSem))}
+  · Como está minha evolução?
+  · Resumo para a consulta
+  · peso, adesão, sintomas e perguntas
+  · pronto para compartilhar
+  · Resumo para consulta
+  · documento com a evolução completa
+  · A DESCOBERTA DA SEMANA
+  · hoje, de 100
+
+## src/app/alerta.tsx  (13)
+  · Alerta de
+  · O que avisar
+  · Antecedência
+  · Contada a partir da data da sua próxima aplicação.
+  · Dias da semana
+  · Sem nenhum marcado, o alerta toca todo dia.
+  · Horários
+  · Horários
+  · Dá para marcar mais de um — o alerta toca em cada um deles.
+  · Começa
+  · Até
+  · ${horasDe(a).length} avisos por dia, de ${a.cada} em ${a.cada} horas.
+  · Sem horário marcado
+
+## src/app/biblioteca.tsx  (13)
+  · Você está aqui · 5 mg
+  · Passando pros 5 mg: o que esperar
+  · Como o corpo responde ao aumento de dose e por que a náusea costuma ser passageira.
+  · Perto da sua dose
+  · Por que a fome volta antes da aplicação
+  · A relação entre o nível da medicação e a saciedade ao longo da semana.
+  · Sua meta
+  · Proteína e preservação de massa magra
+  · Comer proteína suficiente sustenta seu metabolismo durante a perda de peso.
+  · Como aproveitar melhor sua consulta
+  · O que levar, o que perguntar, e como o resumo automático ajuda.
+  · 3 min de leitura
+  · Conteúdo certo para o seu momento — não uma lista de artigos
+
+## src/app/consultas.tsx  (13)
+  · A próxima, o que levar nela, e as que já aconteceram.
+  · O que levar na próxima, e as que já aconteceram.
+  · JÁ PASSOU
+  · PRÓXIMA
+  · Quando a sua equipe marcar a próxima, ela aparece aqui.
+  · Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para levar.
+  · Está tudo em dia — o resumo já se monta com isso.
+  · Falta uma coisa para o resumo ficar completo.
+  · Faltam ${faltando} coisas para o resumo ficar completo.
+  · Já aconteceu
+  · Ver o resumo para levar
+  · PRÓXIMA
+  · Para levar
+
+## src/app/metas.tsx  (13)
+  · ${pesoN(S, perdido)} de ${pesoTxt(S, total)} até ${pesoTxt(S, S.profile.goalWeight)}
+  · Nova meta
+  · /meta?novo=1
+  · Os números do dia
+  · É o que as telas de água, alimentação e exercício cobram, e o que o protocolo conta.
+  · Sua equipe mira ${a.escreve(p.meta.valor, S)} ${a.un(S)}
+  · Alterada por você
+  · Via sua equipe
+  · /meta?alvo=${k}
+  · As medidas nós acompanhamos pelos seus registros. As suas, você marca.
+  · /meta?g=${m.id}
+  · Nenhuma meta ainda
+  · Escreva uma coisa que você quer conseguir. Ela fica aqui até acontecer.
+
+## src/app/marcador.tsx  (11)
+  · Medir sempre do mesmo jeito
+  · Mesma hora do dia, sem roupa apertada e com a fita rente à pele, sem apertar. A comparação entre duas medidas só vale se as duas foram feitas igual.
+  · Peso
+  · manhã
+  · Braço
+  · Nenhum registro de ${def.nome.toLowerCase()}
+  · Esta medida vem da balança de bioimpedância, e ainda não chegou nenhuma.
+  · Registre a primeira para começar a acompanhar.
+  · Registrado em ${dataLonga(ultimo.t)} · ${fmt(primeiro.v)} ${def.unidade} no início do tratamento
+  · Leituras da balança de bioimpedância. Não há o que corrigir por aqui — elas chegam prontas.
+  · Toque para corrigir ou apagar. O que estiver aqui vai para o relatório do seu médico.
+
+## src/app/anotar-consulta.tsx  (10)
+  · Quem marca é a clínica
+  · A sua agenda vem da equipe que acompanha o seu tratamento.
+  · As datas chegam da clínica
+  · Para remarcar ou desmarcar, fale com a equipe — o que mudar lá aparece aqui.
+  · A sua próxima consulta
+  · Anote a sua consulta
+  · Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para você levar.
+  · A data fica com você
+  · Anotar aqui não avisa o consultório nem entra no calendário do telefone. Somos nós que passamos a saber que a consulta está chegando.
+  · Não tenho consulta marcada
+
+## src/app/dia.tsx  (10)
+  · Energia ${checkin.energia} de 10
+  · Humor ${checkin.mood} de 5
+  · Respondido neste dia
+  · Dia de aplicação
+  · Registros deste dia
+  · Aplicação
+  · ${med.label} ${nf(aplicou.dose, 1)} ${med.unit}
+  · ${med.label} ${nf(S.profile.dose, 1)} ${med.unit} · ${prevista ? 'prevista para hoje' : 'sem registro'}
+  · Peso
+  · ${pesoTxt(S, peso.kg)}
+
+## src/app/ritmo.tsx  (10)
+  · Como lemos o seu ritmo
+  · A etiqueta olha para a constância do tratamento, não para a velocidade da perda de peso.
+  · Aplicações em dia
+  · ${aplicadas} de ${vividas} semanas
+  · ${cad} dias, sem atrasos longos
+  · maior intervalo: ${maior} dias
+  · estável
+  · em alta
+  · Uma semana diferente não muda a etiqueta
+  · Ela não sobe nem desce por quanto você perdeu, e não existe versão dela que diga que a semana foi ruim. Hoje ela lê “${r.verdict.label.toLowerCase()}”.
+
+## src/app/aparencia.tsx  (9)
+  · Aparência
+  · Aparência
+  · Deixe o aplicativo com a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial.
+  · Escolha a sua cor
+  · EXEMPLO DE COMO FICA
+  · Bom dia
+  · Dia 12 · semana 2
+  · Suas metas de hoje
+  · Ver a jornada
+
+## src/app/ciclo.tsx  (9)
+  · Ciclo da dose
+  · Registrar aplicação
+  · Dia ${cic.dayIn} depois${'\n'}da aplicação
+  · O efeito do medicamento sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado.
+  · dia ${cic.dayIn} de ${cic.total}
+  · Próxima dose ${dataComDiaDaSemana(cic.nextDose)}
+  · Atenção
+  · Isto é conteúdo geral
+  · O ciclo varia de pessoa para pessoa e com a dose. Nada aqui substitui a orientação do seu médico.
+
+## src/app/clinica.tsx  (9)
+  · Entre em contato
+  · Para falar com a recepção. O que é do tratamento fica melhor na conversa do aplicativo, que chega à equipe inteira.
+  · Fale com a clínica para saber como começar o acompanhamento.
+  · Quem acompanha você
+  · Responsável
+  · Clínica
+  · Clínica
+  · Convênios atendidos
+  · Escrever para a equipe
+
+## src/app/historico.tsx  (9)
+  · Por semana
+  · Seu tratamento
+  · Seu tratamento
+  · Tudo que você registrou desde ${dataLonga(inicio)}.
+  · Semana ${w.semana}
+  · ${fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY))} · ${w.dose} · ${w.site}
+  · /semana?s=${w.semana}
+  · Uma semana ficou quase vazia
+  · Semanas sem registro continuam na lista, do mesmo tamanho que as outras. Elas não somem nem viram falha.
+
+## src/app/lembretes.tsx  (9)
+  · Próximo: ${prox}
+  · Os avisos que você criar aparecem aqui, na ordem em que tocam.
+  · Os avisos estão bloqueados
+  · No navegador não dá para avisar
+  · O aparelho está barrando as notificações deste aplicativo. Enquanto estiver assim, nada do que você ligar aqui vai chegar.
+  · O que você criar fica guardado e passa a valer quando abrir o aplicativo no celular.
+  · Dose, pesagem, hidratação e proteína — crie os que fizerem sentido para a sua rotina.
+  · Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso.
+  · Abrir as configurações
+
+## src/app/medir-anotacao.tsx  (9)
+  · Ajuste de dose
+  · Exame para repetir
+  · Sintoma para acompanhar
+  · Dúvida para a próxima
+  · O que você quer lembrar?
+  · com ${S.profile.doctor}
+  · O que a médica orientou, o que mudou, o que você quer perguntar depois...
+  · JÁ ANOTADO
+  · Guardar anotação
+
+## src/app/medir-exercicio.tsx  (9)
+  · Musculação
+  · Natação
+  · Como você se movimentou?
+  · O que ficou errado no registro
+  · ${hoje} de ${alvo} min hoje${fonte ?
+  · }
+      onClose={() => router.back()}
+      rodape={(
+        <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+          <View style={{
+            backgroundColor: pronto ? c.accent : c.bg2,
+            borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center',
+          }}>
+            <Txt v="body" c={pronto ? c.accentInk : c.tx4}>
+              {!nome
+                ? 'Diga o que você fez'
+                : editando
+                  ? 'Salvar a correção'
+                  :
+  · }
+            </Txt>
+          </View>
+        </Pressable>
+      )}
+    >
+      {                              
+
+                                                                     
+                                                                    
+                                                                         
+                                                                   
+                                                                        
+                                                                        
+                                                 
+
+                                                                    
+                                    }
+      {fonte && !editando ? (
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
+          O que você registrar aqui soma ao que {fontes.length === 1 ? 'ele já contou' : 'eles já contaram'}.
+        </Txt>
+      ) : null}
+
+      {                                                                 
+                                                                           
+                                                                        
+                                                                           }
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>O QUE VOCÊ FEZ</Txt>
+      <Grade>
+        {TIPOS.map(([ic, t]) => (
+          <Opc key={t} ic={ic} cheia label={t} on={tipo === t} onPress={() => setTipo(t)} />
+        ))}
+      </Grade>
+
+      {tipo === OUTRO ? (
+        <View style={{ marginTop: 10 }}>
+          <Texto valor={outro} onChange={setOutro} placeholder="Qual? Ex.: vôlei, escalada, jiu-jitsu" linhas={1} />
+        </View>
+      ) : null}
+
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22 }}>POR QUANTO TEMPO</Txt>
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 10 }}>
+        <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Txt v="caption" c={c.tx3}>Duração</Txt>
+          <Metric value={
+  · O QUE VOCÊ FEZ
+  · Duração
+
+## src/app/checkin-ok.tsx  (8)
+  · DIA SEGUIDO DE CHECK-IN
+  · DIAS SEGUIDOS DE CHECK-IN
+  · COMO FOI O DIA
+  · Nenhum hoje
+  · NÃO SE ESQUEÇA
+  · Check-in concluído
+  · O QUE FAZER
+  · Voltar para a Home
+
+## src/app/treino.tsx  (8)
+  · Não encontrei este registro
+  · Você — registrado nesta tela
+  · ${fonte} — chegou pela integração
+  · Conta como força
+  · Sim — puxa músculo
+  · Não — musculação, pilates e funcional é que contam
+  · Força
+  · /medir-exercicio?t=${dia}&i=${idx}
+
+## src/app/aplicacao-ok.tsx  (7)
+  · Voltar para a Jornada
+  · ${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1)} ${med.unit}${vocab.injetavel && li ?
+  · Próxima dose
+  · 1 dia
+  · ${dias} dias
+  · ${est.total} de ${est.total} doses usadas · abrir ${oA(formaDe(S))} ${concordar(formaDe(S), 'próximo', 'próxima')}
+  · ${est.total - est.left} de ${est.total} doses usadas
+
+## src/app/cobrancas.tsx  (7)
+  · Histórico de cobrança
+  · Nenhuma cobrança
+  · Nenhuma cobrança ainda
+  · O acesso vem do vínculo com a clínica, e vínculo não gera cobrança. Caso a clínica nos informe que ele foi encerrado, o acesso fica suspenso até você assinar — nada aparece aqui sem você escolher.
+  · Quando a assinatura começar, cada cobrança aparece aqui com a data e o valor.
+  · Início do teste grátis
+  · O comprovante oficial de cada cobrança
+
+## src/app/conquistas.tsx  (7)
+  · Nível ${q.nivel} de ${q.niveis}
+  · ${q.niveis} níveis
+  · Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece.
+  · check-ins no mês
+  · níveis
+  · dias de jornada
+  · As que estão a caminho aparecem logo abaixo.
+
+## src/app/meta-clinica.tsx  (7)
+  · Outra pessoa da equipe
+  · ${def.nome} · da equipe
+  · O número que ela definiu, anotado por você
+  · Fica guardado junto do número, para você lembrar de onde ele veio.
+  · Este número não substitui a sua meta de peso. Ela continua sendo a que mede a sua Jornada — as duas convivem, e quando discordam é assunto para a próxima consulta.
+  · Guardando, este passa a ser o número que o aplicativo cobra, e ele não se muda mais pela régua de Os números do dia: é parte do seu tratamento. Para soltá-lo, é só remover esta anotação aqui.
+  · Remover a meta da equipe
+
+## src/app/nota.tsx  (7)
+  · Nota para a consulta
+  · Fica guardada até a consulta de ${ate}.
+  · Fica guardada até a sua próxima consulta.
+  · Só entra no relatório se você marcar as notas na hora de exportar.
+  · O que você quer lembrar de falar?
+  · Voltar para a pauta
+  · Já conversei isso
+
+## src/app/prescricao.tsx  (7)
+  · Prescrição
+  · Pedir a receita à equipe
+  · Prescrita em
+  · Documento enviado pela clínica
+  · Isto é o seu registro, não a receita
+  · A receita é o documento que a clínica emite, com assinatura e validade — é ele que a farmácia aceita. Este registro serve para você acompanhar o que está em uso; se a sua receita venceu, dá para pedir uma nova aqui embaixo.
+  · A receita é o documento que quem prescreve emite, com assinatura e validade — é ele que a farmácia aceita. Este registro serve para você acompanhar o que está em uso.
+
+## src/ui/useDitado.ts  (7)
+  · Precisamos da sua permissão para usar o microfone.
+  · O seu aparelho não liberou o reconhecimento de fala.
+  · Não ouvi nada. Pode falar de novo.
+  · Sem conexão para transcrever agora.
+  · Não consegui usar o microfone agora.
+  · Não consegui ouvir agora — dá para escrever também.
+  · O ditado precisa de uma build de desenvolvimento — no Expo Go o módulo de voz não existe. Aqui o botão está só para a tela ficar completa.
+
+## src/app/caneta-nova.tsx  (6)
+  · Zera a contagem de doses.
+  · Concentração e doses
+  · Validade depois de aberto
+  · Quem prepara define este prazo, e ele costuma vir no rótulo. Sem ele, não falamos de vencimento — preferimos calar a chutar uma data.
+  · Não sei
+  · Está no rótulo
+
+## src/app/medir-agua.tsx  (6)
+  · Quanto você bebeu?
+  · }
+            </Txt>
+          </View>
+        </Pressable>
+      )}
+    >
+      {                     }
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 18 }}>
+        <Row style={{ alignItems: 'flex-end' }}>
+          <Metric value={L(atual)} unit="L" />
+          <View style={{ flex: 1 }} />
+          <Txt v="note" c={c.tx3}>de {L(alvo)} L hoje</Txt>
+        </Row>
+        <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 14 }}>
+          <View style={{ width:
+  · , height: 6, borderRadius: radius.pill, backgroundColor: c.accent }} />
+        </View>
+      </View>
+
+      {                                      
+ 
+                                                                       
+                                                                           
+                                                                         
+ 
+                                                                         
+                                                                          
+                                                                        
+                                            }
+      <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7, gap: 12 }}>
+        <Txt v="caption" c={c.tx3}>O que você bebeu</Txt>
+        <Row style={{ flexWrap: 'wrap', gap: 7 }}>
+          {BEBIDAS().map((b) => {
+            const on = b.id === bebida.id;
+            return (
+              <Pressable key={b.id} onPress={() => setBebidaId(b.id)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                <Row gap={6} style={{
+                  backgroundColor: on ? c.accent : c.bg2,
+                  borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 9,
+                }}>
+                  <Icon name={b.ic} size={14} color={on ? c.accentInk : c.tx2} sw={1.9} />
+                  <Txt v="caption" c={on ? c.accentInk : c.tx}>{b.nome}</Txt>
+                </Row>
+              </Pressable>
+            );
+          })}
+        </Row>
+        {                                                               
+                                                                     
+                                                                          
+                                                                         }
+        {bebida.nota ? <Txt v="caption" c={c.tx3}>{bebida.nota}</Txt> : null}
+
+        {                                               
+ 
+                                                                        
+                                                                          
+                                                                         
+                                                 }
+        {bebida.porDose ? (
+          <View style={{ gap: 9 }}>
+            <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Txt v="caption" c={c.tx3}>Quantas doses de proteína</Txt>
+              <Txt v="caption" c={c.tx3}>
+                {doses === 0 ? 'nenhuma' :
+  · Kombucha, isotônico, caldo de cana…
+  · O que você bebeu
+  · Quantas doses de proteína
+
+## src/app/notas.tsx  (6)
+  · Notas para a consulta
+  · : 'Guardadas até a sua próxima consulta.'} Marque as que você já conversou.
+  · Já conversadas
+  · ${abertas.length === 1 ? 'Sua nota está' : 'Suas notas estão'} em “A conversar”.
+  · As notas entram no relatório
+  · Ao exportar o histórico, você escolhe se as anotações vão junto.
+
+## src/app/protocolos.tsx  (6)
+  · Semana ${p.semana}
+  · ${p.feitas} de ${p.total} cumpridas
+  · aplicação ${relDay(nextInjectionDate(S))}
+  · Falar com a equipe
+  · Esta semana
+  · As metas de hoje, medidas nos registros de cada semana.
+
+## src/app/suspenso.tsx  (6)
+  · /mês
+  · a clínica que acompanhava você
+  · Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam no seu aparelho.
+  · Nada foi cobrado, e nada vai ser sem você escolher.
+  · Ver os planos
+  · Tenho outro código
+
+## src/app/alimentos.tsx  (5)
+  · A tabela que usamos para contar, com ${ALIMENTOS().length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.
+  · Procure um alimento ou um prato
+  · ${medidaDe(a, a.qtd)} · ~${gramasDe(a, a.qtd)} g de proteína
+  · Ver todos os ${naRestricao.length}
+  · Ver tudo
+
+## src/app/especialista.tsx  (5)
+  · Clínica
+  · Clínica
+  · de experiência
+  · Áreas
+  · Formação
+
+## src/app/favorito.tsx  (5)
+  · Não encontrei este prato
+  · ${medidaItem(it)} · ~${gramasItem(it)} g de proteína
+  · Registrar uma refeição com este prato
+  · g de proteína
+  · cada vez que você registrar este prato
+
+## src/app/medir-medidas.tsx  (5)
+  · Braço
+  · Quais são suas medidas?
+  · as réguas abrem na última medição
+  · O que você mediu
+  · Nenhuma delas é obrigatória. Medir só a cintura é um registro tão bom quanto medir as quatro.
+
+## src/app/medir-peso.tsx  (5)
+  · /registro-ok?tipo=peso
+  · Quanto você está pesando?
+  · Peso
+  · ${delta < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(delta))} desde o último
+  · Salvar ${pesoTxt(S, peso)}
+
+## src/app/refeicao.tsx  (5)
+  · Refeição
+  · Não encontrei este registro
+  · Pela foto — a câmera leu o prato e estimou
+  · Por você — registrado nesta tela
+  · g de proteína
+
+## src/app/checkin.tsx  (4)
+  · /checkin-ok?de=${antes}
+  · Como foi o seu dia?
+  · Responda o que fizer sentido. Deixar em branco também é uma resposta.
+  · Ex.: gosto metálico na boca
+
+## src/app/codigo.tsx  (4)
+  · Código de convite
+  · O código que a clínica parceira te passou.
+  · Confirmar código
+  · Digite o código
+
+## src/app/consulta.tsx  (4)
+  · Desde então
+  · Até a consulta seguinte
+  · O que os seus registros mostram deste dia até agora.
+  · O que os seus registros mostram entre este dia e ${dataComAno(p.ate)}.
+
+## src/app/conversa.tsx  (4)
+  · Sua equipe
+  · Resta 1 dose
+  · Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${restam} ${noNa(formaDe(S))}.
+  · Escrever para a equipe…
+
+## src/app/medir-exame.tsx  (4)
+  · Um marcador por vez
+  · Importar PDF do laboratório
+  · ainda não disponível
+  · ANOTAR À MÃO
+
+## src/app/unidades.tsx  (4)
+  · Métrico
+  · Unidades de medida
+  · Muda só como os números aparecem.
+  · Como você lê medidas
+
+## src/logic/restricoes.ts  (4)
+  · Peixes e frutos do mar
+  · Peixes e frutos do mar
+  · Grãos e feijões
+  · Arroz, massas e pães
+
+## src/ui/CameraPrato.tsx  (4)
+  · Precisa da câmera
+  · Permitir a câmera
+  · Escolher uma foto
+  · Agora não
+
+## src/app/conquista-ok.tsx  (3)
+  · ${q.titulo} · nível ${q.nivel}
+  · ${q.desc}. ${q.falta} para o próximo nível.
+  · CONQUISTA ALCANÇADA
+
+## src/app/notificacoes.tsx  (3)
+  · Notificações
+  · Notificações
+  · O que contamos para você nos últimos dias.
+
+## src/app/registro.tsx  (3)
+  · ${data}, manhã · registrado por você
+  · Semana
+  · Semana ${semana} do tratamento
+
+## src/app/restricao.tsx  (3)
+  · Restrição alimentar
+  · Restrições alimentares
+  · Marque o que fica fora do seu prato: passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve — sem esconder o resto. Em caso de alergia, confira sempre o rótulo, porque a marca e o preparo a gente não tem como saber.
+
+## src/theme.ts  (3)
+  · Ir para metas
+  · PARA HOJE
+  · água
+
+## src/ui/comida.tsx  (3)
+  · Busque um alimento ou um prato
+  · Confira a lista abaixo e ajuste o que precisar.
+  · Não tenho a proteína desse ainda
+
+## src/ui/internas.tsx  (3)
+  · ${de} ›
+  · Ainda não respondi
+  · O QUE FAZER
+
+## src/logic/escalas.ts  (2)
+  · média
+  · média
+
+## src/ui/instrumentos.tsx  (2)
+  · gf${de.replace('#', '')}${para.replace('#', '')}
+  · url(#gf${de.replace('#', '')}${para.replace('#', '')})
+
+## src/app/protocolo.tsx  (1)
+  · Semana ${w.semana}
+
+## src/app/trilha.tsx  (1)
+  · Nível ${t.nivel} de ${t.degraus.length}
+
+## src/logic/alertas.ts  (1)
+  · ${dia} · ${hm(d.getHours(), d.getMinutes())}
+
+## src/logic/avisos.ts  (1)
+  · ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}
+
+## src/logic/confirmacoes.ts  (1)
+  · /marcador?m=peso
+
+## src/logic/conselhos.ts  (1)
+  · hoje || t
+
+## src/logic/descobertas.ts  (1)
+  · ant:agua:${fraco.dia}
+
+## src/logic/exportacao.ts  (1)
+  · morphi-dados-${dia(+now())}.json
+
+## src/logic/resumo.ts  (1)
+  · ${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}
+
+## src/ui/retratos.ts  (1)
+  · Clínica Vitalis

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { MEDS } from '../logic/meds';
-import { FORMAS, formaDe, umOutro, faixaDaMolecula } from '../logic/formas';
+import { FORMAS, concordar, formaDe, faixaDaMolecula } from '../logic/formas';
 import { nf } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
@@ -54,7 +54,7 @@ export default function CanetaNova() {
   const catalogo = MEDS[med] ?? MEDS.mounjaro;
   const porCaneta = (S as any).pen?.dosesPerPen ?? 4;
 
-  const vocab = FORMAS[formaDe(S)];
+  const vocab = FORMAS()[formaDe(S)];
   /* A pergunta existe quando o catálogo NÃO SABE o prazo — `shelf: 0` —, e
      só para quem injeta: cartela de comprimido não vence depois de aberta
      do jeito que um frasco vence. Ver o bloco de `shelf` em logic/meds. */
@@ -86,7 +86,7 @@ export default function CanetaNova() {
 
   return (
     <SheetScreen
-      titulo={`${umOutro(formaDe(S), true) === 'Outra' ? 'Nova' : 'Novo'} ${vocab.recipiente}`}
+      titulo={`${concordar(formaDe(S), 'Novo', 'Nova')} ${vocab.recipiente}`}
       sub="Zera a contagem de doses."
       onClose={() => router.back()}
     >
@@ -176,7 +176,7 @@ export default function CanetaNova() {
         ) : null}
 
         <Botao
-          label={`Registrar ${umOutro(formaDe(S)) === 'outra' ? 'nova' : 'novo'} ${vocab.recipiente}`}
+          label={`Registrar ${concordar(formaDe(S), 'novo', 'nova')} ${vocab.recipiente}`}
           onPress={registrar}
         />
       </View>

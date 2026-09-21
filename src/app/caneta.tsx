@@ -41,7 +41,7 @@ export default function Caneta() {
      O resto do aplicativo ainda diz "caneta" em trinta e poucos arquivos.
      Está no PENDENCIAS, e é varredura própria. */
   const forma = formaDe(S);
-  const vocab = FORMAS[forma];
+  const vocab = FORMAS()[forma];
   const aberto = concordar(forma, 'aberto', 'aberta');
   const med = M(S);
   const atual = k.atual;

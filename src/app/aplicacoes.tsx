@@ -161,7 +161,7 @@ export default function Aplicacoes() {
             vizinhas somadas para dizer a mesma coisa. */}
         <Linha
           ic="pill"
-          titulo={`${maiuscula(FORMAS[formaDe(S)].recipiente)} e receita`}
+          titulo={`${maiuscula(FORMAS()[formaDe(S)].recipiente)} e receita`}
           sub={k.verdict.good
             ? `${k.atual?.usadas ?? 0} de ${k.atual?.total ?? 4} doses usadas ${nesteNesta(formaDe(S))}`
             : `${k.verdict.label} — cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}`}

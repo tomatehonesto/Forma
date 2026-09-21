@@ -104,7 +104,7 @@ const textoDaDose = (S: State, lead: number) => {
   const dose = `${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`;
   const K = T.avisos;
   if (lead <= 0) return { title: K.doseHoje, body: K.doseHojeCorpo(dose) };
-  const rec = FORMAS[formaDe(S)].recipiente;
+  const rec = FORMAS()[formaDe(S)].recipiente;
   if (lead === 1) return { title: K.doseAmanha, body: K.doseAmanhaCorpo(dose, `${oA(formaDe(S))} ${rec}`) };
   return { title: K.doseEmDias(lead), body: K.doseEmDiasCorpo(dose, doDa(formaDe(S))) };
 };

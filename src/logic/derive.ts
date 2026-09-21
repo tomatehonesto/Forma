@@ -2422,7 +2422,7 @@ export function recommendations(S: State): Reco[] {
   if (nd >= 0 && nd <= 3) {
     out.push({
       emDias: nd, ic: 'syringe',
-      texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS[formaDe(S)].recipiente}`),
+      texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`),
       porque: E.aplicacaoPorque,
       to: '/aplicacoes',
     });

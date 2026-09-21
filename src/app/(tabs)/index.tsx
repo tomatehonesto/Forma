@@ -196,7 +196,7 @@ export default function Home() {
   /* A forma decide como o recipiente se chama e como as preposições
      concordam com ele — ver logic/formas. */
   const forma = formaDe(S);
-  const recipiente = FORMAS[forma].recipiente;
+  const recipiente = FORMAS()[forma].recipiente;
 
   /* Carrossel do hero — as leituras do dia, todas com dado real.
 

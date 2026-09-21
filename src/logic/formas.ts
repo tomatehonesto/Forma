@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { MEDS, type Forma } from './meds';
 
 export type { Forma };
@@ -28,39 +29,41 @@ export type { Forma };
    Ver docs/superpowers/specs/2026-09-21-forma-de-aplicacao-design.md.
    ============================================================ */
 
-export const FORMAS: Record<Forma, {
+/* ⚠️⚠️ A TABELA TEM DUAS METADES, E SÓ UMA DELAS É TEXTO.
+
+   `injetavel` e `estoque` são ESTRUTURA: valem em qualquer idioma, e
+   mudá-las apaga ou acende telas inteiras. Ficam aqui.
+
+   `recipiente`, `plural`, `verbo` e `acao` são PALAVRA: mudam de idioma
+   e não mudam nada do que o aplicativo faz. Moram no catálogo, em pt-BR/formas.ts e no par em inglês.
+
+   O gênero não está em nenhuma das duas listas — ele saiu daqui de vez.
+   Era o único campo que existia só para o português, e três telas o liam
+   direto para escolher entre "próximo" e "próxima". Quem precisa disso
+   agora chama `concordar`, que é uma pergunta que toda língua responde.
+
+   ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const FORMAS = (): Record<Forma, {
   /** decide se existem local de aplicação e rodízio */
   injetavel: boolean;
   /** como se chama o que guarda o medicamento */
   recipiente: string;
-  /* O plural é campo, e não `recipiente + 's'`. Os quatro de hoje são
-     regulares e a conta daria certo — e é exatamente assim que o quinto,
-     irregular, entra sem ninguém notar. */
+  /** o plural dele, que é campo e não `recipiente + 's'` */
   plural: string;
-  /* ⚠️ O GÊNERO DO RECIPIENTE, e ele existe porque "Outro caneta" saiu
-     na tela. Um rótulo montado com o nome do recipiente não carrega a
-     concordância junto, e português cobra: a caneta, o frasco, a
-     seringa, a cartela. */
-  genero: 'm' | 'f';
   /** o verbo da ação: "aplicar" ou "tomar" */
   verbo: string;
   /** o substantivo dela: "aplicação" ou "dose" — títulos e confirmações */
   acao: string;
   /** como o estoque se conta */
   estoque: 'doses' | 'volume' | 'unidades' | 'comprimidos';
-}> = {
-  caneta: {
-    injetavel: true, recipiente: 'caneta', plural: 'canetas', genero: 'f', verbo: 'aplicar', acao: 'aplicação', estoque: 'doses',
-  },
-  frasco: {
-    injetavel: true, recipiente: 'frasco', plural: 'frascos', genero: 'm', verbo: 'aplicar', acao: 'aplicação', estoque: 'volume',
-  },
-  seringa: {
-    injetavel: true, recipiente: 'seringa', plural: 'seringas', genero: 'f', verbo: 'aplicar', acao: 'aplicação', estoque: 'unidades',
-  },
-  comprimido: {
-    injetavel: false, recipiente: 'cartela', plural: 'cartelas', genero: 'f', verbo: 'tomar', acao: 'dose', estoque: 'comprimidos',
-  },
+}> => {
+  const p = T.formas.palavras;
+  return {
+    caneta: { injetavel: true, estoque: 'doses', ...p.caneta },
+    frasco: { injetavel: true, estoque: 'volume', ...p.frasco },
+    seringa: { injetavel: true, estoque: 'unidades', ...p.seringa },
+    comprimido: { injetavel: false, estoque: 'comprimidos', ...p.comprimido },
+  };
 };
 
 /* ⚠️⚠️ É FUNÇÃO, E NÃO UM CAMPO LIDO DIRETO — e a diferença é quem já está
@@ -82,27 +85,23 @@ export const FORMAS: Record<Forma, {
 export const formaDe = (S: { profile: { med: string; forma?: Forma } }): Forma =>
   S.profile.forma ?? MEDS[S.profile.med]?.formas[0] ?? 'caneta';
 
-/* ⚠️ A CONCORDÂNCIA É EXPLÍCITA, com as duas palavras escritas.
+/* ⚠️⚠️ AS SEIS SÃO CASCA, E ISSO É O PONTO.
 
-   A tentação é derivar — trocar o "o" final por "a" — e ela falha no
-   primeiro "nenhum/nenhuma" e no primeiro particípio irregular. Escrever
-   os dois deixa a frase legível no lugar onde ela é montada, que é onde
-   alguém vai reler para ver se soa certo. */
-export const concordar = (f: Forma, masc: string, fem: string) =>
-  (FORMAS[f].genero === 'f' ? fem : masc);
+   Elas continuam aqui, com a mesma assinatura, porque são dezenove
+   chamadas espalhadas em oito telas e nenhuma delas precisa saber que a
+   concordância mudou de casa. O corpo, esse, foi para o catálogo: é lá
+   que "na caneta" vira "in the pen" sem passar por um gênero que o inglês
+   não tem.
 
-/* ⚠️⚠️ AS PREPOSIÇÕES SÃO PEÇA, e não concatenação no lugar do uso.
-
-   "Restam 3 doses na caneta" vira "no frasco", não "na frasco". A
-   contração do artigo com a preposição é o erro mais comum de uma
-   varredura destas — ela passa no `tsc`, passa na revisão de diff e só
-   aparece na tela de quem usa a forma menos comum.
-
-   Com `noNa` e `doDa`, quem escreve a frase não tem como errar. */
-export const noNa = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'na' : 'no'} ${FORMAS[f].recipiente}`;
-export const doDa = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'da' : 'do'} ${FORMAS[f].recipiente}`;
+   Com elas, quem escreve a frase não tem como errar a contração — e é o
+   erro mais comum de uma varredura destas, porque passa no `tsc`, passa
+   na revisão de diff e só aparece na tela de quem usa a forma menos
+   comum. */
+export const concordar = (f: Forma, masc: string, fem: string) => T.formas.concordar(f, masc, fem);
+export const noNa = (f: Forma) => T.formas.noNa(f);
+export const doDa = (f: Forma) => T.formas.doDa(f);
 /** "nesta caneta", "neste frasco" — o demonstrativo com a preposição. */
-export const nesteNesta = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'nesta' : 'neste'} ${FORMAS[f].recipiente}`;
+export const nesteNesta = (f: Forma) => T.formas.nesteNesta(f);
 
 /* ⚠️⚠️ E "CANETA" TAMBÉM QUER DIZER O MEDICAMENTO, por metonímia — foi a
    descoberta da varredura, e ela vale mais do que a troca em si.
@@ -121,16 +120,13 @@ export const nesteNesta = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'nesta' : 
    provavelmente a frase que está na sua mão é do segundo tipo. */
 
 /** "outra caneta", "outro frasco" — o artigo que o nome sozinho não dá. */
-export const umOutro = (f: Forma, maiusculo = false) => {
-  const p = FORMAS[f].genero === 'f' ? 'outra' : 'outro';
-  return maiusculo ? p[0].toUpperCase() + p.slice(1) : p;
-};
+export const umOutro = (f: Forma, maiusculo = false) => T.formas.umOutro(f, maiusculo);
 
 /** "a caneta", "o frasco" — para frases em que o artigo definido entra. */
-export const oA = (f: Forma) => (FORMAS[f].genero === 'f' ? 'a' : 'o');
+export const oA = (f: Forma) => T.formas.oA(f);
 
 /** O que a forma em uso implica, em uma linha. */
-export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FORMAS[formaDe(S)];
+export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FORMAS()[formaDe(S)];
 
 /* ============================================================
    A FAIXA DA MOLÉCULA, para quem não tem escada.
@@ -160,11 +156,11 @@ export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FO
    fingindo ser resposta.
    ============================================================ */
 export function faixaDaMolecula(mol: string, forma: Forma): { min: number; max: number } | null {
-  const injetavel = FORMAS[forma].injetavel;
+  const injetavel = FORMAS()[forma].injetavel;
   const todas = Object.values(MEDS)
     .filter((m) => m.mol === mol
       && m.doses.length
-      && FORMAS[m.formas[0]].injetavel === injetavel)
+      && FORMAS()[m.formas[0]].injetavel === injetavel)
     .flatMap((m) => m.doses);
   return todas.length ? { min: Math.min(...todas), max: Math.max(...todas) } : null;
 }
