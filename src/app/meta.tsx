@@ -10,6 +10,7 @@ import {
 import { Txt, Row, SheetScreen, IconBadge } from '../ui/kit';
 import { DAY, fmtDate, now, startOfDay, dataLonga } from '../logic/time';
 import { Campo, Chips, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
+import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -32,6 +33,9 @@ export default function Meta() {
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
+  /* Folha para folha: fecha esta antes de abrir a da equipe, senão as duas
+     empilham e o scrim da de baixo escurece a de cima. */
+  const trocarDeTela = useTrocarDeTela();
   const { alvo, g, novo } = useLocalSearchParams<{ alvo?: string; g?: string; novo?: string }>();
 
   /* ---------------- um dos quatro números ---------------- */
@@ -57,23 +61,49 @@ export default function Meta() {
       router.back();
     };
     const proc = procedenciaDoAlvo(S, chave);
+
+    /* ⚠️⚠️ SEM RÉGUA QUANDO O NÚMERO É DA EQUIPE.
+
+       Este é um tratamento, e quem define quanta proteína come alguém que
+       usa GLP-1 é a profissional que acompanha — não uma régua arrastada
+       num domingo à noite. Enquanto houver anotação da equipe para este
+       alvo, a folha mostra o número e não deixa mexer.
+
+       ⚠️ E A SAÍDA FICA À VISTA, na mesma tela. Ela é a Área médica, onde
+       a anotação se remove; removida, o número volta a ser editável aqui.
+       Sem essa porta a trava seria uma armadilha — quem tem restrição
+       renal, quem se lesionou, quem trocou de nutricionista e ficou com
+       um número velho não pode ficar presa a ele. A diferença entre isso
+       e a régua é que remover é um ato consciente, e diz outra coisa:
+       "este não é mais o número que a minha equipe passou".
+
+       O peso não trava: lá as duas metas convivem, e a que esta folha
+       edita é a dela. Ver procedenciaDoAlvo em derive.ts. */
     return (
       <SheetScreen
         titulo={def.nome}
         sub={def.onde}
         onClose={() => router.back()}
-        rodape={<Botao label="Salvar" onPress={salvar} />}
+        rodape={proc.travado ? undefined : <Botao label="Salvar" onPress={salvar} />}
       >
         <View style={{ marginTop: 20, gap: 14 }}>
-          <Campo rotulo="Novo valor" nu>
-            <Regua
-              min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
-              casas={r.casas} esp={r.esp} salto={r.salto}
-              valor={paraRegua(v)} unidade={def.un}
-              escreve={(x) => def.escreve(deRegua(x))}
-              onEscolhe={(x) => setV(deRegua(x))}
-            />
-          </Campo>
+          {proc.travado ? (
+            <Campo rotulo="Definido pela sua equipe" nu>
+              <Txt v="display" style={{ textAlign: 'center' }}>
+                {def.escreve(def.le(S))} {def.un}
+              </Txt>
+            </Campo>
+          ) : (
+            <Campo rotulo="Novo valor" nu>
+              <Regua
+                min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
+                casas={r.casas} esp={r.esp} salto={r.salto}
+                valor={paraRegua(v)} unidade={def.un}
+                escreve={(x) => def.escreve(deRegua(x))}
+                onEscolhe={(x) => setV(deRegua(x))}
+              />
+            </Campo>
+          )}
 
           {/* O QUE MUDA COM ISSO. Um número de meta não vive na tela de
               metas: ele reaparece amanhã na barra da alimentação e na
@@ -108,11 +138,32 @@ export default function Meta() {
                commit não é a hora. */
             texto={`${proc.meta
               ? (proc.alterada
-                ? 'Um número seu'   /* e não "você mudou este número": o aviso de baixo já abre com essa frase, e as duas empilhadas dizem a mesma coisa duas vezes. Aqui a pergunta é de quem o número é. */
+                /* e não "você mudou este número": o aviso de baixo já abre
+                   com essa frase, e as duas empilhadas dizem a mesma coisa
+                   duas vezes. Aqui a pergunta é de quem o número é. */
+                ? 'Um número seu'
                 : `Definido por ${proc.meta.por}, anotado em ${dataLonga(proc.meta.em)}`)
-              : def.origem}. ${chave === 'peso'
-              ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
-              : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`}
+              : proc.editadoEm
+                /* ⚠️ O CASO QUE ESTA TELA ERRAVA ATÉ AQUI. Quem arrastava a
+                   régua de um número calculado continuava lendo "calculado
+                   do seu peso, a 1,2 g por quilo" — uma frase falsa sobre a
+                   origem de um dado, do mesmo tipo que saiu do resto do
+                   aplicativo esta semana. Agora `mudarAlvo` guarda quando
+                   ela mexeu, e a frase conta isso. */
+                ? `Você definiu este número em ${dataLonga(proc.editadoEm)}`
+                : def.origem}. ${proc.travado
+              /* ⚠️ NÃO SE EXPLICA UMA MUDANÇA QUE A TELA NÃO DEIXA FAZER.
+
+                 Esta frase conta o que acontece com os dias já
+                 registrados quando o número muda — e ficou pendurada
+                 embaixo de um número travado, explicando uma ação que
+                 não existe mais ali. Texto morto no meio de texto vivo é
+                 pior que texto morto sozinho: quem lê procura a régua
+                 que a frase promete. */
+              ? ''
+              : chave === 'peso'
+                ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
+                : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`.trim()}
           />
 
           {/* ⚠️ A RESSALVA É OUTRO AVISO, e não uma terceira frase do de
@@ -137,16 +188,28 @@ export default function Meta() {
             <Aviso
               ic="steth" dentro
               titulo={`Quem definiu foi ${proc.meta.por}`}
-              texto={`Você pode mudar este número — ele continua sendo seu. Mudando, o aplicativo passa a cobrar o seu valor, e guarda que o de ${proc.meta.por} era ${def.escreve(proc.meta.valor)} ${def.un}.`}
+              texto={`Este número é parte do seu tratamento, e por isso não se muda aqui. Se ele não serve mais — outra orientação, uma restrição que apareceu, uma equipe nova —, remova a anotação na Área médica e ele volta a ser seu.`}
             />
           ) : proc.meta && proc.alterada ? (
             <Aviso
               ic="steth" dentro
-              titulo="Você já mudou este número"
-              texto={`${proc.meta.por} tinha definido ${def.escreve(proc.meta.valor)} ${def.un}. O aplicativo cobra o seu — e continua guardando o dela, para você poder voltar ou levar a diferença para a consulta.`}
+              titulo="Este número não é o da sua equipe"
+              texto={`${proc.meta.por} definiu ${def.escreve(proc.meta.valor)} ${def.un}, e o aplicativo está cobrando ${def.escreve(def.le(S))} ${def.un}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.`}
             />
           ) : def.ressalva ? (
             <Aviso ic="steth" dentro titulo="Este é o valor recomendado" texto={def.ressalva} />
+          ) : null}
+
+          {/* A SAÍDA, e ela é a mesma porta que trouxe o número para cá. */}
+          {proc.meta && chave !== 'peso' ? (
+            <Cartao>
+              <Linha
+                ic="steth"
+                titulo="Ver a anotação da sua equipe"
+                sub={`${proc.meta.por} · ${def.escreve(proc.meta.valor)} ${def.un}`}
+                onPress={() => trocarDeTela(`/meta-clinica?alvo=${chave}`)}
+              />
+            </Cartao>
           ) : null}
         </View>
       </SheetScreen>

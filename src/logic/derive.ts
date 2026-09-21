@@ -94,7 +94,13 @@ export const metasDaEquipe = (S: State) =>
 /** De quem é o número que o aplicativo usa hoje para este alvo. */
 export function procedenciaDoAlvo(S: State, chave: ChaveDeAlvo) {
   const meta = metaClinica(S, chave);
-  if (!meta) return { daEquipe: false, alterada: false, convivem: false, meta: null as MetaDaEquipe | null };
+  const editadoEm = alvoEditadoEm(S, chave);
+  if (!meta) {
+    return {
+      daEquipe: false, alterada: false, convivem: false, travado: false,
+      editadoEm, meta: null as MetaDaEquipe | null,
+    };
+  }
   /* ⚠️ O PESO NÃO É "DA EQUIPE", ELE CONVIVE — e a primeira versão disto
      mentia na tela. Ela devolvia `daEquipe: true` sempre que houvesse
      anotação, e a linha de "Os números do dia" mostra o número DELA: a
@@ -104,9 +110,35 @@ export function procedenciaDoAlvo(S: State, chave: ChaveDeAlvo) {
 
      Aqui não há origem para atribuir: são dois números respondendo a duas
      perguntas. A tela mostra o dela e conta que existe o outro. */
-  if (chave === 'peso') return { daEquipe: false, alterada: false, convivem: true, meta };
+  if (chave === 'peso') {
+    return { daEquipe: false, alterada: false, convivem: true, travado: false, editadoEm, meta };
+  }
   const emUso = ALVOS[chave].le(S);
-  return { daEquipe: emUso === meta.valor, alterada: emUso !== meta.valor, convivem: false, meta };
+  /* ⚠️⚠️ NÚMERO DA EQUIPE NÃO SE ARRASTA. A régua some da folha de Os
+     números do dia quando existe anotação da equipe para aquele alvo.
+
+     A primeira versão deste arquivo deixava editar e só avisava, com o
+     argumento de que é o corpo dela. O argumento contrário venceu, e é o
+     do produto: isto é parte de um tratamento, e quem define a dose de
+     proteína de quem usa GLP-1 é a profissional que acompanha — não uma
+     régua num domingo à noite.
+
+     ⚠️ MAS A SAÍDA EXISTE, E É EXPLÍCITA. Ela pode remover a anotação da
+     equipe, na Área médica, e aí o número volta a ser editável. Isso
+     importa: quem tem restrição renal, quem se lesionou, quem trocou de
+     nutricionista e ficou com um número velho — nenhuma dessas pessoas
+     pode ficar presa a um número que não serve mais. A diferença entre
+     travar e travar com saída é que a saída é um ato consciente, com
+     outro significado ("isto não é mais o que a minha equipe disse"), em
+     vez de um arrasto silencioso. */
+  return {
+    daEquipe: emUso === meta.valor,
+    alterada: emUso !== meta.valor,
+    convivem: false,
+    travado: true,
+    editadoEm,
+    meta,
+  };
 }
 
 /** O peso de referência para leitura CLÍNICA — a da equipe quando existe,
@@ -4438,12 +4470,30 @@ export const ALVOS: Record<ChaveDeAlvo, {
   },
 };
 
-export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number) {
+/* ⚠️ `porEla` EXISTE PORQUE DUAS COISAS DIFERENTES ESCREVEM AQUI.
+
+   Quando a pessoa arrasta a régua em Os números do dia, o número passa a
+   ser dela e o aplicativo precisa saber disso — senão a folha continua
+   dizendo "calculado do seu peso, a 1,2 g por quilo" sobre um número que
+   ela escolheu à mão, que é uma frase falsa sobre a origem de um dado.
+
+   Quando a folha da equipe grava, quem definiu foi a equipe: marcar como
+   edição dela apagaria justamente a procedência que aquela folha existe
+   para guardar. */
+export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number, porEla = true) {
   const a = ALVOS[chave];
   const v = Math.max(a.min, Math.min(a.max, valor));
   if (chave === 'peso') s.profile.goalWeight = v;
   else s.profile.targets[chave] = v;
+  if (porEla) {
+    s.profile.alvosEditados = s.profile.alvosEditados ?? {};
+    s.profile.alvosEditados[chave] = +now();
+  }
 }
+
+/** Quando a pessoa mexeu neste número à mão, se é que mexeu. */
+export const alvoEditadoEm = (S: State, chave: ChaveDeAlvo): number | null =>
+  ((S.profile as any).alvosEditados?.[chave] ?? null) as number | null;
 
 /* ============================================================
    AS METAS — e as duas naturezas que elas têm

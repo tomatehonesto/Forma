@@ -106,6 +106,12 @@ export default function Metas() {
                   key={k}
                   ic={a.ic}
                   titulo={a.nome}
+                  /* ⚠️ SÓ A TAG, SEM O NOME DE QUEM DEFINIU. Numa lista, o
+                     nome é uma segunda informação competindo com o número
+                     que a linha existe para mostrar — e a pergunta que a
+                     lista responde é "de quem é este número", não "de qual
+                     das três profissionais". O nome está a um toque, na
+                     folha, onde há espaço para ele e para a data. */
                   sub={p.meta ? (
                     <Row gap={6} style={{ marginTop: 3 }}>
                       <Selo
@@ -114,7 +120,6 @@ export default function Metas() {
                           : p.alterada ? 'Alterada por você' : 'Da sua equipe'}
                         tom={p.alterada || p.convivem ? 'neutra' : 'lima'}
                       />
-                      <Txt v="note">{p.meta.por}</Txt>
                     </Row>
                   ) : undefined}
                   selo={`${a.escreve(a.le(S))} ${a.un}`}

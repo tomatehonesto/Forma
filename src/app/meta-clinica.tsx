@@ -71,7 +71,14 @@ export default function MetaClinica() {
       s.protocol = s.protocol ?? {};
       s.protocol.metas = s.protocol.metas ?? {};
       s.protocol.metas[chave] = { valor: v, em: +now(), por };
-      if (chave !== 'peso') mudarAlvo(s, chave, v);
+      /* ⚠️ `false`: quem definiu foi a equipe. Marcar como edição dela
+         apagaria a procedência que esta folha existe para guardar. E a
+         marca antiga sai junto — o número passou a ser da equipe de novo,
+         então "você mudou este número" deixou de ser verdade. */
+      if (chave !== 'peso') {
+        mudarAlvo(s, chave, v, false);
+        if (s.profile.alvosEditados) delete s.profile.alvosEditados[chave];
+      }
     });
     router.back();
   };
@@ -117,7 +124,12 @@ export default function MetaClinica() {
           ic="steth"
           texto={chave === 'peso'
             ? 'Este número não substitui a sua meta de peso. Ela continua sendo a que mede a sua Jornada — as duas convivem, e quando discordam é assunto para a próxima consulta.'
-            : 'Guardando, este passa a ser o número que o aplicativo cobra. Você pode mudá-lo depois, em Os números do dia — e a tela vai continuar mostrando que ele veio da sua equipe.'}
+            /* ⚠️ ISTO DIZIA "você pode mudá-lo depois, em Os números do
+               dia", e deixou de ser verdade quando o número da equipe
+               passou a travar a régua de lá. Promessa que a tela não
+               cumpre é do tipo que só se descobre no dia em que a pessoa
+               precisa — e aí ela já não confia no resto. */
+            : 'Guardando, este passa a ser o número que o aplicativo cobra, e ele não se muda mais pela régua de Os números do dia: é parte do seu tratamento. Para soltá-lo, é só remover esta anotação aqui.'}
         />
 
         {atual ? (
