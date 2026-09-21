@@ -8,9 +8,11 @@
     "scheme": "morphi",
     "userInterfaceStyle": "light",
     "ios": {
+      "bundleIdentifier": "br.com.selloapp.morphi",
       "supportsTablet": true
     },
     "android": {
+      "package": "br.com.selloapp.morphi",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

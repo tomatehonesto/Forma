@@ -721,3 +721,55 @@ aparelho** — seria promessa que o código não cumpre.
 4. **O prebuild.** O módulo não roda no Expo Go. Isso não é novidade —
    os ícones alternativos do item 9 já exigem prebuild —, mas agora são
    dois motivos.
+
+---
+
+## 🔴 15. O identificador do aplicativo foi escolhido por mim
+
+`br.com.selloapp.morphi`, em `app.json`, nos dois lugares
+(`ios.bundleIdentifier` e `android.package`). Saiu do domínio do e-mail de
+contato do projeto, em DNS reverso — que é a convenção —, mas **ninguém
+confirmou**.
+
+**Por que isso é bloqueante e não um detalhe:** depois da primeira
+publicação numa loja, esse identificador **não muda**. Ele é a identidade
+do aplicativo para a Apple e para o Google; trocar depois significa um
+aplicativo novo, sem os usuários, sem as avaliações e sem o histórico de
+compras do anterior. Antes de publicar é uma linha; depois, não é nada.
+
+**Confirmar antes do primeiro build de produção:**
+
+1. O domínio é mesmo `selloapp.com.br`? Se a empresa publicar sob outro
+   nome, o identificador segue o outro.
+2. iOS e Android podem ser iguais (é o mais comum) ou diferentes.
+3. Se já existir uma conta de desenvolvedor com algum aplicativo
+   publicado, vale seguir o padrão que ela já usa.
+
+## 🟡 16. O EAS está configurado, mas o projeto ainda não existe na conta
+
+`eas.json` tem três perfis — `development` (build de desenvolvimento, APK,
+distribuição interna), `preview` (release instalável para testar) e
+`production` (app bundle para a loja). `appVersionSource: "remote"` deixa
+a numeração de build com o EAS, em vez de manter à mão no `app.json`.
+
+**Falta o que só quem tem a conta pode fazer:**
+
+```
+npx eas-cli login
+npx eas-cli init          # cria o projeto e grava extra.eas.projectId
+npx eas-cli build -p android --profile development
+```
+
+O `init` grava o `projectId` no `app.json`, e sem ele nenhum build sobe.
+
+**O que a build de desenvolvimento destrava** — hoje três recursos estão
+no código e nenhum pode ser testado, porque todos precisam de módulo
+nativo que o Expo Go não tem:
+
+- o **ditado** do companion (`expo-speech-recognition`);
+- os **ícones alternativos** por paleta (item 9);
+- a leitura do **Apple Saúde / Health Connect** (`saude-do-aparelho.ts`).
+
+**iOS a partir do Windows** precisa de conta paga de desenvolvedor Apple —
+o EAS compila na nuvem, mas a assinatura do aplicativo é da conta. Android
+não precisa de nada além da conta Expo para o perfil `development`.
