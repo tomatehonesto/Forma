@@ -129,6 +129,27 @@ function quedaEm(S: State, atras: number): number | null {
   return agora == null || antes == null ? null : antes - agora;
 }
 
+/* ⚠️⚠️ ISTO ERA UM `if` DENTRO DA MENSAGEM DO DIA, e virou função porque
+   passou a ter um segundo leitor: a confirmação de uma pesagem, que
+   oferece a fita métrica justamente em platô (ver logic/confirmacoes).
+
+   Duas telas dizendo "platô" a partir de duas contas parecidas é o
+   defeito que este código já teve em outros lugares — a Home anunciando
+   um padrão que a tela de Insights considerava fraco demais para
+   mostrar. Aqui a conta é uma só, e quem discordar discorda dela.
+
+   ⚠️ E NÃO É SÓ "PAROU": é "parou E ainda é notícia". Parado há muito
+   tempo deixou de ser novidade e passou a ser a situação dela — e quem
+   começou a se pesar há cinco semanas não tem como saber se começou
+   agora. Nos dois casos não se diz nada. */
+export function emPlato(S: State): boolean {
+  const queda = quedaEm(S, PLATO_SEMANAS);
+  const quedaVelha = quedaEm(S, PLATO_VELHO_SEMANAS);
+  const parado = queda != null && queda < PLATO_KG;
+  const aindaENoticia = quedaVelha == null || quedaVelha >= PLATO_KG;
+  return parado && aindaENoticia;
+}
+
 /* Uma etapa vale por uma semana — o tempo de um ciclo inteiro, que é
    quanto o corpo leva para responder ao degrau novo. Depois disso a
    semana volta a ser uma semana, e o ciclo volta a falar. */
@@ -240,14 +261,7 @@ function daEtapa(S: State): Mensagem | null {
   }
 
   /* ---------- 5. platô ---------- */
-  const queda = quedaEm(S, PLATO_SEMANAS);
-  const quedaVelha = quedaEm(S, PLATO_VELHO_SEMANAS);
-  const parado = queda != null && queda < PLATO_KG;
-  /* Parado há muito tempo não é mais notícia — e nenhuma pesagem tão
-     antiga também não é: quem começou a se pesar há cinco semanas não
-     tem como saber se isto começou agora. Nos dois casos o ciclo fala. */
-  const aindaENoticia = quedaVelha == null || quedaVelha >= PLATO_KG;
-  if (parado && aindaENoticia && agora != null) {
+  if (emPlato(S) && agora != null) {
     const antes = mediaDaSemana(S, PLATO_SEMANAS)!;
     return {
       chapeu: 'PESO ESTÁVEL',

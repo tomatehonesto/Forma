@@ -104,6 +104,15 @@ export default function RegistroOk() {
           </View>
         ) : null}
 
+        {/* A nota vem ANTES dos botões, e não depois: ela é o motivo do
+            convite, e motivo que aparece embaixo do convite chega tarde.
+            Em cinza e sem cartão — é uma frase, não mais um dado. */}
+        {info.nota ? (
+          <Txt v="note" c={c.tx3} style={{ alignSelf: 'stretch', marginTop: 18, textAlign: 'center' }}>
+            {info.nota}
+          </Txt>
+        ) : null}
+
         <View style={{ alignSelf: 'stretch', marginTop: 20, gap: 10 }}>
           <Pressable onPress={sair} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
             <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>

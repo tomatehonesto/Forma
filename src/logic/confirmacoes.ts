@@ -3,7 +3,8 @@ import {
   checkinToday, curWeight, examBy, examLast, examStatus,
   journeyDay, notasAbertas, waterMlToday, litros,
 } from './derive';
-import { nf, now, dataLonga } from './time';
+import { nf, now, dataLonga, DAY } from './time';
+import { emPlato } from './etapa';
 
 /* ============================================================
    O QUE ACONTECEU DEPOIS DE SALVAR
@@ -50,6 +51,9 @@ export type Confirmado = {
   festa?: string;
   /** o caminho que vale a pena oferecer em seguida, quando existe um */
   caminho?: { label: string; to: string };
+  /** uma frase que explica por que o caminho vale a pena AGORA — sem ela,
+      um convite depois de um registro é só um segundo botão */
+  nota?: string;
 };
 
 const n0 = (v: number) => String(Math.round(v));
@@ -101,6 +105,34 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const atual = curWeight(S);
       const anterior = deOutroDia(pesos, pesos[pesos.length - 1]?.t ?? +now());
       const paraMeta = atual - p.goalWeight;
+
+      /* ⚠️⚠️ A RESPOSTA AO PLATÔ MORA AQUI, e não no cartão da Home.
+
+         O cartão "PESO ESTÁVEL" (logic/etapa) explica a fisiologia e foi
+         escrito de propósito para não sugerir esforço: "é assunto de
+         consulta, não de esforço". Pendurar ali um botão de medir
+         desfaria isso — leria como "faça alguma coisa a respeito".
+
+         Aqui é outro instante. Ela acabou de pesar e está OLHANDO a
+         variação: o número que não se mexeu está na tela, logo acima.
+         É o único momento em que "a fita mostra o que a balança não
+         mostra" deixa de ser conselho genérico e vira resposta ao que ela
+         está vendo.
+
+         ⚠️ E É CONDICIONAL, nas duas pontas. Fora do platô não se diz
+         nada — oferecer fita depois de toda pesagem é a mesma cobrança
+         que o teto de aparições dos convites existe para evitar. E quem
+         mediu na última semana também não ouve: ela já sabe, já fez, e
+         repetir o convite para quem atendeu é o jeito mais rápido de o
+         convite virar ruído.
+
+         ⚠️ O CAMINHO É TROCADO, e não somado. A folha desenha um convite
+         discreto só, e dois começam a virar menu. Em platô "ver a curva
+         do peso" é justamente o que ela acabou de aprender — uma linha
+         reta —, então a troca não tira nada. */
+      const mediuHaPouco = (S.measures as any[]).some((m) => +now() - m.t < 7 * DAY);
+      const plato = emPlato(S) && !mediuHaPouco;
+
       return {
         titulo: 'Peso registrado',
         texto: `${nf(atual, 1)} kg · ${dataLonga(+now())}`,
@@ -125,7 +157,12 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
         /* ⚠️ ERA `?id=peso`, E A TELA LÊ `m`. Funcionava por acidente: sem
            `m` o catálogo cai no peso, que é o padrão. Copiada para a
            cintura, a linha abriria o peso calada. */
-        caminho: { label: 'Ver a curva do peso', to: '/marcador?m=peso' },
+        ...(plato
+          ? {
+            nota: 'Um mês com o peso na mesma faixa. É aí que a cintura costuma continuar caindo, e a fita é quem mostra isso.',
+            caminho: { label: 'Medir o corpo também', to: '/medir-medidas' },
+          }
+          : { caminho: { label: 'Ver a curva do peso', to: '/marcador?m=peso' } }),
       };
     }
 
