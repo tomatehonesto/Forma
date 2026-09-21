@@ -40,6 +40,7 @@ import {
   periodoDaConsulta, adesao, hungerForecast, enjooAposDormir,
   examCats, examBy, examAbout, examInfluences, examWays, examStatus,
   examExplain, examSummary, exameNoProtocolo,
+  patterns, PAT_LABEL, balanceRead, diaFracoDeAgua, janelaDoEnjoo,
 } from '../src/logic/derive';
 import { mensagemDoDia, emPlato } from '../src/logic/etapa';
 import { descobertas, descobertaDaHome } from '../src/logic/descobertas';
@@ -69,6 +70,50 @@ const CENARIOS: [string, (S: any) => void][] = [
   ['caneta-imperial', (S) => { S.profile.sistema = 'imperial'; }],
   ['frasco-metrico', (S) => { S.profile.med = 'semaglutida-manipulada'; S.profile.forma = 'frasco'; S.profile.dose = 1.35; }],
   ['comprimido-metrico', (S) => { S.profile.med = 'rybelsus'; S.profile.forma = 'comprimido'; S.profile.dose = 7; }],
+
+  /* ⚠️ O QUINTO CENÁRIO É DE DADOS FABRICADOS, e ele existe porque a
+     semente dispara cinco dos onze cruzamentos. Os outros seis — proteína
+     contra fome do dia seguinte, sono contra fome, sono contra enjoo,
+     água contra enjoo, o dia fraco de hidratação e a proteína ao longo do
+     tempo — nunca rodavam, e extrair texto que nada executa é escrever
+     no escuro.
+
+     ⚠️ E ELE NÃO É "DADO REALISTA", É UM GATILHO. Uma pessoa não vive
+     catorze dias ruins seguidos e catorze bons; o que interessa aqui é
+     que TODA relação que o `patterns()` procura exista e aponte para o
+     mesmo lado, para que todas as frases sejam escritas uma vez. Ele não
+     vale como retrato de ninguém, e por isso não entra na semente. */
+  ['cruzamentos-fabricados', (S) => {
+    const DIA = 86_400_000;
+    const cs = S.checkins as any[];
+    const hoje = cs[cs.length - 1].t;
+    S.checkins = Array.from({ length: 28 }, (_, i) => {
+      const t = hoje - (27 - i) * DIA;
+      const dow = new Date(t).getDay();
+      /* a segunda quinzena é a boa: é o que separa os grupos das
+         comparações com atraso de um dia */
+      const bom = i >= 14;
+      const fds = dow === 0 || dow === 6;
+      const base = bom ? 11 : 6;
+      return {
+        t,
+        /* a quarta-feira é o dia fraco de água, e ela é de propósito um
+           dia útil: no fim de semana o achado do fim de semana já falou,
+           e o segundo seria eco */
+        agua: base - (dow === 3 ? 4 : fds ? 3 : 0),
+        aguas: [],
+        prot: (bom ? 120 : 40) - (fds ? 20 : 0),
+        sono: (bom ? 8 : 5) + (fds ? 1 : 0),
+        nausea: bom ? 1 : 3,
+        fome: bom ? 2 : 4,
+        energia: bom ? 7 : 4,
+        mood: bom ? 4 : 2,
+        gut: 'normal',
+        exerc: bom ? 40 : 0,
+        treinos: [],
+      };
+    });
+  }],
 ];
 
 const TIPOS = ['peso', 'medidas', 'exame', 'anotacao', 'refeicao', 'exercicio', 'agua'] as const;
@@ -151,6 +196,17 @@ for (const [nome, ajusta] of CENARIOS) {
       explica: e ? tenta('examExplain', () => examExplain(e, S.exams)) : null,
     }];
   });
+  /* ⚠️ OS CRUZAMENTOS ENTRAM CRUS, e não pelo que a Home mostra deles.
+     O congelamento já chamava `descobertas`, que LÊ o `patterns()` e
+     descarta a maior parte — os retratos do fim da fila, os achados sem
+     força, tudo o que não cabe na Home. Congelar só a peneira é congelar
+     um terço do texto e achar que cobriu. */
+  c.patterns = tenta('patterns', () => patterns(S));
+  c.patLabel = tenta('PAT_LABEL', () => PAT_LABEL());
+  c.balanceRead = tenta('balanceRead', () => balanceRead(S));
+  c.diaFracoDeAgua = tenta('diaFracoDeAgua', () => diaFracoDeAgua(S));
+  c.janelaDoEnjoo = tenta('janelaDoEnjoo', () => janelaDoEnjoo(S));
+
   c.examSummary = tenta('examSummary', () => examSummary(S));
   c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));
 

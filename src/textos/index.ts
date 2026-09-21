@@ -1,4 +1,5 @@
 import { ciclo as cicloPt } from './pt-BR/ciclo';
+import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 
@@ -49,12 +50,16 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
   ciclo: typeof cicloPt;
+  cruzamentos: typeof cruzamentosPt;
   etapa: typeof etapaPt;
   marcadores: typeof marcadoresPt;
 };
 
 const CATALOGOS: Record<Idioma, Textos> = {
-  'pt-BR': { ciclo: cicloPt, etapa: etapaPt, marcadores: marcadoresPt },
+  'pt-BR': {
+    ciclo: cicloPt, cruzamentos: cruzamentosPt, etapa: etapaPt,
+    marcadores: marcadoresPt,
+  },
 };
 
 let atual: Idioma = 'pt-BR';

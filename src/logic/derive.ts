@@ -1287,10 +1287,11 @@ export type Pattern = {
   porque?: string;
 };
 
-export const PAT_LABEL: Record<PatKey, string> = {
-  alimentacao: 'Alimentação', sono: 'Sono', sintomas: 'Sintomas',
-  peso: 'Peso', aplicacoes: 'Aplicações',
-};
+export const PAT_LABEL = (): Record<PatKey, string> => ({
+  alimentacao: T.cruzamentos.catAlimentacao, sono: T.cruzamentos.catSono,
+  sintomas: T.cruzamentos.catSintomas, peso: T.cruzamentos.catPeso,
+  aplicacoes: T.cruzamentos.catAplicacoes,
+});
 
 /* ============================================================
    OS CRUZAMENTOS QUE TÊM DUAS CARAS
@@ -1312,7 +1313,7 @@ export const PAT_LABEL: Record<PatKey, string> = {
    `patterns()`, que é o que vai para a tela, não tinha.
    ============================================================ */
 
-export const NOMES_DIA = ['aos domingos', 'às segundas', 'às terças', 'às quartas', 'às quintas', 'às sextas', 'aos sábados'];
+export const NOMES_DIA = () => T.cruzamentos.nomesDia;
 
 /** O dia da semana em que a hidratação cai, quando existe um que caia o
     bastante para ser dito. */
@@ -1332,7 +1333,7 @@ export function diaFracoDeAgua(S: State) {
   const resto = (S.checkins as any[]).filter((c) => typeof c.agua === 'number' && new Date(c.t).getDay() !== dia).map((c) => c.agua as number);
   if (!resto.length) return null;
   const outros = media(resto);
-  return outros - dele >= 1 ? { dia, dele, outros, nome: NOMES_DIA[dia] } : null;
+  return outros - dele >= 1 ? { dia, dele, outros, nome: NOMES_DIA()[dia] } : null;
 }
 
 /** A janela de enjoo depois da aplicação: quanto ele pesa nos dois
@@ -1371,6 +1372,12 @@ export const nota = (p: Pattern) => p.surpresa * (0.5 + 0.5 * (p.forca ?? 0));
 const forcaDe = (medido: number, limiar: number) =>
   Math.max(0, Math.min(1, (medido - limiar) / limiar));
 
+/* ⚠️ `cat` ERA O MESMO FATO QUE `key`, ESCRITO DE NOVO. Onze achados
+   traziam o par à mão — `key: 'sono', cat: 'Sono'` — e nada garantia que
+   os dois continuassem combinando; bastava traduzir um e esquecer o
+   outro. O rótulo agora sai de um lugar só. */
+const daCategoria = (key: PatKey) => ({ key, cat: PAT_LABEL()[key] });
+
 export function patterns(S: State): Pattern[] {
   const out: Pattern[] = [];
   const cs = S.checkins as any[];
@@ -1388,19 +1395,21 @@ export function patterns(S: State): Pattern[] {
     const dSono = med(fds.map((c) => c.sono)) - med(uteis.map((c) => c.sono));
     if (dAgua >= 1.5) {
       fdsDito = true;
+      const F = T.cruzamentos.fimDeSemana;
+      const copos = nf(dAgua, 1);
       /* a proteína só entra na frase quando a diferença é grande o
          bastante para significar alguma coisa — 5 g de gap não sustentam
-         uma manchete, e insight que exagera o dado deixa de ser insight */
-      const prot = dProt >= 8 ? ` e come ${Math.round(dProt)} g menos de proteína` : '';
-      const sono = dSono >= 0.4 ? ` — mas dorme ${nf(dSono, 1)} h a mais. O descanso melhora; a rotina é que se solta.` : '.';
+         uma manchete, e achado que exagera o dado deixa de ser achado */
+      const prot = dProt >= 8 ? F.textoProteina(Math.round(dProt)) : '';
+      const sono = dSono >= 0.4 ? F.textoSono(nf(dSono, 1)) : F.textoSemSono;
       out.push({
-        key: 'alimentacao', cat: 'Alimentação', ic: 'cal', cor: 'water', surpresa: 3, forca: forcaDe(dAgua, 1.5),
-        titulo: 'Seu fim de semana funciona como outro tratamento',
-        texto: `Sábado e domingo você bebe ${nf(dAgua, 1)} copos a menos${prot}${sono}`,
-        q: 'Como cuidar melhor do fim de semana?',
-        evid: { valor: `−${nf(dAgua, 1)}`, unidade: 'copos', legenda: 'no sábado e no domingo' },
-        porque: 'A rotina da semana carrega sua hidratação e suas refeições sem que você precise pensar nelas: horários fixos, garrafa na mesa, almoço na mesma hora. No sábado essa estrutura some, e o que sobra é decidir tudo na hora — que é exatamente quando a decisão fica mais difícil.',
-        significa: 'Dois dias por semana o tratamento fica com um pé fora, e são justamente os dias em que você tem mais tempo. Não precisa de disciplina nova — precisa que o fim de semana tenha uma rotina própria, não a ausência da rotina da semana.',
+        ...daCategoria('alimentacao'), ic: 'cal', cor: 'water', surpresa: 3, forca: forcaDe(dAgua, 1.5),
+        titulo: F.titulo,
+        texto: F.texto(copos, prot, sono),
+        q: F.q,
+        evid: F.evid(copos),
+        porque: F.porque,
+        significa: F.significa,
       });
     }
   }
@@ -1411,19 +1420,15 @@ export function patterns(S: State): Pattern[] {
   const fraco = diaFracoDeAgua(S);
   if (fraco && !(fdsDito && [0, 6].includes(fraco.dia))) {
     const { dele: piorMedia, outros } = fraco;
+    const A = T.cruzamentos.aguaDia;
+    const pior = piorMedia.toFixed(0), rest = outros.toFixed(0);
     out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'water', cor: 'water', surpresa: 2, forca: forcaDe(outros - piorMedia, 1),
-      /* ⚠️ O SUJEITO É A HIDRATAÇÃO, E ERA A PESSOA. "Você bebe bem menos
-         água aos domingos" é o mesmo fato com o dedo apontado — e era o
-         único dos cinco insights com essa forma: os outros quatro dizem
-         "a balança subiu", "sua proteína caiu", "seu ritmo é de". O
-         companion, aliás, já contava este mesmo fato do jeito certo:
-         "reparei que aos fins de semana a hidratação cai". */
-      titulo: `A sua hidratação cai ${fraco.nome}`,
-      texto: `Cerca de ${piorMedia.toFixed(0)} copos, contra ${outros.toFixed(0)} nos outros dias. Água ajuda com saciedade e com o enjoo — e é o dia em que os dois costumam pesar mais.`,
-      q: 'Como está minha água?',
-      evid: { valor: piorMedia.toFixed(0), unidade: `de ${outros.toFixed(0)} copos`, legenda: 'a média nesse dia da semana' },
-      significa: 'Um dia da semana puxa sua média para baixo sozinho. Como é sempre o mesmo, dá para resolver com um lembrete só, em vez de vigiar a hidratação todos os dias.',
+      ...daCategoria('alimentacao'), ic: 'water', cor: 'water', surpresa: 2, forca: forcaDe(outros - piorMedia, 1),
+      titulo: A.titulo(fraco.nome),
+      texto: A.texto(pior, rest),
+      q: A.q,
+      evid: A.evid(pior, rest),
+      significa: A.significa,
     });
   }
 
@@ -1436,13 +1441,13 @@ export function patterns(S: State): Pattern[] {
   if (bateu.length >= 2 && naoBateu.length >= 2) {
     const fSim = med(bateu.map((p) => p.fomeDepois)), fNao = med(naoBateu.map((p) => p.fomeDepois));
     if (fNao - fSim >= 0.5) out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'leaf', cor: 'lime', surpresa: 3, forca: forcaDe(fNao - fSim, 0.5),
-      titulo: 'Nos dias em que você bate a proteína, o dia seguinte é mais fácil',
-      texto: `Depois de chegar aos ${t.prot} g, sua fome no dia seguinte ficou em ${nf(fSim, 1)}. Quando não chegou, ${nf(fNao, 1)}. O efeito não aparece no mesmo dia — por isso é difícil notar sozinha.`,
-      q: 'Como está minha proteína?',
-      evid: { valor: `−${nf(fNao - fSim, 1)}`, unidade: 'de fome', legenda: 'no dia seguinte a bater a meta' },
-      porque: 'A proteína age na saciedade por um caminho mais lento que o do açúcar: ela demora a esvaziar do estômago e sustenta os sinais de saciedade por muitas horas. Por isso o efeito atravessa a noite e reaparece no apetite da manhã seguinte.',
-      significa: `Bater a meta de proteína não é só cumprir tabela: é comprar um dia seguinte mais tranquilo. Quando a fome apertar, o que resolve não é o que você come naquela hora — é o que você comeu ontem.`,
+      ...daCategoria('alimentacao'), ic: 'leaf', cor: 'lime', surpresa: 3, forca: forcaDe(fNao - fSim, 0.5),
+      titulo: T.cruzamentos.proteinaFome.titulo,
+      texto: T.cruzamentos.proteinaFome.texto(t.prot, nf(fSim, 1), nf(fNao, 1)),
+      q: T.cruzamentos.proteinaFome.q,
+      evid: T.cruzamentos.proteinaFome.evid(nf(fNao - fSim, 1)),
+      porque: T.cruzamentos.proteinaFome.porque,
+      significa: T.cruzamentos.proteinaFome.significa,
     });
   }
 
@@ -1452,13 +1457,13 @@ export function patterns(S: State): Pattern[] {
   if (bem.length >= 2 && mal.length >= 2) {
     const fBem = med(bem.map((p) => p.fomeDepois)), fMal = med(mal.map((p) => p.fomeDepois));
     if (fMal - fBem >= 0.5) out.push({
-      key: 'sono', cat: 'Sono', ic: 'moon', cor: 'purple', surpresa: 3, forca: forcaDe(fMal - fBem, 0.5),
-      titulo: 'Dormir mais de sete horas segura sua fome no dia seguinte',
-      texto: `Depois de noites completas sua fome ficou em ${nf(fBem, 1)}; depois de noites curtas, ${nf(fMal, 1)}. Seu apetite responde ao sono da véspera tanto quanto ao que você comeu.`,
-      q: 'O que registrar antes de dormir?',
-      evid: { valor: '7h', unidade: '+', legenda: 'o ponto em que sua fome muda' },
-      porque: 'Dormir pouco mexe nos dois hormônios que regulam apetite: sobe o que dá fome e cai o que avisa que já deu. Não é falta de disciplina no dia seguinte — é o corpo pedindo energia rápida para compensar o que faltou de descanso.',
-      significa: 'Sono não costuma entrar na conta de quem está tratando o peso, mas nos seus dados ele mexe no apetite como poucas coisas. Uma noite protegida pode valer mais para o dia seguinte do que qualquer ajuste no prato.',
+      ...daCategoria('sono'), ic: 'moon', cor: 'purple', surpresa: 3, forca: forcaDe(fMal - fBem, 0.5),
+      titulo: T.cruzamentos.sonoFome.titulo,
+      texto: T.cruzamentos.sonoFome.texto(nf(fBem, 1), nf(fMal, 1)),
+      q: T.cruzamentos.sonoFome.q,
+      evid: T.cruzamentos.sonoFome.evid,
+      porque: T.cruzamentos.sonoFome.porque,
+      significa: T.cruzamentos.sonoFome.significa,
     });
   }
 
@@ -1475,15 +1480,18 @@ export function patterns(S: State): Pattern[] {
      errar nele não custa um conselho ruim sobre água, custa fazer alguém
      concluir que o enjoo dela é culpa de ter dormido mal. */
   const sn = enjooAposDormir(S);
-  if (sn) out.push({
-    key: 'sintomas', cat: 'Sintomas', ic: 'moon', cor: 'purple', surpresa: 3,
-    forca: forcaDe(sn.mal - sn.bem, DIF_MINIMA),
-    titulo: 'Depois das noites longas, o seu enjoo tem sido menor',
-    texto: `Nos dias seguintes a dormir ${SONO_REF_H}h ou mais, seu enjoo ficou em ${nf(sn.bem, 1)}. Depois das noites curtas, ${nf(sn.mal, 1)} — numa escala de 5.`,
-    q: 'Por que sinto enjoo?',
-    evid: { valor: `${nf(sn.bem, 1)}`, unidade: `de ${nf(sn.mal, 1)}`, legenda: `o enjoo depois de ${sn.noites} noites longas` },
-    significa: 'Isto é o que os seus registros mostram, e não uma relação de causa: o ciclo da aplicação mexe no enjoo mais do que qualquer outra coisa, e ele pode estar por trás dos dois lados da conta. Vale como pista para levar à sua equipe, não como explicação fechada.',
-  });
+  if (sn) {
+    const bem = nf(sn.bem, 1), mal = nf(sn.mal, 1);
+    out.push({
+      ...daCategoria('sintomas'), ic: 'moon', cor: 'purple', surpresa: 3,
+      forca: forcaDe(sn.mal - sn.bem, DIF_MINIMA),
+      titulo: T.cruzamentos.sonoEnjoo.titulo,
+      texto: T.cruzamentos.sonoEnjoo.texto(SONO_REF_H, bem, mal),
+      q: T.cruzamentos.sonoEnjoo.q,
+      evid: T.cruzamentos.sonoEnjoo.evid(bem, mal, sn.noites),
+      significa: T.cruzamentos.sonoEnjoo.significa,
+    });
+  }
 
   /* --- enjoo: onde ele começa e onde termina ---
      O achado não é que existe enjoo — é que ele tem hora para acabar. */
@@ -1491,12 +1499,12 @@ export function patterns(S: State): Pattern[] {
   if (jan) {
     const { perto: ePerto, longe: eLonge } = jan;
     out.push({
-      key: 'sintomas', cat: 'Sintomas', ic: 'waves', cor: 'rose', surpresa: 2, forca: forcaDe(ePerto - eLonge, 0.5),
-      titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
-      texto: `Ele fica em ${nf(ePerto, 1)} nos dois primeiros dias e cai para ${nf(eLonge, 1)} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
-      q: 'Por que sinto enjoo?',
-      evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
-      significa: `Isso se repetiu em ${jan.dias} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
+      ...daCategoria('sintomas'), ic: 'waves', cor: 'rose', surpresa: 2, forca: forcaDe(ePerto - eLonge, 0.5),
+      titulo: T.cruzamentos.janelaEnjoo.titulo,
+      texto: T.cruzamentos.janelaEnjoo.texto(nf(ePerto, 1), nf(eLonge, 1)),
+      q: T.cruzamentos.janelaEnjoo.q,
+      evid: T.cruzamentos.janelaEnjoo.evid,
+      significa: T.cruzamentos.janelaEnjoo.significa(jan.dias),
     });
   }
 
@@ -1522,12 +1530,12 @@ export function patterns(S: State): Pattern[] {
   if (hidratados.length >= 3 && secos.length >= 3) {
     const eSim = med(hidratados.map((c) => c.nausea)), eNao = med(secos.map((c) => c.nausea));
     if (eNao - eSim >= 0.5) out.push({
-      key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3, forca: forcaDe(eNao - eSim, 0.5),
-      titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
-      texto: `Com ${aguaTxt(S, corteAgua * CUP_ML)} ou mais, seu enjoo médio foi ${nf(eSim, 1)}. Abaixo disso, ${nf(eNao, 1)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
-      q: 'Como diminuir o enjoo?',
-      evid: { valor: `−${nf(eNao - eSim, 1)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
-      significa: 'De tudo o que aparece ligado ao seu enjoo, a água é o que está mais na sua mão. Não substitui conversar com a equipe se ele apertar, mas é a primeira coisa que vale testar antes.',
+      ...daCategoria('sintomas'), ic: 'water', cor: 'water', surpresa: 3, forca: forcaDe(eNao - eSim, 0.5),
+      titulo: T.cruzamentos.aguaEnjoo.titulo,
+      texto: T.cruzamentos.aguaEnjoo.texto(aguaTxt(S, corteAgua * CUP_ML), nf(eSim, 1), nf(eNao, 1)),
+      q: T.cruzamentos.aguaEnjoo.q,
+      evid: T.cruzamentos.aguaEnjoo.evid(nf(eNao - eSim, 1)),
+      significa: T.cruzamentos.aguaEnjoo.significa,
     });
   }
 
@@ -1539,13 +1547,13 @@ export function patterns(S: State): Pattern[] {
     const subidas = ws.slice(1).filter((w, i) => w.kg > ws[i].kg).length;
     const total = ws[0].kg - ws[ws.length - 1].kg;
     if (subidas >= 1 && total > 0) out.push({
-      key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3, forca: forcaDe(subidas, 1),
-      titulo: `A balança subiu ${subidas} vezes e você perdeu ${pesoTxt(S, total)} mesmo assim`,
-      texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
-      q: 'Como está minha evolução?',
-      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${pesoTxt(S, total)} no período` },
-      porque: 'O peso do dia é gordura, mas também é água, sal, intestino e o ciclo hormonal — variações de um a dois quilos acontecem sem que nada tenha mudado na gordura corporal. A gordura sai devagar e em linha; o resto oscila por cima dela e é o que a balança mostra primeiro.',
-      significa: 'Isso importa mais do que parece: a semana em que a balança sobe é a semana em que as pessoas costumam desistir. Nos seus próprios números, ela nunca significou o que parecia significar.',
+      ...daCategoria('peso'), ic: 'trend', cor: 'accent', surpresa: 3, forca: forcaDe(subidas, 1),
+      titulo: T.cruzamentos.platoQueNaoImpediu.titulo(subidas, pesoTxt(S, total)),
+      texto: T.cruzamentos.platoQueNaoImpediu.texto(ws.length, subidas),
+      q: T.cruzamentos.platoQueNaoImpediu.q,
+      evid: T.cruzamentos.platoQueNaoImpediu.evid(subidas, pesoTxt(S, total)),
+      porque: T.cruzamentos.platoQueNaoImpediu.porque,
+      significa: T.cruzamentos.platoQueNaoImpediu.significa,
     });
   }
 
@@ -1559,17 +1567,15 @@ export function patterns(S: State): Pattern[] {
        comida depois. `Math.abs(Infinity) >= 5` é verdade, e o título dizia
        "Sua proteína subiu Infinity% desde o começo". */
     const pct = antes > 0 ? Math.round(((depois - antes) / antes) * 100) : 0;
+    const P = T.cruzamentos.proteinaTendencia;
+    const de = Math.round(antes), para = Math.round(depois);
     if (Math.abs(pct) >= 5) out.push({
-      key: 'alimentacao', cat: 'Alimentação', ic: 'flame', cor: 'lime', surpresa: 1, forca: forcaDe(Math.abs(pct), 5),
-      titulo: `Sua proteína ${pct > 0 ? 'subiu' : 'caiu'} ${Math.abs(pct)}% desde o começo`,
-      texto: pct > 0
-        ? `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g no início. Proteína preserva massa magra durante a perda de peso.`
-        : `Média de ${Math.round(depois)} g/dia nas últimas semanas, contra ${Math.round(antes)} g antes. Vale retomar — massa magra sustenta o metabolismo.`,
-      q: 'Como está minha proteína?',
-      evid: { valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${Math.round(antes)} → ${Math.round(depois)} g por dia` },
-      significa: pct > 0
-        ? 'Subiu sem que você anunciasse nenhuma mudança, o que costuma ser o tipo de hábito que fica. Proteína é o que protege sua massa magra enquanto o peso cai — sem ela, parte do que some não é gordura.'
-        : 'A queda foi gradual, do tipo que não se percebe de um dia para o outro. Proteína é o que protege sua massa magra enquanto o peso cai; vale retomar antes que vire o novo normal.',
+      ...daCategoria('alimentacao'), ic: 'flame', cor: 'lime', surpresa: 1, forca: forcaDe(Math.abs(pct), 5),
+      titulo: P.titulo(pct > 0, Math.abs(pct)),
+      texto: pct > 0 ? P.textoSubiu(para, de) : P.textoCaiu(para, de),
+      q: P.q,
+      evid: P.evid(pct, de, para),
+      significa: pct > 0 ? P.significaSubiu : P.significaCaiu,
     });
   }
 
@@ -1599,33 +1605,29 @@ export function patterns(S: State): Pattern[] {
   const r = journeySummary(S);
   /* Ritmo POR SEMANA precisa de semanas: com uma pesagem não há ritmo, e
      com uma semana o número é o primeiro intervalo, não uma tendência. */
+  const R = T.cruzamentos.ritmo;
   if (S.weights.length >= 3 && r.semana >= 2) out.push({
-    key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent', surpresa: 0,
-    titulo: `Seu ritmo é de ${r.ritmoLabel} kg por semana`,
+    ...daCategoria('peso'), ic: 'scale', cor: 'accent', surpresa: 0,
+    titulo: R.titulo(r.ritmoLabel),
     texto: r.verdict.good
-      ? `${pesoTxt(S, r.lost)} em ${r.semana} semanas, dentro do esperado para a sua fase.`
-      : `${pesoTxt(S, r.lost)} em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
-    q: 'Como está minha evolução?',
-    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${pesoTxt(S, r.lost)} em ${r.semana} semanas` },
-    significa: r.verdict.good
-      ? 'É um ritmo sustentável, e sustentável é o que importa: perdas rápidas demais costumam levar massa magra junto e voltar depois. O seu está no intervalo que a literatura associa a resultado que se mantém.'
-      : 'Ritmo é uma conversa para ter com sua equipe, não comigo. Levo o número organizado para a consulta se você quiser.',
+      ? R.textoBom(pesoTxt(S, r.lost), r.semana)
+      : R.textoAtencao(pesoTxt(S, r.lost), r.semana),
+    q: R.q,
+    evid: R.evid(r.ritmoLabel, pesoTxt(S, r.lost), r.semana),
+    significa: r.verdict.good ? R.significaBom : R.significaAtencao,
   });
 
   const ade = adesao(S);
   /* Três aplicações é o mínimo para a palavra "manteve" significar algo:
      com uma, a porcentagem é 0% ou 100% e nenhum dos dois é um hábito. */
+  const D = T.cruzamentos.adesao;
   if (S.injections.length >= 3) out.push({
-    key: 'aplicacoes', cat: 'Aplicações', ic: 'syringe', cor: 'accent2', surpresa: 0,
-    titulo: ade >= 100
-      ? 'Você não atrasou nenhuma aplicação desde o começo'
-      : `Você manteve ${ade}% das aplicações em dia`,
-    texto: `São ${S.injections.length} aplicações desde o início do tratamento, ${ade >= 90 ? 'praticamente todas na data certa' : 'com alguns atrasos pelo caminho'}.`,
-    q: 'Como funciona o ciclo da medicação?',
-    evid: { valor: `${ade}%`, unidade: '', legenda: `${S.injections.length} aplicações desde o início` },
-    significa: ade >= 90
-      ? 'Essa consistência é um dos fatores que mais pesam numa boa resposta ao medicamento. O nível da substância no corpo depende de regularidade, não de esforço — e é o tipo de coisa que só aparece quando alguém olha o histórico inteiro.'
-      : 'A regularidade pesa mais do que a dose exata do dia: cada atraso deixa uma janela em que o efeito cai antes da hora, e é nela que a fome costuma voltar mais forte.',
+    ...daCategoria('aplicacoes'), ic: 'syringe', cor: 'accent2', surpresa: 0,
+    titulo: ade >= 100 ? D.tituloPerfeita : D.titulo(ade),
+    texto: D.texto(S.injections.length, ade >= 90 ? D.textoQuaseTodas : D.textoComAtrasos),
+    q: D.q,
+    evid: D.evid(ade, S.injections.length),
+    significa: ade >= 90 ? D.significaAlta : D.significaBaixa,
   });
 
   /* o mais surpreendente primeiro — a ordem da tela é a ordem do valor */
