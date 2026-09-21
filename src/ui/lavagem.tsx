@@ -60,47 +60,34 @@ const semCor = (hex: string) => {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0)`;
 };
 
-export function Lavagem({ altura, forca = 0.26, solta = false }: {
-  altura: number;
-  forca?: number;
-  /* ⚠️⚠️ SOLTA quer dizer "esta lavagem não está encostada nas bordas da
-     tela", e foi um defeito que levou tempo para aparecer.
+/* ⚠️⚠️ ELA É SEMPRE COLADA NO ALTO, E ISSO É UMA RESTRIÇÃO, não um
+   acaso — houve uma tentativa de usá-la solta, e ela não sobreviveu.
 
-     Esta peça nasceu para o TOPO de uma página: largura inteira, colada
-     no alto. Três das quatro bordas dela são as bordas da tela, e por
-     isso só a de baixo precisava de véu — é o que o comentário do
-     degradê explica.
+   A tela de conexão com o aplicativo de saúde queria luz atrás de dois
+   ícones no meio da página. A primeira ideia foi uma lavagem local, numa
+   caixa de 176 px colada na figura, e ela trouxe dois problemas em
+   sequência:
 
-     Aí ela foi usada solta, no meio de uma tela, atrás dos dois ícones da
-     conexão com o aplicativo de saúde. Ali as quatro bordas estão à
-     vista, e as três que ninguém tinha velado apareceram como o que são:
-     um retângulo de cantos retos, com corte no topo e nos dois lados.
+   · As QUATRO bordas passaram a estar à vista. Aqui só a de baixo tem
+     véu, porque as outras três são as bordas da tela; solta, ela desenhou
+     um retângulo de cantos retos. Chegou a existir um modo `solta`, com
+     véu nos quatro lados e a medida em pixels em vez de fração — o véu
+     precisa do tamanho do BORRÃO, e não de uma fração da caixa.
 
-     Com `solta`, o véu fecha nos quatro lados. Não é um degradê radial —
-     é o vertical mais dois horizontais, que se somam nos cantos e chegam
-     ao fundo opaco antes de qualquer borda. Para uma mancha desfocada,
-     isso é indistinguível de radial e custa duas views. */
-  solta?: boolean;
-}) {
+   · E mesmo consertada, ela não subia. A rolagem RECORTA: a luz não
+     passava de 69 px acima dos ícones, e o que passasse virava aresta.
+     Uma luz que nasce e morre na altura da figura lê como halo preso a
+     ela, em vez de ar na tela.
+
+   A resposta foi devolver a lavagem ao nível da PÁGINA, onde ela já
+   estava nas outras catorze perguntas, e só dar mais altura à dessa
+   tela. O modo `solta` foi embora com o problema que ele resolvia.
+
+   Se um dia fizer falta de novo, o caminho está no histórico — mas
+   comece perguntando se a luz não pode ser da página. */
+export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: number }) {
   const { c } = useTheme();
   const vazio = semCor(c.bg);
-  const cobre = { position: 'absolute' as const, left: 0, right: 0, top: 0, height: altura };
-
-  /* ⚠️⚠️ O VÉU DE TOPO É MEDIDO EM PIXELS, e era uma fração da caixa.
-
-     A conta certa não depende do tamanho da caixa: depende do BORRÃO. O
-     véu existe para apagar a mancha antes da borda, e uma mancha
-     desfocada precisa de uns cinquenta pixels para sumir — numa caixa de
-     176 ou numa de 300, os mesmos cinquenta.
-
-     Como fração, crescer a caixa crescia o véu junto: subir a lavagem da
-     tela de saúde em sessenta pixels empurrava o véu de topo em vinte, e
-     a luz não subia quase nada. Era o efeito oposto ao pedido.
-
-     O teto de 0,4 é para caixa pequena: numa de 100 px, cinquenta seriam
-     metade dela só de véu. */
-  const veuTopo = Math.min(0.4, 46 / altura);
-  const veuPe = Math.min(0.5, 70 / altura);
   return (
     <View
       pointerEvents="none"
@@ -114,30 +101,13 @@ export function Lavagem({ altura, forca = 0.26, solta = false }: {
           degradê existe para matar a mancha antes do corte — por isso ele
           chega ao fundo opaco no mesmo ponto em que o quadro acaba.
 
-          Colada no alto, o primeiro terço fica sem véu, que é onde a
-          malha tem o direito de aparecer. Solta, o alto também fecha —
-          ali ele é borda, e não o começo da tela. */}
+          O primeiro terço fica sem véu, que é onde a malha tem o direito
+          de aparecer. */}
       <LinearGradient
-        colors={solta ? [c.bg, vazio, vazio, c.bg] : [vazio, vazio, c.bg]}
-        locations={solta ? [0, veuTopo, 1 - veuPe, 1] : [0, 0.3, 1]}
-        style={cobre}
+        colors={[vazio, vazio, c.bg]}
+        locations={[0, 0.3, 1]}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura }}
       />
-      {solta ? (
-        <>
-          <LinearGradient
-            colors={[c.bg, vazio]}
-            locations={[0, 0.3]}
-            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
-            style={cobre}
-          />
-          <LinearGradient
-            colors={[vazio, c.bg]}
-            locations={[0.7, 1]}
-            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
-            style={cobre}
-          />
-        </>
-      ) : null}
     </View>
   );
 }

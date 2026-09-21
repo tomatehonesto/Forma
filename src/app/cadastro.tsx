@@ -792,31 +792,20 @@ function Sincronia({ nome }: { nome: string }) {
   const { c } = useTheme();
   return (
     <View style={{ height: 176, alignItems: 'center', justifyContent: 'center' }}>
-      {/* O MESMO BORRÃO DAS OUTRAS TELAS, e não um disco.
+      {/* ⚠️ A LUZ ATRÁS DOS ÍCONES NÃO MORA MAIS AQUI, e a razão é o
+          recorte.
 
-          Aqui havia dois círculos chapados atrás das pastilhas, e um
-          círculo tem borda: ele lia como um objeto a mais na figura, e
-          não como luz. A lavagem é a textura que o formulário inteiro já
-          usa no topo — trazê-la para cá liga esta tela às outras catorze
-          em vez de inventar um fundo só dela. */}
-      {/* `solta`: esta lavagem está no MEIO da tela, e não colada no alto.
-          As quatro bordas dela estão à vista — sem isto, ela desenha um
-          retângulo de cantos retos atrás dos ícones. Ver a nota em
-          ui/lavagem.
+          Havia uma lavagem local, numa caixa colada na figura. Ela nasceu
+          para tirar daqui dois círculos chapados — círculo tem borda, e
+          lia como objeto a mais em vez de luz —, e essa parte continua
+          valendo: a textura é a mesma que o formulário usa nas outras
+          catorze perguntas.
 
-          ⚠️ E ELA SOBE 64 PX ALÉM DO QUADRO DOS ÍCONES. A luz nascia na
-          altura deles e morria logo acima, o que a fazia parecer um halo
-          preso à figura em vez de ar na tela.
-
-          64 é o que cabe: a rolagem recorta, e o começo dela fica a 69 px
-          daqui — o que passar disso vira uma aresta reta de novo, que é
-          exatamente o defeito que o `solta` veio consertar. */}
-      <View
-        pointerEvents="none"
-        style={{ position: 'absolute', left: -20, right: -20, top: -64, bottom: 0 }}
-      >
-        <Lavagem altura={240} forca={0.5} solta />
-      </View>
+          O que mudou foi o LUGAR. Dentro da rolagem, a luz não conseguia
+          subir mais de 69 px além dos ícones: a rolagem recorta, e o que
+          passasse virava uma aresta reta. Agora ela é a lavagem da
+          página, que começa no topo da tela — ver a nota lá em
+          cadastro, onde a altura desta pergunta é decidida. */}
       <Row style={{ alignItems: 'center', gap: 14 }}>
         {/* O APP DO APARELHO */}
         <View style={[{
@@ -1581,7 +1570,20 @@ export default function Cadastro() {
       {/* A MALHA NÃO VAI PARA A TELA DE SAÚDE. Lá o desenho dos dois
           aplicativos é que é o assunto, e ele já tem a constelação atrás —
           duas texturas no mesmo lugar viram só borrão azul. */}
-      {id === 'saude' ? null : <Lavagem altura={insets.top + 280} />}
+      {/* ⚠️ A TELA DE SAÚDE TAMBÉM TEM LAVAGEM, e por um tempo não teve.
+
+          Ela desenha os dois ícones da conexão no alto, e a luz atrás
+          deles morava DENTRO da rolagem, numa caixa de 176 px colada na
+          figura. Duas coisas erradas: a rolagem RECORTA, então a luz não
+          conseguia passar de 69 px acima dos ícones; e uma luz que nasce
+          e morre na altura da figura lê como halo preso a ela, e não
+          como ar na tela.
+
+          Aqui ela é o que é nas outras catorze perguntas — largura
+          inteira, começando no topo da tela. O que muda para esta é só a
+          altura: ela precisa descer além dos ícones, e não parar antes
+          da manchete como nas demais. */}
+      <Lavagem altura={insets.top + (id === 'saude' ? 400 : 280)} forca={id === 'saude' ? 0.42 : undefined} />
 
       {/* O TOPO: uma seta e um fio.
 
