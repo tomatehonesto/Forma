@@ -1,5 +1,6 @@
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
+import { cuidado as cuidadoPt } from './pt-BR/cuidado';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
@@ -52,6 +53,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
 export type Textos = {
   ciclo: typeof cicloPt;
   cruzamentos: typeof cruzamentosPt;
+  cuidado: typeof cuidadoPt;
   etapa: typeof etapaPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
@@ -59,7 +61,7 @@ export type Textos = {
 
 const CATALOGOS: Record<Idioma, Textos> = {
   'pt-BR': {
-    ciclo: cicloPt, cruzamentos: cruzamentosPt, etapa: etapaPt,
+    ciclo: cicloPt, cruzamentos: cruzamentosPt, cuidado: cuidadoPt, etapa: etapaPt,
     marcadores: marcadoresPt, metas: metasPt,
   },
 };

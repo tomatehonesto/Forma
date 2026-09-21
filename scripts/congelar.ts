@@ -42,6 +42,8 @@ import {
   examExplain, examSummary, exameNoProtocolo,
   patterns, PAT_LABEL, balanceRead, diaFracoDeAgua, janelaDoEnjoo,
   ALVOS, INDICADORES, METAS_PESSOAIS, META_LIVRE, PRAZOS, padraoDe,
+  carePending, careState, doseContext, lastMessage, nextConsult,
+  contatosDaClinica, fichaDaEquipe, fichaDaClinica,
 } from '../src/logic/derive';
 import { mensagemDoDia, emPlato } from '../src/logic/etapa';
 import { descobertas, descobertaDaHome } from '../src/logic/descobertas';
@@ -253,6 +255,85 @@ for (const [nome, ajusta] of CENARIOS) {
     ] };
     return journeyGoals(fake as any);
   });
+
+  /* ============================================================
+     O CUIDADO — e ele tem QUATRO manchetes, das quais a semente vive uma
+
+     `careState` escolhe entre consulta-chegando, pós-consulta, pendências e
+     em-dia, nessa ordem de precedência. A semente cai sempre na terceira,
+     porque tem uma mensagem não lida e três doses na caneta — as outras
+     três manchetes nunca rodavam, e dentro delas há ainda os ramos de
+     com-plataforma e sem-plataforma, que dizem coisas diferentes.
+
+     ⚠️ E O MOTIVO DE ISTO IMPORTAR MAIS AQUI do que nos outros domínios:
+     este é o texto que fala da EQUIPE de alguém. "Sua equipe atualizou
+     seu tratamento" é falso sem plataforma, e o ramo que evita a mentira
+     é justamente um dos que não rodavam. */
+  const DIA = 86_400_000;
+  const hoje = S.checkins[S.checkins.length - 1].t;
+  const cuidado = (nome: string, muda: (V: any) => void) => {
+    const V: any = { ...S, profile: { ...S.profile } };
+    muda(V);
+    return [nome, {
+      pendentes: tenta('carePending', () => carePending(V)),
+      estado: tenta('careState', () => careState(V)),
+      contexto: tenta('doseContext', () => doseContext(V)),
+      proximaConsulta: tenta('nextConsult', () => nextConsult(V)),
+      ultimaMensagem: tenta('lastMessage', () => lastMessage(V)),
+    }];
+  };
+  /* Zera tudo o que produz pendência: sem isso o estado de pendências
+     vence, e nenhuma das outras três manchetes chega a ser testada. */
+  const semPendencia = (V: any) => {
+    V.unread = 0;
+    V.pen = { ...(S as any).pen, dosesLeft: 8 };
+    V.protocol = { ...S.protocol, tasks: [] };
+    V.consult = { ...(S as any).consult, t: hoje + 60 * DIA };
+    V.consultsHistory = [];
+  };
+
+  c.cuidado = [
+    cuidado('como-a-semente-esta', () => {}),
+    cuidado('consulta-hoje', (V) => { V.consult = { ...(S as any).consult, t: hoje }; }),
+    cuidado('consulta-amanha', (V) => { V.consult = { ...(S as any).consult, t: hoje + DIA }; }),
+    cuidado('consulta-em-3-dias', (V) => { V.consult = { ...(S as any).consult, t: hoje + 3 * DIA }; }),
+    /* A semente tem UMA mensagem não lida, então o plural da linha de
+       mensagens nunca rodava. */
+    cuidado('duas-mensagens', (V) => { V.unread = 2; }),
+    cuidado('pos-consulta-com-plataforma', (V) => {
+      semPendencia(V);
+      V.consultsHistory = [{ t: hoje - DIA, type: 'Teleconsulta', doctor: 'Dra. Helena Costa' }];
+    }),
+    cuidado('pos-consulta-sem-plataforma', (V) => {
+      semPendencia(V);
+      V.consultsHistory = [{ t: hoje - DIA, type: 'Teleconsulta', doctor: 'Dra. Helena Costa' }];
+      V.profile.vinculo = undefined;
+    }),
+    /* Uma pendência só — é o ramo do singular, em três frases diferentes. */
+    cuidado('uma-pendencia', (V) => {
+      semPendencia(V);
+      V.pen = { ...(S as any).pen, dosesLeft: 1 };
+    }),
+    cuidado('em-dia-com-medico', semPendencia),
+    cuidado('em-dia-sem-medico', (V) => {
+      semPendencia(V);
+      V.profile.doctor = ''; V.profile.clinic = ''; V.profile.vinculo = undefined;
+    }),
+  ];
+
+  /* ⚠️ OS CINCO CANAIS DE CONTATO, e a clínica da semente não tem todos.
+     Cada linha só existe quando o dado existe — é a regra da tela —, e
+     congelar só o que a semente traz deixaria três das cinco fora. */
+  c.contatos = tenta('contatosDaClinica', () => contatosDaClinica({
+    whatsapp: '+55 11 90000-0000', telefone: '(11) 3000-0000',
+    site: 'clinica.example', email: 'contato@clinica.example', instagram: 'clinica',
+  }));
+  c.contatosDaSemente = tenta('contatosDaClinica(semente)', () => contatosDaClinica(fichaDaClinica(S)?.contato));
+  c.equipe = tenta('fichaDaEquipe', () => fichaDaEquipe(S));
+  /* Sem especialidade anotada, o papel da responsável cai no texto
+     padrão — e esse é o caso de quem nunca preencheu a ficha. */
+  c.equipeSemEspecialidade = tenta('fichaDaEquipe(sem especialidade)', () =>
+    fichaDaEquipe({ ...S, profile: { ...S.profile, doctorInfo: {} } } as any));
 
   c.examSummary = tenta('examSummary', () => examSummary(S));
   c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));

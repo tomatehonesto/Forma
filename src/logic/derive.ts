@@ -4715,6 +4715,11 @@ export function journeySummary(S: State) {
    a equipe, e o que é só arquivo.
    ============================================================ */
 
+/* Os catálogos de texto do cuidado, lidos na HORA — ver o alto de
+   textos/index. */
+const P = () => T.cuidado.pendencias;
+const E = () => T.cuidado.estado;
+
 /** Última mensagem da conversa com a equipe, com quem falou por último. */
 export function lastMessage(S: State) {
   const m = S.messages as any[];
@@ -4781,9 +4786,9 @@ export function carePending(S: State) {
      com três. */
   if (S.unread > 0 && clinicaConectada(S)) out.push({
     ic: 'companion',
-    texto: `Responder ${S.unread === 1 ? 'a mensagem' : `as ${S.unread} mensagens`} da sua equipe`,
-    sub: 'aguardando sua resposta',
-    rotulo: 'mensagens',
+    texto: S.unread === 1 ? P().mensagemUma : P().mensagemVarias(S.unread),
+    sub: P().mensagemSub,
+    rotulo: P().mensagemRotulo,
     to: '/conversa', urgente: true,
   });
   /* ⚠️ A RECEITA ACABANDO É UM FATO, E O DESTINO É QUE MUDAVA.
@@ -4800,9 +4805,9 @@ export function carePending(S: State) {
      ela, o estoque, onde estão as doses e a data. */
   const p = penStock(S);
   if (!p.verdict.good) out.push({
-    ic: 'pill', texto: 'Peça a renovação da receita',
-    sub: `${p.left} ${p.left === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'}`,
-    rotulo: 'receita',
+    ic: 'pill', texto: P().receita,
+    sub: P().receitaSub(p.left, p.semanas),
+    rotulo: P().receitaRotulo,
     /* ⚠️ COM EQUIPE, LEVA AO PEDIDO E NÃO À TELA. "Peça a renovação da
        receita" abria a tela de equipe no alto, e a pessoa ficava
        procurando o botão de pedir — que não existia. Pedir receita É uma
@@ -4816,14 +4821,14 @@ export function carePending(S: State) {
      equipe" inventaria uma. */
   if (exame) out.push({
     ic: 'doc', texto: exame,
-    sub: clinicaConectada(S) ? 'pedido pela sua equipe' : 'do protocolo desta semana',
-    rotulo: 'exames',
+    sub: clinicaConectada(S) ? P().exameSubDaEquipe : P().exameSubDoProtocolo,
+    rotulo: P().exameRotulo,
     to: '/exames',
   });
   if (cs?.prepararAgora) out.push({
-    ic: 'cal', texto: 'Prepare o que levar para a consulta',
-    sub: `${cs.tipo.toLowerCase()} ${cs.label} · com ${cs.doutor}`,
-    rotulo: 'consulta',
+    ic: 'cal', texto: P().consulta,
+    sub: P().consultaSub(cs.tipo.toLowerCase(), cs.label, cs.doutor),
+    rotulo: P().consultaRotulo,
     to: '/consultas',
   });
   return out;
@@ -4912,7 +4917,7 @@ export function fichaDaEquipe(S: State): FichaDaEquipe[] {
   const responsavel: FichaDaEquipe[] = p.doctor ? [{
     id: 'responsavel',
     nome: p.doctor,
-    papel: info.especialidade || 'Responsável pelo tratamento',
+    papel: info.especialidade || T.cuidado.equipe.responsavelPadrao,
     responsavel: true,
     registro: info.crm || undefined,
     sobre: info.sobre || undefined,
@@ -5001,11 +5006,12 @@ export function contatosDaClinica(ct?: ContatoDaClinica) {
   if (!ct) return [];
   const soDigitos = (v: string) => v.replace(/\D/g, '');
   const linhas: { ic: string; titulo: string; sub: string; url: string }[] = [];
-  if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: 'WhatsApp', sub: 'Falar com a clínica', url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
-  if (ct.telefone) linhas.push({ ic: 'phone', titulo: 'Telefone', sub: ct.telefone, url: `tel:${soDigitos(ct.telefone)}` });
-  if (ct.site) linhas.push({ ic: 'site', titulo: 'Site', sub: ct.site, url: /^https?:/.test(ct.site) ? ct.site : `https://${ct.site}` });
-  if (ct.email) linhas.push({ ic: 'mail', titulo: 'E-mail', sub: ct.email, url: `mailto:${ct.email}` });
-  if (ct.instagram) linhas.push({ ic: 'at', titulo: 'Instagram', sub: `@${ct.instagram}`, url: `https://instagram.com/${ct.instagram}` });
+  const C = T.cuidado.contato;
+  if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: C.whatsapp, sub: C.whatsappSub, url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
+  if (ct.telefone) linhas.push({ ic: 'phone', titulo: C.telefone, sub: ct.telefone, url: `tel:${soDigitos(ct.telefone)}` });
+  if (ct.site) linhas.push({ ic: 'site', titulo: C.site, sub: ct.site, url: /^https?:/.test(ct.site) ? ct.site : `https://${ct.site}` });
+  if (ct.email) linhas.push({ ic: 'mail', titulo: C.email, sub: ct.email, url: `mailto:${ct.email}` });
+  if (ct.instagram) linhas.push({ ic: 'at', titulo: C.instagram, sub: `@${ct.instagram}`, url: `https://instagram.com/${ct.instagram}` });
   return linhas;
 }
 
@@ -5106,19 +5112,11 @@ export type CareNivel = 'ok' | 'atencao' | 'acao';
    ============================================================ */
 export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'emDia';
 
-/* "a, b e c" — vírgula até o penúltimo, "e" só antes do último. Com join
-   simples saía "mensagens e receita e exames", que é como uma máquina
-   fala. */
-const lista = (xs: string[]) =>
-  xs.length <= 1 ? (xs[0] ?? '')
-    : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`;
-
 export function careState(S: State) {
   const cs = nextConsult(S);
   const pend = carePending(S);
   const semanas = Math.max(1, Math.floor(diffDays(now(), new Date(S.profile.startT)) / 7));
   const ad = adesao(S);
-  const nomes = ['nenhuma', 'uma', 'duas', 'três', 'quatro'];
 
   /* Dois números e um rótulo, não três números.
 
@@ -5155,10 +5153,10 @@ export function careState(S: State) {
      para duas linhas. O estoque da caneta diz "3 de 4 doses na caneta",
      com o qualificador — aqui, ao lado da contagem de pendências, doses
      sem qualificador são as que foram tomadas. */
-  const adRotulo = `${S.injections.length} de ${previstas} ${previstas === 1 ? 'dose' : 'doses'}`;
+  const adRotulo = E().adesao(S.injections.length, previstas);
   const metricas: { valor: string; label: string }[] = [
-    { valor: String(semanas), label: 'semanas\nde acompanhamento' },
-    { valor: String(S.injections.length), label: 'aplicações\nregistradas' },
+    { valor: String(semanas), label: E().metricaSemanas },
+    { valor: String(S.injections.length), label: E().metricaAplicacoes },
   ];
 
   /* O plano em números.
@@ -5220,16 +5218,16 @@ export function careState(S: State) {
      alguma coisa — antes disso ainda vai acontecer o que vale levar. */
   if (cs && cs.dias >= 0 && cs.dias <= 3) return {
     ...base, momento: 'consulta' as CareMomento, nivel: 'atencao' as CareNivel,
-    kicker: 'SEU ACOMPANHAMENTO',
-    titulo: 'Sua consulta está chegando.',
+    kicker: E().kicker,
+    titulo: E().consultaTitulo,
     /* O resumo saiu daqui e virou a faixa de vidro no pé do card. Numa
        frase corrida ele é informação; como faixa, com ícone e chevron,
        ele é uma coisa que se pode abrir — e era isso que ele queria ser
        desde o começo. */
     texto: cs.dias === 0
-      ? `Sua consulta com ${cs.doutor} é hoje. Vale revisar o que você quer perguntar.`
-      : `${cs.dias === 1 ? 'Falta 1 dia' : `Faltam ${cs.dias} dias`} para sua consulta com ${cs.doutor}.`,
-    pulso: `Consulta ${cs.label}`,
+      ? E().consultaHoje(cs.doutor)
+      : E().consultaFaltam(cs.dias, cs.doutor),
+    pulso: E().consultaPulso(cs.label),
   };
 
   /* Logo depois da consulta o tratamento costuma ter mudado, e é isso que
@@ -5241,18 +5239,16 @@ export function careState(S: State) {
      aconteceu, porque a pessoa disse. A frase muda de dono. */
   if (ultima && diffDays(now(), new Date(ultima.t)) <= 2) return {
     ...base, momento: 'posConsulta' as CareMomento, nivel: 'ok' as CareNivel,
-    kicker: 'SEU ACOMPANHAMENTO',
-    titulo: clinicaConectada(S) ? 'Sua equipe atualizou seu tratamento.' : 'Você teve uma consulta há pouco.',
-    texto: clinicaConectada(S)
-      ? 'Confira as orientações da consulta e o que muda na sua dose a partir de agora.'
-      : 'Se a dose ou o intervalo mudaram, vale atualizar por aqui — é o que mantém as contas do app certas.',
-    pulso: 'Tratamento atualizado',
+    kicker: E().kicker,
+    titulo: clinicaConectada(S) ? E().posConsultaTituloComPlataforma : E().posConsultaTituloSemPlataforma,
+    texto: clinicaConectada(S) ? E().posConsultaTextoComPlataforma : E().posConsultaTextoSemPlataforma,
+    pulso: E().posConsultaPulso,
   };
 
   if (pend.length > 0) return {
     ...base, momento: 'pendencia' as CareMomento, nivel: 'acao' as CareNivel,
-    kicker: 'SEU ACOMPANHAMENTO',
-    titulo: 'Temos algumas coisas para cuidar.',
+    kicker: E().kicker,
+    titulo: E().pendenciaTitulo,
     /* nomeia o que é, em vez de contar quantos: "duas coisas" obriga a
        rolar para descobrir se importa.
 
@@ -5260,8 +5256,12 @@ export function careState(S: State) {
        rótulos dos quadros do `careStatus`, que eram outro conjunto: dava
        para a frase nomear um assunto que a lista não tinha, e para a
        lista ter um item que a frase não nomeava. */
-    texto: `${nomes[pend.length] ?? pend.length} ${pend.length === 1 ? 'pendência precisa' : 'pendências precisam'} de você — ${lista(pend.map((it) => it.rotulo))}. Nada urgente, mas vale resolver esta semana.`,
-    pulso: `${pend.length} ${pend.length === 1 ? 'item pendente' : 'itens pendentes'}`,
+    texto: E().pendenciaTexto(
+      E().porExtenso[pend.length] ?? String(pend.length),
+      pend.length !== 1,
+      E().enumera(pend.map((it) => it.rotulo)),
+    ),
+    pulso: E().pendenciaPulso(pend.length),
   };
 
   /* ⚠️ E ESTA FRASE COMEÇAVA PELO NOME DA MÉDICA. Sem ninguém
@@ -5271,12 +5271,10 @@ export function careState(S: State) {
   const quem = S.profile.doctor || S.profile.clinic;
   return {
     ...base, momento: 'emDia' as CareMomento, nivel: 'ok' as CareNivel,
-    kicker: 'SEU ACOMPANHAMENTO',
-    titulo: 'Seu cuidado está em dia.',
-    texto: quem
-      ? `${quem} acompanha seu tratamento há ${semanas} semanas. Você está com boa adesão e não há nenhuma pendência importante no momento.`
-      : `Você está há ${semanas} semanas de tratamento, com boa adesão e nenhuma pendência importante no momento.`,
-    pulso: 'Acompanhamento em dia',
+    kicker: E().kicker,
+    titulo: E().emDiaTitulo,
+    texto: quem ? E().emDiaComQuem(quem, semanas) : E().emDiaSozinha(semanas),
+    pulso: E().emDiaPulso,
   };
 }
 
@@ -5294,12 +5292,11 @@ export function doseContext(S: State) {
   const desde = injs.length ? Math.max(1, Math.round(diffDays(now(), new Date(injs[i].t)) / 7)) : 0;
 
   const cs = nextConsult(S);
+  const D = T.cuidado.dose;
   return {
-    proxima: quandoEm(nd).hoje ? 'Aplicação hoje' : `Próxima aplicação ${quandoEm(nd).label}`,
-    naDose: desde > 0 ? `Nesta dose há ${desde} ${desde === 1 ? 'semana' : 'semanas'}` : null,
-    /* cs.label já vem como "em 9 dias" / "amanhã" / "hoje", então a
-       preposição não entra aqui — "consulta de em 9 dias" */
-    revisao: cs ? `Revisão na consulta ${cs.dias <= 0 ? 'de hoje' : cs.label}` : null,
+    proxima: quandoEm(nd).hoje ? D.aplicacaoHoje : D.proximaAplicacao(quandoEm(nd).label),
+    naDose: desde > 0 ? D.nestaDoseHa(desde) : null,
+    revisao: cs ? D.revisaoNaConsulta(cs.dias <= 0 ? D.revisaoHoje : cs.label) : null,
   };
 }
 
