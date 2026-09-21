@@ -103,7 +103,11 @@ export const cuidado = {
     posConsultaTituloComPlataforma: 'Sua equipe atualizou seu tratamento.',
     posConsultaTituloSemPlataforma: 'Você teve uma consulta há pouco.',
     posConsultaTextoComPlataforma: 'Confira as orientações da consulta e o que muda na sua dose a partir de agora.',
-    posConsultaTextoSemPlataforma: 'Se a dose ou o intervalo mudaram, vale atualizar por aqui — é o que mantém as contas do app certas.',
+    /* ⚠️ ESTA FRASE DIZIA "AS CONTAS DO APP", e a palavra é "aplicativo".
+       Ela passou despercebida porque é de um ramo que nunca rodava: só
+       aparece para quem teve consulta nas últimas 48 h e não tem
+       plataforma. Foi a cobertura do congelamento que a encontrou. */
+    posConsultaTextoSemPlataforma: 'Se a dose ou o intervalo mudaram, vale atualizar por aqui — é o que mantém as contas do aplicativo certas.',
     posConsultaPulso: 'Tratamento atualizado',
 
     /* ---------- as pendências ---------- */
