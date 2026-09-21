@@ -219,6 +219,21 @@ export const space = { xs: 4, sm: 8, md: 12, base: 16, lg: 20, xl: 24, xxl: 32, 
    pode importar de TabBar, que já importa do kit. */
 export const TAB_BAR_H = 58;
 
+/* ⚠️ O QUANTO A ROLAGEM DAS ABAS RESPIRA NO FIM, e ele era 120 escrito à
+   mão nas quatro.
+
+   O número vinha de um desenho em que a barra de abas ficava POR CIMA do
+   conteúdo: ali os 120 eram a altura dela mais uma folga, e sem eles o
+   último cartão ficava debaixo dos ícones. Hoje a barra ocupa espaço de
+   layout — a rolagem termina onde ela começa —, e os 120 viraram vão
+   vazio: quem descia até o fim da Home encontrava a Área médica e depois
+   uma tela de nada.
+
+   O que de fato invade a rolagem é o botão do meio, que sobe 24 px acima
+   da barra e aparece 13 px dentro dela. 28 cobre isso com folga e é o
+   mesmo respiro que as telas de capa já usam quando não têm rodapé. */
+export const RESPIRO_ABAS = 28;
+
 /* Raios do frame: 8 · 12 · 24 · 32 · pill. 32 é o dominante
    (cards e superfícies agrupadas).                           [figma] */
 /* 18 entra entre md e lg como o raio de CARD das telas internas: elas são

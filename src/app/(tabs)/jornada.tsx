@@ -21,7 +21,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius } from '../../theme';
+import { radius, RESPIRO_ABAS } from '../../theme';
 
 /* ============================================================
    JORNADA
@@ -551,7 +551,7 @@ export default function Jornada() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
         <Painel />
 
         {/* Estoque: é lembrete de reposição, não emergência clínica. Em

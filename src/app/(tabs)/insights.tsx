@@ -20,7 +20,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
-import { radius, font, shadowCard, alfa, type Palette } from '../../theme';
+import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -199,7 +199,7 @@ export default function Insights() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: PAD }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
 
         {/* ============================================================
             O MORPHI ABRE A TELA

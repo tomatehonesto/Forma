@@ -17,7 +17,7 @@ import { Txt, Row, SectionHead, Divider, ListRow, Chevron } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
-import { radius } from '../../theme';
+import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
 
 /* ============================================================
@@ -994,7 +994,7 @@ export default function Cuidado() {
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: insets.top + 20, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: insets.top + 20, paddingBottom: RESPIRO_ABAS }}
       >
         {/* Sem título de tela. A tab bar já diz onde a pessoa está, e
             repetir "Cuidado" no topo gasta a primeira dobra com informação

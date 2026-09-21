@@ -25,7 +25,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, alfa, type Palette } from '../../theme';
+import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
 
 const PAD = 24;                     // margem lateral do frame
@@ -326,7 +326,7 @@ export default function Home() {
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: RESPIRO_ABAS }}
         scrollEventThrottle={16}
         /* 60 é logo depois de a linha da saudação sair: ela ocupa de
            insets.top + 26 a + 66, e a barra cobre até + 48. Assim o
