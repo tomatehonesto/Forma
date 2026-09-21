@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Animated, Easing,
-  Keyboard, Platform, TextProps, ViewStyle, StyleProp, TextStyle,
+  Keyboard, Platform, Dimensions, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from 'expo-router';
@@ -568,20 +568,43 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
      quatro caminhos para fechar: a alça, o X, o toque na sombra e o botão
      físico do Android. Interceptando a remoção, os quatro ganham a mesma
      saída, inclusive o que não passa por nenhum onPress nosso. */
-  const { height: alturaDaJanela } = useWindowDimensions();
+  /* ⚠️⚠️ A DISTÂNCIA VEM DO Dimensions, E NÃO DO HOOK — e a diferença era
+     a animação inteira.
+
+     ~useRef(new Animated.Value(x))~ congela o x do PRIMEIRO desenho e não
+     olha para ele nunca mais. O ~useWindowDimensions~ existe justamente
+     porque a janela pode não estar medida ainda: no navegador ele já
+     devolve a altura na primeira passada, no aparelho pode devolver zero.
+     Zero ali é o painel nascendo no lugar de repouso — nada para animar,
+     e a folha aparece instantânea.
+
+     ~Dimensions.get('window')~ é síncrono e já está preenchido quando o
+     aplicativo monta. O ~|| 900~ é a terceira rede: qualquer número maior
+     que a folha a põe fora da tela, que é tudo o que este valor precisa
+     ser. */
+  const janela = Dimensions.get('window').height || 900;
   const nav = useNavigation();
-  const subida = React.useRef(new Animated.Value(alturaDaJanela)).current;
+  const subida = React.useRef(new Animated.Value(janela)).current;
   const sombra = React.useRef(new Animated.Value(0)).current;
 
+  /* ⚠️ COMEÇA NO QUADRO SEGUINTE, e não no efeito. O efeito roda antes de
+     a tela ter sido apresentada de fato; uma animação disparada ali pode
+     rodar contra uma view que o sistema ainda não pôs na hierarquia, e
+     acabar antes de alguém ver — que é como um movimento de 300 ms vira
+     "apareceu instantâneo". Um quadro de espera não se nota e garante que
+     há o que animar. */
   React.useEffect(() => {
-    Animated.parallel([
-      Animated.timing(sombra, {
-        toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
-      }),
-      Animated.timing(subida, {
-        toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
-      }),
-    ]).start();
+    const id = requestAnimationFrame(() => {
+      Animated.parallel([
+        Animated.timing(sombra, {
+          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
+        }),
+        Animated.timing(subida, {
+          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+        }),
+      ]).start();
+    });
+    return () => cancelAnimationFrame(id);
   }, [sombra, subida]);
 
   /* ⚠️ O `saindo` EVITA O LAÇO: ao terminar a saída nós mesmos
@@ -597,10 +620,10 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true,
       }),
       Animated.timing(subida, {
-        toValue: alturaDaJanela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
+        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
       }),
     ]).start(() => nav.dispatch(ev.data.action));
-  }), [nav, sombra, subida, alturaDaJanela]);
+  }), [nav, sombra, subida, janela]);
 
   const fechar = onClose;
 
