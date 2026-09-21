@@ -1,0 +1,30 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "react-native": [
+        "scripts/duble/react-native.ts"
+      ],
+      "expo-file-system": [
+        "scripts/duble/expo.ts"
+      ],
+      "expo-sharing": [
+        "scripts/duble/expo.ts"
+      ],
+      "expo-notifications": [
+        "scripts/duble/expo.ts"
+      ],
+      "expo-constants": [
+        "scripts/duble/expo.ts"
+      ],
+      "expo-image-manipulator": [
+        "scripts/duble/expo.ts"
+      ]
+    }
+  },
+  "include": [
+    "../src/**/*",
+    "./**/*"
+  ]
+}

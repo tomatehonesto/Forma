@@ -55,6 +55,7 @@ import {
   todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia,
 } from './derive';
 import type { State } from './seed';
+import { T } from '../textos';
 import { pesoTxt } from './medidas';
 
 export type Mensagem = {
@@ -238,17 +239,17 @@ function daEtapa(S: State): Mensagem | null {
   if (desde == null) {
     return temDose(S)
       ? {
-        chapeu: 'ANTES DE COMEÇAR',
-        head: 'Sua primeira aplicação ainda está por vir.',
-        body: `Os primeiros dias com ${M(S).mol.toLowerCase()} costumam trazer menos fome e um enjoo leve. Registrar como você se sente desde já é o que dá base de comparação depois.`,
-        q: 'O que esperar no dia da aplicação?',
+        chapeu: T.etapa.antesChapeu,
+        head: T.etapa.antesComDoseHead,
+        body: T.etapa.antesComDoseBody(M(S).mol.toLowerCase()),
+        q: T.etapa.antesComDoseQ,
         fonte: 'etapa',
       }
       : {
-        chapeu: 'ANTES DE COMEÇAR',
-        head: 'Seu tratamento ainda não tem uma dose definida.',
-        body: 'Quando sua equipe definir, ela cabe aqui — é a partir dela que montamos o ciclo da semana e os lembretes.',
-        q: 'Como funciona o ciclo da medicação?',
+        chapeu: T.etapa.antesChapeu,
+        head: T.etapa.antesSemDoseHead,
+        body: T.etapa.antesSemDoseBody,
+        q: T.etapa.antesSemDoseQ,
         fonte: 'etapa',
       };
   }
@@ -262,14 +263,15 @@ function daEtapa(S: State): Mensagem | null {
   if (subiu && desde <= JANELA_DIAS) {
     const jan = janelaDoEnjoo(S);
     return {
-      chapeu: 'DOSE NOVA',
-      head: `Você subiu para ${doseTxt(subiu.para)} ${M(S).unit} nesta semana.`,
+      chapeu: T.etapa.doseNovaChapeu,
+      head: T.etapa.doseNovaHead(doseTxt(subiu.para), M(S).unit),
       /* A moldura é a mesma; o recheio é dela quando existe. Ver o
-         comentário no alto do arquivo. */
+         comentário no alto do arquivo, e a nota da mensagem em
+         textos/pt-BR/etapa. */
       body: jan
-        ? `Nos seus registros o enjoo fica em ${nf(jan.perto, 1)} nos dois primeiros dias depois de aplicar e cai para ${nf(jan.longe, 1)} a partir do terceiro. Cada degrau costuma repetir esse desenho.`
-        : 'Cada degrau costuma trazer de volta, por alguns dias, o que já tinha passado — o enjoo é o mais comum. Tende a ceder à medida que o corpo se ajusta.',
-      q: 'Por que sinto enjoo?',
+        ? T.etapa.doseNovaBodyCom(nf(jan.perto, 1), nf(jan.longe, 1))
+        : T.etapa.doseNovaBodySem,
+      q: T.etapa.doseNovaQ,
       fonte: 'etapa',
     };
   }
@@ -277,10 +279,10 @@ function daEtapa(S: State): Mensagem | null {
   /* ---------- 3. a primeira semana ---------- */
   if ((S.injections as any[]).length === 1 && desde <= JANELA_DIAS) {
     return {
-      chapeu: 'PRIMEIRA SEMANA',
-      head: 'Esta é a sua primeira semana de tratamento.',
-      body: 'O corpo ainda está conhecendo o remédio. Enjoo leve, menos fome e um pouco de cansaço são os relatos mais comuns nos primeiros dias, e costumam diminuir com as semanas.',
-      q: 'O que esperar no dia da aplicação?',
+      chapeu: T.etapa.primeiraChapeu,
+      head: T.etapa.primeiraHead,
+      body: T.etapa.primeiraBody,
+      q: T.etapa.primeiraQ,
       fonte: 'etapa',
     };
   }
@@ -311,15 +313,14 @@ function daEtapa(S: State): Mensagem | null {
   })();
   if (naMeta && jaEstavaNaMeta) {
     return {
-      chapeu: 'MANUTENÇÃO',
-      /* A procedência entra na frase, sempre. "A faixa que a sua equipe
-         definiu" só pode ser dito quando alguém anotou de quem veio — ver
-         o comentário no alto de meta-clinica.tsx. */
-      head: ref.daEquipe
-        ? 'Você está na faixa que a sua equipe definiu.'
-        : 'Você está no peso que definiu como meta.',
-      body: `${pesoTxt(S, agora!)}, contra ${pesoTxt(S, ref.kg)}${ref.daEquipe ? ` anotados de ${ref.por}` : ''} — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
-      q: 'Como está minha evolução?',
+      chapeu: T.etapa.manutencaoChapeu,
+      /* A procedência entra na frase, sempre — ver o comentário no alto de
+         meta-clinica.tsx, e a nota da mensagem em textos/pt-BR/etapa. */
+      head: ref.daEquipe ? T.etapa.manutencaoHeadEquipe : T.etapa.manutencaoHeadDela,
+      body: T.etapa.manutencaoBody(
+        pesoTxt(S, agora!), pesoTxt(S, ref.kg), ref.daEquipe ? ref.por : null,
+      ),
+      q: T.etapa.manutencaoQ,
       fonte: 'etapa',
     };
   }
@@ -329,23 +330,19 @@ function daEtapa(S: State): Mensagem | null {
   if (plato) {
     const { antes, agora } = plato;
     return {
-      chapeu: 'PESO ESTÁVEL',
-      head: 'Seu peso está parado há cerca de um mês.',
-      /* ⚠️ A EXPLICAÇÃO VEM ANTES DE QUALQUER SUGESTÃO, e a sugestão não é
-         "se esforce mais". Platô é fisiologia: o corpo gasta menos à
-         medida que pesa menos, e a mesma dose passa a encontrar um corpo
-         diferente. Quem lê isto está fazendo o mesmo de sempre e vendo a
-         balança parar — a última coisa de que precisa é de um aplicativo
-         sugerindo que o problema é ela. */
-      /* ⚠️ QUANDO OS DOIS ARREDONDAM IGUAL, NÃO SE DIZ DUAS VEZES. "78,2 kg
-         há quatro semanas, 78,2 kg agora" é exato e parece defeito de
-         código — e um número que parece defeito derruba a frase inteira
-         junto. Mostrar os dois continua sendo a regra quando eles são
-         dois. */
-      body: `${nf(antes, 1) === nf(agora, 1)
-        ? `A média das suas pesagens está em ${pesoTxt(S, agora)} desde então.`
-        : `${pesoTxt(S, antes)} há quatro semanas, ${pesoTxt(S, agora)} agora.`} Platô é parte esperada do tratamento: o corpo passa a gastar menos conforme o peso cai. É assunto de consulta, não de esforço.`,
-      q: 'Como está minha evolução?',
+      chapeu: T.etapa.platoChapeu,
+      head: T.etapa.platoHead,
+      /* ⚠️ A DECISÃO DE QUAL DAS DUAS FRASES USAR É DAQUI, e o texto delas
+         é de textos/pt-BR/etapa — onde está escrito por que a explicação
+         vem antes de qualquer sugestão, e por que não há sugestão.
+
+         A condição fica aqui porque é ARITMÉTICA: quando os dois números
+         arredondam para o mesmo, dizer os dois parece defeito de código. A
+         conta é do idioma que arredonda, não do que escreve. */
+      body: nf(antes, 1) === nf(agora, 1)
+        ? T.etapa.platoBodyIgual(pesoTxt(S, agora))
+        : T.etapa.platoBodyDois(pesoTxt(S, antes), pesoTxt(S, agora)),
+      q: T.etapa.platoQ,
       fonte: 'etapa',
     };
   }
