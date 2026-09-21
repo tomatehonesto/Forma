@@ -621,14 +621,32 @@ partir do peso, e as duas dependem de números que **eu escolhi**:
 | `PLATO_SEMANAS` | 4 | quanto tempo parada conta como platô |
 | `PLATO_KG` | 0,5 | quanto o peso pode ter caído e ainda contar como parado |
 | `PLATO_VELHO_SEMANAS` | 7 | quando o platô deixa de ser notícia na Home |
+| `LARGURAS_DIAS` | 7 e 14 | de quantos dias é a média de cada ponta |
+| `MIN_PESAGENS` | 2 | quantas pesagens uma janela precisa para valer |
 | faixa da meta | +0,5 kg | quão perto da meta conta como "na meta" |
 
 **O raciocínio, para quem for revisar:** quatro semanas porque o próprio
 aplicativo diz, na tela de evolução, que variações de um a dois quilos
 acontecem por água, sal e intestino — uma quinzena parada é ruído. Meio
 quilo em quatro semanas dá cerca de 125 g por semana, bem abaixo de
-qualquer ritmo terapêutico. A comparação é entre **médias de sete dias**,
-nunca entre duas pesagens, e cada janela exige duas pesagens para valer.
+qualquer ritmo terapêutico. A comparação é entre **médias**, nunca entre
+duas pesagens, e cada janela exige duas pesagens para valer.
+
+**A largura da janela se ajusta, e isso pede revisão junto.** Eram sete
+dias fixos, e quem se pesa uma vez por semana nunca tinha duas pesagens
+numa janela: essa pessoa não recebia platô nem manutenção, nunca. Agora
+tenta sete dias e, não cabendo duas pesagens nas duas pontas, tenta
+catorze. A distância entre os centros das janelas continua sendo 28 dias
+nos dois casos, então o meio quilo continua querendo dizer a mesma coisa.
+
+O que precisa de olho clínico: **a leitura de quem se pesa uma vez por
+semana é mais ruidosa** — média de duas medidas contra média de sete. Um
+falso platô diz a alguém que o peso está parado quando ele caiu; um platô
+perdido deixa alguém um mês sem a conversa. Se meio quilo for apertado
+demais para duas medidas, o caminho é um limiar próprio para a janela
+larga — e aí ele também é escolha minha, não medida. Quem se pesa de
+quinze em quinze continua de fora de propósito: com duas pesagens no mês
+não dá para separar platô de água.
 
 **O que está em jogo se estiver errado.** A frase que sai daqui é *"Seu
 peso está parado há cerca de um mês — platô é parte esperada do

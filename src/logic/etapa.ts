@@ -101,10 +101,40 @@ function subiuDeDose(S: State) {
      ainda assim contar como parado — cerca de 125 g por semana, bem
      abaixo de qualquer ritmo terapêutico.
 
-   · E A COMPARAÇÃO É ENTRE MÉDIAS DE SETE DIAS, nunca entre duas
-     pesagens. Duas pesagens comparam dois dias, e dois dias é onde a
-     água mora. A média da semana tira isso da conta — e é por isso que
-     cada janela exige DUAS pesagens para valer.
+   · E A COMPARAÇÃO É ENTRE MÉDIAS, nunca entre duas pesagens. Duas
+     pesagens comparam dois dias, e dois dias é onde a água mora. A média
+     tira isso da conta — e é por isso que cada janela exige DUAS
+     pesagens para valer.
+
+   · A LARGURA DA JANELA SE AJUSTA A QUEM SE PESA POUCO. Eram sete dias
+     fixos, e quem se pesa uma vez por semana nunca tinha duas pesagens
+     em sete dias: essa pessoa não recebia platô nem manutenção, nunca.
+     Não era limiar conservador, era ponto cego.
+
+     Agora a janela tenta sete dias e, se não couberem duas pesagens nas
+     DUAS pontas, tenta catorze. Quem se pesa toda semana passa a ter
+     duas pesagens por janela, e elas ficam a sete dias uma da outra —
+     que é justamente a independência de que a média precisa, porque a
+     água de uma terça não é a água da terça seguinte.
+
+     ⚠️ A LARGURA É A MESMA NAS DUAS PONTAS, sempre. Comparar uma média
+     de sete dias com uma de catorze é comparar dois alisamentos
+     diferentes e chamar a diferença de perda de peso.
+
+     ⚠️ E A DISTÂNCIA ENTRE AS PONTAS NÃO MUDA: as duas janelas crescem
+     para trás a partir do próprio fim, então os centros continuam a 28
+     dias um do outro. É o que deixa o meio quilo querer dizer a mesma
+     coisa nos dois casos.
+
+     ⚠️ QUEM SE PESA DE QUINZE EM QUINZE CONTINUA DE FORA, e é honesto:
+     com duas pesagens no mês inteiro não dá para separar platô de água.
+     Catorze dias é o limite porque, além dele, a janela de "agora"
+     passaria a incluir peso de três semanas atrás e deixaria de ser
+     agora.
+
+     A leitura de quem se pesa semanalmente é mais ruidosa que a de quem
+     se pesa todo dia — média de duas medidas contra média de sete. Isto
+     está no PENDENCIAS junto com os limiares.
    ============================================================ */
 const PLATO_SEMANAS = 4;
 const PLATO_KG = 0.5;
@@ -113,19 +143,42 @@ const PLATO_KG = 0.5;
    dia a dia. Ver o comentário sobre preempção no alto do arquivo. */
 const PLATO_VELHO_SEMANAS = 7;
 
-/** A média das pesagens numa janela de sete dias que terminou há
-    `semanasAtras` semanas — ou null quando não há duas pesagens ali. */
-function mediaDaSemana(S: State, semanasAtras: number): number | null {
+/* Duas pesagens é o mínimo para uma janela valer; sete dias é a largura
+   que se tenta primeiro, catorze é a rede para quem se pesa uma vez por
+   semana. Ver a nota das janelas no alto do arquivo. */
+const MIN_PESAGENS = 2;
+const LARGURAS_DIAS = [7, 14];
+
+/** As pesagens de uma janela de `largura` dias que terminou há `semanasAtras`
+    semanas. */
+function pesagensDaJanela(S: State, semanasAtras: number, largura: number) {
   const fim = +startOfDay(now()) - semanasAtras * 7 * DAY;
-  const ini = fim - 7 * DAY;
-  const ws = (S.weights as any[]).filter((w) => w.t > ini && w.t <= fim + DAY);
-  return ws.length >= 2 ? ws.reduce((s, w) => s + w.kg, 0) / ws.length : null;
+  const ini = fim - largura * DAY;
+  return (S.weights as any[]).filter((w) => w.t > ini && w.t <= fim + DAY);
 }
 
-/** Quanto o peso caiu entre a semana de `atras` semanas atrás e a de agora.
+/** A menor largura que serve às DUAS pontas da comparação, ou null quando
+    nenhuma serve. */
+function larguraQueServe(S: State, atras: number): number | null {
+  for (const l of LARGURAS_DIAS) {
+    if (pesagensDaJanela(S, 0, l).length >= MIN_PESAGENS
+      && pesagensDaJanela(S, atras, l).length >= MIN_PESAGENS) return l;
+  }
+  return null;
+}
+
+/** A média das pesagens de uma janela — ou null quando não há duas ali. */
+function mediaDaJanela(S: State, semanasAtras: number, largura: number): number | null {
+  const ws = pesagensDaJanela(S, semanasAtras, largura);
+  return ws.length >= MIN_PESAGENS ? ws.reduce((s, w) => s + w.kg, 0) / ws.length : null;
+}
+
+/** Quanto o peso caiu entre a janela de `atras` semanas atrás e a de agora.
     Positivo é perda. null quando falta pesagem de um dos lados. */
 function quedaEm(S: State, atras: number): number | null {
-  const agora = mediaDaSemana(S, 0), antes = mediaDaSemana(S, atras);
+  const l = larguraQueServe(S, atras);
+  if (l == null) return null;
+  const agora = mediaDaJanela(S, 0, l), antes = mediaDaJanela(S, atras, l);
   return agora == null || antes == null ? null : antes - agora;
 }
 
@@ -142,12 +195,21 @@ function quedaEm(S: State, atras: number): number | null {
    tempo deixou de ser novidade e passou a ser a situação dela — e quem
    começou a se pesar há cinco semanas não tem como saber se começou
    agora. Nos dois casos não se diz nada. */
-export function emPlato(S: State): boolean {
+/* ⚠️ DEVOLVE OS NÚMEROS, e não um sim ou não — porque o cartão do platô
+   mostra os dois pesos que ele comparou. Deixar a tela recalcular a média
+   por conta própria seria escolher a largura da janela duas vezes, e
+   bastaria uma pesagem nova entre as duas contas para o cartão exibir
+   números que ninguém comparou. */
+export function emPlato(S: State): { antes: number; agora: number } | null {
   const queda = quedaEm(S, PLATO_SEMANAS);
   const quedaVelha = quedaEm(S, PLATO_VELHO_SEMANAS);
   const parado = queda != null && queda < PLATO_KG;
   const aindaENoticia = quedaVelha == null || quedaVelha >= PLATO_KG;
-  return parado && aindaENoticia;
+  if (!parado || !aindaENoticia) return null;
+
+  const l = larguraQueServe(S, PLATO_SEMANAS)!;
+  const agora = mediaDaJanela(S, 0, l), antes = mediaDaJanela(S, PLATO_SEMANAS, l);
+  return agora == null || antes == null ? null : { antes, agora };
 }
 
 /* Uma etapa vale por uma semana — o tempo de um ciclo inteiro, que é
@@ -228,7 +290,8 @@ function daEtapa(S: State): Mensagem | null {
      número e notícias opostas: uma é o objetivo, a outra é uma pergunta
      para a consulta. Chamar de platô quem chegou onde queria chegar seria
      o aplicativo transformando a conquista dela em problema. */
-  const agora = mediaDaSemana(S, 0);
+  const larguraDoMes = larguraQueServe(S, PLATO_SEMANAS);
+  const agora = larguraDoMes == null ? null : mediaDaJanela(S, 0, larguraDoMes);
   /* ⚠️ O ÚNICO LUGAR DO APLICATIVO QUE PREFERE A RÉGUA DA EQUIPE.
 
      Manutenção é um ESTADO CLÍNICO: estar na faixa que a equipe definiu é
@@ -242,7 +305,7 @@ function daEtapa(S: State): Mensagem | null {
   const ref = pesoDeReferencia(S);
   const naMeta = agora != null && ref.kg > 0 && agora <= ref.kg + 0.5;
   const jaEstavaNaMeta = (() => {
-    const antes = mediaDaSemana(S, PLATO_SEMANAS);
+    const antes = larguraDoMes == null ? null : mediaDaJanela(S, PLATO_SEMANAS, larguraDoMes);
     return antes != null && ref.kg > 0 && antes <= ref.kg + 0.5;
   })();
   if (naMeta && jaEstavaNaMeta) {
@@ -261,8 +324,9 @@ function daEtapa(S: State): Mensagem | null {
   }
 
   /* ---------- 5. platô ---------- */
-  if (emPlato(S) && agora != null) {
-    const antes = mediaDaSemana(S, PLATO_SEMANAS)!;
+  const plato = emPlato(S);
+  if (plato) {
+    const { antes, agora } = plato;
     return {
       chapeu: 'PESO ESTÁVEL',
       head: 'Seu peso está parado há cerca de um mês.',

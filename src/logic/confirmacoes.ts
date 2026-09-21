@@ -131,7 +131,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
          do peso" é justamente o que ela acabou de aprender — uma linha
          reta —, então a troca não tira nada. */
       const mediuHaPouco = (S.measures as any[]).some((m) => +now() - m.t < 7 * DAY);
-      const plato = emPlato(S) && !mediuHaPouco;
+      const plato = emPlato(S) != null && !mediuHaPouco;
 
       return {
         titulo: 'Peso registrado',
