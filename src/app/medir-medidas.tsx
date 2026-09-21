@@ -9,8 +9,10 @@ import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
 /* Novas medidas — captura, não a tela de histórico. É a sessão de fita
-   métrica: a pessoa chegou aqui por "Medi meu corpo", e não por ter subido
-   na balança (esse caminho é /medir-peso, que traz três medidas de carona).
+   métrica, e agora é a ÚNICA: /medir-peso trazia três medidas de carona e
+   deixou de trazer, porque duas entradas no menu de registrar que fazem a
+   mesma coisa é a pessoa tendo de adivinhar qual é a certa. Quem quer
+   registrar circunferência chega aqui, por "Medi meu corpo".
 
    ⚠️ SÃO CHIPS, E ERAM QUATRO CAMPOS SEMPRE ABERTOS.
 
@@ -19,10 +21,6 @@ import { useTheme } from '../ui/useTheme';
    segundos, a coxa pede outra posição, e quem mediu só uma tinha duas
    saídas — inventar as outras três ou não registrar nada. Agora a pessoa
    diz o que mediu, e a régua só aparece para isso.
-
-   É o mesmo gesto de /medir-peso, que já perguntava assim. Duas telas
-   vizinhas que fazem a mesma pergunta de dois jeitos é a pessoa
-   reaprendendo a cada folha.
 
    ⚠️ CADA UMA TEM A SUA FAIXA. Uma régua só, de 20 a 200, faria o braço
    viver num canto de uma fita gigante — a régua ganha dos botões porque

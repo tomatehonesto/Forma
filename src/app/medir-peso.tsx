@@ -2,63 +2,59 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { curWeight, latestMeasure } from '../logic/derive';
+import { curWeight } from '../logic/derive';
 import { now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { Txt, Row, SheetScreen } from '../ui/kit';
-import { Campo, Opcoes, Opc, Selo, Botao, Regua } from '../ui/internas';
-import { useTheme } from '../ui/useTheme';
+import { Row, SheetScreen } from '../ui/kit';
+import { Campo, Selo, Botao, Regua } from '../ui/internas';
 
 /* ============================================================
-   PESO E MEDIDAS
+   A PESAGEM, E SÓ A PESAGEM.
 
    A captura abre com o último valor já preenchido: de um dia para o outro
    a variação é pequena, então quase sempre são dois toques no ajuste fino
    e não digitar tudo de novo. Quem voltou de uma semana fora digita, que é
    para isso que o número do meio é campo.
 
-   As medidas entram no mesmo sheet, e opcionais. São a resposta ao platô —
-   a balança trava e a cintura continua caindo —, mas exigi-las junto do
-   peso transformaria a pesagem de dez segundos numa sessão com fita
-   métrica, e o resultado disso é não pesar. Por isso a ajuda diz, em voz
-   alta, que pesar sozinho também é uma escolha válida.
+   ⚠️⚠️ AS TRÊS CIRCUNFERÊNCIAS SAÍRAM DAQUI, e a razão de fundo é que o
+   menu de registrar oferecia "Acabei de me pesar" e "Medi meu corpo" lado
+   a lado, sendo que o primeiro também media. Quem queria registrar a
+   cintura tinha duas respostas certas e nenhuma pista de qual. Agora cada
+   linha faz exatamente o que o nome diz.
 
-   A medição completa, com as quatro circunferências, continua em
-   /medir-medidas. Aqui ficam as três que mudam entre uma sessão e outra.
+   A justificativa antiga era que as medidas são "a resposta ao platô" — a
+   balança trava e a cintura continua caindo. A intenção estava certa e a
+   entrega nunca existiu: o cartão de platô (logic/etapa) não menciona
+   fita, e o único convite do aplicativo que liga fita a platô
+   (logic/descobertas) é travado em quem tem no máximo uma medição, ou
+   seja, é convite de primeiro uso. Os chips aqui eram disponibilidade
+   passiva — úteis só para quem já sabia por que mediria.
+
+   ⚠️ E A SAÍDA CONSERTOU DOIS DEFEITOS DE DADO, que é o que torna esta
+   remoção mais do que arrumação de menu:
+
+   · O objeto gravado copiava a medição anterior inteira antes de
+     sobrescrever o que a pessoa tinha aberto. Quem subia na balança e
+     abria só o chip de cintura plantava, no mesmo dia, um ponto no
+     gráfico de coxa e dois de bioimpedância — sem ter passado fita na
+     coxa nem pisado numa balança de bioimpedância.
+
+   · O peso e a medida eram gravados no mesmo instante, com o mesmo
+     carimbo de tempo em milissegundos. Em tela/registro, quadril e braço
+     procuram o ponto pelo carimbo dentro das PESAGENS — e achavam. Tocar
+     em "Apagar" num registro de quadril apagava a pesagem daquele dia.
+     (A rota certa dessa tela também foi consertada, em app/registro.)
+
+   A medição continua inteira em /medir-medidas, com as quatro
+   circunferências.
    ============================================================ */
-
-/* As faixas são as mesmas de /medir-medidas: é o mesmo corpo e a mesma
-   fita, e duas telas com limites diferentes para a cintura da mesma pessoa
-   é uma delas errada. */
-const MEDIDAS: [string, string, number, number, number][] = [
-  ['cintura', 'Cintura', 50, 180, 90],
-  ['quadril', 'Quadril', 60, 190, 100],
-  ['braco', 'Braço', 15, 70, 32],
-];
-
 
 export default function MedirPeso() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
-  const { c } = useTheme();
   const router = useRouter();
 
   const ultimo = curWeight(S);
-  const ultima: any = latestMeasure(S);
-
   const [peso, setPeso] = useState(ultimo);
-  const [abertas, setAbertas] = useState<string[]>([]);
-  const [tocadas, setTocadas] = useState<string[]>([]);
-  const [medidas, setMedidas] = useState<Record<string, number>>(
-    Object.fromEntries(MEDIDAS.map(([k, , , , padrao]) => [k, ultima?.[k] || padrao])),
-  );
-
-
-  const alterna = (k: string) =>
-    setAbertas((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k]));
-  const mexer = (k: string, v: number) => {
-    setMedidas((m) => ({ ...m, [k]: v }));
-    setTocadas((t) => (t.includes(k) ? t : [...t, k]));
-  };
 
   const delta = peso - ultimo;
   const hoje = now();
@@ -66,33 +62,13 @@ export default function MedirPeso() {
   const salvar = () => {
     update((s: any) => {
       s.weights.push({ t: +now(), kg: peso });
-      /* Só grava medida se alguma foi aberta. Um registro com os valores
-         da última sessão repetidos entraria no gráfico como se a pessoa
-         tivesse medido de novo e não mudado nada — que é uma afirmação
-         diferente de não ter medido. */
-      /* ⚠️ E QUEM NUNCA MEDIU PRECISA TER MEXIDO.
-
-         Abrir o chip é a afirmação, e isso continua valendo — mas só
-         afirma um número que existe. Sem medição anterior, a régua abre
-         num ponto de partida escolhido pelo controle, não pela pessoa: o
-         chip aberto e intocado gravaria noventa centímetros de cintura
-         que ninguém passou a fita para saber. */
-      const gravaveis = abertas.filter((k) => ultima || tocadas.includes(k));
-      if (gravaveis.length) {
-        const base = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
-        s.measures.push({
-          ...base,
-          t: +now(),
-          ...Object.fromEntries(gravaveis.map((k) => [k, medidas[k]])),
-        });
-      }
     });
     router.replace('/registro-ok?tipo=peso' as any);
   };
 
   return (
     <SheetScreen
-      titulo="Peso e medidas"
+      titulo="Quanto você está pesando?"
       sub={maiuscula(dataComDiaDaSemana(hoje))}
       onClose={() => router.back()}
     >
@@ -122,44 +98,6 @@ export default function MedirPeso() {
               />
             </Row>
           ) : null}
-        </Campo>
-
-        <Campo
-          rotulo="Medidas · opcional"
-          ajuda="Nenhuma medida é obrigatória. Pesar quando você quiser também é uma escolha válida."
-        >
-          <Opcoes>
-            {MEDIDAS.map(([k, label]) => (
-              <Opc key={k} label={label} on={abertas.includes(k)} onPress={() => alterna(k)} />
-            ))}
-          </Opcoes>
-
-          {/* ⚠️ RÉGUA AQUI TAMBÉM, e o peso logo acima já tinha uma.
-
-              Três controles para três circunferências, no mesmo sheet em
-              que o peso se arrasta, é a mesma inconsistência que acabou de
-              sair dali — só que a dois centímetros de distância. E elas
-              abrem uma de cada vez, por escolha da pessoa: a altura extra
-              da régua só chega para quem pediu aquela medida. */}
-          {abertas.map((k) => {
-            const campo = MEDIDAS.find(([id]) => id === k)!;
-            return (
-              <View key={k} style={{ gap: 10 }}>
-                {/* O RÓTULO SÓ APARECE QUANDO HÁ MAIS DE UMA RÉGUA ABERTA.
-
-                    Com uma só, o chip aceso logo acima já diz qual é — e
-                    "Cintura", "Cintura", "96,0" em três linhas seguidas é a
-                    tela repetindo a palavra que a pessoa acabou de tocar.
-                    Com duas ou mais ele deixa de ser eco: passa a ser o que
-                    diz qual régua é qual. */}
-                {abertas.length > 1 ? <Txt v="caption" c={c.tx3}>{campo[1]}</Txt> : null}
-                <Regua
-                  min={campo[2]} max={campo[3]} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
-                  valor={medidas[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
-                />
-              </View>
-            );
-          })}
         </Campo>
 
         <Botao label={`Salvar ${nf(peso, 1)} kg`} onPress={salvar} />

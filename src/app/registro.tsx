@@ -20,6 +20,29 @@ import { useTheme } from '../ui/useTheme';
    do toque seria tarde.
    ============================================================ */
 
+/* ⚠️⚠️ SÃO QUATRO CIRCUNFERÊNCIAS, E AQUI SÓ A CINTURA CONTAVA.
+
+   O arquivo testava `marcador === 'cintura'` em quatro lugares — achar o
+   ponto, escrever o valor, escolher a tela de correção e apagar. Quadril,
+   braço e coxa caíam no outro lado de todos eles e eram tratados como
+   PESO.
+
+   O estrago era real e silencioso. A folha de pesagem gravava o peso e a
+   medida no mesmo instante, com o mesmo carimbo em milissegundos; então
+   uma linha de quadril encontrava a PESAGEM daquele dia, se intitulava
+   "78,2 kg", e "Apagar" apagava a pesagem — enquanto o quadril ficava.
+   Aconteceu de as duas chamadas caírem no mesmo milissegundo, o que fazia
+   o defeito ser intermitente, e não raro.
+
+   Tirar as medidas da folha de pesagem separou os carimbos e desarmou o
+   estrago por acidente. Esta constante o desarma de propósito: as quatro
+   vêm da mesma fita, moram no mesmo array e se corrigem na mesma tela.
+
+   Gordura e massa magra também moram nesse array, mas não entram aqui:
+   elas vêm da bioimpedância, não da mão da pessoa, e por isso o histórico
+   delas não oferece esta tela. */
+const DA_FITA = ['cintura', 'quadril', 'braco', 'coxa'];
+
 export default function Registro() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -32,19 +55,21 @@ export default function Registro() {
   const d = new Date(quando);
   const semana = semanaDoTratamento(d, S.profile.startT);
 
-  const ponto: any = marcador === 'cintura'
+  const daFita = DA_FITA.includes(marcador);
+
+  const ponto: any = daFita
     ? (S.measures as any[]).find((x) => x.t === quando)
     : (S.weights as any[]).find((x) => x.t === quando);
 
-  const valor = marcador === 'cintura'
-    ? (ponto ? `${ponto.cintura} cm` : '—')
+  const valor = daFita
+    ? (ponto ? `${ponto[marcador]} cm` : '—')
     : (ponto ? `${nf(ponto.kg, 1)} kg` : '—');
 
   const data = dataLonga(d);
 
   const apagar = () => {
     update((s: any) => {
-      if (marcador === 'cintura') s.measures = s.measures.filter((x: any) => x.t !== quando);
+      if (daFita) s.measures = s.measures.filter((x: any) => x.t !== quando);
       else s.weights = s.weights.filter((x: any) => x.t !== quando);
     });
     router.back();
@@ -67,7 +92,7 @@ export default function Registro() {
           <Botao
             label="Corrigir registro"
             tom="fantasma"
-            onPress={() => { router.back(); router.push((marcador === 'cintura' ? '/medir-medidas' : '/medir-peso') as any); }}
+            onPress={() => { router.back(); router.push((daFita ? '/medir-medidas' : '/medir-peso') as any); }}
           />
           <Botao label="Apagar" tom="perigo" onPress={apagar} />
         </View>
