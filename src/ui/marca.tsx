@@ -1,5 +1,6 @@
 import React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
+import { useTheme } from './useTheme';
 
 /* ============================================================
    A MARCA
@@ -105,6 +106,52 @@ export function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number;
   return (
     <Svg width={tamanho} height={tamanho} viewBox="0 0 24 24">
       <Path d={CORACAO} fill={cor} />
+    </Svg>
+  );
+}
+
+/* ============================================================
+   A ESTRELA DA IA — preenchida, e com o degradê da aurora.
+
+   ⚠️ NÃO ENTROU NO `Icon`, E É DE PROPÓSITO. Aquele vocabulário é de
+   ícones de interface: traço aberto de 24, uma cor só, herdada de quem
+   chama. Um ícone que traz o próprio degradê deixa de obedecer à tela e
+   passa a carregar identidade — é marca, não ícone, e marca mora aqui.
+
+   ⚠️ E O DEGRADÊ SAI DO TEMA, não de dois hexadecimais escritos à mão. O
+   aplicativo tem cinco paletas trocáveis; uma estrela com azul cravado
+   ficaria azul na Pitaia e na Brasa, sendo a única peça da tela que não
+   soube que a pessoa mudou de cor.
+
+   O desenho é a mesma faísca de quatro pontas que marca "isto saiu de
+   uma análise dos seus dados" no resto do aplicativo — ver o comentário
+   do carrossel da Home. Aqui ela não marca uma resposta: marca QUEM
+   responde, que é o título da tela. Preenchida porque é assinatura, e
+   assinatura não é contorno.
+   ============================================================ */
+
+/** A faísca do Lucide (sparkle), fechada — por isso aceita preenchimento. */
+const D_FAISCA = 'M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z';
+
+export function EstrelaIA({ size = 16 }: { size?: number }) {
+  const { c } = useTheme();
+  /* O id precisa ser único por instância: dois degradês com o mesmo id na
+     mesma árvore fazem o segundo herdar as paradas do primeiro. */
+  /* ⚠️ SÓ LETRA E NÚMERO NO id. O useId do React devolve formatos com
+     dois-pontos ou aspas angulares dependendo da versão, e o url(#…) do
+     react-native-svg casa o id por nome — um caractere especial faz o
+     degradê simplesmente não ser encontrado, e a estrela sai preta. Na
+     web funciona; no aparelho, não dá para descobrir depois. */
+  const id = `ia${React.useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Defs>
+        <SvgGrad id={id} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={c.accent2} />
+          <Stop offset="1" stopColor={c.lime} />
+        </SvgGrad>
+      </Defs>
+      <Path d={D_FAISCA} fill={`url(#${id})`} />
     </Svg>
   );
 }

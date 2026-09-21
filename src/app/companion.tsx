@@ -11,6 +11,7 @@ import {
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, RichDoc } from '../ui/kit';
+import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, ditadoDisponivel } from '../ui/useDitado';
@@ -296,7 +297,12 @@ export default function Companion() {
               com quem se fala. Nenhum link do aplicativo rotula esta
               tela — todos são toque em alguma coisa —, então trocar o
               nome é trocar esta linha e mais nada. */}
-          <Txt v="title" style={{ flex: 1, textAlign: 'center' }}>Morphi IA</Txt>
+          {/* A estrela VEM ANTES DO NOME, como marca antes de letreiro —
+              e o par inteiro é que centra, não o texto sozinho. */}
+          <Row gap={7} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <EstrelaIA size={17} />
+            <Txt v="title">Morphi IA</Txt>
+          </Row>
           <View style={{ width: 40 }} />
         </Row>
       </View>
