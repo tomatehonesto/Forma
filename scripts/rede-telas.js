@@ -48,6 +48,12 @@
      estado — coisa que uma rede de leitura não faz.
    - FOLHAS E MODAIS, que só abrem com toque. O que estiver dentro de um
      bottom sheet fechado não está no `innerText`.
+   - OS ESTADOS QUE A SEMENTE NÃO PRODUZ. A semente tem clínica parceira,
+     então /assinatura abre sempre no caso isento e os outros dois — quem
+     assina, quem não tem nada — nunca apareciam. É o mesmo buraco de
+     sempre: a rede dizia "idêntico" sobre um terço da tela. Os atalhos de
+     desenvolvimento que a própria tela oferece são a porta, e por isso
+     entram na lista de rotas.
    - OS PASSOS DO CADASTRO QUE NÃO SÃO ESCOLHER DE UMA LISTA NEM DIGITAR.
      Essas duas o andador faz; régua arrastada e calendário ele não sabe
      operar, e a caminhada para ali.
@@ -128,6 +134,12 @@ function rotasComParametro() {
     '/marcador?m=peso',
     '/registro-ok?tipo=peso',
     '/meta?alvo=proteina',
+    /* ⚠️ OS ATALHOS DE DESENVOLVIMENTO SÃO A ÚNICA PORTA para os estados
+       que a semente não produz. A tela de assinatura tem três casos e a
+       semente só monta um. */
+    '/assinatura?assinante=1&compra=1',
+    '/assinatura?compra=1',
+    '/planos?compra=1',
   ].filter(Boolean);
 }
 
@@ -144,6 +156,16 @@ const ROTAS_SIMPLES = ['/', '/jornada', '/cuidado', '/insights'].concat(
 );
 
 const AVANCA = /^(continuar|avançar|começar|próximo|próxima|pronto|concluir|entendi e concordo)$/i;
+
+/* ⚠️⚠️ O RELÓGIO ANDA ENTRE AS DUAS EXECUÇÕES, e uma tela que mostra a
+   hora atual produz diferença sem ninguém ter mexido em nada. A primeira
+   comparação desta rede acusou /aplicacao porque "Fica registrada agora,
+   20:50" virou "20:54".
+
+   Hora e segundo viram máscara. A DATA não — "13 de julho de 2026" é
+   texto formatado, é o que a extração pode quebrar, e mascará-la seria
+   abrir o buraco que esta rede existe para fechar. */
+const semRelogio = (txt) => txt.replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g, 'HH:MM');
 
 async function vai(rota) {
   history.pushState({}, '', rota);
@@ -163,7 +185,7 @@ async function passosDoCadastro(max = 20) {
   await vai('/cadastro');
   let anterior = '';
   for (let i = 0; i < max; i += 1) {
-    const txt = document.body.innerText;
+    const txt = semRelogio(document.body.innerText);
     if (txt === anterior) break;
     passos['/cadastro#' + String(i).padStart(2, '0')] = txt;
     anterior = txt;
@@ -200,7 +222,7 @@ async function redeDeTelas() {
     const rotas = ROTAS_SIMPLES.concat(rotasComParametro()).sort();
     for (const r of rotas) {
       await vai(r);
-      dump[r] = document.body.innerText;
+      dump[r] = semRelogio(document.body.innerText);
     }
     Object.assign(dump, await passosDoCadastro());
   } finally {
