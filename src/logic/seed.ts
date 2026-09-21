@@ -599,7 +599,14 @@ export function buildSeed() {
     ],
     /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
        em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
-    pen: { dosesLeft: 3, dosesPerPen: 4 },
+    /* ⚠️ A VALIDADE MORA NO RECIPIENTE, e não no catálogo, quando o
+       catálogo não sabe. Um manipulado não tem prazo de bula: quem define
+       é a farmácia que preparou, e cada frasco que chega tem o seu.
+
+       A semente não responde — ela usa Mounjaro, cujo prazo o catálogo
+       sabe. O caminho de quem não respondeu é o que o desenvolvimento
+       exercita todo dia. */
+    pen: { dosesLeft: 3, dosesPerPen: 4, validadeDias: undefined as number | undefined },
     /* A equipe além da médica. Cada pessoa tem um papel distinto no
        tratamento — não é lista de contatos, é quem faz o quê.
 

@@ -60,12 +60,17 @@ export default function Caneta() {
       />
 
       <Grade2>
+        {/* ⚠️ "NÃO INFORMADA" É UM ESTADO, e não um vazio. Manipulado não
+            tem prazo de bula, e quem não respondeu no registro do
+            recipiente fica sem — o cartão diz isso com todas as letras em
+            vez de mostrar "0 dias", que seria o aplicativo afirmando que a
+            coisa venceu no dia em que foi aberta. */}
         <Metrica
           ic="clock"
           nome="Validade após aberta"
-          selo={`${k.validadeDias} dias`}
+          selo={k.validadeDias ? `${k.validadeDias} dias` : 'não informada'}
           seloTom="neutra"
-          para={k.vence ? `vence ${fmtDate(k.vence)}` : '—'}
+          para={k.vence ? `vence ${fmtDate(k.vence)}` : 'quem prepara define o prazo'}
         />
         <Metrica
           ic="pill"
@@ -83,7 +88,9 @@ export default function Caneta() {
         <Aviso
           ic="clock"
           titulo="A caneta vence antes de acabar"
-          texto={`${med.label} dura ${k.validadeDias} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`}
+          /* Só chega aqui com `vence` preenchido, e `vence` exige
+             `validadeDias` — mas o tipo não sabe disso. */
+          texto={`${med.label} dura ${k.validadeDias ?? 0} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`}
         />
       ) : null}
 

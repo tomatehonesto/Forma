@@ -5869,8 +5869,25 @@ export function canetaAtual(S: State) {
   const atual = lista[0] ?? null;
   const est = penStock(S);
   const cad = cadenciaDias(S);
-  const validadeDias = SHELF_DAYS(S.profile.med);
-  const vence = atual?.abertaEm ? addDays(new Date(atual.abertaEm), validadeDias) : null;
+  /* ⚠️⚠️ A VALIDADE PODE SER DESCONHECIDA, e antes ela não podia.
+
+     `SHELF_DAYS` devolve o prazo de bula, e para medicamento manipulado
+     não existe prazo de bula: quem define é a farmácia que preparou. No
+     catálogo isso é `shelf: 0`, que quer dizer NÃO SABEMOS — e não "vence
+     hoje".
+
+     A ordem é: o que a pessoa respondeu ao registrar o recipiente ganha
+     do catálogo, porque é o prazo daquele frasco; o catálogo entra quando
+     ela não respondeu; e quando nenhum dos dois existe, isto é `null` e
+     quem consome tem de calar. Anunciar um vencimento que ninguém
+     calculou é as duas piores coisas ao mesmo tempo num aplicativo de
+     tratamento: mandar descartar o que está bom, ou autorizar o que não
+     está. */
+  const doCatalogo = SHELF_DAYS(S.profile.med);
+  const validadeDias: number | null = (S as any).pen?.validadeDias ?? (doCatalogo > 0 ? doCatalogo : null);
+  const vence = atual?.abertaEm && validadeDias
+    ? addDays(new Date(atual.abertaEm), validadeDias)
+    : null;
   /* Cobertura da receita: o que ainda há de dose vezes a cadência, contado
      a partir da próxima aplicação. É uma estimativa do app, não um dado da
      receita — o texto na tela diz "cerca de". */

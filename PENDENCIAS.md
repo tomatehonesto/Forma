@@ -611,6 +611,39 @@ sem saber.
 
 ---
 
+## 🔴 13b. A validade do manipulado: a faixa da pergunta é escolha minha
+
+O aplicativo passou a aceitar medicamento manipulado, e manipulado **não
+tem prazo de validade de bula**: quem define é a farmácia que preparou,
+caso a caso. Por isso o prazo é perguntado no registro de um recipiente
+novo, e guardado junto com o recipiente — não no catálogo.
+
+A pergunta é opcional e começa em "não sei". Sem resposta, **o aplicativo
+não fala de vencimento** para aquela pessoa: nenhuma data é calculada e a
+tela do recipiente diz "não informada". É de propósito — anunciar um
+vencimento que ninguém calculou é mandar descartar o que está bom, ou
+autorizar o que não está.
+
+O que precisa de olho de quem entende, em `src/app/caneta-nova.tsx`:
+
+| constante | valor | o que decide |
+|---|---|---|
+| `VALIDADE_MIN` | 7 | o menor prazo que a régua deixa dizer |
+| `VALIDADE_MAX` | 90 | o maior |
+
+**Não consegui derivar esses dois de nada.** Os prazos que o catálogo
+conhece — 14, 21, 30 e 56 dias — são de produto industrializado, e um
+manipulado não herda nenhum deles. Sete e noventa são o meu palpite de
+"nada desta classe se guarda aberto por menos de uma semana nem por mais
+de três meses".
+
+**O que está em jogo se estiver errado:** se a farmácia de alguém disser
+um prazo fora da faixa, a régua não deixa a pessoa dizer o número certo —
+e ela vai gravar o mais próximo, que é pior do que não gravar nada. Se
+for para errar, é melhor a faixa ser larga demais do que estreita.
+
+---
+
 ## 🔴 13. Os limiares de platô são escolha de código, não decisão clínica
 
 `src/logic/etapa.ts` passou a reconhecer duas etapas do tratamento a
