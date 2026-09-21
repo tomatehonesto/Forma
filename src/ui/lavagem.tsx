@@ -85,6 +85,22 @@ export function Lavagem({ altura, forca = 0.26, solta = false }: {
   const { c } = useTheme();
   const vazio = semCor(c.bg);
   const cobre = { position: 'absolute' as const, left: 0, right: 0, top: 0, height: altura };
+
+  /* ⚠️⚠️ O VÉU DE TOPO É MEDIDO EM PIXELS, e era uma fração da caixa.
+
+     A conta certa não depende do tamanho da caixa: depende do BORRÃO. O
+     véu existe para apagar a mancha antes da borda, e uma mancha
+     desfocada precisa de uns cinquenta pixels para sumir — numa caixa de
+     176 ou numa de 300, os mesmos cinquenta.
+
+     Como fração, crescer a caixa crescia o véu junto: subir a lavagem da
+     tela de saúde em sessenta pixels empurrava o véu de topo em vinte, e
+     a luz não subia quase nada. Era o efeito oposto ao pedido.
+
+     O teto de 0,4 é para caixa pequena: numa de 100 px, cinquenta seriam
+     metade dela só de véu. */
+  const veuTopo = Math.min(0.4, 46 / altura);
+  const veuPe = Math.min(0.5, 70 / altura);
   return (
     <View
       pointerEvents="none"
@@ -103,7 +119,7 @@ export function Lavagem({ altura, forca = 0.26, solta = false }: {
           ali ele é borda, e não o começo da tela. */}
       <LinearGradient
         colors={solta ? [c.bg, vazio, vazio, c.bg] : [vazio, vazio, c.bg]}
-        locations={solta ? [0, 0.28, 0.62, 1] : [0, 0.3, 1]}
+        locations={solta ? [0, veuTopo, 1 - veuPe, 1] : [0, 0.3, 1]}
         style={cobre}
       />
       {solta ? (

@@ -802,9 +802,20 @@ function Sincronia({ nome }: { nome: string }) {
       {/* `solta`: esta lavagem está no MEIO da tela, e não colada no alto.
           As quatro bordas dela estão à vista — sem isto, ela desenha um
           retângulo de cantos retos atrás dos ícones. Ver a nota em
-          ui/lavagem. */}
-      <View style={{ position: 'absolute', left: -20, right: -20, top: 0, bottom: 0 }}>
-        <Lavagem altura={176} forca={0.5} solta />
+          ui/lavagem.
+
+          ⚠️ E ELA SOBE 64 PX ALÉM DO QUADRO DOS ÍCONES. A luz nascia na
+          altura deles e morria logo acima, o que a fazia parecer um halo
+          preso à figura em vez de ar na tela.
+
+          64 é o que cabe: a rolagem recorta, e o começo dela fica a 69 px
+          daqui — o que passar disso vira uma aresta reta de novo, que é
+          exatamente o defeito que o `solta` veio consertar. */}
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', left: -20, right: -20, top: -64, bottom: 0 }}
+      >
+        <Lavagem altura={240} forca={0.5} solta />
       </View>
       <Row style={{ alignItems: 'center', gap: 14 }}>
         {/* O APP DO APARELHO */}
