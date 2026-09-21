@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
@@ -85,53 +86,54 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
   const comResposta = janela.filter((c) => respondido(c, 'nausea') || respondido(c, 'fome')
     || respondido(c, 'energia') || respondido(c, 'sono')).length;
 
+  const K = T.resumo;
   const secoes: SecaoDoResumo[] = [
     {
       id: 'medicacao',
-      titulo: 'Medicação',
+      titulo: K.medicacao,
       linhas: [
-        { k: 'Medicamento', v: `${med.label} (${med.mol})` },
-        { k: 'Dose', v: `${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}` },
-        { k: 'Cadência', v: cadenciaCurta(S) },
-        { k: 'Tempo de tratamento', v: `${journeyDay(S)} dias` },
+        { k: K.medicamento, v: `${med.label} (${med.mol})` },
+        { k: K.dose, v: `${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}` },
+        { k: K.cadencia, v: cadenciaCurta(S) },
+        { k: K.tempoDeTratamento, v: K.emDias(journeyDay(S)) },
         /* A FRAÇÃO, E NÃO A PORCENTAGEM SOZINHA. "Adesão 91%" fala de
            pontualidade, que esta conta não mede: quem aplicou as dez doses
            sempre com três dias de atraso também dá cem por cento. "10 de
            11 previstas" diz o que a conta de fato sabe. */
-        { k: 'Aplicações', v: `${S.injections.length} de ${dosesPrevistas(S)} previstas` },
+        { k: K.aplicacoes, v: K.aplicacoesValor(S.injections.length, dosesPrevistas(S)) },
       ],
     },
     {
       id: 'peso',
-      titulo: 'Peso',
+      titulo: K.peso,
       linhas: [
-        { k: 'Início → atual', v: `${pesoTxt(S, p.startWeight)} → ${kg(cur)}` },
+        { k: K.inicioAtual, v: `${pesoTxt(S, p.startWeight)} → ${kg(cur)}` },
         /* ⚠️ ESTA LINHA VAI PARA O MÉDICO. Ela dizia "−−3,3 kg" para quem
            ganhou peso — um documento clínico com um número ilegível é
            pior do que um documento sem aquele número. */
-        { k: 'Variação', v: `${variacaoDe(pesoV(S, cur - p.startWeight), pesoU(S)).delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
-        { k: 'Em', v: `${diffDays(now(), new Date(p.startT))} dias` },
+        { k: K.variacao, v: `${variacaoDe(pesoV(S, cur - p.startWeight), pesoU(S)).delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
+        { k: K.em, v: K.emDias(diffDays(now(), new Date(p.startT))) },
         /* O NOME É O DO CADASTRO. Esta linha já se chamou "referência
            combinada", que é um terceiro nome para o número que o app
            chama de meta de peso em todas as outras telas. */
-        { k: 'Meta de peso', v: `${pesoTxt(S, p.goalWeight)}` },
+        { k: K.metaDePeso, v: `${pesoTxt(S, p.goalWeight)}` },
       ],
     },
     {
       id: 'sintomas',
-      titulo: 'Sintomas',
+      titulo: K.sintomas,
       nota: comResposta
-        ? `Média dos últimos 14 dias · ${comResposta} com resposta`
-        : 'Sem respostas nos últimos 14 dias',
+        ? K.mediaDosDias(comResposta)
+        : K.semRespostas,
       /* CADA UM COM A SUA UNIDADE. Náusea, fome e energia são escalas de
          zero a dez; sono é hora de relógio. Uma seção inteira rotulada
          "(0–10)" punha sete horas de sono na mesma régua de uma náusea
          sete. */
       linhas: [
-        { k: 'Náusea', v: media(janela, 'nausea', 1, ' de 10') },
-        { k: 'Fome', v: media(janela, 'fome', 1, ' de 10') },
-        { k: 'Energia', v: media(janela, 'energia', 1, ' de 10') },
-        { k: 'Sono', v: media(janela, 'sono', 1, ' h') },
+        { k: K.nausea, v: media(janela, 'nausea', 1, K.de10) },
+        { k: K.fome, v: media(janela, 'fome', 1, K.de10) },
+        { k: K.energia, v: media(janela, 'energia', 1, K.de10) },
+        { k: K.sono, v: media(janela, 'sono', 1, K.horas) },
       ],
     },
   ];
@@ -140,7 +142,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
   if (exames.length) {
     secoes.push({
       id: 'exames',
-      titulo: 'Exames recentes',
+      titulo: K.examesRecentes,
       exames,
       /* A FAIXA DE REFERÊNCIA VAI NO TEXTO, e não na tela. Quem lê o
          texto é quem sabe o que "ref 70–99" quer dizer; na tela quem lê é
@@ -153,7 +155,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
   const abertas = notasAbertas(S);
   secoes.push({
     id: 'notas',
-    titulo: 'Anotações para a consulta',
+    titulo: K.anotacoes,
     linhas: [],
     notas: abertas,
     texto: abertas.length ? abertas.map((n) => `• ${n.text}`).join('\n') : '',
@@ -168,8 +170,8 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
 export function resumoEmTexto(S: State): string {
   const p: any = S.profile;
   const linhas: string[] = [
-    `RESUMO DE TRATAMENTO — ${p.name}`,
-    `${fmtDate(now())}${p.doctor ? ` · para ${p.doctor}` : ''}${p.clinic ? ` (${p.clinic})` : ''}`,
+    T.resumo.cabecalho(p.name),
+    `${fmtDate(now())}${p.doctor ? T.resumo.paraDoutor(p.doctor) : ''}${p.clinic ? ` (${p.clinic})` : ''}`,
   ];
   for (const s of resumoDoTratamento(S)) {
     linhas.push('', s.titulo.toUpperCase() + (s.nota ? ` — ${s.nota.toLowerCase()}` : ''));
@@ -179,7 +181,7 @@ export function resumoEmTexto(S: State): string {
   /* A ORIGEM VAI JUNTO. Quem recebe este texto por mensagem precisa saber
      que ele saiu de um aplicativo de acompanhamento, e não de um
      prontuário — e que os números são o que a pessoa registrou. */
-  linhas.push('', 'Gerado pelo aplicativo a partir dos registros da própria pessoa.');
+  linhas.push('', T.resumo.origem);
   return linhas.join('\n');
 }
 
@@ -198,7 +200,7 @@ export function resumoEmTexto(S: State): string {
    que começaria a divergir da primeira no primeiro mês.
    ============================================================ */
 
-export const NOME_DO_DOCUMENTO = 'Resumo de tratamento';
+export const NOME_DO_DOCUMENTO = () => T.resumo.nomeDoDocumento;
 
 /** Os resumos que a própria pessoa mandou, do mais recente para o mais antigo. */
 export const enviosDoResumo = (S: State) =>
@@ -211,8 +213,8 @@ export const enviosDoResumo = (S: State) =>
 export function registrarEnvio(s: any) {
   const doc = {
     t: +now(),
-    name: NOME_DO_DOCUMENTO,
-    kind: s.profile?.doctor ? `Enviado por você a ${s.profile.doctor}` : 'Enviado por você',
+    name: NOME_DO_DOCUMENTO(),
+    kind: s.profile?.doctor ? T.resumo.enviadoPara(s.profile.doctor) : T.resumo.enviado,
     mine: true,
   };
   (s.documents ?? (s.documents = [])).unshift(doc);
