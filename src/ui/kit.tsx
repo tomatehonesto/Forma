@@ -592,15 +592,31 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
      rodar contra uma view que o sistema ainda não pôs na hierarquia, e
      acabar antes de alguém ver — que é como um movimento de 300 ms vira
      "apareceu instantâneo". Um quadro de espera não se nota e garante que
-     há o que animar. */
+     há o que animar.
+
+     ⚠️⚠️ E O DRIVER É O DE JS, NÃO O NATIVO, que é o contrário do que se
+     recomenda em todo lugar — com razão, na maioria dos casos: o nativo
+     roda fora da thread de JS e não engasga.
+
+     Aqui ele não estava rodando. Esta folha é uma tela de
+     react-native-screens apresentada como modal, e o driver nativo
+     precisa que a view já esteja na hierarquia nativa quando a animação
+     é ligada; numa tela recém-apresentada isso é uma corrida que o
+     aplicativo perde em silêncio — no navegador nunca, porque lá não
+     existe hierarquia nativa nenhuma. Era por isso que a mesma animação
+     media certo aqui e chegava pronta no aparelho.
+
+     O driver de JS passa os valores pelo caminho normal de props a cada
+     quadro. Custa alguns quadros de trabalho no JS durante 300 ms, e é o
+     preço de uma animação que acontece. */
   React.useEffect(() => {
     const id = requestAnimationFrame(() => {
       Animated.parallel([
         Animated.timing(sombra, {
-          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
+          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: false,
         }),
         Animated.timing(subida, {
-          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: false,
         }),
       ]).start();
     });
@@ -617,10 +633,10 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     saindo.current = true;
     Animated.parallel([
       Animated.timing(sombra, {
-        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true,
+        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: false,
       }),
       Animated.timing(subida, {
-        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
+        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: false,
       }),
     ]).start(() => nav.dispatch(ev.data.action));
   }), [nav, sombra, subida, janela]);
