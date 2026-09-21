@@ -7,6 +7,7 @@ import {
 } from '../logic/derive';
 import { FORMAS, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
 import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
+import { radius } from '../theme';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { Calendario } from '../ui/calendario';
@@ -79,6 +80,7 @@ export default function Aplicacao() {
   const hoje = +startOfDay(now());
 
   const [quandoT, setQuandoT] = useState(hoje);
+  const [calAberto, setCalAberto] = useState(false);
   const [dose, setDose] = useState<number>(S.profile.dose);
   const [mudandoDose, setMudandoDose] = useState(false);
   const [site, setSite] = useState(sugerido);
@@ -107,28 +109,35 @@ export default function Aplicacao() {
   return (
     <SheetScreen
       titulo={`Registrar ${vocab.acao}`}
-      sub={maiuscula(dataComDiaDaSemana(new Date(quandoT)))}
+      /* Sem subtítulo: a data agora tem campo próprio, e o cabeçalho
+         escrevia a mesma frase três centímetros acima dele. */
       onClose={() => router.back()}
       rodape={<Botao label={`Salvar ${vocab.acao}`} onPress={salvar} />}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        {/* ⚠️⚠️ O CALENDÁRIO VEM ABERTO, E ERAM CHIPS QUE O ABRIAM.
+        {/* ⚠️⚠️ A DATA É UM CAMPO QUE ABRE O CALENDÁRIO — e este campo já
+            foi três coisas.
 
-            Havia sete atalhos — Hoje, Ontem, Anteontem, três dias com
-            nome, e "Outro dia" que abria a grade. Parecia menos trabalho e
-            era mais: quem quer registrar a aplicação de terça precisa
-            traduzir "terça" para um chip, e nem todo mundo faz essa conta
-            de cabeça. Data é a coisa que as pessoas mais erram quando
-            obrigadas a contar para trás.
+            Primeiro foram sete pastilhas: Hoje, Ontem, Anteontem, três
+            dias com nome e "Outro dia", que abria a grade. O defeito era
+            de tradução — quem quer registrar a aplicação de terça precisa
+            converter "terça" em pastilha, e contar dias para trás de
+            cabeça é justamente o que se erra.
 
-            Com a grade aberta, o caso comum ficou em ZERO toque — hoje já
-            vem marcado — e o caso difícil ficou em um. Os chips
-            economizavam um toque que ninguém dava.
+            Depois o calendário veio aberto, sem pastilha nenhuma. Acertou
+            a tradução e errou o tamanho: duzentos e oitenta pixels no topo
+            empurravam dose, local e recipiente para baixo da dobra em
+            TODO registro, inclusive nos nove de dez em que a data é hoje e
+            ninguém encosta nela.
 
-            ⚠️ O PREÇO É ALTURA: são uns 280 px no topo, e o resto da folha
-            nasce abaixo da dobra. Pôr o calendário por último resolveria,
-            e foi descartado — a folha abriria na dose, que é a pergunta
-            que quase nunca muda.
+            Agora o campo mostra a data por extenso — "Segunda, 21 de
+            setembro" — e a grade abre no toque. É a leitura sem conta de
+            cabeça, sem cobrar a altura de quem não precisa dela.
+
+            ⚠️ O VALOR FICA À VISTA MESMO FECHADO, e é isso que separa
+            deste campo da primeira versão: lá, fechado, a tela mostrava
+            uma pastilha acesa e a pessoa tinha de saber o que "Anteontem"
+            queria dizer. Aqui ela lê a data.
 
             "Outro horário" nunca voltou. A hora de uma aplicação não
             aparece em lugar nenhum do aplicativo: o histórico mostra data,
@@ -140,7 +149,32 @@ export default function Aplicacao() {
             ? `Fica registrada agora, ${fmtTime(now())}.`
             : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
         >
-          <Calendario valor={quandoT} onEscolhe={setQuandoT} />
+          <Pressable
+            onPress={() => setCalAberto((x) => !x)}
+            style={({ pressed }) => [{
+              backgroundColor: c.bg2, borderRadius: radius.md,
+              paddingHorizontal: 14, paddingVertical: 13,
+              opacity: pressed ? 0.7 : 1,
+            }]}
+          >
+            <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+              <Txt v="bodyMed">{maiuscula(dataComDiaDaSemana(new Date(quandoT)))}</Txt>
+              {/* A seta aponta para baixo quando há grade para abrir, e
+                  para cima quando ela já está aberta: é o mesmo controle
+                  nos dois sentidos, e a direção diz qual deles. */}
+              <Icon name={calAberto ? 'chevup' : 'chevdown'} size={16} color={c.tx3} sw={2.2} />
+            </Row>
+          </Pressable>
+          {/* Escolher FECHA a grade. É o que confirma o valor — a data
+              escolhida aparece no campo, que é onde ela vai ficar — e é o
+              que devolve os duzentos e oitenta pixels para o resto do
+              formulário. Quem errou o dia toca de novo. */}
+          {calAberto ? (
+            <Calendario
+              valor={quandoT}
+              onEscolhe={(t) => { setQuandoT(t); setCalAberto(false); }}
+            />
+          ) : null}
         </Campo>
 
         {/* ⚠️⚠️ A DOSE É UM FATO, E ERA UMA PERGUNTA TODA SEMANA.

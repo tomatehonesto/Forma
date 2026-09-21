@@ -212,20 +212,29 @@ Nenhuma delas estava no plano, e as quatro são consequência direta da fase.
 
 ### Depois do teste
 
-**1. O calendário passou a vir aberto, e as pastilhas de dia saíram.**
-Eram sete atalhos — Hoje, Ontem, Anteontem, três dias com nome e "Outro
-dia" — e o argumento contra eles foi do Nick: *"sinto que algumas pessoas
-têm dificuldade com datas"*. Quem quer registrar a aplicação de terça
-precisa traduzir "terça" para uma pastilha, e contar dias para trás de
-cabeça é justamente o que se erra. Com a grade aberta, o caso comum ficou
-em **zero** toque (hoje já vem marcado) e o difícil em um. As pastilhas
-economizavam um toque que ninguém dava.
+**1. A data virou um campo que abre o calendário — em duas rodadas.**
 
-O preço é altura: uns 280 px no topo, e o resto nasce abaixo da dobra.
-Pôr o calendário por último resolveria e foi descartado — a folha abriria
-na dose, que é a pergunta que quase nunca muda.
+As pastilhas saíram primeiro. Eram sete atalhos — Hoje, Ontem,
+Anteontem, três dias com nome e "Outro dia" — e o argumento contra eles
+foi do Nick: *"sinto que algumas pessoas têm dificuldade com datas"*.
+Quem quer registrar a aplicação de terça precisa traduzir "terça" para
+uma pastilha, e contar dias para trás de cabeça é justamente o que se
+erra.
 
-`diasParaAplicar` ficou sem consumidor e foi removida do `derive.ts`.
+A primeira tentativa foi deixar a grade **sempre aberta**. Acertou a
+tradução e errou o tamanho: 280 px no topo empurravam dose, local e
+recipiente para baixo da dobra em todo registro — inclusive nos nove de
+dez em que a data é hoje e ninguém encosta nela. Eu tinha previsto o
+custo e o subestimado; quem viu foi ele, usando.
+
+A forma final é um campo com a data por extenso — "Segunda, 21 de
+setembro" — que abre a grade no toque e a fecha na escolha. O valor fica
+à vista mesmo fechado, que é o que separa este campo das pastilhas: lá,
+fechada, a tela mostrava "Anteontem" e a pessoa tinha de decodificar.
+
+`diasParaAplicar` ficou sem consumidor e foi removida do `derive.ts`. E
+o subtítulo do cabeçalho saiu junto: ele escrevia a mesma data três
+centímetros acima do campo.
 
 **2. A dose virou um fato com CTA, e era uma pergunta toda semana.** Ela
 muda na titulação: uma vez por mês no começo, e quase nunca depois da
