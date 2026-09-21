@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { timelineWeeks, timelineEvents, timelineCounts, type TLKind } from '../logic/derive';
-import { MO_LONG, DAY, dataLonga, fmtDate } from '../logic/time';
+import { DAY, dataLonga, fmtDate, fmtPeriodo } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
@@ -88,7 +88,11 @@ export default function Historico() {
               titulo={`Semana ${w.semana}`}
               selo={w.deltaPeso ?? 'sem pesagem'}
               seloTom={w.deltaPeso ? 'lima' : 'neutra'}
-              sub={`${fmtDate(w.t)} a ${fmtDate(w.t + 6 * DAY)} · ${w.dose} · ${w.site}`}
+              /* ⚠️ ERA "17 set a 23 set", montado aqui. O formatador da
+                  casa diz o mês uma vez — "17 a 23 set" — e em inglês diz
+                  "Sep 17–23". O "a" escrito na tela ficaria em português
+                  para sempre. */
+              sub={`${fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY))} · ${w.dose} · ${w.site}`}
               meta={w.resumo}
               onPress={() => router.push(`/semana?s=${w.semana}` as any)}
             />

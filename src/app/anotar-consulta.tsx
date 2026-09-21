@@ -74,7 +74,7 @@ export default function AnotarConsulta() {
     { length: Math.max(1, maiorDia - primeiroDoMes + 1) },
     (_, k) => ({ v: primeiroDoMes + k, label: String(primeiroDoMes + k) }),
   );
-  const meses = MO_LONG
+  const meses = MO_LONG()
     .map((m, k) => ({ v: k, label: m }))
     .filter((x) => {
       const depoisDeHoje = ano > hoje.getFullYear() || x.v >= hoje.getMonth();

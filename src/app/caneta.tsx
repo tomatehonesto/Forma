@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
 import { FORMAS, formaDe, concordar, oA } from '../logic/formas';
-import { nf, fmtDate, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
+import { nf, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
@@ -124,7 +124,7 @@ export default function Caneta() {
               seloTom="neutra"
               sub={p.estado === 'uso'
                 ? `${maiuscula(aberto)} em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
-                : `${fmtDate(p.abertaEm!)} a ${fmtDate(p.ultimaEm!)} · ${p.usadas} de ${p.total} doses`}
+                : `${fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!))} · ${p.usadas} de ${p.total} doses`}
               itens={p.aplicacoes.map((a) => [fmtDate(a.t), siteLabel(a.site).toLowerCase()] as [string, string])}
             />
           ))}

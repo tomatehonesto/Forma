@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { nf } from '../logic/time';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -291,7 +292,7 @@ export default function Especialista() {
             <Row style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingVertical: 18 }}>
               {([
                 ['clock', `${f.anos} anos`, 'de experiência'],
-                ['user', `${(f.pacientes / 1000).toFixed(1).replace('.', ',')}k+`, 'pacientes atendidos'],
+                ['user', `${nf(f.pacientes / 1000, 1)}k+`, 'pacientes atendidos'],
               ] as [string, string, string][]).map(([ic, valor, label], i) => (
                 <React.Fragment key={label}>
                   {i > 0 && <View style={{ width: 1, backgroundColor: c.line2, marginVertical: 2 }} />}

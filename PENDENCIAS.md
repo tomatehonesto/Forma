@@ -847,7 +847,7 @@ rótulos de categoria já saem — `T.marcadores.nome[chave]`.
 **Por que não foi feito junto da extração:** a extração dos textos tem uma
 invariante verificável — a saída não muda. Esta mudança muda a saída de
 propósito, e misturar as duas faria o congelamento parar de provar
-qualquer coisa. Fica para a peça do idioma.
+qualquer coisa. Fica para a peça da tradução — ver o item 19.
 
 É também onde entra a pergunta maior, que continua aberta: o catálogo de
 exames é brasileiro. "TGO/TGP" é a nomenclatura daqui — nos Estados Unidos
@@ -949,3 +949,35 @@ cópia tem a data em que foi feita — 21/09/2026. Não há nada que avise
 quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
+
+## 🟡 19. O motor de idioma está pronto; a tradução não
+
+O formato já é bilíngue. `src/logic/local.ts` guarda **um valor só** —
+idioma e local são a mesma decisão — e dele saem o separador decimal, o
+ponto de milhar, o desenho de cada data, o nome dos meses e dos dias, e o
+relógio de 12 ou 24 horas. O aparelho é lido uma vez no arranque
+(`expo-localization`), e o que a pessoa escolher ganha do que ele disser.
+
+O catálogo de textos ainda só fala português. Um aparelho em inglês lê
+hoje **números americanos com frases portuguesas** — o `CATALOGOS` cai no
+português de propósito, e o motivo está escrito em cima dele.
+
+**O que a peça 4 precisa fazer:**
+
+- escrever `src/textos/en-US/`, que o `tsc` já exige idêntico em
+  assinatura ao português (o tipo `Textos` sai do `typeof` dele);
+- tirar a prosa sobre tempo de `logic/time.ts` — "ontem", "há 3 dias",
+  "hoje", "amanhã" — que ficou em código porque é fala e não formato;
+- resolver o item 17 acima, que é o nome do marcador de exame;
+- só então nascer a tela de escolha de idioma. Hoje ela seria porta
+  emparedada: prometeria inglês e entregaria português.
+
+**A linha de base já está congelada.** A rede tem dois cenários `-en-US`,
+e o contrato deles é: quando a tradução chegar, **só a prosa pode mudar**.
+Número, data e relógio já estão certos, e qualquer movimento neles é erro
+da tradução, não do motor.
+
+**E há uma revisão que não é minha.** O texto clínico em inglês precisa
+passar por alguém habilitado no mercado de destino — não é tradução de
+interface, é o que o aplicativo diz sobre tratamento a quem está fazendo
+um.

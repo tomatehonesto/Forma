@@ -1,3 +1,4 @@
+import { localAtual, type Local } from '../logic/local';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
@@ -43,7 +44,11 @@ import { tratamento as tratamentoPt } from './pt-BR/tratamento';
    A rede que garante isso é `scripts/congelar.ts` — ver o README daqui.
    ============================================================ */
 
-export type Idioma = 'pt-BR';
+/* ⚠️ O VALOR DO IDIOMA NÃO MORA MAIS AQUI. Ele é o mesmo que decide o
+   separador decimal e o desenho da data, e mora em logic/local com eles —
+   "português com números americanos" não é um estado que deva existir.
+   Este arquivo passou a ser só o catálogo. */
+export type { Local } from '../logic/local';
 
 /* Tipos que descrevem a FORMA de um texto, e não de um dado — por isso
    moram no catálogo e saem por aqui. Ver textos/pt-BR/marcadores. */
@@ -75,7 +80,16 @@ export type Textos = {
   tratamento: typeof tratamentoPt;
 };
 
-const CATALOGOS: Record<Idioma, Textos> = {
+/* ⚠️⚠️ SÓ EXISTE PORTUGUÊS, E O QUE FALTA CAI NELE. Isto é o fallback
+   explícito de que fala o comentário do alto: o motor de formato já sabe
+   escrever em inglês — número, data e relógio —, e o catálogo ainda não
+   sabe falar. Enquanto a peça 4 não chega, um aparelho em inglês lê
+   números americanos com frases portuguesas.
+
+   É feio e é honesto, e é melhor do que as duas alternativas: travar o
+   formato no português esconderia o trabalho que já está feito, e fingir
+   um catálogo em inglês entregaria chave crua na tela de alguém. */
+const CATALOGOS: Partial<Record<Local, Textos>> = {
   'pt-BR': {
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
@@ -85,10 +99,7 @@ const CATALOGOS: Record<Idioma, Textos> = {
   },
 };
 
-let atual: Idioma = 'pt-BR';
 
-export const idiomaAtual = () => atual;
-export const trocarIdioma = (i: Idioma) => { atual = i; };
 
 /* ⚠️ É UM PROXY, e não o objeto direto: o catálogo precisa ser resolvido
    na hora da LEITURA, e não na hora do import. Exportar
@@ -98,5 +109,5 @@ export const trocarIdioma = (i: Idioma) => { atual = i; };
    Uma propriedade por domínio é barato — são poucas dezenas —, e o custo
    por leitura é um acesso a objeto. */
 export const T = new Proxy({} as Textos, {
-  get: (_alvo, chave: string) => (CATALOGOS[atual] as any)[chave],
+  get: (_alvo, chave: string) => ((CATALOGOS[localAtual()] ?? CATALOGOS['pt-BR']) as any)[chave],
 });

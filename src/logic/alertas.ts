@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { DOW_SHORT, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
+import { WD, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -210,7 +210,7 @@ const horasEmTexto = (horas: number[]) =>
 export const SEMANA = [0, 1, 2, 3, 4, 5, 6];
 
 /** D S T Q Q S S — a inicial de cada dia, para a fileira de sete. */
-export const inicialDoDia = (d: number) => DOW_SHORT[d].charAt(0).toUpperCase();
+export const inicialDoDia = (d: number) => WD()[d].charAt(0).toUpperCase();
 
 const diasEmTexto = (dias: number[]) => {
   if (!dias.length) return 'Todo dia';
@@ -218,7 +218,7 @@ const diasEmTexto = (dias: number[]) => {
   if (ordem.length === 7) return 'Todo dia';
   if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return 'Dias úteis';
   if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return 'Fim de semana';
-  const nomes = ordem.map((d) => DOW_SHORT[d]);
+  const nomes = ordem.map((d) => WD()[d]);
   return maiuscula(nomes[0]) + (nomes.length > 1 ? `, ${nomes.slice(1).join(', ')}` : '');
 };
 

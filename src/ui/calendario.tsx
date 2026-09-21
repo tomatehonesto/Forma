@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
-import { DAY, MO_LONG, WD, startOfDay, now } from '../logic/time';
+import { DAY, WD, fmtMesAno, startOfDay, now } from '../logic/time';
 import { radius } from '../theme';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
@@ -83,7 +83,7 @@ export function Calendario({ valor, onEscolhe }: {
           <Icon name="back" size={20} color={c.tx2} sw={2.2} />
         </Pressable>
 
-        <Txt v="bodyMed">{`${MO_LONG[mes.getMonth()]} de ${mes.getFullYear()}`}</Txt>
+        <Txt v="bodyMed">{fmtMesAno(mes)}</Txt>
 
         {/* Some no mês corrente — ver a nota lá em cima. O View vazio
             segura o lugar, para o nome do mês não pular para o meio. */}
@@ -99,7 +99,7 @@ export function Calendario({ valor, onEscolhe }: {
       </Row>
 
       <Row>
-        {WD.map((d) => (
+        {WD().map((d) => (
           <View key={d} style={{ flex: 1, alignItems: 'center' }}>
             <Txt v="micro" c={c.tx4}>{d}</Txt>
           </View>

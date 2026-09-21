@@ -33,6 +33,7 @@
    como arquivo commitado que se confere semanas depois.
    ============================================================ */
 
+import { trocarLocal, type Local } from '../src/logic/local';
 import { buildSeed } from '../src/logic/seed';
 import {
   todayBrief, journeyGoals, weightCard, canetaAtual, cicloFases,
@@ -78,9 +79,23 @@ const tenta = (nome: string, fn: () => unknown) => {
    medicamento e da unidade de medida. Congelar só o caminho de quem usa
    caneta em quilo deixaria de fora justamente os ramos novos, que são os
    que ninguém exercita todo dia. */
-const CENARIOS: [string, (S: any) => void][] = [
+/* ⚠️⚠️ O TERCEIRO CAMPO É O LOCAL, e ele não mora no estado. Idioma,
+   separador decimal e desenho de data são valor de módulo — ver
+   logic/local, que explica por quê —, então o cenário não consegue
+   ajustá-los mexendo em `S`. Ele diz qual local quer, e o laço troca
+   antes de rodar e devolve depois.
+
+   ⚠️ E O CENÁRIO EM INGLÊS SAI COM FRASE EM PORTUGUÊS, de propósito: o
+   motor de formato já escreve em inglês e o catálogo ainda não fala. É
+   exatamente o que o aplicativo faz hoje num aparelho americano, e é a
+   linha de base da peça 4 — quando a tradução chegar, só a PROSA deste
+   cenário pode mudar. Número, data e relógio já estão no lugar, e
+   qualquer movimento neles será erro dela. */
+const CENARIOS: [string, (S: any) => void, Local?][] = [
   ['caneta-metrico', () => {}],
   ['caneta-imperial', (S) => { S.profile.sistema = 'imperial'; }],
+  ['caneta-en-US', () => {}, 'en-US'],
+  ['caneta-imperial-en-US', (S) => { S.profile.sistema = 'imperial'; }, 'en-US'],
   ['frasco-metrico', (S) => { S.profile.med = 'semaglutida-manipulada'; S.profile.forma = 'frasco'; S.profile.dose = 1.35; }],
   ['comprimido-metrico', (S) => { S.profile.med = 'rybelsus'; S.profile.forma = 'comprimido'; S.profile.dose = 7; }],
 
@@ -133,7 +148,8 @@ const TIPOS = ['peso', 'medidas', 'exame', 'anotacao', 'refeicao', 'exercicio', 
 
 const saida: Record<string, unknown> = {};
 
-for (const [nome, ajusta] of CENARIOS) {
+for (const [nome, ajusta, local] of CENARIOS) {
+  trocarLocal(local ?? 'pt-BR');
   const S: any = buildSeed();
   ajusta(S);
   const c: Record<string, unknown> = {};

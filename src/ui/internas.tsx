@@ -929,7 +929,7 @@ export function CardSemana({
             /* Três letras, não uma: sáb, seg e sex começam iguais, e a
                fileira virava "s s s" no meio da semana. */
             <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
-              <Txt v="micro" c={i === dias.length - 1 ? c.tx2 : c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
+              <Txt v="micro" c={i === dias.length - 1 ? c.tx2 : c.tx4}>{WD()[new Date(d.t).getDay()]}</Txt>
             </View>
           ))}
         </Row>
@@ -1012,7 +1012,7 @@ export function TiraDeDias({ dias, sel, onEscolhe }: {
                   branco sobre branco some. É a mesma dupla que os chips do
                   app usam desde sempre. */}
               <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
-                {d.hoje ? 'hoje' : WD[dt.getDay()]}
+                {d.hoje ? 'hoje' : WD()[dt.getDay()]}
               </Txt>
               <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : d.marcado ? c.accent : c.tx3}>
                 {dt.getDate()}

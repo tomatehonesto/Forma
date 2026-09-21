@@ -10,6 +10,7 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
+import { lerAparelho, localAtual } from '../logic/local';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -212,6 +213,24 @@ export default function RootLayout() {
   });
 
   useEffect(() => { hydrate(); }, [hydrate]);
+
+  /* ⚠️⚠️ O APARELHO É LIDO UMA VEZ, ANTES DA PRIMEIRA TELA. Idioma,
+     relógio e sistema de unidades são coisas que o sistema operacional já
+     sabe sobre quem está segurando o telefone, e perguntar de novo o que
+     ele já respondeu é trabalho que se passa para a pessoa.
+
+     ⚠️ E A ESCOLHA DELA GANHA SEMPRE. O que vem daqui é o PADRÃO: quem
+     entrou na folha de unidades e marcou imperial guardou `profile.sistema`,
+     e este bloco não encosta nele. Ver logic/local e logic/medidas. */
+  const update = useStore((s) => s.update);
+  useEffect(() => {
+    const doAparelho = lerAparelho();
+    if (!doAparelho || !doAparelho.imperial) return;
+    update((st: any) => {
+      if (st.profile.sistema == null) st.profile.sistema = 'imperial';
+    });
+  }, [update]);
+
   if (!loaded || !ready) return null;
 
   return (
@@ -221,7 +240,12 @@ export default function RootLayout() {
         <Agendador />
         <SaudeDoAparelho />
         <VigiaDeConquistas />
-        <Moldura>
+        {/* ⚠️ A ÁRVORE É REMONTADA QUANDO O IDIOMA MUDA. O React não sabe
+            que o valor do local mudou — ele não está no estado dele —, e
+            uma tela já desenhada continuaria com os nomes de mês antigos.
+            Remontar é o resultado certo para uma troca que acontece uma
+            vez na vida do aplicativo, e é esta linha. Ver src/textos. */}
+        <Moldura key={localAtual()}>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />

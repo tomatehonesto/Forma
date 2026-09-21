@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
 import { medidaDe, porUnidadeDe } from '../logic/alimentos';
 import { massaTxt } from '../logic/medidas';
+import { numeroEnxuto } from '../logic/local';
 import { useStore } from '../logic/store';
 import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Botao } from '../ui/internas';
@@ -67,9 +68,14 @@ const TINTA: Record<string, (c: any) => [string, string]> = {
   'riboflavina': (c) => [c.rose, '#8E1E48'],
 };
 
-/** "1,3" em vez de "1.3", e "—" quando o nutriente não foi analisado. */
+/** "1,3" em português, "1.3" em inglês — e "—" quando o nutriente não
+    foi analisado.
+
+    ⚠️ A VÍRGULA ERA POSTA AQUI, À MÃO. Em inglês a linha escreveria
+    "1,3 g" de proteína numa tela onde tudo o mais usa ponto, e ninguém
+    veria: um separador trocado não parece erro, parece número. */
 const n1 = (v: number | null) =>
-  v == null ? '—' : String(Math.round(v * 10) / 10).replace('.', ',');
+  v == null ? '—' : numeroEnxuto(v, 1);
 
 export default function Alimento() {
   const { c } = useTheme();

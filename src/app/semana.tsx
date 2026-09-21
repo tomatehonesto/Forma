@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { INDICADORES, sintomasEm, timelineWeeks, notas, temAcompanhamento } from '../logic/derive';
-import { MO_LONG, DAY, DOW_PT, nf, maiuscula, fmtDate } from '../logic/time';
+import { DAY, DOW_PT, fmtDate, fmtPeriodoLongo, maiuscula, nf } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
@@ -36,7 +36,7 @@ const SELO: Record<string, string> = {
 };
 const diaSemana = (t: number) => {
   const d = new Date(t);
-  const nome = DOW_PT[d.getDay()];
+  const nome = DOW_PT()[d.getDay()];
   return `${maiuscula(nome)}, ${fmtDate(t)}`;
 };
 
@@ -99,14 +99,14 @@ export default function Semana() {
     >
       <Titulao
         titulo={`Semana ${w.semana}`}
-        lead={`${ini.getDate()} a ${fim.getDate()} de ${MO_LONG[fim.getMonth()]} · ${w.dose}`}
+        lead={`${fmtPeriodoLongo(ini, fim)} · ${w.dose}`}
       />
 
       <Grade2>
         <Metrica
           ic="syringe"
           nome="Aplicação"
-          selo={DOW_PT[ini.getDay()]}
+          selo={DOW_PT()[ini.getDay()]}
           seloTom="neutra"
           para={w.site}
         />

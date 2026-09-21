@@ -1658,7 +1658,7 @@ export default function Cadastro() {
             />
             <Roda
               largura={142}
-              itens={MO_LONG.map((m, k) => ({ v: k, label: m }))}
+              itens={MO_LONG().map((m, k) => ({ v: k, label: m }))}
               valor={r.mes}
               /* Mudar de mês pode deixar o dia fora do calendário — 31 de
                  fevereiro não existe, e guardar isso encostaria um dia
@@ -2123,7 +2123,7 @@ export default function Cadastro() {
               />
               <Roda
                 largura={142}
-                itens={MO_LONG
+                itens={MO_LONG()
                   .map((m, k) => ({ v: k, label: m }))
                   .filter((x) => r.iAno < hoje.getFullYear() || x.v <= hoje.getMonth())}
                 valor={r.iMes}

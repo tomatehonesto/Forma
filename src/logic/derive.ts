@@ -4,6 +4,7 @@ import {
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
+import { numeroEnxuto } from './local';
 import { FORMAS, formaDe, oA, noNa } from './formas';
 import { T, type SobreOMarcador, type JeitoDeAjudar } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -863,7 +864,7 @@ export function last7Days(S: State) {
     const t = +d;
     return {
       t,
-      dow: DOW_PT[d.getDay()][0].toUpperCase(),
+      dow: DOW_PT()[d.getDay()][0].toUpperCase(),
       dia: d.getDate(),
       feito: chk.has(t),
       aplicou: apl.has(t),
@@ -2484,7 +2485,13 @@ export const waterMlToday = (S: State) => aguaDoDia(S, +startOfDay(now()));
 
    A unidade não vem junto de propósito — quem escreve o "L" é a frase,
    que às vezes quer "de 2,5 L hoje" e às vezes só o número. */
-export const litros = (ml: number) => (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+/* ⚠️ A VÍRGULA SAIU DAQUI, e a função ficou. Ela era posta à mão — e a
+   mesma regra vivia também dentro do `aguaN` de logic/medidas, que
+   trazia no comentário a frase "era o litros de derive": o aviso de que a
+   cópia existia, deixado por quem a fez. As duas agora chamam
+   `numeroEnxuto`, em logic/local, que é onde se sabe qual é o separador
+   do idioma. */
+export const litros = (ml: number) => numeroEnxuto(ml / 1000, 2);
 
 
 export type DailyTarget = {

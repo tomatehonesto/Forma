@@ -10,7 +10,7 @@ import {
 } from '../logic/derive';
 import type { PlanoInicial } from '../logic/derive';
 import { FONTES } from '../logic/fontes';
-import { MO_LONG, doseTxt, kgTxt, milhar, nf, now, startOfDay } from '../logic/time';
+import { doseTxt, fmtDate, kgTxt, milhar, nf, now, startOfDay } from '../logic/time';
 import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Grade2 } from '../ui/internas';
@@ -179,7 +179,11 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
          despercebida até alguém mexer numa linha e ler a outra. */
       const quando = (sem: number) => {
         const dt = new Date(+startOfDay(now()) + sem * 7 * 86400000);
-        return `${dt.getDate()} de ${MO_LONG[dt.getMonth()].slice(0, 3)}`;
+        /* ⚠️ ERA "13 de mai", montado aqui com o mês longo cortado em
+           três letras — o formatador da casa já escreve "13 mai", e em
+           inglês escreve "May 13". Montar a data na tela deixava esta
+           linha em português para sempre. */
+        return fmtDate(dt);
       };
       /* O MARCO DO MEIO SEGUE A MESMA FORMA DA CURVA. Com a reta ele era
          metade da distância; com o afrouxamento, aos 50% do tempo já se

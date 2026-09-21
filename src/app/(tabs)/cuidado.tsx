@@ -617,7 +617,7 @@ function Consulta() {
           <View style={{ flex: 1 }}>
             <Txt v="title">{cs.tipo}</Txt>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>
-              {DOW_PT[cs.data.getDay()]} · {cs.doutor}
+              {DOW_PT()[cs.data.getDay()]} · {cs.doutor}
             </Txt>
             <Row gap={7} style={{ marginTop: 10 }}>
               <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />

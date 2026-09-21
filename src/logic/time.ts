@@ -1,3 +1,5 @@
+import { formato, hora12, numero } from './local';
+
 /* Tempo — helpers determinísticos (porta verbatim do protótipo). */
 export const DAY = 864e5;
 export const now = () => new Date();
@@ -6,11 +8,24 @@ export const daysAgo = (n: number) => new Date(Date.now() - n * DAY);
 export const addDays = (d: Date | number, n: number) => new Date(+d + n * DAY);
 export const diffDays = (a: Date | number, b: Date | number) => Math.round((+startOfDay(a) - +startOfDay(b)) / DAY);
 
-export const WD = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-export const MO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-export const MO_LONG = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-export const DOW_PT = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-export const DOW_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+/* ⚠️⚠️ SÃO FUNÇÕES, E ISSO NÃO É ESTILO. Constante de módulo é avaliada
+   uma vez, no import, e congelaria o primeiro local que o aplicativo viu:
+   trocar de idioma não teria efeito nenhum sobre nome de mês, e nada
+   acusaria — nem o tsc, nem o app, só a tela de alguém em inglês com
+   "setembro" escrito.
+
+   Foi exatamente assim que a extração de textos apagou o rodízio de
+   locais de aplicação, e essa história está no README de src/textos. A
+   regra que saiu de lá vale aqui inteira: se a tabela lê o local, ela é
+   função.
+
+   ⚠️ E O `DOW_SHORT` MORREU. Ele era `WD` escrito de novo, letra por
+   letra, com outro nome — duas listas idênticas onde uma ia envelhecer
+   sozinha. Os dois usos dele, em logic/alertas, passaram para o `WD`. */
+export const WD = () => formato().diaCurto;
+export const MO = () => formato().mesCurto;
+export const MO_LONG = () => formato().mesLongo;
+export const DOW_PT = () => formato().diaLongo;
 
 /** "20 set".
 
@@ -27,7 +42,7 @@ export const DOW_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
     tinha descido em `dataComAno` e `dataLonga`. */
 export const fmtDate = (t: number | Date) => {
   const d = new Date(t);
-  return `${d.getDate()} ${MO[d.getMonth()]}`;
+  return formato().curta(d.getDate(), d.getMonth());
 };
 
 /* ⚠️ COM ANO, e é essa a diferença para os `dataLonga` espalhados pelas
@@ -39,7 +54,7 @@ export const fmtDate = (t: number | Date) => {
    As três telas de assinatura tinham a mesma função copiada. */
 export const dataComAno = (t: number | Date) => {
   const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]} de ${d.getFullYear()}`;
+  return formato().comAno(d.getDate(), d.getMonth(), d.getFullYear());
 };
 
 /** "20 de setembro".
@@ -54,7 +69,7 @@ export const dataComAno = (t: number | Date) => {
     tinha nascido de uma consolidação igual a esta. */
 export const dataLonga = (t: number | Date) => {
   const d = new Date(t);
-  return `${d.getDate()} de ${MO_LONG[d.getMonth()]}`;
+  return formato().longa(d.getDate(), d.getMonth());
 };
 
 /** "quarta, 20 de setembro".
@@ -71,18 +86,48 @@ export const dataLonga = (t: number | Date) => {
     formatadores parecidos. */
 export const dataComDiaDaSemana = (t: number | Date) => {
   const d = new Date(t);
-  return `${DOW_PT[d.getDay()]}, ${dataLonga(d)}`;
+  return formato().comDiaDaSemana(DOW_PT()[d.getDay()], dataLonga(d));
 };
 
 /* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:
    "1 a 7 set", e "28 jul a 3 ago" quando a semana vira o mês. */
 export const fmtPeriodo = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth()
-    ? `${a.getDate()} a ${b.getDate()} ${MO[b.getMonth()]}`
-    : `${fmtDate(a)} a ${fmtDate(b)}`;
-export const fmtWD = (d: Date) => WD[d.getDay()];
-export const fmtTime = (d: Date) => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
-export const hm = (h: number, m: number) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    ? formato().periodo(a.getDate(), b.getDate(), b.getMonth())
+    : formato().junta(fmtDate(a), fmtDate(b));
+export const fmtWD = (d: Date) => WD()[d.getDay()];
+
+/** "13 a 19 de maio" — o intervalo com o mês por extenso.
+
+    ⚠️ ESTAVA ESCRITO À MÃO na tela da semana, com o nome do mês vindo da
+    tabela e o "de" no meio da interpolação. Em inglês aquilo sairia "13 a
+    19 de May": a frase era portuguesa por dentro e ninguém veria isso até
+    a tradução chegar. É o mesmo motivo de todos os outros formatadores
+    daqui existirem. */
+/** "maio de 2026" — o cabeçalho do calendário.
+
+    ⚠️ ERA MONTADO NA PRÓPRIA TELA, com o "de" no meio da interpolação. O
+    inglês não tem esse "de": lá é "May 2026". */
+export const fmtMesAno = (d: Date) => formato().mesAno(d.getMonth(), d.getFullYear());
+
+export const fmtPeriodoLongo = (a: Date, b: Date) =>
+  a.getMonth() === b.getMonth()
+    ? formato().periodoLongo(a.getDate(), b.getDate(), b.getMonth())
+    : formato().junta(dataLonga(a), dataLonga(b));
+
+/* ⚠️ O RELÓGIO É DE DOZE HORAS EM INGLÊS, e "14:30" não é uma hora que
+   alguém leia lá sem converter de cabeça. O zero à esquerda também some:
+   "08:30 AM" não se escreve, "8:30 AM" sim. Quem manda é `hora12`, que
+   ouve o idioma e deixa o aparelho discordar — ver logic/local. */
+const relogio = (h: number, m: number, zero: boolean) => {
+  const mm = String(m).padStart(2, '0');
+  if (!hora12()) return `${zero ? String(h).padStart(2, '0') : h}:${mm}`;
+  const meio = h < 12 ? 'AM' : 'PM';
+  return `${h % 12 === 0 ? 12 : h % 12}:${mm} ${meio}`;
+};
+
+export const fmtTime = (d: Date) => relogio(d.getHours(), d.getMinutes(), false);
+export const hm = (h: number, m: number) => relogio(h, m, true);
 
 export function relDay(d: Date) {
   const n = diffDays(d, now());
@@ -118,31 +163,15 @@ export const quandoEm = (dias: number) => ({
     meio de uma frase — "em 3 dias" — às vezes abre uma. */
 export const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** O número como o Brasil escreve: vírgula decimal e ponto de milhar.
+/** O número como o local escreve — vírgula decimal e ponto de milhar em
+    português, o contrário em inglês.
 
-    ⚠️⚠️ A VÍRGULA É GARANTIDA AQUI, E ANTES ERA ESPERANÇA.
-
-    Isto era `toLocaleString('pt-BR')`, e essa chamada só cumpre o que
-    promete onde existe ICU completo. No React Native ela cai para o
-    comportamento do `toString`: ignora o locale, ignora as casas pedidas
-    e devolve "75.1" com ponto. Foi por isso que quarenta e dois lugares
-    do aplicativo penduraram um `.replace('.', ',')` no fim da chamada — e
-    foi por isso que os outros, que não penduraram, ficavam com o ponto.
-    Metade dos números do aplicativo dependia de quem tinha lembrado.
-
-    ⚠️ E O `.replace` NÃO ERA UM CONSERTO, era outro defeito esperando o
-    número certo. Onde o ICU funciona, `nf(1700, 1)` devolve "1.700,5" — e
-    trocar o primeiro ponto por vírgula produz "1,700,5". Ninguém tinha
-    visto porque nenhum dos quarenta e dois formatava mil.
-
-    Agora a conta é feita aqui, sem locale nenhum: `toFixed` garante as
-    casas com ponto, o ponto vira vírgula, e os milhares ganham o ponto
-    deles depois — nessa ordem, que é a que não confunde os dois. */
-export const nf = (x: number, d = 1) => {
-  const [inteiro, frac] = Math.abs(x).toFixed(d).split('.');
-  const comMilhar = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return `${x < 0 ? '-' : ''}${comMilhar}${frac ? `,${frac}` : ''}`;
-};
+    ⚠️ A CONTA MUDOU DE CASA, E O NOME FICOU. Ela mora em logic/local, com
+    o resto do que muda de idioma para idioma, e a história de por que ela
+    não usa `toLocaleString` está lá. Aqui fica o nome que trinta arquivos
+    já chamam: trocar a implementação sem tocar em nenhum sítio de chamada
+    é justamente o que um funil serve para permitir. */
+export const nf = numero;
 export const kg = (x: number) => nf(x, 1);
 
 /* ------------------------------------------------------------------ *

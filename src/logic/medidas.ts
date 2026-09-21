@@ -1,4 +1,5 @@
 import { nf } from './time';
+import { numeroEnxuto } from './local';
 
 /* ============================================================
    AS UNIDADES — métrico e imperial
@@ -159,8 +160,9 @@ export const aguaMl = (S: ComPerfil, v: number) => (imp(S) ? v / OZ_POR_ML : v *
 export const aguaN = (S: ComPerfil, ml: number) => (imp(S)
   ? nf(aguaV(S, ml), 0)
   /* Uma casa decimal só quando ela existe: 1 L, 1,5 L, 0,25 L. Sem zero à
-     toa no fim, como se escreve à mão. Era o `litros` de derive. */
-  : (ml / 1000).toFixed(2).replace(/\.?0+$/, '').replace('.', ','));
+     toa no fim, como se escreve à mão. A regra mora em logic/local, com o
+     resto do que sabe qual é o separador. */
+  : numeroEnxuto(ml / 1000, 2));
 export const aguaTxt = (S: ComPerfil, ml: number) => `${aguaN(S, ml)} ${aguaU(S)}`;
 
 /* ------------------------------------------------------------------ *

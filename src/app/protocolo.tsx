@@ -85,7 +85,7 @@ export default function ProtocoloDaSemana() {
                       }}>
                         {d.ok ? <Icon name="check" size={13} color={c.accentInk} sw={2.6} /> : null}
                       </View>
-                      <Txt v="micro" c={c.tx4}>{WD[new Date(d.t).getDay()]}</Txt>
+                      <Txt v="micro" c={c.tx4}>{WD()[new Date(d.t).getDay()]}</Txt>
                     </View>
                   );
                 })}

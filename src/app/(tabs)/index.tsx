@@ -852,7 +852,7 @@ export default function Home() {
                     onPress={go('/conversa')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   <ListRow ic="cal" title="Próxima consulta"
-                    sub={`${fmtDate(consultD)} • ${DOW_PT[consultD.getDay()]}`}
+                    sub={`${fmtDate(consultD)} • ${DOW_PT()[consultD.getDay()]}`}
                     onPress={go('/consultas')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   {/* ⚠️ LEVA AO PEDIDO, e não à tela onde ele poderia estar.
@@ -901,7 +901,7 @@ export default function Home() {
                   <ListRow ic="cal"
                     title={temConsulta(S) ? 'Próxima consulta' : 'Anotar uma consulta'}
                     sub={temConsulta(S)
-                      ? `${fmtDate(new Date(S.consult.t))} • ${DOW_PT[new Date(S.consult.t).getDay()]}`
+                      ? `${fmtDate(new Date(S.consult.t))} • ${DOW_PT()[new Date(S.consult.t).getDay()]}`
                       : 'Para avisarmos quando ela chegar perto'}
                     onPress={go(temConsulta(S) ? '/consultas' : '/anotar-consulta')} />
                 </View>

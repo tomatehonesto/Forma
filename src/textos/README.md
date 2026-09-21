@@ -92,7 +92,8 @@ seguinte ao que a criou.
 ## A rede
 
 `scripts/congelar.ts` percorre toda função que produz texto e congela a
-saída em quatro cenários — caneta, imperial, frasco e comprimido.
+saída em seis cenários — caneta, imperial, frasco, comprimido e os
+dois em inglês.
 
 ```
 npx tsx --tsconfig scripts/tsconfig.json scripts/congelar.ts > /tmp/antes.json
@@ -104,3 +105,49 @@ diff /tmp/antes.json /tmp/depois.json
 **Diferença nenhuma é a única saída aceitável.** Qualquer linha no diff é
 erro de extração — melhoria de texto é outro commit, feito depois, com o
 diff mostrando exatamente o que mudou.
+
+## O formato não mora aqui
+
+Palavra mora neste diretório. **Separador decimal, desenho de data e
+relógio moram em `src/logic/local.ts`**, com o valor que decide os dois.
+
+É um valor só: idioma e local são a mesma decisão. "Português com números
+americanos" não é um estado que deva existir — quem escreve em português
+escreve 181,7.
+
+| onde | o quê |
+|---|---|
+| `src/textos/` | a frase: o que o aplicativo diz |
+| `src/logic/local.ts` | o formato: como o número e a data saem |
+
+A fronteira tem uma exceção, e ela está comentada lá: os **nomes do
+calendário** — doze meses e sete dias — moram no formato, e não aqui. Não
+são fala do aplicativo, são a grade do calendário: lista fechada, sem
+concordância, igual em todo texto que já existiu naquele idioma. E o
+formatador de data não funciona sem eles.
+
+A prosa sobre tempo — "ontem", "há 3 dias" — é fala, e é daqui.
+
+### A mesma armadilha, de novo
+
+Constante de módulo congela o local exatamente como congelava o catálogo:
+
+```ts
+export const MO_LONG = () => formato().mesLongo;   // função, não constante
+```
+
+Dez sítios de chamada precisaram do `()`. O `tsc` acusou todos, porque
+indexar uma função é erro de tipo — foi de graça. O que não é de graça é
+uma tabela que o `tsc` aceita: `Object.keys` de uma função devolve `[]`, e
+nada acusa.
+
+### E o inglês já escreve número
+
+O motor de formato está completo nos dois locais. O catálogo ainda só fala
+português, e um aparelho em inglês lê **números americanos com frases
+portuguesas** — o `CATALOGOS` cai no português de propósito, com o motivo
+escrito em cima.
+
+Os dois cenários `-en-US` da rede congelam esse estado. Quando a tradução
+chegar, **só a prosa deles pode mudar**: número, data e relógio já estão no
+lugar, e qualquer movimento neles é erro dela.
