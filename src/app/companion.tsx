@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
-import { useAurora } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -12,11 +11,8 @@ import {
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, RichDoc } from '../ui/kit';
-import { Image } from 'expo-image';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { useLarguraApp } from '../ui/useLarguraApp';
-import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { useDitado, ditadoDisponivel } from '../ui/useDitado';
 import { radius, font } from '../theme';
 
@@ -60,19 +56,12 @@ import { radius, font } from '../theme';
    ============================================================ */
 
 const PAD = 24;
-const SOBREPOSICAO = 36;
 
-/* Onde a base da esfera cai, em fração da LARGURA da tela.
-
-   A peça é 853×1844 e a esfera vai de y≈200 a y≈430. Com contentFit
-   cover num cabeçalho baixo, quem manda na escala é a largura — então
-   430/853 = 0,504 é a fração que resolve a conta em qualquer aparelho,
-   sem medir nada em runtime.
-
-   Fração da largura e não valor fixo porque a imagem escala com ela: num
-   aparelho mais largo a esfera é maior E desce, e um número em pixels
-   descolaria do desenho exatamente onde ele precisa acompanhar. */
-const ESFERA_BASE_FRACAO = 0.504;
+/* ⚠️ MORAVAM AQUI a sobreposição de 36 px e a fração 0,504 — a altura que
+   a folha clara subia por cima da imagem escura, e onde a base da esfera
+   caía na peça de 853×1844. As duas foram embora com o cabeçalho do orbe,
+   que é o hero do Insights e não desta tela. Quem for reconstruir aquele
+   desenho encontra a conta no histórico deste arquivo. */
 
 /* ⚠️ `fonte` É A PROCEDÊNCIA DA RESPOSTA, e ela não é enfeite.
 
@@ -209,14 +198,11 @@ function Pensando() {
 }
 
 export default function Companion() {
-  const aurora = useAurora();
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const largura = useLarguraApp();
-  useLightStatusBar();
   const scrollRef = useRef<ScrollView>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [pensando, setPensando] = useState(false);
@@ -264,59 +250,50 @@ export default function Companion() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
-      {/* ---- o cabeçalho é a presença ----
+      {/* ---- o cabeçalho ----
 
-          Era a malha escura com um ícone de 44 px ao lado do nome. Agora é
-          a MESMA imagem do hero do Insights, com o mesmo orbe.
+          ⚠️⚠️ A ESFERA E O "PODE PERGUNTAR" SAÍRAM DAQUI, e eram a coisa
+          mais bonita da tela.
 
-          A continuidade é o argumento. Lá o orbe é a única marca do Morphi
-          na tela e tocá-lo abre esta; aqui ele reaparece no mesmo lugar da
-          composição, na mesma luz. O toque deixa de ser navegação e vira
-          aproximação — a tela não abre outra coisa, abre mais perto da
-          mesma coisa. Com ícone e malha, eram dois retratos diferentes do
-          mesmo personagem.
+          Eles são o hero do INSIGHTS: lá o orbe é a marca do produto na
+          aba, ocupa meia dobra e convida — é uma capa. Repetido aqui, a
+          conversa começava com 40% da tela ocupados por uma apresentação
+          de quem a pessoa acabou de escolher abrir. Quem entra para
+          perguntar já sabe com quem vai falar; o que ela quer é o campo.
 
-          O nome fica centrado sob a esfera, e o limite logo abaixo, no
-          mesmo bloco: quem ele é e o que ele não faz são a mesma
-          informação. */}
-      <View style={{ backgroundColor: c.altMid, paddingTop: insets.top + 10, paddingHorizontal: PAD, paddingBottom: 24 + SOBREPOSICAO }}>
-        <Image
-          source={aurora.insights}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          contentPosition="top center"
-        />
+          Pior no uso repetido: cada volta à tela reapresentava o
+          personagem, e cada volta empurrava a primeira resposta para
+          baixo da dobra.
 
-        <Row gap={12}>
-          {/* o botão de voltar sobre campo escuro: vidro e tinta clara, não
-              o par cinza-sobre-branco que ele usa nas telas claras */}
-          <CircleBtn name="back" onPress={() => router.back()} bg="rgba(255,255,255,0.16)" color={c.onHero} />
-          <View style={{ flex: 1 }} />
+          Agora é o cabeçalho de um chat, e ele é CENTRADO de propósito —
+          o da conversa com a equipe é alinhado à esquerda com o nome da
+          clínica, porque lá a pergunta que volta é "com quem estou
+          falando". Aqui não há quem: há o quê. Duas telas de conversa,
+          dois cabeçalhos que não se confundem.
+
+          O limite ("não substitui sua equipe médica") não sumiu — desceu
+          para a abertura, que é onde alguém o lê antes da primeira
+          pergunta, em vez de ficar pendurado em toda volta. */}
+      <View style={{
+        paddingTop: insets.top + 8, paddingHorizontal: PAD, paddingBottom: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line,
+      }}>
+        <Row style={{ alignItems: 'center' }}>
+          <CircleBtn name="back" onPress={() => router.back()} />
+          {/* O título centra na TELA, e não no vão que sobra: sem o
+              espaçador do mesmo tamanho do botão à direita, ele ficaria
+              deslocado 44 px para a esquerda e o olho lê como desalinho. */}
+          <Txt v="title" style={{ flex: 1, textAlign: 'center' }}>Perguntas</Txt>
+          <View style={{ width: 40 }} />
         </Row>
-
-        {/* O vão é a esfera. Ela é desenhada na imagem, então aqui só
-            existe como altura reservada — e a medida sai da própria peça:
-            a base da esfera cai em 43% da largura da tela, e o nome começa
-            um respiro abaixo disso. */}
-        <View style={{ height: Math.max(60, largura * ESFERA_BASE_FRACAO - 26) }} />
-
-        <View style={{ alignItems: 'center' }}>
-          {/* SEM NOME. A esfera já diz quem fala, e quem atende não se
-              apresenta pelo nome próprio no meio da conversa. O que fica
-              é o que importa saber antes de perguntar: que do outro lado
-              tem o seu histórico, e que ali não é consulta. */}
-          <Txt v="h2" c={c.onHero}>Pode perguntar</Txt>
-          <Txt v="micro" c={c.onHero2} style={{ marginTop: 6, lineHeight: 17, textAlign: 'center' }}>
-            Conhece sua jornada inteira · não substitui sua equipe médica
-          </Txt>
-        </View>
       </View>
 
-      {/* ---- a folha: onde se lê ----
-          Sobe 36 px por cima da superfície escura, com o mesmo raio da Home
-          e do Insights. Escuro marca quem fala; claro é onde o texto longo
-          fica confortável. */}
-      <View style={{ flex: 1, backgroundColor: c.bg, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -SOBREPOSICAO }}>
+      {/* ---- onde se lê ----
+          O raio no topo e os 36 px de sobreposição saíram junto com o
+          cabeçalho escuro: eles existiam para a folha clara subir por cima
+          da imagem. Sem imagem embaixo, um canto arredondado no meio de
+          duas superfícies da mesma cor é um detalhe que não separa nada. */}
+      <View style={{ flex: 1, backgroundColor: c.bg }}>
         <ScrollView
           ref={scrollRef} style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 16, gap: 12 }}
@@ -350,6 +327,17 @@ export default function Companion() {
                   abre o Insights, de propósito — uma voz só. */}
               <Txt v="caption" c={c.tx3} style={{ marginTop: 8, textAlign: 'center', lineHeight: 21, maxWidth: 300 }}>
                 {memoria}
+              </Txt>
+              {/* ⚠️ O LIMITE MORAVA NO CABEÇALHO, embaixo do "Pode
+                  perguntar", e veio junto quando aquele bloco saiu.
+
+                  Ele não podia simplesmente sumir: é a frase que diz o
+                  que esta tela NÃO é, num aplicativo de saúde. Aqui ela
+                  fica melhor do que ficava — é lida uma vez, antes da
+                  primeira pergunta, em vez de ficar pendurada no alto em
+                  toda volta à conversa. */}
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center' }}>
+                Conheço a sua jornada inteira · não substituo a sua equipe médica
               </Txt>
 
               <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
