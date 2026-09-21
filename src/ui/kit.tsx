@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Animated, Easing,
-  Keyboard, Platform, Dimensions, TextProps, ViewStyle, StyleProp, TextStyle,
+  Keyboard, Platform, Dimensions, InteractionManager, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from 'expo-router';
@@ -594,33 +594,43 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
      "apareceu instantâneo". Um quadro de espera não se nota e garante que
      há o que animar.
 
-     ⚠️⚠️ E O DRIVER É O DE JS, NÃO O NATIVO, que é o contrário do que se
-     recomenda em todo lugar — com razão, na maioria dos casos: o nativo
-     roda fora da thread de JS e não engasga.
+     ⚠️⚠️ E ELA ESPERA A MONTAGEM TERMINAR, que foi o que resolveu de
+     verdade — depois de três voltas erradas.
 
-     Aqui ele não estava rodando. Esta folha é uma tela de
-     react-native-screens apresentada como modal, e o driver nativo
-     precisa que a view já esteja na hierarquia nativa quando a animação
-     é ligada; numa tela recém-apresentada isso é uma corrida que o
-     aplicativo perde em silêncio — no navegador nunca, porque lá não
-     existe hierarquia nativa nenhuma. Era por isso que a mesma animação
-     media certo aqui e chegava pronta no aparelho.
+     Animação em Animated anda pelo RELÓGIO, não por quadros: ela pergunta
+     quanto tempo passou e pula para lá. Se a thread de JS fica ocupada
+     montando a folha — e uma folha desta é uma tela inteira de conteúdo —,
+     os 300 ms passam com a thread presa, e no primeiro quadro livre a
+     animação já está quase no fim. Não é pulada: é consumida. No aparelho
+     isso aparecia como "sobe, mas mal dá para perceber"; no navegador
+     nunca, porque lá a montagem é barata.
 
-     O driver de JS passa os valores pelo caminho normal de props a cada
-     quadro. Custa alguns quadros de trabalho no JS durante 300 ms, e é o
-     preço de uma animação que acontece. */
+     ~runAfterInteractions~ existe exatamente para isto: só solta depois
+     que o trabalho da montagem escoou. O quadro extra em volta é a
+     segunda rede, para a view já estar na hierarquia quando o driver
+     nativo se prender a ela.
+
+     ⚠️ E O DRIVER VOLTOU A SER O NATIVO. Cheguei a trocá-lo pelo de JS
+     achando que ele não rodava em tela recém-apresentada; o que não
+     rodava era a animação inteira, por causa de uma altura inicial que
+     vinha zero de um hook. Com a espera certa, o nativo é o driver certo
+     — ele roda fora da thread, que é justamente a thread que estava
+     comendo o movimento. */
   React.useEffect(() => {
-    const id = requestAnimationFrame(() => {
+    let quadro = 0;
+    const tarefa = InteractionManager.runAfterInteractions(() => {
+      quadro = requestAnimationFrame(() => {
       Animated.parallel([
         Animated.timing(sombra, {
-          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: false,
+          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
         }),
         Animated.timing(subida, {
-          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: false,
+          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
         }),
       ]).start();
+      });
     });
-    return () => cancelAnimationFrame(id);
+    return () => { tarefa.cancel(); cancelAnimationFrame(quadro); };
   }, [sombra, subida]);
 
   /* ⚠️ O `saindo` EVITA O LAÇO: ao terminar a saída nós mesmos
@@ -633,10 +643,10 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     saindo.current = true;
     Animated.parallel([
       Animated.timing(sombra, {
-        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: false,
+        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true,
       }),
       Animated.timing(subida, {
-        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: false,
+        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
       }),
     ]).start(() => nav.dispatch(ev.data.action));
   }), [nav, sombra, subida, janela]);
