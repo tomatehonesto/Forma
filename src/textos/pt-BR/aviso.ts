@@ -46,6 +46,7 @@ export const aviso = {
   appleSaude: 'Apple Saúde',
   trazPesagens: 'As suas pesagens — inclusive as que a sua balança manda para lá.',
   trazTreinos: 'Treinos e frequência cardíaca',
+  trazSono: 'Sono e passos',
   trazBalanca: 'Balança e pressão',
 
   /* ============================================================

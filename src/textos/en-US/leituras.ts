@@ -120,4 +120,23 @@ export const leituras = {
   presoSemanaTitulo: 'Your bowels have been slow all week',
   presoSemanaTexto: (n: number) => `${n} of the last seven days with constipation. Eating less is an effect of the medication, and less food means less fiber passing through — the bowel feels it before the scale does.`,
   presoSemanaAcao: 'Water, fiber and a walk help. At this rate, it’s worth telling your care team.',
+
+  /* ⚠️ Reasons live in ../pt-BR/leituras.ts. The key is the day count,
+     because the streak is what asks: `marcoDe(7)`. */
+  marcos: {
+    3: 'Three days in a row',
+    7: 'A whole week',
+    14: 'Two weeks in a row',
+    21: 'Three weeks in a row',
+    30: 'A month of entries',
+    60: 'Two months in a row',
+    90: 'Three months in a row',
+  },
+
+  dormindoBem: (n: number) => `Sleeping 7 h+ on ${n} days`,
+  energiaBoa: (n: number) => `Good energy on ${n} days`,
+  semEnjooDias: (n: number) => `${n} days without nausea`,
+
+  saciedadeMelhorando: 'Fullness improving',
+
 };

@@ -176,7 +176,7 @@ export function resumoEmTexto(S: State): string {
   for (const s of resumoDoTratamento(S)) {
     linhas.push('', s.titulo.toUpperCase() + (s.nota ? ` — ${s.nota.toLowerCase()}` : ''));
     for (const l of s.linhas) linhas.push(`- ${l.k}: ${l.v}`);
-    if (s.texto !== undefined) linhas.push(s.texto || '(sem anotações)');
+    if (s.texto !== undefined) linhas.push(s.texto || T.resumo.semAnotacoes);
   }
   /* A ORIGEM VAI JUNTO. Quem recebe este texto por mensagem precisa saber
      que ele saiu de um aplicativo de acompanhamento, e não de um

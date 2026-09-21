@@ -154,8 +154,8 @@ export const massaTxt = (S: ComPerfil, g: number) => (imp(S)
    perfil e a folha onde se troca. Escrita duas vezes, uma envelhece
    sozinha no dia em que o aplicativo passar a mostrar outra medida. */
 export const unidadesDe = (sis: Sistema) => (sis === 'imperial'
-  ? 'libras, pés, polegadas e onças'
-  : 'quilos, metros, centímetros e litros');
+  ? T.medidas.unidadesImperial
+  : T.medidas.unidadesMetrico);
 export const aguaV = (S: ComPerfil, ml: number) => (imp(S) ? ml * OZ_POR_ML : ml / 1000);
 export const aguaMl = (S: ComPerfil, v: number) => (imp(S) ? v / OZ_POR_ML : v * 1000);
 export const aguaN = (S: ComPerfil, ml: number) => (imp(S)

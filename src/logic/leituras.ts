@@ -331,18 +331,11 @@ export function lembretesDoDia(anteriores: any[], n: Niveis): Leitura[] {
    o marco de sequência abre a fila quando existe. */
 const DIA = 24 * 3600 * 1000;
 
-const MARCOS: Record<number, string> = {
-  3: 'Três dias seguidos',
-  7: 'Uma semana inteira',
-  14: 'Duas semanas seguidas',
-  21: 'Três semanas seguidas',
-  30: 'Um mês de registros',
-  60: 'Dois meses seguidos',
-  90: 'Três meses seguidos',
-};
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const MARCOS = (): Record<number, string> => T.leituras.marcos;
 
 export function marcoDe(streak: number) {
-  return MARCOS[streak];
+  return MARCOS()[streak];
 }
 
 export function marcasDaSemana(checkins: any[], hoje: number, marco?: string): string[] {
@@ -353,7 +346,7 @@ export function marcasDaSemana(checkins: any[], hoje: number, marco?: string): s
   const antes = (checkins || []).filter((c) => c.t <= hoje - SEMANA * DIA && c.t > hoje - 2 * SEMANA * DIA);
 
   const noites = semana.filter((c) => respondido(c, 'sono') && c.sono >= 7).length;
-  if (noites >= 3) fora.push(`Dormindo 7 h+ em ${noites} dias`);
+  if (noites >= 3) fora.push(T.leituras.dormindoBem(noites));
 
   /* Fome é o avesso da saciedade: ela CAINDO de uma semana para a outra é
      a saciedade subindo. Um ponto inteiro na régua de 0–10, para não
@@ -361,14 +354,14 @@ export function marcasDaSemana(checkins: any[], hoje: number, marco?: string): s
   const fomeAntes = mediaDe(antes, 'fome');
   const fomeAgora = mediaDe(semana, 'fome');
   if (fomeAntes != null && fomeAgora != null && fomeAntes - fomeAgora >= 1) {
-    fora.push('Saciedade melhorando');
+    fora.push(T.leituras.saciedadeMelhorando);
   }
 
   const dispostos = semana.filter((c) => respondido(c, 'energia') && c.energia >= 6).length;
-  if (dispostos >= 3) fora.push(`Energia boa em ${dispostos} dias`);
+  if (dispostos >= 3) fora.push(T.leituras.energiaBoa(dispostos));
 
   const semEnjoo = semana.filter((c) => respondido(c, 'nausea') && c.nausea === 0).length;
-  if (semEnjoo >= 5) fora.push(`${semEnjoo} dias sem enjoo`);
+  if (semEnjoo >= 5) fora.push(T.leituras.semEnjooDias(semEnjoo));
 
   return fora.slice(0, 3);
 }

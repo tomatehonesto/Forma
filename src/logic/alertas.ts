@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { WD, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
+import { WD, DOW_PT, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
 import { T } from '../textos';
 
 /* ============================================================
@@ -290,11 +290,14 @@ export const proximaDe = (S: State, a: Alerta): Date | null => proximasDe(S, a, 
 export function quando(d: Date | null): string | null {
   if (!d) return null;
   const dias = Math.round((+startOfDay(d) - +startOfDay(now())) / 86400000);
-  const DOW = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   /* Os dois primeiros degraus são os mesmos de qualquer "daqui a
      quanto" do aplicativo, e por isso vêm de lá; o terceiro é próprio
      daqui — um alerta a quatro dias se diz pelo nome do dia da semana,
-     que é como alguém guarda um horário, e não por "em 4 dias". */
-  const dia = dias <= 1 ? quandoEm(dias).label : DOW[d.getDay()];
+     que é como alguém guarda um horário, e não por "em 4 dias".
+
+     ⚠️ E OS SETE NOMES VÊM DO FORMATO, e não de uma lista escrita aqui.
+     Esta era a sétima cópia dos dias da semana no aplicativo, e a única
+     que sobrou depois que as outras seis viraram `DOW_PT`. */
+  const dia = dias <= 1 ? quandoEm(dias).label : DOW_PT()[d.getDay()];
   return `${dia} · ${hm(d.getHours(), d.getMinutes())}`;
 }

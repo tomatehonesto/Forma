@@ -298,11 +298,20 @@ export function qtdPadrao(id: string): number {
 
    As faixas são as do horário brasileiro de comer, e o que sobra é
    lanche — que é o que um copo de leite às quatro da tarde é mesmo. */
+/* ⚠️⚠️ OS QUATRO NOMES VÊM DE ONDE MOMENTOS OS LÊ, e não de uma segunda
+   cópia aqui embaixo. É a mesma string que fica GRAVADA na refeição, e
+   duas cópias divergindo num acento fariam `iconeDaRefeicao` não achar o
+   momento que ela mesma acabou de gravar.
+
+   As faixas de hora ficam, e são as de comer no Brasil — mas elas não
+   são texto: quem almoça ao meio-dia almoça ao meio-dia em qualquer
+   idioma, e o que sobra continua sendo lanche. */
 export function momentoDaHora(h: number): string {
-  if (h < 10) return 'Café da manhã';
-  if (h >= 11 && h < 15) return 'Almoço';
-  if (h >= 19 && h < 23) return 'Jantar';
-  return 'Lanche';
+  const t = T.alimentacao.prato;
+  if (h < 10) return t.cafeDaManha;
+  if (h >= 11 && h < 15) return t.almoco;
+  if (h >= 19 && h < 23) return t.jantar;
+  return t.lanche;
 }
 
 /* ============================================================

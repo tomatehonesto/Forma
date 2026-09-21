@@ -189,7 +189,7 @@ export default function Integracoes() {
         nota="Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o aplicativo de saúde do seu aparelho já chega aqui."
       >
         <Cartao>
-          {CONTAS.map((it) => (
+          {CONTAS().map((it) => (
             <Linha key={it.id} it={it} direita={<Txt v="micro" c={c.tx4}>Em breve</Txt>} />
           ))}
         </Cartao>

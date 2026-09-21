@@ -35,6 +35,7 @@ export const aviso = {
   appleSaude: 'Apple Health',
   trazPesagens: 'Your weigh-ins — including the ones your scale sends there.',
   trazTreinos: 'Workouts and heart rate',
+  trazSono: 'Sleep and steps',
   trazBalanca: 'Scale and blood pressure',
 
   /* ⚠️ ALL THREE END BY OFFERING THE MANUAL PATH, and that's what

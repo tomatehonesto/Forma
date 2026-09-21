@@ -72,10 +72,11 @@ export const APARELHO = (): Record<'ios' | 'android', Integracao> => ({
 /* O que CADA UMA traria, no dia em que houver servidor. Aqui a promessa
    pode ser o que a API delas entrega, porque a linha não oferece ligar —
    ela diz o que está por vir. */
-export const CONTAS: Integracao[] = [
-  { id: 'garmin', nome: 'Garmin', traz: 'Treinos e frequência cardíaca', cor: '#0B2C3D', letra: 'G' },
-  { id: 'fitbit', nome: 'Fitbit', traz: 'Sono e passos', cor: '#00B0B9', letra: 'F' },
-  { id: 'withings', nome: 'Withings', traz: 'Balança e pressão', cor: '#00A3A1', letra: 'W' },
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const CONTAS = (): Integracao[] => [
+  { id: 'garmin', nome: 'Garmin', traz: T.aviso.trazTreinos, cor: '#0B2C3D', letra: 'G' },
+  { id: 'fitbit', nome: 'Fitbit', traz: T.aviso.trazSono, cor: '#00B0B9', letra: 'F' },
+  { id: 'withings', nome: 'Withings', traz: T.aviso.trazBalanca, cor: '#00A3A1', letra: 'W' },
 ];
 
 /* QUAL É O APARELHO. Fora de iOS e Android — o navegador, por exemplo —

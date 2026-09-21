@@ -145,4 +145,39 @@ export const leituras = {
   presoSemanaTitulo: 'O intestino está lento a semana toda',
   presoSemanaTexto: (n: number) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito do medicamento, e com menos comida passa menos fibra — ele sente antes da balança.`,
   presoSemanaAcao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
+
+  /* ============================================================
+     AS MARCAS DA SEMANA — o que foi bem, em duas palavras
+
+     ⚠️ OS MARCOS SÃO INDEXADOS PELO NÚMERO DE DIAS, e a chave é o número
+     porque quem pergunta é a sequência: `marcoDe(7)`. Traduzir o valor
+     não mexe em nenhum registro — o que fica gravado é a sequência, que é
+     um inteiro.
+
+     ⚠️ E ELES NÃO SÃO SETE NÍVEIS DE UMA ESCADA. Cada um nomeia um tempo
+     que a pessoa reconhece — três dias, uma semana, um mês —, e por isso
+     o de 30 diz "registros" e não "seguidos": um mês inteiro sem falhar
+     um dia é raro, e a frase não pode prometer o que a régua não cobra. */
+  marcos: {
+    3: 'Três dias seguidos',
+    7: 'Uma semana inteira',
+    14: 'Duas semanas seguidas',
+    21: 'Três semanas seguidas',
+    30: 'Um mês de registros',
+    60: 'Dois meses seguidos',
+    90: 'Três meses seguidos',
+  },
+
+  /* ⚠️ AS TRÊS COM NÚMERO TRAZEM O NÚMERO QUE AS SUSTENTA, e é o que as
+     separa de um elogio. "Você dormiu bem" é opinião; "Dormindo 7 h+ em 5
+     dias" é a contagem dos próprios registros. */
+  dormindoBem: (n: number) => `Dormindo 7 h+ em ${n} dias`,
+  energiaBoa: (n: number) => `Energia boa em ${n} dias`,
+  semEnjooDias: (n: number) => `${n} dias sem enjoo`,
+
+  /* A única sem número, porque o número dela seria a diferença entre duas
+     médias — e "fome 1,2 ponto menor" não é uma boa notícia que alguém
+     lê. O fato é a saciedade, e ela não tem unidade. */
+  saciedadeMelhorando: 'Saciedade melhorando',
+
 };

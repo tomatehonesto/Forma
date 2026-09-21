@@ -20,6 +20,7 @@ import { exames as examesPt } from './pt-BR/exames';
 import { fontes as fontesPt } from './pt-BR/fontes';
 import { leituras as leiturasPt } from './pt-BR/leituras';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
+import { medidas as medidasPt } from './pt-BR/medidas';
 import { metas as metasPt } from './pt-BR/metas';
 import { resumo as resumoPt } from './pt-BR/resumo';
 import { rotina as rotinaPt } from './pt-BR/rotina';
@@ -47,6 +48,7 @@ import { exames as examesEn } from './en-US/exames';
 import { fontes as fontesEn } from './en-US/fontes';
 import { leituras as leiturasEn } from './en-US/leituras';
 import { marcadores as marcadoresEn } from './en-US/marcadores';
+import { medidas as medidasEn } from './en-US/medidas';
 import { metas as metasEn } from './en-US/metas';
 import { resumo as resumoEn } from './en-US/resumo';
 import { rotina as rotinaEn } from './en-US/rotina';
@@ -125,6 +127,7 @@ export type Textos = {
   exames: typeof examesPt;
   fontes: typeof fontesPt;
   marcadores: typeof marcadoresPt;
+  medidas: typeof medidasPt;
   metas: typeof metasPt;
   resumo: typeof resumoPt;
   rotina: typeof rotinaPt;
@@ -146,7 +149,7 @@ const CATALOGOS: Record<Local, Textos> = {
     ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt, idioma: idiomaPt,
-    leituras: leiturasPt, marcadores: marcadoresPt, metas: metasPt, resumo: resumoPt, rotina: rotinaPt,
+    leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, resumo: resumoPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
@@ -154,7 +157,7 @@ const CATALOGOS: Record<Local, Textos> = {
     ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn, idioma: idiomaEn,
-    leituras: leiturasEn, marcadores: marcadoresEn, metas: metasEn, resumo: resumoEn, rotina: rotinaEn,
+    leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, resumo: resumoEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,
   },
 };
