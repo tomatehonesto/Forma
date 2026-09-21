@@ -263,6 +263,60 @@ export default function Home() {
     return () => { cancelado = true; deriva.stopAnimation(); };
   }, [deriva]);
 
+  /* ⚠️ A BARRA QUE COLAPSA — o retrato e o sino não somem mais no scroll.
+
+     Os dois moram no alto do hero, dentro do scroll, e sumiam nos
+     primeiros sessenta pixels. Ficavam a uma rolagem inteira de distância
+     de quem já estava lendo as metas do dia: para abrir o perfil ou ver
+     um aviso era preciso subir tudo de volta.
+
+     ⚠️ AQUI OS DOIS ESTADOS SÃO DESENHOS DIFERENTES, e por isso a solução
+     não é a mesma das telas de capa. Lá, o botão de voltar era o mesmo nos
+     dois e bastou tirá-lo do scroll. Aqui o estado expandido é uma
+     composição — retrato de 40, saudação em manchete, a linha do dia —
+     montada sobre a aurora; ela não cabe numa barra e não deve caber. O
+     que a barra carrega é o mínimo que continua sendo útil lá embaixo:
+     quem eu sou, onde estou no tratamento, e se chegou aviso.
+
+     ⚠️ O QUE SE REPETE É O DESENHO, NUNCA O COMPORTAMENTO. Retrato e sino
+     aparecem duas vezes na tela, mas `Perfil` e `Sino` são escritos uma vez
+     só, logo abaixo — o destino, a contagem de não lidas e a marca verde
+     saem do mesmo lugar. Dois desenhos do mesmo controle é composição;
+     dois controles fazendo a mesma coisa é o que diverge no dia em que um
+     dos dois mudar. */
+  const [colapsado, setColapsado] = useState(false);
+  const barra = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(barra, { toValue: colapsado ? 1 : 0, duration: 160, useNativeDriver: true }).start();
+  }, [colapsado, barra]);
+
+  /* O retrato e o sino, escritos uma vez e desenhados em dois tamanhos.
+     `claro` é sobre a aurora — vidro e tinta clara; escuro é sobre o fundo
+     da página. */
+  const Perfil = ({ tam }: { tam: number }) => (
+    <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
+      <Retrato foto={(S.profile as any).foto} nome={first} tam={tam} />
+    </Pressable>
+  );
+
+  const Sino = ({ tam, claro }: { tam: number; claro: boolean }) => (
+    <Pressable hitSlop={8} onPress={go('/notificacoes')}>
+      <View style={{
+        width: tam, height: tam, borderRadius: tam / 2,
+        backgroundColor: claro ? c.onHeroLine : c.bg2,
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name="bell" size={tam * 0.5} color={claro ? c.onHero : c.tx} sw={1.8} />
+      </View>
+      {S.unread > 0 && (
+        <View style={{
+          position: 'absolute', top: 1, right: 1, width: 9, height: 9,
+          borderRadius: 5, backgroundColor: c.lime,
+        }} />
+      )}
+    </Pressable>
+  );
+
   const onHeroScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
     if (i !== slide) setSlide(i);
@@ -270,7 +324,16 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }}
+        scrollEventThrottle={16}
+        /* 60 é logo depois de a linha da saudação sair: ela ocupa de
+           insets.top + 26 a + 66, e a barra cobre até + 48. Assim o
+           retrato e o sino voltam no instante em que se perderiam, sem
+           faixa morta no meio. */
+        onScroll={(e) => setColapsado(e.nativeEvent.contentOffset.y > 60)}
+      >
 
         {/* ================= HERO ================= */}
         <View>
@@ -310,21 +373,14 @@ export default function Home() {
             {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
                 escolhe para o app inteiro — e esta é a tela que ela mais
                 abre. Ver Retrato, em ui/kit. */}
-            <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
-              <Retrato foto={(S.profile as any).foto} nome={first} tam={40} />
-            </Pressable>
+            <Perfil tam={40} />
             <View style={{ flex: 1, marginLeft: 16 }}>
               <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
               <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
                 {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
               </Txt>
             </View>
-            <Pressable hitSlop={8} onPress={go('/notificacoes')}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.onHeroLine, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="bell" size={20} color={c.onHero} sw={1.8} />
-              </View>
-              {S.unread > 0 && <View style={{ position: 'absolute', top: 1, right: 1, width: 9, height: 9, borderRadius: 5, backgroundColor: c.lime }} />}
-            </Pressable>
+            <Sino tam={40} claro />
           </Row>
 
           {/* carrossel */}
@@ -689,6 +745,39 @@ export default function Home() {
           ) : null}
         </View>
       </ScrollView>
+
+      {/* ---- a barra colapsada ----
+
+          ⚠️ SÓ APARECE DEPOIS DE ROLAR, ao contrário da das telas de capa.
+          Lá ela existe o tempo todo porque carrega a ÚNICA saída da tela —
+          sumir nos primeiros pixels deixaria alguém preso. Aqui não há
+          saída para proteger: as abas estão no rodapé o tempo inteiro, e
+          o hero já mostra retrato e sino em tamanho grande. Uma barra
+          permanente por cima da aurora só taparia a manchete do dia.
+
+          ⚠️ E O MEIO LEVA A LINHA DO DIA, e não o nome. "Mariana" na barra
+          seria o aplicativo contando a ela quem ela é. "Dia 71 · Semana
+          11" é onde ela está no tratamento — a mesma frase que o hero
+          mostra, que é o fato que não cabe na cabeça de ninguém e continua
+          útil trinta cartões abaixo. */}
+      <Animated.View
+        pointerEvents={colapsado ? 'box-none' : 'none'}
+        style={{
+          position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20,
+          paddingTop: insets.top + 8, paddingHorizontal: PAD, paddingBottom: 10,
+          backgroundColor: c.bg,
+          borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line,
+          opacity: barra,
+        }}
+      >
+        <Row gap={12} style={{ alignItems: 'center' }}>
+          <Perfil tam={30} />
+          <Txt v="note" c={c.tx2} style={{ flex: 1 }} numberOfLines={1}>
+            {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
+          </Txt>
+          <Sino tam={34} claro={false} />
+        </Row>
+      </Animated.View>
     </View>
   );
 }
