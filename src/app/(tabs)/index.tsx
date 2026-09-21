@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions } from 'react-native';
 import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -13,12 +13,13 @@ import { mensagemDoDia } from '../../logic/etapa';
 import {
   dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
+  lastInjection, penStock,
   checkinFeito, diaDoTratamento,
   type DailyTarget,
   doseDoPerfil, temDose,
   diasAteAplicar,
 } from '../../logic/derive';
-import { now, nf, fmtDate, DOW_PT, quandoEm } from '../../logic/time';
+import { now, nf, fmtDate, DOW_PT, quandoEm, diffDays } from '../../logic/time';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -107,8 +108,12 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const width = useLarguraApp();
   const [slide, setSlide] = useState(0);
-  const [held, setHeld] = useState(false);   // dedo no carrossel = cronômetro parado
-  const heroRef = useRef<ScrollView>(null);
+  /* ⚠️ O "DEDO NO CARROSSEL PAUSA" MORAVA AQUI, e saiu com o deslize.
+
+     Ele existia porque arrastar o carrossel e ver o cronômetro empurrar
+     para o próximo no meio do gesto era hostil. Sem arrasto não há gesto
+     para atrapalhar — e tocar num ponto já reinicia a contagem, porque o
+     efeito do cronômetro depende do índice. */
   const progress = useRef(new Animated.Value(0)).current;
   const deriva = useRef(new Animated.Value(0)).current;
 
@@ -176,8 +181,64 @@ export default function Home() {
   const temLembreteDeDose = alertasDe(S, 'dose').some((a) => a.on);
   type SlideHero = { over: string; title: string; body: string; cta: string; to: string; ia?: boolean; ic?: string };
 
-  /* Carrossel do hero — tres leituras do dia, todas com dado real. */
+  /* ⚠️ O ATRASO DA APLICAÇÃO É EXATO, e não estimado. `nextInjectionDate`
+     é a última aplicação mais a cadência; passado esse dia sem registro
+     novo, `diasAteAplicar` fica negativo. Não há heurística no meio. */
+  const atraso = temDose(S) && lastInjection(S) ? -nd : 0;
+  const caneta = penStock(S);
+
+  /* Carrossel do hero — as leituras do dia, todas com dado real.
+
+     ⚠️ QUANTOS SLIDES É CONSEQUÊNCIA, NÃO DECISÃO. Cada entrada tem a
+     própria condição, e quem não tem o que dizer não entra: quem nunca
+     aplicou não vê ciclo, quem não tem consulta marcada não vê consulta,
+     e quem está com tudo em dia vê menos cartões do que quem tem uma
+     aplicação sem registro. Um número fixo obrigaria a inventar conteúdo
+     para preencher — que é como um carrossel vira vitrine. */
   const slides: SlideHero[] = [
+    /* ⚠️⚠️ O QUE ESTÁ FORA DO LUGAR VEM PRIMEIRO. Estes três são os únicos
+       que pedem uma AÇÃO com hora marcada — o resto da Home é leitura. Se
+       entrassem depois, a pessoa precisaria passar por dois cartões
+       informativos para descobrir que a dose de ontem não foi registrada.
+
+       ⚠️ E NENHUM DELES DIZ QUE ELA FALHOU. "A aplicação de ontem não está
+       registrada" é o que o aplicativo sabe; "você não aplicou" é o que
+       ele não tem como saber, e seria acusação em cima de um palpite. A
+       segunda linha dá as duas saídas sem escolher uma. */
+    ...(atraso >= 1 ? [{
+      over: 'SEM REGISTRO',
+      title: atraso === 1
+        ? 'A aplicação de ontem não está registrada.'
+        : `A aplicação de ${atraso} dias atrás não está registrada.`,
+      body: 'Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.',
+      cta: 'Registrar aplicação', to: '/aplicacao', ic: 'syringe',
+    }] : []),
+
+    ...(temConsulta(S) && diffDays(new Date(S.consult.t), now()) <= 1 ? [{
+      over: 'A CONSULTA',
+      title: diffDays(new Date(S.consult.t), now()) <= 0
+        ? 'Sua consulta é hoje.'
+        : 'Sua consulta é amanhã.',
+      body: 'Levo o seu período organizado — peso, adesão, sintomas e as perguntas que valem a pena.',
+      cta: 'Ver o resumo', to: '/resumo-medico', ic: 'doc',
+    }] : []),
+
+    /* ⚠️ A RENOVAÇÃO SÓ É OFERECIDA A QUEM TEM PARA QUEM PEDIR. O pedido é
+       uma mensagem à equipe, e sem clínica ligada ele abre uma tela vazia
+       — é a mesma regra que a tela de Cuidado já aplica ao mesmo botão.
+       Sem equipe, o cartão continua existindo e leva à caneta, porque o
+       fato de a caneta estar acabando não depende de plataforma nenhuma. */
+    ...(temDose(S) && caneta.left <= 1 ? [{
+      over: 'A CANETA',
+      title: caneta.left <= 0
+        ? 'A sua caneta acabou.'
+        : 'Resta uma dose na sua caneta.',
+      body: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
+      ...(clinicaConectada(S)
+        ? { cta: 'Pedir renovação', to: '/conversa?pedir=receita', ic: 'doc' }
+        : { cta: 'Ver a caneta', to: '/caneta', ic: 'dose' }),
+    }] : []),
+
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
 
@@ -186,7 +247,11 @@ export default function Home() {
        marcou — quando não quebrava a Home inteira ao formatar um número
        que era nulo. Sem dose, o carrossel simplesmente tem um slide a
        menos, que é o que a verdade sobre esse dia é. */
-    ...(temDose(S) ? [{
+    /* ⚠️ SAI DE CENA QUANDO HÁ ATRASO. `quandoEm` trata dia negativo como
+       "hoje", então este cartão diria "hoje é dia de aplicar sua dose"
+       para quem está três dias atrasada — verdade pela metade, ao lado de
+       um cartão que conta a outra metade. Um assunto, um cartão. */
+    ...(temDose(S) && atraso < 1 ? [{
       over: 'PRÓXIMA APLICAÇÃO',
       /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
          caixinha como se ela tivesse agenda, e obriga quem lê a traduzir
@@ -233,18 +298,16 @@ export default function Home() {
      Encostar o dedo pausa; soltar recomeça a contagem do slide atual. */
   useEffect(() => {
     progress.setValue(0);
-    if (held || total < 2) return;
+    if (total < 2) return;
     const anim = Animated.timing(progress, {
       toValue: 1, duration: SLIDE_MS, easing: Easing.linear, useNativeDriver: false,
     });
     anim.start(({ finished }) => {
       if (!finished) return;
-      const next = (slide + 1) % total;
-      heroRef.current?.scrollTo({ x: next * width, animated: true });
-      setSlide(next);
+      setSlide((s) => (s + 1) % total);
     });
     return () => anim.stop();
-  }, [slide, held, total, width, progress]);
+  }, [slide, total, progress]);
 
 
   /* Deriva da aurora — vai e volta devagar, dando vida ao fundo sem
@@ -317,10 +380,29 @@ export default function Home() {
     </Pressable>
   );
 
-  const onHeroScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (i !== slide) setSlide(i);
-  };
+  /* ⚠️ `mostrado` ATRASA O `slide` DE PROPÓSITO. Se o conteúdo trocasse no
+     mesmo instante em que o índice muda, a frase nova apareceria já
+     apagando — o corte tem de acontecer no fundo do apagar, com a tela
+     limpa. Por isso são dois estados: um é onde a pessoa está, o outro é
+     o que está desenhado agora. */
+  const [mostrado, setMostrado] = useState(0);
+  const fade = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (mostrado === slide) return;
+    /* ⚠️ A TROCA ACONTECE MESMO SE A SAÍDA FOR INTERROMPIDA, e o `finished`
+       é ignorado de propósito. Voltar aqui sem acender de novo deixaria o
+       cartão invisível para sempre — e "para sempre" é até a pessoa sair
+       da aba e voltar. Entre mostrar o slide errado por um instante e
+       mostrar nada até o fim da sessão, o instante é muito melhor. */
+    Animated.timing(fade, { toValue: 0, duration: 130, useNativeDriver: true }).start(() => {
+      setMostrado(slide);
+      Animated.timing(fade, { toValue: 1, duration: 190, useNativeDriver: true }).start();
+    });
+  }, [slide, mostrado, fade]);
+
+  /* A altura do maior slide, medida no primeiro desenho — ver o
+     comentário do carrossel. */
+  const [alturaDoSlide, setAlturaDoSlide] = useState(0);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -383,21 +465,67 @@ export default function Home() {
             <Sino tam={40} claro />
           </Row>
 
-          {/* carrossel */}
-          <ScrollView
-            ref={heroRef}
-            horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-            onScroll={onHeroScroll} scrollEventThrottle={32}
-            onScrollBeginDrag={() => setHeld(true)}
-            onScrollEndDrag={() => setHeld(false)}
-            style={{ marginTop: 80 }}
-          >
-            {/* flex:1 faz o slide preencher a altura do mais alto (o
-                ScrollView estica o contêiner, não o filho), e o conteúdo
-                é empurrado para baixo. Assim a paginação fica parada e
-                slides curtos não abrem um vão até ela. */}
+          {/* ---- o carrossel, que deixou de correr ----
+
+              ⚠️ ERA UM ScrollView HORIZONTAL COM pagingEnabled, e o texto
+              entrava pela lateral. Numa vitrine isso é certo: o movimento
+              diz que há mais coisa do lado. Aqui não há mais coisa do
+              lado — há a MESMA COISA dizendo outra frase, e o deslize
+              fazia o olho perseguir um texto em vez de ler o que chegou.
+
+              Agora o cartão fica onde está e só o conteúdo troca, num
+              apagar e acender. A paginação continua marcando onde se
+              está, e tocar num ponto continua levando até ele.
+
+              ⚠️ TODOS OS SLIDES CONTINUAM MONTADOS, e é isso que segura a
+              altura. Com um filho só, cada troca mudaria a altura do bloco
+              conforme o texto fosse mais curto ou mais longo — e a
+              paginação e a faixa de check-in dariam um pulo a cada quinze
+              segundos. Empilhados em absoluto, o contêiner fica do tamanho
+              do maior, medido no primeiro desenho.
+
+              ⚠️ E O `minHeight` É O PISO DESSE PRIMEIRO DESENHO. Antes de a
+              medida chegar, a altura seria zero e a faixa de baixo subiria
+              por um quadro. O número não desenha nada — ele só evita o
+              pulo entre montar e medir. */}
+          <View style={{ marginTop: 80, minHeight: 176, height: alturaDoSlide || undefined }}>
+            {/* ⚠️⚠️ O `fade` MORA NESTE PAI, E NUNCA SAI DELE.
+
+                A primeira versão punha `opacity: i === mostrado ? fade : 0`
+                em cada slide — e aí, a cada troca, o valor animado se
+                soltava de um elemento e se prendia a outro no meio da
+                animação. O resultado era o carrossel apagar e não acender
+                mais: o nó ficava parado em zero, e o hero inteiro virava
+                aurora sem texto.
+
+                Com o valor preso a um pai que existe desde a montagem e
+                nunca mais muda, a animação tem sempre o mesmo alvo. Quem
+                escolhe QUAL slide está à vista são opacidades comuns, 0 ou
+                1, dentro dele — números, não animação. */}
+            <Animated.View
+              style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: fade }}
+            >
             {slides.map((s, i) => (
-              <View key={i} style={{ width, flex: 1, paddingHorizontal: PAD, justifyContent: 'flex-end' }}>
+              <View
+                key={i}
+                onLayout={(ev) => {
+                  const h = ev.nativeEvent.layout.height;
+                  setAlturaDoSlide((a) => (h > a ? h : a));
+                }}
+                pointerEvents={i === mostrado ? 'auto' : 'none'}
+                style={{
+                  /* ⚠️ ANCORADO EMBAIXO, e não em cima — era o que o
+                     justifyContent 'flex-end' fazia no carrossel antigo.
+                     O bloco tem a altura do maior slide; com os curtos
+                     presos no topo, sobrava um vão entre o texto e a
+                     paginação que mudava de tamanho a cada troca. Presos
+                     embaixo, todos encostam na mesma linha e o que sobra
+                     fica em cima, onde só existe aurora. */
+                  position: 'absolute', left: 0, right: 0, bottom: 0,
+                  paddingHorizontal: PAD,
+                  opacity: i === mostrado ? 1 : 0,
+                }}
+              >
                 <View style={{ maxWidth: 300 }}>
                   <Txt v="caption" c={c.lime} style={{ letterSpacing: 1 }}>{s.over}</Txt>
                   <Txt v="display" c={c.onHero} style={{ marginTop: 10 }}>{s.title}</Txt>
@@ -422,14 +550,15 @@ export default function Home() {
                 </Pressable>
               </View>
             ))}
-          </ScrollView>
+            </Animated.View>
+          </View>
 
           {/* pontinhos — o ativo é a barra que enche até virar o slide */}
           <Row gap={4} style={{ paddingHorizontal: PAD, marginTop: 24 }}>
             {slides.map((_, i) => {
               const active = i === slide;
               return (
-                <Pressable key={i} hitSlop={10} onPress={() => { heroRef.current?.scrollTo({ x: i * width, animated: true }); setSlide(i); }}>
+                <Pressable key={i} hitSlop={10} onPress={() => setSlide(i)}>
                   <View style={{ width: active ? DOT_W : DOT_IDLE, height: 4, borderRadius: radius.pill, backgroundColor: c.onHeroLine, overflow: 'hidden' }}>
                     {active && (
                       <Animated.View

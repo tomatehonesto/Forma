@@ -1542,7 +1542,11 @@ export function todayBrief(S: State) {
      nunca aplicou nada, que é a mesma invenção que saiu do resto da Home
      esta semana. Sem ciclo, o chapéu continua PARA HOJE. */
   const temCiclo = !!lastInjection(S) && temDose(S);
-  const chapeu = temCiclo ? `DIA ${cyc.dayIn} DE ${cyc.total}` : 'PARA HOJE';
+  /* ⚠️ "DIA 5 DA DOSE", E NÃO "DIA 5 DE 7". O de-sete parecia contagem
+     regressiva de um prazo — sete do quê, e o que acontece quando chegar?
+     A cadência é do medicamento, não uma meta a cumprir. "Da dose" diz a
+     mesma posição e nomeia o relógio que a está medindo. */
+  const chapeu = temCiclo ? `DIA ${cyc.dayIn} DA DOSE` : 'PARA HOJE';
   switch (cyc.phase.key) {
     case 'aplic':
       /* ⚠️ NÃO ANUNCIA QUE HOJE É DIA DE APLICAR: o slide seguinte da Home
