@@ -370,8 +370,10 @@ export default function Checkin() {
             if (id === GUT) {
               /* A saia do intestino atende os dois lados — só um deles
                  pode estar escolhido de cada vez. */
-              const avGut = !combinado && gut === 'preso' && (dias ?? 0) >= AVISO_PRESO.min ? AVISO_PRESO
-                : !combinado && gut === 'solto' && (vezes ?? 0) >= AVISO_SOLTO.min ? AVISO_SOLTO
+              const aPreso = AVISO_PRESO();
+              const aSolto = AVISO_SOLTO();
+              const avGut = !combinado && gut === 'preso' && (dias ?? 0) >= aPreso.min ? aPreso
+                : !combinado && gut === 'solto' && (vezes ?? 0) >= aSolto.min ? aSolto
                 : null;
               return (
                 <Campo key={id} rotulo="Como foi o intestino?">
@@ -426,7 +428,7 @@ export default function Checkin() {
               );
             }
 
-            const av = AVISOS[id];
+            const av = AVISOS()[id];
             const mostra = !combinado && av && (grau[id] ?? 0) >= av.min;
             return (
               <Campo key={id} rotulo={`${s.label} · intensidade`}>

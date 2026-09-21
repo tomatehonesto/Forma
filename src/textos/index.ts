@@ -15,6 +15,7 @@ import { escalas as escalasPt } from './pt-BR/escalas';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { exames as examesPt } from './pt-BR/exames';
 import { fontes as fontesPt } from './pt-BR/fontes';
+import { leituras as leiturasPt } from './pt-BR/leituras';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
 import { rotina as rotinaPt } from './pt-BR/rotina';
@@ -37,6 +38,7 @@ import { escalas as escalasEn } from './en-US/escalas';
 import { etapa as etapaEn } from './en-US/etapa';
 import { exames as examesEn } from './en-US/exames';
 import { fontes as fontesEn } from './en-US/fontes';
+import { leituras as leiturasEn } from './en-US/leituras';
 import { marcadores as marcadoresEn } from './en-US/marcadores';
 import { metas as metasEn } from './en-US/metas';
 import { rotina as rotinaEn } from './en-US/rotina';
@@ -106,6 +108,7 @@ export type Textos = {
   equilibrio: typeof equilibrioPt;
   home: typeof homePt;
   idioma: typeof idiomaPt;
+  leituras: typeof leiturasPt;
   escalas: typeof escalasPt;
   etapa: typeof etapaPt;
   exames: typeof examesPt;
@@ -131,7 +134,7 @@ const CATALOGOS: Record<Local, Textos> = {
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt, idioma: idiomaPt,
-    marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
+    leituras: leiturasPt, marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
@@ -139,7 +142,7 @@ const CATALOGOS: Record<Local, Textos> = {
     ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn, idioma: idiomaEn,
-    marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
+    leituras: leiturasEn, marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,
   },
 };

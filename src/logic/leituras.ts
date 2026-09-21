@@ -21,6 +21,7 @@
    ============================================================ */
 
 import { grauDoSintoma } from './escalas';
+import { T } from '../textos';
 import { respondido, mediaDe } from './derive';
 
 /* Cada leitura fala em dois comprimentos, porque aparece em dois lugares.
@@ -66,52 +67,47 @@ export type Leitura = {
    avisam no 4, onde a pessoa já teve o dia interrompido; as contagens —
    vômito, intestino — avisam no degrau em que a graduação clínica troca
    de patamar. */
-export const AVISOS: Record<string, { min: number; sobre: string; titulo: string; texto: string; acao: string; curto: string }> = {
-  dor: {
-    min: 4,
-    sobre: 'Dor abdominal',
-    curto: 'fale com sua equipe hoje',
-    titulo: 'Essa dor não espera a próxima consulta',
-    texto: 'Dor forte na barriga, ou que não passa, é a única que pede atenção no mesmo dia. Quase sempre não é nada grave — e é por isso mesmo que vale olhar cedo.',
-    acao: 'Fale com sua equipe hoje. Se piorar ou vier com vômito, procure um atendimento.',
-  },
-  vomito: {
-    min: 4,
-    sobre: 'Vômito',
-    curto: 'beba água de pouquinho, várias vezes',
-    titulo: 'O vômito tira mais líquido do que parece',
-    texto: 'Junto com a água vai o sal, e o corpo sente antes de você ter sede. E quando a comida não fica, o dia seguinte já começa cansado.',
-    acao: 'Beba de pouquinho, várias vezes, em vez de um copo de uma vez. Se nem água ficar, fale com sua equipe hoje.',
-  },
-  tontura: {
-    min: 4,
-    sobre: 'Tontura',
-    curto: 'sente-se, beba água e coma alguma coisa doce',
-    titulo: 'Tontura assim costuma ter explicação',
-    texto: 'Quase sempre é falta de líquido ou açúcar baixo. Se você toma algum remédio para diabetes junto, o açúcar baixo fica ainda mais provável.',
-    acao: 'Sente-se, beba água e coma alguma coisa. Se repetir nos próximos dias, conte para sua equipe.',
-  },
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README.
+
+   ⚠️ E O `min` NÃO VEM DE LÁ: a faixa em que cada sintoma avisa é
+   decisão clínica, e não de redação. Ver o alto do catálogo. */
+export const AVISOS = (): Record<string, { min: number; sobre: string; titulo: string; texto: string; acao: string; curto: string }> => {
+  const t = T.leituras;
+  return {
+    dor: {
+      min: 4,
+      sobre: t.dorSobre, curto: t.dorCurto, titulo: t.dorTitulo, texto: t.dorTexto, acao: t.dorAcao,
+    },
+    vomito: {
+      min: 4,
+      sobre: t.vomitoSobre, curto: t.vomitoCurto, titulo: t.vomitoTitulo, texto: t.vomitoTexto, acao: t.vomitoAcao,
+    },
+    tontura: {
+      min: 4,
+      sobre: t.tonturaSobre, curto: t.tonturaCurto, titulo: t.tonturaTitulo, texto: t.tonturaTexto, acao: t.tonturaAcao,
+    },
+  };
 };
 
 /* Os dois lados do intestino têm o seu, e ficam fora do mapa acima porque
    não são medidos em `grau` — um conta dias sem ir, o outro idas no dia. */
-export const AVISO_PRESO = {
+export const AVISO_PRESO = () => ({
   min: 5,
-  sobre: 'Intestino preso',
-  curto: 'beba água ao longo do dia, coma fibra e caminhe',
-  titulo: 'Quatro dias sem ir já merece atenção',
-  texto: 'O medicamento deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
-  acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
-};
+  sobre: T.leituras.presoSobre,
+  curto: T.leituras.presoCurto,
+  titulo: T.leituras.presoTitulo,
+  texto: T.leituras.presoTexto,
+  acao: T.leituras.presoAcao,
+});
 
-export const AVISO_SOLTO = {
+export const AVISO_SOLTO = () => ({
   min: 5,
-  sobre: 'Intestino solto',
-  curto: 'beba água com uma pitada de sal, sem esperar sede',
-  titulo: 'O intestino solto leva água e sal junto',
-  texto: 'Sete idas ou mais num dia levam mais do que a sede dá conta de repor.',
-  acao: 'Beba ao longo do dia sem esperar sede, com soro ou uma pitada de sal. Se amanhã continuar assim, avise sua equipe.',
-};
+  sobre: T.leituras.soltoSobre,
+  curto: T.leituras.soltoCurto,
+  titulo: T.leituras.soltoTitulo,
+  texto: T.leituras.soltoTexto,
+  acao: T.leituras.soltoAcao,
+});
 
 /* AVISOS POR COMBINAÇÃO — o que nenhum sintoma sozinho consegue dizer.
 
@@ -128,44 +124,44 @@ export const AVISO_SOLTO = {
    discutir com o mais urgente. */
 export type Niveis = { nausea: number; dor: number; vomito: number; tontura: number; preso: number; solto: number };
 
-const COMBINACOES: {
+const COMBINACOES = (): {
   quando: (n: Niveis) => boolean;
   sobre: string; titulo: string; texto: string; acao: string; curto: string; urgente: boolean;
-}[] = [
+}[] => [
   {
     /* Intestino parado há dias + dor forte + vômito. */
     quando: (n) => n.preso >= 4 && n.dor >= 4 && n.vomito >= 1,
-    sobre: 'Intestino, dor e vômito',
-    curto: 'procure um pronto atendimento hoje',
+    sobre: T.leituras.travaSobre,
+    curto: T.leituras.travaCurto,
     urgente: true,
-    titulo: 'Essa combinação pede atendimento agora',
-    texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou. É raro, mas não melhora sozinho.',
+    titulo: T.leituras.travaTitulo,
+    texto: T.leituras.travaTexto,
     /* ⚠️ "QUAL MEDICAMENTO VOCÊ USA", e era "que usa a caneta". A troca
        era obrigatória pela forma e saiu melhor pelo conteúdo: quem está
        num pronto atendimento precisa dizer O QUE toma, não em que
        embalagem ele vem. */
-    acao: 'Procure um pronto atendimento hoje. Diga qual medicamento você usa e há quantos dias não vai ao banheiro.',
+    acao: T.leituras.travaAcao,
   },
   {
     /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
        manda relatar de imediato. */
     quando: (n) => n.dor >= 4 && n.vomito >= 3,
-    sobre: 'Dor com vômito',
-    curto: 'procure sua equipe ou um atendimento hoje',
+    sobre: T.leituras.dorVomitoSobre,
+    curto: T.leituras.dorVomitoCurto,
     urgente: true,
-    titulo: 'Dor forte com vômito não espera',
-    texto: 'Dor forte na barriga junto de vômito, às vezes espalhando para as costas, pede atenção no mesmo dia. Chegando cedo, é simples de checar.',
-    acao: 'Procure sua equipe ou um atendimento hoje. Diga qual medicamento você usa, a dose e quando a dor começou.',
+    titulo: T.leituras.dorVomitoTitulo,
+    texto: T.leituras.dorVomitoTexto,
+    acao: T.leituras.dorVomitoAcao,
   },
   {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
     quando: (n) => (n.vomito >= 3 || n.solto >= 4) && n.tontura >= 3,
-    sobre: 'Tontura e perda de líquido',
-    curto: 'beba soro ou água com sal, e levante devagar',
+    sobre: T.leituras.desidratacaoSobre,
+    curto: T.leituras.desidratacaoCurto,
     urgente: false,
-    titulo: 'Tontura com perda de líquido é sinal de desidratação',
-    texto: 'Quando falta água e sal, a pressão cai ao levantar — e a tontura é o corpo avisando.',
-    acao: 'Beba de pouquinho ao longo do dia, com soro ou uma pitada de sal, e levante devagar. Se não melhorar até amanhã, avise sua equipe.',
+    titulo: T.leituras.desidratacaoTitulo,
+    texto: T.leituras.desidratacaoTexto,
+    acao: T.leituras.desidratacaoAcao,
   },
 ];
 
@@ -189,7 +185,7 @@ const COMBINACOES: {
    A ordem é a da urgência, e só o primeiro que bate aparece. */
 const SEMANA = 7;
 
-const PERSISTENCIA: {
+const PERSISTENCIA = (): {
   dias: number;
   noDia: (c: any) => boolean;
   hoje: (n: Niveis) => boolean;
@@ -198,47 +194,47 @@ const PERSISTENCIA: {
   texto: (n: number) => string;
   acao: string;
   curto: string;
-}[] = [
+}[] => [
   {
     dias: 3,
     noDia: (c) => ((c?.sint?.vomito ?? 0) as number) >= 1,
     hoje: (n) => n.vomito >= 1,
-    sobre: 'Vômito na semana',
-    curto: 'fale com sua equipe esta semana',
-    titulo: 'Vômito em dias repetidos',
-    texto: (n) => `${n} dos últimos sete dias com vômito. Assim comida, líquido e o próprio remédio não ficam.`,
-    acao: 'Fale com sua equipe esta semana, sem esperar a consulta. Leve o número de dias — é ele que faz diferença.',
+    sobre: T.leituras.vomitoSemanaSobre,
+    curto: T.leituras.vomitoSemanaCurto,
+    titulo: T.leituras.vomitoSemanaTitulo,
+    texto: T.leituras.vomitoSemanaTexto,
+    acao: T.leituras.vomitoSemanaAcao,
   },
   {
     dias: 3,
     noDia: (c) => c?.gut === 'solto',
     hoje: (n) => n.solto >= 1,
-    sobre: 'Intestino na semana',
-    curto: 'beba mais água e conte para sua equipe',
-    titulo: 'O intestino está solto há dias',
-    texto: (n) => `${n} dos últimos sete dias assim já pesa na hidratação, mesmo quando cada dia, sozinho, parece tranquilo.`,
-    acao: 'Beba mais do que a sede pede e conte para sua equipe. Pode ser a dose, pode ser a alimentação.',
+    sobre: T.leituras.soltoSemanaSobre,
+    curto: T.leituras.soltoSemanaCurto,
+    titulo: T.leituras.soltoSemanaTitulo,
+    texto: T.leituras.soltoSemanaTexto,
+    acao: T.leituras.soltoSemanaAcao,
   },
   {
     dias: 4,
     /* 6 na régua de armazenamento é o 3 da tela — enjoo que incomodou. */
     noDia: (c) => ((c?.nausea ?? 0) as number) >= 6,
     hoje: (n) => n.nausea >= 3,
-    sobre: 'Enjoo na semana',
-    curto: 'leve o número de dias para a consulta',
-    titulo: 'O enjoo não está passando',
-    texto: (n) => `${n} dos últimos sete dias com enjoo deixa de ser adaptação e vira padrão. Costuma mudar com a dose, ou com a velocidade que ela sobe.`,
-    acao: 'Leve esse número para a próxima consulta. Segurar a dose um pouco mais não é desistir.',
+    sobre: T.leituras.enjooSemanaSobre,
+    curto: T.leituras.enjooSemanaCurto,
+    titulo: T.leituras.enjooSemanaTitulo,
+    texto: T.leituras.enjooSemanaTexto,
+    acao: T.leituras.enjooSemanaAcao,
   },
   {
     dias: 5,
     noDia: (c) => c?.gut === 'preso',
     hoje: (n) => n.preso >= 1,
-    sobre: 'Intestino lento na semana',
-    curto: 'beba água, coma fibra e caminhe',
-    titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito do medicamento, e com menos comida passa menos fibra — ele sente antes da balança.`,
-    acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
+    sobre: T.leituras.presoSemanaSobre,
+    curto: T.leituras.presoSemanaCurto,
+    titulo: T.leituras.presoSemanaTitulo,
+    texto: T.leituras.presoSemanaTexto,
+    acao: T.leituras.presoSemanaAcao,
   },
 ];
 
@@ -272,11 +268,11 @@ export function diasAnteriores(checkins: any[], hoje: number) {
 }
 
 export function combinacao(n: Niveis): Leitura | null {
-  return COMBINACOES.find((x) => x.quando(n)) ?? null;
+  return COMBINACOES().find((x) => x.quando(n)) ?? null;
 }
 
 export function persistencia(anteriores: any[], niveis: Niveis): Leitura | null {
-  for (const r of PERSISTENCIA) {
+  for (const r of PERSISTENCIA()) {
     const n = anteriores.filter(r.noDia).length + (r.hoje(niveis) ? 1 : 0);
     if (n >= r.dias) return { sobre: r.sobre, titulo: r.titulo, texto: r.texto(n), acao: r.acao, curto: r.curto };
   }
@@ -296,14 +292,16 @@ export function leituraDoDia(anteriores: any[], n: Niveis): Leitura | null {
    e o que resta é lembrar do que fazer com as respostas. */
 export function avisosDoDia(n: Niveis): Leitura[] {
   const fora: Leitura[] = [];
-  for (const [id, a] of Object.entries(AVISOS)) {
+  for (const [id, a] of Object.entries(AVISOS())) {
     if (((n as any)[id] ?? 0) >= a.min) fora.push({ sobre: a.sobre, titulo: a.titulo, texto: a.texto, acao: a.acao, curto: a.curto });
   }
-  if (n.preso >= AVISO_PRESO.min) {
-    fora.push({ sobre: AVISO_PRESO.sobre, titulo: AVISO_PRESO.titulo, texto: AVISO_PRESO.texto, acao: AVISO_PRESO.acao, curto: AVISO_PRESO.curto });
+  const preso = AVISO_PRESO();
+  if (n.preso >= preso.min) {
+    fora.push({ sobre: preso.sobre, titulo: preso.titulo, texto: preso.texto, acao: preso.acao, curto: preso.curto });
   }
-  if (n.solto >= AVISO_SOLTO.min) {
-    fora.push({ sobre: AVISO_SOLTO.sobre, titulo: AVISO_SOLTO.titulo, texto: AVISO_SOLTO.texto, acao: AVISO_SOLTO.acao, curto: AVISO_SOLTO.curto });
+  const solto = AVISO_SOLTO();
+  if (n.solto >= solto.min) {
+    fora.push({ sobre: solto.sobre, titulo: solto.titulo, texto: solto.texto, acao: solto.acao, curto: solto.curto });
   }
   return fora;
 }
