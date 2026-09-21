@@ -13,6 +13,7 @@ import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
+import { T } from '../textos';
 import { radius } from '../theme';
 
 /* ============================================================
@@ -54,12 +55,13 @@ import { radius } from '../theme';
    escrito à mão: mudar preço em assinatura.ts não pode deixar uma frase
    velha viva aqui. */
 const menorPorMes = () =>
-  Math.min(...PLANOS.map((p) => (p.sufixo === '/mês' ? p.preco : p.outraUnidade.valor)));
+  Math.min(...PLANOS().map((p) => (p.id === 'mensal' ? p.preco : p.outraUnidade.valor)));
 
 export default function Assinatura() {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const { c } = useTheme();
+  const K = T.assinatura;
 
   /* ⚠️ PORTA DE DESENVOLVIMENTO — `?assinante=1`.
 
@@ -84,8 +86,8 @@ export default function Assinatura() {
   const ehIsenta = isento(S) && !fingindoPagante;
   const vinculo = (S.profile as any).vinculo as { desde?: number; convite?: string } | null;
   const convite = ((S.profile as any).convite as string) || vinculo?.convite || '';
-  const clinica = S.profile.clinic || 'a clínica que acompanha você';
-  const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
+  const clinica = S.profile.clinic || K.clinicaGenerica;
+  const plano = atual ? PLANOS().find((x) => x.id === atual.plano) : undefined;
 
   /* ⚠️ O EXTRATO SÓ EXISTE PARA QUEM JÁ TEVE COBRANÇA, e o teste é esse —
      não "é Personal", não "não é isenta".
@@ -135,12 +137,12 @@ export default function Assinatura() {
          isso, o cancelamento fica à vista para quem está nesse estado —
          é a única coisa que esta tela pode fazer a respeito, e está logo
          abaixo. O porquê inteiro está em src/logic/assinatura.ts. */
-      valor: 'Sem custo',
-      abaixo: `O vínculo com ${clinica} cobre o aplicativo inteiro.`,
+      valor: K.semCusto,
+      abaixo: K.cobertoPelaClinica(clinica),
       itens: [
-        ...(vinculo?.desde ? ([['Vinculada desde', dataComAno(vinculo.desde)]] as Item[]) : []),
-        ...(convite ? ([['Código de convite', convite]] as Item[]) : []),
-        ['Próxima cobrança', 'Não há'],
+        ...(vinculo?.desde ? ([[K.vinculadaDesde, dataComAno(vinculo.desde)]] as Item[]) : []),
+        ...(convite ? ([[K.codigoDeConvite, convite]] as Item[]) : []),
+        [K.proximaCobranca, K.naoHa],
       ],
     }
     : atual && plano
@@ -149,26 +151,26 @@ export default function Assinatura() {
         unidade: plano.sufixo,
         abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
         itens: [
-          ['Periodicidade', plano.nome],
+          [K.periodicidade, plano.nome],
           ...(atual.renovaEm
-            ? ([[atual.emTeste ? 'Primeira cobrança' : 'Próxima cobrança', dataComAno(atual.renovaEm)]] as Item[])
+            ? ([[atual.emTeste ? K.primeiraCobranca : K.proximaCobranca, dataComAno(atual.renovaEm)]] as Item[])
             : []),
-          ['Cobrança pela', NOME_DA_LOJA],
+          [K.cobrancaPela, NOME_DA_LOJA],
         ],
       }
       : {
-        valor: 'Sem custo',
-        abaixo: `Você tem tudo do jeito que está. Os planos começam em ${reais(menorPorMes())} por mês.`,
-        itens: [['Próxima cobrança', 'Não há']],
+        valor: K.semCusto,
+        abaixo: K.semPlano(reais(menorPorMes())),
+        itens: [[K.proximaCobranca, K.naoHa]],
       };
 
   return (
-    <TelaInterna titulo="Sua assinatura">
+    <TelaInterna titulo={K.titulo}>
       {/* ---- o cartão do que está valendo ---- */}
       <Cartao>
         <View style={{ padding: 18, gap: 4 }}>
           <Row style={{ alignItems: 'center' }}>
-            <Txt v="label" c={c.tx2} style={{ flex: 1 }}>Sua assinatura</Txt>
+            <Txt v="label" c={c.tx2} style={{ flex: 1 }}>{K.titulo}</Txt>
             <Selo label={NOME_DO_TIPO[tipo]} tom={tipo === 'care' ? 'lima' : 'neutra'} />
           </Row>
 
@@ -222,7 +224,7 @@ export default function Assinatura() {
             tela. A letra miúda no pé já diz que a cobrança é da loja. */}
         <Linha
           ic="shield"
-          titulo={atual ? 'Mudar de plano' : 'Ver os planos'}
+          titulo={atual ? K.mudarDePlano : K.verOsPlanos}
           onPress={atual ? () => Linking.openURL(GESTAO_NA_LOJA) : () => router.push('/planos' as any)}
         />
 
@@ -237,7 +239,7 @@ export default function Assinatura() {
         {atual ? (
           <Linha
             ic="dose"
-            titulo="Forma de pagamento"
+            titulo={K.formaDePagamento}
             onPress={() => Linking.openURL(PAGAMENTO_NA_LOJA)}
           />
         ) : null}
@@ -245,7 +247,7 @@ export default function Assinatura() {
         {jaTeveCobranca ? (
           <Linha
             ic="doc"
-            titulo="Histórico de cobrança"
+            titulo={K.historicoDeCobranca}
             onPress={() => router.push('/cobrancas' as any)}
           />
         ) : null}
@@ -267,8 +269,8 @@ export default function Assinatura() {
         {ehIsenta ? (
           <Linha
             ic="steth"
-            titulo="Código de convite"
-            sub="Trocar a clínica que acompanha você"
+            titulo={K.codigoDeConvite}
+            sub={K.trocarClinica}
             onPress={() => router.push('/codigo' as any)}
           />
         ) : atual ? (
@@ -280,15 +282,15 @@ export default function Assinatura() {
               código". Sem ela, a linha parece burocracia. */
           <Linha
             ic="steth"
-            titulo="Inserir código"
-            sub="Pacientes de clínicas parceiras possuem isenção do custo do aplicativo"
+            titulo={K.inserirCodigo}
+            sub={K.inserirCodigoSub}
             onPress={() => router.push('/codigo' as any)}
           />
         ) : TEM_REDE_PARCEIRA ? (
           <Linha
             ic="steth"
-            titulo="Médicos parceiros"
-            sub="Quem se trata numa clínica parceira não paga"
+            titulo={K.medicosParceiros}
+            sub={K.medicosParceirosSub}
             onPress={() => router.push('/parceiros' as any)}
           />
         ) : null}
@@ -326,7 +328,7 @@ export default function Assinatura() {
         <Cartao>
           <Linha
             ic="logout"
-            titulo="Cancelar assinatura"
+            titulo={K.cancelar}
             onPress={() => router.push((fingindoAssinante ? '/cancelar?assinante=1' : '/cancelar') as any)}
           />
         </Cartao>
@@ -424,21 +426,21 @@ export default function Assinatura() {
           ehIsenta && assinaturaAtual(S)
             ? {
               ic: 'alerta',
-              titulo: 'Você está pagando sem precisar',
-              texto: `O vínculo com a clínica já cobre o aplicativo, mas existe uma assinatura ativa na ${NOME_DA_LOJA} — cancele por lá e nada muda para você.`,
+              titulo: K.pagandoTitulo,
+              texto: K.pagandoTexto(NOME_DA_LOJA),
             }
             : atual
               ? null
               : ehIsenta
                 ? {
                   ic: 'info',
-                  titulo: 'É bom você saber',
-                  texto: 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.',
+                  titulo: K.bomSaberTitulo,
+                  texto: K.bomSaberTexto,
                 }
                 : {
                   ic: 'info',
-                  titulo: 'A cobrança ainda não está ligada',
-                  texto: 'Esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.',
+                  titulo: K.semCobrancaTitulo,
+                  texto: K.semCobrancaTexto,
                 };
         if (!nota) return null;
         return (

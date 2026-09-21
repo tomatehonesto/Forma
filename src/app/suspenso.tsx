@@ -44,7 +44,7 @@ import { radius } from '../theme';
    ============================================================ */
 
 const menorPorMes = () =>
-  Math.min(...PLANOS.map((p) => (p.sufixo === '/mês' ? p.preco : p.outraUnidade.valor)));
+  Math.min(...PLANOS().map((p) => (p.id === 'mensal' ? p.preco : p.outraUnidade.valor)));
 
 export default function Suspenso() {
   const S = useStore((s) => s.S);

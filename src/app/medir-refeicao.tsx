@@ -126,7 +126,7 @@ export default function MedirRefeicao() {
          tinha digitado o que o prato não mostrava não perde isso. */
       setItens((v) => [...v, ...r.itens]);
     } else {
-      setRecado(RECADO[r.motivo]);
+      setRecado(RECADO()[r.motivo]);
     }
   };
 

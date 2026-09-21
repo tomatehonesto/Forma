@@ -135,8 +135,8 @@ export default function Cancelar() {
       ? { plano: 'anual' as const, renovaEm: Date.now() + 250 * 864e5, emTeste: false }
       : { plano: 'mensal' as const, renovaEm: Date.now() + 20 * 864e5, emTeste: false }
     : null);
-  const plano = atual ? PLANOS.find((x) => x.id === atual.plano) : undefined;
-  const anual = PLANOS.find((x) => x.id === 'anual')!;
+  const plano = atual ? PLANOS().find((x) => x.id === atual.plano) : undefined;
+  const anual = PLANOS().find((x) => x.id === 'anual')!;
 
   /* A resposta é gravada no toque, e não num botão de enviar: quem
      responde e fecha a tela pelo gesto de voltar também respondeu. */

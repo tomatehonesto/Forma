@@ -65,11 +65,12 @@ export type Analise =
 /* Os três recados terminam do mesmo jeito — apontando para o caminho que
    funciona. Um erro que só diz que falhou deixa a pessoa parada com a
    refeição por registrar. */
-export const RECADO: Record<Motivo, string> = {
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const RECADO = (): Record<Motivo, string> => ({
   'sem-servidor': T.aviso.fotoSemServidor,
   'sem-rede': T.aviso.fotoSemRede,
   'nao-reconheci': T.aviso.fotoNaoReconheci,
-};
+});
 
 /* Quantidade que veio de fora: inteiro, pelo menos 1, no máximo 20.
    Vinte colheres de arroz já é absurdo; duzentas é erro. */

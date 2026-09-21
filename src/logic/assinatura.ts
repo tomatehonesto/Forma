@@ -95,13 +95,19 @@ export type Plano = {
    o número anunciado nunca deve ser maior do que o real. Mexer em
    `preco` sem refazer esta conta faz a tela mentir em voz alta, e os dois
    valores de `outraUnidade` estão logo abaixo para quem quiser conferir. */
-export const PLANOS: Plano[] = [
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README.
+
+   ⚠️⚠️ E O TSC NÃO PEGAVA ESTA. A trava do catálogo funciona sozinha
+   quando a tabela é indexada por chave — indexar uma função é erro de
+   tipo. Um ARRAY não: `PLANOS.map(…)` compila igual congelado. Por isso
+   existe scripts/idioma-congelado.mjs. */
+export const PLANOS = (): Plano[] => [
   {
-    id: 'mensal', nome: 'Mensal', preco: 49.9, periodo: T.aviso.porMes, sufixo: T.aviso.porMesCurto,
-    outraUnidade: { valor: 49.9 * 12, periodo: 'por ano' }, teste: TESTE_DIAS,
+    id: 'mensal', nome: T.assinatura.mensal, preco: 49.9, periodo: T.aviso.porMes, sufixo: T.aviso.porMesCurto,
+    outraUnidade: { valor: 49.9 * 12, periodo: T.assinatura.porAno }, teste: TESTE_DIAS,
   },
   {
-    id: 'anual', nome: 'Anual', preco: 299, periodo: 'por ano', sufixo: '/ano',
+    id: 'anual', nome: T.assinatura.anual, preco: 299, periodo: T.assinatura.porAno, sufixo: T.assinatura.porAnoCurto,
     outraUnidade: { valor: 299 / 12, periodo: T.aviso.porMes }, economia: 50,
   },
 ];

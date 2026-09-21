@@ -373,7 +373,7 @@ export default function Planos() {
 
   const [recusa, setRecusa] = React.useState(false);
 
-  const plano = PLANOS.find((x) => x.id === escolhido)!;
+  const plano = PLANOS().find((x) => x.id === escolhido)!;
   const ehIsenta = isento(S) && !fingindoPagante;
 
   const comprar = async () => {
@@ -598,7 +598,7 @@ export default function Planos() {
               basta, e a altura passa a ser a que o conteúdo pede. Mexer no
               conteúdo de um lado só traz o piso de volta. */}
           <Row gap={10} style={{ alignItems: 'stretch' }}>
-            {PLANOS.map((p) => {
+            {PLANOS().map((p) => {
               const on = p.id === escolhido;
               /* ⚠️ CADA CARTÃO SE ACENDE NA COR DO PRÓPRIO ARGUMENTO.
 

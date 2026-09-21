@@ -59,10 +59,14 @@ export type Bebida = {
   livre?: boolean;
 };
 
-/* Copo, garrafa, garrafão: o que existe na cozinha de qualquer um. */
-export const MEDIDAS_PADRAO: [string, number][] = [
-  ['Copo', 250],
-  ['Garrafa', 500],
+/* Copo, garrafa, garrafão: o que existe na cozinha de qualquer um.
+
+   ⚠️ É FUNÇÃO, porque lê o catálogo. Era constante com duas palavras
+   ainda escritas em código ao lado de uma terceira já vinda do catálogo —
+   e as três aparecem na mesma lista, uma do lado da outra. */
+export const MEDIDAS_PADRAO = (): [string, number][] => [
+  [T.alimentacao.bebidas.recipientes.copo, 250],
+  [T.alimentacao.bebidas.recipientes.garrafa, 500],
   [T.aviso.garrafao, 1000],
 ];
 
@@ -153,4 +157,4 @@ export function bebidaDe(id?: string | null): Bebida {
    vinho já são o que são nos dois sistemas — quem tem medidas próprias
    fica com elas. */
 export const medidasDe = (b: Bebida, sistema: Sistema = 'metrico') =>
-  b.medidas ?? (sistema === 'imperial' ? RECIPIENTES_IMP : MEDIDAS_PADRAO);
+  b.medidas ?? (sistema === 'imperial' ? RECIPIENTES_IMP() : MEDIDAS_PADRAO());

@@ -60,7 +60,7 @@ export default function Cobrancas() {
       ) : (
         <Cartao>
           {linhas.map((l) => {
-            const plano = PLANOS.find((x) => x.id === l.plano);
+            const plano = PLANOS().find((x) => x.id === l.plano);
             return (
               <Linha
                 key={l.t}

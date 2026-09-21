@@ -225,8 +225,9 @@ export const reguaDeComp = (S: ComPerfil, cmMin: number, cmMax: number) => (imp(
    Então a tabela imperial é a dos recipientes americanos, em onças
    redondas, e o que se grava é o mililitro correspondente — que é o que
    ela de fato bebeu. */
-export const RECIPIENTES_IMP: [string, number][] = [
-  ['Copo', Math.round(8 / OZ_POR_ML)],
-  ['Garrafa', Math.round(16 / OZ_POR_ML)],
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const RECIPIENTES_IMP = (): [string, number][] => [
+  [T.alimentacao.bebidas.recipientes.copo, Math.round(8 / OZ_POR_ML)],
+  [T.alimentacao.bebidas.recipientes.garrafa, Math.round(16 / OZ_POR_ML)],
   [T.aviso.garrafao, Math.round(32 / OZ_POR_ML)],
 ];
