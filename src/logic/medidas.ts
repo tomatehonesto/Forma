@@ -60,6 +60,7 @@ const LB_POR_KG = 2.20462;
 const POL_POR_M = 39.3701;
 const POL_POR_CM = 0.393701;
 const OZ_POR_ML = 0.033814;
+const G_POR_OZ = 28.3495;
 
 /* ------------------------------------------------------------------ *
  * PESO
@@ -113,6 +114,33 @@ export const compTxt = (S: ComPerfil, cm: number, casas = 1) => `${compN(S, cm, 
    persiga. */
 export const aguaU = (S: ComPerfil) => (imp(S) ? 'fl oz' : 'L');
 
+/* ------------------------------------------------------------------ *
+ * O PESO DE UM ALIMENTO
+ * ------------------------------------------------------------------ */
+/* ⚠️⚠️ PESO DE COMIDA VIRA ONÇA; NUTRIENTE CONTINUA EM GRAMA. Parece
+   contradição, e é a diferença entre duas coisas que por acaso se medem
+   na mesma grandeza.
+
+   Quanto PESA um filé é conversa de gente: americano diz "a 6 oz steak",
+   e "170 g" não lhe diz nada. Então "1 filé pesa perto de 120 g" vira
+   "perto de 4,2 oz", que é o número que ele reconhece do açougue.
+
+   Quanto de PROTEÍNA esse filé tem é rótulo, e o rótulo americano é em
+   grama — não por gosto, por lei. O Nutrition Facts da FDA traz proteína,
+   carboidrato, gordura e fibra em GRAMA e sódio em MILIGRAMA, e o peso da
+   porção vem em grama entre parênteses: "1 sandwich (325g)". Meta de
+   proteína lá também se fala em grama, "30 grams per meal". "0,9 oz de
+   proteína" não existe em lugar nenhum, e convertê-la seria traduzir para
+   um idioma que ninguém fala.
+
+   ⚠️ E A BASE DE 100 g FICA COMO ESTÁ. Ela não é uma medida da comida, é
+   a régua da tabela — o USDA publica por 100 g do mesmo jeito que a
+   Unicamp. "Valores por 3,5 oz" seria uma conversão de uma coisa que
+   ninguém procura assim. */
+export const massaTxt = (S: ComPerfil, g: number) => (imp(S)
+  ? `${nf(g / G_POR_OZ, 1)} oz`
+  : `${Math.round(g)} g`);
+
 /* AS UNIDADES POR EXTENSO, para quem está escolhendo entre os dois
    sistemas.
 
@@ -124,7 +152,7 @@ export const aguaU = (S: ComPerfil) => (imp(S) ? 'fl oz' : 'L');
    perfil e a folha onde se troca. Escrita duas vezes, uma envelhece
    sozinha no dia em que o aplicativo passar a mostrar outra medida. */
 export const unidadesDe = (sis: Sistema) => (sis === 'imperial'
-  ? 'libras, pés, polegadas e onças líquidas'
+  ? 'libras, pés, polegadas e onças'
   : 'quilos, metros, centímetros e litros');
 export const aguaV = (S: ComPerfil, ml: number) => (imp(S) ? ml * OZ_POR_ML : ml / 1000);
 export const aguaMl = (S: ComPerfil, v: number) => (imp(S) ? v / OZ_POR_ML : v * 1000);

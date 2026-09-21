@@ -8,6 +8,8 @@ import { VidroDegrade } from '../ui/vidro';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
 import { medidaDe, porUnidadeDe } from '../logic/alimentos';
+import { massaTxt } from '../logic/medidas';
+import { useStore } from '../logic/store';
 import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -74,6 +76,10 @@ export default function Alimento() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  /* ⚠️ O PESO DA PORÇÃO SEGUE O SISTEMA DA PESSOA — ver massaTxt em
+     logic/medidas, que explica por que o peso vira onça e o nutriente
+     continua em grama. */
+  const S = useStore((st) => st.S);
   const a = alimentoDe(String(id || ''));
 
   if (!a) {
@@ -322,7 +328,7 @@ export default function Alimento() {
                 diz quanto a porção pesa; a rede diz o que ela TEM, e
                 "pesa perto de 0 g" seria pior do que não dizer nada. De
                 que porção os números são, quem conta é a procedência. */}
-            {a.gUn != null ? `${medidaDe(a, a.qtd)} pesa perto de ${a.gUn * a.qtd} g. ` : ''}
+            {a.gUn != null ? `${medidaDe(a, a.qtd)} pesa perto de ${massaTxt(S, a.gUn * a.qtd)}. ` : ''}
             {origemDoAlimento(a)}
           </Txt>
 
