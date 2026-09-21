@@ -112,6 +112,20 @@ export const compTxt = (S: ComPerfil, cm: number, casas = 1) => `${compN(S, cm, 
    mostra ONÇA LÍQUIDA inteira — 84,5 fl oz não é um número que alguém
    persiga. */
 export const aguaU = (S: ComPerfil) => (imp(S) ? 'fl oz' : 'L');
+
+/* AS UNIDADES POR EXTENSO, para quem está escolhendo entre os dois
+   sistemas.
+
+   ⚠️ "MÉTRICO" E "IMPERIAL" SÃO PALAVRAS DE ENCICLOPÉDIA: quem cresceu
+   com uma delas raramente sabe o nome dela. O que se reconhece é a
+   unidade — quilo, libra, polegada —, e é ela que decide a escolha.
+
+   ⚠️ E A LISTA MORA AQUI porque aparece em dois lugares: a linha do
+   perfil e a folha onde se troca. Escrita duas vezes, uma envelhece
+   sozinha no dia em que o aplicativo passar a mostrar outra medida. */
+export const unidadesDe = (sis: Sistema) => (sis === 'imperial'
+  ? 'libras, pés, polegadas e onças líquidas'
+  : 'quilos, metros, centímetros e litros');
 export const aguaV = (S: ComPerfil, ml: number) => (imp(S) ? ml * OZ_POR_ML : ml / 1000);
 export const aguaMl = (S: ComPerfil, v: number) => (imp(S) ? v / OZ_POR_ML : v * 1000);
 export const aguaN = (S: ComPerfil, ml: number) => (imp(S)

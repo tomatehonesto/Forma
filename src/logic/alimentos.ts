@@ -74,6 +74,23 @@ export type Alimento = {
      dela, e não uma tabela de composição. Inventar um peso para converter
      seria fabricar o dado que falta. */
   porUnidade?: boolean;
+  /* ⚠️ DE QUEM É O PRODUTO, e por que ela não mora dentro do nome.
+
+     Os itens de rede se chamavam "Burger King WHOPPER®", "McDonald's Big
+     Mac", "Habib's Bib'Sfiha de Carne" — e uma busca por "chicken"
+     devolvia seis linhas começando pela mesma palavra, com o nome do
+     produto empurrado para a direita. A lista lia-se como uma lista de
+     redes, e não de comida.
+
+     A marca continua inteira, num campo próprio: a lista a mostra na
+     linha de baixo, junto da porção, e a tela do rótulo a põe no alto.
+     Ela também está na busca, então "burger king" continua achando o
+     cardápio todo.
+
+     ⚠️ E É ELA QUE DESEMPATA O NOME REPETIDO. "Cheeseburger" e "Chicken
+     Jr." existem nas duas redes de hambúrguer, com números diferentes:
+     sem a marca à vista seriam duas linhas idênticas. */
+  marca?: string;
   /** Quantas unidades vêm marcadas ao escolher o alimento. */
   qtd: number;
   /** A unidade no singular, e no plural. */

@@ -128,7 +128,12 @@ export default function Alimento() {
             <Icon name="back" size={16} color={c.onHero} sw={2.2} />
           </View>
         </Pressable>
-        <Txt v="label" c={c.onHero}>{a.onde}</Txt>
+        {/* ⚠️ A MARCA NO LUGAR DA PRATELEIRA, quando existe: "Burger
+            King" diz mais do que "Lanches de rede" numa tela que já é
+            sobre um produto de rede — e é o que identifica o
+            "Cheeseburger" que está aberto, já que o nome sozinho não
+            distingue mais. */}
+        <Txt v="label" c={c.onHero}>{a.marca ?? a.onde}</Txt>
         <View style={{ width: 36 }} />
       </Row>
 

@@ -173,7 +173,8 @@ for (const linha of linhas) {
 
   itens.push({
     id,
-    nome: 'McDonald’s ' + nome,
+    nome,
+    marca: 'McDonald’s',
     /* A marca entra na busca de todo jeito, para "mcdonalds" e "mequi"
        acharem o cardápio inteiro. */
     busca: semAcento((nome + ' mcdonalds mequi ' + slug.replace(/-/g, ' ')).toLowerCase()),
@@ -260,7 +261,8 @@ for (const linha of fs.readFileSync(COLHEITA_HABIBS, 'utf8').split(/\r?\n/)) {
 
   itens.push({
     id,
-    nome: 'Habib’s ' + nome,
+    nome,
+    marca: 'Habib’s',
     /* ⚠️ O APÓSTROFO SAI DA BUSCA. 'Bib’Sfiha' é uma palavra com um
        apóstrofo tipográfico no meio, e ninguém digita isso: quem procura
        escreve 'bibsfiha' ou 'sfiha'. A busca guarda as duas formas — a
@@ -338,7 +340,8 @@ for (const linha of cruBk.split(/\r?\n/)) {
 
   itens.push({
     id,
-    nome: 'Burger King ' + limpo,
+    nome: limpo,
+    marca: 'Burger King',
     busca: semAcento((limpo + ' burger king bk ' + slug.replace(/-/g, ' ')).toLowerCase()),
     p: num(p),
     kcal: num(kcal), carb: num(carb), gord: num(gord), fibra: num(fibra),

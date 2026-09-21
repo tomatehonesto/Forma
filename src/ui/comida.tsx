@@ -70,7 +70,13 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
               >
                 <View style={{ flex: 1 }}>
                   <Txt v="label" numberOfLines={1}>{a.nome}</Txt>
-                  <Txt v="micro" c={c.tx4}>{medidaDe(a, a.qtd)} · ~{gramasDe(a, a.qtd)} g de proteína</Txt>
+                  {/* A marca na frente da porção, quando existe — a mesma
+                      linha da tela de alimentos. Ver o tipo em
+                      logic/alimentos: ela saiu do nome, e é aqui que
+                      separa os dois "Cheeseburger". */}
+                  <Txt v="micro" c={c.tx4}>
+                    {a.marca ? a.marca + " · " : ""}{medidaDe(a, a.qtd)} · ~{gramasDe(a, a.qtd)} g de proteína
+                  </Txt>
                 </View>
                 <Icon name="plus" size={16} color={c.accent} sw={2.4} />
               </Row>

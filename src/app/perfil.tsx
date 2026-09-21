@@ -26,7 +26,7 @@ const FOTO_MEDICA = fotoDe('responsavel');
 import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
-import { pesoTxt, sistemaDe, pesoU, pesoN } from '../logic/medidas';
+import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
 
@@ -692,7 +692,7 @@ export default function Perfil() {
             também é a de "unidades de insulina" e a de "quantas unidades
             você comeu" — duas coisas que este aplicativo também tem. */}
         <ListRow ic="ruler" title="Unidades de medida"
-          sub={sistemaDe(S) === 'imperial' ? 'Imperial · libra, pé e polegada' : 'Métrico · quilo, metro e centímetro'}
+          sub={`${sistemaDe(S) === 'imperial' ? 'Imperial' : 'Métrico'} · ${unidadesDe(sistemaDe(S))}`}
           onPress={go('/unidades')} />
       </Grupo>
 

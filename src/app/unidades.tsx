@@ -5,20 +5,21 @@ import { useStore } from '../logic/store';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Opc } from '../ui/internas';
 import {
-  sistemaDe, pesoTxt, alturaTxt, compTxt, aguaTxt, type Sistema,
+  sistemaDe, pesoTxt, alturaTxt, compTxt, aguaTxt, unidadesDe, type Sistema,
 } from '../logic/medidas';
 
 /* ============================================================
    AS UNIDADES
 
-   ⚠️⚠️ A ESCOLHA SE FAZ COM OS NÚMEROS DELA À VISTA, e não com os nomes
-   dos sistemas.
+   ⚠️⚠️ NINGUÉM ESCOLHE PELO NOME DO SISTEMA. "Métrico" e "imperial" são
+   palavras de enciclopédia: quem cresceu com uma delas raramente sabe
+   qual é o nome. O que se reconhece é a unidade — quilo, libra,
+   polegada —, e é ela que decide.
 
-   "Métrico" e "imperial" são palavras de enciclopédia: quem cresceu com
-   uma delas raramente sabe qual é o nome. O que a pessoa reconhece é o
-   próprio peso escrito — 82,4 kg ou 181,7 lb —, e é por isso que cada
-   opção mostra os quatro números DELA, com os valores reais do perfil e
-   não com exemplos inventados.
+   Então cada opção traz as unidades dela embaixo do nome, e a linha de
+   baixo traz os números DA PESSOA no sistema em uso, com os valores
+   reais do perfil e não com exemplos inventados: as unidades para
+   escolher, o próprio peso escrito para confirmar.
 
    ⚠️ E NADA SE CONVERTE NO ESTADO ao trocar. O aplicativo guarda tudo em
    métrico e converte na hora de escrever — ver logic/medidas. Trocar aqui
@@ -69,11 +70,17 @@ export default function Unidades() {
               Quem trocou a unidade no cadastro reconhece o gesto — e é
               justamente ela que volta aqui para trocar de novo. */}
           <View style={{ gap: 8 }}>
+            {/* ⚠️ E CADA OPÇÃO DIZ AS UNIDADES DELA. O nome do sistema é
+                palavra de enciclopédia — ver o alto de logic/medidas —, e
+                sozinho ele pede que a pessoa saiba de cor em qual dos
+                dois cresceu. "Quilos, metros, centímetros e litros" se
+                reconhece sem pensar. */}
             {OPCOES.map(([id, nome]) => (
               <Opc
                 key={id}
                 cheia
                 label={nome}
+                sub={unidadesDe(id)}
                 on={atual === id}
                 onPress={() => update((st: any) => { st.profile.sistema = id; })}
               />

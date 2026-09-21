@@ -161,8 +161,15 @@ export default function Alimentos() {
                 titulo={a.nome}
                 /* A porção padrão junto do nome: é ela que transforma
                    "32 g de proteína por 100 g" em "um filé", que é a
-                   única forma em que alguém come frango. */
-                sub={`${medidaDe(a, a.qtd)} · ~${gramasDe(a, a.qtd)} g de proteína`}
+                   única forma em que alguém come frango.
+
+                   ⚠️ E A MARCA VEM NA FRENTE DELA, quando existe. Ver o
+                   tipo em logic/alimentos: ela saiu do nome para a lista
+                   parar de se ler como uma lista de redes, e é aqui que
+                   ela continua à vista — inclusive para separar os dois
+                   "Cheeseburger" que existem. */
+                sub={[a.marca, `${medidaDe(a, a.qtd)} · ~${gramasDe(a, a.qtd)} g de proteína`]
+                  .filter(Boolean).join(' · ')}
                 onPress={() => router.push(`/alimento?id=${a.id}` as any)}
               />
             ))}

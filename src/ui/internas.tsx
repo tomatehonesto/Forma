@@ -1389,8 +1389,14 @@ export function Opcoes({ children }: { children: React.ReactNode }) {
 /* `cheia` faz a opção ocupar a coluna inteira. Só serve dentro de
    <Grade>, e é lá que está a explicação de por que uma lista pediria
    isso. */
-export function Opc({ label, ic, dir, cheia, on, onPress }: {
-  label: string; ic?: string; dir?: string; cheia?: boolean; on?: boolean; onPress?: () => void;
+/* `sub` põe uma segunda linha embaixo do rótulo. Serve quando a escolha
+   precisa de um exemplo para se decidir — "Métrico" não diz nada a quem
+   não sabe o nome do próprio sistema, e "quilos, metros, centímetros e
+   litros" diz. Com ela a peça deixa de ser centrada: duas linhas
+   centradas viram um bloco sem margem por onde o olho desça. */
+export function Opc({ label, sub, ic, dir, cheia, on, onPress }: {
+  label: string; sub?: string; ic?: string; dir?: string; cheia?: boolean; on?: boolean;
+  onPress?: () => void;
 }) {
   const { c } = useTheme();
   return (
@@ -1426,11 +1432,16 @@ export function Opc({ label, ic, dir, cheia, on, onPress }: {
           e a coluna ficava com um rio de espaço irregular à direita.
           Centrado, a grade lê como grade. Com valor à direita não vale:
           ali as duas pontas da linha têm dono. */}
-      <Row gap={7} style={cheia && !dir ? { justifyContent: 'center' } : undefined}>
+      <Row gap={7} style={cheia && !dir && !sub ? { justifyContent: 'center' } : undefined}>
         {ic
           ? <Icon name={ic} size={15} color={on ? c.accentInk : c.tx3} sw={1.9} />
           : on && !cheia ? <Icon name="check" size={14} color={c.accentInk} sw={2.6} /> : null}
-        <Txt v="label" c={on ? c.accentInk : c.tx2} numberOfLines={1} style={dir ? { flex: 1 } : undefined}>{label}</Txt>
+        <View style={dir || sub ? { flex: 1 } : undefined}>
+          <Txt v="label" c={on ? c.accentInk : c.tx2} numberOfLines={1}>{label}</Txt>
+          {sub
+            ? <Txt v="caption" c={on ? 'rgba(255,255,255,0.78)' : c.tx4} numberOfLines={1} style={{ marginTop: 1 }}>{sub}</Txt>
+            : null}
+        </View>
         {/* Um valor do lado direito — o que aquela escolha vale. Serve
             para listas em que as opções se comparam por número. */}
         {dir ? <Txt v="caption" c={on ? 'rgba(255,255,255,0.78)' : c.tx4}>{dir}</Txt> : null}
