@@ -142,7 +142,7 @@ export default function Conquistas() {
      a pessoa — e é ela que alguém vem conferir. */
   const chips = useMemo(() => [
     { id: 'todas', label: 'Todas', n: feitas(todas).length },
-    ...FAMILIAS
+    ...FAMILIAS()
       .map((f) => ({ id: f.id, label: f.nome, n: feitas(todas.filter((q) => q.familia === f.id)).length }))
       .filter((f) => todas.some((q) => q.familia === f.id)),
   ], [todas]);

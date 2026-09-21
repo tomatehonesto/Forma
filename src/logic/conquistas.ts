@@ -1,6 +1,7 @@
 import type { State } from './seed';
 import { MEDS } from './meds';
 import { DAY, startOfDay, now, diffDays, nf } from './time';
+import { T } from '../textos';
 import { pesoTxt, compTxt } from './medidas';
 
 /* ESTE ARQUIVO NÃO IMPORTA O DERIVE, e o derive importa este. O caminho
@@ -50,16 +51,20 @@ export type Familia =
   | 'tratamento' | 'peso' | 'constancia' | 'hidratacao'
   | 'proteina' | 'movimento' | 'comida' | 'acompanhamento';
 
-export const FAMILIAS: { id: Familia; nome: string }[] = [
-  { id: 'tratamento', nome: 'Tratamento' },
-  { id: 'peso', nome: 'Peso' },
-  { id: 'constancia', nome: 'Constância' },
-  { id: 'hidratacao', nome: 'Hidratação' },
-  { id: 'proteina', nome: 'Proteína' },
-  { id: 'movimento', nome: 'Movimento' },
-  { id: 'comida', nome: 'Alimentação' },
-  { id: 'acompanhamento', nome: 'Acompanhamento' },
-];
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const FAMILIAS = (): { id: Familia; nome: string }[] => {
+  const t = T.conquistas.familias;
+  return [
+    { id: 'tratamento', nome: t.tratamento },
+    { id: 'peso', nome: t.peso },
+    { id: 'constancia', nome: t.constancia },
+    { id: 'hidratacao', nome: t.hidratacao },
+    { id: 'proteina', nome: t.proteina },
+    { id: 'movimento', nome: t.movimento },
+    { id: 'comida', nome: t.comida },
+    { id: 'acompanhamento', nome: t.acompanhamento },
+  ];
+};
 
 export type Conquista = {
   id: string;
@@ -168,22 +173,26 @@ type Trilha = {
   vale?: (S: State) => boolean;
 };
 
-const plural = (n: number, s: string, p = s + 's') => `${n} ${n === 1 ? s : p}`;
+/* ⚠️ O PLURAL SAIU DAQUI. Ele era gramática do português — "local" vira
+   "locais", "sessão" vira "sessões" — escrita dentro da lógica, e agora
+   mora no catálogo, um por idioma. Ver src/textos/pt-BR/conquistas.
 
-const CATALOGO: Trilha[] = [
+   ⚠️ E O CATÁLOGO É FUNÇÃO pelo motivo de sempre: constante de módulo
+   congelaria o idioma no import. */
+const CATALOGO = (): Trilha[] => [
   /* ---------------- tratamento ---------------- */
   {
-    id: 'doses', familia: 'tratamento', ic: 'syringe', titulo: 'Aplicações',
+    id: 'doses', familia: 'tratamento', ic: 'syringe', titulo: T.conquistas.doses,
     niveis: [1, 4, 12, 26, 52, 104],
-    desc: (a) => `${plural(a, 'aplicação', 'aplicações')} registrada${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'aplicação', 'aplicações')}`,
+    desc: (a) => T.conquistas.dosesDesc(a),
+    falta: (r) => T.conquistas.dosesFalta(r),
     medida: (S) => porContagem((S.injections as any[]).map((i) => i.t)),
   },
   {
-    id: 'tempo', familia: 'tratamento', ic: 'cal', titulo: 'Tempo de tratamento',
+    id: 'tempo', familia: 'tratamento', ic: 'cal', titulo: T.conquistas.tempo,
     niveis: [30, 90, 180, 365, 730],
-    desc: (a) => (a < 365 ? `${a / 30} ${a === 30 ? 'mês' : 'meses'} desde a primeira dose` : `${a / 365} ano${a > 365 ? 's' : ''} desde a primeira dose`),
-    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    desc: (a) => T.conquistas.tempoDesc(a),
+    falta: (r) => T.conquistas.tempoFalta(r),
     medida: (S) => {
       const i1 = (S.injections as any[])[0];
       if (!i1) return { feito: 0, quando: () => null };
@@ -196,10 +205,10 @@ const CATALOGO: Trilha[] = [
        alternar é orientação de bula. É a única trilha que premia uma
        prática de segurança, e a única com um teto natural — são seis
        locais, e não há sétimo. */
-    id: 'rodizio', familia: 'tratamento', ic: 'troca', titulo: 'Rodízio',
+    id: 'rodizio', familia: 'tratamento', ic: 'troca', titulo: T.conquistas.rodizio,
     niveis: [2, 4, 6],
-    desc: (a) => `${plural(a, 'local', 'locais')} de aplicação usado${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'local', 'locais')}`,
+    desc: (a) => T.conquistas.rodizioDesc(a),
+    falta: (r) => T.conquistas.rodizioFalta(r),
     medida: (S) => {
       const vistos = new Set<string>();
       const quando = new Map<number, number>();
@@ -211,11 +220,11 @@ const CATALOGO: Trilha[] = [
     },
   },
   {
-    id: 'titulacao', familia: 'tratamento', ic: 'dose', titulo: 'Titulação',
+    id: 'titulacao', familia: 'tratamento', ic: 'dose', titulo: T.conquistas.titulacao,
     vale: (S) => (M(S).doses?.length ?? 0) > 1,
     niveis: [], // preenchida abaixo, a partir da escada do medicamento
-    desc: (a) => `Chegar à dose de ${a}`,
-    falta: (_r, a) => `Próxima: ${a}`,
+    desc: (a) => T.conquistas.titulacaoDesc(String(a)),
+    falta: (_r, a) => T.conquistas.titulacaoFalta(String(a)),
     medida: (S) => {
       const injs = (S.injections as any[]).slice().sort((x, y) => x.t - y.t);
       return {
@@ -227,15 +236,15 @@ const CATALOGO: Trilha[] = [
 
   /* ---------------- peso ---------------- */
   {
-    id: 'kg', familia: 'peso', ic: 'scale', titulo: 'Quilos a menos',
+    id: 'kg', familia: 'peso', ic: 'scale', titulo: T.conquistas.kg,
     niveis: [2, 5, 10, 15, 20, 30],
     /* ⚠️ OS DEGRAUS SÃO EM QUILO E ASSIM FICAM — 2, 5, 10, 15, 20, 30.
        Degraus próprios em libra fariam a mesma pessoa ganhar conquistas
        diferentes conforme uma preferência de EXIBIÇÃO, o que é pior do
        que um marco com vírgula. O que converte é o texto: quem lê em
        libra vê "4,4 lb abaixo do peso inicial", e isso é verdade. */
-    desc: (a, S) => `${pesoTxt(S, a)} abaixo do peso inicial`,
-    falta: (r, _alvo, S) => `Faltam ${pesoTxt(S, r)}`,
+    desc: (a, S) => T.conquistas.kgDesc(pesoTxt(S, a)),
+    falta: (r, _alvo, S) => T.conquistas.kgFalta(pesoTxt(S, r)),
     medida: (S) => {
       const ini = S.profile.startWeight;
       const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ini - w.kg }));
@@ -247,10 +256,10 @@ const CATALOGO: Trilha[] = [
     /* A PORCENTAGEM É OUTRA CONVERSA, e não uma repetição dos quilos: os
        cinco por cento são a marca clínica que a literatura usa, e dez
        quilos significam coisas diferentes em corpos diferentes. */
-    id: 'pct', familia: 'peso', ic: 'trend', titulo: 'Percentual perdido',
+    id: 'pct', familia: 'peso', ic: 'trend', titulo: T.conquistas.pct,
     niveis: [5, 10, 15, 20],
-    desc: (a) => `${a}% do peso inicial`,
-    falta: (r) => `Faltam ${nf(r, 1)} pontos`,
+    desc: (a) => T.conquistas.pctDesc(a),
+    falta: (r) => T.conquistas.pctFalta(nf(r, 1)),
     medida: (S) => {
       const ini = S.profile.startWeight;
       const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ((ini - w.kg) / ini) * 100 }));
@@ -260,69 +269,69 @@ const CATALOGO: Trilha[] = [
     },
   },
   {
-    id: 'pesagens', familia: 'peso', ic: 'scale', titulo: 'Pesagens',
+    id: 'pesagens', familia: 'peso', ic: 'scale', titulo: T.conquistas.pesagens,
     niveis: [1, 10, 25, 50, 100],
-    desc: (a) => `${plural(a, 'peso')} registrado${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'pesagem', 'pesagens')}`,
+    desc: (a) => T.conquistas.pesagensDesc(a),
+    falta: (r) => T.conquistas.pesagensFalta(r),
     medida: (S) => porContagem((S.weights as any[]).map((w) => w.t)),
   },
 
   /* ---------------- constância ---------------- */
   {
-    id: 'checkins', familia: 'constancia', ic: 'check', titulo: 'Check-ins',
+    id: 'checkins', familia: 'constancia', ic: 'check', titulo: T.conquistas.checkins,
     niveis: [1, 5, 10, 25, 50, 100, 200, 365],
-    desc: (a) => `${plural(a, 'dia')} respondido${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    desc: (a) => T.conquistas.checkinsDesc(a),
+    falta: (r) => T.conquistas.checkinsFalta(r),
     medida: (S) => porContagem(diasEm(S, (c) => respondeu(c, 'mood'))),
   },
   {
-    id: 'sequencia', familia: 'constancia', ic: 'spark', titulo: 'Dias seguidos',
+    id: 'sequencia', familia: 'constancia', ic: 'spark', titulo: T.conquistas.sequencia,
     niveis: [3, 7, 15, 30, 60, 100],
-    desc: (a) => `${plural(a, 'check-in')} em dias seguidos`,
-    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    desc: (a) => T.conquistas.sequenciaDesc(a),
+    falta: (r, a) => T.conquistas.sequenciaFalta(r, a),
     medida: (S) => porSequencia(S, (c) => respondeu(c, 'mood')),
   },
 
   /* ---------------- hidratação ---------------- */
   {
-    id: 'agua-dias', familia: 'hidratacao', ic: 'water', titulo: 'Dias na meta de água',
+    id: 'agua-dias', familia: 'hidratacao', ic: 'water', titulo: T.conquistas.aguaDias,
     niveis: [1, 7, 30, 100, 200],
-    desc: (a) => `${plural(a, 'dia')} de água cumprida`,
-    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    desc: (a) => T.conquistas.aguaDiasDesc(a),
+    falta: (r) => T.conquistas.aguaDiasFalta(r),
     medida: (S) => porContagem(diasEm(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S))),
   },
   {
-    id: 'agua-semana', familia: 'hidratacao', ic: 'drop', titulo: 'Semana hidratada',
+    id: 'agua-semana', familia: 'hidratacao', ic: 'drop', titulo: T.conquistas.aguaSemana,
     niveis: [3, 5, 7],
-    desc: (a) => `${plural(a, 'dia')} na meta, na mesma semana`,
-    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    desc: (a) => T.conquistas.aguaSemanaDesc(a),
+    falta: (r, a) => T.conquistas.aguaSemanaFalta(r, a),
     medida: (S) => porJanela(S, (c) => (c?.agua ?? 0) >= metaDeCopos(S)),
   },
 
   /* ---------------- proteína ---------------- */
   {
-    id: 'prot-dias', familia: 'proteina', ic: 'flame', titulo: 'Dias na meta de proteína',
+    id: 'prot-dias', familia: 'proteina', ic: 'flame', titulo: T.conquistas.protDias,
     vale: (S) => metaDeProt(S) > 0,
     niveis: [1, 7, 30, 100, 200],
-    desc: (a) => `${plural(a, 'dia')} na meta do perfil`,
-    falta: (r) => `Faltam ${plural(r, 'dia')}`,
+    desc: (a) => T.conquistas.protDiasDesc(a),
+    falta: (r) => T.conquistas.protDiasFalta(r),
     medida: (S) => porContagem(diasEm(S, (c) => (c?.prot ?? 0) >= metaDeProt(S))),
   },
   {
-    id: 'prot-seq', familia: 'proteina', ic: 'flame', titulo: 'Proteína seguida',
+    id: 'prot-seq', familia: 'proteina', ic: 'flame', titulo: T.conquistas.protSeq,
     vale: (S) => metaDeProt(S) > 0,
     niveis: [3, 7, 14, 30],
-    desc: (a) => `${plural(a, 'dia')} seguidos na meta`,
-    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    desc: (a) => T.conquistas.protSeqDesc(a),
+    falta: (r, a) => T.conquistas.protSeqFalta(r, a),
     medida: (S) => porSequencia(S, (c) => (c?.prot ?? 0) >= metaDeProt(S)),
   },
 
   /* ---------------- movimento ---------------- */
   {
-    id: 'treinos', familia: 'movimento', ic: 'dumbbell', titulo: 'Treinos',
+    id: 'treinos', familia: 'movimento', ic: 'dumbbell', titulo: T.conquistas.treinos,
     niveis: [1, 10, 25, 50, 100, 250],
-    desc: (a) => `${plural(a, 'sessão', 'sessões')} registrada${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'treino')}`,
+    desc: (a) => T.conquistas.treinosDesc(a),
+    falta: (r) => T.conquistas.treinosFalta(r),
     medida: (S) => {
       /* Conta SESSÕES, e não dias: quem treina de manhã e à noite fez
          dois treinos. */
@@ -334,27 +343,27 @@ const CATALOGO: Trilha[] = [
     },
   },
   {
-    id: 'exerc-semana', familia: 'movimento', ic: 'activity', titulo: 'Semana ativa',
+    id: 'exerc-semana', familia: 'movimento', ic: 'activity', titulo: T.conquistas.exercSemana,
     vale: (S) => metaDeExerc(S) > 0,
     niveis: [3, 5, 7],
-    desc: (a) => `${plural(a, 'dia')} na meta de movimento, na mesma semana`,
-    falta: (r, a) => `Faltam ${plural(r, 'dia')} para ${a}`,
+    desc: (a) => T.conquistas.exercSemanaDesc(a),
+    falta: (r, a) => T.conquistas.exercSemanaFalta(r, a),
     medida: (S) => porJanela(S, (c) => (c?.exerc ?? 0) >= metaDeExerc(S)),
   },
 
   /* ---------------- alimentação ---------------- */
   {
-    id: 'refeicoes', familia: 'comida', ic: 'utensils', titulo: 'Refeições',
+    id: 'refeicoes', familia: 'comida', ic: 'utensils', titulo: T.conquistas.refeicoes,
     niveis: [1, 25, 100, 365, 1000],
-    desc: (a) => `${plural(a, 'prato')} registrado${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'refeição', 'refeições')}`,
+    desc: (a) => T.conquistas.refeicoesDesc(a),
+    falta: (r) => T.conquistas.refeicoesFalta(r),
     medida: (S) => porContagem((S.meals as any[]).map((m) => m.t)),
   },
   {
-    id: 'favoritos', familia: 'comida', ic: 'star', titulo: 'Pratos favoritos',
+    id: 'favoritos', familia: 'comida', ic: 'star', titulo: T.conquistas.favoritos,
     niveis: [1, 5, 12],
-    desc: (a) => `${plural(a, 'prato')} guardado${a === 1 ? '' : 's'} para repetir`,
-    falta: (r) => `Faltam ${plural(r, 'prato')}`,
+    desc: (a) => T.conquistas.favoritosDesc(a),
+    falta: (r) => T.conquistas.favoritosFalta(r),
     medida: (S) => {
       /* O favorito não guarda data. O que existe é a lista — então a
          data de cada nível é a da refeição mais antiga, que é quando a
@@ -368,20 +377,20 @@ const CATALOGO: Trilha[] = [
 
   /* ---------------- acompanhamento ---------------- */
   {
-    id: 'medidas', familia: 'acompanhamento', ic: 'ruler', titulo: 'Medidas de fita',
+    id: 'medidas', familia: 'acompanhamento', ic: 'ruler', titulo: T.conquistas.medidas,
     niveis: [1, 3, 6, 12],
-    desc: (a) => `${plural(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'medição', 'medições')}`,
+    desc: (a) => T.conquistas.medidasDesc(a),
+    falta: (r) => T.conquistas.medidasFalta(r),
     medida: (S) => porContagem((S.measures as any[]).map((m) => m.t)),
   },
   {
-    id: 'cintura', familia: 'acompanhamento', ic: 'ruler', titulo: 'Centímetros de cintura',
+    id: 'cintura', familia: 'acompanhamento', ic: 'ruler', titulo: T.conquistas.cintura,
     vale: (S) => (S.measures as any[]).some((m) => m.cintura != null),
     niveis: [2, 5, 10, 15],
     /* Mesma regra dos quilos: o degrau é em centímetro e o texto
        converte. Ver a nota na conquista de peso. */
-    desc: (a, S) => `${compTxt(S, a, 0)} a menos na cintura`,
-    falta: (r, _alvo, S) => `Faltam ${compTxt(S, r)}`,
+    desc: (a, S) => T.conquistas.cinturaDesc(compTxt(S, a, 0)),
+    falta: (r, _alvo, S) => T.conquistas.cinturaFalta(compTxt(S, r)),
     medida: (S) => {
       const ms = (S.measures as any[]).filter((m) => m.cintura != null).sort((a, b) => a.t - b.t);
       if (!ms.length) return { feito: 0, quando: () => null };
@@ -391,17 +400,17 @@ const CATALOGO: Trilha[] = [
     },
   },
   {
-    id: 'exames', familia: 'acompanhamento', ic: 'doc', titulo: 'Exames',
+    id: 'exames', familia: 'acompanhamento', ic: 'doc', titulo: T.conquistas.exames,
     niveis: [1, 3, 6],
-    desc: (a) => `${plural(a, 'painel', 'painéis')} importado${a === 1 ? '' : 's'}`,
-    falta: (r) => `Faltam ${plural(r, 'exame')}`,
+    desc: (a) => T.conquistas.examesDesc(a),
+    falta: (r) => T.conquistas.examesFalta(r),
     medida: (S) => porContagem((S.examBundles as any[]).map((b) => b.t)),
   },
   {
-    id: 'consultas', familia: 'acompanhamento', ic: 'steth', titulo: 'Consultas',
+    id: 'consultas', familia: 'acompanhamento', ic: 'steth', titulo: T.conquistas.consultas,
     niveis: [1, 3, 6, 12],
-    desc: (a) => `${plural(a, 'consulta')} no histórico`,
-    falta: (r) => `Faltam ${plural(r, 'consulta')}`,
+    desc: (a) => T.conquistas.consultasDesc(a),
+    falta: (r) => T.conquistas.consultasFalta(r),
     medida: (S) => porContagem((S.consultsHistory as any[]).map((c) => c.t)),
   },
 ];
@@ -414,7 +423,7 @@ const niveisDaTrilha = (t: Trilha, S: State): number[] =>
   (t.id === 'titulacao' ? (M(S).doses ?? []).slice(1) : t.niveis);
 
 export function conquistas(S: State): Conquista[] {
-  return CATALOGO
+  return CATALOGO()
     .filter((t) => !t.vale || t.vale(S))
     .map((t): Conquista => {
       const niveis = niveisDaTrilha(t, S);
@@ -452,7 +461,7 @@ export function conquistas(S: State): Conquista[] {
    medida sabe responder "quando cheguei a cada altura", e é essa resposta
    que o resumo joga fora ao ficar com uma data só. */
 export function degrausDe(S: State, id: string) {
-  const t = CATALOGO.find((x) => x.id === id);
+  const t = CATALOGO().find((x) => x.id === id);
   if (!t || (t.vale && !t.vale(S))) return null;
   const niveis = niveisDaTrilha(t, S);
   const { feito, quando } = t.medida(S);
@@ -533,5 +542,5 @@ export const eventosDeConquista = (S: State) =>
          em si não tem nível: é a ela que se abre, e é por isso que o id
          dela vai separado em vez de ser extraído do outro com um split. */
       trilha: q.id,
-      title: `${q.titulo} · nível ${q.nivel}`, desc: q.desc,
+      title: T.conquistas.marco(q.titulo, q.nivel), desc: q.desc,
     }));
