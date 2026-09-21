@@ -117,7 +117,11 @@ export default function Metas() {
                       <Selo
                         label={p.convivem
                           ? `Sua equipe mira ${a.escreve(p.meta.valor)} ${a.un}`
-                          : p.alterada ? 'Alterada por você' : 'Da sua equipe'}
+                          /* "Via", e não "da": o número passou PELA equipe, e é assim
+                             que ele chegou aqui — dito numa consulta e anotado depois. "Da
+                             sua equipe" soa a posse, como se a linha fosse da clínica e não
+                             dela. A linha é dela; a origem é que é de lá. */
+                          : p.alterada ? 'Alterada por você' : 'Via sua equipe'}
                         tom={p.alterada || p.convivem ? 'neutra' : 'lima'}
                       />
                     </Row>
