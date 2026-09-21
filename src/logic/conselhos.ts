@@ -166,7 +166,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
      não em quantos a pessoa comeu verdura. São coisas diferentes, e um
      prato pronto pode ter legume dentro sem o app saber. Por isso ela
      mostra a contagem e sugere, em vez de afirmar falta. */
-  const idVerde = new Set(ALIMENTOS.filter((a) => CORREDOR_VERDE.includes(a.onde)).map((a) => a.id));
+  const idVerde = new Set(ALIMENTOS().filter((a) => CORREDOR_VERDE.includes(a.onde)).map((a) => a.id));
   const comItens = dias.filter((d) => d.refeicoes.some((m) => itensDe(m).length));
   if (comItens.length >= MINIMO_DE_DIAS) {
     const verdes = comItens.filter((d) => d.refeicoes.some((m) => itensDe(m).some((it) => it.id && idVerde.has(it.id))));

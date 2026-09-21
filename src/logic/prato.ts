@@ -64,7 +64,7 @@ export function origemDe(it: ItemComida): Origem {
 
 /** O alimento de um item, ou null se ele for livre (ou o id sumir). */
 export function alimentoDe(id?: string): Alimento | null {
-  return (id && ALIMENTOS.find((a) => a.id === id)) || null;
+  return (id && ALIMENTOS().find((a) => a.id === id)) || null;
 }
 
 export function nomeItem(it: ItemComida): string {

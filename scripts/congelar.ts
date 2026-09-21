@@ -58,6 +58,7 @@ import {
   niveisDoRegistro, combinacao, leituraDoDia, avisosDoDia, lembretesDoDia, marcoDe,
 } from '../src/logic/leituras';
 import { conquistas } from '../src/logic/conquistas';
+import { buscarAlimento, medidaDe, gramasDe } from '../src/logic/alimentos';
 import {
   ENERGIA, SONO, HUMOR, FOME, INTENSIDADE, SINTOMA, INTESTINO,
   SINTOMAS, SINTOMAS_LIDOS, faixaDe, gramasDaFaixa,
@@ -189,6 +190,13 @@ for (const [nome, ajusta] of CENARIOS) {
      TOCA para responder o check-in: se um degrau trocar de lugar, o 4 de
      hoje passa a significar outra coisa que o 4 de ontem, e a série
      inteira que o aplicativo lê depois fica sem sentido. */
+  /* ⚠️ A BUSCA DE ALIMENTO NÃO PRODUZ FRASE, mas produz o que a pessoa
+     VÊ quando digita — e ela acabou de mudar de regra. Entra aqui para o
+     diff mostrar o que a mudança fez com a lista brasileira, que não era
+     o alvo dela. */
+  c.buscaDeAlimento = ['arroz', 'frango', 'peito de frango', 'ovo', 'pao', 'feijao', 'leite', 'banana', 'queijo', 'carne moida']
+    .map((termo) => [termo, tenta('buscarAlimento', () => buscarAlimento(termo, 6).map((a) => a.nome + ' · ' + medidaDe(a, a.qtd) + ' · ' + gramasDe(a, a.qtd) + ' g'))]);
+
   c.escalas = {
     energia: ENERGIA(), sono: SONO(), humor: HUMOR(), fome: FOME(),
     intensidade: INTENSIDADE(), sintoma: SINTOMA(), intestino: INTESTINO(),

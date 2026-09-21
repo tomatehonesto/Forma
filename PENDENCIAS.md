@@ -853,3 +853,37 @@ qualquer coisa. Fica para a peça do idioma.
 exames é brasileiro. "TGO/TGP" é a nomenclatura daqui — nos Estados Unidos
 os mesmos marcadores são AST e ALT, e não é tradução de rótulo, é outro
 nome no laudo.
+
+## 🟡 18. A tabela americana de alimentos: três coisas em aberto
+
+A base dos EUA entrou — 4.666 alimentos da FNDDS/USDA, com a porção
+caseira vinda do próprio dado. `MERCADO` em `src/logic/mercado.ts` escolhe
+qual tabela o aplicativo usa. Três coisas ficaram para depois:
+
+**a) O pacote viaja nos dois mercados.** São 647 KB de string, e o
+`require` adiado evita o custo de LEITURA mas não o de tamanho: o Metro
+não tira um módulo do bundle por causa de uma constante. Quando existir
+build por mercado de verdade, é ela que escolhe o arquivo — hoje o
+brasileiro carrega a tabela americana sem nunca abrir.
+
+**b) A lista americana não tem curadoria de importância.** A brasileira é
+ordenada à mão dentro de cada prateleira, do mais comum para o menos, e a
+busca usa essa ordem como desempate. A FNDDS não traz nada parecido, então
+a ordem é por nome mais curto — o que acerta "Broccoli, raw" antes de
+"Beef and broccoli" e erra "Rice cake" antes de "Rice, white, cooked".
+
+O que resolveria é frequência de consumo, que a FNDDS tem no inquérito
+mas não neste arquivo. Enquanto isso, quem procura arroz branco digita
+mais uma palavra.
+
+**c) As restrições caem para o nível da prateleira.** `contemDe` procura o
+alimento num mapa escrito à mão por id — e os ids americanos não estão
+nele —, então cai no que a PRATELEIRA contém. Funciona, e é mais grosso:
+"Carnes e aves" inteira conta como carne, sem distinguir o que tem
+lactose do que não tem. O mapa por id precisa ser escrito para os
+alimentos americanos que importam.
+
+**E o fast food brasileiro ainda não existe.** O americano veio junto com
+a FNDDS, que traz Big Mac e Whopper com os valores medidos lá. O do Brasil
+tem de ser curado das tabelas que cada rede publica aqui — os números são
+outros, e é por isso que a lista é por país.

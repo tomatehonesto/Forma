@@ -20,5 +20,16 @@
    Ver MODOS.md, na raiz do projeto.
    ============================================================ */
 
+export type Mercado = 'br' | 'us';
+
+/* ⚠️ O MERCADO DECIDE QUAL TABELA DE ALIMENTOS O APLICATIVO USA, e essa é
+   a segunda coisa que ele passou a decidir.
+
+   Não é a mesma pergunta que o idioma nem que o sistema de medidas: um
+   brasileiro que prefere libras continua comendo feijão, e um americano
+   que lê em português continua comendo o que se vende lá. Comida é do
+   LUGAR, e por isso mora aqui e não no catálogo de textos. */
+export const MERCADO: Mercado = 'br';
+
 /** Existe rede de clínicas parceiras neste mercado? */
-export const TEM_REDE_PARCEIRA = true;
+export const TEM_REDE_PARCEIRA = MERCADO === 'br';

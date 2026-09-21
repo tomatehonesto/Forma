@@ -30,6 +30,8 @@
    carbonara escreve carbonara, não "macarrão + ovo + bacon".
    ============================================================ */
 
+import { MERCADO } from './mercado';
+
 export type Alimento = {
   id: string;
   nome: string;
@@ -67,7 +69,7 @@ export type Alimento = {
   fonte?: string;
 };
 
-export const ALIMENTOS: Alimento[] = [
+const ALIMENTOS_BR: Alimento[] = [
   { id: 'peito-frango', nome: 'Peito de frango grelhado', busca: 'frango peito file grelhado file de frango', p: 32, kcal: 159, carb: 0, gord: 2.5, fibra: null, gUn: 120, qtd: 1, un: 'filé', unp: 'filés', onde: 'Carnes e aves', destaque: { nome: 'proteína', valor: 32, un: 'g', pct: 64 }, taco: 410 }, /* Frango, peito, sem pele, grelhado */
   { id: 'frango-assado', nome: 'Frango assado sem pele', busca: 'frango assado cozido', p: 28, kcal: 187, carb: 0, gord: 7.5, fibra: null, gUn: 120, qtd: 1, un: 'pedaço', unp: 'pedaços', onde: 'Carnes e aves', destaque: { nome: 'proteína', valor: 28, un: 'g', pct: 56 }, taco: 403 }, /* Frango, inteiro, sem pele, assado */
   { id: 'sobrecoxa', nome: 'Coxa ou sobrecoxa de frango', busca: 'coxa sobrecoxa frango', p: 29.2, kcal: 233, carb: 0, gord: 12, fibra: null, gUn: 100, qtd: 1, un: 'unidade', unp: 'unidades', onde: 'Carnes e aves', destaque: { nome: 'proteína', valor: 29, un: 'g', pct: 58 }, taco: 413 }, /* Frango, sobrecoxa, sem pele, assada */
@@ -294,6 +296,34 @@ export const ALIMENTOS: Alimento[] = [
   { id: 'ceviche-peixe', nome: 'Ceviche de peixe', busca: 'ceviche peruano peixe limao', p: 14.2, kcal: 96, carb: 1.5, gord: 3.3, fibra: null, gUn: 180, qtd: 1, un: 'porção', unp: 'porções', onde: 'Pratos prontos', destaque: { nome: 'proteína', valor: 14.2, un: 'g', pct: 28 }, fonte: 'soma TACO 307×150g + 107×30g' }, /* soma TACO 307×150g + 107×30g */
 ];
 
+/* ============================================================
+   QUAL LISTA, E POR QUE SÃO DUAS
+
+   ⚠️ A LISTA AMERICANA NÃO É UMA TRADUÇÃO DESTA. Os alimentos são outros
+   — pão de queijo não existe lá, biscuits and gravy não existe aqui — e
+   os números foram medidos em outro lugar, por outro instituto. Traduzir
+   o nome e manter o valor seria inventar um dado americano a partir de
+   uma medição brasileira.
+
+   Então cada mercado tem a sua, com a fonte dela: TACO aqui, FNDDS lá.
+   Ver logic/mercado e scripts/gerar-alimentos-us.mjs.
+
+   ⚠️ O `require` É DE PROPÓSITO, E NÃO UM `import`. A tabela americana são
+   647 KB empacotados, e um `import` no topo os faria carregar no start
+   mesmo num aplicativo que nunca vai usá-los. Assim ela só é lida na
+   primeira busca de quem está naquele mercado.
+
+   ⚠️ E O PESO CONTINUA NO PACOTE, mesmo sem ser lido: o Metro não tira
+   módulo do bundle por causa de uma constante. Quando existir uma build
+   por mercado de verdade, é ela que escolhe o arquivo — está anotado em
+   PENDENCIAS.
+   ============================================================ */
+export function ALIMENTOS(): Alimento[] {
+  if (MERCADO !== 'us') return ALIMENTOS_BR;
+  /* eslint-disable-next-line @typescript-eslint/no-var-requires, global-require */
+  return (require('./alimentos-us') as typeof import('./alimentos-us')).alimentosUS();
+}
+
 /** "2 colheres", "1 filé" — o plural só quando é mais de um. */
 export function medidaDe(a: Alimento, qtd: number): string {
   return `${qtd} ${qtd === 1 ? a.un : a.unp}`;
@@ -305,17 +335,82 @@ const semAcento = (s: string) =>
 /* Busca por prefixo de palavra, e não por trecho solto: "ova" não devia
    trazer "Ovo cozido" pelo meio de "abacate". O que começa igual ao que
    foi digitado vem primeiro; o resto vem depois, na ordem da lista. */
+/* ⚠️ AS PALAVRAS DE BUSCA SÃO CALCULADAS UMA VEZ, e não a cada tecla. Com
+   224 alimentos dava para normalizar tudo dentro do laço; com 4.666, cada
+   letra digitada custava 4.666 normalizações de string e a digitação
+   engasgava. O índice se monta na primeira busca e vive enquanto o
+   aplicativo viver.
+
+   ⚠️ E O NOME É INDEXADO SEPARADO DOS SINÔNIMOS, porque é isso que decide
+   a ordem. Ver o comentário da busca. */
+type NoIndice = { a: Alimento; nome: string[]; tudo: string[] };
+let indice: NoIndice[] | null = null;
+const indiceDaBusca = (): NoIndice[] => {
+  if (!indice) {
+    indice = ALIMENTOS().map((a) => ({
+      a,
+      nome: semAcento(a.nome).split(/[\s,]+/),
+      tudo: semAcento(a.nome + ' ' + a.busca).split(/[\s,]+/),
+    }));
+  }
+  return indice;
+};
+
+/* Palavras de ligação dos dois idiomas: aparecem em quase todo nome
+   composto e não distinguem nada. */
+const LIGACAO = new Set(['de', 'da', 'do', 'com', 'em', 'ao', 'na', 'no', 'and', 'with', 'the', 'or']);
+
+/* ⚠️ TODAS AS PALAVRAS DIGITADAS PRECISAM BATER, e antes só a primeira
+   batia — na verdade, a frase inteira era tratada como uma palavra só.
+
+   Com 224 alimentos em português ninguém percebeu: quem procura almoço
+   digita "arroz". Com a base americana o defeito apareceu na primeira
+   busca — "big mac" e "peanut butter" não devolviam nada, porque nenhuma
+   palavra sozinha começa com "big mac". E valia nos dois idiomas: "peito
+   de frango" também não achava nada.
+
+   ⚠️⚠️ E A ORDEM SAI DE ONDE BATEU, e não do tamanho do nome. A primeira
+   versão ordenava pelo nome mais curto, com o argumento de que o nome
+   curto é o alimento e o longo é um prato que o contém. O efeito foi o
+   contrário: "queijo" passou a trazer "Tofu" antes de "Queijo minas", e
+   "arroz" trazia "Bibimbap" antes de "Arroz branco" — porque esses pratos
+   têm a palavra nos SINÔNIMOS e o nome mais curto.
+
+   O que separa os dois é onde a palavra apareceu: no NOME do alimento ou
+   na lista de busca dele. Quem digita "queijo" quer o queijo; o omelete
+   ⚠️ E O DESEMPATE É A ORDEM DO ARQUIVO, que também já custou uma
+   tentativa: eu ordenei pelo nome mais curto, e "frango" passou a trazer
+   "Frango xadrez" antes de "Peito de frango grelhado". A lista brasileira
+   é ordenada à mão DENTRO de cada prateleira, do mais comum para o menos
+   — peito de frango vem antes de torta de frango porque é o que mais
+   gente come. Essa curadoria já estava lá, e a ordem alfabética do nome
+   a jogava fora. */
 export function buscarAlimento(termo: string, limite = 6): Alimento[] {
   const t = semAcento(termo);
   if (t.length < 2) return [];
-  const comeca: Alimento[] = [];
-  const contem: Alimento[] = [];
-  for (const a of ALIMENTOS) {
-    const palavras = semAcento(a.nome + ' ' + a.busca).split(/[\s,]+/);
-    if (palavras.some((p) => p.startsWith(t))) comeca.push(a);
-    else if (palavras.some((p) => p.includes(t))) contem.push(a);
-  }
-  return [...comeca, ...contem].slice(0, limite);
+  const pedidos = t.split(/\s+/).filter((x) => x.length >= 2 && !LIGACAO.has(x));
+  if (!pedidos.length) return [];
+
+  const exata = (q: string, ws: string[]) => ws.includes(q);
+  const comeca = (q: string, ws: string[]) => ws.some((w) => w.startsWith(q));
+  const contem = (q: string, ws: string[]) => ws.some((w) => w.includes(q));
+
+  const achados: { a: Alimento; grupo: number; i: number }[] = [];
+  indiceDaBusca().forEach(({ a, nome, tudo }, i) => {
+    /* ⚠️ PALAVRA EXATA VALE MAIS QUE PREFIXO, e sem isso "egg" trazia
+       "Eggnog" na frente de "Egg, boiled": "eggnog" começa com "egg" e a
+       lista americana não tem curadoria de importância para desempatar. */
+    const grupo = pedidos.every((q) => exata(q, nome)) ? 0
+      : pedidos.every((q) => comeca(q, nome)) ? 1
+        : pedidos.every((q) => exata(q, tudo)) ? 2
+          : pedidos.every((q) => comeca(q, tudo)) ? 3
+            : pedidos.every((q) => contem(q, nome)) ? 4
+              : pedidos.every((q) => contem(q, tudo)) ? 5
+                : -1;
+    if (grupo >= 0) achados.push({ a, grupo, i });
+  });
+  achados.sort((x, y) => x.grupo - y.grupo || x.i - y.i);
+  return achados.slice(0, limite).map((x) => x.a);
 }
 
 /** Gramas de proteína de N unidades. Sempre arredondado: a precisão que

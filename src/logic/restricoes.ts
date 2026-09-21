@@ -254,7 +254,7 @@ const PRATELEIRAS = [
 ];
 
 export function fontesDeProteina(ids: string[], quantas = 3): string[] {
-  return ALIMENTOS
+  return ALIMENTOS()
     .filter((a) => a.p >= 6 && a.kcal && PRATELEIRAS.includes(a.onde) && cabe(a, ids))
     .sort((a, b) => (b.p / (b.kcal as number)) - (a.p / (a.kcal as number)))
     .slice(0, quantas)

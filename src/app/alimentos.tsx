@@ -56,7 +56,7 @@ export default function Alimentos() {
 
 
   const emOrdem = React.useMemo(
-    () => [...ALIMENTOS].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
+    () => [...ALIMENTOS()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
     [],
   );
 
@@ -67,7 +67,7 @@ export default function Alimentos() {
      e o toque nela levaria a lugar nenhum. */
   const prateleiras = React.useMemo(() => {
     const vistas = new Map<string, number>();
-    for (const a of ALIMENTOS) {
+    for (const a of ALIMENTOS()) {
       if (filtraRestricao && !cabe(a, restricoes)) continue;
       vistas.set(a.onde, (vistas.get(a.onde) || 0) + 1);
     }
@@ -91,7 +91,7 @@ export default function Alimentos() {
     <TelaInterna titulo="Alimentos">
       <Titulao
         titulo="Alimentos"
-        lead={`A tabela que usamos para contar, com ${ALIMENTOS.length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.`}
+        lead={`A tabela que usamos para contar, com ${ALIMENTOS().length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.`}
       />
 
       <View style={{ gap: 12 }}>
