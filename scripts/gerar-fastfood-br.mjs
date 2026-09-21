@@ -291,7 +291,11 @@ for (const linha of fs.readFileSync(COLHEITA_HABIBS, 'utf8').split(/\r?\n/)) {
 const cruBk = fs.readFileSync(COLHEITA_BK, 'utf8');
 const quandoBk = (cruBk.match(/^#\s*Colhida em\s*([\d/]+)/m) ?? [, '?'])[1];
 
-const FORA_BK = /^(refrigerante|suco|caf[ée]|água|ch[áa] |molho)/i;
+/* ⚠️ O MOLHO NEM SEMPRE SE CHAMA MOLHO. O Burger King lista "Ketchup",
+   "Mostarda" e "Maionese" pelo nome, e a régua do McDonald's — que
+   cortava por "molho" — deixou os quatro passarem, cada um com zero
+   grama de proteína, na frente de quem procurava um sanduíche. */
+const FORA_BK = /^(refrigerante|suco|caf[ée]|água|ch[áa] |molho|ketchup|mostarda|maionese)/i;
 
 const PORNOME_BK = [
   [/whopper|stacker|rodeio|cheeseburger|burger|carne|bacon|big king|cheddar|steakhouse|furioso/i, 'carne'],
