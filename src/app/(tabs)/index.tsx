@@ -448,6 +448,36 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
+      {/* ⚠️⚠️ O QUE APARECE QUANDO A ROLAGEM ESTICA PARA BAIXO.
+
+          Puxando a Home para baixo, o conteúdo desce e o topo da tela
+          fica descoberto por um instante. Ali apareciam duas coisas
+          erradas ao mesmo tempo.
+
+          A aurora mora dentro de um Animated.View com escala de 1,06 a
+          1,14 — a deriva —, e o véu que a escurece fica FORA dele, de
+          propósito: véu que passeia deixa trechos descobertos. Só que a
+          imagem ampliada TRANSBORDA o hero por cima, e o véu não vai
+          junto. O que sobrava para ver, ao esticar, era um filete de
+          aurora crua: mais clara que o resto, e por isso lido como falha
+          de renderização.
+
+          Duas medidas, e as duas são necessárias:
+
+          · o hero passa a RECORTAR (overflow hidden), e o transbordo da
+            deriva deixa de existir fora dele;
+          · e este bloco, ATRÁS da rolagem, pinta o topo da tela com o
+            azul-noite do véu. Recortado, o que apareceria ao esticar
+            seria o fundo claro da página — um rasgo branco em cima de uma
+            tela escura, que é pior do que o filete que ele veio
+            substituir.
+
+          300 px porque nenhum esticão passa disso, e porque ele não custa
+          nada: fica atrás de conteúdo opaco o tempo inteiro. */}
+      <View style={{
+        position: 'absolute', left: 0, right: 0, top: 0, height: 300,
+        backgroundColor: c.veu,
+      }} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: RESPIRO_ABAS }}
@@ -460,7 +490,8 @@ export default function Home() {
       >
 
         {/* ================= HERO ================= */}
-        <View>
+        {/* overflow: ver o comentário do bloco de véu, lá em cima. */}
+        <View style={{ overflow: 'hidden' }}>
           {/* escala base acima de 1 para a deriva não descobrir as bordas */}
           <Animated.View
             style={[StyleSheet.absoluteFill, {
@@ -492,20 +523,16 @@ export default function Home() {
             pointerEvents="none"
           />
 
-          {/* cabecalho */}
-          <Row style={{ paddingHorizontal: PAD, paddingTop: insets.top + 26, alignItems: 'center' }}>
-            {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
-                escolhe para o app inteiro — e esta é a tela que ela mais
-                abre. Ver Retrato, em ui/kit. */}
-            <Perfil tam={40} />
-            <View style={{ flex: 1, marginLeft: 16 }}>
-              <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
-              <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-                {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
-              </Txt>
-            </View>
-            <Sino tam={40} claro />
-          </Row>
+          {/* ⚠️ O CABEÇALHO SAIU DA ROLAGEM, e aqui ficou o vão dele.
+
+              Puxando a Home para baixo, ele descia junto com o conteúdo —
+              e o retrato e o sino saíam do lugar que a pessoa já decorou.
+              Agora ele mora na camada fixa, com a barra colapsada, e as
+              duas se cruzam: ver o fim deste arquivo.
+
+              O vão mantém a composição do hero exatamente como era — o
+              carrossel continua a 80 px de onde a saudação acaba. */}
+          <View style={{ height: insets.top + 66 }} />
 
           {/* ---- o carrossel, que deixou de correr ----
 
@@ -933,6 +960,41 @@ export default function Home() {
           11" é onde ela está no tratamento — a mesma frase que o hero
           mostra, que é o fato que não cabe na cabeça de ninguém e continua
           útil trinta cartões abaixo. */}
+      {/* ⚠️ O CABEÇALHO EXPANDIDO, FIXO E CRUZANDO COM A BARRA.
+
+          Os dois moram na mesma camada, um por cima do outro, e trocam
+          por opacidade: enquanto o hero está à vista é este que aparece,
+          sobre a aurora; passando o limiar, ele apaga e a barra acende.
+
+          ⚠️ E É POR ISSO QUE ELE NÃO PODE MAIS ROLAR. Sendo fixo, ele
+          fica parado quando a rolagem estica para baixo — que é o que
+          este commit veio consertar — e some por opacidade, e não por ter
+          saído da tela. Enquanto rola de verdade, os primeiros 60 px, ele
+          descola do hero por um instante; a troca acontece logo ali e o
+          cruzamento cobre a diferença. */}
+      <Animated.View
+        pointerEvents={colapsado ? 'none' : 'box-none'}
+        style={{
+          position: 'absolute', left: 0, right: 0, top: 0, zIndex: 19,
+          paddingHorizontal: PAD, paddingTop: insets.top + 26,
+          opacity: barra.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+        }}
+      >
+        <Row style={{ alignItems: 'center' }}>
+          {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
+              escolhe para o app inteiro — e esta é a tela que ela mais
+              abre. Ver Retrato, em ui/kit. */}
+          <Perfil tam={40} />
+          <View style={{ flex: 1, marginLeft: 16 }}>
+            <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
+            <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
+              {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
+            </Txt>
+          </View>
+          <Sino tam={40} claro />
+        </Row>
+      </Animated.View>
+
       <Animated.View
         pointerEvents={colapsado ? 'box-none' : 'none'}
         style={{

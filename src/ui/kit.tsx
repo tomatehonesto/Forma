@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView,
+  Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Animated, Easing,
   Keyboard, Platform, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -506,6 +506,21 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     return () => { sobe.remove(); desce.remove(); };
   }, []);
 
+  /* ⚠️ O DESLIZE É DA FOLHA, E NÃO DA ROTA. A rota abre em fade — ver a
+     nota em _layout —, então o scrim acende onde está em vez de subir
+     pelo pé da tela. Quem sobe é este painel, e só ele.
+
+     Trinta e dois pixels e duzentos e trinta milissegundos: o bastante
+     para o olho ler "veio de baixo" e pouco o bastante para não parecer
+     que a folha viajou. A distância inteira da tela é o que o deslize da
+     rota fazia, e é o que arrastava a sombra junto. */
+  const subida = React.useRef(new Animated.Value(32)).current;
+  React.useEffect(() => {
+    Animated.timing(subida, {
+      toValue: 0, duration: 230, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+    }).start();
+  }, [subida]);
+
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
       <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
@@ -529,6 +544,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           recortes escuros emoldurando o teclado, como se a folha tivesse
           descolado da base da tela. Branca, a folha continua encostada em
           baixo e o teclado nasce dela. */}
+      <Animated.View style={{ transform: [{ translateY: subida }] }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         /* O raio vem junto: a faixa branca começa na mesma altura da
@@ -582,6 +598,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         ) : null}
       </View>
       </KeyboardAvoidingView>
+      </Animated.View>
     </View>
   );
 }
