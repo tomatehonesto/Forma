@@ -16,7 +16,7 @@ import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno } from '../logic/time';
-import { Txt, Row, Rich } from '../ui/kit';
+import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Roda, Regua, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
@@ -1334,7 +1334,7 @@ export default function Cadastro() {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         <Lavagem altura={insets.top + 270} />
-        <ScrollView contentContainerStyle={{
+        <Rolagem contentContainerStyle={{
           paddingHorizontal: 20, paddingTop: insets.top + 36, paddingBottom: 24,
         }}>
           <Txt v="h1" style={{ textAlign: 'center' }}>Antes de concluir</Txt>
@@ -1370,7 +1370,7 @@ export default function Cadastro() {
               </View>
             ))}
           </View>
-        </ScrollView>
+        </Rolagem>
         <View style={{
           paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
           gap: 12, backgroundColor: c.bg,
@@ -1543,7 +1543,7 @@ export default function Cadastro() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-      <ScrollView
+      <Rolagem
         /* AR ENTRE O TOPO E A PERGUNTA. Colada na barra de progresso, a
            manchete lia como cabeçalho de tela; afastada, ela lê como a
            pergunta que é. */
@@ -2237,7 +2237,7 @@ export default function Cadastro() {
             ) : null}
           </View>
         ) : null}
-      </ScrollView>
+      </Rolagem>
 
       {/* O RODAPÉ É OPACO. Sem fundo, a lista de opções passava por baixo
           do botão e a última delas aparecia cortada ao meio atrás de uma

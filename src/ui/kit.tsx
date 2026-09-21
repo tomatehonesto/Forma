@@ -141,6 +141,40 @@ export function RichDoc({ text, ir, style }: {
   return <View style={[{ gap: 12 }, style]}>{blocos}</View>;
 }
 
+/* ============================================================
+   A ROLAGEM DA CASA — um ScrollView que não estica.
+
+   ⚠️ O EFEITO ELÁSTICO FOI EMBORA DO APLICATIVO INTEIRO, e o motivo veio
+   da Home: o topo dela é uma imagem, e esticar puxava para baixo o que
+   deveria subir, descobrindo acima da imagem um recorte que não foi
+   desenhado para ser visto. Nas telas de capa e nas fichas com retrato é
+   a mesma coisa — todas abrem com uma imagem colada no topo.
+
+   Nas telas de texto o elástico não incomodava; mas ter metade do
+   aplicativo esticando e a outra metade não é pior do que qualquer uma
+   das duas, porque a pessoa aprende o gesto numa tela e ele falha na
+   seguinte.
+
+   ⚠️ SÃO DUAS PROPRIEDADES PORQUE SÃO DOIS SISTEMAS. `bounces` é o
+   elástico do iOS; `overScrollMode` é o brilho e o esticão do Android.
+   Uma sem a outra trava metade dos aparelhos.
+
+   ⚠️ E POR ISSO ISTO É UMA PEÇA, e não dois atributos repetidos. Eram
+   trinta e seis ScrollViews em vinte arquivos: dois props copiados
+   trinta e seis vezes é o que diverge no trigésimo sétimo, quando
+   alguém criar uma tela nova e esquecer. Aqui, quem escreve `Rolagem`
+   herda a decisão sem precisar conhecê-la.
+
+   Tudo o mais passa direto — `ref` inclusive, que a régua e os fios de
+   conversa usam para rolar por conta própria. Quem precisar do elástico
+   de volta em algum lugar passa `bounces` depois do spread e ganha a
+   exceção, explícita na linha em que ela acontece. */
+export const Rolagem = React.forwardRef<ScrollView, React.ComponentProps<typeof ScrollView>>(
+  function Rolagem(props, ref) {
+    return <ScrollView ref={ref} bounces={false} overScrollMode="never" {...props} />;
+  },
+);
+
 export function Rich({ text, v = 'body', base, bold, style }: { text: string; v?: keyof typeof ty; base?: string; bold?: string; style?: StyleProp<TextStyle> }) {
   const { c } = useTheme();
   /* O mesmo `emLinha` do RichDoc, e sem `ir`: nas telas que usam o Rich não
@@ -433,14 +467,14 @@ export function Screen({ children, scroll = true, style, scrollRef }: {
      leitura. Vale para todas as telas que usam Screen. */
   if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20 }, style]}>{children}</View>;
   return (
-    <ScrollView
+    <Rolagem
       ref={scrollRef}
       style={{ flex: 1, backgroundColor: c.bg }}
       contentContainerStyle={[{ paddingTop: insets.top + 20, paddingBottom: 120, paddingHorizontal: space.xl }, style]}
       showsVerticalScrollIndicator={false}
     >
       {children}
-    </ScrollView>
+    </Rolagem>
   );
 }
 
@@ -528,9 +562,25 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     if (jaAnimou.current || !h) return;
     jaAnimou.current = true;
     subida.setValue(h);
-    Animated.timing(subida, {
-      toValue: 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: true,
-    }).start();
+    /* ⚠️ O ATRASO EXISTE PORQUE A ROTA TAMBÉM ANIMA.
+
+       Medido no navegador, o deslize roda certinho — 554 px até zero em
+       280 ms. No aparelho ele não aparecia, e o motivo é que ele já tinha
+       ACABADO: a rota abre em fade, e a folha subia enquanto a tela
+       inteira ainda estava transparente. Quando ela terminava de acender,
+       o painel já estava no lugar.
+
+       Noventa milissegundos de espera custam zero — o painel está fora da
+       tela nesse tempo, não há o que ver — e devolvem o deslize para
+       dentro da janela em que alguém está olhando. A duração subiu junto,
+       pelo mesmo motivo: o movimento tem de sobrar para depois do fade,
+       não caber dentro dele. */
+    Animated.sequence([
+      Animated.delay(90),
+      Animated.timing(subida, {
+        toValue: 0, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   return (
@@ -579,7 +629,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
-        <ScrollView
+        <Rolagem
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"
@@ -601,7 +651,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
             </Pressable>
           </Row>
           {children}
-        </ScrollView>
+        </Rolagem>
 
         {rodape ? (
           <View style={{

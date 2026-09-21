@@ -12,7 +12,7 @@ import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
   lostKg,
 } from '../logic/derive';
-import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato } from '../ui/kit';
+import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
 import { Selo } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
@@ -553,7 +553,7 @@ export default function Perfil() {
       {badges.length ? (
         <View style={{ marginTop: 32 }}>
           <SectionHead title="O que você já fez" link="Conquistas" onPress={go('/conquistas')} />
-          <ScrollView
+          <Rolagem
             horizontal showsHorizontalScrollIndicator={false}
             style={{ marginHorizontal: -space.xl, marginTop: 14 }}
             contentContainerStyle={{ paddingHorizontal: space.xl, gap: 6 }}
@@ -575,7 +575,7 @@ export default function Perfil() {
                 </View>
               </Pressable>
             ))}
-          </ScrollView>
+          </Rolagem>
         </View>
       ) : null}
 

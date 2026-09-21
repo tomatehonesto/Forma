@@ -7,7 +7,7 @@ import {
   ATALHOS, checkinToday, checkinFeito, waterMlToday, litros, streak, temAcompanhamento,
   type QuickKey,
 } from '../logic/derive';
-import { Txt, Row, Divider } from '../ui/kit';
+import { Txt, Row, Divider, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
@@ -194,7 +194,7 @@ export default function Registrar() {
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
 
-        <ScrollView
+        <Rolagem
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"
@@ -349,7 +349,7 @@ export default function Registrar() {
               </React.Fragment>
             ))}
           </View>
-        </ScrollView>
+        </Rolagem>
       </View>
     </View>
   );

@@ -8,7 +8,7 @@ import { VidroDegrade } from '../ui/vidro';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
 import { medidaDe } from '../logic/alimentos';
-import { Txt, Row, CircleBtn } from '../ui/kit';
+import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDoAlimento } from '../ui/fotosAlimento';
@@ -171,7 +171,7 @@ export default function Alimento() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg1 }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+      <Rolagem showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         {/* O DESFOQUE NO LUGAR DO VÉU.
 
             Antes era um degradê preto por cima da foto inteira, que dava
@@ -317,7 +317,7 @@ export default function Alimento() {
             />
           </View>
         </View>
-      </ScrollView>
+      </Rolagem>
     </View>
   );
 }

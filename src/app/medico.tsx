@@ -7,7 +7,7 @@ import {
   fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada,
   metaClinica, metasDiscordam, ALVOS, type ChaveDeAlvo,
 } from '../logic/derive';
-import { Txt, Card, Row, Chevron, SectionHead } from '../ui/kit';
+import { Txt, Card, Row, Chevron, SectionHead, Rolagem } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
@@ -323,7 +323,7 @@ export default function Medico() {
             E são poucas por natureza. Quem anota quinze dúvidas para uma
             consulta não vai revisar quinze — quatro ou cinco é o número
             real, e é exatamente o que uma fileira horizontal serve bem. */}
-        <ScrollView
+        <Rolagem
           horizontal showsHorizontalScrollIndicator={false}
           style={{ marginHorizontal: -16 }}
           contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
@@ -366,7 +366,7 @@ export default function Medico() {
               </View>
             </Pressable>
           )}
-        </ScrollView>
+        </Rolagem>
 
         {/* ---- prescrições ----
 
@@ -467,7 +467,7 @@ export default function Medico() {
         {!!materiais.length && clinicaConectada(S) && (
           <>
             <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>O que a clínica preparou</Txt>
-            <ScrollView
+            <Rolagem
               horizontal showsHorizontalScrollIndicator={false}
               style={{ marginHorizontal: -16 }}
               contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
@@ -491,7 +491,7 @@ export default function Medico() {
                   </View>
                 </Pressable>
               ))}
-            </ScrollView>
+            </Rolagem>
           </>
         )}
 

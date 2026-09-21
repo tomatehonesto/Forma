@@ -10,7 +10,7 @@ import { checkinToday, streak } from '../logic/derive';
 import { startOfDay, now } from '../logic/time';
 import { ENERGIA, SONO, HUMOR, SINTOMAS, paraTela } from '../logic/escalas';
 import { lembretesDoDia, niveisDoRegistro, diasAnteriores, marcoDe, marcasDaSemana } from '../logic/leituras';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, font, alfa } from '../theme';
@@ -185,7 +185,7 @@ export default function CheckinOk() {
         pointerEvents="none"
       />
 
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: PAD,
@@ -310,7 +310,7 @@ export default function CheckinOk() {
             )}
           </Animated.View>
         ) : null}
-      </ScrollView>
+      </Rolagem>
 
       <View style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,

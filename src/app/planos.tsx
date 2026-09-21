@@ -8,7 +8,7 @@ import { useStore } from '../logic/store';
 import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
 import { TEM_REDE_PARCEIRA } from '../logic/mercado';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme';
@@ -397,7 +397,7 @@ export default function Planos() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: alturaDaBarra + 24 }}>
+      <Rolagem showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: alturaDaBarra + 24 }}>
         {/* ---- o alto ----
 
             ⚠️ A AURORA, E NÃO UM FUNDO CHAPADO. As telas de plano que se
@@ -570,7 +570,7 @@ export default function Planos() {
         </Row>
 
         </View>
-      </ScrollView>
+      </Rolagem>
 
       {/* ---- a barra de decisão ---- */}
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }} pointerEvents="box-none">

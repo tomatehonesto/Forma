@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Txt, Row } from './kit';
+import { Txt, Row, Rolagem } from './kit';
 import { Icon } from './Icon';
 import { VidroDegrade } from './vidro';
 import { useTheme } from './useTheme';
@@ -278,14 +278,14 @@ export function TelaDeHabito({ children, rodape }: {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + (rodape ? 150 : 28) }}
         scrollEventThrottle={16}
         onScroll={(e) => setPassou(e.nativeEvent.contentOffset.y > LIMITE)}
       >
         <CapaCtx.Provider value={setTitulo}>{children}</CapaCtx.Provider>
-      </ScrollView>
+      </Rolagem>
 
       <BarraQueColapsa titulo={titulo} passou={passou} repouso="vidro" />
       {rodape ? (

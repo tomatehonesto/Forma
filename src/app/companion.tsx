@@ -10,7 +10,7 @@ import {
   temConsulta, clinicaConectada, startWeight, variacaoDe,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
-import { Txt, Row, CircleBtn, RichDoc } from '../ui/kit';
+import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -315,7 +315,7 @@ export default function Companion() {
           da imagem. Sem imagem embaixo, um canto arredondado no meio de
           duas superfícies da mesma cor é um detalhe que não separa nada. */}
       <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <ScrollView
+        <Rolagem
           ref={scrollRef} style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 16, gap: 12 }}
           showsVerticalScrollIndicator={false}
@@ -435,7 +435,7 @@ export default function Companion() {
           ))}
 
           {pensando && <Pensando />}
-        </ScrollView>
+        </Rolagem>
 
         {/* ---- o campo ----
 

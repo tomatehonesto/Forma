@@ -14,7 +14,7 @@ import {
   diasAteAplicar, semanasDaGrade,
 } from '../../logic/derive';
 import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 
@@ -551,7 +551,7 @@ export default function Jornada() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
+      <Rolagem showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
         <Painel />
 
         {/* Estoque: é lembrete de reposição, não emergência clínica. Em
@@ -618,7 +618,7 @@ export default function Jornada() {
               criar as suas. Em grade de dois, seis metas viram três
               fileiras e a seção volta a ocupar a dobra que ela acabou de
               devolver. Rolando, seis custam o mesmo que três. */}
-          <ScrollView
+          <Rolagem
             horizontal
             showsHorizontalScrollIndicator={false}
             style={{ marginTop: 14, marginHorizontal: -PAD }}
@@ -666,7 +666,7 @@ export default function Jornada() {
                 </View>
               );
             })}
-          </ScrollView>
+          </Rolagem>
         </View>
 
         {/* ---------- O DIA A DIA — uma porta por assunto ----------
@@ -720,7 +720,7 @@ export default function Jornada() {
             Semana a semana. Toque para ver o que marcou cada ciclo.
           </Txt>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          <Rolagem horizontal showsHorizontalScrollIndicator={false}
             style={{ marginTop: 14, marginHorizontal: -PAD }}
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
             <Pressable onPress={() => setFiltro(null)}>
@@ -740,7 +740,7 @@ export default function Jornada() {
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </Rolagem>
 
           {filtro === null ? (
             /* "Por semana" é a única aba que agrupa por ciclo — é o que
@@ -842,7 +842,7 @@ export default function Jornada() {
           ))}
         </View>
 
-      </ScrollView>
+      </Rolagem>
     </View>
   );
 }

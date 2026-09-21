@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { penStock, medComDose, fichaDe } from '../logic/derive';
-import { Txt, Row, CircleBtn } from '../ui/kit';
+import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { now, relDay, fmtTime } from '../logic/time';
@@ -133,7 +133,7 @@ export default function Conversa() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-        <ScrollView
+        <Rolagem
           ref={listaRef}
           style={{ flex: 1 }}
           contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
@@ -168,7 +168,7 @@ export default function Conversa() {
               </View>
             );
           })}
-        </ScrollView>
+        </Rolagem>
 
         {/* ---- o campo ---- */}
         <View style={{

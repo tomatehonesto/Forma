@@ -10,7 +10,7 @@ import {
 import type { PlanoInicial } from '../logic/derive';
 import { FONTES } from '../logic/fontes';
 import { MO_LONG, doseTxt, kgTxt, milhar, nf, now, startOfDay } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Grade2 } from '../ui/internas';
 import { AreaCurve } from '../ui/charts';
@@ -246,7 +246,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const cartao = { backgroundColor: c.bg1, borderRadius: radius.lg };
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
+      <Rolagem contentContainerStyle={{ paddingBottom: 28 }}>
         <Lavagem altura={insets.top + 380} />
         <View style={{
           paddingTop: insets.top + 34, paddingHorizontal: 24, paddingBottom: 32,
@@ -645,7 +645,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
             </Txt>
           </View>
         </View>
-      </ScrollView>
+      </Rolagem>
 
       <View style={{
         paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,

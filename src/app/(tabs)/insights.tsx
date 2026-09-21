@@ -12,7 +12,7 @@ import {
   balanceRead, balanceSeries, companionMemoria, temAcompanhamento, journeySummary, respostaNoDia,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
-import { Txt, Row, SectionHead, ListRow } from '../../ui/kit';
+import { Txt, Row, SectionHead, ListRow, Rolagem } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
 import { Malha } from '../../ui/instrumentos';
 import { Icon } from '../../ui/Icon';
@@ -199,7 +199,7 @@ export default function Insights() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
+      <Rolagem showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
 
         {/* ============================================================
             O MORPHI ABRE A TELA
@@ -688,7 +688,7 @@ export default function Insights() {
             outro serviço, e ele diluía o último gesto da página. libraryPicks
             segue em derive.ts, servindo a Biblioteca. */}
         </View>
-      </ScrollView>
+      </Rolagem>
     </View>
   );
 }

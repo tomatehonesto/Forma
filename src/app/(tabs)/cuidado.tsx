@@ -13,7 +13,7 @@ import {
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, DOW_PT } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, ListRow, Chevron } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
 import { useTheme } from '../../ui/useTheme';
@@ -992,7 +992,7 @@ export default function Cuidado() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: insets.top + 20, paddingBottom: RESPIRO_ABAS }}
       >
@@ -1056,7 +1056,7 @@ export default function Cuidado() {
             <Parceiros />
           </>
         )}
-      </ScrollView>
+      </Rolagem>
     </View>
   );
 }

@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WD, nf } from '../logic/time';
-import { Txt, Row } from './kit';
+import { Txt, Row, Rolagem } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
 import { useTheme } from './useTheme';
@@ -147,7 +147,7 @@ export function TelaInterna({
         </Row>
       </View>
 
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={(e) => {
@@ -162,7 +162,7 @@ export function TelaInterna({
         contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 6, paddingBottom: rodape ? 160 : 110, gap: 26 }}
       >
         {children}
-      </ScrollView>
+      </Rolagem>
 
       {/* Fundo chapado com um fio no topo. Aqui havia um véu em degradê, do
           transparente até a cor do fundo, para o conteúdo sumir por baixo do
@@ -541,7 +541,7 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
       >
         {larg > 0 ? (
           <>
-            <ScrollView
+            <Rolagem
               ref={ref}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -576,7 +576,7 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
                   ) : null}
                 </View>
               ))}
-            </ScrollView>
+            </Rolagem>
             {/* As pontas, por cima do traçado e antes do marcador —
                 ele fica no meio, longe delas. */}
             <LinearGradient
@@ -758,7 +758,7 @@ export function Chips({ itens, valor, onChange }: {
 }) {
   const { c } = useTheme();
   return (
-    <ScrollView
+    <Rolagem
       horizontal
       showsHorizontalScrollIndicator={false}
       style={{ marginHorizontal: -PAD }}
@@ -782,7 +782,7 @@ export function Chips({ itens, valor, onChange }: {
           </Pressable>
         );
       })}
-    </ScrollView>
+    </Rolagem>
   );
 }
 
@@ -978,7 +978,7 @@ export function TiraDeDias({ dias, sel, onEscolhe }: {
        Dois gatilhos, e não um: o conteúdo e a caixa são medidos em ordens
        diferentes conforme a plataforma, e com só o do conteúdo a tira
        parava quarenta pixels antes do fim. */
-    <ScrollView
+    <Rolagem
       ref={tira}
       horizontal
       showsHorizontalScrollIndicator={false}
@@ -1026,7 +1026,7 @@ export function TiraDeDias({ dias, sel, onEscolhe }: {
           </Pressable>
         );
       })}
-    </ScrollView>
+    </Rolagem>
   );
 }
 
@@ -1648,7 +1648,7 @@ export function Roda({ itens, valor, onEscolhe, largura }: {
           borderWidth: 1, borderColor: c.accentLine,
         }}
       />
-      <ScrollView
+      <Rolagem
         ref={ref}
         showsVerticalScrollIndicator={false}
         snapToInterval={ALT}
@@ -1669,7 +1669,7 @@ export function Roda({ itens, valor, onEscolhe, largura }: {
             </Txt>
           </View>
         ))}
-      </ScrollView>
+      </Rolagem>
     </View>
   );
 }

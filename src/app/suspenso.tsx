@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { PLANOS, reais } from '../logic/assinatura';
-import { Txt, Row } from '../ui/kit';
+import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -94,7 +94,7 @@ export default function Suspenso() {
           Com o conteúdo maior que a caixa, o `justifyContent` para de
           valer sozinho e a rolagem assume — é por isso que os dois
           convivem. */}
-      <ScrollView
+      <Rolagem
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
@@ -157,7 +157,7 @@ export default function Suspenso() {
             </Row>
           ))}
         </View>
-      </ScrollView>
+      </Rolagem>
 
       {/* ---- as saídas ---- */}
       <View style={{ paddingBottom: insets.bottom + 16, gap: 14 }}>

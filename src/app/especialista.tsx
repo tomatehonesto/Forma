@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDe, type FichaDaEquipe } from '../logic/derive';
-import { Txt, Row, CircleBtn } from '../ui/kit';
+import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -114,7 +114,7 @@ export default function Especialista() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         /* insets.bottom: ver a nota em clinica.tsx — 60 cravado encosta na
            barra de gestos do aparelho, onde o inset não é zero. */
@@ -438,7 +438,7 @@ export default function Especialista() {
               está nela. É um fecho melhor do que uma chamada para ação. */}
         </View>
         </View>
-      </ScrollView>
+      </Rolagem>
 
       <BarraQueColapsa
         titulo={f.nome}

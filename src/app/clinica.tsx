@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
-import { Txt, Card, Row, CircleBtn, Chevron } from '../ui/kit';
+import { Txt, Card, Row, CircleBtn, Chevron, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
@@ -173,7 +173,7 @@ export default function Clinica() {
           viravam 26 de folga real — o botão do pé encostava na barra e a
           tela terminava parecendo cortada. É um defeito que só existe no
           telefone, que é justamente onde ela roda. */}
-      <ScrollView
+      <Rolagem
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
         scrollEventThrottle={16}
@@ -600,7 +600,7 @@ export default function Clinica() {
         )}
         </View>
         </View>
-      </ScrollView>
+      </Rolagem>
 
       <BarraQueColapsa
         titulo={f?.nome ?? 'Clínica'}

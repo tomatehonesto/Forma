@@ -21,7 +21,7 @@ import {
   diasAteAplicar,
 } from '../../logic/derive';
 import { now, nf, fmtDate, DOW_PT, quandoEm, diffDays } from '../../logic/time';
-import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato } from '../../ui/kit';
+import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
@@ -410,25 +410,6 @@ export default function Home() {
      comentário do carrossel. */
   const [alturaDoSlide, setAlturaDoSlide] = useState(0);
 
-  /* ⚠️⚠️ A AURORA NÃO ACOMPANHA O ESTICÃO — ela fica, e o esticão só
-     descobre mais dela.
-
-     Ela mora dentro da rolagem, então puxar a Home para baixo levava a
-     imagem junto: o degradê inteiro escorregava pela tela e voltava. Com
-     a compensação abaixo, o que desce é o conteúdo; a aurora fica no
-     lugar e aparece mais dela por cima.
-
-     ⚠️ A CONTA É LITERAL. Em esticão, `contentOffset.y` é NEGATIVO: a -80
-     o conteúdo desceu 80. Mover a aurora os mesmos -80 a devolve para
-     onde estava. Em rolagem de verdade, y positivo, a compensação é
-     zero — ali a aurora deve subir com o hero, como sempre subiu, senão
-     vira paralaxe e o hero descola do próprio fundo. */
-  const rolagem = useRef(new Animated.Value(0)).current;
-  const compensa = rolagem.interpolate({
-    inputRange: [-600, 0],
-    outputRange: [-600, 0],
-    extrapolateRight: 'clamp',
-  });
 
   /* ⚠️⚠️ O ARRASTO VOLTOU SEM O DESLIZE, e é essa separação que faz ele
      valer a pena.
@@ -468,81 +449,60 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      {/* ⚠️⚠️ O QUE APARECE QUANDO A ROLAGEM ESTICA PARA BAIXO.
+      {/* ⚠️⚠️ SEM ESTICÃO, e é a decisão que apaga todo o resto.
 
-          Puxando a Home para baixo, o conteúdo desce e o topo da tela
-          fica descoberto por um instante. Ali apareciam duas coisas
-          erradas ao mesmo tempo.
+          O efeito elástico existe para dizer "acabou o conteúdo", e numa
+          lista de texto ele faz isso bem. Numa tela cujo topo é uma
+          imagem inteira ele faz outra coisa: puxa para baixo o que
+          deveria subir, e descobre acima dela um recorte que não foi
+          desenhado para ser visto.
 
-          A aurora mora dentro de um Animated.View com escala de 1,06 a
-          1,14 — a deriva —, e o véu que a escurece fica FORA dele, de
-          propósito: véu que passeia deixa trechos descobertos. Só que a
-          imagem ampliada TRANSBORDA o hero por cima, e o véu não vai
-          junto. O que sobrava para ver, ao esticar, era um filete de
-          aurora crua: mais clara que o resto, e por isso lido como falha
-          de renderização.
+          Dá para compensar — e por um commit foi o que esteve aqui: a
+          aurora andava ao contrário do esticão para ficar parada, e uma
+          fatia de véu cobria o que sobrava no pé. Funcionava, e era
+          máquina inteira para sustentar um movimento que ninguém pediu.
+          Travar é a resposta mais simples e a única sem efeito colateral.
 
-          Duas medidas, e as duas são necessárias:
-
-          · o hero passa a RECORTAR (overflow hidden), e o transbordo da
-            deriva deixa de existir fora dele;
-          · e este bloco, ATRÁS da rolagem, pinta o topo da tela com o
-            azul-noite do véu. Recortado, o que apareceria ao esticar
-            seria o fundo claro da página — um rasgo branco em cima de uma
-            tela escura, que é pior do que o filete que ele veio
-            substituir.
-
-          300 px porque nenhum esticão passa disso, e porque ele não custa
-          nada: fica atrás de conteúdo opaco o tempo inteiro. */}
-      <View style={{
-        position: 'absolute', left: 0, right: 0, top: 0, height: 300,
-        backgroundColor: c.veu,
-      }} />
-      <Animated.ScrollView
+          ⚠️ SÃO DUAS PROPRIEDADES PORQUE SÃO DOIS SISTEMAS. `bounces` é o
+          elástico do iOS; `overScrollMode` é o brilho e o esticão do
+          Android. Uma sem a outra trava metade dos aparelhos. */}
+      <Rolagem
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
         contentContainerStyle={{ paddingBottom: RESPIRO_ABAS }}
         scrollEventThrottle={16}
         /* 60 é logo depois de a linha da saudação sair: ela ocupa de
            insets.top + 26 a + 66, e a barra cobre até + 48. Assim o
            retrato e o sino voltam no instante em que se perderiam, sem
            faixa morta no meio. */
-        /* ⚠️ UM EVENTO SÓ PARA AS DUAS COISAS. `Animated.event` alimenta o
-           valor da compensação na thread nativa, e o `listener` leva o
-           mesmo evento para o JS, que decide a barra colapsada. Dois
-           `onScroll` não existem — o segundo sobrescreve o primeiro. */
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: rolagem } } }],
-          {
-            useNativeDriver: true,
-            listener: (e: any) => setColapsado(e.nativeEvent.contentOffset.y > 60),
-          },
-        )}
+        onScroll={(e) => setColapsado(e.nativeEvent.contentOffset.y > 60)}
       >
 
         {/* ================= HERO ================= */}
-        {/* overflow: ver o comentário do bloco de véu, lá em cima. */}
-        <View style={{ overflow: 'hidden' }}>
-          {/* ⚠️ O FUNDO INTEIRO — imagem E véu — anda junto na compensação.
+        {/* ⚠️ RECORTA, e sobrou disto tudo.
 
-              O véu é o que faz a aurora ser legível; deixá-lo acompanhar a
-              rolagem enquanto a imagem fica parada descobriria a aurora
-              crua no topo, que é o filete que acabou de ser consertado.
-              Compensar os dois é o mesmo gesto. */}
+            A aurora mora num Animated.View com escala de 1,06 a 1,14 — a
+            deriva —, e o véu que a escurece fica FORA dele de propósito:
+            véu que passeia deixa trechos descobertos. A imagem ampliada
+            transborda o hero, e o véu não vai junto; o recorte é o que
+            impede esse transbordo de existir fora dele.
+
+            Com a rolagem travada, isso deixou de ser visível — mas
+            continua sendo o certo, e custa uma propriedade. */}
+        <View style={{ overflow: 'hidden' }}>
+          {/* escala base acima de 1 para a deriva não descobrir as bordas */}
           <Animated.View
-            style={[StyleSheet.absoluteFill, { transform: [{ translateY: compensa }] }]}
+            style={[StyleSheet.absoluteFill, {
+              transform: [
+                { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
+                { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
+                { translateY: deriva.interpolate({ inputRange: [0, 1], outputRange: [5, -7] }) },
+              ],
+            }]}
           >
-            {/* escala base acima de 1 para a deriva não descobrir as bordas */}
-            <Animated.View
-              style={[StyleSheet.absoluteFill, {
-                transform: [
-                  { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
-                  { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
-                  { translateY: deriva.interpolate({ inputRange: [0, 1], outputRange: [5, -7] }) },
-                ],
-              }]}
-            >
-              <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-            </Animated.View>
+            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+          </Animated.View>
 
           {/* Véu sobre a aurora, mais pesado nas pontas que no meio.
 
@@ -555,26 +515,12 @@ export default function Home() {
               Mais escuro em cima (onde ficam nome e data, em corpo pequeno)
               e embaixo (onde a faixa de check-in encosta), e mais leve no
               meio, para a aurora ainda aparecer onde ela é bonita. */}
-            <LinearGradient
-              colors={[alfa(c.veu, 0.62), alfa(c.veu, 0.34), alfa(c.veu, 0.58)]}
-              locations={[0, 0.46, 1]}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
-
-            {/* ⚠️ A FATIA QUE A COMPENSAÇÃO DESCOBRE EMBAIXO. Subindo o
-                fundo em 80 px, faltam 80 px no pé do hero — bem onde a
-                faixa de check-in, que é vidro, deixaria ver o que houver
-                atrás. Esta fatia é a cor do último ponto do véu, e ela só
-                existe durante o gesto. */}
-            <View
-              pointerEvents="none"
-              style={{
-                position: 'absolute', left: 0, right: 0, top: '100%', height: 600,
-                backgroundColor: c.veu,
-              }}
-            />
-          </Animated.View>
+          <LinearGradient
+            colors={[alfa(c.veu, 0.62), alfa(c.veu, 0.34), alfa(c.veu, 0.58)]}
+            locations={[0, 0.46, 1]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
 
           {/* ⚠️ O CABEÇALHO SAIU DA ROLAGEM, e aqui ficou o vão dele.
 
@@ -751,13 +697,13 @@ export default function Home() {
                 destino, não descrevem o gesto. */}
             <SectionHead title="Suas metas diárias" link="Metas" onPress={go('/metas')} />
           </View>
-          <ScrollView
+          <Rolagem
             horizontal showsHorizontalScrollIndicator={false}
             snapToInterval={GOAL_W + GOAL_GAP} decelerationRate="fast"
             contentContainerStyle={{ paddingHorizontal: PAD, gap: GOAL_GAP, paddingTop: 16 }}
           >
             {targets.map((t) => <GoalCard key={t.key} t={t} onRegister={go('/registrar')} />)}
-          </ScrollView>
+          </Rolagem>
 
           {/* evolucao */}
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
@@ -997,7 +943,7 @@ export default function Home() {
           </View>
           ) : null}
         </View>
-      </Animated.ScrollView>
+      </Rolagem>
 
       {/* ⚠️ O CABEÇALHO EXPANDIDO, FIXO E CRUZANDO COM A BARRA.
 
@@ -1005,12 +951,17 @@ export default function Home() {
           por opacidade: enquanto o hero está à vista é este que aparece,
           sobre a aurora; passando o limiar, ele apaga e a barra acende.
 
-          ⚠️ E É POR ISSO QUE ELE NÃO PODE MAIS ROLAR. Sendo fixo, ele
-          fica parado quando a rolagem estica para baixo — que é o que
-          este commit veio consertar — e some por opacidade, e não por ter
-          saído da tela. Enquanto rola de verdade, os primeiros 60 px, ele
-          descola do hero por um instante; a troca acontece logo ali e o
-          cruzamento cobre a diferença. */}
+          ⚠️ E O MOTIVO ORIGINAL DELE SER FIXO JÁ NÃO EXISTE. Ele saiu da
+          rolagem para não descer junto no esticão — e o esticão foi
+          travado logo depois. O que sobra a favor é o cruzamento: os dois
+          cabeçalhos trocam por opacidade, no mesmo lugar, em vez de um
+          sair de cena rolando enquanto o outro aparece.
+
+          O preço é pequeno e vale saber: nos primeiros 60 px de rolagem
+          de verdade ele fica parado enquanto o hero sobe, e descola por
+          um instante. A troca acontece logo ali, e o cruzamento cobre a
+          diferença. Devolvê-lo para dentro da rolagem é uma linha, se um
+          dia o descolamento incomodar mais do que o cruzamento ajuda. */}
       <Animated.View
         pointerEvents={colapsado ? 'none' : 'box-none'}
         style={{
