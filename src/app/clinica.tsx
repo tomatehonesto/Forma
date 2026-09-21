@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
 import { Txt, Card, Row, CircleBtn, Chevron } from '../ui/kit';
+import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
 import { Cartao, Linha } from '../ui/internas';
@@ -144,6 +145,12 @@ export default function Clinica() {
      estado inteiro, não um estado degradado: a faixa não aparece e o
      quadrado mostra as iniciais. */
   const imagens = (f && IMAGENS_DA_CLINICA[f.nome]) || {};
+  /* ⚠️ O LIMIAR DEPENDE DE ONDE O NOME ESTÁ. Com foto ele mora na faixa
+     de vidro colada no PÉ dela, e a barra só assume quando essa faixa
+     sai; sem foto ele está logo abaixo do botão, e o limiar é o das
+     telas internas. Um número só erraria nos dois casos. */
+  const [passou, setPassou] = useState(false);
+  const limiar = imagens.foto ? ALTURA_DA_FOTO - 150 : 38;
 
   if (!f) {
     return (
@@ -166,7 +173,12 @@ export default function Clinica() {
           viravam 26 de folga real — o botão do pé encostava na barra e a
           tela terminava parecendo cortada. É um defeito que só existe no
           telefone, que é justamente onde ela roda. */}
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
+        scrollEventThrottle={16}
+        onScroll={(ev) => setPassou(ev.nativeEvent.contentOffset.y > limiar)}
+      >
         {/* ---- o cabeçalho ----
 
             ⚠️ A IDENTIDADE SAIU DO CARTÃO, e ficava num cartão branco que
@@ -273,20 +285,17 @@ export default function Clinica() {
               )}
             </BlurView>
 
-            <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
-              <Row>
-                {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
-                <CircleBtn name="back" onPress={() => router.back()} bg="#FFFFFF" color="#1A1D23" />
-              </Row>
-            </View>
           </View>
         ) : (
-          <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 20 }}>
-            <Row style={{ marginTop: 4 }} gap={12}>
-              <CircleBtn name="back" onPress={() => router.back()} />
-              <Txt v="title" style={{ flex: 1 }}>Clínica</Txt>
-            </Row>
-          </View>
+          /* ⚠️ O BOTÃO SAIU DAQUI — ver BarraQueColapsa, em ui/capa. Mesma
+             razão de /especialista: ele morava dentro da foto, que é o
+             primeiro filho do scroll.
+
+             ⚠️ E O "Clínica" ESCRITO AO LADO DELE SAIU JUNTO. Ele existia
+             porque, sem foto, a tela abria sem nome nenhum — e agora o
+             nome que a barra mostra é o da clínica de verdade, que é
+             melhor do que a palavra genérica. */
+          <View style={{ height: insets.top + 60 }} />
         )}
 
         {/* ---- a página, montada sobre a foto ----
@@ -592,6 +601,12 @@ export default function Clinica() {
         </View>
         </View>
       </ScrollView>
+
+      <BarraQueColapsa
+        titulo={f?.nome ?? 'Clínica'}
+        passou={passou}
+        repouso={imagens.foto ? 'branco' : 'normal'}
+      />
     </View>
   );
 }

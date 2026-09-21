@@ -287,72 +287,7 @@ export function TelaDeHabito({ children, rodape }: {
         <CapaCtx.Provider value={setTitulo}>{children}</CapaCtx.Provider>
       </ScrollView>
 
-      {/* ---- a barra que colapsa ----
-
-          ⚠️ ELA EXISTE O TEMPO TODO, e o que muda é o fundo. Aparecer só
-          depois de rolar deixaria a capa sem saída nos primeiros pixels —
-          e a saída é justamente o que esta barra veio resolver.
-
-          Sobre a capa ela é invisível: só o botão, em vidro claro, no
-          mesmo ponto em que ele já era desenhado. Passando o LIMITE o
-          fundo entra, o título aparece, e o botão troca de roupa.
-
-          ⚠️ SÃO DOIS BOTÕES CRUZANDO, e não um mudando de cor. Animar
-          backgroundColor obriga a largar o useNativeDriver, e aí a
-          animação passa a disputar a thread do JS com a rolagem que a
-          disparou — que é onde ela engasga. Dois desenhos empilhados
-          trocando de opacidade rodam na thread nativa e custam uma View a
-          mais. */}
-      <View
-        pointerEvents="box-none"
-        style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20 }}
-      >
-        <Animated.View
-          pointerEvents="none"
-          style={{
-            position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
-            backgroundColor: c.bg,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            borderBottomColor: c.line,
-            opacity: tinta,
-          }}
-        />
-        <Row style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12 }}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={10}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-          >
-            <View style={{ width: 36, height: 36 }}>
-              <Animated.View
-                style={{
-                  position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 18,
-                  backgroundColor: c.onHeroLine, alignItems: 'center', justifyContent: 'center',
-                  opacity: tinta.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
-                }}
-              >
-                <Icon name="back" size={16} color={c.onHero} sw={2.2} />
-              </Animated.View>
-              <Animated.View
-                style={{
-                  position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: radius.md,
-                  backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
-                  opacity: tinta,
-                }}
-              >
-                <Icon name="back" size={18} color={c.tx} sw={2} />
-              </Animated.View>
-            </View>
-          </Pressable>
-
-          {/* O título centra na tela, com o espaçador do tamanho do botão
-              do outro lado — a mesma conta do cabeçalho do companion. */}
-          <Animated.View style={{ flex: 1, opacity: tinta }} pointerEvents="none">
-            <Txt v="bodyMed" style={{ textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
-          </Animated.View>
-          <View style={{ width: 36 }} />
-        </Row>
-      </View>
+      <BarraQueColapsa titulo={titulo} passou={passou} repouso="vidro" />
       {rodape ? (
         <View style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,
@@ -364,6 +299,109 @@ export function TelaDeHabito({ children, rodape }: {
           {rodape}
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/* ============================================================
+   A BARRA QUE COLAPSA
+
+   ⚠️ ELA EXISTE O TEMPO TODO, e o que muda é o fundo. Aparecer só depois
+   de rolar deixaria a tela sem saída nos primeiros pixels — e a saída é
+   justamente o que ela veio resolver.
+
+   Em repouso é invisível: só o botão, no desenho que a tela de baixo
+   pede. Passando o limiar, o fundo entra, o título aparece e o botão
+   troca de roupa.
+
+   ⚠️ SÃO DOIS BOTÕES CRUZANDO, e não um mudando de cor. Animar
+   backgroundColor obriga a largar o useNativeDriver, e aí a animação
+   passa a disputar a thread do JS com a rolagem que a disparou — que é
+   onde ela engasga. Dois desenhos empilhados trocando de opacidade rodam
+   na thread nativa e custam uma View a mais.
+
+   ⚠️ QUEM ROLA É DE FORA. A barra não conhece scroll nenhum: recebe
+   `passou` pronto. É o que deixa a mesma peça servir ao TelaDeHabito, que
+   tem uma capa de 398 px, e às telas de retrato, cuja foto tem outra
+   altura — cada uma sabe o próprio limiar, e nenhuma precisa contar isso
+   para a barra.
+
+   ⚠️ E O `repouso` EXISTE PORQUE O QUE ESTÁ ATRÁS MUDA. Sobre a aurora de
+   um hábito, vidro claro. Sobre a foto de alguém — que pode ser uma sala
+   com a janela estourada —, branco chapado, o único que não some no
+   claro. Sem foto, o botão normal das telas internas, e aí a troca fica
+   invisível porque os dois lados são iguais: a barra continua ganhando
+   fundo e título, que é o que ela veio fazer.
+   ============================================================ */
+export function BarraQueColapsa({ titulo, passou, repouso = 'vidro', onVoltar }: {
+  titulo: string;
+  /** quem rola decide; ver o comentário acima */
+  passou: boolean;
+  repouso?: 'vidro' | 'branco' | 'normal';
+  onVoltar?: () => void;
+}) {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const tinta = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(tinta, { toValue: passou ? 1 : 0, duration: 160, useNativeDriver: true }).start();
+  }, [passou, tinta]);
+
+  const FUNDO: Record<string, string> = { vidro: c.onHeroLine, branco: '#FFFFFF', normal: c.bg2 };
+  const TINTA: Record<string, string> = { vidro: c.onHero, branco: '#1A1D23', normal: c.tx };
+
+  return (
+    <View
+      pointerEvents="box-none"
+      style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20 }}
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+          backgroundColor: c.bg,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: c.line,
+          opacity: tinta,
+        }}
+      />
+      <Row style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12 }}>
+        <Pressable
+          onPress={onVoltar ?? (() => router.back())}
+          hitSlop={10}
+          style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+        >
+          <View style={{ width: 36, height: 36 }}>
+            <Animated.View
+              style={{
+                position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 18,
+                backgroundColor: FUNDO[repouso], alignItems: 'center', justifyContent: 'center',
+                opacity: tinta.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+              }}
+            >
+              <Icon name="back" size={16} color={TINTA[repouso]} sw={2.2} />
+            </Animated.View>
+            <Animated.View
+              style={{
+                position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: radius.md,
+                backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+                opacity: tinta,
+              }}
+            >
+              <Icon name="back" size={18} color={c.tx} sw={2} />
+            </Animated.View>
+          </View>
+        </Pressable>
+
+        {/* O título centra na tela, com o espaçador do tamanho do botão do
+            outro lado — a mesma conta do cabeçalho do companion. */}
+        <Animated.View style={{ flex: 1, opacity: tinta }} pointerEvents="none">
+          <Txt v="bodyMed" style={{ textAlign: 'center' }} numberOfLines={1}>{titulo}</Txt>
+        </Animated.View>
+        <View style={{ width: 36 }} />
+      </Row>
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDe, type FichaDaEquipe } from '../logic/derive';
 import { Txt, Row, CircleBtn } from '../ui/kit';
+import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
@@ -83,6 +84,17 @@ export default function Especialista() {
   }
 
   const retrato = fotoDe(f.id);
+  /* ⚠️ O LIMIAR DEPENDE DE ONDE O NOME ESTÁ, e ele está em dois lugares
+     diferentes.
+
+     Com retrato, o nome mora na faixa de vidro colada no PÉ da foto: a
+     barra só assume quando essa faixa sai. Sem retrato, o nome está logo
+     abaixo do botão, e o limiar é o mesmo das telas internas.
+
+     Um número só erraria nos dois casos: cedo demais sob uma foto alta,
+     tarde demais numa tela sem foto nenhuma. */
+  const [passou, setPassou] = useState(false);
+  const limiar = retrato ? ALTURA_DO_RETRATO - 150 : 38;
 
   /* ⚠️ AS AÇÕES SEGUEM O PAPEL, e não a tela. Consultas e Protocolos são
      da responsável — a nutricionista não marca consulta nem assina
@@ -107,6 +119,8 @@ export default function Especialista() {
         /* insets.bottom: ver a nota em clinica.tsx — 60 cravado encosta na
            barra de gestos do aparelho, onde o inset não é zero. */
         contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
+        scrollEventThrottle={16}
+        onScroll={(ev) => setPassou(ev.nativeEvent.contentOffset.y > limiar)}
       >
         {/* ---- o retrato ----
 
@@ -190,19 +204,15 @@ export default function Especialista() {
               )}
             </BlurView>
 
-            <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
-              <Row>
-                {/* Fundo branco fixo: `c.bg2` sobre foto some no claro. */}
-                <CircleBtn name="back" onPress={() => router.back()} bg="#FFFFFF" color="#1A1D23" />
-              </Row>
-            </View>
           </View>
         ) : (
-          <View style={{ paddingHorizontal: PAD, paddingTop: insets.top + 12 }}>
-            <Row>
-              <CircleBtn name="back" onPress={() => router.back()} />
-            </Row>
-          </View>
+          /* ⚠️ O BOTÃO SAIU DAQUI — ver BarraQueColapsa, em ui/capa.
+
+             Ele morava dentro do retrato, que é o primeiro filho do
+             scroll: descer a ficha inteira levava embora a única saída da
+             tela. Agora ele é fixo, e o que fica aqui é o vão que ele
+             ocupava, para o conteúdo começar onde sempre começou. */
+          <View style={{ height: insets.top + 60 }} />
         )}
 
         {/* ---- a página, montada sobre a foto ----
@@ -429,6 +439,12 @@ export default function Especialista() {
         </View>
         </View>
       </ScrollView>
+
+      <BarraQueColapsa
+        titulo={f.nome}
+        passou={passou}
+        repouso={retrato ? 'branco' : 'normal'}
+      />
     </View>
   );
 }
