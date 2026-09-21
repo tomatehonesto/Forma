@@ -410,6 +410,26 @@ export default function Home() {
      comentário do carrossel. */
   const [alturaDoSlide, setAlturaDoSlide] = useState(0);
 
+  /* ⚠️⚠️ A AURORA NÃO ACOMPANHA O ESTICÃO — ela fica, e o esticão só
+     descobre mais dela.
+
+     Ela mora dentro da rolagem, então puxar a Home para baixo levava a
+     imagem junto: o degradê inteiro escorregava pela tela e voltava. Com
+     a compensação abaixo, o que desce é o conteúdo; a aurora fica no
+     lugar e aparece mais dela por cima.
+
+     ⚠️ A CONTA É LITERAL. Em esticão, `contentOffset.y` é NEGATIVO: a -80
+     o conteúdo desceu 80. Mover a aurora os mesmos -80 a devolve para
+     onde estava. Em rolagem de verdade, y positivo, a compensação é
+     zero — ali a aurora deve subir com o hero, como sempre subiu, senão
+     vira paralaxe e o hero descola do próprio fundo. */
+  const rolagem = useRef(new Animated.Value(0)).current;
+  const compensa = rolagem.interpolate({
+    inputRange: [-600, 0],
+    outputRange: [-600, 0],
+    extrapolateRight: 'clamp',
+  });
+
   /* ⚠️⚠️ O ARRASTO VOLTOU SEM O DESLIZE, e é essa separação que faz ele
      valer a pena.
 
@@ -478,7 +498,7 @@ export default function Home() {
         position: 'absolute', left: 0, right: 0, top: 0, height: 300,
         backgroundColor: c.veu,
       }} />
-      <ScrollView
+      <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: RESPIRO_ABAS }}
         scrollEventThrottle={16}
@@ -486,24 +506,43 @@ export default function Home() {
            insets.top + 26 a + 66, e a barra cobre até + 48. Assim o
            retrato e o sino voltam no instante em que se perderiam, sem
            faixa morta no meio. */
-        onScroll={(e) => setColapsado(e.nativeEvent.contentOffset.y > 60)}
+        /* ⚠️ UM EVENTO SÓ PARA AS DUAS COISAS. `Animated.event` alimenta o
+           valor da compensação na thread nativa, e o `listener` leva o
+           mesmo evento para o JS, que decide a barra colapsada. Dois
+           `onScroll` não existem — o segundo sobrescreve o primeiro. */
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: rolagem } } }],
+          {
+            useNativeDriver: true,
+            listener: (e: any) => setColapsado(e.nativeEvent.contentOffset.y > 60),
+          },
+        )}
       >
 
         {/* ================= HERO ================= */}
         {/* overflow: ver o comentário do bloco de véu, lá em cima. */}
         <View style={{ overflow: 'hidden' }}>
-          {/* escala base acima de 1 para a deriva não descobrir as bordas */}
+          {/* ⚠️ O FUNDO INTEIRO — imagem E véu — anda junto na compensação.
+
+              O véu é o que faz a aurora ser legível; deixá-lo acompanhar a
+              rolagem enquanto a imagem fica parada descobriria a aurora
+              crua no topo, que é o filete que acabou de ser consertado.
+              Compensar os dois é o mesmo gesto. */}
           <Animated.View
-            style={[StyleSheet.absoluteFill, {
-              transform: [
-                { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
-                { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
-                { translateY: deriva.interpolate({ inputRange: [0, 1], outputRange: [5, -7] }) },
-              ],
-            }]}
+            style={[StyleSheet.absoluteFill, { transform: [{ translateY: compensa }] }]}
           >
-            <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
-          </Animated.View>
+            {/* escala base acima de 1 para a deriva não descobrir as bordas */}
+            <Animated.View
+              style={[StyleSheet.absoluteFill, {
+                transform: [
+                  { scale: deriva.interpolate({ inputRange: [0, 1], outputRange: [1.06, 1.14] }) },
+                  { translateX: deriva.interpolate({ inputRange: [0, 1], outputRange: [-9, 9] }) },
+                  { translateY: deriva.interpolate({ inputRange: [0, 1], outputRange: [5, -7] }) },
+                ],
+              }]}
+            >
+              <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+            </Animated.View>
 
           {/* Véu sobre a aurora, mais pesado nas pontas que no meio.
 
@@ -516,12 +555,26 @@ export default function Home() {
               Mais escuro em cima (onde ficam nome e data, em corpo pequeno)
               e embaixo (onde a faixa de check-in encosta), e mais leve no
               meio, para a aurora ainda aparecer onde ela é bonita. */}
-          <LinearGradient
-            colors={[alfa(c.veu, 0.62), alfa(c.veu, 0.34), alfa(c.veu, 0.58)]}
-            locations={[0, 0.46, 1]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
+            <LinearGradient
+              colors={[alfa(c.veu, 0.62), alfa(c.veu, 0.34), alfa(c.veu, 0.58)]}
+              locations={[0, 0.46, 1]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+
+            {/* ⚠️ A FATIA QUE A COMPENSAÇÃO DESCOBRE EMBAIXO. Subindo o
+                fundo em 80 px, faltam 80 px no pé do hero — bem onde a
+                faixa de check-in, que é vidro, deixaria ver o que houver
+                atrás. Esta fatia é a cor do último ponto do véu, e ela só
+                existe durante o gesto. */}
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute', left: 0, right: 0, top: '100%', height: 600,
+                backgroundColor: c.veu,
+              }}
+            />
+          </Animated.View>
 
           {/* ⚠️ O CABEÇALHO SAIU DA ROLAGEM, e aqui ficou o vão dele.
 
@@ -944,22 +997,8 @@ export default function Home() {
           </View>
           ) : null}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {/* ---- a barra colapsada ----
-
-          ⚠️ SÓ APARECE DEPOIS DE ROLAR, ao contrário da das telas de capa.
-          Lá ela existe o tempo todo porque carrega a ÚNICA saída da tela —
-          sumir nos primeiros pixels deixaria alguém preso. Aqui não há
-          saída para proteger: as abas estão no rodapé o tempo inteiro, e
-          o hero já mostra retrato e sino em tamanho grande. Uma barra
-          permanente por cima da aurora só taparia a manchete do dia.
-
-          ⚠️ E O MEIO LEVA A LINHA DO DIA, e não o nome. "Mariana" na barra
-          seria o aplicativo contando a ela quem ela é. "Dia 71 · Semana
-          11" é onde ela está no tratamento — a mesma frase que o hero
-          mostra, que é o fato que não cabe na cabeça de ninguém e continua
-          útil trinta cartões abaixo. */}
       {/* ⚠️ O CABEÇALHO EXPANDIDO, FIXO E CRUZANDO COM A BARRA.
 
           Os dois moram na mesma camada, um por cima do outro, e trocam
@@ -995,6 +1034,20 @@ export default function Home() {
         </Row>
       </Animated.View>
 
+      {/* ---- a barra colapsada ----
+
+          ⚠️ SÓ APARECE DEPOIS DE ROLAR, ao contrário da das telas de capa.
+          Lá ela existe o tempo todo porque carrega a ÚNICA saída da tela —
+          sumir nos primeiros pixels deixaria alguém preso. Aqui não há
+          saída para proteger: as abas estão no rodapé o tempo inteiro, e
+          o hero já mostra retrato e sino em tamanho grande. Uma barra
+          permanente por cima da aurora só taparia a manchete do dia.
+
+          ⚠️ E O MEIO LEVA A LINHA DO DIA, e não o nome. "Mariana" na barra
+          seria o aplicativo contando a ela quem ela é. "Dia 71 · Semana
+          11" é onde ela está no tratamento — a mesma frase que o hero
+          mostra, que é o fato que não cabe na cabeça de ninguém e continua
+          útil trinta cartões abaixo. */}
       <Animated.View
         pointerEvents={colapsado ? 'box-none' : 'none'}
         style={{

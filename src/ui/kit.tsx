@@ -508,18 +508,30 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
 
   /* ⚠️ O DESLIZE É DA FOLHA, E NÃO DA ROTA. A rota abre em fade — ver a
      nota em _layout —, então o scrim acende onde está em vez de subir
-     pelo pé da tela. Quem sobe é este painel, e só ele.
+     pelo pé da tela. Quem sobe é este painel, e só ele, a altura inteira
+     dele: a folha continua entrando de baixo, que é o gesto certo. O que
+     não sobe mais é a sombra.
 
-     Trinta e dois pixels e duzentos e trinta milissegundos: o bastante
-     para o olho ler "veio de baixo" e pouco o bastante para não parecer
-     que a folha viajou. A distância inteira da tela é o que o deslize da
-     rota fazia, e é o que arrastava a sombra junto. */
-  const subida = React.useRef(new Animated.Value(32)).current;
-  React.useEffect(() => {
+     ⚠️ E A DISTÂNCIA É MEDIDA, não chutada. Começa fora da tela — a
+     altura da janela, que serve para qualquer folha —, e no primeiro
+     layout troca pela altura REAL do painel, que é exatamente o quanto
+     ele precisa viajar. Chutar um número faria a folha pequena percorrer
+     o triplo do próprio tamanho, e a grande aparecer já pela metade.
+
+     O `jaAnimou` existe porque o layout dispara de novo quando o teclado
+     abre e o painel muda de altura — sem ele, a folha recomeçaria a
+     entrada no meio de alguém digitando. */
+  const { height: alturaDaJanela } = useWindowDimensions();
+  const subida = React.useRef(new Animated.Value(alturaDaJanela)).current;
+  const jaAnimou = React.useRef(false);
+  const aoMedir = (h: number) => {
+    if (jaAnimou.current || !h) return;
+    jaAnimou.current = true;
+    subida.setValue(h);
     Animated.timing(subida, {
-      toValue: 0, duration: 230, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      toValue: 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: true,
     }).start();
-  }, [subida]);
+  };
 
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
@@ -544,7 +556,10 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           recortes escuros emoldurando o teclado, como se a folha tivesse
           descolado da base da tela. Branca, a folha continua encostada em
           baixo e o teclado nasce dela. */}
-      <Animated.View style={{ transform: [{ translateY: subida }] }}>
+      <Animated.View
+        onLayout={(ev) => aoMedir(ev.nativeEvent.layout.height)}
+        style={{ transform: [{ translateY: subida }] }}
+      >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         /* O raio vem junto: a faixa branca começa na mesma altura da
