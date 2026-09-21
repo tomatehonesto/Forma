@@ -978,8 +978,8 @@ export default function Cadastro() {
 
   const futuro = r.emTratamento === false;
   const med = r.med ? MEDS[r.med] : null;
-  const ativ = ATIVIDADES.find((x) => x.id === r.atividade) ?? null;
-  const motivo = MOTIVOS.find((x) => x.id === r.motivacao) ?? null;
+  const ativ = ATIVIDADES().find((x) => x.id === r.atividade) ?? null;
+  const motivo = MOTIVOS().find((x) => x.id === r.motivacao) ?? null;
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
   const inicio = +new Date(r.iAno, r.iMes, r.iDia);
@@ -1018,7 +1018,7 @@ export default function Cadastro() {
   const [outroAberto, setOutroAberto] = useState(false);
   const outroIntervalo = outroAberto
     || (r.intervalo != null && !PRONTOS.includes(r.intervalo));
-  const nivel = Math.max(0, ATIVIDADES.findIndex((x) => x.id === r.atividade));
+  const nivel = Math.max(0, ATIVIDADES().findIndex((x) => x.id === r.atividade));
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
      quem ainda vai começar não responde QUANDO começou. */
@@ -2139,7 +2139,7 @@ export default function Cadastro() {
 
         {id === 'motivacao' ? (
           <View style={{ gap: 10 }}>
-            {MOTIVOS.map((x) => (
+            {MOTIVOS().map((x) => (
               <Escolha
                 key={x.id} cheia ic={x.ic} titulo={x.titulo} sub={x.sub}
                 on={r.motivacao === x.id}
@@ -2180,7 +2180,7 @@ export default function Cadastro() {
 
         {id === 'atividade' ? (
           <View style={{ gap: 10 }}>
-            {ATIVIDADES.map((x) => (
+            {ATIVIDADES().map((x) => (
               <Escolha
                 key={x.id} cheia titulo={x.titulo} sub={x.sub}
                 on={r.atividade === x.id}

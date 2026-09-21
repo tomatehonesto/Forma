@@ -5,6 +5,7 @@ import { equilibrio as equilibrioPt } from './pt-BR/equilibrio';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
+import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
@@ -59,13 +60,14 @@ export type Textos = {
   etapa: typeof etapaPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
+  tratamento: typeof tratamentoPt;
 };
 
 const CATALOGOS: Record<Idioma, Textos> = {
   'pt-BR': {
     ciclo: cicloPt, cruzamentos: cruzamentosPt, cuidado: cuidadoPt,
     equilibrio: equilibrioPt, etapa: etapaPt,
-    marcadores: marcadoresPt, metas: metasPt,
+    marcadores: marcadoresPt, metas: metasPt, tratamento: tratamentoPt,
   },
 };
 

@@ -44,6 +44,11 @@ import {
   ALVOS, INDICADORES, METAS_PESSOAIS, META_LIVRE, PRAZOS, padraoDe,
   carePending, careState, doseContext, lastMessage, nextConsult,
   contatosDaClinica, fichaDaEquipe, fichaDaClinica,
+  doseDoPerfil, cadenciaTexto, cadenciaCurta, milestones, semanasDaGrade, MOTIVOS, ATIVIDADES,
+  FAIXAS_IMC, planoDoPerfil, companionMemoria, libraryPicks, dailyTargets,
+  protein7d, TL_LABEL, timelineEvents, timelineWeeks, journeyChanges,
+  metaDePeso, listaPt, protocoloDaSemana, semanaDoHistorico, diaDoTratamento,
+  journeySummary, preparoDaConsulta,
 } from '../src/logic/derive';
 import { mensagemDoDia, emPlato } from '../src/logic/etapa';
 import { descobertas, descobertaDaHome } from '../src/logic/descobertas';
@@ -373,6 +378,70 @@ for (const [nome, ajusta] of CENARIOS) {
   c.equipeSemEspecialidade = tenta('fichaDaEquipe(sem especialidade)', () =>
     fichaDaEquipe({ ...S, profile: { ...S.profile, doctorInfo: {} } } as any));
 
+  /* ============================================================
+     O RESTO DO derive.ts — as seções menores, todas de uma vez
+
+     ⚠️ NENHUMA DELAS ESTAVA NA REDE. São dezesseis seções e duzentos e
+     sessenta pedaços de frase: o protocolo da semana, as semanas
+     anteriores, o preparo da consulta, o plano que sai do cadastro, a
+     Home inteira, a biblioteca, os marcos, o resumo da coleta. Cortar
+     tudo isso sem congelar antes seria repetir, de uma vez só, o erro que
+     este arquivo existe para impedir.
+     ============================================================ */
+  c.doseDoPerfil = tenta('doseDoPerfil', () => doseDoPerfil(S));
+  c.cadenciaTexto = tenta('cadenciaTexto', () => cadenciaTexto(S));
+  c.cadenciaCurta = tenta('cadenciaCurta', () => cadenciaCurta(S));
+  c.milestones = tenta('milestones', () => milestones(S));
+  c.semanasDaGrade = tenta('semanasDaGrade', () => semanasDaGrade(S));
+  c.motivos = tenta("MOTIVOS", () => MOTIVOS());
+  c.atividades = tenta("ATIVIDADES", () => ATIVIDADES());
+  c.faixasDeIMC = tenta("FAIXAS_IMC", () => FAIXAS_IMC());
+  c.planoDoPerfil = tenta('planoDoPerfil', () => planoDoPerfil(S));
+  c.companionMemoria = tenta('companionMemoria', () => companionMemoria(S));
+  c.libraryPicks = tenta('libraryPicks', () => libraryPicks(S));
+  c.dailyTargets = tenta('dailyTargets', () => dailyTargets(S));
+  c.protein7d = tenta('protein7d', () => protein7d(S));
+  c.tlLabel = TL_LABEL;
+  c.timelineEvents = tenta('timelineEvents', () => timelineEvents(S));
+  c.timelineWeeks = tenta('timelineWeeks', () => timelineWeeks(S));
+  c.journeyChanges = tenta('journeyChanges', () => journeyChanges(S));
+  c.metaDePeso = tenta('metaDePeso', () => metaDePeso(S));
+  c.protocoloDaSemana = tenta('protocoloDaSemana', () => protocoloDaSemana(S));
+  c.semanaDoHistorico = tenta('semanaDoHistorico', () => semanaDoHistorico(S, hoje));
+  c.diaDoTratamento = tenta('diaDoTratamento', () => diaDoTratamento(S));
+  c.journeySummary = tenta('journeySummary', () => journeySummary(S));
+  c.preparoDaConsulta = tenta('preparoDaConsulta', () => preparoDaConsulta(S));
+
+  /* `listaPt` escreve "a, b e mais 2" — um, dois, três e quatro itens dão
+     quatro frases diferentes. */
+  c.listaPt = [1, 2, 3, 4, 5].map((n) =>
+    [n, tenta('listaPt', () => listaPt(['um', 'dois', 'três', 'quatro', 'cinco'].slice(0, n)))]);
+
+  /* ⚠️ VARIAÇÕES QUE A SEMENTE NÃO TEM. O plano de partida e o dia do
+     tratamento mudam de frase antes da primeira dose, e a semente já
+     aplicou dez vezes. */
+  const antesDeComecar = (V: any) => {
+    V.injections = [];
+    V.profile = { ...S.profile, startT: hoje + 3 * DIA };
+  };
+  c.antesDeComecar = tenta('antes de começar', () => {
+    const V: any = { ...S }; antesDeComecar(V);
+    return {
+      dia: diaDoTratamento(V), plano: planoDoPerfil(V),
+      memoria: companionMemoria(V), preparo: preparoDaConsulta(V),
+      doseDoPerfil: doseDoPerfil(V), cadencia: cadenciaTexto(V),
+    };
+  });
+  c.semDose = tenta('sem dose', () => {
+    const V: any = { ...S, profile: { ...S.profile, dose: 0 } };
+    return { doseDoPerfil: doseDoPerfil(V), memoria: companionMemoria(V) };
+  });
+  /* Cadência diária e a de "a cada N dias": a semente é semanal. */
+  c.cadencias = tenta('cadências', () => [1, 7, 14].map((dias) => {
+    const V: any = { ...S, profile: { ...S.profile, intervalo: dias } };
+    return [dias, cadenciaTexto(V), cadenciaCurta(V)];
+  }));
+
   c.examSummary = tenta('examSummary', () => examSummary(S));
   c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));
 
@@ -393,6 +462,19 @@ for (const [nome, ajusta] of CENARIOS) {
    Data FORMATADA continua entrando, porque aí ela é texto — e texto é o
    que este arquivo existe para vigiar. */
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+/* ⚠️ RELÓGIO TAMBÉM VIAJA DENTRO DE STRING, e o corte por grandeza não
+   pegava. As chaves de lista são `peso-1790010721378` — época em
+   milissegundos colada num prefixo —, e duas execuções separadas por duas
+   horas produziam trezentas linhas de diff que escondiam a única que
+   importava.
+
+   ⚠️ E O CORTE É PELA FORMA DA CHAVE, E NÃO POR "TREZE DÍGITOS". A
+   primeira versão contava treze dígitos seguidos e apagou um TELEFONE:
+   número com DDI tem exatamente treze. Prefixo de letra e hífen é o que
+   distingue a chave de qualquer outro número dentro de uma string. */
+const EPOCA = /([a-z]-)\d{13}\b/g;
+
 const semTempo = (_k: string, v: unknown) => {
   if (typeof v === 'number' && Math.abs(v) > 1e12) return '<tempo>';
   /* Data em ISO carrega hora e milissegundo, e sai pelo mesmo motivo: um
@@ -400,6 +482,9 @@ const semTempo = (_k: string, v: unknown) => {
      alguém ler. Data em PROSA — "segunda, 21 de setembro" — não casa
      aqui, e continua sendo vigiada. */
   if (typeof v === 'string' && ISO.test(v)) return '<tempo>';
+  /* Sempre replace, nunca test: um regex com /g guarda o `lastIndex` entre
+     chamadas, e `test` alternaria entre achar e não achar a mesma string. */
+  if (typeof v === 'string') return v.replace(EPOCA, '$1<tempo>');
   return v;
 };
 

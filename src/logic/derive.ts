@@ -194,7 +194,7 @@ export const medComDose = (S: State) =>
 
 /** A dose do perfil escrita para gente, ou a ausência dela. */
 export function doseDoPerfil(S: State): string {
-  if (!temDose(S)) return 'ainda não definida';
+  if (!temDose(S)) return T.tratamento.doseIndefinida;
   return `${doseTxt((S.profile as any).dose)} ${M(S).unit}`;
 }
 
@@ -270,16 +270,18 @@ export const idadeDe = (S: State) => {
    essa largura. */
 export const cadenciaTexto = (S: State) => {
   const d = cadenciaDias(S);
-  if (d === 7) return 'uma vez por semana';
-  if (d === 1) return 'uso diário';
-  return `a cada ${d} dias`;
+  const t = T.tratamento;
+  if (d === 7) return t.cadenciaSemanal;
+  if (d === 1) return t.cadenciaDiaria;
+  return t.cadenciaOutra(d);
 };
 
 export const cadenciaCurta = (S: State) => {
   const d = cadenciaDias(S);
-  if (d === 7) return '1× por semana';
-  if (d === 1) return 'diária';
-  return `a cada ${d} dias`;
+  const t = T.tratamento;
+  if (d === 7) return t.cadenciaSemanalCurta;
+  if (d === 1) return t.cadenciaDiariaCurta;
+  return t.cadenciaOutraCurta(d);
 };
 
 export function nextInjectionDate(S: State) {
@@ -678,24 +680,28 @@ export const temConsulta = (S: State) => ((S as any).consult?.t ?? 0) > 0;
 export type Milestone = { t: number; ic: string; title: string; sub: string; to: string };
 export function milestones(S: State): Milestone[] {
   const out: Milestone[] = [];
-  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${pesoTxt(S, S.profile.startWeight)}`, to: '/historico' });
+  const K = T.tratamento.marcos;
+  out.push({ t: S.profile.startT, ic: 'leaf', title: K.inicio, sub: `${MEDS[S.profile.med].label} · ${pesoTxt(S, S.profile.startWeight)}`, to: '/historico' });
   let prev: number | null = null;
   for (const inj of S.injections as any[]) {
-    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: `Dose ajustada para ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} mg`, sub: 'Titulação conforme orientação médica', to: '/aplicacoes' });
+    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: K.doseAjustada(nf(inj.dose, inj.dose % 1 ? 1 : 0)), sub: K.titulacao, to: '/aplicacoes' });
     prev = inj.dose;
   }
   const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
-  if (w5) out.push({ t: w5.t, ic: 'trend', title: '5% do peso inicial', sub: 'Marca clínica, com benefícios além da balança', to: '/marcador?m=peso' });
-  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note, to: '/consultas' }));
-  S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: `${b.n} marcadores importados`, to: '/exames' }));
+  if (w5) out.push({ t: w5.t, ic: 'trend', title: K.cincoPorCento, sub: K.cincoPorCentoSub, to: '/marcador?m=peso' });
+  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: K.consulta(ch.type.toLowerCase()), sub: ch.note, to: '/consultas' }));
+  S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: K.marcadoresImportados(b.n), to: '/exames' }));
   marcosDeConquista(S).forEach((a) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc, to: `/trilha?id=${a.trilha}` }));
   out.sort((a, b) => b.t - a.t);
   return out;
 }
 
 /* Aplicações — locais, rotação e calendário de constância (porta verbatim). */
-export const SITE_LABEL: Record<string, string> = { 'abd-e': 'Abdômen (esq.)', 'abd-d': 'Abdômen (dir.)', 'coxa-e': 'Coxa (esq.)', 'coxa-d': 'Coxa (dir.)', 'braco-e': 'Braço (esq.)', 'braco-d': 'Braço (dir.)' };
-export const siteLabel = (s: string) => SITE_LABEL[s] || s;
+/* ⚠️ A CHAVE É DADO: 'abd-e' é o que fica gravado em cada aplicação. Só o
+   rótulo vem do catálogo, e é por isso que `siteLabel` devolve a própria
+   chave quando não conhece o local — registro antigo não some da tela. */
+export const SITE_LABEL = (): Record<string, string> => T.tratamento.locais;
+export const siteLabel = (s: string) => SITE_LABEL()[s] || s;
 /* ============================================================
    O RODÍZIO DOS LOCAIS
 
@@ -727,11 +733,15 @@ export function rodizioDeLocais(S: State): LocalDoRodizio[] {
     const t = +startOfDay(new Date(i.t));
     if (!ultimaDe.has(i.site) || t > (ultimaDe.get(i.site) as number)) ultimaDe.set(i.site, t);
   }
-  return Object.keys(SITE_LABEL).map((id) => {
+  /* ⚠️ ERA `Object.keys(SITE_LABEL)`, E A TABELA VIROU FUNÇÃO. Chaves de
+     uma função são zero, então a lista inteira de locais virou vazia — sem
+     erro de tipo e sem erro em tempo de execução: a tela do rodízio
+     simplesmente não desenhava nada. Quem pegou foi o congelamento. */
+  return Object.keys(SITE_LABEL()).map((id) => {
     const ultima = ultimaDe.get(id) ?? null;
     return {
       id,
-      label: SITE_LABEL[id],
+      label: SITE_LABEL()[id],
       ultima,
       semanas: ultima == null ? null : Math.floor((hoje - ultima) / (7 * DAY)),
       proximo: id === prox,
@@ -1879,16 +1889,26 @@ export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
    a escura resolvem o mesmo nome em vermelhos diferentes.
    ============================================================ */
 export type FaixaIMC = { de: number; ate: number; nome: string; tom: string };
-export const FAIXAS_IMC: FaixaIMC[] = [
-  { de: 15, ate: 18.5, nome: 'Abaixo do peso', tom: 'blue' },
-  { de: 18.5, ate: 25, nome: 'Peso normal', tom: 'ok' },
-  { de: 25, ate: 30, nome: 'Sobrepeso', tom: 'amber' },
-  { de: 30, ate: 35, nome: 'Obesidade grau I', tom: 'cta2' },
-  { de: 35, ate: 40, nome: 'Obesidade grau II', tom: 'cta' },
-  { de: 40, ate: 45, nome: 'Obesidade grau III', tom: 'cta' },
+export const FAIXAS_IMC = (): FaixaIMC[] => [
+  { de: 15, ate: 18.5, nome: T.tratamento.imc.abaixo, tom: 'blue' },
+  { de: 18.5, ate: 25, nome: T.tratamento.imc.normal, tom: 'ok' },
+  { de: 25, ate: 30, nome: T.tratamento.imc.sobrepeso, tom: 'amber' },
+  { de: 30, ate: 35, nome: T.tratamento.imc.grau1, tom: 'cta2' },
+  { de: 35, ate: 40, nome: T.tratamento.imc.grau2, tom: 'cta' },
+  { de: 40, ate: 45, nome: T.tratamento.imc.grau3, tom: 'cta' },
 ];
-export const faixaDoIMC = (v: number) =>
-  FAIXAS_IMC.find((x) => v < x.ate) ?? FAIXAS_IMC[FAIXAS_IMC.length - 1];
+export const faixaDoIMC = (v: number) => {
+  const f = FAIXAS_IMC();
+  return f.find((x) => v < x.ate) ?? f[f.length - 1];
+};
+/* O ÍNDICE DA FAIXA, para quem desenha a régua. Era `FAIXAS_IMC.indexOf()`
+   sobre o objeto devolvido por `faixaDoIMC` — comparação por identidade, que
+   deixou de valer quando a tabela virou função. */
+export const indiceDoIMC = (v: number) => {
+  const f = FAIXAS_IMC();
+  const i = f.findIndex((x) => v < x.ate);
+  return i === -1 ? f.length - 1 : i;
+};
 
 /* ============================================================
    O PLANO DE PARTIDA — o que o app deriva do cadastro
@@ -1947,13 +1967,16 @@ export type PlanoInicial = {
    cadastro, mas quem lê o código guardado é o perfil. Duas cópias da
    mesma lista divergem no dia em que alguém acrescentar uma opção numa
    delas. */
-export const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] = [
-  { id: 'saude', titulo: 'Saúde', sub: 'Exames, pressão, glicemia', ic: 'heart' },
-  { id: 'energia', titulo: 'Energia', sub: 'Disposição no dia', ic: 'bolt' },
-  { id: 'espelho', titulo: 'Como me vejo', sub: 'No espelho e nas fotos', ic: 'camera' },
-  { id: 'confianca', titulo: 'Confiança', sub: 'Me sentir bem comigo', ic: 'spark' },
-  { id: 'medico', titulo: 'Orientação médica', sub: 'Foi indicação de quem me acompanha', ic: 'steth' },
-];
+export const MOTIVOS = (): { id: string; titulo: string; sub: string; ic: string }[] => {
+  const m = T.tratamento.motivos;
+  return [
+    { id: 'saude', titulo: m.saude, sub: m.saudeSub, ic: 'heart' },
+    { id: 'energia', titulo: m.energia, sub: m.energiaSub, ic: 'bolt' },
+    { id: 'espelho', titulo: m.espelho, sub: m.espelhoSub, ic: 'camera' },
+    { id: 'confianca', titulo: m.confianca, sub: m.confiancaSub, ic: 'spark' },
+    { id: 'medico', titulo: m.medico, sub: m.medicoSub, ic: 'steth' },
+  ];
+};
 
 /* OS QUATRO DEGRAUS DE ATIVIDADE, com o que cada um quer dizer em dias
    por semana — sem isso "levemente ativo" é autoavaliação, e cada pessoa
@@ -1963,12 +1986,15 @@ export const MOTIVOS: { id: string; titulo: string; sub: string; ic: string }[] 
    conta de energia logo abaixo: a lista e o multiplicador são a mesma
    informação em duas formas, e separá-los é como um ganha um degrau que o
    outro não tem. */
-export const ATIVIDADES: { id: string; titulo: string; sub: string }[] = [
-  { id: 'sedentario', titulo: 'Sedentário', sub: 'Pouco ou nenhum exercício' },
-  { id: 'leve', titulo: 'Levemente ativo', sub: '1 a 3 dias por semana' },
-  { id: 'moderado', titulo: 'Moderadamente ativo', sub: '3 a 5 dias por semana' },
-  { id: 'muito', titulo: 'Muito ativo', sub: '6 a 7 dias por semana' },
-];
+export const ATIVIDADES = (): { id: string; titulo: string; sub: string }[] => {
+  const a = T.tratamento.atividades;
+  return [
+    { id: 'sedentario', titulo: a.sedentario, sub: a.sedentarioSub },
+    { id: 'leve', titulo: a.leve, sub: a.leveSub },
+    { id: 'moderado', titulo: a.moderado, sub: a.moderadoSub },
+    { id: 'muito', titulo: a.muito, sub: a.muitoSub },
+  ];
+};
 
 /* Os multiplicadores clássicos de nível de atividade sobre o gasto de
    repouso, na ordem de ATIVIDADES. */
@@ -2126,7 +2152,7 @@ export function planoDoCadastro(d: {
    ============================================================ */
 export function planoDoPerfil(S: State): PlanoInicial {
   const p: any = S.profile;
-  const nivel = Math.max(0, ATIVIDADES.findIndex((x) => x.id === p.atividade));
+  const nivel = Math.max(0, ATIVIDADES().findIndex((x) => x.id === p.atividade));
   return planoDoCadastro({
     altura: p.height,
     peso: curWeight(S),
@@ -4643,10 +4669,10 @@ export function penStock(S: State) {
   const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
   const semanas = p.dosesLeft * (cadenciaDias(S) / 7);
   const verdict: Verdict = p.dosesLeft <= 1
-    ? { label: 'Renove agora', good: false }
+    ? { label: T.tratamento.estoqueUrgente, good: false }
     : p.dosesLeft <= 3
-      ? { label: 'Vale renovar a receita', good: false }
-      : { label: 'Estoque em dia', good: true };
+      ? { label: T.tratamento.estoqueRenovar, good: false }
+      : { label: T.tratamento.estoqueEmDia, good: true };
   return { left: p.dosesLeft, total: p.dosesPerPen, semanas, verdict };
 }
 
@@ -4670,13 +4696,13 @@ export function diaDoTratamento(S: State) {
      dizendo "Dia 1 do tratamento" para quem nunca aplicou nada.
 
      O tratamento começa na primeira dose, e é ela que passa a contar. */
-  if (!S.injections.length) return { antes: true, texto: 'Antes da primeira dose' };
+  if (!S.injections.length) return { antes: true, texto: T.tratamento.antesDaPrimeiraDose };
   const d = diffDays(now(), new Date(S.profile.startT));
-  if (d < 0) return { antes: true, texto: d === -1 ? 'Começa amanhã' : `Começa em ${-d} dias` };
+  if (d < 0) return { antes: true, texto: d === -1 ? T.tratamento.comecaAmanha : T.tratamento.comecaEm(-d) };
   /* "Dia 71", e não "Dia 71 do tratamento". A linha onde isto aparece já
      termina em "Semana 10", e as duas juntas só podem estar contando a
      mesma coisa — dizer de qual tratamento era a palavra que sobrava. */
-  return { antes: false, texto: `Dia ${d + 1}` };
+  return { antes: false, texto: T.tratamento.diaDoTratamento(d + 1) };
 }
 
 export function journeySummary(S: State) {
@@ -4694,16 +4720,16 @@ export function journeySummary(S: State) {
      "Acima do início" é o fato, sem adjetivo: a etiqueta abre /ritmo, e é
      lá que se explica o que ela mede e o que não mede. */
   const verdict: Verdict = lost < 0
-    ? { label: 'Acima do início', good: false, tom: 'ruim' }
+    ? { label: T.tratamento.ritmoAcimaDoInicio, good: false, tom: 'ruim' }
     : ritmo >= 0.5 && ritmo <= 1.5
-      ? { label: 'Em ritmo saudável', good: true, tom: 'bom' }
+      ? { label: T.tratamento.ritmoSaudavel, good: true, tom: 'bom' }
       /* ⚠️ ACELERADO NÃO É RUIM, E ERA PINTADO COMO RUIM. Perder mais de
          1,5 kg por semana é motivo para conversar com a equipe — massa
          magra, hidratação —, e não um erro que a pessoa cometeu. Vermelho
          cobra; âmbar chama. */
       : ritmo > 1.5
-        ? { label: 'Ritmo acelerado', good: false, tom: 'atencao' }
-        : { label: 'Ritmo mais lento', good: true, tom: 'bom' };
+        ? { label: T.tratamento.ritmoAcelerado, good: false, tom: 'atencao' }
+        : { label: T.tratamento.ritmoLento, good: true, tom: 'bom' };
   return {
     dia: journeyDay(S), semana: S.protocol.week,
     /* O rótulo já vem com o sinal: quem consome só imprime. Antes ele era

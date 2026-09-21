@@ -6,7 +6,7 @@ import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import type { Sistema } from '../logic/medidas';
 import {
-  FAIXAS_IMC, curWeight, faixaDoIMC, litros, planoDoPerfil,
+  FAIXAS_IMC, curWeight, faixaDoIMC, indiceDoIMC, litros, planoDoPerfil,
 } from '../logic/derive';
 import type { PlanoInicial } from '../logic/derive';
 import { FONTES } from '../logic/fontes';
@@ -226,8 +226,8 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const CORES_IMC = ['#5B9CFF', '#2FBF71', '#F0A23C', '#EE7B3C', '#E05038', '#C22E2E'];
   const fxHoje = faixaDoIMC(plano.imc);
   const fxMeta = faixaDoIMC(plano.imcMeta);
-  const iHoje = FAIXAS_IMC.indexOf(fxHoje);
-  const iMeta = FAIXAS_IMC.indexOf(fxMeta);
+  const iHoje = indiceDoIMC(plano.imc);
+  const iMeta = indiceDoIMC(plano.imcMeta);
   /* Um selo por instituição, e não por trabalho: a Academy of Nutrition
      and Dietetics sustenta dois números, e o nome dela duas vezes lado a
      lado parece erro de montagem. O toque abre o primeiro trabalho dela. */
@@ -549,7 +549,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                   régua mostra a escala inteira. */}
               <View>
                 <Row style={{ gap: 3 }}>
-                  {FAIXAS_IMC.map((fx, i) => (
+                  {FAIXAS_IMC().map((fx, i) => (
                     <View key={fx.nome} style={{
                       flex: fx.ate - fx.de, height: 10, borderRadius: 5,
                       backgroundColor: CORES_IMC[i],
