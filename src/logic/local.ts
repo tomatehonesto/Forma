@@ -36,6 +36,83 @@ export type Local = 'pt-BR' | 'en-US';
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
 
+/* ============================================================
+   OS IDIOMAS QUE EXISTEM, E O QUE O PAÍS TEM A VER COM ISSO
+
+   ⚠️⚠️ SÓ SE OFERECE O QUE SE ENTREGA. Esta lista é a dos locais que têm
+   CATÁLOGO, e ela não pode ser maior que o tipo `Local` — que, por sua
+   vez, obriga src/textos a ter um catálogo para cada um, porque lá o
+   registro é `Record<Local, Textos>` e o `tsc` cobra.
+
+   Isso é de propósito e é a trava principal deste arquivo: acrescentar um
+   idioma à lista SEM escrever o catálogo dele não compila. Sem essa
+   trava, a tela ofereceria "Deutsch" e entregaria português — que é a
+   porta emparedada mais cara do aplicativo, porque quem a abre não tem
+   como voltar: ele não sabe ler o que está na tela para achar o caminho
+   de volta.
+   ============================================================ */
+export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US'];
+
+/* ⚠️ CADA UM SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
+   aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
+   português; quem abriu a tela por estar perdido procura a palavra que
+   reconhece. */
+export const NOME_DO_LOCAL: Record<Local, string> = {
+  'pt-BR': 'Português',
+  'en-US': 'English',
+};
+
+/* ============================================================
+   O IDIOMA PRINCIPAL DE CADA PAÍS
+
+   ⚠️⚠️ ISTO É DADO DE ORDENAÇÃO, E NÃO UMA AFIRMAÇÃO SOBRE NINGUÉM. Ele
+   responde a uma pergunta só: qual idioma põe em cima da lista para
+   alguém que está na Alemanha. Não responde "que idioma esta pessoa
+   fala" — país não determina língua, e muita gente vive onde não nasceu.
+   Por isso a lista inteira continua à vista, e a escolha é dela.
+
+   ⚠️ E ELE É MAIOR DO QUE `DISPONIVEIS` DE PROPÓSITO. Estão aqui países
+   cujo idioma o aplicativo ainda não fala, e isso não é promessa: quando
+   o idioma não existe, o mapa não tem efeito nenhum e a ordem cai no
+   padrão. O mapa já pronto é o que faz o próximo idioma custar só o
+   catálogo dele.
+
+   ⚠️ ONDE O PAÍS TEM MAIS DE UM IDIOMA, ESCOLHI O DE MAIS FALANTES — o
+   Canadá aparece como inglês, a Bélgica como neerlandês, a Suíça como
+   alemão. É ordenação, e quem discordar troca em dois toques. */
+const IDIOMA_DO_PAIS: Record<string, string> = {
+  /* português */
+  BR: 'pt', PT: 'pt', AO: 'pt', MZ: 'pt', CV: 'pt', GW: 'pt', ST: 'pt', TL: 'pt',
+  /* inglês */
+  US: 'en', GB: 'en', AU: 'en', CA: 'en', NZ: 'en', IE: 'en', ZA: 'en',
+  NG: 'en', KE: 'en', GH: 'en', PH: 'en', SG: 'en', MY: 'en', PK: 'en',
+  /* espanhol */
+  ES: 'es', MX: 'es', AR: 'es', CO: 'es', CL: 'es', PE: 'es', VE: 'es',
+  EC: 'es', GT: 'es', CU: 'es', BO: 'es', DO: 'es', HN: 'es', PY: 'es',
+  SV: 'es', NI: 'es', CR: 'es', PA: 'es', UY: 'es', PR: 'es',
+  /* alemão */
+  DE: 'de', AT: 'de', CH: 'de', LI: 'de',
+  /* francês */
+  FR: 'fr', BE: 'nl', LU: 'fr', MC: 'fr', SN: 'fr', CI: 'fr', CM: 'fr',
+  CD: 'fr', MA: 'ar', DZ: 'ar', TN: 'ar',
+  /* italiano */
+  IT: 'it', SM: 'it', VA: 'it',
+  /* neerlandês */
+  NL: 'nl', SR: 'nl',
+  /* nórdicos */
+  SE: 'sv', NO: 'no', DK: 'da', FI: 'fi', IS: 'is',
+  /* leste europeu */
+  PL: 'pl', CZ: 'cs', SK: 'sk', HU: 'hu', RO: 'ro', BG: 'bg', GR: 'el',
+  RU: 'ru', UA: 'uk', BY: 'ru', KZ: 'ru', RS: 'sr', HR: 'hr', SI: 'sl',
+  /* Ásia */
+  JP: 'ja', KR: 'ko', CN: 'zh', TW: 'zh', HK: 'zh', TH: 'th', VN: 'vi',
+  ID: 'id', IN: 'hi', BD: 'bn', LK: 'si', NP: 'ne', MM: 'my', KH: 'km',
+  /* Oriente Médio e árabe */
+  SA: 'ar', AE: 'ar', EG: 'ar', IQ: 'ar', JO: 'ar', KW: 'ar', QA: 'ar',
+  OM: 'ar', LB: 'ar', LY: 'ar', YE: 'ar', BH: 'ar', SY: 'ar',
+  IL: 'he', TR: 'tr', IR: 'fa',
+};
+
 /* ------------------------------------------------------------------ *
  * COMO CADA LOCAL ESCREVE
  * ------------------------------------------------------------------ */
@@ -136,6 +213,7 @@ const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN };
 
 let escolhido: Local | null = null;
 let doAparelho: Local | null = null;
+let paisDoAparelho: string | null = null;
 let relogio12: boolean | null = null;
 
 export const localAtual = (): Local => escolhido ?? doAparelho ?? PADRAO;
@@ -151,9 +229,32 @@ export const formato = (): Formato => FORMATOS[localAtual()];
     português, e está certo — quem escolheu foi ele, no sistema. */
 export const hora12 = () => relogio12 ?? formato().hora12;
 
-/** Trocar à mão. Ainda não há tela que chame isto: existe para a
-    tradução e para a rede de congelamento, que precisa escrever os dois
-    locais no mesmo teste. `null` devolve a escolha ao aparelho. */
+/** A lista para escolher, com o idioma do país da pessoa em cima.
+
+    ⚠️⚠️ A ORDEM É A ÚNICA COISA QUE O PAÍS DECIDE. Quem está na Alemanha
+    vê alemão primeiro quando ele existir; até lá, vê a lista inteira na
+    ordem padrão. Nada some, nada se escolhe sozinho — país não determina
+    língua, e o custo de errar essa suposição recai justamente sobre quem
+    já é minoria onde mora.
+
+    ⚠️ E O APARELHO TEM DUAS RESPOSTAS, não uma. O idioma do sistema é a
+    melhor pista — é o que a pessoa configurou —, e o país é a segunda.
+    Quando as duas discordam, ganha o idioma: quem pôs o telefone em
+    português morando na Alemanha respondeu à pergunta antes de ela ser
+    feita. */
+export function idiomasOrdenados(): Local[] {
+  const doIdioma = doAparelho;
+  const doPais = paisDoAparelho ? IDIOMA_DO_PAIS[paisDoAparelho] : null;
+
+  /* o primeiro candidato que exista como catálogo */
+  const primeiro = DISPONIVEIS.find((l) => l === doIdioma)
+    ?? (doPais ? DISPONIVEIS.find((l) => l.split('-')[0] === doPais) : undefined);
+
+  if (!primeiro) return DISPONIVEIS;
+  return [primeiro, ...DISPONIVEIS.filter((l) => l !== primeiro)];
+}
+
+/** Trocar à mão. `null` devolve a escolha ao aparelho. */
 export const trocarLocal = (l: Local | null) => { escolhido = l; };
 
 /* ⚠️⚠️ O MÓDULO DO APARELHO É CARREGADO TARDE, DENTRO DO try — e o
@@ -181,6 +282,7 @@ export function lerAparelho(): { local: Local; imperial: boolean } | null {
     /* Só existem dois catálogos possíveis. Quem fala outra língua cai no
        do mercado, que é o único texto que o build carrega. */
     doAparelho = l.languageCode === 'en' ? 'en-US' : l.languageCode === 'pt' ? 'pt-BR' : PADRAO;
+    paisDoAparelho = l.regionCode ?? null;
     if (cal && typeof cal.uses24hourClock === 'boolean') relogio12 = !cal.uses24hourClock;
 
     /* ⚠️ E O APARELHO TAMBÉM DIZ AS UNIDADES, que até aqui começavam

@@ -31,6 +31,8 @@ import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font, shadowCard, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
+import { NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local } from '../logic/local';
+import { T } from '../textos';
 
 /* ============================================================
    CADASTRO — as doze perguntas antes da primeira tela
@@ -70,7 +72,7 @@ import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, re
    tire: é o mesmo critério das outras.
    ============================================================ */
 
-type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
+type Id = 'idioma' | 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
   | 'forma' | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
   | 'restricao' | 'saude' | 'acompanhamento' | 'consentimento';
 
@@ -105,6 +107,17 @@ const TODOS: Id[] = [
      caneta de marca; com régua, quando é manipulado e a receita é quem
      define o número. Perguntar a dose antes da forma seria perguntar
      numa ordem que a própria tela não consegue montar. */
+  /* ⚠️⚠️ O IDIOMA É A PRIMEIRA PERGUNTA, e vem antes até do nome. Tudo o
+     que vier depois será lido na resposta dela: perguntar o nome primeiro,
+     em português, a quem lê em inglês é começar errando — e errando
+     justamente na pergunta que a pessoa não consegue corrigir sem achar um
+     menu que ela também não sabe ler.
+
+     ⚠️ E ELA JÁ CHEGA RESPONDIDA. O aparelho disse o idioma e o país no
+     arranque (ver logic/local), e a lista abre com a melhor aposta já
+     marcada. A pergunta existe para quem a aposta errou — e para quem
+     acertou ela custa um toque em "Continuar". */
+  'idioma',
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
   'saude', 'acompanhamento',
@@ -214,6 +227,9 @@ type Respostas = {
      As duas se cruzam quase sempre e não são a mesma, e uma responder
      pela outra quebra as duas no dia em que divergirem. */
   recomendado: boolean | null;
+  /* O idioma escolhido no primeiro passo. Ele já vem preenchido do que o
+     aparelho indicou — ver logic/local. */
+  idioma: Local;
   /* A chave da isenção. Ela não vem do perfil na edição: aceitar de novo
      não é o assunto de quem voltou para corrigir a altura. */
   aceite: boolean;
@@ -221,6 +237,10 @@ type Respostas = {
 };
 
 const VAZIO: Respostas = {
+  /* ⚠️ O IDIOMA NASCE COM O QUE O APARELHO INDICOU, e não vazio: a
+     pergunta existe para quem a aposta errou, e para quem ela acertou
+     custa um toque em "Continuar". Ver logic/local. */
+  idioma: localAtual(),
   nome: '', identidade: null,
   /* Data, altura, peso e meta nascem com um número porque os controles
      deles são roda e régua: os dois precisam de uma posição de partida
@@ -1107,6 +1127,9 @@ export default function Cadastro() {
      trava: ele é o que prova que o profissional é mesmo o responsável —
      sem ele, "vim por indicação" é afirmação sem lastro. */
   const respondida = (x: Id): boolean => {
+    /* O idioma nunca fica sem resposta: ou é o que a pessoa escolheu
+       agora, ou é o que o aparelho indicou. */
+    if (x === 'idioma') return true;
     if (x === 'nome') return r.nome.trim().length > 1;
     /* ⚠️ A IDADE MÍNIMA PASSA A SER UMA TRANCA, e não um aviso.
 
@@ -1166,6 +1189,9 @@ export default function Cadastro() {
          estado vazio apagaria o tratamento de quem só queria corrigir a
          altura. */
       if (!editando) Object.assign(s, estadoVazio());
+      /* ⚠️ O IDIOMA É GRAVADO NO PERFIL, e não só no valor de módulo: o
+         módulo não sobrevive a fechar o aplicativo. Ver logic/local. */
+      s.profile.idioma = r.idioma;
       s.profile.name = r.nome.trim();
       s.profile.identidade = r.identidade;
       s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
@@ -1387,6 +1413,7 @@ export default function Cadastro() {
   /* ---------- as perguntas ---------- */
   const id = passos[n];
   const titulos: Record<Id, string> = {
+    idioma: T.idioma.pergunta,
     nome: 'Como podemos te chamar?',
     identidade: 'Como você se identifica?',
     nascimento: 'Quando você nasceu?',
@@ -1413,6 +1440,7 @@ export default function Cadastro() {
     consentimento: 'Informações importantes',
   };
   const subs: Record<Id, string> = {
+    idioma: T.idioma.sub,
     nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
     /* A JUSTIFICATIVA DE POR QUE PERGUNTAMOS.
 
@@ -1602,6 +1630,30 @@ export default function Cadastro() {
         {/* O NOME SE ESCREVE NA TELA, e não dentro de uma caixa. A caixa de
             formulário existe para separar um campo dos outros campos, e
             aqui não há outros — a tela inteira é essa resposta. */}
+        {id === 'idioma' ? (
+          /* ⚠️ A LISTA VEM DE logic/local, e não daqui: só entra idioma
+             que tem catálogo, e a ordem põe em cima o do país de quem
+             está lendo. A folha do perfil faz a mesma pergunta e usa a
+             mesma resposta.
+
+             ⚠️ E CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA. É o que salva a
+             tela para quem não entendeu a pergunta. */
+          <View style={{ gap: 8 }}>
+            {idiomasOrdenados().map((l) => (
+              <Opc
+                key={l}
+                cheia
+                label={NOME_DO_LOCAL[l]}
+                on={localAtual() === l}
+                onPress={() => {
+                  trocarLocal(l);
+                  p({ idioma: l });
+                }}
+              />
+            ))}
+          </View>
+        ) : null}
+
         {id === 'nome' ? (
           <TextInput
             value={r.nome}

@@ -28,6 +28,7 @@ import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { localAtual } from '../logic/local';
+import { T } from '../textos';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
 
@@ -695,7 +696,7 @@ export default function Perfil() {
         {/* ⚠️ O IDIOMA VEM ANTES DAS UNIDADES porque é ele que decide as
             duas coisas: trocar para English troca a palavra E a vírgula
             decimal. Ver logic/local. */}
-        <ListRow ic="site" title="Idioma"
+        <ListRow ic="site" title={T.idioma.linhaDoPerfil}
           sub={localAtual() === 'en-US' ? 'English · United States' : 'Português · Brasil'}
           onPress={go('/idioma')} />
         <ListRow ic="ruler" title="Unidades de medida"

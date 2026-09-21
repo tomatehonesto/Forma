@@ -1004,3 +1004,53 @@ depois e comparar o texto renderizado. É mais lento e é o que existe.
   instante. Consertado com desempate por título.
 - **O momento da refeição é chave e rótulo ao mesmo tempo** — "Almoço" é
   o que fica gravado. Mesma família do item 17.
+
+## 🔴 20. O mundo cabe no mecanismo; só dois idiomas cabem na lista
+
+A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo
+está inteiro:
+
+- o aparelho é lido no arranque e entrega **idioma e país**;
+- `IDIOMA_DO_PAIS`, em `logic/local.ts`, cobre cerca de **cem países** —
+  Alemanha para alemão, Japão para japonês, Arábia Saudita para árabe;
+- `idiomasOrdenados()` põe em cima o idioma do país de quem está lendo,
+  com o idioma do SISTEMA ganhando do país quando os dois discordam;
+- a resposta já chega marcada, e para quem a aposta acertou o passo custa
+  um toque em "Continuar".
+
+**E a lista mostra dois idiomas: português e inglês.** É o que existe de
+catálogo, e a lista não pode ser maior que isso — `DISPONIVEIS` é do tipo
+`Local`, e `src/textos` declara `Record<Local, Textos>`: acrescentar um
+idioma sem escrever o catálogo dele **não compila**.
+
+Essa trava é de propósito. Oferecer "Deutsch" e entregar português é a
+porta emparedada mais cara do aplicativo, porque quem a abre não consegue
+voltar — não sabe ler a tela para achar o caminho.
+
+### O que falta para cada idioma novo
+
+Por idioma, dois trabalhos, nesta ordem:
+
+1. **Terminar a peça 2** (item 19). Enquanto 1.444 frases estiverem em
+   código, todo idioma novo nasce com essas 1.444 em português. Fazer a
+   tradução antes é traduzir duas vezes.
+2. **Escrever `src/textos/<local>/`** — hoje quinze arquivos, e o `tsc`
+   cobra a assinatura inteira. É o mesmo trabalho que o inglês custou.
+
+Depois disso, o idioma entra em `Local` e em `DISPONIVEIS`, e o mapa de
+países já pronto o põe em cima para quem estiver naquele país.
+
+### A ordem sugerida, se for por alcance
+
+Espanhol (mais de vinte países no mapa), depois alemão, francês,
+italiano, japonês. Árabe e hebraico pedem um trabalho a mais que os
+outros não pedem: o aplicativo inteiro desenha da esquerda para a
+direita, e `expo-localization` devolve `textDirection` justamente para
+isso — nada no código lê esse campo hoje.
+
+### E a revisão clínica se repete
+
+Cada idioma novo repete o que o inglês já deve: o `marcadores.ts` é o
+maior bloco de texto clínico do aplicativo, e a redação dele para um
+mercado precisa passar por alguém habilitado naquele mercado. Não é
+tradução de interface.

@@ -4,7 +4,10 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Opc } from '../ui/internas';
-import { localAtual, trocarLocal, type Local } from '../logic/local';
+import { T } from '../textos';
+import {
+  NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local,
+} from '../logic/local';
 
 /* ============================================================
    O IDIOMA
@@ -14,27 +17,20 @@ import { localAtual, trocarLocal, type Local } from '../logic/local';
    frases em português seria porta emparedada — e a régua da casa é que
    uma linha com seta e sem destino é pior do que nenhuma linha.
 
-   ⚠️ CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA, e não no idioma em uso.
-   "Inglês" só ajuda quem já lê português; quem abriu esta tela por estar
-   perdido num idioma que não é o seu procura a palavra que reconhece.
-   É por isso que a lista não passa pelo catálogo: ela é a única do
-   aplicativo que não deve ser traduzida.
+   ⚠️ A LISTA É `idiomasOrdenados`, e não uma lista escrita aqui. Ela vem
+   de logic/local com duas garantias: só entra idioma que tem catálogo, e
+   a ordem põe em cima o do país de quem está lendo. As duas coisas moram
+   lá porque o cadastro faz a mesma pergunta e precisa da mesma resposta.
 
-   ⚠️ E O NÚMERO MUDA JUNTO COM A PALAVRA. Trocar para English troca
-   também a vírgula decimal pelo ponto, o desenho da data e o relógio —
-   são o mesmo valor, e o motivo está no alto de logic/local. O aviso
-   embaixo diz isso, porque é a parte que surpreende.
+   ⚠️ E CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA — é a única lista do
+   aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
+   português; quem abriu esta tela por estar perdido num idioma que não é
+   o seu procura a palavra que reconhece.
 
    ⚠️ NADA SE CONVERTE NO ESTADO, como na folha de unidades: o que está
    gravado continua gravado, e só a forma de escrever muda. Por isso a
    tela não pede confirmação — não há o que dar errado.
    ============================================================ */
-
-/* ⚠️ A LISTA NÃO PASSA PELO CATÁLOGO. Ver o alto desta tela. */
-const OPCOES: [Local, string, string][] = [
-  ['pt-BR', 'Português', 'Brasil · 82,4 kg · 21 de setembro'],
-  ['en-US', 'English', 'United States · 181.7 lb · September 21'],
-];
 
 export default function Idioma() {
   const update = useStore((s) => s.update);
@@ -50,19 +46,18 @@ export default function Idioma() {
 
   return (
     <SheetScreen
-      titulo="Idioma · Language"
-      sub="Muda o texto, os números e as datas."
+      titulo={T.idioma.titulo}
+      sub={T.idioma.tituloSub}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo rotulo="Como você lê o aplicativo" nu>
+        <Campo rotulo={T.idioma.rotulo} nu>
           <View style={{ gap: 8 }}>
-            {OPCOES.map(([id, nome, exemplo]) => (
+            {idiomasOrdenados().map((id) => (
               <Opc
                 key={id}
                 cheia
-                label={nome}
-                sub={exemplo}
+                label={NOME_DO_LOCAL[id]}
                 on={atual === id}
                 onPress={() => escolher(id)}
               />
@@ -71,8 +66,7 @@ export default function Idioma() {
         </Campo>
 
         <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
-          O que você já registrou continua como está. Muda só a forma de escrever:
-          a palavra, a vírgula do número, o desenho da data e o relógio.
+          {T.idioma.ressalva}
         </Txt>
       </View>
     </SheetScreen>
