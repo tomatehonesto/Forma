@@ -1,3 +1,4 @@
+import { T } from '../textos';
 /* ============================================================
    AS MODALIDADES
 
@@ -36,32 +37,39 @@ export type Modalidade = {
   forca?: boolean;
 };
 
-export const MODALIDADES: Modalidade[] = [
-  { nome: 'Caminhada', ic: 'walk' },
-  { nome: 'Corrida', ic: 'run' },
-  { nome: 'Musculação', ic: 'barbell', forca: true },
-  { nome: 'Bike', ic: 'bike' },
-  { nome: 'Natação', ic: 'swim' },
-  { nome: 'Yoga', ic: 'yoga' },
-  { nome: 'Pilates', ic: 'gymnastics', forca: true },
-  { nome: 'Funcional', ic: 'lunge', forca: true },
-  { nome: 'Alongamento', ic: 'stretch' },
-  { nome: 'Outro', ic: 'more' },
-];
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const MODALIDADES = (): Modalidade[] => {
+  const t = T.aviso.modalidades;
+  return [
+    { nome: t.caminhada, ic: 'walk' },
+    { nome: t.corrida, ic: 'run' },
+    { nome: t.musculacao, ic: 'barbell', forca: true },
+    { nome: t.bike, ic: 'bike' },
+    { nome: t.natacao, ic: 'swim' },
+    { nome: t.yoga, ic: 'yoga' },
+    { nome: t.pilates, ic: 'gymnastics', forca: true },
+    { nome: t.funcional, ic: 'lunge', forca: true },
+    { nome: t.alongamento, ic: 'stretch' },
+    { nome: t.outro, ic: 'more' },
+  ];
+};
 
-const porNome = new Map(MODALIDADES.map((m) => [m.nome, m]));
+/* ⚠️ O ÍNDICE POR NOME TAMBÉM É FUNÇÃO. Um Map de módulo guardaria os
+   nomes do primeiro idioma, e a busca por um treino gravado em inglês
+   falharia calada num aplicativo em português. */
+const porNome = () => new Map(MODALIDADES().map((m) => [m.nome, m]));
 
 /** A modalidade pelo nome gravado, ou null se foi escrita à mão. */
 export function modalidadeDe(nome: string): Modalidade | null {
-  return porNome.get(nome) ?? null;
+  return porNome().get(nome) ?? null;
 }
 
 /** O ícone de um treino. O que a pessoa escreveu à mão cai no genérico. */
 export function iconeDe(nome: string): string {
-  return porNome.get(nome)?.ic ?? 'more';
+  return porNome().get(nome)?.ic ?? 'more';
 }
 
 /** Se aquele treino conta como força. */
 export function ehForca(nome: string): boolean {
-  return !!porNome.get(nome)?.forca;
+  return !!porNome().get(nome)?.forca;
 }

@@ -1,6 +1,7 @@
 import { localAtual, type Local } from '../logic/local';
 import { alimentacao as alimentacaoPt } from './pt-BR/alimentacao';
 import { alertas as alertasPt } from './pt-BR/alertas';
+import { aviso as avisoPt } from './pt-BR/aviso';
 import { avisos as avisosPt } from './pt-BR/avisos';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
@@ -27,6 +28,7 @@ import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
 import { alertas as alertasEn } from './en-US/alertas';
+import { aviso as avisoEn } from './en-US/aviso';
 import { avisos as avisosEn } from './en-US/avisos';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
@@ -104,6 +106,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
 export type Textos = {
   alertas: typeof alertasPt;
   alimentacao: typeof alimentacaoPt;
+  aviso: typeof avisoPt;
   avisos: typeof avisosPt;
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
@@ -139,7 +142,7 @@ export type Textos = {
    dá — lá, chave esquecida vira texto faltando na tela de alguém. */
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
-    alertas: alertasPt, alimentacao: alimentacaoPt, avisos: avisosPt,
+    alertas: alertasPt, alimentacao: alimentacaoPt, aviso: avisoPt, avisos: avisosPt,
     ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt, idioma: idiomaPt,
@@ -147,7 +150,7 @@ const CATALOGOS: Record<Local, Textos> = {
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
-    alertas: alertasEn, alimentacao: alimentacaoEn, avisos: avisosEn,
+    alertas: alertasEn, alimentacao: alimentacaoEn, aviso: avisoEn, avisos: avisosEn,
     ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn, idioma: idiomaEn,

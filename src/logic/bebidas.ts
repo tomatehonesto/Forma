@@ -63,7 +63,7 @@ export type Bebida = {
 export const MEDIDAS_PADRAO: [string, number][] = [
   ['Copo', 250],
   ['Garrafa', 500],
-  ['Garrafão', 1000],
+  [T.aviso.garrafao, 1000],
 ];
 
 /* ⚠️ É FUNÇÃO, E NÃO CONSTANTE, porque lê o catálogo. Constante de

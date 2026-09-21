@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { Platform } from 'react-native';
 import type { State } from './seed';
 import { clinicaConectada } from './derive';
@@ -96,12 +97,12 @@ export type Plano = {
    valores de `outraUnidade` estão logo abaixo para quem quiser conferir. */
 export const PLANOS: Plano[] = [
   {
-    id: 'mensal', nome: 'Mensal', preco: 49.9, periodo: 'por mês', sufixo: '/mês',
+    id: 'mensal', nome: 'Mensal', preco: 49.9, periodo: T.aviso.porMes, sufixo: T.aviso.porMesCurto,
     outraUnidade: { valor: 49.9 * 12, periodo: 'por ano' }, teste: TESTE_DIAS,
   },
   {
     id: 'anual', nome: 'Anual', preco: 299, periodo: 'por ano', sufixo: '/ano',
-    outraUnidade: { valor: 299 / 12, periodo: 'por mês' }, economia: 50,
+    outraUnidade: { valor: 299 / 12, periodo: T.aviso.porMes }, economia: 50,
   },
 ];
 

@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { Platform } from 'react-native';
 
 /* ============================================================
@@ -56,16 +57,17 @@ export type Integracao = {
    o porquê em src/logic/saude-do-aparelho.ts. Descrição que promete três
    coisas e entrega uma é a que a pessoa cobra depois, e ela cobra com
    razão. */
-export const APARELHO: Record<'ios' | 'android', Integracao> = {
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const APARELHO = (): Record<'ios' | 'android', Integracao> => ({
   ios: {
-    id: 'appleHealth', nome: 'Apple Saúde', cor: '#F43B47',
-    traz: 'As suas pesagens — inclusive as que a sua balança manda para lá.',
+    id: 'appleHealth', nome: T.aviso.appleSaude, cor: '#F43B47',
+    traz: T.aviso.trazPesagens,
   },
   android: {
     id: 'healthConnect', nome: 'Health Connect', cor: '#1A56DB',
-    traz: 'As suas pesagens — inclusive as que a sua balança manda para lá.',
+    traz: T.aviso.trazPesagens,
   },
-};
+});
 
 /* O que CADA UMA traria, no dia em que houver servidor. Aqui a promessa
    pode ser o que a API delas entrega, porque a linha não oferece ligar —
@@ -80,4 +82,4 @@ export const CONTAS: Integracao[] = [
    não há depósito de saúde nenhum para oferecer, e a tela mostra só as
    contas. */
 export const aparelhoDaVez = (): Integracao | null =>
-  Platform.OS === 'ios' ? APARELHO.ios : Platform.OS === 'android' ? APARELHO.android : null;
+  Platform.OS === 'ios' ? APARELHO().ios : Platform.OS === 'android' ? APARELHO().android : null;

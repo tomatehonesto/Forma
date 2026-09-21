@@ -1,3 +1,4 @@
+import { T } from '../textos';
 /* Catálogo de medicamentos — agnóstico. Porta verbatim. */
 
 /* ⚠️ A FORMA MORA AQUI, e o vocabulário dela em logic/formas.
@@ -150,7 +151,7 @@ MEDS['tirzepatida-manipulada'] = {
    a caneta delas. É menos errado do que inventar uma, e é o próximo
    pedaço a fazer. */
 MEDS.indefinido = {
-  label: 'Ainda não definido', mol: '—', cad: 'weekly', doses: [], unit: 'mg',
+  label: T.aviso.medIndefinido, mol: '—', cad: 'weekly', doses: [], unit: 'mg',
   hl: 5, maker: '—', shelf: 21,
   /* Caneta porque é o que nove entre dez pessoas terão, e porque uma forma
      só é o que impede o cadastro de perguntar a forma de um medicamento

@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { nf } from './time';
 import { numeroEnxuto } from './local';
 
@@ -227,5 +228,5 @@ export const reguaDeComp = (S: ComPerfil, cmMin: number, cmMax: number) => (imp(
 export const RECIPIENTES_IMP: [string, number][] = [
   ['Copo', Math.round(8 / OZ_POR_ML)],
   ['Garrafa', Math.round(16 / OZ_POR_ML)],
-  ['Garrafão', Math.round(32 / OZ_POR_ML)],
+  [T.aviso.garrafao, Math.round(32 / OZ_POR_ML)],
 ];

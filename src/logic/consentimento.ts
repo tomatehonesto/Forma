@@ -1,3 +1,4 @@
+import { T } from '../textos';
 /* ============================================================
    O CONSENTIMENTO
 
@@ -76,34 +77,20 @@ export const POLITICA = '/documento?id=privacidade';
    nela com a história inteira, em vez de com a memória dos últimos dias.
    Quem conduz o tratamento continua sendo quem sempre foi.
    ============================================================ */
-export const ISENCAO = {
-  titulo: 'Acompanhamos o seu tratamento — não o conduzimos',
-  texto: 'Guardamos o que você registra, mostramos como a coisa vem andando e preparamos o que levar para a consulta. Não somos diagnóstico e não prescrevemos: dose, intervalo e medicação são decisão de quem acompanha você.',
-  reforco: 'Antes de mudar qualquer coisa na sua dose ou no seu horário, fale com a sua equipe. E se aparecer sintoma que assusta, não espere a próxima consulta.',
-  aceite: 'Entendi e concordo',
-};
+export const ISENCAO = () => ({
+  titulo: T.aviso.isencaoTitulo,
+  texto: T.aviso.isencaoTexto,
+  reforco: T.aviso.isencaoReforco,
+  aceite: T.aviso.isencaoAceite,
+});
 
 export type ItemDoAviso = { titulo: string; texto: string };
 
-export const AVISO: ItemDoAviso[] = [
-  {
-    titulo: 'O que você registra fica no seu aparelho',
-    texto: 'Peso, sintomas, aplicações, exames e anotações são gravados dentro do aplicativo, neste telefone. Não há conta nem senha: ninguém entra nos seus dados com um login.',
-  },
-  {
-    titulo: 'Para que os seus dados são usados',
-    texto: 'Para montar as suas metas diárias, acompanhar a evolução do tratamento e organizar o que você levar para a consulta. Nada disso é diagnóstico, e o aplicativo não prescreve nem ajusta dose.',
-  },
-  {
-    /* A PARTE QUE UM AVISO DE CONSENTIMENTO COSTUMA CALAR, e que aqui é
-       a única que muda o que a pessoa decide. */
-    titulo: 'O que pode sair daqui, e só com um toque seu',
-    texto: 'O resumo e as mensagens que você enviar para a sua equipe de saúde. E a foto do prato, quando você usar a leitura por foto: ela é enviada para ser lida e não fica guardada.',
-  },
-  {
-    titulo: 'Você continua no controle',
-    texto: 'Dá para corrigir e apagar qualquer registro, exportar tudo num arquivo e apagar os seus dados por inteiro, a qualquer momento, nas configurações.',
-  },
+export const AVISO = (): ItemDoAviso[] => [
+  { titulo: T.aviso.guardadoTitulo, texto: T.aviso.guardadoTexto },
+  { titulo: T.aviso.usoTitulo, texto: T.aviso.usoTexto },
+  { titulo: T.aviso.saiTitulo, texto: T.aviso.saiTexto },
+  { titulo: T.aviso.controleTitulo, texto: T.aviso.controleTexto },
 ];
 
 export type Consentimento = { em: number; versao: number };

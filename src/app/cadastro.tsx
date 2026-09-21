@@ -2376,10 +2376,10 @@ export default function Cadastro() {
             }}>
               <Row gap={10} style={{ alignItems: 'center' }}>
                 <Icon name="shield" size={19} color={c.accent} sw={1.9} />
-                <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO.titulo}</Txt>
+                <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO().titulo}</Txt>
               </Row>
-              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO.texto}</Txt>
-              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO.reforco}</Txt>
+              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().texto}</Txt>
+              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().reforco}</Txt>
               <Row gap={12} style={{ alignItems: 'center', paddingTop: 4, borderTopWidth: 1, borderTopColor: c.line2, marginTop: 2 }}>
                 <Switch
                   value={r.aceite}
@@ -2387,11 +2387,11 @@ export default function Cadastro() {
                   trackColor={{ false: c.track, true: c.accent }}
                   thumbColor="#fff"
                 />
-                <Txt v="label" style={{ flex: 1 }}>{ISENCAO.aceite}</Txt>
+                <Txt v="label" style={{ flex: 1 }}>{ISENCAO().aceite}</Txt>
               </Row>
             </View>
 
-            {AVISO.map((a) => (
+            {AVISO().map((a) => (
               <View key={a.titulo} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
                 <Txt v="bodyMed">{a.titulo}</Txt>
                 <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>

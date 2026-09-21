@@ -265,23 +265,23 @@ export function origemDoAlimento(a: Alimento): string {
      muda a segunda frase, e não o direito de dizer de onde veio. */
   if (a.fonte && !a.fonte.startsWith('soma TACO')) {
     if (!a.porUnidade) {
-      return `${a.fonte}. São os valores por 100 g, e o peso de cada porção é o que a própria rede declara.`;
+      return T.alimentacao.origem.porCem(a.fonte);
     }
     /* ⚠️ "SEM DIZER QUANTO ELE PESA" É SOBRE O McDONALD'S, e deixou de
        valer para todo mundo quando o Burger King entrou: ele publica o
        peso da porção na mesma tabela. Repetir a frase ali seria dizer
        que a rede escondeu um número que está impresso. */
     return a.gUn == null
-      ? `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`
-      : `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — com o peso que ela mesma declara.`;
+      ? T.alimentacao.origem.porPorcaoSemPeso(a.fonte)
+      : T.alimentacao.origem.porPorcaoComPeso(a.fonte);
   }
   if (a.taco) {
-    return 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.';
+    return T.alimentacao.origem.taco;
   }
   if (a.fonte && a.fonte.startsWith('soma TACO')) {
-    return 'Este é um prato montado: somamos ingrediente por ingrediente pela tabela da Unicamp, numa porção de restaurante. O seu pode vir maior ou menor.';
+    return T.alimentacao.origem.somaTaco;
   }
-  return 'A tabela da Unicamp não analisa este, então os números vêm do rótulo de produtos comuns no mercado. De marca para marca eles mudam um pouco.';
+  return T.alimentacao.origem.rotulo;
 }
 
 /** Quantas unidades esse alimento traz ao entrar na lista. */

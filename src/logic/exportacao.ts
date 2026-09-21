@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { Platform } from 'react-native';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -53,7 +54,7 @@ export function dadosParaExportar(S: State, r: Recorte) {
        onde saiu e de quando é — sem isso é um objeto solto. */
     gerado_em: iso(+now()),
     gerado_por: 'Morphi',
-    aviso: 'Registros feitos pela própria pessoa no aplicativo. Não é prontuário nem laudo.',
+    aviso: T.aviso.exportacaoAviso,
     periodo: { de: dia(desde), ate: dia(+now()) },
     pessoa: {
       nome: p.name || null,
@@ -190,7 +191,7 @@ export async function gerarArquivo(conteudo: string, nome: string): Promise<Resu
     await Sharing.shareAsync(arquivo.uri, {
       mimeType: 'application/json',
       UTI: 'public.json',
-      dialogTitle: 'Seus dados do Morphi',
+      dialogTitle: T.aviso.exportacaoTitulo,
     });
     return 'compartilhado';
   } catch {

@@ -1,3 +1,4 @@
+import { T } from '../textos';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { alimentoDe, type ItemComida } from './prato';
 
@@ -65,9 +66,9 @@ export type Analise =
    funciona. Um erro que só diz que falhou deixa a pessoa parada com a
    refeição por registrar. */
 export const RECADO: Record<Motivo, string> = {
-  'sem-servidor': 'A leitura por foto ainda não está ligada. Dá para montar o prato aqui embaixo.',
-  'sem-rede': 'Sem conexão para ler a foto agora. Dá para montar o prato aqui embaixo.',
-  'nao-reconheci': 'Não consegui reconhecer o prato. Monte aqui embaixo o que tinha.',
+  'sem-servidor': T.aviso.fotoSemServidor,
+  'sem-rede': T.aviso.fotoSemRede,
+  'nao-reconheci': T.aviso.fotoNaoReconheci,
 };
 
 /* Quantidade que veio de fora: inteiro, pelo menos 1, no máximo 20.
