@@ -1,7 +1,8 @@
+import { T } from '../textos';
 import type { State } from './seed';
 import {
   checkinToday, curWeight, examBy, examLast, examStatus,
-  journeyDay, notasAbertas, waterMlToday, litros,
+  journeyDay, notasAbertas, waterMlToday, litros, nomeDoMarcador,
 } from './derive';
 import { nf, now, dataLonga, DAY } from './time';
 import { emPlato } from './etapa';
@@ -67,7 +68,7 @@ const n0 = (v: number) => String(Math.round(v));
    por cima sugere uma perda que não houve. */
 const delta = (v: number, un: string, casas = 1) => {
   const piso = casas ? 0.05 : 0.5;
-  if (Math.abs(v) < piso) return 'sem mudança';
+  if (Math.abs(v) < piso) return T.confirmacoes.semMudanca;
   return `${v > 0 ? '+' : '−'}${casas ? nf(Math.abs(v), 1) : n0(Math.abs(v))} ${un}`;
 };
 const tomDoDelta = (v: number, casas = 1) =>
@@ -99,6 +100,9 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
   const p: any = S.profile;
   const alvos = p.targets;
   const ci: any = checkinToday(S);
+  /* ⚠️ LIDO DENTRO DA FUNÇÃO: constante de módulo congelaria o idioma.
+     Ver src/textos/README. */
+  const K = T.confirmacoes;
 
   switch (tipo) {
     case 'peso': {
@@ -135,11 +139,11 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const plato = emPlato(S) != null && !mediuHaPouco;
 
       return {
-        titulo: 'Peso registrado',
+        titulo: K.peso,
         texto: `${pesoTxt(S, atual)} · ${dataLonga(+now())}`,
         linhas: [
           ...(anterior ? [{
-            titulo: 'Desde a última pesagem',
+            titulo: K.pesoDesdeUltima,
             sub: dataLonga(anterior.t),
             selo: delta(atual - anterior.kg, 'kg'),
             /* Lima é a variação que a pessoa mediu, e não um juízo sobre
@@ -149,9 +153,9 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
             seloTom: tomDoDelta(atual - anterior.kg),
           }] : []),
           {
-            titulo: 'Meta de peso',
+            titulo: K.pesoMeta,
             sub: `${pesoTxt(S, p.goalWeight)}`,
-            selo: paraMeta > 0 ? `faltam ${pesoTxt(S, paraMeta)}` : 'alcançada',
+            selo: paraMeta > 0 ? K.pesoFaltam(pesoTxt(S, paraMeta)) : K.pesoAlcancada,
             seloTom: paraMeta > 0 ? ('neutra' as const) : ('verde' as const),
           },
         ],
@@ -160,10 +164,10 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
            cintura, a linha abriria o peso calada. */
         ...(plato
           ? {
-            nota: 'Um mês com o peso na mesma faixa. É aí que a cintura costuma continuar caindo, e a fita é quem mostra isso.',
-            caminho: { label: 'Medir o corpo também', to: '/medir-medidas' },
+            nota: K.pesoNotaPlato,
+            caminho: { label: K.pesoCaminhoPlato, to: '/medir-medidas' },
           }
-          : { caminho: { label: 'Ver a curva do peso', to: '/marcador?m=peso' } }),
+          : { caminho: { label: K.pesoCaminho, to: '/marcador?m=peso' } }),
       };
     }
 
@@ -171,9 +175,9 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const medidas = (S.measures as any[]).slice().sort((a, b) => a.t - b.t);
       const u = medidas[medidas.length - 1];
       const ant = deOutroDia(medidas, medidas[medidas.length - 1]?.t ?? +now());
-      const nomes: [string, string][] = [['cintura', 'Cintura'], ['quadril', 'Quadril'], ['braco', 'Braço'], ['coxa', 'Coxa']];
+      const nomes: [string, string][] = [['cintura', K.cintura], ['quadril', K.quadril], ['braco', K.braco], ['coxa', K.coxa]];
       return {
-        titulo: 'Medidas registradas',
+        titulo: K.medidas,
         texto: `Cintura ${compTxt(S, u?.cintura ?? 0)} · ${dataLonga(+now())}`,
         /* Só o que MUDOU desde a última fita. Quatro linhas com quatro
            deltas, três deles zero, transformam a confirmação num
@@ -189,114 +193,114 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
               seloTom: tomDoDelta((u[k] ?? 0) - ant[k]),
             }))
           : nomes.map(([k, nome]) => ({ titulo: nome, selo: compTxt(S, u?.[k] ?? 0), seloTom: 'neutra' as const })),
-        caminho: { label: 'Ver a evolução', to: '/evolucao' },
+        caminho: { label: K.medidasCaminho, to: '/evolucao' },
       };
     }
 
     case 'exame': {
       const e = ref ? examBy(S, ref) : null;
-      if (!e) return { titulo: 'Resultado registrado', texto: dataLonga(+now()), linhas: [] };
+      if (!e) return { titulo: K.exame, texto: dataLonga(+now()), linhas: [] };
       const u = examLast(e);
       const varios = e.values.length > 1;
       const ant = varios ? deOutroDia(e.values, u.t) : null;
       const st = examStatus(e);
-      const rotulo = st === 'ok' ? 'na referência' : st === 'alto' ? 'acima' : 'abaixo';
+      const rotulo = st === 'ok' ? K.exameNaReferencia : st === 'alto' ? K.exameAcima : K.exameAbaixo;
       return {
-        titulo: 'Resultado registrado',
-        texto: `${e.marker} · ${nf(u.v, u.v % 1 ? 1 : 0)}${e.unit ? ` ${e.unit}` : ''}`,
+        titulo: K.exame,
+        texto: `${nomeDoMarcador(e.marker)} · ${nf(u.v, u.v % 1 ? 1 : 0)}${e.unit ? ` ${e.unit}` : ''}`,
         linhas: [
           /* O VEREDITO PRIMEIRO, porque é a pergunta de quem acabou de
              digitar um número de exame — e a faixa vem junto, porque é
              ela que sustenta o veredito. Sem referência cadastrada não há
              veredito nenhum, e a linha não aparece. */
           ...(e.ref ? [{
-            titulo: 'Faixa de referência',
+            titulo: K.exameFaixa,
             sub: `${e.ref}${e.unit ? ` ${e.unit}` : ''}`,
             selo: rotulo,
             seloTom: (st === 'ok' ? 'verde' : 'neutra') as 'verde' | 'neutra',
           }] : []),
           ...(ant ? [{
-            titulo: 'Desde a coleta anterior',
+            titulo: K.exameDesdeAnterior,
             sub: dataLonga(ant.t),
             selo: delta(u.v - ant.v, e.unit || '', (u.v - ant.v) % 1 ? 1 : 0),
             seloTom: tomDoDelta(u.v - ant.v, (u.v - ant.v) % 1 ? 1 : 0),
           }] : []),
           ...(varios ? [] : [{
-            titulo: 'Primeira coleta deste marcador',
-            sub: 'a próxima já vira comparação',
+            titulo: K.examePrimeira,
+            sub: K.examePrimeiraSub,
           }]),
         ],
-        caminho: { label: 'Ver no painel de exames', to: '/exames' },
+        caminho: { label: K.exameCaminho, to: '/exames' },
       };
     }
 
     case 'anotacao': {
       const abertas = notasAbertas(S);
       return {
-        titulo: 'Anotação guardada',
+        titulo: K.anotacao,
         texto: abertas[0]?.text ?? dataLonga(+now()),
         linhas: [
           {
-            titulo: 'Na pauta da consulta',
-            sub: p.doctor ? `vai no resumo para ${p.doctor}` : 'vai no resumo para consulta',
+            titulo: K.anotacaoPauta,
+            sub: p.doctor ? K.anotacaoComDoutor(p.doctor) : K.anotacaoSemDoutor,
             selo: `${abertas.length}`,
             seloTom: 'neutra',
           },
         ],
-        caminho: { label: 'Ver o resumo para consulta', to: '/resumo-medico' },
+        caminho: { label: K.anotacaoCaminho, to: '/resumo-medico' },
       };
     }
 
     case 'refeicao': {
       const agora = Math.round(ci?.prot || 0);
       const alvo = alvos.prot as number;
-      const f = falta(agora, alvo, (v) => `faltam ${n0(v)} g`);
+      const f = falta(agora, alvo, (v) => K.faltamGramas(n0(v)));
       return {
-        titulo: 'Refeição registrada',
-        texto: `${agora} de ${alvo} g de proteína hoje`,
+        titulo: K.refeicao,
+        texto: K.refeicaoTexto(agora, alvo),
         lima: !f,
-        festa: f ? undefined : 'Meta de proteína do dia fechada',
+        festa: f ? undefined : K.refeicaoFesta,
         linhas: [
-          { titulo: 'Proteína do dia', sub: `meta de ${alvo} g`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
+          { titulo: K.proteinaDoDia, sub: K.proteinaMeta(alvo), selo: f ?? K.metaBatida, seloTom: f ? 'neutra' : 'lima' },
         ],
-        caminho: { label: 'Ver a alimentação do dia', to: '/alimentacao' },
+        caminho: { label: K.refeicaoCaminho, to: '/alimentacao' },
       };
     }
 
     case 'exercicio': {
       const agora = Math.round(ci?.exerc || 0);
       const alvo = alvos.exercMin as number;
-      const f = falta(agora, alvo, (v) => `faltam ${n0(v)} min`);
+      const f = falta(agora, alvo, (v) => K.faltamMinutos(n0(v)));
       const treinos = (ci?.treinos as any[]) || [];
       const ultimo = treinos[treinos.length - 1];
       return {
-        titulo: 'Treino registrado',
-        texto: ultimo ? `${ultimo.tipo} · ${n0(ultimo.min)} min` : `${agora} min hoje`,
+        titulo: K.exercicio,
+        texto: ultimo ? K.exercicioTexto(ultimo.tipo, n0(ultimo.min)) : K.exercicioSemTreino(agora),
         lima: !f,
-        festa: f ? undefined : 'Meta de movimento do dia fechada',
+        festa: f ? undefined : K.exercicioFesta,
         linhas: [
-          { titulo: 'Movimento do dia', sub: `${agora} de ${alvo} min`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
-          ...(treinos.length > 1 ? [{ titulo: 'Treinos hoje', selo: `${treinos.length}`, seloTom: 'neutra' as const }] : []),
+          { titulo: K.movimentoDoDia, sub: K.movimentoSub(agora, alvo), selo: f ?? K.metaBatida, seloTom: f ? 'neutra' : 'lima' },
+          ...(treinos.length > 1 ? [{ titulo: K.treinosHoje, selo: `${treinos.length}`, seloTom: 'neutra' as const }] : []),
         ],
-        caminho: { label: 'Ver a semana de exercício', to: '/exercicio' },
+        caminho: { label: K.exercicioCaminho, to: '/exercicio' },
       };
     }
 
     case 'agua': {
       const ml = waterMlToday(S);
       const alvo = alvos.waterMl as number;
-      const f = falta(ml, alvo, (v) => `faltam ${aguaTxt(S, v)}`);
+      const f = falta(ml, alvo, (v) => K.faltamAgua(aguaTxt(S, v)));
       /* O TÍTULO MUDA QUANDO A META FECHA, e é só aí que ele vira
          notícia. "Hidratação do dia fechada" todo copo seria a mesma
          mentira de sempre: dizer que acabou quando ainda falta. */
       return {
-        titulo: f ? 'Água registrada' : 'Hidratação do dia fechada',
-        texto: `${aguaN(S, ml)} de ${aguaTxt(S, alvo)} hoje`,
+        titulo: f ? K.agua : K.aguaFechada,
+        texto: K.aguaTexto(aguaN(S, ml), aguaTxt(S, alvo)),
         lima: !f,
         linhas: [
-          { titulo: 'Hidratação do dia', sub: `meta de ${aguaTxt(S, alvo)}`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
+          { titulo: K.hidratacaoDoDia, sub: K.hidratacaoMeta(aguaTxt(S, alvo)), selo: f ?? K.metaBatida, seloTom: f ? 'neutra' : 'lima' },
         ],
-        caminho: { label: 'Ver a hidratação', to: '/agua' },
+        caminho: { label: K.aguaCaminho, to: '/agua' },
       };
     }
   }

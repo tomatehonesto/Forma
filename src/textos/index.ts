@@ -5,6 +5,7 @@ import { avisos as avisosPt } from './pt-BR/avisos';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
+import { confirmacoes as confirmacoesPt } from './pt-BR/confirmacoes';
 import { conquistas as conquistasPt } from './pt-BR/conquistas';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { cuidado as cuidadoPt } from './pt-BR/cuidado';
@@ -29,6 +30,7 @@ import { avisos as avisosEn } from './en-US/avisos';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
+import { confirmacoes as confirmacoesEn } from './en-US/confirmacoes';
 import { conquistas as conquistasEn } from './en-US/conquistas';
 import { cruzamentos as cruzamentosEn } from './en-US/cruzamentos';
 import { cuidado as cuidadoEn } from './en-US/cuidado';
@@ -104,6 +106,7 @@ export type Textos = {
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
   comum: typeof comumPt;
+  confirmacoes: typeof confirmacoesPt;
   conquistas: typeof conquistasPt;
   cruzamentos: typeof cruzamentosPt;
   cuidado: typeof cuidadoPt;
@@ -134,7 +137,7 @@ export type Textos = {
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
     alertas: alertasPt, alimentacao: alimentacaoPt, avisos: avisosPt,
-    ciclo: cicloPt, companion: companionPt, comum: comumPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
+    ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt, idioma: idiomaPt,
     leituras: leiturasPt, marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
@@ -142,7 +145,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'en-US': {
     alertas: alertasEn, alimentacao: alimentacaoEn, avisos: avisosEn,
-    ciclo: cicloEn, companion: companionEn, comum: comumEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
+    ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn, idioma: idiomaEn,
     leituras: leiturasEn, marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
