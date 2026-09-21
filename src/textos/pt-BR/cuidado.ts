@@ -126,12 +126,6 @@ export const cuidado = {
       `${quantas} ${quantas === 1 ? 'item pendente' : 'itens pendentes'}`,
     /* Até quatro por extenso, que é o teto de pendências que existem. */
     porExtenso: ['nenhuma', 'uma', 'duas', 'três', 'quatro'],
-    /* ⚠️ "a, b e c" — vírgula até o penúltimo, "e" só antes do último. É
-       regra de idioma, e é por isso que mora aqui: com um join simples
-       saía "mensagens e receita e exames", que é como uma máquina fala. */
-    enumera: (itens: string[]) =>
-      itens.length <= 1 ? (itens[0] ?? '')
-        : `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`,
 
     /* ---------- o resto do tempo ---------- */
     emDiaTitulo: 'Seu cuidado está em dia.',

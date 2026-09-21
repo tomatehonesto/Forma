@@ -401,7 +401,7 @@ for (const [nome, ajusta] of CENARIOS) {
   c.libraryPicks = tenta('libraryPicks', () => libraryPicks(S));
   c.dailyTargets = tenta('dailyTargets', () => dailyTargets(S));
   c.protein7d = tenta('protein7d', () => protein7d(S));
-  c.tlLabel = TL_LABEL;
+  c.tlLabel = tenta('TL_LABEL', () => TL_LABEL());
   c.timelineEvents = tenta('timelineEvents', () => timelineEvents(S));
   c.timelineWeeks = tenta('timelineWeeks', () => timelineWeeks(S));
   c.journeyChanges = tenta('journeyChanges', () => journeyChanges(S));

@@ -2514,22 +2514,23 @@ export function dailyTargets(S: State): DailyTarget[] {
     remain, done: cur >= target, from, to,
   });
   const faltaMl = Math.max(0, t.waterMl - ml);
+  const G = T.home.metas;
   return [
-    mk('prot', 'Ingestão de proteína', prot, t.prot,
+    mk('prot', G.proteina, prot, t.prot,
       `${Math.round(prot)}`, 'g', `${t.prot} g`,
-      prot >= t.prot ? 'Meta batida' : `Faltam ${Math.round(t.prot - prot)} g`,
+      prot >= t.prot ? G.batida : G.faltamProteina(Math.round(t.prot - prot)),
       'limePale', 'lime'),
-    mk('agua', 'Beber mais água', ml, t.waterMl,
+    mk('agua', G.agua, ml, t.waterMl,
       aguaN(S, ml), aguaU(S), aguaTxt(S, t.waterMl),
       /* Sempre em litros, inclusive abaixo de um. A frase trocava de
          unidade no meio do caminho — "Faltam 1,5 L" virava "Faltam 400 ml"
          quando a pessoa chegava perto —, e quem está acompanhando o
          próprio número via a escala mudar debaixo do pé. */
-      faltaMl <= 0 ? 'Meta batida' : `Faltam ${aguaTxt(S, faltaMl)}`,
+      faltaMl <= 0 ? G.batida : G.faltamAgua(aguaTxt(S, faltaMl)),
       'bluePale', 'accent2'),
-    mk('exerc', 'Exercitar diariamente', ex, t.exercMin,
+    mk('exerc', G.exercicio, ex, t.exercMin,
       `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
-      ex >= t.exercMin ? 'Meta batida' : `Faltam ${Math.round(t.exercMin - ex)} min`,
+      ex >= t.exercMin ? G.batida : G.faltamExercicio(Math.round(t.exercMin - ex)),
       /* ⚠️ ROSA, E ERA TEAL. O teal virou a cor do ESTADO — a notícia
          ruim que não cobra, na Jornada —, e uma cor não pode ser
          categoria e estado ao mesmo tempo: na linha do tempo os ícones
@@ -2562,10 +2563,10 @@ export function protein7d(S: State) {
   const avg = r.length ? r.reduce((s: number, c: any) => s + c.prot, 0) / r.length : 0;
   const target = (S.profile as any).targets.prot as number;
   const verdict: Verdict = avg >= target
-    ? { label: 'Na meta', good: true }
+    ? { label: T.home.veredito.naMeta, good: true }
     : avg >= target * 0.85
-      ? { label: 'Perto da meta', good: true }
-      : { label: 'Abaixo da meta', good: false };
+      ? { label: T.home.veredito.pertoDaMeta, good: true }
+      : { label: T.home.veredito.abaixoDaMeta, good: false };
   return { avg, target, verdict };
 }
 
@@ -2578,10 +2579,10 @@ export function bodyFat(S: State) {
   const caindo = first ? m.gordura < first.gordura : false;
   const above = m.gordura > target;
   const verdict: Verdict = !above
-    ? { label: 'Na meta', good: true }
+    ? { label: T.home.veredito.naMeta, good: true }
     : caindo
-      ? { label: 'Em queda', good: true }
-      : { label: 'Acima da meta', good: false };
+      ? { label: T.home.veredito.emQueda, good: true }
+      : { label: T.home.veredito.acimaDaMeta, good: false };
   return { v: m.gordura, target, above, verdict };
 }
 
@@ -2595,9 +2596,9 @@ export function weightCard(S: State) {
      do que aquele número é, e só aparece quando precisa. */
   return {
     lost, goal,
-    titulo: lost >= 0 ? 'Peso perdido' : 'Variação do peso',
+    titulo: lost >= 0 ? T.home.peso.perdido : T.home.peso.variacao,
     lostLabel: variacaoDe(pesoV(S, -lost), pesoU(S)).delta,
-    goalLabel: `Meta: ${variacaoDe(pesoV(S, -goal)).numero} ${pesoU(S)}`,
+    goalLabel: T.home.peso.meta(variacaoDe(pesoV(S, -goal)).numero, pesoU(S)),
   };
 }
 
@@ -2617,10 +2618,7 @@ export function weightSeries(S: State) {
    saber o que tem atrás dele antes de tocar. */
 export type TLKind = 'checkin' | 'aplicacao' | 'peso' | 'refeicao' | 'exercicio' | 'consulta' | 'exame';
 
-export const TL_LABEL: Record<TLKind, string> = {
-  checkin: 'Check-ins', aplicacao: 'Aplicações', peso: 'Peso',
-  refeicao: 'Refeições', exercicio: 'Exercícios', consulta: 'Consultas', exame: 'Exames',
-};
+export const TL_LABEL = (): Record<TLKind, string> => T.home.tipos;
 
 export type TLEvent = {
   key: string; kind: TLKind; day: number;
@@ -2670,6 +2668,9 @@ export type TLEvent = {
 /* Feed cronológico do tratamento inteiro. Água, sono, proteína e humor não
    são eventos próprios: são o conteúdo do check-in daquele dia — por isso
    entram resumidos na linha do check-in, e não como oito linhas repetidas. */
+/* O catálogo dos eventos, lido na hora — ver o alto de textos/index. */
+const V = () => T.home.evento;
+
 export function timelineEvents(S: State): TLEvent[] {
   const out: TLEvent[] = [];
   const med = M(S);
@@ -2678,7 +2679,7 @@ export function timelineEvents(S: State): TLEvent[] {
   for (const inj of S.injections as any[]) {
     out.push({
       key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
-      ic: 'syringe', color: 'accent', title: `Aplicação ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit}`,
+      ic: 'syringe', color: 'accent', title: V().aplicacao(nf(inj.dose, inj.dose % 1 ? 1 : 0), med.unit),
       sub: `${med.mol} · ${siteLabel(inj.site)}`,
       detalhe: `${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${med.mol} · ${siteLabel(inj.site)}`,
       value: '', valueColor: 'tx3',
@@ -2691,9 +2692,9 @@ export function timelineEvents(S: State): TLEvent[] {
     const dl = prev ? cur.kg - prev.kg : 0;
     out.push({
       key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), ordemNoDia: '07:45',
-      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${pesoTxt(S, cur.kg)}`,
+      ic: 'scale', color: 'accent2', title: V().peso, sub: `${pesoTxt(S, cur.kg)}`,
       detalhe: `${pesoTxt(S, cur.kg)}`,
-      value: prev ? `${dl <= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(dl))}` : 'Peso inicial',
+      value: prev ? `${dl <= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(dl))}` : V().pesoInicial,
       valueColor: prev ? (dl <= 0 ? 'good' : 'tx2') : 'tx3',
     });
   });
@@ -2716,8 +2717,8 @@ export function timelineEvents(S: State): TLEvent[] {
       /* E o resumo traz só o que foi respondido. Água e proteína são
          acumuladores e sempre valem o que dizem; sono é estado, e um dia
          sem resposta sai da frase em vez de virar zero. */
-      const partes = [`${aguaTxt(S, (cc.agua || 0) * CUP_ML)}`, `${Math.round(cc.prot || 0)} g proteína`];
-      if (respondido(cc, 'sono')) partes.push(`${Math.floor(cc.sono)}h de sono`);
+      const partes = [aguaTxt(S, (cc.agua || 0) * CUP_ML), V().gramasDeProteina(Math.round(cc.prot || 0))];
+      if (respondido(cc, 'sono')) partes.push(V().horasDeSono(Math.floor(cc.sono)));
       /* As respostas, na régua em que foram dadas. `paraTela` traz as
          colunas de 0–10 de volta para o 1–5 da pergunta; `mood` já nasce
          em 1–5. Cada uma só entra se existir: campo ausente é pergunta
@@ -2727,32 +2728,32 @@ export function timelineEvents(S: State): TLEvent[] {
       const degrau = (regua: string[], g: number | null) =>
         (g == null ? null : regua[Math.max(0, Math.min(regua.length - 1, g - 1))]);
       const humor = degrau(HUMOR, respondido(cc, 'mood') ? cc.mood : null);
-      if (humor) respostas.push({ k: 'Humor', v: humor });
+      if (humor) respostas.push({ k: V().respostaHumor, v: humor });
       const energia = degrau(ENERGIA, paraTela(cc.energia));
-      if (energia) respostas.push({ k: 'Energia', v: energia });
+      if (energia) respostas.push({ k: V().respostaEnergia, v: energia });
       const fome = degrau(FOME, paraTela(cc.fome));
-      if (fome) respostas.push({ k: 'Fome', v: fome });
+      if (fome) respostas.push({ k: V().respostaFome, v: fome });
       for (const sx of SINTOMAS_LIDOS) {
         const frase = degrau(sx.regua, grauDoSintoma(cc, sx.id));
         if (frase) respostas.push({ k: sx.label, v: frase });
       }
       /* O texto livre é o único campo em que a pessoa escreveu, e não
          escolheu — ele fecha a lista porque é o que menos se repete. */
-      if (String(cc.outroTexto || '').trim()) respostas.push({ k: 'Outro sintoma', v: String(cc.outroTexto).trim() });
+      if (String(cc.outroTexto || '').trim()) respostas.push({ k: V().respostaOutroSintoma, v: String(cc.outroTexto).trim() });
 
       out.push({
         key: `ci-${day}`, kind: 'checkin', day, ordemNoDia: '08:30',
-        ic: 'check', color: 'accent', title: 'Check-in',
+        ic: 'check', color: 'accent', title: V().checkin,
         sub: partes.join(' · '), detalhe: partes.join(' · '),
-        value: cc.mood >= 4 ? 'Bem' : cc.mood >= 3 ? 'Neutro' : 'Difícil',
+        value: cc.mood >= 4 ? V().diaBem : cc.mood >= 3 ? V().diaNeutro : V().diaDificil,
         valueColor: cc.mood >= 4 ? 'good' : 'tx3',
         respostas,
       });
     }
     if (cc.exerc > 0) out.push({
       key: `ex-${day}`, kind: 'exercicio', day, ordemNoDia: '07:00',
-      ic: 'dumbbell', color: 'rose', title: 'Exercício', sub: `${cc.exerc} min de movimento`,
-      detalhe: `${cc.exerc} min de movimento`, value: '', valueColor: 'tx3',
+      ic: 'dumbbell', color: 'rose', title: V().exercicio, sub: V().minDeMovimento(cc.exerc),
+      detalhe: V().minDeMovimento(cc.exerc), value: '', valueColor: 'tx3',
     });
   }
 
@@ -2760,20 +2761,20 @@ export function timelineEvents(S: State): TLEvent[] {
     key: `ref-${m.t}`, kind: 'refeicao', day: D(m.t), ordemNoDia: '12:30',
     ic: 'utensils', color: 'amber', title: m.name, sub: m.tag,
     detalhe: [m.name, m.tag].filter(Boolean).join(' · '),
-    value: `Proteína ${m.prot}`, valueColor: 'tx3',
+    value: V().proteinaDaRefeicao(String(m.prot)), valueColor: 'tx3',
   });
 
   for (const ch of S.consultsHistory as any[]) out.push({
     key: `con-${ch.t}`, kind: 'consulta', day: D(ch.t), ordemNoDia: '14:00',
-    ic: 'steth', color: 'accent2', title: `Consulta ${ch.type.toLowerCase()}`, sub: ch.note,
+    ic: 'steth', color: 'accent2', title: V().consulta(ch.type.toLowerCase()), sub: ch.note,
     detalhe: [ch.type, ch.note].filter(Boolean).join(' · '), value: '', valueColor: 'tx3',
   });
 
   for (const b of S.examBundles as any[]) out.push({
     key: `exa-${b.t}`, kind: 'exame', day: D(b.t), ordemNoDia: '11:00',
-    ic: 'doc', color: 'amber', title: b.name, sub: `${b.n} marcadores · ${b.source}`,
-    detalhe: `${b.name} · ${b.n} marcadores · ${b.source}`,
-    value: b.shared ? 'Compartilhado' : '', valueColor: 'tx3',
+    ic: 'doc', color: 'amber', title: b.name, sub: V().marcadoresDe(b.n, b.source),
+    detalhe: V().marcadoresDetalhe(b.name, b.n, b.source),
+    value: b.shared ? V().compartilhado : '', valueColor: 'tx3',
   });
 
   out.sort((a, b) => b.day - a.day || (b.ordemNoDia > a.ordemNoDia ? 1 : b.ordemNoDia < a.ordemNoDia ? -1 : 0));
@@ -2841,19 +2842,17 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
     const contagem: Partial<Record<TLKind, number>> = {};
     for (const e of eventos) contagem[e.kind] = (contagem[e.kind] || 0) + 1;
+    const W = T.home.semana;
     const nome: Partial<Record<TLKind, [string, string]>> = {
-      checkin: ['check-in', 'check-ins'],
-      peso: ['pesagem', 'pesagens'],
-      refeicao: ['refeição', 'refeições'],
-      exercicio: ['exercício', 'exercícios'],
-      consulta: ['consulta', 'consultas'],
-      exame: ['exame', 'exames'],
+      checkin: W.checkin, peso: W.peso, refeicao: W.refeicao,
+      exercicio: W.exercicio, consulta: W.consulta, exame: W.exame,
     };
     const resumo = (Object.keys(contagem) as TLKind[])
       .map((k) => {
         const n = contagem[k]!;
-        const [s, p] = nome[k] ?? [TL_LABEL[k].toLowerCase(), TL_LABEL[k].toLowerCase()];
-        return `${n} ${n === 1 ? s : p}`;
+        const rotulo = TL_LABEL()[k].toLowerCase();
+        const [s, p] = nome[k] ?? [rotulo, rotulo];
+        return W.contagem(n, n === 1 ? s : p);
       })
       .join(' · ');
 
@@ -2862,23 +2861,24 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     const at = stats[i], ant = i > 0 ? stats[i - 1] : null;
     const metricas: WeekMetric[] = [];
     if (deltaPeso) metricas.push({
-      ic: 'scale', label: 'Peso', valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
+      ic: 'scale', label: W.pesoMetrica, valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
     });
     if (at) {
-      const varia = (agora: number, antes: number | undefined, suf: string) =>
-        antes == null ? null : `${agora >= antes ? '+' : '−'}${nf(Math.abs(agora - antes), 1)} ${suf}`;
+      const sinal = (agora: number, antes: number, casas: number) =>
+        `${agora >= antes ? '+' : '−'}${nf(Math.abs(agora - antes), casas)}`;
       metricas.push({
-        ic: 'water', label: 'Hidratação', valor: `${nf(at.agua, 1)} L/dia`,
-        delta: varia(at.agua, ant?.agua, 'L'), good: !ant || at.agua >= ant.agua,
+        ic: 'water', label: W.hidratacao, valor: W.litrosPorDia(nf(at.agua, 1)),
+        delta: ant?.agua == null ? null : W.deltaLitros(sinal(at.agua, ant.agua, 1)),
+        good: !ant || at.agua >= ant.agua,
       });
       metricas.push({
-        ic: 'leaf', label: 'Proteína', valor: `${Math.round(at.prot)} g/dia`,
-        delta: ant ? `${at.prot >= ant.prot ? '+' : '−'}${Math.round(Math.abs(at.prot - ant.prot))} g` : null,
+        ic: 'leaf', label: W.proteina, valor: W.gramasPorDia(Math.round(at.prot)),
+        delta: ant ? W.deltaGramas(`${at.prot >= ant.prot ? '+' : '−'}${Math.round(Math.abs(at.prot - ant.prot))}`) : null,
         good: !ant || at.prot >= ant.prot,
       });
       metricas.push({
-        ic: 'dumbbell', label: 'Exercício', valor: `${at.exerc} min`,
-        delta: ant ? `${at.exerc >= ant.exerc ? '+' : '−'}${Math.abs(at.exerc - ant.exerc)} min` : null,
+        ic: 'dumbbell', label: W.exercicioMetrica, valor: W.minutos(at.exerc),
+        delta: ant ? W.deltaMinutos(`${at.exerc >= ant.exerc ? '+' : '−'}${Math.abs(at.exerc - ant.exerc)}`) : null,
         good: !ant || at.exerc >= ant.exerc,
       });
     }
@@ -2888,7 +2888,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       dose: `${med.label} ${nf(injs[i].dose, injs[i].dose % 1 ? 1 : 0)} ${med.unit}`,
       site: siteLabel(injs[i].site),
       eventos, deltaPeso,
-      resumo: resumo || 'Sem registros nesta semana',
+      resumo: resumo || W.semRegistros,
       mudouDose: i > 0 && injs[i].dose !== injs[i - 1].dose,
       metricas,
     });
@@ -2900,7 +2900,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
 export function timelineCounts(S: State): { kind: TLKind; label: string; n: number }[] {
   const all = timelineEvents(S);
   return (Object.keys(TL_LABEL) as TLKind[])
-    .map((k) => ({ kind: k, label: TL_LABEL[k], n: all.filter((e) => e.kind === k).length }))
+    .map((k) => ({ kind: k, label: TL_LABEL()[k], n: all.filter((e) => e.kind === k).length }))
     .filter((x) => x.n > 0);
 }
 
@@ -2955,7 +2955,7 @@ export function variacaoDe(d: number, unidade = '', bomSeCai = true) {
     /** só o número, com sinal — para quem já tem coluna de unidade */
     numero,
     /** número, sinal e unidade, ou "Estável" quando não houve mudança */
-    delta: parado ? 'Estável' : `${numero}${unidade ? ` ${unidade}` : ''}`,
+    delta: parado ? T.home.estavel : `${numero}${unidade ? ` ${unidade}` : ''}`,
     good: tom === 'bom',
     tom,
   };
@@ -2987,23 +2987,23 @@ export function journeyChanges(S: State): Change[] {
      (sistólica e diastólica), que não cabem no desenho de valor único do
      /marcador — e /saude já abre com ela no topo. */
   out.push({
-    ic: 'scale', label: 'Peso', from: `${pesoTxt(S, startWeight(S))}`, to: `${pesoTxt(S, curWeight(S))}`,
+    ic: 'scale', label: T.home.mudancas.peso, from: `${pesoTxt(S, startWeight(S))}`, to: `${pesoTxt(S, curWeight(S))}`,
     ...variacao(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)), to_: '/marcador?m=peso',
   });
 
   if (fm && lm && fm !== lm) {
     if (lm.cintura !== fm.cintura) out.push({
-      ic: 'ruler', label: 'Cintura', from: compTxt(S, fm.cintura, 0), to: compTxt(S, lm.cintura, 0),
+      ic: 'ruler', label: T.home.mudancas.cintura, from: compTxt(S, fm.cintura, 0), to: compTxt(S, lm.cintura, 0),
       ...variacao(compV(S, lm.cintura - fm.cintura), compU(S)), to_: '/marcador?m=cintura',
     });
     if (lm.gordura !== fm.gordura) out.push({
-      ic: 'activity', label: 'Gordura corporal', from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
+      ic: 'activity', label: T.home.mudancas.gorduraCorporal, from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
       ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/marcador?m=gordura',
     });
     /* A única em que subir é a boa notícia: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. */
     if (lm.musculo !== fm.musculo) out.push({
-      ic: 'dumbbell', label: 'Massa magra', from: `${pesoTxt(S, fm.musculo)}`, to: `${pesoTxt(S, lm.musculo)}`,
+      ic: 'dumbbell', label: T.home.mudancas.massaMagra, from: `${pesoTxt(S, fm.musculo)}`, to: `${pesoTxt(S, lm.musculo)}`,
       ...variacao(pesoV(S, lm.musculo - fm.musculo), pesoU(S), false), to_: '/marcador?m=musculo',
     });
   }
@@ -3014,7 +3014,7 @@ export function journeyChanges(S: State): Change[] {
     const naRef = examStatus(a1c) === 'ok';
     out.push({
       ic: 'doc', label: 'HbA1c', from: `${nf(f.v, 1)}%`, to: `${nf(l.v, 1)}%`,
-      delta: naRef ? 'Na referência' : 'Fora da referência',
+      delta: naRef ? T.home.mudancas.naReferencia : T.home.mudancas.foraDaReferencia,
       good: naRef, tom: naRef ? 'bom' : 'ruim', to_: '/exames?m=HbA1c',
     });
   }
@@ -3026,8 +3026,9 @@ export function journeyChanges(S: State): Change[] {
        pressão subindo catorze pontos saía como estável — em lima, porque
        `good` aceitava o empate junto com a melhora. Subir tem nome. */
     out.push({
-      ic: 'heart', label: 'Pressão', from: `${f.sys}/${f.dia}`, to: `${l.sys}/${l.dia}`,
-      delta: l.sys < f.sys ? 'Em queda' : l.sys > f.sys ? 'Em alta' : 'Estável',
+      ic: 'heart', label: T.home.mudancas.pressao, from: `${f.sys}/${f.dia}`, to: `${l.sys}/${l.dia}`,
+      delta: l.sys < f.sys ? T.home.mudancas.pressaoEmQueda
+        : l.sys > f.sys ? T.home.mudancas.pressaoEmAlta : T.home.mudancas.pressaoEstavel,
       good: l.sys < f.sys,
       tom: l.sys < f.sys ? 'bom' : l.sys > f.sys ? 'ruim' : 'neutro',
       to_: '/saude',
@@ -3082,9 +3083,9 @@ export function metaDePeso(S: State): JourneyGoal | null {
        lista de metas finge uma precisão que ninguém definiu — é o mesmo
        formatador que a capa de /metas e a folha de editar já usam. O que
        falta abaixo mantém a casa, porque 7,1 kg de fato tem uma. */
-    label: `Chegar a ${pesoProsaTxt(S, S.profile.goalWeight)}`,
+    label: T.home.metaDePeso.chegarA(pesoProsaTxt(S, S.profile.goalWeight)),
     pct,
-    hint: falta === 0 ? 'meta alcançada' : `faltam ${pesoTxt(S, falta)}`,
+    hint: falta === 0 ? T.home.metaDePeso.alcancada : T.home.metaDePeso.faltam(pesoTxt(S, falta)),
     pessoal: false,
     feita: falta === 0,
     conta: '',
@@ -3194,8 +3195,11 @@ export const ATALHOS: QuickKey[] = ['agua', 'refeicao', 'exercicio'];
 
    A ordem é a de quem costuma ser a fonte principal — o telefone antes do
    relógio, porque o relógio manda para ele. */
-const FONTES_MOVIMENTO: [string, string][] = [
-  ['appleHealth', 'Apple Saúde'],
+/* ⚠️ SÓ O NOME DA APPLE PASSA PELO CATÁLOGO: "Apple Saúde" é "Apple
+   Health" em inglês, porque é a Apple que traduz o nome do próprio
+   aplicativo. Os outros quatro são marcas, e marca não se traduz. */
+const FONTES_MOVIMENTO = (): [string, string][] => [
+  ['appleHealth', T.home.fontes.appleSaude],
   ['healthConnect', 'Health Connect'],
   /* Google Fit e "smartwatch" saíram com o catálogo de integrações: o
      primeiro está fechado para novos cadastros desde 2024, e o segundo
@@ -3214,18 +3218,15 @@ const FONTES_MOVIMENTO: [string, string][] = [
    justamente queria saber de onde os minutos vinham. */
 export function fontesDeMovimento(S: State): string[] {
   const i: any = (S as any).integrations || {};
-  return FONTES_MOVIMENTO.filter(([k]) => i[k]).map(([, nome]) => nome);
+  return FONTES_MOVIMENTO().filter(([k]) => i[k]).map(([, nome]) => nome);
 }
 
-/** Lista em português: "a", "a e b", "a, b e c", "a, b e mais 2". */
-export function listaPt(itens: string[], mostrar = 3): string {
-  if (!itens.length) return '';
-  if (itens.length === 1) return itens[0];
-  if (itens.length <= mostrar) {
-    return itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1];
-  }
-  return itens.slice(0, mostrar).join(', ') + ` e mais ${itens.length - mostrar}`;
-}
+/** Lista em português: "a", "a e b", "a, b e c", "a, b e mais 2".
+
+    ⚠️ A REGRA MORA EM textos/pt-BR/comum, porque ela é gramática e não
+    assunto — e porque estava escrita duas vezes, aqui e no cuidado. */
+export const listaPt = (itens: string[], mostrar = 3): string =>
+  T.comum.lista(itens, mostrar);
 
 /* ============================================================
    O MOVIMENTO DOS ÚLTIMOS DIAS
@@ -5299,7 +5300,7 @@ export function careState(S: State) {
     texto: E().pendenciaTexto(
       E().porExtenso[pend.length] ?? String(pend.length),
       pend.length !== 1,
-      E().enumera(pend.map((it) => it.rotulo)),
+      T.comum.lista(pend.map((it) => it.rotulo)),
     ),
     pulso: E().pendenciaPulso(pend.length),
   };
