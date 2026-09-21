@@ -4,6 +4,7 @@ import {
   Keyboard, Platform, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ty, font, radius, space, shadowCard } from '../theme';
@@ -540,53 +541,72 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     return () => { sobe.remove(); desce.remove(); };
   }, []);
 
-  /* ⚠️⚠️ A SOMBRA NÃO VIAJA COM A FOLHA, e a folha continua viajando.
+  /* ⚠️⚠️ AS DUAS ANIMAÇÕES SÃO DAQUI, e a rota não anima nada.
 
-     A rota é `slide_from_bottom`: a TELA INTEIRA sobe, e é assim que o
-     painel entra — o gesto certo do bottom sheet, o mesmo de sempre. Só
-     que o scrim mora dentro dessa tela, então ele subia junto: a sombra
-     entrava pelo pé do aparelho e ia cobrindo a página como uma cortina
-     puxada de baixo. Sombra não vem de lugar nenhum. Ela escurece o que
-     já está ali.
+     Elas fazem coisas diferentes e por isso não podiam ser a mesma: o
+     PAINEL sobe, a SOMBRA esmaece. Com a rota deslizando, quem subia era
+     a tela inteira — e o scrim, que mora nela, subia junto: a sombra
+     entrava pelo pé do aparelho como uma cortina puxada de baixo. Sombra
+     não vem de lugar nenhum. Ela escurece o que já está ali.
 
-     ⚠️ A SAÍDA É GEOMÉTRICA, não uma segunda animação. O scrim passa a
-     ser ALTO O BASTANTE para cobrir a tela em qualquer ponto do trajeto:
-     uma altura de janela acima do próprio topo. No primeiro quadro a tela
-     está deslocada uma janela para baixo, e o scrim — que começa uma
-     janela acima — já cobre a área visível inteira; no último, deslocada
-     de zero, ele continua cobrindo. Entre os dois ele não se move na
-     tela, porque a parte dele que está à vista é sempre outra.
+     ⚠️ TENTEI RESOLVER SEM MEXER NA ROTA, e não dá. A ideia era um scrim
+     alto o bastante para cobrir a tela em qualquer ponto do trajeto —
+     uma janela acima do próprio topo. A tela da rota RECORTA: seis níveis
+     acima do scrim há um `overflow: hidden` da altura da janela, e o que
+     passa dele não é desenhado. O scrim voltava a ser do tamanho da tela,
+     e voltava a subir com ela.
 
-     O que resta é acender, e aí sim é animação: opacidade de zero a um.
-     É o "aparecer esmaecendo" no lugar do "subir junto".
+     Aqui dentro nada recorta.
 
-     ⚠️ E APAGA AO FECHAR, no mesmo gesto. Sem isso a sombra ficaria cheia
-     durante a descida inteira e sumiria de uma vez no fim — trocaria a
-     cortina subindo por um piscar no fechamento. */
+     ⚠️ A DISTÂNCIA É A ALTURA DA JANELA, e não a do painel. É exatamente
+     o que o `slide_from_bottom` fazia — ele translada a tela inteira —,
+     então o movimento é o mesmo de antes, no mesmo tempo. Medir o painel
+     daria um deslize mais curto para folhas pequenas, que é outra coisa.
+
+     ⚠️ E A SAÍDA PASSA POR `beforeRemove`, não por um punhado de
+     onPress. Sem animação na rota, fechar seria instantâneo — e são
+     quatro caminhos para fechar: a alça, o X, o toque na sombra e o botão
+     físico do Android. Interceptando a remoção, os quatro ganham a mesma
+     saída, inclusive o que não passa por nenhum onPress nosso. */
   const { height: alturaDaJanela } = useWindowDimensions();
+  const nav = useNavigation();
+  const subida = React.useRef(new Animated.Value(alturaDaJanela)).current;
   const sombra = React.useRef(new Animated.Value(0)).current;
-  React.useEffect(() => {
-    Animated.timing(sombra, {
-      toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true,
-    }).start();
-  }, [sombra]);
 
-  const fechar = () => {
-    Animated.timing(sombra, {
-      toValue: 0, duration: 180, easing: Easing.in(Easing.quad), useNativeDriver: true,
-    }).start();
-    onClose();
-  };
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(sombra, {
+        toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
+      }),
+      Animated.timing(subida, {
+        toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      }),
+    ]).start();
+  }, [sombra, subida]);
+
+  /* ⚠️ O `saindo` EVITA O LAÇO: ao terminar a saída nós mesmos
+     redespachamos a ação que interceptamos, e ela dispara o listener de
+     novo. Na segunda vez ele deixa passar. */
+  const saindo = React.useRef(false);
+  React.useEffect(() => nav.addListener('beforeRemove' as any, (ev: any) => {
+    if (saindo.current) return;
+    ev.preventDefault();
+    saindo.current = true;
+    Animated.parallel([
+      Animated.timing(sombra, {
+        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true,
+      }),
+      Animated.timing(subida, {
+        toValue: alturaDaJanela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
+      }),
+    ]).start(() => nav.dispatch(ev.data.action));
+  }), [nav, sombra, subida, alturaDaJanela]);
+
+  const fechar = onClose;
 
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
-      <Animated.View
-        pointerEvents="box-none"
-        style={{
-          position: 'absolute', left: 0, right: 0, top: -alturaDaJanela, bottom: 0,
-          opacity: sombra,
-        }}
-      >
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: sombra }]}>
         <Pressable onPress={fechar} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
       </Animated.View>
       {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
@@ -609,6 +629,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           recortes escuros emoldurando o teclado, como se a folha tivesse
           descolado da base da tela. Branca, a folha continua encostada em
           baixo e o teclado nasce dela. */}
+      <Animated.View style={{ transform: [{ translateY: subida }] }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         /* O raio vem junto: a faixa branca começa na mesma altura da
@@ -662,6 +683,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         ) : null}
       </View>
       </KeyboardAvoidingView>
+      </Animated.View>
     </View>
   );
 }

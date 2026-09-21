@@ -279,14 +279,27 @@ export default function RootLayout() {
               web, sem sequer um jeito de fechar. transparentModal deixa o
               scrim e o painel por conta da própria tela, e o comportamento
               fica igual em todo lugar. */}
-          {/* ⚠️ A FOLHA DESLIZA DE BAIXO, e é a rota que faz isso — como
-              sempre fez. O que mudou é só a sombra: ver o comentário do
-              scrim em ui/kit, no SheetScreen. */}
+          {/* ⚠️⚠️ `animation: 'none'` NA ROTA, E O MOVIMENTO É DA FOLHA.
+
+              Com `slide_from_bottom` quem sobe é a TELA, e o scrim mora
+              dentro dela: a sombra subia junto, como cortina puxada de
+              baixo. Tentei manter o deslize da rota e fazer o scrim ser
+              alto o bastante para cobrir a tela em qualquer ponto do
+              trajeto — não funciona, porque a tela da rota RECORTA: o que
+              passa dos limites dela não é desenhado.
+
+              Então as duas animações vieram para dentro do SheetScreen,
+              onde nada recorta e cada uma pode fazer o que deve: o painel
+              sobe, a sombra esmaece. A rota só monta e desmonta.
+
+              ⚠️ E A SAÍDA TAMBÉM É NOSSA, por `beforeRemove` — sem isso o
+              fechamento seria instantâneo, que é o preço de tirar a
+              animação da rota. Ver o SheetScreen. */}
           <Stack.Screen
             name="registrar"
             options={{
               presentation: 'transparentModal',
-              animation: 'slide_from_bottom',
+              animation: 'none',
               contentStyle: { backgroundColor: 'transparent' },
             }}
           />
@@ -312,7 +325,7 @@ export default function RootLayout() {
             <Stack.Screen
               key={n}
               name={n}
-              options={{ presentation: 'transparentModal', animation: 'slide_from_bottom', contentStyle: { backgroundColor: 'transparent' } }}
+              options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
             />
           ))}
         </Stack>
