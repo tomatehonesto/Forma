@@ -206,7 +206,7 @@ export default function MedirRefeicao() {
         <>
           <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
           <Grade>
-            {MOMENTOS.map(([ic, h]) => (
+            {MOMENTOS().map(([ic, h]) => (
               <Opc key={h} cheia ic={ic} label={h} on={quando === h} onPress={() => setQuando(h)} />
             ))}
           </Grade>

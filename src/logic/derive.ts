@@ -3503,7 +3503,7 @@ export function diasDeRefeicao(S: State, dias: number): DiaDaTira[] {
    desempate para duas refeições do mesmo momento. */
 export function refeicoesDoDia(S: State, t: number): any[] {
   const ordem = (nome: string) => {
-    const i = MOMENTOS.findIndex(([, n]) => n === nome);
+    const i = MOMENTOS().findIndex(([, n]) => n === nome);
     return i < 0 ? MOMENTOS.length : i;
   };
   return (S.meals as any[])

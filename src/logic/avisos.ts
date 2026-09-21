@@ -4,6 +4,7 @@ import type { State } from './seed';
 import { M } from './derive';
 import { FORMAS, formaDe, oA, doDa } from './formas';
 import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
+import { T } from '../textos';
 import { nf } from './time';
 
 /* ============================================================
@@ -101,22 +102,25 @@ async function canal() {
 const textoDaDose = (S: State, lead: number) => {
   const med = M(S);
   const dose = `${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`;
-  if (lead <= 0) return { title: 'A sua aplicação é hoje', body: `${dose}. Quando der, registre por aqui.` };
+  const K = T.avisos;
+  if (lead <= 0) return { title: K.doseHoje, body: K.doseHojeCorpo(dose) };
   const rec = FORMAS[formaDe(S)].recipiente;
-  if (lead === 1) return { title: 'A sua aplicação é amanhã', body: `${dose}. Vale deixar ${oA(formaDe(S))} ${rec} à vista.` };
-  return { title: `A sua aplicação é em ${lead} dias`, body: `${dose}. Dá tempo de conferir o estoque ${doDa(formaDe(S))}.` };
+  if (lead === 1) return { title: K.doseAmanha, body: K.doseAmanhaCorpo(dose, `${oA(formaDe(S))} ${rec}`) };
+  return { title: K.doseEmDias(lead), body: K.doseEmDiasCorpo(dose, doDa(formaDe(S))) };
 };
 
-const TEXTO: Record<Exclude<TipoDeAlerta, 'dose'>, Texto> = {
+/* ⚠️ É FUNÇÃO, como toda tabela que lê o catálogo: constante de módulo
+   congelaria o idioma no import. Ver src/textos/README. */
+const TEXTO = (): Record<Exclude<TipoDeAlerta, 'dose'>, Texto> => ({
   /* ⚠️ ELE PERGUNTA, E NÃO MANDA — é o único dos cinco assim, e é assim
      porque o check-in é uma pergunta. "Faça o check-in" trata de tarefa
      uma coisa que é conversa; "como foi o seu dia?" é o que alguém
      perguntaria, e é o que a tela do outro lado vai perguntar de novo. */
-  checkin: { title: 'Como foi o seu dia?', body: 'Sono, fome, energia e humor — quatro respostas, e o dia fica registrado.' },
-  peso: { title: 'Dia de pesagem', body: 'Suba na balança quando der. Um número por semana já desenha a curva.' },
-  agua: { title: 'Um copo de água', body: 'Ajuda com a saciedade e com o enjoo — e conta para a meta do dia.' },
-  proteina: { title: 'Proteína primeiro', body: 'Na próxima refeição, comece por ela. É o que segura a massa magra.' },
-};
+  checkin: { title: T.avisos.checkin, body: T.avisos.checkinCorpo },
+  peso: { title: T.avisos.peso, body: T.avisos.pesoCorpo },
+  agua: { title: T.avisos.agua, body: T.avisos.aguaCorpo },
+  proteina: { title: T.avisos.proteina, body: T.avisos.proteinaCorpo },
+});
 
 type Texto = { title: string; body: string };
 
@@ -182,7 +186,7 @@ export async function reagendar(S: State): Promise<void> {
     const cota = Math.max(MINIMO_POR_ALERTA, Math.floor(ORCAMENTO / ligados.length));
 
     for (const a of ligados) {
-      const texto = a.tipo === 'dose' ? textoDaDose(S, a.lead ?? 0) : TEXTO[a.tipo];
+      const texto = a.tipo === 'dose' ? textoDaDose(S, a.lead ?? 0) : TEXTO()[a.tipo];
       for (const d of proximasDe(S, a, cota)) await naData(d, texto);
     }
   } catch {

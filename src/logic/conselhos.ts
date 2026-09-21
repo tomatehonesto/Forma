@@ -121,7 +121,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
      O número do dia não diz ONDE consertar. A média por momento diz: um
      café da manhã de 6 g e um almoço de 40 g somam o mesmo que dois de
      23, e só o primeiro tem um próximo passo óbvio. */
-  const porMomento = MOMENTOS.map(([ic, nome]) => {
+  const porMomento = MOMENTOS().map(([ic, nome]) => {
     const refs = dias.flatMap((d) => d.refeicoes.filter((m) => m.name === nome));
     const comItens = refs.filter((m) => itensDe(m).length);
     const media = comItens.length

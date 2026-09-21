@@ -1,4 +1,5 @@
 import { ALIMENTOS, gramasDe, medidaDe, type Alimento } from './alimentos';
+import { T } from '../textos';
 
 /* ============================================================
    O PRATO MONTADO
@@ -33,15 +34,19 @@ import { ALIMENTOS, gramasDe, medidaDe, type Alimento } from './alimentos';
    Mora aqui, e não na folha de registro, porque a folha de detalhe
    precisa do mesmo ícone — e duas listas de momentos divergem na semana
    em que alguém acrescentar a ceia numa delas. */
-export const MOMENTOS: [string, string][] = [
-  ['coffee', 'Café da manhã'],
-  ['cutlery', 'Almoço'],
-  ['sandwich', 'Lanche'],
-  ['moon', 'Jantar'],
-];
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+export const MOMENTOS = (): [string, string][] => {
+  const t = T.alimentacao.prato;
+  return [
+    ['coffee', t.cafeDaManha],
+    ['cutlery', t.almoco],
+    ['sandwich', t.lanche],
+    ['moon', t.jantar],
+  ];
+};
 
 export const iconeDaRefeicao = (nome: string) =>
-  MOMENTOS.find(([, n]) => n === nome)?.[0] ?? 'cutlery';
+  MOMENTOS().find(([, n]) => n === nome)?.[0] ?? 'cutlery';
 
 export type ItemComida = {
   /** Alimento da tabela. */
@@ -75,7 +80,7 @@ export function nomeItem(it: ItemComida): string {
 export function medidaItem(it: ItemComida): string {
   const a = alimentoDe(it.id);
   if (a) return medidaDe(a, it.qtd);
-  return `${it.qtd} ${it.qtd === 1 ? 'porção' : 'porções'}`;
+  return T.alimentacao.prato.porcoes(it.qtd);
 }
 
 /** A procedência do número, quando ela precisa ser dita. Item de tabela
@@ -83,8 +88,8 @@ export function medidaItem(it: ItemComida): string {
     linhas para avisar sobre nenhuma. */
 export function ressalvaItem(it: ItemComida): string | null {
   switch (origemDe(it)) {
-    case 'estimado': return 'estimado pela foto';
-    case 'sem-conta': return 'ainda não entra na conta';
+    case 'estimado': return T.alimentacao.prato.estimado;
+    case 'sem-conta': return T.alimentacao.prato.semConta;
     default: return null;
   }
 }
@@ -197,19 +202,19 @@ export function insightDe(a: Alimento): Insight | null {
   if (razao != null && razao >= 15 && p >= 10) {
     return {
       bom: true,
-      texto: 'Muita proteína para pouca caloria. É o tipo de comida que o tratamento pede: ela cabe no prato que encolheu e ainda segura a massa magra.',
+      texto: T.alimentacao.prato.muitaProteinaPoucaCaloria,
     };
   }
   if (p >= 15) {
     return {
       bom: true,
-      texto: 'Boa fonte de proteína, que é o que segura a massa magra enquanto o peso desce.',
+      texto: T.alimentacao.prato.boaFonte,
     };
   }
   if (razao != null && razao < 3 && (kcal as number) >= 250) {
     return {
       bom: false,
-      texto: 'Caloria alta e pouca proteína. Não é proibido, mas ocupa bastante do dia e devolve pouco do que o tratamento precisa.',
+      texto: T.alimentacao.prato.caloriaAlta,
     };
   }
   /* A ressalva vem antes do elogio da fibra. A batata frita tem 8 g de
@@ -218,19 +223,19 @@ export function insightDe(a: Alimento): Insight | null {
   if (fibra != null && fibra >= 5) {
     return {
       bom: true,
-      texto: 'Bastante fibra. Ajuda com o intestino preso, que é dos efeitos colaterais mais comuns do tratamento.',
+      texto: T.alimentacao.prato.bastanteFibra,
     };
   }
   if (kcal != null && kcal <= 60 && p < 3) {
     return {
       bom: true,
-      texto: 'Quase não pesa no dia. Bom para acompanhar o prato, mas a proteína tem que vir de outro lugar.',
+      texto: T.alimentacao.prato.quaseNaoPesa,
     };
   }
   if (fibra != null && fibra >= 2.5) {
     return {
       bom: true,
-      texto: 'Tem fibra, que ajuda com o intestino preso — dos efeitos colaterais mais comuns do tratamento.',
+      texto: T.alimentacao.prato.temFibra,
     };
   }
   return null;

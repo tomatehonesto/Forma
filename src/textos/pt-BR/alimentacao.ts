@@ -109,6 +109,60 @@ export const alimentacao = {
   },
 
   /* ============================================================
+     O PRATO — os momentos, a medida e a leitura de um alimento
+     ============================================================ */
+  prato: {
+    /* ⚠️ OS MOMENTOS SÃO CHAVE E RÓTULO AO MESMO TEMPO: o nome é o que
+       fica gravado em cada refeição, e é também o que a tela mostra.
+       Traduzir a lista NÃO quebra registro, porque a comparação é sempre
+       contra o valor que o próprio aplicativo acabou de devolver — mas
+       uma refeição antiga guardada com "Almoço" não casa com "Lunch", e
+       por isso a tela cai no nome gravado quando não reconhece. */
+    cafeDaManha: 'Café da manhã',
+    almoco: 'Almoço',
+    lanche: 'Lanche',
+    jantar: 'Jantar',
+
+    /* O recuo de quem não está na tabela: "2 porções". */
+    porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'porção' : 'porções'}`,
+
+    /* ⚠️ A PROCEDÊNCIA SÓ APARECE QUANDO PRECISA SER DITA. Item de tabela
+       não diz nada: é o caso normal, e anunciá-lo seria ruído em todas as
+       linhas para avisar sobre nenhuma. */
+    estimado: 'estimado pela foto',
+    semConta: 'ainda não entra na conta',
+
+    /* ⚠️ A LEITURA DE UM ALIMENTO NÃO PROÍBE NADA. "Não é proibido, mas
+       ocupa bastante do dia" é o mais longe que ela vai, e é de propósito:
+       o aplicativo não sabe o que a equipe combinou com a pessoa. */
+    muitaProteinaPoucaCaloria: 'Muita proteína para pouca caloria. É o tipo de comida que o tratamento pede: ela cabe no prato que encolheu e ainda segura a massa magra.',
+    boaFonte: 'Boa fonte de proteína, que é o que segura a massa magra enquanto o peso desce.',
+    caloriaAlta: 'Caloria alta e pouca proteína. Não é proibido, mas ocupa bastante do dia e devolve pouco do que o tratamento precisa.',
+    bastanteFibra: 'Bastante fibra. Ajuda com o intestino preso, que é dos efeitos colaterais mais comuns do tratamento.',
+    quaseNaoPesa: 'Quase não pesa no dia. Bom para acompanhar o prato, mas a proteína tem que vir de outro lugar.',
+    temFibra: 'Tem fibra, que ajuda com o intestino preso — dos efeitos colaterais mais comuns do tratamento.',
+  },
+
+  /* ============================================================
+     DE ONDE VEIO O NÚMERO, dito para gente e não em sigla
+
+     A tela dizia "Os valores vêm da TACO, linha 78", que é exato e não
+     quer dizer nada para quem não sabe o que é TACO.
+     ============================================================ */
+  origem: {
+    /* ⚠️ O QUE O ITEM DECLARA VALE MAIS QUE O RECUO. Um produto de rede
+       traz a tabela da própria rede, e a frase de recuo — "a tabela da
+       Unicamp não analisa este" — é verdade e é inútil: ela descreve o
+       que a fonte NÃO é, quando o item sabe dizer o que ela é. */
+    porCem: (fonte: string) => `${fonte}. São os valores por 100 g, e o peso de cada porção é o que a própria rede declara.`,
+    porPorcaoSemPeso: (fonte: string) => `${fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`,
+    porPorcaoComPeso: (fonte: string) => `${fonte}. São os valores da porção que a rede vende, e não de 100 g — com o peso que ela mesma declara.`,
+    taco: 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.',
+    somaTaco: 'Este é um prato montado: somamos ingrediente por ingrediente pela tabela da Unicamp, numa porção de restaurante. O seu pode vir maior ou menor.',
+    rotulo: 'A tabela da Unicamp não analisa este, então os números vêm do rótulo de produtos comuns no mercado. De marca para marca eles mudam um pouco.',
+  },
+
+  /* ============================================================
      AS RESTRIÇÕES
 
      ⚠️ OS `id` SÃO DADO, e o que a restrição TIRA do prato é conteúdo e

@@ -1,5 +1,6 @@
 import { localAtual, type Local } from '../logic/local';
 import { alimentacao as alimentacaoPt } from './pt-BR/alimentacao';
+import { avisos as avisosPt } from './pt-BR/avisos';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
@@ -18,6 +19,7 @@ import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
+import { avisos as avisosEn } from './en-US/avisos';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
@@ -87,6 +89,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
   alimentacao: typeof alimentacaoPt;
+  avisos: typeof avisosPt;
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
   comum: typeof comumPt;
@@ -115,7 +118,7 @@ export type Textos = {
    dá — lá, chave esquecida vira texto faltando na tela de alguém. */
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
-    alimentacao: alimentacaoPt,
+    alimentacao: alimentacaoPt, avisos: avisosPt,
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt,
@@ -123,7 +126,7 @@ const CATALOGOS: Record<Local, Textos> = {
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
-    alimentacao: alimentacaoEn,
+    alimentacao: alimentacaoEn, avisos: avisosEn,
     ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn,

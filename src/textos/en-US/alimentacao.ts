@@ -84,6 +84,41 @@ export const alimentacao = {
     },
   },
 
+  /* ---------- the plate: moments, measure and the read ---------- */
+  prato: {
+    /* ⚠️ THE MOMENTS ARE KEY AND LABEL AT ONCE: the name is what gets
+       stored on each meal, and it's also what the screen shows. */
+    cafeDaManha: 'Breakfast',
+    almoco: 'Lunch',
+    lanche: 'Snack',
+    jantar: 'Dinner',
+
+    porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'serving' : 'servings'}`,
+
+    estimado: 'estimated from the photo',
+    semConta: 'not counted yet',
+
+    /* ⚠️ THE READ OF A FOOD FORBIDS NOTHING. "It isn't off-limits, but it
+       takes up a good part of the day" is as far as it goes, on purpose:
+       the app doesn't know what the care team agreed with the person. */
+    muitaProteinaPoucaCaloria: 'A lot of protein for few calories. It\u2019s the kind of food this treatment asks for: it fits the plate that shrank and still holds on to lean mass.',
+    boaFonte: 'A good source of protein, which is what holds on to lean mass while the weight comes down.',
+    caloriaAlta: 'High calories and little protein. It isn\u2019t off-limits, but it takes up a good part of the day and gives back little of what the treatment needs.',
+    bastanteFibra: 'Plenty of fiber. It helps with constipation, one of the most common side effects of the treatment.',
+    quaseNaoPesa: 'It barely weighs on the day. Good alongside the plate, but the protein has to come from somewhere else.',
+    temFibra: 'It has fiber, which helps with constipation — one of the most common side effects of the treatment.',
+  },
+
+  /* ---------- where the number came from, said in plain words ---------- */
+  origem: {
+    porCem: (fonte: string) => `${fonte}. These are the per-100 g values, and the weight of each serving is what the chain itself declares.`,
+    porPorcaoSemPeso: (fonte: string) => `${fonte}. These are the values for the serving the chain sells, not for 100 g — it publishes the product label without saying how much it weighs.`,
+    porPorcaoComPeso: (fonte: string) => `${fonte}. These are the values for the serving the chain sells, not for 100 g — with the weight it declares itself.`,
+    taco: 'The numbers come from the Brazilian food composition table, built by Unicamp, which measures in a lab what each food has in it.',
+    somaTaco: 'This is a composed dish: we add it up ingredient by ingredient from the Unicamp table, at a restaurant portion. Yours may come out bigger or smaller.',
+    rotulo: 'The Unicamp table doesn\u2019t analyze this one, so the numbers come from the labels of products common in stores. They shift a little from brand to brand.',
+  },
+
   /* ⚠️ THE SUBTITLE SAYS WHAT STAYS, not just what goes. "No meat,
      chicken or fish" on its own leaves the person wondering about eggs
      and cheese, which is exactly the question of someone choosing between
