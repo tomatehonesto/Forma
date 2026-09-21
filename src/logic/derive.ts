@@ -116,7 +116,7 @@ export function procedenciaDoAlvo(S: State, chave: ChaveDeAlvo) {
   if (chave === 'peso') {
     return { daEquipe: false, alterada: false, convivem: true, travado: false, editadoEm, meta };
   }
-  const emUso = ALVOS[chave].le(S);
+  const emUso = ALVOS()[chave].le(S);
   /* ⚠️⚠️ NÚMERO DA EQUIPE NÃO SE ARRASTA. A régua some da folha de Os
      números do dia quando existe anotação da equipe para aquele alvo.
 
@@ -3079,14 +3079,15 @@ export function journeyGoals(S: State): JourneyGoal[] {
          tratamento de meses, uma data que escorregou é a coisa mais
          comum do mundo, e a meta continua de pé. */
       const venceu = !g.feita && g.prazo && g.prazo < +startOfDay(now());
+      const J = T.metas.jornada;
       return {
         id: g.id, ic: g.ic, label: g.label,
         pct: g.feita ? 100 : 0,
         hint: g.feita && g.em
-          ? `conquistada em ${fmtDate(new Date(g.em))}`
+          ? J.conquistadaEm(fmtDate(new Date(g.em)))
           : g.prazo
-            ? `${venceu ? 'o prazo era' : 'até'} ${fmtDate(new Date(g.prazo))}`
-            : 'você marca quando chegar',
+            ? (venceu ? J.oPrazoEra : J.ate)(fmtDate(new Date(g.prazo)))
+            : J.vocemarca,
         pessoal: true,
         feita: !!g.feita,
         conta: '',
@@ -3104,8 +3105,8 @@ export function journeyGoals(S: State): JourneyGoal[] {
       id: g.id, ic: ind.ic, label: g.label || ind.rotulo(alvo, S),
       pct: de ? Math.round((n / de) * 100) : 0,
       hint: de
-        ? `${n} de ${de} ${de === 1 ? ind.nomes[0] : ind.nomes[1]} ${ind.nomes[0] === 'noite' ? 'registradas' : 'registrados'}`
-        : `sem ${ind.nomes[1]} registradas ainda`,
+        ? T.metas.jornada.contagem(n, de, de === 1 ? ind.nomes[0] : ind.nomes[1], ind.femininas)
+        : T.metas.jornada.semRegistros(ind.nomes[1]),
       pessoal: false,
       feita: false,
       conta: ind.conta(alvo, S),
@@ -3974,7 +3975,15 @@ export function semanaDoHistorico(S: State, ate: number) {
    ============================================================ */
 export type ChaveDeAlvo = 'prot' | 'waterMl' | 'exercMin' | 'peso';
 
-export const ALVOS: Record<ChaveDeAlvo, {
+/* Atalhos para os catálogos de texto. São FUNÇÕES e são chamadas dentro
+   das tabelas — o catálogo tem de ser lido na hora, e não no import. */
+const A = () => T.metas.alvos;
+const I = () => T.metas.indicadores;
+
+/* ⚠️ É FUNÇÃO, E NÃO CONSTANTE. Metade desta tabela é texto, e constante
+   de módulo lê o catálogo UMA vez, no import — congelaria o idioma antes
+   da primeira tela. Ver o alto de textos/index. */
+export const ALVOS = (): Record<ChaveDeAlvo, {
   ic: string;
   nome: string;
   /** o que este número muda no resto do app */
@@ -4027,22 +4036,20 @@ export const ALVOS: Record<ChaveDeAlvo, {
   le: (S: State) => number;
   /** como o número se escreve na tela, já na unidade de quem lê */
   escreve: (v: number, S: State) => string;
-}> = {
+}> => ({
   prot: {
-    ic: 'utensils', nome: 'Proteína por dia', onde: 'Cobrada na alimentação e no protocolo',
-    origem: 'Calculado do seu peso, a 1,2 g por quilo',
-    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    ic: 'utensils', nome: A().prot.nome, onde: A().prot.onde, origem: A().prot.origem,
+    ressalva: A().ressalvaDoProtocolo,
     regua: { min: 40, max: 220, passo: 5, tracoCada: 5, casas: 0, esp: 10, salto: 5 },
-    un: () => 'g', passo: 5, min: 40, max: 220,
+    un: () => A().prot.un, passo: 5, min: 40, max: 220,
     le: (S) => (S.profile as any).targets.prot,
-    escreve: (v) => String(Math.round(v)),
+    escreve: (v) => A().prot.escreve(Math.round(v)),
   },
   waterMl: {
     /* Guardada em mililitros e escrita em litros, como em toda parte: o
        passo de 250 ml é um copo, que é a unidade em que se bebe. */
-    ic: 'water', nome: 'Hidratação por dia', onde: 'Cobrada na hidratação e no protocolo',
-    origem: 'Calculado do seu peso, da sua idade e do seu nível de atividade',
-    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    ic: 'water', nome: A().waterMl.nome, onde: A().waterMl.onde, origem: A().waterMl.origem,
+    ressalva: A().ressalvaDoProtocolo,
     /* Em LITROS, e o estado guarda mililitros: a régua mostra o número
        que a pessoa lê em toda outra tela. O passo é um copo. */
     regua: { min: 0.75, max: 5, passo: 0.25, tracoCada: 0.1, casas: 2, esp: 40, salto: 0.25 },
@@ -4053,28 +4060,18 @@ export const ALVOS: Record<ChaveDeAlvo, {
     escreve: (v, S) => aguaN(S, v),
   },
   exercMin: {
-    ic: 'dumbbell', nome: 'Exercício por dia', onde: 'É a tracejada da semana, no exercício',
-    /* ⚠️ ESTE NÃO É CALCULADO, e seria fácil escrever que é para a frase
-       ficar igual às outras duas. São 60 minutos para todo mundo, e o
-       cadastro não pergunta nada que mudasse isso. */
-    origem: 'O padrão do aplicativo, igual para todo mundo',
-    ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
+    ic: 'dumbbell', nome: A().exercMin.nome, onde: A().exercMin.onde,
+    origem: A().exercMin.origem,
+    ressalva: A().ressalvaDoProtocolo,
     regua: { min: 10, max: 180, passo: 10, tracoCada: 5, casas: 0, esp: 20, salto: 10 },
-    un: () => 'min', passo: 10, min: 10, max: 180,
+    un: () => A().exercMin.un, passo: 10, min: 10, max: 180,
     le: (S) => (S.profile as any).targets.exercMin,
-    escreve: (v) => String(Math.round(v)),
+    escreve: (v) => A().exercMin.escreve(Math.round(v)),
   },
   peso: {
-    /* O MESMO NOME DO CADASTRO. A pergunta lá é "qual é a sua meta de
-       peso?", e aqui o campo se chamava "peso de referência" — dois nomes
-       para o mesmo número, e quem quisesse mudar o que respondeu no
-       cadastro tinha de adivinhar qual dos dois era. O app usa este peso
-       para medir o caminho, e não para cobrar; isso continua verdade com o
-       nome que a pessoa reconhece. */
-    ic: 'scale', nome: 'Meta de peso', onde: 'Mede a viagem inteira, na Jornada',
-    /* A única dos quatro que a pessoa escolheu de verdade — e é por isso
-       que a frase dela não fala de conta nenhuma. */
-    origem: 'Você escolheu no cadastro',
+    /* Este peso mede o caminho, e não cobra: é por isso que ele é o único
+       dos quatro sem ressalva de protocolo. */
+    ic: 'scale', nome: A().peso.nome, onde: A().peso.onde, origem: A().peso.origem,
     regua: { min: 40, max: 200, passo: 0.5, tracoCada: 0.5, casas: 1, esp: 6, salto: 0.5 },
     un: pesoU, passo: 0.5, min: 40, max: 200,
     le: (S) => S.profile.goalWeight,
@@ -4082,7 +4079,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
        "68,0 kg" numa pastilha de meta parece precisão de balança. */
     escreve: (v, S) => pesoProsa(S, v),
   },
-};
+});
 
 /* ⚠️ `porEla` EXISTE PORQUE DUAS COISAS DIFERENTES ESCREVEM AQUI.
 
@@ -4095,7 +4092,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
    edição dela apagaria justamente a procedência que aquela folha existe
    para guardar. */
 export function mudarAlvo(s: any, chave: ChaveDeAlvo, valor: number, porEla = true) {
-  const a = ALVOS[chave];
+  const a = ALVOS()[chave];
   const v = Math.max(a.min, Math.min(a.max, valor));
   if (chave === 'peso') s.profile.goalWeight = v;
   else s.profile.targets[chave] = v;
@@ -4172,6 +4169,10 @@ export type Indicador = {
   origem: string;
   /** singular e plural do que se conta */
   nomes: [string, string];
+  /* A concordância de `nomes`, que a frase da Jornada precisa: "11 de 13
+     noites REGISTRADAS". Era decidido comparando a palavra com "noite" —
+     o que quebra calado no dia em que entrar um indicador feminino novo. */
+  femininas: boolean;
   /** para cima (sono, proteína) ou para baixo (enjoo, fome) */
   sentido: 'min' | 'max';
   /** o palpite inicial — só um começo, não uma recomendação */
@@ -4182,8 +4183,17 @@ export type Indicador = {
      "4 de 5" —, mas média tem casa decimal, e formatar decimal é de quem
      mostra. Sem a unidade declarada aqui, cada tela que mostra média
      redescobre que sono é hora e energia é degrau; é assim que uma delas
-     acaba escrevendo "6.8 h" com ponto. Os indicadores de passo já dizem
-     a sua em `passos.un`. */
+     acaba escrevendo "6.8 h" com ponto.
+
+     ⚠️ SÓ OS CINCO DE SENTIR TÊM, e é o que /sintomas lê. Proteína, água
+     e movimento não aparecem como média em tela nenhuma — e a unidade
+     deles seria a primeira a errar, porque duas das três mudam de sistema.
+     Declarar por precaução criaria justamente o "L" que ninguém atualiza.
+
+     ⚠️ E ISSO JÁ ACONTECEU. Os três carregavam um `passos` com
+     `{ min, max, passo, un }` para a folha de criar meta medida — folha
+     que deixou de existir. Ninguém lia, e o `un` da água dizia "L" com o
+     aplicativo mostrando fl oz. Saiu. */
   un?: string;
   /** quando o padrão sai da meta do perfil */
   doPerfil?: (S: State) => number;
@@ -4218,8 +4228,6 @@ export type Indicador = {
   sintoma?: boolean;
   /** escolha por régua, com as legendas do check-in */
   escala?: { valores: number[]; legendas?: string[] };
-  /** escolha por passos, quando o número é aberto */
-  passos?: { min: number; max: number; passo: number; un: string };
   /** o valor do dia na régua da ESCOLHA; null quando não foi respondido */
   leitura: (c: any) => number | null;
   /** o nome que a meta ganha: "Dormir 7h por noite" */
@@ -4232,109 +4240,113 @@ export type Indicador = {
 
 const num = (c: any, k: string): number | null => (typeof c[k] === 'number' ? c[k] : null);
 
-export const INDICADORES: Indicador[] = [
+/* ⚠️ NOME, PERGUNTA, ORIGEM, NOMES E UNIDADE VÊM JUNTOS, de uma chave só.
+   Escritos um a um, cada indicador repetia cinco linhas de `I().x.y` e
+   nada garantia que a chave fosse a mesma nas cinco — trocar uma sozinha
+   daria um indicador com a pergunta de outro, e o tsc não veria nada. */
+const doTexto = (id: keyof typeof T.metas.indicadores) => {
+  const t = I()[id] as any;
+  return {
+    nome: t.nome, pergunta: t.pergunta, origem: t.origem,
+    nomes: t.nomes as [string, string], femininas: t.femininas as boolean,
+    ...(t.un ? { un: t.un as string } : {}),
+  };
+};
+
+/* Função pelo mesmo motivo de `ALVOS`: nome, pergunta e origem saem do
+   catálogo, e constante de módulo o leria no import. */
+export const INDICADORES = (): Indicador[] => [
   {
-    id: 'sono', ic: 'moon', nome: 'Horas de sono',
-    pergunta: 'Quantas horas por noite?', origem: 'Do sono que você responde no check-in',
-    nomes: ['noite', 'noites'], sentido: 'min', padrao: SONO_REF_H, un: 'h',
+    id: 'sono', ic: 'moon', ...doTexto('sono'), sentido: 'min', padrao: SONO_REF_H,
     escala: { valores: [5, 6, 7, 8, 9], legendas: SONO },
     leitura: (c) => num(c, 'sono'),
-    escreve: (v) => `${v} h`,
-    rotulo: (v) => `Dormir ${v}h por noite`,
-    conta: (v) => `Noites com ${v}h ou mais`,
+    escreve: (v) => I().sono.escreve(v),
+    rotulo: (v) => I().sono.rotulo(v),
+    conta: (v) => I().sono.conta(v),
   },
   {
     /* Energia e fome moram de 0 a 10 no banco e de 1 a 5 na tela. A
        leitura converte com paraTela, que é a mesma função que o check-in
        usa para reabrir uma resposta salva. */
-    id: 'energia', ic: 'bolt', nome: 'Energia no dia',
+    id: 'energia', ic: 'bolt', ...doTexto('energia'),
     sintoma: true,
-    pergunta: 'De que nível para cima conta?', origem: 'Da energia que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
+    sentido: 'min', padrao: 4,
     escala: { valores: [1, 2, 3, 4, 5], legendas: ENERGIA },
     leitura: (c) => paraTela(c.energia),
-    escreve: (v) => `${v} de 5`,
-    rotulo: (v) => `Energia ${v} ou mais`,
-    conta: (v) => `Dias com energia ${v} ou mais, de 1 a 5`,
+    escreve: (v) => I().energia.escreve(v),
+    rotulo: (v) => I().energia.rotulo(v),
+    conta: (v) => I().energia.conta(v),
   },
   {
-    id: 'humor', ic: 'mood', nome: 'Humor no dia',
+    id: 'humor', ic: 'mood', ...doTexto('humor'),
     sintoma: true,
-    pergunta: 'De que nível para cima conta?', origem: 'Do humor que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 4, un: 'de 5',
+    sentido: 'min', padrao: 4,
     escala: { valores: [1, 2, 3, 4, 5], legendas: HUMOR },
     leitura: (c) => num(c, 'mood'),
-    escreve: (v) => `${v} de 5`,
-    rotulo: (v) => `Humor ${v} ou mais`,
-    conta: (v) => `Dias com humor ${v} ou mais, de 1 a 5`,
+    escreve: (v) => I().humor.escreve(v),
+    rotulo: (v) => I().humor.rotulo(v),
+    conta: (v) => I().humor.conta(v),
   },
   {
     /* Sintoma conta AO CONTRÁRIO: o acerto é o dia em que o número ficou
        baixo. Sem o sentido, "menos enjoo" mostraria a barra crescendo
        junto com o enjoo. */
-    id: 'enjoo', ic: 'waves', nome: 'Enjoo',
+    id: 'enjoo', ic: 'waves', ...doTexto('enjoo'),
     sintoma: true,
-    pergunta: 'Até que nível ainda conta como bom?', origem: 'Do enjoo que você marca no check-in',
-    nomes: ['dia', 'dias'], sentido: 'max', padrao: 2, un: 'de 5',
+    sentido: 'max', padrao: 2,
     escala: { valores: [1, 2, 3, 4, 5], legendas: SINTOMA.nausea },
     leitura: (c) => num(c, 'nausea'),
-    escreve: (v) => `${v} de 5`,
-    rotulo: (v) => `Enjoo ${v} ou menos`,
-    conta: (v) => `Dias com enjoo ${v} ou menos, de 1 a 5`,
+    escreve: (v) => I().enjoo.escreve(v),
+    rotulo: (v) => I().enjoo.rotulo(v),
+    conta: (v) => I().enjoo.conta(v),
   },
   {
-    id: 'fome', ic: 'soup', nome: 'Fome',
+    id: 'fome', ic: 'soup', ...doTexto('fome'),
     sintoma: true,
-    pergunta: 'Até que nível ainda conta como bom?', origem: 'Da fome que você responde no check-in',
-    nomes: ['dia', 'dias'], sentido: 'max', padrao: 3, un: 'de 5',
+    sentido: 'max', padrao: 3,
     escala: { valores: [1, 2, 3, 4, 5], legendas: FOME },
     leitura: (c) => paraTela(c.fome),
-    escreve: (v) => `${v} de 5`,
-    rotulo: (v) => `Fome ${v} ou menos`,
-    conta: (v) => `Dias com fome ${v} ou menos, de 1 a 5`,
+    escreve: (v) => I().fome.escreve(v),
+    rotulo: (v) => I().fome.rotulo(v),
+    conta: (v) => I().fome.conta(v),
   },
   {
     /* Os três de baixo começam na meta do PERFIL, que é o número que a
        pessoa já persegue todo dia — mas continuam livres: dá para pôr uma
        meta de proteína mais baixa do que a diária e ir subindo. */
-    id: 'prot', ic: 'utensils', nome: 'Proteína por dia',
-    pergunta: 'Quantos gramas por dia?', origem: 'Das refeições que você registra',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 90,
+    id: 'prot', ic: 'utensils', ...doTexto('prot'),
+    sentido: 'min', padrao: 90,
     doPerfil: (S) => (S.profile as any).targets.prot,
-    passos: { min: 40, max: 220, passo: 5, un: 'g' },
     leitura: (c) => num(c, 'prot'),
-    escreve: (v) => `${Math.round(v)} g`,
-    rotulo: (v) => `Comer ${Math.round(v)} g de proteína`,
-    conta: (v) => `Dias com ${Math.round(v)} g ou mais`,
+    escreve: (v) => I().prot.escreve(Math.round(v)),
+    rotulo: (v) => I().prot.rotulo(Math.round(v)),
+    conta: (v) => I().prot.conta(Math.round(v)),
   },
   {
-    id: 'agua', ic: 'water', nome: 'Hidratação por dia',
-    pergunta: 'Quanto por dia?', origem: 'Do que você registra na hidratação',
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 2500,
+    id: 'agua', ic: 'water', ...doTexto('agua'),
+    sentido: 'min', padrao: 2500,
     doPerfil: (S) => (S.profile as any).targets.waterMl,
-    passos: { min: 750, max: 5000, passo: 250, un: 'L' },
     leitura: (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
     /* ⚠️ O ESTADO ENTROU NESTES TRÊS por causa das unidades — a tabela é
-       constante e a água se escreve em litro ou em onça. */
+       constante e a água se escreve em litro ou em onça. O catálogo recebe
+       a quantidade já escrita: unidade é de logic/medidas, frase é de lá. */
     escreve: (v, S) => aguaTxt(S, v),
-    rotulo: (v, S) => `Beber ${aguaTxt(S, v)} de água`,
-    conta: (v, S) => `Dias com ${aguaTxt(S, v)} ou mais`,
+    rotulo: (v, S) => I().agua.rotulo(aguaTxt(S, v)),
+    conta: (v, S) => I().agua.conta(aguaTxt(S, v)),
   },
   {
-    id: 'exerc', ic: 'dumbbell', nome: 'Minutos de movimento',
-    pergunta: 'Quantos minutos por dia?', origem: 'Dos treinos que você registra',
+    id: 'exerc', ic: 'dumbbell', ...doTexto('exerc'),
     /* ⚠️ ELE NÃO TINHA `doPerfil`, E OS VIZINHOS TINHAM — e por isso a
        meta de movimento abria em 30 min enquanto o aplicativo cobrava 60.
        Não era só divergir depois de editada: ela já NASCIA discordando do
        alvo, e ninguém percebeu porque a lista tem três números do dia e
        só dois liam o perfil. */
-    nomes: ['dia', 'dias'], sentido: 'min', padrao: 30,
+    sentido: 'min', padrao: 30,
     doPerfil: (S) => (S.profile as any).targets.exercMin,
-    passos: { min: 10, max: 180, passo: 10, un: 'min' },
     leitura: (c) => num(c, 'exerc'),
-    escreve: (v) => `${Math.round(v)} min`,
-    rotulo: (v) => `Se mexer ${Math.round(v)} min por dia`,
-    conta: (v) => `Dias com ${Math.round(v)} min ou mais`,
+    escreve: (v) => I().exerc.escreve(Math.round(v)),
+    rotulo: (v) => I().exerc.rotulo(Math.round(v)),
+    conta: (v) => I().exerc.conta(Math.round(v)),
   },
 ];
 
@@ -4388,7 +4400,14 @@ export type MetaPessoal = {
   monta: (r: string) => string;
 };
 
-export const METAS_PESSOAIS: MetaPessoal[] = [
+/* O ícone é do código — ele não se traduz — e o resto vem do catálogo de
+   uma chave só, pelo mesmo motivo do `doTexto` dos indicadores. */
+const pessoal = (id: keyof typeof T.metas.pessoais, ic: string): MetaPessoal => {
+  const t = T.metas.pessoais[id];
+  return { id, ic, nome: t.nome, pergunta: t.pergunta, dica: t.dica, monta: t.monta };
+};
+
+export const METAS_PESSOAIS = (): MetaPessoal[] => [
   /* ⚠️⚠️ DUAS COISAS FORAM ARRUMADAS AQUI DE UMA VEZ, e a segunda é a que
      dói mais.
 
@@ -4412,69 +4431,20 @@ export const METAS_PESSOAIS: MetaPessoal[] = [
         dentro de campo é sugestão, e quem lê um antes de pensar na
         própria meta escreve a meta do exemplo. Na pergunta eles são o que
         devem ser — a forma da resposta, não a resposta. */
-  {
-    id: 'roupa', ic: 'ruler', nome: 'Uma peça de roupa',
-    pergunta: 'Qual peça você quer vestir? A do fundo do armário, uma que você viu numa vitrine — a que vier à cabeça.',
-    dica: 'Digite a peça de roupa',
-    monta: (r) => `Vestir ${r}`,
-  },
-  {
-    id: 'esporte', ic: 'run', nome: 'Um esporte',
-    pergunta: 'Qual esporte você quer praticar? Vale o que você já fez um dia e o que nunca experimentou.',
-    dica: 'Digite o esporte',
-    monta: (r) => `Praticar ${r}`,
-  },
-  {
-    id: 'folego', ic: 'walk', nome: 'Algo do dia a dia',
-    pergunta: 'O que você quer conseguir fazer sem se cansar? Subir a escada de casa, carregar as compras, andar até ali sem parar no meio.',
-    dica: 'Digite a atividade',
-    monta: (r) => `Conseguir ${r}`,
-  },
-  {
-    id: 'sentir', ic: 'heart', nome: 'Como eu me sinto',
-    pergunta: 'Como você quer se sentir? Com mais disposição, mais à vontade no próprio corpo — do jeito que fizer sentido para você.',
-    dica: 'Digite como você quer se sentir',
-    monta: (r) => `Me sentir ${r}`,
-  },
-  {
-    id: 'foto', ic: 'photo', nome: 'Uma foto',
-    pergunta: 'Que foto você quer ter? Uma na praia, uma com quem você ama, ou só uma em que você se reconheça.',
-    dica: 'Digite a foto',
-    monta: (r) => `Tirar ${r}`,
-  },
-  {
-    /* ⚠️ O NOME DIZ A PRESSUPOSIÇÃO, e é a única que sobrou. Aqui ela é o
-       assunto: não é sobre conseguir, é sobre voltar — quem deixa de ir à
-       praia raramente deixou por não dar conta. Quem quer um lugar novo
-       tem "Outra meta". */
-    id: 'lugar', ic: 'sun', nome: 'Um lugar que você deixou de ir',
-    pergunta: 'Aonde você quer voltar? A praia, a piscina, a festa de alguém — o lugar que anda ficando de fora.',
-    dica: 'Digite o lugar',
-    monta: (r) => `Voltar a ${r}`,
-  },
-  {
-    id: 'comecar', ic: 'leaf', nome: 'Um hábito para criar',
-    pergunta: 'O que você quer começar a fazer? Caminhar de manhã, cozinhar no domingo, dormir mais cedo.',
-    dica: 'Digite o hábito',
-    monta: (r) => `Começar a ${r}`,
-  },
-  {
-    id: 'largar', ic: 'check', nome: 'Um hábito para largar',
-    pergunta: 'O que você quer parar de fazer? Comer em pé, beliscar de madrugada — o que for seu.',
-    dica: 'Digite o hábito',
-    monta: (r) => `Parar de ${r}`,
-  },
+  pessoal('roupa', 'ruler'),
+  pessoal('esporte', 'run'),
+  pessoal('folego', 'walk'),
+  pessoal('sentir', 'heart'),
+  pessoal('foto', 'photo'),
+  pessoal('lugar', 'sun'),
+  pessoal('comecar', 'leaf'),
+  pessoal('largar', 'check'),
 ];
 
 /* A saída para o que não cabe em nenhuma categoria. Ela é a mesma coisa
    que as outras — pergunta, exemplo, monta —, só que sem prefixo: aqui a
    frase inteira é de quem escreve. */
-export const META_LIVRE: MetaPessoal = {
-  id: 'livre', ic: 'more', nome: 'Outra meta',
-  pergunta: 'O que você quer conseguir? Escreva do seu jeito — guardamos exatamente como você escrever.',
-  dica: 'Digite a sua meta',
-  monta: (r) => r,
-};
+export const META_LIVRE = (): MetaPessoal => pessoal('livre', 'more');
 
 /* OS PRAZOS, e por que eles são relativos.
 
@@ -4486,16 +4456,16 @@ export const META_LIVRE: MetaPessoal = {
    E o prazo é OPCIONAL de verdade: a primeira opção é não ter, e ela vem
    selecionada. Uma meta sem data continua sendo uma meta — o que ela não
    pode é ganhar um prazo que a pessoa não escolheu. */
-export const PRAZOS: { id: string; label: string; dias: number | null }[] = [
-  { id: 'nao', label: 'Sem prazo', dias: null },
-  { id: '30', label: 'Em 1 mês', dias: 30 },
-  { id: '90', label: 'Em 3 meses', dias: 90 },
-  { id: '180', label: 'Em 6 meses', dias: 180 },
-  { id: '365', label: 'Em 1 ano', dias: 365 },
+export const PRAZOS = (): { id: string; label: string; dias: number | null }[] => [
+  { id: 'nao', label: T.metas.prazos.nao, dias: null },
+  { id: '30', label: T.metas.prazos.umMes, dias: 30 },
+  { id: '90', label: T.metas.prazos.tresMeses, dias: 90 },
+  { id: '180', label: T.metas.prazos.seisMeses, dias: 180 },
+  { id: '365', label: T.metas.prazos.umAno, dias: 365 },
 ];
 
 export const indicadorDe = (id?: string | null) =>
-  INDICADORES.find((x) => x.id === id) || null;
+  INDICADORES().find((x) => x.id === id) || null;
 
 /** O número com que o seletor abre: a meta do perfil quando existe. */
 export const padraoDe = (i: Indicador, S: State) => (i.doPerfil ? i.doPerfil(S) : i.padrao);

@@ -40,7 +40,7 @@ export default function Meta() {
 
   /* ---------------- um dos quatro números ---------------- */
   const chave = alvo as ChaveDeAlvo | undefined;
-  const def = chave ? ALVOS[chave] : null;
+  const def = chave ? ALVOS()[chave] : null;
   const [v, setV] = useState<number>(() => (def ? def.le(S) : 0));
 
   if (def && chave) {
@@ -237,7 +237,7 @@ export default function Meta() {
        da medida, em que o segundo toque escolhe a régua. */
     if (pess) {
       const frase = texto.trim() ? pess.monta(texto.trim()) : '';
-      const dias = PRAZOS.find((x) => x.id === prazo)?.dias ?? null;
+      const dias = PRAZOS().find((x) => x.id === prazo)?.dias ?? null;
       const quando = dias == null ? null : +startOfDay(now()) + dias * DAY;
       const salvarPessoal = () => {
         update((s: any) => guardarMetaPessoal(s, frase, pess.ic, quando));
@@ -277,7 +277,7 @@ export default function Meta() {
                 continua sendo uma meta — o que ela não pode é ganhar uma
                 data que a pessoa não pediu. */}
             <Campo rotulo="Prazo (opcional)" nu>
-              <Chips itens={PRAZOS} valor={prazo} onChange={setPrazo} />
+              <Chips itens={PRAZOS()} valor={prazo} onChange={setPrazo} />
             </Campo>
 
             {/* COMO ELA VAI APARECER, montada enquanto a pessoa escreve.
@@ -335,7 +335,7 @@ export default function Meta() {
               {/* CATEGORIAS, e não frases prontas — a mesma forma da lista
                   de cima. "Um esporte" pergunta qual esporte; a frase
                   inteira só existe depois da resposta. */}
-              {[...METAS_PESSOAIS, META_LIVRE].map((m) => (
+              {[...METAS_PESSOAIS(), META_LIVRE()].map((m) => (
                 <Linha
                   key={m.id}
                   ic={m.ic}

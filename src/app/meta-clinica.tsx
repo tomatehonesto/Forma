@@ -32,7 +32,7 @@ export default function MetaClinica() {
   const { alvo } = useLocalSearchParams<{ alvo?: string }>();
 
   const chave = ((alvo as ChaveDeAlvo) || 'peso') as ChaveDeAlvo;
-  const def = ALVOS[chave];
+  const def = ALVOS()[chave];
   const atual = metaClinica(S, chave);
   const r = def.regua;
   const paraRegua = def.paraRegua ?? ((x: number) => x);

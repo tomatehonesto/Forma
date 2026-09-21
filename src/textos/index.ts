@@ -2,6 +2,7 @@ import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
+import { metas as metasPt } from './pt-BR/metas';
 
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
@@ -53,12 +54,13 @@ export type Textos = {
   cruzamentos: typeof cruzamentosPt;
   etapa: typeof etapaPt;
   marcadores: typeof marcadoresPt;
+  metas: typeof metasPt;
 };
 
 const CATALOGOS: Record<Idioma, Textos> = {
   'pt-BR': {
     ciclo: cicloPt, cruzamentos: cruzamentosPt, etapa: etapaPt,
-    marcadores: marcadoresPt,
+    marcadores: marcadoresPt, metas: metasPt,
   },
 };
 

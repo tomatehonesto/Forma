@@ -84,7 +84,7 @@ export default function Metas() {
         >
           <Cartao>
             {chaves.map((k) => {
-              const a = ALVOS[k];
+              const a = ALVOS()[k];
               /* ⚠️ A TAG DIZ DE QUEM É O NÚMERO, e antes não havia como
                  saber. Três destes quatro saíam de uma conta com as
                  respostas do cadastro — e agora qualquer um deles pode ter

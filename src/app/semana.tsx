@@ -74,7 +74,7 @@ export default function Semana() {
 
   /* Energia pela leitura do indicador, que é quem sabe que a coluna mora
      de 0 a 10 e a pergunta foi de 1 a 5. */
-  const energia = INDICADORES.find((x) => x.id === 'energia')!;
+  const energia = INDICADORES().find((x) => x.id === 'energia')!;
   const ens = cs.map((x: any) => energia.leitura(x)).filter((v): v is number => v != null);
   const mediaEnergia = ens.length ? ens.reduce((a, b) => a + b, 0) / ens.length : null;
 

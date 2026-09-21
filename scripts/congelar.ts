@@ -41,6 +41,7 @@ import {
   examCats, examBy, examAbout, examInfluences, examWays, examStatus,
   examExplain, examSummary, exameNoProtocolo,
   patterns, PAT_LABEL, balanceRead, diaFracoDeAgua, janelaDoEnjoo,
+  ALVOS, INDICADORES, METAS_PESSOAIS, META_LIVRE, PRAZOS, padraoDe,
 } from '../src/logic/derive';
 import { mensagemDoDia, emPlato } from '../src/logic/etapa';
 import { descobertas, descobertaDaHome } from '../src/logic/descobertas';
@@ -206,6 +207,52 @@ for (const [nome, ajusta] of CENARIOS) {
   c.balanceRead = tenta('balanceRead', () => balanceRead(S));
   c.diaFracoDeAgua = tenta('diaFracoDeAgua', () => diaFracoDeAgua(S));
   c.janelaDoEnjoo = tenta('janelaDoEnjoo', () => janelaDoEnjoo(S));
+
+  /* ⚠️ OS CATÁLOGOS DE META ENTRAM UM A UM, E EXECUTADOS. Quase tudo
+     neles é função — `un(S)`, `escreve(v, S)`, `rotulo(v, S)`, `monta(r)` —,
+     e congelar a tabela crua congelaria o nome da função, não a frase que
+     ela produz. Duas das quatro grandezas mudam de unidade, então a
+     mesma linha sai diferente em métrico e em imperial: é isso que estes
+     quatro cenários existem para pegar. */
+  c.alvos = Object.entries(ALVOS()).map(([k, a]) => [k, {
+    nome: a.nome, onde: a.onde, origem: a.origem, ressalva: a.ressalva ?? null,
+    un: tenta('un', () => a.un(S)),
+    escreve: tenta('escreve', () => a.escreve(a.le(S), S)),
+  }]);
+
+  c.indicadores = INDICADORES().map((i) => {
+    const v = padraoDe(i, S);
+    return [i.id, {
+      nome: i.nome, pergunta: i.pergunta, origem: i.origem, nomes: i.nomes, un: i.un ?? null,
+      escreve: tenta('escreve', () => i.escreve(v, S)),
+      rotulo: tenta('rotulo', () => i.rotulo(v, S)),
+      conta: tenta('conta', () => i.conta(v, S)),
+    }];
+  });
+
+  /* O `monta` recebe um pedaço de frase e devolve a sentença inteira; o
+     pedaço é sempre o mesmo para o diff ficar legível. */
+  c.metasPessoais = [...METAS_PESSOAIS(), META_LIVRE()].map((m) => [m.id, {
+    nome: m.nome, pergunta: m.pergunta, dica: m.dica,
+    monta: tenta('monta', () => m.monta('AQUILO')),
+  }]);
+
+  c.prazos = PRAZOS().map((x) => [x.id, x.label, x.dias]);
+
+  /* ⚠️ A SEMENTE SÓ TEM META PESSOAL, e três delas sem prazo. A meta
+     MEDIDA — a que tem porcentagem, contagem e o rótulo montado a partir
+     do indicador — nunca rodava, nem o prazo vencido, nem o prazo por
+     vir. Estas metas são fabricadas aqui, e não na semente, porque
+     ninguém tem oito metas medidas ao mesmo tempo. */
+  c.journeyGoalsFabricadas = tenta('journeyGoals(fabricadas)', () => {
+    const fake = { ...S, goals: [
+      ...INDICADORES().map((i) => ({ id: 'm-' + i.id, ic: i.ic, indicador: i.id })),
+      { id: 'p-prazo', ic: 'target', label: 'Uma meta com prazo por vir', indicador: null, feita: false, em: null, prazo: S.checkins[S.checkins.length - 1].t + 30 * 86_400_000 },
+      { id: 'p-venceu', ic: 'target', label: 'Uma meta com prazo vencido', indicador: null, feita: false, em: null, prazo: S.checkins[S.checkins.length - 1].t - 30 * 86_400_000 },
+      { id: 'p-feita', ic: 'target', label: 'Uma meta conquistada', indicador: null, feita: true, em: S.checkins[0].t, prazo: null },
+    ] };
+    return journeyGoals(fake as any);
+  });
 
   c.examSummary = tenta('examSummary', () => examSummary(S));
   c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));

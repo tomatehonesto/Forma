@@ -509,8 +509,8 @@ export default function Medico() {
             acontece antes de haver número. */}
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Os números da sua equipe</Txt>
         <Cartao>
-          {(Object.keys(ALVOS) as ChaveDeAlvo[]).map((k) => {
-            const a = ALVOS[k];
+          {(Object.keys(ALVOS()) as ChaveDeAlvo[]).map((k) => {
+            const a = ALVOS()[k];
             const m = metaClinica(S, k);
             return (
               <Linha

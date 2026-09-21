@@ -178,7 +178,7 @@ export default function Sintomas() {
     .filter((x) => x.t >= desde && String(x.outroTexto || '').trim())
     .sort((a, b) => b.t - a.t);
 
-  const ind = INDICADORES.find((x) => x.id === qual)!;
+  const ind = INDICADORES().find((x) => x.id === qual)!;
   const serie = useMemo(() => {
     return (S.checkins as any[])
       .slice(-14)
