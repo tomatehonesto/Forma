@@ -3,6 +3,7 @@ import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions
 import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import { EstrelaIA } from '../../ui/marca';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
@@ -38,38 +39,31 @@ import { radius, font, shadowCard, alfa, type Palette } from '../../theme';
 
 const PAD = 24;
 
-/* O ORBE NÃO É MAIS UM ARQUIVO.
+/* ⚠️⚠️ O ORBE SAIU, E A ESTRELA DA IA ENTROU NO LUGAR.
 
-   Ele passou por três formas. Desenhado em SVG — halo, reflexo, corpo,
-   brasa e aro em camadas de degradê radial —, chegava perto e não chegava
-   lá. Depois virou PNG recortado do fundo por luminância, e aí o recorte
-   apareceu: onde o halo quase acaba, o dither da imagem de origem vira
-   franja, e franja num objeto que deveria ser contínuo é pior do que a
-   versão desenhada.
+   Ele teve uma vida longa aqui: desenhado em SVG (cor calculada não tem o
+   grão de uma peça renderizada, e numa forma cuja matéria É luz isso é o
+   assunto inteiro), depois PNG recortado por luminância (onde o halo
+   quase acaba, o dither vira franja), e por fim embutido na própria
+   imagem do hero — mesma peça, mesma luz, nenhuma borda para dar errado.
 
-   A saída era não recortar. Agora o orbe faz parte da imagem do hero:
-   mesma peça, mesma luz, mesma renderização, nenhuma borda para dar
-   errado. É a mesma decisão que a aurora já tinha tomado — quando a
-   matéria é o assunto, ela vem inteira.
+   O que mudou não foi a execução, foi o papel. A estrela virou a marca da
+   IA no aplicativo inteiro: ela assina as descobertas da Home, assina o
+   cabeçalho do chat, e é ela que a pessoa aprende a associar a "isto vem
+   da análise dos seus dados". Duas marcas para a mesma coisa é uma marca
+   a menos — quem via o orbe aqui e a estrela lá não tinha como saber que
+   eram o mesmo personagem.
 
-   Sobra em código só a altura que ele ocupa, para o texto começar abaixo
-   dele e para o toque cair em cima dele.
+   ⚠️ E A IMAGEM DE FUNDO TROCOU JUNTO. `aurora.insights` tem o orbe
+   DESENHADO nela; `aurora.hero` é a mesma aurora sem ele — é a peça que a
+   Home usa. Deixar a insights e desenhar a estrela por cima poria os dois
+   na mesma dobra, que é exatamente o problema que este commit resolve.
 
-   A PEÇA VEM NO FORMATO DA TELA, E ISSO RESOLVEU UM PROBLEMA REAL
-
-   A versão anterior era 2:3 — quase quadrada perto de um hero estreito e
-   comprido. Com contentFit cover a escala fica ditada pela ALTURA, e o
-   orbe crescia junto com o conteúdo: chegou a 275 px de diâmetro, e cada
-   linha a mais empurrava a esfera para baixo, que empurrava o texto, que
-   aumentava o hero. Um laço sem ponto fixo — eu ajustava a margem e o
-   problema voltava maior. Cheguei a esticar a tela da imagem para 3600 px
-   só para tirar a escala das mãos da altura.
-
-   Esta vem 853×1844, praticamente a proporção do aparelho. A imagem cabe
-   inteira na altura do hero (nenhuma linha dela é descartada em cima ou
-   embaixo) e o corte acontece nas laterais, onde só existe degradê. O
-   orbe fica em 136 px e o laço some por construção, sem truque nenhum. */
-const ORBE_ALTURA = 240;
+   Sobra em código a altura que a marca ocupa, para o texto começar abaixo
+   dela e o toque cair em cima. Era 240 para um orbe de 136; a estrela é
+   um símbolo, não um corpo, e pede menos espaço em volta. */
+const MARCA_ALTURA = 116;
+const MARCA_TAMANHO = 62;
 
 /* As duas medidas da junção entre o hero e a folha.
 
@@ -234,17 +228,14 @@ export default function Insights() {
               mesma família da Home, em outro corte — a Home é vertical e
               recortada, esta é a faixa larga. */}
           <Image
-            source={aurora.insights}
+            source={aurora.hero}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
-            /* ancorada no topo, não centralizada.
-
-               Com a peça esticada, a imagem é mais alta que o hero — e
-               centralizar corta em cima e embaixo por igual, o que subia o
-               orbe 78 px e o deixava quase encostado na barra de status.
-               Ancorada no topo, a posição da esfera é sempre a mesma
-               fração da largura, e o corte acontece só embaixo, onde só
-               existe degradê. */
+            /* Ancorada no topo, e agora por um motivo mais simples do que o
+               antigo: sem orbe desenhado na peça, não há nada que precise
+               cair num lugar exato. Fica no topo porque é lá que a aurora
+               é mais bonita, e o corte acontece embaixo, onde ela já
+               escureceu. */
             contentPosition="top center"
           />
           {/* Véu escuro para segurar o contraste do vidro: a aurora tem
@@ -272,38 +263,23 @@ export default function Insights() {
           {/* A Dissolucao era desenhada aqui. Foi embora inteira — o azul
               não precisa mais acabar, porque a folha o cobre. */}
 
-          {/* O orbe é a única marca do Morphi aqui. Substitui a linha de
-              nome, contagem e link que ocupava o topo: três elementos de
-              interface para dizer o que uma presença diz sozinha. Tocá-lo
-              abre a conversa inteira — o caminho continua existindo, só
-              deixou de ocupar espaço.
+          {/* A ESTRELA É A MARCA DA IA AQUI, e substitui a linha de nome,
+              contagem e link que já ocupou este topo: três elementos de
+              interface para dizer o que uma presença diz sozinha.
 
-              Voltou a ser esfera. Era uma onda de senóides, e as duas dizem
-              "há uma inteligência aqui" — mas sugerem coisas diferentes: a
-              onda é sinal em trânsito, algo passando; a esfera é um corpo,
-              uma coisa que ESTÁ. Numa aba cuja tese é "existe alguém
-              acompanhando você desde o primeiro dia", presença permanente
-              comunica melhor que sinal.
-
-              E ele deixou de ser um elemento.
-
-              Passou por três formas. Desenhado em SVG, chegava perto e não
-              chegava lá — cor calculada não tem o grão de uma peça
-              renderizada, e numa forma cuja matéria É luz isso é o assunto
-              inteiro. Depois virou PNG recortado do fundo por luminância,
-              e o recorte apareceu: onde o halo quase acaba, o dither da
-              imagem vira franja, e franja num objeto que deveria ser
-              contínuo é pior que a versão desenhada.
-
-              A saída era não recortar. O orbe agora faz parte da própria
-              imagem do hero — mesma peça, mesma luz, mesma renderização —,
-              então não existe borda para dar errado. É a mesma decisão que
-              a aurora já tinha tomado: quando a matéria é o assunto, ela
-              vem inteira.
-
-              O que sobra aqui é só o toque, invisível, sobre onde o orbe
-              está desenhado. */}
-          <Pressable onPress={go('/companion')} style={({ pressed }) => [{ height: ORBE_ALTURA, opacity: pressed ? 0.85 : 1 }]} />
+              Tocá-la abre a conversa inteira — o caminho continua onde
+              estava, e agora quem o abre é o mesmo símbolo que assina as
+              respostas do outro lado. Ver o comentário da constante lá em
+              cima para a história do orbe que morava aqui. */}
+          <Pressable
+            onPress={go('/companion')}
+            style={({ pressed }) => [{
+              height: MARCA_ALTURA, alignItems: 'center', justifyContent: 'center',
+              opacity: pressed ? 0.7 : 1,
+            }]}
+          >
+            <EstrelaIA size={MARCA_TAMANHO} />
+          </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
           <Txt v="note" c={c.onHero2} style={{ textAlign: 'center' }}>
