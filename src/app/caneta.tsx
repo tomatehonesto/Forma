@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
-import { nf, fmtDate, dataComDiaDaSemana, dataLonga } from '../logic/time';
+import { FORMAS, formaDe, concordar, oA } from '../logic/formas';
+import { nf, fmtDate, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
@@ -31,6 +32,17 @@ export default function Caneta() {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const k = canetaAtual(S);
+  /* ⚠️ ESTA TELA FALAVA "CANETA" TREZE VEZES, para quem pode estar usando
+     um frasco. Ela foi tocada na fase da validade, e "o que se toca, se
+     conserta" — deixar o cabeçalho dizendo "Caneta aberta em" na mesma
+     tela onde acabei de ensinar o aplicativo a perguntar o prazo de um
+     frasco seria incoerência na distância de dois centímetros.
+
+     O resto do aplicativo ainda diz "caneta" em trinta e poucos arquivos.
+     Está no PENDENCIAS, e é varredura própria. */
+  const forma = formaDe(S);
+  const vocab = FORMAS[forma];
+  const aberto = concordar(forma, 'aberto', 'aberta');
   const med = M(S);
   const atual = k.atual;
 
@@ -40,7 +52,7 @@ export default function Caneta() {
 
   return (
     <TelaInterna
-      titulo="Caneta e receita"
+      titulo={`${maiuscula(vocab.recipiente)} e receita`}
       acao="Nova"
       onAcao={() => router.push('/caneta-nova' as any)}
       rodape={<Botao label="Lembrar de renovar" onPress={() => router.push('/lembretes' as any)} />}
@@ -48,15 +60,15 @@ export default function Caneta() {
       <Titulao
         titulo={`${med.label} ${nf(dose, 1)} ${med.unit}`}
         lead={atual?.abertaEm
-          ? `Caneta aberta em ${dataLonga(atual.abertaEm)} · ${total} doses por caneta`
-          : `Nenhuma caneta aberta · ${total} doses por caneta`}
+          ? `${maiuscula(vocab.recipiente)} ${aberto} em ${dataLonga(atual.abertaEm)} · ${total} doses por ${vocab.recipiente}`
+          : `${concordar(forma, 'Nenhum', 'Nenhuma')} ${vocab.recipiente} ${aberto} · ${total} doses por ${vocab.recipiente}`}
       />
 
       <Progresso
         label="Doses usadas"
         valor={`${usadas} de ${total}`}
         pct={(usadas / total) * 100}
-        nota={`Última dose desta caneta: ${dataComDiaDaSemana(k.cobreAte)}`}
+        nota={`Última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}: ${dataComDiaDaSemana(k.cobreAte)}`}
       />
 
       <Grade2>
@@ -67,7 +79,7 @@ export default function Caneta() {
             coisa venceu no dia em que foi aberta. */}
         <Metrica
           ic="clock"
-          nome="Validade após aberta"
+          nome={`Validade após ${aberto}`}
           selo={k.validadeDias ? `${k.validadeDias} dias` : 'não informada'}
           seloTom="neutra"
           para={k.vence ? `vence ${fmtDate(k.vence)}` : 'quem prepara define o prazo'}
@@ -87,7 +99,7 @@ export default function Caneta() {
       {k.venceAntesDoFim ? (
         <Aviso
           ic="clock"
-          titulo="A caneta vence antes de acabar"
+          titulo={`${maiuscula(oA(forma))} ${vocab.recipiente} vence antes de acabar`}
           /* Só chega aqui com `vence` preenchido, e `vence` exige
              `validadeDias` — mas o tipo não sabe disso. */
           texto={`${med.label} dura ${k.validadeDias ?? 0} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`}
@@ -98,11 +110,11 @@ export default function Caneta() {
         <Aviso
           ic="pill"
           titulo="Momento de pedir a renovação"
-          texto={`Sua receita cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem a caneta entre uma consulta e outra.`}
+          texto={`Sua receita cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem ${oA(forma)} ${vocab.recipiente} entre uma consulta e outra.`}
         />
       ) : null}
 
-      <Bloco titulo="Histórico de canetas">
+      <Bloco titulo={`Histórico de ${vocab.plural}`}>
         <Sanfona>
           {k.lista.map((p) => (
             <SanfonaLinha
@@ -111,7 +123,7 @@ export default function Caneta() {
               selo={p.estado === 'uso' ? 'em uso' : 'encerrada'}
               seloTom="neutra"
               sub={p.estado === 'uso'
-                ? `Aberta em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
+                ? `${maiuscula(aberto)} em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
                 : `${fmtDate(p.abertaEm!)} a ${fmtDate(p.ultimaEm!)} · ${p.usadas} de ${p.total} doses`}
               itens={p.aplicacoes.map((a) => [fmtDate(a.t), siteLabel(a.site).toLowerCase()] as [string, string])}
             />
