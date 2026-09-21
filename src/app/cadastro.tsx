@@ -15,11 +15,12 @@ import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/con
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
+import type { Sistema } from '../logic/medidas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao, Roda, Regua, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Botao, Roda, Regua, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -29,6 +30,7 @@ import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font, shadowCard, alfa } from '../theme';
+import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
 
 /* ============================================================
    CADASTRO — as doze perguntas antes da primeira tela
@@ -162,6 +164,11 @@ type Respostas = {
   med: string | null;
   /** null quando o medicamento só vem numa forma — a pergunta nem aparece */
   forma: Forma | null;
+  /* ⚠️ NÃO É NULO, e os outros campos deste formulário são. A unidade tem
+     um padrão legítimo — métrico — e a pergunta não é "qual você usa?",
+     é "estas estão certas?". Começar em nulo obrigaria a responder antes
+     de ver as réguas, e as réguas é que tornam a pergunta óbvia. */
+  sistema: Sistema;
   dose: number | null;
   intervalo: number | null;
   altura: number;
@@ -209,7 +216,7 @@ const VAZIO: Respostas = {
      para a pessoa arrastar a partir dali. Não são recomendação nenhuma —
      são o meio da faixa. */
   dia: 1, mes: 0, ano: 1990,
-  emTratamento: null, med: null, forma: null, dose: null, intervalo: null,
+  emTratamento: null, med: null, forma: null, sistema: 'metrico', dose: null, intervalo: null,
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
@@ -883,6 +890,11 @@ export function respostasDoPerfil(S: State): Partial<Respostas> {
     ...(nasc ? { dia: nasc.getDate(), mes: nasc.getMonth(), ano: nasc.getFullYear() } : {}),
     emTratamento: emTratamento(S),
     med: p.med ?? null,
+    forma: p.forma ?? null,
+    /* Sem isto, quem edita o corpo pelo lápis do resumo vê as réguas em
+       quilo mesmo tendo escolhido libra — e o que ela arrastasse seria
+       gravado como se fosse quilo. */
+    sistema: sistemaDe(S),
     dose: p.dose || null,
     intervalo: p.intervalo ?? null,
     altura: p.height,
@@ -1142,6 +1154,8 @@ export default function Cadastro() {
          medicamento passar a vir em duas formas, quem não respondeu
          continua certo em vez de carregar uma resposta velha. */
       s.profile.forma = r.forma ?? undefined;
+      /* Este sempre existe: a pergunta tem padrão, e o padrão é resposta. */
+      s.profile.sistema = r.sistema;
       /* ZERO, E NÃO NULO, quando a dose ainda não existe — quem respondeu
          "ainda não sei" no medicamento nem chega à pergunta da dose. Meia
          dúzia de telas formatam este campo direto, e nulo quebrava a Home
@@ -1317,6 +1331,7 @@ export default function Cadastro() {
           meta: r.meta,
           ritmo: r.ritmo,
           med: r.med ?? 'indefinido',
+          sistema: r.sistema,
           dose: r.dose,
           intervalo: r.intervalo,
           plano,
@@ -1364,7 +1379,7 @@ export default function Cadastro() {
           : r.identidade === 'm' ? 'Masculino'
             : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
         ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
-        ['ruler', 'Altura e peso', `${nf(r.altura, 2)} m · ${nf(r.peso, 1)} kg`, 'corpo'],
+        ['ruler', 'Altura e peso', `${alturaTxt(r.sistema, r.altura)} · ${pesoTxt(r.sistema, r.peso)}`, 'corpo'],
         ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
         ['leaf', 'Restrição', r.restricoes.length
           ? r.restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
@@ -1372,7 +1387,7 @@ export default function Cadastro() {
       ]],
       ['O TRATAMENTO', [
         ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
-        ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${nf(r.pesoInicial, 1)} kg`, 'inicio'] as L]),
+        ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${pesoTxt(S, r.pesoInicial)}`, 'inicio'] as L]),
         /* O ® só onde ele é verdade — ver `marca` em logic/meds. */
         ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei'
           : `${med?.label}${med?.marca ? '®' : ''}`, 'medicamento'],
@@ -1385,8 +1400,8 @@ export default function Cadastro() {
         ]),
       ]],
       ['A SUA META', [
-        ['target', 'Peso', `${nf(r.meta, 1)} kg`, 'meta'],
-        ['trend', 'Ritmo', r.ritmo ? `${nf(r.ritmo, 1)} kg por semana` : 'sem peso a perder', 'ritmo'],
+        ['target', 'Peso', `${pesoTxt(S, r.meta)}`, 'meta'],
+        ['trend', 'Ritmo', r.ritmo ? `${pesoTxt(S, r.ritmo)} por semana` : 'sem peso a perder', 'ritmo'],
         ['bolt', 'Motivo', motivo?.titulo ?? '—', 'motivacao'],
       ]],
       ['NO APP', [
@@ -1521,7 +1536,7 @@ export default function Cadastro() {
     frequencia: `É daqui que saem a contagem do ciclo, os lembretes e o estoque ${doDa(formaEmUso)}.`,
     corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
     meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
-    ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,
+    ritmo: `${pesoTxt(S, Math.abs(perder))} a percorrer.`,
     motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
     restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
@@ -1976,19 +1991,45 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'corpo' ? (
-          <View style={{ gap: 40 }}>
+          <View style={{ gap: 28 }}>
+            {/* ⚠️⚠️ A UNIDADE SE ESCOLHE AQUI, e não num passo próprio.
+
+                Este é o primeiro momento em que ela importa — e é o único
+                em que a pergunta se explica sozinha, porque as réguas
+                estão logo abaixo mudando de escala no mesmo toque. Um
+                passo inteiro só para isso seria a décima primeira
+                pergunta de um formulário que já tem dez, para uma decisão
+                que nove em dez pessoas não precisam tomar.
+
+                Depois, ela muda em Perfil › Unidades. */}
+            <Opcoes>
+              {([['metrico', 'kg · m · cm'], ['imperial', 'lb · pé · pol']] as [Sistema, string][]).map(([id, rot]) => (
+                <Opc key={id} label={rot} on={r.sistema === id} onPress={() => p({ sistema: id })} />
+              ))}
+            </Opcoes>
             <View>
               <Rotulo>ALTURA</Rotulo>
+              {/* ⚠️ AS FAIXAS SE DECLARAM EM MÉTRICO e saem convertidas —
+                  ver logic/medidas. E a chave força o React a remontar a
+                  régua quando a unidade muda: ela guarda a posição do
+                  arrasto internamente, e sem remontar ela ficaria parada
+                  num ponto que já não quer dizer o mesmo. */}
               <Regua
-                min={1.2} max={2.2} passo={0.01} tracoCada={0.01} casas={2} esp={12} salto={0.01}
-                valor={r.altura} unidade="m" onEscolhe={(v) => p({ altura: v })} fundo={c.bg}
+                key={`alt-${r.sistema}`}
+                {...reguaDeAltura(r.sistema)}
+                valor={alturaV(r.sistema, r.altura)}
+                onEscolhe={(v) => p({ altura: alturaM(r.sistema, v) })}
+                fundo={c.bg}
               />
             </View>
             <View>
               <Rotulo>PESO DE HOJE</Rotulo>
               <Regua
-                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
-                valor={r.peso} unidade="kg" onEscolhe={(v) => p({ peso: v })} fundo={c.bg}
+                key={`peso-${r.sistema}`}
+                {...reguaDePeso(r.sistema, 40, 180)}
+                valor={pesoV(r.sistema, r.peso)}
+                onEscolhe={(v) => p({ peso: pesoKg(r.sistema, v) })}
+                fundo={c.bg}
               />
             </View>
           </View>
@@ -1997,8 +2038,11 @@ export default function Cadastro() {
         {id === 'meta' ? (
           <View style={{ gap: 16 }}>
             <Regua
-              min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.5}
-              valor={r.meta} unidade="kg" onEscolhe={(v) => p({ meta: v })} fundo={c.bg}
+              key={`meta-${r.sistema}`}
+              {...reguaDePeso(r.sistema, 40, 180)}
+              valor={pesoV(r.sistema, r.meta)}
+              onEscolhe={(v) => p({ meta: pesoKg(r.sistema, v) })}
+              fundo={c.bg}
             />
             {/* A DISTÂNCIA É O ASSUNTO DA TELA, e não o número absoluto.
 
@@ -2053,7 +2097,7 @@ export default function Cadastro() {
                        "devagar e sempre" não se compara com "acelerado"
                        sem saber quanto cada um vale. O apelido diz o que
                        aquilo significa depois que ela já viu o quanto. */
-                    titulo={`${nf(x.kg, 1)} kg por semana`}
+                    titulo={`${pesoTxt(S, x.kg)} por semana`}
                     sub={x.nome}
                     /* A PREVISÃO EM UMA LINHA, E EM OUTRA COR.
 
@@ -2072,7 +2116,7 @@ export default function Cadastro() {
                       <Row gap={6} style={{ marginTop: 5, alignItems: 'center' }}>
                         <Icon name="cal" size={13} color={on ? tinta : c.accent} sw={2} />
                         <Txt v="caption" c={on ? tinta : c.accent} style={{ flex: 1 }}>
-                          {`Alcança os ${kgTxt(r.meta)} kg em ${mesEmNumero(quando)}`}
+                          {`Alcança os ${pesoProsaTxt(S, r.meta)} em ${mesEmNumero(quando)}`}
                         </Txt>
                       </Row>
                     )}
@@ -2205,8 +2249,9 @@ export default function Cadastro() {
             <View>
               <Rotulo>PESO DE QUANDO COMEÇOU</Rotulo>
               <Regua
-                min={40} max={180} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
-                valor={r.pesoInicial} unidade="kg" onEscolhe={(v) => p({ pesoInicial: v })} fundo={c.bg}
+                key={`pi-${r.sistema}`}
+                {...reguaDePeso(r.sistema, 40, 180)}
+                valor={pesoV(r.sistema, r.pesoInicial)} onEscolhe={(v) => p({ pesoInicial: pesoKg(r.sistema, v) })} fundo={c.bg}
               />
             </View>
           </View>

@@ -4,6 +4,7 @@ import * as Sharing from 'expo-sharing';
 import type { State } from './seed';
 import { M, cadenciaCurta, siteLabel } from './derive';
 import { now } from './time';
+import { pesoU, pesoV, compU, compV } from './medidas';
 
 /* ============================================================
    LEVAR OS DADOS EMBORA
@@ -82,11 +83,32 @@ export function dadosParaExportar(S: State, r: Recorte) {
   }
 
   if (r.inclui.peso) {
-    out.pesagens = apos(S.weights as any[]).map((x: any) => ({ data: iso(x.t), peso_kg: x.kg }));
+    /* ⚠️⚠️ O ARQUIVO SEGUE A UNIDADE DE QUEM EXPORTA, e o NOME DA COLUNA
+       carrega a unidade junto.
+
+       Quem exporta em libra provavelmente está indo a uma consulta onde se
+       fala libra; entregar quilo ali obrigaria a médica a converter à mão,
+       que é exatamente o erro que um relatório existe para evitar.
+
+       E a ambiguidade se resolve no cabeçalho, não numa nota de rodapé:
+       `peso_kg` vira `peso_lb`, `cintura_cm` vira `cintura_in`. O arquivo já
+       fazia isso com o sufixo métrico — só passou a dizer a verdade nos
+       dois casos. Quem lê a coluna sabe o que o número é sem saber nada
+       sobre quem o gerou. */
+    const uP = pesoU(S);
+    const uC = compU(S);
+    const n2 = (v: number) => Math.round(v * 100) / 100;
+    out.pesagens = apos(S.weights as any[]).map((x: any) => ({
+      data: iso(x.t), [`peso_${uP}`]: n2(pesoV(S, x.kg)),
+    }));
     out.medidas = apos(S.measures as any[]).map((x: any) => ({
       data: iso(x.t),
-      cintura_cm: x.cintura, quadril_cm: x.quadril, braco_cm: x.braco, coxa_cm: x.coxa,
-      gordura_pct: x.gordura || null, massa_magra_kg: x.musculo || null,
+      [`cintura_${uC}`]: n2(compV(S, x.cintura)),
+      [`quadril_${uC}`]: n2(compV(S, x.quadril)),
+      [`braco_${uC}`]: n2(compV(S, x.braco)),
+      [`coxa_${uC}`]: n2(compV(S, x.coxa)),
+      gordura_pct: x.gordura || null,
+      [`massa_magra_${uP}`]: x.musculo ? n2(pesoV(S, x.musculo)) : null,
     }));
   }
 

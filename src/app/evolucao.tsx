@@ -11,6 +11,7 @@ import {
   TelaInterna, Titulao, Bloco, Chips, Cartao, Linha, Metrica, Grade2, CardCurva,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { pesoTxt, compTxt, compU, compN, pesoN, pesoU, pesoV, compV } from '../logic/medidas';
 
 /* ============================================================
    EVOLUÇÃO — o índice de todos os números
@@ -97,9 +98,9 @@ export default function Evolucao() {
           <CardCurva
             id="ev-peso"
             nome="Peso"
-            sub={`${nf(startWeight(S), 1)} › ${nf(curWeight(S), 1)} kg · ${fmtDate(ultimoPeso.t)}`}
-            valor={variacaoDe(curWeight(S) - startWeight(S)).numero}
-            unidade="kg"
+            sub={`${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))} · ${fmtDate(ultimoPeso.t)}`}
+            valor={variacaoDe(pesoV(S, curWeight(S) - startWeight(S))).numero}
+            unidade={pesoU(S)}
             pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
           />
@@ -108,9 +109,9 @@ export default function Evolucao() {
               key={k}
               id={`ev-${k}`}
               nome={nome}
-              sub={`${nf(fm[k], 0)} › ${nf(lm[k], 0)} cm · ${fmtDate(lm.t)}`}
-              valor={variacaoDe(lm[k] - fm[k]).numero}
-              unidade="cm"
+              sub={`${compN(S, fm[k], 0)} › ${compTxt(S, lm[k], 0)} · ${fmtDate(lm.t)}`}
+              valor={variacaoDe(compV(S, lm[k] - fm[k])).numero}
+              unidade={compU(S)}
               pontos={medidas.map((p) => ({ v: p[k] as number, rotulo: nf(p[k], 0), quando: fmtDate(p.t) }))}
               onPress={() => router.push(`/marcador?m=${k}` as any)}
             />
@@ -151,9 +152,9 @@ export default function Evolucao() {
           {fm && lm ? (
             <Metrica
               ic="dumbbell" nome="Massa magra"
-              selo={variacaoDe(lm.musculo - fm.musculo, 'kg', false).delta}
-              seloTom={variacaoDe(lm.musculo - fm.musculo, '', false).good ? 'verde' : 'neutra'}
-              de={`${nf(fm.musculo, 1)} kg`} para={`${nf(lm.musculo, 1)} kg`}
+              selo={variacaoDe(pesoV(S, lm.musculo - fm.musculo), pesoU(S), false).delta}
+              seloTom={variacaoDe(pesoV(S, lm.musculo - fm.musculo), '', false).good ? 'verde' : 'neutra'}
+              de={`${pesoTxt(S, fm.musculo)}`} para={`${pesoTxt(S, lm.musculo)}`}
               onPress={() => router.push('/marcador?m=musculo' as any)}
             />
           ) : null}

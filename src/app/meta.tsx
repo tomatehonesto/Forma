@@ -90,7 +90,7 @@ export default function Meta() {
           {proc.travado ? (
             <Campo rotulo="Definido pela sua equipe" nu>
               <Txt v="display" style={{ textAlign: 'center' }}>
-                {def.escreve(def.le(S))} {def.un}
+                {def.escreve(def.le(S), S)} {def.un(S)}
               </Txt>
             </Campo>
           ) : (
@@ -98,8 +98,8 @@ export default function Meta() {
               <Regua
                 min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
                 casas={r.casas} esp={r.esp} salto={r.salto}
-                valor={paraRegua(v)} unidade={def.un}
-                escreve={(x) => def.escreve(deRegua(x))}
+                valor={paraRegua(v)} unidade={def.un(S)}
+                escreve={(x) => def.escreve(deRegua(x), S)}
                 onEscolhe={(x) => setV(deRegua(x))}
               />
             </Campo>
@@ -119,7 +119,7 @@ export default function Meta() {
           <Aviso
             ic="info"
             dentro
-            titulo={`Hoje: ${def.escreve(def.le(S))} ${def.un}`}
+            titulo={`Hoje: ${def.escreve(def.le(S), S)} ${def.un(S)}`}
             /* ⚠️ A ORIGEM DEIXA DE SER SEMPRE A CONTA DO CADASTRO, e são
                três respostas possíveis para "de onde veio este número":
 
@@ -194,7 +194,7 @@ export default function Meta() {
             <Aviso
               ic="steth" dentro
               titulo="Este número não é o da sua equipe"
-              texto={`${proc.meta.por} definiu ${def.escreve(proc.meta.valor)} ${def.un}, e o aplicativo está cobrando ${def.escreve(def.le(S))} ${def.un}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.`}
+              texto={`${proc.meta.por} definiu ${def.escreve(proc.meta.valor, S)} ${def.un(S)}, e o aplicativo está cobrando ${def.escreve(def.le(S), S)} ${def.un(S)}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.`}
             />
           ) : def.ressalva ? (
             <Aviso ic="steth" dentro titulo="Este é o valor recomendado" texto={def.ressalva} />
@@ -206,7 +206,7 @@ export default function Meta() {
               <Linha
                 ic="steth"
                 titulo="Ver a anotação da sua equipe"
-                sub={`${proc.meta.por} · ${def.escreve(proc.meta.valor)} ${def.un}`}
+                sub={`${proc.meta.por} · ${def.escreve(proc.meta.valor, S)} ${def.un(S)}`}
                 onPress={() => trocarDeTela(`/meta-clinica?alvo=${chave}`)}
               />
             </Cartao>

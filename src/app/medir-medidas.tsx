@@ -7,6 +7,7 @@ import { now, nf } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { compTxt, compU, compV, compCm, reguaDeComp, sistemaDe } from '../logic/medidas';
 
 /* Novas medidas — captura, não a tela de histórico. É a sessão de fita
    métrica, e agora é a ÚNICA: /medir-peso trazia três medidas de carona e
@@ -112,12 +113,13 @@ export default function MedirMedidas() {
                     diz qual régua é qual. */}
                 {abertas.length > 1 ? <Txt v="caption" c={c.tx3}>{campo[1]}</Txt> : null}
                 <Regua
-                  min={campo[2]} max={campo[3]} passo={0.5} tracoCada={1} casas={1} esp={9} salto={0.5}
-                  valor={medidas[k]} unidade="cm" onEscolhe={(v) => mexer(k, v)}
+                  key={`${k}-${sistemaDe(S)}`}
+                  {...reguaDeComp(S, campo[2], campo[3])}
+                  valor={compV(S, medidas[k])} onEscolhe={(v) => mexer(k, compCm(S, v))}
                 />
                 {Math.abs(d) >= 0.1 ? (
                   <Txt v="micro" c={d < 0 ? c.limeSoftInk : c.tx3} style={{ textAlign: 'center' }}>
-                    {d < 0 ? '−' : '+'}{nf(Math.abs(d), 1)} cm desde a última
+                    {d < 0 ? '−' : '+'}{compTxt(S, Math.abs(d))} desde a última
                   </Txt>
                 ) : null}
               </View>

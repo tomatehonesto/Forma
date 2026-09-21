@@ -1,6 +1,7 @@
 import type { State } from './seed';
 import { MEDS } from './meds';
 import { DAY, startOfDay, now, diffDays, nf } from './time';
+import { pesoTxt, compTxt } from './medidas';
 
 /* ESTE ARQUIVO NÃO IMPORTA O DERIVE, e o derive importa este. O caminho
    tem uma direção só de propósito: o derive já chama as conquistas — a
@@ -155,9 +156,13 @@ type Trilha = {
   /** as alturas da trilha, em ordem crescente */
   niveis: number[];
   /** o que aquele nível representa, escrito por extenso */
-  desc: (alvo: number) => string;
+  desc: (alvo: number, S: State) => string;
   /** o que falta para ele */
-  falta: (resta: number, alvo: number) => string;
+  /* ⚠️ O ESTADO ENTROU AQUI por causa das unidades: "Faltam 3 kg" precisa
+     saber se a pessoa lê quilo ou libra, e esta tabela é constante. O
+     `medida` logo abaixo já recebia o estado; agora `desc` e `falta`
+     também. */
+  falta: (resta: number, alvo: number, S: State) => string;
   medida: (S: State) => Medida;
   /** some da lista quando a pergunta não faz sentido para esta pessoa */
   vale?: (S: State) => boolean;
@@ -224,8 +229,13 @@ const CATALOGO: Trilha[] = [
   {
     id: 'kg', familia: 'peso', ic: 'scale', titulo: 'Quilos a menos',
     niveis: [2, 5, 10, 15, 20, 30],
-    desc: (a) => `${a} kg abaixo do peso inicial`,
-    falta: (r) => `Faltam ${nf(r, 1)} kg`,
+    /* ⚠️ OS DEGRAUS SÃO EM QUILO E ASSIM FICAM — 2, 5, 10, 15, 20, 30.
+       Degraus próprios em libra fariam a mesma pessoa ganhar conquistas
+       diferentes conforme uma preferência de EXIBIÇÃO, o que é pior do
+       que um marco com vírgula. O que converte é o texto: quem lê em
+       libra vê "4,4 lb abaixo do peso inicial", e isso é verdade. */
+    desc: (a, S) => `${pesoTxt(S, a)} abaixo do peso inicial`,
+    falta: (r, _alvo, S) => `Faltam ${pesoTxt(S, r)}`,
     medida: (S) => {
       const ini = S.profile.startWeight;
       const pesos = (S.weights as any[]).map((w) => ({ t: w.t, v: ini - w.kg }));
@@ -368,8 +378,10 @@ const CATALOGO: Trilha[] = [
     id: 'cintura', familia: 'acompanhamento', ic: 'ruler', titulo: 'Centímetros de cintura',
     vale: (S) => (S.measures as any[]).some((m) => m.cintura != null),
     niveis: [2, 5, 10, 15],
-    desc: (a) => `${a} cm a menos na cintura`,
-    falta: (r) => `Faltam ${nf(r, 1)} cm`,
+    /* Mesma regra dos quilos: o degrau é em centímetro e o texto
+       converte. Ver a nota na conquista de peso. */
+    desc: (a, S) => `${compTxt(S, a, 0)} a menos na cintura`,
+    falta: (r, _alvo, S) => `Faltam ${compTxt(S, r)}`,
     medida: (S) => {
       const ms = (S.measures as any[]).filter((m) => m.cintura != null).sort((a, b) => a.t - b.t);
       if (!ms.length) return { feito: 0, quando: () => null };
@@ -421,14 +433,14 @@ export function conquistas(S: State): Conquista[] {
       return {
         id: t.id, familia: t.familia, ic: t.ic, titulo: t.titulo,
         nivel, niveis: niveis.length,
-        desc: t.desc(atual ?? niveis[0] ?? 0),
+        desc: t.desc(atual ?? niveis[0] ?? 0, S),
         t: atual != null ? quando(atual) : null,
         /* O PROGRESSO É DENTRO DO NÍVEL, e não do total. De cinquenta para
            cem check-ins, estar em setenta é quarenta por cento do trecho —
            e setenta por cento seria uma barra quase cheia que não anda mais
            por trinta dias. */
         pct: proximo == null ? 1 : Math.max(0, Math.min(1, (feito - anterior) / (proximo - anterior))),
-        falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo),
+        falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo, S),
       };
     });
 }
@@ -450,12 +462,12 @@ export function degrausDe(S: State, id: string) {
   return {
     id: t.id, titulo: t.titulo, ic: t.ic, nivel,
     degraus: niveis.map((alvo) => ({
-      alvo, desc: t.desc(alvo),
+      alvo, desc: t.desc(alvo, S),
       /* A data existe só para o degrau passado. Guardar a de um degrau
          que não veio seria inventar futuro. */
       t: feito >= alvo ? quando(alvo) : null,
     })),
-    falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo),
+    falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo, S),
   };
 }
 

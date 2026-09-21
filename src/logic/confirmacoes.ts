@@ -5,6 +5,7 @@ import {
 } from './derive';
 import { nf, now, dataLonga, DAY } from './time';
 import { emPlato } from './etapa';
+import { pesoTxt, compTxt, compU, compV, compN, aguaTxt, aguaN } from './medidas';
 
 /* ============================================================
    O QUE ACONTECEU DEPOIS DE SALVAR
@@ -135,7 +136,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
 
       return {
         titulo: 'Peso registrado',
-        texto: `${nf(atual, 1)} kg · ${dataLonga(+now())}`,
+        texto: `${pesoTxt(S, atual)} · ${dataLonga(+now())}`,
         linhas: [
           ...(anterior ? [{
             titulo: 'Desde a última pesagem',
@@ -149,8 +150,8 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
           }] : []),
           {
             titulo: 'Meta de peso',
-            sub: `${nf(p.goalWeight, 1)} kg`,
-            selo: paraMeta > 0 ? `faltam ${nf(paraMeta, 1)} kg` : 'alcançada',
+            sub: `${pesoTxt(S, p.goalWeight)}`,
+            selo: paraMeta > 0 ? `faltam ${pesoTxt(S, paraMeta)}` : 'alcançada',
             seloTom: paraMeta > 0 ? ('neutra' as const) : ('verde' as const),
           },
         ],
@@ -173,7 +174,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
       const nomes: [string, string][] = [['cintura', 'Cintura'], ['quadril', 'Quadril'], ['braco', 'Braço'], ['coxa', 'Coxa']];
       return {
         titulo: 'Medidas registradas',
-        texto: `Cintura ${nf(u?.cintura ?? 0, 1)} cm · ${dataLonga(+now())}`,
+        texto: `Cintura ${compTxt(S, u?.cintura ?? 0)} · ${dataLonga(+now())}`,
         /* Só o que MUDOU desde a última fita. Quatro linhas com quatro
            deltas, três deles zero, transformam a confirmação num
            formulário de leitura — e o que a pessoa quer ver é onde o
@@ -183,11 +184,11 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
             .filter(([k]) => Math.abs((u?.[k] ?? 0) - ant[k]) >= 0.1)
             .map(([k, nome]) => ({
               titulo: nome,
-              sub: `${nf(ant[k], 1)} › ${nf(u[k], 1)} cm`,
-              selo: delta((u[k] ?? 0) - ant[k], 'cm'),
+              sub: `${compN(S, ant[k])} › ${compTxt(S, u[k])}`,
+              selo: delta(compV(S, (u[k] ?? 0) - ant[k]), compU(S)),
               seloTom: tomDoDelta((u[k] ?? 0) - ant[k]),
             }))
-          : nomes.map(([k, nome]) => ({ titulo: nome, selo: `${nf(u?.[k] ?? 0, 1)} cm`, seloTom: 'neutra' as const })),
+          : nomes.map(([k, nome]) => ({ titulo: nome, selo: compTxt(S, u?.[k] ?? 0), seloTom: 'neutra' as const })),
         caminho: { label: 'Ver a evolução', to: '/evolucao' },
       };
     }
@@ -284,16 +285,16 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
     case 'agua': {
       const ml = waterMlToday(S);
       const alvo = alvos.waterMl as number;
-      const f = falta(ml, alvo, (v) => `faltam ${litros(v)} L`);
+      const f = falta(ml, alvo, (v) => `faltam ${aguaTxt(S, v)}`);
       /* O TÍTULO MUDA QUANDO A META FECHA, e é só aí que ele vira
          notícia. "Hidratação do dia fechada" todo copo seria a mesma
          mentira de sempre: dizer que acabou quando ainda falta. */
       return {
         titulo: f ? 'Água registrada' : 'Hidratação do dia fechada',
-        texto: `${litros(ml)} de ${litros(alvo)} L hoje`,
+        texto: `${aguaN(S, ml)} de ${aguaTxt(S, alvo)} hoje`,
         lima: !f,
         linhas: [
-          { titulo: 'Hidratação do dia', sub: `meta de ${litros(alvo)} L`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
+          { titulo: 'Hidratação do dia', sub: `meta de ${aguaTxt(S, alvo)}`, selo: f ?? 'meta batida', seloTom: f ? 'neutra' : 'lima' },
         ],
         caminho: { label: 'Ver a hidratação', to: '/agua' },
       };

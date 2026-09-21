@@ -6,6 +6,7 @@ import { fmtTime, nf, semanaDoTratamento, dataLonga } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { pesoTxt, compTxt } from '../logic/medidas';
 
 /* ============================================================
    UM REGISTRO
@@ -62,8 +63,8 @@ export default function Registro() {
     : (S.weights as any[]).find((x) => x.t === quando);
 
   const valor = daFita
-    ? (ponto ? `${ponto[marcador]} cm` : '—')
-    : (ponto ? `${nf(ponto.kg, 1)} kg` : '—');
+    ? (ponto ? compTxt(S, ponto[marcador], 0) : '—')
+    : (ponto ? `${pesoTxt(S, ponto.kg)}` : '—');
 
   const data = dataLonga(d);
 

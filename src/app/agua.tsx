@@ -16,6 +16,7 @@ import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/c
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { BEBIDA_PADRAO, bebidaDe } from '../logic/bebidas';
+import { aguaTxt, aguaN, aguaU } from '../logic/medidas';
 
 /* ============================================================
    HIDRATAÇÃO
@@ -101,8 +102,8 @@ export default function Agua() {
            garrafa agora, e era o que o cartão do dia dizia antes de a
            capa absorvê-lo. */
         linha={hoje === 0
-          ? `Hoje: nada registrado · meta de ${litros(alvo)} L`
-          : `Hoje: ${litros(hoje)} de ${litros(alvo)} L · ${falta > 0 ? `faltam ${litros(falta)} L` : 'meta alcançada'}`}
+          ? `Hoje: nada registrado · meta de ${aguaTxt(S, alvo)}`
+          : `Hoje: ${aguaN(S, hoje)} de ${aguaTxt(S, alvo)} · ${falta > 0 ? `faltam ${aguaTxt(S, falta)}` : 'meta alcançada'}`}
         pct={pct}
       >
         {/* UM BOTÃO SÓ, como nas outras duas capas de hábito.
@@ -136,11 +137,11 @@ export default function Agua() {
             sub={diasComRegistro === 0
               ? 'Nada registrado nos últimos sete dias'
               : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
-            valor={litros(media)}
-            unidade="L"
+            valor={aguaN(S, media)}
+            unidade={aguaU(S)}
             dias={semana.map((d) => ({ t: d.t, v: d.ml }))}
             alvo={alvo}
-            rotuloMeta={`Meta: ${litros(alvo)} L`}
+            rotuloMeta={`Meta: ${aguaTxt(S, alvo)}`}
             rotulo={litros}
           />
           </Bloco>
@@ -175,7 +176,7 @@ export default function Agua() {
                         key={g.t ?? 'dia'}
                         pergunta={g.t == null
                           ? 'Apagar a água deste dia?'
-                          : `Apagar ${litros(g.ml)} L das ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}?`}
+                          : `Apagar ${aguaTxt(S, g.ml)} das ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}?`}
                         onApagar={() => update((s: any) => apagarGole(s, diaSel, g.t))}
                       >
                         <Row gap={12}>
@@ -200,7 +201,7 @@ export default function Agua() {
                           </View>
                           <View style={{ flex: 1 }}>
                             <Txt v="body">
-                              {litros(g.ml)} L
+                              {aguaTxt(S, g.ml)}
                               {/* O nome que a pessoa escreveu ganha do
                                   rótulo genérico: quem anotou "kombucha"
                                   quer ler kombucha, e não "outro". */}
@@ -232,7 +233,7 @@ export default function Agua() {
                   </Cartao>
                   {/* O total embaixo, que é o que a soma das linhas deu. */}
                   <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-                    {doDia.length} {doDia.length === 1 ? 'registro' : 'registros'} · {litros(mlDoDia)} L
+                    {doDia.length} {doDia.length === 1 ? 'registro' : 'registros'} · {aguaTxt(S, mlDoDia)}
                     {foraDaConta > 0 ? ` · ${foraDaConta} fora da conta` : ''}
                   </Txt>
                   {/* A ÁGUA DO PRATO ENTRA NO TOTAL DO DIA, e não nesta
@@ -242,7 +243,7 @@ export default function Agua() {
                       dessas passa a não confiar em nenhum dos dois. */}
                   {daComida > 0 ? (
                     <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-                      Mais {litros(daComida)} L da comida que você registrou
+                      Mais {aguaTxt(S, daComida)} da comida que você registrou
                     </Txt>
                   ) : null}
                 </View>

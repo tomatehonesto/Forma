@@ -6,6 +6,7 @@ import { curWeight } from '../logic/derive';
 import { now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Row, SheetScreen } from '../ui/kit';
 import { Campo, Selo, Botao, Regua } from '../ui/internas';
+import { pesoTxt, pesoV, pesoKg, reguaDePeso } from '../logic/medidas';
 
 /* ============================================================
    A PESAGEM, E SÓ A PESAGEM.
@@ -87,20 +88,20 @@ export default function MedirPeso() {
             um limite apertado viraria um valor que não entra. */}
         <Campo rotulo="Peso">
           <Regua
-            min={30} max={250} passo={0.1} tracoCada={0.5} casas={1} esp={5} salto={0.1}
-            valor={peso} unidade="kg" onEscolhe={setPeso}
+            {...reguaDePeso(S, 30, 250)}
+            valor={pesoV(S, peso)} onEscolhe={(v) => setPeso(pesoKg(S, v))}
           />
           {Math.abs(delta) >= 0.05 ? (
             <Row style={{ justifyContent: 'center' }}>
               <Selo
-                label={`${delta < 0 ? '−' : '+'}${nf(Math.abs(delta), 1)} kg desde o último`}
+                label={`${delta < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(delta))} desde o último`}
                 tom={delta < 0 ? 'lima' : 'neutra'}
               />
             </Row>
           ) : null}
         </Campo>
 
-        <Botao label={`Salvar ${nf(peso, 1)} kg`} onPress={salvar} />
+        <Botao label={`Salvar ${pesoTxt(S, peso)}`} onPress={salvar} />
       </View>
     </SheetScreen>
   );

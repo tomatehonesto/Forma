@@ -14,6 +14,7 @@ import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
 import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
+import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV } from './medidas';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
 
@@ -666,7 +667,7 @@ export const temConsulta = (S: State) => ((S as any).consult?.t ?? 0) > 0;
 export type Milestone = { t: number; ic: string; title: string; sub: string; to: string };
 export function milestones(S: State): Milestone[] {
   const out: Milestone[] = [];
-  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${kg(S.profile.startWeight)} kg`, to: '/historico' });
+  out.push({ t: S.profile.startT, ic: 'leaf', title: 'Início do tratamento', sub: `${MEDS[S.profile.med].label} · ${pesoTxt(S, S.profile.startWeight)}`, to: '/historico' });
   let prev: number | null = null;
   for (const inj of S.injections as any[]) {
     if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: `Dose ajustada para ${nf(inj.dose, inj.dose % 1 ? 1 : 0)} mg`, sub: 'Titulação conforme orientação médica', to: '/aplicacoes' });
@@ -1899,7 +1900,7 @@ export function patterns(S: State): Pattern[] {
     if (eNao - eSim >= 0.5) out.push({
       key: 'sintomas', cat: 'Sintomas', ic: 'water', cor: 'water', surpresa: 3, forca: forcaDe(eNao - eSim, 0.5),
       titulo: 'Nos dias em que você bebe bem, o enjoo é menor',
-      texto: `Com ${litros(corteAgua * CUP_ML)} L ou mais, seu enjoo médio foi ${nf(eSim, 1)}. Abaixo disso, ${nf(eNao, 1)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
+      texto: `Com ${aguaTxt(S, corteAgua * CUP_ML)} ou mais, seu enjoo médio foi ${nf(eSim, 1)}. Abaixo disso, ${nf(eNao, 1)}. Não prova causa — mas é a variável mais fácil de mexer que aparece ligada ao sintoma.`,
       q: 'Como diminuir o enjoo?',
       evid: { valor: `−${nf(eNao - eSim, 1)}`, unidade: 'de enjoo', legenda: 'nos dias bem hidratados' },
       significa: 'De tudo o que aparece ligado ao seu enjoo, a água é o que está mais na sua mão. Não substitui conversar com a equipe se ele apertar, mas é a primeira coisa que vale testar antes.',
@@ -1915,10 +1916,10 @@ export function patterns(S: State): Pattern[] {
     const total = ws[0].kg - ws[ws.length - 1].kg;
     if (subidas >= 1 && total > 0) out.push({
       key: 'peso', cat: 'Peso', ic: 'trend', cor: 'accent', surpresa: 3, forca: forcaDe(subidas, 1),
-      titulo: `A balança subiu ${subidas} vezes e você perdeu ${nf(total, 1)} kg mesmo assim`,
+      titulo: `A balança subiu ${subidas} vezes e você perdeu ${pesoTxt(S, total)} mesmo assim`,
       texto: `Em ${ws.length} pesagens, ${subidas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
       q: 'Como está minha evolução?',
-      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${nf(total, 1)} kg no período` },
+      evid: { valor: String(subidas), unidade: 'altas', legenda: `dentro de −${pesoTxt(S, total)} no período` },
       porque: 'O peso do dia é gordura, mas também é água, sal, intestino e o ciclo hormonal — variações de um a dois quilos acontecem sem que nada tenha mudado na gordura corporal. A gordura sai devagar e em linha; o resto oscila por cima dela e é o que a balança mostra primeiro.',
       significa: 'Isso importa mais do que parece: a semana em que a balança sobe é a semana em que as pessoas costumam desistir. Nos seus próprios números, ela nunca significou o que parecia significar.',
     });
@@ -1978,10 +1979,10 @@ export function patterns(S: State): Pattern[] {
     key: 'peso', cat: 'Peso', ic: 'scale', cor: 'accent', surpresa: 0,
     titulo: `Seu ritmo é de ${r.ritmoLabel} kg por semana`,
     texto: r.verdict.good
-      ? `${nf(r.lost, 1)} kg em ${r.semana} semanas, dentro do esperado para a sua fase.`
-      : `${nf(r.lost, 1)} kg em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
+      ? `${pesoTxt(S, r.lost)} em ${r.semana} semanas, dentro do esperado para a sua fase.`
+      : `${pesoTxt(S, r.lost)} em ${r.semana} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
-    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${nf(r.lost, 1)} kg em ${r.semana} semanas` },
+    evid: { valor: r.ritmoLabel, unidade: 'kg/sem', legenda: `${pesoTxt(S, r.lost)} em ${r.semana} semanas` },
     significa: r.verdict.good
       ? 'É um ritmo sustentável, e sustentável é o que importa: perdas rápidas demais costumam levar massa magra junto e voltar depois. O seu está no intervalo que a literatura associa a resultado que se mantém.'
       : 'Ritmo é uma conversa para ter com sua equipe, não comigo. Levo o número organizado para a consulta se você quiser.',
@@ -2613,7 +2614,7 @@ export function libraryPicks(S: State): Leitura[] {
   }
 
   if (r.semana >= 8) {
-    out.push({ motivo: `Semana ${r.semana}, com ${nf(r.lost, 1)} kg no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
+    out.push({ motivo: `Semana ${r.semana}, com ${pesoTxt(S, r.lost)} no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
   }
 
   if (temConsulta(S)) {
@@ -2853,12 +2854,12 @@ export function dailyTargets(S: State): DailyTarget[] {
       prot >= t.prot ? 'Meta batida' : `Faltam ${Math.round(t.prot - prot)} g`,
       'limePale', 'lime'),
     mk('agua', 'Beber mais água', ml, t.waterMl,
-      litros(ml), 'L', `${litros(t.waterMl)} L`,
+      aguaN(S, ml), aguaU(S), aguaTxt(S, t.waterMl),
       /* Sempre em litros, inclusive abaixo de um. A frase trocava de
          unidade no meio do caminho — "Faltam 1,5 L" virava "Faltam 400 ml"
          quando a pessoa chegava perto —, e quem está acompanhando o
          próprio número via a escala mudar debaixo do pé. */
-      faltaMl <= 0 ? 'Meta batida' : `Faltam ${litros(faltaMl)} L`,
+      faltaMl <= 0 ? 'Meta batida' : `Faltam ${aguaTxt(S, faltaMl)}`,
       'bluePale', 'accent2'),
     mk('exerc', 'Exercitar diariamente', ex, t.exercMin,
       `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
@@ -2929,8 +2930,8 @@ export function weightCard(S: State) {
   return {
     lost, goal,
     titulo: lost >= 0 ? 'Peso perdido' : 'Variação do peso',
-    lostLabel: variacaoDe(-lost, 'kg').delta,
-    goalLabel: `Meta: ${variacaoDe(-goal, 'kg').numero} kg`,
+    lostLabel: variacaoDe(pesoV(S, -lost), pesoU(S)).delta,
+    goalLabel: `Meta: ${variacaoDe(pesoV(S, -goal)).numero} ${pesoU(S)}`,
   };
 }
 
@@ -3024,9 +3025,9 @@ export function timelineEvents(S: State): TLEvent[] {
     const dl = prev ? cur.kg - prev.kg : 0;
     out.push({
       key: `peso-${cur.t}`, kind: 'peso', day: D(cur.t), ordemNoDia: '07:45',
-      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${nf(cur.kg, 1)} kg`,
-      detalhe: `${nf(cur.kg, 1)} kg`,
-      value: prev ? `${dl <= 0 ? '−' : '+'}${nf(Math.abs(dl), 1)} kg` : 'Peso inicial',
+      ic: 'scale', color: 'accent2', title: 'Peso', sub: `${pesoTxt(S, cur.kg)}`,
+      detalhe: `${pesoTxt(S, cur.kg)}`,
+      value: prev ? `${dl <= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(dl))}` : 'Peso inicial',
       valueColor: prev ? (dl <= 0 ? 'good' : 'tx2') : 'tx3',
     });
   });
@@ -3049,7 +3050,7 @@ export function timelineEvents(S: State): TLEvent[] {
       /* E o resumo traz só o que foi respondido. Água e proteína são
          acumuladores e sempre valem o que dizem; sono é estado, e um dia
          sem resposta sai da frase em vez de virar zero. */
-      const partes = [`${litros((cc.agua || 0) * CUP_ML)} L`, `${Math.round(cc.prot || 0)} g proteína`];
+      const partes = [`${aguaTxt(S, (cc.agua || 0) * CUP_ML)}`, `${Math.round(cc.prot || 0)} g proteína`];
       if (respondido(cc, 'sono')) partes.push(`${Math.floor(cc.sono)}h de sono`);
       /* As respostas, na régua em que foram dadas. `paraTela` traz as
          colunas de 0–10 de volta para o 1–5 da pergunta; `mood` já nasce
@@ -3168,7 +3169,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     let deltaPeso: string | null = null;
     if (base != null && pesos.length) {
       const d = pesos[pesos.length - 1].kg - base;
-      deltaPeso = `${d <= 0 ? '−' : '+'}${nf(Math.abs(d), 1)} kg`;
+      deltaPeso = `${d <= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`;
     }
 
     /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
@@ -3320,14 +3321,14 @@ export function journeyChanges(S: State): Change[] {
      (sistólica e diastólica), que não cabem no desenho de valor único do
      /marcador — e /saude já abre com ela no topo. */
   out.push({
-    ic: 'scale', label: 'Peso', from: `${nf(startWeight(S), 1)} kg`, to: `${nf(curWeight(S), 1)} kg`,
-    ...variacao(curWeight(S) - startWeight(S), 'kg'), to_: '/marcador?m=peso',
+    ic: 'scale', label: 'Peso', from: `${pesoTxt(S, startWeight(S))}`, to: `${pesoTxt(S, curWeight(S))}`,
+    ...variacao(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)), to_: '/marcador?m=peso',
   });
 
   if (fm && lm && fm !== lm) {
     if (lm.cintura !== fm.cintura) out.push({
-      ic: 'ruler', label: 'Cintura', from: `${fm.cintura} cm`, to: `${lm.cintura} cm`,
-      ...variacao(lm.cintura - fm.cintura, 'cm'), to_: '/marcador?m=cintura',
+      ic: 'ruler', label: 'Cintura', from: compTxt(S, fm.cintura, 0), to: compTxt(S, lm.cintura, 0),
+      ...variacao(compV(S, lm.cintura - fm.cintura), compU(S)), to_: '/marcador?m=cintura',
     });
     if (lm.gordura !== fm.gordura) out.push({
       ic: 'activity', label: 'Gordura corporal', from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
@@ -3336,8 +3337,8 @@ export function journeyChanges(S: State): Change[] {
     /* A única em que subir é a boa notícia: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. */
     if (lm.musculo !== fm.musculo) out.push({
-      ic: 'dumbbell', label: 'Massa magra', from: `${nf(fm.musculo, 1)} kg`, to: `${nf(lm.musculo, 1)} kg`,
-      ...variacao(lm.musculo - fm.musculo, 'kg', false), to_: '/marcador?m=musculo',
+      ic: 'dumbbell', label: 'Massa magra', from: `${pesoTxt(S, fm.musculo)}`, to: `${pesoTxt(S, lm.musculo)}`,
+      ...variacao(pesoV(S, lm.musculo - fm.musculo), pesoU(S), false), to_: '/marcador?m=musculo',
     });
   }
 
@@ -3415,9 +3416,9 @@ export function metaDePeso(S: State): JourneyGoal | null {
        lista de metas finge uma precisão que ninguém definiu — é o mesmo
        formatador que a capa de /metas e a folha de editar já usam. O que
        falta abaixo mantém a casa, porque 7,1 kg de fato tem uma. */
-    label: `Chegar a ${kgTxt(S.profile.goalWeight)} kg`,
+    label: `Chegar a ${pesoProsaTxt(S, S.profile.goalWeight)}`,
     pct,
-    hint: falta === 0 ? 'meta alcançada' : `faltam ${kg(falta)} kg`,
+    hint: falta === 0 ? 'meta alcançada' : `faltam ${pesoTxt(S, falta)}`,
     pessoal: false,
     feita: falta === 0,
     conta: '',
@@ -3474,14 +3475,14 @@ export function journeyGoals(S: State): JourneyGoal[] {
        direita e "85% das noites recentes" embaixo — o mesmo número duas
        vezes. "11 de 13 noites" responde de quantas noites falamos. */
     return {
-      id: g.id, ic: ind.ic, label: g.label || ind.rotulo(alvo),
+      id: g.id, ic: ind.ic, label: g.label || ind.rotulo(alvo, S),
       pct: de ? Math.round((n / de) * 100) : 0,
       hint: de
         ? `${n} de ${de} ${de === 1 ? ind.nomes[0] : ind.nomes[1]} ${ind.nomes[0] === 'noite' ? 'registradas' : 'registrados'}`
         : `sem ${ind.nomes[1]} registradas ainda`,
       pessoal: false,
       feita: false,
-      conta: ind.conta(alvo),
+      conta: ind.conta(alvo, S),
     };
   });
 }
@@ -4106,7 +4107,7 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
   agua: (S, alvo) => {
     const ml = (S.profile as any).targets.waterMl as number;
     return {
-      texto: alvo >= 7 ? `Beber ${litros(ml)} L todo dia` : `Beber ${litros(ml)} L em ${alvo} dias`,
+      texto: alvo >= 7 ? `Beber ${aguaTxt(S, ml)} todo dia` : `Beber ${aguaTxt(S, ml)} em ${alvo} dias`,
       feito: semanaDeAgua(S).filter((d) => d.ml >= ml).length,
       origem: 'Hidratação', para: '/agua', ic: 'water',
     };
@@ -4311,10 +4312,10 @@ export function semanaDoHistorico(S: State, ate: number) {
     de,
     ate,
     metas: [
-      monta('water', `Beber ${litros(t.waterMl)} L todo dia`, alvoDe('agua', 7),
+      monta('water', `Beber ${aguaTxt(S, t.waterMl)} todo dia`, alvoDe('agua', 7),
         (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
         (v) => v >= t.waterMl,
-        (m) => (m == null ? 'sem registro na semana' : `média de ${litros(Math.round(m))} L por dia`)),
+        (m) => (m == null ? 'sem registro na semana' : `média de ${aguaTxt(S, Math.round(m))} por dia`)),
       monta('utensils', `Comer ${t.prot} g de proteína todo dia`, alvoDe('prot', 7),
         (c) => (typeof c.prot === 'number' ? Math.round(c.prot) : null),
         (v) => v >= t.prot,
@@ -4388,20 +4389,25 @@ export const ALVOS: Record<ChaveDeAlvo, {
   regua: { min: number; max: number; passo: number; tracoCada: number; casas: number; esp: number; salto: number };
   paraRegua?: (v: number) => number;
   deRegua?: (v: number) => number;
-  un: string;
+  /* ⚠️⚠️ A UNIDADE E O FORMATO VIRARAM FUNÇÕES DO ESTADO, e eram texto
+     fixo. Dois dos quatro alvos mudam de unidade — peso e água —, e os
+     outros dois não: proteína se conta em grama nos dois sistemas, e
+     minuto é minuto em todo lugar. Quem escreve a entrada decide, e o
+     tipo obriga a decidir. */
+  un: (S: State) => string;
   passo: number;
   min: number;
   max: number;
   le: (S: State) => number;
-  /** como o número se escreve na tela */
-  escreve: (v: number) => string;
+  /** como o número se escreve na tela, já na unidade de quem lê */
+  escreve: (v: number, S: State) => string;
 }> = {
   prot: {
     ic: 'utensils', nome: 'Proteína por dia', onde: 'Cobrada na alimentação e no protocolo',
     origem: 'Calculado do seu peso, a 1,2 g por quilo',
     ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
     regua: { min: 40, max: 220, passo: 5, tracoCada: 5, casas: 0, esp: 10, salto: 5 },
-    un: 'g', passo: 5, min: 40, max: 220,
+    un: () => 'g', passo: 5, min: 40, max: 220,
     le: (S) => (S.profile as any).targets.prot,
     escreve: (v) => String(Math.round(v)),
   },
@@ -4416,9 +4422,9 @@ export const ALVOS: Record<ChaveDeAlvo, {
     regua: { min: 0.75, max: 5, passo: 0.25, tracoCada: 0.1, casas: 2, esp: 40, salto: 0.25 },
     paraRegua: (v) => v / 1000,
     deRegua: (v) => Math.round(v * 1000),
-    un: 'L', passo: 250, min: 750, max: 5000,
+    un: aguaU, passo: 250, min: 750, max: 5000,
     le: (S) => (S.profile as any).targets.waterMl,
-    escreve: (v) => litros(v),
+    escreve: (v, S) => aguaN(S, v),
   },
   exercMin: {
     ic: 'dumbbell', nome: 'Exercício por dia', onde: 'É a tracejada da semana, no exercício',
@@ -4428,7 +4434,7 @@ export const ALVOS: Record<ChaveDeAlvo, {
     origem: 'O padrão do aplicativo, igual para todo mundo',
     ressalva: 'O protocolo da semana conta os dias em que você bateu este número. Mudando ele aqui, muda também o que o protocolo da sua equipe passa a considerar cumprido.',
     regua: { min: 10, max: 180, passo: 10, tracoCada: 5, casas: 0, esp: 20, salto: 10 },
-    un: 'min', passo: 10, min: 10, max: 180,
+    un: () => 'min', passo: 10, min: 10, max: 180,
     le: (S) => (S.profile as any).targets.exercMin,
     escreve: (v) => String(Math.round(v)),
   },
@@ -4444,11 +4450,11 @@ export const ALVOS: Record<ChaveDeAlvo, {
        que a frase dela não fala de conta nenhuma. */
     origem: 'Você escolheu no cadastro',
     regua: { min: 40, max: 200, passo: 0.5, tracoCada: 0.5, casas: 1, esp: 6, salto: 0.5 },
-    un: 'kg', passo: 0.5, min: 40, max: 200,
+    un: pesoU, passo: 0.5, min: 40, max: 200,
     le: (S) => S.profile.goalWeight,
     /* Sem o ",0" pendurado: 68 kg é como se fala de um peso redondo, e
        "68,0 kg" numa pastilha de meta parece precisão de balança. */
-    escreve: (v) => nf(v, 1).replace(/,0$/, ''),
+    escreve: (v, S) => pesoProsa(S, v),
   },
 };
 
@@ -4591,11 +4597,11 @@ export type Indicador = {
   /** o valor do dia na régua da ESCOLHA; null quando não foi respondido */
   leitura: (c: any) => number | null;
   /** o nome que a meta ganha: "Dormir 7h por noite" */
-  rotulo: (v: number) => string;
+  rotulo: (v: number, S: State) => string;
   /** o que ela conta, dito por extenso */
-  conta: (v: number) => string;
+  conta: (v: number, S: State) => string;
   /** como o número aparece no seletor */
-  escreve: (v: number) => string;
+  escreve: (v: number, S: State) => string;
 };
 
 const num = (c: any, k: string): number | null => (typeof c[k] === 'number' ? c[k] : null);
@@ -4682,9 +4688,11 @@ export const INDICADORES: Indicador[] = [
     doPerfil: (S) => (S.profile as any).targets.waterMl,
     passos: { min: 750, max: 5000, passo: 250, un: 'L' },
     leitura: (c) => (typeof c.agua === 'number' ? c.agua * CUP_ML : null),
-    escreve: (v) => `${litros(v)} L`,
-    rotulo: (v) => `Beber ${litros(v)} L de água`,
-    conta: (v) => `Dias com ${litros(v)} L ou mais`,
+    /* ⚠️ O ESTADO ENTROU NESTES TRÊS por causa das unidades — a tabela é
+       constante e a água se escreve em litro ou em onça. */
+    escreve: (v, S) => aguaTxt(S, v),
+    rotulo: (v, S) => `Beber ${aguaTxt(S, v)} de água`,
+    conta: (v, S) => `Dias com ${aguaTxt(S, v)} ou mais`,
   },
   {
     id: 'exerc', ic: 'dumbbell', nome: 'Minutos de movimento',
@@ -4940,7 +4948,9 @@ export function guardarMetaMedida(s: any, idIndicador: string, alvo: number) {
   const doPerfil = !!i.doPerfil;
   s.goals = [...(s.goals || []), {
     id: 'g' + Date.now(), ic: i.ic, indicador: i.id,
-    ...(doPerfil ? {} : { label: i.rotulo(alvo), alvo }),
+    /* O rótulo é escrito NA UNIDADE DE QUEM GRAVA, e guardado pronto:
+       ele é o nome que a pessoa deu à meta, e nome não se recalcula. */
+    ...(doPerfil ? {} : { label: i.rotulo(alvo, s), alvo }),
   }];
 }
 
@@ -5934,7 +5944,7 @@ export function preparoDaConsulta(S: State): ItemDoPreparo[] {
     diasDoPeso == null
       ? { id: 'peso', ic: 'scale', titulo: 'Registrar o peso', sub: 'Nenhuma pesagem ainda', pronto: false, to: '/medir-peso' }
       : diasDoPeso <= DIAS_DE_PESO_FRESCO
-        ? { id: 'peso', ic: 'scale', titulo: 'Peso em dia', sub: `${nf(w.kg, 1)} kg · ${rotuloDeDias(diasDoPeso)}`, pronto: true, to: '/medir-peso' }
+        ? { id: 'peso', ic: 'scale', titulo: 'Peso em dia', sub: `${pesoTxt(S, w.kg)} · ${rotuloDeDias(diasDoPeso)}`, pronto: true, to: '/medir-peso' }
         : { id: 'peso', ic: 'scale', titulo: 'Pesar-se antes', sub: `Última pesagem ${rotuloDeDias(diasDoPeso)}`, pronto: false, to: '/medir-peso' },
   );
 
@@ -6020,8 +6030,8 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
     const d = para - de;
     mudancas.push({
       id: 'peso', ic: 'scale',
-      titulo: d === 0 ? 'Peso estável' : `${d < 0 ? '−' : '+'}${nf(Math.abs(d), 1)} kg`,
-      sub: `De ${nf(de, 1)} para ${nf(para, 1)} kg`,
+      titulo: d === 0 ? 'Peso estável' : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`,
+      sub: `De ${pesoTxt(S, de, 1)} para ${nf(para)}`,
     });
   }
 

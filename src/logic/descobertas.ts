@@ -51,6 +51,7 @@ import {
   type Pattern,
 } from './derive';
 import type { State } from './seed';
+import { aguaTxt } from './medidas';
 
 export type TipoDescoberta = 'cruzamento' | 'antecipacao' | 'convite';
 
@@ -161,7 +162,7 @@ function antecipacoes(S: State): Descoberta[] {
       ic: 'water',
       chapeu: 'O QUE VEM',
       titulo: 'Amanhã costuma ser o seu dia mais seco',
-      texto: `Nos seus registros a hidratação cai para ${litros(fraco.dele * CUP_ML)} L ${fraco.nome}, contra ${litros(fraco.outros * CUP_ML)} L nos outros dias. Saber disso na véspera é meio caminho.`,
+      texto: `Nos seus registros a hidratação cai para ${aguaTxt(S, fraco.dele * CUP_ML)} ${fraco.nome}, contra ${aguaTxt(S, fraco.outros * CUP_ML)} nos outros dias. Saber disso na véspera é meio caminho.`,
       cta: 'Ver a hidratação',
       to: '/agua',
       nota: 2.6,

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
+import type { Sistema } from '../logic/medidas';
 import {
   FAIXAS_IMC, curWeight, faixaDoIMC, litros, planoDoPerfil,
 } from '../logic/derive';
@@ -17,6 +18,7 @@ import { AreaCurve } from '../ui/charts';
 import { Lavagem } from '../ui/lavagem';
 import { useTheme } from '../ui/useTheme';
 import { radius, font, ty } from '../theme';
+import { pesoTxt, pesoProsaTxt, sistemaDe, aguaU, aguaN } from '../logic/medidas';
 
 /* ============================================================
    O PLANO — o que as respostas do cadastro viraram
@@ -53,6 +55,10 @@ export type DadosDoPlano = {
   dose: number | null;
   /** intervalo fora do padrão da caneta, em dias */
   intervalo: number | null;
+  /* ⚠️ A PRÉVIA É DESENHADA NO CADASTRO, antes de existir perfil salvo —
+     por isso o sistema de unidades viaja aqui dentro, e não é lido de um
+     estado que ainda não tem a resposta. */
+  sistema: Sistema;
   plano: PlanoInicial;
 };
 
@@ -112,7 +118,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
     : med.marca ? ` com o ${med.label}®` : ` com ${med.label.toLowerCase()}`;
   /* O QUE VAI EM PESO na frase de abertura: os quilos, ou o verbo
      inteiro quando não há quilo nenhum a percorrer. */
-  const alvoForte = Math.abs(perder) > 0.05 ? `${kgTxt(Math.abs(perder))} kg` : 'manter o seu peso';
+  const alvoForte = Math.abs(perder) > 0.05 ? pesoProsaTxt(d.sistema, Math.abs(perder)) : 'manter o seu peso';
   const inter = d.intervalo ?? padrao;
   const cadTexto = inter === 1 ? 'todos os dias'
     : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
@@ -383,8 +389,8 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               </View>
               <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>Água</Txt>
               <Row style={{ alignItems: 'baseline' }}>
-                <Txt v="metric" style={{ fontSize: 26, lineHeight: 32 }}>{litros(plano.agua)}</Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginLeft: 3 }}>L</Txt>
+                <Txt v="metric" style={{ fontSize: 26, lineHeight: 32 }}>{aguaN(d.sistema, plano.agua)}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ marginLeft: 3 }}>{aguaU(d.sistema)}</Txt>
               </Row>
             </Row>
           </View>
@@ -506,7 +512,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     rodapé da seção — e o que ela diz é sobre a curva: que
                     aquele traço é média, e não promessa. */}
                 <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-                  {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${nf(d.ritmo ?? 0, 1)} kg por semana que você escolheu são a média do caminho, não uma previsão.`}
+                  {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${pesoTxt(d.sistema, d.ritmo ?? 0)} por semana que você escolheu são a média do caminho, não uma previsão.`}
                 </Txt>
               </View>
             </View>
@@ -692,6 +698,7 @@ export default function PreviaDoPlano() {
         meta: p.goalWeight,
         ritmo: typeof p.ritmo === 'number' ? p.ritmo : null,
         med: p.med,
+        sistema: sistemaDe(S),
         dose: typeof p.dose === 'number' ? p.dose : null,
         intervalo: typeof p.intervalo === 'number' ? p.intervalo : null,
         plano,

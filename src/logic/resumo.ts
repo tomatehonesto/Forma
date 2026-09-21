@@ -4,6 +4,7 @@ import {
   lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
+import { pesoTxt, pesoU, pesoV } from './medidas';
 
 /* ============================================================
    O RESUMO PARA O MÉDICO — uma fonte para a tela e para o texto
@@ -104,16 +105,16 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       id: 'peso',
       titulo: 'Peso',
       linhas: [
-        { k: 'Início → atual', v: `${kg(p.startWeight)} → ${kg(cur)} kg` },
+        { k: 'Início → atual', v: `${pesoTxt(S, p.startWeight)} → ${kg(cur)}` },
         /* ⚠️ ESTA LINHA VAI PARA O MÉDICO. Ela dizia "−−3,3 kg" para quem
            ganhou peso — um documento clínico com um número ilegível é
            pior do que um documento sem aquele número. */
-        { k: 'Variação', v: `${variacaoDe(cur - p.startWeight, 'kg').delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
+        { k: 'Variação', v: `${variacaoDe(pesoV(S, cur - p.startWeight), pesoU(S)).delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
         { k: 'Em', v: `${diffDays(now(), new Date(p.startT))} dias` },
         /* O NOME É O DO CADASTRO. Esta linha já se chamou "referência
            combinada", que é um terceiro nome para o número que o app
            chama de meta de peso em todas as outras telas. */
-        { k: 'Meta de peso', v: `${kg(p.goalWeight)} kg` },
+        { k: 'Meta de peso', v: `${pesoTxt(S, p.goalWeight)}` },
       ],
     },
     {

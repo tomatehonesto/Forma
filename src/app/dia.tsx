@@ -8,6 +8,7 @@ import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { useTrocarDeTela } from '../ui/useTrocarDeTela';
+import { pesoTxt } from '../logic/medidas';
 
 /* ============================================================
    UM DIA
@@ -81,7 +82,7 @@ export default function Dia() {
           />
           <Linha
             titulo="Peso"
-            sub={peso ? `${nf(peso.kg, 1)} kg` : 'Sem registro'}
+            sub={peso ? `${pesoTxt(S, peso.kg)}` : 'Sem registro'}
             selo={peso ? 'feito' : 'registrar'}
             seloTom={peso ? 'verde' : 'neutra'}
             seta={false}

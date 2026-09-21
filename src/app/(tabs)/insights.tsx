@@ -21,6 +21,7 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
+import { pesoTxt } from '../../logic/medidas';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -671,7 +672,7 @@ export default function Insights() {
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
             <ListRow ic="chart" title="Resumo da semana"
-              sub={`semana ${r.semana} · ${ci7} check-ins, ${nf(Math.abs(dSem), 1)} kg`}
+              sub={`semana ${r.semana} · ${ci7} check-ins, ${pesoTxt(S, Math.abs(dSem))}`}
               onPress={perguntar('Como está minha evolução?')} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="cal" title="Resumo para a consulta"

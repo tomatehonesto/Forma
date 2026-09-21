@@ -103,8 +103,8 @@ export default function MetaClinica() {
           <Regua
             min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
             casas={r.casas} esp={r.esp} salto={r.salto}
-            valor={paraRegua(v)} unidade={def.un}
-            escreve={(x) => def.escreve(deRegua(x))}
+            valor={paraRegua(v)} unidade={def.un(S)}
+            escreve={(x) => def.escreve(deRegua(x), S)}
             onEscolhe={(x) => setV(deRegua(x))}
           />
         </Campo>
@@ -138,7 +138,7 @@ export default function MetaClinica() {
           </Txt>
         ) : null}
 
-        <Botao label={`Guardar ${def.escreve(v)} ${def.un}`} onPress={salvar} desligado={!por} />
+        <Botao label={`Guardar ${def.escreve(v, S)} ${def.un(S)}`} onPress={salvar} desligado={!por} />
         {atual ? <Botao label="Remover a meta da equipe" tom="fantasma" onPress={remover} /> : null}
       </View>
     </SheetScreen>

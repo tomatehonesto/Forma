@@ -184,7 +184,7 @@ export default function Sintomas() {
       .slice(-14)
       .map((x) => ({ t: x.t, v: ind.leitura(x) }))
       .filter((p): p is { t: number; v: number } => p.v != null)
-      .map((p) => ({ v: p.v, rotulo: ind.escreve(p.v), quando: fmtDate(new Date(p.t)) }));
+      .map((p) => ({ v: p.v, rotulo: ind.escreve(p.v, S), quando: fmtDate(new Date(p.t)) }));
   }, [S, ind]);
   const media = serie.length ? serie.reduce((a, p) => a + p.v, 0) / serie.length : null;
 

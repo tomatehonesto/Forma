@@ -22,6 +22,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, RESPIRO_ABAS } from '../../theme';
+import { aguaTxt } from '../../logic/medidas';
 
 /* ============================================================
    JORNADA
@@ -515,7 +516,7 @@ export default function Jornada() {
        comentário de Sintomas, vinte linhas acima, escreve a regra com
        todas as letras: distinguir os dois silêncios. Agora quem decide é
        o mesmo número que aparece. */
-    ['water', 'Hidratação', mlHoje > 0 ? `${litros(mlHoje)} L hoje` : 'sem registro', '/agua'],
+    ['water', 'Hidratação', mlHoje > 0 ? `${aguaTxt(S, mlHoje)} hoje` : 'sem registro', '/agua'],
     ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
     ['waves', 'Sintomas', !diasSint ? 'sem registro'
       : !sint.length ? 'sem queixas na semana'

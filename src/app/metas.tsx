@@ -13,6 +13,7 @@ import { Bloco, Cartao, Linha, Selo } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { pesoTxt, pesoN } from '../logic/medidas';
 
 /* ============================================================
    ONDE QUERO CHEGAR
@@ -61,7 +62,7 @@ export default function Metas() {
       <CapaDeHabito
         foto={aurora.insights}
         titulo="Metas"
-        linha={`${kg(perdido)} de ${kg(total)} kg até ${ALVOS.peso.escreve(S.profile.goalWeight)} kg`}
+        linha={`${pesoN(S, perdido)} de ${pesoTxt(S, total)} até ${pesoTxt(S, S.profile.goalWeight)}`}
         pct={pct}
       >
         <AtalhoDaCapa
@@ -116,7 +117,7 @@ export default function Metas() {
                     <Row gap={6} style={{ marginTop: 3 }}>
                       <Selo
                         label={p.convivem
-                          ? `Sua equipe mira ${a.escreve(p.meta.valor)} ${a.un}`
+                          ? `Sua equipe mira ${a.escreve(p.meta.valor, S)} ${a.un(S)}`
                           /* "Via", e não "da": o número passou PELA equipe, e é assim
                              que ele chegou aqui — dito numa consulta e anotado depois. "Da
                              sua equipe" soa a posse, como se a linha fosse da clínica e não
@@ -126,7 +127,7 @@ export default function Metas() {
                       />
                     </Row>
                   ) : undefined}
-                  selo={`${a.escreve(a.le(S))} ${a.un}`}
+                  selo={`${a.escreve(a.le(S), S)} ${a.un(S)}`}
                   seloTom="neutra"
                   onPress={() => router.push(`/meta?alvo=${k}` as any)}
                 />

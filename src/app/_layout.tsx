@@ -338,7 +338,7 @@ export default function RootLayout() {
               barra de planos, e o teclado subiria exatamente por cima
               dela: numa folha o teclado empurra em vez de cobrir, e
               fechar devolve a pessoa onde ela estava. */
-           'codigo',
+           'codigo', 'unidades',
            /* ⚠️ A APLICAÇÃO ERA TELA CHEIA, e era a única captura que era.
               Exceção em captura é a pessoa reaprendendo o gesto de fechar
               a cada registro — e esta é a captura que ela faz toda semana.

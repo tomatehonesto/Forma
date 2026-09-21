@@ -8,6 +8,8 @@ import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
 import type { Forma } from './meds';
+import type { Sistema } from './medidas';
+import { sistemaDe } from './medidas';
 
 export const HEIGHT = 1.67;
 
@@ -280,6 +282,12 @@ export function buildSeed() {
          o catálogo diz do medicamento. O tipo precisa do campo; o valor,
          não. */
       forma: undefined as Forma | undefined,
+      /* ⚠️ EM QUE UNIDADES ELA LÊ — e a semente também não responde, pelo
+         mesmo motivo do campo acima: o caminho de quem não respondeu é o
+         caminho padrão do desenvolvimento, e não um caso de borda que
+         ninguém exercita. Quem lê usa `sistemaDe(S)`, em logic/medidas,
+         que cai em métrico. */
+      sistema: undefined as Sistema | undefined,
       /* O VÍNCULO, que nasce junto com o código e não depois dele.
 
          `convite` é o que a pessoa escreveu; `vinculo` é o que o

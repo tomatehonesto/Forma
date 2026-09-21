@@ -26,6 +26,7 @@ const FOTO_MEDICA = fotoDe('responsavel');
 import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
+import { pesoTxt, sistemaDe, pesoU, pesoN } from '../logic/medidas';
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
 
@@ -341,7 +342,7 @@ export default function Perfil() {
           mudar coisa, e não um por cartão. */}
       <Row gap={8} style={{ marginTop: 20 }}>
         <Dado
-          label="Inicial" valor={kg(S.profile.startWeight)} unidade="kg"
+          label="Inicial" valor={pesoN(S, S.profile.startWeight)} unidade={pesoU(S)}
           fundo={c.bluePale} tinta={c.tx} tintaRotulo={c.tx2}
         />
         {/* O DO MEIO PASSOU A SER O PESO DE HOJE, e não o quanto já foi
@@ -354,12 +355,12 @@ export default function Perfil() {
             o app não tem por que esconder, e "já perdeu −2,1" seria ele
             corrigindo a pessoa com um sinal de menos. */}
         <Dado
-          label="Atual" valor={kg(curWeight(S))} unidade="kg"
-          delta={`${perdeu >= 0 ? '−' : '+'}${kg(Math.abs(perdeu))} kg`}
+          label="Atual" valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
+          delta={`${perdeu >= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(perdeu))}`}
           fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)" largo
         />
         <Dado
-          label="Meta" valor={kg(S.profile.goalWeight)} unidade="kg"
+          label="Meta" valor={pesoN(S, S.profile.goalWeight)} unidade={pesoU(S)}
           fundo={c.accent} tinta={c.accentInk}
           tintaRotulo={isDark ? 'rgba(4,16,43,0.70)' : 'rgba(255,255,255,0.80)'}
         />
@@ -683,6 +684,13 @@ export default function Perfil() {
               chama pelo nome quando fala com quem usa. */
           sub={`${paletaDe((S as any).paleta).nome}, no ${isDark ? 'escuro' : 'claro'} · escolha a cor do aplicativo`}
           onPress={go('/aparencia')} />
+        {/* ⚠️ AQUI, E NÃO DENTRO DE APARÊNCIA. Unidade não é aparência: ela
+            muda o NÚMERO que a pessoa lê, e não a cor com que ele aparece.
+            Mora no mesmo grupo porque as duas são preferências de leitura,
+            e é onde alguém procuraria. */}
+        <ListRow ic="ruler" title="Unidades"
+          sub={sistemaDe(S) === 'imperial' ? 'Libra, pé e polegada' : 'Quilo, metro e centímetro'}
+          onPress={go('/unidades')} />
       </Grupo>
 
       {/* ---- ajuda e dados ----

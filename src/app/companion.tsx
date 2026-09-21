@@ -16,6 +16,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font } from '../theme';
+import { pesoTxt, pesoU, pesoV, aguaTxt, aguaN } from '../logic/medidas';
 
 /* ============================================================
    MORPHI — a tela para onde tudo aponta
@@ -107,7 +108,7 @@ function companionReply(S: State, text: string): Msg {
   const med = M(S);
   if (has('evolu', 'progress', 'como estou', 'como vou', 'peso')) {
     const days = diffDays(now(), new Date(S.profile.startT));
-    return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${kg(S.profile.startWeight)} para <b>${kg(curWeight(S))} kg</b> — menos ${kg(lostKg(S))} kg (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, mini: `Ritmo saudável e constante: cerca de ${kg(lostKg(S) / (days / 7))} kg por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
+    return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${pesoTxt(S, S.profile.startWeight)} para <b>${pesoTxt(S, curWeight(S))}</b> — menos ${pesoTxt(S, lostKg(S))} (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, mini: `Ritmo saudável e constante: cerca de ${pesoTxt(S, lostKg(S) / (days / 7))} por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
   }
   if (has('consulta', 'prepar', 'médic', 'doutora', 'helena')) {
     /* ⚠️ ESTA RESPOSTA ERA UMA FRASE E UM BLOCO DE BULLETS À MÃO, com
@@ -124,7 +125,7 @@ function companionReply(S: State, text: string): Msg {
         : `Montei um resumo do seu tratamento para levar na consulta.`,
       '',
       '## O que levar',
-      `- Peso: <b>${kg(curWeight(S))} kg</b> (${variacaoDe(curWeight(S) - startWeight(S), 'kg').delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`,
+      `- Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`,
       `- Dose: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)`,
       '- Sintomas: náusea leve nos dias pós-aplicação, já melhorando',
       '',
@@ -154,7 +155,7 @@ function companionReply(S: State, text: string): Msg {
     return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
-    return { who: 'ai', text: `Hoje você registrou <b>${litros(waterMlToday(S))} de ${litros((S.profile as any).targets.waterMl)} L</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
+    return { who: 'ai', text: `Hoje você registrou <b>${aguaN(S, waterMlToday(S))} de ${aguaTxt(S, (S.profile as any).targets.waterMl)}</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
   }
   if (has('proteína', 'proteina')) {
     return { who: 'ai', text: `Proteína é uma das suas metas — e você vem cumprindo bem. Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini: `Média recente perto de 90 g/dia. Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };

@@ -7,6 +7,7 @@ import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento }
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { pesoTxt, alturaTxt } from '../logic/medidas';
 
 /* ============================================================
    SEUS DADOS — o que o cadastro perguntou, e onde se corrige
@@ -105,12 +106,12 @@ export default function Dados() {
       {/* O CORPO E O RITMO: os quatro que entram em conta todo dia. */}
       <Bloco titulo="Corpo e ritmo">
         <Cartao>
-          <Linha ic="ruler" titulo="Altura" sub={`${nf(S.profile.height, 2)} m`} onPress={corrige('corpo')} />
-          <Linha ic="scale" titulo="Peso inicial" sub={`${kg(S.profile.startWeight)} kg`} onPress={corrige(passoDoPesoInicial)} />
-          <Linha ic="target" titulo="Meta de peso" sub={`${kg(S.profile.goalWeight)} kg`} onPress={corrige('meta')} />
+          <Linha ic="ruler" titulo="Altura" sub={alturaTxt(S, S.profile.height)} onPress={corrige('corpo')} />
+          <Linha ic="scale" titulo="Peso inicial" sub={`${pesoTxt(S, S.profile.startWeight)}`} onPress={corrige(passoDoPesoInicial)} />
+          <Linha ic="target" titulo="Meta de peso" sub={`${pesoTxt(S, S.profile.goalWeight)}`} onPress={corrige('meta')} />
           <Linha
             ic="trend" titulo="Ritmo escolhido"
-            sub={S.profile.ritmo ? `${nf(S.profile.ritmo, 1)} kg por semana` : 'Sem peso a perder'}
+            sub={S.profile.ritmo ? `${pesoTxt(S, S.profile.ritmo)} por semana` : 'Sem peso a perder'}
             onPress={corrige('ritmo')}
           />
         </Cartao>

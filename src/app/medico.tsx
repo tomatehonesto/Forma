@@ -14,6 +14,7 @@ import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { fmtDate, dataLonga, nf } from '../logic/time';
 import { radius } from '../theme';
+import { pesoTxt } from '../logic/medidas';
 
 /* ============================================================
    SUA EQUIPE — o lado de lá do tratamento
@@ -516,7 +517,7 @@ export default function Medico() {
                 key={k}
                 ic={a.ic}
                 titulo={a.nome}
-                selo={m ? `${a.escreve(m.valor)} ${a.un}` : 'não anotada'}
+                selo={m ? `${a.escreve(m.valor, S)} ${a.un(S)}` : 'não anotada'}
                 seloTom={m ? 'lima' : 'neutra'}
                 sub={m
                   ? `${m.por} · anotado em ${dataLonga(m.em)}`
@@ -529,7 +530,7 @@ export default function Medico() {
         {metaClinica(S, 'peso') && discordam ? (
           <Aviso
             ic="steth"
-            texto={`A sua meta de peso, no aplicativo, é ${nf((S.profile as any).goalWeight, 1)} kg. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`}
+            texto={`A sua meta de peso, no aplicativo, é ${pesoTxt(S, (S.profile as any).goalWeight)}. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`}
           />
         ) : null}
 

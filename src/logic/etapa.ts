@@ -55,6 +55,7 @@ import {
   todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia,
 } from './derive';
 import type { State } from './seed';
+import { pesoTxt } from './medidas';
 
 export type Mensagem = {
   chapeu: string;
@@ -317,7 +318,7 @@ function daEtapa(S: State): Mensagem | null {
       head: ref.daEquipe
         ? 'Você está na faixa que a sua equipe definiu.'
         : 'Você está no peso que definiu como meta.',
-      body: `${nf(agora!, 1)} kg, contra ${nf(ref.kg, 1)} kg${ref.daEquipe ? ` anotados de ${ref.por}` : ''} — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
+      body: `${pesoTxt(S, agora!)}, contra ${pesoTxt(S, ref.kg)}${ref.daEquipe ? ` anotados de ${ref.por}` : ''} — e há pelo menos um mês nessa faixa. Manter é um trabalho diferente de perder, e é o que decide se o resultado fica.`,
       q: 'Como está minha evolução?',
       fonte: 'etapa',
     };
@@ -342,8 +343,8 @@ function daEtapa(S: State): Mensagem | null {
          junto. Mostrar os dois continua sendo a regra quando eles são
          dois. */
       body: `${nf(antes, 1) === nf(agora, 1)
-        ? `A média das suas pesagens está em ${nf(agora, 1)} kg desde então.`
-        : `${nf(antes, 1)} kg há quatro semanas, ${nf(agora, 1)} kg agora.`} Platô é parte esperada do tratamento: o corpo passa a gastar menos conforme o peso cai. É assunto de consulta, não de esforço.`,
+        ? `A média das suas pesagens está em ${pesoTxt(S, agora)} desde então.`
+        : `${pesoTxt(S, antes)} há quatro semanas, ${pesoTxt(S, agora)} agora.`} Platô é parte esperada do tratamento: o corpo passa a gastar menos conforme o peso cai. É assunto de consulta, não de esforço.`,
       q: 'Como está minha evolução?',
       fonte: 'etapa',
     };

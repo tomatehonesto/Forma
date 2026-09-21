@@ -12,6 +12,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
 import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
+import { aguaN } from '../logic/medidas';
 
 /* ============================================================
    REGISTRAR — o "+" da tab bar, e tudo que abre aqui é um registro.
@@ -70,8 +71,8 @@ export default function Registrar() {
   const mlHoje = waterMlToday(S);
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
      escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
-  const bebido = litros(mlHoje);
-  const alvoL = litros(alvos.waterMl);
+  const bebido = aguaN(S, mlHoje);
+  const alvoL = aguaN(S, alvos.waterMl);
   const acoes = ATALHOS;
 
   /* O CHECK DO ATALHO É A META DO DIA BATIDA, e não "registrei alguma

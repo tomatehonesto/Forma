@@ -10,6 +10,7 @@ import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { font, radius } from '../theme';
+import { sistemaDe } from '../logic/medidas';
 
 /* ============================================================
    QUANTO VOCÊ BEBEU
@@ -241,7 +242,7 @@ export default function MedirAgua() {
         </Row>
 
         <Row gap={7} style={{ marginTop: 16, alignItems: 'stretch' }}>
-          {medidasDe(bebida).map(([nome, ml]) => (
+          {medidasDe(bebida, sistemaDe(S)).map(([nome, ml]) => (
             <Pressable key={nome} onPress={() => somar(ml)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.7 : 1 }]}>
               <View style={{
                 flex: 1, backgroundColor: c.bg2, borderRadius: radius.md,

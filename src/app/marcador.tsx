@@ -9,6 +9,7 @@ import {
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
+import { compU, pesoU, pesoV, compV, sistemaDe } from '../logic/medidas';
 
 /* ============================================================
    DETALHE DO MARCADOR
@@ -30,9 +31,24 @@ const PERIODOS = [
   { id: 'tudo', label: 'Tudo', dias: Infinity },
 ];
 
+/* ⚠️⚠️ A DEFINIÇÃO VIROU FUNÇÃO DO ESTADO, e era uma tabela constante.
+
+   As unidades entraram, e aqui não bastava trocar o rótulo: a SÉRIE
+   inteira precisa sair convertida. Um gráfico de cintura com o eixo em
+   polegada e os pontos em centímetro é pior do que um em centímetro
+   inteiro — ele parece certo.
+
+   E as casas decimais vão junto: centímetro se escreve sem casa, 96;
+   polegada precisa de uma, 37,8, porque uma polegada vale dois centímetros
+   e meio e arredondar apaga a diferença entre duas medições vizinhas.
+
+   Por isso a tabela virou `Record<string, (S) => Def>` em vez de ganhar
+   três campos de função. Uma definição que depende do estado é uma função
+   do estado — e assim o corpo de cada uma lê como sempre leu, com os
+   valores prontos. */
 type Def = {
   nome: string; unidade: string; casas: number;
-  pontos: (S: any) => { t: number; v: number }[];
+  pontos: () => { t: number; v: number }[];
   /** "manhã" para peso; medidas não têm hora do dia */
   nota?: string;
   /** para onde o "+" leva. Sem captura não há "+": ninguém digita
@@ -57,10 +73,15 @@ const MESMO_JEITO = {
 /* As quatro circunferências têm a mesma forma — um número em cm vindo da
    fita, medido de vez em quando — então nascem da mesma fábrica. Cada uma
    ganha histórico navegável e corrigível sem custo de tela nova. */
-const circunferencia = (k: string, nome: string): Def => ({
-  nome, unidade: 'cm', casas: 0,
+const circunferencia = (k: string, nome: string) => (S: any): Def => ({
+  nome, unidade: compU(S), casas: sistemaDe(S) === 'imperial' ? 1 : 0,
   capturar: '/medir-medidas',
-  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })).filter((p) => p.v > 0),
+  pontos: () => (S.measures as any[])
+    .map((m) => ({ t: m.t, v: compV(S, m[k]) }))
+    /* O filtro é sobre o valor CONVERTIDO, e dá no mesmo: zero em
+       centímetro é zero em polegada. Fica depois da conversão para não
+       haver duas ordens possíveis de ler esta linha. */
+    .filter((p) => p.v > 0),
   aviso: MESMO_JEITO,
 });
 
@@ -73,23 +94,26 @@ const circunferencia = (k: string, nome: string): Def => ({
    O que muda é a origem — vêm da bioimpedância, não da mão da pessoa —, e
    é isso que o `leitura` diz: sem "+" no cabeçalho e sem a lista que
    promete corrigir. */
-const daBalanca = (k: string, nome: string, unidade: string): Def => ({
-  nome, unidade, casas: 1, leitura: true,
-  pontos: (S) => (S.measures as any[]).map((m) => ({ t: m.t, v: m[k] })).filter((p) => p.v > 0),
+/* ⚠️ A GORDURA É PERCENTUAL e não converte; a massa magra é PESO e
+   converte. Por isso a fábrica recebe o conversor em vez de adivinhar
+   pela unidade. */
+const daBalanca = (k: string, nome: string, unidade: (S: any) => string, conv: (S: any, v: number) => number) => (S: any): Def => ({
+  nome, unidade: unidade(S), casas: 1, leitura: true,
+  pontos: () => (S.measures as any[]).map((m) => ({ t: m.t, v: conv(S, m[k]) })).filter((p) => p.v > 0),
 });
 
-const DEFS: Record<string, Def> = {
-  peso: {
-    nome: 'Peso', unidade: 'kg', casas: 1, nota: 'manhã',
+const DEFS: Record<string, (S: any) => Def> = {
+  peso: (S) => ({
+    nome: 'Peso', unidade: pesoU(S), casas: 1, nota: 'manhã',
     capturar: '/medir-peso',
-    pontos: (S) => (S.weights as any[]).map((w) => ({ t: w.t, v: w.kg })),
-  },
+    pontos: () => (S.weights as any[]).map((w) => ({ t: w.t, v: pesoV(S, w.kg) })),
+  }),
   cintura: circunferencia('cintura', 'Cintura'),
   quadril: circunferencia('quadril', 'Quadril'),
   braco: circunferencia('braco', 'Braço'),
   coxa: circunferencia('coxa', 'Coxa'),
-  gordura: daBalanca('gordura', 'Gordura corporal', '%'),
-  musculo: daBalanca('musculo', 'Massa magra', 'kg'),
+  gordura: daBalanca('gordura', 'Gordura corporal', () => '%', (_S, v) => v),
+  musculo: daBalanca('musculo', 'Massa magra', pesoU, pesoV),
 };
 
 
@@ -98,10 +122,10 @@ export default function Marcador() {
   const { c } = useTheme();
   const router = useRouter();
   const { m } = useLocalSearchParams<{ m?: string }>();
-  const def = DEFS[m ?? 'peso'] ?? DEFS.peso;
+  const def = (DEFS[m ?? 'peso'] ?? DEFS.peso)(S);
   const [per, setPer] = useState('12s');
 
-  const todos = def.pontos(S);
+  const todos = def.pontos();
   const corte = PERIODOS.find((p) => p.id === per)!.dias;
   const desde = corte === Infinity ? -Infinity : Date.now() - corte * DAY;
   const pts = todos.filter((p) => p.t >= desde);

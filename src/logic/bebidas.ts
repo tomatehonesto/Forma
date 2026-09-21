@@ -1,3 +1,4 @@
+import { RECIPIENTES_IMP, type Sistema } from './medidas';
 /* ============================================================
    O QUE CONTA COMO HIDRATAÇÃO
 
@@ -129,4 +130,14 @@ export function bebidaDe(id?: string | null): Bebida {
   return BEBIDAS.find((b) => b.id === id) ?? BEBIDAS[0];
 }
 
-export const medidasDe = (b: Bebida) => b.medidas ?? MEDIDAS_PADRAO;
+/* ⚠️ OS RECIPIENTES NÃO SE CONVERTEM — TROCAM. Copo, garrafa e garrafão
+   são 250, 500 e 1000 ml aqui; convertidos, dariam 8,5, 16,9 e 33,8 fl oz,
+   números que ninguém tem em casa e que ninguém soma de cabeça. O copo de
+   lá tem outro tamanho, e é ele que a tabela imperial traz. Ver
+   RECIPIENTES_IMP, em logic/medidas.
+
+   ⚠️ E SÓ VALE PARA A ÁGUA. Xícara de café, lata de refrigerante e taça de
+   vinho já são o que são nos dois sistemas — quem tem medidas próprias
+   fica com elas. */
+export const medidasDe = (b: Bebida, sistema: Sistema = 'metrico') =>
+  b.medidas ?? (sistema === 'imperial' ? RECIPIENTES_IMP : MEDIDAS_PADRAO);
