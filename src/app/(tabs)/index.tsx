@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions } from 'react-native';
 import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
@@ -9,6 +9,7 @@ import { useStore } from '../../logic/store';
 import { descobertaDaHome, marcarDescobertaVista } from '../../logic/descobertas';
 import { alertasDe } from '../../logic/alertas';
 import { EstrelaIA } from '../../ui/marca';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { mensagemDoDia } from '../../logic/etapa';
 import {
   dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
@@ -108,12 +109,17 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const width = useLarguraApp();
   const [slide, setSlide] = useState(0);
-  /* ⚠️ O "DEDO NO CARROSSEL PAUSA" MORAVA AQUI, e saiu com o deslize.
+  const [held, setHeld] = useState(false);
+  /* ⚠️ DEDO NO CARROSSEL PAUSA O CRONÔMETRO, e ele chegou a sair daqui.
 
-     Ele existia porque arrastar o carrossel e ver o cronômetro empurrar
-     para o próximo no meio do gesto era hostil. Sem arrasto não há gesto
-     para atrapalhar — e tocar num ponto já reinicia a contagem, porque o
-     efeito do cronômetro depende do índice. */
+     Quando o deslize virou apagar-e-acender, não havia gesto para
+     proteger e a pausa foi embora junto. Com o arrasto de volta, o
+     problema volta com ele: sete segundos passam no meio de um gesto
+     lento, o cronômetro troca de slide, e a pessoa solta o dedo achando
+     que arrastou para um lugar e chega em outro.
+
+     Agora quem liga e desliga é o próprio gesto, no onBegin e no
+     onFinalize — e não mais o ScrollView, que não existe mais. */
   const progress = useRef(new Animated.Value(0)).current;
   const deriva = useRef(new Animated.Value(0)).current;
 
@@ -298,7 +304,7 @@ export default function Home() {
      Encostar o dedo pausa; soltar recomeça a contagem do slide atual. */
   useEffect(() => {
     progress.setValue(0);
-    if (total < 2) return;
+    if (held || total < 2) return;
     const anim = Animated.timing(progress, {
       toValue: 1, duration: SLIDE_MS, easing: Easing.linear, useNativeDriver: false,
     });
@@ -307,7 +313,7 @@ export default function Home() {
       setSlide((s) => (s + 1) % total);
     });
     return () => anim.stop();
-  }, [slide, total, progress]);
+  }, [slide, held, total, progress]);
 
 
   /* Deriva da aurora — vai e volta devagar, dando vida ao fundo sem
@@ -404,6 +410,42 @@ export default function Home() {
      comentário do carrossel. */
   const [alturaDoSlide, setAlturaDoSlide] = useState(0);
 
+  /* ⚠️⚠️ O ARRASTO VOLTOU SEM O DESLIZE, e é essa separação que faz ele
+     valer a pena.
+
+     O ScrollView horizontal amarrava as duas coisas: quem quisesse trocar
+     de cartão tinha de aceitar o texto correndo pela lateral. Aqui o
+     gesto só diz PARA QUE LADO; quem troca é o mesmo apagar e acender de
+     antes. A mão faz o que fazia, e o olho para de perseguir.
+
+     ⚠️ E ELE NÃO PODE ROUBAR A ROLAGEM VERTICAL, que é o risco real de
+     pôr um Pan dentro de um ScrollView. `activeOffsetX` só o liga depois
+     de 18 px na horizontal, e `failOffsetY` o mata assim que o dedo anda
+     12 px na vertical — quem começa a descer a Home nunca acorda o gesto,
+     e quem arrasta de lado nunca arrasta a página.
+
+     ⚠️ `runOnJS(true)` porque o fim do gesto chama `setSlide`. Sem isso o
+     callback roda na thread de UI e o setState vai para o limbo.
+
+     O limiar de 40 px é o que separa intenção de tremor: menos que isso
+     num cartão que não se move parece toque acidental, e trocar sem a
+     pessoa querer é pior do que não trocar. */
+  const arrastar = useMemo(
+    () => Gesture.Pan()
+      .enabled(total > 1)
+      .runOnJS(true)
+      .activeOffsetX([-18, 18])
+      .failOffsetY([-12, 12])
+      .onBegin(() => setHeld(true))
+      .onFinalize(() => setHeld(false))
+      .onEnd((ev) => {
+        if (Math.abs(ev.translationX) < 40) return;
+        const passo = ev.translationX < 0 ? 1 : -1;
+        setSlide((s) => (s + passo + total) % total);
+      }),
+    [total],
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
@@ -488,6 +530,7 @@ export default function Home() {
               medida chegar, a altura seria zero e a faixa de baixo subiria
               por um quadro. O número não desenha nada — ele só evita o
               pulo entre montar e medir. */}
+          <GestureDetector gesture={arrastar}>
           <View style={{ marginTop: 80, minHeight: 176, height: alturaDoSlide || undefined }}>
             {/* ⚠️⚠️ O `fade` MORA NESTE PAI, E NUNCA SAI DELE.
 
@@ -552,6 +595,7 @@ export default function Home() {
             ))}
             </Animated.View>
           </View>
+          </GestureDetector>
 
           {/* pontinhos — o ativo é a barra que enche até virar o slide */}
           <Row gap={4} style={{ paddingHorizontal: PAD, marginTop: 24 }}>

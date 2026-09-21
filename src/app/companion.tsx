@@ -295,15 +295,15 @@ export default function Companion() {
               Nenhum verbo depende dele.
 
               ⚠️ E É PROVISÓRIO, por decisão do produto. Era "Perguntas",
-              que dizia o que a tela faz e não tinha dono; "Morphi IA" diz
-              com quem se fala. Nenhum link do aplicativo rotula esta
-              tela — todos são toque em alguma coisa —, então trocar o
-              nome é trocar esta linha e mais nada. */}
+              que dizia o que a tela faz e não tinha dono; depois "Morphi
+              IA"; agora "Morphi Intelligence". Nenhum link do aplicativo
+              rotula esta tela — todos são toque em alguma coisa —, então
+              trocar o nome é trocar esta linha e mais nada. */}
           {/* A estrela VEM ANTES DO NOME, como marca antes de letreiro —
               e o par inteiro é que centra, não o texto sozinho. */}
           <Row gap={7} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <EstrelaIA size={21} />
-            <Txt v="title">Morphi IA</Txt>
+            <Txt v="title">Morphi Intelligence</Txt>
           </Row>
           <View style={{ width: 40 }} />
         </Row>
