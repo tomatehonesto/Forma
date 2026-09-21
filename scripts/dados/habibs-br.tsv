@@ -1,0 +1,153 @@
+# COLHEITA — Habib's, tabela nutricional oficial
+#
+# Fonte: https://www.habibs.com.br/storage/pdf/tb_nutri.pdf
+# Colhida em 21/09/2026 por scripts/colher-habibs.mjs, que baixa o PDF e
+# lê a tabela. Para atualizar, rode o script de novo.
+#
+# ⚠️ AQUI O PESO DA PORÇÃO É PUBLICADO, e é o que separa esta colheita da
+# do McDonald's: a rede traz a tabela nos dois formatos que a RDC 429
+# pede — por 100 g e por porção, com a porção declarada em gramas. Por
+# isso estes itens entram no modelo normal do aplicativo, com valor por
+# 100 g e peso de verdade, e não com `porUnidade`.
+#
+# ⚠️ 7 itens foram DESCARTADOS por não passarem na conferência
+# cruzada — o valor por 100 g vezes o peso tem de bater com a coluna da
+# porção. Quase todos são bebida, que a tabela traz num traçado diferente.
+#
+# ⚠️ E 8 ficaram de fora por não declararem alérgeno nenhum.
+# Sem declaração não dá para distinguir "não tem" de "não disseram", e o
+# que não está marcado o aplicativo mostra a quem filtrou. Ver o motivo
+# inteiro em scripts/colher-habibs.mjs.
+#
+# colunas: slug, nome, rede, proteína g/100g, kcal/100g, carboidrato g,
+#          gordura g, fibra g, sódio mg, peso da porção de referência g,
+#          quantas unidades cabem nessa porção, nome da unidade, alérgenos
+#
+# ⚠️ AS DUAS ÚLTIMAS COLUNAS NUMÉRICAS SÃO O QUE A TABELA DIZ, sem conta
+# nenhuma: "Porção: 100 g (5/28 de unidade)" vira 100 e 0.1786. O peso de
+# uma unidade — 560 g — é divisão, e a divisão fica no gerador.
+#
+sundae-de-pistache-com-calda-de-chocolate	Sundae de Pistache com Calda de Chocolate	habibs	3.3	223	43	4.4	0.7	101	160	1	unidade	Leite+Glúten
+sundae-de-pistache-com-calda-de-morango	Sundae de Pistache com Calda de Morango	habibs	3.2	226	44	4.2	0.7	99	160	1	unidade	Leite+Glúten
+sundae-soft-morango	Sundae Soft Morango	habibs	2.7	190	32	5.6	0	120	125	1	unidade	Leite+Glúten
+twist-baunilha-com-baton	Twist Baunilha com Baton®	habibs	3.7	208	30	8.1	0	79	216	1	unidade	Leite+Glúten
+sundae-misto-de-baunilha-e-pistache-com-calda-de	Sundae Misto de Baunilha e Pistache com Calda de Caramelo	habibs	3.2	223	43	4.2	0.6	102	160	1	unidade	Leite+Glúten
+sundae-misto-de-baunilha-e-pistache-com-calda-de	Sundae Misto de Baunilha e Pistache com Calda de Chocolate	habibs	3.3	222	42	4.4	0.7	102	160	1	unidade	Leite+Glúten
+sundae-fast	Sundae Fast	habibs	2.8	188	31	5.7	0	122	120	1	unidade	Leite+Glúten
+sundae-soft-chocolate	Sundae Soft Chocolate	habibs	2.8	188	31	6.2	0	137	125	1	unidade	Leite+Glúten
+sundae-misto-de-baunilha-e-pistache-com-calda-de	Sundae Misto de Baunilha e Pistache com Calda de Morango	habibs	3.2	224	43	4.2	0.7	100	160	1	unidade	Leite+Glúten
+twist-chocolate-com-m-m	Twist Chocolate com M&M®	habibs	1.5	175	33	4.8	0	139	210	1	unidade	Leite+Glúten
+sorvete-velosa-creme	Sorvete Velosa Creme	habibs	3.8	204	24	10	0	59	60	1	bola	Leite+Glúten
+sorvete-velosa-doce-de-leite	Sorvete Velosa Doce de Leite	habibs	4.5	231	32	9.3	0	85	60	1	bola	Leite+Glúten
+max-fruit-morango	Max-fruit Morango	habibs	1.1	168	34	3.1	0	111	120	1	unidade	Leite+Glúten
+farofa-crocante-para-sorvete	Farofa Crocante para Sorvete	habibs	20	515	39	31	5.3	91	5	1	colher de sopa	Leite
+sorvete-velosa-chocolate	Sorvete Velosa Chocolate	habibs	4.7	242	30	12	1.9	51	60	1	bola	Leite+Glúten
+sorvete-velosa-coco	Sorvete Velosa Coco	habibs	4.2	234	25	13	0.7	63	60	1	bola	Leite+Glúten
+sorvete-velosa-cookies-spicy	Sorvete Velosa Cookies Spicy	habibs	4.8	234	27	12	0	76	60	1	bola	Leite+Glúten
+sorvete-velosa-fior-di-latte	Sorvete Velosa Fior Di Latte	habibs	4.6	201	25	9.1	0	70	60	1	bola	Leite+Glúten
+sorvete-velosa-gianduia	Sorvete Velosa Gianduia	habibs	5.8	276	29	16	1.7	70	60	1	bola	Leite+Glúten
+sorvete-velosa-maracuja	Sorvete Velosa Maracujá	habibs	4.4	216	30	8.7	0	68	60	1	bola	Leite+Glúten
+sorvete-velosa-morango	Sorvete Velosa Morango	habibs	3.6	186	25	7.9	0	54	60	1	bola	Leite+Glúten
+sorvete-velosa-nocciolina	Sorvete Velosa Nocciolina	habibs	4.8	228	28	11	0	79	60	1	bola	Leite+Glúten
+sorvete-velosa-pistache	Sorvete Velosa Pistache	habibs	8.7	253	26	13	1.2	90	60	1	bola	Leite+Glúten
+sorvete-velosa-stracciatella	Sorvete Velosa Stracciatella	habibs	4.8	228	28	11	0	76	60	1	bola	Leite+Glúten
+cafe-com-leite-3-coracoes	Café com Leite 3 Corações	habibs	0	46	0	0	0	3.8	80	1	unidade	Leite
+cappuccino-3-coracoes	Cappuccino 3 Corações	habibs	2.1	56	9.4	1.1	0	44	80	1	unidade	Leite
+chocolatto-caramello-3-coracoes	Chocolatto Caramello 3 Corações	habibs	1.4	55	8.9	1.6	0	45	80	1	unidade	Leite
+chocolatto-3-coracoes	Chocolatto 3 Corações	habibs	1.4	59	9.3	1.8	0	48	80	1	unidade	Leite
+cascao-de-baunilha-com-nutella	Cascão de Baunilha com Nutella®	habibs	2.8	217	37	6.2	0.6	115	125	1	unidade	Leite+Glúten
+cascao-de-baunilha-com-pistache	Cascão de Baunilha com Pistache	habibs	2.9	218	37	6.4	0	115	125	1	unidade	Leite+Glúten
+cascao-de-morango	Cascão de Morango	habibs	2.3	196	38	3.7	0	113	125	1	unidade	Leite+Glúten
+cobertura-chocolate-para-sorvete	Cobertura Chocolate para Sorvete	habibs	1.2	250	57	1.9	0	46	5	1	colher de sopa	Leite+Glúten
+cobertura-morango-para-sorvete	Cobertura Morango para Sorvete	habibs	0	262	65	0	1.3	9.6	5	1	colher de sopa	
+sorvete-de-chocolate-com-amendoas	Sorvete de Chocolate com Amêndoas	habibs	4.7	242	30	12	1.9	51	60	1	bola	Leite+Glúten
+sorvete-de-coco-com-coco-ralado	Sorvete de Coco com Coco Ralado	habibs	4.9	283	20	21	1.3	69	60	1	bola	Leite+Glúten
+sorvete-de-chocolate-cremosissimo-casquinha-p	Sorvete de Chocolate Cremosíssimo Casquinha P	habibs	4.9	233	33	9.2	1.7	51	90	1	unidade	Leite+Glúten
+sorvete-de-chocolate-cremosissimo-casquinha-m	Sorvete de Chocolate Cremosíssimo Casquinha M	habibs	4.7	225	30	9.5	1.7	52	170	1	unidade	Leite+Glúten
+sorvete-de-doce-de-leite	Sorvete de Doce de Leite	habibs	4.5	230	32	9.3	0	83	60	1	bola	Leite+Glúten
+sorvete-de-morango-com-pedacos-de-morangos	Sorvete de Morango com Pedaços de Morangos	habibs	3.6	186	25	7.9	0	54	60	1	bola	Leite+Glúten
+sorvete-de-flocos	Sorvete de Flocos	habibs	3.8	224	25	12	0	60	60	1	bola	Leite+Glúten
+sorvete-de-pistache	Sorvete de Pistache	habibs	4.5	227	26	12	0	63	125	1	unidade	Leite+Glúten
+sorvete-de-chocolate-cremosissimo-copinho-p	Sorvete de Chocolate Cremosíssimo Copinho P	habibs	4.5	215	27	9.9	1.7	53	80	1	unidade	Leite+Glúten
+sorvete-de-chocolate-cremosissimo-copinho-m	Sorvete de Chocolate Cremosíssimo Copinho M	habibs	4.5	215	27	9.9	1.7	53	160	1	unidade	Leite+Glúten
+sorvete-de-creme-cremosissimo-casquinha-p	Sorvete de Creme Cremosíssimo Casquinha P	habibs	4.3	223	30	9.4	0	57	90	1	unidade	Leite+Glúten
+sorvete-de-morango-cremosissimo-casquinha-m	Sorvete de Morango Cremosíssimo Casquinha M	habibs	4.1	201	27	8.4	0	58	170	1	unidade	Leite+Glúten
+sorvete-de-morango-cremosissimo-copinho-p	Sorvete de Morango Cremosíssimo Copinho P	habibs	3.9	191	24	8.7	0	59	80	1	unidade	Leite
+sorvete-de-creme-cremosissimo-casquinha-m	Sorvete de Creme Cremosíssimo Casquinha M	habibs	4.1	214	27	9.8	0	58	170	1	unidade	Leite+Glúten
+sorvete-de-morango-cremosissimo-casquinha-p	Sorvete de Morango Cremosíssimo Casquinha P	habibs	4.3	211	30	8.2	0	57	90	1	unidade	Leite+Glúten
+sorvete-de-creme-cremosissimo-copinho-m	Sorvete de Creme Cremosíssimo Copinho M	habibs	3.8	204	24	10	0	59	160	1	porção	Leite
+sorvete-de-creme-cremosissimo-copinho-p	Sorvete de Creme Cremosíssimo Copinho P	habibs	3.8	204	24	10	0	59	80	1	porção	Leite
+sorvete-de-morango-cremosissimo-copinho-m	Sorvete de Morango Cremosíssimo Copinho M	habibs	3.9	191	24	8.7	0	59	160	1	unidade	Leite
+sundae-cremosissimo-de-chocolate	Sundae Cremosíssimo de Chocolate	habibs	5.1	240	32	10	1.7	55	60	1	bola	Leite+Glúten
+sundae-de-baunilha-com-nutella	Sundae de Baunilha com Nutella®	habibs	3.2	211	31	8.1	0.7	122	125	1	unidade	Leite+Glúten
+sundae-de-pistache-com-calda-de-caramelo	Sundae de Pistache com Calda de Caramelo	habibs	3.2	224	44	4.2	0.6	102	160	1	unidade	Leite+Glúten
+sundae-cremosissimo-de-morango	Sundae Cremosíssimo de Morango	habibs	4.5	222	31	9	0.7	55	150	1	unidade	Leite
+sundae-de-baunilha-com-calda-de-caramelo	Sundae de Baunilha com Calda de Caramelo	habibs	3.2	223	43	4.3	0.6	103	160	1	unidade	Leite+Glúten
+sundae-de-baunilha-com-calda-de-morango	Sundae de Baunilha com Calda de Morango	habibs	3.2	223	43	4.2	0.7	100	160	1	unidade	Leite+Glúten
+sundae-de-baunilha-com-calda-de-pistache	Sundae de Baunilha com Calda de Pistache	habibs	3.3	212	31	8.2	0	122	125	1	unidade	Leite+Glúten
+sundae-de-baunilha-com-calda-de-chocolate	Sundae de Baunilha com Calda de Chocolate	habibs	3.3	220	42	4.4	0.7	103	160	1	unidade	Leite+Glúten
+couvert-arabe	Couvert Árabe	habibs	5.2	224	28	11	2.2	439	207	1	unidade	Leite+Glúten
+coalhada-seca	Coalhada Seca	habibs	7.1	250	28	12	0.6	305	190	1	unidade	Leite+Glúten
+batata-com-zaatar-e-molho-de-alho	Batata com Zaatar e Molho de Alho	habibs	3.6	346	35	21	3.1	537	218	1	unidade	Glúten
+babaganuche	Babaganuche	habibs	4.3	143	13	9.2	5.4	334	189	1	unidade	Glúten
+kafta-com-vinagrete-com-arroz-batata-e-molho-de-	Kafta com Vinagrete com Arroz, Batata e Molho de Alho	habibs	6.4	216	18	13	0.8	367	100	0.2	unidade	Leite+Glúten
+kafta	Kafta	habibs	11	273	11	21	0.7	643	100	0.3704	unidade	Leite+Glúten
+homus	Homus	habibs	4.6	252	26	14	1.9	498	189	1	unidade	Glúten
+salada-fatuche	Salada Fatuche	habibs	1.7	103	12	5.5	1.1	275	214	1	unidade	Glúten
+prato-verao	Prato Verão	habibs	4.9	234	21	14	2.2	457	100	0.2959	unidade	Glúten
+tabule	Tabule	habibs	3.8	234	27	12	2.3	783	218	1	unidade	Glúten
+minipao-sirio	Minipão Sírio	habibs	5.9	284	52	5.8	1.4	469	40	1	unidade	Glúten
+donuts-de-doce-de-leite	Donuts de Doce de Leite	habibs	5.2	321	53	9.9	1.7	364	58	1	unidade	Leite+Glúten
+esfiha-folhada-de-banoffee	Esfiha Folhada de Banoffee	habibs	4.7	316	39	16	1.6	249	86	1	unidade	Leite+Glúten
+esfiha-folhada-de-chocolate-branco	Esfiha Folhada de Chocolate Branco	habibs	7.5	495	48	30	1.1	375	50	1	unidade	Leite+Glúten
+esfiha-folhada-de-m-m-s	Esfiha Folhada de M&M’S®	habibs	6.3	486	52	28	2.5	358	59	1	unidade	Leite+Glúten
+esfiha-folhada-feita-de-baton	Esfiha Folhada Feita de Baton®	habibs	6.3	494	51	29	1.9	369	58	1	unidade	Leite+Glúten
+esfiha-folhada-de-doce-de-leite	Esfiha Folhada de Doce de Leite	habibs	7.4	400	53	18	1.1	400	50	1	unidade	Leite+Glúten
+minichurro-de-doce-de-leite	Minichurro de Doce de Leite	habibs	5.4	237	44	4.4	0.9	117	20	1	unidade	Leite+Glúten
+petit-gateau	Petit Gateau	habibs	6	373	32	24	1.7	81	175.5	1	unidade	Leite+Glúten
+casquinha-para-sorvete	Casquinha para Sorvete	habibs	7.8	373	77	3.8	2.1	40	10	1	unidade	Glúten
+casquinha-soft-chocolate	Casquinha Soft Chocolate	habibs	2.1	172	34	2.9	0.9	109	105	1	unidade	Leite+Glúten
+casquinha-de-chocolate	Casquinha de Chocolate	habibs	4.3	269	40	10	1.5	52	132	1	unidade	Leite+Glúten
+casquinha-de-creme	Casquinha de Creme	habibs	2.9	292	40	13	0	102	132	1	unidade	Leite+Glúten
+casquinha-de-baunilha	Casquinha de Baunilha	habibs	2	175	33	3.7	0	122	107	1	unidade	Leite+Glúten
+casquinha-de-pistache	Casquinha de Pistache	habibs	2	179	34	3.7	0	120	107	1	unidade	Leite+Glúten
+casquinha-mista-de-baunilha-com-pistache	Casquinha Mista de Baunilha com Pistache	habibs	2	177	34	3.7	0	121	107	1	unidade	Leite+Glúten
+casquinha-recheada-chocolate-massa-baunilha	Casquinha Recheada Chocolate (massa Baunilha)	habibs	3.5	186	33	5.1	0	83	120	1	unidade	Leite+Glúten
+casquinha-recheada-chocolate-massa-pistache	Casquinha Recheada Chocolate (massa Pistache)	habibs	3.5	192	35	5	0	83	120	1	unidade	Leite+Glúten
+casquinha-recheada-morango-massa-baunilha	Casquinha Recheada Morango (massa Baunilha)	habibs	3.3	189	35	4.1	0	57	120	1	unidade	Leite+Glúten
+casquinha-recheada-morango-massa-pistache	Casquinha Recheada Morango (massa Pistache)	habibs	3.3	195	36	4	0	56	120	1	unidade	Leite+Glúten
+casquinha-recheada-morango-massa-mista	Casquinha Recheada Morango (massa Mista)	habibs	3.3	192	36	4	0	56	120	1	unidade	Leite+Glúten
+casquinha-recheada-pistache-massa-baunilha	Casquinha Recheada Pistache (massa Baunilha)	habibs	4.2	223	33	8.2	0.5	59	120	1	unidade	Leite+Glúten
+casquinha-recheada-pistache-massa-pistache	Casquinha Recheada Pistache (massa Pistache)	habibs	4.2	229	35	8.2	0.5	59	120	1	unidade	Leite+Glúten
+casquinha-recheada-pistache-massa-mista	Casquinha Recheada Pistache (massa Mista)	habibs	4.2	226	34	8.2	0.5	59	120	1	unidade	Leite+Glúten
+cascao-de-chocolate	Cascão de Chocolate	habibs	2.4	194	37	4.3	0	130	125	1	unidade	Leite+Glúten
+batata-frita-50-g	Batata Frita 50 g	habibs	2	207	25	11	1.6	209	50	1	unidade	
+batata-frita-120-g	Batata Frita 120 g	habibs	2	207	25	11	1.6	209	120	1	unidade	
+batata-super-cheddar-e-bacon	Batata Super Cheddar e Bacon	habibs	6.4	249	21	16	1.2	500	130	1	unidade	Leite+Glúten
+bib-sfiha-de-carne-com-mussarela	Bib’Sfiha de Carne com Mussarela	habibs	9	217	27	8.3	1.3	463	85	1	unidade	Leite+Glúten
+bib-sfiha-de-espinafre-com-cremely	Bib’Sfiha de Espinafre com Cremely	habibs	5.6	202	30	7	1.9	577	76	1	unidade	Leite+Glúten
+bib-sfiha-de-frango	Bib’Sfiha de Frango	habibs	6	183	30	4.8	1.2	515	75	1	unidade	Glúten
+bib-sfiha-de-calabresa-com-mussarela	Bib’Sfiha de Calabresa com Mussarela	habibs	8.1	251	31	11	1.1	646	70	1	unidade	Leite+Glúten
+bib-sfiha-de-carne	Bib’Sfiha de Carne	habibs	7.3	203	30	6.1	1.5	468	75	1	unidade	Glúten
+batata-frita-100-g	Batata Frita 100 g	habibs	2	207	25	11	1.6	209	100	1	unidade	
+bib-sfiha-de-frango-com-cremely	Bib’Sfiha de Frango com Cremely	habibs	6.4	186	27	6.1	1.1	541	85	1	unidade	Leite+Glúten
+bib-sfiha-italianinha	Bib’Sfiha Italianinha	habibs	11	273	30	12	0.9	448	72	1	unidade	Leite+Glúten
+bib-sfiha-de-queijo	Bib’Sfiha de Queijo	habibs	10	256	34	8.7	0.8	895	70	1	unidade	Leite+Glúten
+minikibe-com-cremely	Minikibe com Cremely	habibs	8.3	176	21	6.7	4.3	697	45	1	unidade	Leite+Glúten
+pastel-de-carne	Pastel de Carne	habibs	12	272	26	13	1.5	741	80	1	unidade	Glúten
+pastel-de-queijo	Pastel de Queijo	habibs	14	358	30	20	1.1	567	65	1	unidade	Leite+Glúten
+bib-sfiha-folhada-de-picanha-com-cheddar-e-bacon	Bib’Sfiha Folhada de Picanha com Cheddar e Bacon	habibs	9.4	307	26	18	1.6	1079	67	1	unidade	Leite+Glúten
+bib-sfiha-folhada-de-quatro-queijos-com-cremely	Bib’Sfiha Folhada de Quatro Queijos com Cremely	habibs	11	360	30	22	1	592	55	1	unidade	Leite+Glúten
+beirute-super-burger	Beirute Super Burger	habibs	14	311	12	23	0	444	100	0.1786	unidade	Leite+Glúten
+beirute-tradicional-rosbife	Beirute Tradicional Rosbife	habibs	7.4	203	15	13	0.7	526	100	0.2041	unidade	Leite+Glúten
+beirute-de-kafta	Beirute de Kafta	habibs	7	214	16	13	1.1	424	100	0.1887	unidade	Leite+Glúten
+arroz-branco	Arroz Branco	habibs	3.3	156	32	1.9	0.7	108	180	1	unidade	
+genius-croc-chicken	Genius Croc Chicken	habibs	8.4	189	22	7.1	1.7	481	213	1	unidade	Leite+Glúten
+genius-cheddar	Genius Cheddar	habibs	9.8	254	17	16	1.3	246	235	1	unidade	Leite+Glúten
+genius-cheddar-e-bacon	Genius Cheddar e Bacon	habibs	10	251	16	16	1.3	294	250	1	unidade	Leite+Glúten
+kibe	Kibe	habibs	9.4	164	22	4.5	4.8	723	80	1	unidade	Leite+Glúten
+beirute-de-frango-crocante	Beirute de Frango Crocante	habibs	7.4	194	24	7.6	1.3	2707	100	0.2	unidade	Leite+Glúten
+file-de-frango-a-milanesa-com-arroz-e-fritas	Filé de Frango À Milanesa com Arroz e Fritas	habibs	8.8	186	28	4.3	1	311	100	0.2128	unidade	Leite+Glúten
+file-de-frango-grelhado-com-arroz-e-fritas	Filé de Frango Grelhado com Arroz e Fritas	habibs	9.2	182	23	6	0.8	301	100	2.5641	unidade	Glúten
+estrogonofe-de-frango-com-arroz-e-fritas	Estrogonofe de Frango com Arroz e Fritas	habibs	6.2	216	25	10	1.1	429	100	0.2083	unidade	Leite+Glúten
+file-de-frango-a-parmegiana-com-arroz-e-fritas	Filé de Frango À Parmegiana com Arroz e Fritas	habibs	5.7	185	23	7.9	1	508	100	0.1333	unidade	Leite+Glúten

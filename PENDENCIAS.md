@@ -854,7 +854,7 @@ exames é brasileiro. "TGO/TGP" é a nomenclatura daqui — nos Estados Unidos
 os mesmos marcadores são AST e ALT, e não é tradução de rótulo, é outro
 nome no laudo.
 
-## 🟡 18. A tabela americana de alimentos: três coisas em aberto
+## 🟡 18. As tabelas de alimentos: o que ficou em aberto
 
 A base dos EUA entrou — 4.666 alimentos da FNDDS/USDA, com a porção
 caseira vinda do próprio dado. `MERCADO` em `src/logic/mercado.ts` escolhe
@@ -883,12 +883,58 @@ nele —, então cai no que a PRATELEIRA contém. Funciona, e é mais grosso:
 lactose do que não tem. O mapa por id precisa ser escrito para os
 alimentos americanos que importam.
 
-**d) O fast food brasileiro tem uma rede só.** O McDonald's entrou, com os
-97 itens que ele publica e a colheita guardada em `scripts/dados/`. Faltam
-Burger King, Bob's, Subway, Habib's e as outras — cada uma publica de um
-jeito, e o caminho é o mesmo: colher num navegador, guardar o TSV com a
-data, e o gerador faz o resto.
+**d) O fast food brasileiro tem três redes.** Estão
+dentro o McDonald's (97 itens), o Burger King (79) e o Habib's (79), cada
+um com a colheita em `scripts/dados/` e um script que a refaz. As duas que
+faltam não faltam por falta de trabalho:
+
+- **Bob's publica calorias, carboidrato e sódio — e não publica proteína.**
+  A proteína é o número central deste aplicativo, e estimá-la a partir do
+  nome do sanduíche seria inventar. Enquanto a rede não publicar, não
+  entra.
+- **O Subway fica de fora de propósito.** Lá a pessoa monta o lanche —
+  escolhe pão, proteína, queijo e o que mais quiser —, e um item
+  chamado "Subway Frango" seria um número médio com cara de dado. Quem
+  montou o próprio lanche registra o que pôs nele, que é o que a lista
+  geral já faz. A rede também não publica tabela no site, mas essa é a
+  razão menor.
+
+**d.1) Do Habib's só entra o que é da casa.** A rede vende kibe, tabule,
+homus, arroz branco, batata frita e pastel, e nenhum é dela — a tabela
+geral já tem todos, medidos pela Unicamp. Pôr os dois lados criaria uma
+escolha sem resposta entre "Esfiha de carne" e "Habib's Esfiha de carne".
+A régua está no gerador, e é por linha de produto: Bib'Sfiha, Beirute,
+Genius, esfiha folhada e as linhas de sorvete da casa. O McDonald's e o
+Burger King não precisam de régua porque o cardápio inteiro deles já é
+próprio.
+
+**d.2) O que as fontes erram, e o que fizemos.** Vale saber, porque volta
+na próxima colheita:
+
+- O botão "Ver Tabela" do site do Burger King aponta para um arquivo que
+  responde AccessDenied. O que responde é o nome sem data, e é nele que
+  `colher-bk.mjs` bate. Se cair, o jeito de achar o novo está no alto do
+  script.
+- A tabela do Burger King erra o próprio %VD em várias linhas — publica
+  "56 g (121%)" onde 56 g de 50 são 112%. Por isso a conferência é pela
+  caloria calculada dos macros, que é física, e não pela porcentagem
+  deles.
+- Uma linha dela, "BK® Chicken – 4 unidades", traz 40 g e 1 g de proteína
+  enquanto as de 6 e 10 unidades trazem 18 g por unidade. É coerente
+  consigo mesma e incoerente com os irmãos: ficou de fora.
+- Oito itens do Habib's não declaram alérgeno nenhum, e ficaram de fora
+  por isso — sem declaração não dá para distinguir "não tem leite" de
+  "não disseram", e o que não está marcado o aplicativo mostra a quem
+  filtrou lactose. Um deles é comida de verdade: o "Sorvete de Creme".
+
+**d.3) A restrição do Burger King sai do nome.** A tabela dele liga
+alérgeno a INGREDIENTE — o queijo cheddar, a calda de morango — e não a
+produto, e montar a receita de cada sanduíche a partir disso é um trabalho
+que a fonte não sustenta. A lista de palavras no gerador é generosa de
+propósito: marcar de menos é o erro que machuca.
 
 **e) A colheita envelhece.** As redes mudam receita e cardápio, e a nossa
 cópia tem a data em que foi feita — 21/09/2026. Não há nada que avise
-quando ela ficar velha. Antes de subir para a loja, vale recolher.
+quando ela ficar velha. Antes de subir para a loja, vale recolher: são
+três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
+McDonald's, e depois `gerar-fastfood-br`.

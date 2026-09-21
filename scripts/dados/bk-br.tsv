@@ -1,0 +1,107 @@
+# COLHEITA — Burger King Brasil, tabela nutricional oficial
+#
+# Fonte: https://bk-media.burgerking.com.br/TABELA_NUTRICIONAL_BK.pdf
+# Colhida em 21/09/2026 por scripts/colher-bk.mjs, que baixa o PDF e lê a
+# tabela. Para atualizar, rode o script de novo.
+#
+# ⚠️ OS VALORES SÃO DA PORÇÃO, E O PESO DELA É PUBLICADO. A coluna
+# "Porção (unid.)" diz 325 g para o Whopper, e os números da linha são
+# desse sanduíche inteiro — não de 100 g. É mais do que o McDonald's
+# publica, e menos do que o Habib's: lá vêm as duas bases.
+#
+# ⚠️ A REDE NÃO LIGA ALÉRGENO A PRODUTO. O PDF traz a lista de alérgenos
+# por INGREDIENTE — o queijo cheddar, o picles, a calda de morango — e
+# não por sanduíche. Montar o alérgeno do produto exigiria saber a receita
+# dele, que a tabela não dá. Por isso a coluna de alérgeno não existe
+# aqui, e as restrições saem do nome, no gerador.
+#
+# colunas: slug, nome, rede, proteína g/porção, kcal/porção,
+#          carboidrato g, gordura g, fibra g, sódio mg, peso da porção g
+#
+whopper	WHOPPER®	bk	32	717	47	44	5	1369	325
+shake-de-morango	Shake de Morango	bk	4	493	91	13	2	195	318
+whopper-duplo	WHOPPER® Duplo	bk	50	962	47	62	5	1400	405
+shake-de-doce-de-leite	Shake de Doce de Leite	bk	8	593	102	17	1	324	329
+whopper-furioso	WHOPPER® Furioso	bk	38	941	69	56	6	1550	366
+shake-especial-crocante	Shake Especial Crocante	bk	5	514	90	15	2	259	295
+whopper-jr	WHOPPER® Jr.	bk	17	388	29	23	3	767	179
+shake-de-chocolate	Shake de Chocolate	bk	21	616	90	19	2	325	325
+whopper-barbecue-bacon	WHOPPER® Barbecue Bacon	bk	35	767	49	47	5	1583	335
+whopper-rodeio	WHOPPER® Rodeio	bk	34	901	70	53	6	1222	352
+baldao-de-ovomaltine	Baldão de Ovomaltine®	bk	11	1276	186	54	5	470	525
+baldao-de-brownie	Baldão de Brownie	bk	14	1083	171	38	4	515	534
+pao-carne-e-queijo	Pão, Carne e Queijo	bk	16	288	26	14	3	434	103
+casquinha-de-doce-de-leite	Casquinha de Doce de Leite	bk	3	226	41	5	0	114	127
+cheeseburger	Cheeseburger	bk	16	308	30	14	3	775	130
+casquinha-de-baunilha	Casquinha de Baunilha	bk	3	223	38	7	1	97	127
+stacker-duplo-bacon	Stacker Duplo Bacon	bk	49	864	46	53	1	1685	249
+casquinha-mista	Casquinha Mista	bk	3	224	39	6	1	105	127
+big-king	Big King™	bk	35	739	44	46	2	1038	266
+casquinha-recheada-de-doce-de-leite	Casquinha Recheada de Doce de Leite	bk	6	364	66	8	0	204	173
+mega-stacker-2-0	Mega Stacker 2.0	bk	56	1054	49	68	4	1927	342
+sundae-de-chocolate	Sundae de Chocolate	bk	4	336	49	14	2	167	163
+mega-stacker-3-0	Mega Stacker 3.0	bk	80	1414	51	96	4	2452	453
+sundae-de-morango	Sundae de Morango	bk	4	312	51	10	2	106	173
+mega-stacker-cheddar-2-0	Mega Stacker Cheddar 2.0	bk	51	933	49	57	4	1510	325
+sundae-de-doce-de-leite	Sundae de Doce de Leite	bk	7	378	58	13	1	192	180
+mega-stacker-cheddar-3-0	Mega Stacker Cheddar 3.0	bk	72	1232	50	79	4	1823	427
+mix-de-ovomaltine	Mix de Ovomaltine®	bk	4	433	68	16	2	174	189
+mega-stacker-rodeio-2-0	Mega Stacker Rodeio 2.0	bk	59	1259	76	78	6	2232	417
+mix-de-brownie	Mix de Brownie	bk	5	393	60	15	2	172	193
+mega-stacker-rodeio-3-0	Mega Stacker Rodeio 3.0	bk	83	1619	78	106	6	2758	528
+bk-brownie-de-brigadeiro	BK® Brownie de Brigadeiro	bk	3	181	22	9	1.5	26	50
+rodeio	Rodeio	bk	17	444	36	26	3	640	144
+bk-mix-com-nutella	BK® Mix com Nutella®	bk	6	484	68	21	2	160	196
+rodeio-duplo	Rodeio Duplo	bk	27	606	43	37	4	702	200
+bk-mix-leite-em-po-com-nutella	BK® Mix Leite em pó com Nutella®	bk	9	499	64	23	2	196	198
+cheeseburger-duplo	Cheeseburger Duplo	bk	26	455	31	25	3	953	178
+bk-mix-brownie-com-nutella	BK® Mix Brownie com Nutella®	bk	7	498	71	22	2	148	206
+cheddar-duplo-crispy	Cheddar Duplo Crispy	bk	14	283	18	17	1	3	100
+shake-com-nutella	Shake com Nutella®	bk	7	550	88	19	1	214	296
+casquinha-com-nutella	Casquinha com Nutella®	bk	2	156	23	6	1	22	41
+chicken-jr	Chicken Jr.	bk	14	385	36	21	3	502	137
+bk-chicken-crispy	BK® Chicken Crispy	bk	29	501	41	25	2	1163	200
+chicken-duplo	Chicken Duplo	bk	23	591	48	35	4	842	206
+chicken-duplo-barbecue-bacon	Chicken Duplo Barbecue Bacon	bk	25	689	52	43	4	1120	230
+chicken-duplo-barbecue-bacon	Chicken Duplo Barbecue Bacon	bk	28	1589	52	142	5	2066	382
+whopper-de-plantas	WHOPPER® de Plantas	bk	28	675	50	40	10	2118	339
+bk-chicken-6-unidades	BK® Chicken – 6 unidades	bk	14	223	20	10	1	444	111
+bk-chicken-10-unidades	BK® Chicken – 10 unidades	bk	23	373	33	17	2	744	186
+batata-frita-pequena	Batata Frita – pequena	bk	3	179	26	7	3	468	78
+batata-frita-media	Batata Frita – média	bk	4	258	37	10	4	672	112
+batata-frita-grande	Batata Frita – grande	bk	5	327	47	12	5	852	142
+bk-balde-de-batatas	BK® Balde de Batatas	bk	10	653	93	24	11	1704	284
+onion-rings-media	Onion Rings – média	bk	5	319	36	17	4	570	91
+onion-rings-grande	Onion Rings – grande	bk	6	313	55	7	5	567	130
+batata-suprema-individual	Batata Suprema – individual	bk	11	530	62	25	6	1258	205
+batata-suprema-grande	Batata Suprema – grande	bk	23	1059	124	50	11	2515	410
+batata-furiosa-individual	Batata Furiosa – individual	bk	11	521	66	23	6	1275	204
+batata-furiosa-grande	Batata Furiosa – grande	bk	21	1042	133	45	11	2550	408
+chicken-duplo-furioso	Chicken Duplo Furioso	bk	23	675	55	42	4	1288	241
+chicken-duplo-bacon	Chicken Duplo Bacon	bk	25	675	49	43	4	1046	222
+molho-barbecue	Molho Barbecue	bk	0	48	12	0	0	258	28
+molho-barbecue	Molho Barbecue	bk	2	495	123	0	3	2637	286
+bk-shake-proteico-chocolate	BK Shake Proteico Chocolate	bk	21	616	90	19	2	325	325
+molho-furioso	Molho Furioso	bk	0	47	11	0	0	288	28
+molho-furioso	Molho Furioso	bk	2	476	114	1	2	2937	286
+bk-shake-proteico-crocante	BK Shake Proteico Crocante	bk	21	582	89	16	2	289	312
+ketchup	Ketchup	bk	0	8	2	0	0	70	7
+bk-shake-proteico-morango	BK Shake Proteico Morango	bk	20	577	92	14	2	232	339
+mostarda	Mostarda	bk	0	3	0	0	0	68	5
+bk-shake-proteico-doce-de-leite	BK Shake Proteico Doce de Leite	bk	24	677	104	18	1	361	350
+maionese-bk	Maionese BK®	bk	0	126	0	14	0	118	20
+casquinha-recheada-biscoff	Casquinha Recheada Biscoff®	bk	6	365	64	10	1	190	174
+molho-baconese	Molho Baconese	bk	0	114	0	12	0	127	20
+molho-baconese	Molho Baconese	bk	4	1279	4	138	1	1427	224
+bk-mix-biscoff	BK® Mix Biscoff®	bk	6	487	80	16	1	299	217
+maionese-verde	Maionese verde	bk	0	120	0	13	0	124	20
+bk-shake-biscoff	BK® Shake Biscoff®	bk	8	699	116	22	2	412	342
+molho-sabor-cheddar	Molho Sabor Cheddar	bk	14.5	505	27.5	37.5	0	2137.5	250
+bk-baldao-biscoff	BK® Baldão Biscoff®	bk	14	1133	186	37	3	680	536
+king-bacon	King Bacon	bk	30	821	29	64	1	1202	222
+king-duplo-bacon	King Duplo Bacon	bk	52	1314	31	107	1	1755	353
+king-fraldinha	King Fraldinha	bk	45	961	39	69	2	1318	307
+molho-grogu	Molho Grogu	bk	1	603	3	65	0	556	26
+bk-mix-grogu	BK® Mix Grogu	bk	5	420	61	17	1	196	185
+whopper-grogu	Whopper Grogu	bk	32	735	46	46	5	1321	300
+king-jr-toy-story	King Jr - Toy Story	bk	15	246	25	10	3	266	113

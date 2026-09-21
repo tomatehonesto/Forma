@@ -249,9 +249,26 @@ export function origemDoAlimento(a: Alimento): string {
      descreve o que a fonte NÃO é, quando o item sabe dizer o que ela é.
 
      Um Big Mac dizendo "os números vêm do rótulo de produtos comuns no
-     mercado" esconde que eles vêm do McDonald's. */
-  if (a.porUnidade && a.fonte) {
-    return `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`;
+     mercado" esconde que eles vêm do McDonald's.
+
+     ⚠️⚠️ E A CONDIÇÃO NÃO É `porUnidade`, É TER FONTE. Enquanto só o
+     McDonald's estava na lista, as duas coisas andavam juntas, e a
+     primeira versão amarrou a frase à medida em vez de amarrar à
+     procedência. Aí entrou o Habib's, que publica por 100 g — e o
+     beirute voltou a dizer que os números vinham "do rótulo de produtos
+     comuns no mercado", escondendo a tabela da própria rede. A medida
+     muda a segunda frase, e não o direito de dizer de onde veio. */
+  if (a.fonte && !a.fonte.startsWith('soma TACO')) {
+    if (!a.porUnidade) {
+      return `${a.fonte}. São os valores por 100 g, e o peso de cada porção é o que a própria rede declara.`;
+    }
+    /* ⚠️ "SEM DIZER QUANTO ELE PESA" É SOBRE O McDONALD'S, e deixou de
+       valer para todo mundo quando o Burger King entrou: ele publica o
+       peso da porção na mesma tabela. Repetir a frase ali seria dizer
+       que a rede escondeu um número que está impresso. */
+    return a.gUn == null
+      ? `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`
+      : `${a.fonte}. São os valores da porção que a rede vende, e não de 100 g — com o peso que ela mesma declara.`;
   }
   if (a.taco) {
     return 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.';
