@@ -7,6 +7,7 @@ import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { cuidado as cuidadoPt } from './pt-BR/cuidado';
+import { descobertas as descobertasPt } from './pt-BR/descobertas';
 import { equilibrio as equilibrioPt } from './pt-BR/equilibrio';
 import { home as homePt } from './pt-BR/home';
 import { escalas as escalasPt } from './pt-BR/escalas';
@@ -27,6 +28,7 @@ import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
 import { cruzamentos as cruzamentosEn } from './en-US/cruzamentos';
 import { cuidado as cuidadoEn } from './en-US/cuidado';
+import { descobertas as descobertasEn } from './en-US/descobertas';
 import { equilibrio as equilibrioEn } from './en-US/equilibrio';
 import { home as homeEn } from './en-US/home';
 import { escalas as escalasEn } from './en-US/escalas';
@@ -98,6 +100,7 @@ export type Textos = {
   comum: typeof comumPt;
   cruzamentos: typeof cruzamentosPt;
   cuidado: typeof cuidadoPt;
+  descobertas: typeof descobertasPt;
   equilibrio: typeof equilibrioPt;
   home: typeof homePt;
   escalas: typeof escalasPt;
@@ -123,7 +126,7 @@ const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
     alertas: alertasPt, alimentacao: alimentacaoPt, avisos: avisosPt,
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
-    cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
+    cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt,
     marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
@@ -131,7 +134,7 @@ const CATALOGOS: Record<Local, Textos> = {
   'en-US': {
     alertas: alertasEn, alimentacao: alimentacaoEn, avisos: avisosEn,
     ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
-    cuidado: cuidadoEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
+    cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn,
     marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,

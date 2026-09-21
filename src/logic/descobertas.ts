@@ -44,6 +44,7 @@
    que é o problema que este projeto passou a semana inteira desfazendo.
    ============================================================ */
 
+import { T } from '../textos';
 import { DAY, startOfDay, now, diffDays, nf } from './time';
 import {
   patterns, nota, diaFracoDeAgua, janelaDoEnjoo, hungerForecast,
@@ -108,7 +109,7 @@ function cruzamentos(S: State): Descoberta[] {
          que carrega a evidência — as seguintes concluem, e a conclusão
          inteira está a um toque de distância, no cartão. */
       texto: p.texto.split(/(?<=\.)\s/)[0],
-      cta: 'Ver a descoberta',
+      cta: T.descobertas.verDescoberta,
       to: '/insights',
       nota: nota(p),
     }));
@@ -140,12 +141,12 @@ function antecipacoes(S: State): Descoberta[] {
       id: `ant:vale:${Math.round(hf.when.getTime() / DAY)}`,
       tipo: 'antecipacao',
       ic: 'drop2',
-      chapeu: 'O QUE VEM',
+      chapeu: T.descobertas.chapeuAntecipacao,
       titulo: hf.inDays === 0
-        ? 'A fome tende a apertar hoje'
-        : `A fome tende a apertar ${hf.inDays === 1 ? 'amanhã' : `em ${hf.inDays} dias`}`,
-      texto: `É quando o nível da ${M(S).mol.toLowerCase()} chega ao ponto mais baixo do ciclo, pouco antes da próxima aplicação. Passa sozinho quando você aplicar.`,
-      cta: 'Ver o ciclo',
+        ? T.descobertas.fomeHoje
+        : hf.inDays === 1 ? T.descobertas.fomeAmanha : T.descobertas.fomeEmDias(hf.inDays),
+      texto: T.descobertas.fomeTexto(M(S).mol.toLowerCase()),
+      cta: T.descobertas.fomeCta,
       to: '/aplicacoes',
       nota: 3,
     });
@@ -160,10 +161,10 @@ function antecipacoes(S: State): Descoberta[] {
       id: `ant:agua:${fraco.dia}`,
       tipo: 'antecipacao',
       ic: 'water',
-      chapeu: 'O QUE VEM',
-      titulo: 'Amanhã costuma ser o seu dia mais seco',
-      texto: `Nos seus registros a hidratação cai para ${aguaTxt(S, fraco.dele * CUP_ML)} ${fraco.nome}, contra ${aguaTxt(S, fraco.outros * CUP_ML)} nos outros dias. Saber disso na véspera é meio caminho.`,
-      cta: 'Ver a hidratação',
+      chapeu: T.descobertas.chapeuAntecipacao,
+      titulo: T.descobertas.aguaTitulo,
+      texto: T.descobertas.aguaTexto(aguaTxt(S, fraco.dele * CUP_ML), fraco.nome, aguaTxt(S, fraco.outros * CUP_ML)),
+      cta: T.descobertas.aguaCta,
       to: '/agua',
       nota: 2.6,
     });
@@ -185,10 +186,10 @@ function antecipacoes(S: State): Descoberta[] {
       id: `ant:enjoo:${ultima}`,
       tipo: 'antecipacao',
       ic: 'waves',
-      chapeu: 'O QUE VEM',
-      titulo: 'Se o enjoo aparecer agora, ele tem hora para passar',
-      texto: `Nos seus registros ele fica em ${nf(jan.perto, 1)} nos dois primeiros dias depois da aplicação e cai para ${nf(jan.longe, 1)} a partir do terceiro. São as 48 h de cada ciclo, não o tratamento inteiro.`,
-      cta: 'Ver os sintomas',
+      chapeu: T.descobertas.chapeuAntecipacao,
+      titulo: T.descobertas.enjooTitulo,
+      texto: T.descobertas.enjooTexto(nf(jan.perto, 1), nf(jan.longe, 1)),
+      cta: T.descobertas.enjooCta,
       to: '/sintomas',
       nota: 3,
     });
@@ -217,41 +218,41 @@ function convites(S: State): Descoberta[] {
   const poe = (
     id: string, ic: string, titulo: string, texto: string,
     cta: string, to: string, nota: number,
-  ) => out.push({ id: `conv:${id}`, tipo: 'convite', ic, chapeu: 'UM CONVITE', titulo, texto, cta, to, nota });
+  ) => out.push({ id: `conv:${id}`, tipo: 'convite', ic, chapeu: T.descobertas.chapeuConvite, titulo, texto, cta, to, nota });
 
   if (!(S.goals as any[]).length) poe(
     'meta', 'target',
-    'Você ainda não disse aonde quer chegar',
-    'Uma meta sua — caber numa calça, voltar à praia, largar um hábito. Guardamos para você, e quem marca quando chega é você.',
-    'Criar uma meta', '/meta', 3,
+    T.descobertas.metaTitulo,
+    T.descobertas.metaTexto,
+    T.descobertas.metaCta, '/meta', 3,
   );
 
   if ((S.measures as any[]).length <= 1) poe(
     'medidas', 'ruler',
-    'A balança conta só uma parte',
-    'A fita métrica conta a outra: cintura e quadril mudam quando o peso empaca, e é aí que ela mostra que algo está acontecendo.',
-    'Registrar medidas', '/medir-medidas', 2.6,
+    T.descobertas.medidasTitulo,
+    T.descobertas.medidasTexto,
+    T.descobertas.medidasCta, '/medir-medidas', 2.6,
   );
 
   if (!(S.meals as any[]).length) poe(
     'refeicao', 'soup',
-    'A proteína do dia pode se contar sozinha',
-    'Registrando o que você come, a conta do dia sai pronta — sem tabela, sem somar nada de cabeça.',
-    'Registrar uma refeição', '/registrar', 2.5,
+    T.descobertas.refeicaoTitulo,
+    T.descobertas.refeicaoTexto,
+    T.descobertas.refeicaoCta, '/registrar', 2.5,
   );
 
   if (!(S.exams as any[]).length) poe(
     'exames', 'lab',
-    'Os seus exames cabem aqui',
-    'Com eles guardados, dá para ver a linha de cada marcador ao longo do tratamento — e levar tudo organizado para a consulta.',
-    'Guardar um exame', '/exames', 2.2,
+    T.descobertas.examesTitulo,
+    T.descobertas.examesTexto,
+    T.descobertas.examesCta, '/exames', 2.2,
   );
 
   if (!clinicaConectada(S)) poe(
     'clinica', 'steth',
-    'A sua clínica pode ficar deste lado',
-    'Com o código que ela te deu, a sua equipe aparece aqui e as orientações dela param de se perder no meio das mensagens.',
-    'Usar o código', '/codigo', 2,
+    T.descobertas.clinicaTitulo,
+    T.descobertas.clinicaTexto,
+    T.descobertas.clinicaCta, '/codigo', 2,
   );
 
   return out;
