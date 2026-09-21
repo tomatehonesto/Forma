@@ -62,6 +62,8 @@ import Globe from 'lucide-react-native/icons/globe';
 import Mail from 'lucide-react-native/icons/mail';
 import Phone from 'lucide-react-native/icons/phone';
 import GlassWater from 'lucide-react-native/icons/glass-water';
+import Mic from 'lucide-react-native/icons/mic';
+import AudioLines from 'lucide-react-native/icons/audio-lines';
 import Milk from 'lucide-react-native/icons/milk';
 import CupSoda from 'lucide-react-native/icons/cup-soda';
 import Citrus from 'lucide-react-native/icons/citrus';
@@ -229,6 +231,12 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   troca: ArrowLeftRight,
   /* A garrafa de coqueteleira — o shake. */
   shaker: IconBottle,
+  /* ⚠️ O DITADO TEM DOIS DESENHOS PORQUE TEM DOIS ESTADOS. O microfone
+     parado convida; as ondas confirmam que alguém está ouvindo. Um só
+     ícone teria de carregar as duas coisas com a cor, e cor sozinha não
+     diz a diferença entre "toque para falar" e "estou gravando". */
+  mic: Mic,
+  ondas: AudioLines,
   leaf: Leaf,
   arrowdown: ArrowDown,
   arrowup: ArrowUp,

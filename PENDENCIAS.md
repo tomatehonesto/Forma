@@ -679,3 +679,45 @@ ser dita a partir de um dado transcrito, **desde que o nome e a data
 estejam à vista na mesma tela**. É por isso que os dois são obrigatórios
 na folha de anotar, e é por isso que toda tela que mostra o número mostra
 a procedência junto.
+
+---
+
+## 🔴 14. O ditado abriu a segunda saída de rede, e a tela de privacidade não sabe
+
+Até agora o aplicativo tinha **exatamente uma** chamada de rede: a leitura
+da foto do prato, em `src/logic/analise.ts`. A tela de privacidade foi
+corrigida nesta semana justamente para parar de descrever transmissões que
+não existiam.
+
+O microfone do companion (`src/ui/useDitado.ts`,
+`expo-speech-recognition`) muda isso. Reconhecimento de fala **pode mandar
+áudio para os servidores da Apple ou do Google** — e áudio de alguém
+falando do próprio tratamento é dado de saúde.
+
+**O que o código faz:** pede `requiresOnDeviceRecognition: true`, que é o
+certo para um aplicativo de saúde. A documentação do módulo diz *"only
+enabled if the device supports it"*: quem não tem o modelo de pt-BR
+instalado cai no reconhecimento por rede **sem que nada avise**. Na web é
+sempre pela rede, pela própria natureza da Web Speech API.
+
+**Por isso o texto da permissão não promete que o áudio fica no
+aparelho** — seria promessa que o código não cumpre.
+
+**Antes da loja:**
+
+1. **A tela de privacidade e a política precisam citar o ditado**, dizendo
+   que a fala pode ser processada pelo sistema operacional e que isso
+   acontece só enquanto o microfone está ligado. Vai junto com a revisão
+   jurídica do item 2.
+2. **Decidir se o ditado só aparece com reconhecimento local disponível.**
+   `getSupportedLocales()` responde se o pt-BR está instalado — dá para
+   esconder o microfone quando não estiver, ao custo de o recurso sumir
+   para parte das pessoas.
+3. **Conferir no aparelho.** O ditado não pôde ser testado de ponta a
+   ponta aqui: o painel do navegador bloqueia captura de microfone. O que
+   foi verificado é que o botão aparece, pede permissão, e que a recusa
+   vira a frase certa na tela. Falta ver a transcrição acontecendo, em
+   iOS e em Android, com prebuild.
+4. **O prebuild.** O módulo não roda no Expo Go. Isso não é novidade —
+   os ícones alternativos do item 9 já exigem prebuild —, mas agora são
+   dois motivos.

@@ -121,6 +121,13 @@
             }
           }
         ]
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Usamos o microfone quando você toca para ditar uma pergunta em vez de digitar.",
+          "speechRecognitionPermission": "Transformamos a sua fala em texto no campo de pergunta. Você lê o que saiu antes de enviar."
+        }
       ]
     ],
     "experiments": {

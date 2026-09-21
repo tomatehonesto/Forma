@@ -17,6 +17,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useLarguraApp } from '../ui/useLarguraApp';
 import { useLightStatusBar } from '../ui/useLightStatusBar';
+import { useDitado, ditadoDisponivel } from '../ui/useDitado';
 import { radius, font } from '../theme';
 
 /* ============================================================
@@ -220,6 +221,11 @@ export default function Companion() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [pensando, setPensando] = useState(false);
   const [input, setInput] = useState('');
+  /* O ditado escreve no mesmo campo que o teclado escreve — não há um
+     segundo lugar onde a fala vira texto, e é por isso que dá para
+     começar digitando e terminar falando. */
+  const temDitado = useMemo(() => ditadoDisponivel(), []);
+  const { ouvindo, erro: erroDoDitado, comecar: comecarDitado, parar: pararDitado, limparErro } = useDitado(setInput);
 
   /* As sugestões vêm do estado, não de uma constante.
 
@@ -430,13 +436,64 @@ export default function Companion() {
             a pessoa já está no meio de um assunto. O convite pertence ao
             começo; depois dele, o que se quer é escrever. */}
         <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: c.bg }}>
+          {/* ⚠️ O AVISO DO DITADO FICA ACIMA DO CAMPO, e não dentro dele.
+
+              Dentro, ele empurraria o campo para baixo no meio do teclado
+              aberto; e "não ouvi nada" não é um estado do campo, é uma
+              resposta a um gesto que a pessoa acabou de fazer. */}
+          {erroDoDitado ? (
+            <Pressable onPress={limparErro} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginBottom: 8 }]}>
+              <Row gap={8} style={{ backgroundColor: c.bg1, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 10 }}>
+                <Icon name="mic" size={14} color={c.tx3} sw={1.9} />
+                <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{erroDoDitado}</Txt>
+              </Row>
+            </Pressable>
+          ) : null}
           <Row gap={10}>
-            <Row style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 4 }}>
+            <Row gap={10} style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 8, paddingVertical: 4 }}>
               <TextInput
                 value={input} onChangeText={setInput} onSubmitEditing={() => ask(input)}
-                placeholder="Pergunte sobre sua jornada" placeholderTextColor={c.tx4}
-                style={{ flex: 1, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19 }}
+                /* ⚠️ O TEXTO ENCURTOU PORQUE O CAMPO ENCURTOU. Com o
+                   microfone dentro da pílula, 'Pergunte sobre sua jornada'
+                   passou a ser cortado no meio — e placeholder cortado lê
+                   como defeito, não como texto longo. O novo diz as duas
+                   formas de responder, e só promete a fala onde ela existe. */
+                placeholder={ouvindo ? 'Estou ouvindo…' : temDitado ? 'Escreva ou fale' : 'Pergunte sobre sua jornada'} placeholderTextColor={c.tx4}
+                /* ⚠️ minWidth 0 PORQUE flex:1 NÃO BASTA. Na web o <input> tem
+                   largura intrínseca, e um filho flex não encolhe abaixo dela
+                   sem isto — o campo empurrava o microfone para fora da
+                   pílula, em cima do botão de enviar. No nativo é inócuo. */
+                style={{ flex: 1, minWidth: 0, paddingVertical: 12, color: c.tx, fontFamily: font.body, fontSize: 19 }}
               />
+              {/* ⚠️ O MICROFONE MORA DENTRO DO CAMPO, e o enviar fica fora.
+
+                  São gestos de naturezas diferentes: ditar é uma forma de
+                  ESCREVER, e por isso pertence ao campo em que se escreve;
+                  enviar é o que se faz depois de escrever. Lado a lado,
+                  fora do campo, os dois viravam dois botões redondos
+                  competindo pelo mesmo canto.
+
+                  ⚠️ E ELE SÓ EXISTE ONDE FUNCIONA — ver ditadoDisponivel. */}
+              {temDitado ? (
+                <Pressable
+                  onPress={() => (ouvindo ? pararDitado() : comecarDitado(input))}
+                  hitSlop={8}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <View style={{
+                    width: 36, height: 36, borderRadius: 18,
+                    backgroundColor: ouvindo ? c.accent : 'transparent',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon
+                      name={ouvindo ? 'ondas' : 'mic'}
+                      size={19}
+                      color={ouvindo ? c.accentInk : c.tx3}
+                      sw={1.9}
+                    />
+                  </View>
+                </Pressable>
+              ) : null}
             </Row>
             {/* o botão só acende quando há o que enviar: cheio e apagado
                 dizem, antes do toque, se o gesto vai levar a algo */}
