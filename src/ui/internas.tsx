@@ -1329,6 +1329,54 @@ export function Campo({ rotulo, ajuda, nu, children }: {
 
 /* Opções — botões que embrulham em várias linhas. Servem para escolha
    única e para múltipla; quem decide qual das duas é a tela. */
+/* ============================================================
+   O SEGMENTADO — uma escolha entre duas ou três, numa pílula só
+
+   ⚠️ NÃO É A MESMA COISA QUE `Opc`, e a diferença é o que a peça diz.
+   `Opc` é uma lista de coisas que se escolhe; isto é um INTERRUPTOR entre
+   modos do mesmo conteúdo — a tela continua a mesma, e o que muda é a
+   régua com que ela fala. O desenho segue o que todo sistema operacional
+   usa para isso: trilho, pastilha deslizante, e as opções lado a lado
+   ocupando a mesma largura.
+
+   ⚠️ E AS OPÇÕES TÊM LARGURA IGUAL de propósito. Com `flex` proporcional
+   ao texto, "Métrico" e "Imperial" ficariam de tamanhos diferentes e a
+   pastilha pularia de largura ao trocar — o olho lê isso como a tela se
+   mexendo, e não como uma escolha sendo feita.
+   ============================================================ */
+export function Segmentado<T extends string>({ valor, opcoes, onChange }: {
+  valor: T;
+  opcoes: [T, string][];
+  onChange: (v: T) => void;
+}) {
+  const { c } = useTheme();
+  return (
+    <Row
+      style={{
+        alignSelf: 'center', padding: 4, borderRadius: radius.pill,
+        backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+      }}
+    >
+      {opcoes.map(([id, rotulo]) => {
+        const on = valor === id;
+        return (
+          <Pressable
+            key={id}
+            onPress={() => onChange(id)}
+            style={({ pressed }) => [{
+              paddingHorizontal: 22, paddingVertical: 9, borderRadius: radius.pill,
+              backgroundColor: on ? c.accent : 'transparent',
+              opacity: pressed && !on ? 0.6 : 1,
+            }]}
+          >
+            <Txt v="label" c={on ? c.accentInk : c.tx3}>{rotulo}</Txt>
+          </Pressable>
+        );
+      })}
+    </Row>
+  );
+}
+
 export function Opcoes({ children }: { children: React.ReactNode }) {
   return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{children}</View>;
 }

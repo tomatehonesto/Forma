@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
-  KeyboardAvoidingView, Keyboard,
+  KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
 import { useAurora } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -11,7 +11,7 @@ import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
-import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
@@ -20,7 +20,7 @@ import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '.
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao, Roda, Regua, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Botao, Roda, Regua, Segmentado, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -72,7 +72,7 @@ import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, re
 
 type Id = 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
   | 'forma' | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
-  | 'restricao' | 'saude' | 'acompanhamento' | 'recomendacao' | 'consentimento';
+  | 'restricao' | 'saude' | 'acompanhamento' | 'consentimento';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
 
@@ -107,7 +107,15 @@ const TODOS: Id[] = [
      numa ordem que a própria tela não consegue montar. */
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
-  'saude', 'acompanhamento', 'recomendacao',
+  'saude', 'acompanhamento',
+  /* ⚠️ O CÓDIGO DE CONVITE SAIU DAQUI, e foi para a tela de escolher o
+     plano. Ele existe para ligar a conta a um profissional, e o que isso
+     muda é a cobrança — perguntar no meio do cadastro era pedir um dado
+     comercial no lugar onde se fala de dose e de peso, a nove passos de
+     distância de onde ele faria diferença.
+
+     Os campos continuam no perfil: quem já tem convite guardado não o
+     perde, e o cadastro só deixou de perguntar. */
   /* O CONSENTIMENTO É O ÚLTIMO PASSO, e não o primeiro. Concordar antes
      de saber o que o aplicativo faz é assinar em branco: aqui a pessoa já
      viu as perguntas, já sabe que ele fala de peso, dose e sintoma, e é aí
@@ -206,6 +214,9 @@ type Respostas = {
      As duas se cruzam quase sempre e não são a mesma, e uma responder
      pela outra quebra as duas no dia em que divergirem. */
   recomendado: boolean | null;
+  /* A chave da isenção. Ela não vem do perfil na edição: aceitar de novo
+     não é o assunto de quem voltou para corrigir a altura. */
+  aceite: boolean;
   codigo: string;
 };
 
@@ -220,7 +231,7 @@ const VAZIO: Respostas = {
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
-  acompanhamento: null, profissional: '', recomendado: null, codigo: '',
+  acompanhamento: null, profissional: '', recomendado: null, codigo: '', aceite: false,
 };
 
 /* ------------------------------------------------------------------ */
@@ -974,7 +985,6 @@ export default function Cadastro() {
 
      O resumo promete "toque no lápis para mudar qualquer resposta", e
      mudar uma resposta não devia obrigar a atravessar as outras de novo. */
-  const [doResumo, setDoResumo] = useState(false);
 
   const futuro = r.emTratamento === false;
   const med = r.med ? MEDS[r.med] : null;
@@ -1050,17 +1060,29 @@ export default function Cadastro() {
     if (i >= 0) setN(i);
   }, [editando, hidratado, passos]);
 
-  const RESUMO = passos.length;
-  const MONTANDO = passos.length + 1;
-  const PLANO = passos.length + 2;
-  const aoResumo = () => { setDoResumo(false); setN(RESUMO); };
+  /* ⚠️ A TELA DE RESUMO SAIU — "Antes de concluir", com as treze
+     respostas para conferir e um lápis em cada linha.
+
+     Ela parecia cuidado e era atrito: chegava depois de treze perguntas
+     já respondidas uma a uma, cada uma com a resposta à vista no momento
+     de responder, e pedia que a pessoa lesse tudo de novo antes de
+     começar. Nenhum aplicativo do mesmo tipo tem essa tela, e o motivo
+     fica claro olhando o que ela resolve: corrigir. Corrigir já tem
+     lugar, e é o perfil — onde a pessoa vai de qualquer jeito, e onde a
+     mudança vale para sempre em vez de só até o próximo passo.
+
+     O que era o último gesto do resumo — "Montar o meu plano" — virou o
+     botão do consentimento, que é o último passo de verdade. */
+  const MONTANDO = passos.length;
+  const PLANO = passos.length + 1;
   /* Ir para a próxima é uma coisa só, e agora três rodapés diferentes
      fazem isso: o "Continuar" de sempre, o "Conectar" da tela de saúde e
      o "Salvar" da edição. Quem veio do resumo volta para o resumo; quem
      veio do perfil grava e sai. */
   const avanca = () => {
     if (editando) { salvar(); router.back(); return; }
-    if (doResumo) { aoResumo(); return; }
+    /* O último passo não avança: ele conclui. */
+    if (n === passos.length - 1) { salvar(); return; }
     setN(n + 1);
   };
   const appSaude = Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect';
@@ -1115,15 +1137,17 @@ export default function Cadastro() {
     if (x === 'inicio') return inicio <= +startOfDay(now());
     /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
        resposta a marcar antes dele. */
-    if (x === 'consentimento') return true;
+    /* ⚠️ O ÚLTIMO PASSO SÓ LIBERA COM A CHAVE LIGADA. Antes o botão do
+       rodapé ERA o aceite — tocar em "Concordar e montar meu plano"
+       consentia. Funciona juridicamente e some visualmente: o gesto de
+       consentir ficava idêntico ao de avançar as treze telas anteriores.
+       Com a chave, a pessoa faz uma coisa que só serve para isso. */
+    if (x === 'consentimento') return !!editando || r.aceite;
     /* O nome do profissional é opcional: quem tem médico e não quer
        escrever o nome agora continua tendo médico, e a ficha fica para
        depois. O código, não — sem ele "vim por indicação" é uma
        afirmação sem nada por trás. */
     if (x === 'acompanhamento') return r.acompanhamento !== null;
-    if (x === 'recomendacao') {
-      return r.recomendado === false || (r.recomendado === true && r.codigo.trim().length >= 4);
-    }
     return true;
   };
 
@@ -1350,125 +1374,6 @@ export default function Cadastro() {
     );
   }
 
-  /* ---------- confere ----------
-
-     A ÚLTIMA PARADA ANTES DE ESCREVER O PERFIL. Ela existe porque quinze
-     respostas foram dadas uma de cada vez, e ninguém lembra a nona.
-
-     AS LINHAS ANDAM EM GRUPOS. Quinze seguidas são uma parede onde tudo
-     tem o mesmo peso e nada se acha; separadas em quem você é, o
-     tratamento, a meta e o app, a pessoa sabe onde procurar a que quer
-     corrigir antes de começar a ler.
-
-     A linha inteira abre a pergunta; o lápis do fim é só a marca de que
-     ela abre. */
-  if (n === RESUMO) {
-    const freq = (() => {
-      const d = r.intervalo ?? padrao;
-      return d === 1 ? 'Todos os dias' : `A cada ${d} dias`;
-    })();
-    type L = [string, string, string, Id];
-    const grupos: [string, L[]][] = [
-      ['VOCÊ', [
-        ['user', 'Nome', r.nome.trim(), 'nome'],
-        /* SEXO, e não "identidade": o rótulo de uma conferência é o nome
-           curto da coisa, e é esse nome que a pessoa procura quando quer
-           corrigir. A pergunta continua sendo como ela se identifica, com
-           "prefiro não informar" entre as respostas. */
-        ['heart', 'Sexo', r.identidade === 'f' ? 'Feminino'
-          : r.identidade === 'm' ? 'Masculino'
-            : r.identidade === 'o' ? 'Outro' : 'Não informado', 'identidade'],
-        ['cal', 'Nascimento', `${dataCurta(+new Date(r.ano, r.mes, r.dia))} · ${idade} anos`, 'nascimento'],
-        ['ruler', 'Altura e peso', `${alturaTxt(r.sistema, r.altura)} · ${pesoTxt(r.sistema, r.peso)}`, 'corpo'],
-        ['dumbbell', 'Atividade', ativ?.titulo ?? '—', 'atividade'],
-        ['leaf', 'Restrição', r.restricoes.length
-          ? r.restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
-          : 'Nenhuma', 'restricao'],
-      ]],
-      ['O TRATAMENTO', [
-        ['spark', 'Situação', futuro ? 'Vou começar' : 'Já em tratamento', 'tratamento'],
-        ...(futuro ? [] : [['clock', 'Comecei em', `${dataCurta(inicio)} · ${pesoTxt(S, r.pesoInicial)}`, 'inicio'] as L]),
-        /* O ® só onde ele é verdade — ver `marca` em logic/meds. */
-        ['pill', 'Medicamento', r.med === 'indefinido' ? 'Ainda não sei'
-          : `${med?.label}${med?.marca ? '®' : ''}`, 'medicamento'],
-        ...((MEDS[r.med ?? '']?.formas.length ?? 1) > 1 && r.forma
-          ? [['syringe', 'Forma', maiuscula(FORMAS[r.forma].recipiente), 'forma'] as L]
-          : []),
-        ...(r.med === 'indefinido' ? [] : [
-          ['syringe', 'Dose', r.dose === 0 ? 'Ainda não sei' : `${doseTxt(r.dose ?? 0)} ${med?.unit ?? 'mg'}`, 'dose'] as L,
-          ['reset', 'Frequência', freq, 'frequencia'] as L,
-        ]),
-      ]],
-      ['A SUA META', [
-        ['target', 'Peso', `${pesoTxt(S, r.meta)}`, 'meta'],
-        ['trend', 'Ritmo', r.ritmo ? `${pesoTxt(S, r.ritmo)} por semana` : 'sem peso a perder', 'ritmo'],
-        ['bolt', 'Motivo', motivo?.titulo ?? '—', 'motivacao'],
-      ]],
-      ['NO APP', [
-        ['activity', 'App de saúde', r.saude ? 'Conectar' : 'Agora não', 'saude'],
-        ['steth', 'Acompanhamento',
-          r.acompanhamento === 'proprio'
-            ? (r.profissional.trim() || 'Com um profissional')
-            : 'Por conta própria',
-          'acompanhamento'],
-        ['heart', 'Indicação', r.recomendado ? r.codigo.trim().toUpperCase() : 'Cheguei por conta própria', 'recomendacao'],
-      ]],
-    ];
-    return (
-      <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <Lavagem altura={insets.top + 270} />
-        <Rolagem contentContainerStyle={{
-          paddingHorizontal: 20, paddingTop: insets.top + 36, paddingBottom: 24,
-        }}>
-          <Txt v="h1" style={{ textAlign: 'center' }}>Antes de concluir</Txt>
-          <Txt v="note" c={c.tx2} style={{ textAlign: 'center', marginTop: 8, marginBottom: 28 }}>
-            Confirme as informações — é delas que sai o seu plano.
-          </Txt>
-
-          <View style={{ gap: 22 }}>
-            {grupos.map(([titulo, itens]) => (
-              <View key={titulo}>
-                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1.2, marginBottom: 10 }}>{titulo}</Txt>
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-                  {itens.map(([ic, rotulo, valor, destino], i) => (
-                    <Pressable
-                      key={rotulo}
-                      onPress={() => { setDoResumo(true); setN(passos.indexOf(destino)); }}
-                      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                    >
-                      <Row style={{
-                        gap: 12, alignItems: 'center', paddingVertical: 13,
-                        borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
-                      }}>
-                        <Icon name={ic} size={18} color={c.tx4} sw={1.9} />
-                        <Txt v="caption" c={c.tx3}>{rotulo}</Txt>
-                        <Txt v="label" style={{ flex: 1, textAlign: 'right' }} numberOfLines={1}>
-                          {valor}
-                        </Txt>
-                        <Icon name="pencil" size={14} color={c.accent} sw={2} />
-                      </Row>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            ))}
-          </View>
-        </Rolagem>
-        <View style={{
-          paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
-          gap: 12, backgroundColor: c.bg,
-        }}>
-          <Botao pilula label="Montar o meu plano" onPress={salvar} />
-          <Pressable
-            onPress={() => setN(passos.length - 1)}
-            style={({ pressed }) => [{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Txt v="label" c={c.tx3}>Voltar</Txt>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
 
   /* ⚠️ A FAIXA PRECISA DE UMA FORMA, e no cadastro ela pode ainda não ter
      sido respondida — o passo da forma vem antes do da dose, mas quem
@@ -1505,8 +1410,7 @@ export default function Cadastro() {
     acompanhamento: futuro
       ? 'Você pretende ter o acompanhamento de um especialista?'
       : 'Você possui o acompanhamento de um especialista?',
-    recomendacao: 'Você chegou até nós por indicação de um especialista?',
-    consentimento: 'Antes de montar o seu plano',
+    consentimento: 'Informações importantes',
   };
   const subs: Record<Id, string> = {
     nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
@@ -1575,8 +1479,7 @@ export default function Cadastro() {
        No lugar dela, o que a pergunta de fato faz: o código é o que liga
        a conta à equipe. Ver PENDENCIAS.md — este passo sai daqui quando
        a tela de planos existir. */
-    recomendacao: 'O código é o que liga a sua conta à equipe que acompanha você.',
-    consentimento: 'O que você acabou de responder é dado de saúde. Veja o que fazemos com ele.',
+    consentimento: 'Duas coisas antes de começar: o que fazemos pelo seu tratamento, e o que acontece com o que você registra.',
   };
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
@@ -1633,7 +1536,6 @@ export default function Cadastro() {
         <Pressable
           onPress={() => {
             if (editando) { router.back(); return; }
-            if (doResumo) { aoResumo(); return; }
             setN(n - 1);
           }}
           hitSlop={14}
@@ -2002,11 +1904,18 @@ export default function Cadastro() {
                 que nove em dez pessoas não precisam tomar.
 
                 Depois, ela muda em Perfil › Unidades. */}
-            <Opcoes>
-              {([['metrico', 'kg · m · cm'], ['imperial', 'lb · pé · pol']] as [Sistema, string][]).map(([id, rot]) => (
-                <Opc key={id} label={rot} on={r.sistema === id} onPress={() => p({ sistema: id })} />
-              ))}
-            </Opcoes>
+            {/* ⚠️ "MÉTRICO" E "IMPERIAL", E NÃO "kg · m · cm". A lista de
+                unidades parecia mais concreta e era pior de ler: três
+                abreviações separadas por ponto num controle de duas
+                opções viram ruído, e a pessoa tem de decifrar a legenda
+                antes de escolher. O nome do sistema é uma palavra só, e
+                as réguas logo abaixo mostram o efeito no mesmo toque —
+                é delas que vem a concretude, não do rótulo. */}
+            <Segmentado
+              valor={r.sistema}
+              opcoes={[['metrico', 'Métrico'], ['imperial', 'Imperial']] as [Sistema, string][]}
+              onChange={(v) => p({ sistema: v })}
+            />
             <View>
               <Rotulo>ALTURA</Rotulo>
               {/* ⚠️ AS FAIXAS SE DECLARAM EM MÉTRICO e saem convertidas —
@@ -2403,38 +2312,33 @@ export default function Cadastro() {
           </View>
         ) : null}
 
-        {id === 'recomendacao' ? (
-          <View style={{ gap: 16 }}>
-            <View style={{ gap: 10 }}>
-              <Escolha
-                ic="heart" cheia titulo="Sim" sub="Tenho um código de convite"
-                on={r.recomendado === true} onPress={() => p({ recomendado: true })}
-              />
-              <Escolha
-                ic="user" cheia titulo="Não" sub="Cheguei por conta própria"
-                on={r.recomendado === false} onPress={() => p({ recomendado: false, codigo: '' })}
-              />
-            </View>
-
-            {r.recomendado ? (
-              <View style={{ gap: 8 }}>
-                <Rotulo>CÓDIGO DE CONVITE</Rotulo>
-                <CampoTexto
-                  valor={r.codigo}
-                  onChange={(v) => p({ codigo: v })}
-                  placeholder="O código que o profissional te passou"
-                  caixa="characters"
-                />
-                <Txt v="caption" c={c.tx3}>
-                  É ele que liga a sua conta ao profissional.
-                </Txt>
-              </View>
-            ) : null}
-          </View>
-        ) : null}
-
         {id === 'consentimento' ? (
           <View style={{ gap: 10 }}>
+            {/* ⚠️ A ISENÇÃO VEM PRIMEIRO, E É A ÚNICA COM CHAVE. Ver o alto
+                de logic/consentimento: o resto do aviso é sobre dado, e
+                esta é sobre tratamento — é a que alguém pode entender
+                errado de um jeito que faz mal. */}
+            <View style={{
+              backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12,
+              borderWidth: 1, borderColor: c.line,
+            }}>
+              <Row gap={10} style={{ alignItems: 'center' }}>
+                <Icon name="shield" size={19} color={c.accent} sw={1.9} />
+                <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO.titulo}</Txt>
+              </Row>
+              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO.texto}</Txt>
+              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO.reforco}</Txt>
+              <Row gap={12} style={{ alignItems: 'center', paddingTop: 4, borderTopWidth: 1, borderTopColor: c.line2, marginTop: 2 }}>
+                <Switch
+                  value={r.aceite}
+                  onValueChange={(v) => p({ aceite: v })}
+                  trackColor={{ false: c.track, true: c.accent }}
+                  thumbColor="#fff"
+                />
+                <Txt v="label" style={{ flex: 1 }}>{ISENCAO.aceite}</Txt>
+              </Row>
+            </View>
+
             {AVISO.map((a) => (
               <View key={a.titulo} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
                 <Txt v="bodyMed">{a.titulo}</Txt>
@@ -2487,7 +2391,7 @@ export default function Cadastro() {
                 pessoa consentindo sem saber que consentiu — e consentimento
                 para dado de saúde precisa ser um ato claro, não o efeito
                 colateral de avançar uma tela. */}
-            <Botao pilula label="Concordar e montar meu plano" onPress={avanca} />
+            <Botao pilula label="Concordar e montar meu plano" desligado={!r.aceite} onPress={avanca} />
             <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
               Fica registrado com a data de hoje.
             </Txt>
@@ -2527,8 +2431,7 @@ export default function Cadastro() {
         ) : (
           <Botao
             pilula
-            label={editando ? 'Salvar'
-              : doResumo || n === passos.length - 1 ? 'Ver o resumo' : 'Continuar'}
+            label={editando ? 'Salvar' : 'Continuar'}
             desligado={!respondida(id)}
             onPress={avanca}
           />

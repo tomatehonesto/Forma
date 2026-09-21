@@ -688,8 +688,11 @@ export default function Perfil() {
             muda o NÚMERO que a pessoa lê, e não a cor com que ele aparece.
             Mora no mesmo grupo porque as duas são preferências de leitura,
             e é onde alguém procuraria. */}
-        <ListRow ic="ruler" title="Unidades"
-          sub={sistemaDe(S) === 'imperial' ? 'Libra, pé e polegada' : 'Quilo, metro e centímetro'}
+        {/* "UNIDADES DE MEDIDA", e não "Unidades": sozinha, a palavra
+            também é a de "unidades de insulina" e a de "quantas unidades
+            você comeu" — duas coisas que este aplicativo também tem. */}
+        <ListRow ic="ruler" title="Unidades de medida"
+          sub={sistemaDe(S) === 'imperial' ? 'Imperial · libra, pé e polegada' : 'Métrico · quilo, metro e centímetro'}
           onPress={go('/unidades')} />
       </Grupo>
 

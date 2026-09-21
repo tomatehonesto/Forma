@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { Txt, SheetScreen } from '../ui/kit';
-import { Campo, Cartao, Linha } from '../ui/internas';
+import { Campo, Opc } from '../ui/internas';
 import {
   sistemaDe, pesoTxt, alturaTxt, compTxt, aguaTxt, type Sistema,
 } from '../logic/medidas';
@@ -53,27 +53,42 @@ export default function Unidades() {
 
   return (
     <SheetScreen
-      titulo="Unidades"
+      titulo="Unidades de medida"
       sub="Muda só como os números aparecem."
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         <Campo rotulo="Como você lê medidas" nu>
+          {/* ⚠️ O ESCOLHIDO É CHEIO, COMO NO CADASTRO, e antes era uma
+              pastilha escrita "em uso" no canto da linha.
+
+              São a mesma decisão em dois lugares do mesmo aplicativo, e
+              tinham dois desenhos: no cadastro a opção marcada é
+              preenchida e salta antes da leitura; aqui a pessoa precisava
+              procurar um selo de três letras para saber em qual estava.
+              Quem trocou a unidade no cadastro reconhece o gesto — e é
+              justamente ela que volta aqui para trocar de novo. */}
           <View style={{ gap: 8 }}>
             {OPCOES.map(([id, nome]) => (
-              <Cartao key={id}>
-                <Linha
-                  titulo={nome}
-                  sub={exemplo(id)}
-                  selo={atual === id ? `em uso` : undefined}
-                  seloTom="lima"
-                  seta={false}
-                  onPress={() => update((st: any) => { st.profile.sistema = id; })}
-                />
-              </Cartao>
+              <Opc
+                key={id}
+                cheia
+                label={nome}
+                on={atual === id}
+                onPress={() => update((st: any) => { st.profile.sistema = id; })}
+              />
             ))}
           </View>
         </Campo>
+
+        {/* ⚠️ OS NÚMEROS DELA CONTINUAM À VISTA, e continuam sendo o motivo
+            de esta tela existir: "métrico" e "imperial" são palavras de
+            enciclopédia, e o que a pessoa reconhece é o próprio peso
+            escrito. O que mudou foi o lugar — eram o subtítulo de cada
+            opção, e viraram uma linha só embaixo, do sistema em uso. */}
+        <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
+          {exemplo(atual)}
+        </Txt>
 
         <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
           A dose do medicamento continua em miligrama, e a proteína em grama —

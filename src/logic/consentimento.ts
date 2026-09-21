@@ -57,6 +57,32 @@ export const VERSAO = 1;
 export const TERMOS = '/documento?id=termos';
 export const POLITICA = '/documento?id=privacidade';
 
+/* ============================================================
+   A ISENÇÃO — o que este aplicativo é, e o que ele não é
+
+   ⚠️⚠️ ELA ABRE O ÚLTIMO PASSO, E TEM UMA CHAVE PRÓPRIA. O resto do aviso
+   é sobre DADO — o que fica guardado, o que sai daqui. Esta é sobre o
+   TRATAMENTO, e é a única coisa do cadastro que alguém pode entender
+   errado de um jeito que faz mal: achar que o aplicativo sabe se a dose
+   está certa.
+
+   ⚠️ E ELA NÃO DIMINUI O APLICATIVO PARA SE PROTEGER. "Isto não é um
+   aplicativo médico" é verdade e é covarde: quem está lendo acabou de
+   responder treze perguntas sobre o próprio tratamento, e merece saber o
+   que ganha, não só o que não ganha. A frase diz as duas coisas, nessa
+   ordem — o que fazemos, e onde paramos.
+
+   ⚠️ O QUE SE EXALTA É A CONSULTA. O trabalho deste aplicativo é chegar
+   nela com a história inteira, em vez de com a memória dos últimos dias.
+   Quem conduz o tratamento continua sendo quem sempre foi.
+   ============================================================ */
+export const ISENCAO = {
+  titulo: 'Acompanhamos o seu tratamento — não o conduzimos',
+  texto: 'Guardamos o que você registra, mostramos como a coisa vem andando e preparamos o que levar para a consulta. Não somos diagnóstico e não prescrevemos: dose, intervalo e medicação são decisão de quem acompanha você.',
+  reforco: 'Antes de mudar qualquer coisa na sua dose ou no seu horário, fale com a sua equipe. E se aparecer sintoma que assusta, não espere a próxima consulta.',
+  aceite: 'Entendi e concordo',
+};
+
 export type ItemDoAviso = { titulo: string; texto: string };
 
 export const AVISO: ItemDoAviso[] = [
