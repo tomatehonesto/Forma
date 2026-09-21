@@ -43,7 +43,7 @@ export default function Ciclo() {
     >
       <Titulao
         titulo={`Dia ${cic.dayIn} depois${'\n'}da aplicação`}
-        lead="O efeito da caneta sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado."
+        lead="O efeito do medicamento sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado."
       />
 
       <Progresso

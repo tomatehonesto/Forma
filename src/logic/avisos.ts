@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { State } from './seed';
 import { M } from './derive';
+import { FORMAS, formaDe, oA, doDa } from './formas';
 import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
 import { nf } from './time';
 
@@ -101,8 +102,9 @@ const textoDaDose = (S: State, lead: number) => {
   const med = M(S);
   const dose = `${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`;
   if (lead <= 0) return { title: 'A sua aplicação é hoje', body: `${dose}. Quando der, registre por aqui.` };
-  if (lead === 1) return { title: 'A sua aplicação é amanhã', body: `${dose}. Vale deixar a caneta à vista.` };
-  return { title: `A sua aplicação é em ${lead} dias`, body: `${dose}. Dá tempo de conferir o estoque da caneta.` };
+  const rec = FORMAS[formaDe(S)].recipiente;
+  if (lead === 1) return { title: 'A sua aplicação é amanhã', body: `${dose}. Vale deixar ${oA(formaDe(S))} ${rec} à vista.` };
+  return { title: `A sua aplicação é em ${lead} dias`, body: `${dose}. Dá tempo de conferir o estoque ${doDa(formaDe(S))}.` };
 };
 
 const TEXTO: Record<Exclude<TipoDeAlerta, 'dose'>, Texto> = {

@@ -91,6 +91,35 @@ export const formaDe = (S: { profile: { med: string; forma?: Forma } }): Forma =
 export const concordar = (f: Forma, masc: string, fem: string) =>
   (FORMAS[f].genero === 'f' ? fem : masc);
 
+/* ⚠️⚠️ AS PREPOSIÇÕES SÃO PEÇA, e não concatenação no lugar do uso.
+
+   "Restam 3 doses na caneta" vira "no frasco", não "na frasco". A
+   contração do artigo com a preposição é o erro mais comum de uma
+   varredura destas — ela passa no `tsc`, passa na revisão de diff e só
+   aparece na tela de quem usa a forma menos comum.
+
+   Com `noNa` e `doDa`, quem escreve a frase não tem como errar. */
+export const noNa = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'na' : 'no'} ${FORMAS[f].recipiente}`;
+export const doDa = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'da' : 'do'} ${FORMAS[f].recipiente}`;
+/** "nesta caneta", "neste frasco" — o demonstrativo com a preposição. */
+export const nesteNesta = (f: Forma) => `${FORMAS[f].genero === 'f' ? 'nesta' : 'neste'} ${FORMAS[f].recipiente}`;
+
+/* ⚠️⚠️ E "CANETA" TAMBÉM QUER DIZER O MEDICAMENTO, por metonímia — foi a
+   descoberta da varredura, e ela vale mais do que a troca em si.
+
+   Metade das menções não fala do recipiente: "os efeitos colaterais mais
+   comuns da caneta", "a caneta deixa tudo mais lento", "o tratamento com
+   a caneta". Trocar essas por `recipiente` daria "os efeitos colaterais
+   mais comuns do frasco", que é absurdo — um frasco não causa náusea.
+
+   Essas não se substituem: se reescrevem. E a palavra certa quase nunca
+   é uma forma — é "o medicamento" quando se fala da substância, e "o
+   tratamento" quando se fala do que o corpo está atravessando. As duas
+   servem a caneta, frasco, seringa e comprimido sem vocabulário nenhum.
+
+   Por isso não há função para elas aqui. Se você veio procurar uma,
+   provavelmente a frase que está na sua mão é do segundo tipo. */
+
 /** "outra caneta", "outro frasco" — o artigo que o nome sozinho não dá. */
 export const umOutro = (f: Forma, maiusculo = false) => {
   const p = FORMAS[f].genero === 'f' ? 'outra' : 'outro';

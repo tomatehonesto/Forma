@@ -91,14 +91,20 @@ export function horasDe(a: Alerta): number[] {
 export const TIPOS: Record<TipoDeAlerta, {
   titulo: string;
   /* O NOME QUE CABE NUMA COLUNA. Só a dose difere do título, e difere
-     porque "Aplicação da caneta" numa grade de duas colunas termina em
+     porque o título inteiro, numa grade de duas colunas, termina em
      reticências — e um nome cortado numa lista de escolha é a única das
      quatro opções que a pessoa não consegue ler antes de tocar. */
   curto: string;
   ic: string; desc: string; temDias: boolean; temLead: boolean;
 }> = {
   dose: {
-    titulo: 'Aplicação da caneta', curto: 'Aplicação', ic: 'syringe',
+    /* ⚠️ "DA DOSE", E ERA "DA CANETA". Esta tabela é constante, fora de
+       qualquer função, e não tem `S` para consultar a forma — a saída foi
+       a frase que serve a caneta, frasco e seringa igualmente.
+       Comprimido ainda lê "aplicação" aqui, e é dívida conhecida: a
+       palavra teria de vir do vocabulário, e para isso a tabela
+       precisaria virar função. */
+    titulo: 'Aplicação da dose', curto: 'Aplicação', ic: 'syringe',
     desc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
     temDias: false, temLead: true,
   },

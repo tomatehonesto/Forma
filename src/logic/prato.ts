@@ -213,7 +213,7 @@ export function insightDe(a: Alimento): Insight | null {
   if (fibra != null && fibra >= 5) {
     return {
       bom: true,
-      texto: 'Bastante fibra. Ajuda com o intestino preso, que é dos efeitos colaterais mais comuns da caneta.',
+      texto: 'Bastante fibra. Ajuda com o intestino preso, que é dos efeitos colaterais mais comuns do tratamento.',
     };
   }
   if (kcal != null && kcal <= 60 && p < 3) {
@@ -225,7 +225,7 @@ export function insightDe(a: Alimento): Insight | null {
   if (fibra != null && fibra >= 2.5) {
     return {
       bom: true,
-      texto: 'Tem fibra, que ajuda com o intestino preso — dos efeitos colaterais mais comuns da caneta.',
+      texto: 'Tem fibra, que ajuda com o intestino preso — dos efeitos colaterais mais comuns do tratamento.',
     };
   }
   return null;

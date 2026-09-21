@@ -240,7 +240,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
      montagem. */
   const SELOS = FONTES.filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i);
   const AJUDA: [string, string, string][] = [
-    ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da caneta, sem você contar'],
+    ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da dose, sem você contar'],
     ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
     ['scale', 'A sua curva de peso', 'cada pesagem entra na linha, com a leitura do que mudou'],
     ['doc', 'Um resumo para a consulta', 'doses, sintomas e peso organizados numa página só'],

@@ -14,7 +14,7 @@ import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
-import { FORMAS, faixaDaMolecula, type Forma } from '../logic/formas';
+import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
@@ -1516,7 +1516,9 @@ export default function Cadastro() {
       /* Sem escada não há titulação a seguir: manipulado não tem degraus
          de bula, e quem define o número é a receita. */
       : 'Manipulado não tem escada de bula — o número é o da sua receita.',
-    frequencia: 'É daqui que saem a contagem do ciclo, os lembretes e o estoque da caneta.',
+    /* `formaEmUso` existe alguns blocos acima, e é ela que sabe se a
+       pessoa tem caneta, frasco ou cartela. */
+    frequencia: `É daqui que saem a contagem do ciclo, os lembretes e o estoque ${doDa(formaEmUso)}.`,
     corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
     meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: `${nf(Math.abs(perder), 1)} kg a percorrer.`,

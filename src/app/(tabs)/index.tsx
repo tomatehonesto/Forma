@@ -20,7 +20,8 @@ import {
   doseDoPerfil, temDose,
   diasAteAplicar,
 } from '../../logic/derive';
-import { now, nf, fmtDate, DOW_PT, quandoEm, diffDays } from '../../logic/time';
+import { now, nf, fmtDate, DOW_PT, quandoEm, diffDays, maiuscula } from '../../logic/time';
+import { FORMAS, formaDe, oA, noNa } from '../../logic/formas';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -192,6 +193,10 @@ export default function Home() {
      novo, `diasAteAplicar` fica negativo. Não há heurística no meio. */
   const atraso = temDose(S) && lastInjection(S) ? -nd : 0;
   const caneta = penStock(S);
+  /* A forma decide como o recipiente se chama e como as preposições
+     concordam com ele — ver logic/formas. */
+  const forma = formaDe(S);
+  const recipiente = FORMAS[forma].recipiente;
 
   /* Carrossel do hero — as leituras do dia, todas com dado real.
 
@@ -232,17 +237,17 @@ export default function Home() {
     /* ⚠️ A RENOVAÇÃO SÓ É OFERECIDA A QUEM TEM PARA QUEM PEDIR. O pedido é
        uma mensagem à equipe, e sem clínica ligada ele abre uma tela vazia
        — é a mesma regra que a tela de Cuidado já aplica ao mesmo botão.
-       Sem equipe, o cartão continua existindo e leva à caneta, porque o
-       fato de a caneta estar acabando não depende de plataforma nenhuma. */
+       Sem equipe, o cartão continua existindo e leva ao recipiente, porque
+       o fato de ele estar acabando não depende de plataforma nenhuma. */
     ...(temDose(S) && caneta.left <= 1 ? [{
-      over: 'A CANETA',
+      over: recipiente.toUpperCase(),
       title: caneta.left <= 0
-        ? 'A sua caneta acabou.'
-        : 'Resta uma dose na sua caneta.',
+        ? `${maiuscula(oA(forma))} ${recipiente} acabou.`
+        : `Resta uma dose ${noNa(forma)}.`,
       body: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
       ...(clinicaConectada(S)
         ? { cta: 'Pedir renovação', to: '/conversa?pedir=receita', ic: 'doc' }
-        : { cta: 'Ver a caneta', to: '/caneta', ic: 'dose' }),
+        : { cta: `Ver ${oA(forma)} ${recipiente}`, to: '/caneta', ic: 'dose' }),
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },

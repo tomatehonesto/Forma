@@ -99,7 +99,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         bom: false,
         q: 'Como eu aumento a fibra do meu dia sem enjoar da comida?',
         titulo: `Fibra: ${media} g por dia`,
-        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. Feijão, aveia, folhas e frutas com casca são o caminho mais curto — e é a fibra que ajuda com o intestino preso, dos efeitos colaterais mais comuns da caneta.`,
+        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. Feijão, aveia, folhas e frutas com casca são o caminho mais curto — e é a fibra que ajuda com o intestino preso, dos efeitos colaterais mais comuns do tratamento.`,
       });
     } else if (media >= metas.fibra) {
       fora.push({
@@ -108,7 +108,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         bom: true,
         q: 'O que a fibra muda no meu tratamento?',
         titulo: `Fibra: ${media} g por dia, acima da meta`,
-        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. É o que costuma segurar o intestino preso da caneta — vale manter do jeito que está.`,
+        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. É o que costuma segurar o intestino preso do tratamento — vale manter do jeito que está.`,
       });
     }
   }
@@ -154,7 +154,7 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'momento-forte',
         ic: melhor.ic,
         bom: true,
-        q: 'Por que a proteína importa tanto no tratamento com a caneta?',
+        q: 'Por que a proteína importa tanto neste tratamento?',
         titulo: `${melhor.nome}: ${melhor.media} g de proteína, na média`,
         texto: 'É o momento que mais sustenta a sua meta do dia. Repetir o que já funciona ali é mais fácil do que consertar outro.',
       });

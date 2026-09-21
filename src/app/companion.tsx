@@ -141,7 +141,15 @@ function companionReply(S: State, text: string): Msg {
   if (has('náusea', 'nausea', 'enjoo', 'enjôo', 'mal estar', 'sintoma')) {
     return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, fonte: { rotulo: 'Seus sintomas', to: '/sintomas' }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
   }
-  if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta')) {
+  /* ⚠️ AS PALAVRAS DAS OUTRAS FORMAS ENTRARAM AQUI, e a varredura de
+     "caneta" foi quem achou a falta.
+
+     Este roteador case a pergunta por palavra escrita. Quem usa frasco
+     não escreve "caneta" — escreve "frasco", "seringa",
+     "comprimido" —, e a pergunta caía fora de todas as regras e ia
+     para a resposta genérica do fim. Não era texto errado: era resposta
+     perdida. */
+  if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
     const nd = nextInjectionDate(S); const li = lastInjection(S);
     return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }

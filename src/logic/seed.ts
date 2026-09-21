@@ -633,7 +633,7 @@ export function buildSeed() {
       {
         id: 'carla', name: 'Carla Mendes', role: 'Enfermeira',
         registro: 'COREN-SP 412.905',
-        sobre: 'Orienta aplicação, locais e conservação da caneta. É com ela que se tira dúvida de agulha, rodízio e viagem.',
+        sobre: 'Orienta aplicação, locais e conservação do medicamento. É com ela que se tira dúvida de agulha, rodízio e viagem.',
         formacao: ['Enfermagem — UNIFESP', 'Capacitação em terapia injetável'],
         areas: ['Aplicação', 'Rodízio de locais', 'Conservação', 'Descarte'],
       },

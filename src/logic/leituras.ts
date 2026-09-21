@@ -100,7 +100,7 @@ export const AVISO_PRESO = {
   sobre: 'Intestino preso',
   curto: 'beba água ao longo do dia, coma fibra e caminhe',
   titulo: 'Quatro dias sem ir já merece atenção',
-  texto: 'A caneta deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
+  texto: 'O medicamento deixa tudo mais lento, e comendo menos sobra pouco para o intestino empurrar. Quatro dias é onde isso costuma parar de se resolver sozinho.',
   acao: 'Água ao longo do dia, fibra nas refeições e uma caminhada. Se passar de cinco dias, ou vier com dor forte e vômito, procure atendimento.',
 };
 
@@ -140,7 +140,11 @@ const COMBINACOES: {
     urgente: true,
     titulo: 'Essa combinação pede atendimento agora',
     texto: 'Intestino parado há dias, dor forte e vômito juntos podem ser sinal de que algo travou. É raro, mas não melhora sozinho.',
-    acao: 'Procure um pronto atendimento hoje. Diga que usa a caneta e há quantos dias não vai ao banheiro.',
+    /* ⚠️ "QUAL MEDICAMENTO VOCÊ USA", e era "que usa a caneta". A troca
+       era obrigatória pela forma e saiu melhor pelo conteúdo: quem está
+       num pronto atendimento precisa dizer O QUE toma, não em que
+       embalagem ele vem. */
+    acao: 'Procure um pronto atendimento hoje. Diga qual medicamento você usa e há quantos dias não vai ao banheiro.',
   },
   {
     /* Dor abdominal intensa com vômito — o quadro que toda bula de GLP-1
@@ -151,7 +155,7 @@ const COMBINACOES: {
     urgente: true,
     titulo: 'Dor forte com vômito não espera',
     texto: 'Dor forte na barriga junto de vômito, às vezes espalhando para as costas, pede atenção no mesmo dia. Chegando cedo, é simples de checar.',
-    acao: 'Procure sua equipe ou um atendimento hoje. Diga que usa a caneta, a dose e quando a dor começou.',
+    acao: 'Procure sua equipe ou um atendimento hoje. Diga qual medicamento você usa, a dose e quando a dor começou.',
   },
   {
     /* Perda de líquido dos dois lados, ou muita de um, com tontura. */
@@ -233,7 +237,7 @@ const PERSISTENCIA: {
     sobre: 'Intestino lento na semana',
     curto: 'beba água, coma fibra e caminhe',
     titulo: 'O intestino está lento a semana toda',
-    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito da caneta, e com menos comida passa menos fibra — ele sente antes da balança.`,
+    texto: (n) => `${n} dos últimos sete dias com o intestino preso. Comer menos é efeito do medicamento, e com menos comida passa menos fibra — ele sente antes da balança.`,
     acao: 'Água, fibra e caminhada ajudam. Nesse ritmo, vale contar para sua equipe.',
   },
 ];

@@ -8,6 +8,7 @@ import { Txt, Row, CircleBtn, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { now, relDay, fmtTime } from '../logic/time';
+import { formaDe, noNa } from '../logic/formas';
 import { radius, font } from '../theme';
 
 /* ============================================================
@@ -99,7 +100,7 @@ export default function Conversa() {
   React.useEffect(() => {
     if (pedir !== 'receita') return;
     const restam = estoque.left === 1 ? 'Resta 1 dose' : `Restam ${estoque.left} doses`;
-    setMsg(`Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${restam} na caneta.`);
+    setMsg(`Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${restam} ${noNa(formaDe(S))}.`);
     const t = setTimeout(() => campoRef.current?.focus(), 120);
     return () => clearTimeout(t);
   }, [pedir]);

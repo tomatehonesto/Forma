@@ -10,6 +10,7 @@ import {
   diasAteAplicar,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf, quandoEm, maiuscula } from '../logic/time';
+import { FORMAS, formaDe, nesteNesta } from '../logic/formas';
 import { Txt, Row } from '../ui/kit';
 import { alertasDe, proximaDe, quando } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
@@ -160,9 +161,9 @@ export default function Aplicacoes() {
             vizinhas somadas para dizer a mesma coisa. */}
         <Linha
           ic="pill"
-          titulo="Caneta e receita"
+          titulo={`${maiuscula(FORMAS[formaDe(S)].recipiente)} e receita`}
           sub={k.verdict.good
-            ? `${k.atual?.usadas ?? 0} de ${k.atual?.total ?? 4} doses usadas nesta caneta`
+            ? `${k.atual?.usadas ?? 0} de ${k.atual?.total ?? 4} doses usadas ${nesteNesta(formaDe(S))}`
             : `${k.verdict.label} — cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}`}
           onPress={() => router.push('/caneta' as any)}
         />

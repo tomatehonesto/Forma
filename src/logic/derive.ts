@@ -4,6 +4,7 @@ import {
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
+import { FORMAS, formaDe, oA, noNa } from './formas';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
 import { ehForca, iconeDe } from './modalidades';
 import {
@@ -1593,40 +1594,16 @@ export function todayBrief(S: State) {
   return { head, body, q, cyc, chapeu };
 }
 
-/* Tarefas inteligentes do dia — cada uma só aparece quando faz sentido agora. */
-export type TodayTask = { ic: string; text: string; sub?: string; to: string; warn?: boolean };
-export function todayTasks(S: State): TodayTask[] {
-  const out: TodayTask[] = [];
-  const nd = nextInjectionDate(S);
-  const ndDays = diasAteAplicar(S);
-  if (ndDays <= 3)
-    out.push({ ic: 'syringe', text: ndDays <= 0 ? 'Aplicação hoje' : ndDays === 1 ? 'Aplicação amanhã' : `Aplicação em ${ndDays} dias`, sub: `${siteLabel(nextSite(S))} sugerido`, to: '/aplicacoes', warn: ndDays <= 1 });
-  out.push({ ic: 'pill', text: 'Renovar receita', sub: 'Restam 3 doses na caneta', to: '/aplicacoes' });
-  const lastW = S.weights[S.weights.length - 1];
-  const wDays = diffDays(now(), new Date(lastW.t));
-  if (wDays >= 4) out.push({ ic: 'scale', text: 'Registrar peso', sub: `Último registro há ${wDays} dias`, to: '/registrar' });
-  const examTask = exameNoProtocolo(S);
-  if (examTask) out.push({ ic: 'doc', text: examTask, sub: 'Do protocolo desta semana', to: '/protocolos' });
-  if (temConsulta(S)) {
-    const cd = diffDays(new Date(S.consult.t), now());
-    if (cd >= 0 && cd <= 2) out.push({ ic: 'cal', text: cd === 0 ? 'Consulta hoje' : cd === 1 ? 'Consulta amanhã' : 'Consulta em 2 dias', sub: S.consult.type, to: '/consultas', warn: cd <= 1 });
-  }
-  /* Metade da meta às três da tarde é o mesmo critério de antes — quatro
-     copos de oito —, agora escrito contra a meta que a pessoa tem.
+/* ⚠️ A LISTA DE TAREFAS DO DIA MORREU AQUI, e a varredura de "caneta"
+   foi quem descobriu.
 
-     E o destino é a folha de registro. A linha diz "Registrar água" e
-     levava para o menu de registros, onde ainda era preciso achar a
-     água: um toque a mais para fazer o que o texto já tinha prometido. */
-  const mlHoje = waterMlToday(S);
-  const alvoAgua = (S.profile as any).targets.waterMl as number;
-  if (now().getHours() >= 15 && mlHoje < alvoAgua / 2) out.push({ ic: 'water', text: 'Registrar água', sub: `${litros(mlHoje)} de ${litros(alvoAgua)} L até agora`, to: '/medir-agua' });
-  const ciT = checkinToday(S);
-  /* A meta vem do perfil. Estava 90 fixo aqui enquanto o resto do app lia
-     targets.prot — quem mudasse a meta passaria a ver duas contas. */
-  const alvoProt = (S.profile as any).targets.prot as number;
-  if (ciT && ciT.prot < alvoProt) out.push({ ic: 'leaf', text: `Faltam ${Math.round(alvoProt - ciT.prot)} g de proteína`, sub: `Da meta diária de ${alvoProt} g`, to: '/alimentacao' });
-  return out;
-}
+   `todayTasks` montava sete linhas de "o que fazer hoje" e não tinha um
+   só consumidor — nenhuma tela a chamava. Dentro dela, uma das linhas
+   dizia "Restam 3 doses na caneta" com o TRÊS escrito à mão, ignorando o
+   `penStock` que estava a duas funções de distância.
+
+   É o retrato do que código morto faz: um número inventado sobrevive
+   anos porque ninguém o vê. Sai inteira. */
 
 /* Conquista recente (≤7 dias) — só aparece quando há o que celebrar. */
 export function recentAchievement(S: State) {
@@ -2759,7 +2736,8 @@ export function recommendations(S: State): Reco[] {
 
   if (nd >= 0 && nd <= 3) {
     out.push({
-      emDias: nd, ic: 'syringe', texto: 'Separe a caneta e escolha o local',
+      emDias: nd, ic: 'syringe',
+      texto: `Separe ${oA(formaDe(S))} ${FORMAS[formaDe(S)].recipiente} e escolha o local`,
       porque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
       to: '/aplicacoes',
     });
@@ -2768,7 +2746,7 @@ export function recommendations(S: State): Reco[] {
   if (!p.verdict.good) {
     out.push({
       emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: 'Peça a renovação da receita',
-      porque: `Restam ${p.left} doses na caneta — pedindo agora, ela chega antes de acabar`,
+      porque: `Restam ${p.left} doses ${noNa(formaDe(S))} — pedindo agora, ela chega antes de acabar`,
       to: '/aplicacoes',
     });
   }
@@ -5773,7 +5751,11 @@ export const CICLO_FASES: CicloFase[] = [
     key: 'baixo', titulo: 'Dia 7 · ponto mais baixo', sub: 'Véspera da próxima aplicação',
     de: 7, ate: 99,
     comum: 'apetite mais próximo do habitual',
-    ajuda: 'deixe a caneta e o local da aplicação definidos na véspera',
+    /* ⚠️ "A DOSE", E NÃO "A CANETA": esta tabela é constante, fora de
+       qualquer função, e não tem `S` para consultar a forma. A saída não
+       foi dar `S` a ela — foi escrever a frase de um jeito que serve a
+       caneta, frasco e seringa igualmente. */
+    ajuda: 'deixe a dose e o local da aplicação definidos na véspera',
   },
 ];
 
