@@ -138,6 +138,10 @@ que dentro de um formulário.
 
 ## Fase 4 — a folha de registrar
 
+> ⚠️ **REVISADA DEPOIS DO TESTE.** O que está descrito abaixo foi o que
+> subiu primeiro; três coisas mudaram quando o Nick usou a tela. O
+> registro do porquê está no fim desta seção, em **Depois do teste**.
+
 A fase que a pessoa vê. É a maior, e por isso vem depois de as três peças
 dela já existirem e estarem verificadas.
 
@@ -203,6 +207,46 @@ Nenhuma delas estava no plano, e as quatro são consequência direta da fase.
    componente só tinha `n`, uma contagem numérica. `nota` é uma palavra
    que qualifica o chip, desenhada igual — recuada, para ser lida depois
    do nome.
+
+---
+
+### Depois do teste
+
+**1. O calendário passou a vir aberto, e as pastilhas de dia saíram.**
+Eram sete atalhos — Hoje, Ontem, Anteontem, três dias com nome e "Outro
+dia" — e o argumento contra eles foi do Nick: *"sinto que algumas pessoas
+têm dificuldade com datas"*. Quem quer registrar a aplicação de terça
+precisa traduzir "terça" para uma pastilha, e contar dias para trás de
+cabeça é justamente o que se erra. Com a grade aberta, o caso comum ficou
+em **zero** toque (hoje já vem marcado) e o difícil em um. As pastilhas
+economizavam um toque que ninguém dava.
+
+O preço é altura: uns 280 px no topo, e o resto nasce abaixo da dobra.
+Pôr o calendário por último resolveria e foi descartado — a folha abriria
+na dose, que é a pergunta que quase nunca muda.
+
+`diasParaAplicar` ficou sem consumidor e foi removida do `derive.ts`.
+
+**2. A dose virou um fato com CTA, e era uma pergunta toda semana.** Ela
+muda na titulação: uma vez por mês no começo, e quase nunca depois da
+manutenção. Seis degraus na tela toda semana é uma escolha que se responde
+sozinha em nove de dez registros. Agora a tela diz `Mounjaro · 5,0 mg`, e a
+escada só aparece para quem tocar em **"Mudei a dose"**. O medicamento
+entrou na mesma linha e saiu do campo do recipiente, onde estava
+repetido.
+
+A alternativa considerada — medicamento implícito no topo, só a dose
+selecionável — resolvia a duplicação e não o esforço.
+
+**3. O local virou duas perguntas, e não tem mais rolagem horizontal.** Os
+seis locais são três regiões vezes dois lados, e apresentá-los como seis
+opções soltas fazia ler "Abdômen" três vezes para achar o lado. Agora são
+três alvos e depois dois, tudo empilhado e visível. O id gravado continua
+o mesmo par, então nada mudou para os gráficos de rodízio.
+
+E todo controle da tela passou a ser o mesmo `Opc`: não havia motivo para
+dois estilos de seleção na mesma folha, e o que rolava para o lado ficava
+fora da tela para quem não sabia que estava lá.
 
 ---
 

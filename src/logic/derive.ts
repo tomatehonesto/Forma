@@ -1,6 +1,6 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
-  DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, fmtWD, hm, DOW_PT, nf, kg, relDay,
+  DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, DOW_PT, nf, kg, relDay,
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
@@ -5003,35 +5003,23 @@ export function marcarTarefa(s: any, i: number) {
 /* ============================================================
    QUANDO FOI A APLICAÇÃO
 
-   O formulário tinha três opções — Agora, Outro horário, Outro dia — e
-   as três gravavam `+now()`. A escolha era lida na tela e jogada fora
-   no salvar: quem aplicou na sexta e registrou no domingo ficava com uma
-   aplicação de domingo, e a próxima data saía dois dias errada.
+   ⚠️ AS PASTILHAS DE DIA SAÍRAM, e com elas a `diasParaAplicar` que as
+   montava — hoje e os seis anteriores, com "Hoje", "Ontem",
+   "Anteontem" e três dias com nome.
 
-   E a tela de aplicações prometia, por escrito, "dá pra registrar uma
-   aplicação anterior a qualquer momento".
+   A folha de registrar passou a abrir com o calendário do mês, já com
+   hoje marcado. Os atalhos economizavam um toque que ninguém dava, e
+   cobravam o toque caro: quem quer registrar a aplicação de terça tinha
+   de traduzir "terça" para uma pastilha, e contar dias para trás de
+   cabeça é justamente o que as pessoas erram.
 
-   "OUTRO HORÁRIO" NÃO VOLTA. A hora de uma aplicação não aparece em
-   lugar nenhum do app — o histórico mostra data, o calendário conta por
-   dia, a curva farmacológica trabalha em dias. Um controle cujo valor
-   ninguém lê não é um recurso, é uma pergunta que a pessoa responde à
-   toa.
-
-   Fica o DIA, em pastilhas: hoje e os seis anteriores. Mais que isso e o
-   atraso deixa de ser esquecimento e vira outra conversa — com a equipe,
-   não com o formulário. */
-export function diasParaAplicar(S: State, n = 7): { id: string; label: string; t: number }[] {
-  const hoje = +startOfDay(now());
-  return Array.from({ length: n }, (_, i) => {
-    const t = hoje - i * DAY;
-    const d = new Date(t);
-    return {
-      id: String(i),
-      label: i === 0 ? 'Hoje' : i === 1 ? 'Ontem' : i === 2 ? 'Anteontem' : `${fmtWD(d)} ${d.getDate()}`,
-      t,
-    };
-  });
-}
+   O que sobrou deste bloco é a regra que não mudou, e que vale para o
+   calendário também: "OUTRO HORÁRIO" NÃO VOLTA. A hora de uma aplicação
+   não aparece em lugar nenhum do aplicativo — o histórico mostra data, o
+   calendário conta por dia, a curva farmacológica trabalha em dias. Um
+   controle cujo valor ninguém lê não é um recurso, é uma pergunta que a
+   pessoa responde à toa.
+   ============================================================ */
 
 /* A hora dentro do dia escolhido: agora quando é hoje, meio-dia quando é
    um dia que já passou. Meio-dia porque a hora precisa existir para o

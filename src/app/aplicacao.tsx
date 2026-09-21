@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, nextSite, siteLabel, penStock, diasParaAplicar, instanteDaAplicacao, rodizioDeLocais,
+  M, nextSite, siteLabel, penStock, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
-import { FORMAS, formaDe, faixaDaMolecula, umOutro, oA } from '../logic/formas';
+import { FORMAS, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
 import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
-import { Txt, SheetScreen } from '../ui/kit';
-import { Campo, Chips, Opcoes, Opc, Regua, Botao } from '../ui/internas';
+import { Txt, Row, SheetScreen } from '../ui/kit';
+import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { Calendario } from '../ui/calendario';
-import { ZONAS } from '../ui/corpo';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
@@ -18,31 +18,50 @@ import { useTheme } from '../ui/useTheme';
 
    O formulário mais importante do aplicativo, e o que mais precisa sair
    da frente: quem está com a caneta na mão quer terminar isso em
-   segundos. Por isso tudo chega preenchido — dia de hoje, dose atual,
-   recipiente em uso, local sugerido pela rotação — e cada campo existe só
-   para o caso de a pessoa querer discordar do padrão.
+   segundos.
 
-   ⚠️⚠️ ERA TELA CHEIA, E VIROU FOLHA. Todas as outras capturas do
-   aplicativo são folha; esta era a exceção, e exceção em captura é a
-   pessoa reaprendendo o gesto de fechar a cada registro.
+   ⚠️⚠️ E É POR ISSO QUE QUASE NADA AQUI É UMA PERGUNTA. Dia, dose, local
+   e recipiente chegam respondidos; cada campo existe para o caso de a
+   pessoa querer discordar. Um formulário de toda semana que cobra quatro
+   decisões toda semana é um formulário que se deixa de preencher.
 
-   ⚠️⚠️ E METADE DELA SÓ EXISTE PARA QUEM INJETA.
+   ⚠️⚠️ E METADE DELE SÓ EXISTE PARA QUEM INJETA.
 
    O aplicativo passou a conhecer medicamento que não é caneta — ver
    logic/formas. Local de aplicação e rodízio não são detalhes de um
    comprimido: são perguntas que não existem. Quem toma semaglutida oral
    não escolhe onde aplicou, e o título nem chama isso de aplicação.
 
-   Por isso as duas últimas seções ficam atrás de `injetavel`, e não atrás
-   de um texto trocado. Esconder o rótulo e manter o campo seria o
-   aplicativo guardando uma resposta sem sentido.
-
    ⚠️ O DESENHO DO CORPO SAIU DAQUI, e não morreu. Ele continua em
    /aplicacoes, onde mostra o rodízio — que é o que ele sempre fez
-   melhor. Como SELETOR ele cobrava mira: seis alvos pequenos numa
-   silhueta de 200 px, para uma escolha entre seis coisas que têm nome. O
-   nome cabe num chip, e chip não erra o toque.
+   melhor. Como SELETOR ele cobrava mira: alvos pequenos numa silhueta de
+   200 px, para uma escolha entre coisas que têm nome.
+
+   ⚠️ E NÃO HÁ MAIS ROLAGEM HORIZONTAL NESTA TELA. Todo controle é o mesmo
+   `Opc` — a lista inteira cabe empilhada, e o que está fora da tela não
+   existe para quem não sabe que ele está lá.
    ============================================================ */
+
+/* ============================================================
+   O LOCAL SÃO DUAS PERGUNTAS, E ERA UMA LISTA DE SEIS.
+
+   Os seis locais do rodízio são três regiões vezes dois lados —
+   `abd-e`, `abd-d`, `coxa-e`… —, e apresentá-los como seis opções soltas
+   fazia a pessoa ler "Abdômen" três vezes para achar o lado que queria.
+   Separado, são três alvos e depois dois.
+
+   O id continua sendo o mesmo par: nada muda no que se grava, nem nos
+   seis gráficos de rodízio que leem isso.
+   ============================================================ */
+const REGIOES: [string, string][] = [
+  ['braco', 'Braço'],
+  ['abd', 'Abdômen'],
+  ['coxa', 'Coxa'],
+];
+const LADOS: [string, string][] = [['e', 'Esquerdo'], ['d', 'Direito']];
+
+const regiaoDe = (site: string) => site.split('-')[0];
+const ladoDe = (site: string) => site.split('-')[1];
 
 export default function Aplicacao() {
   const S = useStore((s) => s.S);
@@ -58,27 +77,16 @@ export default function Aplicacao() {
   const est = penStock(S);
 
   const hoje = +startOfDay(now());
-  const dias = diasParaAplicar(S);
 
-  /* ⚠️ O DIA É UM INSTANTE, E ERA UM ÍNDICE DE CHIP. Com índice, o
-     calendário não teria como responder — ele devolve uma data, não uma
-     posição numa lista de sete. */
   const [quandoT, setQuandoT] = useState(hoje);
-  const [calAberto, setCalAberto] = useState(false);
-
   const [dose, setDose] = useState<number>(S.profile.dose);
+  const [mudandoDose, setMudandoDose] = useState(false);
   const [site, setSite] = useState(sugerido);
   const [outroRecipiente, setOutroRecipiente] = useState(false);
 
   /* Sem escada de bula — manipulado — a dose é um número livre, e a faixa
      vem da molécula NA MESMA VIA. Ver a nota em logic/formas. */
   const faixa = med.doses.length ? null : faixaDaMolecula(med.mol, forma);
-
-  const noCurto = dias.find((d) => d.t === quandoT);
-  /* A grade aparece quando a pessoa pediu, ou quando a data escolhida não
-     cabe em nenhum atalho — reabrir a folha num 12 de agosto sem mostrar
-     agosto seria esconder a própria resposta. */
-  const mostraCalendario = calAberto || !noCurto;
 
   const salvar = () => {
     update((s: any) => {
@@ -104,122 +112,142 @@ export default function Aplicacao() {
       rodape={<Botao label={`Salvar ${vocab.acao}`} onPress={salvar} />}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        {/* O DIA, e só ele.
+        {/* ⚠️⚠️ O CALENDÁRIO VEM ABERTO, E ERAM CHIPS QUE O ABRIAM.
 
-            Eram três opções — Agora, Outro horário, Outro dia — e as três
-            gravavam a hora de AGORA: a escolha era lida na tela e jogada
-            fora no salvar. Quem aplicou na sexta e registrou no domingo
-            ficava com uma aplicação de domingo, e a próxima data saía dois
-            dias errada.
+            Havia sete atalhos — Hoje, Ontem, Anteontem, três dias com
+            nome, e "Outro dia" que abria a grade. Parecia menos trabalho e
+            era mais: quem quer registrar a aplicação de terça precisa
+            traduzir "terça" para um chip, e nem todo mundo faz essa conta
+            de cabeça. Data é a coisa que as pessoas mais erram quando
+            obrigadas a contar para trás.
 
-            "Outro horário" não voltou. A hora de uma aplicação não aparece
-            em lugar nenhum do aplicativo — o histórico mostra data, o
-            calendário conta por dia, a curva farmacológica trabalha em
-            dias. Um controle cujo valor ninguém lê é uma pergunta
-            respondida à toa.
+            Com a grade aberta, o caso comum ficou em ZERO toque — hoje já
+            vem marcado — e o caso difícil ficou em um. Os chips
+            economizavam um toque que ninguém dava.
 
-            ⚠️ E "OUTRO DIA" DEIXOU DE SER UM ATALHO A MAIS: ele abre a
-            grade do mês. Os sete chips resolvem o caso comum em um toque e
-            falham justamente no caso em que alguém precisa de calendário —
-            lembrar, três semanas depois, do dia em que aplicou. */}
+            ⚠️ O PREÇO É ALTURA: são uns 280 px no topo, e o resto da folha
+            nasce abaixo da dobra. Pôr o calendário por último resolveria,
+            e foi descartado — a folha abriria na dose, que é a pergunta
+            que quase nunca muda.
+
+            "Outro horário" nunca voltou. A hora de uma aplicação não
+            aparece em lugar nenhum do aplicativo: o histórico mostra data,
+            o calendário conta por dia, a curva farmacológica trabalha em
+            dias. */}
         <Campo
           rotulo="Quando"
           ajuda={quandoT === hoje
             ? `Fica registrada agora, ${fmtTime(now())}.`
             : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
         >
-          <Chips
-            itens={[...dias, { id: 'outro', label: 'Outro dia' }]}
-            valor={mostraCalendario ? 'outro' : (noCurto?.id ?? '0')}
-            onChange={(id) => {
-              if (id === 'outro') { setCalAberto(true); return; }
-              setCalAberto(false);
-              setQuandoT(dias.find((d) => d.id === id)?.t ?? hoje);
-            }}
-          />
-          {mostraCalendario ? (
-            <Calendario valor={quandoT} onEscolhe={setQuandoT} />
-          ) : null}
+          <Calendario valor={quandoT} onEscolhe={setQuandoT} />
         </Campo>
 
-        {/* ⚠️ DOIS CONTROLES, PORQUE SÃO DUAS NATUREZAS DE NÚMERO.
+        {/* ⚠️⚠️ A DOSE É UM FATO, E ERA UMA PERGUNTA TODA SEMANA.
 
-            Com escada de bula, a dose é uma escolha entre degraus com
-            nome, e são quatro a seis — cabem todos na tela de uma vez.
-            Isto substituiu um Stepper de mais e menos, que fazia percorrer
-            a escada às cegas, um degrau por toque, sem nunca mostrar
-            quantos existem nem onde a pessoa está neles.
+            Ela muda na titulação: uma vez por mês no começo, e quase nunca
+            depois que a manutenção chega. Seis degraus na tela toda semana
+            é uma escolha que se responde sozinha em nove de dez registros
+            — e o próprio arquivo já dizia, sobre outro campo, que um
+            controle cujo valor ninguém muda é uma pergunta respondida à
+            toa.
 
-            Sem escada — manipulado —, o número é livre: quem o define é a
-            receita. Aí o controle é a régua, que é o mesmo gesto do peso e
-            das medidas.
-
-            ⚠️ E A RÉGUA NÃO SERVE PARA A ESCADA. Ela anda com passo
-            UNIFORME: a do Mounjaro é uniforme (2,5 em 2,5), mas a do
-            Ozempic não é — 0,25 · 0,5 · 1 · 2. Traços igualmente espaçados
-            para degraus que não são mentiriam sobre onde eles estão. */}
-        <Campo rotulo="Dose" ajuda={med.doses.length
-          ? `Sua dose atual é ${nf(S.profile.dose, 1)} ${med.unit}.`
-          : 'Manipulado não tem escada de bula — o número é o da sua receita.'}
+            Agora o que está na tela é o que está cadastrado, e a escada só
+            aparece para quem disser que mudou. O medicamento entra na
+            mesma linha: ele estava repetido embaixo, no campo do
+            recipiente, e agora é dito uma vez só. */}
+        <Campo
+          rotulo={`Medicamento e ${med.doses.length ? 'dose' : 'dose da receita'}`}
+          ajuda={mudandoDose && !med.doses.length
+            ? 'Manipulado não tem escada de bula — o número é o da sua receita.'
+            : undefined}
         >
-          {med.doses.length ? (
-            <Opcoes>
-              {med.doses.map((d) => (
-                <Opc
-                  key={d}
-                  label={`${nf(d, 1)} ${med.unit}`}
-                  on={dose === d}
-                  onPress={() => setDose(d)}
-                />
-              ))}
-            </Opcoes>
-          ) : faixa ? (
-            <Regua
-              min={faixa.min} max={faixa.max} passo={0.05} tracoCada={0.5} casas={2}
-              esp={7} salto={0.05}
-              valor={dose || faixa.min} unidade={med.unit} onEscolhe={setDose}
-            />
-          ) : (
-            /* Sem escada E sem faixa: não há marca com aquela molécula
-               naquela via de onde derivar um limite. Dizer isso é melhor do
-               que abrir uma régua de 0 a 100. */
-            <Txt v="note" c={c.tx3}>
-              Não temos faixa de referência para este medicamento. A dose fica
-              a do seu último registro.
-            </Txt>
-          )}
+          <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+            <Txt v="bodyMed">{`${med.label} · ${nf(dose, 1)} ${med.unit}`}</Txt>
+            {!mudandoDose ? (
+              <Pressable
+                onPress={() => setMudandoDose(true)}
+                hitSlop={8}
+                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Row gap={4} style={{ alignItems: 'center' }}>
+                  <Txt v="label" c={c.accent}>Mudei a dose</Txt>
+                  <Icon name="chev" size={12} color={c.accent} sw={2.2} />
+                </Row>
+              </Pressable>
+            ) : null}
+          </Row>
+
+          {mudandoDose ? (
+            med.doses.length ? (
+              <Opcoes>
+                {med.doses.map((d) => (
+                  <Opc
+                    key={d}
+                    label={`${nf(d, 1)} ${med.unit}`}
+                    on={dose === d}
+                    onPress={() => setDose(d)}
+                  />
+                ))}
+              </Opcoes>
+            ) : faixa ? (
+              <Regua
+                min={faixa.min} max={faixa.max} passo={0.05} tracoCada={0.5} casas={2}
+                esp={7} salto={0.05}
+                valor={dose || faixa.min} unidade={med.unit} onEscolhe={setDose}
+              />
+            ) : (
+              /* Sem escada E sem faixa: não há marca com aquela molécula
+                 naquela via de onde derivar um limite. Dizer isso é melhor
+                 do que abrir uma régua de 0 a 100. */
+              <Txt v="note" c={c.tx3}>
+                Não temos faixa de referência para este medicamento. A dose fica
+                a do seu último registro.
+              </Txt>
+            )
+          ) : null}
         </Campo>
 
         {vocab.injetavel ? (
           <>
-            {/* ⚠️ CHIPS, E ERA UM DESENHO DO CORPO.
-
-                Seis locais com nome, escolhidos entre seis — é uma lista, e
-                lista se resolve com chip. A silhueta cobrava mira: seis
-                alvos pequenos num desenho de 200 px de largura, e errar o
-                toque num formulário de medicamento é trocar o registro do
-                braço pelo do abdômen.
-
-                ⚠️ O QUE ESTÁ EMBAIXO É A RAZÃO DE A ROTAÇÃO EXISTIR, e
-                continua igual: HÁ QUANTO TEMPO aquele local descansa, e se
-                ele é o próximo da rotação. Sem isso, o sugerido seria uma
-                ordem sem motivo — e é justamente o motivo que deixa a
-                pessoa discordar com conhecimento de causa. */}
             <Campo
               rotulo="Local da aplicação"
               ajuda="Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele."
             >
-              <Chips
-                itens={ZONAS.map((z) => ({
-                  id: z.id,
-                  label: siteLabel(z.id),
-                  nota: z.id === sugerido ? 'sugerido' : undefined,
-                }))}
-                valor={site}
-                onChange={setSite}
-              />
+              <Opcoes>
+                {REGIOES.map(([id, nome]) => (
+                  <Opc
+                    key={id}
+                    /* O "sugerido" marca a REGIÃO, e o lado dele já vem
+                       escolhido — a rotação sugere um ponto, não uma
+                       metade do corpo. */
+                    label={regiaoDe(sugerido) === id ? `${nome} · sugerido` : nome}
+                    on={regiaoDe(site) === id}
+                    onPress={() => setSite(`${id}-${ladoDe(site)}`)}
+                  />
+                ))}
+              </Opcoes>
+            </Campo>
+
+            <Campo rotulo="Lado">
+              <Opcoes>
+                {LADOS.map(([id, nome]) => (
+                  <Opc
+                    key={id}
+                    label={nome}
+                    on={ladoDe(site) === id}
+                    onPress={() => setSite(`${regiaoDe(site)}-${id}`)}
+                  />
+                ))}
+              </Opcoes>
+              {/* ⚠️ AS DUAS LINHAS SÃO A RAZÃO DE A ROTAÇÃO EXISTIR, e por
+                  isso ficam embaixo do LADO, e não da região: elas falam
+                  do ponto escolhido, que só existe depois das duas
+                  respostas. Sem elas, o sugerido seria uma ordem sem
+                  motivo — e é o motivo que deixa a pessoa discordar com
+                  conhecimento de causa. */}
               <View style={{ gap: 4 }}>
-                <Txt v="caption" c={c.tx2}>{descanso}</Txt>
+                <Txt v="caption" c={c.tx2}>{`${siteLabel(site)} · ${descanso}`}</Txt>
                 <Txt v="caption" c={site === sugerido ? c.accent : c.tx3}>
                   {site === sugerido
                     ? 'É o próximo da rotação.'
@@ -228,13 +256,9 @@ export default function Aplicacao() {
               </View>
             </Campo>
 
-            {/* ⚠️ A DOSE SAIU DAQUI, e era duplicação pura: o rótulo desta
-                opção repetia o número que o campo logo acima acabou de
-                perguntar. Uma tela que pergunta a dose e a repete dois
-                campos abaixo faz a pessoa conferir se são a mesma coisa.
-
-                O que é DESTE campo é o recipiente: qual está em uso e
-                quantas doses restam nele. */}
+            {/* O medicamento saiu deste rótulo: ele agora é dito uma vez
+                só, lá em cima. O que é DESTE campo é o recipiente — qual
+                está em uso e quantas doses restam nele. */}
             <Campo
               rotulo={maiuscula(vocab.recipiente)}
               ajuda={est.left <= 1
@@ -243,7 +267,7 @@ export default function Aplicacao() {
             >
               <Opcoes>
                 <Opc
-                  label={`${med.label} · ${est.total - est.left + 1}ª dose`}
+                  label={`${est.total - est.left + 1}ª dose`}
                   on={!outroRecipiente}
                   onPress={() => setOutroRecipiente(false)}
                 />
