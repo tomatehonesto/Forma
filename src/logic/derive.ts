@@ -5,6 +5,7 @@ import {
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { FORMAS, formaDe, oA, noNa } from './formas';
+import { T } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
 import { ehForca, iconeDe } from './modalidades';
 import {
@@ -1548,49 +1549,45 @@ export function todayBrief(S: State) {
      regressiva de um prazo — sete do quê, e o que acontece quando chegar?
      A cadência é do medicamento, não uma meta a cumprir. "Da dose" diz a
      mesma posição e nomeia o relógio que a está medindo. */
-  const chapeu = temCiclo ? `DIA ${cyc.dayIn} DA DOSE` : 'PARA HOJE';
+  const chapeu = temCiclo ? T.ciclo.chapeuDia(cyc.dayIn) : T.ciclo.chapeuSemCiclo;
   switch (cyc.phase.key) {
     case 'aplic':
       /* ⚠️ NÃO ANUNCIA QUE HOJE É DIA DE APLICAR: o slide seguinte da Home
          é inteiro sobre isso, com a dose e o local. Dois slides seguidos
          dando a mesma notícia gastam o carrossel — este fica com o que o
          outro não diz, que é o que acontece no corpo depois de aplicar. */
-      head = 'O efeito começa a subir nas próximas horas.';
-      body = 'Enjoo leve pode aparecer — prefira refeições menores ao longo do dia.';
-      q = 'O que esperar no dia da aplicação?';
+      head = T.ciclo.aplicHead;
+      body = T.ciclo.aplicBody;
+      q = T.ciclo.aplicQ;
       break;
     case 'pico':
-      head = 'Seu apetite tende a ficar mais baixo hoje.';
-      body = 'Pico de efeito da medicação — bom dia para treinar e adiantar a proteína.';
-      q = 'Quando tenho mais energia?';
+      head = T.ciclo.picoHead;
+      body = T.ciclo.picoBody;
+      q = T.ciclo.picoQ;
       break;
     case 'estab':
-      head = 'Seu corpo está na fase estável do ciclo.';
-      body = 'Efeito constante — mantenha água e proteína em dia para sustentar a saciedade.';
-      q = 'Como funciona o ciclo da medicação?';
+      head = T.ciclo.estabHead;
+      body = T.ciclo.estabBody;
+      q = T.ciclo.estabQ;
       break;
     case 'retorno':
-      head = 'Sua fome pode começar a aumentar nas próximas 24 horas.';
-      body = 'Proteína e água seguram a saciedade nesta fase do ciclo.';
-      q = 'Por que sinto mais fome?';
+      head = T.ciclo.retornoHead;
+      body = T.ciclo.retornoBody;
+      q = T.ciclo.retornoQ;
       break;
     default:
       /* Mesma razão do 'aplic': quando a aplicação é hoje, quem conta é o
          slide da aplicação. */
       head = quandoEm(ndDays).hoje
-        ? 'Fome no ponto mais alto do ciclo.'
-        : `Fome no ponto alto do ciclo — aplicação ${quandoEm(ndDays).label}.`;
-      /* ⚠️ "NÃO PULE REFEIÇÕES" PRESSUPÕE QUE ELA PULA, e no ponto alto
-         da fome quem menos pula é quem está com fome. A frase nasceu como
-         conselho e chegava como repreensão — e a versão afirmativa diz a
-         mesma coisa útil sem acusar ninguém de nada. */
-      body = 'Porções menores e mais vezes, com proteína, seguram melhor a fome.';
-      q = 'Por que sinto mais fome?';
+        ? T.ciclo.altoHeadHoje
+        : T.ciclo.altoHeadComData(quandoEm(ndDays).label);
+      body = T.ciclo.altoBody;
+      q = T.ciclo.altoQ;
   }
   // sinal extra: noite bem dormida muda o tom do dia
   const last = S.checkins[S.checkins.length - 1];
   if (last && last.sono >= 7.5 && cyc.phase.key !== 'aplic') {
-    body = 'Você dormiu bem — seu corpo tende a responder melhor hoje. ' + body;
+    body = T.ciclo.dormiuBem(body);
   }
   return { head, body, q, cyc, chapeu };
 }
@@ -5739,33 +5736,29 @@ export type CicloFase = {
 
 export const CICLO_FASES: CicloFase[] = [
   {
-    key: 'subida', titulo: 'Dias 1–2 · subida', sub: 'Efeito subindo, apetite mais baixo',
+    key: 'subida', titulo: T.ciclo.faseSubidaTitulo, sub: T.ciclo.faseSubidaSub,
     de: 1, ate: 2,
-    comum: 'náusea leve, saciedade rápida, menos vontade de comer',
-    ajuda: 'refeições menores e mais espaçadas; beber água ao longo do dia',
+    comum: T.ciclo.faseSubidaComum,
+    ajuda: T.ciclo.faseSubidaAjuda,
   },
   {
-    key: 'plato', titulo: 'Dias 3–4 · platô', sub: 'Fase mais estável do ciclo',
+    key: 'plato', titulo: T.ciclo.fasePlatoTitulo, sub: T.ciclo.fasePlatoSub,
     de: 3, ate: 4,
-    comum: 'apetite constante, intestino mais lento',
-    ajuda: 'priorizar proteína e fibra nas refeições',
+    comum: T.ciclo.fasePlatoComum,
+    ajuda: T.ciclo.fasePlatoAjuda,
   },
   {
-    key: 'descida', titulo: 'Dias 5–6 · descida', sub: 'Efeito cedendo, fome voltando aos poucos',
+    key: 'descida', titulo: T.ciclo.faseDescidaTitulo, sub: T.ciclo.faseDescidaSub,
     de: 5, ate: 6,
-    comum: 'mais fome que nos primeiros dias, energia oscilando',
-    ajuda: 'é a fase em que a fome volta — não significa que o tratamento parou de funcionar',
-    atencao: 'vômito persistente ou dor abdominal forte: fale com seu médico',
+    comum: T.ciclo.faseDescidaComum,
+    ajuda: T.ciclo.faseDescidaAjuda,
+    atencao: T.ciclo.faseDescidaAtencao,
   },
   {
-    key: 'baixo', titulo: 'Dia 7 · ponto mais baixo', sub: 'Véspera da próxima aplicação',
+    key: 'baixo', titulo: T.ciclo.faseBaixoTitulo, sub: T.ciclo.faseBaixoSub,
     de: 7, ate: 99,
-    comum: 'apetite mais próximo do habitual',
-    /* ⚠️ "A DOSE", E NÃO "A CANETA": esta tabela é constante, fora de
-       qualquer função, e não tem `S` para consultar a forma. A saída não
-       foi dar `S` a ela — foi escrever a frase de um jeito que serve a
-       caneta, frasco e seringa igualmente. */
-    ajuda: 'deixe a dose e o local da aplicação definidos na véspera',
+    comum: T.ciclo.faseBaixoComum,
+    ajuda: T.ciclo.faseBaixoAjuda,
   },
 ];
 

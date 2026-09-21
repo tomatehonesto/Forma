@@ -1,3 +1,4 @@
+import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { etapa as etapaPt } from './pt-BR/etapa';
 
 /* ============================================================
@@ -42,11 +43,12 @@ export type Idioma = 'pt-BR';
    É a garantia que nenhum arquivo de JSON dá: lá, uma chave esquecida só
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
+  ciclo: typeof cicloPt;
   etapa: typeof etapaPt;
 };
 
 const CATALOGOS: Record<Idioma, Textos> = {
-  'pt-BR': { etapa: etapaPt },
+  'pt-BR': { ciclo: cicloPt, etapa: etapaPt },
 };
 
 let atual: Idioma = 'pt-BR';
