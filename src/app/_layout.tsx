@@ -279,22 +279,14 @@ export default function RootLayout() {
               web, sem sequer um jeito de fechar. transparentModal deixa o
               scrim e o painel por conta da própria tela, e o comportamento
               fica igual em todo lugar. */}
-          {/* ⚠️⚠️ A ROTA ESMAECE, E QUEM SOBE É A FOLHA — antes era o
-              contrário, e era um só movimento para duas coisas.
-
-              Com `slide_from_bottom` a TELA INTEIRA subia, e o scrim mora
-              dentro dela: a sombra entrava pelo pé da tela e ia subindo
-              junto com o painel, como uma cortina puxada de baixo. Sombra
-              não vem de lugar nenhum — ela escurece o que já está ali.
-
-              Separado, cada parte faz o que deve: a rota em `fade` acende
-              o scrim onde ele está, e o painel ganha o próprio deslize
-              curto dentro do SheetScreen. */}
+          {/* ⚠️ A FOLHA DESLIZA DE BAIXO, e é a rota que faz isso — como
+              sempre fez. O que mudou é só a sombra: ver o comentário do
+              scrim em ui/kit, no SheetScreen. */}
           <Stack.Screen
             name="registrar"
             options={{
               presentation: 'transparentModal',
-              animation: 'fade',
+              animation: 'slide_from_bottom',
               contentStyle: { backgroundColor: 'transparent' },
             }}
           />
@@ -320,7 +312,7 @@ export default function RootLayout() {
             <Stack.Screen
               key={n}
               name={n}
-              options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }}
+              options={{ presentation: 'transparentModal', animation: 'slide_from_bottom', contentStyle: { backgroundColor: 'transparent' } }}
             />
           ))}
         </Stack>

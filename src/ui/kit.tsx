@@ -540,52 +540,55 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     return () => { sobe.remove(); desce.remove(); };
   }, []);
 
-  /* ⚠️ O DESLIZE É DA FOLHA, E NÃO DA ROTA. A rota abre em fade — ver a
-     nota em _layout —, então o scrim acende onde está em vez de subir
-     pelo pé da tela. Quem sobe é este painel, e só ele, a altura inteira
-     dele: a folha continua entrando de baixo, que é o gesto certo. O que
-     não sobe mais é a sombra.
+  /* ⚠️⚠️ A SOMBRA NÃO VIAJA COM A FOLHA, e a folha continua viajando.
 
-     ⚠️ E A DISTÂNCIA É MEDIDA, não chutada. Começa fora da tela — a
-     altura da janela, que serve para qualquer folha —, e no primeiro
-     layout troca pela altura REAL do painel, que é exatamente o quanto
-     ele precisa viajar. Chutar um número faria a folha pequena percorrer
-     o triplo do próprio tamanho, e a grande aparecer já pela metade.
+     A rota é `slide_from_bottom`: a TELA INTEIRA sobe, e é assim que o
+     painel entra — o gesto certo do bottom sheet, o mesmo de sempre. Só
+     que o scrim mora dentro dessa tela, então ele subia junto: a sombra
+     entrava pelo pé do aparelho e ia cobrindo a página como uma cortina
+     puxada de baixo. Sombra não vem de lugar nenhum. Ela escurece o que
+     já está ali.
 
-     O `jaAnimou` existe porque o layout dispara de novo quando o teclado
-     abre e o painel muda de altura — sem ele, a folha recomeçaria a
-     entrada no meio de alguém digitando. */
+     ⚠️ A SAÍDA É GEOMÉTRICA, não uma segunda animação. O scrim passa a
+     ser ALTO O BASTANTE para cobrir a tela em qualquer ponto do trajeto:
+     uma altura de janela acima do próprio topo. No primeiro quadro a tela
+     está deslocada uma janela para baixo, e o scrim — que começa uma
+     janela acima — já cobre a área visível inteira; no último, deslocada
+     de zero, ele continua cobrindo. Entre os dois ele não se move na
+     tela, porque a parte dele que está à vista é sempre outra.
+
+     O que resta é acender, e aí sim é animação: opacidade de zero a um.
+     É o "aparecer esmaecendo" no lugar do "subir junto".
+
+     ⚠️ E APAGA AO FECHAR, no mesmo gesto. Sem isso a sombra ficaria cheia
+     durante a descida inteira e sumiria de uma vez no fim — trocaria a
+     cortina subindo por um piscar no fechamento. */
   const { height: alturaDaJanela } = useWindowDimensions();
-  const subida = React.useRef(new Animated.Value(alturaDaJanela)).current;
-  const jaAnimou = React.useRef(false);
-  const aoMedir = (h: number) => {
-    if (jaAnimou.current || !h) return;
-    jaAnimou.current = true;
-    subida.setValue(h);
-    /* ⚠️ O ATRASO EXISTE PORQUE A ROTA TAMBÉM ANIMA.
+  const sombra = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    Animated.timing(sombra, {
+      toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true,
+    }).start();
+  }, [sombra]);
 
-       Medido no navegador, o deslize roda certinho — 554 px até zero em
-       280 ms. No aparelho ele não aparecia, e o motivo é que ele já tinha
-       ACABADO: a rota abre em fade, e a folha subia enquanto a tela
-       inteira ainda estava transparente. Quando ela terminava de acender,
-       o painel já estava no lugar.
-
-       Noventa milissegundos de espera custam zero — o painel está fora da
-       tela nesse tempo, não há o que ver — e devolvem o deslize para
-       dentro da janela em que alguém está olhando. A duração subiu junto,
-       pelo mesmo motivo: o movimento tem de sobrar para depois do fade,
-       não caber dentro dele. */
-    Animated.sequence([
-      Animated.delay(90),
-      Animated.timing(subida, {
-        toValue: 0, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: true,
-      }),
-    ]).start();
+  const fechar = () => {
+    Animated.timing(sombra, {
+      toValue: 0, duration: 180, easing: Easing.in(Easing.quad), useNativeDriver: true,
+    }).start();
+    onClose();
   };
 
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
-      <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
+      <Animated.View
+        pointerEvents="box-none"
+        style={{
+          position: 'absolute', left: 0, right: 0, top: -alturaDaJanela, bottom: 0,
+          opacity: sombra,
+        }}
+      >
+        <Pressable onPress={fechar} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
+      </Animated.View>
       {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
           que a pessoa já conhece de outros apps. */}
       {/* O TECLADO EMPURRA A FOLHA, EM VEZ DE COBRI-LA.
@@ -606,10 +609,6 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           recortes escuros emoldurando o teclado, como se a folha tivesse
           descolado da base da tela. Branca, a folha continua encostada em
           baixo e o teclado nasce dela. */}
-      <Animated.View
-        onLayout={(ev) => aoMedir(ev.nativeEvent.layout.height)}
-        style={{ transform: [{ translateY: subida }] }}
-      >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         /* O raio vem junto: a faixa branca começa na mesma altura da
@@ -626,7 +625,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
         paddingBottom: teclado ? 24 : (insets.bottom || 12) + 16,
       }}>
-        <Pressable onPress={onClose} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
+        <Pressable onPress={fechar} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
         <Rolagem
@@ -644,7 +643,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
               {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
             </View>
             {/* fechar explícito — o grabber some para quem não conhece o gesto */}
-            <Pressable onPress={onClose} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
+            <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="x" size={16} color={c.tx2} sw={2.2} />
               </View>
@@ -663,7 +662,6 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         ) : null}
       </View>
       </KeyboardAvoidingView>
-      </Animated.View>
     </View>
   );
 }
