@@ -64,6 +64,31 @@ layout raiz — é operação rara, e remontar é o resultado certo. As funçõe
 de lógica **não ganham parâmetro novo**: ao contrário do que aconteceu com
 as unidades, onde `S` teve de ser enfiado em quatro tabelas constantes.
 
+## Constante de módulo congela o idioma
+
+⚠️ **Tabela constante que lê `T` no topo do arquivo lê UMA vez, no import.**
+
+A troca de idioma remonta a árvore do React. Ela não reexecuta o topo de um
+módulo — então uma constante como
+
+```ts
+export const EXAM_CATS = [[T.marcadores.catMetabolico, [...]], ...];
+```
+
+fica em português para sempre, e o `tsc` não vê nada de errado. O defeito só
+aparece no dia em que alguém troca o idioma, que é meses depois de o código
+ter sido escrito.
+
+**A regra: se a tabela lê o catálogo, ela é função.**
+
+```ts
+export const examCats = (): [string, string[]][] => [ ... ];
+```
+
+O custo é um `()` em cada sítio de chamada. Aconteceu duas vezes — em
+`examCats` e em `cicloFasesFixas` — e a segunda foi corrigida no commit
+seguinte ao que a criou.
+
 ## A rede
 
 `scripts/congelar.ts` percorre toda função que produz texto e congela a

@@ -38,6 +38,8 @@ import {
   todayBrief, journeyGoals, weightCard, canetaAtual, cicloFases,
   rodizioDeLocais, bodyFat, penStock, variacaoDe, resumoDeMovimento,
   periodoDaConsulta, adesao, hungerForecast, enjooAposDormir,
+  examCats, examBy, examAbout, examInfluences, examWays, examStatus,
+  examExplain, examSummary, exameNoProtocolo,
 } from '../src/logic/derive';
 import { mensagemDoDia, emPlato } from '../src/logic/etapa';
 import { descobertas, descobertaDaHome } from '../src/logic/descobertas';
@@ -125,6 +127,32 @@ for (const [nome, ajusta] of CENARIOS) {
   });
   c.marcos = [1, 3, 7, 14, 30, 60, 100].map((n) => [n, tenta('marcoDe', () => marcoDe(n))]);
   c.variacoes = [-2.4, -0.04, 0, 1.7].map((v) => [v, tenta('variacaoDe', () => variacaoDe(v, 'kg'))]);
+
+  /* ⚠️ O DOMÍNIO DOS EXAMES ENTRA INTEIRO, e ele estava fora da rede.
+
+     São quarenta e tantas definições, vinte e tantas listas de causa e
+     trinta grupos de "o que costuma ajudar" — o maior bloco de texto
+     clínico do aplicativo, e justamente o que não tinha nada embaixo.
+
+     A varredura sai das CATEGORIAS e não de uma lista escrita à mão:
+     marcador que alguém acrescentar amanhã entra sozinho no congelamento,
+     em vez de sair calado. */
+  c.examCats = tenta('examCats', () => examCats());
+  c.marcadores = examCats().flatMap(([, ms]) => ms).map((m) => {
+    /* As três primeiras só leem `.marker`, então valem para marcador que a
+       semente não tem. As duas últimas precisam dos valores, e por isso só
+       rodam para quem existe. */
+    const e = examBy(S, m);
+    return [m, {
+      sobre: tenta('examAbout', () => examAbout({ marker: m })),
+      influencias: tenta('examInfluences', () => examInfluences({ marker: m })),
+      ajudar: tenta('examWays', () => examWays({ marker: m })),
+      status: e ? tenta('examStatus', () => examStatus(e)) : null,
+      explica: e ? tenta('examExplain', () => examExplain(e, S.exams)) : null,
+    }];
+  });
+  c.examSummary = tenta('examSummary', () => examSummary(S));
+  c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));
 
   saida[nome] = c;
 }

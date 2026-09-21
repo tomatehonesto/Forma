@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  EXAM_CATS, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
+  examCats, examBy, examLast, examFirst, examStatus, examGaugeData, examSummary,
   examExplain, examAbout, examInfluences, examWays, examesComValor, examesForaDaRef,
 } from '../logic/derive';
 import { fmtDate, nf, dataLonga } from '../logic/time';
@@ -1084,7 +1084,7 @@ export default function Exames() {
         </Bloco>
       ) : null}
 
-      {EXAM_CATS.map(([cat, ms]) => (
+      {examCats().map(([cat, ms]) => (
         <Bloco key={cat} titulo={cat}>
           <Cartao>
             {ms.map((mk) => {

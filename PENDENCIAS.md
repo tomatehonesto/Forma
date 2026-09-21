@@ -824,3 +824,32 @@ nativo que o Expo Go não tem:
 **iOS a partir do Windows** precisa de conta paga de desenvolvedor Apple —
 o EAS compila na nuvem, mas a assinatura do aplicativo é da conta. Android
 não precisa de nada além da conta Expo para o perfil `development`.
+
+## 🟡 17. O nome do marcador é chave de registro, e aparece na tela
+
+Não bloqueia a publicação em português. Bloqueia a versão em inglês.
+
+"HbA1c", "Glicemia jejum", "Colesterol total", "T4 livre" são o que fica
+**gravado** em cada exame anotado (`e.marker`), e são também o que a tela
+**mostra** — a lista de exames, os chips de `/medir-exame` e o topo de
+`/marcador` desenham a própria chave.
+
+As duas coisas não podem ser a mesma no dia em que houver um segundo
+idioma:
+
+- traduzir a chave quebra o vínculo com todo exame já anotado;
+- não traduzir deixa "Glicemia jejum" na tela de quem lê em inglês.
+
+**O que falta:** separar chave de nome de exibição. A chave continua o que
+é hoje (é dado, e dado não se traduz); o nome sai do catálogo, como os
+rótulos de categoria já saem — `T.marcadores.nome[chave]`.
+
+**Por que não foi feito junto da extração:** a extração dos textos tem uma
+invariante verificável — a saída não muda. Esta mudança muda a saída de
+propósito, e misturar as duas faria o congelamento parar de provar
+qualquer coisa. Fica para a peça do idioma.
+
+É também onde entra a pergunta maior, que continua aberta: o catálogo de
+exames é brasileiro. "TGO/TGP" é a nomenclatura daqui — nos Estados Unidos
+os mesmos marcadores são AST e ALT, e não é tradução de rótulo, é outro
+nome no laudo.

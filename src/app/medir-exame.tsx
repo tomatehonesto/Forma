@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { EXAM_CATS } from '../logic/derive';
+import { examCats } from '../logic/derive';
 import { now } from '../logic/time';
 import { Txt, Row, SheetScreen, Divider } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -56,7 +56,7 @@ export default function MedirExame() {
         <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
       </Row>
 
-      {EXAM_CATS.map(([cat, marcadores]) => (
+      {examCats().map(([cat, marcadores]) => (
         <View key={cat} style={{ marginBottom: 12 }}>
           <Txt v="micro" c={c.tx4} style={{ marginBottom: 7 }}>{cat.toUpperCase()}</Txt>
           <Row gap={6} style={{ flexWrap: 'wrap' }}>

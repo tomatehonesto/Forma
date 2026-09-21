@@ -1,5 +1,6 @@
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { etapa as etapaPt } from './pt-BR/etapa';
+import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
@@ -33,6 +34,10 @@ import { etapa as etapaPt } from './pt-BR/etapa';
 
 export type Idioma = 'pt-BR';
 
+/* Tipos que descrevem a FORMA de um texto, e não de um dado — por isso
+   moram no catálogo e saem por aqui. Ver textos/pt-BR/marcadores. */
+export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
+
 /* ⚠️ O CONTRATO SAI DO PORTUGUÊS, e não de uma interface escrita à mão.
 
    `typeof` sobre o catálogo em português dá, de graça, a assinatura exata
@@ -45,10 +50,11 @@ export type Idioma = 'pt-BR';
 export type Textos = {
   ciclo: typeof cicloPt;
   etapa: typeof etapaPt;
+  marcadores: typeof marcadoresPt;
 };
 
 const CATALOGOS: Record<Idioma, Textos> = {
-  'pt-BR': { ciclo: cicloPt, etapa: etapaPt },
+  'pt-BR': { ciclo: cicloPt, etapa: etapaPt, marcadores: marcadoresPt },
 };
 
 let atual: Idioma = 'pt-BR';
