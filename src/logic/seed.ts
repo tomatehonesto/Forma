@@ -9,6 +9,7 @@ import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
 import type { Forma } from './meds';
 import type { Sistema } from './medidas';
+import type { Local } from './local';
 import { sistemaDe } from './medidas';
 
 export const HEIGHT = 1.67;
@@ -288,6 +289,10 @@ export function buildSeed() {
          ninguém exercita. Quem lê usa `sistemaDe(S)`, em logic/medidas,
          que cai em métrico. */
       sistema: undefined as Sistema | undefined,
+      /* ⚠️ EM QUE IDIOMA ELA LÊ — e a semente também não responde. Sem
+         resposta, quem manda é o aparelho, e depois dele o mercado do
+         build. Ver logic/local. */
+      idioma: undefined as Local | undefined,
       /* O VÍNCULO, que nasce junto com o código e não depois dele.
 
          `convite` é o que a pessoa escreveu; `vinculo` é o que o

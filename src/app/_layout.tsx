@@ -10,7 +10,7 @@ import {
   Outfit_500Medium, Outfit_600SemiBold,
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
-import { lerAparelho, localAtual } from '../logic/local';
+import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -231,6 +231,15 @@ export default function RootLayout() {
     });
   }, [update]);
 
+  /* ⚠️ E O IDIOMA ESCOLHIDO VOLTA DO DISCO, depois da hidratação. O valor
+     do local é de módulo — ver logic/local —, e módulo não sabe de estado
+     guardado: sem esta linha o aplicativo abriria no idioma do aparelho
+     toda vez, ignorando a escolha de quem trocou. */
+  const idiomaSalvo = useStore((s: any) => s.S?.profile?.idioma);
+  useEffect(() => {
+    if (idiomaSalvo) trocarLocal(idiomaSalvo);
+  }, [idiomaSalvo]);
+
   if (!loaded || !ready) return null;
 
   return (
@@ -258,6 +267,7 @@ export default function RootLayout() {
               fixas, a lista de sintomas e um cartão por sintoma marcado —
               conteúdo que rola, e folha que rola muito é tela com menos
               espaço e um gesto de fechar a mais. */}
+          <Stack.Screen name="idioma" />
           <Stack.Screen name="checkin" />
           {/* Confirmação do check-in. Em fade porque ela não é o próximo
               passo de um fluxo, é o mesmo assunto mudando de estado. */}

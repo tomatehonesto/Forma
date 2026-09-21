@@ -950,34 +950,57 @@ quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
 
-## 🟡 19. O motor de idioma está pronto; a tradução não
+## 🔴 19. O inglês existe no catálogo e não existe na tela
 
-O formato já é bilíngue. `src/logic/local.ts` guarda **um valor só** —
-idioma e local são a mesma decisão — e dele saem o separador decimal, o
-ponto de milhar, o desenho de cada data, o nome dos meses e dos dias, e o
-relógio de 12 ou 24 horas. O aparelho é lido uma vez no arranque
-(`expo-localization`), e o que a pessoa escolher ganha do que ele disser.
+O motor está inteiro e a tradução do catálogo está feita: quinze arquivos
+em `src/textos/en-US/`, todos conferidos pelo `tsc` contra a assinatura do
+português. A folha de escolha de idioma existe, em `/idioma`, e trocar ali
+troca a palavra, a vírgula decimal, o desenho da data e o relógio de uma
+vez — é um valor só.
 
-O catálogo de textos ainda só fala português. Um aparelho em inglês lê
-hoje **números americanos com frases portuguesas** — o `CATALOGOS` cai no
-português de propósito, e o motivo está escrito em cima dele.
+**E mesmo assim o aplicativo não está traduzido.** Ligando o inglês, a
+Home lê assim:
 
-**O que a peça 4 precisa fazer:**
+> DAY 5 OF YOUR DOSE
+> Your hunger may start rising over the next 24 hours.
+> **Entenda o por quê**
+> **PRÓXIMA APLICAÇÃO**
+> **Sua próxima dose é** in 3 days.
 
-- escrever `src/textos/en-US/`, que o `tsc` já exige idêntico em
-  assinatura ao português (o tipo `Textos` sai do `typeof` dele);
-- tirar a prosa sobre tempo de `logic/time.ts` — "ontem", "há 3 dias",
-  "hoje", "amanhã" — que ficou em código porque é fala e não formato;
-- resolver o item 17 acima, que é o nome do marcador de exame;
-- só então nascer a tela de escolha de idioma. Hoje ela seria porta
-  emparedada: prometeria inglês e entregaria português.
+A última linha é o retrato do problema: uma frase portuguesa com um
+pedaço em inglês emendado no meio. O catálogo devolveu "in 3 days"
+corretamente; quem escreveu "Sua próxima dose é" foi a tela, em código.
 
-**A linha de base já está congelada.** A rede tem dois cenários `-en-US`,
-e o contrato deles é: quando a tradução chegar, **só a prosa pode mudar**.
-Número, data e relógio já estão certos, e qualquer movimento neles é erro
-da tradução, não do motor.
+**O que falta é a peça 2, e ela nunca terminou.** A extração de textos
+cobriu a lógica principal e parou — sobrou texto em português dentro do
+código, medido em 21/09/2026:
 
-**E há uma revisão que não é minha.** O texto clínico em inglês precisa
-passar por alguém habilitado no mercado de destino — não é tradução de
-interface, é o que o aplicativo diz sobre tratamento a quem está fazendo
-um.
+| onde | strings | o que é |
+|---|---|---|
+| `src/logic/` | 163 | `conquistas`, `confirmacoes`, `leituras`, `descobertas`, `fontes`, `conselhos`, `resumo`, `restricoes`, `alertas`, `prato`, `avisos`, `bebidas` |
+| `src/app/` | 192 | as telas, em literal de string |
+| JSX solto | 100 | texto entre tags, que a conta acima não pega |
+| `src/ui/` | 11 | componentes com frase dentro |
+
+São 78 arquivos. Duas categorias saem da conta de propósito:
+`logic/alimentos.ts` (65) é nome de comida da tabela TACO, e
+`logic/documentos.ts` é minuta jurídica — os dois já estavam fora do
+escopo da extração.
+
+**A ordem do trabalho não muda:** extrair para o catálogo em português
+com a saída congelada idêntica, e só então traduzir. Misturar as duas
+faz o diff da extração carregar mudança de sentido, e aí o congelamento
+para de provar qualquer coisa.
+
+**E há uma revisão que não é minha.** O texto clínico em inglês — o
+`marcadores.ts` sobretudo, que é o maior bloco clínico do aplicativo —
+precisa passar por alguém habilitado no mercado de destino. Ele foi
+escrito sob as mesmas quatro travas do português (nada prescreve, nada
+tem dose, nada promete resultado, nada é de tireoide ou rim), e as travas
+estão escritas no arquivo. Mas a redação de educação clínica para um
+público americano não é decisão que uma tradução resolva sozinha.
+
+Vale para a nomenclatura também: TGO e TGP viraram AST e ALT, e HbA1c
+virou A1C, que é como o laudo americano escreve. São outros nomes no
+laudo, não a mesma palavra em outra língua — e é o tipo de escolha que
+alguém de lá confirma em dois minutos e eu não confirmo em nenhum.

@@ -15,6 +15,22 @@ import { rotina as rotinaPt } from './pt-BR/rotina';
 import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
+import { ciclo as cicloEn } from './en-US/ciclo';
+import { companion as companionEn } from './en-US/companion';
+import { comum as comumEn } from './en-US/comum';
+import { cruzamentos as cruzamentosEn } from './en-US/cruzamentos';
+import { cuidado as cuidadoEn } from './en-US/cuidado';
+import { equilibrio as equilibrioEn } from './en-US/equilibrio';
+import { home as homeEn } from './en-US/home';
+import { escalas as escalasEn } from './en-US/escalas';
+import { etapa as etapaEn } from './en-US/etapa';
+import { exames as examesEn } from './en-US/exames';
+import { marcadores as marcadoresEn } from './en-US/marcadores';
+import { metas as metasEn } from './en-US/metas';
+import { rotina as rotinaEn } from './en-US/rotina';
+import { tempo as tempoEn } from './en-US/tempo';
+import { tratamento as tratamentoEn } from './en-US/tratamento';
+
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
 
@@ -37,10 +53,11 @@ import { tratamento as tratamentoPt } from './pt-BR/tratamento';
    certo para uma operação que acontece uma vez na vida do aplicativo, e é
    uma linha: uma `key` no topo.
 
-   ⚠️ POR ENQUANTO SÓ EXISTE PORTUGUÊS, e é de propósito. Esta peça TIRA o
-   texto do código; ela não traduz nada. Misturar as duas coisas faria o
-   diff da extração carregar mudanças de sentido, e aí não haveria como
-   dizer se o aplicativo continuou falando a mesma coisa.
+   ⚠️ A EXTRAÇÃO E A TRADUÇÃO FORAM DUAS PEÇAS, e nessa ordem. A extração
+   tira o texto do código e tem uma invariante verificável: a saída não
+   muda. A tradução muda a saída de propósito. Misturar as duas faria o
+   diff da primeira carregar mudanças de sentido, e não haveria como dizer
+   se o aplicativo continuou falando a mesma coisa.
 
    A rede que garante isso é `scripts/congelar.ts` — ver o README daqui.
    ============================================================ */
@@ -82,22 +99,28 @@ export type Textos = {
   tratamento: typeof tratamentoPt;
 };
 
-/* ⚠️⚠️ SÓ EXISTE PORTUGUÊS, E O QUE FALTA CAI NELE. Isto é o fallback
-   explícito de que fala o comentário do alto: o motor de formato já sabe
-   escrever em inglês — número, data e relógio —, e o catálogo ainda não
-   sabe falar. Enquanto a peça 4 não chega, um aparelho em inglês lê
-   números americanos com frases portuguesas.
+/* ⚠️ O INGLÊS CHEGOU, e o `Partial` saiu com ele: agora todo local do
+   tipo tem catálogo, e o `tsc` passa a cobrar isso de qualquer idioma
+   novo no dia em que ele entrar no tipo `Local`.
 
-   É feio e é honesto, e é melhor do que as duas alternativas: travar o
-   formato no português esconderia o trabalho que já está feito, e fingir
-   um catálogo em inglês entregaria chave crua na tela de alguém. */
-const CATALOGOS: Partial<Record<Local, Textos>> = {
+   ⚠️ E A CONFERÊNCIA DE FORMA ACONTECE AQUI, de graça: `Textos` sai do
+   `typeof` do português, e um inglês com uma chave a menos ou um
+   parâmetro trocado não compila. É a garantia que nenhum arquivo de JSON
+   dá — lá, chave esquecida vira texto faltando na tela de alguém. */
+const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, home: homePt,
     marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
+  },
+  'en-US': {
+    ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
+    cuidado: cuidadoEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
+    exames: examesEn, home: homeEn,
+    marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
+    tempo: tempoEn, tratamento: tratamentoEn,
   },
 };
 
@@ -111,5 +134,5 @@ const CATALOGOS: Partial<Record<Local, Textos>> = {
    Uma propriedade por domínio é barato — são poucas dezenas —, e o custo
    por leitura é um acesso a objeto. */
 export const T = new Proxy({} as Textos, {
-  get: (_alvo, chave: string) => ((CATALOGOS[localAtual()] ?? CATALOGOS['pt-BR']) as any)[chave],
+  get: (_alvo, chave: string) => (CATALOGOS[localAtual()] as any)[chave],
 });
