@@ -60,9 +60,31 @@ const semCor = (hex: string) => {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0)`;
 };
 
-export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: number }) {
+export function Lavagem({ altura, forca = 0.26, solta = false }: {
+  altura: number;
+  forca?: number;
+  /* ⚠️⚠️ SOLTA quer dizer "esta lavagem não está encostada nas bordas da
+     tela", e foi um defeito que levou tempo para aparecer.
+
+     Esta peça nasceu para o TOPO de uma página: largura inteira, colada
+     no alto. Três das quatro bordas dela são as bordas da tela, e por
+     isso só a de baixo precisava de véu — é o que o comentário do
+     degradê explica.
+
+     Aí ela foi usada solta, no meio de uma tela, atrás dos dois ícones da
+     conexão com o aplicativo de saúde. Ali as quatro bordas estão à
+     vista, e as três que ninguém tinha velado apareceram como o que são:
+     um retângulo de cantos retos, com corte no topo e nos dois lados.
+
+     Com `solta`, o véu fecha nos quatro lados. Não é um degradê radial —
+     é o vertical mais dois horizontais, que se somam nos cantos e chegam
+     ao fundo opaco antes de qualquer borda. Para uma mancha desfocada,
+     isso é indistinguível de radial e custa duas views. */
+  solta?: boolean;
+}) {
   const { c } = useTheme();
   const vazio = semCor(c.bg);
+  const cobre = { position: 'absolute' as const, left: 0, right: 0, top: 0, height: altura };
   return (
     <View
       pointerEvents="none"
@@ -76,13 +98,30 @@ export function Lavagem({ altura, forca = 0.26 }: { altura: number; forca?: numb
           degradê existe para matar a mancha antes do corte — por isso ele
           chega ao fundo opaco no mesmo ponto em que o quadro acaba.
 
-          O primeiro terço fica sem véu, que é onde a malha tem o direito
-          de aparecer. */}
+          Colada no alto, o primeiro terço fica sem véu, que é onde a
+          malha tem o direito de aparecer. Solta, o alto também fecha —
+          ali ele é borda, e não o começo da tela. */}
       <LinearGradient
-        colors={[vazio, vazio, c.bg]}
-        locations={[0, 0.3, 1]}
-        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: altura }}
+        colors={solta ? [c.bg, vazio, vazio, c.bg] : [vazio, vazio, c.bg]}
+        locations={solta ? [0, 0.28, 0.62, 1] : [0, 0.3, 1]}
+        style={cobre}
       />
+      {solta ? (
+        <>
+          <LinearGradient
+            colors={[c.bg, vazio]}
+            locations={[0, 0.3]}
+            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
+            style={cobre}
+          />
+          <LinearGradient
+            colors={[vazio, c.bg]}
+            locations={[0.7, 1]}
+            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
+            style={cobre}
+          />
+        </>
+      ) : null}
     </View>
   );
 }

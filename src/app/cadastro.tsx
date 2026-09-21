@@ -799,8 +799,12 @@ function Sincronia({ nome }: { nome: string }) {
           não como luz. A lavagem é a textura que o formulário inteiro já
           usa no topo — trazê-la para cá liga esta tela às outras catorze
           em vez de inventar um fundo só dela. */}
+      {/* `solta`: esta lavagem está no MEIO da tela, e não colada no alto.
+          As quatro bordas dela estão à vista — sem isto, ela desenha um
+          retângulo de cantos retos atrás dos ícones. Ver a nota em
+          ui/lavagem. */}
       <View style={{ position: 'absolute', left: -20, right: -20, top: 0, bottom: 0 }}>
-        <Lavagem altura={176} forca={0.5} />
+        <Lavagem altura={176} forca={0.5} solta />
       </View>
       <Row style={{ alignItems: 'center', gap: 14 }}>
         {/* O APP DO APARELHO */}
@@ -980,10 +984,28 @@ export default function Cadastro() {
      quem respondeu "outro" ou "prefiro não informar" entra como null, e
      derive.ts usa a média dos dois termos. */
   const sexo: 'f' | 'm' | null = r.identidade === 'f' ? 'f' : r.identidade === 'm' ? 'm' : null;
-  /* Um intervalo que não está entre as alternativas prontas — é ele que
-     mantém o contador aberto na tela de frequência. */
-  const outroIntervalo = r.intervalo != null
-    && !(padrao === 1 ? [1] : [7, 10, 14]).includes(r.intervalo);
+  const PRONTOS = padrao === 1 ? [1] : [7, 10, 14];
+  /* ⚠️⚠️ O CONTADOR FICA ABERTO POR ESCOLHA, E NÃO POR VALOR.
+
+     Isto era derivado do número: "o contador está aberto quando o
+     intervalo não é nenhum dos prontos". Parecia elegante e tinha um
+     defeito que só aparece com o dedo na tela — quem abre "outro
+     intervalo" em 9 e vai descendo, ao encostar em 7 vê o contador SUMIR
+     debaixo do dedo, e a opção "A cada 7 dias" acender sozinha lá em
+     cima. O controle desaparece no meio do gesto que a pessoa está
+     fazendo com ele.
+
+     Agora quem abre é o toque, e quem fecha é o toque numa das opções
+     prontas. O valor não manda mais na existência do controle.
+
+     ⚠️ O DERIVADO CONTINUA NO "OU", e é por isso que ele não virou só o
+     estado: quem volta a esta pergunta pelo lápis do resumo, com um
+     intervalo de doze dias já gravado, precisa encontrar o contador
+     aberto. O estado responde por quem está mexendo agora; o valor, por
+     quem já respondeu antes. */
+  const [outroAberto, setOutroAberto] = useState(false);
+  const outroIntervalo = outroAberto
+    || (r.intervalo != null && !PRONTOS.includes(r.intervalo));
   const nivel = Math.max(0, ATIVIDADES.findIndex((x) => x.id === r.atividade));
 
   /* A fila é montada a cada render porque ela depende de uma resposta:
@@ -1894,20 +1916,33 @@ export default function Cadastro() {
         {id === 'frequencia' && med ? (
           <View style={{ gap: 16 }}>
             <View style={{ gap: 8 }}>
-              {(padrao === 1 ? [1] : [7, 10, 14]).map((d) => (
+              {PRONTOS.map((d) => (
                 <Escolha
                   key={d} cheia
                   titulo={d === 1 ? 'Todos os dias' : `A cada ${d} dias`}
                   selo={d === padrao ? 'Padrão' : undefined}
-                  on={d === padrao ? r.intervalo == null || r.intervalo === padrao : r.intervalo === d}
-                  onPress={() => p({ intervalo: d === padrao ? null : d })}
+                  /* ⚠️ COM O CONTADOR ABERTO, NENHUMA PRONTA ACENDE. Sem
+                     esta guarda, contar até 7 acendia "A cada 7 dias" ao
+                     mesmo tempo que "Outro intervalo": duas respostas
+                     marcadas para uma pergunta. */
+                  on={!outroIntervalo
+                    && (d === padrao ? r.intervalo == null || r.intervalo === padrao : r.intervalo === d)}
+                  onPress={() => { setOutroAberto(false); p({ intervalo: d === padrao ? null : d }); }}
                 />
               ))}
               <Escolha
                 cheia titulo="Outro intervalo"
                 sub={outroIntervalo ? `A cada ${r.intervalo} dias` : 'Você diz de quantos em quantos dias'}
                 on={outroIntervalo}
-                onPress={() => p({ intervalo: padrao === 1 ? 2 : 9 })}
+                /* Só semeia um número quando não há um próprio: tocar de
+                   novo em "outro intervalo" com doze dias escolhidos não
+                   pode jogá-los fora. */
+                onPress={() => {
+                  setOutroAberto(true);
+                  if (r.intervalo == null || PRONTOS.includes(r.intervalo)) {
+                    p({ intervalo: padrao === 1 ? 2 : 9 });
+                  }
+                }}
               />
             </View>
 
