@@ -571,7 +571,7 @@ export default function Insights() {
               <Row style={{ alignItems: 'flex-end' }}>
                 <View style={{ flex: 1 }}>
                   <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 0.8 }}>
-                    {eq.fraco.toUpperCase()} · ÚLTIMOS {serie.length} DIAS
+                    {eq.serieDe(serie.length)}
                   </Txt>
                   <Row gap={7} style={{ alignItems: 'baseline', marginTop: 4 }}>
                     <Txt v="h2" c={c.lime}>{serie[serie.length - 1].v}</Txt>
@@ -587,7 +587,7 @@ export default function Insights() {
               propõe conversa */}
           <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 22, alignSelf: 'flex-start' }]}>
             <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
-              <Txt v="label" c={c.limeInk}>Como melhorar {eq.fraco.toLowerCase()}</Txt>
+              <Txt v="label" c={c.limeInk}>{eq.botao}</Txt>
               <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />
             </Row>
           </Pressable>

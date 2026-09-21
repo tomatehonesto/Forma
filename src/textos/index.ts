@@ -1,6 +1,7 @@
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { cuidado as cuidadoPt } from './pt-BR/cuidado';
+import { equilibrio as equilibrioPt } from './pt-BR/equilibrio';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
@@ -54,6 +55,7 @@ export type Textos = {
   ciclo: typeof cicloPt;
   cruzamentos: typeof cruzamentosPt;
   cuidado: typeof cuidadoPt;
+  equilibrio: typeof equilibrioPt;
   etapa: typeof etapaPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
@@ -61,7 +63,8 @@ export type Textos = {
 
 const CATALOGOS: Record<Idioma, Textos> = {
   'pt-BR': {
-    ciclo: cicloPt, cruzamentos: cruzamentosPt, cuidado: cuidadoPt, etapa: etapaPt,
+    ciclo: cicloPt, cruzamentos: cruzamentosPt, cuidado: cuidadoPt,
+    equilibrio: equilibrioPt, etapa: etapaPt,
     marcadores: marcadoresPt, metas: metasPt,
   },
 };

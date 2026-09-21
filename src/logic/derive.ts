@@ -350,18 +350,28 @@ export function waterToday(S: State) { const c = checkinToday(S); return c ? c.a
    encostado no centro lê como "você foi mal nisso", e não é isso que um
    dia sem registro diz. A figura fica com menos pontas e continua
    verdadeira — o que é melhor do que oito pontas mentindo em três. */
-export function radar(S: State) {
+/* ⚠️ A CHAVE DO EIXO NÃO É O NOME DELE, e era. `radar()` devolvia
+   `{ k: 'Sono' }`, a tabela de séries era indexada por 'Sono', e a tela
+   mandava o mesmo 'Sono' de volta para pedir o gráfico — traduzir a
+   palavra quebrava a busca em três lugares de uma vez.
+
+   Agora `id` é a chave, estável, e `k` é o rótulo, que vem do catálogo. */
+export type EixoDoRadar = { id: keyof typeof T.equilibrio.eixos; k: string; v: number };
+
+export function radar(S: State): EixoDoRadar[] {
   const recent = S.checkins.slice(-3);
-  const eixos: { k: string; v: number }[] = [];
-  const põe = (k: string, v: number | null) => { if (v != null) eixos.push({ k, v }); };
+  const eixos: EixoDoRadar[] = [];
+  const põe = (id: EixoDoRadar['id'], v: number | null) => {
+    if (v != null) eixos.push({ id, k: T.equilibrio.eixos[id], v });
+  };
   const esc = (m: number | null, f: (x: number) => number) => (m == null ? null : f(m));
 
-  põe('Sono', esc(mediaDe(recent, 'sono'), (m) => Math.min(100, (m / SONO_REF_H) * 100)));
-  põe('Energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
-  põe('Humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
+  põe('sono', esc(mediaDe(recent, 'sono'), (m) => Math.min(100, (m / SONO_REF_H) * 100)));
+  põe('energia', esc(mediaDe(recent, 'energia'), (m) => m * 10));
+  põe('humor', esc(mediaDe(recent, 'mood'), (m) => (m / 5) * 100));
   /* Acumuladores não somem: zero de água é uma resposta, não uma lacuna. */
-  põe('Hidratação', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / metaDeCopos(S)) * 100));
-  põe('Exercício', recent.length
+  põe('hidratacao', Math.min(100, ((mediaDe(recent, 'agua') ?? 0) / metaDeCopos(S)) * 100));
+  põe('exercicio', recent.length
     ? Math.min(100, (recent.filter((c: any) => (c.exerc || 0) > 0).length / recent.length) * 100)
     : 0);
   /* ⚠️ ERA `/ 100` FIXO, e o eixo de cima já mostrava o conserto.
@@ -376,9 +386,9 @@ export function radar(S: State) {
      quem tem 120 g e faz 100 aparecia com 100%. O radar é a tela que
      compara a pessoa com ela mesma — era a única em que a régua era de
      outro. */
-  põe('Proteína', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / (S.profile as any).targets.prot) * 100));
-  põe('Saciedade', esc(mediaDe(recent, 'fome'), (m) => (10 - m) * 10));
-  põe('Adesão', adesao(S));
+  põe('proteina', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / (S.profile as any).targets.prot) * 100));
+  põe('saciedade', esc(mediaDe(recent, 'fome'), (m) => (10 - m) * 10));
+  põe('adesao', adesao(S));
   return eixos;
 }
 
@@ -1644,40 +1654,41 @@ export function patterns(S: State): Pattern[] {
 export function balanceRead(S: State) {
   const eixos = radar(S).slice().sort((a, b) => b.v - a.v);
   const fortes = eixos.slice(0, 2);
-  const fracos = eixos.slice(-2).reverse();
   const fraco = eixos[eixos.length - 1];
-  const media = eixos.reduce((s, e) => s + e.v, 0) / eixos.length;
   /* amplitude entre o melhor e o pior eixo: é ela que diz se o
      tratamento está equilibrado ou apoiado numa perna só */
   const amp = eixos[0].v - fraco.v;
 
-  /* Fala em primeira pessoa, com abertura de conversa. "Seu equilíbrio
-     está consistente" é laudo — quem escreve laudo é sistema. "Uma coisa
-     me chamou atenção" é alguém que olhou os dados e resolveu comentar,
-     que é exatamente o que a tela promete. */
-  const abertura = amp <= 30 ? 'Reparei numa coisa boa.'
-    : amp <= 55 ? 'Uma coisa me chamou atenção.'
-      : 'Preciso te mostrar uma coisa.';
+  /* Os dois cortes de amplitude são de CÓDIGO: 30 e 55 são onde eu
+     decidi que a figura deixa de estar equilibrada. As frases que cada
+     faixa produz são de textos/pt-BR/equilibrio. */
+  const Q = T.equilibrio;
+  const abertura = amp <= 30 ? Q.aberturaTudoBem
+    : amp <= 55 ? Q.aberturaAtencao
+      : Q.aberturaPreciso;
 
-  /* Sem "seu" antes do par: "seu sono e adesão" concorda errado, e
-     consertar com "seu sono e sua adesão" trava a frase. Os nomes dos
-     eixos abrem a oração sozinhos. */
-  const par = (a: string, b: string) => `${a} e ${b.toLowerCase()}`;
-  /* Duas frases, não quatro. O gráfico ao lado mostra a variação que o
-     texto antes precisava descrever — descrever e desenhar a mesma coisa
-     é gastar o dobro do espaço para dizer uma vez. */
+  const doisFortes = Q.par(fortes[0].k, fortes[1].k);
   const corpo = amp <= 30
-    ? `${par(fortes[0].k, fortes[1].k)} puxam para cima, e nem ${fraco.k.toLowerCase()} ficou para trás. Eu não mudaria nada por enquanto.`
-    : `${par(fortes[0].k, fortes[1].k)} estão consistentes. ${fraco.k} é o que mais oscila — seria meu foco para a próxima semana.`;
+    ? Q.corpoEquilibrado(doisFortes, fraco.k)
+    : Q.corpoUmAtras(doisFortes, fraco.k);
 
+  /* ⚠️ TRÊS CAMPOS SAÍRAM DAQUI, E NENHUM TINHA LEITOR: `media` (a média dos
+     eixos, arredondada), `fortes` e `fracos`. A tela do balanço lê quatro
+     coisas — abertura, texto, o eixo fraco e a pergunta — e é a única que
+     chama esta função.
+
+     `fortes` continua existindo como variável porque a FRASE usa os dois
+     primeiros; o que saiu foi devolvê-los. */
   return {
     abertura,
     texto: corpo,
-    media: Math.round(media),
-    fortes: fortes.map((e) => e.k),
-    fracos: fracos.map((e) => e.k),
-    fraco: fraco.k,
-    q: `Como melhorar ${fraco.k.toLowerCase()}?`,
+    /* A CHAVE e o RÓTULO, separados: a primeira vai buscar a série, o
+       segundo aparece na tela. Eram a mesma string. */
+    fraco: fraco.id,
+    fracoNome: fraco.k,
+    botao: Q.botaoMelhorar(fraco.k),
+    q: Q.perguntaMelhorar(fraco.k),
+    serieDe: (dias: number) => Q.serieDe(fraco.k, dias),
   };
 }
 
@@ -1690,15 +1701,18 @@ export function balanceRead(S: State) {
    em vez de descrevê-la. */
 /* null quando o dia não respondeu aquele eixo — a série pula o ponto em vez
    de desenhar um zero que ninguém disse. */
+/* ⚠️ INDEXADO PELA CHAVE, E NÃO PELO NOME. Enquanto era 'Sono', esta
+   tabela e a tela combinavam por acaso — as duas escreviam a mesma
+   palavra em português. */
 const EIXO_DIA: Record<string, (c: any, S: State) => number | null> = {
-  'Sono': (c) => (respondido(c, 'sono') ? Math.min(100, (c.sono / 8) * 100) : null),
-  'Energia': (c) => (respondido(c, 'energia') ? c.energia * 10 : null),
-  'Humor': (c) => (respondido(c, 'mood') ? (c.mood / 5) * 100 : null),
-  'Hidratação': (c, S) => Math.min(100, ((c.agua || 0) / metaDeCopos(S)) * 100),
-  'Exercício': (c) => ((c.exerc || 0) > 0 ? 100 : 0),
-  'Proteína': (c) => Math.min(100, c.prot || 0),
-  'Saciedade': (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
-  'Adesão': (_c, S) => adesao(S),
+  sono: (c) => (respondido(c, 'sono') ? Math.min(100, (c.sono / 8) * 100) : null),
+  energia: (c) => (respondido(c, 'energia') ? c.energia * 10 : null),
+  humor: (c) => (respondido(c, 'mood') ? (c.mood / 5) * 100 : null),
+  hidratacao: (c, S) => Math.min(100, ((c.agua || 0) / metaDeCopos(S)) * 100),
+  exercicio: (c) => ((c.exerc || 0) > 0 ? 100 : 0),
+  proteina: (c) => Math.min(100, c.prot || 0),
+  saciedade: (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
+  adesao: (_c, S) => adesao(S),
 };
 
 export function balanceSeries(S: State, eixo: string, n = 8) {

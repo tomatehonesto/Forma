@@ -40,7 +40,7 @@ import {
   periodoDaConsulta, adesao, hungerForecast, enjooAposDormir,
   examCats, examBy, examAbout, examInfluences, examWays, examStatus,
   examExplain, examSummary, exameNoProtocolo,
-  patterns, PAT_LABEL, balanceRead, diaFracoDeAgua, janelaDoEnjoo,
+  patterns, PAT_LABEL, balanceRead, balanceSeries, radar, diaFracoDeAgua, janelaDoEnjoo,
   ALVOS, INDICADORES, METAS_PESSOAIS, META_LIVRE, PRAZOS, padraoDe,
   carePending, careState, doseContext, lastMessage, nextConsult,
   contatosDaClinica, fichaDaEquipe, fichaDaClinica,
@@ -206,7 +206,45 @@ for (const [nome, ajusta] of CENARIOS) {
      um terço do texto e achar que cobriu. */
   c.patterns = tenta('patterns', () => patterns(S));
   c.patLabel = tenta('PAT_LABEL', () => PAT_LABEL());
+  /* ============================================================
+     O EQUILÍBRIO — e a leitura tem três aberturas, das quais a semente
+     vive uma
+
+     `balanceRead` escolhe a abertura pela AMPLITUDE entre o melhor e o pior
+     eixo: até 30 é "reparei numa coisa boa", até 55 é "uma coisa me
+     chamou atenção", acima disso é "preciso te mostrar uma coisa". E o
+     corpo da frase tem duas versões pelo mesmo corte.
+
+     A semente cai sempre na terceira. As outras duas — que são as que
+     dizem que está tudo bem — nunca rodavam.
+
+     ⚠️ OS TRÊS CHECK-INS FABRICADOS SÃO SÓ ISSO: um jeito de mover a
+     amplitude. `radar` lê a média dos três últimos, então mexer neles é
+     mexer na figura inteira. */
   c.balanceRead = tenta('balanceRead', () => balanceRead(S));
+  c.radar = tenta('radar', () => radar(S));
+
+  const equilibrio = (nome: string, sono: number) => {
+    const cs = (S.checkins as any[]).slice();
+    const tres = cs.slice(-3).map((c: any) => ({
+      ...c, sono, energia: 10, mood: 5, agua: 20, prot: 400, fome: 0, exerc: 40,
+    }));
+    const V: any = { ...S, checkins: [...cs.slice(0, -3), ...tres] };
+    const leitura = tenta('balanceRead', () => balanceRead(V));
+    return [nome, {
+      radar: tenta('radar', () => radar(V)),
+      leitura,
+      serieDoFraco: tenta('balanceSeries', () => balanceSeries(V, (leitura as any).fraco)),
+    }];
+  };
+  c.equilibrio = [
+    equilibrio('tudo-junto', 8),
+    equilibrio('um-eixo-atras', 4),
+    equilibrio('um-eixo-muito-atras', 1),
+  ];
+  /* Toda série do balanço, eixo por eixo: são oito funções de leitura, e
+     só a do eixo mais fraco roda na tela. */
+  c.series = radar(S).map((e) => [e.id, tenta('balanceSeries', () => balanceSeries(S, e.id))]);
   c.diaFracoDeAgua = tenta('diaFracoDeAgua', () => diaFracoDeAgua(S));
   c.janelaDoEnjoo = tenta('janelaDoEnjoo', () => janelaDoEnjoo(S));
 
