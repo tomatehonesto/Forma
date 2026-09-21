@@ -282,8 +282,21 @@ export default function Companion() {
           <CircleBtn name="back" onPress={() => router.back()} />
           {/* O título centra na TELA, e não no vão que sobra: sem o
               espaçador do mesmo tamanho do botão à direita, ele ficaria
-              deslocado 44 px para a esquerda e o olho lê como desalinho. */}
-          <Txt v="title" style={{ flex: 1, textAlign: 'center' }}>Perguntas</Txt>
+              deslocado 44 px para a esquerda e o olho lê como desalinho.
+
+              ⚠️ "MORPHI" AQUI NÃO FERE A REGRA DA TERCEIRA PESSOA, e uma
+              varredura de texto vai tropeçar nele. A regra é sobre o
+              aplicativo FALAR DE SI — "o Morphi guarda", "o Morphi
+              avisa" —, que transforma o produto num objeto que observa a
+              pessoa. Isto é um rótulo de tela: um nome, não uma frase.
+              Nenhum verbo depende dele.
+
+              ⚠️ E É PROVISÓRIO, por decisão do produto. Era "Perguntas",
+              que dizia o que a tela faz e não tinha dono; "Morphi IA" diz
+              com quem se fala. Nenhum link do aplicativo rotula esta
+              tela — todos são toque em alguma coisa —, então trocar o
+              nome é trocar esta linha e mais nada. */}
+          <Txt v="title" style={{ flex: 1, textAlign: 'center' }}>Morphi IA</Txt>
           <View style={{ width: 40 }} />
         </Row>
       </View>
