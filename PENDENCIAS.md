@@ -673,3 +673,9 @@ sempre *anotar*.
 - **Quando houver servidor**, o campo é o mesmo e passa a ser preenchido
   do outro lado. O que muda é a frase da tela, não o formato — e aí a
   procedência vira verificável.
+
+**Decidido:** a frase *"você está na faixa que a sua equipe definiu"* pode
+ser dita a partir de um dado transcrito, **desde que o nome e a data
+estejam à vista na mesma tela**. É por isso que os dois são obrigatórios
+na folha de anotar, e é por isso que toda tela que mostra o número mostra
+a procedência junto.
