@@ -63,7 +63,11 @@ const PAD = 24;
    dela e o toque cair em cima. Era 240 para um orbe de 136; a estrela é
    um símbolo, não um corpo, e pede menos espaço em volta. */
 const MARCA_ALTURA = 116;
-const MARCA_TAMANHO = 62;
+/* ⚠️ CRESCEU QUANDO A ESTRELA VIROU CACHO. A faísca principal ocupa 0,78
+   da caixa agora, para as pequenas caberem em volta — então o mesmo
+   `size` de antes desenhava uma estrela 22% menor. O número aqui compensa
+   isso: a presença na tela é a mesma, com as pequenas de brinde. */
+const MARCA_TAMANHO = 78;
 
 /* As duas medidas da junção entre o hero e a folha.
 

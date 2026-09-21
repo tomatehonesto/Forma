@@ -300,7 +300,7 @@ export default function Companion() {
           {/* A estrela VEM ANTES DO NOME, como marca antes de letreiro —
               e o par inteiro é que centra, não o texto sozinho. */}
           <Row gap={7} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <EstrelaIA size={17} />
+            <EstrelaIA size={21} />
             <Txt v="title">Morphi IA</Txt>
           </Row>
           <View style={{ width: 40 }} />

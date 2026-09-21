@@ -133,6 +133,26 @@ export function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number;
 /** A faísca do Lucide (sparkle), fechada — por isso aceita preenchimento. */
 const D_FAISCA = 'M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z';
 
+/* ⚠️ O CACHO É UMA FAÍSCA SÓ, TRÊS VEZES. Desenhar três estrelas
+   diferentes daria três desenhos para manter alinhados; a mesma peça
+   deslocada e reduzida mantém a família por construção, e um ajuste no
+   `d` vale para as três.
+
+   A faísca está centrada em (12,12) no desenho original, então para pôr
+   uma cópia com centro em (cx,cy) e escala s, a translação tem de
+   desfazer o deslocamento que a escala provoca: `cx − 12s`. Errar isso
+   não quebra nada — só desalinha, e desalinho de 2 px num símbolo de
+   17 px é o que faz um logo parecer torto sem que ninguém saiba dizer
+   por quê. */
+const CACHO: { cx: number; cy: number; s: number; op: number }[] = [
+  /* A grande fica BAIXA E À ESQUERDA, e as pequenas sobem para a direita.
+     Cacho simétrico lê como enfeite repetido; é a assimetria que faz três
+     formas iguais virarem "brilho". */
+  { cx: 10, cy: 13.6, s: 0.78, op: 1 },
+  { cx: 19.2, cy: 5.2, s: 0.3, op: 0.92 },
+  { cx: 20.6, cy: 14.2, s: 0.19, op: 0.78 },
+];
+
 export function EstrelaIA({ size = 16 }: { size?: number }) {
   const { c } = useTheme();
   /* O id precisa ser único por instância: dois degradês com o mesmo id na
@@ -146,12 +166,26 @@ export function EstrelaIA({ size = 16 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Defs>
-        <SvgGrad id={id} x1="0" y1="0" x2="1" y2="1">
+        {/* ⚠️ `userSpaceOnUse`, E NÃO O PADRÃO. Sem isto, cada faísca ganha
+            a rampa inteira dentro da própria caixa: a pequenininha de
+            2 px vira azul-para-lima sozinha, e o cacho fica com três
+            degradês brigando. Preso ao espaço do desenho, o degradê
+            atravessa as três — a de baixo puxa o azul, a de cima o
+            lima, e elas lêem como pedaços de uma luz só. */}
+        <SvgGrad id={id} x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
           <Stop offset="0" stopColor={c.accent2} />
           <Stop offset="1" stopColor={c.lime} />
         </SvgGrad>
       </Defs>
-      <Path d={D_FAISCA} fill={`url(#${id})`} />
+      {CACHO.map((f, i) => (
+        <Path
+          key={i}
+          d={D_FAISCA}
+          fill={`url(#${id})`}
+          fillOpacity={f.op}
+          transform={`translate(${f.cx - 12 * f.s} ${f.cy - 12 * f.s}) scale(${f.s})`}
+        />
+      ))}
     </Svg>
   );
 }
