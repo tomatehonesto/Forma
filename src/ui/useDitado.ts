@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 
 /* ============================================================
    O DITADO — falar em vez de digitar, no campo do companion.
@@ -24,8 +24,53 @@ import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-spe
    que não faz nada é pior do que botão ausente.
    ============================================================ */
 
-/** Há reconhecimento de fala aqui? Na web depende do navegador. */
+/* ⚠️⚠️ ERA UM CRASH NO EXPO GO, e a porta se fecha ANTES do require.
+
+   `expo-speech-recognition` chama `requireNativeModule("ExpoSpeechRecognition")`
+   na primeira linha do arquivo dele. No Expo Go esse módulo nativo não
+   existe, então a chamada lança — e como isso acontece no IMPORT, quem
+   abrisse o chat derrubava o aplicativo antes de a tela pintar. Não havia
+   botão para não desenhar: o erro vinha antes do componente.
+
+   ⚠️ E A PERGUNTA CERTA NÃO É "DEU ERRO?", É "ESTE BUILD PODE TER MÓDULO
+   NATIVO?". É a lição que o HealthKit já deu nesta base — ver o
+   comentário em src/logic/saude-do-aparelho.ts. Lá, um try em volta do
+   require não bastou: o Nitro estoura ao ser AVALIADO, num ponto em que
+   o try local já saiu do caminho. Perguntar antes é mais honesto do que
+   tentar e cair, e sobrevive à próxima biblioteca que escolher outro
+   jeito de explodir.
+
+   O try continua, como segunda rede: build meio feita, versão trocada,
+   aparelho antigo. Só deixou de ser a única.
+
+   ⚠️ NA WEB NADA DISSO ACONTECE: o pacote tem um `.web.js`, o empacotador
+   o resolve antes, e ele não chama requireNativeModule. Foi por isso que
+   o painel do navegador não mostrou nada de errado — e é por isso que
+   `noExpoGo` não pode barrar a web.
+
+   ⚠️ E O FALLBACK DO HOOK PRECISA SER UM NO-OP, não undefined. `useDitado`
+   chama `ouvirEvento` quatro vezes em toda renderização; se ele sumisse
+   quando o módulo falta, a contagem de hooks mudaria entre um aparelho e
+   outro. O valor é decidido uma vez, no carregamento do módulo, e nunca
+   mais muda — então a ordem fica estável. */
+const noExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let Modulo: any = null;
+let ouvirEvento: (nome: string, fn: (e: any) => void) => void = () => {};
+if (Platform.OS === 'web' || !noExpoGo) {
+  try {
+    const m = require('expo-speech-recognition');
+    Modulo = m.ExpoSpeechRecognitionModule ?? null;
+    if (typeof m.useSpeechRecognitionEvent === 'function') ouvirEvento = m.useSpeechRecognitionEvent;
+  } catch {
+    /* Build sem o prebuild do módulo: segue sem ditado. */
+  }
+}
+
+/** Há reconhecimento de fala aqui? Na web depende do navegador; no
+    aparelho, de o módulo nativo ter sido compilado junto. */
 export const ditadoDisponivel = (): boolean => {
+  if (!Modulo) return false;
   if (Platform.OS !== 'web') return true;
   const w = globalThis as any;
   return !!(w?.SpeechRecognition || w?.webkitSpeechRecognition);
@@ -52,15 +97,15 @@ export function useDitado(escrever: (texto: string) => void) {
      quando o ditado começou. */
   const antes = useRef('');
 
-  useSpeechRecognitionEvent('start', () => { setOuvindo(true); setErro(null); });
-  useSpeechRecognitionEvent('end', () => setOuvindo(false));
-  useSpeechRecognitionEvent('error', (e: any) => {
+  ouvirEvento('start', () => { setOuvindo(true); setErro(null); });
+  ouvirEvento('end', () => setOuvindo(false));
+  ouvirEvento('error', (e: any) => {
     setOuvindo(false);
     /* "aborted" é a pessoa tocando em parar: não é falha e não vira aviso. */
     if (e?.error === 'aborted') return;
     setErro(mensagemDoErro(e?.error));
   });
-  useSpeechRecognitionEvent('result', (e: any) => {
+  ouvirEvento('result', (e: any) => {
     const t = e?.results?.[0]?.transcript ?? '';
     if (!t) return;
     escrever(antes.current ? `${antes.current} ${t}` : t);
@@ -69,10 +114,11 @@ export function useDitado(escrever: (texto: string) => void) {
   const comecar = useCallback(async (jaEscrito: string) => {
     setErro(null);
     antes.current = jaEscrito.trim();
+    if (!Modulo) { setErro(mensagemDoErro()); return; }
     try {
-      const p = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      const p = await Modulo.requestPermissionsAsync();
       if (!p.granted) { setErro(MENSAGENS['not-allowed']); return; }
-      ExpoSpeechRecognitionModule.start({
+      Modulo.start({
         lang: 'pt-BR',
         /* O texto aparece enquanto ela fala, e não só no fim: sem isso o
            campo fica parado por segundos e o ditado parece travado. */
@@ -90,7 +136,7 @@ export function useDitado(escrever: (texto: string) => void) {
   }, []);
 
   const parar = useCallback(() => {
-    try { ExpoSpeechRecognitionModule.stop(); } catch { setOuvindo(false); }
+    try { Modulo?.stop(); } catch { setOuvindo(false); }
   }, []);
 
   return { ouvindo, erro, comecar, parar, limparErro: () => setErro(null) };

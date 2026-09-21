@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import { descobertaDaHome, marcarDescobertaVista } from '../../logic/descobertas';
 import { alertasDe } from '../../logic/alertas';
+import { EstrelaIA } from '../../ui/marca';
 import { mensagemDoDia } from '../../logic/etapa';
 import {
   dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
@@ -349,12 +350,18 @@ export default function Home() {
                 <Pressable onPress={go(s.to)} style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 16, opacity: pressed ? 0.7 : 1 }]}>
                   <Row gap={7} style={{ backgroundColor: c.onHeroWeak, borderRadius: radius.xl, paddingHorizontal: 14, paddingVertical: 6 }}>
                     <Txt v="note" c={c.onHero}>{s.cta}</Txt>
-                    <Icon
-                      name={s.ia ? 'spark' : (s.ic ?? 'chev')}
-                      size={13}
-                      color={s.ia ? c.lime : c.onHero2}
-                      sw={2}
-                    />
+                    {/* ⚠️ A ESTRELA DA IA, E NÃO MAIS A FAÍSCA DO Icon. As
+                        duas diziam a mesma coisa, em dois desenhos: a do
+                        Icon é de traço e uma cor só; esta é a marca, com o
+                        cacho e o degradê, e é a que assina o Insights e o
+                        cabeçalho do chat. Ter a de traço aqui era o mesmo
+                        personagem com dois rostos — o problema que o orbe
+                        tinha, no lugar onde ele foi resolvido. */}
+                    {s.ia ? (
+                      <EstrelaIA size={15} />
+                    ) : (
+                      <Icon name={s.ic ?? 'chev'} size={13} color={c.onHero2} sw={2} />
+                    )}
                   </Row>
                 </Pressable>
               </View>
