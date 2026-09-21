@@ -514,7 +514,12 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
    conteúdo e, em folha cheia, saía de vista bem quando a pessoa terminava
    de montar o que ia registrar. */
 export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
-  titulo: string; sub?: string; rodape?: React.ReactNode;
+  /* ⚠️ OPCIONAL, e é para as CONFIRMAÇÕES. Uma folha de confirmação já
+     diz o que aconteceu no meio dela, embaixo do visto verde — repetir a
+     frase no cabeçalho é dizer a mesma coisa duas vezes, em dois
+     tamanhos, a dois centímetros de distância. Sem título, o cabeçalho
+     fica sendo o que ele tem de ser ali: a alça e o X. */
+  titulo?: string; sub?: string; rodape?: React.ReactNode;
   children: React.ReactNode; onClose: () => void;
 }) {
   const { c } = useTheme();
@@ -616,7 +621,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
                   `useTheme()`, e o dia em que alguém emprestar outra
                   paleta a esta folha o título é o primeiro a sumir. É o
                   mesmo defeito que já apagou quatro textos do paywall. */}
-              <Txt v="h2" c={c.tx}>{titulo}</Txt>
+              {titulo ? <Txt v="h2" c={c.tx}>{titulo}</Txt> : null}
               {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
             </View>
             {/* fechar explícito — o grabber some para quem não conhece o gesto */}

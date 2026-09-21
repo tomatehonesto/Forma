@@ -273,8 +273,6 @@ export default function RootLayout() {
           <Stack.Screen name="semana" />
           <Stack.Screen name="notas" />
           <Stack.Screen name="exportar" />
-          <Stack.Screen name="aplicacao" />
-          <Stack.Screen name="aplicacao-ok" />
           {/* ⚠️ A FOLHA É MONTADA À MÃO, e o `formSheet` nativo continua
               sobre a mesa — mas a justificativa antiga estava errada e não
               vale repetir.
@@ -341,6 +339,13 @@ export default function RootLayout() {
               dela: numa folha o teclado empurra em vez de cobrir, e
               fechar devolve a pessoa onde ela estava. */
            'codigo',
+           /* ⚠️ A APLICAÇÃO ERA TELA CHEIA, e era a única captura que era.
+              Exceção em captura é a pessoa reaprendendo o gesto de fechar
+              a cada registro — e esta é a captura que ela faz toda semana.
+
+              A confirmação vem junto: uma folha que fecha para dar lugar a
+              uma tela cheia é sair do contexto para ler "pronto". */
+           'aplicacao', 'aplicacao-ok',
            'registro-ok'].map((n) => (
             <Stack.Screen
               key={n}

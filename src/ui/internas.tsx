@@ -753,7 +753,11 @@ export function SanfonaLinha({
    junto do rótulo e mais fraco: ele informa o tamanho da lista antes do
    toque, sem virar o assunto do chip. */
 export function Chips({ itens, valor, onChange }: {
-  itens: { id: string; label: string; n?: number }[];
+  /* `n` é a contagem que acompanha o rótulo; `nota` é uma palavra que
+     qualifica o chip — "sugerido", no rodízio de locais. Os dois se
+     desenham igual, recuados, porque os dois são a mesma coisa: o que se
+     lê DEPOIS do nome, e só se já se está olhando para ele. */
+  itens: { id: string; label: string; n?: number; nota?: string }[];
   valor: string; onChange: (id: string) => void;
 }) {
   const { c } = useTheme();
@@ -779,6 +783,7 @@ export function Chips({ itens, valor, onChange }: {
           >
             <Txt v="label" c={on ? c.bg1 : c.tx2}>{it.label}</Txt>
             {it.n != null ? <Txt v="label" c={on ? c.bg1 : c.tx3} style={{ opacity: 0.6 }}>{it.n}</Txt> : null}
+            {it.nota ? <Txt v="label" c={on ? c.bg1 : c.tx3} style={{ opacity: 0.6 }}>{it.nota}</Txt> : null}
           </Pressable>
         );
       })}

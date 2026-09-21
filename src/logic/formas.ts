@@ -33,6 +33,11 @@ export const FORMAS: Record<Forma, {
   injetavel: boolean;
   /** como se chama o que guarda o medicamento */
   recipiente: string;
+  /* ⚠️ O GÊNERO DO RECIPIENTE, e ele existe porque "Outro caneta" saiu
+     na tela. Um rótulo montado com o nome do recipiente não carrega a
+     concordância junto, e português cobra: a caneta, o frasco, a
+     seringa, a cartela. */
+  genero: 'm' | 'f';
   /** o verbo da ação: "aplicar" ou "tomar" */
   verbo: string;
   /** o substantivo dela: "aplicação" ou "dose" — títulos e confirmações */
@@ -41,16 +46,16 @@ export const FORMAS: Record<Forma, {
   estoque: 'doses' | 'volume' | 'unidades' | 'comprimidos';
 }> = {
   caneta: {
-    injetavel: true, recipiente: 'caneta', verbo: 'aplicar', acao: 'aplicação', estoque: 'doses',
+    injetavel: true, recipiente: 'caneta', genero: 'f', verbo: 'aplicar', acao: 'aplicação', estoque: 'doses',
   },
   frasco: {
-    injetavel: true, recipiente: 'frasco', verbo: 'aplicar', acao: 'aplicação', estoque: 'volume',
+    injetavel: true, recipiente: 'frasco', genero: 'm', verbo: 'aplicar', acao: 'aplicação', estoque: 'volume',
   },
   seringa: {
-    injetavel: true, recipiente: 'seringa', verbo: 'aplicar', acao: 'aplicação', estoque: 'unidades',
+    injetavel: true, recipiente: 'seringa', genero: 'f', verbo: 'aplicar', acao: 'aplicação', estoque: 'unidades',
   },
   comprimido: {
-    injetavel: false, recipiente: 'cartela', verbo: 'tomar', acao: 'dose', estoque: 'comprimidos',
+    injetavel: false, recipiente: 'cartela', genero: 'f', verbo: 'tomar', acao: 'dose', estoque: 'comprimidos',
   },
 };
 
@@ -72,6 +77,15 @@ export const FORMAS: Record<Forma, {
    só eles que ela pede. */
 export const formaDe = (S: { profile: { med: string; forma?: Forma } }): Forma =>
   S.profile.forma ?? MEDS[S.profile.med]?.formas[0] ?? 'caneta';
+
+/** "outra caneta", "outro frasco" — o artigo que o nome sozinho não dá. */
+export const umOutro = (f: Forma, maiusculo = false) => {
+  const p = FORMAS[f].genero === 'f' ? 'outra' : 'outro';
+  return maiusculo ? p[0].toUpperCase() + p.slice(1) : p;
+};
+
+/** "a caneta", "o frasco" — para frases em que o artigo definido entra. */
+export const oA = (f: Forma) => (FORMAS[f].genero === 'f' ? 'a' : 'o');
 
 /** O que a forma em uso implica, em uma linha. */
 export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FORMAS[formaDe(S)];

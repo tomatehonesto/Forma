@@ -3,14 +3,21 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
 import { diffDays, now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { TelaInterna, Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
+import { FORMAS, formaDe, umOutro, oA } from '../logic/formas';
+import { SheetScreen } from '../ui/kit';
+import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
 
 /* ============================================================
    APLICAÇÃO REGISTRADA
 
-   A tela de fim de fluxo. O que ela NÃO faz é comemorar: aplicar a caneta
-   é obrigação semanal, não conquista, e um confete aqui envelhece na
-   terceira semana.
+   A folha de fim de fluxo. O que ela NÃO faz é comemorar: aplicar a dose
+   é obrigação da semana, não conquista, e um confete aqui envelhece na
+   terceira vez.
+
+   ⚠️ ERA TELA CHEIA. Ela abre logo depois de uma folha fechar, e uma
+   folha que dá lugar a uma tela cheia é a pessoa saindo do contexto para
+   ler "pronto" — o /registro-ok, que faz o mesmo trabalho para as outras
+   capturas, já era folha.
 
    O que ela faz é responder as duas perguntas que vêm logo depois de
    apertar salvar — quando é a próxima e se a caneta aguenta — e devolver
@@ -33,22 +40,28 @@ export default function AplicacaoOk() {
   const quando = maiuscula(dataComDiaDaSemana(d));
 
   const acabou = est.left <= 0;
+  const vocab = FORMAS[formaDe(S)];
 
   return (
-    <TelaInterna
-      titulo="Aplicação"
-      /* Sem Titulão: aqui a barra é o único lugar onde a tela se nomeia. */
-      tituloFixo
+    <SheetScreen
+      /* Sem título no cabeçalho: a Confirmacao logo abaixo já diz
+         "Dose registrada" em h2, centralizado, embaixo do visto. Dois
+         títulos iguais a dois centímetros um do outro é o cabeçalho
+         cobrando espaço para não acrescentar nada. */
+      onClose={() => router.replace('/(tabs)/jornada' as any)}
       rodape={
         <>
           <Botao label="Voltar para a Jornada" onPress={() => router.replace('/(tabs)/jornada' as any)} />
-          {acabou ? <Botao label="Registrar nova caneta" tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} /> : null}
+          {acabou && vocab.injetavel
+            ? <Botao label={`Registrar ${vocab.genero === 'f' ? 'nova' : 'novo'} ${vocab.recipiente}`} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
+            : null}
         </>
       }
     >
       <Confirmacao
-        titulo="Aplicação registrada"
-        texto={`${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1)} ${med.unit} · ${li ? siteLabel(li.site).toLowerCase() : '—'}.`}
+        titulo={`${maiuscula(vocab.acao)} registrada`}
+        /* O local só entra na frase de quem injeta — ver logic/formas. */
+        texto={`${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1)} ${med.unit}${vocab.injetavel && li ? ` · ${siteLabel(li.site).toLowerCase()}` : ''}.`}
       >
         <Cartao>
           <Linha
@@ -59,21 +72,25 @@ export default function AplicacaoOk() {
               para escrever aqui seria inventar. A data da próxima
               aplicação é o que esta confirmação tem a dizer. */
             sub={maiuscula(dataComDiaDaSemana(prox))}
-            selo={dias === 0 ? 'hoje' : `${dias} dias`}
+            /* ⚠️ "1 dias" era raro e virou rotina: com medicamento oral a
+               cadência é DIÁRIA, e a próxima dose é sempre amanhã. */
+            selo={dias === 0 ? 'hoje' : dias === 1 ? '1 dia' : `${dias} dias`}
             seloTom="neutra"
             seta={false}
           />
-          <Linha
-            titulo="Caneta"
-            sub={acabou
-              ? `${est.total} de ${est.total} doses usadas · abrir a próxima`
-              : `${est.total - est.left} de ${est.total} doses usadas`}
-            selo={acabou ? 'fim' : `restam ${est.left}`}
-            seloTom="neutra"
-            seta={false}
-          />
+          {vocab.injetavel ? (
+            <Linha
+              titulo={maiuscula(vocab.recipiente)}
+              sub={acabou
+                ? `${est.total} de ${est.total} doses usadas · abrir ${oA(formaDe(S))} ${vocab.genero === 'f' ? 'próxima' : 'próximo'}`
+                : `${est.total - est.left} de ${est.total} doses usadas`}
+              selo={acabou ? 'fim' : `restam ${est.left}`}
+              seloTom="neutra"
+              seta={false}
+            />
+          ) : null}
         </Cartao>
       </Confirmacao>
-    </TelaInterna>
+    </SheetScreen>
   );
 }

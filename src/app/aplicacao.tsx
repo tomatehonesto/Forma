@@ -1,68 +1,48 @@
 import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, penStock, diasParaAplicar, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
-import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Campo, Chips, Opcoes, Opc, Stepper, Botao } from '../ui/internas';
-import { Corpo, ZONAS } from '../ui/corpo';
+import { FORMAS, formaDe, faixaDaMolecula, umOutro, oA } from '../logic/formas';
+import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
+import { Txt, SheetScreen } from '../ui/kit';
+import { Campo, Chips, Opcoes, Opc, Regua, Botao } from '../ui/internas';
+import { Calendario } from '../ui/calendario';
+import { ZONAS } from '../ui/corpo';
 import { useTheme } from '../ui/useTheme';
 
 /* ============================================================
-   REGISTRAR APLICAÇÃO
+   REGISTRAR A DOSE
 
-   O formulário mais importante do app, e o que mais precisa sair da
-   frente: quem está com a caneta na mão quer terminar isso em segundos.
-   Por isso tudo chega preenchido — hora agora, dose atual, caneta em uso,
-   local sugerido pela rotação — e cada campo existe só para o caso de a
-   pessoa querer discordar do padrão.
+   O formulário mais importante do aplicativo, e o que mais precisa sair
+   da frente: quem está com a caneta na mão quer terminar isso em
+   segundos. Por isso tudo chega preenchido — dia de hoje, dose atual,
+   recipiente em uso, local sugerido pela rotação — e cada campo existe só
+   para o caso de a pessoa querer discordar do padrão.
 
-   O mapa do corpo é a única parte que pede atenção, e é intencional. A
-   rotação de local não é burocracia: repetir o mesmo ponto causa nódulo e
-   irritação, e é o tipo de coisa que ninguém lembra de controlar de
-   cabeça. O mapa mostra o sugerido em lima tracejado e aceita qualquer
-   outro sem reclamar — a legenda diz "sem problema, é só um lembrete",
-   porque escolher outro lugar é decisão dela, não erro.
+   ⚠️⚠️ ERA TELA CHEIA, E VIROU FOLHA. Todas as outras capturas do
+   aplicativo são folha; esta era a exceção, e exceção em captura é a
+   pessoa reaprendendo o gesto de fechar a cada registro.
+
+   ⚠️⚠️ E METADE DELA SÓ EXISTE PARA QUEM INJETA.
+
+   O aplicativo passou a conhecer medicamento que não é caneta — ver
+   logic/formas. Local de aplicação e rodízio não são detalhes de um
+   comprimido: são perguntas que não existem. Quem toma semaglutida oral
+   não escolhe onde aplicou, e o título nem chama isso de aplicação.
+
+   Por isso as duas últimas seções ficam atrás de `injetavel`, e não atrás
+   de um texto trocado. Esconder o rótulo e manter o campo seria o
+   aplicativo guardando uma resposta sem sentido.
+
+   ⚠️ O DESENHO DO CORPO SAIU DAQUI, e não morreu. Ele continua em
+   /aplicacoes, onde mostra o rodízio — que é o que ele sempre fez
+   melhor. Como SELETOR ele cobrava mira: seis alvos pequenos numa
+   silhueta de 200 px, para uma escolha entre seis coisas que têm nome. O
+   nome cabe num chip, e chip não erra o toque.
    ============================================================ */
-
-/* O corpo mora em src/ui/corpo.tsx: duas telas desenham a mesma
-   silhueta e querem coisas diferentes dela — aqui ela é um seletor, na
-   tela de aplicações ela mostra o rodízio. */
-/* O MAPA PASSA A MOSTRAR O DESCANSO, e não só a sugestão.
-
-   Antes ele tinha duas cores: azul no escolhido, lima tracejado no
-   sugerido, e todo o resto igual. A pessoa via QUAL o app recomenda, e
-   não POR QUÊ — que é a informação que faz ela concordar ou discordar
-   com conhecimento de causa.
-
-   Agora cada local tem a força do tempo que descansa: cheio é o que foi
-   usado por último, e vai clareando. É o mesmo desenho do rodízio na
-   tela de aplicações — quem viu lá reconhece aqui. */
-function MapaCorpo({ escolhido, sugerido, rodizio, onEscolher }: {
-  escolhido: string; sugerido: string;
-  rodizio: { id: string; semanas: number | null }[];
-  onEscolher: (id: string) => void;
-}) {
-  const { c } = useTheme();
-  const tons = Object.fromEntries(ZONAS.map((z) => {
-    const on = z.id === escolhido;
-    const sug = z.id === sugerido;
-    const l = rodizio.find((x) => x.id === z.id);
-    /* Quatro semanas é o teto: além disso o local está tão livre quanto
-       qualquer outro, e continuar clareando inventaria diferença. */
-    const desc = l?.semanas == null ? 1 : Math.min(1, l.semanas / 4);
-    return [z.id, {
-      fill: on ? c.accent : c.accent,
-      opacidade: on ? 1 : 0.40 * (1 - desc) + 0.05,
-      stroke: on ? c.accent : sug ? c.limeDim : c.accentLine,
-      tracejada: !on && sug,
-    }];
-  }));
-  return <Corpo tons={tons} onEscolher={onEscolher} />;
-}
 
 export default function Aplicacao() {
   const S = useStore((s) => s.S);
@@ -71,126 +51,212 @@ export default function Aplicacao() {
   const router = useRouter();
 
   const med = M(S);
+  const forma = formaDe(S);
+  const vocab = FORMAS[forma];
   const sugerido = nextSite(S);
   const rod = rodizioDeLocais(S);
   const est = penStock(S);
 
-  /* O DIA da aplicação, e não um "quando" solto. '0' é hoje. */
+  const hoje = +startOfDay(now());
   const dias = diasParaAplicar(S);
-  const [dia, setDia] = useState('0');
+
+  /* ⚠️ O DIA É UM INSTANTE, E ERA UM ÍNDICE DE CHIP. Com índice, o
+     calendário não teria como responder — ele devolve uma data, não uma
+     posição numa lista de sete. */
+  const [quandoT, setQuandoT] = useState(hoje);
+  const [calAberto, setCalAberto] = useState(false);
+
   const [dose, setDose] = useState<number>(S.profile.dose);
   const [site, setSite] = useState(sugerido);
-  const [outraCaneta, setOutraCaneta] = useState(false);
+  const [outroRecipiente, setOutroRecipiente] = useState(false);
 
-  const passo = (d: number) => {
-    const i = med.doses.indexOf(dose);
-    const j = Math.max(0, Math.min(med.doses.length - 1, (i < 0 ? 0 : i) + d));
-    setDose(med.doses[j]);
-  };
+  /* Sem escada de bula — manipulado — a dose é um número livre, e a faixa
+     vem da molécula NA MESMA VIA. Ver a nota em logic/formas. */
+  const faixa = med.doses.length ? null : faixaDaMolecula(med.mol, forma);
 
-  const hoje = now();
-  const quando = dias.find((d) => d.id === dia) || dias[0];
+  const noCurto = dias.find((d) => d.t === quandoT);
+  /* A grade aparece quando a pessoa pediu, ou quando a data escolhida não
+     cabe em nenhum atalho — reabrir a folha num 12 de agosto sem mostrar
+     agosto seria esconder a própria resposta. */
+  const mostraCalendario = calAberto || !noCurto;
+
   const salvar = () => {
     update((s: any) => {
-      s.injections.push({ t: instanteDaAplicacao(quando.t), med: s.profile.med, dose, site, note: '' });
+      s.injections.push({ t: instanteDaAplicacao(quandoT), med: s.profile.med, dose, site, note: '' });
       s.profile.dose = dose;
       if (s.pen) s.pen.dosesLeft = Math.max(0, s.pen.dosesLeft - 1);
     });
     router.replace('/aplicacao-ok' as any);
   };
 
+  const descanso = (() => {
+    const l = rod.find((x) => x.id === site);
+    if (!l || l.semanas == null) return 'Ainda não usado neste tratamento.';
+    if (l.semanas === 0) return 'Usado esta semana.';
+    return `Descansando há ${l.semanas} ${l.semanas === 1 ? 'semana' : 'semanas'}.`;
+  })();
+
   return (
-    <TelaInterna
-      titulo="Aplicação"
-      fechar
-      acao="Salvar"
-      onAcao={salvar}
-      rodape={<Botao label="Salvar aplicação" onPress={salvar} />}
+    <SheetScreen
+      titulo={`Registrar ${vocab.acao}`}
+      sub={maiuscula(dataComDiaDaSemana(new Date(quandoT)))}
+      onClose={() => router.back()}
+      rodape={<Botao label={`Salvar ${vocab.acao}`} onPress={salvar} />}
     >
-      {/* Em uma linha só: "Registrar" e "aplicação" quebrados viravam duas
-          linhas de titulão para duas palavras que sempre andam juntas. */}
-      <Titulao
-        titulo="Registrar aplicação"
-        lead={`${maiuscula(dataComDiaDaSemana(hoje))} · dose prevista para hoje`}
-      />
+      <View style={{ marginTop: 18, gap: 10 }}>
+        {/* O DIA, e só ele.
 
-      {/* O DIA, e só ele.
+            Eram três opções — Agora, Outro horário, Outro dia — e as três
+            gravavam a hora de AGORA: a escolha era lida na tela e jogada
+            fora no salvar. Quem aplicou na sexta e registrou no domingo
+            ficava com uma aplicação de domingo, e a próxima data saía dois
+            dias errada.
 
-          Eram três opções — Agora, Outro horário, Outro dia — e as três
-          gravavam a hora de AGORA: a escolha era lida na tela e jogada
-          fora no salvar. Quem aplicou na sexta e registrou no domingo
-          ficava com uma aplicação de domingo, e a próxima data saía dois
-          dias errada.
+            "Outro horário" não voltou. A hora de uma aplicação não aparece
+            em lugar nenhum do aplicativo — o histórico mostra data, o
+            calendário conta por dia, a curva farmacológica trabalha em
+            dias. Um controle cujo valor ninguém lê é uma pergunta
+            respondida à toa.
 
-          "Outro horário" não voltou. A hora de uma aplicação não aparece
-          em lugar nenhum do app — o histórico mostra data, o calendário
-          conta por dia, a curva farmacológica trabalha em dias. Um
-          controle cujo valor ninguém lê é uma pergunta respondida à toa. */}
-      <Campo
-        rotulo="Quando"
-        ajuda={dia === '0'
-          ? `Fica registrada agora, ${fmtTime(hoje)}.`
-          : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
-      >
-        <Chips itens={dias} valor={dia} onChange={setDia} />
-      </Campo>
-
-      <Campo rotulo="Dose" ajuda={`Sua dose atual é ${nf(S.profile.dose, 1)} ${med.unit}.`}>
-        <Stepper
-          valor={nf(dose, 1)}
-          unidade={med.unit}
-          onMenos={() => passo(-1)}
-          onMais={() => passo(1)}
-        />
-      </Campo>
-
-      <Campo
-        rotulo="Local da aplicação"
-        ajuda="Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele."
-      >
-        {/* O QUE A COLUNA DA DIREITA DIZ MUDOU DE ASSUNTO.
-
-            Ela era uma legenda de cores — "sugerido pela rotação",
-            "escolhido" —, duas linhas para explicar o próprio desenho. O
-            que a pessoa precisa saber ao tocar num local é HÁ QUANTO
-            TEMPO ele descansa, que é a razão inteira de existir rotação.
-            A legenda sai; o fato entra, e muda a cada toque. */}
-        <Row style={{ gap: 16, alignItems: 'center' }}>
-          <MapaCorpo escolhido={site} sugerido={sugerido} rodizio={rod} onEscolher={setSite} />
-          <View style={{ flex: 1, gap: 6 }}>
-            <Txt v="bodyMed">{siteLabel(site)}</Txt>
-            <Txt v="caption" c={c.tx2}>
-              {(() => {
-                const l = rod.find((x) => x.id === site);
-                if (!l || l.semanas == null) return 'Ainda não usado neste tratamento.';
-                if (l.semanas === 0) return 'Usado esta semana.';
-                return `Descansando há ${l.semanas} ${l.semanas === 1 ? 'semana' : 'semanas'}.`;
-              })()}
-            </Txt>
-            <Txt v="caption" c={site === sugerido ? c.accent : c.tx3}>
-              {site === sugerido
-                ? 'É o próximo da rotação.'
-                : 'Fora da rotação sugerida — sem problema, é só um lembrete.'}
-            </Txt>
-          </View>
-        </Row>
-      </Campo>
-
-      <Campo
-        rotulo="Caneta"
-        ajuda={est.left <= 1 ? 'Esta é a última dose desta caneta.' : `Restam ${est.left} doses nesta caneta.`}
-      >
-        <Opcoes>
-          <Opc
-            label={`${med.label} ${nf(dose, 1)} ${med.unit} · ${est.total - est.left + 1}ª dose`}
-            on={!outraCaneta}
-            onPress={() => setOutraCaneta(false)}
+            ⚠️ E "OUTRO DIA" DEIXOU DE SER UM ATALHO A MAIS: ele abre a
+            grade do mês. Os sete chips resolvem o caso comum em um toque e
+            falham justamente no caso em que alguém precisa de calendário —
+            lembrar, três semanas depois, do dia em que aplicou. */}
+        <Campo
+          rotulo="Quando"
+          ajuda={quandoT === hoje
+            ? `Fica registrada agora, ${fmtTime(now())}.`
+            : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
+        >
+          <Chips
+            itens={[...dias, { id: 'outro', label: 'Outro dia' }]}
+            valor={mostraCalendario ? 'outro' : (noCurto?.id ?? '0')}
+            onChange={(id) => {
+              if (id === 'outro') { setCalAberto(true); return; }
+              setCalAberto(false);
+              setQuandoT(dias.find((d) => d.id === id)?.t ?? hoje);
+            }}
           />
-          <Opc label="Outra caneta" on={outraCaneta} onPress={() => { setOutraCaneta(true); router.push('/caneta-nova' as any); }} />
-        </Opcoes>
-      </Campo>
+          {mostraCalendario ? (
+            <Calendario valor={quandoT} onEscolhe={setQuandoT} />
+          ) : null}
+        </Campo>
 
-      <View />
-    </TelaInterna>
+        {/* ⚠️ DOIS CONTROLES, PORQUE SÃO DUAS NATUREZAS DE NÚMERO.
+
+            Com escada de bula, a dose é uma escolha entre degraus com
+            nome, e são quatro a seis — cabem todos na tela de uma vez.
+            Isto substituiu um Stepper de mais e menos, que fazia percorrer
+            a escada às cegas, um degrau por toque, sem nunca mostrar
+            quantos existem nem onde a pessoa está neles.
+
+            Sem escada — manipulado —, o número é livre: quem o define é a
+            receita. Aí o controle é a régua, que é o mesmo gesto do peso e
+            das medidas.
+
+            ⚠️ E A RÉGUA NÃO SERVE PARA A ESCADA. Ela anda com passo
+            UNIFORME: a do Mounjaro é uniforme (2,5 em 2,5), mas a do
+            Ozempic não é — 0,25 · 0,5 · 1 · 2. Traços igualmente espaçados
+            para degraus que não são mentiriam sobre onde eles estão. */}
+        <Campo rotulo="Dose" ajuda={med.doses.length
+          ? `Sua dose atual é ${nf(S.profile.dose, 1)} ${med.unit}.`
+          : 'Manipulado não tem escada de bula — o número é o da sua receita.'}
+        >
+          {med.doses.length ? (
+            <Opcoes>
+              {med.doses.map((d) => (
+                <Opc
+                  key={d}
+                  label={`${nf(d, 1)} ${med.unit}`}
+                  on={dose === d}
+                  onPress={() => setDose(d)}
+                />
+              ))}
+            </Opcoes>
+          ) : faixa ? (
+            <Regua
+              min={faixa.min} max={faixa.max} passo={0.05} tracoCada={0.5} casas={2}
+              esp={7} salto={0.05}
+              valor={dose || faixa.min} unidade={med.unit} onEscolhe={setDose}
+            />
+          ) : (
+            /* Sem escada E sem faixa: não há marca com aquela molécula
+               naquela via de onde derivar um limite. Dizer isso é melhor do
+               que abrir uma régua de 0 a 100. */
+            <Txt v="note" c={c.tx3}>
+              Não temos faixa de referência para este medicamento. A dose fica
+              a do seu último registro.
+            </Txt>
+          )}
+        </Campo>
+
+        {vocab.injetavel ? (
+          <>
+            {/* ⚠️ CHIPS, E ERA UM DESENHO DO CORPO.
+
+                Seis locais com nome, escolhidos entre seis — é uma lista, e
+                lista se resolve com chip. A silhueta cobrava mira: seis
+                alvos pequenos num desenho de 200 px de largura, e errar o
+                toque num formulário de medicamento é trocar o registro do
+                braço pelo do abdômen.
+
+                ⚠️ O QUE ESTÁ EMBAIXO É A RAZÃO DE A ROTAÇÃO EXISTIR, e
+                continua igual: HÁ QUANTO TEMPO aquele local descansa, e se
+                ele é o próximo da rotação. Sem isso, o sugerido seria uma
+                ordem sem motivo — e é justamente o motivo que deixa a
+                pessoa discordar com conhecimento de causa. */}
+            <Campo
+              rotulo="Local da aplicação"
+              ajuda="Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele."
+            >
+              <Chips
+                itens={ZONAS.map((z) => ({
+                  id: z.id,
+                  label: siteLabel(z.id),
+                  nota: z.id === sugerido ? 'sugerido' : undefined,
+                }))}
+                valor={site}
+                onChange={setSite}
+              />
+              <View style={{ gap: 4 }}>
+                <Txt v="caption" c={c.tx2}>{descanso}</Txt>
+                <Txt v="caption" c={site === sugerido ? c.accent : c.tx3}>
+                  {site === sugerido
+                    ? 'É o próximo da rotação.'
+                    : 'Fora da rotação sugerida — sem problema, é só um lembrete.'}
+                </Txt>
+              </View>
+            </Campo>
+
+            {/* ⚠️ A DOSE SAIU DAQUI, e era duplicação pura: o rótulo desta
+                opção repetia o número que o campo logo acima acabou de
+                perguntar. Uma tela que pergunta a dose e a repete dois
+                campos abaixo faz a pessoa conferir se são a mesma coisa.
+
+                O que é DESTE campo é o recipiente: qual está em uso e
+                quantas doses restam nele. */}
+            <Campo
+              rotulo={maiuscula(vocab.recipiente)}
+              ajuda={est.left <= 1
+                ? `Esta é a última dose ${vocab.genero === 'f' ? 'desta' : 'deste'} ${vocab.recipiente}.`
+                : `Restam ${est.left} doses.`}
+            >
+              <Opcoes>
+                <Opc
+                  label={`${med.label} · ${est.total - est.left + 1}ª dose`}
+                  on={!outroRecipiente}
+                  onPress={() => setOutroRecipiente(false)}
+                />
+                <Opc
+                  label={`${umOutro(forma, true)} ${vocab.recipiente}`}
+                  on={outroRecipiente}
+                  onPress={() => { setOutroRecipiente(true); router.push('/caneta-nova' as any); }}
+                />
+              </Opcoes>
+            </Campo>
+          </>
+        ) : null}
+      </View>
+    </SheetScreen>
   );
 }

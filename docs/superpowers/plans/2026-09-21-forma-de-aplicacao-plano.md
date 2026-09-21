@@ -179,6 +179,31 @@ duas últimas seções não existem e o título muda.
 `aplicacao.tsx`, não em `src/ui/`. Sai junto — e `src/ui/corpo.tsx`, que é a
 peça de verdade, fica. Sem isso a árvore ganharia um componente morto.
 
+### Quatro coisas que só apareceram na tela
+
+Nenhuma delas estava no plano, e as quatro são consequência direta da fase.
+
+1. **"Outro caneta".** O rótulo do recipiente é montado com o nome dele, e
+   português cobra concordância: a caneta, o frasco, a seringa, a cartela.
+   `FORMAS` ganhou `genero`, e com ele `umOutro()` e `oA()`. O defeito
+   aparecia em quatro frases, nas duas telas.
+
+2. **O título duplicado na confirmação.** `SheetScreen` sempre teve título
+   obrigatório, e a `Confirmacao` já diz o que aconteceu em h2,
+   centralizado, embaixo do visto verde. Os dois juntos escreviam "Dose
+   registrada" duas vezes, em dois tamanhos, a dois centímetros um do
+   outro. `titulo` virou opcional — sem ele o cabeçalho fica sendo o que
+   tem de ser numa confirmação: a alça e o X.
+
+3. **"1 dias".** Era raro quando todo medicamento era semanal, e virou
+   rotina com o oral diário: a próxima dose é sempre amanhã. O plural
+   passou a ter o caso de um.
+
+4. **`Chips` ganhou `nota`.** O pedido era marcar o local sugerido, e o
+   componente só tinha `n`, uma contagem numérica. `nota` é uma palavra
+   que qualifica o chip, desenhada igual — recuada, para ser lida depois
+   do nome.
+
 ---
 
 ## Fase 5 — a validade do recipiente
