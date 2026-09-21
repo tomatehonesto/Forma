@@ -62,8 +62,8 @@ casquinha-com-nutella	Casquinha com Nutella®	bk	2	156	23	6	1	22	41
 chicken-jr	Chicken Jr.	bk	14	385	36	21	3	502	137
 bk-chicken-crispy	BK® Chicken Crispy	bk	29	501	41	25	2	1163	200
 chicken-duplo	Chicken Duplo	bk	23	591	48	35	4	842	206
-chicken-duplo-barbecue-bacon	Chicken Duplo Barbecue Bacon	bk	25	689	52	43	4	1120	230
-chicken-duplo-barbecue-bacon	Chicken Duplo Barbecue Bacon	bk	28	1589	52	142	5	2066	382
+chicken-duplo-barbecue-bacon-230-g	Chicken Duplo Barbecue Bacon 230 g	bk	25	689	52	43	4	1120	230
+chicken-duplo-barbecue-bacon-382-g	Chicken Duplo Barbecue Bacon 382 g	bk	28	1589	52	142	5	2066	382
 whopper-de-plantas	WHOPPER® de Plantas	bk	28	675	50	40	10	2118	339
 bk-chicken-6-unidades	BK® Chicken – 6 unidades	bk	14	223	20	10	1	444	111
 bk-chicken-10-unidades	BK® Chicken – 10 unidades	bk	23	373	33	17	2	744	186
@@ -79,11 +79,11 @@ batata-furiosa-individual	Batata Furiosa – individual	bk	11	521	66	23	6	1275	2
 batata-furiosa-grande	Batata Furiosa – grande	bk	21	1042	133	45	11	2550	408
 chicken-duplo-furioso	Chicken Duplo Furioso	bk	23	675	55	42	4	1288	241
 chicken-duplo-bacon	Chicken Duplo Bacon	bk	25	675	49	43	4	1046	222
-molho-barbecue	Molho Barbecue	bk	0	48	12	0	0	258	28
-molho-barbecue	Molho Barbecue	bk	2	495	123	0	3	2637	286
+molho-barbecue-28-g	Molho Barbecue 28 g	bk	0	48	12	0	0	258	28
+molho-barbecue-286-g	Molho Barbecue 286 g	bk	2	495	123	0	3	2637	286
 bk-shake-proteico-chocolate	BK Shake Proteico Chocolate	bk	21	616	90	19	2	325	325
-molho-furioso	Molho Furioso	bk	0	47	11	0	0	288	28
-molho-furioso	Molho Furioso	bk	2	476	114	1	2	2937	286
+molho-furioso-28-g	Molho Furioso 28 g	bk	0	47	11	0	0	288	28
+molho-furioso-286-g	Molho Furioso 286 g	bk	2	476	114	1	2	2937	286
 bk-shake-proteico-crocante	BK Shake Proteico Crocante	bk	21	582	89	16	2	289	312
 ketchup	Ketchup	bk	0	8	2	0	0	70	7
 bk-shake-proteico-morango	BK Shake Proteico Morango	bk	20	577	92	14	2	232	339
@@ -91,8 +91,8 @@ mostarda	Mostarda	bk	0	3	0	0	0	68	5
 bk-shake-proteico-doce-de-leite	BK Shake Proteico Doce de Leite	bk	24	677	104	18	1	361	350
 maionese-bk	Maionese BK®	bk	0	126	0	14	0	118	20
 casquinha-recheada-biscoff	Casquinha Recheada Biscoff®	bk	6	365	64	10	1	190	174
-molho-baconese	Molho Baconese	bk	0	114	0	12	0	127	20
-molho-baconese	Molho Baconese	bk	4	1279	4	138	1	1427	224
+molho-baconese-20-g	Molho Baconese 20 g	bk	0	114	0	12	0	127	20
+molho-baconese-224-g	Molho Baconese 224 g	bk	4	1279	4	138	1	1427	224
 bk-mix-biscoff	BK® Mix Biscoff®	bk	6	487	80	16	1	299	217
 maionese-verde	Maionese verde	bk	0	120	0	13	0	124	20
 bk-shake-biscoff	BK® Shake Biscoff®	bk	8	699	116	22	2	412	342

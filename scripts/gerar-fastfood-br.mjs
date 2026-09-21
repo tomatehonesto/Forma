@@ -110,6 +110,25 @@ const unidadeDe = (nome) => UNIDADE.find(([re]) => re.test(nome))?.[1] ?? ['unid
    graça, e dá à pessoa o filtro que ela procuraria primeiro. */
 const PRATELEIRA = 'Lanches de rede';
 
+/* ⚠️⚠️ A PRATELEIRA É DE SALGADO, e a sobremesa fica de fora das três
+   redes. Não é juízo sobre sorvete: é sobre o que a lista serve para
+   fazer. O cardápio de sobremesa de uma rede é enorme e quase todo
+   variação da mesma coisa — dezenove sundaes que diferem na calda, doze
+   casquinhas que diferem no recheio —, e três desses cardápios juntos
+   enterravam o sanduíche que a pessoa está procurando debaixo de sabor
+   de sorvete. Eram 57 doces do Habib's contra 22 salgados.
+
+   ⚠️ E O QUE SE PERDE É POUCO, porque doce de rede é quase todo açúcar e
+   gordura: o que ele acrescenta ao dia já está em "Doces e lanches", na
+   tabela geral. O que só existe na rede — e é o motivo desta prateleira
+   existir — é o salgado: ninguém faz um Whopper em casa.
+
+   ⚠️ A ÚNICA PERDA QUE DÓI é o shake proteico do Burger King, que é doce
+   pela régua e é proteína pelo conteúdo. Se um dia ele tiver de voltar,
+   volta sozinho: é tirar "shake" desta lista e pôr o nome dele numa
+   exceção. */
+const DOCE = /casquinha|cascão|sundae|sorvete|mcflurry|mccolosso|mcshake|mcfloat|shake|caldo&freddo|petit suisse|cookies|torta de|croissant de chocolate|baldão|brownie|nutella|mix (de |com |biscoff|grogu|leite)|twist|cremosíssimo|esfiha folhada|biscoff|ovomaltine|doce de leite|brigadeiro/i;
+
 /* ⚠️ O QUE FICA DE FORA, e por quê. Bebida é de logic/bebidas; molho
    ninguém registra como porção; e café com leite é bebida ainda que a
    rede o liste no cardápio da manhã. Mesma régua da lista americana. */
@@ -141,10 +160,12 @@ const semAcento = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 const itens = [];
 const contem = {};
 let fora = 0;
+let doces = 0;
 
 for (const linha of linhas) {
   const [slug, nome, cat, p, kcal, carb, gord, fibra, , alerg] = linha.split('\t');
   if (FORA.test(nome)) { fora++; continue; }
+  if (DOCE.test(nome)) { doces++; continue; }
   if (num(p) == null) { fora++; continue; }
 
   const [un, unp, qtd] = unidadeDe(nome);
@@ -205,15 +226,14 @@ const FORA_HABIBS = /^(caf[ée]|cappuccino|capuccino|chocolatto|latte|espresso|m
    ou "Habib's Esfiha de carne"? A segunda não acrescenta nada além da
    marca — e acrescenta uma dúvida.
 
-   O que entra é o que só se pede ali: a Bib'Sfiha, o Beirute, o Genius,
-   a esfiha folhada de sobremesa e as linhas de sorvete da casa. O
-   McDonald's não precisa de régua porque o cardápio inteiro dele já é
-   assim: ninguém faz um Big Mac em casa.
+   O que entra é o que só se pede ali: a Bib'Sfiha, o Beirute e o Genius.
+   O McDonald's e o Burger King não precisam de régua porque o cardápio
+   inteiro deles já é assim: ninguém faz um Whopper em casa.
 
-   ⚠️ E A LISTA É DE LINHA DE PRODUTO, e não de item. "Velosa" pega os
-   onze sabores de uma vez, e o dia em que a rede lançar o décimo segundo
+   ⚠️ E A LISTA É DE LINHA DE PRODUTO, e não de item. "Bib'Sfiha" pega os
+   dez recheios de uma vez, e o dia em que a rede lançar o décimo primeiro
    ele entra sozinho. Nome de item envelheceria a cada cardápio novo. */
-const DA_CASA_HABIBS = /bib’sfiha|beirute|genius|esfiha folhada|velosa|cremosíssimo|casquinha (recheada|mista|soft)|sundae|twist|cascão|super cheddar/i;
+const DA_CASA_HABIBS = /bib’sfiha|beirute|genius|super cheddar/i;
 
 const plural = (u) => (u.endsWith('ão') ? u.slice(0, -2) + 'ões' : u + 's');
 
@@ -232,6 +252,7 @@ const PORNOME_HABIBS = [
 for (const linha of fs.readFileSync(COLHEITA_HABIBS, 'utf8').split(/\r?\n/)) {
   if (!linha.trim() || linha.startsWith('#')) continue;
   const [slug, nome, , p, kcal, carb, gord, fibra, , gramas, unidades, un, alerg] = linha.split('\t');
+  if (DOCE.test(nome)) { doces++; continue; }
   if (FORA_HABIBS.test(nome) || !DA_CASA_HABIBS.test(nome)) { fora++; continue; }
   if (num(p) == null || num(gramas) == null) { fora++; continue; }
 
@@ -307,6 +328,7 @@ const PORNOME_BK = [
 for (const linha of cruBk.split(/\r?\n/)) {
   if (!linha.trim() || linha.startsWith('#')) continue;
   const [slug, nome, , p, kcal, carb, gord, fibra, , gramas] = linha.split('\t');
+  if (DOCE.test(nome)) { doces++; continue; }
   if (FORA_BK.test(nome) || num(p) == null) { fora++; continue; }
 
   const id = 'bk-' + slug;
@@ -366,4 +388,4 @@ export const CONTEM_REDE_BR: Record<string, string[]> = ${JSON.stringify(contem,
 `;
 
 fs.writeFileSync(SAIDA, ts);
-process.stderr.write(itens.length + ' itens · ' + fora + ' fora (bebida, molho ou sem proteína)\n');
+process.stderr.write(itens.length + ' itens · ' + doces + ' doces · ' + fora + ' fora (bebida, molho, prato de todo mundo ou sem proteína)\n');

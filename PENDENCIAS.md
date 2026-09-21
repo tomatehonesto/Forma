@@ -884,7 +884,7 @@ lactose do que não tem. O mapa por id precisa ser escrito para os
 alimentos americanos que importam.
 
 **d) O fast food brasileiro tem três redes.** Estão
-dentro o McDonald's (97 itens), o Burger King (79) e o Habib's (79), cada
+dentro o McDonald's (54 itens), o Burger King (45) e o Habib's (18), cada
 um com a colheita em `scripts/dados/` e um script que a refaz. As duas que
 faltam não faltam por falta de trabalho:
 
@@ -903,10 +903,21 @@ faltam não faltam por falta de trabalho:
 homus, arroz branco, batata frita e pastel, e nenhum é dela — a tabela
 geral já tem todos, medidos pela Unicamp. Pôr os dois lados criaria uma
 escolha sem resposta entre "Esfiha de carne" e "Habib's Esfiha de carne".
-A régua está no gerador, e é por linha de produto: Bib'Sfiha, Beirute,
-Genius, esfiha folhada e as linhas de sorvete da casa. O McDonald's e o
-Burger King não precisam de régua porque o cardápio inteiro deles já é
-próprio.
+A régua está no gerador, e é por linha de produto: Bib'Sfiha, Beirute e
+Genius. O McDonald's e o Burger King não precisam de régua porque o
+cardápio inteiro deles já é próprio.
+
+**d.1.1) E a prateleira é de salgado.** A sobremesa das três redes ficou
+de fora — 150 itens, contra os 117 que entraram. O cardápio de sobremesa
+de uma rede é quase todo variação da mesma coisa, dezenove sundaes que
+mudam a calda, e três deles juntos enterravam o sanduíche procurado
+debaixo de sabor de sorvete. O que um doce de rede acrescenta ao dia já
+está em "Doces e lanches", na tabela geral; o que só existe na rede é o
+salgado.
+
+A perda que dói é uma: o shake proteico do Burger King, doce pela régua e
+proteína pelo conteúdo. Se tiver de voltar, é tirar "shake" da lista
+`DOCE` no gerador e pôr o nome dele numa exceção.
 
 **d.2) O que as fontes erram, e o que fizemos.** Vale saber, porque volta
 na próxima colheita:

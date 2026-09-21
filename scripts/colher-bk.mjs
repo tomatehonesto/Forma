@@ -165,6 +165,19 @@ for (const [k, grupo] of porFamilia) {
 itens.length = 0;
 itens.push(...sobreviventes);
 
+/* ⚠️ NOME REPETIDO GANHA O PESO, como na colheita do Habib's. O
+   "Chicken Duplo Barbecue Bacon" aparece duas vezes na tabela, com 230 g
+   e com 382 g, e as duas linhas fecham a conta da caloria: são dois
+   produtos que a rede imprimiu com o mesmo nome. Ficar com um esconde o
+   outro; deixar os dois com o mesmo nome põe a pessoa para escolher
+   entre linhas iguais. O peso é publicado, e é o que distingue.
+
+   ⚠️ E ISSO VEM DEPOIS DA CONFERÊNCIA ENTRE TAMANHOS, que agrupa pelo
+   nome: mexer no nome antes desfaria as famílias. */
+const quantos = new Map();
+for (const x of itens) quantos.set(x.nome, (quantos.get(x.nome) ?? 0) + 1);
+for (const x of itens) if (quantos.get(x.nome) > 1) x.nome += " " + x.gramas + " g";
+
 /* ---------- o arquivo ---------- */
 
 const hoje = new Date().toLocaleDateString('pt-BR');
