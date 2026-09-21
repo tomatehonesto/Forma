@@ -17,16 +17,138 @@ export function Txt({ v = 'body', c, style, ...rest }: TxtProps) {
 }
 
 /* Texto com ênfase — parseia marcador <b>..</b> vindo dos insights. */
+/* ============================================================
+   O TEXTO EM LINHA: negrito e termo que leva a algum lugar.
+
+   Sai daqui e do `RichDoc` de baixo, para os dois nunca divergirem — que
+   é o jeito como duas versões do mesmo parser passam a aceitar sintaxes
+   levemente diferentes e ninguém descobre até um texto sair torto.
+
+   ⚠️ O SUBLINHADO SÓ APARECE COM DESTINO. Termo sublinhado que não abre
+   nada é a pior porta emparedada que existe: ela não parece porta de
+   longe, parece porta de perto. Sem `ir`, o mesmo texto renderiza como
+   texto comum. */
+function emLinha(
+  txt: string,
+  v: keyof typeof ty,
+  bold: string | undefined,
+  cor: { accent: string },
+  ir?: (to: string) => void,
+) {
+  const pedacos = txt.split(/(<b>.*?<\/b>|\[[^\]]+\]\([^)]+\))/g).filter(Boolean);
+  return pedacos.map((p, i) => {
+    if (p.startsWith('<b>')) {
+      return (
+        <Text
+          key={i}
+          style={{ color: bold ?? cor.accent, fontFamily: v === 'body' || v === 'bodyMed' ? font.bodySemi : font.bold }}
+        >
+          {p.replace(/<\/?b>/g, '')}
+        </Text>
+      );
+    }
+    const m = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (!m) return <Text key={i}>{p}</Text>;
+    if (!ir) return <Text key={i}>{m[1]}</Text>;
+    return (
+      <Text key={i} onPress={() => ir(m[2])} style={{ textDecorationLine: 'underline' }}>
+        {m[1]}
+      </Text>
+    );
+  });
+}
+
+/* ============================================================
+   RESPOSTA COMO DOCUMENTO, e não como balão.
+
+   ⚠️ A DIFERENÇA ENTRE ESTE E O `Rich` DE BAIXO É A NATUREZA DO QUE ELES
+   MOSTRAM, e é ela que separa as duas telas de conversa do aplicativo.
+
+   Uma mensagem de uma PESSOA é uma fala: curta, sem título, sem lista, e
+   o balão é o desenho certo — ele diz quem falou pela posição e pela cor,
+   e é assim que a conversa com a equipe continua sendo desenhada.
+
+   Uma resposta da IA é um TEXTO: tem manchete, tem parágrafo, tem lista.
+   Enfiar isso num balão de 84% de largura, com o canto mordido embaixo,
+   é vestir um documento de recado — o texto quebra em coluna estreita, a
+   lista não tem onde recuar, e o título fica do tamanho do corpo.
+
+   Sem balão, a resposta ocupa a página e passa a ser lida como o que é.
+   E a tela inteira muda de gênero sem precisar de um só rótulo dizendo
+   "isto aqui é a IA".
+
+   A sintaxe é a menor que dá conta:
+
+     ## Título          uma linha de manchete
+     linha em branco    separa parágrafo
+     - item             marcador
+     <b>negrito</b>     ênfase, como no Rich
+     [termo](/rota)     termo que abre uma tela
+   ============================================================ */
+export function RichDoc({ text, ir, style }: {
+  text: string;
+  /* Sem isto, os termos entre colchetes viram texto comum — ver emLinha. */
+  ir?: (to: string) => void;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const { c } = useTheme();
+  const linhas = text.split('\n');
+  const blocos: React.ReactNode[] = [];
+  let paragrafo: string[] = [];
+
+  const fecharParagrafo = () => {
+    if (!paragrafo.length) return;
+    const t = paragrafo.join(' ');
+    blocos.push(
+      <Text key={`p${blocos.length}`} style={[ty.body, { color: c.tx, lineHeight: 25 }]}>
+        {emLinha(t, 'body', c.tx, c, ir)}
+      </Text>,
+    );
+    paragrafo = [];
+  };
+
+  for (const linha of linhas) {
+    const l = linha.trim();
+    if (!l) { fecharParagrafo(); continue; }
+    if (l.startsWith('## ')) {
+      fecharParagrafo();
+      blocos.push(
+        <Text key={`h${blocos.length}`} style={[ty.bodyMed, { fontFamily: font.bodySemi, color: c.tx, marginTop: blocos.length ? 10 : 0 }]}>
+          {l.slice(3)}
+        </Text>,
+      );
+      continue;
+    }
+    if (l.startsWith('- ')) {
+      fecharParagrafo();
+      blocos.push(
+        <Row key={`b${blocos.length}`} gap={10} style={{ alignItems: 'flex-start' }}>
+          {/* O ponto alinha pela PRIMEIRA LINHA do item, e não pelo meio
+              do bloco: item de duas linhas com o ponto centralizado fica
+              flutuando no vão entre elas. */}
+          <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.tx3, marginTop: 10 }} />
+          <Text style={[ty.body, { color: c.tx, lineHeight: 25, flex: 1 }]}>
+            {emLinha(l.slice(2), 'body', c.tx, c, ir)}
+          </Text>
+        </Row>,
+      );
+      continue;
+    }
+    paragrafo.push(l);
+  }
+  fecharParagrafo();
+
+  return <View style={[{ gap: 12 }, style]}>{blocos}</View>;
+}
+
 export function Rich({ text, v = 'body', base, bold, style }: { text: string; v?: keyof typeof ty; base?: string; bold?: string; style?: StyleProp<TextStyle> }) {
   const { c } = useTheme();
-  const parts = text.split(/(<b>.*?<\/b>)/g).filter(Boolean);
+  /* O mesmo `emLinha` do RichDoc, e sem `ir`: nas telas que usam o Rich não
+     há para onde mandar ninguém, e termo sublinhado sem destino é porta
+     emparedada. */
   return (
     <Text style={[ty[v], { color: base ?? c.tx }, style]}>
-      {parts.map((p, i) =>
-        p.startsWith('<b>')
-          ? <Text key={i} style={{ color: bold ?? c.accent, fontFamily: v === 'body' || v === 'bodyMed' ? font.bodySemi : font.bold }}>{p.replace(/<\/?b>/g, '')}</Text>
-          : <Text key={i}>{p}</Text>
-      )}
+      {emLinha(text, v, bold, c, undefined)}
     </Text>
   );
 }

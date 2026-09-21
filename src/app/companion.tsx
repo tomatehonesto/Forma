@@ -11,7 +11,7 @@ import {
   temConsulta, clinicaConectada, startWeight, variacaoDe,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
-import { Txt, Row, CircleBtn, Rich } from '../ui/kit';
+import { Txt, Row, CircleBtn, RichDoc } from '../ui/kit';
 import { Image } from 'expo-image';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -73,7 +73,28 @@ const SOBREPOSICAO = 36;
    descolaria do desenho exatamente onde ele precisa acompanhar. */
 const ESFERA_BASE_FRACAO = 0.504;
 
-type Msg = { who: 'me' | 'ai'; text: string; mini?: string };
+/* ⚠️ `fonte` É A PROCEDÊNCIA DA RESPOSTA, e ela não é enfeite.
+
+   Cada resposta daqui lê dados reais da pessoa — as pesagens, os
+   check-ins, as aplicações, os exames. Até aqui isso ficava invisível: a
+   frase chegava pronta e podia tanto ter lido o histórico dela quanto ter
+   saído de um texto genérico sobre GLP-1, e quem lê não tinha como saber
+   qual das duas.
+
+   O selo embaixo diz de onde veio, e ABRE a tela onde aquele dado mora —
+   quem não acredita na frase pode ir conferir o número. É a mesma regra
+   que vale para a meta anotada da equipe e para as descobertas da Home:
+   afirmação sobre os dados de alguém anda junto com a origem.
+
+   ⚠️ E É OPCIONAL DE PROPÓSITO. A saudação e a resposta de "não entendi"
+   não leem dado nenhum — pôr um selo nelas seria inventar uma
+   procedência para um texto que não tem. */
+type Msg = {
+  who: 'me' | 'ai';
+  text: string;
+  mini?: string;
+  fonte?: { rotulo: string; to: string };
+};
 
 /* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados reais */
 /* ⚠️ A DRA. HELENA ESTAVA ESCRITA À MÃO AQUI DENTRO.
@@ -95,43 +116,73 @@ function companionReply(S: State, text: string): Msg {
   const med = M(S);
   if (has('evolu', 'progress', 'como estou', 'como vou', 'peso')) {
     const days = diffDays(now(), new Date(S.profile.startT));
-    return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${kg(S.profile.startWeight)} para <b>${kg(curWeight(S))} kg</b> — menos ${kg(lostKg(S))} kg (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, mini: `Ritmo saudável e constante: cerca de ${kg(lostKg(S) / (days / 7))} kg por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
+    return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${kg(S.profile.startWeight)} para <b>${kg(curWeight(S))} kg</b> — menos ${kg(lostKg(S))} kg (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, mini: `Ritmo saudável e constante: cerca de ${kg(lostKg(S) / (days / 7))} kg por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
   }
   if (has('consulta', 'prepar', 'médic', 'doutora', 'helena')) {
-    return { who: 'ai', text: temConsulta(S)
-      ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}:`
-      : `Montei um resumo do seu tratamento para levar na consulta:`, mini: `• Peso: ${kg(curWeight(S))} kg (${variacaoDe(curWeight(S) - startWeight(S), 'kg').delta} / ${nf(Math.abs(lostPct(S)), 1)}%)\n• Dose atual: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}%\n• Sintomas: náusea leve nos dias pós-aplicação, já melhorando\n• Perguntas sugeridas: manter ou ajustar a dose? o platô é esperado? exames a repetir?` };
+    /* ⚠️ ESTA RESPOSTA ERA UMA FRASE E UM BLOCO DE BULLETS À MÃO, com
+       "•" digitados dentro de uma string e \n no meio. Ela sempre foi um
+       documento — só não tinha como ser desenhada como um, porque o
+       balão não sabia o que fazer com uma lista.
+
+       Agora é ela quem mostra o RichDoc inteiro: manchete, lista,
+       segunda manchete. A nota de rodapé fica no `mini`, que continua
+       sendo a voz mais baixa. */
+    return { who: 'ai', fonte: { rotulo: 'Seu tratamento', to: '/resumo-medico' }, text: [
+      temConsulta(S)
+        ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}.`
+        : `Montei um resumo do seu tratamento para levar na consulta.`,
+      '',
+      '## O que levar',
+      `- Peso: <b>${kg(curWeight(S))} kg</b> (${variacaoDe(curWeight(S) - startWeight(S), 'kg').delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`,
+      `- Dose: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)`,
+      '- Sintomas: náusea leve nos dias pós-aplicação, já melhorando',
+      '',
+      '## Perguntas que valem a pena',
+      '- Manter ou ajustar a dose?',
+      '- O ritmo está dentro do esperado para esta fase?',
+      '- Há exame a repetir antes da próxima consulta?',
+    ].join('\n'), mini: `Levo isso organizado, mas quem lê os seus números é ${quemAcompanha || 'quem acompanha você'}.` };
   }
   if (has('fome', 'saciedade', 'vontade de comer')) {
     const hf = hungerForecast(S);
-    return { who: 'ai', text: `A fome acompanha o nível da ${med.mol.toLowerCase()} no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
+    return { who: 'ai', text: `A fome acompanha o nível da ${med.mol.toLowerCase()} no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
   }
   if (has('náusea', 'nausea', 'enjoo', 'enjôo', 'mal estar', 'sintoma')) {
-    return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
+    return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, fonte: { rotulo: 'Seus sintomas', to: '/sintomas' }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
   }
   if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta')) {
     const nd = nextInjectionDate(S); const li = lastInjection(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
+    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
-    return { who: 'ai', text: `Hoje você registrou <b>${litros(waterMlToday(S))} de ${litros((S.profile as any).targets.waterMl)} L</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
+    return { who: 'ai', text: `Hoje você registrou <b>${litros(waterMlToday(S))} de ${litros((S.profile as any).targets.waterMl)} L</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
   }
   if (has('proteína', 'proteina')) {
-    return { who: 'ai', text: `Proteína é uma das suas metas — e você vem cumprindo bem. Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, mini: `Média recente perto de 90 g/dia. Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
+    return { who: 'ai', text: `Proteína é uma das suas metas — e você vem cumprindo bem. Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini: `Média recente perto de 90 g/dia. Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
   }
   if (has('meta', 'objetivo', 'jeans', 'roupa', 'energia', 'dormir', 'sono')) {
-    return { who: 'ai', text: `Suas metas vão além do peso, e é assim que deve ser. Sono e energia estão sendo acompanhados nos seus check-ins, e o peso segue uma tendência constante. Transformação é o conjunto, não só a balança.`, mini: `Quer adicionar uma nova meta, além da balança? Posso te levar até lá.` };
+    return { who: 'ai', text: `Suas metas vão além do peso, e é assim que deve ser. Sono e energia estão sendo acompanhados nos seus check-ins, e o peso segue uma tendência constante. Transformação é o conjunto, não só a balança.`, fonte: { rotulo: 'Suas metas', to: '/metas' }, mini: `Quer adicionar uma nova meta, além da balança? Posso te levar até lá.` };
   }
   if (has('exame', 'hba1c', 'colesterol', 'glicemia', 'ldl', 'hdl', 'triglic', 'vitamina', 'ferritina', 'tsh', 'insulina', 'creatinina')) {
-    return { who: 'ai', text: `Seus exames vêm melhorando junto com o tratamento. Destaques: <b>HbA1c 6,3 → 5,6%</b>, LDL e triglicerídeos em queda, HDL e vitamina D em alta.`, mini: `Posso abrir um marcador específico e explicar o que ele significa — é só ir em Exames. Não substituo a leitura da sua médica.` };
+    /* Os marcadores viram termos que abrem a tela deles. É o que o
+       sublinhado promete na referência, e aqui ele só existe porque o
+       destino existe: /exames?m=X abre o marcador. */
+    return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: [
+      'Seus exames vêm melhorando junto com o tratamento.',
+      '',
+      '## Os que mais mudaram',
+      '- [HbA1c](/exames?m=HbA1c): <b>6,3 → 5,6%</b>, fora da faixa de risco',
+      '- [LDL](/exames?m=LDL) e [triglicerídeos](/exames?m=Triglicerídeos): em queda',
+      '- [HDL](/exames?m=HDL) e [vitamina D](/exames?m=Vitamina D): em alta',
+    ].join('\n'), mini: `Toque num marcador para ver a linha dele e o que ele significa. Não substituo a leitura da sua médica.` };
   }
   if (has('medicament', 'remédio', 'remedio', 'tirzep', 'semaglut', 'bula', 'como funciona')) {
-    return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com ${quemAcompanha || 'quem acompanha você'}.` };
+    return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, fonte: { rotulo: 'Sua medicação', to: '/protocolo' }, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com ${quemAcompanha || 'quem acompanha você'}.` };
   }
   if (has('protocolo', 'missão', 'missao', 'tarefa', 'checklist')) {
     const p = S.protocol, done = p.tasks.filter((x: any) => x.done).length;
     const next = p.tasks.find((x: any) => !x.done);
-    return { who: 'ai', text: `No protocolo da <b>semana ${p.week}</b> você concluiu ${done} de ${p.tasks.length} itens. ${next ? `Falta: ${next.t}.` : 'Tudo em dia.'}`, mini: `Quer que eu te lembre das tarefas ao longo da semana?` };
+    return { who: 'ai', text: `No protocolo da <b>semana ${p.week}</b> você concluiu ${done} de ${p.tasks.length} itens. ${next ? `Falta: ${next.t}.` : 'Tudo em dia.'}`, fonte: { rotulo: 'Seu protocolo', to: '/protocolo' }, mini: `Quer que eu te lembre das tarefas ao longo da semana?` };
   }
   if (has('oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'obrigad', 'valeu')) {
     return { who: 'ai', text: `Tô aqui com você. Pode me perguntar sobre sua evolução, sintomas, exames, a próxima dose ou a consulta — o que fizer sua semana mais leve.` };
@@ -314,25 +365,57 @@ export default function Companion() {
               <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 21 }}>{m.text}</Txt>
             </View>
           ) : (
-            /* O balão dele perdeu o contorno e o avatar repetido.
+            /* ⚠️⚠️ A RESPOSTA PERDEU O BALÃO, e esta é a mudança que separa
+               esta tela da conversa com a equipe.
 
-               O contorno cinza era borda em volta de superfície, contra o
-               princípio 4 — branco sobre #F5F6FA já separa. E o avatar de
-               30 px em cada resposta repetia a cada balão uma informação
-               que o lado da tela já dá: o que está à esquerda é dele.
+               O balão foi encolhendo aqui por partes — perdeu o contorno,
+               perdeu o avatar repetido, ganhou 94% de largura — e cada
+               passo foi na mesma direção sem chegar no fim dela. O fim é
+               este: a resposta da IA não é uma fala, é um TEXTO. Tem
+               manchete, tem parágrafo, tem lista.
 
-               Sem os dois, o balão ganha a largura toda e o texto longo —
-               que é o que ele produz — deixa de quebrar em coluna estreita. */
-            <View key={i} style={{ maxWidth: '94%', backgroundColor: c.bg1, borderRadius: radius.lg, borderBottomLeftRadius: 6, paddingHorizontal: 16, paddingVertical: 14 }}>
-              <Rich v="bodyMed" base={c.tx} bold={c.accent2} style={{ lineHeight: 22 }} text={m.text} />
+               Balão é o desenho certo para uma pessoa falando: diz quem é
+               pela posição e pela cor, e uma frase de duas linhas cabe
+               nele sem esforço. É por isso que a conversa com a equipe,
+               em /conversa, continua com balões dos dois lados — lá são
+               duas pessoas.
+
+               Aqui o balão vestia um documento de recado: a lista não
+               tinha onde recuar, o título ficava do tamanho do corpo, e
+               o texto longo quebrava numa coluna estreita com o canto
+               mordido embaixo. Sem ele, a resposta ocupa a página e passa
+               a ser lida como o que é — e a tela inteira muda de gênero
+               sem precisar de um rótulo dizendo "isto aqui é a IA".
+
+               A pergunta DELA continua em balão, e isso não é descuido:
+               ela é uma fala, curta, de uma pessoa. O contraste entre os
+               dois lados passou a ser o assunto em vez de ser decoração. */
+            <View key={i} style={{ alignSelf: 'stretch', gap: 12 }}>
+              <RichDoc text={m.text} ir={(to) => router.push(to as any)} />
+
               {!!m.mini && (
                 /* A nota de apoio em fundo tingido, separada por espaço e
                    não por fio: é a mesma fala continuando em voz mais
                    baixa, não outro assunto. */
-                <View style={{ marginTop: 12, backgroundColor: c.bg2, borderRadius: radius.md, padding: 13 }}>
+                <View style={{ backgroundColor: c.bg1, borderRadius: radius.md, padding: 13 }}>
                   <Txt v="caption" c={c.tx2} style={{ lineHeight: 20 }}>{m.mini}</Txt>
                 </View>
               )}
+
+              {/* ⚠️ O SELO DA PROCEDÊNCIA, e ele é tocável. Dizer "li as
+                  suas pesagens" e não deixar a pessoa ir ver as pesagens
+                  é pedir confiança sem oferecer conferência. */}
+              {m.fonte ? (
+                <Pressable
+                  onPress={() => router.push(m.fonte!.to as any)}
+                  style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Row gap={7} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingLeft: 10, paddingRight: 12, paddingVertical: 6 }}>
+                    <Icon name="aura" size={13} color={c.accent} sw={1.9} />
+                    <Txt v="micro" c={c.tx2}>{m.fonte.rotulo}</Txt>
+                  </Row>
+                </Pressable>
+              ) : null}
             </View>
           ))}
 
