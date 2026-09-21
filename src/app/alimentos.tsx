@@ -51,7 +51,7 @@ export default function Alimentos() {
   const [semFiltro, setSemFiltro] = useState(false);
   const filtraRestricao = restricoes.length > 0 && !semFiltro;
   const nomesDaRestricao = restricoes
-    .map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x)
+    .map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x)
     .join(', ');
 
 

@@ -1,4 +1,5 @@
 import { RECIPIENTES_IMP, type Sistema } from './medidas';
+import { T } from '../textos';
 /* ============================================================
    O QUE CONTA COMO HIDRATAÇÃO
 
@@ -65,9 +66,19 @@ export const MEDIDAS_PADRAO: [string, number][] = [
   ['Garrafão', 1000],
 ];
 
-export const BEBIDAS: Bebida[] = [
-  { id: 'agua', nome: 'Água', ic: 'water', conta: true },
-  { id: 'cafe', nome: 'Café', ic: 'coffee', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
+/* ⚠️ É FUNÇÃO, E NÃO CONSTANTE, porque lê o catálogo. Constante de
+   módulo é avaliada no import e congelaria o idioma. Ver src/textos.
+
+   ⚠️ E O QUE NÃO VEM DO CATÁLOGO: o \`id\`, que é o que fica gravado; o
+   \`ic\`, que é desenho; o \`conta\`, que é decisão de fisiologia; e os
+   MILILITROS de cada recipiente, que são medida e não palavra — uma
+   xícara tem 150 ml em qualquer idioma. */
+export const BEBIDAS = (): Bebida[] => {
+  const t = T.alimentacao.bebidas;
+  const r = t.recipientes;
+  return [
+  { id: 'agua', nome: t.agua, ic: 'water', conta: true },
+  { id: 'cafe', nome: t.cafe, ic: 'coffee', conta: true, medidas: [[r.xicara, 150], [r.caneca, 300], [r.garrafa, 500]] },
   /* O PINGADO CONTA O LEITE QUE TEM DENTRO.
 
      Metade e metade é a proporção do café com leite de padaria, e é
@@ -76,19 +87,19 @@ export const BEBIDAS: Bebida[] = [
      forte ou mais fraco corrige a refeição depois — o que não dava para
      fazer antes era registrar o leite sem escrever tudo duas vezes. */
   {
-    id: 'cafe-leite', nome: 'Café com leite', ic: 'coffee', conta: true,
+    id: 'cafe-leite', nome: t.cafeLeite, ic: 'coffee', conta: true,
     item: 'leite', fracao: 0.5,
-    medidas: [['Xícara', 150], ['Caneca', 300], ['Copo', 250]],
+    medidas: [[r.xicara, 150], [r.caneca, 300], [r.copo, 250]],
   },
-  { id: 'cha', nome: 'Chá', ic: 'leaf', conta: true, medidas: [['Xícara', 150], ['Caneca', 300], ['Garrafa', 500]] },
-  { id: 'coco', nome: 'Água de coco', ic: 'drop2', conta: true, medidas: [['Copo', 250], ['Caixinha', 200], ['Garrafa', 500]] },
+  { id: 'cha', nome: t.cha, ic: 'leaf', conta: true, medidas: [[r.xicara, 150], [r.caneca, 300], [r.garrafa, 500]] },
+  { id: 'coco', nome: t.coco, ic: 'drop2', conta: true, medidas: [[r.copo, 250], [r.caixinha, 200], [r.garrafa, 500]] },
   /* O leite e o suco TAMBÉM SÃO COMIDA, e o volume responde por eles:
      250 ml de leite têm a proteína e a caloria que a tabela diz que 250
      ml de leite têm. Por isso eles trazem o id do alimento — o registro
      de um vira registro dos dois, e a pessoa não escreve nada duas
      vezes. */
-  { id: 'leite', nome: 'Leite', ic: 'milk', conta: true, item: 'leite', medidas: [['Copo', 250], ['Caneca', 300], ['Garrafa', 500]] },
-  { id: 'suco', nome: 'Suco', ic: 'citrus', conta: true, item: 'suco-laranja', medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 500]] },
+  { id: 'leite', nome: t.leite, ic: 'milk', conta: true, item: 'leite', medidas: [[r.copo, 250], [r.caneca, 300], [r.garrafa, 500]] },
+  { id: 'suco', nome: t.suco, ic: 'citrus', conta: true, item: 'suco-laranja', medidas: [[r.copo, 250], [r.lata, 350], [r.garrafa, 500]] },
   /* O SHAKE PRECISA DE UM SEGUNDO CAMPO, e é o único que precisa.
 
      A proteína dele não se deduz do volume: 300 ml com uma dose dão 24 g
@@ -97,28 +108,29 @@ export const BEBIDAS: Bebida[] = [
      que o resto do app usa, onde um scoop são 30 g de whey. */
   {
     id: 'shake',
-    nome: 'Shake ou whey',
+    nome: t.shake,
     ic: 'shaker',
     conta: true,
     porDose: 'whey',
-    medidas: [['Copo', 250], ['Coqueteleira', 400], ['Garrafa', 500]],
+    medidas: [[r.copo, 250], [r.coqueteleira, 400], [r.garrafa, 500]],
   },
-  { id: 'refri', nome: 'Refrigerante', ic: 'soda', conta: true, medidas: [['Copo', 250], ['Lata', 350], ['Garrafa', 600]] },
+  { id: 'refri', nome: t.refri, ic: 'soda', conta: true, medidas: [[r.copo, 250], [r.lata, 350], [r.garrafa, 600]] },
   {
     id: 'alcool',
-    nome: 'Bebida alcoólica',
+    nome: t.alcool,
     ic: 'wine',
     conta: false,
-    medidas: [['Taça', 150], ['Lata', 350], ['Long neck', 355]],
-    nota: 'Fica registrada, mas não entra no total: o álcool faz o corpo devolver mais líquido do que recebeu.',
+    medidas: [[r.taca, 150], [r.lata, 350], [r.longNeck, 355]],
+    nota: t.notaAlcool,
   },
   /* OUTRO EXISTE PORQUE A LISTA NUNCA VAI ESTAR COMPLETA. Kombucha,
      isotônico, caldo de cana, o suco que a avó fez. O líquido conta —
      é o que essa tela mede —, e o que a pessoa escreveu fica no diário
      no lugar do nome genérico. O que o app não faz é adivinhar o que
      tem dentro. */
-  { id: 'outro', nome: 'Outro', ic: 'more', conta: true, livre: true },
-];
+  { id: 'outro', nome: t.outro, ic: 'more', conta: true, livre: true },
+  ];
+};
 
 /* ÁGUA É O PADRÃO, e é o que todo registro antigo é.
 
@@ -127,7 +139,8 @@ export const BEBIDAS: Bebida[] = [
 export const BEBIDA_PADRAO = 'agua';
 
 export function bebidaDe(id?: string | null): Bebida {
-  return BEBIDAS.find((b) => b.id === id) ?? BEBIDAS[0];
+  const todas = BEBIDAS();
+  return todas.find((b) => b.id === id) ?? todas[0];
 }
 
 /* ⚠️ OS RECIPIENTES NÃO SE CONVERTEM — TROCAM. Copo, garrafa e garrafão

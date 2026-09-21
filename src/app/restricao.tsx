@@ -58,7 +58,7 @@ export default function Restricao() {
 
       <Bloco>
         <Cartao>
-          {RESTRICOES.map((x) => (
+          {RESTRICOES().map((x) => (
             <Row key={x.id} style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
               <View style={{ flex: 1 }}>
                 <Txt v="body">{x.titulo}</Txt>

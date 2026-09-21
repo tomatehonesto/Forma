@@ -4,6 +4,7 @@ import { listaPt, metasDoDia, diaDaRefeicao } from './derive';
 import { nutrientesDe, gramasItem, MOMENTOS, type ItemComida } from './prato';
 import { DAY, now, startOfDay } from './time';
 import { fontesDeProteina } from './restricoes';
+import { T } from '../textos';
 
 /* ============================================================
    O QUE DÁ PARA NOTAR NA ROTINA
@@ -75,6 +76,9 @@ const itensDe = (m: any): ItemComida[] => (m.itens || []) as ItemComida[];
 const CORREDOR_VERDE = ['Verduras e legumes'];
 
 export function conselhosDaRotina(S: State): Conselho[] {
+  /* ⚠️ LIDO DENTRO DA FUNÇÃO, e não no topo do módulo: uma constante de
+     módulo congelaria o idioma do primeiro import. */
+  const K = T.alimentacao.conselhos;
   const dias = diasComRegistro(S);
   if (dias.length < MINIMO_DE_DIAS) return [];
 
@@ -97,18 +101,18 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'fibra',
         ic: 'gut',
         bom: false,
-        q: 'Como eu aumento a fibra do meu dia sem enjoar da comida?',
-        titulo: `Fibra: ${media} g por dia`,
-        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. Feijão, aveia, folhas e frutas com casca são o caminho mais curto — e é a fibra que ajuda com o intestino preso, dos efeitos colaterais mais comuns do tratamento.`,
+        q: K.fibraQ,
+        titulo: K.fibraTitulo(media),
+        texto: K.fibraTexto(comConta.length, metas.fibra),
       });
     } else if (media >= metas.fibra) {
       fora.push({
         id: 'fibra',
         ic: 'gut',
         bom: true,
-        q: 'O que a fibra muda no meu tratamento?',
-        titulo: `Fibra: ${media} g por dia, acima da meta`,
-        texto: `É a sua média nos últimos ${comConta.length} dias registrados, contra uma meta de ${metas.fibra} g. É o que costuma segurar o intestino preso do tratamento — vale manter do jeito que está.`,
+        q: K.fibraBoaQ,
+        titulo: K.fibraBoaTitulo(media),
+        texto: K.fibraBoaTexto(comConta.length, metas.fibra),
       });
     }
   }
@@ -145,18 +149,18 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'momento-fraco',
         ic: pior.ic,
         bom: false,
-        q: `O que eu posso comer no ${pior.nome.toLowerCase()} para ter mais proteína?`,
-        titulo: `${pior.nome}: ${pior.media} g de proteína, na média`,
-        texto: `É o seu momento mais leve em proteína — o ${melhor.nome.toLowerCase()} vem com ${melhor.media} g. Dentro do que você come, quem mais entrega proteína por caloria é ${listaPt(fontes)}.`,
+        q: K.momentoFracoQ(pior.nome),
+        titulo: K.momentoFracoTitulo(pior.nome, pior.media),
+        texto: K.momentoFracoTexto(melhor.nome, melhor.media, listaPt(fontes)),
       });
     } else if (melhor.media >= cota) {
       fora.push({
         id: 'momento-forte',
         ic: melhor.ic,
         bom: true,
-        q: 'Por que a proteína importa tanto neste tratamento?',
-        titulo: `${melhor.nome}: ${melhor.media} g de proteína, na média`,
-        texto: 'É o momento que mais sustenta a sua meta do dia. Repetir o que já funciona ali é mais fácil do que consertar outro.',
+        q: K.momentoForteQ,
+        titulo: K.momentoForteTitulo(melhor.nome, melhor.media),
+        texto: K.momentoForteTexto,
       });
     }
   }
@@ -175,9 +179,9 @@ export function conselhosDaRotina(S: State): Conselho[] {
         id: 'verde',
         ic: 'leaf',
         bom: false,
-        q: 'Que verduras e legumes combinam com o que eu já costumo comer?',
-        titulo: `Verduras e legumes em ${verdes.length} de ${comItens.length} dias registrados`,
-        texto: 'Uma salada ou um legume no almoço enche o prato com pouca caloria — ajuda a chegar no fim da refeição satisfeita sem gastar o dia, e traz a fibra junto.',
+        q: K.verdeQ,
+        titulo: K.verdeTitulo(verdes.length, comItens.length),
+        texto: K.verdeTexto,
       });
     }
   }

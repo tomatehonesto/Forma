@@ -1,3 +1,5 @@
+import { T } from '../textos';
+
 /* ============================================================
    AS FONTES — de onde saem os números que o app afirma
 
@@ -49,7 +51,17 @@ export type Fonte = {
    funcionam para quem já conhece a sigla — numa seção que existe para
    dizer de onde vem o número, a sigla é a única parte que pode não ser
    entendida. A exceção é OMS, que no Brasil se lê como palavra. */
-export const FONTES: Fonte[] = [
+/* ⚠️ É FUNÇÃO, E NÃO CONSTANTE, porque lê o catálogo — constante de
+   módulo congelaria o idioma no import. Ver src/textos.
+
+   ⚠️ E QUASE NADA AQUI VEM DO CATÁLOGO: título de artigo, URL, ano e
+   nome de periódico são dados da citação, e traduzi-los tornaria o
+   trabalho impossível de achar. Passam por lá só as duas frases que
+   são nossas — o que o trabalho sustenta e o nome de quem publicou,
+   quando ele se diz em português. */
+export const FONTES = (): Fonte[] => {
+  const t = T.fontes;
+  return [
   /* A ÚNICA FONTE QUE NÃO SUSTENTA UM NÚMERO, E SIM O DESENHO INTEIRO.
 
      As outras respondem por uma conta — a faixa de IMC, o piso de
@@ -67,31 +79,31 @@ export const FONTES: Fonte[] = [
      São as quatro telas de hábito deste app, escritas por outra pessoa. */
   {
     id: 'desenho',
-    sustenta: 'O que este aplicativo acompanha: proteína, movimento, água e sintomas',
+    sustenta: t.sustenta.acompanha,
     /* NO SELO, SÓ "HARVARD". O nome inteiro da escola é o correto na
        citação, e por isso ele está em `onde` — mas numa pastilha ele
        ocupa duas linhas para acrescentar o que ninguém estava em dúvida.
        Quem reconhece, reconhece pela primeira palavra. */
     sigla: 'Harvard',
     titulo: 'Diet, exercise still important when taking weight-loss medication',
-    onde: 'Harvard T.H. Chan School of Public Health, sobre dois artigos do JAMA Internal Medicine',
+    onde: t.onde.harvard,
     ano: 2025,
     url: 'https://hsph.harvard.edu/news/diet-exercise-still-important-when-taking-weight-loss-medication/',
   },
   {
     id: 'imc',
-    sustenta: 'As faixas de IMC',
+    sustenta: t.sustenta.imc,
     /* A ÚNICA SIGLA QUE FICA. "OMS" é lida como palavra no Brasil — ninguém
        precisa expandir —, e ela é curta o bastante para caber ao lado dos
        nomes longos sem empurrar ninguém para outra linha. */
-    sigla: 'OMS',
+    sigla: t.siglaOms,
     titulo: 'Body mass index among adults',
-    onde: 'Organização Mundial da Saúde',
+    onde: t.onde.oms,
     url: 'https://www.who.int/data/gho/data/themes/topics/indicator-groups/indicator-group-details/GHO/bmi-among-adults',
   },
   {
     id: 'plato',
-    sustenta: 'Quando a perda costuma estabilizar',
+    sustenta: t.sustenta.plato,
     sigla: 'Clinical Obesity',
     titulo: 'Time to weight plateau with tirzepatide treatment in the SURMOUNT-1 and SURMOUNT-4 clinical trials',
     onde: 'Clinical Obesity',
@@ -100,7 +112,7 @@ export const FONTES: Fonte[] = [
   },
   {
     id: 'proteina',
-    sustenta: 'A meta de proteína por quilo de peso',
+    sustenta: t.sustenta.proteina,
     sigla: 'Metabolites',
     titulo: 'Lean Mass and Musculoskeletal Preservation in GLP-1-Based Obesity Treatment',
     onde: 'Metabolites',
@@ -108,15 +120,15 @@ export const FONTES: Fonte[] = [
   },
   {
     id: 'ritmo',
-    sustenta: 'O ritmo seguro de perda e o piso de calorias',
-    sigla: 'National Health Service - UK',
+    sustenta: t.sustenta.ritmo,
+    sigla: t.siglaNhs,
     titulo: 'Calories and weight loss · Better Health',
-    onde: 'NHS — serviço público de saúde do Reino Unido',
+    onde: t.onde.nhs,
     url: 'https://www.nhs.uk/better-health/lose-weight/calorie-counting/',
   },
   {
     id: 'curva',
-    sustenta: 'A forma da curva: rápida no começo, afrouxando depois',
+    sustenta: t.sustenta.curva,
     sigla: 'New England Journal of Medicine',
     titulo: 'Once-Weekly Semaglutide in Adults with Overweight or Obesity (STEP 1)',
     onde: 'New England Journal of Medicine',
@@ -125,7 +137,7 @@ export const FONTES: Fonte[] = [
   },
   {
     id: 'agua',
-    sustenta: 'A meta de água por quilo, e a variação por idade',
+    sustenta: t.sustenta.agua,
     /* O SELO É QUEM PUBLICOU, e não onde o resumo está hospedado. O selo
        dizia "PubMed", que é o índice da biblioteca de medicina dos Estados
        Unidos — citar PubMed como fonte é como citar a estante em vez do
@@ -138,7 +150,7 @@ export const FONTES: Fonte[] = [
   },
   {
     id: 'fibra',
-    sustenta: 'A meta de fibra por mil quilocalorias',
+    sustenta: t.sustenta.fibra,
     sigla: 'Academy of Nutrition and Dietetics',
     titulo: 'Position of the Academy of Nutrition and Dietetics: Health Implications of Dietary Fiber',
     onde: 'Journal of the Academy of Nutrition and Dietetics',
@@ -147,15 +159,15 @@ export const FONTES: Fonte[] = [
   },
   {
     id: 'energia',
-    sustenta: 'A estimativa de gasto do dia (Mifflin-St Jeor)',
+    sustenta: t.sustenta.gasto,
     sigla: 'Academy of Nutrition and Dietetics',
-    titulo: 'Mifflin-St Jeor: equação de gasto energético de repouso, na análise de evidência da Academy',
+    titulo: t.tituloMifflin,
     onde: 'Academy of Nutrition and Dietetics',
     url: 'https://www.andeal.org/template.cfm?template=guide_summary&key=4341',
   },
   {
     id: 'energia2',
-    sustenta: 'A escolha desta equação entre as disponíveis',
+    sustenta: t.sustenta.equacao,
     /* A MESMA CASA DO SELO ANTERIOR: JADA é o periódico da Academy of
        Nutrition and Dietetics, e dois selos para a mesma instituição lado
        a lado parecem duas fontes onde existe uma. */
@@ -165,4 +177,5 @@ export const FONTES: Fonte[] = [
     ano: 2005,
     url: 'https://www.jandonline.org/article/S0002-8223(05)00149-5/abstract',
   },
-];
+  ];
+};

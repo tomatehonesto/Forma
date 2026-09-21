@@ -2073,7 +2073,7 @@ export default function Cadastro() {
               on={r.restricoes.length === 0}
               onPress={() => p({ restricoes: [] })}
             />
-            {RESTRICOES.map((x) => (
+            {RESTRICOES().map((x) => (
               <Escolha
                 key={x.id} cheia titulo={x.titulo} sub={x.sub}
                 on={r.restricoes.includes(x.id)}

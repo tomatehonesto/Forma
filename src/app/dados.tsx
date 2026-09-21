@@ -75,7 +75,7 @@ export default function Dados() {
   const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
   const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])
-    .map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x)
+    .map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x)
     .join(', ') || 'Nenhuma';
 
   return (

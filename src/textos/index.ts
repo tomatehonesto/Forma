@@ -1,4 +1,5 @@
 import { localAtual, type Local } from '../logic/local';
+import { alimentacao as alimentacaoPt } from './pt-BR/alimentacao';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
@@ -9,12 +10,14 @@ import { home as homePt } from './pt-BR/home';
 import { escalas as escalasPt } from './pt-BR/escalas';
 import { etapa as etapaPt } from './pt-BR/etapa';
 import { exames as examesPt } from './pt-BR/exames';
+import { fontes as fontesPt } from './pt-BR/fontes';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
 import { rotina as rotinaPt } from './pt-BR/rotina';
 import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
+import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
@@ -25,6 +28,7 @@ import { home as homeEn } from './en-US/home';
 import { escalas as escalasEn } from './en-US/escalas';
 import { etapa as etapaEn } from './en-US/etapa';
 import { exames as examesEn } from './en-US/exames';
+import { fontes as fontesEn } from './en-US/fontes';
 import { marcadores as marcadoresEn } from './en-US/marcadores';
 import { metas as metasEn } from './en-US/metas';
 import { rotina as rotinaEn } from './en-US/rotina';
@@ -82,6 +86,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    É a garantia que nenhum arquivo de JSON dá: lá, uma chave esquecida só
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
+  alimentacao: typeof alimentacaoPt;
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
   comum: typeof comumPt;
@@ -92,6 +97,7 @@ export type Textos = {
   escalas: typeof escalasPt;
   etapa: typeof etapaPt;
   exames: typeof examesPt;
+  fontes: typeof fontesPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
   rotina: typeof rotinaPt;
@@ -109,16 +115,18 @@ export type Textos = {
    dá — lá, chave esquecida vira texto faltando na tela de alguém. */
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
+    alimentacao: alimentacaoPt,
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
-    exames: examesPt, home: homePt,
+    exames: examesPt, fontes: fontesPt, home: homePt,
     marcadores: marcadoresPt, metas: metasPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
+    alimentacao: alimentacaoEn,
     ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
-    exames: examesEn, home: homeEn,
+    exames: examesEn, fontes: fontesEn, home: homeEn,
     marcadores: marcadoresEn, metas: metasEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,
   },

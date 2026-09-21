@@ -1,5 +1,6 @@
 import { ALIMENTOS, type Alimento } from './alimentos';
 import { CONTEM_REDE_BR } from './alimentos-rede-br';
+import { T } from '../textos';
 
 /* ============================================================
    O QUE A PESSOA NÃO COME
@@ -48,14 +49,25 @@ export type Restricao = {
   tira: Ingrediente[];
 };
 
-export const RESTRICOES: Restricao[] = [
-  { id: 'vegetariano', titulo: 'Vegetariano', sub: 'Sem carne, frango ou peixe. Ovo e laticínio continuam.', tira: ['carne', 'ave', 'peixe'] },
-  { id: 'vegano', titulo: 'Vegano', sub: 'Nada de origem animal: carne, peixe, ovo, leite e queijo ficam fora.', tira: ['carne', 'ave', 'peixe', 'ovo', 'leite'] },
-  { id: 'sem-lactose', titulo: 'Sem lactose', sub: 'Leite, queijo e derivados ficam fora — por intolerância ou alergia.', tira: ['leite'] },
-  { id: 'sem-ovo', titulo: 'Sem ovo', sub: 'Ovo e os pratos que levam ovo ficam fora.', tira: ['ovo'] },
-  { id: 'sem-peixe', titulo: 'Sem peixe e frutos do mar', sub: 'Peixe, camarão e frutos do mar ficam fora.', tira: ['peixe'] },
-  { id: 'sem-carne-vermelha', titulo: 'Sem carne vermelha', sub: 'Boi e porco ficam fora. Frango e peixe continuam.', tira: ['carne'] },
-];
+/* ⚠️ É FUNÇÃO, E NÃO CONSTANTE, porque lê o catálogo: constante de
+   módulo é avaliada no import e congelaria o primeiro idioma que o
+   aplicativo viu. Ver src/textos/README — foi assim que o rodízio de
+   locais de aplicação sumiu da tela sem nenhum erro.
+
+   ⚠️ E O `tira` NÃO VEM DO CATÁLOGO. Quais ingredientes cada restrição
+   remove do prato é conteúdo, não idioma: um vegano é a mesma pessoa em
+   qualquer língua. */
+export const RESTRICOES = (): Restricao[] => {
+  const t = T.alimentacao.restricoes;
+  return [
+    { id: 'vegetariano', titulo: t.vegetariano, sub: t.vegetarianoSub, tira: ['carne', 'ave', 'peixe'] },
+    { id: 'vegano', titulo: t.vegano, sub: t.veganoSub, tira: ['carne', 'ave', 'peixe', 'ovo', 'leite'] },
+    { id: 'sem-lactose', titulo: t.semLactose, sub: t.semLactoseSub, tira: ['leite'] },
+    { id: 'sem-ovo', titulo: t.semOvo, sub: t.semOvoSub, tira: ['ovo'] },
+    { id: 'sem-peixe', titulo: t.semPeixe, sub: t.semPeixeSub, tira: ['peixe'] },
+    { id: 'sem-carne-vermelha', titulo: t.semCarneVermelha, sub: t.semCarneVermelhaSub, tira: ['carne'] },
+  ];
+};
 
 /* O QUE ESTA LISTA É, E O QUE ELA NÃO É.
 
@@ -232,7 +244,7 @@ export function contemDe(a: Alimento): Ingrediente[] {
 /** O que as restrições escolhidas tiram do prato, somadas. */
 export function tiradosPor(ids: string[]): Ingrediente[] {
   const fora = new Set<Ingrediente>();
-  for (const id of ids) for (const i of RESTRICOES.find((r) => r.id === id)?.tira ?? []) fora.add(i);
+  for (const id of ids) for (const i of RESTRICOES().find((r) => r.id === id)?.tira ?? []) fora.add(i);
   return [...fora];
 }
 

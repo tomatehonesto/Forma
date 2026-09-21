@@ -148,7 +148,7 @@ export default function MedirAgua() {
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7, gap: 12 }}>
         <Txt v="caption" c={c.tx3}>O que você bebeu</Txt>
         <Row style={{ flexWrap: 'wrap', gap: 7 }}>
-          {BEBIDAS.map((b) => {
+          {BEBIDAS().map((b) => {
             const on = b.id === bebida.id;
             return (
               <Pressable key={b.id} onPress={() => setBebidaId(b.id)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>

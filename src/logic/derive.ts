@@ -693,7 +693,20 @@ export function milestones(S: State): Milestone[] {
   S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: K.consulta(ch.type.toLowerCase()), sub: ch.note, to: '/consultas' }));
   S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: K.marcadoresImportados(b.n), to: '/exames' }));
   marcosDeConquista(S).forEach((a) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc, to: `/trilha?id=${a.trilha}` }));
-  out.sort((a, b) => b.t - a.t);
+  /* ⚠️⚠️ O DESEMPATE É OBRIGATÓRIO, e a falta dele fazia a lista mudar de
+     ordem entre duas leituras seguidas. Dois marcos podem nascer com o
+     mesmo instante — ou com um milissegundo de diferença, que é o que
+     acontece quando cada um deles pergunta as horas por conta própria —,
+     e aí o que decide quem vem primeiro é o acaso da corrida.
+
+     Foi a rede de congelamento que mostrou: duas execuções do MESMO
+     código, segundos uma da outra, com dois marcos trocados de lugar. Na
+     tela isso é a lista de conquistas se reordenando sozinha entre duas
+     aberturas; na rede, é alarme falso — e rede que dá alarme falso
+     deixa de ser lida.
+
+     O título desempata porque é estável e não depende de relógio. */
+  out.sort((a, b) => b.t - a.t || a.title.localeCompare(b.title, 'pt-BR'));
   return out;
 }
 

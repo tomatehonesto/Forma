@@ -248,7 +248,8 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
      A deduplição continua: a Academy of Nutrition and Dietetics sustenta
      três contas, e o nome dela três vezes lado a lado parece erro de
      montagem. */
-  const SELOS = FONTES.filter((x, i) => FONTES.findIndex((y) => y.sigla === x.sigla) === i);
+  const fontes = FONTES();
+  const SELOS = fontes.filter((x, i) => fontes.findIndex((y) => y.sigla === x.sigla) === i);
   const AJUDA: [string, string, string][] = [
     ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da dose, sem você contar'],
     ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],

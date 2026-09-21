@@ -532,7 +532,7 @@ export default function Alimentacao() {
             ic="leaf"
             titulo="Restrições alimentares"
             sub={restricoes.length
-              ? restricoes.map((x) => RESTRICOES.find((y) => y.id === x)?.titulo ?? x).join(', ')
+              ? restricoes.map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x).join(', ')
               : 'Nenhuma restrição'}
             onPress={() => router.push('/restricao' as any)}
           />
