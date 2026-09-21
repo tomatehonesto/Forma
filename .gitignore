@@ -54,3 +54,6 @@ expo-dev.log
 
 # a varredura de textos é relatório, não fonte
 inventario-textos.txt
+
+# a cópia que o Metro serve para a rede das telas — gerada de scripts/
+public/rede-telas.js
