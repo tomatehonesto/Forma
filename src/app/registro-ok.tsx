@@ -10,6 +10,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 import { radius } from '../theme';
+import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
 
 /* ============================================================
    REGISTRADO — a folha que fecha uma captura
@@ -56,9 +57,11 @@ export default function RegistroOk() {
   const sair = () => router.back();
   const seguir = useTrocarDeTela();
 
+  const coberta = useFolhaAberta();
+
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
-      <Pressable onPress={sair} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
+      <TocarParaFechar onPress={sair} />
 
       <View style={{
         backgroundColor: c.bg, maxHeight: height * 0.86,
@@ -121,6 +124,7 @@ export default function RegistroOk() {
           ) : null}
         </View>
       </View>
+      <Cobertura coberta={coberta} />
     </View>
   );
 }

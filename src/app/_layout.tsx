@@ -15,6 +15,7 @@ import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
 import { novosNiveis } from '../logic/conquistas';
 import { light, APP_MAX_W } from '../theme';
+import { SombraDasFolhas } from '../ui/folhas';
 
 /* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
    é a mesa sobre a qual o aparelho fica apoiado, e só existe em navegador. */
@@ -274,32 +275,51 @@ export default function RootLayout() {
           <Stack.Screen name="exportar" />
           <Stack.Screen name="aplicacao" />
           <Stack.Screen name="aplicacao-ok" />
-          {/* Registrar é um bottom sheet montado à mão, não o formSheet
-              nativo: aquele só existe em iOS/Android e virava tela cheia na
-              web, sem sequer um jeito de fechar. transparentModal deixa o
-              scrim e o painel por conta da própria tela, e o comportamento
-              fica igual em todo lugar. */}
-          {/* ⚠️⚠️ `animation: 'none'` NA ROTA, E O MOVIMENTO É DA FOLHA.
+          {/* ⚠️ A FOLHA É MONTADA À MÃO, e o `formSheet` nativo continua
+              sobre a mesa — mas a justificativa antiga estava errada e não
+              vale repetir.
 
-              Com `slide_from_bottom` quem sobe é a TELA, e o scrim mora
-              dentro dela: a sombra subia junto, como cortina puxada de
-              baixo. Tentei manter o deslize da rota e fazer o scrim ser
-              alto o bastante para cobrir a tela em qualquer ponto do
-              trajeto — não funciona, porque a tela da rota RECORTA: o que
-              passa dos limites dela não é desenhado.
+              Dizia que o formSheet "só existe em iOS/Android e virava tela
+              cheia na web". As duas metades envelheceram: ele é nativo nas
+              DUAS plataformas desde o react-native-screens 4.0 (iOS pelo
+              UISheetPresentationController, Android pelo BottomSheetBehavior
+              do Material), e o expo-router 57 tem implementação própria de
+              folha para a web.
 
-              Então as duas animações vieram para dentro do SheetScreen,
-              onde nada recorta e cada uma pode fazer o que deve: o painel
-              sobe, a sombra esmaece. A rota só monta e desmonta.
+              O que o formSheet dá de verdade, e que interessa: o motion é do
+              sistema e NÃO É AJUSTÁVEL — a doc do SDK 57 diz que
+              `animationDuration` não vale para `formSheet`. Não haveria curva
+              para errar, que é a armadilha em que caímos cinco vezes.
 
-              ⚠️ E A SAÍDA TAMBÉM É NOSSA, por `beforeRemove` — sem isso o
-              fechamento seria instantâneo, que é o preço de tirar a
-              animação da rota. Ver o SheetScreen. */}
+              O que ele cobra: detents em vez de altura livre, a cor do scrim
+              deixa de ser nossa (só dá para escolher em QUAIS detents ele
+              escurece), a alça no Android passa a ser desenhada por nós, e
+              são vinte e duas rotas para converter — sem contar que só dá
+              para conferir num development build.
+
+              Fica anotado como o próximo passo se o deslize da rota ainda
+              não bastar. Ver a nota inteira em ui/folhas. */}
+          {/* ⚠️⚠️ `slide_from_bottom`, E A SOMBRA NÃO MORA MAIS AQUI
+              DENTRO — é a mesma decisão contada de dois lados.
+
+              A folha sobe pela ROTA, com a animação do sistema
+              operacional: ela roda fora da thread de JavaScript e não
+              depende de nada nosso estar pronto. Foi assim desde sempre, e
+              o único defeito era que o scrim morava dentro da tela que
+              desliza — a sombra subia junto, como cortina puxada pelo pé.
+
+              Cheguei a trocar isto por `animation: 'none'` e refazer as
+              duas animações à mão dentro do SheetScreen. Foi o erro: cinco
+              versões reprovadas no aparelho, terminando em "aparece de uma
+              vez" nas duas pontas. A nota inteira está em ui/folhas.
+
+              O scrim agora é pintado no layout raiz, abaixo do modal e
+              acima da página, onde não viaja com coisa nenhuma. */}
           <Stack.Screen
             name="registrar"
             options={{
               presentation: 'transparentModal',
-              animation: 'none',
+              animation: 'slide_from_bottom',
               contentStyle: { backgroundColor: 'transparent' },
             }}
           />
@@ -325,11 +345,22 @@ export default function RootLayout() {
             <Stack.Screen
               key={n}
               name={n}
-              options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
+              options={{ presentation: 'transparentModal', animation: 'slide_from_bottom', contentStyle: { backgroundColor: 'transparent' } }}
             />
           ))}
         </Stack>
         </Portao>
+        {/* ⚠️ A SOMBRA DAS FOLHAS FICA AQUI, FORA DO Stack — e é isto que
+            faz ela parar de subir junto com a folha.
+
+            Depois do `Portao` para pintar por cima da página; dentro da
+            `Moldura` para, na web, ficar contida no quadro do aparelho em
+            vez de escurecer a mesa em volta. No aparelho o modal é uma
+            camada acima desta, então a folha continua por cima da sombra,
+            que é exatamente a ordem certa.
+
+            Ver ui/folhas para o porquê inteiro. */}
+        <SombraDasFolhas />
         </Moldura>
       </SafeAreaProvider>
     </GestureHandlerRootView>

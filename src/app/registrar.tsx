@@ -11,6 +11,7 @@ import { Txt, Row, Divider, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
+import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
 
 /* ============================================================
    REGISTRAR — o "+" da tab bar, e tudo que abre aqui é um registro.
@@ -180,9 +181,11 @@ export default function Registrar() {
       : []),
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
+  const coberta = useFolhaAberta();
+
   return (
     <View style={{ height: alturaJanela, justifyContent: 'flex-end' }}>
-      <Pressable onPress={fechar} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
+      <TocarParaFechar onPress={fechar} />
 
       {/* Ancorado na base, cobrindo a tab bar — padrão de bottom sheet. */}
       <View style={{
@@ -351,6 +354,7 @@ export default function Registrar() {
           </View>
         </Rolagem>
       </View>
+      <Cobertura coberta={coberta} />
     </View>
   );
 }

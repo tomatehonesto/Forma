@@ -1,14 +1,14 @@
 import React from 'react';
 import {
   Text, View, Pressable, ScrollView, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Animated, Easing,
-  Keyboard, Platform, Dimensions, InteractionManager, TextProps, ViewStyle, StyleProp, TextStyle,
+  Keyboard, Platform, TextProps, ViewStyle, StyleProp, TextStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ty, font, radius, space, shadowCard } from '../theme';
 import { useTheme } from './useTheme';
+import { useFolhaAberta, Cobertura, TocarParaFechar } from './folhas';
 import { Icon } from './Icon';
 
 type TxtProps = TextProps & { v?: keyof typeof ty; c?: string; style?: StyleProp<TextStyle>; };
@@ -541,123 +541,31 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
     return () => { sobe.remove(); desce.remove(); };
   }, []);
 
-  /* ⚠️⚠️ AS DUAS ANIMAÇÕES SÃO DAQUI, e a rota não anima nada.
+  /* ⚠️⚠️ A FOLHA NÃO ANIMA NADA, e isso é o conserto, não a preguiça.
 
-     Elas fazem coisas diferentes e por isso não podiam ser a mesma: o
-     PAINEL sobe, a SOMBRA esmaece. Com a rota deslizando, quem subia era
-     a tela inteira — e o scrim, que mora nela, subia junto: a sombra
-     entrava pelo pé do aparelho como uma cortina puxada de baixo. Sombra
-     não vem de lugar nenhum. Ela escurece o que já está ali.
+     Quem a faz subir é a rota, com `slide_from_bottom` — ver a nota em
+     ui/folhas, que conta os cinco erros que levaram até aqui. Resumo: a
+     sombra subia junto porque morava dentro da tela que desliza; eu
+     tentei consertar a sombra tirando o deslize da rota e refazendo tudo
+     à mão em `Animated`, e passei cinco versões tentando fazer uma
+     imitação em JavaScript parecer com uma animação do sistema.
 
-     ⚠️ TENTEI RESOLVER SEM MEXER NA ROTA, e não dá. A ideia era um scrim
-     alto o bastante para cobrir a tela em qualquer ponto do trajeto —
-     uma janela acima do próprio topo. A tela da rota RECORTA: seis níveis
-     acima do scrim há um `overflow: hidden` da altura da janela, e o que
-     passa dele não é desenhado. O scrim voltava a ser do tamanho da tela,
-     e voltava a subir com ela.
+     A sombra saiu daqui e foi para o layout raiz, onde não viaja com
+     nada. O deslize voltou a ser do sistema. Restou isto: dizer que
+     existe uma folha aberta.
 
-     Aqui dentro nada recorta.
-
-     ⚠️ A DISTÂNCIA É A ALTURA DA JANELA, e não a do painel. É exatamente
-     o que o `slide_from_bottom` fazia — ele translada a tela inteira —,
-     então o movimento é o mesmo de antes, no mesmo tempo. Medir o painel
-     daria um deslize mais curto para folhas pequenas, que é outra coisa.
-
-     ⚠️ E A SAÍDA PASSA POR `beforeRemove`, não por um punhado de
-     onPress. Sem animação na rota, fechar seria instantâneo — e são
-     quatro caminhos para fechar: a alça, o X, o toque na sombra e o botão
-     físico do Android. Interceptando a remoção, os quatro ganham a mesma
-     saída, inclusive o que não passa por nenhum onPress nosso. */
-  /* ⚠️⚠️ A DISTÂNCIA VEM DO Dimensions, E NÃO DO HOOK — e a diferença era
-     a animação inteira.
-
-     ~useRef(new Animated.Value(x))~ congela o x do PRIMEIRO desenho e não
-     olha para ele nunca mais. O ~useWindowDimensions~ existe justamente
-     porque a janela pode não estar medida ainda: no navegador ele já
-     devolve a altura na primeira passada, no aparelho pode devolver zero.
-     Zero ali é o painel nascendo no lugar de repouso — nada para animar,
-     e a folha aparece instantânea.
-
-     ~Dimensions.get('window')~ é síncrono e já está preenchido quando o
-     aplicativo monta. O ~|| 900~ é a terceira rede: qualquer número maior
-     que a folha a põe fora da tela, que é tudo o que este valor precisa
-     ser. */
-  const janela = Dimensions.get('window').height || 900;
-  const nav = useNavigation();
-  const subida = React.useRef(new Animated.Value(janela)).current;
-  const sombra = React.useRef(new Animated.Value(0)).current;
-
-  /* ⚠️ COMEÇA NO QUADRO SEGUINTE, e não no efeito. O efeito roda antes de
-     a tela ter sido apresentada de fato; uma animação disparada ali pode
-     rodar contra uma view que o sistema ainda não pôs na hierarquia, e
-     acabar antes de alguém ver — que é como um movimento de 300 ms vira
-     "apareceu instantâneo". Um quadro de espera não se nota e garante que
-     há o que animar.
-
-     ⚠️⚠️ E ELA ESPERA A MONTAGEM TERMINAR, que foi o que resolveu de
-     verdade — depois de três voltas erradas.
-
-     Animação em Animated anda pelo RELÓGIO, não por quadros: ela pergunta
-     quanto tempo passou e pula para lá. Se a thread de JS fica ocupada
-     montando a folha — e uma folha desta é uma tela inteira de conteúdo —,
-     os 300 ms passam com a thread presa, e no primeiro quadro livre a
-     animação já está quase no fim. Não é pulada: é consumida. No aparelho
-     isso aparecia como "sobe, mas mal dá para perceber"; no navegador
-     nunca, porque lá a montagem é barata.
-
-     ~runAfterInteractions~ existe exatamente para isto: só solta depois
-     que o trabalho da montagem escoou. O quadro extra em volta é a
-     segunda rede, para a view já estar na hierarquia quando o driver
-     nativo se prender a ela.
-
-     ⚠️ E O DRIVER VOLTOU A SER O NATIVO. Cheguei a trocá-lo pelo de JS
-     achando que ele não rodava em tela recém-apresentada; o que não
-     rodava era a animação inteira, por causa de uma altura inicial que
-     vinha zero de um hook. Com a espera certa, o nativo é o driver certo
-     — ele roda fora da thread, que é justamente a thread que estava
-     comendo o movimento. */
-  React.useEffect(() => {
-    let quadro = 0;
-    const tarefa = InteractionManager.runAfterInteractions(() => {
-      quadro = requestAnimationFrame(() => {
-      Animated.parallel([
-        Animated.timing(sombra, {
-          toValue: 1, duration: 260, easing: Easing.out(Easing.quad), useNativeDriver: true,
-        }),
-        Animated.timing(subida, {
-          toValue: 0, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: true,
-        }),
-      ]).start();
-      });
-    });
-    return () => { tarefa.cancel(); cancelAnimationFrame(quadro); };
-  }, [sombra, subida]);
-
-  /* ⚠️ O `saindo` EVITA O LAÇO: ao terminar a saída nós mesmos
-     redespachamos a ação que interceptamos, e ela dispara o listener de
-     novo. Na segunda vez ele deixa passar. */
-  const saindo = React.useRef(false);
-  React.useEffect(() => nav.addListener('beforeRemove' as any, (ev: any) => {
-    if (saindo.current) return;
-    ev.preventDefault();
-    saindo.current = true;
-    Animated.parallel([
-      Animated.timing(sombra, {
-        toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true,
-      }),
-      Animated.timing(subida, {
-        toValue: janela, duration: 240, easing: Easing.in(Easing.cubic), useNativeDriver: true,
-      }),
-    ]).start(() => nav.dispatch(ev.data.action));
-  }), [nav, sombra, subida, janela]);
+     ⚠️ E A SAÍDA VOLTOU A SER DA ROTA TAMBÉM — o `beforeRemove` que
+     interceptava o fechamento para animar a descida foi embora junto. Os
+     quatro caminhos de fechar (a alça, o X, o toque na sombra e o botão
+     físico do Android) voltam a passar pelo navegador, que anima a saída
+     sozinho. Menos código, e mais caminhos cobertos. */
+  const coberta = useFolhaAberta();
 
   const fechar = onClose;
 
   return (
     <View style={{ height, justifyContent: 'flex-end' }}>
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: sombra }]}>
-        <Pressable onPress={fechar} style={[StyleSheet.absoluteFill, { backgroundColor: c.scrim }]} />
-      </Animated.View>
+      <TocarParaFechar onPress={fechar} />
       {/* Ancorado na base, cobrindo a tab bar: é o padrão de bottom sheet
           que a pessoa já conhece de outros apps. */}
       {/* O TECLADO EMPURRA A FOLHA, EM VEZ DE COBRI-LA.
@@ -678,7 +586,6 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           recortes escuros emoldurando o teclado, como se a folha tivesse
           descolado da base da tela. Branca, a folha continua encostada em
           baixo e o teclado nasce dela. */}
-      <Animated.View style={{ transform: [{ translateY: subida }] }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         /* O raio vem junto: a faixa branca começa na mesma altura da
@@ -732,7 +639,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
         ) : null}
       </View>
       </KeyboardAvoidingView>
-      </Animated.View>
+      <Cobertura coberta={coberta} />
     </View>
   );
 }
