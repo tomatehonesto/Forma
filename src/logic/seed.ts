@@ -7,6 +7,7 @@ import { indicadorDe } from './derive';
 import { nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas } from './conquistas';
 import { PALETAS } from '../theme';
+import type { Forma } from './meds';
 
 export const HEIGHT = 1.67;
 
@@ -266,6 +267,19 @@ export function buildSeed() {
     profile: {
       name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
       startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      /* ⚠️ EM QUE FORMA ELA APLICA — e a semente NÃO responde, de
+         propósito.
+
+         Quem já usava o aplicativo antes disto existir também não tem o
+         campo, e não vai ser levado de volta ao cadastro para ganhar um.
+         Deixando a semente sem resposta, o caminho de quem não respondeu
+         é o caminho padrão do desenvolvimento — e não um caso de borda
+         que ninguém exercita e que quebra na primeira pessoa real.
+
+         Quem lê isto lê por `formaDe(S)`, em logic/formas, que cai no que
+         o catálogo diz do medicamento. O tipo precisa do campo; o valor,
+         não. */
+      forma: undefined as Forma | undefined,
       /* O VÍNCULO, que nasce junto com o código e não depois dele.
 
          `convite` é o que a pessoa escreveu; `vinculo` é o que o

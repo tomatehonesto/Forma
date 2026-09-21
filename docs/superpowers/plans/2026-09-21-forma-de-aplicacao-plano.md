@@ -26,13 +26,24 @@ constroem o chão para a fase 4, que é a única que a pessoa enxerga.
    - As sete entradas atuais recebem `formas: ['caneta']`.
    - `shelf` ganha o significado de **zero = não sabemos**, documentado no
      bloco de procedência que já existe no topo do arquivo.
-   - Entram: `rybelsus` (semaglutida oral, `cad: 'daily'`,
-     `formas: ['comprimido']`, doses `[3, 7, 14]`, `shelf` do próprio
-     comprimido — que é cartela, não frasco aberto) e as duas manipuladas
-     (`formas: ['frasco', 'seringa']`, `doses: []`, `shelf: 0`).
    - `faixaDaMolecula(mol)`: mínimo e máximo das doses de todas as entradas
      de marca que compartilham a molécula. É o que dá faixa à régua do
      manipulado **sem inventar número**.
+
+   ⚠️ **CORRIGIDO AO EXECUTAR:** os medicamentos novos — Rybelsus e as duas
+   manipuladas — saíram desta fase e foram para a fase 2. O motivo é que o
+   cadastro lista `Object.entries(MEDS)` inteiro: pô-los aqui os faria
+   aparecer no seletor HOJE, e o manipulado tem escada vazia, o que
+   deixaria o passo da dose sem degrau nenhum para oferecer. A fase 1
+   prometeu não mudar nada visível, e com eles ela mudaria — para pior.
+   Eles entram junto com o cadastro que sabe lidar com eles.
+
+   ⚠️ **ESCOPO A MAIS, e ele é obrigatório:** `Med` ganhou também
+   `marca: boolean`. O seletor do cadastro escreve `${m.label}®`, sem
+   condição. Com uma entrada manipulada no catálogo isso viraria
+   "Semaglutida manipulada®" — o aplicativo afirmando uma marca registrada
+   que não existe, numa tela de saúde. O campo nasce nesta fase porque é o
+   catálogo que o define; quem o consome é a fase 2.
 
 3. **`src/logic/seed.ts`.** `profile.forma?: Forma` no tipo. A semente não
    ganha o campo — ela é o teste vivo de que a ausência funciona.
@@ -40,16 +51,32 @@ constroem o chão para a fase 4, que é a única que a pessoa enxerga.
 **Verificação:** `tsc`, e o aplicativo no navegador rodando idêntico. Se algo
 mudou de aparência nesta fase, algo está errado.
 
-⚠️ **Rybelsus tem cadência diária e o `hl` da semaglutida oral não é o da
-injetável.** Não invento: se não tiver fonte para a meia-vida oral, a entrada
-nasce com o `hl` marcado no mesmo aviso de procedência que já existe no
-arquivo, e a curva farmacológica dela fica de fora até alguém conferir.
+⚠️ **Rybelsus tem cadência diária, e a meia-vida fica para a fase 2 junto
+com ele.** Não invento: se não houver fonte para a meia-vida da semaglutida
+oral, a entrada nasce com o `hl` marcado no mesmo aviso de procedência que
+já existe no arquivo, e a curva farmacológica dela fica de fora até alguém
+conferir.
+
+⚠️ **Descoberto ao executar: a pergunta de validade precisa de
+`injetavel && shelf === 0`, e não só do zero.** Cartela de comprimido não
+vence "depois de aberta" do jeito que uma caneta vence — ali o zero quer
+dizer "não se aplica", e não "pergunte". Está escrito no bloco de `shelf`.
 
 ---
 
-## Fase 2 — o cadastro pergunta, quando precisa
+## Fase 2 — os medicamentos novos, e o cadastro perguntando
+
+0. **`src/logic/meds.ts`** — as entradas que a fase 1 devolveu para cá:
+   `rybelsus` (`formas: ['comprimido']`, `marca: true`) e as duas
+   manipuladas (`formas: ['frasco', 'seringa']`, `doses: []`, `shelf: 0`,
+   `marca: false`).
 
 1. **`src/app/cadastro.tsx`.**
+   - O seletor passa a escrever `®` só quando `m.marca`.
+   - O passo da dose precisa saber o que fazer com `doses: []` — hoje ele
+     desenha a escada do catálogo, e escada vazia não desenha nada. Para
+     manipulado, a dose vem da régua na faixa de `faixaDaMolecula`, que é
+     o mesmo controle que a fase 4 usa na folha de registrar.
    - `'forma'` entra em `TODOS`, logo depois de `'medicamento'`.
    - O filtro de `passos` ganha:
      `if (x === 'forma') return (MEDS[r.med ?? '']?.formas.length ?? 1) > 1;`
