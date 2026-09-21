@@ -950,57 +950,57 @@ quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
 
-## 🔴 19. O inglês existe no catálogo e não existe na tela
+## 🔴 19. A extração de textos não terminou, e são 1.444 frases
 
-O motor está inteiro e a tradução do catálogo está feita: quinze arquivos
-em `src/textos/en-US/`, todos conferidos pelo `tsc` contra a assinatura do
-português. A folha de escolha de idioma existe, em `/idioma`, e trocar ali
-troca a palavra, a vírgula decimal, o desenho da data e o relógio de uma
-vez — é um valor só.
+**O número que eu tinha dado estava errado.** Eu disse 466, e a medição
+foi estreita: contava só literal de string com acento ou palavra
+portuguesa, com quatro letras ou mais, e não via template literal nem
+texto solto dentro de JSX. A conta refeita com um inventário próprio
+(`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**E mesmo assim o aplicativo não está traduzido.** Ligando o inglês, a
-Home lê assim:
+Desde então saíram 141, em cinco lotes commitados. **Faltam 1.444, em 112
+arquivos.**
 
-> DAY 5 OF YOUR DOSE
-> Your hunger may start rising over the next 24 hours.
-> **Entenda o por quê**
-> **PRÓXIMA APLICAÇÃO**
-> **Sua próxima dose é** in 3 days.
-
-A última linha é o retrato do problema: uma frase portuguesa com um
-pedaço em inglês emendado no meio. O catálogo devolveu "in 3 days"
-corretamente; quem escreveu "Sua próxima dose é" foi a tela, em código.
-
-**O que falta é a peça 2, e ela nunca terminou.** A extração de textos
-cobriu a lógica principal e parou — sobrou texto em português dentro do
-código, medido em 21/09/2026:
-
-| onde | strings | o que é |
+| onde | frases | o que é |
 |---|---|---|
-| `src/logic/` | 163 | `conquistas`, `confirmacoes`, `leituras`, `descobertas`, `fontes`, `conselhos`, `resumo`, `restricoes`, `alertas`, `prato`, `avisos`, `bebidas` |
-| `src/app/` | 192 | as telas, em literal de string |
-| JSX solto | 100 | texto entre tags, que a conta acima não pega |
-| `src/ui/` | 11 | componentes com frase dentro |
+| `src/app/` | ~1.050 | as telas |
+| `src/logic/` | ~230 | `leituras`, `conquistas`, `confirmacoes`, `resumo`, `integracoes`, `consentimento` e o que sobra de `derive` |
+| `src/ui/` | ~160 | componentes com frase dentro |
 
-São 78 arquivos. Duas categorias saem da conta de propósito:
-`logic/alimentos.ts` (65) é nome de comida da tabela TACO, e
-`logic/documentos.ts` é minuta jurídica — os dois já estavam fora do
-escopo da extração.
+Fora da conta, de propósito: `logic/alimentos*` (nome de comida é dado),
+`logic/documentos` (minuta jurídica), `logic/seed` (a semente de
+demonstração) e `logic/local` (os nomes de mês, que são formato).
 
-**A ordem do trabalho não muda:** extrair para o catálogo em português
-com a saída congelada idêntica, e só então traduzir. Misturar as duas
-faz o diff da extração carregar mudança de sentido, e aí o congelamento
-para de provar qualquer coisa.
+### A receita, que está provada
 
-**E há uma revisão que não é minha.** O texto clínico em inglês — o
-`marcadores.ts` sobretudo, que é o maior bloco clínico do aplicativo —
-precisa passar por alguém habilitado no mercado de destino. Ele foi
-escrito sob as mesmas quatro travas do português (nada prescreve, nada
-tem dose, nada promete resultado, nada é de tireoide ou rim), e as travas
-estão escritas no arquivo. Mas a redação de educação clínica para um
-público americano não é decisão que uma tradução resolva sozinha.
+Ela funcionou em cinco lotes seguidos e não tem surpresa:
 
-Vale para a nomenclatura também: TGO e TGP viraram AST e ALT, e HbA1c
-virou A1C, que é como o laudo americano escreve. São outros nomes no
-laudo, não a mesma palavra em outra língua — e é o tipo de escolha que
-alguém de lá confirma em dois minutos e eu não confirmo em nenhum.
+1. **Um domínio por assunto** em `src/textos/pt-BR/`, com os comentários
+   do código vindo junto — a justificativa é fato sobre a mensagem.
+2. **O mesmo arquivo em `en-US/`**, com só as notas do que o inglês faz
+   diferente. O `tsc` cobra a assinatura idêntica, de graça.
+3. **Toda tabela que lê o catálogo vira função.** Constante de módulo é
+   avaliada no import e congela o idioma. O `tsc` acusa os sítios de
+   chamada, porque indexar uma função é erro de tipo.
+4. **A rede decide.** `scripts/congelar.ts` tem de sair com os cinco
+   cenários em português **idênticos**; os dois `-en-US` mudam onde a
+   extração alcançou. Qualquer movimento no português é erro de extração,
+   e não melhoria de texto — melhoria de texto é outro commit.
+
+### O que a rede NÃO cobre, e o que fazer com isso
+
+`congelar.ts` chama funções de `logic/`. As telas não passam por ela: não
+há como provar que uma tela não mudou sem abri-la. Para os ~1.050 de
+`src/app/`, a conferência é outra — abrir a tela no navegador antes e
+depois e comparar o texto renderizado. É mais lento e é o que existe.
+
+### O que já apareceu no caminho
+
+- **Um bloco morto de texto clínico**, em `logic/escalas`: as nove réguas
+  de sintoma inteiras, numa cópia que a extração anterior deixou para
+  trás e que ninguém chamava. Constante não usada compila.
+- **A rede dava alarme falso.** Duas execuções do mesmo código devolviam
+  marcos trocados de lugar — o `sort` da linha do tempo ordenava só por
+  instante. Consertado com desempate por título.
+- **O momento da refeição é chave e rótulo ao mesmo tempo** — "Almoço" é
+  o que fica gravado. Mesma família do item 17.
