@@ -1,6 +1,7 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
 import { WD, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
+import { T } from '../textos';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -88,7 +89,8 @@ export function horasDe(a: Alerta): number[] {
    têm antecedência porque não há evento a anteceder: eles são o próprio
    evento. É a mesma estrutura com dois campos que se alternam, e não dois
    tipos de alerta. */
-export const TIPOS: Record<TipoDeAlerta, {
+/* ⚠️ É FUNÇÃO, porque lê o catálogo — constante congelaria o idioma. */
+export const TIPOS = (): Record<TipoDeAlerta, {
   titulo: string;
   /* O NOME QUE CABE NUMA COLUNA. Só a dose difere do título, e difere
      porque o título inteiro, numa grade de duas colunas, termina em
@@ -96,7 +98,7 @@ export const TIPOS: Record<TipoDeAlerta, {
      quatro opções que a pessoa não consegue ler antes de tocar. */
   curto: string;
   ic: string; desc: string; temDias: boolean; temLead: boolean;
-}> = {
+}> => ({
   dose: {
     /* ⚠️ "DA DOSE", E ERA "DA CANETA". Esta tabela é constante, fora de
        qualquer função, e não tem `S` para consultar a forma — a saída foi
@@ -104,8 +106,8 @@ export const TIPOS: Record<TipoDeAlerta, {
        Comprimido ainda lê "aplicação" aqui, e é dívida conhecida: a
        palavra teria de vir do vocabulário, e para isso a tabela
        precisaria virar função. */
-    titulo: 'Aplicação da dose', curto: 'Aplicação', ic: 'syringe',
-    desc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
+    titulo: T.alertas.dose, curto: T.alertas.doseCurto, ic: 'syringe',
+    desc: T.alertas.doseDesc,
     temDias: false, temLead: true,
   },
   /* ⚠️ O CHECK-IN ENTROU DEPOIS, e era o único registro diário do
@@ -115,26 +117,26 @@ export const TIPOS: Record<TipoDeAlerta, {
      humor. Justamente por isso ele é o que mais se perde, porque nada no
      dia lembra de responder. */
   checkin: {
-    titulo: 'Check-in do dia', curto: 'Check-in', ic: 'mood',
-    desc: 'Um toque para responder como foi o dia — sono, fome, energia e humor.',
+    titulo: T.alertas.checkin, curto: T.alertas.checkinCurto, ic: 'mood',
+    desc: T.alertas.checkinDesc,
     temDias: true, temLead: false,
   },
   peso: {
-    titulo: 'Pesagem', curto: 'Pesagem', ic: 'scale',
-    desc: 'Um toque nos dias em que você quer subir na balança.',
+    titulo: T.alertas.peso, curto: T.alertas.pesoCurto, ic: 'scale',
+    desc: T.alertas.pesoDesc,
     temDias: true, temLead: false,
   },
   agua: {
-    titulo: 'Hidratação', curto: 'Hidratação', ic: 'water',
-    desc: 'Empurrõezinhos para beber água — ajudam com saciedade e enjoo.',
+    titulo: T.alertas.agua, curto: T.alertas.aguaCurto, ic: 'water',
+    desc: T.alertas.aguaDesc,
     temDias: true, temLead: false,
   },
   proteina: {
-    titulo: 'Proteína', curto: 'Proteína', ic: 'flame',
-    desc: 'Lembrete para priorizar proteína nas refeições do dia.',
+    titulo: T.alertas.proteina, curto: T.alertas.proteinaCurto, ic: 'flame',
+    desc: T.alertas.proteinaDesc,
     temDias: true, temLead: false,
   },
-};
+});
 
 /* A ORDEM É A DO CICLO, e não a do alfabeto nem a da idade do recurso:
    dose e check-in são o que o aplicativo pede por si — um por semana, um
@@ -159,7 +161,7 @@ export const HORAS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21
 
 export const LEADS = [0, 1, 2, 3];
 
-export const rotuloDoLead = (n: number) => (n === 0 ? 'No dia' : `${n} dia${n > 1 ? 's' : ''} antes`);
+export const rotuloDoLead = (n: number) => (n === 0 ? T.alertas.noDia : T.alertas.diasAntes(n));
 
 const id = () => `al-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -213,13 +215,14 @@ export const SEMANA = [0, 1, 2, 3, 4, 5, 6];
 export const inicialDoDia = (d: number) => WD()[d].charAt(0).toUpperCase();
 
 const diasEmTexto = (dias: number[]) => {
-  if (!dias.length) return 'Todo dia';
+  const K = T.alertas;
+  if (!dias.length) return K.todoDia;
   const ordem = SEMANA.filter((d) => dias.includes(d));
-  if (ordem.length === 7) return 'Todo dia';
-  if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return 'Dias úteis';
-  if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return 'Fim de semana';
+  if (ordem.length === 7) return K.todoDia;
+  if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return K.diasUteis;
+  if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return K.fimDeSemana;
   const nomes = ordem.map((d) => WD()[d]);
-  return maiuscula(nomes[0]) + (nomes.length > 1 ? `, ${nomes.slice(1).join(', ')}` : '');
+  return K.listaDeDias(maiuscula(nomes[0]), nomes.slice(1));
 };
 
 /** O alerta em uma linha: quando ele toca, e a que horas. */
@@ -229,9 +232,9 @@ export function resumoDe(a: Alerta): string {
      uma frase; as sete horas que ela gera não caberiam na linha, e caberiam
      ainda menos na cabeça de quem só quer conferir o que configurou. */
   const horas = a.modo === 'intervalo'
-    ? `a cada ${a.cada}h, ${a.de}h às ${a.ate}h`
+    ? T.alertas.aCada(a.cada, a.de, a.ate)
     : horasEmTexto(horasDe(a));
-  return `${quando} · ${horas}`;
+  return T.alertas.quandoEHoras(quando, horas);
 }
 
 /* ------------------------------------------------------------------ */

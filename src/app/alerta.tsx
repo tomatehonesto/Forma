@@ -45,7 +45,7 @@ export default function AlertaFolha() {
 
   const existente = id ? acharAlerta(S, id) : null;
   const [a, setA] = useState<Alerta>(
-    () => existente ?? novoAlerta(((tipo as TipoDeAlerta) in TIPOS ? tipo : 'dose') as TipoDeAlerta),
+    () => existente ?? novoAlerta(((tipo as TipoDeAlerta) in TIPOS() ? tipo : 'dose') as TipoDeAlerta),
   );
 
   /* TROCAR O ASSUNTO RECOMEÇA O ALERTA, e não só muda o rótulo dele.
@@ -60,7 +60,7 @@ export default function AlertaFolha() {
      explicar o que aconteceu com o que estava ali. */
   const trocarTipo = (t: TipoDeAlerta) => setA((x) => ({ ...novoAlerta(t), id: x.id }));
 
-  const t = TIPOS[a.tipo];
+  const t = TIPOS()[a.tipo];
   const fechar = () => router.back();
 
   const mexer = (p: Partial<Alerta>) => setA((x) => ({ ...x, ...p }));
@@ -121,7 +121,7 @@ export default function AlertaFolha() {
           <Campo nu rotulo="O que avisar">
             <Grade cols={2} gap={8}>
               {ORDEM.map((k) => (
-                <Opc key={k} cheia ic={TIPOS[k].ic} label={TIPOS[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
+                <Opc key={k} cheia ic={TIPOS()[k].ic} label={TIPOS()[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
               ))}
             </Grade>
           </Campo>

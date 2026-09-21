@@ -1,5 +1,6 @@
 import { localAtual, type Local } from '../logic/local';
 import { alimentacao as alimentacaoPt } from './pt-BR/alimentacao';
+import { alertas as alertasPt } from './pt-BR/alertas';
 import { avisos as avisosPt } from './pt-BR/avisos';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
@@ -19,6 +20,7 @@ import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
+import { alertas as alertasEn } from './en-US/alertas';
 import { avisos as avisosEn } from './en-US/avisos';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
@@ -88,6 +90,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    É a garantia que nenhum arquivo de JSON dá: lá, uma chave esquecida só
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
+  alertas: typeof alertasPt;
   alimentacao: typeof alimentacaoPt;
   avisos: typeof avisosPt;
   ciclo: typeof cicloPt;
@@ -118,7 +121,7 @@ export type Textos = {
    dá — lá, chave esquecida vira texto faltando na tela de alguém. */
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
-    alimentacao: alimentacaoPt, avisos: avisosPt,
+    alertas: alertasPt, alimentacao: alimentacaoPt, avisos: avisosPt,
     ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, home: homePt,
@@ -126,7 +129,7 @@ const CATALOGOS: Record<Local, Textos> = {
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
-    alimentacao: alimentacaoEn, avisos: avisosEn,
+    alertas: alertasEn, alimentacao: alimentacaoEn, avisos: avisosEn,
     ciclo: cicloEn, companion: companionEn, comum: comumEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, home: homeEn,

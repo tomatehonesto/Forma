@@ -176,8 +176,8 @@ export default function Lembretes() {
           {grupos.map((g) => (
             <View key={g.tipo}>
               <Row gap={9} style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4, alignItems: 'center' }}>
-                <Icon name={TIPOS[g.tipo].ic} size={15} color={c.tx3} sw={2} />
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{TIPOS[g.tipo].titulo.toUpperCase()}</Txt>
+                <Icon name={TIPOS()[g.tipo].ic} size={15} color={c.tx3} sw={2} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{TIPOS()[g.tipo].titulo.toUpperCase()}</Txt>
               </Row>
               {g.itens.map((a, i) => <Linha key={a.id} a={a} primeiro={i === 0} />)}
             </View>
