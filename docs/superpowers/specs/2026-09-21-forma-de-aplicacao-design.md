@@ -169,12 +169,22 @@ O calendário é peça nova: não existe uma no aplicativo. Ela nasce em
 
 ### Dose
 
-A régua da casa, no lugar do `Stepper`. É o mesmo gesto do peso e das
-medidas, e o `Stepper` já tinha saído da pesagem pelo mesmo motivo: mais e
-menos servem para corrigir um passo, não para dizer um número.
+⚠️ **Esta seção foi corrigida ao escrever o plano**, e o motivo vale ficar:
+a primeira versão dizia "a régua da casa, no lugar do `Stepper`". A `Regua`
+anda com **passo uniforme** — é o que ela é. A escada do Mounjaro é uniforme
+(2,5 em 2,5); a do Ozempic não é: 0,25 · 0,5 · 1 · 2. Uma régua ali
+desenharia traços igualmente espaçados para degraus que não são, e o
+controle passaria a mentir sobre onde eles estão.
 
-Com escada, trava nos degraus. Sem escada (manipulado), corre contínua na
-faixa da molécula.
+São dois controles, porque são duas naturezas de número:
+
+- **Com escada — chips com os degraus.** São quatro a seis valores, e todos
+  cabem na tela de uma vez. Isto é melhor do que o `Stepper` que sai daqui:
+  mais e menos fazem a pessoa percorrer a escada às cegas, um degrau por
+  toque, sem nunca ver quantos existem nem onde ela está neles.
+- **Sem escada (manipulado) — a régua**, contínua, na faixa da molécula.
+  Aqui a régua é o controle certo justamente porque não há degraus a
+  respeitar: o número é livre, e quem o define é a receita.
 
 ### Local da aplicação
 

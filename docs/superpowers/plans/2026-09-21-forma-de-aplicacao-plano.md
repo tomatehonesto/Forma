@@ -1,0 +1,176 @@
+# Plano — a forma de aplicação e a folha de registrar
+
+**Desenho:** [`../specs/2026-09-21-forma-de-aplicacao-design.md`](../specs/2026-09-21-forma-de-aplicacao-design.md)
+**Data:** 21 de setembro de 2026
+
+Seis fases. Cada uma termina num commit que passa no `tsc` e num aplicativo
+que funciona — nenhuma delas deixa a árvore num estado em que a pessoa veria
+algo quebrado.
+
+A ordem não é arbitrária: as três primeiras não mudam uma linha de pixel. Elas
+constroem o chão para a fase 4, que é a única que a pessoa enxerga.
+
+---
+
+## Fase 1 — o vocabulário e o catálogo
+
+**Nada muda na tela.** É a fase que cria o conceito.
+
+1. **`src/logic/formas.ts` (novo).** `Forma`, `FORMAS` e `formaDe(S)`, como
+   no desenho. `formaDe` lê `S.profile.forma` e cai no primeiro item de
+   `MEDS[med].formas` quando o perfil não tem resposta — é o que faz quem já
+   está em tratamento não sentir nada.
+
+2. **`src/logic/meds.ts`.**
+   - `Med` ganha `formas: Forma[]`.
+   - As sete entradas atuais recebem `formas: ['caneta']`.
+   - `shelf` ganha o significado de **zero = não sabemos**, documentado no
+     bloco de procedência que já existe no topo do arquivo.
+   - Entram: `rybelsus` (semaglutida oral, `cad: 'daily'`,
+     `formas: ['comprimido']`, doses `[3, 7, 14]`, `shelf` do próprio
+     comprimido — que é cartela, não frasco aberto) e as duas manipuladas
+     (`formas: ['frasco', 'seringa']`, `doses: []`, `shelf: 0`).
+   - `faixaDaMolecula(mol)`: mínimo e máximo das doses de todas as entradas
+     de marca que compartilham a molécula. É o que dá faixa à régua do
+     manipulado **sem inventar número**.
+
+3. **`src/logic/seed.ts`.** `profile.forma?: Forma` no tipo. A semente não
+   ganha o campo — ela é o teste vivo de que a ausência funciona.
+
+**Verificação:** `tsc`, e o aplicativo no navegador rodando idêntico. Se algo
+mudou de aparência nesta fase, algo está errado.
+
+⚠️ **Rybelsus tem cadência diária e o `hl` da semaglutida oral não é o da
+injetável.** Não invento: se não tiver fonte para a meia-vida oral, a entrada
+nasce com o `hl` marcado no mesmo aviso de procedência que já existe no
+arquivo, e a curva farmacológica dela fica de fora até alguém conferir.
+
+---
+
+## Fase 2 — o cadastro pergunta, quando precisa
+
+1. **`src/app/cadastro.tsx`.**
+   - `'forma'` entra em `TODOS`, logo depois de `'medicamento'`.
+   - O filtro de `passos` ganha:
+     `if (x === 'forma') return (MEDS[r.med ?? '']?.formas.length ?? 1) > 1;`
+     — pelo mesmo mecanismo que já esconde `'dose'` de quem não sabe o
+     medicamento.
+   - O passo em si: `Opcoes` com as formas daquele medicamento, rotuladas
+     por `FORMAS[f].recipiente`.
+   - `r.forma` entra no estado do formulário, no `salvar` e na linha do
+     resumo.
+
+**Verificação:** no navegador — escolher uma manipulada e ver o passo
+aparecer; voltar e escolher Mounjaro e ver o passo sumir da fila, com a
+numeração se ajustando (o cadastro já faz isso para `'inicio'` e `'dose'`).
+
+---
+
+## Fase 3 — o calendário
+
+1. **`src/ui/calendario.tsx` (novo).** Uma grade de mês, navegável por mês,
+   com o dia escolhido marcado. Não aceita futuro: dias adiante de hoje
+   nascem apagados e não respondem ao toque.
+
+   Nasce em `src/ui/` e não dentro da folha porque três outras capturas
+   ("Quando" da refeição, do exercício, do exame) têm a mesma pergunta
+   resolvida de três jeitos hoje. Esta fase **não** as converte — só deixa a
+   peça pronta para quando isso valer a pena.
+
+**Verificação:** no navegador, montado sozinho numa rota de teste descartável,
+antes de entrar na folha. É mais barato consertar uma grade de dias isolada do
+que dentro de um formulário.
+
+---
+
+## Fase 4 — a folha de registrar
+
+A fase que a pessoa vê. É a maior, e por isso vem depois de as três peças
+dela já existirem e estarem verificadas.
+
+1. **`src/app/_layout.tsx`.** `aplicacao` e `aplicacao-ok` saem da lista de
+   telas comuns e entram na lista de `transparentModal` +
+   `slide_from_bottom`, junto das outras capturas.
+
+2. **`src/app/aplicacao.tsx`.** `TelaInterna` → `SheetScreen`. O `Titulao`
+   sai (a folha já tem título) e o rodapé de `Botao` vira o `rodape` do
+   `SheetScreen`.
+
+3. **Quando.** Os chips continuam e ganham `'outro'` no fim. Escolhendo-o,
+   abre o calendário — dentro da própria folha, abaixo dos chips, e não numa
+   segunda folha por cima. O aviso do campo diz que a contagem da próxima
+   dose sai daí.
+
+4. **Dose.** Com escada: `Opcoes` com os degraus. Sem escada: `Regua` na
+   faixa de `faixaDaMolecula`. O `Stepper` sai.
+
+5. **Local.** `Chips` com os seis locais de `ZONAS`, rotulados por
+   `siteLabel`, o sugerido marcado. Abaixo, as duas linhas de texto que já
+   existem hoje — o descanso e a posição na rotação —, intocadas: elas são a
+   parte que funciona. `MapaCorpo` sai deste arquivo; `src/ui/corpo.tsx`
+   continua servindo `/aplicacoes`.
+   Toda a seção atrás de `FORMAS[forma].injetavel`.
+
+6. **Recipiente.** O rótulo vem de `FORMAS[forma].recipiente`. A opção em uso
+   perde a dose do texto — passa a dizer o medicamento e a contagem de doses
+   do recipiente. Também atrás de `injetavel`.
+
+7. **Título e textos.** De `FORMAS[forma].acao`.
+
+**Verificação:** no navegador, com o estado forçado para as três formas
+(caneta, frasco, comprimido) — conferindo que a folha sobe, que o calendário
+não aceita futuro, que a dose grava o degrau certo, e que para comprimido as
+duas últimas seções não existem e o título muda.
+
+⚠️ **O `MapaCorpo` é código que sai de circulação.** Ele vive dentro de
+`aplicacao.tsx`, não em `src/ui/`. Sai junto — e `src/ui/corpo.tsx`, que é a
+peça de verdade, fica. Sem isso a árvore ganharia um componente morto.
+
+---
+
+## Fase 5 — a validade do recipiente
+
+1. **`src/app/caneta-nova.tsx`.** Quando `MEDS[med].shelf === 0`, aparece um
+   campo a mais: quantos dias depois de aberto. Sem valor padrão — deixar um
+   número pré-escolhido num campo destes é exatamente inventar o dado.
+
+2. **`src/logic/seed.ts`.** `pen.validadeDias?: number`.
+
+3. **`src/logic/derive.ts`.** `canetaAtual()` prefere `pen.validadeDias` ao
+   `SHELF_DAYS(med)`. Quando os dois faltam — manipulado sem resposta —,
+   `vence` fica `null`, e quem consome já sabe lidar com isso.
+
+**Verificação:** no navegador, um estado com medicamento manipulado e sem
+resposta de validade, conferindo que **nenhuma tela inventa uma data de
+vencimento** e que nenhuma delas mostra um vazio feio no lugar.
+
+---
+
+## Fase 6 — a dívida, registrada
+
+Não é código: é a honestidade sobre o que ficou.
+
+1. **`PENDENCIAS.md`** ganha um item: a partir daqui existe gente que escolhe
+   "comprimido" e encontra a palavra "caneta" escrita em telas que estas
+   fases não tocam. São 177 menções em 37 arquivos, e a varredura é a peça 3
+   do desenho. O item diz onde estão e qual é a regra de substituição
+   (`FORMAS[forma].recipiente`, `.verbo`, `.acao`).
+
+2. **Os textos das telas que ESTAS fases tocam** são corrigidos nelas, e não
+   ficam para a varredura. O que se toca, se conserta.
+
+---
+
+## O que este plano não faz
+
+- Não converte as outras capturas para o calendário novo.
+- Não varre as 177 menções.
+- Não mexe no estoque das formas novas além de guardar a validade.
+- Não cria curva farmacológica para o Rybelsus sem fonte para a meia-vida.
+
+## Ordem de commit
+
+Uma fase, um commit. As fases 1 a 3 podem ir juntas se nenhuma delas
+surpreender — elas não mudam nada visível, e um commit que não muda nada
+visível é barato de reverter. A fase 4 vai sozinha, porque é a que a pessoa
+sente.
