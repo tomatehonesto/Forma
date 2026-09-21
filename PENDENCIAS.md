@@ -950,7 +950,7 @@ quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
 
-## 🔴 19. A extração de textos não terminou, e são 1.444 frases
+## 🔴 19. A extração de textos não terminou, e são 1.221 frases
 
 **O número que eu tinha dado estava errado.** Eu disse 466, e a medição
 foi estreita: contava só literal de string com acento ou palavra
@@ -958,18 +958,37 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-Desde então saíram 141, em cinco lotes commitados. **Faltam 1.444, em 112
+Desde então saíram 364, em onze lotes commitados. **Faltam 1.221, em 99
 arquivos.**
 
 | onde | frases | o que é |
 |---|---|---|
-| `src/app/` | ~1.050 | as telas |
-| `src/logic/` | ~230 | `leituras`, `conquistas`, `confirmacoes`, `resumo`, `integracoes`, `consentimento` e o que sobra de `derive` |
-| `src/ui/` | ~160 | componentes com frase dentro |
+| `src/app/` | ~1.030 | as telas |
+| `src/ui/` | ~145 | componentes com frase dentro |
+| `src/logic/` | 45 | **acabou** — ver abaixo |
 
 Fora da conta, de propósito: `logic/alimentos*` (nome de comida é dado),
-`logic/documentos` (minuta jurídica), `logic/seed` (a semente de
-demonstração) e `logic/local` (os nomes de mês, que são formato).
+`logic/documentos` (minuta jurídica) e `logic/seed` (a semente de
+demonstração).
+
+### `src/logic/` está pronto, e as 45 que sobraram não são texto
+
+A varredura ainda as acusa, e cada uma tem razão para ficar:
+
+- **17 em `logic/local.ts`** — "março", "sáb", `${d} de ${PT.mesLongo[m]}`.
+  São as tabelas de formato do próprio motor de idioma. Mandá-las para o
+  catálogo seria circular: é o local que escolhe o catálogo.
+- **2 em `logic/escalas.ts`** — 'alta', 'média' e 'baixa' ficaram
+  **gravadas** em toda refeição registrada antes de o grama existir.
+  Traduzir apagaria a proteína dessas refeições.
+- **4 em `logic/restricoes.ts`** — 'Peixes e frutos do mar' e as outras
+  prateleiras são casadas com `a.onde` da tabela de alimentos, por
+  `includes`. Nunca vão para a tela. Saem junto com o item 18.
+- **'Triglicerídeos' e as rotas `/marcador?m=peso`** — chave de exame e
+  rota. Família do item 17.
+- **O resto** são ids (`peso-${cur.t}`, `ant:agua:${…}`), nome de arquivo
+  exportado, e composições só de número e unidade — mais alguns pedaços
+  de código que o contador parte no meio de um `>=`.
 
 ### A receita, que está provada
 
@@ -990,9 +1009,23 @@ Ela funcionou em cinco lotes seguidos e não tem surpresa:
 ### O que a rede NÃO cobre, e o que fazer com isso
 
 `congelar.ts` chama funções de `logic/`. As telas não passam por ela: não
-há como provar que uma tela não mudou sem abri-la. Para os ~1.050 de
-`src/app/`, a conferência é outra — abrir a tela no navegador antes e
-depois e comparar o texto renderizado. É mais lento e é o que existe.
+há como provar que uma tela não mudou sem abri-la. Para os ~1.175 de
+`src/app/` e `src/ui/`, a conferência é outra — abrir a tela no navegador
+antes e depois e comparar o texto renderizado. É mais lento e é o que
+existe.
+
+⚠️⚠️ **E A REDE MENTE POR OMISSÃO, o que é pior do que não existir.** Os
+sete cenários não produzem uma única frase que contenha o nome do
+recipiente — "caneta" aparece na saída só como nome de cenário e como
+chave `canetaAtual`. A migração inteira da concordância passou por ela
+com "idêntico" sem ter sido testada em nada.
+
+Antes de confiar num "idêntico", confira se a rede chega no que você
+mexeu: `grep` a saída pela frase que deveria ter mudado. Quando não
+chegar, a mudança precisa da rede dela — foi assim que nasceu
+`scripts/gramatica.ts` (as seis funções × quatro formas × dois idiomas),
+e o português que ele imprime foi conferido contra a implementação antiga
+tirada do `git show`, e não de memória.
 
 ### O que já apareceu no caminho
 
@@ -1004,6 +1037,15 @@ depois e comparar o texto renderizado. É mais lento e é o que existe.
   instante. Consertado com desempate por título.
 - **O momento da refeição é chave e rótulo ao mesmo tempo** — "Almoço" é
   o que fica gravado. Mesma família do item 17.
+- **Cinco telas perguntavam o gênero gramatical direto**, e duas pelo pior
+  caminho possível: `umOutro(forma, true) === 'Outra' ? 'Nova' : 'Novo'`.
+  É uma sonda de gênero por comparação de string, e quebra calada no
+  primeiro idioma cujo "outro" não se escreve "Outra". As cinco passam a
+  chamar `concordar`, e `.genero` não sai mais do catálogo.
+- **Sete cópias do vetor de dias da semana**, seis já recolhidas em
+  `DOW_PT` e a sétima escondida dentro de `alertas.quando`.
+- **Duas chaves escritas e nunca ligadas** — o que a Garmin e a Withings
+  trazem. Escrever o catálogo não liga o texto; é preciso ir na linha.
 
 ## 🔴 20. O mundo cabe no mecanismo; só dois idiomas cabem na lista
 
@@ -1031,10 +1073,10 @@ voltar — não sabe ler a tela para achar o caminho.
 
 Por idioma, dois trabalhos, nesta ordem:
 
-1. **Terminar a peça 2** (item 19). Enquanto 1.444 frases estiverem em
-   código, todo idioma novo nasce com essas 1.444 em português. Fazer a
+1. **Terminar a peça 2** (item 19). Enquanto 1.221 frases estiverem em
+   código, todo idioma novo nasce com essas 1.221 em português. Fazer a
    tradução antes é traduzir duas vezes.
-2. **Escrever `src/textos/<local>/`** — hoje quinze arquivos, e o `tsc`
+2. **Escrever `src/textos/<local>/`** — hoje vinte e oito arquivos, e o `tsc`
    cobra a assinatura inteira. É o mesmo trabalho que o inglês custou.
 
 Depois disso, o idioma entra em `Local` e em `DISPONIVEIS`, e o mapa de
