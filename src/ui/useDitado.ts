@@ -67,13 +67,42 @@ if (Platform.OS === 'web' || !noExpoGo) {
   }
 }
 
-/** Há reconhecimento de fala aqui? Na web depende do navegador; no
-    aparelho, de o módulo nativo ter sido compilado junto. */
-export const ditadoDisponivel = (): boolean => {
-  if (!Modulo) return false;
-  if (Platform.OS !== 'web') return true;
+/* ⚠️ TRÊS ESTADOS, E NÃO UM BOOLEANO — o mesmo desenho do
+   `EstadoDaSaude` em src/logic/saude-do-aparelho.ts, pela mesma razão:
+   "não dá" tem mais de um motivo, e os motivos pedem telas diferentes.
+
+   · `pronto`        o microfone funciona e é desenhado.
+
+   · `indisponivel`  navegador sem Web Speech API, ou build de produção
+                    em que o módulo não entrou. O microfone NÃO é
+                    desenhado: para quem usa o aplicativo, botão que não
+                    faz nada é pior do que botão ausente.
+
+   · `no-expo-go`    ⚠️ AQUI A REGRA SE INVERTE, e vale explicar.
+
+                    A regra do botão ausente protege o USUÁRIO. No Expo Go
+                    não existe usuário — existe quem está construindo o
+                    aplicativo, olhando a tela para decidir se ela está
+                    boa. Esconder o microfone dessa pessoa não protege
+                    ninguém: faz a ferramenta mentir sobre como o
+                    aplicativo é, e some com um recurso que existe.
+
+                    Então lá o botão aparece, e o toque explica por que
+                    ele não grava. Isso nunca chega a uma loja: o Expo Go
+                    é um aplicativo de desenvolvimento, e a build que
+                    alguém instala sempre tem o módulo.
+
+                    A base já tem precedente para isto — a tela de
+                    assinatura carrega atalhos marcados como "não aparece
+                    em produção". */
+export type EstadoDoDitado = 'pronto' | 'no-expo-go' | 'indisponivel';
+
+export const estadoDoDitado = (): EstadoDoDitado => {
+  if (Platform.OS !== 'web' && noExpoGo) return 'no-expo-go';
+  if (!Modulo) return 'indisponivel';
+  if (Platform.OS !== 'web') return 'pronto';
   const w = globalThis as any;
-  return !!(w?.SpeechRecognition || w?.webkitSpeechRecognition);
+  return (w?.SpeechRecognition || w?.webkitSpeechRecognition) ? 'pronto' : 'indisponivel';
 };
 
 /* As falhas que a pessoa pode resolver ganham frase própria; o resto cai
@@ -87,6 +116,9 @@ const MENSAGENS: Record<string, string> = {
 };
 const mensagemDoErro = (code?: string) =>
   (code && MENSAGENS[code]) || 'Não consegui ouvir agora — dá para escrever também.';
+
+/* Texto de desenvolvimento, e ele diz isso de si. Só aparece no Expo Go. */
+const AVISO_EXPO_GO = 'O ditado precisa de uma build de desenvolvimento — no Expo Go o módulo de voz não existe. Aqui o botão está só para a tela ficar completa.';
 
 export function useDitado(escrever: (texto: string) => void) {
   const [ouvindo, setOuvindo] = useState(false);
@@ -114,6 +146,7 @@ export function useDitado(escrever: (texto: string) => void) {
   const comecar = useCallback(async (jaEscrito: string) => {
     setErro(null);
     antes.current = jaEscrito.trim();
+    if (estadoDoDitado() === 'no-expo-go') { setErro(AVISO_EXPO_GO); return; }
     if (!Modulo) { setErro(mensagemDoErro()); return; }
     try {
       const p = await Modulo.requestPermissionsAsync();

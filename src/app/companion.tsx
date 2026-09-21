@@ -14,7 +14,7 @@ import { Txt, Row, CircleBtn, RichDoc } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { useDitado, ditadoDisponivel } from '../ui/useDitado';
+import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font } from '../theme';
 
 /* ============================================================
@@ -211,7 +211,9 @@ export default function Companion() {
   /* O ditado escreve no mesmo campo que o teclado escreve — não há um
      segundo lugar onde a fala vira texto, e é por isso que dá para
      começar digitando e terminar falando. */
-  const temDitado = useMemo(() => ditadoDisponivel(), []);
+  /* Desenha o microfone quando ele funciona E no Expo Go, onde ele
+     explica por que não funciona — ver o comentário em useDitado. */
+  const temDitado = useMemo(() => estadoDoDitado() !== 'indisponivel', []);
   const { ouvindo, erro: erroDoDitado, comecar: comecarDitado, parar: pararDitado, limparErro } = useDitado(setInput);
 
   /* As sugestões vêm do estado, não de uma constante.
@@ -480,7 +482,9 @@ export default function Companion() {
                   fora do campo, os dois viravam dois botões redondos
                   competindo pelo mesmo canto.
 
-                  ⚠️ E ELE SÓ EXISTE ONDE FUNCIONA — ver ditadoDisponivel. */}
+                  ⚠️ E ELE SÓ EXISTE ONDE FUNCIONA, com uma exceção que
+                  vale a pena: no Expo Go ele aparece e explica por que não
+                  grava. Ver estadoDoDitado, em ui/useDitado. */}
               {temDitado ? (
                 <Pressable
                   onPress={() => (ouvindo ? pararDitado() : comecarDitado(input))}
