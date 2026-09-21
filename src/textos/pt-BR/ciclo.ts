@@ -66,6 +66,42 @@ export const ciclo = {
   dormiuBem: (resto: string) => `Você dormiu bem — seu corpo tende a responder melhor hoje. ${resto}`,
 
   /* ============================================================
+     AS CINCO ETAPAS — o stepper do ciclo
+
+     ⚠️ SÃO CINCO AQUI E QUATRO LOGO ABAIXO, e é de propósito. Esta é a
+     pergunta "em que ponto eu estou AGORA", e cinco etapas dão
+     granularidade para a frase do dia mudar; a tabela de baixo responde
+     "como é o ciclo inteiro", e aí cinco linhas é uma a mais do que cabe
+     na cabeça de quem lê pela primeira vez. Ver logic/derive.
+
+     ⚠️ O `label` É NOME DE ETAPA E O `hint` É O QUE ELA É. O nome sozinho
+     — "Início do retorno da fome" — é diagnóstico sem contexto, e numa
+     tela de tratamento isso assusta em vez de orientar.
+
+     ⚠️ E A PERGUNTA DE CADA ETAPA NÃO MORA AQUI: são as mesmas que as
+     manchetes acima mandam para o companion, e estão declaradas lá.
+     ============================================================ */
+  faseAplicLabel: 'Aplicação',
+  faseAplicRange: 'Dia 1',
+  faseAplicHint: 'O efeito começa a subir nas próximas horas.',
+
+  fasePicoLabel: 'Pico de efeito',
+  fasePicoRange: 'Dias 1–2',
+  fasePicoHint: 'Remédio no ponto mais alto — a fome fica menor.',
+
+  faseEstabLabel: 'Estabilidade',
+  faseEstabRange: 'Dias 3–4',
+  faseEstabHint: 'Efeito constante, sem grandes oscilações.',
+
+  faseRetornoLabel: 'Início do retorno da fome',
+  faseRetornoRange: 'Dias 5–6',
+  faseRetornoHint: 'O remédio começa a cair, e a fome tende a voltar.',
+
+  fasePreLabel: 'Pré-aplicação',
+  fasePreRange: 'Dias 7+',
+  fasePreHint: 'Ponto mais baixo do ciclo, até a próxima dose.',
+
+  /* ============================================================
      AS QUATRO FASES — a leitura das telas internas
 
      ⚠️ ESTA TABELA PRESSUPÕE CADÊNCIA SEMANAL, e é dívida conhecida: quem

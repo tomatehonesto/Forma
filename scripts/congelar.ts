@@ -38,7 +38,7 @@ import {
   todayBrief, journeyGoals, weightCard, canetaAtual, cicloFases,
   rodizioDeLocais, bodyFat, penStock, variacaoDe, resumoDeMovimento,
   periodoDaConsulta, adesao, hungerForecast, enjooAposDormir,
-  examCats, examBy, examAbout, examInfluences, examWays, examStatus,
+  examCats, examBy, examAbout, examInfluences, examWays, examStatus, examesComValor,
   examExplain, examSummary, exameNoProtocolo,
   patterns, PAT_LABEL, balanceRead, balanceSeries, radar, diaFracoDeAgua, janelaDoEnjoo,
   ALVOS, INDICADORES, METAS_PESSOAIS, META_LIVRE, PRAZOS, padraoDe,
@@ -441,6 +441,66 @@ for (const [nome, ajusta] of CENARIOS) {
     const V: any = { ...S, profile: { ...S.profile, intervalo: dias } };
     return [dias, cadenciaTexto(V), cadenciaCurta(V)];
   }));
+
+  /* ============================================================
+     OS EXAMES FORA DA FAIXA — e a semente não tem nenhum
+
+     ⚠️ A SEMENTE É DE UMA PESSOA QUE FOI BEM: quinze marcadores, todos
+     dentro da referência, todos caminhando na direção esperada. Dos
+     ramos do resumo e da leitura, isso exercita três — e os que ficam de
+     fora são justamente os que falam com quem recebeu uma notícia ruim.
+
+     ⚠️ É O TEXTO MAIS DELICADO DO APLICATIVO INTEIRO. Ele diz a alguém
+     que um exame de sangue dela saiu fora da faixa, e a diferença entre
+     "este é o único fora" e "este é um deles" é a diferença entre um
+     susto e um contexto. Extrair isso sem executar seria o pior lugar
+     para escrever no escuro.
+
+     Os valores abaixo são fabricados: empurram marcadores para fora da
+     faixa, para os dois lados, e fazem alguns andarem na direção errada. */
+  const piorado = (marcadores: [string, number][], base = S) => {
+    const exams = (base.exams as any[]).map((e) => {
+      const novo = marcadores.find(([m]) => m === e.marker);
+      if (!novo) return e;
+      return { ...e, values: [...e.values, { t: e.values[e.values.length - 1].t + 1, v: novo[1] }] };
+    });
+    return { ...base, exams } as any;
+  };
+
+  /* Um fora, três fora, cinco fora — os três tamanhos de lista que o
+     resumo distingue, mais o caso de a lista não caber. */
+  const UM: [string, number][] = [['HbA1c', 7.4]];
+  const TRES: [string, number][] = [['HbA1c', 7.4], ['LDL', 171], ['Ferritina', 9]];
+  const CINCO: [string, number][] = [...TRES, ['TGP', 88], ['Triglicerídeos', 240]];
+
+  c.exames = [
+    ['um-fora', UM], ['tres-fora', TRES], ['cinco-fora', CINCO],
+  ].map(([nome, quais]) => {
+    const V = piorado(quais as [string, number][]);
+    const todos = examesComValor(V.exams);
+    return [nome, {
+      resumo: tenta('examSummary', () => examSummary(V)),
+      /* A leitura de CADA marcador tocado, mais um que ficou dentro: é
+         onde estão os ramos de painel, de faixa e de rumo. */
+      leituras: (quais as [string, number][]).map(([m]) => {
+        const e = examBy(V, m);
+        return [m, e ? tenta('examExplain', () => examExplain(e, todos)) : null];
+      }),
+      umQueFicouDentro: tenta('examExplain(dentro)', () => {
+        const e = examBy(V, 'HDL');
+        return e ? examExplain(e, todos) : null;
+      }),
+    }];
+  });
+
+  /* ⚠️ E UM QUE PIOROU SEM SAIR DA FAIXA: é o ramo "na direção oposta à
+     esperada", que não existe em nenhum dos cenários acima — lá quem
+     piora já sai da referência junto. */
+  c.examePioraDentro = tenta('examExplain(piora dentro)', () => {
+    const V = piorado([['HDL', 42]]);
+    const e = examBy(V, 'HDL');
+    return e ? { leitura: examExplain(e, examesComValor(V.exams)), resumo: examSummary(V) } : null;
+  });
 
   c.examSummary = tenta('examSummary', () => examSummary(S));
   c.exameNoProtocolo = tenta('exameNoProtocolo', () => exameNoProtocolo(S));

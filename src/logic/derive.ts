@@ -952,10 +952,6 @@ const marcadorNoMeio = (m: string) => {
   return /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+$/.test(p1) ? m[0].toLowerCase() + m.slice(1) : m;
 };
 
-/* "a", "a e b", "a, b e c" — a vírgula de série do português. */
-const emLista = (xs: string[]) =>
-  xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} e ${xs[xs.length - 1]}`;
-
 /* A ENUMERAÇÃO PARA EM TRÊS, e o resto vira só a contagem.
 
    O resumo mora na capa, que tem altura fixa. Oito nomes em sequência
@@ -972,13 +968,14 @@ export function examSummary(S: State): string | null {
   const n = todos.length;
   const fora = examesForaDaRef(todos);
 
+  const R = T.exames.resumo;
   const estado = fora.length === 0
-    ? `Os ${n} marcadores desta coleta estão dentro da referência do laboratório.`
+    ? R.todosDentro(n)
     : fora.length === 1
-      ? `Um dos ${n} marcadores desta coleta ficou fora da referência: ${marcadorNoMeio(fora[0].marker)}.`
+      ? R.umFora(n, marcadorNoMeio(fora[0].marker))
       : fora.length <= LISTA_MAXIMA
-        ? `${fora.length} dos ${n} marcadores desta coleta ficaram fora da referência: ${emLista(fora.map((e) => marcadorNoMeio(e.marker)))}.`
-        : `${fora.length} dos ${n} marcadores desta coleta ficaram fora da referência.`;
+        ? R.algunsFora(fora.length, n, T.comum.lista(fora.map((e) => marcadorNoMeio(e.marker))))
+        : R.muitosFora(fora.length, n);
 
   /* Só entram no rumo os marcadores que declaram qual lado é o bom. Sem
      isso, chamar uma direção de melhora seria opinião — e creatinina ou
@@ -1000,18 +997,23 @@ export function examSummary(S: State): string | null {
   const maus = comRumo.filter((x) => !x.melhorou).sort((a, b) => b.peso - a.peso);
 
   const desde = comRumo.length
-    ? ` Desde ${dataLonga(Math.min(...comRumo.map((x) => x.f.t)))},`
+    ? R.desde(dataLonga(Math.min(...comRumo.map((x) => x.f.t))))
     : '';
 
-  const melhora = bons.length
-    ? `${desde} ${bons.length === 1 ? 'um marcador caminhou' : `${bons.length} marcadores caminharam`} na direção esperada, e a maior mudança foi em ${marcadorNoMeio(bons[0].e.marker)}: de ${kgTxt(bons[0].f.v)} para ${kgTxt(bons[0].l.v)} ${bons[0].e.unit}.`
-    : '';
+  const melhora = !bons.length ? '' : (() => {
+    const b = bons[0];
+    const qual = marcadorNoMeio(b.e.marker);
+    const de = kgTxt(b.f.v), para = kgTxt(b.l.v);
+    return bons.length === 1
+      ? R.melhoraUm(desde, qual, de, para, b.e.unit)
+      : R.melhoraVarios(desde, bons.length, qual, de, para, b.e.unit);
+  })();
 
-  const piora = maus.length
-    ? (maus.length <= LISTA_MAXIMA
-        ? ` ${maus.length === 1 ? 'Um marcador foi' : `${maus.length} marcadores foram`} na direção oposta: ${emLista(maus.map((x) => marcadorNoMeio(x.e.marker)))}.`
-        : ` ${maus.length} marcadores foram na direção oposta.`)
-    : '';
+  const piora = !maus.length ? ''
+    : maus.length > LISTA_MAXIMA ? R.pioraMuitos(maus.length)
+      : maus.length === 1
+        ? R.pioraUm(marcadorNoMeio(maus[0].e.marker))
+        : R.pioraPoucos(maus.length, T.comum.lista(maus.map((x) => marcadorNoMeio(x.e.marker))));
 
   return `${estado}${melhora}${piora}`;
 }
@@ -1079,16 +1081,13 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
      português, e errar o artigo numa frase sobre a saúde de alguém é um
      tropeço barato de evitar. "Este resultado" é sempre correto, e o nome
      está na barra do topo. */
-  const lado = examStatus(e) === 'alto' ? 'acima' : 'abaixo';
+  const L = T.exames.leitura;
+  const lado = examStatus(e) === 'alto' ? L.acima : L.abaixo;
   const afeta = examAbout(e)?.afeta;
 
   const titulo = !afeta
-    ? (dentro
-        ? 'Este resultado está dentro da faixa de referência do laboratório.'
-        : `Este resultado está ${lado} da faixa de referência do laboratório.`)
-    : dentro
-      ? `Este resultado está dentro da faixa de referência, o que é um bom sinal ${afeta}.`
-      : `Este resultado está ${lado} da faixa de referência, o que faz diferença ${afeta}.`;
+    ? (dentro ? L.dentroSemAfeta : L.foraSemAfeta(lado))
+    : dentro ? L.dentroComAfeta(afeta) : L.foraComAfeta(lado, afeta);
 
   /* O parágrafo é a conta por extenso: o valor desta coleta, a faixa que o
      laboratório escreveu, e o quanto andou desde a primeira. Nada aqui é
@@ -1097,9 +1096,11 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
   const uni = e.unit ? ` ${e.unit}` : '';
   const faixa = (() => {
     const gg = examGaugeData(e);
-    if (gg.temMin && gg.temMax) return `entre ${kgTxt(gg.limMin)} e ${kgTxt(gg.limMax)}${uni}`;
-    if (gg.temMax) return `abaixo de ${kgTxt(gg.limMax)}${uni}`;
-    if (gg.temMin) return `acima de ${kgTxt(gg.limMin)}${uni}`;
+    if (gg.temMin && gg.temMax) return L.faixaEntre(kgTxt(gg.limMin), kgTxt(gg.limMax), uni);
+    if (gg.temMax) return L.faixaAbaixoDe(kgTxt(gg.limMax), uni);
+    if (gg.temMin) return L.faixaAcimaDe(kgTxt(gg.limMin), uni);
+    /* Sem mínimo nem máximo, o que sobra é a faixa como o laboratório a
+       escreveu — texto do laudo, e não frase nossa. */
     return `${e.ref}${uni}`;
   })();
 
@@ -1109,12 +1110,12 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
   const rumo = !e.good
     ? ''
     : dentro
-      ? (melhorou ? ', na direção esperada' : ', na direção oposta à esperada')
-      : (melhorou ? ', caminhando na direção da referência' : ', se afastando dela');
+      ? (melhorou ? L.rumoDentroBom : L.rumoDentroRuim)
+      : (melhorou ? L.rumoForaBom : L.rumoForaRuim);
 
   const andou = !varios || delta === 0
     ? ''
-    : ` Desde ${dataLonga(f.t)} ele ${delta > 0 ? 'subiu' : 'caiu'} ${kgTxt(Math.abs(delta))}${uni}${rumo}.`;
+    : L.andou(dataLonga(f.t), delta > 0 ? L.subiu : L.caiu, kgTxt(Math.abs(delta)), uni, rumo);
 
   /* ⚠️ ESTA É A ÚNICA FRASE DA TELA QUE OLHA PARA FORA DESTE MARCADOR.
 
@@ -1133,15 +1134,13 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
     const n = todos.length;
     if (dentro) {
       return fora === 0
-        ? ` Os ${n} marcadores deste exame estão dentro da referência.`
-        : ` Dos ${n} marcadores deste exame, ${fora} ${fora === 1 ? 'ficou' : 'ficaram'} fora da referência; este não.`;
+        ? L.painelTudoDentro(n)
+        : L.painelEsteNao(n, fora, fora !== 1);
     }
-    return fora === 1
-      ? ` Dos ${n} marcadores deste exame, este é o único fora da referência.`
-      : ` Dos ${n} marcadores deste exame, ${fora} estão fora da referência, e este é um deles.`;
+    return fora === 1 ? L.painelUnicoFora(n) : L.painelEsteEUmDeles(n, fora);
   })();
 
-  const texto = `Na coleta de ${dataLonga(l.t)} o valor foi ${kgTxt(l.v)}${uni}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`;
+  const texto = L.corpo(dataLonga(l.t), kgTxt(l.v), uni, faixa, andou, painel);
 
   return { titulo, texto };
 }
@@ -1156,12 +1155,17 @@ export function doseCycle(S: State) {
   const total = cadenciaDias(S);
   const injDate = li ? startOfDay(new Date(li.t)) : startOfDay(now());
   const dayIn = Math.max(1, Math.min(total, diffDays(now(), injDate) + 1));
+  /* ⚠️ AS CINCO PERGUNTAS JÁ EXISTIAM NO CATÁLOGO, escritas de novo aqui.
+     São as mesmas que a manchete da Home manda para o companion — mesma
+     frase, mesmo destino —, e duas cópias divergem na primeira vez que
+     alguém melhorar uma delas. */
+  const F = T.ciclo;
   const phases: Phase[] = [
-    { key: 'aplic', label: 'Aplicação', ic: 'syringe', range: 'Dia 1', hint: 'O efeito começa a subir nas próximas horas.', q: 'O que esperar no dia da aplicação?' },
-    { key: 'pico', label: 'Pico de efeito', ic: 'rocket', range: 'Dias 1–2', hint: 'Remédio no ponto mais alto — a fome fica menor.', q: 'Quando tenho mais energia?' },
-    { key: 'estab', label: 'Estabilidade', ic: 'shield', range: 'Dias 3–4', hint: 'Efeito constante, sem grandes oscilações.', q: 'Como funciona o ciclo da medicação?' },
-    { key: 'retorno', label: 'Início do retorno da fome', ic: 'waves', range: 'Dias 5–6', hint: 'O remédio começa a cair, e a fome tende a voltar.', q: 'Por que sinto mais fome?' },
-    { key: 'pre', label: 'Pré-aplicação', ic: 'target', range: `Dias 7+`, hint: 'Ponto mais baixo do ciclo, até a próxima dose.', q: 'Por que sinto mais fome?' },
+    { key: 'aplic', label: F.faseAplicLabel, ic: 'syringe', range: F.faseAplicRange, hint: F.faseAplicHint, q: F.aplicQ },
+    { key: 'pico', label: F.fasePicoLabel, ic: 'rocket', range: F.fasePicoRange, hint: F.fasePicoHint, q: F.picoQ },
+    { key: 'estab', label: F.faseEstabLabel, ic: 'shield', range: F.faseEstabRange, hint: F.faseEstabHint, q: F.estabQ },
+    { key: 'retorno', label: F.faseRetornoLabel, ic: 'waves', range: F.faseRetornoRange, hint: F.faseRetornoHint, q: F.retornoQ },
+    { key: 'pre', label: F.fasePreLabel, ic: 'target', range: F.fasePreRange, hint: F.fasePreHint, q: F.altoQ },
   ];
   const idx = dayIn >= 7 ? 4 : dayIn >= 5 ? 3 : dayIn >= 3 ? 2 : dayIn >= 2 ? 1 : 0;
   return { dayIn, total, phases, idx, phase: phases[idx], nextDose: nextInjectionDate(S) };
@@ -2223,15 +2227,12 @@ export function companionMemoria(S: State): string {
   const nInj = S.injections.length;
   const nCheck = S.checkins.length;
 
+  const M = T.companion.memoria;
   const frases = [
-    `Acompanho seu tratamento desde a primeira aplicação, há ${dias} dias.`,
-    `Conheço sua jornada desde o primeiro dia — ${semanas} semanas até aqui.`,
-    /* Antes esta linha enumerava o que ele leu ("considerei seus check-ins,
-       11 aplicações, 15 exames..."). Enumerar prova capacidade de contar,
-       não de conhecer — e a frase que constrói confiança é a que fala de
-       presença ao longo do tempo, não de volume processado. */
-    'Conheço sua jornada desde o primeiro dia.',
-    `Estou com você desde a primeira aplicação, ${nInj} doses atrás.`,
+    M.desdeAPrimeira(dias),
+    M.desdeOPrimeiroDiaComSemanas(semanas),
+    M.desdeOPrimeiroDia,
+    M.dosesAtras(nInj),
   ];
   return frases[nCheck % frases.length];
 }
@@ -2246,6 +2247,7 @@ export function companionMemoria(S: State): string {
 export type Leitura = { motivo: string; titulo: string; desc: string; ic: string; min: number };
 
 export function libraryPicks(S: State): Leitura[] {
+  const L = T.companion.biblioteca;
   const out: Leitura[] = [];
   const cyc = doseCycle(S);
   const ci: any = checkinToday(S);
@@ -2256,36 +2258,36 @@ export function libraryPicks(S: State): Leitura[] {
   const dia = Math.max(0, cadenciaDias(S) - diasAteAplicar(S));
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
-    out.push({ motivo: `Você está no dia ${dia} do ciclo, quando a fome volta`, titulo: 'Por que a fome volta antes da aplicação', desc: `O nível da ${m.mol.toLowerCase()} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`, ic: 'drop2', min: 3 });
+    out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(m.mol.toLowerCase()), ic: 'drop2', min: 3 });
   }
   if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
-    out.push({ motivo: `Você aplicou há ${dia} ${dia === 1 ? 'dia' : 'dias'}`, titulo: 'Os primeiros dias depois da dose', desc: 'O que é esperado sentir na janela de 48 h e o que já merece uma mensagem para a equipe.', ic: 'dose', min: 3 });
+    out.push({ motivo: L.primeirosMotivo(dia), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
   }
 
   const enjoo = cs.slice(-5).reduce((s, c) => s + c.nausea, 0) / Math.max(1, Math.min(5, cs.length));
   if (enjoo >= 2 || (ci && ci.nausea >= 4)) {
     const dias = cs.slice(-7).filter((c) => c.nausea >= 3).length;
-    out.push({ motivo: `Você marcou enjoo em ${dias} dos últimos 7 dias`, titulo: 'Comer sem enfrentar o enjoo', desc: 'Combinações e horários que costumam passar melhor nos dias em que a comida parece demais.', ic: 'waves', min: 4 });
+    out.push({ motivo: L.enjooMotivo(dias), titulo: L.enjooTitulo, desc: L.enjooDesc, ic: 'waves', min: 4 });
   }
 
   const t: any = S.profile.targets;
   const protMed = cs.length ? cs.reduce((s, c) => s + c.prot, 0) / cs.length : 0;
   if (protMed < t.prot) {
-    out.push({ motivo: `Faltam ${Math.round(t.prot - protMed)} g para sua média bater a meta`, titulo: 'Proteína sem cozinhar mais', desc: 'Como chegar à meta com o que já existe na sua geladeira — o problema raramente é receita, é praticidade.', ic: 'flame', min: 5 });
+    out.push({ motivo: L.proteinaMotivo(Math.round(t.prot - protMed)), titulo: L.proteinaTitulo, desc: L.proteinaDesc, ic: 'flame', min: 5 });
   }
 
   const sonoMed = cs.length ? cs.reduce((s, c) => s + c.sono, 0) / cs.length : 0;
   if (sonoMed < 7) {
-    out.push({ motivo: `Sua média de sono está em ${nf(sonoMed, 1)} h`, titulo: 'O sono como parte do tratamento', desc: 'Dormir pouco muda os hormônios da fome no dia seguinte — nos seus próprios registros isso já aparece.', ic: 'moon', min: 4 });
+    out.push({ motivo: L.sonoMotivo(nf(sonoMed, 1)), titulo: L.sonoTitulo, desc: L.sonoDesc, ic: 'moon', min: 4 });
   }
 
   if (r.semana >= 8) {
-    out.push({ motivo: `Semana ${r.semana}, com ${pesoTxt(S, r.lost)} no período`, titulo: 'O que muda depois do terceiro mês', desc: 'A perda desacelera e isso é fisiologia, não falha. O que passa a valer mais do que a balança daqui em diante.', ic: 'journey', min: 6 });
+    out.push({ motivo: L.plateauMotivo(r.semana, pesoTxt(S, r.lost)), titulo: L.plateauTitulo, desc: L.plateauDesc, ic: 'journey', min: 6 });
   }
 
   if (temConsulta(S)) {
     const cd = diffDays(new Date(S.consult.t), now());
-    if (cd >= 0 && cd <= 14) out.push({ motivo: `Sua consulta é daqui a ${cd} dias`, titulo: 'Como aproveitar melhor sua consulta', desc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.', ic: 'steth', min: 3 });
+    if (cd >= 0 && cd <= 14) out.push({ motivo: L.consultaMotivo(cd), titulo: L.consultaTitulo, desc: L.consultaDesc, ic: 'steth', min: 3 });
   }
 
   return out.slice(0, 4);

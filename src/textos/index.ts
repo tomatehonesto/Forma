@@ -1,10 +1,12 @@
 import { ciclo as cicloPt } from './pt-BR/ciclo';
+import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
 import { cuidado as cuidadoPt } from './pt-BR/cuidado';
 import { equilibrio as equilibrioPt } from './pt-BR/equilibrio';
 import { home as homePt } from './pt-BR/home';
 import { etapa as etapaPt } from './pt-BR/etapa';
+import { exames as examesPt } from './pt-BR/exames';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { metas as metasPt } from './pt-BR/metas';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
@@ -56,12 +58,14 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
   ciclo: typeof cicloPt;
+  companion: typeof companionPt;
   comum: typeof comumPt;
   cruzamentos: typeof cruzamentosPt;
   cuidado: typeof cuidadoPt;
   equilibrio: typeof equilibrioPt;
   home: typeof homePt;
   etapa: typeof etapaPt;
+  exames: typeof examesPt;
   marcadores: typeof marcadoresPt;
   metas: typeof metasPt;
   tratamento: typeof tratamentoPt;
@@ -69,8 +73,9 @@ export type Textos = {
 
 const CATALOGOS: Record<Idioma, Textos> = {
   'pt-BR': {
-    ciclo: cicloPt, comum: comumPt, cruzamentos: cruzamentosPt,
-    cuidado: cuidadoPt, equilibrio: equilibrioPt, etapa: etapaPt, home: homePt,
+    ciclo: cicloPt, companion: companionPt, comum: comumPt, cruzamentos: cruzamentosPt,
+    cuidado: cuidadoPt, equilibrio: equilibrioPt, etapa: etapaPt,
+    exames: examesPt, home: homePt,
     marcadores: marcadoresPt, metas: metasPt, tratamento: tratamentoPt,
   },
 };
