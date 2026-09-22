@@ -1420,6 +1420,25 @@ tirada do `git show`, e não de memória.
   título E o botão de fechar. O pé da folha já era fixo pelo mesmo
   motivo; o topo só não era por descuido.
 
+- **⚠️⚠️ A TABELA DE PAÍSES TINHA 111 E O MUNDO TEM MAIS.** Quando o
+  aparelho dizia uma região que não estava nela, `paisDoAparelho`
+  devolvia `null` e `paisAtual()` caía no `PADRAO` — quem abrisse na
+  Albânia via "Brasil" pré-selecionado, não achava a Albânia na lista
+  para corrigir, e ainda ganhava o convite de clínica parceira, porque
+  `temRedeParceira` pergunta `pais === 'BR'`. Agora são 243. ⚠️ Fica a
+  pergunta que a tabela cheia levanta: `moedaDe` cai em dólar para quem
+  não está em `MOEDAS` nem no euro, e a tabela de preços é uma só, em
+  reais — um albanês via "R$ 24,92" (símbolo certo, preço certo) e passa
+  a ver "$24,92" (símbolo errado sobre um preço em real). Não é regressão
+  nova: Nigéria, Quênia, Índia e Turquia já estavam na tabela e já caíam
+  assim. É o item do preço por mercado, que já está aqui.
+- **E `CORTES_ASIA` não acompanhou.** Laos, Brunei, Butão e Maldivas
+  entraram na tabela e não entraram na lista dos cortes de IMC
+  Ásia-Pacífico — nem o Timor-Leste, que já estava na tabela antes. Não
+  mexi: o corte é decisão clínica, e o comportamento deles não mudou
+  (caíam em `oms` pelo `PADRAO` e continuam em `oms`). Mas agora a falta
+  é visível, e é uma pergunta para quem decide a régua.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

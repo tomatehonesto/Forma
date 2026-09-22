@@ -90,6 +90,80 @@ export const NOME_DO_PAIS: Record<Pais, string> = {
   EG: 'مصر', IQ: 'العراق', JO: 'الأردن', KW: 'الكويت', QA: 'قطر',
   OM: 'عُمان', LB: 'لبنان', LY: 'ليبيا', YE: 'اليمن', BH: 'البحرين',
   SY: 'سوريا', IL: 'ישראל', TR: 'Türkiye', IR: 'ایران',
+
+  /* ============================================================
+     E O RESTO DO MUNDO — os que não são mercado de nenhum idioma daqui
+
+     ⚠️⚠️ ELES FALTAVAM, E A FALTA NÃO ERA SILENCIOSA: ERA MENTIROSA. O
+     aparelho diz a região no arranque, e quando ela não estava nesta
+     tabela o `paisDoAparelho` devolvia `null` e o `paisAtual()` caía no
+     `PADRAO`. Quem abrisse o aplicativo na Albânia via "Brasil"
+     pré-selecionado, não achava a Albânia na lista para corrigir — e
+     ainda ganhava o convite de clínica parceira, que é brasileiro porque
+     `temRedeParceira` pergunta `pais === 'BR'`.
+
+     Os grupos de cima são os MERCADOS: cada um existe porque o
+     aplicativo fala aquele idioma. Estes não pertencem a grupo nenhum, e
+     fingir que pertencem seria inventar uma organização que não
+     significa nada. Ficam em ordem de código, que é como se encontram
+     aqui dentro — na tela eles entram ordenados por nome, como todos.
+
+     ⚠️ OS NOMES SAÍRAM DO CLDR, E DEPOIS PASSARAM PELO MESMO CRITÉRIO
+     das noventa e nove primeiras: nome CURTO e na língua ADMINISTRATIVA.
+     O gerador escolhe a língua mais falada, que nem sempre é a de
+     repartição pública — ele devolvia "Gaana" para Ghana e "Senegaal"
+     para o Senegal, que a curadoria à mão já tinha rejeitado. As
+     correções do mesmo tipo estão aqui: Burundi e não Uburundi, Niger e
+     não Nijar, فلسطين e não a forma oficial longa.
+
+     ⚠️⚠️ E TRÊS NOMES SAÍRAM EM PORTUGUÊS, o que é o defeito mais
+     traiçoeiro de gerar nome de país: sem dados da língua pedida, o
+     `Intl.DisplayNames` cai no locale padrão do PROCESSO — e o processo
+     que gerou esta tabela rodava em português. "Samoa Americana",
+     "Papua-Nova Guiné" e "Maldivas" entraram assim. Quem sabe a
+     diferença é `supportedLocalesOf`, e sem dados a queda honesta é o
+     inglês, que é a língua administrativa de quase todos esses casos.
+
+     FICARAM DE FORA, de propósito: território sem população civil
+     permanente (Antártida, Bouvet, Heard, Terras Austrais, Geórgia do
+     Sul, ilhas menores dos EUA e o Território Britânico do Oceano
+     Índico), agrupamento que não é país (UE, ONU) e código depreciado —
+     estes últimos se denunciam sozinhos, porque um alias maximiza para a
+     região canônica: `und-UK` vira `en-Latn-GB`.
+     ============================================================ */
+  AD: 'Andorra', AF: 'افغانستان', AG: 'Antigua and Barbuda', AI: 'Anguilla',
+  AL: 'Shqipëri', AM: 'Հայաստան', AS: 'American Samoa', AW: 'Aruba', AX: 'Åland',
+  AZ: 'Azərbaycan', BA: 'Bosna i Hercegovina', BB: 'Barbados', BF: 'Burkina Faso',
+  BI: 'Burundi', BJ: 'Bénin', BL: 'Saint-Barthélemy', BM: 'Bermuda', BN: 'Brunei',
+  BQ: 'Caribisch Nederland', BS: 'Bahamas', BT: 'འབྲུག', BW: 'Botswana',
+  BZ: 'Belize', CC: 'Kepulauan Cocos (Keeling)', CF: 'Centrafrique',
+  CG: 'Congo-Brazzaville', CK: 'Cook Islands', CW: 'Curaçao',
+  CX: 'Christmas Island', CY: 'Κύπρος', DJ: 'Djibouti', DM: 'Dominica', EE: 'Eesti',
+  EH: 'الصحراء الغربية', ER: 'ኤርትራ', ET: 'ኢትዮጵያ', FJ: 'Fiji',
+  FK: 'Falkland Islands', FM: 'Micronesia', FO: 'Føroyar', GA: 'Gabon',
+  GD: 'Grenada', GE: 'საქართველო', GF: 'Guyane française', GG: 'Guernsey',
+  GI: 'Gibraltar', GL: 'Kalaallit Nunaat', GM: 'Gambia', GN: 'Guinée',
+  GP: 'Guadeloupe', GQ: 'Guinea Ecuatorial', GU: 'Guam', GY: 'Guyana', HT: 'Haïti',
+  IM: 'Isle of Man', JE: 'Jersey', JM: 'Jamaica', KG: 'Кыргызстан', KI: 'Kiribati',
+  KM: 'جزر القمر', KN: 'Saint Kitts and Nevis', KP: '조선', KY: 'Cayman Islands',
+  LA: 'ລາວ', LC: 'Saint Lucia', LR: 'Liberia', LS: 'Lesotho', LT: 'Lietuva',
+  LV: 'Latvija', MD: 'Moldova', ME: 'Црна Гора', MF: 'Saint-Martin',
+  MG: 'Madagasikara', MH: 'Marshall Islands', MK: 'Северна Македонија', ML: 'Mali',
+  MN: 'Монгол', MO: '澳門', MP: 'Northern Mariana Islands', MQ: 'Martinique',
+  MR: 'موريتانيا', MS: 'Montserrat', MT: 'Malta', MU: 'Mauritius', MV: 'Maldives',
+  MW: 'Malawi', NA: 'Namibia', NC: 'Nouvelle-Calédonie', NE: 'Niger',
+  NF: 'Norfolk Island', NR: 'Nauru', NU: 'Niue', PF: 'Polynésie française',
+  PG: 'Papua New Guinea', PM: 'Saint-Pierre-et-Miquelon', PN: 'Pitcairn Islands',
+  PS: 'فلسطين', PW: 'Palau', RE: 'La Réunion', RW: 'Rwanda', SB: 'Solomon Islands',
+  SC: 'Seychelles', SD: 'السودان', SH: 'Saint Helena', SJ: 'Svalbard og Jan Mayen',
+  SL: 'Sierra Leone', SO: 'Soomaaliya', SS: 'جنوب السودان', SX: 'Sint Maarten',
+  SZ: 'Eswatini', TC: 'Turks and Caicos Islands', TD: 'تشاد', TG: 'Togo',
+  TJ: 'Тоҷикистон', TK: 'Tokelau', TM: 'Türkmenistan', TO: 'Tonga',
+  TT: 'Trinidad and Tobago', TV: 'Tuvalu', TZ: 'Tanzania', UG: 'Uganda',
+  UZ: 'Oʻzbekiston', VC: 'Saint Vincent and the Grenadines',
+  VG: 'British Virgin Islands', VI: 'U.S. Virgin Islands', VU: 'Vanuatu',
+  WF: 'Wallis-et-Futuna', WS: 'Samoa', XK: 'Kosovë', YT: 'Mayotte', ZM: 'Zambia',
+  ZW: 'Zimbabwe',
 };
 
 /* ⚠️ A LISTA DO SELETOR É ORDENADA PELO NOME, e não pelo código. Ninguém
