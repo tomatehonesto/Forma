@@ -161,4 +161,31 @@ export const aviso = {
     semPoliticaTitulo: 'Ceci décrit l’application, ce n’est pas la politique de confidentialité',
     semPoliticaTexto: 'Voici ce que le programme fait de vos données. Le document juridique, avec les obligations de qui exploite le service, reste à publier — et quand il existera, il apparaîtra sur cet écran.',
   },
+
+  telaIntegracoes: {
+    titulo: 'Intégrations',
+    lead: 'Activées, elles font entrer vos pesées sans que vous les tapiez.',
+
+    doSeuAparelho: 'De votre appareil',
+    doSeuAparelhoNota: 'Un dépôt local : nous demandons la permission et nous lisons. Sans compte et sans mot de passe.',
+
+    atualizarAgora: 'Actualiser maintenant',
+    lendo: 'Lecture…',
+    nadaNovo: 'Rien de neuf là-bas — vos pesées étaient déjà toutes ici.',
+    trazidas: (quantas: number, aparelho: string) =>
+      `${quantas} ${quantas === 1 ? 'pesée récupérée' : 'pesées récupérées'} depuis ${aparelho}.`,
+    naoDeuParaLer: 'Impossible de lire à l’instant. Réessayez dans un moment.',
+    acessoNegado: 'L’accès n’a pas été autorisé. Vous pouvez changer cela dans les réglages de l’appareil.',
+
+    semAparelhoTitulo: 'L’application santé de l’appareil apparaît sur le téléphone',
+    semAparelhoTexto: 'Apple Santé sur iPhone, Health Connect sur Android. Dans le navigateur il n’y a rien à activer.',
+    semAppTitulo: (aparelho: string) => `${aparelho} n’est pas disponible sur cet appareil`,
+    semAppTexto: 'Health Connect est fourni à partir d’Android 14 et peut s’installer sur les versions antérieures. Une fois installé, revenez ici.',
+    semBuildTitulo: 'Cette version de l’application ne lit pas encore l’appareil',
+    semBuildTexto: 'Lire Apple Santé et Health Connect demande une version installée de l’application, et non l’aperçu. Dans Expo Go elle n’existe pas.',
+
+    contasDeServico: 'Comptes de service',
+    contasDeServicoNota: 'Ceux-là livrent les données à un serveur, et non au téléphone — la liaison arrive quand ce serveur sera debout. En attendant, ce qu’ils envoient à l’application santé de votre appareil arrive déjà ici.',
+    emBreve: 'Bientôt',
+  },
 };

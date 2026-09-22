@@ -120,4 +120,49 @@ export const medidas = {
     todosOsExames: 'Todos os exames',
     todosOsExamesSub: 'Laudos, faixas de referência e histórico completo',
   },
+
+  /* ============================================================
+     A TELA DOS SINAIS VITAIS
+
+     ⚠️ DUAS NATUREZAS DE NÚMERO, E A TELA AS SEPARA. Pressão e glicemia
+     têm série: é a tendência que informa. Frequência, saturação e
+     respiração são medida pontual — dizem se a pessoa está dentro da
+     faixa, não para onde está indo. Juntá-las num bloco só faria a
+     segunda metade parecer um gráfico que não existe.
+
+     ⚠️ E ESTES NÚMEROS NÃO SE DIGITAM. Chegam de um aparelho conectado, e
+     essa ligação ainda não existe. O aviso diz isso em vez de abrir um
+     campo que ninguém deveria preencher de cabeça.
+     ============================================================ */
+  telaSinaisVitais: {
+    titulo: 'Sinais vitais',
+    lead: 'Indicadores que melhoram junto com o peso — e que a balança sozinha não mostra.',
+
+    aoLongoDoTempo: 'Acompanhados ao longo do tempo',
+    pressaoArterial: 'Pressão arterial',
+    pressaoSub: (inicial: string, medicoes: number) =>
+      `${inicial} no início · ${medicoes} medições`,
+    glicemiaDeJejum: 'Glicemia de jejum',
+    glicemiaSub: (inicial: number, medicoes: number) =>
+      `${inicial} mg/dL no início · ${medicoes} medições`,
+
+    ultimaLeitura: 'Última leitura',
+    ultimaLeituraNota: 'Medida pontual: estes números dizem se você está dentro da faixa, não para onde está indo.',
+    pontuais: {
+      fc: 'Freq. cardíaca',
+      spo2: 'Saturação O₂',
+      fr: 'Freq. respiratória',
+      glic: 'Glicemia',
+    },
+    seloNormal: 'normal',
+    seloBaixo: 'baixo',
+    seloAlto: 'alto',
+
+    deOndeVem: 'De onde vêm',
+    aparelhosEContas: 'Aparelhos e contas',
+    aparelhosEContasSub: 'Ver o que dá para ligar hoje, e o que ainda está por vir',
+
+    naoSeDigitam: 'Estes números não se digitam',
+    naoSeDigitamTexto: 'Pressão, saturação e frequência chegam de um aparelho conectado — e essa ligação ainda não existe nesta versão. Um resultado de laboratório entra por Exames.',
+  },
 };

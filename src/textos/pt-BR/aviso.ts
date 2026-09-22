@@ -242,4 +242,49 @@ export const aviso = {
     semPoliticaTitulo: 'Isto descreve o aplicativo, não é a política de privacidade',
     semPoliticaTexto: 'Aqui está o que o programa faz com os seus dados. O documento jurídico, com as obrigações de quem opera o serviço, ainda vai ser publicado — e quando existir, aparece nesta tela.',
   },
+
+  /* ============================================================
+     A TELA DE INTEGRAÇÕES
+
+     ⚠️ CADA MOTIVO TEM O SEU RECADO. "Não disponível" serve para as três
+     situações e não resolve nenhuma: quem está no navegador precisa saber
+     que é o navegador, quem está na prévia precisa saber que é o build, e
+     quem está num Android sem Health Connect precisa saber que dá para
+     instalar.
+
+     ⚠️ E O NÚMERO É O RECADO DA LEITURA. "Sincronizado" não diz se veio
+     alguma coisa, e zero é uma resposta legítima: quem nunca se pesou
+     fora do aplicativo precisa saber que a ligação funcionou e que não
+     havia o que trazer, em vez de achar que falhou em silêncio.
+
+     ⚠️ OS NOMES DE MARCA FICAM NO CÓDIGO. Health Connect, Garmin, Fitbit
+     e Withings não se traduzem; só "Apple Saúde" muda, porque é a própria
+     Apple que traduz o nome do aplicativo dela.
+     ============================================================ */
+  telaIntegracoes: {
+    titulo: 'Integrações',
+    lead: 'Ligadas, elas trazem as suas pesagens sem você digitar.',
+
+    doSeuAparelho: 'Do seu aparelho',
+    doSeuAparelhoNota: 'Um depósito local: pedimos permissão e lemos. Sem conta e sem senha.',
+
+    atualizarAgora: 'Atualizar agora',
+    lendo: 'Lendo…',
+    nadaNovo: 'Nada novo por lá — as suas pesagens já estavam todas aqui.',
+    trazidas: (quantas: number, aparelho: string) =>
+      `${quantas} ${quantas === 1 ? 'pesagem trazida' : 'pesagens trazidas'} do ${aparelho}.`,
+    naoDeuParaLer: 'Não deu para ler agora. Tente de novo em instantes.',
+    acessoNegado: 'O acesso não foi liberado. Dá para mudar isso nas configurações do aparelho.',
+
+    semAparelhoTitulo: 'O aplicativo de saúde do aparelho aparece no celular',
+    semAparelhoTexto: 'Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar.',
+    semAppTitulo: (aparelho: string) => `${aparelho} não está disponível neste aparelho`,
+    semAppTexto: 'O Health Connect vem no Android 14 em diante e pode ser instalado nas versões anteriores. Depois de instalar, volte aqui.',
+    semBuildTitulo: 'Esta versão do aplicativo ainda não lê o aparelho',
+    semBuildTexto: 'A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do aplicativo, e não da prévia. No Expo Go ela não existe.',
+
+    contasDeServico: 'Contas de serviço',
+    contasDeServicoNota: 'Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o aplicativo de saúde do seu aparelho já chega aqui.',
+    emBreve: 'Em breve',
+  },
 };

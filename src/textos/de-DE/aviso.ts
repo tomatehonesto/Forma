@@ -192,4 +192,31 @@ export const aviso = {
     semPoliticaTitulo: 'Das hier beschreibt die App, es ist nicht die Datenschutzerklärung',
     semPoliticaTexto: 'Hier steht, was das Programm mit deinen Daten macht. Das juristische Dokument, mit den Pflichten dessen, der den Dienst betreibt, muss noch veröffentlicht werden — und sobald es existiert, erscheint es auf diesem Bildschirm.',
   },
+
+  telaIntegracoes: {
+    titulo: 'Anbindungen',
+    lead: 'Eingeschaltet holen sie deine Wiegungen herein, ohne dass du tippst.',
+
+    doSeuAparelho: 'Von deinem Gerät',
+    doSeuAparelhoNota: 'Ein lokaler Speicher: wir fragen um Erlaubnis und lesen. Ohne Konto und ohne Passwort.',
+
+    atualizarAgora: 'Jetzt aktualisieren',
+    lendo: 'Wird gelesen…',
+    nadaNovo: 'Nichts Neues dort — deine Wiegungen waren schon alle hier.',
+    trazidas: (quantas: number, aparelho: string) =>
+      `${quantas} ${quantas === 1 ? 'Wiegung geholt' : 'Wiegungen geholt'} aus ${aparelho}.`,
+    naoDeuParaLer: 'Gerade ließ es sich nicht lesen. Versuch es gleich noch einmal.',
+    acessoNegado: 'Der Zugriff wurde nicht erlaubt. Das lässt sich in den Einstellungen des Geräts ändern.',
+
+    semAparelhoTitulo: 'Die Gesundheits-App des Geräts erscheint auf dem Telefon',
+    semAparelhoTexto: 'Apple Health auf dem iPhone, Health Connect auf Android. Im Browser gibt es nichts einzuschalten.',
+    semAppTitulo: (aparelho: string) => `${aparelho} ist auf diesem Gerät nicht verfügbar`,
+    semAppTexto: 'Health Connect kommt ab Android 14 mit und lässt sich auf älteren Versionen installieren. Komm nach der Installation wieder hierher.',
+    semBuildTitulo: 'Diese Version der App liest das Gerät noch nicht',
+    semBuildTexto: 'Apple Health und Health Connect zu lesen braucht eine installierte Version der App und nicht die Vorschau. In Expo Go gibt es sie nicht.',
+
+    contasDeServico: 'Dienstkonten',
+    contasDeServicoNota: 'Diese liefern die Daten an einen Server und nicht ans Telefon — die Verbindung kommt, sobald dieser Server steht. Bis dahin kommt alles, was sie an die Gesundheits-App deines Geräts schicken, schon hier an.',
+    emBreve: 'Bald',
+  },
 };

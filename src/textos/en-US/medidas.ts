@@ -67,4 +67,36 @@ export const medidas = {
     todosOsExames: 'All lab results',
     todosOsExamesSub: 'Reports, reference ranges and the full history',
   },
+
+  telaSinaisVitais: {
+    titulo: 'Vital signs',
+    lead: 'Numbers that improve along with weight — and that the scale alone does not show.',
+
+    aoLongoDoTempo: 'Followed over time',
+    pressaoArterial: 'Blood pressure',
+    pressaoSub: (inicial: string, medicoes: number) =>
+      `${inicial} at the start · ${medicoes} readings`,
+    glicemiaDeJejum: 'Fasting glucose',
+    glicemiaSub: (inicial: number, medicoes: number) =>
+      `${inicial} mg/dL at the start · ${medicoes} readings`,
+
+    ultimaLeitura: 'Latest reading',
+    ultimaLeituraNota: 'A single point: these numbers say whether you are inside the range, not where you are heading.',
+    pontuais: {
+      fc: 'Heart rate',
+      spo2: 'O₂ saturation',
+      fr: 'Breathing rate',
+      glic: 'Glucose',
+    },
+    seloNormal: 'normal',
+    seloBaixo: 'low',
+    seloAlto: 'high',
+
+    deOndeVem: 'Where they come from',
+    aparelhosEContas: 'Devices and accounts',
+    aparelhosEContasSub: 'See what can be connected today, and what is still to come',
+
+    naoSeDigitam: 'These numbers are not typed in',
+    naoSeDigitamTexto: 'Blood pressure, saturation and heart rate arrive from a connected device — and that link does not exist in this version yet. A lab result comes in through Lab results.',
+  },
 };

@@ -160,4 +160,31 @@ export const aviso = {
     semPoliticaTitulo: 'Esto describe la aplicación, no es la política de privacidad',
     semPoliticaTexto: 'Aquí está lo que el programa hace con tus datos. El documento jurídico, con las obligaciones de quien opera el servicio, todavía va a publicarse — y cuando exista, aparece en esta pantalla.',
   },
+
+  telaIntegracoes: {
+    titulo: 'Integraciones',
+    lead: 'Encendidas, traen tus pesajes sin que los escribas.',
+
+    doSeuAparelho: 'De tu aparato',
+    doSeuAparelhoNota: 'Un depósito local: pedimos permiso y leemos. Sin cuenta y sin contraseña.',
+
+    atualizarAgora: 'Actualizar ahora',
+    lendo: 'Leyendo…',
+    nadaNovo: 'Nada nuevo por allá — tus pesajes ya estaban todos aquí.',
+    trazidas: (quantas: number, aparelho: string) =>
+      `${quantas} ${quantas === 1 ? 'pesaje traído' : 'pesajes traídos'} de ${aparelho}.`,
+    naoDeuParaLer: 'No pudimos leer ahora. Prueba de nuevo en un momento.',
+    acessoNegado: 'El acceso no fue autorizado. Puedes cambiarlo en los ajustes del aparato.',
+
+    semAparelhoTitulo: 'La aplicación de salud del aparato aparece en el celular',
+    semAparelhoTexto: 'Apple Salud en el iPhone, Health Connect en Android. En el navegador no hay nada que encender.',
+    semAppTitulo: (aparelho: string) => `${aparelho} no está disponible en este aparato`,
+    semAppTexto: 'Health Connect viene en Android 14 en adelante y puede instalarse en las versiones anteriores. Después de instalarlo, vuelve aquí.',
+    semBuildTitulo: 'Esta versión de la aplicación todavía no lee el aparato',
+    semBuildTexto: 'Leer Apple Salud y Health Connect necesita una versión instalada de la aplicación, no la vista previa. En Expo Go no existe.',
+
+    contasDeServico: 'Cuentas de servicio',
+    contasDeServicoNota: 'Estos entregan los datos a un servidor, y no al teléfono — la conexión entra cuando ese servidor esté de pie. Mientras tanto, lo que mandan a la aplicación de salud de tu aparato ya llega aquí.',
+    emBreve: 'Pronto',
+  },
 };

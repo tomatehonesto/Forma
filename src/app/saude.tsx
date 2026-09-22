@@ -11,6 +11,11 @@ import {
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.medidas.telaSinaisVitais;
 
 /* ============================================================
    SINAIS VITAIS
@@ -61,28 +66,25 @@ export default function Saude() {
   const gl0 = (S.vitals.glic as any[])[0];
 
   const pontuais = [
-    { k: 'fc', label: 'Freq. cardíaca', val: `${fc.v}`, u: 'bpm', num: fc.v, ic: 'activity' },
-    { k: 'spo2', label: 'Saturação O₂', val: `${sp.v}`, u: '%', num: sp.v, ic: 'drop2' },
-    { k: 'fr', label: 'Freq. respiratória', val: `${fr.v}`, u: 'rpm', num: fr.v, ic: 'waves' },
-    { k: 'glic', label: 'Glicemia', val: `${gl.v}`, u: 'mg/dL', num: gl.v, ic: 'water' },
+    { k: 'fc', label: K().pontuais.fc, val: `${fc.v}`, u: 'bpm', num: fc.v, ic: 'activity' },
+    { k: 'spo2', label: K().pontuais.spo2, val: `${sp.v}`, u: '%', num: sp.v, ic: 'drop2' },
+    { k: 'fr', label: K().pontuais.fr, val: `${fr.v}`, u: 'rpm', num: fr.v, ic: 'waves' },
+    { k: 'glic', label: K().pontuais.glic, val: `${gl.v}`, u: 'mg/dL', num: gl.v, ic: 'water' },
   ];
 
   return (
-    <TelaInterna titulo="Sinais vitais">
-      <Titulao
-        titulo="Sinais vitais"
-        lead="Indicadores que melhoram junto com o peso — e que a balança sozinha não mostra."
-      />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
-      <Bloco titulo="Acompanhados ao longo do tempo">
+      <Bloco titulo={K().aoLongoDoTempo}>
         <View style={{ gap: 10 }}>
           {/* A leitura ao deslizar mostra a sistólica de cada medição com a
               data. A curva é da sistólica sozinha — é ela que carrega a
               tendência; a diastólica acompanha e caberia mal numa linha. */}
           <CardCurva
             id="pa"
-            nome="Pressão arterial"
-            sub={`${pa0.sys}/${pa0.dia} no início · ${paSerie.length} medições`}
+            nome={K().pressaoArterial}
+            sub={K().pressaoSub(`${pa0.sys}/${pa0.dia}`, paSerie.length)}
             valor={`${pa.sys}/${pa.dia}`}
             unidade="mmHg"
             pontos={(S.vitals.pa as any[]).map((x) => ({
@@ -91,8 +93,8 @@ export default function Saude() {
           />
           <CardCurva
             id="gl"
-            nome="Glicemia de jejum"
-            sub={`${gl0.v} mg/dL no início · ${glSerie.length} medições`}
+            nome={K().glicemiaDeJejum}
+            sub={K().glicemiaSub(gl0.v, glSerie.length)}
             valor={`${gl.v}`}
             unidade="mg/dL"
             pontos={(S.vitals.glic as any[]).map((x) => ({
@@ -103,8 +105,8 @@ export default function Saude() {
       </Bloco>
 
       <Bloco
-        titulo="Última leitura"
-        nota="Medida pontual: estes números dizem se você está dentro da faixa, não para onde está indo."
+        titulo={K().ultimaLeitura}
+        nota={K().ultimaLeituraNota}
       >
         <Grade2>
           {pontuais.map((t) => {
@@ -117,7 +119,7 @@ export default function Saude() {
               >
                 <Row style={{ justifyContent: 'space-between', gap: 8 }}>
                   <Icon name={t.ic} size={17} color={c.tx2} sw={1.8} />
-                  <Selo label={ok ? 'normal' : t.num < lo ? 'baixo' : 'alto'} tom={ok ? 'verde' : 'neutra'} />
+                  <Selo label={ok ? K().seloNormal : t.num < lo ? K().seloBaixo : K().seloAlto} tom={ok ? 'verde' : 'neutra'} />
                 </Row>
                 <Txt v="title" style={{ marginTop: 9 }}>
                   {t.val}
@@ -143,12 +145,12 @@ export default function Saude() {
           Status falso é pior que status nenhum. Quem lê "conectada" e não
           vê o peso aparecer conclui que o aplicativo está quebrado — e
           quem lê e acredita para de pesar. */}
-      <Bloco titulo="De onde vêm">
+      <Bloco titulo={K().deOndeVem}>
         <Cartao>
           <Linha
             ic="trend"
-            titulo="Aparelhos e contas"
-            sub="Ver o que dá para ligar hoje, e o que ainda está por vir"
+            titulo={K().aparelhosEContas}
+            sub={K().aparelhosEContasSub}
             onPress={() => router.push('/integracoes' as any)}
           />
         </Cartao>
@@ -160,14 +162,14 @@ export default function Saude() {
           era em Medidas, onde o Pressable não tinha onPress. */}
       <Aviso
         ic="info"
-        titulo="Estes números não se digitam"
+        titulo={K().naoSeDigitam}
         /* ⚠️ E ELES TAMBÉM NÃO CHEGAM, ainda. O texto dizia que pressão,
            saturação e frequência "chegam do aparelho conectado", no
            presente: a leitura do aparelho traz só PESO, e as contas que
            trariam pressão dependem de um servidor que não existe. Nada,
            hoje, escreve um sinal vital — só a semente. Dizer de onde eles
            virão é honesto; dizer que já vêm não é. */
-        texto="Pressão, saturação e frequência chegam de um aparelho conectado — e essa ligação ainda não existe nesta versão. Um resultado de laboratório entra por Exames."
+        texto={K().naoSeDigitamTexto}
       />
 
       <View />

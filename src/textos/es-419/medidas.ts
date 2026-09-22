@@ -67,4 +67,36 @@ export const medidas = {
     todosOsExames: 'Todos los exámenes',
     todosOsExamesSub: 'Informes, rangos de referencia e historial completo',
   },
+
+  telaSinaisVitais: {
+    titulo: 'Signos vitales',
+    lead: 'Indicadores que mejoran junto con el peso — y que la balanza sola no muestra.',
+
+    aoLongoDoTempo: 'Seguidos a lo largo del tiempo',
+    pressaoArterial: 'Presión arterial',
+    pressaoSub: (inicial: string, medicoes: number) =>
+      `${inicial} al inicio · ${medicoes} mediciones`,
+    glicemiaDeJejum: 'Glucemia en ayunas',
+    glicemiaSub: (inicial: number, medicoes: number) =>
+      `${inicial} mg/dL al inicio · ${medicoes} mediciones`,
+
+    ultimaLeitura: 'Última lectura',
+    ultimaLeituraNota: 'Medida puntual: estos números dicen si estás dentro del rango, no hacia dónde vas.',
+    pontuais: {
+      fc: 'Frec. cardíaca',
+      spo2: 'Saturación O₂',
+      fr: 'Frec. respiratoria',
+      glic: 'Glucemia',
+    },
+    seloNormal: 'normal',
+    seloBaixo: 'bajo',
+    seloAlto: 'alto',
+
+    deOndeVem: 'De dónde vienen',
+    aparelhosEContas: 'Aparatos y cuentas',
+    aparelhosEContasSub: 'Ver qué se puede conectar hoy, y qué todavía está por venir',
+
+    naoSeDigitam: 'Estos números no se escriben a mano',
+    naoSeDigitamTexto: 'Presión, saturación y frecuencia llegan de un aparato conectado — y esa conexión todavía no existe en esta versión. Un resultado de laboratorio entra por Exámenes.',
+  },
 };

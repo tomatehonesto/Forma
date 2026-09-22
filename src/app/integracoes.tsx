@@ -11,6 +11,11 @@ import { CoracaoDeSaude } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.aviso.telaIntegracoes;
 
 /* ============================================================
    INTEGRAÇÕES — de onde os números podem vir sozinhos
@@ -91,11 +96,11 @@ export default function Integracoes() {
          trazer, em vez de achar que falhou em silêncio. */
       setRecado(
         novas === 0
-          ? 'Nada novo por lá — as suas pesagens já estavam todas aqui.'
-          : `${novas} ${novas === 1 ? 'pesagem trazida' : 'pesagens trazidas'} do ${aparelho?.nome}.`,
+          ? K().nadaNovo
+          : K().trazidas(novas, aparelho?.nome ?? ''),
       );
     } catch {
-      setRecado('Não deu para ler agora. Tente de novo em instantes.');
+      setRecado(K().naoDeuParaLer);
     } finally {
       setLendo(false);
     }
@@ -113,7 +118,7 @@ export default function Integracoes() {
       return;
     }
     const ok = await pedirAcesso();
-    if (!ok) { setRecado('O acesso não foi liberado. Dá para mudar isso nas configurações do aparelho.'); return; }
+    if (!ok) { setRecado(K().acessoNegado); return; }
     update((s: any) => { s.integrations[aparelho.id] = true; });
     await importar();
   };
@@ -130,11 +135,11 @@ export default function Integracoes() {
   );
 
   return (
-    <TelaInterna titulo="Integrações">
-      <Titulao titulo="Integrações" lead="Ligadas, elas trazem as suas pesagens sem você digitar." />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       {aparelho && estado === 'pronto' ? (
-        <Bloco titulo="Do seu aparelho" nota="Um depósito local: pedimos permissão e lemos. Sem conta e sem senha.">
+        <Bloco titulo={K().doSeuAparelho} nota={K().doSeuAparelhoNota}>
           <Cartao>
             <Linha
               it={aparelho}
@@ -153,7 +158,7 @@ export default function Integracoes() {
                 <Row gap={10} style={{ paddingHorizontal: 16, paddingVertical: 13, alignItems: 'center' }}>
                   <Icon name="reset" size={17} color={c.accent} sw={2.2} />
                   <Txt v="label" c={c.accent} style={{ flex: 1 }}>
-                    {lendo ? 'Lendo…' : 'Atualizar agora'}
+                    {lendo ? K().lendo : K().atualizarAgora}
                   </Txt>
                 </Row>
               </Pressable>
@@ -172,25 +177,25 @@ export default function Integracoes() {
         <Aviso
           ic="info"
           titulo={
-            !aparelho ? 'O aplicativo de saúde do aparelho aparece no celular'
-              : estado === 'sem-app' ? `${aparelho.nome} não está disponível neste aparelho`
-                : 'Esta versão do aplicativo ainda não lê o aparelho'
+            !aparelho ? K().semAparelhoTitulo
+              : estado === 'sem-app' ? K().semAppTitulo(aparelho.nome)
+                : K().semBuildTitulo
           }
           texto={
-            !aparelho ? 'Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar.'
-              : estado === 'sem-app' ? 'O Health Connect vem no Android 14 em diante e pode ser instalado nas versões anteriores. Depois de instalar, volte aqui.'
-                : 'A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do aplicativo, e não da prévia. No Expo Go ela não existe.'
+            !aparelho ? K().semAparelhoTexto
+              : estado === 'sem-app' ? K().semAppTexto
+                : K().semBuildTexto
           }
         />
       )}
 
       <Bloco
-        titulo="Contas de serviço"
-        nota="Estes entregam os dados para um servidor, e não para o telefone — a ligação entra quando esse servidor estiver de pé. Enquanto isso, o que eles mandam para o aplicativo de saúde do seu aparelho já chega aqui."
+        titulo={K().contasDeServico}
+        nota={K().contasDeServicoNota}
       >
         <Cartao>
           {CONTAS().map((it) => (
-            <Linha key={it.id} it={it} direita={<Txt v="micro" c={c.tx4}>Em breve</Txt>} />
+            <Linha key={it.id} it={it} direita={<Txt v="micro" c={c.tx4}>{K().emBreve}</Txt>} />
           ))}
         </Cartao>
       </Bloco>

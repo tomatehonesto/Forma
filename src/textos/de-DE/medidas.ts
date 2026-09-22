@@ -84,4 +84,36 @@ export const medidas = {
     todosOsExames: 'Alle Befunde',
     todosOsExamesSub: 'Berichte, Referenzbereiche und der ganze Verlauf',
   },
+
+  telaSinaisVitais: {
+    titulo: 'Vitalwerte',
+    lead: 'Werte, die sich zusammen mit dem Gewicht bessern — und die die Waage allein nicht zeigt.',
+
+    aoLongoDoTempo: 'Über die Zeit verfolgt',
+    pressaoArterial: 'Blutdruck',
+    pressaoSub: (inicial: string, medicoes: number) =>
+      `${inicial} am Anfang · ${medicoes} Messungen`,
+    glicemiaDeJejum: 'Nüchternblutzucker',
+    glicemiaSub: (inicial: number, medicoes: number) =>
+      `${inicial} mg/dL am Anfang · ${medicoes} Messungen`,
+
+    ultimaLeitura: 'Letzte Messung',
+    ultimaLeituraNota: 'Eine Momentaufnahme: diese Zahlen sagen, ob du im Bereich liegst, nicht wohin es geht.',
+    pontuais: {
+      fc: 'Herzfrequenz',
+      spo2: 'O₂-Sättigung',
+      fr: 'Atemfrequenz',
+      glic: 'Blutzucker',
+    },
+    seloNormal: 'normal',
+    seloBaixo: 'niedrig',
+    seloAlto: 'hoch',
+
+    deOndeVem: 'Woher sie kommen',
+    aparelhosEContas: 'Geräte und Konten',
+    aparelhosEContasSub: 'Sehen, was sich heute verbinden lässt und was noch kommt',
+
+    naoSeDigitam: 'Diese Zahlen tippt man nicht ein',
+    naoSeDigitamTexto: 'Blutdruck, Sättigung und Frequenz kommen von einem verbundenen Gerät — und diese Verbindung gibt es in dieser Version noch nicht. Ein Laborergebnis kommt über Befunde herein.',
+  },
 };

@@ -158,4 +158,31 @@ export const aviso = {
     semPoliticaTitulo: 'This describes the app; it is not the privacy policy',
     semPoliticaTexto: 'Here is what the program does with your data. The legal document, with the obligations of whoever runs the service, is still to be published — and when it exists, it shows up on this screen.',
   },
+
+  telaIntegracoes: {
+    titulo: 'Integrations',
+    lead: 'Turned on, they bring your weigh-ins in without you typing them.',
+
+    doSeuAparelho: 'From your device',
+    doSeuAparelhoNota: 'A local store: we ask for permission and read. No account and no password.',
+
+    atualizarAgora: 'Refresh now',
+    lendo: 'Reading…',
+    nadaNovo: 'Nothing new over there — your weigh-ins were all already here.',
+    trazidas: (quantas: number, aparelho: string) =>
+      `${quantas} ${quantas === 1 ? 'weigh-in brought' : 'weigh-ins brought'} from ${aparelho}.`,
+    naoDeuParaLer: 'We could not read it just now. Try again in a moment.',
+    acessoNegado: 'Access was not granted. You can change that in the device settings.',
+
+    semAparelhoTitulo: 'The device’s health app shows up on a phone',
+    semAparelhoTexto: 'Apple Health on iPhone, Health Connect on Android. In a browser there is nothing to turn on.',
+    semAppTitulo: (aparelho: string) => `${aparelho} is not available on this device`,
+    semAppTexto: 'Health Connect ships with Android 14 onwards and can be installed on earlier versions. Once it is installed, come back here.',
+    semBuildTitulo: 'This build of the app cannot read the device yet',
+    semBuildTexto: 'Reading Apple Health and Health Connect needs an installed build of the app, not the preview. In Expo Go it does not exist.',
+
+    contasDeServico: 'Service accounts',
+    contasDeServicoNota: 'These hand the data to a server, not to the phone — the link comes in once that server is up. In the meantime, whatever they send to your device’s health app already arrives here.',
+    emBreve: 'Coming soon',
+  },
 };

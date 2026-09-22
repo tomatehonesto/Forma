@@ -67,4 +67,36 @@ export const medidas = {
     todosOsExames: 'Toutes les analyses',
     todosOsExamesSub: 'Comptes rendus, valeurs de référence et historique complet',
   },
+
+  telaSinaisVitais: {
+    titulo: 'Signes vitaux',
+    lead: 'Des indicateurs qui s’améliorent avec le poids — et que la balance seule ne montre pas.',
+
+    aoLongoDoTempo: 'Suivis dans le temps',
+    pressaoArterial: 'Tension artérielle',
+    pressaoSub: (inicial: string, medicoes: number) =>
+      `${inicial} au départ · ${medicoes} mesures`,
+    glicemiaDeJejum: 'Glycémie à jeun',
+    glicemiaSub: (inicial: number, medicoes: number) =>
+      `${inicial} mg/dL au départ · ${medicoes} mesures`,
+
+    ultimaLeitura: 'Dernière mesure',
+    ultimaLeituraNota: 'Une mesure ponctuelle : ces chiffres disent si vous êtes dans la fourchette, pas vers où vous allez.',
+    pontuais: {
+      fc: 'Fréq. cardiaque',
+      spo2: 'Saturation O₂',
+      fr: 'Fréq. respiratoire',
+      glic: 'Glycémie',
+    },
+    seloNormal: 'normal',
+    seloBaixo: 'bas',
+    seloAlto: 'haut',
+
+    deOndeVem: 'D’où ils viennent',
+    aparelhosEContas: 'Appareils et comptes',
+    aparelhosEContasSub: 'Voir ce qui se connecte aujourd’hui, et ce qui reste à venir',
+
+    naoSeDigitam: 'Ces chiffres ne se tapent pas',
+    naoSeDigitamTexto: 'La tension, la saturation et la fréquence arrivent d’un appareil connecté — et cette liaison n’existe pas encore dans cette version. Un résultat de laboratoire entre par Analyses.',
+  },
 };
