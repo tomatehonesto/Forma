@@ -289,4 +289,47 @@ export const tratamento = {
     itemEncerrado: (periodo: string, usadas: number, total: number) =>
       `${periodo} · ${usadas} de ${total} dosis`,
   },
+
+  telaRegistrarAplicacao: {
+    registrar: (acao: string) => `Registrar ${acao}`,
+    salvar: (acao: string) => `Guardar ${acao}`,
+
+    quando: 'Cuándo',
+    ficaRegistradaAgora: (hora: string) => `Queda registrada ahora, ${hora}.`,
+    registrarDepois: 'Registrarla después no cambia nada más que la fecha — la cuenta de la próxima dosis sale de aquí.',
+
+    medicamentoEDose: 'Medicamento y dosis',
+    medicamentoEDoseDaReceita: 'Medicamento y dosis de la receta',
+    manipuladoSemEscada: 'El preparado magistral no tiene escalera de prospecto — el número es el de tu receta.',
+    medComDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} · ${dose} ${unidade}`,
+    mudeiADose: 'Cambié la dosis',
+    semFaixa: 'No tenemos rango de referencia para este medicamento. La dosis queda como la de tu último registro.',
+
+    localDaAplicacao: 'Lugar de la aplicación',
+    localAjuda: 'Alternar el lugar cada semana ayuda a evitar irritación y nódulos en la piel.',
+    regioes: {
+      braco: 'Brazo',
+      abd: 'Abdomen',
+      coxa: 'Muslo',
+    },
+    sugerido: (nome: string) => `${nome} · sugerido`,
+    lado: 'Lado',
+    lados: {
+      e: 'Izquierdo',
+      d: 'Derecho',
+    },
+    localComDescanso: (local: string, descanso: string) => `${local} · ${descanso}`,
+    naoUsado: 'Todavía sin usar en este tratamiento.',
+    usadoEstaSemana: 'Usado esta semana.',
+    descansandoHa: (semanas: number) =>
+      `Descansando hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}.`,
+    eOProximo: 'Es el próximo de la rotación.',
+    foraDaRotacao: 'Fuera de la rotación sugerida — sin problema, es solo un recordatorio.',
+
+    ultimaDose: (deste: string, recipiente: string) =>
+      `Esta es la última dosis ${deste} ${recipiente}.`,
+    restamDoses: (quantas: number) => `Quedan ${quantas} dosis.`,
+    enesimaDose: (numero: number) => `Dosis ${numero}`,
+  },
 };

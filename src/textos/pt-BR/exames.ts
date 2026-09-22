@@ -133,4 +133,71 @@ export const exames = {
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
       `Na coleta de ${data} o valor foi ${valor}${unidade}, e a referência do laboratório é ${faixa}.${andou}${painel} Um exame sozinho não fecha nada: quem junta ele com o resto da sua história é quem acompanha você.`,
   },
+
+  /* ============================================================
+     A TELA DOS EXAMES
+
+     ⚠️ O VEREDITO VEM COM A PROVA. "Na referência" sozinho é uma
+     afirmação que a pessoa não tem como conferir; "Na referência: abaixo
+     de 5,7 %" é a mesma afirmação com o limite dentro dela. Foi por isso
+     que os dois viraram um selo só — e por isso a faixa em palavras leva
+     a unidade, que antes ficava subentendida pelo número logo acima.
+
+     ⚠️ E SÃO DOIS NÚMEROS NA CAPA, E NÃO UM. "3 fora da referência"
+     sozinho é um alarme sem denominador: três de quinze e três de quatro
+     não são a mesma notícia.
+     ============================================================ */
+  tela: {
+    titulo: 'Exames',
+    linha: (quantos: number, ultimaColeta: string) =>
+      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultimaColeta}`,
+    foraDaReferencia: 'fora da referência',
+    naReferencia: 'na referência',
+    blocoFora: 'Fora da referência',
+    arquivosImportados: 'Arquivos importados',
+    arquivoSub: (marcadores: number, fonte: string, data: string) =>
+      `${marcadores} marcadores · ${fonte} · ${data}`,
+    importar: 'Importar exame',
+    enviarAoMedico: 'Enviar ao médico',
+
+    /* ---------- o marcador ---------- */
+    colhidoEm: (data: string) => `Colhido em ${data}`,
+    vereditoOk: 'Na referência',
+    vereditoAlto: 'Acima da referência',
+    vereditoBaixo: 'Abaixo da referência',
+    vereditoComFaixa: (veredito: string, faixa: string) => `${veredito}: ${faixa}`,
+    faixaEntre: (minimo: string, maximo: string, unidade: string) =>
+      `entre ${minimo} e ${maximo}${unidade}`,
+    faixaAbaixo: (maximo: string, unidade: string) => `abaixo de ${maximo}${unidade}`,
+    faixaAcima: (minimo: string, unidade: string) => `acima de ${minimo}${unidade}`,
+    faixaRef: (referencia: string, unidade: string) => `${referencia}${unidade}`,
+    refCurta: (referencia: string) => ` · ref ${referencia}`,
+
+    /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
+       do número, e o veredito por extenso mora no detalhe. */
+    seloOk: 'na referência',
+    seloAlto: 'acima',
+    seloBaixo: 'abaixo',
+    seloEnviado: 'enviado',
+
+    sobre: 'SOBRE',
+
+    /* ---------- a evolução ----------
+       ⚠️ SEM `good`, A PASTILHA FICA NEUTRA: número, unidade, e nenhuma
+       palavra sobre se isso é boa notícia. Nem todo marcador tem lado
+       bom. */
+    evolucao: 'EVOLUÇÃO',
+    deAte: (primeiro: string, ultimo: string) => `De ${primeiro} a ${ultimo}`,
+    coletasDesde: (quantas: number, data: string) =>
+      `${quantas} ${quantas === 1 ? 'coleta' : 'coletas'} desde ${data}`,
+    deltaEsperado: ' · esperado',
+    deltaOposto: ' · oposto',
+
+    oQueSignifica: 'O QUE ISSO SIGNIFICA',
+    oQueAjuda: 'O que costuma ajudar',
+    oQueMexe: 'O que também mexe no resultado',
+    rodape: 'São as causas e os caminhos mais comuns, e não a lista inteira. Mudança de dose ou de medicação é decisão de quem acompanha você.',
+    perguntarSobre: 'Perguntar sobre este exame',
+    perguntaCompanion: (marcador: string) => `Explique meu exame de ${marcador}`,
+  },
 };

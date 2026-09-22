@@ -105,4 +105,53 @@ export const exames = {
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
       `On the ${data} draw the value was ${valor}${unidade}, and the lab’s reference range is ${faixa}.${andou}${painel} A single panel doesn’t settle anything: the person who puts it together with the rest of your history is whoever follows your care.`,
   },
+
+  tela: {
+    titulo: 'Lab results',
+    linha: (quantos: number, ultimaColeta: string) =>
+      `${quantos} ${quantos === 1 ? 'marker' : 'markers'} · last panel ${ultimaColeta}`,
+    foraDaReferencia: 'outside the range',
+    naReferencia: 'within range',
+    blocoFora: 'Outside the range',
+    arquivosImportados: 'Imported files',
+    arquivoSub: (marcadores: number, fonte: string, data: string) =>
+      `${marcadores} markers · ${fonte} · ${data}`,
+    importar: 'Import a lab result',
+    enviarAoMedico: 'Send to the doctor',
+
+    colhidoEm: (data: string) => `Collected on ${data}`,
+    vereditoOk: 'Within range',
+    vereditoAlto: 'Above the range',
+    vereditoBaixo: 'Below the range',
+    vereditoComFaixa: (veredito: string, faixa: string) => `${veredito}: ${faixa}`,
+    faixaEntre: (minimo: string, maximo: string, unidade: string) =>
+      `between ${minimo} and ${maximo}${unidade}`,
+    faixaAbaixo: (maximo: string, unidade: string) => `below ${maximo}${unidade}`,
+    faixaAcima: (minimo: string, unidade: string) => `above ${minimo}${unidade}`,
+    faixaRef: (referencia: string, unidade: string) => `${referencia}${unidade}`,
+    refCurta: (referencia: string) => ` · ref ${referencia}`,
+
+    /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
+       do número, e o veredito por extenso mora no detalhe. */
+    seloOk: 'within range',
+    seloAlto: 'above',
+    seloBaixo: 'below',
+    seloEnviado: 'sent',
+
+    sobre: 'ABOUT',
+
+    evolucao: 'OVER TIME',
+    deAte: (primeiro: string, ultimo: string) => `From ${primeiro} to ${ultimo}`,
+    coletasDesde: (quantas: number, data: string) =>
+      `${quantas} ${quantas === 1 ? 'panel' : 'panels'} since ${data}`,
+    deltaEsperado: ' · as expected',
+    deltaOposto: ' · the other way',
+
+    oQueSignifica: 'WHAT THIS MEANS',
+    oQueAjuda: 'What usually helps',
+    oQueMexe: 'What else moves this number',
+    rodape: 'These are the most common causes and paths, not the whole list. Changing a dose or a medication is a decision for whoever follows your treatment.',
+    perguntarSobre: 'Ask about this result',
+    perguntaCompanion: (marcador: string) => `Explain my ${marcador} result`,
+  },
 };

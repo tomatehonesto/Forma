@@ -105,4 +105,53 @@ export const exames = {
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
       `En la toma de ${data} el valor fue ${valor}${unidade}, y la referencia del laboratorio es ${faixa}.${andou}${painel} Un examen solo no cierra nada: quien lo junta con el resto de tu historia es quien te acompaña.`,
   },
+
+  tela: {
+    titulo: 'Exámenes',
+    linha: (quantos: number, ultimaColeta: string) =>
+      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última toma ${ultimaColeta}`,
+    foraDaReferencia: 'fuera del rango',
+    naReferencia: 'dentro del rango',
+    blocoFora: 'Fuera del rango',
+    arquivosImportados: 'Archivos importados',
+    arquivoSub: (marcadores: number, fonte: string, data: string) =>
+      `${marcadores} marcadores · ${fonte} · ${data}`,
+    importar: 'Importar examen',
+    enviarAoMedico: 'Enviar al médico',
+
+    colhidoEm: (data: string) => `Tomado el ${data}`,
+    vereditoOk: 'Dentro del rango',
+    vereditoAlto: 'Por encima del rango',
+    vereditoBaixo: 'Por debajo del rango',
+    vereditoComFaixa: (veredito: string, faixa: string) => `${veredito}: ${faixa}`,
+    faixaEntre: (minimo: string, maximo: string, unidade: string) =>
+      `entre ${minimo} y ${maximo}${unidade}`,
+    faixaAbaixo: (maximo: string, unidade: string) => `por debajo de ${maximo}${unidade}`,
+    faixaAcima: (minimo: string, unidade: string) => `por encima de ${minimo}${unidade}`,
+    faixaRef: (referencia: string, unidade: string) => `${referencia}${unidade}`,
+    refCurta: (referencia: string) => ` · ref ${referencia}`,
+
+    /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
+       do número, e o veredito por extenso mora no detalhe. */
+    seloOk: 'dentro del rango',
+    seloAlto: 'por encima',
+    seloBaixo: 'por debajo',
+    seloEnviado: 'enviado',
+
+    sobre: 'SOBRE',
+
+    evolucao: 'EVOLUCIÓN',
+    deAte: (primeiro: string, ultimo: string) => `De ${primeiro} a ${ultimo}`,
+    coletasDesde: (quantas: number, data: string) =>
+      `${quantas} ${quantas === 1 ? 'toma' : 'tomas'} desde ${data}`,
+    deltaEsperado: ' · esperado',
+    deltaOposto: ' · al revés',
+
+    oQueSignifica: 'QUÉ SIGNIFICA ESTO',
+    oQueAjuda: 'Lo que suele ayudar',
+    oQueMexe: 'Lo que también mueve el resultado',
+    rodape: 'Son las causas y los caminos más comunes, y no la lista entera. Cambiar la dosis o la medicación es decisión de quien te acompaña.',
+    perguntarSobre: 'Preguntar sobre este examen',
+    perguntaCompanion: (marcador: string) => `Explica mi examen de ${marcador}`,
+  },
 };

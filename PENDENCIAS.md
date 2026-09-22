@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 644, em 76 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 606, em 74 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1206,6 +1206,15 @@ tirada do `git show`, e não de memória.
   e blíster.
 - **Uma quarta constante de módulo com rótulo literal:** `SENTIR` em
   /sintomas, os quatro apelidos curtos dos indicadores.
+- **E a quinta e a sexta:** `REGIOES` e `LADOS` em /aplicacao — a forma
+  PARTIDA dos seis locais de `tratamento.locais`. Seis constantes de
+  módulo em sete telas, e nenhuma achada pela rede. O padrão está
+  fechado: **toda tela que apresenta uma tabela de opções tem uma dessas**,
+  e vale procurá-las de propósito nas que faltam em vez de esperar que a
+  varredura em alemão tropece nelas.
+- **Mais dois ordinais de idioma:** "3ª dose" em /aplicacao e "no 3º dia
+  depois" em /sintomas. O sufixo não é o mesmo em nenhum par de idiomas —
+  "3ª", "3.", "3rd", "3e" — e não há concatenação que sirva.
 - **Dois particípios que só aparecem no recipiente errado:** o francês
   "La plaquette expire avant d'être **fini**" e o alemão "läuft ab, bevor
   **er** leer ist". Os dois nasceram na tradução, e os dois só se veem

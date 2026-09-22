@@ -21,6 +21,11 @@ import { CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard, alfa, mix } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.exames.tela;
 
 /* ============================================================
    EXAMES
@@ -94,10 +99,10 @@ const faixaEmPalavras = (e: any) => {
      leitura — mas o selo é a frase que a pessoa repete para alguém, e
      "abaixo de 5,7" sozinho não é um limite, é um número. */
   const u = e.unit ? ` ${e.unit}` : '';
-  if (g.temMin && g.temMax) return `entre ${fmtV(g.limMin)} e ${fmtV(g.limMax)}${u}`;
-  if (g.temMax) return `abaixo de ${fmtV(g.limMax)}${u}`;
-  if (g.temMin) return `acima de ${fmtV(g.limMin)}${u}`;
-  return `${e.ref}${u}`;
+  if (g.temMin && g.temMax) return K().faixaEntre(fmtV(g.limMin), fmtV(g.limMax), u);
+  if (g.temMax) return K().faixaAbaixo(fmtV(g.limMax), u);
+  if (g.temMin) return K().faixaAcima(fmtV(g.limMin), u);
+  return K().faixaRef(e.ref, u);
 };
 
 /* A RÉGUA RESPONDE DUAS COISAS DE UMA VEZ: ONDE EU PRECISO ESTAR, E
@@ -395,7 +400,9 @@ function MalhaDaEvolucao({ e }: { e: any }) {
   const dentroDe = (v: number) =>
     (limBaixo == null || v >= limBaixo) && (limAlto == null || v <= limAlto);
   const ondeCaiu = (v: number) =>
-    dentroDe(v) ? null : (limAlto != null && v > limAlto ? 'acima da referência' : 'abaixo da referência');
+    dentroDe(v) ? null : (limAlto != null && v > limAlto
+      ? T.comum.noMeio(K().vereditoAlto)
+      : T.comum.noMeio(K().vereditoBaixo));
 
   const x0 = CALHA + RAIO_DA_COLETA;
   const x1 = Math.max(x0 + 1, w - RAIO_DA_COLETA);
@@ -605,7 +612,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
   /* Acima/abaixo em vez de "Fora da referência — alto": um travessão
      seguido de minúscula lê como remendo, e a direção cabe na primeira
      palavra. */
-  const veredito = st === 'ok' ? 'Na referência' : st === 'alto' ? 'Acima da referência' : 'Abaixo da referência';
+  const veredito = st === 'ok' ? K().vereditoOk : st === 'alto' ? K().vereditoAlto : K().vereditoBaixo;
 
   return (
     /* ⚠️ `tituloFixo` PORQUE NÃO HÁ MANCHETE. A barra da casa só mostra o
@@ -613,7 +620,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
        Sem isto a tela abre dizendo "5,6 %" e mais nada: o marcador só se
        identificaria depois de rolar, e um valor de exame sem o nome do
        exame não é informação, é um número solto. */
-    <TelaInterna titulo={nomeDoMarcador(e.marker)} sub={`Colhido em ${dataLonga(l.t)}`} onVoltar={onVoltar} tituloFixo>
+    <TelaInterna titulo={nomeDoMarcador(e.marker)} sub={K().colhidoEm(dataLonga(l.t))} onVoltar={onVoltar} tituloFixo>
       {/* ---- o resultado ----
 
           ⚠️ O NÚMERO É A TELA, e ele estava numa manchete alinhada à
@@ -672,7 +679,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             para etiquetar linhas de lista. O invólucro é o que desfaz esse
             alinhamento de origem sem mexer na peça compartilhada. */}
         <View style={{ alignItems: 'center' }}>
-          <Selo label={`${veredito}: ${faixaEmPalavras(e)}`} tom={st === 'ok' ? 'verde' : 'neutra'} />
+          <Selo label={K().vereditoComFaixa(veredito, faixaEmPalavras(e))} tom={st === 'ok' ? 'verde' : 'neutra'} />
         </View>
       </View>
 
@@ -709,7 +716,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 18, gap: 8 }, shadowCard(c)]}>
           <Row gap={7}>
             <Icon name="book" size={13} color={c.tx4} sw={2} />
-            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>SOBRE</Txt>
+            <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>{K().sobre}</Txt>
           </Row>
           <Txt v="body" style={{ lineHeight: 25 }}>{sobre.oQueE}</Txt>
           <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>{sobre.porQue}</Txt>
@@ -736,7 +743,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
             <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
               <Row gap={7}>
                 <Icon name="trend" size={13} color={c.tx4} sw={2} />
-                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>EVOLUÇÃO</Txt>
+                <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1 }}>{K().evolucao}</Txt>
               </Row>
               {/* ⚠️ A ETIQUETA GANHOU SINAL E UNIDADE, e tinha seta e número
                   pelado.
@@ -758,7 +765,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
               {delta !== 0 ? (
                 <View style={{ backgroundColor: e.good ? (bom ? c.okBg : c.bg2) : c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
                   <Txt v="micro" c={e.good && bom ? c.ok : c.tx3}>
-                    {delta > 0 ? '+' : '−'}{fmtV(Math.abs(delta))} {e.unit}{e.good ? (bom ? ' · esperado' : ' · oposto') : ''}
+                    {delta > 0 ? '+' : '−'}{fmtV(Math.abs(delta))} {e.unit}{e.good ? (bom ? K().deltaEsperado : K().deltaOposto) : ''}
                   </Txt>
                 </View>
               ) : null}
@@ -780,12 +787,12 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
                 pertence. */}
             <Row gap={6} style={{ alignItems: 'baseline', marginTop: 8 }}>
               <Txt v="h1" style={{ fontSize: 30, lineHeight: 36 }}>
-                {f.v === l.v ? fmtV(l.v) : `De ${fmtV(f.v)} a ${fmtV(l.v)}`}
+                {f.v === l.v ? fmtV(l.v) : K().deAte(fmtV(f.v), fmtV(l.v))}
               </Txt>
               <Txt v="body" c={c.tx3} style={{ fontSize: 20 }}>{e.unit}</Txt>
             </Row>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-              {e.values.length} coletas desde {dataLonga(f.t)}
+              {K().coletasDesde(e.values.length, dataLonga(f.t))}
             </Txt>
           </View>
 
@@ -815,7 +822,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
         <View style={{ gap: 9 }}>
           <Row gap={7}>
             <Icon name="spark" size={13} color={c.accent} sw={2} />
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE ISSO SIGNIFICA</Txt>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().oQueSignifica}</Txt>
           </Row>
           {/* ⚠️ MANCHETE E PARÁGRAFO, e era um bloco de texto corrido.
 
@@ -830,7 +837,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
         {ajudam.length ? (
           <View style={{ gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 16 }}>
-            <Txt v="bodyMed">O que costuma ajudar</Txt>
+            <Txt v="bodyMed">{K().oQueAjuda}</Txt>
             {ajudam.map((g) => (
               <View key={g.grupo} style={{ gap: 9 }}>
                 <Txt v="caption" c={c.accent2}>{g.grupo}</Txt>
@@ -854,7 +861,7 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
 
         {mexe.length ? (
           <View style={{ gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line, paddingTop: 16 }}>
-            <Txt v="bodyMed">O que também mexe no resultado</Txt>
+            <Txt v="bodyMed">{K().oQueMexe}</Txt>
             {mexe.map((x) => (
               <Row key={x} gap={10} style={{ alignItems: 'flex-start' }}>
                 <View style={{ marginTop: 8, width: 5, height: 5, borderRadius: 3, backgroundColor: c.tx4 }} />
@@ -864,12 +871,9 @@ function Detalhe({ e, onVoltar }: { e: any; onVoltar: () => void }) {
           </View>
         ) : null}
 
-        <Txt v="micro" c={c.tx4} style={{ lineHeight: 18 }}>
-          São as causas e os caminhos mais comuns, e não a lista inteira. Mudança de dose ou de
-          medicação é decisão de quem acompanha você.
-        </Txt>
+        <Txt v="micro" c={c.tx4} style={{ lineHeight: 18 }}>{K().rodape}</Txt>
 
-        <AskCompanion q={`Explique meu exame de ${nomeDoMarcador(e.marker)}`} label="Perguntar sobre este exame" />
+        <AskCompanion q={K().perguntaCompanion(nomeDoMarcador(e.marker))} label={K().perguntarSobre} />
       </View>
       </View>
 
@@ -916,7 +920,7 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
          arquivo. As duas de fora ficam curtas porque a cor e a seta já
          dizem que é exceção; o que falta ali é a DIREÇÃO, e é só isso que
          elas carregam. */
-      selo={st === 'ok' ? 'na referência' : st === 'alto' ? 'acima' : 'abaixo'}
+      selo={st === 'ok' ? K().seloOk : st === 'alto' ? K().seloAlto : K().seloBaixo}
       seloTom={st === 'ok' ? 'verde' : 'alerta'}
       sub={
         <Row gap={4} style={{ alignItems: 'center' }}>
@@ -936,7 +940,7 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
               "na referência", a insulina quebrava "12 µUI/mL · ref
               2,6–24,9" em duas linhas, e uma linha mais alta que as
               vizinhas lê como defeito. */}
-          <Txt v="caption" c={c.tx3}>{e.unit}{st === 'ok' ? '' : ` · ref ${e.ref}`}</Txt>
+          <Txt v="caption" c={c.tx3}>{e.unit}{st === 'ok' ? '' : K().refCurta(e.ref)}</Txt>
         </Row>
       }
     />
@@ -1007,15 +1011,15 @@ export default function Exames() {
     <TelaDeHabito
       rodape={
         <>
-          <Botao label="Importar exame" onPress={() => router.push('/medir-exame' as any)} />
-          <Botao label="Enviar ao médico" tom="fantasma" onPress={() => router.push('/exportar' as any)} />
+          <Botao label={K().importar} onPress={() => router.push('/medir-exame' as any)} />
+          <Botao label={K().enviarAoMedico} tom="fantasma" onPress={() => router.push('/exportar' as any)} />
         </>
       }
     >
       <CapaDeHabito
         foto={aurora.hero}
-        titulo="Exames"
-        linha={`${todos.length} ${todos.length === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultima ? dataLonga(ultima) : '—'}`}
+        titulo={K().titulo}
+        linha={K().linha(todos.length, ultima ? dataLonga(ultima) : '—')}
         valor={
           <View>
             {/* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
@@ -1034,12 +1038,12 @@ export default function Exames() {
             <Row style={{ alignItems: 'flex-end' }}>
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{fora.length}</Txt>
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>fora da referência</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>{K().foraDaReferencia}</Txt>
               </View>
               <View style={{ width: 1, height: 50, backgroundColor: c.onHeroLine, marginBottom: 16 }} />
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Txt v="display" c={c.onHero} style={{ fontSize: 60, lineHeight: 66, letterSpacing: -2, textShadowColor: 'rgba(0,0,0,0.38)', textShadowRadius: 26, textShadowOffset: { width: 0, height: 2 } }}>{dentro}</Txt>
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>na referência</Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>{K().naReferencia}</Txt>
               </View>
             </Row>
 
@@ -1076,7 +1080,7 @@ export default function Exames() {
           Sem nenhum fora, o bloco não existe — e não vira um vazio dizendo
           "nada por aqui", que é ruído com cara de conteúdo. */}
       {fora.length ? (
-        <Bloco titulo="Fora da referência">
+        <Bloco titulo={K().blocoFora}>
           <Cartao>
             {fora.map((e) => (
               <LinhaDoMarcador key={e.marker} e={e} onPress={() => setSel(e.marker)} />
@@ -1097,15 +1101,15 @@ export default function Exames() {
         </Bloco>
       ))}
 
-      <Bloco titulo="Arquivos importados">
+      <Bloco titulo={K().arquivosImportados}>
         <Cartao>
           {(S.examBundles as any[]).map((b) => (
             <Linha
               key={b.t}
               ic={b.source === 'PDF' ? 'doc' : 'photo'}
               titulo={b.name}
-              sub={`${b.n} marcadores · ${b.source} · ${fmtDate(new Date(b.t))}`}
-              selo={b.shared ? 'enviado' : undefined}
+              sub={K().arquivoSub(b.n, b.source, fmtDate(new Date(b.t)))}
+              selo={b.shared ? K().seloEnviado : undefined}
               seloTom="neutra"
               seta={false}
             />

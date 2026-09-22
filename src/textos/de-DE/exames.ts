@@ -145,4 +145,53 @@ export const exames = {
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
       `Bei der Abnahme am ${data} lag der Wert bei ${valor}${unidade}, und die Referenz des Labors ist ${faixa}.${andou}${painel} Ein einzelner Befund entscheidet nichts: wer ihn mit dem Rest deiner Geschichte zusammenbringt, ist, wer dich behandelt.`,
   },
+
+  tela: {
+    titulo: 'Befunde',
+    linha: (quantos: number, ultimaColeta: string) =>
+      `${quantos} Marker · letzte Abnahme ${ultimaColeta}`,
+    foraDaReferencia: 'außerhalb der Referenz',
+    naReferencia: 'innerhalb der Referenz',
+    blocoFora: 'Außerhalb der Referenz',
+    arquivosImportados: 'Eingelesene Dateien',
+    arquivoSub: (marcadores: number, fonte: string, data: string) =>
+      `${marcadores} Marker · ${fonte} · ${data}`,
+    importar: 'Befund einlesen',
+    enviarAoMedico: 'An die Praxis schicken',
+
+    colhidoEm: (data: string) => `Abgenommen am ${data}`,
+    vereditoOk: 'Innerhalb der Referenz',
+    vereditoAlto: 'Über der Referenz',
+    vereditoBaixo: 'Unter der Referenz',
+    vereditoComFaixa: (veredito: string, faixa: string) => `${veredito}: ${faixa}`,
+    faixaEntre: (minimo: string, maximo: string, unidade: string) =>
+      `zwischen ${minimo} und ${maximo}${unidade}`,
+    faixaAbaixo: (maximo: string, unidade: string) => `unter ${maximo}${unidade}`,
+    faixaAcima: (minimo: string, unidade: string) => `über ${minimo}${unidade}`,
+    faixaRef: (referencia: string, unidade: string) => `${referencia}${unidade}`,
+    refCurta: (referencia: string) => ` · Ref. ${referencia}`,
+
+    /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
+       do número, e o veredito por extenso mora no detalhe. */
+    seloOk: 'in der Referenz',
+    seloAlto: 'darüber',
+    seloBaixo: 'darunter',
+    seloEnviado: 'gesendet',
+
+    sobre: 'DAZU',
+
+    evolucao: 'VERLAUF',
+    deAte: (primeiro: string, ultimo: string) => `Von ${primeiro} auf ${ultimo}`,
+    coletasDesde: (quantas: number, data: string) =>
+      `${quantas} ${quantas === 1 ? 'Abnahme' : 'Abnahmen'} seit ${data}`,
+    deltaEsperado: ' · wie erwartet',
+    deltaOposto: ' · andersherum',
+
+    oQueSignifica: 'WAS DAS HEISST',
+    oQueAjuda: 'Was meistens hilft',
+    oQueMexe: 'Was den Wert außerdem bewegt',
+    rodape: 'Das sind die häufigsten Ursachen und Wege, nicht die ganze Liste. Eine Dosis oder ein Medikament zu ändern ist die Entscheidung der Person, die dich begleitet.',
+    perguntarSobre: 'Zu diesem Befund fragen',
+    perguntaCompanion: (marcador: string) => `Erklär mir meinen ${marcador}-Befund`,
+  },
 };

@@ -9,6 +9,11 @@ import { FORMAS, concordar, formaDe, faixaDaMolecula, umOutro } from '../logic/f
 import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
 import { radius } from '../theme';
 import { Txt, Row, SheetScreen } from '../ui/kit';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaRegistrarAplicacao;
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { Calendario } from '../ui/calendario';
 import { Icon } from '../ui/Icon';
@@ -54,12 +59,12 @@ import { useTheme } from '../ui/useTheme';
    O id continua sendo o mesmo par: nada muda no que se grava, nem nos
    seis gráficos de rodízio que leem isso.
    ============================================================ */
-const REGIOES: [string, string][] = [
-  ['braco', 'Braço'],
-  ['abd', 'Abdômen'],
-  ['coxa', 'Coxa'],
+const REGIOES = (): [string, string][] => [
+  ['braco', K().regioes.braco],
+  ['abd', K().regioes.abd],
+  ['coxa', K().regioes.coxa],
 ];
-const LADOS: [string, string][] = [['e', 'Esquerdo'], ['d', 'Direito']];
+const LADOS = (): [string, string][] => [['e', K().lados.e], ['d', K().lados.d]];
 
 const regiaoDe = (site: string) => site.split('-')[0];
 const ladoDe = (site: string) => site.split('-')[1];
@@ -101,18 +106,18 @@ export default function Aplicacao() {
 
   const descanso = (() => {
     const l = rod.find((x) => x.id === site);
-    if (!l || l.semanas == null) return 'Ainda não usado neste tratamento.';
-    if (l.semanas === 0) return 'Usado esta semana.';
-    return `Descansando há ${l.semanas} ${l.semanas === 1 ? 'semana' : 'semanas'}.`;
+    if (!l || l.semanas == null) return K().naoUsado;
+    if (l.semanas === 0) return K().usadoEstaSemana;
+    return K().descansandoHa(l.semanas);
   })();
 
   return (
     <SheetScreen
-      titulo={`Registrar ${vocab.acao}`}
+      titulo={K().registrar(vocab.acao)}
       /* Sem subtítulo: a data agora tem campo próprio, e o cabeçalho
          escrevia a mesma frase três centímetros acima dele. */
       onClose={() => router.back()}
-      rodape={<Botao label={`Salvar ${vocab.acao}`} onPress={salvar} />}
+      rodape={<Botao label={K().salvar(vocab.acao)} onPress={salvar} />}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         {/* ⚠️⚠️ A DATA É UM CAMPO QUE ABRE O CALENDÁRIO — e este campo já
@@ -144,10 +149,8 @@ export default function Aplicacao() {
             o calendário conta por dia, a curva farmacológica trabalha em
             dias. */}
         <Campo
-          rotulo="Quando"
-          ajuda={quandoT === hoje
-            ? `Fica registrada agora, ${fmtTime(now())}.`
-            : 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.'}
+          rotulo={K().quando}
+          ajuda={quandoT === hoje ? K().ficaRegistradaAgora(fmtTime(now())) : K().registrarDepois}
         >
           <Pressable
             onPress={() => setCalAberto((x) => !x)}
@@ -191,13 +194,13 @@ export default function Aplicacao() {
             mesma linha: ele estava repetido embaixo, no campo do
             recipiente, e agora é dito uma vez só. */}
         <Campo
-          rotulo={`Medicamento e ${med.doses.length ? 'dose' : 'dose da receita'}`}
+          rotulo={med.doses.length ? K().medicamentoEDose : K().medicamentoEDoseDaReceita}
           ajuda={mudandoDose && !med.doses.length
-            ? 'Manipulado não tem escada de bula — o número é o da sua receita.'
+            ? K().manipuladoSemEscada
             : undefined}
         >
           <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-            <Txt v="bodyMed">{`${med.label} · ${nf(dose, 1)} ${med.unit}`}</Txt>
+            <Txt v="bodyMed">{K().medComDose(med.label, nf(dose, 1), med.unit)}</Txt>
             {!mudandoDose ? (
               <Pressable
                 onPress={() => setMudandoDose(true)}
@@ -205,7 +208,7 @@ export default function Aplicacao() {
                 style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
               >
                 <Row gap={4} style={{ alignItems: 'center' }}>
-                  <Txt v="label" c={c.accent}>Mudei a dose</Txt>
+                  <Txt v="label" c={c.accent}>{K().mudeiADose}</Txt>
                   <Icon name="chev" size={12} color={c.accent} sw={2.2} />
                 </Row>
               </Pressable>
@@ -234,10 +237,7 @@ export default function Aplicacao() {
               /* Sem escada E sem faixa: não há marca com aquela molécula
                  naquela via de onde derivar um limite. Dizer isso é melhor
                  do que abrir uma régua de 0 a 100. */
-              <Txt v="note" c={c.tx3}>
-                Não temos faixa de referência para este medicamento. A dose fica
-                a do seu último registro.
-              </Txt>
+              <Txt v="note" c={c.tx3}>{K().semFaixa}</Txt>
             )
           ) : null}
         </Campo>
@@ -245,17 +245,17 @@ export default function Aplicacao() {
         {vocab.injetavel ? (
           <>
             <Campo
-              rotulo="Local da aplicação"
-              ajuda="Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele."
+              rotulo={K().localDaAplicacao}
+              ajuda={K().localAjuda}
             >
               <Opcoes>
-                {REGIOES.map(([id, nome]) => (
+                {REGIOES().map(([id, nome]) => (
                   <Opc
                     key={id}
                     /* O "sugerido" marca a REGIÃO, e o lado dele já vem
                        escolhido — a rotação sugere um ponto, não uma
                        metade do corpo. */
-                    label={regiaoDe(sugerido) === id ? `${nome} · sugerido` : nome}
+                    label={regiaoDe(sugerido) === id ? K().sugerido(nome) : nome}
                     on={regiaoDe(site) === id}
                     onPress={() => setSite(`${id}-${ladoDe(site)}`)}
                   />
@@ -263,9 +263,9 @@ export default function Aplicacao() {
               </Opcoes>
             </Campo>
 
-            <Campo rotulo="Lado">
+            <Campo rotulo={K().lado}>
               <Opcoes>
-                {LADOS.map(([id, nome]) => (
+                {LADOS().map(([id, nome]) => (
                   <Opc
                     key={id}
                     label={nome}
@@ -281,11 +281,11 @@ export default function Aplicacao() {
                   motivo — e é o motivo que deixa a pessoa discordar com
                   conhecimento de causa. */}
               <View style={{ gap: 4 }}>
-                <Txt v="caption" c={c.tx2}>{`${siteLabel(site)} · ${descanso}`}</Txt>
+                <Txt v="caption" c={c.tx2}>{K().localComDescanso(siteLabel(site), descanso)}</Txt>
                 <Txt v="caption" c={site === sugerido ? c.accent : c.tx3}>
                   {site === sugerido
-                    ? 'É o próximo da rotação.'
-                    : 'Fora da rotação sugerida — sem problema, é só um lembrete.'}
+                    ? K().eOProximo
+                    : K().foraDaRotacao}
                 </Txt>
               </View>
             </Campo>
@@ -296,12 +296,15 @@ export default function Aplicacao() {
             <Campo
               rotulo={maiuscula(vocab.recipiente)}
               ajuda={est.left <= 1
-                ? `Esta é a última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}.`
-                : `Restam ${est.left} doses.`}
+                ? K().ultimaDose(
+                  concordar(forma, T.tratamento.telaCaneta.desteM, T.tratamento.telaCaneta.desteF),
+                  vocab.recipiente,
+                )
+                : K().restamDoses(est.left)}
             >
               <Opcoes>
                 <Opc
-                  label={`${est.total - est.left + 1}ª dose`}
+                  label={K().enesimaDose(est.total - est.left + 1)}
                   on={!outroRecipiente}
                   onPress={() => setOutroRecipiente(false)}
                 />

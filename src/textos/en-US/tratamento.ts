@@ -291,4 +291,47 @@ export const tratamento = {
     itemEncerrado: (periodo: string, usadas: number, total: number) =>
       `${periodo} · ${usadas} of ${total} doses`,
   },
+
+  telaRegistrarAplicacao: {
+    registrar: (acao: string) => `Log ${acao}`,
+    salvar: (acao: string) => `Save ${acao}`,
+
+    quando: 'When',
+    ficaRegistradaAgora: (hora: string) => `Logged right now, ${hora}.`,
+    registrarDepois: 'Logging it later changes nothing but the date — the countdown to the next dose comes from here.',
+
+    medicamentoEDose: 'Medication and dose',
+    medicamentoEDoseDaReceita: 'Medication and prescribed dose',
+    manipuladoSemEscada: 'Compounded medication has no label ladder — the number is the one on your prescription.',
+    medComDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} · ${dose} ${unidade}`,
+    mudeiADose: 'My dose changed',
+    semFaixa: 'We have no reference range for this medication. The dose stays the one from your last entry.',
+
+    localDaAplicacao: 'Injection site',
+    localAjuda: 'Changing the site every week helps avoid irritation and lumps under the skin.',
+    regioes: {
+      braco: 'Arm',
+      abd: 'Abdomen',
+      coxa: 'Thigh',
+    },
+    sugerido: (nome: string) => `${nome} · suggested`,
+    lado: 'Side',
+    lados: {
+      e: 'Left',
+      d: 'Right',
+    },
+    localComDescanso: (local: string, descanso: string) => `${local} · ${descanso}`,
+    naoUsado: 'Not used yet in this treatment.',
+    usadoEstaSemana: 'Used this week.',
+    descansandoHa: (semanas: number) =>
+      `Resting for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}.`,
+    eOProximo: 'It is next in the rotation.',
+    foraDaRotacao: 'Off the suggested rotation — no problem, it is only a reminder.',
+
+    ultimaDose: (deste: string, recipiente: string) =>
+      `This is the last dose ${deste} ${recipiente}.`,
+    restamDoses: (quantas: number) => `${quantas} doses left.`,
+    enesimaDose: (numero: number) => `Dose ${numero}`,
+  },
 };

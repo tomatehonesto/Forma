@@ -411,4 +411,77 @@ export const tratamento = {
     itemEncerrado: (periodo: string, usadas: number, total: number) =>
       `${periodo} · ${usadas} de ${total} doses`,
   },
+
+  /* ============================================================
+     A TELA DE REGISTRAR UMA APLICAÇÃO
+
+     ⚠️ NÃO CONFUNDIR COM `telaAplicacoes`, que é a LISTA. Esta é a folha
+     de registro, e o nome por extenso existe para as duas não se
+     confundirem numa busca.
+
+     ⚠️ AS TRÊS REGIÕES E OS DOIS LADOS SÃO A FORMA PARTIDA dos seis
+     locais de `tratamento.locais`. O id gravado continua sendo o par —
+     `abd-e`, `coxa-d` —, mas apresentá-los como seis opções soltas fazia
+     a pessoa ler "Abdômen" três vezes para achar o lado que queria.
+     Separados, são três alvos e depois dois; juntos, são o que
+     `siteLabel` escreve. Duas formas da mesma coisa, como o selo e o
+     filtro da semana.
+
+     ⚠️ E A ORDINAL DA DOSE É DE CADA IDIOMA — "3ª dose" no português,
+     "3. Dosis" no alemão, "3rd dose" no inglês.
+     ============================================================ */
+  telaRegistrarAplicacao: {
+    registrar: (acao: string) => `Registrar ${acao}`,
+    salvar: (acao: string) => `Salvar ${acao}`,
+
+    /* ---------- quando ----------
+       A hora de uma aplicação não aparece em lugar nenhum do aplicativo:
+       o histórico mostra data, o calendário conta por dia e a curva
+       farmacológica trabalha em dias. */
+    quando: 'Quando',
+    ficaRegistradaAgora: (hora: string) => `Fica registrada agora, ${hora}.`,
+    registrarDepois: 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.',
+
+    /* ---------- medicamento e dose ---------- */
+    medicamentoEDose: 'Medicamento e dose',
+    medicamentoEDoseDaReceita: 'Medicamento e dose da receita',
+    manipuladoSemEscada: 'Manipulado não tem escada de bula — o número é o da sua receita.',
+    medComDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} · ${dose} ${unidade}`,
+    mudeiADose: 'Mudei a dose',
+    /* Sem escada E sem faixa: não há marca com aquela molécula naquela via
+       de onde derivar um limite. Dizer isso é melhor do que abrir uma
+       régua de 0 a 100. */
+    semFaixa: 'Não temos faixa de referência para este medicamento. A dose fica a do seu último registro.',
+
+    /* ---------- o local ---------- */
+    localDaAplicacao: 'Local da aplicação',
+    localAjuda: 'Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele.',
+    regioes: {
+      braco: 'Braço',
+      abd: 'Abdômen',
+      coxa: 'Coxa',
+    },
+    /* O "sugerido" marca a REGIÃO, e o lado dele já vem escolhido: a
+       rotação sugere um ponto, não uma metade do corpo. */
+    sugerido: (nome: string) => `${nome} · sugerido`,
+    lado: 'Lado',
+    lados: {
+      e: 'Esquerdo',
+      d: 'Direito',
+    },
+    localComDescanso: (local: string, descanso: string) => `${local} · ${descanso}`,
+    naoUsado: 'Ainda não usado neste tratamento.',
+    usadoEstaSemana: 'Usado esta semana.',
+    descansandoHa: (semanas: number) =>
+      `Descansando há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}.`,
+    eOProximo: 'É o próximo da rotação.',
+    foraDaRotacao: 'Fora da rotação sugerida — sem problema, é só um lembrete.',
+
+    /* ---------- o recipiente ---------- */
+    ultimaDose: (deste: string, recipiente: string) =>
+      `Esta é a última dose ${deste} ${recipiente}.`,
+    restamDoses: (quantas: number) => `Restam ${quantas} doses.`,
+    enesimaDose: (numero: number) => `${numero}ª dose`,
+  },
 };

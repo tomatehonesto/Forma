@@ -113,4 +113,53 @@ export const exames = {
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
       `Au prélèvement du ${data}, la valeur était de ${valor}${unidade}, et la référence du laboratoire est ${faixa}.${andou}${painel} Une analyse seule ne conclut rien : la personne qui la met avec le reste de votre histoire, c’est celle qui vous suit.`,
   },
+
+  tela: {
+    titulo: 'Analyses',
+    linha: (quantos: number, ultimaColeta: string) =>
+      `${quantos} ${quantos === 1 ? 'marqueur' : 'marqueurs'} · dernier bilan ${ultimaColeta}`,
+    foraDaReferencia: 'hors des valeurs',
+    naReferencia: 'dans les valeurs',
+    blocoFora: 'Hors des valeurs',
+    arquivosImportados: 'Fichiers importés',
+    arquivoSub: (marcadores: number, fonte: string, data: string) =>
+      `${marcadores} marqueurs · ${fonte} · ${data}`,
+    importar: 'Importer une analyse',
+    enviarAoMedico: 'Envoyer au médecin',
+
+    colhidoEm: (data: string) => `Prélevé le ${data}`,
+    vereditoOk: 'Dans les valeurs',
+    vereditoAlto: 'Au-dessus des valeurs',
+    vereditoBaixo: 'En dessous des valeurs',
+    vereditoComFaixa: (veredito: string, faixa: string) => `${veredito} : ${faixa}`,
+    faixaEntre: (minimo: string, maximo: string, unidade: string) =>
+      `entre ${minimo} et ${maximo}${unidade}`,
+    faixaAbaixo: (maximo: string, unidade: string) => `en dessous de ${maximo}${unidade}`,
+    faixaAcima: (minimo: string, unidade: string) => `au-dessus de ${minimo}${unidade}`,
+    faixaRef: (referencia: string, unidade: string) => `${referencia}${unidade}`,
+    refCurta: (referencia: string) => ` · réf ${referencia}`,
+
+    /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
+       do número, e o veredito por extenso mora no detalhe. */
+    seloOk: 'dans les valeurs',
+    seloAlto: 'au-dessus',
+    seloBaixo: 'en dessous',
+    seloEnviado: 'envoyé',
+
+    sobre: 'À PROPOS',
+
+    evolucao: 'ÉVOLUTION',
+    deAte: (primeiro: string, ultimo: string) => `De ${primeiro} à ${ultimo}`,
+    coletasDesde: (quantas: number, data: string) =>
+      `${quantas} ${quantas === 1 ? 'bilan' : 'bilans'} depuis le ${data}`,
+    deltaEsperado: ' · attendu',
+    deltaOposto: ' · à l’inverse',
+
+    oQueSignifica: 'CE QUE CELA VEUT DIRE',
+    oQueAjuda: 'Ce qui aide en général',
+    oQueMexe: 'Ce qui fait bouger le résultat aussi',
+    rodape: 'Ce sont les causes et les pistes les plus courantes, pas la liste entière. Changer une dose ou un médicament est une décision de la personne qui vous suit.',
+    perguntarSobre: 'Poser une question sur cette analyse',
+    perguntaCompanion: (marcador: string) => `Expliquez mon analyse de ${marcador}`,
+  },
 };
