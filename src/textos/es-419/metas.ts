@@ -326,7 +326,7 @@ export const metas = {
     travadoTexto: 'Este número es parte de tu tratamiento, y por eso no se cambia aquí. Si ya no sirve — otra indicación, una restricción que apareció, un equipo nuevo —, quita la anotación en el Área médica y vuelve a ser tuyo.',
     divergeTitulo: 'Este número no es el de tu equipo',
     divergeTexto: (por: string, dela: string, nosso: string) =>
-      `${por} definió ${dela}, y la aplicación está pidiendo ${nosso}. Guardamos los dos: puedes volver al de tu equipo en el Área médica, o llevar la diferencia a la próxima consulta.`,
+      `${por} definió ${dela}, y estamos pidiendo ${nosso}. Guardamos los dos: puedes volver al de tu equipo en el Área médica, o llevar la diferencia a la próxima consulta.`,
     recomendadoTitulo: 'Este es el valor recomendado',
 
     verAnotacao: 'Ver la anotación de tu equipo',

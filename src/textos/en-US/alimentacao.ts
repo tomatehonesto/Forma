@@ -15,12 +15,12 @@ export const alimentacao = {
     fibraQ: 'How do I get more fiber into my day without getting sick of the food?',
     fibraTitulo: (media: number) => `Fiber: ${media} g a day`,
     fibraTexto: (dias: number, meta: number) =>
-      `That’s your average across the last ${dias} logged days, against a goal of ${meta} g. Beans, oats, greens and fruit with the skin on are the shortest path — and fiber is what helps with the constipation, one of the most common side effects of the treatment.`,
+      `That’s your average across the last ${dias} logged days, against a goal of ${meta} g. Beans, oats, greens and fruit with the skin on are the shortest path — and fiber is what helps with constipation, one of the most common side effects of the treatment.`,
 
     fibraBoaQ: 'What does fiber change in my treatment?',
     fibraBoaTitulo: (media: number) => `Fiber: ${media} g a day, above goal`,
     fibraBoaTexto: (dias: number, meta: number) =>
-      `That’s your average across the last ${dias} logged days, against a goal of ${meta} g. It’s what usually holds off the constipation that comes with treatment — worth keeping as it is.`,
+      `That’s your average across the last ${dias} logged days, against a goal of ${meta} g. It’s what usually holds off the constipation that comes with treatment — worth keeping it up.`,
 
     /* ⚠️ THE WEAK MOMENT NAMES THE MOMENT, which is what the daily number
        doesn't say: a 6 g breakfast and a 40 g lunch add up to the same as
@@ -32,11 +32,11 @@ export const alimentacao = {
        vegan can't follow, from the app that just asked whether they're
        vegan. */
     momentoFracoTexto: (melhor: string, mediaMelhor: number, fontes: string) =>
-      `It’s your lightest moment for protein — ${melhor.toLowerCase()} comes in at ${mediaMelhor} g. Within what you eat, the ones that deliver the most protein per calorie are ${fontes}.`,
+      `It’s your lightest meal for protein — ${melhor.toLowerCase()} comes in at ${mediaMelhor} g. Of what you already eat, the ones that deliver the most protein per calorie are ${fontes}.`,
 
     momentoForteQ: 'Why does protein matter so much in this treatment?',
     momentoForteTitulo: (momento: string, media: number) => `${momento}: ${media} g of protein, on average`,
-    momentoForteTexto: 'It’s the moment that holds up your daily goal the most. Repeating what already works there is easier than fixing another one.',
+    momentoForteTexto: 'It’s the meal that holds up your daily goal the most. Repeating what already works there is easier than fixing another one.',
 
     /* ⚠️ THE SENTENCE COUNTS ON HOW MANY DAYS A VEGETABLE SHOWED UP IN THE
        LOG, not on how many days the person ate vegetables. Those are
@@ -45,7 +45,7 @@ export const alimentacao = {
     verdeQ: 'Which vegetables go with what I already eat?',
     verdeTitulo: (comVerde: number, total: number) =>
       `Vegetables on ${comVerde} of ${total} logged days`,
-    verdeTexto: 'A salad or a vegetable at lunch fills the plate with few calories — it helps you finish the meal satisfied without spending the day, and it brings the fiber along.',
+    verdeTexto: 'A salad or a vegetable at lunch fills the plate with few calories — it helps you finish the meal satisfied without eating up the day’s calories, and it brings the fiber along.',
   },
 
   /* ⚠️ THE `id`s ARE DATA — 'agua', 'cafe', 'coco' is what gets stored in
@@ -69,7 +69,7 @@ export const alimentacao = {
        it suppresses vasopressin and the body gives back more than it
        took. It can still be logged, because the diary exists to record
        what happened; it just doesn't count toward the total. */
-    notaAlcool: 'It gets logged, but it doesn’t count toward the total: alcohol makes the body give back more fluid than it took in.',
+    notaAlcool: 'It gets logged, but it doesn’t count toward the total: alcohol makes your body give back more fluid than it took in.',
 
     recipientes: {
       xicara: 'Cup',
@@ -103,9 +103,9 @@ export const alimentacao = {
        the app doesn't know what the care team agreed with the person. */
     muitaProteinaPoucaCaloria: 'A lot of protein for few calories. It\u2019s the kind of food this treatment asks for: it fits the plate that shrank and still holds on to lean mass.',
     boaFonte: 'A good source of protein, which is what holds on to lean mass while the weight comes down.',
-    caloriaAlta: 'High calories and little protein. It isn\u2019t off-limits, but it takes up a good part of the day and gives back little of what the treatment needs.',
+    caloriaAlta: 'High calories and little protein. It isn\u2019t off-limits, but it takes up a good part of the day’s calories and gives back little of what the treatment needs.',
     bastanteFibra: 'Plenty of fiber. It helps with constipation, one of the most common side effects of the treatment.',
-    quaseNaoPesa: 'It barely weighs on the day. Good alongside the plate, but the protein has to come from somewhere else.',
+    quaseNaoPesa: 'It barely dents the day’s calories. Good alongside the plate, but the protein has to come from somewhere else.',
     temFibra: 'It has fiber, which helps with constipation — one of the most common side effects of the treatment.',
   },
 
@@ -153,7 +153,7 @@ export const alimentacao = {
     deKcal: (meta: string) => `of ${meta} kcal`,
 
     sobramDoQueConta: (quanto: string) => `<b>${quanto} kcal</b> left of what can be counted.`,
-    aindaCabem: (quanto: string) => `There’s still room for <b>${quanto} kcal</b> today. Choose well how to spend it.`,
+    aindaCabem: (quanto: string) => `There’s still room for <b>${quanto} kcal</b> today. Spend them well.`,
     passouAMeta: (quanto: string) => `You went past today’s goal by <b>${quanto} kcal</b>. Tomorrow is another day.`,
 
     foraDaConta: (fora: number, total: number) =>
@@ -216,7 +216,7 @@ export const alimentacao = {
     meta: (quanto: string) => `Goal: ${quanto}`,
 
     diario: 'Drinks diary',
-    diarioNota: 'Coffee, tea, milk and juice count: the goal is fluid, not plain water. Delete anything that went in wrong.',
+    diarioNota: 'Coffee, tea, milk and juice count: the goal is fluid, not plain water. Delete anything you logged by mistake.',
     apagarDoDia: 'Delete this day’s water?',
     apagarGole: (quanto: string, hora: string) => `Delete ${quanto} from ${hora}?`,
     deBebida: (nome: string) => ` of ${nome}`,
@@ -259,7 +259,7 @@ export const alimentacao = {
       `${item} doesn’t go into this count — I don’t have the protein for that dish yet.`,
     semContaVarios: (quantos: number) =>
       `${quantos} items don’t go into this count — I don’t have their protein yet.`,
-    estimadoPelaFoto: 'Part of this total was estimated from the photo, with no table behind it.',
+    estimadoPelaFoto: 'Part of this total was estimated from the photo, not looked up in the table.',
 
     pratosFavoritos: 'Favorite plates',
     pratosGuardados: (quantos: number) =>

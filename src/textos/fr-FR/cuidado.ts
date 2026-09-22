@@ -168,7 +168,7 @@ export const cuidado = {
     anotarConsulta: 'Noter une consultation',
     anotarConsultaSub: 'Avec la date ici, le résumé est prêt et nous vous prévenons quand elle approche.',
     eQuando: (quando: string) => `C’est ${quando}`,
-    preparoTexto: 'Je construis un résumé avec le poids, l’observance et les symptômes de la période — vous choisissez ce que vous voulez demander.',
+    preparoTexto: 'Nous construisons un résumé avec le poids, l’observance et les symptômes de la période — vous choisissez ce que vous voulez demander.',
     prepararAConsulta: 'Préparer la consultation',
 
     seuTratamento: 'Votre traitement',

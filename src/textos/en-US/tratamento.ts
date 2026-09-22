@@ -161,8 +161,8 @@ export const tratamento = {
     emDiasDosSete: (dias: number) => `On ${dias} of seven ${dias === 1 ? 'day' : 'days'}`,
     metaMin: (alvo: number) => `Goal: ${alvo} min`,
 
-    semForca: 'No strength work this week. Weights, pilates and functional are what hold the muscle.',
-    comForca: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'} with strength work — that’s what holds the muscle while the weight comes down.`,
+    semForca: 'No strength work this week. Weights, pilates and functional training are what hold on to muscle.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'} with strength work — that’s what holds on to muscle while the weight comes down.`,
 
     minutosPorSemana: 'Minutes per week',
     mediaOitoSemanas: 'Average of the last 8 weeks',
@@ -191,7 +191,7 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'logged',
-    semCulpa: 'No guilt over a day that passed — what counts is picking it back up. You can log an earlier shot at any time, with the button below.',
+    semCulpa: 'No guilt over a day that slipped by — what counts is picking it back up. You can log an earlier shot at any time, using the button below.',
     titulo: 'Shots',
     registrar: 'Log a shot',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -227,7 +227,7 @@ export const tratamento = {
 
     nivelNoCorpo: 'Level in the body',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Estimated ${molecula} in the body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
+      `Estimated ${molecula} in your body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
     meiaVidaDias: (dias: number) => `${dias} days`,
     meiaVidaHoras: 'about 13 hours',
 
@@ -278,7 +278,7 @@ export const tratamento = {
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} expires before it runs out`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
-      `${medicamento} lasts ${dias} days once ${aberto}, and the ${total} doses do not fit in that window. Worth checking with whoever follows your treatment what to do with what is left.`,
+      `${medicamento} lasts ${dias} days once ${aberto}, and the ${total} doses don’t fit in that window. Worth checking with whoever follows your treatment what to do with what’s left.`,
 
     momentoDeRenovar: 'Time to ask for a refill',
     renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
@@ -302,11 +302,11 @@ export const tratamento = {
 
     medicamentoEDose: 'Medication and dose',
     medicamentoEDoseDaReceita: 'Medication and prescribed dose',
-    manipuladoSemEscada: 'Compounded medication has no label ladder — the number is the one on your prescription.',
+    manipuladoSemEscada: 'Compounded medication has no standard dose ladder — the number is whatever your prescription says.',
     medComDose: (medicamento: string, dose: string, unidade: string) =>
       `${medicamento} · ${dose} ${unidade}`,
     mudeiADose: 'My dose changed',
-    semFaixa: 'We have no reference range for this medication. The dose stays the one from your last entry.',
+    semFaixa: 'We have no reference range for this medication. The dose stays whatever you logged last.',
 
     localDaAplicacao: 'Injection site',
     localAjuda: 'Changing the site every week helps avoid irritation and lumps under the skin.',
@@ -368,7 +368,7 @@ export const tratamento = {
       `Record ${min} ${unidade} of ${modalidade}`,
 
     somaAoQueContou: (uma: boolean) =>
-      `What you record here adds to what ${uma ? 'it has already counted' : 'they have already counted'}.`,
+      `What you log here adds to what ${uma ? 'it has already counted' : 'they have already counted'}.`,
 
     oQueVoceFez: 'WHAT YOU DID',
     qualPlaceholder: 'Which one? E.g. volleyball, climbing, jiu-jitsu',

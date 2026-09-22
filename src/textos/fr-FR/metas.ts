@@ -392,7 +392,7 @@ export const metas = {
     travadoTexto: 'Ce chiffre fait partie de votre traitement, et c’est pour ça qu’il ne se change pas ici. S’il ne convient plus — une autre consigne, une contrainte apparue, une nouvelle équipe —, retirez la note dans l’Espace médical et il redevient le vôtre.',
     divergeTitulo: 'Ce chiffre n’est pas celui de votre équipe',
     divergeTexto: (por: string, dela: string, nosso: string) =>
-      `${por} a défini ${dela}, et l’application compte sur ${nosso}. Nous gardons les deux : vous pouvez revenir au sien dans l’Espace médical, ou emporter l’écart à la prochaine consultation.`,
+      `${por} a défini ${dela}, et nous comptons sur ${nosso}. Nous gardons les deux : vous pouvez revenir au sien dans l’Espace médical, ou emporter l’écart à la prochaine consultation.`,
     recomendadoTitulo: 'C’est la valeur recommandée',
 
     verAnotacao: 'Voir la note de votre équipe',

@@ -403,7 +403,7 @@ export const metas = {
     travadoTexto: 'Diese Zahl gehört zu deiner Behandlung, und deshalb wird sie hier nicht geändert. Wenn sie nicht mehr passt — eine andere Anweisung, eine Einschränkung, die aufgetaucht ist, ein neues Team —, entferne die Notiz im Medizin-Bereich, und sie gehört wieder dir.',
     divergeTitulo: 'Diese Zahl ist nicht die deines Teams',
     divergeTexto: (por: string, dela: string, nosso: string) =>
-      `${por} hat ${dela} festgelegt, und die App rechnet mit ${nosso}. Wir heben beide auf: du kannst im Medizin-Bereich zu der deines Teams zurück, oder den Unterschied mit zum nächsten Termin nehmen.`,
+      `${por} hat ${dela} festgelegt, und wir rechnen mit ${nosso}. Wir heben beide auf: du kannst im Medizin-Bereich zu der deines Teams zurück, oder den Unterschied mit zum nächsten Termin nehmen.`,
     recomendadoTitulo: 'Das ist der empfohlene Wert',
 
     verAnotacao: 'Die Notiz deines Teams ansehen',

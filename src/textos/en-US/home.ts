@@ -379,7 +379,7 @@ export const home = {
   telaDia: {
     registrosDeste: 'Entries for this day',
     diaDeAplicacao: 'Shot day',
-    nadaRegistrado: 'nothing recorded yet',
+    nadaRegistrado: 'nothing logged yet',
 
     aplicacao: 'Shot',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>

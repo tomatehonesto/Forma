@@ -74,7 +74,7 @@ export const cuidado = {
     /* ---------- right after the appointment ---------- */
     posConsultaTituloComPlataforma: 'Your care team updated your treatment.',
     posConsultaTituloSemPlataforma: 'You had an appointment recently.',
-    posConsultaTextoComPlataforma: 'Check the guidance from the appointment and what changes in your dose from here.',
+    posConsultaTextoComPlataforma: 'Go over what came out of the appointment and what changes in your dose from here.',
     posConsultaTextoSemPlataforma: 'If the dose or the interval changed, it’s worth updating here — that’s what keeps the app’s math right.',
     posConsultaPulso: 'Treatment updated',
 
@@ -85,7 +85,7 @@ export const cuidado = {
        wrong start. */
     pendenciaTitulo: 'We’ve got a few things to take care of.',
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'items need' : 'item needs'} you — ${assuntos}. Nothing urgent, but worth clearing this week.`,
+      `${quantas} ${plural ? 'items need' : 'item needs'} attention — ${assuntos}. Nothing urgent, but worth clearing this week.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} open ${quantas === 1 ? 'item' : 'items'}`,
     porExtenso: ['no', 'one', 'two', 'three', 'four'],
@@ -97,9 +97,9 @@ export const cuidado = {
        space. Someone running their treatment alone has been running it
        just as long. */
     emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} has been following your treatment for ${semanas} weeks. You’re keeping up well and there’s nothing important pending right now.`,
+      `${quem} has been following your treatment for ${semanas} weeks. You’re keeping up well and there’s nothing waiting on you right now.`,
     emDiaSozinha: (semanas: number) =>
-      `You’re ${semanas} weeks into treatment, keeping up well, with nothing important pending right now.`,
+      `You’re ${semanas} weeks into treatment, keeping up well, with nothing waiting on you right now.`,
     emDiaPulso: 'Follow-up on track',
   },
 
@@ -157,9 +157,9 @@ export const cuidado = {
     proximaConsulta: 'Your next appointment',
     consultasLink: 'Appointments',
     anotarConsulta: 'Add appointment',
-    anotarConsultaSub: 'With the date here, the summary is ready and we tell you when it gets close.',
+    anotarConsultaSub: 'Add the date and we’ll have your summary ready, and let you know when it’s close.',
     eQuando: (quando: string) => `It is ${quando}`,
-    preparoTexto: 'I put together a summary with weight, consistency and symptoms for that stretch — you pick what to ask.',
+    preparoTexto: 'We put together a summary with weight, adherence and symptoms from that stretch — you pick what to ask.',
     prepararAConsulta: 'Get ready for the appointment',
 
     seuTratamento: 'Your treatment',
@@ -179,11 +179,11 @@ export const cuidado = {
 
     quemAcompanha: 'Who follows your treatment',
     ninguemRegistrado: 'Nobody noted down yet',
-    seVoceSeTrata: 'If someone treats you, add them here — your summary will be ready for the appointment.',
+    seVoceSeTrata: 'If someone follows your treatment, add them here — your summary will be ready for the appointment.',
 
     acompanhamentoProfissional: 'Professional follow-up',
     conhecaParceiros: 'Meet the partner doctors',
-    parceirosTexto: 'Some clinics follow the treatment in here with you — messages between appointments, your summary reaching the team and the calendar already filled in.',
+    parceirosTexto: 'Some clinics work in here with you — messages between appointments, your summary going straight to the team, and your calendar already filled in.',
     passouATer: 'Started seeing someone?',
     anoteQuemE: 'Add who it is.',
   },
@@ -192,9 +192,9 @@ export const cuidado = {
     leadComVinculo: 'These details come from the clinic that follows your treatment.',
     ondeAtendida: 'Where the appointments happen',
     quemCorrige: 'The clinic is who corrects it',
-    quemCorrigeTexto: 'If anything is wrong, talk to the team — they are the ones who keep this record, and whatever gets fixed there arrives here.',
+    quemCorrigeTexto: 'If anything’s wrong, talk to the team — they’re the ones who keep this record, and whatever gets fixed there shows up here.',
 
-    lead: 'If someone treats you, note them here. It is what makes the summary come out ready for the appointment and the question prep show up at the right time.',
+    lead: 'If someone follows your treatment, note them here. That’s what gets your summary ready for the appointment, and brings up what to ask at the right time.',
 
     nome: 'Name',
     nomeAjuda: 'What you call this person. It can be the name of the practice, if you prefer.',
@@ -207,12 +207,12 @@ export const cuidado = {
     ondeAtendePlaceholder: 'Type the clinic or practice',
 
     nadaEnviado: 'None of this is sent to anyone',
-    nadaEnviadoTexto: 'The name stays in the app, with you. For your team to receive your data, you’ll need an invitation code from the clinic — and from then on the clinic is the one keeping this record.',
+    nadaEnviadoTexto: 'The name stays in the app, with you. For your team to get your data, you’ll need an invitation code from the clinic — and from then on the clinic is the one keeping this record.',
     salvar: 'Save',
 
     naoTenhoMais: 'I no longer have anyone following me',
     tirarPergunta: 'Remove who follows you?',
-    tirarTexto: 'All of your entries stay right here — weight, shots, symptoms, lab results and notes. All that leaves is the name.',
+    tirarTexto: 'All of your entries stay right here — weight, shots, symptoms, lab results and notes. The only thing that goes is the name.',
     simTirar: 'Yes, remove',
     cancelar: 'Cancel',
   },
@@ -227,7 +227,7 @@ export const cuidado = {
 
     proximaConsulta: 'Your next appointment',
     anoteSuaConsulta: 'Add your appointment',
-    lead: 'With the date here, we tell you when it gets close and leave the summary ready for you to take.',
+    lead: 'Once the date’s here, we’ll let you know when it’s close and have your summary ready to take.',
 
     quando: 'When',
     comoVaiSer: 'How it will be',
@@ -239,7 +239,7 @@ export const cuidado = {
     comQuem: (quem: string) => `With ${quem}.`,
 
     dataFicaComVoce: 'The date stays with you',
-    dataFicaComVoceTexto: 'Adding it here doesn’t tell the practice, and it doesn’t go into your phone calendar. We’re the ones who find out the appointment is near.',
+    dataFicaComVoceTexto: 'Adding it here doesn’t tell the practice, and it doesn’t go into your phone calendar. We’re the ones who’ll remind you when it’s close.',
 
     salvar: 'Save',
     anotar: 'Add appointment',
@@ -260,16 +260,16 @@ export const cuidado = {
 
     nenhumaAnotada: 'No appointment noted',
     clinicaMarca: 'When your team books the next one, it shows up here.',
-    semDataTexto: 'With the date here, we tell you when it gets close and leave the summary ready to take.',
+    semDataTexto: 'Add the date and we’ll let you know when it’s close, with your summary ready to take.',
     anotarConsulta: 'Add appointment',
 
     paraLevar: 'To take with you',
     paraLevarSub: (faltando: number): string =>
       faltando === 0
-        ? 'Everything is up to date — the summary builds itself from this.'
+        ? 'Everything’s up to date — your summary comes straight from this.'
         : faltando === 1
-          ? 'One thing is missing for the summary to be complete.'
-          : `${faltando} things are missing for the summary to be complete.`,
+          ? 'One thing is still missing from the summary.'
+          : `${faltando} things are still missing from the summary.`,
 
     anteriores: 'Past appointments',
     linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
@@ -286,18 +286,18 @@ export const cuidado = {
     ateASeguinteSub: (data: string) =>
       `What your records show between that day and ${data}.`,
 
-    semRegistro: 'None of your records fell in this window. What was agreed at the appointment is in the note above, if there is one.',
+    semRegistro: 'Nothing you logged falls in this window. What you agreed at the appointment is in the note above, if there is one.',
   },
 
   telaAreaMedica: {
     titulo: 'Medical area',
-    lead: 'Who looks after you, and what crosses over to the other side.',
+    lead: 'Who looks after you, and what reaches them.',
 
     atalhoMensagem: 'Message',
     atalhoClinica: 'Clinic',
 
     paraLevar: 'TO TAKE TO THE APPOINTMENT',
-    paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. It builds itself from your records and it’s ready now.',
+    paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. We build it from your records, and it’s ready now.',
     verResumo: 'View appointment summary',
 
     suasAnotacoes: 'Your notes',
@@ -315,7 +315,7 @@ export const cuidado = {
     anoteONumero: 'Add the number set at your appointment',
 
     duasMetas: (minha: string) =>
-      `Your weight goal, in the app, is ${minha}. The two live side by side — yours keeps measuring the Journey —, and the difference between them is a good question for the next appointment.`,
+      `Your weight goal, in the app, is ${minha}. The two sit side by side — yours is the one the Journey measures against — and the difference between them is a good question for the next appointment.`,
 
     documentos: 'Documents and lab results',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,

@@ -203,7 +203,7 @@ export const cuidado = {
     anotarConsulta: 'Einen Termin eintragen',
     anotarConsultaSub: 'Mit dem Datum hier ist die Übersicht fertig, und wir sagen dir Bescheid, wenn er näher rückt.',
     eQuando: (quando: string) => `Er ist ${quando}`,
-    preparoTexto: 'Ich stelle eine Übersicht mit Gewicht, Therapietreue und Symptomen des Zeitraums zusammen — du wählst, was du fragen willst.',
+    preparoTexto: 'Wir stellen eine Übersicht mit Gewicht, Therapietreue und Symptomen des Zeitraums zusammen — du wählst, was du fragen willst.',
     prepararAConsulta: 'Den Termin vorbereiten',
 
     seuTratamento: 'Deine Behandlung',

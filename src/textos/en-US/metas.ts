@@ -183,13 +183,13 @@ export const metas = {
   pessoais: {
     roupa: {
       nome: 'A piece of clothing',
-      pergunta: 'Which piece do you want to wear? The one at the back of the closet, one you saw in a window — whichever comes to mind.',
+      pergunta: 'What do you want to wear? Something at the back of the closet, something you saw in a window — whatever comes to mind.',
       dica: 'Type the piece of clothing',
       monta: (r: string) => `Wear ${r}`,
     },
     esporte: {
       nome: 'A sport',
-      pergunta: 'Which sport do you want to play? It counts whether you played it once or never tried it.',
+      pergunta: 'Which sport do you want to play? Counts either way — whether you played once or never tried.',
       dica: 'Type the sport',
       monta: (r: string) => `Play ${r}`,
     },
@@ -198,7 +198,7 @@ export const metas = {
          barrier might be a knee, might be pain, might be embarrassment —
          and naming the wrong one leaves out whoever has the other. */
       nome: 'Something day-to-day',
-      pergunta: 'What do you want to be able to do without tiring out? Climb the stairs at home, carry the groceries, walk over there without stopping halfway.',
+      pergunta: 'What do you want to be able to do without tiring out? Climb the stairs at home, carry the groceries, walk to the corner without stopping halfway.',
       dica: 'Type the activity',
       monta: (r: string) => `Be able to ${r}`,
     },
@@ -220,7 +220,7 @@ export const metas = {
          about going back. Whoever wants somewhere new has "Another
          goal". */
       nome: 'A place you stopped going',
-      pergunta: 'Where do you want to go back to? The beach, the pool, someone’s party — the place that’s been getting left out.',
+      pergunta: 'Where do you want to go back to? The beach, the pool, someone’s party — the place you’ve been skipping.',
       dica: 'Type the place',
       monta: (r: string) => `Go back to ${r}`,
     },
@@ -232,7 +232,7 @@ export const metas = {
     },
     largar: {
       nome: 'A habit to drop',
-      pergunta: 'What do you want to stop doing? Eating standing up, snacking in the middle of the night — whatever is yours.',
+      pergunta: 'What do you want to stop doing? Eating standing up, snacking in the middle of the night — whatever it is for you.',
       dica: 'Type the habit',
       monta: (r: string) => `Stop ${r}`,
     },
@@ -289,7 +289,7 @@ export const metas = {
     novaMeta: 'New goal',
 
     numerosTitulo: 'Your daily numbers',
-    numerosNota: 'It’s what the water, food and movement screens count against, and what the protocol tallies.',
+    numerosNota: 'It’s what the water, food and movement screens measure against, and what the protocol tallies.',
 
     /* ⚠️ "Via", not "from": the number came THROUGH the team — said in a
        visit and written down afterwards. "From your team" sounds like
@@ -314,21 +314,21 @@ export const metas = {
     origemDaEquipe: (por: string, quando: string) => `Set by ${por}, noted on ${quando}`,
     origemVoceEm: (quando: string) => `You set this number on ${quando}`,
     origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
-    mudaPeso: 'It’s the finish line agreed with your team, and moving it changes the scale of the Journey and of your progress — without erasing anything already logged.',
+    mudaPeso: 'It’s the finish line agreed with your team, and moving it changes the range on the Journey and on your progress — without erasing anything already logged.',
     mudaOutros: 'The change counts from now on: the days already logged keep meaning what they meant, and what changes is what they get compared against.',
 
     travadoTitulo: (por: string) => `${por} set this one`,
     travadoTexto: 'This number is part of your treatment, which is why it isn’t changed here. If it no longer fits — different guidance, a restriction that came up, a new team —, remove the note in the Care area and it becomes yours again.',
     divergeTitulo: 'This isn’t your team’s number',
     divergeTexto: (por: string, dela: string, nosso: string) =>
-      `${por} set ${dela}, and the app is counting against ${nosso}. We keep both: you can go back to theirs in the Care area, or take the difference to your next visit.`,
+      `${por} set ${dela}, and we’re going by ${nosso}. We keep both: you can go back to theirs in the Care area, or take the difference to your next visit.`,
     recomendadoTitulo: 'This is the recommended value',
 
     verAnotacao: 'View your team’s note',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
 
     /* ---------- the sheet for a new goal ---------- */
-    novaSub: 'Something of your own. We keep it for you, and you’re the one who checks it off',
+    novaSub: 'Something of your own. We’ll keep it here, and you’re the one who checks it off',
     escolhaOTipo: 'Pick the kind',
     escrevaDoSeuJeito: 'Write it your way',
 
@@ -340,7 +340,7 @@ export const metas = {
        sentence is a function here. */
     vaiAparecer: (frase: string, ate: string) => `It’ll show up like this: “${frase}”${ate}.`,
     vaiAparecerAte: (data: string) => `, by ${data}`,
-    aindaNaoAteMarcar: 'It stays at not yet until you check it off. The day it happens, we keep the date with it.',
+    aindaNaoAteMarcar: 'It stays at ’not yet’ until you check it off. The day it happens, we keep the date with it.',
 
     /* ---------- the sheet for one goal from the list ---------- */
     metaTitulo: 'Goal',
@@ -356,6 +356,6 @@ export const metas = {
     apagar: 'Delete',
 
     contamosPorVoce: 'This one we count for you',
-    contamosTexto: 'It comes from your check-ins over the last fourteen days, and only from the days you answered. There’s no checking it by hand — and that’s what makes the number worth something.',
+    contamosTexto: 'It comes from your check-ins over the last fourteen days, and only from the days you answered. There’s no way to mark it by hand — and that’s what makes the number mean something.',
   },
 };
