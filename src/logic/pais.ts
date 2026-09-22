@@ -27,16 +27,39 @@
 
    Então o país SOBE o que é comum ali e não tira nada de lugar nenhum.
 
-   ⚠️ E ELE É PERGUNTADO, E NÃO DEDUZIDO. O aparelho dá o palpite inicial
-   — é a melhor aposta —, e a resposta da pessoa ganha sempre. Ver o alto
-   de logic/mercado, que já dizia isso do interruptor de build: adivinhar
-   o país pelo telefone erra justamente com quem se mudou, que é quem tem
-   mais a perder.
+   ⚠️⚠️ E ELE NÃO É MAIS PERGUNTADO — decidido em 22/09/2026, e isto
+   inverte o que estava escrito aqui.
+
+   A tela de escolher país saiu do cadastro e do perfil. O motivo é o
+   tamanho do que ele decide: as três linhas acima se resolvem em DOIS
+   BOOLEANOS — "é Brasil?", para a rede parceira, e "é Estados Unidos?",
+   para a tabela de alimentos, já que só existem duas tabelas. A ordem dos
+   medicamentos não conta, porque ela ORDENA e não filtra, e ordem errada
+   não faz mal a ninguém.
+
+   Medido antes de tirar: 243 países produziam 8 comportamentos distintos,
+   e cinco dos oito se distinguiam só pelo símbolo da moeda. Tirado o
+   corte de IMC, que saiu antes, sobraram 3 — Brasil, Estados Unidos e o
+   resto. Uma pergunta de 243 respostas para extrair dois booleanos promete
+   uma especificidade que o aplicativo não entrega, e promessa que não se
+   cumpre custa mais do que a resposta vale.
+
+   ⚠️ A FONTE PASSA A SER SÓ O APARELHO, lido a cada arranque. E nada é
+   guardado no perfil: a leitura antiga voltar do disco congelaria um
+   palpite velho, e quem trocasse a região do telefone ficaria no país
+   anterior para sempre, sem tela para corrigir.
+
+   ⚠️ O QUE ISSO CUSTA, dito em voz alta: quem estiver com a região do
+   telefone diferente de onde se trata fica no balde errado e NÃO TEM COMO
+   ARRUMAR. Em concreto: um brasileiro com telefone em outra região não vê
+   o convite de clínica parceira. É o preço, e foi escolhido sabendo.
+
+   ⚠️ E A MOEDA SAI DAQUI QUANDO O PREÇO VIER DA LOJA. A vitrine é o país
+   de cobrança de verdade, e o StoreKit devolve o preço já formatado —
+   `MOEDAS` e `EURO` vão junto quando isso acontecer.
    ============================================================ */
 
 import { MERCADO } from './mercado';
-import { localAtual } from './local';
-import { NOMES_DE_PAIS } from './paisesNomes';
 
 /** ISO-3166-1 alfa-2. */
 export type Pais = string;
@@ -171,40 +194,18 @@ export const PAISES: Pais[] = [
   'ZW',
 ];
 
-/* O nome no idioma em que o aplicativo está falando agora. Sem dado — um
-   código que entrou na lista e ainda não passou pelo gerador —, o próprio
-   código responde: é feio e é visível, que é o que se quer de uma falta. */
-export const nomeDoPais = (c: Pais): string => {
-  const tabela = NOMES_DE_PAIS[localAtual()] ?? NOMES_DE_PAIS['pt-BR'];
-  return tabela?.[c] ?? c;
-};
-
-/* ⚠️ A LISTA DO SELETOR É ORDENADA PELO NOME, e não pelo código: ninguém
-   procura um país por "DE".
-
-   ⚠️⚠️ E ELA É FUNÇÃO, e não constante de módulo. Constante de módulo se
-   calcula no import e congelaria a ordem no primeiro idioma — em alemão a
-   lista sairia alfabética em português, com "Alemanha" onde "Deutschland"
-   deveria estar. É a mesma regra do catálogo de textos; ver
-   scripts/idioma-congelado.mjs. */
-export const paisesOrdenados = (): Pais[] => {
-  const l = localAtual();
-  return [...PAISES].sort((a, b) => nomeDoPais(a).localeCompare(nomeDoPais(b), l));
-};
-
 /* ------------------------------------------------------------------ *
  * QUAL É O PAÍS AGORA
  * ------------------------------------------------------------------ */
 
 const PADRAO: Pais = MERCADO === 'us' ? 'US' : 'BR';
 
-let escolhido: Pais | null = null;
 let doAparelho: Pais | null = null;
 
-export const paisAtual = (): Pais => escolhido ?? doAparelho ?? PADRAO;
-
-/** Trocar à mão. `null` devolve a escolha ao aparelho. */
-export const trocarPais = (p: Pais | null) => { escolhido = p; };
+/* ⚠️ SEM `escolhido`, e é o que sobrou de tirar a pergunta: não há
+   escolha à mão para preceder o aparelho. A ordem é o que o telefone diz
+   e, na falta, o mercado do build. */
+export const paisAtual = (): Pais => doAparelho ?? PADRAO;
 
 /** O palpite do aparelho, dito por logic/local quando ele lê a região. */
 export const paisDoAparelho = (p: string | null) => {

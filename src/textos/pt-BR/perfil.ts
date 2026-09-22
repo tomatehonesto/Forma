@@ -88,7 +88,7 @@ export const perfil = {
      Agora ela repete o que a tela do outro lado mostra, e os dois nomes
      vêm de `logic/local` e `logic/pais`, que escrevem cada um na própria
      língua de propósito. */
-  idiomaSub: (idioma: string, pais: string) => `${idioma} · ${pais}`,
+  idiomaSub: (idioma: string) => idioma,
   unidades: 'Unidades de medida',
   unidadesSub: (sistema: string, unidades: string) => `${sistema} · ${unidades}`,
 

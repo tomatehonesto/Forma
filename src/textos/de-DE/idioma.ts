@@ -26,13 +26,9 @@ export const idioma = {
      du“. Das Land entscheidet über Apotheke, Währung und
      Lebensmitteltabelle — alles Dinge des Ortes, an dem jemand ist, und
      keines des Ortes, an dem jemand geboren wurde. */
-  pais: 'Land',
-  paisRotulo: 'Wo du dich behandelst',
-  paisRessalva: 'Ändert, welche Medikamente zuerst erscheinen, die Währung und die Lebensmitteltabelle. Nichts verschwindet aus der Liste: was dort seltener ist, rutscht nach unten.',
-
   /* Der Bildschirm im Profil, wo umgestellt wird. */
-  titulo: 'Sprache und Land',
-  tituloSub: 'In welcher Sprache du liest, und wo du dich behandelst.',
+  titulo: 'Sprache',
+  tituloSub: 'Ändert den Text, die Zahlen und die Daten.',
   rotulo: 'Wie du die App liest',
 
   /* ⚠️ DIE EINSCHRÄNKUNG IST DER TEIL, DER ÜBERRASCHT. Auf English

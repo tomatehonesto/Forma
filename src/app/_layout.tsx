@@ -11,7 +11,6 @@ import {
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
 import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
-import { trocarPais } from '../logic/pais';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -241,13 +240,12 @@ export default function RootLayout() {
     if (idiomaSalvo) trocarLocal(idiomaSalvo);
   }, [idiomaSalvo]);
 
-  /* O país pelo mesmo motivo, e ele decide mais do que o idioma: a lista
-     de medicamentos, a moeda, a tabela de alimentos e os cortes de IMC.
-     Ver logic/pais. */
-  const paisSalvo = useStore((s: any) => s.S?.profile?.pais);
-  useEffect(() => {
-    if (paisSalvo) trocarPais(paisSalvo);
-  }, [paisSalvo]);
+  /* ⚠️ O PAÍS NÃO VOLTA DO DISCO, e é de propósito: não há o que lembrar.
+     Ele deixou de ser pergunta, então a única fonte é a região do
+     aparelho — lida a cada arranque por `lerAparelho`, logo acima.
+     Guardar a leitura no perfil e devolvê-la aqui congelaria um palpite
+     velho: quem trocasse a região do telefone continuaria no país
+     antigo, para sempre e sem tela para corrigir. Ver logic/pais. */
 
   if (!loaded || !ready) return null;
 

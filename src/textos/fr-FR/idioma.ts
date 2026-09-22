@@ -31,12 +31,8 @@ export const idioma = {
      Ce que le pays décide, c'est la pharmacie, la monnaie et la table des
      aliments — des choses du lieu où la personne est, aucune de là où
      elle est née. */
-  pais: 'Pays',
-  paisRotulo: 'Où vous vous soignez',
-  paisRessalva: 'Cela change quels médicaments apparaissent en premier, la monnaie et la table des aliments. Rien ne disparaît de la liste : ce qui est moins courant là-bas passe en dessous.',
-
-  titulo: 'Langue et Pays',
-  tituloSub: 'Dans quelle langue vous lisez, et où vous vous soignez.',
+  titulo: 'Langue',
+  tituloSub: 'Change le texte, les nombres et les dates.',
   rotulo: 'Comment vous lisez l’application',
 
   /* ⚠️ LA RÉSERVE EST LA PARTIE QUI SURPREND. Changer de langue change

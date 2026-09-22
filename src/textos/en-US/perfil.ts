@@ -39,7 +39,7 @@ export const perfil = {
   aparencia: 'Appearance',
   aparenciaSub: (paleta: string, escuro: boolean) =>
     `${paleta}, in ${escuro ? 'dark' : 'light'} · pick the app’s color`,
-  idiomaSub: (idioma: string, pais: string) => `${idioma} · ${pais}`,
+  idiomaSub: (idioma: string) => idioma,
   unidades: 'Units of measurement',
   unidadesSub: (sistema: string, unidades: string) => `${sistema} · ${unidades}`,
 

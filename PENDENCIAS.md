@@ -1470,6 +1470,28 @@ tirada do `git show`, e não de memória.
   medicamentos. A moeda sai quando o preço vier da loja, que é quem sabe
   o país de cobrança.
 
+- **⚠️⚠️ A PERGUNTA DO PAÍS SAIU DO APLICATIVO**, do cadastro e do perfil,
+  por decisão de produto em 22/09/2026. O que ela decide se resolve em
+  DOIS BOOLEANOS — "é Brasil?" para a rede parceira e "é Estados Unidos?"
+  para a tabela de alimentos, já que só existem duas tabelas —, e a
+  região do aparelho responde os dois com precisão alta. Medido antes de
+  tirar: 243 países davam 8 comportamentos, cinco deles distintos só pelo
+  símbolo da moeda; sem o corte de IMC sobraram 3. ⚠️ **O custo está dito
+  no alto de `logic/pais` e é real: quem tiver a região do telefone
+  diferente de onde se trata fica no balde errado e NÃO TEM COMO
+  ARRUMAR** — um brasileiro com telefone em outra região não vê o convite
+  de clínica parceira.
+- **E nada do país é guardado no perfil.** O `_layout` devolvia
+  `profile.pais` no arranque, o que fazia sentido quando havia escolha.
+  Sem escolha, isso congelaria um palpite velho: quem trocasse a região
+  do telefone ficaria no país anterior para sempre. A fonte passa a ser o
+  aparelho, lido a cada arranque.
+- **Morreram junto**, e foram apagados: `logic/paisesNomes` (243 × 5
+  nomes, gerado ontem), `scripts/nomes-de-pais.mjs`, `nomeDoPais`,
+  `paisesOrdenados`, `trocarPais` e o `scrollRef` do `SheetScreen` — que
+  existia só para a folha de 243 linhas abrir no valor certo. A lista de
+  CÓDIGOS fica: é ela que impede uma região desconhecida de virar Brasil.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

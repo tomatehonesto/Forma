@@ -1,11 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useStore } from '../logic/store';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { nomeDoPais, paisAtual } from '../logic/pais';
 import { T } from '../textos';
 import { NOME_DO_LOCAL, localAtual } from '../logic/local';
 
@@ -24,22 +21,20 @@ import { NOME_DO_LOCAL, localAtual } from '../logic/local';
    `transparentModal` para que o scrim tenha o que escurecer. A irmã desta
    tela, /unidades, está na lista dos modais do layout; esta ficou de fora,
    encostada no `checkin`, e virou o pior dos dois mundos: empurrada como
-   tela, desenhada como folha, com o scrim cobrindo a própria página.
+   tela, desenhada como folha, com o scrim cobrindo a própria página. A
+   saída não foi mudar a rota: foi aceitar o que a rota já dizia.
 
-   A saída não foi mudar a rota: foi aceitar o que a rota já dizia. Aqui
-   cabe uma tela — duas escolhas, duas ressalvas —, e a rolagem larga é o
-   que as cento e onze… vinte e oito opções de país pediam desde o começo.
+   ⚠️ E ELA JÁ PERGUNTOU DUAS COISAS. O país era a segunda linha, e saiu do
+   aplicativo inteiro — ver o alto de logic/pais. Com uma pergunta só ela
+   poderia voltar a ser folha; continua tela porque é aqui que mora a
+   RESSALVA, que é a parte que tira o medo de tocar, e folha de lista não
+   é lugar de parágrafo.
 
-   ⚠️ AS DUAS ESCOLHAS VIRARAM LINHA, E NÃO DUAS RODAS LADO A LADO. A roda
-   mostra o valor escolhido no meio de outros dois, e duas delas juntas
-   fazem a pessoa ler quatro palavras para achar as duas que valem. A
-   linha diz o que está valendo e mais nada; quem quer trocar toca nela, e
-   aí sim vê a lista inteira, numa folha, com espaço para as vinte e oito.
-
-   ⚠️ E CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA — é a única lista do
-   aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
-   português; quem abriu esta tela por estar perdido num idioma que não é
-   o seu procura a palavra que reconhece. Ver /escolher.
+   ⚠️ E A ASSINATURA DO ESTADO SAIU JUNTO COM O PAÍS. Ela existia porque a
+   linha do país lia `paisAtual()`, que é valor de módulo e não avisa
+   ninguém: a tela ficava montada atrás da folha e nunca re-renderizava. O
+   idioma não tem esse problema — trocá-lo remonta a árvore inteira pelo
+   `key` da Moldura.
 
    ⚠️ NADA SE CONVERTE NO ESTADO, como na folha de unidades: o que está
    gravado continua gravado, e só a forma de escrever muda. Por isso a
@@ -49,23 +44,6 @@ import { NOME_DO_LOCAL, localAtual } from '../logic/local';
 export default function Idioma() {
   const router = useRouter();
   const { c } = useTheme();
-  const ir = (o: string) => () => router.push(`/escolher?o=${o}` as any);
-
-  /* ⚠️ A ASSINATURA DO ESTADO EXISTE PARA A TELA REAGIR À FOLHA, e não
-     para ler nada daqui.
-
-     `localAtual()` e `paisAtual()` são leitura de módulo: módulo não
-     avisa ninguém, e a tela que ficou montada atrás da folha nunca
-     re-renderizava. Com o idioma isso passava despercebido — trocá-lo
-     remonta a árvore inteira pelo `key` da Moldura —, mas o país não
-     remonta nada, e a linha continuava dizendo "Brasil" depois de a
-     pessoa ter escolhido Portugal.
-
-     Assinar `S` é o que as outras telas da casa fazem, e é o bastante:
-     quem escolhe grava no perfil, e gravar no perfil devolve um `S` novo.
-     O valor mostrado continua saindo das duas funções, que sabem cair no
-     aparelho enquanto o perfil ainda não respondeu. */
-  useStore((s: any) => s.S);
 
   return (
     <TelaInterna titulo={T.idioma.titulo}>
@@ -80,24 +58,13 @@ export default function Idioma() {
           ic="site"
           titulo={T.idioma.idioma}
           sub={NOME_DO_LOCAL[localAtual()]}
-          onPress={ir('idioma')}
-        />
-        <Linha
-          ic="pin"
-          titulo={T.idioma.pais}
-          sub={nomeDoPais(paisAtual())}
-          onPress={ir('pais')}
+          onPress={() => router.push('/escolher' as any)}
         />
       </Cartao>
 
-      <View style={{ gap: 10 }}>
-        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-          {T.idioma.ressalva}
-        </Txt>
-        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-          {T.idioma.paisRessalva}
-        </Txt>
-      </View>
+      <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
+        {T.idioma.ressalva}
+      </Txt>
     </TelaInterna>
   );
 }

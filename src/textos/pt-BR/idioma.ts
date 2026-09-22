@@ -19,23 +19,10 @@ export const idioma = {
   pergunta: 'Em que idioma você quer ler?',
   sub: 'Isto muda o texto, os números e as datas. Dá para trocar depois, no perfil.',
 
-  /* ⚠️⚠️ O PAÍS É A SEGUNDA PERGUNTA DESTA TELA, e não é o idioma com
-     outro nome. Um brasileiro em Lisboa lê em português e compra remédio
-     em euro; um mexicano nos Estados Unidos pode preferir ler em espanhol
-     e ter Zepbound na farmácia da esquina. Derivar um do outro erra com
-     as duas pessoas.
-
-     ⚠️ E A PERGUNTA É "ONDE VOCÊ SE TRATA", e não "de onde você é". O que
-     o país decide é a farmácia, a moeda e a tabela de alimentos — todas
-     coisas do lugar onde a pessoa está, e nenhuma de onde ela nasceu. */
-  pais: 'País',
-  paisRotulo: 'Onde você se trata',
-  paisRessalva: 'Muda quais medicamentos aparecem primeiro, a moeda e a tabela de alimentos. Nada some da lista: o que é menos comum aí fica embaixo.',
-
   /* A tela do perfil, onde se troca. Ela pergunta DUAS coisas, e o
      nome dela diz as duas. */
-  titulo: 'Idioma e País',
-  tituloSub: 'Em que idioma você lê, e onde você se trata.',
+  titulo: 'Idioma',
+  tituloSub: 'Muda o texto, os números e as datas.',
   rotulo: 'Como você lê o aplicativo',
 
   /* ⚠️ A RESSALVA É A PARTE QUE SURPREENDE. Trocar para English troca

@@ -20,7 +20,7 @@ import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '.
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao, Cartao, Linha, Roda, Regua, Segmentado, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Botao, Roda, Regua, Segmentado, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -32,7 +32,6 @@ import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font, shadowCard, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local } from '../logic/local';
-import { nomeDoPais, paisAtual } from '../logic/pais';
 import { T } from '../textos';
 
 /* ============================================================
@@ -119,12 +118,13 @@ const TODOS: Id[] = [
      marcada. A pergunta existe para quem a aposta errou — e para quem
      acertou ela custa um toque em "Continuar".
 
-     ⚠️⚠️ E O PAÍS É A SEGUNDA PERGUNTA DESTE MESMO PASSO, não um passo
-     novo. Ele não é o idioma com outro nome — um brasileiro em Lisboa lê
-     em português e compra remédio em euro —, mas as duas respostas vêm da
-     mesma leitura do aparelho e se corrigem no mesmo gesto. Separá-las em
-     dois passos cobraria um "Continuar" a mais de quem não precisa mexer
-     em nenhuma das duas, que é quase todo mundo. */
+     ⚠️⚠️ E O PAÍS NÃO SE PERGUNTA AQUI, nem em lugar nenhum. Ele chegou a
+     ser a segunda pergunta deste passo e saiu: o que ele decide são dois
+     booleanos — "é Brasil?", para a rede parceira, e "é Estados Unidos?",
+     para a tabela de alimentos —, e a região do aparelho responde os dois
+     com precisão alta. Uma pergunta de duzentas e quarenta e três
+     respostas para extrair dois booleanos promete uma especificidade que
+     o aplicativo não entrega. Ver o alto de logic/pais. */
   'idioma',
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
   'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
@@ -1205,12 +1205,6 @@ export default function Cadastro() {
       /* ⚠️ O IDIOMA É GRAVADO NO PERFIL, e não só no valor de módulo: o
          módulo não sobrevive a fechar o aplicativo. Ver logic/local. */
       s.profile.idioma = r.idioma;
-      /* ⚠️ O PAÍS VEM DE `paisAtual()`, e não de `r`: quem o trocou foi a
-         folha, que escreve no valor de módulo. E ele precisa ser gravado
-         DEPOIS do `estadoVazio()` acima pelo mesmo motivo do idioma — o
-         estado vazio não tem país, e o módulo não sobrevive a fechar o
-         aplicativo. */
-      s.profile.pais = paisAtual();
       s.profile.name = r.nome.trim();
       s.profile.identidade = r.identidade;
       s.profile.nascimento = +new Date(r.ano, r.mes, r.dia);
@@ -1671,28 +1665,6 @@ export default function Cadastro() {
               />
             ))}
 
-            {/* ⚠️ O PAÍS NÃO CABE NUMA LISTA DE OPÇÕES, e é a razão de ele
-                ser uma linha e não mais dez cartões: são CENTO E ONZE. A
-                folha que se abre aqui é a mesma do perfil, e ela abre
-                rolada no valor que já vale — de novo, quem não precisa
-                mexer não mexe em nada.
-
-                ⚠️ E ELA NÃO ENTRA NO `r`. Trocar o país escreve no valor de
-                módulo, que é o que `paisAtual()` lê, e o módulo sobrevive
-                ao `estadoVazio()` do fim do cadastro — diferente do
-                idioma, que precisa de `r` porque a lista daqui responde
-                por ele. Quem grava no perfil é a linha lá embaixo. */}
-            <View style={{ marginTop: 22, gap: 10 }}>
-              <Rotulo>{T.idioma.paisRotulo}</Rotulo>
-              <Cartao>
-                <Linha
-                  ic="pin"
-                  titulo={T.idioma.pais}
-                  sub={nomeDoPais(paisAtual())}
-                  onPress={() => router.push('/escolher?o=pais' as any)}
-                />
-              </Cartao>
-            </View>
           </View>
         ) : null}
 

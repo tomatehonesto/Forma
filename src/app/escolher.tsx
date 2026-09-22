@@ -1,41 +1,32 @@
 import React from 'react';
-import { View, Pressable, type ScrollView } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Cartao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { nomeDoPais, paisesOrdenados, paisAtual, trocarPais, type Pais } from '../logic/pais';
 import { T } from '../textos';
 import {
   NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local,
 } from '../logic/local';
 
 /* ============================================================
-   ESCOLHER — a folha de uma lista longa
+   ESCOLHER O IDIOMA — a folha do perfil
 
-   Ela serve às duas perguntas de /idioma, e é uma rota só porque as duas
-   listas têm exatamente a mesma forma: um valor, um nome escrito no
-   próprio idioma, e o visto em quem está valendo. Duas rotas seriam duas
-   cópias da mesma folha, e a segunda é sempre a que fica para trás.
+   ⚠️ ELA JÁ SERVIU A DUAS PERGUNTAS, idioma e país, e por isso levava um
+   parâmetro de rota. O país saiu do aplicativo inteiro — ver o alto de
+   logic/pais —, e com uma pergunta só o parâmetro era peça sem função.
 
-   ⚠️⚠️ E AS DUAS LISTAS SE ESCREVEM EM IDIOMAS DIFERENTES, de propósito.
+   ⚠️ CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
+   aplicativo assim. "Inglês" só ajuda quem já lê português; quem abre
+   esta folha por estar perdido numa língua que não é a sua procura a
+   palavra que reconhece — "English", "Deutsch".
 
-   O IDIOMA se escreve no próprio: "English", "Deutsch". Quem abre esta
-   folha por estar perdido numa língua que não lê procura a palavra que
-   reconhece, e "Inglês" só ajuda quem já lê português.
-
-   O PAÍS se escreve no idioma do aplicativo. A pergunta dele vem DEPOIS
-   da do idioma, na mesma tela: quem chega aqui já escolheu em que língua
-   lê, e "Deutschland" no meio de uma lista em português seria a única
-   linha que a pessoa não consegue procurar pelo nome que conhece.
-
-   ⚠️ A LISTA DE IDIOMAS É `idiomasOrdenados`, e não uma lista escrita
-   aqui. Ela vem de logic/local com duas garantias: só entra idioma que
-   tem catálogo, e a ordem põe em cima o do país de quem está lendo. As
-   duas coisas moram lá porque o cadastro faz a mesma pergunta e precisa
-   da mesma resposta.
+   ⚠️ A LISTA É `idiomasOrdenados`, e não uma lista escrita aqui. Ela vem
+   de logic/local com duas garantias: só entra idioma que tem catálogo, e
+   a ordem põe em cima o do país de quem está lendo. As duas coisas moram
+   lá porque o cadastro faz a mesma pergunta e precisa da mesma resposta.
 
    ⚠️⚠️ E A ESCOLHA FECHA A FOLHA ANTES DE VALER. Trocar o idioma remonta
    a árvore inteira — é o `key={localAtual()}` da Moldura, no layout raiz
@@ -47,16 +38,10 @@ import {
 /* A linha da lista. Ela não é a <Linha> da casa: aquela fecha com selo ou
    com chevron, e aqui o fecho é o visto — que não é um fim de linha, é o
    estado da opção. */
-function Opcao({ nome, on, onPress, onAltura }: {
-  nome: string; on: boolean; onPress: () => void; onAltura?: (h: number) => void;
-}) {
+function Opcao({ nome, on, onPress }: { nome: string; on: boolean; onPress: () => void }) {
   const { c } = useTheme();
   return (
-    <Pressable
-      onPress={onPress}
-      onLayout={onAltura ? (e) => onAltura(e.nativeEvent.layout.height) : undefined}
-      style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
       <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'center' }}>
         <Txt v="body" c={on ? c.tx : c.tx2} style={{ flex: 1 }}>{nome}</Txt>
         {on ? <Icon name="check" size={16} color={c.accent} sw={2.4} /> : null}
@@ -68,67 +53,27 @@ function Opcao({ nome, on, onPress, onAltura }: {
 export default function Escolher() {
   const update = useStore((s) => s.update);
   const router = useRouter();
-  const { o } = useLocalSearchParams<{ o?: string }>();
-  const ehPais = o === 'pais';
 
-  /* Os dois passos, nas duas perguntas: o valor de módulo, que é quem o
-     texto e as listas leem, e o perfil, que é quem lembra no próximo
-     arranque. */
-  const escolherIdioma = (id: Local) => {
+  /* Os dois passos: o valor de módulo, que é quem o texto e as listas
+     leem, e o perfil, que é quem lembra no próximo arranque. */
+  const escolher = (id: Local) => {
     router.back();
     trocarLocal(id);
     update((st: any) => { st.profile.idioma = id; });
   };
-  const escolherPais = (p: Pais) => {
-    router.back();
-    trocarPais(p);
-    update((st: any) => { st.profile.pais = p; });
-  };
-
-  /* ⚠️ A FOLHA ABRE NO VALOR QUE JÁ VALE, e é isto que a roda antiga fazia
-     de graça: com duzentos e quarenta e três países, abrir na primeira
-     letra é pedir que quase todo mundo role até o seu. Só o país precisa
-     — cinco idiomas cabem na tela sem rolar.
-
-     A altura vem do onLayout da primeira linha em vez de um número
-     escrito: ela muda com o tamanho de fonte do aparelho, e um 48 cravado
-     aqui erraria justamente para quem aumentou a letra. */
-  const rolagem = React.useRef<ScrollView | null>(null);
-  const [altura, setAltura] = React.useState(0);
-  /* ⚠️ A LISTA SAI DE UMA FUNÇÃO, e é lida UMA VEZ por desenho. Ela ordena
-     duzentos e quarenta e três nomes pelo idioma de agora; chamá-la duas
-     vezes ordenaria duas vezes, e — pior — o índice e as linhas viriam de
-     leituras diferentes, que é como o rolo acerta a linha errada. */
-  const lista = ehPais ? paisesOrdenados() : [];
-  const indice = ehPais ? lista.indexOf(paisAtual()) : -1;
-
-  React.useEffect(() => {
-    if (altura > 0 && indice > 0) {
-      rolagem.current?.scrollTo({ y: indice * altura, animated: false });
-    }
-  }, [altura, indice]);
 
   return (
-    <SheetScreen
-      titulo={ehPais ? T.idioma.paisRotulo : T.idioma.rotulo}
-      onClose={() => router.back()}
-      scrollRef={rolagem}
-    >
+    <SheetScreen titulo={T.idioma.rotulo} onClose={() => router.back()}>
       <View style={{ marginTop: 18 }}>
         <Cartao>
-          {ehPais
-            ? lista.map((p, i) => (
-              <Opcao
-                key={p}
-                nome={nomeDoPais(p)}
-                on={p === paisAtual()}
-                onPress={() => escolherPais(p)}
-                onAltura={i === 0 ? setAltura : undefined}
-              />
-            ))
-            : idiomasOrdenados().map((id) => (
-              <Opcao key={id} nome={NOME_DO_LOCAL[id]} on={id === localAtual()} onPress={() => escolherIdioma(id)} />
-            ))}
+          {idiomasOrdenados().map((id) => (
+            <Opcao
+              key={id}
+              nome={NOME_DO_LOCAL[id]}
+              on={id === localAtual()}
+              onPress={() => escolher(id)}
+            />
+          ))}
         </Cartao>
       </View>
     </SheetScreen>

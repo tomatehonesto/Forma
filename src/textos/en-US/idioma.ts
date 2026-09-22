@@ -13,12 +13,8 @@ export const idioma = {
   pergunta: 'Which language do you want to read in?',
   sub: 'This changes the text, the numbers and the dates. You can change it later, in your profile.',
 
-  pais: 'Country',
-  paisRotulo: 'Where you get your treatment',
-  paisRessalva: 'It changes which medications come up first, the currency and the food table. Nothing disappears from the list: what’s less common there sits lower down.',
-
-  titulo: 'Language and Country',
-  tituloSub: 'Which language you read in, and where you get your treatment.',
+  titulo: 'Language',
+  tituloSub: 'Changes the text, the numbers and the dates.',
   rotulo: 'How you read the app',
 
   ressalva: 'What you’ve already logged stays as it is. Only the way it’s written changes: the words, the decimal separator, the shape of the date and the clock.',
