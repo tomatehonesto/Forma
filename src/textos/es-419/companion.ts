@@ -28,6 +28,18 @@ export const companion = {
   },
 
   biblioteca: {
+
+    /* ⚠️ La pantalla mostraba cuatro artículos inventados escritos en duro,
+       mientras la biblioteca de verdad estaba justo arriba y `libraryPicks`
+       la armaba según el estado de la persona. Nadie la llamaba. Ver
+       ../pt-BR/companion. */
+    tela: {
+      titulo: 'Biblioteca',
+      sub: 'Contenido justo para tu momento — no una lista de artículos',
+      minDeLeitura: (min: number) => `${min} min de lectura`,
+      vazioTitulo: 'Nada para leer ahora',
+      vazioTexto: 'Las lecturas aparecen cuando algo en tus registros pide una. Sin eso no hay qué leer — y eso es buena noticia.',
+    },
     fomeMotivo: (dia: number) => `Estás en el día ${dia} del ciclo, cuando el hambre vuelve`,
     fomeTitulo: 'Por qué el hambre vuelve antes de la aplicación',
     /* ⚠️ "QUITA LA SENSACIÓN DE RECAÍDA" es el servicio de esta lectura y

@@ -36,6 +36,32 @@ export const companion = {
      A BIBLIOTECA CONTEXTUAL
      ============================================================ */
   biblioteca: {
+
+    /* ============================================================
+       A TELA DA BIBLIOTECA
+
+       ⚠️⚠️ ELA MOSTRAVA QUATRO ARTIGOS FALSOS, escritos em duro na tela —
+       "Passando pros 5 mg", "Você está aqui · 5 mg" —, enquanto a
+       biblioteca de verdade estava logo acima neste arquivo, traduzida em
+       cinco idiomas, e `libraryPicks` em logic/derive a montava conforme o
+       estado da pessoa. Ninguém chamava a função.
+
+       Traduzir a maquete teria sido o pior dos dois mundos: cinco cópias de
+       um texto inventado, ao lado de sete leituras reais que continuariam
+       sem uso. A tela passou a ler `libraryPicks`.
+
+       ⚠️ E ELA PODE VIR VAZIA, o que a maquete não podia. Quem está no meio
+       do ciclo, dormindo bem, com a proteína em dia e sem consulta marcada
+       não tem leitura que se justifique — e o vazio aqui é boa notícia, não
+       falta. A frase diz isso.
+       ============================================================ */
+    tela: {
+      titulo: 'Biblioteca',
+      sub: 'Conteúdo certo para o seu momento — não uma lista de artigos',
+      minDeLeitura: (min: number) => `${min} min de leitura`,
+      vazioTitulo: 'Nada para ler agora',
+      vazioTexto: 'As leituras entram quando alguma coisa nos seus registros pede uma. Sem isso não há o que ler — e isso é uma boa notícia.',
+    },
     /* ---------- a fome que volta ---------- */
     fomeMotivo: (dia: number) => `Você está no dia ${dia} do ciclo, quando a fome volta`,
     fomeTitulo: 'Por que a fome volta antes da aplicação',

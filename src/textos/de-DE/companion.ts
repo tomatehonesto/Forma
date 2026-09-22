@@ -29,6 +29,19 @@ export const companion = {
   },
 
   biblioteca: {
+
+    /* ⚠️⚠️ DER BILDSCHIRM ZEIGTE VIER ERFUNDENE ARTIKEL, fest in die
+       Bildschirmdatei geschrieben, während die echte Bibliothek direkt
+       darüber stand — in fünf Sprachen übersetzt — und `libraryPicks` sie
+       aus dem Zustand der Person zusammenbaute. Niemand rief die Funktion
+       auf. Siehe ../pt-BR/companion. */
+    tela: {
+      titulo: 'Bibliothek',
+      sub: 'Die passende Lektüre für deinen Moment — und keine Artikelliste',
+      minDeLeitura: (min: number) => `${min} Min. Lesezeit`,
+      vazioTitulo: 'Gerade nichts zu lesen',
+      vazioTexto: 'Lektüren erscheinen, wenn etwas in deinen Einträgen eine verlangt. Ohne das gibt es nichts zu lesen — und das ist eine gute Nachricht.',
+    },
     fomeMotivo: (dia: number) => `Du bist an Tag ${dia} des Zyklus, wenn der Hunger zurückkommt`,
     fomeTitulo: 'Warum der Hunger vor der Injektion zurückkommt',
     /* ⚠️ „NIMMT DAS GEFÜHL EINES RÜCKFALLS“ ist der Dienst dieses Textes

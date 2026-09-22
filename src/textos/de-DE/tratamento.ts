@@ -161,7 +161,7 @@ export const tratamento = {
      „6 Std. 20“. Die Funktion im Bildschirm zu lassen zwang alle fünf in
      die portugiesische Abkürzung. Siehe ../pt-BR/tratamento.
      ============================================================ */
-  tela: {
+  telaExercicio: {
     titulo: 'Bewegung',
     /* ⚠️ 'Min.' MIT PUNKT, wie der Rest dieser Datei. 'min' wäre das
        SI-Zeichen und bliebe nach der Regel im Code — aber dann stünden
@@ -219,5 +219,63 @@ export const tratamento = {
     conectar: 'Eine Uhr oder App verbinden',
     lancamSozinhos: 'Tragen die Minuten von allein ein',
     conectarSub: 'Apple Health, Health Connect, Garmin und andere',
+  },
+
+  /* ============================================================
+     DER INJEKTIONS-BILDSCHIRM · de-DE
+     ============================================================ */
+  telaAplicacoes: {
+    aplicada: 'gespritzt',
+    semCulpa: 'Kein schlechtes Gewissen wegen eines vergangenen Tages — es zählt, wieder anzuknüpfen. Du kannst eine frühere Injektion jederzeit nachtragen, mit dem Knopf unten.',
+    titulo: 'Injektionen',
+    registrar: 'Injektion eintragen',
+    lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
+
+    proximaAplicacao: 'NÄCHSTE INJEKTION',
+
+    cicloDaDose: 'Dosiszyklus',
+    /* ⚠️ KEIN `toLowerCase()` AN DER PHASE: „Tag 4 von 7 · anstieg“ wäre
+       ein Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
+    cicloSub: (dia: number, total: number, fase: string) => `Tag ${dia} von ${total} · ${fase}`,
+    emCurso: 'läuft',
+
+    eReceita: (recipiente: string) => `${recipiente} und Rezept`,
+    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} von ${total} Dosen verbraucht ${onde}`,
+    cobreSemanas: (veredito: string, semanas: number) =>
+      `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Injektion`,
+    nenhumAlerta: 'Keine Erinnerung für die Injektion',
+    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
+
+    /* ⚠️ DER STELLENWECHSEL IST KEIN SCHMUCK: immer dieselbe Stelle zu
+       treffen macht Knoten, und zu wechseln steht in der
+       Packungsbeilage. */
+    rodizioTitulo: 'Wechsel der Einstichstellen',
+    naoUsado: 'Noch nicht benutzt — sie ist dran.',
+    proximoDaRotacao: 'Sie ist als Nächste dran, auch wenn sie diese Woche schon benutzt wurde.',
+    descansandoHa: (semanas: number) =>
+      `Ruht seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'} — sie ist dran.`,
+    usadoHaPouco: 'kürzlich benutzt',
+    oProximo: 'als Nächstes',
+    proxima: 'nächste',
+
+    /* ⚠️ EIN BRUCH UND KEIN PROZENTSATZ. Es stand „88% im Takt“ da — und
+       „im Takt“ spricht von PÜNKTLICHKEIT, die diese Rechnung nicht
+       misst: wer alle zehn Dosen immer drei Tage zu spät gespritzt hat,
+       kam auch auf 100%. */
+    constancia: 'Beständigkeit',
+    constanciaNota: (feitas: number, previstas: number) =>
+      `${feitas} von ${previstas} seit Behandlungsbeginn vorgesehenen Dosen.`,
+
+    nivelNoCorpo: 'Spiegel im Körper',
+    nivelTexto: (molecula: string, meiaVida: string) =>
+      `Schätzung von ${molecula} im Körper, mit einer Halbwertszeit von ${meiaVida}. Der tiefste Punkt, kurz vor der nächsten Dosis, ist meist dann, wenn der Hunger zunimmt.`,
+    meiaVidaDias: (dias: number) => `${dias} Tagen`,
+    meiaVidaHoras: 'rund 13 Stunden',
+
+    historico: 'Verlauf',
+    proximaEmLocal: (local: string) => `Nächste · ${local}`,
   },
 };

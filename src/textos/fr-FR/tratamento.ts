@@ -145,7 +145,7 @@ export const tratamento = {
      dans le fichier de l'écran. « 6 h 20 » au lieu de « 380 min » : au-
      dessus d'une heure, la minute pure oblige à diviser de tête pour
      savoir si c'est beaucoup. Voir ../pt-BR/tratamento. */
-  tela: {
+  telaExercicio: {
     titulo: 'Exercice',
     unidadeMin: 'min',
     duracao: (min: number) => {
@@ -193,5 +193,51 @@ export const tratamento = {
     conectar: 'Connecter une montre ou une application',
     lancamSozinhos: 'Elles entrent les minutes toutes seules',
     conectarSub: 'Apple Santé, Health Connect, Garmin et d’autres',
+  },
+
+  telaAplicacoes: {
+    aplicada: 'faite',
+    semCulpa: 'Pas de culpabilité pour un jour passé — ce qui compte, c’est de reprendre. Vous pouvez noter une injection plus ancienne à tout moment, avec le bouton en bas.',
+    titulo: 'Injections',
+    registrar: 'Noter une injection',
+    lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
+
+    proximaAplicacao: 'PROCHAINE INJECTION',
+
+    cicloDaDose: 'Cycle de la dose',
+    cicloSub: (dia: number, total: number, fase: string) => `Jour ${dia} sur ${total} · ${fase.toLowerCase()}`,
+    emCurso: 'en cours',
+
+    eReceita: (recipiente: string) => `${recipiente} et ordonnance`,
+    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} doses sur ${total} utilisées ${onde}`,
+    cobreSemanas: (veredito: string, semanas: number) =>
+      `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’injection`,
+    nenhumAlerta: 'Aucun rappel d’injection',
+    tocaEm: (quando: string) => `Sonne ${quando}`,
+    avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
+
+    rodizioTitulo: 'Rotation des endroits',
+    naoUsado: 'Pas encore utilisé — c’est son tour.',
+    proximoDaRotacao: 'C’est le suivant dans la rotation, même s’il a servi cette semaine.',
+    descansandoHa: (semanas: number) =>
+      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'} — c’est son tour.`,
+    usadoHaPouco: 'utilisé récemment',
+    oProximo: 'le suivant',
+    proxima: 'prochaine',
+
+    constancia: 'Régularité',
+    constanciaNota: (feitas: number, previstas: number) =>
+      `${feitas} doses sur ${previstas} prévues depuis le début du traitement.`,
+
+    nivelNoCorpo: 'Niveau dans le corps',
+    nivelTexto: (molecula: string, meiaVida: string) =>
+      `Estimation de ${molecula} dans le corps, avec une demi-vie de ${meiaVida}. Le point le plus bas, juste avant la prochaine dose, est en général le moment où la faim monte.`,
+    meiaVidaDias: (dias: number) => `${dias} jours`,
+    meiaVidaHoras: 'environ 13 heures',
+
+    historico: 'Historique',
+    proximaEmLocal: (local: string) => `Prochaine · ${local}`,
   },
 };

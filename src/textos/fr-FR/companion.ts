@@ -31,6 +31,18 @@ export const companion = {
   },
 
   biblioteca: {
+
+    /* ⚠️ L'ÉCRAN MONTRAIT QUATRE ARTICLES INVENTÉS, écrits en dur, alors
+       que la vraie bibliothèque était juste au-dessus et que `libraryPicks`
+       la construisait à partir de l'état de la personne. Personne ne
+       l'appelait. Voir ../pt-BR/companion. */
+    tela: {
+      titulo: 'Bibliothèque',
+      sub: 'La lecture juste pour votre moment — et non une liste d’articles',
+      minDeLeitura: (min: number) => `${min} min de lecture`,
+      vazioTitulo: 'Rien à lire pour l’instant',
+      vazioTexto: 'Les lectures arrivent quand quelque chose dans vos relevés en appelle une. Sans ça, il n’y a rien à lire — et c’est une bonne nouvelle.',
+    },
     fomeMotivo: (dia: number) => `Vous êtes au jour ${dia} du cycle, quand la faim revient`,
     fomeTitulo: 'Pourquoi la faim revient avant l’injection',
     /* ⚠️ « ENLÈVE LA SENSATION DE RECHUTE » est le service de cette

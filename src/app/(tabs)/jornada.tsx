@@ -526,7 +526,7 @@ export default function Jornada() {
        todas as letras: distinguir os dois silêncios. Agora quem decide é
        o mesmo número que aparece. */
     ['water', T.home.semana.hidratacao, mlHoje > 0 ? K().aguaHoje(aguaTxt(S, mlHoje)) : K().semRegistro, '/agua'],
-    ['dumbbell', T.tratamento.tela.titulo, ci && ci.exerc ? K().minutosHoje(ci.exerc) : K().semRegistro, '/exercicio'],
+    ['dumbbell', T.tratamento.telaExercicio.titulo, ci && ci.exerc ? K().minutosHoje(ci.exerc) : K().semRegistro, '/exercicio'],
     ['waves', T.resumo.sintomas, !diasSint ? K().semRegistro
       : !sint.length ? K().semQueixas
       : K().sintomaEmDias(sint[0].label, sint[0].dias), '/sintomas'],

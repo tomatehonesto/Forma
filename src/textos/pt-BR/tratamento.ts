@@ -199,7 +199,7 @@ export const tratamento = {
      "6 Std. 20". Deixar a função na tela obrigava as cinco a usarem a
      abreviação portuguesa.
      ============================================================ */
-  tela: {
+  telaExercicio: {
     titulo: 'Exercício',
     /* ⚠️ 'min' É SÍMBOLO E FICARIA NO CÓDIGO pela regra do alto deste
        arquivo — mas o alemão escreve 'Min.' na prosa, e as outras chaves
@@ -264,5 +264,68 @@ export const tratamento = {
     conectar: 'Conectar um relógio ou aplicativo',
     lancamSozinhos: 'Lançam os minutos sozinhos',
     conectarSub: 'Apple Saúde, Health Connect, Garmin e outros',
+  },
+
+  /* ============================================================
+     A TELA DAS APLICAÇÕES
+     ============================================================ */
+  telaAplicacoes: {
+    aplicada: 'aplicada',
+    /* ⚠️ "SEM CULPA POR UM DIA QUE PASSOU" É A FRASE INTEIRA, e ela é o
+       motivo de a grade não ter vermelho: quem perdeu uma dose quase
+       sempre perdeu porque passou mal, e uma casa vermelha num calendário
+       de medicamento é o aplicativo cobrando de quem já pagou. */
+    semCulpa: 'Sem culpa por um dia que passou — o que conta é retomar. Dá para registrar uma aplicação anterior a qualquer momento, no botão lá embaixo.',
+    titulo: 'Aplicações',
+    registrar: 'Registrar aplicação',
+    /* Os três chegam prontos: a marca, o princípio ativo e a cadência. */
+    lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
+
+    proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
+
+    cicloDaDose: 'Ciclo da dose',
+    cicloSub: (dia: number, total: number, fase: string) => `Dia ${dia} de ${total} · ${fase.toLowerCase()}`,
+    emCurso: 'em curso',
+
+    /* O recipiente chega concordado e com maiúscula — "Caneta", "Frasco". */
+    eReceita: (recipiente: string) => `${recipiente} e receita`,
+    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} de ${total} doses usadas ${onde}`,
+    cobreSemanas: (veredito: string, semanas: number) =>
+      `${veredito} — cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de aplicação`,
+    nenhumAlerta: 'Nenhum alerta de aplicação',
+    tocaEm: (quando: string) => `Toca ${quando}`,
+    avisoAntes: 'Um aviso antes da dose, na hora que você escolher',
+
+    /* ⚠️ O RODÍZIO NÃO É ENFEITE: repetir o mesmo ponto causa nódulo, e
+       alternar é orientação de bula. As três frases dizem por que aquele
+       local é a vez — e a do meio é a que existe para o caso em que a
+       rotação e o descanso discordam. */
+    rodizioTitulo: 'Rodízio dos locais',
+    naoUsado: 'Ainda não usado — é a vez dele.',
+    proximoDaRotacao: 'É o próximo da rotação, mesmo tendo sido usado esta semana.',
+    descansandoHa: (semanas: number) =>
+      `Descansando há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} — é a vez dele.`,
+    usadoHaPouco: 'usado há pouco',
+    oProximo: 'o próximo',
+    proxima: 'próxima',
+
+    /* ⚠️ "CONSTÂNCIA", E A NOTA É UMA FRAÇÃO E NÃO UMA PORCENTAGEM. Era
+       "88% em dia" — e "em dia" fala de PONTUALIDADE, que esta conta não
+       mede: quem aplicou as dez doses sempre com três dias de atraso
+       também dava 100%. */
+    constancia: 'Constância',
+    constanciaNota: (feitas: number, previstas: number) =>
+      `${feitas} de ${previstas} doses previstas desde o começo do tratamento.`,
+
+    nivelNoCorpo: 'Nível no corpo',
+    nivelTexto: (molecula: string, meiaVida: string) =>
+      `Estimativa de ${molecula} no corpo, com meia-vida de ${meiaVida}. O ponto mais baixo, antes da próxima dose, costuma ser quando a fome aumenta.`,
+    meiaVidaDias: (dias: number) => `${dias} dias`,
+    meiaVidaHoras: 'cerca de 13 horas',
+
+    historico: 'Histórico',
+    proximaEmLocal: (local: string) => `Próxima · ${local}`,
   },
 };

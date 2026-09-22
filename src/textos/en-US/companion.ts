@@ -21,6 +21,18 @@ export const companion = {
 
   /* ---------- the contextual library ---------- */
   biblioteca: {
+
+    /* ⚠️ The screen used to show four made-up articles hardcoded in the
+       screen file, while the real library sat right above here and
+       `libraryPicks` built it from the person's state. Nobody called it.
+       See ../pt-BR/companion. */
+    tela: {
+      titulo: 'Library',
+      sub: 'The right reading for where you are — not a list of articles',
+      minDeLeitura: (min: number) => `${min} min read`,
+      vazioTitulo: 'Nothing to read right now',
+      vazioTexto: 'Readings show up when something in your logs calls for one. Without that there’s nothing to read — and that’s good news.',
+    },
     fomeMotivo: (dia: number) => `You’re on day ${dia} of the cycle, when hunger comes back`,
     fomeTitulo: 'Why hunger comes back before your injection',
     /* ⚠️ "TAKES AWAY THE FEELING OF HAVING SLIPPED" is what this reading

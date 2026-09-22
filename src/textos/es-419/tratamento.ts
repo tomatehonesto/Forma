@@ -141,7 +141,7 @@ export const tratamento = {
 
   /* ⚠️ La duración es regla de idioma y estaba escrita en el archivo de
      la pantalla. Ver ../pt-BR/tratamento. */
-  tela: {
+  telaExercicio: {
     titulo: 'Ejercicio',
     unidadeMin: 'min',
     duracao: (min: number) => {
@@ -189,5 +189,51 @@ export const tratamento = {
     conectar: 'Conectar un reloj o una aplicación',
     lancamSozinhos: 'Registran los minutos solos',
     conectarSub: 'Apple Salud, Health Connect, Garmin y otros',
+  },
+
+  telaAplicacoes: {
+    aplicada: 'aplicada',
+    semCulpa: 'Sin culpa por un día que pasó — lo que cuenta es retomar. Puedes registrar una aplicación anterior en cualquier momento, en el botón de abajo.',
+    titulo: 'Aplicaciones',
+    registrar: 'Registrar aplicación',
+    lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
+
+    proximaAplicacao: 'PRÓXIMA APLICACIÓN',
+
+    cicloDaDose: 'Ciclo de la dosis',
+    cicloSub: (dia: number, total: number, fase: string) => `Día ${dia} de ${total} · ${fase.toLowerCase()}`,
+    emCurso: 'en curso',
+
+    eReceita: (recipiente: string) => `${recipiente} y receta`,
+    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} de ${total} dosis usadas ${onde}`,
+    cobreSemanas: (veredito: string, semanas: number) =>
+      `${veredito} — cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de aplicación`,
+    nenhumAlerta: 'Ninguna alerta de aplicación',
+    tocaEm: (quando: string) => `Suena ${quando}`,
+    avisoAntes: 'Un aviso antes de la dosis, a la hora que elijas',
+
+    rodizioTitulo: 'Rotación de los lugares',
+    naoUsado: 'Todavía sin usar — le toca.',
+    proximoDaRotacao: 'Es el próximo de la rotación, aunque se haya usado esta semana.',
+    descansandoHa: (semanas: number) =>
+      `Descansando hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} — le toca.`,
+    usadoHaPouco: 'usado hace poco',
+    oProximo: 'el próximo',
+    proxima: 'próxima',
+
+    constancia: 'Constancia',
+    constanciaNota: (feitas: number, previstas: number) =>
+      `${feitas} de ${previstas} dosis previstas desde el comienzo del tratamiento.`,
+
+    nivelNoCorpo: 'Nivel en el cuerpo',
+    nivelTexto: (molecula: string, meiaVida: string) =>
+      `Estimación de ${molecula} en el cuerpo, con una vida media de ${meiaVida}. El punto más bajo, antes de la próxima dosis, suele ser cuando el hambre aumenta.`,
+    meiaVidaDias: (dias: number) => `${dias} días`,
+    meiaVidaHoras: 'cerca de 13 horas',
+
+    historico: 'Historial',
+    proximaEmLocal: (local: string) => `Próxima · ${local}`,
   },
 };

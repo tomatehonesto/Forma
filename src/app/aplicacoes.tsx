@@ -12,8 +12,12 @@ import {
 import { now, diffDays, fmtWD, fmtDate, relDay, nf, quandoEm, maiuscula } from '../logic/time';
 import { FORMAS, formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaAplicacoes;
 import { Txt, Row } from '../ui/kit';
-import { alertasDe, proximaDe, quando } from '../logic/alertas';
+import { alertasDe, proximaDe, quando, inicialDoDia } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
 import { AreaCurve, Ring } from '../ui/charts';
 import { Corpo } from '../ui/corpo';
@@ -88,12 +92,12 @@ export default function Aplicacoes() {
 
   return (
     <TelaInterna
-      titulo="Aplicações"
-      rodape={<Botao label="Registrar aplicação" onPress={() => router.push('/aplicacao' as any)} />}
+      titulo={K().titulo}
+      rodape={<Botao label={K().registrar} onPress={() => router.push('/aplicacao' as any)} />}
     >
       <Titulao
-        titulo="Aplicações"
-        lead={`${med.label} · ${nomeDaMolecula(med.mol)} · ${cadenciaTexto(S)}`}
+        titulo={K().titulo}
+        lead={K().lead(med.label, nomeDaMolecula(med.mol), cadenciaTexto(S))}
       />
 
       {/* A PRÓXIMA DOSE, com o anel da semana em volta da contagem.
@@ -112,7 +116,7 @@ export default function Aplicacoes() {
       <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
         <Row gap={16}>
           <View style={{ flex: 1 }}>
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PRÓXIMA APLICAÇÃO</Txt>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().proximaAplicacao}</Txt>
             <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
               {maiuscula(quandoEm(ndDays).label)}
             </Txt>
@@ -147,8 +151,8 @@ export default function Aplicacoes() {
             poucos". */}
         <Linha
           ic="waves"
-          titulo="Ciclo da dose"
-          sub={`Dia ${cic.dayIn} de ${cic.total} · ${(cic.fases.find((f) => f.estado === 'agora')?.sub ?? 'em curso').toLowerCase()}`}
+          titulo={K().cicloDaDose}
+          sub={K().cicloSub(cic.dayIn, cic.total, cic.fases.find((f) => f.estado === 'agora')?.sub ?? K().emCurso)}
           onPress={() => router.push('/ciclo' as any)}
         />
         {/* O ESTOQUE SAI DE canetaAtual(), e não do código. Aqui havia
@@ -162,18 +166,16 @@ export default function Aplicacoes() {
             vizinhas somadas para dizer a mesma coisa. */}
         <Linha
           ic="pill"
-          titulo={`${maiuscula(FORMAS()[formaDe(S)].recipiente)} e receita`}
+          titulo={K().eReceita(maiuscula(FORMAS()[formaDe(S)].recipiente))}
           sub={k.verdict.good
-            ? `${k.atual?.usadas ?? 0} de ${k.atual?.total ?? 4} doses usadas ${nesteNesta(formaDe(S))}`
-            : `${k.verdict.label} — cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}`}
+            ? K().dosesUsadas(k.atual?.usadas ?? 0, k.atual?.total ?? 4, nesteNesta(formaDe(S)))
+            : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
           onPress={() => router.push('/caneta' as any)}
         />
         <Linha
           ic="bell"
-          titulo={alertasDaDose.length
-            ? `${alertasDaDose.length} alerta${alertasDaDose.length === 1 ? '' : 's'} de aplicação`
-            : 'Nenhum alerta de aplicação'}
-          sub={rem ? `Toca ${rem}` : 'Um aviso antes da dose, na hora que você escolher'}
+          titulo={alertasDaDose.length ? K().alertasDeDose(alertasDaDose.length) : K().nenhumAlerta}
+          sub={rem ? K().tocaEm(rem) : K().avisoAntes}
           onPress={() => router.push('/lembretes' as any)}
         />
       </Cartao>
@@ -191,7 +193,7 @@ export default function Aplicacoes() {
           e vai clareando conforme o local descansa; o próximo da rotação
           é o contorno lima tracejado, o mesmo do formulário — quem já
           registrou uma aplicação reconhece a marca. */}
-      <Bloco titulo="Rodízio dos locais">
+      <Bloco titulo={K().rodizioTitulo}>
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <Row gap={18} style={{ alignItems: 'center' }}>
             <Corpo escala={0.92} tons={Object.fromEntries(rod.map((l) => {
@@ -217,19 +219,19 @@ export default function Aplicacoes() {
                 <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
                   {(() => {
                     const p = rod.find((l) => l.proximo);
-                    if (!p || p.semanas == null) return 'Ainda não usado — é a vez dele.';
-                    if (p.semanas === 0) return 'É o próximo da rotação, mesmo tendo sido usado esta semana.';
-                    return `Descansando há ${p.semanas} ${p.semanas === 1 ? 'semana' : 'semanas'} — é a vez dele.`;
+                    if (!p || p.semanas == null) return K().naoUsado;
+                    if (p.semanas === 0) return K().proximoDaRotacao;
+                    return K().descansandoHa(p.semanas);
                   })()}
                 </Txt>
               </View>
               <Row gap={7}>
                 <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: c.accent, opacity: 0.4 }} />
-                <Txt v="caption" c={c.tx2}>usado há pouco</Txt>
+                <Txt v="caption" c={c.tx2}>{K().usadoHaPouco}</Txt>
               </Row>
               <Row gap={7}>
                 <View style={{ width: 11, height: 11, borderRadius: 3, borderWidth: 1, borderColor: c.limeDim, borderStyle: 'dashed' }} />
-                <Txt v="caption" c={c.tx2}>o próximo</Txt>
+                <Txt v="caption" c={c.tx2}>{K().oProximo}</Txt>
               </Row>
             </View>
           </Row>
@@ -238,12 +240,16 @@ export default function Aplicacoes() {
 
       {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
       <Bloco
-        titulo="Constância"
-        nota={`${S.injections.length} de ${previstas} doses previstas desde o começo do tratamento.`}
+        titulo={K().constancia}
+        nota={K().constanciaNota(S.injections.length, previstas)}
       >
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <Row style={{ flexWrap: 'wrap' }}>
-            {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, i) => (
+            {/* ⚠️ AS SETE INICIAIS ESTAVAM ESCRITAS À MÃO em português —
+                D S T Q Q S S —, e em alemão a fileira saía assim mesmo.
+                `inicialDoDia` já existia em logic/alertas, e devolve a
+                inicial no idioma de quem lê. */}
+            {[0, 1, 2, 3, 4, 5, 6].map((wd) => inicialDoDia(wd)).map((d, i) => (
               <View key={`h${i}`} style={{ width: '14.28%', alignItems: 'center', paddingVertical: 4 }}>
                 <Txt v="micro" c={c.tx4}>{d}</Txt>
               </View>
@@ -265,28 +271,28 @@ export default function Aplicacoes() {
           <Row gap={16} style={{ marginTop: 10 }}>
             <Row gap={5}>
               <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }} />
-              <Txt v="micro" c={c.tx3}>aplicada</Txt>
+              <Txt v="micro" c={c.tx3}>{K().aplicada}</Txt>
             </Row>
             <Row gap={5}>
               <View style={{ width: 10, height: 10, borderRadius: 3, borderWidth: 1, borderColor: c.tx4, borderStyle: 'dashed' }} />
-              <Txt v="micro" c={c.tx3}>próxima</Txt>
+              <Txt v="micro" c={c.tx3}>{K().proxima}</Txt>
             </Row>
           </Row>
           <Txt v="micro" c={c.tx3} style={{ marginTop: 10, lineHeight: 16 }}>
-            Sem culpa por um dia que passou — o que conta é retomar. Dá para registrar uma aplicação
-            anterior a qualquer momento, no botão lá embaixo.
+            {K().semCulpa}
           </Txt>
         </View>
       </Bloco>
 
       {/* A CURVA — a única coisa da tela que explica o que se sente. */}
-      <Bloco titulo="Nível no corpo">
+      <Bloco titulo={K().nivelNoCorpo}>
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <AreaCurve pts={phPts} height={130} marker={mkIdx} id="ph" />
           <Txt v="caption" c={c.tx3} style={{ marginTop: 8, lineHeight: 18 }}>
-            Estimativa de {T.comum.noMeio(nomeDaMolecula(med.mol))} no corpo, com meia-vida de
-            {med.hl >= 1 ? ` ${med.hl} dias` : ' cerca de 13 horas'}. O ponto mais baixo, antes da
-            próxima dose, costuma ser quando a fome aumenta.
+            {K().nivelTexto(
+              T.comum.noMeio(nomeDaMolecula(med.mol)),
+              med.hl >= 1 ? K().meiaVidaDias(med.hl) : K().meiaVidaHoras,
+            )}
           </Txt>
         </View>
       </Bloco>
@@ -302,7 +308,7 @@ export default function Aplicacoes() {
 
           Fica a lista, e só. Quem registrou errado corrige com quem
           acompanha; o app não tem por que oferecer a borracha. */}
-      <Bloco titulo="Histórico">
+      <Bloco titulo={K().historico}>
         <Cartao>
           <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
             <View style={{
@@ -312,7 +318,7 @@ export default function Aplicacoes() {
               <Icon name="syringe" size={14} color={c.accent2} sw={2} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="body" c={c.tx3}>Próxima · {siteLabel(site)}</Txt>
+              <Txt v="body" c={c.tx3}>{K().proximaEmLocal(siteLabel(site))}</Txt>
               <Txt v="caption" c={c.tx4} style={{ marginTop: 1 }}>
                 {maiuscula(relDay(nd))} · {fmtDate(nd)}
               </Txt>

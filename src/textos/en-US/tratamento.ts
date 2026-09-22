@@ -139,7 +139,7 @@ export const tratamento = {
 
   /* ⚠️ Duration is a language rule and used to be written in the screen
      file. See ../pt-BR/tratamento. */
-  tela: {
+  telaExercicio: {
     titulo: 'Exercise',
     unidadeMin: 'min',
     duracao: (min: number) => {
@@ -187,5 +187,51 @@ export const tratamento = {
     conectar: 'Connect a watch or app',
     lancamSozinhos: 'They log the minutes on their own',
     conectarSub: 'Apple Health, Health Connect, Garmin and others',
+  },
+
+  telaAplicacoes: {
+    aplicada: 'logged',
+    semCulpa: 'No guilt over a day that passed — what counts is picking it back up. You can log an earlier injection at any time, with the button below.',
+    titulo: 'Injections',
+    registrar: 'Log an injection',
+    lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
+
+    proximaAplicacao: 'NEXT INJECTION',
+
+    cicloDaDose: 'Dose cycle',
+    cicloSub: (dia: number, total: number, fase: string) => `Day ${dia} of ${total} · ${fase.toLowerCase()}`,
+    emCurso: 'under way',
+
+    eReceita: (recipiente: string) => `${recipiente} and prescription`,
+    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} of ${total} doses used ${onde}`,
+    cobreSemanas: (veredito: string, semanas: number) =>
+      `${veredito} — covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+
+    alertasDeDose: (quantos: number) => `${quantos} injection ${quantos === 1 ? 'reminder' : 'reminders'}`,
+    nenhumAlerta: 'No injection reminder',
+    tocaEm: (quando: string) => `Rings ${quando}`,
+    avisoAntes: 'A heads-up before the dose, at the time you choose',
+
+    rodizioTitulo: 'Rotating the sites',
+    naoUsado: 'Not used yet — it’s its turn.',
+    proximoDaRotacao: 'It’s next in the rotation, even though it was used this week.',
+    descansandoHa: (semanas: number) =>
+      `Resting for ${semanas} ${semanas === 1 ? 'week' : 'weeks'} — it’s its turn.`,
+    usadoHaPouco: 'used recently',
+    oProximo: 'next up',
+    proxima: 'next',
+
+    constancia: 'Consistency',
+    constanciaNota: (feitas: number, previstas: number) =>
+      `${feitas} of ${previstas} doses planned since treatment began.`,
+
+    nivelNoCorpo: 'Level in the body',
+    nivelTexto: (molecula: string, meiaVida: string) =>
+      `Estimated ${molecula} in the body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
+    meiaVidaDias: (dias: number) => `${dias} days`,
+    meiaVidaHoras: 'about 13 hours',
+
+    historico: 'History',
+    proximaEmLocal: (local: string) => `Next · ${local}`,
   },
 };
