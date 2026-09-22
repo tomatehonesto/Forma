@@ -35,7 +35,7 @@ export const medidas = {
     notaManha: 'morning',
 
     vazioTitulo: (nome: string) => `No ${nome.toLowerCase()} logged yet`,
-    vazioDaBalanca: 'This one comes from a body-composition scale, and none has arrived yet.',
+    vazioDaBalanca: 'This one comes from a body-composition scale, and no reading has come in yet.',
     vazioRegistre: 'Log the first one to start following it.',
 
     lead: (data: string, inicial: string, unidade: string) =>
@@ -44,7 +44,7 @@ export const medidas = {
       `${periodo.toLowerCase()}${quantos > 1 ? ` · ${quantos} entries` : ''}`,
 
     registros: 'Entries',
-    notaLeitura: 'Readings from a body-composition scale. Nothing to fix here — they arrive finished.',
+    notaLeitura: 'Readings from a body-composition scale. Nothing to fix here — they come in complete.',
     notaCorrigir: 'Tap to fix or delete. Whatever is here goes into the report for your doctor.',
   },
 
@@ -53,7 +53,7 @@ export const medidas = {
     lead: 'Twelve weeks of treatment. Tap a marker to see its history and fix entries.',
 
     voceRegistra: 'You log these',
-    voceRegistraNota: 'Markers that depend only on you — tap to see the history and correct it.',
+    voceRegistraNota: 'Markers that depend only on you — tap to see the history and fix entries.',
 
     vemDeExame: 'These come from a lab',
     vemDeExameNota: 'They need a lab report or a body-composition scale. Read only — but each one opens its own history.',
@@ -94,7 +94,7 @@ export const medidas = {
 
     deOndeVem: 'Where they come from',
     aparelhosEContas: 'Devices and accounts',
-    aparelhosEContasSub: 'See what can be connected today, and what is still to come',
+    aparelhosEContasSub: 'See what can be connected today, and what’s still to come',
 
     naoSeDigitam: 'These numbers aren’t typed in',
     naoSeDigitamTexto: 'Blood pressure, saturation and heart rate arrive from a connected device — and that link doesn’t exist in this version yet. A lab result comes in through Lab results.',

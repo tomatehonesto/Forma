@@ -163,7 +163,7 @@ export const cuidado = {
     anotarConsulta: 'Anotar una consulta',
     anotarConsultaSub: 'Con la fecha aquí, el resumen queda listo y te avisamos cuando se acerque.',
     eQuando: (quando: string) => `Es ${quando}`,
-    preparoTexto: 'Armamos un resumen con peso, adherencia y síntomas del período — tú eliges qué quieres preguntar.',
+    preparoTexto: 'Armo un resumen con peso, adherencia y síntomas del período — tú eliges qué quieres preguntar.',
     prepararAConsulta: 'Preparar la consulta',
 
     seuTratamento: 'Tu tratamiento',

@@ -24,7 +24,7 @@ export const confirmacoes = {
   pesoMeta: 'Weight goal',
   pesoFaltam: (quanto: string) => `${quanto} to go`,
   pesoAlcancada: 'reached',
-  pesoNotaPlato: 'A month with your weight in the same range. That’s when the waist usually keeps coming down, and the tape is what shows it.',
+  pesoNotaPlato: 'A month with your weight in the same range. That’s when your waist usually keeps coming down, and the tape is what shows it.',
   pesoCaminhoPlato: 'Measure your body too',
   pesoCaminho: 'View weight curve',
 

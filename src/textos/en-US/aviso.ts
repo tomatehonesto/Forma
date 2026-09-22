@@ -12,8 +12,8 @@
 
 export const aviso = {
   isencaoTitulo: 'We follow your treatment — we don’t run it',
-  isencaoTexto: 'We keep what you log, show you how things have been going, and get ready what you’ll bring to your appointment. We’re not a diagnosis and we don’t prescribe: dose, interval and medication are decisions for whoever follows your care.',
-  isencaoReforco: 'Before changing anything about your dose or your timing, talk to your care team. And if a symptom frightens you, don’t wait for the next appointment.',
+  isencaoTexto: 'We keep what you log, show you how things have been going, and put together what you’ll take to your appointment. We’re not a diagnosis and we don’t prescribe: dose, interval and medication are decisions for whoever follows your care.',
+  isencaoReforco: 'Before changing anything about your dose or your timing, talk to your care team. And if a symptom scares you, don’t wait for the next appointment.',
   isencaoAceite: 'I understand and agree',
 
   guardadoTitulo: 'What you log stays on your device',
@@ -105,14 +105,14 @@ export const aviso = {
       `${refeicoes} ${refeicoes === 1 ? 'meal' : 'meals'} and the day’s diary`,
 
     formatoTitulo: 'You get a .json file',
-    formatoTexto: 'It is the format another app can open and read — good for keeping a copy or moving your entries somewhere else. For the version made for someone to read, use the appointment summary.',
+    formatoTexto: 'It’s the format another app can open and read — good for keeping a copy or moving your entries somewhere else. For a version made to be read by a person, use the appointment summary.',
 
     gerar: 'Build the file',
     gerando: 'Building...',
     verResumo: 'View appointment summary',
 
     pronto: 'File built. It only goes where you choose.',
-    erro: 'We could not build the file on this device. Your entries are still here, untouched.',
+    erro: 'We couldn’t build the file on this device. Your entries are still here, untouched.',
     parado: 'Nothing leaves here without your tap.',
   },
 
@@ -129,9 +129,9 @@ export const aviso = {
     oQueSai: 'What leaves here',
     oQueSaiNota: 'Nothing leaves here without a move from you.',
     paraEquipe: 'What goes to your team',
-    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you’re the one who shows or exports it; messages stay here. When the link with the clinic exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
+    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you’re the one who shows or exports it; messages stay here. Once the clinic link exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
     fotoDoPrato: 'The photo of your plate, when you use photo reading',
-    fotoDoPratoTexto: 'It’s shrunk on the device and sent to be read by a model, which returns the items on the plate. The image is not kept: not in your meal entry, and not on the server that bridges the call. Logging the meal by hand sends nothing.',
+    fotoDoPratoTexto: 'It’s shrunk on the device and sent to be read by a model, which returns the items on the plate. The image isn’t kept: not in your meal entry, and not on the server in between. Logging the meal by hand sends nothing.',
 
     leDeFora: 'What the app reads from outside',
     appDeSaudePadrao: 'the phone’s health app',
@@ -139,7 +139,7 @@ export const aviso = {
     soOPesoTexto: (app: string) =>
       `With your permission, we read the weigh-ins your scale, your watch or another app wrote there. We only read: we never write anything into ${app}. And we read weight only — sleep, steps and heart rate stay out.`,
     permissao: 'The permission is yours, and you can take it back',
-    permissaoTexto: 'It is granted in the system settings and revoked in the same place. Without it, the app stays whole: weight goes back to arriving the way it did before, typed in by you.',
+    permissaoTexto: 'It’s granted in the system settings and revoked in the same place. Without it, everything here still works: weight goes back to arriving the way it did before, typed in by you.',
 
     podeFazer: 'What you can do right now',
     integracoesSub: (app: string) => `Turn ${app} on or off`,
@@ -156,26 +156,26 @@ export const aviso = {
     politicaSub: 'The full document, with legal basis and retention periods',
     termosSub: 'What we are, what we’re not, and what each side can expect',
     semPoliticaTitulo: 'This describes the app; it’s not the privacy policy',
-    semPoliticaTexto: 'Here is what the program does with your data. The legal document, with the obligations of whoever runs the service, is still to be published — and when it exists, it shows up on this screen.',
+    semPoliticaTexto: 'Here is what the app does with your data. The legal document, with the obligations of whoever runs the service, hasn’t been published yet — and when it exists, it shows up on this screen.',
   },
 
   telaIntegracoes: {
     titulo: 'Integrations',
-    lead: 'Turned on, they bring your weigh-ins in without you typing them.',
+    lead: 'Turned on, they bring in your weigh-ins without you typing them.',
 
     doSeuAparelho: 'From your device',
-    doSeuAparelhoNota: 'A local store: we ask for permission and read. No account and no password.',
+    doSeuAparelhoNota: 'It’s the device’s own health store: we ask for permission and read. No account and no password.',
 
     atualizarAgora: 'Refresh now',
     lendo: 'Reading…',
-    nadaNovo: 'Nothing new over there — your weigh-ins were all already here.',
+    nadaNovo: 'Nothing new over there — we already had all your weigh-ins.',
     trazidas: (quantas: number, aparelho: string) =>
       `${quantas} ${quantas === 1 ? 'weigh-in brought' : 'weigh-ins brought'} from ${aparelho}.`,
     naoDeuParaLer: 'We could not read it just now. Try again in a moment.',
-    acessoNegado: 'Access was not granted. You can change that in the device settings.',
+    acessoNegado: 'Permission wasn’t granted. You can change that in the device settings.',
 
     semAparelhoTitulo: 'The device’s health app shows up on a phone',
-    semAparelhoTexto: 'Apple Health on iPhone, Health Connect on Android. In a browser there is nothing to turn on.',
+    semAparelhoTexto: 'Apple Health on iPhone, Health Connect on Android. In a browser there’s nothing to turn on.',
     semAppTitulo: (aparelho: string) => `${aparelho} is not available on this device`,
     semAppTexto: 'Health Connect ships with Android 14 onwards and can be installed on earlier versions. Once it’s installed, come back here.',
     semBuildTitulo: 'This build of the app can’t read the device yet',

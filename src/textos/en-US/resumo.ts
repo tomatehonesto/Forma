@@ -56,7 +56,7 @@ export const resumo = {
 
   tela: {
     titulo: 'Appointment summary',
-    lead: 'Everything you logged, the way it will arrive at the appointment.',
+    lead: 'Everything you logged, the way it’ll look at the appointment.',
 
     enviar: (doutor: string) => `Send to ${doutor}`,
     enviarDeNovo: (doutor: string) => `Send again to ${doutor}`,

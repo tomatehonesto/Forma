@@ -27,11 +27,11 @@ export const ajuda = {
     },
     {
       q: 'Can I fix or delete an entry?',
-      a: 'You can, right where it appears. Weigh-ins and measurements are deleted in the marker detail; meals and workouts, by opening the entry in that day’s diary. Whatever you delete leaves the math immediately — including the charts and the visit summary.',
+      a: 'You can, right where it appears. Weigh-ins and measurements are deleted in the marker detail; meals and workouts are deleted by opening the entry in that day’s diary. Whatever you delete drops out of the math immediately — including the charts and the visit summary.',
     },
     {
       q: 'Why did an achievement disappear?',
-      a: 'Because it was never stored. Achievements are counted from your logs every time the screen opens, not marked as done somewhere. If the entry that closed a level gets deleted, the level goes with it — it stopped having happened.',
+      a: 'Because it was never stored. Achievements are counted from your logs every time the screen opens, not marked as done somewhere. If the entry that closed a level gets deleted, the level goes with it — as far as the count goes, it never happened.',
     },
     {
       q: 'I set a reminder and it didn’t go off.',
@@ -41,15 +41,15 @@ export const ajuda = {
     },
     {
       q: 'Can my weight come from the scale on its own?',
-      a: 'If your scale, watch or ring writes to Apple Health (iPhone) or Health Connect (Android), yes — we read from there. We read only weight, and we only read: we never write anything into those apps. Garmin, Fitbit, Withings, Oura and Whoop arrive through that path.',
+      a: 'If your scale, watch or ring writes to Apple Health (iPhone) or Health Connect (Android), yes — we read from there. We read only weight, and we only read: we never write anything into those apps. Garmin, Fitbit, Withings, Oura and Whoop all come in that way.',
     },
     {
       q: 'What can my care team see?',
-      a: 'Only what you send. Nothing leaves here on its own: the summary goes when you tap send, the messages when you write them. What stays out stays yours — including from the people treating you.',
+      a: 'Only what you send. Nothing leaves here on its own: the summary goes when you tap send, the messages when you write them. What stays out stays yours — even from the people treating you.',
     },
     {
       q: 'Do you replace what my care team tells me?',
-      a: 'No, and on no screen. What it does is organize what happened and show patterns in your own logs — dose, symptom and course of action are a conversation for your visit. When a text in the app touches those subjects, it says so.',
+      a: 'No, and on no screen. What it does is organize what happened and show patterns in your own logs — dose, symptom and course of action are a conversation for your visit. When something in the app touches those subjects, it says so.',
     },
     {
       q: 'What if I uninstall the app?',

@@ -44,7 +44,7 @@ export const rotina = {
        whoever failed. What's missing in water is a fact of the day, not a
        character flaw. */
     aguaPorqueComEnjoo: 'On your well-hydrated days nausea shows up less — and the day is still at half the goal',
-    aguaPorque: 'The day is still at half the goal, and water holds fullness through the end of it',
+    aguaPorque: 'The day is still at half the goal, and water keeps you full to the end of it',
 
     proteina: 'Add protein at dinner',
     proteinaPorque: 'You’re in the phase of the cycle where hunger comes back, and today’s protein shows up in tomorrow’s hunger',
@@ -60,9 +60,9 @@ export const rotina = {
     receita: 'Ask for a prescription refill',
     /* ⚠️ The word "doses" used to live in the call site. See ../pt-BR. */
     receitaPorque: (doses: number, onde: string) =>
-      `${doses} ${doses === 1 ? 'dose' : 'doses'} left ${onde} — asking now, it arrives before you run out`,
+      `${doses} ${doses === 1 ? 'dose' : 'doses'} left ${onde} — ask now and it arrives before you run out`,
 
-    examePorque: 'It’s open on this week’s protocol, and results usually take a few days',
+    examePorque: 'It’s still open on this week’s protocol, and results usually take a few days',
 
     consulta: 'Get your questions ready for the appointment',
     consultaPorque: (tipo: string, doutor: string) =>

@@ -59,7 +59,7 @@ export const assinatura = {
      the line about the data always travels with it: locking someone out
      of their own weight, shots and labs is not something we do. */
   bomSaberTitulo: 'Worth knowing',
-  bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you take up a Personal plan — and no charge happens without you choosing it. Nothing you logged is lost: your entries stay on the device and you can export them whenever you want.',
+  bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you start a Personal plan — and nothing is charged without you choosing it. Nothing you logged is lost: your entries stay on the device and you can export them whenever you want.',
 
   semCobrancaTitulo: 'Billing isn’t turned on yet',
   semCobrancaTexto: 'This screen exists; the subscription doesn’t yet. Nothing has been charged to you, and nothing will be without notice.',
@@ -155,7 +155,7 @@ export const assinatura = {
 
   parceiros: {
     titulo: 'Partner clinicians',
-    lead: 'Some clinics follow treatment here alongside you. Without that you still have everything — what changes is what becomes possible with your care team inside the app.',
+    lead: 'Some clinics follow treatment here alongside you. Without that you still have everything — what changes is what you can do with your care team in here.',
 
     jaTemTitulo: 'You’re already with a partner clinic',
     jaTemLead: 'Everything on this list already applies to you.',
@@ -163,10 +163,10 @@ export const assinatura = {
     conversaTitulo: 'Messages with your team',
     conversaTexto: 'Messages between appointments, without rebooking just to ask something.',
     resumoTitulo: 'Your summary gets there',
-    resumoTexto: 'One tap sends weight, adherence, symptoms and labs — organized the way an appointment uses them.',
+    resumoTexto: 'One tap sends weight, adherence, symptoms and labs — organized the way they get used at an appointment.',
     receitaTitulo: 'Prescription and protocol',
     receitaTexto: 'Request a renewal and get the week’s protocol inside the app.',
-    agendaTitulo: 'Your schedule arrives ready',
+    agendaTitulo: 'Your schedule, already filled in',
     agendaTexto: 'Appointments show up here without you writing anything down.',
 
     conviteTitulo: 'The invite comes from the clinic',
@@ -186,7 +186,7 @@ export const assinatura = {
     titulo: 'Billing history',
     vazioIsenta: 'No charges',
     vazioPagante: 'No charges yet',
-    vazioIsentaTexto: 'Access comes from your clinic link, and a link doesn’t generate charges. If the clinic tells us it has ended, access is suspended until you subscribe — nothing shows up here without you choosing it.',
+    vazioIsentaTexto: 'Access comes from your clinic link, and a link doesn’t get charged. If the clinic tells us it has ended, access is suspended until you subscribe — nothing shows up here without you choosing it.',
     vazioPaganteTexto: 'Once the subscription starts, each charge appears here with its date and amount.',
     inicioDoTeste: 'Free trial started',
     comprovante: 'The official receipt for each charge',

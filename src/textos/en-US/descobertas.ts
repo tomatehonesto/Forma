@@ -32,7 +32,7 @@ export const descobertas = {
 
   enjooTitulo: 'If nausea shows up now, it has an end in sight',
   enjooTexto: (perto: string, longe: string) =>
-    `In your logs it sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. It’s the 48 h of each cycle, not the whole treatment.`,
+    `In your logs it sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. It’s the first 48 hours of each cycle, not the whole treatment.`,
   enjooCta: 'View symptoms',
 
   /* ---------- the invitations ---------- */
@@ -43,7 +43,7 @@ export const descobertas = {
   metaCta: 'Create a goal',
 
   medidasTitulo: 'The scale tells only part of it',
-  medidasTexto: 'The tape measure tells the rest: waist and hips keep moving when the weight stalls, and that’s when it shows something still is.',
+  medidasTexto: 'The tape measure tells the rest: waist and hips keep moving when the weight stalls, and that’s when it shows something is still moving.',
   medidasCta: 'Log measurements',
 
   refeicaoTitulo: 'The day’s protein can count itself',

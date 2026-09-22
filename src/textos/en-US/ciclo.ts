@@ -29,12 +29,12 @@ export const ciclo = {
 
   /* ---------- steady ---------- */
   estabHead: 'Your body is in the steady phase of the cycle.',
-  estabBody: 'Constant effect — keeping water and protein up is what sustains fullness.',
+  estabBody: 'Constant effect — keeping water and protein up is what keeps you full.',
   estabQ: 'How does the medication cycle work?',
 
   /* ---------- hunger returning ---------- */
   retornoHead: 'Your hunger may start rising over the next 24 hours.',
-  retornoBody: 'Protein and water hold fullness in this phase of the cycle.',
+  retornoBody: 'Protein and water are what keep you full in this phase of the cycle.',
   retornoQ: 'Why am I hungrier?',
 
   /* ---------- hunger at its peak ---------- */
@@ -44,7 +44,7 @@ export const ciclo = {
      person least likely to skip is the hungry one. The sentence was born
      as advice and landed as a scolding; the affirmative version says the
      same useful thing without accusing anyone. */
-  altoBody: 'Smaller portions more often, with protein, hold hunger better.',
+  altoBody: 'Smaller portions more often, with protein, keep hunger down better.',
   altoQ: 'Why am I hungrier?',
 
   /* The only line in the app that celebrates sleep, and it exists because
@@ -120,7 +120,7 @@ export const ciclo = {
   tela: {
     titulo: 'Dose cycle',
     diaDepois: (dia: number, acao: string) => `Day ${dia} after\nyour ${acao}`,
-    lead: 'The effect of the medication rises in the first days and eases off until the next dose. What you feel moves with it — and that is expected.',
+    lead: 'The effect of the medication rises in the first days and eases off until the next dose. What you feel moves with it — and that’s expected.',
 
     cicloAtual: 'Current cycle',
     diaDeTotal: (dia: number, total: number) => `day ${dia} of ${total}`,

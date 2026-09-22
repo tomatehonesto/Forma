@@ -17,7 +17,7 @@
 export const cadastro = {
   aberturaTitulo: 'Your companion on a journey of ',
   aberturaTituloForte: 'transformation',
-  aberturaTexto: 'More than tracking results, it’s understanding the journey behind them. An intelligent experience that learns with you and adapts at every stage.',
+  aberturaTexto: 'More than tracking results, this is about understanding the journey behind them. An intelligent experience that learns with you and adapts at every stage.',
   comecar: 'Get started',
 
   verPlanos: 'View plans',
@@ -50,23 +50,23 @@ export const cadastro = {
 
   subs: {
     nome: 'Just a first name is fine, or whatever nickname you like.',
-    identidade: 'It’s so we speak to you the right way. What goes into the health math is your body, and that comes in the next questions.',
-    nascimento: 'Every stage of life has different needs — and age enters the reference ranges for your labs.',
+    identidade: 'It’s so we address you the right way. The health math uses your body, and that’s what the next questions are for.',
+    nascimento: 'Every stage of life has different needs — and age factors into the reference ranges for your labs.',
     tratamento: 'Just so we know where you are right now.',
-    inicio: 'Approximate is fine. This is where your treatment week comes from, and this weight becomes the start of your curve.',
+    inicio: 'A rough date is fine. This is where your treatment week comes from, and this weight becomes the start of your curve.',
     medicamento: 'It’s what the dose ladder and the interval between shots come from.',
-    forma: 'Compounded comes out of the pharmacy both ways, and what changes is what you hold when it’s time to take it.',
+    forma: 'Compounded medication comes both ways, and what changes is what you’re holding when it’s time to take it.',
     doseComEscada: (med: string) => `In ${med}’s titration order.`,
-    doseSemEscada: 'Compounded has no label ladder — the number is the one on your prescription.',
+    doseSemEscada: 'Compounded medication has no standard dose ladder — the number is whatever your prescription says.',
     frequencia: (doDaForma: string) => `This is where the cycle count, the reminders and the supply ${doDaForma} come from.`,
     corpo: 'Height and weight are how we calculate your BMI and build your daily protein and water goals.',
     meta: 'It’s the reference we use to show how far you’ve come. You can change it whenever you want.',
     ritmo: (aPercorrer: string) => `${aPercorrer} to go.`,
-    motivacao: 'There’s no right answer. The one that counts is what you’d remember on a hard day.',
-    restricao: 'Protein is the axis of this treatment, and it comes from different places depending on what you eat. You can pick more than one.',
-    atividade: 'It goes into your daily water goal — moving more means losing more fluid — and says where you’re starting from.',
+    motivacao: 'There’s no right answer. The one that counts is the one you’d remember on a hard day.',
+    restricao: 'Protein is at the center of this treatment, and it comes from different places depending on what you eat. You can pick more than one.',
+    atividade: 'It goes into your daily water goal — moving more means losing more fluid — and it tells us where you’re starting from.',
     saude: 'Your health data helps make sense of your progress — without you having to log everything.',
-    acompanhamento: 'This answer enables features tied to medical follow-up, like notes and planning for appointments.',
+    acompanhamento: 'This answer opens up what’s tied to medical follow-up — notes, and getting ready for appointments.',
     consentimento: 'Two things before we start: what we do for your treatment, and what happens to what you log.',
   },
 
@@ -130,7 +130,7 @@ export const cadastro = {
 
   sim: 'Yes',
   digiteONome: 'Enter the name',
-  nadaEnviado: 'It’s there to refer to the clinician along your journey. Nothing is sent to them.',
+  nadaEnviado: 'It’s there for you to refer back to along your journey. Nothing is sent to them.',
   vouMeTratar: 'I’ll be treated by a clinician or clinic',
   meAcompanha: 'A clinician or clinic follows my treatment',
   porContaPropria: 'No, on my own',
@@ -172,12 +172,12 @@ export const cadastro = {
     secaoCiencia: 'THE SCIENCE BEHIND YOUR PLAN',
 
     proteinaPorDia: 'PROTEIN PER DAY',
-    proteinaTexto: 'It is the first goal of the day. The medication takes the hunger away, and part of the weight that comes off is muscle — protein is what holds on to lean mass while the fat goes.',
+    proteinaTexto: 'It’s the first goal of the day. The medication takes your hunger away, and part of the weight that comes off is muscle — protein is what holds on to lean mass while the fat goes.',
     calorias: 'Calories',
     agua: 'Water',
 
     aindaADefinir: 'Still to be decided',
-    aindaADefinirTexto: 'Once you know the medication, I will build the dose ladder and the cycle.',
+    aindaADefinirTexto: 'Once you know the medication, I’ll build the dose ladder and the cycle.',
     cicloComeca: 'The cycle starts at the first shot you log.',
     cadenciaDiaria: 'every day',
     cadenciaSemanal: 'once a week',
@@ -187,7 +187,7 @@ export const cadastro = {
     pesoAGanhar: 'Weight to gain',
     emSemanas: (semanas: number) => `in ${semanas} weeks`,
     ressalvaDaCurva: (ritmo: string) =>
-      `The drop is not a straight line: in the trials the first weeks give more, and the pace eases as the body adjusts. The ${ritmo} a week you chose are the average of the road, not a forecast.`,
+      `The drop isn’t a straight line: in the trials the first weeks bring more, and the pace eases as your body adjusts. The ${ritmo} a week you chose is an average over the whole stretch, not a forecast.`,
 
     imcDeHoje: 'BMI today',
     naSuaMeta: 'At your goal',
@@ -197,20 +197,20 @@ export const cadastro = {
     ajudaEnjoo: 'Nausea in numbers',
     ajudaEnjooSub: 'what you feel becomes a pattern, and the pattern goes to the appointment',
     ajudaPeso: 'Your weight curve',
-    ajudaPesoSub: 'every weigh-in joins the line, with a reading of what changed',
+    ajudaPesoSub: 'every weigh-in goes onto the line, with a reading of what changed',
     ajudaResumo: 'A summary for the appointment',
     ajudaResumoSub: 'doses, symptoms and weight organized on a single page',
 
     feitoEmCimaDeEvidencia: 'Built on evidence',
     evidenciaTexto: 'The goals, the curve and the priorities in this plan follow public health guidelines and peer-reviewed clinical trials.',
-    rodape: 'We follow your journey every day and organize what you log — but the one who runs the treatment is your care team. These numbers are a starting point for that conversation, not a prescription.',
+    rodape: 'We follow your journey every day and organize what you log — but your care team is the one who runs the treatment. These numbers are a starting point for that conversation, not a prescription.',
 
     voltar: 'Back',
   },
 
   telaDados: {
     titulo: 'Your details',
-    lead: 'These are the answers from your sign-up, and they are where your BMI, your daily goals and the plan forecast come from. Changing anything here redoes those numbers.',
+    lead: 'These are the answers from your sign-up, and they’re where your BMI, your daily goals and the plan forecast come from. Changing anything here rebuilds those numbers.',
 
     tratamento: 'Treatment',
     medicamento: 'Medication',

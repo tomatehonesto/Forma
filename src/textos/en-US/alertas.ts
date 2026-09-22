@@ -90,7 +90,7 @@ export const alertas = {
     semAviso: 'No alert while it’s blocked',
 
     bloqueados: 'Alerts are blocked',
-    bloqueadosTexto: 'The device is blocking notifications from this app. While it stays that way, nothing you switch on here will arrive.',
+    bloqueadosTexto: 'The device is blocking notifications from this app. While it stays that way, nothing you switch on here will come through.',
     semNavegador: 'In a browser we can’t alert you',
     semNavegadorTexto: 'What you create is saved and starts working when you open the app on the phone.',
     abrirConfiguracoes: 'Open settings',
@@ -98,6 +98,6 @@ export const alertas = {
     vazio: 'No alerts yet',
     vazioTexto: (assuntos: string) => `${assuntos} — create the ones that make sense for your routine.`,
 
-    convite: 'An alert is an invitation, not a demand. If one goes by one day, nothing here turns into a delay.',
+    convite: 'An alert is an invitation, not a demand. If one slips by one day, nothing here turns into a backlog.',
   },
 };

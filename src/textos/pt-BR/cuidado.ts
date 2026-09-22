@@ -227,7 +227,7 @@ export const cuidado = {
        fala de si em terceira pessoa. Quem avisa somos nós. */
     anotarConsultaSub: 'Com a data aqui, o resumo fica pronto e avisamos quando ela chegar perto.',
     eQuando: (quando: string) => `É ${quando}`,
-    preparoTexto: 'Montamos um resumo com peso, adesão e sintomas do período — você escolhe o que quer perguntar.',
+    preparoTexto: 'Eu monto um resumo com peso, adesão e sintomas do período — você escolhe o que quer perguntar.',
     prepararAConsulta: 'Preparar a consulta',
 
     /* ---------- o tratamento ----------

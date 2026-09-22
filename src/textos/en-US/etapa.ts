@@ -19,7 +19,7 @@ export const etapa = {
   antesComDoseQ: 'What to expect on shot day?',
 
   antesSemDoseHead: 'Your treatment doesn’t have a dose set yet.',
-  antesSemDoseBody: 'Once your care team sets it, it belongs here — it’s what we build the weekly cycle and the reminders from.',
+  antesSemDoseBody: 'Once your care team sets it, it goes here — it’s what we build the weekly cycle and the reminders from.',
   antesSemDoseQ: 'How does the medication cycle work?',
 
   /* ---------- 2. the dose went up ---------- */
@@ -68,8 +68,8 @@ export const etapa = {
      this card has no action button. Anything along the lines of "here's
      what you can do" undoes the card. */
   platoBodyIgual: (media: string) =>
-    `Your weigh-ins have averaged ${media} since then. A plateau is an expected part of treatment: the body starts spending less as the weight comes down. That’s a conversation for your appointment, not a matter of effort.`,
+    `Your weigh-ins have averaged ${media} since then. A plateau is an expected part of treatment: your body starts burning less as the weight comes down. That’s a conversation for your appointment, not a matter of effort.`,
   platoBodyDois: (antes: string, agora: string) =>
-    `${antes} four weeks ago, ${agora} now. A plateau is an expected part of treatment: the body starts spending less as the weight comes down. That’s a conversation for your appointment, not a matter of effort.`,
+    `${antes} four weeks ago, ${agora} now. A plateau is an expected part of treatment: your body starts burning less as the weight comes down. That’s a conversation for your appointment, not a matter of effort.`,
   platoQ: 'How am I doing overall?',
 };

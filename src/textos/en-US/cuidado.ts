@@ -136,7 +136,7 @@ export const cuidado = {
   tela: {
     paraAConsulta: (quando: string) => `FOR THE APPOINTMENT ${quando}`,
     resumoPronto: 'Your summary is ready',
-    vouPreparar: 'I will put your summary together',
+    vouPreparar: 'I’ll put your summary together',
 
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Week ',
@@ -159,7 +159,7 @@ export const cuidado = {
     anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'Add the date and we’ll have your summary ready, and let you know when it’s close.',
     eQuando: (quando: string) => `It is ${quando}`,
-    preparoTexto: 'We put together a summary with weight, adherence and symptoms from that stretch — you pick what to ask.',
+    preparoTexto: 'I put together a summary with weight, adherence and symptoms from that stretch — you pick what to ask.',
     prepararAConsulta: 'Get ready for the appointment',
 
     seuTratamento: 'Your treatment',

@@ -222,7 +222,7 @@ export const home = {
     aConsulta: 'YOUR APPOINTMENT',
     consultaHoje: 'Your appointment is today.',
     consultaAmanha: 'Your appointment is tomorrow.',
-    consultaCorpo: 'I’ll have everything since your last visit laid out — weight, consistency, symptoms and the questions worth asking.',
+    consultaCorpo: 'I’ll have everything since your last visit laid out — weight, adherence, symptoms and the questions worth asking.',
     consultaCta: 'View summary',
 
     acabou: (oRecipiente: string) => `${oRecipiente} is empty.`,
@@ -369,7 +369,7 @@ export const home = {
     falarComEquipe: 'Talk to the team',
 
     estaSemana: 'This week',
-    ressalva: 'These goals are ways to get more out of the treatment, not a list of demands — you don’t have to close them all. What carries the treatment is the dose and your follow-up. Anything left open starts over next week, and the counts fill in on their own from what you log.',
+    ressalva: 'These goals are ways to get more out of the treatment, not a list of demands — you don’t have to close them all. What actually drives the treatment is the dose and your follow-up. Anything left open starts over next week, and the counts fill in on their own from what you log.',
 
     ressalvaDaSemana: 'The goals are today’s, measured against this week’s records.',
 

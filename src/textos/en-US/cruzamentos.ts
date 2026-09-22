@@ -73,7 +73,7 @@ export const cruzamentos = {
     q: 'How’s my protein?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'hunger', legenda: 'the day after hitting the goal' }),
-    porque: 'Protein works on fullness through a slower path than sugar: it takes longer to leave the stomach and it sustains satiety signals for many hours. That’s why the effect carries through the night and shows up again in the next morning’s appetite.',
+    porque: 'Protein builds fullness through a slower path than sugar: it takes longer to leave the stomach and it keeps satiety signals going for hours. That’s why the effect carries through the night and shows up again in the next morning’s appetite.',
     /* ⚠️ "NOT JUST FILLING A QUOTA" is what moves the protein goal out of
        the obligation slot and into the trade slot. */
     significa: 'Hitting your protein goal isn’t just filling a quota: it’s buying yourself an easier next day. When hunger bites, what settles it isn’t what you eat at that moment — it’s what you ate yesterday.',
