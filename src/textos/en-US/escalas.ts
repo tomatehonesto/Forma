@@ -88,4 +88,49 @@ export const escalas = {
     preso: 'Constipation',
     solto: 'Loose stools',
   },
+
+  tela: {
+    titulo: 'Symptoms',
+    diasRespondidos: (quantos: number, de: number) =>
+      `${quantos} ${quantos === 1 ? 'day answered' : 'days answered'} in the last ${de}`,
+    nenhumDia: (de: number) => `No days answered in the last ${de}`,
+
+    nestaSemana: 'This week',
+    semRespostaSemana: 'You have not answered about symptoms this week yet. They come in through the check-in.',
+    fazerCheckin: 'Do the check-in',
+    nenhumSintoma: 'No symptoms this week',
+    nenhumSintomaSub: (respondidos: number) =>
+      `${respondidos} ${respondidos === 1 ? 'day answered' : 'days answered'}, none with a complaint.`,
+    diasDe: (dias: number, respondidos: number) =>
+      `${dias} of ${respondidos} ${respondidos === 1 ? 'day' : 'days'}`,
+    noPiorDia: (legenda: string) => `On the worst day: ${legenda}`,
+    citacao: (texto: string) => `“${texto}”`,
+    voceEscreveuEm: (data: string) => `You wrote on ${data}`,
+
+    aoLongoDoCiclo: 'Across the cycle',
+    aoLongoNota: (dias: number) =>
+      `Average nausea on each day after the injection, from ${dias} ${dias === 1 ? 'day answered' : 'days answered'}.`,
+    dose: 'dose',
+
+    cicloParecido: 'Across the days answered so far, nausea looks much the same through the whole cycle — it is not following the dose.',
+    cicloPoucos: 'Too few days answered so far to say whether nausea follows the cycle. Answer a few more and this calculation stands up.',
+    cicloInicio1: 'Nausea weighs most on injection day.',
+    cicloInicioN: (dias: number) => `Nausea weighs most in the first ${dias} days after the injection.`,
+    cicloFim1: 'Nausea weighs most the day before the next injection.',
+    cicloFimN: (dias: number) => `Nausea weighs most in the ${dias} days leading up to the next injection.`,
+    cicloDia0: 'on injection day',
+    cicloDiaN: (dia: number) => `on day ${dia} after`,
+    cicloEspalhado: (lista: string) => `Nausea weighs most ${lista}.`,
+
+    comoSeSentiu: 'How you felt',
+    respostasEm14: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'answer' : 'answers'} in 14 days`,
+    semRespostas: 'No answers yet',
+    sentir: {
+      energia: 'Energy',
+      humor: 'Mood',
+      sono: 'Sleep',
+      fome: 'Hunger',
+    },
+  },
 };

@@ -119,4 +119,49 @@ export const escalas = {
     preso: 'Verstopfung',
     solto: 'Weicher Stuhl',
   },
+
+  tela: {
+    titulo: 'Symptome',
+    diasRespondidos: (quantos: number, de: number) =>
+      `${quantos} von ${de} Tagen beantwortet`,
+    nenhumDia: (de: number) => `Kein Tag in den letzten ${de} beantwortet`,
+
+    nestaSemana: 'Diese Woche',
+    semRespostaSemana: 'Du hast diese Woche noch nichts zu Symptomen beantwortet. Sie kommen über das Check-in herein.',
+    fazerCheckin: 'Check-in machen',
+    nenhumSintoma: 'Diese Woche keine Symptome',
+    nenhumSintomaSub: (respondidos: number) =>
+      `${respondidos} ${respondidos === 1 ? 'Tag' : 'Tage'} beantwortet, keiner mit Beschwerde.`,
+    diasDe: (dias: number, respondidos: number) =>
+      `${dias} von ${respondidos} ${respondidos === 1 ? 'Tag' : 'Tagen'}`,
+    noPiorDia: (legenda: string) => `Am schlimmsten Tag: ${legenda}`,
+    citacao: (texto: string) => `„${texto}“`,
+    voceEscreveuEm: (data: string) => `Geschrieben am ${data}`,
+
+    aoLongoDoCiclo: 'Im Lauf des Zyklus',
+    aoLongoNota: (dias: number) =>
+      `Mittlere Übelkeit an jedem Tag nach der Injektion, aus ${dias} ${dias === 1 ? 'beantwortetem Tag' : 'beantworteten Tagen'}.`,
+    dose: 'Dosis',
+
+    cicloParecido: 'An den bisher beantworteten Tagen sieht die Übelkeit über den ganzen Zyklus ähnlich aus — sie folgt der Dosis nicht.',
+    cicloPoucos: 'Es sind noch zu wenige Tage beantwortet, um zu sagen, ob die Übelkeit dem Zyklus folgt. Mit ein paar Tagen mehr steht diese Rechnung.',
+    cicloInicio1: 'Die Übelkeit wiegt am Tag der Injektion am schwersten.',
+    cicloInicioN: (dias: number) => `Die Übelkeit wiegt in den ersten ${dias} Tagen nach der Injektion am schwersten.`,
+    cicloFim1: 'Die Übelkeit wiegt am Tag vor der nächsten Injektion am schwersten.',
+    cicloFimN: (dias: number) => `Die Übelkeit wiegt in den ${dias} Tagen vor der nächsten Injektion am schwersten.`,
+    cicloDia0: 'am Tag der Injektion',
+    cicloDiaN: (dia: number) => `am ${dia}. Tag danach`,
+    cicloEspalhado: (lista: string) => `Die Übelkeit wiegt ${lista} am schwersten.`,
+
+    comoSeSentiu: 'Wie du dich gefühlt hast',
+    respostasEm14: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'Antwort' : 'Antworten'} in 14 Tagen`,
+    semRespostas: 'Noch keine Antworten',
+    sentir: {
+      energia: 'Energie',
+      humor: 'Stimmung',
+      sono: 'Schlaf',
+      fome: 'Hunger',
+    },
+  },
 };

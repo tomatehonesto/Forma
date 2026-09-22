@@ -127,4 +127,79 @@ export const escalas = {
     preso: 'Intestino preso',
     solto: 'Intestino solto',
   },
+
+  /* ============================================================
+     A TELA DE SINTOMAS
+
+     ⚠️⚠️ A FRASE DO PADRÃO É REDAÇÃO, E NÃO CÁLCULO. `padraoDoCiclo`
+     devolve QUAIS dias pesam e se eles são do começo ou do fim; as seis
+     frases abaixo são a leitura disso. A conta fica em derive, em
+     qualquer idioma; a frase fica aqui.
+
+     ⚠️ E ELA PODE RESPONDER "AINDA NÃO DÁ PARA DIZER" — `cicloPoucos`.
+     Essa resposta também é informação, e é honesta: a versão anterior
+     desta tela afirmava em texto fixo que a náusea se concentrava nos
+     dois primeiros dias, igual para todo mundo, com cara de achado sobre
+     aquela pessoa. Um aplicativo de tratamento que inventa achado clínico
+     é pior do que um que cala, porque o achado vai para a consulta.
+
+     ⚠️ O ORDINAL É DE CADA IDIOMA. "no 3º dia depois" em português, "on
+     day 3 after" em inglês, "am 3. Tag danach" em alemão — não há sufixo
+     que sirva para os cinco, e por isso `cicloDiaN` é função e não
+     concatenação na tela.
+
+     ⚠️ E OS QUATRO RÓTULOS DE `sentir` SÃO APELIDOS. O nome do indicador é
+     a pergunta inteira — "Horas de sono", "Energia no dia" —, e a
+     primeira palavra dele não serve de rótulo: cortar em branco dava um
+     chip escrito "Horas". Por isso são chaves próprias, e não um recorte
+     de `metas.indicadores`.
+     ============================================================ */
+  tela: {
+    titulo: 'Sintomas',
+    diasRespondidos: (quantos: number, de: number) =>
+      `${quantos} ${quantos === 1 ? 'dia respondido' : 'dias respondidos'} nos últimos ${de}`,
+    nenhumDia: (de: number) => `Nenhum dia respondido nos últimos ${de}`,
+
+    /* ---------- a semana ---------- */
+    nestaSemana: 'Nesta semana',
+    semRespostaSemana: 'Você ainda não respondeu sobre sintomas nesta semana. É no check-in que eles entram.',
+    fazerCheckin: 'Fazer o check-in',
+    nenhumSintoma: 'Nenhum sintoma nesta semana',
+    nenhumSintomaSub: (respondidos: number) =>
+      `${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'}, nenhum com queixa.`,
+    diasDe: (dias: number, respondidos: number) =>
+      `${dias} de ${respondidos} ${respondidos === 1 ? 'dia' : 'dias'}`,
+    noPiorDia: (legenda: string) => `No pior dia: ${legenda}`,
+    citacao: (texto: string) => `“${texto}”`,
+    voceEscreveuEm: (data: string) => `Você escreveu em ${data}`,
+
+    /* ---------- o ciclo ---------- */
+    aoLongoDoCiclo: 'Ao longo do ciclo',
+    aoLongoNota: (dias: number) =>
+      `Média do enjoo em cada dia depois da aplicação, de ${dias} ${dias === 1 ? 'dia respondido' : 'dias respondidos'}.`,
+    /* O rótulo do dia zero na régua de barras. */
+    dose: 'dose',
+
+    cicloParecido: 'Nos dias respondidos até agora, o enjoo aparece parecido ao longo de todo o ciclo — ele não está seguindo a dose.',
+    cicloPoucos: 'Ainda são poucos dias respondidos para dizer se o enjoo acompanha o ciclo. Respondendo mais dias, essa conta fica de pé.',
+    cicloInicio1: 'O enjoo pesa mais no dia da aplicação.',
+    cicloInicioN: (dias: number) => `O enjoo pesa mais nos ${dias} primeiros dias depois da aplicação.`,
+    cicloFim1: 'O enjoo pesa mais na véspera da próxima aplicação.',
+    cicloFimN: (dias: number) => `O enjoo pesa mais nos ${dias} dias que antecedem a próxima aplicação.`,
+    cicloDia0: 'no dia da aplicação',
+    cicloDiaN: (dia: number) => `no ${dia}º dia depois`,
+    cicloEspalhado: (lista: string) => `O enjoo pesa mais ${lista}.`,
+
+    /* ---------- como você se sentiu ---------- */
+    comoSeSentiu: 'Como você se sentiu',
+    respostasEm14: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'resposta' : 'respostas'} em 14 dias`,
+    semRespostas: 'Sem respostas ainda',
+    sentir: {
+      energia: 'Energia',
+      humor: 'Humor',
+      sono: 'Sono',
+      fome: 'Fome',
+    },
+  },
 };

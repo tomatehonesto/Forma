@@ -278,4 +278,74 @@ export const tratamento = {
     historico: 'Verlauf',
     proximaEmLocal: (local: string) => `Nächste · ${local}`,
   },
+
+  /* ⚠️ DAS PRÄDIKATIVE ADJEKTIV FLEKTIERT IM DEUTSCHEN NICHT: „der Pen ist
+     geöffnet“, „die Spritze ist geöffnet“. Deshalb sind `abertoM` und
+     `abertoF` dasselbe Wort, und `concordar` läuft hier ins Leere, ohne
+     Schaden anzurichten.
+
+     Wo das Deutsche WIRKLICH flektiert, ist der Artikel davor — „Kein
+     Pen“, „Keine Spritze“ —, und genau dort zahlt sich das Paar aus. */
+  telaCaneta: {
+    abertoM: 'geöffnet',
+    abertoF: 'geöffnet',
+    nenhumM: 'Kein',
+    nenhumF: 'Keine',
+    desteM: 'aus diesem',
+    desteF: 'aus dieser',
+    /* ⚠️ ALLEINSTEHEND, als Schaltfläche in der Leiste: da flektiert das
+       Deutsche nicht. Attributiv wäre es 'Neuer Pen' / 'Neue Spritze' —
+       das ist ein anderer Fall und gehört zu dem Bildschirm, der ihn
+       braucht. */
+    novoM: 'Neu',
+    novoF: 'Neu',
+    encerradoM: 'abgeschlossen',
+    encerradoF: 'abgeschlossen',
+
+    nova: 'Neu',
+    lembrarRenovar: 'Ans Rezept erinnern',
+    tituloDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} ${dose} ${unidade}`,
+
+    leadAberto: (Recipiente: string, aberto: string, data: string, total: number, recipiente: string) =>
+      `${Recipiente} ${aberto} am ${data} · ${total} Dosen pro ${recipiente}`,
+    leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
+      `${nenhum} ${recipiente} ${aberto} · ${total} Dosen pro ${recipiente}`,
+
+    dosesUsadas: 'Verbrauchte Dosen',
+    usadasDe: (usadas: number, total: number) => `${usadas} von ${total}`,
+    ultimaDose: (deste: string, recipiente: string, data: string) =>
+      `Letzte Dosis ${deste} ${recipiente}: ${data}`,
+
+    validadeApos: (_aberto: string) => 'Haltbarkeit nach dem Öffnen',
+    validadeDias: (dias: number) => `${dias} Tage`,
+    validadeNaoInformada: 'nicht angegeben',
+    venceEm: (data: string) => `läuft ab ${data}`,
+    quemPreparaDefine: 'wer es zubereitet, setzt die Frist',
+
+    receitaAtual: 'Aktuelles Rezept',
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    receitaCobreAte: (data: string) => `deckt bis ${data}`,
+
+    venceAntes: (oRecipiente: string) => `${oRecipiente} läuft ab, bevor alles verbraucht ist`,
+    venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
+      `${medicamento} hält sich ${dias} Tage nach dem Öffnen, und die ${total} Dosen passen nicht in diese Frist. Am besten mit der Person klären, die dich begleitet, was mit dem Rest geschehen soll.`,
+
+    momentoDeRenovar: 'Zeit, das Rezept anzufragen',
+    /* ⚠️ HIER STEHT DER BEHÄLTER OHNE ARTIKEL, und das ist kein
+       Auslassen: nach „ohne“ verlangt das Deutsche den Akkusativ —
+       „ohne den Pen“ —, und formas.oA liefert nur den Nominativ
+       (siehe PENDENCIAS, Punkt 26). „ohne Pen dazustehen“ ist die
+       idiomatische Form und kommt ohne den Fall aus. Deshalb bekommt
+       diese Funktion beide Schreibweisen. */
+    renovarTexto: (semanas: number, _oRecipiente: string, recipiente: string) =>
+      `Dein Rezept deckt etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne ${recipiente} dazustehen.`,
+
+    historico: (plural: string) => `Verlauf der ${plural}`,
+    emUso: 'in Gebrauch',
+    itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
+      `${Aberto} am ${data} · ${usadas} von ${total} Dosen`,
+    itemEncerrado: (periodo: string, usadas: number, total: number) =>
+      `${periodo} · ${usadas} von ${total} Dosen`,
+  },
 };

@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 687, em 78 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 644, em 76 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1196,6 +1196,21 @@ tirada do `git show`, e não de memória.
   amenée" e "Comment vous vous êtes senti" —, os dois nascidos na
   tradução e não no português. É a armadilha que se repete: uma frase
   neutra em português vira gendrada em francês sem ninguém decidir isso.
+- **`concordar` RECEBIA AS DUAS GRAFIAS EM PORTUGUÊS.** A tela do
+  recipiente escrevia `concordar(forma, 'aberto', 'aberta')` — os dois
+  candidatos no sítio de chamada —, e em alemão isso devolvia "aberto" ou
+  "aberta": português dos dois jeitos, sete vezes na mesma tela. A função
+  continua fazendo o trabalho dela; o que mudou é de onde saem os
+  candidatos. Onde o idioma não flexiona, os dois são a mesma palavra.
+- **"encerrada" no feminino fixo**, num histórico que também lista frasco
+  e blíster.
+- **Uma quarta constante de módulo com rótulo literal:** `SENTIR` em
+  /sintomas, os quatro apelidos curtos dos indicadores.
+- **Dois particípios que só aparecem no recipiente errado:** o francês
+  "La plaquette expire avant d'être **fini**" e o alemão "läuft ab, bevor
+  **er** leer ist". Os dois nasceram na tradução, e os dois só se veem
+  com um recipiente que a semente não usa — foram achados rodando as
+  quatro formas fora da tela, e não olhando o aplicativo.
 - **⚠️⚠️ E UM DEFEITO QUE NÃO ERA DE TEXTO.** `timelineCounts` fazia
   `Object.keys(TL_LABEL)` **sem os parênteses**. `TL_LABEL` virou função
   quando os rótulos saíram para o catálogo, e as chaves próprias de uma

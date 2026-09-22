@@ -14,6 +14,11 @@ import {
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.escalas.tela;
 
 /* ============================================================
    SINTOMAS
@@ -59,11 +64,11 @@ const DO_CICLO = 'nausea';
    O rótulo é curto e escrito aqui: o nome do indicador é a pergunta
    inteira — "Horas de sono", "Energia no dia" — e a primeira palavra dele
    não serve de apelido. Cortar em branco dava um chip escrito "Horas". */
-const SENTIR: [string, string][] = [
-  ['energia', 'Energia'],
-  ['humor', 'Humor'],
-  ['sono', 'Sono'],
-  ['fome', 'Fome'],
+const SENTIR = (): [string, string][] => [
+  ['energia', K().sentir.energia],
+  ['humor', K().sentir.humor],
+  ['sono', K().sentir.sono],
+  ['fome', K().sentir.fome],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -108,7 +113,7 @@ function BarrasDoCiclo({ baldes, destaque }: {
                   }} />
                 )}
               </View>
-              <Txt v="micro" c={vazio ? c.tx4 : c.tx3}>{b.dia === 0 ? 'dose' : b.dia}</Txt>
+              <Txt v="micro" c={vazio ? c.tx4 : c.tx3}>{b.dia === 0 ? K().dose : b.dia}</Txt>
             </View>
           );
         })}
@@ -122,25 +127,16 @@ function BarrasDoCiclo({ baldes, destaque }: {
    uma tela em outra língua também usaria. */
 function fraseDoCiclo(p: ReturnType<typeof padraoDoCiclo>, cad: number) {
   if (!p.pode) {
-    return p.motivo === 'parecido'
-      ? 'Nos dias respondidos até agora, o enjoo aparece parecido ao longo de todo o ciclo — ele não está seguindo a dose.'
-      : 'Ainda são poucos dias respondidos para dizer se o enjoo acompanha o ciclo. Respondendo mais dias, essa conta fica de pé.';
+    return p.motivo === 'parecido' ? K().cicloParecido : K().cicloPoucos;
   }
   const n = p.dias.length;
-  if (p.doInicio) {
-    return n === 1
-      ? 'O enjoo pesa mais no dia da aplicação.'
-      : `O enjoo pesa mais nos ${n} primeiros dias depois da aplicação.`;
-  }
-  if (p.doFim) {
-    return n === 1
-      ? 'O enjoo pesa mais na véspera da próxima aplicação.'
-      : `O enjoo pesa mais nos ${n} dias que antecedem a próxima aplicação.`;
-  }
-  const quais = p.dias.map((d) => (d === 0 ? 'no dia da aplicação' : `no ${d}º dia depois`));
-  const lista = quais.length === 1 ? quais[0]
-    : `${quais.slice(0, -1).join(', ')} e ${quais[quais.length - 1]}`;
-  return `O enjoo pesa mais ${lista}.`;
+  if (p.doInicio) return n === 1 ? K().cicloInicio1 : K().cicloInicioN(n);
+  if (p.doFim) return n === 1 ? K().cicloFim1 : K().cicloFimN(n);
+  /* ⚠️ O ORDINAL É DE CADA IDIOMA — "3º" no português, "3." no alemão,
+     "3e" no francês —, e a conjunção da lista também: quem junta é
+     `comum.lista`, que já sabe o "e", o "and" e o "und". */
+  const quais = p.dias.map((d) => (d === 0 ? K().cicloDia0 : K().cicloDiaN(d)));
+  return K().cicloEspalhado(T.comum.lista(quais));
 }
 
 /* ------------------------------------------------------------------ */
@@ -189,12 +185,10 @@ export default function Sintomas() {
   const media = serie.length ? serie.reduce((a, p) => a + p.v, 0) / serie.length : null;
 
   return (
-    <TelaInterna titulo="Sintomas">
+    <TelaInterna titulo={K().titulo}>
       <Titulao
-        titulo="Sintomas"
-        lead={respondidos
-          ? `${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'} nos últimos ${DIAS}`
-          : `Nenhum dia respondido nos últimos ${DIAS}`}
+        titulo={K().titulo}
+        lead={respondidos ? K().diasRespondidos(respondidos, DIAS) : K().nenhumDia(DIAS)}
       />
 
       {/* A leitura da semana abre a tela quando existe: ela é a conclusão,
@@ -205,22 +199,20 @@ export default function Sintomas() {
         </View>
       ) : null}
 
-      <Bloco titulo="Nesta semana">
+      <Bloco titulo={K().nestaSemana}>
         {respondidos === 0 ? (
           <Cartao>
             <View style={{ padding: 16, gap: 12 }}>
-              <Txt v="caption" c={c.tx2}>
-                Você ainda não respondeu sobre sintomas nesta semana. É no check-in que eles entram.
-              </Txt>
-              <Botao label="Fazer o check-in" onPress={() => router.push('/checkin' as any)} />
+              <Txt v="caption" c={c.tx2}>{K().semRespostaSemana}</Txt>
+              <Botao label={K().fazerCheckin} onPress={() => router.push('/checkin' as any)} />
             </View>
           </Cartao>
         ) : lista.length === 0 ? (
           <Cartao>
             <Linha
               ic="check"
-              titulo="Nenhum sintoma nesta semana"
-              sub={`${respondidos} ${respondidos === 1 ? 'dia respondido' : 'dias respondidos'}, nenhum com queixa.`}
+              titulo={K().nenhumSintoma}
+              sub={K().nenhumSintomaSub(respondidos)}
               seta={false}
             />
           </Cartao>
@@ -230,20 +222,20 @@ export default function Sintomas() {
               <Progresso
                 key={s.id}
                 label={s.label}
-                valor={`${s.dias} de ${respondidos} ${respondidos === 1 ? 'dia' : 'dias'}`}
+                valor={K().diasDe(s.dias, respondidos)}
                 /* A barra é a MÉDIA dos dias em que apareceu, e o texto
                    embaixo guarda o pior. Barra pelo pior faria um único dia
                    ruim desenhar a semana inteira. */
                 pct={(s.media / 5) * 100}
-                nota={s.legenda ? `No pior dia: ${s.legenda.toLowerCase()}` : undefined}
+                nota={s.legenda ? K().noPiorDia(T.comum.noMeio(s.legenda)) : undefined}
               />
             ))}
             {outros.map((x) => (
               <Cartao key={x.t}>
                 <Linha
                   ic="note"
-                  titulo={`“${String(x.outroTexto).trim()}”`}
-                  sub={`Você escreveu em ${fmtDate(new Date(x.t))}`}
+                  titulo={K().citacao(String(x.outroTexto).trim())}
+                  sub={K().voceEscreveuEm(fmtDate(new Date(x.t)))}
                   seta={false}
                 />
               </Cartao>
@@ -260,8 +252,8 @@ export default function Sintomas() {
       {diasNoCiclo > 0 ? (
         <View style={{ marginTop: 26 }}>
           <Bloco
-            titulo="Ao longo do ciclo"
-            nota={`Média do enjoo em cada dia depois da aplicação, de ${diasNoCiclo} ${diasNoCiclo === 1 ? 'dia respondido' : 'dias respondidos'}.`}
+            titulo={K().aoLongoDoCiclo}
+            nota={K().aoLongoNota(diasNoCiclo)}
           >
             <Cartao>
               <View style={{ padding: 16, gap: 14 }}>
@@ -281,10 +273,10 @@ export default function Sintomas() {
           de lá que faz a conversão. A tela antiga fazia a sua, e escrevia
           "/10" embaixo de uma pergunta de 1 a 5. */}
       <View style={{ marginTop: 26 }}>
-        <Bloco titulo="Como você se sentiu">
+        <Bloco titulo={K().comoSeSentiu}>
           <View style={{ gap: 12 }}>
             <Chips
-              itens={SENTIR.map(([id, label]) => ({ id, label }))}
+              itens={SENTIR().map(([id, label]) => ({ id, label }))}
               valor={qual}
               onChange={setQual}
             />
@@ -292,14 +284,14 @@ export default function Sintomas() {
               <CardCurva
                 id={`sy-${qual}`}
                 nome={ind.nome}
-                sub={`${serie.length} ${serie.length === 1 ? 'resposta' : 'respostas'} em 14 dias`}
+                sub={K().respostasEm14(serie.length)}
                 valor={nf(media as number, 1)}
                 unidade={ind.un}
                 pontos={serie}
               />
             ) : (
               <Cartao>
-                <Linha titulo="Sem respostas ainda" sub={ind.origem} seta={false} />
+                <Linha titulo={K().semRespostas} sub={ind.origem} seta={false} />
               </Cartao>
             )}
           </View>

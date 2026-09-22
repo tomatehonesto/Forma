@@ -234,4 +234,61 @@ export const tratamento = {
     historico: 'History',
     proximaEmLocal: (local: string) => `Next · ${local}`,
   },
+
+  /* ⚠️ THE TWO SPELLINGS ARE THE SAME WORD HERE. English has no gender to
+     agree with, and `concordar` returns its first argument without
+     looking — the pairs exist so the caller never has to know which
+     language it is writing for. */
+  telaCaneta: {
+    abertoM: 'opened',
+    abertoF: 'opened',
+    nenhumM: 'No',
+    nenhumF: 'No',
+    desteM: 'from this',
+    desteF: 'from this',
+    novoM: 'New',
+    novoF: 'New',
+    encerradoM: 'finished',
+    encerradoF: 'finished',
+
+    nova: 'New',
+    lembrarRenovar: 'Remind me to refill',
+    tituloDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} ${dose} ${unidade}`,
+
+    leadAberto: (Recipiente: string, aberto: string, data: string, total: number, recipiente: string) =>
+      `${Recipiente} ${aberto} on ${data} · ${total} doses per ${recipiente}`,
+    leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
+      `${nenhum} ${recipiente} ${aberto} · ${total} doses per ${recipiente}`,
+
+    dosesUsadas: 'Doses used',
+    usadasDe: (usadas: number, total: number) => `${usadas} of ${total}`,
+    ultimaDose: (deste: string, recipiente: string, data: string) =>
+      `Last dose ${deste} ${recipiente}: ${data}`,
+
+    validadeApos: (aberto: string) => `Shelf life once ${aberto}`,
+    validadeDias: (dias: number) => `${dias} days`,
+    validadeNaoInformada: 'not given',
+    venceEm: (data: string) => `expires ${data}`,
+    quemPreparaDefine: 'whoever compounds it sets the limit',
+
+    receitaAtual: 'Current prescription',
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    receitaCobreAte: (data: string) => `covers until ${data}`,
+
+    venceAntes: (oRecipiente: string) => `${oRecipiente} expires before it runs out`,
+    venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
+      `${medicamento} lasts ${dias} days once ${aberto}, and the ${total} doses do not fit in that window. Worth checking with whoever follows your treatment what to do with what is left.`,
+
+    momentoDeRenovar: 'Time to ask for a refill',
+    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
+      `Your prescription covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}. Asking now keeps you from running out of ${oRecipiente} between appointments.`,
+
+    historico: (plural: string) => `History of ${plural}`,
+    emUso: 'in use',
+    itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
+      `${Aberto} on ${data} · ${usadas} of ${total} doses`,
+    itemEncerrado: (periodo: string, usadas: number, total: number) =>
+      `${periodo} · ${usadas} of ${total} doses`,
+  },
 };

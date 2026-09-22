@@ -9,6 +9,11 @@ import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
 } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaCaneta;
 
 /* ============================================================
    CANETA E RECEITA
@@ -42,7 +47,7 @@ export default function Caneta() {
      Está no PENDENCIAS, e é varredura própria. */
   const forma = formaDe(S);
   const vocab = FORMAS()[forma];
-  const aberto = concordar(forma, 'aberto', 'aberta');
+  const aberto = concordar(forma, K().abertoM, K().abertoF);
   const med = M(S);
   const atual = k.atual;
 
@@ -52,23 +57,23 @@ export default function Caneta() {
 
   return (
     <TelaInterna
-      titulo={`${maiuscula(vocab.recipiente)} e receita`}
-      acao="Nova"
+      titulo={T.tratamento.telaAplicacoes.eReceita(maiuscula(vocab.recipiente))}
+      acao={concordar(forma, K().novoM, K().novoF)}
       onAcao={() => router.push('/caneta-nova' as any)}
-      rodape={<Botao label="Lembrar de renovar" onPress={() => router.push('/lembretes' as any)} />}
+      rodape={<Botao label={K().lembrarRenovar} onPress={() => router.push('/lembretes' as any)} />}
     >
       <Titulao
-        titulo={`${med.label} ${nf(dose, 1)} ${med.unit}`}
+        titulo={K().tituloDose(med.label, nf(dose, 1), med.unit)}
         lead={atual?.abertaEm
-          ? `${maiuscula(vocab.recipiente)} ${aberto} em ${dataLonga(atual.abertaEm)} · ${total} doses por ${vocab.recipiente}`
-          : `${concordar(forma, 'Nenhum', 'Nenhuma')} ${vocab.recipiente} ${aberto} · ${total} doses por ${vocab.recipiente}`}
+          ? K().leadAberto(maiuscula(vocab.recipiente), aberto, dataLonga(atual.abertaEm), total, vocab.recipiente)
+          : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
       />
 
       <Progresso
-        label="Doses usadas"
-        valor={`${usadas} de ${total}`}
+        label={K().dosesUsadas}
+        valor={K().usadasDe(usadas, total)}
         pct={(usadas / total) * 100}
-        nota={`Última dose ${concordar(forma, 'deste', 'desta')} ${vocab.recipiente}: ${dataComDiaDaSemana(k.cobreAte)}`}
+        nota={K().ultimaDose(concordar(forma, K().desteM, K().desteF), vocab.recipiente, dataComDiaDaSemana(k.cobreAte))}
       />
 
       <Grade2>
@@ -79,16 +84,16 @@ export default function Caneta() {
             coisa venceu no dia em que foi aberta. */}
         <Metrica
           ic="clock"
-          nome={`Validade após ${aberto}`}
-          selo={k.validadeDias ? `${k.validadeDias} dias` : 'não informada'}
+          nome={K().validadeApos(aberto)}
+          selo={k.validadeDias ? K().validadeDias(k.validadeDias) : K().validadeNaoInformada}
           seloTom="neutra"
-          para={k.vence ? `vence ${fmtDate(k.vence)}` : 'quem prepara define o prazo'}
+          para={k.vence ? K().venceEm(fmtDate(k.vence)) : K().quemPreparaDefine}
         />
         <Metrica
           ic="pill"
-          nome="Receita atual"
-          selo={`${Math.round(k.semanas)} semanas`}
-          para={`cobre até ${fmtDate(k.cobreAte)}`}
+          nome={K().receitaAtual}
+          selo={K().receitaSemanas(Math.round(k.semanas))}
+          para={K().receitaCobreAte(fmtDate(k.cobreAte))}
         />
       </Grade2>
 
@@ -99,33 +104,35 @@ export default function Caneta() {
       {k.venceAntesDoFim ? (
         <Aviso
           ic="clock"
-          titulo={`${maiuscula(oA(forma))} ${vocab.recipiente} vence antes de acabar`}
+          titulo={K().venceAntes(`${maiuscula(oA(forma))} ${vocab.recipiente}`)}
           /* Só chega aqui com `vence` preenchido, e `vence` exige
              `validadeDias` — mas o tipo não sabe disso. */
-          texto={`${med.label} dura ${k.validadeDias ?? 0} dias depois de aberta, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`}
+          texto={K().venceAntesTexto(med.label, k.validadeDias ?? 0, total, aberto)}
         />
       ) : null}
 
       {!k.verdict.good ? (
         <Aviso
           ic="pill"
-          titulo="Momento de pedir a renovação"
-          texto={`Sua receita cobre cerca de ${Math.round(k.semanas)} ${Math.round(k.semanas) === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem ${oA(forma)} ${vocab.recipiente} entre uma consulta e outra.`}
+          titulo={K().momentoDeRenovar}
+          texto={K().renovarTexto(Math.round(k.semanas), `${oA(forma)} ${vocab.recipiente}`, vocab.recipiente)}
         />
       ) : null}
 
-      <Bloco titulo={`Histórico de ${vocab.plural}`}>
+      <Bloco titulo={K().historico(vocab.plural)}>
         <Sanfona>
           {k.lista.map((p) => (
             <SanfonaLinha
               key={p.id}
-              titulo={`${p.label} ${nf(p.dose, 1)} ${p.unit}`}
-              selo={p.estado === 'uso' ? 'em uso' : 'encerrada'}
+              titulo={K().tituloDose(p.label, nf(p.dose, 1), p.unit)}
+              /* ⚠️ "encerrada" ESTAVA NO FEMININO FIXO, concordando com
+                 "caneta" numa lista que também mostra frasco e blíster. */
+              selo={p.estado === 'uso' ? K().emUso : concordar(forma, K().encerradoM, K().encerradoF)}
               seloTom="neutra"
               sub={p.estado === 'uso'
-                ? `${maiuscula(aberto)} em ${fmtDate(p.abertaEm!)} · ${p.usadas} de ${p.total} doses`
-                : `${fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!))} · ${p.usadas} de ${p.total} doses`}
-              itens={p.aplicacoes.map((a) => [fmtDate(a.t), siteLabel(a.site).toLowerCase()] as [string, string])}
+                ? K().itemEmUso(maiuscula(aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
+                : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!)), p.usadas, p.total)}
+              itens={p.aplicacoes.map((a) => [fmtDate(a.t), T.comum.noMeio(siteLabel(a.site))] as [string, string])}
             />
           ))}
         </Sanfona>

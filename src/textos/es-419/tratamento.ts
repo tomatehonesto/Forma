@@ -236,4 +236,57 @@ export const tratamento = {
     historico: 'Historial',
     proximaEmLocal: (local: string) => `Próxima · ${local}`,
   },
+
+  telaCaneta: {
+    abertoM: 'abierto',
+    abertoF: 'abierta',
+    nenhumM: 'Ningún',
+    nenhumF: 'Ninguna',
+    desteM: 'de este',
+    desteF: 'de esta',
+    novoM: 'Nuevo',
+    novoF: 'Nueva',
+    encerradoM: 'terminado',
+    encerradoF: 'terminada',
+
+    nova: 'Nueva',
+    lembrarRenovar: 'Recordarme renovar',
+    tituloDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} ${dose} ${unidade}`,
+
+    leadAberto: (Recipiente: string, aberto: string, data: string, total: number, recipiente: string) =>
+      `${Recipiente} ${aberto} el ${data} · ${total} dosis por ${recipiente}`,
+    leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
+      `${nenhum} ${recipiente} ${aberto} · ${total} dosis por ${recipiente}`,
+
+    dosesUsadas: 'Dosis usadas',
+    usadasDe: (usadas: number, total: number) => `${usadas} de ${total}`,
+    ultimaDose: (deste: string, recipiente: string, data: string) =>
+      `Última dosis ${deste} ${recipiente}: ${data}`,
+
+    validadeApos: (aberto: string) => `Validez después de ${aberto}`,
+    validadeDias: (dias: number) => `${dias} días`,
+    validadeNaoInformada: 'sin informar',
+    venceEm: (data: string) => `vence ${data}`,
+    quemPreparaDefine: 'quien la prepara define el plazo',
+
+    receitaAtual: 'Receta actual',
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    receitaCobreAte: (data: string) => `cubre hasta ${data}`,
+
+    venceAntes: (oRecipiente: string) => `${oRecipiente} vence antes de acabarse`,
+    venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
+      `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Vale confirmar con quien te acompaña qué hacer con lo que sobre.`,
+
+    momentoDeRenovar: 'Momento de pedir la renovación',
+    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
+      `Tu receta cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedirla ahora evita quedarte sin ${oRecipiente} entre una consulta y otra.`,
+
+    historico: (plural: string) => `Historial de ${plural}`,
+    emUso: 'en uso',
+    itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
+      `${Aberto} el ${data} · ${usadas} de ${total} dosis`,
+    itemEncerrado: (periodo: string, usadas: number, total: number) =>
+      `${periodo} · ${usadas} de ${total} dosis`,
+  },
 };

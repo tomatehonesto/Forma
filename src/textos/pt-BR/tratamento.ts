@@ -328,4 +328,87 @@ export const tratamento = {
     historico: 'Histórico',
     proximaEmLocal: (local: string) => `Próxima · ${local}`,
   },
+
+  /* ============================================================
+     A TELA DO RECIPIENTE E DA RECEITA
+
+     Duas contagens diferentes moram nela, e confundi-las é o erro
+     clássico deste tipo de tela: quantas doses ainda cabem no
+     dispositivo, e quantos dias ele dura depois de aberto. Um recipiente
+     pode ter dose sobrando e estar vencido.
+
+     ⚠️⚠️ AS PALAVRAS QUE CONCORDAM VÊM DAQUI, E NÃO DA TELA. O código
+     chamava `concordar(forma, 'aberto', 'aberta')` — as duas grafias
+     ESCRITAS NO SÍTIO DE CHAMADA, em português. Em alemão isso devolvia
+     "aberto" ou "aberta", que é português dos dois jeitos.
+
+     `concordar` continua fazendo o seu trabalho; o que mudou é de onde
+     saem os dois candidatos. Onde o idioma não flexiona — inglês,
+     alemão predicativo —, os dois são a mesma palavra, e é por isso que
+     `concordar` em inglês devolve o primeiro argumento sem olhar.
+
+     ⚠️ E "ENCERRADA" ESTAVA NO FEMININO FIXO, concordando com "caneta"
+     numa lista que também mostra frasco e blíster. Virou par.
+     ============================================================ */
+  telaCaneta: {
+    /* As duas grafias de cada palavra que concorda. A tela junta com
+       `concordar`, que é quem sabe o gênero do recipiente. */
+    abertoM: 'aberto',
+    abertoF: 'aberta',
+    nenhumM: 'Nenhum',
+    nenhumF: 'Nenhuma',
+    desteM: 'deste',
+    desteF: 'desta',
+    novoM: 'Novo',
+    novoF: 'Nova',
+    encerradoM: 'encerrado',
+    encerradoF: 'encerrada',
+
+    nova: 'Nova',
+    lembrarRenovar: 'Lembrar de renovar',
+    tituloDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} ${dose} ${unidade}`,
+
+    leadAberto: (Recipiente: string, aberto: string, data: string, total: number, recipiente: string) =>
+      `${Recipiente} ${aberto} em ${data} · ${total} doses por ${recipiente}`,
+    leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
+      `${nenhum} ${recipiente} ${aberto} · ${total} doses por ${recipiente}`,
+
+    dosesUsadas: 'Doses usadas',
+    usadasDe: (usadas: number, total: number) => `${usadas} de ${total}`,
+    ultimaDose: (deste: string, recipiente: string, data: string) =>
+      `Última dose ${deste} ${recipiente}: ${data}`,
+
+    /* ⚠️ "NÃO INFORMADA" É UM ESTADO, e não um vazio: manipulado não tem
+       prazo de bula, e "0 dias" seria o aplicativo afirmando que a coisa
+       venceu no dia em que foi aberta. */
+    validadeApos: (aberto: string) => `Validade após ${aberto}`,
+    validadeDias: (dias: number) => `${dias} dias`,
+    validadeNaoInformada: 'não informada',
+    venceEm: (data: string) => `vence ${data}`,
+    quemPreparaDefine: 'quem prepara define o prazo',
+
+    receitaAtual: 'Receita atual',
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    receitaCobreAte: (data: string) => `cobre até ${data}`,
+
+    /* O recipiente pode vencer antes de a última dose sair dele — com 14
+       dias de validade e quatro doses semanais isso é a regra, não a
+       exceção. O aviso constata e para por aí: o que fazer com a dose que
+       sobra é conversa de médico. */
+    venceAntes: (oRecipiente: string) => `${oRecipiente} vence antes de acabar`,
+    venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
+      `${medicamento} dura ${dias} dias depois de ${aberto}, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`,
+
+    momentoDeRenovar: 'Momento de pedir a renovação',
+    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
+      `Sua receita cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem ${oRecipiente} entre uma consulta e outra.`,
+
+    historico: (plural: string) => `Histórico de ${plural}`,
+    emUso: 'em uso',
+    itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
+      `${Aberto} em ${data} · ${usadas} de ${total} doses`,
+    itemEncerrado: (periodo: string, usadas: number, total: number) =>
+      `${periodo} · ${usadas} de ${total} doses`,
+  },
 };

@@ -100,4 +100,49 @@ export const escalas = {
     preso: 'Transit bloqué',
     solto: 'Transit relâché',
   },
+
+  tela: {
+    titulo: 'Symptômes',
+    diasRespondidos: (quantos: number, de: number) =>
+      `${quantos} ${quantos === 1 ? 'jour rempli' : 'jours remplis'} sur les ${de} derniers`,
+    nenhumDia: (de: number) => `Aucun jour rempli sur les ${de} derniers`,
+
+    nestaSemana: 'Cette semaine',
+    semRespostaSemana: 'Vous n’avez pas encore répondu sur les symptômes cette semaine. C’est par le check-in qu’ils entrent.',
+    fazerCheckin: 'Faire le check-in',
+    nenhumSintoma: 'Aucun symptôme cette semaine',
+    nenhumSintomaSub: (respondidos: number) =>
+      `${respondidos} ${respondidos === 1 ? 'jour rempli' : 'jours remplis'}, aucun avec une plainte.`,
+    diasDe: (dias: number, respondidos: number) =>
+      `${dias} sur ${respondidos} ${respondidos === 1 ? 'jour' : 'jours'}`,
+    noPiorDia: (legenda: string) => `Au pire jour : ${legenda}`,
+    citacao: (texto: string) => `« ${texto} »`,
+    voceEscreveuEm: (data: string) => `Vous avez écrit le ${data}`,
+
+    aoLongoDoCiclo: 'Au fil du cycle',
+    aoLongoNota: (dias: number) =>
+      `Moyenne de la nausée chaque jour après l’injection, sur ${dias} ${dias === 1 ? 'jour rempli' : 'jours remplis'}.`,
+    dose: 'dose',
+
+    cicloParecido: 'Sur les jours remplis jusqu’ici, la nausée apparaît semblable tout au long du cycle — elle ne suit pas la dose.',
+    cicloPoucos: 'Il y a encore trop peu de jours remplis pour dire si la nausée suit le cycle. En remplissant quelques jours de plus, ce calcul tient debout.',
+    cicloInicio1: 'La nausée pèse le plus le jour de l’injection.',
+    cicloInicioN: (dias: number) => `La nausée pèse le plus les ${dias} premiers jours après l’injection.`,
+    cicloFim1: 'La nausée pèse le plus la veille de la prochaine injection.',
+    cicloFimN: (dias: number) => `La nausée pèse le plus les ${dias} jours qui précèdent la prochaine injection.`,
+    cicloDia0: 'le jour de l’injection',
+    cicloDiaN: (dia: number) => `le ${dia}e jour après`,
+    cicloEspalhado: (lista: string) => `La nausée pèse le plus ${lista}.`,
+
+    comoSeSentiu: 'Comment vous vous sentiez',
+    respostasEm14: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'réponse' : 'réponses'} en 14 jours`,
+    semRespostas: 'Pas encore de réponses',
+    sentir: {
+      energia: 'Énergie',
+      humor: 'Humeur',
+      sono: 'Sommeil',
+      fome: 'Faim',
+    },
+  },
 };

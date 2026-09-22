@@ -240,4 +240,60 @@ export const tratamento = {
     historico: 'Historique',
     proximaEmLocal: (local: string) => `Prochaine · ${local}`,
   },
+
+  telaCaneta: {
+    abertoM: 'ouvert',
+    abertoF: 'ouverte',
+    nenhumM: 'Aucun',
+    nenhumF: 'Aucune',
+    desteM: 'de ce',
+    desteF: 'de cette',
+    novoM: 'Nouveau',
+    novoF: 'Nouvelle',
+    encerradoM: 'terminé',
+    encerradoF: 'terminée',
+
+    nova: 'Nouveau',
+    lembrarRenovar: 'Me rappeler de renouveler',
+    tituloDose: (medicamento: string, dose: string, unidade: string) =>
+      `${medicamento} ${dose} ${unidade}`,
+
+    leadAberto: (Recipiente: string, aberto: string, data: string, total: number, recipiente: string) =>
+      `${Recipiente} ${aberto} le ${data} · ${total} doses par ${recipiente}`,
+    leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
+      `${nenhum} ${recipiente} ${aberto} · ${total} doses par ${recipiente}`,
+
+    dosesUsadas: 'Doses utilisées',
+    usadasDe: (usadas: number, total: number) => `${usadas} sur ${total}`,
+    ultimaDose: (deste: string, recipiente: string, data: string) =>
+      `Dernière dose ${deste} ${recipiente} : ${data}`,
+
+    validadeApos: (aberto: string) => `Validité une fois ${aberto}`,
+    validadeDias: (dias: number) => `${dias} jours`,
+    validadeNaoInformada: 'non renseignée',
+    venceEm: (data: string) => `expire ${data}`,
+    quemPreparaDefine: 'la personne qui le prépare fixe le délai',
+
+    receitaAtual: 'Ordonnance en cours',
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    receitaCobreAte: (data: string) => `couvre jusqu’au ${data}`,
+
+    /* ⚠️ « avant d’être fini » s’accorde, et le conteneur peut être
+       féminin : « la plaquette … fini » était faux. La phrase a été
+       tournée pour ne pas avoir de participe à accorder. */
+    venceAntes: (oRecipiente: string) => `${oRecipiente} expire avant la dernière dose`,
+    venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
+      `${medicamento} se garde ${dias} jours une fois ${aberto}, et les ${total} doses n’entrent pas dans ce délai. Il vaut mieux demander à la personne qui vous suit quoi faire de ce qui reste.`,
+
+    momentoDeRenovar: 'Le moment de demander le renouvellement',
+    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
+      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans ${oRecipiente} entre deux consultations.`,
+
+    historico: (plural: string) => `Historique des ${plural}`,
+    emUso: 'en cours',
+    itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
+      `${Aberto} le ${data} · ${usadas} sur ${total} doses`,
+    itemEncerrado: (periodo: string, usadas: number, total: number) =>
+      `${periodo} · ${usadas} sur ${total} doses`,
+  },
 };
