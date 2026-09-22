@@ -21,8 +21,10 @@
 
 
 import type { alertas as alertasPt } from '../pt-BR/alertas';
+import type { alimentacao as alimentacaoPt } from '../pt-BR/alimentacao';
 import type { aviso as avisoPt } from '../pt-BR/aviso';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
+import type { cadastro as cadastroPt } from '../pt-BR/cadastro';
 import type { ciclo as cicloPt } from '../pt-BR/ciclo';
 import type { companion as companionPt } from '../pt-BR/companion';
 import type { comum as comumPt } from '../pt-BR/comum';
@@ -44,8 +46,10 @@ import type { tempo as tempoPt } from '../pt-BR/tempo';
 import type { tratamento as tratamentoPt } from '../pt-BR/tratamento';
 
 import { alertas } from './alertas';
+import { alimentacao } from './alimentacao';
 import { aviso } from './aviso';
 import { avisos } from './avisos';
+import { cadastro } from './cadastro';
 import { ciclo } from './ciclo';
 import { companion } from './companion';
 import { comum } from './comum';
@@ -67,8 +71,10 @@ import { tempo } from './tempo';
 import { tratamento } from './tratamento';
 
 const _alertas: typeof alertasPt = alertas;
+const _alimentacao: typeof alimentacaoPt = alimentacao;
 const _aviso: typeof avisoPt = aviso;
 const _avisos: typeof avisosPt = avisos;
+const _cadastro: typeof cadastroPt = cadastro;
 const _ciclo: typeof cicloPt = ciclo;
 const _companion: typeof companionPt = companion;
 const _comum: typeof comumPt = comum;
@@ -89,4 +95,4 @@ const _resumo: typeof resumoPt = resumo;
 const _tempo: typeof tempoPt = tempo;
 const _tratamento: typeof tratamentoPt = tratamento;
 
-export const conferidos = [_alertas, _aviso, _avisos, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _resumo, _tempo, _tratamento];
+export const conferidos = [_alertas, _alimentacao, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _resumo, _tempo, _tratamento];
