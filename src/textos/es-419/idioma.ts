@@ -14,6 +14,10 @@ export const idioma = {
   pergunta: '¿En qué idioma quieres leer?',
   sub: 'Esto cambia el texto, los números y las fechas. Puedes cambiarlo después, en tu perfil.',
 
+  pais: 'País',
+  paisRotulo: 'Dónde te tratas',
+  paisRessalva: 'Cambia qué medicamentos aparecen primero, la moneda y la tabla de alimentos. Nada desaparece de la lista: lo menos común ahí queda más abajo.',
+
   titulo: 'Idioma · Language',
   tituloSub: 'Cambia el texto, los números y las fechas.',
   rotulo: 'Cómo lees la aplicación',

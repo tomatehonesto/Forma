@@ -1666,9 +1666,13 @@ export function Texto({ valor, onChange, placeholder, linhas = 3 }: {
    nasceu no cadastro, onde os limites são "não pode ser no futuro", e é
    o que permite usá-la agora onde o limite é o contrário. */
 /* ------------------------------------------------------------------ */
-export function Roda({ itens, valor, onEscolhe, largura }: {
-  itens: { v: number; label: string }[];
-  valor: number; onEscolhe: (v: number) => void; largura?: number;
+/* ⚠️ GENÉRICA NO VALOR, e era só número. O dia, o mês e o ano do
+   nascimento são números; o idioma e o país são códigos — 'pt-BR', 'BR'.
+   O corpo já era agnóstico: ele compara com `===` e usa o valor como
+   chave, e as duas coisas funcionam igual para os dois tipos. */
+export function Roda<V extends string | number>({ itens, valor, onEscolhe, largura }: {
+  itens: { v: V; label: string }[];
+  valor: V; onEscolhe: (v: V) => void; largura?: number;
 }) {
   const { c } = useTheme();
   const ALT = 44;
