@@ -40,7 +40,7 @@ export const cruzamentos = {
        sentence: "rest improves; it's the routine that loosens" is the
        whole finding in one clause, and it's what keeps the card from
        becoming a scolding. */
-    textoSono: (horas: string) => ` — but you sleep ${horas} h more. Rest improves; it’s the routine that loosens.`,
+    textoSono: (horas: string) => ` — but you sleep ${horas} h more. You rest more; it’s the routine that slips.`,
     textoSemSono: '.',
     q: 'How do I take better care of the weekend?',
     evid: (copos: string) => ({ valor: `−${copos}`, unidade: 'glasses', legenda: 'on Saturday and Sunday' }),
@@ -48,14 +48,14 @@ export const cruzamentos = {
     /* ⚠️ "IT DOESN'T NEED NEW DISCIPLINE" is the whole sentence. Whoever
        reads this already knows the weekend is harder; what they don't
        know is that the problem is structural and not a matter of will. */
-    significa: 'Two days a week the treatment runs with one foot outside, and they’re exactly the days you have the most time. It doesn’t need new discipline — it needs the weekend to have a routine of its own, instead of being the absence of the weekday one.',
+    significa: 'Two days a week the treatment runs without its structure, and they’re exactly the days you have the most time. It doesn’t need new discipline — it needs the weekend to have a routine of its own, instead of being the absence of the weekday one.',
   },
 
   /* ---------- 2. the weak hydration day ---------- */
   aguaDia: {
     titulo: (dia: string) => `Your hydration drops ${dia}`,
     texto: (pior: string, outros: string) =>
-      `About ${pior} glasses, against ${outros} on the other days. Water helps with fullness and with nausea — and it’s the day those two usually weigh the most.`,
+      `About ${pior} glasses, against ${outros} on the other days. Water helps with fullness and with nausea — and it’s the day those two usually hit hardest.`,
     q: 'How’s my water?',
     evid: (pior: string, outros: string) =>
       ({ valor: pior, unidade: `of ${outros} glasses`, legenda: 'the average on that day of the week' }),
@@ -73,7 +73,7 @@ export const cruzamentos = {
     q: 'How’s my protein?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'hunger', legenda: 'the day after hitting the goal' }),
-    porque: 'Protein works on fullness through a slower path than sugar: it takes longer to leave the stomach and it sustains satiety signals for many hours. That’s why the effect crosses the night and reappears in the next morning’s appetite.',
+    porque: 'Protein works on fullness through a slower path than sugar: it takes longer to leave the stomach and it sustains satiety signals for many hours. That’s why the effect carries through the night and shows up again in the next morning’s appetite.',
     /* ⚠️ "NOT JUST FILLING A QUOTA" is what moves the protein goal out of
        the obligation slot and into the trade slot. */
     significa: 'Hitting your protein goal isn’t just filling a quota: it’s buying yourself an easier next day. When hunger bites, what settles it isn’t what you eat at that moment — it’s what you ate yesterday.',
@@ -89,8 +89,8 @@ export const cruzamentos = {
     /* ⚠️ "IT ISN'T A LACK OF DISCIPLINE" is the heart, not a softener.
        People who slept badly and ate more the next day usually blame
        themselves; the hormonal mechanism is the fact that undoes it. */
-    porque: 'Short sleep moves both hormones that regulate appetite: the one that makes you hungry goes up and the one that signals enough goes down. It isn’t a lack of discipline the next day — it’s the body asking for quick energy to make up for the rest it didn’t get.',
-    significa: 'Sleep doesn’t usually make it into the math of someone treating their weight, but in your data it moves appetite like few things do. One protected night can be worth more to the next day than any adjustment on the plate.',
+    porque: 'Short sleep moves both hormones that regulate appetite: the one that makes you hungry goes up and the one that signals enough goes down. It isn’t a lack of discipline the next day — it’s your body asking for quick energy to make up for the rest it didn’t get.',
+    significa: 'Sleep doesn’t usually make it into the math when you’re treating your weight, but in your data it moves appetite like few things do. One protected night can be worth more to the next day than any tweak to your plate.',
   },
 
   /* ---------- 5. sleep against next-day nausea ---------- */
@@ -106,7 +106,7 @@ export const cruzamentos = {
     q: 'Why am I nauseous?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `of ${semSono}`, legenda: `nausea after ${noites} long nights` }),
-    significa: 'This is what your logs show, not a causal relationship: the shot cycle moves nausea more than anything else does, and it could be behind both sides of this math. Worth taking to your care team as a lead, not as a settled explanation.',
+    significa: 'This is what your logs show, not a cause: the shot cycle moves nausea more than anything else does, and it could be behind both sides of this math. Worth taking to your care team as a lead, not as a settled explanation.',
   },
 
   /* ---------- 6. the nausea window ---------- */
@@ -132,7 +132,7 @@ export const cruzamentos = {
        The whole card is a correlation over thirteen days; the caveat has
        to arrive next to the number, because that's where it's read. */
     texto: (corte: string, comAgua: string, semAgua: string) =>
-      `At ${corte} or more, your average nausea was ${comAgua}. Below that, ${semAgua}. It doesn’t prove cause — but it’s the easiest variable to move that shows up tied to the symptom.`,
+      `At ${corte} or more, your average nausea was ${comAgua}. Below that, ${semAgua}. It doesn’t prove cause — but of everything tied to the symptom, it’s the easiest thing to change.`,
     q: 'How do I ease the nausea?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'nausea', legenda: 'on well-hydrated days' }),
@@ -150,7 +150,7 @@ export const cruzamentos = {
     q: 'How am I doing overall?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'upticks', legenda: `inside −${perdido} over that stretch` }),
-    porque: 'The weight on any given day is fat, but it’s also water, salt, bowels and the hormonal cycle — swings of two to four pounds happen with nothing at all having changed in body fat. Fat leaves slowly and in a line; the rest swings on top of it, and it’s what the scale shows first.',
+    porque: 'The weight on any given day is fat, but it’s also water, salt, bowels and the hormonal cycle — swings of two to four pounds happen without any change at all in body fat. Fat leaves slowly and in a line; the rest swings on top of it, and it’s what the scale shows first.',
     significa: 'This matters more than it looks: the week the scale goes up is the week people tend to quit. In your own numbers, it has never meant what it looked like it meant.',
   },
 
@@ -165,7 +165,7 @@ export const cruzamentos = {
     q: 'How’s my protein?',
     evid: (pct: number, antes: number, depois: number) =>
       ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g per day` }),
-    significaSubiu: 'It rose without you announcing any change, which is usually the kind of habit that sticks. Protein is what protects your lean mass while the weight comes down — without it, part of what leaves isn’t fat.',
+    significaSubiu: 'It rose without you setting out to change anything, which is usually the kind of habit that sticks. Protein is what protects your lean mass while the weight comes down — without it, part of what leaves isn’t fat.',
     significaCaiu: 'The drop was gradual, the kind you don’t notice from one day to the next. Protein is what protects your lean mass while the weight comes down; worth picking it back up before it becomes the new normal.',
   },
 

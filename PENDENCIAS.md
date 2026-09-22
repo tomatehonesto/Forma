@@ -1561,6 +1561,22 @@ tirada do `git show`, e não de memória.
   é como a pessoa está, e não como o dia foi. O português talvez queira
   seguir.
 
+- **⚠️ UMA UNIDADE CRAVADA NO TEXTO INGLÊS**, e é a única do catálogo:
+  `cruzamentos.porque` diz "swings of **two to four pounds**", onde o
+  português diz "um a dois quilos". A tradução converteu — o que foi bem
+  pensado —, mas cravou: quem lê em inglês E usa métrico (Reino Unido,
+  Irlanda, Austrália, Canadá, Índia) lê libra. ⚠️ Consertar de verdade
+  exige a string virar FUNÇÃO da unidade nos cinco idiomas, com o
+  chamador passando `sistemaDe(S)` — é mudança de assinatura, não de
+  prosa, e por isso não entrou na leva do texto. Fica aqui.
+- **"go get seen" contra "go to urgent care"**, nas leituras clínicas —
+  dois registros para a mesma instrução, na tela que diz o que fazer
+  quando algo dói. Virou "get checked out" nas quatro.
+- **E dois idiomas portugueses que não dizem nada em inglês:** "the
+  treatment runs with **one foot outside**" (com um pé fora) e "the
+  effect **crosses the night**" (atravessa a noite). O leitor para para
+  decifrar no meio de um cartão que devia ser lido de corrida.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

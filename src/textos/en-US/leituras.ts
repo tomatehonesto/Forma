@@ -30,26 +30,26 @@ export const leituras = {
      WORTH LOOKING EARLY" is the whole sentence. It asks for attention
      without frightening, and the "exactly why" is what keeps the reading
      from becoming an alarm. */
-  dorTexto: 'Severe pain in the belly, or pain that doesn’t let up, is the one that needs attention the same day. Almost always it’s nothing serious — and that’s exactly why it’s worth looking early.',
-  dorAcao: 'Contact your care team today. If it gets worse or comes with vomiting, go get seen.',
+  dorTexto: 'Severe belly pain, or pain that doesn’t let up, needs attention the same day. It’s almost never anything serious — and that’s exactly why it’s worth checking early.',
+  dorAcao: 'Contact your care team today. If it gets worse or comes with vomiting, get checked out.',
 
   vomitoSobre: 'Vomiting',
   vomitoCurto: 'sip water slowly, several times',
   vomitoTitulo: 'Vomiting takes more fluid than it looks',
-  vomitoTexto: 'Salt goes out with the water, and the body feels it before you feel thirsty. And when food doesn’t stay down, the next day already starts tired.',
+  vomitoTexto: 'Salt goes out with the water, and the body feels it before you feel thirsty. And when food doesn’t stay down, you start the next day already tired.',
   vomitoAcao: 'Sip slowly, several times, instead of a whole glass at once. If even water won’t stay down, contact your care team today.',
 
   tonturaSobre: 'Dizziness',
   tonturaCurto: 'sit down, drink water and eat something sweet',
   tonturaTitulo: 'Dizziness like this usually has an explanation',
-  tonturaTexto: 'Almost always it’s low fluid or low blood sugar. If you also take a diabetes medication, low blood sugar becomes more likely still.',
-  tonturaAcao: 'Sit down, drink water and eat something. If it happens again over the next days, tell your care team.',
+  tonturaTexto: 'It’s almost always low fluid or low blood sugar. If you also take a diabetes medication, low blood sugar gets more likely still.',
+  tonturaAcao: 'Sit down, drink water and eat something. If it happens again over the next few days, tell your care team.',
 
   presoSobre: 'Constipation',
   presoCurto: 'drink water through the day, eat fiber and take a walk',
   presoTitulo: 'Four days without going deserves attention',
-  presoTexto: 'The medication slows everything down, and eating less leaves little for the bowel to push along. Four days is where this usually stops resolving on its own.',
-  presoAcao: 'Water through the day, fiber at meals and a walk. If it goes past five days, or comes with severe pain and vomiting, go get seen.',
+  presoTexto: 'The medication slows everything down, and eating less leaves little for the bowel to push along. Around four days is when it usually stops sorting itself out.',
+  presoAcao: 'Water through the day, fiber at meals and a walk. If it goes past five days, or comes with severe pain and vomiting, get checked out.',
 
   soltoSobre: 'Loose stools',
   soltoCurto: 'drink water with a pinch of salt, without waiting to feel thirsty',
@@ -73,15 +73,15 @@ export const leituras = {
   travaAcao: 'Go to urgent care today. Say which medication you take and how many days since you last had a bowel movement.',
 
   dorVomitoSobre: 'Pain with vomiting',
-  dorVomitoCurto: 'contact your care team or go get seen today',
+  dorVomitoCurto: 'contact your care team or get checked out today',
   dorVomitoTitulo: 'Severe pain with vomiting doesn’t wait',
   dorVomitoTexto: 'Severe belly pain along with vomiting, sometimes spreading to the back, needs attention the same day. Caught early, it’s simple to check.',
-  dorVomitoAcao: 'Contact your care team or go get seen today. Say which medication you take, the dose, and when the pain started.',
+  dorVomitoAcao: 'Contact your care team or get checked out today. Say which medication you take, the dose, and when the pain started.',
 
   desidratacaoSobre: 'Dizziness and fluid loss',
   desidratacaoCurto: 'drink an oral rehydration mix or salted water, and stand up slowly',
   desidratacaoTitulo: 'Dizziness with fluid loss is a sign of dehydration',
-  desidratacaoTexto: 'When water and salt run short, blood pressure drops on standing — and the dizziness is the body saying so.',
+  desidratacaoTexto: 'When water and salt run short, blood pressure drops on standing — and the dizziness is your body saying so.',
   desidratacaoAcao: 'Sip through the day, with an oral rehydration mix or a pinch of salt, and stand up slowly. If it isn’t better by tomorrow, tell your care team.',
 
   /* ---------- persistence ----------
@@ -93,18 +93,18 @@ export const leituras = {
   vomitoSemanaCurto: 'contact your care team this week',
   vomitoSemanaTitulo: 'Vomiting on repeated days',
   vomitoSemanaTexto: (n: number) => `${n} of the last seven days with vomiting. At that rate food, fluid and the medication itself don’t stay down.`,
-  vomitoSemanaAcao: 'Contact your care team this week, without waiting for the appointment. Bring the number of days — that’s what makes the difference.',
+  vomitoSemanaAcao: 'Contact your care team this week, without waiting for the appointment. Tell them the number of days — that’s what makes the difference.',
 
   soltoSemanaSobre: 'Bowels this week',
   soltoSemanaCurto: 'drink more water and tell your care team',
   soltoSemanaTitulo: 'Your bowels have been loose for days',
-  soltoSemanaTexto: (n: number) => `${n} of the last seven days like this already weighs on hydration, even when each day on its own seems fine.`,
+  soltoSemanaTexto: (n: number) => `${n} of the last seven days like this already takes a toll on hydration, even when each day on its own seems fine.`,
   soltoSemanaAcao: 'Drink more than thirst asks for and tell your care team. It could be the dose, it could be the food.',
 
   enjooSemanaSobre: 'Nausea this week',
   enjooSemanaCurto: 'bring the number of days to your appointment',
   enjooSemanaTitulo: 'The nausea isn’t passing',
-  enjooSemanaTexto: (n: number) => `${n} of the last seven days with nausea stops being adjustment and becomes a pattern. It usually changes with the dose, or with how fast it goes up.`,
+  enjooSemanaTexto: (n: number) => `${n} of the last seven days with nausea stops being adjustment and becomes a pattern. That usually shifts with the dose, or with how fast the dose goes up.`,
   /* ⚠️ "HOLDING THE DOSE A LITTLE LONGER ISN'T GIVING UP" is what the
      sentence is for: it's the course of action people most resist
      bringing to the appointment, because they read it as failure. */
