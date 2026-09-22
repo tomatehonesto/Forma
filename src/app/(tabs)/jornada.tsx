@@ -27,7 +27,7 @@ import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. */
-const K = () => T.home.tela;
+const K = () => T.home.telaJornada;
 
 /* ============================================================
    JORNADA

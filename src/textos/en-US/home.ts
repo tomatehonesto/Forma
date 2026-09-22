@@ -162,7 +162,7 @@ export const home = {
   /* ⚠️ The journey screen lives in `home` because it is the same
      conversation — the type labels and week plurals were already here.
      See ../pt-BR/home for the three silences. */
-  tela: {
+  telaJornada: {
     ultimos7: 'YOUR LAST 7 DAYS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
@@ -205,5 +205,71 @@ export const home = {
 
     metaFeita: 'done',
     metaAberta: 'open',
+  },
+
+  telaInicio: {
+    bomDia: 'Good morning',
+    boaTarde: 'Good afternoon',
+    boaNoite: 'Good evening',
+    linhaDoDia: (dia: string, semana: number) => `${dia} • Week ${semana}`,
+
+    semRegistro: 'NOT LOGGED',
+    semRegistroOntem: 'Yesterday’s injection isn’t logged.',
+    semRegistroDias: (dias: number) => `The injection from ${dias} days ago isn’t logged.`,
+    semRegistroCorpo: 'If you did it, you can log it now. If you didn’t, the cycle picks up again from the next one.',
+    semRegistroCta: 'Log an injection',
+
+    aConsulta: 'YOUR APPOINTMENT',
+    consultaHoje: 'Your appointment is today.',
+    consultaAmanha: 'Your appointment is tomorrow.',
+    consultaCorpo: 'I’ll bring the period organized — weight, adherence, symptoms and the questions worth asking.',
+    consultaCta: 'See the summary',
+
+    acabou: (oRecipiente: string) => `${oRecipiente} is empty.`,
+    restaUmaDose: (onde: string) => `One dose left ${onde}.`,
+    receitaCorpo: 'A new prescription takes a few days between the request and the pharmacy — starting now keeps you from stopping halfway.',
+    pedirRenovacao: 'Ask for a refill',
+    verRecipiente: (oRecipiente: string, _recipiente: string) => `See ${oRecipiente}`,
+
+    entendaOPorQue: 'Understand why',
+
+    proximaAplicacao: 'NEXT INJECTION',
+    hojeEDiaDeAplicar: 'Today is your injection day.',
+    proximaDose: (quando: string) => `Your next dose is ${quando}.`,
+    doseCorpo: (medicamento: string, dose: string, local: string) =>
+      `${medicamento} ${dose} · ${local} suggested.`,
+    verAplicacao: 'See the injection',
+    criarLembrete: 'Set a reminder',
+
+    checkinFeito: 'Check-in done',
+    fazerCheckin: 'Do the check-in',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'day of check‑ins' : 'days of check‑ins in a row'),
+
+    metasDiarias: 'Your daily goals',
+    metasLink: 'Goals',
+    registrar: 'Log',
+    evolucao: 'Your progress',
+    evolucaoLink: 'Progress',
+    gPorDia: 'g/day',
+    semMedida: 'no measurement',
+
+    quemCuida: 'Who looks after you',
+    areaMedica: 'Care area',
+    mensagens: 'Messages',
+    novasMensagens: (quantas: number) =>
+      `${quantas} new ${quantas === 1 ? 'message' : 'messages'}`,
+    nenhumaMensagem: 'No new messages',
+    proximaConsulta: 'Next appointment',
+    consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    solicitarReceita: 'Request a new prescription',
+    solicitarReceitaSub: 'A message to your team',
+    acompanhaSeuTratamento: 'Follows your treatment',
+    resumoParaConsulta: 'Appointment summary',
+    resumoParaConsultaSub: 'Weight, adherence, symptoms and labs in a single document',
+    anotarConsulta: 'Note an appointment',
+    anotarConsultaSub: 'So we can tell you when it gets close',
+    quemAcompanha: 'Who follows your treatment?',
+    quemAcompanhaSub: 'Write down the name and the summary comes out addressed for the next appointment.',
+    preencherFicha: 'Fill in the details',
   },
 };

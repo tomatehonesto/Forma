@@ -168,7 +168,7 @@ export const home = {
 
   /* ⚠️ La pantalla del recorrido vive en `home` porque es la misma
      conversación. Ver ../pt-BR/home para los tres silencios. */
-  tela: {
+  telaJornada: {
     ultimos7: 'TUS ÚLTIMOS 7 DÍAS',
     doseEm: (quando: string) => `dosis ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
@@ -211,5 +211,71 @@ export const home = {
 
     metaFeita: 'lograda',
     metaAberta: 'abierta',
+  },
+
+  telaInicio: {
+    bomDia: 'Buenos días',
+    boaTarde: 'Buenas tardes',
+    boaNoite: 'Buenas noches',
+    linhaDoDia: (dia: string, semana: number) => `${dia} • Semana ${semana}`,
+
+    semRegistro: 'SIN REGISTRO',
+    semRegistroOntem: 'La aplicación de ayer no está registrada.',
+    semRegistroDias: (dias: number) => `La aplicación de hace ${dias} días no está registrada.`,
+    semRegistroCorpo: 'Si te la aplicaste, puedes registrarla ahora. Si no, el ciclo se rehace a partir de la próxima.',
+    semRegistroCta: 'Registrar aplicación',
+
+    aConsulta: 'LA CONSULTA',
+    consultaHoje: 'Tu consulta es hoy.',
+    consultaAmanha: 'Tu consulta es mañana.',
+    consultaCorpo: 'Llevo tu período ordenado — peso, adherencia, síntomas y las preguntas que valen la pena.',
+    consultaCta: 'Ver el resumen',
+
+    acabou: (oRecipiente: string) => `${oRecipiente} se acabó.`,
+    restaUmaDose: (onde: string) => `Queda una dosis ${onde}.`,
+    receitaCorpo: 'Una receta nueva tarda algunos días entre el pedido y la farmacia — empezar ahora evita parar a mitad de camino.',
+    pedirRenovacao: 'Pedir renovación',
+    verRecipiente: (oRecipiente: string, _recipiente: string) => `Ver ${oRecipiente}`,
+
+    entendaOPorQue: 'Entender por qué',
+
+    proximaAplicacao: 'PRÓXIMA APLICACIÓN',
+    hojeEDiaDeAplicar: 'Hoy es día de aplicar tu dosis.',
+    proximaDose: (quando: string) => `Tu próxima dosis es ${quando}.`,
+    doseCorpo: (medicamento: string, dose: string, local: string) =>
+      `${medicamento} ${dose} · ${local} sugerido.`,
+    verAplicacao: 'Ver la aplicación',
+    criarLembrete: 'Crear un recordatorio',
+
+    checkinFeito: 'Check-in hecho',
+    fazerCheckin: 'Hacer check-in',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'día de check‑in' : 'días seguidos de check‑in'),
+
+    metasDiarias: 'Tus metas diarias',
+    metasLink: 'Metas',
+    registrar: 'Registrar',
+    evolucao: 'Tu evolución',
+    evolucaoLink: 'Evolución',
+    gPorDia: 'g/día',
+    semMedida: 'sin medida',
+
+    quemCuida: 'Quién te cuida',
+    areaMedica: 'Área médica',
+    mensagens: 'Mensajes',
+    novasMensagens: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'mensaje nuevo' : 'mensajes nuevos'}`,
+    nenhumaMensagem: 'Ningún mensaje nuevo',
+    proximaConsulta: 'Próxima consulta',
+    consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    solicitarReceita: 'Solicitar receta nueva',
+    solicitarReceitaSub: 'Un mensaje para tu equipo',
+    acompanhaSeuTratamento: 'Acompaña tu tratamiento',
+    resumoParaConsulta: 'Resumen para la consulta',
+    resumoParaConsultaSub: 'Peso, adherencia, síntomas y exámenes en un solo documento',
+    anotarConsulta: 'Anotar una consulta',
+    anotarConsultaSub: 'Para avisarte cuando se acerque',
+    quemAcompanha: '¿Quién acompaña tu tratamiento?',
+    quemAcompanhaSub: 'Anota el nombre y el resumen sale ya dirigido para la próxima consulta.',
+    preencherFicha: 'Completar la ficha',
   },
 };

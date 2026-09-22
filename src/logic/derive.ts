@@ -1,6 +1,6 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
-  DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, DOW_PT, nf, kg, relDay,
+  DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, diasDaSemana, nf, kg, relDay,
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
@@ -885,7 +885,7 @@ export function last7Days(S: State) {
     const t = +d;
     return {
       t,
-      dow: DOW_PT()[d.getDay()][0].toUpperCase(),
+      dow: diasDaSemana()[d.getDay()][0].toUpperCase(),
       dia: d.getDate(),
       feito: chk.has(t),
       aplicou: apl.has(t),
@@ -2573,8 +2573,12 @@ export function dailyTargets(S: State): DailyTarget[] {
          próprio número via a escala mudar debaixo do pé. */
       faltaMl <= 0 ? G.batida : G.faltamAgua(aguaTxt(S, faltaMl)),
       'bluePale', 'accent2'),
+    /* ⚠️ A ABREVIAÇÃO DO MINUTO SAI DO CATÁLOGO, e estava escrita aqui
+       duas vezes. O alemão escreve "Min.", e escrevia — em cinco chaves do
+       próprio catálogo —, enquanto estas duas diziam "min": a mesma barra
+       mostrava "60 min" no topo e "Noch 60 Min." embaixo. */
     mk('exerc', G.exercicio, ex, t.exercMin,
-      `${Math.round(ex)}`, 'min', `${t.exercMin} min`,
+      `${Math.round(ex)}`, T.tratamento.telaExercicio.unidadeMin, `${t.exercMin} ${T.tratamento.telaExercicio.unidadeMin}`,
       ex >= t.exercMin ? G.batida : G.faltamExercicio(Math.round(t.exercMin - ex)),
       /* ⚠️ ROSA, E ERA TEAL. O teal virou a cor do ESTADO — a notícia
          ruim que não cobra, na Jornada —, e uma cor não pode ser

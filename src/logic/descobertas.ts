@@ -102,7 +102,11 @@ function cruzamentos(S: State): Descoberta[] {
       id: `cruz:${p.key}:${slug(p.titulo)}`,
       tipo: 'cruzamento' as const,
       ic: p.ic,
-      chapeu: 'DESCOBERTA',
+      /* ⚠️ ESTE CHAPÉU FICOU EM DURO enquanto os dois irmãos logo abaixo
+         saíam do catálogo — e o resultado é que a Home em alemão abria com
+         a palavra DESCOBERTA em português, a três linhas de um cartão
+         inteiramente traduzido. */
+      chapeu: T.descobertas.chapeuCruzamento,
       titulo: p.titulo,
       /* ⚠️ SÓ A PRIMEIRA FRASE. O `texto` do pattern foi escrito para o
          cartão da aba, onde cabem três linhas e a conclusão vem depois do

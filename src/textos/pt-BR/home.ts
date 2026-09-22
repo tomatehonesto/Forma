@@ -223,7 +223,7 @@ export const home = {
      Colapsar dois num só faz o aplicativo AFIRMAR zero sobre um dia de
      que ele não sabe nada.
      ============================================================ */
-  tela: {
+  telaJornada: {
     ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
@@ -279,5 +279,119 @@ export const home = {
     /* A meta pessoal não tem porcentagem: tem estado. */
     metaFeita: 'feita',
     metaAberta: 'aberta',
+  },
+
+  /* ============================================================
+     A TELA DA HOME — o carrossel do dia e o que vem abaixo dele
+
+     ⚠️ O MÓDULO JÁ TINHA UMA CHAVE CHAMADA `tela`, E ELA ERA A JORNADA.
+     Num arquivo chamado `home`, "tela" só podia ser uma coisa, e era a
+     outra. Virou `telaJornada`, e esta nasce com o nome por extenso.
+
+     ⚠️⚠️ O CARROSSEL NÃO TEM NÚMERO FIXO DE CARTÕES. Cada um tem a
+     própria condição, e quem não tem o que dizer não entra — por isso as
+     frases daqui vêm em famílias soltas, e não numa lista ordenada: a
+     ordem é da tela, a redação é daqui.
+
+     ⚠️ E NENHUM CARTÃO ACUSA A PESSOA. "A aplicação de ontem não está
+     registrada" é o que sabemos; "você não aplicou" é o que não temos
+     como saber, e seria acusação em cima de um palpite. A segunda linha
+     dá as duas saídas sem escolher uma — e essa é a regra que mais se
+     perde na tradução, porque a versão acusadora costuma ser a mais
+     curta.
+     ============================================================ */
+  telaInicio: {
+    /* ---------- o cabeçalho ---------- */
+    bomDia: 'Bom dia',
+    boaTarde: 'Boa tarde',
+    boaNoite: 'Boa noite',
+    linhaDoDia: (dia: string, semana: number) => `${dia} • Semana ${semana}`,
+
+    /* ---------- a aplicação que não foi registrada ---------- */
+    semRegistro: 'SEM REGISTRO',
+    semRegistroOntem: 'A aplicação de ontem não está registrada.',
+    semRegistroDias: (dias: number) => `A aplicação de ${dias} dias atrás não está registrada.`,
+    semRegistroCorpo: 'Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.',
+    semRegistroCta: 'Registrar aplicação',
+
+    /* ---------- a consulta de hoje ou de amanhã ---------- */
+    aConsulta: 'A CONSULTA',
+    consultaHoje: 'Sua consulta é hoje.',
+    consultaAmanha: 'Sua consulta é amanhã.',
+    consultaCorpo: 'Levo o seu período organizado — peso, adesão, sintomas e as perguntas que valem a pena.',
+    consultaCta: 'Ver o resumo',
+
+    /* ---------- o recipiente acabando ----------
+
+       ⚠️ `acabou` RECEBE O SUJEITO PRONTO — "A caneta", "O frasco" —, com
+       artigo e maiúscula, porque é o nominativo e `formas.oA` sabe
+       devolvê-lo. `verRecipiente` recebe as DUAS formas de propósito: a
+       com artigo, para quem constrói "Ver a caneta", e a nua, para quem
+       escreve o rótulo sem artigo. Ver PENDENCIAS, item 26. */
+    acabou: (oRecipiente: string) => `${oRecipiente} acabou.`,
+    restaUmaDose: (onde: string) => `Resta uma dose ${onde}.`,
+    receitaCorpo: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
+    pedirRenovacao: 'Pedir renovação',
+    verRecipiente: (oRecipiente: string, _recipiente: string) => `Ver ${oRecipiente}`,
+
+    /* ---------- a mensagem do dia ---------- */
+    entendaOPorQue: 'Entenda o por quê',
+
+    /* ---------- a próxima dose ---------- */
+    proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
+    /* ⚠️ O REMÉDIO NÃO É O SUJEITO. "Mounjaro é hoje" trata a caixinha
+       como se ela tivesse agenda; quem aplica é a pessoa. */
+    hojeEDiaDeAplicar: 'Hoje é dia de aplicar sua dose.',
+    proximaDose: (quando: string) => `Sua próxima dose é ${quando}.`,
+    doseCorpo: (medicamento: string, dose: string, local: string) =>
+      `${medicamento} ${dose} · ${local} sugerido.`,
+    verAplicacao: 'Ver a aplicação',
+    criarLembrete: 'Criar um lembrete',
+
+    /* ---------- o check-in e a sequência ----------
+
+       ⚠️ O NÚMERO VEM DESENHADO À PARTE, grande e em lima, e a frase só
+       traz as palavras ao lado dele. Por isso `diasSeguidos` não escreve
+       a contagem: ela recebe o número só para decidir o plural.
+
+       ⚠️ E O HÍFEN DE "check‑in" É O NÃO-SEPARÁVEL (U+2011). A caixa tem
+       120 px fixos, e com o hífen comum a palavra partia ao meio no fim
+       da linha. */
+    checkinFeito: 'Check-in feito',
+    fazerCheckin: 'Fazer check-in',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'dia de check‑in' : 'dias seguidos de check‑in'),
+
+    /* ---------- as seções ----------
+
+       ⚠️ O LINK DE SEÇÃO É O NOME DA TELA DO OUTRO LADO, e não o gesto:
+       "Metas", e não "Ir para metas". A seta ao lado já diz o gesto, e
+       escrever as duas coisas é dizer a mesma coisa duas vezes. */
+    metasDiarias: 'Suas metas diárias',
+    metasLink: 'Metas',
+    registrar: 'Registrar',
+    evolucao: 'Sua evolução',
+    evolucaoLink: 'Evolução',
+    gPorDia: 'g/dia',
+    semMedida: 'sem medida',
+
+    /* ---------- quem cuida ---------- */
+    quemCuida: 'Quem cuida de você',
+    areaMedica: 'Área médica',
+    mensagens: 'Mensagens',
+    novasMensagens: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'nova mensagem' : 'novas mensagens'}`,
+    nenhumaMensagem: 'Nenhuma mensagem nova',
+    proximaConsulta: 'Próxima consulta',
+    consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    solicitarReceita: 'Solicitar nova receita',
+    solicitarReceitaSub: 'Uma mensagem para a sua equipe',
+    acompanhaSeuTratamento: 'Acompanha o seu tratamento',
+    resumoParaConsulta: 'Resumo para consulta',
+    resumoParaConsultaSub: 'Peso, adesão, sintomas e exames num documento só',
+    anotarConsulta: 'Anotar uma consulta',
+    anotarConsultaSub: 'Para avisarmos quando ela chegar perto',
+    quemAcompanha: 'Quem acompanha você?',
+    quemAcompanhaSub: 'Anote o nome e o resumo já sai endereçado para a próxima consulta.',
+    preencherFicha: 'Preencher a ficha',
   },
 };

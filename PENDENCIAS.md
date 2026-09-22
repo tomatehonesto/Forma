@@ -958,10 +958,18 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 927, em 86 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 889, em 85 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
+
+⚠️ **`/companion` (46 frases) FICA DE FORA DA FILA, por decisão de
+produto: a tela vai ser refeita.** Extrair agora seria escrever 46 chaves
+× cinco idiomas para um texto que muda inteiro. O que ela tem de pior não
+é o texto de todo jeito: `companionReply` casa a pergunta por
+PALAVRA-CHAVE EM PORTUGUÊS — `has('evolu', 'progress', 'como estou')` —, e
+por isso a conversa cai no ramo genérico em qualquer outro idioma. É um
+problema de arquitetura, não de catálogo, e some com a tela nova.
 
 ⚠️ E O NÚMERO SUBIU DEPOIS DE CAIR, de propósito. Ele tinha chegado a
 1.015 com a varredura antiga, que só achava literal com cara de
@@ -1101,6 +1109,26 @@ tirada do `git show`, e não de memória.
   produto tinha verbo pendurado nele. O cabeçalho do companion já traz a
   regra escrita, e o cartão vizinho já trazia a forma certa ("A
   DESCOBERTA DA SEMANA"). Virou "O QUE OBSERVAMOS".
+- **Um chapéu em duro no meio de dois que já vinham do catálogo.**
+  `descobertas.ts` monta três tipos de cartão, e dois liam
+  `chapeuAntecipacao` e `chapeuConvite`; o terceiro dizia
+  `chapeu: 'DESCOBERTA'`. A Home em alemão abria com a palavra em
+  português a três linhas de um cartão inteiramente traduzido — e o
+  vizinho errado é mais difícil de ver do que o arquivo errado.
+- **"min" escrito duas vezes em `derive`**, enquanto o alemão escrevia
+  "Min." em cinco chaves do catálogo. A mesma barra de meta mostrava
+  "60 min" no topo e "Noch 60 Min." embaixo.
+- **`DOW_PT`, um nome que mente.** O sufixo sobrou de quando a tabela era
+  um vetor literal; hoje ela lê o formato do local. Quem procurasse os
+  dias da semana e achasse isso concluiria que os outros idiomas não têm
+  e escreveria o oitavo vetor. Virou `diasDaSemana`.
+- **`home.tela` era a JORNADA.** Num módulo chamado `home`, "tela" só
+  podia ser uma coisa, e era a outra. Virou `telaJornada`, e a Home
+  nasceu como `telaInicio`.
+- **Uma quebra de linha à mão em "Gordura / corporal"**, decidida pela
+  largura do card em português. "Körperfett" é uma palavra só, e o `\n`
+  partiria o que não se parte. O alinhamento pelo pé, que era o motivo
+  dela, já vinha do `marginTop: 'auto'` logo abaixo.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 

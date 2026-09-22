@@ -23,6 +23,7 @@ export const descobertas = {
   verDescoberta: 'Ver a descoberta',
 
   /* ---------- o que vem ---------- */
+  chapeuCruzamento: 'DESCOBERTA',
   chapeuAntecipacao: 'O QUE VEM',
 
   fomeHoje: 'A fome tende a apertar hoje',

@@ -16,6 +16,8 @@
 export const descobertas = {
   verDescoberta: 'Ver el hallazgo',
 
+  chapeuCruzamento: 'UN HALLAZGO',
+
   chapeuAntecipacao: 'LO QUE VIENE',
 
   fomeHoje: 'El hambre tiende a apretar hoy',

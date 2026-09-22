@@ -182,7 +182,7 @@ export const home = {
 
      ⚠️ UND KEIN `toLowerCase()` AM SYMPTOMNAMEN: „übelkeit an 3 Tagen“
      wäre ein Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
-  tela: {
+  telaJornada: {
     ultimos7: 'DEINE LETZTEN 7 TAGE',
     /* ⚠️ „Dosis“ GROSS, und im Portugiesischen klein: dort öffnet das Wort
        keinen Satz, hier ist es ein Substantiv. */
@@ -227,5 +227,79 @@ export const home = {
 
     metaFeita: 'erreicht',
     metaAberta: 'offen',
+  },
+
+  /* ⚠️ `verRecipiente` USA O SEGUNDO ARGUMENTO, e é o único idioma que
+     faz isso. "Ver a caneta" pede o acusativo — "Den Pen ansehen" —, e
+     `formas.oA` só devolve o nominativo (ver PENDENCIAS, item 26). Rótulo
+     de botão em alemão dispensa artigo, então a saída é escrever a forma
+     nua: "Pen ansehen". Mesma solução de `rotina.empurroes.aplicacao` —
+     quem não pode escolher o caso constrói a frase em volta do caso que
+     recebe. `acabou` fica com o primeiro argumento porque ali o
+     recipiente é SUJEITO, e nominativo é o que `oA` entrega. */
+  telaInicio: {
+    bomDia: 'Guten Morgen',
+    boaTarde: 'Guten Tag',
+    boaNoite: 'Guten Abend',
+    linhaDoDia: (dia: string, semana: number) => `${dia} • Woche ${semana}`,
+
+    semRegistro: 'NICHT EINGETRAGEN',
+    semRegistroOntem: 'Die Injektion von gestern ist nicht eingetragen.',
+    semRegistroDias: (dias: number) => `Die Injektion von vor ${dias} Tagen ist nicht eingetragen.`,
+    semRegistroCorpo: 'Wenn du sie gesetzt hast, kannst du sie jetzt eintragen. Wenn nicht, beginnt der Zyklus mit der nächsten neu.',
+    semRegistroCta: 'Injektion eintragen',
+
+    aConsulta: 'DER TERMIN',
+    consultaHoje: 'Dein Termin ist heute.',
+    consultaAmanha: 'Dein Termin ist morgen.',
+    consultaCorpo: 'Ich bringe den Zeitraum geordnet mit — Gewicht, Therapietreue, Symptome und die Fragen, die sich lohnen.',
+    consultaCta: 'Die Übersicht ansehen',
+
+    acabou: (oRecipiente: string) => `${oRecipiente} ist leer.`,
+    restaUmaDose: (onde: string) => `Eine Dosis ist noch ${onde}.`,
+    receitaCorpo: 'Ein neues Rezept braucht ein paar Tage zwischen Anfrage und Apotheke — jetzt anzufangen bewahrt davor, mittendrin stehen zu bleiben.',
+    pedirRenovacao: 'Rezept anfragen',
+    verRecipiente: (_oRecipiente: string, recipiente: string) => `${recipiente} ansehen`,
+
+    entendaOPorQue: 'Verstehen, warum',
+
+    proximaAplicacao: 'NÄCHSTE INJEKTION',
+    hojeEDiaDeAplicar: 'Heute ist dein Injektionstag.',
+    proximaDose: (quando: string) => `Deine nächste Dosis ist ${quando}.`,
+    doseCorpo: (medicamento: string, dose: string, local: string) =>
+      `${medicamento} ${dose} · ${local} vorgeschlagen.`,
+    verAplicacao: 'Die Injektion ansehen',
+    criarLembrete: 'Eine Erinnerung einrichten',
+
+    checkinFeito: 'Check-in erledigt',
+    fazerCheckin: 'Check-in machen',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'Tag mit Check‑in' : 'Tage mit Check‑in in Folge'),
+
+    metasDiarias: 'Deine Tagesziele',
+    metasLink: 'Ziele',
+    registrar: 'Eintragen',
+    evolucao: 'Dein Verlauf',
+    evolucaoLink: 'Verlauf',
+    gPorDia: 'g/Tag',
+    semMedida: 'keine Messung',
+
+    quemCuida: 'Wer sich um dich kümmert',
+    areaMedica: 'Arztbereich',
+    mensagens: 'Nachrichten',
+    novasMensagens: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'neue Nachricht' : 'neue Nachrichten'}`,
+    nenhumaMensagem: 'Keine neuen Nachrichten',
+    proximaConsulta: 'Nächster Termin',
+    consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    solicitarReceita: 'Neues Rezept anfragen',
+    solicitarReceitaSub: 'Eine Nachricht an dein Team',
+    acompanhaSeuTratamento: 'Begleitet deine Behandlung',
+    resumoParaConsulta: 'Übersicht für den Termin',
+    resumoParaConsultaSub: 'Gewicht, Therapietreue, Symptome und Befunde in einem einzigen Dokument',
+    anotarConsulta: 'Einen Termin eintragen',
+    anotarConsultaSub: 'Damit wir dich erinnern, wenn er näher rückt',
+    quemAcompanha: 'Wer begleitet deine Behandlung?',
+    quemAcompanhaSub: 'Trag den Namen ein, und die Übersicht kommt schon adressiert für den nächsten Termin heraus.',
+    preencherFicha: 'Die Angaben ausfüllen',
   },
 };

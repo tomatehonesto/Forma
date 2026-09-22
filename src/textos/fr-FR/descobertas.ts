@@ -19,6 +19,8 @@
 export const descobertas = {
   verDescoberta: 'Voir la découverte',
 
+  chapeuCruzamento: 'UNE DÉCOUVERTE',
+
   chapeuAntecipacao: 'CE QUI ARRIVE',
 
   fomeHoje: 'La faim a tendance à serrer aujourd’hui',

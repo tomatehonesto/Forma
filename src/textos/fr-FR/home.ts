@@ -175,7 +175,7 @@ export const home = {
   /* ⚠️ L'ÉCRAN DU PARCOURS VIT DANS `home` parce que c'est la même
      conversation — les étiquettes de type et les pluriels de la semaine
      étaient déjà ici. Voir ../pt-BR/home pour les trois silences. */
-  tela: {
+  telaJornada: {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
@@ -221,5 +221,76 @@ export const home = {
        Rien n'accorde avec la personne. */
     metaFeita: 'fait',
     metaAberta: 'ouvert',
+  },
+
+  telaInicio: {
+    bomDia: 'Bonjour',
+    /* ⚠️ LE FRANÇAIS N'A QUE DEUX SALUTATIONS, pas trois. « Bon après-midi »
+       est une formule de CONGÉ — on la dit en partant —, et l'écran s'en
+       sert pour accueillir. « Bonjour » couvre la journée jusqu'au soir,
+       et c'est pourquoi les deux premières clés disent la même chose. La
+       coupure à midi reste dans le code : elle est juste sans effet ici. */
+    boaTarde: 'Bonjour',
+    boaNoite: 'Bonsoir',
+    linhaDoDia: (dia: string, semana: number) => `${dia} • Semaine ${semana}`,
+
+    semRegistro: 'PAS DE RELEVÉ',
+    semRegistroOntem: 'L’injection d’hier n’est pas notée.',
+    semRegistroDias: (dias: number) => `L’injection d’il y a ${dias} jours n’est pas notée.`,
+    semRegistroCorpo: 'Si vous l’avez faite, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.',
+    semRegistroCta: 'Noter une injection',
+
+    aConsulta: 'LA CONSULTATION',
+    consultaHoje: 'Votre consultation est aujourd’hui.',
+    consultaAmanha: 'Votre consultation est demain.',
+    consultaCorpo: 'J’apporte la période mise en ordre — poids, observance, symptômes et les questions qui valent le coup.',
+    consultaCta: 'Voir le résumé',
+
+    acabou: (oRecipiente: string) => `${oRecipiente} est vide.`,
+    restaUmaDose: (onde: string) => `Il reste une dose ${onde}.`,
+    receitaCorpo: 'Une nouvelle ordonnance prend quelques jours entre la demande et la pharmacie — s’y mettre maintenant évite de s’arrêter en chemin.',
+    pedirRenovacao: 'Demander le renouvellement',
+    verRecipiente: (oRecipiente: string, _recipiente: string) => `Voir ${oRecipiente}`,
+
+    entendaOPorQue: 'Comprendre pourquoi',
+
+    proximaAplicacao: 'PROCHAINE INJECTION',
+    hojeEDiaDeAplicar: 'C’est aujourd’hui que vous faites votre dose.',
+    proximaDose: (quando: string) => `Votre prochaine dose est ${quando}.`,
+    doseCorpo: (medicamento: string, dose: string, local: string) =>
+      `${medicamento} ${dose} · ${local} suggéré.`,
+    verAplicacao: 'Voir l’injection',
+    criarLembrete: 'Créer un rappel',
+
+    checkinFeito: 'Check-in fait',
+    fazerCheckin: 'Faire le check-in',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'jour de check‑in' : 'jours de check‑in d’affilée'),
+
+    metasDiarias: 'Vos objectifs du jour',
+    metasLink: 'Objectifs',
+    registrar: 'Noter',
+    evolucao: 'Votre évolution',
+    evolucaoLink: 'Évolution',
+    gPorDia: 'g/jour',
+    semMedida: 'pas de mesure',
+
+    quemCuida: 'Qui prend soin de vous',
+    areaMedica: 'Espace médical',
+    mensagens: 'Messages',
+    novasMensagens: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'nouveau message' : 'nouveaux messages'}`,
+    nenhumaMensagem: 'Aucun nouveau message',
+    proximaConsulta: 'Prochaine consultation',
+    consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    solicitarReceita: 'Demander une nouvelle ordonnance',
+    solicitarReceitaSub: 'Un message à votre équipe',
+    acompanhaSeuTratamento: 'Suit votre traitement',
+    resumoParaConsulta: 'Résumé pour la consultation',
+    resumoParaConsultaSub: 'Poids, observance, symptômes et analyses dans un seul document',
+    anotarConsulta: 'Noter une consultation',
+    anotarConsultaSub: 'Pour vous prévenir quand elle approche',
+    quemAcompanha: 'Qui suit votre traitement ?',
+    quemAcompanhaSub: 'Notez le nom et le résumé sort déjà adressé pour la prochaine consultation.',
+    preencherFicha: 'Remplir la fiche',
   },
 };

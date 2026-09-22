@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { WD, DOW_PT, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
+import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
 import { T } from '../textos';
 
 /* ============================================================
@@ -297,7 +297,7 @@ export function quando(d: Date | null): string | null {
 
      ⚠️ E OS SETE NOMES VÊM DO FORMATO, e não de uma lista escrita aqui.
      Esta era a sétima cópia dos dias da semana no aplicativo, e a única
-     que sobrou depois que as outras seis viraram `DOW_PT`. */
-  const dia = dias <= 1 ? quandoEm(dias).label : DOW_PT()[d.getDay()];
+     que sobrou depois que as outras seis viraram `diasDaSemana`. */
+  const dia = dias <= 1 ? quandoEm(dias).label : diasDaSemana()[d.getDay()];
   return `${dia} · ${hm(d.getHours(), d.getMinutes())}`;
 }

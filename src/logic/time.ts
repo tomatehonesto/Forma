@@ -26,7 +26,12 @@ export const diffDays = (a: Date | number, b: Date | number) => Math.round((+sta
 export const WD = () => formato().diaCurto;
 export const MO = () => formato().mesCurto;
 export const MO_LONG = () => formato().mesLongo;
-export const DOW_PT = () => formato().diaLongo;
+/* ⚠️ CHAMAVA-SE `diasDaSemana`, E NÃO É PORTUGUÊS NENHUM. O sufixo sobrou de
+   quando a tabela era um vetor literal de sete palavras; hoje ela lê o
+   formato do local em uso, como as três acima. Nome que mente é pior que
+   cópia: quem procura os dias da semana e acha `diasDaSemana` conclui que os
+   outros idiomas não têm e escreve o oitavo vetor. */
+export const diasDaSemana = () => formato().diaLongo;
 
 /** "20 set".
 
@@ -87,7 +92,7 @@ export const dataLonga = (t: number | Date) => {
     formatadores parecidos. */
 export const dataComDiaDaSemana = (t: number | Date) => {
   const d = new Date(t);
-  return formato().comDiaDaSemana(DOW_PT()[d.getDay()], dataLonga(d));
+  return formato().comDiaDaSemana(diasDaSemana()[d.getDay()], dataLonga(d));
 };
 
 /* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:

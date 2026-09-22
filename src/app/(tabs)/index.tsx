@@ -20,7 +20,7 @@ import {
   doseDoPerfil, temDose,
   diasAteAplicar,
 } from '../../logic/derive';
-import { now, nf, fmtDate, DOW_PT, quandoEm, diffDays, maiuscula } from '../../logic/time';
+import { now, nf, fmtDate, diasDaSemana, quandoEm, diffDays, maiuscula } from '../../logic/time';
 import { FORMAS, formaDe, oA, noNa } from '../../logic/formas';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
@@ -30,6 +30,11 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
+import { T } from '../../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaInicio;
 
 const PAD = 24;                     // margem lateral do frame
 const FOTO_MEDICA = fotoDe('responsavel');   // um mapa, três leitores
@@ -82,7 +87,7 @@ function GoalCard({ t, onRegister }: { t: DailyTarget; onRegister: () => void })
         <Pressable onPress={onRegister} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Row gap={6}>
             <Icon name="plus" size={15} color={c.accent} sw={2.4} />
-            <Txt v="label" c={c.accent}>Registrar</Txt>
+            <Txt v="label" c={c.accent}>{K().registrar}</Txt>
           </Row>
         </Pressable>
         <Txt v="note" c={t.done ? c.accent : c.tx}>{t.remain}</Txt>
@@ -145,7 +150,7 @@ export default function Home() {
   const first = S.profile.name.split(' ')[0];
   const dia = diaDoTratamento(S);
   const hour = now().getHours();
-  const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const greet = hour < 12 ? K().bomDia : hour < 18 ? K().boaTarde : K().boaNoite;
 
   /* ⚠️ ESCOLHER É PURO, MARCAR É EFEITO. `descobertaDaHome` roda a cada
      desenho da tela e não escreve nada; a marca de "já mostrei isto" vai
@@ -217,21 +222,17 @@ export default function Home() {
        ele não tem como saber, e seria acusação em cima de um palpite. A
        segunda linha dá as duas saídas sem escolher uma. */
     ...(atraso >= 1 ? [{
-      over: 'SEM REGISTRO',
-      title: atraso === 1
-        ? 'A aplicação de ontem não está registrada.'
-        : `A aplicação de ${atraso} dias atrás não está registrada.`,
-      body: 'Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.',
-      cta: 'Registrar aplicação', to: '/aplicacao', ic: 'syringe',
+      over: K().semRegistro,
+      title: atraso === 1 ? K().semRegistroOntem : K().semRegistroDias(atraso),
+      body: K().semRegistroCorpo,
+      cta: K().semRegistroCta, to: '/aplicacao', ic: 'syringe',
     }] : []),
 
     ...(temConsulta(S) && diffDays(new Date(S.consult.t), now()) <= 1 ? [{
-      over: 'A CONSULTA',
-      title: diffDays(new Date(S.consult.t), now()) <= 0
-        ? 'Sua consulta é hoje.'
-        : 'Sua consulta é amanhã.',
-      body: 'Levo o seu período organizado — peso, adesão, sintomas e as perguntas que valem a pena.',
-      cta: 'Ver o resumo', to: '/resumo-medico', ic: 'doc',
+      over: K().aConsulta,
+      title: diffDays(new Date(S.consult.t), now()) <= 0 ? K().consultaHoje : K().consultaAmanha,
+      body: K().consultaCorpo,
+      cta: K().consultaCta, to: '/resumo-medico', ic: 'doc',
     }] : []),
 
     /* ⚠️ A RENOVAÇÃO SÓ É OFERECIDA A QUEM TEM PARA QUEM PEDIR. O pedido é
@@ -242,15 +243,15 @@ export default function Home() {
     ...(temDose(S) && caneta.left <= 1 ? [{
       over: recipiente.toUpperCase(),
       title: caneta.left <= 0
-        ? `${maiuscula(oA(forma))} ${recipiente} acabou.`
-        : `Resta uma dose ${noNa(forma)}.`,
-      body: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
+        ? K().acabou(`${maiuscula(oA(forma))} ${recipiente}`)
+        : K().restaUmaDose(noNa(forma)),
+      body: K().receitaCorpo,
       ...(clinicaConectada(S)
-        ? { cta: 'Pedir renovação', to: '/conversa?pedir=receita', ic: 'doc' }
-        : { cta: `Ver ${oA(forma)} ${recipiente}`, to: '/caneta', ic: 'dose' }),
+        ? { cta: K().pedirRenovacao, to: '/conversa?pedir=receita', ic: 'doc' }
+        : { cta: K().verRecipiente(`${oA(forma)} ${recipiente}`, recipiente), to: '/caneta', ic: 'dose' }),
     }] : []),
 
-    { over: brief.chapeu, title: brief.head, body: brief.body, cta: 'Entenda o por quê', to: `/companion?q=${encodeURIComponent(brief.q)}` },
+    { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
 
        Quem respondeu "ainda não sei" no medicamento sai do cadastro sem
@@ -263,22 +264,22 @@ export default function Home() {
        para quem está três dias atrasada — verdade pela metade, ao lado de
        um cartão que conta a outra metade. Um assunto, um cartão. */
     ...(temDose(S) && atraso < 1 ? [{
-      over: 'PRÓXIMA APLICAÇÃO',
+      over: K().proximaAplicacao,
       /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
          caixinha como se ela tivesse agenda, e obriga quem lê a traduzir
          para o que a frase queria dizer: que hoje ela aplica. O nome do
          medicamento não some — desce para a linha de baixo, junto da dose
          e do local, que é onde ele é informação e não manchete. */
-      title: quandoEm(nd).hoje ? 'Hoje é dia de aplicar sua dose.' : `Sua próxima dose é ${quandoEm(nd).label}.`,
-      body: `${med.label} ${doseDoPerfil(S)} · ${siteLabel(nextSite(S))} sugerido.`,
+      title: quandoEm(nd).hoje ? K().hojeEDiaDeAplicar : K().proximaDose(quandoEm(nd).label),
+      body: K().doseCorpo(med.label, doseDoPerfil(S), siteLabel(nextSite(S))),
       /* ⚠️ A SEGUNDA AÇÃO DEPENDE DE ELA JÁ TER A PRIMEIRA. Oferecer
          "criar um lembrete" a quem já tem um lembrete de dose ligado é uma
          porta que não leva a nada novo — e a lista de alertas sabe
          responder isso numa linha. Quem já tem continua indo para a tela
          da aplicação, que é onde se registra a dose. */
       ...(temLembreteDeDose
-        ? { cta: 'Ver a aplicação', to: '/aplicacoes' }
-        : { cta: 'Criar um lembrete', to: '/lembretes', ic: 'bell' }),
+        ? { cta: K().verAplicacao, to: '/aplicacoes' }
+        : { cta: K().criarLembrete, to: '/lembretes', ic: 'bell' }),
     }] : []),
     /* ⚠️ O SLIDE NÃO É MAIS SÓ "DESCOBERTA", e o chapéu vem do motor.
 
@@ -666,7 +667,7 @@ export default function Home() {
             <Pressable onPress={go('/checkin')} style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.96 : 1 }] }]}>
               <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 22, paddingVertical: 12 }}>
                 {feitoHoje && <Icon name="check" size={17} color={c.limeInk} sw={2.4} />}
-                <Txt v="body" c={c.limeInk}>{feitoHoje ? 'Check-in feito' : 'Fazer check-in'}</Txt>
+                <Txt v="body" c={c.limeInk}>{feitoHoje ? K().checkinFeito : K().fazerCheckin}</Txt>
               </Row>
             </Pressable>
             <Row style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }} gap={8}>
@@ -680,9 +681,7 @@ export default function Home() {
                   entre o botão e a borda —, então o que encolheu foi a
                   frase: "seguidos" diz o mesmo que "consecutivos" em quatro
                   letras a menos, e cabe em duas linhas limpas. */}
-              <Txt v="body" c={c.onHero} style={{ width: 120 }}>
-                {stk === 1 ? 'dia de check‑in' : 'dias seguidos de check‑in'}
-              </Txt>
+              <Txt v="body" c={c.onHero} style={{ width: 120 }}>{K().diasSeguidos(stk)}</Txt>
             </Row>
           </Row>
         </View>
@@ -700,7 +699,7 @@ export default function Home() {
                 já diz — duas vezes a mesma informação, uma escrita e uma
                 desenhada. Vale para toda a casa: os links de seção nomeiam
                 destino, não descrevem o gesto. */}
-            <SectionHead title="Suas metas diárias" link="Metas" onPress={go('/metas')} />
+            <SectionHead title={K().metasDiarias} link={K().metasLink} onPress={go('/metas')} />
           </View>
           <Rolagem
             horizontal showsHorizontalScrollIndicator={false}
@@ -712,7 +711,7 @@ export default function Home() {
 
           {/* evolucao */}
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
-            <SectionHead title="Sua evolução" link="Evolução" onPress={go('/evolucao')} />
+            <SectionHead title={K().evolucao} link={K().evolucaoLink} onPress={go('/evolucao')} />
 
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, overflow: 'hidden' }}>
               <Row style={{ padding: 16, paddingBottom: 12, alignItems: 'flex-start' }}>
@@ -741,18 +740,18 @@ export default function Home() {
                   um dos dois títulos mudar de tamanho outra vez. O 28
                   continua sendo o mínimo. */}
               <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-                <Txt v="body">Ingestão de proteína</Txt>
+                <Txt v="body">{T.home.metas.proteina}</Txt>
                 <View style={{ marginTop: 'auto' }}>
                   <Row style={{ marginTop: 28, alignItems: 'center' }}>
                     <Txt v="metric">{Math.round(prot7.avg)}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>g/dia</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>{K().gPorDia}</Txt>
                     <TrendDot up good={prot7.verdict.good} c={c} />
                   </Row>
                   <Txt v="note" c={prot7.verdict.good ? c.tx3 : c.bad} style={{ marginTop: 4 }}>{prot7.verdict.label}</Txt>
                 </View>
               </View>
               <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-                <Txt v="body">Gordura{'\n'}corporal</Txt>
+                <Txt v="body">{T.medidas.corpo.gordura}</Txt>
                 <View style={{ marginTop: 'auto' }}>
                   <Row style={{ marginTop: 28, alignItems: 'center' }}>
                     <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0) : '—'}</Txt>
@@ -760,7 +759,7 @@ export default function Home() {
                     {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
                   </Row>
                   <Txt v="note" c={bf && !bf.verdict.good ? c.bad : c.tx3} style={{ marginTop: 4 }}>
-                    {bf ? bf.verdict.label : 'sem medida'}
+                    {bf ? bf.verdict.label : K().semMedida}
                   </Txt>
                 </View>
               </View>
@@ -806,8 +805,8 @@ export default function Home() {
                 é o que a seta ao lado já diz, e os outros links desta Home
                 não têm verbo nenhum. */}
             <SectionHead
-              title="Quem cuida de você"
-              link={conectada ? 'Área médica' : undefined}
+              title={K().quemCuida}
+              link={conectada ? K().areaMedica : undefined}
               onPress={conectada ? go('/medico') : undefined}
             />
 
@@ -847,12 +846,12 @@ export default function Home() {
                 </Row>
 
                 <View style={{ marginTop: 24 }}>
-                  <ListRow ic="companion" title="Mensagens" dot={S.unread > 0}
-                    sub={S.unread > 0 ? `${S.unread} ${S.unread === 1 ? 'nova mensagem' : 'novas mensagens'}` : 'Nenhuma mensagem nova'}
+                  <ListRow ic="companion" title={K().mensagens} dot={S.unread > 0}
+                    sub={S.unread > 0 ? K().novasMensagens(S.unread) : K().nenhumaMensagem}
                     onPress={go('/conversa')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-                  <ListRow ic="cal" title="Próxima consulta"
-                    sub={`${fmtDate(consultD)} • ${DOW_PT()[consultD.getDay()]}`}
+                  <ListRow ic="cal" title={K().proximaConsulta}
+                    sub={K().consultaEm(fmtDate(consultD), diasDaSemana()[consultD.getDay()])}
                     onPress={go('/consultas')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   {/* ⚠️ LEVA AO PEDIDO, e não à tela onde ele poderia estar.
@@ -860,7 +859,7 @@ export default function Home() {
                       nenhuma ação de pedir receita — porta emparedada de
                       manual. O parâmetro abre a conversa com o rascunho
                       pronto; quem envia continua sendo ela. */}
-                  <ListRow ic="doc" title="Solicitar nova receita" sub="Uma mensagem para a sua equipe"
+                  <ListRow ic="doc" title={K().solicitarReceita} sub={K().solicitarReceitaSub}
                     onPress={go('/conversa?pedir=receita')} />
                 </View>
               </View>
@@ -884,14 +883,14 @@ export default function Home() {
                   <View style={{ flex: 1 }}>
                     <Txt v="bodyMed">{S.profile.doctor || S.profile.clinic}</Txt>
                     <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>
-                      {(S.profile as any).doctorInfo?.especialidade || 'Acompanha o seu tratamento'}
+                      {(S.profile as any).doctorInfo?.especialidade || K().acompanhaSeuTratamento}
                     </Txt>
                   </View>
                 </Row>
 
                 <View style={{ marginTop: 20 }}>
-                  <ListRow ic="doc" title="Resumo para a consulta"
-                    sub="Peso, adesão, sintomas e exames num documento só"
+                  <ListRow ic="doc" title={K().resumoParaConsulta}
+                    sub={K().resumoParaConsultaSub}
                     onPress={go('/resumo-medico')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   {/* A consulta entra como linha, e não como card: sem
@@ -899,10 +898,10 @@ export default function Home() {
                       evento que chegou de fora. A linha diz a data quando
                       há uma, e convida quando não há. */}
                   <ListRow ic="cal"
-                    title={temConsulta(S) ? 'Próxima consulta' : 'Anotar uma consulta'}
+                    title={temConsulta(S) ? K().proximaConsulta : K().anotarConsulta}
                     sub={temConsulta(S)
-                      ? `${fmtDate(new Date(S.consult.t))} • ${DOW_PT()[new Date(S.consult.t).getDay()]}`
-                      : 'Para avisarmos quando ela chegar perto'}
+                      ? K().consultaEm(fmtDate(new Date(S.consult.t)), diasDaSemana()[new Date(S.consult.t).getDay()])
+                      : K().anotarConsultaSub}
                     onPress={go(temConsulta(S) ? '/consultas' : '/anotar-consulta')} />
                 </View>
               </View>
@@ -935,12 +934,10 @@ export default function Home() {
                  rede, este completa um dado que a própria pessoa disse
                  ter. */
               <Card style={{ marginTop: 16 }} onPress={go('/acompanhamento')}>
-                <Txt v="title">Quem acompanha você?</Txt>
-                <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>
-                  Anote o nome e o resumo já sai endereçado para a próxima consulta.
-                </Txt>
+                <Txt v="title">{K().quemAcompanha}</Txt>
+                <Txt v="note" c={c.tx3} style={{ marginTop: 6 }}>{K().quemAcompanhaSub}</Txt>
                 <Row gap={6} style={{ marginTop: 14 }}>
-                  <Txt v="label" c={c.accent2}>Preencher a ficha</Txt>
+                  <Txt v="label" c={c.accent2}>{K().preencherFicha}</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </Card>
@@ -983,7 +980,7 @@ export default function Home() {
           <View style={{ flex: 1, marginLeft: 16 }}>
             <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
             <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-              {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
+              {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
             </Txt>
           </View>
           <Sino tam={40} claro />
@@ -1017,7 +1014,7 @@ export default function Home() {
         <Row gap={12} style={{ alignItems: 'center' }}>
           <Perfil tam={30} />
           <Txt v="note" c={c.tx2} style={{ flex: 1 }} numberOfLines={1}>
-            {dia.antes ? dia.texto : `${dia.texto} • Semana ${S.protocol.week}`}
+            {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
           </Txt>
           <Sino tam={34} claro={false} />
         </Row>
