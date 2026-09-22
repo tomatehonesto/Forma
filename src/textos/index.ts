@@ -61,6 +61,39 @@ import { rotina as rotinaEn } from './en-US/rotina';
 import { tempo as tempoEn } from './en-US/tempo';
 import { tratamento as tratamentoEn } from './en-US/tratamento';
 
+/* ⚠️ O ESPANHOL É NEUTRO DA AMÉRICA LATINA — ustedes, sem vosotros.
+   Ver o alto de textos/es-419/formas, onde a contração "del" mora. */
+import { alertas as alertasEs } from './es-419/alertas';
+import { alimentacao as alimentacaoEs } from './es-419/alimentacao';
+import { assinatura as assinaturaEs } from './es-419/assinatura';
+import { aviso as avisoEs } from './es-419/aviso';
+import { avisos as avisosEs } from './es-419/avisos';
+import { cadastro as cadastroEs } from './es-419/cadastro';
+import { ciclo as cicloEs } from './es-419/ciclo';
+import { companion as companionEs } from './es-419/companion';
+import { comum as comumEs } from './es-419/comum';
+import { confirmacoes as confirmacoesEs } from './es-419/confirmacoes';
+import { conquistas as conquistasEs } from './es-419/conquistas';
+import { cruzamentos as cruzamentosEs } from './es-419/cruzamentos';
+import { cuidado as cuidadoEs } from './es-419/cuidado';
+import { descobertas as descobertasEs } from './es-419/descobertas';
+import { equilibrio as equilibrioEs } from './es-419/equilibrio';
+import { escalas as escalasEs } from './es-419/escalas';
+import { etapa as etapaEs } from './es-419/etapa';
+import { exames as examesEs } from './es-419/exames';
+import { fontes as fontesEs } from './es-419/fontes';
+import { formas as formasEs } from './es-419/formas';
+import { home as homeEs } from './es-419/home';
+import { idioma as idiomaEs } from './es-419/idioma';
+import { leituras as leiturasEs } from './es-419/leituras';
+import { marcadores as marcadoresEs } from './es-419/marcadores';
+import { medidas as medidasEs } from './es-419/medidas';
+import { metas as metasEs } from './es-419/metas';
+import { resumo as resumoEs } from './es-419/resumo';
+import { rotina as rotinaEs } from './es-419/rotina';
+import { tempo as tempoEs } from './es-419/tempo';
+import { tratamento as tratamentoEs } from './es-419/tratamento';
+
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
 
@@ -168,6 +201,14 @@ const CATALOGOS: Record<Local, Textos> = {
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
     leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, resumo: resumoEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,
+  },
+  'es-419': {
+    alertas: alertasEs, alimentacao: alimentacaoEs, assinatura: assinaturaEs, aviso: avisoEs, avisos: avisosEs,
+    cadastro: cadastroEs, ciclo: cicloEs, companion: companionEs, comum: comumEs, confirmacoes: confirmacoesEs,
+    conquistas: conquistasEs, cruzamentos: cruzamentosEs, cuidado: cuidadoEs, descobertas: descobertasEs, equilibrio: equilibrioEs,
+    escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
+    home: homeEs, idioma: idiomaEs, leituras: leiturasEs, marcadores: marcadoresEs, medidas: medidasEs,
+    metas: metasEs, resumo: resumoEs, rotina: rotinaEs, tempo: tempoEs, tratamento: tratamentoEs,
   },
 };
 

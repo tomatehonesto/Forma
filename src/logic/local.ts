@@ -31,7 +31,7 @@ import { MERCADO } from './mercado';
    tradução.
    ============================================================ */
 
-export type Local = 'pt-BR' | 'en-US';
+export type Local = 'pt-BR' | 'en-US' | 'es-419';
 
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
@@ -51,7 +51,7 @@ const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
    como voltar: ele não sabe ler o que está na tela para achar o caminho
    de volta.
    ============================================================ */
-export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US'];
+export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419'];
 
 /* ⚠️ CADA UM SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
    aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
@@ -60,6 +60,7 @@ export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US'];
 export const NOME_DO_LOCAL: Record<Local, string> = {
   'pt-BR': 'Português',
   'en-US': 'English',
+  'es-419': 'Español',
 };
 
 /* ============================================================
@@ -205,7 +206,42 @@ const EN: Formato = {
   hora12: true,
 };
 
-const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN };
+/* ⚠️⚠️ O ESPANHOL NÃO TEM UM SEPARADOR DECIMAL, TEM DOIS — e esta é a
+   maior concessão de `es-419` existir como um idioma só.
+
+   México, América Central, Porto Rico e a República Dominicana escrevem
+   1.234,56 como "1,234.56", à americana. A América do Sul inteira e a
+   Espanha escrevem "1.234,56". São cerca de 150 milhões de falantes de um
+   lado e mais de 200 do outro, e nenhuma escolha serve aos dois.
+
+   Fica a vírgula decimal, que cobre mais gente — e no dia em que o
+   México pesar o bastante, a saída não é mudar este número: é um
+   `es-MX` com o mesmo catálogo e outro formato, que é exatamente o que
+   esta separação entre FORMATO e CATÁLOGO existe para permitir. Está
+   anotado em PENDENCIAS.
+
+   ⚠️ E O RELÓGIO É DE 24 H pelo mesmo tipo de motivo: o México escreve
+   12 h e a América do Sul, 24. O aparelho manda sobre este — ver
+   `lerAparelho` —, então o padrão só vale para quem não disse nada. */
+const ES: Formato = {
+  decimal: ',',
+  milhar: '.',
+  mesCurto: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+  mesLongo: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  diaCurto: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+  diaLongo: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+  curta: (d, m) => `${d} ${ES.mesCurto[m]}`,
+  longa: (d, m) => `${d} de ${ES.mesLongo[m]}`,
+  comAno: (d, m, a) => `${d} de ${ES.mesLongo[m]} de ${a}`,
+  comDiaDaSemana: (dia, resto) => `${dia}, ${resto}`,
+  periodo: (de, ate, m) => `${de} a ${ate} ${ES.mesCurto[m]}`,
+  periodoLongo: (de, ate, m) => `${de} a ${ate} de ${ES.mesLongo[m]}`,
+  mesAno: (m, a) => `${ES.mesLongo[m]} de ${a}`,
+  junta: (de, ate) => `${de} a ${ate}`,
+  hora12: false,
+};
+
+const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES };
 
 /* ------------------------------------------------------------------ *
  * QUAL É O LOCAL AGORA
