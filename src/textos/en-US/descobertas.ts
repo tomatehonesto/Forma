@@ -30,7 +30,7 @@ export const descobertas = {
     `In your logs hydration drops to ${dele} ${dia}, against ${outros} on the other days. Knowing it the night before is half the battle.`,
   aguaCta: 'View hydration',
 
-  enjooTitulo: 'If nausea shows up now, it has a closing time',
+  enjooTitulo: 'If nausea shows up now, it has an end in sight',
   enjooTexto: (perto: string, longe: string) =>
     `In your logs it sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. It’s the 48 h of each cycle, not the whole treatment.`,
   enjooCta: 'View symptoms',
@@ -38,23 +38,23 @@ export const descobertas = {
   /* ---------- the invitations ---------- */
   chapeuConvite: 'AN INVITATION',
 
-  metaTitulo: 'You haven’t said where you want to get to',
-  metaTexto: 'A goal of your own — fitting into a pair of jeans, getting back to the beach, dropping a habit. We keep it for you, and you’re the one who marks it done.',
+  metaTitulo: 'You haven’t set a goal yet',
+  metaTexto: 'A goal of your own — fitting into a pair of jeans, getting back to the beach, dropping a habit. We’ll keep it here, and you’re the one who decides when you’ve hit it.',
   metaCta: 'Create a goal',
 
   medidasTitulo: 'The scale tells only part of it',
-  medidasTexto: 'The tape measure tells the rest: waist and hips move when the weight stalls, and that’s when it shows something is happening.',
+  medidasTexto: 'The tape measure tells the rest: waist and hips keep moving when the weight stalls, and that’s when it shows something still is.',
   medidasCta: 'Log measurements',
 
   refeicaoTitulo: 'The day’s protein can count itself',
-  refeicaoTexto: 'By logging what you eat, the day’s math comes out ready — no tables, nothing to add up in your head.',
+  refeicaoTexto: 'Log what you eat and the day’s math is done for you — no tables, nothing to add up in your head.',
   refeicaoCta: 'Log a meal',
 
   examesTitulo: 'Your lab results belong here',
-  examesTexto: 'With them saved, you can see the line of each marker across the treatment — and bring it all organized to your appointment.',
+  examesTexto: 'Once they’re saved, you can follow each marker across the treatment — and bring it all laid out to your appointment.',
   examesCta: 'Save a lab panel',
 
   clinicaTitulo: 'Your clinic can be on this side',
-  clinicaTexto: 'With the code they gave you, your care team shows up here and their guidance stops getting lost among the messages.',
+  clinicaTexto: 'With the code they gave you, your care team shows up here and their guidance stops getting lost in your messages.',
   clinicaCta: 'Use the code',
 };

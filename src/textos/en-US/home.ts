@@ -269,7 +269,7 @@ export const home = {
     anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'So we can tell you when it gets close',
     quemAcompanha: 'Who follows your treatment?',
-    quemAcompanhaSub: 'Add their name and your summary comes out addressed to them.',
+    quemAcompanhaSub: 'Add their name and we’ll address your summary to them.',
     preencherFicha: 'Fill in the details',
   },
 

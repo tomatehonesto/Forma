@@ -179,7 +179,7 @@ export const cuidado = {
 
     quemAcompanha: 'Who follows your treatment',
     ninguemRegistrado: 'Nobody noted down yet',
-    seVoceSeTrata: 'If someone treats you, note them here — the summary comes out ready for the appointment.',
+    seVoceSeTrata: 'If someone treats you, add them here — your summary will be ready for the appointment.',
 
     acompanhamentoProfissional: 'Professional follow-up',
     conhecaParceiros: 'Meet the partner doctors',
