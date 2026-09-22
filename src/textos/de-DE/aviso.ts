@@ -140,4 +140,56 @@ export const aviso = {
     erro: 'Wir konnten die Datei auf diesem Gerät nicht bauen. Deine Einträge sind weiter hier, unangetastet.',
     parado: 'Von hier geht nichts ohne deinen Fingertipp.',
   },
+
+  /* ⚠️ HIER STEHT DIE APP ALS SUBJEKT, und zwar mit Absicht: „Was die App
+     von außen liest“ ist die FRAGE des Abschnitts, nicht die App, die
+     über sich erzählt. Die Antwort darunter steht in der ersten Person —
+     „wir lesen“ —, denn dort handelt jemand, und das sind wir. */
+  telaPrivacidade: {
+    titulo: 'Datenschutz und Daten',
+    lead: 'Wo deine Einträge bleiben, was von hier weggeht und was die App von außen liest.',
+
+    ondeFicam: 'Wo deine Einträge bleiben',
+    noAparelho: 'Auf dem Gerät, in der App',
+    noAparelhoTexto: 'Gewicht, Maße, Injektionen, Check-ins, Befunde, Fotos und Notizen werden im Speicher der App selbst abgelegt, auf diesem Gerät. Es gibt hier kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten, weil es kein Login gibt.',
+    desinstalar: 'Deinstallieren nimmt alles mit',
+    desinstalarTexto: 'Da es auf keinem Server eine Kopie gibt, löscht das Entfernen der App die Einträge. Sie lassen sich danach nicht wiederherstellen.',
+
+    oQueSai: 'Was von hier weggeht',
+    oQueSaiNota: 'Von hier geht nichts ohne eine Geste von dir.',
+    paraEquipe: 'Was zu deinem Team geht',
+    paraEquipeTexto: 'Bis jetzt nichts. Die Übersicht für den Termin wird auf deinem Gerät gebaut, und du zeigst oder exportierst sie; die Nachrichten bleiben hier. Wenn die Verbindung zur Praxis existiert, gehen beide nur mit einem Tippen von dir weg — und nichts aus deinem Tagebuch reist allein, weder Gewicht noch Symptom noch Mahlzeit.',
+    fotoDoPrato: 'Das Foto vom Teller, wenn du die Foto-Erkennung nutzt',
+    fotoDoPratoTexto: 'Es wird auf dem Gerät verkleinert und zum Lesen an ein Modell geschickt, das die Bestandteile des Tellers zurückgibt. Das Bild wird nicht aufbewahrt: weder in deinem Eintrag zur Mahlzeit noch auf dem Server, der die Brücke bildet. Die Mahlzeit von Hand einzutragen schickt nichts.',
+
+    leDeFora: 'Was die App von außen liest',
+    appDeSaudePadrao: 'Gesundheits-App des Telefons',
+    soOPeso: (app: string) => `${app}, und nur das Gewicht`,
+    /* ⚠️ DER NAME STEHT HIER NICHT NOCH EINMAL, und das ist kein
+       Versehen. Nach einer Präposition bräuchte er einen Artikel — "in die
+       Gesundheits-App" —, und mit einem echten Namen wäre der Artikel
+       falsch: "in Apple Health". Der Satz wird um den Fall herumgebaut,
+       den er bekommt; die Überschrift direkt darüber nennt den Namen. */
+    soOPesoTexto: (_app: string) =>
+      `Mit deiner Erlaubnis lesen wir die Wiegungen, die deine Waage, deine Uhr oder eine andere App dort eingetragen haben. Wir lesen nur — geschrieben wird dort nie etwas. Und wir lesen nur Gewicht: Schlaf, Schritte und Herzfrequenz bleiben draußen.`,
+    permissao: 'Die Erlaubnis gehört dir, und du nimmst sie zurück, wann du willst',
+    permissaoTexto: 'Sie wird in den Systemeinstellungen gegeben und an derselben Stelle widerrufen. Ohne sie bleibt die App vollständig: das Gewicht kommt wieder so herein wie bisher, von dir eingetippt.',
+
+    podeFazer: 'Was du jetzt tun kannst',
+    integracoesSub: (app: string) => `${app} ein- oder ausschalten`,
+    resumo: 'Übersicht für den Termin',
+    resumoSub: 'Alles ansehen, was in die Übersicht für den Termin kommt',
+
+    apagar: 'Meine Daten löschen',
+    apagarSub: 'Alles, was du eingetragen hast, ohne Weg zurück',
+    apagarPergunta: 'Alles löschen? Es gibt nirgends eine Kopie.',
+    apagarConfirma: 'Löschen',
+    cancelar: 'Abbrechen',
+
+    documentos: 'Die Dokumente',
+    politicaSub: 'Das vollständige Dokument, mit Rechtsgrundlage und Fristen',
+    termosSub: 'Was wir sind, was wir nicht sind, und was jede Seite erwarten kann',
+    semPoliticaTitulo: 'Das hier beschreibt die App, es ist nicht die Datenschutzerklärung',
+    semPoliticaTexto: 'Hier steht, was das Programm mit deinen Daten macht. Das juristische Dokument, mit den Pflichten dessen, der den Dienst betreibt, muss noch veröffentlicht werden — und sobald es existiert, erscheint es auf diesem Bildschirm.',
+  },
 };

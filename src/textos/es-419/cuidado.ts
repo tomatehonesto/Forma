@@ -191,4 +191,33 @@ export const cuidado = {
     passouATer: '¿Pasaste a tener acompañamiento médico?',
     anoteQuemE: 'Anota quién es.',
   },
+
+  telaAcompanhamento: {
+    leadComVinculo: 'Estos datos vienen de la clínica que acompaña tu tratamiento.',
+    ondeAtendida: 'Dónde ocurre la atención',
+    quemCorrige: 'Quien corrige es la clínica',
+    quemCorrigeTexto: 'Si algún dato está mal, habla con el equipo — es quien mantiene esta ficha, y lo que se corrija allá llega aquí.',
+
+    lead: 'Si alguien te trata, anótalo aquí. Es lo que hace que el resumen salga listo para la consulta y que la preparación de preguntas aparezca a tiempo.',
+
+    nome: 'Nombre',
+    nomeAjuda: 'Cómo llamas a esa persona. Puede ser el nombre del consultorio, si prefieres.',
+    nomePlaceholder: 'Escribe el nombre',
+    especialidade: 'Especialidad',
+    opcional: 'Opcional.',
+    especialidadePlaceholder: 'Endocrinología',
+    ondeAtende: 'Dónde atiende',
+    ondeAtendeAjuda: 'Opcional — clínica, hospital o consultorio.',
+    ondeAtendePlaceholder: 'Escribe la clínica o el consultorio',
+
+    nadaEnviado: 'Nada de esto se envía a nadie',
+    nadaEnviadoTexto: 'El nombre queda en la aplicación, contigo. Para que tu equipo reciba tus datos hace falta un código de invitación de la clínica — y desde ahí quien cuida esta ficha es ella.',
+    salvar: 'Guardar',
+
+    naoTenhoMais: 'Ya no tengo acompañamiento',
+    tirarPergunta: '¿Quitar a quien te acompaña?',
+    tirarTexto: 'Todos tus registros siguen aquí — peso, aplicaciones, síntomas, exámenes y anotaciones. Lo único que sale es el nombre.',
+    simTirar: 'Sí, quitar',
+    cancelar: 'Cancelar',
+  },
 };

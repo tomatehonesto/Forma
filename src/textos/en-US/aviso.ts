@@ -115,4 +115,47 @@ export const aviso = {
     erro: 'We could not build the file on this device. Your entries are still here, untouched.',
     parado: 'Nothing leaves here without your tap.',
   },
+
+  telaPrivacidade: {
+    titulo: 'Privacy and data',
+    lead: 'Where your entries live, what leaves here, and what the app reads from outside.',
+
+    ondeFicam: 'Where your entries live',
+    noAparelho: 'On the device, inside the app',
+    noAparelhoTexto: 'Weight, measurements, injections, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There is no account and no password here: nobody gets into your data with a login, because there is no login.',
+    desinstalar: 'Uninstalling takes it all with it',
+    desinstalarTexto: 'Since there is no copy on any server, deleting the app deletes the entries. They cannot be recovered afterwards.',
+
+    oQueSai: 'What leaves here',
+    oQueSaiNota: 'Nothing leaves here without a move from you.',
+    paraEquipe: 'What goes to your team',
+    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you are the one who shows or exports it; messages stay here. When the link with the clinic exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
+    fotoDoPrato: 'The photo of your plate, when you use photo reading',
+    fotoDoPratoTexto: 'It is shrunk on the device and sent to be read by a model, which returns the items on the plate. The image is not kept: not in your meal entry, and not on the server that bridges the call. Logging the meal by hand sends nothing.',
+
+    leDeFora: 'What the app reads from outside',
+    appDeSaudePadrao: 'the phone’s health app',
+    soOPeso: (app: string) => `${app}, and weight only`,
+    soOPesoTexto: (app: string) =>
+      `With your permission, we read the weigh-ins your scale, your watch or another app wrote there. We only read: we never write anything into ${app}. And we read weight only — sleep, steps and heart rate stay out.`,
+    permissao: 'The permission is yours, and you can take it back',
+    permissaoTexto: 'It is granted in the system settings and revoked in the same place. Without it, the app stays whole: weight goes back to arriving the way it did before, typed in by you.',
+
+    podeFazer: 'What you can do right now',
+    integracoesSub: (app: string) => `Turn ${app} on or off`,
+    resumo: 'Appointment summary',
+    resumoSub: 'See everything that goes into the appointment summary',
+
+    apagar: 'Delete my data',
+    apagarSub: 'Everything you logged, with no way back',
+    apagarPergunta: 'Delete everything? There is no copy anywhere.',
+    apagarConfirma: 'Delete',
+    cancelar: 'Cancel',
+
+    documentos: 'The documents',
+    politicaSub: 'The full document, with legal basis and retention periods',
+    termosSub: 'What we are, what we are not, and what each side can expect',
+    semPoliticaTitulo: 'This describes the app; it is not the privacy policy',
+    semPoliticaTexto: 'Here is what the program does with your data. The legal document, with the obligations of whoever runs the service, is still to be published — and when it exists, it shows up on this screen.',
+  },
 };

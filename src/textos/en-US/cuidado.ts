@@ -187,4 +187,33 @@ export const cuidado = {
     passouATer: 'Started seeing someone?',
     anoteQuemE: 'Note who it is.',
   },
+
+  telaAcompanhamento: {
+    leadComVinculo: 'These details come from the clinic that follows your treatment.',
+    ondeAtendida: 'Where the appointments happen',
+    quemCorrige: 'The clinic is who corrects it',
+    quemCorrigeTexto: 'If anything is wrong, talk to the team — they are the ones who keep this record, and whatever gets fixed there arrives here.',
+
+    lead: 'If someone treats you, note them here. It is what makes the summary come out ready for the appointment and the question prep show up at the right time.',
+
+    nome: 'Name',
+    nomeAjuda: 'What you call this person. It can be the name of the practice, if you prefer.',
+    nomePlaceholder: 'Type the name',
+    especialidade: 'Specialty',
+    opcional: 'Optional.',
+    especialidadePlaceholder: 'Endocrinology',
+    ondeAtende: 'Where they practice',
+    ondeAtendeAjuda: 'Optional — clinic, hospital or practice.',
+    ondeAtendePlaceholder: 'Type the clinic or practice',
+
+    nadaEnviado: 'None of this is sent to anyone',
+    nadaEnviadoTexto: 'The name stays in the app, with you. For your team to receive your data, an invitation code from the clinic is needed — and from then on it is the clinic that keeps this record.',
+    salvar: 'Save',
+
+    naoTenhoMais: 'I no longer have anyone following me',
+    tirarPergunta: 'Remove who follows you?',
+    tirarTexto: 'All of your entries stay right here — weight, injections, symptoms, lab results and notes. All that leaves is the name.',
+    simTirar: 'Yes, remove',
+    cancelar: 'Cancel',
+  },
 };

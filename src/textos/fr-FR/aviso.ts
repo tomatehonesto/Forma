@@ -118,4 +118,47 @@ export const aviso = {
     erro: 'Nous n’avons pas pu construire le fichier sur cet appareil. Vos relevés sont toujours là, intacts.',
     parado: 'Rien ne sort d’ici sans votre geste.',
   },
+
+  telaPrivacidade: {
+    titulo: 'Confidentialité et données',
+    lead: 'Où vos relevés restent, ce qui sort d’ici et ce que l’application lit de l’extérieur.',
+
+    ondeFicam: 'Où vos relevés restent',
+    noAparelho: 'Sur l’appareil, dans l’application',
+    noAparelhoTexto: 'Le poids, les mesures, les injections, les check-ins, les analyses, les photos et les notes sont écrits dans le stockage de l’application elle-même, sur cet appareil. Il n’y a ni compte ni mot de passe ici : personne n’entre dans vos données avec un identifiant, parce qu’il n’y a pas d’identifiant.',
+    desinstalar: 'Désinstaller emporte tout',
+    desinstalarTexto: 'Comme il n’y a de copie sur aucun serveur, effacer l’application efface les relevés. Il n’est pas possible de les récupérer ensuite.',
+
+    oQueSai: 'Ce qui sort d’ici',
+    oQueSaiNota: 'Rien ne sort d’ici sans un geste de votre part.',
+    paraEquipe: 'Ce qui part vers votre équipe',
+    paraEquipeTexto: 'Pour l’instant, rien. Le résumé de consultation se construit sur votre appareil et c’est vous qui le montrez ou l’exportez ; les messages restent ici. Quand le lien avec la clinique existera, les deux ne partiront qu’avec un geste de votre part — et rien de votre journal ne voyage tout seul, ni le poids, ni les symptômes, ni les repas.',
+    fotoDoPrato: 'La photo de l’assiette, quand vous utilisez la lecture par photo',
+    fotoDoPratoTexto: 'Elle est réduite sur l’appareil et envoyée pour être lue par un modèle, qui renvoie les éléments de l’assiette. L’image n’est pas conservée : ni dans votre relevé de repas, ni sur le serveur qui fait le pont. Noter le repas à la main n’envoie rien.',
+
+    leDeFora: 'Ce que l’application lit de l’extérieur',
+    appDeSaudePadrao: 'l’application santé du téléphone',
+    soOPeso: (app: string) => `${app}, et le poids seulement`,
+    soOPesoTexto: (app: string) =>
+      `Avec votre permission, nous lisons les pesées que votre balance, votre montre ou une autre application y ont écrites. Nous ne faisons que lire : nous n’écrivons jamais rien dans ${app}. Et nous ne lisons que le poids — le sommeil, les pas et le rythme cardiaque restent dehors.`,
+    permissao: 'La permission est la vôtre, et se retire quand vous voulez',
+    permissaoTexto: 'Elle se donne dans les réglages du système et se retire au même endroit. Sans elle, l’application reste entière : le poids revient à entrer comme il entrait avant, tapé par vous.',
+
+    podeFazer: 'Ce que vous pouvez faire maintenant',
+    integracoesSub: (app: string) => `Activer ou désactiver ${app}`,
+    resumo: 'Résumé pour la consultation',
+    resumoSub: 'Voir tout ce qui entre dans le résumé de consultation',
+
+    apagar: 'Effacer mes données',
+    apagarSub: 'Tout ce que vous avez noté, sans retour',
+    apagarPergunta: 'Tout effacer ? Il n’y a de copie nulle part.',
+    apagarConfirma: 'Effacer',
+    cancelar: 'Annuler',
+
+    documentos: 'Les documents',
+    politicaSub: 'Le document complet, avec la base légale et les durées',
+    termosSub: 'Ce que nous sommes, ce que nous ne sommes pas, et ce que chaque côté peut attendre',
+    semPoliticaTitulo: 'Ceci décrit l’application, ce n’est pas la politique de confidentialité',
+    semPoliticaTexto: 'Voici ce que le programme fait de vos données. Le document juridique, avec les obligations de qui exploite le service, reste à publier — et quand il existera, il apparaîtra sur cet écran.',
+  },
 };

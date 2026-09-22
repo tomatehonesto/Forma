@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 779, em 81 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 732, em 79 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1164,6 +1164,26 @@ tirada do `git show`, e não de memória.
   alemão ele escreveria "kaffee" e "milch". Abaixar a caixa é regra de
   idioma, e por isso mora em `comum.noMeio`, que no alemão devolve o
   que recebe.
+- **Uma constante de módulo com recuo escrito**, em Privacidade:
+  `const APP_DE_SAUDE = aparelhoDaVez()?.nome ?? 'aplicativo de saúde do
+  celular'`. Congelava duas coisas de uma vez — o idioma do recuo e o
+  nome do depósito de saúde, que muda com o aparelho. É a família do
+  item 28, com a agravante de a rede também não a ver.
+- **"o app lê as pesagens... Ele só lê"**, na tela de privacidade. Duas
+  vezes o aplicativo falando de si em terceira pessoa, e justamente na
+  tela cuja pergunta é quem faz o quê. Quem lê somos nós.
+- **"O que o Morphi é, o que não é"** — verbo pendurado no nome do
+  produto, no subtítulo dos Termos. Virou "O que somos, o que não somos".
+- **Um particípio com gênero:** "Onde você é atendida" concordava com uma
+  leitora, e a tela não sabe o gênero de quem lê. A frase foi reescrita
+  para não precisar saber — o francês teria o mesmo problema em
+  "suivie", e o alemão em "du bist es, die...".
+- **Um nome próprio depois de preposição alemã.** "wir schreiben nie
+  etwas in ${app}" fica certo com "Apple Health" e errado com o recuo
+  genérico, que pede artigo: "in **die** Gesundheits-App". Como o valor
+  pode ser um nome ou um substantivo, não há artigo que sirva sempre — o
+  alemão reconstrói a frase sem a preposição, que é a mesma saída de
+  `rotina.empurroes.aplicacao`.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 

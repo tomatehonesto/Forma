@@ -117,4 +117,47 @@ export const aviso = {
     erro: 'No pudimos armar el archivo en este aparato. Tus registros siguen aquí, intactos.',
     parado: 'Nada sale de aquí sin que lo toques.',
   },
+
+  telaPrivacidade: {
+    titulo: 'Privacidad y datos',
+    lead: 'Dónde quedan tus registros, qué sale de aquí y qué lee la aplicación de afuera.',
+
+    ondeFicam: 'Dónde quedan tus registros',
+    noAparelho: 'En el aparato, dentro de la aplicación',
+    noAparelhoTexto: 'Peso, medidas, aplicaciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un login, porque no existe login.',
+    desinstalar: 'Desinstalar se lleva todo',
+    desinstalarTexto: 'Como no hay copia en ningún servidor, borrar la aplicación borra los registros. No es posible recuperarlos después.',
+
+    oQueSai: 'Qué sale de aquí',
+    oQueSaiNota: 'Nada sale de aquí sin un gesto tuyo.',
+    paraEquipe: 'Qué va para tu equipo',
+    paraEquipeTexto: 'Por ahora, nada. El resumen para la consulta se arma en tu aparato y eres tú quien lo muestra o lo exporta; los mensajes quedan guardados aquí. Cuando exista el enlace con la clínica, los dos solo van a salir con un toque tuyo — y nada de tu diario viaja solo, ni peso, ni síntoma, ni comida.',
+    fotoDoPrato: 'La foto del plato, cuando usas la lectura por foto',
+    fotoDoPratoTexto: 'Se reduce en el aparato y se envía para que la lea un modelo, que devuelve los ítems del plato. La imagen no queda guardada: ni en tu registro de la comida, ni en el servidor que hace el puente. Registrar la comida a mano no envía nada.',
+
+    leDeFora: 'Qué lee la aplicación de afuera',
+    appDeSaudePadrao: 'aplicación de salud del celular',
+    soOPeso: (app: string) => `${app}, y solo el peso`,
+    soOPesoTexto: (app: string) =>
+      `Con tu permiso, leemos los pesajes que tu balanza, tu reloj u otra aplicación escribieron ahí. Solo leemos: nunca escribimos nada en ${app}. Y leemos solo peso — sueño, pasos y latidos quedan fuera.`,
+    permissao: 'El permiso es tuyo, y se quita cuando quieras',
+    permissaoTexto: 'Se da en los ajustes del sistema y se revoca en el mismo lugar. Sin él, la aplicación sigue entera: el peso vuelve a entrar como entró hasta aquí, escrito por ti.',
+
+    podeFazer: 'Qué puedes hacer ahora',
+    integracoesSub: (app: string) => `Encender o apagar ${app}`,
+    resumo: 'Resumen para la consulta',
+    resumoSub: 'Ver todo lo que entra en el resumen de la consulta',
+
+    apagar: 'Borrar mis datos',
+    apagarSub: 'Todo lo que registraste, sin vuelta',
+    apagarPergunta: '¿Borrar todo? No hay copia en ningún lado.',
+    apagarConfirma: 'Borrar',
+    cancelar: 'Cancelar',
+
+    documentos: 'Los documentos',
+    politicaSub: 'El documento completo, con base legal y plazos',
+    termosSub: 'Qué somos, qué no somos, y qué puede esperar cada lado',
+    semPoliticaTitulo: 'Esto describe la aplicación, no es la política de privacidad',
+    semPoliticaTexto: 'Aquí está lo que el programa hace con tus datos. El documento jurídico, con las obligaciones de quien opera el servicio, todavía va a publicarse — y cuando exista, aparece en esta pantalla.',
+  },
 };

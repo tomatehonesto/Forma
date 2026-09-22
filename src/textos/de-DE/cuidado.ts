@@ -231,4 +231,38 @@ export const cuidado = {
     passouATer: 'Hast du jetzt eine ärztliche Begleitung?',
     anoteQuemE: 'Trag ein, wer es ist.',
   },
+
+  /* ⚠️ DER PLATZHALTER DER FACHRICHTUNG IST DAS FACH, nicht die Person.
+     „Endokrinologin oder Endokrinologe“ wäre die Doppelnennung, die dieser
+     Katalog sonst verlangt — in einem Platzhalter ist sie länger als das
+     Feld und länger als die Frage. „Endokrinologie“ beantwortet die Frage
+     „Fachrichtung“ genauer und kommt ohne Geschlecht aus. */
+  telaAcompanhamento: {
+    leadComVinculo: 'Diese Angaben kommen aus der Praxis, die deine Behandlung begleitet.',
+    ondeAtendida: 'Wo die Termine stattfinden',
+    quemCorrige: 'Korrigieren tut die Praxis',
+    quemCorrigeTexto: 'Wenn etwas falsch ist, sprich mit dem Team — es führt diese Angaben, und was dort korrigiert wird, kommt hier an.',
+
+    lead: 'Wenn dich jemand behandelt, trag ihn hier ein. Das ist es, was die Übersicht fertig für den Termin herauskommen lässt und die Vorbereitung der Fragen zur richtigen Zeit erscheinen lässt.',
+
+    nome: 'Name',
+    nomeAjuda: 'Wie du diese Person nennst. Es kann auch der Name der Praxis sein, wenn dir das lieber ist.',
+    nomePlaceholder: 'Den Namen eintippen',
+    especialidade: 'Fachrichtung',
+    opcional: 'Optional.',
+    especialidadePlaceholder: 'Endokrinologie',
+    ondeAtende: 'Wo behandelt wird',
+    ondeAtendeAjuda: 'Optional — Praxis, Klinik oder Sprechstunde.',
+    ondeAtendePlaceholder: 'Praxis oder Klinik eintippen',
+
+    nadaEnviado: 'Nichts davon wird an jemanden geschickt',
+    nadaEnviadoTexto: 'Der Name bleibt in der App, bei dir. Damit dein Team deine Daten bekommt, braucht es einen Einladungscode der Praxis — und von da an führt sie diese Angaben.',
+    salvar: 'Speichern',
+
+    naoTenhoMais: 'Ich habe keine Begleitung mehr',
+    tirarPergunta: 'Die Begleitung entfernen?',
+    tirarTexto: 'Alle deine Einträge bleiben hier — Gewicht, Injektionen, Symptome, Befunde und Notizen. Weg geht nur der Name.',
+    simTirar: 'Ja, entfernen',
+    cancelar: 'Abbrechen',
+  },
 };

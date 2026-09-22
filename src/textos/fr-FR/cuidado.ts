@@ -196,4 +196,36 @@ export const cuidado = {
     passouATer: 'Vous avez maintenant un suivi médical ?',
     anoteQuemE: 'Notez qui c’est.',
   },
+
+  telaAcompanhamento: {
+    leadComVinculo: 'Ces informations viennent de la clinique qui suit votre traitement.',
+    /* ⚠️ « Où vous êtes suivie » demanderait le genre de qui lit, comme le
+       portugais le demandait. La phrase a été tournée pour ne pas en avoir
+       besoin. */
+    ondeAtendida: 'Où se passent les consultations',
+    quemCorrige: 'C’est la clinique qui corrige',
+    quemCorrigeTexto: 'Si une information est fausse, parlez-en à l’équipe — c’est elle qui tient cette fiche, et ce qui est corrigé là-bas arrive ici.',
+
+    lead: 'Si quelqu’un vous suit, notez-le ici. C’est ce qui fait sortir le résumé prêt pour la consultation et apparaître la préparation des questions au bon moment.',
+
+    nome: 'Nom',
+    nomeAjuda: 'Comment vous appelez cette personne. Cela peut être le nom du cabinet, si vous préférez.',
+    nomePlaceholder: 'Tapez le nom',
+    especialidade: 'Spécialité',
+    opcional: 'Facultatif.',
+    especialidadePlaceholder: 'Endocrinologie',
+    ondeAtende: 'Lieu de consultation',
+    ondeAtendeAjuda: 'Facultatif — clinique, hôpital ou cabinet.',
+    ondeAtendePlaceholder: 'Tapez la clinique ou le cabinet',
+
+    nadaEnviado: 'Rien de tout cela n’est envoyé à personne',
+    nadaEnviadoTexto: 'Le nom reste dans l’application, avec vous. Pour que votre équipe reçoive vos données, il faut un code d’invitation de la clinique — et c’est elle qui tient cette fiche à partir de là.',
+    salvar: 'Enregistrer',
+
+    naoTenhoMais: 'Je n’ai plus de suivi',
+    tirarPergunta: 'Retirer qui vous suit ?',
+    tirarTexto: 'Tous vos relevés restent ici — poids, injections, symptômes, analyses et notes. Ce qui part, c’est seulement le nom.',
+    simTirar: 'Oui, retirer',
+    cancelar: 'Annuler',
+  },
 };

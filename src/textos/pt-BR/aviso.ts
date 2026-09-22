@@ -156,4 +156,90 @@ export const aviso = {
     erro: 'Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.',
     parado: 'Nada sai daqui sem o seu toque.',
   },
+
+  /* ============================================================
+     A TELA DE PRIVACIDADE E DADOS
+
+     ⚠️⚠️ AQUI NENHUMA FRASE PODE ESTAR ERRADA PARA O LADO CONFORTÁVEL.
+     É a tela em que a pessoa vai conferir o que sai do aparelho dela, e
+     um erro "seguro" — prometer mais saída do que existe — faz alguém
+     deixar de registrar um sintoma por achar que ele já foi para alguém.
+
+     ⚠️ E O SUPABASE VAI DERRUBAR METADE DISTO. Hoje o aplicativo não tem
+     conta, nem servidor, nem cópia, e por isso o que está escrito é
+     verdade. No dia em que tiver, cada frase sobre "fica no seu aparelho"
+     vira declaração falsa numa política de privacidade. A lista frase por
+     frase está em PENDENCIAS, item 10 — e traduzir não antecipa nada
+     disso: as cinco versões mudam juntas.
+
+     ⚠️ ELA NÃO É A POLÍTICA. Documento jurídico descreve obrigações de
+     uma empresa; esta tela descreve o comportamento do programa. Quando a
+     política existir, ela entra aqui embaixo como documento.
+     ============================================================ */
+  telaPrivacidade: {
+    titulo: 'Privacidade e dados',
+    lead: 'Onde os seus registros ficam, o que sai daqui e o que o aplicativo lê de fora.',
+
+    /* ---------- onde ficam ---------- */
+    ondeFicam: 'Onde os seus registros ficam',
+    noAparelho: 'No aparelho, dentro do aplicativo',
+    noAparelhoTexto: 'Peso, medidas, aplicações, check-ins, exames, fotos e anotações são gravados no armazenamento do próprio aplicativo, neste aparelho. Não há conta nem senha aqui: ninguém entra nos seus dados com um login, porque não existe login.',
+    desinstalar: 'Desinstalar leva tudo junto',
+    desinstalarTexto: 'Como não há cópia em servidor nenhum, apagar o aplicativo apaga os registros. Não é possível recuperá-los depois.',
+
+    /* ---------- o que sai ---------- */
+    oQueSai: 'O que sai daqui',
+    oQueSaiNota: 'Nada sai daqui sem um gesto seu.',
+    paraEquipe: 'O que vai para a sua equipe',
+    paraEquipeTexto: 'Por enquanto, nada. O resumo para consulta se monta no seu aparelho e é você que mostra ou exporta; as mensagens ficam guardadas aqui. Quando a ligação com a clínica existir, as duas só vão sair com um toque seu — e nada do seu diário viaja sozinho, nem peso, nem sintoma, nem refeição.',
+    fotoDoPrato: 'A foto do prato, quando você usa a leitura por foto',
+    fotoDoPratoTexto: 'Ela é reduzida no aparelho e enviada para ser lida por um modelo, que devolve os itens do prato. A imagem não fica guardada: nem no seu registro da refeição, nem no servidor que faz a ponte. Registrar a refeição à mão não envia nada.',
+
+    /* ---------- o que entra ----------
+
+       ⚠️ O NOME DO DEPÓSITO MUDA COM O APARELHO, e citar o errado faria a
+       pessoa procurar nos ajustes uma coisa que não existe ali. Ele chega
+       pronto do catálogo de integrações, que é a mesma fonte que a tela
+       de Integrações lê — para as duas não discordarem no nome.
+
+       ⚠️ E DIZIA "o app lê as pesagens... Ele só lê". Duas vezes o
+       aplicativo falando de si em terceira pessoa, numa tela em que a
+       pergunta é justamente quem faz o quê. Quem lê somos nós. */
+    leDeFora: 'O que o aplicativo lê de fora',
+    appDeSaudePadrao: 'aplicativo de saúde do celular',
+    soOPeso: (app: string) => `${app}, e só o peso`,
+    soOPesoTexto: (app: string) =>
+      `Com a sua permissão, lemos as pesagens que a sua balança, o seu relógio ou outro aplicativo escreveram lá. Só lemos: nunca escrevemos nada no ${app}. E lemos só peso — sono, passos e batimentos ficam de fora.`,
+    permissao: 'A permissão é sua, e se tira quando quiser',
+    permissaoTexto: 'Ela é dada nos ajustes do sistema e revogada no mesmo lugar. Sem ela, o aplicativo continua inteiro: o peso passa a entrar como entrou até aqui, digitado por você.',
+
+    /* ---------- o que dá para fazer ---------- */
+    podeFazer: 'O que você pode fazer agora',
+    integracoesSub: (app: string) => `Ligar ou desligar o ${app}`,
+    resumo: 'Resumo para consulta',
+    resumoSub: 'Ver tudo o que entra no resumo da consulta',
+
+    /* ---------- apagar ----------
+
+       ⚠️ DUAS PERGUNTAS, E NÃO UMA. A primeira é o toque na linha; a
+       segunda diz o que vai embora e que não há cópia em lugar nenhum.
+       "Tem certeza?" é a pergunta que não informa nada, e é exatamente a
+       que as pessoas respondem "sim" no automático. */
+    apagar: 'Apagar meus dados',
+    apagarSub: 'Tudo que você registrou, sem volta',
+    apagarPergunta: 'Apagar tudo? Não há cópia em lugar nenhum.',
+    apagarConfirma: 'Apagar',
+    cancelar: 'Cancelar',
+
+    /* ---------- os documentos ----------
+
+       ⚠️ "O QUE O MORPHI É" VIROU "O QUE SOMOS". O nome do produto pode
+       ser rótulo, mas não pode ter verbo pendurado nele — é a mesma regra
+       que o cabeçalho do companion carrega por escrito. */
+    documentos: 'Os documentos',
+    politicaSub: 'O documento completo, com base legal e prazos',
+    termosSub: 'O que somos, o que não somos, e o que cada lado pode esperar',
+    semPoliticaTitulo: 'Isto descreve o aplicativo, não é a política de privacidade',
+    semPoliticaTexto: 'Aqui está o que o programa faz com os seus dados. O documento jurídico, com as obrigações de quem opera o serviço, ainda vai ser publicado — e quando existir, aparece nesta tela.',
+  },
 };

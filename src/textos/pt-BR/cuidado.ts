@@ -266,4 +266,59 @@ export const cuidado = {
     passouATer: 'Passou a ter acompanhamento médico?',
     anoteQuemE: 'Anote quem é.',
   },
+
+  /* ============================================================
+     A TELA DE QUEM ACOMPANHA VOCÊ
+
+     ⚠️ O QUE SE REGISTRA AQUI É UM FATO DA VIDA DA PESSOA, e não um
+     vínculo. A maioria de quem usa GLP-1 tem médico; o que a maioria não
+     tem é um médico dentro desta plataforma. Nada do que entra aqui manda
+     mensagem para ninguém, e a tela diz isso ANTES do botão de salvar —
+     é informação para decidir, não aviso depois do fato.
+
+     ⚠️ COM VÍNCULO, ISTO É LEITURA. Quem veio por uma clínica credenciada
+     tem estes campos vindos de lá, e um formulário aberto criaria a
+     situação em que a pessoa corrige o nome da própria médica e o
+     servidor sobrescreve na sincronização seguinte.
+
+     ⚠️ E "ONDE VOCÊ É ATENDIDA" CONCORDAVA COM UMA LEITORA. O particípio
+     em português tem gênero, e a tela não sabe o de quem lê — a frase foi
+     reescrita para não precisar saber. O francês teria o mesmo problema
+     em "suivie".
+     ============================================================ */
+  telaAcompanhamento: {
+    /* O título é o mesmo da seção na aba Cuidado: mesma pergunta, mesma
+       resposta, duas telas. Sai de `cuidado.tela.quemAcompanha`. */
+    leadComVinculo: 'Estes dados vêm da clínica que acompanha o seu tratamento.',
+    ondeAtendida: 'Onde acontece o atendimento',
+    quemCorrige: 'Quem corrige é a clínica',
+    quemCorrigeTexto: 'Se algum dado estiver errado, fale com a equipe — é ela que mantém esta ficha, e o que for corrigido lá chega aqui.',
+
+    lead: 'Se você se trata com alguém, anote aqui. É o que faz o resumo sair pronto para a consulta e o preparo de perguntas aparecer na hora certa.',
+
+    nome: 'Nome',
+    nomeAjuda: 'Como você chama essa pessoa. Pode ser o nome do consultório, se preferir.',
+    nomePlaceholder: 'Digite o nome',
+    especialidade: 'Especialidade',
+    opcional: 'Opcional.',
+    /* Um exemplo, e não um dado. Cada idioma escolhe a forma que não pede
+       gênero: onde o nome da pessoa é marcado, entra o nome da área. */
+    especialidadePlaceholder: 'Endocrinologia',
+    ondeAtende: 'Onde atende',
+    ondeAtendeAjuda: 'Opcional — clínica, hospital ou consultório.',
+    ondeAtendePlaceholder: 'Digite a clínica ou consultório',
+
+    nadaEnviado: 'Nada disto é enviado a ninguém',
+    nadaEnviadoTexto: 'O nome fica no aplicativo, com você. Para que a sua equipe receba os seus dados é preciso um código de convite da clínica — e aí quem passa a cuidar desta ficha é ela.',
+    salvar: 'Salvar',
+
+    /* ⚠️ TIRAR QUEM ACOMPANHA NÃO APAGA NADA. É a regra da casa: nenhuma
+       atualização das informações limpa registro. O que sai são três
+       campos de identificação. */
+    naoTenhoMais: 'Não tenho mais acompanhamento',
+    tirarPergunta: 'Tirar quem acompanha?',
+    tirarTexto: 'Os seus registros continuam todos aqui — peso, aplicações, sintomas, exames e anotações. O que sai é só o nome.',
+    simTirar: 'Sim, tirar',
+    cancelar: 'Cancelar',
+  },
 };

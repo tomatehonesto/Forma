@@ -6,6 +6,15 @@ import { clinicaConectada, temAcompanhamento } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Campo, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import.
+
+   ⚠️ E O TÍTULO SAI DE cuidado.tela.quemAcompanha: é a mesma pergunta
+   que a seção da aba Cuidado faz, e ela leva exatamente a esta tela. */
+const K = () => T.cuidado.telaAcompanhamento;
+const TITULO = () => T.cuidado.tela.quemAcompanha;
 
 /* ============================================================
    QUEM ACOMPANHA VOCÊ — o médico que não está na plataforma
@@ -101,42 +110,36 @@ export default function Acompanhamento() {
      desfaz sozinho é pior do que uma que ele não oferece. */
   if (conectada) {
     return (
-      <TelaInterna titulo="Quem acompanha você">
-        <Titulao
-          titulo="Quem acompanha você"
-          lead="Estes dados vêm da clínica que acompanha o seu tratamento."
-        />
+      <TelaInterna titulo={TITULO()}>
+        <Titulao titulo={TITULO()} lead={K().leadComVinculo} />
         <Cartao>
-          <Linha ic="steth" titulo={p.doctor || 'Especialista'} sub={p.doctorInfo?.especialidade || undefined} />
-          {p.clinic ? <Linha ic="home" titulo={p.clinic} sub="Onde você é atendida" /> : null}
+          <Linha ic="steth" titulo={p.doctor || T.perfil.especialista} sub={p.doctorInfo?.especialidade || undefined} />
+          {/* ⚠️ DIZIA "Onde você é atendida", e o particípio em português
+              tem gênero — a tela não sabe o de quem lê. A frase foi
+              reescrita para não precisar saber; o francês teria o mesmo
+              problema em "suivie". */}
+          {p.clinic ? <Linha ic="home" titulo={p.clinic} sub={K().ondeAtendida} /> : null}
         </Cartao>
-        <Aviso
-          ic="info"
-          titulo="Quem corrige é a clínica"
-          texto="Se algum dado estiver errado, fale com a equipe — é ela que mantém esta ficha, e o que for corrigido lá chega aqui."
-        />
+        <Aviso ic="info" titulo={K().quemCorrige} texto={K().quemCorrigeTexto} />
         <View />
       </TelaInterna>
     );
   }
 
   return (
-    <TelaInterna titulo="Quem acompanha você">
-      <Titulao
-        titulo="Quem acompanha você"
-        lead="Se você se trata com alguém, anote aqui. É o que faz o resumo sair pronto para a consulta e o preparo de perguntas aparecer na hora certa."
-      />
+    <TelaInterna titulo={TITULO()}>
+      <Titulao titulo={TITULO()} lead={K().lead} />
 
-      <Campo rotulo="Nome" ajuda="Como você chama essa pessoa. Pode ser o nome do consultório, se preferir.">
-        <Texto valor={nome} onChange={setNome} placeholder="Digite o nome" linhas={1} />
+      <Campo rotulo={K().nome} ajuda={K().nomeAjuda}>
+        <Texto valor={nome} onChange={setNome} placeholder={K().nomePlaceholder} linhas={1} />
       </Campo>
 
-      <Campo rotulo="Especialidade" ajuda="Opcional.">
-        <Texto valor={esp} onChange={setEsp} placeholder="Endocrinologista" linhas={1} />
+      <Campo rotulo={K().especialidade} ajuda={K().opcional}>
+        <Texto valor={esp} onChange={setEsp} placeholder={K().especialidadePlaceholder} linhas={1} />
       </Campo>
 
-      <Campo rotulo="Onde atende" ajuda="Opcional — clínica, hospital ou consultório.">
-        <Texto valor={onde} onChange={setOnde} placeholder="Digite a clínica ou consultório" linhas={1} />
+      <Campo rotulo={K().ondeAtende} ajuda={K().ondeAtendeAjuda}>
+        <Texto valor={onde} onChange={setOnde} placeholder={K().ondeAtendePlaceholder} linhas={1} />
       </Campo>
 
       {/* ⚠️ A FRASE QUE EVITA A EXPECTATIVA ERRADA. Sem ela, uma tela que
@@ -144,26 +147,18 @@ export default function Acompanhamento() {
           faz qualquer pessoa esperar que ele receba alguma coisa. Vem
           antes do botão de propósito: é informação para decidir, e não
           aviso depois do fato. */}
-      <Aviso
-        ic="shield"
-        titulo="Nada disto é enviado a ninguém"
-        texto="O nome fica no aplicativo, com você. Para que a sua equipe receba os seus dados é preciso um código de convite da clínica — e aí quem passa a cuidar desta ficha é ela."
-      />
+      <Aviso ic="shield" titulo={K().nadaEnviado} texto={K().nadaEnviadoTexto} />
 
-      <Botao label="Salvar" onPress={salvar} desligado={!vale} />
+      <Botao label={K().salvar} onPress={salvar} desligado={!vale} />
 
       {tinha ? (
         apagando ? (
-          <Aviso
-            ic="info"
-            titulo="Tirar quem acompanha?"
-            texto="Os seus registros continuam todos aqui — peso, aplicações, sintomas, exames e anotações. O que sai é só o nome."
-          >
-            <Botao label="Sim, tirar" onPress={remover} tom="perigo" />
-            <Botao label="Cancelar" onPress={() => setApagando(false)} tom="fantasma" />
+          <Aviso ic="info" titulo={K().tirarPergunta} texto={K().tirarTexto}>
+            <Botao label={K().simTirar} onPress={remover} tom="perigo" />
+            <Botao label={K().cancelar} onPress={() => setApagando(false)} tom="fantasma" />
           </Aviso>
         ) : (
-          <Botao label="Não tenho mais acompanhamento" onPress={() => setApagando(true)} tom="fantasma" />
+          <Botao label={K().naoTenhoMais} onPress={() => setApagando(true)} tom="fantasma" />
         )
       ) : null}
 
