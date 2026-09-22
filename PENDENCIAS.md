@@ -1403,6 +1403,23 @@ tirada do `git show`, e não de memória.
   mostra `localAtual()`/`paisAtual()`/`formaDe()` e fica montada atrás de
   uma folha precisa assinar `S`.
 
+- **⚠️⚠️ A TERCEIRA CEGUEIRA DO INVENTÁRIO: PALAVRA PORTUGUESA SEM
+  ACENTO.** A regra do texto solto de JSX passa pelo `PT`, que é uma
+  heurística de APARÊNCIA — ela pede um acento ou uma palavra de uma
+  lista curta. "Pronto", no botão de /registro-ok, não tem nenhum dos
+  dois, e por isso aquele arquivo NÃO APARECE no inventário: zero frases,
+  com um botão em português no meio de uma tela alemã. O comentário do
+  próprio script já reconhece o buraco para as PROPRIEDADES, e foi por
+  isso que a regra 3 nasceu sem o `PT`; o texto solto continuou com ele.
+  ⚠️ A saída provável é tirar o `PT` das regras 2 e 2b também — texto
+  entre etiquetas é quase sempre cópia de tela —, mas isso precisa ser
+  MEDIDO antes: é o mesmo tipo de mudança que, na cegueira anterior,
+  inflou o inventário para 410 com rótulo de sorvete.
+- **O cabeçalho da folha rolava junto com o conteúdo.** Numa folha curta
+  ninguém via; na lista de cento e onze países, rolar levava embora o
+  título E o botão de fechar. O pé da folha já era fixo pelo mesmo
+  motivo; o topo só não era por descuido.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

@@ -616,28 +616,43 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose, scrollRef 
         <Pressable onPress={fechar} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 14 }}>
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
+        {/* ⚠️ O CABEÇALHO FICA FORA DA ROLAGEM, e estava dentro dela.
+
+            Numa folha curta ninguém via diferença; na lista de cento e
+            onze países, rolar levava embora o título E o botão de fechar
+            — e a pessoa ficava com uma lista sem nome e sem saída, com a
+            alça de cima como único jeito de sair. O pé da folha já é
+            fixo, por este mesmo motivo; o topo só não era por descuido.
+
+            O recuo horizontal vem para cá junto: ele era do
+            `contentContainerStyle`, e o cabeçalho ia de carona.
+
+            ⚠️ E ELE NÃO SE ESCONDE QUANDO NÃO HÁ TÍTULO. As folhas de
+            confirmação não passam `titulo` — ver a nota lá em cima —, e
+            mesmo sem ele esta faixa carrega o X, que é o único botão de
+            sair que elas têm. */}
+        <Row style={{ alignItems: 'flex-start', paddingHorizontal: 24, paddingBottom: 4 }}>
+          <View style={{ flex: 1 }}>
+            {/* Com `c`, e não sem: um `Txt` sem cor cai no
+                `useTheme()`, e o dia em que alguém emprestar outra
+                paleta a esta folha o título é o primeiro a sumir. É o
+                mesmo defeito que já apagou quatro textos do paywall. */}
+            {titulo ? <Txt v="h2" c={c.tx}>{titulo}</Txt> : null}
+            {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
+          </View>
+          {/* fechar explícito — o grabber some para quem não conhece o gesto */}
+          <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="x" size={16} color={c.tx2} sw={2.2} />
+            </View>
+          </Pressable>
+        </Row>
         <Rolagem
           ref={scrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Row style={{ alignItems: 'flex-start' }}>
-            <View style={{ flex: 1 }}>
-              {/* Com `c`, e não sem: um `Txt` sem cor cai no
-                  `useTheme()`, e o dia em que alguém emprestar outra
-                  paleta a esta folha o título é o primeiro a sumir. É o
-                  mesmo defeito que já apagou quatro textos do paywall. */}
-              {titulo ? <Txt v="h2" c={c.tx}>{titulo}</Txt> : null}
-              {sub ? <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{sub}</Txt> : null}
-            </View>
-            {/* fechar explícito — o grabber some para quem não conhece o gesto */}
-            <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
-              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="x" size={16} color={c.tx2} sw={2.2} />
-              </View>
-            </Pressable>
-          </Row>
           {children}
         </Rolagem>
 

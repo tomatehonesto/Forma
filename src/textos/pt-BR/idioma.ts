@@ -34,7 +34,7 @@ export const idioma = {
 
   /* A tela do perfil, onde se troca. Ela pergunta DUAS coisas, e o
      nome dela diz as duas. */
-  titulo: 'Idioma e região',
+  titulo: 'Idioma e País',
   tituloSub: 'Em que idioma você lê, e onde você se trata.',
   rotulo: 'Como você lê o aplicativo',
 

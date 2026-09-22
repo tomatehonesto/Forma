@@ -35,7 +35,7 @@ export const idioma = {
   paisRotulo: 'Où vous vous soignez',
   paisRessalva: 'Cela change quels médicaments apparaissent en premier, la monnaie et la table des aliments. Rien ne disparaît de la liste : ce qui est moins courant là-bas passe en dessous.',
 
-  titulo: 'Langue et région',
+  titulo: 'Langue et Pays',
   tituloSub: 'Dans quelle langue vous lisez, et où vous vous soignez.',
   rotulo: 'Comment vous lisez l’application',
 

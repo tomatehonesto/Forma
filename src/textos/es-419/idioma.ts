@@ -18,7 +18,7 @@ export const idioma = {
   paisRotulo: 'Dónde te tratas',
   paisRessalva: 'Cambia qué medicamentos aparecen primero, la moneda y la tabla de alimentos. Nada desaparece de la lista: lo menos común ahí queda más abajo.',
 
-  titulo: 'Idioma y región',
+  titulo: 'Idioma y País',
   tituloSub: 'En qué idioma lees, y dónde te tratas.',
   rotulo: 'Cómo lees la aplicación',
 

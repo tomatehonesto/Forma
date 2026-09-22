@@ -17,7 +17,7 @@ export const idioma = {
   paisRotulo: 'Where you get your treatment',
   paisRessalva: 'It changes which medications come up first, the currency and the food table. Nothing disappears from the list: what’s less common there sits lower down.',
 
-  titulo: 'Language and region',
+  titulo: 'Language and Country',
   tituloSub: 'Which language you read in, and where you get your treatment.',
   rotulo: 'How you read the app',
 
