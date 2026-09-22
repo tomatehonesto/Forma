@@ -110,7 +110,7 @@ export const escalas = {
   tela: {
     titulo: 'Symptômes',
     diasRespondidos: (quantos: number, de: number) =>
-      `${quantos} ${quantos === 1 ? 'jour rempli' : 'jours remplis'} sur les ${de} derniers`,
+      `${quantos} ${quantos === 1 ? 'jour rempli' : 'jours remplis'} sur les ${de} derniers`,
     nenhumDia: (de: number) => `Aucun jour rempli sur les ${de} derniers`,
 
     nestaSemana: 'Cette semaine',
@@ -118,16 +118,16 @@ export const escalas = {
     fazerCheckin: 'Faire le check-in',
     nenhumSintoma: 'Aucun symptôme cette semaine',
     nenhumSintomaSub: (respondidos: number) =>
-      `${respondidos} ${respondidos === 1 ? 'jour rempli' : 'jours remplis'}, aucun avec une plainte.`,
+      `${respondidos} ${respondidos === 1 ? 'jour rempli' : 'jours remplis'}, aucun avec une plainte.`,
     diasDe: (dias: number, respondidos: number) =>
-      `${dias} sur ${respondidos} ${respondidos === 1 ? 'jour' : 'jours'}`,
+      `${dias} sur ${respondidos} ${respondidos === 1 ? 'jour' : 'jours'}`,
     noPiorDia: (legenda: string) => `Au pire jour : ${legenda}`,
     citacao: (texto: string) => `« ${texto} »`,
     voceEscreveuEm: (data: string) => `Vous avez écrit le ${data}`,
 
     aoLongoDoCiclo: 'Au fil du cycle',
     aoLongoNota: (dias: number) =>
-      `Moyenne de la nausée chaque jour après l’injection, sur ${dias} ${dias === 1 ? 'jour rempli' : 'jours remplis'}.`,
+      `Moyenne de la nausée chaque jour après l’injection, sur ${dias} ${dias === 1 ? 'jour rempli' : 'jours remplis'}.`,
     dose: 'dose',
 
     cicloParecido: 'Sur les jours remplis jusqu’ici, la nausée apparaît semblable tout au long du cycle — elle ne suit pas la dose.',
@@ -142,7 +142,7 @@ export const escalas = {
 
     comoSeSentiu: 'Comment vous vous sentiez',
     respostasEm14: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'réponse' : 'réponses'} en 14 jours`,
+      `${quantas} ${quantas === 1 ? 'réponse' : 'réponses'} en 14 jours`,
     semRespostas: 'Pas encore de réponses',
     sentir: {
       energia: 'Énergie',

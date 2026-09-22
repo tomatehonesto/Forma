@@ -164,11 +164,11 @@ export const tratamento = {
     movimentoTitulo: 'Votre mouvement',
     estaSemana: 'Cette semaine',
     nenhumDiaComMovimento: 'Aucun jour avec du mouvement',
-    emDiasDosSete: (dias: number) => `Sur ${dias} ${dias === 1 ? 'jour' : 'jours'} des sept`,
+    emDiasDosSete: (dias: number) => `Sur ${dias} ${dias === 1 ? 'jour' : 'jours'} des sept`,
     metaMin: (alvo: number) => `Objectif : ${alvo} min`,
 
     semForca: 'Aucune séance de renforcement cette semaine. Musculation, pilates et functional sont ce qui tient le muscle.',
-    comForca: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'} avec du renforcement — c’est ce qui tient le muscle pendant que le poids descend.`,
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'} avec du renforcement — c’est ce qui tient le muscle pendant que le poids descend.`,
 
     minutosPorSemana: 'Minutes par semaine',
     mediaOitoSemanas: 'Moyenne des 8 dernières semaines',
@@ -211,9 +211,9 @@ export const tratamento = {
     eReceita: (recipiente: string) => `${recipiente} et ordonnance`,
     dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} doses sur ${total} utilisées ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’injection`,
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’injection`,
     nenhumAlerta: 'Aucun rappel d’injection',
     tocaEm: (quando: string) => `Sonne ${quando}`,
     avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
@@ -222,7 +222,7 @@ export const tratamento = {
     naoUsado: 'Pas encore utilisé — c’est son tour.',
     proximoDaRotacao: 'C’est le suivant dans la rotation, même s’il a servi cette semaine.',
     descansandoHa: (semanas: number) =>
-      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'} — c’est son tour.`,
+      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'} — c’est son tour.`,
     usadoHaPouco: 'utilisé récemment',
     oProximo: 'le suivant',
     proxima: 'prochaine',
@@ -275,7 +275,7 @@ export const tratamento = {
     quemPreparaDefine: 'la personne qui le prépare fixe le délai',
 
     receitaAtual: 'Ordonnance en cours',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     receitaCobreAte: (data: string) => `couvre jusqu’au ${data}`,
 
     /* ⚠️ « avant d’être fini » s’accorde, et le conteneur peut être
@@ -287,7 +287,7 @@ export const tratamento = {
 
     momentoDeRenovar: 'Le moment de demander le renouvellement',
     renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans ${oRecipiente} entre deux consultations.`,
+      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans ${oRecipiente} entre deux consultations.`,
 
     historico: (plural: string) => `Historique des ${plural}`,
     emUso: 'en cours',
@@ -330,7 +330,7 @@ export const tratamento = {
     naoUsado: 'Pas encore utilisé dans ce traitement.',
     usadoEstaSemana: 'Utilisé cette semaine.',
     descansandoHa: (semanas: number) =>
-      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}.`,
+      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}.`,
     eOProximo: 'C’est le suivant dans la rotation.',
     foraDaRotacao: 'Hors de la rotation suggérée — pas de souci, ce n’est qu’un rappel.',
 

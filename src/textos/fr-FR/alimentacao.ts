@@ -113,7 +113,7 @@ export const alimentacao = {
     lanche: 'Collation',
     jantar: 'Dîner',
 
-    porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'portion' : 'portions'}`,
+    porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'portion' : 'portions'}`,
 
     /* ⚠️ LA PROVENANCE N'APPARAÎT QUE QUAND IL FAUT LA DIRE. Un item de
        table ne dit rien : c'est le cas normal, et l'annoncer serait du
@@ -193,7 +193,7 @@ export const alimentacao = {
     passouAMeta: (quanto: string) => `Vous avez dépassé l’objectif du jour de <b>${quanto} kcal</b>. Demain est un autre jour.`,
 
     foraDaConta: (fora: number, total: number) =>
-      `${fora} repas sur ${total} ${total === 1 ? 'n’entre pas' : 'n’entrent pas'} dans ce compte : seule une assiette construite avec la table a une étiquette vérifiée.`,
+      `${fora} repas sur ${total} ${total === 1 ? 'n’entre pas' : 'n’entrent pas'} dans ce compte : seule une assiette construite avec la table a une étiquette vérifiée.`,
 
     carboidrato: 'Glucides',
     gordura: 'Lipides',
@@ -203,7 +203,7 @@ export const alimentacao = {
     semanaTitulo: 'Les protéines de la semaine',
     estaSemana: 'Cette semaine',
     nadaNaSemana: 'Rien de noté ces sept derniers jours',
-    mediaDeDias: (dias: number) => `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
+    mediaDeDias: (dias: number) => `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
     metaG: (alvo: number) => `Objectif : ${alvo} g`,
 
     notamosTitulo: 'Ce qu’on a remarqué',
@@ -248,7 +248,7 @@ export const alimentacao = {
     suaSemana: 'Votre semaine',
     nadaNaSemana: 'Rien de noté ces sept derniers jours',
     mediaDeDias: (dias: number) =>
-      `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
+      `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
     meta: (quanto: string) => `Objectif : ${quanto}`,
 
     diario: 'Journal des boissons',
@@ -260,7 +260,7 @@ export const alimentacao = {
     asHoras: (hora: string) => `à ${hora}`,
     foraDaContaSufixo: ' · hors du compte',
     registros: (quantos: number, total: string) =>
-      `${quantos} ${quantos === 1 ? 'relevé' : 'relevés'} · ${total}`,
+      `${quantos} ${quantos === 1 ? 'relevé' : 'relevés'} · ${total}`,
     maisForaDaConta: (quantos: number) => ` · ${quantos} hors du compte`,
     daComida: (quanto: string) => `Plus ${quanto} venant de ce que vous avez mangé`,
     vazioTitulo: 'Rien de noté ce jour-là',
@@ -268,7 +268,7 @@ export const alimentacao = {
 
     lembrete: 'Rappel',
     alertas: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’hydratation`,
+      `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’hydratation`,
     nenhumAlerta: 'Aucun rappel d’hydratation',
     tocaEm: (quando: string) => `Sonne ${quando}`,
     umToquePorDia: 'Un signal par jour, à l’heure que vous choisissez',
@@ -299,7 +299,7 @@ export const alimentacao = {
 
     pratosFavoritos: 'Assiettes favorites',
     pratosGuardados: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'assiette gardée' : 'assiettes gardées'}`,
+      `${quantos} ${quantos === 1 ? 'assiette gardée' : 'assiettes gardées'}`,
     favoritoProteina: (quanto: number) => `~${quanto} g de protéines`,
 
     /* ---------- o compositor do prato (ui/comida) ---------- */

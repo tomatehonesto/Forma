@@ -322,7 +322,7 @@ export const metas = {
        chiffre deux fois. « 11 sur 13 nuits » répond : de combien de nuits
        parle-t-on. */
     contagem: (quantas: number, de: number, nome: string, femininas: boolean) =>
-      `${quantas} sur ${de} ${nome} ${femininas ? 'enregistrées' : 'enregistrés'}`,
+      `${quantas} sur ${de} ${nome} ${femininas ? 'enregistrées' : 'enregistrés'}`,
     /* ⚠️ « PAS ENCORE DE nuits » N'ACCORDE RIEN, et c'est voulu : la ligne
        reçoit « jours » sept fois sur huit et « nuits » une fois, et un
        participe ici devrait connaître le genre de ce qui arrive. Le

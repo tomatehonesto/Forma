@@ -53,7 +53,7 @@ export const companion = {
     fomeDesc: (molecula: string) =>
       `Le niveau de ${molecula} baisse au fil de la semaine, et la satiété baisse avec lui. Comprendre la courbe enlève la sensation de rechute.`,
 
-    primeirosMotivo: (dias: number) => `Vous avez fait votre injection il y a ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+    primeirosMotivo: (dias: number) => `Vous avez fait votre injection il y a ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
     primeirosTitulo: 'Les premiers jours après la dose',
     primeirosDesc: 'Ce qu’il est normal de ressentir dans la fenêtre de 48 h, et ce qui mérite déjà un message à votre équipe.',
 
@@ -107,7 +107,7 @@ export const companion = {
 
     resumoDaSemana: 'Résumé de la semaine',
     resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
-      `semaine ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+      `semaine ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
     preparoDaConsulta: 'Préparation de la consultation',
     preparoDaConsultaSub: 'poids, observance, symptômes et questions',
     preparoSemEquipe: 'prêt à partager',

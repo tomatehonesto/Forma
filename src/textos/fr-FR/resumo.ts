@@ -72,7 +72,7 @@ export const resumo = {
     paraLevar: 'À emporter à la prochaine consultation',
     enviadoEm: (quando: string) => `Envoyé ${quando}`,
     enviosSub: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'envoi' : 'envois'} · reste chez votre équipe`,
+      `${quantos} ${quantos === 1 ? 'envoi' : 'envois'} · reste chez votre équipe`,
 
     examesRecentes: 'Analyses récentes',
     verTodos: 'Voir toutes',

@@ -75,7 +75,7 @@ export const etapa = {
      que c'est fini, et ce qui décide si le résultat tient, c'est
      justement ce qui vient après. */
   manutencaoBody: (atual: string, alvo: string, por: string | null) =>
-    `${atual}, contre ${alvo}${por ? ` notés par ${por}` : ''} — et cela fait au moins un mois dans cette fourchette. Maintenir est un travail différent de perdre, et c’est ce qui décide si le résultat tient.`,
+    `${atual}, contre ${alvo}${por ? ` notés par ${por}` : ''} — et cela fait au moins un mois dans cette fourchette. Maintenir est un travail différent de perdre, et c’est ce qui décide si le résultat tient.`,
   manutencaoQ: 'Où en est mon évolution ?',
 
   platoChapeu: 'POIDS STABLE',

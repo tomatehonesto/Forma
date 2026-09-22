@@ -41,7 +41,7 @@ export const medidas = {
     lead: (data: string, inicial: string, unidade: string) =>
       `Noté le ${data} · ${inicial} ${unidade} au début du traitement`,
     subCurva: (periodo: string, quantos: number) =>
-      `${periodo.toLowerCase()}${quantos > 1 ? ` · ${quantos} relevés` : ''}`,
+      `${periodo.toLowerCase()}${quantos > 1 ? ` · ${quantos} relevés` : ''}`,
 
     registros: 'Relevés',
     notaLeitura: 'Lectures d’une balance à impédancemétrie. Il n’y a rien à corriger ici — elles arrivent finies.',

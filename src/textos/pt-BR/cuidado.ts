@@ -363,4 +363,52 @@ export const cuidado = {
     anotar: 'Anotar consulta',
     naoTenho: 'Não tenho consulta marcada',
   },
+  /* ============================================================
+     CONSULTAS — a próxima, o que levar nela, e as que já foram
+
+     ⚠️ O DIA DA SEMANA E A DATA SÃO COLADOS POR UMA FUNÇÃO, e não por
+     uma vírgula escrita no JSX: "segunda-feira, 3 de outubro" leva
+     vírgula no português, no inglês e no alemão, e o francês e o
+     espanhol escrevem "lundi 3 octobre" — sem nenhuma. Uma vírgula
+     digitada na tela seria uma regra de português aplicada aos cinco.
+     ============================================================ */
+  telaConsultas: {
+    titulo: 'Consultas',
+    leadComData: 'A próxima, o que levar nela, e as que já aconteceram.',
+    leadSemData: 'O que levar na próxima, e as que já aconteceram.',
+
+    jaPassou: 'JÁ PASSOU',
+    proxima: 'PRÓXIMA',
+    dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
+      `${diaDaSemana}, ${data}${quem ? ` · ${quem}` : ''}`,
+    jaAconteceu: 'Já aconteceu',
+    verResumo: 'Ver o resumo para levar',
+    mudarData: 'Mudar a data',
+
+    nenhumaAnotada: 'Nenhuma consulta anotada',
+    clinicaMarca: 'Quando a sua equipe marcar a próxima, ela aparece aqui.',
+    semDataTexto: 'Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para levar.',
+    anotarConsulta: 'Anotar consulta',
+
+    paraLevar: 'Para levar',
+    /* Os três ramos numa função só: o plural é regra de idioma, e
+       deixá-lo no ternário da tela prenderia "Falta/Faltam" ao
+       português. */
+    paraLevarSub: (faltando: number): string =>
+      faltando === 0
+        ? 'Está tudo em dia — o resumo já se monta com isso.'
+        : faltando === 1
+          ? 'Falta uma coisa para o resumo ficar completo.'
+          : `Faltam ${faltando} coisas para o resumo ficar completo.`,
+
+    anteriores: 'Consultas anteriores',
+    linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
+
+    /* ⚠️ CHAVE E RÓTULO AO MESMO TEMPO, como os três tipos de
+       /anotar-consulta: é o que fica GRAVADO no histórico quando a
+       consulta não tinha tipo. Mesma família — registro novo nasce no
+       idioma de quem gravou, e registro antigo aparece como foi
+       gravado. */
+    consultaGenerica: 'Consulta',
+  },
 };

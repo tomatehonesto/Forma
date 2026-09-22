@@ -487,4 +487,48 @@ export const home = {
     exame: 'Recebi um exame',
     anotacao: 'Anotei algo para a consulta',
   },
+  /* ============================================================
+     COMO LEMOS O SEU RITMO — a conta por trás da etiqueta
+
+     ⚠️ O AVISO DO PÉ CITA A ETIQUETA ENTRE ASPAS, e as aspas mudam de
+     idioma: “ ” no português, „ “ no alemão, « » no francês. Por isso a
+     frase inteira mora aqui, e não montada no JSX com as aspas
+     digitadas do lado de fora.
+
+     ⚠️ E A ETIQUETA CHEGA JÁ MINÚSCULA, pela mão de `comum.noMeio` —
+     que no alemão devolve o texto como veio, porque lá a palavra no meio
+     da frase não perde a maiúscula.
+     ============================================================ */
+  telaRitmo: {
+    titulo: 'Como lemos o seu ritmo',
+    sub: 'A etiqueta olha para a constância do tratamento, não para a velocidade da perda de peso.',
+
+    aplicacoes: 'Aplicações em dia',
+    aplicacoesSub: (aplicadas: number, vividas: number) =>
+      `${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'}`,
+
+    intervalo: 'Intervalo entre doses',
+    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'}, sem atrasos longos`,
+    intervaloMaior: (dias: number) => `maior intervalo: ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
+
+    sintomas: 'Sintomas relatados',
+    sintomasLeves: 'Leves',
+    sintomasModerados: 'Leves a moderados',
+    sintomasFortes: 'Moderados a fortes',
+
+    /* Os selos são minúsculos de propósito: é rótulo de canto, e não
+       frase. Nenhum deles é vermelho — a tela explica uma conta, e não
+       cobra. */
+    seloOk: 'ok',
+    seloAtencao: 'atenção',
+    seloIrregular: 'irregular',
+    seloEstavel: 'estável',
+    seloEmAlta: 'em alta',
+
+    avisoTitulo: 'Uma semana diferente não muda a etiqueta',
+    avisoTexto: (etiqueta: string) =>
+      `Ela não sobe nem desce por quanto você perdeu, e não existe versão dela que diga que a semana foi ruim. Hoje ela lê “${etiqueta}”.`,
+
+    entendi: 'Entendi',
+  },
 };

@@ -38,7 +38,7 @@ export const alertas = {
   proteinaDesc: 'Un rappel pour donner la priorité aux protéines dans les repas du jour.',
 
   noDia: 'Le jour même',
-  diasAntes: (n: number) => `${n} jour${n > 1 ? 's' : ''} avant`,
+  diasAntes: (n: number) => `${n} jour${n > 1 ? 's' : ''} avant`,
 
   /* ⚠️ LES TROIS RACCOURCIS DE SEMAINE SONT DES NOMS D'ENSEMBLE, pas des
      énumérations. « Lundi, mardi, mercredi, jeudi, vendredi » est correct

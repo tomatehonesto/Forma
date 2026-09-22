@@ -249,4 +249,37 @@ export const cuidado = {
     anotar: 'Anotar consulta',
     naoTenho: 'No tengo consulta agendada',
   },
+  telaConsultas: {
+    titulo: 'Consultas',
+    leadComData: 'La próxima, qué llevar a ella, y las que ya pasaron.',
+    leadSemData: 'Qué llevar a la próxima, y las que ya pasaron.',
+
+    jaPassou: 'YA PASÓ',
+    proxima: 'PRÓXIMA',
+    /* Sin coma: en español la fecha larga se escribe "lunes 3 de
+       octubre", y la coma es costumbre del portugués. */
+    dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
+      `${diaDaSemana} ${data}${quem ? ` · ${quem}` : ''}`,
+    jaAconteceu: 'Ya ocurrió',
+    verResumo: 'Ver el resumen para llevar',
+    mudarData: 'Cambiar la fecha',
+
+    nenhumaAnotada: 'Ninguna consulta anotada',
+    clinicaMarca: 'Cuando tu equipo agende la próxima, aparece aquí.',
+    semDataTexto: 'Con la fecha aquí, te avisamos cuando se acerque y dejamos el resumen listo para llevar.',
+    anotarConsulta: 'Anotar consulta',
+
+    paraLevar: 'Para llevar',
+    paraLevarSub: (faltando: number): string =>
+      faltando === 0
+        ? 'Está todo al día — el resumen ya se arma con esto.'
+        : faltando === 1
+          ? 'Falta una cosa para que el resumen quede completo.'
+          : `Faltan ${faltando} cosas para que el resumen quede completo.`,
+
+    anteriores: 'Consultas anteriores',
+    linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
+
+    consultaGenerica: 'Consulta',
+  },
 };

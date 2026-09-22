@@ -294,4 +294,35 @@ export const cuidado = {
     anotar: 'Termin eintragen',
     naoTenho: 'Ich habe keinen Termin',
   },
+  telaConsultas: {
+    titulo: 'Termine',
+    leadComData: 'Der nächste Termin, was du dorthin mitnimmst, und die, die schon waren.',
+    leadSemData: 'Was du zum nächsten Termin mitnimmst, und die, die schon waren.',
+
+    jaPassou: 'SCHON VORBEI',
+    proxima: 'NÄCHSTER',
+    dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
+      `${diaDaSemana}, ${data}${quem ? ` · ${quem}` : ''}`,
+    jaAconteceu: 'Hat stattgefunden',
+    verResumo: 'Übersicht zum Mitnehmen ansehen',
+    mudarData: 'Datum ändern',
+
+    nenhumaAnotada: 'Kein Termin eingetragen',
+    clinicaMarca: 'Sobald dein Team den nächsten vergibt, erscheint er hier.',
+    semDataTexto: 'Mit dem Datum hier sagen wir dir Bescheid, wenn er näher rückt, und legen die Übersicht zum Mitnehmen bereit.',
+    anotarConsulta: 'Termin eintragen',
+
+    paraLevar: 'Zum Mitnehmen',
+    paraLevarSub: (faltando: number): string =>
+      faltando === 0
+        ? 'Alles ist aktuell — die Übersicht baut sich damit auf.'
+        : faltando === 1
+          ? 'Eine Sache fehlt noch, damit die Übersicht vollständig ist.'
+          : `${faltando} Sachen fehlen noch, damit die Übersicht vollständig ist.`,
+
+    anteriores: 'Frühere Termine',
+    linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
+
+    consultaGenerica: 'Termin',
+  },
 };

@@ -9,6 +9,11 @@ import { useTheme } from '../ui/useTheme';
 import { preparoDaConsulta, temConsulta, clinicaConectada } from '../logic/derive';
 import { fmtWD, fmtDate, relDay, diffDays, now, maiuscula } from '../logic/time';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cuidado.telaConsultas;
 
 /* ============================================================
    CONSULTAS — a próxima, o que levar nela, e as que já foram
@@ -67,7 +72,7 @@ export default function Consultas() {
   const realizada = () => {
     update((st: any) => {
       (st.consultsHistory ?? (st.consultsHistory = [])).unshift({
-        t: st.consult.t, type: st.consult.type || 'Consulta', note: '',
+        t: st.consult.t, type: st.consult.type || K().consultaGenerica, note: '',
       });
       st.consult = { t: 0, type: '', doctor: '' };
     });
@@ -83,12 +88,10 @@ export default function Consultas() {
        lugar só, e a rolagem é que troca qual. Com o nome fixo ao lado da
        seta, ele fica pequeno para sempre e a tela abre sem manchete
        nenhuma — que é o que esta fazia. */
-    <TelaInterna titulo="Consultas">
+    <TelaInterna titulo={K().titulo}>
       <Titulao
-        titulo="Consultas"
-        lead={marcada
-          ? 'A próxima, o que levar nela, e as que já aconteceram.'
-          : 'O que levar na próxima, e as que já aconteceram.'}
+        titulo={K().titulo}
+        lead={marcada ? K().leadComData : K().leadSemData}
       />
 
       {/* ---- a próxima ----
@@ -103,13 +106,13 @@ export default function Consultas() {
           <Row style={{ justifyContent: 'space-between' }}>
             <Row gap={6}>
               <Icon name="cal" size={14} color={c.accent} sw={2} />
-              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{passou ? 'JÁ PASSOU' : 'PRÓXIMA'}</Txt>
+              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{passou ? K().jaPassou : K().proxima}</Txt>
             </Row>
             {S.consult.type ? <Pill label={S.consult.type} /> : null}
           </Row>
           <Txt v="h1" style={{ fontSize: 26, marginTop: 8 }}>{maiuscula(relDay(nd))}</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
-            {fmtWD(nd)}, {fmtDate(nd)}{S.consult.doctor ? ` · ${S.consult.doctor}` : ''}
+            {K().dataDaConsulta(fmtWD(nd), fmtDate(nd), S.consult.doctor)}
           </Txt>
 
           {/* ⚠️ UM BOTÃO SÓ, e eram dois de contorno com o mesmo destino:
@@ -124,21 +127,21 @@ export default function Consultas() {
             <Pressable onPress={realizada} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
                 <Icon name="check" size={15} color={c.accentInk} sw={2} />
-                <Txt v="label" c={c.accentInk}>Já aconteceu</Txt>
+                <Txt v="label" c={c.accentInk}>{K().jaAconteceu}</Txt>
               </Row>
             </Pressable>
           ) : (
             <Pressable onPress={go('/resumo-medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
                 <Icon name="doc" size={15} color={c.accentInk} sw={2} />
-                <Txt v="label" c={c.accentInk}>Ver o resumo para levar</Txt>
+                <Txt v="label" c={c.accentInk}>{K().verResumo}</Txt>
               </Row>
             </Pressable>
           )}
 
           {!conectada ? (
             <Pressable onPress={go('/anotar-consulta')} style={({ pressed }) => [{ marginTop: 12, alignSelf: 'center', opacity: pressed ? 0.6 : 1 }]}>
-              <Txt v="label" c={c.accent2}>Mudar a data</Txt>
+              <Txt v="label" c={c.accent2}>{K().mudarData}</Txt>
             </Pressable>
           ) : null}
         </Card>
@@ -149,19 +152,17 @@ export default function Consultas() {
         <Card>
           <Row gap={6}>
             <Icon name="cal" size={14} color={c.tx3} sw={2} />
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>PRÓXIMA</Txt>
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{K().proxima}</Txt>
           </Row>
-          <Txt v="bodyMed" style={{ marginTop: 8 }}>Nenhuma consulta anotada</Txt>
+          <Txt v="bodyMed" style={{ marginTop: 8 }}>{K().nenhumaAnotada}</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 3, lineHeight: 19 }}>
-            {conectada
-              ? 'Quando a sua equipe marcar a próxima, ela aparece aqui.'
-              : 'Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para levar.'}
+            {conectada ? K().clinicaMarca : K().semDataTexto}
           </Txt>
           {!conectada ? (
             <Pressable onPress={go('/anotar-consulta')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={7} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, justifyContent: 'center' }}>
                 <Icon name="cal" size={15} color={c.accentInk} sw={2} />
-                <Txt v="label" c={c.accentInk}>Anotar consulta</Txt>
+                <Txt v="label" c={c.accentInk}>{K().anotarConsulta}</Txt>
               </Row>
             </Pressable>
           ) : null}
@@ -181,13 +182,9 @@ export default function Consultas() {
           ensinou errado em /medico, e não volta aqui. */}
       <View style={{ gap: 12 }}>
         <View>
-          <Txt v="h2">Para levar</Txt>
+          <Txt v="h2">{K().paraLevar}</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 6, lineHeight: 21 }}>
-            {faltando === 0
-              ? 'Está tudo em dia — o resumo já se monta com isso.'
-              : faltando === 1
-                ? 'Falta uma coisa para o resumo ficar completo.'
-                : `Faltam ${faltando} coisas para o resumo ficar completo.`}
+            {K().paraLevarSub(faltando)}
           </Txt>
         </View>
       <Cartao>
@@ -241,13 +238,13 @@ export default function Consultas() {
           seguinte. O aplicativo não estava na sala, e data não é causa. */}
       {S.consultsHistory.length ? (
         <View style={{ gap: 10 }}>
-          <Txt v="h2">Consultas anteriores</Txt>
+          <Txt v="h2">{K().anteriores}</Txt>
           <Cartao>
             {S.consultsHistory.map((h: any) => (
               <Linha
                 key={h.t}
                 ic="steth"
-                titulo={`${h.type} · ${fmtDate(new Date(h.t))}`}
+                titulo={K().linhaAnterior(h.type, fmtDate(new Date(h.t)))}
                 sub={h.note || undefined}
                 onPress={go(`/consulta?t=${h.t}`)}
               />

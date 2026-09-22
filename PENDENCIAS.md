@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 455, em 67 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 429, em 65 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1250,6 +1250,27 @@ tirada do `git show`, e não de memória.
   filtro sumiram** de /historico e da linha do tempo da Jornada. O `as
   TLKind[]` calou o compilador. Um filtro que não aparece não parece
   defeito — parece decisão de produto.
+
+- **⚠️⚠️ A REDE DA ESPAÇA FINA ESCREVIA DENTRO DO CÓDIGO.**
+  `espaco-fino.mjs` punha a fina antes de `?` e `:` varrendo o conteúdo
+  de cada literal — e o conteúdo de um template inclui `${ … }`, que é
+  EXPRESSÃO e não texto. Estava em 19 arquivos do francês:
+  `${dias === 1 ? 'jour' : 'jours'}` ficava com a fina colada no ternário,
+  invisível, no lugar da espaça normal que ela comia. U+202F é espaço de
+  verdade para o ECMAScript, então o `tsc` passava, o aplicativo rodava e
+  nada acusava — era o CONSERTO escrevendo lixo no código que ele só devia
+  atravessar. A varredura por expressão regular virou um analisador: texto
+  é texto, `${ … }` é expressão, e template dentro de expressão volta a
+  ser texto. Setenta e quatro literais consertados, e a fina de texto
+  (`plus long : ${dias}`) segue onde deve. ⚠️ O `congelar.ts` não tinha
+  como vê-lo — ele só roda pt-BR e en-US (item 24, quarta cegueira).
+- **"1 de 1 semanas", nos cinco idiomas.** A leitura do ritmo escrevia o
+  nome da semana sempre no plural, e a primeira semana de tratamento é
+  exatamente o caso de "1 de 1". ⚠️ E o número que manda não é o mesmo em
+  toda parte: em francês o nome vem depois de `aplicadas`
+  ("1 semaine sur 3"), e nos outros quatro depois de `vividas`. Achado
+  chamando a função fora da tela — a semente está na semana onze, e
+  nenhuma tela mostra esse ramo.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1677,3 +1698,37 @@ literais — ver `home.telaInicio.diasSeguidos`, que precisou de
 
 Não é uma pendência a resolver: é o padrão a repetir, escrito aqui para
 não ser redescoberto na terceira vez.
+
+## 🟡 32. O `.toLowerCase()` de tela estraga texto JÁ TRADUZIDO
+
+Sobram **oito** `.toLowerCase()` em telas, e eles não esperam a extração
+para fazer estrago: o catálogo do outro lado já está nos cinco idiomas, e
+a tela abaixa a caixa dele depois de pronto.
+
+Visto hoje, em alemão, na folha de conquista:
+
+    Próximo nível: noch 3 termine
+
+`conquistas.consultasFalta` devolve **"Noch 3 Termine"** — certo, do
+catálogo alemão. Quem escreveu "noch 3 termine" foi a tela, com um
+`.toLowerCase()` que é regra de PORTUGUÊS: depois de dois-pontos a frase
+continua em minúscula. Em alemão o substantivo não perde a maiúscula
+nunca, e ali ele perdeu duas.
+
+| onde | o que ele abaixa |
+| --- | --- |
+| `conquista-ok.tsx:146` | o que falta para o próximo nível |
+| `aplicacao-ok.tsx:64` | o local da aplicação |
+| `cobrancas.tsx:69` | o nome do plano |
+| `medir-agua.tsx:120` | o nome da bebida |
+| `medir-exercicio.tsx:153` | o nome da modalidade |
+| `companion.tsx:124,140,180` | o tipo de consulta e o nome da molécula |
+
+A saída é a mesma de sempre e já existe: `T.comum.noMeio`, que no alemão
+devolve o que recebe. Cada um sai com a tela dele — as cinco primeiras
+ainda estão na fila do item 19, e os três do `/companion` somem com a
+tela nova.
+
+⚠️ **O `.toLowerCase()` de `companion.tsx:106` não é deste item.** Aquele
+não escreve na tela: normaliza a PERGUNTA para casar palavra-chave em
+português, que é o defeito de arquitetura já descrito no item 19.

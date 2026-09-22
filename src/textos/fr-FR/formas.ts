@@ -57,14 +57,14 @@ export const formas = {
   concordar: (r: Recipiente, masc: string, fem: string) => (f(r) ? fem : masc),
 
   /* « dans le stylo », « dans la seringue » — pas de contraction. */
-  noNa: (r: Recipiente) => `${f(r) ? 'dans la' : 'dans le'} ${formas.palavras[r].recipiente}`,
+  noNa: (r: Recipiente) => `${f(r) ? 'dans la' : 'dans le'} ${formas.palavras[r].recipiente}`,
   /* ⚠️⚠️ « de la seringue », mais « DU flacon ». La contraction n'est pas
      facultative. */
   doDa: (r: Recipiente) => (f(r)
     ? `de la ${formas.palavras[r].recipiente}`
     : `du ${formas.palavras[r].recipiente}`),
   /** « dans cette seringue », « dans ce stylo ». */
-  nesteNesta: (r: Recipiente) => `${f(r) ? 'dans cette' : 'dans ce'} ${formas.palavras[r].recipiente}`,
+  nesteNesta: (r: Recipiente) => `${f(r) ? 'dans cette' : 'dans ce'} ${formas.palavras[r].recipiente}`,
 
   /** « une autre seringue », « un autre stylo ». */
   umOutro: (r: Recipiente, maiusculo = false) => {

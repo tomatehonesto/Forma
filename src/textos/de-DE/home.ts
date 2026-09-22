@@ -362,4 +362,36 @@ export const home = {
     exame: 'Ich habe einen Befund bekommen',
     anotacao: 'Ich habe etwas für den Termin notiert',
   },
+  telaRitmo: {
+    titulo: 'Wie wir dein Tempo lesen',
+    sub: 'Das Etikett schaut auf die Regelmäßigkeit der Behandlung, nicht auf das Tempo der Gewichtsabnahme.',
+
+    aplicacoes: 'Injektionen im Plan',
+    aplicacoesSub: (aplicadas: number, vividas: number) =>
+      `${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'}`,
+
+    intervalo: 'Abstand zwischen den Dosen',
+    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'}, ohne lange Verzögerungen`,
+    intervaloMaior: (dias: number) => `längster Abstand: ${dias} ${dias === 1 ? 'Tag' : 'Tage'}`,
+
+    sintomas: 'Gemeldete Beschwerden',
+    sintomasLeves: 'Leicht',
+    sintomasModerados: 'Leicht bis mittel',
+    sintomasFortes: 'Mittel bis stark',
+
+    /* ⚠️ "auffällig" E NÃO "Achtung": os selos desta tela são
+       minúsculos, e no alemão só um adjetivo pode ficar minúsculo —
+       substantivo levaria maiúscula e quebraria a fileira. */
+    seloOk: 'ok',
+    seloAtencao: 'auffällig',
+    seloIrregular: 'unregelmäßig',
+    seloEstavel: 'stabil',
+    seloEmAlta: 'steigend',
+
+    avisoTitulo: 'Eine andere Woche ändert das Etikett nicht',
+    avisoTexto: (etiqueta: string) =>
+      `Es steigt und fällt nicht danach, wie viel du abgenommen hast, und es gibt keine Fassung davon, die sagt, die Woche sei schlecht gewesen. Heute liest es „${etiqueta}“.`,
+
+    entendi: 'Verstanden',
+  },
 };

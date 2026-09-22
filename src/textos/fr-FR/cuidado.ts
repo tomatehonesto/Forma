@@ -36,7 +36,7 @@ export const cuidado = {
 
     receita: 'Demandez le renouvellement de l’ordonnance',
     receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     receitaRotulo: 'ordonnance',
 
     /* Le titre de l'analyse vient du protocole — c'est ce que l'équipe a
@@ -67,13 +67,13 @@ export const cuidado = {
     /* ⚠️ « DOSES » ET NON « INJECTIONS » : cette pastille partage la ligne
        avec le pouls, et le mot long le pousse sur deux lignes. */
     adesao: (feitas: number, previstas: number) =>
-      `${feitas} sur ${previstas} ${previstas === 1 ? 'dose' : 'doses'}`,
+      `${feitas} sur ${previstas} ${previstas === 1 ? 'dose' : 'doses'}`,
 
     consultaTitulo: 'Votre consultation approche.',
     consultaHoje: (doutor: string) =>
       `Votre consultation avec ${doutor} est aujourd’hui. Autant revoir ce que vous voulez demander.`,
     consultaFaltam: (dias: number, doutor: string) =>
-      `${dias === 1 ? 'Il reste 1 jour' : `Il reste ${dias} jours`} avant votre consultation avec ${doutor}.`,
+      `${dias === 1 ? 'Il reste 1 jour' : `Il reste ${dias} jours`} avant votre consultation avec ${doutor}.`,
     consultaPulso: (quando: string) => `Consultation ${quando}`,
 
     /* ⚠️ LES DEUX VERSIONS NE SONT PAS DE TON, ELLES SONT DE FAIT. Sans
@@ -94,9 +94,9 @@ export const cuidado = {
        oblige à faire défiler pour savoir si ça compte. Et les noms
        viennent de la liste ELLE-MÊME, item par item. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'choses attendent' : 'chose attend'} après vous — ${assuntos}. Rien d’urgent, mais autant le régler cette semaine.`,
+      `${quantas} ${plural ? 'choses attendent' : 'chose attend'} après vous — ${assuntos}. Rien d’urgent, mais autant le régler cette semaine.`,
     pendenciaPulso: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'élément en attente' : 'éléments en attente'}`,
+      `${quantas} ${quantas === 1 ? 'élément en attente' : 'éléments en attente'}`,
     /* Jusqu'à quatre en toutes lettres, qui est le plafond réel. */
     porExtenso: ['aucune', 'une', 'deux', 'trois', 'quatre'],
 
@@ -116,7 +116,7 @@ export const cuidado = {
     aplicacaoHoje: 'Injection aujourd’hui',
     proximaAplicacao: (quando: string) => `Prochaine injection ${quando}`,
     nestaDoseHa: (semanas: number) =>
-      `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     /* Le `quando` arrive déjà en « dans 9 jours » / « demain », avec la
        préposition dedans — d'où l'absence d'une seconde. */
     revisaoNaConsulta: (quando: string) => `Révision à la consultation ${quando}`,
@@ -175,12 +175,12 @@ export const cuidado = {
     aplicacoesLink: 'Injections',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     pedirRenovacao: 'Demander le renouvellement',
 
     exames: 'Analyses',
     marcadoresAcompanhados: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'marqueur suivi' : 'marqueurs suivis'}`,
+      `${quantos} ${quantos === 1 ? 'marqueur suivi' : 'marqueurs suivis'}`,
     nenhumResultado: 'Aucun résultat enregistré',
     importeUmExame: 'Importez une analyse pour commencer à la suivre',
     foraDaReferencia: (quantos: number) => `${quantos} hors des valeurs de référence`,
@@ -256,5 +256,38 @@ export const cuidado = {
     salvar: 'Enregistrer',
     anotar: 'Noter la consultation',
     naoTenho: 'Je n’ai pas de consultation prévue',
+  },
+  telaConsultas: {
+    titulo: 'Consultations',
+    leadComData: 'La prochaine, ce qu’il faut y apporter, et celles qui ont déjà eu lieu.',
+    leadSemData: 'Ce qu’il faut apporter à la prochaine, et celles qui ont déjà eu lieu.',
+
+    jaPassou: 'DÉJÀ PASSÉE',
+    proxima: 'PROCHAINE',
+    /* Sans virgule : le français écrit "lundi 3 octobre", et la virgule
+       est une habitude du portugais. */
+    dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
+      `${diaDaSemana} ${data}${quem ? ` · ${quem}` : ''}`,
+    jaAconteceu: 'Elle a eu lieu',
+    verResumo: 'Voir le résumé à emporter',
+    mudarData: 'Changer la date',
+
+    nenhumaAnotada: 'Aucune consultation notée',
+    clinicaMarca: 'Quand votre équipe prendra la prochaine, elle apparaîtra ici.',
+    semDataTexto: 'Avec la date ici, nous vous prévenons quand elle approche et nous laissons le résumé prêt à emporter.',
+    anotarConsulta: 'Noter une consultation',
+
+    paraLevar: 'À emporter',
+    paraLevarSub: (faltando: number): string =>
+      faltando === 0
+        ? 'Tout est à jour — le résumé se monte déjà avec ça.'
+        : faltando === 1
+          ? 'Il manque une chose pour que le résumé soit complet.'
+          : `Il manque ${faltando} choses pour que le résumé soit complet.`,
+
+    anteriores: 'Consultations passées',
+    linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
+
+    consultaGenerica: 'Consultation',
   },
 };

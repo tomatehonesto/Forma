@@ -338,4 +338,33 @@ export const home = {
     exame: 'Recibí un examen',
     anotacao: 'Anoté algo para la consulta',
   },
+  telaRitmo: {
+    titulo: 'Cómo leemos tu ritmo',
+    sub: 'La etiqueta mira la constancia del tratamiento, no la velocidad de la pérdida de peso.',
+
+    aplicacoes: 'Aplicaciones al día',
+    aplicacoesSub: (aplicadas: number, vividas: number) =>
+      `${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'}`,
+
+    intervalo: 'Intervalo entre dosis',
+    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'}, sin atrasos largos`,
+    intervaloMaior: (dias: number) => `intervalo más largo: ${dias} ${dias === 1 ? 'día' : 'días'}`,
+
+    sintomas: 'Síntomas reportados',
+    sintomasLeves: 'Leves',
+    sintomasModerados: 'Leves a moderados',
+    sintomasFortes: 'Moderados a fuertes',
+
+    seloOk: 'ok',
+    seloAtencao: 'atención',
+    seloIrregular: 'irregular',
+    seloEstavel: 'estable',
+    seloEmAlta: 'en alza',
+
+    avisoTitulo: 'Una semana distinta no cambia la etiqueta',
+    avisoTexto: (etiqueta: string) =>
+      `No sube ni baja por cuánto perdiste, y no existe versión de ella que diga que la semana estuvo mala. Hoy dice “${etiqueta}”.`,
+
+    entendi: 'Entendí',
+  },
 };

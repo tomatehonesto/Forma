@@ -199,7 +199,7 @@ export const cadastro = {
     planoPronto: 'votre plan personnalisé est prêt !',
     manterOPeso: 'maintenir votre poids',
     objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => [
-      `Pour ${perder > 0.05 ? 'perdre ' : perder < -0.05 ? 'prendre ' : ''}`,
+      `Pour ${perder > 0.05 ? 'perdre ' : perder < -0.05 ? 'prendre ' : ''}`,
       alvo,
       `${marca}.`,
     ],

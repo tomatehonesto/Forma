@@ -332,4 +332,33 @@ export const home = {
     exame: 'I got a lab result',
     anotacao: 'I noted something for the appointment',
   },
+  telaRitmo: {
+    titulo: 'How we read your pace',
+    sub: 'The label looks at how steady the treatment is, not at how fast the weight comes off.',
+
+    aplicacoes: 'Injections on time',
+    aplicacoesSub: (aplicadas: number, vividas: number) =>
+      `${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'}`,
+
+    intervalo: 'Time between doses',
+    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'}, no long delays`,
+    intervaloMaior: (dias: number) => `longest gap: ${dias} ${dias === 1 ? 'day' : 'days'}`,
+
+    sintomas: 'Symptoms reported',
+    sintomasLeves: 'Mild',
+    sintomasModerados: 'Mild to moderate',
+    sintomasFortes: 'Moderate to strong',
+
+    seloOk: 'ok',
+    seloAtencao: 'watch',
+    seloIrregular: 'irregular',
+    seloEstavel: 'steady',
+    seloEmAlta: 'rising',
+
+    avisoTitulo: 'A different week does not change the label',
+    avisoTexto: (etiqueta: string) =>
+      `It does not go up or down with how much you lost, and there is no version of it that says the week was bad. Today it reads “${etiqueta}”.`,
+
+    entendi: 'Got it',
+  },
 };

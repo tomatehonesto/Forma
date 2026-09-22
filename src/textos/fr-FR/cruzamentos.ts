@@ -204,14 +204,14 @@ export const cruzamentos = {
      pas de la personne. */
   proteinaTendencia: {
     titulo: (subiu: boolean, pct: number) =>
-      `Vos protéines ${subiu ? 'ont augmenté' : 'ont baissé'} de ${pct}% depuis le début`,
+      `Vos protéines ${subiu ? 'ont augmenté' : 'ont baissé'} de ${pct}% depuis le début`,
     textoSubiu: (depois: number, antes: number) =>
       `Moyenne de ${depois} g/jour ces dernières semaines, contre ${antes} g au début. Les protéines préservent la masse maigre pendant la perte de poids.`,
     textoCaiu: (depois: number, antes: number) =>
       `Moyenne de ${depois} g/jour ces dernières semaines, contre ${antes} g avant. Ça vaut le coup de reprendre — la masse maigre soutient le métabolisme.`,
     q: 'Où en sont mes protéines ?',
     evid: (pct: number, antes: number, depois: number) =>
-      ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g par jour` }),
+      ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g par jour` }),
     significaSubiu: 'Elles ont augmenté sans que vous annonciez le moindre changement, ce qui est en général le genre d’habitude qui reste. Les protéines protègent votre masse maigre pendant que le poids descend — sans elles, une partie de ce qui part n’est pas de la graisse.',
     significaCaiu: 'La baisse a été progressive, du genre qu’on ne remarque pas d’un jour à l’autre. Les protéines protègent votre masse maigre pendant que le poids descend ; ça vaut le coup de reprendre avant que ça devienne la nouvelle normale.',
   },

@@ -10,7 +10,7 @@ export const perfil = {
   meta: 'Objectif',
 
   consultaEm: (quando: string) => `Consultation ${quando}`,
-  naoLidas: (quantas: number) => `${quantas} non ${quantas === 1 ? 'lu' : 'lus'}`,
+  naoLidas: (quantas: number) => `${quantas} non ${quantas === 1 ? 'lu' : 'lus'}`,
 
   planoECobranca: 'Formule et facturation',
   suaAssinatura: 'Votre abonnement',
@@ -38,7 +38,7 @@ export const perfil = {
   personalize: 'Personnaliser l’application',
   aparencia: 'Apparence',
   aparenciaSub: (paleta: string, escuro: boolean) =>
-    `${paleta}, en ${escuro ? 'sombre' : 'clair'} · choisissez la couleur de l’application`,
+    `${paleta}, en ${escuro ? 'sombre' : 'clair'} · choisissez la couleur de l’application`,
   idiomaSub: (idioma: string, pais: string) => `${idioma} · ${pais}`,
   unidades: 'Unités de mesure',
   unidadesSub: (sistema: string, unidades: string) => `${sistema} · ${unidades}`,
@@ -54,7 +54,7 @@ export const perfil = {
   problemaAssunto: 'Morphi — problème',
   problemaSistema: (sistema: string, versao: string) => `Système : ${sistema} ${versao}`,
   problemaPaleta: (paleta: string, escuro: boolean) =>
-    `Palette : ${paleta} · Thème : ${escuro ? 'sombre' : 'clair'}`,
+    `Palette : ${paleta} · Thème : ${escuro ? 'sombre' : 'clair'}`,
   problemaCorpo: 'Racontez ce que vous étiez en train de faire et ce qui est arrivé.',
 
   sair: 'Se déconnecter',

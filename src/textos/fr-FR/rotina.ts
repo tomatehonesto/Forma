@@ -75,7 +75,7 @@ export const rotina = {
        suivrait irait se coller au mot le plus proche. */
     /* ⚠️ Le mot « doses » vivait dans l'appel. Voir ../pt-BR. */
     receitaPorque: (doses: number, onde: string) =>
-      `Il reste ${doses} ${doses === 1 ? 'dose' : 'doses'} ${onde} — une ordonnance demandée maintenant arrive avant la fin du stock`,
+      `Il reste ${doses} ${doses === 1 ? 'dose' : 'doses'} ${onde} — une ordonnance demandée maintenant arrive avant la fin du stock`,
 
     /* Le texte de l'analyse vient du protocole ; ce qui est à nous, c'est le
        motif. */
@@ -114,7 +114,7 @@ export const rotina = {
     /* Des jours AVEC DU MOUVEMENT, et non des minutes : c'est ce que
        l'élément demande — quitter le canapé trois fois —, et c'est ce que le
        relevé sait dire sans deviner la modalité. */
-    exercicio: (dias: number) => `Faire de l’exercice ${dias} ${dias === 1 ? 'jour' : 'jours'} dans la semaine`,
+    exercicio: (dias: number) => `Faire de l’exercice ${dias} ${dias === 1 ? 'jour' : 'jours'} dans la semaine`,
     origemExercicio: 'Exercice',
 
     aplicacaoUma: 'Injection de la semaine',

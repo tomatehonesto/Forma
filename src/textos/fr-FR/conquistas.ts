@@ -27,7 +27,7 @@
 
 /* Le pluriel du français, avec l'irrégulier dit en toutes lettres quand
    il existe. */
-const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
+const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
 
 export const conquistas = {
   familias: {
@@ -42,7 +42,7 @@ export const conquistas = {
   },
 
   doses: 'Injections',
-  dosesDesc: (a: number) => `${p(a, 'injection')} notée${a === 1 ? '' : 's'}`,
+  dosesDesc: (a: number) => `${p(a, 'injection')} notée${a === 1 ? '' : 's'}`,
   dosesFalta: (r: number) => `Il manque ${p(r, 'injection')}`,
 
   tempo: 'Durée du traitement',
@@ -50,14 +50,14 @@ export const conquistas = {
      et « 1 an » sont la même durée, et seule la seconde se fête. */
   tempoDesc: (a: number) => (a < 365
     ? `${a / 30} mois depuis la première dose`
-    : `${a / 365} an${a > 365 ? 's' : ''} depuis la première dose`),
+    : `${a / 365} an${a > 365 ? 's' : ''} depuis la première dose`),
   tempoFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   /* ⚠️ LA ROTATION N'EST PAS UN ORNEMENT : répéter le même point cause des
      nodules, et alterner est une consigne de notice. C'est le seul
      parcours qui récompense une pratique de sécurité. */
   rodizio: 'Rotation',
-  rodizioDesc: (a: number) => `${p(a, 'site')} d’injection utilisé${a === 1 ? '' : 's'}`,
+  rodizioDesc: (a: number) => `${p(a, 'site')} d’injection utilisé${a === 1 ? '' : 's'}`,
   rodizioFalta: (r: number) => `Il manque ${p(r, 'site')}`,
 
   titulacao: 'Titration',
@@ -78,11 +78,11 @@ export const conquistas = {
   pctFalta: (r: string) => `Il manque ${r} points`,
 
   pesagens: 'Pesées',
-  pesagensDesc: (a: number) => `${p(a, 'poids', 'poids')} noté${a === 1 ? '' : 's'}`,
+  pesagensDesc: (a: number) => `${p(a, 'poids', 'poids')} noté${a === 1 ? '' : 's'}`,
   pesagensFalta: (r: number) => `Il manque ${p(r, 'pesée')}`,
 
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'journée')} remplie${a === 1 ? '' : 's'}`,
+  checkinsDesc: (a: number) => `${p(a, 'journée')} remplie${a === 1 ? '' : 's'}`,
   checkinsFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   sequencia: 'Jours d’affilée',
@@ -90,7 +90,7 @@ export const conquistas = {
   sequenciaFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   aguaDias: 'Jours à l’objectif d’eau',
-  aguaDiasDesc: (a: number) => `${p(a, 'journée')} d’eau tenue${a === 1 ? '' : 's'}`,
+  aguaDiasDesc: (a: number) => `${p(a, 'journée')} d’eau tenue${a === 1 ? '' : 's'}`,
   aguaDiasFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   aguaSemana: 'Semaine hydratée',
@@ -106,7 +106,7 @@ export const conquistas = {
   protSeqFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   treinos: 'Séances',
-  treinosDesc: (a: number) => `${p(a, 'séance')} notée${a === 1 ? '' : 's'}`,
+  treinosDesc: (a: number) => `${p(a, 'séance')} notée${a === 1 ? '' : 's'}`,
   treinosFalta: (r: number) => `Il manque ${p(r, 'séance')}`,
 
   exercSemana: 'Semaine active',
@@ -114,15 +114,15 @@ export const conquistas = {
   exercSemanaFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   refeicoes: 'Repas',
-  refeicoesDesc: (a: number) => `${p(a, 'assiette')} notée${a === 1 ? '' : 's'}`,
+  refeicoesDesc: (a: number) => `${p(a, 'assiette')} notée${a === 1 ? '' : 's'}`,
   refeicoesFalta: (r: number) => `Il manque ${p(r, 'repas', 'repas')}`,
 
   favoritos: 'Plats favoris',
-  favoritosDesc: (a: number) => `${p(a, 'plat')} gardé${a === 1 ? '' : 's'} pour y revenir`,
+  favoritosDesc: (a: number) => `${p(a, 'plat')} gardé${a === 1 ? '' : 's'} pour y revenir`,
   favoritosFalta: (r: number) => `Il manque ${p(r, 'plat')}`,
 
   medidas: 'Mesures au mètre',
-  medidasDesc: (a: number) => `${p(a, 'mesure')} notée${a === 1 ? '' : 's'}`,
+  medidasDesc: (a: number) => `${p(a, 'mesure')} notée${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Il manque ${p(r, 'mesure')}`,
 
   cintura: 'Centimètres de tour de taille',
@@ -132,7 +132,7 @@ export const conquistas = {
   exames: 'Analyses',
   /* ⚠️ « bilan » FAIT « bilans », mais « repas » NE CHANGE PAS au pluriel.
      C'est exactement pour ça que le pluriel est un champ. */
-  examesDesc: (a: number) => `${p(a, 'bilan')} importé${a === 1 ? '' : 's'}`,
+  examesDesc: (a: number) => `${p(a, 'bilan')} importé${a === 1 ? '' : 's'}`,
   examesFalta: (r: number) => `Il manque ${p(r, 'analyse')}`,
 
   consultas: 'Consultations',

@@ -6,6 +6,11 @@ import { semanasDaGrade, journeySummary, cadenciaDias } from '../logic/derive';
 import { DAY } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Aviso, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaRitmo;
 
 /* ============================================================
    COMO LEMOS O SEU RITMO
@@ -39,45 +44,45 @@ export default function Ritmo() {
 
   const recentes = (S.checkins as any[]).slice(-14);
   const pico = recentes.reduce((m, c) => Math.max(m, c.nausea || 0, c.constip || 0, c.diarreia || 0, c.refluxo || 0), 0);
-  const sintomas = pico <= 2 ? 'Leves' : pico <= 5 ? 'Leves a moderados' : 'Moderados a fortes';
+  const sintomas = pico <= 2 ? K().sintomasLeves : pico <= 5 ? K().sintomasModerados : K().sintomasFortes;
 
   return (
     <SheetScreen
-      titulo="Como lemos o seu ritmo"
-      sub="A etiqueta olha para a constância do tratamento, não para a velocidade da perda de peso."
+      titulo={K().titulo}
+      sub={K().sub}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         <Cartao>
           <Linha
-            titulo="Aplicações em dia"
-            sub={`${aplicadas} de ${vividas} semanas`}
-            selo={aplicadas >= vividas - 1 ? 'ok' : 'atenção'}
+            titulo={K().aplicacoes}
+            sub={K().aplicacoesSub(aplicadas, vividas)}
+            selo={aplicadas >= vividas - 1 ? K().seloOk : K().seloAtencao}
             seloTom={aplicadas >= vividas - 1 ? 'verde' : 'neutra'}
             seta={false}
           />
           <Linha
-            titulo="Intervalo entre doses"
-            sub={pontual ? `${cad} dias, sem atrasos longos` : `maior intervalo: ${maior} dias`}
-            selo={pontual ? 'ok' : 'irregular'}
+            titulo={K().intervalo}
+            sub={pontual ? K().intervaloEmDia(cad) : K().intervaloMaior(maior)}
+            selo={pontual ? K().seloOk : K().seloIrregular}
             seloTom={pontual ? 'verde' : 'neutra'}
             seta={false}
           />
           <Linha
-            titulo="Sintomas relatados"
+            titulo={K().sintomas}
             sub={sintomas}
-            selo={pico <= 5 ? 'estável' : 'em alta'}
+            selo={pico <= 5 ? K().seloEstavel : K().seloEmAlta}
             seloTom="neutra"
             seta={false}
           />
         </Cartao>
 
         <Aviso
-          titulo="Uma semana diferente não muda a etiqueta"
-          texto={`Ela não sobe nem desce por quanto você perdeu, e não existe versão dela que diga que a semana foi ruim. Hoje ela lê “${r.verdict.label.toLowerCase()}”.`}
+          titulo={K().avisoTitulo}
+          texto={K().avisoTexto(T.comum.noMeio(r.verdict.label))}
         />
 
-        <Botao label="Entendi" tom="fantasma" onPress={() => router.back()} />
+        <Botao label={K().entendi} tom="fantasma" onPress={() => router.back()} />
       </View>
     </SheetScreen>
   );

@@ -191,16 +191,16 @@ export const home = {
     refeicoesContadas: (quantas: number) => `${quantas} repas`,
     aguaHoje: (quanto: string) => `${quanto} aujourd’hui`,
     minutosHoje: (minutos: number) => `${minutos} min aujourd’hui`,
-    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'mesure' : 'mesures'}`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'mesure' : 'mesures'}`,
     feitasDeTotal: (feitas: number, total: number) => `${feitas} sur ${total}`,
 
     semRegistro: 'rien de noté',
     semQueixas: 'aucune plainte cette semaine',
     sintomaEmDias: (sintoma: string, dias: number) =>
-      `${sintoma.toLowerCase()} sur ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+      `${sintoma.toLowerCase()} sur ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
 
     dosesNaCaneta: (restam: number, total: number, semanas: number) =>
-      `${restam} doses sur ${total} dans le stylo · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `${restam} doses sur ${total} dans le stylo · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
     oQueJaMudou: 'Ce qui a changé',
     evolucao: 'Évolution',
@@ -278,7 +278,7 @@ export const home = {
     areaMedica: 'Espace médical',
     mensagens: 'Messages',
     novasMensagens: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'nouveau message' : 'nouveaux messages'}`,
+      `${quantas} ${quantas === 1 ? 'nouveau message' : 'nouveaux messages'}`,
     nenhumaMensagem: 'Aucun nouveau message',
     proximaConsulta: 'Prochaine consultation',
     consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
@@ -306,7 +306,7 @@ export const home = {
     comoSeSentiu: 'Comment vous vous sentiez',
     diasRespondidos: (quantos: number) => `${quantos} jours sur 7 remplis`,
     sintomaDias: (legenda: string, dias: number) =>
-      `${legenda} · ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+      `${legenda} · ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
     energia: 'Énergie',
     energiaDe5: (media: string) => `${media} sur 5`,
 
@@ -352,5 +352,35 @@ export const home = {
     medidas: 'J’ai pris mes mesures',
     exame: 'J’ai reçu une analyse',
     anotacao: 'J’ai noté quelque chose pour la consultation',
+  },
+  telaRitmo: {
+    titulo: 'Comment nous lisons votre rythme',
+    sub: 'L’étiquette regarde la régularité du traitement, pas la vitesse de la perte de poids.',
+
+    aplicacoes: 'Injections à jour',
+    /* Aqui o nome vem depois de `aplicadas`, e é com ele que concorda. */
+    aplicacoesSub: (aplicadas: number, vividas: number) =>
+      `${aplicadas} ${aplicadas === 1 ? 'semaine' : 'semaines'} sur ${vividas}`,
+
+    intervalo: 'Intervalle entre les doses',
+    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'}, sans longs retards`,
+    intervaloMaior: (dias: number) => `intervalle le plus long : ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+
+    sintomas: 'Symptômes signalés',
+    sintomasLeves: 'Légers',
+    sintomasModerados: 'Légers à modérés',
+    sintomasFortes: 'Modérés à forts',
+
+    seloOk: 'ok',
+    seloAtencao: 'attention',
+    seloIrregular: 'irrégulier',
+    seloEstavel: 'stable',
+    seloEmAlta: 'en hausse',
+
+    avisoTitulo: 'Une semaine différente ne change pas l’étiquette',
+    avisoTexto: (etiqueta: string) =>
+      `Elle ne monte ni ne descend selon ce que vous avez perdu, et il n’existe aucune version d’elle qui dise que la semaine a été mauvaise. Aujourd’hui elle lit « ${etiqueta} ».`,
+
+    entendi: 'J’ai compris',
   },
 };

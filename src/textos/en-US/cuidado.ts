@@ -245,4 +245,35 @@ export const cuidado = {
     anotar: 'Note the appointment',
     naoTenho: 'I have no appointment booked',
   },
+  telaConsultas: {
+    titulo: 'Appointments',
+    leadComData: 'The next one, what to take to it, and the ones already behind you.',
+    leadSemData: 'What to take to the next one, and the ones already behind you.',
+
+    jaPassou: 'ALREADY PASSED',
+    proxima: 'NEXT',
+    dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
+      `${diaDaSemana}, ${data}${quem ? ` · ${quem}` : ''}`,
+    jaAconteceu: 'It already happened',
+    verResumo: 'See the summary to take',
+    mudarData: 'Change the date',
+
+    nenhumaAnotada: 'No appointment noted',
+    clinicaMarca: 'When your team books the next one, it shows up here.',
+    semDataTexto: 'With the date here, we tell you when it gets close and leave the summary ready to take.',
+    anotarConsulta: 'Note an appointment',
+
+    paraLevar: 'To take with you',
+    paraLevarSub: (faltando: number): string =>
+      faltando === 0
+        ? 'Everything is up to date — the summary builds itself from this.'
+        : faltando === 1
+          ? 'One thing is missing for the summary to be complete.'
+          : `${faltando} things are missing for the summary to be complete.`,
+
+    anteriores: 'Past appointments',
+    linhaAnterior: (tipo: string, data: string) => `${tipo} · ${data}`,
+
+    consultaGenerica: 'Appointment',
+  },
 };

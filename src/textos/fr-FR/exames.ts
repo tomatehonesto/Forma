@@ -100,7 +100,7 @@ export const exames = {
     painelTudoDentro: (total: number) =>
       ` Les ${total} marqueurs de ce bilan sont dans les valeurs de référence.`,
     painelEsteNao: (total: number, fora: number, plural: boolean) =>
-      ` Sur les ${total} marqueurs de ce bilan, ${fora} ${plural ? 'sont sortis' : 'est sorti'} des valeurs de référence ; celui-ci non.`,
+      ` Sur les ${total} marqueurs de ce bilan, ${fora} ${plural ? 'sont sortis' : 'est sorti'} des valeurs de référence ; celui-ci non.`,
     painelUnicoFora: (total: number) =>
       ` Sur les ${total} marqueurs de ce bilan, celui-ci est le seul hors des valeurs de référence.`,
     painelEsteEUmDeles: (total: number, fora: number) =>
@@ -117,7 +117,7 @@ export const exames = {
   tela: {
     titulo: 'Analyses',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marqueur' : 'marqueurs'} · dernier bilan ${ultimaColeta}`,
+      `${quantos} ${quantos === 1 ? 'marqueur' : 'marqueurs'} · dernier bilan ${ultimaColeta}`,
     foraDaReferencia: 'hors des valeurs',
     naReferencia: 'dans les valeurs',
     blocoFora: 'Hors des valeurs',
@@ -151,7 +151,7 @@ export const exames = {
     evolucao: 'ÉVOLUTION',
     deAte: (primeiro: string, ultimo: string) => `De ${primeiro} à ${ultimo}`,
     coletasDesde: (quantas: number, data: string) =>
-      `${quantas} ${quantas === 1 ? 'bilan' : 'bilans'} depuis le ${data}`,
+      `${quantas} ${quantas === 1 ? 'bilan' : 'bilans'} depuis le ${data}`,
     deltaEsperado: ' · attendu',
     deltaOposto: ' · à l’inverse',
 
