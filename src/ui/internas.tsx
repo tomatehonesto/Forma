@@ -10,6 +10,7 @@ import { Icon } from './Icon';
 import { AreaCurve } from './charts';
 import { useTheme } from './useTheme';
 import { ty, font, radius, shadowCard, alfa } from '../theme';
+import { T } from '../textos';
 
 /* ============================================================
    TELAS INTERNAS — o vocabulário das telas de dentro
@@ -1012,7 +1013,14 @@ export function TiraDeDias({ dias, sel, onEscolhe }: {
                   branco sobre branco some. É a mesma dupla que os chips do
                   app usam desde sempre. */}
               <Txt v="micro" c={on ? c.bg1 : d.hoje ? c.accentInk : c.tx4}>
-                {d.hoje ? 'hoje' : WD()[dt.getDay()]}
+                {/* ⚠️ `daquiA(0)` É A PALAVRA "HOJE", por definição, e por
+                    isso não há uma segunda cópia dela no catálogo — a regra
+                    da casa é que o mesmo fato não se escreve duas vezes.
+
+                    A pastilha ficava com ela em duro, e era o último
+                    português da tira de dias: em alemão a fileira saía
+                    "Mo Di Mi Do Fr Sa So ... hoje". */}
+                {d.hoje ? T.tempo.daquiA(0) : WD()[dt.getDay()]}
               </Txt>
               <Txt v="caption" c={on ? c.bg1 : d.hoje ? c.accentInk : d.marcado ? c.accent : c.tx3}>
                 {dt.getDate()}

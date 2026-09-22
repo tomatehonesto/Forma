@@ -170,4 +170,93 @@ export const alimentacao = {
     semCarneVermelha: 'Ohne rotes Fleisch',
     semCarneVermelhaSub: 'Rind und Schwein fallen weg. Geflügel und Fisch bleiben.',
   },
+
+  /* ⚠️⚠️ DER ENERGIESATZ TRÄGT EIN `<b>` IN SICH, und das ist keine
+     Dekoration: es ist das, was die WORTSTELLUNG freigibt.
+
+     Das Portugiesische sagt „Ainda cabem 487 kcal no seu dia“ — Zahl in
+     der Mitte. Das Deutsche sagt „Es passen noch 487 kcal in deinen Tag“
+     — eine andere Mitte. Baute der Bildschirm das aus drei Stücken
+     zusammen (davor, Zahl, danach), müsste jede Sprache in die Ordnung
+     des Portugiesischen passen, und das Deutsche passt nicht hinein.
+
+     Die Auszeichnung gab es schon, aus den Insights, und `Rich` in ui/kit
+     liest sie. Hier bekommt sie einen zweiten Zweck. Siehe
+     ../pt-BR/alimentacao. */
+  tela: {
+    titulo: 'Essen',
+    linhaSemProteina: (alvo: number) => `Eiweiß: nichts eingetragen · Ziel ${alvo} g`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Eiweiß: ${prot} von ${alvo} g · ${resto}`,
+    faltamParaMeta: (falta: number) => `noch ${falta} g bis zum Ziel`,
+    metaAlcancada: 'Ziel erreicht',
+    registrarRefeicao: 'Eine Mahlzeit eintragen',
+
+    energiaTitulo: 'Die Energie von heute',
+    calorias: 'KALORIEN',
+    deKcal: (meta: string) => `von ${meta} kcal`,
+
+    sobramDoQueConta: (quanto: string) => `Es bleiben <b>${quanto} kcal</b> von dem, was sich zählen lässt.`,
+    /* ⚠️ „WÄHL GUT, WOFÜR DU SIE AUSGIBST“ IST DIE EINZIGE BITTE DIESES
+       BILDSCHIRMS, und sie darf hier stehen, weil sie sein Thema ist: auf
+       einem Teller, der kleiner geworden ist, entscheidet nicht die Größe
+       des Rests über die Behandlung, sondern was hineinkommt. */
+    aindaCabem: (quanto: string) => `Es passen noch <b>${quanto} kcal</b> in deinen Tag. Wähl gut, wofür du sie ausgibst.`,
+    /* „Morgen ist ein neuer Tag“ und keine Warnung: das Ziel an einem Tag
+       zu überschreiten ist kein Versagen, und der Bildschirm hat einem
+       Tag, der schon vorbei ist, nichts vorzuhalten. */
+    passouAMeta: (quanto: string) => `Du bist heute <b>${quanto} kcal</b> über dem Ziel. Morgen ist ein neuer Tag.`,
+
+    foraDaConta: (fora: number, total: number) =>
+      `${fora} von ${total} ${total === 1 ? 'Mahlzeit zählt' : 'Mahlzeiten zählen'} hier nicht mit: nur ein aus der Tabelle gebauter Teller hat ein geprüftes Etikett.`,
+
+    carboidrato: 'Kohlenhydrate',
+    gordura: 'Fett',
+    fibra: 'Ballaststoffe',
+    deG: (meta: number) => `von ${meta} g`,
+
+    semanaTitulo: 'Das Eiweiß der Woche',
+    estaSemana: 'Diese Woche',
+    /* ⚠️ SCHNITT AUS DEN EINGETRAGENEN TAGEN, und der Untertitel sagt das.
+       Ein Tag ohne eingetragene Mahlzeit ist kein Tag mit 0 g — es ist ein
+       Tag, den die Person nicht eingetragen hat, und durch sieben zu
+       teilen machte aus dem Vergessen einen Eiweißeinbruch.
+
+       ⚠️ Und der Plural steht im Dativ: „aus 5 eingetragenen Tagen“. */
+    nadaNaSemana: 'Nichts in den letzten sieben Tagen eingetragen',
+    mediaDeDias: (dias: number) => `Schnitt aus ${dias} ${dias === 1 ? 'eingetragenen Tag' : 'eingetragenen Tagen'}`,
+    metaG: (alvo: number) => `Ziel: ${alvo} g`,
+
+    notamosTitulo: 'Was uns aufgefallen ist',
+    notamosNota: 'Aus deiner Routine der letzten zwei Wochen — und nur aus dem, was du eingetragen hast.',
+    continueAssim: 'WEITER SO',
+    umaIdeia: 'EINE IDEE',
+    conversarSobre: 'Darüber sprechen',
+
+    diarioTitulo: 'Mahlzeiten-Tagebuch',
+    diarioNota: 'Tipp auf eine Mahlzeit, um sie anzusehen, zu korrigieren oder zu löschen.',
+    /* ⚠️ DIE HERKUNFT QUALIFIZIERT DIE ZAHL, wie bei den Einheiten: 30 g,
+       die du geschrieben hast, und 30 g, die das Foto geschätzt hat, prüft
+       man nicht auf dieselbe Weise. Und ein fehlendes `fonte` heißt von
+       Hand — der Bildschirm zeigt nie das Fehlen, er zeigt „von dir“. */
+    porVoce: 'von dir',
+    pelaFoto: 'per Foto',
+    deProteina: 'Eiweiß',
+    totalDoDia: (refeicoes: number, gramas: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'Mahlzeit' : 'Mahlzeiten'} · ${gramas} g Eiweiß`,
+    diaVazioTitulo: 'Keine Mahlzeit an diesem Tag',
+    diaVazioTexto: 'Was du einträgst, geht ins Eiweiß des Tages.',
+
+    favoritosTitulo: 'Lieblingsgerichte',
+    favoritosLink: 'Anlegen',
+    favoritosNota: 'Stell den Teller einmal zusammen, und er wird mit einem Tippen eingetragen.',
+    semPratoGuardado: 'Kein Teller gespeichert — öffnet über die Suche',
+    favVazioTitulo: 'Kein Lieblingsgericht',
+    favVazioTexto: 'Speichere einen Teller, den du wiederholst, und er wird mit einem Tippen eingetragen.',
+
+    seusAlimentos: 'Deine Lebensmittel',
+    dicionario: 'Lebensmittel-Lexikon',
+    dicionarioSub: 'Lerne, wie jedes Lebensmittel deiner Behandlung helfen kann',
+    restricoesLinha: 'Einschränkungen beim Essen',
+    semRestricao: 'Keine',
+  },
 };

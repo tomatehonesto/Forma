@@ -161,4 +161,67 @@ export const alimentacao = {
     semCarneVermelha: 'Sin carne roja',
     semCarneVermelhaSub: 'Res y cerdo quedan fuera. Pollo y pescado siguen.',
   },
+
+  /* ⚠️ La frase de la energía trae `<b>` adentro, y eso suelta el ORDEN de
+     las palabras: la cantidad puede ir en cualquier lugar de la frase. Ver
+     ../pt-BR/alimentacao. */
+  tela: {
+    titulo: 'Alimentación',
+    linhaSemProteina: (alvo: number) => `Proteína: nada registrado · meta de ${alvo} g`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Proteína: ${prot} de ${alvo} g · ${resto}`,
+    faltamParaMeta: (falta: number) => `faltan ${falta} g para la meta`,
+    metaAlcancada: 'meta alcanzada',
+    registrarRefeicao: 'Registrar una comida',
+
+    energiaTitulo: 'La energía de hoy',
+    calorias: 'CALORÍAS',
+    deKcal: (meta: string) => `de ${meta} kcal`,
+
+    sobramDoQueConta: (quanto: string) => `Sobran <b>${quanto} kcal</b> de lo que se puede contar.`,
+    aindaCabem: (quanto: string) => `Todavía caben <b>${quanto} kcal</b> en tu día. Elige bien cómo gastarlas.`,
+    passouAMeta: (quanto: string) => `Pasaste la meta del día por <b>${quanto} kcal</b>. Mañana es otro día.`,
+
+    foraDaConta: (fora: number, total: number) =>
+      `${fora} de ${total} ${total === 1 ? 'comida no entra' : 'comidas no entran'} en esta cuenta: solo el plato armado con la tabla tiene etiqueta verificada.`,
+
+    carboidrato: 'Carbohidratos',
+    gordura: 'Grasa',
+    fibra: 'Fibra',
+    deG: (meta: number) => `de ${meta} g`,
+
+    semanaTitulo: 'La proteína de la semana',
+    estaSemana: 'Esta semana',
+    nadaNaSemana: 'Nada registrado en los últimos siete días',
+    mediaDeDias: (dias: number) => `Promedio de ${dias} ${dias === 1 ? 'día registrado' : 'días registrados'}`,
+    metaG: (alvo: number) => `Meta: ${alvo} g`,
+
+    notamosTitulo: 'Lo que notamos',
+    notamosNota: 'De tu rutina de las últimas dos semanas — y solo de lo que registraste.',
+    continueAssim: 'SIGUE ASÍ',
+    umaIdeia: 'UNA IDEA',
+    conversarSobre: 'Conversar sobre esto',
+
+    diarioTitulo: 'Diario de comidas',
+    diarioNota: 'Toca una comida para verla, corregirla o borrarla.',
+    porVoce: 'por ti',
+    pelaFoto: 'por la foto',
+    deProteina: 'de proteína',
+    totalDoDia: (refeicoes: number, gramas: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'comida' : 'comidas'} · ${gramas} g de proteína`,
+    diaVazioTitulo: 'Ninguna comida este día',
+    diaVazioTexto: 'Lo que registres entra en la proteína del día.',
+
+    favoritosTitulo: 'Platos favoritos',
+    favoritosLink: 'Guardar',
+    favoritosNota: 'Arma el plato una vez y entra al registro con un toque.',
+    semPratoGuardado: 'Sin plato guardado — se abre por la búsqueda',
+    favVazioTitulo: 'Ningún plato favorito',
+    favVazioTexto: 'Guarda un plato que repitas y entra con un toque.',
+
+    seusAlimentos: 'Tus alimentos',
+    dicionario: 'Diccionario de alimentos',
+    dicionarioSub: 'Aprende cómo cada comida puede ayudarte en el tratamiento',
+    restricoesLinha: 'Restricciones alimentarias',
+    semRestricao: 'Ninguna',
+  },
 };

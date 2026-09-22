@@ -187,4 +187,107 @@ export const alimentacao = {
     semCarneVermelha: 'Sem carne vermelha',
     semCarneVermelhaSub: 'Boi e porco ficam fora. Frango e peixe continuam.',
   },
+
+  /* ============================================================
+     A TELA DA ALIMENTAÇÃO
+
+     ⚠️⚠️ A FRASE DA ENERGIA VEM COM `<b>` DENTRO, e isso não é enfeite: é
+     o que permite a QUANTIDADE ficar em qualquer lugar da frase.
+
+     O português diz "Ainda cabem 487 kcal no seu dia" — número no meio. O
+     alemão diz "Es passen noch 487 kcal in deinen Tag" — outro meio. Se a
+     tela montasse isso em três pedaços (antes, número, depois), cada
+     idioma teria de caber na ordem do português, e o alemão não cabe.
+
+     O marcador já existia, vindo dos insights, e `Rich` em ui/kit sabe
+     lê-lo. Aqui ele passa a servir a um segundo propósito: soltar a
+     ordem das palavras.
+
+     ⚠️ E AS TRÊS FRASES SÃO TRÊS, e não uma com condicional. "Sobram X do
+     que dá para contar" é o que se diz quando parte do prato ficou fora
+     da conta — dizer "ainda cabem 500" para quem almoçou sem registrar
+     seria o aplicativo autorizando um jantar que ele não tem como
+     calcular.
+     ============================================================ */
+  tela: {
+    titulo: 'Alimentação',
+    linhaSemProteina: (alvo: number) => `Proteína: nada registrado · meta de ${alvo} g`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Proteína: ${prot} de ${alvo} g · ${resto}`,
+    faltamParaMeta: (falta: number) => `${falta} g para a meta`,
+    metaAlcancada: 'meta alcançada',
+    registrarRefeicao: 'Registrar uma refeição',
+
+    /* ---------- a energia do dia ---------- */
+    energiaTitulo: 'A energia de hoje',
+    calorias: 'CALORIAS',
+    deKcal: (meta: string) => `de ${meta} kcal`,
+
+    sobramDoQueConta: (quanto: string) => `Sobram <b>${quanto} kcal</b> do que dá para contar.`,
+    /* ⚠️ "ESCOLHA BEM COMO GASTAR" É O ÚNICO PEDIDO DESTA TELA, e ele cabe
+       aqui porque é o assunto dela: num prato que encolheu, o que decide o
+       tratamento não é o tamanho da sobra, é o que entra nela. */
+    aindaCabem: (quanto: string) => `Ainda cabem <b>${quanto} kcal</b> no seu dia. Escolha bem como gastar.`,
+    /* "Amanhã é outro dia" e não um alerta: passar da meta num dia não é
+       falha, e a tela não tem nada a cobrar de um dia que já acabou. */
+    passouAMeta: (quanto: string) => `Você passou a meta do dia em <b>${quanto} kcal</b>. Amanhã é outro dia.`,
+
+    foraDaConta: (fora: number, total: number) =>
+      `${fora} de ${total} ${total === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`,
+
+    carboidrato: 'Carboidrato',
+    gordura: 'Gordura',
+    fibra: 'Fibra',
+    deG: (meta: number) => `de ${meta} g`,
+
+    /* ---------- a semana ---------- */
+    semanaTitulo: 'A proteína da semana',
+    estaSemana: 'Esta semana',
+    /* ⚠️ MÉDIA DOS DIAS REGISTRADOS, e o subtítulo diz isso. Um dia sem
+       refeição anotada não é um dia de 0 g — é um dia que a pessoa não
+       registrou, e dividir por sete transformaria esquecimento em queda
+       de proteína. */
+    nadaNaSemana: 'Nada registrado nos últimos sete dias',
+    mediaDeDias: (dias: number) => `Média de ${dias} ${dias === 1 ? 'dia registrado' : 'dias registrados'}`,
+    metaG: (alvo: number) => `Meta: ${alvo} g`,
+
+    /* ---------- o que notamos ---------- */
+    notamosTitulo: 'O que notamos',
+    notamosNota: 'Da sua rotina das últimas duas semanas — e só do que você registrou.',
+    continueAssim: 'CONTINUE ASSIM',
+    umaIdeia: 'UMA IDEIA',
+    conversarSobre: 'Conversar sobre isso',
+
+    /* ---------- o diário ---------- */
+    diarioTitulo: 'Diário de refeições',
+    diarioNota: 'Toque numa refeição para ver, corrigir ou apagar.',
+    /* ⚠️ A ORIGEM QUALIFICA O NÚMERO, como nos treinos: 30 g que você
+       escreveu e 30 g que a foto estimou não se conferem do mesmo jeito. E
+       a ausência de `fonte` quer dizer manual — a tela nunca mostra a
+       ausência, mostra "por você". */
+    porVoce: 'por você',
+    pelaFoto: 'pela foto',
+    /* "de proteína" escrito, e não só "g": num aplicativo que recusa
+       contar caloria, um grama sem dono é justamente a dúvida que a tela
+       existe para não deixar. */
+    deProteina: 'de proteína',
+    totalDoDia: (refeicoes: number, gramas: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'refeição' : 'refeições'} · ${gramas} g de proteína`,
+    diaVazioTitulo: 'Nenhuma refeição neste dia',
+    diaVazioTexto: 'O que você registrar entra na proteína do dia.',
+
+    /* ---------- os favoritos ---------- */
+    favoritosTitulo: 'Pratos favoritos',
+    favoritosLink: 'Cadastrar',
+    favoritosNota: 'Monte o prato uma vez e ele entra no registro com um toque.',
+    semPratoGuardado: 'Sem prato guardado — abre pela busca',
+    favVazioTitulo: 'Nenhum prato favorito',
+    favVazioTexto: 'Cadastre um prato que você repete e ele entra com um toque.',
+
+    /* ---------- seus alimentos ---------- */
+    seusAlimentos: 'Seus alimentos',
+    dicionario: 'Dicionário de alimentos',
+    dicionarioSub: 'Aprenda como cada comida pode te ajudar no tratamento',
+    restricoesLinha: 'Restrições alimentares',
+    semRestricao: 'Nenhuma restrição',
+  },
 };

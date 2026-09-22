@@ -20,6 +20,8 @@ import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/c
 import { Chevron } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { font, radius, shadowCard } from '../theme';
+import { Rich } from '../ui/kit';
+import { T } from '../textos';
 
 /* ============================================================
    ALIMENTAÇÃO
@@ -53,7 +55,11 @@ import { font, radius, shadowCard } from '../theme';
 /* A origem de cada refeição, pela mesma regra dos treinos: ausência quer
    dizer manual, porque manual é o que existia antes de haver origem —
    mas a tela nunca mostra ausência, mostra "por você". */
-const origem = (fonte?: string) => (fonte === 'foto' ? 'pela foto' : 'por você');
+const origem = (fonte?: string) => (fonte === 'foto' ? K().pelaFoto : K().porVoce);
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. Ver scripts/idioma-congelado.mjs. */
+const K = () => T.alimentacao.tela;
 
 /* A tira cobre trinta dias. Não há seletor de período aqui porque não há
    nada mais na tela que responda a ele: na de exercício o período governa
@@ -117,14 +123,14 @@ export default function Alimentacao() {
           o nome inteiro. */}
       <CapaDeHabito
         foto={require('../../assets/images/alimentacao-hero.jpg')}
-        titulo="Alimentação"
+        titulo={K().titulo}
         linha={prot === 0
-          ? `Proteína: nada registrado · meta de ${alvo} g`
-          : `Proteína: ${prot} de ${alvo} g · ${falta > 0 ? `${falta} g para a meta` : 'meta alcançada'}`}
+          ? K().linhaSemProteina(alvo)
+          : K().linhaComProteina(prot, alvo, falta > 0 ? K().faltamParaMeta(falta) : K().metaAlcancada)}
         pct={Math.round((prot / alvo) * 100)}
       >
         <AtalhoDaCapa
-          titulo="Registrar uma refeição"
+          titulo={K().registrarRefeicao}
           cheio
           onPress={() => router.push('/medir-refeicao' as any)}
         />
@@ -148,16 +154,16 @@ export default function Alimentacao() {
           tem caloria conferida; refeição estimada pela foto responde por
           proteína, e nada mais. Em vez de somar zero pelas outras em
           silêncio, a tela diz de quantas ela não está falando. */}
-      <Bloco titulo="A energia de hoje">
+      <Bloco titulo={K().energiaTitulo}>
         <View style={{ gap: 10 }}>
           <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10 }, shadowCard(c)]}>
             <Row gap={8} style={{ alignItems: 'center' }}>
               <Icon name="flame" size={15} color={c.accent} sw={1.9} />
-              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>CALORIAS</Txt>
+              <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().calorias}</Txt>
             </Row>
             <Row style={{ alignItems: 'baseline', gap: 6 }}>
               <Txt v="metric">{milhar(energia.kcal)}</Txt>
-              <Txt v="caption" c={c.tx3}>de {milhar(metas.kcal)} kcal</Txt>
+              <Txt v="caption" c={c.tx3}>{K().deKcal(milhar(metas.kcal))}</Txt>
             </Row>
             <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.track, overflow: 'hidden' }}>
               <View style={{
@@ -181,13 +187,25 @@ export default function Alimentacao() {
                 cabe aqui porque é o assunto dela: num prato que encolheu,
                 o que decide o tratamento não é o tamanho da sobra, é o
                 que entra nela. */}
-            <Txt v="note" c={c.tx2}>
-              {resta > 0
-                ? (energia.fora > 0
-                  ? <>Sobram <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> do que dá para contar.</>
-                  : <>Ainda cabem <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(resta)} kcal</Txt> no seu dia. Escolha bem como gastar.</>)
-                : <>Você passou a meta do dia em <Txt v="note" c={c.tx} style={{ fontFamily: font.bodySemi }}>{milhar(-resta)} kcal</Txt>. Amanhã é outro dia.</>}
-            </Txt>
+            {/* ⚠️⚠️ A FRASE INTEIRA VEM DO CATÁLOGO, COM O `<b>` DENTRO.
+
+                Ela era três pedaços de JSX com o número no meio, e o meio
+                é justamente o que muda de idioma para idioma: o português
+                diz "Ainda cabem 487 kcal no seu dia", o alemão diz "Es
+                passen noch 487 kcal in deinen Tag". Montar aqui obrigava
+                todo idioma a caber na ordem do português.
+
+                `Rich` já sabia ler `<b>` — ele veio dos insights. Aqui a
+                marcação ganha um segundo uso: soltar a ordem das
+                palavras. */}
+            <Rich
+              v="note"
+              base={c.tx2}
+              bold={c.tx}
+              text={resta > 0
+                ? (energia.fora > 0 ? K().sobramDoQueConta(milhar(resta)) : K().aindaCabem(milhar(resta)))
+                : K().passouAMeta(milhar(-resta))}
+            />
             {/* A RESSALVA SÓ APARECE QUANDO HÁ O QUE RESSALVAR.
 
                 "Nada registrado hoje" estava aqui e era ruído: num dia em
@@ -196,7 +214,7 @@ export default function Alimentacao() {
                 começo de dia normal em aviso de pendência. */}
             {energia.fora > 0 ? (
               <Txt v="caption" c={c.tx3}>
-                {energia.fora} de {energia.refeicoes} {energia.refeicoes === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.
+                {K().foraDaConta(energia.fora, energia.refeicoes)}
               </Txt>
             ) : null}
           </View>
@@ -206,9 +224,9 @@ export default function Alimentacao() {
               divergem do quinto no dia em que alguém mexer nele. */}
           <Cartao>
             {([
-              ['leaf', c.ok, c.okBg, 'Carboidrato', energia.carb, metas.carb],
-              ['drop2', c.amber, c.amberBg, 'Gordura', energia.gord, metas.gord],
-              ['gut', c.purple, c.purpleBg, 'Fibra', energia.fibra, metas.fibra],
+              ['leaf', c.ok, c.okBg, K().carboidrato, energia.carb, metas.carb],
+              ['drop2', c.amber, c.amberBg, K().gordura, energia.gord, metas.gord],
+              ['gut', c.purple, c.purpleBg, K().fibra, energia.fibra, metas.fibra],
             ] as [string, string, string, string, number, number][]).map(([ic, cor, fundo, nome, tem, meta]) => (
               <Row key={nome} style={{ paddingHorizontal: 16, paddingVertical: 13, gap: 12, alignItems: 'center' }}>
                 <View style={{
@@ -220,7 +238,7 @@ export default function Alimentacao() {
                 <Txt v="body" style={{ flex: 1 }}>{nome}</Txt>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Txt v="title" style={{ fontFamily: font.bodySemi }}>{tem} g</Txt>
-                  <Txt v="micro" c={c.tx4}>de {meta} g</Txt>
+                  <Txt v="micro" c={c.tx4}>{K().deG(meta)}</Txt>
                 </View>
               </Row>
             ))}
@@ -239,7 +257,7 @@ export default function Alimentacao() {
 
           A semana fica porque ela contextualiza a meta DIÁRIA que se está
           perseguindo agora: sete barras contra a mesma linha de 90 g. */}
-      <Bloco titulo="A proteína da semana">
+      <Bloco titulo={K().semanaTitulo}>
         {/* MÉDIA POR DIA, e não total da semana. A meta com que ela se
             compara é diária: 390 g na semana não é número que alguém
             carregue na cabeça, nem se compara com 90.
@@ -249,15 +267,13 @@ export default function Alimentacao() {
             registrou, e dividir por sete transformaria esquecimento em
             queda de proteína. */}
         <CardSemana
-          nome="Esta semana"
-          sub={diasComRegistro === 0
-            ? 'Nada registrado nos últimos sete dias'
-            : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
+          nome={K().estaSemana}
+          sub={diasComRegistro === 0 ? K().nadaNaSemana : K().mediaDeDias(diasComRegistro)}
           valor={String(mediaSemana)}
           unidade="g"
           dias={semana.map((d) => ({ t: d.t, v: d.g }))}
           alvo={alvo}
-          rotuloMeta={`Meta: ${alvo} g`}
+          rotuloMeta={K().metaG(alvo)}
         />
       </Bloco>
       {/* O QUE DÁ PARA NOTAR — a única parte da tela que não é contador.
@@ -272,8 +288,8 @@ export default function Alimentacao() {
           conselho sobre uma rotina que a pessoa ainda não viu. */}
       {conselhos.length ? (
         <Bloco
-          titulo="O que notamos"
-          nota="Da sua rotina das últimas duas semanas — e só do que você registrou."
+          titulo={K().notamosTitulo}
+          nota={K().notamosNota}
         >
           <View style={{ gap: 10 }}>
             {conselhos.map((k) => (
@@ -306,7 +322,7 @@ export default function Alimentacao() {
                 <Row gap={8} style={{ alignItems: 'center' }}>
                   <Icon name="aura" size={14} color={c.accent} sw={2} />
                   <Txt v="micro" c={c.accent} style={{ letterSpacing: 1.2 }}>
-                    {k.bom ? 'CONTINUE ASSIM' : 'UMA IDEIA'}
+                    {k.bom ? K().continueAssim : K().umaIdeia}
                   </Txt>
                 </Row>
                 <Txt v="bodyMed">{k.titulo}</Txt>
@@ -317,7 +333,7 @@ export default function Alimentacao() {
                     almoço de amanhã" é pergunta que só a conversa responde,
                     e ela já abre com a pergunta escrita. */}
                 <Row gap={7} style={{ marginTop: 2, alignItems: 'center' }}>
-                  <Txt v="label" c={c.accent}>Conversar sobre isso</Txt>
+                  <Txt v="label" c={c.accent}>{K().conversarSobre}</Txt>
                   <Icon name="chev" size={13} color={c.accent} sw={2.2} />
                 </Row>
               </Pressable>
@@ -340,8 +356,8 @@ export default function Alimentacao() {
           para sempre com a pessoa sabendo que está. Apagar devolve a
           proteína ao dia, não zera. */}
       <Bloco
-        titulo="Diário de refeições"
-        nota="Toque numa refeição para ver, corrigir ou apagar."
+        titulo={K().diarioTitulo}
+        nota={K().diarioNota}
       >
         <View style={{ gap: 10 }}>
           <TiraDeDias
@@ -395,7 +411,7 @@ export default function Alimentacao() {
                         do prato? é carboidrato? */}
                     <View style={{ alignItems: 'flex-end' }}>
                       <Txt v="bodyMed" c={c.accent}>~{m.g ?? 0} g</Txt>
-                      <Txt v="micro" c={c.tx4}>de proteína</Txt>
+                      <Txt v="micro" c={c.tx4}>{K().deProteina}</Txt>
                     </View>
                     <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
                   </Row>
@@ -406,14 +422,14 @@ export default function Alimentacao() {
                   seria um segundo cabeçalho competindo com a tira; embaixo
                   ele é o que a soma das linhas deu. */}
               <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-                {doDia.length} {doDia.length === 1 ? 'refeição' : 'refeições'} · {gDoDia} g de proteína
+                {K().totalDoDia(doDia.length, gDoDia)}
               </Txt>
             </View>
           ) : (
             <Vazio
               ic="utensils"
-              titulo="Nenhuma refeição neste dia"
-              texto="O que você registrar entra na proteína do dia."
+              titulo={K().diaVazioTitulo}
+              texto={K().diaVazioTexto}
             />
           )}
         </View>
@@ -426,10 +442,10 @@ export default function Alimentacao() {
           na lista e a barra do dia não andava — duas versões do mesmo dia
           na mesma tela. */}
       <Bloco
-        titulo="Pratos favoritos"
-        link="Cadastrar"
+        titulo={K().favoritosTitulo}
+        link={K().favoritosLink}
         onLink={() => router.push('/medir-refeicao?fav=1' as any)}
-        nota="Monte o prato uma vez e ele entra no registro com um toque."
+        nota={K().favoritosNota}
       >
         {favs.length ? (
           <View style={{ gap: 10 }}>
@@ -462,14 +478,14 @@ export default function Alimentacao() {
                       <Txt v="body">{f.nome}</Txt>
                       {!f.itens?.length ? (
                         <Txt v="micro" c={c.tx4} style={{ marginTop: 4 }}>
-                          Sem prato guardado — abre pela busca
+                          {K().semPratoGuardado}
                         </Txt>
                       ) : null}
                     </View>
                     {f.itens?.length ? (
                       <View style={{ alignItems: 'flex-end' }}>
                         <Txt v="bodyMed" c={c.accent}>~{g} g</Txt>
-                        <Txt v="micro" c={c.tx4}>de proteína</Txt>
+                        <Txt v="micro" c={c.tx4}>{K().deProteina}</Txt>
                       </View>
                     ) : null}
                     <View style={{ marginLeft: 8, marginTop: 3 }}><Chevron size={15} /></View>
@@ -484,8 +500,8 @@ export default function Alimentacao() {
              está no cabeçalho do bloco. */
           <Vazio
             ic="leaf"
-            titulo="Nenhum prato favorito"
-            texto="Cadastre um prato que você repete e ele entra com um toque."
+            titulo={K().favVazioTitulo}
+            texto={K().favVazioTexto}
           />
         )}
       </Bloco>
@@ -518,22 +534,22 @@ export default function Alimentacao() {
           E ficam DEPOIS do diário, que é a ordem do que se faz: o número
           do dia, o que eu comi, o que eu repito, e por último o passeio e
           o ajuste. */}
-      <Bloco titulo="Seus alimentos">
+      <Bloco titulo={K().seusAlimentos}>
         <Cartao>
           <Linha
             ic="book"
-            titulo="Dicionário de alimentos"
-            sub="Aprenda como cada comida pode te ajudar no tratamento"
+            titulo={K().dicionario}
+            sub={K().dicionarioSub}
             onPress={() => router.push('/alimentos' as any)}
           />
           {/* RESTRIÇÃO É AJUSTE, e ajuste mora atrás de uma linha.
               Ver src/app/restricao.tsx. */}
           <Linha
             ic="leaf"
-            titulo="Restrições alimentares"
+            titulo={K().restricoesLinha}
             sub={restricoes.length
               ? restricoes.map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x).join(', ')
-              : 'Nenhuma restrição'}
+              : K().semRestricao}
             onPress={() => router.push('/restricao' as any)}
           />
         </Cartao>

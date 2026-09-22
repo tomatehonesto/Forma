@@ -137,4 +137,66 @@ export const alimentacao = {
     semCarneVermelha: 'No red meat',
     semCarneVermelhaSub: 'Beef and pork are out. Chicken and fish stay.',
   },
+
+  /* ⚠️ The energy sentence carries `<b>` inside so the QUANTITY can sit
+     anywhere in the sentence. See ../pt-BR/alimentacao. */
+  tela: {
+    titulo: 'Food',
+    linhaSemProteina: (alvo: number) => `Protein: nothing logged · goal of ${alvo} g`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Protein: ${prot} of ${alvo} g · ${resto}`,
+    faltamParaMeta: (falta: number) => `${falta} g to the goal`,
+    metaAlcancada: 'goal reached',
+    registrarRefeicao: 'Log a meal',
+
+    energiaTitulo: 'Today’s energy',
+    calorias: 'CALORIES',
+    deKcal: (meta: string) => `of ${meta} kcal`,
+
+    sobramDoQueConta: (quanto: string) => `<b>${quanto} kcal</b> left of what can be counted.`,
+    aindaCabem: (quanto: string) => `There’s still room for <b>${quanto} kcal</b> today. Choose well how to spend it.`,
+    passouAMeta: (quanto: string) => `You went past today’s goal by <b>${quanto} kcal</b>. Tomorrow is another day.`,
+
+    foraDaConta: (fora: number, total: number) =>
+      `${fora} of ${total} ${total === 1 ? 'meal isn’t' : 'meals aren’t'} in this count: only a plate built from the table has a checked label.`,
+
+    carboidrato: 'Carbs',
+    gordura: 'Fat',
+    fibra: 'Fiber',
+    deG: (meta: number) => `of ${meta} g`,
+
+    semanaTitulo: 'Protein this week',
+    estaSemana: 'This week',
+    nadaNaSemana: 'Nothing logged in the last seven days',
+    mediaDeDias: (dias: number) => `Average of ${dias} logged ${dias === 1 ? 'day' : 'days'}`,
+    metaG: (alvo: number) => `Goal: ${alvo} g`,
+
+    notamosTitulo: 'What we noticed',
+    notamosNota: 'From your routine over the last two weeks — and only from what you logged.',
+    continueAssim: 'KEEP IT UP',
+    umaIdeia: 'AN IDEA',
+    conversarSobre: 'Talk about this',
+
+    diarioTitulo: 'Meal diary',
+    diarioNota: 'Tap a meal to see, fix or delete it.',
+    porVoce: 'by you',
+    pelaFoto: 'from the photo',
+    deProteina: 'of protein',
+    totalDoDia: (refeicoes: number, gramas: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'meal' : 'meals'} · ${gramas} g of protein`,
+    diaVazioTitulo: 'No meals on this day',
+    diaVazioTexto: 'Whatever you log goes into the day’s protein.',
+
+    favoritosTitulo: 'Favorite plates',
+    favoritosLink: 'Add one',
+    favoritosNota: 'Build the plate once and it logs with a single tap.',
+    semPratoGuardado: 'No plate saved — opens through search',
+    favVazioTitulo: 'No favorite plates',
+    favVazioTexto: 'Save a plate you repeat and it logs with one tap.',
+
+    seusAlimentos: 'Your foods',
+    dicionario: 'Food dictionary',
+    dicionarioSub: 'Learn how each food can help your treatment',
+    restricoesLinha: 'Dietary restrictions',
+    semRestricao: 'None',
+  },
 };

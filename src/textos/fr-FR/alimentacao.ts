@@ -165,4 +165,74 @@ export const alimentacao = {
     semCarneVermelha: 'Sans viande rouge',
     semCarneVermelhaSub: 'Bœuf et porc sortent. Volaille et poisson restent.',
   },
+
+  /* ⚠️⚠️ LA PHRASE DE L'ÉNERGIE PORTE UN `<b>` À L'INTÉRIEUR, et ce n'est
+     pas de la décoration : c'est ce qui libère l'ORDRE DES MOTS. Le
+     portugais met le nombre au milieu, l'allemand ailleurs. Si l'écran
+     assemblait ça en trois morceaux, chaque langue devrait rentrer dans
+     l'ordre du portugais. Voir ../pt-BR/alimentacao.
+
+     ⚠️ ET « REPAS » NE CHANGE PAS AU PLURIEL, ce qui rend la paire
+     singulier/pluriel invisible ici — c'est le VERBE qui s'accorde, pas
+     le nom. */
+  tela: {
+    titulo: 'Alimentation',
+    linhaSemProteina: (alvo: number) => `Protéines : rien de noté · objectif de ${alvo} g`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Protéines : ${prot} sur ${alvo} g · ${resto}`,
+    faltamParaMeta: (falta: number) => `encore ${falta} g avant l’objectif`,
+    metaAlcancada: 'objectif atteint',
+    registrarRefeicao: 'Noter un repas',
+
+    energiaTitulo: 'L’énergie d’aujourd’hui',
+    calorias: 'CALORIES',
+    deKcal: (meta: string) => `sur ${meta} kcal`,
+
+    sobramDoQueConta: (quanto: string) => `Il reste <b>${quanto} kcal</b> sur ce qui se compte.`,
+    aindaCabem: (quanto: string) => `Il reste encore <b>${quanto} kcal</b> dans votre journée. Choisissez bien comment les dépenser.`,
+    /* Avec l'auxiliaire AVOIR, le participe n'accorde rien. */
+    passouAMeta: (quanto: string) => `Vous avez dépassé l’objectif du jour de <b>${quanto} kcal</b>. Demain est un autre jour.`,
+
+    foraDaConta: (fora: number, total: number) =>
+      `${fora} repas sur ${total} ${total === 1 ? 'n’entre pas' : 'n’entrent pas'} dans ce compte : seule une assiette construite avec la table a une étiquette vérifiée.`,
+
+    carboidrato: 'Glucides',
+    gordura: 'Lipides',
+    fibra: 'Fibres',
+    deG: (meta: number) => `sur ${meta} g`,
+
+    semanaTitulo: 'Les protéines de la semaine',
+    estaSemana: 'Cette semaine',
+    nadaNaSemana: 'Rien de noté ces sept derniers jours',
+    mediaDeDias: (dias: number) => `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
+    metaG: (alvo: number) => `Objectif : ${alvo} g`,
+
+    notamosTitulo: 'Ce qu’on a remarqué',
+    notamosNota: 'D’après votre routine des deux dernières semaines — et seulement d’après ce que vous avez noté.',
+    continueAssim: 'CONTINUEZ COMME ÇA',
+    umaIdeia: 'UNE IDÉE',
+    conversarSobre: 'En parler',
+
+    diarioTitulo: 'Journal des repas',
+    diarioNota: 'Touchez un repas pour le voir, le corriger ou le supprimer.',
+    porVoce: 'par vous',
+    pelaFoto: 'd’après la photo',
+    deProteina: 'de protéines',
+    totalDoDia: (refeicoes: number, gramas: number) =>
+      `${refeicoes} repas · ${gramas} g de protéines`,
+    diaVazioTitulo: 'Aucun repas ce jour-là',
+    diaVazioTexto: 'Ce que vous notez entre dans les protéines du jour.',
+
+    favoritosTitulo: 'Plats favoris',
+    favoritosLink: 'Enregistrer',
+    favoritosNota: 'Composez le plat une fois, et il se note en un toucher.',
+    semPratoGuardado: 'Aucun plat enregistré — s’ouvre par la recherche',
+    favVazioTitulo: 'Aucun plat favori',
+    favVazioTexto: 'Enregistrez un plat que vous répétez, et il se note en un toucher.',
+
+    seusAlimentos: 'Vos aliments',
+    dicionario: 'Dictionnaire des aliments',
+    dicionarioSub: 'Apprenez comment chaque aliment peut aider votre traitement',
+    restricoesLinha: 'Restrictions alimentaires',
+    semRestricao: 'Aucune',
+  },
 };
