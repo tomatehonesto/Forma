@@ -100,6 +100,13 @@ export const cadastro = {
      AS RESPOSTAS
      ============================================================ */
   seuNome: 'Seu nome',
+
+  /* ⚠️ "OUTRO" E "PREFIRO NÃO INFORMAR" NÃO SÃO A MESMA RESPOSTA: uma
+     diz quem a pessoa é, a outra diz que ela não quer dizer. Juntar as
+     duas obrigaria quem só quer privacidade a se declarar. */
+  feminino: 'Feminino',
+  masculino: 'Masculino',
+  outro: 'Outro',
   prefiroNaoInformar: 'Prefiro não informar',
 
   jaIniciei: 'Já iniciei o tratamento',
@@ -124,6 +131,7 @@ export const cadastro = {
   todosOsDias: 'Todos os dias',
   aCadaDias: (d: number) => `A cada ${d} dias`,
   padrao: 'Padrão',
+  outroIntervaloTitulo: 'Outro intervalo',
   outroIntervalo: 'Você diz de quantos em quantos dias',
 
   pesoDeHoje: 'PESO DE HOJE',
@@ -169,6 +177,9 @@ export const cadastro = {
   /* ============================================================
      O ACOMPANHAMENTO
      ============================================================ */
+  sim: 'Sim',
+  digiteONome: 'Digite o nome',
+  nadaEnviado: 'Serve para referenciar o especialista ao longo da sua jornada. Nada é enviado a essa pessoa.',
   vouMeTratar: 'Vou me tratar com um médico ou clínica',
   meAcompanha: 'Um médico ou clínica acompanha o meu tratamento',
   porContaPropria: 'Não, por conta própria',

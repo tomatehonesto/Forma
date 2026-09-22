@@ -1682,15 +1682,15 @@ export default function Cadastro() {
         {id === 'identidade' ? (
           <View style={{ gap: 10 }}>
             <Escolha
-              ic="venus" cheia titulo="Feminino"
+              ic="venus" cheia titulo={K().feminino}
               on={r.identidade === 'f'} onPress={() => p({ identidade: 'f' })}
             />
             <Escolha
-              ic="mars" cheia titulo="Masculino"
+              ic="mars" cheia titulo={K().masculino}
               on={r.identidade === 'm'} onPress={() => p({ identidade: 'm' })}
             />
             <Escolha
-              ic="more" cheia titulo="Outro"
+              ic="more" cheia titulo={K().outro}
               on={r.identidade === 'o'} onPress={() => p({ identidade: 'o' })}
             />
             {/* "Outro" e "prefiro não informar" não são a mesma resposta:
@@ -1920,7 +1920,7 @@ export default function Cadastro() {
                 />
               ))}
               <Escolha
-                cheia titulo="Outro intervalo"
+                cheia titulo={K().outroIntervaloTitulo}
                 /* ⚠️ O ?? FECHA UM BURACO QUE O TEXTO ANTIGO TINHA. Este
                    ramo abre com `outroAberto`, que pode ser verdadeiro
                    com o intervalo ainda nulo — e o modelo anterior
@@ -2310,7 +2310,7 @@ export default function Cadastro() {
                 anunciar. */}
             <View style={{ gap: 10 }}>
               <Escolha
-                ic="steth" cheia titulo="Sim"
+                ic="steth" cheia titulo={K().sim}
                 sub={futuro
                   ? K().vouMeTratar
                   : K().meAcompanha}
@@ -2335,11 +2335,10 @@ export default function Cadastro() {
                 <CampoTexto
                   valor={r.profissional}
                   onChange={(v) => p({ profissional: v })}
-                  placeholder="Digite o nome"
+                  placeholder={K().digiteONome}
                 />
                 <Txt v="caption" c={c.tx3}>
-                  Serve para referenciar o especialista ao longo da sua jornada. Nada é
-                  enviado a essa pessoa.
+                  {K().nadaEnviado}
                 </Txt>
               </View>
             ) : null}

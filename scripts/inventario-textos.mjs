@@ -14,6 +14,25 @@ const FORA = [/textos[\\/]/, /logic[\\/]alimentos/, /logic[\\/]documentos/, /log
 
 const PT = /[çãõáéíóúâêôàÇÃÕÁÉÍÓÚÂÊÔÀ]|\b(voc[eê]|sua|seu|n[ãa]o|para|com|que|dia|dias|dose|peso|hoje|meta|semana|ver|fazer|de|do|da|em|uma|um)\b/i;
 
+/* ⚠️⚠️ AS PROPRIEDADES DE TEXTO NÃO PASSAM PELO `PT`, e é o buraco que a
+   regra 3 fecha.
+
+   O `PT` é uma heurística de APARÊNCIA: ele acha o que parece português.
+   "Feminino", "Masculino" e "Outro" não têm acento nem palavra da lista,
+   então as três opções da pergunta de identidade do cadastro ficaram no
+   código, invisíveis ao inventário, e apareceram em português numa tela
+   em inglês — foi assim que o buraco foi descoberto, por alguém olhando o
+   aplicativo.
+
+   Uma propriedade destas é texto de tela POR DEFINIÇÃO: ninguém escreve
+   `titulo=` para guardar um dado. Não precisa parecer português para
+   contar, e é por isso que esta lista não pergunta ao `PT`.
+
+   ⚠️ E ELA É DE NOMES, e não de tudo: `ic="venus"`, `tom="fantasma"`,
+   `v="label"` e `c="#FFF"` também são propriedades com string dentro, e
+   nenhuma delas é fala. O que separa as duas listas é o nome. */
+const PROPS_DE_TEXTO = /\b(titulo|título|label|sub|rotulo|rótulo|placeholder|texto|lead|ajuda|selo|sobre|curto|desc|descricao|legenda|vazio|acao|cta|pergunta|dica|nota|aviso|titulo2)=\"([^\"]{2,})\"/g;
+
 const anda = (dir, out = []) => {
   for (const nome of readdirSync(dir)) {
     const p = join(dir, nome);
@@ -50,6 +69,15 @@ for (const f of anda(RAIZ)) {
     daqui.push(s.trim());
   }
 
+  /* 3. propriedade de texto com string cravada — sem passar pelo `PT` */
+  for (const m of src.matchAll(PROPS_DE_TEXTO)) {
+    const v = m[2].trim();
+    if (!v || !/[a-zA-Zà-ÿ]/.test(v)) continue;
+    /* rota, chave, id: sem espaço e tudo minúsculo com hífen */
+    if (!/\s/.test(v) && /^[a-z0-9@./_-]+$/.test(v)) continue;
+    daqui.push(v);
+  }
+
   /* 2. texto solto entre tags JSX */
   for (const m of src.matchAll(/>([^<>{}\n]{3,})</g)) {
     const s = m[1].trim();
@@ -57,7 +85,11 @@ for (const f of anda(RAIZ)) {
     daqui.push(s);
   }
 
-  if (daqui.length) achados.push([f.replace('C:/dev/Forma/', ''), daqui]);
+  /* As três regras se sobrepõem — uma propriedade de texto com prosa
+     dentro é achada pela 1 e pela 3. Contar duas vezes inflaria o número
+     que este arquivo existe para dar. */
+  const unicos = [...new Set(daqui)];
+  if (unicos.length) achados.push([f.replace('C:/dev/Forma/', ''), unicos]);
 }
 
 achados.sort((a, b) => b[1].length - a[1].length);

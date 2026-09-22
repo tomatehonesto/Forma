@@ -71,6 +71,10 @@ export const cadastro = {
   },
 
   seuNome: 'Your name',
+
+  feminino: 'Female',
+  masculino: 'Male',
+  outro: 'Other',
   prefiroNaoInformar: 'Prefer not to say',
 
   jaIniciei: 'I’ve started treatment',
@@ -92,6 +96,7 @@ export const cadastro = {
   todosOsDias: 'Every day',
   aCadaDias: (d: number) => `Every ${d} days`,
   padrao: 'Standard',
+  outroIntervaloTitulo: 'Another interval',
   outroIntervalo: 'You say how many days apart',
 
   pesoDeHoje: 'WEIGHT TODAY',
@@ -122,6 +127,9 @@ export const cadastro = {
      does postpone. */
   saudeDepois: 'Do this later',
 
+  sim: 'Yes',
+  digiteONome: 'Enter the name',
+  nadaEnviado: 'It’s there to refer to the clinician along your journey. Nothing is sent to them.',
   vouMeTratar: 'I’ll be treated by a clinician or clinic',
   meAcompanha: 'A clinician or clinic follows my treatment',
   porContaPropria: 'No, on my own',

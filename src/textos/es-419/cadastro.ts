@@ -77,6 +77,10 @@ export const cadastro = {
   },
 
   seuNome: 'Tu nombre',
+
+  feminino: 'Femenino',
+  masculino: 'Masculino',
+  outro: 'Otro',
   prefiroNaoInformar: 'Prefiero no decirlo',
 
   jaIniciei: 'Ya empecé el tratamiento',
@@ -101,6 +105,7 @@ export const cadastro = {
   todosOsDias: 'Todos los días',
   aCadaDias: (d: number) => `Cada ${d} días`,
   padrao: 'Estándar',
+  outroIntervaloTitulo: 'Otro intervalo',
   outroIntervalo: 'Tú dices cada cuántos días',
 
   pesoDeHoje: 'PESO DE HOY',
@@ -139,6 +144,9 @@ export const cadastro = {
      verdad: la pantalla de Integraciones sigue en el perfil. */
   saudeDepois: 'Hacerlo después',
 
+  sim: 'Sí',
+  digiteONome: 'Escribe el nombre',
+  nadaEnviado: 'Sirve para referirte al especialista a lo largo de tu camino. No se le envía nada a esa persona.',
   vouMeTratar: 'Me voy a tratar con un médico o clínica',
   meAcompanha: 'Un médico o clínica acompaña mi tratamiento',
   porContaPropria: 'No, por mi cuenta',
