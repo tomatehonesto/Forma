@@ -1439,6 +1439,22 @@ tirada do `git show`, e não de memória.
   (caíam em `oms` pelo `PADRAO` e continuam em `oms`). Mas agora a falta
   é visível, e é uma pergunta para quem decide a régua.
 
+- **O país passou a se escrever no idioma do aplicativo**, e a mudança
+  apagou um problema inteiro. Enquanto cada país se escrevia no PRÓPRIO
+  idioma, cada nome era três decisões — qual língua num país multilíngue,
+  qual escrita, forma curta ou oficial —, e o CLDR erra as três sozinho.
+  No idioma do aplicativo não sobra decisão nenhuma. ⚠️ A regra continua
+  valendo para a lista de IDIOMAS, e por motivo oposto: quem está perdido
+  numa língua que não lê procura "Deutsch", e "Alemão" não ajuda.
+- **⚠️ E A TABELA É GERADA, E NÃO RESOLVIDA NO APARELHO.** O aplicativo
+  não usa `Intl` em tempo de execução em lugar nenhum — `logic/local`
+  escreve data e número com tabelas próprias —, não há polyfill
+  instalado, e o Hermes não garante `Intl.DisplayNames`. Resolver o nome
+  no aparelho seria apostar num motor que pode não ter a peça, e a aposta
+  só se perde no aparelho de alguém. `scripts/nomes-de-pais.mjs` gera
+  `logic/paisesNomes`, e rodá-lo duas vezes não muda nada — se mudar, o
+  diff é a resposta.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

@@ -6,7 +6,7 @@ import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Cartao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { NOME_DO_PAIS, PAISES, paisAtual, trocarPais, type Pais } from '../logic/pais';
+import { nomeDoPais, paisesOrdenados, paisAtual, trocarPais, type Pais } from '../logic/pais';
 import { T } from '../textos';
 import {
   NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local,
@@ -20,11 +20,16 @@ import {
    próprio idioma, e o visto em quem está valendo. Duas rotas seriam duas
    cópias da mesma folha, e a segunda é sempre a que fica para trás.
 
-   ⚠️ NENHUM DOS NOMES PASSA PELO CATÁLOGO, e é a única lista do
-   aplicativo assim. "Inglês" só ajuda quem já lê português; quem abre
-   esta folha por estar perdido num idioma que não é o seu procura a
-   palavra que reconhece — "English", "Deutsch". Com o país é o mesmo: o
-   nome dele se escreve como ele se escreve.
+   ⚠️⚠️ E AS DUAS LISTAS SE ESCREVEM EM IDIOMAS DIFERENTES, de propósito.
+
+   O IDIOMA se escreve no próprio: "English", "Deutsch". Quem abre esta
+   folha por estar perdido numa língua que não lê procura a palavra que
+   reconhece, e "Inglês" só ajuda quem já lê português.
+
+   O PAÍS se escreve no idioma do aplicativo. A pergunta dele vem DEPOIS
+   da do idioma, na mesma tela: quem chega aqui já escolheu em que língua
+   lê, e "Deutschland" no meio de uma lista em português seria a única
+   linha que a pessoa não consegue procurar pelo nome que conhece.
 
    ⚠️ A LISTA DE IDIOMAS É `idiomasOrdenados`, e não uma lista escrita
    aqui. Ela vem de logic/local com duas garantias: só entra idioma que
@@ -81,16 +86,21 @@ export default function Escolher() {
   };
 
   /* ⚠️ A FOLHA ABRE NO VALOR QUE JÁ VALE, e é isto que a roda antiga fazia
-     de graça: com cento e onze países, abrir em "Angola" é pedir que
-     quase todo mundo role até o seu. Só o país precisa — cinco idiomas
-     cabem na tela sem rolar.
+     de graça: com duzentos e quarenta e três países, abrir na primeira
+     letra é pedir que quase todo mundo role até o seu. Só o país precisa
+     — cinco idiomas cabem na tela sem rolar.
 
      A altura vem do onLayout da primeira linha em vez de um número
      escrito: ela muda com o tamanho de fonte do aparelho, e um 48 cravado
      aqui erraria justamente para quem aumentou a letra. */
   const rolagem = React.useRef<ScrollView | null>(null);
   const [altura, setAltura] = React.useState(0);
-  const indice = ehPais ? PAISES.indexOf(paisAtual()) : -1;
+  /* ⚠️ A LISTA SAI DE UMA FUNÇÃO, e é lida UMA VEZ por desenho. Ela ordena
+     duzentos e quarenta e três nomes pelo idioma de agora; chamá-la duas
+     vezes ordenaria duas vezes, e — pior — o índice e as linhas viriam de
+     leituras diferentes, que é como o rolo acerta a linha errada. */
+  const lista = ehPais ? paisesOrdenados() : [];
+  const indice = ehPais ? lista.indexOf(paisAtual()) : -1;
 
   React.useEffect(() => {
     if (altura > 0 && indice > 0) {
@@ -107,10 +117,10 @@ export default function Escolher() {
       <View style={{ marginTop: 18 }}>
         <Cartao>
           {ehPais
-            ? PAISES.map((p, i) => (
+            ? lista.map((p, i) => (
               <Opcao
                 key={p}
-                nome={NOME_DO_PAIS[p]}
+                nome={nomeDoPais(p)}
                 on={p === paisAtual()}
                 onPress={() => escolherPais(p)}
                 onAltura={i === 0 ? setAltura : undefined}

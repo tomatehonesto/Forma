@@ -28,7 +28,7 @@ import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, localAtual } from '../logic/local';
-import { NOME_DO_PAIS, paisAtual } from '../logic/pais';
+import { nomeDoPais, paisAtual } from '../logic/pais';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -700,7 +700,7 @@ export default function Perfil() {
             duas coisas: trocar para English troca a palavra E a vírgula
             decimal. Ver logic/local. */}
         <ListRow ic="site" title={T.idioma.titulo}
-          sub={K().idiomaSub(NOME_DO_LOCAL[localAtual()], NOME_DO_PAIS[paisAtual()])}
+          sub={K().idiomaSub(NOME_DO_LOCAL[localAtual()], nomeDoPais(paisAtual()))}
           onPress={go('/idioma')} />
         <ListRow ic="ruler" title={K().unidades}
           sub={K().unidadesSub(

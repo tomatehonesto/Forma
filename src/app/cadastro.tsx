@@ -32,7 +32,7 @@ import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font, shadowCard, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local } from '../logic/local';
-import { NOME_DO_PAIS, paisAtual } from '../logic/pais';
+import { nomeDoPais, paisAtual } from '../logic/pais';
 import { T } from '../textos';
 
 /* ============================================================
@@ -1688,7 +1688,7 @@ export default function Cadastro() {
                 <Linha
                   ic="pin"
                   titulo={T.idioma.pais}
-                  sub={NOME_DO_PAIS[paisAtual()]}
+                  sub={nomeDoPais(paisAtual())}
                   onPress={() => router.push('/escolher?o=pais' as any)}
                 />
               </Cartao>

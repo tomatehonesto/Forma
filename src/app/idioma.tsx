@@ -5,7 +5,7 @@ import { useStore } from '../logic/store';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { NOME_DO_PAIS, paisAtual } from '../logic/pais';
+import { nomeDoPais, paisAtual } from '../logic/pais';
 import { T } from '../textos';
 import { NOME_DO_LOCAL, localAtual } from '../logic/local';
 
@@ -85,7 +85,7 @@ export default function Idioma() {
         <Linha
           ic="pin"
           titulo={T.idioma.pais}
-          sub={NOME_DO_PAIS[paisAtual()]}
+          sub={nomeDoPais(paisAtual())}
           onPress={ir('pais')}
         />
       </Cartao>

@@ -40,56 +40,70 @@
    ============================================================ */
 
 import { MERCADO } from './mercado';
+import { localAtual } from './local';
+import { NOMES_DE_PAIS } from './paisesNomes';
 
 /** ISO-3166-1 alfa-2. */
 export type Pais = string;
 
-/* ⚠️ CADA PAÍS SE ESCREVE NO PRÓPRIO IDIOMA, e é a mesma regra da lista
-   de idiomas: quem procura o próprio país procura a palavra que
-   reconhece, não a tradução dela. "Deutschland" e não "Alemanha".
+/* ⚠️⚠️ AQUI SÓ MORAM OS CÓDIGOS, e os nomes moram em paisesNomes, que é
+   arquivo GERADO. A divisão é de responsabilidade: QUEM ENTRA nesta lista
+   é decisão — território com população civil, sem alias nem agrupamento —,
+   e COMO CADA UM SE ESCREVE é o CLDR que sabe, nos cinco idiomas.
 
-   E é o que torna esta lista possível: uma tradução por país seria a
-   lista inteira vezes o número de idiomas, para uma tela que a pessoa
-   abre uma vez na vida. */
-export const NOME_DO_PAIS: Record<Pais, string> = {
-  BR: 'Brasil', PT: 'Portugal', AO: 'Angola', MZ: 'Moçambique', CV: 'Cabo Verde',
-  GW: 'Guiné-Bissau', ST: 'São Tomé e Príncipe', TL: 'Timor-Leste',
+   ⚠️ E O PAÍS SE ESCREVE NO IDIOMA DO APLICATIVO, e não no próprio. Isto
+   mudou: a lista já se escreveu em cento e onze línguas, e a regra vinha
+   da lista de IDIOMAS, onde ela continua certa — quem abriu o aplicativo
+   numa língua que não lê procura "Deutsch", e "Alemão" não o ajuda.
 
-  US: 'United States', GB: 'United Kingdom', AU: 'Australia', CA: 'Canada',
-  NZ: 'New Zealand', IE: 'Ireland', ZA: 'South Africa', NG: 'Nigeria',
-  KE: 'Kenya', GH: 'Ghana', PH: 'Philippines', SG: 'Singapore',
-  MY: 'Malaysia', PK: 'Pakistan',
+   Com o país é o contrário. A pergunta do país vem DEPOIS da do idioma,
+   na mesma tela: quem chega nela já escolheu em que língua lê, e ler
+   "Deutschland" no meio de uma lista em português é a única linha que ela
+   não consegue procurar pelo nome que conhece.
 
-  ES: 'España', MX: 'México', AR: 'Argentina', CO: 'Colombia', CL: 'Chile',
-  PE: 'Perú', VE: 'Venezuela', EC: 'Ecuador', GT: 'Guatemala', CU: 'Cuba',
-  BO: 'Bolivia', DO: 'República Dominicana', HN: 'Honduras', PY: 'Paraguay',
-  SV: 'El Salvador', NI: 'Nicaragua', CR: 'Costa Rica', PA: 'Panamá',
-  UY: 'Uruguay', PR: 'Puerto Rico',
+   Os grupos abaixo não são mais o que decide a grafia — são o que decide
+   quem é MERCADO: cada um existe porque o aplicativo fala aquele idioma.
+   O último bloco é o resto do mundo, que não é mercado de nenhum e nem
+   por isso pode faltar. */
+export const PAISES: Pais[] = [
+  'BR', 'PT', 'AO', 'MZ', 'CV',
+  'GW', 'ST', 'TL',
 
-  DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz', LI: 'Liechtenstein',
+  'US', 'GB', 'AU', 'CA',
+  'NZ', 'IE', 'ZA', 'NG',
+  'KE', 'GH', 'PH', 'SG',
+  'MY', 'PK',
 
-  FR: 'France', BE: 'België', LU: 'Luxembourg', MC: 'Monaco', SN: 'Sénégal',
-  CI: 'Côte d’Ivoire', CM: 'Cameroun', CD: 'RD Congo',
+  'ES', 'MX', 'AR', 'CO', 'CL',
+  'PE', 'VE', 'EC', 'GT', 'CU',
+  'BO', 'DO', 'HN', 'PY',
+  'SV', 'NI', 'CR', 'PA',
+  'UY', 'PR',
 
-  IT: 'Italia', SM: 'San Marino', VA: 'Città del Vaticano',
+  'DE', 'AT', 'CH', 'LI',
 
-  NL: 'Nederland', SR: 'Suriname',
+  'FR', 'BE', 'LU', 'MC', 'SN',
+  'CI', 'CM', 'CD',
 
-  SE: 'Sverige', NO: 'Norge', DK: 'Danmark', FI: 'Suomi', IS: 'Ísland',
+  'IT', 'SM', 'VA',
 
-  PL: 'Polska', CZ: 'Česko', SK: 'Slovensko', HU: 'Magyarország',
-  RO: 'România', BG: 'България', GR: 'Ελλάδα', RU: 'Россия',
-  UA: 'Україна', BY: 'Беларусь', KZ: 'Қазақстан', RS: 'Србија',
-  HR: 'Hrvatska', SI: 'Slovenija',
+  'NL', 'SR',
 
-  JP: '日本', KR: '대한민국', CN: '中国', TW: '台灣', HK: '香港',
-  TH: 'ไทย', VN: 'Việt Nam', ID: 'Indonesia', IN: 'भारत',
-  BD: 'বাংলাদেশ', LK: 'ශ්‍රී ලංකා', NP: 'नेपाल', MM: 'မြန်မာ', KH: 'កម្ពុជា',
+  'SE', 'NO', 'DK', 'FI', 'IS',
 
-  MA: 'المغرب', DZ: 'الجزائر', TN: 'تونس', SA: 'السعودية', AE: 'الإمارات',
-  EG: 'مصر', IQ: 'العراق', JO: 'الأردن', KW: 'الكويت', QA: 'قطر',
-  OM: 'عُمان', LB: 'لبنان', LY: 'ليبيا', YE: 'اليمن', BH: 'البحرين',
-  SY: 'سوريا', IL: 'ישראל', TR: 'Türkiye', IR: 'ایران',
+  'PL', 'CZ', 'SK', 'HU',
+  'RO', 'BG', 'GR', 'RU',
+  'UA', 'BY', 'KZ', 'RS',
+  'HR', 'SI',
+
+  'JP', 'KR', 'CN', 'TW', 'HK',
+  'TH', 'VN', 'ID', 'IN',
+  'BD', 'LK', 'NP', 'MM', 'KH',
+
+  'MA', 'DZ', 'TN', 'SA', 'AE',
+  'EG', 'IQ', 'JO', 'KW', 'QA',
+  'OM', 'LB', 'LY', 'YE', 'BH',
+  'SY', 'IL', 'TR', 'IR',
 
   /* ============================================================
      E O RESTO DO MUNDO — os que não são mercado de nenhum idioma daqui
@@ -108,21 +122,17 @@ export const NOME_DO_PAIS: Record<Pais, string> = {
      significa nada. Ficam em ordem de código, que é como se encontram
      aqui dentro — na tela eles entram ordenados por nome, como todos.
 
-     ⚠️ OS NOMES SAÍRAM DO CLDR, E DEPOIS PASSARAM PELO MESMO CRITÉRIO
-     das noventa e nove primeiras: nome CURTO e na língua ADMINISTRATIVA.
-     O gerador escolhe a língua mais falada, que nem sempre é a de
-     repartição pública — ele devolvia "Gaana" para Ghana e "Senegaal"
-     para o Senegal, que a curadoria à mão já tinha rejeitado. As
-     correções do mesmo tipo estão aqui: Burundi e não Uburundi, Niger e
-     não Nijar, فلسطين e não a forma oficial longa.
+     ⚠️ OS NOMES NÃO ESTÃO MAIS AQUI, e a mudança apagou um problema
+     inteiro. Enquanto cada país se escrevia no PRÓPRIO idioma, cada nome
+     era uma decisão: qual das línguas de um país multilíngue, qual
+     escrita, forma curta ou oficial. O gerador do CLDR erra essas três —
+     devolvia "Gaana" para Ghana, "Senegaal" para o Senegal, "Казахстан"
+     em russo para o Cazaquistão —, e por isso havia curadoria à mão.
 
-     ⚠️⚠️ E TRÊS NOMES SAÍRAM EM PORTUGUÊS, o que é o defeito mais
-     traiçoeiro de gerar nome de país: sem dados da língua pedida, o
-     `Intl.DisplayNames` cai no locale padrão do PROCESSO — e o processo
-     que gerou esta tabela rodava em português. "Samoa Americana",
-     "Papua-Nova Guiné" e "Maldivas" entraram assim. Quem sabe a
-     diferença é `supportedLocalesOf`, e sem dados a queda honesta é o
-     inglês, que é a língua administrativa de quase todos esses casos.
+     Escrevendo no idioma do APLICATIVO não sobra decisão nenhuma: o CLDR
+     sabe como o português chama a Albânia, e o alemão também. Ver
+     logic/paisesNomes, que é gerado, e o alto do gerador para saber por
+     que ele é gerado e não resolvido no aparelho.
 
      FICARAM DE FORA, de propósito: território sem população civil
      permanente (Antártida, Bouvet, Heard, Terras Austrais, Geórgia do
@@ -131,45 +141,61 @@ export const NOME_DO_PAIS: Record<Pais, string> = {
      estes últimos se denunciam sozinhos, porque um alias maximiza para a
      região canônica: `und-UK` vira `en-Latn-GB`.
      ============================================================ */
-  AD: 'Andorra', AF: 'افغانستان', AG: 'Antigua and Barbuda', AI: 'Anguilla',
-  AL: 'Shqipëri', AM: 'Հայաստան', AS: 'American Samoa', AW: 'Aruba', AX: 'Åland',
-  AZ: 'Azərbaycan', BA: 'Bosna i Hercegovina', BB: 'Barbados', BF: 'Burkina Faso',
-  BI: 'Burundi', BJ: 'Bénin', BL: 'Saint-Barthélemy', BM: 'Bermuda', BN: 'Brunei',
-  BQ: 'Caribisch Nederland', BS: 'Bahamas', BT: 'འབྲུག', BW: 'Botswana',
-  BZ: 'Belize', CC: 'Kepulauan Cocos (Keeling)', CF: 'Centrafrique',
-  CG: 'Congo-Brazzaville', CK: 'Cook Islands', CW: 'Curaçao',
-  CX: 'Christmas Island', CY: 'Κύπρος', DJ: 'Djibouti', DM: 'Dominica', EE: 'Eesti',
-  EH: 'الصحراء الغربية', ER: 'ኤርትራ', ET: 'ኢትዮጵያ', FJ: 'Fiji',
-  FK: 'Falkland Islands', FM: 'Micronesia', FO: 'Føroyar', GA: 'Gabon',
-  GD: 'Grenada', GE: 'საქართველო', GF: 'Guyane française', GG: 'Guernsey',
-  GI: 'Gibraltar', GL: 'Kalaallit Nunaat', GM: 'Gambia', GN: 'Guinée',
-  GP: 'Guadeloupe', GQ: 'Guinea Ecuatorial', GU: 'Guam', GY: 'Guyana', HT: 'Haïti',
-  IM: 'Isle of Man', JE: 'Jersey', JM: 'Jamaica', KG: 'Кыргызстан', KI: 'Kiribati',
-  KM: 'جزر القمر', KN: 'Saint Kitts and Nevis', KP: '조선', KY: 'Cayman Islands',
-  LA: 'ລາວ', LC: 'Saint Lucia', LR: 'Liberia', LS: 'Lesotho', LT: 'Lietuva',
-  LV: 'Latvija', MD: 'Moldova', ME: 'Црна Гора', MF: 'Saint-Martin',
-  MG: 'Madagasikara', MH: 'Marshall Islands', MK: 'Северна Македонија', ML: 'Mali',
-  MN: 'Монгол', MO: '澳門', MP: 'Northern Mariana Islands', MQ: 'Martinique',
-  MR: 'موريتانيا', MS: 'Montserrat', MT: 'Malta', MU: 'Mauritius', MV: 'Maldives',
-  MW: 'Malawi', NA: 'Namibia', NC: 'Nouvelle-Calédonie', NE: 'Niger',
-  NF: 'Norfolk Island', NR: 'Nauru', NU: 'Niue', PF: 'Polynésie française',
-  PG: 'Papua New Guinea', PM: 'Saint-Pierre-et-Miquelon', PN: 'Pitcairn Islands',
-  PS: 'فلسطين', PW: 'Palau', RE: 'La Réunion', RW: 'Rwanda', SB: 'Solomon Islands',
-  SC: 'Seychelles', SD: 'السودان', SH: 'Saint Helena', SJ: 'Svalbard og Jan Mayen',
-  SL: 'Sierra Leone', SO: 'Soomaaliya', SS: 'جنوب السودان', SX: 'Sint Maarten',
-  SZ: 'Eswatini', TC: 'Turks and Caicos Islands', TD: 'تشاد', TG: 'Togo',
-  TJ: 'Тоҷикистон', TK: 'Tokelau', TM: 'Türkmenistan', TO: 'Tonga',
-  TT: 'Trinidad and Tobago', TV: 'Tuvalu', TZ: 'Tanzania', UG: 'Uganda',
-  UZ: 'Oʻzbekiston', VC: 'Saint Vincent and the Grenadines',
-  VG: 'British Virgin Islands', VI: 'U.S. Virgin Islands', VU: 'Vanuatu',
-  WF: 'Wallis-et-Futuna', WS: 'Samoa', XK: 'Kosovë', YT: 'Mayotte', ZM: 'Zambia',
-  ZW: 'Zimbabwe',
+  'AD', 'AF', 'AG', 'AI',
+  'AL', 'AM', 'AS', 'AW', 'AX',
+  'AZ', 'BA', 'BB', 'BF',
+  'BI', 'BJ', 'BL', 'BM', 'BN',
+  'BQ', 'BS', 'BT', 'BW',
+  'BZ', 'CC', 'CF',
+  'CG', 'CK', 'CW',
+  'CX', 'CY', 'DJ', 'DM', 'EE',
+  'EH', 'ER', 'ET', 'FJ',
+  'FK', 'FM', 'FO', 'GA',
+  'GD', 'GE', 'GF', 'GG',
+  'GI', 'GL', 'GM', 'GN',
+  'GP', 'GQ', 'GU', 'GY', 'HT',
+  'IM', 'JE', 'JM', 'KG', 'KI',
+  'KM', 'KN', 'KP', 'KY',
+  'LA', 'LC', 'LR', 'LS', 'LT',
+  'LV', 'MD', 'ME', 'MF',
+  'MG', 'MH', 'MK', 'ML',
+  'MN', 'MO', 'MP', 'MQ',
+  'MR', 'MS', 'MT', 'MU', 'MV',
+  'MW', 'NA', 'NC', 'NE',
+  'NF', 'NR', 'NU', 'PF',
+  'PG', 'PM', 'PN',
+  'PS', 'PW', 'RE', 'RW', 'SB',
+  'SC', 'SD', 'SH', 'SJ',
+  'SL', 'SO', 'SS', 'SX',
+  'SZ', 'TC', 'TD', 'TG',
+  'TJ', 'TK', 'TM', 'TO',
+  'TT', 'TV', 'TZ', 'UG',
+  'UZ', 'VC',
+  'VG', 'VI', 'VU',
+  'WF', 'WS', 'XK', 'YT', 'ZM',
+  'ZW',
+];
+
+/* O nome no idioma em que o aplicativo está falando agora. Sem dado — um
+   código que entrou na lista e ainda não passou pelo gerador —, o próprio
+   código responde: é feio e é visível, que é o que se quer de uma falta. */
+export const nomeDoPais = (c: Pais): string => {
+  const tabela = NOMES_DE_PAIS[localAtual()] ?? NOMES_DE_PAIS['pt-BR'];
+  return tabela?.[c] ?? c;
 };
 
-/* ⚠️ A LISTA DO SELETOR É ORDENADA PELO NOME, e não pelo código. Ninguém
-   procura um país por "DE". */
-export const PAISES: Pais[] = Object.keys(NOME_DO_PAIS)
-  .sort((a, b) => NOME_DO_PAIS[a].localeCompare(NOME_DO_PAIS[b], 'pt-BR'));
+/* ⚠️ A LISTA DO SELETOR É ORDENADA PELO NOME, e não pelo código: ninguém
+   procura um país por "DE".
+
+   ⚠️⚠️ E ELA É FUNÇÃO, e não constante de módulo. Constante de módulo se
+   calcula no import e congelaria a ordem no primeiro idioma — em alemão a
+   lista sairia alfabética em português, com "Alemanha" onde "Deutschland"
+   deveria estar. É a mesma regra do catálogo de textos; ver
+   scripts/idioma-congelado.mjs. */
+export const paisesOrdenados = (): Pais[] => {
+  const l = localAtual();
+  return [...PAISES].sort((a, b) => nomeDoPais(a).localeCompare(nomeDoPais(b), l));
+};
 
 /* ------------------------------------------------------------------ *
  * QUAL É O PAÍS AGORA
@@ -187,7 +213,7 @@ export const trocarPais = (p: Pais | null) => { escolhido = p; };
 
 /** O palpite do aparelho, dito por logic/local quando ele lê a região. */
 export const paisDoAparelho = (p: string | null) => {
-  doAparelho = p && NOME_DO_PAIS[p] ? p : null;
+  doAparelho = p && PAISES.includes(p) ? p : null;
 };
 
 /* ------------------------------------------------------------------ *
