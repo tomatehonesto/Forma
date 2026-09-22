@@ -179,7 +179,7 @@ export default function Semana() {
               alemão, « » no francês. Escritas aqui, a nota de quem lê em
               alemão sairia com aspas inglesas. */}
           <Linha
-            titulo={nota ? K().citacao(nota.text) : K().nenhumaNota}
+            titulo={nota ? T.comum.citacao(nota.text) : K().nenhumaNota}
             sub={nota ? K().anotadaEm(fmtDate(nota.t)) : K().toqueParaEscrever}
             onPress={() => router.push(nota ? `/nota?t=${nota.t}` as any : '/nota' as any)}
           />

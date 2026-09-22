@@ -276,4 +276,48 @@ export const cuidado = {
 
     consultaGenerica: 'Appointment',
   },
+  telaConsulta: {
+    titulo: 'Appointment',
+    naoEstaMais: 'This appointment is no longer in your history.',
+
+    desdeEntao: 'Since then',
+    desdeEntaoSub: 'What your records show from that day until now.',
+    ateASeguinte: 'Until the next appointment',
+    ateASeguinteSub: (data: string) =>
+      `What your records show between that day and ${data}.`,
+
+    semRegistro: 'None of your records fell in this period. What was agreed at the appointment is in the note above, if there is one.',
+  },
+
+  telaAreaMedica: {
+    titulo: 'Medical area',
+    lead: 'Who looks after you, and what crosses over to the other side.',
+
+    atalhoMensagem: 'Message',
+    atalhoClinica: 'Clinic',
+
+    paraLevar: 'TO TAKE TO THE APPOINTMENT',
+    paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. It builds itself from your records and it is ready now.',
+    verResumo: 'See the summary for the appointment',
+
+    suasAnotacoes: 'Your notes',
+    anotar: 'Note',
+    anotarDuvida: 'Note a question',
+    anotarDuvidaSub: 'To ask at the next appointment',
+
+    prescricoes: 'Prescriptions',
+    pedirReceita: 'Ask for a new prescription',
+    clinicaPreparou: 'What the clinic prepared',
+
+    numerosDaEquipe: 'Your team’s numbers',
+    naoAnotada: 'not noted',
+    anotadoPor: (por: string, data: string) => `${por} · noted on ${data}`,
+    anoteONumero: 'Note the number set at the appointment',
+
+    duasMetas: (minha: string) =>
+      `Your weight goal, in the app, is ${minha}. The two live side by side — yours keeps measuring the Journey —, and the difference between them is a good question for the next appointment.`,
+
+    documentos: 'Documents and lab results',
+    documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
+  },
 };

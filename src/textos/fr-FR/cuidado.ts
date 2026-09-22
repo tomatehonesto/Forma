@@ -290,4 +290,48 @@ export const cuidado = {
 
     consultaGenerica: 'Consultation',
   },
+  telaConsulta: {
+    titulo: 'Consultation',
+    naoEstaMais: 'Cette consultation n’est plus dans votre historique.',
+
+    desdeEntao: 'Depuis ce jour',
+    desdeEntaoSub: 'Ce que vos relevés montrent de ce jour jusqu’à maintenant.',
+    ateASeguinte: 'Jusqu’à la consultation suivante',
+    ateASeguinteSub: (data: string) =>
+      `Ce que vos relevés montrent entre ce jour et ${data}.`,
+
+    semRegistro: 'Aucun de vos relevés ne tombe dans cette période. Ce qui a été décidé en consultation est dans la note ci-dessus, s’il y en a une.',
+  },
+
+  telaAreaMedica: {
+    titulo: 'Espace médical',
+    lead: 'Qui prend soin de vous, et ce qui passe de l’autre côté.',
+
+    atalhoMensagem: 'Message',
+    atalhoClinica: 'Clinique',
+
+    paraLevar: 'À EMPORTER EN CONSULTATION',
+    paraLevarTexto: 'Poids, régularité, symptômes, analyses et vos notes, dans un seul document. Il se construit à partir de vos relevés et il est prêt dès maintenant.',
+    verResumo: 'Voir le résumé pour la consultation',
+
+    suasAnotacoes: 'Vos notes',
+    anotar: 'Noter',
+    anotarDuvida: 'Noter une question',
+    anotarDuvidaSub: 'À poser à la prochaine consultation',
+
+    prescricoes: 'Ordonnances',
+    pedirReceita: 'Demander une nouvelle ordonnance',
+    clinicaPreparou: 'Ce que la clinique a préparé',
+
+    numerosDaEquipe: 'Les chiffres de votre équipe',
+    naoAnotada: 'non notée',
+    anotadoPor: (por: string, data: string) => `${por} · noté le ${data}`,
+    anoteONumero: 'Notez le chiffre fixé en consultation',
+
+    duasMetas: (minha: string) =>
+      `Votre objectif de poids, dans l’application, est de ${minha}. Les deux coexistent — le vôtre continue de mesurer le Parcours —, et l’écart entre eux est une bonne question pour la prochaine consultation.`,
+
+    documentos: 'Documents et analyses',
+    documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
+  },
 };

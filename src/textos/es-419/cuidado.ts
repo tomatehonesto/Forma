@@ -282,4 +282,48 @@ export const cuidado = {
 
     consultaGenerica: 'Consulta',
   },
+  telaConsulta: {
+    titulo: 'Consulta',
+    naoEstaMais: 'Esta consulta ya no está en tu historial.',
+
+    desdeEntao: 'Desde entonces',
+    desdeEntaoSub: 'Lo que tus registros muestran de ese día hasta ahora.',
+    ateASeguinte: 'Hasta la consulta siguiente',
+    ateASeguinteSub: (data: string) =>
+      `Lo que tus registros muestran entre ese día y ${data}.`,
+
+    semRegistro: 'Ningún registro tuyo cayó en este período. Lo que quedó acordado en la consulta está en la anotación de arriba, si la hay.',
+  },
+
+  telaAreaMedica: {
+    titulo: 'Área médica',
+    lead: 'Quien te cuida, y lo que cruza para el otro lado.',
+
+    atalhoMensagem: 'Mensaje',
+    atalhoClinica: 'Clínica',
+
+    paraLevar: 'PARA LLEVAR A LA CONSULTA',
+    paraLevarTexto: 'Peso, adherencia, síntomas, exámenes y tus anotaciones, en un solo documento. Se arma con tus registros y ya está listo.',
+    verResumo: 'Ver el resumen para la consulta',
+
+    suasAnotacoes: 'Tus anotaciones',
+    anotar: 'Anotar',
+    anotarDuvida: 'Anotar una duda',
+    anotarDuvidaSub: 'Para preguntar en la próxima consulta',
+
+    prescricoes: 'Prescripciones',
+    pedirReceita: 'Pedir una receta nueva',
+    clinicaPreparou: 'Lo que preparó la clínica',
+
+    numerosDaEquipe: 'Los números de tu equipo',
+    naoAnotada: 'no anotada',
+    anotadoPor: (por: string, data: string) => `${por} · anotado el ${data}`,
+    anoteONumero: 'Anota el número definido en la consulta',
+
+    duasMetas: (minha: string) =>
+      `Tu meta de peso, en la aplicación, es ${minha}. Las dos conviven — la tuya sigue midiendo el Camino —, y la diferencia entre ellas es una buena pregunta para la próxima consulta.`,
+
+    documentos: 'Documentos y exámenes',
+    documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
+  },
 };

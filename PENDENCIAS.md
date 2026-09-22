@@ -958,10 +958,31 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 429, em 65 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 401, em 62 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
+
+⚠️ **E A ÁREA MÉDICA SE DIVIDE EM DUAS, decidido em 22/09/2026.** No
+internacional fica só o que NÃO depende da rede parceira — e a divisão
+não é por rota, é por qual campo do estado manda:
+
+| campo | telas | onde vale |
+| --- | --- | --- |
+| `vinculo` (clínica parceira na plataforma) | `/conversa`, `/clinica`, `/especialista`, `/prescricao` | **BR** |
+| `profile.doctor` / `temAcompanhamento` (o médico dela) | `/consultas`, `/anotar-consulta`, `/consulta`, `/medico`, `/protocolos` | todo mercado |
+
+⚠️ **O NOME DA TELA ENGANA.** `/medico` soa parceiro e não é: ela abre
+por `temAcompanhamento`, verdade para quem anotou o próprio médico. E
+`/protocolos` é linkada da JORNADA, sem trava nenhuma, com a linha de
+cima já traduzida.
+
+⚠️ **E "não traduzir" não basta sozinho.** Tela alcançável em alemão com
+texto em português é pior do que tela que não existe. As quatro de
+parceiro se apagam pelo DADO — sem plataforma não há `msg`, `clinic`,
+`responsavel` nem `prescriptions` —, que é o tipo certo de trava:
+`temRedeParceira()` só guarda três pontos hoje (um cartão do Cuidado e
+dois ramos de assinatura), e nenhum deles é uma destas telas.
 
 ⚠️ **`/companion` (46 frases) FICA DE FORA DA FILA, por decisão de
 produto: a tela vai ser refeita.** Extrair agora seria escrever 46 chaves
@@ -1271,6 +1292,27 @@ tirada do `git show`, e não de memória.
   ("1 semaine sur 3"), e nos outros quatro depois de `vividas`. Achado
   chamando a função fora da tela — a semente está na semana onze, e
   nenhuma tela mostra esse ramo.
+
+- **AS ASPAS ESTAVAM ESCRITAS EM DOIS MÓDULOS.** `escalas` e `home`
+  tinham a mesma `citacao` letra por letra, nos cinco idiomas, e a tela
+  da consulta passada ia escrever a terceira cópia. Aspa é regra de
+  idioma e não de tela — “ ” no português e no inglês, « » no francês com
+  espaça, «» no espanhol sem, „ “ no alemão. Mora em `comum.citacao`, e
+  as duas cópias saíram.
+- **"o número que ELA definiu na consulta"**, na área médica. O
+  aplicativo não sabe o gênero de quem acompanha: a semente tem uma
+  médica, e o médico de quem usa pode ser qualquer pessoa. Mesma família
+  dos particípios do francês — a frase foi reescrita para não precisar
+  saber.
+- **Dois rótulos que eram o NOME DA TELA DO OUTRO LADO.** Os quatro
+  atalhos de `/medico` escreviam "Consultas" e "Protocolos" à mão, e os
+  dois já estavam no catálogo como título das telas que eles abrem. Agora
+  são lidos de lá: a porta e a sala não têm como divergir.
+- **Uma frase que a lista de âncoras deixou passar** — a ressalva das
+  duas metas de peso, num ramo que só aparece quando o número da equipe
+  discorda do de quem usa. Achada lendo a tela em alemão. O inventário é
+  a rede; a lista de âncoras é só a intenção, e as duas precisam ser
+  conferidas uma contra a outra no fim de cada leva.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 

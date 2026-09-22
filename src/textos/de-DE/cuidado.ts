@@ -325,4 +325,48 @@ export const cuidado = {
 
     consultaGenerica: 'Termin',
   },
+  telaConsulta: {
+    titulo: 'Termin',
+    naoEstaMais: 'Dieser Termin ist nicht mehr in deinem Verlauf.',
+
+    desdeEntao: 'Seitdem',
+    desdeEntaoSub: 'Was deine Einträge von diesem Tag bis heute zeigen.',
+    ateASeguinte: 'Bis zum nächsten Termin',
+    ateASeguinteSub: (data: string) =>
+      `Was deine Einträge zwischen diesem Tag und ${data} zeigen.`,
+
+    semRegistro: 'Kein Eintrag von dir fällt in diesen Zeitraum. Was beim Termin besprochen wurde, steht in der Notiz oben, falls es eine gibt.',
+  },
+
+  telaAreaMedica: {
+    titulo: 'Medizinischer Bereich',
+    lead: 'Wer sich um dich kümmert, und was auf die andere Seite geht.',
+
+    atalhoMensagem: 'Nachricht',
+    atalhoClinica: 'Praxis',
+
+    paraLevar: 'ZUM TERMIN MITNEHMEN',
+    paraLevarTexto: 'Gewicht, Regelmäßigkeit, Beschwerden, Befunde und deine Notizen, in einem einzigen Dokument. Es baut sich aus deinen Einträgen und ist jetzt schon fertig.',
+    verResumo: 'Übersicht für den Termin ansehen',
+
+    suasAnotacoes: 'Deine Notizen',
+    anotar: 'Notieren',
+    anotarDuvida: 'Eine Frage notieren',
+    anotarDuvidaSub: 'Zum Fragen beim nächsten Termin',
+
+    prescricoes: 'Rezepte',
+    pedirReceita: 'Neues Rezept anfragen',
+    clinicaPreparou: 'Was die Praxis vorbereitet hat',
+
+    numerosDaEquipe: 'Die Zahlen deines Teams',
+    naoAnotada: 'nicht notiert',
+    anotadoPor: (por: string, data: string) => `${por} · notiert am ${data}`,
+    anoteONumero: 'Notiere die Zahl, die beim Termin festgelegt wurde',
+
+    duasMetas: (minha: string) =>
+      `Dein Zielgewicht in der Anwendung ist ${minha}. Die beiden bestehen nebeneinander — deins misst weiterhin den Weg —, und der Unterschied zwischen ihnen ist eine gute Frage für den nächsten Termin.`,
+
+    documentos: 'Dokumente und Befunde',
+    documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
+  },
 };

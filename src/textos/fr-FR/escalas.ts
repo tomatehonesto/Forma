@@ -122,7 +122,6 @@ export const escalas = {
     diasDe: (dias: number, respondidos: number) =>
       `${dias} sur ${respondidos} ${respondidos === 1 ? 'jour' : 'jours'}`,
     noPiorDia: (legenda: string) => `Au pire jour : ${legenda}`,
-    citacao: (texto: string) => `« ${texto} »`,
     voceEscreveuEm: (data: string) => `Vous avez écrit le ${data}`,
 
     aoLongoDoCiclo: 'Au fil du cycle',

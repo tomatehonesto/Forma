@@ -35,6 +35,16 @@ export const comum = {
      et c'est pour ça que ceci est une fonction et non un `.toLowerCase()`
      posé dans la logique. */
   noMeio: (s: string) => s.toLowerCase(),
+  /* ⚠️ AS ASPAS SÃO DE CADA IDIOMA: “ ” no português e no inglês, « » no
+     francês com espaça, «» no espanhol sem, e „ “ no alemão — que abre
+     embaixo. Escritas na tela, toda citação do aplicativo sai com aspa
+     inglesa em cinco idiomas.
+
+     ⚠️ E ELA MORA AQUI porque a citação não é de uma tela: é a nota da
+     semana, o sintoma que a pessoa escreveu, a anotação da consulta. Eram
+     duas cópias idênticas, em `escalas` e em `home`, e a terceira tela
+     ia escrever a terceira. */
+  citacao: (texto: string) => `« ${texto} »`,
 
   lista: (itens: string[], mostrar = Infinity) => {
     if (!itens.length) return '';

@@ -309,7 +309,6 @@ export const home = {
 
     nota: 'Nota para la consulta',
     verTodas: 'Ver todas',
-    citacao: (texto: string) => `«${texto}»`,
     nenhumaNota: 'Ninguna nota en esta semana',
     anotadaEm: (data: string) => `Anotada el ${data}`,
     toqueParaEscrever: 'Toca para escribir una',
@@ -366,5 +365,21 @@ export const home = {
       `No sube ni baja por cuánto perdiste, y no existe versión de ella que diga que la semana estuvo mala. Hoy dice “${etiqueta}”.`,
 
     entendi: 'Entendí',
+  },
+  telaProtocolos: {
+    semanaN: (n: number) => `Semana ${n}`,
+    tudoCumprido: 'todo cumplido',
+    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} de ${total} cumplidas`,
+    aplicacaoEm: (quando: string) => `aplicación ${quando}`,
+
+    falarComEquipe: 'Hablar con el equipo',
+
+    estaSemana: 'Esta semana',
+    ressalva: 'Estas metas son formas de sacarle más al tratamiento, y no una lista de exigencias — no cerrar todo está bien. Quien conduce es la dosis y el acompañamiento. Lo que quede abierto vuelve a empezar la semana que viene, y los conteos se encienden solos con tus registros.',
+
+    ressalvaDaSemana: 'Las metas son las de hoy, medidas en los registros de esta semana.',
+
+    semanasAnteriores: 'Semanas anteriores',
+    semanasAnterioresNota: 'Las metas de hoy, medidas en los registros de cada semana.',
   },
 };

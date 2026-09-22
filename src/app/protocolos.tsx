@@ -12,6 +12,11 @@ import { Icon } from '../ui/Icon';
 import { Bloco, Cartao } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaProtocolos;
 
 /* ============================================================
    PROTOCOLOS
@@ -91,7 +96,7 @@ export default function Protocolos() {
     <TelaDeHabito>
       <CapaDeHabito
         foto={aurora.hero}
-        titulo="Protocolos"
+        titulo={T.home.telaJornada.protocolos}
         /* A SEMANA, e não o dia. As outras três capas contam hoje porque
            água, proteína e movimento se refazem todo dia; um protocolo é
            um acordo de sete dias, e cobrar dele um número diário seria
@@ -104,9 +109,9 @@ export default function Protocolos() {
            aplicação pertence à linha que já conta a semana: é o quando da
            mesma frase que diz o quanto. */
         linha={[
-          `Semana ${p.semana}`,
-          faltam === 0 ? 'tudo cumprido' : `${p.feitas} de ${p.total} cumpridas`,
-          `aplicação ${relDay(nextInjectionDate(S))}`,
+          K().semanaN(p.semana),
+          faltam === 0 ? K().tudoCumprido : K().cumpridasDeTotal(p.feitas, p.total),
+          K().aplicacaoEm(relDay(nextInjectionDate(S))),
         ].join(' · ')}
         pct={p.pct}
       >
@@ -119,7 +124,7 @@ export default function Protocolos() {
             fora da plataforma não tem para onde este botão ir. */}
         {clinicaConectada(S) ? (
           <AtalhoDaCapa
-            titulo="Falar com a equipe"
+            titulo={K().falarComEquipe}
             cheio
             onPress={() => router.push('/conversa' as any)}
           />
@@ -154,7 +159,7 @@ export default function Protocolos() {
             tem caixinha. A frase que resta existe só para ninguém ficar
             tocando na linha da água esperando que ela acenda. */}
         <Bloco
-          titulo="Esta semana"
+          titulo={K().estaSemana}
           /* ⚠️ SEM NOTA, e ela já foi duas: a mecânica das caixas e, depois,
               o enquadramento inteiro da lista.
 
@@ -255,11 +260,7 @@ export default function Protocolos() {
             Miúdo e na cor de apoio, ele fica onde uma ressalva fica: no
             fim da leitura, disponível para quem precisar dela, invisível
             para quem não. */}
-        <Txt v="micro" c={c.tx3} style={{ marginTop: -8, lineHeight: 19 }}>
-          Estas metas são jeitos de tirar mais do tratamento, e não uma lista de cobranças —
-          não fechar tudo está tudo bem. Quem conduz é a dose e o acompanhamento. O que ficar
-          aberto recomeça na semana que vem, e as contagens acendem sozinhas pelos seus registros.
-        </Txt>
+        <Txt v="micro" c={c.tx3} style={{ marginTop: -8, lineHeight: 19 }}>{K().ressalva}</Txt>
 
         {/* ⚠️ O CARTÃO "SEMANA 12" SAIU DAQUI, e ele já tinha sido bloco de
             conselho, depois aviso de duas datas, e agora nada.
@@ -289,8 +290,8 @@ export default function Protocolos() {
             lista de cima: quem viu a lista lê a fileira sem legenda. */}
         {historico.length ? (
           <Bloco
-            titulo="Semanas anteriores"
-            nota="As metas de hoje, medidas nos registros de cada semana."
+            titulo={K().semanasAnteriores}
+            nota={K().semanasAnterioresNota}
           >
             <Cartao>
               {historico.map((w) => (
@@ -301,7 +302,7 @@ export default function Protocolos() {
                 >
                 <Row style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
                   <View style={{ flex: 1 }}>
-                    <Txt v="body">Semana {w.semana}</Txt>
+                    <Txt v="body">{K().semanaN(w.semana)}</Txt>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
                       {fmtPeriodo(new Date(w.de), new Date(w.ate))}
                     </Txt>

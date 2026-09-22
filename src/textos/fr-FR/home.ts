@@ -324,7 +324,6 @@ export const home = {
 
     nota: 'Note pour la consultation',
     verTodas: 'Voir toutes',
-    citacao: (texto: string) => `« ${texto} »`,
     nenhumaNota: 'Aucune note cette semaine',
     anotadaEm: (data: string) => `Notée le ${data}`,
     toqueParaEscrever: 'Touchez pour en écrire une',
@@ -382,5 +381,21 @@ export const home = {
       `Elle ne monte ni ne descend selon ce que vous avez perdu, et il n’existe aucune version d’elle qui dise que la semaine a été mauvaise. Aujourd’hui elle lit « ${etiqueta} ».`,
 
     entendi: 'J’ai compris',
+  },
+  telaProtocolos: {
+    semanaN: (n: number) => `Semaine ${n}`,
+    tudoCumprido: 'tout est fait',
+    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} sur ${total} faites`,
+    aplicacaoEm: (quando: string) => `injection ${quando}`,
+
+    falarComEquipe: 'Parler à l’équipe',
+
+    estaSemana: 'Cette semaine',
+    ressalva: 'Ces objectifs sont des façons de tirer plus du traitement, et non une liste d’exigences — ne pas tout boucler ne pose aucun problème. Ce qui porte le traitement, c’est la dose et le suivi. Ce qui reste ouvert repart la semaine prochaine, et les comptes s’allument tout seuls à partir de vos relevés.',
+
+    ressalvaDaSemana: 'Les objectifs sont ceux d’aujourd’hui, mesurés sur les relevés de cette semaine.',
+
+    semanasAnteriores: 'Semaines précédentes',
+    semanasAnterioresNota: 'Les objectifs d’aujourd’hui, mesurés sur les relevés de chaque semaine.',
   },
 };

@@ -303,7 +303,6 @@ export const home = {
 
     nota: 'Note for the appointment',
     verTodas: 'See all',
-    citacao: (texto: string) => `“${texto}”`,
     nenhumaNota: 'No note this week',
     anotadaEm: (data: string) => `Written on ${data}`,
     toqueParaEscrever: 'Tap to write one',
@@ -360,5 +359,21 @@ export const home = {
       `It does not go up or down with how much you lost, and there is no version of it that says the week was bad. Today it reads “${etiqueta}”.`,
 
     entendi: 'Got it',
+  },
+  telaProtocolos: {
+    semanaN: (n: number) => `Week ${n}`,
+    tudoCumprido: 'all done',
+    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} of ${total} done`,
+    aplicacaoEm: (quando: string) => `injection ${quando}`,
+
+    falarComEquipe: 'Talk to the team',
+
+    estaSemana: 'This week',
+    ressalva: 'These goals are ways to get more out of the treatment, not a list of demands — not closing them all is perfectly fine. What carries the treatment is the dose and the follow-up. Whatever stays open starts over next week, and the counts light up on their own from your records.',
+
+    ressalvaDaSemana: 'The goals are today’s, measured against this week’s records.',
+
+    semanasAnteriores: 'Previous weeks',
+    semanasAnterioresNota: 'Today’s goals, measured against each week’s records.',
   },
 };

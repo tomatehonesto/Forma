@@ -8,6 +8,11 @@ import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cuidado.telaConsulta;
 
 /* ============================================================
    UMA CONSULTA QUE JÁ ACONTECEU
@@ -46,9 +51,9 @@ export default function Consulta() {
 
   if (!p) {
     return (
-      <TelaInterna titulo="Consulta" tituloFixo>
+      <TelaInterna titulo={K().titulo} tituloFixo>
         <Txt v="note" c={c.tx3} style={{ lineHeight: 23 }}>
-          Esta consulta não está mais no seu histórico.
+          {K().naoEstaMais}
         </Txt>
       </TelaInterna>
     );
@@ -81,18 +86,16 @@ export default function Consulta() {
           duas aparências para frases escritas seria o começo de duas. */}
       {p.nota ? (
         <Card>
-          <Txt v="body" style={{ lineHeight: 25, fontStyle: 'italic' }}>“{p.nota}”</Txt>
+          <Txt v="body" style={{ lineHeight: 25, fontStyle: 'italic' }}>{T.comum.citacao(p.nota)}</Txt>
         </Card>
       ) : null}
 
       {/* ---- o intervalo ---- */}
       <View style={{ gap: 12 }}>
         <View>
-          <Txt v="h2">{p.emAberto ? 'Desde então' : 'Até a consulta seguinte'}</Txt>
+          <Txt v="h2">{p.emAberto ? K().desdeEntao : K().ateASeguinte}</Txt>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 6, lineHeight: 21 }}>
-            {p.emAberto
-              ? 'O que os seus registros mostram deste dia até agora.'
-              : `O que os seus registros mostram entre este dia e ${dataComAno(p.ate)}.`}
+            {p.emAberto ? K().desdeEntaoSub : K().ateASeguinteSub(dataComAno(p.ate))}
           </Txt>
         </View>
 
@@ -108,10 +111,7 @@ export default function Consulta() {
             mais honesto do que esconder a seção e deixar a pessoa achando
             que a tela quebrou. */
         <Card>
-          <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>
-            Nenhum registro seu caiu neste período. O que ficou combinado na consulta está
-            na anotação acima, se houver.
-          </Txt>
+          <Txt v="caption" c={c.tx3} style={{ lineHeight: 21 }}>{K().semRegistro}</Txt>
         </Card>
       )}
       </View>

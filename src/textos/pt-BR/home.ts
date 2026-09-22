@@ -447,7 +447,6 @@ export const home = {
     /* ---------- o que eu quis falar ---------- */
     nota: 'Nota para a consulta',
     verTodas: 'Ver todas',
-    citacao: (texto: string) => `“${texto}”`,
     nenhumaNota: 'Nenhuma nota nesta semana',
     anotadaEm: (data: string) => `Anotada em ${data}`,
     toqueParaEscrever: 'Toque para escrever uma',
@@ -530,5 +529,30 @@ export const home = {
       `Ela não sobe nem desce por quanto você perdeu, e não existe versão dela que diga que a semana foi ruim. Hoje ela lê “${etiqueta}”.`,
 
     entendi: 'Entendi',
+  },
+  /* ============================================================
+     PROTOCOLOS — o combinado da semana
+
+     O título da tela NÃO está aqui: ele é `telaJornada.protocolos`, o
+     mesmo que a linha da Jornada escreve. Duas cópias seriam duas
+     chances de a porta e a sala terem nomes diferentes.
+     ============================================================ */
+  telaProtocolos: {
+    semanaN: (n: number) => `Semana ${n}`,
+    tudoCumprido: 'tudo cumprido',
+    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} de ${total} cumpridas`,
+    aplicacaoEm: (quando: string) => `aplicação ${quando}`,
+
+    /* Só aparece com vínculo: falar com a equipe precisa de equipe do
+       outro lado, e não do fato de ter médico. */
+    falarComEquipe: 'Falar com a equipe',
+
+    estaSemana: 'Esta semana',
+    ressalva: 'Estas metas são jeitos de tirar mais do tratamento, e não uma lista de cobranças — não fechar tudo está tudo bem. Quem conduz é a dose e o acompanhamento. O que ficar aberto recomeça na semana que vem, e as contagens acendem sozinhas pelos seus registros.',
+
+    ressalvaDaSemana: 'As metas são as de hoje, medidas nos registros desta semana.',
+
+    semanasAnteriores: 'Semanas anteriores',
+    semanasAnterioresNota: 'As metas de hoje, medidas nos registros de cada semana.',
   },
 };

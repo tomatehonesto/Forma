@@ -9,6 +9,11 @@ import { Icon } from '../ui/Icon';
 import { Cartao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaProtocolos;
 
 /* ============================================================
    UMA SEMANA DO PROTOCOLO
@@ -40,7 +45,7 @@ export default function ProtocoloDaSemana() {
 
   return (
     <SheetScreen
-      titulo={`Semana ${w.semana}`}
+      titulo={K().semanaN(w.semana)}
       sub={fmtPeriodo(new Date(w.de), new Date(w.ate))}
       onClose={() => router.back()}
     >
@@ -97,7 +102,7 @@ export default function ProtocoloDaSemana() {
         {/* A RESSALVA, uma vez e no fim. Ela é a mesma da lista: o app
             guarda a meta de hoje, não a história dela. */}
         <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 14 }}>
-          As metas são as de hoje, medidas nos registros desta semana.
+          {K().ressalvaDaSemana}
         </Txt>
       </View>
     </SheetScreen>

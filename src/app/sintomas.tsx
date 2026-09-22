@@ -234,7 +234,7 @@ export default function Sintomas() {
               <Cartao key={x.t}>
                 <Linha
                   ic="note"
-                  titulo={K().citacao(String(x.outroTexto).trim())}
+                  titulo={T.comum.citacao(String(x.outroTexto).trim())}
                   sub={K().voceEscreveuEm(fmtDate(new Date(x.t)))}
                   seta={false}
                 />

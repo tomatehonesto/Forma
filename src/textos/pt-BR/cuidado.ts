@@ -411,4 +411,72 @@ export const cuidado = {
        gravado. */
     consultaGenerica: 'Consulta',
   },
+  /* ============================================================
+     UMA CONSULTA QUE JÁ ACONTECEU
+
+     ⚠️ A TELA NÃO DIZ "O QUE VEIO DESTA CONSULTA", e o texto segue essa
+     regra: ela mostra um INTERVALO — o que os registros mostram entre
+     esta consulta e a seguinte —, e nunca uma causa. O aplicativo não
+     estava na sala, e data não é causa.
+     ============================================================ */
+  telaConsulta: {
+    titulo: 'Consulta',
+    naoEstaMais: 'Esta consulta não está mais no seu histórico.',
+
+    desdeEntao: 'Desde então',
+    desdeEntaoSub: 'O que os seus registros mostram deste dia até agora.',
+    ateASeguinte: 'Até a consulta seguinte',
+    ateASeguinteSub: (data: string) =>
+      `O que os seus registros mostram entre este dia e ${data}.`,
+
+    semRegistro: 'Nenhum registro seu caiu neste período. O que ficou combinado na consulta está na anotação acima, se houver.',
+  },
+
+  /* ============================================================
+     ÁREA MÉDICA — quem cuida, e o que atravessa
+
+     ⚠️ ELA ABRE POR `temAcompanhamento`, E NÃO POR VÍNCULO. Quem anotou
+     o próprio médico chega aqui, em qualquer mercado; o que é da
+     plataforma (mensagem, receita, material da clínica) se apaga
+     sozinho pela falta do dado, e não por trava de país.
+     ============================================================ */
+  telaAreaMedica: {
+    titulo: 'Área médica',
+    lead: 'Quem cuida de você, e o que atravessa para o outro lado.',
+
+    /* Dois dos quatro atalhos, e só dois: "Consultas" e "Protocolos"
+       são o nome das telas do outro lado, e já estão escritos lá. Uma
+       segunda cópia aqui seria a que fica para trás na primeira vez que
+       um dos dois nomes mudar. */
+    atalhoMensagem: 'Mensagem',
+    atalhoClinica: 'Clínica',
+
+    paraLevar: 'PARA LEVAR À CONSULTA',
+    paraLevarTexto: 'Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta dos seus registros e está pronto agora.',
+    verResumo: 'Ver o resumo para consulta',
+
+    suasAnotacoes: 'Suas anotações',
+    anotar: 'Anotar',
+    anotarDuvida: 'Anotar uma dúvida',
+    anotarDuvidaSub: 'Para perguntar na próxima consulta',
+
+    prescricoes: 'Prescrições',
+    pedirReceita: 'Pedir nova receita',
+    clinicaPreparou: 'O que a clínica preparou',
+
+    numerosDaEquipe: 'Os números da sua equipe',
+    naoAnotada: 'não anotada',
+    anotadoPor: (por: string, data: string) => `${por} · anotado em ${data}`,
+    /* ⚠️ ERA "o número que ELA definiu na consulta", e o aplicativo não
+       sabe o gênero de quem acompanha. A semente tem uma médica; o
+       médico de quem usa pode ser qualquer pessoa. A frase foi reescrita
+       para não precisar saber — mesma saída dos particípios do francês. */
+    anoteONumero: 'Anote o número definido na consulta',
+
+    duasMetas: (minha: string) =>
+      `A sua meta de peso, no aplicativo, é ${minha}. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`,
+
+    documentos: 'Documentos e exames',
+    documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
+  },
 };

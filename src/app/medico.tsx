@@ -15,6 +15,11 @@ import { useTheme } from '../ui/useTheme';
 import { fmtDate, dataLonga, nf } from '../logic/time';
 import { radius } from '../theme';
 import { pesoTxt } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cuidado.telaAreaMedica;
 
 /* ============================================================
    SUA EQUIPE — o lado de lá do tratamento
@@ -105,7 +110,7 @@ export default function Medico() {
   const responsavel = equipe.find((f) => f.responsavel);
 
   return (
-    <TelaInterna titulo="Área médica">
+    <TelaInterna titulo={K().titulo}>
       {/* ---- o cabeçalho de quem cuida ----
 
           ⚠️ ELE JÁ FOI UMA LINHA DE LISTA E JÁ FOI UMA VITRINE, e nenhum
@@ -171,8 +176,8 @@ export default function Medico() {
               dia existir alguma coisa para a clínica, este nome fica
               ocupado e é este título que muda. */}
           <Titulao
-            titulo="Área médica"
-            lead="Quem cuida de você, e o que atravessa para o outro lado."
+            titulo={K().titulo}
+            lead={K().lead}
           />
         </View>
 
@@ -203,10 +208,10 @@ export default function Medico() {
 
             <Row gap={4} style={{ paddingVertical: 14, paddingHorizontal: 8 }}>
               {([
-                ['companion', 'Mensagem', '/conversa'],
-                ['cal', 'Consultas', '/consultas'],
-                ['doc', 'Protocolos', '/protocolos'],
-                ...(S.profile.clinic ? [['clinica', 'Clínica', '/clinica']] : []),
+                ['companion', K().atalhoMensagem, '/conversa'],
+                ['cal', T.cuidado.telaConsultas.titulo, '/consultas'],
+                ['doc', T.home.telaJornada.protocolos, '/protocolos'],
+                ...(S.profile.clinic ? [['clinica', K().atalhoClinica, '/clinica']] : []),
               ] as [string, string, string][]).map(([ic, label, to]) => (
                 <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                   <View style={{ alignItems: 'center' }}>
@@ -255,7 +260,7 @@ export default function Medico() {
         <Card style={{ marginTop: 16 }} tint={c.accentWeak}>
           <Row gap={6}>
             <Icon name="aura" size={13} color={c.accent} sw={2} />
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PARA LEVAR À CONSULTA</Txt>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().paraLevar}</Txt>
           </Row>
           {/* ⚠️ SEM NEGRITO. O parágrafo estava em `bodyMed`, que é peso de
               rótulo, não de leitura: quatro linhas em semibold dentro de um
@@ -263,14 +268,11 @@ export default function Medico() {
               embaixo davam três vozes altas na mesma peça. Em `caption`,
               com entrelinha maior, ele volta a ser o que é — a explicação
               entre o título e a ação. */}
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 9, lineHeight: 21 }}>
-            Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta
-            dos seus registros e está pronto agora.
-          </Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 9, lineHeight: 21 }}>{K().paraLevarTexto}</Txt>
           <Pressable onPress={go('/resumo-medico')}>
             <View style={{ marginTop: 14, backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 13, flexDirection: 'row', justifyContent: 'center', gap: 7 }}>
               <Icon name="doc" size={16} color={c.accentInk} sw={2} />
-              <Txt v="label" c={c.accentInk}>Ver o resumo para consulta</Txt>
+              <Txt v="label" c={c.accentInk}>{K().verResumo}</Txt>
             </View>
           </Pressable>
         </Card>
@@ -308,8 +310,8 @@ export default function Medico() {
             resto da frase fazia — separa as SUAS das prescrições e dos
             documentos, que são deles. */}
         <SectionHead
-          title="Suas anotações"
-          link="Anotar"
+          title={K().suasAnotacoes}
+          link={K().anotar}
           onPress={go('/nota')}
           style={{ marginTop: 32, marginBottom: 10 }}
         />
@@ -359,9 +361,9 @@ export default function Medico() {
               }}>
                 <Icon name="pencil" size={18} color={c.accent} sw={1.9} />
                 <View>
-                  <Txt v="caption" style={{ lineHeight: 21 }}>Anotar uma dúvida</Txt>
+                  <Txt v="caption" style={{ lineHeight: 21 }}>{K().anotarDuvida}</Txt>
                   <Txt v="micro" c={c.tx4} style={{ marginTop: 4, lineHeight: 16 }}>
-                    Para perguntar na próxima consulta
+                    {K().anotarDuvidaSub}
                   </Txt>
                 </View>
               </View>
@@ -397,8 +399,8 @@ export default function Medico() {
             por segui-la que as duas listas se alinham pela mesma coluna,
             mesmo sendo desenhadas por lugares diferentes. */}
         <SectionHead
-          title="Prescrições"
-          link="Pedir nova receita"
+          title={K().prescricoes}
+          link={K().pedirReceita}
           onPress={go('/conversa?pedir=receita')}
           style={{ marginTop: 32, marginBottom: 10 }}
         />
@@ -467,7 +469,7 @@ export default function Medico() {
             lado. */}
         {!!materiais.length && clinicaConectada(S) && (
           <>
-            <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>O que a clínica preparou</Txt>
+            <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>{K().clinicaPreparou}</Txt>
             <Rolagem
               horizontal showsHorizontalScrollIndicator={false}
               style={{ marginHorizontal: -16 }}
@@ -507,7 +509,7 @@ export default function Medico() {
             Quando não há nada anotado, a linha diz o que ela é em vez de
             mostrar um vazio: a porta existe porque a conversa da consulta
             acontece antes de haver número. */}
-        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Os números da sua equipe</Txt>
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>{K().numerosDaEquipe}</Txt>
         <Cartao>
           {(Object.keys(ALVOS()) as ChaveDeAlvo[]).map((k) => {
             const a = ALVOS()[k];
@@ -517,11 +519,11 @@ export default function Medico() {
                 key={k}
                 ic={a.ic}
                 titulo={a.nome}
-                selo={m ? `${a.escreve(m.valor, S)} ${a.un(S)}` : 'não anotada'}
+                selo={m ? `${a.escreve(m.valor, S)} ${a.un(S)}` : K().naoAnotada}
                 seloTom={m ? 'lima' : 'neutra'}
                 sub={m
-                  ? `${m.por} · anotado em ${dataLonga(m.em)}`
-                  : 'Anote o número que ela definiu na consulta'}
+                  ? K().anotadoPor(m.por, dataLonga(m.em))
+                  : K().anoteONumero}
                 onPress={go(`/meta-clinica?alvo=${k}`)}
               />
             );
@@ -530,18 +532,18 @@ export default function Medico() {
         {metaClinica(S, 'peso') && discordam ? (
           <Aviso
             ic="steth"
-            texto={`A sua meta de peso, no aplicativo, é ${pesoTxt(S, (S.profile as any).goalWeight)}. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`}
+            texto={K().duasMetas(pesoTxt(S, (S.profile as any).goalWeight))}
           />
         ) : null}
 
-        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>Documentos e exames</Txt>
+        <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>{K().documentos}</Txt>
         <Cartao>
           {S.documents.map((d: any, i: number) => (
             <Linha
               key={`${d.name}-${i}`}
               ic="doc"
               titulo={d.name}
-              sub={`${d.kind} · ${fmtDate(new Date(d.t))}`}
+              sub={K().documentoSub(d.kind, fmtDate(new Date(d.t)))}
               onPress={go(destinoDoDocumento(d.kind))}
             />
           ))}
