@@ -117,11 +117,15 @@ export const assinatura = {
      LA VITRINE — /planos
 
      ⚠️⚠️ LE TITRE A UNE COUPURE DE LIGNE MESURÉE, ET NON CHOISIE. Sur un
-     téléphone de 375 pt il reste 335 px de ligne ; les deux moitiés
-     françaises tiennent la même largeur que les portugaises, et c'est pour
-     ça qu'elles sont coupées là. Qui traduit doit tenir dans cette
-     largeur, ou toucher au corps avec. Une phrase plus longue ne « déborde
-     pas un peu » : elle casse en trois lignes et mange le bouton.
+     téléphone de 375 pt il reste 335 px de ligne. Mesuré dans le corps de
+     31 : le portugais demande 321 et 323 px, le français 317 et 251. La
+     première moitié frôle la limite comme la portugaise ; la seconde a de
+     la marge, et cette marge n'est pas une invitation à rallonger — c'est
+     ce qui reste quand la première ligne est déjà au bord.
+
+     Qui traduit doit tenir dans cette largeur, ou toucher au corps avec.
+     Une phrase plus longue ne « déborde pas un peu » : elle casse en trois
+     lignes et mange le bouton.
      ============================================================ */
   vitrine: {
     titulo: 'Tout change quand vous\nsuivez ',

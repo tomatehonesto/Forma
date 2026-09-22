@@ -36,7 +36,14 @@ const P = () => T.assinatura.parceiros;
    implica um custo que ninguém cobra ainda. Entra junto com a cobrança.
    ============================================================ */
 
-const MUDA: [string, string, string][] = [
+/* ⚠️⚠️ É FUNÇÃO, E ISSO NÃO É ESTILO. Ela era constante de módulo, e
+   constante de módulo é avaliada UMA VEZ, no import: os quatro títulos
+   ficavam congelados no idioma que estava valendo naquele instante. Numa
+   tela em francês, saíam em português.
+
+   A trava `scripts/idioma-congelado.mjs` não via, porque no corpo não há
+   nenhum `T.` escrito — há um apelido dele. Hoje ela vê. */
+const MUDA = (): [string, string, string][] => [
   ['companion', P().conversaTitulo, P().conversaTexto],
   ['doc', P().resumoTitulo, P().resumoTexto],
   ['pill', P().receitaTitulo, P().receitaTexto],
@@ -81,7 +88,7 @@ export default function Parceiros() {
       <TelaInterna titulo={P().titulo}>
         <Titulao titulo={P().jaTemTitulo} lead={P().jaTemLead} />
         <Cartao>
-          {MUDA.map(([ic, t, sub]) => <Linha key={t} ic={ic} titulo={t} sub={sub} seta={false} />)}
+          {MUDA().map(([ic, t, sub]) => <Linha key={t} ic={ic} titulo={t} sub={sub} seta={false} />)}
         </Cartao>
         <View />
       </TelaInterna>
@@ -96,7 +103,7 @@ export default function Parceiros() {
       />
 
       <Cartao>
-        {MUDA.map(([ic, t, sub]) => <Linha key={t} ic={ic} titulo={t} sub={sub} seta={false} />)}
+        {MUDA().map(([ic, t, sub]) => <Linha key={t} ic={ic} titulo={t} sub={sub} seta={false} />)}
       </Cartao>
 
       {/* ⚠️ A DIREÇÃO IMPORTA, e é o contrário do que um botão sugeriria.

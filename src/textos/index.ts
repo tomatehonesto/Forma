@@ -94,6 +94,41 @@ import { rotina as rotinaEs } from './es-419/rotina';
 import { tempo as tempoEs } from './es-419/tempo';
 import { tratamento as tratamentoEs } from './es-419/tratamento';
 
+/* ⚠️ O FRANCÊS NÃO TEM PONTO MÉDIO. "né·e", "suivi·e" estavam escritos e
+   saíram: o ponto médio CONTORNA o acordo de gênero, não o evita, e os
+   leitores de tela o pronunciam mal. A saída é reformular — ver o alto de
+   textos/fr-FR/cadastro. */
+import { alertas as alertasFr } from './fr-FR/alertas';
+import { alimentacao as alimentacaoFr } from './fr-FR/alimentacao';
+import { aviso as avisoFr } from './fr-FR/aviso';
+import { assinatura as assinaturaFr } from './fr-FR/assinatura';
+import { avisos as avisosFr } from './fr-FR/avisos';
+import { cadastro as cadastroFr } from './fr-FR/cadastro';
+import { ciclo as cicloFr } from './fr-FR/ciclo';
+import { companion as companionFr } from './fr-FR/companion';
+import { comum as comumFr } from './fr-FR/comum';
+import { confirmacoes as confirmacoesFr } from './fr-FR/confirmacoes';
+import { conquistas as conquistasFr } from './fr-FR/conquistas';
+import { cruzamentos as cruzamentosFr } from './fr-FR/cruzamentos';
+import { cuidado as cuidadoFr } from './fr-FR/cuidado';
+import { descobertas as descobertasFr } from './fr-FR/descobertas';
+import { equilibrio as equilibrioFr } from './fr-FR/equilibrio';
+import { home as homeFr } from './fr-FR/home';
+import { idioma as idiomaFr } from './fr-FR/idioma';
+import { escalas as escalasFr } from './fr-FR/escalas';
+import { etapa as etapaFr } from './fr-FR/etapa';
+import { exames as examesFr } from './fr-FR/exames';
+import { fontes as fontesFr } from './fr-FR/fontes';
+import { formas as formasFr } from './fr-FR/formas';
+import { leituras as leiturasFr } from './fr-FR/leituras';
+import { marcadores as marcadoresFr } from './fr-FR/marcadores';
+import { medidas as medidasFr } from './fr-FR/medidas';
+import { metas as metasFr } from './fr-FR/metas';
+import { resumo as resumoFr } from './fr-FR/resumo';
+import { rotina as rotinaFr } from './fr-FR/rotina';
+import { tempo as tempoFr } from './fr-FR/tempo';
+import { tratamento as tratamentoFr } from './fr-FR/tratamento';
+
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
 
@@ -209,6 +244,14 @@ const CATALOGOS: Record<Local, Textos> = {
     escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
     home: homeEs, idioma: idiomaEs, leituras: leiturasEs, marcadores: marcadoresEs, medidas: medidasEs,
     metas: metasEs, resumo: resumoEs, rotina: rotinaEs, tempo: tempoEs, tratamento: tratamentoEs,
+  },
+  'fr-FR': {
+    alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
+    cadastro: cadastroFr, ciclo: cicloFr, companion: companionFr, comum: comumFr, confirmacoes: confirmacoesFr,
+    conquistas: conquistasFr, cruzamentos: cruzamentosFr, cuidado: cuidadoFr, descobertas: descobertasFr, equilibrio: equilibrioFr,
+    escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
+    home: homeFr, idioma: idiomaFr, leituras: leiturasFr, marcadores: marcadoresFr, medidas: medidasFr,
+    metas: metasFr, resumo: resumoFr, rotina: rotinaFr, tempo: tempoFr, tratamento: tratamentoFr,
   },
 };
 

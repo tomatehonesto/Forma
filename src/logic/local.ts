@@ -32,7 +32,7 @@ import { paisDoAparelho as contaOPais } from './pais';
    tradução.
    ============================================================ */
 
-export type Local = 'pt-BR' | 'en-US' | 'es-419';
+export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR';
 
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
@@ -52,7 +52,7 @@ const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
    como voltar: ele não sabe ler o que está na tela para achar o caminho
    de volta.
    ============================================================ */
-export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419'];
+export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419', 'fr-FR'];
 
 /* ⚠️ CADA UM SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
    aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
@@ -62,6 +62,7 @@ export const NOME_DO_LOCAL: Record<Local, string> = {
   'pt-BR': 'Português',
   'en-US': 'English',
   'es-419': 'Español',
+  'fr-FR': 'Français',
 };
 
 /* ============================================================
@@ -242,7 +243,43 @@ const ES: Formato = {
   hora12: false,
 };
 
-const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES };
+/* ⚠️⚠️ O MILHAR DO FRANCÊS É UM ESPAÇO, E É ESTE ESPAÇO: o fino
+   inquebrável, U+202F. Não é capricho tipográfico — um espaço comum
+   deixaria "12 400" quebrar a linha no meio do número, e é o mesmo
+   caractere que já separa a pontuação dupla no catálogo francês.
+
+   ⚠️ E O DIA DA SEMANA NÃO LEVA VÍRGULA. "mercredi 13 mai", e não
+   "mercredi, 13 mai" — o português e o inglês põem a vírgula, o francês
+   não põe nada, e é por isso que `comDiaDaSemana` é função e não máscara.
+
+   ⚠️ NEM O MÊS LEVA "de". "13 mai 2026" é a data francesa inteira: sem
+   preposição, sem maiúscula no mês, e com o dia antes.
+
+   ⚠️ E O INTERVALO LONGO DIZ "du … au …", que é como se lê um período em
+   francês. O curto fica com o travessão, porque ele é etiqueta e não
+   frase. */
+const FR: Formato = {
+  decimal: ',',
+  milhar: ' ',
+  /* ⚠️ O PONTO DAS ABREVIAÇÕES NÃO É ENFEITE: em francês ele marca que a
+     palavra foi cortada, e por isso "mars", "mai", "juin" e "août" não o
+     levam — eles não foram cortados. */
+  mesCurto: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
+  mesLongo: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+  diaCurto: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'],
+  diaLongo: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+  curta: (d, m) => `${d} ${FR.mesCurto[m]}`,
+  longa: (d, m) => `${d} ${FR.mesLongo[m]}`,
+  comAno: (d, m, a) => `${d} ${FR.mesLongo[m]} ${a}`,
+  comDiaDaSemana: (dia, resto) => `${dia} ${resto}`,
+  periodo: (de, ate, m) => `${de}–${ate} ${FR.mesCurto[m]}`,
+  periodoLongo: (de, ate, m) => `du ${de} au ${ate} ${FR.mesLongo[m]}`,
+  mesAno: (m, a) => `${FR.mesLongo[m]} ${a}`,
+  junta: (de, ate) => `${de} – ${ate}`,
+  hora12: false,
+};
+
+const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR };
 
 /* ------------------------------------------------------------------ *
  * QUAL É O LOCAL AGORA

@@ -19,6 +19,35 @@
 
    Ele lê cada arquivo de src/logic e src/ui, acha as declarações de
    módulo que não são função, e acusa as que mencionam `T.`.
+
+   ⚠️⚠️ E TAMBÉM AS QUE MENCIONAM UM APELIDO DELE. A primeira versão
+   procurava só por `T.` escrito, e passou batido por isto:
+
+     const V = () => T.assinatura.vitrine;
+     const ENTRA = [ ['journey', V().umLugarTitulo, V().umLugarTexto], … ];
+
+   `V` é função e está certa; `ENTRA` é constante e congela. Mas no corpo
+   de `ENTRA` não existe nenhum `T.` — existe `V()`. A trava disse "nenhuma
+   constante de módulo lendo o catálogo" enquanto quatro blocos de texto
+   saíam em português numa tela francesa.
+
+   Então são duas passagens por arquivo: a primeira anota quais funções de
+   módulo leem o catálogo, a segunda acusa quem lê `T.` OU chama uma
+   delas.
+
+   ⚠️⚠️ E A LEITURA TEM DE SER ANSIOSA PARA CONGELAR. Uma constante cujos
+   VALORES são funções não congela nada:
+
+     const MEDIDAS = { agua: (S, alvo) => ({ texto: K().aguaTodoDia(…) }) };
+
+   `K()` ali roda quando alguém chama `MEDIDAS.agua(...)`, não no import.
+   A primeira versão desta ampliação acusou `MEDIDAS` junto com os dois
+   erros de verdade — e uma trava que grita com quem está certo é uma
+   trava que alguém desliga.
+
+   Então a leitura só conta quando está FORA de qualquer corpo de arrow
+   dentro do inicializador. É heurística, não parser: erra para o lado de
+   deixar passar, que é o lado certo para errar.
    ============================================================ */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -69,18 +98,65 @@ function corpoDe(linhas, i) {
 const DECLARA = /^(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*(?::[^=]*)?=\s*([^]*)$/;
 const EH_FUNCAO = /^(\([^]*?\)|[A-Za-z_$][\w$]*)\s*(:[^]*?)?=>/;
 
-const acusados = [];
-for (const p of arquivos(join(RAIZ, 'src'))) {
-  const linhas = readFileSync(p, 'utf8').split(/\r?\n/);
+/* Percorre as declarações de módulo do arquivo uma vez, devolvendo nome,
+   corpo, linha e se é função. As duas passagens comem desta lista. */
+function declaracoes(linhas) {
+  const fora = [];
   for (let i = 0; i < linhas.length; i += 1) {
     const m = DECLARA.exec(linhas[i]);
     if (!m) continue;
-    const [, nome] = m;
     const { corpo, fim } = corpoDe(linhas, i);
+    const depoisDoIgual = corpo.slice(corpo.indexOf('=') + 1).trim();
+    fora.push({ nome: m[1], corpo, linha: fim + 1, funcao: EH_FUNCAO.test(depoisDoIgual) });
     i = fim;
-    if (EH_FUNCAO.test(corpo.slice(corpo.indexOf('=') + 1).trim())) continue;
-    if (!/\bT\.[a-zA-Z]/.test(corpo)) continue;
-    acusados.push(`${p.replace(RAIZ, '').replace(/\\/g, '/')}:${i + 1}  ${nome}`);
+  }
+  return fora;
+}
+
+const LE_CATALOGO = /\bT\.[a-zA-Z]/;
+
+/* ⚠️ ONDE A LEITURA É ANSIOSA. Devolve o corpo com todo trecho que esteja
+   dentro de um corpo de arrow trocado por espaço — o que sobra é o que
+   roda no import.
+
+   O corpo de um arrow acaba de dois jeitos: fechando o grupo de chaves ou
+   colchetes onde ele começou, ou numa vírgula na mesma profundidade, que é
+   o caso do corpo conciso — `{ a: () => T.x, b: T.y }` tem `T.y` ansioso. */
+function soOAnsioso(corpo) {
+  let fora = '';
+  let prof = 0;
+  const arrows = [];
+  for (let i = 0; i < corpo.length; i += 1) {
+    const ch = corpo[i];
+    if (corpo.startsWith('=>', i)) { arrows.push(prof); fora += '  '; i += 1; continue; }
+    if ('[{('.includes(ch)) prof += 1;
+    if (']})'.includes(ch)) { prof -= 1; while (arrows.length && prof < arrows[arrows.length - 1]) arrows.pop(); }
+    if ((ch === ',' || ch === ';') && arrows.length && prof === arrows[arrows.length - 1]) arrows.pop();
+    fora += arrows.length ? ' ' : ch;
+  }
+  return fora;
+}
+
+const acusados = [];
+for (const p of arquivos(join(RAIZ, 'src'))) {
+  const decls = declaracoes(readFileSync(p, 'utf8').split(/\r?\n/));
+
+  /* ⚠️ PASSAGEM 1 — os apelidos. Uma função de módulo cujo corpo lê o
+     catálogo é um jeito de escrever `T.`, e chamar ela conta como ler. */
+  const apelidos = decls.filter((d) => d.funcao && LE_CATALOGO.test(d.corpo)).map((d) => d.nome);
+  const CHAMA_APELIDO = apelidos.length
+    ? new RegExp(`\\b(${apelidos.join('|')})\\s*\\(`)
+    : null;
+
+  /* PASSAGEM 2 — quem congela. */
+  for (const d of decls) {
+    if (d.funcao) continue;
+    const ansioso = soOAnsioso(d.corpo);
+    const direto = LE_CATALOGO.test(ansioso);
+    const porApelido = CHAMA_APELIDO ? CHAMA_APELIDO.test(ansioso) : false;
+    if (!direto && !porApelido) continue;
+    const via = direto ? 'T.' : `via ${ansioso.match(CHAMA_APELIDO)[1]}()`;
+    acusados.push(`${p.replace(RAIZ, '').replace(/\\/g, '/')}:${d.linha}  ${d.nome}  (${via})`);
   }
 }
 

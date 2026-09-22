@@ -240,7 +240,14 @@ function PecaDoAlto({ c }: { c: any }) {
    QUATRO, E NÃO CINCO: com descrição, o quinto empurrava a barra de
    decisão para fora da primeira dobra — e uma lista que ninguém termina
    de ler não ganha nada com o último item. */
-const ENTRA: [string, string, string][] = [
+/* ⚠️⚠️ É FUNÇÃO, E ISSO NÃO É ESTILO. Ela era constante de módulo, e
+   constante de módulo é avaliada UMA VEZ, no import: os quatro títulos
+   ficavam congelados no idioma que estava valendo naquele instante. Numa
+   tela em francês, saíam em português.
+
+   A trava `scripts/idioma-congelado.mjs` não via, porque no corpo não há
+   nenhum `T.` escrito — há um apelido dele. Hoje ela vê. */
+const ENTRA = (): [string, string, string][] => [
   ['journey', V().umLugarTitulo, V().umLugarTexto],
   ['barchart', V().numerosTitulo, V().numerosTexto],
   ['spark', V().evolucaoTitulo, V().evolucaoTexto],
@@ -521,7 +528,7 @@ export default function Planos() {
             é o texto que ninguém lê exatamente onde a pessoa mais precisa
             entender. A lista é uma varredura, não uma leitura. */}
         <View style={{ gap: 18, marginTop: 6 }}>
-          {ENTRA.map(([ic, t, sub]) => (
+          {ENTRA().map(([ic, t, sub]) => (
             <Row key={t} gap={14} style={{ alignItems: 'flex-start' }}>
               {/* A PASTILHA VOLTA AQUI, e só aqui. No resto do app o ícone
                   fica solto na lista; nesta o item tem duas linhas, e sem
