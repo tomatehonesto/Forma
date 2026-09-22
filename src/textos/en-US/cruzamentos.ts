@@ -146,10 +146,10 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `The scale went up ${altas} times and you lost ${perdido} anyway`,
     texto: (pesagens: number, altas: number) =>
-      `Across ${pesagens} weigh-ins, ${altas} came in above the one before — and the line for the period keeps going down. A week that goes up isn’t a relapse: it’s water and bowels moving inside a trend.`,
+      `Across ${pesagens} weigh-ins, ${altas} came in above the one before — and the line across them keeps going down. A week that goes up isn’t a relapse: it’s water and bowels moving inside a trend.`,
     q: 'How am I doing overall?',
     evid: (altas: number, perdido: string) =>
-      ({ valor: String(altas), unidade: 'upticks', legenda: `inside −${perdido} over the period` }),
+      ({ valor: String(altas), unidade: 'upticks', legenda: `inside −${perdido} over that stretch` }),
     porque: 'The weight on any given day is fat, but it’s also water, salt, bowels and the hormonal cycle — swings of two to four pounds happen with nothing at all having changed in body fat. Fat leaves slowly and in a line; the rest swings on top of it, and it’s what the scale shows first.',
     significa: 'This matters more than it looks: the week the scale goes up is the week people tend to quit. In your own numbers, it has never meant what it looked like it meant.',
   },

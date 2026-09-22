@@ -17,7 +17,7 @@ export const avisos = {
 
   /* ⚠️ THIS ONE ASKS instead of telling. It's the only one of the five,
      and it's that way because the check-in is a question. */
-  checkin: 'How was your day?',
+  checkin: 'How are you feeling today?',
   checkinCorpo: 'Sleep, hunger, energy and mood — four answers, and the day is logged.',
   peso: 'Weigh-in day',
   pesoCorpo: 'Step on the scale whenever you can. One number a week already draws the curve.',

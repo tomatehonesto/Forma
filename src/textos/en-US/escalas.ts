@@ -141,7 +141,7 @@ export const escalas = {
 
   telaCheckin: {
     titulo: 'Check-in',
-    pergunta: 'How was your day?',
+    pergunta: 'How are you feeling today?',
     lead: 'Answer what makes sense. Leaving it blank is an answer too.',
     salvar: 'Save the check-in',
 

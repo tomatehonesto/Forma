@@ -171,7 +171,7 @@ export const tratamento = {
     periodo7: '7 days',
     periodo30: '30 days',
     periodo90: '3 months',
-    noPeriodo: 'In this period',
+    noPeriodo: 'In this window',
     noPeriodoNota: 'Only what was logged here — what comes from the watch has no activity type.',
     treinos: 'Workouts',
     tempo: 'Time',

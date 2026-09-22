@@ -216,20 +216,20 @@ export const home = {
     semRegistro: 'NOT LOGGED',
     semRegistroOntem: 'Yesterday’s shot isn’t logged.',
     semRegistroDias: (dias: number) => `The shot from ${dias} days ago isn’t logged.`,
-    semRegistroCorpo: 'If you did it, you can log it now. If you didn’t, the cycle picks up again from the next one.',
+    semRegistroCorpo: 'If you took it, you can log it now. If you didn’t, the cycle picks back up with your next shot.',
     semRegistroCta: 'Log the shot',
 
     aConsulta: 'YOUR APPOINTMENT',
     consultaHoje: 'Your appointment is today.',
     consultaAmanha: 'Your appointment is tomorrow.',
-    consultaCorpo: 'I’ll bring the period organized — weight, adherence, symptoms and the questions worth asking.',
+    consultaCorpo: 'I’ll have everything since your last visit laid out — weight, consistency, symptoms and the questions worth asking.',
     consultaCta: 'View summary',
 
     acabou: (oRecipiente: string) => `${oRecipiente} is empty.`,
     restaUmaDose: (onde: string) => `One dose left ${onde}.`,
-    receitaCorpo: 'A new prescription takes a few days between the request and the pharmacy — starting now keeps you from stopping halfway.',
+    receitaCorpo: 'A new prescription takes a few days from request to pharmacy — starting now means you won’t run out mid-treatment.',
     pedirRenovacao: 'Ask for a refill',
-    verRecipiente: (oRecipiente: string, _recipiente: string) => `See ${oRecipiente}`,
+    verRecipiente: (oRecipiente: string, _recipiente: string) => `View ${oRecipiente}`,
 
     entendaOPorQue: 'Understand why',
 
@@ -243,7 +243,7 @@ export const home = {
 
     checkinFeito: 'Check-in done',
     fazerCheckin: 'Check in',
-    diasSeguidos: (dias: number): string => (dias === 1 ? 'day of check‑ins' : 'days of check‑ins in a row'),
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'day of check‑ins' : 'days in a row'),
 
     metasDiarias: 'Your daily goals',
     metasLink: 'Goals',
@@ -269,7 +269,7 @@ export const home = {
     anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'So we can tell you when it gets close',
     quemAcompanha: 'Who follows your treatment?',
-    quemAcompanhaSub: 'Write down the name and the summary comes out addressed for the next appointment.',
+    quemAcompanhaSub: 'Add their name and your summary comes out addressed to them.',
     preencherFicha: 'Fill in the details',
   },
 
@@ -313,7 +313,7 @@ export const home = {
 
     checkinChapeu: 'DAILY CHECK-IN',
     checkinFeito: 'Done today',
-    checkinPendente: 'How was your day?',
+    checkinPendente: 'How are you feeling today?',
     checkinEditar: 'Edit',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'day in a row' : 'days in a row'),
 

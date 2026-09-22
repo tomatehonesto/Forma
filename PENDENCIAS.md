@@ -1540,6 +1540,27 @@ tirada do `git show`, e não de memória.
   "PROCHAINE INJECTION", "PRÓXIMA APLICACIÓN" — é o cabeçalho do cartão
   da próxima dose, uma das primeiras coisas que se vê.
 
+- **⚠️⚠️ "THE PERIOD" NA HOME EM INGLÊS.** "Levo o seu período organizado"
+  virou "I'll bring the period organized" — calque, e num aplicativo
+  usado sobretudo por mulheres "period" se lê como MENSTRUAÇÃO antes de
+  se ler como intervalo de tempo. Mesma família do "I had a drink":
+  tradução pela estrutura que muda o significado. Trocado onde a palavra
+  encostava em sintoma ou corpo; na assinatura ela fica, porque ali é
+  cobrança e não tem com o que se confundir.
+- **⚠️ A PROSA É MUITO MAIOR DO QUE OS RÓTULOS, e é o que falta.** Medido:
+  **1.364 frases de prosa, ~395 mil caracteres** nos quatro idiomas
+  (en 327 · es 335 · fr 357 · de 345). Não é varredura, é reescrita — não
+  se acha com grep como se achou "injection", e cada frase é uma decisão.
+  ⚠️ A ordem certa NÃO é por volume, é por quanto se lê: `home` é diário,
+  `leituras` e `cruzamentos` são os cartões de insight, e `aviso`,
+  `ajuda` e `assinatura` se leem uma vez na vida.
+- **E o inglês passou a divergir do português no check-in**, por decisão
+  de produto: "Como foi o seu dia?" continua em português, e o inglês
+  pergunta "How are you feeling today?". ⚠️ Vale reparar que a segunda é
+  mais fiel ao que a tela FAZ — ela mede energia, fome, sono e humor, que
+  é como a pessoa está, e não como o dia foi. O português talvez queira
+  seguir.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

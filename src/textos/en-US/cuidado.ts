@@ -159,7 +159,7 @@ export const cuidado = {
     anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'With the date here, the summary is ready and we tell you when it gets close.',
     eQuando: (quando: string) => `It is ${quando}`,
-    preparoTexto: 'I put together a summary with weight, adherence and symptoms for the period — you pick what to ask.',
+    preparoTexto: 'I put together a summary with weight, consistency and symptoms for that stretch — you pick what to ask.',
     prepararAConsulta: 'Get ready for the appointment',
 
     seuTratamento: 'Your treatment',
@@ -286,7 +286,7 @@ export const cuidado = {
     ateASeguinteSub: (data: string) =>
       `What your records show between that day and ${data}.`,
 
-    semRegistro: 'None of your records fell in this period. What was agreed at the appointment is in the note above, if there is one.',
+    semRegistro: 'None of your records fell in this window. What was agreed at the appointment is in the note above, if there is one.',
   },
 
   telaAreaMedica: {
