@@ -1,0 +1,134 @@
+/* ============================================================
+   LOS LOGROS — los caminos, qué dice cada nivel y qué falta · es-419
+
+   ⚠️ Las razones viven en ../pt-BR/conquistas.ts. Las dos que mandan:
+
+   LOS `id` Y LOS ESCALONES NO ESTÁN AQUÍ. 'kg', 'rodizio', 'prot-seq' son
+   dato, y los números de cada nivel son contenido: escalones propios por
+   idioma harían que la misma persona ganara logros distintos según la
+   lengua en que lee.
+
+   CADA CAMINO HABLA EN DOS TIEMPOS, y no son la misma frase: `desc` es lo
+   que ese nivel YA ES — "12 aplicaciones registradas" —, y `falta` es lo
+   que la separa del próximo. "Faltan" y no "necesitas": el sujeto es la
+   distancia, no la persona.
+
+   ⚠️⚠️ Y EL PLURAL ES GRAMÁTICA, y por eso vive aquí. El español mueve el
+   acento: "sesión" hace "sesiones", "medición" hace "mediciones",
+   "aplicación" hace "aplicaciones" — la tilde DESAPARECE en el plural. Un
+   `+ 's'` colgado al final escribiría "sesións" y nadie lo vería hasta
+   que apareciera en la pantalla de alguien.
+   ============================================================ */
+
+/* El plural del español, con el irregular dicho por extenso cuando existe. */
+const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
+
+export const conquistas = {
+  familias: {
+    tratamento: 'Tratamiento',
+    peso: 'Peso',
+    constancia: 'Constancia',
+    hidratacao: 'Hidratación',
+    proteina: 'Proteína',
+    movimento: 'Movimiento',
+    comida: 'Alimentación',
+    acompanhamento: 'Seguimiento',
+  },
+
+  doses: 'Aplicaciones',
+  dosesDesc: (a: number) => `${p(a, 'aplicación', 'aplicaciones')} registrada${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `Faltan ${p(r, 'aplicación', 'aplicaciones')}`,
+
+  tempo: 'Tiempo de tratamiento',
+  /* Abajo de un año cuenta en meses, y a partir de ahí en años: "12 meses"
+     y "1 año" son el mismo tiempo, y solo el segundo se celebra. */
+  tempoDesc: (a: number) => (a < 365
+    ? `${a / 30} ${a === 30 ? 'mes' : 'meses'} desde la primera dosis`
+    : `${a / 365} año${a > 365 ? 's' : ''} desde la primera dosis`),
+  tempoFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+
+  /* ⚠️ LA ROTACIÓN NO ES ADORNO: repetir el mismo punto causa nódulos, y
+     alternar es indicación de prospecto. Es el único camino que premia una
+     práctica de seguridad. */
+  rodizio: 'Rotación',
+  rodizioDesc: (a: number) => `${p(a, 'lugar', 'lugares')} de aplicación usado${a === 1 ? '' : 's'}`,
+  rodizioFalta: (r: number) => `Faltan ${p(r, 'lugar', 'lugares')}`,
+
+  titulacao: 'Titulación',
+  titulacaoDesc: (a: string) => `Llegar a la dosis de ${a}`,
+  titulacaoFalta: (a: string) => `Próxima: ${a}`,
+
+  /* ⚠️ EL PESO LLEGA YA ESCRITO, en la unidad de quien lee. */
+  kg: 'Kilos de menos',
+  kgDesc: (peso: string) => `${peso} abajo del peso inicial`,
+  kgFalta: (peso: string) => `Faltan ${peso}`,
+
+  /* ⚠️ EL PORCENTAJE ES OTRA CONVERSACIÓN, y no repetición de los kilos:
+     el cinco por ciento es la marca clínica que usa la literatura, y diez
+     kilos significan cosas distintas en cuerpos distintos. */
+  pct: 'Porcentaje perdido',
+  pctDesc: (a: number) => `${a}% del peso inicial`,
+  pctFalta: (r: string) => `Faltan ${r} puntos`,
+
+  pesagens: 'Pesajes',
+  pesagensDesc: (a: number) => `${p(a, 'peso')} registrado${a === 1 ? '' : 's'}`,
+  pesagensFalta: (r: number) => `Faltan ${p(r, 'pesaje')}`,
+
+  checkins: 'Check-ins',
+  checkinsDesc: (a: number) => `${p(a, 'día')} respondido${a === 1 ? '' : 's'}`,
+  checkinsFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+
+  sequencia: 'Días seguidos',
+  sequenciaDesc: (a: number) => `${p(a, 'check-in')} en días seguidos`,
+  sequenciaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+
+  aguaDias: 'Días en la meta de agua',
+  aguaDiasDesc: (a: number) => `${p(a, 'día')} de agua cumplida`,
+  aguaDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+
+  aguaSemana: 'Semana hidratada',
+  aguaSemanaDesc: (a: number) => `${p(a, 'día')} en la meta, en la misma semana`,
+  aguaSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+
+  protDias: 'Días en la meta de proteína',
+  protDiasDesc: (a: number) => `${p(a, 'día')} en la meta del perfil`,
+  protDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+
+  protSeq: 'Proteína seguida',
+  protSeqDesc: (a: number) => `${p(a, 'día')} seguidos en la meta`,
+  protSeqFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+
+  treinos: 'Entrenamientos',
+  treinosDesc: (a: number) => `${p(a, 'sesión', 'sesiones')} registrada${a === 1 ? '' : 's'}`,
+  treinosFalta: (r: number) => `Faltan ${p(r, 'entrenamiento')}`,
+
+  exercSemana: 'Semana activa',
+  exercSemanaDesc: (a: number) => `${p(a, 'día')} en la meta de movimiento, en la misma semana`,
+  exercSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+
+  refeicoes: 'Comidas',
+  refeicoesDesc: (a: number) => `${p(a, 'plato')} registrado${a === 1 ? '' : 's'}`,
+  refeicoesFalta: (r: number) => `Faltan ${p(r, 'comida')}`,
+
+  favoritos: 'Platos favoritos',
+  favoritosDesc: (a: number) => `${p(a, 'plato')} guardado${a === 1 ? '' : 's'} para repetir`,
+  favoritosFalta: (r: number) => `Faltan ${p(r, 'plato')}`,
+
+  medidas: 'Medidas de cinta',
+  medidasDesc: (a: number) => `${p(a, 'medición', 'mediciones')} registrada${a === 1 ? '' : 's'}`,
+  medidasFalta: (r: number) => `Faltan ${p(r, 'medición', 'mediciones')}`,
+
+  cintura: 'Centímetros de cintura',
+  cinturaDesc: (comp: string) => `${comp} menos de cintura`,
+  cinturaFalta: (comp: string) => `Faltan ${comp}`,
+
+  exames: 'Exámenes',
+  examesDesc: (a: number) => `${p(a, 'panel', 'paneles')} importado${a === 1 ? '' : 's'}`,
+  examesFalta: (r: number) => `Faltan ${p(r, 'examen', 'exámenes')}`,
+
+  consultas: 'Consultas',
+  consultasDesc: (a: number) => `${p(a, 'consulta')} en el historial`,
+  consultasFalta: (r: number) => `Faltan ${p(r, 'consulta')}`,
+
+  marco: (titulo: string, nivel: number) => `${titulo} · nivel ${nivel}`,
+};
