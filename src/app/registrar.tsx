@@ -13,6 +13,11 @@ import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
 import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
 import { aguaN } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaRegistrar;
 
 /* ============================================================
    REGISTRAR — o "+" da tab bar, e tudo que abre aqui é um registro.
@@ -119,14 +124,14 @@ export default function Registrar() {
      app inteiro. Ela agora está em "leva um minuto", que é onde ela
      sempre coube. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: `Me${'\n'}hidratei`, sub: `${bebido} de ${alvoL} L`, to: '/medir-agua' },
+    agua: { ic: 'water', titulo: K().agua, sub: K().aguaSub(bebido, alvoL), to: '/medir-agua' },
     /* "0 min hoje" não dizia contra o quê. Os três comparam com o alvo do
        perfil agora, que é o mesmo número que acende o lima. */
-    exercicio: { ic: 'dumbbell', titulo: `Me${'\n'}exercitei`, sub: `${exercHoje} de ${alvoExerc} min`, to: '/medir-exercicio' },
+    exercicio: { ic: 'dumbbell', titulo: K().exercicio, sub: K().exercicioSub(exercHoje, alvoExerc), to: '/medir-exercicio' },
     /* A proteína do dia, como a água e o exercício. "12 registradas" era
        o total desde que o app foi instalado — não responde nada que se
        pergunte antes de comer. */
-    refeicao: { ic: 'utensils', titulo: 'Fiz uma refeição', sub: `${protHoje} de ${alvoProt} g`, to: '/medir-refeicao' },
+    refeicao: { ic: 'utensils', titulo: K().refeicao, sub: K().refeicaoSub(protHoje, alvoProt), to: '/medir-refeicao' },
   };
 
   /* Registros completos — o que não coube nos atalhos de agora. Peso fica
@@ -155,11 +160,11 @@ export default function Registrar() {
      linhas depois. Seis linhas de leitura para zero decisão, e cento e
      vinte pixels de altura num sheet que já não cabia na tela. */
   const completos: Item[] = [
-    { ic: 'syringe', titulo: 'Apliquei a dose', to: '/aplicacao' },
-    { ic: 'scale', titulo: 'Acabei de me pesar', to: '/medir-peso' },
-    { ic: 'utensils', titulo: 'Fiz uma refeição', to: '/medir-refeicao' },
-    { ic: 'ruler', titulo: 'Medi meu corpo', to: '/medir-medidas' },
-    { ic: 'doc', titulo: 'Recebi um exame', to: '/medir-exame' },
+    { ic: 'syringe', titulo: K().aplicacao, to: '/aplicacao' },
+    { ic: 'scale', titulo: K().peso, to: '/medir-peso' },
+    { ic: 'utensils', titulo: K().refeicao, to: '/medir-refeicao' },
+    { ic: 'ruler', titulo: K().medidas, to: '/medir-medidas' },
+    { ic: 'doc', titulo: K().exame, to: '/medir-exame' },
     /* A ANOTAÇÃO É EVENTO como as outras desta lista: cada uma é um
        registro novo, e anotar duas vezes é anotar duas coisas.
 
@@ -178,7 +183,7 @@ export default function Registrar() {
        própria não tem esse alguém — e a linha, para ela, é o app
        oferecendo guardar perguntas que ninguém vai responder. */
     ...(temAcompanhamento(S)
-      ? [{ ic: 'pencil', titulo: 'Anotei algo para a consulta', to: '/medir-anotacao' }]
+      ? [{ ic: 'pencil', titulo: K().anotacao, to: '/medir-anotacao' }]
       : []),
   ].filter((it) => !acoes.some((k) => CATALOGO[k].titulo === it.titulo));
 
@@ -209,7 +214,7 @@ export default function Registrar() {
               escolher. */}
           <Row style={{ alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
-              <Txt v="h2">O que deseja registrar?</Txt>
+              <Txt v="h2">{K().titulo}</Txt>
             </View>
             <Pressable onPress={fechar} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 2 }]}>
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
@@ -255,16 +260,16 @@ export default function Registrar() {
                   <Icon name={fez ? 'check' : 'mood'} size={24} color={tinta} sw={2.2} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Txt v="micro" c={tinta} style={{ letterSpacing: 1, opacity: 0.8 }}>CHECK-IN DIÁRIO</Txt>
+                  <Txt v="micro" c={tinta} style={{ letterSpacing: 1, opacity: 0.8 }}>{K().checkinChapeu}</Txt>
                   <Txt v="title" c={tinta} style={{ marginTop: 3 }}>
-                    {fez ? 'Concluído hoje' : 'Como foi o seu dia?'}
+                    {fez ? K().checkinFeito : K().checkinPendente}
                   </Txt>
                   {/* O streak é a única linha de apoio que sobrou. "Menos de
                       30s" saiu: prometia rapidez para quem ainda não sabe o
                       que vai encontrar, e quem faz todo dia já sabe. */}
                   {stk > 0 ? (
                     <Txt v="caption" c={tinta} style={{ marginTop: 3, opacity: 0.75 }}>
-                      {stk} {stk === 1 ? 'dia seguido' : 'dias seguidos'}
+                      {stk} {K().diasSeguidos(stk)}
                     </Txt>
                   ) : null}
                 </View>
@@ -272,7 +277,7 @@ export default function Registrar() {
                     preencher", a pastilha diz "abre para mudar". */}
                 {fez ? (
                   <View style={{ backgroundColor: veu, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 }}>
-                    <Txt v="tag" c={tinta}>Editar</Txt>
+                    <Txt v="tag" c={tinta}>{K().checkinEditar}</Txt>
                   </View>
                 ) : (
                   <Icon name="chev" size={17} color={tinta} sw={2.2} />
@@ -325,7 +330,7 @@ export default function Registrar() {
 
           {/* --- separação pelo esforço, não por categoria --- */}
           <Row gap={10} style={{ marginTop: 18, marginBottom: 10 }}>
-            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>LEVA UM MINUTO</Txt>
+            <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{K().levaUmMinuto}</Txt>
             <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
           </Row>
 

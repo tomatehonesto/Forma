@@ -343,4 +343,46 @@ export const alimentacao = {
 
     apagar: 'Diese Mahlzeit löschen',
   },
+
+  /* ⚠️ DIE SCHLÜSSEL BLEIBEN PORTUGIESISCH, und das ist Absicht: sie
+     stehen so in der Lebensmitteltabelle (logic/alimentos), und die
+     Tabelle ist Daten und kein Text. Übersetzt wird nur, was rechts
+     steht. */
+  telaAlimento: {
+    titulo: 'Lebensmittel',
+    naoEncontrado: 'Dieses Lebensmittel habe ich nicht gefunden.',
+
+    destaque: {
+      'proteína': 'Viel Eiweiß',
+      'fibra': 'Viele Ballaststoffe',
+      'vitamina C': 'Viel Vitamin C',
+      'vitamina A': 'Viel Vitamin A',
+      'cálcio': 'Viel Kalzium',
+      'ferro': 'Viel Eisen',
+      'magnésio': 'Viel Magnesium',
+      'zinco': 'Viel Zink',
+      'fósforo': 'Viel Phosphor',
+      'niacina': 'Viel Niacin',
+      'tiamina': 'Viel Thiamin',
+      'riboflavina': 'Viel Riboflavin',
+    },
+    porcentoDoDia: (pct: number) => `${pct}% dessen, was ein Mensch am Tag braucht`,
+
+    porcaoDe: (medida: string) => `Portion: ${medida}`,
+    porcaoDe100: 'Portion von 100 g',
+    valoresDe: (medida: string) => `Werte für ${medida}`,
+    valoresPor100: 'Werte pro 100 g',
+
+    proteina: 'Eiweiß',
+    carboidrato: 'Kohlenhydrate',
+    gordura: 'Fett',
+
+    proteinaEm: (medida: string) => `Eiweiß in ${medida}`,
+    fibraEm: (medida: string) => `Ballaststoffe in ${medida}`,
+    fibraPor100: 'Ballaststoffe pro 100 g',
+    naoMedida: 'nicht gemessen',
+    pesaPertoDe: (medida: string, peso: string) => `${medida} wiegt etwa ${peso}.`,
+
+    registrarComIsto: 'Eine Mahlzeit damit eintragen',
+  },
 };

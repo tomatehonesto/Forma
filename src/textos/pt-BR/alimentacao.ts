@@ -417,4 +417,58 @@ export const alimentacao = {
 
     apagar: 'Apagar esta refeição',
   },
+
+  /* ============================================================
+     A TELA DE UM ALIMENTO
+
+     ⚠️⚠️ O DESTAQUE É UMA FRASE INTEIRA POR NUTRIENTE, e não "Muita" mais
+     um nome. O português concorda: "Muita proteína", mas "Muito fósforo"
+     — e a tela escrevia "Muita" fixo, o que já saía errado hoje, em
+     português, para os cinco nutrientes masculinos da tabela (cálcio,
+     ferro, magnésio, zinco e fósforo).
+
+     ⚠️ E A CHAVE É O NOME EM PORTUGUÊS, porque é o que está GRAVADO em
+     `logic/alimentos` — a tabela de alimentos é dado, e não texto. Mesma
+     família de `tratamento.molecula`: a chave não muda, a exibição sim.
+
+     ⚠️ O ESPAÇO DE "vitamina C" É DURO na tela, senão o C cai sozinho na
+     linha de baixo. Quem aplica é a tela, depois de ler daqui.
+     ============================================================ */
+  telaAlimento: {
+    titulo: 'Alimento',
+    naoEncontrado: 'Não encontrei este alimento.',
+
+    destaque: {
+      'proteína': 'Muita proteína',
+      'fibra': 'Muita fibra',
+      'vitamina C': 'Muita vitamina C',
+      'vitamina A': 'Muita vitamina A',
+      'cálcio': 'Muito cálcio',
+      'ferro': 'Muito ferro',
+      'magnésio': 'Muito magnésio',
+      'zinco': 'Muito zinco',
+      'fósforo': 'Muito fósforo',
+      'niacina': 'Muita niacina',
+      'tiamina': 'Muita tiamina',
+      'riboflavina': 'Muita riboflavina',
+    },
+    porcentoDoDia: (pct: number) => `${pct}% do que uma pessoa precisa por dia`,
+
+    porcaoDe: (medida: string) => `Porção: ${medida}`,
+    porcaoDe100: 'Porção de 100 g',
+    valoresDe: (medida: string) => `Valores de ${medida}`,
+    valoresPor100: 'Valores por 100 g',
+
+    proteina: 'Proteína',
+    carboidrato: 'Carboidrato',
+    gordura: 'Gordura',
+
+    proteinaEm: (medida: string) => `Proteína em ${medida}`,
+    fibraEm: (medida: string) => `Fibra em ${medida}`,
+    fibraPor100: 'Fibra por 100 g',
+    naoMedida: 'não medida',
+    pesaPertoDe: (medida: string, peso: string) => `${medida} pesa perto de ${peso}.`,
+
+    registrarComIsto: 'Registrar uma refeição com isto',
+  },
 };

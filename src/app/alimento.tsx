@@ -17,6 +17,11 @@ import { Icon } from '../ui/Icon';
 import { fotoDoAlimento } from '../ui/fotosAlimento';
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alimentacao.telaAlimento;
 
 /* ============================================================
    O RÓTULO DE UM ALIMENTO
@@ -93,9 +98,9 @@ export default function Alimento() {
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20, paddingHorizontal: 16 }}>
         <Row gap={12}>
           <CircleBtn name="back" onPress={() => router.back()} />
-          <Txt v="h2">Alimento</Txt>
+          <Txt v="h2">{K().titulo}</Txt>
         </Row>
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>Não encontrei este alimento.</Txt>
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>{K().naoEncontrado}</Txt>
       </View>
     );
   }
@@ -103,18 +108,20 @@ export default function Alimento() {
   const d = a.destaque;
   const [de, para] = (d && TINTA[d.nome] ? TINTA[d.nome] : TINTA['proteína'])(c);
   const foto = fotoDoAlimento(a.id, a.onde);
-  /* Espaço duro dentro do nome do nutriente: sem ele "vitamina C"
+  /* Espaço duro dentro da frase do destaque: sem ele o "C" de "vitamina C"
      quebrava com o C sozinho na segunda linha. */
-  const nutriente = d ? d.nome.replace(/ /g, ' ') : '';
+  const destaque = d
+    ? ((K().destaque as Record<string, string>)[d.nome] ?? d.nome).replace(/ /g, ' ')
+    : '';
   const insight = insightDe(a);
 
   /* As três barras são comparadas entre si, e não com uma meta: o que
      elas mostram é a FORMA do alimento — se ele é sobretudo proteína,
      sobretudo carboidrato, ou repartido. */
   const macros: [string, number | null][] = [
-    ['Proteína', a.p],
-    ['Carboidrato', a.carb],
-    ['Gordura', a.gord],
+    [K().proteina, a.p],
+    [K().carboidrato, a.carb],
+    [K().gordura, a.gord],
   ];
   const teto = Math.max(...macros.map(([, v]) => v ?? 0), 0.1);
   /* ⚠️ O QUE A COLUNA DA ESQUERDA DIZ MUDA COM A FONTE. Alimento de
@@ -161,7 +168,7 @@ export default function Alimento() {
         }}
       >
         <Txt v="caption" c={c.onHero} style={{ paddingHorizontal: 13, paddingVertical: 6 }}>
-          {porUnidadeDe(a) ? `Porção: ${medidaDe(a, a.qtd)}` : 'Porção de 100 g'}
+          {porUnidadeDe(a) ? K().porcaoDe(medidaDe(a, a.qtd)) : K().porcaoDe100}
         </Txt>
       </BlurView>
 
@@ -181,13 +188,13 @@ export default function Alimento() {
           com a largura inteira. */}
       <Row style={{ marginTop: 12, alignItems: 'flex-end' }}>
         <Txt v="display" c={c.onHero} style={{ flex: 1, paddingRight: 12, fontSize: 28, lineHeight: 34 }}>
-          {d ? `Muita ${nutriente}` : a.nome}
+          {d ? destaque : a.nome}
         </Txt>
         {d ? <Txt v="h2" c={c.onHero}>{n1(d.valor)}{d.un}</Txt> : null}
       </Row>
       <Txt v="caption" c={c.onHero2} style={{ marginTop: 4 }}>
-        {d ? `${d.pct}% do que uma pessoa precisa por dia`
-          : porUnidadeDe(a) ? `Valores de ${medidaDe(a, a.qtd)}` : 'Valores por 100 g'}
+        {d ? K().porcentoDoDia(d.pct)
+          : porUnidadeDe(a) ? K().valoresDe(medidaDe(a, a.qtd)) : K().valoresPor100}
       </Txt>
     </View>
   );
@@ -318,13 +325,13 @@ export default function Alimento() {
           {/* A fibra fica fora das barras: ela não compete com as três que
               somam a energia, e nem sempre foi analisada. */}
           <Row style={{ marginTop: 16, justifyContent: 'space-between' }}>
-            <Txt v="caption" c={c.tx3}>{porUnidadeDe(a) ? `Fibra em ${medidaDe(a, a.qtd)}` : 'Fibra por 100 g'}</Txt>
+            <Txt v="caption" c={c.tx3}>{porUnidadeDe(a) ? K().fibraEm(medidaDe(a, a.qtd)) : K().fibraPor100}</Txt>
             <Txt v="caption" c={a.fibra == null ? c.tx4 : c.tx2}>
-              {a.fibra == null ? 'não medida' : `${n1(a.fibra)} g`}
+              {a.fibra == null ? K().naoMedida : `${n1(a.fibra)} g`}
             </Txt>
           </Row>
           <Row style={{ marginTop: 8, justifyContent: 'space-between' }}>
-            <Txt v="caption" c={c.tx3}>Proteína em {medidaDe(a, a.qtd)}</Txt>
+            <Txt v="caption" c={c.tx3}>{K().proteinaEm(medidaDe(a, a.qtd))}</Txt>
             <Txt v="caption" c={c.accent}>~{n1(naPorcao(a.p))} g</Txt>
           </Row>
 
@@ -334,13 +341,13 @@ export default function Alimento() {
                 diz quanto a porção pesa; a rede diz o que ela TEM, e
                 "pesa perto de 0 g" seria pior do que não dizer nada. De
                 que porção os números são, quem conta é a procedência. */}
-            {a.gUn != null ? `${medidaDe(a, a.qtd)} pesa perto de ${massaTxt(S, a.gUn * a.qtd)}. ` : ''}
+            {a.gUn != null ? `${K().pesaPertoDe(medidaDe(a, a.qtd), massaTxt(S, a.gUn * a.qtd))} ` : ''}
             {origemDoAlimento(a)}
           </Txt>
 
           <View style={{ marginTop: 20 }}>
             <Botao
-              label="Registrar uma refeição com isto"
+              label={K().registrarComIsto}
               onPress={() => router.push(`/medir-refeicao?oque=${encodeURIComponent(a.nome)}` as any)}
             />
           </View>

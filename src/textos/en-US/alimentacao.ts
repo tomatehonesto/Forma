@@ -278,4 +278,42 @@ export const alimentacao = {
 
     apagar: 'Delete this meal',
   },
+
+  telaAlimento: {
+    titulo: 'Food',
+    naoEncontrado: 'I could not find this food.',
+
+    destaque: {
+      'proteína': 'High in protein',
+      'fibra': 'High in fiber',
+      'vitamina C': 'High in vitamin C',
+      'vitamina A': 'High in vitamin A',
+      'cálcio': 'High in calcium',
+      'ferro': 'High in iron',
+      'magnésio': 'High in magnesium',
+      'zinco': 'High in zinc',
+      'fósforo': 'High in phosphorus',
+      'niacina': 'High in niacin',
+      'tiamina': 'High in thiamine',
+      'riboflavina': 'High in riboflavin',
+    },
+    porcentoDoDia: (pct: number) => `${pct}% of what a person needs in a day`,
+
+    porcaoDe: (medida: string) => `Portion: ${medida}`,
+    porcaoDe100: 'Portion of 100 g',
+    valoresDe: (medida: string) => `Values for ${medida}`,
+    valoresPor100: 'Values per 100 g',
+
+    proteina: 'Protein',
+    carboidrato: 'Carbs',
+    gordura: 'Fat',
+
+    proteinaEm: (medida: string) => `Protein in ${medida}`,
+    fibraEm: (medida: string) => `Fiber in ${medida}`,
+    fibraPor100: 'Fiber per 100 g',
+    naoMedida: 'not measured',
+    pesaPertoDe: (medida: string, peso: string) => `${medida} weighs about ${peso}.`,
+
+    registrarComIsto: 'Log a meal with this',
+  },
 };

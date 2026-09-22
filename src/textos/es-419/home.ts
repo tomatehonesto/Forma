@@ -314,4 +314,28 @@ export const home = {
     anotadaEm: (data: string) => `Anotada el ${data}`,
     toqueParaEscrever: 'Toca para escribir una',
   },
+
+  telaRegistrar: {
+    titulo: '¿Qué quieres registrar?',
+
+    checkinChapeu: 'CHECK-IN DIARIO',
+    checkinFeito: 'Hecho hoy',
+    checkinPendente: '¿Cómo estuvo tu día?',
+    checkinEditar: 'Editar',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'día seguido' : 'días seguidos'),
+
+    agua: 'Me\nhidraté',
+    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo} L`,
+    exercicio: 'Me\nejercité',
+    exercicioSub: (feito: number, alvo: number) => `${feito} de ${alvo} min`,
+    refeicao: 'Hice una comida',
+    refeicaoSub: (proteina: number, alvo: number) => `${proteina} de ${alvo} g`,
+
+    levaUmMinuto: 'LLEVA UN MINUTO',
+    aplicacao: 'Me apliqué la dosis',
+    peso: 'Acabo de pesarme',
+    medidas: 'Me medí el cuerpo',
+    exame: 'Recibí un examen',
+    anotacao: 'Anoté algo para la consulta',
+  },
 };

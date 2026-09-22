@@ -314,4 +314,42 @@ export const alimentacao = {
 
     apagar: 'Effacer ce repas',
   },
+
+  telaAlimento: {
+    titulo: 'Aliment',
+    naoEncontrado: 'Je n’ai pas trouvé cet aliment.',
+
+    destaque: {
+      'proteína': 'Riche en protéines',
+      'fibra': 'Riche en fibres',
+      'vitamina C': 'Riche en vitamine C',
+      'vitamina A': 'Riche en vitamine A',
+      'cálcio': 'Riche en calcium',
+      'ferro': 'Riche en fer',
+      'magnésio': 'Riche en magnésium',
+      'zinco': 'Riche en zinc',
+      'fósforo': 'Riche en phosphore',
+      'niacina': 'Riche en niacine',
+      'tiamina': 'Riche en thiamine',
+      'riboflavina': 'Riche en riboflavine',
+    },
+    porcentoDoDia: (pct: number) => `${pct}% de ce dont une personne a besoin par jour`,
+
+    porcaoDe: (medida: string) => `Portion : ${medida}`,
+    porcaoDe100: 'Portion de 100 g',
+    valoresDe: (medida: string) => `Valeurs pour ${medida}`,
+    valoresPor100: 'Valeurs pour 100 g',
+
+    proteina: 'Protéines',
+    carboidrato: 'Glucides',
+    gordura: 'Lipides',
+
+    proteinaEm: (medida: string) => `Protéines dans ${medida}`,
+    fibraEm: (medida: string) => `Fibres dans ${medida}`,
+    fibraPor100: 'Fibres pour 100 g',
+    naoMedida: 'non mesurée',
+    pesaPertoDe: (medida: string, peso: string) => `${medida} pèse environ ${peso}.`,
+
+    registrarComIsto: 'Noter un repas avec ceci',
+  },
 };

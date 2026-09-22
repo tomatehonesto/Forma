@@ -303,4 +303,42 @@ export const alimentacao = {
 
     apagar: 'Borrar esta comida',
   },
+
+  telaAlimento: {
+    titulo: 'Alimento',
+    naoEncontrado: 'No encontré este alimento.',
+
+    destaque: {
+      'proteína': 'Mucha proteína',
+      'fibra': 'Mucha fibra',
+      'vitamina C': 'Mucha vitamina C',
+      'vitamina A': 'Mucha vitamina A',
+      'cálcio': 'Mucho calcio',
+      'ferro': 'Mucho hierro',
+      'magnésio': 'Mucho magnesio',
+      'zinco': 'Mucho zinc',
+      'fósforo': 'Mucho fósforo',
+      'niacina': 'Mucha niacina',
+      'tiamina': 'Mucha tiamina',
+      'riboflavina': 'Mucha riboflavina',
+    },
+    porcentoDoDia: (pct: number) => `${pct}% de lo que una persona necesita por día`,
+
+    porcaoDe: (medida: string) => `Porción: ${medida}`,
+    porcaoDe100: 'Porción de 100 g',
+    valoresDe: (medida: string) => `Valores de ${medida}`,
+    valoresPor100: 'Valores por 100 g',
+
+    proteina: 'Proteína',
+    carboidrato: 'Carbohidrato',
+    gordura: 'Grasa',
+
+    proteinaEm: (medida: string) => `Proteína en ${medida}`,
+    fibraEm: (medida: string) => `Fibra en ${medida}`,
+    fibraPor100: 'Fibra por 100 g',
+    naoMedida: 'sin medir',
+    pesaPertoDe: (medida: string, peso: string) => `${medida} pesa cerca de ${peso}.`,
+
+    registrarComIsto: 'Registrar una comida con esto',
+  },
 };

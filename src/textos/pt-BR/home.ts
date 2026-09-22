@@ -452,4 +452,39 @@ export const home = {
     anotadaEm: (data: string) => `Anotada em ${data}`,
     toqueParaEscrever: 'Toque para escrever uma',
   },
+
+  /* ============================================================
+     A FOLHA DE REGISTRAR — o que o botão do meio abre
+
+     ⚠️ OS TRÊS ATALHOS COMPARAM COM O ALVO DO PERFIL, e não com o total
+     desde a instalação. "12 registradas" não responde nada que alguém se
+     pergunte antes de comer; "63 de 90 g" responde.
+
+     ⚠️ E A QUEBRA DE LINHA DOS DOIS PRIMEIROS MORA NO TEXTO. "Me /
+     hidratei" cabe em duas linhas no português e em uma no alemão — o \n
+     escrito no JSX prendia a quebra ao português.
+   ============================================================ */
+  telaRegistrar: {
+    titulo: 'O que deseja registrar?',
+
+    checkinChapeu: 'CHECK-IN DIÁRIO',
+    checkinFeito: 'Concluído hoje',
+    checkinPendente: 'Como foi o seu dia?',
+    checkinEditar: 'Editar',
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'dia seguido' : 'dias seguidos'),
+
+    agua: 'Me\nhidratei',
+    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo} L`,
+    exercicio: 'Me\nexercitei',
+    exercicioSub: (feito: number, alvo: number) => `${feito} de ${alvo} min`,
+    refeicao: 'Fiz uma refeição',
+    refeicaoSub: (proteina: number, alvo: number) => `${proteina} de ${alvo} g`,
+
+    levaUmMinuto: 'LEVA UM MINUTO',
+    aplicacao: 'Apliquei a dose',
+    peso: 'Acabei de me pesar',
+    medidas: 'Medi meu corpo',
+    exame: 'Recebi um exame',
+    anotacao: 'Anotei algo para a consulta',
+  },
 };
