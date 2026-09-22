@@ -241,7 +241,7 @@ function daEtapa(S: State): Mensagem | null {
       ? {
         chapeu: T.etapa.antesChapeu,
         head: T.etapa.antesComDoseHead,
-        body: T.etapa.antesComDoseBody(M(S).mol.toLowerCase()),
+        body: T.etapa.antesComDoseBody(T.comum.noMeio(M(S).mol)),
         q: T.etapa.antesComDoseQ,
         fonte: 'etapa',
       }

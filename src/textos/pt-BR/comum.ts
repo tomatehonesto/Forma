@@ -24,6 +24,25 @@ export const comum = {
 
      Em inglês muda a vírgula antes do "and" e muda o "e mais 2"; quem
      traduzir mexe aqui, uma vez, e as duas telas seguem juntas. */
+  /* ⚠️⚠️ A CAIXA NO MEIO DA FRASE É REGRA DE IDIOMA, E ESTAVA ESPALHADA
+     PELO CÓDIGO COMO `.toLowerCase()`. Sete sítios em src/logic faziam
+     isso à mão: o tipo da consulta, o rótulo do evento, o nome da
+     molécula, a nota do resumo.
+
+     Em português, em espanhol, em francês e em inglês a regra é a mesma —
+     substantivo comum perde a maiúscula quando entra no meio de uma frase
+     — e por isso ninguém percebeu que era regra de idioma. É.
+
+     ⚠️⚠️ O ALEMÃO ESCREVE TODO SUBSTANTIVO COM MAIÚSCULA, sempre, em
+     qualquer posição da frase. Lá esta função devolve o que recebeu, e
+     `.toLowerCase()` produziria "konsultation rückkehr" — erro de
+     ortografia, não de estilo, em toda linha que passasse por ele.
+
+     ⚠️ E NÃO É A MESMA DE `marcadores.noMeio`. Aquela decide se um nome de
+     exame é sigla ou nome comum, e "HbA1c" não pode perder a maiúscula.
+     Esta é a regra geral, sem exceção de sigla. */
+  noMeio: (s: string) => s.toLowerCase(),
+
   lista: (itens: string[], mostrar = Infinity) => {
     if (!itens.length) return '';
     if (itens.length === 1) return itens[0];

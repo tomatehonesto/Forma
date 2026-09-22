@@ -18,6 +18,12 @@ export const comum = {
      Two items take no comma at all: "milk and eggs", never "milk, and
      eggs". That is why the two-item case is its own branch and not a
      shorter run of the same join. */
+  /* ⚠️ Mid-sentence case is a language rule. English lowers a common
+     noun inside a sentence, the same as Portuguese — see ../pt-BR/comum.
+     German does not, which is why this is a function and not a call to
+     `.toLowerCase()` out in the logic. */
+  noMeio: (s: string) => s.toLowerCase(),
+
   lista: (itens: string[], mostrar = Infinity) => {
     if (!itens.length) return '';
     if (itens.length === 1) return itens[0];

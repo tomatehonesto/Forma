@@ -25,6 +25,12 @@ const pideE = (palavra: string) => {
 const y = (proxima: string) => (pideE(proxima) ? 'e' : 'y');
 
 export const comum = {
+  /* ⚠️ La mayúscula en medio de la frase es regla de idioma. Ver
+     ../pt-BR/comum: el alemán escribe TODO sustantivo con mayúscula, y
+     por eso esto es una función y no un `.toLowerCase()` suelto en la
+     lógica. */
+  noMeio: (s: string) => s.toLowerCase(),
+
   lista: (itens: string[], mostrar = Infinity) => {
     if (!itens.length) return '';
     if (itens.length === 1) return itens[0];

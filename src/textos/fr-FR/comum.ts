@@ -30,6 +30,12 @@ export const fine = (s: string) => s.replace(/ ?([?!:;])/g, ' $1');
 export const comum = {
   /* ⚠️ LE FRANÇAIS NE MET PAS DE VIRGULE avant le « et » final, comme le
      portugais et contrairement à l'anglais américain. */
+  /* ⚠️ LA CASSE EN MILIEU DE PHRASE EST UNE RÈGLE DE LANGUE. Voir
+     ../pt-BR/comum : l'allemand écrit TOUT nom commun avec une majuscule,
+     et c'est pour ça que ceci est une fonction et non un `.toLowerCase()`
+     posé dans la logique. */
+  noMeio: (s: string) => s.toLowerCase(),
+
   lista: (itens: string[], mostrar = Infinity) => {
     if (!itens.length) return '';
     if (itens.length === 1) return itens[0];

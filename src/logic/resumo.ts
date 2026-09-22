@@ -174,7 +174,7 @@ export function resumoEmTexto(S: State): string {
     `${fmtDate(now())}${p.doctor ? T.resumo.paraDoutor(p.doctor) : ''}${p.clinic ? ` (${p.clinic})` : ''}`,
   ];
   for (const s of resumoDoTratamento(S)) {
-    linhas.push('', s.titulo.toUpperCase() + (s.nota ? ` — ${s.nota.toLowerCase()}` : ''));
+    linhas.push('', s.titulo.toUpperCase() + (s.nota ? ` — ${T.comum.noMeio(s.nota)}` : ''));
     for (const l of s.linhas) linhas.push(`- ${l.k}: ${l.v}`);
     if (s.texto !== undefined) linhas.push(s.texto || T.resumo.semAnotacoes);
   }

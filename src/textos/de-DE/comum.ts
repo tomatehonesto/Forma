@@ -1,0 +1,59 @@
+/* ============================================================
+   DIE SPRACHREGELN, DIE ZU KEINEM BEREICH GEHÖREN · de-DE
+
+   ⚠️ Die Gründe stehen in ../pt-BR/comum.ts. Hier wohnt reine Grammatik:
+   was jeder Bereich braucht und keiner besitzt.
+
+   ⚠️⚠️ UND DAS GANZE DEUTSCH DIESES KATALOGS SAGT „DU“. Das ist die eine
+   Entscheidung hier, die teuer rückgängig zu machen ist, also steht der
+   Grund an dieser Stelle:
+
+   Portugiesisch sagt „você“, Spanisch sagt „tú“ — beide vertraut.
+   Französisch sagt „vous“, weil Französisch einer App gegenüber einem
+   erwachsenen Fremden kaum etwas anderes anbietet. Deutsch bietet beides
+   echt an, und „Sie“ wäre hier nicht höflich, sondern fern: diese App
+   redet über deinen Körper, deine Spritzen und deine Blutwerte, und sie
+   gratuliert dir am Ende mit „Schön, dass du bis hierher gekommen bist“.
+   Dasselbe auf „Sie“ liest sich wie ein Brief aus der Klinik.
+
+   Drei von vier Sprachen stehen damit im Vertrauten, und die vierte nur
+   deshalb nicht, weil die Sprache es nicht hergibt. Wer das umdreht,
+   dreht dreißig Dateien um — es steht in PENDENCIAS.
+   ============================================================ */
+
+export const comum = {
+  /* ⚠️ SIE STAND ZWEIMAL DA: einmal in `listaPt` für „a, b, c und 2
+     weitere“, einmal in der Pflege für „Nachrichten, Rezept und Befunde“.
+
+     ⚠️⚠️ UND DEUTSCH SETZT KEIN KOMMA VOR „UND“, anders als das Englische
+     mit seinem Oxford-Komma. Wer die englische Fassung hierher kopiert,
+     bringt das Komma mit, und es ist falsch.
+
+     ⚠️ `mostrar` IST DAS, WORIN SICH DIE BEIDEN UNTERSCHIEDEN: die
+     Aufgabenliste zeigt alles, die Namensliste auf der Startseite
+     schneidet bei drei ab und zählt den Rest. Ohne Deckel wird nichts
+     abgeschnitten. */
+  /* ⚠️⚠️ HIER GIBT SIE ZURÜCK, WAS SIE BEKOMMT — und das ist der ganze
+     Grund, aus dem es diese Funktion gibt.
+
+     Portugiesisch, Spanisch, Französisch und Englisch nehmen einem
+     Gattungsnamen die Großschreibung, sobald er mitten im Satz steht. Das
+     stand als `.toLowerCase()` an sieben Stellen in src/logic, weil vier
+     Sprachen sich einig waren und niemand merkte, dass es eine
+     Sprachregel ist.
+
+     Deutsch schreibt JEDES Substantiv groß, in jeder Position. Ein
+     `.toLowerCase()` erzeugte hier „konsultation rückkehr“ und „3
+     wiegungen“ — Rechtschreibfehler, nicht Geschmack, in jeder Zeile, die
+     da durchläuft. */
+  noMeio: (s: string) => s,
+
+  lista: (itens: string[], mostrar = Infinity) => {
+    if (!itens.length) return '';
+    if (itens.length === 1) return itens[0];
+    if (itens.length <= mostrar) {
+      return `${itens.slice(0, -1).join(', ')} und ${itens[itens.length - 1]}`;
+    }
+    return `${itens.slice(0, mostrar).join(', ')} und ${itens.length - mostrar} weitere`;
+  },
+};

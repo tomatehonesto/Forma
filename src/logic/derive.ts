@@ -691,7 +691,7 @@ export function milestones(S: State): Milestone[] {
   }
   const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
   if (w5) out.push({ t: w5.t, ic: 'trend', title: K.cincoPorCento, sub: K.cincoPorCentoSub, to: '/marcador?m=peso' });
-  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: K.consulta(ch.type.toLowerCase()), sub: ch.note, to: '/consultas' }));
+  S.consultsHistory.forEach((ch: any) => out.push({ t: ch.t, ic: 'steth', title: K.consulta(T.comum.noMeio(ch.type)), sub: ch.note, to: '/consultas' }));
   S.examBundles.forEach((b: any) => out.push({ t: b.t, ic: 'doc', title: b.name, sub: K.marcadoresImportados(b.n), to: '/exames' }));
   marcosDeConquista(S).forEach((a) => out.push({ t: a.t, ic: a.ic, title: a.title, sub: a.desc, to: `/trilha?id=${a.trilha}` }));
   /* ⚠️⚠️ O DESEMPATE É OBRIGATÓRIO, e a falta dele fazia a lista mudar de
@@ -2294,7 +2294,7 @@ export function libraryPicks(S: State): Leitura[] {
   const dia = Math.max(0, cadenciaDias(S) - diasAteAplicar(S));
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
-    out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(m.mol.toLowerCase()), ic: 'drop2', min: 3 });
+    out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(m.mol)), ic: 'drop2', min: 3 });
   }
   if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
     out.push({ motivo: L.primeirosMotivo(dia), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
@@ -2811,7 +2811,7 @@ export function timelineEvents(S: State): TLEvent[] {
 
   for (const ch of S.consultsHistory as any[]) out.push({
     key: `con-${ch.t}`, kind: 'consulta', day: D(ch.t), ordemNoDia: '14:00',
-    ic: 'steth', color: 'accent2', title: V().consulta(ch.type.toLowerCase()), sub: ch.note,
+    ic: 'steth', color: 'accent2', title: V().consulta(T.comum.noMeio(ch.type)), sub: ch.note,
     detalhe: [ch.type, ch.note].filter(Boolean).join(' · '), value: '', valueColor: 'tx3',
   });
 
@@ -2895,7 +2895,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     const resumo = (Object.keys(contagem) as TLKind[])
       .map((k) => {
         const n = contagem[k]!;
-        const rotulo = TL_LABEL()[k].toLowerCase();
+        const rotulo = T.comum.noMeio(TL_LABEL()[k]);
         const [s, p] = nome[k] ?? [rotulo, rotulo];
         return W.contagem(n, n === 1 ? s : p);
       })
@@ -4918,7 +4918,7 @@ export function carePending(S: State) {
   });
   if (cs?.prepararAgora) out.push({
     ic: 'cal', texto: P().consulta,
-    sub: P().consultaSub(cs.tipo.toLowerCase(), cs.label, cs.doutor),
+    sub: P().consultaSub(T.comum.noMeio(cs.tipo), cs.label, cs.doutor),
     rotulo: P().consultaRotulo,
     to: '/consultas',
   });

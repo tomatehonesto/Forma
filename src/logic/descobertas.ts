@@ -145,7 +145,7 @@ function antecipacoes(S: State): Descoberta[] {
       titulo: hf.inDays === 0
         ? T.descobertas.fomeHoje
         : hf.inDays === 1 ? T.descobertas.fomeAmanha : T.descobertas.fomeEmDias(hf.inDays),
-      texto: T.descobertas.fomeTexto(M(S).mol.toLowerCase()),
+      texto: T.descobertas.fomeTexto(T.comum.noMeio(M(S).mol)),
       cta: T.descobertas.fomeCta,
       to: '/aplicacoes',
       nota: 3,
