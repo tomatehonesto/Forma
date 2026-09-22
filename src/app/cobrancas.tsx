@@ -8,6 +8,7 @@ import { TelaInterna, Cartao, Linha } from '../ui/internas';
 import { Txt, Vazio } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
+import { T } from '../textos';
 
 /* ============================================================
    HISTÓRICO DE COBRANÇA — o extrato
@@ -46,15 +47,15 @@ export default function Cobrancas() {
   const ehIsenta = isento(S) && !assinaturaAtual(S);
 
   return (
-    <TelaInterna titulo="Histórico de cobrança">
+    <TelaInterna titulo={T.assinatura.extrato.titulo}>
       {linhas.length === 0 ? (
         <Cartao>
           <Vazio
             ic="doc"
-            titulo={ehIsenta ? 'Nenhuma cobrança' : 'Nenhuma cobrança ainda'}
+            titulo={ehIsenta ? T.assinatura.extrato.vazioIsenta : T.assinatura.extrato.vazioPagante}
             texto={ehIsenta
-              ? 'O acesso vem do vínculo com a clínica, e vínculo não gera cobrança. Caso a clínica nos informe que ele foi encerrado, o acesso fica suspenso até você assinar — nada aparece aqui sem você escolher.'
-              : 'Quando a assinatura começar, cada cobrança aparece aqui com a data e o valor.'}
+              ? T.assinatura.extrato.vazioIsentaTexto
+              : T.assinatura.extrato.vazioPaganteTexto}
           />
         </Cartao>
       ) : (
@@ -64,7 +65,7 @@ export default function Cobrancas() {
             return (
               <Linha
                 key={l.t}
-                titulo={l.estado === 'teste' ? 'Início do teste grátis' : reais(l.valor)}
+                titulo={l.estado === 'teste' ? T.assinatura.extrato.inicioDoTeste : reais(l.valor)}
                 sub={`${dataComAno(l.t)}${plano ? ` · plano ${plano.nome.toLowerCase()}` : ''}`}
                 selo={l.estado === 'reembolsada' ? 'Reembolsada' : undefined}
                 seloTom="neutra"
@@ -84,7 +85,7 @@ export default function Cobrancas() {
         <Linha
           ic="send"
           titulo={`Recibos na ${NOME_DA_LOJA}`}
-          sub="O comprovante oficial de cada cobrança"
+          sub={T.assinatura.extrato.comprovante}
           onPress={() => Linking.openURL(HISTORICO_NA_LOJA)}
         />
       </Cartao>

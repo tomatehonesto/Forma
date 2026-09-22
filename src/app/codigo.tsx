@@ -8,6 +8,8 @@ import { Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius } from '../theme';
 
+import { T } from '../textos';
+
 /* ============================================================
    O CÓDIGO DE CONVITE — a folha
 
@@ -86,10 +88,10 @@ export default function Codigo() {
 
   return (
     <SheetScreen
-      titulo="Código de convite"
-      sub="O código que a clínica parceira te passou."
+      titulo={T.assinatura.parceiros.codigoRotulo}
+      sub={T.assinatura.parceiros.codigoSub}
       onClose={() => router.back()}
-      rodape={<Botao label="Confirmar código" onPress={confirmar} desligado={!vale} />}
+      rodape={<Botao label={T.assinatura.parceiros.confirmar} onPress={confirmar} desligado={!vale} />}
     >
       {/* ⚠️ O CAMPO SÓ VESTE O CORPO GRANDE QUANDO EXISTE O QUE VESTIR, e
           isso não é enfeite: no React Native o texto de exemplo não tem
@@ -103,7 +105,7 @@ export default function Codigo() {
       <TextInput
         value={codigo}
         onChangeText={(v) => setCodigo(v.toUpperCase())}
-        placeholder="Digite o código"
+        placeholder={T.assinatura.parceiros.digite}
         placeholderTextColor={c.tx4}
         autoFocus
         onFocus={() => setFocado(true)}

@@ -23,6 +23,23 @@
    diferença é erro de extração, não melhoria de texto. Melhoria de texto
    é outro commit.
 
+   ⚠️⚠️ DEPOIS DE UM `git stash`, RECARREGUE A PÁGINA ANTES DE COMPARAR.
+
+   O jeito honesto de tirar a base é tirá-la do código ANTERIOR: guardar a
+   extração com `git stash -u`, rodar guardarBase(), devolver com
+   `stash pop`, rodar comparar().
+
+   Só que o stash APAGA os arquivos novos do catálogo, e o Metro guarda no
+   grafo dele a versão que existia enquanto eles não existiam. Ao voltar,
+   a recarga a quente não refaz esse pedaço: uma chave nova vem
+   `undefined` num aplicativo que compila sem um erro, a tela quebra, e a
+   partir dela TODAS as rotas seguintes voltam vazias. O diff acusa
+   sessenta telas e nenhuma delas mudou.
+
+   Uma recarga completa — location.reload(), ou navegar de fora — refaz o
+   grafo e resolve. Aconteceu de verdade, na primeira vez que este ciclo
+   rodou.
+
    ⚠️ A BASE VIVE NO localStorage, e não numa variável. Salvar um arquivo
    recarrega a página pelo Metro, e uma variável de `window` morre no
    recarregamento — a base tem de sobreviver exatamente ao evento que

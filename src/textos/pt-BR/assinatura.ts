@@ -119,4 +119,191 @@ export const assinatura = {
      cobrança entrar. */
   semCobrancaTitulo: 'A cobrança ainda não está ligada',
   semCobrancaTexto: 'Esta tela existe, a assinatura ainda não. Nada foi cobrado de você, e nada vai ser sem aviso.',
+
+  /* ============================================================
+     A VITRINE — /planos
+
+     ⚠️⚠️ O TÍTULO TEM UMA QUEBRA DE LINHA MEDIDA, E NÃO ESCOLHIDA. Num
+     telefone de 375 pt sobram 335 px de linha; as duas metades pedem 321
+     e 323 px no corpo de 31, e 343 no de 33 — onde a frase quebra de
+     novo. Quem traduzir precisa caber nessa largura, ou mexer no corpo
+     junto. Uma frase mais longa não "fica um pouco maior": ela quebra em
+     três linhas e come o botão.
+     ============================================================ */
+  vitrine: {
+    titulo: 'Tudo muda quando você\nacompanha ',
+    tituloDestaque: 'de verdade.',
+    lead: 'Seus dados reunidos, a sua evolução organizada, e clareza em cada etapa do tratamento.',
+
+    /* Os quatro argumentos. Cada um é o que o aplicativo faz, e não um
+       adjetivo sobre ele. */
+    umLugarTitulo: 'Seu tratamento em um só lugar',
+    umLugarTexto: 'Tudo organizado para você acompanhar sua jornada.',
+    numerosTitulo: 'Seus números interpretados',
+    numerosTexto: 'Os seus dados viram informação que faz sentido.',
+    evolucaoTitulo: 'Evolução que você consegue enxergar',
+    evolucaoTexto: 'Peso, medidas, sintomas, exames e registros ao longo do tempo.',
+    assistenteTitulo: 'Um assistente para o dia a dia',
+    assistenteTexto: 'Pergunte, registre e entenda melhor a sua jornada.',
+
+    comecarTeste: (dias: number) => `Começar os ${dias} dias grátis`,
+    assinarPor: (preco: string) => `Assinar — ${preco}`,
+
+    /* ⚠️ "CANCELE QUANDO QUISER" SERVE AOS DOIS PLANOS, e é verdade nos
+       dois. A segunda muda: "sem compromisso" acalma quem vai
+       experimentar três dias; para quem está comprometendo um ano
+       inteiro, a mesma frase soa a promessa vazia — ela ACABOU de se
+       comprometer. O que vale dizer ali é o que ela ganha em troca. */
+    canceleQuandoQuiser: 'Cancele quando quiser',
+    semCompromisso: 'Sem compromisso',
+    menorPreco: 'Menor preço',
+
+    depoisDoTeste: (dias: number, preco: string, periodo: string) =>
+      `Depois de ${dias} dias, ${preco} ${periodo}. Cancele antes e não paga nada.`,
+    renovaAte: (preco: string, periodo: string) =>
+      `${preco} ${periodo}, renovando até você cancelar.`,
+
+    naoPaga: 'Você não paga — o acesso vem do vínculo',
+    aindaNaoLigada: 'A assinatura ainda não está ligada',
+    temCodigo: 'Tenho um código de convite',
+  },
+
+  /* ============================================================
+     A SAÍDA — /cancelar
+
+     ⚠️⚠️ A TELA PERGUNTA, MAS NÃO SEGURA. Quem abriu já decidiu, e a
+     pergunta é para a gente, não contra ela: o botão que leva à loja fica
+     ligado no rodapé sem depender de responder nada.
+     ============================================================ */
+  saida: {
+    titulo: 'Cancelar assinatura',
+    perguntaTitulo: 'Antes de ir, uma pergunta',
+    perguntaLead: 'Responder é opcional e não muda nada: o cancelamento continua a um toque, no botão lá embaixo.',
+    porQue: 'Por que você está cancelando?',
+    continuarParaLoja: (loja: string) => `Continuar para a ${loja}`,
+
+    /* ⚠️ A ORDEM NÃO É SOLTA: os três primeiros têm resposta, os três
+       últimos têm campo de texto, e "Outro motivo" é sempre o último.
+       Quem lê encontra a alternativa antes do formulário, e a saída
+       genérica depois de todas as específicas. */
+    motivoCaro: 'Está caro',
+    motivoEsqueco: 'Não estou usando',
+    motivoTerminei: 'Já terminei',
+    motivoFaltou: 'Faltou algo',
+    motivoProblema: 'Deu problema',
+    motivoOutro: 'Outro motivo',
+
+    /* ⚠️⚠️ NO ANUAL, O DESCONTO NÃO É A NOTÍCIA — A DATA É. Quem paga por
+       ano e diz que está caro não tem cobrança chegando. O que muda a
+       decisão dela é que o ano está pago e cancelar agora não devolve o
+       dinheiro. E o reembolso é dito mesmo custando: quem quer o dinheiro
+       de volta vai procurar de qualquer jeito, e ficar calado só garante
+       que procure irritada e no lugar errado. */
+    anoPagoTitulo: 'O seu ano já está pago',
+    anoPagoComData: (data: string) => `A próxima cobrança é só em ${data}, e você continua com tudo até lá — cancelar agora não devolve o que já foi pago.`,
+    anoPagoSemData: 'Você continua com tudo até o fim do período já pago — cancelar agora não devolve esse valor.',
+    anoPagoReembolso: (loja: string, comDesconto: string, cheio: string) =>
+      `Reembolso, quando cabe, é pedido na ${loja}. E se o problema for o valor, a renovação pode sair por ${comDesconto} em vez de ${cheio}.`,
+    querDescontoRenovacao: 'Quero o desconto na renovação',
+
+    descontoTitulo: (porcento: number) => `${porcento}% de desconto no próximo mês`,
+    descontoTexto: (comDesconto: string, cheio: string, anualPorMes: string) =>
+      `A próxima cobrança sai por ${comDesconto} em vez de ${cheio}. E se o mensal for o problema, o anual fica em ${anualPorMes} por mês.`,
+    querDesconto: 'Quero o desconto',
+
+    lembretesTitulo: 'Se o problema é esquecer, dá para avisar',
+    lembretesTexto: 'Dose, pesagem, água e proteína têm lembrete, no horário que você escolher. Dá para ligar só o que faz falta e desligar o resto.',
+    configurarLembretes: 'Configurar lembretes',
+
+    /* ⚠️⚠️ AQUI A TELA PARA DE VENDER E DÁ PARABÉNS. É o único motivo da
+       lista em que sair é o desfecho certo. E o parabéns é CONDICIONAL de
+       propósito: "esperamos que você tenha alcançado" e não "você
+       conseguiu" — nem todo tratamento que termina termina bem, e afirmar
+       a vitória para quem parou por efeito colateral é a frase mais cruel
+       que esta tela poderia ter. */
+    parabensTitulo: 'Parabéns por chegar até aqui',
+    parabensTexto: 'Esperamos que você tenha alcançado o que buscava quando começou. Obrigado por ter feito esse caminho com a gente — e por ter confiado à gente o registro dele.',
+
+    campoProblema: 'O que aconteceu?',
+    campoFaltou: 'O que faltou?',
+    campoOutro: 'Conta pra gente',
+    /* ⚠️ E A FRASE NÃO PROMETE RESPOSTA. Não há para onde esse texto ir
+       ainda. "Vamos te responder" seria a promessa mais fácil e mais cara
+       desta tela. */
+    campoAviso: 'Escrever é opcional, e ninguém vai te responder por aqui — isso vira lista de conserto, e é assim que a gente decide o que arrumar primeiro.',
+    campoDicaProblema: 'O que deu errado, e quando…',
+    campoDicaOutro: 'Pode escrever à vontade',
+
+    recusaTitulo: 'O desconto ainda não pode ser aplicado',
+    recusaTexto: 'A cobrança não está ligada nesta versão, então não há o que descontar. Nada mudou na sua assinatura.',
+
+    /* ⚠️ O TÍTULO É O RESUMO DOS TRÊS, e não um rótulo de seção. As três
+       linhas respondem a mesma pergunta — "o que eu perco?" */
+    tranquiloTitulo: 'FIQUE TRANQUILO',
+    tranquiloAcesso: 'O acesso continua até o fim do período já pago.',
+    tranquiloDados: 'Nada do que você registrou se perde — tudo continua no aparelho.',
+    tranquiloLoja: (loja: string) => `O cancelamento é feito na ${loja}: o aplicativo não consegue fazer isso por você.`,
+  },
+
+  /* ============================================================
+     AS CLÍNICAS PARCEIRAS — /parceiros e /codigo
+     ============================================================ */
+  parceiros: {
+    titulo: 'Médicos parceiros',
+    lead: 'Algumas clínicas acompanham o tratamento por aqui junto com você. Sem isso você continua com tudo — o que muda é o que passa a ser possível com a sua equipe dentro do aplicativo.',
+
+    jaTemTitulo: 'Você já está com uma clínica parceira',
+    jaTemLead: 'Tudo o que está nesta lista já vale para você.',
+
+    conversaTitulo: 'Conversa com a equipe',
+    conversaTexto: 'Mensagens entre as consultas, sem precisar remarcar para tirar uma dúvida.',
+    resumoTitulo: 'O seu resumo chega lá',
+    resumoTexto: 'Um toque envia peso, adesão, sintomas e exames — organizados, do jeito que a consulta usa.',
+    receitaTitulo: 'Receita e protocolo',
+    receitaTexto: 'Pedir renovação e receber o protocolo da semana dentro do aplicativo.',
+    agendaTitulo: 'A agenda vem pronta',
+    agendaTexto: 'As consultas aparecem aqui sem você precisar anotar nada.',
+
+    /* ⚠️ E NÃO HÁ BUSCA DE CLÍNICA, e a tela diz isso. Uma lista de
+       clínicas que não existe seria a porta emparedada mais cara daqui. */
+    conviteTitulo: 'O convite vem da clínica',
+    conviteTexto: 'Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
+
+    codigoRotulo: 'Código de convite',
+    codigoAjudaAtual: 'É ele que liga você à sua clínica.',
+    usarOutro: 'Usar outro código',
+    temCodigoRotulo: 'Tenho um código de convite',
+    temCodigoAjuda: 'É o código que a clínica te passou.',
+    digite: 'Digite o código',
+    confirmar: 'Confirmar código',
+    codigoSub: 'O código que a clínica parceira te passou.',
+  },
+
+  /* ============================================================
+     O EXTRATO — /cobrancas
+     ============================================================ */
+  extrato: {
+    titulo: 'Histórico de cobrança',
+    vazioIsenta: 'Nenhuma cobrança',
+    vazioPagante: 'Nenhuma cobrança ainda',
+    vazioIsentaTexto: 'O acesso vem do vínculo com a clínica, e vínculo não gera cobrança. Caso a clínica nos informe que ele foi encerrado, o acesso fica suspenso até você assinar — nada aparece aqui sem você escolher.',
+    vazioPaganteTexto: 'Quando a assinatura começar, cada cobrança aparece aqui com a data e o valor.',
+    inicioDoTeste: 'Início do teste grátis',
+    comprovante: 'O comprovante oficial de cada cobrança',
+  },
+
+  /* ============================================================
+     O ACESSO SUSPENSO — /suspenso
+
+     ⚠️ O QUE ESTÁ SUSPENSO É A ASSINATURA, E NÃO A CONTA. As duas linhas
+     abaixo são a diferença entre um aviso e uma ameaça.
+     ============================================================ */
+  suspenso: {
+    clinicaGenerica: 'a clínica que acompanhava você',
+    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam no seu aparelho.',
+    nadaCobrado: 'Nada foi cobrado, e nada vai ser sem você escolher.',
+    verOsPlanos: 'Ver os planos',
+    outroCodigo: 'Tenho outro código',
+  },
+
 };

@@ -8,6 +8,10 @@ import {
 } from '../logic/assinatura';
 import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto, Opcoes, Opc } from '../ui/internas';
 import { dataComAno } from '../logic/time';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo e MOTIVOS é constante de módulo. */
+const K = () => T.assinatura.saida;
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -104,13 +108,14 @@ type Motivo = 'caro' | 'esqueco' | 'terminei' | 'problema' | 'faltou' | 'outro';
    encontra a alternativa antes do formulário, e a saída genérica depois
    de todas as específicas — senão ela vira a resposta de quem não quis
    procurar a sua. */
-const MOTIVOS: [Motivo, string, string][] = [
-  ['caro', 'wallet', 'Está caro'],
-  ['esqueco', 'moon', 'Não estou usando'],
-  ['terminei', 'journey', 'Já terminei'],
-  ['faltou', 'bulb', 'Faltou algo'],
-  ['problema', 'alerta', 'Deu problema'],
-  ['outro', 'more', 'Outro motivo'],
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver scripts/idioma-congelado.mjs. */
+const MOTIVOS = (): [Motivo, string, string][] => [
+  ['caro', 'wallet', K().motivoCaro],
+  ['esqueco', 'moon', K().motivoEsqueco],
+  ['terminei', 'journey', K().motivoTerminei],
+  ['faltou', 'bulb', K().motivoFaltou],
+  ['problema', 'alerta', K().motivoProblema],
+  ['outro', 'more', K().motivoOutro],
 ];
 
 export default function Cancelar() {
@@ -188,32 +193,32 @@ export default function Cancelar() {
       if (plano.id === 'anual') {
         return {
           ic: 'wallet',
-          titulo: 'O seu ano já está pago',
+          titulo: K().anoPagoTitulo,
           texto: [
             atual?.renovaEm
-              ? `A próxima cobrança é só em ${dataComAno(atual.renovaEm)}, e você continua com tudo até lá — cancelar agora não devolve o que já foi pago.`
-              : 'Você continua com tudo até o fim do período já pago — cancelar agora não devolve esse valor.',
-            `Reembolso, quando cabe, é pedido na ${NOME_DA_LOJA}. E se o problema for o valor, a renovação pode sair por ${reais(comDesconto)} em vez de ${reais(plano.preco)}.`,
+              ? K().anoPagoComData(dataComAno(atual.renovaEm))
+              : K().anoPagoSemData,
+            K().anoPagoReembolso(NOME_DA_LOJA, reais(comDesconto), reais(plano.preco)),
           ].join(' '),
-          rotulo: 'Quero o desconto na renovação',
+          rotulo: K().querDescontoRenovacao,
           acao: aceitarDesconto,
         };
       }
 
       return {
         ic: 'wallet',
-        titulo: `${DESCONTO_DE_RETENCAO.porcento}% de desconto no próximo mês`,
-        texto: `A próxima cobrança sai por ${reais(comDesconto)} em vez de ${reais(plano.preco)}. E se o mensal for o problema, o anual fica em ${reais(anual.outraUnidade.valor)} por mês.`,
-        rotulo: 'Quero o desconto',
+        titulo: K().descontoTitulo(DESCONTO_DE_RETENCAO.porcento),
+        texto: K().descontoTexto(reais(comDesconto), reais(plano.preco), reais(anual.outraUnidade.valor)),
+        rotulo: K().querDesconto,
         acao: aceitarDesconto,
       };
     }
     if (motivo === 'esqueco') {
       return {
         ic: 'bell',
-        titulo: 'Se o problema é esquecer, dá para avisar',
-        texto: 'Dose, pesagem, água e proteína têm lembrete, no horário que você escolher. Dá para ligar só o que faz falta e desligar o resto.',
-        rotulo: 'Configurar lembretes',
+        titulo: K().lembretesTitulo,
+        texto: K().lembretesTexto,
+        rotulo: K().configurarLembretes,
         acao: () => router.push('/lembretes' as any),
       };
     }
@@ -233,8 +238,8 @@ export default function Cancelar() {
          a tela poderia ter. */
       return {
         ic: 'journey',
-        titulo: 'Parabéns por chegar até aqui',
-        texto: 'Esperamos que você tenha alcançado o que buscava quando começou. Obrigado por ter feito esse caminho com a gente — e por ter confiado à gente o registro dele.',
+        titulo: K().parabensTitulo,
+        texto: K().parabensTexto,
         rotulo: null,
         acao: null,
       };
@@ -247,32 +252,32 @@ export default function Cancelar() {
   const pedeTexto = motivo === 'problema' || motivo === 'faltou' || motivo === 'outro';
 
   const rotuloDoCampo =
-    motivo === 'problema' ? 'O que aconteceu?'
-      : motivo === 'faltou' ? 'O que faltou?'
-        : 'Conta pra gente';
+    motivo === 'problema' ? K().campoProblema
+      : motivo === 'faltou' ? K().campoFaltou
+        : K().campoOutro;
 
   return (
     <TelaInterna
-      titulo="Cancelar assinatura"
+      titulo={K().titulo}
       rodape={
         /* ⚠️ SEMPRE LIGADO, SEMPRE AQUI, E CHEIO. Não espera resposta, não
            muda de rótulo, não fica cinza: é a razão de a pessoa ter aberto
            a tela, e o peso visual segue a intenção dela. */
-        <Botao label={`Continuar para a ${NOME_DA_LOJA}`} onPress={irParaLoja} pilula />
+        <Botao label={K().continuarParaLoja(NOME_DA_LOJA)} onPress={irParaLoja} pilula />
       }
     >
       <Titulao
-        titulo="Antes de ir, uma pergunta"
-        lead="Responder é opcional e não muda nada: o cancelamento continua a um toque, no botão lá embaixo."
+        titulo={K().perguntaTitulo}
+        lead={K().perguntaLead}
       />
 
       {/* `Opcoes` e `Opc` são os da casa, e é por isso que estão aqui: o
           preenchido, o check e o raio já existem em treze telas, e ter um
           segundo jeito de dizer "esta é a sua escolha" é o tipo de
           diferença que ninguém descreve e todo mundo sente. */}
-      <Bloco titulo="Por que você está cancelando?">
+      <Bloco titulo={K().porQue}>
         <Opcoes>
-          {MOTIVOS.map(([id, ic, label]) => (
+          {MOTIVOS().map(([id, ic, label]) => (
             <Opc key={id} ic={ic} label={label} on={motivo === id} onPress={() => escolher(id)} />
           ))}
         </Opcoes>
@@ -301,11 +306,8 @@ export default function Cancelar() {
                 que dá para imaginar. */}
             {recusa ? (
               <View style={{ backgroundColor: c.bg2, borderRadius: radius.md, padding: 14, gap: 4 }}>
-                <Txt v="label" c={c.tx}>O desconto ainda não pode ser aplicado</Txt>
-                <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
-                  A cobrança não está ligada nesta versão, então não há o que descontar. Nada
-                  mudou na sua assinatura.
-                </Txt>
+                <Txt v="label" c={c.tx}>{K().recusaTitulo}</Txt>
+                <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>{K().recusaTexto}</Txt>
               </View>
             ) : resposta.rotulo && resposta.acao ? (
               /* Fantasma, e não cheio: a alternativa não pode pesar mais do
@@ -327,14 +329,11 @@ export default function Cancelar() {
                 texto ir ainda, e mesmo depois não haverá caixa de entrada
                 ligada a ele. "Vamos te responder" seria a promessa mais
                 fácil e mais cara desta tela. */}
-            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
-              Escrever é opcional, e ninguém vai te responder por aqui — isso vira lista de
-              conserto, e é assim que a gente decide o que arrumar primeiro.
-            </Txt>
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{K().campoAviso}</Txt>
             <Texto
               valor={detalhe}
               onChange={escrever}
-              placeholder={motivo === 'problema' ? 'O que deu errado, e quando…' : 'Pode escrever à vontade'}
+              placeholder={motivo === 'problema' ? K().campoDicaProblema : K().campoDicaOutro}
               linhas={3}
             />
           </View>
@@ -356,11 +355,11 @@ export default function Cancelar() {
               e quem está com o dedo no botão de cancelar lê a primeira
               palavra antes de ler o resto. Se ela for "FIQUE TRANQUILO", o
               resto vira confirmação em vez de descoberta. */}
-          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1, marginBottom: 2 }}>FIQUE TRANQUILO</Txt>
+          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1, marginBottom: 2 }}>{K().tranquiloTitulo}</Txt>
           {([
-            ['cal', 'O acesso continua até o fim do período já pago.'],
-            ['shield', 'Nada do que você registrou se perde — tudo continua no aparelho.'],
-            ['send', `O cancelamento é feito na ${NOME_DA_LOJA}: o aplicativo não consegue fazer isso por você.`],
+            ['cal', K().tranquiloAcesso],
+            ['shield', K().tranquiloDados],
+            ['send', K().tranquiloLoja(NOME_DA_LOJA)],
           ] as [string, string][]).map(([ic, t]) => (
             <Row key={t} gap={12} style={{ alignItems: 'flex-start' }}>
               <View style={{ marginTop: 1 }}>

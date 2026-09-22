@@ -10,6 +10,8 @@ import { Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
+import { T } from '../textos';
+
 /* ============================================================
    SUSPENSO — a tela de quem perdeu o vínculo
 
@@ -52,7 +54,7 @@ export default function Suspenso() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
 
-  const clinica = S.profile.clinic || 'a clínica que acompanhava você';
+  const clinica = S.profile.clinic || T.assinatura.suspenso.clinicaGenerica;
 
   /* ⚠️ AS TRÊS FRASES ENCOLHERAM PARA O CORPO PODER CRESCER, e essa foi
      a troca: em `note`, com o título em três linhas, as versões longas
@@ -68,8 +70,8 @@ export default function Suspenso() {
      por nomear: "os seus registros" é abstrato, "peso, aplicações,
      sintomas, exames e fotos" é a pessoa reconhecendo o que é dela. */
   const FATOS: [string, string][] = [
-    ['shield', 'Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam no seu aparelho.'],
-    ['wallet', 'Nada foi cobrado, e nada vai ser sem você escolher.'],
+    ['shield', T.assinatura.suspenso.nadaApagado],
+    ['wallet', T.assinatura.suspenso.nadaCobrado],
     ['reset', 'Assinando, tudo volta exatamente como estava.'],
   ];
 
@@ -161,7 +163,7 @@ export default function Suspenso() {
 
       {/* ---- as saídas ---- */}
       <View style={{ paddingBottom: insets.bottom + 16, gap: 14 }}>
-        <Botao label="Ver os planos" onPress={() => router.push('/planos' as any)} pilula />
+        <Botao label={T.assinatura.suspenso.verOsPlanos} onPress={() => router.push('/planos' as any)} pilula />
 
         {/* ⚠️ AS DUAS DE BAIXO SÃO DISCRETAS E NÃO ESCONDIDAS, e a diferença
             é essa: elas não competem com o botão, mas estão na mesma dobra,
@@ -178,7 +180,7 @@ export default function Suspenso() {
           <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
             <Row gap={7} style={{ alignItems: 'center' }}>
               <Icon name="steth" size={14} color={c.tx2} sw={1.9} />
-              <Txt v="label" c={c.tx2}>Tenho outro código</Txt>
+              <Txt v="label" c={c.tx2}>{T.assinatura.suspenso.outroCodigo}</Txt>
             </Row>
           </Pressable>
         </Row>

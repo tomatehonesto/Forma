@@ -7,6 +7,12 @@ import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo, e a lista abaixo é constante de
+   módulo. Ver src/textos/README e scripts/idioma-congelado.mjs. */
+const P = () => T.assinatura.parceiros;
+
 /* ============================================================
    MÉDICOS PARCEIROS — o que muda, e como se entra
 
@@ -31,10 +37,10 @@ import { useTheme } from '../ui/useTheme';
    ============================================================ */
 
 const MUDA: [string, string, string][] = [
-  ['companion', 'Conversa com a equipe', 'Mensagens entre as consultas, sem precisar remarcar para tirar uma dúvida.'],
-  ['doc', 'O seu resumo chega lá', 'Um toque envia peso, adesão, sintomas e exames — organizados, do jeito que a consulta usa.'],
-  ['pill', 'Receita e protocolo', 'Pedir renovação e receber o protocolo da semana dentro do aplicativo.'],
-  ['cal', 'A agenda vem pronta', 'As consultas aparecem aqui sem você precisar anotar nada.'],
+  ['companion', P().conversaTitulo, P().conversaTexto],
+  ['doc', P().resumoTitulo, P().resumoTexto],
+  ['pill', P().receitaTitulo, P().receitaTexto],
+  ['cal', P().agendaTitulo, P().agendaTexto],
 ];
 
 export default function Parceiros() {
@@ -72,8 +78,8 @@ export default function Parceiros() {
 
   if (conectada) {
     return (
-      <TelaInterna titulo="Médicos parceiros">
-        <Titulao titulo="Você já está com uma clínica parceira" lead="Tudo o que está nesta lista já vale para você." />
+      <TelaInterna titulo={P().titulo}>
+        <Titulao titulo={P().jaTemTitulo} lead={P().jaTemLead} />
         <Cartao>
           {MUDA.map(([ic, t, sub]) => <Linha key={t} ic={ic} titulo={t} sub={sub} seta={false} />)}
         </Cartao>
@@ -83,10 +89,10 @@ export default function Parceiros() {
   }
 
   return (
-    <TelaInterna titulo="Médicos parceiros">
+    <TelaInterna titulo={P().titulo}>
       <Titulao
-        titulo="Médicos parceiros"
-        lead="Algumas clínicas acompanham o tratamento por aqui junto com você. Sem isso você continua com tudo — o que muda é o que passa a ser possível com a sua equipe dentro do aplicativo."
+        titulo={P().titulo}
+        lead={P().lead}
       />
 
       <Cartao>
@@ -100,8 +106,8 @@ export default function Parceiros() {
           — e mandaria embora, frustrada, quem tocasse. */}
       <Aviso
         ic="info"
-        titulo="O convite vem da clínica"
-        texto="Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela."
+        titulo={P().conviteTitulo}
+        texto={P().conviteTexto}
       />
 
       {/* ---- o código ----
@@ -116,14 +122,14 @@ export default function Parceiros() {
           depois", e isso era a pessoa esperando uma clínica que não tem
           nada a conferir: o código veio dela. Digitar é entrar. */}
       {guardado && !trocando ? (
-        <Campo rotulo="Código de convite" ajuda="É ele que liga você à sua clínica.">
+        <Campo rotulo={P().codigoRotulo} ajuda={P().codigoAjudaAtual}>
           <Txt v="h2" style={{ letterSpacing: 2 }}>{guardado}</Txt>
-          <Botao label="Usar outro código" onPress={() => { setCodigo(''); setTrocando(true); }} tom="fantasma" />
+          <Botao label={P().usarOutro} onPress={() => { setCodigo(''); setTrocando(true); }} tom="fantasma" />
         </Campo>
       ) : (
-        <Campo rotulo="Tenho um código de convite" ajuda="É o código que a clínica te passou.">
-          <Texto valor={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder="Digite o código" linhas={1} />
-          <Botao label="Confirmar código" onPress={guardar} desligado={codigo.trim().length < 4} />
+        <Campo rotulo={P().temCodigoRotulo} ajuda={P().temCodigoAjuda}>
+          <Texto valor={codigo} onChange={(v) => setCodigo(v.toUpperCase())} placeholder={P().digite} linhas={1} />
+          <Botao label={P().confirmar} onPress={guardar} desligado={codigo.trim().length < 4} />
         </Campo>
       )}
 

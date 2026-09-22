@@ -12,6 +12,11 @@ import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo e a lista de argumentos abaixo é
+   constante de módulo. Ver scripts/idioma-congelado.mjs. */
+const V = () => T.assinatura.vitrine;
 
 /* ============================================================
    PLANOS — a tela que pede dinheiro
@@ -236,14 +241,10 @@ function PecaDoAlto({ c }: { c: any }) {
    decisão para fora da primeira dobra — e uma lista que ninguém termina
    de ler não ganha nada com o último item. */
 const ENTRA: [string, string, string][] = [
-  ['journey', 'Seu tratamento em um só lugar',
-    'Tudo organizado para você acompanhar sua jornada.'],
-  ['barchart', 'Seus números interpretados',
-    'Os seus dados viram informação que faz sentido.'],
-  ['spark', 'Evolução que você consegue enxergar',
-    'Peso, medidas, sintomas, exames e registros ao longo do tempo.'],
-  ['companion', 'Um assistente para o dia a dia',
-    'Pergunte, registre e entenda melhor a sua jornada.'],
+  ['journey', V().umLugarTitulo, V().umLugarTexto],
+  ['barchart', V().numerosTitulo, V().numerosTexto],
+  ['spark', V().evolucaoTitulo, V().evolucaoTexto],
+  ['companion', V().assistenteTitulo, V().assistenteTexto],
 ];
 
 export default function Planos() {
@@ -497,12 +498,11 @@ export default function Planos() {
               c="#FFFFFF"
               style={{ textAlign: 'center', letterSpacing: -0.8, fontSize: 31, lineHeight: 38 }}
             >
-              Tudo muda quando você{'\n'}acompanha{' '}
-              <Txt v="h1" c={c.lime} style={{ fontSize: 31, lineHeight: 38 }}>de verdade.</Txt>
+              {V().titulo}
+              <Txt v="h1" c={c.lime} style={{ fontSize: 31, lineHeight: 38 }}>{V().tituloDestaque}</Txt>
             </Txt>
             <Txt v="note" c="rgba(255,255,255,0.78)" style={{ textAlign: 'center', lineHeight: 22 }}>
-              Seus dados reunidos, a sua evolução organizada, e clareza em cada etapa do
-              tratamento.
+              {V().lead}
             </Txt>
           </View>
         </View>
@@ -718,14 +718,14 @@ export default function Planos() {
           {ehIsenta ? (
             <Row gap={7} style={{ marginTop: 16, justifyContent: 'center', alignItems: 'center' }}>
               <Icon name="check" size={13} color={c.lime} sw={2.6} />
-              <Txt v="label" c={c.lime}>Você não paga — o acesso vem do vínculo</Txt>
+              <Txt v="label" c={c.lime}>{V().naoPaga}</Txt>
             </Row>
           ) : recusa ? (
             /* ⚠️ A RECUSA HONESTA. Enquanto a loja não está ligada, o botão
                responde o que é verdade — e não com um erro genérico, que
                faria a pessoa tentar de novo. */
             <View style={{ marginTop: 12, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
-              <Txt v="bodyMed" c={c.tx}>A assinatura ainda não está ligada</Txt>
+              <Txt v="bodyMed" c={c.tx}>{V().aindaNaoLigada}</Txt>
               <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
                 Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
                 segue inteiro do jeito que está.
@@ -748,7 +748,7 @@ export default function Planos() {
               <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
                 <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
                   <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-                    {plano.teste ? `Começar os ${plano.teste} dias grátis` : `Assinar — ${reais(plano.preco)}`}
+                    {plano.teste ? V().comecarTeste(plano.teste) : V().assinarPor(reais(plano.preco))}
                   </Txt>
                 </View>
               </Pressable>
@@ -774,7 +774,7 @@ export default function Planos() {
                   razão do plano existir. A primeira serve aos dois, e é
                   verdade nos dois: cancelar é na loja, a qualquer hora. */}
               <Row gap={16} style={{ marginTop: 12, justifyContent: 'center' }}>
-                {['Cancele quando quiser', plano.teste ? 'Sem compromisso' : 'Menor preço'].map((t) => (
+                {[V().canceleQuandoQuiser, plano.teste ? V().semCompromisso : V().menorPreco].map((t) => (
                   <Row key={t} gap={5} style={{ alignItems: 'center' }}>
                     <Icon name="check" size={12} color={c.lime} sw={2.6} />
                     <Txt v="micro" c={c.tx3}>{t}</Txt>
@@ -784,8 +784,8 @@ export default function Planos() {
 
               <Txt v="micro" c={c.tx4} style={{ marginTop: 8, textAlign: 'center', lineHeight: 16 }}>
                 {plano.teste
-                  ? `Depois de ${plano.teste} dias, ${reais(plano.preco)} ${plano.periodo}. Cancele antes e não paga nada.`
-                  : `${reais(plano.preco)} ${plano.periodo}, renovando até você cancelar.`}
+                  ? V().depoisDoTeste(plano.teste, reais(plano.preco), plano.periodo)
+                  : V().renovaAte(reais(plano.preco), plano.periodo)}
               </Txt>
             </>
           )}
@@ -819,7 +819,7 @@ export default function Planos() {
               >
                 <Row gap={7} style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Icon name="steth" size={14} color={c.accent2} sw={1.9} />
-                  <Txt v="label" c={c.accent2}>Tenho um código de convite</Txt>
+                  <Txt v="label" c={c.accent2}>{V().temCodigo}</Txt>
                 </Row>
               </Pressable>
             </View>
