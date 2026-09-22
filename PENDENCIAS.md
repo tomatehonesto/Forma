@@ -1455,6 +1455,21 @@ tirada do `git show`, e não de memória.
   `logic/paisesNomes`, e rodá-lo duas vezes não muda nada — se mudar, o
   diff é a resposta.
 
+- **O corte de IMC deixou de ser decisão do país**, por decisão de
+  produto: o país é proxy fraco de ascendência — um nipo-brasileiro em
+  São Paulo recebia o corte da OMS e um inglês em Singapura recebia o
+  asiático —, perguntar ascendência está fora por ser dado sensível para
+  ganho marginal, e o foco do produto é ocidental. Fica uma régua, a da
+  OMS. ⚠️ O que o corte antigo sabia NÃO foi apagado: está escrito no alto
+  de `logic/pais`, com o custo dito em voz alta, para ninguém
+  redescobrir o problema e resolvê-lo sem saber que ele foi pensado.
+- **E com isso o país decide menos.** Medi: 243 países produziam 8
+  comportamentos distintos, e cinco dos oito se distinguiam só pelo
+  símbolo da moeda. Sem o corte de IMC são 3 — Brasil, Estados Unidos e o
+  resto —, e o que os separa é a tabela de alimentos e a ordem dos
+  medicamentos. A moeda sai quando o preço vier da loja, que é quem sabe
+  o país de cobrança.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo
@@ -1579,19 +1594,22 @@ e só o símbolo vem do país.
 
 ---
 
-## 🟡 22. O rótulo do IMC não diz qual corte está usando
+## 🟡 22. O rótulo do IMC não diz de qual classificação ele saiu
 
-`FAIXAS_IMC()` lê `cortesDeIMC()` e troca a régua inteira conforme o país:
-a da OMS (18,5 · 25 · 30 · 35 · 40) e a asiática (18,5 · 23 · 25 · 30 ·
-35). São réguas diferentes, e a mesma pessoa com o mesmo peso cai em
-faixas de nome diferente em Lisboa e em Singapura.
+⚠️ **A SEGUNDA RÉGUA SAIU, e o item mudou de sentido — não fechou.** Havia
+duas, trocadas pelo país: a da OMS (18,5 · 25 · 30 · 35 · 40) e a
+asiática (18,5 · 23 · 25 · 30 · 35). A asiática saiu em 22/09/2026, por
+decisão de produto — o motivo inteiro está no alto de `logic/pais`.
 
-A tela mostra o nome da faixa e não diz de qual régua ele saiu. Quem
-comparar com um resultado antigo, ou com um site, vai achar que o
-aplicativo errou — e não errou, mudou de referência sem avisar.
+Com uma régua só, some o problema de a mesma pessoa cair em faixas de
+nome diferente em Lisboa e em Singapura. **O que fica é maior:** quem é
+do sul ou do leste asiático lê uma faixa MAIS PERMISSIVA do que a
+diretriz do país dele usaria, e a tela não diz isso.
 
 Falta uma linha: **de onde vem o corte**. É a mesma regra do resto do
-aplicativo — todo número mostrado diz de onde veio.
+aplicativo — todo número mostrado diz de onde veio —, e aqui ela vale
+mais do que valia com duas réguas, porque agora a escolha é do
+aplicativo e não do país de quem lê.
 
 ---
 

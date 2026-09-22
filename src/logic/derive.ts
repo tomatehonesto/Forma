@@ -17,7 +17,6 @@ import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
 import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV } from './medidas';
-import { cortesDeIMC } from './pais';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
 
@@ -1910,24 +1909,17 @@ export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
    a escura resolvem o mesmo nome em vermelhos diferentes.
    ============================================================ */
 export type FaixaIMC = { de: number; ate: number; nome: string; tom: string };
-/* ⚠️⚠️ OS CORTES MUDAM COM O PAÍS, e isto não é preferência.
+/* ⚠️ UMA RÉGUA SÓ, E É A DA OMS. Havia uma segunda, a da Ásia-Pacífico,
+   trocada pelo país — e ela saiu por decisão de produto: o país é proxy
+   fraco de ascendência, perguntar ascendência está fora, e o foco é
+   ocidental. O motivo inteiro, com o que isso custa, está em logic/pais.
 
-   A OMS publicou em 2004 uma faixa diferente para população asiática —
-   sobrepeso a partir de 23 e obesidade a partir de 25 —, porque o risco
-   cardiometabólico aparece em IMC mais baixo nessas populações. É o corte
-   que as diretrizes daqueles países usam, e ele muda o rótulo que alguém
-   lê sobre o próprio corpo.
-
-   ⚠️ OS NOMES SÃO OS MESMOS NOS DOIS, e é de propósito: "Obesidade grau
-   I" é o termo do laudo em qualquer um dos dois cortes. O que muda é onde
-   a faixa começa. Ver cortesDeIMC, em logic/pais. */
-const CORTES = {
-  oms: [18.5, 25, 30, 35, 40],
-  asia: [18.5, 23, 25, 30, 35],
-};
+   ⚠️ E O NOME DA FAIXA É O DO LAUDO. "Obesidade grau I" é o termo que a
+   consulta usa, e é por isso que ele não vira eufemismo aqui. */
+const CORTES = [18.5, 25, 30, 35, 40];
 
 export const FAIXAS_IMC = (): FaixaIMC[] => {
-  const c = CORTES[cortesDeIMC()];
+  const c = CORTES;
   return [
     { de: 15, ate: c[0], nome: T.tratamento.imc.abaixo, tom: 'blue' },
     { de: c[0], ate: c[1], nome: T.tratamento.imc.normal, tom: 'ok' },

@@ -11,11 +11,6 @@
 
      · a MOEDA — "R$" estava cravado em logic/assinatura, e a tela de
        planos em inglês mostrava "R$ 24.92"
-     · os CORTES DE IMC — a OMS publica uma faixa diferente para
-       população asiática, com sobrepeso em 23 e obesidade em 25 contra
-       25 e 30. Não é preferência: é o corte que a literatura daquela
-       população usa, e ele muda o rótulo que alguém lê sobre o próprio
-       corpo
      · a TABELA DE ALIMENTOS — feijão e cornbread não são o mesmo prato
      · a REDE DE CLÍNICAS PARCEIRAS, que é brasileira
      · a ORDEM DOS MEDICAMENTOS
@@ -253,25 +248,39 @@ const EURO = ['PT', 'ES', 'DE', 'AT', 'FR', 'BE', 'LU', 'MC', 'IT', 'SM', 'VA',
 export const moedaDe = (p: Pais = paisAtual()): Moeda => MOEDAS[p]
   ?? (EURO.includes(p) ? { simbolo: '€', antes: false, espaco: true } : MOEDAS.US);
 
-/* ⚠️⚠️ OS CORTES DE IMC DA ÁSIA-PACÍFICO NÃO SÃO UMA PREFERÊNCIA.
+/* ============================================================
+   O CORTE DE IMC NÃO É MAIS DECISÃO DO PAÍS — decidido em 22/09/2026
 
-   A OMS publicou em 2004 uma faixa diferente para população asiática,
-   com sobrepeso a partir de 23 e obesidade a partir de 25, porque o
-   risco cardiometabólico aparece em IMC mais baixo nessas populações. É
-   o corte que a literatura e as diretrizes daqueles países usam.
+   ⚠️⚠️ ISTO NÃO É ESQUECIMENTO, É ESCOLHA, e fica escrito para ninguém
+   redescobrir o problema e resolvê-lo de novo sem saber que ele foi
+   pensado.
 
-   ⚠️ E É POR PAÍS, QUE É UMA APROXIMAÇÃO — o corte é populacional e
-   ninguém é uma população. O aplicativo não pergunta ascendência, e não
-   vai perguntar: é dado sensível para uma melhoria marginal num rótulo.
-   O país é o palpite honesto que existe, e a faixa aparece com o nome da
-   classificação, que é o que a consulta usa.
+   A OMS publicou em 2004 uma faixa diferente para população asiática —
+   sobrepeso a partir de 23 e obesidade a partir de 25, contra 25 e 30 —,
+   porque o risco cardiometabólico aparece em IMC mais baixo nessas
+   populações. O aplicativo trocava a régua pelo país, e isso saiu.
 
-   Ver PENDENCIAS: o rótulo devia dizer qual corte está usando. */
-const CORTES_ASIA = ['CN', 'TW', 'HK', 'JP', 'KR', 'SG', 'MY', 'TH', 'VN',
-  'ID', 'PH', 'IN', 'BD', 'LK', 'NP', 'MM', 'KH', 'PK'];
+   POR QUÊ:
 
-export const cortesDeIMC = (p: Pais = paisAtual()): 'asia' | 'oms' =>
-  (CORTES_ASIA.includes(p) ? 'asia' : 'oms');
+     · O PAÍS É UM PROXY FRACO DE ASCENDÊNCIA, que é o que o corte
+       realmente pede. Um nipo-brasileiro em São Paulo recebia o corte da
+       OMS; um inglês em Singapura recebia o asiático. Errava justamente
+       com quem se mudou — que é quem a pergunta do país existe para
+       atender.
+
+     · PERGUNTAR ASCENDÊNCIA ESTÁ FORA. É dado sensível para uma melhoria
+       marginal num rótulo, e essa decisão é anterior a esta.
+
+     · E O FOCO DO PRODUTO É OCIDENTAL. Manter duas réguas para um
+       mercado que não é o alvo é carregar a complexidade sem a
+       população.
+
+   ⚠️ O QUE ISSO CUSTA, dito em voz alta: quem é do sul ou do leste
+   asiático lê uma faixa mais permissiva do que a diretriz do país dele
+   usaria. O aplicativo não esconde isso — ver PENDENCIAS, o rótulo diz
+   de qual classificação a faixa saiu, que é a mesma regra de todo número
+   mostrado aqui.
+   ============================================================ */
 
 /* ============================================================
    OS MEDICAMENTOS COMUNS EM CADA PAÍS
