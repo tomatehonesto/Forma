@@ -259,4 +259,47 @@ export const alimentacao = {
     restricoesLinha: 'Einschränkungen beim Essen',
     semRestricao: 'Keine',
   },
+
+  /* ⚠️ `deBebida` NÃO PASSA POR MINÚSCULA AQUI, e é o motivo de o
+     `.toLowerCase()` ter saído da tela: em alemão "Kaffee" e "Milch" são
+     substantivos, e abaixá-los escreveria errado. `comum.noMeio` devolve
+     o que recebe no alemão, e é por isso que ele existe. */
+  telaAgua: {
+    titulo: 'Trinken',
+    hojeNada: (meta: string) => `Heute: nichts eingetragen · Ziel von ${meta}`,
+    hojeCom: (bebido: string, meta: string, resto: string) =>
+      `Heute: ${bebido} von ${meta} · ${resto}`,
+    faltam: (quanto: string) => `es fehlen ${quanto}`,
+    metaAlcancada: 'Ziel erreicht',
+    registrar: 'Eintragen, was du getrunken hast',
+
+    suaSemana: 'Deine Woche',
+    nadaNaSemana: 'Nichts eingetragen in den letzten sieben Tagen',
+    mediaDeDias: (dias: number) =>
+      `Durchschnitt aus ${dias} ${dias === 1 ? 'eingetragenem Tag' : 'eingetragenen Tagen'}`,
+    meta: (quanto: string) => `Ziel: ${quanto}`,
+
+    diario: 'Getränketagebuch',
+    diarioNota: 'Kaffee, Tee, Milch und Saft zählen mit: das Ziel ist Flüssigkeit und nicht reines Wasser. Lösch, was falsch hineingeraten ist.',
+    apagarDoDia: 'Das Wasser dieses Tages löschen?',
+    apagarGole: (quanto: string, hora: string) => `${quanto} von ${hora} löschen?`,
+    deBebida: (nome: string) => ` ${nome}`,
+    totalSemHora: 'Tagessumme, ohne eingetragene Uhrzeit',
+    asHoras: (hora: string) => `um ${hora}`,
+    foraDaContaSufixo: ' · zählt nicht mit',
+    registros: (quantos: number, total: string) =>
+      `${quantos} ${quantos === 1 ? 'Eintrag' : 'Einträge'} · ${total}`,
+    maisForaDaConta: (quantos: number) =>
+      ` · ${quantos} ${quantos === 1 ? 'zählt' : 'zählen'} nicht mit`,
+    daComida: (quanto: string) => `Dazu ${quanto} aus dem, was du gegessen hast`,
+    vazioTitulo: 'An diesem Tag nichts eingetragen',
+    vazioTexto: 'Was du einträgst, geht in die Tagessumme.',
+
+    lembrete: 'Erinnerung',
+    alertas: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} ans Trinken`,
+    nenhumAlerta: 'Keine Erinnerung ans Trinken',
+    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    umToquePorDia: 'Ein Signal pro Tag, zu der Zeit, die du wählst',
+  },
 };

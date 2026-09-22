@@ -17,6 +17,11 @@ import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { BEBIDA_PADRAO, bebidaDe } from '../logic/bebidas';
 import { aguaTxt, aguaN, aguaU } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alimentacao.telaAgua;
 
 /* ============================================================
    HIDRATAÇÃO
@@ -96,14 +101,18 @@ export default function Agua() {
            leite e suco — o nome antigo virou promessa menor do que a
            tela cumpre, e mandava a pessoa registrar só o copo d'água.
            Ver src/logic/bebidas.ts. */
-        titulo="Hidratação"
+        titulo={K().titulo}
         /* O QUE FALTA, e não só o quanto já foi. É a mesma informação
            resolvida: "faltam 2 L" é o que decide se vale encher a
            garrafa agora, e era o que o cartão do dia dizia antes de a
            capa absorvê-lo. */
         linha={hoje === 0
-          ? `Hoje: nada registrado · meta de ${aguaTxt(S, alvo)}`
-          : `Hoje: ${aguaN(S, hoje)} de ${aguaTxt(S, alvo)} · ${falta > 0 ? `faltam ${aguaTxt(S, falta)}` : 'meta alcançada'}`}
+          ? K().hojeNada(aguaTxt(S, alvo))
+          : K().hojeCom(
+            aguaN(S, hoje),
+            aguaTxt(S, alvo),
+            falta > 0 ? K().faltam(aguaTxt(S, falta)) : K().metaAlcancada,
+          )}
         pct={pct}
       >
         {/* UM BOTÃO SÓ, como nas outras duas capas de hábito.
@@ -119,7 +128,7 @@ export default function Agua() {
             fora. Atalho que acerta o volume e erra o assunto é pior do
             que atalho nenhum. */}
         <AtalhoDaCapa
-          titulo="Registrar o que você bebeu"
+          titulo={K().registrar}
           cheio
           onPress={() => router.push('/medir-agua' as any)}
         />
@@ -131,17 +140,20 @@ export default function Agua() {
               As barras chegam em MILILITROS, que é a unidade em que a
               altura e a meta se comparam sem arredondar nada; quem traduz
               para litro é o rótulo. */}
-          <Bloco titulo="A sua semana">
+          <Bloco titulo={K().suaSemana}>
+          {/* "Esta semana" é o mesmo rótulo do cartão de proteína, e sai
+              do mesmo lugar: os dois são o mesmo componente lendo a mesma
+              semana. */}
           <CardSemana
-            nome="Esta semana"
+            nome={T.alimentacao.tela.estaSemana}
             sub={diasComRegistro === 0
-              ? 'Nada registrado nos últimos sete dias'
-              : `Média de ${diasComRegistro} ${diasComRegistro === 1 ? 'dia registrado' : 'dias registrados'}`}
+              ? K().nadaNaSemana
+              : K().mediaDeDias(diasComRegistro)}
             valor={aguaN(S, media)}
             unidade={aguaU(S)}
             dias={semana.map((d) => ({ t: d.t, v: d.ml }))}
             alvo={alvo}
-            rotuloMeta={`Meta: ${aguaTxt(S, alvo)}`}
+            rotuloMeta={K().meta(aguaTxt(S, alvo))}
             rotulo={litros}
           />
           </Bloco>
@@ -158,8 +170,8 @@ export default function Agua() {
               quem está procurando qual apagar. Entre dois copos de
               0,25 L, o que diferencia um do outro é "às 7:18". */}
           <Bloco
-            titulo="Diário de bebidas"
-            nota="Café, chá, leite e suco contam: a meta é de líquido, e não de água pura. Apague o que tiver entrado errado."
+            titulo={K().diario}
+            nota={K().diarioNota}
           >
             <View style={{ gap: 10 }}>
               <TiraDeDias
@@ -175,8 +187,8 @@ export default function Agua() {
                       <ItemApagavel
                         key={g.t ?? 'dia'}
                         pergunta={g.t == null
-                          ? 'Apagar a água deste dia?'
-                          : `Apagar ${aguaTxt(S, g.ml)} das ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}?`}
+                          ? K().apagarDoDia
+                          : K().apagarGole(aguaTxt(S, g.ml), hm(new Date(g.t).getHours(), new Date(g.t).getMinutes()))}
                         onApagar={() => update((s: any) => apagarGole(s, diaSel, g.t))}
                       >
                         <Row gap={12}>
@@ -206,9 +218,9 @@ export default function Agua() {
                                   rótulo genérico: quem anotou "kombucha"
                                   quer ler kombucha, e não "outro". */}
                               {(g as any).nome
-                                ? ` de ${(g as any).nome.toLowerCase()}`
+                                ? K().deBebida(T.comum.noMeio((g as any).nome))
                                 : g.bebida && g.bebida !== BEBIDA_PADRAO
-                                  ? ` de ${bebidaDe(g.bebida).nome.toLowerCase()}`
+                                  ? K().deBebida(T.comum.noMeio(bebidaDe(g.bebida).nome))
                                   : ''}
                             </Txt>
                             {/* O DIA SEM HORA é dito, e não maquiado. Um
@@ -222,9 +234,9 @@ export default function Agua() {
                                 bateria com a soma que o olho faz. */}
                             <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>
                               {(g.t == null
-                                ? 'Total do dia, sem registro de horário'
-                                : `às ${hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())}`)
-                                + (bebidaDe(g.bebida).conta ? '' : ' · fora da conta')}
+                                ? K().totalSemHora
+                                : K().asHoras(hm(new Date(g.t).getHours(), new Date(g.t).getMinutes())))
+                                + (bebidaDe(g.bebida).conta ? '' : K().foraDaContaSufixo)}
                             </Txt>
                           </View>
                         </Row>
@@ -233,8 +245,8 @@ export default function Agua() {
                   </Cartao>
                   {/* O total embaixo, que é o que a soma das linhas deu. */}
                   <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-                    {doDia.length} {doDia.length === 1 ? 'registro' : 'registros'} · {aguaTxt(S, mlDoDia)}
-                    {foraDaConta > 0 ? ` · ${foraDaConta} fora da conta` : ''}
+                    {K().registros(doDia.length, aguaTxt(S, mlDoDia))}
+                    {foraDaConta > 0 ? K().maisForaDaConta(foraDaConta) : ''}
                   </Txt>
                   {/* A ÁGUA DO PRATO ENTRA NO TOTAL DO DIA, e não nesta
                       lista: ela não foi bebida, foi comida, e tem diário
@@ -243,15 +255,15 @@ export default function Agua() {
                       dessas passa a não confiar em nenhum dos dois. */}
                   {daComida > 0 ? (
                     <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-                      Mais {aguaTxt(S, daComida)} da comida que você registrou
+                      {K().daComida(aguaTxt(S, daComida))}
                     </Txt>
                   ) : null}
                 </View>
               ) : (
                 <Vazio
                   ic="water"
-                  titulo="Nada registrado neste dia"
-                  texto="O que você anotar entra no total do dia."
+                  titulo={K().vazioTitulo}
+                  texto={K().vazioTexto}
                 />
               )}
             </View>
@@ -265,14 +277,12 @@ export default function Agua() {
               mora em Lembretes com os outros; aqui fica o atalho e o
               estado atual, porque "desligado" é a resposta que explica uma
               semana fraca. */}
-          <Bloco titulo="Lembrete">
+          <Bloco titulo={K().lembrete}>
             <Cartao>
               <Linha
                 ic="bell"
-                titulo={alertasDeAgua.length
-                  ? `${alertasDeAgua.length} alerta${alertasDeAgua.length === 1 ? '' : 's'} de hidratação`
-                  : 'Nenhum alerta de hidratação'}
-                sub={proximoDeAgua ? `Toca ${proximoDeAgua}` : 'Um toque por dia, na hora que você escolher'}
+                titulo={alertasDeAgua.length ? K().alertas(alertasDeAgua.length) : K().nenhumAlerta}
+                sub={proximoDeAgua ? K().tocaEm(proximoDeAgua) : K().umToquePorDia}
                 onPress={() => router.push('/lembretes' as any)}
               />
             </Cartao>

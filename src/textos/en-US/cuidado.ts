@@ -132,4 +132,59 @@ export const cuidado = {
     email: 'Email',
     instagram: 'Instagram',
   },
+
+  tela: {
+    paraAConsulta: (quando: string) => `FOR THE APPOINTMENT ${quando}`,
+    resumoPronto: 'Your summary is ready',
+    vouPreparar: 'I will put your summary together',
+
+    linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
+      'Week ',
+      temHorizonte ? ` of ${previstas} up to your goal · ` : ' of your treatment · ',
+      ' with the injection done',
+    ],
+
+    ultimaOrientacao: 'LATEST GUIDANCE',
+    voceEscreveu: 'YOU WROTE',
+    naoLida: 'unread',
+    responder: 'Reply',
+    enviarPrimeira: 'Send the first message',
+
+    precisaDeVoce: 'Needs you',
+    nadaPrecisa: 'Nothing needs you right now.',
+    emDia: 'Your follow-up is up to date.',
+
+    proximaConsulta: 'Your next appointment',
+    consultasLink: 'Appointments',
+    anotarConsulta: 'Note an appointment',
+    anotarConsultaSub: 'With the date here, the summary is ready and we tell you when it gets close.',
+    eQuando: (quando: string) => `It is ${quando}`,
+    preparoTexto: 'I put together a summary with weight, adherence and symptoms for the period — you pick what to ask.',
+    prepararAConsulta: 'Get ready for the appointment',
+
+    seuTratamento: 'Your treatment',
+    aplicacoesLink: 'Injections',
+    dosesEm: (onde: string) => `Doses ${onde}`,
+    restamDe: (restam: number, total: number, semanas: number) =>
+      `${restam} of ${total} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    pedirRenovacao: 'Ask for a refill',
+
+    exames: 'Lab results',
+    marcadoresAcompanhados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'marker followed' : 'markers followed'}`,
+    nenhumResultado: 'No results saved',
+    importeUmExame: 'Import a lab result to start following it',
+    foraDaReferencia: (quantos: number) => `${quantos} outside the reference range`,
+    todosNaReferencia: 'All within range',
+
+    quemAcompanha: 'Who follows your treatment',
+    ninguemRegistrado: 'Nobody noted down yet',
+    seVoceSeTrata: 'If someone treats you, note them here — the summary comes out ready for the appointment.',
+
+    acompanhamentoProfissional: 'Professional follow-up',
+    conhecaParceiros: 'Meet the partner doctors',
+    parceirosTexto: 'Some clinics follow the treatment in here with you — messages between appointments, your summary reaching the team and the calendar already filled in.',
+    passouATer: 'Started seeing someone?',
+    anoteQuemE: 'Note who it is.',
+  },
 };

@@ -136,4 +136,59 @@ export const cuidado = {
     email: 'Correo',
     instagram: 'Instagram',
   },
+
+  tela: {
+    paraAConsulta: (quando: string) => `PARA LA CONSULTA ${quando}`,
+    resumoPronto: 'Tu resumen ya está listo',
+    vouPreparar: 'Voy a preparar tu resumen',
+
+    linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
+      'Semana ',
+      temHorizonte ? ` de ${previstas} hasta tu meta · ` : ' de tu tratamiento · ',
+      ' con la aplicación al día',
+    ],
+
+    ultimaOrientacao: 'ÚLTIMA ORIENTACIÓN',
+    voceEscreveu: 'TÚ ESCRIBISTE',
+    naoLida: 'sin leer',
+    responder: 'Responder',
+    enviarPrimeira: 'Enviar el primer mensaje',
+
+    precisaDeVoce: 'Necesita de ti',
+    nadaPrecisa: 'Nada necesita de ti ahora.',
+    emDia: 'Tu seguimiento está al día.',
+
+    proximaConsulta: 'Tu próxima consulta',
+    consultasLink: 'Consultas',
+    anotarConsulta: 'Anotar una consulta',
+    anotarConsultaSub: 'Con la fecha aquí, el resumen queda listo y te avisamos cuando se acerque.',
+    eQuando: (quando: string) => `Es ${quando}`,
+    preparoTexto: 'Armo un resumen con peso, adherencia y síntomas del período — tú eliges qué quieres preguntar.',
+    prepararAConsulta: 'Preparar la consulta',
+
+    seuTratamento: 'Tu tratamiento',
+    aplicacoesLink: 'Aplicaciones',
+    dosesEm: (onde: string) => `Dosis ${onde}`,
+    restamDe: (restam: number, total: number, semanas: number) =>
+      `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    pedirRenovacao: 'Pedir renovación',
+
+    exames: 'Exámenes',
+    marcadoresAcompanhados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'marcador seguido' : 'marcadores seguidos'}`,
+    nenhumResultado: 'Ningún resultado guardado',
+    importeUmExame: 'Importa un examen para empezar a seguirlo',
+    foraDaReferencia: (quantos: number) => `${quantos} fuera del rango`,
+    todosNaReferencia: 'Todos dentro del rango',
+
+    quemAcompanha: 'Quién acompaña tu tratamiento',
+    ninguemRegistrado: 'Nadie anotado todavía',
+    seVoceSeTrata: 'Si alguien te trata, anótalo aquí — el resumen sale listo para la consulta.',
+
+    acompanhamentoProfissional: 'Seguimiento profesional',
+    conhecaParceiros: 'Conoce a los médicos aliados',
+    parceirosTexto: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo — mensajes entre las consultas, tu resumen llegando al equipo y la agenda ya completa.',
+    passouATer: '¿Pasaste a tener acompañamiento médico?',
+    anoteQuemE: 'Anota quién es.',
+  },
 };

@@ -235,4 +235,42 @@ export const alimentacao = {
     restricoesLinha: 'Restrictions alimentaires',
     semRestricao: 'Aucune',
   },
+
+  telaAgua: {
+    titulo: 'Hydratation',
+    hojeNada: (meta: string) => `Aujourd’hui : rien de noté · objectif de ${meta}`,
+    hojeCom: (bebido: string, meta: string, resto: string) =>
+      `Aujourd’hui : ${bebido} sur ${meta} · ${resto}`,
+    faltam: (quanto: string) => `il reste ${quanto}`,
+    metaAlcancada: 'objectif atteint',
+    registrar: 'Noter ce que vous avez bu',
+
+    suaSemana: 'Votre semaine',
+    nadaNaSemana: 'Rien de noté ces sept derniers jours',
+    mediaDeDias: (dias: number) =>
+      `Moyenne sur ${dias} ${dias === 1 ? 'jour noté' : 'jours notés'}`,
+    meta: (quanto: string) => `Objectif : ${quanto}`,
+
+    diario: 'Journal des boissons',
+    diarioNota: 'Le café, le thé, le lait et le jus comptent : l’objectif est en liquide, pas en eau pure. Effacez ce qui est entré de travers.',
+    apagarDoDia: 'Effacer l’eau de ce jour ?',
+    apagarGole: (quanto: string, hora: string) => `Effacer ${quanto} de ${hora} ?`,
+    deBebida: (nome: string) => ` de ${nome}`,
+    totalSemHora: 'Total du jour, sans heure notée',
+    asHoras: (hora: string) => `à ${hora}`,
+    foraDaContaSufixo: ' · hors du compte',
+    registros: (quantos: number, total: string) =>
+      `${quantos} ${quantos === 1 ? 'relevé' : 'relevés'} · ${total}`,
+    maisForaDaConta: (quantos: number) => ` · ${quantos} hors du compte`,
+    daComida: (quanto: string) => `Plus ${quanto} venant de ce que vous avez mangé`,
+    vazioTitulo: 'Rien de noté ce jour-là',
+    vazioTexto: 'Ce que vous notez entre dans le total du jour.',
+
+    lembrete: 'Rappel',
+    alertas: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’hydratation`,
+    nenhumAlerta: 'Aucun rappel d’hydratation',
+    tocaEm: (quando: string) => `Sonne ${quando}`,
+    umToquePorDia: 'Un signal par jour, à l’heure que vous choisissez',
+  },
 };

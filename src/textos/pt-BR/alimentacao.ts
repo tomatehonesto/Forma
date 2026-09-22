@@ -290,4 +290,69 @@ export const alimentacao = {
     restricoesLinha: 'Restrições alimentares',
     semRestricao: 'Nenhuma restrição',
   },
+
+  /* ============================================================
+     A TELA DA HIDRATAÇÃO
+
+     ⚠️ HIDRATAÇÃO, E NÃO ÁGUA. A tela passou a contar café, chá, leite e
+     suco — o nome antigo virava promessa menor do que a tela cumpre, e
+     mandava a pessoa registrar só o copo d'água.
+
+     ⚠️ E O NOME DA BEBIDA CHEGA JÁ EM MINÚSCULA, por `comum.noMeio`. O
+     `.toLowerCase()` que ficava no sítio de chamada é regra de idioma:
+     no alemão ele apagaria a maiúscula de um substantivo.
+     ============================================================ */
+  telaAgua: {
+    titulo: 'Hidratação',
+    /* ⚠️ O QUE FALTA, e não só o quanto já foi: "faltam 2 L" é o que
+       decide se vale encher a garrafa agora. */
+    hojeNada: (meta: string) => `Hoje: nada registrado · meta de ${meta}`,
+    hojeCom: (bebido: string, meta: string, resto: string) =>
+      `Hoje: ${bebido} de ${meta} · ${resto}`,
+    faltam: (quanto: string) => `faltam ${quanto}`,
+    metaAlcancada: 'meta alcançada',
+    registrar: 'Registrar o que você bebeu',
+
+    /* ---------- a semana ---------- */
+    suaSemana: 'A sua semana',
+    nadaNaSemana: 'Nada registrado nos últimos sete dias',
+    mediaDeDias: (dias: number) =>
+      `Média de ${dias} ${dias === 1 ? 'dia registrado' : 'dias registrados'}`,
+    meta: (quanto: string) => `Meta: ${quanto}`,
+
+    /* ---------- o diário ----------
+
+       ⚠️ A HORA NÃO É ENFEITE: é ela que identifica o registro para quem
+       procura qual apagar. Entre dois copos de 0,25 L, o que diferencia
+       um do outro é "às 7:18". */
+    diario: 'Diário de bebidas',
+    diarioNota: 'Café, chá, leite e suco contam: a meta é de líquido, e não de água pura. Apague o que tiver entrado errado.',
+    apagarDoDia: 'Apagar a água deste dia?',
+    apagarGole: (quanto: string, hora: string) => `Apagar ${quanto} das ${hora}?`,
+    deBebida: (nome: string) => ` de ${nome}`,
+    /* ⚠️ O DIA SEM HORA É DITO, e não maquiado: um registro de antes de o
+       diário existir sabe o total e não sabe quando, e inventar "08:00"
+       para preencher a linha seria escrever no diário da pessoa uma coisa
+       que ela não escreveu. */
+    totalSemHora: 'Total do dia, sem registro de horário',
+    asHoras: (hora: string) => `às ${hora}`,
+    foraDaContaSufixo: ' · fora da conta',
+    registros: (quantos: number, total: string) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} · ${total}`,
+    maisForaDaConta: (quantos: number) => ` · ${quantos} fora da conta`,
+    /* A água do prato entra no total do dia e não nesta lista: ela não
+       foi bebida, foi comida, e tem diário próprio. Sem esta linha a capa
+       diria 2,3 L e a soma dos goles daria 1,9. */
+    daComida: (quanto: string) => `Mais ${quanto} da comida que você registrou`,
+    vazioTitulo: 'Nada registrado neste dia',
+    vazioTexto: 'O que você anotar entra no total do dia.',
+
+    /* ---------- o lembrete ---------- */
+    lembrete: 'Lembrete',
+    alertas: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de hidratação`,
+    nenhumAlerta: 'Nenhum alerta de hidratação',
+    tocaEm: (quando: string) => `Toca ${quando}`,
+    umToquePorDia: 'Um toque por dia, na hora que você escolher',
+  },
 };

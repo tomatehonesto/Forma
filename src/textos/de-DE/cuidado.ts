@@ -176,4 +176,59 @@ export const cuidado = {
     email: 'E-Mail',
     instagram: 'Instagram',
   },
+
+  tela: {
+    paraAConsulta: (quando: string) => `FÜR DEN TERMIN ${quando}`,
+    resumoPronto: 'Deine Übersicht ist schon fertig',
+    vouPreparar: 'Ich stelle deine Übersicht zusammen',
+
+    linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
+      'Woche ',
+      temHorizonte ? ` von ${previstas} bis zu deinem Ziel · ` : ' deiner Behandlung · ',
+      ' mit Injektion nach Plan',
+    ],
+
+    ultimaOrientacao: 'LETZTER HINWEIS',
+    voceEscreveu: 'DU HAST GESCHRIEBEN',
+    naoLida: 'ungelesen',
+    responder: 'Antworten',
+    enviarPrimeira: 'Die erste Nachricht senden',
+
+    precisaDeVoce: 'Braucht dich',
+    nadaPrecisa: 'Gerade braucht dich nichts.',
+    emDia: 'Deine Begleitung ist auf dem Stand.',
+
+    proximaConsulta: 'Dein nächster Termin',
+    consultasLink: 'Termine',
+    anotarConsulta: 'Einen Termin eintragen',
+    anotarConsultaSub: 'Mit dem Datum hier ist die Übersicht fertig, und wir sagen dir Bescheid, wenn er näher rückt.',
+    eQuando: (quando: string) => `Er ist ${quando}`,
+    preparoTexto: 'Ich stelle eine Übersicht mit Gewicht, Therapietreue und Symptomen des Zeitraums zusammen — du wählst, was du fragen willst.',
+    prepararAConsulta: 'Den Termin vorbereiten',
+
+    seuTratamento: 'Deine Behandlung',
+    aplicacoesLink: 'Injektionen',
+    dosesEm: (onde: string) => `Dosen ${onde}`,
+    restamDe: (restam: number, total: number, semanas: number) =>
+      `${restam} von ${total} · etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    pedirRenovacao: 'Rezept anfragen',
+
+    exames: 'Befunde',
+    marcadoresAcompanhados: (quantos: number) =>
+      `${quantos} Marker verfolgt`,
+    nenhumResultado: 'Kein Ergebnis gespeichert',
+    importeUmExame: 'Lies einen Befund ein, um ihn zu verfolgen',
+    foraDaReferencia: (quantos: number) => `${quantos} außerhalb der Referenz`,
+    todosNaReferencia: 'Alle innerhalb der Referenz',
+
+    quemAcompanha: 'Wer deine Behandlung begleitet',
+    ninguemRegistrado: 'Noch niemand eingetragen',
+    seVoceSeTrata: 'Wenn dich jemand behandelt, trag ihn hier ein — die Übersicht kommt fertig für den Termin heraus.',
+
+    acompanhamentoProfissional: 'Ärztliche Begleitung',
+    conhecaParceiros: 'Die Partnerärztinnen und -ärzte kennenlernen',
+    parceirosTexto: 'Manche Praxen begleiten die Behandlung hier gemeinsam mit dir — Nachrichten zwischen den Terminen, deine Übersicht, die beim Team ankommt, und der Kalender schon gefüllt.',
+    passouATer: 'Hast du jetzt eine ärztliche Begleitung?',
+    anoteQuemE: 'Trag ein, wer es ist.',
+  },
 };

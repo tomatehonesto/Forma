@@ -224,4 +224,42 @@ export const alimentacao = {
     restricoesLinha: 'Restricciones alimentarias',
     semRestricao: 'Ninguna',
   },
+
+  telaAgua: {
+    titulo: 'Hidratación',
+    hojeNada: (meta: string) => `Hoy: nada registrado · meta de ${meta}`,
+    hojeCom: (bebido: string, meta: string, resto: string) =>
+      `Hoy: ${bebido} de ${meta} · ${resto}`,
+    faltam: (quanto: string) => `faltan ${quanto}`,
+    metaAlcancada: 'meta alcanzada',
+    registrar: 'Registrar lo que tomaste',
+
+    suaSemana: 'Tu semana',
+    nadaNaSemana: 'Nada registrado en los últimos siete días',
+    mediaDeDias: (dias: number) =>
+      `Promedio de ${dias} ${dias === 1 ? 'día registrado' : 'días registrados'}`,
+    meta: (quanto: string) => `Meta: ${quanto}`,
+
+    diario: 'Diario de bebidas',
+    diarioNota: 'Café, té, leche y jugo cuentan: la meta es de líquido, y no de agua pura. Borra lo que haya entrado mal.',
+    apagarDoDia: '¿Borrar el agua de este día?',
+    apagarGole: (quanto: string, hora: string) => `¿Borrar ${quanto} de las ${hora}?`,
+    deBebida: (nome: string) => ` de ${nome}`,
+    totalSemHora: 'Total del día, sin registro de horario',
+    asHoras: (hora: string) => `a las ${hora}`,
+    foraDaContaSufixo: ' · fuera de la cuenta',
+    registros: (quantos: number, total: string) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} · ${total}`,
+    maisForaDaConta: (quantos: number) => ` · ${quantos} fuera de la cuenta`,
+    daComida: (quanto: string) => `Más ${quanto} de la comida que registraste`,
+    vazioTitulo: 'Nada registrado en este día',
+    vazioTexto: 'Lo que anotes entra en el total del día.',
+
+    lembrete: 'Recordatorio',
+    alertas: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de hidratación`,
+    nenhumAlerta: 'Ninguna alerta de hidratación',
+    tocaEm: (quando: string) => `Suena ${quando}`,
+    umToquePorDia: 'Un toque por día, a la hora que elijas',
+  },
 };

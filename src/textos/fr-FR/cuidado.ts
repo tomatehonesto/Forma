@@ -141,4 +141,59 @@ export const cuidado = {
     email: 'E-mail',
     instagram: 'Instagram',
   },
+
+  tela: {
+    paraAConsulta: (quando: string) => `POUR LA CONSULTATION ${quando}`,
+    resumoPronto: 'Votre résumé est déjà prêt',
+    vouPreparar: 'Je vais préparer votre résumé',
+
+    linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
+      'Semaine ',
+      temHorizonte ? ` sur ${previstas} jusqu’à votre objectif · ` : ' de votre traitement · ',
+      ' avec l’injection faite',
+    ],
+
+    ultimaOrientacao: 'DERNIER CONSEIL',
+    voceEscreveu: 'VOUS AVEZ ÉCRIT',
+    naoLida: 'non lu',
+    responder: 'Répondre',
+    enviarPrimeira: 'Envoyer le premier message',
+
+    precisaDeVoce: 'A besoin de vous',
+    nadaPrecisa: 'Rien n’a besoin de vous pour le moment.',
+    emDia: 'Votre suivi est à jour.',
+
+    proximaConsulta: 'Votre prochaine consultation',
+    consultasLink: 'Consultations',
+    anotarConsulta: 'Noter une consultation',
+    anotarConsultaSub: 'Avec la date ici, le résumé est prêt et nous vous prévenons quand elle approche.',
+    eQuando: (quando: string) => `C’est ${quando}`,
+    preparoTexto: 'Je construis un résumé avec le poids, l’observance et les symptômes de la période — vous choisissez ce que vous voulez demander.',
+    prepararAConsulta: 'Préparer la consultation',
+
+    seuTratamento: 'Votre traitement',
+    aplicacoesLink: 'Injections',
+    dosesEm: (onde: string) => `Doses ${onde}`,
+    restamDe: (restam: number, total: number, semanas: number) =>
+      `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    pedirRenovacao: 'Demander le renouvellement',
+
+    exames: 'Analyses',
+    marcadoresAcompanhados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'marqueur suivi' : 'marqueurs suivis'}`,
+    nenhumResultado: 'Aucun résultat enregistré',
+    importeUmExame: 'Importez une analyse pour commencer à la suivre',
+    foraDaReferencia: (quantos: number) => `${quantos} hors des valeurs de référence`,
+    todosNaReferencia: 'Tous dans les valeurs',
+
+    quemAcompanha: 'Qui suit votre traitement',
+    ninguemRegistrado: 'Personne de noté pour l’instant',
+    seVoceSeTrata: 'Si quelqu’un vous suit, notez-le ici — le résumé sort prêt pour la consultation.',
+
+    acompanhamentoProfissional: 'Suivi professionnel',
+    conhecaParceiros: 'Découvrir les médecins partenaires',
+    parceirosTexto: 'Certaines cliniques suivent le traitement ici avec vous — des messages entre les consultations, votre résumé qui arrive à l’équipe et l’agenda déjà rempli.',
+    passouATer: 'Vous avez maintenant un suivi médical ?',
+    anoteQuemE: 'Notez qui c’est.',
+  },
 };

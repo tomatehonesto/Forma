@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 828, em 83 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 779, em 81 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1150,6 +1150,20 @@ tirada do `git show`, e não de memória.
   entre um padrão que perdoa e um que cobra.
 - **O catálogo ganhou o 32º módulo**, `perfil`. Ele não cabia em nenhum
   dos 31: não é cadastro, não é ajuste de medida, não é aviso.
+- **"Doses na caneta", no Cuidado**, com frasco, seringa e cartela do
+  outro lado. `formas.noNa` já sabia concordar — faltava chamá-lo.
+- **"o app avisa quando ela chegar perto"**, no convite de anotar
+  consulta. O aplicativo não fala de si em terceira pessoa, e a linha
+  gêmea na Home já dizia certo: "para avisarmos quando ela chegar perto".
+- **Uma pergunta escrita dentro de uma URL:**
+  `/companion?q=Prepare%20minha%20consulta`, em português e com %20 no
+  meio, enquanto `rotina.perguntas` já a guardava nos cinco idiomas. É a
+  terceira pergunta que aparece assim — as duas primeiras estavam em
+  Insights.
+- **Mais um `.toLowerCase()` numa tela**, no diário de bebidas: em
+  alemão ele escreveria "kaffee" e "milch". Abaixar a caixa é regra de
+  idioma, e por isso mora em `comum.noMeio`, que no alemão devolve o
+  que recebe.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1533,3 +1547,38 @@ Fica como pendência e não como conserto porque o rótulo certo depende do
 que o botão deve ser — refazer o cadastro? voltar à abertura? — e isso é
 decisão de produto, não de tradução. O que a tradução fez foi tornar a
 promessa mais audível.
+
+---
+
+## 🟡 31. A frase com número no meio dela: três pedaços, e não uma frase
+
+Apareceu duas vezes em dois lotes seguidos, e vai voltar:
+
+```
+pt  Para perder <b>7 kg</b> com o Mounjaro®.
+de  Um <b>7 kg</b> abzunehmen mit Mounjaro®.
+
+pt  Semana <b>11</b> de 15 até a sua meta · <b>10</b> com aplicação em dia
+de  Woche <b>11</b> von 15 bis zu deinem Ziel · <b>10</b> mit Injektion nach Plan
+```
+
+Quando a frase tem **destaque tipográfico no meio**, ela não pode vir
+pronta do catálogo: o negrito ficaria travado na posição que o português
+escolheu, e o alemão põe o verbo no fim. A saída que os dois casos usam é
+a mesma — o catálogo devolve uma **tupla de pedaços**, e a tela intercala
+os valores em negrito entre eles.
+
+```ts
+objetivo: (perder, alvo, marca): [string, string, string] => [...]
+linhaDoPlano: (previstas, temHorizonte): [string, string, string] => [...]
+```
+
+⚠️ A anotação de tipo `: [string, string, string]` **não é enfeite**: sem
+ela o TypeScript infere a união literal das strings do português, e
+nenhum outro idioma satisfaz a conferência de forma. O mesmo vale para
+qualquer função do catálogo cujo corpo seja um ternário entre dois
+literais — ver `home.telaInicio.diasSeguidos`, que precisou de
+`: string` pelo mesmo motivo.
+
+Não é uma pendência a resolver: é o padrão a repetir, escrito aqui para
+não ser redescoberto na terceira vez.

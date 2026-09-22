@@ -174,4 +174,96 @@ export const cuidado = {
     email: 'E-mail',
     instagram: 'Instagram',
   },
+
+  /* ============================================================
+     A TELA DO CUIDADO — a aba das pessoas
+
+     As outras três abas são sobre dados: a Home mostra o dia, a Jornada a
+     história, o Insights a interpretação. Esta é sobre quem cuida — e por
+     isso quase tudo aqui aparece ou some conforme a pessoa tenha equipe,
+     tenha um profissional anotado, ou conduza o tratamento sozinha.
+
+     ⚠️ `linhaDoPlano` DEVOLVE TRÊS PEDAÇOS pelo mesmo motivo de
+     `cadastro.telaPlano.objetivo`: a frase tem DOIS números em negrito no
+     meio dela — "Semana <b>11</b> de 15 até a sua meta · <b>10</b> com
+     aplicação em dia" —, e o que fica entre eles muda de idioma para
+     idioma.
+
+     ⚠️ E O DENOMINADOR SÓ APARECE QUANDO EXISTE. Sem meta a perseguir não
+     há horizonte, e "de N previstas" seria um plano que ninguém traçou.
+     ============================================================ */
+  tela: {
+    /* ---------- o hero ---------- */
+    paraAConsulta: (quando: string) => `PARA A CONSULTA ${quando}`,
+    resumoPronto: 'Seu resumo já está pronto',
+    vouPreparar: 'Vou preparar seu resumo',
+
+    linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
+      'Semana ',
+      temHorizonte ? ` de ${previstas} até a sua meta · ` : ' do seu tratamento · ',
+      ' com aplicação em dia',
+    ],
+
+    /* ---------- quem cuida ----------
+
+       ⚠️ O TÍTULO SAI DE `home.telaInicio.quemCuida`, e não daqui: é o
+       mesmo nos três lugares em que a mesma especialista aparece. */
+    ultimaOrientacao: 'ÚLTIMA ORIENTAÇÃO',
+    voceEscreveu: 'VOCÊ ESCREVEU',
+    naoLida: 'não lida',
+    responder: 'Responder',
+    enviarPrimeira: 'Enviar a primeira mensagem',
+
+    /* ---------- o que precisa de você ---------- */
+    precisaDeVoce: 'Precisa de você',
+    nadaPrecisa: 'Nada precisa de você agora.',
+    emDia: 'Seu acompanhamento está em dia.',
+
+    /* ---------- a consulta ---------- */
+    proximaConsulta: 'Sua próxima consulta',
+    consultasLink: 'Consultas',
+    anotarConsulta: 'Anotar uma consulta',
+    /* ⚠️ DIZIA "o app avisa quando ela chegar perto", e o aplicativo não
+       fala de si em terceira pessoa. Quem avisa somos nós. */
+    anotarConsultaSub: 'Com a data aqui, o resumo fica pronto e avisamos quando ela chegar perto.',
+    eQuando: (quando: string) => `É ${quando}`,
+    preparoTexto: 'Eu monto um resumo com peso, adesão e sintomas do período — você escolhe o que quer perguntar.',
+    prepararAConsulta: 'Preparar a consulta',
+
+    /* ---------- o tratamento ----------
+
+       ⚠️ "DOSES NA CANETA" ASSUMIA A CANETA, e há frasco, seringa e
+       cartela. O `onde` chega pronto de `formas.noNa`, que concorda com o
+       recipiente de quem lê. */
+    seuTratamento: 'Seu tratamento',
+    aplicacoesLink: 'Aplicações',
+    dosesEm: (onde: string) => `Doses ${onde}`,
+    restamDe: (restam: number, total: number, semanas: number) =>
+      `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    pedirRenovacao: 'Pedir renovação',
+
+    /* ---------- os exames ---------- */
+    exames: 'Exames',
+    marcadoresAcompanhados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'marcador acompanhado' : 'marcadores acompanhados'}`,
+    nenhumResultado: 'Nenhum resultado guardado',
+    importeUmExame: 'Importe um exame para começar a acompanhar',
+    foraDaReferencia: (quantos: number) => `${quantos} fora da referência`,
+    todosNaReferencia: 'Todos na referência',
+
+    /* ---------- quem acompanha ---------- */
+    quemAcompanha: 'Quem acompanha você',
+    ninguemRegistrado: 'Ninguém registrado ainda',
+    seVoceSeTrata: 'Se você se trata com alguém, anote aqui — o resumo sai pronto para a consulta.',
+
+    /* ---------- o convite, no fim ----------
+
+       ⚠️ SÓ EXISTE ONDE HÁ REDE PARCEIRA, e só para quem não tem
+       acompanhamento nenhum. Ver logic/pais. */
+    acompanhamentoProfissional: 'Acompanhamento profissional',
+    conhecaParceiros: 'Conheça os médicos parceiros',
+    parceirosTexto: 'Algumas clínicas acompanham o tratamento por aqui junto com você — mensagens entre as consultas, o seu resumo chegando na equipe e a agenda já preenchida.',
+    passouATer: 'Passou a ter acompanhamento médico?',
+    anoteQuemE: 'Anote quem é.',
+  },
 };

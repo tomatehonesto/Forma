@@ -199,4 +199,42 @@ export const alimentacao = {
     restricoesLinha: 'Dietary restrictions',
     semRestricao: 'None',
   },
+
+  telaAgua: {
+    titulo: 'Hydration',
+    hojeNada: (meta: string) => `Today: nothing logged · goal of ${meta}`,
+    hojeCom: (bebido: string, meta: string, resto: string) =>
+      `Today: ${bebido} of ${meta} · ${resto}`,
+    faltam: (quanto: string) => `${quanto} to go`,
+    metaAlcancada: 'goal reached',
+    registrar: 'Log what you drank',
+
+    suaSemana: 'Your week',
+    nadaNaSemana: 'Nothing logged in the last seven days',
+    mediaDeDias: (dias: number) =>
+      `Average of ${dias} ${dias === 1 ? 'logged day' : 'logged days'}`,
+    meta: (quanto: string) => `Goal: ${quanto}`,
+
+    diario: 'Drinks diary',
+    diarioNota: 'Coffee, tea, milk and juice count: the goal is fluid, not plain water. Delete anything that went in wrong.',
+    apagarDoDia: 'Delete this day’s water?',
+    apagarGole: (quanto: string, hora: string) => `Delete ${quanto} from ${hora}?`,
+    deBebida: (nome: string) => ` of ${nome}`,
+    totalSemHora: 'Day total, with no time logged',
+    asHoras: (hora: string) => `at ${hora}`,
+    foraDaContaSufixo: ' · not counted',
+    registros: (quantos: number, total: string) =>
+      `${quantos} ${quantos === 1 ? 'entry' : 'entries'} · ${total}`,
+    maisForaDaConta: (quantos: number) => ` · ${quantos} not counted`,
+    daComida: (quanto: string) => `Plus ${quanto} from the food you logged`,
+    vazioTitulo: 'Nothing logged on this day',
+    vazioTexto: 'Whatever you note goes into the day’s total.',
+
+    lembrete: 'Reminder',
+    alertas: (quantos: number) =>
+      `${quantos} hydration ${quantos === 1 ? 'reminder' : 'reminders'}`,
+    nenhumAlerta: 'No hydration reminder',
+    tocaEm: (quando: string) => `Rings ${quando}`,
+    umToquePorDia: 'One nudge a day, at the time you choose',
+  },
 };

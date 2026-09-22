@@ -19,6 +19,12 @@ import { temRedeParceira } from '../../logic/pais';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
+import { noNa, formaDe } from '../../logic/formas';
+import { T } from '../../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cuidado.tela;
 
 /* ============================================================
    CUIDADO — a aba das pessoas
@@ -187,13 +193,13 @@ function Topo() {
                 <Icon name="aura" size={16} color={c.onHero} sw={1.9} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="micro" c={c.onHero2}>PARA A CONSULTA {cs.label.toUpperCase()}</Txt>
+                <Txt v="micro" c={c.onHero2}>{K().paraAConsulta(cs.label.toUpperCase())}</Txt>
                 <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }} numberOfLines={1}>
                   {/* perto da consulta o resumo já existe; longe dela, a
                       promessa é a certa — dizer "preparei" três semanas
                       antes seria prometer um documento com dados que ainda
                       vão mudar */}
-                  {cs.prepararAgora ? 'Seu resumo já está pronto' : 'Vou preparar seu resumo'}
+                  {cs.prepararAgora ? K().resumoPronto : K().vouPreparar}
                 </Txt>
               </View>
               <Icon name="chev" size={15} color={c.onHero2} sw={2} />
@@ -229,6 +235,10 @@ function LinhaDoPlano() {
   const { previstas, atual, cumpridas, temHorizonte } = st.plano;
   const grade = weekGrid(S, 0);
   const feitas = new Set(grade.filter((g) => g.aplicou).map((g) => g.n));
+  /* ⚠️ TRÊS PEDAÇOS, E NÃO UMA FRASE: são DOIS números em negrito no meio
+     dela, e o que fica entre eles muda de idioma para idioma. Mesma
+     solução de `cadastro.telaPlano.objetivo`. */
+  const [antes, meio, depois] = K().linhaDoPlano(previstas, temHorizonte);
 
   return (
     <View>
@@ -316,9 +326,11 @@ function LinhaDoPlano() {
         {/* O DENOMINADOR SÓ APARECE QUANDO EXISTE. Sem meta a perseguir
             não há horizonte, e "de N previstas" seria um plano que
             ninguém traçou — a régua vira o registro do que já andou. */}
-        Semana <Txt v="bodyMed" c={c.onHero}>{atual}</Txt>
-        {temHorizonte ? ` de ${previstas} até a sua meta` : ` do seu tratamento`} ·{' '}
-        <Txt v="bodyMed" c={c.lime}>{cumpridas}</Txt> com aplicação em dia
+        {antes}
+        <Txt v="bodyMed" c={c.onHero}>{atual}</Txt>
+        {meio}
+        <Txt v="bodyMed" c={c.lime}>{cumpridas}</Txt>
+        {depois}
       </Txt>
     </View>
   );
@@ -366,7 +378,7 @@ function BannerMedica() {
           um cartão cuja primeira linha agora leva exatamente para lá —
           duas promessas de abrir a mesma tela, uma escrita e uma
           desenhada, que é o par que este arquivo já desfez uma vez. */}
-      <SectionHead title="Quem cuida de você" style={{ marginBottom: 12 }} />
+      <SectionHead title={T.home.telaInicio.quemCuida} style={{ marginBottom: 12 }} />
 
       <View style={{ borderRadius: radius.lg, overflow: 'hidden' }}>
         <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
@@ -408,13 +420,13 @@ function BannerMedica() {
                 <Row gap={7} style={{ flex: 1 }}>
                   <Icon name={msg.daEquipe ? 'steth' : 'pencil'} size={13} color={c.tx3} sw={2} />
                   <Txt v="micro" c={c.tx3} style={{ letterSpacing: 0.8 }}>
-                    {msg.daEquipe ? 'ÚLTIMA ORIENTAÇÃO' : 'VOCÊ ESCREVEU'}
+                    {msg.daEquipe ? K().ultimaOrientacao : K().voceEscreveu}
                   </Txt>
                 </Row>
                 {S.unread > 0 && msg.daEquipe && (
                   <Row gap={5}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
-                    <Txt v="micro" c={c.accent2}>não lida</Txt>
+                    <Txt v="micro" c={c.accent2}>{K().naoLida}</Txt>
                   </Row>
                 )}
               </Row>
@@ -424,7 +436,7 @@ function BannerMedica() {
               <Row style={{ marginTop: 12 }}>
                 <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>{msg.quando}</Txt>
                 <Row gap={6}>
-                  <Txt v="label" c={c.accent2}>Responder</Txt>
+                  <Txt v="label" c={c.accent2}>{K().responder}</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </Row>
@@ -436,7 +448,7 @@ function BannerMedica() {
           <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
             <Row gap={10} style={{ backgroundColor: c.bg1, borderTopWidth: 1, borderTopColor: c.line2, padding: 18 }}>
               <Icon name="companion" size={18} color={c.accent} sw={1.9} />
-              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Enviar a primeira mensagem</Txt>
+              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{K().enviarPrimeira}</Txt>
               <Icon name="chev" size={14} color={c.accent2} sw={2} />
             </Row>
           </Pressable>
@@ -512,14 +524,14 @@ function Pendencias() {
   if (!itens.length) {
     return (
       <View style={{ marginTop: 32 }}>
-        <SectionHead title="Precisa de você" />
+        <SectionHead title={K().precisaDeVoce} />
         <Row gap={14} style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, marginTop: 14, padding: 18 }}>
           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="check" size={16} color={c.tx} sw={2.2} />
           </View>
           <View style={{ flex: 1 }}>
-            <Txt v="bodyMed">Nada precisa de você agora.</Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>Seu acompanhamento está em dia.</Txt>
+            <Txt v="bodyMed">{K().nadaPrecisa}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{K().emDia}</Txt>
           </View>
         </Row>
       </View>
@@ -528,7 +540,7 @@ function Pendencias() {
 
   return (
     <View style={{ marginTop: 32 }}>
-      <SectionHead title="Precisa de você" />
+      <SectionHead title={K().precisaDeVoce} />
       {/* Mesma UI de "Gerar resumos" no Insights: ListRow com fio, dentro
           de um card branco. São a mesma coisa — uma pilha de atalhos para
           um destino cada — e o app já tinha o padrão em duas telas. Ter
@@ -572,7 +584,7 @@ function Consulta() {
     if (clinicaConectada(S) || !temAcompanhamento(S)) return null;
     return (
       <View style={{ marginTop: 36 }}>
-        <SectionHead title="Sua próxima consulta" />
+        <SectionHead title={K().proximaConsulta} />
         <Pressable
           onPress={() => router.push('/anotar-consulta' as any)}
           style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}
@@ -585,10 +597,8 @@ function Consulta() {
               <Icon name="cal" size={20} color={c.tx3} sw={1.8} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="bodyMed">Anotar uma consulta</Txt>
-              <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                Com a data aqui, o resumo fica pronto e o app avisa quando ela chegar perto.
-              </Txt>
+              <Txt v="bodyMed">{K().anotarConsulta}</Txt>
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>{K().anotarConsultaSub}</Txt>
             </View>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />
           </Row>
@@ -605,7 +615,7 @@ function Consulta() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Sua próxima consulta" link="Consultas" onPress={go('/consultas')} />
+      <SectionHead title={K().proximaConsulta} link={K().consultasLink} onPress={go('/consultas')} />
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, padding: 20 }}>
         <Row gap={18}>
           {/* bloco de calendário: dia grande e mês pequeno, que é como a
@@ -621,7 +631,7 @@ function Consulta() {
             </Txt>
             <Row gap={7} style={{ marginTop: 10 }}>
               <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
-              <Txt v="caption" c={c.accent2}>É {cs.label}</Txt>
+              <Txt v="caption" c={c.accent2}>{K().eQuando(cs.label)}</Txt>
             </Row>
           </View>
         </Row>
@@ -629,17 +639,14 @@ function Consulta() {
         {cs.prepararAgora && (
           <>
             <Divider style={{ marginVertical: 18 }} />
-            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>
-              Eu monto um resumo com peso, adesão e sintomas do período — você escolhe
-              o que quer perguntar.
-            </Txt>
+            <Txt v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{K().preparoTexto}</Txt>
             {/* preenchimento tonal, não contorno: o princípio 4 diz que
                 superfície se separa por tom, e um botão em borda cinza é
                 exatamente a borda que a linguagem não tem */}
-            <Pressable onPress={go('/companion?q=Prepare%20minha%20consulta')} style={({ pressed }) => [{ marginTop: 14, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
+            <Pressable onPress={go(`/companion?q=${encodeURIComponent(T.rotina.perguntas.prepararConsulta)}`)} style={({ pressed }) => [{ marginTop: 14, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 11 }}>
                 <Icon name="aura" size={15} color={c.accent} sw={1.9} />
-                <Txt v="label" c={c.accent2}>Preparar a consulta</Txt>
+                <Txt v="label" c={c.accent2}>{K().prepararAConsulta}</Txt>
               </Row>
             </Pressable>
           </>
@@ -667,7 +674,7 @@ function Tratamento() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Seu tratamento" link="Aplicações" onPress={go('/aplicacoes')} />
+      <SectionHead title={K().seuTratamento} link={K().aplicacoesLink} onPress={go('/aplicacoes')} />
 
       {/* Claro, como o resto da aba.
 
@@ -733,7 +740,7 @@ function Tratamento() {
               vermelho o iguala a um problema clínico — que é o que a cor de
               alerta precisa continuar significando neste app. */}
           <Row>
-            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>Doses na caneta</Txt>
+            <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{K().dosesEm(noNa(formaDe(S)))}</Txt>
             {/* ⚠️ A COR DE LINK SÓ VALE SE HOUVER LINK. "Vale renovar a
                 receita" é estado, não ação — ele ficava em cor de ação
                 porque o botão "Pedir renovação" vinha logo abaixo, e os
@@ -751,7 +758,7 @@ function Tratamento() {
             />
           </View>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-            {p.left} de {p.total} · cerca de {p.semanas} {p.semanas === 1 ? 'semana' : 'semanas'}
+            {K().restamDe(p.left, p.total, p.semanas)}
           </Txt>
 
           {/* ⚠️ "PEDIR RENOVAÇÃO" É PEDIR A ALGUÉM. O botão abre a conversa
@@ -761,7 +768,7 @@ function Tratamento() {
           {clinicaConectada(S) && !p.verdict.good && (
             <Pressable onPress={go('/conversa?pedir=receita')} style={({ pressed }) => [{ marginTop: 18, alignSelf: 'flex-start', opacity: pressed ? 0.8 : 1 }]}>
               <Row gap={8} style={{ backgroundColor: c.accentWeak, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
-                <Txt v="label" c={c.accent2}>Pedir renovação</Txt>
+                <Txt v="label" c={c.accent2}>{K().pedirRenovacao}</Txt>
                 <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
               </Row>
             </Pressable>
@@ -811,7 +818,7 @@ function Exames() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Exames" />
+      <SectionHead title={K().exames} />
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14, paddingHorizontal: 18 }}>
         <Pressable onPress={() => router.push('/exames' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Row gap={14} style={{ paddingVertical: 18 }}>
@@ -820,19 +827,17 @@ function Exames() {
             </View>
             <View style={{ flex: 1 }}>
               <Txt v="bodyMed">
-                {exames.length
-                  ? `${exames.length} ${exames.length === 1 ? 'marcador acompanhado' : 'marcadores acompanhados'}`
-                  : 'Nenhum resultado guardado'}
+                {exames.length ? K().marcadoresAcompanhados(exames.length) : K().nenhumResultado}
               </Txt>
               {/* O vermelho só quando há o que ver: a linha não é um alerta,
                   é uma porta — e porta que acende todo dia deixa de ser
                   lida no dia em que tem motivo. */}
               <Txt v="micro" c={foraDaRef ? c.cta : c.tx3} style={{ marginTop: 5 }}>
                 {!exames.length
-                  ? 'Importe um exame para começar a acompanhar'
+                  ? K().importeUmExame
                   : foraDaRef
-                    ? `${foraDaRef} fora da referência`
-                    : 'Todos na referência'}
+                    ? K().foraDaReferencia(foraDaRef)
+                    : K().todosNaReferencia}
               </Txt>
             </View>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />
@@ -883,7 +888,7 @@ function QuemAcompanha() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Quem acompanha você" />
+      <SectionHead title={K().quemAcompanha} />
       <Pressable
         onPress={() => router.push('/acompanhamento' as any)}
         style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}
@@ -896,11 +901,11 @@ function QuemAcompanha() {
             <Icon name="steth" size={22} color={quem ? c.tx3 : c.tx4} sw={1.8} />
           </View>
           <View style={{ flex: 1 }}>
-            <Txt v="bodyMed" c={quem ? c.tx : c.tx2}>{quem || 'Ninguém registrado ainda'}</Txt>
+            <Txt v="bodyMed" c={quem ? c.tx : c.tx2}>{quem || K().ninguemRegistrado}</Txt>
             <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
               {quem
-                ? (especialidade || 'Acompanha o seu tratamento')
-                : 'Se você se trata com alguém, anote aqui — o resumo sai pronto para a consulta.'}
+                ? (especialidade || T.home.telaInicio.acompanhaSeuTratamento)
+                : K().seVoceSeTrata}
             </Txt>
           </View>
           <Icon name="chev" size={14} color={c.tx4} sw={2} />
@@ -944,7 +949,7 @@ function Parceiros() {
 
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title="Acompanhamento profissional" />
+      <SectionHead title={K().acompanhamentoProfissional} />
 
       <Pressable
         onPress={() => router.push('/parceiros' as any)}
@@ -953,13 +958,10 @@ function Parceiros() {
         <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
           <Row gap={12} style={{ alignItems: 'center' }}>
             <Icon name="steth" size={20} color={c.accent} sw={1.9} />
-            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>Conheça os médicos parceiros</Txt>
+            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{K().conhecaParceiros}</Txt>
             <Icon name="chev" size={14} color={c.accent2} sw={2} />
           </Row>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>
-            Algumas clínicas acompanham o tratamento por aqui junto com você — mensagens
-            entre as consultas, o seu resumo chegando na equipe e a agenda já preenchida.
-          </Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
         </View>
       </Pressable>
 
@@ -977,7 +979,7 @@ function Parceiros() {
         style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
       >
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-          Passou a ter acompanhamento médico? <Txt v="caption" c={c.accent2}>Anote quem é.</Txt>
+          {K().passouATer} <Txt v="caption" c={c.accent2}>{K().anoteQuemE}</Txt>
         </Txt>
       </Pressable>
     </View>
