@@ -12,7 +12,7 @@
 
 export const aviso = {
   isencaoTitulo: 'We follow your treatment — we don’t run it',
-  isencaoTexto: 'We keep what you log, show you how things have been going, and get ready what you’ll bring to your appointment. We are not a diagnosis and we don’t prescribe: dose, interval and medication are decisions for whoever follows your care.',
+  isencaoTexto: 'We keep what you log, show you how things have been going, and get ready what you’ll bring to your appointment. We’re not a diagnosis and we don’t prescribe: dose, interval and medication are decisions for whoever follows your care.',
   isencaoReforco: 'Before changing anything about your dose or your timing, talk to your care team. And if a symptom frightens you, don’t wait for the next appointment.',
   isencaoAceite: 'I understand and agree',
 
@@ -83,7 +83,7 @@ export const aviso = {
     tratamentoInteiro: 'The whole treatment',
 
     oQueEntra: 'What goes in',
-    oQueEntraNota: 'Tap to include or leave out. Whatever stays out does not go into the file.',
+    oQueEntraNota: 'Tap to include or leave out. Whatever stays out doesn’t go into the file.',
     incluido: 'in',
     fora: 'out',
 
@@ -122,16 +122,16 @@ export const aviso = {
 
     ondeFicam: 'Where your entries live',
     noAparelho: 'On the device, inside the app',
-    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There is no account and no password here: nobody gets into your data with a login, because there is no login.',
+    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There’s no account and no password here: nobody gets into your data with a login, because there’s no login.',
     desinstalar: 'Uninstalling takes it all with it',
-    desinstalarTexto: 'Since there is no copy on any server, deleting the app deletes the entries. They cannot be recovered afterwards.',
+    desinstalarTexto: 'Since there’s no copy on any server, deleting the app deletes the entries. They can’t be recovered afterwards.',
 
     oQueSai: 'What leaves here',
     oQueSaiNota: 'Nothing leaves here without a move from you.',
     paraEquipe: 'What goes to your team',
-    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you are the one who shows or exports it; messages stay here. When the link with the clinic exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
+    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you’re the one who shows or exports it; messages stay here. When the link with the clinic exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
     fotoDoPrato: 'The photo of your plate, when you use photo reading',
-    fotoDoPratoTexto: 'It is shrunk on the device and sent to be read by a model, which returns the items on the plate. The image is not kept: not in your meal entry, and not on the server that bridges the call. Logging the meal by hand sends nothing.',
+    fotoDoPratoTexto: 'It’s shrunk on the device and sent to be read by a model, which returns the items on the plate. The image is not kept: not in your meal entry, and not on the server that bridges the call. Logging the meal by hand sends nothing.',
 
     leDeFora: 'What the app reads from outside',
     appDeSaudePadrao: 'the phone’s health app',
@@ -154,8 +154,8 @@ export const aviso = {
 
     documentos: 'The documents',
     politicaSub: 'The full document, with legal basis and retention periods',
-    termosSub: 'What we are, what we are not, and what each side can expect',
-    semPoliticaTitulo: 'This describes the app; it is not the privacy policy',
+    termosSub: 'What we are, what we’re not, and what each side can expect',
+    semPoliticaTitulo: 'This describes the app; it’s not the privacy policy',
     semPoliticaTexto: 'Here is what the program does with your data. The legal document, with the obligations of whoever runs the service, is still to be published — and when it exists, it shows up on this screen.',
   },
 
@@ -177,9 +177,9 @@ export const aviso = {
     semAparelhoTitulo: 'The device’s health app shows up on a phone',
     semAparelhoTexto: 'Apple Health on iPhone, Health Connect on Android. In a browser there is nothing to turn on.',
     semAppTitulo: (aparelho: string) => `${aparelho} is not available on this device`,
-    semAppTexto: 'Health Connect ships with Android 14 onwards and can be installed on earlier versions. Once it is installed, come back here.',
-    semBuildTitulo: 'This build of the app cannot read the device yet',
-    semBuildTexto: 'Reading Apple Health and Health Connect needs an installed build of the app, not the preview. In Expo Go it does not exist.',
+    semAppTexto: 'Health Connect ships with Android 14 onwards and can be installed on earlier versions. Once it’s installed, come back here.',
+    semBuildTitulo: 'This build of the app can’t read the device yet',
+    semBuildTexto: 'Reading Apple Health and Health Connect needs an installed build of the app, not the preview. It isn’t available in Expo Go.',
 
     contasDeServico: 'Service accounts',
     contasDeServicoNota: 'These hand the data to a server, not to the phone — the link comes in once that server is up. In the meantime, whatever they send to your device’s health app already arrives here.',

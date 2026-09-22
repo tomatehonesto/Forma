@@ -256,9 +256,9 @@ export const alimentacao = {
     proteinaDestaRefeicao: 'Protein in this meal',
     gramas: (quanto: number) => `~${quanto} g`,
     semContaUm: (item: string) =>
-      `${item} does not go into this count — I do not have the protein for that dish yet.`,
+      `${item} doesn’t go into this count — I don’t have the protein for that dish yet.`,
     semContaVarios: (quantos: number) =>
-      `${quantos} items do not go into this count — I do not have their protein yet.`,
+      `${quantos} items don’t go into this count — I don’t have their protein yet.`,
     estimadoPelaFoto: 'Part of this total was estimated from the photo, with no table behind it.',
 
     pratosFavoritos: 'Favorite plates',
@@ -271,7 +271,7 @@ export const alimentacao = {
     itemSub: (marca: string, medida: string, gramas: number) =>
       `${marca}${medida} · ~${gramas} g of protein`,
     anotarEscrito: (texto: string) => `Note down “${texto}”`,
-    semProteinaAinda: 'I do not have the protein for that one yet',
+    semProteinaAinda: 'I don’t have the protein for that one yet',
     escanear: 'Scan',
     lendoOPrato: 'Reading the plate…',
     confiraALista: 'Check the list below and adjust what you need.',

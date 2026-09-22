@@ -70,7 +70,7 @@ export const medidas = {
 
   telaSinaisVitais: {
     titulo: 'Vital signs',
-    lead: 'Numbers that improve along with weight — and that the scale alone does not show.',
+    lead: 'Numbers that improve along with weight — and that the scale alone doesn’t show.',
 
     aoLongoDoTempo: 'Followed over time',
     pressaoArterial: 'Blood pressure',
@@ -81,7 +81,7 @@ export const medidas = {
       `${inicial} mg/dL at the start · ${medicoes} readings`,
 
     ultimaLeitura: 'Latest reading',
-    ultimaLeituraNota: 'A single point: these numbers say whether you are inside the range, not where you are heading.',
+    ultimaLeituraNota: 'A single point: these numbers say whether you’re inside the range, not where you’re heading.',
     pontuais: {
       fc: 'Heart rate',
       spo2: 'O₂ saturation',
@@ -96,7 +96,7 @@ export const medidas = {
     aparelhosEContas: 'Devices and accounts',
     aparelhosEContasSub: 'See what can be connected today, and what is still to come',
 
-    naoSeDigitam: 'These numbers are not typed in',
-    naoSeDigitamTexto: 'Blood pressure, saturation and heart rate arrive from a connected device — and that link does not exist in this version yet. A lab result comes in through Lab results.',
+    naoSeDigitam: 'These numbers aren’t typed in',
+    naoSeDigitamTexto: 'Blood pressure, saturation and heart rate arrive from a connected device — and that link doesn’t exist in this version yet. A lab result comes in through Lab results.',
   },
 };

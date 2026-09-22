@@ -117,7 +117,7 @@ export const escalas = {
       `Average nausea on each day after the shot, from ${dias} ${dias === 1 ? 'day answered' : 'days answered'}.`,
     dose: 'dose',
 
-    cicloParecido: 'Across the days answered so far, nausea looks much the same through the whole cycle — it is not following the dose.',
+    cicloParecido: 'Across the days answered so far, nausea looks much the same through the whole cycle — it isn’t following the dose.',
     cicloPoucos: 'Too few days answered so far to say whether nausea follows the cycle. Answer a few more and this calculation stands up.',
     cicloInicio1: 'Nausea weighs most on shot day.',
     cicloInicioN: (dias: number) => `Nausea weighs most in the first ${dias} days after the shot.`,

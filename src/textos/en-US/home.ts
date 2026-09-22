@@ -333,7 +333,7 @@ export const home = {
   },
   telaRitmo: {
     titulo: 'How we read your pace',
-    sub: 'The label looks at how steady the treatment is, not at how fast the weight comes off.',
+    sub: 'This label is about how steady the treatment is, not how fast the weight comes off.',
 
     aplicacoes: 'Shots on time',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
@@ -354,9 +354,9 @@ export const home = {
     seloEstavel: 'steady',
     seloEmAlta: 'rising',
 
-    avisoTitulo: 'A different week does not change the label',
+    avisoTitulo: 'A different week doesn’t change the label',
     avisoTexto: (etiqueta: string) =>
-      `It does not go up or down with how much you lost, and there is no version of it that says the week was bad. Today it reads “${etiqueta}”.`,
+      `It doesn’t go up or down with how much you lost, and it’ll never tell you the week was bad. Right now it reads “${etiqueta}”.`,
 
     entendi: 'Got it',
   },
@@ -369,7 +369,7 @@ export const home = {
     falarComEquipe: 'Talk to the team',
 
     estaSemana: 'This week',
-    ressalva: 'These goals are ways to get more out of the treatment, not a list of demands — not closing them all is perfectly fine. What carries the treatment is the dose and the follow-up. Whatever stays open starts over next week, and the counts light up on their own from your records.',
+    ressalva: 'These goals are ways to get more out of the treatment, not a list of demands — you don’t have to close them all. What carries the treatment is the dose and your follow-up. Anything left open starts over next week, and the counts fill in on their own from what you log.',
 
     ressalvaDaSemana: 'The goals are today’s, measured against this week’s records.',
 

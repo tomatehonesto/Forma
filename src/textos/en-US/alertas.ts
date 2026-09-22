@@ -87,11 +87,11 @@ export const alertas = {
     proximo: (quando: string) => `Next: ${quando}`,
     desligado: 'Off',
     guardado: 'Saved — alerts go off on the phone',
-    semAviso: 'No alert while it is blocked',
+    semAviso: 'No alert while it’s blocked',
 
     bloqueados: 'Alerts are blocked',
     bloqueadosTexto: 'The device is blocking notifications from this app. While it stays that way, nothing you switch on here will arrive.',
-    semNavegador: 'In a browser there is no way to alert you',
+    semNavegador: 'In a browser we can’t alert you',
     semNavegadorTexto: 'What you create is saved and starts working when you open the app on the phone.',
     abrirConfiguracoes: 'Open settings',
 

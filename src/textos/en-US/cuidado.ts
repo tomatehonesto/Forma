@@ -207,7 +207,7 @@ export const cuidado = {
     ondeAtendePlaceholder: 'Type the clinic or practice',
 
     nadaEnviado: 'None of this is sent to anyone',
-    nadaEnviadoTexto: 'The name stays in the app, with you. For your team to receive your data, an invitation code from the clinic is needed — and from then on it is the clinic that keeps this record.',
+    nadaEnviadoTexto: 'The name stays in the app, with you. For your team to receive your data, you’ll need an invitation code from the clinic — and from then on the clinic is the one keeping this record.',
     salvar: 'Save',
 
     naoTenhoMais: 'I no longer have anyone following me',
@@ -239,7 +239,7 @@ export const cuidado = {
     comQuem: (quem: string) => `With ${quem}.`,
 
     dataFicaComVoce: 'The date stays with you',
-    dataFicaComVoceTexto: 'Noting it here does not tell the practice and does not go into the phone calendar. It is us who come to know the appointment is near.',
+    dataFicaComVoceTexto: 'Adding it here doesn’t tell the practice, and it doesn’t go into your phone calendar. We’re the ones who find out the appointment is near.',
 
     salvar: 'Save',
     anotar: 'Add appointment',
@@ -297,7 +297,7 @@ export const cuidado = {
     atalhoClinica: 'Clinic',
 
     paraLevar: 'TO TAKE TO THE APPOINTMENT',
-    paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. It builds itself from your records and it is ready now.',
+    paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. It builds itself from your records and it’s ready now.',
     verResumo: 'View appointment summary',
 
     suasAnotacoes: 'Your notes',

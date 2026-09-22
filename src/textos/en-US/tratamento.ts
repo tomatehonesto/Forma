@@ -327,7 +327,7 @@ export const tratamento = {
     descansandoHa: (semanas: number) =>
       `Resting for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}.`,
     eOProximo: 'It is next in the rotation.',
-    foraDaRotacao: 'Off the suggested rotation — no problem, it is only a reminder.',
+    foraDaRotacao: 'Off the suggested rotation — no problem, it’s only a reminder.',
 
     ultimaDose: (deste: string, recipiente: string) =>
       `This is the last dose ${deste} ${recipiente}.`,
