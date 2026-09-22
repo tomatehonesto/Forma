@@ -28,7 +28,6 @@ export const idioma = {
      keines des Ortes, an dem jemand geboren wurde. */
   /* Der Bildschirm im Profil, wo umgestellt wird. */
   titulo: 'Sprache',
-  tituloSub: 'Ändert den Text, die Zahlen und die Daten.',
   rotulo: 'Wie du die App liest',
 
   /* ⚠️ DIE EINSCHRÄNKUNG IST DER TEIL, DER ÜBERRASCHT. Auf English
@@ -39,5 +38,4 @@ export const idioma = {
   ressalva: 'Was du schon erfasst hast, bleibt, wie es ist. Es ändert sich nur die Schreibweise: das Wort, das Komma in der Zahl, das Datumsbild und die Uhr.',
 
   /* Die Zeile im Profil, mit der Sprache, die gerade läuft. */
-  idioma: 'Sprache',
 };

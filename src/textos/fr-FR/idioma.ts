@@ -32,7 +32,6 @@ export const idioma = {
      aliments — des choses du lieu où la personne est, aucune de là où
      elle est née. */
   titulo: 'Langue',
-  tituloSub: 'Change le texte, les nombres et les dates.',
   rotulo: 'Comment vous lisez l’application',
 
   /* ⚠️ LA RÉSERVE EST LA PARTIE QUI SURPREND. Changer de langue change
@@ -41,5 +40,4 @@ export const idioma = {
      enlève la peur d'y toucher. */
   ressalva: 'Ce que vous avez déjà enregistré reste tel quel. Seule la façon d’écrire change : le mot, la virgule du nombre, le dessin de la date et l’horloge.',
 
-  idioma: 'Langue',
 };

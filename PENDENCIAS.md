@@ -1492,6 +1492,13 @@ tirada do `git show`, e não de memória.
   existia só para a folha de 243 linhas abrir no valor certo. A lista de
   CÓDIGOS fica: é ela que impede uma região desconhecida de virar Brasil.
 
+- **E a tela do idioma saiu junto.** Ela existia porque a pergunta eram
+  DUAS; com uma, o título dela e a sua única linha diziam a mesma palavra
+  — "Idioma" em cima de "Idioma". A linha do Perfil passa a abrir a folha
+  direto, como as unidades, que são o ajuste irmão logo abaixo e são
+  folha desde sempre. Um toque a menos e um arquivo a menos, e a ressalva
+  desceu para depois da lista, onde ela responde o que a lista provoca.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

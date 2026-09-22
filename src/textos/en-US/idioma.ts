@@ -14,10 +14,8 @@ export const idioma = {
   sub: 'This changes the text, the numbers and the dates. You can change it later, in your profile.',
 
   titulo: 'Language',
-  tituloSub: 'Changes the text, the numbers and the dates.',
   rotulo: 'How you read the app',
 
   ressalva: 'What you’ve already logged stays as it is. Only the way it’s written changes: the words, the decimal separator, the shape of the date and the clock.',
 
-  idioma: 'Language',
 };

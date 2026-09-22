@@ -697,10 +697,16 @@ export default function Perfil() {
             você comeu" — duas coisas que este aplicativo também tem. */}
         {/* ⚠️ O IDIOMA VEM ANTES DAS UNIDADES porque é ele que decide as
             duas coisas: trocar para English troca a palavra E a vírgula
-            decimal. Ver logic/local. */}
+            decimal. Ver logic/local.
+
+            ⚠️ E ELE ABRE UMA FOLHA, e não uma tela — como as unidades, que
+            são a linha de baixo e o ajuste irmão. Houve uma tela aqui no
+            meio: ela existia porque a pergunta eram DUAS, idioma e país, e
+            com o país fora sobrava uma tela cujo título e cuja única linha
+            diziam a mesma palavra. */}
         <ListRow ic="site" title={T.idioma.titulo}
           sub={K().idiomaSub(NOME_DO_LOCAL[localAtual()])}
-          onPress={go('/idioma')} />
+          onPress={go('/escolher')} />
         <ListRow ic="ruler" title={K().unidades}
           sub={K().unidadesSub(
             sistemaDe(S) === 'imperial' ? T.medidas.imperial : T.medidas.metrico,

@@ -274,7 +274,6 @@ export default function RootLayout() {
               fixas, a lista de sintomas e um cartão por sintoma marcado —
               conteúdo que rola, e folha que rola muito é tela com menos
               espaço e um gesto de fechar a mais. */}
-          <Stack.Screen name="idioma" />
           <Stack.Screen name="checkin" />
           {/* Confirmação do check-in. Em fade porque ela não é o próximo
               passo de um fluxo, é o mesmo assunto mudando de estado. */}

@@ -22,7 +22,6 @@ export const idioma = {
   /* A tela do perfil, onde se troca. Ela pergunta DUAS coisas, e o
      nome dela diz as duas. */
   titulo: 'Idioma',
-  tituloSub: 'Muda o texto, os números e as datas.',
   rotulo: 'Como você lê o aplicativo',
 
   /* ⚠️ A RESSALVA É A PARTE QUE SURPREENDE. Trocar para English troca
@@ -34,5 +33,4 @@ export const idioma = {
   /* O par curto de `pais`: o nome do ajuste, nas duas linhas da tela.
      A LINHA DO PERFIL NÃO USA ESTA e sim `titulo`, porque a porta e a
      sala têm de se chamar a mesma coisa. */
-  idioma: 'Idioma',
 };

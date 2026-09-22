@@ -15,7 +15,6 @@ export const idioma = {
   sub: 'Esto cambia el texto, los números y las fechas. Puedes cambiarlo después, en tu perfil.',
 
   titulo: 'Idioma',
-  tituloSub: 'Cambia el texto, los números y las fechas.',
   rotulo: 'Cómo lees la aplicación',
 
   /* ⚠️ LA SALVEDAD ES LA PARTE QUE SORPRENDE. Cambiar de idioma cambia
@@ -24,5 +23,4 @@ export const idioma = {
      tocar. */
   ressalva: 'Lo que ya registraste se queda como está. Cambia solo la forma de escribir: la palabra, la coma del número, el dibujo de la fecha y el reloj.',
 
-  idioma: 'Idioma',
 };

@@ -18,6 +18,18 @@ import {
    parâmetro de rota. O país saiu do aplicativo inteiro — ver o alto de
    logic/pais —, e com uma pergunta só o parâmetro era peça sem função.
 
+   ⚠️ E HOUVE UMA TELA ENTRE ESTA FOLHA E O PERFIL, que também saiu. Ela
+   fazia sentido com duas perguntas e duas ressalvas; com uma, o título
+   dela e a sua única linha diziam a mesma palavra — "Idioma" em cima de
+   "Idioma". O ajuste irmão, logo abaixo no Perfil, é folha desde sempre:
+   as unidades. Agora os dois se abrem igual.
+
+   ⚠️ A RESSALVA VEIO COM ELA, e é a parte que tira o medo de tocar: nada
+   se converte no estado, o que está gravado continua gravado, e só a
+   forma de escrever muda. Ela fica DEPOIS da lista porque responde o que
+   a lista provoca — e não antes, onde seria pedágio para chegar no que a
+   pessoa veio fazer.
+
    ⚠️ CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
    aplicativo assim. "Inglês" só ajuda quem já lê português; quem abre
    esta folha por estar perdido numa língua que não é a sua procura a
@@ -51,6 +63,7 @@ function Opcao({ nome, on, onPress }: { nome: string; on: boolean; onPress: () =
 }
 
 export default function Escolher() {
+  const { c } = useTheme();
   const update = useStore((s) => s.update);
   const router = useRouter();
 
@@ -64,7 +77,7 @@ export default function Escolher() {
 
   return (
     <SheetScreen titulo={T.idioma.rotulo} onClose={() => router.back()}>
-      <View style={{ marginTop: 18 }}>
+      <View style={{ marginTop: 18, gap: 14 }}>
         <Cartao>
           {idiomasOrdenados().map((id) => (
             <Opcao
@@ -75,6 +88,10 @@ export default function Escolher() {
             />
           ))}
         </Cartao>
+
+        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
+          {T.idioma.ressalva}
+        </Txt>
       </View>
     </SheetScreen>
   );
