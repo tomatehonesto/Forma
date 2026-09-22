@@ -1385,6 +1385,24 @@ tirada do `git show`, e não de memória.
   nesta leva, e as duas estavam certas. Quem for fazer a conferência do
   `congelar.ts` no meio de uma leva precisa reiniciar o servidor depois.
 
+- **⚠️⚠️ UMA FOLHA DESENHADA DENTRO DE UMA TELA EMPURRADA**, em /idioma:
+  abria com uma sombra por cima e nada atrás. `SheetScreen` pinta o
+  próprio scrim e conta com a apresentação `transparentModal` para que o
+  scrim tenha o que escurecer; a irmã dela, /unidades, está na lista dos
+  modais do layout, e /idioma ficou de fora, encostada no `checkin`.
+  Empurrada como tela e desenhada como folha, o scrim cobria a própria
+  página. ⚠️ **Vale procurar o inverso também** — tela desenhada como
+  tela dentro de `transparentModal` —, porque a lista de modais é escrita
+  à mão e nada liga uma ponta na outra.
+- **⚠️ LEITURA DE MÓDULO NÃO RE-RENDERIZA NADA.** A mesma tela mostrava o
+  país numa linha e o valor vinha de `paisAtual()`: escolher Portugal na
+  folha gravava certo no perfil e a linha continuava dizendo "Brasil",
+  porque a tela de trás nunca re-renderizava. Com o IDIOMA o defeito não
+  apareceria — trocá-lo remonta a árvore inteira pelo `key` da Moldura —,
+  e é exatamente por isso que ele passaria despercebido. Toda tela que
+  mostra `localAtual()`/`paisAtual()`/`formaDe()` e fica montada atrás de
+  uma folha precisa assinar `S`.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

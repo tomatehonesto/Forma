@@ -513,7 +513,7 @@ export function MediaCard({ source, over, title, sub, height = 200, onPress, sty
    ação principal de uma captura: dentro do cartão ela descia junto com o
    conteúdo e, em folha cheia, saía de vista bem quando a pessoa terminava
    de montar o que ia registrar. */
-export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
+export function SheetScreen({ titulo, sub, rodape, children, onClose, scrollRef }: {
   /* ⚠️ OPCIONAL, e é para as CONFIRMAÇÕES. Uma folha de confirmação já
      diz o que aconteceu no meio dela, embaixo do visto verde — repetir a
      frase no cabeçalho é dizer a mesma coisa duas vezes, em dois
@@ -521,6 +521,12 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
      fica sendo o que ele tem de ser ali: a alça e o X. */
   titulo?: string; sub?: string; rodape?: React.ReactNode;
   children: React.ReactNode; onClose: () => void;
+  /* ⚠️ A FOLHA DE LISTA LONGA PRECISA ABRIR NO VALOR QUE JÁ VALE. Com
+     cento e onze países, abrir no topo é pedir que a pessoa role até o
+     dela — que é justamente o que a roda antiga não pedia. Quem sabe o
+     índice do escolhido é a folha de dentro, então a rolagem sai por
+     aqui. É o mesmo prop que o `Screen` já expõe. */
+  scrollRef?: React.RefObject<ScrollView | null>;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -611,6 +617,7 @@ export function SheetScreen({ titulo, sub, rodape, children, onClose }: {
           <View style={{ width: 40, height: 4, borderRadius: radius.pill, backgroundColor: c.bg3 }} />
         </Pressable>
         <Rolagem
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
           keyboardShouldPersistTaps="handled"

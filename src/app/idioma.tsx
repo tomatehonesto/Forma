@@ -2,14 +2,12 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { Txt, SheetScreen, Row } from '../ui/kit';
-import { Roda } from '../ui/internas';
+import { Txt } from '../ui/kit';
+import { TelaInterna, Titulao, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
-import { NOME_DO_PAIS, PAISES, paisAtual, trocarPais, type Pais } from '../logic/pais';
+import { NOME_DO_PAIS, paisAtual } from '../logic/pais';
 import { T } from '../textos';
-import {
-  NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local,
-} from '../logic/local';
+import { NOME_DO_LOCAL, localAtual } from '../logic/local';
 
 /* ============================================================
    O IDIOMA
@@ -19,92 +17,87 @@ import {
    frases em português seria porta emparedada — e a régua da casa é que
    uma linha com seta e sem destino é pior do que nenhuma linha.
 
-   ⚠️ A LISTA É `idiomasOrdenados`, e não uma lista escrita aqui. Ela vem
-   de logic/local com duas garantias: só entra idioma que tem catálogo, e
-   a ordem põe em cima o do país de quem está lendo. As duas coisas moram
-   lá porque o cadastro faz a mesma pergunta e precisa da mesma resposta.
+   ⚠️⚠️ ELA ERA UMA FOLHA DESENHADA DENTRO DE UMA TELA EMPURRADA, e é por
+   isso que abria com uma sombra por cima e nada atrás.
+
+   `SheetScreen` pinta o próprio scrim, e conta com a apresentação
+   `transparentModal` para que o scrim tenha o que escurecer. A irmã desta
+   tela, /unidades, está na lista dos modais do layout; esta ficou de fora,
+   encostada no `checkin`, e virou o pior dos dois mundos: empurrada como
+   tela, desenhada como folha, com o scrim cobrindo a própria página.
+
+   A saída não foi mudar a rota: foi aceitar o que a rota já dizia. Aqui
+   cabe uma tela — duas escolhas, duas ressalvas —, e a rolagem larga é o
+   que as cento e onze… vinte e oito opções de país pediam desde o começo.
+
+   ⚠️ AS DUAS ESCOLHAS VIRARAM LINHA, E NÃO DUAS RODAS LADO A LADO. A roda
+   mostra o valor escolhido no meio de outros dois, e duas delas juntas
+   fazem a pessoa ler quatro palavras para achar as duas que valem. A
+   linha diz o que está valendo e mais nada; quem quer trocar toca nela, e
+   aí sim vê a lista inteira, numa folha, com espaço para as vinte e oito.
 
    ⚠️ E CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA — é a única lista do
    aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
    português; quem abriu esta tela por estar perdido num idioma que não é
-   o seu procura a palavra que reconhece.
+   o seu procura a palavra que reconhece. Ver /escolher.
 
    ⚠️ NADA SE CONVERTE NO ESTADO, como na folha de unidades: o que está
    gravado continua gravado, e só a forma de escrever muda. Por isso a
    tela não pede confirmação — não há o que dar errado.
    ============================================================ */
 
-/* O MESMO RÓTULO DO CADASTRO — micro, espaçado, discreto. Ele vive lá
-   como componente local; duas cópias de três linhas é menos dívida do que
-   um componente na ui que só duas telas usam. */
-function Rotulo({ children }: { children: React.ReactNode }) {
-  const { c } = useTheme();
-  return <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1, marginBottom: 10 }}>{children}</Txt>;
-}
-
 export default function Idioma() {
-  const update = useStore((s) => s.update);
   const router = useRouter();
-  const atual = localAtual();
+  const { c } = useTheme();
+  const ir = (o: string) => () => router.push(`/escolher?o=${o}` as any);
 
-  const pais = paisAtual();
+  /* ⚠️ A ASSINATURA DO ESTADO EXISTE PARA A TELA REAGIR À FOLHA, e não
+     para ler nada daqui.
 
-  /* Os dois passos, nas duas perguntas: o valor de módulo, que é quem o
-     texto e as listas leem, e o perfil, que é quem lembra no próximo
-     arranque. */
-  const escolher = (id: Local) => {
-    trocarLocal(id);
-    update((st: any) => { st.profile.idioma = id; });
-  };
-  const escolherPais = (p: Pais) => {
-    trocarPais(p);
-    update((st: any) => { st.profile.pais = p; });
-  };
+     `localAtual()` e `paisAtual()` são leitura de módulo: módulo não
+     avisa ninguém, e a tela que ficou montada atrás da folha nunca
+     re-renderizava. Com o idioma isso passava despercebido — trocá-lo
+     remonta a árvore inteira pelo `key` da Moldura —, mas o país não
+     remonta nada, e a linha continuava dizendo "Brasil" depois de a
+     pessoa ter escolhido Portugal.
+
+     Assinar `S` é o que as outras telas da casa fazem, e é o bastante:
+     quem escolhe grava no perfil, e gravar no perfil devolve um `S` novo.
+     O valor mostrado continua saindo das duas funções, que sabem cair no
+     aparelho enquanto o perfil ainda não respondeu. */
+  useStore((s: any) => s.S);
 
   return (
-    <SheetScreen
-      titulo={T.idioma.titulo}
-      sub={T.idioma.tituloSub}
-      onClose={() => router.back()}
-    >
-      {/* ⚠️⚠️ DUAS RODAS LADO A LADO, e não duas listas de cartões.
+    <TelaInterna titulo={T.idioma.titulo}>
+      <Titulao titulo={T.idioma.titulo} lead={T.idioma.tituloSub} />
 
-          Com dois idiomas a lista de cartões ganhava; com seis, e com
-          cento e onze países ao lado, ela vira uma tela de rolar. A roda
-          é o controle desta casa para lista longa com ordem própria — é a
-          mesma do nascimento, três casas acima neste mesmo formulário.
+      {/* O título curto na linha e a PERGUNTA na folha: "Idioma" é o nome
+          do ajuste, e "Como você lê o aplicativo" é o que se pergunta na
+          hora de mexer nele. São os dois textos que o catálogo já tinha,
+          cada um no lugar que é dele. */}
+      <Cartao>
+        <Linha
+          ic="site"
+          titulo={T.idioma.linhaDoPerfil}
+          sub={NOME_DO_LOCAL[localAtual()]}
+          onPress={ir('idioma')}
+        />
+        <Linha
+          ic="pin"
+          titulo={T.idioma.pais}
+          sub={NOME_DO_PAIS[paisAtual()]}
+          onPress={ir('pais')}
+        />
+      </Cartao>
 
-          ⚠️ E ELA ABRE NO VALOR QUE JÁ VALE. O do aparelho para quem
-          nunca respondeu, o guardado para quem respondeu: no caso comum
-          ninguém rola nada, e os cento e onze países só existem para
-          quem precisa deles. */}
-      <View style={{ marginTop: 18, gap: 10 }}>
-        <Row gap={10}>
-          <View style={{ flex: 1 }}>
-            <Rotulo>{T.idioma.rotulo}</Rotulo>
-            <Roda
-              itens={idiomasOrdenados().map((id) => ({ v: id, label: NOME_DO_LOCAL[id] }))}
-              valor={atual}
-              onEscolhe={escolher}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Rotulo>{T.idioma.paisRotulo}</Rotulo>
-            <Roda
-              itens={PAISES.map((p) => ({ v: p, label: NOME_DO_PAIS[p] }))}
-              valor={pais}
-              onEscolhe={escolherPais}
-            />
-          </View>
-        </Row>
-
-        <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
+      <View style={{ gap: 10 }}>
+        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
           {T.idioma.ressalva}
         </Txt>
-        <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
+        <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
           {T.idioma.paisRessalva}
         </Txt>
       </View>
-    </SheetScreen>
+    </TelaInterna>
   );
 }
