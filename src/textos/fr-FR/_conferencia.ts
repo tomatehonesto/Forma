@@ -22,26 +22,41 @@
 
 import type { alertas as alertasPt } from '../pt-BR/alertas';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
+import type { companion as companionPt } from '../pt-BR/companion';
 import type { comum as comumPt } from '../pt-BR/comum';
+import type { descobertas as descobertasPt } from '../pt-BR/descobertas';
+import type { etapa as etapaPt } from '../pt-BR/etapa';
 import type { fontes as fontesPt } from '../pt-BR/fontes';
+import type { formas as formasPt } from '../pt-BR/formas';
 import type { idioma as idiomaPt } from '../pt-BR/idioma';
 import type { medidas as medidasPt } from '../pt-BR/medidas';
+import type { resumo as resumoPt } from '../pt-BR/resumo';
 import type { tempo as tempoPt } from '../pt-BR/tempo';
 
 import { alertas } from './alertas';
 import { avisos } from './avisos';
+import { companion } from './companion';
 import { comum } from './comum';
+import { descobertas } from './descobertas';
+import { etapa } from './etapa';
 import { fontes } from './fontes';
+import { formas } from './formas';
 import { idioma } from './idioma';
 import { medidas } from './medidas';
+import { resumo } from './resumo';
 import { tempo } from './tempo';
 
 const _alertas: typeof alertasPt = alertas;
 const _avisos: typeof avisosPt = avisos;
+const _companion: typeof companionPt = companion;
 const _comum: typeof comumPt = comum;
+const _descobertas: typeof descobertasPt = descobertas;
+const _etapa: typeof etapaPt = etapa;
 const _fontes: typeof fontesPt = fontes;
+const _formas: typeof formasPt = formas;
 const _idioma: typeof idiomaPt = idioma;
 const _medidas: typeof medidasPt = medidas;
+const _resumo: typeof resumoPt = resumo;
 const _tempo: typeof tempoPt = tempo;
 
-export const conferidos = [_alertas, _avisos, _comum, _fontes, _idioma, _medidas, _tempo];
+export const conferidos = [_alertas, _avisos, _companion, _comum, _descobertas, _etapa, _fontes, _formas, _idioma, _medidas, _resumo, _tempo];
