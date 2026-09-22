@@ -56,4 +56,36 @@ export const resumo = {
   nomeDoDocumento: 'Resumen de tratamiento',
   enviadoPara: (doutor: string) => `Enviado por ti a ${doutor}`,
   enviado: 'Enviado por ti',
+
+  tela: {
+    titulo: 'Resumen para la consulta',
+    lead: 'Todo lo que registraste, tal como va a llegar a la consulta.',
+
+    enviar: (doutor: string) => `Enviar a ${doutor}`,
+    enviarDeNovo: (doutor: string) => `Enviar de nuevo a ${doutor}`,
+    enviado: 'Enviado',
+    compartilhar: 'Compartir de otra forma',
+
+    resumoDe: (data: string) => `Resumen del ${data}`,
+    paraQuem: (quem: string) => `Para ${quem}`,
+    paraQuemComClinica: (doutor: string, clinica: string) => `Para ${doutor} · ${clinica}`,
+    paraLevar: 'Para llevar a la próxima consulta',
+    enviadoEm: (quando: string) => `Enviado ${quando}`,
+    enviosSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'envío' : 'envíos'} · queda con tu equipo`,
+
+    examesRecentes: 'Exámenes recientes',
+    verTodos: 'Ver todos',
+
+    anotacoes: 'Anotaciones para la consulta',
+    anotar: 'Anotar',
+    anotacoesNota: 'Solo las que todavía no marcaste como conversadas.',
+    nadaAnotado: 'Nada anotado',
+    nadaAnotadoTexto: 'Lo que quieras preguntar en la consulta se escribe aquí, y entra en el resumen.',
+
+    relatoTitulo: 'Es un relato, no un examen',
+    relatoTexto: 'Los números vienen de lo que registraste en la aplicación. Sirven para la conversación de la consulta, y no sustituyen una evaluación ni un informe.',
+
+    confirmacaoEnvio: (doutor: string) => `Enviado. Le llega a ${doutor}.`,
+  },
 };

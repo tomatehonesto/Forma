@@ -85,4 +85,39 @@ export const medidas = {
     notaLeitura: 'Leituras da balança de bioimpedância. Não há o que corrigir por aqui — elas chegam prontas.',
     notaCorrigir: 'Toque para corrigir ou apagar. O que estiver aqui vai para o relatório do seu médico.',
   },
+
+  /* ============================================================
+     A TELA DE EVOLUÇÃO
+
+     ⚠️ QUASE TUDO QUE ELA MOSTRA JÁ TINHA NOME NO CATÁLOGO. As quatro
+     circunferências e os dois marcadores de composição são `corpo`, logo
+     acima; os três períodos são os mesmos de `tela`, a do marcador; o
+     veredito do exame é `exames.tela`. A tela guardava CÓPIAS das três
+     listas em constantes de módulo — e as cópias é que ficavam em
+     português nos cinco idiomas.
+
+     O que sobrou aqui é o que é só desta tela: os dois títulos de bloco,
+     a pressão e o rodapé.
+     ============================================================ */
+  telaEvolucao: {
+    titulo: 'Evolução',
+    lead: 'Doze semanas de tratamento. Toque num marcador para ver o histórico e corrigir registros.',
+
+    voceRegistra: 'Você registra',
+    voceRegistraNota: 'Marcadores que dependem só de você — toque para ver o histórico e corrigir.',
+
+    vemDeExame: 'Vem de exame',
+    vemDeExameNota: 'Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico.',
+
+    /* ⚠️ "ESTÁVEL" ERA TUDO QUE NÃO FOSSE QUEDA, e uma subida de catorze
+       pontos saía como estável. Subir tem nome. */
+    pressao: 'Pressão',
+    emQueda: 'Em queda',
+    emAlta: 'Em alta',
+    estavel: 'Estável',
+    pressaoValor: (sistolica: number, diastolica: number) => `${sistolica}/${diastolica}`,
+
+    todosOsExames: 'Todos os exames',
+    todosOsExamesSub: 'Laudos, faixas de referência e histórico completo',
+  },
 };

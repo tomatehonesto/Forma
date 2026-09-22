@@ -47,4 +47,24 @@ export const medidas = {
     notaLeitura: 'Readings from a body-composition scale. Nothing to fix here — they arrive finished.',
     notaCorrigir: 'Tap to fix or delete. Whatever is here goes into the report for your doctor.',
   },
+
+  telaEvolucao: {
+    titulo: 'Progress',
+    lead: 'Twelve weeks of treatment. Tap a marker to see its history and fix entries.',
+
+    voceRegistra: 'You log these',
+    voceRegistraNota: 'Markers that depend only on you — tap to see the history and correct it.',
+
+    vemDeExame: 'These come from a lab',
+    vemDeExameNota: 'They need a lab report or a body-composition scale. Read only — but each one opens its own history.',
+
+    pressao: 'Blood pressure',
+    emQueda: 'Coming down',
+    emAlta: 'Going up',
+    estavel: 'Steady',
+    pressaoValor: (sistolica: number, diastolica: number) => `${sistolica}/${diastolica}`,
+
+    todosOsExames: 'All lab results',
+    todosOsExamesSub: 'Reports, reference ranges and the full history',
+  },
 };

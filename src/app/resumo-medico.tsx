@@ -12,6 +12,11 @@ import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.resumo.tela;
 
 /* ============================================================
    RESUMO PARA O MÉDICO
@@ -53,11 +58,14 @@ function Valor({ k, v }: { k: string; v: string }) {
   );
 }
 
-const VEREDITO: Record<string, [string, 'verde' | 'neutra']> = {
-  ok: ['na referência', 'verde'],
-  alto: ['acima', 'neutra'],
-  baixo: ['abaixo', 'neutra'],
-};
+/* ⚠️ OITAVA CONSTANTE DE MÓDULO COM RÓTULO LITERAL da varredura, e os
+   três rótulos são os MESMOS selos da lista de exames — mesmo lugar,
+   mesma caixa baixa, mesmo trabalho. Saem de lá. */
+const VEREDITO = (): Record<string, [string, 'verde' | 'neutra']> => ({
+  ok: [T.exames.tela.seloOk, 'verde'],
+  alto: [T.exames.tela.seloAlto, 'neutra'],
+  baixo: [T.exames.tela.seloBaixo, 'neutra'],
+});
 
 export default function ResumoMedico() {
   const S = useStore((s) => s.S);
@@ -96,23 +104,23 @@ export default function ResumoMedico() {
 
   return (
     <TelaInterna
-      titulo="Resumo para consulta"
+      titulo={K().titulo}
       rodape={
         <View style={{ gap: 10 }}>
           {temEquipe ? (
             <Botao
-              label={enviado ? 'Enviado' : ultimo ? `Enviar de novo a ${p.doctor}` : `Enviar a ${p.doctor}`}
+              label={enviado ? K().enviado : ultimo ? K().enviarDeNovo(p.doctor) : K().enviar(p.doctor)}
               desligado={enviado}
               onPress={enviar}
             />
           ) : null}
-          <Botao label="Compartilhar de outro jeito" tom="fantasma" onPress={compartilhar} />
+          <Botao label={K().compartilhar} tom="fantasma" onPress={compartilhar} />
         </View>
       }
     >
       <Titulao
-        titulo="Resumo para consulta"
-        lead="Tudo que você registrou, do jeito que vai chegar na consulta."
+        titulo={K().titulo}
+        lead={K().lead}
       />
 
       {/* A CAPA DIZ PARA QUEM E DE QUANDO, que são as duas coisas que
@@ -122,7 +130,7 @@ export default function ResumoMedico() {
       <Cartao>
         <Linha
           ic="doc"
-          titulo={`Resumo de ${fmtDate(now())}`}
+          titulo={K().resumoDe(fmtDate(now()))}
           /* ⚠️ PARA QUEM É O RESUMO NÃO DEPENDE DE PLATAFORMA. Isto lia
              `temEquipe`, que hoje quer dizer "clínica conectada", e
              dizia "Você ainda não tem equipe vinculada" para quem acabou
@@ -130,15 +138,17 @@ export default function ResumoMedico() {
              que ela mesma escreveu. O documento é PARA quem acompanha;
              o que precisa de servidor é enviá-lo. */
           sub={temAcompanhamento(S)
-            ? `Para ${p.doctor || p.clinic}${p.doctor && p.clinic ? ` · ${p.clinic}` : ''}`
-            : 'Para levar na próxima consulta'}
+            ? (p.doctor && p.clinic
+              ? K().paraQuemComClinica(p.doctor, p.clinic)
+              : K().paraQuem(p.doctor || p.clinic))
+            : K().paraLevar}
           seta={false}
         />
         {ultimo ? (
           <Linha
             ic="check"
-            titulo={`Enviado ${relDay(new Date(ultimo.t))}`}
-            sub={`${envios.length} ${envios.length === 1 ? 'envio' : 'envios'} · fica com a sua equipe`}
+            titulo={K().enviadoEm(relDay(new Date(ultimo.t)))}
+            sub={K().enviosSub(envios.length)}
             onPress={() => router.push('/medico' as any)}
           />
         ) : null}
@@ -157,10 +167,10 @@ export default function ResumoMedico() {
       })}
 
       {exames.length ? (
-        <Bloco titulo="Exames recentes" link="Ver todos" onLink={() => router.push('/exames' as any)}>
+        <Bloco titulo={K().examesRecentes} link={K().verTodos} onLink={() => router.push('/exames' as any)}>
           <Cartao>
             {exames.map((e: any) => {
-              const [rotulo, tom] = VEREDITO[examStatus(e)] ?? VEREDITO.ok;
+              const [rotulo, tom] = VEREDITO()[examStatus(e)] ?? VEREDITO().ok;
               return (
                 <Linha
                   key={e.marker}
@@ -182,10 +192,10 @@ export default function ResumoMedico() {
           aqui: quem lê a prévia dois dias antes da consulta é exatamente
           quem lembra da pergunta que faltava. */}
       <Bloco
-        titulo="Anotações para a consulta"
-        link="Anotar"
+        titulo={K().anotacoes}
+        link={K().anotar}
         onLink={() => router.push('/nota' as any)}
-        nota={notas.length ? 'Só as que você ainda não marcou como conversadas.' : undefined}
+        nota={notas.length ? K().anotacoesNota : undefined}
       >
         {notas.length ? (
           <Cartao>
@@ -202,8 +212,8 @@ export default function ResumoMedico() {
           <Cartao>
             <Vazio
               ic="pencil"
-              titulo="Nada anotado"
-              texto="O que você quiser perguntar na consulta se escreve aqui, e entra no resumo."
+              titulo={K().nadaAnotado}
+              texto={K().nadaAnotadoTexto}
             />
           </Cartao>
         )}
@@ -214,19 +224,17 @@ export default function ResumoMedico() {
           ela os fez. Dizer isso aqui protege quem lê e quem escreveu. */}
       <Aviso
         ic="info"
-        titulo="É um relato, não um exame"
-        texto="Os números vêm do que você registrou no aplicativo. Servem para a conversa da consulta, e não substituem avaliação nem laudo."
+        titulo={K().relatoTitulo}
+        texto={K().relatoTexto}
       />
 
       {enviado ? (
         <Row gap={8} style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="check" size={14} color={c.ok} sw={2.6} />
-          <Txt v="micro" c={c.tx3}>Enviado. {p.doctor} vê na plataforma dela.</Txt>
+          <Txt v="micro" c={c.tx3}>{K().confirmacaoEnvio(p.doctor)}</Txt>
         </Row>
       ) : (
-        <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-          Nada sai daqui sem o seu toque.
-        </Txt>
+        <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>{T.aviso.telaExportar.parado}</Txt>
       )}
     </TelaInterna>
   );

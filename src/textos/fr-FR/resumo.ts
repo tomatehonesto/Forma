@@ -56,4 +56,36 @@ export const resumo = {
   nomeDoDocumento: 'Résumé de traitement',
   enviadoPara: (doutor: string) => `Envoyé par vous à ${doutor}`,
   enviado: 'Envoyé par vous',
+
+  tela: {
+    titulo: 'Résumé pour la consultation',
+    lead: 'Tout ce que vous avez noté, tel que cela arrivera à la consultation.',
+
+    enviar: (doutor: string) => `Envoyer à ${doutor}`,
+    enviarDeNovo: (doutor: string) => `Renvoyer à ${doutor}`,
+    enviado: 'Envoyé',
+    compartilhar: 'Partager autrement',
+
+    resumoDe: (data: string) => `Résumé du ${data}`,
+    paraQuem: (quem: string) => `Pour ${quem}`,
+    paraQuemComClinica: (doutor: string, clinica: string) => `Pour ${doutor} · ${clinica}`,
+    paraLevar: 'À emporter à la prochaine consultation',
+    enviadoEm: (quando: string) => `Envoyé ${quando}`,
+    enviosSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'envoi' : 'envois'} · reste chez votre équipe`,
+
+    examesRecentes: 'Analyses récentes',
+    verTodos: 'Voir toutes',
+
+    anotacoes: 'Notes pour la consultation',
+    anotar: 'Noter',
+    anotacoesNota: 'Seulement celles que vous n’avez pas encore marquées comme abordées.',
+    nadaAnotado: 'Rien de noté',
+    nadaAnotadoTexto: 'Ce que vous voulez demander à la consultation s’écrit ici, et entre dans le résumé.',
+
+    relatoTitulo: 'C’est un récit, pas un examen',
+    relatoTexto: 'Les chiffres viennent de ce que vous avez noté dans l’application. Ils servent à la conversation de la consultation, et ne remplacent ni une évaluation ni un compte rendu.',
+
+    confirmacaoEnvio: (doutor: string) => `Envoyé. Cela parvient à ${doutor}.`,
+  },
 };

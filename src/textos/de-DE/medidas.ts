@@ -64,4 +64,24 @@ export const medidas = {
        passt in die Zeile. Siehe comum.ts. */
     notaCorrigir: 'Tipp darauf, um zu korrigieren oder zu löschen. Was hier steht, geht in den Arztbericht.',
   },
+
+  telaEvolucao: {
+    titulo: 'Verlauf',
+    lead: 'Zwölf Wochen Behandlung. Tippe auf einen Marker, um den Verlauf zu sehen und Einträge zu korrigieren.',
+
+    voceRegistra: 'Was du selbst einträgst',
+    voceRegistraNota: 'Marker, die nur von dir abhängen — tippe, um den Verlauf zu sehen und zu korrigieren.',
+
+    vemDeExame: 'Was aus einem Befund kommt',
+    vemDeExameNota: 'Dafür braucht es einen Laborbefund oder eine Waage mit Körperanalyse. Nur zum Lesen — aber jeder öffnet seinen eigenen Verlauf.',
+
+    pressao: 'Blutdruck',
+    emQueda: 'Fallend',
+    emAlta: 'Steigend',
+    estavel: 'Gleichbleibend',
+    pressaoValor: (sistolica: number, diastolica: number) => `${sistolica}/${diastolica}`,
+
+    todosOsExames: 'Alle Befunde',
+    todosOsExamesSub: 'Berichte, Referenzbereiche und der ganze Verlauf',
+  },
 };

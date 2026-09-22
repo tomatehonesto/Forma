@@ -47,4 +47,24 @@ export const medidas = {
     notaLeitura: 'Lecturas de la balanza de bioimpedancia. No hay nada que corregir aquí — llegan listas.',
     notaCorrigir: 'Toca para corregir o borrar. Lo que esté aquí va al informe de tu médico.',
   },
+
+  telaEvolucao: {
+    titulo: 'Evolución',
+    lead: 'Doce semanas de tratamiento. Toca un marcador para ver el historial y corregir registros.',
+
+    voceRegistra: 'Los que registras tú',
+    voceRegistraNota: 'Marcadores que dependen solo de ti — toca para ver el historial y corregir.',
+
+    vemDeExame: 'Vienen de un examen',
+    vemDeExameNota: 'Necesitan informe de laboratorio o balanza de bioimpedancia. Solo lectura — pero cada uno abre su historial.',
+
+    pressao: 'Presión',
+    emQueda: 'Bajando',
+    emAlta: 'Subiendo',
+    estavel: 'Estable',
+    pressaoValor: (sistolica: number, diastolica: number) => `${sistolica}/${diastolica}`,
+
+    todosOsExames: 'Todos los exámenes',
+    todosOsExamesSub: 'Informes, rangos de referencia e historial completo',
+  },
 };

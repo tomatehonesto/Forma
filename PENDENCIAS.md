@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 606, em 74 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 573, em 73 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1207,11 +1207,17 @@ tirada do `git show`, e não de memória.
 - **Uma quarta constante de módulo com rótulo literal:** `SENTIR` em
   /sintomas, os quatro apelidos curtos dos indicadores.
 - **E a quinta e a sexta:** `REGIOES` e `LADOS` em /aplicacao — a forma
-  PARTIDA dos seis locais de `tratamento.locais`. Seis constantes de
-  módulo em sete telas, e nenhuma achada pela rede. O padrão está
-  fechado: **toda tela que apresenta uma tabela de opções tem uma dessas**,
-  e vale procurá-las de propósito nas que faltam em vez de esperar que a
+  PARTIDA dos seis locais de `tratamento.locais`. O padrão está fechado:
+  **toda tela que apresenta uma tabela de opções tem uma dessas**, e vale
+  procurá-las de propósito nas que faltam em vez de esperar que a
   varredura em alemão tropece nelas.
+- **A sétima, a oitava e a nona foram CÓPIAS DE TABELAS QUE JÁ ESTAVAM NO
+  CATÁLOGO:** `CIRC` e `PERIODOS` em /evolucao (as quatro
+  circunferências de `medidas.corpo` e os três períodos de
+  `medidas.tela`) e `VEREDITO` em /resumo-medico (os três selos de
+  `exames.tela`). Nove no total, em nove telas — e a cópia é sempre a que
+  fica em português nos cinco idiomas, porque a original já tinha sido
+  traduzida.
 - **Mais dois ordinais de idioma:** "3ª dose" em /aplicacao e "no 3º dia
   depois" em /sintomas. O sufixo não é o mesmo em nenhum par de idiomas —
   "3ª", "3.", "3rd", "3e" — e não há concatenação que sirva.

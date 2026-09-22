@@ -69,4 +69,36 @@ export const resumo = {
   nomeDoDocumento: 'Behandlungsübersicht',
   enviadoPara: (doutor: string) => `Von dir an ${doutor} geschickt`,
   enviado: 'Von dir geschickt',
+
+  tela: {
+    titulo: 'Übersicht für den Termin',
+    lead: 'Alles, was du eingetragen hast, so wie es beim Termin ankommt.',
+
+    enviar: (doutor: string) => `An ${doutor} schicken`,
+    enviarDeNovo: (doutor: string) => `Noch einmal an ${doutor} schicken`,
+    enviado: 'Geschickt',
+    compartilhar: 'Anders teilen',
+
+    resumoDe: (data: string) => `Übersicht vom ${data}`,
+    paraQuem: (quem: string) => `Für ${quem}`,
+    paraQuemComClinica: (doutor: string, clinica: string) => `Für ${doutor} · ${clinica}`,
+    paraLevar: 'Zum Mitnehmen zum nächsten Termin',
+    enviadoEm: (quando: string) => `Geschickt ${quando}`,
+    enviosSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'Sendung' : 'Sendungen'} · bleibt bei deinem Team`,
+
+    examesRecentes: 'Aktuelle Befunde',
+    verTodos: 'Alle ansehen',
+
+    anotacoes: 'Notizen für den Termin',
+    anotar: 'Notieren',
+    anotacoesNota: 'Nur die, die du noch nicht als besprochen markiert hast.',
+    nadaAnotado: 'Nichts notiert',
+    nadaAnotadoTexto: 'Was du beim Termin fragen willst, schreibst du hier auf, und es kommt in die Übersicht.',
+
+    relatoTitulo: 'Das ist ein Bericht, keine Untersuchung',
+    relatoTexto: 'Die Zahlen kommen aus dem, was du in der App eingetragen hast. Sie dienen dem Gespräch beim Termin und ersetzen weder eine Beurteilung noch einen Befund.',
+
+    confirmacaoEnvio: (doutor: string) => `Geschickt. Es kommt bei ${doutor} an.`,
+  },
 };

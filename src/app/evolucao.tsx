@@ -12,6 +12,11 @@ import {
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { pesoTxt, compTxt, compU, compN, pesoN, pesoU, pesoV, compV } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.medidas.telaEvolucao;
 
 /* ============================================================
    EVOLUÇÃO — o índice de todos os números
@@ -49,18 +54,17 @@ import { pesoTxt, compTxt, compU, compN, pesoN, pesoU, pesoV, compV } from '../l
    ============================================================ */
 
 /* As quatro da fita, na ordem em que a fita passa. */
-const CIRC: [string, string][] = [
-  ['cintura', 'Cintura'],
-  ['quadril', 'Quadril'],
-  ['braco', 'Braço'],
-  ['coxa', 'Coxa'],
+const CIRC = (): [string, string][] => [
+  ['cintura', T.medidas.corpo.cintura],
+  ['quadril', T.medidas.corpo.quadril],
+  ['braco', T.medidas.corpo.braco],
+  ['coxa', T.medidas.corpo.coxa],
 ];
 
-
-const PERIODOS = [
-  { id: '12s', label: '12 semanas', dias: 84 },
-  { id: '3m', label: '3 meses', dias: 91 },
-  { id: 'tudo', label: 'Tudo', dias: Infinity },
+const PERIODOS = () => [
+  { id: '12s', label: T.medidas.tela.periodo12s, dias: 84 },
+  { id: '3m', label: T.medidas.tela.periodo3m, dias: 91 },
+  { id: 'tudo', label: T.medidas.tela.periodoTudo, dias: Infinity },
 ];
 
 export default function Evolucao() {
@@ -69,7 +73,7 @@ export default function Evolucao() {
   const router = useRouter();
   const [per, setPer] = useState('12s');
 
-  const corte = PERIODOS.find((p) => p.id === per)!.dias;
+  const corte = PERIODOS().find((p) => p.id === per)!.dias;
   const desde = corte === Infinity ? -Infinity : Date.now() - corte * DAY;
 
   const pesos = (S.weights as any[]).filter((w) => w.t >= desde).map((w) => ({ t: w.t, v: w.kg }));
@@ -82,29 +86,29 @@ export default function Evolucao() {
 
   return (
     <TelaInterna
-      titulo="Evolução"
+      titulo={K().titulo}
       iconeAcao="plus"
       onAcao={() => router.push('/medir-peso' as any)}
     >
       <Titulao
-        titulo="Evolução"
-        lead="Doze semanas de tratamento. Toque num marcador para ver o histórico e corrigir registros."
+        titulo={K().titulo}
+        lead={K().lead}
       />
 
-      <Chips itens={PERIODOS.map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
+      <Chips itens={PERIODOS().map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
 
-      <Bloco titulo="Você registra" nota="Marcadores que dependem só de você — toque para ver o histórico e corrigir.">
+      <Bloco titulo={K().voceRegistra} nota={K().voceRegistraNota}>
         <View style={{ gap: 10 }}>
           <CardCurva
             id="ev-peso"
-            nome="Peso"
+            nome={T.medidas.corpo.peso}
             sub={`${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))} · ${fmtDate(ultimoPeso.t)}`}
             valor={variacaoDe(pesoV(S, curWeight(S) - startWeight(S))).numero}
             unidade={pesoU(S)}
             pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}
           />
-          {fm && lm ? CIRC.map(([k, nome]) => (
+          {fm && lm ? CIRC().map(([k, nome]) => (
             <CardCurva
               key={k}
               id={`ev-${k}`}
@@ -133,13 +137,13 @@ export default function Evolucao() {
           check-in do dia —, e nenhum destes quatro é uma linha de
           chegada. */}
       <Bloco
-        titulo="Vem de exame"
-        nota="Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico."
+        titulo={K().vemDeExame}
+        nota={K().vemDeExameNota}
       >
         <Grade2>
           {fm && lm ? (
             <Metrica
-              ic="activity" nome="Gordura corporal"
+              ic="activity" nome={T.medidas.corpo.gordura}
               /* O TOM VEM DO VEREDITO, e era o lima padrão do <Selo>. Sem
                  isto a gordura subindo aparecia na mesma pastilha verde da
                  gordura caindo: o número mudava de sinal e a cor não. */
@@ -151,7 +155,7 @@ export default function Evolucao() {
           ) : null}
           {fm && lm ? (
             <Metrica
-              ic="dumbbell" nome="Massa magra"
+              ic="dumbbell" nome={T.medidas.corpo.massaMagra}
               selo={variacaoDe(pesoV(S, lm.musculo - fm.musculo), pesoU(S), false).delta}
               seloTom={variacaoDe(pesoV(S, lm.musculo - fm.musculo), '', false).good ? 'verde' : 'neutra'}
               de={`${pesoTxt(S, fm.musculo)}`} para={`${pesoTxt(S, lm.musculo)}`}
@@ -161,7 +165,7 @@ export default function Evolucao() {
           {a1c && a1c.values.length >= 2 ? (
             <Metrica
               ic="doc" nome="HbA1c"
-              selo={examStatus(a1c) === 'ok' ? 'Na referência' : 'Fora da referência'}
+              selo={examStatus(a1c) === 'ok' ? T.exames.tela.vereditoOk : T.exames.tela.blocoFora}
               seloTom={examStatus(a1c) === 'ok' ? 'verde' : 'neutra'}
               de={`${nf(examFirst(a1c).v, 1)}%`} para={`${nf(examLast(a1c).v, 1)}%`}
               onPress={() => router.push('/exames?m=HbA1c' as any)}
@@ -169,13 +173,14 @@ export default function Evolucao() {
           ) : null}
           {pa && pa.length >= 2 ? (
             <Metrica
-              ic="heart" nome="Pressão"
+              ic="heart" nome={K().pressao}
               /* "Estável" era tudo que não fosse queda, e uma subida de
                  catorze pontos saía como estável. Subir tem nome. */
-              selo={pa[pa.length - 1].sys < pa[0].sys ? 'Em queda'
-                : pa[pa.length - 1].sys > pa[0].sys ? 'Em alta' : 'Estável'}
+              selo={pa[pa.length - 1].sys < pa[0].sys ? K().emQueda
+                : pa[pa.length - 1].sys > pa[0].sys ? K().emAlta : K().estavel}
               seloTom={pa[pa.length - 1].sys < pa[0].sys ? 'verde' : 'neutra'}
-              de={`${pa[0].sys}/${pa[0].dia}`} para={`${pa[pa.length - 1].sys}/${pa[pa.length - 1].dia}`}
+              de={K().pressaoValor(pa[0].sys, pa[0].dia)}
+              para={K().pressaoValor(pa[pa.length - 1].sys, pa[pa.length - 1].dia)}
               onPress={() => router.push('/saude' as any)}
             />
           ) : null}
@@ -188,8 +193,8 @@ export default function Evolucao() {
       <Cartao>
         <Linha
           ic="doc"
-          titulo="Todos os exames"
-          sub="Laudos, faixas de referência e histórico completo"
+          titulo={K().todosOsExames}
+          sub={K().todosOsExamesSub}
           onPress={() => router.push('/exames' as any)}
         />
       </Cartao>

@@ -53,4 +53,36 @@ export const resumo = {
   nomeDoDocumento: 'Treatment summary',
   enviadoPara: (doutor: string) => `Sent by you to ${doutor}`,
   enviado: 'Sent by you',
+
+  tela: {
+    titulo: 'Appointment summary',
+    lead: 'Everything you logged, the way it will arrive at the appointment.',
+
+    enviar: (doutor: string) => `Send to ${doutor}`,
+    enviarDeNovo: (doutor: string) => `Send again to ${doutor}`,
+    enviado: 'Sent',
+    compartilhar: 'Share another way',
+
+    resumoDe: (data: string) => `Summary from ${data}`,
+    paraQuem: (quem: string) => `For ${quem}`,
+    paraQuemComClinica: (doutor: string, clinica: string) => `For ${doutor} · ${clinica}`,
+    paraLevar: 'To take to the next appointment',
+    enviadoEm: (quando: string) => `Sent ${quando}`,
+    enviosSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'send' : 'sends'} · stays with your team`,
+
+    examesRecentes: 'Recent lab results',
+    verTodos: 'See all',
+
+    anotacoes: 'Notes for the appointment',
+    anotar: 'Add a note',
+    anotacoesNota: 'Only the ones you have not marked as talked about yet.',
+    nadaAnotado: 'Nothing noted',
+    nadaAnotadoTexto: 'Whatever you want to ask at the appointment gets written here, and goes into the summary.',
+
+    relatoTitulo: 'It is an account, not a test',
+    relatoTexto: 'The numbers come from what you logged in the app. They are there for the conversation at the appointment, and do not replace an assessment or a lab report.',
+
+    confirmacaoEnvio: (doutor: string) => `Sent. It reaches ${doutor}.`,
+  },
 };
