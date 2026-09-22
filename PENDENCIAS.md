@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 401, em 62 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 378, em 61 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1313,6 +1313,22 @@ tirada do `git show`, e não de memória.
   discorda do de quem usa. Achada lendo a tela em alemão. O inventário é
   a rede; a lista de âncoras é só a intenção, e as duas precisam ser
   conferidas uma contra a outra no fim de cada leva.
+
+- **⚠️ O VAZIO DOS LEMBRETES NOMEAVA QUATRO ASSUNTOS, E SÃO CINCO.**
+  "Dose, pesagem, hidratação e proteína" foi escrito quando o check-in
+  ainda não era um alerta, e a frase não acompanhou — a tela oferece
+  cinco e a frase promete quatro, em português, hoje. É a mesma família
+  das tabelas copiadas: uma lista escrita à mão ao lado da lista de
+  verdade. Agora ela vem de `ORDEM`, e um sexto assunto entra sozinho.
+- **As três modalidades de força escritas à mão**, em /treino:
+  "musculação, pilates e funcional é que contam", ao lado de
+  `MODALIDADES()`, que já sabe quais são pelo campo `forca`. Em alemão
+  sairiam os três nomes em português; em qualquer idioma, uma quarta
+  modalidade de força não entraria na frase.
+- **E o "min" de novo, duas vezes na mesma tela.** `telaExercicio.unidadeMin`
+  nasceu para isto — o alemão escreve "Min." na prosa — e /treino escrevia
+  "min" ao lado do número grande e outra vez na consequência do apagar.
+  A chave existir não basta: é preciso ir na linha.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 

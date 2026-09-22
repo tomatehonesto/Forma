@@ -79,4 +79,25 @@ export const alertas = {
     tocaEm: (quando: string) => `Rings ${quando}`,
     semHorario: 'No time set',
   },
+  telaLembretes: {
+    titulo: 'Reminders',
+    lead: 'The alerts you create show up here, in the order they go off.',
+    criar: 'Create an alert',
+
+    proximo: (quando: string) => `Next: ${quando}`,
+    desligado: 'Off',
+    guardado: 'Saved — alerts go off on the phone',
+    semAviso: 'No alert while it is blocked',
+
+    bloqueados: 'Alerts are blocked',
+    bloqueadosTexto: 'The device is blocking notifications from this app. While it stays that way, nothing you switch on here will arrive.',
+    semNavegador: 'In a browser there is no way to alert you',
+    semNavegadorTexto: 'What you create is saved and starts working when you open the app on the phone.',
+    abrirConfiguracoes: 'Open settings',
+
+    vazio: 'No alerts yet',
+    vazioTexto: (assuntos: string) => `${assuntos} — create the ones that make sense for your routine.`,
+
+    convite: 'An alert is an invitation, not a demand. If one goes by one day, nothing here turns into a delay.',
+  },
 };

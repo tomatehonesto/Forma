@@ -89,4 +89,25 @@ export const alertas = {
     tocaEm: (quando: string) => `Suena ${quando}`,
     semHorario: 'Sin horario marcado',
   },
+  telaLembretes: {
+    titulo: 'Recordatorios',
+    lead: 'Los avisos que crees aparecen aquí, en el orden en que suenan.',
+    criar: 'Crear alerta',
+
+    proximo: (quando: string) => `Próximo: ${quando}`,
+    desligado: 'Apagado',
+    guardado: 'Guardado — los avisos salen por el celular',
+    semAviso: 'Sin aviso mientras esté bloqueado',
+
+    bloqueados: 'Los avisos están bloqueados',
+    bloqueadosTexto: 'El aparato está bloqueando las notificaciones de esta aplicación. Mientras siga así, nada de lo que actives aquí va a llegar.',
+    semNavegador: 'En el navegador no se puede avisar',
+    semNavegadorTexto: 'Lo que crees queda guardado y empieza a valer cuando abras la aplicación en el celular.',
+    abrirConfiguracoes: 'Abrir la configuración',
+
+    vazio: 'Ninguna alerta todavía',
+    vazioTexto: (assuntos: string) => `${assuntos} — crea las que tengan sentido para tu rutina.`,
+
+    convite: 'Un aviso es una invitación, no una exigencia. Si un día se pasa, nada aquí se vuelve atraso.',
+  },
 };

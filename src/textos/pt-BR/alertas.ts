@@ -101,4 +101,33 @@ export const alertas = {
     tocaEm: (quando: string) => `Toca ${quando}`,
     semHorario: 'Sem horário marcado',
   },
+  /* ============================================================
+     LEMBRETES — a lista do que vai tocar
+
+     ⚠️ O VAZIO NOMEAVA QUATRO ASSUNTOS, E SÃO CINCO. "Dose, pesagem,
+     hidratação e proteína" ficou escrito quando o check-in ainda não
+     era um alerta, e a frase não acompanhou. Agora a lista vem de
+     `ORDEM` — se entrar um sexto assunto, ela entra junto.
+     ============================================================ */
+  telaLembretes: {
+    titulo: 'Lembretes',
+    lead: 'Os avisos que você criar aparecem aqui, na ordem em que tocam.',
+    criar: 'Criar alerta',
+
+    proximo: (quando: string) => `Próximo: ${quando}`,
+    desligado: 'Desligado',
+    guardado: 'Guardado — os avisos saem pelo celular',
+    semAviso: 'Sem aviso enquanto estiver bloqueado',
+
+    bloqueados: 'Os avisos estão bloqueados',
+    bloqueadosTexto: 'O aparelho está barrando as notificações deste aplicativo. Enquanto estiver assim, nada do que você ligar aqui vai chegar.',
+    semNavegador: 'No navegador não dá para avisar',
+    semNavegadorTexto: 'O que você criar fica guardado e passa a valer quando abrir o aplicativo no celular.',
+    abrirConfiguracoes: 'Abrir as configurações',
+
+    vazio: 'Nenhum alerta ainda',
+    vazioTexto: (assuntos: string) => `${assuntos} — crie os que fizerem sentido para a sua rotina.`,
+
+    convite: 'Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso.',
+  },
 };

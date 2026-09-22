@@ -332,4 +332,25 @@ export const tratamento = {
     restamDoses: (quantas: number) => `Quedan ${quantas} dosis.`,
     enesimaDose: (numero: number) => `Dosis ${numero}`,
   },
+  telaTreino: {
+    titulo: 'Entrenamiento',
+    naoEncontrei: 'No encontré este registro',
+    apagadoEmOutraTela: 'Puede haber sido borrado en otra pantalla.',
+
+    semanaDoTratamento: (n: number) => `Semana ${n} del tratamiento`,
+
+    origem: 'Origen',
+    origemVoce: 'Tú — registrado en esta pantalla',
+    origemIntegracao: (fonte: string) => `${fonte} — llegó por la integración`,
+
+    contaComoForca: 'Cuenta como fuerza',
+    forcaSim: 'Sí — trabaja músculo',
+    forcaNao: (modalidades: string) => `No — ${modalidades} son las que cuentan`,
+    selo: 'Fuerza',
+
+    corrigir: 'Corregir',
+    apagar: 'Borrar',
+    apagarTira: (min: number, unidade: string) =>
+      `Borrar quita ${min === 1 ? 'el' : 'los'} ${min} ${unidade} del total de ese día.`,
+  },
 };

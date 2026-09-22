@@ -484,4 +484,37 @@ export const tratamento = {
     restamDoses: (quantas: number) => `Restam ${quantas} doses.`,
     enesimaDose: (numero: number) => `${numero}ª dose`,
   },
+  /* ============================================================
+     UM TREINO — a folha que abre ao tocar na linha do diário
+
+     ⚠️ AS TRÊS MODALIDADES DE FORÇA NÃO ESTÃO ESCRITAS AQUI. "musculação,
+     pilates e funcional" é a tabela de `logic/modalidades` dita por
+     extenso, e uma cópia escrita à mão seria a que fica para trás quando
+     entrar a quarta. A frase recebe a lista pronta.
+     ============================================================ */
+  telaTreino: {
+    titulo: 'Treino',
+    naoEncontrei: 'Não encontrei este registro',
+    apagadoEmOutraTela: 'Ele pode ter sido apagado em outra tela.',
+
+    semanaDoTratamento: (n: number) => `Semana ${n} do tratamento`,
+
+    origem: 'Origem',
+    origemVoce: 'Você — registrado nesta tela',
+    origemIntegracao: (fonte: string) => `${fonte} — chegou pela integração`,
+
+    contaComoForca: 'Conta como força',
+    forcaSim: 'Sim — puxa músculo',
+    forcaNao: (modalidades: string) => `Não — ${modalidades} é que contam`,
+    selo: 'Força',
+
+    corrigir: 'Corrigir',
+    apagar: 'Apagar',
+    /* ⚠️ O "min" VEM DO CATÁLOGO, e estava escrito aqui em duas frases: o
+       alemão escreve "Min." na prosa, e esta tela mostrava "min" duas
+       vezes ao lado de um número. É a mesma chave que a meta de
+       exercício já usa. */
+    apagarTira: (min: number, unidade: string) =>
+      `Apagar tira ${min === 1 ? 'o' : 'os'} ${min} ${unidade} do total daquele dia.`,
+  },
 };

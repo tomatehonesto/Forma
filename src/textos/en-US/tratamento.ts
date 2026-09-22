@@ -334,4 +334,25 @@ export const tratamento = {
     restamDoses: (quantas: number) => `${quantas} doses left.`,
     enesimaDose: (numero: number) => `Dose ${numero}`,
   },
+  telaTreino: {
+    titulo: 'Workout',
+    naoEncontrei: 'I could not find this entry',
+    apagadoEmOutraTela: 'It may have been deleted on another screen.',
+
+    semanaDoTratamento: (n: number) => `Week ${n} of treatment`,
+
+    origem: 'Source',
+    origemVoce: 'You — entered on this screen',
+    origemIntegracao: (fonte: string) => `${fonte} — came in through the integration`,
+
+    contaComoForca: 'Counts as strength',
+    forcaSim: 'Yes — it works muscle',
+    forcaNao: (modalidades: string) => `No — ${modalidades} are what count`,
+    selo: 'Strength',
+
+    corrigir: 'Correct it',
+    apagar: 'Delete',
+    apagarTira: (min: number, unidade: string) =>
+      `Deleting takes ${min} ${unidade} off that day’s total.`,
+  },
 };

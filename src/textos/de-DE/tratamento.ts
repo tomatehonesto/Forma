@@ -391,4 +391,25 @@ export const tratamento = {
     restamDoses: (quantas: number) => `Es bleiben ${quantas} Dosen.`,
     enesimaDose: (numero: number) => `${numero}. Dosis`,
   },
+  telaTreino: {
+    titulo: 'Einheit',
+    naoEncontrei: 'Diesen Eintrag habe ich nicht gefunden',
+    apagadoEmOutraTela: 'Er wurde vielleicht auf einem anderen Bildschirm gelöscht.',
+
+    semanaDoTratamento: (n: number) => `Woche ${n} der Behandlung`,
+
+    origem: 'Herkunft',
+    origemVoce: 'Du — auf diesem Bildschirm eingetragen',
+    origemIntegracao: (fonte: string) => `${fonte} — über die Verbindung gekommen`,
+
+    contaComoForca: 'Zählt als Kraft',
+    forcaSim: 'Ja — das fordert den Muskel',
+    forcaNao: (modalidades: string) => `Nein — es zählen ${modalidades}`,
+    selo: 'Kraft',
+
+    corrigir: 'Korrigieren',
+    apagar: 'Löschen',
+    apagarTira: (min: number, unidade: string) =>
+      `Löschen nimmt ${min} ${unidade} aus der Summe dieses Tages.`,
+  },
 };

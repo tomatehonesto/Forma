@@ -3,11 +3,16 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { apagarTreino, ehManual, origemDoTreino, treinoEm } from '../logic/derive';
-import { ehForca, iconeDe } from '../logic/modalidades';
+import { MODALIDADES, ehForca, iconeDe } from '../logic/modalidades';
 import { semanaDoTratamento, dataComDiaDaSemana } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaTreino;
 
 /* ============================================================
    UM TREINO
@@ -61,9 +66,9 @@ export default function Treino() {
 
   if (!treino) {
     return (
-      <SheetScreen titulo="Treino" sub="Não encontrei este registro" onClose={() => router.back()}>
+      <SheetScreen titulo={K().titulo} sub={K().naoEncontrei} onClose={() => router.back()}>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>
-          Ele pode ter sido apagado em outra tela.
+          {K().apagadoEmOutraTela}
         </Txt>
       </SheetScreen>
     );
@@ -93,9 +98,9 @@ export default function Treino() {
             <View style={{ flex: 1 }}>
               <Txt v="metric">
                 {treino.min}
-                <Txt v="label" c={c.tx3}> min</Txt>
+                <Txt v="label" c={c.tx3}> {T.tratamento.telaExercicio.unidadeMin}</Txt>
               </Txt>
-              <Txt v="caption" c={c.tx3}>Semana {semana} do tratamento</Txt>
+              <Txt v="caption" c={c.tx3}>{K().semanaDoTratamento(semana)}</Txt>
             </View>
           </Row>
         </Cartao>
@@ -108,10 +113,8 @@ export default function Treino() {
               de digitação ou o relógio chamando caminhada de corrida. */}
           <Linha
             ic={ehManual(fonte) ? 'pencil' : 'watch'}
-            titulo="Origem"
-            sub={ehManual(fonte)
-              ? 'Você — registrado nesta tela'
-              : `${fonte} — chegou pela integração`}
+            titulo={K().origem}
+            sub={ehManual(fonte) ? K().origemVoce : K().origemIntegracao(fonte)}
             seta={false}
           />
           {/* A marca de força aparece aqui porque é a única propriedade do
@@ -119,11 +122,13 @@ export default function Treino() {
               conferir merece ver por que aquele dia contou (ou não). */}
           <Linha
             ic="shield"
-            titulo="Conta como força"
+            titulo={K().contaComoForca}
             sub={forca
-              ? 'Sim — puxa músculo'
-              : 'Não — musculação, pilates e funcional é que contam'}
-            selo={forca ? 'Força' : undefined}
+              ? K().forcaSim
+              : K().forcaNao(T.comum.lista(
+                MODALIDADES().filter((m) => m.forca).map((m) => T.comum.noMeio(m.nome)),
+              ))}
+            selo={forca ? K().selo : undefined}
             seloTom="verde"
             seta={false}
           />
@@ -131,15 +136,15 @@ export default function Treino() {
 
         <View style={{ marginTop: 8, gap: 8 }}>
           <Botao
-            label="Corrigir"
+            label={K().corrigir}
             tom="fantasma"
             onPress={() => { router.back(); router.push(`/medir-exercicio?t=${dia}&i=${idx}` as any); }}
           />
-          <Botao label="Apagar" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagar} tom="perigo" onPress={apagar} />
         </View>
 
         <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 2 }}>
-          Apagar tira os {treino.min} min do total daquele dia.
+          {K().apagarTira(treino.min, T.tratamento.telaExercicio.unidadeMin)}
         </Txt>
       </View>
     </SheetScreen>

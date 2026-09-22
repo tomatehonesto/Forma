@@ -105,4 +105,25 @@ export const alertas = {
     tocaEm: (quando: string) => `Klingelt ${quando}`,
     semHorario: 'Keine Uhrzeit markiert',
   },
+  telaLembretes: {
+    titulo: 'Erinnerungen',
+    lead: 'Die Erinnerungen, die du anlegst, stehen hier — in der Reihenfolge, in der sie klingeln.',
+    criar: 'Erinnerung anlegen',
+
+    proximo: (quando: string) => `Nächste: ${quando}`,
+    desligado: 'Aus',
+    guardado: 'Gespeichert — die Erinnerungen klingeln auf dem Telefon',
+    semAviso: 'Keine Erinnerung, solange es blockiert ist',
+
+    bloqueados: 'Die Erinnerungen sind blockiert',
+    bloqueadosTexto: 'Das Gerät blockiert die Mitteilungen dieser App. Solange das so bleibt, kommt nichts an, was du hier einschaltest.',
+    semNavegador: 'Im Browser können wir dich nicht erinnern',
+    semNavegadorTexto: 'Was du anlegst, bleibt gespeichert und gilt, sobald du die App auf dem Telefon öffnest.',
+    abrirConfiguracoes: 'Einstellungen öffnen',
+
+    vazio: 'Noch keine Erinnerung',
+    vazioTexto: (assuntos: string) => `${assuntos} — leg die an, die zu deinem Alltag passen.`,
+
+    convite: 'Eine Erinnerung ist eine Einladung, keine Forderung. Geht eine mal vorbei, wird hier nichts daraus, was du nachholen müsstest.',
+  },
 };

@@ -11,6 +11,12 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { estadoDaPermissao, pedirPermissao, type Permissao } from '../logic/avisos';
+import { maiuscula } from '../logic/time';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alertas.telaLembretes;
 
 /* ============================================================
    LEMBRETES — uma lista, e o assunto é do alerta
@@ -116,10 +122,10 @@ export default function Lembretes() {
           >
             <Txt v="bodyMed" c={a.on ? c.tx : c.tx3}>{resumoDe(a)}</Txt>
             <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
-              {prox ? `Próximo: ${prox}`
-                : !a.on ? 'Desligado'
-                  : permissao === 'indisponivel' ? 'Guardado — os avisos saem pelo celular'
-                    : 'Sem aviso enquanto estiver bloqueado'}
+              {prox ? K().proximo(prox)
+                : !a.on ? K().desligado
+                  : permissao === 'indisponivel' ? K().guardado
+                    : K().semAviso}
             </Txt>
           </Pressable>
           <Switch
@@ -133,13 +139,13 @@ export default function Lembretes() {
 
   return (
     <TelaInterna
-      titulo="Lembretes"
+      titulo={K().titulo}
       /* O CRIAR NO PÉ, fixo e fora da rolagem: ele não é o fim da lista,
          é a ação da tela — e com a lista grande, um botão no fim do rolo
          só existe para quem já rolou até lá. */
-      rodape={<Botao label="Criar alerta" onPress={() => router.push('/alerta' as any)} />}
+      rodape={<Botao label={K().criar} onPress={() => router.push('/alerta' as any)} />}
     >
-      <Titulao titulo="Lembretes" lead="Os avisos que você criar aparecem aqui, na ordem em que tocam." />
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       {/* O QUE O APARELHO TEM A DIZER. Nas duas situações em que o aviso
           não sai — permissão negada no sistema, ou app aberto no
@@ -153,16 +159,14 @@ export default function Lembretes() {
         }}>
           <Icon name="bell" size={18} color={c.amber} sw={1.9} />
           <View style={{ flex: 1 }}>
-            <Txt v="bodyMed">{bloqueado ? 'Os avisos estão bloqueados' : 'No navegador não dá para avisar'}</Txt>
+            <Txt v="bodyMed">{bloqueado ? K().bloqueados : K().semNavegador}</Txt>
             <Txt v="caption" c={c.tx2} style={{ marginTop: 3, lineHeight: 20 }}>
-              {bloqueado
-                ? 'O aparelho está barrando as notificações deste aplicativo. Enquanto estiver assim, nada do que você ligar aqui vai chegar.'
-                : 'O que você criar fica guardado e passa a valer quando abrir o aplicativo no celular.'}
+              {bloqueado ? K().bloqueadosTexto : K().semNavegadorTexto}
             </Txt>
             {bloqueado && Platform.OS !== 'web' ? (
               <Pressable onPress={() => Linking.openSettings()} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.6 : 1 }]}>
                 <Row gap={6}>
-                  <Txt v="label" c={c.accent2}>Abrir as configurações</Txt>
+                  <Txt v="label" c={c.accent2}>{K().abrirConfiguracoes}</Txt>
                   <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
                 </Row>
               </Pressable>
@@ -188,8 +192,8 @@ export default function Lembretes() {
            aponta para o botão que está logo abaixo, à vista. */
         <Vazio
           ic="bell"
-          titulo="Nenhum alerta ainda"
-          texto="Dose, pesagem, hidratação e proteína — crie os que fizerem sentido para a sua rotina."
+          titulo={K().vazio}
+          texto={K().vazioTexto(maiuscula(T.comum.lista(ORDEM.map((t) => T.comum.noMeio(TIPOS()[t].curto)))))}
         />
       )}
 
@@ -197,7 +201,7 @@ export default function Lembretes() {
           bloqueio e se dispensa como qualquer outro, e prometer uma
           soneca que não está lá é a mesma espécie de promessa que esta
           tela deixou de fazer quando os avisos passaram a existir. */}
-      <Aviso ic="info" texto="Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso." />
+      <Aviso ic="info" texto={K().convite} />
     </TelaInterna>
   );
 }

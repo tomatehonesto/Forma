@@ -89,4 +89,25 @@ export const alertas = {
     tocaEm: (quando: string) => `Sonne ${quando}`,
     semHorario: 'Aucun horaire coché',
   },
+  telaLembretes: {
+    titulo: 'Rappels',
+    lead: 'Les alertes que vous créez apparaissent ici, dans l’ordre où elles sonnent.',
+    criar: 'Créer une alerte',
+
+    proximo: (quando: string) => `Prochaine : ${quando}`,
+    desligado: 'Désactivée',
+    guardado: 'Gardée — les alertes sonnent sur le téléphone',
+    semAviso: 'Aucune alerte tant que c’est bloqué',
+
+    bloqueados: 'Les alertes sont bloquées',
+    bloqueadosTexto: 'L’appareil bloque les notifications de cette application. Tant que ça reste ainsi, rien de ce que vous activez ici n’arrivera.',
+    semNavegador: 'Dans le navigateur, impossible de vous alerter',
+    semNavegadorTexto: 'Ce que vous créez est gardé et commence à valoir quand vous ouvrez l’application sur le téléphone.',
+    abrirConfiguracoes: 'Ouvrir les réglages',
+
+    vazio: 'Aucune alerte pour l’instant',
+    vazioTexto: (assuntos: string) => `${assuntos} — créez celles qui ont du sens pour votre routine.`,
+
+    convite: 'Une alerte est une invitation, pas une exigence. Si un jour elle passe, rien ici ne devient un retard.',
+  },
 };
