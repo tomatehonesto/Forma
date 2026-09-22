@@ -7,12 +7,18 @@ import { Icon } from './Icon';
 import { Txt } from './kit';
 import { useTheme } from './useTheme';
 import { shadowCard } from '../theme';
+import { T } from '../textos';
 
-const ITEMS = [
-  { ic: 'home', label: 'Home' },
-  { ic: 'journey', label: 'Jornada' },
-  { ic: 'heart', label: 'Cuidado' },
-  { ic: 'spark', label: 'Insights' },
+/* ⚠️⚠️ É FUNÇÃO, e não constante de módulo. Como constante, ela era lida
+   uma vez no import e congelava o idioma — e como os rótulos eram texto
+   literal, nem a rede de congelamento a via: ela procura constante que LÊ
+   o catálogo. A barra ficou em português nos cinco idiomas até alguém
+   abrir a tela em alemão e olhar para o rodapé. */
+const ITEMS = () => [
+  { ic: 'home', label: T.comum.abas.home },
+  { ic: 'journey', label: T.comum.abas.jornada },
+  { ic: 'heart', label: T.comum.abas.cuidado },
+  { ic: 'spark', label: T.comum.abas.insights },
 ];
 
 /* Tab bar custom com FAB central (abre o registrar). */
@@ -24,7 +30,7 @@ export function TabBar({ state, navigation }: any) {
   const Tab = ({ idx }: { idx: number }) => {
     const focused = state.index === idx;
     const route = state.routes[idx];
-    const { ic, label } = ITEMS[idx];
+    const { ic, label } = ITEMS()[idx];
     return (
       <Pressable
         style={styles.tab}

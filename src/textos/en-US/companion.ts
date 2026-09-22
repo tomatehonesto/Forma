@@ -72,4 +72,35 @@ export const companion = {
     consultaTitulo: 'How to get more out of your appointment',
     consultaDesc: 'What to bring, what to ask, and how the automatic summary saves you the first ten minutes.',
   },
+
+  telaInsights: {
+    ola: (nome: string) => `Hi, ${nome}`,
+    pergunta: 'What do you want to\nunderstand today?',
+    escreva: 'Write your question...',
+
+    descobertaDaSemana: 'THE FINDING OF THE WEEK',
+    entenderMelhor: 'Understand it better',
+
+    oQueMaisPercebi: 'What else I noticed',
+    oQueMaisPercebiNota: 'Other observations I found while going through your journey.',
+    verTodas: (quantas: number) => `See all the observations (${quantas})`,
+
+    observamos: 'WHAT WE NOTICED',
+    hojeDeCem: 'today, out of 100',
+
+    proximasAcoes: 'Next steps',
+    proximasAcoesNota: 'In the order they need to happen — never about dose or protocol.',
+
+    resumos: 'Build summaries',
+    resumosNota: 'Your data organized to take to someone.',
+
+    resumoDaSemana: 'Summary of the week',
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
+      `week ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    preparoDaConsulta: 'Getting ready for the appointment',
+    preparoDaConsultaSub: 'weight, adherence, symptoms and questions',
+    preparoSemEquipe: 'ready to share',
+    documento: 'Appointment summary',
+    documentoSub: 'a document with the whole story',
+  },
 };

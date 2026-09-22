@@ -958,7 +958,10 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 1.150, em 94 arquivos.**
+**Medido em 22/09/2026: faltam 927, em 86 arquivos.** (Eram 1.150 em 94
+quando este item nasceu; a conta é refeita a cada lote com
+`node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
+só depois de medido.)
 
 ⚠️ E O NÚMERO SUBIU DEPOIS DE CAIR, de propósito. Ele tinha chegado a
 1.015 com a varredura antiga, que só achava literal com cara de
@@ -1081,6 +1084,23 @@ tirada do `git show`, e não de memória.
   `DOW_PT` e a sétima escondida dentro de `alertas.quando`.
 - **Duas chaves escritas e nunca ligadas** — o que a Garmin e a Withings
   trazem. Escrever o catálogo não liga o texto; é preciso ir na linha.
+- **A barra de abas estava em português nos cinco idiomas.** Quatro
+  palavras embaixo de toda tela do aplicativo — Home, Jornada, Cuidado,
+  Insights —, numa constante de módulo de `ui/TabBar`. Ver o item 28:
+  nenhuma rede estática podia vê-la.
+- **Um número que o aplicativo anunciava e não tinha.** A tela de
+  exportar contava "15 coletas" somando os VALORES de cada marcador —
+  três datas de HbA1c são três valores da mesma coleta. A conta estava
+  certa, a palavra não: virou "resultados".
+- **Duas linhas do mesmo cartão com o mesmo nome**, separadas por um
+  artigo: "Resumo para a consulta" (a conversa) e "Resumo para consulta"
+  (o documento). Em português já confundia; em francês e em alemão
+  sairia a mesma frase duas vezes. Traduzir sem olhar teria multiplicado
+  a colisão por cinco.
+- **"MORPHI OBSERVOU"** — o único lugar do aplicativo em que o nome do
+  produto tinha verbo pendurado nele. O cabeçalho do companion já traz a
+  regra escrita, e o cartão vizinho já trazia a forma certa ("A
+  DESCOBERTA DA SEMANA"). Virou "O QUE OBSERVAMOS".
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1238,10 +1258,10 @@ aparelho manda.
 
 ---
 
-## 🟡 24. A rede de congelamento tem duas cegueiras conhecidas
+## 🟡 24. A rede de congelamento tem três cegueiras conhecidas
 
 Ela roda sete cenários sobre **uma** semente, e a semente tem registro de
-tudo. Duas consequências, as duas já custaram:
+tudo. Três consequências, as três já custaram:
 
 1. **Todo ramo que só aparece no vazio fica de fora.** O feminino escrito
    em duro em `metas.jornada.semRegistros` — a tela dizia "sem dias
@@ -1256,10 +1276,23 @@ tudo. Duas consequências, as duas já custaram:
    nenhuma outra mudança, é provável que seja isto — mas é para conferir,
    não para descartar.
 
+3. **Ela só roda pt-BR e en-US.** Dos sete cenários, dois trocam o local, e
+   os dois trocam para `en-US`. Mudança em catálogo espanhol, francês ou
+   alemão passa por ela sem uma linha de diferença — o "idêntico" é
+   verdadeiro e não diz nada. Foi o que aconteceu com a maiúscula do
+   alemão em `rotina.empurroes.aplicacao` ("der Pen ist dran" no começo
+   de frase): a rede calou, e quem viu foi a tela. Acrescentar cenários
+   nos outros três locais é barato e ainda não foi feito.
+
 
 ---
 
-## 🔴 25. O nome do princípio ativo está em português, em todo idioma
+## ✅ 25. O nome do princípio ativo está em português, em todo idioma — RESOLVIDO
+
+**Resolvido.** `tratamento.molecula` é uma tabela chave→exibição em cada
+catálogo, e `logic/formas.nomeDaMolecula` a lê com recuo para a chave:
+registro antigo continua legível, e nenhuma tela escreve mais a grafia
+portuguesa em alemão. O relato original fica abaixo.
 
 `logic/meds.ts` guarda `mol: 'Tirzepatida'`, `mol: 'Semaglutida'` — a
 grafia portuguesa —, e o nome aparece dentro de frase em duas telas: a
@@ -1387,3 +1420,48 @@ caminho de quem respondeu "não" no cadastro.
 
 A segunda é mais barata e provavelmente mais certa. A primeira só se paga
 se a demonstração for material de venda.
+
+---
+
+## 🟡 28. Rótulo literal em constante de módulo: nenhuma rede estática o vê
+
+`scripts/idioma-congelado.mjs` procura **constante de módulo que LÊ o
+catálogo**, porque essa é a que congela o idioma no import. Ela não tem
+como achar o caso irmão, e pior: **constante de módulo cujos rótulos são
+texto literal**. Não há o que detectar — é só uma string.
+
+Foi assim que a barra de abas ficou em português nos cinco idiomas:
+
+```ts
+const ITEMS = [
+  { ic: 'home', label: 'Home' },
+  { ic: 'journey', label: 'Jornada' },   // ← em alemão também
+```
+
+Quatro palavras embaixo de **toda** tela do aplicativo, e as duas redes
+calaram: `idioma-congelado` porque a constante não lê o catálogo, e
+`inventario-textos` porque acusava o arquivo mas ele não estava na fila
+das telas.
+
+**A rede que pega esta classe é a de tela, não a de código.** Trocar o
+idioma e varrer o texto renderizado é o único jeito de achar palavra
+portuguesa que ninguém marcou como texto — `scripts/rede-telas.js` no
+navegador já faz a varredura; o que faltava era rodá-la olhando também
+para a moldura, e não só para o miolo de cada tela.
+
+⚠️ E o inventário conta ARQUIVO, não tela. `ui/TabBar.tsx` aparecia na
+lista dele o tempo todo, misturado com os componentes, enquanto a fila de
+trabalho ia por rota. O que aparece em toda tela não tem rota.
+
+---
+
+## 🟡 29. O resumo da semana mostra o peso sem sinal
+
+Na aba de Insights, a linha "Resumo da semana" diz `semana 11 · 6
+check-ins, 0,4 kg` — e os 0,4 kg saem de `Math.abs()` sobre a variação
+dos últimos sete dias. Quem lê não sabe se subiu ou desceu.
+
+Não é número inventado (a variação é real), mas é número sem leitura, que
+é a metade do problema. A correção é escolher: ou o sinal entra, ou a
+frase diz a direção em palavra. Fica fora deste lote porque muda
+comportamento numa linha que este commit só traduziu.

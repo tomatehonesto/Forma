@@ -81,4 +81,35 @@ export const companion = {
     consultaTitulo: 'Wie du mehr aus deinem Termin machst',
     consultaDesc: 'Was mitnehmen, was fragen, und wie die automatische Übersicht die ersten zehn Minuten spart.',
   },
+
+  telaInsights: {
+    ola: (nome: string) => `Hallo, ${nome}`,
+    pergunta: 'Was möchtest du\nheute verstehen?',
+    escreva: 'Schreib deine Frage...',
+
+    descobertaDaSemana: 'DER FUND DER WOCHE',
+    entenderMelhor: 'Besser verstehen',
+
+    oQueMaisPercebi: 'Was mir sonst aufgefallen ist',
+    oQueMaisPercebiNota: 'Weitere Beobachtungen aus dem Durchgehen deiner Behandlung.',
+    verTodas: (quantas: number) => `Alle Beobachtungen ansehen (${quantas})`,
+
+    observamos: 'WAS WIR BEOBACHTET HABEN',
+    hojeDeCem: 'heute, von 100',
+
+    proximasAcoes: 'Nächste Schritte',
+    proximasAcoesNota: 'In der Reihenfolge, in der sie dran sind — nie über Dosis oder Vorgehen.',
+
+    resumos: 'Übersichten bauen',
+    resumosNota: 'Deine Daten geordnet, um sie jemandem mitzubringen.',
+
+    resumoDaSemana: 'Übersicht der Woche',
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
+      `Woche ${semana} · ${checkins} ${checkins === 1 ? 'Check-in' : 'Check-ins'}, ${peso}`,
+    preparoDaConsulta: 'Vorbereitung auf den Termin',
+    preparoDaConsultaSub: 'Gewicht, Therapietreue, Symptome und Fragen',
+    preparoSemEquipe: 'bereit zum Teilen',
+    documento: 'Übersicht für den Termin',
+    documentoSub: 'ein Dokument mit dem ganzen Verlauf',
+  },
 };

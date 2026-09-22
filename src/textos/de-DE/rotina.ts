@@ -67,8 +67,16 @@ export const rotina = {
        Also dreht sich der Satz: „Der Pen ist dran — such dir die Stelle
        aus.“ Es ist dieselbe Lösung wie in avisos.ts, und es ist die
        Lösung: wer den Fall nicht wählen kann, baut den Satz um den Fall
-       herum, den er bekommt. */
-    aplicacao: (recipiente: string) => `${recipiente} ist dran — such dir die Stelle aus`,
+       herum, den er bekommt.
+
+       ⚠️ UND DAMIT RUTSCHT DER ARTIKEL AN DEN SATZANFANG, wo `oA` ihn
+       klein liefert: auf dem Bildschirm stand „der Pen ist dran“. Im
+       Portugiesischen fiel das nie auf, weil dort der Imperativ vorne
+       steht. Der erste Buchstabe wird hier großgeschrieben, und zwar an
+       dieser einen Stelle — es ist der einzige Satz des Katalogs, der
+       mit `oA` anfängt. */
+    aplicacao: (recipiente: string) =>
+      `${recipiente.charAt(0).toUpperCase()}${recipiente.slice(1)} ist dran — such dir die Stelle aus`,
     aplicacaoPorque: 'Die Injektion der Woche steht an, und die Stelle zu wechseln reizt die Haut weniger',
 
     receita: 'Frag das neue Rezept an',

@@ -79,4 +79,35 @@ export const companion = {
     consultaTitulo: 'Cómo aprovechar mejor tu consulta',
     consultaDesc: 'Qué llevar, qué preguntar y cómo el resumen automático ahorra los primeros diez minutos.',
   },
+
+  telaInsights: {
+    ola: (nome: string) => `Hola, ${nome}`,
+    pergunta: '¿Qué quieres\nentender hoy?',
+    escreva: 'Escribe tu pregunta...',
+
+    descobertaDaSemana: 'EL HALLAZGO DE LA SEMANA',
+    entenderMelhor: 'Entender mejor',
+
+    oQueMaisPercebi: 'Qué más noté',
+    oQueMaisPercebiNota: 'Otras observaciones que encontré analizando tu recorrido.',
+    verTodas: (quantas: number) => `Ver todas las observaciones (${quantas})`,
+
+    observamos: 'LO QUE OBSERVAMOS',
+    hojeDeCem: 'hoy, de 100',
+
+    proximasAcoes: 'Próximos pasos',
+    proximasAcoesNota: 'En el orden en que necesitan pasar — nunca sobre dosis ni protocolo.',
+
+    resumos: 'Armar resúmenes',
+    resumosNota: 'Tus datos ordenados para llevar a alguien.',
+
+    resumoDaSemana: 'Resumen de la semana',
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
+      `semana ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    preparoDaConsulta: 'Preparación de la consulta',
+    preparoDaConsultaSub: 'peso, adherencia, síntomas y preguntas',
+    preparoSemEquipe: 'listo para compartir',
+    documento: 'Resumen para la consulta',
+    documentoSub: 'documento con la evolución completa',
+  },
 };

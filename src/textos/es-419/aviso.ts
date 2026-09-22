@@ -72,4 +72,49 @@ export const aviso = {
     alongamento: 'Estiramiento',
     outro: 'Otro',
   },
+
+  telaExportar: {
+    titulo: 'Exportar',
+    lead: 'Un archivo con tus registros, para guardar o llevar a otro lado.',
+
+    periodo: 'Período',
+    periodoAjuda: (de: string, ate: string, semanas: number) =>
+      `Del ${de} al ${ate} · ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    ultimas4: 'Últimas 4 semanas',
+    desdeAConsulta: 'Desde la última consulta',
+    tratamentoInteiro: 'Todo el tratamiento',
+
+    oQueEntra: 'Qué entra',
+    oQueEntraNota: 'Toca para incluir o sacar. Lo que quede afuera no entra en el archivo.',
+    incluido: 'incluido',
+    fora: 'afuera',
+
+    aplicacoes: 'Aplicaciones',
+    aplicacoesSub: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · fecha, dosis y lugar`,
+    pesoEMedidas: 'Peso y medidas',
+    pesoEMedidasSub: (pesagens: number, medidas: number) =>
+      `${pesagens} ${pesagens === 1 ? 'pesaje' : 'pesajes'} · ${medidas} ${medidas === 1 ? 'medida' : 'medidas'}`,
+    checkins: 'Check-ins',
+    checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'} · síntoma por síntoma`,
+    exames: 'Exámenes',
+    examesSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'resultado' : 'resultados'} · valor y rango de referencia`,
+    notas: 'Notas para la consulta',
+    notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'anotación' : 'anotaciones'}`,
+    habitos: 'Comidas, agua y ejercicio',
+    habitosSub: (refeicoes: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'comida' : 'comidas'} y el diario del día`,
+
+    formatoTitulo: 'Sale un archivo .json',
+    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lado. Para la versión hecha para que alguien la lea, usa el resumen para la consulta.',
+
+    gerar: 'Armar el archivo',
+    gerando: 'Armando...',
+    verResumo: 'Ver el resumen para la consulta',
+
+    pronto: 'Archivo armado. Solo va adonde elijas.',
+    erro: 'No pudimos armar el archivo en este aparato. Tus registros siguen aquí, intactos.',
+    parado: 'Nada sale de aquí sin que lo toques.',
+  },
 };

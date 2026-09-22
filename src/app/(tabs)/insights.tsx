@@ -22,6 +22,7 @@ import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { pesoTxt } from '../../logic/medidas';
+import { T } from '../../textos';
 
 /* ============================================================
    INSIGHTS — a camada de interpretação.
@@ -39,6 +40,10 @@ import { pesoTxt } from '../../logic/medidas';
    ============================================================ */
 
 const PAD = 24;
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.companion.telaInsights;
 
 /* ⚠️⚠️ O ORBE SAIU, E A ESTRELA DA IA ENTROU NO LUGAR.
 
@@ -288,10 +293,13 @@ export default function Insights() {
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
           <Txt v="note" c={c.onHero2} style={{ textAlign: 'center' }}>
-            Oi, {S.profile.name.split(' ')[0]}
+            {K().ola(S.profile.name.split(' ')[0])}
           </Txt>
+          {/* ⚠️ A QUEBRA VEM DO TEXTO, e não daqui. Era um {'\n'} escrito no
+              meio do JSX, o que fixava em português o ponto onde a frase
+              quebra; a alemã é mais longa e quebra em outro lugar. */}
           <Txt v="display" c={c.onHero} style={{ fontSize: 30, lineHeight: 37, marginTop: 4, textAlign: 'center' }}>
-            O que você quer{'\n'}entender hoje?
+            {K().pergunta}
           </Txt>
           {/* a credencial voltou, agora do tamanho certo: uma linha discreta
               sob a pergunta, não uma barra de identidade no topo */}
@@ -309,7 +317,7 @@ export default function Insights() {
             <TextInput
               value={pergunta} onChangeText={setPergunta}
               onSubmitEditing={enviar} returnKeyType="send"
-              placeholder="Escreva sua pergunta..." placeholderTextColor={c.onHero2}
+              placeholder={K().escreva} placeholderTextColor={c.onHero2}
               style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 19 }}
             />
             <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
@@ -390,14 +398,14 @@ export default function Insights() {
 
                 <Row gap={9}>
                   <Icon name="aura" size={15} color={c.lime} sw={2} />
-                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>A DESCOBERTA DA SEMANA</Txt>
+                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>{K().descobertaDaSemana}</Txt>
                 </Row>
                 <Txt v="title" c={c.onHero} style={{ fontSize: 20, lineHeight: 27, marginTop: 14 }}>
                   {destaque.titulo}
                 </Txt>
                 <Txt v="caption" c={c.onHero2} style={{ marginTop: 9, lineHeight: 21 }}>{destaque.texto}</Txt>
                 <Row gap={7} style={{ marginTop: 16 }}>
-                  <Txt v="label" c={c.lime}>Entender melhor</Txt>
+                  <Txt v="label" c={c.lime}>{K().entenderMelhor}</Txt>
                   <Icon name="chev" size={13} color={c.lime} sw={2.2} />
                 </Row>
               </View>
@@ -459,10 +467,8 @@ export default function Insights() {
             medida vive num lugar só. */}
         {outras.length > 0 && (
           <View>
-            <SectionHead title="O que mais percebi" />
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              Outras observações que encontrei analisando sua jornada.
-            </Txt>
+            <SectionHead title={K().oQueMaisPercebi} />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().oQueMaisPercebiNota}</Txt>
 
             {/* Card único com linhas divididas, e não blocos soltos na
                 página: o card agrupa, e agrupar aqui diz que aquelas três
@@ -498,7 +504,7 @@ export default function Insights() {
                   <View style={{ height: 1, backgroundColor: c.line2 }} />
                   <Pressable onPress={() => setTudo(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                     <Row gap={7} style={{ paddingVertical: 18 }}>
-                      <Txt v="label" c={c.accent2}>Ver todas as observações ({pads.length - 1})</Txt>
+                      <Txt v="label" c={c.accent2}>{K().verTodas(pads.length - 1)}</Txt>
                       <Icon name="chev" size={14} color={c.accent2} sw={2.2} />
                     </Row>
                   </Pressable>
@@ -554,7 +560,7 @@ export default function Insights() {
           <View style={{ padding: 24 }}>
           <Row gap={9}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.lime }} />
-            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>MORPHI OBSERVOU</Txt>
+            <Txt v="micro" c={c.lime} style={{ letterSpacing: 1.2 }}>{K().observamos}</Txt>
           </Row>
           <Txt v="display" c={c.onHero} style={{ fontSize: 22, lineHeight: 29, marginTop: 16 }}>
             {eq.abertura}
@@ -575,7 +581,7 @@ export default function Insights() {
                   </Txt>
                   <Row gap={7} style={{ alignItems: 'baseline', marginTop: 4 }}>
                     <Txt v="h2" c={c.lime}>{serie[serie.length - 1].v}</Txt>
-                    <Txt v="caption" c={c.onHero2}>hoje, de 100</Txt>
+                    <Txt v="caption" c={c.onHero2}>{K().hojeDeCem}</Txt>
                   </Row>
                 </View>
                 <Barras data={serie} height={48} />
@@ -609,10 +615,8 @@ export default function Insights() {
             ============================================================ */}
         {acoes.length > 0 && (
           <View style={{ marginTop: 40 }}>
-            <SectionHead title="Próximas ações" />
-            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-              Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.
-            </Txt>
+            <SectionHead title={K().proximasAcoes} />
+            <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().proximasAcoesNota}</Txt>
 
             {/* Timeline: um fio vertical ligando as ações, com um ponto em
                 cada. O ícone saiu — ele identificava o assunto, mas o que
@@ -665,22 +669,20 @@ export default function Insights() {
              o mesmo tipo de coisa, três atalhos para documentos, e repetir o
              padrão poupa a pessoa de aprender dois. */}
         <View style={{ marginTop: 40 }}>
-          <SectionHead title="Gerar resumos" />
-          <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-            Seus dados organizados para levar a alguém.
-          </Txt>
+          <SectionHead title={K().resumos} />
+          <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().resumosNota}</Txt>
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
-            <ListRow ic="chart" title="Resumo da semana"
-              sub={`semana ${r.semana} · ${ci7} check-ins, ${pesoTxt(S, Math.abs(dSem))}`}
-              onPress={perguntar('Como está minha evolução?')} />
+            <ListRow ic="chart" title={K().resumoDaSemana}
+              sub={K().resumoDaSemanaSub(r.semana, ci7, pesoTxt(S, Math.abs(dSem)))}
+              onPress={perguntar(T.rotina.perguntas.meuProgresso)} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-            <ListRow ic="cal" title="Resumo para a consulta"
-              sub={temAcompanhamento(S) ? 'peso, adesão, sintomas e perguntas' : 'pronto para compartilhar'}
-              onPress={perguntar('Prepare minha consulta')} />
+            <ListRow ic="cal" title={K().preparoDaConsulta}
+              sub={temAcompanhamento(S) ? K().preparoDaConsultaSub : K().preparoSemEquipe}
+              onPress={perguntar(T.rotina.perguntas.prepararConsulta)} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-            <ListRow ic="doc" title="Resumo para consulta"
-              sub="documento com a evolução completa" onPress={go('/resumo-medico')} />
+            <ListRow ic="doc" title={K().documento}
+              sub={K().documentoSub} onPress={go('/resumo-medico')} />
           </View>
         </View>
 

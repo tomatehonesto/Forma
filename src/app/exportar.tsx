@@ -11,6 +11,7 @@ import {
 } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
 
 /* ============================================================
    EXPORTAR — levar os dados embora
@@ -34,6 +35,10 @@ import { useTheme } from '../ui/useTheme';
    Agora sai um arquivo com os registros, e a regra do que entra vale
    sobre eles. Ver src/logic/exportacao.ts.
    ============================================================ */
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.aviso.telaExportar;
 
 const semanas = (ms: number) => Math.max(1, Math.round(ms / (7 * DAY)));
 
@@ -79,7 +84,7 @@ export default function Exportar() {
     <Linha
       titulo={titulo}
       sub={sub}
-      selo={inclui[k] ? 'incluído' : 'fora'}
+      selo={inclui[k] ? K().incluido : K().fora}
       seloTom={inclui[k] ? 'verde' : 'neutra'}
       seta={false}
       onPress={() => alterna(k)}
@@ -88,42 +93,39 @@ export default function Exportar() {
 
   return (
     <TelaInterna
-      titulo="Exportar"
+      titulo={K().titulo}
       rodape={
         <>
           <Botao
-            label={estado === 'gerando' ? 'Gerando...' : 'Gerar o arquivo'}
+            label={estado === 'gerando' ? K().gerando : K().gerar}
             desligado={estado === 'gerando'}
             onPress={gerar}
           />
-          <Botao label="Ver o resumo para consulta" tom="fantasma" onPress={() => router.push('/resumo-medico' as any)} />
+          <Botao label={K().verResumo} tom="fantasma" onPress={() => router.push('/resumo-medico' as any)} />
         </>
       }
     >
-      <Titulao
-        titulo="Exportar"
-        lead="Um arquivo com os seus registros, para guardar ou levar para outro lugar."
-      />
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       <Campo
-        rotulo="Período"
-        ajuda={`De ${dataLonga(desde)} a ${dataLonga(+now())} · ${semanas(+now() - desde)} semanas`}
+        rotulo={K().periodo}
+        ajuda={K().periodoAjuda(dataLonga(desde), dataLonga(+now()), semanas(+now() - desde))}
       >
         <Opcoes>
-          <Opc label="Últimas 4 semanas" on={per === '4s'} onPress={periodo('4s')} />
-          <Opc label="Desde a última consulta" on={per === 'consulta'} onPress={periodo('consulta')} />
-          <Opc label="Tratamento inteiro" on={per === 'tudo'} onPress={periodo('tudo')} />
+          <Opc label={K().ultimas4} on={per === '4s'} onPress={periodo('4s')} />
+          <Opc label={K().desdeAConsulta} on={per === 'consulta'} onPress={periodo('consulta')} />
+          <Opc label={K().tratamentoInteiro} on={per === 'tudo'} onPress={periodo('tudo')} />
         </Opcoes>
       </Campo>
 
-      <Bloco titulo="O que entra" nota="Toque para incluir ou tirar. O que ficar de fora não entra no arquivo.">
+      <Bloco titulo={K().oQueEntra} nota={K().oQueEntraNota}>
         <Cartao>
-          {linha('aplicacoes', 'Aplicações', `${conta.aplicacoes} ${conta.aplicacoes === 1 ? 'registro' : 'registros'} · data, dose e local`)}
-          {linha('peso', 'Peso e medidas', `${conta.pesagens} ${conta.pesagens === 1 ? 'pesagem' : 'pesagens'} · ${conta.medidas} ${conta.medidas === 1 ? 'medida' : 'medidas'}`)}
-          {linha('sintomas', 'Check-ins', `${conta.checkins} ${conta.checkins === 1 ? 'dia' : 'dias'} · sintoma a sintoma`)}
-          {linha('exames', 'Exames', `${conta.exames} ${conta.exames === 1 ? 'coleta' : 'coletas'} · valor e referência`)}
-          {linha('notas', 'Notas para a consulta', `${conta.notas} ${conta.notas === 1 ? 'anotação' : 'anotações'}`)}
-          {linha('habitos', 'Refeições, água e exercício', `${conta.refeicoes} ${conta.refeicoes === 1 ? 'refeição' : 'refeições'} e o diário do dia`)}
+          {linha('aplicacoes', K().aplicacoes, K().aplicacoesSub(conta.aplicacoes))}
+          {linha('peso', K().pesoEMedidas, K().pesoEMedidasSub(conta.pesagens, conta.medidas))}
+          {linha('sintomas', K().checkins, K().checkinsSub(conta.checkins))}
+          {linha('exames', K().exames, K().examesSub(conta.exames))}
+          {linha('notas', K().notas, K().notasSub(conta.notas))}
+          {linha('habitos', K().habitos, K().habitosSub(conta.refeicoes))}
         </Cartao>
       </Bloco>
 
@@ -131,25 +133,17 @@ export default function Exportar() {
           para ler no sofá, e prometer que é seria a mesma mentira do
           "PDF" que esta tela oferecia sem gerar nenhum. Quem quer a
           versão legível tem o resumo, que é o outro botão. */}
-      <Aviso
-        ic="doc"
-        titulo="Sai um arquivo .json"
-        texto="É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para consulta."
-      />
+      <Aviso ic="doc" titulo={K().formatoTitulo} texto={K().formatoTexto} />
 
       {estado === 'pronto' ? (
         <Row gap={8} style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="check" size={14} color={c.ok} sw={2.6} />
-          <Txt v="micro" c={c.tx3}>Arquivo gerado. Ele só vai para onde você escolher.</Txt>
+          <Txt v="micro" c={c.tx3}>{K().pronto}</Txt>
         </Row>
       ) : estado === 'erro' ? (
-        <Txt v="micro" c={c.tx3} style={{ textAlign: 'center' }}>
-          Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.
-        </Txt>
+        <Txt v="micro" c={c.tx3} style={{ textAlign: 'center' }}>{K().erro}</Txt>
       ) : (
-        <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>
-          Nada sai daqui sem o seu toque.
-        </Txt>
+        <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>{K().parado}</Txt>
       )}
 
       <View />

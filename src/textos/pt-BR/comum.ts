@@ -51,4 +51,25 @@ export const comum = {
     }
     return `${itens.slice(0, mostrar).join(', ')} e mais ${itens.length - mostrar}`;
   },
+
+  /* ============================================================
+     OS NOMES DAS QUATRO ABAS
+
+     ⚠️⚠️ ELES ESTAVAM EM DURO NUMA CONSTANTE DE MÓDULO DE ui/TabBar, e a
+     rede de congelamento não tinha como vê-los: ela procura constante que
+     LÊ o catálogo, e ali os rótulos eram texto literal. O resultado é que
+     a barra de abas ficava em português nos cinco idiomas — quatro
+     palavras embaixo de toda tela do aplicativo.
+
+     ⚠️ E A ABA DO CUIDADO É A DAS PESSOAS, não a dos dados. Ela é o painel
+     do acompanhamento para quem tem clínica, e a porta de entrada para
+     quem ainda não tem — então o nome não pode ser "Equipe", que seria
+     porta emparedada para metade de quem a abre.
+     ============================================================ */
+  abas: {
+    home: 'Home',
+    jornada: 'Jornada',
+    cuidado: 'Cuidado',
+    insights: 'Insights',
+  },
 };

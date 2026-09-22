@@ -70,4 +70,49 @@ export const aviso = {
     alongamento: 'Stretching',
     outro: 'Other',
   },
+
+  telaExportar: {
+    titulo: 'Export',
+    lead: 'A file with your entries, to keep or to take somewhere else.',
+
+    periodo: 'Period',
+    periodoAjuda: (de: string, ate: string, semanas: number) =>
+      `From ${de} to ${ate} · ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    ultimas4: 'Last 4 weeks',
+    desdeAConsulta: 'Since the last appointment',
+    tratamentoInteiro: 'The whole treatment',
+
+    oQueEntra: 'What goes in',
+    oQueEntraNota: 'Tap to include or leave out. Whatever stays out does not go into the file.',
+    incluido: 'in',
+    fora: 'out',
+
+    aplicacoes: 'Injections',
+    aplicacoesSub: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'entry' : 'entries'} · date, dose and site`,
+    pesoEMedidas: 'Weight and measurements',
+    pesoEMedidasSub: (pesagens: number, medidas: number) =>
+      `${pesagens} ${pesagens === 1 ? 'weigh-in' : 'weigh-ins'} · ${medidas} ${medidas === 1 ? 'measurement' : 'measurements'}`,
+    checkins: 'Check-ins',
+    checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'} · symptom by symptom`,
+    exames: 'Lab results',
+    examesSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'result' : 'results'} · value and reference range`,
+    notas: 'Notes for the appointment',
+    notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'note' : 'notes'}`,
+    habitos: 'Meals, water and exercise',
+    habitosSub: (refeicoes: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'meal' : 'meals'} and the day’s diary`,
+
+    formatoTitulo: 'You get a .json file',
+    formatoTexto: 'It is the format another app can open and read — good for keeping a copy or moving your entries somewhere else. For the version made for someone to read, use the appointment summary.',
+
+    gerar: 'Build the file',
+    gerando: 'Building...',
+    verResumo: 'See the appointment summary',
+
+    pronto: 'File built. It only goes where you choose.',
+    erro: 'We could not build the file on this device. Your entries are still here, untouched.',
+    parado: 'Nothing leaves here without your tap.',
+  },
 };

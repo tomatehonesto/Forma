@@ -112,4 +112,63 @@ export const companion = {
     consultaTitulo: 'Como aproveitar melhor sua consulta',
     consultaDesc: 'O que levar, o que perguntar e como o resumo automático economiza os primeiros dez minutos.',
   },
+
+  /* ============================================================
+     A TELA DE INSIGHTS — a moldura da camada de interpretação
+
+     Quase tudo o que aparece nela já vem traduzido de outro lugar: as
+     descobertas de `patterns`, o equilíbrio de `balanceRead`, as ações de
+     `recommendations`, as perguntas sugeridas de `rotina.perguntas`. O
+     que mora aqui é só a moldura — os chapéus de seção, os rótulos e as
+     três linhas do rodapé.
+
+     ⚠️⚠️ "MORPHI OBSERVOU" VIROU "O QUE OBSERVAMOS". O cabeçalho do
+     companion já carrega a regra escrita: o nome do produto pode ser
+     rótulo, mas não pode ter verbo pendurado nele — "o Morphi guarda", "o
+     Morphi avisa" transformam o aplicativo num objeto que observa a
+     pessoa. E o cartão vizinho já mostrava a forma certa em "A DESCOBERTA
+     DA SEMANA": chapéu que nomeia a coisa, não sujeito que se apresenta.
+
+     ⚠️ E DUAS LINHAS DO RODAPÉ TINHAM O MESMO NOME, separadas por um
+     artigo: "Resumo para a consulta", que abre a conversa, e "Resumo para
+     consulta", que abre o documento. Em português já era confuso; em
+     francês e em alemão sairia a mesma frase duas vezes. A do meio passou
+     a se chamar pelo que faz, e a do documento manteve o título da tela
+     para onde leva.
+
+     ⚠️ A QUEBRA DE LINHA DA PERGUNTA É DE CADA IDIOMA. "O que você quer /
+     entender hoje?" cai bem em duas linhas no português; a frase alemã é
+     mais longa e quebra em outro ponto. Por isso o `\n` mora dentro do
+     texto, e não no código da tela.
+     ============================================================ */
+  telaInsights: {
+    ola: (nome: string) => `Oi, ${nome}`,
+    pergunta: 'O que você quer\nentender hoje?',
+    escreva: 'Escreva sua pergunta...',
+
+    descobertaDaSemana: 'A DESCOBERTA DA SEMANA',
+    entenderMelhor: 'Entender melhor',
+
+    oQueMaisPercebi: 'O que mais percebi',
+    oQueMaisPercebiNota: 'Outras observações que encontrei analisando sua jornada.',
+    verTodas: (quantas: number) => `Ver todas as observações (${quantas})`,
+
+    observamos: 'O QUE OBSERVAMOS',
+    hojeDeCem: 'hoje, de 100',
+
+    proximasAcoes: 'Próximas ações',
+    proximasAcoesNota: 'Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.',
+
+    resumos: 'Gerar resumos',
+    resumosNota: 'Seus dados organizados para levar a alguém.',
+
+    resumoDaSemana: 'Resumo da semana',
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
+      `semana ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    preparoDaConsulta: 'Preparo da consulta',
+    preparoDaConsultaSub: 'peso, adesão, sintomas e perguntas',
+    preparoSemEquipe: 'pronto para compartilhar',
+    documento: 'Resumo para consulta',
+    documentoSub: 'documento com a evolução completa',
+  },
 };

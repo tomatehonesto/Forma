@@ -44,4 +44,11 @@ export const comum = {
     }
     return `${itens.slice(0, mostrar).join(', ')} et ${itens.length - mostrar} de plus`;
   },
+
+  abas: {
+    home: 'Accueil',
+    jornada: 'Parcours',
+    cuidado: 'Soin',
+    insights: 'Insights',
+  },
 };

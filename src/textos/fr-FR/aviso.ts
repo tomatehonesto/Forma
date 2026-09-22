@@ -73,4 +73,49 @@ export const aviso = {
     alongamento: 'Étirements',
     outro: 'Autre',
   },
+
+  telaExportar: {
+    titulo: 'Exporter',
+    lead: 'Un fichier avec vos relevés, à garder ou à emporter ailleurs.',
+
+    periodo: 'Période',
+    periodoAjuda: (de: string, ate: string, semanas: number) =>
+      `Du ${de} au ${ate} · ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    ultimas4: 'Les 4 dernières semaines',
+    desdeAConsulta: 'Depuis la dernière consultation',
+    tratamentoInteiro: 'Tout le traitement',
+
+    oQueEntra: 'Ce qui entre',
+    oQueEntraNota: 'Touchez pour inclure ou retirer. Ce qui reste dehors n’entre pas dans le fichier.',
+    incluido: 'inclus',
+    fora: 'dehors',
+
+    aplicacoes: 'Injections',
+    aplicacoesSub: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'relevé' : 'relevés'} · date, dose et endroit`,
+    pesoEMedidas: 'Poids et mesures',
+    pesoEMedidasSub: (pesagens: number, medidas: number) =>
+      `${pesagens} ${pesagens === 1 ? 'pesée' : 'pesées'} · ${medidas} ${medidas === 1 ? 'mesure' : 'mesures'}`,
+    checkins: 'Check-ins',
+    checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'} · symptôme par symptôme`,
+    exames: 'Analyses',
+    examesSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'résultat' : 'résultats'} · valeur et référence`,
+    notas: 'Notes pour la consultation',
+    notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'note' : 'notes'}`,
+    habitos: 'Repas, eau et exercice',
+    habitosSub: (refeicoes: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'repas noté' : 'repas notés'} et le journal du jour`,
+
+    formatoTitulo: 'Il en sort un fichier .json',
+    formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire — il sert à garder une copie ou à emporter vos relevés ailleurs. Pour la version faite pour être lue par quelqu’un, prenez le résumé de consultation.',
+
+    gerar: 'Construire le fichier',
+    gerando: 'Construction...',
+    verResumo: 'Voir le résumé de consultation',
+
+    pronto: 'Fichier construit. Il ne va que là où vous le décidez.',
+    erro: 'Nous n’avons pas pu construire le fichier sur cet appareil. Vos relevés sont toujours là, intacts.',
+    parado: 'Rien ne sort d’ici sans votre geste.',
+  },
 };

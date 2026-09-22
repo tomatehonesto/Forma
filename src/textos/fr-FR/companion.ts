@@ -83,4 +83,35 @@ export const companion = {
     consultaTitulo: 'Comment mieux profiter de votre consultation',
     consultaDesc: 'Quoi apporter, quoi demander, et comment le résumé automatique économise les dix premières minutes.',
   },
+
+  telaInsights: {
+    ola: (nome: string) => `Bonjour, ${nome}`,
+    pergunta: 'Que voulez-vous\ncomprendre aujourd’hui ?',
+    escreva: 'Écrivez votre question...',
+
+    descobertaDaSemana: 'LA DÉCOUVERTE DE LA SEMAINE',
+    entenderMelhor: 'Mieux comprendre',
+
+    oQueMaisPercebi: 'Ce que j’ai remarqué d’autre',
+    oQueMaisPercebiNota: 'D’autres observations trouvées en parcourant votre traitement.',
+    verTodas: (quantas: number) => `Voir toutes les observations (${quantas})`,
+
+    observamos: 'CE QUE NOUS AVONS OBSERVÉ',
+    hojeDeCem: 'aujourd’hui, sur 100',
+
+    proximasAcoes: 'Prochaines étapes',
+    proximasAcoesNota: 'Dans l’ordre où elles doivent arriver — jamais sur la dose ni sur le protocole.',
+
+    resumos: 'Construire des résumés',
+    resumosNota: 'Vos données mises en ordre pour les apporter à quelqu’un.',
+
+    resumoDaSemana: 'Résumé de la semaine',
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
+      `semaine ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    preparoDaConsulta: 'Préparation de la consultation',
+    preparoDaConsultaSub: 'poids, observance, symptômes et questions',
+    preparoSemEquipe: 'prêt à partager',
+    documento: 'Résumé pour la consultation',
+    documentoSub: 'un document avec toute l’évolution',
+  },
 };

@@ -98,4 +98,62 @@ export const aviso = {
     alongamento: 'Alongamento',
     outro: 'Outro',
   },
+
+  /* ============================================================
+     A TELA DE EXPORTAR
+
+     ⚠️ CADA LINHA DE "O QUE ENTRA" É UM INTERRUPTOR, e o subtítulo dela
+     conta o que existe para entrar. Por isso toda contagem é função: quem
+     nunca registrou exame lê "0 resultados", que é a verdade, e não uma
+     linha muda.
+
+     ⚠️⚠️ E "COLETAS" VIROU "RESULTADOS". A conta soma os VALORES de cada
+     marcador — três datas de HbA1c são três valores —, e chamar isso de
+     coleta anunciava um número de coletas que nunca houve. A conta estava
+     certa; a palavra é que não estava.
+     ============================================================ */
+  telaExportar: {
+    titulo: 'Exportar',
+    lead: 'Um arquivo com os seus registros, para guardar ou levar para outro lugar.',
+
+    periodo: 'Período',
+    periodoAjuda: (de: string, ate: string, semanas: number) =>
+      `De ${de} a ${ate} · ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    ultimas4: 'Últimas 4 semanas',
+    desdeAConsulta: 'Desde a última consulta',
+    tratamentoInteiro: 'Tratamento inteiro',
+
+    oQueEntra: 'O que entra',
+    oQueEntraNota: 'Toque para incluir ou tirar. O que ficar de fora não entra no arquivo.',
+    incluido: 'incluído',
+    fora: 'fora',
+
+    aplicacoes: 'Aplicações',
+    aplicacoesSub: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · data, dose e local`,
+    pesoEMedidas: 'Peso e medidas',
+    pesoEMedidasSub: (pesagens: number, medidas: number) =>
+      `${pesagens} ${pesagens === 1 ? 'pesagem' : 'pesagens'} · ${medidas} ${medidas === 1 ? 'medida' : 'medidas'}`,
+    checkins: 'Check-ins',
+    checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'} · sintoma a sintoma`,
+    exames: 'Exames',
+    examesSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'resultado' : 'resultados'} · valor e referência`,
+    notas: 'Notas para a consulta',
+    notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'anotação' : 'anotações'}`,
+    habitos: 'Refeições, água e exercício',
+    habitosSub: (refeicoes: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'refeição' : 'refeições'} e o diário do dia`,
+
+    formatoTitulo: 'Sai um arquivo .json',
+    formatoTexto: 'É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para consulta.',
+
+    gerar: 'Gerar o arquivo',
+    gerando: 'Gerando...',
+    verResumo: 'Ver o resumo para consulta',
+
+    pronto: 'Arquivo gerado. Ele só vai para onde você escolher.',
+    erro: 'Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.',
+    parado: 'Nada sai daqui sem o seu toque.',
+  },
 };

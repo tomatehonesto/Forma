@@ -95,4 +95,49 @@ export const aviso = {
     alongamento: 'Dehnen',
     outro: 'Anderes',
   },
+
+  telaExportar: {
+    titulo: 'Exportieren',
+    lead: 'Eine Datei mit deinen Einträgen, zum Aufheben oder zum Mitnehmen an einen anderen Ort.',
+
+    periodo: 'Zeitraum',
+    periodoAjuda: (de: string, ate: string, semanas: number) =>
+      `Vom ${de} bis ${ate} · ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    ultimas4: 'Die letzten 4 Wochen',
+    desdeAConsulta: 'Seit dem letzten Termin',
+    tratamentoInteiro: 'Die ganze Behandlung',
+
+    oQueEntra: 'Was hineinkommt',
+    oQueEntraNota: 'Tippe, um etwas aufzunehmen oder herauszunehmen. Was draußen bleibt, kommt nicht in die Datei.',
+    incluido: 'drin',
+    fora: 'draußen',
+
+    aplicacoes: 'Injektionen',
+    aplicacoesSub: (quantas: number) =>
+      `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · Datum, Dosis und Stelle`,
+    pesoEMedidas: 'Gewicht und Maße',
+    pesoEMedidasSub: (pesagens: number, medidas: number) =>
+      `${pesagens} ${pesagens === 1 ? 'Wiegung' : 'Wiegungen'} · ${medidas} ${medidas === 1 ? 'Maß' : 'Maße'}`,
+    checkins: 'Check-ins',
+    checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'} · Symptom für Symptom`,
+    exames: 'Befunde',
+    examesSub: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'Ergebnis' : 'Ergebnisse'} · Wert und Referenz`,
+    notas: 'Notizen für den Termin',
+    notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'Notiz' : 'Notizen'}`,
+    habitos: 'Mahlzeiten, Wasser und Bewegung',
+    habitosSub: (refeicoes: number) =>
+      `${refeicoes} ${refeicoes === 1 ? 'Mahlzeit' : 'Mahlzeiten'} und das Tagebuch des Tages`,
+
+    formatoTitulo: 'Heraus kommt eine .json-Datei',
+    formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — gut, um eine Kopie aufzuheben oder deine Einträge woandershin mitzunehmen. Für die Fassung, die jemand lesen soll, nimm die Übersicht für den Termin.',
+
+    gerar: 'Die Datei bauen',
+    gerando: 'Wird gebaut...',
+    verResumo: 'Die Übersicht für den Termin ansehen',
+
+    pronto: 'Datei gebaut. Sie geht nur dorthin, wohin du sie schickst.',
+    erro: 'Wir konnten die Datei auf diesem Gerät nicht bauen. Deine Einträge sind weiter hier, unangetastet.',
+    parado: 'Von hier geht nichts ohne deinen Fingertipp.',
+  },
 };

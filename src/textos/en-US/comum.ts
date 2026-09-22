@@ -34,4 +34,11 @@ export const comum = {
     const resto = itens.length - mostrar;
     return `${itens.slice(0, mostrar).join(', ')}, and ${resto} more`;
   },
+
+  abas: {
+    home: 'Home',
+    jornada: 'Journey',
+    cuidado: 'Care',
+    insights: 'Insights',
+  },
 };
