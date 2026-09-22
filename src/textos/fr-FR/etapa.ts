@@ -30,8 +30,23 @@ export const etapa = {
   antesSemDoseQ: 'Comment fonctionne le cycle du médicament ?',
 
   doseNovaChapeu: 'NOUVELLE DOSE',
+  /* ⚠️⚠️ LE SUJET EST LA DOSE, PAS LA PERSONNE — et en français ce
+     n'est pas du style, c'est de la grammaire.
+
+     J'avais écrit « Vous êtes passée à 5 mg ». Avec l'auxiliaire être,
+     le participe s'accorde avec le sujet : cette phrase affirme que qui
+     lit est une femme. Le portugais « Você subiu » et l'espagnol
+     « Subiste » ne portent aucun genre, donc rien n'avertissait.
+
+     « Vous êtes passé(e) » est laid et « Vous avez augmenté à » est
+     bancal. La sortie est celle que le fichier des lectures impose déjà
+     partout : METTRE LA CHOSE EN SUJET. « Votre dose est passée » accorde
+     avec la dose, qui est féminine, et ne dit rien de personne.
+
+     ⚠️ La règle vaut pour tout le catalogue français : aucune phrase ne
+     doit accorder un participe avec qui la lit. */
   doseNovaHead: (dose: string, unidade: string) =>
-    `Vous êtes passée à ${dose} ${unidade} cette semaine.`,
+    `Votre dose est passée à ${dose} ${unidade} cette semaine.`,
   /* ⚠️ LE CADRE EST LE MÊME ET LE CONTENU EST LE SIEN QUAND IL EXISTE.
      Avec assez de relevés, la phrase raconte le dessin de SES nausées ;
      sans eux, celui qui arrive d'habitude. */
