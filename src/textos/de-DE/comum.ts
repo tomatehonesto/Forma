@@ -19,6 +19,24 @@
    Drei von vier Sprachen stehen damit im Vertrauten, und die vierte nur
    deshalb nicht, weil die Sprache es nicht hergibt. Wer das umdreht,
    dreht dreißig Dateien um — es steht in PENDENCIAS.
+
+   ⚠️⚠️ UND DIE ZWEITE STEHENDE ENTSCHEIDUNG IST DIE DOPPELNENNUNG.
+   „sprich mit deiner Ärztin oder deinem Arzt“, ausgeschrieben, und nicht
+   „Ärzt*in“, „ÄrztIn“ oder „Ärzt:in“.
+
+   Das ist dieselbe Frage, die das Französische mit dem Mittelpunkt
+   gestellt hat — „né·e“ —, und dieselbe Antwort: die Sternchen- und
+   Doppelpunktformen werden von Screenreadern falsch vorgelesen, und in
+   einer Gesundheits-App jemanden vom Lesen auszuschließen, um niemanden
+   vom Geschlecht auszuschließen, ist ein schlechter Tausch.
+
+   ⚠️ Der Unterschied zum Französischen ist wichtig genug, ihn zu nennen:
+   dort ging es um das Geschlecht DER LESENDEN PERSON, und die Lösung war,
+   den Satz so zu bauen, dass keine Übereinstimmung nötig wird. Hier geht
+   es um das Geschlecht EINER DRITTEN PERSON — der Ärztin, des Arztes —,
+   und dafür gibt es im Deutschen eine unstrittige, vorlesbare Form: beide
+   nennen. Wo beide zu nennen den Satz sprengt, nimmt man die Rolle statt
+   der Person: „dein Team“, „wer dich behandelt“, „die Praxis“.
    ============================================================ */
 
 export const comum = {
