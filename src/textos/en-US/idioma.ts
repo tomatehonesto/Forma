@@ -1,5 +1,5 @@
 /* ============================================================
-   LANGUAGE — the first onboarding question, and the profile sheet · en-US
+   LANGUAGE — the first onboarding question, and the profile screen · en-US
 
    ⚠️ Reasons live in ../pt-BR/idioma.ts. The one that matters: THIS IS THE
    ONLY TEXT IN THE APP SOMEONE MIGHT READ WITHOUT UNDERSTANDING IT. It
@@ -17,11 +17,11 @@ export const idioma = {
   paisRotulo: 'Where you get your treatment',
   paisRessalva: 'It changes which medications come up first, the currency and the food table. Nothing disappears from the list: what’s less common there sits lower down.',
 
-  titulo: 'Language · Idioma',
-  tituloSub: 'Changes the text, the numbers and the dates.',
+  titulo: 'Language and region',
+  tituloSub: 'Which language you read in, and where you get your treatment.',
   rotulo: 'How you read the app',
 
   ressalva: 'What you’ve already logged stays as it is. Only the way it’s written changes: the words, the decimal separator, the shape of the date and the clock.',
 
-  linhaDoPerfil: 'Language',
+  idioma: 'Language',
 };

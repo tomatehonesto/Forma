@@ -78,7 +78,7 @@ export default function Idioma() {
       <Cartao>
         <Linha
           ic="site"
-          titulo={T.idioma.linhaDoPerfil}
+          titulo={T.idioma.idioma}
           sub={NOME_DO_LOCAL[localAtual()]}
           onPress={ir('idioma')}
         />

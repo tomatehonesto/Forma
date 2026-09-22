@@ -1,5 +1,5 @@
 /* ============================================================
-   EL IDIOMA — la primera pregunta del registro, y la hoja del perfil · es-419
+   EL IDIOMA — la primera pregunta del registro, y la pantalla del perfil · es-419
 
    ⚠️ Las razones viven en ../pt-BR/idioma.ts. La que manda: este es el
    único texto de la aplicación que alguien puede leer sin entender.
@@ -18,8 +18,8 @@ export const idioma = {
   paisRotulo: 'Dónde te tratas',
   paisRessalva: 'Cambia qué medicamentos aparecen primero, la moneda y la tabla de alimentos. Nada desaparece de la lista: lo menos común ahí queda más abajo.',
 
-  titulo: 'Idioma · Language',
-  tituloSub: 'Cambia el texto, los números y las fechas.',
+  titulo: 'Idioma y región',
+  tituloSub: 'En qué idioma lees, y dónde te tratas.',
   rotulo: 'Cómo lees la aplicación',
 
   /* ⚠️ LA SALVEDAD ES LA PARTE QUE SORPRENDE. Cambiar de idioma cambia
@@ -28,5 +28,5 @@ export const idioma = {
      tocar. */
   ressalva: 'Lo que ya registraste se queda como está. Cambia solo la forma de escribir: la palabra, la coma del número, el dibujo de la fecha y el reloj.',
 
-  linhaDoPerfil: 'Idioma',
+  idioma: 'Idioma',
 };

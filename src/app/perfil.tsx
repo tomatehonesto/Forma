@@ -699,7 +699,7 @@ export default function Perfil() {
         {/* ⚠️ O IDIOMA VEM ANTES DAS UNIDADES porque é ele que decide as
             duas coisas: trocar para English troca a palavra E a vírgula
             decimal. Ver logic/local. */}
-        <ListRow ic="site" title={T.idioma.linhaDoPerfil}
+        <ListRow ic="site" title={T.idioma.titulo}
           sub={K().idiomaSub(NOME_DO_LOCAL[localAtual()], NOME_DO_PAIS[paisAtual()])}
           onPress={go('/idioma')} />
         <ListRow ic="ruler" title={K().unidades}

@@ -1,5 +1,5 @@
 /* ============================================================
-   LA LANGUE — la première question de l'inscription, et la feuille du profil · fr-FR
+   LA LANGUE — la première question de l'inscription, et l'écran du profil · fr-FR
 
    ⚠️ Les raisons vivent dans ../pt-BR/idioma.ts. Celle qui commande :
    c'est le seul texte de l'application que quelqu'un peut lire sans
@@ -35,8 +35,8 @@ export const idioma = {
   paisRotulo: 'Où vous vous soignez',
   paisRessalva: 'Cela change quels médicaments apparaissent en premier, la monnaie et la table des aliments. Rien ne disparaît de la liste : ce qui est moins courant là-bas passe en dessous.',
 
-  titulo: 'Langue · Language',
-  tituloSub: 'Change le texte, les nombres et les dates.',
+  titulo: 'Langue et région',
+  tituloSub: 'Dans quelle langue vous lisez, et où vous vous soignez.',
   rotulo: 'Comment vous lisez l’application',
 
   /* ⚠️ LA RÉSERVE EST LA PARTIE QUI SURPREND. Changer de langue change
@@ -45,5 +45,5 @@ export const idioma = {
      enlève la peur d'y toucher. */
   ressalva: 'Ce que vous avez déjà enregistré reste tel quel. Seule la façon d’écrire change : le mot, la virgule du nombre, le dessin de la date et l’horloge.',
 
-  linhaDoPerfil: 'Langue',
+  idioma: 'Langue',
 };

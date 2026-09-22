@@ -1,5 +1,5 @@
 /* ============================================================
-   DIE SPRACHE — die erste Frage der Anmeldung, und das Blatt im Profil · de-DE
+   DIE SPRACHE — die erste Frage der Anmeldung, und der Bildschirm im Profil · de-DE
 
    ⚠️ Die Gründe stehen in ../pt-BR/idioma.ts. Die, die zählt: DAS IST DER
    EINZIGE TEXT DER APP, DEN JEMAND LESEN KANN, OHNE IHN ZU VERSTEHEN. Er
@@ -30,9 +30,9 @@ export const idioma = {
   paisRotulo: 'Wo du dich behandelst',
   paisRessalva: 'Ändert, welche Medikamente zuerst erscheinen, die Währung und die Lebensmitteltabelle. Nichts verschwindet aus der Liste: was dort seltener ist, rutscht nach unten.',
 
-  /* Das Blatt im Profil, wo umgestellt wird. */
-  titulo: 'Sprache · Language',
-  tituloSub: 'Ändert den Text, die Zahlen und die Daten.',
+  /* Der Bildschirm im Profil, wo umgestellt wird. */
+  titulo: 'Sprache und Region',
+  tituloSub: 'In welcher Sprache du liest, und wo du dich behandelst.',
   rotulo: 'Wie du die App liest',
 
   /* ⚠️ DIE EINSCHRÄNKUNG IST DER TEIL, DER ÜBERRASCHT. Auf English
@@ -43,5 +43,5 @@ export const idioma = {
   ressalva: 'Was du schon erfasst hast, bleibt, wie es ist. Es ändert sich nur die Schreibweise: das Wort, das Komma in der Zahl, das Datumsbild und die Uhr.',
 
   /* Die Zeile im Profil, mit der Sprache, die gerade läuft. */
-  linhaDoPerfil: 'Sprache',
+  idioma: 'Sprache',
 };
