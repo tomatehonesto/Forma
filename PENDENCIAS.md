@@ -950,7 +950,7 @@ quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
 
-## 🔴 19. A extração de textos não terminou, e são 1.015 frases
+## 🔴 19. A extração de textos não terminou, e são 1.150 frases
 
 **O número que eu tinha dado estava errado.** Eu disse 466, e a medição
 foi estreita: contava só literal de string com acento ou palavra
@@ -958,14 +958,24 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-Desde então saíram 570, em catorze lotes commitados. **Faltam 1.015, em 93
-arquivos.**
+**Medido em 22/09/2026: faltam 1.150, em 94 arquivos.**
 
-| onde | frases | o que é |
-|---|---|---|
-| `src/app/` | ~825 | as telas |
-| `src/ui/` | ~145 | componentes com frase dentro |
-| `src/logic/` | 45 | **acabou** — ver abaixo |
+⚠️ E O NÚMERO SUBIU DEPOIS DE CAIR, de propósito. Ele tinha chegado a
+1.015 com a varredura antiga, que só achava literal com cara de
+português. Quem reclamou foi a tela: "na tela de sexo em inglês, as opções
+estão em português" — "Feminino", "Masculino", "Outro" estavam em duro, e
+nenhuma das três tem acento nem palavra que a heurística reconhecesse.
+
+A regra 3 entrou por causa disso: **texto passado como propriedade de JSX
+é fala, por definição**, sem teste de aparência. O total pulou de 1.015
+para 1.132, e as 117 novas não são regressão — são o que a rede não via.
+
+| onde | frases | arquivos | o que é |
+|---|---|---|---|
+| `src/app/` | 1.059 | 75 | as telas |
+| `src/logic/` | 68 | 12 | ver abaixo — a maioria não é texto |
+| `src/ui/` | 20 | 6 | o que sobrou dos componentes |
+| `src/theme.ts` | 3 | 1 | nome de paleta |
 
 Fora da conta, de propósito: `logic/alimentos*` (nome de comida é dado),
 `logic/documentos` (minuta jurídica) e `logic/seed` (a semente de
@@ -975,9 +985,10 @@ demonstração).
 
 A varredura ainda as acusa, e cada uma tem razão para ficar:
 
-- **17 em `logic/local.ts`** — "março", "sáb", `${d} de ${PT.mesLongo[m]}`.
-  São as tabelas de formato do próprio motor de idioma. Mandá-las para o
-  catálogo seria circular: é o local que escolhe o catálogo.
+- **31 em `logic/local.ts`** — "março", "sáb", "janv.", `${d} de
+  ${PT.mesLongo[m]}`. São as tabelas de formato do próprio motor de
+  idioma, e crescem a cada local novo. Mandá-las para o catálogo seria
+  circular: é o local que escolhe o catálogo.
 - **2 em `logic/escalas.ts`** — 'alta', 'média' e 'baixa' ficaram
   **gravadas** em toda refeição registrada antes de o grama existir.
   Traduzir apagaria a proteína dessas refeições.
@@ -1047,7 +1058,7 @@ tirada do `git show`, e não de memória.
 - **Duas chaves escritas e nunca ligadas** — o que a Garmin e a Withings
   trazem. Escrever o catálogo não liga o texto; é preciso ir na linha.
 
-## 🔴 20. O mundo cabe no mecanismo; só dois idiomas cabem na lista
+## 🔴 20. O mundo cabe no mecanismo; quatro idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo
 está inteiro:
@@ -1060,10 +1071,17 @@ está inteiro:
 - a resposta já chega marcada, e para quem a aposta acertou o passo custa
   um toque em "Continuar".
 
-**E a lista mostra dois idiomas: português e inglês.** É o que existe de
-catálogo, e a lista não pode ser maior que isso — `DISPONIVEIS` é do tipo
-`Local`, e `src/textos` declara `Record<Local, Textos>`: acrescentar um
-idioma sem escrever o catálogo dele **não compila**.
+**E a lista mostra quatro idiomas: português, inglês, espanhol e
+francês.** É o que existe de catálogo, e a lista não pode ser maior que
+isso — `DISPONIVEIS` é do tipo `Local`, e `src/textos` declara
+`Record<Local, Textos>`: acrescentar um idioma sem escrever o catálogo
+dele **não compila**.
+
+⚠️ E DESDE O ESPANHOL A TELA TEM DUAS RODAS, não uma: idioma e **país**. O
+país não escolhe a língua — ele ordena os medicamentos, escolhe a moeda,
+os cortes de IMC e a tabela de alimentos. Ver `logic/pais.ts`. São dois
+eixos independentes de propósito: quem mora na Alemanha pode ler em
+português.
 
 Essa trava é de propósito. Oferecer "Deutsch" e entregar português é a
 porta emparedada mais cara do aplicativo, porque quem a abre não consegue
@@ -1076,16 +1094,17 @@ Por idioma, dois trabalhos, nesta ordem:
 1. **Terminar a peça 2** (item 19). Enquanto 1.015 frases estiverem em
    código, todo idioma novo nasce com essas 1.015 em português. Fazer a
    tradução antes é traduzir duas vezes.
-2. **Escrever `src/textos/<local>/`** — hoje vinte e oito arquivos, e o `tsc`
+2. **Escrever `src/textos/<local>/`** — hoje **trinta** arquivos, e o `tsc`
    cobra a assinatura inteira. É o mesmo trabalho que o inglês custou.
+   `node scripts/conferencia.mjs <local>` confere a forma arquivo a
+   arquivo enquanto a tradução anda.
 
 Depois disso, o idioma entra em `Local` e em `DISPONIVEIS`, e o mapa de
 países já pronto o põe em cima para quem estiver naquele país.
 
 ### A ordem sugerida, se for por alcance
 
-Espanhol (mais de vinte países no mapa), depois alemão, francês,
-italiano, japonês. Árabe e hebraico pedem um trabalho a mais que os
+Espanhol ✅, francês ✅, **alemão e italiano faltam**. Depois japonês. Árabe e hebraico pedem um trabalho a mais que os
 outros não pedem: o aplicativo inteiro desenha da esquerda para a
 direita, e `expo-localization` devolve `textDirection` justamente para
 isso — nada no código lê esse campo hoje.
@@ -1096,3 +1115,96 @@ Cada idioma novo repete o que o inglês já deve: o `marcadores.ts` é o
 maior bloco de texto clínico do aplicativo, e a redação dele para um
 mercado precisa passar por alguém habilitado naquele mercado. Não é
 tradução de interface.
+
+⚠️⚠️ **O FRANCÊS TEM UM CASO CONCRETO DISSO, E JÁ ESTÁ NO CÓDIGO.** TGO e
+TGP se chamam **ASAT** e **ALAT** no laudo francês — não é a mesma palavra
+noutra língua, é o que está impresso no papel. Eu escrevi isso pela
+literatura, e é exatamente o tipo de decisão que precisa de quem exerce
+naquele mercado: se estiver errado, a pessoa não acha a linha dela no
+próprio exame.
+
+### E as três travas de francês que o código já carrega
+
+Não são estilo, e valem para qualquer francês que se escreva depois:
+
+1. **Nenhuma frase concorda um particípio com quem lê.** `être` +
+   particípio afirma um gênero que o português nunca carregou:
+   "Vous êtes passée à 5 mg" diz que quem lê é mulher. As saídas são o
+   auxiliar *avoir*, o infinitivo, ou um sintagma nominal.
+2. **Nenhuma concorda com variável de tempo de execução** — pior que a
+   primeira, porque acerta parte das vezes. Os oito eixos do radar são
+   2 masculinos, 5 femininos e 1 feminino plural.
+3. **O ponto médio (`né·e`) não é a saída.** Ele contorna o acordo em vez
+   de evitá-lo, é contestado, e os leitores de tela o pronunciam mal. A
+   saída é reformular.
+
+
+---
+
+## 🔴 21. O preço é o mesmo número em toda moeda
+
+A moeda segue o país — `moedaDe()`, em `logic/pais.ts` — e a tela de planos
+em França mostra **49,90 €**. O símbolo mudou; o número não.
+
+R$ 49,90 e 49,90 € não são o mesmo preço: são quase seis vezes um do
+outro. O que está na tela hoje não é um preço de mercado, é o preço
+brasileiro com outro símbolo na frente.
+
+**Isto não pode chegar na loja assim.** Preço por mercado é decisão de
+negócio, não de tradução, e enquanto ela não existir a tela está dizendo
+um número que ninguém decidiu.
+
+Onde mexer: `PLANOS()` em `logic/assinatura.ts` — hoje o valor é constante
+e só o símbolo vem do país.
+
+---
+
+## 🟡 22. O rótulo do IMC não diz qual corte está usando
+
+`FAIXAS_IMC()` lê `cortesDeIMC()` e troca a régua inteira conforme o país:
+a da OMS (18,5 · 25 · 30 · 35 · 40) e a asiática (18,5 · 23 · 25 · 30 ·
+35). São réguas diferentes, e a mesma pessoa com o mesmo peso cai em
+faixas de nome diferente em Lisboa e em Singapura.
+
+A tela mostra o nome da faixa e não diz de qual régua ele saiu. Quem
+comparar com um resultado antigo, ou com um site, vai achar que o
+aplicativo errou — e não errou, mudou de referência sem avisar.
+
+Falta uma linha: **de onde vem o corte**. É a mesma regra do resto do
+aplicativo — todo número mostrado diz de onde veio.
+
+---
+
+## 🟡 23. O espanhol tem um separador decimal; a América tem dois
+
+Já está escrito por extenso no alto de `logic/local.ts`, e fica aqui para
+não se perder: México, América Central, Porto Rico e a República
+Dominicana escrevem "1,234.56", à americana; a América do Sul e a Espanha
+escrevem "1.234,56". São ~150 milhões de falantes de um lado e ~200 do
+outro.
+
+Ficou a vírgula decimal. **A saída não é mudar esse número: é um
+`es-MX` com o mesmo catálogo e outro formato** — que é exatamente o que a
+separação entre FORMATO e CATÁLOGO existe para permitir. O relógio tem o
+mesmo problema (México escreve 12 h, a América do Sul 24), e nesse o
+aparelho manda.
+
+---
+
+## 🟡 24. A rede de congelamento tem duas cegueiras conhecidas
+
+Ela roda sete cenários sobre **uma** semente, e a semente tem registro de
+tudo. Duas consequências, as duas já custaram:
+
+1. **Todo ramo que só aparece no vazio fica de fora.** O feminino escrito
+   em duro em `metas.jornada.semRegistros` — a tela dizia "sem dias
+   registradas ainda" — passou por ela sem uma linha de diferença, antes e
+   depois da correção. O aviso está no cabeçalho da rede: antes de confiar
+   num "idêntico", procure no JSON a frase que DEVERIA ter mudado.
+
+2. **Há uma não-determinação latente na ordem dos marcos.** Duas execuções
+   sem mudança de código deram zero diferenças, e uma terceira, contra uma
+   captura anterior, trocou a ordem de dois marcos com o mesmo carimbo de
+   tempo. Não foi reproduzida desde então. Se o diff acusar marcos sem
+   nenhuma outra mudança, é provável que seja isto — mas é para conferir,
+   não para descartar.
