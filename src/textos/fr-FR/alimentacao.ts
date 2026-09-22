@@ -1,0 +1,168 @@
+/* ============================================================
+   L'ALIMENTATION — ce qu'on mange, ce qu'on boit et ce qui reste dehors · fr-FR
+
+   ⚠️ Les raisons vivent dans ../pt-BR/alimentacao.ts. Celle qui vaut pour
+   le fichier entier : AUCUNE phrase d'ici n'est une prescription. Les
+   lectures pointent ce que le comptage montre et proposent une prochaine
+   assiette ; aucune ne dit à la personne qu'elle a tort, parce que
+   l'application ne sait pas ce qu'elle a convenu avec son équipe.
+   ============================================================ */
+
+export const alimentacao = {
+  /* ⚠️ CHAQUE PHRASE PORTE LE NOMBRE AVEC ELLE. « Votre petit-déjeuner
+     apporte 9 g » se vérifie sur l'écran du dessous ; « vous vous en
+     sortez bien au petit-déjeuner » ne se vérifie nulle part. Un compliment
+     sans chiffre est la façon la plus rapide pour une application de
+     sonner comme une carte de développement personnel.
+
+     ⚠️ ET LA QUESTION DE CHAQUE CARTE EST À LA PREMIÈRE PERSONNE, comme la
+     personne la poserait. Le champ du companion reçoit du texte, et un
+     titre de section collé là se lirait comme une commande de machine. */
+  conselhos: {
+    fibraQ: 'Comment augmenter les fibres de ma journée sans me lasser de ce que je mange ?',
+    fibraTitulo: (media: number) => `Fibres : ${media} g par jour`,
+    /* ⚠️ LA SECONDE MOITIÉ EST LA RAISON POUR LAQUELLE CETTE CARTE EST LA
+       PREMIÈRE : la constipation est l'un des effets secondaires les plus
+       courants du traitement, et la fibre est le levier alimentaire qui
+       existe pour elle. */
+    fibraTexto: (dias: number, meta: number) =>
+      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. Légumes secs, avoine, verdures et fruits avec la peau sont le chemin le plus court — et c’est la fibre qui aide pour le transit bloqué, l’un des effets secondaires les plus courants du traitement.`,
+
+    fibraBoaQ: 'Qu’est-ce que les fibres changent dans mon traitement ?',
+    fibraBoaTitulo: (media: number) => `Fibres : ${media} g par jour, au-dessus de l’objectif`,
+    fibraBoaTexto: (dias: number, meta: number) =>
+      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. C’est ce qui tient en général le transit bloqué du traitement — autant garder comme ça.`,
+
+    /* ⚠️ LE MOMENT FAIBLE NOMME LE MOMENT, et c'est ce que le chiffre du
+       jour ne dit pas : un petit-déjeuner à 6 g et un déjeuner à 40 g font
+       la même somme que deux à 23, et seul le premier a un pas suivant
+       évident. */
+    momentoFracoQ: (momento: string) => `Que puis-je manger au ${momento.toLowerCase()} pour avoir plus de protéines ?`,
+    momentoFracoTitulo: (momento: string, media: number) => `${momento} : ${media} g de protéines, en moyenne`,
+    /* ⚠️ LES SOURCES RESPECTENT CE QUE LA PERSONNE MANGE. La phrase disait
+       « un œuf, un yaourt ou un morceau de fromage » pour tout le monde —
+       un conseil qu'une personne végane ne peut pas suivre, dit par
+       l'application qui vient de lui demander si elle est végane. */
+    momentoFracoTexto: (melhor: string, mediaMelhor: number, fontes: string) =>
+      `C’est votre moment le plus léger en protéines — le ${melhor.toLowerCase()} en apporte ${mediaMelhor} g. Dans ce que vous mangez, ce qui donne le plus de protéines par calorie, c’est ${fontes}.`,
+
+    momentoForteQ: 'Pourquoi les protéines comptent-elles autant dans ce traitement ?',
+    momentoForteTitulo: (momento: string, media: number) => `${momento} : ${media} g de protéines, en moyenne`,
+    momentoForteTexto: 'C’est le moment qui soutient le plus votre objectif du jour. Refaire ce qui marche déjà là est plus simple que de réparer ailleurs.',
+
+    /* ⚠️ LA PHRASE COMPTE DANS COMBIEN DE JOURS UN LÉGUME EST APPARU DANS
+       LE RELEVÉ, et non dans combien la personne en a mangé. Ce sont deux
+       choses différentes, et un plat tout prêt peut en contenir sans que
+       l'application le sache. */
+    verdeQ: 'Quels légumes vont avec ce que je mange déjà d’habitude ?',
+    verdeTitulo: (comVerde: number, total: number) =>
+      `Des légumes sur ${comVerde} des ${total} jours notés`,
+    verdeTexto: 'Une salade ou un légume au déjeuner remplit l’assiette avec peu de calories — ça aide à finir le repas rassasiée sans entamer la journée, et ça apporte les fibres avec.',
+  },
+
+  /* ⚠️ LES `id` SONT DES DONNÉES — 'agua', 'cafe', 'coco' est ce qui reste
+     enregistré dans chaque relevé d'hydratation. Seuls le nom et le
+     récipient viennent d'ici.
+
+     ⚠️ ET LE RÉCIPIENT EST CE QUE LA PERSONNE DIRAIT À VOIX HAUTE.
+     Personne ne boit une bonbonne de café, et qui a bu une tasse ne sait
+     pas de tête combien de millilitres c'était. */
+  bebidas: {
+    agua: 'Eau',
+    cafe: 'Café',
+    cafeLeite: 'Café au lait',
+    cha: 'Thé',
+    coco: 'Eau de coco',
+    leite: 'Lait',
+    suco: 'Jus',
+    shake: 'Shake ou whey',
+    refri: 'Soda',
+    alcool: 'Boisson alcoolisée',
+    outro: 'Autre',
+
+    /* ⚠️ LA RÉSERVE SUR L'ALCOOL RESTE À L'ÉCRAN, et non cachée dans un
+       calcul. C'est la seule boisson au bilan hydrique négatif bien
+       établi — elle supprime la vasopressine et le corps rend plus qu'il
+       n'a reçu. Elle reste notable, parce que le journal existe pour noter
+       ce qui s'est passé ; elle n'entre simplement pas dans le total. */
+    notaAlcool: 'Elle reste notée, mais n’entre pas dans le total : l’alcool fait rendre au corps plus de liquide qu’il n’en a reçu.',
+
+    recipientes: {
+      xicara: 'Tasse',
+      caneca: 'Mug',
+      copo: 'Verre',
+      garrafa: 'Bouteille',
+      caixinha: 'Briquette',
+      lata: 'Canette',
+      taca: 'Coupe',
+      longNeck: 'Long neck',
+      coqueteleira: 'Shaker',
+    },
+  },
+
+  prato: {
+    /* ⚠️ LES MOMENTS SONT CLÉ ET ÉTIQUETTE À LA FOIS : le nom est ce qui
+       reste enregistré dans chaque repas, et aussi ce que l'écran montre.
+       Traduire la liste NE casse aucun relevé, parce que la comparaison se
+       fait toujours contre la valeur que l'application vient de rendre —
+       mais un repas ancien gardé avec « Almoço » ne correspond pas à
+       « Déjeuner », et c'est pour ça que l'écran retombe sur le nom
+       enregistré quand il ne le reconnaît pas. */
+    cafeDaManha: 'Petit-déjeuner',
+    almoco: 'Déjeuner',
+    lanche: 'Collation',
+    jantar: 'Dîner',
+
+    porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'portion' : 'portions'}`,
+
+    /* ⚠️ LA PROVENANCE N'APPARAÎT QUE QUAND IL FAUT LA DIRE. Un item de
+       table ne dit rien : c'est le cas normal, et l'annoncer serait du
+       bruit sur toutes les lignes pour prévenir sur aucune. */
+    estimado: 'estimé d’après la photo',
+    semConta: 'n’entre pas encore dans le compte',
+
+    /* ⚠️ LA LECTURE D'UN ALIMENT N'INTERDIT RIEN. « Ce n'est pas interdit,
+       mais ça prend une bonne part de la journée » est le plus loin où
+       elle va, et c'est voulu : l'application ne sait pas ce que l'équipe
+       a convenu avec la personne. */
+    muitaProteinaPoucaCaloria: 'Beaucoup de protéines pour peu de calories. C’est le type d’aliment que le traitement demande : il tient dans l’assiette qui a rétréci et soutient encore la masse maigre.',
+    boaFonte: 'Bonne source de protéines, et c’est ce qui retient la masse maigre pendant que le poids descend.',
+    caloriaAlta: 'Calories élevées et peu de protéines. Ce n’est pas interdit, mais ça prend une bonne part de la journée et rend peu de ce dont le traitement a besoin.',
+    bastanteFibra: 'Beaucoup de fibres. Ça aide pour le transit bloqué, l’un des effets secondaires les plus courants du traitement.',
+    quaseNaoPesa: 'Ça ne pèse presque rien dans la journée. Bon pour accompagner l’assiette, mais les protéines doivent venir d’ailleurs.',
+    temFibra: 'Contient des fibres, qui aident pour le transit bloqué — l’un des effets secondaires les plus courants du traitement.',
+  },
+
+  /* ⚠️ CE QUE L'ITEM DÉCLARE VAUT PLUS QUE LE REPLI. Un produit d'enseigne
+     apporte la table de l'enseigne elle-même, et la phrase de repli — « la
+     table de l'Unicamp n'analyse pas celui-ci » — est vraie et inutile :
+     elle décrit ce que la source N'EST PAS, alors que l'item sait dire ce
+     qu'elle est. */
+  origem: {
+    porCem: (fonte: string) => `${fonte}. Ce sont les valeurs pour 100 g, et le poids de chaque portion est celui que l’enseigne déclare elle-même.`,
+    porPorcaoSemPeso: (fonte: string) => `${fonte}. Ce sont les valeurs de la portion vendue par l’enseigne, et non de 100 g — elle publie l’étiquette du produit, sans dire combien il pèse.`,
+    porPorcaoComPeso: (fonte: string) => `${fonte}. Ce sont les valeurs de la portion vendue par l’enseigne, et non de 100 g — avec le poids qu’elle déclare elle-même.`,
+    taco: 'Les chiffres viennent de la table brésilienne de composition des aliments, faite par l’Unicamp, qui mesure en laboratoire ce que chaque aliment contient.',
+    somaTaco: 'C’est un plat composé : nous additionnons ingrédient par ingrédient avec la table de l’Unicamp, pour une portion de restaurant. La vôtre peut être plus grande ou plus petite.',
+    rotulo: 'La table de l’Unicamp n’analyse pas celui-ci, alors les chiffres viennent de l’étiquette de produits courants du commerce. D’une marque à l’autre ils changent un peu.',
+  },
+
+  /* ⚠️ LE SOUS-TITRE DIT CE QUI RESTE, et pas seulement ce qui sort. « Sans
+     viande, volaille ni poisson » tout seul laisse la personne sans savoir
+     pour l'œuf et le fromage, qui est justement le doute de qui hésite
+     entre végétarien et végane. */
+  restricoes: {
+    vegetariano: 'Végétarien',
+    vegetarianoSub: 'Sans viande, volaille ni poisson. L’œuf et les produits laitiers restent.',
+    vegano: 'Végane',
+    veganoSub: 'Rien d’origine animale : viande, poisson, œuf, lait et fromage sortent.',
+    semLactose: 'Sans lactose',
+    semLactoseSub: 'Lait, fromage et dérivés sortent — par intolérance ou allergie.',
+    semOvo: 'Sans œuf',
+    semOvoSub: 'L’œuf et les plats qui en contiennent sortent.',
+    semPeixe: 'Sans poisson ni fruits de mer',
+    semPeixeSub: 'Poisson, crevettes et fruits de mer sortent.',
+    semCarneVermelha: 'Sans viande rouge',
+    semCarneVermelhaSub: 'Bœuf et porc sortent. Volaille et poisson restent.',
+  },
+};

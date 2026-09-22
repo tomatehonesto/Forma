@@ -21,6 +21,7 @@
 
 
 import type { alertas as alertasPt } from '../pt-BR/alertas';
+import type { alimentacao as alimentacaoPt } from '../pt-BR/alimentacao';
 import type { aviso as avisoPt } from '../pt-BR/aviso';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
 import type { ciclo as cicloPt } from '../pt-BR/ciclo';
@@ -36,6 +37,7 @@ import type { etapa as etapaPt } from '../pt-BR/etapa';
 import type { exames as examesPt } from '../pt-BR/exames';
 import type { fontes as fontesPt } from '../pt-BR/fontes';
 import type { formas as formasPt } from '../pt-BR/formas';
+import type { home as homePt } from '../pt-BR/home';
 import type { idioma as idiomaPt } from '../pt-BR/idioma';
 import type { leituras as leiturasPt } from '../pt-BR/leituras';
 import type { medidas as medidasPt } from '../pt-BR/medidas';
@@ -44,6 +46,7 @@ import type { tempo as tempoPt } from '../pt-BR/tempo';
 import type { tratamento as tratamentoPt } from '../pt-BR/tratamento';
 
 import { alertas } from './alertas';
+import { alimentacao } from './alimentacao';
 import { aviso } from './aviso';
 import { avisos } from './avisos';
 import { ciclo } from './ciclo';
@@ -59,6 +62,7 @@ import { etapa } from './etapa';
 import { exames } from './exames';
 import { fontes } from './fontes';
 import { formas } from './formas';
+import { home } from './home';
 import { idioma } from './idioma';
 import { leituras } from './leituras';
 import { medidas } from './medidas';
@@ -67,6 +71,7 @@ import { tempo } from './tempo';
 import { tratamento } from './tratamento';
 
 const _alertas: typeof alertasPt = alertas;
+const _alimentacao: typeof alimentacaoPt = alimentacao;
 const _aviso: typeof avisoPt = aviso;
 const _avisos: typeof avisosPt = avisos;
 const _ciclo: typeof cicloPt = ciclo;
@@ -82,6 +87,7 @@ const _etapa: typeof etapaPt = etapa;
 const _exames: typeof examesPt = exames;
 const _fontes: typeof fontesPt = fontes;
 const _formas: typeof formasPt = formas;
+const _home: typeof homePt = home;
 const _idioma: typeof idiomaPt = idioma;
 const _leituras: typeof leiturasPt = leituras;
 const _medidas: typeof medidasPt = medidas;
@@ -89,4 +95,4 @@ const _resumo: typeof resumoPt = resumo;
 const _tempo: typeof tempoPt = tempo;
 const _tratamento: typeof tratamentoPt = tratamento;
 
-export const conferidos = [_alertas, _aviso, _avisos, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _resumo, _tempo, _tratamento];
+export const conferidos = [_alertas, _alimentacao, _aviso, _avisos, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _medidas, _resumo, _tempo, _tratamento];
