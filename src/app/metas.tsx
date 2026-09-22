@@ -14,6 +14,7 @@ import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/c
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { pesoTxt, pesoN } from '../logic/medidas';
+import { T } from '../textos';
 
 /* ============================================================
    ONDE QUERO CHEGAR
@@ -44,6 +45,11 @@ import { pesoTxt, pesoN } from '../logic/medidas';
    ============================================================ */
 
 
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e
+   constante de módulo congela o idioma no import. Ver
+   scripts/idioma-congelado.mjs. */
+const K = () => T.metas.tela;
+
 export default function Metas() {
   const aurora = useAurora();
   const S = useStore((s) => s.S);
@@ -61,12 +67,12 @@ export default function Metas() {
     <TelaDeHabito>
       <CapaDeHabito
         foto={aurora.insights}
-        titulo="Metas"
-        linha={`${pesoN(S, perdido)} de ${pesoTxt(S, total)} até ${pesoTxt(S, S.profile.goalWeight)}`}
+        titulo={K().titulo}
+        linha={K().progresso(pesoN(S, perdido), pesoTxt(S, total), pesoTxt(S, S.profile.goalWeight))}
         pct={pct}
       >
         <AtalhoDaCapa
-          titulo="Nova meta"
+          titulo={K().novaMeta}
           cheio
           onPress={() => router.push('/meta?novo=1' as any)}
         />
@@ -79,8 +85,8 @@ export default function Metas() {
             isso, mexer na meta de proteína é mexer num campo de perfil;
             com isso, é mexer na barra que a pessoa vê todo dia. */}
         <Bloco
-          titulo="Os números do dia"
-          nota="É o que as telas de água, alimentação e exercício cobram, e o que o protocolo conta."
+          titulo={K().numerosTitulo}
+          nota={K().numerosNota}
         >
           <Cartao>
             {chaves.map((k) => {
@@ -117,12 +123,12 @@ export default function Metas() {
                     <Row gap={6} style={{ marginTop: 3 }}>
                       <Selo
                         label={p.convivem
-                          ? `Sua equipe mira ${a.escreve(p.meta.valor, S)} ${a.un(S)}`
+                          ? K().equipeMira(`${a.escreve(p.meta.valor, S)} ${a.un(S)}`)
                           /* "Via", e não "da": o número passou PELA equipe, e é assim
                              que ele chegou aqui — dito numa consulta e anotado depois. "Da
                              sua equipe" soa a posse, como se a linha fosse da clínica e não
                              dela. A linha é dela; a origem é que é de lá. */
-                          : p.alterada ? 'Alterada por você' : 'Via sua equipe'}
+                          : p.alterada ? K().alterada : K().viaEquipe}
                         tom={p.alterada || p.convivem ? 'neutra' : 'lima'}
                       />
                     </Row>
@@ -148,8 +154,8 @@ export default function Metas() {
              a anterior são os números do dia, que são meta também. O que
              separa as duas é quem cobra: aquelas o app conta sozinho,
              estas a pessoa escreveu. */
-          titulo="As suas metas"
-          nota="As medidas nós acompanhamos pelos seus registros. As suas, você marca."
+          titulo={K().suasTitulo}
+          nota={K().suasNota}
         >
           {metas.length ? (
             <Cartao>
@@ -202,8 +208,8 @@ export default function Metas() {
           ) : (
             <Vazio
               ic="target"
-              titulo="Nenhuma meta ainda"
-              texto="Escreva uma coisa que você quer conseguir. Ela fica aqui até acontecer."
+              titulo={K().vazioTitulo}
+              texto={K().vazioTexto}
             />
           )}
         </Bloco>

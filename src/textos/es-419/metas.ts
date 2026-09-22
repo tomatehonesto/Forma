@@ -283,4 +283,84 @@ export const metas = {
     oPrazoEra: (data: string) => `el plazo era ${data}`,
     vocemarca: 'tú marcas cuando llegues',
   },
+
+  /* ⚠️ Las dos pantallas de meta vivían en el código, y fue el alemán
+     quien las delató: la lista abría con títulos en portugués al lado de
+     nombres de objetivo en alemán. Ver ../pt-BR/metas. */
+  tela: {
+    /* ---------- la lista ---------- */
+    titulo: 'Metas',
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} de ${total} hasta ${alvo}`,
+    novaMeta: 'Nueva meta',
+
+    numerosTitulo: 'Los números del día',
+    numerosNota: 'Es lo que piden las pantallas de agua, alimentación y ejercicio, y lo que cuenta el protocolo.',
+
+    /* ⚠️ "Vía", y no "de": el número pasó POR el equipo, dicho en una
+       consulta y anotado después. "Del equipo" suena a posesión, como si
+       la línea fuera de la clínica y no de ella. */
+    equipeMira: (valor: string) => `Tu equipo apunta a ${valor}`,
+    alterada: 'Cambiada por ti',
+    viaEquipe: 'Vía tu equipo',
+
+    suasTitulo: 'Tus metas',
+    suasNota: 'Las medidas las seguimos por tus registros. Las tuyas, las marcas tú.',
+
+    vazioTitulo: 'Ninguna meta todavía',
+    vazioTexto: 'Escribe algo que quieras lograr. Se queda aquí hasta que pase.',
+
+    /* ---------- la hoja de uno de los cuatro números ---------- */
+    definidoPelaEquipe: 'Definido por tu equipo',
+    novoValor: 'Nuevo valor',
+    salvar: 'Guardar',
+
+    hoje: (valor: string) => `Hoy: ${valor}`,
+    origemSua: 'Un número tuyo',
+    origemDaEquipe: (por: string, quando: string) => `Definido por ${por}, anotado el ${quando}`,
+    origemVoceEm: (quando: string) => `Definiste este número el ${quando}`,
+    origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
+    mudaPeso: 'Es el punto de llegada acordado con el equipo, y moverlo cambia la regla del Recorrido y de la evolución — sin borrar nada de lo ya registrado.',
+    mudaOutros: 'El cambio vale de ahora en adelante: los días ya registrados siguen valiendo lo que valían, y lo que cambia es contra qué se los compara.',
+
+    travadoTitulo: (por: string) => `Quien lo definió fue ${por}`,
+    travadoTexto: 'Este número es parte de tu tratamiento, y por eso no se cambia aquí. Si ya no sirve — otra indicación, una restricción que apareció, un equipo nuevo —, quita la anotación en el Área médica y vuelve a ser tuyo.',
+    divergeTitulo: 'Este número no es el de tu equipo',
+    divergeTexto: (por: string, dela: string, nosso: string) =>
+      `${por} definió ${dela}, y la aplicación está pidiendo ${nosso}. Guardamos los dos: puedes volver al de tu equipo en el Área médica, o llevar la diferencia a la próxima consulta.`,
+    recomendadoTitulo: 'Este es el valor recomendado',
+
+    verAnotacao: 'Ver la anotación de tu equipo',
+    anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
+
+    /* ---------- la hoja de una meta nueva ---------- */
+    novaSub: 'Algo tuyo. Lo guardamos para ti, y quien la marca eres tú',
+    escolhaOTipo: 'Elige el tipo',
+    escrevaDoSeuJeito: 'Escríbela a tu manera',
+
+    guardarMeta: 'Guardar meta',
+    respondaParaGuardar: 'Responde para guardar',
+    prazoRotulo: 'Plazo (opcional)',
+
+    /* ⚠️ LAS COMILLAS SON DEL IDIOMA: el español escribe «así», y por eso
+       la frase entera es función. */
+    vaiAparecer: (frase: string, ate: string) => `Va a aparecer así: «${frase}»${ate}.`,
+    vaiAparecerAte: (data: string) => `, hasta el ${data}`,
+    aindaNaoAteMarcar: 'Se queda en todavía no hasta que la marques. El día que pase, guardamos la fecha junto.',
+
+    /* ---------- la hoja de una meta de la lista ---------- */
+    metaTitulo: 'Meta',
+    naoEncontrei: 'No encontré esta meta',
+    apagadaEmOutraTela: 'Puede haber sido borrada en otra pantalla.',
+    subPessoal: 'Meta tuya, marcada por ti',
+    subMedida: 'Meta medida por tus check-ins',
+
+    conquistada: 'Lograda',
+    aindaNao: 'Todavía no',
+    consegui: 'Lo logré',
+    aindaNaoConsegui: 'Todavía no lo logré',
+    apagar: 'Borrar',
+
+    contamosPorVoce: 'Esta la contamos nosotros',
+    contamosTexto: 'Sale de tus check-ins de los últimos catorce días, y solo de los días que respondiste. No se puede marcar a mano — y eso es lo que hace que el número valga algo.',
+  },
 };

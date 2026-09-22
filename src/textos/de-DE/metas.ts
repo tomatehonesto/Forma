@@ -356,4 +356,89 @@ export const metas = {
     oPrazoEra: (data: string) => `die Frist war der ${data}`,
     vocemarca: 'du hakst ab, wenn es so weit ist',
   },
+
+  /* ⚠️⚠️ DIESE ZWEI BILDSCHIRME HABEN DIE GANZE SACHE AUFFLIEGEN LASSEN.
+     Die Liste öffnete mit „Metas“ und „Os números do dia“ auf
+     Portugiesisch, direkt neben „Zielgewicht“ und „Eiweiß pro Tag“, die
+     schon von hier kamen. Ein halb übersetzter Bildschirm ist schlimmer
+     als gar keiner — wer das sieht, schließt, dass die App kaputt ist.
+     Die Gründe stehen in ../pt-BR/metas. */
+  tela: {
+    /* ---------- die Liste ---------- */
+    titulo: 'Ziele',
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} von ${total} bis ${alvo}`,
+    novaMeta: 'Neues Ziel',
+
+    numerosTitulo: 'Deine Zahlen des Tages',
+    numerosNota: 'Das ist es, was die Bildschirme für Trinken, Essen und Bewegung zählen, und was das Protokoll zusammenrechnet.',
+
+    /* ⚠️ „ÜBER“, UND NICHT „VON“: die Zahl ist DURCH das Team gekommen —
+       in einer Sprechstunde gesagt und danach notiert. „Von deinem Team“
+       klingt nach Besitz, als gehörte die Zeile der Praxis und nicht
+       ihr. */
+    equipeMira: (valor: string) => `Dein Team peilt ${valor} an`,
+    alterada: 'Von dir geändert',
+    viaEquipe: 'Über dein Team',
+
+    suasTitulo: 'Deine eigenen Ziele',
+    suasNota: 'Die gemessenen verfolgen wir über deine Einträge. Deine eigenen hakst du selbst ab.',
+
+    vazioTitulo: 'Noch kein Ziel',
+    vazioTexto: 'Schreib etwas auf, das du erreichen willst. Es bleibt hier, bis es passiert.',
+
+    /* ---------- die Karte für eine der vier Zahlen ---------- */
+    definidoPelaEquipe: 'Von deinem Team festgelegt',
+    novoValor: 'Neuer Wert',
+    salvar: 'Speichern',
+
+    hoje: (valor: string) => `Heute: ${valor}`,
+    origemSua: 'Eine Zahl von dir',
+    origemDaEquipe: (por: string, quando: string) => `Von ${por} festgelegt, notiert am ${quando}`,
+    origemVoceEm: (quando: string) => `Du hast diese Zahl am ${quando} festgelegt`,
+    origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
+    mudaPeso: 'Es ist der Zielpunkt, der mit deinem Team vereinbart ist, und daran zu rühren ändert den Maßstab des Verlaufs und der Entwicklung — ohne etwas von dem zu löschen, was schon eingetragen ist.',
+    mudaOutros: 'Die Änderung gilt ab jetzt: die schon eingetragenen Tage behalten, was sie wert waren, und was sich ändert, ist das, womit sie verglichen werden.',
+
+    travadoTitulo: (por: string) => `Festgelegt hat sie ${por}`,
+    travadoTexto: 'Diese Zahl gehört zu deiner Behandlung, und deshalb wird sie hier nicht geändert. Wenn sie nicht mehr passt — eine andere Anweisung, eine Einschränkung, die aufgetaucht ist, ein neues Team —, entferne die Notiz im Medizin-Bereich, und sie gehört wieder dir.',
+    divergeTitulo: 'Diese Zahl ist nicht die deines Teams',
+    divergeTexto: (por: string, dela: string, nosso: string) =>
+      `${por} hat ${dela} festgelegt, und die App rechnet mit ${nosso}. Wir heben beide auf: du kannst im Medizin-Bereich zu der deines Teams zurück, oder den Unterschied mit zum nächsten Termin nehmen.`,
+    recomendadoTitulo: 'Das ist der empfohlene Wert',
+
+    verAnotacao: 'Die Notiz deines Teams ansehen',
+    anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
+
+    /* ---------- die Karte für ein neues Ziel ---------- */
+    novaSub: 'Etwas von dir. Wir heben es für dich auf, und abhaken tust du selbst',
+    escolhaOTipo: 'Wähl die Art',
+    escrevaDoSeuJeito: 'Schreib es, wie du willst',
+
+    guardarMeta: 'Ziel speichern',
+    respondaParaGuardar: 'Antworte zum Speichern',
+    prazoRotulo: 'Frist (optional)',
+
+    /* ⚠️ DIE ANFÜHRUNGSZEICHEN GEHÖREN DER SPRACHE: Deutsch schreibt
+       „unten und oben“, Englisch beide oben, Französisch die Spitzen. Nur
+       deshalb ist der ganze Satz eine Funktion. */
+    vaiAparecer: (frase: string, ate: string) => `So wird es aussehen: „${frase}“${ate}.`,
+    vaiAparecerAte: (data: string) => `, bis zum ${data}`,
+    aindaNaoAteMarcar: 'Es bleibt auf noch nicht, bis du es abhakst. An dem Tag, an dem es passiert, heben wir das Datum mit auf.',
+
+    /* ---------- die Karte für ein Ziel aus der Liste ---------- */
+    metaTitulo: 'Ziel',
+    naoEncontrei: 'Ich habe dieses Ziel nicht gefunden',
+    apagadaEmOutraTela: 'Es wurde vielleicht auf einem anderen Bildschirm gelöscht.',
+    subPessoal: 'Dein eigenes Ziel, von dir abgehakt',
+    subMedida: 'Ziel, gemessen an deinen Check-ins',
+
+    conquistada: 'Erreicht',
+    aindaNao: 'Noch nicht',
+    consegui: 'Geschafft',
+    aindaNaoConsegui: 'Doch noch nicht',
+    apagar: 'Löschen',
+
+    contamosPorVoce: 'Dieses zählen wir für dich',
+    contamosTexto: 'Es kommt aus deinen Check-ins der letzten vierzehn Tage, und nur aus den Tagen, an denen du geantwortet hast. Es lässt sich nicht von Hand abhaken — und genau das macht die Zahl etwas wert.',
+  },
 };

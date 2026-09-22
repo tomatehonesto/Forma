@@ -342,4 +342,94 @@ export const metas = {
     oPrazoEra: (data: string) => `l’échéance était le ${data}`,
     vocemarca: 'vous cochez le jour venu',
   },
+
+  /* ⚠️ LES DEUX ÉCRANS D'OBJECTIF VIVAIENT DANS LE CODE, et c'est
+     l'allemand qui les a dénoncés : la liste s'ouvrait sur des titres
+     portugais à côté de noms de cible allemands. Voir ../pt-BR/metas.
+
+     ⚠️ ET UNE LIGNE D'ICI A FAILLI ACCORDER AVEC QUI LIT. « J'y suis
+     arrivé » sur le bouton de l'objectif personnel demande un genre que
+     le portugais ne demande pas — « Consegui » n'accorde rien. La sortie
+     est l'impersonnel : « C'est fait ». */
+  tela: {
+    /* ---------- la liste ---------- */
+    titulo: 'Objectifs',
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} sur ${total} jusqu’à ${alvo}`,
+    novaMeta: 'Nouvel objectif',
+
+    numerosTitulo: 'Vos chiffres du jour',
+    numerosNota: 'C’est ce que comptent les écrans de l’eau, de l’alimentation et de l’exercice, et ce que le protocole additionne.',
+
+    /* ⚠️ « VIA », ET NON « DE » : le chiffre est passé PAR l'équipe — dit
+       en consultation et noté ensuite. « De votre équipe » sonne comme une
+       possession, comme si la ligne appartenait au cabinet et non à
+       elle. */
+    equipeMira: (valor: string) => `Votre équipe vise ${valor}`,
+    alterada: 'Modifié par vous',
+    viaEquipe: 'Via votre équipe',
+
+    suasTitulo: 'Vos objectifs à vous',
+    suasNota: 'Les mesurés, nous les suivons dans vos relevés. Les vôtres, c’est vous qui les cochez.',
+
+    vazioTitulo: 'Aucun objectif pour l’instant',
+    vazioTexto: 'Écrivez une chose que vous voulez réussir. Elle reste ici jusqu’à ce qu’elle arrive.',
+
+    /* ---------- la feuille d'un des quatre chiffres ---------- */
+    definidoPelaEquipe: 'Défini par votre équipe',
+    novoValor: 'Nouvelle valeur',
+    salvar: 'Enregistrer',
+
+    hoje: (valor: string) => `Aujourd’hui : ${valor}`,
+    origemSua: 'Un chiffre à vous',
+    origemDaEquipe: (por: string, quando: string) => `Défini par ${por}, noté le ${quando}`,
+    /* Avec l'auxiliaire AVOIR, le participe n'accorde rien. */
+    origemVoceEm: (quando: string) => `Vous avez défini ce chiffre le ${quando}`,
+    origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
+    mudaPeso: 'C’est le point d’arrivée convenu avec votre équipe, et y toucher change la règle du Parcours et de l’évolution — sans effacer rien de ce qui est déjà noté.',
+    mudaOutros: 'Le changement vaut à partir de maintenant : les jours déjà notés gardent ce qu’ils valaient, et ce qui change, c’est ce à quoi on les compare.',
+
+    travadoTitulo: (por: string) => `C’est ${por} qui l’a défini`,
+    travadoTexto: 'Ce chiffre fait partie de votre traitement, et c’est pour ça qu’il ne se change pas ici. S’il ne convient plus — une autre consigne, une contrainte apparue, une nouvelle équipe —, retirez la note dans l’Espace médical et il redevient le vôtre.',
+    divergeTitulo: 'Ce chiffre n’est pas celui de votre équipe',
+    divergeTexto: (por: string, dela: string, nosso: string) =>
+      `${por} a défini ${dela}, et l’application compte sur ${nosso}. Nous gardons les deux : vous pouvez revenir au sien dans l’Espace médical, ou emporter l’écart à la prochaine consultation.`,
+    recomendadoTitulo: 'C’est la valeur recommandée',
+
+    verAnotacao: 'Voir la note de votre équipe',
+    anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
+
+    /* ---------- la feuille d'un nouvel objectif ---------- */
+    novaSub: 'Une chose à vous. Nous la gardons pour vous, et c’est vous qui la cochez',
+    escolhaOTipo: 'Choisissez le type',
+    escrevaDoSeuJeito: 'Écrivez-le à votre façon',
+
+    guardarMeta: 'Enregistrer l’objectif',
+    respondaParaGuardar: 'Répondez pour enregistrer',
+    prazoRotulo: 'Échéance (facultatif)',
+
+    /* ⚠️ LES GUILLEMETS SONT CEUX DE LA LANGUE, et ils portent une espace
+       fine insécable à l'intérieur — c'est la même U+202F que la
+       ponctuation double. D'où la phrase entière en fonction. */
+    vaiAparecer: (frase: string, ate: string) => `Ça apparaîtra comme ça : « ${frase} »${ate}.`,
+    vaiAparecerAte: (data: string) => `, d’ici le ${data}`,
+    aindaNaoAteMarcar: 'Il reste à pas encore jusqu’à ce que vous le cochiez. Le jour où ça arrive, nous gardons la date avec.',
+
+    /* ---------- la feuille d'un objectif de la liste ---------- */
+    metaTitulo: 'Objectif',
+    naoEncontrei: 'Je n’ai pas trouvé cet objectif',
+    apagadaEmOutraTela: 'Il a peut-être été supprimé sur un autre écran.',
+    subPessoal: 'Objectif à vous, coché par vous',
+    subMedida: 'Objectif mesuré par vos check-ins',
+
+    conquistada: 'Atteint',
+    aindaNao: 'Pas encore',
+    /* ⚠️ « C'EST FAIT » ET NON « J'Y SUIS ARRIVÉ » : avec être, le
+       participe affirmerait un genre. Voir le haut du fichier. */
+    consegui: 'C’est fait',
+    aindaNaoConsegui: 'Toujours pas',
+    apagar: 'Supprimer',
+
+    contamosPorVoce: 'Celui-ci, nous le comptons pour vous',
+    contamosTexto: 'Il sort de vos check-ins des quatorze derniers jours, et seulement des jours où vous avez répondu. Il ne se coche pas à la main — et c’est ce qui fait que le chiffre vaut quelque chose.',
+  },
 };

@@ -278,4 +278,84 @@ export const metas = {
     oPrazoEra: (data: string) => `the deadline was ${data}`,
     vocemarca: 'you mark it when you get there',
   },
+
+  /* ⚠️ The two goal screens lived in the code until German gave them away:
+     the list opened with Portuguese headers next to German target names.
+     See ../pt-BR/metas for the reasons. */
+  tela: {
+    /* ---------- the list ---------- */
+    titulo: 'Goals',
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} of ${total} toward ${alvo}`,
+    novaMeta: 'New goal',
+
+    numerosTitulo: 'Your daily numbers',
+    numerosNota: 'It’s what the water, food and movement screens count against, and what the protocol tallies.',
+
+    /* ⚠️ "Via", not "from": the number came THROUGH the team — said in a
+       visit and written down afterwards. "From your team" sounds like
+       ownership, as if the line belonged to the clinic and not to her. */
+    equipeMira: (valor: string) => `Your team aims for ${valor}`,
+    alterada: 'Changed by you',
+    viaEquipe: 'Via your team',
+
+    suasTitulo: 'Your own goals',
+    suasNota: 'The measured ones we follow through your logs. Yours, you check off.',
+
+    vazioTitulo: 'No goals yet',
+    vazioTexto: 'Write down something you want to reach. It stays here until it happens.',
+
+    /* ---------- the sheet for one of the four numbers ---------- */
+    definidoPelaEquipe: 'Set by your team',
+    novoValor: 'New value',
+    salvar: 'Save',
+
+    hoje: (valor: string) => `Today: ${valor}`,
+    origemSua: 'A number of your own',
+    origemDaEquipe: (por: string, quando: string) => `Set by ${por}, noted on ${quando}`,
+    origemVoceEm: (quando: string) => `You set this number on ${quando}`,
+    origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
+    mudaPeso: 'It’s the finish line agreed with your team, and moving it changes the scale of the Journey and of your progress — without erasing anything already logged.',
+    mudaOutros: 'The change counts from now on: the days already logged keep meaning what they meant, and what changes is what they get compared against.',
+
+    travadoTitulo: (por: string) => `${por} set this one`,
+    travadoTexto: 'This number is part of your treatment, which is why it isn’t changed here. If it no longer fits — different guidance, a restriction that came up, a new team —, remove the note in the Care area and it becomes yours again.',
+    divergeTitulo: 'This isn’t your team’s number',
+    divergeTexto: (por: string, dela: string, nosso: string) =>
+      `${por} set ${dela}, and the app is counting against ${nosso}. We keep both: you can go back to theirs in the Care area, or take the difference to your next visit.`,
+    recomendadoTitulo: 'This is the recommended value',
+
+    verAnotacao: 'See your team’s note',
+    anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
+
+    /* ---------- the sheet for a new goal ---------- */
+    novaSub: 'Something of your own. We keep it for you, and you’re the one who checks it off',
+    escolhaOTipo: 'Pick the kind',
+    escrevaDoSeuJeito: 'Write it your way',
+
+    guardarMeta: 'Save goal',
+    respondaParaGuardar: 'Answer to save',
+    prazoRotulo: 'Deadline (optional)',
+
+    /* ⚠️ The quotation marks belong to the language, which is why the whole
+       sentence is a function here. */
+    vaiAparecer: (frase: string, ate: string) => `It’ll show up like this: “${frase}”${ate}.`,
+    vaiAparecerAte: (data: string) => `, by ${data}`,
+    aindaNaoAteMarcar: 'It stays at not yet until you check it off. The day it happens, we keep the date with it.',
+
+    /* ---------- the sheet for one goal from the list ---------- */
+    metaTitulo: 'Goal',
+    naoEncontrei: 'I couldn’t find this goal',
+    apagadaEmOutraTela: 'It may have been deleted on another screen.',
+    subPessoal: 'Your own goal, checked off by you',
+    subMedida: 'Goal measured from your check-ins',
+
+    conquistada: 'Reached',
+    aindaNao: 'Not yet',
+    consegui: 'I did it',
+    aindaNaoConsegui: 'Not yet after all',
+    apagar: 'Delete',
+
+    contamosPorVoce: 'This one we count for you',
+    contamosTexto: 'It comes from your check-ins over the last fourteen days, and only from the days you answered. There’s no checking it by hand — and that’s what makes the number worth something.',
+  },
 };

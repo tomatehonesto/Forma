@@ -324,4 +324,117 @@ export const metas = {
     oPrazoEra: (data: string) => `o prazo era ${data}`,
     vocemarca: 'você marca quando chegar',
   },
+
+  /* ============================================================
+     AS DUAS TELAS DE META — a lista e a folha
+
+     ⚠️ ELAS ESTAVAM NO CÓDIGO, e foi o alemão que denunciou: a lista abria
+     "Metas" e "Os números do dia" em português ao lado de "Zielgewicht" e
+     "Eiweiß pro Tag", que já vinham daqui. Meia tela traduzida é pior que
+     nenhuma — a pessoa conclui que o aplicativo está quebrado.
+
+     ⚠️ TRÊS MODOS MORAM NA MESMA FOLHA, e por isso os nomes das chaves
+     dizem qual: `alvo` é um dos quatro números que o aplicativo cobra,
+     `nova` é criar uma meta pessoal, e `uma` é abrir uma meta da lista.
+     ============================================================ */
+  tela: {
+    /* ---------- a lista ---------- */
+    titulo: 'Metas',
+    /* Os três já chegam escritos, na unidade de quem lê. */
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} de ${total} até ${alvo}`,
+    novaMeta: 'Nova meta',
+
+    numerosTitulo: 'Os números do dia',
+    numerosNota: 'É o que as telas de água, alimentação e exercício cobram, e o que o protocolo conta.',
+
+    /* ⚠️ A ETIQUETA DIZ DE QUEM É O NÚMERO, e são três estados. O terceiro
+       é o que importa: quando a pessoa MUDA um número que a equipe
+       definiu, a etiqueta não some nem mente — ela passa a dizer que foi
+       alterada. Ela pode mudar, é o corpo dela; o que o aplicativo não faz
+       é esconder que mudou.
+
+       ⚠️ E "VIA", E NÃO "DA": o número passou PELA equipe, e foi assim que
+       chegou aqui — dito numa consulta e anotado depois. "Da sua equipe"
+       soa a posse, como se a linha fosse da clínica e não dela. */
+    equipeMira: (valor: string) => `Sua equipe mira ${valor}`,
+    alterada: 'Alterada por você',
+    viaEquipe: 'Via sua equipe',
+
+    /* "As suas" porque a capa da tela já se chama Metas, e uma seção com o
+       nome da tela lê como se a anterior não fosse meta. O que separa as
+       duas é quem cobra: aquelas o aplicativo conta sozinho, estas a
+       pessoa escreveu. */
+    suasTitulo: 'As suas metas',
+    suasNota: 'As medidas nós acompanhamos pelos seus registros. As suas, você marca.',
+
+    vazioTitulo: 'Nenhuma meta ainda',
+    vazioTexto: 'Escreva uma coisa que você quer conseguir. Ela fica aqui até acontecer.',
+
+    /* ---------- a folha de um dos quatro números ---------- */
+    definidoPelaEquipe: 'Definido pela sua equipe',
+    novoValor: 'Novo valor',
+    salvar: 'Salvar',
+
+    hoje: (valor: string) => `Hoje: ${valor}`,
+    /* ⚠️ TRÊS RESPOSTAS PARA "DE ONDE VEIO ESTE NÚMERO", e a do cadastro
+       vem de `alvos.<chave>.origem`. As outras duas são estas. */
+    origemSua: 'Um número seu',
+    origemDaEquipe: (por: string, quando: string) => `Definido por ${por}, anotado em ${quando}`,
+    origemVoceEm: (quando: string) => `Você definiu este número em ${quando}`,
+    /* ⚠️ A JUNÇÃO É DO IDIOMA. O português emenda com ponto e espaço; quem
+       traduzir decide como as duas frases se encostam, e o `.trim()` do
+       lado de lá cuida do caso em que a segunda é vazia. */
+    origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
+    mudaPeso: 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.',
+    mudaOutros: 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.',
+
+    /* ⚠️ NENHUMA DAS TRÊS RESSALVAS TRAVA NADA — é o corpo dela e o
+       aplicativo dela. O que muda entre as três é o que ela SABE ao mudar:
+       quem sobrescreve 110 g de uma nutricionista merece ler isso antes, e
+       merece continuar vendo, depois, que aquele 110 existiu. */
+    travadoTitulo: (por: string) => `Quem definiu foi ${por}`,
+    travadoTexto: 'Este número é parte do seu tratamento, e por isso não se muda aqui. Se ele não serve mais — outra orientação, uma restrição que apareceu, uma equipe nova —, remova a anotação na Área médica e ele volta a ser seu.',
+    divergeTitulo: 'Este número não é o da sua equipe',
+    divergeTexto: (por: string, dela: string, nosso: string) =>
+      `${por} definiu ${dela}, e o aplicativo está cobrando ${nosso}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.`,
+    recomendadoTitulo: 'Este é o valor recomendado',
+
+    verAnotacao: 'Ver a anotação da sua equipe',
+    anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
+
+    /* ---------- a folha de uma meta nova ---------- */
+    novaSub: 'Uma coisa sua. Guardamos para você, e quem marca é você',
+    escolhaOTipo: 'Escolha o tipo',
+    escrevaDoSeuJeito: 'Escreva do seu jeito',
+
+    guardarMeta: 'Guardar meta',
+    respondaParaGuardar: 'Responda para guardar',
+    prazoRotulo: 'Prazo (opcional)',
+
+    /* ⚠️ AS ASPAS SÃO DO IDIOMA, e por isso a frase inteira é função: o
+       português usa "assim", o alemão usa „assim“, e o francês « assim ».
+       Montar isso fora daqui obrigaria a tela a escolher por todo mundo. */
+    vaiAparecer: (frase: string, ate: string) => `Vai aparecer assim: "${frase}"${ate}.`,
+    vaiAparecerAte: (data: string) => `, até ${data}`,
+    aindaNaoAteMarcar: 'Ela fica em ainda não até você marcar. No dia em que acontecer, guardamos a data junto.',
+
+    /* ---------- a folha de uma meta da lista ---------- */
+    metaTitulo: 'Meta',
+    naoEncontrei: 'Não encontrei esta meta',
+    apagadaEmOutraTela: 'Ela pode ter sido apagada em outra tela.',
+    subPessoal: 'Meta sua, marcada por você',
+    subMedida: 'Meta medida pelos seus check-ins',
+
+    conquistada: 'Conquistada',
+    aindaNao: 'Ainda não',
+    consegui: 'Consegui',
+    aindaNaoConsegui: 'Ainda não consegui',
+    apagar: 'Apagar',
+
+    /* ⚠️ A MEDIDA NÃO SE MARCA NEM SE APAGA À MÃO, e a última frase diz por
+       quê: uma caixinha por cima deixaria a pessoa contradizer o próprio
+       registro. */
+    contamosPorVoce: 'Esta nós contamos por você',
+    contamosTexto: 'Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa.',
+  },
 };

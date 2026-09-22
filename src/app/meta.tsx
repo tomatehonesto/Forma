@@ -12,6 +12,10 @@ import { DAY, fmtDate, now, startOfDay, dataLonga } from '../logic/time';
 import { Campo, Chips, Regua, Texto, Botao, Aviso, Cartao, Linha } from '../ui/internas';
 import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO. Ver o mesmo comentário em metas.tsx. */
+const K = () => T.metas.tela;
 
 /* ============================================================
    UMA META
@@ -84,17 +88,17 @@ export default function Meta() {
         titulo={def.nome}
         sub={def.onde}
         onClose={() => router.back()}
-        rodape={proc.travado ? undefined : <Botao label="Salvar" onPress={salvar} />}
+        rodape={proc.travado ? undefined : <Botao label={K().salvar} onPress={salvar} />}
       >
         <View style={{ marginTop: 20, gap: 14 }}>
           {proc.travado ? (
-            <Campo rotulo="Definido pela sua equipe" nu>
+            <Campo rotulo={K().definidoPelaEquipe} nu>
               <Txt v="display" style={{ textAlign: 'center' }}>
                 {def.escreve(def.le(S), S)} {def.un(S)}
               </Txt>
             </Campo>
           ) : (
-            <Campo rotulo="Novo valor" nu>
+            <Campo rotulo={K().novoValor} nu>
               <Regua
                 min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
                 casas={r.casas} esp={r.esp} salto={r.salto}
@@ -119,7 +123,7 @@ export default function Meta() {
           <Aviso
             ic="info"
             dentro
-            titulo={`Hoje: ${def.escreve(def.le(S), S)} ${def.un(S)}`}
+            titulo={K().hoje(`${def.escreve(def.le(S), S)} ${def.un(S)}`)}
             /* ⚠️ A ORIGEM DEIXA DE SER SEMPRE A CONTA DO CADASTRO, e são
                três respostas possíveis para "de onde veio este número":
 
@@ -136,13 +140,14 @@ export default function Meta() {
                depois de ter mudado. O aplicativo não guarda que ela
                editou — só saberia com um campo novo no estado, e este
                commit não é a hora. */
-            texto={`${proc.meta
+            texto={K().origemEmuda(
+              proc.meta
               ? (proc.alterada
                 /* e não "você mudou este número": o aviso de baixo já abre
                    com essa frase, e as duas empilhadas dizem a mesma coisa
                    duas vezes. Aqui a pergunta é de quem o número é. */
-                ? 'Um número seu'
-                : `Definido por ${proc.meta.por}, anotado em ${dataLonga(proc.meta.em)}`)
+                ? K().origemSua
+                : K().origemDaEquipe(proc.meta.por, dataLonga(proc.meta.em)))
               : proc.editadoEm
                 /* ⚠️ O CASO QUE ESTA TELA ERRAVA ATÉ AQUI. Quem arrastava a
                    régua de um número calculado continuava lendo "calculado
@@ -150,8 +155,9 @@ export default function Meta() {
                    origem de um dado, do mesmo tipo que saiu do resto do
                    aplicativo esta semana. Agora `mudarAlvo` guarda quando
                    ela mexeu, e a frase conta isso. */
-                ? `Você definiu este número em ${dataLonga(proc.editadoEm)}`
-                : def.origem}. ${proc.travado
+                ? K().origemVoceEm(dataLonga(proc.editadoEm))
+                : def.origem,
+              proc.travado
               /* ⚠️ NÃO SE EXPLICA UMA MUDANÇA QUE A TELA NÃO DEIXA FAZER.
 
                  Esta frase conta o que acontece com os dias já
@@ -162,8 +168,9 @@ export default function Meta() {
                  que a frase promete. */
               ? ''
               : chave === 'peso'
-                ? 'É o ponto de chegada combinado com a equipe, e mexer nele muda a régua da Jornada e da evolução — sem apagar nada do que já foi registrado.'
-                : 'A mudança vale a partir de agora: os dias já registrados continuam valendo o que valiam, e o que muda é contra o que eles passam a ser comparados.'}`.trim()}
+                ? K().mudaPeso
+                : K().mudaOutros,
+            ).trim()}
           />
 
           {/* ⚠️ A RESSALVA É OUTRO AVISO, e não uma terceira frase do de
@@ -187,17 +194,21 @@ export default function Meta() {
           {proc.meta && !proc.alterada ? (
             <Aviso
               ic="steth" dentro
-              titulo={`Quem definiu foi ${proc.meta.por}`}
-              texto={`Este número é parte do seu tratamento, e por isso não se muda aqui. Se ele não serve mais — outra orientação, uma restrição que apareceu, uma equipe nova —, remova a anotação na Área médica e ele volta a ser seu.`}
+              titulo={K().travadoTitulo(proc.meta.por)}
+              texto={K().travadoTexto}
             />
           ) : proc.meta && proc.alterada ? (
             <Aviso
               ic="steth" dentro
-              titulo="Este número não é o da sua equipe"
-              texto={`${proc.meta.por} definiu ${def.escreve(proc.meta.valor, S)} ${def.un(S)}, e o aplicativo está cobrando ${def.escreve(def.le(S), S)} ${def.un(S)}. Guardamos os dois: dá para voltar ao dela na Área médica, ou levar a diferença para a próxima consulta.`}
+              titulo={K().divergeTitulo}
+              texto={K().divergeTexto(
+                proc.meta.por,
+                `${def.escreve(proc.meta.valor, S)} ${def.un(S)}`,
+                `${def.escreve(def.le(S), S)} ${def.un(S)}`,
+              )}
             />
           ) : def.ressalva ? (
-            <Aviso ic="steth" dentro titulo="Este é o valor recomendado" texto={def.ressalva} />
+            <Aviso ic="steth" dentro titulo={K().recomendadoTitulo} texto={def.ressalva} />
           ) : null}
 
           {/* A SAÍDA, e ela é a mesma porta que trouxe o número para cá. */}
@@ -205,8 +216,8 @@ export default function Meta() {
             <Cartao>
               <Linha
                 ic="steth"
-                titulo="Ver a anotação da sua equipe"
-                sub={`${proc.meta.por} · ${def.escreve(proc.meta.valor, S)} ${def.un(S)}`}
+                titulo={K().verAnotacao}
+                sub={K().anotacaoSub(proc.meta.por, `${def.escreve(proc.meta.valor, S)} ${def.un(S)}`)}
                 onPress={() => trocarDeTela(`/meta-clinica?alvo=${chave}`)}
               />
             </Cartao>
@@ -250,7 +261,7 @@ export default function Meta() {
           onClose={() => setPess(null)}
           rodape={(
             <Botao
-              label={frase ? 'Guardar meta' : 'Responda para guardar'}
+              label={frase ? K().guardarMeta : K().respondaParaGuardar}
               desligado={!frase}
               onPress={salvarPessoal}
             />
@@ -276,7 +287,7 @@ export default function Meta() {
                 é não ter prazo, e ela vem escolhida: uma meta sem data
                 continua sendo uma meta — o que ela não pode é ganhar uma
                 data que a pessoa não pediu. */}
-            <Campo rotulo="Prazo (opcional)" nu>
+            <Campo rotulo={K().prazoRotulo} nu>
               <Chips itens={PRAZOS()} valor={prazo} onChange={setPrazo} />
             </Campo>
 
@@ -285,8 +296,8 @@ export default function Meta() {
                 depois de salvar. */}
             <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
               {frase
-                ? `Vai aparecer assim: "${frase}"${quando ? `, até ${fmtDate(new Date(quando))}` : ''}.`
-                : 'Ela fica em ainda não até você marcar. No dia em que acontecer, guardamos a data junto.'}
+                ? K().vaiAparecer(frase, quando ? K().vaiAparecerAte(fmtDate(new Date(quando))) : '')
+                : K().aindaNaoAteMarcar}
             </Txt>
           </View>
         </SheetScreen>
@@ -295,8 +306,8 @@ export default function Meta() {
 
     return (
       <SheetScreen
-        titulo="Nova meta"
-        sub="Uma coisa sua. Guardamos para você, e quem marca é você"
+        titulo={K().novaMeta}
+        sub={K().novaSub}
         onClose={() => router.back()}
       >
         {/* ⚠️⚠️ ESTA FOLHA VIROU O LUGAR DAS METAS QUE NÃO SÃO CLÍNICAS, e
@@ -330,7 +341,7 @@ export default function Meta() {
           {/* AS QUE ELE NÃO MEDE. Os cinco exemplos não gravam direto:
               preenchem o campo e deixam a pessoa terminar a frase — é aí
               que "entrar numa peça de roupa" vira a peça dela. */}
-          <Campo rotulo="Escolha o tipo" nu>
+          <Campo rotulo={K().escolhaOTipo} nu>
             <Cartao>
               {/* CATEGORIAS, e não frases prontas — a mesma forma da lista
                   de cima. "Um esporte" pergunta qual esporte; a frase
@@ -340,7 +351,7 @@ export default function Meta() {
                   key={m.id}
                   ic={m.ic}
                   titulo={m.nome}
-                  sub={m.id === 'livre' ? 'Escreva do seu jeito' : undefined}
+                  sub={m.id === 'livre' ? K().escrevaDoSeuJeito : undefined}
                   onPress={() => { setTexto(''); setPrazo('nao'); setPess(m); }}
                 />
               ))}
@@ -356,9 +367,9 @@ export default function Meta() {
 
   if (!meta) {
     return (
-      <SheetScreen titulo="Meta" sub="Não encontrei esta meta" onClose={() => router.back()}>
+      <SheetScreen titulo={K().metaTitulo} sub={K().naoEncontrei} onClose={() => router.back()}>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>
-          Ela pode ter sido apagada em outra tela.
+          {K().apagadaEmOutraTela}
         </Txt>
       </SheetScreen>
     );
@@ -372,7 +383,7 @@ export default function Meta() {
   return (
     <SheetScreen
       titulo={meta.label}
-      sub={meta.pessoal ? 'Meta sua, marcada por você' : 'Meta medida pelos seus check-ins'}
+      sub={meta.pessoal ? K().subPessoal : K().subMedida}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 20, gap: 12 }}>
@@ -384,7 +395,7 @@ export default function Meta() {
           <IconBadge name={meta.feita ? 'check' : meta.ic} size={52} iconSize={24} sw={1.9} />
           <View style={{ flex: 1 }}>
             {meta.pessoal ? (
-              <Txt v="h2">{meta.feita ? 'Conquistada' : 'Ainda não'}</Txt>
+              <Txt v="h2">{meta.feita ? K().conquistada : K().aindaNao}</Txt>
             ) : (
               <Txt v="metric">
                 {Math.round(meta.pct)}
@@ -398,11 +409,11 @@ export default function Meta() {
         {meta.pessoal ? (
           <View style={{ marginTop: 6, gap: 8 }}>
             <Botao
-              label={meta.feita ? 'Ainda não consegui' : 'Consegui'}
+              label={meta.feita ? K().aindaNaoConsegui : K().consegui}
               tom={meta.feita ? 'fantasma' : 'cheio'}
               onPress={() => update((s: any) => marcarMeta(s, meta.id))}
             />
-            <Botao label="Apagar" tom="perigo" onPress={apagar} />
+            <Botao label={K().apagar} tom="perigo" onPress={apagar} />
           </View>
         ) : (
           /* A MEDIDA NÃO SE MARCA NEM SE APAGA aqui. Ela sai dos
@@ -414,14 +425,14 @@ export default function Meta() {
             <Aviso
               ic="leaf"
               dentro
-              titulo={meta.conta || 'Esta nós contamos por você'}
-              texto="Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa."
+              titulo={meta.conta || K().contamosPorVoce}
+              texto={K().contamosTexto}
             />
             {/* APAGAR EXISTE NAS DUAS. A medida não se marca, mas ela é uma
                 meta como a outra: quem escolheu a régua errada precisa
                 poder desistir dela sem ter de conviver com uma barra que
                 não quer dizer nada. */}
-            <Botao label="Apagar" tom="perigo" onPress={apagar} />
+            <Botao label={K().apagar} tom="perigo" onPress={apagar} />
           </View>
         )}
       </View>
