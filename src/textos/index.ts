@@ -129,6 +129,45 @@ import { rotina as rotinaFr } from './fr-FR/rotina';
 import { tempo as tempoFr } from './fr-FR/tempo';
 import { tratamento as tratamentoFr } from './fr-FR/tratamento';
 
+/* ⚠️ O ALEMÃO TRATA POR "DU". É a decisão que mais custa desfazer neste
+   catálogo, e a razão inteira está no alto de textos/de-DE/comum.
+
+   ⚠️ E ELE NÃO TEM O PROBLEMA DO FRANCÊS — tem outros dois. Particípio
+   alemão não concorda com o sujeito, então a armadilha do "né·e" some;
+   no lugar dela entram o CASO (der/den/dem/des, e o oA só sabe um deles)
+   e a MAIÚSCULA de todo substantivo, que derruba todo toLowerCase
+   que as outras quatro línguas compartilhavam. */
+import { alertas as alertasDe } from './de-DE/alertas';
+import { alimentacao as alimentacaoDe } from './de-DE/alimentacao';
+import { aviso as avisoDe } from './de-DE/aviso';
+import { assinatura as assinaturaDe } from './de-DE/assinatura';
+import { avisos as avisosDe } from './de-DE/avisos';
+import { cadastro as cadastroDe } from './de-DE/cadastro';
+import { ciclo as cicloDe } from './de-DE/ciclo';
+import { companion as companionDe } from './de-DE/companion';
+import { comum as comumDe } from './de-DE/comum';
+import { confirmacoes as confirmacoesDe } from './de-DE/confirmacoes';
+import { conquistas as conquistasDe } from './de-DE/conquistas';
+import { cruzamentos as cruzamentosDe } from './de-DE/cruzamentos';
+import { cuidado as cuidadoDe } from './de-DE/cuidado';
+import { descobertas as descobertasDe } from './de-DE/descobertas';
+import { equilibrio as equilibrioDe } from './de-DE/equilibrio';
+import { home as homeDe } from './de-DE/home';
+import { idioma as idiomaDe } from './de-DE/idioma';
+import { escalas as escalasDe } from './de-DE/escalas';
+import { etapa as etapaDe } from './de-DE/etapa';
+import { exames as examesDe } from './de-DE/exames';
+import { fontes as fontesDe } from './de-DE/fontes';
+import { formas as formasDe } from './de-DE/formas';
+import { leituras as leiturasDe } from './de-DE/leituras';
+import { marcadores as marcadoresDe } from './de-DE/marcadores';
+import { medidas as medidasDe } from './de-DE/medidas';
+import { metas as metasDe } from './de-DE/metas';
+import { resumo as resumoDe } from './de-DE/resumo';
+import { rotina as rotinaDe } from './de-DE/rotina';
+import { tempo as tempoDe } from './de-DE/tempo';
+import { tratamento as tratamentoDe } from './de-DE/tratamento';
+
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
 
@@ -252,6 +291,14 @@ const CATALOGOS: Record<Local, Textos> = {
     escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
     home: homeFr, idioma: idiomaFr, leituras: leiturasFr, marcadores: marcadoresFr, medidas: medidasFr,
     metas: metasFr, resumo: resumoFr, rotina: rotinaFr, tempo: tempoFr, tratamento: tratamentoFr,
+  },
+  'de-DE': {
+    alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
+    cadastro: cadastroDe, ciclo: cicloDe, companion: companionDe, comum: comumDe, confirmacoes: confirmacoesDe,
+    conquistas: conquistasDe, cruzamentos: cruzamentosDe, cuidado: cuidadoDe, descobertas: descobertasDe, equilibrio: equilibrioDe,
+    escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,
+    home: homeDe, idioma: idiomaDe, leituras: leiturasDe, marcadores: marcadoresDe, medidas: medidasDe,
+    metas: metasDe, resumo: resumoDe, rotina: rotinaDe, tempo: tempoDe, tratamento: tratamentoDe,
   },
 };
 

@@ -32,7 +32,7 @@ import { paisDoAparelho as contaOPais } from './pais';
    tradução.
    ============================================================ */
 
-export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR';
+export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR' | 'de-DE';
 
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
@@ -52,7 +52,7 @@ const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
    como voltar: ele não sabe ler o que está na tela para achar o caminho
    de volta.
    ============================================================ */
-export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419', 'fr-FR'];
+export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419', 'fr-FR', 'de-DE'];
 
 /* ⚠️ CADA UM SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
    aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
@@ -63,6 +63,7 @@ export const NOME_DO_LOCAL: Record<Local, string> = {
   'en-US': 'English',
   'es-419': 'Español',
   'fr-FR': 'Français',
+  'de-DE': 'Deutsch',
 };
 
 /* ============================================================
@@ -279,7 +280,42 @@ const FR: Formato = {
   hora12: false,
 };
 
-const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR };
+/* ⚠️⚠️ O PONTO DEPOIS DO DIA NÃO É PONTUAÇÃO, É O ORDINAL. Em alemão a
+   data se escreve "13. Mai 2026", e aquele ponto quer dizer "décimo
+   terceiro" — tirar ele não deixa a data mais limpa, deixa ela errada.
+   Ele entra em todas as formas: na curta, na longa, com ano, e nos dois
+   lados do intervalo ("13.–19. Mai").
+
+   ⚠️ E O MÊS VAI COM MAIÚSCULA, ao contrário do francês e do espanhol —
+   é substantivo, e alemão escreve todo substantivo com maiúscula. Pela
+   mesma razão, a abreviação leva ponto quando a palavra foi cortada
+   ("Sept.") e não leva quando não foi ("Mai", "Juni").
+
+   ⚠️ O DIA DA SEMANA CURTO NÃO LEVA PONTO, e isso não é contradição: são
+   duas letras fixas — Mo, Di, Mi —, que é a forma corrente e a da norma.
+   O francês leva ("lun."), o alemão não.
+
+   ⚠️ E O MILHAR É PONTO, como em português. O alemão escreve 1.234,56 —
+   é o francês que é a exceção entre os cinco, com o espaço fino. */
+const DE: Formato = {
+  decimal: ',',
+  milhar: '.',
+  mesCurto: ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'],
+  mesLongo: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+  diaCurto: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+  diaLongo: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+  curta: (d, m) => `${d}. ${DE.mesCurto[m]}`,
+  longa: (d, m) => `${d}. ${DE.mesLongo[m]}`,
+  comAno: (d, m, a) => `${d}. ${DE.mesLongo[m]} ${a}`,
+  comDiaDaSemana: (dia, resto) => `${dia}, ${resto}`,
+  periodo: (de, ate, m) => `${de}.–${ate}. ${DE.mesCurto[m]}`,
+  periodoLongo: (de, ate, m) => `${de}. bis ${ate}. ${DE.mesLongo[m]}`,
+  mesAno: (m, a) => `${DE.mesLongo[m]} ${a}`,
+  junta: (de, ate) => `${de} – ${ate}`,
+  hora12: false,
+};
+
+const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR, 'de-DE': DE };
 
 /* ------------------------------------------------------------------ *
  * QUAL É O LOCAL AGORA
