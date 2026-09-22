@@ -8,6 +8,11 @@ import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { pesoTxt, alturaTxt } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cadastro.telaDados;
 
 /* ============================================================
    SEUS DADOS — o que o cadastro perguntou, e onde se corrige
@@ -42,9 +47,16 @@ import { pesoTxt, alturaTxt } from '../logic/medidas';
    muda.
    ============================================================ */
 
-const SEXO: Record<string, string> = {
-  f: 'Feminino', m: 'Masculino', o: 'Outro', n: 'Prefiro não informar',
-};
+/* ⚠️ OS QUATRO RÓTULOS JÁ EXISTIAM em `cadastro`, que é quem faz a
+   pergunta. Esta era a quinta cópia das mesmas palavras — e a única que
+   ficava em português nos cinco idiomas, porque a rede de congelamento
+   procura constante que LÊ o catálogo, e aqui eram literais soltos. */
+const SEXO = (): Record<string, string> => ({
+  f: T.cadastro.feminino,
+  m: T.cadastro.masculino,
+  o: T.cadastro.outro,
+  n: T.cadastro.prefiroNaoInformar,
+});
 
 
 export default function Dados() {
@@ -72,65 +84,64 @@ export default function Dados() {
   const comDose = temDose(S);
   const med = M(S);
 
-  const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
-  const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
+  const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? T.perfil.naoInformado;
+  const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? T.perfil.naoInformado;
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])
     .map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x)
-    .join(', ') || 'Nenhuma';
+    .join(', ') || T.perfil.nenhuma;
 
   return (
-    <TelaInterna titulo="Seus dados">
-      <Titulao
-        titulo="Seus dados"
-        lead="São as respostas do seu cadastro, e é delas que saem o seu IMC, as suas metas do dia e a previsão do plano. Mexer aqui refaz esses números."
-      />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       {/* O TRATAMENTO PRIMEIRO: é o que muda mais, e o que muda mais
           rápido. Numa titulação, a dose sobe a cada poucas semanas. */}
-      <Bloco titulo="Tratamento">
+      <Bloco titulo={K().tratamento}>
         <Cartao>
-          <Linha ic="syringe" titulo="Medicamento" sub={med.label} onPress={corrige('medicamento')} />
+          <Linha ic="syringe" titulo={K().medicamento} sub={med.label} onPress={corrige('medicamento')} />
           {comDose ? (
             <Linha
-              ic="dose" titulo="Dose"
-              sub={`${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`}
+              ic="dose" titulo={K().dose}
+              sub={K().doseSub(nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0), med.unit)}
               onPress={corrige('dose')}
             />
           ) : null}
           {comDose ? (
-            <Linha ic="clock" titulo="Frequência" sub={cadenciaCurta(S)} onPress={corrige('frequencia')} />
+            <Linha ic="clock" titulo={K().frequencia} sub={cadenciaCurta(S)} onPress={corrige('frequencia')} />
           ) : null}
         </Cartao>
       </Bloco>
 
       {/* O CORPO E O RITMO: os quatro que entram em conta todo dia. */}
-      <Bloco titulo="Corpo e ritmo">
+      <Bloco titulo={K().corpoERitmo}>
         <Cartao>
-          <Linha ic="ruler" titulo="Altura" sub={alturaTxt(S, S.profile.height)} onPress={corrige('corpo')} />
-          <Linha ic="scale" titulo="Peso inicial" sub={`${pesoTxt(S, S.profile.startWeight)}`} onPress={corrige(passoDoPesoInicial)} />
-          <Linha ic="target" titulo="Meta de peso" sub={`${pesoTxt(S, S.profile.goalWeight)}`} onPress={corrige('meta')} />
+          <Linha ic="ruler" titulo={K().altura} sub={alturaTxt(S, S.profile.height)} onPress={corrige('corpo')} />
+          <Linha ic="scale" titulo={K().pesoInicial} sub={pesoTxt(S, S.profile.startWeight)} onPress={corrige(passoDoPesoInicial)} />
+          <Linha ic="target" titulo={K().metaDePeso} sub={pesoTxt(S, S.profile.goalWeight)} onPress={corrige('meta')} />
           <Linha
-            ic="trend" titulo="Ritmo escolhido"
-            sub={S.profile.ritmo ? `${pesoTxt(S, S.profile.ritmo)} por semana` : 'Sem peso a perder'}
+            ic="trend" titulo={K().ritmoEscolhido}
+            sub={S.profile.ritmo ? K().porSemana(pesoTxt(S, S.profile.ritmo)) : K().semPesoAPerder}
             onPress={corrige('ritmo')}
           />
         </Cartao>
       </Bloco>
 
-      <Bloco titulo="Sobre você">
+      <Bloco titulo={T.perfil.sobreVoce}>
         <Cartao>
-          <Linha ic="user" titulo="Nome" sub={S.profile.name} onPress={corrige('nome')} />
-          <Linha ic="heart" titulo="Sexo" sub={SEXO[S.profile.identidade as string] ?? 'Não informado'} onPress={corrige('identidade')} />
+          <Linha ic="user" titulo={K().nome} sub={S.profile.name} onPress={corrige('nome')} />
+          <Linha ic="heart" titulo={K().sexo} sub={SEXO()[S.profile.identidade as string] ?? T.perfil.naoInformado} onPress={corrige('identidade')} />
           <Linha
-            ic="cal" titulo="Nascimento"
+            ic="cal" titulo={K().nascimento}
             sub={S.profile.nascimento
-              ? `${dataComAno(S.profile.nascimento)}${idade != null ? ` · ${idade} anos` : ''}`
-              : 'Não informado'}
+              ? (idade != null
+                ? K().nascimentoSub(dataComAno(S.profile.nascimento), idade)
+                : dataComAno(S.profile.nascimento))
+              : T.perfil.naoInformado}
             onPress={corrige('nascimento')}
           />
-          <Linha ic="dumbbell" titulo="Atividade física" sub={atividade} onPress={corrige('atividade')} />
-          <Linha ic="leaf" titulo="Restrições alimentares" sub={restricoes} onPress={go('/restricao')} />
-          <Linha ic="bolt" titulo="O que te trouxe" sub={motivo} onPress={corrige('motivacao')} />
+          <Linha ic="dumbbell" titulo={K().atividadeFisica} sub={atividade} onPress={corrige('atividade')} />
+          <Linha ic="leaf" titulo={K().restricoesAlimentares} sub={restricoes} onPress={go('/restricao')} />
+          <Linha ic="bolt" titulo={K().oQueTeTrouxe} sub={motivo} onPress={corrige('motivacao')} />
         </Cartao>
       </Bloco>
 
@@ -138,9 +149,7 @@ export default function Dados() {
           resposta de cadastro, é um registro — muda toda semana e tem
           tela própria para isso. Corrigir a altura é raro; subir na
           balança é rotina, e as duas não moram no mesmo lugar. */}
-      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', lineHeight: 17 }}>
-        Para registrar uma pesagem nova, use o botão de registrar.
-      </Txt>
+      <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', lineHeight: 17 }}>{K().rodape}</Txt>
     </TelaInterna>
   );
 }

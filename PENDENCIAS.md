@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 732, em 79 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 687, em 78 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1184,6 +1184,25 @@ tirada do `git show`, e não de memória.
   pode ser um nome ou um substantivo, não há artigo que sirva sempre — o
   alemão reconstrói a frase sem a preposição, que é a mesma saída de
   `rotina.empurroes.aplicacao`.
+- **Mais duas constantes de módulo com rótulo literal**, as duas quintas
+  cópias: `SEXO` em /dados (as quatro respostas de identidade, que
+  `cadastro` já tinha) e `SELO` em /semana (os sete tipos de evento no
+  singular). Ver o item 28 — e reparar que já são quatro achados da mesma
+  família, encontrados sempre pela tela e nunca pela rede.
+- **As aspas da citação são de cada idioma:** “ ” no português, „ “ no
+  alemão, « » no francês e no espanhol. Escritas na tela, a nota de quem
+  lê em alemão saía com aspas inglesas.
+- **Mais dois particípios franceses com gênero** — "Ce qui vous a
+  amenée" e "Comment vous vous êtes senti" —, os dois nascidos na
+  tradução e não no português. É a armadilha que se repete: uma frase
+  neutra em português vira gendrada em francês sem ninguém decidir isso.
+- **⚠️⚠️ E UM DEFEITO QUE NÃO ERA DE TEXTO.** `timelineCounts` fazia
+  `Object.keys(TL_LABEL)` **sem os parênteses**. `TL_LABEL` virou função
+  quando os rótulos saíram para o catálogo, e as chaves próprias de uma
+  função são nenhuma: a contagem voltava vazia e os **sete chips de
+  filtro sumiram** de /historico e da linha do tempo da Jornada. O `as
+  TLKind[]` calou o compilador. Um filtro que não aparece não parece
+  defeito — parece decisão de produto.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1341,10 +1360,10 @@ aparelho manda.
 
 ---
 
-## 🟡 24. A rede de congelamento tem três cegueiras conhecidas
+## 🟡 24. A rede de congelamento tem quatro cegueiras conhecidas
 
 Ela roda sete cenários sobre **uma** semente, e a semente tem registro de
-tudo. Três consequências, as três já custaram:
+tudo. Quatro consequências, as quatro já custaram:
 
 1. **Todo ramo que só aparece no vazio fica de fora.** O feminino escrito
    em duro em `metas.jornada.semRegistros` — a tela dizia "sem dias
@@ -1359,7 +1378,16 @@ tudo. Três consequências, as três já custaram:
    nenhuma outra mudança, é provável que seja isto — mas é para conferir,
    não para descartar.
 
-3. **Ela só roda pt-BR e en-US.** Dos sete cenários, dois trocam o local, e
+3. **O que ela não CHAMA, ela não vê — e isso já custou.** Ela lia
+   `timelineEvents` e `timelineWeeks`, mas não `timelineCounts`, que é
+   quem monta os chips de filtro. Quando `Object.keys(TL_LABEL)` passou a
+   devolver lista vazia, a rede deu zero diferenças com toda a razão: ela
+   não olhava para lá. `timelineCounts` entrou na rede junto com o
+   conserto. A lição é de leitura: um "idêntico" só cobre as funções
+   listadas no cenário, e a lista está no arquivo — vale conferir se a
+   função que você mexeu está nela antes de confiar no silêncio.
+
+4. **Ela só roda pt-BR e en-US.** Dos sete cenários, dois trocam o local, e
    os dois trocam para `en-US`. Mudança em catálogo espanhol, francês ou
    alemão passa por ela sem uma linha de diferença — o "idêntico" é
    verdadeiro e não diz nada. Foi o que aconteceu com a maiúscula do

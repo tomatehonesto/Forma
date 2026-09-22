@@ -293,4 +293,40 @@ export const home = {
     quemAcompanhaSub: 'Notez le nom et le résumé sort déjà adressé pour la prochaine consultation.',
     preencherFicha: 'Remplir la fiche',
   },
+
+  telaSemana: {
+    titulo: 'Semaine',
+    semanaN: (numero: number) => `Semaine ${numero}`,
+    vazio: 'Il n’y a pas encore de semaines notées.',
+    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
+
+    aplicacao: 'Injection',
+    semPesagem: 'pas de pesée',
+
+    comoSeSentiu: 'Comment vous vous sentiez',
+    diasRespondidos: (quantos: number) => `${quantos} jours sur 7 remplis`,
+    sintomaDias: (legenda: string, dias: number) =>
+      `${legenda} · ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+    energia: 'Énergie',
+    energiaDe5: (media: string) => `${media} sur 5`,
+
+    diaADia: 'Jour après jour',
+    diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
+    selo: {
+      aplicacao: 'injection',
+      checkin: 'check-in',
+      peso: 'pesée',
+      refeicao: 'repas',
+      exercicio: 'exercice',
+      consulta: 'consultation',
+      exame: 'analyse',
+    },
+
+    nota: 'Note pour la consultation',
+    verTodas: 'Voir toutes',
+    citacao: (texto: string) => `« ${texto} »`,
+    nenhumaNota: 'Aucune note cette semaine',
+    anotadaEm: (data: string) => `Notée le ${data}`,
+    toqueParaEscrever: 'Touchez pour en écrire une',
+  },
 };

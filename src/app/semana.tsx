@@ -9,6 +9,11 @@ import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaSemana;
 
 /* ============================================================
    UMA SEMANA
@@ -27,17 +32,19 @@ import { useTheme } from '../ui/useTheme';
    ============================================================ */
 
 
-/* TL_LABEL é plural ("Refeições") porque nasceu para rotular filtros. Num
-   selo de linha o que cabe é o singular em caixa baixa: ali ele qualifica
-   UM dia, não uma coleção. */
-const SELO: Record<string, string> = {
-  aplicacao: 'aplicação', checkin: 'check-in', peso: 'pesagem',
-  refeicao: 'refeição', exercicio: 'exercício', consulta: 'consulta', exame: 'exame',
-};
+/* ⚠️ ERA UMA CONSTANTE DE MÓDULO COM AS SETE PALAVRAS ESCRITAS, e por
+   isso ficava em português nos cinco idiomas: a rede de congelamento
+   procura constante que LÊ o catálogo, e aqui eram literais soltos.
+
+   `home.tipos` é o plural com inicial maiúscula ("Refeições"), porque
+   nasceu para rotular FILTROS; o selo é o singular em caixa baixa, porque
+   qualifica UM dia. Duas formas da mesma palavra para dois trabalhos — e
+   o alemão escreve as duas com maiúscula, que é justamente o tipo de
+   coisa que só o catálogo sabe. */
 const diaSemana = (t: number) => {
   const d = new Date(t);
   const nome = diasDaSemana()[d.getDay()];
-  return `${maiuscula(nome)}, ${fmtDate(t)}`;
+  return K().diaComData(maiuscula(nome), fmtDate(t));
 };
 
 export default function Semana() {
@@ -51,8 +58,8 @@ export default function Semana() {
 
   if (!w) {
     return (
-      <TelaInterna titulo="Semana">
-        <Txt v="note" c={c.tx3}>Ainda não há semanas registradas.</Txt>
+      <TelaInterna titulo={K().titulo}>
+        <Txt v="note" c={c.tx3}>{K().vazio}</Txt>
       </TelaInterna>
     );
   }
@@ -85,7 +92,7 @@ export default function Semana() {
 
   return (
     <TelaInterna
-      titulo={`Semana ${w.semana}`}
+      titulo={K().semanaN(w.semana)}
       /* "EXPORTAR" ESCRITO, e não uma seta para cima.
 
          A seta sozinha na barra lia como "voltar ao topo" — é o que uma
@@ -94,47 +101,50 @@ export default function Semana() {
          cruz para acrescentar, que ninguém precisa decifrar. Palavra
          ocupa mais largura do que ícone, e neste caso é o preço de não
          fazer a pessoa tocar para descobrir. */
-      acao="Exportar"
+      acao={T.aviso.telaExportar.titulo}
       onAcao={() => router.push('/exportar' as any)}
     >
       <Titulao
-        titulo={`Semana ${w.semana}`}
-        lead={`${fmtPeriodoLongo(ini, fim)} · ${w.dose}`}
+        titulo={K().semanaN(w.semana)}
+        lead={K().lead(fmtPeriodoLongo(ini, fim), w.dose)}
       />
 
       <Grade2>
         <Metrica
           ic="syringe"
-          nome="Aplicação"
+          nome={K().aplicacao}
           selo={diasDaSemana()[ini.getDay()]}
           seloTom="neutra"
           para={w.site}
         />
         {w.deltaPeso ? (
-          <Metrica ic="scale" nome="Peso" selo={w.deltaPeso} para={w.metricas[0]?.valor ?? w.deltaPeso} />
+          <Metrica ic="scale" nome={T.medidas.corpo.peso} selo={w.deltaPeso} para={w.metricas[0]?.valor ?? w.deltaPeso} />
         ) : (
-          <Metrica ic="scale" nome="Peso" selo="sem pesagem" seloTom="neutra" para="—" />
+          <Metrica ic="scale" nome={T.medidas.corpo.peso} selo={K().semPesagem} seloTom="neutra" para="—" />
         )}
       </Grade2>
 
       {sintomas.length || mediaEnergia != null ? (
         <Bloco
-          titulo="Como você se sentiu"
-          nota={respondidos ? `${respondidos} de 7 dias respondidos` : undefined}
+          titulo={K().comoSeSentiu}
+          nota={respondidos ? K().diasRespondidos(respondidos) : undefined}
         >
           <View style={{ gap: 8 }}>
             {sintomas.map((x) => (
               <Progresso
                 key={x.id}
                 label={x.label}
-                valor={`${x.legenda.toLowerCase()} · ${x.dias} ${x.dias === 1 ? 'dia' : 'dias'}`}
+                valor={K().sintomaDias(T.comum.noMeio(x.legenda), x.dias)}
                 pct={(x.media / 5) * 100}
               />
             ))}
             {mediaEnergia != null ? (
               <Progresso
-                label="Energia"
-                valor={`${nf(mediaEnergia, 1)} de 5`}
+                /* ⚠️ O RÓTULO É O DESTA TELA, e não o do indicador. O nome
+                   dele é "Energia no dia", e aqui a barra mostra a MÉDIA da
+                   semana — o dia ficaria sobrando na frase. */
+                label={K().energia}
+                valor={K().energiaDe5(nf(mediaEnergia, 1))}
                 pct={(mediaEnergia / 5) * 100}
               />
             ) : null}
@@ -142,13 +152,13 @@ export default function Semana() {
         </Bloco>
       ) : null}
 
-      <Bloco titulo="Dia a dia">
+      <Bloco titulo={K().diaADia}>
         <Sanfona>
           {w.eventos.map((e) => (
             <SanfonaLinha
               key={e.key}
               titulo={diaSemana(e.day)}
-              selo={SELO[e.kind] ?? e.kind}
+              selo={(K().selo as Record<string, string>)[e.kind] ?? e.kind}
               seloTom="neutra"
               /* Sem a hora: ela nunca foi registrada — ver ordemNoDia
                  em TLEvent, no derive. */
@@ -163,11 +173,14 @@ export default function Semana() {
           levar, a pauta da consulta não é um bloco em branco a preencher
           — é um assunto que não é dela. */}
       {temAcompanhamento(S) ? (
-      <Bloco titulo="Nota para a consulta" link="Ver todas" onLink={() => router.push('/notas' as any)}>
+      <Bloco titulo={K().nota} link={K().verTodas} onLink={() => router.push('/notas' as any)}>
         <Cartao>
+          {/* ⚠️ AS ASPAS SÃO DE CADA IDIOMA — “ ” no português, „ “ no
+              alemão, « » no francês. Escritas aqui, a nota de quem lê em
+              alemão sairia com aspas inglesas. */}
           <Linha
-            titulo={nota ? `“${nota.text}”` : 'Nenhuma nota nesta semana'}
-            sub={nota ? `Anotada em ${fmtDate(nota.t)}` : 'Toque para escrever uma'}
+            titulo={nota ? K().citacao(nota.text) : K().nenhumaNota}
+            sub={nota ? K().anotadaEm(fmtDate(nota.t)) : K().toqueParaEscrever}
             onPress={() => router.push(nota ? `/nota?t=${nota.t}` as any : '/nota' as any)}
           />
         </Cartao>

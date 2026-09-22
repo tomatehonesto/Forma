@@ -252,4 +252,33 @@ export const cadastro = {
 
     voltar: 'Retour',
   },
+
+  telaDados: {
+    titulo: 'Vos informations',
+    lead: 'Ce sont les réponses de votre inscription, et c’est d’elles que sortent votre IMC, vos objectifs du jour et la prévision du plan. Y toucher refait ces chiffres.',
+
+    tratamento: 'Traitement',
+    medicamento: 'Médicament',
+    dose: 'Dose',
+    doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
+    frequencia: 'Fréquence',
+
+    corpoERitmo: 'Corps et rythme',
+    altura: 'Taille',
+    pesoInicial: 'Poids de départ',
+    metaDePeso: 'Objectif de poids',
+    ritmoEscolhido: 'Rythme choisi',
+    porSemana: (peso: string) => `${peso} par semaine`,
+    semPesoAPerder: 'Pas de poids à perdre',
+
+    nome: 'Nom',
+    sexo: 'Sexe',
+    nascimento: 'Naissance',
+    nascimentoSub: (data: string, idade: number) => `${data} · ${idade} ans`,
+    atividadeFisica: 'Activité physique',
+    restricoesAlimentares: 'Restrictions alimentaires',
+    oQueTeTrouxe: 'Ce qui vous a fait venir',
+
+    rodape: 'Pour noter une nouvelle pesée, utilisez le bouton de saisie.',
+  },
 };

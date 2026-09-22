@@ -272,4 +272,40 @@ export const home = {
     quemAcompanhaSub: 'Write down the name and the summary comes out addressed for the next appointment.',
     preencherFicha: 'Fill in the details',
   },
+
+  telaSemana: {
+    titulo: 'Week',
+    semanaN: (numero: number) => `Week ${numero}`,
+    vazio: 'No weeks logged yet.',
+    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
+
+    aplicacao: 'Injection',
+    semPesagem: 'no weigh-in',
+
+    comoSeSentiu: 'How you felt',
+    diasRespondidos: (quantos: number) => `${quantos} of 7 days answered`,
+    sintomaDias: (legenda: string, dias: number) =>
+      `${legenda} · ${dias} ${dias === 1 ? 'day' : 'days'}`,
+    energia: 'Energy',
+    energiaDe5: (media: string) => `${media} out of 5`,
+
+    diaADia: 'Day by day',
+    diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
+    selo: {
+      aplicacao: 'injection',
+      checkin: 'check-in',
+      peso: 'weigh-in',
+      refeicao: 'meal',
+      exercicio: 'exercise',
+      consulta: 'appointment',
+      exame: 'lab result',
+    },
+
+    nota: 'Note for the appointment',
+    verTodas: 'See all',
+    citacao: (texto: string) => `“${texto}”`,
+    nenhumaNota: 'No note this week',
+    anotadaEm: (data: string) => `Written on ${data}`,
+    toqueParaEscrever: 'Tap to write one',
+  },
 };

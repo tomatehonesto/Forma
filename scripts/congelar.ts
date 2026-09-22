@@ -68,7 +68,7 @@ import {
   contatosDaClinica, fichaDaEquipe, fichaDaClinica,
   doseDoPerfil, cadenciaTexto, cadenciaCurta, milestones, semanasDaGrade, MOTIVOS, ATIVIDADES,
   FAIXAS_IMC, planoDoPerfil, companionMemoria, libraryPicks, dailyTargets,
-  protein7d, TL_LABEL, timelineEvents, timelineWeeks, journeyChanges,
+  protein7d, TL_LABEL, timelineEvents, timelineWeeks, timelineCounts, journeyChanges,
   metaDePeso, listaPt, protocoloDaSemana, semanaDoHistorico, diaDoTratamento,
   journeySummary, preparoDaConsulta,
 } from '../src/logic/derive';
@@ -470,6 +470,11 @@ for (const [nome, ajusta, local] of CENARIOS) {
   c.tlLabel = tenta('TL_LABEL', () => TL_LABEL());
   c.timelineEvents = tenta('timelineEvents', () => timelineEvents(S));
   c.timelineWeeks = tenta('timelineWeeks', () => timelineWeeks(S));
+  /* ⚠️ ELE ENTROU DEPOIS, e por causa de um defeito que a rede não viu:
+     `Object.keys(TL_LABEL)` sem parênteses devolvia lista vazia, e os sete
+     chips de filtro sumiram de /historico e da Jornada. A rede lia
+     `timelineEvents` e `timelineWeeks`, mas não a contagem que os monta. */
+  c.timelineCounts = tenta('timelineCounts', () => timelineCounts(S));
   c.journeyChanges = tenta('journeyChanges', () => journeyChanges(S));
   c.metaDePeso = tenta('metaDePeso', () => metaDePeso(S));
   c.protocoloDaSemana = tenta('protocoloDaSemana', () => protocoloDaSemana(S));

@@ -315,4 +315,53 @@ export const cadastro = {
 
     voltar: 'Voltar',
   },
+
+  /* ============================================================
+     A TELA DE SEUS DADOS
+
+     ⚠️ NÃO EXISTE SEGUNDO EDITOR. Cada linha reabre a pergunta original
+     do cadastro, com a mesma régua e a mesma validação — por isso esta
+     tela só tem RÓTULOS, e as respostas vêm todas de outro lugar do
+     catálogo: o sexo de `cadastro.feminino` e irmãs, a atividade de
+     `ATIVIDADES`, a restrição de `RESTRICOES`.
+
+     ⚠️ E OS QUATRO RÓTULOS DE SEXO ESTAVAM ESCRITOS DE NOVO NA TELA, numa
+     constante de módulo — quinta cópia das mesmas palavras, e a única que
+     ficava em português nos cinco idiomas. Ver PENDENCIAS, item 28.
+     ============================================================ */
+  telaDados: {
+    titulo: 'Seus dados',
+    lead: 'São as respostas do seu cadastro, e é delas que saem o seu IMC, as suas metas do dia e a previsão do plano. Mexer aqui refaz esses números.',
+
+    /* ---------- o tratamento ----------
+       Primeiro porque é o que muda mais, e mais rápido: numa titulação a
+       dose sobe a cada poucas semanas. */
+    tratamento: 'Tratamento',
+    medicamento: 'Medicamento',
+    dose: 'Dose',
+    doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
+    frequencia: 'Frequência',
+
+    /* ---------- o corpo ---------- */
+    corpoERitmo: 'Corpo e ritmo',
+    altura: 'Altura',
+    pesoInicial: 'Peso inicial',
+    metaDePeso: 'Meta de peso',
+    ritmoEscolhido: 'Ritmo escolhido',
+    porSemana: (peso: string) => `${peso} por semana`,
+    semPesoAPerder: 'Sem peso a perder',
+
+    /* ---------- a pessoa ---------- */
+    nome: 'Nome',
+    sexo: 'Sexo',
+    nascimento: 'Nascimento',
+    nascimentoSub: (data: string, idade: number) => `${data} · ${idade} anos`,
+    atividadeFisica: 'Atividade física',
+    restricoesAlimentares: 'Restrições alimentares',
+    oQueTeTrouxe: 'O que te trouxe',
+
+    /* O peso de hoje não está aqui de propósito: ele não é resposta de
+       cadastro, é registro — muda toda semana e tem tela própria. */
+    rodape: 'Para registrar uma pesagem nova, use o botão de registrar.',
+  },
 };

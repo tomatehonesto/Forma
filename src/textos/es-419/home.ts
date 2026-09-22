@@ -278,4 +278,40 @@ export const home = {
     quemAcompanhaSub: 'Anota el nombre y el resumen sale ya dirigido para la próxima consulta.',
     preencherFicha: 'Completar la ficha',
   },
+
+  telaSemana: {
+    titulo: 'Semana',
+    semanaN: (numero: number) => `Semana ${numero}`,
+    vazio: 'Todavía no hay semanas registradas.',
+    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
+
+    aplicacao: 'Aplicación',
+    semPesagem: 'sin pesaje',
+
+    comoSeSentiu: 'Cómo te sentiste',
+    diasRespondidos: (quantos: number) => `${quantos} de 7 días respondidos`,
+    sintomaDias: (legenda: string, dias: number) =>
+      `${legenda} · ${dias} ${dias === 1 ? 'día' : 'días'}`,
+    energia: 'Energía',
+    energiaDe5: (media: string) => `${media} de 5`,
+
+    diaADia: 'Día a día',
+    diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
+    selo: {
+      aplicacao: 'aplicación',
+      checkin: 'check-in',
+      peso: 'pesaje',
+      refeicao: 'comida',
+      exercicio: 'ejercicio',
+      consulta: 'consulta',
+      exame: 'examen',
+    },
+
+    nota: 'Nota para la consulta',
+    verTodas: 'Ver todas',
+    citacao: (texto: string) => `«${texto}»`,
+    nenhumaNota: 'Ninguna nota en esta semana',
+    anotadaEm: (data: string) => `Anotada el ${data}`,
+    toqueParaEscrever: 'Toca para escribir una',
+  },
 };

@@ -302,4 +302,40 @@ export const home = {
     quemAcompanhaSub: 'Trag den Namen ein, und die Übersicht kommt schon adressiert für den nächsten Termin heraus.',
     preencherFicha: 'Die Angaben ausfüllen',
   },
+
+  telaSemana: {
+    titulo: 'Woche',
+    semanaN: (numero: number) => `Woche ${numero}`,
+    vazio: 'Noch keine Wochen eingetragen.',
+    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
+
+    aplicacao: 'Injektion',
+    semPesagem: 'keine Wiegung',
+
+    comoSeSentiu: 'Wie du dich gefühlt hast',
+    diasRespondidos: (quantos: number) => `${quantos} von 7 Tagen beantwortet`,
+    sintomaDias: (legenda: string, dias: number) =>
+      `${legenda} · ${dias} ${dias === 1 ? 'Tag' : 'Tage'}`,
+    energia: 'Energie',
+    energiaDe5: (media: string) => `${media} von 5`,
+
+    diaADia: 'Tag für Tag',
+    diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
+    selo: {
+      aplicacao: 'Injektion',
+      checkin: 'Check-in',
+      peso: 'Wiegung',
+      refeicao: 'Mahlzeit',
+      exercicio: 'Einheit',
+      consulta: 'Termin',
+      exame: 'Befund',
+    },
+
+    nota: 'Notiz für den Termin',
+    verTodas: 'Alle ansehen',
+    citacao: (texto: string) => `„${texto}“`,
+    nenhumaNota: 'Diese Woche keine Notiz',
+    anotadaEm: (data: string) => `Notiert am ${data}`,
+    toqueParaEscrever: 'Tippe, um eine zu schreiben',
+  },
 };

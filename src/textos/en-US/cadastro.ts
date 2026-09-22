@@ -207,4 +207,33 @@ export const cadastro = {
 
     voltar: 'Back',
   },
+
+  telaDados: {
+    titulo: 'Your details',
+    lead: 'These are the answers from your sign-up, and they are where your BMI, your daily goals and the plan forecast come from. Changing anything here redoes those numbers.',
+
+    tratamento: 'Treatment',
+    medicamento: 'Medication',
+    dose: 'Dose',
+    doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
+    frequencia: 'Frequency',
+
+    corpoERitmo: 'Body and pace',
+    altura: 'Height',
+    pesoInicial: 'Starting weight',
+    metaDePeso: 'Weight goal',
+    ritmoEscolhido: 'Pace you chose',
+    porSemana: (peso: string) => `${peso} a week`,
+    semPesoAPerder: 'No weight to lose',
+
+    nome: 'Name',
+    sexo: 'Sex',
+    nascimento: 'Date of birth',
+    nascimentoSub: (data: string, idade: number) => `${data} · ${idade} years old`,
+    atividadeFisica: 'Physical activity',
+    restricoesAlimentares: 'Food restrictions',
+    oQueTeTrouxe: 'What brought you here',
+
+    rodape: 'To log a new weigh-in, use the log button.',
+  },
 };

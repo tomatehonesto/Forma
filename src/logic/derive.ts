@@ -2948,7 +2948,13 @@ export function timelineWeeks(S: State): JourneyWeek[] {
 /** Contagem por tipo — alimenta os chips de filtro. Tipo sem evento não vira chip. */
 export function timelineCounts(S: State): { kind: TLKind; label: string; n: number }[] {
   const all = timelineEvents(S);
-  return (Object.keys(TL_LABEL) as TLKind[])
+  /* ⚠️⚠️ ERA `Object.keys(TL_LABEL)`, SEM OS PARÊNTESES, e devolvia uma
+     lista VAZIA: `TL_LABEL` virou função quando os rótulos saíram para o
+     catálogo, e as chaves próprias de uma função são nenhuma. O `as
+     TLKind[]` calou o compilador, e o que sumiu da tela foram os seis
+     chips de filtro — em /historico e na linha do tempo da Jornada. Um
+     filtro que não aparece não parece defeito, parece decisão. */
+  return (Object.keys(TL_LABEL()) as TLKind[])
     .map((k) => ({ kind: k, label: TL_LABEL()[k], n: all.filter((e) => e.kind === k).length }))
     .filter((x) => x.n > 0);
 }

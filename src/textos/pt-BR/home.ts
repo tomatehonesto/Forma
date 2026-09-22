@@ -394,4 +394,62 @@ export const home = {
     quemAcompanhaSub: 'Anote o nome e o resumo já sai endereçado para a próxima consulta.',
     preencherFicha: 'Preencher a ficha',
   },
+
+  /* ============================================================
+     A TELA DE UMA SEMANA — o capítulo aberto
+
+     A ordem responde, nesta sequência, o que a pessoa pergunta quando
+     volta a uma semana específica: o que eu fiz, como me senti, o que
+     aconteceu, o que eu quis falar.
+
+     ⚠️ O SELO É O SINGULAR EM CAIXA BAIXA, e `home.tipos` é o plural com
+     inicial maiúscula. São formas diferentes da mesma palavra para
+     trabalhos diferentes: `tipos` rotula um FILTRO ("Refeições"), o selo
+     qualifica UM dia ("refeição"). Estavam escritos duas vezes, e a
+     segunda cópia era uma constante de módulo — em português nos cinco
+     idiomas. Ver PENDENCIAS, item 28.
+
+     ⚠️ E AS ASPAS DA NOTA SÃO DE CADA IDIOMA. O português usa “ ”, o
+     alemão „ “ e o francês « ». Escritas na tela, a nota de quem lê em
+     alemão sairia com aspas inglesas.
+     ============================================================ */
+  telaSemana: {
+    titulo: 'Semana',
+    semanaN: (numero: number) => `Semana ${numero}`,
+    vazio: 'Ainda não há semanas registradas.',
+    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
+
+    /* ---------- o que eu fiz ---------- */
+    aplicacao: 'Aplicação',
+    semPesagem: 'sem pesagem',
+
+    /* ---------- como eu me senti ---------- */
+    comoSeSentiu: 'Como você se sentiu',
+    diasRespondidos: (quantos: number) => `${quantos} de 7 dias respondidos`,
+    sintomaDias: (legenda: string, dias: number) =>
+      `${legenda} · ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
+    energia: 'Energia',
+    energiaDe5: (media: string) => `${media} de 5`,
+
+    /* ---------- o que aconteceu ---------- */
+    diaADia: 'Dia a dia',
+    diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
+    selo: {
+      aplicacao: 'aplicação',
+      checkin: 'check-in',
+      peso: 'pesagem',
+      refeicao: 'refeição',
+      exercicio: 'exercício',
+      consulta: 'consulta',
+      exame: 'exame',
+    },
+
+    /* ---------- o que eu quis falar ---------- */
+    nota: 'Nota para a consulta',
+    verTodas: 'Ver todas',
+    citacao: (texto: string) => `“${texto}”`,
+    nenhumaNota: 'Nenhuma nota nesta semana',
+    anotadaEm: (data: string) => `Anotada em ${data}`,
+    toqueParaEscrever: 'Toque para escrever uma',
+  },
 };

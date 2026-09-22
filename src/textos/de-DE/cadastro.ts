@@ -264,4 +264,33 @@ export const cadastro = {
 
     voltar: 'Zurück',
   },
+
+  telaDados: {
+    titulo: 'Deine Angaben',
+    lead: 'Das sind die Antworten aus deiner Anmeldung, und aus ihnen kommen dein BMI, deine Tagesziele und die Vorhersage des Plans. Hier etwas zu ändern rechnet diese Zahlen neu.',
+
+    tratamento: 'Behandlung',
+    medicamento: 'Medikament',
+    dose: 'Dosis',
+    doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
+    frequencia: 'Häufigkeit',
+
+    corpoERitmo: 'Körper und Tempo',
+    altura: 'Größe',
+    pesoInicial: 'Startgewicht',
+    metaDePeso: 'Zielgewicht',
+    ritmoEscolhido: 'Gewähltes Tempo',
+    porSemana: (peso: string) => `${peso} pro Woche`,
+    semPesoAPerder: 'Kein Gewicht abzunehmen',
+
+    nome: 'Name',
+    sexo: 'Geschlecht',
+    nascimento: 'Geburtsdatum',
+    nascimentoSub: (data: string, idade: number) => `${data} · ${idade} Jahre`,
+    atividadeFisica: 'Körperliche Aktivität',
+    restricoesAlimentares: 'Ernährungseinschränkungen',
+    oQueTeTrouxe: 'Was dich hergebracht hat',
+
+    rodape: 'Um eine neue Wiegung einzutragen, nimm die Eintragen-Taste.',
+  },
 };
