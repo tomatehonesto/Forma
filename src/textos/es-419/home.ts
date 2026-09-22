@@ -1,0 +1,164 @@
+/* ============================================================
+   EL INICIO Y EL CAMINO — las metas del día, las tarjetas y la línea de tiempo · es-419
+
+   ⚠️ Las razones viven en ../pt-BR/home.ts. Las dos que mandan:
+
+   TODO NÚMERO MOSTRADO VIENE CON UN VEREDICTO, y es la palabra que la
+   persona busca primero. El valor dice la medida; la palabra dice si está
+   bien. Sin ella la persona hace la cuenta sola, y en una aplicación de
+   salud la hace mal.
+
+   Y NINGÚN VEREDICTO DE AQUÍ LE PONE NOTA A LA PERSONA. "Abajo de la meta"
+   califica el número; "no te esforzaste" calificaría a quien lo produjo.
+   La diferencia se pierde fácil al traducir, y el archivo entero depende
+   de ella.
+   ============================================================ */
+
+export const home = {
+  /* ⚠️ "META ALCANZADA" NO ES CELEBRACIÓN, ES ESTADO. Ocupa el mismo lugar
+     que "Faltan 27 g" — es la misma línea diciendo lo mismo del otro lado.
+     Un "¡Felicitaciones!" ahí cambiaría lo que la tarjeta es. */
+  metas: {
+    proteina: 'Consumo de proteína',
+    agua: 'Tomar más agua',
+    exercicio: 'Ejercitarse a diario',
+    batida: 'Meta alcanzada',
+    faltamProteina: (gramas: number) => `Faltan ${gramas} g`,
+    /* La cantidad llega ya escrita, con la unidad de quien lee. */
+    faltamAgua: (quanto: string) => `Faltan ${quanto}`,
+    faltamExercicio: (minutos: number) => `Faltan ${minutos} min`,
+  },
+
+  /* ⚠️ "CERCA DE LA META" ES BUENA NOTICIA, y es a propósito: 85% de la
+     meta de proteína es un buen día, y llamarle "abajo" le enseña a la
+     persona a ignorar la palabra. El tercer escalón existe para que el
+     primero siga significando algo. */
+  veredito: {
+    naMeta: 'En la meta',
+    pertoDaMeta: 'Cerca de la meta',
+    abaixoDaMeta: 'Abajo de la meta',
+    /* ⚠️ "BAJANDO" ES EL RAMO QUE SALVA LA TARJETA DE GRASA CORPORAL. Quien
+       está arriba de la meta pero bajando desde el comienzo no está
+       fallando — está a mitad de camino, que es donde está casi todo el
+       mundo. */
+    emQueda: 'Bajando',
+    acimaDaMeta: 'Arriba de la meta',
+  },
+
+  /* ⚠️ EL TÍTULO TAMBIÉN CAMBIA, Y NO SOLO EL NÚMERO. "Peso perdido" encima
+     de "+3,3 kg" es una contradicción dentro de la misma tarjeta — y la
+     palabra equivocada duele más que el número. */
+  peso: {
+    perdido: 'Peso perdido',
+    variacao: 'Variación del peso',
+    meta: (quanto: string, unidade: string) => `Meta: ${quanto} ${unidade}`,
+  },
+
+  /* ⚠️ "ESTABLE", Y NO "−0,0". Un número que no se movió no varió para
+     ningún lado, y la palabra es esa. No es buena noticia ni mala. */
+  estavel: 'Estable',
+
+  tipos: {
+    checkin: 'Check-ins',
+    aplicacao: 'Aplicaciones',
+    peso: 'Peso',
+    refeicao: 'Comidas',
+    exercicio: 'Ejercicios',
+    consulta: 'Consultas',
+    exame: 'Exámenes',
+  },
+
+  evento: {
+    aplicacao: (dose: string, unidade: string) => `Aplicación ${dose} ${unidade}`,
+    peso: 'Peso',
+    /* El primer pesaje no tiene anterior con qué comparar, así que en lugar
+       de la variación va lo que es. */
+    pesoInicial: 'Peso inicial',
+    checkin: 'Check-in',
+    exercicio: 'Ejercicio',
+    minDeMovimento: (minutos: number) => `${minutos} min de movimiento`,
+    proteinaDaRefeicao: (quanto: string) => `Proteína ${quanto}`,
+    consulta: (tipo: string) => `Consulta ${tipo}`,
+    marcadoresDe: (quantos: number, fonte: string) => `${quantos} marcadores · ${fonte}`,
+    marcadoresDetalhe: (nome: string, quantos: number, fonte: string) =>
+      `${nome} · ${quantos} marcadores · ${fonte}`,
+    compartilhado: 'Compartido',
+
+    gramasDeProteina: (gramas: number) => `${gramas} g proteína`,
+    horasDeSono: (horas: number) => `${horas}h de sueño`,
+
+    /* ⚠️ EL VEREDICTO DEL DÍA VIENE DEL ÁNIMO, y las tres palabras son
+       cortas a propósito: ocupan la columna de la derecha, al lado de un
+       número. "Difícil" es la más importante de las tres — nombra el día
+       malo sin llamarlo fracaso. */
+    diaBem: 'Bien',
+    diaNeutro: 'Neutro',
+    diaDificil: 'Difícil',
+
+    respostaHumor: 'Ánimo',
+    respostaEnergia: 'Energía',
+    respostaFome: 'Hambre',
+    respostaOutroSintoma: 'Otro síntoma',
+  },
+
+  /* ⚠️ EL RESUMEN CUENTA LO QUE LA SEMANA RINDIÓ, y no lista lo que hubo.
+     Por eso cada tipo tiene singular y plural propios — "1 pesaje" y "3
+     pesajes" —, y no un "(s)" colgado. */
+  semana: {
+    checkin: ['check-in', 'check-ins'] as [string, string],
+    peso: ['pesaje', 'pesajes'] as [string, string],
+    refeicao: ['comida', 'comidas'] as [string, string],
+    exercicio: ['ejercicio', 'ejercicios'] as [string, string],
+    consulta: ['consulta', 'consultas'] as [string, string],
+    exame: ['examen', 'exámenes'] as [string, string],
+    contagem: (quantos: number, nome: string) => `${quantos} ${nome}`,
+    /* ⚠️ LA SEMANA VACÍA TIENE FRASE PROPIA, y no un espacio en blanco: una
+       semana sin registros ocurrió, y su capítulo existe. */
+    semRegistros: 'Sin registros en esta semana',
+
+    hidratacao: 'Hidratación',
+    proteina: 'Proteína',
+    exercicioMetrica: 'Ejercicio',
+    pesoMetrica: 'Peso',
+    litrosPorDia: (quanto: string) => `${quanto} L/día`,
+    gramasPorDia: (quanto: number) => `${quanto} g/día`,
+    minutos: (quanto: number) => `${quanto} min`,
+    deltaLitros: (quanto: string) => `${quanto} L`,
+    deltaGramas: (quanto: string) => `${quanto} g`,
+    deltaMinutos: (quanto: string) => `${quanto} min`,
+  },
+
+  mudancas: {
+    peso: 'Peso',
+    cintura: 'Cintura',
+    gorduraCorporal: 'Grasa corporal',
+    /* ⚠️ LA ÚNICA EN QUE SUBIR ES LA BUENA NOTICIA: el músculo perdido en
+       un adelgazamiento es lo que el tratamiento intenta evitar. El rótulo
+       no lo dice — quien lo dice es el tono —, pero quien traduzca tiene
+       que saberlo. */
+    massaMagra: 'Masa magra',
+    naReferencia: 'En el rango',
+    foraDaReferencia: 'Fuera del rango',
+    pressao: 'Presión',
+    /* ⚠️ "ESTABLE" ERA LO QUE SOBRABA DE TODO LO QUE NO FUERA BAJADA, y la
+       presión subiendo catorce puntos salía como estable — en verde. Subir
+       tiene nombre. */
+    pressaoEmQueda: 'Bajando',
+    pressaoEmAlta: 'Subiendo',
+    pressaoEstavel: 'Estable',
+  },
+
+  metaDePeso: {
+    /* "Llegar a 68 kg", y no "Meta: 68 kg": la lista es de cosas por
+       conseguir, y el verbo es lo que la hace parecer una de ellas. */
+    chegarA: (peso: string) => `Llegar a ${peso}`,
+    alcancada: 'meta alcanzada',
+    faltam: (quanto: string) => `faltan ${quanto}`,
+  },
+
+  /* ⚠️ SOLO EL NOMBRE DE APPLE CAMBIA DE IDIOMA, porque es Apple quien
+     traduce el nombre de su propia aplicación. */
+  fontes: {
+    appleSaude: 'Apple Salud',
+  },
+};
