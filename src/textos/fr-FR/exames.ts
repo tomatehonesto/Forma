@@ -111,6 +111,6 @@ export const exames = {
        et « qui vous suit » est vrai dans les trois cas — avec une équipe,
        avec un médecin isolé et sans personne. */
     corpo: (data: string, valor: string, unidade: string, faixa: string, andou: string, painel: string) =>
-      `Au prélèvement du ${data}, la valeur était de ${valor}${unidade}, et la référence du laboratoire est ${faixa}.${andou}${painel} Une analyse seule ne conclut rien : celui qui la met avec le reste de votre histoire, c’est celui qui vous suit.`,
+      `Au prélèvement du ${data}, la valeur était de ${valor}${unidade}, et la référence du laboratoire est ${faixa}.${andou}${painel} Une analyse seule ne conclut rien : la personne qui la met avec le reste de votre histoire, c’est celle qui vous suit.`,
   },
 };
