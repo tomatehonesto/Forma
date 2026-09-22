@@ -112,6 +112,15 @@ function escreve(el, v) {
 
    Então: acha a folha pelo texto, sobe até o Pressable, e dispara a
    sequência inteira de ponteiro. */
+function tocaElemento(alvo) {
+  if (!alvo) return null;
+  for (const tipo of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
+    const E = tipo.startsWith('pointer') ? PointerEvent : MouseEvent;
+    alvo.dispatchEvent(new E(tipo, { bubbles: true, cancelable: true, composed: true }));
+  }
+  return (alvo.textContent || '').trim().slice(0, 40);
+}
+
 function toca(re) {
   const folha = [...document.querySelectorAll('*')]
     .filter((e) => !e.children.length && re.test((e.textContent || '').trim())).pop();
@@ -121,12 +130,7 @@ function toca(re) {
     && (n.getAttribute('tabindex') === '0' || /r-touch/.test(String(n.className || ''))))) {
     n = n.parentElement;
   }
-  const alvo = n || folha;
-  for (const tipo of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click']) {
-    const E = tipo.startsWith('pointer') ? PointerEvent : MouseEvent;
-    alvo.dispatchEvent(new E(tipo, { bubbles: true, cancelable: true, composed: true }));
-  }
-  return (folha.textContent || '').trim().slice(0, 40);
+  return tocaElemento(n || folha);
 }
 
 /** As rotas que só existem com parâmetro, com o parâmetro vindo do estado. */
@@ -172,7 +176,12 @@ const ROTAS_SIMPLES = ['/', '/jornada', '/cuidado', '/insights'].concat(
     .split(',').map((r) => '/' + r),
 );
 
-const AVANCA = /^(continuar|avançar|começar|próximo|próxima|pronto|concluir|entendi e concordo)$/i;
+/* ⚠️ OS TRÊS ÚLTIMOS NÃO DIZEM "CONTINUAR". O passo da saúde oferece
+   "Fazer isso depois" — a recusa que ADIA, e não a que fecha a porta —,
+   e o consentimento fecha o cadastro com "Concordar e montar meu plano".
+   Sem eles na lista, o andador parava no décimo sétimo passo de vinte e
+   as três últimas telas do formulário ficavam sem rede. */
+const AVANCA = /^(continuar|avançar|começar|próximo|próxima|pronto|concluir|salvar|entendi e concordo|fazer isso depois|concordar e montar meu plano)$/i;
 
 /* ⚠️⚠️ O RELÓGIO ANDA ENTRE AS DUAS EXECUÇÕES, e uma tela que mostra a
    hora atual produz diferença sem ninguém ter mexido em nada. A primeira
@@ -191,19 +200,40 @@ async function vai(rota) {
 }
 
 /* ⚠️⚠️ O CADASTRO RENDERIZA UM PASSO POR VEZ, e é a maior tela do
-   aplicativo — noventa e quatro frases. Sem andar por ele, a rede cobre
-   um catorze avos dela e diz que está tudo bem.
+   aplicativo — noventa e quatro frases, dezenove perguntas. Sem andar por
+   ele, a rede cobre um dezenove avos dela e diz que está tudo bem.
 
-   Anda respondendo: em cada passo toca no primeiro Pressable que não seja
-   o de avançar, e depois no de avançar. Para quando o texto repete, que é
-   o sinal de que o passo pediu algo que esta rede não sabe dar. */
-async function passosDoCadastro(max = 20) {
+   ⚠️⚠️ E A ESCOLHA SE FAZ NO ELEMENTO, E NÃO PELO TEXTO. A primeira versão
+   montava uma expressão com o texto da opção e mandava `toca` procurar —
+   e `toca` casa com FOLHAS. Uma opção com título e subtítulo são duas
+   folhas, e nenhuma delas contém o texto inteiro: a busca não achava
+   nada, a opção nunca era marcada, o "Continuar" ficava desligado e o
+   andador parava no quinto passo achando que o formulário tinha acabado.
+
+   ⚠️ E ELE TENTA MAIS DE UMA OPÇÃO. Avançar sem escolher nada é o certo
+   nos passos que já vêm respondidos; quando não anda, ele volta e tenta
+   cada opção até o texto mudar. Sem isso, um passo cuja primeira opção
+   abre um sub-formulário trava a caminhada inteira. */
+async function passosDoCadastro(max = 26) {
   const passos = {};
+  /* ⚠️ SAI E VOLTA, para o componente remontar no passo zero. `pushState`
+     para a rota em que já se está não remonta nada, e o cadastro
+     continuaria de onde a corrida anterior o deixou — uma rede que
+     depende da corrida anterior não é rede. */
+  await vai('/perfil');
   await vai('/cadastro');
+
+  /* ⚠️ PARA NO TEXTO JÁ VISTO, e não só no texto REPETIDO. O último
+     passo tem links para os dois documentos, e o andador ficava batendo
+     entre "Termos de Uso" e "Política de Privacidade" até estourar o
+     teto — nove entradas de lixo no fim do dump, e um diff que mudava de
+     execução para execução. */
+  const vistos = new Set();
   let anterior = '';
   for (let i = 0; i < max; i += 1) {
     const txt = semRelogio(document.body.innerText);
-    if (txt === anterior) break;
+    if (vistos.has(txt)) break;
+    vistos.add(txt);
     passos['/cadastro#' + String(i).padStart(2, '0')] = txt;
     anterior = txt;
 
@@ -213,14 +243,25 @@ async function passosDoCadastro(max = 20) {
       escreve(campo, num ? '70' : 'Teste');
     }
 
-    const opcoes = [...document.querySelectorAll('[tabindex="0"]')]
-      .map((e) => (e.textContent || '').trim())
-      .filter((t) => t && !AVANCA.test(t));
-    if (opcoes.length) toca(new RegExp('^' + opcoes[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'));
-    await dorme(180);
+    const tocaveis = () => [...document.querySelectorAll('[tabindex="0"]')]
+      .filter((e) => {
+        const t = (e.textContent || '').trim();
+        return t && !AVANCA.test(t);
+      });
 
-    if (!toca(AVANCA)) break;
-    await dorme(ESPERA);
+    let andou = false;
+    for (let tentativa = 0; tentativa <= 4; tentativa += 1) {
+      if (tentativa > 0) {
+        const opcoes = tocaveis();
+        if (tentativa > opcoes.length) break;
+        tocaElemento(opcoes[tentativa - 1]);
+        await dorme(180);
+      }
+      if (!toca(AVANCA)) break;
+      await dorme(ESPERA);
+      if (semRelogio(document.body.innerText) !== anterior) { andou = true; break; }
+    }
+    if (!andou) break;
   }
   return passos;
 }
@@ -289,6 +330,7 @@ async function comparar() {
 }
 
 window.toca = toca;
+window.tocaElemento = tocaElemento;
 window.redeDeTelas = redeDeTelas;
 window.guardarBase = guardarBase;
 window.comparar = comparar;
