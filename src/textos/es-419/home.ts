@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    EL INICIO Y EL CAMINO — las metas del día, las tarjetas y la línea de tiempo · es-419
 
@@ -14,6 +16,8 @@
    de ella.
    ============================================================ */
 
+/* ⚠️ Los nombres del cuerpo vienen de medidas.corpo. Ver ../pt-BR. */
+/* ⚠️ Los nombres del cuerpo vienen de medidas.corpo. Ver ../pt-BR. */
 export const home = {
   /* ⚠️ "META ALCANZADA" NO ES CELEBRACIÓN, ES ESTADO. Ocupa el mismo lugar
      que "Faltan 27 g" — es la misma línea diciendo lo mismo del otro lado.
@@ -129,14 +133,14 @@ export const home = {
   },
 
   mudancas: {
-    peso: 'Peso',
-    cintura: 'Cintura',
-    gorduraCorporal: 'Grasa corporal',
+    peso: medidas.corpo.peso,
+    cintura: medidas.corpo.cintura,
+    gorduraCorporal: medidas.corpo.gordura,
     /* ⚠️ LA ÚNICA EN QUE SUBIR ES LA BUENA NOTICIA: el músculo perdido en
        un adelgazamiento es lo que el tratamiento intenta evitar. El rótulo
        no lo dice — quien lo dice es el tono —, pero quien traduzca tiene
        que saberlo. */
-    massaMagra: 'Masa magra',
+    massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'En el rango',
     foraDaReferencia: 'Fuera del rango',
     pressao: 'Presión',

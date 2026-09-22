@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    CONFIRMATIONS — the sheet that shows up after logging · en-US
 
@@ -28,10 +30,10 @@ export const confirmacoes = {
 
   /* ---------------- measurements ---------------- */
   medidas: 'Measurements logged',
-  cintura: 'Waist',
-  quadril: 'Hips',
-  braco: 'Arm',
-  coxa: 'Thigh',
+  cintura: medidas.corpo.cintura,
+  quadril: medidas.corpo.quadril,
+  braco: medidas.corpo.braco,
+  coxa: medidas.corpo.coxa,
   medidasCaminho: 'See your progress',
 
   /* ---------------- labs ---------------- */

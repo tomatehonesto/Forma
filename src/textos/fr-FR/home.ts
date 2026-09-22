@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    L'ACCUEIL ET LE PARCOURS — les objectifs du jour, les cartes et la frise · fr-FR
 
@@ -14,6 +16,8 @@
    facilement en traduisant, et le fichier entier en dépend.
    ============================================================ */
 
+/* ⚠️ LES NOMS DU CORPS VIENNENT DE medidas.corpo et ne sont pas écrits
+   ici. Voir ../pt-BR. */
 export const home = {
   /* ⚠️ « OBJECTIF ATTEINT » N'EST PAS UNE FÊTE, C'EST UN ÉTAT. Ça occupe la
      même place que « Il reste 27 g » — c'est la même ligne qui dit la même
@@ -134,14 +138,14 @@ export const home = {
   },
 
   mudancas: {
-    peso: 'Poids',
-    cintura: 'Tour de taille',
-    gorduraCorporal: 'Masse grasse',
+    peso: medidas.corpo.peso,
+    cintura: medidas.corpo.cintura,
+    gorduraCorporal: medidas.corpo.gordura,
     /* ⚠️ LA SEULE OÙ MONTER EST LA BONNE NOUVELLE : le muscle perdu en
        maigrissant est ce que le traitement essaie d'éviter. L'étiquette ne
        le dit pas — c'est le ton qui le dit —, mais qui traduit doit le
        savoir. */
-    massaMagra: 'Masse maigre',
+    massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'Dans la référence',
     foraDaReferencia: 'Hors référence',
     pressao: 'Tension',

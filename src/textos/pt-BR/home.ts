@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    A HOME E A JORNADA — as metas do dia, os cartões e a linha do tempo
 
@@ -14,6 +16,10 @@
    dela.
    ============================================================ */
 
+/* ⚠️⚠️ OS NOMES DO CORPO VÊM DE medidas.corpo, E NÃO ESTÃO ESCRITOS
+   AQUI. Eles estavam — e estavam também em confirmacoes, que é a folha
+   que aparece depois de medir. Duas cópias da mesma palavra divergem na
+   primeira vez que alguém melhora a redação de uma delas. */
 export const home = {
   /* ============================================================
      AS TRÊS METAS DO DIA
@@ -162,13 +168,13 @@ export const home = {
      da medida; o veredito é a palavra ao lado.
      ============================================================ */
   mudancas: {
-    peso: 'Peso',
-    cintura: 'Cintura',
-    gorduraCorporal: 'Gordura corporal',
+    peso: medidas.corpo.peso,
+    cintura: medidas.corpo.cintura,
+    gorduraCorporal: medidas.corpo.gordura,
     /* ⚠️ A ÚNICA EM QUE SUBIR É A BOA NOTÍCIA: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. O rótulo não diz
        isso — quem diz é o tom —, mas quem traduzir precisa saber. */
-    massaMagra: 'Massa magra',
+    massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'Na referência',
     foraDaReferencia: 'Fora da referência',
     pressao: 'Pressão',

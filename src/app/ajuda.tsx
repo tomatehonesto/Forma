@@ -5,6 +5,12 @@ import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Sanfona, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. As oito perguntas eram uma
+   constante escrita em duro logo abaixo — o caso exato. */
+const K = () => T.ajuda;
 
 /* ============================================================
    AJUDA
@@ -29,43 +35,6 @@ import { useTheme } from '../ui/useTheme';
 
 type QA = { q: string; a: string };
 
-/* As perguntas vêm na ordem em que aparecem na vida de alguém: primeiro
-   a desconfiança com os números, depois o que fazer com eles, e por
-   último o que acontece com os dados. */
-const PERGUNTAS: QA[] = [
-  {
-    q: 'De onde saem os números que aparecem aqui?',
-    a: 'Todos eles são contas feitas em cima do que você registrou — peso, aplicações, check-ins, refeições, exames. O aplicativo não completa o que faltou nem estima o que você não disse: dia sem resposta aparece como dia sem resposta, e não como zero.',
-  },
-  {
-    q: 'Posso corrigir ou apagar um registro?',
-    a: 'Pode, e no lugar onde ele aparece. Pesagens e medidas se apagam no detalhe do marcador; refeições e treinos, abrindo o registro no diário do dia. O que você apagar some das contas na hora — inclusive dos gráficos e do resumo para consulta.',
-  },
-  {
-    q: 'Por que uma conquista desapareceu?',
-    a: 'Porque ela nunca foi guardada. As conquistas são contadas dos seus registros toda vez que a tela abre, e não marcadas como feitas em algum lugar. Se o registro que fechou um nível for apagado, o nível sai junto — ele deixou de ter acontecido.',
-  },
-  {
-    q: 'Marquei um lembrete e ele não tocou.',
-    a: 'Quem toca é o celular, e ele só toca com permissão. Se os avisos estiverem negados para o Morphi nos ajustes do sistema, os seus alertas continuam guardados aqui e nada soa. A tela de Lembretes mostra quando é esse o caso e leva à permissão.',
-  },
-  {
-    q: 'O meu peso pode vir da balança sozinho?',
-    a: 'Se a sua balança, relógio ou anel escrevem no Apple Saúde (iPhone) ou no Health Connect (Android), sim — lemos de lá. Lemos só o peso, e só lemos: nunca escrevemos nada nesses aplicativos. Garmin, Fitbit, Withings, Oura e Whoop chegam por esse caminho.',
-  },
-  {
-    q: 'O que a minha equipe consegue ver?',
-    a: 'Só o que você enviar. Nada sai daqui sozinho: o resumo vai quando você toca em enviar, as mensagens quando você escreve. O que fica de fora continua sendo seu, inclusive de quem te acompanha.',
-  },
-  {
-    q: 'Vocês substituem a orientação de quem me acompanha?',
-    a: 'Não, e em nenhuma tela. O que ele faz é organizar o que aconteceu e mostrar padrões nos seus próprios registros — dose, sintoma e conduta são conversa de consulta. Quando um texto do app toca nesses assuntos, ele diz isso junto.',
-  },
-  {
-    q: 'E se eu desinstalar o aplicativo?',
-    a: 'Os seus registros moram no aparelho, dentro do aplicativo — sem conta e sem servidor. Desinstalar leva tudo junto, e não há cópia em lugar nenhum de onde recuperar. Antes disso, dá para montar um arquivo com o que você registrou, em Exportar.',
-  },
-];
 
 function Pergunta({ qa }: { qa: QA }) {
   const { c } = useTheme();
@@ -93,15 +62,12 @@ export default function Ajuda() {
   const go = (p: string) => () => router.push(p as any);
 
   return (
-    <TelaInterna titulo="Ajuda">
-      <Titulao
-        titulo="Ajuda"
-        lead="As dúvidas que este aplicativo costuma provocar, respondidas pelo que ele de fato faz."
-      />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
-      <Bloco titulo="Perguntas frequentes">
+      <Bloco titulo={K().perguntasFrequentes}>
         <Sanfona>
-          {PERGUNTAS.map((qa) => <Pergunta key={qa.q} qa={qa} />)}
+          {K().qa.map((qa) => <Pergunta key={qa.q} qa={qa} />)}
         </Sanfona>
       </Bloco>
 
@@ -109,23 +75,19 @@ export default function Ajuda() {
           acontece e não levar até lá transforma a ajuda numa aula: quem
           leu que o lembrete depende da permissão quer ir conferir a
           permissão, e não decorar o caminho. */}
-      <Bloco titulo="Onde resolver">
+      <Bloco titulo={K().ondeResolver}>
         <Cartao>
-          <Linha ic="clock" titulo="Lembretes"
-            sub="Criar, editar e conferir a permissão de avisos" onPress={go('/lembretes')} />
-          <Linha ic="trend" titulo="Dispositivos e integrações"
-            sub="Ligar o Apple Saúde ou o Health Connect" onPress={go('/integracoes')} />
-          <Linha ic="lock" titulo="Privacidade e dados"
-            sub="O que fica no aparelho e o que sai dele" onPress={go('/privacidade')} />
-          <Linha ic="doc" titulo="Exportar seus dados"
-            sub="Montar um arquivo com o que você registrou" onPress={go('/exportar')} />
+          <Linha ic="clock" titulo={K().lembretes} sub={K().lembretesSub} onPress={go('/lembretes')} />
+          <Linha ic="trend" titulo={K().integracoes} sub={K().integracoesSub} onPress={go('/integracoes')} />
+          <Linha ic="lock" titulo={K().privacidade} sub={K().privacidadeSub} onPress={go('/privacidade')} />
+          <Linha ic="doc" titulo={K().exportar} sub={K().exportarSub} onPress={go('/exportar')} />
         </Cartao>
       </Bloco>
 
       <Aviso
         ic="info"
-        titulo="Em caso de sintoma grave"
-        texto="Esta tela é sobre o aplicativo. Se alguma coisa no seu corpo pede atenção agora, procure a sua equipe ou um serviço de emergência — não espere a próxima consulta."
+        titulo={K().emergenciaTitulo}
+        texto={K().emergenciaTexto}
       />
 
       <View />

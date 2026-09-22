@@ -1,5 +1,5 @@
 /* ============================================================
-   A CONFERÊNCIA DE FORMA — de-DE tem de ter a assinatura do português
+   A CONFERÊNCIA DE FORMA — pt-BR tem de ter a assinatura do português
 
    ⚠️⚠️ ESTE ARQUIVO NÃO PRODUZ NADA, E É O QUE IMPEDE A TRADUÇÃO DE SAIR
    TORTA. Cada linha abaixo diz ao compilador: este módulo satisfaz

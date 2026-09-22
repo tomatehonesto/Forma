@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    DIE STARTSEITE UND DER VERLAUF — die Tagesziele, die Karten und der Zeitstrahl · de-DE
 
@@ -14,6 +16,8 @@
    die ganze Datei hängt an ihm.
    ============================================================ */
 
+/* ⚠️ DIE KÖRPERNAMEN KOMMEN AUS medidas.corpo und stehen nicht hier.
+   Siehe ../pt-BR. */
 export const home = {
   /* ⚠️ „ZIEL ERREICHT“ IST KEINE FEIER, ES IST EIN ZUSTAND. Es steht an
      derselben Stelle wie „Noch 27 g“ — dieselbe Zeile, die dasselbe von
@@ -136,14 +140,14 @@ export const home = {
   },
 
   mudancas: {
-    peso: 'Gewicht',
-    cintura: 'Taille',
-    gorduraCorporal: 'Körperfett',
+    peso: medidas.corpo.peso,
+    cintura: medidas.corpo.cintura,
+    gorduraCorporal: medidas.corpo.gordura,
     /* ⚠️ DIE EINZIGE, BEI DER STEIGEN DIE GUTE NACHRICHT IST: Muskel, der
        beim Abnehmen verloren geht, ist das, was die Behandlung zu
        vermeiden versucht. Die Beschriftung sagt das nicht — das sagt der
        Ton —, aber wer übersetzt, muss es wissen. */
-    massaMagra: 'Magermasse',
+    massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'Im Referenzbereich',
     foraDaReferencia: 'Außerhalb der Referenz',
     pressao: 'Blutdruck',

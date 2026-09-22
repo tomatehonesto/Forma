@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    HOME AND THE JOURNEY — daily goals, cards and the timeline · en-US
 
@@ -13,6 +15,8 @@
    That distinction disappears easily in translation.
    ============================================================ */
 
+/* ⚠️ The body names come from medidas.corpo. See ../pt-BR. */
+/* ⚠️ The body names come from medidas.corpo. See ../pt-BR. */
 export const home = {
   /* ⚠️ "GOAL MET" IS NOT A CELEBRATION, IT'S A STATE. It sits in the same
      slot as "27 g to go" — the same line saying the same thing from the
@@ -123,12 +127,12 @@ export const home = {
   },
 
   mudancas: {
-    peso: 'Weight',
-    cintura: 'Waist',
-    gorduraCorporal: 'Body fat',
+    peso: medidas.corpo.peso,
+    cintura: medidas.corpo.cintura,
+    gorduraCorporal: medidas.corpo.gordura,
     /* ⚠️ THE ONLY ONE WHERE GOING UP IS THE GOOD NEWS: muscle lost during
        weight loss is what the treatment tries to prevent. */
-    massaMagra: 'Lean mass',
+    massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'In range',
     foraDaReferencia: 'Out of range',
     pressao: 'Blood pressure',

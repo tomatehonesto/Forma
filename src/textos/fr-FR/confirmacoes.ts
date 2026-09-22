@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    LES CONFIRMATIONS — la feuille qui apparaît après avoir noté · fr-FR
 
@@ -37,10 +39,10 @@ export const confirmacoes = {
   pesoCaminho: 'Voir la courbe du poids',
 
   medidas: 'Mesures notées',
-  cintura: 'Tour de taille',
-  quadril: 'Hanches',
-  braco: 'Bras',
-  coxa: 'Cuisse',
+  cintura: medidas.corpo.cintura,
+  quadril: medidas.corpo.quadril,
+  braco: medidas.corpo.braco,
+  coxa: medidas.corpo.coxa,
   medidasCaminho: 'Voir l’évolution',
 
   exame: 'Résultat noté',

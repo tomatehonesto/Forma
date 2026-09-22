@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    AS CONFIRMAÇÕES — a folha que aparece depois de registrar
 
@@ -36,10 +38,10 @@ export const confirmacoes = {
 
   /* ---------------- medidas ---------------- */
   medidas: 'Medidas registradas',
-  cintura: 'Cintura',
-  quadril: 'Quadril',
-  braco: 'Braço',
-  coxa: 'Coxa',
+  cintura: medidas.corpo.cintura,
+  quadril: medidas.corpo.quadril,
+  braco: medidas.corpo.braco,
+  coxa: medidas.corpo.coxa,
   medidasCaminho: 'Ver a evolução',
 
   /* ---------------- exame ---------------- */

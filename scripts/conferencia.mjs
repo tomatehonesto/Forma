@@ -70,4 +70,9 @@ const linhas = [
 ].join('\n');
 
 writeFileSync(join(dir, '_conferencia.ts'), linhas.replace(/\n/g, '\r\n'));
-console.log(`${local}: ${modulos.length} de 30 módulos conferidos`);
+/* ⚠️ O TOTAL SAI DO PORTUGUÊS, e era 30 escrito em duro — no dia em
+   que um módulo novo entrou, a linha passou a dizer '31 de 30'. O
+   português é o contrato; contar de lá é contar do contrato. */
+const noPortugues = readdirSync(join(RAIZ, 'src', 'textos', 'pt-BR'))
+  .filter((f) => f.endsWith('.ts') && !f.startsWith('_')).length;
+console.log(`${local}: ${modulos.length} de ${noPortugues} módulos conferidos`);

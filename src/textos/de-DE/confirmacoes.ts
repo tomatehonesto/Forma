@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    DIE BESTÄTIGUNGEN — das Blatt, das nach dem Eintragen erscheint · de-DE
 
@@ -39,10 +41,10 @@ export const confirmacoes = {
 
   /* ---------------- Maße ---------------- */
   medidas: 'Maße eingetragen',
-  cintura: 'Taille',
-  quadril: 'Hüfte',
-  braco: 'Arm',
-  coxa: 'Oberschenkel',
+  cintura: medidas.corpo.cintura,
+  quadril: medidas.corpo.quadril,
+  braco: medidas.corpo.braco,
+  coxa: medidas.corpo.coxa,
   medidasCaminho: 'Die Entwicklung ansehen',
 
   /* ---------------- Befund ---------------- */

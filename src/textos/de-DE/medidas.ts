@@ -20,4 +20,48 @@ export const medidas = {
   /* „Fuß“ und „Zoll“ und nicht „feet“ und „inch“: die Einheiten haben
      deutsche Namen, auch wenn sie hier kaum jemand benutzt. */
   unidadesImperial: 'Pfund, Fuß, Zoll und Unzen',
+
+  /* ⚠️⚠️ DIE SIEBEN KÖRPERMARKER WOHNEN HIER, UND NUR HIER. Sie standen an
+     zwei Stellen geschrieben — vier in `home.mudancas` und vier in
+     `confirmacoes` —, und mit dem Marker-Bildschirm wären sie an der
+     dritten gelandet. Siehe ../pt-BR/medidas. */
+  corpo: {
+    peso: 'Gewicht',
+    cintura: 'Taille',
+    quadril: 'Hüfte',
+    braco: 'Arm',
+    coxa: 'Oberschenkel',
+    gordura: 'Körperfett',
+    massaMagra: 'Magermasse',
+  },
+
+  tela: {
+    periodo12s: '12 Wochen',
+    periodo3m: '3 Monate',
+    periodoTudo: 'Alles',
+
+    mesmoJeitoTitulo: 'Immer auf dieselbe Weise messen',
+    mesmoJeitoTexto: 'Zur selben Tageszeit, ohne enge Kleidung, das Band eng an der Haut, ohne zu ziehen. Zwei Messungen zu vergleichen gilt nur, wenn beide gleich gemacht wurden.',
+
+    notaManha: 'morgens',
+
+    /* ⚠️ KEIN `toLowerCase()` HIER, anders als in den vier anderen
+       Sprachen: „Noch kein Eintrag für gewicht“ wäre ein
+       Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
+    vazioTitulo: (nome: string) => `Noch kein Eintrag für ${nome}`,
+    vazioDaBalanca: 'Dieser Wert kommt von einer Körperanalysewaage, und es ist noch keiner angekommen.',
+    vazioRegistre: 'Trag den ersten ein, um ihn zu verfolgen.',
+
+    lead: (data: string, inicial: string, unidade: string) =>
+      `Eingetragen am ${data} · ${inicial} ${unidade} zu Beginn der Behandlung`,
+    subCurva: (periodo: string, quantos: number) =>
+      `${periodo}${quantos > 1 ? ` · ${quantos} Einträge` : ''}`,
+
+    registros: 'Einträge',
+    notaLeitura: 'Werte von einer Körperanalysewaage. Hier gibt es nichts zu korrigieren — sie kommen fertig an.',
+    /* „Arztbericht“ statt „der Bericht für deine Ärztin oder deinen
+       Arzt“: das Kompositum nennt die Rolle und kein Geschlecht, und es
+       passt in die Zeile. Siehe comum.ts. */
+    notaCorrigir: 'Tipp darauf, um zu korrigieren oder zu löschen. Was hier steht, geht in den Arztbericht.',
+  },
 };

@@ -10,6 +10,13 @@ import {
 import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
 import { compU, pesoU, pesoV, compV, sistemaDe } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ SÃO FUNÇÕES, e não constantes de módulo: elas leem o catálogo, e
+   constante de módulo congela o idioma no import. Ver
+   scripts/idioma-congelado.mjs. */
+const K = () => T.medidas.tela;
+const NOMES = () => T.medidas.corpo;
 
 /* ============================================================
    DETALHE DO MARCADOR
@@ -25,10 +32,14 @@ import { compU, pesoU, pesoV, compV, sistemaDe } from '../logic/medidas';
    telas quase iguais para isso só multiplicaria manutenção.
    ============================================================ */
 
-const PERIODOS = [
-  { id: '12s', label: '12 semanas', dias: 84 },
-  { id: '3m', label: '3 meses', dias: 91 },
-  { id: 'tudo', label: 'Tudo', dias: Infinity },
+/* ⚠️ E ESTA TAMBÉM É FUNÇÃO. Ela era constante e os três rótulos
+   ficavam congelados no idioma do import — o caso exato que
+   scripts/idioma-congelado.mjs existe para pegar, e que ele NÃO pegava
+   enquanto os rótulos estavam escritos em duro aqui. */
+const PERIODOS = () => [
+  { id: '12s', label: K().periodo12s, dias: 84 },
+  { id: '3m', label: K().periodo3m, dias: 91 },
+  { id: 'tudo', label: K().periodoTudo, dias: Infinity },
 ];
 
 /* ⚠️⚠️ A DEFINIÇÃO VIROU FUNÇÃO DO ESTADO, e era uma tabela constante.
@@ -65,16 +76,16 @@ type Def = {
    chega junto do número que ele explica — e é quando a pessoa está
    olhando a própria cintura que ela precisa saber que a comparação só
    vale se as duas medições foram feitas igual. */
-const MESMO_JEITO = {
-  titulo: 'Medir sempre do mesmo jeito',
-  texto: 'Mesma hora do dia, sem roupa apertada e com a fita rente à pele, sem apertar. A comparação entre duas medidas só vale se as duas foram feitas igual.',
-};
+const MESMO_JEITO = () => ({
+  titulo: K().mesmoJeitoTitulo,
+  texto: K().mesmoJeitoTexto,
+});
 
 /* As quatro circunferências têm a mesma forma — um número em cm vindo da
    fita, medido de vez em quando — então nascem da mesma fábrica. Cada uma
    ganha histórico navegável e corrigível sem custo de tela nova. */
-const circunferencia = (k: string, nome: string) => (S: any): Def => ({
-  nome, unidade: compU(S), casas: sistemaDe(S) === 'imperial' ? 1 : 0,
+const circunferencia = (k: string, nome: () => string) => (S: any): Def => ({
+  nome: nome(), unidade: compU(S), casas: sistemaDe(S) === 'imperial' ? 1 : 0,
   capturar: '/medir-medidas',
   pontos: () => (S.measures as any[])
     .map((m) => ({ t: m.t, v: compV(S, m[k]) }))
@@ -82,7 +93,7 @@ const circunferencia = (k: string, nome: string) => (S: any): Def => ({
        centímetro é zero em polegada. Fica depois da conversão para não
        haver duas ordens possíveis de ler esta linha. */
     .filter((p) => p.v > 0),
-  aviso: MESMO_JEITO,
+  aviso: MESMO_JEITO(),
 });
 
 /* ⚠️ GORDURA E MASSA MAGRA ENTRARAM, e não tinham tela própria: os dois
@@ -97,23 +108,26 @@ const circunferencia = (k: string, nome: string) => (S: any): Def => ({
 /* ⚠️ A GORDURA É PERCENTUAL e não converte; a massa magra é PESO e
    converte. Por isso a fábrica recebe o conversor em vez de adivinhar
    pela unidade. */
-const daBalanca = (k: string, nome: string, unidade: (S: any) => string, conv: (S: any, v: number) => number) => (S: any): Def => ({
-  nome, unidade: unidade(S), casas: 1, leitura: true,
+const daBalanca = (k: string, nome: () => string, unidade: (S: any) => string, conv: (S: any, v: number) => number) => (S: any): Def => ({
+  nome: nome(), unidade: unidade(S), casas: 1, leitura: true,
   pontos: () => (S.measures as any[]).map((m) => ({ t: m.t, v: conv(S, m[k]) })).filter((p) => p.v > 0),
 });
 
 const DEFS: Record<string, (S: any) => Def> = {
   peso: (S) => ({
-    nome: 'Peso', unidade: pesoU(S), casas: 1, nota: 'manhã',
+    nome: NOMES().peso, unidade: pesoU(S), casas: 1, nota: K().notaManha,
     capturar: '/medir-peso',
     pontos: () => (S.weights as any[]).map((w) => ({ t: w.t, v: pesoV(S, w.kg) })),
   }),
-  cintura: circunferencia('cintura', 'Cintura'),
-  quadril: circunferencia('quadril', 'Quadril'),
-  braco: circunferencia('braco', 'Braço'),
-  coxa: circunferencia('coxa', 'Coxa'),
-  gordura: daBalanca('gordura', 'Gordura corporal', () => '%', (_S, v) => v),
-  musculo: daBalanca('musculo', 'Massa magra', pesoU, pesoV),
+  /* ⚠️ OS SETE NOMES VÊM DE `medidas.corpo`, e a fábrica os recebe como
+     FUNÇÃO — `DEFS` é constante de módulo, e um nome lido aqui congelaria
+     no idioma do import. */
+  cintura: circunferencia('cintura', () => NOMES().cintura),
+  quadril: circunferencia('quadril', () => NOMES().quadril),
+  braco: circunferencia('braco', () => NOMES().braco),
+  coxa: circunferencia('coxa', () => NOMES().coxa),
+  gordura: daBalanca('gordura', () => NOMES().gordura, () => '%', (_S, v) => v),
+  musculo: daBalanca('musculo', () => NOMES().massaMagra, pesoU, pesoV),
 };
 
 
@@ -126,7 +140,7 @@ export default function Marcador() {
   const [per, setPer] = useState('12s');
 
   const todos = def.pontos();
-  const corte = PERIODOS.find((p) => p.id === per)!.dias;
+  const corte = PERIODOS().find((p) => p.id === per)!.dias;
   const desde = corte === Infinity ? -Infinity : Date.now() - corte * DAY;
   const pts = todos.filter((p) => p.t >= desde);
 
@@ -158,10 +172,8 @@ export default function Marcador() {
         <Cartao>
           <Vazio
             ic="ruler"
-            titulo={`Nenhum registro de ${def.nome.toLowerCase()}`}
-            texto={def.leitura
-              ? 'Esta medida vem da balança de bioimpedância, e ainda não chegou nenhuma.'
-              : 'Registre a primeira para começar a acompanhar.'}
+            titulo={K().vazioTitulo(def.nome)}
+            texto={def.leitura ? K().vazioDaBalanca : K().vazioRegistre}
           />
         </Cartao>
       </TelaInterna>
@@ -177,14 +189,14 @@ export default function Marcador() {
       <Titulao
         titulo={fmt(ultimo.v)}
         unidade={def.unidade}
-        lead={`Registrado em ${dataLonga(ultimo.t)} · ${fmt(primeiro.v)} ${def.unidade} no início do tratamento`}
+        lead={K().lead(dataLonga(ultimo.t), fmt(primeiro.v), def.unidade)}
       />
 
       {/* Os chips saíram de dentro do card. A curva agora encosta na borda
           de baixo, então não sobra rodapé onde eles coubessem — e fora do
           card eles ficam onde já estão na Evolução, que é a tela de onde se
           chega aqui. */}
-      <Chips itens={PERIODOS.map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
+      <Chips itens={PERIODOS().map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
 
       {/* Mesmo desenho do card de evolução da Home: texto em cima, curva
           sangrando até as três bordas de baixo.
@@ -201,7 +213,7 @@ export default function Marcador() {
       <CardCurva
         id="mk"
         nome={def.nome}
-        sub={`${PERIODOS.find((p) => p.id === per)!.label.toLowerCase()}${pts.length > 1 ? ` · ${pts.length} registros` : ''}`}
+        sub={K().subCurva(PERIODOS().find((p) => p.id === per)!.label, pts.length)}
         valor={variacao != null ? `${variacao > 0 ? '+' : '−'}${fmt(Math.abs(variacao))}` : '—'}
         unidade={def.unidade}
         altura={120}
@@ -213,10 +225,8 @@ export default function Marcador() {
           que não existe — e a linha nem abre. O que ela guarda de
           verdade, nos dois casos, é que aquilo vai para o relatório. */}
       <Bloco
-        titulo="Registros"
-        nota={def.leitura
-          ? 'Leituras da balança de bioimpedância. Não há o que corrigir por aqui — elas chegam prontas.'
-          : 'Toque para corrigir ou apagar. O que estiver aqui vai para o relatório do seu médico.'}
+        titulo={K().registros}
+        nota={def.leitura ? K().notaLeitura : K().notaCorrigir}
       >
         <Cartao>
           {registros.map((r) => (

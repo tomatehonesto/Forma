@@ -20,6 +20,7 @@
    ============================================================ */
 
 
+import type { ajuda as ajudaPt } from '../pt-BR/ajuda';
 import type { alertas as alertasPt } from '../pt-BR/alertas';
 import type { alimentacao as alimentacaoPt } from '../pt-BR/alimentacao';
 import type { assinatura as assinaturaPt } from '../pt-BR/assinatura';
@@ -51,6 +52,7 @@ import type { rotina as rotinaPt } from '../pt-BR/rotina';
 import type { tempo as tempoPt } from '../pt-BR/tempo';
 import type { tratamento as tratamentoPt } from '../pt-BR/tratamento';
 
+import { ajuda } from './ajuda';
 import { alertas } from './alertas';
 import { alimentacao } from './alimentacao';
 import { assinatura } from './assinatura';
@@ -82,6 +84,7 @@ import { rotina } from './rotina';
 import { tempo } from './tempo';
 import { tratamento } from './tratamento';
 
+const _ajuda: typeof ajudaPt = ajuda;
 const _alertas: typeof alertasPt = alertas;
 const _alimentacao: typeof alimentacaoPt = alimentacao;
 const _assinatura: typeof assinaturaPt = assinatura;
@@ -113,4 +116,4 @@ const _rotina: typeof rotinaPt = rotina;
 const _tempo: typeof tempoPt = tempo;
 const _tratamento: typeof tratamentoPt = tratamento;
 
-export const conferidos = [_alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _marcadores, _medidas, _metas, _resumo, _rotina, _tempo, _tratamento];
+export const conferidos = [_ajuda, _alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _marcadores, _medidas, _metas, _resumo, _rotina, _tempo, _tratamento];

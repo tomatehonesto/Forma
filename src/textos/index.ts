@@ -1,5 +1,6 @@
 import { localAtual, type Local } from '../logic/local';
 import { alimentacao as alimentacaoPt } from './pt-BR/alimentacao';
+import { ajuda as ajudaPt } from './pt-BR/ajuda';
 import { alertas as alertasPt } from './pt-BR/alertas';
 import { aviso as avisoPt } from './pt-BR/aviso';
 import { assinatura as assinaturaPt } from './pt-BR/assinatura';
@@ -31,6 +32,7 @@ import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 
 import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
+import { ajuda as ajudaEn } from './en-US/ajuda';
 import { alertas as alertasEn } from './en-US/alertas';
 import { aviso as avisoEn } from './en-US/aviso';
 import { assinatura as assinaturaEn } from './en-US/assinatura';
@@ -63,6 +65,7 @@ import { tratamento as tratamentoEn } from './en-US/tratamento';
 
 /* ⚠️ O ESPANHOL É NEUTRO DA AMÉRICA LATINA — ustedes, sem vosotros.
    Ver o alto de textos/es-419/formas, onde a contração "del" mora. */
+import { ajuda as ajudaEs } from './es-419/ajuda';
 import { alertas as alertasEs } from './es-419/alertas';
 import { alimentacao as alimentacaoEs } from './es-419/alimentacao';
 import { assinatura as assinaturaEs } from './es-419/assinatura';
@@ -98,6 +101,7 @@ import { tratamento as tratamentoEs } from './es-419/tratamento';
    saíram: o ponto médio CONTORNA o acordo de gênero, não o evita, e os
    leitores de tela o pronunciam mal. A saída é reformular — ver o alto de
    textos/fr-FR/cadastro. */
+import { ajuda as ajudaFr } from './fr-FR/ajuda';
 import { alertas as alertasFr } from './fr-FR/alertas';
 import { alimentacao as alimentacaoFr } from './fr-FR/alimentacao';
 import { aviso as avisoFr } from './fr-FR/aviso';
@@ -137,6 +141,7 @@ import { tratamento as tratamentoFr } from './fr-FR/tratamento';
    no lugar dela entram o CASO (der/den/dem/des, e o oA só sabe um deles)
    e a MAIÚSCULA de todo substantivo, que derruba todo toLowerCase
    que as outras quatro línguas compartilhavam. */
+import { ajuda as ajudaDe } from './de-DE/ajuda';
 import { alertas as alertasDe } from './de-DE/alertas';
 import { alimentacao as alimentacaoDe } from './de-DE/alimentacao';
 import { aviso as avisoDe } from './de-DE/aviso';
@@ -219,6 +224,7 @@ export type { SobreOMarcador, JeitoDeAjudar } from './pt-BR/marcadores';
    É a garantia que nenhum arquivo de JSON dá: lá, uma chave esquecida só
    aparece como texto faltando na tela de alguém. */
 export type Textos = {
+  ajuda: typeof ajudaPt;
   alertas: typeof alertasPt;
   alimentacao: typeof alimentacaoPt;
   aviso: typeof avisoPt;
@@ -261,7 +267,7 @@ export type Textos = {
    dá — lá, chave esquecida vira texto faltando na tela de alguém. */
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
-    alertas: alertasPt, alimentacao: alimentacaoPt, assinatura: assinaturaPt, aviso: avisoPt, avisos: avisosPt,
+    ajuda: ajudaPt, alertas: alertasPt, alimentacao: alimentacaoPt, assinatura: assinaturaPt, aviso: avisoPt, avisos: avisosPt,
     cadastro: cadastroPt, ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, formas: formasPt, home: homePt, idioma: idiomaPt,
@@ -269,7 +275,7 @@ const CATALOGOS: Record<Local, Textos> = {
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
-    alertas: alertasEn, alimentacao: alimentacaoEn, assinatura: assinaturaEn, aviso: avisoEn, avisos: avisosEn,
+    ajuda: ajudaEn, alertas: alertasEn, alimentacao: alimentacaoEn, assinatura: assinaturaEn, aviso: avisoEn, avisos: avisosEn,
     cadastro: cadastroEn, ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
@@ -277,7 +283,7 @@ const CATALOGOS: Record<Local, Textos> = {
     tempo: tempoEn, tratamento: tratamentoEn,
   },
   'es-419': {
-    alertas: alertasEs, alimentacao: alimentacaoEs, assinatura: assinaturaEs, aviso: avisoEs, avisos: avisosEs,
+    ajuda: ajudaEs, alertas: alertasEs, alimentacao: alimentacaoEs, assinatura: assinaturaEs, aviso: avisoEs, avisos: avisosEs,
     cadastro: cadastroEs, ciclo: cicloEs, companion: companionEs, comum: comumEs, confirmacoes: confirmacoesEs,
     conquistas: conquistasEs, cruzamentos: cruzamentosEs, cuidado: cuidadoEs, descobertas: descobertasEs, equilibrio: equilibrioEs,
     escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
@@ -285,7 +291,7 @@ const CATALOGOS: Record<Local, Textos> = {
     metas: metasEs, resumo: resumoEs, rotina: rotinaEs, tempo: tempoEs, tratamento: tratamentoEs,
   },
   'fr-FR': {
-    alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
+    ajuda: ajudaFr, alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
     cadastro: cadastroFr, ciclo: cicloFr, companion: companionFr, comum: comumFr, confirmacoes: confirmacoesFr,
     conquistas: conquistasFr, cruzamentos: cruzamentosFr, cuidado: cuidadoFr, descobertas: descobertasFr, equilibrio: equilibrioFr,
     escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
@@ -293,7 +299,7 @@ const CATALOGOS: Record<Local, Textos> = {
     metas: metasFr, resumo: resumoFr, rotina: rotinaFr, tempo: tempoFr, tratamento: tratamentoFr,
   },
   'de-DE': {
-    alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
+    ajuda: ajudaDe, alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
     cadastro: cadastroDe, ciclo: cicloDe, companion: companionDe, comum: comumDe, confirmacoes: confirmacoesDe,
     conquistas: conquistasDe, cruzamentos: cruzamentosDe, cuidado: cuidadoDe, descobertas: descobertasDe, equilibrio: equilibrioDe,
     escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,

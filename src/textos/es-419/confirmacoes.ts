@@ -1,3 +1,5 @@
+import { medidas } from './medidas';
+
 /* ============================================================
    LAS CONFIRMACIONES — la hoja que aparece después de registrar · es-419
 
@@ -31,10 +33,10 @@ export const confirmacoes = {
   pesoCaminho: 'Ver la curva del peso',
 
   medidas: 'Medidas registradas',
-  cintura: 'Cintura',
-  quadril: 'Cadera',
-  braco: 'Brazo',
-  coxa: 'Muslo',
+  cintura: medidas.corpo.cintura,
+  quadril: medidas.corpo.quadril,
+  braco: medidas.corpo.braco,
+  coxa: medidas.corpo.coxa,
   medidasCaminho: 'Ver la evolución',
 
   exame: 'Resultado registrado',
