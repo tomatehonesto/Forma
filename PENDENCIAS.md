@@ -1341,7 +1341,39 @@ que a outra pessoa é brasileira de ponta a ponta:
 CRM paulista é a mesma doença de meia tela traduzida — o leitor conclui
 que o aplicativo está quebrado, e desta vez com razão.
 
-**São duas saídas, e as duas são decisão de produto:**
+### ⚠️⚠️ E A REDE PARCEIRA É BRASILEIRA, O QUE MUDA A RESPOSTA
+
+A rede de clínicas parceiras **não existe fora do Brasil ainda**. A trava
+já está escrita — `temRedeParceira()`, em `logic/pais.ts`, devolve
+`p === 'BR'` —, e três lugares a consultam: o convite na aba Cuidado, a
+tela de planos e a de assinatura.
+
+**O que ela NÃO cobre é a semente.** `buildSeed()` grava `vinculo` sem
+perguntar o país, e doze telas decidem o que mostrar por
+`clinicaConectada(S)`, que só olha esse campo. Resultado, medido em
+`/cuidado` com o aplicativo em alemão e o país em DE:
+
+> Quem cuida de você · **Dra. Helena Costa** · Endocrinologista
+> ÚLTIMA ORIENTAÇÃO · "Ótimo sinal. Mantém a hidratação e a proteína que
+> combinamos." · Teleconsulta · Donnerstag
+
+Uma endocrinologista paulista, com mensagem em português, numa tela
+alemã de um país onde a rede parceira não existe.
+
+⚠️ **E ISSO MUDA O QUE VALE TRADUZIR.** Oito telas são da rede parceira —
+`/medico`, `/especialista`, `/clinica`, `/parceiros`, `/codigo`,
+`/conversa`, `/resumo-medico`, `/meta-clinica` — mais `/protocolos` e
+`/prescricao`. Enquanto a rede for só brasileira, traduzi-las é trabalho
+adiantado para um mercado que ainda não existe. **O que precisa de
+tradução são as telas que existem em todo mercado**: o marcador, a
+ajuda, a jornada, o exercício, as aplicações, a biblioteca, a exportação.
+
+**A saída mais barata é uma linha na semente:** fora do Brasil ela não
+grava `vinculo`, e as doze telas caem sozinhas no caminho de quem se
+trata por conta própria — que o aplicativo já sabe desenhar, porque é o
+caminho de quem respondeu "não" no cadastro.
+
+**São duas saídas para o resto, e as duas são decisão de produto:**
 
 1. **Uma persona por mercado.** A demonstração ganha um elenco por país —
    nome, registro profissional, cidade, convênios —, e a prosa dela entra
