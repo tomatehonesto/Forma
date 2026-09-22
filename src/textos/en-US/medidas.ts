@@ -7,6 +7,8 @@
    ============================================================ */
 
 export const medidas = {
+  metrico: 'Metric',
+  imperial: 'Imperial',
   unidadesMetrico: 'kilograms, meters, centimeters and liters',
   unidadesImperial: 'pounds, feet, inches and ounces',
 };

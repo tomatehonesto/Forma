@@ -7,6 +7,7 @@ import { Campo, Opc } from '../ui/internas';
 import {
   sistemaDe, pesoTxt, alturaTxt, compTxt, aguaTxt, unidadesDe, type Sistema,
 } from '../logic/medidas';
+import { T } from '../textos';
 
 /* ============================================================
    AS UNIDADES
@@ -29,9 +30,10 @@ import {
    que dar errado.
    ============================================================ */
 
-const OPCOES: [Sistema, string][] = [
-  ['metrico', 'Métrico'],
-  ['imperial', 'Imperial'],
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver scripts/idioma-congelado.mjs. */
+const OPCOES = (): [Sistema, string][] => [
+  ['metrico', T.medidas.metrico],
+  ['imperial', T.medidas.imperial],
 ];
 
 export default function Unidades() {
@@ -75,7 +77,7 @@ export default function Unidades() {
                 sozinho ele pede que a pessoa saiba de cor em qual dos
                 dois cresceu. "Quilos, metros, centímetros e litros" se
                 reconhece sem pensar. */}
-            {OPCOES.map(([id, nome]) => (
+            {OPCOES().map(([id, nome]) => (
               <Opc
                 key={id}
                 cheia

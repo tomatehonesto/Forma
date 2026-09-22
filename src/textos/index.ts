@@ -4,6 +4,7 @@ import { alertas as alertasPt } from './pt-BR/alertas';
 import { aviso as avisoPt } from './pt-BR/aviso';
 import { assinatura as assinaturaPt } from './pt-BR/assinatura';
 import { avisos as avisosPt } from './pt-BR/avisos';
+import { cadastro as cadastroPt } from './pt-BR/cadastro';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
@@ -34,6 +35,7 @@ import { alertas as alertasEn } from './en-US/alertas';
 import { aviso as avisoEn } from './en-US/aviso';
 import { assinatura as assinaturaEn } from './en-US/assinatura';
 import { avisos as avisosEn } from './en-US/avisos';
+import { cadastro as cadastroEn } from './en-US/cadastro';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
@@ -115,6 +117,7 @@ export type Textos = {
   aviso: typeof avisoPt;
   assinatura: typeof assinaturaPt;
   avisos: typeof avisosPt;
+  cadastro: typeof cadastroPt;
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
   comum: typeof comumPt;
@@ -152,7 +155,7 @@ export type Textos = {
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
     alertas: alertasPt, alimentacao: alimentacaoPt, assinatura: assinaturaPt, aviso: avisoPt, avisos: avisosPt,
-    ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
+    cadastro: cadastroPt, ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, formas: formasPt, home: homePt, idioma: idiomaPt,
     leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, resumo: resumoPt, rotina: rotinaPt,
@@ -160,7 +163,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'en-US': {
     alertas: alertasEn, alimentacao: alimentacaoEn, assinatura: assinaturaEn, aviso: avisoEn, avisos: avisosEn,
-    ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
+    cadastro: cadastroEn, ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
     leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, resumo: resumoEn, rotina: rotinaEn,

@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { aparelhoDaVez } from '../logic/integracoes';
-import { temIdentificacao } from '../logic/documentos';
+import { temIdentificacao, TERMOS, PRIVACIDADE } from '../logic/documentos';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -239,9 +239,9 @@ export default function Privacidade() {
       {temIdentificacao() ? (
         <Bloco titulo="Os documentos">
           <Cartao>
-            <Linha ic="doc" titulo="Política de Privacidade"
+            <Linha ic="doc" titulo={PRIVACIDADE().titulo}
               sub="O documento completo, com base legal e prazos" onPress={go('/documento?id=privacidade')} />
-            <Linha ic="doc" titulo="Termos de Uso"
+            <Linha ic="doc" titulo={TERMOS().titulo}
               sub="O que o Morphi é, o que não é, e o que cada lado pode esperar" onPress={go('/documento?id=termos')} />
           </Cartao>
         </Bloco>

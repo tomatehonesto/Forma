@@ -700,7 +700,7 @@ export default function Perfil() {
           sub={localAtual() === 'en-US' ? 'English · United States' : 'Português · Brasil'}
           onPress={go('/idioma')} />
         <ListRow ic="ruler" title="Unidades de medida"
-          sub={`${sistemaDe(S) === 'imperial' ? 'Imperial' : 'Métrico'} · ${unidadesDe(sistemaDe(S))}`}
+          sub={`${sistemaDe(S) === 'imperial' ? T.medidas.imperial : T.medidas.metrico} · ${unidadesDe(sistemaDe(S))}`}
           onPress={go('/unidades')} />
       </Grupo>
 

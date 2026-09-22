@@ -13,6 +13,12 @@
    ============================================================ */
 
 export const medidas = {
+  /* ⚠️ O NOME DO SISTEMA ESTAVA ESCRITO EM TRÊS TELAS — o cadastro, a
+     folha de unidades e a linha do perfil. Ninguém escolhe pelo nome
+     ("métrico" e "imperial" não dizem nada a quem não sabe de cabeça o
+     que cada um mede), e é por isso que a lista de exemplos anda junto. */
+  metrico: 'Métrico',
+  imperial: 'Imperial',
   unidadesMetrico: 'quilos, metros, centímetros e litros',
   unidadesImperial: 'libras, pés, polegadas e onças',
 };

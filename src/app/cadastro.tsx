@@ -12,7 +12,7 @@ import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
-import { temIdentificacao, IDADE_MINIMA } from '../logic/documentos';
+import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
@@ -168,11 +168,12 @@ const TODOS: Id[] = [
    como perda sustentada fica por volta de 0,5 a 1 kg, e acima disso a
    conta é do corpo e da dose, não da vontade — por isso a nota embaixo da
    lista está lá, e por isso nenhuma opção promete nada. */
-const RITMOS: { kg: number; nome: string }[] = [
-  { kg: 0.5, nome: 'Devagar e sempre' },
-  { kg: 1, nome: 'Ritmo constante' },
-  { kg: 1.5, nome: 'Acelerado' },
-  { kg: 2, nome: 'O mais rápido que der' },
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver scripts/idioma-congelado.mjs. */
+const RITMOS = (): { kg: number; nome: string }[] => [
+  { kg: 0.5, nome: K().ritmoDevagar },
+  { kg: 1, nome: K().ritmoConstante },
+  { kg: 1.5, nome: K().ritmoAcelerado },
+  { kg: 2, nome: K().ritmoMaisRapido },
 ];
 
 type Respostas = {
@@ -609,6 +610,10 @@ const MARCA_APP = require('../../assets/images/marca-app.png');
 
 /* O TÍTULO DA ABERTURA TEM CORPO PRÓPRIO — ver o comentário no lugar em
    que ele é usado. */
+/* ⚠️ É FUNÇÃO, porque lê o catálogo, e este arquivo tem tabelas de
+   módulo que a chamam. Ver scripts/idioma-congelado.mjs. */
+const K = () => T.cadastro;
+
 const TITULO_ABERTURA = { fontFamily: font.body, fontSize: 38, lineHeight: 46 };
 
 function Abertura({ onComecar }: { onComecar: () => void }) {
@@ -677,9 +682,9 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             o que sobra é texto, e texto pequeno numa tela vazia parece
             legenda. */}
         <Txt c="#FFFFFF" style={TITULO_ABERTURA}>
-          A companhia na sua jornada de{' '}
+          {K().aberturaTitulo}
           <Txt c="#FFFFFF" style={{ ...TITULO_ABERTURA, fontFamily: font.bold }}>
-            transformação
+            {K().aberturaTituloForte}
           </Txt>
         </Txt>
         {/* O APOIO CRESCEU JUNTO, e o branco subiu para 80%: em 70% sobre
@@ -690,8 +695,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
           c="rgba(255,255,255,0.8)"
           style={{ marginBottom: 12, lineHeight: 23 }}
         >
-          Mais do que acompanhar resultados, é entender a jornada por trás deles. Uma
-          experiência inteligente que aprende com você e se adapta a cada etapa.
+          {K().aberturaTexto}
         </Txt>
         {/* O BOTÃO É AZUL, e não branco: o vidro e a lavagem escurecem o
             pé da tela o bastante para o azul de ação do app aparecer — e
@@ -708,7 +712,7 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={{ paddingVertical: 18, alignItems: 'center' }}
           >
-            <Txt v="bodyMed" c="#FFFFFF">Começar</Txt>
+            <Txt v="bodyMed" c="#FFFFFF">{K().comecar}</Txt>
           </LinearGradient>
         </Pressable>
       </View>
@@ -729,10 +733,11 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
    As três frases dizem o que está sendo feito, na ordem em que é feito. A
    barra anda sozinha até o fim e não finge progresso real: ela mede o
    tempo da espera, que é o único número honesto que existe aqui. */
-const FASES = [
-  'Lendo as suas respostas',
-  'Calculando as suas metas do dia',
-  'Desenhando a sua jornada',
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. */
+const FASES = () => [
+  K().faseLendo,
+  K().faseCalculando,
+  K().faseDesenhando,
 ];
 
 function Montando({ onFim }: { onFim: () => void }) {
@@ -776,8 +781,8 @@ function Montando({ onFim }: { onFim: () => void }) {
       </Animated.View>
 
       <View style={{ alignItems: 'center', gap: 8 }}>
-        <Txt v="h2" style={{ textAlign: 'center' }}>Montando o seu plano</Txt>
-        <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>{FASES[fase]}</Txt>
+        <Txt v="h2" style={{ textAlign: 'center' }}>{K().montandoTitulo}</Txt>
+        <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>{FASES()[fase]}</Txt>
       </View>
 
       <View style={{
@@ -1105,7 +1110,7 @@ export default function Cadastro() {
     if (n === passos.length - 1) { salvar(); return; }
     setN(n + 1);
   };
-  const appSaude = Platform.OS === 'ios' ? 'Apple Saúde' : 'Health Connect';
+  const appSaude = Platform.OS === 'ios' ? T.aviso.appleSaude : 'Health Connect';
 
   const plano = useMemo(
     () => planoDoCadastro({
@@ -1395,7 +1400,7 @@ export default function Cadastro() {
            tela de planos cai no aplicativo, e quem cuida disso é o X de
            lá — ele pergunta se há história antes de tentar voltar. */
         aoSair={() => router.replace('/planos' as any)}
-        rotuloSair="Ver planos"
+        rotuloSair={K().verPlanos}
       />
     );
   }
@@ -1412,36 +1417,36 @@ export default function Cadastro() {
 
   /* ---------- as perguntas ---------- */
   const id = passos[n];
+  const QT = K().titulos;
   const titulos: Record<Id, string> = {
     idioma: T.idioma.pergunta,
-    nome: 'Como podemos te chamar?',
-    identidade: 'Como você se identifica?',
-    nascimento: 'Quando você nasceu?',
-    tratamento: 'Você já está em tratamento?',
-    inicio: 'Quando você começou?',
-    medicamento: futuro ? 'Qual medicamento você pretende usar?' : 'Qual medicamento você usa?',
-    forma: futuro ? 'Como você vai aplicar?' : 'Como você aplica?',
-    dose: futuro ? 'Com qual dose você pretende começar?' : 'Qual é a sua dose atual?',
-    frequencia: futuro ? 'De quanto em quanto tempo você vai aplicar?' : 'De quanto em quanto tempo você aplica?',
-    corpo: 'Quais são suas medidas atuais?',
-    meta: 'Qual é a sua meta de peso?',
-    ritmo: 'Qual ritmo você quer seguir para chegar lá?',
-    motivacao: 'O que está te levando a essa jornada?',
-    atividade: 'Qual é o seu nível de atividade física?',
-    restricao: 'Você tem alguma restrição alimentar?',
-    saude: 'Conecte o seu aplicativo de saúde',
+    nome: QT.nome,
+    identidade: QT.identidade,
+    nascimento: QT.nascimento,
+    tratamento: QT.tratamento,
+    inicio: QT.inicio,
+    medicamento: futuro ? QT.medicamentoFuturo : QT.medicamentoAgora,
+    forma: futuro ? QT.formaFuturo : QT.formaAgora,
+    dose: futuro ? QT.doseFuturo : QT.doseAgora,
+    frequencia: futuro ? QT.frequenciaFuturo : QT.frequenciaAgora,
+    corpo: QT.corpo,
+    meta: QT.meta,
+    ritmo: QT.ritmo,
+    motivacao: QT.motivacao,
+    atividade: QT.atividade,
+    restricao: QT.restricao,
+    saude: QT.saude,
     /* Mesma conjugação que medicamento, dose e frequência já fazem: quem
        ainda vai começar não tem nada no presente para responder, e
        perguntar "você tem" obriga a traduzir a pergunta antes de
        respondê-la. */
-    acompanhamento: futuro
-      ? 'Você pretende ter o acompanhamento de um especialista?'
-      : 'Você possui o acompanhamento de um especialista?',
-    consentimento: 'Informações importantes',
+    acompanhamento: futuro ? QT.acompanhamentoFuturo : QT.acompanhamentoAgora,
+    consentimento: QT.consentimento,
   };
+  const QS = K().subs;
   const subs: Record<Id, string> = {
     idioma: T.idioma.sub,
-    nome: 'Pode ser só o primeiro nome, ou o apelido que você gosta.',
+    nome: QS.nome,
     /* A JUSTIFICATIVA DE POR QUE PERGUNTAMOS.
 
        Um dos apps que olhamos diz que usa esses detalhes "para melhorar
@@ -1452,27 +1457,27 @@ export default function Cadastro() {
        para o app falar com ela do jeito certo, e o corpo entra nas
        perguntas seguintes. Prometer benefício que não existe é como se
        perde a confiança de quem parou para ler. */
-    identidade: 'É para falarmos com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
-    nascimento: 'Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.',
-    tratamento: 'Só para saber onde você está agora.',
-    inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.',
-    medicamento: 'É dele que saem a escada de doses e o intervalo entre as aplicações.',
-    forma: 'Manipulado sai da farmácia dos dois jeitos, e o que muda é o que você tem na mão na hora de aplicar.',
+    identidade: QS.identidade,
+    nascimento: QS.nascimento,
+    tratamento: QS.tratamento,
+    inicio: QS.inicio,
+    medicamento: QS.medicamento,
+    forma: QS.forma,
     dose: med && med.doses.length
-      ? `Na ordem da titulação do ${med.label}.`
+      ? QS.doseComEscada(med.label)
       /* Sem escada não há titulação a seguir: manipulado não tem degraus
          de bula, e quem define o número é a receita. */
-      : 'Manipulado não tem escada de bula — o número é o da sua receita.',
+      : QS.doseSemEscada,
     /* `formaEmUso` existe alguns blocos acima, e é ela que sabe se a
        pessoa tem caneta, frasco ou cartela. */
-    frequencia: `É daqui que saem a contagem do ciclo, os lembretes e o estoque ${doDa(formaEmUso)}.`,
-    corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
-    meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
-    ritmo: `${pesoTxt(S, Math.abs(perder))} a percorrer.`,
-    motivacao: 'Não existe resposta certa. Vale a que você lembraria num dia difícil.',
-    restricao: 'Proteína é o eixo deste tratamento, e ela vem de lugares diferentes conforme o que você come. Pode marcar mais de uma.',
-    atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
-    saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
+    frequencia: QS.frequencia(doDa(formaEmUso)),
+    corpo: QS.corpo,
+    meta: QS.meta,
+    ritmo: QS.ritmo(pesoTxt(S, Math.abs(perder))),
+    motivacao: QS.motivacao,
+    restricao: QS.restricao,
+    atividade: QS.atividade,
+    saude: QS.saude,
     /* ⚠️ ESTE TEXTO NÃO PODE SOAR COMO UMA OFERTA.
 
        A versão anterior listava, em três tópicos com ícone, o que o app
@@ -1494,7 +1499,7 @@ export default function Cadastro() {
        explicação numa pergunta de duas alternativas também é peso
        demais. Uma frase, um exemplo, e a pergunta volta a ser a maior
        coisa da tela. */
-    acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico, como anotações e planejamento para consultas.',
+    acompanhamento: QS.acompanhamento,
     /* ⚠️ AQUI DIZIA "quem chega por um profissional parceiro não paga
        pelo app", e a frase estava no pior lugar possível: anunciando o
        prêmio na mesma tela em que faz a pergunta que o concede. Não é
@@ -1507,7 +1512,7 @@ export default function Cadastro() {
        No lugar dela, o que a pergunta de fato faz: o código é o que liga
        a conta à equipe. Ver PENDENCIAS.md — este passo sai daqui quando
        a tela de planos existir. */
-    consentimento: 'Duas coisas antes de começar: o que fazemos pelo seu tratamento, e o que acontece com o que você registra.',
+    consentimento: QS.consentimento,
   };
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
@@ -1611,7 +1616,7 @@ export default function Cadastro() {
         {id === 'saude' ? (
           <Rich
             v="h1"
-            text="Tudo o que seu corpo mostra, <b>em um só lugar</b>"
+            text={K().saudeManchete}
             style={{ textAlign: 'center', marginTop: 10 }}
           />
         ) : (
@@ -1658,7 +1663,7 @@ export default function Cadastro() {
           <TextInput
             value={r.nome}
             onChangeText={(v) => p({ nome: v })}
-            placeholder="Seu nome"
+            placeholder={K().seuNome}
             placeholderTextColor={c.tx4}
             autoCapitalize="words"
             autoCorrect={false}
@@ -1693,7 +1698,7 @@ export default function Cadastro() {
                 dizer. Juntar as duas obrigaria quem só quer privacidade a
                 se declarar. */}
             <Escolha
-              ic="lock" cheia titulo="Prefiro não informar"
+              ic="lock" cheia titulo={K().prefiroNaoInformar}
               on={r.identidade === 'n'} onPress={() => p({ identidade: 'n' })}
             />
           </View>
@@ -1742,11 +1747,11 @@ export default function Cadastro() {
         {id === 'tratamento' ? (
           <View style={{ gap: 10 }}>
             <Escolha
-              ic="syringe" cheia titulo="Já iniciei o tratamento" sub="Já apliquei pelo menos uma dose"
+              ic="syringe" cheia titulo={K().jaIniciei} sub={K().jaInicieiSub}
               on={r.emTratamento === true} onPress={() => p({ emTratamento: true })}
             />
             <Escolha
-              ic="cal" cheia titulo="Vou começar em breve" sub="Ainda não apliquei"
+              ic="cal" cheia titulo={K().vouComecar} sub={K().vouComecarSub}
               on={r.emTratamento === false} onPress={() => p({ emTratamento: false })}
             />
           </View>
@@ -1769,7 +1774,7 @@ export default function Cadastro() {
                 tudo: meia-vida, cadência, escada de doses, validade. */}
             {futuro ? (
               <Escolha
-                cheia titulo="Ainda não sei" sub="Você pode definir depois no seu perfil"
+                cheia titulo={K().aindaNaoSei} sub={K().aindaNaoSeiMedSub}
                 on={r.med === 'indefinido'}
                 onPress={() => p({ med: 'indefinido', dose: null, intervalo: null })}
               />
@@ -1790,7 +1795,7 @@ export default function Cadastro() {
                    "Semaglutida manipulada" ela repetiria a palavra que a
                    pessoa acabou de ler. Ali o que falta dizer é de onde
                    aquilo vem. */
-                sub={m.marca ? m.mol : 'Preparada em farmácia de manipulação'}
+                sub={m.marca ? m.mol : K().manipuladoSub}
                 on={r.med === k}
                 /* Trocar de medicamento zera dose, forma e intervalo: a
                    escada é outra, a cadência também, e a forma pode nem
@@ -1821,9 +1826,9 @@ export default function Cadastro() {
                 key={fm} cheia
                 titulo={maiuscula(FORMAS()[fm].recipiente)}
                 sub={fm === 'frasco'
-                  ? 'Você aspira a dose com uma seringa'
+                  ? K().formaSeringaSub
                   : fm === 'seringa'
-                    ? 'Já vem preenchida, pronta para aplicar'
+                    ? K().formaCanetaSub
                     : undefined}
                 on={r.forma === fm}
                 onPress={() => p({ forma: fm })}
@@ -1864,7 +1869,7 @@ export default function Cadastro() {
                 <Escolha
                   key={d} cheia
                   titulo={`${doseTxt(d)} ${med.unit}`}
-                  sub={i === 0 ? 'Dose de início' : i === med.doses.length - 1 ? 'Dose máxima' : undefined}
+                  sub={i === 0 ? K().doseDeInicio : i === med.doses.length - 1 ? K().doseMaxima : undefined}
                   on={r.dose === d}
                   onPress={() => p({ dose: d })}
                 />
@@ -1874,7 +1879,7 @@ export default function Cadastro() {
                   a consulta que define isso. */}
               {futuro ? (
                 <Escolha
-                  cheia titulo="Ainda não sei" sub="Quase todo mundo começa pela menor"
+                  cheia titulo={K().aindaNaoSei} sub={K().aindaNaoSeiDoseSub}
                   on={r.dose === 0}
                   onPress={() => p({ dose: 0 })}
                 />
@@ -1903,8 +1908,8 @@ export default function Cadastro() {
               {PRONTOS.map((d) => (
                 <Escolha
                   key={d} cheia
-                  titulo={d === 1 ? 'Todos os dias' : `A cada ${d} dias`}
-                  selo={d === padrao ? 'Padrão' : undefined}
+                  titulo={d === 1 ? K().todosOsDias : K().aCadaDias(d)}
+                  selo={d === padrao ? K().padrao : undefined}
                   /* ⚠️ COM O CONTADOR ABERTO, NENHUMA PRONTA ACENDE. Sem
                      esta guarda, contar até 7 acendia "A cada 7 dias" ao
                      mesmo tempo que "Outro intervalo": duas respostas
@@ -1916,7 +1921,13 @@ export default function Cadastro() {
               ))}
               <Escolha
                 cheia titulo="Outro intervalo"
-                sub={outroIntervalo ? `A cada ${r.intervalo} dias` : 'Você diz de quantos em quantos dias'}
+                /* ⚠️ O ?? FECHA UM BURACO QUE O TEXTO ANTIGO TINHA. Este
+                   ramo abre com `outroAberto`, que pode ser verdadeiro
+                   com o intervalo ainda nulo — e o modelo anterior
+                   imprimia "A cada null dias". O toque semeia um número
+                   no mesmo gesto, então nunca se viu na tela; a chave do
+                   catálogo pede um número e o tsc cobrou. */
+                sub={outroIntervalo ? K().aCadaDias(r.intervalo ?? padrao) : K().outroIntervalo}
                 on={outroIntervalo}
                 /* Só semeia um número quando não há um próprio: tocar de
                    novo em "outro intervalo" com doze dias escolhidos não
@@ -1965,7 +1976,7 @@ export default function Cadastro() {
                 é delas que vem a concretude, não do rótulo. */}
             <Segmentado
               valor={r.sistema}
-              opcoes={[['metrico', 'Métrico'], ['imperial', 'Imperial']] as [Sistema, string][]}
+              opcoes={[['metrico', T.medidas.metrico], ['imperial', T.medidas.imperial]] as [Sistema, string][]}
               onChange={(v) => p({ sistema: v })}
             />
             <View>
@@ -1984,7 +1995,7 @@ export default function Cadastro() {
               />
             </View>
             <View>
-              <Rotulo>PESO DE HOJE</Rotulo>
+              <Rotulo>{K().pesoDeHoje}</Rotulo>
               <Regua
                 key={`peso-${r.sistema}`}
                 {...reguaDePeso(r.sistema, 40, 180)}
@@ -2029,7 +2040,7 @@ export default function Cadastro() {
                 paddingVertical: 18, paddingHorizontal: 16, gap: 2, alignItems: 'center',
               }}>
                 <Txt v="label" c={c.accent}>
-                  {perder > 0 ? 'Você quer perder' : 'Você quer ganhar'}
+                  {perder > 0 ? K().querPerder : K().querGanhar}
                 </Txt>
                 <Row style={{ alignItems: 'baseline', gap: 4 }}>
                   <Txt style={[NUMERO, { fontSize: 40, lineHeight: 48 }]}>{nf(Math.abs(perder), 1)}</Txt>
@@ -2046,7 +2057,7 @@ export default function Cadastro() {
         {id === 'ritmo' ? (
           perder > 0 ? (
             <View style={{ gap: 10 }}>
-              {RITMOS.map((x) => {
+              {RITMOS().map((x) => {
                 const on = r.ritmo === x.kg;
                 const semanas = Math.ceil(perder / x.kg);
                 const quando = +startOfDay(now()) + semanas * 7 * 86400000;
@@ -2058,7 +2069,7 @@ export default function Cadastro() {
                        "devagar e sempre" não se compara com "acelerado"
                        sem saber quanto cada um vale. O apelido diz o que
                        aquilo significa depois que ela já viu o quanto. */
-                    titulo={`${pesoTxt(S, x.kg)} por semana`}
+                    titulo={K().ritmoPorSemana(pesoTxt(S, x.kg))}
                     sub={x.nome}
                     /* A PREVISÃO EM UMA LINHA, E EM OUTRA COR.
 
@@ -2077,7 +2088,7 @@ export default function Cadastro() {
                       <Row gap={6} style={{ marginTop: 5, alignItems: 'center' }}>
                         <Icon name="cal" size={13} color={on ? tinta : c.accent} sw={2} />
                         <Txt v="caption" c={on ? tinta : c.accent} style={{ flex: 1 }}>
-                          {`Alcança os ${pesoProsaTxt(S, r.meta)} em ${mesEmNumero(quando)}`}
+                          {K().ritmoAlcanca(pesoProsaTxt(S, r.meta), mesEmNumero(quando))}
                         </Txt>
                       </Row>
                     )}
@@ -2121,7 +2132,7 @@ export default function Cadastro() {
         {id === 'restricao' ? (
           <View style={{ gap: 10 }}>
             <Escolha
-              cheia titulo="Nenhuma" sub="Como de tudo"
+              cheia titulo={K().semRestricao} sub={K().semRestricaoSub}
               on={r.restricoes.length === 0}
               onPress={() => p({ restricoes: [] })}
             />
@@ -2208,7 +2219,7 @@ export default function Cadastro() {
                 um contador só — três jeitos de dizer peso em duas telas e
                 um jeito só nesta. */}
             <View>
-              <Rotulo>PESO DE QUANDO COMEÇOU</Rotulo>
+              <Rotulo>{K().pesoDeQuandoComecou}</Rotulo>
               <Regua
                 key={`pi-${r.sistema}`}
                 {...reguaDePeso(r.sistema, 40, 180)}
@@ -2258,9 +2269,9 @@ export default function Cadastro() {
              numa tela que está pedindo autorização. */
           <View style={{ gap: 14 }}>
             {([
-              ['clock', 'Menos uma coisa para lembrar', 'Peso, sono e treino entram sozinhos.'],
-              ['barchart', 'A sua curva mais completa', 'O que o aparelho mede já entra aqui.'],
-              ['shield', 'Você continua no controle', 'Escolha o que liberar, e desligue quando quiser.'],
+              ['clock', K().saudeLembrarTitulo, K().saudeLembrarTexto],
+              ['barchart', K().saudeCurvaTitulo, K().saudeCurvaTexto],
+              ['shield', K().saudeControleTitulo, K().saudeControleTexto],
             ] as [string, string, string][]).map(([ic, t, sub]) => (
               <Row key={t} style={{ gap: 14, alignItems: 'center' }}>
                 <View style={{
@@ -2301,14 +2312,14 @@ export default function Cadastro() {
               <Escolha
                 ic="steth" cheia titulo="Sim"
                 sub={futuro
-                  ? 'Vou me tratar com um médico ou clínica'
-                  : 'Um médico ou clínica acompanha o meu tratamento'}
+                  ? K().vouMeTratar
+                  : K().meAcompanha}
                 on={r.acompanhamento === 'proprio'}
                 onPress={() => p({ acompanhamento: 'proprio' })}
               />
               <Escolha
-                ic="companion" cheia titulo="Não, por conta própria"
-                sub="Dá para adicionar depois, quando quiser"
+                ic="companion" cheia titulo={K().porContaPropria}
+                sub={K().porContaPropriaSub}
                 on={r.acompanhamento === 'nenhum'}
                 onPress={() => p({ acompanhamento: 'nenhum', profissional: '' })}
               />
@@ -2320,7 +2331,7 @@ export default function Cadastro() {
                     depois de a pessoa já ter decidido se ia preencher —
                     e quem não quer escrever o nome do próprio médico
                     passava pelo campo achando que era obrigatório. */}
-                <Rotulo>{futuro ? 'QUEM VAI ACOMPANHAR VOCÊ (OPCIONAL)' : 'QUEM ACOMPANHA VOCÊ (OPCIONAL)'}</Rotulo>
+                <Rotulo>{futuro ? K().quemVaiAcompanhar : K().quemAcompanha}</Rotulo>
                 <CampoTexto
                   valor={r.profissional}
                   onChange={(v) => p({ profissional: v })}
@@ -2405,10 +2416,10 @@ export default function Cadastro() {
             {temIdentificacao() ? (
               <Row gap={16} style={{ justifyContent: 'center', paddingVertical: 10 }}>
                 <Pressable onPress={() => router.push(TERMOS as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Txt v="label" c={c.accent}>Termos de Uso</Txt>
+                  <Txt v="label" c={c.accent}>{DOC_TERMOS().titulo}</Txt>
                 </Pressable>
                 <Pressable onPress={() => router.push(POLITICA as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Txt v="label" c={c.accent}>Política de Privacidade</Txt>
+                  <Txt v="label" c={c.accent}>{DOC_PRIVACIDADE().titulo}</Txt>
                 </Pressable>
               </Row>
             ) : null}
@@ -2443,9 +2454,9 @@ export default function Cadastro() {
                 pessoa consentindo sem saber que consentiu — e consentimento
                 para dado de saúde precisa ser um ato claro, não o efeito
                 colateral de avançar uma tela. */}
-            <Botao pilula label="Concordar e montar meu plano" desligado={!r.aceite} onPress={avanca} />
+            <Botao pilula label={K().concordarEMontar} desligado={!r.aceite} onPress={avanca} />
             <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
-              Fica registrado com a data de hoje.
+              {K().ficaRegistrado}
             </Txt>
           </View>
         ) : id === 'saude' ? (
@@ -2461,7 +2472,7 @@ export default function Cadastro() {
                 tamanho que ela merece. */}
             <Botao
               pilula
-              label="Conectar meus dados"
+              label={K().saudeConectar}
               onPress={() => { p({ saude: true }); avanca(); }}
             />
             <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
@@ -2477,13 +2488,13 @@ export default function Cadastro() {
                 alignItems: 'center', paddingTop: 16, paddingBottom: 2, opacity: pressed ? 0.6 : 1,
               }]}
             >
-              <Txt v="label" c={c.accent}>Fazer isso depois</Txt>
+              <Txt v="label" c={c.accent}>{K().saudeDepois}</Txt>
             </Pressable>
           </View>
         ) : (
           <Botao
             pilula
-            label={editando ? 'Salvar' : 'Continuar'}
+            label={editando ? K().salvar : K().continuar}
             desligado={!respondida(id)}
             onPress={avanca}
           />
