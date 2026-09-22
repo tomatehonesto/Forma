@@ -22,6 +22,7 @@
 
 import type { alertas as alertasPt } from '../pt-BR/alertas';
 import type { alimentacao as alimentacaoPt } from '../pt-BR/alimentacao';
+import type { assinatura as assinaturaPt } from '../pt-BR/assinatura';
 import type { aviso as avisoPt } from '../pt-BR/aviso';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
 import type { cadastro as cadastroPt } from '../pt-BR/cadastro';
@@ -43,6 +44,7 @@ import type { home as homePt } from '../pt-BR/home';
 import type { idioma as idiomaPt } from '../pt-BR/idioma';
 import type { leituras as leiturasPt } from '../pt-BR/leituras';
 import type { medidas as medidasPt } from '../pt-BR/medidas';
+import type { metas as metasPt } from '../pt-BR/metas';
 import type { resumo as resumoPt } from '../pt-BR/resumo';
 import type { rotina as rotinaPt } from '../pt-BR/rotina';
 import type { tempo as tempoPt } from '../pt-BR/tempo';
@@ -50,6 +52,7 @@ import type { tratamento as tratamentoPt } from '../pt-BR/tratamento';
 
 import { alertas } from './alertas';
 import { alimentacao } from './alimentacao';
+import { assinatura } from './assinatura';
 import { aviso } from './aviso';
 import { avisos } from './avisos';
 import { cadastro } from './cadastro';
@@ -71,6 +74,7 @@ import { home } from './home';
 import { idioma } from './idioma';
 import { leituras } from './leituras';
 import { medidas } from './medidas';
+import { metas } from './metas';
 import { resumo } from './resumo';
 import { rotina } from './rotina';
 import { tempo } from './tempo';
@@ -78,6 +82,7 @@ import { tratamento } from './tratamento';
 
 const _alertas: typeof alertasPt = alertas;
 const _alimentacao: typeof alimentacaoPt = alimentacao;
+const _assinatura: typeof assinaturaPt = assinatura;
 const _aviso: typeof avisoPt = aviso;
 const _avisos: typeof avisosPt = avisos;
 const _cadastro: typeof cadastroPt = cadastro;
@@ -99,9 +104,10 @@ const _home: typeof homePt = home;
 const _idioma: typeof idiomaPt = idioma;
 const _leituras: typeof leiturasPt = leituras;
 const _medidas: typeof medidasPt = medidas;
+const _metas: typeof metasPt = metas;
 const _resumo: typeof resumoPt = resumo;
 const _rotina: typeof rotinaPt = rotina;
 const _tempo: typeof tempoPt = tempo;
 const _tratamento: typeof tratamentoPt = tratamento;
 
-export const conferidos = [_alertas, _alimentacao, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _medidas, _resumo, _rotina, _tempo, _tratamento];
+export const conferidos = [_alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _medidas, _metas, _resumo, _rotina, _tempo, _tratamento];

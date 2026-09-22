@@ -20,10 +20,20 @@
    ⚠️ E ELAS NÃO IMPORTAM REACT NATIVE, que é o que torna isto possível
    sem navegador e sem montar tela nenhuma:
 
-     npx tsx scripts/congelar.ts > antes.json
+     npx tsx --tsconfig scripts/tsconfig.json scripts/congelar.ts > antes.json
      …extrai um domínio…
-     npx tsx scripts/congelar.ts > depois.json
+     npx tsx --tsconfig scripts/tsconfig.json scripts/congelar.ts > depois.json
      diff antes.json depois.json
+
+   ⚠️⚠️ O `--tsconfig` NÃO É ENFEITE, E A REDE MORRE SEM ELE. Este arquivo
+   importa `logic/exportacao`, que importa `Platform` de 'react-native' —
+   e o esbuild do tsx não lê o Flow do index.js do React Native. O erro é
+   "Unexpected typeof", não tem nada a ver com texto, e quem o vir vai
+   achar que a rede apodreceu.
+
+   Ela não apodreceu: os dublês estão em scripts/duble e o mapeamento
+   deles está em scripts/tsconfig.json. O que faltava era mandar o tsx ler
+   esse tsconfig, porque ele não o acha sozinho.
 
    Diferença nenhuma é a única saída aceitável. Qualquer linha no diff é um
    erro de extração, não uma melhoria — melhoria de texto é outro commit.
@@ -31,6 +41,17 @@
    ⚠️ A DATA ANDA. `now()` é o relógio de verdade, então a saída muda de um
    dia para o outro. Isto compara ANTES e DEPOIS da mesma sessão; não serve
    como arquivo commitado que se confere semanas depois.
+
+   ⚠️⚠️ E O SILÊNCIO DESTA REDE NÃO É PROVA. Ela roda sete cenários sobre
+   UMA semente, e a semente tem registro de tudo — então todo ramo que só
+   aparece no vazio fica fora. `metas.jornada.semRegistros` é o exemplo
+   que custou: o feminino estava escrito em duro nela, a tela dizia "sem
+   dias registradas ainda", e o congelamento acusou "idêntico" antes e
+   depois da correção, porque nunca renderizou aquela linha.
+
+   Antes de confiar num "idêntico", procure no JSON a frase que DEVERIA
+   ter mudado. Se ela não estiver lá, a rede não olhou — e quem olha é
+   você.
    ============================================================ */
 
 import { trocarLocal, type Local } from '../src/logic/local';

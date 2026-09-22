@@ -3192,7 +3192,7 @@ export function journeyGoals(S: State): JourneyGoal[] {
       pct: de ? Math.round((n / de) * 100) : 0,
       hint: de
         ? T.metas.jornada.contagem(n, de, de === 1 ? ind.nomes[0] : ind.nomes[1], ind.femininas)
-        : T.metas.jornada.semRegistros(ind.nomes[1]),
+        : T.metas.jornada.semRegistros(ind.nomes[1], ind.femininas),
       pessoal: false,
       feita: false,
       conta: ind.conta(alvo, S),

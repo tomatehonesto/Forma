@@ -266,7 +266,11 @@ export const metas = {
        veces. "11 de 13 noches" responde de cuántas noches hablamos. */
     contagem: (quantas: number, de: number, nome: string, femininas: boolean) =>
       `${quantas} de ${de} ${nome} ${femininas ? 'registradas' : 'registrados'}`,
-    semRegistros: (plural: string) => `sin ${plural} registradas todavía`,
+    /* ⚠️ MISMO `femininas` DE LA CUENTA DE ARRIBA. El femenino estaba
+       escrito en duro — "registradas" — en una frase que recibe el plural
+       de los ocho indicadores, y siete de ellos son "días". */
+    semRegistros: (plural: string, femininas: boolean) =>
+      `sin ${plural} ${femininas ? 'registradas' : 'registrados'} todavía`,
 
     /* ⚠️ "LOGRADA", Y NO "CONQUISTADA". En español se conquista un
        territorio; una meta se logra o se alcanza. */

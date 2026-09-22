@@ -304,7 +304,14 @@ export const metas = {
        vezes. "11 de 13 noites" responde de quantas noites falamos. */
     contagem: (quantas: number, de: number, nome: string, femininas: boolean) =>
       `${quantas} de ${de} ${nome} ${femininas ? 'registradas' : 'registrados'}`,
-    semRegistros: (plural: string) => `sem ${plural} registradas ainda`,
+    /* ⚠️ ELA RECEBE O MESMO `femininas` DA CONTA DE CIMA, e é por isso
+       que a linha existe assim. O feminino estava escrito em duro aqui —
+       "registradas" —, numa frase que recebe o plural dos oito
+       indicadores: sete deles são "dias". A tela dizia "sem dias
+       registradas ainda", e nenhuma trava acusava, porque para o
+       TypeScript é só uma string. */
+    semRegistros: (plural: string, femininas: boolean) =>
+      `sem ${plural} ${femininas ? 'registradas' : 'registrados'} ainda`,
 
     /* A pessoal não tem fração: tem a data, que é a parte da conquista
        que se conta para alguém. */
