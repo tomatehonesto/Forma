@@ -8,6 +8,7 @@ import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
 
 /* ============================================================
    UMA TRILHA, DEGRAU A DEGRAU
@@ -37,7 +38,7 @@ export default function Trilha() {
   if (!t) { router.back(); return null; }
 
   return (
-    <SheetScreen titulo={t.titulo} sub={`Nível ${t.nivel} de ${t.degraus.length}`} onClose={() => router.back()}>
+    <SheetScreen titulo={t.titulo} sub={T.conquistas.tela.nivelDeTotal(t.nivel, t.degraus.length)} onClose={() => router.back()}>
       <View style={{ marginTop: 18, gap: 10 }}>
         {t.degraus.map((d, i) => {
           const passou = d.t != null;
@@ -84,8 +85,7 @@ export default function Trilha() {
       {/* A frase do pé é a mesma regra que vale para todas: o degrau conta
           pelo valor de hoje, e não pela data de ontem. */}
       <Txt v="micro" c={c.tx4} style={{ marginTop: 16, lineHeight: 17 }}>
-        Os níveis saem dos seus registros. Se um registro sair, o nível que
-        ele fechou sai junto.
+        {T.conquistas.tela.ossoDaRegra}
       </Txt>
     </SheetScreen>
   );

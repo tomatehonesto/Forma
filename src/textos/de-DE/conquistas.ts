@@ -161,4 +161,23 @@ export const conquistas = {
 
   /* Der Meilenstein im Zeitstrahl: der Pfad und auf welcher Stufe er war. */
   marco: (titulo: string, nivel: number) => `${titulo} · Stufe ${nivel}`,
+  tela: {
+    titulo: 'Marksteine',
+    lead: 'Marken, die von selbst aus dem entstehen, was du eingetragen hast — hier entscheidet niemand, ob du sie verdienst.',
+
+    nivelDeTotal: (nivel: number, total: number) => `Stufe ${nivel} von ${total}`,
+    niveisTotal: (total: number) => `${total} ${total === 1 ? 'Stufe' : 'Stufen'}`,
+    trilhaCompleta: 'Weg abgeschlossen',
+
+    todas: 'Alle',
+    checkinsNoMes: 'Check-ins im Monat',
+    niveis: 'Stufen',
+    diasDeJornada: 'Tage unterwegs',
+
+    conquistadas: 'Erreicht',
+    nenhumaAinda: 'Noch keiner',
+    nenhumaAindaTexto: 'Die, die unterwegs sind, stehen gleich darunter.',
+    ossoDaRegra: 'Die Stufen entstehen aus deinen Einträgen. Verschwindet ein Eintrag, verschwindet die Stufe mit, die er geschlossen hat.',
+    aCaminho: 'Unterwegs',
+  },
 };

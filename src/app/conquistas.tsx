@@ -12,6 +12,11 @@ import { TelaInterna, Titulao, Bloco, Chips, Grade } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.conquistas.tela;
 
 /* ============================================================
    CONQUISTAS
@@ -91,7 +96,7 @@ function Cartao({ q, onPress }: { q: Conquista; onPress: () => void }) {
         ))}
       </Row>
       <Txt v="micro" c={c.tx3} style={{ marginTop: 6, textAlign: 'center' }}>
-        {on ? `Nível ${q.nivel} de ${q.niveis}` : `${q.niveis} níveis`}
+        {on ? K().nivelDeTotal(q.nivel, q.niveis) : K().niveisTotal(q.niveis)}
       </Txt>
       <Txt v="micro" c={c.tx3} style={{ marginTop: 2, textAlign: 'center', lineHeight: 16 }}>{q.desc}</Txt>
 
@@ -109,7 +114,7 @@ function Cartao({ q, onPress }: { q: Conquista; onPress: () => void }) {
             for buscá-la. */}
         {on && q.t != null ? <Txt v="micro" c={c.tx4}>{relDay(new Date(q.t))}</Txt> : null}
         {completa ? (
-          <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>Trilha completa</Txt>
+          <Txt v="micro" c={c.tx4} style={{ textAlign: 'center' }}>{K().trilhaCompleta}</Txt>
         ) : (
           <View style={{ width: '100%', gap: 7 }}>
             {/* A BARRA É O TRECHO ATÉ O PRÓXIMO NÍVEL, e não a trilha
@@ -141,7 +146,7 @@ export default function Conquistas() {
      catálogo; "Peso 3" quer dizer três alcançadas, que é informação sobre
      a pessoa — e é ela que alguém vem conferir. */
   const chips = useMemo(() => [
-    { id: 'todas', label: 'Todas', n: feitas(todas).length },
+    { id: 'todas', label: K().todas, n: feitas(todas).length },
     ...FAMILIAS()
       .map((f) => ({ id: f.id, label: f.nome, n: feitas(todas.filter((q) => q.familia === f.id)).length }))
       .filter((f) => todas.some((q) => q.familia === f.id)),
@@ -152,20 +157,17 @@ export default function Conquistas() {
   const faltam = aCaminho(lista);
 
   return (
-    <TelaInterna titulo="Conquistas">
-      <Titulao
-        titulo="Conquistas"
-        lead="Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece."
-      />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       <Row style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, paddingVertical: 16 }}>
         {/* O placar é sempre do TOTAL, e não do filtro: ele é o resumo da
             jornada, e mudar de número ao tocar numa pastilha faria parecer
             que a pessoa perdeu conquistas ao olhar para um assunto. */}
         {[
-          [String(checkins30(S)), 'check-ins no mês'],
-          [`${niveisFeitos(todas)}/${niveisTotais(todas)}`, 'níveis'],
-          [String(journeyDay(S)), 'dias de jornada'],
+          [String(checkins30(S)), K().checkinsNoMes],
+          [`${niveisFeitos(todas)}/${niveisTotais(todas)}`, K().niveis],
+          [String(journeyDay(S)), K().diasDeJornada],
         ].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.accentLine }}>
             <Txt v="h1" style={{ fontSize: 24 }}>{v}</Txt>
@@ -179,7 +181,7 @@ export default function Conquistas() {
       {/* "DESBLOQUEADAS" ERA PALAVRA DE JOGO, e contradizia a própria
           tela: aqui não há fase a vencer nem prêmio a liberar — há coisas
           que aconteceram no tratamento de alguém. */}
-      <Bloco titulo="Conquistadas">
+      <Bloco titulo={K().conquistadas}>
         {done.length ? (
           <Grade cols={2} gap={12}>
             {done.map((q) => <Cartao key={q.id} q={q} onPress={() => router.push(`/trilha?id=${q.id}` as any)} />)}
@@ -188,12 +190,12 @@ export default function Conquistas() {
           /* Quem abre no primeiro dia via um título e nada embaixo. A frase
              não promete conquista nenhuma: diz onde ela vai aparecer, e a
              lista de "a caminho" logo abaixo já mostra quais são. */
-          <Vazio ic="trophy" titulo="Nenhuma ainda" texto="As que estão a caminho aparecem logo abaixo." />
+          <Vazio ic="trophy" titulo={K().nenhumaAinda} texto={K().nenhumaAindaTexto} />
         )}
       </Bloco>
 
       {faltam.length ? (
-        <Bloco titulo="A caminho">
+        <Bloco titulo={K().aCaminho}>
           <Grade cols={2} gap={12}>
             {faltam.map((q) => <Cartao key={q.id} q={q} onPress={() => router.push(`/trilha?id=${q.id}` as any)} />)}
           </Grade>

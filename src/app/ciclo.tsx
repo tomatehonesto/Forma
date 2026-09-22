@@ -4,13 +4,17 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { cicloFases, M } from '../logic/derive';
 import { dataComDiaDaSemana } from '../logic/time';
-import { nomeDaMolecula } from '../logic/formas';
+import { FORMAS, formaDe, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Sanfona, SanfonaLinha, Aviso, Botao,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.ciclo.tela;
 
 /* ============================================================
    CICLO DA DOSE
@@ -37,29 +41,35 @@ export default function Ciclo() {
   const router = useRouter();
   const cic = cicloFases(S);
   const med = M(S);
+  const vocab = FORMAS()[formaDe(S)];
 
   return (
     <TelaInterna
-      titulo="Ciclo da dose"
-      rodape={<Botao label="Registrar aplicação" onPress={() => router.push('/aplicacao' as any)} />}
+      titulo={K().titulo}
+      rodape={(
+        <Botao
+          label={T.tratamento.telaRegistrarAplicacao.registrar(vocab.acao)}
+          onPress={() => router.push('/aplicacao' as any)}
+        />
+      )}
     >
       <Titulao
-        titulo={`Dia ${cic.dayIn} depois${'\n'}da aplicação`}
-        lead="O efeito do medicamento sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado."
+        titulo={K().diaDepois(cic.dayIn, vocab.acao)}
+        lead={K().lead}
       />
 
       <Progresso
-        label="Ciclo atual"
-        valor={`dia ${cic.dayIn} de ${cic.total}`}
+        label={K().cicloAtual}
+        valor={K().diaDeTotal(cic.dayIn, cic.total)}
         pct={cic.pct}
-        nota={`Próxima dose ${dataComDiaDaSemana(cic.nextDose)}`}
+        nota={K().proximaDose(dataComDiaDaSemana(cic.nextDose))}
       />
 
-      <Bloco titulo="As quatro fases">
+      <Bloco titulo={K().asQuatroFases}>
         <Sanfona>
           {cic.fases.map((f) => {
-            const itens: [string, string][] = [['Comum', f.comum], ['Ajuda', f.ajuda]];
-            if (f.atencao) itens.push(['Atenção', f.atencao]);
+            const itens: [string, string][] = [[K().comum, f.comum], [K().ajuda, f.ajuda]];
+            if (f.atencao) itens.push([K().atencao, f.atencao]);
             return (
               <SanfonaLinha
                 key={f.key}
@@ -79,15 +89,15 @@ export default function Ciclo() {
       </Bloco>
 
       <Aviso
-        titulo="Isto é conteúdo geral"
-        texto={`O ciclo varia de pessoa para pessoa e com a dose. Nada aqui substitui a orientação do seu médico.`}
+        titulo={K().conteudoGeral}
+        texto={K().conteudoGeralTexto}
       />
 
       {/* Rodapé do conteúdo, não da tela: diz de qual medicamento a leitura
           acima está falando, sem ocupar o topo com isso. */}
       <View style={{ alignItems: 'center', marginTop: -10 }}>
         <Txt v="caption" c={c.tx4}>
-          Baseado no comportamento típico da {T.comum.noMeio(nomeDaMolecula(med.mol))}
+          {K().baseadoEm(T.comum.noMeio(nomeDaMolecula(med.mol)))}
         </Txt>
       </View>
     </TelaInterna>

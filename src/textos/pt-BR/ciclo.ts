@@ -139,4 +139,36 @@ export const ciclo = {
      do medicamento — a frase serve caneta, frasco e seringa igualmente.
      Ver logic/formas. */
   faseBaixoAjuda: 'deixe a dose e o local da aplicação definidos na véspera',
+  /* ============================================================
+     CICLO DA DOSE — a tela que responde "por que a fome voltou?"
+
+     ⚠️ A QUEBRA DE LINHA MORA NO TEXTO, e estava escrita no JSX:
+     "depois\nda aplicação" é a largura do português, e o alemão parte em
+     outro lugar.
+
+     ⚠️ E A PALAVRA DA AÇÃO VEM DE FORA. A manchete dizia "aplicação" em
+     duro, e quem toma comprimido não aplica nada: `formas.palavras` já
+     tem a palavra certa para cada recipiente. Nos cinco idiomas as duas
+     saídas são femininas — aplicação/dose, injection/prise,
+     Injektion/Dosis —, então o artigo do meio é seguro.
+     ============================================================ */
+  tela: {
+    titulo: 'Ciclo da dose',
+    diaDepois: (dia: number, acao: string) => `Dia ${dia} depois\nda ${acao}`,
+    lead: 'O efeito do medicamento sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado.',
+
+    cicloAtual: 'Ciclo atual',
+    diaDeTotal: (dia: number, total: number) => `dia ${dia} de ${total}`,
+    proximaDose: (data: string) => `Próxima dose ${data}`,
+
+    asQuatroFases: 'As quatro fases',
+    comum: 'Comum',
+    ajuda: 'Ajuda',
+    atencao: 'Atenção',
+
+    conteudoGeral: 'Isto é conteúdo geral',
+    conteudoGeralTexto: 'O ciclo varia de pessoa para pessoa e com a dose. Nada aqui substitui a orientação do seu médico.',
+
+    baseadoEm: (molecula: string) => `Baseado no comportamento típico da ${molecula}`,
+  },
 };

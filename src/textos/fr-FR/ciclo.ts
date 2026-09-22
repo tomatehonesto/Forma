@@ -118,4 +118,23 @@ export const ciclo = {
      connaît pas la forme du médicament — la phrase sert au stylo, au
      flacon et à la seringue. */
   faseBaixoAjuda: 'préparez la dose et le site de l’injection la veille',
+  tela: {
+    titulo: 'Cycle de la dose',
+    diaDepois: (dia: number, acao: string) => `Jour ${dia} après\nvotre ${acao}`,
+    lead: 'L’effet du médicament monte les premiers jours et redescend jusqu’à la dose suivante. Ce que vous ressentez bouge avec lui — et c’est attendu.',
+
+    cicloAtual: 'Cycle en cours',
+    diaDeTotal: (dia: number, total: number) => `jour ${dia} sur ${total}`,
+    proximaDose: (data: string) => `Dose suivante ${data}`,
+
+    asQuatroFases: 'Les quatre phases',
+    comum: 'Courant',
+    ajuda: 'Ce qui aide',
+    atencao: 'Vigilance',
+
+    conteudoGeral: 'Ceci est un contenu général',
+    conteudoGeralTexto: 'Le cycle varie d’une personne à l’autre et avec la dose. Rien ici ne remplace l’avis de votre médecin.',
+
+    baseadoEm: (molecula: string) => `D’après le comportement typique de ${molecula}`,
+  },
 };

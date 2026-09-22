@@ -135,4 +135,23 @@ export const conquistas = {
   consultasFalta: (r: number) => `${p(r, 'appointment')} to go`,
 
   marco: (titulo: string, nivel: number) => `${titulo} · level ${nivel}`,
+  tela: {
+    titulo: 'Milestones',
+    lead: 'Marks that come out of what you recorded on their own — nobody here decides whether you deserve them.',
+
+    nivelDeTotal: (nivel: number, total: number) => `Level ${nivel} of ${total}`,
+    niveisTotal: (total: number) => `${total} ${total === 1 ? 'level' : 'levels'}`,
+    trilhaCompleta: 'Path complete',
+
+    todas: 'All',
+    checkinsNoMes: 'check-ins this month',
+    niveis: 'levels',
+    diasDeJornada: 'days of the journey',
+
+    conquistadas: 'Reached',
+    nenhumaAinda: 'None yet',
+    nenhumaAindaTexto: 'The ones on the way show up just below.',
+    ossoDaRegra: 'Levels come out of your records. If a record goes, the level it closed goes with it.',
+    aCaminho: 'On the way',
+  },
 };

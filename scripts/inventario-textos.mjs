@@ -78,10 +78,45 @@ for (const f of anda(RAIZ)) {
     daqui.push(v);
   }
 
-  /* 2. texto solto entre tags JSX */
+  /* 2. texto solto entre tags JSX, numa linha só */
   for (const m of src.matchAll(/>([^<>{}\n]{3,})</g)) {
     const s = m[1].trim();
     if (!s || !/[a-zA-Zà-ÿ]/.test(s) || !PT.test(s)) continue;
+    daqui.push(s);
+  }
+
+  /* 2b. E O MESMO TEXTO PARTIDO EM VÁRIAS LINHAS, que a regra 2 não vê.
+
+     ⚠️⚠️ ESTA ERA A CEGUEIRA DA REDE. Toda frase de tela um pouco longa
+     é quebrada pelo editor, porque o JSX já começa recuado:
+
+         <Txt>
+           Os níveis saem dos seus registros. Se um registro sair, o
+           nível que ele fechou sai junto.
+         </Txt>
+
+     A regra 2 barra `\n` dentro do texto e por isso não via nenhuma
+     delas. A tela aparecia com menos frases do que tem, e "a tela zerou"
+     podia ser mentira — foram duas assim numa leva só, as duas achadas
+     lendo o aplicativo em alemão, que é o jeito caro de achar.
+
+     ⚠️ E O `\n` DA REGRA 2 NÃO PODE SAIR: sem ele o casamento atravessa
+     o arquivo inteiro, de uma seta `=>` até o próximo `<`, e uma tabela
+     de alimentos vira "frase de tela". A saída é uma regra separada e
+     estreita: ela exige a etiqueta de fechamento e que NENHUMA linha do
+     meio tenha `<`, `>`, `{` ou `}`. Texto misturado com interpolação em
+     várias linhas continua de fora — é o preço de não ter falso
+     positivo.
+
+     ⚠️ E OS DOIS QUANTIFICADORES NÃO PODEM SE SOBREPOR. A primeira
+     escrita era `(?:[ \t]*[^<>{}\n]*\n)+?`, e os espaços cabiam nos dois
+     pedaços: o motor tinha uma escolha por espaço, em cada linha, e o
+     inventário parou de terminar. `[^<>{}\n]*` já cobre espaço e tabulação
+     sozinho, e o teto de doze linhas mata depressa a corrida que não vai
+     fechar. */
+  for (const m of src.matchAll(/>[ \t]*\n((?:[^<>{}\n]*\n){1,12}?)[ \t]*<\//g)) {
+    const s = m[1].replace(/\s+/g, ' ').trim();
+    if (!s || s.length < 3 || !/[a-zA-Zà-ÿ]/.test(s) || !PT.test(s)) continue;
     daqui.push(s);
   }
 

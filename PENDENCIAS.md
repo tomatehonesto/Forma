@@ -958,7 +958,23 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 378, em 61 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 368, em 61 arquivos.**
+
+⚠️⚠️ **E ESTE NÚMERO SUBSTITUI OS ANTERIORES, porque a rede era cega.** A
+regra do inventário que pega texto solto de JSX barrava `\n` dentro do
+texto, e por isso não via NENHUMA frase que o editor tivesse quebrado em
+duas linhas — que é toda frase de tela um pouco longa, já que o JSX
+começa recuado. Três arquivos estavam fora da lista inteiros
+(`documento`, `planos`, `suspenso`) e outros seis vinham com menos
+frases do que têm.
+
+⚠️ **O `\n` não podia simplesmente sair.** Sem ele o casamento atravessa
+o arquivo do primeiro `=>` até o próximo `<`, e a tabela de alimentos
+vira "frase de tela": o teste deu 410 frases, quase todas rótulos
+nutricionais. A saída foi uma segunda regra, estreita — exige a etiqueta
+de fechamento e nenhum `<`, `>`, `{` ou `}` nas linhas do meio. Texto
+misturado com interpolação em várias linhas continua invisível, e é o
+preço de não ter falso positivo. (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1329,6 +1345,21 @@ tirada do `git show`, e não de memória.
   nasceu para isto — o alemão escreve "Min." na prosa — e /treino escrevia
   "min" ao lado do número grande e outra vez na consequência do apagar.
   A chave existir não basta: é preciso ir na linha.
+
+- **⚠️⚠️ A REDE DO INVENTÁRIO NÃO VIA FRASE QUEBRADA EM DUAS LINHAS.** É
+  a rede que responde "a tela zerou", e ela podia mentir: duas frases
+  desta leva foram achadas lendo o aplicativo em alemão, e não pela
+  lista. Ver o item 19 — o número faltando era 13 frases maior, e três
+  arquivos estavam fora da lista inteiros.
+- **O botão do Ciclo dizia "Registrar aplicação" em duro**, e quem toma
+  comprimido não aplica nada. A tela de registrar já monta o próprio
+  título com a palavra de `formas.palavras`; aqui era a cópia escrita à
+  mão, parada em "aplicação" para os quatro recipientes. Agora sai
+  "Einnahme eintragen" para quem toma cartela.
+- **"Nível X de Y" tinha duas cópias** — o cartão da grade de conquistas
+  e o cabeçalho da folha de /trilha. Uma chave, duas telas.
+- **Mais uma quebra de linha escrita no JSX:** `depois${'\n'}da
+  aplicação`, no Ciclo. A largura é a do português.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 

@@ -140,4 +140,23 @@ export const conquistas = {
   consultasFalta: (r: number) => `Il manque ${p(r, 'consultation')}`,
 
   marco: (titulo: string, nivel: number) => `${titulo} · niveau ${nivel}`,
+  tela: {
+    titulo: 'Jalons',
+    lead: 'Des repères qui sortent tout seuls de ce que vous avez noté — personne ici ne décide si vous les méritez.',
+
+    nivelDeTotal: (nivel: number, total: number) => `Niveau ${nivel} sur ${total}`,
+    niveisTotal: (total: number) => `${total} ${total === 1 ? 'niveau' : 'niveaux'}`,
+    trilhaCompleta: 'Parcours terminé',
+
+    todas: 'Tous',
+    checkinsNoMes: 'check-ins ce mois-ci',
+    niveis: 'niveaux',
+    diasDeJornada: 'jours de parcours',
+
+    conquistadas: 'Atteints',
+    nenhumaAinda: 'Aucun pour l’instant',
+    nenhumaAindaTexto: 'Ceux qui sont en chemin apparaissent juste en dessous.',
+    ossoDaRegra: 'Les niveaux sortent de vos relevés. Si un relevé disparaît, le niveau qu’il a fermé disparaît avec lui.',
+    aCaminho: 'En chemin',
+  },
 };

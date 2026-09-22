@@ -117,4 +117,23 @@ export const ciclo = {
   /* "The dose", not "the pen": this table is constant and doesn't know
      the form of the medication. */
   faseBaixoAjuda: 'have the dose and the injection site decided the night before',
+  tela: {
+    titulo: 'Dose cycle',
+    diaDepois: (dia: number, acao: string) => `Day ${dia} after\nyour ${acao}`,
+    lead: 'The effect of the medication rises in the first days and eases off until the next dose. What you feel moves with it — and that is expected.',
+
+    cicloAtual: 'Current cycle',
+    diaDeTotal: (dia: number, total: number) => `day ${dia} of ${total}`,
+    proximaDose: (data: string) => `Next dose ${data}`,
+
+    asQuatroFases: 'The four phases',
+    comum: 'Common',
+    ajuda: 'Helps',
+    atencao: 'Watch out',
+
+    conteudoGeral: 'This is general content',
+    conteudoGeralTexto: 'The cycle varies from person to person and with the dose. Nothing here replaces your doctor’s guidance.',
+
+    baseadoEm: (molecula: string) => `Based on the typical behavior of ${molecula}`,
+  },
 };

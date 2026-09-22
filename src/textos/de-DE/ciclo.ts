@@ -143,4 +143,23 @@ export const ciclo = {
      die Darreichungsform nicht — der Satz bedient Pen, Durchstechflasche
      und Spritze gleichermaßen. Siehe logic/formas. */
   faseBaixoAjuda: 'Dosis und Einstichstelle schon am Vorabend festlegen',
+  tela: {
+    titulo: 'Zyklus der Dosis',
+    diaDepois: (dia: number, acao: string) => `Tag ${dia} nach\ndeiner ${acao}`,
+    lead: 'Die Wirkung des Medikaments steigt in den ersten Tagen und lässt bis zur nächsten Dosis nach. Was du spürst, geht mit — und das ist zu erwarten.',
+
+    cicloAtual: 'Aktueller Zyklus',
+    diaDeTotal: (dia: number, total: number) => `Tag ${dia} von ${total}`,
+    proximaDose: (data: string) => `Nächste Dosis ${data}`,
+
+    asQuatroFases: 'Die vier Phasen',
+    comum: 'Üblich',
+    ajuda: 'Was hilft',
+    atencao: 'Achtung',
+
+    conteudoGeral: 'Das hier ist allgemeiner Inhalt',
+    conteudoGeralTexto: 'Der Zyklus ist von Mensch zu Mensch und von Dosis zu Dosis verschieden. Nichts davon ersetzt den Rat deiner Ärztin oder deines Arztes.',
+
+    baseadoEm: (molecula: string) => `Basiert auf dem typischen Verhalten von ${molecula}`,
+  },
 };

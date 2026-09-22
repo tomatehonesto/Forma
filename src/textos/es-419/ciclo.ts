@@ -111,4 +111,23 @@ export const ciclo = {
      forma del medicamento — la frase sirve igual a pluma, frasco y
      jeringa. */
   faseBaixoAjuda: 'deja la dosis y el lugar de la aplicación definidos la víspera',
+  tela: {
+    titulo: 'Ciclo de la dosis',
+    diaDepois: (dia: number, acao: string) => `Día ${dia} después\nde la ${acao}`,
+    lead: 'El efecto del medicamento sube en los primeros días y va cediendo hasta la próxima dosis. Lo que sientes cambia junto con él — y eso es lo esperado.',
+
+    cicloAtual: 'Ciclo actual',
+    diaDeTotal: (dia: number, total: number) => `día ${dia} de ${total}`,
+    proximaDose: (data: string) => `Próxima dosis ${data}`,
+
+    asQuatroFases: 'Las cuatro fases',
+    comum: 'Común',
+    ajuda: 'Ayuda',
+    atencao: 'Atención',
+
+    conteudoGeral: 'Esto es contenido general',
+    conteudoGeralTexto: 'El ciclo varía de persona a persona y con la dosis. Nada de esto reemplaza la orientación de tu médico.',
+
+    baseadoEm: (molecula: string) => `Basado en el comportamiento típico de ${molecula}`,
+  },
 };

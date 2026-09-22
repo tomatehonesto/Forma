@@ -143,4 +143,29 @@ export const conquistas = {
 
   /* O marco na linha do tempo: a trilha e em que nível ela estava. */
   marco: (titulo: string, nivel: number) => `${titulo} · nível ${nivel}`,
+  /* ============================================================
+     CONQUISTAS — a tela, e a folha da trilha
+
+     `nivelDeTotal` é lida pelas DUAS: o cartão da grade e o cabeçalho de
+     /trilha diziam a mesma frase, cada um com a sua cópia.
+     ============================================================ */
+  tela: {
+    titulo: 'Conquistas',
+    lead: 'Marcos que saem sozinhos do que você registrou — ninguém aqui decide se você merece.',
+
+    nivelDeTotal: (nivel: number, total: number) => `Nível ${nivel} de ${total}`,
+    niveisTotal: (total: number) => `${total} ${total === 1 ? 'nível' : 'níveis'}`,
+    trilhaCompleta: 'Trilha completa',
+
+    todas: 'Todas',
+    checkinsNoMes: 'check-ins no mês',
+    niveis: 'níveis',
+    diasDeJornada: 'dias de jornada',
+
+    conquistadas: 'Conquistadas',
+    nenhumaAinda: 'Nenhuma ainda',
+    nenhumaAindaTexto: 'As que estão a caminho aparecem logo abaixo.',
+    ossoDaRegra: 'Os níveis saem dos seus registros. Se um registro sair, o nível que ele fechou sai junto.',
+    aCaminho: 'A caminho',
+  },
 };
