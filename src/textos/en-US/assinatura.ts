@@ -38,7 +38,7 @@ export const assinatura = {
   semPlano: (menorPorMes: string) => `You have everything just as it is. Plans start at ${menorPorMes} a month.`,
 
   mudarDePlano: 'Change plan',
-  verOsPlanos: 'See the plans',
+  verOsPlanos: 'View plans',
   formaDePagamento: 'Payment method',
   historicoDeCobranca: 'Billing history',
 
@@ -57,7 +57,7 @@ export const assinatura = {
   /* ⚠️ "IF THE PARTNER CLINIC TELLS US" — not "if the link ends". Nobody
      here finds out on their own that someone stopped being a patient. And
      the line about the data always travels with it: locking someone out
-     of their own weight, injections and labs is not something we do. */
+     of their own weight, shots and labs is not something we do. */
   bomSaberTitulo: 'Worth knowing',
   bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you take up a Personal plan — and no charge happens without you choosing it. Nothing you logged is lost: your entries stay on the device and you can export them whenever you want.',
 
@@ -194,9 +194,9 @@ export const assinatura = {
 
   suspenso: {
     clinicaGenerica: 'the clinic that was following your care',
-    nadaApagado: 'Nothing was deleted. Weight, injections, symptoms, labs and photos all stay on your device.',
+    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms, labs and photos all stay on your device.',
     nadaCobrado: 'Nothing was charged, and nothing will be without you choosing it.',
-    verOsPlanos: 'See the plans',
+    verOsPlanos: 'View plans',
     outroCodigo: 'I have another code',
   },
 

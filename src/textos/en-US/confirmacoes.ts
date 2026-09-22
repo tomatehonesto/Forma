@@ -26,7 +26,7 @@ export const confirmacoes = {
   pesoAlcancada: 'reached',
   pesoNotaPlato: 'A month with your weight in the same range. That’s when the waist usually keeps coming down, and the tape is what shows it.',
   pesoCaminhoPlato: 'Measure your body too',
-  pesoCaminho: 'See the weight curve',
+  pesoCaminho: 'View weight curve',
 
   /* ---------------- measurements ---------------- */
   medidas: 'Measurements logged',
@@ -55,7 +55,7 @@ export const confirmacoes = {
   anotacaoPauta: 'On the appointment agenda',
   anotacaoComDoutor: (doutor: string) => `goes into the summary for ${doutor}`,
   anotacaoSemDoutor: 'goes into the appointment summary',
-  anotacaoCaminho: 'See the appointment summary',
+  anotacaoCaminho: 'View appointment summary',
 
   /* ---------------- meal ---------------- */
   refeicao: 'Meal logged',
@@ -65,7 +65,7 @@ export const confirmacoes = {
   proteinaMeta: (alvo: number) => `goal of ${alvo} g`,
   faltamGramas: (v: string) => `${v} g to go`,
   metaBatida: 'goal met',
-  refeicaoCaminho: 'See today’s nutrition',
+  refeicaoCaminho: 'View today’s nutrition',
 
   /* ---------------- workout ---------------- */
   exercicio: 'Workout logged',
@@ -76,7 +76,7 @@ export const confirmacoes = {
   movimentoSub: (agora: number, alvo: number) => `${agora} of ${alvo} min`,
   faltamMinutos: (v: string) => `${v} min to go`,
   treinosHoje: 'Workouts today',
-  exercicioCaminho: 'See the exercise week',
+  exercicioCaminho: 'View exercise week',
 
   /* ---------------- water ---------------- */
   agua: 'Water logged',
@@ -85,5 +85,5 @@ export const confirmacoes = {
   hidratacaoDoDia: 'Hydration today',
   hidratacaoMeta: (alvo: string) => `goal of ${alvo}`,
   faltamAgua: (v: string) => `${v} to go`,
-  aguaCaminho: 'See hydration',
+  aguaCaminho: 'View hydration',
 };

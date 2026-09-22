@@ -324,7 +324,7 @@ export const metas = {
       `${por} set ${dela}, and the app is counting against ${nosso}. We keep both: you can go back to theirs in the Care area, or take the difference to your next visit.`,
     recomendadoTitulo: 'This is the recommended value',
 
-    verAnotacao: 'See your team’s note',
+    verAnotacao: 'View your team’s note',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
 
     /* ---------- the sheet for a new goal ---------- */

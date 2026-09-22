@@ -103,7 +103,7 @@ export const escalas = {
 
     nestaSemana: 'This week',
     semRespostaSemana: 'You have not answered about symptoms this week yet. They come in through the check-in.',
-    fazerCheckin: 'Do the check-in',
+    fazerCheckin: 'Check in',
     nenhumSintoma: 'No symptoms this week',
     nenhumSintomaSub: (respondidos: number) =>
       `${respondidos} ${respondidos === 1 ? 'day answered' : 'days answered'}, none with a complaint.`,
@@ -114,16 +114,16 @@ export const escalas = {
 
     aoLongoDoCiclo: 'Across the cycle',
     aoLongoNota: (dias: number) =>
-      `Average nausea on each day after the injection, from ${dias} ${dias === 1 ? 'day answered' : 'days answered'}.`,
+      `Average nausea on each day after the shot, from ${dias} ${dias === 1 ? 'day answered' : 'days answered'}.`,
     dose: 'dose',
 
     cicloParecido: 'Across the days answered so far, nausea looks much the same through the whole cycle — it is not following the dose.',
     cicloPoucos: 'Too few days answered so far to say whether nausea follows the cycle. Answer a few more and this calculation stands up.',
-    cicloInicio1: 'Nausea weighs most on injection day.',
-    cicloInicioN: (dias: number) => `Nausea weighs most in the first ${dias} days after the injection.`,
-    cicloFim1: 'Nausea weighs most the day before the next injection.',
-    cicloFimN: (dias: number) => `Nausea weighs most in the ${dias} days leading up to the next injection.`,
-    cicloDia0: 'on injection day',
+    cicloInicio1: 'Nausea weighs most on shot day.',
+    cicloInicioN: (dias: number) => `Nausea weighs most in the first ${dias} days after the shot.`,
+    cicloFim1: 'Nausea weighs most the day before the next shot.',
+    cicloFimN: (dias: number) => `Nausea weighs most in the ${dias} days leading up to the next shot.`,
+    cicloDia0: 'on shot day',
     cicloDiaN: (dia: number) => `on day ${dia} after`,
     cicloEspalhado: (lista: string) => `Nausea weighs most ${lista}.`,
 

@@ -23,9 +23,9 @@ type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
 
 export const formas = {
   palavras: {
-    caneta: { recipiente: 'pen', plural: 'pens', verbo: 'inject', acao: 'injection' },
-    frasco: { recipiente: 'vial', plural: 'vials', verbo: 'inject', acao: 'injection' },
-    seringa: { recipiente: 'syringe', plural: 'syringes', verbo: 'inject', acao: 'injection' },
+    caneta: { recipiente: 'pen', plural: 'pens', verbo: 'inject', acao: 'shot' },
+    frasco: { recipiente: 'vial', plural: 'vials', verbo: 'inject', acao: 'shot' },
+    seringa: { recipiente: 'syringe', plural: 'syringes', verbo: 'inject', acao: 'shot' },
     comprimido: { recipiente: 'blister pack', plural: 'blister packs', verbo: 'take', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

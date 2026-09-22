@@ -62,7 +62,7 @@ export const home = {
 
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Injections',
+    aplicacao: 'Shots',
     peso: 'Weight',
     refeicao: 'Meals',
     exercicio: 'Workouts',
@@ -71,7 +71,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Injection ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Shot ${dose} ${unidade}`,
     peso: 'Weight',
     pesoInicial: 'Starting weight',
     checkin: 'Check-in',
@@ -166,7 +166,7 @@ export const home = {
     ultimos7: 'YOUR LAST 7 DAYS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} of 7 days with a check-in · ${aplicadas} of ${vividas} weeks with an injection`,
+      `${feitos} of 7 days with a check-in · ${aplicadas} of ${vividas} weeks with a shot`,
     semanaASemana: 'Week by week. Tap to see what marked each cycle.',
     semanaEDia: (semana: number, dia: number) => `WEEK ${semana} · DAY ${dia}`,
     noInicio: (peso: string) => `${peso} at the start`,
@@ -214,16 +214,16 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Week ${semana}`,
 
     semRegistro: 'NOT LOGGED',
-    semRegistroOntem: 'Yesterday’s injection isn’t logged.',
-    semRegistroDias: (dias: number) => `The injection from ${dias} days ago isn’t logged.`,
+    semRegistroOntem: 'Yesterday’s shot isn’t logged.',
+    semRegistroDias: (dias: number) => `The shot from ${dias} days ago isn’t logged.`,
     semRegistroCorpo: 'If you did it, you can log it now. If you didn’t, the cycle picks up again from the next one.',
-    semRegistroCta: 'Log an injection',
+    semRegistroCta: 'Log the shot',
 
     aConsulta: 'YOUR APPOINTMENT',
     consultaHoje: 'Your appointment is today.',
     consultaAmanha: 'Your appointment is tomorrow.',
     consultaCorpo: 'I’ll bring the period organized — weight, adherence, symptoms and the questions worth asking.',
-    consultaCta: 'See the summary',
+    consultaCta: 'View summary',
 
     acabou: (oRecipiente: string) => `${oRecipiente} is empty.`,
     restaUmaDose: (onde: string) => `One dose left ${onde}.`,
@@ -233,16 +233,16 @@ export const home = {
 
     entendaOPorQue: 'Understand why',
 
-    proximaAplicacao: 'NEXT INJECTION',
-    hojeEDiaDeAplicar: 'Today is your injection day.',
+    proximaAplicacao: 'NEXT SHOT',
+    hojeEDiaDeAplicar: 'Today is shot day.',
     proximaDose: (quando: string) => `Your next dose is ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} suggested.`,
-    verAplicacao: 'See the injection',
+    verAplicacao: 'View shot',
     criarLembrete: 'Set a reminder',
 
     checkinFeito: 'Check-in done',
-    fazerCheckin: 'Do the check-in',
+    fazerCheckin: 'Check in',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'day of check‑ins' : 'days of check‑ins in a row'),
 
     metasDiarias: 'Your daily goals',
@@ -266,7 +266,7 @@ export const home = {
     acompanhaSeuTratamento: 'Follows your treatment',
     resumoParaConsulta: 'Appointment summary',
     resumoParaConsultaSub: 'Weight, adherence, symptoms and labs in a single document',
-    anotarConsulta: 'Note an appointment',
+    anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'So we can tell you when it gets close',
     quemAcompanha: 'Who follows your treatment?',
     quemAcompanhaSub: 'Write down the name and the summary comes out addressed for the next appointment.',
@@ -279,7 +279,7 @@ export const home = {
     vazio: 'No weeks logged yet.',
     lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
 
-    aplicacao: 'Injection',
+    aplicacao: 'Shot',
     semPesagem: 'no weigh-in',
 
     comoSeSentiu: 'How you felt',
@@ -292,7 +292,7 @@ export const home = {
     diaADia: 'Day by day',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'injection',
+      aplicacao: 'shot',
       checkin: 'check-in',
       peso: 'weigh-in',
       refeicao: 'meal',
@@ -317,7 +317,7 @@ export const home = {
     checkinEditar: 'Edit',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'day in a row' : 'days in a row'),
 
-    agua: 'I had\na drink',
+    agua: 'I drank\nwater',
     aguaSub: (bebido: string, alvo: string) => `${bebido} of ${alvo} L`,
     exercicio: 'I\nmoved',
     exercicioSub: (feito: number, alvo: number) => `${feito} of ${alvo} min`,
@@ -329,13 +329,13 @@ export const home = {
     peso: 'I just weighed myself',
     medidas: 'I measured my body',
     exame: 'I got a lab result',
-    anotacao: 'I noted something for the appointment',
+    anotacao: 'I wrote something down for my appointment',
   },
   telaRitmo: {
     titulo: 'How we read your pace',
     sub: 'The label looks at how steady the treatment is, not at how fast the weight comes off.',
 
-    aplicacoes: 'Injections on time',
+    aplicacoes: 'Shots on time',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
       `${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'}`,
 
@@ -364,7 +364,7 @@ export const home = {
     semanaN: (n: number) => `Week ${n}`,
     tudoCumprido: 'all done',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} of ${total} done`,
-    aplicacaoEm: (quando: string) => `injection ${quando}`,
+    aplicacaoEm: (quando: string) => `shot ${quando}`,
 
     falarComEquipe: 'Talk to the team',
 
@@ -378,10 +378,10 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Entries for this day',
-    diaDeAplicacao: 'Injection day',
+    diaDeAplicacao: 'Shot day',
     nadaRegistrado: 'nothing recorded yet',
 
-    aplicacao: 'Injection',
+    aplicacao: 'Shot',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'due today',

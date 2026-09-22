@@ -13,10 +13,10 @@ export const etapa = {
   /* ---------- 1. hasn't started yet ---------- */
   antesChapeu: 'BEFORE YOU START',
 
-  antesComDoseHead: 'Your first injection is still ahead of you.',
+  antesComDoseHead: 'Your first shot is still ahead of you.',
   antesComDoseBody: (molecula: string) =>
     `The first days on ${molecula} usually bring less hunger and mild nausea. Logging how you feel from the start is what gives you something to compare against later.`,
-  antesComDoseQ: 'What to expect on injection day?',
+  antesComDoseQ: 'What to expect on shot day?',
 
   antesSemDoseHead: 'Your treatment doesn’t have a dose set yet.',
   antesSemDoseBody: 'Once your care team sets it, it belongs here — it’s what we build the weekly cycle and the reminders from.',
@@ -27,7 +27,7 @@ export const etapa = {
   doseNovaHead: (dose: string, unidade: string) =>
     `You moved up to ${dose} ${unidade} this week.`,
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `In your own logs, nausea sits at ${perto} for the two days after an injection and drops to ${longe} from the third on. Each step up tends to repeat that shape.`,
+    `In your own logs, nausea sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. Each step up tends to repeat that shape.`,
   doseNovaBodySem: 'Each step up tends to bring back, for a few days, what had already passed — nausea most often. It usually eases as your body adjusts.',
   doseNovaQ: 'Why am I nauseous?',
 
@@ -38,7 +38,7 @@ export const etapa = {
      failure of the person and not something to endure, it is an
      adjustment. Keep the body doing the acting. */
   primeiraBody: 'Your body is still getting to know the medication. Mild nausea, less hunger, and some tiredness are the most common reports in the first days, and they usually ease over the weeks.',
-  primeiraQ: 'What to expect on injection day?',
+  primeiraQ: 'What to expect on shot day?',
 
   /* ---------- 4. maintenance ---------- */
   manutencaoChapeu: 'MAINTENANCE',

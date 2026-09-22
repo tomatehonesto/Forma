@@ -33,9 +33,9 @@ export const conquistas = {
   },
 
   /* ---------------- treatment ---------------- */
-  doses: 'Injections',
-  dosesDesc: (a: number) => `${p(a, 'injection')} logged`,
-  dosesFalta: (r: number) => `${p(r, 'injection')} to go`,
+  doses: 'Shots',
+  dosesDesc: (a: number) => `${p(a, 'shot')} logged`,
+  dosesFalta: (r: number) => `${p(r, 'shot')} to go`,
 
   tempo: 'Time in treatment',
   /* Under a year it counts in months, from there in years: "12 months"

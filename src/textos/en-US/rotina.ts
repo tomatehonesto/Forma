@@ -15,9 +15,9 @@ export const rotina = {
   perguntas: {
     maisFome: 'Why was I hungrier today?',
     semFome: 'Why am I not hungry?',
-    depoisDaAplicacao: 'What to expect after my injection?',
+    depoisDaAplicacao: 'What to expect after my shot?',
     diminuirEnjoo: 'How do I ease the nausea?',
-    trocarODia: 'Can I change my injection day?',
+    trocarODia: 'Can I change my shot day?',
     meusExames: 'What do my labs show?',
     meuProgresso: 'Look at my progress',
     prepararConsulta: 'Prep my appointment',
@@ -49,13 +49,13 @@ export const rotina = {
     proteina: 'Add protein at dinner',
     proteinaPorque: 'You’re in the phase of the cycle where hunger comes back, and today’s protein shows up in tomorrow’s hunger',
 
-    checkin: 'Do today’s check-in',
+    checkin: 'Today’s check-in',
     checkinPorque: 'It’s the record that feeds everything I can see about you',
 
     /* The container and its article come from logic/formas: "Get the pen
        out", "Get the vial out". */
     aplicacao: (recipiente: string) => `Get ${recipiente} out and pick the site`,
-    aplicacaoPorque: 'This week’s injection is coming up, and rotating the site reduces skin irritation',
+    aplicacaoPorque: 'This week’s shot is coming up, and rotating the site reduces skin irritation',
 
     receita: 'Ask for a prescription refill',
     /* ⚠️ The word "doses" used to live in the call site. See ../pt-BR. */
@@ -97,12 +97,12 @@ export const rotina = {
     exercicio: (dias: number) => `Exercise on ${dias} ${dias === 1 ? 'day' : 'days'} of the week`,
     origemExercicio: 'Exercise',
 
-    aplicacaoUma: 'This week’s injection',
-    aplicacaoVarias: (quantas: number) => `${quantas} injections this week`,
-    origemAplicacao: 'Injections',
+    aplicacaoUma: 'This week’s shot',
+    aplicacaoVarias: (quantas: number) => `${quantas} shots this week`,
+    origemAplicacao: 'Shots',
 
     unidadeDia: ['day', 'days'] as [string, string],
-    unidadeAplicacao: ['injection', 'injections'] as [string, string],
+    unidadeAplicacao: ['shot', 'shots'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} of ${alvo} ${unidade}`,
   },
 
@@ -159,8 +159,8 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `From ${de} to ${para}`,
     doseNova: (dose: string) => `Dose to ${dose} mg`,
     doseAnterior: (dose: string) => `Was on ${dose} mg`,
-    umaAplicacao: '1 injection',
-    aplicacoes: (quantas: number) => `${quantas} injections`,
+    umaAplicacao: '1 shot',
+    aplicacoes: (quantas: number) => `${quantas} shots`,
     marcadores: (quantos: number) => `${quantos} markers`,
     umaOrientacao: '1 note from your care team',
     orientacoes: (quantas: number) => `${quantas} notes from your care team`,

@@ -191,12 +191,12 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'logged',
-    semCulpa: 'No guilt over a day that passed — what counts is picking it back up. You can log an earlier injection at any time, with the button below.',
-    titulo: 'Injections',
-    registrar: 'Log an injection',
+    semCulpa: 'No guilt over a day that passed — what counts is picking it back up. You can log an earlier shot at any time, with the button below.',
+    titulo: 'Shots',
+    registrar: 'Log a shot',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'NEXT INJECTION',
+    proximaAplicacao: 'NEXT SHOT',
 
     cicloDaDose: 'Dose cycle',
     cicloSub: (dia: number, total: number, fase: string) => `Day ${dia} of ${total} · ${fase.toLowerCase()}`,
@@ -207,8 +207,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} injection ${quantos === 1 ? 'reminder' : 'reminders'}`,
-    nenhumAlerta: 'No injection reminder',
+    alertasDeDose: (quantos: number) => `${quantos} shot ${quantos === 1 ? 'reminder' : 'reminders'}`,
+    nenhumAlerta: 'No shot reminder',
     tocaEm: (quando: string) => `Rings ${quando}`,
     avisoAntes: 'A heads-up before the dose, at the time you choose',
 

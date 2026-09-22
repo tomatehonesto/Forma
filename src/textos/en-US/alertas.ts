@@ -8,8 +8,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Dose injection',
-  doseCurto: 'Injection',
+  dose: 'Your shot',
+  doseCurto: 'Shot',
   doseDesc: 'A heads-up before your next dose, to keep the treatment on track.',
 
   /* ⚠️ THE CHECK-IN IS THE ONLY ONE THAT ASKS. The other four are about
@@ -57,7 +57,7 @@ export const alertas = {
     oQueAvisar: 'What to remind you of',
 
     antecedencia: 'How far ahead',
-    antecedenciaAjuda: 'Counted from the date of your next injection.',
+    antecedenciaAjuda: 'Counted from the date of your next shot.',
 
     diasDaSemana: 'Days of the week',
     diasDaSemanaAjuda: 'With none ticked, the reminder rings every day.',

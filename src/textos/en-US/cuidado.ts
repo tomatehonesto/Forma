@@ -56,7 +56,7 @@ export const cuidado = {
     /* The line break is deliberate: value on top, unit below, for reading
        at a glance. */
     metricaSemanas: 'weeks\nof follow-up',
-    metricaAplicacoes: 'injections\nlogged',
+    metricaAplicacoes: 'shots\nlogged',
 
     /* ⚠️ "DOSES" AND NOT "INJECTIONS": this pill shares a row with the
        pulse, and the longer word pushes the pulse onto two lines. */
@@ -105,8 +105,8 @@ export const cuidado = {
 
   /* ---------- the dose context ---------- */
   dose: {
-    aplicacaoHoje: 'Injection today',
-    proximaAplicacao: (quando: string) => `Next injection ${quando}`,
+    aplicacaoHoje: 'Shot today',
+    proximaAplicacao: (quando: string) => `Next shot ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `On this dose for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
     /* `quando` already arrives as "in 9 days" / "tomorrow", preposition
@@ -141,7 +141,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Week ',
       temHorizonte ? ` of ${previstas} up to your goal · ` : ' of your treatment · ',
-      ' with the injection done',
+      ' with the shot done',
     ],
 
     ultimaOrientacao: 'LATEST GUIDANCE',
@@ -156,14 +156,14 @@ export const cuidado = {
 
     proximaConsulta: 'Your next appointment',
     consultasLink: 'Appointments',
-    anotarConsulta: 'Note an appointment',
+    anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'With the date here, the summary is ready and we tell you when it gets close.',
     eQuando: (quando: string) => `It is ${quando}`,
     preparoTexto: 'I put together a summary with weight, adherence and symptoms for the period — you pick what to ask.',
     prepararAConsulta: 'Get ready for the appointment',
 
     seuTratamento: 'Your treatment',
-    aplicacoesLink: 'Injections',
+    aplicacoesLink: 'Shots',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} of ${total} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
@@ -185,7 +185,7 @@ export const cuidado = {
     conhecaParceiros: 'Meet the partner doctors',
     parceirosTexto: 'Some clinics follow the treatment in here with you — messages between appointments, your summary reaching the team and the calendar already filled in.',
     passouATer: 'Started seeing someone?',
-    anoteQuemE: 'Note who it is.',
+    anoteQuemE: 'Add who it is.',
   },
 
   telaAcompanhamento: {
@@ -212,13 +212,13 @@ export const cuidado = {
 
     naoTenhoMais: 'I no longer have anyone following me',
     tirarPergunta: 'Remove who follows you?',
-    tirarTexto: 'All of your entries stay right here — weight, injections, symptoms, lab results and notes. All that leaves is the name.',
+    tirarTexto: 'All of your entries stay right here — weight, shots, symptoms, lab results and notes. All that leaves is the name.',
     simTirar: 'Yes, remove',
     cancelar: 'Cancel',
   },
 
   telaAnotarConsulta: {
-    titulo: 'Note an appointment',
+    titulo: 'Add appointment',
 
     quemMarca: 'The clinic books it',
     quemMarcaLead: 'Your calendar comes from the team that follows your treatment.',
@@ -226,7 +226,7 @@ export const cuidado = {
     datasChegamTexto: 'To move or cancel it, talk to the team — whatever changes there shows up here.',
 
     proximaConsulta: 'Your next appointment',
-    anoteSuaConsulta: 'Note your appointment',
+    anoteSuaConsulta: 'Add your appointment',
     lead: 'With the date here, we tell you when it gets close and leave the summary ready for you to take.',
 
     quando: 'When',
@@ -242,7 +242,7 @@ export const cuidado = {
     dataFicaComVoceTexto: 'Noting it here does not tell the practice and does not go into the phone calendar. It is us who come to know the appointment is near.',
 
     salvar: 'Save',
-    anotar: 'Note the appointment',
+    anotar: 'Add appointment',
     naoTenho: 'I have no appointment booked',
   },
   telaConsultas: {
@@ -255,13 +255,13 @@ export const cuidado = {
     dataDaConsulta: (diaDaSemana: string, data: string, quem: string) =>
       `${diaDaSemana}, ${data}${quem ? ` · ${quem}` : ''}`,
     jaAconteceu: 'It already happened',
-    verResumo: 'See the summary to take',
+    verResumo: 'View summary to bring',
     mudarData: 'Change the date',
 
     nenhumaAnotada: 'No appointment noted',
     clinicaMarca: 'When your team books the next one, it shows up here.',
     semDataTexto: 'With the date here, we tell you when it gets close and leave the summary ready to take.',
-    anotarConsulta: 'Note an appointment',
+    anotarConsulta: 'Add appointment',
 
     paraLevar: 'To take with you',
     paraLevarSub: (faltando: number): string =>
@@ -298,11 +298,11 @@ export const cuidado = {
 
     paraLevar: 'TO TAKE TO THE APPOINTMENT',
     paraLevarTexto: 'Weight, adherence, symptoms, lab results and your notes, in a single document. It builds itself from your records and it is ready now.',
-    verResumo: 'See the summary for the appointment',
+    verResumo: 'View appointment summary',
 
     suasAnotacoes: 'Your notes',
-    anotar: 'Note',
-    anotarDuvida: 'Note a question',
+    anotar: 'Add',
+    anotarDuvida: 'Add a question',
     anotarDuvidaSub: 'To ask at the next appointment',
 
     prescricoes: 'Prescriptions',
@@ -312,7 +312,7 @@ export const cuidado = {
     numerosDaEquipe: 'Your team’s numbers',
     naoAnotada: 'not noted',
     anotadoPor: (por: string, data: string) => `${por} · noted on ${data}`,
-    anoteONumero: 'Note the number set at the appointment',
+    anoteONumero: 'Add the number set at your appointment',
 
     duasMetas: (minha: string) =>
       `Your weight goal, in the app, is ${minha}. The two live side by side — yours keeps measuring the Journey —, and the difference between them is a good question for the next appointment.`,

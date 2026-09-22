@@ -23,7 +23,7 @@ export const ajuda = {
   qa: [
     {
       q: 'Where do the numbers here come from?',
-      a: 'All of them are calculations on what you logged — weight, injections, check-ins, meals, labs. The app doesn’t fill in what’s missing and doesn’t estimate what you didn’t say: a day without an answer shows up as a day without an answer, not as zero.',
+      a: 'All of them are calculations on what you logged — weight, shots, check-ins, meals, labs. The app doesn’t fill in what’s missing and doesn’t estimate what you didn’t say: a day without an answer shows up as a day without an answer, not as zero.',
     },
     {
       q: 'Can I fix or delete an entry?',

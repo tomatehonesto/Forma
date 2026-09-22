@@ -15,12 +15,12 @@ export const ciclo = {
   chapeuDia: (dia: number) => `DAY ${dia} OF YOUR DOSE`,
   chapeuSemCiclo: 'FOR TODAY',
 
-  /* ---------- injection day ---------- */
+  /* ---------- shot day ---------- */
   /* ⚠️ IT DOESN'T ANNOUNCE THAT TODAY IS INJECTION DAY: the next Home
      slide is entirely about that, with the dose and the site. */
   aplicHead: 'The effect starts climbing over the next few hours.',
   aplicBody: 'Mild nausea may show up — smaller meals through the day tend to go down easier.',
-  aplicQ: 'What to expect on injection day?',
+  aplicQ: 'What to expect on shot day?',
 
   /* ---------- peak ---------- */
   picoHead: 'Your appetite tends to run lower today.',
@@ -39,7 +39,7 @@ export const ciclo = {
 
   /* ---------- hunger at its peak ---------- */
   altoHeadHoje: 'Hunger at the highest point of the cycle.',
-  altoHeadComData: (quando: string) => `Hunger at the cycle’s high point — injection ${quando}.`,
+  altoHeadComData: (quando: string) => `Hunger at the cycle’s high point — shot ${quando}.`,
   /* ⚠️ "DON'T SKIP MEALS" ASSUMES SKIPPING, and at the hunger peak the
      person least likely to skip is the hungry one. The sentence was born
      as advice and landed as a scolding; the affirmative version says the
@@ -62,7 +62,7 @@ export const ciclo = {
      The name alone — "Hunger starting to return" — is a diagnosis without
      context, and on a treatment screen that frightens instead of
      orienting. */
-  faseAplicLabel: 'Injection',
+  faseAplicLabel: 'Shot',
   faseAplicRange: 'Day 1',
   faseAplicHint: 'The effect starts climbing over the next few hours.',
 
@@ -78,7 +78,7 @@ export const ciclo = {
   faseRetornoRange: 'Days 5–6',
   faseRetornoHint: 'The medication starts to fall, and hunger tends to come back.',
 
-  fasePreLabel: 'Pre-injection',
+  fasePreLabel: 'Before the shot',
   fasePreRange: 'Days 7+',
   fasePreHint: 'Lowest point of the cycle, until the next dose.',
 
@@ -112,7 +112,7 @@ export const ciclo = {
   faseDescidaAtencao: 'persistent vomiting or severe abdominal pain: contact your doctor',
 
   faseBaixoTitulo: 'Day 7 · lowest point',
-  faseBaixoSub: 'The day before your next injection',
+  faseBaixoSub: 'The day before your next shot',
   faseBaixoComum: 'appetite closer to usual',
   /* "The dose", not "the pen": this table is constant and doesn't know
      the form of the medication. */

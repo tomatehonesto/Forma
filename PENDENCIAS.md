@@ -1499,6 +1499,25 @@ tirada do `git show`, e não de memória.
   folha desde sempre. Um toque a menos e um arquivo a menos, e a ressalva
   desceu para depois da lista, onde ela responde o que a lista provoca.
 
+- **⚠️⚠️ A TRADUÇÃO SAIU COM SOTAQUE, e a causa é o método.** Eu traduzi
+  chave a chave a partir do português: isso otimiza paridade e fidelidade,
+  que eram as redes que existiam, e produz inglês que soa português
+  traduzido. O catálogo empurra para isso — as chaves têm nome em
+  português e a estrutura é a da frase original, então a unidade de
+  trabalho virou "esta frase portuguesa" e não "o que um aplicativo
+  inglês diz aqui". ⚠️ **Vale para os quatro idiomas**, não só o inglês:
+  `es-419` tinha 19 "Ver el/la", `fr-FR` tinha 14 "Voir le/la". O alemão
+  tem zero desse formato e vai ter os próprios.
+- **⚠️⚠️ "I had a drink" ESTAVA NO BOTÃO DE REGISTRAR ÁGUA.** Em inglês
+  isso é bebida alcoólica. Saiu de traduzir "Me hidratei" pela ESTRUTURA
+  em vez de pelo sentido, e dizia para quem lê o contrário do que o
+  aplicativo quer. É o pior tipo de sotaque: o que muda o significado.
+- **E o aplicativo tem DOIS registros**, o que não estava escrito em lugar
+  nenhum: a voz dele com a pessoa, e o `resumo`, que é escrito para o
+  médico. "shot" pertence ao primeiro e "injection" ao segundo — por isso
+  a varredura do inglês deixou `resumo.ts` de fora, junto com "injection
+  site", que é o termo da etiqueta da própria caneta.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

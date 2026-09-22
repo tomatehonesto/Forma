@@ -12,7 +12,7 @@
    ============================================================ */
 
 export const descobertas = {
-  verDescoberta: 'See the finding',
+  verDescoberta: 'View finding',
 
   /* ---------- what's coming ---------- */
   chapeuCruzamento: 'A FINDING',
@@ -22,18 +22,18 @@ export const descobertas = {
   fomeAmanha: 'Hunger tends to bite tomorrow',
   fomeEmDias: (dias: number) => `Hunger tends to bite in ${dias} days`,
   fomeTexto: (molecula: string) =>
-    `That’s when ${molecula} levels reach the lowest point of the cycle, just before your next injection. It passes on its own once you inject.`,
-  fomeCta: 'See the cycle',
+    `That’s when ${molecula} levels reach the lowest point of the cycle, just before your next shot. It passes on its own once you take it.`,
+  fomeCta: 'View cycle',
 
   aguaTitulo: 'Tomorrow tends to be your driest day',
   aguaTexto: (dele: string, dia: string, outros: string) =>
     `In your logs hydration drops to ${dele} ${dia}, against ${outros} on the other days. Knowing it the night before is half the battle.`,
-  aguaCta: 'See hydration',
+  aguaCta: 'View hydration',
 
   enjooTitulo: 'If nausea shows up now, it has a closing time',
   enjooTexto: (perto: string, longe: string) =>
-    `In your logs it sits at ${perto} for the two days after an injection and drops to ${longe} from the third on. It’s the 48 h of each cycle, not the whole treatment.`,
-  enjooCta: 'See symptoms',
+    `In your logs it sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. It’s the 48 h of each cycle, not the whole treatment.`,
+  enjooCta: 'View symptoms',
 
   /* ---------- the invitations ---------- */
   chapeuConvite: 'AN INVITATION',

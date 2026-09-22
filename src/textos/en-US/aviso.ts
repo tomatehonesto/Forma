@@ -17,7 +17,7 @@ export const aviso = {
   isencaoAceite: 'I understand and agree',
 
   guardadoTitulo: 'What you log stays on your device',
-  guardadoTexto: 'Weight, symptoms, injections, labs and notes are stored inside the app, on this phone. There’s no account and no password: nobody gets into your data with a login.',
+  guardadoTexto: 'Weight, symptoms, shots, labs and notes are stored inside the app, on this phone. There’s no account and no password: nobody gets into your data with a login.',
 
   usoTitulo: 'What your data is used for',
   usoTexto: 'To build your daily goals, follow how the treatment is going, and organize what you bring to your appointment. None of that is a diagnosis, and the app doesn’t prescribe or adjust a dose.',
@@ -87,7 +87,7 @@ export const aviso = {
     incluido: 'in',
     fora: 'out',
 
-    aplicacoes: 'Injections',
+    aplicacoes: 'Shots',
     aplicacoesSub: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'entry' : 'entries'} · date, dose and site`,
     pesoEMedidas: 'Weight and measurements',
@@ -109,7 +109,7 @@ export const aviso = {
 
     gerar: 'Build the file',
     gerando: 'Building...',
-    verResumo: 'See the appointment summary',
+    verResumo: 'View appointment summary',
 
     pronto: 'File built. It only goes where you choose.',
     erro: 'We could not build the file on this device. Your entries are still here, untouched.',
@@ -122,7 +122,7 @@ export const aviso = {
 
     ondeFicam: 'Where your entries live',
     noAparelho: 'On the device, inside the app',
-    noAparelhoTexto: 'Weight, measurements, injections, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There is no account and no password here: nobody gets into your data with a login, because there is no login.',
+    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There is no account and no password here: nobody gets into your data with a login, because there is no login.',
     desinstalar: 'Uninstalling takes it all with it',
     desinstalarTexto: 'Since there is no copy on any server, deleting the app deletes the entries. They cannot be recovered afterwards.',
 

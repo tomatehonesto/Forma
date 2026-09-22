@@ -8,11 +8,11 @@
    ============================================================ */
 
 export const avisos = {
-  doseHoje: 'Your injection is today',
+  doseHoje: 'Your shot is today',
   doseHojeCorpo: (dose: string) => `${dose}. Log it here whenever you can.`,
-  doseAmanha: 'Your injection is tomorrow',
+  doseAmanha: 'Your shot is tomorrow',
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Worth leaving ${oRecipiente} where you can see it.`,
-  doseEmDias: (dias: number) => `Your injection is in ${dias} days`,
+  doseEmDias: (dias: number) => `Your shot is in ${dias} days`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. There’s time to check ${doRecipiente} supply.`,
 
   /* ⚠️ THIS ONE ASKS instead of telling. It's the only one of the five,

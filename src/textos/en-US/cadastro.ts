@@ -20,7 +20,7 @@ export const cadastro = {
   aberturaTexto: 'More than tracking results, it’s understanding the journey behind them. An intelligent experience that learns with you and adapts at every stage.',
   comecar: 'Get started',
 
-  verPlanos: 'See plans',
+  verPlanos: 'View plans',
 
   titulos: {
     nome: 'What should we call you?',
@@ -54,7 +54,7 @@ export const cadastro = {
     nascimento: 'Every stage of life has different needs — and age enters the reference ranges for your labs.',
     tratamento: 'Just so we know where you are right now.',
     inicio: 'Approximate is fine. This is where your treatment week comes from, and this weight becomes the start of your curve.',
-    medicamento: 'It’s what the dose ladder and the interval between injections come from.',
+    medicamento: 'It’s what the dose ladder and the interval between shots come from.',
     forma: 'Compounded comes out of the pharmacy both ways, and what changes is what you hold when it’s time to take it.',
     doseComEscada: (med: string) => `In ${med}’s titration order.`,
     doseSemEscada: 'Compounded has no label ladder — the number is the one on your prescription.',
@@ -178,7 +178,7 @@ export const cadastro = {
 
     aindaADefinir: 'Still to be decided',
     aindaADefinirTexto: 'Once you know the medication, I will build the dose ladder and the cycle.',
-    cicloComeca: 'The cycle starts at the first injection you log.',
+    cicloComeca: 'The cycle starts at the first shot you log.',
     cadenciaDiaria: 'every day',
     cadenciaSemanal: 'once a week',
     cadenciaDias: (dias: number) => `every ${dias} days`,
