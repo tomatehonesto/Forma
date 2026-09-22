@@ -194,11 +194,11 @@ export const tratamento = {
   telaAplicacoes: {
     aplicada: 'aplicada',
     semCulpa: 'Sin culpa por un día que pasó — lo que cuenta es retomar. Puedes registrar una aplicación anterior en cualquier momento, en el botón de abajo.',
-    titulo: 'Aplicaciones',
-    registrar: 'Registrar aplicación',
+    titulo: 'Inyecciones',
+    registrar: 'Registrar inyección',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PRÓXIMA APLICACIÓN',
+    proximaAplicacao: 'PRÓXIMA INYECCIÓN',
 
     cicloDaDose: 'Ciclo de la dosis',
     cicloSub: (dia: number, total: number, fase: string) => `Día ${dia} de ${total} · ${fase.toLowerCase()}`,
@@ -209,8 +209,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de aplicación`,
-    nenhumAlerta: 'Ninguna alerta de aplicación',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de inyección`,
+    nenhumAlerta: 'Ninguna alerta de inyección',
     tocaEm: (quando: string) => `Suena ${quando}`,
     avisoAntes: 'Un aviso antes de la dosis, a la hora que elijas',
 
@@ -306,7 +306,7 @@ export const tratamento = {
     mudeiADose: 'Cambié la dosis',
     semFaixa: 'No tenemos rango de referencia para este medicamento. La dosis queda como la de tu último registro.',
 
-    localDaAplicacao: 'Lugar de la aplicación',
+    localDaAplicacao: 'Lugar de la inyección',
     localAjuda: 'Alternar el lugar cada semana ayuda a evitar irritación y nódulos en la piel.',
     regioes: {
       braco: 'Brazo',

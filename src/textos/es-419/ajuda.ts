@@ -23,7 +23,7 @@ export const ajuda = {
   qa: [
     {
       q: '¿De dónde salen los números que aparecen aquí?',
-      a: 'Todos son cuentas hechas sobre lo que registraste — peso, aplicaciones, check-ins, comidas, exámenes. La aplicación no completa lo que faltó ni estima lo que no dijiste: un día sin respuesta aparece como día sin respuesta, y no como cero.',
+      a: 'Todos son cuentas hechas sobre lo que registraste — peso, inyecciones, check-ins, comidas, exámenes. La aplicación no completa lo que faltó ni estima lo que no dijiste: un día sin respuesta aparece como día sin respuesta, y no como cero.',
     },
     {
       q: '¿Puedo corregir o borrar un registro?',
@@ -41,7 +41,7 @@ export const ajuda = {
     },
     {
       q: '¿Mi peso puede venir solo de la balanza?',
-      a: 'Si tu balanza, reloj o anillo escriben en Apple Salud (iPhone) o en Health Connect (Android), sí — leemos de ahí. Leemos solo el peso, y solo leemos: nunca escribimos nada en esas aplicaciones. Garmin, Fitbit, Withings, Oura y Whoop llegan por ese camino.',
+      a: 'Si tu balanza, reloj o anillo escriben en Apple Salud (iPhone) o en Health Connect (Android), sí — leemos de ahí. Leemos solo el peso, y solo leemos: nunca escribimos nada en esas inyecciones. Garmin, Fitbit, Withings, Oura y Whoop llegan por ese camino.',
     },
     {
       q: '¿Qué puede ver mi equipo?',

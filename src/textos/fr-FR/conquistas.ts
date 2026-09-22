@@ -10,12 +10,12 @@
    différents selon la langue dans laquelle elle lit.
 
    CHAQUE PARCOURS PARLE À DEUX TEMPS, et ce ne sont pas la même phrase :
-   `desc` est ce que ce niveau EST DÉJÀ — « 12 injections notées » —, et
+   `desc` est ce que ce niveau EST DÉJÀ — « 12 piqûres notées » —, et
    `falta` est ce qui la sépare du suivant. « Il manque » et non « il vous
    faut » : le sujet est la distance, pas la personne.
 
    ⚠️⚠️ ET L'ACCORD DU PARTICIPE EST LE PIÈGE DE CE FICHIER EN FRANÇAIS.
-   « 12 injections notées » s'accorde avec « injections », féminin pluriel ;
+   « 12 piqûres notées » s'accorde avec « piqûres », féminin pluriel ;
    « 12 jours notés » avec « jours », masculin. Le portugais fait pareil et
    s'en sort avec un `'s'` conditionnel parce que le genre y est fixe par
    ligne ; le français doit écrire les quatre formes à la main, parce que
@@ -41,9 +41,9 @@ export const conquistas = {
     acompanhamento: 'Suivi',
   },
 
-  doses: 'Injections',
-  dosesDesc: (a: number) => `${p(a, 'injection')} notée${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `Il manque ${p(r, 'injection')}`,
+  doses: 'Piqûres',
+  dosesDesc: (a: number) => `${p(a, 'piqûre')} notée${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `Il manque ${p(r, 'piqûre')}`,
 
   tempo: 'Durée du traitement',
   /* En dessous d'un an on compte en mois, au-delà en années : « 12 mois »

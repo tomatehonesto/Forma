@@ -59,7 +59,7 @@ export const cuidado = {
     /* El salto de línea es a propósito: valor arriba, unidad abajo, para
        leerse de un vistazo. */
     metricaSemanas: 'semanas\nde seguimiento',
-    metricaAplicacoes: 'aplicaciones\nregistradas',
+    metricaAplicacoes: 'inyecciones\nregistradas',
 
     /* ⚠️ "DOSIS" Y NO "APLICACIONES": esta pastilla comparte la línea con
        el pulso, y la palabra larga lo empuja a dos líneas. */
@@ -110,7 +110,7 @@ export const cuidado = {
 
   dose: {
     aplicacaoHoje: 'Aplicación hoy',
-    proximaAplicacao: (quando: string) => `Próxima aplicación ${quando}`,
+    proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `En esta dosis hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
     /* El `quando` ya llega como "en 9 días" / "mañana", con la preposición
@@ -145,7 +145,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semana ',
       temHorizonte ? ` de ${previstas} hasta tu meta · ` : ' de tu tratamiento · ',
-      ' con la aplicación al día',
+      ' con la inyección al día',
     ],
 
     ultimaOrientacao: 'ÚLTIMA ORIENTACIÓN',
@@ -167,7 +167,7 @@ export const cuidado = {
     prepararAConsulta: 'Preparar la consulta',
 
     seuTratamento: 'Tu tratamiento',
-    aplicacoesLink: 'Aplicaciones',
+    aplicacoesLink: 'Inyecciones',
     dosesEm: (onde: string) => `Dosis ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -216,7 +216,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Ya no tengo acompañamiento',
     tirarPergunta: '¿Quitar a quien te acompaña?',
-    tirarTexto: 'Todos tus registros siguen aquí — peso, aplicaciones, síntomas, exámenes y anotaciones. Lo único que sale es el nombre.',
+    tirarTexto: 'Todos tus registros siguen aquí — peso, inyecciones, síntomas, exámenes y anotaciones. Lo único que sale es el nombre.',
     simTirar: 'Sí, quitar',
     cancelar: 'Cancelar',
   },

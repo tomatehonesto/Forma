@@ -108,7 +108,7 @@ export const escalas = {
 
     nestaSemana: 'Esta semana',
     semRespostaSemana: 'Todavía no respondiste sobre síntomas esta semana. Es en el check-in donde entran.',
-    fazerCheckin: 'Hacer el check-in',
+    fazerCheckin: 'Hacer check-in',
     nenhumSintoma: 'Ningún síntoma esta semana',
     nenhumSintomaSub: (respondidos: number) =>
       `${respondidos} ${respondidos === 1 ? 'día respondido' : 'días respondidos'}, ninguno con queja.`,
@@ -119,16 +119,16 @@ export const escalas = {
 
     aoLongoDoCiclo: 'A lo largo del ciclo',
     aoLongoNota: (dias: number) =>
-      `Promedio de las náuseas en cada día después de la aplicación, de ${dias} ${dias === 1 ? 'día respondido' : 'días respondidos'}.`,
+      `Promedio de las náuseas en cada día después de la inyección, de ${dias} ${dias === 1 ? 'día respondido' : 'días respondidos'}.`,
     dose: 'dosis',
 
     cicloParecido: 'En los días respondidos hasta ahora, las náuseas aparecen parecidas a lo largo de todo el ciclo — no están siguiendo la dosis.',
     cicloPoucos: 'Todavía son pocos días respondidos para decir si las náuseas acompañan el ciclo. Respondiendo más días, esta cuenta se sostiene.',
-    cicloInicio1: 'Las náuseas pesan más el día de la aplicación.',
-    cicloInicioN: (dias: number) => `Las náuseas pesan más en los ${dias} primeros días después de la aplicación.`,
-    cicloFim1: 'Las náuseas pesan más la víspera de la próxima aplicación.',
-    cicloFimN: (dias: number) => `Las náuseas pesan más en los ${dias} días previos a la próxima aplicación.`,
-    cicloDia0: 'el día de la aplicación',
+    cicloInicio1: 'Las náuseas pesan más el día de la inyección.',
+    cicloInicioN: (dias: number) => `Las náuseas pesan más en los ${dias} primeros días después de la inyección.`,
+    cicloFim1: 'Las náuseas pesan más la víspera de la próxima inyección.',
+    cicloFimN: (dias: number) => `Las náuseas pesan más en los ${dias} días previos a la próxima inyección.`,
+    cicloDia0: 'el día de la inyección',
     cicloDiaN: (dia: number) => `el ${dia}.º día después`,
     cicloEspalhado: (lista: string) => `Las náuseas pesan más ${lista}.`,
 

@@ -101,7 +101,7 @@ export const assinatura = {
 
      ⚠️⚠️ ET LA LIGNE DES DONNÉES VA AVEC, toujours. Suspendre l'accès à un
      journal de traitement, c'est enfermer quelqu'un dehors de son propre
-     poids, de ses propres injections et de ses propres analyses — et cela
+     poids, de ses propres piqûres et de ses propres analyses — et cela
      nous ne le faisons pas. Séparée, la première phrase devient une
      menace. */
   bomSaberTitulo: 'Bon à savoir',
@@ -308,7 +308,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'la clinique qui vous suivait',
-    nadaApagado: 'Rien n’a été effacé. Poids, injections, symptômes, analyses et photos restent sur votre appareil.',
+    nadaApagado: 'Rien n’a été effacé. Poids, piqûres, symptômes, analyses et photos restent sur votre appareil.',
     nadaCobrado: 'Rien n’a été prélevé, et rien ne le sera sans que vous le choisissiez.',
     verOsPlanos: 'Voir les offres',
     outroCodigo: 'J’ai un autre code',

@@ -21,9 +21,9 @@ export const rotina = {
   perguntas: {
     maisFome: 'Warum hatte ich heute mehr Hunger?',
     semFome: 'Warum habe ich keinen Hunger?',
-    depoisDaAplicacao: 'Was ist nach der Injektion zu erwarten?',
+    depoisDaAplicacao: 'Was ist nach der Spritze zu erwarten?',
     diminuirEnjoo: 'Wie bekomme ich die Übelkeit kleiner?',
-    trocarODia: 'Kann ich den Tag der Injektion wechseln?',
+    trocarODia: 'Kann ich den Tag der Spritze wechseln?',
     meusExames: 'Was zeigen meine Befunde?',
     /* Diese beiden sind keine Fragen, sondern Aufträge: der Companion
        baut die Auswertung und stellt die Übersicht zusammen. */
@@ -77,7 +77,7 @@ export const rotina = {
        mit `oA` anfängt. */
     aplicacao: (recipiente: string) =>
       `${recipiente.charAt(0).toUpperCase()}${recipiente.slice(1)} ist dran — such dir die Stelle aus`,
-    aplicacaoPorque: 'Die Injektion der Woche steht an, und die Stelle zu wechseln reizt die Haut weniger',
+    aplicacaoPorque: 'Die Spritze der Woche steht an, und die Stelle zu wechseln reizt die Haut weniger',
 
     receita: 'Frag das neue Rezept an',
     /* ⚠️ HIER KOMMEN DIE ZAHL UND DER ORT GETRENNT AN, und das Wort
@@ -127,14 +127,14 @@ export const rotina = {
     exercicio: (dias: number) => `An ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} der Woche Sport machen`,
     origemExercicio: 'Bewegung',
 
-    aplicacaoUma: 'Injektion der Woche',
-    aplicacaoVarias: (quantas: number) => `${quantas} Injektionen in der Woche`,
-    origemAplicacao: 'Injektionen',
+    aplicacaoUma: 'Spritze der Woche',
+    aplicacaoVarias: (quantas: number) => `${quantas} Spritzen in der Woche`,
+    origemAplicacao: 'Spritzen',
 
     /* Was in jeder Aufgabe gezählt wird. „1 von 1 Tag“ beschreibt keine
-       Injektion, deshalb bringt die Injektion ihr eigenes Paar mit. */
+       Spritze, deshalb bringt die Spritze ihr eigenes Paar mit. */
     unidadeDia: ['Tag', 'Tagen'] as [string, string],
-    unidadeAplicacao: ['Injektion', 'Injektionen'] as [string, string],
+    unidadeAplicacao: ['Spritze', 'Spritzen'] as [string, string],
     /* ⚠️ DER PLURAL STEHT IM DATIV — „2 von 7 Tagen“, nicht „von 7 Tage“.
        Deshalb ist die Pluralform oben „Tagen“ und nicht „Tage“: sie
        erscheint an genau einer Stelle, und die Stelle regiert den Dativ. */
@@ -200,8 +200,8 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `Von ${de} auf ${para}`,
     doseNova: (dose: string) => `Dosis auf ${dose} mg`,
     doseAnterior: (dose: string) => `Kam von ${dose} mg`,
-    umaAplicacao: '1 Injektion',
-    aplicacoes: (quantas: number) => `${quantas} Injektionen`,
+    umaAplicacao: '1 Spritze',
+    aplicacoes: (quantas: number) => `${quantas} Spritzen`,
     marcadores: (quantos: number) => `${quantos} Marker`,
     umaOrientacao: '1 Empfehlung des Teams',
     orientacoes: (quantas: number) => `${quantas} Empfehlungen des Teams`,

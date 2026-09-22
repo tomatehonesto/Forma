@@ -197,12 +197,12 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'faite',
-    semCulpa: 'Pas de culpabilité pour un jour passé — ce qui compte, c’est de reprendre. Vous pouvez noter une injection plus ancienne à tout moment, avec le bouton en bas.',
-    titulo: 'Injections',
-    registrar: 'Noter une injection',
+    semCulpa: 'Pas de culpabilité pour un jour passé — ce qui compte, c’est de reprendre. Vous pouvez noter une piqûre plus ancienne à tout moment, avec le bouton en bas.',
+    titulo: 'Piqûres',
+    registrar: 'Noter une piqûre',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PROCHAINE INJECTION',
+    proximaAplicacao: 'PROCHAINE PIQÛRE',
 
     cicloDaDose: 'Cycle de la dose',
     cicloSub: (dia: number, total: number, fase: string) => `Jour ${dia} sur ${total} · ${fase.toLowerCase()}`,
@@ -213,8 +213,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} d’injection`,
-    nenhumAlerta: 'Aucun rappel d’injection',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} de piqûre`,
+    nenhumAlerta: 'Aucun rappel de piqûre',
     tocaEm: (quando: string) => `Sonne ${quando}`,
     avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
 
@@ -313,7 +313,7 @@ export const tratamento = {
     mudeiADose: 'Ma dose a changé',
     semFaixa: 'Nous n’avons pas de plage de référence pour ce médicament. La dose reste celle de votre dernier relevé.',
 
-    localDaAplicacao: 'Endroit de l’injection',
+    localDaAplicacao: 'Point d’injection',
     localAjuda: 'Changer d’endroit chaque semaine aide à éviter les irritations et les nodules sous la peau.',
     regioes: {
       braco: 'Bras',

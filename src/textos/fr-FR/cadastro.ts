@@ -68,7 +68,7 @@ export const cadastro = {
     nascimento: 'Chaque étape de la vie a ses besoins — et l’âge entre dans les valeurs de référence de vos analyses.',
     tratamento: 'Juste pour savoir où vous en êtes.',
     inicio: 'À peu près suffit. C’est de là que sort votre semaine de traitement, et c’est ce poids qui devient le début de votre courbe.',
-    medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre les injections.',
+    medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre les piqûres.',
     forma: 'Le préparé sort de la pharmacie sous les deux formes, et ce qui change, c’est ce que vous avez en main au moment de le prendre.',
     doseComEscada: (med: string) => `Dans l’ordre de titration de ${med}.`,
     doseSemEscada: 'Le préparé n’a pas d’escalier de notice — le chiffre est celui de votre ordonnance.',
@@ -223,7 +223,7 @@ export const cadastro = {
 
     aindaADefinir: 'Encore à définir',
     aindaADefinirTexto: 'Quand vous saurez le médicament, je construis l’escalier des doses et le cycle.',
-    cicloComeca: 'Le cycle commence à la première injection que vous notez.',
+    cicloComeca: 'Le cycle commence à la première piqûre que vous notez.',
     cadenciaDiaria: 'tous les jours',
     cadenciaSemanal: 'une fois par semaine',
     cadenciaDias: (dias: number) => `tous les ${dias} jours`,

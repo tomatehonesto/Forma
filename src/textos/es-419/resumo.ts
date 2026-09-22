@@ -26,7 +26,7 @@ export const resumo = {
   cadencia: 'Cadencia',
   tempoDeTratamento: 'Tiempo de tratamiento',
   emDias: (dias: number) => `${dias} días`,
-  aplicacoes: 'Aplicaciones',
+  aplicacoes: 'Inyecciones',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} de ${previstas} previstas`,
 
   peso: 'Peso',

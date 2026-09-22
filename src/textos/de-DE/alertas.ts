@@ -9,7 +9,7 @@
    ⚠️ „INJEKTION“ UND NICHT „PEN“. Die Tabelle kennt die Darreichungsform
    der lesenden Person nicht, also muss der Satz Pen, Durchstechflasche
    und Spritze gleichermaßen bedienen. Der Blister liest hier weiterhin
-   „Injektion“, und das ist bekannte Schuld — das Wort müsste aus dem
+   „Spritze“, und das ist bekannte Schuld — das Wort müsste aus dem
    Vokabular von formas kommen.
 
    ⚠️ UND DAS CHECK-IN IST DAS EINZIGE, DAS FRAGT. Die anderen vier
@@ -19,8 +19,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Injektion der Dosis',
-  doseCurto: 'Injektion',
+  dose: 'Spritze der Dosis',
+  doseCurto: 'Spritze',
   doseDesc: 'Eine Erinnerung vor der nächsten Dosis, damit die Behandlung im Takt bleibt.',
 
   checkin: 'Check-in des Tages',
@@ -40,7 +40,7 @@ export const alertas = {
   proteinaDesc: 'Erinnerung, dem Eiweiß in den Mahlzeiten des Tages den Vortritt zu lassen.',
 
   /* ---------- wann ---------- */
-  /* Der Vorlauf der Injektionserinnerung: am Tag selbst, oder so viele
+  /* Der Vorlauf der Spritzenerinnerung: am Tag selbst, oder so viele
      Tage vorher.
 
      ⚠️ „EIN TAG“ UND „ZWEI TAGE“ — der Plural steht ausgeschrieben, nicht
@@ -70,7 +70,7 @@ export const alertas = {
 
   /* ⚠️ HIER ZAHLT SICH `alertaDe` ALS FUNKTION AUS. Das Portugiesische
      stellt die Art hinten an — „Alerta de aplicação“ —, das Deutsche
-     baut ein Kompositum oder stellt sie voran: „Erinnerung: Injektion“.
+     baut ein Kompositum oder stellt sie voran: „Erinnerung: Spritze“.
      Und `comum.noMeio` gibt im Deutschen zurück, was es bekommt, damit
      das Substantiv seine Großschreibung behält. */
   tela: {
@@ -83,7 +83,7 @@ export const alertas = {
     oQueAvisar: 'Woran erinnern',
 
     antecedencia: 'Wie lange vorher',
-    antecedenciaAjuda: 'Gerechnet ab dem Datum deiner nächsten Injektion.',
+    antecedenciaAjuda: 'Gerechnet ab dem Datum deiner nächsten Spritze.',
 
     diasDaSemana: 'Wochentage',
     diasDaSemanaAjuda: 'Ist keiner markiert, klingelt die Erinnerung jeden Tag.',

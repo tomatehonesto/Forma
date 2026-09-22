@@ -31,7 +31,7 @@ export const cruzamentos = {
   catSono: 'Sommeil',
   catSintomas: 'Symptômes',
   catPeso: 'Poids',
-  catAplicacoes: 'Injections',
+  catAplicacoes: 'Piqûres',
 
   /* ---------- les jours de la semaine, tels qu'ils entrent dans la phrase ---------- */
   /* ⚠️ ILS ARRIVENT AVEC LEUR ARTICLE, et non nus. « Votre hydratation
@@ -143,24 +143,24 @@ export const cruzamentos = {
     q: 'Pourquoi ai-je des nausées ?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `contre ${semSono}`, legenda: `la nausée après ${noites} nuits longues` }),
-    significa: 'C’est ce que montrent vos relevés, et non un lien de cause : le cycle de l’injection joue sur la nausée plus que tout le reste, et il peut se tenir derrière les deux côtés du calcul. À prendre comme une piste à emporter chez votre équipe, pas comme une explication arrêtée.',
+    significa: 'C’est ce que montrent vos relevés, et non un lien de cause : le cycle de la piqûre joue sur la nausée plus que tout le reste, et il peut se tenir derrière les deux côtés du calcul. À prendre comme une piste à emporter chez votre équipe, pas comme une explication arrêtée.',
   },
 
   /* ---------- 6. la fenêtre de la nausée ---------- */
   /* La trouvaille n'est pas qu'il y a de la nausée — c'est qu'elle a une
      heure de fin. */
   janelaEnjoo: {
-    titulo: 'Votre nausée disparaît en général environ 48 heures après l’injection',
+    titulo: 'Votre nausée disparaît en général environ 48 heures après la piqûre',
     texto: (perto: string, longe: string) =>
       `Elle est à ${perto} les deux premiers jours et tombe à ${longe} à partir du troisième. Ce n’est pas le traitement entier qui donne la nausée — ce sont les 48 premières heures de chaque cycle.`,
     q: 'Pourquoi ai-je des nausées ?',
     evid: { valor: '48', unidade: 'heures', legenda: 'et ensuite ça passe' },
     /* ⚠️ LA DERNIÈRE PHRASE EST LA SEULE DU FICHIER QUI SUGGÈRE UNE ACTION,
-       et elle le peut : choisir le jour de l'injection est une décision de
+       et elle le peut : choisir le jour de la piqûre est une décision de
        la personne avec son équipe, pas un changement de dose ni de
        médicament. */
     significa: (dias: number) =>
-      `Cela s’est répété dans ${dias} de vos relevés d’après-injection. Savoir qu’il existe une fenêtre, et qu’elle se termine, change ce qu’on en fait : le jour de l’injection peut se choisir pour que ces 48 h tombent sur la partie la plus légère de votre semaine.`,
+      `Cela s’est répété dans ${dias} de vos relevés d’après-piqûre. Savoir qu’il existe une fenêtre, et qu’elle se termine, change ce qu’on en fait : le jour de la piqûre peut se choisir pour que ces 48 h tombent sur la partie la plus légère de votre semaine.`,
   },
 
   /* ---------- 7. l'eau contre la nausée ---------- */
@@ -225,7 +225,7 @@ export const cruzamentos = {
 
      La raison de ce marquage est dans logic/derive — c'étaient les seuls
      sans condition autour, et ils ouvraient l'onglet, pour qui venait
-     d'installer, sur « Vous avez tenu 0% des injections à la date ».
+     d'installer, sur « Vous avez tenu 0% des piqûres à la date ».
      ============================================================ */
 
   /* ---------- 10. le rythme ---------- */
@@ -251,15 +251,15 @@ export const cruzamentos = {
 
   /* ---------- 11. l'assiduité ---------- */
   adesao: {
-    tituloPerfeita: 'Vous n’avez pas eu un seul retard d’injection depuis le début',
-    titulo: (pct: number) => `Vous avez tenu ${pct}% des injections à la date`,
+    tituloPerfeita: 'Vous n’avez pas eu une seule piqûre en retard depuis le début',
+    titulo: (pct: number) => `Vous avez tenu ${pct}% des piqûres à la date`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `Cela fait ${aplicacoes} injections depuis le début du traitement, ${ressalva}.`,
+      `Cela fait ${aplicacoes} piqûres depuis le début du traitement, ${ressalva}.`,
     textoQuaseTodas: 'presque toutes à la bonne date',
     textoComAtrasos: 'avec quelques retards en chemin',
     q: 'Comment fonctionne le cycle du médicament ?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} injections depuis le début` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} piqûres depuis le début` }),
     significaAlta: 'Cette régularité est l’un des facteurs qui pèsent le plus dans une bonne réponse au médicament. Le niveau de la substance dans le corps dépend de la régularité, pas de l’effort — et c’est le genre de chose qui n’apparaît que quand quelqu’un regarde tout l’historique.',
     /* ⚠️ LA VERSION AVEC RETARDS EXPLIQUE LE COÛT ET NE REPROCHE PAS LE
        MANQUE. « Chaque retard laisse une fenêtre où l'effet baisse avant

@@ -62,7 +62,7 @@ export const cuidado = {
     /* Le saut de ligne est voulu : valeur en haut, unité en bas, pour une
        lecture d'un coup d'œil. */
     metricaSemanas: 'semaines\nde suivi',
-    metricaAplicacoes: 'injections\nnotées',
+    metricaAplicacoes: 'piqûres\nnotées',
 
     /* ⚠️ « DOSES » ET NON « INJECTIONS » : cette pastille partage la ligne
        avec le pouls, et le mot long le pousse sur deux lignes. */
@@ -113,8 +113,8 @@ export const cuidado = {
   },
 
   dose: {
-    aplicacaoHoje: 'Injection aujourd’hui',
-    proximaAplicacao: (quando: string) => `Prochaine injection ${quando}`,
+    aplicacaoHoje: 'Piqûre aujourd’hui',
+    proximaAplicacao: (quando: string) => `Prochaine piqûre ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     /* Le `quando` arrive déjà en « dans 9 jours » / « demain », avec la
@@ -150,7 +150,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semaine ',
       temHorizonte ? ` sur ${previstas} jusqu’à votre objectif · ` : ' de votre traitement · ',
-      ' avec l’injection faite',
+      ' avec la piqûre faite',
     ],
 
     ultimaOrientacao: 'DERNIER CONSEIL',
@@ -172,7 +172,7 @@ export const cuidado = {
     prepararAConsulta: 'Préparer la consultation',
 
     seuTratamento: 'Votre traitement',
-    aplicacoesLink: 'Injections',
+    aplicacoesLink: 'Piqûres',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
@@ -224,7 +224,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Je n’ai plus de suivi',
     tirarPergunta: 'Retirer qui vous suit ?',
-    tirarTexto: 'Tous vos relevés restent ici — poids, injections, symptômes, analyses et notes. Ce qui part, c’est seulement le nom.',
+    tirarTexto: 'Tous vos relevés restent ici — poids, piqûres, symptômes, analyses et notes. Ce qui part, c’est seulement le nom.',
     simTirar: 'Oui, retirer',
     cancelar: 'Annuler',
   },

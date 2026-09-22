@@ -16,9 +16,9 @@ export const rotina = {
   perguntas: {
     maisFome: '¿Por qué sentí más hambre hoy?',
     semFome: '¿Por qué no tengo hambre?',
-    depoisDaAplicacao: '¿Qué esperar después de la aplicación?',
+    depoisDaAplicacao: '¿Qué esperar después de la inyección?',
     diminuirEnjoo: '¿Cómo disminuir las náuseas?',
-    trocarODia: '¿Puedo cambiar el día de la aplicación?',
+    trocarODia: '¿Puedo cambiar el día de la inyección?',
     meusExames: '¿Qué muestran mis exámenes?',
     meuProgresso: 'Analiza mi progreso',
     prepararConsulta: 'Prepara mi consulta',
@@ -100,13 +100,13 @@ export const rotina = {
     origemExercicio: 'Ejercicio',
 
     aplicacaoUma: 'Aplicación de la semana',
-    aplicacaoVarias: (quantas: number) => `${quantas} aplicaciones en la semana`,
-    origemAplicacao: 'Aplicaciones',
+    aplicacaoVarias: (quantas: number) => `${quantas} inyecciones en la semana`,
+    origemAplicacao: 'Inyecciones',
 
     /* Lo que se cuenta en cada tarea. "1 de 1 día" no describe una
        inyección, por eso la aplicación trae su propio par. */
     unidadeDia: ['día', 'días'] as [string, string],
-    unidadeAplicacao: ['aplicación', 'aplicaciones'] as [string, string],
+    unidadeAplicacao: ['inyección', 'inyecciones'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} de ${alvo} ${unidade}`,
   },
 
@@ -165,8 +165,8 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `De ${de} a ${para}`,
     doseNova: (dose: string) => `Dosis a ${dose} mg`,
     doseAnterior: (dose: string) => `Venía de ${dose} mg`,
-    umaAplicacao: '1 aplicación',
-    aplicacoes: (quantas: number) => `${quantas} aplicaciones`,
+    umaAplicacao: '1 inyección',
+    aplicacoes: (quantas: number) => `${quantas} inyecciones`,
     marcadores: (quantos: number) => `${quantos} marcadores`,
     umaOrientacao: '1 indicación del equipo',
     orientacoes: (quantas: number) => `${quantas} indicaciones del equipo`,

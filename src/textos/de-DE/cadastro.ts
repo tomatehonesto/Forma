@@ -69,7 +69,7 @@ export const cadastro = {
     nascimento: 'Jede Lebensphase hat eigene Bedürfnisse — und das Alter geht in die Referenzbereiche deiner Blutwerte ein.',
     tratamento: 'Nur, um zu wissen, wo du gerade stehst.',
     inicio: 'Ungefähr reicht. Daraus ergibt sich deine Behandlungswoche, und dieses Gewicht wird zum Anfang deiner Kurve.',
-    medicamento: 'Daraus kommen die Dosisleiter und der Abstand zwischen den Injektionen.',
+    medicamento: 'Daraus kommen die Dosisleiter und der Abstand zwischen den Spritzen.',
     forma: 'Die Rezeptur kommt in beiden Formen aus der Apotheke, und was sich ändert, ist das, was du beim Spritzen in der Hand hast.',
     doseComEscada: (med: string) => `In der Reihenfolge der Aufdosierung von ${med}.`,
     doseSemEscada: 'Die Rezeptur hat keine Leiter aus der Packungsbeilage — die Zahl ist die aus deinem Rezept.',
@@ -235,7 +235,7 @@ export const cadastro = {
 
     aindaADefinir: 'Noch offen',
     aindaADefinirTexto: 'Sobald du das Medikament kennst, baue ich die Dosistreppe und den Zyklus.',
-    cicloComeca: 'Der Zyklus beginnt mit der ersten Injektion, die du einträgst.',
+    cicloComeca: 'Der Zyklus beginnt mit der ersten Spritze, die du einträgst.',
     cadenciaDiaria: 'jeden Tag',
     cadenciaSemanal: 'einmal pro Woche',
     cadenciaDias: (dias: number) => `alle ${dias} Tage`,

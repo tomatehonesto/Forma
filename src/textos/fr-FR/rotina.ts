@@ -21,9 +21,9 @@ export const rotina = {
   perguntas: {
     maisFome: 'Pourquoi ai-je eu plus faim aujourd’hui ?',
     semFome: 'Pourquoi n’ai-je pas faim ?',
-    depoisDaAplicacao: 'À quoi s’attendre après l’injection ?',
+    depoisDaAplicacao: 'À quoi s’attendre après la piqûre ?',
     diminuirEnjoo: 'Comment faire baisser la nausée ?',
-    trocarODia: 'Puis-je changer le jour de l’injection ?',
+    trocarODia: 'Puis-je changer le jour de la piqûre ?',
     meusExames: 'Que montrent mes analyses ?',
     /* ⚠️ CES DEUX-LÀ NE SONT PAS DES QUESTIONS, ce sont des demandes : le
        companion construit l'analyse et monte le résumé. Les tourner en
@@ -67,7 +67,7 @@ export const rotina = {
        stylo », « la seringue ». La phrase est la même ; ce qui change, c'est
        la forme du médicament. */
     aplicacao: (recipiente: string) => `Sortez ${recipiente} et choisissez l’endroit`,
-    aplicacaoPorque: 'L’injection de la semaine approche, et alterner l’endroit réduit l’irritation de la peau',
+    aplicacaoPorque: 'L’piqûre de la semaine approche, et alterner l’endroit réduit l’irritation de la peau',
 
     receita: 'Demandez le renouvellement de l’ordonnance',
     /* ⚠️ L'ORDONNANCE EST NOMMÉE ICI, et ce n'est pas une redite du titre :
@@ -117,14 +117,14 @@ export const rotina = {
     exercicio: (dias: number) => `Faire de l’exercice ${dias} ${dias === 1 ? 'jour' : 'jours'} dans la semaine`,
     origemExercicio: 'Exercice',
 
-    aplicacaoUma: 'Injection de la semaine',
-    aplicacaoVarias: (quantas: number) => `${quantas} injections dans la semaine`,
-    origemAplicacao: 'Injections',
+    aplicacaoUma: 'Piqûre de la semaine',
+    aplicacaoVarias: (quantas: number) => `${quantas} piqûres dans la semaine`,
+    origemAplicacao: 'Piqûres',
 
     /* Ce qui se compte dans chaque tâche. « 1 sur 1 jour » ne décrit pas une
-       injection, d'où sa paire à elle. */
+       piqûre, d'où sa paire à elle. */
     unidadeDia: ['jour', 'jours'] as [string, string],
-    unidadeAplicacao: ['injection', 'injections'] as [string, string],
+    unidadeAplicacao: ['piqûre', 'piqûres'] as [string, string],
     /* « 2 sur 7 jours » : en français la part se dit avec « sur », là où le
        portugais écrit « de ». */
     nota: (feito: number, alvo: number, unidade: string) => `${feito} sur ${alvo} ${unidade}`,
@@ -190,8 +190,8 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `De ${de} à ${para}`,
     doseNova: (dose: string) => `Dose à ${dose} mg`,
     doseAnterior: (dose: string) => `Venait de ${dose} mg`,
-    umaAplicacao: '1 injection',
-    aplicacoes: (quantas: number) => `${quantas} injections`,
+    umaAplicacao: '1 piqûre',
+    aplicacoes: (quantas: number) => `${quantas} piqûres`,
     marcadores: (quantos: number) => `${quantos} marqueurs`,
     umaOrientacao: '1 recommandation de l’équipe',
     orientacoes: (quantas: number) => `${quantas} recommandations de l’équipe`,

@@ -66,7 +66,7 @@ export const home = {
 
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Injections',
+    aplicacao: 'Piqûres',
     peso: 'Poids',
     refeicao: 'Repas',
     exercicio: 'Séances',
@@ -75,7 +75,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Injection ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Piqûre ${dose} ${unidade}`,
     peso: 'Poids',
     /* La première pesée n'a pas de précédente à comparer, donc à la place
        de la variation il y a ce qu'elle est. */
@@ -179,7 +179,7 @@ export const home = {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} jours sur 7 avec un check-in · ${aplicadas} semaines sur ${vividas} avec une injection`,
+      `${feitos} jours sur 7 avec un check-in · ${aplicadas} semaines sur ${vividas} avec une piqûre`,
     semanaASemana: 'Semaine par semaine. Touchez pour voir ce qui a marqué chaque cycle.',
     semanaEDia: (semana: number, dia: number) => `SEMAINE ${semana} · JOUR ${dia}`,
     noInicio: (peso: string) => `${peso} au départ`,
@@ -235,10 +235,10 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Semaine ${semana}`,
 
     semRegistro: 'PAS DE RELEVÉ',
-    semRegistroOntem: 'L’injection d’hier n’est pas notée.',
-    semRegistroDias: (dias: number) => `L’injection d’il y a ${dias} jours n’est pas notée.`,
+    semRegistroOntem: 'L’piqûre d’hier n’est pas notée.',
+    semRegistroDias: (dias: number) => `L’piqûre d’il y a ${dias} jours n’est pas notée.`,
     semRegistroCorpo: 'Si vous l’avez faite, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.',
-    semRegistroCta: 'Noter une injection',
+    semRegistroCta: 'Noter une piqûre',
 
     aConsulta: 'LA CONSULTATION',
     consultaHoje: 'Votre consultation est aujourd’hui.',
@@ -254,12 +254,12 @@ export const home = {
 
     entendaOPorQue: 'Comprendre pourquoi',
 
-    proximaAplicacao: 'PROCHAINE INJECTION',
+    proximaAplicacao: 'PROCHAINE PIQÛRE',
     hojeEDiaDeAplicar: 'C’est aujourd’hui que vous faites votre dose.',
     proximaDose: (quando: string) => `Votre prochaine dose est ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} suggéré.`,
-    verAplicacao: 'Voir l’injection',
+    verAplicacao: 'Voir la piqûre',
     criarLembrete: 'Créer un rappel',
 
     checkinFeito: 'Check-in fait',
@@ -300,7 +300,7 @@ export const home = {
     vazio: 'Il n’y a pas encore de semaines notées.',
     lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
 
-    aplicacao: 'Injection',
+    aplicacao: 'Piqûre',
     semPesagem: 'pas de pesée',
 
     comoSeSentiu: 'Comment vous vous sentiez',
@@ -313,7 +313,7 @@ export const home = {
     diaADia: 'Jour après jour',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'injection',
+      aplicacao: 'piqûre',
       checkin: 'check-in',
       peso: 'pesée',
       refeicao: 'repas',
@@ -356,7 +356,7 @@ export const home = {
     titulo: 'Comment nous lisons votre rythme',
     sub: 'L’étiquette regarde la régularité du traitement, pas la vitesse de la perte de poids.',
 
-    aplicacoes: 'Injections à jour',
+    aplicacoes: 'Piqûres à jour',
     /* Aqui o nome vem depois de `aplicadas`, e é com ele que concorda. */
     aplicacoesSub: (aplicadas: number, vividas: number) =>
       `${aplicadas} ${aplicadas === 1 ? 'semaine' : 'semaines'} sur ${vividas}`,
@@ -386,7 +386,7 @@ export const home = {
     semanaN: (n: number) => `Semaine ${n}`,
     tudoCumprido: 'tout est fait',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} sur ${total} faites`,
-    aplicacaoEm: (quando: string) => `injection ${quando}`,
+    aplicacaoEm: (quando: string) => `piqûre ${quando}`,
 
     falarComEquipe: 'Parler à l’équipe',
 
@@ -400,10 +400,10 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Relevés de ce jour',
-    diaDeAplicacao: 'Jour d’injection',
+    diaDeAplicacao: 'Jour de piqûre',
     nadaRegistrado: 'rien de noté pour l’instant',
 
-    aplicacao: 'Injection',
+    aplicacao: 'Piqûre',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prévue aujourd’hui',

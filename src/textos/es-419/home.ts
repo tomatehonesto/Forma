@@ -64,7 +64,7 @@ export const home = {
 
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Aplicaciones',
+    aplicacao: 'Inyecciones',
     peso: 'Peso',
     refeicao: 'Comidas',
     exercicio: 'Ejercicios',
@@ -172,7 +172,7 @@ export const home = {
     ultimos7: 'TUS ÚLTIMOS 7 DÍAS',
     doseEm: (quando: string) => `dosis ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} de 7 días con check-in · ${aplicadas} de ${vividas} semanas con aplicación`,
+      `${feitos} de 7 días con check-in · ${aplicadas} de ${vividas} semanas con inyección`,
     semanaASemana: 'Semana a semana. Toca para ver qué marcó cada ciclo.',
     semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DÍA ${dia}`,
     noInicio: (peso: string) => `${peso} al inicio`,
@@ -220,10 +220,10 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Semana ${semana}`,
 
     semRegistro: 'SIN REGISTRO',
-    semRegistroOntem: 'La aplicación de ayer no está registrada.',
-    semRegistroDias: (dias: number) => `La aplicación de hace ${dias} días no está registrada.`,
+    semRegistroOntem: 'La inyección de ayer no está registrada.',
+    semRegistroDias: (dias: number) => `La inyección de hace ${dias} días no está registrada.`,
     semRegistroCorpo: 'Si te la aplicaste, puedes registrarla ahora. Si no, el ciclo se rehace a partir de la próxima.',
-    semRegistroCta: 'Registrar aplicación',
+    semRegistroCta: 'Registrar inyección',
 
     aConsulta: 'LA CONSULTA',
     consultaHoje: 'Tu consulta es hoy.',
@@ -239,12 +239,12 @@ export const home = {
 
     entendaOPorQue: 'Entender por qué',
 
-    proximaAplicacao: 'PRÓXIMA APLICACIÓN',
+    proximaAplicacao: 'PRÓXIMA INYECCIÓN',
     hojeEDiaDeAplicar: 'Hoy es día de aplicar tu dosis.',
     proximaDose: (quando: string) => `Tu próxima dosis es ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} sugerido.`,
-    verAplicacao: 'Ver la aplicación',
+    verAplicacao: 'Ver la inyección',
     criarLembrete: 'Crear un recordatorio',
 
     checkinFeito: 'Check-in hecho',
@@ -298,7 +298,7 @@ export const home = {
     diaADia: 'Día a día',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'aplicación',
+      aplicacao: 'inyección',
       checkin: 'check-in',
       peso: 'pesaje',
       refeicao: 'comida',
@@ -341,7 +341,7 @@ export const home = {
     titulo: 'Cómo leemos tu ritmo',
     sub: 'La etiqueta mira la constancia del tratamiento, no la velocidad de la pérdida de peso.',
 
-    aplicacoes: 'Aplicaciones al día',
+    aplicacoes: 'Inyecciones al día',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
       `${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'}`,
 
@@ -370,7 +370,7 @@ export const home = {
     semanaN: (n: number) => `Semana ${n}`,
     tudoCumprido: 'todo cumplido',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} de ${total} cumplidas`,
-    aplicacaoEm: (quando: string) => `aplicación ${quando}`,
+    aplicacaoEm: (quando: string) => `inyección ${quando}`,
 
     falarComEquipe: 'Hablar con el equipo',
 
@@ -384,7 +384,7 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Registros de este día',
-    diaDeAplicacao: 'Día de aplicación',
+    diaDeAplicacao: 'Día de inyección',
     nadaRegistrado: 'nada registrado todavía',
 
     aplicacao: 'Aplicación',

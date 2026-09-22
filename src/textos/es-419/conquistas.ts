@@ -9,13 +9,13 @@
    lengua en que lee.
 
    CADA CAMINO HABLA EN DOS TIEMPOS, y no son la misma frase: `desc` es lo
-   que ese nivel YA ES — "12 aplicaciones registradas" —, y `falta` es lo
+   que ese nivel YA ES — "12 inyecciones registradas" —, y `falta` es lo
    que la separa del próximo. "Faltan" y no "necesitas": el sujeto es la
    distancia, no la persona.
 
    ⚠️⚠️ Y EL PLURAL ES GRAMÁTICA, y por eso vive aquí. El español mueve el
    acento: "sesión" hace "sesiones", "medición" hace "mediciones",
-   "aplicación" hace "aplicaciones" — la tilde DESAPARECE en el plural. Un
+   "inyección" hace "inyecciones" — la tilde DESAPARECE en el plural. Un
    `+ 's'` colgado al final escribiría "sesións" y nadie lo vería hasta
    que apareciera en la pantalla de alguien.
    ============================================================ */
@@ -35,9 +35,9 @@ export const conquistas = {
     acompanhamento: 'Seguimiento',
   },
 
-  doses: 'Aplicaciones',
-  dosesDesc: (a: number) => `${p(a, 'aplicación', 'aplicaciones')} registrada${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `Faltan ${p(r, 'aplicación', 'aplicaciones')}`,
+  doses: 'Inyecciones',
+  dosesDesc: (a: number) => `${p(a, 'inyección', 'inyecciones')} registrada${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `Faltan ${p(r, 'inyección', 'inyecciones')}`,
 
   tempo: 'Tiempo de tratamiento',
   /* Abajo de un año cuenta en meses, y a partir de ahí en años: "12 meses"
@@ -51,7 +51,7 @@ export const conquistas = {
      alternar es indicación de prospecto. Es el único camino que premia una
      práctica de seguridad. */
   rodizio: 'Rotación',
-  rodizioDesc: (a: number) => `${p(a, 'lugar', 'lugares')} de aplicación usado${a === 1 ? '' : 's'}`,
+  rodizioDesc: (a: number) => `${p(a, 'lugar', 'lugares')} de inyección usado${a === 1 ? '' : 's'}`,
   rodizioFalta: (r: number) => `Faltan ${p(r, 'lugar', 'lugares')}`,
 
   titulacao: 'Titulación',

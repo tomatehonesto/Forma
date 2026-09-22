@@ -21,7 +21,7 @@ export const etapa = {
   /* ---------- 1. es hat noch nicht angefangen ---------- */
   antesChapeu: 'VOR DEM START',
 
-  antesComDoseHead: 'Deine erste Injektion steht noch bevor.',
+  antesComDoseHead: 'Deine erste Spritze steht noch bevor.',
   /* ⚠️ DER WIRKSTOFF, NICHT DIE MARKE. Wer noch nicht gespritzt hat,
      liest darüber, was sie spüren wird, und was die Wirkung macht, ist die
      Substanz — die Marke hier zu schreiben klänge nach Werbung, in dem
@@ -32,7 +32,7 @@ export const etapa = {
      und auf Portugiesisch geschrieben an — siehe ../de-DE/descobertas. */
   antesComDoseBody: (molecula: string) =>
     `Die ersten Tage mit ${molecula} bringen meist weniger Hunger und eine leichte Übelkeit. Schon jetzt festzuhalten, wie es dir geht, ist das, was später die Vergleichsgrundlage gibt.`,
-  antesComDoseQ: 'Was ist am Tag der Injektion zu erwarten?',
+  antesComDoseQ: 'Was ist am Tag der Spritze zu erwarten?',
 
   antesSemDoseHead: 'Für deine Behandlung steht noch keine Dosis fest.',
   /* „Wenn dein Team sie festlegt“ und nicht „wenn du sie festlegst“: die
@@ -50,7 +50,7 @@ export const etapa = {
      ohne sie erzählt er das Muster, das üblicherweise auftritt. Beide
      sagen dasselbe, und nur einer davon handelt von ihr. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `In deinen Aufzeichnungen liegt die Übelkeit an den ersten beiden Tagen nach der Injektion bei ${perto} und fällt ab dem dritten auf ${longe}. Jede Stufe wiederholt dieses Muster meist.`,
+    `In deinen Aufzeichnungen liegt die Übelkeit an den ersten beiden Tagen nach der Spritze bei ${perto} und fällt ab dem dritten auf ${longe}. Jede Stufe wiederholt dieses Muster meist.`,
   doseNovaBodySem: 'Jede Stufe bringt für ein paar Tage zurück, was schon vorbei war — Übelkeit am häufigsten. Sie lässt in der Regel nach, während der Körper sich einstellt.',
   doseNovaQ: 'Warum ist mir übel?',
 
@@ -62,7 +62,7 @@ export const etapa = {
      Versagen derjenigen, die es nimmt, noch eine Wirkung, die man
      auszuhalten hat, sondern eine Einstellung. */
   primeiraBody: 'Der Körper lernt das Medikament noch kennen. Leichte Übelkeit, weniger Hunger und etwas Müdigkeit sind das, was in den ersten Tagen am häufigsten berichtet wird, und lassen über die Wochen meist nach.',
-  primeiraQ: 'Was ist am Tag der Injektion zu erwarten?',
+  primeiraQ: 'Was ist am Tag der Spritze zu erwarten?',
 
   /* ---------- 4. Erhaltung ---------- */
   manutencaoChapeu: 'ERHALTUNG',

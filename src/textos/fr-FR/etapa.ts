@@ -13,14 +13,14 @@
 export const etapa = {
   antesChapeu: 'AVANT DE COMMENCER',
 
-  antesComDoseHead: 'Votre première injection est encore à venir.',
+  antesComDoseHead: 'Votre première piqûre est encore à venir.',
   /* ⚠️ LA MOLÉCULE, PAS LA MARQUE. Qui n'a pas encore fait d'injection
      lit ce qu'elle va ressentir, et ce qui cause l'effet est la
      substance — écrire la marque ici sonnerait comme de la publicité au
      seul moment où la personne n'a pas encore d'expérience à opposer. */
   antesComDoseBody: (molecula: string) =>
     `Les premiers jours avec ${molecula} apportent souvent moins de faim et une nausée légère. Noter comment vous vous sentez dès maintenant, c’est ce qui donne une base de comparaison ensuite.`,
-  antesComDoseQ: 'À quoi s’attendre le jour de l’injection ?',
+  antesComDoseQ: 'À quoi s’attendre le jour de la piqûre ?',
 
   antesSemDoseHead: 'Votre traitement n’a pas encore de dose définie.',
   /* « Quand votre équipe la définira » et non « quand vous la
@@ -51,7 +51,7 @@ export const etapa = {
      Avec assez de relevés, la phrase raconte le dessin de SES nausées ;
      sans eux, celui qui arrive d'habitude. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `Dans vos relevés, la nausée reste à ${perto} les deux premiers jours après l’injection et descend à ${longe} à partir du troisième. Chaque palier répète souvent ce dessin.`,
+    `Dans vos relevés, la nausée reste à ${perto} les deux premiers jours après la piqûre et descend à ${longe} à partir du troisième. Chaque palier répète souvent ce dessin.`,
   doseNovaBodySem: 'Chaque palier ramène souvent, pour quelques jours, ce qui était déjà passé — la nausée en premier. Cela tend à céder à mesure que le corps s’ajuste.',
   doseNovaQ: 'Pourquoi ai-je des nausées ?',
 
@@ -61,7 +61,7 @@ export const etapa = {
      phrase met le corps en sujet à dessein : ce qui se passe n'est ni une
      faute de qui le prend ni un effet à supporter, c'est un ajustement. */
   primeiraBody: 'Le corps est encore en train de découvrir le médicament. Nausée légère, moins de faim et un peu de fatigue sont les retours les plus courants des premiers jours, et ils s’atténuent avec les semaines.',
-  primeiraQ: 'À quoi s’attendre le jour de l’injection ?',
+  primeiraQ: 'À quoi s’attendre le jour de la piqûre ?',
 
   manutencaoChapeu: 'ENTRETIEN',
   /* ⚠️ LA PROVENANCE ENTRE DANS LA PHRASE, TOUJOURS. « La fourchette que

@@ -20,7 +20,7 @@ export const ciclo = {
      seguidas dando la misma noticia gastan el carrusel. */
   aplicHead: 'El efecto empieza a subir en las próximas horas.',
   aplicBody: 'Pueden aparecer náuseas leves — mejor comidas más chicas a lo largo del día.',
-  aplicQ: '¿Qué esperar el día de la aplicación?',
+  aplicQ: '¿Qué esperar el día de la inyección?',
 
   picoHead: 'Tu apetito tiende a estar más bajo hoy.',
   picoBody: 'Pico de efecto de la medicación — buen día para entrenar y adelantar la proteína.',
@@ -35,7 +35,7 @@ export const ciclo = {
   retornoQ: '¿Por qué siento más hambre?',
 
   altoHeadHoje: 'Hambre en el punto más alto del ciclo.',
-  altoHeadComData: (quando: string) => `Hambre en el punto alto del ciclo — aplicación ${quando}.`,
+  altoHeadComData: (quando: string) => `Hambre en el punto alto del ciclo — inyección ${quando}.`,
   /* ⚠️ "NO TE SALTES COMIDAS" PRESUPONE QUE SE LAS SALTA, y en el punto
      alto del hambre quien menos se las salta es quien tiene hambre. La
      frase nacía como consejo y llegaba como reto — la versión afirmativa
@@ -73,7 +73,7 @@ export const ciclo = {
   faseRetornoRange: 'Días 5–6',
   faseRetornoHint: 'El medicamento empieza a caer, y el hambre tiende a volver.',
 
-  fasePreLabel: 'Pre-aplicación',
+  fasePreLabel: 'Pre-inyección',
   fasePreRange: 'Días 7+',
   fasePreHint: 'Punto más bajo del ciclo, hasta la próxima dosis.',
 
@@ -105,12 +105,12 @@ export const ciclo = {
   faseDescidaAtencao: 'vómito persistente o dolor abdominal fuerte: habla con tu médico',
 
   faseBaixoTitulo: 'Día 7 · punto más bajo',
-  faseBaixoSub: 'Víspera de la próxima aplicación',
+  faseBaixoSub: 'Víspera de la próxima inyección',
   faseBaixoComum: 'apetito más cerca de lo habitual',
   /* "La dosis", y no "la pluma": esta tabla es constante y no sabe la
      forma del medicamento — la frase sirve igual a pluma, frasco y
      jeringa. */
-  faseBaixoAjuda: 'deja la dosis y el lugar de la aplicación definidos la víspera',
+  faseBaixoAjuda: 'deja la dosis y el lugar de la inyección definidos la víspera',
   tela: {
     titulo: 'Ciclo de la dosis',
     diaDepois: (dia: number, acao: string) => `Día ${dia} después\nde la ${acao}`,

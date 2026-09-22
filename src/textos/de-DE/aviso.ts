@@ -24,7 +24,7 @@ export const aviso = {
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
   guardadoTitulo: 'Was du einträgst, bleibt auf deinem Gerät',
-  guardadoTexto: 'Gewicht, Beschwerden, Injektionen, Befunde und Notizen werden in der App gespeichert, auf diesem Telefon. Es gibt kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten.',
+  guardadoTexto: 'Gewicht, Beschwerden, Spritzen, Befunde und Notizen werden in der App gespeichert, auf diesem Telefon. Es gibt kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten.',
 
   usoTitulo: 'Wofür deine Daten verwendet werden',
   usoTexto: 'Um deine Tagesziele zu bauen, die Entwicklung der Behandlung zu verfolgen und zu ordnen, was du zum Termin mitnimmst. Nichts davon ist eine Diagnose, und die App verschreibt nichts und passt keine Dosis an.',
@@ -112,7 +112,7 @@ export const aviso = {
     incluido: 'drin',
     fora: 'draußen',
 
-    aplicacoes: 'Injektionen',
+    aplicacoes: 'Spritzen',
     aplicacoesSub: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · Datum, Dosis und Stelle`,
     pesoEMedidas: 'Gewicht und Maße',
@@ -151,7 +151,7 @@ export const aviso = {
 
     ondeFicam: 'Wo deine Einträge bleiben',
     noAparelho: 'Auf dem Gerät, in der App',
-    noAparelhoTexto: 'Gewicht, Maße, Injektionen, Check-ins, Befunde, Fotos und Notizen werden im Speicher der App selbst abgelegt, auf diesem Gerät. Es gibt hier kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten, weil es kein Login gibt.',
+    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde, Fotos und Notizen werden im Speicher der App selbst abgelegt, auf diesem Gerät. Es gibt hier kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten, weil es kein Login gibt.',
     desinstalar: 'Deinstallieren nimmt alles mit',
     desinstalarTexto: 'Da es auf keinem Server eine Kopie gibt, löscht das Entfernen der App die Einträge. Sie lassen sich danach nicht wiederherstellen.',
 

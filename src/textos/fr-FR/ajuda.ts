@@ -25,7 +25,7 @@ export const ajuda = {
   qa: [
     {
       q: 'D’où viennent les chiffres qui apparaissent ici ?',
-      a: 'Ce sont tous des calculs sur ce que vous avez noté — poids, injections, check-ins, repas, analyses. L’application ne complète pas ce qui manque et n’estime pas ce que vous n’avez pas dit : un jour sans réponse apparaît comme un jour sans réponse, et non comme zéro.',
+      a: 'Ce sont tous des calculs sur ce que vous avez noté — poids, piqûres, check-ins, repas, analyses. L’application ne complète pas ce qui manque et n’estime pas ce que vous n’avez pas dit : un jour sans réponse apparaît comme un jour sans réponse, et non comme zéro.',
     },
     {
       q: 'Puis-je corriger ou supprimer un relevé ?',

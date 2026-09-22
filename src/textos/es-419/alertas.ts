@@ -67,7 +67,7 @@ export const alertas = {
     oQueAvisar: 'Qué avisar',
 
     antecedencia: 'Antelación',
-    antecedenciaAjuda: 'Contada a partir de la fecha de tu próxima aplicación.',
+    antecedenciaAjuda: 'Contada a partir de la fecha de tu próxima inyección.',
 
     diasDaSemana: 'Días de la semana',
     diasDaSemanaAjuda: 'Sin ninguno marcado, la alerta suena todos los días.',

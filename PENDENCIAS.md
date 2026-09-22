@@ -1518,6 +1518,28 @@ tirada do `git show`, e não de memória.
   a varredura do inglês deixou `resumo.ts` de fora, junto com "injection
   site", que é o termo da etiqueta da própria caneta.
 
+- **⚠️⚠️ EM ESPANHOL, "aplicación" ERA A INJEÇÃO E ERA O APLICATIVO.** O
+  português não tem esse problema — "aplicação" e "aplicativo" são
+  palavras diferentes —, e a tradução carregou a colisão sem ver. Ela
+  aparecia numa frase só: "Peso, medidas, APLICACIONES... en el
+  almacenamiento de la propia APLICACIÓN". E a Home dizia "La aplicación
+  de ayer no está registrada", que se lê como "o APLICATIVO de ontem".
+  Virou "inyección", que é o que se diz e não colide.
+- **⚠️ E EU ERREI AO DIZER QUE ES E FR TINHAM O MESMO PROBLEMA DE SINTAXE
+  DO INGLÊS.** Contei 19 "Ver el/la" e 14 "Voir le/la" e chamei de
+  sotaque — mas "Ver el resumen" e "Voir le résumé" são espanhol e
+  francês CORRETOS: essas línguas mantêm o artigo. Derrubá-lo era regra
+  do inglês, e eu medi um padrão achando que era um defeito. O que sobrou
+  de verdade nas outras três foi o VOCABULÁRIO.
+- **Três armadilhas de troca por palavra, uma por idioma**, e as três só
+  apareceram lendo o aplicativo: o artigo inglês ("an injection" → "an
+  shot"), a elisão francesa ("l'injection" → "l'piqûre", que não é
+  francês) e o elemento de ligação alemão ("Injektion" liga com -s- e
+  "Spritze" com -n-: "Spritzestag" em vez de "Spritzentag"). ⚠️ E a CAIXA
+  ALTA escapou nos quatro: "NEXT INJECTION", "NÄCHSTE INJEKTION",
+  "PROCHAINE INJECTION", "PRÓXIMA APLICACIÓN" — é o cabeçalho do cartão
+  da próxima dose, uma das primeiras coisas que se vê.
+
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo

@@ -11,14 +11,14 @@
 export const etapa = {
   antesChapeu: 'ANTES DE EMPEZAR',
 
-  antesComDoseHead: 'Tu primera aplicación todavía está por venir.',
+  antesComDoseHead: 'Tu primera inyección todavía está por venir.',
   /* ⚠️ LA MOLÉCULA, NO LA MARCA. Quien todavía no se aplicó está leyendo
      sobre lo que va a sentir, y lo que causa el efecto es la sustancia —
      escribir la marca aquí sonaría a publicidad en el único momento en que
      la persona aún no tiene experiencia propia para contraponer. */
   antesComDoseBody: (molecula: string) =>
     `Los primeros días con ${molecula} suelen traer menos hambre y náuseas leves. Registrar cómo te sientes desde ya es lo que da base de comparación después.`,
-  antesComDoseQ: '¿Qué esperar el día de la aplicación?',
+  antesComDoseQ: '¿Qué esperar el día de la inyección?',
 
   antesSemDoseHead: 'Tu tratamiento todavía no tiene una dosis definida.',
   /* "Cuando tu equipo la defina" y no "cuando tú la definas": la dosis es
@@ -44,7 +44,7 @@ export const etapa = {
      cuerpo como sujeto a propósito: lo que está pasando no es falla de
      quien lo usa ni efecto que haya que aguantar, es ajuste. */
   primeiraBody: 'El cuerpo todavía está conociendo el medicamento. Náuseas leves, menos hambre y algo de cansancio son los relatos más comunes en los primeros días, y suelen disminuir con las semanas.',
-  primeiraQ: '¿Qué esperar el día de la aplicación?',
+  primeiraQ: '¿Qué esperar el día de la inyección?',
 
   manutencaoChapeu: 'MANTENIMIENTO',
   /* ⚠️ LA PROCEDENCIA ENTRA EN LA FRASE, SIEMPRE. "El rango que definió tu

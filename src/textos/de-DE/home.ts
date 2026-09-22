@@ -66,7 +66,7 @@ export const home = {
 
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Injektionen',
+    aplicacao: 'Spritzen',
     peso: 'Gewicht',
     refeicao: 'Mahlzeiten',
     exercicio: 'Bewegung',
@@ -75,7 +75,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Injektion ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Spritze ${dose} ${unidade}`,
     peso: 'Gewicht',
     /* Die erste Wiegung hat keine vorherige zum Vergleich, also steht
        statt der Veränderung, was sie ist. */
@@ -188,7 +188,7 @@ export const home = {
        keinen Satz, hier ist es ein Substantiv. */
     doseEm: (quando: string) => `Dosis ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} Wochen mit Injektion`,
+      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} Wochen mit Spritze`,
     semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',
     semanaEDia: (semana: number, dia: number) => `WOCHE ${semana} · TAG ${dia}`,
     noInicio: (peso: string) => `${peso} am Anfang`,
@@ -244,10 +244,10 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Woche ${semana}`,
 
     semRegistro: 'NICHT EINGETRAGEN',
-    semRegistroOntem: 'Die Injektion von gestern ist nicht eingetragen.',
-    semRegistroDias: (dias: number) => `Die Injektion von vor ${dias} Tagen ist nicht eingetragen.`,
+    semRegistroOntem: 'Die Spritze von gestern ist nicht eingetragen.',
+    semRegistroDias: (dias: number) => `Die Spritze von vor ${dias} Tagen ist nicht eingetragen.`,
     semRegistroCorpo: 'Wenn du sie gesetzt hast, kannst du sie jetzt eintragen. Wenn nicht, beginnt der Zyklus mit der nächsten neu.',
-    semRegistroCta: 'Injektion eintragen',
+    semRegistroCta: 'Spritze eintragen',
 
     aConsulta: 'DER TERMIN',
     consultaHoje: 'Dein Termin ist heute.',
@@ -263,12 +263,12 @@ export const home = {
 
     entendaOPorQue: 'Verstehen, warum',
 
-    proximaAplicacao: 'NÄCHSTE INJEKTION',
-    hojeEDiaDeAplicar: 'Heute ist dein Injektionstag.',
+    proximaAplicacao: 'NÄCHSTE SPRITZE',
+    hojeEDiaDeAplicar: 'Heute ist dein Spritzentag.',
     proximaDose: (quando: string) => `Deine nächste Dosis ist ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} vorgeschlagen.`,
-    verAplicacao: 'Die Injektion ansehen',
+    verAplicacao: 'Die Spritze ansehen',
     criarLembrete: 'Eine Erinnerung einrichten',
 
     checkinFeito: 'Check-in erledigt',
@@ -309,7 +309,7 @@ export const home = {
     vazio: 'Noch keine Wochen eingetragen.',
     lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
 
-    aplicacao: 'Injektion',
+    aplicacao: 'Spritze',
     semPesagem: 'keine Wiegung',
 
     comoSeSentiu: 'Wie du dich gefühlt hast',
@@ -322,7 +322,7 @@ export const home = {
     diaADia: 'Tag für Tag',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'Injektion',
+      aplicacao: 'Spritze',
       checkin: 'Check-in',
       peso: 'Wiegung',
       refeicao: 'Mahlzeit',
@@ -365,7 +365,7 @@ export const home = {
     titulo: 'Wie wir dein Tempo lesen',
     sub: 'Das Etikett schaut auf die Regelmäßigkeit der Behandlung, nicht auf das Tempo der Gewichtsabnahme.',
 
-    aplicacoes: 'Injektionen im Plan',
+    aplicacoes: 'Spritzen im Plan',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
       `${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'}`,
 
@@ -397,7 +397,7 @@ export const home = {
     semanaN: (n: number) => `Woche ${n}`,
     tudoCumprido: 'alles erledigt',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} von ${total} erledigt`,
-    aplicacaoEm: (quando: string) => `Injektion ${quando}`,
+    aplicacaoEm: (quando: string) => `Spritze ${quando}`,
 
     falarComEquipe: 'Mit dem Team sprechen',
 
@@ -411,10 +411,10 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Einträge dieses Tages',
-    diaDeAplicacao: 'Injektionstag',
+    diaDeAplicacao: 'Spritzentag',
     nadaRegistrado: 'noch nichts eingetragen',
 
-    aplicacao: 'Injektion',
+    aplicacao: 'Spritze',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'heute fällig',

@@ -82,9 +82,9 @@ export const formas = {
      verschiedene Endungen für drei Wörter, und „Blister“ ändert sich gar
      nicht. Es gibt keine Regel, die man anwenden könnte. */
   palavras: {
-    caneta: { recipiente: 'Pen', plural: 'Pens', verbo: 'spritzen', acao: 'Injektion' },
-    frasco: { recipiente: 'Durchstechflasche', plural: 'Durchstechflaschen', verbo: 'spritzen', acao: 'Injektion' },
-    seringa: { recipiente: 'Spritze', plural: 'Spritzen', verbo: 'spritzen', acao: 'Injektion' },
+    caneta: { recipiente: 'Pen', plural: 'Pens', verbo: 'spritzen', acao: 'Spritze' },
+    frasco: { recipiente: 'Durchstechflasche', plural: 'Durchstechflaschen', verbo: 'spritzen', acao: 'Spritze' },
+    seringa: { recipiente: 'Fertigspritze', plural: 'Fertigspritzen', verbo: 'spritzen', acao: 'Spritze' },
     comprimido: { recipiente: 'Blister', plural: 'Blister', verbo: 'einnehmen', acao: 'Einnahme' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

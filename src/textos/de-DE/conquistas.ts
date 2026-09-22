@@ -8,8 +8,8 @@
    bekommen, je nachdem, in welcher Sprache sie liest.
 
    ⚠️ JEDER PFAD SPRICHT IN ZWEI ZEITEN, und es ist nicht derselbe Satz:
-   `desc` ist, was diese Stufe SCHON IST — „12 Injektionen eingetragen“ —,
-   und `falta` ist, was von der nächsten trennt — „Noch 14 Injektionen“.
+   `desc` ist, was diese Stufe SCHON IST — „12 Spritzen eingetragen“ —,
+   und `falta` ist, was von der nächsten trennt — „Noch 14 Spritzen“.
 
    Das Erste steht in der Vergangenheit und liest sich mit Stolz; das
    Zweite steht in der Zukunft und muss in eine Zeile passen, ohne nach
@@ -23,7 +23,7 @@
    Dort ist der Standardfall `s + 's'` und trifft meistens zu; die
    Ausnahmen — „local/locais“, „sessão/sessões“ — sind wenige genug, dass
    man sie einzeln nennt. Im Deutschen trifft `+ 's'` fast NIE zu:
-   Injektion/Injektionen, Tag/Tage, Stelle/Stellen, Befund/Befunde, und
+   Spritze/Spritzen, Tag/Tage, Stelle/Stellen, Befund/Befunde, und
    „Teller“ ändert sich gar nicht.
 
    Es gibt keine Regel, die man als Standard setzen könnte. Also gibt es
@@ -50,9 +50,9 @@ export const conquistas = {
      „registrada“ oder „registradas“ je nach Anzahl; „eingetragen“ bleibt
      „eingetragen“. Die ganzen `${a === 1 ? '' : 's'}` des Originals fallen
      hier weg — nicht aus Nachlässigkeit, sondern weil es sie nicht gibt. */
-  doses: 'Injektionen',
-  dosesDesc: (a: number) => `${p(a, 'Injektion', 'Injektionen')} eingetragen`,
-  dosesFalta: (r: number) => `Noch ${p(r, 'Injektion', 'Injektionen')}`,
+  doses: 'Spritzen',
+  dosesDesc: (a: number) => `${p(a, 'Spritze', 'Spritzen')} eingetragen`,
+  dosesFalta: (r: number) => `Noch ${p(r, 'Spritze', 'Spritzen')}`,
 
   tempo: 'Behandlungsdauer',
   /* Unter einem Jahr zählt es in Monaten, ab da in Jahren: „12 Monate“

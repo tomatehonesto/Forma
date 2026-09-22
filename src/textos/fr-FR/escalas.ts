@@ -126,16 +126,16 @@ export const escalas = {
 
     aoLongoDoCiclo: 'Au fil du cycle',
     aoLongoNota: (dias: number) =>
-      `Moyenne de la nausée chaque jour après l’injection, sur ${dias} ${dias === 1 ? 'jour rempli' : 'jours remplis'}.`,
+      `Moyenne de la nausée chaque jour après la piqûre, sur ${dias} ${dias === 1 ? 'jour rempli' : 'jours remplis'}.`,
     dose: 'dose',
 
     cicloParecido: 'Sur les jours remplis jusqu’ici, la nausée apparaît semblable tout au long du cycle — elle ne suit pas la dose.',
     cicloPoucos: 'Il y a encore trop peu de jours remplis pour dire si la nausée suit le cycle. En remplissant quelques jours de plus, ce calcul tient debout.',
-    cicloInicio1: 'La nausée pèse le plus le jour de l’injection.',
-    cicloInicioN: (dias: number) => `La nausée pèse le plus les ${dias} premiers jours après l’injection.`,
-    cicloFim1: 'La nausée pèse le plus la veille de la prochaine injection.',
-    cicloFimN: (dias: number) => `La nausée pèse le plus les ${dias} jours qui précèdent la prochaine injection.`,
-    cicloDia0: 'le jour de l’injection',
+    cicloInicio1: 'La nausée pèse le plus le jour de la piqûre.',
+    cicloInicioN: (dias: number) => `La nausée pèse le plus les ${dias} premiers jours après la piqûre.`,
+    cicloFim1: 'La nausée pèse le plus la veille de la prochaine piqûre.',
+    cicloFimN: (dias: number) => `La nausée pèse le plus les ${dias} jours qui précèdent la prochaine piqûre.`,
+    cicloDia0: 'le jour de la piqûre',
     cicloDiaN: (dia: number) => `le ${dia}e jour après`,
     cicloEspalhado: (lista: string) => `La nausée pèse le plus ${lista}.`,
 

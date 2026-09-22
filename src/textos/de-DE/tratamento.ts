@@ -226,12 +226,12 @@ export const tratamento = {
      ============================================================ */
   telaAplicacoes: {
     aplicada: 'gespritzt',
-    semCulpa: 'Kein schlechtes Gewissen wegen eines vergangenen Tages — es zählt, wieder anzuknüpfen. Du kannst eine frühere Injektion jederzeit nachtragen, mit dem Knopf unten.',
-    titulo: 'Injektionen',
-    registrar: 'Injektion eintragen',
+    semCulpa: 'Kein schlechtes Gewissen wegen eines vergangenen Tages — es zählt, wieder anzuknüpfen. Du kannst eine frühere Spritze jederzeit nachtragen, mit dem Knopf unten.',
+    titulo: 'Spritzen',
+    registrar: 'Spritze eintragen',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'NÄCHSTE INJEKTION',
+    proximaAplicacao: 'NÄCHSTE SPRITZE',
 
     cicloDaDose: 'Dosiszyklus',
     /* ⚠️ KEIN `toLowerCase()` AN DER PHASE: „Tag 4 von 7 · anstieg“ wäre
@@ -244,8 +244,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Injektion`,
-    nenhumAlerta: 'Keine Erinnerung für die Injektion',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Spritze`,
+    nenhumAlerta: 'Keine Erinnerung für die Spritze',
     tocaEm: (quando: string) => `Klingelt ${quando}`,
     avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
 

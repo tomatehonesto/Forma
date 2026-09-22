@@ -145,16 +145,16 @@ export const escalas = {
 
     aoLongoDoCiclo: 'Im Lauf des Zyklus',
     aoLongoNota: (dias: number) =>
-      `Mittlere Übelkeit an jedem Tag nach der Injektion, aus ${dias} ${dias === 1 ? 'beantwortetem Tag' : 'beantworteten Tagen'}.`,
+      `Mittlere Übelkeit an jedem Tag nach der Spritze, aus ${dias} ${dias === 1 ? 'beantwortetem Tag' : 'beantworteten Tagen'}.`,
     dose: 'Dosis',
 
     cicloParecido: 'An den bisher beantworteten Tagen sieht die Übelkeit über den ganzen Zyklus ähnlich aus — sie folgt der Dosis nicht.',
     cicloPoucos: 'Es sind noch zu wenige Tage beantwortet, um zu sagen, ob die Übelkeit dem Zyklus folgt. Mit ein paar Tagen mehr steht diese Rechnung.',
-    cicloInicio1: 'Die Übelkeit wiegt am Tag der Injektion am schwersten.',
-    cicloInicioN: (dias: number) => `Die Übelkeit wiegt in den ersten ${dias} Tagen nach der Injektion am schwersten.`,
-    cicloFim1: 'Die Übelkeit wiegt am Tag vor der nächsten Injektion am schwersten.',
-    cicloFimN: (dias: number) => `Die Übelkeit wiegt in den ${dias} Tagen vor der nächsten Injektion am schwersten.`,
-    cicloDia0: 'am Tag der Injektion',
+    cicloInicio1: 'Die Übelkeit wiegt am Tag der Spritze am schwersten.',
+    cicloInicioN: (dias: number) => `Die Übelkeit wiegt in den ersten ${dias} Tagen nach der Spritze am schwersten.`,
+    cicloFim1: 'Die Übelkeit wiegt am Tag vor der nächsten Spritze am schwersten.',
+    cicloFimN: (dias: number) => `Die Übelkeit wiegt in den ${dias} Tagen vor der nächsten Spritze am schwersten.`,
+    cicloDia0: 'am Tag der Spritze',
     cicloDiaN: (dia: number) => `am ${dia}. Tag danach`,
     cicloEspalhado: (lista: string) => `Die Übelkeit wiegt ${lista} am schwersten.`,
 

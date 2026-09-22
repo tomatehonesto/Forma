@@ -17,7 +17,7 @@ export const aviso = {
   isencaoAceite: 'Entendí y acepto',
 
   guardadoTitulo: 'Lo que registras se queda en tu dispositivo',
-  guardadoTexto: 'Peso, síntomas, aplicaciones, exámenes y notas se graban dentro de la aplicación, en este teléfono. No hay cuenta ni contraseña: nadie entra en tus datos con un inicio de sesión.',
+  guardadoTexto: 'Peso, síntomas, inyecciones, exámenes y notas se graban dentro de la aplicación, en este teléfono. No hay cuenta ni contraseña: nadie entra en tus datos con un inicio de sesión.',
 
   usoTitulo: 'Para qué se usan tus datos',
   usoTexto: 'Para armar tus metas diarias, acompañar la evolución del tratamiento y organizar lo que lleves a la consulta. Nada de eso es un diagnóstico, y la aplicación no receta ni ajusta dosis.',
@@ -89,7 +89,7 @@ export const aviso = {
     incluido: 'incluido',
     fora: 'afuera',
 
-    aplicacoes: 'Aplicaciones',
+    aplicacoes: 'Inyecciones',
     aplicacoesSub: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · fecha, dosis y lugar`,
     pesoEMedidas: 'Peso y medidas',
@@ -124,7 +124,7 @@ export const aviso = {
 
     ondeFicam: 'Dónde quedan tus registros',
     noAparelho: 'En el aparato, dentro de la aplicación',
-    noAparelhoTexto: 'Peso, medidas, aplicaciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un login, porque no existe login.',
+    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un login, porque no existe login.',
     desinstalar: 'Desinstalar se lleva todo',
     desinstalarTexto: 'Como no hay copia en ningún servidor, borrar la aplicación borra los registros. No es posible recuperarlos después.',
 

@@ -43,7 +43,7 @@ export const descobertas = {
      „Dulaglutid“. Das ist Marktdaten, kein Katalogtext, und steht in
      PENDENCIAS. Bis dahin liest dieser Satz den portugiesischen Namen. */
   fomeTexto: (molecula: string) =>
-    `Dann ist der ${molecula}-Spiegel am tiefsten Punkt des Zyklus, kurz vor der nächsten Injektion. Das legt sich von selbst, sobald du spritzt.`,
+    `Dann ist der ${molecula}-Spiegel am tiefsten Punkt des Zyklus, kurz vor der nächsten Spritze. Das legt sich von selbst, sobald du spritzt.`,
   fomeCta: 'Den Zyklus ansehen',
 
   aguaTitulo: 'Morgen ist meist dein trockenster Tag',
@@ -54,7 +54,7 @@ export const descobertas = {
 
   enjooTitulo: 'Wenn jetzt Übelkeit kommt, hat sie eine Uhrzeit, zu der sie geht',
   enjooTexto: (perto: string, longe: string) =>
-    `In deinen Aufzeichnungen liegt sie an den ersten beiden Tagen nach der Injektion bei ${perto} und fällt ab dem dritten auf ${longe}. Das sind die 48 Stunden jedes Zyklus, nicht die ganze Behandlung.`,
+    `In deinen Aufzeichnungen liegt sie an den ersten beiden Tagen nach der Spritze bei ${perto} und fällt ab dem dritten auf ${longe}. Das sind die 48 Stunden jedes Zyklus, nicht die ganze Behandlung.`,
   enjooCta: 'Die Beschwerden ansehen',
 
   /* ---------- die Einladungen ---------- */

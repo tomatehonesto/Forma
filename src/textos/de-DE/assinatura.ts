@@ -101,7 +101,7 @@ export const assinatura = {
 
      ⚠️⚠️ UND DIE ZEILE ZU DEN DATEN GEHT MIT, immer. Den Zugang zu einem
      Behandlungstagebuch auszusetzen heißt, jemanden vor dem eigenen
-     Gewicht, den eigenen Injektionen und den eigenen Befunden
+     Gewicht, den eigenen Spritzen und den eigenen Befunden
      auszusperren — und das tun wir nicht. Getrennt wird der erste Satz zu
      einer Drohung. */
   bomSaberTitulo: 'Gut zu wissen',
@@ -298,7 +298,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'die Praxis, die dich behandelt hat',
-    nadaApagado: 'Nichts wurde gelöscht. Gewicht, Injektionen, Beschwerden, Befunde und Fotos bleiben auf deinem Gerät.',
+    nadaApagado: 'Nichts wurde gelöscht. Gewicht, Spritzen, Beschwerden, Befunde und Fotos bleiben auf deinem Gerät.',
     nadaCobrado: 'Es wurde nichts abgebucht, und es wird nichts ohne deine Wahl abgebucht.',
     verOsPlanos: 'Angebote ansehen',
     outroCodigo: 'Ich habe einen anderen Code',

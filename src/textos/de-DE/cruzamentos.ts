@@ -26,7 +26,7 @@ export const cruzamentos = {
   catSono: 'Schlaf',
   catSintomas: 'Beschwerden',
   catPeso: 'Gewicht',
-  catAplicacoes: 'Injektionen',
+  catAplicacoes: 'Spritzen',
 
   /* ---------- die Wochentage, so wie sie in den Satz kommen ---------- */
   /* ⚠️ SIE KOMMEN ALS ADVERB, nicht nackt. „Dein Trinken fällt Sonntag“
@@ -133,24 +133,24 @@ export const cruzamentos = {
     q: 'Warum ist mir übel?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `gegenüber ${semSono}`, legenda: `die Übelkeit nach ${noites} langen Nächten` }),
-    significa: 'Das ist, was deine Einträge zeigen, und kein Ursachenzusammenhang: der Zyklus der Injektion bewegt die Übelkeit mehr als alles andere, und er kann hinter beiden Seiten der Rechnung stehen. Als Spur zum Mitnehmen zu deinem Team, nicht als abgeschlossene Erklärung.',
+    significa: 'Das ist, was deine Einträge zeigen, und kein Ursachenzusammenhang: der Zyklus der Spritze bewegt die Übelkeit mehr als alles andere, und er kann hinter beiden Seiten der Rechnung stehen. Als Spur zum Mitnehmen zu deinem Team, nicht als abgeschlossene Erklärung.',
   },
 
   /* ---------- 6. das Fenster der Übelkeit ---------- */
   /* Der Fund ist nicht, dass es Übelkeit gibt — es ist, dass sie eine
      Uhrzeit hat, zu der sie endet. */
   janelaEnjoo: {
-    titulo: 'Deine Übelkeit verschwindet meist etwa 48 Stunden nach der Injektion',
+    titulo: 'Deine Übelkeit verschwindet meist etwa 48 Stunden nach der Spritze',
     texto: (perto: string, longe: string) =>
       `Sie liegt an den ersten beiden Tagen bei ${perto} und fällt ab dem dritten auf ${longe}. Es ist nicht die ganze Behandlung, die übel macht — es sind die ersten 48 Stunden jedes Zyklus.`,
     q: 'Warum ist mir übel?',
     evid: { valor: '48', unidade: 'Stunden', legenda: 'und dann geht es vorbei' },
     /* ⚠️ DER LETZTE SATZ IST DER EINZIGE DER DATEI, DER EINE HANDLUNG
-       VORSCHLÄGT, und er darf es: den Tag der Injektion zu wählen ist eine
+       VORSCHLÄGT, und er darf es: den Tag der Spritze zu wählen ist eine
        Entscheidung der Person mit ihrem Team, keine Änderung von Dosis
        oder Medikament. */
     significa: (dias: number) =>
-      `Das hat sich in ${dias} deiner Einträge nach der Injektion wiederholt. Zu wissen, dass es ein Fenster gibt und dass es endet, ändert, was man damit macht: der Tag der Injektion lässt sich so wählen, dass diese 48 Stunden auf den leichtesten Teil deiner Woche fallen.`,
+      `Das hat sich in ${dias} deiner Einträge nach der Spritze wiederholt. Zu wissen, dass es ein Fenster gibt und dass es endet, ändert, was man damit macht: der Tag der Spritze lässt sich so wählen, dass diese 48 Stunden auf den leichtesten Teil deiner Woche fallen.`,
   },
 
   /* ---------- 7. das Wasser gegen die Übelkeit ---------- */
@@ -214,7 +214,7 @@ export const cruzamentos = {
 
      Der Grund für diese Markierung steht in logic/derive — sie waren die
      einzigen ohne Bedingung drumherum und eröffneten den Reiter, für alle,
-     die gerade installiert hatten, mit „Du hast 0% der Injektionen
+     die gerade installiert hatten, mit „Du hast 0% der Spritzen
      pünktlich gehalten“.
      ============================================================ */
 
@@ -242,15 +242,15 @@ export const cruzamentos = {
 
   /* ---------- 11. die Verlässlichkeit ---------- */
   adesao: {
-    tituloPerfeita: 'Du warst seit dem Start mit keiner Injektion zu spät',
-    titulo: (pct: number) => `Du hast ${pct}% der Injektionen pünktlich gehalten`,
+    tituloPerfeita: 'Du warst seit dem Start mit keiner Spritze zu spät',
+    titulo: (pct: number) => `Du hast ${pct}% der Spritzen pünktlich gehalten`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `Das sind ${aplicacoes} Injektionen seit Beginn der Behandlung, ${ressalva}.`,
+      `Das sind ${aplicacoes} Spritzen seit Beginn der Behandlung, ${ressalva}.`,
     textoQuaseTodas: 'fast alle am richtigen Tag',
     textoComAtrasos: 'mit ein paar Verspätungen unterwegs',
     q: 'Wie funktioniert der Zyklus des Medikaments?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} Injektionen seit dem Start` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} Spritzen seit dem Start` }),
     significaAlta: 'Diese Regelmäßigkeit ist einer der Faktoren, die für ein gutes Ansprechen auf das Medikament am meisten wiegen. Der Spiegel der Substanz im Körper hängt von Regelmäßigkeit ab, nicht von Anstrengung — und das ist die Art Sache, die nur auffällt, wenn jemand den ganzen Verlauf ansieht.',
     /* ⚠️ DIE FASSUNG MIT VERSPÄTUNGEN ERKLÄRT DEN PREIS UND MAHNT DAS
        VERSÄUMNIS NICHT AN. „Jede Verspätung lässt ein Fenster, in dem die

@@ -13,7 +13,7 @@
    ============================================================ */
 
 export const avisos = {
-  /* ---------- die Injektion, in drei Entfernungen ---------- */
+  /* ---------- die Spritze, in drei Entfernungen ---------- */
   /* `dose` kommt fertig an — „Mounjaro 5 mg“ —, und Behälter und Artikel
      kommen aus logic/formas.
 
@@ -24,11 +24,11 @@ export const avisos = {
      dreht der deutsche Satz sich um: „Der Pen kann schon bereitliegen.“
      Das ist kein Trick, das ist die Lösung — wer den Fall nicht wählen
      kann, baut den Satz um den Fall herum, den er bekommt. */
-  doseHoje: 'Deine Injektion ist heute',
+  doseHoje: 'Deine Spritze ist heute',
   doseHojeCorpo: (dose: string) => `${dose}. Trag sie ein, wenn es gerade passt.`,
-  doseAmanha: 'Deine Injektion ist morgen',
+  doseAmanha: 'Deine Spritze ist morgen',
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. ${oRecipiente} kann schon bereitliegen.`,
-  doseEmDias: (dias: number) => `Deine Injektion ist in ${dias} Tagen`,
+  doseEmDias: (dias: number) => `Deine Spritze ist in ${dias} Tagen`,
   /* Hier passt der Genitiv, und `doDa` liefert ihn: „den Vorrat des Pens“. */
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Zeit genug, den Vorrat ${doRecipiente} zu prüfen.`,
 

@@ -58,7 +58,7 @@ export const cadastro = {
     nascimento: 'Cada etapa de la vida tiene necesidades distintas — y la edad entra en los rangos de referencia de tus exámenes.',
     tratamento: 'Solo para saber dónde estás ahora.',
     inicio: 'Aproximado está bien. De aquí sale tu semana de tratamiento, y este peso es el que se vuelve el comienzo de tu curva.',
-    medicamento: 'De él salen la escalera de dosis y el intervalo entre las aplicaciones.',
+    medicamento: 'De él salen la escalera de dosis y el intervalo entre las inyecciones.',
     forma: 'Lo compuesto sale de la farmacia de las dos formas, y lo que cambia es lo que tienes en la mano a la hora de aplicártelo.',
     doseComEscada: (med: string) => `En el orden de titulación de ${med}.`,
     doseSemEscada: 'Lo compuesto no tiene escalera de prospecto — el número es el de tu receta.',
@@ -200,7 +200,7 @@ export const cadastro = {
 
     aindaADefinir: 'Todavía por definir',
     aindaADefinirTexto: 'Cuando sepas el medicamento, armo la escalera de dosis y el ciclo.',
-    cicloComeca: 'El ciclo empieza en la primera aplicación que registres.',
+    cicloComeca: 'El ciclo empieza en la primera inyección que registres.',
     cadenciaDiaria: 'todos los días',
     cadenciaSemanal: 'una vez por semana',
     cadenciaDias: (dias: number) => `cada ${dias} días`,

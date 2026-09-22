@@ -72,7 +72,7 @@ export const cuidado = {
     /* Die beiden Zählungen oben. Der Zeilenumbruch ist Absicht: Wert
        oben, Einheit unten, für den Blick im Vorbeigehen. */
     metricaSemanas: 'Wochen\nBetreuung',
-    metricaAplicacoes: 'Injektionen\neingetragen',
+    metricaAplicacoes: 'Spritzen\neingetragen',
 
     /* ⚠️ „DOSEN“ UND NICHT „INJEKTIONEN“: diese Pastille teilt sich die
        Zeile mit dem Puls, der „3 offene Punkte“ heißen kann, und das lange
@@ -143,8 +143,8 @@ export const cuidado = {
      DER ZUSAMMENHANG DER DOSIS — die drei kurzen Sätze
      ============================================================ */
   dose: {
-    aplicacaoHoje: 'Injektion heute',
-    proximaAplicacao: (quando: string) => `Nächste Injektion ${quando}`,
+    aplicacaoHoje: 'Spritze heute',
+    proximaAplicacao: (quando: string) => `Nächste Spritze ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Bei dieser Dosis seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
     /* `quando` kommt schon als „in 9 Tagen“ / „morgen“ an, mit der
@@ -185,7 +185,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Woche ',
       temHorizonte ? ` von ${previstas} bis zu deinem Ziel · ` : ' deiner Behandlung · ',
-      ' mit Injektion nach Plan',
+      ' mit Spritze nach Plan',
     ],
 
     ultimaOrientacao: 'LETZTER HINWEIS',
@@ -207,7 +207,7 @@ export const cuidado = {
     prepararAConsulta: 'Den Termin vorbereiten',
 
     seuTratamento: 'Deine Behandlung',
-    aplicacoesLink: 'Injektionen',
+    aplicacoesLink: 'Spritzen',
     dosesEm: (onde: string) => `Dosen ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} von ${total} · etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
@@ -261,7 +261,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Ich habe keine Begleitung mehr',
     tirarPergunta: 'Die Begleitung entfernen?',
-    tirarTexto: 'Alle deine Einträge bleiben hier — Gewicht, Injektionen, Symptome, Befunde und Notizen. Weg geht nur der Name.',
+    tirarTexto: 'Alle deine Einträge bleiben hier — Gewicht, Spritzen, Symptome, Befunde und Notizen. Weg geht nur der Name.',
     simTirar: 'Ja, entfernen',
     cancelar: 'Abbrechen',
   },

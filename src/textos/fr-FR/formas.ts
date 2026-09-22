@@ -48,9 +48,9 @@ export const formas = {
      exactement comme ça que le cinquième, irrégulier, passe sans que
      personne le remarque. */
   palavras: {
-    caneta: { recipiente: 'stylo', plural: 'stylos', verbo: 'injecter', acao: 'injection' },
-    frasco: { recipiente: 'flacon', plural: 'flacons', verbo: 'injecter', acao: 'injection' },
-    seringa: { recipiente: 'seringue', plural: 'seringues', verbo: 'injecter', acao: 'injection' },
+    caneta: { recipiente: 'stylo', plural: 'stylos', verbo: 'injecter', acao: 'piqûre' },
+    frasco: { recipiente: 'flacon', plural: 'flacons', verbo: 'injecter', acao: 'piqûre' },
+    seringa: { recipiente: 'seringue', plural: 'seringues', verbo: 'injecter', acao: 'piqûre' },
     comprimido: { recipiente: 'plaquette', plural: 'plaquettes', verbo: 'prendre', acao: 'prise' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

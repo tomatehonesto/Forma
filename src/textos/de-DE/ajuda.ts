@@ -24,7 +24,7 @@ export const ajuda = {
   qa: [
     {
       q: 'Woher kommen die Zahlen, die hier stehen?',
-      a: 'Alle sind Rechnungen auf dem, was du eingetragen hast — Gewicht, Injektionen, Check-ins, Mahlzeiten, Befunde. Die App ergänzt nichts, was gefehlt hat, und schätzt nichts, was du nicht gesagt hast: ein Tag ohne Antwort erscheint als Tag ohne Antwort und nicht als null.',
+      a: 'Alle sind Rechnungen auf dem, was du eingetragen hast — Gewicht, Spritzen, Check-ins, Mahlzeiten, Befunde. Die App ergänzt nichts, was gefehlt hat, und schätzt nichts, was du nicht gesagt hast: ein Tag ohne Antwort erscheint als Tag ohne Antwort und nicht als null.',
     },
     {
       q: 'Kann ich einen Eintrag korrigieren oder löschen?',

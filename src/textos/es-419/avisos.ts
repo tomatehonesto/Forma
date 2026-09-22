@@ -13,11 +13,11 @@
    ============================================================ */
 
 export const avisos = {
-  doseHoje: 'Tu aplicación es hoy',
+  doseHoje: 'Tu inyección es hoy',
   doseHojeCorpo: (dose: string) => `${dose}. Cuando puedas, regístrala aquí.`,
-  doseAmanha: 'Tu aplicación es mañana',
+  doseAmanha: 'Tu inyección es mañana',
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Vale dejar ${oRecipiente} a la vista.`,
-  doseEmDias: (dias: number) => `Tu aplicación es en ${dias} días`,
+  doseEmDias: (dias: number) => `Tu inyección es en ${dias} días`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Da tiempo de revisar cuánto queda ${doRecipiente}.`,
 
   checkin: '¿Cómo te fue hoy?',

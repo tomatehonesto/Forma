@@ -25,7 +25,7 @@ export const ciclo = {
      cartes de suite qui donnent la même nouvelle gaspillent le carrousel. */
   aplicHead: 'L’effet commence à monter dans les prochaines heures.',
   aplicBody: 'Une nausée légère peut apparaître — mieux vaut des repas plus petits au fil de la journée.',
-  aplicQ: 'À quoi s’attendre le jour de l’injection ?',
+  aplicQ: 'À quoi s’attendre le jour de la piqûre ?',
 
   picoHead: 'Votre appétit a tendance à être plus bas aujourd’hui.',
   picoBody: 'Pic d’effet du médicament — bonne journée pour s’entraîner et prendre de l’avance sur les protéines.',
@@ -40,7 +40,7 @@ export const ciclo = {
   retornoQ: 'Pourquoi ai-je plus faim ?',
 
   altoHeadHoje: 'Faim au point le plus haut du cycle.',
-  altoHeadComData: (quando: string) => `Faim au point haut du cycle — injection ${quando}.`,
+  altoHeadComData: (quando: string) => `Faim au point haut du cycle — piqûre ${quando}.`,
   /* ⚠️ « NE SAUTEZ PAS DE REPAS » PRÉSUPPOSE QU'ELLE EN SAUTE, et au point
      haut de la faim, celle qui en saute le moins est celle qui a faim. La
      phrase naissait comme un conseil et arrivait comme un reproche — la
@@ -63,7 +63,7 @@ export const ciclo = {
      nom seul — « Début du retour de la faim » — est un diagnostic sans
      contexte, et sur un écran de traitement ça effraie au lieu
      d'orienter. */
-  faseAplicLabel: 'Injection',
+  faseAplicLabel: 'Piqûre',
   faseAplicRange: 'Jour 1',
   faseAplicHint: 'L’effet commence à monter dans les prochaines heures.',
 
@@ -79,7 +79,7 @@ export const ciclo = {
   faseRetornoRange: 'Jours 5–6',
   faseRetornoHint: 'Le médicament commence à redescendre, et la faim a tendance à revenir.',
 
-  fasePreLabel: 'Avant l’injection',
+  fasePreLabel: 'Avant la piqûre',
   fasePreRange: 'Jours 7+',
   fasePreHint: 'Point le plus bas du cycle, jusqu’à la prochaine dose.',
 
@@ -112,12 +112,12 @@ export const ciclo = {
   faseDescidaAtencao: 'vomissements persistants ou douleur abdominale forte : parlez-en à votre médecin',
 
   faseBaixoTitulo: 'Jour 7 · point le plus bas',
-  faseBaixoSub: 'Veille de la prochaine injection',
+  faseBaixoSub: 'Veille de la prochaine piqûre',
   faseBaixoComum: 'appétit plus proche de l’habitude',
   /* « La dose », et non « le stylo » : cette table est constante et ne
      connaît pas la forme du médicament — la phrase sert au stylo, au
      flacon et à la seringue. */
-  faseBaixoAjuda: 'préparez la dose et le site de l’injection la veille',
+  faseBaixoAjuda: 'préparez la dose et le site de la piqûre la veille',
   tela: {
     titulo: 'Cycle de la dose',
     diaDepois: (dia: number, acao: string) => `Jour ${dia} après\nvotre ${acao}`,

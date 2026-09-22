@@ -18,7 +18,7 @@ export const aviso = {
   isencaoAceite: 'J’ai compris et j’accepte',
 
   guardadoTitulo: 'Ce que vous notez reste sur votre appareil',
-  guardadoTexto: 'Poids, symptômes, injections, analyses et notes sont enregistrés dans l’application, sur ce téléphone. Il n’y a ni compte ni mot de passe : personne n’entre dans vos données avec un identifiant.',
+  guardadoTexto: 'Poids, symptômes, piqûres, analyses et notes sont enregistrés dans l’application, sur ce téléphone. Il n’y a ni compte ni mot de passe : personne n’entre dans vos données avec un identifiant.',
 
   usoTitulo: 'À quoi servent vos données',
   usoTexto: 'À construire vos objectifs quotidiens, à suivre l’évolution du traitement et à organiser ce que vous apportez à la consultation. Rien de tout cela n’est un diagnostic, et l’application ne prescrit ni n’ajuste de dose.',
@@ -90,7 +90,7 @@ export const aviso = {
     incluido: 'inclus',
     fora: 'dehors',
 
-    aplicacoes: 'Injections',
+    aplicacoes: 'Piqûres',
     aplicacoesSub: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'relevé' : 'relevés'} · date, dose et endroit`,
     pesoEMedidas: 'Poids et mesures',
@@ -125,7 +125,7 @@ export const aviso = {
 
     ondeFicam: 'Où vos relevés restent',
     noAparelho: 'Sur l’appareil, dans l’application',
-    noAparelhoTexto: 'Le poids, les mesures, les injections, les check-ins, les analyses, les photos et les notes sont écrits dans le stockage de l’application elle-même, sur cet appareil. Il n’y a ni compte ni mot de passe ici : personne n’entre dans vos données avec un identifiant, parce qu’il n’y a pas d’identifiant.',
+    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses, les photos et les notes sont écrits dans le stockage de l’application elle-même, sur cet appareil. Il n’y a ni compte ni mot de passe ici : personne n’entre dans vos données avec un identifiant, parce qu’il n’y a pas d’identifiant.',
     desinstalar: 'Désinstaller emporte tout',
     desinstalarTexto: 'Comme il n’y a de copie sur aucun serveur, effacer l’application efface les relevés. Il n’est pas possible de les récupérer ensuite.',
 

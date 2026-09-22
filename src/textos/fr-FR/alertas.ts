@@ -9,7 +9,7 @@
    ⚠️ « INJECTION DE LA DOSE », et avant c'était « du stylo ». La table ne
    sait pas quelle forme utilise la personne qui lit, et la sortie a été
    la phrase qui sert aussi bien au stylo, au flacon et à la seringue. Le
-   comprimé lit encore « injection » ici, et c'est une dette connue.
+   comprimé lit encore « piqûre » ici, et c'est une dette connue.
 
    ⚠️ ET LE CHECK-IN EST LE SEUL QUI POSE UNE QUESTION. Les quatre autres
    préviennent pour des choses que la personne FAIT. C'est pour ça qu'il
@@ -17,8 +17,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Injection de la dose',
-  doseCurto: 'Injection',
+  dose: 'Piqûre de la dose',
+  doseCurto: 'Piqûre',
   doseDesc: 'Un rappel avant la prochaine dose, pour garder le traitement à jour.',
 
   checkin: 'Check-in du jour',
@@ -67,7 +67,7 @@ export const alertas = {
     oQueAvisar: 'Quoi rappeler',
 
     antecedencia: 'Combien de temps avant',
-    antecedenciaAjuda: 'Comptée à partir de la date de votre prochaine injection.',
+    antecedenciaAjuda: 'Comptée à partir de la date de votre prochaine piqûre.',
 
     diasDaSemana: 'Jours de la semaine',
     diasDaSemanaAjuda: 'Si aucun n’est coché, le rappel sonne tous les jours.',

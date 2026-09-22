@@ -38,9 +38,9 @@ export const formas = {
   /* ⚠️ EL PLURAL ES CAMPO, y no `recipiente + 's'`. "Blíster" hace
      "blísteres" y no "blísters" — la cuenta fácil ya falla en el cuarto. */
   palavras: {
-    caneta: { recipiente: 'pluma', plural: 'plumas', verbo: 'aplicar', acao: 'aplicación' },
-    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'aplicación' },
-    seringa: { recipiente: 'jeringa', plural: 'jeringas', verbo: 'aplicar', acao: 'aplicación' },
+    caneta: { recipiente: 'pluma', plural: 'plumas', verbo: 'aplicar', acao: 'inyección' },
+    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'inyección' },
+    seringa: { recipiente: 'jeringa', plural: 'jeringas', verbo: 'aplicar', acao: 'inyección' },
     comprimido: { recipiente: 'blíster', plural: 'blísteres', verbo: 'tomar', acao: 'dosis' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
