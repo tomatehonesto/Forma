@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 542, em 72 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 506, em 69 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1221,6 +1221,13 @@ tirada do `git show`, e não de memória.
 - **Mais dois ordinais de idioma:** "3ª dose" em /aplicacao e "no 3º dia
   depois" em /sintomas. O sufixo não é o mesmo em nenhum par de idiomas —
   "3ª", "3.", "3rd", "3e" — e não há concatenação que sirva.
+- **Duas réguas para a mesma pergunta.** /medir-refeicao tinha a sua
+  própria conta do momento sugerido — `hora < 10 ? Café da manhã : …` —,
+  com os quatro nomes em duro e com CORTES DIFERENTES dos de
+  `momentoDaHora`, que é a régua do resto do aplicativo. Divergiam em três
+  horas do dia: 10h, 18h e 23h. O momento é chave e rótulo ao mesmo tempo
+  (é ele que fica gravado na refeição), então duas réguas eram duas
+  verdades sobre o mesmo registro.
 - **Dois particípios que só aparecem no recipiente errado:** o francês
   "La plaquette expire avant d'être **fini**" e o alemão "läuft ab, bevor
   **er** leer ist". Os dois nasceram na tradução, e os dois só se veem

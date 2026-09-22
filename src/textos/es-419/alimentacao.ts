@@ -262,4 +262,45 @@ export const alimentacao = {
     tocaEm: (quando: string) => `Suena ${quando}`,
     umToquePorDia: 'Un toque por día, a la hora que elijas',
   },
+
+  telaMedirRefeicao: {
+    favorito: 'Un plato favorito',
+    favoritoSub: 'Arma el plato una vez y queda a un toque',
+    corrigir: 'Corregir la comida',
+    corrigirSub: 'Qué quedó mal en el registro',
+    oQueComeu: '¿Qué comiste?',
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} de ${alvo} g de proteína hoy`,
+
+    digaOQueTinha: 'Di qué había en el plato',
+    guardarNosFavoritos: 'Guardar en favoritos',
+    salvarCorrecao: 'Guardar la corrección',
+    registrarMomento: (momento: string) => `Registrar ${momento}`,
+
+    quando: 'CUÁNDO',
+    oQueTinhaNoPrato: 'QUÉ HABÍA EN EL PLATO',
+    proteinaDestaRefeicao: 'Proteína de esta comida',
+    gramas: (quanto: number) => `~${quanto} g`,
+    semContaUm: (item: string) =>
+      `${item} no entra en esa cuenta — todavía no tengo la proteína de ese plato.`,
+    semContaVarios: (quantos: number) =>
+      `${quantos} ítems no entran en esa cuenta — todavía no tengo la proteína de ellos.`,
+    estimadoPelaFoto: 'Parte de este total fue estimada por la foto, sin tabla detrás.',
+
+    pratosFavoritos: 'Platos favoritos',
+    pratosGuardados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'plato guardado' : 'platos guardados'}`,
+    favoritoProteina: (quanto: number) => `~${quanto} g de proteína`,
+
+    /* ---------- o compositor do prato (ui/comida) ---------- */
+    buscaPlaceholder: 'Busca un alimento o un plato',
+    itemSub: (marca: string, medida: string, gramas: number) =>
+      `${marca}${medida} · ~${gramas} g de proteína`,
+    anotarEscrito: (texto: string) => `Anotar “${texto}”`,
+    semProteinaAinda: 'Todavía no tengo la proteína de ese',
+    escanear: 'Escanear',
+    lendoOPrato: 'Leyendo el plato…',
+    confiraALista: 'Revisa la lista de abajo y ajusta lo que haga falta.',
+
+    apagar: 'Borrar esta comida',
+  },
 };

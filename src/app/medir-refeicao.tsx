@@ -6,7 +6,7 @@ import {
   apagarRefeicao, checkinToday, editarRefeicao, favoritos, guardarFavorito,
   refeicaoEm, registrarRefeicao,
 } from '../logic/derive';
-import { MOMENTOS, itensDe, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
+import { MOMENTOS, itensDe, momentoDaHora, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
@@ -14,6 +14,11 @@ import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Acordeao, Botao, Grade, Linha, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alimentacao.telaMedirRefeicao;
 
 /* ============================================================
    O QUE VOCÊ COMEU
@@ -76,7 +81,12 @@ export default function MedirRefeicao() {
   const original = editando ? refeicaoEm(S, tEdit) : null;
 
   const hora = new Date().getHours();
-  const sugerido = hora < 10 ? 'Café da manhã' : hora < 15 ? 'Almoço' : hora < 18 ? 'Lanche' : 'Jantar';
+  /* ⚠️ A RÉGUA É A DE `momentoDaHora`, e não uma segunda escrita aqui.
+     Esta tela tinha a sua, com os quatro nomes em duro e com cortes
+     diferentes: às 18h30 ela sugeria "Jantar" e o resto do aplicativo
+     dizia "Lanche". O momento é chave e rótulo ao mesmo tempo — é ele que
+     fica gravado —, então duas réguas eram duas verdades. */
+  const sugerido = momentoDaHora(hora);
 
   const [quando, setQuando] = useState(original?.name || sugerido);
   const [busca, setBusca] = useState(String(oqueParam || ''));
@@ -171,15 +181,15 @@ export default function MedirRefeicao() {
 
   return (
     <SheetScreen
-      titulo={cadastrando ? 'Um prato favorito' : editando ? 'Corrigir a refeição' : 'O que você comeu?'}
+      titulo={cadastrando ? K().favorito : editando ? K().corrigir : K().oQueComeu}
       /* Ao corrigir e ao cadastrar, o total do dia não cabe: quem está
          consertando uma linha precisa da linha, e quem está guardando um
          prato para amanhã não está mexendo em hoje. */
       sub={cadastrando
-        ? 'Monte o prato uma vez e ele fica a um toque'
+        ? K().favoritoSub
         : editando
-          ? 'O que ficou errado no registro'
-          : `${hojeProt} de ${alvo} g de proteína hoje`}
+          ? K().corrigirSub
+          : K().proteinaHoje(hojeProt, alvo)}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -189,10 +199,10 @@ export default function MedirRefeicao() {
           }}>
             <Txt v="body" c={pronto ? c.accentInk : c.tx4}>
               {!pronto
-                ? 'Diga o que tinha no prato'
-                : cadastrando ? 'Guardar nos favoritos'
-                  : editando ? 'Salvar a correção'
-                    : `Registrar ${quando.toLowerCase()}`}
+                ? K().digaOQueTinha
+                : cadastrando ? K().guardarNosFavoritos
+                  : editando ? K().salvarCorrecao
+                    : K().registrarMomento(T.comum.noMeio(quando))}
             </Txt>
           </View>
         </Pressable>
@@ -204,7 +214,7 @@ export default function MedirRefeicao() {
           hora de registrar. */}
       {cadastrando ? null : (
         <>
-          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>QUANDO</Txt>
+          <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>{K().quando}</Txt>
           <Grade>
             {MOMENTOS().map(([ic, h]) => (
               <Opc key={h} cheia ic={ic} label={h} on={quando === h} onPress={() => setQuando(h)} />
@@ -217,7 +227,7 @@ export default function MedirRefeicao() {
           um caminho, não O caminho — como cartão de largura inteira ela
           empurrava a busca para baixo, e é a busca que a maioria usa. */}
       <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 22, marginBottom: 10 }}>
-        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>O QUE TINHA NO PRATO</Txt>
+        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{K().oQueTinhaNoPrato}</Txt>
         {foto ? null : <BotaoEscanear onPress={() => setCamera(true)} />}
       </Row>
 
@@ -293,13 +303,13 @@ export default function MedirRefeicao() {
           ))}
 
           <Row style={{ justifyContent: 'space-between', paddingHorizontal: 2, marginTop: 3 }}>
-            <Txt v="caption" c={c.tx3}>Proteína desta refeição</Txt>
+            <Txt v="caption" c={c.tx3}>{K().proteinaDestaRefeicao}</Txt>
             {/* Um traço, e não "~0 g", quando nada do prato entrou na
                 conta: zero é um resultado, e aqui não houve resultado. */}
             {g === 0 && semConta.length ? (
               <Txt v="label" c={c.tx4}>—</Txt>
             ) : (
-              <Txt v="label" c={c.accent}>~{g} g</Txt>
+              <Txt v="label" c={c.accent}>{K().gramas(g)}</Txt>
             )}
           </Row>
 
@@ -309,14 +319,14 @@ export default function MedirRefeicao() {
           {semConta.length ? (
             <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
               {semConta.length === 1
-                ? `${nomeItem(semConta[0])} não entra nessa conta — ainda não tenho a proteína desse prato.`
-                : `${semConta.length} itens não entram nessa conta — ainda não tenho a proteína deles.`}
+                ? K().semContaUm(nomeItem(semConta[0]))
+                : K().semContaVarios(semConta.length)}
             </Txt>
           ) : null}
 
           {estimados.length ? (
             <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
-              Parte deste total foi estimada pela foto, sem tabela por trás.
+              {K().estimadoPelaFoto}
             </Txt>
           ) : null}
         </View>
@@ -327,14 +337,14 @@ export default function MedirRefeicao() {
           <Acordeao
             nu
             ic="star"
-            titulo="Pratos favoritos"
-            sub={`${favs.length} ${favs.length === 1 ? 'prato guardado' : 'pratos guardados'}`}
+            titulo={K().pratosFavoritos}
+            sub={K().pratosGuardados(favs.length)}
           >
             {favs.map((f) => (
               <Linha
                 key={f.nome}
                 titulo={f.nome}
-                sub={`~${somaDe((f.itens || []) as ItemComida[])} g de proteína`}
+                sub={K().favoritoProteina(somaDe((f.itens || []) as ItemComida[]))}
                 seta={false}
                 onPress={() => setItens((v) => [...v, ...((f.itens || []) as ItemComida[])])}
               />
@@ -347,7 +357,7 @@ export default function MedirRefeicao() {
           o registro inteiro e concluir que ele não devia existir. */}
       {editando ? (
         <View style={{ marginTop: 22 }}>
-          <Botao label="Apagar esta refeição" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagar} tom="perigo" onPress={apagar} />
         </View>
       ) : null}
     </SheetScreen>

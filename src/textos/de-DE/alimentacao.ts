@@ -302,4 +302,45 @@ export const alimentacao = {
     tocaEm: (quando: string) => `Klingelt ${quando}`,
     umToquePorDia: 'Ein Signal pro Tag, zu der Zeit, die du wählst',
   },
+
+  telaMedirRefeicao: {
+    favorito: 'Ein Lieblingsteller',
+    favoritoSub: 'Stell den Teller einmal zusammen, und er bleibt einen Tipp entfernt',
+    corrigir: 'Die Mahlzeit korrigieren',
+    corrigirSub: 'Was am Eintrag falsch ist',
+    oQueComeu: 'Was hast du gegessen?',
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} von ${alvo} g Eiweiß heute`,
+
+    digaOQueTinha: 'Sag, was auf dem Teller war',
+    guardarNosFavoritos: 'Zu den Favoriten legen',
+    salvarCorrecao: 'Die Korrektur speichern',
+    registrarMomento: (momento: string) => `${momento} eintragen`,
+
+    quando: 'WANN',
+    oQueTinhaNoPrato: 'WAS AUF DEM TELLER WAR',
+    proteinaDestaRefeicao: 'Eiweiß dieser Mahlzeit',
+    gramas: (quanto: number) => `~${quanto} g`,
+    semContaUm: (item: string) =>
+      `${item} geht nicht in diese Rechnung ein — das Eiweiß dieses Gerichts habe ich noch nicht.`,
+    semContaVarios: (quantos: number) =>
+      `${quantos} Posten gehen nicht in diese Rechnung ein — ihr Eiweiß habe ich noch nicht.`,
+    estimadoPelaFoto: 'Ein Teil dieser Summe wurde aus dem Foto geschätzt, ohne Tabelle dahinter.',
+
+    pratosFavoritos: 'Lieblingsteller',
+    pratosGuardados: (quantos: number) =>
+      `${quantos} Teller abgelegt`,
+    favoritoProteina: (quanto: number) => `~${quanto} g Eiweiß`,
+
+    /* ---------- o compositor do prato (ui/comida) ---------- */
+    buscaPlaceholder: 'Such ein Lebensmittel oder einen Teller',
+    itemSub: (marca: string, medida: string, gramas: number) =>
+      `${marca}${medida} · ~${gramas} g Eiweiß`,
+    anotarEscrito: (texto: string) => `Notieren “${texto}”`,
+    semProteinaAinda: 'Das Eiweiß davon habe ich noch nicht',
+    escanear: 'Scannen',
+    lendoOPrato: 'Der Teller wird gelesen…',
+    confiraALista: 'Schau die Liste unten durch und pass an, was nötig ist.',
+
+    apagar: 'Diese Mahlzeit löschen',
+  },
 };

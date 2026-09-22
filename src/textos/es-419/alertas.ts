@@ -56,4 +56,37 @@ export const alertas = {
      que configuró. */
   aCada: (cada: number, de: number, ate: number) => `cada ${cada} h, de ${de} a ${ate} h`,
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
+
+  tela: {
+    alertaDe: (tipo: string) => `Alerta de ${tipo}`,
+    novoAlerta: 'Nueva alerta',
+    salvar: 'Guardar',
+    criar: 'Crear alerta',
+    apagar: 'Borrar esta alerta',
+
+    oQueAvisar: 'Qué avisar',
+
+    antecedencia: 'Antelación',
+    antecedenciaAjuda: 'Contada a partir de la fecha de tu próxima aplicación.',
+
+    diasDaSemana: 'Días de la semana',
+    diasDaSemanaAjuda: 'Sin ninguno marcado, la alerta suena todos los días.',
+
+    quandoTocar: 'Cuándo suena',
+    modoHorarios: 'Horarios',
+    modoIntervalo: 'Intervalo',
+
+    horarios: 'Horarios',
+    horariosAjuda: 'Puedes marcar más de uno — la alerta suena en cada uno de ellos.',
+
+    aCada: 'Cada',
+    aCadaHoras: (horas: number) => `${horas}h`,
+    comeca: 'Empieza',
+    ate: 'Hasta',
+    ateAjuda: (avisos: number, cada: number) =>
+      `${avisos} avisos por día, cada ${cada} horas.`,
+
+    tocaEm: (quando: string) => `Suena ${quando}`,
+    semHorario: 'Sin horario marcado',
+  },
 };

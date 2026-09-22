@@ -12,6 +12,11 @@ import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Grade, Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alertas.tela;
 
 /* ============================================================
    UM ALERTA — a folha que monta e a que corrige
@@ -106,19 +111,19 @@ export default function AlertaFolha() {
 
   return (
     <SheetScreen
-      titulo={existente ? 'Alerta de ' + t.titulo.toLowerCase() : 'Novo alerta'}
+      titulo={existente ? K().alertaDe(T.comum.noMeio(t.titulo)) : K().novoAlerta}
       sub={existente ? t.desc : undefined}
       onClose={fechar}
       rodape={
         <View style={{ gap: 10 }}>
-          <Botao label={existente ? 'Salvar' : 'Criar alerta'} onPress={salvar} />
-          {existente ? <Botao label="Apagar este alerta" tom="perigo" onPress={apagar} /> : null}
+          <Botao label={existente ? K().salvar : K().criar} onPress={salvar} />
+          {existente ? <Botao label={K().apagar} tom="perigo" onPress={apagar} /> : null}
         </View>
       }
     >
       <View style={{ marginTop: 20, gap: 18 }}>
         {!existente ? (
-          <Campo nu rotulo="O que avisar">
+          <Campo nu rotulo={K().oQueAvisar}>
             <Grade cols={2} gap={8}>
               {ORDEM.map((k) => (
                 <Opc key={k} cheia ic={TIPOS()[k].ic} label={TIPOS()[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
@@ -130,7 +135,7 @@ export default function AlertaFolha() {
         {/* A ANTECEDÊNCIA, só para a dose: ela não acontece num dia da
             semana, acontece antes da próxima aplicação — que anda. */}
         {t.temLead ? (
-          <Campo nu rotulo="Antecedência" ajuda="Contada a partir da data da sua próxima aplicação.">
+          <Campo nu rotulo={K().antecedencia} ajuda={K().antecedenciaAjuda}>
             <Opcoes>
               {LEADS.map((n) => (
                 <Opc key={n} label={rotuloDoLead(n)} on={(a.lead ?? 0) === n} onPress={() => mexer({ lead: n })} />
@@ -148,7 +153,7 @@ export default function AlertaFolha() {
              do calendário, e a pessoa vê a semana inteira de uma vez. A
              ambiguidade das duas quartas e dos dois sábados é a mesma de
              qualquer calendário de parede, e a posição resolve. */
-          <Campo nu rotulo="Dias da semana" ajuda="Sem nenhum marcado, o alerta toca todo dia.">
+          <Campo nu rotulo={K().diasDaSemana} ajuda={K().diasDaSemanaAjuda}>
             <Grade cols={7} gap={6}>
               {SEMANA.map((d) => (
                 <Opc key={d} cheia label={inicialDoDia(d)} on={a.dias.includes(d)} onPress={() => trocarDia(d)} />
@@ -163,13 +168,13 @@ export default function AlertaFolha() {
             momento, é o dia inteiro em intervalos, e marcar oito pastilhas
             à mão para descrever "de duas em duas horas" é o app fazendo a
             pessoa trabalhar para dizer o que cabe numa frase. */}
-        <Campo nu rotulo="Quando tocar">
+        <Campo nu rotulo={K().quandoTocar}>
           <Grade cols={2} gap={8}>
             {/* O relógio marca uma hora; as setas em volta marcam a
                 repetição. São os dois desenhos que a diferença entre os
                 modos já tem — um é ponto no dia, o outro é ritmo. */}
-            <Opc cheia ic="clock" label="Horários" on={a.modo === 'horas'} onPress={() => mexer({ modo: 'horas' })} />
-            <Opc cheia ic="reset" label="Intervalo" on={a.modo === 'intervalo'} onPress={() => mexer({ modo: 'intervalo' })} />
+            <Opc cheia ic="clock" label={K().modoHorarios} on={a.modo === 'horas'} onPress={() => mexer({ modo: 'horas' })} />
+            <Opc cheia ic="reset" label={K().modoIntervalo} on={a.modo === 'intervalo'} onPress={() => mexer({ modo: 'intervalo' })} />
           </Grade>
         </Campo>
 
@@ -178,7 +183,7 @@ export default function AlertaFolha() {
              mesmo tamanho e da mesma natureza, e embrulhadas elas formam um
              mosaico com fileiras de comprimentos diferentes. Em quatro
              colunas retas o olho corre a lista em vez de reler cada linha. */
-          <Campo nu rotulo="Horários" ajuda="Dá para marcar mais de um — o alerta toca em cada um deles.">
+          <Campo nu rotulo={K().horarios} ajuda={K().horariosAjuda}>
             <Grade cols={4} gap={8}>
               {HORAS.map((h) => (
                 <Opc key={h} cheia label={hm(h, 0)} on={a.horas.includes(h)} onPress={() => trocarHora(h)} />
@@ -187,10 +192,10 @@ export default function AlertaFolha() {
           </Campo>
         ) : (
           <>
-            <Campo nu rotulo="A cada">
+            <Campo nu rotulo={K().aCada}>
               <Opcoes>
                 {CADAS.map((n) => (
-                  <Opc key={n} label={`${n}h`} on={a.cada === n} onPress={() => mexer({ cada: n })} />
+                  <Opc key={n} label={K().aCadaHoras(n)} on={a.cada === n} onPress={() => mexer({ cada: n })} />
                 ))}
               </Opcoes>
             </Campo>
@@ -199,14 +204,14 @@ export default function AlertaFolha() {
                 continuação da primeira. O fim nunca fica antes do começo —
                 escolher um começo mais tarde empurra o fim junto, em vez de
                 deixar gravado um alerta que não toca nunca. */}
-            <Campo nu rotulo="Começa">
+            <Campo nu rotulo={K().comeca}>
               <Opcoes>
                 {INICIOS.map((h) => (
                   <Opc key={h} label={hm(h, 0)} on={a.de === h} onPress={() => mexer({ de: h, ate: Math.max(a.ate, h) })} />
                 ))}
               </Opcoes>
             </Campo>
-            <Campo nu rotulo="Até" ajuda={`${horasDe(a).length} avisos por dia, de ${a.cada} em ${a.cada} horas.`}>
+            <Campo nu rotulo={K().ate} ajuda={K().ateAjuda(horasDe(a).length, a.cada)}>
               <Opcoes>
                 {FINS.map((h) => (
                   <Opc key={h} label={hm(h, 0)} on={a.ate === h} onPress={() => mexer({ ate: h, de: Math.min(a.de, h) })} />
@@ -219,7 +224,7 @@ export default function AlertaFolha() {
         <Row gap={8} style={{ alignItems: 'center' }}>
           <Icon name="bell" size={14} color={c.accent} sw={2} />
           <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-            {proxima ? `Toca ${proxima}` : 'Sem horário marcado'}
+            {proxima ? K().tocaEm(proxima) : K().semHorario}
           </Txt>
         </Row>
       </View>

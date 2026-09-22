@@ -46,4 +46,37 @@ export const alertas = {
 
   aCada: (cada: number, de: number, ate: number) => `every ${cada}h, ${de}h to ${ate}h`,
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
+
+  tela: {
+    alertaDe: (tipo: string) => `${tipo} reminder`,
+    novoAlerta: 'New reminder',
+    salvar: 'Save',
+    criar: 'Create reminder',
+    apagar: 'Delete this reminder',
+
+    oQueAvisar: 'What to remind you of',
+
+    antecedencia: 'How far ahead',
+    antecedenciaAjuda: 'Counted from the date of your next injection.',
+
+    diasDaSemana: 'Days of the week',
+    diasDaSemanaAjuda: 'With none ticked, the reminder rings every day.',
+
+    quandoTocar: 'When it rings',
+    modoHorarios: 'Set times',
+    modoIntervalo: 'Interval',
+
+    horarios: 'Times',
+    horariosAjuda: 'You can tick more than one — the reminder rings at each of them.',
+
+    aCada: 'Every',
+    aCadaHoras: (horas: number) => `${horas}h`,
+    comeca: 'Starts',
+    ate: 'Until',
+    ateAjuda: (avisos: number, cada: number) =>
+      `${avisos} reminders a day, every ${cada} hours.`,
+
+    tocaEm: (quando: string) => `Rings ${quando}`,
+    semHorario: 'No time set',
+  },
 };

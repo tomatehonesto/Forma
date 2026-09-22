@@ -59,4 +59,46 @@ export const alertas = {
      configurou. */
   aCada: (cada: number, de: number, ate: number) => `a cada ${cada}h, ${de}h às ${ate}h`,
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
+
+  /* ============================================================
+     A FOLHA DE UM ALERTA
+
+     ⚠️ O TÍTULO ERA CONCATENAÇÃO NA TELA: `'Alerta de ' + titulo.toLowerCase()`.
+     Duas coisas erradas na mesma linha — a ordem das palavras fica presa
+     à do português, e o `.toLowerCase()` é regra de idioma: em alemão ele
+     abaixaria um substantivo. Agora é função, e `comum.noMeio` cuida da
+     caixa.
+     ============================================================ */
+  tela: {
+    alertaDe: (tipo: string) => `Alerta de ${tipo}`,
+    novoAlerta: 'Novo alerta',
+    salvar: 'Salvar',
+    criar: 'Criar alerta',
+    apagar: 'Apagar este alerta',
+
+    oQueAvisar: 'O que avisar',
+
+    antecedencia: 'Antecedência',
+    antecedenciaAjuda: 'Contada a partir da data da sua próxima aplicação.',
+
+    diasDaSemana: 'Dias da semana',
+    diasDaSemanaAjuda: 'Sem nenhum marcado, o alerta toca todo dia.',
+
+    quandoTocar: 'Quando tocar',
+    modoHorarios: 'Horários',
+    modoIntervalo: 'Intervalo',
+
+    horarios: 'Horários',
+    horariosAjuda: 'Dá para marcar mais de um — o alerta toca em cada um deles.',
+
+    aCada: 'A cada',
+    aCadaHoras: (horas: number) => `${horas}h`,
+    comeca: 'Começa',
+    ate: 'Até',
+    ateAjuda: (avisos: number, cada: number) =>
+      `${avisos} avisos por dia, de ${cada} em ${cada} horas.`,
+
+    tocaEm: (quando: string) => `Toca ${quando}`,
+    semHorario: 'Sem horário marcado',
+  },
 };

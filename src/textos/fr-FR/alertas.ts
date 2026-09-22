@@ -56,4 +56,37 @@ export const alertas = {
      de qui veut juste vérifier ce qu'il a réglé. */
   aCada: (cada: number, de: number, ate: number) => `toutes les ${cada} h, de ${de} h à ${ate} h`,
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
+
+  tela: {
+    alertaDe: (tipo: string) => `Rappel de ${tipo}`,
+    novoAlerta: 'Nouveau rappel',
+    salvar: 'Enregistrer',
+    criar: 'Créer le rappel',
+    apagar: 'Effacer ce rappel',
+
+    oQueAvisar: 'Quoi rappeler',
+
+    antecedencia: 'Combien de temps avant',
+    antecedenciaAjuda: 'Comptée à partir de la date de votre prochaine injection.',
+
+    diasDaSemana: 'Jours de la semaine',
+    diasDaSemanaAjuda: 'Si aucun n’est coché, le rappel sonne tous les jours.',
+
+    quandoTocar: 'Quand il sonne',
+    modoHorarios: 'Horaires',
+    modoIntervalo: 'Intervalle',
+
+    horarios: 'Horaires',
+    horariosAjuda: 'Vous pouvez en cocher plusieurs — le rappel sonne à chacun d’eux.',
+
+    aCada: 'Toutes les',
+    aCadaHoras: (horas: number) => `${horas} h`,
+    comeca: 'Commence',
+    ate: 'Jusqu’à',
+    ateAjuda: (avisos: number, cada: number) =>
+      `${avisos} rappels par jour, toutes les ${cada} heures.`,
+
+    tocaEm: (quando: string) => `Sonne ${quando}`,
+    semHorario: 'Aucun horaire coché',
+  },
 };

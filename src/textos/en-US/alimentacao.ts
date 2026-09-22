@@ -237,4 +237,45 @@ export const alimentacao = {
     tocaEm: (quando: string) => `Rings ${quando}`,
     umToquePorDia: 'One nudge a day, at the time you choose',
   },
+
+  telaMedirRefeicao: {
+    favorito: 'A favorite plate',
+    favoritoSub: 'Build the plate once and it stays one tap away',
+    corrigir: 'Fix the meal',
+    corrigirSub: 'What went wrong in the entry',
+    oQueComeu: 'What did you eat?',
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} of ${alvo} g of protein today`,
+
+    digaOQueTinha: 'Say what was on the plate',
+    guardarNosFavoritos: 'Save to favorites',
+    salvarCorrecao: 'Save the fix',
+    registrarMomento: (momento: string) => `Log ${momento}`,
+
+    quando: 'WHEN',
+    oQueTinhaNoPrato: 'WHAT WAS ON THE PLATE',
+    proteinaDestaRefeicao: 'Protein in this meal',
+    gramas: (quanto: number) => `~${quanto} g`,
+    semContaUm: (item: string) =>
+      `${item} does not go into this count — I do not have the protein for that dish yet.`,
+    semContaVarios: (quantos: number) =>
+      `${quantos} items do not go into this count — I do not have their protein yet.`,
+    estimadoPelaFoto: 'Part of this total was estimated from the photo, with no table behind it.',
+
+    pratosFavoritos: 'Favorite plates',
+    pratosGuardados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'plate saved' : 'plates saved'}`,
+    favoritoProteina: (quanto: number) => `~${quanto} g of protein`,
+
+    /* ---------- o compositor do prato (ui/comida) ---------- */
+    buscaPlaceholder: 'Search for a food or a plate',
+    itemSub: (marca: string, medida: string, gramas: number) =>
+      `${marca}${medida} · ~${gramas} g of protein`,
+    anotarEscrito: (texto: string) => `Note down “${texto}”`,
+    semProteinaAinda: 'I do not have the protein for that one yet',
+    escanear: 'Scan',
+    lendoOPrato: 'Reading the plate…',
+    confiraALista: 'Check the list below and adjust what you need.',
+
+    apagar: 'Delete this meal',
+  },
 };

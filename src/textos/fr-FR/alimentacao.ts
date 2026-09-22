@@ -273,4 +273,45 @@ export const alimentacao = {
     tocaEm: (quando: string) => `Sonne ${quando}`,
     umToquePorDia: 'Un signal par jour, à l’heure que vous choisissez',
   },
+
+  telaMedirRefeicao: {
+    favorito: 'Une assiette favorite',
+    favoritoSub: 'Composez l’assiette une fois et elle reste à un geste',
+    corrigir: 'Corriger le repas',
+    corrigirSub: 'Ce qui est faux dans le relevé',
+    oQueComeu: 'Qu’avez-vous mangé ?',
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} sur ${alvo} g de protéines aujourd’hui`,
+
+    digaOQueTinha: 'Dites ce qu’il y avait dans l’assiette',
+    guardarNosFavoritos: 'Garder dans les favoris',
+    salvarCorrecao: 'Enregistrer la correction',
+    registrarMomento: (momento: string) => `Noter ${momento}`,
+
+    quando: 'QUAND',
+    oQueTinhaNoPrato: 'CE QU’IL Y AVAIT DANS L’ASSIETTE',
+    proteinaDestaRefeicao: 'Protéines de ce repas',
+    gramas: (quanto: number) => `~${quanto} g`,
+    semContaUm: (item: string) =>
+      `${item} n’entre pas dans ce compte — je n’ai pas encore les protéines de ce plat.`,
+    semContaVarios: (quantos: number) =>
+      `${quantos} éléments n’entrent pas dans ce compte — je n’ai pas encore leurs protéines.`,
+    estimadoPelaFoto: 'Une partie de ce total a été estimée par la photo, sans table derrière.',
+
+    pratosFavoritos: 'Assiettes favorites',
+    pratosGuardados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'assiette gardée' : 'assiettes gardées'}`,
+    favoritoProteina: (quanto: number) => `~${quanto} g de protéines`,
+
+    /* ---------- o compositor do prato (ui/comida) ---------- */
+    buscaPlaceholder: 'Cherchez un aliment ou une assiette',
+    itemSub: (marca: string, medida: string, gramas: number) =>
+      `${marca}${medida} · ~${gramas} g de protéines`,
+    anotarEscrito: (texto: string) => `Noter “${texto}”`,
+    semProteinaAinda: 'Je n’ai pas encore les protéines de celui-là',
+    escanear: 'Scanner',
+    lendoOPrato: 'Lecture de l’assiette…',
+    confiraALista: 'Vérifiez la liste ci-dessous et ajustez ce qu’il faut.',
+
+    apagar: 'Effacer ce repas',
+  },
 };

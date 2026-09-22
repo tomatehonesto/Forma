@@ -67,4 +67,42 @@ export const alertas = {
      Zahl: „8–20 Uhr“, nicht „8 Uhr bis 20 Uhr“. */
   aCada: (cada: number, de: number, ate: number) => `alle ${cada} Std., ${de}–${ate} Uhr`,
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
+
+  /* ⚠️ HIER ZAHLT SICH `alertaDe` ALS FUNKTION AUS. Das Portugiesische
+     stellt die Art hinten an — „Alerta de aplicação“ —, das Deutsche
+     baut ein Kompositum oder stellt sie voran: „Erinnerung: Injektion“.
+     Und `comum.noMeio` gibt im Deutschen zurück, was es bekommt, damit
+     das Substantiv seine Großschreibung behält. */
+  tela: {
+    alertaDe: (tipo: string) => `Erinnerung: ${tipo}`,
+    novoAlerta: 'Neue Erinnerung',
+    salvar: 'Speichern',
+    criar: 'Erinnerung anlegen',
+    apagar: 'Diese Erinnerung löschen',
+
+    oQueAvisar: 'Woran erinnern',
+
+    antecedencia: 'Wie lange vorher',
+    antecedenciaAjuda: 'Gerechnet ab dem Datum deiner nächsten Injektion.',
+
+    diasDaSemana: 'Wochentage',
+    diasDaSemanaAjuda: 'Ist keiner markiert, klingelt die Erinnerung jeden Tag.',
+
+    quandoTocar: 'Wann sie klingelt',
+    modoHorarios: 'Uhrzeiten',
+    modoIntervalo: 'Abstand',
+
+    horarios: 'Uhrzeiten',
+    horariosAjuda: 'Du kannst mehrere markieren — die Erinnerung klingelt zu jeder davon.',
+
+    aCada: 'Alle',
+    aCadaHoras: (horas: number) => `${horas} Std.`,
+    comeca: 'Beginnt',
+    ate: 'Bis',
+    ateAjuda: (avisos: number, cada: number) =>
+      `${avisos} Hinweise pro Tag, alle ${cada} Stunden.`,
+
+    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    semHorario: 'Keine Uhrzeit markiert',
+  },
 };

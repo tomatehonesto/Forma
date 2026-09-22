@@ -7,6 +7,11 @@ import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
 import { font, radius, ty } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.alimentacao.telaMedirRefeicao;
 
 /* ============================================================
    A COMIDA NA TELA
@@ -43,7 +48,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
       <TextInput
         value={valor}
         onChangeText={onChange}
-        placeholder="Busque um alimento ou um prato"
+        placeholder={K().buscaPlaceholder}
         placeholderTextColor={c.tx4}
         style={[ty.body, {
           color: c.tx, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
@@ -75,7 +80,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
                       logic/alimentos: ela saiu do nome, e é aqui que
                       separa os dois "Cheeseburger". */}
                   <Txt v="micro" c={c.tx4}>
-                    {a.marca ? a.marca + " · " : ""}{medidaDe(a, a.qtd)} · ~{gramasDe(a, a.qtd)} g de proteína
+                    {K().itemSub(a.marca ? a.marca + ' · ' : '', medidaDe(a, a.qtd), gramasDe(a, a.qtd))}
                   </Txt>
                 </View>
                 <Icon name="plus" size={16} color={c.accent} sw={2.4} />
@@ -97,8 +102,8 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
             borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 10,
           }}>
             <View style={{ flex: 1 }}>
-              <Txt v="label" numberOfLines={1}>Anotar “{escrito}”</Txt>
-              <Txt v="micro" c={c.tx4}>Não tenho a proteína desse ainda</Txt>
+              <Txt v="label" numberOfLines={1}>{K().anotarEscrito(escrito)}</Txt>
+              <Txt v="micro" c={c.tx4}>{K().semProteinaAinda}</Txt>
             </View>
             <Icon name="plus" size={16} color={c.tx3} sw={2.4} />
           </Row>
@@ -170,7 +175,7 @@ export function ItemAlimento({ item, onQtd, onRemover }: {
           </View>
           <Passo nome="plus" on={item.qtd < MAX} onPress={() => onQtd(item.qtd + 1)} />
           <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
-            <Txt v="tag" c={c.tx2}>~{gramasItem(item)} g</Txt>
+            <Txt v="tag" c={c.tx2}>{K().gramas(gramasItem(item))}</Txt>
           </View>
         </Row>
       ) : null}
@@ -194,7 +199,7 @@ export function BotaoEscanear({ onPress }: { onPress: () => void }) {
     <Pressable onPress={onPress} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
       <Row gap={6}>
         <Icon name="photoSpark" size={16} color={c.accent} sw={1.9} />
-        <Txt v="tag" c={c.accent} style={{ fontFamily: font.bodySemi }}>Escanear</Txt>
+        <Txt v="tag" c={c.accent} style={{ fontFamily: font.bodySemi }}>{K().escanear}</Txt>
       </Row>
     </Pressable>
   );
@@ -223,13 +228,13 @@ export function FotoDoPrato({ uri, lendo, recado, onRemover }: {
         {lendo ? (
           <Row gap={8}>
             <ActivityIndicator size="small" color={c.accent} />
-            <Txt v="label" c={c.accent}>Lendo o prato…</Txt>
+            <Txt v="label" c={c.accent}>{K().lendoOPrato}</Txt>
           </Row>
         ) : (
           /* Quando não deu, o recado já aponta para o caminho que
              funciona: um erro que só diz "falhou" deixa a pessoa parada
              com a refeição por registrar. */
-          <Txt v="caption" c={c.tx3}>{recado || 'Confira a lista abaixo e ajuste o que precisar.'}</Txt>
+          <Txt v="caption" c={c.tx3}>{recado || K().confiraALista}</Txt>
         )}
       </View>
       <Pressable onPress={onRemover} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>

@@ -355,4 +355,66 @@ export const alimentacao = {
     tocaEm: (quando: string) => `Toca ${quando}`,
     umToquePorDia: 'Um toque por dia, na hora que você escolher',
   },
+
+  /* ============================================================
+     A FOLHA DE REGISTRAR UMA REFEIÇÃO
+
+     Ela faz três trabalhos com o mesmo formulário — registrar, corrigir e
+     guardar um favorito —, e o título, o subtítulo e o botão mudam nos
+     três. É por isso que são nove chaves e não três.
+
+     ⚠️ O MOMENTO SUGERIDO SAI DE `momentoDaHora`, e a tela tinha a sua
+     própria régua: `hora < 10 ? 'Café da manhã' : hora < 15 ? 'Almoço'…`,
+     com os nomes escritos aqui e com CORTES DIFERENTES dos do resto do
+     aplicativo. Duas regras para a mesma pergunta, e a daqui era a que
+     ficava em português.
+
+     ⚠️ E O QUE FICA DE FORA DA SOMA É DITO EMBAIXO DELA. A linha do item
+     já avisa, mas é a SOMA que vira o número do dia — e é nela que a
+     ressalva precisa aparecer para ser lida.
+     ============================================================ */
+  telaMedirRefeicao: {
+    /* ---------- os três títulos ---------- */
+    favorito: 'Um prato favorito',
+    favoritoSub: 'Monte o prato uma vez e ele fica a um toque',
+    corrigir: 'Corrigir a refeição',
+    corrigirSub: 'O que ficou errado no registro',
+    oQueComeu: 'O que você comeu?',
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} de ${alvo} g de proteína hoje`,
+
+    /* ---------- o botão ---------- */
+    digaOQueTinha: 'Diga o que tinha no prato',
+    guardarNosFavoritos: 'Guardar nos favoritos',
+    salvarCorrecao: 'Salvar a correção',
+    registrarMomento: (momento: string) => `Registrar ${momento}`,
+
+    /* ---------- o prato ---------- */
+    quando: 'QUANDO',
+    oQueTinhaNoPrato: 'O QUE TINHA NO PRATO',
+    proteinaDestaRefeicao: 'Proteína desta refeição',
+    gramas: (quanto: number) => `~${quanto} g`,
+    semContaUm: (item: string) =>
+      `${item} não entra nessa conta — ainda não tenho a proteína desse prato.`,
+    semContaVarios: (quantos: number) =>
+      `${quantos} itens não entram nessa conta — ainda não tenho a proteína deles.`,
+    estimadoPelaFoto: 'Parte deste total foi estimada pela foto, sem tabela por trás.',
+
+    /* ---------- os favoritos ---------- */
+    pratosFavoritos: 'Pratos favoritos',
+    pratosGuardados: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'prato guardado' : 'pratos guardados'}`,
+    favoritoProteina: (quanto: number) => `~${quanto} g de proteína`,
+
+    /* ---------- o compositor do prato (ui/comida) ---------- */
+    buscaPlaceholder: 'Busque um alimento ou um prato',
+    itemSub: (marca: string, medida: string, gramas: number) =>
+      `${marca}${medida} · ~${gramas} g de proteína`,
+    anotarEscrito: (texto: string) => `Anotar “${texto}”`,
+    semProteinaAinda: 'Não tenho a proteína desse ainda',
+    escanear: 'Escanear',
+    lendoOPrato: 'Lendo o prato…',
+    confiraALista: 'Confira a lista abaixo e ajuste o que precisar.',
+
+    apagar: 'Apagar esta refeição',
+  },
 };
