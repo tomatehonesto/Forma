@@ -10,6 +10,22 @@
    ============================================================ */
 
 export const tratamento = {
+  /* ⚠️ DER SCHLÜSSEL IST DER PORTUGIESISCHE NAME und wird nicht
+     übersetzt. Siehe ../pt-BR/tratamento.
+
+     ⚠️ UND DIE DEUTSCHEN FREINAMEN ENDEN AUF -id, ohne das -a am Ende:
+     Tirzepatid, Semaglutid, Dulaglutid. Das ist keine Kürzung, das ist
+     der Name — und er steht so auf der Packung. Er bleibt
+     großgeschrieben, weil er ein Substantiv ist, und deshalb tut
+     `comum.noMeio` an ihm nichts. */
+  molecula: {
+    'Tirzepatida': 'Tirzepatid',
+    'Semaglutida': 'Semaglutid',
+    'Dulaglutida': 'Dulaglutid',
+    'Liraglutida': 'Liraglutid',
+    '—': '—',
+  } as Record<string, string>,
+
   /* ---------- die Dosis und der Rhythmus ---------- */
   /* ⚠️ DAS FEHLEN HAT EINEN EIGENEN SATZ, und der ist mit Absicht kurz: er
      kommt mitten in andere hinein, wie „Mounjaro, noch nicht festgelegt“. */

@@ -10,6 +10,36 @@
    ============================================================ */
 
 export const tratamento = {
+  /* ============================================================
+     O NOME DO PRINCÍPIO ATIVO
+
+     ⚠️⚠️ A CHAVE É O NOME EM PORTUGUÊS, E ELA NÃO SE TRADUZ. 'Tirzepatida'
+     é o que está gravado em `MEDS[x].mol`, é o que `faixaDaMolecula`
+     compara para achar a faixa de dose, e é o que sai no arquivo
+     exportado. Mesma família da chave de marcador de exame: dado de um
+     lado, tela do outro.
+
+     ⚠️⚠️ E O NOME MUDA DE IDIOMA DE VERDADE. O nome comum internacional
+     tem grafia própria em cada língua, e ele aparece DENTRO de frase em
+     seis telas — a carta do companion sobre a fome, o ciclo, a linha do
+     tempo, o resumo para a consulta. Antes desta tabela, um alemão lia
+     "Tirzepatida" no meio de uma frase alemã.
+
+     ⚠️ QUEM NÃO ESTIVER AQUI APARECE COM A PRÓPRIA CHAVE, pela mesma
+     regra do `marcadores.nome`: medicamento novo não some da tela porque
+     a tabela ainda não o conhece.
+
+     ⚠️ E O TRAVESSÃO É O MANIPULADO, que não tem marca nem nome comum
+     próprio — ele é o mesmo sinal em todo idioma.
+     ============================================================ */
+  molecula: {
+    'Tirzepatida': 'Tirzepatida',
+    'Semaglutida': 'Semaglutida',
+    'Dulaglutida': 'Dulaglutida',
+    'Liraglutida': 'Liraglutida',
+    '—': '—',
+  } as Record<string, string>,
+
   /* ---------- a dose e a cadência ---------- */
   /* ⚠️ A AUSÊNCIA TEM FRASE PRÓPRIA, e ela é curta de propósito: entra no
      meio de outras, como "Mounjaro ainda não definida". */

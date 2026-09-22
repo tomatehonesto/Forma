@@ -10,7 +10,8 @@ import {
   diasAteAplicar,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, nf, quandoEm, maiuscula } from '../logic/time';
-import { FORMAS, formaDe, nesteNesta } from '../logic/formas';
+import { FORMAS, formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
+import { T } from '../textos';
 import { Txt, Row } from '../ui/kit';
 import { alertasDe, proximaDe, quando } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
@@ -92,7 +93,7 @@ export default function Aplicacoes() {
     >
       <Titulao
         titulo="Aplicações"
-        lead={`${med.label} · ${med.mol} · ${cadenciaTexto(S)}`}
+        lead={`${med.label} · ${nomeDaMolecula(med.mol)} · ${cadenciaTexto(S)}`}
       />
 
       {/* A PRÓXIMA DOSE, com o anel da semana em volta da contagem.
@@ -283,7 +284,7 @@ export default function Aplicacoes() {
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <AreaCurve pts={phPts} height={130} marker={mkIdx} id="ph" />
           <Txt v="caption" c={c.tx3} style={{ marginTop: 8, lineHeight: 18 }}>
-            Estimativa de {med.mol.toLowerCase()} no corpo, com meia-vida de
+            Estimativa de {T.comum.noMeio(nomeDaMolecula(med.mol))} no corpo, com meia-vida de
             {med.hl >= 1 ? ` ${med.hl} dias` : ' cerca de 13 horas'}. O ponto mais baixo, antes da
             próxima dose, costuma ser quando a fome aumenta.
           </Txt>

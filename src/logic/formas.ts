@@ -155,6 +155,24 @@ export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FO
    via — e aí quem chamou decide o que fazer, em vez de receber um zero
    fingindo ser resposta.
    ============================================================ */
+/* ============================================================
+   O NOME DO PRINCÍPIO ATIVO, NA LÍNGUA DE QUEM LÊ
+
+   ⚠️⚠️ `MEDS[x].mol` É CHAVE E RÓTULO AO MESMO TEMPO, e essa é a mesma
+   família do nome de marcador de exame e do momento da refeição:
+   'Tirzepatida' é o que `faixaDaMolecula` compara logo abaixo, o que sai
+   no arquivo exportado, e o que aparecia no meio de frase em seis telas.
+
+   Então a chave fica, e o nome sai daqui. O nome comum internacional tem
+   grafia própria por língua — tirzepatide, tirzépatide, Tirzepatid —, e
+   sem esta função um alemão lia "Tirzepatida" no meio de uma frase alemã.
+
+   ⚠️ E ELA NÃO MEXE NA CAIXA. Quem precisa do nome no meio da frase passa
+   o resultado por `T.comum.noMeio`, que é onde essa regra mora — e que no
+   alemão não faz nada, porque lá todo substantivo é maiúsculo.
+   ============================================================ */
+export const nomeDaMolecula = (mol: string) => T.tratamento.molecula[mol] ?? mol;
+
 export function faixaDaMolecula(mol: string, forma: Forma): { min: number; max: number } | null {
   const injetavel = FORMAS()[forma].injetavel;
   const todas = Object.values(MEDS)

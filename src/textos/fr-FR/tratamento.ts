@@ -8,6 +8,21 @@
    ============================================================ */
 
 export const tratamento = {
+  /* ⚠️ LA CLÉ EST LE NOM PORTUGAIS et ne se traduit pas. Voir
+     ../pt-BR/tratamento.
+
+     ⚠️ ET LE FRANÇAIS ACCENTUE LÀ OÙ LES AUTRES N'ACCENTUENT PAS :
+     « tirzépatide », « sémaglutide ». La dénomination commune
+     internationale suit l'orthographe de chaque langue, et le français
+     met l'accent que le portugais n'a pas. */
+  molecula: {
+    'Tirzepatida': 'Tirzépatide',
+    'Semaglutida': 'Sémaglutide',
+    'Dulaglutida': 'Dulaglutide',
+    'Liraglutida': 'Liraglutide',
+    '—': '—',
+  } as Record<string, string>,
+
   /* ⚠️ L'ABSENCE A SA PROPRE PHRASE, et elle est courte à dessein : elle
      entre au milieu d'autres, comme « Mounjaro pas encore définie ». */
   doseIndefinida: 'pas encore définie',

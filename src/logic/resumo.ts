@@ -1,4 +1,5 @@
 import { T } from '../textos';
+import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
@@ -92,7 +93,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       id: 'medicacao',
       titulo: K.medicacao,
       linhas: [
-        { k: K.medicamento, v: `${med.label} (${med.mol})` },
+        { k: K.medicamento, v: `${med.label} (${nomeDaMolecula(med.mol)})` },
         { k: K.dose, v: `${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}` },
         { k: K.cadencia, v: cadenciaCurta(S) },
         { k: K.tempoDeTratamento, v: K.emDias(journeyDay(S)) },

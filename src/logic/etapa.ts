@@ -56,6 +56,7 @@ import {
 } from './derive';
 import type { State } from './seed';
 import { T } from '../textos';
+import { nomeDaMolecula } from './formas';
 import { pesoTxt } from './medidas';
 
 export type Mensagem = {
@@ -241,7 +242,7 @@ function daEtapa(S: State): Mensagem | null {
       ? {
         chapeu: T.etapa.antesChapeu,
         head: T.etapa.antesComDoseHead,
-        body: T.etapa.antesComDoseBody(T.comum.noMeio(M(S).mol)),
+        body: T.etapa.antesComDoseBody(T.comum.noMeio(nomeDaMolecula(M(S).mol))),
         q: T.etapa.antesComDoseQ,
         fonte: 'etapa',
       }

@@ -10,6 +10,17 @@
    ============================================================ */
 
 export const tratamento = {
+  /* ⚠️ The KEY is the Portuguese name and never changes — it is what
+     `MEDS[x].mol` stores and what `faixaDaMolecula` compares. Only the
+     value below is the screen. See ../pt-BR/tratamento. */
+  molecula: {
+    'Tirzepatida': 'Tirzepatide',
+    'Semaglutida': 'Semaglutide',
+    'Dulaglutida': 'Dulaglutide',
+    'Liraglutida': 'Liraglutide',
+    '—': '—',
+  } as Record<string, string>,
+
   /* ⚠️ THE ABSENCE HAS ITS OWN PHRASE, short on purpose: it lands inside
      other sentences, as in "Mounjaro not set yet". */
   doseIndefinida: 'not set yet',

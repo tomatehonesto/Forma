@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { cicloFases, M } from '../logic/derive';
 import { dataComDiaDaSemana } from '../logic/time';
+import { nomeDaMolecula } from '../logic/formas';
+import { T } from '../textos';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Sanfona, SanfonaLinha, Aviso, Botao,
@@ -85,7 +87,7 @@ export default function Ciclo() {
           acima está falando, sem ocupar o topo com isso. */}
       <View style={{ alignItems: 'center', marginTop: -10 }}>
         <Txt v="caption" c={c.tx4}>
-          Baseado no comportamento típico da {med.mol.toLowerCase()}
+          Baseado no comportamento típico da {T.comum.noMeio(nomeDaMolecula(med.mol))}
         </Txt>
       </View>
     </TelaInterna>

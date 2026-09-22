@@ -8,6 +8,22 @@
    ============================================================ */
 
 export const tratamento = {
+  /* ⚠️ LA CLAVE ES EL NOMBRE EN PORTUGUÉS y no se traduce. Ver
+     ../pt-BR/tratamento.
+
+     ⚠️ Y AQUÍ LOS CUATRO COINCIDEN CON EL PORTUGUÉS, lo que es una
+     coincidencia y no una regla: el nombre común internacional termina en
+     -ida en las dos lenguas. En inglés es -ide, en alemán -id. La tabla
+     existe igual, porque el día que entre un principio activo donde no
+     coincidan, nadie va a acordarse de mirar. */
+  molecula: {
+    'Tirzepatida': 'Tirzepatida',
+    'Semaglutida': 'Semaglutida',
+    'Dulaglutida': 'Dulaglutida',
+    'Liraglutida': 'Liraglutida',
+    '—': '—',
+  } as Record<string, string>,
+
   /* ⚠️ LA AUSENCIA TIENE FRASE PROPIA, y es corta a propósito: entra en
      medio de otras, como "Mounjaro todavía sin definir". */
   doseIndefinida: 'todavía sin definir',

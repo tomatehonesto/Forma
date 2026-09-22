@@ -14,7 +14,7 @@ import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
-import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
+import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
@@ -1807,7 +1807,7 @@ export default function Cadastro() {
                    "Semaglutida manipulada" ela repetiria a palavra que a
                    pessoa acabou de ler. Ali o que falta dizer é de onde
                    aquilo vem. */
-                sub={m.marca ? m.mol : K().manipuladoSub}
+                sub={m.marca ? nomeDaMolecula(m.mol) : K().manipuladoSub}
                 on={r.med === k}
                 /* Trocar de medicamento zera dose, forma e intervalo: a
                    escada é outra, a cadência também, e a forma pode nem

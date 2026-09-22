@@ -5,7 +5,7 @@ import {
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { numeroEnxuto } from './local';
-import { FORMAS, formaDe, oA, noNa } from './formas';
+import { FORMAS, formaDe, oA, noNa, nomeDaMolecula } from './formas';
 import { T, type SobreOMarcador, type JeitoDeAjudar } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
 import { ehForca, iconeDe } from './modalidades';
@@ -2294,7 +2294,7 @@ export function libraryPicks(S: State): Leitura[] {
   const dia = Math.max(0, cadenciaDias(S) - diasAteAplicar(S));
 
   if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
-    out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(m.mol)), ic: 'drop2', min: 3 });
+    out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(nomeDaMolecula(m.mol))), ic: 'drop2', min: 3 });
   }
   if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
     out.push({ motivo: L.primeirosMotivo(dia), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
@@ -2725,8 +2725,8 @@ export function timelineEvents(S: State): TLEvent[] {
     out.push({
       key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
       ic: 'syringe', color: 'accent', title: V().aplicacao(nf(inj.dose, inj.dose % 1 ? 1 : 0), med.unit),
-      sub: `${med.mol} · ${siteLabel(inj.site)}`,
-      detalhe: `${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${med.mol} · ${siteLabel(inj.site)}`,
+      sub: `${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
+      detalhe: `${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
       value: '', valueColor: 'tx3',
     });
   }
