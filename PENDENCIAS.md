@@ -950,7 +950,7 @@ quando ela ficar velha. Antes de subir para a loja, vale recolher: são
 três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
 McDonald's, e depois `gerar-fastfood-br`.
 
-## 🔴 19. A extração de textos não terminou, e são 1.221 frases
+## 🔴 19. A extração de textos não terminou, e são 1.015 frases
 
 **O número que eu tinha dado estava errado.** Eu disse 466, e a medição
 foi estreita: contava só literal de string com acento ou palavra
@@ -958,12 +958,12 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-Desde então saíram 364, em onze lotes commitados. **Faltam 1.221, em 99
+Desde então saíram 570, em catorze lotes commitados. **Faltam 1.015, em 93
 arquivos.**
 
 | onde | frases | o que é |
 |---|---|---|
-| `src/app/` | ~1.030 | as telas |
+| `src/app/` | ~825 | as telas |
 | `src/ui/` | ~145 | componentes com frase dentro |
 | `src/logic/` | 45 | **acabou** — ver abaixo |
 
@@ -1009,7 +1009,7 @@ Ela funcionou em cinco lotes seguidos e não tem surpresa:
 ### O que a rede NÃO cobre, e o que fazer com isso
 
 `congelar.ts` chama funções de `logic/`. As telas não passam por ela: não
-há como provar que uma tela não mudou sem abri-la. Para os ~1.175 de
+há como provar que uma tela não mudou sem abri-la. Para os ~970 de
 `src/app/` e `src/ui/`, a conferência é outra — abrir a tela no navegador
 antes e depois e comparar o texto renderizado. É mais lento e é o que
 existe.
@@ -1073,8 +1073,8 @@ voltar — não sabe ler a tela para achar o caminho.
 
 Por idioma, dois trabalhos, nesta ordem:
 
-1. **Terminar a peça 2** (item 19). Enquanto 1.221 frases estiverem em
-   código, todo idioma novo nasce com essas 1.221 em português. Fazer a
+1. **Terminar a peça 2** (item 19). Enquanto 1.015 frases estiverem em
+   código, todo idioma novo nasce com essas 1.015 em português. Fazer a
    tradução antes é traduzir duas vezes.
 2. **Escrever `src/textos/<local>/`** — hoje vinte e oito arquivos, e o `tsc`
    cobra a assinatura inteira. É o mesmo trabalho que o inglês custou.
