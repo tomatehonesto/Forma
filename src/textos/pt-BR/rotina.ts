@@ -70,7 +70,15 @@ export const rotina = {
     aplicacaoPorque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
 
     receita: 'Peça a renovação da receita',
-    receitaPorque: (doses: string) => `Restam ${doses} — pedindo agora, ela chega antes de acabar`,
+    /* ⚠️⚠️ A PALAVRA "doses" ESTAVA NO CÓDIGO, e não aqui. O sítio de
+       chamada montava `${p.left} doses ${noNa(forma)}` e mandava a frase
+       pronta — em português, espanhol e francês "doses" é a mesma palavra,
+       e foi por isso que ninguém viu. Em alemão é "Dosen", e a linha saía
+       meio traduzida.
+
+       Agora chegam o NÚMERO e o LUGAR, e a palavra é de cada idioma. */
+    receitaPorque: (doses: number, onde: string) =>
+      `Restam ${doses} ${doses === 1 ? 'dose' : 'doses'} ${onde} — pedindo agora, ela chega antes de acabar`,
 
     /* O texto do exame vem do protocolo; o que é nosso é o motivo. */
     examePorque: 'Está aberto no protocolo desta semana, e o resultado costuma demorar alguns dias',

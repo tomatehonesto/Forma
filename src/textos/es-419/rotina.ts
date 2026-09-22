@@ -59,7 +59,9 @@ export const rotina = {
     aplicacaoPorque: 'La aplicación de la semana está llegando, y alternar el lugar reduce la irritación en la piel',
 
     receita: 'Pide la renovación de la receta',
-    receitaPorque: (doses: string) => `Quedan ${doses} — pidiéndola ahora, llega antes de que se acabe`,
+    /* ⚠️ La palabra "doses" vivía en el sitio de llamada. Ver ../pt-BR. */
+    receitaPorque: (doses: number, onde: string) =>
+      `${doses === 1 ? 'Queda' : 'Quedan'} ${doses} ${doses === 1 ? 'dosis' : 'dosis'} ${onde} — pidiéndola ahora, llega antes de que se acabe`,
 
     examePorque: 'Está abierto en el protocolo de esta semana, y el resultado suele demorar algunos días',
 

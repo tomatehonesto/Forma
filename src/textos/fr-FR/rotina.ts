@@ -73,7 +73,9 @@ export const rotina = {
     /* ⚠️ L'ORDONNANCE EST NOMMÉE ICI, et ce n'est pas une redite du titre :
        le début de la ligne parle de doses dans le stylo, et un « elle » qui
        suivrait irait se coller au mot le plus proche. */
-    receitaPorque: (doses: string) => `Il reste ${doses} — une ordonnance demandée maintenant arrive avant la fin du stock`,
+    /* ⚠️ Le mot « doses » vivait dans l'appel. Voir ../pt-BR. */
+    receitaPorque: (doses: number, onde: string) =>
+      `Il reste ${doses} ${doses === 1 ? 'dose' : 'doses'} ${onde} — une ordonnance demandée maintenant arrive avant la fin du stock`,
 
     /* Le texte de l'analyse vient du protocole ; ce qui est à nous, c'est le
        motif. */

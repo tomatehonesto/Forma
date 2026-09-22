@@ -2451,7 +2451,7 @@ export function recommendations(S: State): Reco[] {
   if (!p.verdict.good) {
     out.push({
       emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: E.receita,
-      porque: E.receitaPorque(`${p.left} doses ${noNa(formaDe(S))}`),
+      porque: E.receitaPorque(p.left, noNa(formaDe(S))),
       to: '/aplicacoes',
     });
   }
