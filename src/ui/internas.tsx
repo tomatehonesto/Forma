@@ -1598,7 +1598,7 @@ export function Escala({ valores, valor, onChange, onLimpar, suave, legendas }: 
 
   const manchete = respondido
     ? (legendas?.[i] ?? String(valores[i]))
-    : 'Ainda não respondi';
+    : T.escalas.aindaNaoRespondi;
 
   return (
     <View>

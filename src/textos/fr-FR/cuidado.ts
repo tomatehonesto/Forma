@@ -228,4 +228,33 @@ export const cuidado = {
     simTirar: 'Oui, retirer',
     cancelar: 'Annuler',
   },
+
+  telaAnotarConsulta: {
+    titulo: 'Noter une consultation',
+
+    quemMarca: 'C’est la clinique qui prend le rendez-vous',
+    quemMarcaLead: 'Votre agenda vient de l’équipe qui suit votre traitement.',
+    datasChegam: 'Les dates arrivent de la clinique',
+    datasChegamTexto: 'Pour déplacer ou annuler, parlez-en à l’équipe — ce qui change là-bas apparaît ici.',
+
+    proximaConsulta: 'Votre prochaine consultation',
+    anoteSuaConsulta: 'Notez votre consultation',
+    lead: 'Avec la date ici, nous vous prévenons quand elle approche et nous laissons le résumé prêt à emporter.',
+
+    quando: 'Quand',
+    comoVaiSer: 'Comment ça se passera',
+    tipos: {
+      presencial: 'Sur place',
+      teleconsulta: 'Téléconsultation',
+      retorno: 'Contrôle',
+    },
+    comQuem: (quem: string) => `Avec ${quem}.`,
+
+    dataFicaComVoce: 'La date reste chez vous',
+    dataFicaComVoceTexto: 'La noter ici ne prévient pas le cabinet et n’entre pas dans le calendrier du téléphone. C’est nous qui savons désormais que la consultation approche.',
+
+    salvar: 'Enregistrer',
+    anotar: 'Noter la consultation',
+    naoTenho: 'Je n’ai pas de consultation prévue',
+  },
 };

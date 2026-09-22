@@ -321,4 +321,46 @@ export const cuidado = {
     simTirar: 'Sim, tirar',
     cancelar: 'Cancelar',
   },
+
+  /* ============================================================
+     A TELA DE ANOTAR UMA CONSULTA
+
+     ⚠️ OS TRÊS TIPOS SÃO CHAVE E RÓTULO AO MESMO TEMPO — é o que fica
+     gravado em `S.consult.type`. Mesma família do momento da refeição e
+     das modalidades de exercício: traduzir não quebra registro novo, e
+     registro antigo aparece com o nome que foi gravado.
+
+     ⚠️ E A EXPECTATIVA VEM ANTES DO BOTÃO. Anotar aqui não avisa o
+     consultório nem entra no calendário do telefone — dizer isso depois
+     do fato seria tarde.
+     ============================================================ */
+  telaAnotarConsulta: {
+    titulo: 'Anotar consulta',
+
+    /* Com clínica vinculada, a agenda vem de lá e esta tela é só leitura. */
+    quemMarca: 'Quem marca é a clínica',
+    quemMarcaLead: 'A sua agenda vem da equipe que acompanha o seu tratamento.',
+    datasChegam: 'As datas chegam da clínica',
+    datasChegamTexto: 'Para remarcar ou desmarcar, fale com a equipe — o que mudar lá aparece aqui.',
+
+    proximaConsulta: 'A sua próxima consulta',
+    anoteSuaConsulta: 'Anote a sua consulta',
+    lead: 'Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para você levar.',
+
+    quando: 'Quando',
+    comoVaiSer: 'Como vai ser',
+    tipos: {
+      presencial: 'Presencial',
+      teleconsulta: 'Teleconsulta',
+      retorno: 'Retorno',
+    },
+    comQuem: (quem: string) => `Com ${quem}.`,
+
+    dataFicaComVoce: 'A data fica com você',
+    dataFicaComVoceTexto: 'Anotar aqui não avisa o consultório nem entra no calendário do telefone. Somos nós que passamos a saber que a consulta está chegando.',
+
+    salvar: 'Salvar',
+    anotar: 'Anotar consulta',
+    naoTenho: 'Não tenho consulta marcada',
+  },
 };

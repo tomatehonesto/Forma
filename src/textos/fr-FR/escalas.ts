@@ -87,6 +87,12 @@ export const escalas = {
     alterna: 'Alterné',
   },
 
+  /* ⚠️ A RÉGUA SEM RESPOSTA DIZ QUE ESTÁ SEM RESPOSTA, e não zero. É a
+     mesma regra dos três silêncios da Jornada: um dia sem resposta é um
+     dia sem resposta. Mora no topo de `escalas` porque quem a escreve é o
+     componente da régua, que serve a mais de uma tela. */
+  aindaNaoRespondi: 'Pas encore répondu',
+
   nomes: {
     nausea: 'Nausée',
     intestino: 'Transit',
@@ -144,5 +150,23 @@ export const escalas = {
       sono: 'Sommeil',
       fome: 'Faim',
     },
+  },
+
+  telaCheckin: {
+    titulo: 'Check-in',
+    pergunta: 'Comment s’est passée votre journée ?',
+    lead: 'Répondez à ce qui a du sens. Laisser vide est aussi une réponse.',
+    salvar: 'Enregistrer le check-in',
+
+    energia: 'Énergie',
+    fome: 'Faim',
+    sono: 'Sommeil',
+    humor: 'Humeur',
+
+    teveSintoma: 'Des symptômes ?',
+    comoFoiIntestino: 'Et le transit ?',
+    qualOutroSintoma: 'Quel était l’autre symptôme ?',
+    outroPlaceholder: 'Ex. : goût métallique dans la bouche',
+    intensidadeDe: (sintoma: string) => `${sintoma} · intensité`,
   },
 };

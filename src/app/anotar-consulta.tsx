@@ -8,6 +8,11 @@ import { MO_LONG, startOfDay, now } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Campo, Roda, Botao, Aviso, Opcoes, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cuidado.telaAnotarConsulta;
 
 /* ============================================================
    ANOTAR CONSULTA — a data que faltava
@@ -35,7 +40,16 @@ import { useTheme } from '../ui/useTheme';
    defesa, para quem chegar por link.
    ============================================================ */
 
-const TIPOS = ['Presencial', 'Teleconsulta', 'Retorno'];
+/* ⚠️ ERA CONSTANTE DE MÓDULO com as três palavras escritas, e elas são
+   chave E rótulo ao mesmo tempo: é o que fica gravado em
+   `S.consult.type`. Mesma família do momento da refeição — traduzir não
+   quebra registro novo, e registro antigo aparece com o nome que foi
+   gravado. */
+const TIPOS = () => [
+  T.cuidado.telaAnotarConsulta.tipos.presencial,
+  T.cuidado.telaAnotarConsulta.tipos.teleconsulta,
+  T.cuidado.telaAnotarConsulta.tipos.retorno,
+];
 
 /* Dezoito meses para a frente e nenhum dia para trás. Consulta é
    compromisso futuro: uma roda que aceita o ano passado convida ao erro
@@ -59,7 +73,7 @@ export default function AnotarConsulta() {
   const [dia, setDia] = React.useState(inicial.getDate());
   const [mes, setMes] = React.useState(inicial.getMonth());
   const [ano, setAno] = React.useState(inicial.getFullYear());
-  const [tipo, setTipo] = React.useState(S.consult.type || TIPOS[0]);
+  const [tipo, setTipo] = React.useState(S.consult.type || TIPOS()[0]);
 
   /* As três rodas se limitam entre si: num mês de trinta dias o 31 não
      existe, e no mês de hoje os dias que já passaram também não. Sem
@@ -104,12 +118,12 @@ export default function AnotarConsulta() {
 
   if (conectada) {
     return (
-      <TelaInterna titulo="Anotar consulta">
-        <Titulao titulo="Quem marca é a clínica" lead="A sua agenda vem da equipe que acompanha o seu tratamento." />
+      <TelaInterna titulo={K().titulo}>
+        <Titulao titulo={K().quemMarca} lead={K().quemMarcaLead} />
         <Aviso
           ic="cal"
-          titulo="As datas chegam da clínica"
-          texto="Para remarcar ou desmarcar, fale com a equipe — o que mudar lá aparece aqui."
+          titulo={K().datasChegam}
+          texto={K().datasChegamTexto}
         />
         <View />
       </TelaInterna>
@@ -117,13 +131,13 @@ export default function AnotarConsulta() {
   }
 
   return (
-    <TelaInterna titulo="Anotar consulta">
+    <TelaInterna titulo={K().titulo}>
       <Titulao
-        titulo={jaTem ? 'A sua próxima consulta' : 'Anote a sua consulta'}
-        lead="Com a data aqui, avisamos quando ela estiver perto e deixamos o resumo pronto para você levar."
+        titulo={jaTem ? K().proximaConsulta : K().anoteSuaConsulta}
+        lead={K().lead}
       />
 
-      <Campo rotulo="Quando">
+      <Campo rotulo={K().quando}>
         <Row gap={10}>
           <Roda largura={78} itens={dias} valor={Math.min(Math.max(dia, primeiroDoMes), maiorDia)} onEscolhe={setDia} />
           <Roda
@@ -143,9 +157,9 @@ export default function AnotarConsulta() {
         </Row>
       </Campo>
 
-      <Campo rotulo="Como vai ser">
+      <Campo rotulo={K().comoVaiSer}>
         <Opcoes>
-          {TIPOS.map((t) => (
+          {TIPOS().map((t) => (
             <Opc key={t} label={t} on={tipo === t} onPress={() => setTipo(t)} />
           ))}
         </Opcoes>
@@ -153,7 +167,7 @@ export default function AnotarConsulta() {
 
       {temAcompanhamento(S) ? (
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>
-          Com {S.profile.doctor || S.profile.clinic}.
+          {K().comQuem(S.profile.doctor || S.profile.clinic)}
         </Txt>
       ) : null}
 
@@ -161,13 +175,13 @@ export default function AnotarConsulta() {
           outro lado, e não aparece em agenda nenhuma além desta. */}
       <Aviso
         ic="shield"
-        titulo="A data fica com você"
-        texto="Anotar aqui não avisa o consultório nem entra no calendário do telefone. Somos nós que passamos a saber que a consulta está chegando."
+        titulo={K().dataFicaComVoce}
+        texto={K().dataFicaComVoceTexto}
       />
 
-      <Botao label={jaTem ? 'Salvar' : 'Anotar consulta'} onPress={salvar} />
+      <Botao label={jaTem ? K().salvar : K().anotar} onPress={salvar} />
 
-      {jaTem ? <Botao label="Não tenho consulta marcada" onPress={tirar} tom="fantasma" /> : null}
+      {jaTem ? <Botao label={K().naoTenho} onPress={tirar} tom="fantasma" /> : null}
 
       <View />
     </TelaInterna>

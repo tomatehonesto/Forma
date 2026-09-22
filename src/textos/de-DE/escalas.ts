@@ -106,6 +106,12 @@ export const escalas = {
      Achse hat zwei Seiten. Die zum LESEN hat beide getrennt, weil
      „Verdauung an vier Tagen“ verstopfte Tage mit weichen Tagen
      zusammenzählte und eine Zahl ergäbe, die nichts bedeutet. */
+  /* ⚠️ A RÉGUA SEM RESPOSTA DIZ QUE ESTÁ SEM RESPOSTA, e não zero. É a
+     mesma regra dos três silêncios da Jornada: um dia sem resposta é um
+     dia sem resposta. Mora no topo de `escalas` porque quem a escreve é o
+     componente da régua, que serve a mais de uma tela. */
+  aindaNaoRespondi: 'Noch nicht beantwortet',
+
   nomes: {
     nausea: 'Übelkeit',
     intestino: 'Verdauung',
@@ -163,5 +169,23 @@ export const escalas = {
       sono: 'Schlaf',
       fome: 'Hunger',
     },
+  },
+
+  telaCheckin: {
+    titulo: 'Check-in',
+    pergunta: 'Wie war dein Tag?',
+    lead: 'Beantworte, was passt. Etwas leer zu lassen ist auch eine Antwort.',
+    salvar: 'Check-in speichern',
+
+    energia: 'Energie',
+    fome: 'Hunger',
+    sono: 'Schlaf',
+    humor: 'Stimmung',
+
+    teveSintoma: 'Hattest du Beschwerden?',
+    comoFoiIntestino: 'Wie war die Verdauung?',
+    qualOutroSintoma: 'Was war die andere Beschwerde?',
+    outroPlaceholder: 'z. B. metallischer Geschmack im Mund',
+    intensidadeDe: (sintoma: string) => `${sintoma} · Stärke`,
   },
 };

@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 481, em 68 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 455, em 67 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1211,6 +1211,9 @@ tirada do `git show`, e não de memória.
   **toda tela que apresenta uma tabela de opções tem uma dessas**, e vale
   procurá-las de propósito nas que faltam em vez de esperar que a
   varredura em alemão tropece nelas.
+- **A DÉCIMA:** `TIPOS` em /anotar-consulta — Presencial, Teleconsulta e
+  Retorno. Estas são chave E rótulo: é o que fica gravado em
+  `S.consult.type`, mesma família do momento da refeição.
 - **A sétima, a oitava e a nona foram CÓPIAS DE TABELAS QUE JÁ ESTAVAM NO
   CATÁLOGO:** `CIRC` e `PERIODOS` em /evolucao (as quatro
   circunferências de `medidas.corpo` e os três períodos de

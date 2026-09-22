@@ -12,6 +12,11 @@ import {
   combinacao, persistencia, diasAnteriores,
 } from '../logic/leituras';
 import { TelaInterna, Titulao, Campo, Opcoes, Opc, Escala, Texto, Aviso, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.escalas.telaCheckin;
 
 /* ============================================================
    CHECK-IN DO DIA
@@ -278,13 +283,13 @@ export default function Checkin() {
        de verdade — ainda mais quando uma é um link pequeno e a outra um
        botão de largura inteira, que é o que a tela quer que se aperte. */
     <TelaInterna
-      titulo="Check-in"
+      titulo={K().titulo}
       fechar
-      rodape={<Botao label="Salvar check-in" onPress={salvar} />}
+      rodape={<Botao label={K().salvar} onPress={salvar} />}
     >
       <Titulao
-        titulo="Como foi o seu dia?"
-        lead="Responda o que fizer sentido. Deixar em branco também é uma resposta."
+        titulo={K().pergunta}
+        lead={K().lead}
       />
 
       {/* As três ficam bem juntas, quase como os cartões de "Sua evolução" na
@@ -293,7 +298,7 @@ export default function Checkin() {
           assuntos empilhados por acaso. O respiro maior fica para as
           quebras que existem de verdade: o titulão e os sintomas. */}
       <View style={{ gap: 8 }}>
-        <Campo rotulo="Energia">
+        <Campo rotulo={K().energia}>
           <Escala
             valores={[1, 2, 3, 4, 5]}
             valor={energia}
@@ -303,7 +308,7 @@ export default function Checkin() {
           />
         </Campo>
 
-        <Campo rotulo="Fome">
+        <Campo rotulo={K().fome}>
           <Escala
             valores={[1, 2, 3, 4, 5]}
             valor={fome}
@@ -313,7 +318,7 @@ export default function Checkin() {
           />
         </Campo>
 
-        <Campo rotulo="Sono">
+        <Campo rotulo={K().sono}>
           <Escala
             valores={[5, 6, 7, 8, 9]}
             valor={sono}
@@ -323,7 +328,7 @@ export default function Checkin() {
           />
         </Campo>
 
-        <Campo rotulo="Humor">
+        <Campo rotulo={K().humor}>
           <Escala
             valores={[1, 2, 3, 4, 5]}
             valor={humor}
@@ -344,7 +349,7 @@ export default function Checkin() {
           tela a forma do dia que a pessoa teve, em vez de uma grade fixa
           esperando ser preenchida. */}
       <View style={{ gap: 14 }}>
-        <Campo rotulo="Teve algum sintoma?" nu>
+        <Campo rotulo={K().teveSintoma} nu>
           <Opcoes>
             {SINTOMAS().map((x) => (
               <Opc key={x.id} label={x.label} on={marcados.includes(x.id)} onPress={() => alterna(x.id)} />
@@ -376,7 +381,7 @@ export default function Checkin() {
                 : !combinado && gut === 'solto' && (vezes ?? 0) >= aSolto.min ? aSolto
                 : null;
               return (
-                <Campo key={id} rotulo="Como foi o intestino?">
+                <Campo key={id} rotulo={K().comoFoiIntestino}>
                   <Opcoes>
                     {INTESTINO().filter(([k]) => k !== 'normal').map(([k, rotulo]) => (
                       <Opc key={k} label={rotulo} on={gut === k} onPress={() => escolheGut(k)} />
@@ -417,11 +422,11 @@ export default function Checkin() {
 
             if (id === OUTRO) {
               return (
-                <Campo key={id} rotulo="Qual foi o outro sintoma?">
+                <Campo key={id} rotulo={K().qualOutroSintoma}>
                   <Texto
                     valor={outro}
                     onChange={setOutro}
-                    placeholder="Ex.: gosto metálico na boca"
+                    placeholder={K().outroPlaceholder}
                     linhas={1}
                   />
                 </Campo>
@@ -431,7 +436,7 @@ export default function Checkin() {
             const av = AVISOS()[id];
             const mostra = !combinado && av && (grau[id] ?? 0) >= av.min;
             return (
-              <Campo key={id} rotulo={`${s.label} · intensidade`}>
+              <Campo key={id} rotulo={K().intensidadeDe(s.label)}>
                 <Escala
                   suave
                   valores={[1, 2, 3, 4, 5]}

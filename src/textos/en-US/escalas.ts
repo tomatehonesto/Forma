@@ -75,6 +75,12 @@ export const escalas = {
   /* ⚠️ TWO LISTS BECAUSE THEY ARE TWO QUESTIONS. The asking list has one
      bowel item; the reading list splits it, because "bowel on four days"
      would add constipated days to loose ones. The `id`s are data. */
+  /* ⚠️ A RÉGUA SEM RESPOSTA DIZ QUE ESTÁ SEM RESPOSTA, e não zero. É a
+     mesma regra dos três silêncios da Jornada: um dia sem resposta é um
+     dia sem resposta. Mora no topo de `escalas` porque quem a escreve é o
+     componente da régua, que serve a mais de uma tela. */
+  aindaNaoRespondi: 'Not answered yet',
+
   nomes: {
     nausea: 'Nausea',
     intestino: 'Bowels',
@@ -132,5 +138,23 @@ export const escalas = {
       sono: 'Sleep',
       fome: 'Hunger',
     },
+  },
+
+  telaCheckin: {
+    titulo: 'Check-in',
+    pergunta: 'How was your day?',
+    lead: 'Answer what makes sense. Leaving it blank is an answer too.',
+    salvar: 'Save the check-in',
+
+    energia: 'Energy',
+    fome: 'Hunger',
+    sono: 'Sleep',
+    humor: 'Mood',
+
+    teveSintoma: 'Any symptoms?',
+    comoFoiIntestino: 'How were your bowels?',
+    qualOutroSintoma: 'What was the other symptom?',
+    outroPlaceholder: 'e.g. metallic taste in the mouth',
+    intensidadeDe: (sintoma: string) => `${sintoma} · intensity`,
   },
 };

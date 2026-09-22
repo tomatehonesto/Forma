@@ -114,6 +114,12 @@ export const escalas = {
 
      ⚠️ OS `id` SÃO DADO. Só os rótulos passam por aqui.
      ============================================================ */
+  /* ⚠️ A RÉGUA SEM RESPOSTA DIZ QUE ESTÁ SEM RESPOSTA, e não zero. É a
+     mesma regra dos três silêncios da Jornada: um dia sem resposta é um
+     dia sem resposta. Mora no topo de `escalas` porque quem a escreve é o
+     componente da régua, que serve a mais de uma tela. */
+  aindaNaoRespondi: 'Ainda não respondi',
+
   nomes: {
     nausea: 'Náusea',
     intestino: 'Intestino',
@@ -201,5 +207,31 @@ export const escalas = {
       sono: 'Sono',
       fome: 'Fome',
     },
+  },
+
+  /* ============================================================
+     A TELA DO CHECK-IN
+
+     ⚠️ "DEIXAR EM BRANCO TAMBÉM É UMA RESPOSTA" é a frase que sustenta o
+     resto do aplicativo. Um dia sem resposta aparece como dia sem
+     resposta, e não como zero — e é por isso que a tela pode pedir quatro
+     coisas sem cobrar nenhuma.
+     ============================================================ */
+  telaCheckin: {
+    titulo: 'Check-in',
+    pergunta: 'Como foi o seu dia?',
+    lead: 'Responda o que fizer sentido. Deixar em branco também é uma resposta.',
+    salvar: 'Salvar check-in',
+
+    energia: 'Energia',
+    fome: 'Fome',
+    sono: 'Sono',
+    humor: 'Humor',
+
+    teveSintoma: 'Teve algum sintoma?',
+    comoFoiIntestino: 'Como foi o intestino?',
+    qualOutroSintoma: 'Qual foi o outro sintoma?',
+    outroPlaceholder: 'Ex.: gosto metálico na boca',
+    intensidadeDe: (sintoma: string) => `${sintoma} · intensidade`,
   },
 };

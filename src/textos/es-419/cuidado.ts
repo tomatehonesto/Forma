@@ -220,4 +220,33 @@ export const cuidado = {
     simTirar: 'Sí, quitar',
     cancelar: 'Cancelar',
   },
+
+  telaAnotarConsulta: {
+    titulo: 'Anotar consulta',
+
+    quemMarca: 'Quien agenda es la clínica',
+    quemMarcaLead: 'Tu agenda viene del equipo que acompaña tu tratamiento.',
+    datasChegam: 'Las fechas llegan de la clínica',
+    datasChegamTexto: 'Para reagendar o cancelar, habla con el equipo — lo que cambie allá aparece aquí.',
+
+    proximaConsulta: 'Tu próxima consulta',
+    anoteSuaConsulta: 'Anota tu consulta',
+    lead: 'Con la fecha aquí, te avisamos cuando se acerque y dejamos el resumen listo para llevar.',
+
+    quando: 'Cuándo',
+    comoVaiSer: 'Cómo va a ser',
+    tipos: {
+      presencial: 'Presencial',
+      teleconsulta: 'Teleconsulta',
+      retorno: 'Control',
+    },
+    comQuem: (quem: string) => `Con ${quem}.`,
+
+    dataFicaComVoce: 'La fecha queda contigo',
+    dataFicaComVoceTexto: 'Anotarla aquí no avisa al consultorio ni entra en el calendario del teléfono. Somos nosotros los que pasamos a saber que la consulta se acerca.',
+
+    salvar: 'Guardar',
+    anotar: 'Anotar consulta',
+    naoTenho: 'No tengo consulta agendada',
+  },
 };

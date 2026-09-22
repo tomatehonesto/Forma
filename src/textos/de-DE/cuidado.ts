@@ -265,4 +265,33 @@ export const cuidado = {
     simTirar: 'Ja, entfernen',
     cancelar: 'Abbrechen',
   },
+
+  telaAnotarConsulta: {
+    titulo: 'Einen Termin eintragen',
+
+    quemMarca: 'Den Termin vergibt die Praxis',
+    quemMarcaLead: 'Dein Kalender kommt von dem Team, das deine Behandlung begleitet.',
+    datasChegam: 'Die Termine kommen aus der Praxis',
+    datasChegamTexto: 'Zum Verschieben oder Absagen sprich mit dem Team — was sich dort ändert, erscheint hier.',
+
+    proximaConsulta: 'Dein nächster Termin',
+    anoteSuaConsulta: 'Trag deinen Termin ein',
+    lead: 'Mit dem Datum hier sagen wir dir Bescheid, wenn er näher rückt, und legen die Übersicht zum Mitnehmen bereit.',
+
+    quando: 'Wann',
+    comoVaiSer: 'Wie er abläuft',
+    tipos: {
+      presencial: 'Vor Ort',
+      teleconsulta: 'Videosprechstunde',
+      retorno: 'Kontrolle',
+    },
+    comQuem: (quem: string) => `Bei ${quem}.`,
+
+    dataFicaComVoce: 'Das Datum bleibt bei dir',
+    dataFicaComVoceTexto: 'Es hier einzutragen sagt der Praxis nichts und kommt nicht in den Kalender des Telefons. Wir sind es, die ab jetzt wissen, dass der Termin näher rückt.',
+
+    salvar: 'Speichern',
+    anotar: 'Termin eintragen',
+    naoTenho: 'Ich habe keinen Termin',
+  },
 };
