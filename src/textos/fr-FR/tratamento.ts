@@ -140,4 +140,58 @@ export const tratamento = {
     muito: 'Très actif',
     muitoSub: '6 à 7 jours par semaine',
   },
+
+  /* ⚠️⚠️ LA DURÉE EST UNE RÈGLE DE LANGUE, et elle était écrite en dur
+     dans le fichier de l'écran. « 6 h 20 » au lieu de « 380 min » : au-
+     dessus d'une heure, la minute pure oblige à diviser de tête pour
+     savoir si c'est beaucoup. Voir ../pt-BR/tratamento. */
+  tela: {
+    titulo: 'Exercice',
+    unidadeMin: 'min',
+    duracao: (min: number) => {
+      if (min < 60) return `${min} min`;
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} h ${m}` : `${h} h`;
+    },
+
+    hojeSemTreino: (daSemana: number) => `Aujourd’hui : pas encore de séance · ${daSemana} min cette semaine`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Aujourd’hui : ${hoje} sur ${alvo} min · ${resto}`,
+    metaAlcancada: 'objectif atteint',
+    faltamMin: (falta: number) => `encore ${falta} min`,
+    registrarTreino: 'Noter une séance',
+
+    movimentoTitulo: 'Votre mouvement',
+    estaSemana: 'Cette semaine',
+    nenhumDiaComMovimento: 'Aucun jour avec du mouvement',
+    emDiasDosSete: (dias: number) => `Sur ${dias} ${dias === 1 ? 'jour' : 'jours'} des sept`,
+    metaMin: (alvo: number) => `Objectif : ${alvo} min`,
+
+    semForca: 'Aucune séance de renforcement cette semaine. Musculation, pilates et functional sont ce qui tient le muscle.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'} avec du renforcement — c’est ce qui tient le muscle pendant que le poids descend.`,
+
+    minutosPorSemana: 'Minutes par semaine',
+    mediaOitoSemanas: 'Moyenne des 8 dernières semaines',
+    semanaDe: (data: string) => `semaine du ${data}`,
+
+    periodo7: '7 jours',
+    periodo30: '30 jours',
+    periodo90: '3 mois',
+    noPeriodo: 'Sur la période',
+    noPeriodoNota: 'Seulement ce qui a été noté ici — ce qui vient de la montre n’a pas de discipline.',
+    treinos: 'Séances',
+    tempo: 'Temps',
+    maisLongo: 'La plus longue',
+    deForca: 'Renforcement',
+
+    diarioTitulo: 'Journal des séances',
+    diarioNota: 'Touchez une séance pour la voir, la corriger ou la supprimer.',
+    diaVazioTitulo: 'Aucune séance ce jour-là',
+    diaVazioTexto: 'Le repos en fait partie aussi.',
+
+    integracoes: 'Connexions',
+    conectar: 'Connecter une montre ou une application',
+    lancamSozinhos: 'Elles entrent les minutes toutes seules',
+    conectarSub: 'Apple Santé, Health Connect, Garmin et d’autres',
+  },
 };

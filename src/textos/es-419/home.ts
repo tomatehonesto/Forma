@@ -165,4 +165,51 @@ export const home = {
   fontes: {
     appleSaude: 'Apple Salud',
   },
+
+  /* ⚠️ La pantalla del recorrido vive en `home` porque es la misma
+     conversación. Ver ../pt-BR/home para los tres silencios. */
+  tela: {
+    ultimos7: 'TUS ÚLTIMOS 7 DÍAS',
+    doseEm: (quando: string) => `dosis ${quando}`,
+    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
+      `${feitos} de 7 días con check-in · ${aplicadas} de ${vividas} semanas con aplicación`,
+    semanaASemana: 'Semana a semana. Toca para ver qué marcó cada ciclo.',
+    semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DÍA ${dia}`,
+    noInicio: (peso: string) => `${peso} al inicio`,
+    hoje: 'hoy',
+    faltam: (peso: string) => `faltan ${peso}`,
+
+    protocolos: 'Protocolos',
+    sinaisVitais: 'Signos vitales',
+    refeicoesContadas: (quantas: number) => `${quantas} comidas`,
+    aguaHoje: (quanto: string) => `${quanto} hoy`,
+    minutosHoje: (minutos: number) => `${minutos} min hoy`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'indicador' : 'indicadores'}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} de ${total}`,
+
+    semRegistro: 'sin registro',
+    semQueixas: 'sin molestias en la semana',
+    sintomaEmDias: (sintoma: string, dias: number) =>
+      `${sintoma.toLowerCase()} en ${dias} ${dias === 1 ? 'día' : 'días'}`,
+
+    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
+      `${restam} de ${total} dosis en la pluma · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+
+    oQueJaMudou: 'Lo que ya cambió',
+    evolucao: 'Evolución',
+    suasMetas: 'Tus metas',
+    metas: 'Metas',
+    oDiaADia: 'El día a día',
+    seuTratamento: 'Tu tratamiento',
+    verTudo: 'Ver todo',
+
+    porSemana: 'Por semana',
+    semana: (numero: number) => `Semana ${numero}`,
+    doseAjustada: 'dosis ajustada',
+    semRegistrosNaSemana: 'Sin registros en esta semana.',
+    nadaNesteTipo: 'Nada registrado en este tipo todavía',
+
+    metaFeita: 'lograda',
+    metaAberta: 'abierta',
+  },
 };

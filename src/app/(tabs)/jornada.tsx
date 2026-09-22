@@ -22,7 +22,12 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, RESPIRO_ABAS } from '../../theme';
-import { aguaTxt } from '../../logic/medidas';
+import { aguaTxt, pesoTxt, pesoU } from '../../logic/medidas';
+import { T } from '../../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.tela;
 
 /* ============================================================
    JORNADA
@@ -103,7 +108,7 @@ function Painel() {
         style={StyleSheet.absoluteFill}
       />
       {/* ---- peso: o número que a pessoa veio buscar ---- */}
-      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>SEMANA {r.semana} · DIA {r.dia}</Txt>
+      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>{K().semanaEDia(r.semana, r.dia)}</Txt>
 
       <Row style={{ alignItems: 'center', marginTop: 12 }}>
         {/* número inteiro em branco puro — é o destaque da tela, e recuar a
@@ -156,13 +161,17 @@ function Painel() {
       )}
       <Row style={{ justifyContent: 'space-between', marginTop: 10, alignItems: 'baseline' }}>
         <Row gap={5} style={{ alignItems: 'baseline' }}>
-          <Txt v="caption" c={c.onHero2}>{nf(startWeight(S), 1)} kg no início</Txt>
+          {/* ⚠️ O "kg" ESTAVA PREGADO NAS TRÊS LINHAS, e quem lê em libra
+              via o número convertido com a unidade errada. `pesoTxt`
+              escreve o valor e a unidade juntos — é o que o resto do
+              aplicativo já usa. */}
+          <Txt v="caption" c={c.onHero2}>{K().noInicio(pesoTxt(S, startWeight(S)))}</Txt>
           <Txt v="caption" c={c.onHero2}>·</Txt>
           {/* o peso de hoje é o outro número que importa: fica em branco */}
-          <Txt v="bodyMed" c={c.onHero}>{nf(curWeight(S), 1)} kg</Txt>
-          <Txt v="caption" c={c.onHero2}>hoje</Txt>
+          <Txt v="bodyMed" c={c.onHero}>{pesoTxt(S, curWeight(S))}</Txt>
+          <Txt v="caption" c={c.onHero2}>{K().hoje}</Txt>
         </Row>
-        <Txt v="caption" c={c.onHero2}>faltam {r.faltamLabel} kg</Txt>
+        <Txt v="caption" c={c.onHero2}>{K().faltam(`${r.faltamLabel} ${pesoU(S)}`)}</Txt>
       </Row>
 
       {/* ---- o calendário do tratamento ----
@@ -194,10 +203,10 @@ function Painel() {
         <View style={{ marginTop: 40 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
-              SEUS ÚLTIMOS 7 DIAS
+              {K().ultimos7}
             </Txt>
             <Txt v="tag" c={c.onHero}>
-              dose {quandoEm(ndDays).label}
+              {K().doseEm(quandoEm(ndDays).label)}
             </Txt>
           </Row>
 
@@ -238,7 +247,7 @@ function Painel() {
           </Row>
 
           <Txt v="caption" c={c.onHero} style={{ marginTop: 8 }}>
-            {feitos} de 7 dias com check-in · {aplicadas} de {vividas} semanas com aplicação
+            {K().diasComCheckin(feitos, aplicadas, vividas)}
           </Txt>
         </View>
       </Pressable>
@@ -352,10 +361,10 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
   const Cabecalho = (
     <>
       <Row style={{ alignItems: 'center' }}>
-        <Txt v="bodyMed" style={{ marginRight: 8 }}>Semana {w.semana}</Txt>
+        <Txt v="bodyMed" style={{ marginRight: 8 }}>{K().semana(w.semana)}</Txt>
         {!filtro && w.mudouDose && (
           <View style={{ backgroundColor: c.accentWeak, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, marginRight: 6 }}>
-            <Txt v="tag" c={c.accent}>dose ajustada</Txt>
+            <Txt v="tag" c={c.accent}>{K().doseAjustada}</Txt>
           </View>
         )}
         <View style={{ flex: 1 }} />
@@ -412,7 +421,7 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
       ))}
 
       {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
-        <Txt v="caption" c={c.tx4}>Sem registros nesta semana.</Txt>
+        <Txt v="caption" c={c.tx4}>{K().semRegistrosNaSemana}</Txt>
       )}
     </View>
   );
@@ -497,7 +506,7 @@ export default function Jornada() {
   const vitais = ['pa', 'glic', 'fc', 'spo2', 'fr']
     .filter((k) => (((S.vitals as any)?.[k] ?? []) as any[]).length).length;
   const temas: [string, string, string, string][] = [
-    ['utensils', 'Alimentação', `${S.meals.length} refeições`, '/alimentacao'],
+    ['utensils', T.alimentacao.tela.titulo, K().refeicoesContadas(S.meals.length), '/alimentacao'],
     /* A água ia para o MENU de registros enquanto as vizinhas iam para a
        tela do próprio hábito: era a única linha desta lista que não
        levava a lugar nenhum sobre si mesma. E o número usava um
@@ -516,14 +525,14 @@ export default function Jornada() {
        comentário de Sintomas, vinte linhas acima, escreve a regra com
        todas as letras: distinguir os dois silêncios. Agora quem decide é
        o mesmo número que aparece. */
-    ['water', 'Hidratação', mlHoje > 0 ? `${aguaTxt(S, mlHoje)} hoje` : 'sem registro', '/agua'],
-    ['dumbbell', 'Exercício', ci && ci.exerc ? `${ci.exerc} min hoje` : 'sem registro', '/exercicio'],
-    ['waves', 'Sintomas', !diasSint ? 'sem registro'
-      : !sint.length ? 'sem queixas na semana'
-      : `${sint[0].label.toLowerCase()} em ${sint[0].dias} ${sint[0].dias === 1 ? 'dia' : 'dias'}`, '/sintomas'],
+    ['water', T.home.semana.hidratacao, mlHoje > 0 ? K().aguaHoje(aguaTxt(S, mlHoje)) : K().semRegistro, '/agua'],
+    ['dumbbell', T.tratamento.tela.titulo, ci && ci.exerc ? K().minutosHoje(ci.exerc) : K().semRegistro, '/exercicio'],
+    ['waves', T.resumo.sintomas, !diasSint ? K().semRegistro
+      : !sint.length ? K().semQueixas
+      : K().sintomaEmDias(sint[0].label, sint[0].dias), '/sintomas'],
     /* Contado por protocoloDaSemana, e não somando os `done`: os itens
        medidos não têm esse campo — eles se cumprem pelos registros. */
-    ['target', 'Protocolos', `${proto.feitas} de ${proto.total}`, '/protocolos'],
+    ['target', K().protocolos, K().feitasDeTotal(proto.feitas, proto.total), '/protocolos'],
     /* ⚠️ SAÚDE E FOTOS ENTRARAM PORQUE NÃO TINHAM PORTA NENHUMA.
 
        /saude era alcançável por um lugar só — a pastilha de Pressão em "O
@@ -547,7 +556,7 @@ export default function Jornada() {
        exatamente o que esta tela toda evita. A contagem de indicadores
        diz o que a pessoa vai encontrar, que é o trabalho de um
        subtítulo de porta. */
-    ['heart', 'Sinais vitais', vitais ? `${vitais} ${vitais === 1 ? 'indicador' : 'indicadores'}` : 'sem registro', '/saude'],
+    ['heart', K().sinaisVitais, vitais ? K().indicadores(vitais) : K().semRegistro, '/saude'],
   ];
 
   return (
@@ -568,7 +577,7 @@ export default function Jornada() {
               <View style={{ flex: 1 }}>
                 <Txt v="body">{pen.verdict.label}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                  {pen.left} de {pen.total} doses na caneta · cerca de {pen.semanas} {pen.semanas === 1 ? 'semana' : 'semanas'}
+                  {K().dosesNaCaneta(pen.left, pen.total, pen.semanas)}
                 </Txt>
               </View>
               <Icon name="chev" size={14} color={c.tx4} sw={2} />
@@ -578,7 +587,7 @@ export default function Jornada() {
 
         {/* ---------- O QUE JÁ MUDOU — grade densa ---------- */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="O que já mudou" link="Evolução" onPress={go('/evolucao')} />
+          <SectionHead title={K().oQueJaMudou} link={K().evolucao} onPress={go('/evolucao')} />
           <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
             {changes.map((ch) => <ChangeTile key={ch.label} ch={ch} onPress={go(ch.to_)} />)}
           </Row>
@@ -598,7 +607,7 @@ export default function Jornada() {
               instrução, não um lugar. É a mesma regra que tirou o "Ir para"
               dos botões da Home. E o título ganhou o possessivo das
               vizinhas: "O que já mudou", "Seu tratamento", "Suas metas". */}
-          <SectionHead title="Suas metas" link="Metas" onPress={go('/metas')} />
+          <SectionHead title={K().suasMetas} link={K().metas} onPress={go('/metas')} />
 
           {/* ⚠️ FILEIRA DE CARTÕES, E ERA UMA LISTA EMPILHADA.
 
@@ -647,7 +656,7 @@ export default function Jornada() {
                         acontece num dia: 0% ou 100% seria a caixinha dita
                         em número. No lugar dela vai o estado, em palavra. */}
                     <Txt v="micro" c={feita || cheia ? c.limeSoftInk : c.tx3}>
-                      {pessoal ? (feita ? 'feita' : 'aberta') : `${Math.round(m.pct)}%`}
+                      {pessoal ? (feita ? K().metaFeita : K().metaAberta) : `${Math.round(m.pct)}%`}
                     </Txt>
                   </Row>
 
@@ -678,7 +687,7 @@ export default function Jornada() {
              título também deixou de valer: o que a caneta causa não é
              hábito de ninguém. */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="O dia a dia" />
+          <SectionHead title={K().oDiaADia} />
           <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
             {temas.map(([ic, t, sub, to]) => (
               <Pressable key={t} onPress={go(to)} style={({ pressed }) => [{ width: '49%', opacity: pressed ? 0.7 : 1 }]}>
@@ -716,9 +725,9 @@ export default function Jornada() {
 
         {/* ---------- A HISTÓRIA — por semana, com destaques ---------- */}
         <View style={{ marginTop: 34 }}>
-          <SectionHead title="Seu tratamento" link="Ver tudo" onPress={go('/historico')} />
+          <SectionHead title={K().seuTratamento} link={K().verTudo} onPress={go('/historico')} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
-            Semana a semana. Toque para ver o que marcou cada ciclo.
+            {K().semanaASemana}
           </Txt>
 
           <Rolagem horizontal showsHorizontalScrollIndicator={false}
@@ -726,7 +735,7 @@ export default function Jornada() {
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
             <Pressable onPress={() => setFiltro(null)}>
               <Row gap={6} style={{ backgroundColor: filtro === null ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
-                <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>Por semana</Txt>
+                <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>{K().porSemana}</Txt>
                 <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{semanas.length}</Txt>
               </Row>
             </Pressable>
@@ -772,7 +781,7 @@ export default function Jornada() {
             /* Sem o cartão, e não com o cartão vazio por dentro: um
                retângulo branco com uma frase cinza no meio parece a lista
                que não carregou. */
-            <Vazio ic="filter" titulo="Nada registrado neste tipo ainda" />
+            <Vazio ic="filter" titulo={K().nadaNesteTipo} />
           ) : (
             /* Nos filtros de tipo o ciclo não é a unidade — a leitura é
                cronológica, do mais recente para trás. */

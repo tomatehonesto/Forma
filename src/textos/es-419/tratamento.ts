@@ -138,4 +138,56 @@ export const tratamento = {
     muito: 'Muy activo',
     muitoSub: '6 a 7 días por semana',
   },
+
+  /* ⚠️ La duración es regla de idioma y estaba escrita en el archivo de
+     la pantalla. Ver ../pt-BR/tratamento. */
+  tela: {
+    titulo: 'Ejercicio',
+    unidadeMin: 'min',
+    duracao: (min: number) => {
+      if (min < 60) return `${min} min`;
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} h ${m}` : `${h} h`;
+    },
+
+    hojeSemTreino: (daSemana: number) => `Hoy: sin entrenamiento todavía · ${daSemana} min esta semana`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Hoy: ${hoje} de ${alvo} min · ${resto}`,
+    metaAlcancada: 'meta alcanzada',
+    faltamMin: (falta: number) => `faltan ${falta} min`,
+    registrarTreino: 'Registrar un entrenamiento',
+
+    movimentoTitulo: 'Tu movimiento',
+    estaSemana: 'Esta semana',
+    nenhumDiaComMovimento: 'Ningún día con movimiento',
+    emDiasDosSete: (dias: number) => `En ${dias} ${dias === 1 ? 'día' : 'días'} de los siete`,
+    metaMin: (alvo: number) => `Meta: ${alvo} min`,
+
+    semForca: 'Ningún entrenamiento de fuerza esta semana. Musculación, pilates y funcional son lo que sostiene el músculo.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'} con entrenamiento de fuerza — es lo que sostiene el músculo mientras el peso baja.`,
+
+    minutosPorSemana: 'Minutos por semana',
+    mediaOitoSemanas: 'Promedio de las últimas 8 semanas',
+    semanaDe: (data: string) => `semana del ${data}`,
+
+    periodo7: '7 días',
+    periodo30: '30 días',
+    periodo90: '3 meses',
+    noPeriodo: 'En el período',
+    noPeriodoNota: 'Solo lo que se registró aquí — lo que viene del reloj no tiene modalidad.',
+    treinos: 'Entrenamientos',
+    tempo: 'Tiempo',
+    maisLongo: 'El más largo',
+    deForca: 'De fuerza',
+
+    diarioTitulo: 'Diario de entrenamiento',
+    diarioNota: 'Toca un entrenamiento para verlo, corregirlo o borrarlo.',
+    diaVazioTitulo: 'Ningún entrenamiento este día',
+    diaVazioTexto: 'El descanso también es parte.',
+
+    integracoes: 'Integraciones',
+    conectar: 'Conectar un reloj o una aplicación',
+    lancamSozinhos: 'Registran los minutos solos',
+    conectarSub: 'Apple Salud, Health Connect, Garmin y otros',
+  },
 };

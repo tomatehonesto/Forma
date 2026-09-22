@@ -158,4 +158,52 @@ export const home = {
   fontes: {
     appleSaude: 'Apple Health',
   },
+
+  /* ⚠️ The journey screen lives in `home` because it is the same
+     conversation — the type labels and week plurals were already here.
+     See ../pt-BR/home for the three silences. */
+  tela: {
+    ultimos7: 'YOUR LAST 7 DAYS',
+    doseEm: (quando: string) => `dose ${quando}`,
+    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
+      `${feitos} of 7 days with a check-in · ${aplicadas} of ${vividas} weeks with an injection`,
+    semanaASemana: 'Week by week. Tap to see what marked each cycle.',
+    semanaEDia: (semana: number, dia: number) => `WEEK ${semana} · DAY ${dia}`,
+    noInicio: (peso: string) => `${peso} at the start`,
+    hoje: 'today',
+    faltam: (peso: string) => `${peso} to go`,
+
+    protocolos: 'Protocols',
+    sinaisVitais: 'Vitals',
+    refeicoesContadas: (quantas: number) => `${quantas} meals`,
+    aguaHoje: (quanto: string) => `${quanto} today`,
+    minutosHoje: (minutos: number) => `${minutos} min today`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'reading' : 'readings'}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} of ${total}`,
+
+    semRegistro: 'nothing logged',
+    semQueixas: 'no complaints this week',
+    sintomaEmDias: (sintoma: string, dias: number) =>
+      `${sintoma.toLowerCase()} on ${dias} ${dias === 1 ? 'day' : 'days'}`,
+
+    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
+      `${restam} of ${total} doses in the pen · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+
+    oQueJaMudou: 'What has changed',
+    evolucao: 'Progress',
+    suasMetas: 'Your goals',
+    metas: 'Goals',
+    oDiaADia: 'Day to day',
+    seuTratamento: 'Your treatment',
+    verTudo: 'See all',
+
+    porSemana: 'By week',
+    semana: (numero: number) => `Week ${numero}`,
+    doseAjustada: 'dose adjusted',
+    semRegistrosNaSemana: 'Nothing logged this week.',
+    nadaNesteTipo: 'Nothing logged in this type yet',
+
+    metaFeita: 'done',
+    metaAberta: 'open',
+  },
 };

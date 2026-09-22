@@ -136,4 +136,56 @@ export const tratamento = {
     muito: 'Very active',
     muitoSub: '6 to 7 days a week',
   },
+
+  /* ⚠️ Duration is a language rule and used to be written in the screen
+     file. See ../pt-BR/tratamento. */
+  tela: {
+    titulo: 'Exercise',
+    unidadeMin: 'min',
+    duracao: (min: number) => {
+      if (min < 60) return `${min} min`;
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} hr ${m}` : `${h} hr`;
+    },
+
+    hojeSemTreino: (daSemana: number) => `Today: no workout yet · ${daSemana} min this week`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Today: ${hoje} of ${alvo} min · ${resto}`,
+    metaAlcancada: 'goal reached',
+    faltamMin: (falta: number) => `${falta} min to go`,
+    registrarTreino: 'Log a workout',
+
+    movimentoTitulo: 'Your movement',
+    estaSemana: 'This week',
+    nenhumDiaComMovimento: 'No day with movement',
+    emDiasDosSete: (dias: number) => `On ${dias} of seven ${dias === 1 ? 'day' : 'days'}`,
+    metaMin: (alvo: number) => `Goal: ${alvo} min`,
+
+    semForca: 'No strength work this week. Weights, pilates and functional are what hold the muscle.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'} with strength work — that’s what holds the muscle while the weight comes down.`,
+
+    minutosPorSemana: 'Minutes per week',
+    mediaOitoSemanas: 'Average of the last 8 weeks',
+    semanaDe: (data: string) => `week of ${data}`,
+
+    periodo7: '7 days',
+    periodo30: '30 days',
+    periodo90: '3 months',
+    noPeriodo: 'In this period',
+    noPeriodoNota: 'Only what was logged here — what comes from the watch has no activity type.',
+    treinos: 'Workouts',
+    tempo: 'Time',
+    maisLongo: 'Longest',
+    deForca: 'Strength',
+
+    diarioTitulo: 'Workout diary',
+    diarioNota: 'Tap a workout to see, fix or delete it.',
+    diaVazioTitulo: 'No workout on this day',
+    diaVazioTexto: 'Rest is part of it too.',
+
+    integracoes: 'Connections',
+    conectar: 'Connect a watch or app',
+    lancamSozinhos: 'They log the minutes on their own',
+    conectarSub: 'Apple Health, Health Connect, Garmin and others',
+  },
 };

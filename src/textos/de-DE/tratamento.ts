@@ -148,4 +148,76 @@ export const tratamento = {
     muito: 'Sehr aktiv',
     muitoSub: '6 bis 7 Tage pro Woche',
   },
+
+  /* ============================================================
+     DER BEWEGUNGS-BILDSCHIRM · de-DE
+
+     ⚠️⚠️ DIE DAUER IST EINE SPRACHREGEL, und sie stand in der Datei des
+     Bildschirms fest geschrieben. „6 Std. 20“ statt „380 Min.“: über
+     einer Stunde zwingt die reine Minute dazu, im Kopf zu teilen, um zu
+     wissen, ob das viel ist.
+
+     Und jede Sprache schreibt die Stunde anders — „6 h 20“, „6 hr 20“,
+     „6 Std. 20“. Die Funktion im Bildschirm zu lassen zwang alle fünf in
+     die portugiesische Abkürzung. Siehe ../pt-BR/tratamento.
+     ============================================================ */
+  tela: {
+    titulo: 'Bewegung',
+    /* ⚠️ 'Min.' MIT PUNKT, wie der Rest dieser Datei. 'min' wäre das
+       SI-Zeichen und bliebe nach der Regel im Code — aber dann stünden
+       zwei Schreibweisen derselben Minute auf demselben Bildschirm. */
+    unidadeMin: 'Min.',
+    duracao: (min: number) => {
+      if (min < 60) return `${min} Min.`;
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} Std. ${m}` : `${h} Std.`;
+    },
+
+    hojeSemTreino: (daSemana: number) => `Heute: noch keine Einheit · ${daSemana} Min. diese Woche`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Heute: ${hoje} von ${alvo} Min. · ${resto}`,
+    metaAlcancada: 'Ziel erreicht',
+    faltamMin: (falta: number) => `noch ${falta} Min.`,
+    registrarTreino: 'Eine Einheit eintragen',
+
+    movimentoTitulo: 'Deine Bewegung',
+    estaSemana: 'Diese Woche',
+    nenhumDiaComMovimento: 'Kein Tag mit Bewegung',
+    emDiasDosSete: (dias: number) => `An ${dias} von sieben ${dias === 1 ? 'Tag' : 'Tagen'}`,
+    metaMin: (alvo: number) => `Ziel: ${alvo} Min.`,
+
+    /* ⚠️ DIE ZEILE ZUM KRAFTTRAINING BERICHTET, SIE MAHNT NICHT. Im
+       Kaloriendefizit verliert, wer nur Ausdauer macht, Magermasse
+       zusammen mit dem Fett — und die Magermasse ist das, was die App den
+       ganzen Tag zu halten versucht. Der Satz sagt, an wie vielen Tagen es
+       welches gab, und hört auf. */
+    semForca: 'Diese Woche keine Krafteinheit. Krafttraining, Pilates und Functional sind das, was den Muskel hält.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'} mit Krafttraining — das ist es, was den Muskel hält, während das Gewicht fällt.`,
+
+    minutosPorSemana: 'Minuten pro Woche',
+    mediaOitoSemanas: 'Schnitt der letzten 8 Wochen',
+    semanaDe: (data: string) => `Woche vom ${data}`,
+
+    periodo7: '7 Tage',
+    periodo30: '30 Tage',
+    periodo90: '3 Monate',
+    noPeriodo: 'Im Zeitraum',
+    noPeriodoNota: 'Nur, was hier eingetragen wurde — was von der Uhr kommt, hat keine Sportart.',
+    treinos: 'Einheiten',
+    tempo: 'Zeit',
+    maisLongo: 'Längste',
+    deForca: 'Kraft',
+
+    diarioTitulo: 'Trainingstagebuch',
+    diarioNota: 'Tipp auf eine Einheit, um sie anzusehen, zu korrigieren oder zu löschen.',
+    diaVazioTitulo: 'Keine Einheit an diesem Tag',
+    /* „Ruhe gehört dazu“ — und nicht „trag eine Einheit ein“: ein Tag ohne
+       Training ist in einer Behandlung kein offener Punkt. */
+    diaVazioTexto: 'Ruhe gehört auch dazu.',
+
+    integracoes: 'Verbindungen',
+    conectar: 'Eine Uhr oder App verbinden',
+    lancamSozinhos: 'Tragen die Minuten von allein ein',
+    conectarSub: 'Apple Health, Health Connect, Garmin und andere',
+  },
 };

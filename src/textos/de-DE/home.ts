@@ -175,4 +175,57 @@ export const home = {
   fontes: {
     appleSaude: 'Apple Health',
   },
+
+  /* ⚠️ DER VERLAUFS-BILDSCHIRM WOHNT IN `home`, weil es dasselbe Gespräch
+     ist — die Typ-Etiketten und die Wochenplurale standen schon hier.
+     Siehe ../pt-BR/home für die drei Arten von Schweigen.
+
+     ⚠️ UND KEIN `toLowerCase()` AM SYMPTOMNAMEN: „übelkeit an 3 Tagen“
+     wäre ein Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
+  tela: {
+    ultimos7: 'DEINE LETZTEN 7 TAGE',
+    /* ⚠️ „Dosis“ GROSS, und im Portugiesischen klein: dort öffnet das Wort
+       keinen Satz, hier ist es ein Substantiv. */
+    doseEm: (quando: string) => `Dosis ${quando}`,
+    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
+      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} Wochen mit Injektion`,
+    semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',
+    semanaEDia: (semana: number, dia: number) => `WOCHE ${semana} · TAG ${dia}`,
+    noInicio: (peso: string) => `${peso} am Anfang`,
+    hoje: 'heute',
+    faltam: (peso: string) => `noch ${peso}`,
+
+    protocolos: 'Protokolle',
+    sinaisVitais: 'Vitalwerte',
+    refeicoesContadas: (quantas: number) => `${quantas} Mahlzeiten`,
+    aguaHoje: (quanto: string) => `${quanto} heute`,
+    minutosHoje: (minutos: number) => `${minutos} Min. heute`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'Wert' : 'Werte'}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} von ${total}`,
+
+    semRegistro: 'nichts eingetragen',
+    semQueixas: 'keine Beschwerden diese Woche',
+    sintomaEmDias: (sintoma: string, dias: number) =>
+      `${sintoma} an ${dias} ${dias === 1 ? 'Tag' : 'Tagen'}`,
+
+    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
+      `${restam} von ${total} Dosen im Pen · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+
+    oQueJaMudou: 'Was sich geändert hat',
+    evolucao: 'Entwicklung',
+    suasMetas: 'Deine Ziele',
+    metas: 'Ziele',
+    oDiaADia: 'Der Alltag',
+    seuTratamento: 'Deine Behandlung',
+    verTudo: 'Alles ansehen',
+
+    porSemana: 'Nach Woche',
+    semana: (numero: number) => `Woche ${numero}`,
+    doseAjustada: 'Dosis angepasst',
+    semRegistrosNaSemana: 'Nichts in dieser Woche eingetragen.',
+    nadaNesteTipo: 'In dieser Art ist noch nichts eingetragen',
+
+    metaFeita: 'erreicht',
+    metaAberta: 'offen',
+  },
 };

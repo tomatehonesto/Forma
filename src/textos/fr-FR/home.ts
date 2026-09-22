@@ -171,4 +171,55 @@ export const home = {
   fontes: {
     appleSaude: 'Apple Santé',
   },
+
+  /* ⚠️ L'ÉCRAN DU PARCOURS VIT DANS `home` parce que c'est la même
+     conversation — les étiquettes de type et les pluriels de la semaine
+     étaient déjà ici. Voir ../pt-BR/home pour les trois silences. */
+  tela: {
+    ultimos7: 'VOS 7 DERNIERS JOURS',
+    doseEm: (quando: string) => `dose ${quando}`,
+    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
+      `${feitos} jours sur 7 avec un check-in · ${aplicadas} semaines sur ${vividas} avec une injection`,
+    semanaASemana: 'Semaine par semaine. Touchez pour voir ce qui a marqué chaque cycle.',
+    semanaEDia: (semana: number, dia: number) => `SEMAINE ${semana} · JOUR ${dia}`,
+    noInicio: (peso: string) => `${peso} au départ`,
+    hoje: 'aujourd’hui',
+    faltam: (peso: string) => `il reste ${peso}`,
+
+    protocolos: 'Protocoles',
+    sinaisVitais: 'Constantes',
+    refeicoesContadas: (quantas: number) => `${quantas} repas`,
+    aguaHoje: (quanto: string) => `${quanto} aujourd’hui`,
+    minutosHoje: (minutos: number) => `${minutos} min aujourd’hui`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'mesure' : 'mesures'}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} sur ${total}`,
+
+    semRegistro: 'rien de noté',
+    semQueixas: 'aucune plainte cette semaine',
+    sintomaEmDias: (sintoma: string, dias: number) =>
+      `${sintoma.toLowerCase()} sur ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+
+    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
+      `${restam} doses sur ${total} dans le stylo · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+
+    oQueJaMudou: 'Ce qui a changé',
+    evolucao: 'Évolution',
+    suasMetas: 'Vos objectifs',
+    metas: 'Objectifs',
+    oDiaADia: 'Le quotidien',
+    seuTratamento: 'Votre traitement',
+    verTudo: 'Tout voir',
+
+    porSemana: 'Par semaine',
+    semana: (numero: number) => `Semaine ${numero}`,
+    doseAjustada: 'dose ajustée',
+    semRegistrosNaSemana: 'Rien de noté cette semaine.',
+    nadaNesteTipo: 'Rien de noté dans ce type pour l’instant',
+
+    /* ⚠️ « FAIT » ET « OUVERT » AU MASCULIN INVARIABLE : l'étiquette parle
+       de l'objectif — masculin en français —, et non de qui l'a atteint.
+       Rien n'accorde avec la personne. */
+    metaFeita: 'fait',
+    metaAberta: 'ouvert',
+  },
 };

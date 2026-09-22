@@ -17,6 +17,11 @@ import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/c
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.tela;
 
 /* ============================================================
    EXERCÍCIO
@@ -78,20 +83,20 @@ import { radius } from '../theme';
 
    Não passa de três meses porque abaixo disso a tela já tem a curva de
    oito semanas, e acima disso a lista vira rolagem sem fim. */
-const PERIODOS = [
-  { id: '7', label: '7 dias', dias: 7 },
-  { id: '30', label: '30 dias', dias: 30 },
-  { id: '90', label: '3 meses', dias: 90 },
+/* ⚠️ E ELA TAMBÉM É FUNÇÃO, pelo mesmo motivo: os três rótulos ficavam
+   congelados no idioma do import. */
+const PERIODOS = () => [
+  { id: '7', label: K().periodo7, dias: 7 },
+  { id: '30', label: K().periodo30, dias: 30 },
+  { id: '90', label: K().periodo90, dias: 90 },
 ];
 
-/* "6 h 20" em vez de "380 min": acima de uma hora, minuto puro obriga a
-   pessoa a dividir de cabeça para saber se aquilo é muito. */
-function duracao(min: number): string {
-  if (min < 60) return `${min} min`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m ? `${h} h ${m}` : `${h} h`;
-}
+/* ⚠️⚠️ A DURAÇÃO FOI PARA O CATÁLOGO, e ela morava aqui.
+
+   "6 h 20" em vez de "380 min" é a regra; a ABREVIAÇÃO da hora é do
+   idioma — "6 h 20", "6 hr 20", "6 Std. 20". Escrita aqui, ela obrigava
+   as cinco línguas a usar a portuguesa. */
+const duracao = (min: number) => K().duracao(min);
 
 export default function Exercicio() {
   const S = useStore((s) => s.S);
@@ -99,7 +104,7 @@ export default function Exercicio() {
   const { c } = useTheme();
   const router = useRouter();
   const [per, setPer] = useState('30');
-  const dias = PERIODOS.find((x) => x.id === per)!.dias;
+  const dias = PERIODOS().find((x) => x.id === per)!.dias;
   /* O DIA ESCOLHIDO — sempre há um, e começa em hoje.
 
      A tira nasceu como filtro opcional: sem escolha, o diário listava o
@@ -166,7 +171,7 @@ export default function Exercicio() {
           sozinha teria de inventar trinta minutos que ninguém disse. */}
       <CapaDeHabito
         foto={require('../../assets/images/exercicio-hero.jpg')}
-        titulo="Exercício"
+        titulo={K().titulo}
         /* O corte sobe: o assunto desta foto são as pernas, que moram na
            metade de cima; o resto do quadro é asfalto, e centrado a capa
            abria com um retângulo cinza. */
@@ -179,12 +184,12 @@ export default function Exercicio() {
            E "sem treino ainda" em vez de "descanso" porque ausência de
            registro não é descanso — é ausência de registro. */
         linha={hoje === 0
-          ? `Hoje: sem treino ainda · ${daSemana} min nesta semana`
-          : `Hoje: ${hoje} de ${alvoDia} min · ${hoje >= alvoDia ? 'meta alcançada' : `faltam ${alvoDia - hoje} min`}`}
+          ? K().hojeSemTreino(daSemana)
+          : K().hojeComTreino(hoje, alvoDia, hoje >= alvoDia ? K().metaAlcancada : K().faltamMin(alvoDia - hoje))}
         pct={Math.round((hoje / alvoDia) * 100)}
       >
         <AtalhoDaCapa
-          titulo="Registrar um treino"
+          titulo={K().registrarTreino}
           cheio
           onPress={() => router.push('/medir-exercicio' as any)}
         />
@@ -198,7 +203,7 @@ export default function Exercicio() {
           diário — como se fossem três assuntos. Dentro de um View com
           gap 10, que é a distância de cartões irmãos no resto do app,
           eles leem como duas vistas da mesma coisa. */}
-      <Bloco titulo="O seu movimento">
+      <Bloco titulo={K().movimentoTitulo}>
       <View style={{ gap: 10 }}>
       {/* A SEMANA — a unidade em que exercício faz sentido.
 
@@ -212,15 +217,15 @@ export default function Exercicio() {
           que nenhuma recomendação faz, e que deixaria toda semana normal
           parecendo fracasso. O que se conta é o que houve. */}
       <CardSemana
-        nome="Esta semana"
+        nome={K().estaSemana}
         sub={comMovimento === 0
-          ? 'Nenhum dia com movimento'
-          : `Em ${comMovimento} ${comMovimento === 1 ? 'dia' : 'dias'} dos sete`}
+          ? K().nenhumDiaComMovimento
+          : K().emDiasDosSete(comMovimento)}
         valor={String(daSemana)}
-        unidade="min"
+        unidade={K().unidadeMin}
         dias={semana.map((d) => ({ t: d.t, v: d.min }))}
         alvo={alvoDia}
-        rotuloMeta={`Meta: ${alvoDia} min`}
+        rotuloMeta={K().metaMin(alvoDia)}
         rodape={(
           /* Uma linha, e não um cartão. A proporção de força já teve
              barra, legenda e minutos por modalidade aqui — resumo bonito
@@ -230,8 +235,8 @@ export default function Exercicio() {
             <Icon name="shield" size={15} color={forca ? c.ok : c.tx4} sw={2} />
             <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
               {forca === 0
-                ? 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.'
-                : `${forca} ${forca === 1 ? 'dia' : 'dias'} com treino de força — é o que segura o músculo enquanto o peso cai.`}
+                ? K().semForca
+                : K().comForca(forca)}
             </Txt>
           </Row>
         )}
@@ -247,10 +252,10 @@ export default function Exercicio() {
         <View>
           <CardCurva
             id="ex"
-            nome="Minutos por semana"
-            sub="Média das últimas 8 semanas"
+            nome={K().minutosPorSemana}
+            sub={K().mediaOitoSemanas}
             valor={String(mediaSemanal)}
-            unidade="min"
+            unidade={K().unidadeMin}
             /* Mais alta que o padrão porque é a única coisa nesta tela que
                olha para trás de verdade — as barras de cima cobrem sete
                dias, e sete dias não dizem se a pessoa está se mexendo mais
@@ -260,7 +265,7 @@ export default function Exercicio() {
             pontos={semanas.map((w) => ({
               v: w.min,
               rotulo: String(w.min),
-              quando: `semana de ${fmtDate(new Date(w.t))}`,
+              quando: K().semanaDe(fmtDate(new Date(w.t))),
             }))}
           />
         </View>
@@ -278,9 +283,9 @@ export default function Exercicio() {
           Tudo aqui conta só o que foi registrado nesta tela. Somar o que
           o relógio trouxe faria o resumo dizer 12 h sobre uma lista que
           mostra 6 h. */}
-      <Bloco titulo="No período" nota="Só o que foi registrado aqui — o que vem do relógio não tem modalidade.">
+      <Bloco titulo={K().noPeriodo} nota={K().noPeriodoNota}>
         <View style={{ gap: 10 }}>
-          <Chips itens={PERIODOS.map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={escolhePeriodo} />
+          <Chips itens={PERIODOS().map((x) => ({ id: x.id, label: x.label }))} valor={per} onChange={escolhePeriodo} />
           {/* Os quatro aparecem SEMPRE, zerados quando não houve nada.
 
               Trocar os quadros por uma frase de "nenhum registro" fazia a
@@ -293,14 +298,14 @@ export default function Exercicio() {
               isso é a verdade dele, não a ausência dela. */}
           <View style={{ gap: 10 }}>
             <Grade2>
-              <Metrica ic="dumbbell" nome="Treinos" para={String(resumo.treinos)} />
-              <Metrica ic="clock" nome="Tempo" para={duracao(resumo.min)} />
+              <Metrica ic="dumbbell" nome={K().treinos} para={String(resumo.treinos)} />
+              <Metrica ic="clock" nome={K().tempo} para={duracao(resumo.min)} />
             </Grade2>
             <Grade2>
-              <Metrica ic="run" nome="Mais longo" para={duracao(resumo.maisLongo)} />
+              <Metrica ic="run" nome={K().maisLongo} para={duracao(resumo.maisLongo)} />
               <Metrica
                 ic="shield"
-                nome="De força"
+                nome={K().deForca}
                 para={duracao(resumo.forca)}
                 selo={resumo.forca ? `${Math.round((resumo.forca / resumo.min) * 100)}%` : undefined}
                 seloTom="verde"
@@ -317,8 +322,8 @@ export default function Exercicio() {
           juntar sozinho o que era do mesmo dia — aqui a data aparece uma
           vez, e embaixo dela o que aconteceu. */}
       <Bloco
-        titulo="Diário de treino"
-        nota={treinos.length ? 'Toque num treino para ver, corrigir ou apagar.' : undefined}
+        titulo={K().diarioTitulo}
+        nota={treinos.length ? K().diarioNota : undefined}
       >
         {/* A tira e o dia que ela escolhe no mesmo empilhamento, com o
             mesmo respiro que separa os chips dos quadros no bloco de
@@ -359,8 +364,8 @@ export default function Exercicio() {
                número de verdade. */
             <Vazio
               ic="dumbbell"
-              titulo="Nenhum treino neste dia"
-              texto="Descanso também faz parte."
+              titulo={K().diaVazioTitulo}
+              texto={K().diaVazioTexto}
             />
           )}
         </View>
@@ -373,12 +378,12 @@ export default function Exercicio() {
 
           TODAS as fontes, e não a primeira: ninguém tem só uma, e quem
           usa Garmin costuma ter o Apple Saúde ligado junto. */}
-      <Bloco titulo="Integrações">
+      <Bloco titulo={K().integracoes}>
         <Cartao>
           <Linha
             ic="watch"
-            titulo={fontes.length ? listaPt(fontes) : 'Conectar um relógio ou aplicativo'}
-            sub={fontes.length ? 'Lançam os minutos sozinhos' : 'Apple Saúde, Health Connect, Garmin e outros'}
+            titulo={fontes.length ? listaPt(fontes) : K().conectar}
+            sub={fontes.length ? K().lancamSozinhos : K().conectarSub}
             onPress={() => router.push('/integracoes' as any)}
           />
         </Cartao>

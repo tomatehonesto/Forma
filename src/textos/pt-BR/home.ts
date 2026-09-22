@@ -204,4 +204,80 @@ export const home = {
   fontes: {
     appleSaude: 'Apple Saúde',
   },
+
+  /* ============================================================
+     A TELA DA JORNADA — o painel, os temas e a linha do tempo
+
+     ⚠️ ELA MORA EM `home` PORQUE É A MESMA CONVERSA: os rótulos de tipo,
+     os plurais da semana e os nomes do que mudou já estavam aqui, e a
+     Jornada é a tela que os desenha por inteiro. Um módulo `jornada`
+     separado teria de importar metade deste.
+
+     ⚠️⚠️ E OS TRÊS SILÊNCIOS SÃO DIFERENTES, o que é a regra que mais
+     custa manter na tradução:
+
+       · `semRegistro`  a pessoa não respondeu — não sabemos
+       · `semQueixas`   ela respondeu, e não teve nada
+       · `semNaSemana`  a semana existiu e não teve registro nenhum
+
+     Colapsar dois num só faz o aplicativo AFIRMAR zero sobre um dia de
+     que ele não sabe nada.
+     ============================================================ */
+  tela: {
+    ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
+    doseEm: (quando: string) => `dose ${quando}`,
+    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
+      `${feitos} de 7 dias com check-in · ${aplicadas} de ${vividas} semanas com aplicação`,
+    semanaASemana: 'Semana a semana. Toque para ver o que marcou cada ciclo.',
+    /* ---------- o painel ---------- */
+    semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DIA ${dia}`,
+    /* ⚠️ OS TRÊS PESOS CHEGAM JÁ ESCRITOS, com a unidade de quem lê. Eles
+       vinham com "kg" pregado na tela — e quem lê em libra via o número
+       certo com a unidade errada. */
+    noInicio: (peso: string) => `${peso} no início`,
+    hoje: 'hoje',
+    faltam: (peso: string) => `faltam ${peso}`,
+
+    /* ---------- os temas do dia ---------- */
+    protocolos: 'Protocolos',
+    sinaisVitais: 'Sinais vitais',
+    refeicoesContadas: (quantas: number) => `${quantas} refeições`,
+    aguaHoje: (quanto: string) => `${quanto} hoje`,
+    minutosHoje: (minutos: number) => `${minutos} min hoje`,
+    indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'indicador' : 'indicadores'}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} de ${total}`,
+
+    semRegistro: 'sem registro',
+    semQueixas: 'sem queixas na semana',
+    /* O sintoma chega com o nome dele; a caixa é regra de idioma. */
+    sintomaEmDias: (sintoma: string, dias: number) =>
+      `${sintoma.toLowerCase()} em ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
+
+    /* ---------- o estoque ---------- */
+    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
+      `${restam} de ${total} doses na caneta · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+
+    /* ---------- os cabeçalhos ---------- */
+    /* ⚠️ O LINK DIZ O NOME DO DESTINO, e dizia "Ver todas" — que é uma
+       instrução, não um lugar. É a mesma regra que tirou o "Ir para" dos
+       botões da Home. */
+    oQueJaMudou: 'O que já mudou',
+    evolucao: 'Evolução',
+    suasMetas: 'Suas metas',
+    metas: 'Metas',
+    oDiaADia: 'O dia a dia',
+    seuTratamento: 'Seu tratamento',
+    verTudo: 'Ver tudo',
+
+    /* ---------- a linha do tempo ---------- */
+    porSemana: 'Por semana',
+    semana: (numero: number) => `Semana ${numero}`,
+    doseAjustada: 'dose ajustada',
+    semRegistrosNaSemana: 'Sem registros nesta semana.',
+    nadaNesteTipo: 'Nada registrado neste tipo ainda',
+
+    /* A meta pessoal não tem porcentagem: tem estado. */
+    metaFeita: 'feita',
+    metaAberta: 'aberta',
+  },
 };

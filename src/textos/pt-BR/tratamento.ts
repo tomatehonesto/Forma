@@ -187,4 +187,82 @@ export const tratamento = {
     muito: 'Muito ativo',
     muitoSub: '6 a 7 dias por semana',
   },
+
+  /* ============================================================
+     A TELA DO EXERCÍCIO
+
+     ⚠️⚠️ A DURAÇÃO É REGRA DE IDIOMA, e estava escrita em duro na tela.
+     "6 h 20" em vez de "380 min": acima de uma hora, minuto puro obriga a
+     pessoa a dividir de cabeça para saber se aquilo é muito.
+
+     E cada língua escreve a hora do seu jeito — "6 h 20", "6 hr 20",
+     "6 Std. 20". Deixar a função na tela obrigava as cinco a usarem a
+     abreviação portuguesa.
+     ============================================================ */
+  tela: {
+    titulo: 'Exercício',
+    /* ⚠️ 'min' É SÍMBOLO E FICARIA NO CÓDIGO pela regra do alto deste
+       arquivo — mas o alemão escreve 'Min.' na prosa, e as outras chaves
+       daqui já escrevem assim. Duas grafias do mesmo minuto na mesma tela
+       é o tipo de coisa que ninguém nota escrevendo e todo mundo nota
+       lendo. */
+    unidadeMin: 'min',
+    duracao: (min: number) => {
+      if (min < 60) return `${min} min`;
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} h ${m}` : `${h} h`;
+    },
+
+    /* A capa: o dia, e a semana logo atrás dele. O número de hoje SOZINHO
+       transforma descanso em falha — por isso os dois vêm na mesma
+       linha. */
+    hojeSemTreino: (daSemana: number) => `Hoje: sem treino ainda · ${daSemana} min nesta semana`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Hoje: ${hoje} de ${alvo} min · ${resto}`,
+    metaAlcancada: 'meta alcançada',
+    faltamMin: (falta: number) => `faltam ${falta} min`,
+    registrarTreino: 'Registrar um treino',
+
+    /* A semana */
+    movimentoTitulo: 'O seu movimento',
+    estaSemana: 'Esta semana',
+    nenhumDiaComMovimento: 'Nenhum dia com movimento',
+    emDiasDosSete: (dias: number) => `Em ${dias} ${dias === 1 ? 'dia' : 'dias'} dos sete`,
+    metaMin: (alvo: number) => `Meta: ${alvo} min`,
+
+    /* ⚠️ A LINHA DA FORÇA RELATA, NÃO COBRA. Em déficit calórico quem só
+       faz cardio perde massa magra junto com a gordura, e massa magra é
+       o que o aplicativo passa o dia tentando segurar. A frase diz
+       quantos dias houve, e para. */
+    semForca: 'Nenhum treino de força nesta semana. Musculação, pilates e funcional são o que segura o músculo.',
+    comForca: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'} com treino de força — é o que segura o músculo enquanto o peso cai.`,
+
+    minutosPorSemana: 'Minutos por semana',
+    mediaOitoSemanas: 'Média das últimas 8 semanas',
+    semanaDe: (data: string) => `semana de ${data}`,
+
+    /* O período */
+    periodo7: '7 dias',
+    periodo30: '30 dias',
+    periodo90: '3 meses',
+    noPeriodo: 'No período',
+    noPeriodoNota: 'Só o que foi registrado aqui — o que vem do relógio não tem modalidade.',
+    treinos: 'Treinos',
+    tempo: 'Tempo',
+    maisLongo: 'Mais longo',
+    deForca: 'De força',
+
+    /* O diário */
+    diarioTitulo: 'Diário de treino',
+    diarioNota: 'Toque num treino para ver, corrigir ou apagar.',
+    diaVazioTitulo: 'Nenhum treino neste dia',
+    /* "Descanso também faz parte" — e não "registre um treino": um dia
+       sem treino num tratamento não é uma pendência. */
+    diaVazioTexto: 'Descanso também faz parte.',
+
+    integracoes: 'Integrações',
+    conectar: 'Conectar um relógio ou aplicativo',
+    lancamSozinhos: 'Lançam os minutos sozinhos',
+    conectarSub: 'Apple Saúde, Health Connect, Garmin e outros',
+  },
 };
