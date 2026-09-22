@@ -215,4 +215,104 @@ export const cadastro = {
   faseLendo: 'Lendo as suas respostas',
   faseCalculando: 'Calculando as suas metas do dia',
   faseDesenhando: 'Desenhando a sua jornada',
+
+  /* ============================================================
+     O PLANO — o que as respostas viraram
+
+     Mora em dois lugares e é o mesmo componente nos dois: no fim do
+     cadastro, como devolutiva de quem acabou de responder quinze
+     perguntas, e em /plano, para quem quiser rever. Por isso o texto
+     dele mora aqui, no catálogo do cadastro.
+
+     ⚠️⚠️ `objetivo` DEVOLVE TRÊS PEDAÇOS, e não uma frase. A tela põe o
+     do meio em negrito — é o número que a pessoa veio buscar — e, se a
+     frase viesse pronta, o negrito teria de cair sempre no mesmo lugar.
+     Não cai: o português diz "Para perder <b>7 kg</b> com o Mounjaro®" e
+     o alemão diz "Um <b>7 kg</b> abzunehmen mit Mounjaro®", com o verbo
+     no fim. Cada idioma decide o que vem antes e o que vem depois.
+
+     ⚠️ O ® SÓ ONDE ELE É VERDADE. Manipulado é categoria, não produto:
+     "com o Semaglutida manipulada®" seria o aplicativo afirmando uma
+     marca registrada que não existe.
+
+     ⚠️ E NENHUM NÚMERO DAQUI É PROMESSA. A ressalva da curva diz isso por
+     escrito, e é a frase que não pode amaciar na tradução: o traço é a
+     média do caminho, não uma previsão do que vai acontecer com esta
+     pessoa.
+     ============================================================ */
+  telaPlano: {
+    /* ---------- a abertura ---------- */
+    planoPronto: 'o seu plano personalizado está pronto!',
+    manterOPeso: 'manter o seu peso',
+    objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => [
+      `Para ${perder > 0.05 ? 'perder ' : perder < -0.05 ? 'ganhar ' : ''}`,
+      alvo,
+      `${marca}.`,
+    ],
+    marcaRegistrada: (medicamento: string) => ` com o ${medicamento}®`,
+    marcaGenerica: (medicamento: string) => ` com ${medicamento}`,
+    elaboradoPensando: 'O seu plano foi elaborado pensando',
+    nasSuasRespostas: 'Nas suas respostas',
+    emEstudos: 'Em estudos sobre GLP-1',
+
+    /* ---------- as seções ---------- */
+    secaoMetas: 'AS SUAS METAS DO DIA',
+    secaoDose: 'A SUA DOSE',
+    secaoAteAMeta: 'ATÉ A SUA META',
+    secaoCorpo: 'O SEU CORPO',
+    secaoAjuda: 'COMO EU TE AJUDO',
+    secaoCiencia: 'A CIÊNCIA POR TRÁS DO SEU PLANO',
+
+    /* ---------- as metas do dia ----------
+
+       ⚠️ DIZIA "A CANETA TIRA A FOME", e nem todo mundo aplica com caneta:
+       há frasco, seringa e cartela. A frase não precisa do recipiente
+       para dizer o que diz. */
+    proteinaPorDia: 'PROTEÍNA POR DIA',
+    proteinaTexto: 'É a primeira meta do dia. O medicamento tira a fome, e parte do peso que desce vem de músculo — a proteína é o que segura a massa magra enquanto a gordura vai embora.',
+    calorias: 'Calorias',
+    /* Os outros três macros vêm de `alimentacao.tela`, onde já estavam. A
+       água fica aqui: em `alimentacao` ela é NOME DE BEBIDA, que é chave
+       de registro, e rótulo de tela não se pendura numa chave gravada. */
+    agua: 'Água',
+
+    /* ---------- a dose ---------- */
+    aindaADefinir: 'Ainda a definir',
+    aindaADefinirTexto: 'Quando você souber o medicamento, eu monto a escada de doses e o ciclo.',
+    cicloComeca: 'O ciclo começa na primeira aplicação que você registrar.',
+    cadenciaDiaria: 'todos os dias',
+    cadenciaSemanal: 'uma vez por semana',
+    cadenciaDias: (dias: number) => `a cada ${dias} dias`,
+
+    /* ---------- até a meta ---------- */
+    pesoAPerder: 'Peso a perder',
+    pesoAGanhar: 'Peso a ganhar',
+    emSemanas: (semanas: number) => `em ${semanas} semanas`,
+    ressalvaDaCurva: (ritmo: string) =>
+      `A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${ritmo} por semana que você escolheu são a média do caminho, não uma previsão.`,
+
+    /* ---------- o corpo ---------- */
+    imcDeHoje: 'IMC de hoje',
+    naSuaMeta: 'Na sua meta',
+
+    /* ---------- como eu te ajudo ---------- */
+    ajudaDose: 'Cada dose no lugar certo',
+    ajudaDoseSub: 'o rodízio dos locais e o ciclo da dose, sem você contar',
+    ajudaEnjoo: 'O enjoo em números',
+    ajudaEnjooSub: 'o que você sente vira padrão, e o padrão vai para a consulta',
+    ajudaPeso: 'A sua curva de peso',
+    ajudaPesoSub: 'cada pesagem entra na linha, com a leitura do que mudou',
+    ajudaResumo: 'Um resumo para a consulta',
+    ajudaResumoSub: 'doses, sintomas e peso organizados numa página só',
+
+    /* ---------- a ciência ---------- */
+    feitoEmCimaDeEvidencia: 'Feito em cima de evidência',
+    evidenciaTexto: 'As metas, a curva e as prioridades deste plano seguem diretrizes de saúde pública e ensaios clínicos revisados por pares.',
+    /* ⚠️ A DIVISÃO DE TRABALHO, e não isenção de responsabilidade no
+       rodapé: quem conduz o tratamento é a equipe de saúde, e estes
+       números são ponto de partida para essa conversa. */
+    rodape: 'A gente acompanha a sua jornada todos os dias e organiza o que você registra — mas quem conduz o tratamento é a sua equipe de saúde. Estes números são ponto de partida para essa conversa, e não prescrição.',
+
+    voltar: 'Voltar',
+  },
 };

@@ -27,8 +27,13 @@ import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
-import { localAtual } from '../logic/local';
+import { NOME_DO_LOCAL, localAtual } from '../logic/local';
+import { NOME_DO_PAIS, paisAtual } from '../logic/pais';
 import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.perfil;
 
 /* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
 
@@ -143,11 +148,11 @@ export default function Perfil() {
      prometer corrigir o peso inicial e entregar a régua do peso de
      hoje, que é outro número. */
   const passoDoPesoInicial = emTratamento(S) ? 'inicio' : 'corpo';
-  const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? 'Não informado';
-  const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? 'Não informado';
+  const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? K().naoInformado;
+  const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? K().naoInformado;
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])
     .map((x) => RESTRICOES().find((y) => y.id === x)?.titulo ?? x)
-    .join(', ') || 'Nenhuma';
+    .join(', ') || K().nenhuma;
   const { c, isDark } = useTheme();
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
@@ -174,12 +179,12 @@ export default function Perfil() {
       '',
       '---',
       `Morphi ${VERSAO_DO_APP}`,
-      `Sistema: ${Platform.OS} ${Platform.Version}`,
-      `Paleta: ${paletaDe((S as any).paleta).nome} · Tema: ${isDark ? 'escuro' : 'claro'}`,
+      K().problemaSistema(Platform.OS, String(Platform.Version)),
+      K().problemaPaleta(paletaDe((S as any).paleta).nome, isDark),
       '',
-      'Conte o que você estava fazendo e o que aconteceu.',
+      K().problemaCorpo,
     ].join('\n');
-    const url = `mailto:${CANAL()}?subject=${encodeURIComponent('Morphi — problema')}&body=${encodeURIComponent(contexto)}`;
+    const url = `mailto:${CANAL()}?subject=${encodeURIComponent(K().problemaAssunto)}&body=${encodeURIComponent(contexto)}`;
     Linking.openURL(url).catch(() => {});
   };
 
@@ -224,7 +229,7 @@ export default function Perfil() {
   /* A especialidade vem do perfil do profissional, e não de um texto
      fixo: no dia em que quem acompanha for nutricionista, o card diz
      nutricionista. Sem ela, a linha fica só com a clínica. */
-  const especialidade = (S.profile as any).doctorInfo?.especialidade ?? 'Especialista';
+  const especialidade = (S.profile as any).doctorInfo?.especialidade ?? K().especialista;
   const dose = medComDose(S);
 
   return (
@@ -319,7 +324,7 @@ export default function Perfil() {
               paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
             }}>
               <Icon name="cal" size={12} color={c.tx2} sw={2} />
-              <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>Dia {journeyDay(S)}</Txt>
+              <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>{K().dia(journeyDay(S))}</Txt>
             </Row>
           </Row>
         </View>
@@ -344,7 +349,7 @@ export default function Perfil() {
           mudar coisa, e não um por cartão. */}
       <Row gap={8} style={{ marginTop: 20 }}>
         <Dado
-          label="Inicial" valor={pesoN(S, S.profile.startWeight)} unidade={pesoU(S)}
+          label={K().inicial} valor={pesoN(S, S.profile.startWeight)} unidade={pesoU(S)}
           fundo={c.bluePale} tinta={c.tx} tintaRotulo={c.tx2}
         />
         {/* O DO MEIO PASSOU A SER O PESO DE HOJE, e não o quanto já foi
@@ -357,12 +362,12 @@ export default function Perfil() {
             o app não tem por que esconder, e "já perdeu −2,1" seria ele
             corrigindo a pessoa com um sinal de menos. */}
         <Dado
-          label="Atual" valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
+          label={K().atual} valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
           delta={`${perdeu >= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(perdeu))}`}
           fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)" largo
         />
         <Dado
-          label="Meta" valor={pesoN(S, S.profile.goalWeight)} unidade={pesoU(S)}
+          label={K().meta} valor={pesoN(S, S.profile.goalWeight)} unidade={pesoU(S)}
           fundo={c.accent} tinta={c.accentInk}
           tintaRotulo={isDark ? 'rgba(4,16,43,0.70)' : 'rgba(255,255,255,0.80)'}
         />
@@ -400,7 +405,7 @@ export default function Perfil() {
           {/* O mesmo título da Home e da aba Cuidado: é a mesma médica
               nas três telas, e ela não pode ser apresentada com um nome
               diferente em cada uma. */}
-          <SectionHead title="Quem cuida de você" />
+          <SectionHead title={T.home.telaInicio.quemCuida} />
             <Pressable onPress={go('/medico')} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, overflow: 'hidden' }}>
                 <Row gap={14} style={{ padding: 16 }}>
@@ -441,16 +446,14 @@ export default function Perfil() {
                 <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
                   <Row gap={7} style={{ alignItems: 'center' }}>
                     <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
-                    <Txt v="micro" c={c.tx2}>Consulta {relDay(new Date(S.consult.t))}</Txt>
+                    <Txt v="micro" c={c.tx2}>{K().consultaEm(relDay(new Date(S.consult.t)))}</Txt>
                   </Row>
                   {/* O recado sem ler só aparece quando existe: "0 não
                       lidas" é o app puxando assunto sobre nada. */}
                   {S.unread > 0 && (
                     <Row gap={7} style={{ alignItems: 'center' }}>
                       <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c.bad }} />
-                      <Txt v="micro" c={c.tx2}>
-                        {S.unread} {S.unread === 1 ? 'não lida' : 'não lidas'}
-                      </Txt>
+                      <Txt v="micro" c={c.tx2}>{K().naoLidas(S.unread)}</Txt>
                     </Row>
                   )}
                 </Row>
@@ -474,7 +477,7 @@ export default function Perfil() {
 
           E mora no perfil porque é assunto de conta: o vínculo é quem
           presta o serviço, e um dia é quem decide a cobrança. */}
-      <Grupo title="Plano e cobrança">
+      <Grupo title={K().planoECobranca}>
         {/* ⚠️ O PLANO PRECISA DE UM LUGAR FIXO, e não só do fim do
             cadastro. Quem fecha a tela de planos naquele dia não a
             encontra nunca mais — e "onde eu vejo o que estou pagando?"
@@ -496,7 +499,7 @@ export default function Perfil() {
             nome que a tela de dentro mostra em corpo grande: quem toca
             aqui reconhece onde chegou. */}
         <ListRow ic="shield"
-          title="Sua assinatura"
+          title={K().suaAssinatura}
           onPress={go('/assinatura')}
           right={
             <Row gap={8} style={{ alignItems: 'center' }}>
@@ -523,14 +526,14 @@ export default function Perfil() {
           uma preferência do aplicativo. Empurrá-las para configurações
           encheria a gaveta de coisas que a pessoa procura por assunto, e
           esvaziaria a seção que ela abre quando quer mexer no app. */}
-      <Grupo title="Acompanhamento">
-        <ListRow ic="target" title="Metas diárias"
-          sub={`${S.profile.targets.prot} g de proteína · ${nf(S.profile.targets.waterMl / 1000, 1)} L de água`}
+      <Grupo title={K().acompanhamento}>
+        <ListRow ic="target" title={K().metasDiarias}
+          sub={K().metasDiariasSub(S.profile.targets.prot, nf(S.profile.targets.waterMl / 1000, 1))}
           onPress={go('/metas')} />
-        <ListRow ic="clock" title="Lembretes"
-          sub="Dose, pesagem, água e proteína" onPress={go('/lembretes')} />
-        <ListRow ic="trend" title="Dispositivos e integrações"
-          sub="Apple Health, Withings e mais" onPress={go('/integracoes')} />
+        <ListRow ic="clock" title={K().lembretes}
+          sub={K().lembretesSub} onPress={go('/lembretes')} />
+        <ListRow ic="trend" title={K().dispositivos}
+          sub={K().dispositivosSub} onPress={go('/integracoes')} />
       </Grupo>
 
       {/* ---- o que você já fez ----
@@ -555,7 +558,7 @@ export default function Perfil() {
           a data que alinha a fileira. */}
       {badges.length ? (
         <View style={{ marginTop: 32 }}>
-          <SectionHead title="O que você já fez" link="Conquistas" onPress={go('/conquistas')} />
+          <SectionHead title={K().oQueVoceJaFez} link={K().conquistas} onPress={go('/conquistas')} />
           <Rolagem
             horizontal showsHorizontalScrollIndicator={false}
             style={{ marginHorizontal: -space.xl, marginTop: 14 }}
@@ -599,9 +602,9 @@ export default function Perfil() {
           lá dentro pode já ter sido corrigido depois, e chamar de
           resposta o que a pessoa mudou ontem é o app se lembrando de uma
           conversa que ela já refez. */}
-      <Grupo title="Sobre você">
-        <ListRow ic="user" title="Seus dados"
-          sub="Altura, peso, ritmo e mais" onPress={go('/dados')} />
+      <Grupo title={K().sobreVoce}>
+        <ListRow ic="user" title={K().seusDados}
+          sub={K().seusDadosSub} onPress={go('/dados')} />
         {/* ⚠️ EXAMES ENTRA AQUI, e a tela não tinha porta fixa em lugar
             nenhum. Ela era alcançável por sete caminhos — alerta, tarefa,
             prescrição, resumo, área médica —, e todos contextuais: existem
@@ -614,18 +617,18 @@ export default function Perfil() {
             E fica logo abaixo de "Seus dados" porque os dois são números
             sobre o corpo: um que ela informou, outro que o laboratório
             mediu. */}
-        <ListRow ic="chart" title="Exames"
-          sub="Os resultados do laboratório, explicados" onPress={go('/exames')} />
+        <ListRow ic="chart" title={K().exames}
+          sub={K().examesSub} onPress={go('/exames')} />
         {/* O NOME DO LINK É O NOME DO DESTINO. Esta linha se chamava
             "Histórico completo" e abria uma tela chamada "Seu tratamento";
             a Jornada, que leva ao mesmo lugar, já chamava de "Seu
             tratamento". Dois nomes para uma porta fazem a pessoa achar que
             chegou noutro lugar — e o nome certo é o da tela, porque ali não
             há log de auditoria: há o tratamento contado por semana. */}
-        <ListRow ic="ruler" title="Seu tratamento"
-          sub="Tudo o que você registrou, semana a semana" onPress={go('/historico')} />
-        <ListRow ic="trophy" title="Conquistas"
-          sub="O que você já alcançou no tratamento" onPress={go('/conquistas')} />
+        <ListRow ic="ruler" title={K().seuTratamento}
+          sub={K().seuTratamentoSub} onPress={go('/historico')} />
+        <ListRow ic="trophy" title={K().conquistas}
+          sub={K().conquistasSub} onPress={go('/conquistas')} />
         {/* O RESUMO PARA O MÉDICO SAIU DAQUI. Ele não fala sobre a pessoa
             para ela — fala dela para outra pessoa, e o lugar de tudo que
             atravessa para o outro lado é o Cuidado: a tela do médico o
@@ -680,11 +683,11 @@ export default function Perfil() {
           Virou tela, com a prévia em cima: ícone, botão e selo juntos, na
           combinação atual. E o tema foi junto, porque claro/escuro é a
           terceira decisão do mesmo assunto. */}
-      <Grupo title="Personalize o aplicativo">
-        <ListRow ic="palette" title="Aparência"
+      <Grupo title={K().personalize}>
+        <ListRow ic="palette" title={K().aparencia}
           /* ⚠️ DIZIA "a cor do seu Morphi", e o aplicativo não se
               chama pelo nome quando fala com quem usa. */
-          sub={`${paletaDe((S as any).paleta).nome}, no ${isDark ? 'escuro' : 'claro'} · escolha a cor do aplicativo`}
+          sub={K().aparenciaSub(paletaDe((S as any).paleta).nome, isDark)}
           onPress={go('/aparencia')} />
         {/* ⚠️ AQUI, E NÃO DENTRO DE APARÊNCIA. Unidade não é aparência: ela
             muda o NÚMERO que a pessoa lê, e não a cor com que ele aparece.
@@ -697,10 +700,13 @@ export default function Perfil() {
             duas coisas: trocar para English troca a palavra E a vírgula
             decimal. Ver logic/local. */}
         <ListRow ic="site" title={T.idioma.linhaDoPerfil}
-          sub={localAtual() === 'en-US' ? 'English · United States' : 'Português · Brasil'}
+          sub={K().idiomaSub(NOME_DO_LOCAL[localAtual()], NOME_DO_PAIS[paisAtual()])}
           onPress={go('/idioma')} />
-        <ListRow ic="ruler" title="Unidades de medida"
-          sub={`${sistemaDe(S) === 'imperial' ? T.medidas.imperial : T.medidas.metrico} · ${unidadesDe(sistemaDe(S))}`}
+        <ListRow ic="ruler" title={K().unidades}
+          sub={K().unidadesSub(
+            sistemaDe(S) === 'imperial' ? T.medidas.imperial : T.medidas.metrico,
+            unidadesDe(sistemaDe(S)),
+          )}
           onPress={go('/unidades')} />
       </Grupo>
 
@@ -715,13 +721,13 @@ export default function Perfil() {
           O perfil não precisa listar as cinco portas; precisa de uma que
           leve ao lugar onde elas estão explicadas. Aqui ficam três: os
           dados, a ajuda e o relato de problema. */}
-      <Grupo title="Ajuda e dados">
-        <ListRow ic="lock" title="Privacidade e dados"
-          sub="O que fica no aparelho, exportar, apagar e os documentos" onPress={go('/privacidade')} />
-        <ListRow ic="info" title="Ajuda"
-          sub="Perguntas frequentes sobre o aplicativo" onPress={go('/ajuda')} />
-        <ListRow ic="journey" title="Reportar um problema"
-          sub="Conte o que aconteceu — vai com a versão do aplicativo" onPress={reportar} />
+      <Grupo title={K().ajudaEDados}>
+        <ListRow ic="lock" title={K().privacidade}
+          sub={K().privacidadeSub} onPress={go('/privacidade')} />
+        <ListRow ic="info" title={K().ajuda}
+          sub={K().ajudaSub} onPress={go('/ajuda')} />
+        <ListRow ic="journey" title={K().reportar}
+          sub={K().reportarSub} onPress={reportar} />
       </Grupo>
 
       {/* SAIR VIROU BOTÃO. Era texto cinza solto no fim do rolo, do
@@ -759,16 +765,14 @@ export default function Perfil() {
           paddingVertical: 15,
         }}>
           <Icon name="logout" size={18} color={c.tx2} sw={1.9} />
-          <Txt v="bodyMed" c={c.tx2}>Sair da conta</Txt>
+          <Txt v="bodyMed" c={c.tx2}>{K().sair}</Txt>
         </Row>
       </Pressable>
 
       {/* A VERSÃO COMO RODAPÉ. Ela existe para ser citada num suporte, e
           não para escolher nada: fora da lista, em letra pequena e no fim
           de tudo, ela para de se parecer com um item tocável. */}
-      <Txt v="micro" c={c.tx4} style={{ marginTop: 22, textAlign: 'center' }}>
-        Morphi · versão {VERSAO_DO_APP}
-      </Txt>
+      <Txt v="micro" c={c.tx4} style={{ marginTop: 22, textAlign: 'center' }}>{K().versao(VERSAO_DO_APP)}</Txt>
     </Screen>
   );
 }

@@ -171,4 +171,62 @@ export const cadastro = {
   faseLendo: 'Leyendo tus respuestas',
   faseCalculando: 'Calculando tus metas del día',
   faseDesenhando: 'Dibujando tu camino',
+
+  telaPlano: {
+    planoPronto: '¡tu plan personalizado está listo!',
+    manterOPeso: 'mantener tu peso',
+    objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => [
+      `Para ${perder > 0.05 ? 'perder ' : perder < -0.05 ? 'ganar ' : ''}`,
+      alvo,
+      `${marca}.`,
+    ],
+    marcaRegistrada: (medicamento: string) => ` con ${medicamento}®`,
+    marcaGenerica: (medicamento: string) => ` con ${medicamento}`,
+    elaboradoPensando: 'Tu plan fue armado pensando',
+    nasSuasRespostas: 'En tus respuestas',
+    emEstudos: 'En estudios sobre GLP-1',
+
+    secaoMetas: 'TUS METAS DEL DÍA',
+    secaoDose: 'TU DOSIS',
+    secaoAteAMeta: 'HASTA TU META',
+    secaoCorpo: 'TU CUERPO',
+    secaoAjuda: 'CÓMO TE AYUDO',
+    secaoCiencia: 'LA CIENCIA DETRÁS DE TU PLAN',
+
+    proteinaPorDia: 'PROTEÍNA POR DÍA',
+    proteinaTexto: 'Es la primera meta del día. El medicamento quita el hambre, y parte del peso que baja viene de músculo — la proteína es lo que sostiene la masa magra mientras la grasa se va.',
+    calorias: 'Calorías',
+    agua: 'Agua',
+
+    aindaADefinir: 'Todavía por definir',
+    aindaADefinirTexto: 'Cuando sepas el medicamento, armo la escalera de dosis y el ciclo.',
+    cicloComeca: 'El ciclo empieza en la primera aplicación que registres.',
+    cadenciaDiaria: 'todos los días',
+    cadenciaSemanal: 'una vez por semana',
+    cadenciaDias: (dias: number) => `cada ${dias} días`,
+
+    pesoAPerder: 'Peso a perder',
+    pesoAGanhar: 'Peso a ganar',
+    emSemanas: (semanas: number) => `en ${semanas} semanas`,
+    ressalvaDaCurva: (ritmo: string) =>
+      `La bajada no es recta: en los estudios, las primeras semanas rinden más y el ritmo afloja a medida que el cuerpo se ajusta. Los ${ritmo} por semana que elegiste son el promedio del camino, no una previsión.`,
+
+    imcDeHoje: 'IMC de hoy',
+    naSuaMeta: 'En tu meta',
+
+    ajudaDose: 'Cada dosis en el lugar correcto',
+    ajudaDoseSub: 'la rotación de los lugares y el ciclo de la dosis, sin que cuentes',
+    ajudaEnjoo: 'Las náuseas en números',
+    ajudaEnjooSub: 'lo que sientes se vuelve patrón, y el patrón va a la consulta',
+    ajudaPeso: 'Tu curva de peso',
+    ajudaPesoSub: 'cada pesaje entra en la línea, con la lectura de lo que cambió',
+    ajudaResumo: 'Un resumen para la consulta',
+    ajudaResumoSub: 'dosis, síntomas y peso ordenados en una sola página',
+
+    feitoEmCimaDeEvidencia: 'Hecho sobre evidencia',
+    evidenciaTexto: 'Las metas, la curva y las prioridades de este plan siguen directrices de salud pública y ensayos clínicos revisados por pares.',
+    rodape: 'Acompañamos tu recorrido todos los días y ordenamos lo que registras — pero quien conduce el tratamiento es tu equipo de salud. Estos números son un punto de partida para esa conversación, y no una prescripción.',
+
+    voltar: 'Volver',
+  },
 };

@@ -194,4 +194,62 @@ export const cadastro = {
   faseLendo: 'Lecture de vos réponses',
   faseCalculando: 'Calcul de vos objectifs du jour',
   faseDesenhando: 'Dessin de votre parcours',
+
+  telaPlano: {
+    planoPronto: 'votre plan personnalisé est prêt !',
+    manterOPeso: 'maintenir votre poids',
+    objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => [
+      `Pour ${perder > 0.05 ? 'perdre ' : perder < -0.05 ? 'prendre ' : ''}`,
+      alvo,
+      `${marca}.`,
+    ],
+    marcaRegistrada: (medicamento: string) => ` avec ${medicamento}®`,
+    marcaGenerica: (medicamento: string) => ` avec ${medicamento}`,
+    elaboradoPensando: 'Votre plan a été construit à partir',
+    nasSuasRespostas: 'De vos réponses',
+    emEstudos: 'Des études sur les GLP-1',
+
+    secaoMetas: 'VOS OBJECTIFS DU JOUR',
+    secaoDose: 'VOTRE DOSE',
+    secaoAteAMeta: 'JUSQU’À VOTRE OBJECTIF',
+    secaoCorpo: 'VOTRE CORPS',
+    secaoAjuda: 'COMMENT JE VOUS AIDE',
+    secaoCiencia: 'LA SCIENCE DERRIÈRE VOTRE PLAN',
+
+    proteinaPorDia: 'PROTÉINES PAR JOUR',
+    proteinaTexto: 'C’est le premier objectif de la journée. Le médicament coupe la faim, et une partie du poids qui descend vient du muscle — les protéines sont ce qui retient la masse maigre pendant que la graisse s’en va.',
+    calorias: 'Calories',
+    agua: 'Eau',
+
+    aindaADefinir: 'Encore à définir',
+    aindaADefinirTexto: 'Quand vous saurez le médicament, je construis l’escalier des doses et le cycle.',
+    cicloComeca: 'Le cycle commence à la première injection que vous notez.',
+    cadenciaDiaria: 'tous les jours',
+    cadenciaSemanal: 'une fois par semaine',
+    cadenciaDias: (dias: number) => `tous les ${dias} jours`,
+
+    pesoAPerder: 'Poids à perdre',
+    pesoAGanhar: 'Poids à prendre',
+    emSemanas: (semanas: number) => `en ${semanas} semaines`,
+    ressalvaDaCurva: (ritmo: string) =>
+      `La baisse n’est pas une droite : dans les études, les premières semaines rendent davantage et le rythme se relâche à mesure que le corps s’ajuste. Les ${ritmo} par semaine que vous avez choisis sont la moyenne du chemin, pas une prévision.`,
+
+    imcDeHoje: 'IMC d’aujourd’hui',
+    naSuaMeta: 'À votre objectif',
+
+    ajudaDose: 'Chaque dose au bon endroit',
+    ajudaDoseSub: 'la rotation des endroits et le cycle de la dose, sans que vous comptiez',
+    ajudaEnjoo: 'La nausée en chiffres',
+    ajudaEnjooSub: 'ce que vous ressentez devient un motif, et le motif part en consultation',
+    ajudaPeso: 'Votre courbe de poids',
+    ajudaPesoSub: 'chaque pesée entre dans la ligne, avec la lecture de ce qui a changé',
+    ajudaResumo: 'Un résumé pour la consultation',
+    ajudaResumoSub: 'doses, symptômes et poids rangés sur une seule page',
+
+    feitoEmCimaDeEvidencia: 'Bâti sur des preuves',
+    evidenciaTexto: 'Les objectifs, la courbe et les priorités de ce plan suivent des recommandations de santé publique et des essais cliniques relus par des pairs.',
+    rodape: 'Nous suivons votre parcours tous les jours et rangeons ce que vous notez — mais celle qui conduit le traitement, c’est votre équipe de santé. Ces chiffres sont un point de départ pour cette conversation, pas une prescription.',
+
+    voltar: 'Retour',
+  },
 };

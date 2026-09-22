@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 889, em 85 arquivos.** (Eram 1.150 em 94
+**Medido em 22/09/2026: faltam 828, em 83 arquivos.** (Eram 1.150 em 94
 quando este item nasceu; a conta é refeita a cada lote com
 `node scripts/inventario-textos.mjs <saída>`, e o número vai no commit
 só depois de medido.)
@@ -1129,6 +1129,27 @@ tirada do `git show`, e não de memória.
   largura do card em português. "Körperfett" é uma palavra só, e o `\n`
   partiria o que não se parte. O alinhamento pelo pé, que era o motivo
   dela, já vinha do `marginTop: 'auto'` logo abaixo.
+- **A linha do idioma, no Perfil, era um ternário de DUAS saídas** —
+  inglês, ou "Português · Brasil" — para cinco idiomas e dezenas de
+  países. Em alemão ela dizia "Português · Brasil" logo abaixo da palavra
+  "Sprache". Agora repete o que a tela do outro lado mostra, com os nomes
+  vindo de `NOME_DO_LOCAL` e `NOME_DO_PAIS`.
+- **Um "kg" literal ao lado de `kgTxt`, no Plano.** `kgTxt` devolve o
+  número em quilo sem converter, e a unidade estava escrita em duro ao
+  lado — quem lê em libra via o número certo com a unidade errada, em
+  quatro lugares da mesma tela. O sistema dela estava a uma variável de
+  distância, já usado na ressalva logo abaixo.
+- **Duas frases do Plano assumiam caneta** — "A caneta tira a fome",
+  "Quando você souber a caneta" —, e há frasco, seringa e cartela.
+  Nenhuma das duas precisava do recipiente para dizer o que diz.
+- **Um plural francês errado que só a tela mostra:** `p(a, 'poids')`
+  devolvia "10 poidss". O helper aceita o plural explícito e o autor o
+  usou em "repas" e esqueceu em "poids". ⚠️ O alemão não pode ter esse
+  defeito: lá o plural é **obrigatório** no helper, e quem esquece leva
+  erro de compilação em vez de palavra errada na tela. É a diferença
+  entre um padrão que perdoa e um que cobra.
+- **O catálogo ganhou o 32º módulo**, `perfil`. Ele não cabia em nenhum
+  dos 31: não é cadastro, não é ajuste de medida, não é aviso.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1493,3 +1514,22 @@ Não é número inventado (a variação é real), mas é número sem leitura, qu
 é a metade do problema. A correção é escolher: ou o sinal entra, ou a
 frase diz a direção em palavra. Fica fora deste lote porque muda
 comportamento numa linha que este commit só traduziu.
+
+---
+
+## 🟡 30. "Sair da conta" promete uma conta que não existe
+
+O botão do fim do Perfil diz "Sair da conta" — e o comentário que mora
+três linhas acima dele diz o contrário: *"Não há conta nem servidor
+aqui: sair é voltar para a porta, e não apagar a vida de alguém do
+aparelho."* Ele põe `onboardDone` em falso e devolve a pessoa ao
+cadastro. Nada é apagado, e nunca houve login.
+
+Em português "sair da conta" passa como fórmula. Traduzido, fica mais
+difícil de ignorar: "Sign out", "Cerrar sesión", "Se déconnecter" e
+"Abmelden" prometem credenciais nos quatro.
+
+Fica como pendência e não como conserto porque o rótulo certo depende do
+que o botão deve ser — refazer o cadastro? voltar à abertura? — e isso é
+decisão de produto, não de tradução. O que a tradução fez foi tornar a
+promessa mais audível.

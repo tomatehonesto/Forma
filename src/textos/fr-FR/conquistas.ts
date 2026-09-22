@@ -78,7 +78,7 @@ export const conquistas = {
   pctFalta: (r: string) => `Il manque ${r} points`,
 
   pesagens: 'Pesées',
-  pesagensDesc: (a: number) => `${p(a, 'poids')} noté${a === 1 ? '' : 's'}`,
+  pesagensDesc: (a: number) => `${p(a, 'poids', 'poids')} noté${a === 1 ? '' : 's'}`,
   pesagensFalta: (r: number) => `Il manque ${p(r, 'pesée')}`,
 
   checkins: 'Check-ins',

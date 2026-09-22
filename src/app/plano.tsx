@@ -18,7 +18,12 @@ import { AreaCurve } from '../ui/charts';
 import { Lavagem } from '../ui/lavagem';
 import { useTheme } from '../ui/useTheme';
 import { radius, font, ty } from '../theme';
-import { pesoTxt, pesoProsaTxt, sistemaDe, aguaU, aguaN } from '../logic/medidas';
+import { pesoTxt, pesoProsaTxt, pesoN, pesoU, sistemaDe, aguaU, aguaN } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.cadastro.telaPlano;
 
 /* ============================================================
    O PLANO — o que as respostas do cadastro viraram
@@ -115,13 +120,18 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
      registrada que não existe. E o artigo também muda — 'com o Mounjaro',
      mas 'com semaglutida manipulada'. Ver `marca` em logic/meds. */
   const marca = d.med === 'indefinido' || !med ? ''
-    : med.marca ? ` com o ${med.label}®` : ` com ${med.label.toLowerCase()}`;
+    : med.marca ? K().marcaRegistrada(med.label) : K().marcaGenerica(T.comum.noMeio(med.label));
   /* O QUE VAI EM PESO na frase de abertura: os quilos, ou o verbo
      inteiro quando não há quilo nenhum a percorrer. */
-  const alvoForte = Math.abs(perder) > 0.05 ? pesoProsaTxt(d.sistema, Math.abs(perder)) : 'manter o seu peso';
+  const alvoForte = Math.abs(perder) > 0.05 ? pesoProsaTxt(d.sistema, Math.abs(perder)) : K().manterOPeso;
+  /* ⚠️ TRÊS PEDAÇOS, E NÃO UMA FRASE: o do meio vai em negrito, e ele
+     não cai no mesmo lugar em todo idioma. O português abre com o verbo
+     — "Para perder 7 kg com o Mounjaro®" — e o alemão o joga para o fim:
+     "Um 7 kg abzunehmen mit Mounjaro®". Ver telaPlano no catálogo. */
+  const objetivo = K().objetivo(perder, alvoForte, marca);
   const inter = d.intervalo ?? padrao;
-  const cadTexto = inter === 1 ? 'todos os dias'
-    : inter === 7 ? 'uma vez por semana' : `a cada ${inter} dias`;
+  const cadTexto = inter === 1 ? K().cadenciaDiaria
+    : inter === 7 ? K().cadenciaSemanal : K().cadenciaDias(inter);
   /* A FORMA DA QUEDA — e por que ela deixou de ser uma reta.
 
      A linha era reta porque "0,5 kg por semana" desenha uma reta, e eu
@@ -251,10 +261,10 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const fontes = FONTES();
   const SELOS = fontes.filter((x, i) => fontes.findIndex((y) => y.sigla === x.sigla) === i);
   const AJUDA: [string, string, string][] = [
-    ['syringe', 'Cada dose no lugar certo', 'o rodízio dos locais e o ciclo da dose, sem você contar'],
-    ['mood', 'O enjoo em números', 'o que você sente vira padrão, e o padrão vai para a consulta'],
-    ['scale', 'A sua curva de peso', 'cada pesagem entra na linha, com a leitura do que mudou'],
-    ['doc', 'Um resumo para a consulta', 'doses, sintomas e peso organizados numa página só'],
+    ['syringe', K().ajudaDose, K().ajudaDoseSub],
+    ['mood', K().ajudaEnjoo, K().ajudaEnjooSub],
+    ['scale', K().ajudaPeso, K().ajudaPesoSub],
+    ['doc', K().ajudaResumo, K().ajudaResumoSub],
   ];
   const Secao = ({ t }: { t: string }) => (
     <Txt v="micro" c={c.tx4} style={{ letterSpacing: 1.2, marginBottom: 12 }}>{t}</Txt>
@@ -288,14 +298,14 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               fim. */}
           <Txt style={{ ...ty.h1, fontFamily: font.body, lineHeight: 38, textAlign: 'center' }}>
             <Txt style={{ ...ty.h1, lineHeight: 38 }}>{primeiro},</Txt>
-            {' o seu plano personalizado está pronto!'}
+            {' '}{K().planoPronto}
           </Txt>
           {/* O PESO DA META EM DESTAQUE: é o número que a pessoa veio
               buscar, e ele estava diluído no meio da frase. */}
           <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
-            Para {perder > 0.05 ? 'perder ' : perder < -0.05 ? 'ganhar ' : ''}
-            <Txt v="note" style={{ fontFamily: font.bodySemi, color: c.tx }}>{alvoForte}</Txt>
-            {marca}.
+            {objetivo[0]}
+            <Txt v="note" style={{ fontFamily: font.bodySemi, color: c.tx }}>{objetivo[1]}</Txt>
+            {objetivo[2]}
           </Txt>
           {/* AS ETIQUETAS VIRARAM UMA FRASE COM DUAS PONTAS.
 
@@ -304,11 +314,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               do que estava falando. Com a linha em cima, as duas viram o
               fim da mesma frase — o plano foi pensado a partir DISTO e
               DAQUILO —, e o que era selo vira procedência. */}
-          <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>
-            O seu plano foi elaborado pensando
-          </Txt>
+          <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>{K().elaboradoPensando}</Txt>
           <Row style={{ gap: 8, justifyContent: 'center', marginTop: -6 }}>
-            {([['user', 'Nas suas respostas'], ['book', 'Em estudos sobre GLP-1']] as [string, string][])
+            {([['user', K().nasSuasRespostas], ['book', K().emEstudos]] as [string, string][])
               .map(([ic, t]) => (
                 <Row key={t} style={{
                   gap: 6, alignItems: 'center', backgroundColor: c.accentWeak,
@@ -325,7 +333,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
         <View style={{ paddingHorizontal: 20, gap: 30 }}>
           {/* ---------- o dia ---------- */}
           <View>
-            <Secao t="AS SUAS METAS DO DIA" />
+            <Secao t={K().secaoMetas} />
 
             {/* A PROTEÍNA É O NÚMERO GRANDE, e não a caloria.
 
@@ -344,26 +352,25 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
             }}>
               <Row style={{ gap: 9, alignItems: 'center' }}>
                 <Icon name="utensils" size={17} color={c.accent} sw={1.9} />
-                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>PROTEÍNA POR DIA</Txt>
+                <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().proteinaPorDia}</Txt>
               </Row>
               <Row style={{ alignItems: 'baseline', gap: 5 }}>
                 <Txt v="metric" c={c.accent}>{plano.prot}</Txt>
                 <Txt v="caption" c={c.tx2}>g</Txt>
               </Row>
-              <Txt v="caption" c={c.tx2}>
-                É a primeira meta do dia. A caneta tira a fome, e parte do peso que desce
-                vem de músculo — a proteína é o que segura a massa magra enquanto a gordura
-                vai embora.
-              </Txt>
+              {/* ⚠️ DIZIA "A CANETA TIRA A FOME", e nem todo mundo aplica com
+                  caneta: há frasco, seringa e cartela. A frase não precisa do
+                  recipiente para dizer o que diz. */}
+              <Txt v="caption" c={c.tx2}>{K().proteinaTexto}</Txt>
             </View>
 
             <View style={{ marginTop: 10 }}>
               <Grade2>
                 {([
-                  ['flame', c.accent, c.accentWeak, 'Calorias', milhar(plano.kcal), 'kcal'],
-                  ['leaf', c.ok, c.okBg, 'Carboidrato', `${plano.carb}`, 'g'],
-                  ['drop2', c.amber, c.amberBg, 'Gordura', `${plano.gord}`, 'g'],
-                  ['gut', c.purple, c.purpleBg, 'Fibra', `${plano.fibra}`, 'g'],
+                  ['flame', c.accent, c.accentWeak, K().calorias, milhar(plano.kcal), 'kcal'],
+                  ['leaf', c.ok, c.okBg, T.alimentacao.tela.carboidrato, `${plano.carb}`, 'g'],
+                  ['drop2', c.amber, c.amberBg, T.alimentacao.tela.gordura, `${plano.gord}`, 'g'],
+                  ['gut', c.purple, c.purpleBg, T.alimentacao.tela.fibra, `${plano.fibra}`, 'g'],
                 ] as [string, string, string, string, string, string][])
                   .map(([ic, cor, fundo, nome, val, un]) => (
                     <View key={nome} style={[cartao, { flex: 1, padding: 14 }]}>
@@ -392,7 +399,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               }}>
                 <Icon name="water" size={14} color={c.water} sw={1.9} />
               </View>
-              <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>Água</Txt>
+              <Txt v="caption" c={c.tx3} style={{ flex: 1 }}>{K().agua}</Txt>
               <Row style={{ alignItems: 'baseline' }}>
                 <Txt v="metric" style={{ fontSize: 26, lineHeight: 32 }}>{aguaN(d.sistema, plano.agua)}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginLeft: 3 }}>{aguaU(d.sistema)}</Txt>
@@ -402,7 +409,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
           {/* ---------- a dose ---------- */}
           <View>
-            <Secao t="A SUA DOSE" />
+            <Secao t={K().secaoDose} />
             <View style={[cartao, { padding: 16, gap: 12 }]}>
               {d.med === 'indefinido' ? (
                 <>
@@ -413,11 +420,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     }}>
                       <Icon name="syringe" size={21} color={c.tx3} sw={1.9} />
                     </View>
-                    <Txt v="body" style={{ flex: 1 }}>Ainda a definir</Txt>
+                    <Txt v="body" style={{ flex: 1 }}>{K().aindaADefinir}</Txt>
                   </Row>
-                  <Txt v="caption" c={c.tx3}>
-                    Quando você souber a caneta, eu monto a escada de doses e o ciclo.
-                  </Txt>
+                  <Txt v="caption" c={c.tx3}>{K().aindaADefinirTexto}</Txt>
                 </>
               ) : (
                 <>
@@ -440,9 +445,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                       </Row>
                     ) : null}
                   </Row>
-                  <Txt v="caption" c={c.tx3}>
-                    O ciclo começa na primeira aplicação que você registrar.
-                  </Txt>
+                  <Txt v="caption" c={c.tx3}>{K().cicloComeca}</Txt>
                 </>
               )}
             </View>
@@ -451,7 +454,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
           {/* ---------- a linha do tempo ---------- */}
           {marcos ? (
             <View>
-              <Secao t="ATÉ A SUA META" />
+              <Secao t={K().secaoAteAMeta} />
               {/* A LINHA DESCENDO, que é o que a pessoa veio ver. Ela é
                   RETA porque "1 kg por semana" desenha uma reta — a
                   exponencial da referência afirmaria um modelo de como o
@@ -464,14 +467,12 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               <View style={[cartao, { overflow: 'hidden' }]}>
                 <Row style={{ padding: 16, paddingBottom: 4, alignItems: 'flex-start' }}>
                   <View style={{ flex: 1 }}>
-                    <Txt v="body">{perder > 0 ? 'Peso a perder' : 'Peso a ganhar'}</Txt>
-                    <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>
-                      {`em ${plano.semanas} semanas`}
-                    </Txt>
+                    <Txt v="body">{perder > 0 ? K().pesoAPerder : K().pesoAGanhar}</Txt>
+                    <Txt v="note" c={c.tx3} style={{ marginTop: 2 }}>{K().emSemanas(plano.semanas as number)}</Txt>
                   </View>
                   <Row style={{ alignItems: 'center' }}>
-                    <Txt v="metric">{kgTxt(Math.abs(perder))}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>kg</Txt>
+                    <Txt v="metric">{pesoN(d.sistema, Math.abs(perder))}</Txt>
+                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>{pesoU(d.sistema)}</Txt>
                   </Row>
                 </Row>
 
@@ -503,11 +504,11 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                       alignItems: i === 0 ? 'flex-start' : i === 1 ? 'center' : 'flex-end',
                     }}>
                       <Row style={{ alignItems: 'baseline', gap: 3 }}>
-                        <Txt v="label" c={i === 2 ? VERDE_FIM : c.tx}>{nf(m.kg, 1)}</Txt>
-                        <Txt v="micro" c={c.tx4}>kg</Txt>
+                        <Txt v="label" c={i === 2 ? VERDE_FIM : c.tx}>{pesoN(d.sistema, m.kg)}</Txt>
+                        <Txt v="micro" c={c.tx4}>{pesoU(d.sistema)}</Txt>
                       </Row>
                       <Txt v="micro" c={c.tx4} style={{ marginTop: 1 }}>
-                        {m.sem === 0 ? 'hoje' : m.quando}
+                        {m.sem === 0 ? T.tempo.daquiA(0) : m.quando}
                       </Txt>
                     </View>
                   ))}
@@ -517,7 +518,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     rodapé da seção — e o que ela diz é sobre a curva: que
                     aquele traço é média, e não promessa. */}
                 <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-                  {`A queda não é reta: nos estudos, as primeiras semanas rendem mais e o ritmo afrouxa conforme o corpo se ajusta. Os ${pesoTxt(d.sistema, d.ritmo ?? 0)} por semana que você escolheu são a média do caminho, não uma previsão.`}
+                  {K().ressalvaDaCurva(pesoTxt(d.sistema, d.ritmo ?? 0))}
                 </Txt>
               </View>
             </View>
@@ -525,11 +526,11 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
           {/* ---------- o corpo ---------- */}
           <View>
-            <Secao t="O SEU CORPO" />
+            <Secao t={K().secaoCorpo} />
             <View style={[cartao, { padding: 18, gap: 18 }]}>
               <Row style={{ alignItems: 'center', gap: 10 }}>
-                {([[fxHoje, 'IMC de hoje', plano.imc, iHoje, 'flex-start'],
-                  [fxMeta, 'Na sua meta', plano.imcMeta, iMeta, 'flex-end']] as const)
+                {([[fxHoje, K().imcDeHoje, plano.imc, iHoje, 'flex-start'],
+                  [fxMeta, K().naSuaMeta, plano.imcMeta, iMeta, 'flex-end']] as const)
                   .map(([fx, rot, val, idx, lado], i) => (
                     <React.Fragment key={rot}>
                       {i ? <Icon name="chev" size={15} color={c.tx4} sw={2} /> : null}
@@ -579,7 +580,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
 
           {/* ---------- como eu ajudo ---------- */}
           <View>
-            <Secao t="COMO EU TE AJUDO" />
+            <Secao t={K().secaoAjuda} />
             <View style={[cartao, { paddingHorizontal: 16 }]}>
               {AJUDA.map(([ic, t, sub], i) => (
                 <Row key={t} style={{
@@ -610,7 +611,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
               — dizer de onde vem —, e o título de cada trabalho continua
               em fontes.ts, que é onde ele serve para auditoria. */}
           <View>
-            <Secao t="A CIÊNCIA POR TRÁS DO SEU PLANO" />
+            <Secao t={K().secaoCiencia} />
             <View style={[cartao, { padding: 18, gap: 14 }]}>
               <Row style={{ gap: 11, alignItems: 'center' }}>
                 <View style={{
@@ -626,12 +627,9 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                     conferindo se o número X também tem estudo. O que a
                     seção quer dizer é mais simples e mais verdadeiro: o
                     jeito como este app foi montado veio da literatura. */}
-                <Txt v="bodyMed" style={{ flex: 1 }}>Feito em cima de evidência</Txt>
+                <Txt v="bodyMed" style={{ flex: 1 }}>{K().feitoEmCimaDeEvidencia}</Txt>
               </Row>
-              <Txt v="caption" c={c.tx3}>
-                As metas, a curva e as prioridades deste plano seguem diretrizes de saúde
-                pública e ensaios clínicos revisados por pares.
-              </Txt>
+              <Txt v="caption" c={c.tx3}>{K().evidenciaTexto}</Txt>
               <View style={{ gap: 8 }}>
                 {empacotar(SELOS.map((fo) => fo.sigla), largura - 76).map((linha) => (
                   <Row key={linha.join()} style={{ gap: 8, flexWrap: 'wrap' }}>
@@ -655,11 +653,7 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
                 substitui quem te acompanha" soava como isenção de
                 responsabilidade no rodapé; dito assim, é a divisão de
                 trabalho que a pessoa precisa entender para usar o app. */}
-            <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-              A gente acompanha a sua jornada todos os dias e organiza o que você registra —
-              mas quem conduz o tratamento é a sua equipe de saúde. Estes números são ponto
-              de partida para essa conversa, e não prescrição.
-            </Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>{K().rodape}</Txt>
           </View>
         </View>
       </Rolagem>
@@ -709,7 +703,7 @@ export default function PreviaDoPlano() {
         plano,
       }}
       aoSair={() => router.back()}
-      rotuloSair="Voltar"
+      rotuloSair={T.cadastro.telaPlano.voltar}
     />
   );
 }

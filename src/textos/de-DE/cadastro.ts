@@ -199,4 +199,69 @@ export const cadastro = {
   faseLendo: 'Wir lesen deine Antworten',
   faseCalculando: 'Wir berechnen deine Tagesziele',
   faseDesenhando: 'Wir zeichnen deinen Weg',
+
+  /* ⚠️ HIER ZAHLT SICH DAS DREITEILIGE `objetivo` AUS. Das Portugiesische
+     schreibt „Para perder <b>7 kg</b> com o Mounjaro®“, mit dem Verb
+     vorne; das Deutsche stellt es ans Ende: „Um <b>7 kg</b> abzunehmen
+     mit Mounjaro®.“ Käme der Satz fertig aus dem Katalog, müsste die
+     Fettung immer an derselben Stelle sitzen — und sie sitzt nicht.
+
+     Beim Halten steckt das Verb schon in `manterOPeso` („dein Gewicht zu
+     halten“), deshalb darf hinten keins mehr dazukommen. */
+  telaPlano: {
+    planoPronto: 'dein persönlicher Plan ist fertig!',
+    manterOPeso: 'dein Gewicht zu halten',
+    objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => {
+      const verbo = perder > 0.05 ? ' abzunehmen' : perder < -0.05 ? ' zuzunehmen' : '';
+      return ['Um ', alvo, `${verbo}${marca}.`];
+    },
+    marcaRegistrada: (medicamento: string) => ` mit ${medicamento}®`,
+    marcaGenerica: (medicamento: string) => ` mit ${medicamento}`,
+    elaboradoPensando: 'Dein Plan wurde gebaut aus',
+    nasSuasRespostas: 'Deinen Antworten',
+    emEstudos: 'Studien zu GLP-1',
+
+    secaoMetas: 'DEINE ZIELE FÜR HEUTE',
+    secaoDose: 'DEINE DOSIS',
+    secaoAteAMeta: 'BIS ZU DEINEM ZIEL',
+    secaoCorpo: 'DEIN KÖRPER',
+    secaoAjuda: 'WIE ICH DIR HELFE',
+    secaoCiencia: 'DIE WISSENSCHAFT HINTER DEINEM PLAN',
+
+    proteinaPorDia: 'EIWEISS PRO TAG',
+    proteinaTexto: 'Das ist das erste Ziel des Tages. Das Medikament nimmt den Hunger, und ein Teil des Gewichts, das runtergeht, ist Muskel — Eiweiß ist das, was die Magermasse hält, während das Fett geht.',
+    calorias: 'Kalorien',
+    agua: 'Wasser',
+
+    aindaADefinir: 'Noch offen',
+    aindaADefinirTexto: 'Sobald du das Medikament kennst, baue ich die Dosistreppe und den Zyklus.',
+    cicloComeca: 'Der Zyklus beginnt mit der ersten Injektion, die du einträgst.',
+    cadenciaDiaria: 'jeden Tag',
+    cadenciaSemanal: 'einmal pro Woche',
+    cadenciaDias: (dias: number) => `alle ${dias} Tage`,
+
+    pesoAPerder: 'Abzunehmendes Gewicht',
+    pesoAGanhar: 'Zuzunehmendes Gewicht',
+    emSemanas: (semanas: number) => `in ${semanas} Wochen`,
+    ressalvaDaCurva: (ritmo: string) =>
+      `Der Abfall ist keine Gerade: In den Studien bringen die ersten Wochen mehr, und das Tempo lässt nach, während der Körper sich einstellt. Die ${ritmo} pro Woche, die du gewählt hast, sind der Durchschnitt des Weges und keine Vorhersage.`,
+
+    imcDeHoje: 'BMI heute',
+    naSuaMeta: 'Bei deinem Ziel',
+
+    ajudaDose: 'Jede Dosis an der richtigen Stelle',
+    ajudaDoseSub: 'die Rotation der Stellen und der Dosiszyklus, ohne dass du zählst',
+    ajudaEnjoo: 'Übelkeit in Zahlen',
+    ajudaEnjooSub: 'was du spürst, wird zum Muster, und das Muster geht mit zum Termin',
+    ajudaPeso: 'Deine Gewichtskurve',
+    ajudaPesoSub: 'jede Wiegung geht in die Linie, mit der Lesart dessen, was sich geändert hat',
+    ajudaResumo: 'Eine Übersicht für den Termin',
+    ajudaResumoSub: 'Dosen, Symptome und Gewicht geordnet auf einer einzigen Seite',
+
+    feitoEmCimaDeEvidencia: 'Auf Evidenz gebaut',
+    evidenciaTexto: 'Die Ziele, die Kurve und die Prioritäten dieses Plans folgen Leitlinien der öffentlichen Gesundheit und von Fachleuten begutachteten klinischen Studien.',
+    rodape: 'Wir begleiten deinen Weg jeden Tag und ordnen, was du einträgst — aber wer die Behandlung führt, ist dein Behandlungsteam. Diese Zahlen sind ein Ausgangspunkt für dieses Gespräch und keine Verordnung.',
+
+    voltar: 'Zurück',
+  },
 };

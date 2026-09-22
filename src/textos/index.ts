@@ -26,6 +26,7 @@ import { leituras as leiturasPt } from './pt-BR/leituras';
 import { marcadores as marcadoresPt } from './pt-BR/marcadores';
 import { medidas as medidasPt } from './pt-BR/medidas';
 import { metas as metasPt } from './pt-BR/metas';
+import { perfil as perfilPt } from './pt-BR/perfil';
 import { resumo as resumoPt } from './pt-BR/resumo';
 import { rotina as rotinaPt } from './pt-BR/rotina';
 import { tempo as tempoPt } from './pt-BR/tempo';
@@ -58,6 +59,7 @@ import { leituras as leiturasEn } from './en-US/leituras';
 import { marcadores as marcadoresEn } from './en-US/marcadores';
 import { medidas as medidasEn } from './en-US/medidas';
 import { metas as metasEn } from './en-US/metas';
+import { perfil as perfilEn } from './en-US/perfil';
 import { resumo as resumoEn } from './en-US/resumo';
 import { rotina as rotinaEn } from './en-US/rotina';
 import { tempo as tempoEn } from './en-US/tempo';
@@ -92,6 +94,7 @@ import { leituras as leiturasEs } from './es-419/leituras';
 import { marcadores as marcadoresEs } from './es-419/marcadores';
 import { medidas as medidasEs } from './es-419/medidas';
 import { metas as metasEs } from './es-419/metas';
+import { perfil as perfilEs } from './es-419/perfil';
 import { resumo as resumoEs } from './es-419/resumo';
 import { rotina as rotinaEs } from './es-419/rotina';
 import { tempo as tempoEs } from './es-419/tempo';
@@ -128,6 +131,7 @@ import { leituras as leiturasFr } from './fr-FR/leituras';
 import { marcadores as marcadoresFr } from './fr-FR/marcadores';
 import { medidas as medidasFr } from './fr-FR/medidas';
 import { metas as metasFr } from './fr-FR/metas';
+import { perfil as perfilFr } from './fr-FR/perfil';
 import { resumo as resumoFr } from './fr-FR/resumo';
 import { rotina as rotinaFr } from './fr-FR/rotina';
 import { tempo as tempoFr } from './fr-FR/tempo';
@@ -168,6 +172,7 @@ import { leituras as leiturasDe } from './de-DE/leituras';
 import { marcadores as marcadoresDe } from './de-DE/marcadores';
 import { medidas as medidasDe } from './de-DE/medidas';
 import { metas as metasDe } from './de-DE/metas';
+import { perfil as perfilDe } from './de-DE/perfil';
 import { resumo as resumoDe } from './de-DE/resumo';
 import { rotina as rotinaDe } from './de-DE/rotina';
 import { tempo as tempoDe } from './de-DE/tempo';
@@ -251,6 +256,7 @@ export type Textos = {
   marcadores: typeof marcadoresPt;
   medidas: typeof medidasPt;
   metas: typeof metasPt;
+  perfil: typeof perfilPt;
   resumo: typeof resumoPt;
   rotina: typeof rotinaPt;
   tempo: typeof tempoPt;
@@ -271,7 +277,8 @@ const CATALOGOS: Record<Local, Textos> = {
     cadastro: cadastroPt, ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, formas: formasPt, home: homePt, idioma: idiomaPt,
-    leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, resumo: resumoPt, rotina: rotinaPt,
+    leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, perfil: perfilPt,
+    resumo: resumoPt, rotina: rotinaPt,
     tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
@@ -279,7 +286,8 @@ const CATALOGOS: Record<Local, Textos> = {
     cadastro: cadastroEn, ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
-    leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, resumo: resumoEn, rotina: rotinaEn,
+    leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, perfil: perfilEn,
+    resumo: resumoEn, rotina: rotinaEn,
     tempo: tempoEn, tratamento: tratamentoEn,
   },
   'es-419': {
@@ -288,7 +296,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasEs, cruzamentos: cruzamentosEs, cuidado: cuidadoEs, descobertas: descobertasEs, equilibrio: equilibrioEs,
     escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
     home: homeEs, idioma: idiomaEs, leituras: leiturasEs, marcadores: marcadoresEs, medidas: medidasEs,
-    metas: metasEs, resumo: resumoEs, rotina: rotinaEs, tempo: tempoEs, tratamento: tratamentoEs,
+    metas: metasEs, perfil: perfilEs, resumo: resumoEs, rotina: rotinaEs, tempo: tempoEs, tratamento: tratamentoEs,
   },
   'fr-FR': {
     ajuda: ajudaFr, alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
@@ -296,7 +304,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasFr, cruzamentos: cruzamentosFr, cuidado: cuidadoFr, descobertas: descobertasFr, equilibrio: equilibrioFr,
     escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
     home: homeFr, idioma: idiomaFr, leituras: leiturasFr, marcadores: marcadoresFr, medidas: medidasFr,
-    metas: metasFr, resumo: resumoFr, rotina: rotinaFr, tempo: tempoFr, tratamento: tratamentoFr,
+    metas: metasFr, perfil: perfilFr, resumo: resumoFr, rotina: rotinaFr, tempo: tempoFr, tratamento: tratamentoFr,
   },
   'de-DE': {
     ajuda: ajudaDe, alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
@@ -304,7 +312,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasDe, cruzamentos: cruzamentosDe, cuidado: cuidadoDe, descobertas: descobertasDe, equilibrio: equilibrioDe,
     escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,
     home: homeDe, idioma: idiomaDe, leituras: leiturasDe, marcadores: marcadoresDe, medidas: medidasDe,
-    metas: metasDe, resumo: resumoDe, rotina: rotinaDe, tempo: tempoDe, tratamento: tratamentoDe,
+    metas: metasDe, perfil: perfilDe, resumo: resumoDe, rotina: rotinaDe, tempo: tempoDe, tratamento: tratamentoDe,
   },
 };
 

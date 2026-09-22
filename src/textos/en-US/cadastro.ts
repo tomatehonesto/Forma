@@ -149,4 +149,62 @@ export const cadastro = {
   faseLendo: 'Reading your answers',
   faseCalculando: 'Calculating your daily goals',
   faseDesenhando: 'Drawing your journey',
+
+  telaPlano: {
+    planoPronto: 'your personalized plan is ready!',
+    manterOPeso: 'keep your weight',
+    objetivo: (perder: number, alvo: string, marca: string): [string, string, string] => [
+      `To ${perder > 0.05 ? 'lose ' : perder < -0.05 ? 'gain ' : ''}`,
+      alvo,
+      `${marca}.`,
+    ],
+    marcaRegistrada: (medicamento: string) => ` with ${medicamento}®`,
+    marcaGenerica: (medicamento: string) => ` with ${medicamento}`,
+    elaboradoPensando: 'Your plan was put together with',
+    nasSuasRespostas: 'Your answers',
+    emEstudos: 'GLP-1 research',
+
+    secaoMetas: 'YOUR GOALS FOR THE DAY',
+    secaoDose: 'YOUR DOSE',
+    secaoAteAMeta: 'UP TO YOUR GOAL',
+    secaoCorpo: 'YOUR BODY',
+    secaoAjuda: 'HOW I HELP YOU',
+    secaoCiencia: 'THE SCIENCE BEHIND YOUR PLAN',
+
+    proteinaPorDia: 'PROTEIN PER DAY',
+    proteinaTexto: 'It is the first goal of the day. The medication takes the hunger away, and part of the weight that comes off is muscle — protein is what holds on to lean mass while the fat goes.',
+    calorias: 'Calories',
+    agua: 'Water',
+
+    aindaADefinir: 'Still to be decided',
+    aindaADefinirTexto: 'Once you know the medication, I will build the dose ladder and the cycle.',
+    cicloComeca: 'The cycle starts at the first injection you log.',
+    cadenciaDiaria: 'every day',
+    cadenciaSemanal: 'once a week',
+    cadenciaDias: (dias: number) => `every ${dias} days`,
+
+    pesoAPerder: 'Weight to lose',
+    pesoAGanhar: 'Weight to gain',
+    emSemanas: (semanas: number) => `in ${semanas} weeks`,
+    ressalvaDaCurva: (ritmo: string) =>
+      `The drop is not a straight line: in the trials the first weeks give more, and the pace eases as the body adjusts. The ${ritmo} a week you chose are the average of the road, not a forecast.`,
+
+    imcDeHoje: 'BMI today',
+    naSuaMeta: 'At your goal',
+
+    ajudaDose: 'Every dose in the right place',
+    ajudaDoseSub: 'rotating the sites and the dose cycle, without you counting',
+    ajudaEnjoo: 'Nausea in numbers',
+    ajudaEnjooSub: 'what you feel becomes a pattern, and the pattern goes to the appointment',
+    ajudaPeso: 'Your weight curve',
+    ajudaPesoSub: 'every weigh-in joins the line, with a reading of what changed',
+    ajudaResumo: 'A summary for the appointment',
+    ajudaResumoSub: 'doses, symptoms and weight organized on a single page',
+
+    feitoEmCimaDeEvidencia: 'Built on evidence',
+    evidenciaTexto: 'The goals, the curve and the priorities in this plan follow public health guidelines and peer-reviewed clinical trials.',
+    rodape: 'We follow your journey every day and organize what you log — but the one who runs the treatment is your care team. These numbers are a starting point for that conversation, not a prescription.',
+
+    voltar: 'Back',
+  },
 };
