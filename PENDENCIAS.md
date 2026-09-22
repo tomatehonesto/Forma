@@ -1017,6 +1017,30 @@ Ela funcionou em cinco lotes seguidos e não tem surpresa:
    extração alcançou. Qualquer movimento no português é erro de extração,
    e não melhoria de texto — melhoria de texto é outro commit.
 
+### ⚠️⚠️ O QUE A PESSOA VÊ NÃO É O QUE A VARREDURA CONTA
+
+Medido em 22/09/2026, com o aplicativo em **alemão**, pela rede de telas:
+**87 telas varridas, 47 delas com português na tela, 430 linhas.**
+
+E as 430 não são uma coisa só. Separadas por NATUREZA, e não por arquivo:
+
+| | linhas | o que é | dá para traduzir? |
+|---|---:|---|---|
+| os documentos | **131** | termos e privacidade | ❌ é minuta jurídica |
+| a tabela de comida | **53** | nome de alimento, tabela da Unicamp | ❌ é dado de mercado |
+| a personagem da semente | **40** | Dra. Helena Costa, CRM-SP, São Paulo | ❌ ver item 27 |
+| **as telas** | **206** | o item 19 de verdade | ✅ |
+
+**Mais da metade do que a pessoa vê não é trabalho de tradução.** São
+decisões de mercado: uma minuta que precisa de advogado naquele país, uma
+tabela de alimentos daquele país, e uma clínica de demonstração daquele
+país. Terminar a peça 2 inteira resolve 206 das 430 linhas — menos da
+metade —, e é bom saber disso antes de prometer que "falta só traduzir".
+
+As telas com mais linhas, em ordem: `/alimentacao` (26),
+`/marcador` (15), `/ajuda` (13), `/jornada` (12), `/biblioteca` (9),
+`/exercicio` (9), `/aplicacoes` (8), `/exportar` (8), `/insights` (8).
+
 ### O que a rede NÃO cobre, e o que fazer com isso
 
 `congelar.ts` chama funções de `logic/`. As telas não passam por ela: não
@@ -1291,3 +1315,43 @@ o que `avisos.ts` e `rotina.ts` já fazem em alemão.
 e o alemão tem TRÊS gêneros. Nenhum dos quatro recipientes de hoje é
 neutro, então o ramo nunca rodou. Quem acrescentar um "das" precisa saber
 disso antes.
+
+
+---
+
+## 🔴 27. A semente é uma paciente brasileira, e ela abre em todo mercado
+
+`store.hydrate()` cai em `buildSeed()` quando não há nada gravado — ou
+seja, **toda instalação nova abre na demonstração**, com setenta dias de
+registros de outra pessoa. Isso já era conhecido; o que o alemão mostrou é
+que a outra pessoa é brasileira de ponta a ponta:
+
+- **Mariana Silva**, e as metas pessoais dela em português — "Vestir a
+  calça jeans antiga", "Voltar a ir à praia", "Começar a caminhar de
+  manhã". São as três que aparecem em `/metas` e em `/jornada`, em
+  qualquer idioma.
+- **Dra. Helena Costa**, **CRM 128456-SP**, Endocrinologia e Metabologia,
+  **São Paulo, SP**, Rua Ficção Exemplar, "Seg a sex, 8h às 18h".
+- **Unimed, Bradesco Saúde, SulAmérica, Amil** — convênios brasileiros, na
+  tela da clínica de quem instalou na Alemanha.
+- As conversas, as perguntas para a consulta e as notas das duas consultas,
+  todas em português.
+
+⚠️⚠️ **E TRADUZIR SÓ A PROSA SERIA PIOR.** Metas em alemão ao lado de um
+CRM paulista é a mesma doença de meia tela traduzida — o leitor conclui
+que o aplicativo está quebrado, e desta vez com razão.
+
+**São duas saídas, e as duas são decisão de produto:**
+
+1. **Uma persona por mercado.** A demonstração ganha um elenco por país —
+   nome, registro profissional, cidade, convênios —, e a prosa dela entra
+   num módulo próprio do catálogo, separado do resto para a regra "toda
+   frase daqui é o aplicativo falando" continuar valendo.
+
+2. **Instalação nova entra vazia.** `estadoVazio()` já existe e já é o que
+   o "apagar meus dados" usa. A demonstração vira uma porta de
+   desenvolvimento, e quem instala cai no cadastro — que é o que um
+   aplicativo de verdade faz.
+
+A segunda é mais barata e provavelmente mais certa. A primeira só se paga
+se a demonstração for material de venda.
