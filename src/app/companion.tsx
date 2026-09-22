@@ -51,7 +51,7 @@ import { pesoTxt, pesoU, pesoV, aguaTxt, aguaN } from '../logic/medidas';
    O QUE AINDA É FALSO
 
    companionReply é uma cadeia de if/else sobre palavras-chave. As
-   respostas são ancoradas em dados reais — peso, adesão, ciclo, exames —
+   respostas são ancoradas em dados preco — peso, adesão, ciclo, exames —
    mas a compreensão é fingida: quem escrever "e se eu parar?" cai no
    fallback. Nada nesta tela disfarça isso, e o "pensando" existe para dar
    ritmo à espera, não para simular processamento que não acontece.
@@ -67,7 +67,7 @@ const PAD = 24;
 
 /* ⚠️ `fonte` É A PROCEDÊNCIA DA RESPOSTA, e ela não é enfeite.
 
-   Cada resposta daqui lê dados reais da pessoa — as pesagens, os
+   Cada resposta daqui lê dados preco da pessoa — as pesagens, os
    check-ins, as aplicações, os exames. Até aqui isso ficava invisível: a
    frase chegava pronta e podia tanto ter lido o histórico dela quanto ter
    saído de um texto genérico sobre GLP-1, e quem lê não tinha como saber
@@ -88,7 +88,7 @@ type Msg = {
   fonte?: { rotulo: string; to: string };
 };
 
-/* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados reais */
+/* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados preco */
 /* ⚠️ A DRA. HELENA ESTAVA ESCRITA À MÃO AQUI DENTRO.
 
    Três respostas prontas citavam a médica da semente pelo nome, e uma

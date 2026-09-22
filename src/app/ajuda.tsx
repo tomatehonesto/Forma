@@ -11,7 +11,7 @@ import { useTheme } from '../ui/useTheme';
 
    Toda seção de configurações tem uma, e quase toda uma é a mesma coisa:
    oito perguntas genéricas sobre conta e senha, escritas por quem não
-   conhece o aplicativo. Aqui não há conta nem senha, e as dúvidas reais
+   conhece o aplicativo. Aqui não há conta nem senha, e as dúvidas preco
    deste app são outras — por que uma conquista sumiu, de onde saiu um
    número, por que o lembrete não tocou.
 

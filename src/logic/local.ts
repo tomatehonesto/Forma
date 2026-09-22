@@ -1,4 +1,5 @@
 import { MERCADO } from './mercado';
+import { paisDoAparelho as contaOPais } from './pais';
 
 /* ============================================================
    O LOCAL — em que idioma o aplicativo fala e como ele escreve número
@@ -315,10 +316,19 @@ export function lerAparelho(): { local: Local; imperial: boolean } | null {
     const cal = Localization.getCalendars()[0];
     if (!l) return null;
 
-    /* Só existem dois catálogos possíveis. Quem fala outra língua cai no
-       do mercado, que é o único texto que o build carrega. */
-    doAparelho = l.languageCode === 'en' ? 'en-US' : l.languageCode === 'pt' ? 'pt-BR' : PADRAO;
+/* ⚠️⚠️ ISTO ERA UMA ESCADA DE DOIS DEGRAUS — `en` ou `pt`, e o resto
+       caía no mercado. No dia em que o espanhol entrou, um telefone em
+       espanhol passou a abrir o aplicativo em português e ninguém
+       percebeu: a escada não sabia que tinha ganhado um degrau.
+
+       Agora ela pergunta ao DISPONIVEIS, que é quem sabe quais catálogos
+       existem. Idioma novo entra sozinho. */
+    const idioma = l.languageCode ?? '';
+    doAparelho = DISPONIVEIS.find((x) => x.split('-')[0] === idioma) ?? PADRAO;
+
     paisDoAparelho = l.regionCode ?? null;
+    /* O palpite do país vai para logic/pais, que é quem responde por ele. */
+    contaOPais(paisDoAparelho);
     if (cal && typeof cal.uses24hourClock === 'boolean') relogio12 = !cal.uses24hourClock;
 
     /* ⚠️ E O APARELHO TAMBÉM DIZ AS UNIDADES, que até aqui começavam

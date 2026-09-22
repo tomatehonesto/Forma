@@ -3,11 +3,11 @@ import { View, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  PLANOS, assinaturaAtual, historicoDeCobranca, isento, reais,
+  PLANOS, assinaturaAtual, historicoDeCobranca, isento, preco,
   GESTAO_NA_LOJA, PAGAMENTO_NA_LOJA, NOME_DA_LOJA,
   NOME_DO_TIPO, type TipoAssinatura,
 } from '../logic/assinatura';
-import { TEM_REDE_PARCEIRA } from '../logic/mercado';
+import { temRedeParceira } from '../logic/pais';
 import { TelaInterna, Cartao, Linha, Selo, Aviso } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -147,9 +147,9 @@ export default function Assinatura() {
     }
     : atual && plano
       ? {
-        valor: reais(plano.preco),
+        valor: preco(plano.preco),
         unidade: plano.sufixo,
-        abaixo: `${reais(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
+        abaixo: `${preco(plano.outraUnidade.valor)} ${plano.outraUnidade.periodo}`,
         itens: [
           [K.periodicidade, plano.nome],
           ...(atual.renovaEm
@@ -160,7 +160,7 @@ export default function Assinatura() {
       }
       : {
         valor: K.semCusto,
-        abaixo: K.semPlano(reais(menorPorMes())),
+        abaixo: K.semPlano(preco(menorPorMes())),
         itens: [[K.proximaCobranca, K.naoHa]],
       };
 
@@ -286,7 +286,7 @@ export default function Assinatura() {
             sub={K.inserirCodigoSub}
             onPress={() => router.push('/codigo' as any)}
           />
-        ) : TEM_REDE_PARCEIRA ? (
+        ) : temRedeParceira() ? (
           <Linha
             ic="steth"
             titulo={K.medicosParceiros}

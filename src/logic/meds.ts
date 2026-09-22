@@ -1,4 +1,5 @@
 import { T } from '../textos';
+import { comunsNoPais } from './pais';
 /* Catálogo de medicamentos — agnóstico. Porta verbatim. */
 
 /* ⚠️ A FORMA MORA AQUI, e o vocabulário dela em logic/formas.
@@ -159,6 +160,35 @@ MEDS.indefinido = {
      definido®" seria a pior frase do aplicativo. */
   formas: ['caneta'], marca: false,
 };
+
+/* ============================================================
+   A ORDEM DA LISTA — o país sobe o que é comum ali
+
+   ⚠️⚠️ ORDENA E NÃO FILTRA, e a assimetria é a razão. Mostrar Zepbound a
+   quem está no Brasil é um incômodo pequeno; esconder manipulado de quem
+   está nos Estados Unidos E TOMA MANIPULADO deixa essa pessoa sem
+   conseguir registrar o próprio tratamento — e ela é quem mais precisa de
+   um diário, porque está no caso menos coberto.
+
+   Devolve dois grupos, e a tela desenha os dois com uma divisória entre
+   eles.
+
+   ⚠️ O INDEFINIDO NÃO ENTRA EM NENHUM: ele é a saída de quem ainda não
+   sabe, e a tela o desenha antes da lista. Ver o bloco de
+   `MEDS.indefinido`.
+   ============================================================ */
+export function MEDS_POR_PAIS(): { comuns: [string, Med][]; outros: [string, Med][] } {
+  const comuns = comunsNoPais();
+  const todos = Object.entries(MEDS).filter(([k]) => k !== 'indefinido');
+  return {
+    /* A ordem DENTRO do grupo comum é a da lista do país, e não a do
+       catálogo: lá ela foi escrita do mais provável para o menos. */
+    comuns: comuns
+      .map((k) => todos.find(([x]) => x === k))
+      .filter((x): x is [string, Med] => !!x),
+    outros: todos.filter(([k]) => !comuns.includes(k)),
+  };
+}
 
 export const CADENCE_DAYS = (m: string) => (MEDS[m]?.cad === 'daily' ? 1 : 7);
 

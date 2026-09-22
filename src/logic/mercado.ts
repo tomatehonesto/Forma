@@ -31,5 +31,11 @@ export type Mercado = 'br' | 'us';
    LUGAR, e por isso mora aqui e não no catálogo de textos. */
 export const MERCADO: Mercado = 'br';
 
-/** Existe rede de clínicas parceiras neste mercado? */
-export const TEM_REDE_PARCEIRA = MERCADO === 'br';
+/* ⚠️ A REDE SAIU DAQUI, e é a segunda coisa que este arquivo perdeu para
+   logic/pais. Ela era `MERCADO === 'br'`, uma constante de build; agora
+   é `temRedeParceira()`, que segue a resposta da pessoa — um brasileiro
+   que se muda continua tendo a clínica daqui, que é exatamente o caso que
+   o comentário do alto deste arquivo já defendia.
+
+   O que sobrou aqui é o PADRÃO: de onde o país e o idioma partem quando
+   ninguém respondeu nada ainda. */

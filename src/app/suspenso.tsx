@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { PLANOS, reais } from '../logic/assinatura';
+import { PLANOS, preco } from '../logic/assinatura';
 import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao } from '../ui/internas';
@@ -186,7 +186,7 @@ export default function Suspenso() {
         </Row>
 
         <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', lineHeight: 17 }}>
-          Os planos começam em {reais(menorPorMes())} por mês.
+          Os planos começam em {preco(menorPorMes())} por mês.
         </Txt>
 
         {/* ⚠️ SÓ EM DESENVOLVIMENTO, e existe porque o portão ainda não se

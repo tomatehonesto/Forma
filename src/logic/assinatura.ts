@@ -1,4 +1,5 @@
 import { T } from '../textos';
+import { moedaDe } from './pais';
 import { Platform } from 'react-native';
 import type { State } from './seed';
 import { clinicaConectada } from './derive';
@@ -120,7 +121,19 @@ export const RECOMENDADO: Plano['id'] = 'anual';
    mil e duzentos reais saía "R$ 1299,00". O preço é o número que a
    pessoa mais olha antes de decidir, e é o único do aplicativo em que
    três dígitos seguidos mudam a ordem de grandeza sem avisar. */
-export const reais = (v: number) => `R$ ${nf(v, 2)}`;
+/* ⚠️⚠️ ERA `reais()`, E O NOME VIROU MENTIRA no dia em que o inglês
+   entrou: a tela de planos mostrava "R$ 24.92" — símbolo brasileiro,
+   ponto decimal americano. O símbolo agora vem do PAÍS, que é quem sabe.
+
+   ⚠️ E O VALOR NÃO É CONVERTIDO. A tabela de preços é uma só, em reais,
+   porque é a que existe; trocar o símbolo sem trocar o número diria que
+   o plano anual custa 299 dólares. Ver moedaDe, em logic/pais, e
+   PENDENCIAS. */
+export const preco = (v: number) => {
+  const m = moedaDe();
+  const n = nf(v, 2);
+  return m.antes ? `${m.simbolo}${m.espaco ? ' ' : ''}${n}` : `${n}${m.espaco ? ' ' : ''}${m.simbolo}`;
+};
 
 /* A economia em reais viveu aqui por uma passagem, e saiu com a linha
    que a mostrava: com o teste grátis anunciado embaixo do botão, a barra

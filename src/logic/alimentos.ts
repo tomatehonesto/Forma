@@ -30,7 +30,9 @@
    carbonara escreve carbonara, não "macarrão + ovo + bacon".
    ============================================================ */
 
-import { MERCADO } from './mercado';
+/* ⚠️ ERA O INTERRUPTOR DE BUILD, e virou a resposta da pessoa: quem se
+   mudou continua comendo o que se vende onde ela está. Ver logic/pais. */
+import { tabelaDeAlimentos } from './pais';
 import { REDES_BR } from './alimentos-rede-br';
 
 export type Alimento = {
@@ -361,7 +363,7 @@ const ALIMENTOS_BR: Alimento[] = [
 let listaBR: Alimento[] | null = null;
 
 export function ALIMENTOS(): Alimento[] {
-  if (MERCADO !== 'us') {
+  if (tabelaDeAlimentos() !== 'us') {
     /* ⚠️ A TACO E AS REDES SÃO DUAS FONTES NA MESMA LISTA, e continuam
        separadas no arquivo de propósito: a TACO mede composição, a rede
        publica o rótulo do produto dela. Cada item diz de onde veio, e é

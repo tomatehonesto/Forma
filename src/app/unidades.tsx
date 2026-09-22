@@ -19,7 +19,7 @@ import { T } from '../textos';
 
    Então cada opção traz as unidades dela embaixo do nome, e a linha de
    baixo traz os números DA PESSOA no sistema em uso, com os valores
-   reais do perfil e não com exemplos inventados: as unidades para
+   preco do perfil e não com exemplos inventados: as unidades para
    escolher, o próprio peso escrito para confirmar.
 
    ⚠️ E NADA SE CONVERTE NO ESTADO ao trocar. O aplicativo guarda tudo em

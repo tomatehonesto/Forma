@@ -95,6 +95,7 @@ export const cadastro = {
   aindaNaoSeiMedSub: 'Puedes definirlo después en tu perfil',
   aindaNaoSeiDoseSub: 'Casi todo el mundo empieza por la más baja',
 
+  menosComumAqui: 'MENOS COMÚN AQUÍ',
   manipuladoSub: 'Preparada en farmacia de compuestos',
   formaSeringaSub: 'Cargas la dosis con una jeringa',
   formaCanetaSub: 'Ya viene precargada, lista para aplicar',

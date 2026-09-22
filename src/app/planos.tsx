@@ -5,9 +5,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import { PLANOS, RECOMENDADO, reais, isento, assinar, type Plano } from '../logic/assinatura';
+import { PLANOS, RECOMENDADO, preco, isento, assinar, type Plano } from '../logic/assinatura';
 import { useAurora } from '../ui/aurora';
-import { TEM_REDE_PARCEIRA } from '../logic/mercado';
+import { temRedeParceira } from '../logic/pais';
 import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -686,11 +686,11 @@ export default function Planos() {
                           segurança: se um preço maior aparecer um dia, ele
                           aperta em vez de empurrar a altura do cartão —
                           mas quem passar dos R$ 999,00 tem que voltar aqui. */}
-                      <Txt v="h2" c={c.tx} numberOfLines={1} style={{ fontSize: 22, letterSpacing: -0.3 }}>{reais(p.preco)}</Txt>
+                      <Txt v="h2" c={c.tx} numberOfLines={1} style={{ fontSize: 22, letterSpacing: -0.3 }}>{preco(p.preco)}</Txt>
                       <Txt v="micro" c={c.tx3} numberOfLines={1}>{p.sufixo}</Txt>
                     </Row>
                     <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
-                      {`${reais(p.outraUnidade.valor)} ${p.outraUnidade.periodo}`}
+                      {`${preco(p.outraUnidade.valor)} ${p.outraUnidade.periodo}`}
                     </Txt>
                   </View>
                 </Pressable>
@@ -748,7 +748,7 @@ export default function Planos() {
               <Pressable onPress={comprar} style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.85 : 1 }]}>
                 <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
                   <Txt v="body" c={c.accentInk} style={{ fontFamily: font.bodyMed }}>
-                    {plano.teste ? V().comecarTeste(plano.teste) : V().assinarPor(reais(plano.preco))}
+                    {plano.teste ? V().comecarTeste(plano.teste) : V().assinarPor(preco(plano.preco))}
                   </Txt>
                 </View>
               </Pressable>
@@ -784,8 +784,8 @@ export default function Planos() {
 
               <Txt v="micro" c={c.tx4} style={{ marginTop: 8, textAlign: 'center', lineHeight: 16 }}>
                 {plano.teste
-                  ? V().depoisDoTeste(plano.teste, reais(plano.preco), plano.periodo)
-                  : V().renovaAte(reais(plano.preco), plano.periodo)}
+                  ? V().depoisDoTeste(plano.teste, preco(plano.preco), plano.periodo)
+                  : V().renovaAte(preco(plano.preco), plano.periodo)}
               </Txt>
             </>
           )}
@@ -810,7 +810,7 @@ export default function Planos() {
               vendo esta barra COM um código guardado. A linha só aparecia
               pela porta de `?compra=1`, e uma linha viva só em
               desenvolvimento é uma linha morta com plateia. */}
-          {TEM_REDE_PARCEIRA && !ehIsenta ? (
+          {temRedeParceira() && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
               <Pressable
                 onPress={() => router.push('/codigo' as any)}

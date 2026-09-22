@@ -15,7 +15,7 @@ import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, DOW_PT } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
-import { TEM_REDE_PARCEIRA } from '../../logic/mercado';
+import { temRedeParceira } from '../../logic/pais';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
@@ -940,7 +940,7 @@ function Parceiros() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
-  if (!TEM_REDE_PARCEIRA || temAcompanhamento(S)) return null;
+  if (!temRedeParceira() || temAcompanhamento(S)) return null;
 
   return (
     <View style={{ marginTop: 36 }}>

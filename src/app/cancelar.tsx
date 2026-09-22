@@ -3,7 +3,7 @@ import { View, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  PLANOS, assinaturaAtual, reais, resgatarDesconto, DESCONTO_DE_RETENCAO,
+  PLANOS, assinaturaAtual, preco, resgatarDesconto, DESCONTO_DE_RETENCAO,
   GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
 import { TelaInterna, Titulao, Cartao, Bloco, Botao, Texto, Opcoes, Opc } from '../ui/internas';
@@ -198,7 +198,7 @@ export default function Cancelar() {
             atual?.renovaEm
               ? K().anoPagoComData(dataComAno(atual.renovaEm))
               : K().anoPagoSemData,
-            K().anoPagoReembolso(NOME_DA_LOJA, reais(comDesconto), reais(plano.preco)),
+            K().anoPagoReembolso(NOME_DA_LOJA, preco(comDesconto), preco(plano.preco)),
           ].join(' '),
           rotulo: K().querDescontoRenovacao,
           acao: aceitarDesconto,
@@ -208,7 +208,7 @@ export default function Cancelar() {
       return {
         ic: 'wallet',
         titulo: K().descontoTitulo(DESCONTO_DE_RETENCAO.porcento),
-        texto: K().descontoTexto(reais(comDesconto), reais(plano.preco), reais(anual.outraUnidade.valor)),
+        texto: K().descontoTexto(preco(comDesconto), preco(plano.preco), preco(anual.outraUnidade.valor)),
         rotulo: K().querDesconto,
         acao: aceitarDesconto,
       };

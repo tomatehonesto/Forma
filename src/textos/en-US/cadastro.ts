@@ -86,6 +86,7 @@ export const cadastro = {
   aindaNaoSeiMedSub: 'You can set this later in your profile',
   aindaNaoSeiDoseSub: 'Almost everyone starts at the lowest',
 
+  menosComumAqui: 'LESS COMMON HERE',
   manipuladoSub: 'Prepared at a compounding pharmacy',
   formaSeringaSub: 'You draw the dose with a syringe',
   formaCanetaSub: 'Comes prefilled, ready to inject',

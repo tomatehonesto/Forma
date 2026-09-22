@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Linking } from 'react-native';
 import { useStore } from '../logic/store';
 import {
-  PLANOS, historicoDeCobranca, assinaturaAtual, isento, reais, HISTORICO_NA_LOJA, NOME_DA_LOJA,
+  PLANOS, historicoDeCobranca, assinaturaAtual, isento, preco, HISTORICO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
 import { TelaInterna, Cartao, Linha } from '../ui/internas';
 import { Txt, Vazio } from '../ui/kit';
@@ -65,7 +65,7 @@ export default function Cobrancas() {
             return (
               <Linha
                 key={l.t}
-                titulo={l.estado === 'teste' ? T.assinatura.extrato.inicioDoTeste : reais(l.valor)}
+                titulo={l.estado === 'teste' ? T.assinatura.extrato.inicioDoTeste : preco(l.valor)}
                 sub={`${dataComAno(l.t)}${plano ? ` · plano ${plano.nome.toLowerCase()}` : ''}`}
                 selo={l.estado === 'reembolsada' ? 'Reembolsada' : undefined}
                 seloTom="neutra"

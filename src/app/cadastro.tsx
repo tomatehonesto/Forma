@@ -13,7 +13,7 @@ import { estadoVazio, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
-import { MEDS, CADENCE_DAYS } from '../logic/meds';
+import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
@@ -1779,7 +1779,19 @@ export default function Cadastro() {
                 onPress={() => p({ med: 'indefinido', dose: null, intervalo: null })}
               />
             ) : null}
-            {Object.entries(MEDS).filter(([k]) => k !== 'indefinido').map(([k, m]) => (
+            {[
+              ...MEDS_POR_PAIS().comuns,
+              /* ⚠️ A DIVISÓRIA É UMA LINHA DE TEXTO, e não uma lista
+                 fechada com um "ver todos". Quem toma um dos de baixo
+                 precisa achá-lo rolando, e não descobrindo um toque
+                 escondido: quem não descobre conclui que o aplicativo não
+                 serve para ela, e é a pessoa que o diário mais ajudaria. */
+              ...(MEDS_POR_PAIS().outros.length
+                ? [['--divisoria--', null] as [string, null]] : []),
+              ...MEDS_POR_PAIS().outros,
+            ].map(([k, m]) => (m === null ? (
+              <Rotulo key="divisoria">{K().menosComumAqui}</Rotulo>
+            ) : (
               <Escolha
                 key={k} cheia
                 /* O ® é da marca, e escrevê-lo é o mínimo: são nomes
@@ -1813,7 +1825,7 @@ export default function Cadastro() {
                   dose: MEDS[k].doses.length ? null : meioDaFaixa(k),
                 })}
               />
-            ))}
+            )))}
           </View>
         ) : null}
 

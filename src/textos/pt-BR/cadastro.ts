@@ -121,6 +121,10 @@ export const cadastro = {
   aindaNaoSeiMedSub: 'Você pode definir depois no seu perfil',
   aindaNaoSeiDoseSub: 'Quase todo mundo começa pela menor',
 
+  /* ⚠️ "AQUI" É O PAÍS QUE A PESSOA RESPONDEU, e não onde ela está. A
+     lista de baixo não é de medicamento proibido nem de medicamento pior
+     — é só o que circula menos naquele lugar. */
+  menosComumAqui: 'MENOS COMUM AQUI',
   manipuladoSub: 'Preparada em farmácia de manipulação',
   formaSeringaSub: 'Você aspira a dose com uma seringa',
   formaCanetaSub: 'Já vem preenchida, pronta para aplicar',
