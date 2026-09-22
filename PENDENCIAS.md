@@ -1058,7 +1058,7 @@ tirada do `git show`, e não de memória.
 - **Duas chaves escritas e nunca ligadas** — o que a Garmin e a Withings
   trazem. Escrever o catálogo não liga o texto; é preciso ir na linha.
 
-## 🔴 20. O mundo cabe no mecanismo; quatro idiomas cabem na lista
+## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
 A pergunta do idioma é o **primeiro passo do cadastro**, e o mecanismo
 está inteiro:
@@ -1071,8 +1071,8 @@ está inteiro:
 - a resposta já chega marcada, e para quem a aposta acertou o passo custa
   um toque em "Continuar".
 
-**E a lista mostra quatro idiomas: português, inglês, espanhol e
-francês.** É o que existe de catálogo, e a lista não pode ser maior que
+**E a lista mostra cinco idiomas: português, inglês, espanhol, francês e
+alemão.** É o que existe de catálogo, e a lista não pode ser maior que
 isso — `DISPONIVEIS` é do tipo `Local`, e `src/textos` declara
 `Record<Local, Textos>`: acrescentar um idioma sem escrever o catálogo
 dele **não compila**.
@@ -1104,7 +1104,7 @@ países já pronto o põe em cima para quem estiver naquele país.
 
 ### A ordem sugerida, se for por alcance
 
-Espanhol ✅, francês ✅, **alemão e italiano faltam**. Depois japonês. Árabe e hebraico pedem um trabalho a mais que os
+Espanhol ✅, francês ✅, alemão ✅, **falta o italiano**. Depois japonês. Árabe e hebraico pedem um trabalho a mais que os
 outros não pedem: o aplicativo inteiro desenha da esquerda para a
 direita, e `expo-localization` devolve `textDirection` justamente para
 isso — nada no código lê esse campo hoje.
@@ -1116,12 +1116,35 @@ maior bloco de texto clínico do aplicativo, e a redação dele para um
 mercado precisa passar por alguém habilitado naquele mercado. Não é
 tradução de interface.
 
-⚠️⚠️ **O FRANCÊS TEM UM CASO CONCRETO DISSO, E JÁ ESTÁ NO CÓDIGO.** TGO e
-TGP se chamam **ASAT** e **ALAT** no laudo francês — não é a mesma palavra
-noutra língua, é o que está impresso no papel. Eu escrevi isso pela
-literatura, e é exatamente o tipo de decisão que precisa de quem exerce
-naquele mercado: se estiver errado, a pessoa não acha a linha dela no
-próprio exame.
+⚠️⚠️ **E JÁ HÁ TRÊS CASOS CONCRETOS DISSO NO CÓDIGO.** TGO e TGP se
+chamam **ASAT** e **ALAT** no laudo francês e **GOT** e **GPT** no alemão
+— e o TGO/TGP do português vem da mesma palavra que o GOT/GPT alemão, e
+ainda assim nenhum é o outro. As faixas de IMC alemãs usam os nomes da
+classificação ("Adipositas Grad I"), e o piso da escala de diarreia segue
+o corte da OMS em todos os idiomas.
+
+Eu escrevi os três pela literatura, e são exatamente o tipo de decisão
+que precisa de quem exerce naquele mercado: se estiver errado, a pessoa
+não acha a linha dela no próprio exame.
+
+### E as duas decisões permanentes do alemão
+
+1. **Ele trata por "du".** Português diz "você", espanhol "tú" — os dois
+   familiares. Francês diz "vous" porque a língua quase não oferece outra
+   coisa a um aplicativo falando com um adulto desconhecido. Alemão
+   oferece as duas de verdade, e "Sie" aqui não seria educado, seria
+   distante: este aplicativo fala do corpo, das aplicações e dos exames de
+   quem lê, e no fim agradece por ter feito o caminho junto.
+
+   **É a decisão que mais custa desfazer** — são trinta arquivos —, e por
+   isso ela está escrita por extenso no alto de `textos/de-DE/comum.ts`.
+   Vale confirmar antes da loja.
+
+2. **A Doppelnennung, por extenso.** "sprich mit deiner Ärztin oder
+   deinem Arzt", e não "Ärzt*in" nem "Ärzt:in" — os leitores de tela
+   pronunciam mal as formas com sinal no meio, que é exatamente o que
+   derrubou o ponto médio francês. Onde nomear os dois estoura a linha,
+   entra o papel: "dein Team", "wer dich behandelt", "ärztlich begleiten".
 
 ### E as três travas de francês que o código já carrega
 
@@ -1208,3 +1231,63 @@ tudo. Duas consequências, as duas já custaram:
    tempo. Não foi reproduzida desde então. Se o diff acusar marcos sem
    nenhuma outra mudança, é provável que seja isto — mas é para conferir,
    não para descartar.
+
+
+---
+
+## 🔴 25. O nome do princípio ativo está em português, em todo idioma
+
+`logic/meds.ts` guarda `mol: 'Tirzepatida'`, `mol: 'Semaglutida'` — a
+grafia portuguesa —, e o nome aparece dentro de frase em duas telas: a
+carta do companion sobre a fome que volta, e a mensagem de quem ainda não
+aplicou.
+
+O nome comum internacional muda de idioma:
+
+| | |
+|---|---|
+| pt-BR | tirzepatida, semaglutida, dulaglutida |
+| en-US | tirzepatide, semaglutide, dulaglutide |
+| es-419 | tirzepatida, semaglutida, dulaglutida |
+| fr-FR | tirzépatide, sémaglutide, dulaglutide |
+| de-DE | Tirzepatid, Semaglutid, Dulaglutid |
+
+Três dos cinco já saem errados hoje. **Isto é dado de mercado, e não
+texto de catálogo** — o mesmo lugar onde mora a lista de medicamentos por
+país (`logic/pais.ts`). A saída provável é um campo `mol` por local em
+`MEDS`, ou uma tabela de tradução ao lado dela.
+
+⚠️ E a CAIXA já está resolvida: o `.toLowerCase()` que ficava no sítio de
+chamada virou `comum.noMeio`, que no alemão devolve o que recebeu.
+
+---
+
+## 🟡 26. `formas.oA` devolve um caso só, e o alemão precisa de dois
+
+`oA` devolve o artigo pelado — "a", "the", "la", "der" — e as seis
+chamadas dele põem esse artigo ora no sujeito, ora no objeto:
+
+| caso | onde |
+|---|---|
+| nominativo | `index.tsx:245`, `caneta.tsx:102` |
+| acusativo | `index.tsx:250`, `aplicacao-ok.tsx:85`, `caneta.tsx:113`, `derive.ts:2445` |
+
+Em português, espanhol, francês e inglês o artigo é o mesmo nos dois
+casos, e por isso a assinatura nunca precisou saber. Em alemão é "der
+Pen" e "den Pen".
+
+O alemão devolve o **nominativo**, e nas quatro chamadas de acusativo
+está errado. Está listado por arquivo e linha no alto de
+`textos/de-DE/formas.ts`.
+
+**Não é para consertar agora**, e a razão é o item 19: as seis chamadas
+moram em frases portuguesas ainda cravadas no código. Um parâmetro de
+caso enfiado dentro de "Ver der Pen" não ajuda ninguém. Quando essas
+telas forem para o catálogo, o dono da frase é o idioma, e aí o caso é
+decisão do idioma — ou a frase se constrói em volta do nominativo, que é
+o que `avisos.ts` e `rotina.ts` já fazem em alemão.
+
+⚠️ E o `concordar` tem o mesmo tipo de buraco: ele recebe DUAS palavras,
+e o alemão tem TRÊS gêneros. Nenhum dos quatro recipientes de hoje é
+neutro, então o ramo nunca rodou. Quem acrescentar um "das" precisa saber
+disso antes.
