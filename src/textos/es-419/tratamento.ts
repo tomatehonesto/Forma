@@ -353,4 +353,27 @@ export const tratamento = {
     apagarTira: (min: number, unidade: string) =>
       `Borrar quita ${min === 1 ? 'el' : 'los'} ${min} ${unidade} del total de ese día.`,
   },
+  telaMedirExercicio: {
+    titulo: '¿Cómo te moviste?',
+    tituloCorrigir: 'Corregir el entrenamiento',
+    subCorrigir: 'Qué quedó mal en el registro',
+    subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
+      `${hoje} de ${alvo} ${unidade} hoy${fonte ? ` · ya con ${fonte}` : ''}`,
+
+    botaoSemNome: 'Di qué hiciste',
+    botaoSalvarCorrecao: 'Guardar la corrección',
+    botaoRegistrar: (min: number, unidade: string, modalidade: string) =>
+      `Registrar ${min} ${unidade} de ${modalidade}`,
+
+    somaAoQueContou: (uma: boolean) =>
+      `Lo que registres aquí se suma a lo que ${uma ? 'ya contó' : 'ya contaron'}.`,
+
+    oQueVoceFez: 'QUÉ HICISTE',
+    qualPlaceholder: '¿Cuál? Ej.: vóley, escalada, jiu-jitsu',
+
+    porQuantoTempo: 'POR CUÁNTO TIEMPO',
+    duracao: 'Duración',
+
+    apagarTreino: 'Borrar este entrenamiento',
+  },
 };

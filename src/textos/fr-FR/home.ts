@@ -398,4 +398,25 @@ export const home = {
     semanasAnteriores: 'Semaines précédentes',
     semanasAnterioresNota: 'Les objectifs d’aujourd’hui, mesurés sur les relevés de chaque semaine.',
   },
+  telaDia: {
+    registrosDeste: 'Relevés de ce jour',
+    diaDeAplicacao: 'Jour d’injection',
+    nadaRegistrado: 'rien de noté pour l’instant',
+
+    aplicacao: 'Injection',
+    doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
+      `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
+    prevista: 'prévue aujourd’hui',
+    semRegistroMinusculo: 'rien de noté',
+
+    escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} sur ${max}`,
+    respondidoNesteDia: 'Répondu ce jour-là',
+    semRegistro: 'Rien de noté',
+
+    seloFeita: 'faite',
+    seloFeito: 'fait',
+    seloRegistrar: 'noter',
+
+    semPrazo: 'Les jours sans relevé restent vides. Vous pouvez les remplir plus tard, sans délai.',
+  },
 };

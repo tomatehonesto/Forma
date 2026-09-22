@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 368, em 61 arquivos.**
+**Medido em 22/09/2026: faltam 347, em 60 arquivos.**
 
 ⚠️⚠️ **E ESTE NÚMERO SUBSTITUI OS ANTERIORES, porque a rede era cega.** A
 regra do inventário que pega texto solto de JSX barrava `\n` dentro do
@@ -1360,6 +1360,30 @@ tirada do `git show`, e não de memória.
   e o cabeçalho da folha de /trilha. Uma chave, duas telas.
 - **Mais uma quebra de linha escrita no JSX:** `depois${'\n'}da
   aplicação`, no Ciclo. A largura é a do português.
+
+- **⚠️⚠️ A DÉCIMA PRIMEIRA CONSTANTE DE MÓDULO, e a quarta que era CÓPIA
+  DE TABELA QUE JÁ ESTAVA NO CATÁLOGO:** `TIPOS` em /medir-exercicio, com
+  as dez modalidades escritas e os dez ícones. `MODALIDADES()`, em
+  `logic/modalidades`, tem os mesmos dez nomes e os mesmos dez ícones — e
+  aquele arquivo existe justamente para ser o único lugar onde a tabela
+  mora. Até o desenho que o comentário da tela explicava (musculação na
+  barra, não no halter) já estava explicado lá. A cópia é sempre a que
+  fica em português nos cinco idiomas.
+- **E o `.toLowerCase()` da mesma tela saiu junto** — um dos oito do item
+  32. Em alemão ele escrevia "schwimmen" onde o catálogo escreve
+  "Schwimmen".
+- **O "min" aparecia SEIS VEZES em /medir-exercicio** — no total do dia,
+  na métrica da duração, nas duas pontas do slider, nos quatro atalhos e
+  no botão. `telaExercicio.unidadeMin` já existia.
+- **Dois selos para a mesma palavra**, em /dia: "feita" para a aplicação
+  e "feito" para o check-in e o peso. Em alemão os dois são "erledigt" —
+  a escolha é do catálogo, e não da tela.
+- **⚠️ E O SERVIDOR DE DESENVOLVIMENTO NÃO SOBREVIVE A `git stash` NO
+  `src`.** O ciclo de esconder e devolver a árvore quebra o grafo de
+  módulos do Metro, e o aplicativo abre EM BRANCO — sem erro no console
+  e sem erro no log do servidor. Duas telas pareceram quebradas por isso
+  nesta leva, e as duas estavam certas. Quem for fazer a conferência do
+  `congelar.ts` no meio de uma leva precisa reiniciar o servidor depois.
 
 ## 🔴 20. O mundo cabe no mecanismo; cinco idiomas cabem na lista
 
@@ -1790,7 +1814,7 @@ não ser redescoberto na terceira vez.
 
 ## 🟡 32. O `.toLowerCase()` de tela estraga texto JÁ TRADUZIDO
 
-Sobram **oito** `.toLowerCase()` em telas, e eles não esperam a extração
+Sobram **sete** `.toLowerCase()` em telas, e eles não esperam a extração
 para fazer estrago: o catálogo do outro lado já está nos cinco idiomas, e
 a tela abaixa a caixa dele depois de pronto.
 
@@ -1810,7 +1834,6 @@ nunca, e ali ele perdeu duas.
 | `aplicacao-ok.tsx:64` | o local da aplicação |
 | `cobrancas.tsx:69` | o nome do plano |
 | `medir-agua.tsx:120` | o nome da bebida |
-| `medir-exercicio.tsx:153` | o nome da modalidade |
 | `companion.tsx:124,140,180` | o tipo de consulta e o nome da molécula |
 
 A saída é a mesma de sempre e já existe: `T.comum.noMeio`, que no alemão

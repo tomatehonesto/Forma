@@ -355,4 +355,27 @@ export const tratamento = {
     apagarTira: (min: number, unidade: string) =>
       `Deleting takes ${min} ${unidade} off that day’s total.`,
   },
+  telaMedirExercicio: {
+    titulo: 'How did you move?',
+    tituloCorrigir: 'Correct the workout',
+    subCorrigir: 'What went wrong in the entry',
+    subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
+      `${hoje} of ${alvo} ${unidade} today${fonte ? ` · already counting ${fonte}` : ''}`,
+
+    botaoSemNome: 'Say what you did',
+    botaoSalvarCorrecao: 'Save the correction',
+    botaoRegistrar: (min: number, unidade: string, modalidade: string) =>
+      `Record ${min} ${unidade} of ${modalidade}`,
+
+    somaAoQueContou: (uma: boolean) =>
+      `What you record here adds to what ${uma ? 'it has already counted' : 'they have already counted'}.`,
+
+    oQueVoceFez: 'WHAT YOU DID',
+    qualPlaceholder: 'Which one? E.g. volleyball, climbing, jiu-jitsu',
+
+    porQuantoTempo: 'FOR HOW LONG',
+    duracao: 'Duration',
+
+    apagarTreino: 'Delete this workout',
+  },
 };

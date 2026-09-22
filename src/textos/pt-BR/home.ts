@@ -555,4 +555,39 @@ export const home = {
     semanasAnteriores: 'Semanas anteriores',
     semanasAnterioresNota: 'As metas de hoje, medidas nos registros de cada semana.',
   },
+  /* ============================================================
+     UM DIA — a folha de um quadradinho da fileira de sete
+
+     "Peso" e "Check-in" NÃO estão aqui: são `evento.peso` e
+     `evento.checkin`, o nome do registro na linha do tempo, e é o mesmo
+     fato. Só "Aplicação" mora aqui, porque em `evento` aquele nome já é
+     uma função que leva dose e unidade.
+     ============================================================ */
+  telaDia: {
+    registrosDeste: 'Registros deste dia',
+    diaDeAplicacao: 'Dia de aplicação',
+    nadaRegistrado: 'nada registrado ainda',
+
+    aplicacao: 'Aplicação',
+    doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
+      `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
+    prevista: 'prevista para hoje',
+    semRegistroMinusculo: 'sem registro',
+
+    /* A régua e o número na mesma frase, com o máximo dela: energia vai a
+       dez e humor vai a cinco, e quem sabe disso é quem chama. */
+    escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} de ${max}`,
+    respondidoNesteDia: 'Respondido neste dia',
+    semRegistro: 'Sem registro',
+
+    /* ⚠️ DOIS SELOS PARA A MESMA PALAVRA, e a diferença é o gênero do que
+       foi feito: a aplicação é feita, o check-in e o peso são feitos. Em
+       alemão os dois são "erledigt", e é por isso que a escolha é do
+       catálogo e não da tela. */
+    seloFeita: 'feita',
+    seloFeito: 'feito',
+    seloRegistrar: 'registrar',
+
+    semPrazo: 'Dias sem registro ficam em branco. Você pode preencher depois, sem prazo.',
+  },
 };

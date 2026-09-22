@@ -360,4 +360,27 @@ export const tratamento = {
     apagarTira: (min: number, unidade: string) =>
       `Effacer retire ${min === 1 ? 'la' : 'les'} ${min} ${unidade} du total de ce jour-là.`,
   },
+  telaMedirExercicio: {
+    titulo: 'Comment avez-vous bougé ?',
+    tituloCorrigir: 'Corriger la séance',
+    subCorrigir: 'Ce qui n’allait pas dans le relevé',
+    subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
+      `${hoje} sur ${alvo} ${unidade} aujourd’hui${fonte ? ` · déjà avec ${fonte}` : ''}`,
+
+    botaoSemNome: 'Dites ce que vous avez fait',
+    botaoSalvarCorrecao: 'Enregistrer la correction',
+    botaoRegistrar: (min: number, unidade: string, modalidade: string) =>
+      `Noter ${min} ${unidade} de ${modalidade}`,
+
+    somaAoQueContou: (uma: boolean) =>
+      `Ce que vous notez ici s’ajoute à ce ${uma ? 'qu’il a déjà compté' : 'qu’ils ont déjà compté'}.`,
+
+    oQueVoceFez: 'CE QUE VOUS AVEZ FAIT',
+    qualPlaceholder: 'Laquelle ? Ex. : volley, escalade, jiu-jitsu',
+
+    porQuantoTempo: 'PENDANT COMBIEN DE TEMPS',
+    duracao: 'Durée',
+
+    apagarTreino: 'Effacer cette séance',
+  },
 };

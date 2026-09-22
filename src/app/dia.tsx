@@ -9,6 +9,11 @@ import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { useTrocarDeTela } from '../ui/useTrocarDeTela';
 import { pesoTxt } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaDia;
 
 /* ============================================================
    UM DIA
@@ -40,18 +45,19 @@ export default function Dia() {
      check-in, e por isso pergunta se há resposta, não se há linha — e o
      resumo só cita a energia quando alguém respondeu a energia. */
   const fez = respostaNoDia(checkin);
-  const resumoCheckin = !fez ? 'Sem registro'
-    : respondido(checkin, 'energia') ? `Energia ${checkin.energia} de 10`
-    : respondido(checkin, 'mood') ? `Humor ${checkin.mood} de 5`
-    : 'Respondido neste dia';
+  const E = T.escalas.telaCheckin;
+  const resumoCheckin = !fez ? K().semRegistro
+    : respondido(checkin, 'energia') ? K().escalaDe(E.energia, checkin.energia, 10)
+    : respondido(checkin, 'mood') ? K().escalaDe(E.humor, checkin.mood, 5)
+    : K().respondidoNesteDia;
   const peso = (S.weights as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
 
   const prevista = diffDays(nextInjectionDate(S), d) === 0;
   const nada = !aplicou && !fez && !peso;
 
   const sub = [
-    prevista || aplicou ? 'Dia de aplicação' : null,
-    nada ? 'nada registrado ainda' : null,
+    prevista || aplicou ? K().diaDeAplicacao : null,
+    nada ? K().nadaRegistrado : null,
   ].filter(Boolean).join(' · ');
 
   /* Fechar antes de navegar: o sheet é um transparentModal, e empilhar uma
@@ -59,40 +65,39 @@ export default function Dia() {
   const ir = useTrocarDeTela();
 
   return (
-    <SheetScreen titulo={titulo} sub={sub || 'Registros deste dia'} onClose={() => router.back()}>
+    <SheetScreen titulo={titulo} sub={sub || K().registrosDeste} onClose={() => router.back()}>
       <View style={{ marginTop: 18, gap: 10 }}>
         <Cartao>
           <Linha
-            titulo="Aplicação"
+            titulo={K().aplicacao}
             sub={aplicou
-              ? `${med.label} ${nf(aplicou.dose, 1)} ${med.unit}`
-              : `${med.label} ${nf(S.profile.dose, 1)} ${med.unit} · ${prevista ? 'prevista para hoje' : 'sem registro'}`}
-            selo={aplicou ? 'feita' : 'registrar'}
+              ? K().doseLinha(med.label, nf(aplicou.dose, 1), med.unit)
+              : K().doseLinha(med.label, nf(S.profile.dose, 1), med.unit,
+                prevista ? K().prevista : K().semRegistroMinusculo)}
+            selo={aplicou ? K().seloFeita : K().seloRegistrar}
             seloTom={aplicou ? 'verde' : 'neutra'}
             seta={false}
             onPress={aplicou ? undefined : () => ir('/aplicacao')}
           />
           <Linha
-            titulo="Check-in"
+            titulo={T.home.evento.checkin}
             sub={resumoCheckin}
-            selo={fez ? 'feito' : 'registrar'}
+            selo={fez ? K().seloFeito : K().seloRegistrar}
             seloTom={fez ? 'verde' : 'neutra'}
             seta={false}
             onPress={fez ? undefined : () => ir('/checkin')}
           />
           <Linha
-            titulo="Peso"
-            sub={peso ? `${pesoTxt(S, peso.kg)}` : 'Sem registro'}
-            selo={peso ? 'feito' : 'registrar'}
+            titulo={T.home.evento.peso}
+            sub={peso ? `${pesoTxt(S, peso.kg)}` : K().semRegistro}
+            selo={peso ? K().seloFeito : K().seloRegistrar}
             seloTom={peso ? 'verde' : 'neutra'}
             seta={false}
             onPress={peso ? undefined : () => ir('/medir-peso')}
           />
         </Cartao>
 
-        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
-          Dias sem registro ficam em branco. Você pode preencher depois, sem prazo.
-        </Txt>
+        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{K().semPrazo}</Txt>
       </View>
     </SheetScreen>
   );

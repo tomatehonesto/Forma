@@ -11,6 +11,12 @@ import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Botao, Grade, Opc, Texto } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
+import { MODALIDADES } from '../logic/modalidades';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaMedirExercicio;
 
 /* ============================================================
    COMO VOCÊ SE MOVIMENTOU
@@ -43,30 +49,23 @@ import { radius } from '../theme';
    alguém sabe que ele está lá, e agora está escrito.
    ============================================================ */
 
-/* Cada modalidade com uma pessoa fazendo. Numa lista de dez o desenho é
-   o que se encontra antes de ler, e o desenho tem que ser do movimento —
-   pegada, velocímetro e onda diziam do rastro, do aparelho e da água, em
-   vez de dizer de quem se mexeu.
+/* ⚠️⚠️ A GRADE ERA UMA CONSTANTE DE MÓDULO COM OS DEZ NOMES ESCRITOS, e
+   os dez nomes e os dez ícones já eram `MODALIDADES()`, em
+   `logic/modalidades` — um arquivo que existe justamente para ser o
+   único lugar onde a tabela mora. A cópia é sempre a que fica em
+   português nos cinco idiomas, porque a original já foi traduzida.
 
-   Musculação fica na barra em vez do halter que o app usa para
-   "Exercício" em toda parte: o mesmo glifo para a categoria e para uma
-   das modalidades dentro dela daria a impressão de que musculação é o
-   exercício e o resto é outra coisa. */
-const TIPOS: [string, string][] = [
-  ['walk', 'Caminhada'],
-  ['run', 'Corrida'],
-  ['barbell', 'Musculação'],
-  ['bike', 'Bike'],
-  ['swim', 'Natação'],
-  ['yoga', 'Yoga'],
-  ['gymnastics', 'Pilates'],
-  ['lunge', 'Funcional'],
-  ['stretch', 'Alongamento'],
-  ['more', 'Outro'],
-];
-const OUTRO = 'Outro';
+   O desenho que o comentário daqui explicava também mora lá: musculação
+   na barra e não no halter, porque o halter nomeia a categoria inteira. */
+const TIPOS = () => MODALIDADES().map((m) => [m.ic, m.nome] as [string, string]);
+
+/* Chave E rótulo: é com ele que a tela decide abrir o campo de escrever,
+   e é ele que aparece na grade. */
+const OUTRO = () => T.aviso.modalidades.outro;
 
 /* Os quatro de sempre, que resolvem a maioria sem arrastar nada. */
+const MIN = () => T.tratamento.telaExercicio.unidadeMin;
+
 const ATALHOS = [15, 30, 45, 60];
 const MAX = 180;
 
@@ -91,10 +90,10 @@ export default function MedirExercicio() {
 
   const [tipo, setTipo] = useState(() => {
     const t = original?.tipo;
-    return t && TIPOS.some(([, nome]) => nome === t) ? t : (t ? OUTRO : 'Caminhada');
+    return t && TIPOS().some(([, nome]) => nome === t) ? t : (t ? OUTRO() : T.aviso.modalidades.caminhada);
   });
   const [outro, setOutro] = useState(() =>
-    original && !TIPOS.some(([, nome]) => nome === original.tipo) ? original.tipo : '');
+    original && !TIPOS().some(([, nome]) => nome === original.tipo) ? original.tipo : '');
   const [min, setMin] = useState(original?.min ?? 30);
 
   /* No plural: quem tem Garmin costuma ter o Apple Saúde junto, e dizer
@@ -107,7 +106,7 @@ export default function MedirExercicio() {
 
   /* "Outro" só vale com nome. Sem isso o registro guardaria a palavra
      "Outro", que não diz mais do que não ter escolhido nada. */
-  const nome = tipo === OUTRO ? outro.trim() : tipo;
+  const nome = tipo === OUTRO() ? outro.trim() : tipo;
   const pronto = min > 0 && !!nome;
 
   const salvar = () => {
@@ -131,13 +130,13 @@ export default function MedirExercicio() {
 
   return (
     <SheetScreen
-      titulo={editando ? 'Corrigir o treino' : 'Como você se movimentou?'}
+      titulo={editando ? K().tituloCorrigir : K().titulo}
       /* A fonte automática qualifica o NÚMERO, então mora junto dele. Ao
          corrigir ela não vem: quem está consertando uma linha não precisa
          do total do dia, precisa da linha. */
       sub={editando
-        ? 'O que ficou errado no registro'
-        : `${hoje} de ${alvo} min hoje${fonte ? ` · já com ${fontes.length === 1 ? 'o ' : ''}${fonte}` : ''}`}
+        ? K().subCorrigir
+        : K().subHoje(hoje, alvo, MIN(), fonte, fontes.length === 1)}
       onClose={() => router.back()}
       rodape={(
         <Pressable onPress={salvar} disabled={!pronto} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
@@ -147,10 +146,10 @@ export default function MedirExercicio() {
           }}>
             <Txt v="body" c={pronto ? c.accentInk : c.tx4}>
               {!nome
-                ? 'Diga o que você fez'
+                ? K().botaoSemNome
                 : editando
-                  ? 'Salvar a correção'
-                  : `Registrar ${min} min de ${nome.toLowerCase()}`}
+                  ? K().botaoSalvarCorrecao
+                  : K().botaoRegistrar(min, MIN(), T.comum.noMeio(nome))}
             </Txt>
           </View>
         </Pressable>
@@ -170,7 +169,7 @@ export default function MedirExercicio() {
           número que ela explica. */}
       {fonte && !editando ? (
         <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>
-          O que você registrar aqui soma ao que {fontes.length === 1 ? 'ele já contou' : 'eles já contaram'}.
+          {K().somaAoQueContou(fontes.length === 1)}
         </Txt>
       ) : null}
 
@@ -178,24 +177,24 @@ export default function MedirExercicio() {
           para "ADICIONAR À MÃO", que separa o mundo entre o automático e o
           que se faz com a mão — e chama de mão o que muita gente faz de
           outro jeito. O banner acima já disse o que precisava ser dito. */}
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>O QUE VOCÊ FEZ</Txt>
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 20, marginBottom: 10 }}>{K().oQueVoceFez}</Txt>
       <Grade>
-        {TIPOS.map(([ic, t]) => (
+        {TIPOS().map(([ic, t]) => (
           <Opc key={t} ic={ic} cheia label={t} on={tipo === t} onPress={() => setTipo(t)} />
         ))}
       </Grade>
 
-      {tipo === OUTRO ? (
+      {tipo === OUTRO() ? (
         <View style={{ marginTop: 10 }}>
-          <Texto valor={outro} onChange={setOutro} placeholder="Qual? Ex.: vôlei, escalada, jiu-jitsu" linhas={1} />
+          <Texto valor={outro} onChange={setOutro} placeholder={K().qualPlaceholder} linhas={1} />
         </View>
       ) : null}
 
-      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22 }}>POR QUANTO TEMPO</Txt>
+      <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1, marginTop: 22 }}>{K().porQuantoTempo}</Txt>
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 10 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <Txt v="caption" c={c.tx3}>Duração</Txt>
-          <Metric value={`${min}`} unit="min" v="h2" />
+          <Txt v="caption" c={c.tx3}>{K().duracao}</Txt>
+          <Metric value={`${min}`} unit={MIN()} v="h2" />
         </Row>
         <Slider
           value={min}
@@ -207,8 +206,8 @@ export default function MedirExercicio() {
           style={{ marginTop: 8, marginHorizontal: -6 }}
         />
         <Row style={{ justifyContent: 'space-between' }}>
-          <Txt v="micro" c={c.tx4}>0 min</Txt>
-          <Txt v="micro" c={c.tx4}>{MAX} min</Txt>
+          <Txt v="micro" c={c.tx4}>0 {MIN()}</Txt>
+          <Txt v="micro" c={c.tx4}>{MAX} {MIN()}</Txt>
         </Row>
 
         {/* Atalhos que POSICIONAM, não somam: a duração é uma coisa só, e
@@ -223,7 +222,7 @@ export default function MedirExercicio() {
                   borderWidth: 1, borderColor: on ? c.accentLine : 'transparent',
                   borderRadius: radius.md, paddingVertical: 11, alignItems: 'center',
                 }}>
-                  <Txt v="caption" c={on ? c.accent : c.tx}>{m} min</Txt>
+                  <Txt v="caption" c={on ? c.accent : c.tx}>{m} {MIN()}</Txt>
                 </View>
               </Pressable>
             );
@@ -235,7 +234,7 @@ export default function MedirExercicio() {
           o registro inteiro e concluir que ele não devia existir. */}
       {editando ? (
         <View style={{ marginTop: 22 }}>
-          <Botao label="Apagar este treino" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagarTreino} tom="perigo" onPress={apagar} />
         </View>
       ) : null}
     </SheetScreen>

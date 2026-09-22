@@ -382,4 +382,25 @@ export const home = {
     semanasAnteriores: 'Semanas anteriores',
     semanasAnterioresNota: 'Las metas de hoy, medidas en los registros de cada semana.',
   },
+  telaDia: {
+    registrosDeste: 'Registros de este día',
+    diaDeAplicacao: 'Día de aplicación',
+    nadaRegistrado: 'nada registrado todavía',
+
+    aplicacao: 'Aplicación',
+    doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
+      `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
+    prevista: 'prevista para hoy',
+    semRegistroMinusculo: 'sin registro',
+
+    escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} de ${max}`,
+    respondidoNesteDia: 'Respondido en este día',
+    semRegistro: 'Sin registro',
+
+    seloFeita: 'hecha',
+    seloFeito: 'hecho',
+    seloRegistrar: 'registrar',
+
+    semPrazo: 'Los días sin registro quedan en blanco. Puedes completarlos después, sin plazo.',
+  },
 };

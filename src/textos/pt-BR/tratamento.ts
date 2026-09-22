@@ -517,4 +517,41 @@ export const tratamento = {
     apagarTira: (min: number, unidade: string) =>
       `Apagar tira ${min === 1 ? 'o' : 'os'} ${min} ${unidade} do total daquele dia.`,
   },
+  /* ============================================================
+     COMO VOCÊ SE MOVIMENTOU — a folha que registra e corrige
+
+     ⚠️⚠️ A GRADE DE MODALIDADES NÃO ESTÁ AQUI, e não pode estar: ela é
+     `MODALIDADES()`, em `logic/modalidades`, com os mesmos dez nomes e os
+     mesmos dez ícones. A tela tinha a própria cópia numa constante de
+     módulo — a décima primeira da varredura, e a quarta que era cópia de
+     tabela que já estava no catálogo.
+
+     O nome "Outro" também vem de lá: ele é a chave que a tela compara
+     para decidir se abre o campo de escrever.
+     ============================================================ */
+  telaMedirExercicio: {
+    titulo: 'Como você se movimentou?',
+    tituloCorrigir: 'Corrigir o treino',
+    subCorrigir: 'O que ficou errado no registro',
+    /* O total do dia, e de onde parte dele já veio. O artigo antes do
+       nome da fonte só entra quando ela é uma só. */
+    subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
+      `${hoje} de ${alvo} ${unidade} hoje${fonte ? ` · já com ${uma ? 'o ' : ''}${fonte}` : ''}`,
+
+    botaoSemNome: 'Diga o que você fez',
+    botaoSalvarCorrecao: 'Salvar a correção',
+    botaoRegistrar: (min: number, unidade: string, modalidade: string) =>
+      `Registrar ${min} ${unidade} de ${modalidade}`,
+
+    somaAoQueContou: (uma: boolean) =>
+      `O que você registrar aqui soma ao que ${uma ? 'ele já contou' : 'eles já contaram'}.`,
+
+    oQueVoceFez: 'O QUE VOCÊ FEZ',
+    qualPlaceholder: 'Qual? Ex.: vôlei, escalada, jiu-jitsu',
+
+    porQuantoTempo: 'POR QUANTO TEMPO',
+    duracao: 'Duração',
+
+    apagarTreino: 'Apagar este treino',
+  },
 };

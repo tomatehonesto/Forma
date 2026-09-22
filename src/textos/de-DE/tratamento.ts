@@ -412,4 +412,27 @@ export const tratamento = {
     apagarTira: (min: number, unidade: string) =>
       `Löschen nimmt ${min} ${unidade} aus der Summe dieses Tages.`,
   },
+  telaMedirExercicio: {
+    titulo: 'Wie hast du dich bewegt?',
+    tituloCorrigir: 'Die Einheit korrigieren',
+    subCorrigir: 'Was am Eintrag nicht stimmte',
+    subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
+      `${hoje} von ${alvo} ${unidade} heute${fonte ? ` · schon mit ${fonte}` : ''}`,
+
+    botaoSemNome: 'Sag, was du gemacht hast',
+    botaoSalvarCorrecao: 'Korrektur speichern',
+    botaoRegistrar: (min: number, unidade: string, modalidade: string) =>
+      `${min} ${unidade} ${modalidade} eintragen`,
+
+    somaAoQueContou: (uma: boolean) =>
+      `Was du hier einträgst, kommt zu dem dazu, was ${uma ? 'sie schon gezählt hat' : 'sie schon gezählt haben'}.`,
+
+    oQueVoceFez: 'WAS DU GEMACHT HAST',
+    qualPlaceholder: 'Welche? Z. B. Volleyball, Klettern, Jiu-Jitsu',
+
+    porQuantoTempo: 'WIE LANGE',
+    duracao: 'Dauer',
+
+    apagarTreino: 'Diese Einheit löschen',
+  },
 };

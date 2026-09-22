@@ -376,4 +376,25 @@ export const home = {
     semanasAnteriores: 'Previous weeks',
     semanasAnterioresNota: 'Today’s goals, measured against each week’s records.',
   },
+  telaDia: {
+    registrosDeste: 'Entries for this day',
+    diaDeAplicacao: 'Injection day',
+    nadaRegistrado: 'nothing recorded yet',
+
+    aplicacao: 'Injection',
+    doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
+      `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
+    prevista: 'due today',
+    semRegistroMinusculo: 'no entry',
+
+    escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} of ${max}`,
+    respondidoNesteDia: 'Answered on this day',
+    semRegistro: 'No entry',
+
+    seloFeita: 'done',
+    seloFeito: 'done',
+    seloRegistrar: 'record',
+
+    semPrazo: 'Days with no entry stay blank. You can fill them in later, with no deadline.',
+  },
 };

@@ -409,4 +409,27 @@ export const home = {
     semanasAnteriores: 'Frühere Wochen',
     semanasAnterioresNota: 'Die Ziele von heute, gemessen an den Einträgen jeder Woche.',
   },
+  telaDia: {
+    registrosDeste: 'Einträge dieses Tages',
+    diaDeAplicacao: 'Injektionstag',
+    nadaRegistrado: 'noch nichts eingetragen',
+
+    aplicacao: 'Injektion',
+    doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
+      `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
+    prevista: 'heute fällig',
+    semRegistroMinusculo: 'kein Eintrag',
+
+    escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} von ${max}`,
+    respondidoNesteDia: 'An diesem Tag beantwortet',
+    semRegistro: 'Kein Eintrag',
+
+    /* Aqui os dois selos são a mesma palavra: o alemão não flexiona o
+       particípio nesta posição. */
+    seloFeita: 'erledigt',
+    seloFeito: 'erledigt',
+    seloRegistrar: 'eintragen',
+
+    semPrazo: 'Tage ohne Eintrag bleiben leer. Du kannst sie später nachtragen, ohne Frist.',
+  },
 };
