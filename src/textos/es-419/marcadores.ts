@@ -318,7 +318,7 @@ const AJUDAR = {
     {
       grupo: 'En la comida',
       itens: [
-        { nome: 'Grasas buenas', detalhe: 'Aceite de oliva, palta, nueces y pescados grasos' },
+        { nome: 'Grasas buenas', detalhe: 'Aceite de oliva, aguacate, nueces y pescados grasos' },
       ],
     },
   ],

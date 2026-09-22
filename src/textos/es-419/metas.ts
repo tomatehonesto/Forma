@@ -184,7 +184,7 @@ export const metas = {
   pessoais: {
     roupa: {
       nome: 'Una prenda de ropa',
-      pergunta: '¿Qué prenda quieres ponerte? La del fondo del clóset, una que viste en una vidriera — la que se te venga a la cabeza.',
+      pergunta: '¿Qué prenda quieres ponerte? La del fondo del armario, una que viste en una vitrina — la que se te venga a la cabeza.',
       dica: 'Escribe la prenda',
       monta: (r: string) => `Ponerme ${r}`,
     },
@@ -233,7 +233,7 @@ export const metas = {
     },
     largar: {
       nome: 'Un hábito para dejar',
-      pergunta: '¿Qué quieres dejar de hacer? Comer parada, picotear de madrugada — lo que sea tuyo.',
+      pergunta: '¿Qué quieres dejar de hacer? Comer de pie, picar de madrugada — lo que sea tuyo.',
       dica: 'Escribe el hábito',
       monta: (r: string) => `Dejar de ${r}`,
     },
@@ -268,8 +268,10 @@ export const metas = {
       `${quantas} de ${de} ${nome} ${femininas ? 'registradas' : 'registrados'}`,
     semRegistros: (plural: string) => `sin ${plural} registradas todavía`,
 
-    conquistadaEm: (data: string) => `conquistada el ${data}`,
-    /* ⚠️ EL PLAZO ES HECHO, NO RECLAMO. Vencido y no conquistada, la línea
+    /* ⚠️ "LOGRADA", Y NO "CONQUISTADA". En español se conquista un
+       territorio; una meta se logra o se alcanza. */
+    conquistadaEm: (data: string) => `lograda el ${data}`,
+    /* ⚠️ EL PLAZO ES HECHO, NO RECLAMO. Vencido y no lograda, la línea
        dice que pasó y para ahí — sin rojo y sin "atrasada". En un
        tratamiento de meses, una fecha que se corrió es la cosa más común
        del mundo, y la meta sigue en pie. */

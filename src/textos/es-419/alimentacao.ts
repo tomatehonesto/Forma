@@ -87,13 +87,13 @@ export const alimentacao = {
 
     recipientes: {
       xicara: 'Taza',
-      caneca: 'Tarro',
+      caneca: 'Jarro',
       copo: 'Vaso',
       garrafa: 'Botella',
       caixinha: 'Cajita',
       lata: 'Lata',
       taca: 'Copa',
-      longNeck: 'Porrón',
+      longNeck: 'Long neck',
       coqueteleira: 'Coctelera',
     },
   },

@@ -151,3 +151,43 @@ escrito em cima.
 Os dois cenários `-en-US` da rede congelam esse estado. Quando a tradução
 chegar, **só a prosa deles pode mudar**: número, data e relógio já estão no
 lugar, e qualquer movimento neles é erro dela.
+
+---
+
+## A tradução não é literal, e o pior erro dela é o que compila
+
+O `tsc` prova que as chaves existem e que nenhum parâmetro mudou de lugar.
+Ele não sabe nada sobre o que a frase quer dizer — e é aí que mora o erro
+caro. "Achieve your goal" virando "Conquiste seu gol" compila.
+
+### Três armadilhas, com exemplo real deste repositório
+
+**O FALSO AMIGO.** `jornada` em português é o caminho; em espanhol é a
+jornada de TRABALHO. Foi evitado no cadastro usando `camino` — e é o tipo
+de coisa que só se pega quem conhece as duas línguas, nunca uma tabela.
+
+**A PALAVRA QUE SÓ VALE NUM PAÍS.** Escrevi `busca una guardia hoy` na
+linha que manda alguém com o intestino trabado, dor forte e vômito
+procurar atendimento. Na Argentina e no Uruguai a *guardia* é a urgência
+do hospital; no México, na Colômbia, no Peru, no Chile e na América
+Central uma guardia é um **guarda de segurança**. Metade da América Latina
+leria a mensagem clínica mais grave do aplicativo como "procure um
+vigilante". A palavra é `urgencias`, e se entende nos vinte países.
+
+Na mesma auditoria saíram `palta` (Cone Sul; o resto diz *aguacate*),
+`clóset`, `picotear`, `porrón` e `tarro`.
+
+**O VERBO QUE NÃO COMBINA COM O SUBSTANTIVO.** `conquistada` serve a um
+território; uma meta se **logra** ou se alcança.
+
+### A regra
+
+Um idioma neutro — `es-419` — escolhe a palavra que se entende no maior
+número de países, e não a mais bonita de um deles. Quando não existe
+palavra neutra, **reescreva a frase para não precisar dela**: "lo que ya
+hay en tu cocina" resolve o que *refrigerador / heladera / nevera* não
+resolve.
+
+⚠️ **E ISTO PRECISA DE REVISÃO DE QUEM FALA O IDIOMA.** A conferência de
+forma (`scripts/conferencia.mjs`) prova a assinatura. Nada aqui prova o
+sentido — ver PENDENCIAS.

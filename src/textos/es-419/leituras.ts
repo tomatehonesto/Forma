@@ -66,18 +66,26 @@ export const leituras = {
      dice "anda ahora" sobre el conjunto, y dejar los dos en la pantalla es
      permitir que el menos urgente discuta con el más urgente. */
   travaSobre: 'Intestino, dolor y vómito',
-  travaCurto: 'busca una guardia hoy',
+  travaCurto: 've hoy a urgencias',
   travaTitulo: 'Esa combinación pide atención ahora',
   travaTexto: 'Intestino parado hace días, dolor fuerte y vómito juntos pueden ser señal de que algo se trabó. Es raro, pero no mejora solo.',
   /* ⚠️ "QUÉ MEDICAMENTO USAS", y antes decía "que usas la pluma". Quien
-     está en una guardia necesita decir QUÉ toma, no en qué envase viene. */
-  travaAcao: 'Busca una guardia hoy. Di qué medicamento usas y hace cuántos días no vas al baño.',
+     está en urgencias necesita decir QUÉ toma, no en qué envase viene.
+
+     ⚠️⚠️ Y "GUARDIA" NO ES LA PALABRA. En Argentina y Uruguay la guardia
+     es la urgencia del hospital; en México, Colombia, Perú, Chile y
+     América Central una guardia es un GUARDIA DE SEGURIDAD. "Busca una
+     guardia hoy" le decía a media América Latina que buscara un vigilante
+     — en la línea que manda a alguien con el intestino trabado, dolor
+     fuerte y vómito a buscar atención. "Urgencias" se entiende en los
+     veinte países. */
+  travaAcao: 'Ve hoy a urgencias. Di qué medicamento usas y hace cuántos días no vas al baño.',
 
   dorVomitoSobre: 'Dolor con vómito',
-  dorVomitoCurto: 'busca a tu equipo o una guardia hoy',
+  dorVomitoCurto: 'busca hoy a tu equipo o urgencias',
   dorVomitoTitulo: 'Dolor fuerte con vómito no espera',
   dorVomitoTexto: 'Un dolor fuerte en la panza junto con vómito, a veces extendiéndose a la espalda, pide atención el mismo día. Llegando temprano, es simple de revisar.',
-  dorVomitoAcao: 'Busca a tu equipo o una guardia hoy. Di qué medicamento usas, la dosis y cuándo empezó el dolor.',
+  dorVomitoAcao: 'Busca hoy a tu equipo o ve a urgencias. Di qué medicamento usas, la dosis y cuándo empezó el dolor.',
 
   desidratacaoSobre: 'Mareo y pérdida de líquido',
   desidratacaoCurto: 'toma suero o agua con sal, y levántate despacio',

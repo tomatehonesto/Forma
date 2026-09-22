@@ -91,9 +91,9 @@ export const rotina = {
     proteinaEmDias: (gramas: number, dias: number) => `Comer ${gramas} g de proteína en ${dias} días`,
     origemProteina: 'Alimentación',
 
-    /* Días CON MOVIMIENTO, y no minutos: es lo que el ítem pide — salir del
-       sillón tres veces —, y es lo que el registro sabe decir sin adivinar
-       la modalidad. */
+    /* Días CON MOVIMIENTO, y no minutos: es lo que el ítem pide — moverse
+       tres veces —, y es lo que el registro sabe decir sin adivinar la
+       modalidad. */
     exercicio: (dias: number) => `Ejercitarse en ${dias} ${dias === 1 ? 'día' : 'días'} de la semana`,
     origemExercicio: 'Ejercicio',
 

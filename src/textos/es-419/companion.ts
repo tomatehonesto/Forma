@@ -50,7 +50,7 @@ export const companion = {
 
     proteinaMotivo: (gramas: number) => `Faltan ${gramas} g para que tu promedio alcance la meta`,
     proteinaTitulo: 'Proteína sin cocinar más',
-    proteinaDesc: 'Cómo llegar a la meta con lo que ya hay en tu refrigerador — el problema rara vez es la receta, es la practicidad.',
+    proteinaDesc: 'Cómo llegar a la meta con lo que ya hay en tu cocina — el problema rara vez es la receta, es la practicidad.',
 
     sonoMotivo: (horas: string) => `Tu promedio de sueño está en ${horas} h`,
     sonoTitulo: 'El sueño como parte del tratamiento',
