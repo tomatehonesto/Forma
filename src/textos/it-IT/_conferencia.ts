@@ -22,6 +22,8 @@
 
 import type { ajuda as ajudaPt } from '../pt-BR/ajuda';
 import type { alertas as alertasPt } from '../pt-BR/alertas';
+import type { assinatura as assinaturaPt } from '../pt-BR/assinatura';
+import type { aviso as avisoPt } from '../pt-BR/aviso';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
 import type { ciclo as cicloPt } from '../pt-BR/ciclo';
 import type { comum as comumPt } from '../pt-BR/comum';
@@ -31,6 +33,7 @@ import type { descobertas as descobertasPt } from '../pt-BR/descobertas';
 import type { equilibrio as equilibrioPt } from '../pt-BR/equilibrio';
 import type { escalas as escalasPt } from '../pt-BR/escalas';
 import type { etapa as etapaPt } from '../pt-BR/etapa';
+import type { exames as examesPt } from '../pt-BR/exames';
 import type { fontes as fontesPt } from '../pt-BR/fontes';
 import type { formas as formasPt } from '../pt-BR/formas';
 import type { idioma as idiomaPt } from '../pt-BR/idioma';
@@ -43,6 +46,8 @@ import type { tempo as tempoPt } from '../pt-BR/tempo';
 
 import { ajuda } from './ajuda';
 import { alertas } from './alertas';
+import { assinatura } from './assinatura';
+import { aviso } from './aviso';
 import { avisos } from './avisos';
 import { ciclo } from './ciclo';
 import { comum } from './comum';
@@ -52,6 +57,7 @@ import { descobertas } from './descobertas';
 import { equilibrio } from './equilibrio';
 import { escalas } from './escalas';
 import { etapa } from './etapa';
+import { exames } from './exames';
 import { fontes } from './fontes';
 import { formas } from './formas';
 import { idioma } from './idioma';
@@ -64,6 +70,8 @@ import { tempo } from './tempo';
 
 const _ajuda: typeof ajudaPt = ajuda;
 const _alertas: typeof alertasPt = alertas;
+const _assinatura: typeof assinaturaPt = assinatura;
+const _aviso: typeof avisoPt = aviso;
 const _avisos: typeof avisosPt = avisos;
 const _ciclo: typeof cicloPt = ciclo;
 const _comum: typeof comumPt = comum;
@@ -73,6 +81,7 @@ const _descobertas: typeof descobertasPt = descobertas;
 const _equilibrio: typeof equilibrioPt = equilibrio;
 const _escalas: typeof escalasPt = escalas;
 const _etapa: typeof etapaPt = etapa;
+const _exames: typeof examesPt = exames;
 const _fontes: typeof fontesPt = fontes;
 const _formas: typeof formasPt = formas;
 const _idioma: typeof idiomaPt = idioma;
@@ -83,4 +92,4 @@ const _resumo: typeof resumoPt = resumo;
 const _rotina: typeof rotinaPt = rotina;
 const _tempo: typeof tempoPt = tempo;
 
-export const conferidos = [_ajuda, _alertas, _avisos, _ciclo, _comum, _confirmacoes, _conquistas, _descobertas, _equilibrio, _escalas, _etapa, _fontes, _formas, _idioma, _leituras, _medidas, _perfil, _resumo, _rotina, _tempo];
+export const conferidos = [_ajuda, _alertas, _assinatura, _aviso, _avisos, _ciclo, _comum, _confirmacoes, _conquistas, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _perfil, _resumo, _rotina, _tempo];
