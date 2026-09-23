@@ -14,10 +14,11 @@ import {
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
-import { Selo } from '../ui/internas';
+import { Selo, Cartao, Linha } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe } from '../ui/retratos';
+import { modoFingido, NOME_DO_MODO } from '../logic/modo';
 
 /* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
    segunda linha apontando para o mesmo arquivo. Uma pessoa, um retrato:
@@ -129,6 +130,10 @@ export default function Perfil() {
      envelhece errado — o perfil diria 38 anos para sempre. */
   const idade = idadeDe(S);
   const update = useStore((s) => s.update);
+  /* Os dois atalhos de desenvolvimento do pé da tela. Ver o bloco
+     __DEV__ lá embaixo e logic/modo. */
+  const fingir = useStore((s) => s.fingir);
+  const modoAtual = modoFingido();
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
   /* O que ela já andou: começo menos hoje. Negativo quando o peso subiu,
@@ -773,6 +778,54 @@ export default function Perfil() {
           <Txt v="bodyMed" c={c.tx2}>{K().sair}</Txt>
         </Row>
       </Pressable>
+
+      {/* ⚠️ OS MODOS FINGIDOS — SÓ EM DESENVOLVIMENTO.
+
+          A semente é a Mariana, que veio por clínica credenciada, e o
+          único outro estado que o código sabe construir é o vazio de
+          `estadoVazio`, sem registro nenhum. Faltava o do meio: setenta e
+          um dias de tratamento SEM plataforma do outro lado — que é o
+          estado da maioria de quem usa GLP-1, e o único que existe fora
+          do Brasil.
+
+          SÃO DOIS E NÃO UM porque são duas telas. Sem clínica mas com
+          médico próprio, continua havendo consulta, resumo para levar e
+          Área médica; sem ninguém, o aplicativo troca tudo isso pela
+          porta de entrada. Ver o segundo não prova o terceiro.
+
+          NENHUM DOS DOIS ESCREVE NADA. A store guarda o estado verdadeiro
+          de lado e serve um clone mascarado — recarregar devolve a
+          Mariana inteira. Ver logic/modo e a máscara em logic/store.
+
+          E O TEXTO FICA EM PORTUGUÊS, sem catálogo: `__DEV__` é falso na
+          compilação de produção e este bloco some junto. É a mesma regra
+          dos três atalhos de /assinatura. */}
+      {__DEV__ ? (
+        <Cartao style={{ marginTop: 18 }}>
+          {modoAtual ? (
+            <Linha
+              ic="bolt"
+              titulo="Voltar para a Mariana"
+              sub={`Fingindo ${NOME_DO_MODO[modoAtual]} — nada foi gravado`}
+              onPress={() => fingir(null)}
+            />
+          ) : null}
+          <Linha
+            ic="bolt"
+            titulo="Ver sem clínica parceira"
+            sub="Médico próprio, fora da plataforma — atalho de desenvolvimento"
+            selo={modoAtual === 'sem-parceira' ? 'agora' : undefined}
+            onPress={() => fingir('sem-parceira')}
+          />
+          <Linha
+            ic="bolt"
+            titulo="Ver sem acompanhamento nenhum"
+            sub="Nem clínica nem médico — atalho de desenvolvimento"
+            selo={modoAtual === 'sozinha' ? 'agora' : undefined}
+            onPress={() => fingir('sozinha')}
+          />
+        </Cartao>
+      ) : null}
 
       {/* A VERSÃO COMO RODAPÉ. Ela existe para ser citada num suporte, e
           não para escolher nada: fora da lista, em letra pequena e no fim

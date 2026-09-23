@@ -11,6 +11,7 @@ import {
 } from '@expo-google-fonts/outfit';
 import { useStore } from '../logic/store';
 import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
+import { modoFingido } from '../logic/modo';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -260,8 +261,15 @@ export default function RootLayout() {
             que o valor do local mudou — ele não está no estado dele —, e
             uma tela já desenhada continuaria com os nomes de mês antigos.
             Remontar é o resultado certo para uma troca que acontece uma
-            vez na vida do aplicativo, e é esta linha. Ver src/textos. */}
-        <Moldura key={localAtual()}>
+            vez na vida do aplicativo, e é esta linha. Ver src/textos.
+
+            ⚠️ E O MODO FINGIDO ENTRA NA MESMA CHAVE, pelo mesmo motivo:
+            ele também é valor de módulo, e também não está no estado do
+            React. A diferença é que o estado servido TAMBÉM muda quando
+            ele muda — então a remontagem aqui não é o que faz a troca
+            funcionar, é o que garante que nenhuma tela guarde em memo um
+            derivado do estado antigo. Ver logic/modo. */}
+        <Moldura key={`${localAtual()}·${modoFingido() ?? ''}`}>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />
