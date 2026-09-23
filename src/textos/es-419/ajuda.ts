@@ -31,7 +31,7 @@ export const ajuda = {
     },
     {
       q: '¿Por qué desapareció un logro?',
-      a: 'Porque nunca se guardó. Los logros se cuentan a partir de tus registros cada vez que la pantalla abre, y no se marcan como hechos en algún lado. Si se borra el registro que cerró un nivel, el nivel se va con él — dejó de haber pasado.',
+      a: 'Porque nunca se guardó. Los logros se cuentan a partir de tus registros cada vez que la pantalla abre, y no se marcan como hechos en algún lado. Si se borra el registro que cerró un nivel, el nivel se va con él — para la cuenta, nunca pasó.',
     },
     {
       q: 'Puse un recordatorio y no sonó.',
@@ -41,19 +41,19 @@ export const ajuda = {
     },
     {
       q: '¿Mi peso puede venir solo de la balanza?',
-      a: 'Si tu balanza, reloj o anillo escriben en Apple Salud (iPhone) o en Health Connect (Android), sí — leemos de ahí. Leemos solo el peso, y solo leemos: nunca escribimos nada en esas inyecciones. Garmin, Fitbit, Withings, Oura y Whoop llegan por ese camino.',
+      a: 'Si tu balanza, reloj o anillo escriben en Apple Salud (iPhone) o en Health Connect (Android), sí — leemos de ahí. Leemos solo el peso, y solo leemos: nunca escribimos nada en esas aplicaciones. Garmin, Fitbit, Withings, Oura y Whoop llegan por ese camino.',
     },
     {
       q: '¿Qué puede ver mi equipo?',
-      a: 'Solo lo que envíes. Nada sale de aquí solo: el resumen va cuando tocas enviar, los mensajes cuando los escribes. Lo que queda afuera sigue siendo tuyo, incluso de quien te acompaña.',
+      a: 'Solo lo que envíes. Nada sale de aquí solo: el resumen va cuando tocas enviar, los mensajes cuando los escribes. Lo que queda afuera sigue siendo tuyo, incluso frente a quien te acompaña.',
     },
     {
       q: '¿Ustedes reemplazan lo que me indica quien me acompaña?',
-      a: 'No, y en ninguna pantalla. Lo que hace es ordenar lo que pasó y mostrar patrones en tus propios registros — dosis, síntoma y conducta son conversación de consulta. Cuando un texto de la aplicación toca esos temas, lo dice junto.',
+      a: 'No, y en ninguna pantalla. Lo que hace es ordenar lo que pasó y mostrar patrones en tus propios registros — dosis, síntoma y conducta son conversación de consulta. Cuando un texto de la aplicación toca esos temas, lo dice.',
     },
     {
       q: '¿Y si desinstalo la aplicación?',
-      a: 'Tus registros viven en el aparato, dentro de la aplicación — sin cuenta y sin servidor. Desinstalar se lleva todo, y no hay copia en ningún lado de donde recuperar. Antes de eso, puedes armar un archivo con lo que registraste, en Exportar.',
+      a: 'Tus registros viven en el aparato, dentro de la aplicación — sin cuenta y sin servidor. Desinstalar se lleva todo, y no hay copia en ningún lado de donde recuperarlos. Antes de eso, puedes armar un archivo con lo que registraste, en Exportar.',
     },
   ] as { q: string; a: string }[],
 

@@ -12,7 +12,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Acompañamos tu tratamiento — no lo conducimos',
-  isencaoTexto: 'Guardamos lo que registras, te mostramos cómo viene andando la cosa y preparamos lo que vas a llevar a la consulta. No somos un diagnóstico y no recetamos: dosis, intervalo y medicación son decisión de quien te acompaña.',
+  isencaoTexto: 'Guardamos lo que registras, te mostramos cómo viene andando el tratamiento y preparamos lo que vas a llevar a la consulta. No somos un diagnóstico y no recetamos: dosis, intervalo y medicación son decisión de quien te acompaña.',
   isencaoReforco: 'Antes de cambiar cualquier cosa en tu dosis o en tu horario, habla con tu equipo. Y si aparece un síntoma que asusta, no esperes a la próxima consulta.',
   isencaoAceite: 'Entendí y acepto',
 
@@ -50,7 +50,7 @@ export const aviso = {
   porMes: 'por mes',
   porMesCurto: '/mes',
 
-  exportacaoAviso: 'Registros hechos por la propia persona en la aplicación. No es historia clínica ni informe.',
+  exportacaoAviso: 'Registros hechos por la propia persona en la aplicación. No es historia clínica ni informe de laboratorio.',
   exportacaoTitulo: 'Tus datos de Morphi',
 
   medIndefinido: 'Todavía sin definir',
@@ -107,7 +107,7 @@ export const aviso = {
       `${refeicoes} ${refeicoes === 1 ? 'comida' : 'comidas'} y el diario del día`,
 
     formatoTitulo: 'Sale un archivo .json',
-    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lado. Para la versión hecha para que alguien la lea, usa el resumen para la consulta.',
+    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lado. Para una versión hecha para que la lea una persona, usa el resumen para la consulta.',
 
     gerar: 'Armar el archivo',
     gerando: 'Armando...',
@@ -124,7 +124,7 @@ export const aviso = {
 
     ondeFicam: 'Dónde quedan tus registros',
     noAparelho: 'En el aparato, dentro de la aplicación',
-    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un login, porque no existe login.',
+    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un inicio de sesión, porque no existe.',
     desinstalar: 'Desinstalar se lleva todo',
     desinstalarTexto: 'Como no hay copia en ningún servidor, borrar la aplicación borra los registros. No es posible recuperarlos después.',
 
@@ -141,7 +141,7 @@ export const aviso = {
     soOPesoTexto: (app: string) =>
       `Con tu permiso, leemos los pesajes que tu balanza, tu reloj u otra aplicación escribieron ahí. Solo leemos: nunca escribimos nada en ${app}. Y leemos solo peso — sueño, pasos y latidos quedan fuera.`,
     permissao: 'El permiso es tuyo, y se quita cuando quieras',
-    permissaoTexto: 'Se da en los ajustes del sistema y se revoca en el mismo lugar. Sin él, la aplicación sigue entera: el peso vuelve a entrar como entró hasta aquí, escrito por ti.',
+    permissaoTexto: 'Se da en los ajustes del sistema y se revoca en el mismo lugar. Sin él, todo aquí sigue funcionando: el peso vuelve a entrar como entró hasta aquí, escrito por ti.',
 
     podeFazer: 'Qué puedes hacer ahora',
     integracoesSub: (app: string) => `Encender o apagar ${app}`,
@@ -158,7 +158,7 @@ export const aviso = {
     politicaSub: 'El documento completo, con base legal y plazos',
     termosSub: 'Qué somos, qué no somos, y qué puede esperar cada lado',
     semPoliticaTitulo: 'Esto describe la aplicación, no es la política de privacidad',
-    semPoliticaTexto: 'Aquí está lo que el programa hace con tus datos. El documento jurídico, con las obligaciones de quien opera el servicio, todavía va a publicarse — y cuando exista, aparece en esta pantalla.',
+    semPoliticaTexto: 'Aquí está lo que la aplicación hace con tus datos. El documento jurídico, con las obligaciones de quien opera el servicio, todavía no se publicó — y cuando exista, aparece en esta pantalla.',
   },
 
   telaIntegracoes: {

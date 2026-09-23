@@ -30,7 +30,7 @@ export const alimentacao = {
     fibraBoaQ: '¿Qué cambia la fibra en mi tratamiento?',
     fibraBoaTitulo: (media: number) => `Fibra: ${media} g por día, arriba de la meta`,
     fibraBoaTexto: (dias: number, meta: number) =>
-      `Es tu promedio en los últimos ${dias} días registrados, contra una meta de ${meta} g. Es lo que suele sostener el estreñimiento del tratamiento — vale mantenerlo como está.`,
+      `Es tu promedio en los últimos ${dias} días registrados, contra una meta de ${meta} g. Es lo que suele mantener a raya el estreñimiento del tratamiento — vale seguir así.`,
 
     /* ⚠️ EL MOMENTO FLOJO NOMBRA EL MOMENTO, y es lo que el número del día
        no dice: un desayuno de 6 g y un almuerzo de 40 g suman lo mismo que
@@ -55,7 +55,7 @@ export const alimentacao = {
     verdeQ: '¿Qué verduras combinan con lo que ya suelo comer?',
     verdeTitulo: (comVerde: number, total: number) =>
       `Verduras en ${comVerde} de ${total} días registrados`,
-    verdeTexto: 'Una ensalada o una verdura en el almuerzo llena el plato con pocas calorías — ayuda a llegar al final de la comida satisfecha sin gastar el día, y trae la fibra junto.',
+    verdeTexto: 'Una ensalada o una verdura en el almuerzo llena el plato con pocas calorías — ayuda a llegar al final de la comida satisfecha sin gastar las calorías del día, y de paso trae fibra.',
   },
 
   /* ⚠️ LOS `id` SON DATO — 'agua', 'cafe', 'coco' es lo que queda grabado
@@ -124,9 +124,9 @@ export const alimentacao = {
        persona. */
     muitaProteinaPoucaCaloria: 'Mucha proteína para pocas calorías. Es el tipo de comida que el tratamiento pide: cabe en el plato que se achicó y todavía sostiene la masa magra.',
     boaFonte: 'Buena fuente de proteína, que es lo que sostiene la masa magra mientras el peso baja.',
-    caloriaAlta: 'Calorías altas y poca proteína. No está prohibido, pero ocupa bastante del día y devuelve poco de lo que el tratamiento necesita.',
+    caloriaAlta: 'Calorías altas y poca proteína. No está prohibido, pero ocupa bastante de las calorías del día y devuelve poco de lo que el tratamiento necesita.',
     bastanteFibra: 'Bastante fibra. Ayuda con el estreñimiento, que es de los efectos secundarios más comunes del tratamiento.',
-    quaseNaoPesa: 'Casi no pesa en el día. Bueno para acompañar el plato, pero la proteína tiene que venir de otro lado.',
+    quaseNaoPesa: 'Casi no pesa en las calorías del día. Bueno para acompañar el plato, pero la proteína tiene que venir de otro lado.',
     temFibra: 'Tiene fibra, que ayuda con el estreñimiento — de los efectos secundarios más comunes del tratamiento.',
   },
 
@@ -241,7 +241,7 @@ export const alimentacao = {
     meta: (quanto: string) => `Meta: ${quanto}`,
 
     diario: 'Diario de bebidas',
-    diarioNota: 'Café, té, leche y jugo cuentan: la meta es de líquido, y no de agua pura. Borra lo que haya entrado mal.',
+    diarioNota: 'Café, té, leche y jugo cuentan: la meta es de líquido, y no de agua pura. Borra lo que hayas registrado por error.',
     apagarDoDia: '¿Borrar el agua de este día?',
     apagarGole: (quanto: string, hora: string) => `¿Borrar ${quanto} de las ${hora}?`,
     deBebida: (nome: string) => ` de ${nome}`,
@@ -284,7 +284,7 @@ export const alimentacao = {
       `${item} no entra en esa cuenta — todavía no tengo la proteína de ese plato.`,
     semContaVarios: (quantos: number) =>
       `${quantos} ítems no entran en esa cuenta — todavía no tengo la proteína de ellos.`,
-    estimadoPelaFoto: 'Parte de este total fue estimada por la foto, sin tabla detrás.',
+    estimadoPelaFoto: 'Parte de este total fue estimada por la foto, y no salió de la tabla.',
 
     pratosFavoritos: 'Platos favoritos',
     pratosGuardados: (quantos: number) =>

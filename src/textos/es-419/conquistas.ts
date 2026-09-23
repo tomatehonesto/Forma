@@ -133,7 +133,7 @@ export const conquistas = {
   marco: (titulo: string, nivel: number) => `${titulo} · nivel ${nivel}`,
   tela: {
     titulo: 'Logros',
-    lead: 'Marcas que salen solas de lo que registraste — aquí nadie decide si te los mereces.',
+    lead: 'Marcas que salen solas de lo que registraste — aquí nadie decide si te las mereces.',
 
     nivelDeTotal: (nivel: number, total: number) => `Nivel ${nivel} de ${total}`,
     niveisTotal: (total: number) => `${total} ${total === 1 ? 'nivel' : 'niveles'}`,

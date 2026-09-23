@@ -59,9 +59,9 @@ export const cadastro = {
     tratamento: 'Solo para saber dónde estás ahora.',
     inicio: 'Aproximado está bien. De aquí sale tu semana de tratamiento, y este peso es el que se vuelve el comienzo de tu curva.',
     medicamento: 'De él salen la escalera de dosis y el intervalo entre las inyecciones.',
-    forma: 'Lo compuesto sale de la farmacia de las dos formas, y lo que cambia es lo que tienes en la mano a la hora de aplicártelo.',
+    forma: 'El preparado magistral sale de la farmacia de las dos formas, y lo que cambia es lo que tienes en la mano a la hora de aplicártelo.',
     doseComEscada: (med: string) => `En el orden de titulación de ${med}.`,
-    doseSemEscada: 'Lo compuesto no tiene escalera de prospecto — el número es el de tu receta.',
+    doseSemEscada: 'El preparado magistral no tiene escalera de dosis estándar — el número es el de tu receta.',
     /* ⚠️ EL RECIPIENTE VIENE CONCORDADO — "del frasco", "de la pluma". Ver
        T.formas.doDa, en textos/es-419/formas.ts. */
     frequencia: (doDaForma: string) => `De aquí salen el conteo del ciclo, los recordatorios y las existencias ${doDaForma}.`,
@@ -72,7 +72,7 @@ export const cadastro = {
     restricao: 'La proteína es el eje de este tratamiento, y viene de lugares distintos según lo que comas. Puedes marcar más de una.',
     atividade: 'Entra en tu meta diaria de agua — quien se mueve más pierde más líquido — y dice de dónde estás partiendo.',
     saude: 'Tus datos de salud ayudan a entender tu evolución — sin que tengas que registrarlo todo.',
-    acompanhamento: 'Esta respuesta habilita funciones ligadas al seguimiento médico, como notas y preparación para consultas.',
+    acompanhamento: 'Esta respuesta abre lo que está ligado al seguimiento médico — notas y preparación para las consultas.',
     consentimento: 'Dos cosas antes de empezar: qué hacemos por tu tratamiento, y qué pasa con lo que registras.',
   },
 
@@ -147,7 +147,7 @@ export const cadastro = {
 
   sim: 'Sí',
   digiteONome: 'Escribe el nombre',
-  nadaEnviado: 'Sirve para referirte al especialista a lo largo de tu camino. No se le envía nada a esa persona.',
+  nadaEnviado: 'Sirve para tenerlo a mano a lo largo de tu camino. No se le envía nada a esa persona.',
   vouMeTratar: 'Me voy a tratar con un médico o clínica',
   meAcompanha: 'Un médico o clínica acompaña mi tratamiento',
   porContaPropria: 'No, por mi cuenta',
@@ -209,7 +209,7 @@ export const cadastro = {
     pesoAGanhar: 'Peso a ganar',
     emSemanas: (semanas: number) => `en ${semanas} semanas`,
     ressalvaDaCurva: (ritmo: string) =>
-      `La bajada no es recta: en los estudios, las primeras semanas rinden más y el ritmo afloja a medida que el cuerpo se ajusta. Los ${ritmo} por semana que elegiste son el promedio del camino, no una previsión.`,
+      `La bajada no es recta: en los estudios, las primeras semanas rinden más y el ritmo afloja a medida que tu cuerpo se ajusta. Los ${ritmo} por semana que elegiste son un promedio de todo el trayecto, y no una previsión.`,
 
     imcDeHoje: 'IMC de hoy',
     naSuaMeta: 'En tu meta',
@@ -232,7 +232,7 @@ export const cadastro = {
 
   telaDados: {
     titulo: 'Tus datos',
-    lead: 'Son las respuestas de tu registro, y de ellas salen tu IMC, tus metas del día y la previsión del plan. Tocar aquí rehace esos números.',
+    lead: 'Son las respuestas de tu registro, y de ellas salen tu IMC, tus metas del día y la previsión del plan. Cambiar algo aquí rehace esos números.',
 
     tratamento: 'Tratamiento',
     medicamento: 'Medicamento',

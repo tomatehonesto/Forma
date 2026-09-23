@@ -24,7 +24,7 @@ export const etapa = {
   /* "Cuando tu equipo la defina" y no "cuando tú la definas": la dosis es
      decisión de quien prescribe, y no empujamos a nadie a elegir un número
      que no es suyo. */
-  antesSemDoseBody: 'Cuando tu equipo la defina, cabe aquí — es a partir de ella que armamos el ciclo de la semana y los recordatorios.',
+  antesSemDoseBody: 'Cuando tu equipo la defina, va aquí — es a partir de ella que armamos el ciclo de la semana y los recordatorios.',
   antesSemDoseQ: '¿Cómo funciona el ciclo de la medicación?',
 
   doseNovaChapeu: 'DOSIS NUEVA',
@@ -35,7 +35,7 @@ export const etapa = {
      ellos, cuenta el dibujo que suele ocurrir. */
   doseNovaBodyCom: (perto: string, longe: string) =>
     `En tus registros las náuseas se quedan en ${perto} los dos primeros días después de aplicarte y bajan a ${longe} a partir del tercero. Cada escalón suele repetir ese dibujo.`,
-  doseNovaBodySem: 'Cada escalón suele traer de vuelta, por algunos días, lo que ya había pasado — las náuseas son lo más común. Tiende a ceder a medida que el cuerpo se ajusta.',
+  doseNovaBodySem: 'Cada escalón suele traer de vuelta, por algunos días, lo que ya había pasado — las náuseas son lo más común. Tiende a ceder a medida que tu cuerpo se ajusta.',
   doseNovaQ: '¿Por qué siento náuseas?',
 
   primeiraChapeu: 'PRIMERA SEMANA',
@@ -43,7 +43,7 @@ export const etapa = {
   /* "El cuerpo todavía está conociendo el medicamento" — la frase pone el
      cuerpo como sujeto a propósito: lo que está pasando no es falla de
      quien lo usa ni efecto que haya que aguantar, es ajuste. */
-  primeiraBody: 'El cuerpo todavía está conociendo el medicamento. Náuseas leves, menos hambre y algo de cansancio son los relatos más comunes en los primeros días, y suelen disminuir con las semanas.',
+  primeiraBody: 'Tu cuerpo todavía está conociendo el medicamento. Náuseas leves, menos hambre y algo de cansancio son los relatos más comunes en los primeros días, y suelen disminuir con las semanas.',
   primeiraQ: '¿Qué esperar el día de la inyección?',
 
   manutencaoChapeu: 'MANTENIMIENTO',
@@ -81,8 +81,8 @@ export const etapa = {
      defecto de código — y un número que parece defecto se lleva la frase
      entera abajo. */
   platoBodyIgual: (media: string) =>
-    `El promedio de tus pesajes está en ${media} desde entonces. La meseta es parte esperada del tratamiento: el cuerpo pasa a gastar menos a medida que el peso baja. Es asunto de consulta, no de esfuerzo.`,
+    `El promedio de tus pesajes está en ${media} desde entonces. La meseta es parte esperada del tratamiento: tu cuerpo empieza a gastar menos a medida que el peso baja. Es asunto de consulta, no de esfuerzo.`,
   platoBodyDois: (antes: string, agora: string) =>
-    `${antes} hace cuatro semanas, ${agora} ahora. La meseta es parte esperada del tratamiento: el cuerpo pasa a gastar menos a medida que el peso baja. Es asunto de consulta, no de esfuerzo.`,
+    `${antes} hace cuatro semanas, ${agora} ahora. La meseta es parte esperada del tratamiento: tu cuerpo empieza a gastar menos a medida que el peso baja. Es asunto de consulta, no de esfuerzo.`,
   platoQ: '¿Cómo va mi evolución?',
 };

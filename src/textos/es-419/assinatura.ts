@@ -88,7 +88,7 @@ export const assinatura = {
      de sus propias inyecciones y de sus propios exámenes — y eso no lo
      hacemos. Separadas, la primera frase se vuelve una amenaza. */
   bomSaberTitulo: 'Conviene que sepas',
-  bomSaberTexto: 'Si la clínica socia nos informa que el vínculo de tratamiento terminó, el acceso queda suspendido hasta que tomes un plan Personal — y ningún cobro ocurre sin que lo elijas. Nada de lo que registraste se pierde: tus registros siguen en el dispositivo y puedes exportarlos cuando quieras.',
+  bomSaberTexto: 'Si la clínica socia nos informa que el vínculo de tratamiento terminó, el acceso queda suspendido hasta que contrates un plan Personal — y no se cobra nada sin que lo elijas. Nada de lo que registraste se pierde: tus registros siguen en el dispositivo y puedes exportarlos cuando quieras.',
 
   /* ⚠️ DECIR "NO TE SUSCRIBISTE" SIN DECIR QUE NADIE PUEDE SUSCRIBIRSE
      deja a la persona buscando un botón que no existe. Esta sale el día en
@@ -162,7 +162,7 @@ export const assinatura = {
        lo va a buscar igual, y callarlo solo garantiza que lo busque
        molesta y en el lugar equivocado. */
     anoPagoTitulo: 'Tu año ya está pagado',
-    anoPagoComData: (data: string) => `El próximo cobro recién es en ${data}, y sigues con todo hasta entonces — cancelar ahora no devuelve lo que ya se pagó.`,
+    anoPagoComData: (data: string) => `El próximo cobro no es hasta el ${data}, y sigues con todo hasta entonces — cancelar ahora no devuelve lo que ya se pagó.`,
     anoPagoSemData: 'Sigues con todo hasta el final del período ya pagado — cancelar ahora no devuelve ese monto.',
     anoPagoReembolso: (loja: string, comDesconto: string, cheio: string) =>
       `El reembolso, cuando corresponde, se pide en ${loja}. Y si el problema es el monto, la renovación puede salir por ${comDesconto} en vez de ${cheio}.`,
@@ -183,8 +183,8 @@ export const assinatura = {
        lograste" — no todo tratamiento que termina, termina bien, y afirmar
        la victoria a quien paró por un efecto secundario es la frase más
        cruel que esta pantalla podría tener. */
-    parabensTitulo: 'Felicitaciones por llegar hasta acá',
-    parabensTexto: 'Esperamos que hayas logrado lo que buscabas cuando empezaste. Gracias por haber hecho este camino con nosotros — y por habernos confiado su registro.',
+    parabensTitulo: 'Felicitaciones por llegar hasta aquí',
+    parabensTexto: 'Esperamos que hayas logrado lo que buscabas cuando empezaste. Gracias por haber hecho este camino con nosotros — y por confiarnos el registro de ese camino.',
 
     campoProblema: '¿Qué pasó?',
     campoFaltou: '¿Qué faltó?',
@@ -192,7 +192,7 @@ export const assinatura = {
     /* ⚠️ Y LA FRASE NO PROMETE RESPUESTA. No hay adónde vaya ese texto
        todavía. "Vamos a responderte" sería la promesa más fácil y más cara
        de esta pantalla. */
-    campoAviso: 'Escribir es opcional, y nadie te va a responder por acá — esto se vuelve una lista de arreglos, y es así como decidimos qué reparar primero.',
+    campoAviso: 'Escribir es opcional, y nadie te va a responder por aquí — esto se vuelve una lista de arreglos, y es así como decidimos qué reparar primero.',
     campoDicaProblema: 'Qué salió mal, y cuándo…',
     campoDicaOutro: 'Escribe lo que quieras',
 
@@ -209,24 +209,24 @@ export const assinatura = {
 
   parceiros: {
     titulo: 'Médicos socios',
-    lead: 'Algunas clínicas acompañan el tratamiento por acá junto contigo. Sin eso sigues teniendo todo — lo que cambia es lo que pasa a ser posible con tu equipo dentro de la aplicación.',
+    lead: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo. Sin eso sigues teniendo todo — lo que cambia es lo que pasa a ser posible con tu equipo dentro de la aplicación.',
 
     jaTemTitulo: 'Ya estás con una clínica socia',
     jaTemLead: 'Todo lo que está en esta lista ya vale para ti.',
 
     conversaTitulo: 'Conversación con el equipo',
-    conversaTexto: 'Mensajes entre las consultas, sin tener que reagendar para sacarse una duda.',
+    conversaTexto: 'Mensajes entre las consultas, sin tener que reagendar para resolver una duda.',
     resumoTitulo: 'Tu resumen llega allá',
-    resumoTexto: 'Un toque envía peso, adherencia, síntomas y exámenes — ordenados, como los usa la consulta.',
+    resumoTexto: 'Un toque envía peso, adherencia, síntomas y exámenes — ordenados como se usan en la consulta.',
     receitaTitulo: 'Receta y protocolo',
-    receitaTexto: 'Pedir la renovación y recibir el protocolo de la semana dentro de la aplicación.',
+    receitaTexto: 'Pide la renovación y recibe el protocolo de la semana dentro de la aplicación.',
     agendaTitulo: 'La agenda viene lista',
-    agendaTexto: 'Las consultas aparecen acá sin que tengas que anotar nada.',
+    agendaTexto: 'Las consultas aparecen aquí sin que tengas que anotar nada.',
 
     /* ⚠️ Y NO HAY BÚSQUEDA DE CLÍNICA, y la pantalla lo dice. Una lista de
-       clínicas que no existe sería la puerta tapiada más cara de acá. */
+       clínicas que no existe sería la puerta tapiada más cara de aquí. */
     conviteTitulo: 'La invitación viene de la clínica',
-    conviteTexto: 'No se puede buscar una clínica por acá. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, vale comentárselo.',
+    conviteTexto: 'No se puede buscar una clínica por aquí. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, vale comentárselo.',
 
     codigoRotulo: 'Código de invitación',
     codigoAjudaAtual: 'Es el que te une a tu clínica.',
@@ -242,8 +242,8 @@ export const assinatura = {
     titulo: 'Historial de cobros',
     vazioIsenta: 'Ningún cobro',
     vazioPagante: 'Ningún cobro todavía',
-    vazioIsentaTexto: 'El acceso viene del vínculo con la clínica, y un vínculo no genera cobros. Si la clínica nos informa que terminó, el acceso queda suspendido hasta que te suscribas — nada aparece acá sin que lo elijas.',
-    vazioPaganteTexto: 'Cuando empiece la suscripción, cada cobro aparece acá con su fecha y su monto.',
+    vazioIsentaTexto: 'El acceso viene del vínculo con la clínica, y un vínculo no genera cobros. Si la clínica nos informa que terminó, el acceso queda suspendido hasta que te suscribas — nada aparece aquí sin que lo elijas.',
+    vazioPaganteTexto: 'Cuando empiece la suscripción, cada cobro aparece aquí con su fecha y su monto.',
     inicioDoTeste: 'Inicio de la prueba gratis',
     comprovante: 'El comprobante oficial de cada cobro',
   },

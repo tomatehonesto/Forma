@@ -73,7 +73,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Aplicación ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Inyección ${dose} ${unidade}`,
     peso: 'Peso',
     /* El primer pesaje no tiene anterior con qué comparar, así que en lugar
        de la variación va lo que es. */
@@ -228,7 +228,7 @@ export const home = {
     aConsulta: 'LA CONSULTA',
     consultaHoje: 'Tu consulta es hoy.',
     consultaAmanha: 'Tu consulta es mañana.',
-    consultaCorpo: 'Llevo tu período ordenado — peso, adherencia, síntomas y las preguntas que valen la pena.',
+    consultaCorpo: 'Llevo ordenado todo lo que pasó desde la última consulta — peso, adherencia, síntomas y las preguntas que valen la pena.',
     consultaCta: 'Ver el resumen',
 
     acabou: (oRecipiente: string) => `${oRecipiente} se acabó.`,
@@ -275,7 +275,7 @@ export const home = {
     anotarConsulta: 'Anotar una consulta',
     anotarConsultaSub: 'Para avisarte cuando se acerque',
     quemAcompanha: '¿Quién acompaña tu tratamiento?',
-    quemAcompanhaSub: 'Anota el nombre y el resumen sale ya dirigido para la próxima consulta.',
+    quemAcompanhaSub: 'Anota el nombre y el resumen queda dirigido a esa persona para la próxima consulta.',
     preencherFicha: 'Completar la ficha',
   },
 
@@ -285,7 +285,7 @@ export const home = {
     vazio: 'Todavía no hay semanas registradas.',
     lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
 
-    aplicacao: 'Aplicación',
+    aplicacao: 'Inyección',
     semPesagem: 'sin pesaje',
 
     comoSeSentiu: 'Cómo te sentiste',
@@ -339,7 +339,7 @@ export const home = {
   },
   telaRitmo: {
     titulo: 'Cómo leemos tu ritmo',
-    sub: 'La etiqueta mira la constancia del tratamiento, no la velocidad de la pérdida de peso.',
+    sub: 'La etiqueta habla de la constancia del tratamiento, y no de la velocidad de la pérdida de peso.',
 
     aplicacoes: 'Inyecciones al día',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
@@ -362,7 +362,7 @@ export const home = {
 
     avisoTitulo: 'Una semana distinta no cambia la etiqueta',
     avisoTexto: (etiqueta: string) =>
-      `No sube ni baja por cuánto perdiste, y no existe versión de ella que diga que la semana estuvo mala. Hoy dice “${etiqueta}”.`,
+      `No sube ni baja por cuánto perdiste, y no hay ninguna versión que diga que la semana estuvo mala. Hoy dice “${etiqueta}”.`,
 
     entendi: 'Entendí',
   },
@@ -375,7 +375,7 @@ export const home = {
     falarComEquipe: 'Hablar con el equipo',
 
     estaSemana: 'Esta semana',
-    ressalva: 'Estas metas son formas de sacarle más al tratamiento, y no una lista de exigencias — no cerrar todo está bien. Quien conduce es la dosis y el acompañamiento. Lo que quede abierto vuelve a empezar la semana que viene, y los conteos se encienden solos con tus registros.',
+    ressalva: 'Estas metas son formas de sacarle más al tratamiento, y no una lista de exigencias — no cerrar todo está bien. Lo que conduce el tratamiento es la dosis y el acompañamiento. Lo que quede abierto vuelve a empezar la semana que viene, y los conteos se llenan solos con tus registros.',
 
     ressalvaDaSemana: 'Las metas son las de hoy, medidas en los registros de esta semana.',
 
@@ -387,7 +387,7 @@ export const home = {
     diaDeAplicacao: 'Día de inyección',
     nadaRegistrado: 'nada registrado todavía',
 
-    aplicacao: 'Aplicación',
+    aplicacao: 'Inyección',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prevista para hoy',

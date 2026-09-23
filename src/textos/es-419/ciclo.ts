@@ -40,7 +40,7 @@ export const ciclo = {
      alto del hambre quien menos se las salta es quien tiene hambre. La
      frase nacía como consejo y llegaba como reto — la versión afirmativa
      dice lo mismo útil sin acusar a nadie de nada. */
-  altoBody: 'Porciones más chicas y más seguidas, con proteína, sostienen mejor el hambre.',
+  altoBody: 'Porciones más chicas y más seguidas, con proteína, contienen mejor el hambre.',
   altoQ: '¿Por qué siento más hambre?',
 
   /* Entra delante del cuerpo del mensaje cuando la noche fue buena. Es la
@@ -57,7 +57,7 @@ export const ciclo = {
      nombre solo — "Inicio del retorno del hambre" — es diagnóstico sin
      contexto, y en una pantalla de tratamiento eso asusta en vez de
      orientar. */
-  faseAplicLabel: 'Aplicación',
+  faseAplicLabel: 'Inyección',
   faseAplicRange: 'Día 1',
   faseAplicHint: 'El efecto empieza a subir en las próximas horas.',
 

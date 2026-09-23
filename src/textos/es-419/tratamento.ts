@@ -193,7 +193,7 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'aplicada',
-    semCulpa: 'Sin culpa por un día que pasó — lo que cuenta es retomar. Puedes registrar una aplicación anterior en cualquier momento, en el botón de abajo.',
+    semCulpa: 'Sin culpa por un día que pasó — lo que cuenta es retomar. Puedes registrar una inyección anterior en cualquier momento, en el botón de abajo.',
     titulo: 'Inyecciones',
     registrar: 'Registrar inyección',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -300,7 +300,7 @@ export const tratamento = {
 
     medicamentoEDose: 'Medicamento y dosis',
     medicamentoEDoseDaReceita: 'Medicamento y dosis de la receta',
-    manipuladoSemEscada: 'El preparado magistral no tiene escalera de prospecto — el número es el de tu receta.',
+    manipuladoSemEscada: 'El preparado magistral no tiene escalera de dosis estándar — el número es el de tu receta.',
     medComDose: (medicamento: string, dose: string, unidade: string) =>
       `${medicamento} · ${dose} ${unidade}`,
     mudeiADose: 'Cambié la dosis',

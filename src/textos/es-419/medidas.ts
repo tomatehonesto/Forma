@@ -53,7 +53,7 @@ export const medidas = {
     lead: 'Doce semanas de tratamiento. Toca un marcador para ver el historial y corregir registros.',
 
     voceRegistra: 'Los que registras tú',
-    voceRegistraNota: 'Marcadores que dependen solo de ti — toca para ver el historial y corregir.',
+    voceRegistraNota: 'Marcadores que dependen solo de ti — toca para ver el historial y corregir registros.',
 
     vemDeExame: 'Vienen de un examen',
     vemDeExameNota: 'Necesitan informe de laboratorio o balanza de bioimpedancia. Solo lectura — pero cada uno abre su historial.',

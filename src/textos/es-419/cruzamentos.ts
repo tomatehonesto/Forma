@@ -45,7 +45,7 @@ export const cruzamentos = {
        la frase: "el descanso mejora; la rutina es la que se suelta" es el
        hallazgo entero resumido, y es lo que impide que la tarjeta se
        vuelva un reto. */
-    textoSono: (horas: string) => ` — pero duermes ${horas} h más. El descanso mejora; la rutina es la que se suelta.`,
+    textoSono: (horas: string) => ` — pero duermes ${horas} h más. El descanso mejora; la rutina es la que se afloja.`,
     textoSemSono: '.',
     q: '¿Cómo cuidar mejor el fin de semana?',
     evid: (copos: string) => ({ valor: `−${copos}`, unidade: 'vasos', legenda: 'el sábado y el domingo' }),
@@ -53,7 +53,7 @@ export const cruzamentos = {
     /* ⚠️ "NO NECESITA DISCIPLINA NUEVA" es la frase entera. Quien lee esto
        ya sabe que el fin de semana es más difícil; lo que no sabe es que el
        problema es estructural y no de voluntad. */
-    significa: 'Dos días por semana el tratamiento queda con un pie afuera, y son justamente los días en que tienes más tiempo. No necesitas disciplina nueva — necesitas que el fin de semana tenga una rutina propia, no la ausencia de la rutina de la semana.',
+    significa: 'Dos días por semana el tratamiento queda sin su estructura, y son justamente los días en que tienes más tiempo. No necesitas disciplina nueva — necesitas que el fin de semana tenga una rutina propia, no la ausencia de la rutina de la semana.',
   },
 
   aguaDia: {
@@ -78,10 +78,10 @@ export const cruzamentos = {
     q: '¿Cómo va mi proteína?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'de hambre', legenda: 'al día siguiente de alcanzar la meta' }),
-    porque: 'La proteína actúa sobre la saciedad por un camino más lento que el del azúcar: tarda en vaciar el estómago y sostiene las señales de saciedad por muchas horas. Por eso el efecto atraviesa la noche y reaparece en el apetito de la mañana siguiente.',
+    porque: 'La proteína actúa sobre la saciedad por un camino más lento que el del azúcar: tarda más en salir del estómago y sostiene las señales de saciedad por muchas horas. Por eso el efecto sigue durante la noche y reaparece en el apetito de la mañana siguiente.',
     /* ⚠️ "NO ES SOLO CUMPLIR UNA TABLA" es lo que saca la meta de proteína
        del lugar de obligación y la pone en el de intercambio. */
-    significa: 'Alcanzar la meta de proteína no es solo cumplir una tabla: es comprar un día siguiente más tranquilo. Cuando el hambre apriete, lo que resuelve no es lo que comes en ese momento — es lo que comiste ayer.',
+    significa: 'Alcanzar la meta de proteína no es solo cumplir una tabla: es ganarte un día siguiente más tranquilo. Cuando el hambre apriete, lo que resuelve no es lo que comes en ese momento — es lo que comiste ayer.',
   },
 
   sonoFome: {
@@ -93,7 +93,7 @@ export const cruzamentos = {
     /* ⚠️ "NO ES FALTA DE DISCIPLINA" es el centro, y no una atenuación.
        Quien durmió mal y comió más al día siguiente suele culparse por
        eso; el mecanismo hormonal es el hecho que deshace la culpa. */
-    porque: 'Dormir poco mueve las dos hormonas que regulan el apetito: sube la que da hambre y baja la que avisa que ya fue suficiente. No es falta de disciplina al día siguiente — es el cuerpo pidiendo energía rápida para compensar lo que faltó de descanso.',
+    porque: 'Dormir poco mueve las dos hormonas que regulan el apetito: sube la que da hambre y baja la que avisa que ya fue suficiente. No es falta de disciplina al día siguiente — es tu cuerpo pidiendo energía rápida para compensar lo que faltó de descanso.',
     significa: 'El sueño no suele entrar en la cuenta de quien está tratando el peso, pero en tus datos mueve el apetito como pocas cosas. Una noche protegida puede valer más para el día siguiente que cualquier ajuste en el plato.',
   },
 
@@ -122,7 +122,7 @@ export const cruzamentos = {
        puede: elegir el día de la inyección es decisión de la persona con
        su equipo, no cambio de dosis ni de medicación. */
     significa: (dias: number) =>
-      `Esto se repitió en ${dias} de tus registros posteriores a la inyección. Saber que existe una ventana, y que termina, cambia qué hacer con ella: puedes elegir el día de la inyección de forma que esas 48 h caigan en tu período más liviano de la semana.`,
+      `Esto se repitió en ${dias} de tus registros posteriores a la inyección. Saber que existe una ventana, y que termina, cambia qué hacer con ella: puedes elegir el día de la inyección de forma que esas 48 h caigan en la parte más liviana de tu semana.`,
   },
 
   aguaEnjoo: {
@@ -132,7 +132,7 @@ export const cruzamentos = {
        salvedad tiene que llegar junto al número, porque es ahí donde se
        lee. */
     texto: (corte: string, comAgua: string, semAgua: string) =>
-      `Con ${corte} o más, tus náuseas promedio fueron ${comAgua}. Abajo de eso, ${semAgua}. No prueba causa — pero es la variable más fácil de mover que aparece ligada al síntoma.`,
+      `Con ${corte} o más, tus náuseas promedio fueron ${comAgua}. Abajo de eso, ${semAgua}. No prueba que sea la causa — pero de todo lo que aparece ligado al síntoma, es lo más fácil de cambiar.`,
     q: '¿Cómo disminuir las náuseas?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'de náuseas', legenda: 'en los días bien hidratados' }),
@@ -147,10 +147,10 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balanza subió ${altas} veces y aun así perdiste ${perdido}`,
     texto: (pesagens: number, altas: number) =>
-      `En ${pesagens} pesajes, ${altas} vinieron arriba del anterior — y la línea del período sigue bajando. Una semana de alza no es recaída: es ruido de agua e intestino dentro de una tendencia.`,
+      `En ${pesagens} pesajes, ${altas} vinieron arriba del anterior — y la línea del tramo sigue bajando. Una semana de alza no es recaída: es ruido de agua e intestino dentro de una tendencia.`,
     q: '¿Cómo va mi evolución?',
     evid: (altas: number, perdido: string) =>
-      ({ valor: String(altas), unidade: 'alzas', legenda: `dentro de −${perdido} en el período` }),
+      ({ valor: String(altas), unidade: 'alzas', legenda: `dentro de −${perdido} en el tramo` }),
     porque: 'El peso del día es grasa, pero también es agua, sal, intestino y el ciclo hormonal — variaciones de uno a dos kilos ocurren sin que nada haya cambiado en la grasa corporal. La grasa sale despacio y en línea; el resto oscila por encima y es lo que la balanza muestra primero.',
     significa: 'Esto importa más de lo que parece: la semana en que la balanza sube es la semana en que la gente suele rendirse. En tus propios números, nunca significó lo que parecía significar.',
   },
@@ -165,7 +165,7 @@ export const cruzamentos = {
     q: '¿Cómo va mi proteína?',
     evid: (pct: number, antes: number, depois: number) =>
       ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g por día` }),
-    significaSubiu: 'Subió sin que anunciaras ningún cambio, que suele ser el tipo de hábito que se queda. La proteína es lo que protege tu masa magra mientras el peso baja — sin ella, parte de lo que desaparece no es grasa.',
+    significaSubiu: 'Subió sin que te lo propusieras, que suele ser el tipo de hábito que se queda. La proteína es lo que protege tu masa magra mientras el peso baja — sin ella, parte de lo que desaparece no es grasa.',
     significaCaiu: 'La caída fue gradual, del tipo que no se percibe de un día para el otro. La proteína es lo que protege tu masa magra mientras el peso baja; vale retomarla antes de que se vuelva lo normal.',
   },
 
@@ -192,7 +192,7 @@ export const cruzamentos = {
   },
 
   adesao: {
-    tituloPerfeita: 'No has atrasado ninguna aplicación desde el comienzo',
+    tituloPerfeita: 'No has atrasado ninguna inyección desde el comienzo',
     titulo: (pct: number) => `Mantuviste ${pct}% de las inyecciones al día`,
     texto: (aplicacoes: number, ressalva: string) =>
       `Son ${aplicacoes} inyecciones desde el inicio del tratamiento, ${ressalva}.`,
@@ -203,9 +203,9 @@ export const cruzamentos = {
       ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} inyecciones desde el inicio` }),
     significaAlta: 'Esa consistencia es uno de los factores que más pesan en una buena respuesta al medicamento. El nivel de la sustancia en el cuerpo depende de la regularidad, no del esfuerzo — y es el tipo de cosa que solo aparece cuando alguien mira el historial entero.',
     /* ⚠️ LA VERSIÓN CON ATRASOS EXPLICA EL COSTO Y NO RECLAMA LA FALTA.
-       "Cada atraso deja una ventana en que el efecto cae antes de hora" es
+       "Cada atraso deja una ventana en que el efecto cae antes de tiempo" es
        el mecanismo; "trata de no atrasarte" sería el reto que esta pantalla
        no da. */
-    significaBaixa: 'La regularidad pesa más que la dosis exacta del día: cada atraso deja una ventana en que el efecto cae antes de hora, y es en ella donde el hambre suele volver más fuerte.',
+    significaBaixa: 'La regularidad pesa más que la dosis exacta del día: cada atraso deja una ventana en que el efecto cae antes de tiempo, y es en ella donde el hambre suele volver más fuerte.',
   },
 };

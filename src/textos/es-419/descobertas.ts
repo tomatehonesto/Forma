@@ -45,11 +45,11 @@ export const descobertas = {
   metaCta: 'Crear una meta',
 
   medidasTitulo: 'La balanza cuenta solo una parte',
-  medidasTexto: 'La cinta métrica cuenta la otra: cintura y cadera cambian cuando el peso se estanca, y ahí es donde ella muestra que algo está pasando.',
+  medidasTexto: 'La cinta métrica cuenta el resto: cintura y cadera siguen cambiando cuando el peso se estanca, y ahí es donde muestra que algo sigue pasando.',
   medidasCta: 'Registrar medidas',
 
   refeicaoTitulo: 'La proteína del día puede contarse sola',
-  refeicaoTexto: 'Registrando lo que comes, la cuenta del día sale hecha — sin tabla, sin sumar nada de cabeza.',
+  refeicaoTexto: 'Registra lo que comes y la cuenta del día queda hecha — sin tabla, sin sumar nada de cabeza.',
   refeicaoCta: 'Registrar una comida',
 
   examesTitulo: 'Tus exámenes caben aquí',

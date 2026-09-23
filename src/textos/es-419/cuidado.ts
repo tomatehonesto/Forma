@@ -91,7 +91,7 @@ export const cuidado = {
        desplazarse para descubrir si importa. Y los nombres vienen de la
        PROPIA lista, ítem por ítem. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'pendientes necesitan' : 'pendiente necesita'} de ti — ${assuntos}. Nada urgente, pero vale resolverlo esta semana.`,
+      `${quantas} ${plural ? 'pendientes necesitan' : 'pendiente necesita'} atención — ${assuntos}. Nada urgente, pero vale resolverlo esta semana.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'ítem pendiente' : 'ítems pendientes'}`,
     /* Hasta cuatro por extenso, que es el techo de pendientes que existen. */
@@ -109,7 +109,7 @@ export const cuidado = {
   },
 
   dose: {
-    aplicacaoHoje: 'Aplicación hoy',
+    aplicacaoHoje: 'Inyección hoy',
     proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `En esta dosis hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -163,7 +163,7 @@ export const cuidado = {
     anotarConsulta: 'Anotar una consulta',
     anotarConsultaSub: 'Con la fecha aquí, el resumen queda listo y te avisamos cuando se acerque.',
     eQuando: (quando: string) => `Es ${quando}`,
-    preparoTexto: 'Armo un resumen con peso, adherencia y síntomas del período — tú eliges qué quieres preguntar.',
+    preparoTexto: 'Armo un resumen con peso, adherencia y síntomas de ese tramo — tú eliges qué quieres preguntar.',
     prepararAConsulta: 'Preparar la consulta',
 
     seuTratamento: 'Tu tratamiento',
@@ -183,11 +183,11 @@ export const cuidado = {
 
     quemAcompanha: 'Quién acompaña tu tratamiento',
     ninguemRegistrado: 'Nadie anotado todavía',
-    seVoceSeTrata: 'Si alguien te trata, anótalo aquí — el resumen sale listo para la consulta.',
+    seVoceSeTrata: 'Si alguien te trata, anótalo aquí — el resumen queda listo para la consulta.',
 
     acompanhamentoProfissional: 'Seguimiento profesional',
     conhecaParceiros: 'Conoce a los médicos aliados',
-    parceirosTexto: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo — mensajes entre las consultas, tu resumen llegando al equipo y la agenda ya completa.',
+    parceirosTexto: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo — mensajes entre las consultas, tu resumen llegando al equipo y la agenda ya cargada.',
     passouATer: '¿Pasaste a tener acompañamiento médico?',
     anoteQuemE: 'Anota quién es.',
   },
@@ -198,7 +198,7 @@ export const cuidado = {
     quemCorrige: 'Quien corrige es la clínica',
     quemCorrigeTexto: 'Si algún dato está mal, habla con el equipo — es quien mantiene esta ficha, y lo que se corrija allá llega aquí.',
 
-    lead: 'Si alguien te trata, anótalo aquí. Es lo que hace que el resumen salga listo para la consulta y que la preparación de preguntas aparezca a tiempo.',
+    lead: 'Si alguien te trata, anótalo aquí. Es lo que hace que el resumen quede listo para la consulta y que la preparación de preguntas aparezca a tiempo.',
 
     nome: 'Nombre',
     nomeAjuda: 'Cómo llamas a esa persona. Puede ser el nombre del consultorio, si prefieres.',
@@ -243,7 +243,7 @@ export const cuidado = {
     comQuem: (quem: string) => `Con ${quem}.`,
 
     dataFicaComVoce: 'La fecha queda contigo',
-    dataFicaComVoceTexto: 'Anotarla aquí no avisa al consultorio ni entra en el calendario del teléfono. Somos nosotros los que pasamos a saber que la consulta se acerca.',
+    dataFicaComVoceTexto: 'Anotarla aquí no avisa al consultorio ni entra en el calendario del teléfono. Somos nosotros los que te avisamos cuando la consulta se acerca.',
 
     salvar: 'Guardar',
     anotar: 'Anotar consulta',
@@ -292,7 +292,7 @@ export const cuidado = {
     ateASeguinteSub: (data: string) =>
       `Lo que tus registros muestran entre ese día y ${data}.`,
 
-    semRegistro: 'Ningún registro tuyo cayó en este período. Lo que quedó acordado en la consulta está en la anotación de arriba, si la hay.',
+    semRegistro: 'Ningún registro tuyo cayó en esta ventana. Lo que quedó acordado en la consulta está en la anotación de arriba, si la hay.',
   },
 
   telaAreaMedica: {

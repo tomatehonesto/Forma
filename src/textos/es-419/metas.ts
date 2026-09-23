@@ -32,7 +32,7 @@ export const metas = {
        hoja. Bajar la meta de proteína hace que el protocolo del equipo
        marque cumplido sin que nada haya cambiado en el plato. No traba y no
        juzga. */
-    ressalvaDoProtocolo: 'El protocolo de la semana cuenta los días en que alcanzaste este número. Si lo cambias acá, cambia también lo que el protocolo de tu equipo pasa a considerar cumplido.',
+    ressalvaDoProtocolo: 'El protocolo de la semana cuenta los días en que alcanzaste este número. Si lo cambias aquí, cambia también lo que el protocolo de tu equipo pasa a considerar cumplido.',
 
     prot: {
       nome: 'Proteína por día',
@@ -58,7 +58,7 @@ export const metas = {
     },
     peso: {
       /* ⚠️ EL MISMO NOMBRE DEL REGISTRO. La pregunta allá es "¿cuál es tu
-         meta de peso?", y acá el campo se llamaba "peso de referencia" —
+         meta de peso?", y aquí el campo se llamaba "peso de referencia" —
          dos nombres para el mismo número. */
       nome: 'Meta de peso',
       onde: 'Mide el viaje entero, en el Camino',
@@ -199,7 +199,7 @@ export const metas = {
          puede ser la rodilla, puede ser dolor, puede ser vergüenza — y
          nombrar la equivocada excluye a quien tiene la otra. */
       nome: 'Algo del día a día',
-      pergunta: '¿Qué quieres poder hacer sin cansarte? Subir la escalera de casa, cargar las compras, caminar hasta ahí sin parar a mitad de camino.',
+      pergunta: '¿Qué quieres poder hacer sin cansarte? Subir la escalera de casa, cargar las compras, caminar hasta la esquina sin parar a mitad de camino.',
       dica: 'Escribe la actividad',
       monta: (r: string) => `Lograr ${r}`,
     },
@@ -221,7 +221,7 @@ export const metas = {
          quien deja de ir a la playa rara vez dejó por no poder. Quien
          quiere un lugar nuevo tiene "Otra meta". */
       nome: 'Un lugar que dejaste de ir',
-      pergunta: '¿Adónde quieres volver? La playa, la piscina, la fiesta de alguien — el lugar que va quedando afuera.',
+      pergunta: '¿Adónde quieres volver? La playa, la piscina, la fiesta de alguien — el lugar que vas dejando de lado.',
       dica: 'Escribe el lugar',
       monta: (r: string) => `Volver a ${r}`,
     },
@@ -233,12 +233,12 @@ export const metas = {
     },
     largar: {
       nome: 'Un hábito para dejar',
-      pergunta: '¿Qué quieres dejar de hacer? Comer de pie, picar de madrugada — lo que sea tuyo.',
+      pergunta: '¿Qué quieres dejar de hacer? Comer de pie, picar de madrugada — lo que sea en tu caso.',
       dica: 'Escribe el hábito',
       monta: (r: string) => `Dejar de ${r}`,
     },
     /* La salida para lo que no cabe en ninguna categoría — lo mismo que
-       las otras, solo que sin prefijo: acá la frase entera es de quien
+       las otras, solo que sin prefijo: aquí la frase entera es de quien
        escribe. */
     livre: {
       nome: 'Otra meta',
@@ -319,7 +319,7 @@ export const metas = {
     origemDaEquipe: (por: string, quando: string) => `Definido por ${por}, anotado el ${quando}`,
     origemVoceEm: (quando: string) => `Definiste este número el ${quando}`,
     origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
-    mudaPeso: 'Es el punto de llegada acordado con el equipo, y moverlo cambia la regla del Recorrido y de la evolución — sin borrar nada de lo ya registrado.',
+    mudaPeso: 'Es el punto de llegada acordado con el equipo, y moverlo cambia la escala del Recorrido y de la evolución — sin borrar nada de lo ya registrado.',
     mudaOutros: 'El cambio vale de ahora en adelante: los días ya registrados siguen valiendo lo que valían, y lo que cambia es contra qué se los compara.',
 
     travadoTitulo: (por: string) => `Quien lo definió fue ${por}`,
@@ -345,7 +345,7 @@ export const metas = {
        la frase entera es función. */
     vaiAparecer: (frase: string, ate: string) => `Va a aparecer así: «${frase}»${ate}.`,
     vaiAparecerAte: (data: string) => `, hasta el ${data}`,
-    aindaNaoAteMarcar: 'Se queda en todavía no hasta que la marques. El día que pase, guardamos la fecha junto.',
+    aindaNaoAteMarcar: 'Se queda en “todavía no” hasta que la marques. El día que pase, guardamos la fecha con ella.',
 
     /* ---------- la hoja de una meta de la lista ---------- */
     metaTitulo: 'Meta',

@@ -56,7 +56,7 @@ export const rotina = {
     /* El recipiente y el artículo vienen de logic/formas: "Separa la
        pluma", "Separa el frasco". */
     aplicacao: (recipiente: string) => `Separa ${recipiente} y elige el lugar`,
-    aplicacaoPorque: 'La aplicación de la semana está llegando, y alternar el lugar reduce la irritación en la piel',
+    aplicacaoPorque: 'La inyección de la semana está llegando, y alternar el lugar reduce la irritación en la piel',
 
     receita: 'Pide la renovación de la receta',
     /* ⚠️ La palabra "doses" vivía en el sitio de llamada. Ver ../pt-BR. */
@@ -99,7 +99,7 @@ export const rotina = {
     exercicio: (dias: number) => `Ejercitarse en ${dias} ${dias === 1 ? 'día' : 'días'} de la semana`,
     origemExercicio: 'Ejercicio',
 
-    aplicacaoUma: 'Aplicación de la semana',
+    aplicacaoUma: 'Inyección de la semana',
     aplicacaoVarias: (quantas: number) => `${quantas} inyecciones en la semana`,
     origemAplicacao: 'Inyecciones',
 

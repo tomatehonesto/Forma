@@ -36,9 +36,9 @@ export const exames = {
 
     desde: (data: string) => ` Desde ${data},`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} un marcador caminó en la dirección esperada, y el mayor cambio fue en ${qual}: de ${de} a ${para} ${unidade}.`,
+      `${desde} un marcador se movió en la dirección esperada, y el mayor cambio fue en ${qual}: de ${de} a ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} ${quantos} marcadores caminaron en la dirección esperada, y el mayor cambio fue en ${qual}: de ${de} a ${para} ${unidade}.`,
+      `${desde} ${quantos} marcadores se movieron en la dirección esperada, y el mayor cambio fue en ${qual}: de ${de} a ${para} ${unidade}.`,
 
     /* ⚠️ EL EMPEORAMIENTO VA EN LA MISMA FRASE Y CON EL MISMO PESO QUE LA
        MEJORA. Un resumen que solo cuenta lo que mejoró es publicidad, y

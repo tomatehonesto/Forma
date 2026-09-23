@@ -34,25 +34,25 @@ export const leituras = {
   /* ⚠️ "CASI SIEMPRE NO ES NADA GRAVE — Y POR ESO MISMO VALE MIRARLO
      TEMPRANO" es la frase entera. Pide atención sin asustar, y el "por eso
      mismo" es lo que impide que la lectura se vuelva alarma. */
-  dorTexto: 'Un dolor fuerte en la panza, o que no pasa, es el único que pide atención el mismo día. Casi siempre no es nada grave — y por eso mismo vale mirarlo temprano.',
+  dorTexto: 'Un dolor fuerte en la panza, o que no pasa, pide atención el mismo día. Casi siempre no es nada grave — y por eso mismo vale mirarlo temprano.',
   dorAcao: 'Habla hoy con tu equipo. Si empeora o viene con vómito, busca atención.',
 
   vomitoSobre: 'Vómito',
   vomitoCurto: 'toma agua de a poquito, varias veces',
   vomitoTitulo: 'El vómito saca más líquido de lo que parece',
-  vomitoTexto: 'Junto con el agua se va la sal, y el cuerpo lo siente antes de que tengas sed. Y cuando la comida no se queda, el día siguiente ya empieza cansado.',
+  vomitoTexto: 'Junto con el agua se va la sal, y el cuerpo lo siente antes de que tengas sed. Y cuando la comida no se queda, empiezas el día siguiente ya cansada.',
   vomitoAcao: 'Toma de a poquito, varias veces, en vez de un vaso de una sola vez. Si ni el agua se queda, habla hoy con tu equipo.',
 
   tonturaSobre: 'Mareo',
   tonturaCurto: 'siéntate, toma agua y come algo dulce',
   tonturaTitulo: 'Un mareo así suele tener explicación',
-  tonturaTexto: 'Casi siempre es falta de líquido o azúcar bajo. Si tomas algún medicamento para la diabetes junto, el azúcar bajo es todavía más probable.',
+  tonturaTexto: 'Casi siempre es falta de líquido o azúcar bajo. Si además tomas algún medicamento para la diabetes, el azúcar bajo es todavía más probable.',
   tonturaAcao: 'Siéntate, toma agua y come algo. Si se repite en los próximos días, cuéntaselo a tu equipo.',
 
   presoSobre: 'Intestino estreñido',
   presoCurto: 'toma agua a lo largo del día, come fibra y camina',
   presoTitulo: 'Cuatro días sin ir ya merece atención',
-  presoTexto: 'El medicamento deja todo más lento, y comiendo menos queda poco para que el intestino empuje. Cuatro días es donde esto suele dejar de resolverse solo.',
+  presoTexto: 'El medicamento deja todo más lento, y comiendo menos queda poco para que el intestino empuje. A los cuatro días es cuando esto suele dejar de resolverse solo.',
   presoAcao: 'Agua a lo largo del día, fibra en las comidas y una caminata. Si pasa de cinco días, o viene con dolor fuerte y vómito, busca atención.',
 
   soltoSobre: 'Intestino suelto',
@@ -84,13 +84,13 @@ export const leituras = {
   dorVomitoSobre: 'Dolor con vómito',
   dorVomitoCurto: 'busca hoy a tu equipo o urgencias',
   dorVomitoTitulo: 'Dolor fuerte con vómito no espera',
-  dorVomitoTexto: 'Un dolor fuerte en la panza junto con vómito, a veces extendiéndose a la espalda, pide atención el mismo día. Llegando temprano, es simple de revisar.',
+  dorVomitoTexto: 'Un dolor fuerte en la panza junto con vómito, a veces extendiéndose a la espalda, pide atención el mismo día. Si llegas temprano, es simple de revisar.',
   dorVomitoAcao: 'Busca hoy a tu equipo o ve a urgencias. Di qué medicamento usas, la dosis y cuándo empezó el dolor.',
 
   desidratacaoSobre: 'Mareo y pérdida de líquido',
   desidratacaoCurto: 'toma suero o agua con sal, y levántate despacio',
   desidratacaoTitulo: 'Mareo con pérdida de líquido es señal de deshidratación',
-  desidratacaoTexto: 'Cuando falta agua y sal, la presión baja al levantarse — y el mareo es el cuerpo avisando.',
+  desidratacaoTexto: 'Cuando falta agua y sal, la presión baja al levantarse — y el mareo es tu cuerpo avisando.',
   desidratacaoAcao: 'Toma de a poquito a lo largo del día, con suero o una pizca de sal, y levántate despacio. Si no mejora para mañana, avísale a tu equipo.',
 
   /* ⚠️ POR ESO EL TEXTO TRAE EL NÚMERO DE DÍAS. "Cuatro de los últimos
@@ -100,7 +100,7 @@ export const leituras = {
   vomitoSemanaCurto: 'habla con tu equipo esta semana',
   vomitoSemanaTitulo: 'Vómito en días repetidos',
   vomitoSemanaTexto: (n: number) => `${n} de los últimos siete días con vómito. Así ni la comida, ni el líquido, ni el propio medicamento se quedan.`,
-  vomitoSemanaAcao: 'Habla con tu equipo esta semana, sin esperar la consulta. Lleva el número de días — es el que hace la diferencia.',
+  vomitoSemanaAcao: 'Habla con tu equipo esta semana, sin esperar la consulta. Diles el número de días — es el que hace la diferencia.',
 
   soltoSemanaSobre: 'Intestino en la semana',
   soltoSemanaCurto: 'toma más agua y cuéntaselo a tu equipo',
@@ -111,7 +111,7 @@ export const leituras = {
   enjooSemanaSobre: 'Náuseas en la semana',
   enjooSemanaCurto: 'lleva el número de días a la consulta',
   enjooSemanaTitulo: 'Las náuseas no están pasando',
-  enjooSemanaTexto: (n: number) => `${n} de los últimos siete días con náuseas deja de ser adaptación y se vuelve patrón. Suele cambiar con la dosis, o con la velocidad a la que sube.`,
+  enjooSemanaTexto: (n: number) => `${n} de los últimos siete días con náuseas deja de ser adaptación y se vuelve patrón. Suele cambiar con la dosis, o con la velocidad a la que la dosis sube.`,
   /* ⚠️ "SOSTENER LA DOSIS UN POCO MÁS NO ES RENDIRSE" es el servicio de la
      frase: es la conducta que la persona más resiste llevar a la consulta,
      porque la lee como fracaso. */

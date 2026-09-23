@@ -18,8 +18,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Aplicación de la dosis',
-  doseCurto: 'Aplicación',
+  dose: 'Inyección de la dosis',
+  doseCurto: 'Inyección',
   doseDesc: 'Un aviso antes de la próxima dosis, para mantener el tratamiento al día.',
 
   checkin: 'Check-in del día',
@@ -108,6 +108,6 @@ export const alertas = {
     vazio: 'Ninguna alerta todavía',
     vazioTexto: (assuntos: string) => `${assuntos} — crea las que tengan sentido para tu rutina.`,
 
-    convite: 'Un aviso es una invitación, no una exigencia. Si un día se pasa, nada aquí se vuelve atraso.',
+    convite: 'Un aviso es una invitación, no una exigencia. Si un día se pasa, aquí no se acumula nada.',
   },
 };
