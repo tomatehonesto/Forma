@@ -1624,17 +1624,40 @@ países já pronto o põe em cima para quem estiver naquele país.
 
 ### A ordem sugerida, se for por alcance
 
-Espanhol ✅, francês ✅, alemão ✅, **falta o italiano**. Depois japonês. Árabe e hebraico pedem um trabalho a mais que os
-outros não pedem: o aplicativo inteiro desenha da esquerda para a
-direita, e `expo-localization` devolve `textDirection` justamente para
-isso — nada no código lê esse campo hoje.
+Espanhol ✅, francês ✅, alemão ✅, italiano ✅. **Depois o japonês.**
+Árabe e hebraico pedem um trabalho a mais que os outros não pedem: o
+aplicativo inteiro desenha da esquerda para a direita, e
+`expo-localization` devolve `textDirection` justamente para isso — nada
+no código lê esse campo hoje.
 
-### ⚠️⚠️ A PROSA DAS QUATRO LÍNGUAS FOI LIDA — POR MIM, E NÃO POR NATIVO
+⚠️ **O ITALIANO NASCEU COM AS 347 FRASES DO ITEM 19 EM PORTUGUÊS**, como
+os outros quatro. O caderno diz para terminar a extração antes de
+traduzir, e a razão é de esforço e não de correção: as 347 entram nas
+seis línguas juntas quando saírem do código. O italiano ficou simétrico
+com os outros, não pior.
+
+⚠️ **E AS TRÊS DECISÕES CLÍNICAS DELE ENTRAM NA MESMA FILA DE REVISÃO.**
+No referto italiano as transaminases se chamam **AST** e **ALT** — como
+nos Estados Unidos, e ao contrário do francês (ASAT/ALAT) e do alemão
+(GOT/GPT) —, e o T4 livre se imprime **FT4**. Escrevi os três pela
+literatura, e valem a mesma ressalva dos outros: se estiverem errados, a
+pessoa não acha a própria linha no próprio exame.
+
+### ⚠️⚠️ A PROSA DAS CINCO LÍNGUAS FOI ESCRITA POR MIM, E NÃO POR NATIVO
 
 Os 32 módulos de inglês, espanhol, francês e alemão foram lidos frase a
 frase **na própria língua, sem o português do lado** — e o método
 importa: escrever com o original ao lado contamina, e eu provei isso
 reintroduzindo um decalque duas horas depois de o ter corrigido.
+
+O italiano nasceu depois dessa leitura, e por isso nasceu já com o que
+ela ensinou: a metáfora do orçamento de caloria escrita por extenso
+("le calorie del giorno"), o "sai pronto" nunca traduzido ao pé da
+letra, e a dor de barriga sem o "única" que contradizia a própria tela
+em três idiomas. As armadilhas que só ele tem estão escritas nos
+arquivos dele — o apóstrofo de `un'altra`, as preposições articuladas,
+o particípio que concorda em gênero E número, e o plural que não tem
+regra única.
 
 O que a leitura tirou, por classe, com exemplos:
 
