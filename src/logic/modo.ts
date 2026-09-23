@@ -46,3 +46,31 @@ export const NOME_DO_MODO: Record<Modo, string> = {
   'sem-parceira': 'sem clínica parceira',
   'sozinha': 'sem acompanhamento',
 };
+
+/* ============================================================
+   A PRÉVIA DE IDIOMA — a mesma ideia, para a outra pergunta
+
+   ⚠️ E ELA NÃO É A TELA DE IDIOMA. O perfil já tem a linha "Idioma", que
+   abre a folha e troca de verdade: escreve `profile.idioma`, sobrevive a
+   fechar o aplicativo e é o ajuste de quem usa. Esta é a versão de
+   desenvolvimento da mesma troca — um toque, sem gravar, e recarregar
+   devolve o idioma escolhido.
+
+   A diferença importa na hora de conferir uma tela: trocar de verdade
+   para o inglês obriga a lembrar de voltar, e esquecer significa entregar
+   o aparelho de teste em inglês para a próxima pessoa. A prévia morre
+   sozinha.
+
+   ⚠️ O VALOR DO IDIOMA JÁ É DE MÓDULO — `trocarLocal`, em logic/local —,
+   então a prévia não precisa guardar o idioma: ela guarda só o FATO de
+   estar acontecendo, que é o que a linha do perfil lê para saber se
+   oferece ir ou voltar. Quem guarda para onde voltar é o perfil, em
+   `profile.idioma`, que a prévia não toca.
+   ============================================================ */
+
+let emPrevia = false;
+
+export const idiomaEmPrevia = () => emPrevia;
+
+/** Só a store chama isto, junto de `trocarLocal` e do repinte. */
+export const marcarPreviaDeIdioma = (v: boolean) => { emPrevia = v; };

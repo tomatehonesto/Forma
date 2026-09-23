@@ -18,7 +18,7 @@ import { Selo, Cartao, Linha } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
 import { fotoDe, focoDe } from '../ui/retratos';
-import { modoFingido, NOME_DO_MODO } from '../logic/modo';
+import { modoFingido, NOME_DO_MODO, idiomaEmPrevia } from '../logic/modo';
 
 /* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
    segunda linha apontando para o mesmo arquivo. Uma pessoa, um retrato:
@@ -28,7 +28,7 @@ import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
-import { NOME_DO_LOCAL, localAtual } from '../logic/local';
+import { NOME_DO_LOCAL, localAtual, type Local } from '../logic/local';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -134,6 +134,15 @@ export default function Perfil() {
      __DEV__ lá embaixo e logic/modo. */
   const fingir = useStore((s) => s.fingir);
   const modoAtual = modoFingido();
+  const verEm = useStore((s) => s.verEm);
+  const previaDeIdioma = idiomaEmPrevia();
+  /* ⚠️ PARA ONDE A PRÉVIA VOLTA É O QUE ESTÁ GRAVADO, E NÃO `localAtual`.
+     Com a prévia ligada o valor de módulo JÁ é o inglês, e cair nele para
+     montar o rótulo daria "Voltar para English" — a linha prometendo
+     levar exatamente para onde a pessoa já está. Quem não escolheu idioma
+     nenhum volta para o do aparelho, e o rótulo diz isso em vez de
+     inventar um nome. */
+  const idiomaSalvo = ((S.profile as any).idioma ?? null) as Local | null;
   /* Corrigir é reabrir a pergunta original, e não um segundo editor com
      uma segunda régua. Ver o modo de edição em src/app/cadastro.tsx. */
   /* O que ela já andou: começo menos hoje. Negativo quando o peso subiu,
@@ -823,6 +832,31 @@ export default function Perfil() {
             sub="Nem clínica nem médico — atalho de desenvolvimento"
             selo={modoAtual === 'sozinha' ? 'agora' : undefined}
             onPress={() => fingir('sozinha')}
+          />
+
+          {/* ⚠️ ESTA NÃO É A LINHA "IDIOMA", que está logo acima em
+              Personalize e troca de verdade — escreve `profile.idioma` e
+              sobrevive a fechar o aplicativo. Esta é a prévia: um toque,
+              sem gravar, e recarregar devolve o idioma escolhido.
+
+              A diferença importa na hora de conferir uma tela. Trocar de
+              verdade obriga a lembrar de voltar, e esquecer significa
+              entregar o aparelho de teste em inglês para a próxima
+              pessoa. Ver logic/modo.
+
+              É o inglês porque foi o pedido; trocar por qualquer um dos
+              outros cinco é mudar a string aqui. As seis opções de
+              verdade continuam na folha de Idioma, que é de quem usa. */}
+          <Linha
+            ic="bolt"
+            titulo={previaDeIdioma
+              ? `Voltar para ${idiomaSalvo ? NOME_DO_LOCAL[idiomaSalvo] : 'o idioma do aparelho'}`
+              : 'Ver em inglês'}
+            sub={previaDeIdioma
+              ? 'Prévia de idioma — nada foi gravado'
+              : 'Prévia que não grava — atalho de desenvolvimento'}
+            selo={previaDeIdioma ? 'agora' : undefined}
+            onPress={() => verEm(previaDeIdioma ? null : 'en-US')}
           />
         </Cartao>
       ) : null}

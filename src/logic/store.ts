@@ -2,7 +2,8 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { buildSeed, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
-import { fingirModo, modoFingido, type Modo } from './modo';
+import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo';
+import { trocarLocal, type Local } from './local';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -16,6 +17,7 @@ type Store = {
   setPaleta: (id: string) => void;
   setTheme: (t: Tema) => void;
   fingir: (m: Modo | null) => void;
+  verEm: (l: Local | null) => void;
 };
 
 /* O ESTADO NOVO PASSA PELAS MESMAS GARANTIAS QUE O GRAVADO.
@@ -149,5 +151,26 @@ export const useStore = create<Store>((set, get) => ({
     real = verdade;
     fingirModo(m);
     set({ S: mascarar(verdade, m) });
+  },
+
+  /* ⚠️ A PRÉVIA DE IDIOMA PASSA PELA STORE SÓ PARA REPINTAR. Ver
+     logic/modo: o idioma já é valor de módulo, e `trocarLocal` sozinho o
+     troca — o que ele não faz é avisar o React.
+
+     Quem lê o idioma para montar a chave de remontagem é o layout raiz, e
+     ele só relê quando re-renderiza. Hoje isso acontece porque a folha de
+     idioma chama `update` logo depois de `trocarLocal`, e a gravação
+     muda o `S`. A prévia não grava — então precisa de outro jeito de
+     pedir o repinte, e é este: uma referência nova de `S`, com o mesmo
+     conteúdo, sem tocar no AsyncStorage.
+
+     ⚠️ E VOLTAR É VOLTAR PARA O QUE ESTÁ GRAVADO, e não para o padrão.
+     `trocarLocal(null)` devolveria o idioma do aparelho, e quem tivesse
+     escolhido italiano no perfil sairia da prévia em português. */
+  verEm: (l) => {
+    const salvo = ((get().S as any).profile?.idioma ?? null) as Local | null;
+    marcarPreviaDeIdioma(!!l);
+    trocarLocal(l ?? salvo);
+    set({ S: { ...get().S } });
   },
 }));
