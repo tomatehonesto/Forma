@@ -1596,11 +1596,12 @@ isso — `DISPONIVEIS` é do tipo `Local`, e `src/textos` declara
 `Record<Local, Textos>`: acrescentar um idioma sem escrever o catálogo
 dele **não compila**.
 
-⚠️ E DESDE O ESPANHOL A TELA TEM DUAS RODAS, não uma: idioma e **país**. O
-país não escolhe a língua — ele ordena os medicamentos, escolhe a moeda,
-os cortes de IMC e a tabela de alimentos. Ver `logic/pais.ts`. São dois
-eixos independentes de propósito: quem mora na Alemanha pode ler em
-português.
+⚠️ **A PERGUNTA DO PAÍS SAIU** — do cadastro e do perfil. Ela existiu
+entre o espanhol e esta revisão, e a razão de sair está no alto de
+`logic/pais.ts`: 243 códigos davam 8 comportamentos, cinco deles
+diferindo só na moeda, e a moeda já vem da loja em que a pessoa está
+conectada. O que restava eram os cortes de IMC, e a decisão foi usar os
+da OMS em todo mercado. `paisAtual()` hoje é o que o aparelho diz.
 
 Essa trava é de propósito. Oferecer "Deutsch" e entregar português é a
 porta emparedada mais cara do aplicativo, porque quem a abre não consegue
@@ -1627,6 +1628,43 @@ Espanhol ✅, francês ✅, alemão ✅, **falta o italiano**. Depois japonês. 
 outros não pedem: o aplicativo inteiro desenha da esquerda para a
 direita, e `expo-localization` devolve `textDirection` justamente para
 isso — nada no código lê esse campo hoje.
+
+### ⚠️⚠️ A PROSA DAS QUATRO LÍNGUAS FOI LIDA — POR MIM, E NÃO POR NATIVO
+
+Os 32 módulos de inglês, espanhol, francês e alemão foram lidos frase a
+frase **na própria língua, sem o português do lado** — e o método
+importa: escrever com o original ao lado contamina, e eu provei isso
+reintroduzindo um decalque duas horas depois de o ter corrigido.
+
+O que a leitura tirou, por classe, com exemplos:
+
+- **Sentido invertido.** "sostener el estreñimiento" e "sostienen el
+  hambre" (es), "tient le transit bloqué" (fr), "halten den Hunger"
+  (de): em português segurar é conter, nas outras é manter de pé. As
+  quatro frases diziam o contrário, e as quatro são conselho de saúde.
+- **Palavra que já tem dono na língua.** "la regla del Recorrido" (es) é
+  a menstruação; "the period" (en) idem; "referirte al especialista"
+  (es) e "to refer to the clinician" (en) são encaminhar; "what crosses
+  over to the other side" (en) é morrer; "le transit bloqué" (fr) é a
+  oclusão, que tem leitura de urgência própria neste aplicativo.
+- **Contradição dentro da mesma tela.** A dor de barriga era "a única
+  que pede atenção no mesmo dia" em es, fr e de — e duas leituras
+  abaixo o intestino travado manda ir hoje à urgência.
+- **Frase que não fecha.** "it stopped having happened" e as suas três
+  irmãs; "get ready what you'll bring"; "Les mesurés"; "aber diese
+  Woche lohnt es sich" sem objeto.
+- **Duas palavras para a mesma coisa.** adherence/consistency,
+  observance/régularité, Therapietreue/Verlässlichkeit; Dosisleiter,
+  Leiter e Dosistreppe no mesmo módulo; "acá" contra "aquí", 11 a 74.
+- **E três defeitos que a varredura de vocabulário deixou, meus:** oito
+  rótulos "Aplicación" em espanhol ao lado de "inyección" na prosa, uma
+  troca a mais em ajuda ("escribimos en esas inyecciones"), e três
+  "L'piqûre" em francês, duas delas na Home.
+
+**O que isso NÃO é.** É a leitura de um falante não nativo com as redes
+do repositório por baixo — não é revisão de falante nativo, e menos
+ainda de profissional de saúde naquele mercado. As duas continuam
+pendentes, e a segunda está logo abaixo.
 
 ### E a revisão clínica se repete
 
