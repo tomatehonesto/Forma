@@ -178,6 +178,49 @@ import { rotina as rotinaDe } from './de-DE/rotina';
 import { tempo as tempoDe } from './de-DE/tempo';
 import { tratamento as tratamentoDe } from './de-DE/tratamento';
 
+/* ⚠️ O ITALIANO TRATA POR "TU", como o alemão, e escreve "l'app" e não
+   "l'applicazione" — as duas são corretas, e a segunda recria em italiano
+   a colisão que custou caro ao espanhol: "applicazione" é também o gesto
+   de aplicar alguma coisa no corpo. A razão inteira está no alto de
+   textos/it-IT/idioma.
+
+   ⚠️ E ELE TEM DUAS ARMADILHAS PRÓPRIAS. As preposições se articulam nos
+   dois gêneros — "nella penna", "nel flacone", "della", "del" —, e o
+   apóstrofo de "un'altra" é só do feminino: "un'altro" não existe. As
+   duas moram em textos/it-IT/formas. */
+import { ajuda as ajudaIt } from './it-IT/ajuda';
+import { alertas as alertasIt } from './it-IT/alertas';
+import { alimentacao as alimentacaoIt } from './it-IT/alimentacao';
+import { aviso as avisoIt } from './it-IT/aviso';
+import { assinatura as assinaturaIt } from './it-IT/assinatura';
+import { avisos as avisosIt } from './it-IT/avisos';
+import { cadastro as cadastroIt } from './it-IT/cadastro';
+import { ciclo as cicloIt } from './it-IT/ciclo';
+import { companion as companionIt } from './it-IT/companion';
+import { comum as comumIt } from './it-IT/comum';
+import { confirmacoes as confirmacoesIt } from './it-IT/confirmacoes';
+import { conquistas as conquistasIt } from './it-IT/conquistas';
+import { cruzamentos as cruzamentosIt } from './it-IT/cruzamentos';
+import { cuidado as cuidadoIt } from './it-IT/cuidado';
+import { descobertas as descobertasIt } from './it-IT/descobertas';
+import { equilibrio as equilibrioIt } from './it-IT/equilibrio';
+import { home as homeIt } from './it-IT/home';
+import { idioma as idiomaIt } from './it-IT/idioma';
+import { escalas as escalasIt } from './it-IT/escalas';
+import { etapa as etapaIt } from './it-IT/etapa';
+import { exames as examesIt } from './it-IT/exames';
+import { fontes as fontesIt } from './it-IT/fontes';
+import { formas as formasIt } from './it-IT/formas';
+import { leituras as leiturasIt } from './it-IT/leituras';
+import { marcadores as marcadoresIt } from './it-IT/marcadores';
+import { medidas as medidasIt } from './it-IT/medidas';
+import { metas as metasIt } from './it-IT/metas';
+import { perfil as perfilIt } from './it-IT/perfil';
+import { resumo as resumoIt } from './it-IT/resumo';
+import { rotina as rotinaIt } from './it-IT/rotina';
+import { tempo as tempoIt } from './it-IT/tempo';
+import { tratamento as tratamentoIt } from './it-IT/tratamento';
+
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
 
@@ -313,6 +356,14 @@ const CATALOGOS: Record<Local, Textos> = {
     escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,
     home: homeDe, idioma: idiomaDe, leituras: leiturasDe, marcadores: marcadoresDe, medidas: medidasDe,
     metas: metasDe, perfil: perfilDe, resumo: resumoDe, rotina: rotinaDe, tempo: tempoDe, tratamento: tratamentoDe,
+  },
+  'it-IT': {
+    ajuda: ajudaIt, alertas: alertasIt, alimentacao: alimentacaoIt, aviso: avisoIt, assinatura: assinaturaIt, avisos: avisosIt,
+    cadastro: cadastroIt, ciclo: cicloIt, companion: companionIt, comum: comumIt, confirmacoes: confirmacoesIt, conquistas: conquistasIt, cruzamentos: cruzamentosIt,
+    cuidado: cuidadoIt, descobertas: descobertasIt, equilibrio: equilibrioIt, home: homeIt, idioma: idiomaIt,
+    escalas: escalasIt, etapa: etapaIt, exames: examesIt, fontes: fontesIt, formas: formasIt,
+    leituras: leiturasIt, marcadores: marcadoresIt, medidas: medidasIt, metas: metasIt, perfil: perfilIt,
+    resumo: resumoIt, rotina: rotinaIt, tempo: tempoIt, tratamento: tratamentoIt,
   },
 };
 

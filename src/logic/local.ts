@@ -32,7 +32,7 @@ import { paisDoAparelho as contaOPais } from './pais';
    tradução.
    ============================================================ */
 
-export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR' | 'de-DE';
+export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR' | 'de-DE' | 'it-IT';
 
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
@@ -52,7 +52,7 @@ const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
    como voltar: ele não sabe ler o que está na tela para achar o caminho
    de volta.
    ============================================================ */
-export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419', 'fr-FR', 'de-DE'];
+export const DISPONIVEIS: Local[] = ['pt-BR', 'en-US', 'es-419', 'fr-FR', 'de-DE', 'it-IT'];
 
 /* ⚠️ CADA UM SE ESCREVE NO PRÓPRIO IDIOMA, e é a única lista do
    aplicativo que não passa pelo catálogo. "Inglês" só ajuda quem já lê
@@ -64,6 +64,7 @@ export const NOME_DO_LOCAL: Record<Local, string> = {
   'es-419': 'Español',
   'fr-FR': 'Français',
   'de-DE': 'Deutsch',
+  'it-IT': 'Italiano',
 };
 
 /* ============================================================
@@ -315,7 +316,42 @@ const DE: Formato = {
   hora12: false,
 };
 
-const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR, 'de-DE': DE };
+/* ⚠️ O ITALIANO ESCREVE A DATA COMO O FRANCÊS — dia antes, mês em
+   minúscula e SEM preposição: "13 maggio 2026". E o dia da semana não
+   leva vírgula: "mercoledì 13 maggio". São as duas regras que o
+   português e o inglês quebram, cada um do seu jeito.
+
+   ⚠️ E O INTERVALO LONGO DIZ "dal … al …", com a preposição articulada,
+   que é como se lê um período em italiano. O curto fica com o travessão,
+   porque ele é etiqueta e não frase.
+
+   ⚠️ O PRIMEIRO DO MÊS SE DIZ "il 1º maggio", com ordinal, e é a única
+   exceção da língua — os outros trinta dias são cardinais. A forma
+   ordinal é da prosa e da fala; em tela de aplicativo e em calendário o
+   italiano escreve "1 maggio", e é o que fica aqui. Se um dia isto
+   mudar, muda só em `curta`, `longa` e `comAno`. */
+const IT: Formato = {
+  decimal: ',',
+  milhar: '.',
+  /* ⚠️ A ABREVIAÇÃO NÃO LEVA PONTO, ao contrário do francês. "gen",
+     "feb", "mag" é a forma corrente do italiano e a do CLDR; o ponto do
+     francês marca corte de palavra, e o italiano não o usa aqui. */
+  mesCurto: ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'],
+  mesLongo: ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'],
+  diaCurto: ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'],
+  diaLongo: ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'],
+  curta: (d, m) => `${d} ${IT.mesCurto[m]}`,
+  longa: (d, m) => `${d} ${IT.mesLongo[m]}`,
+  comAno: (d, m, a) => `${d} ${IT.mesLongo[m]} ${a}`,
+  comDiaDaSemana: (dia, resto) => `${dia} ${resto}`,
+  periodo: (de, ate, m) => `${de}–${ate} ${IT.mesCurto[m]}`,
+  periodoLongo: (de, ate, m) => `dal ${de} al ${ate} ${IT.mesLongo[m]}`,
+  mesAno: (m, a) => `${IT.mesLongo[m]} ${a}`,
+  junta: (de, ate) => `${de} – ${ate}`,
+  hora12: false,
+};
+
+const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR, 'de-DE': DE, 'it-IT': IT };
 
 /* ------------------------------------------------------------------ *
  * QUAL É O LOCAL AGORA
