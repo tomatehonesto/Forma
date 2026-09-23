@@ -235,15 +235,15 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Semaine ${semana}`,
 
     semRegistro: 'PAS DE RELEVÉ',
-    semRegistroOntem: 'L’piqûre d’hier n’est pas notée.',
-    semRegistroDias: (dias: number) => `L’piqûre d’il y a ${dias} jours n’est pas notée.`,
+    semRegistroOntem: 'La piqûre d’hier n’est pas notée.',
+    semRegistroDias: (dias: number) => `La piqûre d’il y a ${dias} jours n’est pas notée.`,
     semRegistroCorpo: 'Si vous l’avez faite, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.',
     semRegistroCta: 'Noter une piqûre',
 
     aConsulta: 'LA CONSULTATION',
     consultaHoje: 'Votre consultation est aujourd’hui.',
     consultaAmanha: 'Votre consultation est demain.',
-    consultaCorpo: 'J’apporte la période mise en ordre — poids, observance, symptômes et les questions qui valent le coup.',
+    consultaCorpo: 'J’apporte tout ce qui s’est passé depuis la dernière consultation, mis en ordre — poids, observance, symptômes et les questions qui valent le coup.',
     consultaCta: 'Voir le résumé',
 
     acabou: (oRecipiente: string) => `${oRecipiente} est vide.`,
@@ -290,7 +290,7 @@ export const home = {
     anotarConsulta: 'Noter une consultation',
     anotarConsultaSub: 'Pour vous prévenir quand elle approche',
     quemAcompanha: 'Qui suit votre traitement ?',
-    quemAcompanhaSub: 'Notez le nom et le résumé sort déjà adressé pour la prochaine consultation.',
+    quemAcompanhaSub: 'Notez le nom et le résumé sera déjà à son nom pour la prochaine consultation.',
     preencherFicha: 'Remplir la fiche',
   },
 
@@ -354,7 +354,7 @@ export const home = {
   },
   telaRitmo: {
     titulo: 'Comment nous lisons votre rythme',
-    sub: 'L’étiquette regarde la régularité du traitement, pas la vitesse de la perte de poids.',
+    sub: 'L’étiquette parle de la régularité du traitement, pas de la vitesse de la perte de poids.',
 
     aplicacoes: 'Piqûres à jour',
     /* Aqui o nome vem depois de `aplicadas`, e é com ele que concorda. */
@@ -378,7 +378,7 @@ export const home = {
 
     avisoTitulo: 'Une semaine différente ne change pas l’étiquette',
     avisoTexto: (etiqueta: string) =>
-      `Elle ne monte ni ne descend selon ce que vous avez perdu, et il n’existe aucune version d’elle qui dise que la semaine a été mauvaise. Aujourd’hui elle lit « ${etiqueta} ».`,
+      `Elle ne monte ni ne descend selon ce que vous avez perdu, et il n’en existe aucune version qui dise que la semaine a été mauvaise. Aujourd’hui elle dit « ${etiqueta} ».`,
 
     entendi: 'J’ai compris',
   },
@@ -391,7 +391,7 @@ export const home = {
     falarComEquipe: 'Parler à l’équipe',
 
     estaSemana: 'Cette semaine',
-    ressalva: 'Ces objectifs sont des façons de tirer plus du traitement, et non une liste d’exigences — ne pas tout boucler ne pose aucun problème. Ce qui porte le traitement, c’est la dose et le suivi. Ce qui reste ouvert repart la semaine prochaine, et les comptes s’allument tout seuls à partir de vos relevés.',
+    ressalva: 'Ces objectifs sont des façons de tirer plus du traitement, et non une liste d’exigences — ne pas tout boucler ne pose aucun problème. Ce qui fait avancer le traitement, c’est la dose et le suivi. Ce qui reste ouvert repart la semaine prochaine, et les comptes se remplissent tout seuls à partir de vos relevés.',
 
     ressalvaDaSemana: 'Les objectifs sont ceux d’aujourd’hui, mesurés sur les relevés de cette semaine.',
 

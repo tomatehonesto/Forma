@@ -26,7 +26,7 @@ export const etapa = {
   /* « Quand votre équipe la définira » et non « quand vous la
      définirez » : la dose est la décision de qui prescrit, et nous ne
      poussons personne à choisir un chiffre qui n'est pas le sien. */
-  antesSemDoseBody: 'Quand votre équipe la définira, elle tiendra ici — c’est à partir d’elle que nous construisons le cycle de la semaine et les rappels.',
+  antesSemDoseBody: 'Quand votre équipe la définira, elle viendra ici — c’est à partir d’elle que nous construisons le cycle de la semaine et les rappels.',
   antesSemDoseQ: 'Comment fonctionne le cycle du médicament ?',
 
   doseNovaChapeu: 'NOUVELLE DOSE',
@@ -52,7 +52,7 @@ export const etapa = {
      sans eux, celui qui arrive d'habitude. */
   doseNovaBodyCom: (perto: string, longe: string) =>
     `Dans vos relevés, la nausée reste à ${perto} les deux premiers jours après la piqûre et descend à ${longe} à partir du troisième. Chaque palier répète souvent ce dessin.`,
-  doseNovaBodySem: 'Chaque palier ramène souvent, pour quelques jours, ce qui était déjà passé — la nausée en premier. Cela tend à céder à mesure que le corps s’ajuste.',
+  doseNovaBodySem: 'Chaque palier ramène souvent, pour quelques jours, ce qui était déjà passé — la nausée en premier. Cela tend à céder à mesure que votre corps s’ajuste.',
   doseNovaQ: 'Pourquoi ai-je des nausées ?',
 
   primeiraChapeu: 'PREMIÈRE SEMAINE',
@@ -60,7 +60,7 @@ export const etapa = {
   /* « Le corps est encore en train de découvrir le médicament » — la
      phrase met le corps en sujet à dessein : ce qui se passe n'est ni une
      faute de qui le prend ni un effet à supporter, c'est un ajustement. */
-  primeiraBody: 'Le corps est encore en train de découvrir le médicament. Nausée légère, moins de faim et un peu de fatigue sont les retours les plus courants des premiers jours, et ils s’atténuent avec les semaines.',
+  primeiraBody: 'Votre corps est encore en train de découvrir le médicament. Nausée légère, moins de faim et un peu de fatigue sont les retours les plus courants des premiers jours, et ils s’atténuent avec les semaines.',
   primeiraQ: 'À quoi s’attendre le jour de la piqûre ?',
 
   manutencaoChapeu: 'ENTRETIEN',
@@ -99,8 +99,8 @@ export const etapa = {
      exact et ressemble à un bug — et un chiffre qui ressemble à un bug
      emporte la phrase entière avec lui. */
   platoBodyIgual: (media: string) =>
-    `La moyenne de vos pesées est à ${media} depuis. Le plateau fait partie du traitement : le corps dépense moins à mesure que le poids descend. C’est un sujet de consultation, pas d’effort.`,
+    `La moyenne de vos pesées est à ${media} depuis. Le plateau fait partie du traitement : votre corps dépense moins à mesure que le poids descend. C’est un sujet de consultation, pas d’effort.`,
   platoBodyDois: (antes: string, agora: string) =>
-    `${antes} il y a quatre semaines, ${agora} maintenant. Le plateau fait partie du traitement : le corps dépense moins à mesure que le poids descend. C’est un sujet de consultation, pas d’effort.`,
+    `${antes} il y a quatre semaines, ${agora} maintenant. Le plateau fait partie du traitement : votre corps dépense moins à mesure que le poids descend. C’est un sujet de consultation, pas d’effort.`,
   platoQ: 'Où en est mon évolution ?',
 };

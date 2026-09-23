@@ -55,7 +55,7 @@ export const rotina = {
        ⚠️ ET « LES JOURS BIEN HYDRATÉS », ET NON « les jours où vous êtes
        bien hydratée » : le participe avec `être` affirmerait un genre. */
     aguaPorqueComEnjoo: 'Les jours bien hydratés, la nausée se fait moins sentir — et la journée en est encore à la moitié de l’objectif',
-    aguaPorque: 'La journée en est encore à la moitié de l’objectif, et l’eau tient la satiété jusqu’au bout',
+    aguaPorque: 'La journée en est encore à la moitié de l’objectif, et l’eau soutient la satiété jusqu’au bout',
 
     proteina: 'Renforcez les protéines au dîner',
     proteinaPorque: 'Vous êtes dans la phase du cycle où la faim revient, et les protéines d’aujourd’hui se voient dans la faim de demain',
@@ -67,7 +67,7 @@ export const rotina = {
        stylo », « la seringue ». La phrase est la même ; ce qui change, c'est
        la forme du médicament. */
     aplicacao: (recipiente: string) => `Sortez ${recipiente} et choisissez l’endroit`,
-    aplicacaoPorque: 'L’piqûre de la semaine approche, et alterner l’endroit réduit l’irritation de la peau',
+    aplicacaoPorque: 'La piqûre de la semaine approche, et alterner l’endroit réduit l’irritation de la peau',
 
     receita: 'Demandez le renouvellement de l’ordonnance',
     /* ⚠️ L'ORDONNANCE EST NOMMÉE ICI, et ce n'est pas une redite du titre :
@@ -79,11 +79,11 @@ export const rotina = {
 
     /* Le texte de l'analyse vient du protocole ; ce qui est à nous, c'est le
        motif. */
-    examePorque: 'C’est ouvert dans le protocole de cette semaine, et le résultat met souvent quelques jours',
+    examePorque: 'C’est encore ouvert dans le protocole de cette semaine, et le résultat met souvent quelques jours',
 
     consulta: 'Préparez vos questions pour la consultation',
     consultaPorque: (tipo: string, doutor: string) =>
-      `${tipo} avec ${doutor} — je monte le résumé, vous choisissez ce que vous voulez demander`,
+      `${tipo} avec ${doutor} — je construis le résumé, vous choisissez ce que vous voulez demander`,
   },
 
   /* ⚠️ L'ÉTIQUETTE DU GROUPE SORT DU DÉLAI, ET LE DÉLAI SORT DE LA DONNÉE.

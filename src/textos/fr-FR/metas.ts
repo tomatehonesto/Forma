@@ -239,7 +239,7 @@ export const metas = {
          l'obstacle peut être un genou, une douleur, une gêne — et nommer le
          mauvais exclut qui a l'autre. */
       nome: 'Quelque chose du quotidien',
-      pergunta: 'Qu’est-ce que vous voulez arriver à faire sans vous fatiguer ? Monter l’escalier de chez vous, porter les courses, marcher jusque là-bas sans vous arrêter en chemin.',
+      pergunta: 'Qu’est-ce que vous voulez arriver à faire sans vous fatiguer ? Monter l’escalier de chez vous, porter les courses, marcher jusqu’au coin de la rue sans vous arrêter en chemin.',
       dica: 'Écrivez l’activité',
       monta: (r: string) => `Arriver à ${r}`,
     },
@@ -265,7 +265,7 @@ export const metas = {
          « le parc », et « à le parc » n'existe pas. Le verbe sans
          préposition passe partout. */
       nome: 'Un endroit que vous ne fréquentez plus',
-      pergunta: 'Où voulez-vous retourner ? La plage, la piscine, la fête de quelqu’un — l’endroit qui reste de côté ces temps-ci.',
+      pergunta: 'Où voulez-vous retourner ? La plage, la piscine, la fête de quelqu’un — l’endroit que vous laissez de côté.',
       dica: 'Écrivez l’endroit',
       monta: (r: string) => `Retrouver ${r}`,
     },
@@ -281,7 +281,7 @@ export const metas = {
          plus grignoter la nuit » et « Ne plus aller au distributeur »
          marchent tous les deux sans rien changer. */
       nome: 'Une habitude à laisser',
-      pergunta: 'Qu’est-ce que vous voulez arrêter de faire ? Manger debout, grignoter la nuit — ce qui est le vôtre.',
+      pergunta: 'Qu’est-ce que vous voulez arrêter de faire ? Manger debout, grignoter la nuit — ce qui vaut pour vous.',
       dica: 'Écrivez l’habitude',
       monta: (r: string) => `Ne plus ${r}`,
     },
@@ -369,7 +369,7 @@ export const metas = {
     viaEquipe: 'Via votre équipe',
 
     suasTitulo: 'Vos objectifs à vous',
-    suasNota: 'Les mesurés, nous les suivons dans vos relevés. Les vôtres, c’est vous qui les cochez.',
+    suasNota: 'Les objectifs mesurés, nous les suivons dans vos relevés. Les vôtres, c’est vous qui les cochez.',
 
     vazioTitulo: 'Aucun objectif pour l’instant',
     vazioTexto: 'Écrivez une chose que vous voulez réussir. Elle reste ici jusqu’à ce qu’elle arrive.',
@@ -385,7 +385,7 @@ export const metas = {
     /* Avec l'auxiliaire AVOIR, le participe n'accorde rien. */
     origemVoceEm: (quando: string) => `Vous avez défini ce chiffre le ${quando}`,
     origemEmuda: (origem: string, muda: string) => `${origem}. ${muda}`,
-    mudaPeso: 'C’est le point d’arrivée convenu avec votre équipe, et y toucher change la règle du Parcours et de l’évolution — sans effacer rien de ce qui est déjà noté.',
+    mudaPeso: 'C’est le point d’arrivée convenu avec votre équipe, et y toucher change l’échelle du Parcours et de l’évolution — sans effacer rien de ce qui est déjà noté.',
     mudaOutros: 'Le changement vaut à partir de maintenant : les jours déjà notés gardent ce qu’ils valaient, et ce qui change, c’est ce à quoi on les compare.',
 
     travadoTitulo: (por: string) => `C’est ${por} qui l’a défini`,
@@ -412,7 +412,7 @@ export const metas = {
        ponctuation double. D'où la phrase entière en fonction. */
     vaiAparecer: (frase: string, ate: string) => `Ça apparaîtra comme ça : « ${frase} »${ate}.`,
     vaiAparecerAte: (data: string) => `, d’ici le ${data}`,
-    aindaNaoAteMarcar: 'Il reste à pas encore jusqu’à ce que vous le cochiez. Le jour où ça arrive, nous gardons la date avec.',
+    aindaNaoAteMarcar: 'Il reste à « pas encore » jusqu’à ce que vous le cochiez. Le jour où ça arrive, nous gardons aussi la date.',
 
     /* ---------- la feuille d'un objectif de la liste ---------- */
     metaTitulo: 'Objectif',

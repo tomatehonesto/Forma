@@ -66,7 +66,7 @@ export const cruzamentos = {
     /* ⚠️ « IL NE FAUT PAS UNE DISCIPLINE NOUVELLE » est toute la phrase. Qui
        lit ceci sait déjà que le week-end est plus dur ; ce qu'elle ne sait
        pas, c'est que le problème est de structure et non de volonté. */
-    significa: 'Deux jours par semaine, le traitement a un pied dehors, et ce sont justement les jours où vous avez le plus de temps. Il ne faut pas une discipline nouvelle — il faut que le week-end ait sa propre routine, au lieu d’être l’absence de celle de la semaine.',
+    significa: 'Deux jours par semaine, le traitement se retrouve sans sa structure, et ce sont justement les jours où vous avez le plus de temps. Il ne faut pas une discipline nouvelle — il faut que le week-end ait sa propre routine, au lieu d’être l’absence de celle de la semaine.',
   },
 
   /* ---------- 2. le jour faible en hydratation ---------- */
@@ -113,7 +113,7 @@ export const cruzamentos = {
        protéines de la place de l'obligation pour le mettre dans celle de
        l'échange — et la dernière phrase donne l'usage pratique sans rien
        ordonner. */
-    significa: 'Atteindre l’objectif de protéines n’est pas seulement remplir un tableau : c’est acheter un lendemain plus tranquille. Quand la faim serre, ce qui la règle n’est pas ce que vous mangez à ce moment-là — c’est ce que vous avez mangé hier.',
+    significa: 'Atteindre l’objectif de protéines n’est pas seulement remplir un tableau : c’est s’acheter un lendemain plus tranquille. Quand la faim serre, ce qui la règle n’est pas ce que vous mangez à ce moment-là — c’est ce que vous avez mangé hier.',
   },
 
   /* ---------- 4. le sommeil contre la faim du lendemain ---------- */
@@ -126,8 +126,8 @@ export const cruzamentos = {
     /* ⚠️ « CE N'EST PAS UN MANQUE DE DISCIPLINE » est le cœur, pas un
        adoucissement. Qui a mal dormi et mangé davantage le lendemain s'en
        veut ; le mécanisme hormonal est le fait qui défait la culpabilité. */
-    porque: 'Dormir peu touche aux deux hormones qui règlent l’appétit : celle qui donne faim monte, et celle qui prévient que ça suffit baisse. Ce n’est pas un manque de discipline le lendemain — c’est le corps qui réclame de l’énergie rapide pour compenser le repos qui a manqué.',
-    significa: 'Le sommeil entre rarement dans les comptes de qui soigne son poids, mais dans vos données il touche à l’appétit comme peu de choses. Une nuit protégée peut valoir plus pour le lendemain que n’importe quel ajustement dans l’assiette.',
+    porque: 'Dormir peu touche aux deux hormones qui règlent l’appétit : celle qui donne faim monte, et celle qui prévient que ça suffit baisse. Ce n’est pas un manque de discipline le lendemain — c’est votre corps qui réclame de l’énergie rapide pour compenser le repos qui a manqué.',
+    significa: 'Le sommeil entre rarement dans les comptes quand on soigne son poids, mais dans vos données il touche à l’appétit comme peu de choses. Une nuit protégée peut valoir plus pour le lendemain que n’importe quel ajustement dans l’assiette.',
   },
 
   /* ---------- 5. le sommeil contre la nausée du lendemain ---------- */
@@ -143,7 +143,7 @@ export const cruzamentos = {
     q: 'Pourquoi ai-je des nausées ?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `contre ${semSono}`, legenda: `la nausée après ${noites} nuits longues` }),
-    significa: 'C’est ce que montrent vos relevés, et non un lien de cause : le cycle de la piqûre joue sur la nausée plus que tout le reste, et il peut se tenir derrière les deux côtés du calcul. À prendre comme une piste à emporter chez votre équipe, pas comme une explication arrêtée.',
+    significa: 'C’est ce que montrent vos relevés, et non un lien de cause : le cycle de la piqûre joue sur la nausée plus que tout le reste, et il peut être derrière les deux côtés du calcul. À prendre comme une piste à emporter chez votre équipe, pas comme une explication arrêtée.',
   },
 
   /* ---------- 6. la fenêtre de la nausée ---------- */
@@ -188,7 +188,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balance est montée ${altas} fois et vous avez perdu ${perdido} quand même`,
     texto: (pesagens: number, altas: number) =>
-      `Sur ${pesagens} pesées, ${altas} sont venues au-dessus de la précédente — et la ligne de la période continue de descendre. Une semaine en hausse n’est pas une rechute : c’est du bruit d’eau et de transit à l’intérieur d’une tendance.`,
+      `Sur ${pesagens} pesées, ${altas} sont venues au-dessus de la précédente — et la ligne de fond continue de descendre. Une semaine en hausse n’est pas une rechute : c’est du bruit d’eau et de transit à l’intérieur d’une tendance.`,
     q: 'Où en est mon évolution ?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'hausses', legenda: `dans −${perdido} sur la période` }),
@@ -212,7 +212,7 @@ export const cruzamentos = {
     q: 'Où en sont mes protéines ?',
     evid: (pct: number, antes: number, depois: number) =>
       ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g par jour` }),
-    significaSubiu: 'Elles ont augmenté sans que vous annonciez le moindre changement, ce qui est en général le genre d’habitude qui reste. Les protéines protègent votre masse maigre pendant que le poids descend — sans elles, une partie de ce qui part n’est pas de la graisse.',
+    significaSubiu: 'Elles ont augmenté sans que vous l’ayez cherché, ce qui est en général le genre d’habitude qui reste. Les protéines protègent votre masse maigre pendant que le poids descend — sans elles, une partie de ce qui part n’est pas de la graisse.',
     significaCaiu: 'La baisse a été progressive, du genre qu’on ne remarque pas d’un jour à l’autre. Les protéines protègent votre masse maigre pendant que le poids descend ; ça vaut le coup de reprendre avant que ça devienne la nouvelle normale.',
   },
 

@@ -210,7 +210,7 @@ export const assinatura = {
     querDesconto: 'Je veux la réduction',
 
     lembretesTitulo: 'Si le problème est d’oublier, on peut vous le rappeler',
-    lembretesTexto: 'La dose, la pesée, l’eau et les protéines ont chacune un rappel, à l’heure que vous choisissez. On peut n’activer que ce qui manque et laisser le reste.',
+    lembretesTexto: 'La dose, la pesée, l’eau et les protéines ont chacune un rappel, à l’heure que vous choisissez. Vous pouvez n’activer que ce qui vous sert et laisser le reste.',
     configurarLembretes: 'Configurer les rappels',
 
     /* ⚠️⚠️ ICI L'ÉCRAN ARRÊTE DE VENDRE ET FÉLICITE. C'est la seule raison
@@ -257,7 +257,7 @@ export const assinatura = {
      ============================================================ */
   parceiros: {
     titulo: 'Médecins partenaires',
-    lead: 'Certaines cliniques suivent le traitement par ici avec vous. Sans cela vous gardez tout — ce qui change, c’est ce qui devient possible avec votre équipe à l’intérieur de l’application.',
+    lead: 'Certaines cliniques suivent le traitement par ici avec vous. Sans cela vous gardez tout — ce qui change, c’est ce que vous pouvez faire avec votre équipe ici.',
 
     jaTemTitulo: 'Vous êtes déjà avec une clinique partenaire',
     jaTemLead: 'Tout ce qui est dans cette liste vaut déjà pour vous.',

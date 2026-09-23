@@ -94,7 +94,7 @@ export const cuidado = {
        oblige à faire défiler pour savoir si ça compte. Et les noms
        viennent de la liste ELLE-MÊME, item par item. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'choses attendent' : 'chose attend'} après vous — ${assuntos}. Rien d’urgent, mais autant le régler cette semaine.`,
+      `${quantas} ${plural ? 'choses demandent' : 'chose demande'} votre attention — ${assuntos}. Rien d’urgent, mais autant le régler cette semaine.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'élément en attente' : 'éléments en attente'}`,
     /* Jusqu'à quatre en toutes lettres, qui est le plafond réel. */
@@ -188,7 +188,7 @@ export const cuidado = {
 
     quemAcompanha: 'Qui suit votre traitement',
     ninguemRegistrado: 'Personne de noté pour l’instant',
-    seVoceSeTrata: 'Si quelqu’un vous suit, notez-le ici — le résumé sort prêt pour la consultation.',
+    seVoceSeTrata: 'Si quelqu’un vous suit, notez-le ici — le résumé sera prêt pour la consultation.',
 
     acompanhamentoProfissional: 'Suivi professionnel',
     conhecaParceiros: 'Découvrir les médecins partenaires',
@@ -204,9 +204,9 @@ export const cuidado = {
        besoin. */
     ondeAtendida: 'Où se passent les consultations',
     quemCorrige: 'C’est la clinique qui corrige',
-    quemCorrigeTexto: 'Si une information est fausse, parlez-en à l’équipe — c’est elle qui tient cette fiche, et ce qui est corrigé là-bas arrive ici.',
+    quemCorrigeTexto: 'Si une information est fausse, parlez-en à l’équipe — c’est elle qui tient cette fiche, et ce qui est corrigé là-bas apparaît ici.',
 
-    lead: 'Si quelqu’un vous suit, notez-le ici. C’est ce qui fait sortir le résumé prêt pour la consultation et apparaître la préparation des questions au bon moment.',
+    lead: 'Si quelqu’un vous suit, notez-le ici. C’est ce qui rend le résumé prêt pour la consultation, et fait apparaître au bon moment ce qu’il faut demander.',
 
     nome: 'Nom',
     nomeAjuda: 'Comment vous appelez cette personne. Cela peut être le nom du cabinet, si vous préférez.',
@@ -239,7 +239,7 @@ export const cuidado = {
 
     proximaConsulta: 'Votre prochaine consultation',
     anoteSuaConsulta: 'Notez votre consultation',
-    lead: 'Avec la date ici, nous vous prévenons quand elle approche et nous laissons le résumé prêt à emporter.',
+    lead: 'Avec la date ici, nous vous prévenons quand elle approche et nous gardons le résumé prêt à emporter.',
 
     quando: 'Quand',
     comoVaiSer: 'Comment ça se passera',
@@ -251,7 +251,7 @@ export const cuidado = {
     comQuem: (quem: string) => `Avec ${quem}.`,
 
     dataFicaComVoce: 'La date reste chez vous',
-    dataFicaComVoceTexto: 'La noter ici ne prévient pas le cabinet et n’entre pas dans le calendrier du téléphone. C’est nous qui savons désormais que la consultation approche.',
+    dataFicaComVoceTexto: 'La noter ici ne prévient pas le cabinet et n’entre pas dans le calendrier du téléphone. C’est nous qui vous prévenons quand la consultation approche.',
 
     salvar: 'Enregistrer',
     anotar: 'Noter la consultation',
@@ -274,7 +274,7 @@ export const cuidado = {
 
     nenhumaAnotada: 'Aucune consultation notée',
     clinicaMarca: 'Quand votre équipe prendra la prochaine, elle apparaîtra ici.',
-    semDataTexto: 'Avec la date ici, nous vous prévenons quand elle approche et nous laissons le résumé prêt à emporter.',
+    semDataTexto: 'Avec la date ici, nous vous prévenons quand elle approche et nous gardons le résumé prêt à emporter.',
     anotarConsulta: 'Noter une consultation',
 
     paraLevar: 'À emporter',
@@ -311,7 +311,7 @@ export const cuidado = {
     atalhoClinica: 'Clinique',
 
     paraLevar: 'À EMPORTER EN CONSULTATION',
-    paraLevarTexto: 'Poids, régularité, symptômes, analyses et vos notes, dans un seul document. Il se construit à partir de vos relevés et il est prêt dès maintenant.',
+    paraLevarTexto: 'Poids, observance, symptômes, analyses et vos notes, dans un seul document. Il se construit à partir de vos relevés et il est prêt dès maintenant.',
     verResumo: 'Voir le résumé pour la consultation',
 
     suasAnotacoes: 'Vos notes',

@@ -45,7 +45,7 @@ export const ciclo = {
      haut de la faim, celle qui en saute le moins est celle qui a faim. La
      phrase naissait comme un conseil et arrivait comme un reproche — la
      version affirmative dit la même chose utile sans accuser personne. */
-  altoBody: 'Des portions plus petites et plus souvent, avec des protéines, tiennent mieux la faim.',
+  altoBody: 'Des portions plus petites et plus souvent, avec des protéines, calment mieux la faim.',
   altoQ: 'Pourquoi ai-je plus faim ?',
 
   /* Passe devant le corps du message quand la nuit a été bonne. C'est la

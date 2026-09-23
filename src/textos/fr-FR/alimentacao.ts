@@ -26,12 +26,12 @@ export const alimentacao = {
        courants du traitement, et la fibre est le levier alimentaire qui
        existe pour elle. */
     fibraTexto: (dias: number, meta: number) =>
-      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. Légumes secs, avoine, verdures et fruits avec la peau sont le chemin le plus court — et c’est la fibre qui aide pour le transit bloqué, l’un des effets secondaires les plus courants du traitement.`,
+      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. Légumes secs, avoine, verdures et fruits avec la peau sont le chemin le plus court — et c’est la fibre qui aide contre la constipation, l’un des effets secondaires les plus courants du traitement.`,
 
     fibraBoaQ: 'Qu’est-ce que les fibres changent dans mon traitement ?',
     fibraBoaTitulo: (media: number) => `Fibres : ${media} g par jour, au-dessus de l’objectif`,
     fibraBoaTexto: (dias: number, meta: number) =>
-      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. C’est ce qui tient en général le transit bloqué du traitement — autant garder comme ça.`,
+      `C’est votre moyenne sur les ${dias} derniers jours notés, contre un objectif de ${meta} g. C’est ce qui tient en général la constipation du traitement à distance — autant continuer comme ça.`,
 
     /* ⚠️ LE MOMENT FAIBLE NOMME LE MOMENT, et c'est ce que le chiffre du
        jour ne dit pas : un petit-déjeuner à 6 g et un déjeuner à 40 g font
@@ -57,7 +57,7 @@ export const alimentacao = {
     verdeQ: 'Quels légumes vont avec ce que je mange déjà d’habitude ?',
     verdeTitulo: (comVerde: number, total: number) =>
       `Des légumes sur ${comVerde} des ${total} jours notés`,
-    verdeTexto: 'Une salade ou un légume au déjeuner remplit l’assiette avec peu de calories — ça aide à finir le repas rassasiée sans entamer la journée, et ça apporte les fibres avec.',
+    verdeTexto: 'Une salade ou un légume au déjeuner remplit l’assiette avec peu de calories — ça aide à finir le repas rassasiée sans entamer les calories de la journée, et ça apporte les fibres au passage.',
   },
 
   /* ⚠️ LES `id` SONT DES DONNÉES — 'agua', 'cafe', 'coco' est ce qui reste
@@ -85,7 +85,7 @@ export const alimentacao = {
        établi — elle supprime la vasopressine et le corps rend plus qu'il
        n'a reçu. Elle reste notable, parce que le journal existe pour noter
        ce qui s'est passé ; elle n'entre simplement pas dans le total. */
-    notaAlcool: 'Elle reste notée, mais n’entre pas dans le total : l’alcool fait rendre au corps plus de liquide qu’il n’en a reçu.',
+    notaAlcool: 'Elle reste notée, mais n’entre pas dans le total : l’alcool fait perdre à votre corps plus de liquide qu’il n’en reçoit.',
 
     recipientes: {
       xicara: 'Tasse',
@@ -127,10 +127,10 @@ export const alimentacao = {
        a convenu avec la personne. */
     muitaProteinaPoucaCaloria: 'Beaucoup de protéines pour peu de calories. C’est le type d’aliment que le traitement demande : il tient dans l’assiette qui a rétréci et soutient encore la masse maigre.',
     boaFonte: 'Bonne source de protéines, et c’est ce qui retient la masse maigre pendant que le poids descend.',
-    caloriaAlta: 'Calories élevées et peu de protéines. Ce n’est pas interdit, mais ça prend une bonne part de la journée et rend peu de ce dont le traitement a besoin.',
-    bastanteFibra: 'Beaucoup de fibres. Ça aide pour le transit bloqué, l’un des effets secondaires les plus courants du traitement.',
-    quaseNaoPesa: 'Ça ne pèse presque rien dans la journée. Bon pour accompagner l’assiette, mais les protéines doivent venir d’ailleurs.',
-    temFibra: 'Contient des fibres, qui aident pour le transit bloqué — l’un des effets secondaires les plus courants du traitement.',
+    caloriaAlta: 'Calories élevées et peu de protéines. Ce n’est pas interdit, mais ça prend une bonne part des calories de la journée et rend peu de ce dont le traitement a besoin.',
+    bastanteFibra: 'Beaucoup de fibres. Ça aide contre la constipation, l’un des effets secondaires les plus courants du traitement.',
+    quaseNaoPesa: 'Ça ne pèse presque rien dans les calories de la journée. Bon pour accompagner l’assiette, mais les protéines doivent venir d’ailleurs.',
+    temFibra: 'Contient des fibres, qui aident contre la constipation — l’un des effets secondaires les plus courants du traitement.',
   },
 
   /* ⚠️ CE QUE L'ITEM DÉCLARE VAUT PLUS QUE LE REPLI. Un produit d'enseigne
@@ -252,7 +252,7 @@ export const alimentacao = {
     meta: (quanto: string) => `Objectif : ${quanto}`,
 
     diario: 'Journal des boissons',
-    diarioNota: 'Le café, le thé, le lait et le jus comptent : l’objectif est en liquide, pas en eau pure. Effacez ce qui est entré de travers.',
+    diarioNota: 'Le café, le thé, le lait et le jus comptent : l’objectif est en liquide, pas en eau pure. Effacez ce que vous avez noté par erreur.',
     apagarDoDia: 'Effacer l’eau de ce jour ?',
     apagarGole: (quanto: string, hora: string) => `Effacer ${quanto} de ${hora} ?`,
     deBebida: (nome: string) => ` de ${nome}`,
@@ -295,7 +295,7 @@ export const alimentacao = {
       `${item} n’entre pas dans ce compte — je n’ai pas encore les protéines de ce plat.`,
     semContaVarios: (quantos: number) =>
       `${quantos} éléments n’entrent pas dans ce compte — je n’ai pas encore leurs protéines.`,
-    estimadoPelaFoto: 'Une partie de ce total a été estimée par la photo, sans table derrière.',
+    estimadoPelaFoto: 'Une partie de ce total a été estimée par la photo, et non relevée dans la table.',
 
     pratosFavoritos: 'Assiettes favorites',
     pratosGuardados: (quantos: number) =>

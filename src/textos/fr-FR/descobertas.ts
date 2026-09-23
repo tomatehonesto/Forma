@@ -29,7 +29,7 @@ export const descobertas = {
   /* La molécule en minuscule parce que c'est une substance, pas une
      marque. */
   fomeTexto: (molecula: string) =>
-    `C’est le moment où le niveau de ${molecula} atteint son point le plus bas du cycle, juste avant la prochaine piqûre. Ça passe tout seul quand vous ferez la piqûre.`,
+    `C’est le moment où le niveau de ${molecula} atteint son point le plus bas du cycle, juste avant la prochaine piqûre. Ça passe tout seul une fois la piqûre faite.`,
   fomeCta: 'Voir le cycle',
 
   aguaTitulo: 'Demain est souvent votre journée la plus sèche',
@@ -49,15 +49,15 @@ export const descobertas = {
   metaCta: 'Créer un objectif',
 
   medidasTitulo: 'La balance ne raconte qu’une partie',
-  medidasTexto: 'Le mètre ruban raconte l’autre : le tour de taille et les hanches bougent quand le poids stagne, et c’est là qu’il montre qu’il se passe quelque chose.',
+  medidasTexto: 'Le mètre ruban raconte le reste : le tour de taille et les hanches continuent de bouger quand le poids stagne, et c’est là qu’il montre qu’il se passe encore quelque chose.',
   medidasCta: 'Noter des mesures',
 
   refeicaoTitulo: 'Les protéines du jour peuvent se compter toutes seules',
-  refeicaoTexto: 'En notant ce que vous mangez, le compte du jour se fait tout seul — sans table, sans rien additionner de tête.',
+  refeicaoTexto: 'Notez ce que vous mangez et le compte du jour se fait tout seul — sans table, sans rien additionner de tête.',
   refeicaoCta: 'Noter un repas',
 
   examesTitulo: 'Vos analyses tiennent ici',
-  examesTexto: 'Une fois rangées, vous pouvez voir la ligne de chaque marqueur au fil du traitement — et tout apporter en ordre à la consultation.',
+  examesTexto: 'Une fois qu’elles sont rangées, vous pouvez voir la ligne de chaque marqueur au fil du traitement — et tout apporter en ordre à la consultation.',
   examesCta: 'Ranger une analyse',
 
   clinicaTitulo: 'Votre clinique peut être de ce côté-ci',

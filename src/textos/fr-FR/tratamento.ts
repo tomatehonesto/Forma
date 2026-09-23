@@ -167,7 +167,7 @@ export const tratamento = {
     emDiasDosSete: (dias: number) => `Sur ${dias} ${dias === 1 ? 'jour' : 'jours'} des sept`,
     metaMin: (alvo: number) => `Objectif : ${alvo} min`,
 
-    semForca: 'Aucune séance de renforcement cette semaine. Musculation, pilates et functional sont ce qui tient le muscle.',
+    semForca: 'Aucune séance de renforcement cette semaine. Musculation, pilates et entraînement fonctionnel sont ce qui tient le muscle.',
     comForca: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'} avec du renforcement — c’est ce qui tient le muscle pendant que le poids descend.`,
 
     minutosPorSemana: 'Minutes par semaine',
@@ -178,7 +178,7 @@ export const tratamento = {
     periodo30: '30 jours',
     periodo90: '3 mois',
     noPeriodo: 'Sur la période',
-    noPeriodoNota: 'Seulement ce qui a été noté ici — ce qui vient de la montre n’a pas de discipline.',
+    noPeriodoNota: 'Seulement ce qui a été noté ici — ce qui vient de la montre n’indique pas la discipline.',
     treinos: 'Séances',
     tempo: 'Temps',
     maisLongo: 'La plus longue',
@@ -307,7 +307,7 @@ export const tratamento = {
 
     medicamentoEDose: 'Médicament et dose',
     medicamentoEDoseDaReceita: 'Médicament et dose de l’ordonnance',
-    manipuladoSemEscada: 'Une préparation magistrale n’a pas de palier de notice — le chiffre est celui de votre ordonnance.',
+    manipuladoSemEscada: 'Une préparation magistrale n’a pas d’escalier de doses standard — le chiffre est celui de votre ordonnance.',
     medComDose: (medicamento: string, dose: string, unidade: string) =>
       `${medicamento} · ${dose} ${unidade}`,
     mudeiADose: 'Ma dose a changé',

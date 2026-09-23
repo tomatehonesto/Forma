@@ -402,7 +402,7 @@ const AJUDAR = {
       grupo: 'Dans l’assiette et la supplémentation',
       itens: [
         { nome: 'Poissons gras, jaune d’œuf et champignons', detalhe: 'Ce sont les sources alimentaires, et elles sont rarement suffisantes à elles seules' },
-        { nome: 'La supplémentation', detalhe: 'Quand elle est indiquée par qui vous suit — la dose dépend de votre niveau' },
+        { nome: 'La supplémentation', detalhe: 'Quand elle est indiquée par la personne qui vous suit — la dose dépend de votre niveau' },
       ],
     },
   ],
@@ -417,7 +417,7 @@ const AJUDAR = {
       grupo: 'Dans l’absorption',
       itens: [
         { nome: 'Les médicaments de l’estomac', detalhe: 'Un usage prolongé réduit l’absorption — un sujet à emporter en consultation' },
-        { nome: 'La supplémentation', detalhe: 'Quand elle est indiquée par qui vous suit, surtout après une chirurgie bariatrique' },
+        { nome: 'La supplémentation', detalhe: 'Quand elle est indiquée par la personne qui vous suit, surtout après une chirurgie bariatrique' },
       ],
     },
   ],

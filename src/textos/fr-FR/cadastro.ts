@@ -67,27 +67,27 @@ export const cadastro = {
     identidade: 'C’est pour vous parler comme il faut. Ce qui entre dans les calculs de santé, c’est votre corps, et ça vient dans les questions suivantes.',
     nascimento: 'Chaque étape de la vie a ses besoins — et l’âge entre dans les valeurs de référence de vos analyses.',
     tratamento: 'Juste pour savoir où vous en êtes.',
-    inicio: 'À peu près suffit. C’est de là que sort votre semaine de traitement, et c’est ce poids qui devient le début de votre courbe.',
+    inicio: 'Une date approximative suffit. C’est de là que sort votre semaine de traitement, et c’est ce poids qui devient le début de votre courbe.',
     medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre les piqûres.',
-    forma: 'Le préparé sort de la pharmacie sous les deux formes, et ce qui change, c’est ce que vous avez en main au moment de le prendre.',
+    forma: 'La préparation magistrale sort de la pharmacie sous les deux formes, et ce qui change, c’est ce que vous avez en main au moment de le prendre.',
     doseComEscada: (med: string) => `Dans l’ordre de titration de ${med}.`,
-    doseSemEscada: 'Le préparé n’a pas d’escalier de notice — le chiffre est celui de votre ordonnance.',
+    doseSemEscada: 'La préparation magistrale n’a pas d’escalier de doses standard — le chiffre est celui de votre ordonnance.',
     /* ⚠️ LE RÉCIPIENT ARRIVE DÉJÀ ACCORDÉ — « du flacon », « de la
        seringue ». Voir T.formas.doDa, dans textos/fr-FR/formas.ts. */
     frequencia: (doDaForma: string) => `C’est de là que viennent le comptage du cycle, les rappels et le stock ${doDaForma}.`,
     corpo: 'Avec la taille et le poids nous calculons votre IMC et construisons vos objectifs quotidiens de protéines et d’eau.',
-    meta: 'C’est la référence que nous utilisons pour montrer le chemin parcouru. Vous pourrez la changer quand vous voulez.',
+    meta: 'C’est la référence que nous utilisons pour montrer le chemin parcouru. Vous pourrez la changer quand vous voudrez.',
     ritmo: (aPercorrer: string) => `${aPercorrer} à parcourir.`,
     motivacao: 'Il n’y a pas de bonne réponse. Celle qui compte est celle dont vous vous souviendriez un jour difficile.',
     restricao: 'Les protéines sont l’axe de ce traitement, et elles viennent d’endroits différents selon ce que vous mangez. Vous pouvez en cocher plusieurs.',
-    atividade: 'Ça entre dans votre objectif d’eau quotidien — qui bouge plus perd plus de liquide — et ça dit d’où vous partez.',
+    atividade: 'Ça entre dans votre objectif d’eau quotidien — bouger plus fait perdre plus de liquide — et ça dit d’où vous partez.',
     saude: 'Vos données de santé aident à comprendre votre évolution — sans que vous ayez à tout noter.',
     /* ⚠️ CE TEXTE NE PEUT PAS SONNER COMME UNE OFFRE. Dans une question que
        personne ne vérifie, un menu d'avantages est une invitation à mentir
        pour débloquer la meilleure version — et qui ment là reçoit une
        application qui se met à lui parler de consultations qu'elle n'a
        pas. */
-    acompanhamento: 'Cette réponse active des fonctions liées au suivi médical, comme les notes et la préparation des consultations.',
+    acompanhamento: 'Cette réponse ouvre ce qui est lié au suivi médical — les notes, et la préparation des consultations.',
     consentimento: 'Deux choses avant de commencer : ce que nous faisons pour votre traitement, et ce qui arrive à ce que vous notez.',
   },
 
@@ -167,7 +167,7 @@ export const cadastro = {
 
   sim: 'Oui',
   digiteONome: 'Saisissez le nom',
-  nadaEnviado: 'Cela sert à nommer la ou le spécialiste au fil de votre parcours. Rien ne lui est envoyé.',
+  nadaEnviado: 'C’est pour l’avoir sous la main au fil de votre parcours. Rien ne lui est envoyé.',
   vouMeTratar: 'Je vais être suivi·e par un médecin ou une clinique',
   meAcompanha: 'Un médecin ou une clinique suit mon traitement',
   porContaPropria: 'Non, par moi-même',
@@ -232,7 +232,7 @@ export const cadastro = {
     pesoAGanhar: 'Poids à prendre',
     emSemanas: (semanas: number) => `en ${semanas} semaines`,
     ressalvaDaCurva: (ritmo: string) =>
-      `La baisse n’est pas une droite : dans les études, les premières semaines rendent davantage et le rythme se relâche à mesure que le corps s’ajuste. Les ${ritmo} par semaine que vous avez choisis sont la moyenne du chemin, pas une prévision.`,
+      `La baisse n’est pas une droite : dans les études, les premières semaines rendent davantage et le rythme se relâche à mesure que votre corps s’ajuste. Les ${ritmo} par semaine que vous avez choisis sont une moyenne sur tout le parcours, pas une prévision.`,
 
     imcDeHoje: 'IMC d’aujourd’hui',
     naSuaMeta: 'À votre objectif',
@@ -240,7 +240,7 @@ export const cadastro = {
     ajudaDose: 'Chaque dose au bon endroit',
     ajudaDoseSub: 'la rotation des endroits et le cycle de la dose, sans que vous comptiez',
     ajudaEnjoo: 'La nausée en chiffres',
-    ajudaEnjooSub: 'ce que vous ressentez devient un motif, et le motif part en consultation',
+    ajudaEnjooSub: 'ce que vous ressentez devient un schéma, et le schéma part en consultation',
     ajudaPeso: 'Votre courbe de poids',
     ajudaPesoSub: 'chaque pesée entre dans la ligne, avec la lecture de ce qui a changé',
     ajudaResumo: 'Un résumé pour la consultation',
@@ -255,7 +255,7 @@ export const cadastro = {
 
   telaDados: {
     titulo: 'Vos informations',
-    lead: 'Ce sont les réponses de votre inscription, et c’est d’elles que sortent votre IMC, vos objectifs du jour et la prévision du plan. Y toucher refait ces chiffres.',
+    lead: 'Ce sont les réponses de votre inscription, et c’est d’elles que sortent votre IMC, vos objectifs du jour et la prévision du plan. Changer quelque chose ici refait ces chiffres.',
 
     tratamento: 'Traitement',
     medicamento: 'Médicament',

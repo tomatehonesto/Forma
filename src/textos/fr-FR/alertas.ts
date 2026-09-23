@@ -108,6 +108,6 @@ export const alertas = {
     vazio: 'Aucune alerte pour l’instant',
     vazioTexto: (assuntos: string) => `${assuntos} — créez celles qui ont du sens pour votre routine.`,
 
-    convite: 'Une alerte est une invitation, pas une exigence. Si un jour elle passe, rien ici ne devient un retard.',
+    convite: 'Une alerte est une invitation, pas une exigence. Si un jour elle passe à la trappe, rien ici ne s’accumule.',
   },
 };

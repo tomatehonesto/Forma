@@ -44,7 +44,7 @@ export const medidas = {
       `${periodo.toLowerCase()}${quantos > 1 ? ` · ${quantos} relevés` : ''}`,
 
     registros: 'Relevés',
-    notaLeitura: 'Lectures d’une balance à impédancemétrie. Il n’y a rien à corriger ici — elles arrivent finies.',
+    notaLeitura: 'Lectures d’une balance à impédancemétrie. Il n’y a rien à corriger ici — elles arrivent déjà complètes.',
     notaCorrigir: 'Touchez pour corriger ou supprimer. Ce qui est ici part dans le compte rendu pour votre médecin.',
   },
 
@@ -53,7 +53,7 @@ export const medidas = {
     lead: 'Douze semaines de traitement. Touchez un marqueur pour voir l’historique et corriger les relevés.',
 
     voceRegistra: 'Ce que vous notez',
-    voceRegistraNota: 'Des marqueurs qui ne dépendent que de vous — touchez pour voir l’historique et corriger.',
+    voceRegistraNota: 'Des marqueurs qui ne dépendent que de vous — touchez pour voir l’historique et corriger les relevés.',
 
     vemDeExame: 'Ce qui vient d’une analyse',
     vemDeExameNota: 'Ils demandent un compte rendu de laboratoire ou une balance à impédancemétrie. En lecture seule — mais chacun ouvre son propre historique.',

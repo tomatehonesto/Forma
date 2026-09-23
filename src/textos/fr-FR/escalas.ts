@@ -130,7 +130,7 @@ export const escalas = {
     dose: 'dose',
 
     cicloParecido: 'Sur les jours remplis jusqu’ici, la nausée apparaît semblable tout au long du cycle — elle ne suit pas la dose.',
-    cicloPoucos: 'Il y a encore trop peu de jours remplis pour dire si la nausée suit le cycle. En remplissant quelques jours de plus, ce calcul tient debout.',
+    cicloPoucos: 'Il y a encore trop peu de jours remplis pour dire si la nausée suit le cycle. Remplissez quelques jours de plus et ce calcul tiendra.',
     cicloInicio1: 'La nausée pèse le plus le jour de la piqûre.',
     cicloInicioN: (dias: number) => `La nausée pèse le plus les ${dias} premiers jours après la piqûre.`,
     cicloFim1: 'La nausée pèse le plus la veille de la prochaine piqûre.',

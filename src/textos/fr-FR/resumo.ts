@@ -59,7 +59,7 @@ export const resumo = {
 
   tela: {
     titulo: 'Résumé pour la consultation',
-    lead: 'Tout ce que vous avez noté, tel que cela arrivera à la consultation.',
+    lead: 'Tout ce que vous avez noté, tel que cela se présentera à la consultation.',
 
     enviar: (doutor: string) => `Envoyer à ${doutor}`,
     enviarDeNovo: (doutor: string) => `Renvoyer à ${doutor}`,

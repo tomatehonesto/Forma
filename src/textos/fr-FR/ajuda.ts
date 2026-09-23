@@ -33,7 +33,7 @@ export const ajuda = {
     },
     {
       q: 'Pourquoi un succès a-t-il disparu ?',
-      a: 'Parce qu’il n’a jamais été enregistré. Les succès se comptent à partir de vos relevés à chaque ouverture de l’écran, et ne sont marqués comme faits nulle part. Si le relevé qui a fermé un palier est supprimé, le palier part avec lui — il a cessé d’avoir eu lieu.',
+      a: 'Parce qu’il n’a jamais été enregistré. Les succès se comptent à partir de vos relevés à chaque ouverture de l’écran, et ne sont marqués comme faits nulle part. Si le relevé qui a fermé un palier est supprimé, le palier part avec lui — pour le compte, il n’a jamais eu lieu.',
     },
     {
       q: 'J’ai mis un rappel et il n’a pas sonné.',
@@ -48,15 +48,15 @@ export const ajuda = {
     },
     {
       q: 'Que peut voir mon équipe ?',
-      a: 'Seulement ce que vous envoyez. Rien ne sort d’ici tout seul : le résumé part quand vous touchez envoyer, les messages quand vous les écrivez. Ce qui reste dehors reste à vous, y compris vis-à-vis de qui vous suit.',
+      a: 'Seulement ce que vous envoyez. Rien ne sort d’ici tout seul : le résumé part quand vous touchez envoyer, les messages quand vous les écrivez. Ce qui reste dehors reste à vous, y compris vis-à-vis de la personne qui vous suit.',
     },
     {
       q: 'Remplacez-vous ce que dit l’équipe qui me suit ?',
-      a: 'Non, et sur aucun écran. Ce qu’elle fait, c’est ranger ce qui s’est passé et montrer des motifs dans vos propres relevés — la dose, le symptôme et la conduite sont une conversation de consultation. Quand un texte de l’application touche à ces sujets, il le dit avec.',
+      a: 'Non, et sur aucun écran. Ce qu’elle fait, c’est ranger ce qui s’est passé et montrer des schémas dans vos propres relevés — la dose, le symptôme et la conduite sont une conversation de consultation. Quand un texte de l’application touche à ces sujets, il le dit.',
     },
     {
       q: 'Et si je désinstalle l’application ?',
-      a: 'Vos relevés vivent sur l’appareil, dans l’application — sans compte et sans serveur. Désinstaller emporte tout, et il n’y a de copie nulle part d’où récupérer. Avant ça, vous pouvez construire un fichier avec ce que vous avez noté, dans Exporter.',
+      a: 'Vos relevés vivent sur l’appareil, dans l’application — sans compte et sans serveur. Désinstaller emporte tout, et il n’y a de copie nulle part d’où les récupérer. Avant ça, vous pouvez construire un fichier avec ce que vous avez noté, dans Exporter.',
     },
   ] as { q: string; a: string }[],
 

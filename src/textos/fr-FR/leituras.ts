@@ -37,13 +37,13 @@ export const leituras = {
      MIEUX REGARDER TÔT » est la phrase entière. Elle demande de
      l'attention sans effrayer, et le « justement pour ça » est ce qui
      empêche la lecture de devenir une alarme. */
-  dorTexto: 'Une douleur forte au ventre, ou qui ne passe pas, est la seule qui demande de l’attention le jour même. C’est presque jamais grave — et c’est justement pour ça qu’il vaut mieux regarder tôt.',
+  dorTexto: 'Une douleur forte au ventre, ou qui ne passe pas, demande de l’attention le jour même. Ce n’est presque jamais grave — et c’est justement pour ça qu’il vaut mieux regarder tôt.',
   dorAcao: 'Parlez-en à votre équipe aujourd’hui. Si ça empire ou si des vomissements s’y ajoutent, allez consulter.',
 
   vomitoSobre: 'Vomissements',
   vomitoCurto: 'buvez de l’eau par petites gorgées, souvent',
   vomitoTitulo: 'Les vomissements emportent plus de liquide qu’il n’y paraît',
-  vomitoTexto: 'Avec l’eau part le sel, et le corps le sent avant que la soif n’arrive. Et quand la nourriture ne reste pas, le lendemain commence déjà fatigué.',
+  vomitoTexto: 'Avec l’eau part le sel, et le corps le sent avant que la soif n’arrive. Et quand la nourriture ne reste pas, vous commencez le lendemain déjà fatiguée.',
   vomitoAcao: 'Buvez par petites gorgées, souvent, plutôt qu’un verre d’un coup. Si même l’eau ne reste pas, parlez-en à votre équipe aujourd’hui.',
 
   tonturaSobre: 'Vertiges',
@@ -55,7 +55,7 @@ export const leituras = {
   presoSobre: 'Transit bloqué',
   presoCurto: 'buvez de l’eau au fil de la journée, mangez des fibres et marchez',
   presoTitulo: 'Quatre jours sans aller mérite déjà de l’attention',
-  presoTexto: 'Le médicament ralentit tout, et en mangeant moins il reste peu à pousser pour l’intestin. Quatre jours, c’est là où ça cesse en général de se régler tout seul.',
+  presoTexto: 'Le médicament ralentit tout, et en mangeant moins il reste peu à pousser pour l’intestin. Vers quatre jours, c’est le moment où ça cesse en général de se régler tout seul.',
   presoAcao: 'De l’eau au fil de la journée, des fibres aux repas et une marche. Si ça dépasse cinq jours, ou si une douleur forte et des vomissements s’y ajoutent, allez consulter.',
 
   soltoSobre: 'Transit relâché',
@@ -81,13 +81,13 @@ export const leituras = {
   dorVomitoSobre: 'Douleur avec vomissements',
   dorVomitoCurto: 'voyez votre équipe ou les urgences aujourd’hui',
   dorVomitoTitulo: 'Une douleur forte avec vomissements n’attend pas',
-  dorVomitoTexto: 'Une douleur forte au ventre avec des vomissements, parfois qui irradie dans le dos, demande de l’attention le jour même. En arrivant tôt, c’est simple à vérifier.',
+  dorVomitoTexto: 'Une douleur forte au ventre avec des vomissements, parfois qui irradie dans le dos, demande de l’attention le jour même. Si vous arrivez tôt, c’est simple à vérifier.',
   dorVomitoAcao: 'Voyez votre équipe ou allez aux urgences aujourd’hui. Dites quel médicament vous prenez, la dose et quand la douleur a commencé.',
 
   desidratacaoSobre: 'Vertiges et perte de liquide',
   desidratacaoCurto: 'buvez un soluté ou de l’eau salée, et levez-vous doucement',
   desidratacaoTitulo: 'Un vertige avec perte de liquide est un signe de déshydratation',
-  desidratacaoTexto: 'Quand l’eau et le sel manquent, la tension tombe au moment de se lever — et le vertige est le corps qui prévient.',
+  desidratacaoTexto: 'Quand l’eau et le sel manquent, la tension tombe au moment de se lever — et le vertige est votre corps qui prévient.',
   desidratacaoAcao: 'Buvez par petites gorgées au fil de la journée, avec un soluté ou une pincée de sel, et levez-vous doucement. Si ça ne va pas mieux d’ici demain, prévenez votre équipe.',
 
   /* ⚠️ C'EST POUR ÇA QUE LE TEXTE PORTE LE NOMBRE DE JOURS. « Quatre des
@@ -97,7 +97,7 @@ export const leituras = {
   vomitoSemanaCurto: 'parlez-en à votre équipe cette semaine',
   vomitoSemanaTitulo: 'Des vomissements sur des jours répétés',
   vomitoSemanaTexto: (n: number) => `${n} des sept derniers jours avec des vomissements. Comme ça, ni la nourriture, ni le liquide, ni le médicament lui-même ne restent.`,
-  vomitoSemanaAcao: 'Parlez-en à votre équipe cette semaine, sans attendre la consultation. Emportez le nombre de jours — c’est lui qui fait la différence.',
+  vomitoSemanaAcao: 'Parlez-en à votre équipe cette semaine, sans attendre la consultation. Dites-leur le nombre de jours — c’est lui qui fait la différence.',
 
   soltoSemanaSobre: 'Transit dans la semaine',
   soltoSemanaCurto: 'buvez davantage et dites-le à votre équipe',
@@ -122,7 +122,7 @@ export const leituras = {
   presoSemanaSobre: 'Transit lent dans la semaine',
   presoSemanaCurto: 'buvez de l’eau, mangez des fibres et marchez',
   presoSemanaTitulo: 'Le transit est lent toute la semaine',
-  presoSemanaTexto: (n: number) => `${n} des sept derniers jours avec le transit bloqué. Manger moins est un effet du médicament, et avec moins de nourriture il passe moins de fibres — il le sent avant la balance.`,
+  presoSemanaTexto: (n: number) => `${n} des sept derniers jours avec la constipation. Manger moins est un effet du médicament, et avec moins de nourriture il passe moins de fibres — il le sent avant la balance.`,
   presoSemanaAcao: 'De l’eau, des fibres et de la marche aident. À ce rythme, ça vaut le coup d’en parler à votre équipe.',
 
   /* ⚠️ LES JALONS SONT INDEXÉS PAR LE NOMBRE DE JOURS, et la clé reste le

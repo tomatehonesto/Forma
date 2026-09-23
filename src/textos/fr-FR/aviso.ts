@@ -13,7 +13,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Nous suivons votre traitement — nous ne le conduisons pas',
-  isencaoTexto: 'Nous gardons ce que vous notez, nous vous montrons comment les choses avancent et nous préparons ce que vous apporterez à la consultation. Nous ne sommes pas un diagnostic et nous ne prescrivons pas : la dose, l’intervalle et le médicament sont la décision de qui vous suit.',
+  isencaoTexto: 'Nous gardons ce que vous notez, nous vous montrons comment les choses avancent et nous préparons ce que vous apporterez à la consultation. Nous ne sommes pas un diagnostic et nous ne prescrivons pas : la dose, l’intervalle et le médicament sont la décision de la personne qui vous suit.',
   isencaoReforco: 'Avant de changer quoi que ce soit à votre dose ou à votre horaire, parlez-en à votre équipe. Et si un symptôme vous inquiète, n’attendez pas la prochaine consultation.',
   isencaoAceite: 'J’ai compris et j’accepte',
 
@@ -51,7 +51,7 @@ export const aviso = {
   porMes: 'par mois',
   porMesCurto: '/mois',
 
-  exportacaoAviso: 'Relevés faits par la personne elle-même dans l’application. Ce n’est ni un dossier médical ni un compte rendu.',
+  exportacaoAviso: 'Relevés faits par la personne elle-même dans l’application. Ce n’est ni un dossier médical ni un compte rendu de laboratoire.',
   exportacaoTitulo: 'Vos données Morphi',
 
   medIndefinido: 'Pas encore défini',
@@ -142,7 +142,7 @@ export const aviso = {
     soOPesoTexto: (app: string) =>
       `Avec votre permission, nous lisons les pesées que votre balance, votre montre ou une autre application y ont écrites. Nous ne faisons que lire : nous n’écrivons jamais rien dans ${app}. Et nous ne lisons que le poids — le sommeil, les pas et le rythme cardiaque restent dehors.`,
     permissao: 'La permission est la vôtre, et se retire quand vous voulez',
-    permissaoTexto: 'Elle se donne dans les réglages du système et se retire au même endroit. Sans elle, l’application reste entière : le poids revient à entrer comme il entrait avant, tapé par vous.',
+    permissaoTexto: 'Elle se donne dans les réglages du système et se retire au même endroit. Sans elle, tout ici continue de fonctionner : le poids revient à entrer comme il entrait avant, tapé par vous.',
 
     podeFazer: 'Ce que vous pouvez faire maintenant',
     integracoesSub: (app: string) => `Activer ou désactiver ${app}`,
@@ -159,7 +159,7 @@ export const aviso = {
     politicaSub: 'Le document complet, avec la base légale et les durées',
     termosSub: 'Ce que nous sommes, ce que nous ne sommes pas, et ce que chaque côté peut attendre',
     semPoliticaTitulo: 'Ceci décrit l’application, ce n’est pas la politique de confidentialité',
-    semPoliticaTexto: 'Voici ce que le programme fait de vos données. Le document juridique, avec les obligations de qui exploite le service, reste à publier — et quand il existera, il apparaîtra sur cet écran.',
+    semPoliticaTexto: 'Voici ce que l’application fait de vos données. Le document juridique, avec les obligations de la personne qui exploite le service, reste à publier — et quand il existera, il apparaîtra sur cet écran.',
   },
 
   telaIntegracoes: {
@@ -167,7 +167,7 @@ export const aviso = {
     lead: 'Activées, elles font entrer vos pesées sans que vous les tapiez.',
 
     doSeuAparelho: 'De votre appareil',
-    doSeuAparelhoNota: 'Un dépôt local : nous demandons la permission et nous lisons. Sans compte et sans mot de passe.',
+    doSeuAparelhoNota: 'C’est le stockage santé de l’appareil : nous demandons la permission et nous lisons. Sans compte et sans mot de passe.',
 
     atualizarAgora: 'Actualiser maintenant',
     lendo: 'Lecture…',
@@ -185,7 +185,7 @@ export const aviso = {
     semBuildTexto: 'Lire Apple Santé et Health Connect demande une version installée de l’application, et non l’aperçu. Dans Expo Go elle n’existe pas.',
 
     contasDeServico: 'Comptes de service',
-    contasDeServicoNota: 'Ceux-là livrent les données à un serveur, et non au téléphone — la liaison arrive quand ce serveur sera debout. En attendant, ce qu’ils envoient à l’application santé de votre appareil arrive déjà ici.',
+    contasDeServicoNota: 'Ceux-là livrent les données à un serveur, et non au téléphone — la liaison arrive quand ce serveur sera en place. En attendant, ce qu’ils envoient à l’application santé de votre appareil arrive déjà ici.',
     emBreve: 'Bientôt',
   },
 };
