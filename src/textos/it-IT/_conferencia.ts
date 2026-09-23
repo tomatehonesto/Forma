@@ -22,6 +22,7 @@
 
 import type { ajuda as ajudaPt } from '../pt-BR/ajuda';
 import type { alertas as alertasPt } from '../pt-BR/alertas';
+import type { alimentacao as alimentacaoPt } from '../pt-BR/alimentacao';
 import type { assinatura as assinaturaPt } from '../pt-BR/assinatura';
 import type { aviso as avisoPt } from '../pt-BR/aviso';
 import type { avisos as avisosPt } from '../pt-BR/avisos';
@@ -30,6 +31,7 @@ import type { ciclo as cicloPt } from '../pt-BR/ciclo';
 import type { comum as comumPt } from '../pt-BR/comum';
 import type { confirmacoes as confirmacoesPt } from '../pt-BR/confirmacoes';
 import type { conquistas as conquistasPt } from '../pt-BR/conquistas';
+import type { cruzamentos as cruzamentosPt } from '../pt-BR/cruzamentos';
 import type { cuidado as cuidadoPt } from '../pt-BR/cuidado';
 import type { descobertas as descobertasPt } from '../pt-BR/descobertas';
 import type { equilibrio as equilibrioPt } from '../pt-BR/equilibrio';
@@ -48,6 +50,7 @@ import type { tempo as tempoPt } from '../pt-BR/tempo';
 
 import { ajuda } from './ajuda';
 import { alertas } from './alertas';
+import { alimentacao } from './alimentacao';
 import { assinatura } from './assinatura';
 import { aviso } from './aviso';
 import { avisos } from './avisos';
@@ -56,6 +59,7 @@ import { ciclo } from './ciclo';
 import { comum } from './comum';
 import { confirmacoes } from './confirmacoes';
 import { conquistas } from './conquistas';
+import { cruzamentos } from './cruzamentos';
 import { cuidado } from './cuidado';
 import { descobertas } from './descobertas';
 import { equilibrio } from './equilibrio';
@@ -74,6 +78,7 @@ import { tempo } from './tempo';
 
 const _ajuda: typeof ajudaPt = ajuda;
 const _alertas: typeof alertasPt = alertas;
+const _alimentacao: typeof alimentacaoPt = alimentacao;
 const _assinatura: typeof assinaturaPt = assinatura;
 const _aviso: typeof avisoPt = aviso;
 const _avisos: typeof avisosPt = avisos;
@@ -82,6 +87,7 @@ const _ciclo: typeof cicloPt = ciclo;
 const _comum: typeof comumPt = comum;
 const _confirmacoes: typeof confirmacoesPt = confirmacoes;
 const _conquistas: typeof conquistasPt = conquistas;
+const _cruzamentos: typeof cruzamentosPt = cruzamentos;
 const _cuidado: typeof cuidadoPt = cuidado;
 const _descobertas: typeof descobertasPt = descobertas;
 const _equilibrio: typeof equilibrioPt = equilibrio;
@@ -98,4 +104,4 @@ const _resumo: typeof resumoPt = resumo;
 const _rotina: typeof rotinaPt = rotina;
 const _tempo: typeof tempoPt = tempo;
 
-export const conferidos = [_ajuda, _alertas, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _comum, _confirmacoes, _conquistas, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _perfil, _resumo, _rotina, _tempo];
+export const conferidos = [_ajuda, _alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _idioma, _leituras, _medidas, _perfil, _resumo, _rotina, _tempo];
