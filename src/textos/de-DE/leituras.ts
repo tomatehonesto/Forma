@@ -40,13 +40,13 @@ export const leituras = {
      HINZUSEHEN“ ist der ganze Satz. Er bittet um Aufmerksamkeit, ohne zu
      erschrecken, und das „genau deshalb“ ist das, was die Lesart davon
      abhält, ein Alarm zu werden. */
-  dorTexto: 'Starke Bauchschmerzen, oder solche, die nicht weggehen, sind die einzigen, die am selben Tag Aufmerksamkeit brauchen. Es ist fast nie etwas Ernstes — und genau deshalb lohnt es sich, früh hinzusehen.',
+  dorTexto: 'Starke Bauchschmerzen, oder solche, die nicht weggehen, brauchen am selben Tag Aufmerksamkeit. Es ist fast nie etwas Ernstes — und genau deshalb lohnt es sich, früh hinzusehen.',
   dorAcao: 'Sprich heute noch mit deinem Team. Wenn es schlimmer wird oder Erbrechen dazukommt, lass dich behandeln.',
 
   vomitoSobre: 'Erbrechen',
   vomitoCurto: 'trink Wasser in kleinen Schlucken, oft',
   vomitoTitulo: 'Erbrechen nimmt mehr Flüssigkeit mit, als es aussieht',
-  vomitoTexto: 'Mit dem Wasser geht das Salz, und der Körper merkt es, bevor der Durst kommt. Und wenn das Essen nicht bleibt, fängt der nächste Tag schon müde an.',
+  vomitoTexto: 'Mit dem Wasser geht das Salz, und dein Körper merkt es, bevor der Durst kommt. Und wenn das Essen nicht bleibt, fängst du den nächsten Tag schon müde an.',
   vomitoAcao: 'Trink in kleinen Schlucken, oft, statt ein Glas auf einmal. Wenn nicht einmal Wasser bleibt, sprich heute noch mit deinem Team.',
 
   tonturaSobre: 'Schwindel',
@@ -58,7 +58,7 @@ export const leituras = {
   presoSobre: 'Verstopfung',
   presoCurto: 'trink über den Tag verteilt, iss Ballaststoffe und geh spazieren',
   presoTitulo: 'Vier Tage ohne Stuhlgang verdienen schon Aufmerksamkeit',
-  presoTexto: 'Das Medikament macht alles langsamer, und wer weniger isst, hat wenig, was der Darm schieben könnte. Bei vier Tagen hört es meist auf, sich von selbst zu lösen.',
+  presoTexto: 'Das Medikament macht alles langsamer, und wer weniger isst, hat wenig, was der Darm schieben könnte. Nach rund vier Tagen hört es meist auf, sich von selbst zu lösen.',
   presoAcao: 'Über den Tag trinken, Ballaststoffe zu den Mahlzeiten und ein Spaziergang. Wenn es über fünf Tage geht, oder starke Schmerzen und Erbrechen dazukommen, lass dich behandeln.',
 
   soltoSobre: 'Weicher Stuhl',
@@ -84,13 +84,13 @@ export const leituras = {
   dorVomitoSobre: 'Schmerz mit Erbrechen',
   dorVomitoCurto: 'geh heute zu deinem Team oder in die Notaufnahme',
   dorVomitoTitulo: 'Starke Schmerzen mit Erbrechen warten nicht',
-  dorVomitoTexto: 'Starke Bauchschmerzen zusammen mit Erbrechen, manchmal in den Rücken ausstrahlend, brauchen am selben Tag Aufmerksamkeit. Früh angekommen, ist das einfach zu prüfen.',
+  dorVomitoTexto: 'Starke Bauchschmerzen zusammen mit Erbrechen, manchmal in den Rücken ausstrahlend, brauchen am selben Tag Aufmerksamkeit. Wenn du früh kommst, ist das einfach zu prüfen.',
   dorVomitoAcao: 'Geh heute zu deinem Team oder in die Notaufnahme. Sag, welches Medikament du nimmst, die Dosis, und wann der Schmerz angefangen hat.',
 
   desidratacaoSobre: 'Schwindel und Flüssigkeitsverlust',
   desidratacaoCurto: 'trink eine Elektrolytlösung oder Salzwasser, und steh langsam auf',
   desidratacaoTitulo: 'Schwindel mit Flüssigkeitsverlust ist ein Zeichen für Austrocknung',
-  desidratacaoTexto: 'Wenn Wasser und Salz fehlen, fällt der Blutdruck beim Aufstehen — und der Schwindel ist der Körper, der warnt.',
+  desidratacaoTexto: 'Wenn Wasser und Salz fehlen, fällt der Blutdruck beim Aufstehen — und der Schwindel ist dein Körper, der warnt.',
   desidratacaoAcao: 'Trink in kleinen Schlucken über den Tag, mit einer Elektrolytlösung oder einer Prise Salz, und steh langsam auf. Wenn es bis morgen nicht besser wird, sag deinem Team Bescheid.',
 
   /* ⚠️ DESHALB TRÄGT DER TEXT DIE ZAHL DER TAGE. „Vier der letzten
@@ -100,12 +100,12 @@ export const leituras = {
   vomitoSemanaCurto: 'sprich diese Woche mit deinem Team',
   vomitoSemanaTitulo: 'Erbrechen an wiederholten Tagen',
   vomitoSemanaTexto: (n: number) => `${n} der letzten sieben Tage mit Erbrechen. So bleiben weder Essen noch Flüssigkeit noch das Medikament selbst.`,
-  vomitoSemanaAcao: 'Sprich diese Woche mit deinem Team, ohne auf den Termin zu warten. Nimm die Zahl der Tage mit — sie macht den Unterschied.',
+  vomitoSemanaAcao: 'Sprich diese Woche mit deinem Team, ohne auf den Termin zu warten. Sag ihnen die Zahl der Tage — sie macht den Unterschied.',
 
   soltoSemanaSobre: 'Verdauung in der Woche',
   soltoSemanaCurto: 'trink mehr und erzähl es deinem Team',
   soltoSemanaTitulo: 'Der Stuhl ist seit Tagen weich',
-  soltoSemanaTexto: (n: number) => `${n} der letzten sieben Tage so wiegen schon in der Flüssigkeit, auch wenn jeder Tag für sich ruhig aussieht.`,
+  soltoSemanaTexto: (n: number) => `${n} der letzten sieben Tage so schlagen schon auf den Flüssigkeitshaushalt durch, auch wenn jeder Tag für sich ruhig aussieht.`,
   soltoSemanaAcao: 'Trink mehr, als der Durst verlangt, und erzähl es deinem Team. Es kann die Dosis sein, es kann das Essen sein.',
 
   enjooSemanaSobre: 'Übelkeit in der Woche',

@@ -60,7 +60,7 @@ export const ciclo = {
      Der Satz war als Rat gedacht und kam als Zurechtweisung an — die
      bejahende Fassung sagt dasselbe Nützliche, ohne jemanden zu
      beschuldigen. */
-  altoBody: 'Kleinere Portionen, dafür öfter, mit Eiweiß dabei, halten den Hunger besser.',
+  altoBody: 'Kleinere Portionen, dafür öfter, mit Eiweiß dabei, halten den Hunger besser in Schach.',
   altoQ: 'Warum habe ich mehr Hunger?',
 
   /* ---------- das zusätzliche Zeichen ---------- */

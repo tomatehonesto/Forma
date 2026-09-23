@@ -19,7 +19,7 @@ export const alimentacao = {
      eine Abschnittsüberschrift, dort hineingeklebt, läse sich wie ein
      Maschinenbefehl. */
   conselhos: {
-    fibraQ: 'Wie bekomme ich mehr Ballaststoffe in meinen Tag, ohne mich am Essen satt zu sehen?',
+    fibraQ: 'Wie bekomme ich mehr Ballaststoffe in meinen Tag, ohne dass mir das Essen über wird?',
     fibraTitulo: (media: number) => `Ballaststoffe: ${media} g pro Tag`,
     /* ⚠️ DIE ZWEITE HÄLFTE IST DER GRUND, WARUM DIESE KARTE DIE ERSTE IST:
        Verstopfung gehört zu den häufigsten Nebenwirkungen der Behandlung,
@@ -30,7 +30,7 @@ export const alimentacao = {
     fibraBoaQ: 'Was ändern Ballaststoffe an meiner Behandlung?',
     fibraBoaTitulo: (media: number) => `Ballaststoffe: ${media} g pro Tag, über dem Ziel`,
     fibraBoaTexto: (dias: number, meta: number) =>
-      `Das ist dein Schnitt der letzten ${dias} eingetragenen Tage, gegenüber einem Ziel von ${meta} g. Das ist meist das, was die Verstopfung der Behandlung in Schach hält — so lohnt es sich zu bleiben.`,
+      `Das ist dein Schnitt der letzten ${dias} eingetragenen Tage, gegenüber einem Ziel von ${meta} g. Das ist meist das, was die Verstopfung der Behandlung in Schach hält — dabei lohnt es sich zu bleiben.`,
 
     /* ⚠️ DER SCHWACHE ZEITPUNKT NENNT DEN ZEITPUNKT, und das sagt die Zahl
        des Tages nicht: ein Frühstück mit 6 g und ein Mittagessen mit 40 g
@@ -47,11 +47,11 @@ export const alimentacao = {
        eine vegan lebende Person nicht folgen kann, gesagt von der App, die
        sie gerade gefragt hat, ob sie vegan lebt. */
     momentoFracoTexto: (melhor: string, mediaMelhor: number, fontes: string) =>
-      `Das ist dein leichtester Zeitpunkt beim Eiweiß — das ${melhor} bringt ${mediaMelhor} g. Innerhalb dessen, was du isst, liefert am meisten Eiweiß pro Kalorie: ${fontes}.`,
+      `Das ist dein leichtester Zeitpunkt beim Eiweiß — das ${melhor} bringt ${mediaMelhor} g. Von dem, was du ohnehin isst, liefert am meisten Eiweiß pro Kalorie: ${fontes}.`,
 
     momentoForteQ: 'Warum zählt Eiweiß bei dieser Behandlung so viel?',
     momentoForteTitulo: (momento: string, media: number) => `${momento}: ${media} g Eiweiß im Schnitt`,
-    momentoForteTexto: 'Das ist der Zeitpunkt, der dein Tagesziel am meisten trägt. Zu wiederholen, was dort schon funktioniert, ist leichter, als woanders etwas zu reparieren.',
+    momentoForteTexto: 'Das ist der Zeitpunkt, der dein Tagesziel am meisten trägt. Zu wiederholen, was dort schon funktioniert, ist leichter, als woanders etwas umzustellen.',
 
     /* ⚠️ DER SATZ ZÄHLT, AN WIE VIELEN TAGEN GEMÜSE IM EINTRAG AUFTAUCHTE,
        und nicht, an wie vielen die Person Gemüse gegessen hat. Das sind
@@ -60,7 +60,7 @@ export const alimentacao = {
     verdeQ: 'Welches Gemüse passt zu dem, was ich ohnehin esse?',
     verdeTitulo: (comVerde: number, total: number) =>
       `Gemüse an ${comVerde} von ${total} eingetragenen Tagen`,
-    verdeTexto: 'Ein Salat oder eine Gemüsebeilage zum Mittagessen füllt den Teller mit wenig Kalorien — das hilft, satt aus der Mahlzeit zu gehen, ohne den Tag anzubrechen, und bringt die Ballaststoffe gleich mit.',
+    verdeTexto: 'Ein Salat oder eine Gemüsebeilage zum Mittagessen füllt den Teller mit wenig Kalorien — das hilft, satt aus der Mahlzeit zu gehen, ohne die Kalorien des Tages anzubrechen, und bringt die Ballaststoffe gleich mit.',
   },
 
   /* ⚠️ DIE `id` SIND DATEN — 'agua', 'cafe', 'coco' ist das, was in jedem
@@ -88,7 +88,7 @@ export const alimentacao = {
        Vasopressin, und der Körper gibt mehr zurück, als er bekommen hat.
        Es bleibt eintragbar, weil das Tagebuch dafür da ist, festzuhalten,
        was passiert ist; es geht nur nicht in die Summe ein. */
-    notaAlcool: 'Wird eingetragen, zählt aber nicht zur Summe: Alkohol lässt den Körper mehr Flüssigkeit abgeben, als er bekommen hat.',
+    notaAlcool: 'Wird eingetragen, zählt aber nicht zur Summe: Alkohol lässt deinen Körper mehr Flüssigkeit abgeben, als er bekommen hat.',
 
     recipientes: {
       xicara: 'Tasse',
@@ -127,14 +127,14 @@ export const alimentacao = {
     semConta: 'zählt noch nicht mit',
 
     /* ⚠️ DIE LESART EINES LEBENSMITTELS VERBIETET NICHTS. „Es ist nicht
-       verboten, aber es nimmt einen guten Teil des Tages ein“ ist das
+       verboten, aber es nimmt einen guten Teil der Kalorien des Tages ein“ ist das
        Weiteste, wohin sie geht, und das ist Absicht: die App weiß nicht,
        was das Team mit der Person vereinbart hat. */
     muitaProteinaPoucaCaloria: 'Viel Eiweiß für wenig Kalorien. Das ist die Art Essen, die die Behandlung verlangt: es passt auf den Teller, der kleiner geworden ist, und hält trotzdem die Muskelmasse.',
     boaFonte: 'Gute Eiweißquelle, und das ist es, was die Muskelmasse hält, während das Gewicht fällt.',
-    caloriaAlta: 'Viele Kalorien und wenig Eiweiß. Es ist nicht verboten, aber es nimmt einen guten Teil des Tages ein und gibt wenig von dem zurück, was die Behandlung braucht.',
+    caloriaAlta: 'Viele Kalorien und wenig Eiweiß. Es ist nicht verboten, aber es nimmt einen guten Teil der Kalorien des Tages ein und gibt wenig von dem zurück, was die Behandlung braucht.',
     bastanteFibra: 'Viele Ballaststoffe. Das hilft gegen die Verstopfung, eine der häufigsten Nebenwirkungen der Behandlung.',
-    quaseNaoPesa: 'Fällt im Tag kaum ins Gewicht. Gut als Beilage, aber das Eiweiß muss von woanders kommen.',
+    quaseNaoPesa: 'Fällt bei den Kalorien des Tages kaum ins Gewicht. Gut als Beilage, aber das Eiweiß muss von woanders kommen.',
     temFibra: 'Enthält Ballaststoffe, die gegen die Verstopfung helfen — eine der häufigsten Nebenwirkungen der Behandlung.',
   },
 
@@ -280,7 +280,7 @@ export const alimentacao = {
     meta: (quanto: string) => `Ziel: ${quanto}`,
 
     diario: 'Getränketagebuch',
-    diarioNota: 'Kaffee, Tee, Milch und Saft zählen mit: das Ziel ist Flüssigkeit und nicht reines Wasser. Lösch, was falsch hineingeraten ist.',
+    diarioNota: 'Kaffee, Tee, Milch und Saft zählen mit: das Ziel ist Flüssigkeit und nicht reines Wasser. Lösch, was du versehentlich eingetragen hast.',
     apagarDoDia: 'Das Wasser dieses Tages löschen?',
     apagarGole: (quanto: string, hora: string) => `${quanto} von ${hora} löschen?`,
     deBebida: (nome: string) => ` ${nome}`,
@@ -305,7 +305,7 @@ export const alimentacao = {
 
   telaMedirRefeicao: {
     favorito: 'Ein Lieblingsteller',
-    favoritoSub: 'Stell den Teller einmal zusammen, und er bleibt einen Tipp entfernt',
+    favoritoSub: 'Stell den Teller einmal zusammen, und er ist danach mit einem Tippen da',
     corrigir: 'Die Mahlzeit korrigieren',
     corrigirSub: 'Was am Eintrag falsch ist',
     oQueComeu: 'Was hast du gegessen?',
@@ -324,7 +324,7 @@ export const alimentacao = {
       `${item} geht nicht in diese Rechnung ein — das Eiweiß dieses Gerichts habe ich noch nicht.`,
     semContaVarios: (quantos: number) =>
       `${quantos} Posten gehen nicht in diese Rechnung ein — ihr Eiweiß habe ich noch nicht.`,
-    estimadoPelaFoto: 'Ein Teil dieser Summe wurde aus dem Foto geschätzt, ohne Tabelle dahinter.',
+    estimadoPelaFoto: 'Ein Teil dieser Summe wurde aus dem Foto geschätzt und nicht aus der Tabelle.',
 
     pratosFavoritos: 'Lieblingsteller',
     pratosGuardados: (quantos: number) =>

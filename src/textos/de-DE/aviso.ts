@@ -137,7 +137,7 @@ export const aviso = {
     verResumo: 'Die Übersicht für den Termin ansehen',
 
     pronto: 'Datei gebaut. Sie geht nur dorthin, wohin du sie schickst.',
-    erro: 'Wir konnten die Datei auf diesem Gerät nicht bauen. Deine Einträge sind weiter hier, unangetastet.',
+    erro: 'Wir konnten die Datei auf diesem Gerät nicht erstellen. Deine Einträge sind weiter hier, unangetastet.',
     parado: 'Von hier geht nichts ohne deinen Fingertipp.',
   },
 
@@ -190,7 +190,7 @@ export const aviso = {
     politicaSub: 'Das vollständige Dokument, mit Rechtsgrundlage und Fristen',
     termosSub: 'Was wir sind, was wir nicht sind, und was jede Seite erwarten kann',
     semPoliticaTitulo: 'Das hier beschreibt die App, es ist nicht die Datenschutzerklärung',
-    semPoliticaTexto: 'Hier steht, was das Programm mit deinen Daten macht. Das juristische Dokument, mit den Pflichten dessen, der den Dienst betreibt, muss noch veröffentlicht werden — und sobald es existiert, erscheint es auf diesem Bildschirm.',
+    semPoliticaTexto: 'Hier steht, was die App mit deinen Daten macht. Das juristische Dokument, mit den Pflichten dessen, der den Dienst betreibt, muss noch veröffentlicht werden — und sobald es existiert, erscheint es auf diesem Bildschirm.',
   },
 
   telaIntegracoes: {

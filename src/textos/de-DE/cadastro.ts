@@ -69,10 +69,10 @@ export const cadastro = {
     nascimento: 'Jede Lebensphase hat eigene Bedürfnisse — und das Alter geht in die Referenzbereiche deiner Blutwerte ein.',
     tratamento: 'Nur, um zu wissen, wo du gerade stehst.',
     inicio: 'Ungefähr reicht. Daraus ergibt sich deine Behandlungswoche, und dieses Gewicht wird zum Anfang deiner Kurve.',
-    medicamento: 'Daraus kommen die Dosisleiter und der Abstand zwischen den Spritzen.',
+    medicamento: 'Daraus kommen die Dosistreppe und der Abstand zwischen den Spritzen.',
     forma: 'Die Rezeptur kommt in beiden Formen aus der Apotheke, und was sich ändert, ist das, was du beim Spritzen in der Hand hast.',
     doseComEscada: (med: string) => `In der Reihenfolge der Aufdosierung von ${med}.`,
-    doseSemEscada: 'Die Rezeptur hat keine Leiter aus der Packungsbeilage — die Zahl ist die aus deinem Rezept.',
+    doseSemEscada: 'Die Rezeptur hat keine Standard-Dosistreppe — die Zahl ist die aus deinem Rezept.',
     /* ⚠️ DER BEHÄLTER KOMMT SCHON GEBEUGT — hier im GENITIV: „des Pens“,
        „der Spritze“. Siehe T.formas.doDa in textos/de-DE/formas.ts. */
     frequencia: (doDaForma: string) => `Daraus kommen die Zählung des Zyklus, die Erinnerungen und der Vorrat ${doDaForma}.`,
@@ -88,7 +88,7 @@ export const cadastro = {
        zu lügen, um die bessere Fassung freizuschalten — und wer dort
        lügt, bekommt eine App, die ihr von Terminen erzählt, die sie nicht
        hat. */
-    acompanhamento: 'Diese Antwort schaltet Funktionen rund um die ärztliche Begleitung frei, etwa Notizen und die Vorbereitung von Terminen.',
+    acompanhamento: 'Diese Antwort öffnet, was mit der ärztlichen Begleitung zu tun hat — Notizen und die Vorbereitung von Terminen.',
     consentimento: 'Zwei Dinge, bevor es losgeht: was wir für deine Behandlung tun, und was mit dem passiert, was du einträgst.',
   },
 
@@ -174,7 +174,7 @@ export const cadastro = {
 
   sim: 'Ja',
   digiteONome: 'Namen eingeben',
-  nadaEnviado: 'Dient dazu, die Praxis auf deinem Weg benennen zu können. An diese Person wird nichts geschickt.',
+  nadaEnviado: 'Damit du sie auf deinem Weg zur Hand hast. An diese Person wird nichts geschickt.',
   vouMeTratar: 'Ich werde mich ärztlich behandeln lassen',
   meAcompanha: 'Eine Praxis begleitet meine Behandlung',
   porContaPropria: 'Nein, auf eigene Faust',
@@ -244,7 +244,7 @@ export const cadastro = {
     pesoAGanhar: 'Zuzunehmendes Gewicht',
     emSemanas: (semanas: number) => `in ${semanas} Wochen`,
     ressalvaDaCurva: (ritmo: string) =>
-      `Der Abfall ist keine Gerade: In den Studien bringen die ersten Wochen mehr, und das Tempo lässt nach, während der Körper sich einstellt. Die ${ritmo} pro Woche, die du gewählt hast, sind der Durchschnitt des Weges und keine Vorhersage.`,
+      `Der Abfall ist keine Gerade: In den Studien bringen die ersten Wochen mehr, und das Tempo lässt nach, während dein Körper sich einstellt. Die ${ritmo} pro Woche, die du gewählt hast, sind ein Durchschnitt über die ganze Strecke und keine Vorhersage.`,
 
     imcDeHoje: 'BMI heute',
     naSuaMeta: 'Bei deinem Ziel',
@@ -267,7 +267,7 @@ export const cadastro = {
 
   telaDados: {
     titulo: 'Deine Angaben',
-    lead: 'Das sind die Antworten aus deiner Anmeldung, und aus ihnen kommen dein BMI, deine Tagesziele und die Vorhersage des Plans. Hier etwas zu ändern rechnet diese Zahlen neu.',
+    lead: 'Das sind die Antworten aus deiner Anmeldung, und aus ihnen kommen dein BMI, deine Tagesziele und die Vorhersage des Plans. Wenn du hier etwas änderst, werden diese Zahlen neu berechnet.',
 
     tratamento: 'Behandlung',
     medicamento: 'Medikament',

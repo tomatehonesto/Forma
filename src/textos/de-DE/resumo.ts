@@ -72,7 +72,7 @@ export const resumo = {
 
   tela: {
     titulo: 'Übersicht für den Termin',
-    lead: 'Alles, was du eingetragen hast, so wie es beim Termin ankommt.',
+    lead: 'Alles, was du eingetragen hast, so wie es beim Termin aussieht.',
 
     enviar: (doutor: string) => `An ${doutor} schicken`,
     enviarDeNovo: (doutor: string) => `Noch einmal an ${doutor} schicken`,

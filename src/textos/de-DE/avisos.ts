@@ -34,7 +34,7 @@ export const avisos = {
 
   /* ---------- die anderen vier ---------- */
   checkin: 'Wie war dein Tag?',
-  checkinCorpo: 'Schlaf, Hunger, Energie und Stimmung — vier Antworten, und der Tag steht fest.',
+  checkinCorpo: 'Schlaf, Hunger, Energie und Stimmung — vier Antworten, und der Tag ist eingetragen.',
   peso: 'Wiegetag',
   pesoCorpo: 'Stell dich auf die Waage, wenn es passt. Eine Zahl pro Woche zeichnet die Kurve schon.',
   agua: 'Ein Glas Wasser',

@@ -58,7 +58,7 @@ export const medidas = {
       `${periodo}${quantos > 1 ? ` · ${quantos} Einträge` : ''}`,
 
     registros: 'Einträge',
-    notaLeitura: 'Werte von einer Körperanalysewaage. Hier gibt es nichts zu korrigieren — sie kommen fertig an.',
+    notaLeitura: 'Werte von einer Körperanalysewaage. Hier gibt es nichts zu korrigieren — sie kommen bereits vollständig an.',
     /* „Arztbericht“ statt „der Bericht für deine Ärztin oder deinen
        Arzt“: das Kompositum nennt die Rolle und kein Geschlecht, und es
        passt in die Zeile. Siehe comum.ts. */
@@ -70,7 +70,7 @@ export const medidas = {
     lead: 'Zwölf Wochen Behandlung. Tippe auf einen Marker, um den Verlauf zu sehen und Einträge zu korrigieren.',
 
     voceRegistra: 'Was du selbst einträgst',
-    voceRegistraNota: 'Marker, die nur von dir abhängen — tippe, um den Verlauf zu sehen und zu korrigieren.',
+    voceRegistraNota: 'Marker, die nur von dir abhängen — tippe, um den Verlauf zu sehen und Einträge zu korrigieren.',
 
     vemDeExame: 'Was aus einem Befund kommt',
     vemDeExameNota: 'Dafür braucht es einen Laborbefund oder eine Waage mit Körperanalyse. Nur zum Lesen — aber jeder öffnet seinen eigenen Verlauf.',

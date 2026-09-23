@@ -32,7 +32,7 @@ export const ajuda = {
     },
     {
       q: 'Warum ist ein Erfolg verschwunden?',
-      a: 'Weil er nie gespeichert wurde. Die Erfolge werden bei jedem Öffnen des Bildschirms aus deinen Einträgen gezählt und nicht irgendwo als erledigt markiert. Wird der Eintrag gelöscht, der eine Stufe geschlossen hat, geht die Stufe mit — sie hat aufgehört, stattgefunden zu haben.',
+      a: 'Weil er nie gespeichert wurde. Die Erfolge werden bei jedem Öffnen des Bildschirms aus deinen Einträgen gezählt und nicht irgendwo als erledigt markiert. Wird der Eintrag gelöscht, der eine Stufe geschlossen hat, geht die Stufe mit — für die Zählung hat sie nie stattgefunden.',
     },
     {
       q: 'Ich habe eine Erinnerung gestellt, und sie hat nicht geklingelt.',
@@ -59,7 +59,7 @@ export const ajuda = {
     },
     {
       q: 'Und wenn ich die App deinstalliere?',
-      a: 'Deine Einträge wohnen auf dem Gerät, in der App — ohne Konto und ohne Server. Deinstallieren nimmt alles mit, und es gibt nirgends eine Kopie, aus der sich etwas zurückholen ließe. Davor kannst du unter Exportieren eine Datei mit dem bauen, was du eingetragen hast.',
+      a: 'Deine Einträge wohnen auf dem Gerät, in der App — ohne Konto und ohne Server. Deinstallieren nimmt alles mit, und es gibt nirgends eine Kopie, aus der sich etwas zurückholen ließe. Davor kannst du unter Exportieren eine Datei mit dem erstellen, was du eingetragen hast.',
     },
   ] as { q: string; a: string }[],
 

@@ -116,7 +116,7 @@ export const cuidado = {
        einer anderen Menge kamen, konnte der Satz ein Thema nennen, das die
        Liste nicht hatte. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'Dinge warten' : 'Sache wartet'} auf dich — ${assuntos}. Nichts Dringendes, aber diese Woche lohnt es sich.`,
+      `${quantas} ${plural ? 'Dinge warten' : 'Sache wartet'} auf dich — ${assuntos}. Nichts Dringendes, aber diese Woche lohnt es sich, das zu erledigen.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'offener Punkt' : 'offene Punkte'}`,
     /* Bis vier ausgeschrieben, was die Obergrenze an offenen Punkten ist.
@@ -223,7 +223,7 @@ export const cuidado = {
 
     quemAcompanha: 'Wer deine Behandlung begleitet',
     ninguemRegistrado: 'Noch niemand eingetragen',
-    seVoceSeTrata: 'Wenn dich jemand behandelt, trag ihn hier ein — die Übersicht kommt fertig für den Termin heraus.',
+    seVoceSeTrata: 'Wenn dich jemand behandelt, trag ihn hier ein — die Übersicht ist dann für den Termin fertig.',
 
     acompanhamentoProfissional: 'Ärztliche Begleitung',
     conhecaParceiros: 'Die Partnerärztinnen und -ärzte kennenlernen',
@@ -241,9 +241,9 @@ export const cuidado = {
     leadComVinculo: 'Diese Angaben kommen aus der Praxis, die deine Behandlung begleitet.',
     ondeAtendida: 'Wo die Termine stattfinden',
     quemCorrige: 'Korrigieren tut die Praxis',
-    quemCorrigeTexto: 'Wenn etwas falsch ist, sprich mit dem Team — es führt diese Angaben, und was dort korrigiert wird, kommt hier an.',
+    quemCorrigeTexto: 'Wenn etwas falsch ist, sprich mit dem Team — es führt diese Angaben, und was dort korrigiert wird, erscheint hier.',
 
-    lead: 'Wenn dich jemand behandelt, trag ihn hier ein. Das ist es, was die Übersicht fertig für den Termin herauskommen lässt und die Vorbereitung der Fragen zur richtigen Zeit erscheinen lässt.',
+    lead: 'Wenn dich jemand behandelt, trag ihn hier ein. Das ist es, was die Übersicht für den Termin fertig macht und die Fragen zur richtigen Zeit vorbereitet.',
 
     nome: 'Name',
     nomeAjuda: 'Wie du diese Person nennst. Es kann auch der Name der Praxis sein, wenn dir das lieber ist.',
@@ -288,7 +288,7 @@ export const cuidado = {
     comQuem: (quem: string) => `Bei ${quem}.`,
 
     dataFicaComVoce: 'Das Datum bleibt bei dir',
-    dataFicaComVoceTexto: 'Es hier einzutragen sagt der Praxis nichts und kommt nicht in den Kalender des Telefons. Wir sind es, die ab jetzt wissen, dass der Termin näher rückt.',
+    dataFicaComVoceTexto: 'Es hier einzutragen sagt der Praxis nichts und kommt nicht in den Kalender des Telefons. Wir sind es, die dir Bescheid sagen, wenn der Termin näher rückt.',
 
     salvar: 'Speichern',
     anotar: 'Termin eintragen',

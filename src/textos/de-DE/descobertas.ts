@@ -65,7 +65,7 @@ export const descobertas = {
   metaCta: 'Ein Ziel anlegen',
 
   medidasTitulo: 'Die Waage erzählt nur einen Teil',
-  medidasTexto: 'Das Maßband erzählt den anderen: Taille und Hüfte verändern sich, wenn das Gewicht stehen bleibt — und genau dann zeigt es, dass etwas passiert.',
+  medidasTexto: 'Das Maßband erzählt den Rest: Taille und Hüfte verändern sich weiter, wenn das Gewicht stehen bleibt — und genau dann zeigt es, dass sich noch etwas tut.',
   medidasCta: 'Maße eintragen',
 
   refeicaoTitulo: 'Das Eiweiß des Tages kann sich selbst zusammenzählen',

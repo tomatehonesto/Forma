@@ -86,7 +86,7 @@ export const rotina = {
        Spanisch und Französisch ist „doses“ dasselbe Wort, und genau
        deshalb fiel es niemandem auf. Auf Deutsch heißt es „Dosen“. */
     receitaPorque: (doses: number, onde: string) =>
-      `Es ${doses === 1 ? 'ist' : 'sind'} noch ${doses} ${doses === 1 ? 'Dosis' : 'Dosen'} ${onde} — jetzt angefragt, kommt es an, bevor der Vorrat endet`,
+      `Es ${doses === 1 ? 'ist' : 'sind'} noch ${doses} ${doses === 1 ? 'Dosis' : 'Dosen'} ${onde} — wenn du jetzt anfragst, kommt es an, bevor der Vorrat endet`,
 
     /* Der Text der Untersuchung kommt aus dem Protokoll; von uns ist der
        Grund. */

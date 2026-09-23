@@ -149,7 +149,7 @@ export const escalas = {
     dose: 'Dosis',
 
     cicloParecido: 'An den bisher beantworteten Tagen sieht die Übelkeit über den ganzen Zyklus ähnlich aus — sie folgt der Dosis nicht.',
-    cicloPoucos: 'Es sind noch zu wenige Tage beantwortet, um zu sagen, ob die Übelkeit dem Zyklus folgt. Mit ein paar Tagen mehr steht diese Rechnung.',
+    cicloPoucos: 'Es sind noch zu wenige Tage beantwortet, um zu sagen, ob die Übelkeit dem Zyklus folgt. Mit ein paar Tagen mehr hält diese Rechnung.',
     cicloInicio1: 'Die Übelkeit wiegt am Tag der Spritze am schwersten.',
     cicloInicioN: (dias: number) => `Die Übelkeit wiegt in den ersten ${dias} Tagen nach der Spritze am schwersten.`,
     cicloFim1: 'Die Übelkeit wiegt am Tag vor der nächsten Spritze am schwersten.',

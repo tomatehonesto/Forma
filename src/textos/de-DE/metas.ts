@@ -250,7 +250,7 @@ export const metas = {
          die Hürde kann ein Knie sein, ein Schmerz, eine Scham — und die
          falsche zu benennen schließt alle aus, die eine andere haben. */
       nome: 'Etwas aus dem Alltag',
-      pergunta: 'Was willst du schaffen, ohne müde zu werden? Die Treppe zu Hause, die Einkäufe tragen, bis dorthin gehen, ohne stehen zu bleiben.',
+      pergunta: 'Was willst du schaffen, ohne müde zu werden? Die Treppe zu Hause, die Einkäufe tragen, bis zur Ecke gehen, ohne stehen zu bleiben.',
       dica: 'Schreib die Tätigkeit',
       monta: (r: string) => `${r} schaffen`,
     },
@@ -273,7 +273,7 @@ export const metas = {
          Strand zu gehen, hat selten aufgehört, weil sie es nicht schaffte.
          Wer einen neuen Ort will, hat „Ein anderes Ziel“. */
       nome: 'Ein Ort, an den du nicht mehr gehst',
-      pergunta: 'Wohin willst du zurück? An den Strand, ins Schwimmbad, auf die Feier von jemandem — der Ort, der in letzter Zeit ausfällt.',
+      pergunta: 'Wohin willst du zurück? An den Strand, ins Schwimmbad, auf die Feier von jemandem — der Ort, den du in letzter Zeit auslässt.',
       dica: 'Schreib den Ort',
       /* „Wieder an den Strand“ — das Präfix hinten, und keine Präposition
          von uns: die steht schon in dem, was die Person geschrieben hat,
@@ -288,7 +288,7 @@ export const metas = {
     },
     largar: {
       nome: 'Eine Gewohnheit, die aufhören soll',
-      pergunta: 'Was willst du nicht mehr tun? Im Stehen essen, nachts naschen — was auch immer deines ist.',
+      pergunta: 'Was willst du nicht mehr tun? Im Stehen essen, nachts naschen — was auch immer es bei dir ist.',
       dica: 'Schreib die Gewohnheit',
       /* ⚠️ „NICHT MEHR“ VORN UND NICHTS HINTEN. „Aufhören zu“ verlangte
          ein „zu“ vor dem Verb, das die Person nicht mitschreibt, und
@@ -381,7 +381,7 @@ export const metas = {
     viaEquipe: 'Über dein Team',
 
     suasTitulo: 'Deine eigenen Ziele',
-    suasNota: 'Die gemessenen verfolgen wir über deine Einträge. Deine eigenen hakst du selbst ab.',
+    suasNota: 'Die gemessenen Ziele verfolgen wir über deine Einträge. Deine eigenen hakst du selbst ab.',
 
     vazioTitulo: 'Noch kein Ziel',
     vazioTexto: 'Schreib etwas auf, das du erreichen willst. Es bleibt hier, bis es passiert.',
@@ -410,7 +410,7 @@ export const metas = {
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,
 
     /* ---------- die Karte für ein neues Ziel ---------- */
-    novaSub: 'Etwas von dir. Wir heben es für dich auf, und abhaken tust du selbst',
+    novaSub: 'Etwas von dir. Wir heben es für dich auf, und du hakst es selbst ab',
     escolhaOTipo: 'Wähl die Art',
     escrevaDoSeuJeito: 'Schreib es, wie du willst',
 
@@ -423,7 +423,7 @@ export const metas = {
        deshalb ist der ganze Satz eine Funktion. */
     vaiAparecer: (frase: string, ate: string) => `So wird es aussehen: „${frase}“${ate}.`,
     vaiAparecerAte: (data: string) => `, bis zum ${data}`,
-    aindaNaoAteMarcar: 'Es bleibt auf noch nicht, bis du es abhakst. An dem Tag, an dem es passiert, heben wir das Datum mit auf.',
+    aindaNaoAteMarcar: 'Es bleibt auf „noch nicht“, bis du es abhakst. An dem Tag, an dem es passiert, heben wir das Datum mit auf.',
 
     /* ---------- die Karte für ein Ziel aus der Liste ---------- */
     metaTitulo: 'Ziel',

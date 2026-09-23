@@ -55,7 +55,7 @@ export const cruzamentos = {
        schließt er den Satz: „der Schlaf wird besser; es ist die Routine,
        die sich löst“ ist der ganze Fund in einer Zeile, und das ist es,
        was die Karte davon abhält, ein Vorwurf zu werden. */
-    textoSono: (horas: string) => ` — schläfst aber ${horas} Std. mehr. Der Schlaf wird besser; es ist die Routine, die sich löst.`,
+    textoSono: (horas: string) => ` — schläfst aber ${horas} Std. mehr. Der Schlaf wird besser; es ist die Routine, die sich lockert.`,
     textoSemSono: '.',
     q: 'Wie halte ich das Wochenende besser durch?',
     evid: (copos: string) => ({ valor: `−${copos}`, unidade: 'Gläser', legenda: 'samstags und sonntags' }),
@@ -64,7 +64,7 @@ export const cruzamentos = {
        liest, weiß längst, dass das Wochenende schwerer ist; was sie nicht
        weiß, ist, dass das Problem in der Struktur liegt und nicht im
        Willen. */
-    significa: 'Zwei Tage pro Woche steht die Behandlung mit einem Fuß draußen, und es sind genau die Tage, an denen du am meisten Zeit hast. Es braucht keine neue Disziplin — es braucht, dass das Wochenende eine eigene Routine hat, statt das Fehlen der Wochenroutine zu sein.',
+    significa: 'Zwei Tage pro Woche steht die Behandlung ohne ihre Struktur da, und es sind genau die Tage, an denen du am meisten Zeit hast. Es braucht keine neue Disziplin — es braucht, dass das Wochenende eine eigene Routine hat, statt das Fehlen der Wochenroutine zu sein.',
   },
 
   /* ---------- 2. der schwache Trinktag ---------- */
@@ -97,11 +97,11 @@ export const cruzamentos = {
     q: 'Wie steht es um mein Eiweiß?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'Hunger', legenda: 'am Tag nach einem erreichten Ziel' }),
-    porque: 'Eiweiß wirkt auf die Sättigung über einen langsameren Weg als Zucker: es braucht Zeit, um den Magen zu verlassen, und hält die Sättigungssignale über Stunden. Deshalb überquert die Wirkung die Nacht und taucht im Appetit des nächsten Morgens wieder auf.',
+    porque: 'Eiweiß wirkt auf die Sättigung über einen langsameren Weg als Zucker: es braucht Zeit, um den Magen zu verlassen, und hält die Sättigungssignale über Stunden. Deshalb hält die Wirkung über die Nacht an und taucht im Appetit des nächsten Morgens wieder auf.',
     /* ⚠️ „NICHT NUR EINE TABELLE FÜLLEN“ ist das, was das Eiweißziel aus
        der Pflicht holt und in den Tausch setzt — und der letzte Satz gibt
        den praktischen Nutzen, ohne irgendetwas anzuweisen. */
-    significa: 'Das Eiweißziel zu erreichen heißt nicht nur, eine Tabelle zu füllen: es heißt, sich einen ruhigeren nächsten Tag zu kaufen. Wenn der Hunger drückt, löst ihn nicht das, was du in dem Moment isst — sondern das, was du gestern gegessen hast.',
+    significa: 'Das Eiweißziel zu erreichen heißt nicht nur, eine Tabelle zu füllen: es heißt, sich einen ruhigeren nächsten Tag zu erkaufen. Wenn der Hunger drückt, löst ihn nicht das, was du in dem Moment isst — sondern das, was du gestern gegessen hast.',
   },
 
   /* ---------- 4. der Schlaf gegen den Hunger des nächsten Tages ---------- */
@@ -115,7 +115,7 @@ export const cruzamentos = {
        Beschwichtigung. Wer schlecht geschlafen und am nächsten Tag mehr
        gegessen hat, macht sich selbst Vorwürfe; der hormonelle Mechanismus
        ist die Tatsache, die die Schuld auflöst. */
-    porque: 'Wenig zu schlafen bewegt die beiden Hormone, die den Appetit regeln: das, was Hunger macht, steigt, und das, was meldet, dass es genug ist, fällt. Das ist kein Mangel an Disziplin am nächsten Tag — das ist der Körper, der schnelle Energie verlangt, um den fehlenden Schlaf auszugleichen.',
+    porque: 'Wenig zu schlafen bewegt die beiden Hormone, die den Appetit regeln: das, was Hunger macht, steigt, und das, was meldet, dass es genug ist, fällt. Das ist kein Mangel an Disziplin am nächsten Tag — das ist dein Körper, der schnelle Energie verlangt, um den fehlenden Schlaf auszugleichen.',
     significa: 'Schlaf taucht selten in der Rechnung derer auf, die ihr Gewicht behandeln, aber in deinen Daten bewegt er den Appetit wie wenig anderes. Eine geschützte Nacht kann für den nächsten Tag mehr wert sein als jede Umstellung auf dem Teller.',
   },
 
@@ -133,7 +133,7 @@ export const cruzamentos = {
     q: 'Warum ist mir übel?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `gegenüber ${semSono}`, legenda: `die Übelkeit nach ${noites} langen Nächten` }),
-    significa: 'Das ist, was deine Einträge zeigen, und kein Ursachenzusammenhang: der Zyklus der Spritze bewegt die Übelkeit mehr als alles andere, und er kann hinter beiden Seiten der Rechnung stehen. Als Spur zum Mitnehmen zu deinem Team, nicht als abgeschlossene Erklärung.',
+    significa: 'Das ist, was deine Einträge zeigen, und kein Ursachenzusammenhang: der Zyklus der Spritze bewegt die Übelkeit mehr als alles andere, und er kann hinter beiden Seiten der Rechnung stehen. Nimm es als Spur mit zu deinem Team, nicht als abgeschlossene Erklärung.',
   },
 
   /* ---------- 6. das Fenster der Übelkeit ---------- */
@@ -177,7 +177,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `Die Waage ist ${altas} Mal gestiegen, und du hast trotzdem ${perdido} verloren`,
     texto: (pesagens: number, altas: number) =>
-      `Von ${pesagens} Wiegungen lagen ${altas} über der vorherigen — und die Linie des Zeitraums geht weiter nach unten. Eine Woche im Plus ist kein Rückfall: es ist Rauschen aus Wasser und Verdauung innerhalb eines Trends.`,
+      `Von ${pesagens} Wiegungen lagen ${altas} über der vorherigen — und die Grundlinie geht weiter nach unten. Eine Woche im Plus ist kein Rückfall: es ist Rauschen aus Wasser und Verdauung innerhalb eines Trends.`,
     q: 'Wie läuft meine Entwicklung?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'Anstiege', legenda: `innerhalb von −${perdido} im Zeitraum` }),
@@ -201,7 +201,7 @@ export const cruzamentos = {
     q: 'Wie steht es um mein Eiweiß?',
     evid: (pct: number, antes: number, depois: number) =>
       ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g pro Tag` }),
-    significaSubiu: 'Es ist gestiegen, ohne dass du eine Änderung angekündigt hättest, und das ist meist die Art Gewohnheit, die bleibt. Eiweiß schützt deine Magermasse, während das Gewicht fällt — ohne es ist ein Teil dessen, was verschwindet, kein Fett.',
+    significaSubiu: 'Es ist gestiegen, ohne dass du es dir vorgenommen hättest, und das ist meist die Art Gewohnheit, die bleibt. Eiweiß schützt deine Magermasse, während das Gewicht fällt — ohne es ist ein Teil dessen, was verschwindet, kein Fett.',
     significaCaiu: 'Der Rückgang war allmählich, von der Art, die man von einem Tag auf den anderen nicht bemerkt. Eiweiß schützt deine Magermasse, während das Gewicht fällt; es lohnt sich, wieder anzusetzen, bevor es zur neuen Normalität wird.',
   },
 
@@ -237,7 +237,7 @@ export const cruzamentos = {
        ersten Person sagt, was sie NICHT tut. Es gibt sie, weil die
        Alternative war, über ein Tempo zu urteilen, das eine klinische
        Ursache haben kann. */
-    significaAtencao: 'Das Tempo ist ein Gespräch für dein Team, nicht mit mir. Ich nehme die Zahl geordnet mit zum Termin, wenn du willst.',
+    significaAtencao: 'Das Tempo ist ein Gespräch mit deinem Team, nicht mit mir. Ich nehme die Zahl geordnet mit zum Termin, wenn du willst.',
   },
 
   /* ---------- 11. die Verlässlichkeit ---------- */

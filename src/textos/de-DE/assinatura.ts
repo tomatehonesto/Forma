@@ -172,7 +172,7 @@ export const assinatura = {
   saida: {
     titulo: 'Abo kündigen',
     perguntaTitulo: 'Bevor du gehst, eine Frage',
-    perguntaLead: 'Antworten ist freiwillig und ändert nichts: die Kündigung bleibt ein Tippen entfernt, auf dem Knopf unten.',
+    perguntaLead: 'Antworten ist freiwillig und ändert nichts: die Kündigung bleibt einen Fingertipp entfernt, auf dem Knopf unten.',
     porQue: 'Warum kündigst du?',
     continuarParaLoja: (loja: string) => `Weiter zum ${loja}`,
 
@@ -207,7 +207,7 @@ export const assinatura = {
     querDesconto: 'Ich will den Rabatt',
 
     lembretesTitulo: 'Wenn das Problem das Vergessen ist, können wir erinnern',
-    lembretesTexto: 'Dosis, Wiegen, Trinken und Eiweiß haben eine Erinnerung, zu der Uhrzeit, die du wählst. Du kannst nur das anschalten, was fehlt, und den Rest lassen.',
+    lembretesTexto: 'Dosis, Wiegen, Trinken und Eiweiß haben eine Erinnerung, zu der Uhrzeit, die du wählst. Du kannst nur das anschalten, was du brauchst, und den Rest lassen.',
     configurarLembretes: 'Erinnerungen einrichten',
 
     /* ⚠️⚠️ HIER HÖRT DER BILDSCHIRM AUF ZU VERKAUFEN UND GRATULIERT. Es
@@ -247,17 +247,17 @@ export const assinatura = {
      ============================================================ */
   parceiros: {
     titulo: 'Partnerpraxen',
-    lead: 'Manche Praxen begleiten die Behandlung hier mit dir zusammen. Ohne das behältst du alles — was sich ändert, ist, was mit deinem Team innerhalb der App möglich wird.',
+    lead: 'Manche Praxen begleiten die Behandlung hier mit dir zusammen. Ohne das behältst du alles — was sich ändert, ist, was du mit deinem Team hier machen kannst.',
 
     jaTemTitulo: 'Du bist schon bei einer Partnerpraxis',
     jaTemLead: 'Alles in dieser Liste gilt für dich bereits.',
 
     conversaTitulo: 'Das Gespräch mit dem Team',
-    conversaTexto: 'Nachrichten zwischen den Terminen, ohne für eine einzelne Frage einen neuen ausmachen zu müssen.',
+    conversaTexto: 'Nachrichten zwischen den Terminen, ohne für eine einzelne Frage einen neuen Termin ausmachen zu müssen.',
     resumoTitulo: 'Deine Übersicht kommt dort an',
-    resumoTexto: 'Ein Tippen schickt Gewicht, Verlässlichkeit, Beschwerden und Befunde — geordnet, so wie der Termin sie braucht.',
+    resumoTexto: 'Ein Tippen schickt Gewicht, Therapietreue, Beschwerden und Befunde — geordnet, so wie sie im Termin gebraucht werden.',
     receitaTitulo: 'Rezept und Protokoll',
-    receitaTexto: 'Eine Verlängerung anfragen und das Protokoll der Woche in der App bekommen.',
+    receitaTexto: 'Du fragst eine Verlängerung an und bekommst das Protokoll der Woche in der App.',
     agendaTitulo: 'Der Kalender kommt fertig',
     agendaTexto: 'Die Termine erscheinen hier, ohne dass du etwas notieren musst.',
 

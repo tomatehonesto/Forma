@@ -191,7 +191,7 @@ export const tratamento = {
        zusammen mit dem Fett — und die Magermasse ist das, was die App den
        ganzen Tag zu halten versucht. Der Satz sagt, an wie vielen Tagen es
        welches gab, und hört auf. */
-    semForca: 'Diese Woche keine Krafteinheit. Krafttraining, Pilates und Functional sind das, was den Muskel hält.',
+    semForca: 'Diese Woche keine Krafteinheit. Krafttraining, Pilates und Functional Training sind das, was den Muskel hält.',
     comForca: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'} mit Krafttraining — das ist es, was den Muskel hält, während das Gewicht fällt.`,
 
     minutosPorSemana: 'Minuten pro Woche',
@@ -202,7 +202,7 @@ export const tratamento = {
     periodo30: '30 Tage',
     periodo90: '3 Monate',
     noPeriodo: 'Im Zeitraum',
-    noPeriodoNota: 'Nur, was hier eingetragen wurde — was von der Uhr kommt, hat keine Sportart.',
+    noPeriodoNota: 'Nur, was hier eingetragen wurde — was von der Uhr kommt, nennt keine Sportart.',
     treinos: 'Einheiten',
     tempo: 'Zeit',
     maisLongo: 'Längste',
@@ -359,7 +359,7 @@ export const tratamento = {
 
     medicamentoEDose: 'Medikament und Dosis',
     medicamentoEDoseDaReceita: 'Medikament und Dosis des Rezepts',
-    manipuladoSemEscada: 'Eine Rezeptur hat keine Dosistreppe aus dem Beipackzettel — die Zahl ist die von deinem Rezept.',
+    manipuladoSemEscada: 'Eine Rezeptur hat keine Standard-Dosistreppe — die Zahl ist die von deinem Rezept.',
     medComDose: (medicamento: string, dose: string, unidade: string) =>
       `${medicamento} · ${dose} ${unidade}`,
     mudeiADose: 'Meine Dosis hat sich geändert',

@@ -124,6 +124,6 @@ export const alertas = {
     vazio: 'Noch keine Erinnerung',
     vazioTexto: (assuntos: string) => `${assuntos} — leg die an, die zu deinem Alltag passen.`,
 
-    convite: 'Eine Erinnerung ist eine Einladung, keine Forderung. Geht eine mal vorbei, wird hier nichts daraus, was du nachholen müsstest.',
+    convite: 'Eine Erinnerung ist eine Einladung, keine Forderung. Geht eine mal unter, staut sich hier nichts auf.',
   },
 };

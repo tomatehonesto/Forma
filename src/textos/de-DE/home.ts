@@ -252,7 +252,7 @@ export const home = {
     aConsulta: 'DER TERMIN',
     consultaHoje: 'Dein Termin ist heute.',
     consultaAmanha: 'Dein Termin ist morgen.',
-    consultaCorpo: 'Ich bringe den Zeitraum geordnet mit — Gewicht, Therapietreue, Symptome und die Fragen, die sich lohnen.',
+    consultaCorpo: 'Ich bringe alles seit dem letzten Termin geordnet mit — Gewicht, Therapietreue, Symptome und die Fragen, die sich lohnen.',
     consultaCta: 'Die Übersicht ansehen',
 
     acabou: (oRecipiente: string) => `${oRecipiente} ist leer.`,
@@ -299,7 +299,7 @@ export const home = {
     anotarConsulta: 'Einen Termin eintragen',
     anotarConsultaSub: 'Damit wir dich erinnern, wenn er näher rückt',
     quemAcompanha: 'Wer begleitet deine Behandlung?',
-    quemAcompanhaSub: 'Trag den Namen ein, und die Übersicht kommt schon adressiert für den nächsten Termin heraus.',
+    quemAcompanhaSub: 'Trag den Namen ein, und die Übersicht ist für den nächsten Termin schon an diese Person adressiert.',
     preencherFicha: 'Die Angaben ausfüllen',
   },
 
@@ -363,7 +363,7 @@ export const home = {
   },
   telaRitmo: {
     titulo: 'Wie wir dein Tempo lesen',
-    sub: 'Das Etikett schaut auf die Regelmäßigkeit der Behandlung, nicht auf das Tempo der Gewichtsabnahme.',
+    sub: 'Das Etikett spricht von der Regelmäßigkeit der Behandlung, nicht vom Tempo der Gewichtsabnahme.',
 
     aplicacoes: 'Spritzen im Plan',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
@@ -389,7 +389,7 @@ export const home = {
 
     avisoTitulo: 'Eine andere Woche ändert das Etikett nicht',
     avisoTexto: (etiqueta: string) =>
-      `Es steigt und fällt nicht danach, wie viel du abgenommen hast, und es gibt keine Fassung davon, die sagt, die Woche sei schlecht gewesen. Heute liest es „${etiqueta}“.`,
+      `Es steigt und fällt nicht danach, wie viel du abgenommen hast, und es gibt keine Fassung davon, die sagt, die Woche sei schlecht gewesen. Heute steht da „${etiqueta}“.`,
 
     entendi: 'Verstanden',
   },
@@ -402,7 +402,7 @@ export const home = {
     falarComEquipe: 'Mit dem Team sprechen',
 
     estaSemana: 'Diese Woche',
-    ressalva: 'Diese Ziele sind Wege, mehr aus der Behandlung zu holen, und keine Liste von Forderungen — nicht alles zu schließen ist völlig in Ordnung. Was die Behandlung trägt, sind die Dosis und die Begleitung. Was offen bleibt, fängt nächste Woche neu an, und die Zählungen gehen von selbst aus deinen Einträgen an.',
+    ressalva: 'Diese Ziele sind Wege, mehr aus der Behandlung zu holen, und keine Liste von Forderungen — nicht alles zu schließen ist völlig in Ordnung. Was die Behandlung voranbringt, sind die Dosis und die Begleitung. Was offen bleibt, fängt nächste Woche neu an, und die Zählungen füllen sich von selbst aus deinen Einträgen.',
 
     ressalvaDaSemana: 'Die Ziele sind die von heute, gemessen an den Einträgen dieser Woche.',
 

@@ -38,7 +38,7 @@ export const etapa = {
   /* „Wenn dein Team sie festlegt“ und nicht „wenn du sie festlegst“: die
      Dosis entscheidet, wer verschreibt, und die App drängt niemanden zu
      einer Zahl, die ihr nicht gehört. */
-  antesSemDoseBody: 'Sobald dein Team sie festlegt, passt sie hier hinein — aus ihr bauen wir den Wochenzyklus und die Erinnerungen.',
+  antesSemDoseBody: 'Sobald dein Team sie festlegt, kommt sie hier hinein — aus ihr bauen wir den Wochenzyklus und die Erinnerungen.',
   antesSemDoseQ: 'Wie funktioniert der Zyklus des Medikaments?',
 
   /* ---------- 2. die Dosis ist gestiegen ---------- */
@@ -51,7 +51,7 @@ export const etapa = {
      sagen dasselbe, und nur einer davon handelt von ihr. */
   doseNovaBodyCom: (perto: string, longe: string) =>
     `In deinen Aufzeichnungen liegt die Übelkeit an den ersten beiden Tagen nach der Spritze bei ${perto} und fällt ab dem dritten auf ${longe}. Jede Stufe wiederholt dieses Muster meist.`,
-  doseNovaBodySem: 'Jede Stufe bringt für ein paar Tage zurück, was schon vorbei war — Übelkeit am häufigsten. Sie lässt in der Regel nach, während der Körper sich einstellt.',
+  doseNovaBodySem: 'Jede Stufe bringt für ein paar Tage zurück, was schon vorbei war — Übelkeit am häufigsten. Sie lässt in der Regel nach, während dein Körper sich einstellt.',
   doseNovaQ: 'Warum ist mir übel?',
 
   /* ---------- 3. die erste Woche ---------- */
@@ -61,7 +61,7 @@ export const etapa = {
      absichtlich den Körper als Subjekt: was gerade passiert, ist weder ein
      Versagen derjenigen, die es nimmt, noch eine Wirkung, die man
      auszuhalten hat, sondern eine Einstellung. */
-  primeiraBody: 'Der Körper lernt das Medikament noch kennen. Leichte Übelkeit, weniger Hunger und etwas Müdigkeit sind das, was in den ersten Tagen am häufigsten berichtet wird, und lassen über die Wochen meist nach.',
+  primeiraBody: 'Dein Körper lernt das Medikament noch kennen. Leichte Übelkeit, weniger Hunger und etwas Müdigkeit sind das, was in den ersten Tagen am häufigsten berichtet wird, und lassen über die Wochen meist nach.',
   primeiraQ: 'Was ist am Tag der Spritze zu erwarten?',
 
   /* ---------- 4. Erhaltung ---------- */
@@ -102,8 +102,8 @@ export const etapa = {
      ein Programmfehler — und eine Zahl, die wie ein Fehler aussieht, reißt
      den ganzen Satz mit. */
   platoBodyIgual: (media: string) =>
-    `Der Schnitt deiner Wiegungen liegt seitdem bei ${media}. Ein Plateau gehört zur Behandlung dazu: der Körper verbraucht weniger, je weiter das Gewicht fällt. Das gehört in die Sprechstunde, nicht in die Anstrengung.`,
+    `Der Schnitt deiner Wiegungen liegt seitdem bei ${media}. Ein Plateau gehört zur Behandlung dazu: dein Körper verbraucht weniger, je weiter das Gewicht fällt. Das gehört in die Sprechstunde, es ist keine Frage der Anstrengung.`,
   platoBodyDois: (antes: string, agora: string) =>
-    `${antes} vor vier Wochen, ${agora} jetzt. Ein Plateau gehört zur Behandlung dazu: der Körper verbraucht weniger, je weiter das Gewicht fällt. Das gehört in die Sprechstunde, nicht in die Anstrengung.`,
+    `${antes} vor vier Wochen, ${agora} jetzt. Ein Plateau gehört zur Behandlung dazu: dein Körper verbraucht weniger, je weiter das Gewicht fällt. Das gehört in die Sprechstunde, es ist keine Frage der Anstrengung.`,
   platoQ: 'Wie läuft meine Entwicklung?',
 };
