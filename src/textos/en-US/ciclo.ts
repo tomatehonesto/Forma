@@ -9,10 +9,14 @@
    ============================================================ */
 
 export const ciclo = {
-  /* ⚠️ "DAY 5 OF YOUR DOSE", NOT "DAY 5 OF 7". The out-of-seven read like
-     a countdown to a deadline — seven of what, and what happens when it
-     lands? The cadence belongs to the medication, not to a quota. */
-  chapeuDia: (dia: number) => `DAY ${dia} OF YOUR DOSE`,
+  /* ⚠️ "DAY 5 SINCE YOUR DOSE", NOT "DAY 5 OF 7". The out-of-seven read
+     like a countdown to a deadline — seven of what, and what happens when
+     it lands? The cadence belongs to the medication, not to a quota.
+
+     It was "DAY 5 OF YOUR DOSE", and a dose isn't a span of days. "Since"
+     keeps the count without the quota, and fits a tablet as well as a
+     shot. */
+  chapeuDia: (dia: number) => `DAY ${dia} SINCE YOUR DOSE`,
   chapeuSemCiclo: 'FOR TODAY',
 
   /* ---------- shot day ---------- */
@@ -76,7 +80,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Hunger starting to return',
   faseRetornoRange: 'Days 5–6',
-  faseRetornoHint: 'The medication starts to fall, and hunger tends to come back.',
+  faseRetornoHint: 'Your medication level starts to drop, and hunger tends to come back.',
 
   fasePreLabel: 'Before the shot',
   fasePreRange: 'Days 7+',

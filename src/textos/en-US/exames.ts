@@ -109,9 +109,9 @@ export const exames = {
   tela: {
     titulo: 'Lab results',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marker' : 'markers'} · last panel ${ultimaColeta}`,
-    foraDaReferencia: 'outside the range',
-    naReferencia: 'within range',
+      `${quantos} ${quantos === 1 ? 'marker' : 'markers'} · last panel on ${ultimaColeta}`,
+    foraDaReferencia: 'out of range',
+    naReferencia: 'in range',
     blocoFora: 'Outside the range',
     arquivosImportados: 'Imported files',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
@@ -138,7 +138,7 @@ export const exames = {
 
     /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
        do número, e o veredito por extenso mora no detalhe. */
-    seloOk: 'within range',
+    seloOk: 'in range',
     seloAlto: 'above',
     seloBaixo: 'below',
     seloEnviado: 'sent',

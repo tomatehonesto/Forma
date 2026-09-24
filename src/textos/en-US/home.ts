@@ -178,7 +178,7 @@ export const home = {
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
       `${feitos} of 7 days with a check-in · ${aplicadas} of ${vividas} weeks with a shot`,
-    semanaASemana: 'Week by week. Tap to see what marked each cycle.',
+    semanaASemana: 'Week by week. Tap to see what stood out in each cycle.',
     verAsSemanas: (quantas: number) => `See all ${quantas} weeks`,
     semanaEDia: (semana: number, dia: number) => `WEEK ${semana} · DAY ${dia}`,
     noInicio: (peso: string) => `${peso} at the start`,
@@ -252,7 +252,7 @@ export const home = {
     proximaDose: (quando: string) => `Your next dose is ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} suggested.`,
-    verAplicacao: 'View shot',
+    verAplicacao: 'See your shots',
     criarLembrete: 'Set a reminder',
 
     checkinFeito: 'Check-in done',

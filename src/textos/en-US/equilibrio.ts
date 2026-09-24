@@ -7,6 +7,8 @@
    says "that's where I'd look next week", in the conditional.
    ============================================================ */
 
+const meu = (eixo: string) => (eixo === 'Protein' ? 'my protein intake' : `my ${eixo.toLowerCase()}`);
+
 export const equilibrio = {
   /* ⚠️ THE AXIS NAME IS NOT THE KEY. The key is the id ('sono'); this is
      only the label. And "Fullness" is the good side of the hunger scale —
@@ -37,7 +39,7 @@ export const equilibrio = {
      they are the chart's own labels, and two items take no comma before
      "and". So this is a plain join, and the lowercasing that Portuguese
      needs would be wrong. */
-  par: (primeiro: string, segundo: string) => `${primeiro} and ${segundo}`,
+  par: (primeiro: string, segundo: string) => `${primeiro} and ${segundo.toLowerCase()}`,
 
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
     `${doisFortes} are pulling you up, and ${fraco.toLowerCase()} isn’t lagging either. I wouldn’t change anything for now.`,
@@ -47,8 +49,8 @@ export const equilibrio = {
   /* ⚠️ THE BUTTON AND THE QUESTION ARE THE SAME SENTENCE, on purpose: the
      button hands the question to the companion, and if they drift the
      person taps one thing and gets an answer to another. */
-  botaoMelhorar: (eixo: string) => `How to improve ${eixo.toLowerCase()}`,
-  perguntaMelhorar: (eixo: string) => `How to improve ${eixo.toLowerCase()}?`,
+  botaoMelhorar: (eixo: string) => `How to improve ${meu(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `How to improve ${meu(eixo)}?`,
 
   serieDe: (eixo: string, dias: number) => `${eixo.toUpperCase()} · LAST ${dias} DAYS`,
 };

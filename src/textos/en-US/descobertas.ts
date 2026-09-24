@@ -12,7 +12,7 @@
    ============================================================ */
 
 export const descobertas = {
-  verDescoberta: 'View finding',
+  verDescoberta: 'See the finding',
 
   /* ---------- what's coming ---------- */
   chapeuCruzamento: 'A FINDING',

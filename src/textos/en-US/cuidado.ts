@@ -140,8 +140,8 @@ export const cuidado = {
 
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Week ',
-      temHorizonte ? ` of ${previstas} up to your goal · ` : ' of your treatment · ',
-      ' with the shot done',
+      temHorizonte ? ` of ${previstas} toward your goal · ` : ' of your treatment · ',
+      ' with the shot taken',
     ],
 
     ultimaOrientacao: 'LATEST GUIDANCE',
@@ -150,15 +150,15 @@ export const cuidado = {
     responder: 'Reply',
     enviarPrimeira: 'Send the first message',
 
-    precisaDeVoce: 'Needs you',
-    nadaPrecisa: 'Nothing needs you right now.',
+    precisaDeVoce: 'Waiting on you',
+    nadaPrecisa: 'Nothing is waiting on you right now.',
     emDia: 'Your follow-up is up to date.',
 
     proximaConsulta: 'Your next appointment',
     consultasLink: 'Appointments',
     anotarConsulta: 'Add appointment',
     anotarConsultaSub: 'Add the date and we’ll have your summary ready, and let you know when it’s close.',
-    eQuando: (quando: string) => `It is ${quando}`,
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
     preparoTexto: 'I put together a summary with weight, adherence and symptoms from that stretch — you pick what to ask.',
     prepararAConsulta: 'Get ready for the appointment',
 
@@ -171,7 +171,7 @@ export const cuidado = {
 
     exames: 'Lab results',
     marcadoresAcompanhados: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'marker followed' : 'markers followed'}`,
+      `${quantos} ${quantos === 1 ? 'marker tracked' : 'markers tracked'}`,
     nenhumResultado: 'No results saved',
     importeUmExame: 'Import a lab result to start following it',
     foraDaReferencia: (quantos: number) => `${quantos} outside the reference range`,

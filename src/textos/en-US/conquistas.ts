@@ -75,7 +75,7 @@ export const conquistas = {
   pctFalta: (r: string) => `${r} points to go`,
 
   pesagens: 'Weigh-ins',
-  pesagensDesc: (a: number) => `${p(a, 'weight')} logged`,
+  pesagensDesc: (a: number) => `${p(a, 'weigh-in')} logged`,
   pesagensFalta: (r: number) => `${p(r, 'weigh-in')} to go`,
 
   /* ---------------- consistency ---------------- */
@@ -89,7 +89,7 @@ export const conquistas = {
 
   /* ---------------- hydration ---------------- */
   aguaDias: 'Days on your water goal',
-  aguaDiasDesc: (a: number) => `${p(a, 'day')} of water met`,
+  aguaDiasDesc: (a: number) => `${p(a, 'day')} hitting your water goal`,
   aguaDiasFalta: (r: number) => `${p(r, 'day')} to go`,
 
   aguaSemana: 'A hydrated week',
@@ -98,7 +98,7 @@ export const conquistas = {
 
   /* ---------------- protein ---------------- */
   protDias: 'Days on your protein goal',
-  protDiasDesc: (a: number) => `${p(a, 'day')} on your profile goal`,
+  protDiasDesc: (a: number) => `${p(a, 'day')} hitting your protein goal`,
   protDiasFalta: (r: number) => `${p(r, 'day')} to go`,
 
   protSeq: 'Protein in a row',

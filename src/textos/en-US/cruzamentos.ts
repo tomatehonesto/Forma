@@ -146,7 +146,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `The scale went up ${altas} times and you lost ${perdido} anyway`,
     texto: (pesagens: number, altas: number) =>
-      `Across ${pesagens} weigh-ins, ${altas} came in above the one before — and the line across them keeps going down. A week that goes up isn’t a relapse: it’s water and bowels moving inside a trend.`,
+      `Of ${pesagens} weigh-ins, ${altas} came in above the one before — and the line through them keeps going down. A week that goes up isn’t a relapse: it’s noise from water and digestion inside a trend.`,
     q: 'How am I doing overall?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'upticks', legenda: `inside −${perdido} over that stretch` }),

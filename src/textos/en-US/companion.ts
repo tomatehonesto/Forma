@@ -91,7 +91,7 @@ export const companion = {
     proximasAcoes: 'Next steps',
     proximasAcoesNota: 'In the order they need to happen — never about dose or protocol.',
 
-    resumos: 'Build summaries',
+    resumos: 'Create summaries',
     resumosNota: 'Your data organized to take to someone.',
 
     resumoDaSemana: 'Summary of the week',
