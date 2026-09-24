@@ -2107,3 +2107,52 @@ tela nova.
 ⚠️ **O `.toLowerCase()` de `companion.tsx:106` não é deste item.** Aquele
 não escreve na tela: normaliza a PERGUNTA para casar palavra-chave em
 português, que é o defeito de arquitetura já descrito no item 19.
+
+---
+
+## 🟡 33. A categoria tem um nome local em cada mercado, e não é "caneta"
+
+"Caneta emagrecedora" é como o Brasil chama a categoria, e **não se
+traduz**. Fora daqui o nome popular fala do medicamento ou da injeção, e
+não do aparelho: nos EUA "Wegovy pen" é o objeto, e a categoria é
+GLP-1; em alemão o termo que pegou é *Abnehmspritze*, e um "Abnehm-Pen"
+soaria inventado. O mapa, trazido em 24/09/2026, para quando a ficha da
+loja, o site e os anúncios forem escritos:
+
+| mercado | categoria | alternativas |
+| --- | --- | --- |
+| pt-BR | canetas emagrecedoras | — |
+| en-US | GLP-1 medications | weight-loss medications · weight-loss injections |
+| es-419 | medicamentos para perder peso | tratamiento para perder peso · plumas para adelgazar |
+| fr-FR | médicaments pour la perte de poids | injections pour perdre du poids · traitement par GLP-1 |
+| it-IT | farmaci per la perdita di peso | iniezioni per perdere peso · farmaci GLP-1 |
+| de-DE | Abnehmspritzen | Medikamente zur Gewichtsabnahme |
+
+⚠️ **E O QUE NÃO USAR COMO NOME DA CATEGORIA:** "weight-loss pen" em
+inglês; "stylo pour maigrir" em francês, que se entende mas soa informal
+e comercial (o termo técnico é *stylo prérempli*, e é o objeto);
+"penna dimagrante" em italiano, que aparece em comunicação comercial mas
+não é tão consolidado quanto a *Abnehmspritze* alemã. O espanhol é o mais
+perto do português — "pluma para adelgazar" existe —, e mesmo assim a
+categoria vai melhor pelo medicamento.
+
+**O aplicativo já está do lado certo disto, e não há código a mexer.**
+Nenhum dos seis idiomas nomeia a categoria na interface: a tela diz "seu
+tratamento" e depois o remédio pelo nome. A palavra do aparelho só vem
+de `formas`, e só para quem de fato usa caneta — e ela bate com o termo
+técnico de cada língua: *stylo*, *penna*, *pluma*, *Pen*. A única menção
+genérica é "Em estudos sobre GLP-1", na lista de fontes do cadastro. O
+alemão já fala da injeção onde a frase é sobre a dose ("Deine Spritze ist
+morgen") e deixa "Pen" para o objeto. Este item é sobre o que fica FORA
+do repositório: título, subtítulo e palavras-chave da loja, o site e os
+anúncios.
+
+⚠️⚠️ **E A FICHA DA LOJA É PERGUNTA PARA A REVISÃO DO ITEM 2, antes de
+ser escrita.** Na União Europeia a publicidade ao público de medicamento
+de venda sob prescrição é proibida (Diretiva 2001/83/CE, art. 88), e o
+Brasil tem restrição parecida (Lei 6.360/1976 e RDC 96/2008 da Anvisa).
+Um aplicativo que acompanha o tratamento não vende o remédio — mas nome
+de marca (Mounjaro, Wegovy, Ozempic) na ficha, ou "Abnehmspritzen" como
+palavra-chave, pode ser lido como propaganda, e isso é o advogado quem
+responde, mercado por mercado. Nos EUA a regra não é a mesma: a
+propaganda ao consumidor é permitida, com as exigências da FDA.
