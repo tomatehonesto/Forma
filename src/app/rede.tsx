@@ -175,7 +175,7 @@ export default function Rede() {
             <>
               <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2 }}>{K().resultados(resultados.length)}</Txt>
               {resultados.map((r) => (
-                <CartaoDaClinica key={r.c.id} r={r} onPress={() => router.push(`/clinica?rede=${r.c.id}` as any)} />
+                <CartaoDaClinica key={r.c.id} r={r} convenio={v.convenio} onPress={() => router.push(`/clinica?rede=${r.c.id}` as any)} />
               ))}
             </>
           )}
@@ -236,11 +236,14 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    do nome de cada pessoa da equipe. O cartão responde se vale abrir; a
    credencial é o que se confere depois de abrir.
 
-   ⚠️ E OS CONVÊNIOS SÃO ETIQUETAS, porque é o que se varre: a pessoa
-   procura o nome do dela e não lê os outros. Até três, e o resto vira
-   "+2" — a lista inteira está na clínica.
+   ⚠️ E OS CONVÊNIOS SÃO UMA LINHA, COMO O ENDEREÇO — e foram etiquetas.
+   Uma etiqueta colorida por convênio virava uma fileira que competia com
+   o nome da clínica, e a pergunta que ela responde é uma só: aceita o
+   meu? Com o filtro de convênio ligado, a linha responde exatamente isso,
+   na cor de ação; sem ele, lista o que a clínica aceita. A teleconsulta,
+   que também era etiqueta, virou a linha de baixo.
 ------------------------------------------------------------------ */
-function CartaoDaClinica({ r, onPress }: { r: Resultado; onPress: () => void }) {
+function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const cl = r.c;
@@ -248,65 +251,63 @@ function CartaoDaClinica({ r, onPress }: { r: Resultado; onPress: () => void }) 
   const retrato = fotoDaRede(rosto);
   const foto = retrato ?? imagensDaRede(cl).foto;
 
-  const convenios = [...cl.convenios, ...(cl.particular ? [K().particular] : [])];
-  const MAX = 3;
-  const vistos = convenios.slice(0, MAX);
-  const resto = convenios.length - vistos.length;
+  const pedido = convenio && convenio !== 'particular' && cl.convenios.includes(convenio) ? convenio : '';
+  const convenios = pedido
+    ? K().aceita(pedido)
+    : cl.convenios.length
+      /* até três nomes e "e mais 2", em vez de cortar a frase no meio */
+      ? T.comum.lista([...cl.convenios, ...(cl.particular ? [K().particularNaLista] : [])], 3)
+      : cl.particular ? K().soParticular : '';
   const tele = cl.presencial && cl.teleconsulta;
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
       <Cartao>
-        <View style={{ padding: 14, gap: 14 }}>
-          <Row gap={14} style={{ alignItems: 'center' }}>
-            {foto ? (
-              <Image
-                source={foto}
-                style={{ width: 72, height: 72, borderRadius: radius.md, backgroundColor: c.bg2 }}
-                contentFit="cover"
-                contentPosition={retrato ? focoDaRede(rosto) : 'center'}
-              />
-            ) : (
-              <View style={{
-                width: 72, height: 72, borderRadius: radius.md,
-                backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Txt v="h2" c={c.accent}>{iniciaisDaClinica(cl.nome)}</Txt>
-              </View>
-            )}
-            <View style={{ flex: 1 }}>
-              <Txt v="bodyMed" numberOfLines={2}>{cl.nome}</Txt>
-              <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
-              <Row gap={5} style={{ marginTop: 6, alignItems: 'center' }}>
-                <Icon name="pin" size={13} color={c.tx4} sw={1.9} />
-                <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ flex: 1 }}>{ondeTxt(S, r)}</Txt>
-              </Row>
+        <Row gap={14} style={{ padding: 14, alignItems: 'flex-start' }}>
+          {foto ? (
+            <Image
+              source={foto}
+              style={{ width: 72, height: 72, borderRadius: radius.md, backgroundColor: c.bg2 }}
+              contentFit="cover"
+              contentPosition={retrato ? focoDaRede(rosto) : 'center'}
+            />
+          ) : (
+            <View style={{
+              width: 72, height: 72, borderRadius: radius.md,
+              backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Txt v="h2" c={c.accent}>{iniciaisDaClinica(cl.nome)}</Txt>
             </View>
+          )}
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed" numberOfLines={2}>{cl.nome}</Txt>
+            <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
+            <View style={{ marginTop: 8, gap: 3 }}>
+              <Meta ic="pin" texto={ondeTxt(S, r)} />
+              {convenios ? <Meta ic="shield" texto={convenios} destaque={!!pedido} /> : null}
+              {tele ? <Meta ic="video" texto={K().tambemTeleconsulta} /> : null}
+            </View>
+          </View>
+          <View style={{ alignSelf: 'center' }}>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />
-          </Row>
-
-          {vistos.length || tele ? (
-            <Row gap={6} style={{ flexWrap: 'wrap' }}>
-              {tele ? <Etiqueta texto={K().teleconsulta} tom="acao" /> : null}
-              {vistos.map((x) => <Etiqueta key={x} texto={x} />)}
-              {resto ? <Etiqueta texto={K().maisConvenios(resto)} /> : null}
-            </Row>
-          ) : null}
-        </View>
+          </View>
+        </Row>
       </Cartao>
     </Pressable>
   );
 }
 
-/* A etiqueta de convênio é a mesma de /clinica, em tamanho de cartão:
-   `limeSoft`, porque convênio é fato administrativo e não clínico. A de
-   teleconsulta leva a cor de ação — é modalidade, não convênio. */
-function Etiqueta({ texto, tom = 'convenio' }: { texto: string; tom?: 'convenio' | 'acao' }) {
+/* Uma linha do cartão: o ícone pequeno e o texto recuado — a mesma forma
+   para onde fica, o que aceita e como atende. A que responde a um filtro
+   ligado sai na cor de ação. */
+function Meta({ ic, texto, destaque }: { ic: string; texto: string; destaque?: boolean }) {
   const { c } = useTheme();
-  const [bg, fg] = tom === 'acao' ? [c.accentWeak, c.accent2] : [c.limeSoft, c.limeSoftInk];
   return (
-    <View style={{ backgroundColor: bg, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
-      <Txt v="tag" c={fg}>{texto}</Txt>
-    </View>
+    <Row gap={6} style={{ alignItems: 'flex-start' }}>
+      <View style={{ marginTop: 3 }}>
+        <Icon name={ic} size={13} color={destaque ? c.accent : c.tx4} sw={1.9} />
+      </View>
+      <Txt v="caption" c={destaque ? c.accent2 : c.tx3} numberOfLines={2} style={{ flex: 1 }}>{texto}</Txt>
+    </Row>
   );
 }

@@ -20,6 +20,12 @@ import { alfa, mix } from '../theme';
    as três, e o modo escuro só baixa a força delas.
 
    O pé dissolve no fundo da página, e o que vem depois começa sem corte.
+
+   ⚠️ E A COR MORA À DIREITA. O título e o texto de abertura são
+   alinhados à esquerda, e mancha atrás de letra é letra lutando para ser
+   lida — então as manchas ficam do meio para a direita, e um véu da cor
+   do fundo clareia o lado esquerdo. O título lê como lê em qualquer
+   outra tela; a cor fica sendo o que acontece em volta dele.
    ============================================================ */
 
 export function Nevoa({ altura }: { altura: number }) {
@@ -31,10 +37,10 @@ export function Nevoa({ altura }: { altura: number }) {
 
   const forca = isDark ? 0.8 : 1;
   const manchas = [
-    { id: `${base}a`, cor: c.accent, cx: '84%', cy: '14%', rx: '100%', ry: '68%', a: 0.95 },
-    { id: `${base}b`, cor: mix(c.accent, '#FFFFFF', 0.5), cx: '10%', cy: '4%', rx: '75%', ry: '55%', a: 1 },
-    { id: `${base}c`, cor: c.lime, cx: '0%', cy: '58%', rx: '66%', ry: '42%', a: 0.65 },
-    { id: `${base}d`, cor: c.accent2, cx: '70%', cy: '44%', rx: '48%', ry: '30%', a: 0.4 },
+    { id: `${base}a`, cor: c.accent, cx: '92%', cy: '10%', rx: '82%', ry: '64%', a: 0.95 },
+    { id: `${base}b`, cor: mix(c.accent, '#FFFFFF', 0.5), cx: '60%', cy: '0%', rx: '58%', ry: '42%', a: 0.8 },
+    { id: `${base}c`, cor: c.lime, cx: '100%', cy: '58%', rx: '60%', ry: '42%', a: 0.72 },
+    { id: `${base}d`, cor: c.accent2, cx: '80%', cy: '36%', rx: '42%', ry: '28%', a: 0.4 },
   ];
 
   return (
@@ -53,6 +59,14 @@ export function Nevoa({ altura }: { altura: number }) {
           <Rect key={m.id} x="0" y="0" width="100%" height="100%" fill={`url(#${m.id})`} />
         ))}
       </Svg>
+      {/* o véu do lado esquerdo, onde o título mora */}
+      <LinearGradient
+        colors={[alfa(c.bg, 0.9), alfa(c.bg, 0.5), alfa(c.bg, 0)]}
+        locations={[0, 0.38, 1]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 0.78, y: 0.5 }}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+      />
       <LinearGradient
         colors={[alfa(c.bg, 0), c.bg]}
         style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: altura * 0.42 }}

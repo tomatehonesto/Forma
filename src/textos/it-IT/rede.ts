@@ -45,10 +45,13 @@ export const rede = {
   presencialETele: 'In presenza e in televisita',
   teleconsulta: 'Televisita',
   particular: 'Privato',
-  maisConvenios: (n: number) => `+${n}`,
+  aceita: (convenio: string) => `Accetta ${convenio}`,
+  soParticular: 'Solo privato',
+  particularNaLista: 'privato',
+  tambemTeleconsulta: 'Anche in televisita',
   /* "da lun a ven" */
   deAte: (de: string, ate: string) => `da ${de} a ${ate}`,
-  faixa: (abre: string, fecha: string) => `${abre}⁠–⁠${fecha}`,
+  faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,
 
   vazioTitulo: 'Nessun centro con questi filtri',

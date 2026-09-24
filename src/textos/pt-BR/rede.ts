@@ -62,13 +62,20 @@ export const rede = {
   presencialETele: 'Presencial e teleconsulta',
   teleconsulta: 'Teleconsulta',
   particular: 'Particular',
-  /* o que sobra quando os convênios não cabem na fileira */
-  maisConvenios: (n: number) => `+${n}`,
+  /* ⚠️ OS CONVÊNIOS SÃO UMA LINHA, E NÃO ETIQUETAS. Etiqueta por
+     convênio virava uma fileira colorida que competia com o nome da
+     clínica — e a pergunta que ela responde é uma só: aceita o meu? Com o
+     filtro de convênio ligado, a linha responde exatamente isso. */
+  aceita: (convenio: string) => `Aceita ${convenio}`,
+  soParticular: 'Só particular',
+  /* o último item de "Amil, Unimed e particular" */
+  particularNaLista: 'particular',
+  tambemTeleconsulta: 'Também por teleconsulta',
   /* "seg a sex" — três dias seguidos ou mais viram intervalo */
   deAte: (de: string, ate: string) => `${de} a ${ate}`,
   /* ⚠️ O U+2060 EM VOLTA DO TRAÇO NÃO É SUJEIRA: sem ele a linha quebrava
      em "08:00–" e "17:00". Ele é invisível e não deixa quebrar ali. */
-  faixa: (abre: string, fecha: string) => `${abre}⁠–⁠${fecha}`,
+  faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,
 
   vazioTitulo: 'Nenhuma clínica com esses filtros',

@@ -45,10 +45,13 @@ export const rede = {
   presencialETele: 'En cabinet et en téléconsultation',
   teleconsulta: 'Téléconsultation',
   particular: 'Paiement direct',
-  maisConvenios: (n: number) => `+${n}`,
+  aceita: (convenio: string) => `Accepte ${convenio}`,
+  soParticular: 'Paiement direct uniquement',
+  particularNaLista: 'paiement direct',
+  tambemTeleconsulta: 'Aussi en téléconsultation',
   /* « du lun. au ven. » */
   deAte: (de: string, ate: string) => `du ${de} au ${ate}`,
-  faixa: (abre: string, fecha: string) => `${abre}⁠–⁠${fecha}`,
+  faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,
 
   vazioTitulo: 'Aucune clinique avec ces filtres',

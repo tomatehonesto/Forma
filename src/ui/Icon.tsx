@@ -118,6 +118,7 @@ import Trophy from 'lucide-react-native/icons/trophy';
 import Star from 'lucide-react-native/icons/star';
 import User from 'lucide-react-native/icons/user';
 import Utensils from 'lucide-react-native/icons/utensils';
+import Video from 'lucide-react-native/icons/video';
 import WavesHorizontal from 'lucide-react-native/icons/waves-horizontal';
 import X from 'lucide-react-native/icons/x';
 import Zap from 'lucide-react-native/icons/zap';
@@ -256,6 +257,8 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   cupcake: CakeSlice,
   rocket: Rocket,
   shield: ShieldCheck,
+  /* a teleconsulta — a câmera de vídeo, e não a de foto, que é o prato */
+  video: Video,
   filter: Funnel,
   trophy: Trophy,
   star: Star,
