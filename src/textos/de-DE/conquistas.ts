@@ -81,7 +81,7 @@ export const conquistas = {
      ⚠️⚠️ UND DESHALB NENNT DER TITEL KEINE EINHEIT. „Kilos weniger“
      über einem Wert in Pfund ist der Bildschirm, der sich selbst
      widerspricht. Die Gründe stehen in ../pt-BR/conquistas.ts. */
-  kg: 'Gewicht weniger',
+  kg: 'Weniger Gewicht',
   kgDesc: (peso: string) => `${peso} unter dem Startgewicht`,
   kgFalta: (peso: string) => `Noch ${peso}`,
 

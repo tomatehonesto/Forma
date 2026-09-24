@@ -39,7 +39,7 @@ export const cruzamentos = {
   fimDeSemana: {
     titulo: 'Tu fin de semana funciona como otro tratamiento',
     texto: (copos: string, proteina: string, sono: string) =>
-      `Sábado y domingo tomas ${copos} vasos menos${proteina}${sono}`,
+      `Los sábados y domingos tomas ${copos} vasos menos${proteina}${sono}`,
     textoProteina: (gramas: number) => ` y comes ${gramas} g menos de proteína`,
     /* ⚠️ EL SUEÑO ES LA BUENA NOTICIA DENTRO DE LA MALA, y por eso cierra
        la frase: "el descanso mejora; la rutina es la que se suelta" es el

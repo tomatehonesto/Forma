@@ -14,6 +14,20 @@
    sugerencia de dónde mirar.
    ============================================================ */
 
+/* ⚠️⚠️ SOLO, EL EJE PIDE SU ARTÍCULO. El par de apertura puede ir sin él,
+   en estilo de titular ("Sueño y adherencia están estables"), pero el eje
+   aislado no: "Ejercicio es lo que más oscila" y "ni ejercicio se quedó
+   atrás" son el portugués, que sí lo omite. Los ocho nombres de `eixos`
+   tienen aquí su artículo; "mi" no pregunta género, y la proteína sola
+   sería "mi proteína", que nadie dice — es el consumo. */
+const ART: Record<string, string> = {
+  Sueño: 'el sueño', Energía: 'la energía', Ánimo: 'el ánimo', Hidratación: 'la hidratación',
+  Ejercicio: 'el ejercicio', Proteína: 'la proteína', Saciedad: 'la saciedad', Adherencia: 'la adherencia',
+};
+const el = (eixo: string) => ART[eixo] ?? eixo.toLowerCase();
+const mayus = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const mi = (eixo: string) => (eixo === 'Proteína' ? 'mi consumo de proteína' : `mi ${eixo.toLowerCase()}`);
+
 export const equilibrio = {
   /* ⚠️ "SACIEDAD" NO ES EL NOMBRE DE LA COLUMNA que la persona respondió.
      Ella responde HAMBRE en el check-in, y el eje muestra lo contrario:
@@ -53,15 +67,15 @@ export const equilibrio = {
   },
 
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
-    `${doisFortes} empujan hacia arriba, y ni ${fraco.toLowerCase()} se quedó atrás. Yo no cambiaría nada por ahora.`,
+    `${doisFortes} empujan hacia arriba, y ni ${el(fraco)} se quedó atrás. Yo no cambiaría nada por ahora.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
-    `${doisFortes} están estables. ${fraco} es lo que más oscila — sería mi foco para la próxima semana.`,
+    `${doisFortes} están estables. ${mayus(el(fraco))} es lo que más oscila — sería mi foco para la próxima semana.`,
 
   /* ⚠️ EL BOTÓN LLEVA LA PREGUNTA AL COMPANION. Si el texto del botón y la
      pregunta enviada divergen, la persona toca una cosa y recibe respuesta
      de otra. */
-  botaoMelhorar: (eixo: string) => `Cómo mejorar ${eixo.toLowerCase()}`,
-  perguntaMelhorar: (eixo: string) => `¿Cómo mejorar ${eixo.toLowerCase()}?`,
+  botaoMelhorar: (eixo: string) => `Cómo mejorar ${mi(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `¿Cómo mejorar ${mi(eixo)}?`,
 
   serieDe: (eixo: string, dias: number) => `${eixo.toUpperCase()} · ÚLTIMOS ${dias} DÍAS`,
 };

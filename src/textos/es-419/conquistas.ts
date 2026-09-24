@@ -63,8 +63,8 @@ export const conquistas = {
      ⚠️⚠️ Y POR ESO EL TÍTULO NO DICE LA UNIDAD: "Kilos de menos" sobre
      un valor en libras es la pantalla contradiciéndose. Las razones
      están en ../pt-BR/conquistas.ts. */
-  kg: 'Peso de menos',
-  kgDesc: (peso: string) => `${peso} abajo del peso inicial`,
+  kg: 'Peso perdido',
+  kgDesc: (peso: string) => `${peso} por debajo del peso inicial`,
   kgFalta: (peso: string) => `Faltan ${peso}`,
 
   /* ⚠️ EL PORCENTAJE ES OTRA CONVERSACIÓN, y no repetición de los kilos:
@@ -75,7 +75,7 @@ export const conquistas = {
   pctFalta: (r: string) => `Faltan ${r} puntos`,
 
   pesagens: 'Pesajes',
-  pesagensDesc: (a: number) => `${p(a, 'peso')} registrado${a === 1 ? '' : 's'}`,
+  pesagensDesc: (a: number) => `${p(a, 'pesaje')} registrado${a === 1 ? '' : 's'}`,
   pesagensFalta: (r: number) => `Faltan ${p(r, 'pesaje')}`,
 
   checkins: 'Check-ins',
@@ -87,7 +87,7 @@ export const conquistas = {
   sequenciaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
 
   aguaDias: 'Días en la meta de agua',
-  aguaDiasDesc: (a: number) => `${p(a, 'día')} de agua cumplida`,
+  aguaDiasDesc: (a: number) => `${p(a, 'día')} cumpliendo tu meta de agua`,
   aguaDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
 
   aguaSemana: 'Semana hidratada',
@@ -95,7 +95,7 @@ export const conquistas = {
   aguaSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
 
   protDias: 'Días en la meta de proteína',
-  protDiasDesc: (a: number) => `${p(a, 'día')} en la meta del perfil`,
+  protDiasDesc: (a: number) => `${p(a, 'día')} cumpliendo tu meta de proteína`,
   protDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
 
   protSeq: 'Proteína seguida',

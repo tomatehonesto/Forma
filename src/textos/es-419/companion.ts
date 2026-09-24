@@ -19,12 +19,12 @@
 export const companion = {
   memoria: {
     desdeAPrimeira: (dias: number) =>
-      `Acompaño tu tratamiento desde la primera aplicación, hace ${dias} días.`,
+      `Acompaño tu tratamiento desde la primera dosis, hace ${dias} días.`,
     desdeOPrimeiroDiaComSemanas: (semanas: number) =>
       `Conozco tu recorrido desde el primer día — ${semanas} semanas hasta aquí.`,
     desdeOPrimeiroDia: 'Conozco tu recorrido desde el primer día.',
     dosesAtras: (doses: number) =>
-      `Estoy contigo desde la primera aplicación, hace ${doses} dosis.`,
+      `Estoy contigo desde la primera dosis, hace ${doses} dosis.`,
   },
 
   biblioteca: {

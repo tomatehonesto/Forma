@@ -12,7 +12,7 @@ export const ciclo = {
   /* ⚠️ "DÍA 5 DE LA DOSIS", Y NO "DÍA 5 DE 7". El de-siete parecía cuenta
      regresiva de un plazo — ¿siete de qué, y qué pasa al llegar? La
      cadencia es del medicamento, no una meta que cumplir. */
-  chapeuDia: (dia: number) => `DÍA ${dia} DE LA DOSIS`,
+  chapeuDia: (dia: number) => `DÍA ${dia} DESDE LA DOSIS`,
   chapeuSemCiclo: 'PARA HOY',
 
   /* ⚠️ NO ANUNCIA QUE HOY ES DÍA DE APLICARSE: la siguiente tarjeta de
@@ -71,7 +71,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Inicio del retorno del hambre',
   faseRetornoRange: 'Días 5–6',
-  faseRetornoHint: 'El medicamento empieza a caer, y el hambre tiende a volver.',
+  faseRetornoHint: 'El nivel del medicamento empieza a bajar, y el hambre tiende a volver.',
 
   fasePreLabel: 'Pre-inyección',
   fasePreRange: 'Días 7+',

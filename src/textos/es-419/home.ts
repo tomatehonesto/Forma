@@ -258,7 +258,7 @@ export const home = {
     proximaDose: (quando: string) => `Tu próxima dosis es ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · ${local} sugerido.`,
-    verAplicacao: 'Ver la inyección',
+    verAplicacao: 'Ver tus inyecciones',
     criarLembrete: 'Crear un recordatorio',
 
     checkinFeito: 'Check-in hecho',

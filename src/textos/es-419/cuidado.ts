@@ -144,7 +144,7 @@ export const cuidado = {
 
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semana ',
-      temHorizonte ? ` de ${previstas} hasta tu meta · ` : ' de tu tratamiento · ',
+      temHorizonte ? ` de ${previstas} rumbo a tu meta · ` : ' de tu tratamiento · ',
       ' con la inyección al día',
     ],
 
@@ -166,7 +166,7 @@ export const cuidado = {
     consultasLink: 'Consultas',
     anotarConsulta: 'Anotar una consulta',
     anotarConsultaSub: 'Con la fecha aquí, el resumen queda listo y te avisamos cuando se acerque.',
-    eQuando: (quando: string) => `Es ${quando}`,
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
     preparoTexto: 'Armo un resumen con peso, adherencia y síntomas de ese tramo — tú eliges qué quieres preguntar.',
     prepararAConsulta: 'Preparar la consulta',
 
