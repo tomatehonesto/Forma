@@ -713,17 +713,32 @@ export function SanfonaLinha({
   const { c } = useTheme();
   const [aberta, setAberta] = useState(inicial);
   const navega = !!onPress;
-  const abriu = !navega && aberta && !!itens?.length;
+  const abre = !navega && !!itens?.length;
+  const abriu = abre && aberta;
 
-  return (
-    <Pressable
-      onPress={() => (navega ? onPress!() : setAberta((a) => !a))}
-      style={({ pressed }) => [{ paddingHorizontal: PAD, paddingVertical: 14, opacity: pressed ? 0.7 : 1 }]}
-    >
+  /* ⚠️⚠️ A LINHA QUE NÃO LEVA NEM ABRE É INERTE, E ERA UMA PORTA
+     EMPAREDADA.
+
+     Sem `onPress` e sem `itens`, ela desenhava a seta para baixo, virava
+     seta para cima no toque e não abria coisa nenhuma — o próprio gesto
+     confirmando que havia algo lá, e nada. O "Dia a dia" de /semana é
+     feito disso: das quatro espécies de evento, só a pesagem tem
+     destino, e refeição, check-in e exercício ficavam com a seta pela
+     seta.
+
+     Uma linha sem seta e sem toque é leitura, e leitura é o que ela é.
+     Seta que abre o vazio é pior do que linha nenhuma — é a mesma regra
+     que tirou os três cartões de "preparar agora" de /aplicacoes. */
+  const inerte = !navega && !abre;
+
+  const miolo = (
+    <>
       <Row style={{ gap: 9 }}>
         <Txt v="bodyMed" style={{ flex: 1, letterSpacing: -0.2 }}>{titulo}</Txt>
         {selo ? <Selo label={selo} tom={seloTom} /> : null}
-        <Icon name={navega ? 'chev' : aberta ? 'chevup' : 'chevdown'} size={14} color={c.tx4} sw={2} />
+        {inerte ? null : (
+          <Icon name={navega ? 'chev' : aberta ? 'chevup' : 'chevdown'} size={14} color={c.tx4} sw={2} />
+        )}
       </Row>
       {sub ? <Txt v="caption" c={c.tx2} style={{ marginTop: 5 }}>{sub}</Txt> : null}
       {meta ? <Txt v="caption" c={c.tx3} style={{ marginTop: 3 }}>{meta}</Txt> : null}
@@ -745,6 +760,22 @@ export function SanfonaLinha({
           ))}
         </View>
       ) : null}
+    </>
+  );
+
+  /* Sem toque nenhum quando não há o que tocar: um `Pressable` sem ação
+     ainda clareia ao ser pressionado, e a resposta visual é a promessa
+     que esta linha não pode cumprir. */
+  if (inerte) {
+    return <View style={{ paddingHorizontal: PAD, paddingVertical: 14 }}>{miolo}</View>;
+  }
+
+  return (
+    <Pressable
+      onPress={() => (navega ? onPress!() : setAberta((a) => !a))}
+      style={({ pressed }) => [{ paddingHorizontal: PAD, paddingVertical: 14, opacity: pressed ? 0.7 : 1 }]}
+    >
+      {miolo}
     </Pressable>
   );
 }
