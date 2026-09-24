@@ -28,7 +28,12 @@ import { alfa, mix } from '../theme';
    outra tela; a cor fica sendo o que acontece em volta dele.
    ============================================================ */
 
-export function Nevoa({ altura }: { altura: number }) {
+/* ⚠️ `capa` É A NÉVOA NO LUGAR DE UMA FOTO — o cabeçalho de /clinica
+   quando a clínica não mandou imagem. Ali o nome mora num vidro, que
+   garante a leitura sozinho: a cor pode ocupar o quadro inteiro, sem o
+   véu da esquerda e sem se desfazer no pé, porque o vidro precisa de cor
+   atrás dele para ser vidro. */
+export function Nevoa({ altura, capa }: { altura: number; capa?: boolean }) {
   const { c, isDark } = useTheme();
   /* ⚠️ O ID É POR INSTÂNCIA. Na web os gradientes do SVG vivem no mesmo
      documento, e duas névoas com o mesmo id pintariam as duas com as
@@ -36,12 +41,20 @@ export function Nevoa({ altura }: { altura: number }) {
   const base = useId().replace(/[^a-zA-Z0-9]/g, '');
 
   const forca = isDark ? 0.8 : 1;
-  const manchas = [
-    { id: `${base}a`, cor: c.accent, cx: '92%', cy: '10%', rx: '82%', ry: '64%', a: 0.95 },
-    { id: `${base}b`, cor: mix(c.accent, '#FFFFFF', 0.5), cx: '60%', cy: '0%', rx: '58%', ry: '42%', a: 0.8 },
-    { id: `${base}c`, cor: c.lime, cx: '100%', cy: '58%', rx: '60%', ry: '42%', a: 0.72 },
-    { id: `${base}d`, cor: c.accent2, cx: '80%', cy: '36%', rx: '42%', ry: '28%', a: 0.4 },
-  ];
+  const tinta = mix(c.accent, '#FFFFFF', 0.5);
+  const manchas = capa
+    ? [
+      { id: `${base}a`, cor: c.accent, cx: '82%', cy: '24%', rx: '90%', ry: '58%', a: 0.95 },
+      { id: `${base}b`, cor: tinta, cx: '14%', cy: '8%', rx: '72%', ry: '46%', a: 0.95 },
+      { id: `${base}c`, cor: c.lime, cx: '100%', cy: '82%', rx: '62%', ry: '40%', a: 0.72 },
+      { id: `${base}d`, cor: c.accent2, cx: '36%', cy: '72%', rx: '58%', ry: '36%', a: 0.5 },
+    ]
+    : [
+      { id: `${base}a`, cor: c.accent, cx: '92%', cy: '10%', rx: '82%', ry: '64%', a: 0.95 },
+      { id: `${base}b`, cor: tinta, cx: '60%', cy: '0%', rx: '58%', ry: '42%', a: 0.8 },
+      { id: `${base}c`, cor: c.lime, cx: '100%', cy: '58%', rx: '60%', ry: '42%', a: 0.72 },
+      { id: `${base}d`, cor: c.accent2, cx: '80%', cy: '36%', rx: '42%', ry: '28%', a: 0.4 },
+    ];
 
   return (
     <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: altura }}>
@@ -59,18 +72,22 @@ export function Nevoa({ altura }: { altura: number }) {
           <Rect key={m.id} x="0" y="0" width="100%" height="100%" fill={`url(#${m.id})`} />
         ))}
       </Svg>
-      {/* o véu do lado esquerdo, onde o título mora */}
-      <LinearGradient
-        colors={[alfa(c.bg, 0.9), alfa(c.bg, 0.5), alfa(c.bg, 0)]}
-        locations={[0, 0.38, 1]}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 0.78, y: 0.5 }}
-        style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
-      />
-      <LinearGradient
-        colors={[alfa(c.bg, 0), c.bg]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: altura * 0.42 }}
-      />
+      {capa ? null : (
+        <>
+          {/* o véu do lado esquerdo, onde o título mora */}
+          <LinearGradient
+            colors={[alfa(c.bg, 0.9), alfa(c.bg, 0.5), alfa(c.bg, 0)]}
+            locations={[0, 0.38, 1]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 0.78, y: 0.5 }}
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+          />
+          <LinearGradient
+            colors={[alfa(c.bg, 0), c.bg]}
+            style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: altura * 0.42 }}
+          />
+        </>
+      )}
     </View>
   );
 }

@@ -10,7 +10,7 @@ import { Txt, Card, Row, CircleBtn, Chevron, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import {
-  fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica, fotoDaRede, focoDaRede, imagensDaRede,
+  fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, fotoDaRede, focoDaRede, imagensDaRede,
 } from '../ui/retratos';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -18,6 +18,7 @@ import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
+import { Nevoa } from '../ui/nevoa';
 import { T } from '../textos';
 
 const K = () => T.cuidado.telaClinica;
@@ -59,10 +60,12 @@ const K = () => T.cuidado.telaClinica;
    pessoa, aqui é a recepção — e o motivo é o mesmo: a escala diz que do
    outro lado tem um lugar de verdade, não um registro.
 
-   ⚠️ E SEM FOTO A TELA TEM OUTRO CABEÇALHO, com título e as iniciais da
-   clínica. Não é uma versão degradada da primeira: é a segunda, inteira.
-   Reservar 300px de cinza para uma imagem que não chegou é a tela dizendo
-   que falta alguma coisa, e o que falta não é culpa de quem está lendo.
+   ⚠️ E SEM FOTO O CABEÇALHO É O MESMO, com a névoa da paleta no lugar da
+   imagem (ui/nevoa). Era um segundo cabeçalho, com título e as iniciais
+   da clínica — e a vitrine da rede mostrou o problema: com uma clínica
+   com foto e sete sem, a mesma tela parecia duas. Cinza no lugar de uma
+   imagem que não chegou diria que falta alguma coisa; a névoa não diz:
+   ela é a cor da casa, e o nome continua no mesmo vidro.
 
    ⚠️ E ELA TEM DUAS VERSÕES: A SUA CLÍNICA E UMA PARCEIRA.
 
@@ -145,7 +148,7 @@ const ALTURA_DA_FOTO = 480;
 
 export default function Clinica() {
   const S = useStore((s) => s.S);
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const go = (to: string) => () => router.push(to as any);
@@ -176,15 +179,16 @@ export default function Clinica() {
   const abrir = (url: string) => (exemplo ? undefined : () => { Linking.openURL(url).catch(() => {}); });
   const mapa = daRede && !exemplo && f?.endereco ? urlDoMapa(daRede) : null;
   /* Vazio enquanto a clínica não mandar logo nem foto — e vazio é um
-     estado inteiro, não um estado degradado: a faixa não aparece e o
-     quadrado mostra as iniciais. */
+     estado inteiro, não um estado degradado: sem foto o cabeçalho é a
+     névoa, e sem logo o vidro leva só o nome. */
   const imagens = rede ? (daRede ? imagensDaRede(daRede) : {}) : (f && IMAGENS_DA_CLINICA[f.nome]) || {};
-  /* ⚠️ O LIMIAR DEPENDE DE ONDE O NOME ESTÁ. Com foto ele mora na faixa
-     de vidro colada no PÉ dela, e a barra só assume quando essa faixa
-     sai; sem foto ele está logo abaixo do botão, e o limiar é o das
-     telas internas. Um número só erraria nos dois casos. */
+  /* O vidro é escuro sobre foto — ela pode ser qualquer recepção — e
+     acompanha o tema sobre a névoa, que é clara no modo claro. */
+  const vidroEscuro = !!imagens.foto || isDark;
+  /* O nome mora na faixa de vidro colada no PÉ do cabeçalho, com foto ou
+     sem, e a barra só assume quando essa faixa sai. */
   const [passou, setPassou] = useState(false);
-  const limiar = imagens.foto ? ALTURA_DA_FOTO - 150 : 38;
+  const limiar = ALTURA_DA_FOTO - 150;
 
   /* Enquanto a clínica da rede não chega, a tela fica no fundo — e não
      diz "você não tem clínica", que seria a frase errada por meio segundo. */
@@ -237,8 +241,9 @@ export default function Clinica() {
             marca, nome, especialidade, onde fica. A foto é um cabeçalho
             diferente, não uma tela diferente — e antes eram duas estruturas
             paralelas que precisavam ser mantidas juntas na mão. */}
-        {imagens.foto ? (
-          <View style={{ height: ALTURA_DA_FOTO }}>
+        <View style={{ height: ALTURA_DA_FOTO }}>
+          {imagens.foto ? (
+            <>
             {/* A imagem sobe até o topo do aparelho, POR TRÁS da barra de
                 status, e não começa depois dela. Uma foto que respeita a
                 safe area vira um cartão com uma faixa de fundo em cima; uma
@@ -260,6 +265,13 @@ export default function Clinica() {
               style={{ position: 'absolute', left: 0, right: 0, top: 0, height: insets.top + 96 }}
               pointerEvents="none"
             />
+            </>
+          ) : (
+            /* Sem foto, a névoa da paleta no mesmo lugar e do mesmo
+               tamanho: o vidro, o nome e a página por cima dela são os
+               mesmos — a tela é uma só. */
+            <Nevoa altura={ALTURA_DA_FOTO} capa />
+          )}
             {/* ---- o vidro, e o nome dentro dele ----
 
                 ⚠️ É A MESMA PEÇA DAS CAPAS DE HÁBITO: foto em cima, vidro
@@ -302,7 +314,7 @@ export default function Clinica() {
                 limpa fica com dois triângulos borrados. */}
             <BlurView
               intensity={60}
-              tint="dark"
+              tint={vidroEscuro ? 'dark' : 'light'}
               style={{
                 position: 'absolute', left: 0, right: 0, bottom: 0,
                 borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
@@ -317,24 +329,13 @@ export default function Clinica() {
                   contentFit="contain"
                 />
               ) : null}
-              <Txt v="h1" c={c.onHero} style={{ fontSize: 30 }}>{f.nome}</Txt>
+              <Txt v="h1" c={vidroEscuro ? c.onHero : c.tx} style={{ fontSize: 30 }}>{f.nome}</Txt>
               {!!f.especialidade && (
-                <Txt v="caption" c={c.onHero2} style={{ marginTop: 5 }}>{f.especialidade}</Txt>
+                <Txt v="caption" c={vidroEscuro ? c.onHero2 : c.tx2} style={{ marginTop: 5 }}>{f.especialidade}</Txt>
               )}
             </BlurView>
 
           </View>
-        ) : (
-          /* ⚠️ O BOTÃO SAIU DAQUI — ver BarraQueColapsa, em ui/capa. Mesma
-             razão de /especialista: ele morava dentro da foto, que é o
-             primeiro filho do scroll.
-
-             ⚠️ E O "Clínica" ESCRITO AO LADO DELE SAIU JUNTO. Ele existia
-             porque, sem foto, a tela abria sem nome nenhum — e agora o
-             nome que a barra mostra é o da clínica de verdade, que é
-             melhor do que a palavra genérica. */
-          <View style={{ height: insets.top + 60 }} />
-        )}
 
         {/* ---- a página, montada sobre a foto ----
 
@@ -351,53 +352,19 @@ export default function Clinica() {
             baixo virava mancha; o canto não toca a foto, só a cobre. */}
         <View style={{
           backgroundColor: c.bg,
-          borderTopLeftRadius: imagens.foto ? 28 : 0,
-          borderTopRightRadius: imagens.foto ? 28 : 0,
-          marginTop: imagens.foto ? -26 : 0,
-          paddingTop: imagens.foto ? 24 : 0,
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
+          marginTop: -26,
+          paddingTop: 24,
         }}>
 
-        {/* ---- a identidade ----
-
-            ⚠️ A MARCA SÓ APARECE QUANDO É A MARCA. Com logo, ele entra nos
-            dois casos. Sem logo, as iniciais entram só quando NÃO há foto —
-            com foto, a imagem já disse de quem é a tela, e um quadrado com
-            duas letras embaixo dela seria um segundo emblema para a mesma
-            clínica.
-
-            ⚠️ O QUADRADO DAS INICIAIS SUBSTITUIU UM CORAÇÃO. Um ícone
-            genérico no lugar da marca é a pior reserva possível numa tela
-            cujo propósito é APRESENTAR a clínica — um coração que não é
-            dela diz menos do que duas letras que são. */}
-        {/* ⚠️ COM FOTO, A PÁGINA NÃO REPETE O NOME — ele está no vidro,
-            24px acima. Sem foto, é aqui que a identidade inteira mora: as
-            iniciais, o nome, a especialidade e o endereço. Não é a mesma
-            tela com uma imagem a menos; são dois cabeçalhos, e cada um é
-            completo no que lhe cabe. */}
-        <View style={{ paddingHorizontal: PAD, marginTop: imagens.foto ? 0 : 20 }}>
-          {!imagens.foto ? (
-            <>
-              {imagens.logo ? (
-                <Image
-                  source={imagens.logo}
-                  style={{ width: 56, height: 56, borderRadius: radius.md, marginBottom: 16, backgroundColor: c.bg1 }}
-                  contentFit="contain"
-                />
-              ) : (
-                <View style={{
-                  width: 56, height: 56, borderRadius: radius.md, marginBottom: 16,
-                  backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Txt v="h2" c={c.accent}>{iniciaisDaClinica(f.nome)}</Txt>
-                </View>
-              )}
-              <Txt v="h1" style={{ fontSize: 28 }}>{f.nome}</Txt>
-              {!!f.especialidade && (
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 6 }}>{f.especialidade}</Txt>
-              )}
-            </>
-          ) : null}
-          <Local f={f} fio={!imagens.foto} />
+        {/* ⚠️ A PÁGINA NÃO REPETE O NOME — ele está no vidro, 24px acima,
+            com foto ou sem. Ela começa direto no endereço, que é o que a
+            pessoa veio consultar. O bloco com as iniciais, o nome e a
+            especialidade morava aqui para as clínicas sem foto, e saiu com
+            o segundo cabeçalho. */}
+        <View style={{ paddingHorizontal: PAD }}>
+          <Local f={f} fio={false} />
           {mapa ? (
             <Pressable
               onPress={() => { Linking.openURL(mapa).catch(() => {}); }}

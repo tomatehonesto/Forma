@@ -65,11 +65,12 @@ export const rede = {
   /* ⚠️ OS CONVÊNIOS SÃO UMA LINHA, E NÃO ETIQUETAS. Etiqueta por
      convênio virava uma fileira colorida que competia com o nome da
      clínica — e a pergunta que ela responde é uma só: aceita o meu? Com o
-     filtro de convênio ligado, a linha responde exatamente isso. */
+     filtro de convênio ligado, a linha responde exatamente isso; sem ele,
+     entram os nomes que cabem e o resto vira "+2". */
   aceita: (convenio: string) => `Aceita ${convenio}`,
   soParticular: 'Só particular',
-  /* o último item de "Amil, Unimed e particular" */
-  particularNaLista: 'particular',
+  /* o que não coube na linha: "Amil, Porto Saúde, Unimed +2" */
+  maisConvenios: (n: number) => `+${n}`,
   tambemTeleconsulta: 'Também por teleconsulta',
   /* "seg a sex" — três dias seguidos ou mais viram intervalo */
   deAte: (de: string, ate: string) => `${de} a ${ate}`,

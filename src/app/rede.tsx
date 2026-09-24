@@ -240,8 +240,8 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    Uma etiqueta colorida por convênio virava uma fileira que competia com
    o nome da clínica, e a pergunta que ela responde é uma só: aceita o
    meu? Com o filtro de convênio ligado, a linha responde exatamente isso,
-   na cor de ação; sem ele, lista o que a clínica aceita. A teleconsulta,
-   que também era etiqueta, virou a linha de baixo.
+   na cor de ação; sem ele, os nomes que cabem e "+N" para o resto. A
+   teleconsulta, que também era etiqueta, virou a linha de baixo.
 ------------------------------------------------------------------ */
 function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
@@ -255,8 +255,7 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
   const convenios = pedido
     ? K().aceita(pedido)
     : cl.convenios.length
-      /* até três nomes e "e mais 2", em vez de cortar a frase no meio */
-      ? T.comum.lista([...cl.convenios, ...(cl.particular ? [K().particularNaLista] : [])], 3)
+      ? resumoDosConvenios([...cl.convenios, ...(cl.particular ? [K().particular] : [])])
       : cl.particular ? K().soParticular : '';
   const tele = cl.presencial && cl.teleconsulta;
 
@@ -295,6 +294,27 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
       </Cartao>
     </Pressable>
   );
+}
+
+/* "Bradesco Saúde, SulAmérica, Unimed +1": os nomes que cabem nas duas
+   linhas do cartão, e quantos ficaram de fora. A lista inteira está na
+   clínica, em chips.
+
+   ⚠️ CABER É CONTA DE LETRAS, e não de pixels. Medir o texto desenhado
+   pediria desenhar duas vezes; a coluna do cartão leva cerca de 22 letras
+   por linha no corpo da legenda, e 44 é o que cabe em duas com folga para
+   o "+N". Um nome sempre entra, por maior que seja. */
+const CABE = 44;
+function resumoDosConvenios(nomes: string[]) {
+  const vistos: string[] = [];
+  for (const nome of nomes) {
+    const faltam = nomes.length - vistos.length - 1;
+    const prova = [...vistos, nome].join(', ') + (faltam ? ` ${K().maisConvenios(faltam)}` : '');
+    if (vistos.length && prova.length > CABE) break;
+    vistos.push(nome);
+  }
+  const faltam = nomes.length - vistos.length;
+  return vistos.join(', ') + (faltam ? ` ${K().maisConvenios(faltam)}` : '');
 }
 
 /* Uma linha do cartão: o ícone pequeno e o texto recuado — a mesma forma

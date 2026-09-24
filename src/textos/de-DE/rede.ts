@@ -47,7 +47,7 @@ export const rede = {
   particular: 'Selbstzahler',
   aceita: (convenio: string) => `Akzeptiert ${convenio}`,
   soParticular: 'Nur Selbstzahler',
-  particularNaLista: 'Selbstzahler',
+  maisConvenios: (n: number) => `+${n}`,
   tambemTeleconsulta: 'Auch per Video',
   deAte: (de: string, ate: string) => `${de}–${ate}`,
   faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,

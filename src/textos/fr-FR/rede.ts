@@ -47,7 +47,7 @@ export const rede = {
   particular: 'Paiement direct',
   aceita: (convenio: string) => `Accepte ${convenio}`,
   soParticular: 'Paiement direct uniquement',
-  particularNaLista: 'paiement direct',
+  maisConvenios: (n: number) => `+${n}`,
   tambemTeleconsulta: 'Aussi en téléconsultation',
   /* « du lun. au ven. » */
   deAte: (de: string, ate: string) => `du ${de} au ${ate}`,
