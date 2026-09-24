@@ -12,7 +12,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
 import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
-import { aguaN } from '../logic/medidas';
+import { aguaN, aguaTxt } from '../logic/medidas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -77,7 +77,9 @@ export default function Registrar() {
   /* O mesmo formatador das telas de água: aqui era toFixed(1), e o card
      escrevia 1,8 L do lado de um diário que registrou 1,75 L. */
   const bebido = aguaN(S, mlHoje);
-  const alvoL = aguaN(S, alvos.waterMl);
+  /* O alvo vai com a unidade colada e o bebido vai seco: "51 de 84 fl
+     oz". Escrever a unidade duas vezes ocuparia a linha inteira. */
+  const alvo = aguaTxt(S, alvos.waterMl);
   const acoes = ATALHOS;
 
   /* O CHECK DO ATALHO É A META DO DIA BATIDA, e não "registrei alguma
@@ -124,7 +126,7 @@ export default function Registrar() {
      app inteiro. Ela agora está em "leva um minuto", que é onde ela
      sempre coube. */
   const CATALOGO: Record<QuickKey, Item> = {
-    agua: { ic: 'water', titulo: K().agua, sub: K().aguaSub(bebido, alvoL), to: '/medir-agua' },
+    agua: { ic: 'water', titulo: K().agua, sub: K().aguaSub(bebido, alvo), to: '/medir-agua' },
     /* "0 min hoje" não dizia contra o quê. Os três comparam com o alvo do
        perfil agora, que é o mesmo número que acende o lima. */
     exercicio: { ic: 'dumbbell', titulo: K().exercicio, sub: K().exercicioSub(exercHoje, alvoExerc), to: '/medir-exercicio' },

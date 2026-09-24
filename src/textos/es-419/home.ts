@@ -324,7 +324,9 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'día seguido' : 'días seguidos'),
 
     agua: 'Me\nhidraté',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo} L`,
+    /* ⚠️ EL OBJETIVO LLEGA CON LA UNIDAD ADENTRO, y por eso no hay "L"
+       acá: en imperial los dos números son onzas. Ver ../pt-BR/home.ts. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo}`,
     exercicio: 'Me\nejercité',
     exercicioSub: (feito: number, alvo: number) => `${feito} de ${alvo} min`,
     refeicao: 'Hice una comida',

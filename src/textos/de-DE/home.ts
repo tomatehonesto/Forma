@@ -348,7 +348,9 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'Tag in Folge' : 'Tage in Folge'),
 
     agua: 'Ich habe\ngetrunken',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} von ${alvo} L`,
+    /* ⚠️ DAS ZIEL KOMMT MIT SEINER EINHEIT AN, deshalb steht hier kein
+       „L“: in Imperial sind beide Zahlen Unzen. Siehe ../pt-BR/home.ts. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} von ${alvo}`,
     exercicio: 'Ich habe mich\nbewegt',
     exercicioSub: (feito: number, alvo: number) => `${feito} von ${alvo} Min.`,
     refeicao: 'Ich habe gegessen',

@@ -443,7 +443,10 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'giorno di fila' : 'giorni di fila'),
 
     agua: 'Mi sono\nidratata',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} di ${alvo} L`,
+    /* ⚠️ L’OBIETTIVO ARRIVA CON L’UNITÀ DENTRO, e per questo qui non c’è
+       nessuna "L": in imperiale i due numeri sono once. Vedi
+       ../pt-BR/home.ts. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} di ${alvo}`,
     exercicio: 'Mi sono\nmossa',
     exercicioSub: (feito: number, alvo: number) => `${feito} di ${alvo} min`,
     refeicao: 'Ho fatto un pasto',

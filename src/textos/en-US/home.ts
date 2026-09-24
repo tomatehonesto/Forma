@@ -318,7 +318,9 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'day in a row' : 'days in a row'),
 
     agua: 'I drank\nwater',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} of ${alvo} L`,
+    /* ⚠️ THE TARGET ARRIVES WITH ITS UNIT INSIDE, so no "L" here: on
+       imperial both numbers are ounces. Reasons in ../pt-BR/home.ts. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} of ${alvo}`,
     exercicio: 'I\nmoved',
     exercicioSub: (feito: number, alvo: number) => `${feito} of ${alvo} min`,
     refeicao: 'I had a meal',

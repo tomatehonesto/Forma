@@ -339,7 +339,10 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'jour d’affilée' : 'jours d’affilée'),
 
     agua: 'J’ai\nbu',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} sur ${alvo} L`,
+    /* ⚠️ L’OBJECTIF ARRIVE AVEC SON UNITÉ DEDANS, d’où l’absence de « L »
+       ici : en impérial les deux nombres sont en onces. Voir
+       ../pt-BR/home.ts. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} sur ${alvo}`,
     exercicio: 'J’ai\nbougé',
     exercicioSub: (feito: number, alvo: number) => `${feito} sur ${alvo} min`,
     refeicao: 'J’ai mangé',

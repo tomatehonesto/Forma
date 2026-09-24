@@ -473,7 +473,12 @@ export const home = {
     diasSeguidos: (dias: number): string => (dias === 1 ? 'dia seguido' : 'dias seguidos'),
 
     agua: 'Me\nhidratei',
-    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo} L`,
+    /* ⚠️ O ALVO CHEGA COM A UNIDADE DENTRO, e por isso não há "L" escrito
+       aqui: quem está no imperial lê os dois números em onça, e a linha
+       dizia "51 de 84 L" em cima de um número que já era onça. O `min`
+       do exercício, logo abaixo, fica — minuto é minuto nos dois
+       sistemas. Ver o alto de logic/medidas. */
+    aguaSub: (bebido: string, alvo: string) => `${bebido} de ${alvo}`,
     exercicio: 'Me\nexercitei',
     exercicioSub: (feito: number, alvo: number) => `${feito} de ${alvo} min`,
     refeicao: 'Fiz uma refeição',
