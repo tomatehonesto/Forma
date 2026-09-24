@@ -51,7 +51,7 @@ export const rotina = {
        Zyklus. Was an Wasser fehlt, ist eine Tatsache des Tages und kein
        Charakterfehler. */
     aguaPorqueComEnjoo: 'An deinen gut getrunkenen Tagen zeigt sich die Übelkeit seltener — und der Tag liegt noch unter dem Ziel',
-    aguaPorque: 'Der Tag liegt noch unter dem Ziel, und Wasser hält die Sättigung bis zum Abend',
+    aguaPorque: 'Der Tag liegt noch unter dem Ziel, und Wasser hilft, bis zum Abend satt zu bleiben',
 
     proteina: 'Nimm beim Abendessen mehr Eiweiß',
     proteinaPorque: 'Du bist in der Phase des Zyklus, in der der Hunger zurückkommt, und das Eiweiß von heute zeigt sich im Hunger von morgen',
@@ -77,7 +77,7 @@ export const rotina = {
        mit `oA` anfängt. */
     aplicacao: (recipiente: string) =>
       `${recipiente.charAt(0).toUpperCase()}${recipiente.slice(1)} ist dran — such dir die Stelle aus`,
-    aplicacaoPorque: 'Die Spritze der Woche steht an, und die Stelle zu wechseln reizt die Haut weniger',
+    aplicacaoPorque: 'Die Spritze der Woche steht an, und ein Wechsel der Stelle schont die Haut',
 
     receita: 'Frag das neue Rezept an',
     /* ⚠️ HIER KOMMEN DIE ZAHL UND DER ORT GETRENNT AN, und das Wort

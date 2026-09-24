@@ -37,7 +37,7 @@ export const conquistas = {
   familias: {
     tratamento: 'Behandlung',
     peso: 'Gewicht',
-    constancia: 'Beständigkeit',
+    constancia: 'Regelmäßigkeit',
     hidratacao: 'Trinken',
     proteina: 'Eiweiß',
     movimento: 'Bewegung',
@@ -94,18 +94,18 @@ export const conquistas = {
   pctFalta: (r: string) => `Noch ${r} Punkte`,
 
   pesagens: 'Wiegungen',
-  pesagensDesc: (a: number) => `${p(a, 'Gewicht', 'Gewichte')} eingetragen`,
+  pesagensDesc: (a: number) => `${p(a, 'Wiegung', 'Wiegungen')} eingetragen`,
   pesagensFalta: (r: number) => `Noch ${p(r, 'Wiegung', 'Wiegungen')}`,
 
   /* ---------------- Beständigkeit ---------------- */
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'Tag', 'Tage')} beantwortet`,
+  checkinsDesc: (a: number) => `${p(a, 'Tag', 'Tage')} mit Check-in`,
   checkinsFalta: (r: number) => `Noch ${p(r, 'Tag', 'Tage')}`,
 
   /* „Check-ins“ ist einer der wenigen deutschen Plurale auf -s, und zwar
      weil es ein Fremdwort ist. Der Standard, den es nicht gibt. */
   sequencia: 'Tage in Folge',
-  sequenciaDesc: (a: number) => `${p(a, 'Check-in', 'Check-ins')} an Tagen in Folge`,
+  sequenciaDesc: (a: number) => `${p(a, 'Check-in', 'Check-ins')} in Folge`,
   sequenciaFalta: (r: number, alvo: number) => `Noch ${p(r, 'Tag', 'Tage')} bis ${alvo}`,
 
   /* ---------------- Trinken ---------------- */
@@ -113,13 +113,13 @@ export const conquistas = {
   aguaDiasDesc: (a: number) => `${p(a, 'Tag', 'Tage')} mit erfülltem Trinkziel`,
   aguaDiasFalta: (r: number) => `Noch ${p(r, 'Tag', 'Tage')}`,
 
-  aguaSemana: 'Gut getrunkene Woche',
+  aguaSemana: 'Woche am Trinkziel',
   aguaSemanaDesc: (a: number) => `${p(a, 'Tag', 'Tage')} am Ziel, in derselben Woche`,
   aguaSemanaFalta: (r: number, alvo: number) => `Noch ${p(r, 'Tag', 'Tage')} bis ${alvo}`,
 
   /* ---------------- Eiweiß ---------------- */
   protDias: 'Tage am Eiweißziel',
-  protDiasDesc: (a: number) => `${p(a, 'Tag', 'Tage')} am Ziel des Profils`,
+  protDiasDesc: (a: number) => `${p(a, 'Tag', 'Tage')} mit erfülltem Eiweißziel`,
   protDiasFalta: (r: number) => `Noch ${p(r, 'Tag', 'Tage')}`,
 
   protSeq: 'Eiweiß in Folge',
@@ -139,7 +139,7 @@ export const conquistas = {
   refeicoes: 'Mahlzeiten',
   /* „Teller“ im Plural ist „Teller“. Genau der Fall, für den es keinen
      Standard geben kann. */
-  refeicoesDesc: (a: number) => `${p(a, 'Teller', 'Teller')} eingetragen`,
+  refeicoesDesc: (a: number) => `${p(a, 'Mahlzeit', 'Mahlzeiten')} eingetragen`,
   refeicoesFalta: (r: number) => `Noch ${p(r, 'Mahlzeit', 'Mahlzeiten')}`,
 
   favoritos: 'Lieblingsgerichte',
@@ -147,7 +147,7 @@ export const conquistas = {
   favoritosFalta: (r: number) => `Noch ${p(r, 'Teller', 'Teller')}`,
 
   /* ---------------- Begleitung ---------------- */
-  medidas: 'Maßband-Messungen',
+  medidas: 'Körpermaße',
   medidasDesc: (a: number) => `${p(a, 'Messung', 'Messungen')} eingetragen`,
   medidasFalta: (r: number) => `Noch ${p(r, 'Messung', 'Messungen')}`,
 
@@ -157,7 +157,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `Noch ${comp}`,
 
   exames: 'Befunde',
-  examesDesc: (a: number) => `${p(a, 'Blatt', 'Blätter')} eingelesen`,
+  examesDesc: (a: number) => `${p(a, 'Befund', 'Befunde')} eingelesen`,
   examesFalta: (r: number) => `Noch ${p(r, 'Befund', 'Befunde')}`,
 
   consultas: 'Termine',
@@ -167,7 +167,7 @@ export const conquistas = {
   /* Der Meilenstein im Zeitstrahl: der Pfad und auf welcher Stufe er war. */
   marco: (titulo: string, nivel: number) => `${titulo} · Stufe ${nivel}`,
   tela: {
-    titulo: 'Marksteine',
+    titulo: 'Erfolge',
     lead: 'Marken, die von selbst aus dem entstehen, was du eingetragen hast — hier entscheidet niemand, ob du sie verdienst.',
 
     nivelDeTotal: (nivel: number, total: number) => `Stufe ${nivel} von ${total}`,

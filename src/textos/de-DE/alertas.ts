@@ -102,7 +102,7 @@ export const alertas = {
     ateAjuda: (avisos: number, cada: number) =>
       `${avisos} Hinweise pro Tag, alle ${cada} Stunden.`,
 
-    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    tocaEm: (quando: string) => `Klingelt: ${quando}`,
     semHorario: 'Keine Uhrzeit markiert',
   },
   telaLembretes: {

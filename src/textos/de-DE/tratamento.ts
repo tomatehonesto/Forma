@@ -226,7 +226,7 @@ export const tratamento = {
      ============================================================ */
   telaAplicacoes: {
     aplicada: 'gespritzt',
-    semCulpa: 'Kein schlechtes Gewissen wegen eines vergangenen Tages — es zählt, wieder anzuknüpfen. Du kannst eine frühere Spritze jederzeit nachtragen, mit dem Knopf unten.',
+    semCulpa: 'Kein schlechtes Gewissen wegen eines verpassten Tages — wichtig ist, wieder einzusteigen. Du kannst eine frühere Spritze jederzeit nachtragen, mit dem Knopf unten.',
     titulo: 'Spritzen',
     registrar: 'Spritze eintragen',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -247,7 +247,7 @@ export const tratamento = {
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Spritze`,
     nenhumAlerta: 'Keine Erinnerung für die Spritze',
-    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    tocaEm: (quando: string) => `Klingelt: ${quando}`,
     avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
 
     proxima: 'nächste',
@@ -256,13 +256,13 @@ export const tratamento = {
        „im Takt“ spricht von PÜNKTLICHKEIT, die diese Rechnung nicht
        misst: wer alle zehn Dosen immer drei Tage zu spät gespritzt hat,
        kam auch auf 100%. */
-    constancia: 'Beständigkeit',
+    constancia: 'Regelmäßigkeit',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
       `${feitas} von ${previstas} vorgesehenen Dosen in den letzten ${semanas} Wochen.`,
 
     nivelNoCorpo: 'Spiegel im Körper',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Schätzung von ${molecula} im Körper, mit einer Halbwertszeit von ${meiaVida}. Der tiefste Punkt, kurz vor der nächsten Dosis, ist meist dann, wenn der Hunger zunimmt.`,
+      `Geschätzte Menge ${molecula} im Körper, bei einer Halbwertszeit von ${meiaVida}. Der tiefste Punkt, kurz vor der nächsten Dosis, ist meist dann, wenn der Hunger zunimmt.`,
     meiaVidaDias: (dias: number) => `${dias} Tagen`,
     meiaVidaHoras: 'rund 13 Stunden',
 
@@ -290,8 +290,8 @@ export const tratamento = {
        braucht. */
     novoM: 'Neu',
     novoF: 'Neu',
-    encerradoM: 'abgeschlossen',
-    encerradoF: 'abgeschlossen',
+    encerradoM: 'aufgebraucht',
+    encerradoF: 'aufgebraucht',
 
     nova: 'Neu',
     lembrarRenovar: 'Ans Rezept erinnern',
@@ -321,7 +321,7 @@ export const tratamento = {
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} hält sich ${dias} Tage nach dem Öffnen, und die ${total} Dosen passen nicht in diese Frist. Am besten mit der Person klären, die dich begleitet, was mit dem Rest geschehen soll.`,
 
-    momentoDeRenovar: 'Zeit, das Rezept anzufragen',
+    momentoDeRenovar: 'Zeit, ein neues Rezept anzufragen',
     /* ⚠️ HIER STEHT DER BEHÄLTER OHNE ARTIKEL, und das ist kein
        Auslassen: nach „ohne“ verlangt das Deutsche den Akkusativ —
        „ohne den Pen“ —, und formas.oA liefert nur den Nominativ
@@ -329,7 +329,7 @@ export const tratamento = {
        idiomatische Form und kommt ohne den Fall aus. Deshalb bekommt
        diese Funktion beide Schreibweisen. */
     renovarTexto: (semanas: number) =>
-      `Dein Rezept reicht etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne Medikament dazustehen.`,
+      `Dein Rezept reicht etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Wenn du es jetzt anfragst, stehst du zwischen zwei Terminen nicht ohne Medikament da.`,
 
     historico: (plural: string) => `Verlauf der ${plural}`,
     emUso: 'in Gebrauch',
@@ -377,7 +377,7 @@ export const tratamento = {
     salvar: (acao: string) => `${acao} speichern`,
 
     quando: 'Wann',
-    ficaRegistradaAgora: (hora: string) => `Wird jetzt eingetragen, ${hora}.`,
+    ficaRegistradaAgora: (hora: string) => `Wird jetzt eingetragen, um ${hora}.`,
     registrarDepois: 'Später einzutragen ändert nichts außer dem Datum — die Zählung bis zur nächsten Dosis beginnt hier.',
 
     medicamentoEDose: 'Medikament und Dosis',
@@ -405,7 +405,7 @@ export const tratamento = {
     naoUsado: 'In dieser Behandlung noch nicht benutzt.',
     usadoEstaSemana: 'Diese Woche benutzt.',
     descansandoHa: (semanas: number) =>
-      `Seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'} in Ruhe.`,
+      `Seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'} nicht benutzt.`,
     eOProximo: 'Sie ist die nächste in der Rotation.',
     foraDaRotacao: 'Außerhalb der vorgeschlagenen Rotation — kein Problem, es ist nur eine Erinnerung.',
 

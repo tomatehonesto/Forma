@@ -299,7 +299,7 @@ export const alimentacao = {
     alertas: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} ans Trinken`,
     nenhumAlerta: 'Keine Erinnerung ans Trinken',
-    tocaEm: (quando: string) => `Klingelt ${quando}`,
+    tocaEm: (quando: string) => `Klingelt: ${quando}`,
     umToquePorDia: 'Ein Signal pro Tag, zu der Zeit, die du wählst',
   },
 

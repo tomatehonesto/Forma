@@ -16,12 +16,15 @@
 
 export const ciclo = {
   /* ---------- der Hut ---------- */
-  /* ⚠️ „TAG 5 DER DOSIS“, UND NICHT „TAG 5 VON 7“. Das Von-sieben sah aus
-     wie ein Countdown auf eine Frist — sieben wovon, und was passiert,
+  /* ⚠️ „TAG 5 NACH DER DOSIS“, UND NICHT „TAG 5 VON 7“. Das Von-sieben sah
+     aus wie ein Countdown auf eine Frist — sieben wovon, und was passiert,
      wenn sie erreicht ist? Der Rhythmus gehört dem Medikament, er ist kein
-     Soll. „Der Dosis“ sagt dieselbe Position und benennt die Uhr, die sie
-     misst. */
-  chapeuDia: (dia: number) => `TAG ${dia} DER DOSIS`,
+     Soll.
+
+     Es war „TAG 5 DER DOSIS“, und eine Dosis ist keine Zeitspanne.
+     „Nach“ behält die Zählung ohne das Soll — und es ist das Wort des
+     Zyklus-Bildschirms, „Tag 5 nach deiner Spritze“. */
+  chapeuDia: (dia: number) => `TAG ${dia} NACH DER DOSIS`,
   /* Ohne eingetragene Spritze gibt es keinen Zyklus, und der Hut
      erfindet keinen. */
   chapeuSemCiclo: 'FÜR HEUTE',
@@ -47,7 +50,7 @@ export const ciclo = {
 
   /* ---------- Rückkehr des Hungers ---------- */
   retornoHead: 'Dein Hunger kann in den nächsten 24 Stunden zunehmen.',
-  retornoBody: 'Eiweiß und Wasser halten in dieser Phase des Zyklus die Sättigung.',
+  retornoBody: 'Eiweiß und Wasser helfen dir in dieser Phase des Zyklus, satt zu bleiben.',
   retornoQ: 'Warum habe ich mehr Hunger?',
 
   /* ---------- Höhepunkt des Hungers ---------- */
@@ -97,7 +100,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Beginn der Rückkehr des Hungers',
   faseRetornoRange: 'Tage 5–6',
-  faseRetornoHint: 'Das Medikament beginnt zu fallen, und der Hunger kommt meist zurück.',
+  faseRetornoHint: 'Der Wirkstoffspiegel beginnt zu sinken, und der Hunger kommt meist zurück.',
 
   fasePreLabel: 'Vor der Spritze',
   fasePreRange: 'Ab Tag 7',
@@ -144,16 +147,16 @@ export const ciclo = {
      und Spritze gleichermaßen. Siehe logic/formas. */
   faseBaixoAjuda: 'Dosis und Einstichstelle schon am Vorabend festlegen',
   tela: {
-    titulo: 'Zyklus der Dosis',
+    titulo: 'Dosiszyklus',
     diaDepois: (dia: number, acao: string) => `Tag ${dia} nach\ndeiner ${acao}`,
-    lead: 'Die Wirkung des Medikaments steigt in den ersten Tagen und lässt bis zur nächsten Dosis nach. Was du spürst, geht mit — und das ist zu erwarten.',
+    lead: 'Die Wirkung des Medikaments steigt in den ersten Tagen und lässt bis zur nächsten Dosis nach. Was du spürst, folgt diesem Verlauf — und das ist zu erwarten.',
 
     cicloAtual: 'Aktueller Zyklus',
     diaDeTotal: (dia: number, total: number) => `Tag ${dia} von ${total}`,
-    proximaDose: (data: string) => `Nächste Dosis ${data}`,
+    proximaDose: (data: string) => `Nächste Dosis: ${data}`,
 
     asQuatroFases: 'Die vier Phasen',
-    comum: 'Üblich',
+    comum: 'Häufig',
     ajuda: 'Was hilft',
     atencao: 'Achtung',
 

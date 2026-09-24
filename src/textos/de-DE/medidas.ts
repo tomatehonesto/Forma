@@ -34,7 +34,7 @@ export const medidas = {
     gordura: 'Körperfett',
     massaMagra: 'Magermasse',
   },
-  pontosPercentuais: 'pp',
+  pontosPercentuais: '%-Pkt.',
 
   tela: {
     periodo12s: '12 Wochen',

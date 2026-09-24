@@ -449,7 +449,7 @@ export const marcadores = {
      klinischer Inhalt und steht in logic/derive bei den Schlüsseln. */
   catMetabolico: 'Stoffwechsel',
   catLipidico: 'Blutfette',
-  catFigadoRim: 'Leber & Niere',
+  catFigadoRim: 'Leber und Nieren',
   catTireoide: 'Schilddrüse',
   catVitaminas: 'Vitamine',
 

@@ -54,7 +54,7 @@ export const home = {
      verloren“ über „+3,3 kg“ ist ein Widerspruch innerhalb derselben
      Karte — und das falsche Wort tut mehr weh als die Zahl. */
   peso: {
-    perdido: 'Gewicht verloren',
+    perdido: 'Abgenommen',
     variacao: 'Gewichtsveränderung',
     meta: (quanto: string, unidade: string) => `Ziel: ${quanto} ${unidade}`,
   },
@@ -67,9 +67,9 @@ export const home = {
   tipos: {
     checkin: 'Check-ins',
     aplicacao: 'Spritzen',
-    peso: 'Gewicht',
+    peso: 'Wiegungen',
     refeicao: 'Mahlzeiten',
-    exercicio: 'Bewegung',
+    exercicio: 'Einheiten',
     consulta: 'Termine',
     exame: 'Befunde',
   },
@@ -282,8 +282,8 @@ export const home = {
     hojeEDiaDeAplicar: 'Heute ist dein Spritzentag.',
     proximaDose: (quando: string) => `Deine nächste Dosis ist ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · ${local} vorgeschlagen.`,
-    verAplicacao: 'Die Spritze ansehen',
+      `${medicamento} ${dose} · vorgeschlagene Stelle: ${local}.`,
+    verAplicacao: 'Deine Spritzen ansehen',
     criarLembrete: 'Eine Erinnerung einrichten',
 
     checkinFeito: 'Check-in erledigt',

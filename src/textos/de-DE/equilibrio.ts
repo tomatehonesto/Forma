@@ -26,7 +26,7 @@ const MEIN: Record<string, string> = {
   Energie: 'meine Energie',
   Stimmung: 'meine Stimmung',
   Trinken: 'mein Trinken',
-  Bewegung: 'meine Bewegung',
+  Bewegung: 'meine körperliche Aktivität',
   Eiweiß: 'meine Eiweißzufuhr',
   Sättigung: 'meine Sättigung',
   Therapietreue: 'meine Therapietreue',

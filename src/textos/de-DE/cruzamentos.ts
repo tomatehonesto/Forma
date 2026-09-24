@@ -177,7 +177,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `Die Waage ist ${altas} Mal gestiegen, und du hast trotzdem ${perdido} verloren`,
     texto: (pesagens: number, altas: number) =>
-      `Von ${pesagens} Wiegungen lagen ${altas} über der vorherigen — und der Trend zeigt weiter nach unten. Eine Woche im Plus ist kein Rückfall: es ist Rauschen aus Wasser und Verdauung innerhalb eines Trends.`,
+      `Von ${pesagens} Wiegungen lagen ${altas} über der vorherigen — und der Trend zeigt weiter nach unten. Eine Woche im Plus ist kein Rückfall: Es sind Schwankungen durch Wasser und Verdauung innerhalb eines Trends.`,
     q: 'Wie läuft meine Entwicklung?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'Anstiege', legenda: `innerhalb von −${perdido} im Zeitraum` }),

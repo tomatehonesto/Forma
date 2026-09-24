@@ -202,7 +202,7 @@ export const cuidado = {
     consultasLink: 'Termine',
     anotarConsulta: 'Einen Termin eintragen',
     anotarConsultaSub: 'Mit dem Datum hier ist die Übersicht fertig, und wir sagen dir Bescheid, wenn er näher rückt.',
-    eQuando: (quando: string) => `Er ist ${quando}`,
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
     preparoTexto: 'Ich stelle eine Übersicht mit Gewicht, Therapietreue und Symptomen des Zeitraums zusammen — du wählst, was du fragen willst.',
     prepararAConsulta: 'Den Termin vorbereiten',
 
@@ -210,12 +210,12 @@ export const cuidado = {
     aplicacoesLink: 'Spritzen',
     dosesEm: (onde: string) => `Dosen ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} von ${total} · etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+      `${restam} von ${total} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
     pedirRenovacao: 'Rezept anfragen',
 
     exames: 'Befunde',
     marcadoresAcompanhados: (quantos: number) =>
-      `${quantos} Marker verfolgt`,
+      `${quantos} Marker im Blick`,
     nenhumResultado: 'Kein Ergebnis gespeichert',
     importeUmExame: 'Lies einen Befund ein, um ihn zu verfolgen',
     foraDaReferencia: (quantos: number) => `${quantos} außerhalb des Referenzbereichs`,
