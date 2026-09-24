@@ -2047,7 +2047,13 @@ trabalho ia por rota. O que aparece em toda tela não tem rota.
 
 ---
 
-## 🟡 29. O resumo da semana mostra o peso sem sinal
+## ✅ 29. O resumo da semana mostra o peso sem sinal — RESOLVIDO
+
+**Resolvido em 24/09/2026** (9993b89). A linha usa `variacaoDe`, a mesma
+das outras variações do aplicativo: "−0,4 kg", ou "estável" quando o
+número não se mexeu. E com menos de duas pesagens nos sete dias o peso sai
+da linha — antes ela escrevia "0,0 kg", uma estabilidade que ninguém
+mediu. O relato original fica abaixo.
 
 Na aba de Insights, a linha "Resumo da semana" diz `semana 11 · 6
 check-ins, 0,4 kg` — e os 0,4 kg saem de `Math.abs()` sobre a variação
