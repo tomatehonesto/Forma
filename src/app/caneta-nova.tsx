@@ -8,6 +8,11 @@ import { doseTxt, now } from '../logic/time';
 import { dosesPorRecipiente } from '../logic/derive';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaRecipienteNovo;
 
 /* ⚠️⚠️ A FAIXA DA PERGUNTA DE VALIDADE É ESCOLHA MINHA, e está no
    PENDENCIAS junto com os limiares de platô.
@@ -56,6 +61,18 @@ export default function CanetaNova() {
   const porCaneta = dosesPorRecipiente(S);
 
   const vocab = FORMAS()[formaDe(S)];
+  /* ⚠️ AS DUAS GRAFIAS VÊM DO CATÁLOGO, e estavam escritas aqui em
+     português — `concordar(forma, 'Novo', 'Nova')`. Em alemão aquilo
+     devolvia "Novo" ou "Nova", que é português dos dois jeitos. São duas
+     formas e não uma porque o título pede o nominativo com maiúscula e o
+     botão pede a forma que cabe no meio da frase — em alemão, o
+     acusativo. */
+  const Novo = `${concordar(formaDe(S), K().novoM, K().novoF)} ${vocab.recipiente}`;
+  const novo = `${concordar(formaDe(S), K().novoMinM, K().novoMinF)} ${vocab.recipiente}`;
+  /* "aberta" concordava com "caneta" e ficava em português para as
+     outras formas e para os outros idiomas. O par mora na tela de
+     Medicamento, que já o usava. */
+  const aberto = concordar(formaDe(S), T.tratamento.telaCaneta.abertoM, T.tratamento.telaCaneta.abertoF);
   /* A pergunta existe quando o catálogo NÃO SABE o prazo — `shelf: 0` —, e
      só para quem injeta: cartela de comprimido não vence depois de aberta
      do jeito que um frasco vence. Ver o bloco de `shelf` em logic/meds. */
@@ -98,18 +115,18 @@ export default function CanetaNova() {
 
   return (
     <SheetScreen
-      titulo={`${concordar(formaDe(S), 'Novo', 'Nova')} ${vocab.recipiente}`}
-      sub="Zera a contagem de doses."
+      titulo={Novo}
+      sub={K().zeraContagem}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo rotulo="Medicamento">
+        <Campo rotulo={T.tratamento.telaAplicacoes.medicamento}>
           <Opcoes>
             {ATALHOS.map((k) => (
               <Opc key={k} label={MEDS[k].label} on={med === k} onPress={() => trocarMed(k)} />
             ))}
             <Opc
-              label="Outro"
+              label={K().outro}
               on={!ATALHOS.includes(med)}
               onPress={() => { router.back(); router.push('/perfil' as any); }}
             />
@@ -117,12 +134,13 @@ export default function CanetaNova() {
         </Campo>
 
         <Campo
-          rotulo="Concentração e doses"
+          rotulo={K().concentracaoEDoses}
           /* ⚠️ A FRASE DA VALIDADE SÓ SAI QUANDO ELA EXISTE. Com o
              catálogo em zero, isto escrevia "validade de 0 dias após
              aberta" — o aplicativo dizendo que a coisa vence no dia em
              que foi aberta. */
-          ajuda={`${porCaneta} doses por ${vocab.recipiente}${catalogo.shelf > 0 ? ` · validade de ${catalogo.shelf} dias após aberta` : ''}`}
+          ajuda={K().ajudaDoses(porCaneta, vocab.recipiente)
+            + (catalogo.shelf > 0 ? K().ajudaValidade(catalogo.shelf, aberto) : '')}
         >
           {/* ⚠️ SEM ESCADA, A RÉGUA — e sem isto a seção ficava VAZIA para
               manipulado: rótulo, linha de ajuda e nada embaixo. É a mesma
@@ -162,17 +180,17 @@ export default function CanetaNova() {
             nenhum número chega à tela antes de alguém pedir por ele. */}
         {perguntaValidade ? (
           <Campo
-            rotulo="Validade depois de aberto"
-            ajuda="Quem prepara define este prazo, e ele costuma vir no rótulo. Sem ele, não falamos de vencimento — preferimos calar a chutar uma data."
+            rotulo={K().validadeRotulo(aberto)}
+            ajuda={K().validadeAjuda}
           >
             <Opcoes>
               <Opc
-                label="Não sei"
+                label={K().naoSei}
                 on={validade == null}
                 onPress={() => setValidade(null)}
               />
               <Opc
-                label="Está no rótulo"
+                label={K().estaNoRotulo}
                 on={validade != null}
                 onPress={() => setValidade((v) => v ?? VALIDADE_MEIO)}
               />
@@ -181,14 +199,14 @@ export default function CanetaNova() {
               <Regua
                 min={VALIDADE_MIN} max={VALIDADE_MAX} passo={1} tracoCada={7} casas={0}
                 esp={7} salto={1}
-                valor={validade} unidade="dias" onEscolhe={setValidade}
+                valor={validade} unidade={K().dias} onEscolhe={setValidade}
               />
             ) : null}
           </Campo>
         ) : null}
 
         <Botao
-          label={`Registrar ${concordar(formaDe(S), 'novo', 'nova')} ${vocab.recipiente}`}
+          label={K().registrar(novo)}
           onPress={registrar}
         />
       </View>

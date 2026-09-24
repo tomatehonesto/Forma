@@ -302,6 +302,24 @@ export const tratamento = {
     voltarParaJornada: 'Retour au Parcours',
   },
 
+  telaRecipienteNovo: {
+    novoM: 'Nouveau',
+    novoF: 'Nouvelle',
+    novoMinM: 'nouveau',
+    novoMinF: 'nouvelle',
+    zeraContagem: 'Remet le compte de doses à zéro.',
+    outro: 'Autre',
+    concentracaoEDoses: 'Concentration et doses',
+    ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses par ${recipiente}`,
+    ajudaValidade: (dias: number, aberto: string) => ` · se garde ${dias} jours une fois ${aberto}`,
+    validadeRotulo: (aberto: string) => `Conservation une fois ${aberto}`,
+    validadeAjuda: 'C’est la personne qui le prépare qui fixe ce délai, et il figure en général sur l’étiquette. Sans lui, nous ne parlons pas de péremption — mieux vaut se taire que deviner une date.',
+    naoSei: 'Je ne sais pas',
+    estaNoRotulo: 'C’est sur l’étiquette',
+    dias: 'jours',
+    registrar: (novoRecipiente: string) => `Enregistrer le ${novoRecipiente}`,
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Noter ${acao}`,
     salvar: (acao: string) => `Enregistrer ${acao}`,

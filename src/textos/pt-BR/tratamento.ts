@@ -469,6 +469,39 @@ export const tratamento = {
     voltarParaJornada: 'Voltar para a Jornada',
   },
 
+  /* ============================================================
+     O RECIPIENTE NOVO
+
+     ⚠️⚠️ ERA UMA FOLHA INTEIRA EM PORTUGUÊS, e chega-se a ela por dois
+     caminhos que já falavam o idioma de quem lê: a ação "Novo" da tela
+     de Medicamento e a opção "Outra caneta" do registro de dose.
+
+     ⚠️ SÃO DUAS GRAFIAS DO MESMO ADJETIVO, e não uma. O título pede o
+     nominativo com maiúscula — "Nova caneta" —, e o botão pede a forma
+     que cabe no meio da frase: "Registrar nova caneta". Em alemão a
+     diferença não é de caixa, é de CASO, e é por isso que o par é
+     explícito em vez de sair de um `toLowerCase`. */
+  telaRecipienteNovo: {
+    novoM: 'Novo',
+    novoF: 'Nova',
+    novoMinM: 'novo',
+    novoMinF: 'nova',
+    zeraContagem: 'Zera a contagem de doses.',
+    outro: 'Outro',
+    concentracaoEDoses: 'Concentração e doses',
+    ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses por ${recipiente}`,
+    /* ⚠️ SÓ SAI QUANDO A VALIDADE EXISTE. Com o catálogo em zero isto
+       escrevia "validade de 0 dias", o aplicativo dizendo que a coisa
+       vence no dia em que foi aberta. */
+    ajudaValidade: (dias: number, aberto: string) => ` · validade de ${dias} dias após ${aberto}`,
+    validadeRotulo: (aberto: string) => `Validade depois de ${aberto}`,
+    validadeAjuda: 'Quem prepara define este prazo, e ele costuma vir no rótulo. Sem ele, não falamos de vencimento — preferimos calar a chutar uma data.',
+    naoSei: 'Não sei',
+    estaNoRotulo: 'Está no rótulo',
+    dias: 'dias',
+    registrar: (novoRecipiente: string) => `Registrar ${novoRecipiente}`,
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Registrar ${acao}`,
     salvar: (acao: string) => `Salvar ${acao}`,

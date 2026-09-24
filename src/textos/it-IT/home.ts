@@ -209,6 +209,17 @@ export const home = {
      Farne collassare due in uno fa sì che l'app AFFERMI zero su un giorno
      di cui non sa niente.
      ============================================================ */
+  telaHistorico: {
+    exportar: 'Esporta',
+    lead: (data: string) => `Tutto quello che hai annotato dal ${data}.`,
+    semPesagem: 'senza pesata',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'Una settimana è rimasta quasi vuota' : `${quantas} settimane sono rimaste quasi vuote`,
+    semanasVaziasTexto: 'Le settimane senza registrazioni restano nella lista, grandi come le altre. Non spariscono e non contano come un fallimento.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registrazione' : 'registrazioni'} dall’inizio della terapia`,
+  },
+
   telaJornada: {
     ultimos7: 'I TUOI ULTIMI 7 GIORNI',
     doseEm: (quando: string) => `dose ${quando}`,

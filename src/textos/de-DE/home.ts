@@ -182,6 +182,17 @@ export const home = {
 
      ⚠️ UND KEIN `toLowerCase()` AM SYMPTOMNAMEN: „übelkeit an 3 Tagen“
      wäre ein Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
+  telaHistorico: {
+    exportar: 'Exportieren',
+    lead: (data: string) => `Alles, was du seit dem ${data} eingetragen hast.`,
+    semPesagem: 'ohne Wiegen',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'Eine Woche blieb fast leer' : `${quantas} Wochen blieben fast leer`,
+    semanasVaziasTexto: 'Wochen ohne Eintrag bleiben in der Liste, genauso groß wie die anderen. Sie verschwinden nicht und gelten nicht als Versagen.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'Eintrag' : 'Einträge'} seit Behandlungsbeginn`,
+  },
+
   telaJornada: {
     ultimos7: 'DEINE LETZTEN 7 TAGE',
     /* ⚠️ „Dosis“ GROSS, und im Portugiesischen klein: dort öffnet das Wort

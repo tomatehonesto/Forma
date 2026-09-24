@@ -223,6 +223,21 @@ export const home = {
      Colapsar dois num só faz o aplicativo AFIRMAR zero sobre um dia de
      que ele não sabe nada.
      ============================================================ */
+  /* A tela que a Jornada e o perfil abrem — e que era a última folha
+     grande ainda em português. Título, aba e "Semana N" não nascem aqui:
+     são os mesmos de `telaJornada`, porque link e destino com nomes
+     diferentes fazem a pessoa achar que chegou noutro lugar. */
+  telaHistorico: {
+    exportar: 'Exportar',
+    lead: (data: string) => `Tudo que você registrou desde ${data}.`,
+    semPesagem: 'sem pesagem',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'Uma semana ficou quase vazia' : `${quantas} semanas ficaram quase vazias`,
+    semanasVaziasTexto: 'Semanas sem registro continuam na lista, do mesmo tamanho que as outras. Elas não somem nem viram falha.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} desde o início do tratamento`,
+  },
+
   telaJornada: {
     ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
     doseEm: (quando: string) => `dose ${quando}`,

@@ -168,6 +168,17 @@ export const home = {
 
   /* ⚠️ La pantalla del recorrido vive en `home` porque es la misma
      conversación. Ver ../pt-BR/home para los tres silencios. */
+  telaHistorico: {
+    exportar: 'Exportar',
+    lead: (data: string) => `Todo lo que registraste desde ${data}.`,
+    semPesagem: 'sin pesaje',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'Una semana quedó casi vacía' : `${quantas} semanas quedaron casi vacías`,
+    semanasVaziasTexto: 'Las semanas sin registro siguen en la lista, del mismo tamaño que las demás. No desaparecen ni cuentan como falla.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} desde el comienzo del tratamiento`,
+  },
+
   telaJornada: {
     ultimos7: 'TUS ÚLTIMOS 7 DÍAS',
     doseEm: (quando: string) => `dosis ${quando}`,

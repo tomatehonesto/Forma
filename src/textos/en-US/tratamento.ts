@@ -297,6 +297,24 @@ export const tratamento = {
     voltarParaJornada: 'Back to Journey',
   },
 
+  telaRecipienteNovo: {
+    novoM: 'New',
+    novoF: 'New',
+    novoMinM: 'new',
+    novoMinF: 'new',
+    zeraContagem: 'Resets the dose count.',
+    outro: 'Other',
+    concentracaoEDoses: 'Strength and doses',
+    ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses per ${recipiente}`,
+    ajudaValidade: (dias: number, aberto: string) => ` · good for ${dias} days once ${aberto}`,
+    validadeRotulo: (aberto: string) => `Shelf life once ${aberto}`,
+    validadeAjuda: 'Whoever compounds it sets this limit, and it usually comes on the label. Without it we don’t talk about expiry — we’d rather stay quiet than guess a date.',
+    naoSei: 'I don’t know',
+    estaNoRotulo: 'It’s on the label',
+    dias: 'days',
+    registrar: (novoRecipiente: string) => `Log the ${novoRecipiente}`,
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Log ${acao}`,
     salvar: (acao: string) => `Save ${acao}`,

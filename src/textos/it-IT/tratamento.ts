@@ -418,6 +418,24 @@ export const tratamento = {
     voltarParaJornada: 'Torna al Percorso',
   },
 
+  telaRecipienteNovo: {
+    novoM: 'Nuovo',
+    novoF: 'Nuova',
+    novoMinM: 'nuovo',
+    novoMinF: 'nuova',
+    zeraContagem: 'Azzera il conteggio delle dosi.',
+    outro: 'Altro',
+    concentracaoEDoses: 'Concentrazione e dosi',
+    ajudaDoses: (quantas: number, recipiente: string) => `${quantas} dosi per ${recipiente}`,
+    ajudaValidade: (dias: number, aberto: string) => ` · dura ${dias} giorni dopo ${aberto}`,
+    validadeRotulo: (aberto: string) => `Durata dopo ${aberto}`,
+    validadeAjuda: 'Questo termine lo stabilisce chi la prepara, e di solito è sull’etichetta. Senza, non parliamo di scadenza — meglio tacere che tirare a indovinare una data.',
+    naoSei: 'Non lo so',
+    estaNoRotulo: 'È sull’etichetta',
+    dias: 'giorni',
+    registrar: (novoRecipiente: string) => `Registra ${novoRecipiente}`,
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Registra ${acao}`,
     salvar: (acao: string) => `Salva ${acao}`,

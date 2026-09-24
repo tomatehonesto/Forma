@@ -175,6 +175,17 @@ export const home = {
   /* ⚠️ L'ÉCRAN DU PARCOURS VIT DANS `home` parce que c'est la même
      conversation — les étiquettes de type et les pluriels de la semaine
      étaient déjà ici. Voir ../pt-BR/home pour les trois silences. */
+  telaHistorico: {
+    exportar: 'Exporter',
+    lead: (data: string) => `Tout ce que vous avez noté depuis le ${data}.`,
+    semPesagem: 'sans pesée',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'Une semaine est restée presque vide' : `${quantas} semaines sont restées presque vides`,
+    semanasVaziasTexto: 'Les semaines sans rien de noté restent dans la liste, de la même taille que les autres. Elles ne disparaissent pas et ne comptent pas comme un échec.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'entrée' : 'entrées'} depuis le début du traitement`,
+  },
+
   telaJornada: {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,

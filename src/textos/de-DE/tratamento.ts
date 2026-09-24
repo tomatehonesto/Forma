@@ -351,6 +351,27 @@ export const tratamento = {
     voltarParaJornada: 'Zurück zum Verlauf',
   },
 
+  /* ⚠️ HIER IST DER UNTERSCHIED EIN KASUS, KEINE GROSSSCHREIBUNG. Der
+     Titel steht im Nominativ — "Neuer Pen" —, der Knopf im Akkusativ:
+     "Neuen Pen eintragen". Deshalb sind es zwei Paare und nicht eins. */
+  telaRecipienteNovo: {
+    novoM: 'Neuer',
+    novoF: 'Neue',
+    novoMinM: 'Neuen',
+    novoMinF: 'Neue',
+    zeraContagem: 'Setzt die Dosiszählung zurück.',
+    outro: 'Anderes',
+    concentracaoEDoses: 'Wirkstärke und Dosen',
+    ajudaDoses: (quantas: number, recipiente: string) => `${quantas} Dosen pro ${recipiente}`,
+    ajudaValidade: (dias: number, aberto: string) => ` · hält ${dias} Tage, nachdem er ${aberto} wurde`,
+    validadeRotulo: (aberto: string) => `Haltbarkeit, nachdem er ${aberto} wurde`,
+    validadeAjuda: 'Diese Frist setzt, wer es zubereitet, und sie steht meist auf dem Etikett. Ohne sie sprechen wir nicht von Verfall — lieber schweigen als ein Datum raten.',
+    naoSei: 'Weiß ich nicht',
+    estaNoRotulo: 'Steht auf dem Etikett',
+    dias: 'Tage',
+    registrar: (novoRecipiente: string) => `${novoRecipiente} eintragen`,
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `${acao} eintragen`,
     salvar: (acao: string) => `${acao} speichern`,

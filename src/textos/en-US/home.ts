@@ -162,6 +162,17 @@ export const home = {
   /* ⚠️ The journey screen lives in `home` because it is the same
      conversation — the type labels and week plurals were already here.
      See ../pt-BR/home for the three silences. */
+  telaHistorico: {
+    exportar: 'Export',
+    lead: (data: string) => `Everything you have logged since ${data}.`,
+    semPesagem: 'no weigh-in',
+    semanasVazias: (quantas: number) =>
+      quantas === 1 ? 'One week came out almost empty' : `${quantas} weeks came out almost empty`,
+    semanasVaziasTexto: 'Weeks without records stay on the list, the same size as the others. They don’t disappear and they don’t count as a failure.',
+    registrosDesde: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'record' : 'records'} since treatment began`,
+  },
+
   telaJornada: {
     ultimos7: 'YOUR LAST 7 DAYS',
     doseEm: (quando: string) => `dose ${quando}`,

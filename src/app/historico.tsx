@@ -9,6 +9,15 @@ import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.home.telaHistorico;
+/* ⚠️ O TÍTULO, A ABA E "SEMANA N" VÊM DA JORNADA, e não daqui. É a
+   seção de lá que traz até esta tela, e link e destino com nomes
+   diferentes fazem a pessoa achar que chegou noutro lugar. */
+const J = () => T.home.telaJornada;
 
 /* ============================================================
    SEU TRATAMENTO
@@ -46,7 +55,7 @@ export default function Historico() {
   const contagens = useMemo(() => timelineCounts(S), [S]);
 
   const chips = [
-    { id: 'semana', label: 'Por semana', n: semanas.length },
+    { id: 'semana', label: J().porSemana, n: semanas.length },
     ...contagens.map((x) => ({ id: x.kind, label: x.label, n: x.n })),
   ];
 
@@ -55,7 +64,7 @@ export default function Historico() {
 
   return (
     <TelaInterna
-      titulo="Seu tratamento"
+      titulo={J().seuTratamento}
       /* "EXPORTAR" ESCRITO, e não uma seta para cima.
 
          A seta sozinha na barra lia como "voltar ao topo" — é o que uma
@@ -64,7 +73,7 @@ export default function Historico() {
          cruz para acrescentar, que ninguém precisa decifrar. Palavra
          ocupa mais largura do que ícone, e neste caso é o preço de não
          fazer a pessoa tocar para descobrir. */
-      acao="Exportar"
+      acao={K().exportar}
       onAcao={() => router.push('/exportar' as any)}
     >
       {/* SAIU O "TOQUE EM QUALQUER LINHA PARA ABRIR". A frase só era
@@ -74,8 +83,8 @@ export default function Historico() {
           tela é instrução que a pessoa testa e descobre falsa. O chevron
           diz o que abre, onde abre. */}
       <Titulao
-        titulo="Seu tratamento"
-        lead={`Tudo que você registrou desde ${dataLonga(inicio)}.`}
+        titulo={J().seuTratamento}
+        lead={K().lead(dataLonga(inicio))}
       />
 
       <Chips itens={chips} valor={aba} onChange={setAba} />
@@ -85,8 +94,8 @@ export default function Historico() {
           {semanas.map((w) => (
             <SanfonaLinha
               key={w.semana}
-              titulo={`Semana ${w.semana}`}
-              selo={w.deltaPeso ?? 'sem pesagem'}
+              titulo={J().semana(w.semana)}
+              selo={w.deltaPeso ?? K().semPesagem}
               seloTom={w.deltaPeso ? 'lima' : 'neutra'}
               /* ⚠️ ERA "17 set a 23 set", montado aqui. O formatador da
                   casa diz o mês uma vez — "17 a 23 set" — e em inglês diz
@@ -124,14 +133,14 @@ export default function Historico() {
       {aba === 'semana' && vazias > 0 ? (
         <Aviso
           ic="info"
-          titulo={vazias === 1 ? 'Uma semana ficou quase vazia' : `${vazias} semanas ficaram quase vazias`}
-          texto="Semanas sem registro continuam na lista, do mesmo tamanho que as outras. Elas não somem nem viram falha."
+          titulo={K().semanasVazias(vazias)}
+          texto={K().semanasVaziasTexto}
         />
       ) : null}
 
       <View style={{ alignItems: 'center' }}>
         <Txt v="caption" c={c.tx4}>
-          {eventos.length} registros desde o início do tratamento
+          {K().registrosDesde(eventos.length)}
         </Txt>
       </View>
     </TelaInterna>
