@@ -17,6 +17,22 @@
    anderer Bildschirm.
    ============================================================ */
 
+/* ⚠️ "WIE VERBESSERE ICH BEWEGUNG" FEHLT DAS POSSESSIV. Die Achse kommt
+   als Variable und hat drei Geschlechter; die Tabelle gibt jeder Achse
+   ihre Form im Akkusativ. Eiweiß allein wäre „mein Eiweiß“, und das sagt
+   niemand — gemeint ist die Zufuhr. */
+const MEIN: Record<string, string> = {
+  Schlaf: 'meinen Schlaf',
+  Energie: 'meine Energie',
+  Stimmung: 'meine Stimmung',
+  Trinken: 'mein Trinken',
+  Bewegung: 'meine Bewegung',
+  Eiweiß: 'meine Eiweißzufuhr',
+  Sättigung: 'meine Sättigung',
+  Therapietreue: 'meine Therapietreue',
+};
+const mein = (eixo: string) => MEIN[eixo] ?? eixo;
+
 export const equilibrio = {
   /* ⚠️ DER NAME DER ACHSE WAR IHR SCHLÜSSEL. `radar()` gab `{k: 'Sono'}`
      zurück, die Reihentabelle wurde mit 'Sono' indiziert, und der
@@ -37,7 +53,7 @@ export const equilibrio = {
     exercicio: 'Bewegung',
     proteina: 'Eiweiß',
     saciedade: 'Sättigung',
-    adesao: 'Verlässlichkeit',
+    adesao: 'Therapietreue',
   },
 
   /* Die Wahl richtet sich nach der SPANNE zwischen der besten und der
@@ -54,13 +70,13 @@ export const equilibrio = {
      ZWEITE fällt in Kleinschreibung: „Sono e adesão puxam para cima“.
 
      IM DEUTSCHEN FÄLLT ER NICHT. Beide bleiben groß — „Schlaf und
-     Verlässlichkeit ziehen nach oben“ —, weil jedes Substantiv groß
+     Therapietreue ziehen nach oben“ —, weil jedes Substantiv groß
      bleibt. Wer die portugiesische Zeile hierher kopiert, bringt das
      `toLowerCase()` mit und schreibt „Schlaf und verlässlichkeit“. */
   par: (primeiro: string, segundo: string) => `${primeiro} und ${segundo}`,
 
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
-    `${doisFortes} ziehen nach oben, und selbst ${fraco} ist nicht zurückgeblieben. Ich würde vorerst nichts ändern.`,
+    `${doisFortes} ziehen nach oben, und auch ${fraco} hinkt nicht hinterher. Ich würde vorerst nichts ändern.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
     `${doisFortes} sind beständig. ${fraco} schwankt am meisten — das wäre mein Schwerpunkt für die nächste Woche.`,
 
@@ -72,8 +88,8 @@ export const equilibrio = {
 
      ⚠️ UND HIER FÄLLT DIE KLEINSCHREIBUNG WIEDER WEG: „Wie verbessere ich
      Schlaf“, nicht „schlaf“. */
-  botaoMelhorar: (eixo: string) => `Wie verbessere ich ${eixo}`,
-  perguntaMelhorar: (eixo: string) => `Wie verbessere ich ${eixo}?`,
+  botaoMelhorar: (eixo: string) => `Wie verbessere ich ${mein(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Wie verbessere ich ${mein(eixo)}?`,
 
   /* Der Hut des Balkendiagramms: die Achse in Versalien und wie viele
      Tage die Reihe abdeckt. Versalien wegen der Typografie des

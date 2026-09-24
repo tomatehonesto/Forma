@@ -32,23 +32,23 @@ export const exames = {
        Anzahl: keiner, einer, wenige genug für eine Aufzählung, oder zu
        viele zum Aufzählen. */
     todosDentro: (quantos: number) =>
-      `Die ${quantos} Marker dieser Abnahme liegen innerhalb der Referenz des Labors.`,
+      `Die ${quantos} Marker dieser Abnahme liegen im Referenzbereich des Labors.`,
     umFora: (total: number, qual: string) =>
-      `Einer der ${total} Marker dieser Abnahme lag außerhalb der Referenz: ${qual}.`,
+      `Einer der ${total} Marker dieser Abnahme lag außerhalb des Referenzbereichs: ${qual}.`,
     algunsFora: (fora: number, total: number, quais: string) =>
-      `${fora} von ${total} Markern dieser Abnahme lagen außerhalb der Referenz: ${quais}.`,
+      `${fora} von ${total} Markern dieser Abnahme lagen außerhalb des Referenzbereichs: ${quais}.`,
     /* ⚠️ AB VIER REICHT DIE ZAHL. Die Zusammenfassung sitzt auf einer
        Deckkarte fester Höhe, und acht Namen hintereinander schieben den
        Absatz aus ihr heraus — und selbst wenn sie hineinpassten, liest man
        eine Achterliste mitten im Satz nicht, man zählt sie. Die Liste derer,
        die außerhalb lagen, steht direkt darunter. */
     muitosFora: (fora: number, total: number) =>
-      `${fora} von ${total} Markern dieser Abnahme lagen außerhalb der Referenz.`,
+      `${fora} von ${total} Markern dieser Abnahme lagen außerhalb des Referenzbereichs.`,
 
     /* Das Datumsstück, das den zweiten Satz eröffnet, wenn es Vorwerte
        gibt. Es bringt sein Komma mit, weil es an den nächsten Satz
        anschließt. */
-    desde: (data: string) => ` Seit ${data}`,
+    desde: (data: string) => ` Seit dem ${data}`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
       `${desde} ist ein Marker in die erwartete Richtung gegangen, und die größte Veränderung war bei ${qual}: von ${de} auf ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
@@ -118,7 +118,7 @@ export const exames = {
        0,4 % gestiegen“. Wer die portugiesische Wortstellung übernimmt,
        bekommt „ist er gestiegen 0,4 %“. */
     andou: (data: string, verbo: string, quanto: string, unidade: string, rumo: string) =>
-      ` Seit ${data} ist er um ${quanto}${unidade} ${verbo}${rumo}.`,
+      ` Seit dem ${data} ist er um ${quanto}${unidade} ${verbo}${rumo}.`,
 
     /* ⚠️ DAS IST DER EINZIGE SATZ DES BILDSCHIRMS, DER ÜBER DIESEN MARKER
        HINAUSSCHAUT.
@@ -128,13 +128,13 @@ export const exames = {
        im Marker, es steht in der Übersicht: zu wissen, dass die anderen
        vierzehn gut waren, ändert die Größe dieses einen. */
     painelTudoDentro: (total: number) =>
-      ` Die ${total} Marker dieses Befunds liegen innerhalb der Referenz.`,
+      ` Die ${total} Marker dieses Befunds liegen im Referenzbereich.`,
     painelEsteNao: (total: number, fora: number, plural: boolean) =>
-      ` Von den ${total} Markern dieses Befunds ${plural ? 'lagen' : 'lag'} ${fora} außerhalb der Referenz; dieser nicht.`,
+      ` Von den ${total} Markern dieses Befunds ${plural ? 'lagen' : 'lag'} ${fora} außerhalb des Referenzbereichs; dieser nicht.`,
     painelUnicoFora: (total: number) =>
-      ` Von den ${total} Markern dieses Befunds ist dieser der einzige außerhalb der Referenz.`,
+      ` Von den ${total} Markern dieses Befunds ist dieser der einzige außerhalb des Referenzbereichs.`,
     painelEsteEUmDeles: (total: number, fora: number) =>
-      ` Von den ${total} Markern dieses Befunds liegen ${fora} außerhalb der Referenz, und dieser ist einer davon.`,
+      ` Von den ${total} Markern dieses Befunds liegen ${fora} außerhalb des Referenzbereichs, und dieser ist einer davon.`,
 
     /* ⚠️ DER LETZTE SATZ WIRD NICHT WEGGELASSEN. „Ein einzelner Befund
        entscheidet nichts“ ist das, was das ganze Lesen davon abhält, eine
@@ -149,10 +149,10 @@ export const exames = {
   tela: {
     titulo: 'Befunde',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} Marker · letzte Abnahme ${ultimaColeta}`,
-    foraDaReferencia: 'außerhalb der Referenz',
-    naReferencia: 'innerhalb der Referenz',
-    blocoFora: 'Außerhalb der Referenz',
+      `${quantos} Marker · letzte Abnahme am ${ultimaColeta}`,
+    foraDaReferencia: 'außerhalb des Referenzbereichs',
+    naReferencia: 'im Referenzbereich',
+    blocoFora: 'Außerhalb des Referenzbereichs',
     arquivosImportados: 'Eingelesene Dateien',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} Marker · ${fonte} · ${data}`,
@@ -165,9 +165,9 @@ export const exames = {
     vazioAcao: 'Einen Wert eintragen',
 
     colhidoEm: (data: string) => `Abgenommen am ${data}`,
-    vereditoOk: 'Innerhalb der Referenz',
-    vereditoAlto: 'Über der Referenz',
-    vereditoBaixo: 'Unter der Referenz',
+    vereditoOk: 'Im Referenzbereich',
+    vereditoAlto: 'Über dem Referenzbereich',
+    vereditoBaixo: 'Unter dem Referenzbereich',
     vereditoComFaixa: (veredito: string, faixa: string) => `${veredito}: ${faixa}`,
     faixaEntre: (minimo: string, maximo: string, unidade: string) =>
       `zwischen ${minimo} und ${maximo}${unidade}`,
@@ -178,7 +178,7 @@ export const exames = {
 
     /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
        do número, e o veredito por extenso mora no detalhe. */
-    seloOk: 'in der Referenz',
+    seloOk: 'im Referenzbereich',
     seloAlto: 'darüber',
     seloBaixo: 'darunter',
     seloEnviado: 'gesendet',

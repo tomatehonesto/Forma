@@ -186,7 +186,7 @@ export const cadastro = {
      dass die Person einwilligt, ohne zu wissen, dass sie eingewilligt hat
      — und eine Einwilligung zu Gesundheitsdaten muss ein klarer Akt sein
      und nicht die Nebenwirkung davon, einen Bildschirm weiterzuschalten. */
-  concordarEMontar: 'Zustimmen und meinen Plan bauen',
+  concordarEMontar: 'Zustimmen und meinen Plan erstellen',
   ficaRegistrado: 'Wird mit dem heutigen Datum festgehalten.',
   salvar: 'Speichern',
   continuar: 'Weiter',

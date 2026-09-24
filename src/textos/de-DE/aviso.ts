@@ -122,7 +122,7 @@ export const aviso = {
     checkinsSub: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'} · Symptom für Symptom`,
     exames: 'Befunde',
     examesSub: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'Ergebnis' : 'Ergebnisse'} · Wert und Referenz`,
+      `${quantos} ${quantos === 1 ? 'Ergebnis' : 'Ergebnisse'} · Wert und Referenzbereich`,
     notas: 'Notizen für den Termin',
     notasSub: (quantas: number) => `${quantas} ${quantas === 1 ? 'Notiz' : 'Notizen'}`,
     habitos: 'Mahlzeiten, Wasser und Bewegung',
@@ -132,7 +132,7 @@ export const aviso = {
     formatoTitulo: 'Heraus kommt eine .json-Datei',
     formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — gut, um eine Kopie aufzuheben oder deine Einträge woandershin mitzunehmen. Für die Fassung, die jemand lesen soll, nimm die Übersicht für den Termin.',
 
-    gerar: 'Die Datei bauen',
+    gerar: 'Die Datei erstellen',
     gerando: 'Wird gebaut...',
     verResumo: 'Die Übersicht für den Termin ansehen',
 

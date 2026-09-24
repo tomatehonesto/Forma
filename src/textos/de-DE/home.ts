@@ -149,7 +149,7 @@ export const home = {
        Ton —, aber wer übersetzt, muss es wissen. */
     massaMagra: medidas.corpo.massaMagra,
     naReferencia: 'Im Referenzbereich',
-    foraDaReferencia: 'Außerhalb der Referenz',
+    foraDaReferencia: 'Außerhalb des Referenzbereichs',
     pressao: 'Blutdruck',
     /* ⚠️ „UNVERÄNDERT“ WAR DAS, WAS VON ALLEM ÜBRIG BLIEB, WAS KEIN FALLEN
        WAR, und ein Blutdruck, der um vierzehn Punkte stieg, kam als

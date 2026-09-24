@@ -194,8 +194,8 @@ export const cuidado = {
     responder: 'Antworten',
     enviarPrimeira: 'Die erste Nachricht senden',
 
-    precisaDeVoce: 'Braucht dich',
-    nadaPrecisa: 'Gerade braucht dich nichts.',
+    precisaDeVoce: 'Wartet auf dich',
+    nadaPrecisa: 'Gerade wartet nichts auf dich.',
     emDia: 'Deine Begleitung ist auf dem Stand.',
 
     proximaConsulta: 'Dein nächster Termin',
@@ -218,8 +218,8 @@ export const cuidado = {
       `${quantos} Marker verfolgt`,
     nenhumResultado: 'Kein Ergebnis gespeichert',
     importeUmExame: 'Lies einen Befund ein, um ihn zu verfolgen',
-    foraDaReferencia: (quantos: number) => `${quantos} außerhalb der Referenz`,
-    todosNaReferencia: 'Alle innerhalb der Referenz',
+    foraDaReferencia: (quantos: number) => `${quantos} außerhalb des Referenzbereichs`,
+    todosNaReferencia: 'Alle im Referenzbereich',
 
     quemAcompanha: 'Wer deine Behandlung begleitet',
     ninguemRegistrado: 'Noch niemand eingetragen',

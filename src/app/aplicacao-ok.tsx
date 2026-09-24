@@ -72,8 +72,13 @@ export default function AplicacaoOk() {
            substantivo vinha de FORMAS, traduzido, e o particípio estava
            escrito aqui, em português. */
         titulo={K().registrada(maiuscula(vocab.acao))}
-        /* O local só entra na frase de quem injeta — ver logic/formas. */
-        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li ? ` · ${siteLabel(li.site).toLowerCase()}` : ''}.`}
+        /* O local só entra na frase de quem injeta — ver logic/formas.
+
+           ⚠️ E ELE NÃO DESCE PARA MINÚSCULA À MÃO. O `.toLowerCase()` que
+           morava aqui escrevia "oberschenkel (re.)" em alemão, onde todo
+           substantivo é maiúsculo. `comum.noMeio` é quem sabe: minúscula
+           em português, o nome intacto em alemão. */
+        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li ? ` · ${T.comum.noMeio(siteLabel(li.site))}` : ''}.`}
       >
         <Cartao>
           <Linha

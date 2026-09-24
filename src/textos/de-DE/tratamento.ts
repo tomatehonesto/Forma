@@ -68,9 +68,9 @@ export const tratamento = {
   ritmoLento: 'Langsameres Tempo',
 
   /* Drei Grade, und der mittlere erscheint am häufigsten: „ein Rezept
-     lohnt sich“ ist ein Hinweis mit Wochen Vorlauf, kein Alarm. */
+     neues Rezept“ ist ein Hinweis mit Wochen Vorlauf, kein Alarm. */
   estoqueUrgente: 'Jetzt nachbestellen',
-  estoqueRenovar: 'Ein neues Rezept lohnt sich',
+  estoqueRenovar: 'Zeit für ein neues Rezept',
   estoqueEmDia: 'Vorrat reicht',
 
   /* ⚠️ DIE SEITE KOMMT ABGEKÜRZT UND IN KLAMMERN, weil diese Etiketten in
@@ -258,7 +258,7 @@ export const tratamento = {
        kam auch auf 100%. */
     constancia: 'Beständigkeit',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} von ${previstas} in den letzten ${semanas} Wochen vorgesehenen Dosen.`,
+      `${feitas} von ${previstas} vorgesehenen Dosen in den letzten ${semanas} Wochen.`,
 
     nivelNoCorpo: 'Spiegel im Körper',
     nivelTexto: (molecula: string, meiaVida: string) =>
@@ -329,7 +329,7 @@ export const tratamento = {
        idiomatische Form und kommt ohne den Fall aus. Deshalb bekommt
        diese Funktion beide Schreibweisen. */
     renovarTexto: (semanas: number) =>
-      `Dein Rezept deckt etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne Medikament dazustehen.`,
+      `Dein Rezept reicht etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne Medikament dazustehen.`,
 
     historico: (plural: string) => `Verlauf der ${plural}`,
     emUso: 'in Gebrauch',
@@ -363,8 +363,8 @@ export const tratamento = {
     outro: 'Anderes',
     concentracaoEDoses: 'Wirkstärke und Dosen',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} Dosen pro ${recipiente}`,
-    ajudaValidade: (dias: number, aberto: string) => ` · hält ${dias} Tage, nachdem er ${aberto} wurde`,
-    validadeRotulo: (aberto: string) => `Haltbarkeit, nachdem er ${aberto} wurde`,
+    ajudaValidade: (dias: number, _aberto: string) => ` · hält ${dias} Tage nach dem Öffnen`,
+    validadeRotulo: (_aberto: string) => 'Haltbarkeit nach dem Öffnen',
     validadeAjuda: 'Diese Frist setzt, wer es zubereitet, und sie steht meist auf dem Etikett. Ohne sie sprechen wir nicht von Verfall — lieber schweigen als ein Datum raten.',
     naoSei: 'Weiß ich nicht',
     estaNoRotulo: 'Steht auf dem Etikett',
