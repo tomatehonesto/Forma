@@ -6,7 +6,7 @@ import {
   M, nextSite, siteLabel, penStock, instanteDaAplicacao, rodizioDeLocais,
 } from '../logic/derive';
 import { FORMAS, concordar, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
-import { now, fmtTime, nf, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
+import { now, fmtTime, doseTxt, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
 import { radius } from '../theme';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { T } from '../textos';
@@ -200,7 +200,7 @@ export default function Aplicacao() {
             : undefined}
         >
           <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-            <Txt v="bodyMed">{K().medComDose(med.label, nf(dose, 1), med.unit)}</Txt>
+            <Txt v="bodyMed">{K().medComDose(med.label, doseTxt(dose), med.unit)}</Txt>
             {!mudandoDose ? (
               <Pressable
                 onPress={() => setMudandoDose(true)}
@@ -221,7 +221,7 @@ export default function Aplicacao() {
                 {med.doses.map((d) => (
                   <Opc
                     key={d}
-                    label={`${nf(d, 1)} ${med.unit}`}
+                    label={`${doseTxt(d)} ${med.unit}`}
                     on={dose === d}
                     onPress={() => setDose(d)}
                   />

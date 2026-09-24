@@ -9,7 +9,7 @@ import {
   lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
   temConsulta, clinicaConectada, startWeight, variacaoDe,
 } from '../logic/derive';
-import { now, diffDays, fmtDate, relDay, nf, kg } from '../logic/time';
+import { now, diffDays, fmtDate, relDay, nf, doseTxt, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
@@ -126,7 +126,7 @@ function companionReply(S: State, text: string): Msg {
       '',
       '## O que levar',
       `- Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`,
-      `- Dose: ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)`,
+      `- Dose: ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)`,
       '- Sintomas: náusea leve nos dias pós-aplicação, já melhorando',
       '',
       '## Perguntas que valem a pena',
@@ -152,7 +152,7 @@ function companionReply(S: State, text: string): Msg {
      perdida. */
   if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
     const nd = nextInjectionDate(S); const li = lastInjection(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
+    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
     return { who: 'ai', text: `Hoje você registrou <b>${aguaN(S, waterMlToday(S))} de ${aguaTxt(S, (S.profile as any).targets.waterMl)}</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };

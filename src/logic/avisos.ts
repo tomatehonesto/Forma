@@ -5,7 +5,7 @@ import { M } from './derive';
 import { FORMAS, formaDe, oA, doDa } from './formas';
 import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
 import { T } from '../textos';
-import { nf } from './time';
+import { doseTxt } from './time';
 
 /* ============================================================
    AVISOS — os lembretes saindo do aparelho
@@ -101,7 +101,7 @@ async function canal() {
    do dia é ela. */
 const textoDaDose = (S: State, lead: number) => {
   const med = M(S);
-  const dose = `${med.label} ${nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0)} ${med.unit}`;
+  const dose = `${med.label} ${doseTxt(S.profile.dose)} ${med.unit}`;
   const K = T.avisos;
   if (lead <= 0) return { title: K.doseHoje, body: K.doseHojeCorpo(dose) };
   const rec = FORMAS()[formaDe(S)].recipiente;

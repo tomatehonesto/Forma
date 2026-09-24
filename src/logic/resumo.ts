@@ -5,7 +5,7 @@ import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
   lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, type Nota,
 } from './derive';
-import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
+import { fmtDate, diffDays, now, nf, doseTxt, kg, startOfDay } from './time';
 import { pesoTxt, pesoU, pesoV } from './medidas';
 
 /* ============================================================
@@ -94,7 +94,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       titulo: K.medicacao,
       linhas: [
         { k: K.medicamento, v: `${med.label} (${nomeDaMolecula(med.mol)})` },
-        { k: K.dose, v: `${nf(p.dose, p.dose % 1 ? 1 : 0)} ${med.unit}` },
+        { k: K.dose, v: `${doseTxt(p.dose)} ${med.unit}` },
         { k: K.cadencia, v: cadenciaCurta(S) },
         { k: K.tempoDeTratamento, v: K.emDias(journeyDay(S)) },
         /* A FRAÇÃO, E NÃO A PORCENTAGEM SOZINHA. "Adesão 91%" fala de

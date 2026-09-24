@@ -9,7 +9,7 @@ import {
   doseDoPerfil,
   diasAteAplicar,
 } from '../logic/derive';
-import { now, diffDays, fmtWD, fmtDate, relDay, nf, quandoEm, maiuscula } from '../logic/time';
+import { now, diffDays, fmtWD, fmtDate, relDay, doseTxt, quandoEm, maiuscula } from '../logic/time';
 import { FORMAS, formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 
@@ -289,7 +289,7 @@ export default function Aplicacoes() {
                 <Icon name="check" size={14} color={c.accent} sw={2.4} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="body">{nf(i.dose, i.dose % 1 ? 1 : 0)} {med.unit} · {siteLabel(i.site)}</Txt>
+                <Txt v="body">{doseTxt(i.dose)} {med.unit} · {siteLabel(i.site)}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
                   {fmtDate(new Date(i.t))} · {relDay(new Date(i.t))}
                 </Txt>

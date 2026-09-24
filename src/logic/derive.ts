@@ -685,7 +685,7 @@ export function milestones(S: State): Milestone[] {
   out.push({ t: S.profile.startT, ic: 'leaf', title: K.inicio, sub: `${MEDS[S.profile.med].label} · ${pesoTxt(S, S.profile.startWeight)}`, to: '/historico' });
   let prev: number | null = null;
   for (const inj of S.injections as any[]) {
-    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: K.doseAjustada(nf(inj.dose, inj.dose % 1 ? 1 : 0)), sub: K.titulacao, to: '/aplicacoes' });
+    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: K.doseAjustada(doseTxt(inj.dose)), sub: K.titulacao, to: '/aplicacoes' });
     prev = inj.dose;
   }
   const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
@@ -2720,9 +2720,9 @@ export function timelineEvents(S: State): TLEvent[] {
   for (const inj of S.injections as any[]) {
     out.push({
       key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
-      ic: 'syringe', color: 'accent', title: V().aplicacao(nf(inj.dose, inj.dose % 1 ? 1 : 0), med.unit),
+      ic: 'syringe', color: 'accent', title: V().aplicacao(doseTxt(inj.dose), med.unit),
       sub: `${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
-      detalhe: `${nf(inj.dose, inj.dose % 1 ? 1 : 0)} ${med.unit} · ${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
+      detalhe: `${doseTxt(inj.dose)} ${med.unit} · ${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
       value: '', valueColor: 'tx3',
     });
   }
@@ -2926,7 +2926,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
 
     out.push({
       semana: i + 1, t: injs[i].t,
-      dose: `${med.label} ${nf(injs[i].dose, injs[i].dose % 1 ? 1 : 0)} ${med.unit}`,
+      dose: `${med.label} ${doseTxt(injs[i].dose)} ${med.unit}`,
       site: siteLabel(injs[i].site),
       eventos, deltaPeso,
       resumo: resumo || W.semRegistros,
@@ -5742,8 +5742,8 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
   if (ajuste) {
     mudancas.push({
       id: 'dose', ic: 'dose',
-      titulo: C_.doseNova(nf(ajuste.para, ajuste.para % 1 ? 1 : 0)),
-      sub: C_.doseAnterior(nf(ajuste.de, ajuste.de % 1 ? 1 : 0)),
+      titulo: C_.doseNova(doseTxt(ajuste.para)),
+      sub: C_.doseAnterior(doseTxt(ajuste.de)),
     });
   }
   if (aplicacoes) {

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { MEDS } from '../logic/meds';
 import { FORMAS, concordar, formaDe, faixaDaMolecula } from '../logic/formas';
-import { nf } from '../logic/time';
+import { doseTxt } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 
@@ -122,7 +122,7 @@ export default function CanetaNova() {
               {catalogo.doses.slice(0, 4).map((d) => (
                 <Opc
                   key={d}
-                  label={`${nf(d, d % 1 ? 1 : 0)} ${catalogo.unit}`}
+                  label={`${doseTxt(d)} ${catalogo.unit}`}
                   on={dose === d}
                   onPress={() => setDose(d)}
                 />

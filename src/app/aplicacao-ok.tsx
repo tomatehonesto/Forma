@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
-import { diffDays, now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
+import { diffDays, now, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { FORMAS, concordar, formaDe, oA } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
 import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
@@ -61,7 +61,7 @@ export default function AplicacaoOk() {
       <Confirmacao
         titulo={`${maiuscula(vocab.acao)} registrada`}
         /* O local só entra na frase de quem injeta — ver logic/formas. */
-        texto={`${quando} · ${med.label} ${nf(li?.dose ?? S.profile.dose, 1)} ${med.unit}${vocab.injetavel && li ? ` · ${siteLabel(li.site).toLowerCase()}` : ''}.`}
+        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li ? ` · ${siteLabel(li.site).toLowerCase()}` : ''}.`}
       >
         <Cartao>
           <Linha

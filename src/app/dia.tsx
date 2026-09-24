@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { nextInjectionDate, M, respostaNoDia, respondido } from '../logic/derive';
-import { startOfDay, now, diffDays, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
+import { startOfDay, now, diffDays, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -71,8 +71,8 @@ export default function Dia() {
           <Linha
             titulo={K().aplicacao}
             sub={aplicou
-              ? K().doseLinha(med.label, nf(aplicou.dose, 1), med.unit)
-              : K().doseLinha(med.label, nf(S.profile.dose, 1), med.unit,
+              ? K().doseLinha(med.label, doseTxt(aplicou.dose), med.unit)
+              : K().doseLinha(med.label, doseTxt(S.profile.dose), med.unit,
                 prevista ? K().prevista : K().semRegistroMinusculo)}
             selo={aplicou ? K().seloFeita : K().seloRegistrar}
             seloTom={aplicou ? 'verde' : 'neutra'}

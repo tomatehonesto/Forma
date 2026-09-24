@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
-import { MO_LONG, nf, kgTxt as kg, dataComAno } from '../logic/time';
+import { MO_LONG, doseTxt, kgTxt as kg, dataComAno } from '../logic/time';
 import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
@@ -102,7 +102,7 @@ export default function Dados() {
           {comDose ? (
             <Linha
               ic="dose" titulo={K().dose}
-              sub={K().doseSub(nf(S.profile.dose, S.profile.dose % 1 ? 1 : 0), med.unit)}
+              sub={K().doseSub(doseTxt(S.profile.dose), med.unit)}
               onPress={corrige('dose')}
             />
           ) : null}

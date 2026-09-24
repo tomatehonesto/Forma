@@ -95,12 +95,23 @@ export const dataComDiaDaSemana = (t: number | Date) => {
   return formato().comDiaDaSemana(diasDaSemana()[d.getDay()], dataLonga(d));
 };
 
+/* ⚠️ UM DIA SÓ É UM DIA, E NÃO UM INTERVALO DE PONTAS IGUAIS. Um
+   recipiente aberto e encerrado no mesmo dia saía do formatador como
+   "18 a 18 jul" — e quem lê isso para de ler a frase para procurar o
+   erro, que não está lá. */
+const mesmoDia = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear()
+  && a.getMonth() === b.getMonth()
+  && a.getDate() === b.getDate();
+
 /* Um intervalo de dias, com o mês dito uma vez quando é o mesmo:
    "1 a 7 set", e "28 jul a 3 ago" quando a semana vira o mês. */
 export const fmtPeriodo = (a: Date, b: Date) =>
-  a.getMonth() === b.getMonth()
-    ? formato().periodo(a.getDate(), b.getDate(), b.getMonth())
-    : formato().junta(fmtDate(a), fmtDate(b));
+  mesmoDia(a, b)
+    ? fmtDate(a)
+    : a.getMonth() === b.getMonth()
+      ? formato().periodo(a.getDate(), b.getDate(), b.getMonth())
+      : formato().junta(fmtDate(a), fmtDate(b));
 export const fmtWD = (d: Date) => WD()[d.getDay()];
 
 /** "maio de 2026" — o cabeçalho do calendário.
@@ -117,9 +128,11 @@ export const fmtMesAno = (d: Date) => formato().mesAno(d.getMonth(), d.getFullYe
     a tradução chegar. É o mesmo motivo de todos os outros formatadores
     daqui existirem. */
 export const fmtPeriodoLongo = (a: Date, b: Date) =>
-  a.getMonth() === b.getMonth()
-    ? formato().periodoLongo(a.getDate(), b.getDate(), b.getMonth())
-    : formato().junta(dataLonga(a), dataLonga(b));
+  mesmoDia(a, b)
+    ? dataLonga(a)
+    : a.getMonth() === b.getMonth()
+      ? formato().periodoLongo(a.getDate(), b.getDate(), b.getMonth())
+      : formato().junta(dataLonga(a), dataLonga(b));
 
 /* ⚠️ O RELÓGIO É DE DOZE HORAS EM INGLÊS, e "14:30" não é uma hora que
    alguém leia lá sem converter de cabeça. O zero à esquerda também some:
@@ -221,6 +234,17 @@ export const semanaDoTratamento = (quando: Date | number, inicio: number) =>
   inicio ? Math.max(1, Math.floor(diffDays(quando, new Date(inicio)) / 7) + 1) : 1;
 
 /** A dose com as casas que ela tem, e não com uma casa fixa: 0,25 mg
- *  precisa de duas, 2,5 de uma, 15 de nenhuma. */
+ *  precisa de duas, 2,5 de uma, 15 de nenhuma.
+ *
+ *  ⚠️⚠️ E ELA É O ÚNICO JEITO DE ESCREVER UMA DOSE. Vinte sítios
+ *  formatavam dose à mão, em duas versões erradas de maneiras
+ *  diferentes: `nf(d, 1)` escrevia "5,0 mg" onde o resto do aplicativo
+ *  dizia "5 mg", e `nf(d, d % 1 ? 1 : 0)` — a cópia caseira desta
+ *  função — acertava 2,5 e 5 e arredondava 0,25 para "0,3". Ozempic e
+ *  Wegovy começam em 0,25 mg: a segunda versão dizia à pessoa, e ao
+ *  resumo que ela leva ao médico, uma dose que ela não toma.
+ *
+ *  Quem escreve uma dose chama esta função. Medida que não é dose —
+ *  gordura corporal, valor de exame — não é problema dela. */
 export const doseTxt = (d: number) =>
   nf(d, d % 1 === 0 ? 0 : Math.round(d * 10) === d * 10 ? 1 : 2);

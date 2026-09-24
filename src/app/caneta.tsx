@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
 import { FORMAS, formaDe, concordar, oA } from '../logic/formas';
-import { nf, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
+import { doseTxt, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
   Sanfona, SanfonaLinha, Botao,
@@ -63,7 +63,7 @@ export default function Caneta() {
       rodape={<Botao label={K().lembrarRenovar} onPress={() => router.push('/lembretes' as any)} />}
     >
       <Titulao
-        titulo={K().tituloDose(med.label, nf(dose, 1), med.unit)}
+        titulo={K().tituloDose(med.label, doseTxt(dose), med.unit)}
         lead={atual?.abertaEm
           ? K().leadAberto(maiuscula(vocab.recipiente), aberto, dataLonga(atual.abertaEm), total, vocab.recipiente)
           : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
@@ -124,7 +124,7 @@ export default function Caneta() {
           {k.lista.map((p) => (
             <SanfonaLinha
               key={p.id}
-              titulo={K().tituloDose(p.label, nf(p.dose, 1), p.unit)}
+              titulo={K().tituloDose(p.label, doseTxt(p.dose), p.unit)}
               /* ⚠️ "encerrada" ESTAVA NO FEMININO FIXO, concordando com
                  "caneta" numa lista que também mostra frasco e blíster. */
               selo={p.estado === 'uso' ? K().emUso : concordar(forma, K().encerradoM, K().encerradoF)}
