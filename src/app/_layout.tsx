@@ -387,6 +387,9 @@ export default function RootLayout() {
               dela: numa folha o teclado empurra em vez de cobrir, e
               fechar devolve a pessoa onde ela estava. */
            'codigo', 'unidades',
+           /* Os filtros da vitrine da rede: a folha abre por cima da lista
+              e fechar devolve a pessoa a ela, já filtrada. */
+           'rede-filtros',
            /* A folha de escolher idioma ou país nasce por cima de /idioma, que
               é tela: sem esta apresentação o scrim dela cobriria a página
               inteira em cinza opaco, que é o defeito que a própria /idioma

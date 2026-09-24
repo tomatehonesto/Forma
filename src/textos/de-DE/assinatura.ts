@@ -265,6 +265,7 @@ export const assinatura = {
        Praxenliste, die es nicht gibt, wäre die teuerste Attrappe hier. */
     conviteTitulo: 'Die Einladung kommt von der Praxis',
     conviteTexto: 'Hier lässt sich keine Praxis suchen. Wer schon in einer Partnerpraxis behandelt wird, bekommt von ihr einen Code, und er verbindet die beiden Enden. Wenn deine Praxis die App noch nicht nutzt, lohnt es sich, sie darauf anzusprechen.',
+    conviteTextoComRede: 'Wer im Partnernetzwerk behandelt wird, bekommt nach dem ersten Termin von der Praxis einen Code, und er verbindet die beiden Enden. Wenn deine Praxis die App noch nicht nutzt, lohnt es sich, sie darauf anzusprechen.',
 
     codigoRotulo: 'Einladungscode',
     codigoAjudaAtual: 'Er ist es, der dich mit deiner Praxis verbindet.',

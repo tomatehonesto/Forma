@@ -171,6 +171,7 @@ export const assinatura = {
 
     conviteTitulo: 'The invite comes from the clinic',
     conviteTexto: 'You can’t search for a clinic here. Someone already treated at a partner clinic gets a code from them, and that’s what connects the two ends. If your clinic doesn’t use the app yet, it’s worth mentioning to them.',
+    conviteTextoComRede: 'If you’re treated in the partner network, the office gives you a code after the first appointment, and that’s what connects the two ends. If your clinic doesn’t use the app yet, it’s worth mentioning to them.',
 
     codigoRotulo: 'Invite code',
     codigoAjudaAtual: 'It’s what links you to your clinic.',

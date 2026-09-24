@@ -265,9 +265,14 @@ export const assinatura = {
     agendaTexto: 'As consultas aparecem aqui sem você precisar anotar nada.',
 
     /* ⚠️ E NÃO HÁ BUSCA DE CLÍNICA, e a tela diz isso. Uma lista de
-       clínicas que não existe seria a porta emparedada mais cara daqui. */
+       clínicas que não existe seria a porta emparedada mais cara daqui.
+
+       ⚠️ ATÉ A VITRINE DA REDE EXISTIR (ver logic/rede). Com ela no ar,
+       procurar passa a ser possível, e a frase de cima vira mentira — a
+       tela troca para a segunda, que só diz de onde vem o código. */
     conviteTitulo: 'O convite vem da clínica',
     conviteTexto: 'Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
+    conviteTextoComRede: 'Quem se trata na rede parceira recebe do consultório um código depois da primeira consulta, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
 
     codigoRotulo: 'Código de convite',
     codigoAjudaAtual: 'É ele que liga você à sua clínica.',

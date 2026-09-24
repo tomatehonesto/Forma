@@ -32,6 +32,7 @@ import { rotina as rotinaPt } from './pt-BR/rotina';
 import { tempo as tempoPt } from './pt-BR/tempo';
 import { tratamento as tratamentoPt } from './pt-BR/tratamento';
 import { semente as sementePt } from './pt-BR/semente';
+import { rede as redePt } from './pt-BR/rede';
 
 import { alimentacao as alimentacaoEn } from './en-US/alimentacao';
 import { ajuda as ajudaEn } from './en-US/ajuda';
@@ -66,6 +67,7 @@ import { rotina as rotinaEn } from './en-US/rotina';
 import { tempo as tempoEn } from './en-US/tempo';
 import { tratamento as tratamentoEn } from './en-US/tratamento';
 import { semente as sementeEn } from './en-US/semente';
+import { rede as redeEn } from './en-US/rede';
 
 /* ⚠️ O ESPANHOL É NEUTRO DA AMÉRICA LATINA — ustedes, sem vosotros.
    Ver o alto de textos/es-419/formas, onde a contração "del" mora. */
@@ -102,6 +104,7 @@ import { rotina as rotinaEs } from './es-419/rotina';
 import { tempo as tempoEs } from './es-419/tempo';
 import { tratamento as tratamentoEs } from './es-419/tratamento';
 import { semente as sementeEs } from './es-419/semente';
+import { rede as redeEs } from './es-419/rede';
 
 /* ⚠️ O FRANCÊS NÃO TEM PONTO MÉDIO. "né·e", "suivi·e" estavam escritos e
    saíram: o ponto médio CONTORNA o acordo de gênero, não o evita, e os
@@ -140,6 +143,7 @@ import { rotina as rotinaFr } from './fr-FR/rotina';
 import { tempo as tempoFr } from './fr-FR/tempo';
 import { tratamento as tratamentoFr } from './fr-FR/tratamento';
 import { semente as sementeFr } from './fr-FR/semente';
+import { rede as redeFr } from './fr-FR/rede';
 
 /* ⚠️ O ALEMÃO TRATA POR "DU". É a decisão que mais custa desfazer neste
    catálogo, e a razão inteira está no alto de textos/de-DE/comum.
@@ -182,6 +186,7 @@ import { rotina as rotinaDe } from './de-DE/rotina';
 import { tempo as tempoDe } from './de-DE/tempo';
 import { tratamento as tratamentoDe } from './de-DE/tratamento';
 import { semente as sementeDe } from './de-DE/semente';
+import { rede as redeDe } from './de-DE/rede';
 
 /* ⚠️ O ITALIANO TRATA POR "TU", como o alemão, e escreve "l'app" e não
    "l'applicazione" — as duas são corretas, e a segunda recria em italiano
@@ -226,6 +231,7 @@ import { rotina as rotinaIt } from './it-IT/rotina';
 import { tempo as tempoIt } from './it-IT/tempo';
 import { tratamento as tratamentoIt } from './it-IT/tratamento';
 import { semente as sementeIt } from './it-IT/semente';
+import { rede as redeIt } from './it-IT/rede';
 
 /* ============================================================
    O CATÁLOGO — como o código chega no texto
@@ -310,6 +316,8 @@ export type Textos = {
   rotina: typeof rotinaPt;
   /** a paciente de exemplo — não é o aplicativo falando; ver pt-BR/semente */
   semente: typeof sementePt;
+  /** a vitrine da rede parceira — ver pt-BR/rede */
+  rede: typeof redePt;
   tempo: typeof tempoPt;
   tratamento: typeof tratamentoPt;
 };
@@ -330,7 +338,7 @@ const CATALOGOS: Record<Local, Textos> = {
     exames: examesPt, fontes: fontesPt, formas: formasPt, home: homePt, idioma: idiomaPt,
     leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, perfil: perfilPt,
     resumo: resumoPt, rotina: rotinaPt,
-    semente: sementePt, tempo: tempoPt, tratamento: tratamentoPt,
+    rede: redePt, semente: sementePt, tempo: tempoPt, tratamento: tratamentoPt,
   },
   'en-US': {
     ajuda: ajudaEn, alertas: alertasEn, alimentacao: alimentacaoEn, assinatura: assinaturaEn, aviso: avisoEn, avisos: avisosEn,
@@ -339,7 +347,7 @@ const CATALOGOS: Record<Local, Textos> = {
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
     leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, perfil: perfilEn,
     resumo: resumoEn, rotina: rotinaEn,
-    semente: sementeEn, tempo: tempoEn, tratamento: tratamentoEn,
+    rede: redeEn, semente: sementeEn, tempo: tempoEn, tratamento: tratamentoEn,
   },
   'es-419': {
     ajuda: ajudaEs, alertas: alertasEs, alimentacao: alimentacaoEs, assinatura: assinaturaEs, aviso: avisoEs, avisos: avisosEs,
@@ -347,7 +355,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasEs, cruzamentos: cruzamentosEs, cuidado: cuidadoEs, descobertas: descobertasEs, equilibrio: equilibrioEs,
     escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
     home: homeEs, idioma: idiomaEs, leituras: leiturasEs, marcadores: marcadoresEs, medidas: medidasEs,
-    metas: metasEs, perfil: perfilEs, resumo: resumoEs, rotina: rotinaEs, semente: sementeEs, tempo: tempoEs, tratamento: tratamentoEs,
+    metas: metasEs, perfil: perfilEs, resumo: resumoEs, rotina: rotinaEs, rede: redeEs, semente: sementeEs, tempo: tempoEs, tratamento: tratamentoEs,
   },
   'fr-FR': {
     ajuda: ajudaFr, alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
@@ -355,7 +363,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasFr, cruzamentos: cruzamentosFr, cuidado: cuidadoFr, descobertas: descobertasFr, equilibrio: equilibrioFr,
     escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
     home: homeFr, idioma: idiomaFr, leituras: leiturasFr, marcadores: marcadoresFr, medidas: medidasFr,
-    metas: metasFr, perfil: perfilFr, resumo: resumoFr, rotina: rotinaFr, semente: sementeFr, tempo: tempoFr, tratamento: tratamentoFr,
+    metas: metasFr, perfil: perfilFr, resumo: resumoFr, rotina: rotinaFr, rede: redeFr, semente: sementeFr, tempo: tempoFr, tratamento: tratamentoFr,
   },
   'de-DE': {
     ajuda: ajudaDe, alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
@@ -363,7 +371,7 @@ const CATALOGOS: Record<Local, Textos> = {
     conquistas: conquistasDe, cruzamentos: cruzamentosDe, cuidado: cuidadoDe, descobertas: descobertasDe, equilibrio: equilibrioDe,
     escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,
     home: homeDe, idioma: idiomaDe, leituras: leiturasDe, marcadores: marcadoresDe, medidas: medidasDe,
-    metas: metasDe, perfil: perfilDe, resumo: resumoDe, rotina: rotinaDe, semente: sementeDe, tempo: tempoDe, tratamento: tratamentoDe,
+    metas: metasDe, perfil: perfilDe, resumo: resumoDe, rotina: rotinaDe, rede: redeDe, semente: sementeDe, tempo: tempoDe, tratamento: tratamentoDe,
   },
   'it-IT': {
     ajuda: ajudaIt, alertas: alertasIt, alimentacao: alimentacaoIt, aviso: avisoIt, assinatura: assinaturaIt, avisos: avisosIt,
@@ -371,7 +379,7 @@ const CATALOGOS: Record<Local, Textos> = {
     cuidado: cuidadoIt, descobertas: descobertasIt, equilibrio: equilibrioIt, home: homeIt, idioma: idiomaIt,
     escalas: escalasIt, etapa: etapaIt, exames: examesIt, fontes: fontesIt, formas: formasIt,
     leituras: leiturasIt, marcadores: marcadoresIt, medidas: medidasIt, metas: metasIt, perfil: perfilIt,
-    resumo: resumoIt, rotina: rotinaIt, semente: sementeIt, tempo: tempoIt, tratamento: tratamentoIt,
+    resumo: resumoIt, rotina: rotinaIt, rede: redeIt, semente: sementeIt, tempo: tempoIt, tratamento: tratamentoIt,
   },
 };
 

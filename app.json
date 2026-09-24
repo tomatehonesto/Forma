@@ -52,6 +52,12 @@
         }
       ],
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Usamos a sua localização para mostrar a distância até os consultórios da rede. Ela fica no aparelho e não é enviada a ninguém."
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/android-icon-monochrome.png",

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { clinicaConectada } from '../logic/derive';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
+import { redeNoAr } from '../logic/rede';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -114,7 +115,7 @@ export default function Parceiros() {
       <Aviso
         ic="info"
         titulo={P().conviteTitulo}
-        texto={P().conviteTexto}
+        texto={redeNoAr() ? P().conviteTextoComRede : P().conviteTexto}
       />
 
       {/* ---- o código ----

@@ -2199,3 +2199,44 @@ de marca (Mounjaro, Wegovy, Ozempic) na ficha, ou "Abnehmspritzen" como
 palavra-chave, pode ser lido como propaganda, e isso é o advogado quem
 responde, mercado por mercado. Nos EUA a regra não é a mesma: a
 propaganda ao consumidor é permitida, com as exigências da FDA.
+
+---
+
+## 🟡 34. A vitrine da rede parceira existe, com lista de exemplo, e espera o portal
+
+Feita em 24/09/2026 para ver como fica: `/rede` (a lista, com busca,
+especialidade, localização e filtros), `/rede-filtros` (a folha) e
+`/profissional` (a ficha, com consultórios, horários, convênios e canais).
+Abre pelo bloco do fim da aba Cuidado, para quem está no Brasil e não
+tem acompanhamento nenhum. Os médicos virão de um **portal próprio**
+(Admin/CMS), onde cada um é cadastrado e mantém a própria ficha; o contato
+é direto com o consultório, e o vínculo continua nascendo do código de
+convite que ele passa depois da primeira consulta.
+
+**Hoje a única fonte é a de exemplo**, e ela só existe em `__DEV__`: nove
+profissionais inventados, com o aviso no alto da vitrine e nenhum contato
+que abra. Em produção `FONTE` é nula, a vitrine não abre, e o bloco da
+aba Cuidado continua levando a `/parceiros`.
+
+**O que falta antes de valer em produção:**
+
+1. **O portal, e o contrato com ele.** Os tipos de `logic/rede.ts`
+   (`Profissional`, `Consultorio`, `Contato`) são o que a vitrine precisa
+   receber — é daí que sai a especificação do portal. Quando ele existir,
+   `FONTE` passa a ler de lá, e só ela muda.
+2. **Revisão jurídica da vitrine — ver o item 2.** É publicidade médica:
+   a ficha já mostra CRM com UF e RQE de cada especialidade, mas quem
+   entra na lista, com que critério, e o que o profissional pode escrever
+   no "Sobre" são perguntas de advogado. A ordem é distância ou nome, sem
+   nota e sem "destaque" — os dois pediriam critério que ninguém definiu.
+3. **A Política de Privacidade ganha uma linha.** Ler o catálogo é uma
+   chamada de rede nova. A localização não vai junto: a distância é
+   calculada no aparelho (`logic/localizacao.ts`), e é isso que o texto
+   da permissão promete.
+4. **Um build novo no iPhone.** `expo-location` é módulo nativo, e o
+   build de agora não o tem — a linha "Usar minha localização" some até
+   lá (o módulo é carregado com cuidado para a tela não cair). E o build
+   de produção passa a declarar a permissão de localização, mesmo com a
+   vitrine fechada.
+5. **As fotos vêm do portal, com o consentimento de quem aparece.** Sem
+   foto, o cartão mostra a inicial.

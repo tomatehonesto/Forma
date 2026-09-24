@@ -16,6 +16,7 @@ import { fmtDate, diasDaSemana, MO } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { temRedeParceira } from '../../logic/pais';
+import { redeNoAr } from '../../logic/rede';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDe, focoDe } from '../../ui/retratos';
@@ -958,8 +959,10 @@ function Parceiros() {
     <View style={{ marginTop: 36 }}>
       <SectionHead title={K().acompanhamentoProfissional} />
 
+      {/* Com a lista da rede no ar, o bloco abre a vitrine; sem ela, a
+          tela do código de convite, que é o único caminho que existe. */}
       <Pressable
-        onPress={() => router.push('/parceiros' as any)}
+        onPress={() => router.push((redeNoAr() ? '/rede' : '/parceiros') as any)}
         style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
       >
         <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
