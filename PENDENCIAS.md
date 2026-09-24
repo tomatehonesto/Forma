@@ -1875,13 +1875,20 @@ chamadas dele põem esse artigo ora no sujeito, ora no objeto:
 | caso | onde |
 |---|---|
 | nominativo | `index.tsx:245`, `caneta.tsx:102` |
-| acusativo | `index.tsx:250`, `aplicacao-ok.tsx:85`, `caneta.tsx:113`, `derive.ts:2445` |
+| acusativo | `aplicacao-ok.tsx:85`, `caneta.tsx:113`, `derive.ts:2445` |
+
+⚠️ **Eram quatro acusativos, e são três.** O quarto era o botão do cartão
+de estoque da Home — "Ver a caneta", `home.verRecipiente` —, e ele deixou
+de nomear o recipiente: diz "Ver o medicamento", que é o nome da tela de
+destino. Sem substantivo não há caso para resolver. É o caminho que este
+item prevê no fim: a frase se constrói em volta do problema em vez de
+receber um parâmetro para ele.
 
 Em português, espanhol, francês e inglês o artigo é o mesmo nos dois
 casos, e por isso a assinatura nunca precisou saber. Em alemão é "der
 Pen" e "den Pen".
 
-O alemão devolve o **nominativo**, e nas quatro chamadas de acusativo
+O alemão devolve o **nominativo**, e nas três chamadas de acusativo
 está errado. Está listado por arquivo e linha no alto de
 `textos/de-DE/formas.ts`.
 

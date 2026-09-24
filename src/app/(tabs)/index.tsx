@@ -248,7 +248,7 @@ export default function Home() {
       body: K().receitaCorpo,
       ...(clinicaConectada(S)
         ? { cta: K().pedirRenovacao, to: '/conversa?pedir=receita', ic: 'doc' }
-        : { cta: K().verRecipiente(`${oA(forma)} ${recipiente}`, recipiente), to: '/caneta', ic: 'dose' }),
+        : { cta: K().verMedicamento, to: '/caneta', ic: 'dose' }),
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },

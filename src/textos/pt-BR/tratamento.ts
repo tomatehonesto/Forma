@@ -307,7 +307,8 @@ export const tratamento = {
        folha de registrar. Usar a mesma é o que faz a tag do perfil, a
        linha de /aplicacoes e o título concordarem. */
     medicamento: 'Medicamento',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} de ${total} doses usadas ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
@@ -410,8 +411,8 @@ export const tratamento = {
       `${medicamento} dura ${dias} dias depois de ${aberto}, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`,
 
     momentoDeRenovar: 'Momento de pedir a renovação',
-    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `Sua receita cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem ${oRecipiente} entre uma consulta e outra.`,
+    renovarTexto: (semanas: number) =>
+      `Sua receita cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem o medicamento entre uma consulta e outra.`,
 
     historico: (plural: string) => `Histórico de ${plural}`,
     emUso: 'em uso',

@@ -130,7 +130,7 @@ export default function Caneta() {
         <Aviso
           ic="pill"
           titulo={K().momentoDeRenovar}
-          texto={K().renovarTexto(Math.round(k.semanas), `${oA(forma)} ${vocab.recipiente}`, vocab.recipiente)}
+          texto={K().renovarTexto(Math.round(k.semanas))}
         />
       ) : null}
 

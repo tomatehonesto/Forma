@@ -208,8 +208,10 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma} an ${dias} ${dias === 1 ? 'Tag' : 'Tagen'}`,
 
-    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
-      `${restam} von ${total} Dosen im Pen · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    dosesRestantes: (restam: number, semanas: number) =>
+      restam === 0
+        ? 'Keine Dosis mehr übrig'
+        : `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
 
     oQueJaMudou: 'Was sich geändert hat',
     evolucao: 'Entwicklung',
@@ -229,14 +231,15 @@ export const home = {
     metaAberta: 'offen',
   },
 
-  /* ⚠️ `verRecipiente` USA O SEGUNDO ARGUMENTO, e é o único idioma que
-     faz isso. "Ver a caneta" pede o acusativo — "Den Pen ansehen" —, e
-     `formas.oA` só devolve o nominativo (ver PENDENCIAS, item 26). Rótulo
-     de botão em alemão dispensa artigo, então a saída é escrever a forma
-     nua: "Pen ansehen". Mesma solução de `rotina.empurroes.aplicacao` —
-     quem não pode escolher o caso constrói a frase em volta do caso que
-     recebe. `acabou` fica com o primeiro argumento porque ali o
-     recipiente é SUJEITO, e nominativo é o que `oA` entrega. */
+  /* ⚠️ `acabou` FICA COM O ARGUMENTO com artigo porque ali o recipiente
+     é SUJEITO, e nominativo é o que `oA` entrega.
+
+     O botão ao lado dele era o caso difícil — "Ver a caneta" pede o
+     acusativo, "Den Pen ansehen", e `oA` só sabe o nominativo — e deixou
+     de existir: ele agora diz "Medikament ansehen", o nome da tela de
+     destino, sem recipiente e sem caso para resolver. Era o item 26 do
+     PENDENCIAS. Quem ainda constrói a frase em volta do caso que recebe
+     é `rotina.empurroes.aplicacao`. */
   telaInicio: {
     bomDia: 'Guten Morgen',
     boaTarde: 'Guten Tag',
@@ -259,7 +262,7 @@ export const home = {
     restaUmaDose: (onde: string) => `Eine Dosis ist noch ${onde}.`,
     receitaCorpo: 'Ein neues Rezept braucht ein paar Tage zwischen Anfrage und Apotheke — jetzt anzufangen bewahrt davor, mittendrin stehen zu bleiben.',
     pedirRenovacao: 'Rezept anfragen',
-    verRecipiente: (_oRecipiente: string, recipiente: string) => `${recipiente} ansehen`,
+    verMedicamento: 'Medikament ansehen',
 
     entendaOPorQue: 'Verstehen, warum',
 

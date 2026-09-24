@@ -240,7 +240,8 @@ export const tratamento = {
     emCurso: 'läuft',
 
     medicamento: 'Medikament',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} von ${total} Dosen verbraucht ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
 
@@ -327,8 +328,8 @@ export const tratamento = {
        (siehe PENDENCIAS, Punkt 26). „ohne Pen dazustehen“ ist die
        idiomatische Form und kommt ohne den Fall aus. Deshalb bekommt
        diese Funktion beide Schreibweisen. */
-    renovarTexto: (semanas: number, _oRecipiente: string, recipiente: string) =>
-      `Dein Rezept deckt etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne ${recipiente} dazustehen.`,
+    renovarTexto: (semanas: number) =>
+      `Dein Rezept deckt etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Es jetzt anzufragen bewahrt davor, zwischen zwei Terminen ohne Medikament dazustehen.`,
 
     historico: (plural: string) => `Verlauf der ${plural}`,
     emUso: 'in Gebrauch',

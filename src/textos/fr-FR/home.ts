@@ -199,8 +199,10 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma.toLowerCase()} sur ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
 
-    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
-      `${restam} doses sur ${total} dans le stylo · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    dosesRestantes: (restam: number, semanas: number) =>
+      restam === 0
+        ? 'Aucune dose restante'
+        : `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
     oQueJaMudou: 'Ce qui a changé',
     evolucao: 'Évolution',
@@ -250,7 +252,7 @@ export const home = {
     restaUmaDose: (onde: string) => `Il reste une dose ${onde}.`,
     receitaCorpo: 'Une nouvelle ordonnance prend quelques jours entre la demande et la pharmacie — s’y mettre maintenant évite de s’arrêter en chemin.',
     pedirRenovacao: 'Demander le renouvellement',
-    verRecipiente: (oRecipiente: string, _recipiente: string) => `Voir ${oRecipiente}`,
+    verMedicamento: 'Voir le médicament',
 
     entendaOPorQue: 'Comprendre pourquoi',
 

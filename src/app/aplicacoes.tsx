@@ -9,7 +9,7 @@ import {
   doseDoPerfil,
   diasAteAplicar,
 } from '../logic/derive';
-import { now, diffDays, fmtWD, fmtDate, relDay, doseTxt, quandoEm, maiuscula } from '../logic/time';
+import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana } from '../logic/time';
 import { formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 
@@ -19,7 +19,7 @@ const K = () => T.tratamento.telaAplicacoes;
 import { Txt, Row } from '../ui/kit';
 import { alertasDe, proximaDe, quando, inicialDoDia } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
-import { AreaCurve, Ring } from '../ui/charts';
+import { AreaCurve } from '../ui/charts';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Botao,
 } from '../ui/internas';
@@ -122,13 +122,26 @@ export default function Aplicacoes() {
         lead={K().lead(med.label, nomeDaMolecula(med.mol), cadenciaTexto(S))}
       />
 
-      {/* A PRÓXIMA DOSE, com o anel da semana em volta da contagem.
+      {/* A PRÓXIMA DOSE, e agora ela tem o cartão inteiro.
 
-          O cartão era branco como os outros quatro da tela, com o número
-          encostado na direita — a coisa mais importante daqui desenhada
-          como a menos. O anel não é enfeite: ele mostra onde a semana
-          está, que é o que faz "em 3 dias" ter tamanho. Cheio à esquerda,
-          contagem no meio: enche enquanto o número desce.
+          ⚠️⚠️ O ANEL SAIU. Ele desenhava a volta da semana com "5/7" no
+          meio, e a fração era o dia do ciclo — mas nada no cartão dizia
+          isso. Um anel ao lado de "Em 3 dias" pede para ser lido como a
+          contagem que está do lado dele, e não era: um descia de 7 para
+          0 e o outro subia de 1 para 7, no mesmo cartão, sem rótulo que
+          os separasse.
+
+          E o assunto já tem lugar próprio três centímetros abaixo: a
+          linha "Ciclo da dose" diz "Dia 5 de 7" com a palavra na frente
+          e ainda explica a fase — "efeito cedendo, fome voltando aos
+          poucos". Duas leituras do mesmo número, e a de baixo é a que se
+          entende sozinha.
+
+          Sem o anel, o cartão é o que ele sempre quis ser: uma pergunta e
+          a resposta dela, em três linhas de largura inteira. A data
+          passa a vir do formatador da casa, por extenso, em vez de duas
+          chamadas coladas com uma vírgula escrita à mão — que em inglês
+          saía "Sat, Sep 27" com a vírgula do português.
 
           E o botão de registrar saiu daqui para o rodapé. Ele gravava na
           hora — hora de agora, local sugerido, dose atual —, pulando o
@@ -136,27 +149,13 @@ export default function Aplicacoes() {
           Duas portas para a mesma sala, e a de dentro do cartão fazia
           menos. */}
       <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
-        <Row gap={16}>
-          <View style={{ flex: 1 }}>
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().proximaAplicacao}</Txt>
-            <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
-              {maiuscula(quandoEm(ndDays).label)}
-            </Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-              {fmtWD(nd)}, {fmtDate(nd)} · {doseStr}
-            </Txt>
-          </View>
-          {/* O anel conta a SEMANA, e o número conta os dias que faltam —
-              duas leituras do mesmo intervalo, uma em forma e outra em
-              número. Dentro dele vai o dia do ciclo, que é o que a volta
-              está desenhando. */}
-          <Ring size={88} stroke={9} pct={cic.pct} id="ap" track={c.bg1}>
-            <Txt v="bodyMed">
-              {cic.dayIn}
-              <Txt v="micro" c={c.tx3}>{`/${cic.total}`}</Txt>
-            </Txt>
-          </Ring>
-        </Row>
+        <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().proximaAplicacao}</Txt>
+        <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
+          {maiuscula(quandoEm(ndDays).label)}
+        </Txt>
+        <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
+          {maiuscula(dataComDiaDaSemana(nd))} · {doseStr}
+        </Txt>
       </View>
 
       {/* AS OUTRAS DUAS TELAS DO ASSUNTO, com porta fixa.
@@ -189,8 +188,13 @@ export default function Aplicacoes() {
         <Linha
           ic="pill"
           titulo={K().medicamento}
+          /* ⚠️ O QUE RESTA, E NÃO O QUE FOI USADO. Dizia "0 de 4 doses
+             usadas" para quem abriu o recipiente e ainda não aplicou
+             nada — uma contagem que obriga a subtrair para responder a
+             única pergunta que interessa ali: dá para esperar até a
+             próxima consulta? */
           sub={k.verdict.good
-            ? K().dosesUsadas(k.atual?.usadas ?? 0, k.atual?.total ?? 4, nesteNesta(formaDe(S)))
+            ? K().dosesRestantesNo(k.left, nesteNesta(formaDe(S)))
             : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
           onPress={() => router.push('/caneta' as any)}
         />

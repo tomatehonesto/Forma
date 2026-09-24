@@ -239,8 +239,10 @@ export const home = {
       `${sintoma.toLowerCase()} in ${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
 
     /* ---------- la scorta ---------- */
-    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
-      `${restam} di ${total} dosi nella penna · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    dosesRestantes: (restam: number, semanas: number) =>
+      restam === 0
+        ? 'Nessuna dose rimasta'
+        : `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
 
     /* ---------- le intestazioni ---------- */
     /* ⚠️ IL LINK DICE IL NOME DELLA DESTINAZIONE, e diceva "Vedi tutte" —
@@ -308,7 +310,7 @@ export const home = {
     restaUmaDose: (onde: string) => `Resta una dose ${onde}.`,
     receitaCorpo: 'Una ricetta nuova richiede qualche giorno fra la richiesta e la farmacia — cominciare adesso evita di fermarsi a metà.',
     pedirRenovacao: 'Chiedi il rinnovo',
-    verRecipiente: (oRecipiente: string, _recipiente: string) => `Vedi ${oRecipiente}`,
+    verMedicamento: 'Vedi il farmaco',
 
     /* ---------- il messaggio del giorno ---------- */
     entendaOPorQue: 'Scopri perché',

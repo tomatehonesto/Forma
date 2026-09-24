@@ -209,7 +209,8 @@ export const tratamento = {
     emCurso: 'en cours',
 
     medicamento: 'Médicament',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} doses sur ${total} utilisées ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
@@ -278,8 +279,8 @@ export const tratamento = {
       `${medicamento} se garde ${dias} jours une fois ${aberto}, et les ${total} doses n’entrent pas dans ce délai. Il vaut mieux demander à la personne qui vous suit quoi faire de ce qui reste.`,
 
     momentoDeRenovar: 'Le moment de demander le renouvellement',
-    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans ${oRecipiente} entre deux consultations.`,
+    renovarTexto: (semanas: number) =>
+      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans médicament entre deux consultations.`,
 
     historico: (plural: string) => `Historique des ${plural}`,
     emUso: 'en cours',

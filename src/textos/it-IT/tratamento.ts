@@ -283,7 +283,8 @@ export const tratamento = {
     /* Il contenitore arriva concordato e con la maiuscola — "Penna",
        "Flacone". */
     medicamento: 'Farmaco',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} di ${total} dosi usate ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
 
@@ -380,8 +381,8 @@ export const tratamento = {
       `${medicamento} dura ${dias} giorni dopo essere ${aberto}, e in quel termine non ci stanno le ${total} dosi. Vale la pena chiedere a chi ti segue che cosa fare di quello che avanza.`,
 
     momentoDeRenovar: 'È il momento di chiedere il rinnovo',
-    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `La tua ricetta copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}. Chiederlo adesso evita di restare senza ${oRecipiente} fra una visita e l’altra.`,
+    renovarTexto: (semanas: number) =>
+      `La tua ricetta copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}. Chiederlo adesso evita di restare senza il farmaco fra una visita e l’altra.`,
 
     historico: (plural: string) => `Storico ${plural}`,
     emUso: 'in uso',

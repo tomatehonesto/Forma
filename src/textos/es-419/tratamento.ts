@@ -205,7 +205,8 @@ export const tratamento = {
     emCurso: 'en curso',
 
     medicamento: 'Medicamento',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} de ${total} dosis usadas ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
@@ -271,8 +272,8 @@ export const tratamento = {
       `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Vale confirmar con quien te acompaña qué hacer con lo que sobre.`,
 
     momentoDeRenovar: 'Momento de pedir la renovación',
-    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `Tu receta cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedirla ahora evita quedarte sin ${oRecipiente} entre una consulta y otra.`,
+    renovarTexto: (semanas: number) =>
+      `Tu receta cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedirla ahora evita quedarte sin el medicamento entre una consulta y otra.`,
 
     historico: (plural: string) => `Historial de ${plural}`,
     emUso: 'en uso',

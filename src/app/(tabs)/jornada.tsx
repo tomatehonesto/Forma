@@ -577,7 +577,7 @@ export default function Jornada() {
               <View style={{ flex: 1 }}>
                 <Txt v="body">{pen.verdict.label}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                  {K().dosesNaCaneta(pen.left, pen.total, pen.semanas)}
+                  {K().dosesRestantes(pen.left, Math.round(pen.semanas))}
                 </Txt>
               </View>
               <Icon name="chev" size={14} color={c.tx4} sw={2} />

@@ -203,7 +203,8 @@ export const tratamento = {
     emCurso: 'under way',
 
     medicamento: 'Medication',
-    dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} of ${total} doses used ${onde}`,
+    dosesRestantesNo: (restam: number, onde: string) =>
+      `${restam === 1 ? '1 dose left' : `${restam} doses left`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
 
@@ -273,8 +274,8 @@ export const tratamento = {
       `${medicamento} lasts ${dias} days once ${aberto}, and the ${total} doses don’t fit in that window. Worth checking with whoever follows your treatment what to do with what’s left.`,
 
     momentoDeRenovar: 'Time to ask for a refill',
-    renovarTexto: (semanas: number, oRecipiente: string, _recipiente: string) =>
-      `Your prescription covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}. Asking now keeps you from running out of ${oRecipiente} between appointments.`,
+    renovarTexto: (semanas: number) =>
+      `Your prescription covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}. Asking now keeps you from running out of your medication between appointments.`,
 
     historico: (plural: string) => `History of ${plural}`,
     emUso: 'in use',

@@ -254,8 +254,17 @@ export const home = {
       `${sintoma.toLowerCase()} em ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
 
     /* ---------- o estoque ---------- */
-    dosesNaCaneta: (restam: number, total: number, semanas: number) =>
-      `${restam} de ${total} doses na caneta · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* ⚠️⚠️ ELA DIZIA "NA CANETA" À MÃO, nos seis idiomas — "in the
+       pen", "en la pluma", "dans le stylo", "im Pen", "nella penna". A
+       linha ignorava a forma e prometia caneta a quem toma comprimido.
+       E o recipiente nem é o assunto: o assunto é quanto ainda há.
+
+       ⚠️ E A CONTA É O QUE RESTA. "3 de 4" obriga a subtrair para saber
+       se dá para esperar a próxima consulta. */
+    dosesRestantes: (restam: number, semanas: number) =>
+      restam === 0
+        ? 'Nenhuma dose restante'
+        : `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
     /* ---------- os cabeçalhos ---------- */
     /* ⚠️ O LINK DIZ O NOME DO DESTINO, e dizia "Ver todas" — que é uma
@@ -325,14 +334,19 @@ export const home = {
 
        ⚠️ `acabou` RECEBE O SUJEITO PRONTO — "A caneta", "O frasco" —, com
        artigo e maiúscula, porque é o nominativo e `formas.oA` sabe
-       devolvê-lo. `verRecipiente` recebe as DUAS formas de propósito: a
-       com artigo, para quem constrói "Ver a caneta", e a nua, para quem
-       escreve o rótulo sem artigo. Ver PENDENCIAS, item 26. */
+       devolvê-lo. Aqui o recipiente é o sujeito de verdade: o que acabou
+       foi ELE, e a frase seguinte oferece a receita nova.
+
+       ⚠️ O BOTÃO, NÃO. Ele era `verRecipiente` e dizia "Ver a caneta" —
+       e o destino se chama Medicamento desde que deixou de se chamar
+       pelo recipiente. Porta e destino dizem o mesmo nome, e some com
+       ele o caso gramatical que obrigava o alemão a receber duas formas
+       do mesmo substantivo (era o item 26 do PENDENCIAS). */
     acabou: (oRecipiente: string) => `${oRecipiente} acabou.`,
     restaUmaDose: (onde: string) => `Resta uma dose ${onde}.`,
     receitaCorpo: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
     pedirRenovacao: 'Pedir renovação',
-    verRecipiente: (oRecipiente: string, _recipiente: string) => `Ver ${oRecipiente}`,
+    verMedicamento: 'Ver o medicamento',
 
     /* ---------- a mensagem do dia ---------- */
     entendaOPorQue: 'Entenda o por quê',
