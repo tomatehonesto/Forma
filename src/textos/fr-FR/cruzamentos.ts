@@ -55,7 +55,7 @@ export const cruzamentos = {
   fimDeSemana: {
     titulo: 'Votre week-end fonctionne comme un autre traitement',
     texto: (copos: string, proteina: string, sono: string) =>
-      `Samedi et dimanche, vous buvez ${copos} ${verre(copos)} de moins${proteina}${sono}`,
+      `Le samedi et le dimanche, vous buvez ${copos} ${verre(copos)} de moins${proteina}${sono}`,
     /* Morceau facultatif : n'entre que quand l'écart de protéines est assez
        grand — le seuil et sa raison sont dans logic/derive. */
     textoProteina: (gramas: number) => ` et mangez ${gramas} g de protéines en moins`,
@@ -142,9 +142,9 @@ export const cruzamentos = {
      coûte pas un mauvais conseil sur l'eau — ça coûte de faire conclure à
      quelqu'un que sa nausée est la faute d'une mauvaise nuit. */
   sonoEnjoo: {
-    titulo: 'Après les nuits longues, votre nausée est plus faible',
+    titulo: 'Après les nuits longues, vos nausées sont plus légères',
     texto: (horas: number, comSono: string, semSono: string) =>
-      `Les jours qui suivent une nuit de ${horas} h ou plus, votre nausée est restée à ${comSono}. Après les nuits courtes, ${semSono} — sur une échelle de 5.`,
+      `Les jours qui suivent une nuit de ${horas} h ou plus, l’intensité de vos nausées est restée à ${comSono}. Après les nuits courtes, ${semSono} — sur une échelle de 5.`,
     q: 'Pourquoi ai-je des nausées ?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `contre ${semSono}`, legenda: `la nausée après ${noites} nuits longues` }),
@@ -155,9 +155,9 @@ export const cruzamentos = {
   /* La trouvaille n'est pas qu'il y a de la nausée — c'est qu'elle a une
      heure de fin. */
   janelaEnjoo: {
-    titulo: 'Votre nausée disparaît en général environ 48 heures après la piqûre',
+    titulo: 'Vos nausées disparaissent en général environ 48 heures après la piqûre',
     texto: (perto: string, longe: string) =>
-      `Elle est à ${perto} les deux premiers jours et tombe à ${longe} à partir du troisième. Ce n’est pas le traitement entier qui donne la nausée — ce sont les 48 premières heures de chaque cycle.`,
+      `Leur intensité est de ${perto} les deux premiers jours et tombe à ${longe} à partir du troisième. Ce n’est pas le traitement entier qui donne la nausée — ce sont les 48 premières heures de chaque cycle.`,
     q: 'Pourquoi ai-je des nausées ?',
     evid: { valor: '48', unidade: 'heures', legenda: 'et ensuite ça passe' },
     /* ⚠️ LA DERNIÈRE PHRASE EST LA SEULE DU FICHIER QUI SUGGÈRE UNE ACTION,
@@ -170,17 +170,17 @@ export const cruzamentos = {
 
   /* ---------- 7. l'eau contre la nausée ---------- */
   aguaEnjoo: {
-    titulo: 'Les jours où vous buvez bien, la nausée est plus faible',
+    titulo: 'Les jours où vous buvez bien, les nausées sont plus légères',
     /* ⚠️ « ÇA NE PROUVE PAS LA CAUSE » EST DANS LA PHRASE, et non en note de
        bas de page. Toute la carte est une corrélation sur treize jours ; la
        réserve doit arriver collée au chiffre, parce que c'est là qu'on la
        lit. */
     texto: (corte: string, comAgua: string, semAgua: string) =>
-      `À partir de ${corte}, votre nausée moyenne a été de ${comAgua}. En dessous, ${semAgua}. Ça ne prouve pas la cause — mais c’est, parmi ce qui apparaît lié au symptôme, la variable la plus facile à bouger.`,
+      `À partir de ${corte}, l’intensité moyenne de vos nausées a été de ${comAgua}. En dessous, ${semAgua}. Ça ne prouve pas la cause — mais c’est, parmi ce qui apparaît lié au symptôme, la variable la plus facile à bouger.`,
     q: 'Comment faire baisser la nausée ?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'de nausée', legenda: 'les jours bien hydratés' }),
-    significa: 'De tout ce qui apparaît lié à votre nausée, l’eau est ce qui est le plus à votre portée. Ça ne remplace pas d’en parler à votre équipe si elle serre, mais c’est la première chose à essayer avant.',
+    significa: 'De tout ce qui apparaît lié à vos nausées, l’eau est ce qui est le plus à votre portée. Ça ne remplace pas d’en parler à votre équipe si elles s’aggravent, mais c’est la première chose à essayer.',
   },
 
   /* ---------- 8. le plateau qui n'a rien empêché ---------- */
@@ -193,7 +193,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balance est montée ${altas} fois et vous avez perdu ${perdido} quand même`,
     texto: (pesagens: number, altas: number) =>
-      `Sur ${pesagens} pesées, ${altas} étaient au-dessus de la précédente — et la tendance de fond continue de baisser. Une semaine en hausse n’est pas une rechute : c’est du bruit d’eau et de transit à l’intérieur d’une tendance.`,
+      `Sur ${pesagens} pesées, ${altas} étaient au-dessus de la précédente — et la tendance de fond continue de baisser. Une semaine en hausse n’est pas une rechute : ce sont des variations d’eau et de transit à l’intérieur d’une tendance.`,
     q: 'Où en est mon évolution ?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'hausses', legenda: `dans −${perdido} sur la période` }),
@@ -240,7 +240,7 @@ export const cruzamentos = {
        ../pt-BR/cruzamentos.ts. */
     titulo: (ritmo: string, unidade: string) => `Votre rythme est de ${ritmo} ${unidade} par semaine`,
     textoBom: (perdido: string, semanas: number) =>
-      `${perdido} en ${semanas} semaines, dans ce qui est attendu pour votre phase.`,
+      `${perdido} en ${semanas} semaines, dans la fourchette attendue pour votre phase.`,
     /* ⚠️ LA VERSION HORS DE L'ATTENDU NE DIAGNOSTIQUE PAS ET N'ALARME PAS :
        elle oriente. Un rythme trop rapide ou trop lent est une conversation
        de consultation, et la carte s'arrête exactement là. */

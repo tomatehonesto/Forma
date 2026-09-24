@@ -48,8 +48,8 @@ export const rotina = {
        sotto la metà dell'obiettivo" mette il soggetto al posto di chi ha
        fallito. Quello che manca di acqua è un fatto della giornata, non un
        difetto di carattere. */
-    aguaPorqueComEnjoo: 'Nei tuoi giorni ben idratati la nausea si fa sentire meno — e la giornata è ancora a metà dell’obiettivo',
-    aguaPorque: 'La giornata è ancora a metà dell’obiettivo, e l’acqua sostiene la sazietà fino alla fine',
+    aguaPorqueComEnjoo: 'Nei tuoi giorni ben idratati la nausea si fa sentire meno — e la giornata è ancora sotto l’obiettivo',
+    aguaPorque: 'La giornata è ancora sotto l’obiettivo, e l’acqua sostiene la sazietà fino alla fine',
 
     proteina: 'Rinforza le proteine a cena',
     proteinaPorque: 'Sei nella fase del ciclo in cui la fame torna, e le proteine di oggi si vedono nella fame di domani',

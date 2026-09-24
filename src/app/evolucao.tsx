@@ -147,7 +147,7 @@ export default function Evolucao() {
               /* O TOM VEM DO VEREDITO, e era o lima padrão do <Selo>. Sem
                  isto a gordura subindo aparecia na mesma pastilha verde da
                  gordura caindo: o número mudava de sinal e a cor não. */
-              selo={variacaoDe(lm.gordura - fm.gordura, 'pp').delta}
+              selo={variacaoDe(lm.gordura - fm.gordura, T.medidas.pontosPercentuais).delta}
               seloTom={variacaoDe(lm.gordura - fm.gordura).good ? 'verde' : 'neutra'}
               de={`${nf(fm.gordura, 1)}%`} para={`${nf(lm.gordura, 1)}%`}
               onPress={() => router.push('/marcador?m=gordura' as any)}

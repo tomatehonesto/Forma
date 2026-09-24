@@ -114,6 +114,7 @@ export const exames = {
     naReferencia: 'in range',
     blocoFora: 'Outside the range',
     arquivosImportados: 'Imported files',
+    fonteFoto: 'photo',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} markers · ${fonte} · ${data}`,
     importar: 'Import a lab result',

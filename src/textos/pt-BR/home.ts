@@ -373,8 +373,14 @@ export const home = {
        como se ela tivesse agenda; quem aplica é a pessoa. */
     hojeEDiaDeAplicar: 'Hoje é dia de aplicar sua dose.',
     proximaDose: (quando: string) => `Sua próxima dose é ${quando}.`,
+    /* ⚠️ O LOCAL VEM DEPOIS DOS DOIS-PONTOS, COM O NOME DITO ANTES.
+       "Coxa (dir.) sugerido" errava o gênero uma semana em cada três: o
+       particípio concordava com "local", que não estava na frase, e não
+       com "coxa", que estava. Com "local sugerido:" na frente, a
+       concordância é com a palavra escrita — e o francês e o italiano,
+       que tinham o mesmo defeito, seguem a mesma forma. */
     doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · ${local} sugerido.`,
+      `${medicamento} ${dose} · local sugerido: ${local}.`,
     verAplicacao: 'Ver a aplicação',
     criarLembrete: 'Criar um lembrete',
 

@@ -431,7 +431,7 @@ function BannerMedica() {
                 )}
               </Row>
               <Txt v="body" c={c.tx} style={{ marginTop: 10, lineHeight: 24, fontStyle: 'italic' }} numberOfLines={2}>
-                “{msg.text}”
+                {T.comum.citacao(msg.text)}
               </Txt>
               <Row style={{ marginTop: 12 }}>
                 <Txt v="micro" c={c.tx3} style={{ flex: 1 }}>{msg.quando}</Txt>

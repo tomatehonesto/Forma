@@ -67,7 +67,7 @@ export const home = {
   tipos: {
     checkin: 'Check-ins',
     aplicacao: 'Piqûres',
-    peso: 'Poids',
+    peso: 'Pesées',
     refeicao: 'Repas',
     exercicio: 'Séances',
     consulta: 'Consultations',
@@ -146,8 +146,8 @@ export const home = {
        le dit pas — c'est le ton qui le dit —, mais qui traduit doit le
        savoir. */
     massaMagra: medidas.corpo.massaMagra,
-    naReferencia: 'Dans la référence',
-    foraDaReferencia: 'Hors référence',
+    naReferencia: 'Dans les normes',
+    foraDaReferencia: 'Hors normes',
     pressao: 'Tension',
     /* ⚠️ « STABLE » ÉTAIT CE QUI RESTAIT DE TOUT CE QUI N'ÉTAIT PAS UNE
        BAISSE, et une tension qui montait de quatorze points sortait comme
@@ -230,11 +230,13 @@ export const home = {
     semRegistrosNaSemana: 'Rien de noté cette semaine.',
     nadaNesteTipo: 'Rien de noté dans ce type pour l’instant',
 
-    /* ⚠️ « FAIT » ET « OUVERT » AU MASCULIN INVARIABLE : l'étiquette parle
-       de l'objectif — masculin en français —, et non de qui l'a atteint.
-       Rien n'accorde avec la personne. */
-    metaFeita: 'fait',
-    metaAberta: 'ouvert',
+    /* ⚠️ « ATTEINT » ET « EN COURS », AU MASCULIN INVARIABLE : l'étiquette
+       parle de l'objectif — masculin en français —, et non de qui l'a
+       atteint. Rien n'accorde avec la personne. C'était « fait » et
+       « ouvert », et un objectif « ouvert » est le calque de « aberta » :
+       en français, il est en cours. */
+    metaFeita: 'atteint',
+    metaAberta: 'en cours',
   },
 
   telaInicio: {
@@ -269,11 +271,15 @@ export const home = {
     entendaOPorQue: 'Comprendre pourquoi',
 
     proximaAplicacao: 'PROCHAINE PIQÛRE',
-    hojeEDiaDeAplicar: 'C’est aujourd’hui que vous faites votre dose.',
+    hojeEDiaDeAplicar: 'Aujourd’hui, c’est le jour de votre dose.',
     proximaDose: (quando: string) => `Votre prochaine dose est ${quando}.`,
+    /* ⚠️ LE SITE VIENT APRÈS LES DEUX-POINTS, AVEC SON NOM DEVANT.
+       « Cuisse (d.) suggéré » faisait la faute une semaine sur trois : le
+       participe s'accordait avec « site », absent de la phrase, et non
+       avec « cuisse », qui y était. Voir ../pt-BR/home.ts. */
     doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · ${local} suggéré.`,
-    verAplicacao: 'Voir la piqûre',
+      `${medicamento} ${dose} · site suggéré : ${local}.`,
+    verAplicacao: 'Voir vos piqûres',
     criarLembrete: 'Créer un rappel',
 
     checkinFeito: 'Check-in fait',

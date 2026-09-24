@@ -48,6 +48,10 @@ export const medidas = {
     gordura: 'Gordura corporal',
     massaMagra: 'Massa magra',
   },
+  /* ⚠️ A VARIAÇÃO DA GORDURA É EM PONTOS PERCENTUAIS, e a abreviação
+     morava escrita em duro na lógica: "pp", que é a do português e a do
+     inglês. Em francês "pp" são páginas — lá é "pts". */
+  pontosPercentuais: 'pp',
 
   /* ============================================================
      A TELA DO MARCADOR — o gráfico e a lista que se corrige

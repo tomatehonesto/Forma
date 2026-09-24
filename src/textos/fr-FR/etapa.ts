@@ -19,7 +19,7 @@ export const etapa = {
      substance — écrire la marque ici sonnerait comme de la publicité au
      seul moment où la personne n'a pas encore d'expérience à opposer. */
   antesComDoseBody: (molecula: string) =>
-    `Les premiers jours avec ${molecula} apportent souvent moins de faim et une nausée légère. Noter comment vous vous sentez dès maintenant, c’est ce qui donne une base de comparaison ensuite.`,
+    `Les premiers jours sous ${molecula} apportent souvent moins de faim et une nausée légère. Noter comment vous vous sentez dès maintenant, c’est ce qui donne une base de comparaison ensuite.`,
   antesComDoseQ: 'À quoi s’attendre le jour de la piqûre ?',
 
   antesSemDoseHead: 'Votre traitement n’a pas encore de dose définie.',

@@ -44,8 +44,8 @@ export const rotina = {
        "Estás abajo de la mitad de la meta" pone al sujeto en el lugar de
        quien falló. Lo que falta de agua es hecho del día, no defecto de
        carácter. */
-    aguaPorqueComEnjoo: 'En tus días bien hidratados las náuseas aparecen menos — y el día todavía está en la mitad de la meta',
-    aguaPorque: 'El día todavía está en la mitad de la meta, y el agua sostiene la saciedad hasta el final',
+    aguaPorqueComEnjoo: 'En tus días bien hidratados las náuseas aparecen menos — y el día todavía está por debajo de la meta',
+    aguaPorque: 'El día todavía está por debajo de la meta, y el agua sostiene la saciedad hasta el final',
 
     proteina: 'Refuerza la proteína en la cena',
     proteinaPorque: 'Estás en la fase del ciclo en que el hambre vuelve, y la proteína de hoy aparece en el hambre de mañana',

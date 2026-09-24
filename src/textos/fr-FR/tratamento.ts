@@ -202,7 +202,7 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'faite',
-    semCulpa: 'Pas de culpabilité pour un jour passé — ce qui compte, c’est de reprendre. Vous pouvez noter une piqûre plus ancienne à tout moment, avec le bouton en bas.',
+    semCulpa: 'Pas de culpabilité pour un jour manqué — ce qui compte, c’est de reprendre. Vous pouvez noter une piqûre plus ancienne à tout moment, avec le bouton en bas.',
     titulo: 'Piqûres',
     registrar: 'Noter une piqûre',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -217,7 +217,7 @@ export const tratamento = {
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+      `${veredito} — de quoi tenir environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} de piqûre`,
     nenhumAlerta: 'Aucun rappel de piqûre',
@@ -232,7 +232,7 @@ export const tratamento = {
 
     nivelNoCorpo: 'Niveau dans le corps',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Estimation de ${molecula} dans le corps, avec une demi-vie de ${meiaVida}. Le point le plus bas, juste avant la prochaine dose, est en général le moment où la faim monte.`,
+      `Estimation du taux de ${molecula} dans le corps, avec une demi-vie de ${meiaVida}. Le point le plus bas, juste avant la prochaine dose, est en général le moment où la faim monte.`,
     meiaVidaDias: (dias: number) => `${dias} jours`,
     meiaVidaHoras: 'environ 13 heures',
 
@@ -283,16 +283,16 @@ export const tratamento = {
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} se garde ${dias} jours une fois ${aberto}, et les ${total} doses n’entrent pas dans ce délai. Il vaut mieux demander à la personne qui vous suit quoi faire de ce qui reste.`,
 
-    momentoDeRenovar: 'Le moment de demander le renouvellement',
+    momentoDeRenovar: 'C’est le moment de demander le renouvellement',
     renovarTexto: (semanas: number) =>
       `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans médicament entre deux consultations.`,
 
     historico: (plural: string) => `Historique des ${plural}`,
     emUso: 'en cours',
     itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
-      `${Aberto} le ${data} · ${usadas} sur ${total} doses`,
+      `${Aberto} le ${data} · ${usadas} ${usadas < 2 ? 'dose' : 'doses'} sur ${total}`,
     itemEncerrado: (periodo: string, usadas: number, total: number) =>
-      `${periodo} · ${usadas} sur ${total} doses`,
+      `${periodo} · ${usadas} ${usadas < 2 ? 'dose' : 'doses'} sur ${total}`,
   },
 
   telaAplicacaoOk: {
@@ -341,8 +341,8 @@ export const tratamento = {
     mudeiADose: 'Ma dose a changé',
     semFaixa: 'Nous n’avons pas de plage de référence pour ce médicament. La dose reste celle de votre dernier relevé.',
 
-    localDaAplicacao: 'Point d’injection',
-    localAjuda: 'Changer d’endroit chaque semaine aide à éviter les irritations et les nodules sous la peau.',
+    localDaAplicacao: 'Site d’injection',
+    localAjuda: 'Changer de site chaque semaine aide à éviter les irritations et les nodules sous la peau.',
     regioes: {
       braco: 'Bras',
       abd: 'Abdomen',

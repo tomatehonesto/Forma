@@ -23,6 +23,7 @@ export const medidas = {
     gordura: 'Body fat',
     massaMagra: 'Lean mass',
   },
+  pontosPercentuais: 'pp',
 
   tela: {
     periodo12s: '12 weeks',

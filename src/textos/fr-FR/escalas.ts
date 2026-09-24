@@ -120,7 +120,7 @@ export const escalas = {
     nenhumSintomaSub: (respondidos: number) =>
       `${respondidos} ${respondidos === 1 ? 'jour rempli' : 'jours remplis'}, aucun avec une plainte.`,
     diasDe: (dias: number, respondidos: number) =>
-      `${dias} sur ${respondidos} ${respondidos === 1 ? 'jour' : 'jours'}`,
+      `${dias} ${dias < 2 ? 'jour' : 'jours'} sur ${respondidos}`,
     noPiorDia: (legenda: string) => `Au pire jour : ${legenda}`,
     voceEscreveuEm: (data: string) => `Vous avez écrit le ${data}`,
 

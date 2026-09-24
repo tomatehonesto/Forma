@@ -155,6 +155,9 @@ export const exames = {
     naReferencia: 'na referência',
     blocoFora: 'Fora da referência',
     arquivosImportados: 'Arquivos importados',
+    /* ⚠️ A ORIGEM DO ARQUIVO ERA O VALOR CRU DO ESTADO, e "foto" saía em
+       português nos seis idiomas. "PDF" é o mesmo em todos; a foto não. */
+    fonteFoto: 'foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marcadores · ${fonte} · ${data}`,
     importar: 'Importar exame',

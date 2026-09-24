@@ -128,6 +128,7 @@ export const exames = {
     naReferencia: 'dans les normes',
     blocoFora: 'Hors normes',
     arquivosImportados: 'Fichiers importés',
+    fonteFoto: 'photo',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marqueurs · ${fonte} · ${data}`,
     importar: 'Importer une analyse',

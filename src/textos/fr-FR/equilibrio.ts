@@ -16,18 +16,23 @@
    conditionnel, première personne, une suggestion de regard.
    ============================================================ */
 
-const AXE: Record<string, { le: string; du: string }> = {
-  Sommeil: { le: 'le sommeil', du: 'du sommeil' },
-  Énergie: { le: 'l’énergie', du: 'de l’énergie' },
-  Humeur: { le: 'l’humeur', du: 'de l’humeur' },
-  Hydratation: { le: 'l’hydratation', du: 'de l’hydratation' },
-  Exercice: { le: 'l’exercice', du: 'de l’exercice' },
-  Protéines: { le: 'les protéines', du: 'des protéines' },
-  Satiété: { le: 'la satiété', du: 'de la satiété' },
-  Observance: { le: 'l’observance', du: 'de l’observance' },
+/* ⚠️ ET LE BOUTON PARLE COMME QUI POSE LA QUESTION : « Comment améliorer
+   l'exercice » était un titre d'article, et « mon exercice » serait un
+   exercice précis. `mon` donne la forme de chaque axe à la première
+   personne — l'activité physique, les apports en protéines. */
+const AXE: Record<string, { le: string; du: string; mon: string }> = {
+  Sommeil: { le: 'le sommeil', du: 'du sommeil', mon: 'mon sommeil' },
+  Énergie: { le: 'l’énergie', du: 'de l’énergie', mon: 'mon énergie' },
+  Humeur: { le: 'l’humeur', du: 'de l’humeur', mon: 'mon humeur' },
+  Hydratation: { le: 'l’hydratation', du: 'de l’hydratation', mon: 'mon hydratation' },
+  Exercice: { le: 'l’exercice', du: 'de l’exercice', mon: 'mon activité physique' },
+  Protéines: { le: 'les protéines', du: 'des protéines', mon: 'mes apports en protéines' },
+  Satiété: { le: 'la satiété', du: 'de la satiété', mon: 'ma satiété' },
+  Observance: { le: 'l’observance', du: 'de l’observance', mon: 'mon observance' },
 };
 const le = (eixo: string) => AXE[eixo]?.le ?? eixo.toLowerCase();
 const du = (eixo: string) => AXE[eixo]?.du ?? `de ${eixo.toLowerCase()}`;
+const mon = (eixo: string) => AXE[eixo]?.mon ?? le(eixo);
 const maj = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export const equilibrio = {
@@ -49,7 +54,7 @@ export const equilibrio = {
 
   aberturaTudoBem: 'J’ai remarqué une bonne chose.',
   aberturaAtencao: 'Quelque chose a attiré mon attention.',
-  aberturaPreciso: 'J’ai besoin de vous montrer une chose.',
+  aberturaPreciso: 'J’ai quelque chose à vous montrer.',
 
   /* ⚠️⚠️ CETTE PAIRE EST UN PIÈGE DE TRADUCTION, et c'est pour ça qu'elle
      est une fonction et non une concaténation à l'extérieur.
@@ -99,8 +104,8 @@ export const equilibrio = {
   /* ⚠️ LE BOUTON EMPORTE LA QUESTION VERS LE COMPANION. Si le texte du
      bouton et la question envoyée divergent, la personne touche une chose
      et reçoit la réponse d'une autre. */
-  botaoMelhorar: (eixo: string) => `Comment améliorer ${le(eixo)}`,
-  perguntaMelhorar: (eixo: string) => `Comment améliorer ${le(eixo)} ?`,
+  botaoMelhorar: (eixo: string) => `Comment améliorer ${mon(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Comment améliorer ${mon(eixo)} ?`,
 
   serieDe: (eixo: string, dias: number) => `${eixo.toUpperCase()} · ${dias} DERNIERS JOURS`,
 };

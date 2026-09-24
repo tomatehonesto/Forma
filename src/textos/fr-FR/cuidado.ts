@@ -34,7 +34,7 @@ export const cuidado = {
     mensagemSub: 'en attente de votre réponse',
     mensagemRotulo: 'messages',
 
-    receita: 'Demandez le renouvellement de l’ordonnance',
+    receita: 'Demander le renouvellement de l’ordonnance',
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     receitaRotulo: 'ordonnance',
@@ -65,9 +65,12 @@ export const cuidado = {
     metricaAplicacoes: 'piqûres\nnotées',
 
     /* ⚠️ « DOSES » ET NON « INJECTIONS » : cette pastille partage la ligne
-       avec le pouls, et le mot long le pousse sur deux lignes. */
+       avec le pouls, et le mot long le pousse sur deux lignes.
+
+       Et le nom suit le premier nombre : « 10 doses sur 10 ». « 10 sur 10
+       doses » est l'ordre portugais. */
     adesao: (feitas: number, previstas: number) =>
-      `${feitas} sur ${previstas} ${previstas === 1 ? 'dose' : 'doses'}`,
+      `${feitas} ${feitas < 2 ? 'dose' : 'doses'} sur ${previstas}`,
 
     consultaTitulo: 'Votre consultation approche.',
     consultaHoje: (doutor: string) =>
@@ -94,7 +97,7 @@ export const cuidado = {
        oblige à faire défiler pour savoir si ça compte. Et les noms
        viennent de la liste ELLE-MÊME, item par item. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'choses demandent' : 'chose demande'} votre attention — ${assuntos}. Rien d’urgent, mais autant le régler cette semaine.`,
+      `${quantas} ${plural ? 'choses demandent' : 'chose demande'} votre attention — ${assuntos}. Rien d’urgent, mais autant s’en occuper cette semaine.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'élément en attente' : 'éléments en attente'}`,
     /* Jusqu'à quatre en toutes lettres, qui est le plafond réel. */
@@ -149,7 +152,7 @@ export const cuidado = {
 
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semaine ',
-      temHorizonte ? ` sur ${previstas} jusqu’à votre objectif · ` : ' de votre traitement · ',
+      temHorizonte ? ` sur ${previstas} vers votre objectif · ` : ' de votre traitement · ',
       ' avec la piqûre faite',
     ],
 
@@ -167,8 +170,8 @@ export const cuidado = {
     consultasLink: 'Consultations',
     anotarConsulta: 'Noter une consultation',
     anotarConsultaSub: 'Avec la date ici, le résumé est prêt et nous vous prévenons quand elle approche.',
-    eQuando: (quando: string) => `C’est ${quando}`,
-    preparoTexto: 'Je construis un résumé avec le poids, l’observance et les symptômes de la période — vous choisissez ce que vous voulez demander.',
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
+    preparoTexto: 'Je prépare un résumé avec le poids, l’observance et les symptômes de la période — vous choisissez ce que vous voulez demander.',
     prepararAConsulta: 'Préparer la consultation',
 
     seuTratamento: 'Votre traitement',

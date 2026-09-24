@@ -50,8 +50,8 @@ export const rotina = {
        dieser Form: die Nachbarn sprechen vom Pen, vom Kalender, vom
        Zyklus. Was an Wasser fehlt, ist eine Tatsache des Tages und kein
        Charakterfehler. */
-    aguaPorqueComEnjoo: 'An deinen gut getrunkenen Tagen zeigt sich die Übelkeit seltener — und der Tag steht noch bei der Hälfte des Ziels',
-    aguaPorque: 'Der Tag steht noch bei der Hälfte des Ziels, und Wasser hält die Sättigung bis zum Abend',
+    aguaPorqueComEnjoo: 'An deinen gut getrunkenen Tagen zeigt sich die Übelkeit seltener — und der Tag liegt noch unter dem Ziel',
+    aguaPorque: 'Der Tag liegt noch unter dem Ziel, und Wasser hält die Sättigung bis zum Abend',
 
     proteina: 'Nimm beim Abendessen mehr Eiweiß',
     proteinaPorque: 'Du bist in der Phase des Zyklus, in der der Hunger zurückkommt, und das Eiweiß von heute zeigt sich im Hunger von morgen',

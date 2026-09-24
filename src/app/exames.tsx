@@ -1146,7 +1146,7 @@ export default function Exames() {
                 key={b.t}
                 ic={b.source === 'PDF' ? 'doc' : 'photo'}
                 titulo={b.name}
-                sub={K().arquivoSub(b.n, b.source, fmtDate(new Date(b.t)))}
+                sub={K().arquivoSub(b.n, b.source === 'PDF' ? 'PDF' : K().fonteFoto, fmtDate(new Date(b.t)))}
                 selo={b.shared ? K().seloEnviado : undefined}
                 seloTom="neutra"
                 seta={false}

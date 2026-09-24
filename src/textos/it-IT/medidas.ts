@@ -32,6 +32,7 @@ export const medidas = {
     gordura: 'Massa grassa',
     massaMagra: 'Massa magra',
   },
+  pontosPercentuais: 'pp',
 
   /* ============================================================
      LA SCHERMATA DEL MARCATORE — il grafico e l'elenco che si corregge

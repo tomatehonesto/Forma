@@ -53,9 +53,13 @@ export const rotina = {
        está abaixo da metade da meta" põe o sujeito no lugar de quem
        falhou, e era o único desta lista com essa forma: os vizinhos falam
        da caneta, da agenda, do ciclo. O que falta de água é fato do dia,
-       não defeito de caráter. */
-    aguaPorqueComEnjoo: 'Nos seus dias bem hidratados o enjoo aparece menos — e o dia ainda está na metade da meta',
-    aguaPorque: 'O dia ainda está na metade da meta, e a água segura a saciedade até o fim dele',
+       não defeito de caráter.
+
+       ⚠️ E "ABAIXO DA META", NÃO "NA METADE". O cartão aparece com menos
+       de 60% da meta — meio litro de dois e meio é um quinto —, e "o dia
+       ainda está na metade" dava uma proporção que ninguém mediu. */
+    aguaPorqueComEnjoo: 'Nos seus dias bem hidratados o enjoo aparece menos — e o dia ainda está abaixo da meta',
+    aguaPorque: 'O dia ainda está abaixo da meta, e a água segura a saciedade até o fim dele',
 
     proteina: 'Reforce a proteína no jantar',
     proteinaPorque: 'Você está na fase do ciclo em que a fome volta, e a proteína de hoje aparece na fome de amanhã',

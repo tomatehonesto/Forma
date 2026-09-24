@@ -58,7 +58,7 @@ export const comum = {
   abas: {
     home: 'Accueil',
     jornada: 'Parcours',
-    cuidado: 'Soin',
+    cuidado: 'Soins',
     insights: 'Insights',
   },
 };

@@ -2463,7 +2463,11 @@ export function recommendations(S: State): Reco[] {
          fatos sobre a caneta, sobre a agenda, sobre o ciclo.
 
          O que falta de água é fato do dia, não defeito de caráter: "o dia
-         está na metade da meta" diz o mesmo e aponta para o copo. */
+         ainda está abaixo da meta" diz o mesmo e aponta para o copo.
+
+         ⚠️ E NÃO "NA METADE". O limiar aqui embaixo é 60%, e a frase
+         dizia metade para quem tinha bebido um quinto — uma proporção que
+         o aplicativo não mediu. */
       porque: enjoo >= 2 ? E.aguaPorqueComEnjoo : E.aguaPorque,
       to: '/medir-agua',
     });
@@ -3097,7 +3101,7 @@ export function journeyChanges(S: State): Change[] {
     });
     if (lm.gordura !== fm.gordura) out.push({
       ic: 'activity', label: T.home.mudancas.gorduraCorporal, from: `${nf(fm.gordura, 1)}%`, to: `${nf(lm.gordura, 1)}%`,
-      ...variacao(lm.gordura - fm.gordura, 'pp'), to_: '/marcador?m=gordura',
+      ...variacao(lm.gordura - fm.gordura, T.medidas.pontosPercentuais), to_: '/marcador?m=gordura',
     });
     /* A única em que subir é a boa notícia: músculo perdido num
        emagrecimento é o que o tratamento tenta evitar. */

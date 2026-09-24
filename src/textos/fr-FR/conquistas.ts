@@ -82,11 +82,11 @@ export const conquistas = {
   pctFalta: (r: string) => `Il manque ${r} points`,
 
   pesagens: 'Pesées',
-  pesagensDesc: (a: number) => `${p(a, 'poids', 'poids')} noté${a === 1 ? '' : 's'}`,
+  pesagensDesc: (a: number) => `${p(a, 'pesée')} notée${a === 1 ? '' : 's'}`,
   pesagensFalta: (r: number) => `Il manque ${p(r, 'pesée')}`,
 
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'journée')} remplie${a === 1 ? '' : 's'}`,
+  checkinsDesc: (a: number) => `${p(a, 'jour')} avec un check-in`,
   checkinsFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   sequencia: 'Jours d’affilée',
@@ -94,7 +94,7 @@ export const conquistas = {
   sequenciaFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   aguaDias: 'Jours à l’objectif d’eau',
-  aguaDiasDesc: (a: number) => `${p(a, 'journée')} d’eau tenue${a === 1 ? '' : 's'}`,
+  aguaDiasDesc: (a: number) => `${p(a, 'jour')} à votre objectif d’eau`,
   aguaDiasFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   aguaSemana: 'Semaine hydratée',
@@ -102,7 +102,7 @@ export const conquistas = {
   aguaSemanaFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   protDias: 'Jours à l’objectif de protéines',
-  protDiasDesc: (a: number) => `${p(a, 'jour')} à l’objectif du profil`,
+  protDiasDesc: (a: number) => `${p(a, 'jour')} à votre objectif de protéines`,
   protDiasFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
 
   protSeq: 'Protéines d’affilée',
@@ -118,14 +118,14 @@ export const conquistas = {
   exercSemanaFalta: (r: number, alvo: number) => `Il manque ${p(r, 'jour')} pour ${alvo}`,
 
   refeicoes: 'Repas',
-  refeicoesDesc: (a: number) => `${p(a, 'assiette')} notée${a === 1 ? '' : 's'}`,
+  refeicoesDesc: (a: number) => `${p(a, 'repas', 'repas')} noté${a === 1 ? '' : 's'}`,
   refeicoesFalta: (r: number) => `Il manque ${p(r, 'repas', 'repas')}`,
 
   favoritos: 'Plats favoris',
   favoritosDesc: (a: number) => `${p(a, 'plat')} gardé${a === 1 ? '' : 's'} pour y revenir`,
   favoritosFalta: (r: number) => `Il manque ${p(r, 'plat')}`,
 
-  medidas: 'Mesures au mètre',
+  medidas: 'Mensurations',
   medidasDesc: (a: number) => `${p(a, 'mesure')} notée${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Il manque ${p(r, 'mesure')}`,
 

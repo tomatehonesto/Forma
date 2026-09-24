@@ -4,7 +4,7 @@
    ⚠️ Les raisons vivent dans ../pt-BR/ciclo.ts. La règle qui vaut pour le
    fichier entier : AUCUNE de ces phrases n'ordonne quoi que ce soit.
    Elles disent ce qui se passe et ce qui aide d'habitude — la différence
-   entre « buvez plus d'eau » et « l'eau soutient la satiété à cette
+   entre « buvez plus d'eau » et « l'eau soutient la satiété dans cette
    phase » est la différence entre une application qui réclame et une qui
    explique, et celle-ci est la seconde.
 
@@ -12,12 +12,23 @@
    d'accord, donc pas de genre. C'était le piège de etapa.ts.
    ============================================================ */
 
+/* ⚠️ LA MOLÉCULE ARRIVE SANS ARTICLE, et cette phrase en veut un : « le
+   comportement typique de tirzépatide » était le portugais (« da
+   tirzepatida ») sans son article. Les dénominations communes sont
+   masculines — le tirzépatide, le sémaglutide —, et l'élision couvre
+   celle qui commencerait par une voyelle. */
+const du = (molecula: string) => (/^[aeiouyéèêh]/i.test(molecula) ? `de l’${molecula}` : `du ${molecula}`);
+
 export const ciclo = {
-  /* ⚠️ « JOUR 5 DE LA DOSE », ET NON « JOUR 5 SUR 7 ». Le sur-sept
+  /* ⚠️ « JOUR 5 APRÈS LA DOSE », ET NON « JOUR 5 SUR 7 ». Le sur-sept
      ressemblait à un compte à rebours — sept de quoi, et que se passe-t-il
      à l'arrivée ? La cadence appartient au médicament, ce n'est pas un
-     objectif à tenir. */
-  chapeuDia: (dia: number) => `JOUR ${dia} DE LA DOSE`,
+     objectif à tenir.
+
+     C'était « JOUR 5 DE LA DOSE », et une dose n'est pas une durée.
+     « Après » garde le compte sans le quota — et c'est le mot de l'écran
+     du cycle, « Jour 5 après votre piqûre ». */
+  chapeuDia: (dia: number) => `JOUR ${dia} APRÈS LA DOSE`,
   chapeuSemCiclo: 'POUR AUJOURD’HUI',
 
   /* ⚠️ N'ANNONCE PAS QUE L'INJECTION EST AUJOURD'HUI : la carte suivante
@@ -36,7 +47,7 @@ export const ciclo = {
   estabQ: 'Comment fonctionne le cycle du médicament ?',
 
   retornoHead: 'Votre faim peut commencer à augmenter dans les 24 prochaines heures.',
-  retornoBody: 'Les protéines et l’eau soutiennent la satiété à cette phase du cycle.',
+  retornoBody: 'Les protéines et l’eau soutiennent la satiété dans cette phase du cycle.',
   retornoQ: 'Pourquoi ai-je plus faim ?',
 
   altoHeadHoje: 'Faim au point le plus haut du cycle.',
@@ -77,7 +88,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Début du retour de la faim',
   faseRetornoRange: 'Jours 5–6',
-  faseRetornoHint: 'Le médicament commence à redescendre, et la faim a tendance à revenir.',
+  faseRetornoHint: 'Le niveau du médicament commence à baisser, et la faim a tendance à revenir.',
 
   fasePreLabel: 'Avant la piqûre',
   fasePreRange: 'Jours 7+',
@@ -98,7 +109,7 @@ export const ciclo = {
   fasePlatoAjuda: 'donner la priorité aux protéines et aux fibres dans les repas',
 
   faseDescidaTitulo: 'Jours 5–6 · descente',
-  faseDescidaSub: 'Effet qui cède, faim qui revient peu à peu',
+  faseDescidaSub: 'Effet qui s’estompe, faim qui revient peu à peu',
   faseDescidaComum: 'plus faim que les premiers jours, énergie en dents de scie',
   /* ⚠️ LA SECONDE MOITIÉ DE CETTE PHRASE EST LA RAISON DE SON EXISTENCE.
      Que la faim revienne au cinquième jour effraie qui croit que le
@@ -121,20 +132,20 @@ export const ciclo = {
   tela: {
     titulo: 'Cycle de la dose',
     diaDepois: (dia: number, acao: string) => `Jour ${dia} après\nvotre ${acao}`,
-    lead: 'L’effet du médicament monte les premiers jours et redescend jusqu’à la dose suivante. Ce que vous ressentez bouge avec lui — et c’est attendu.',
+    lead: 'L’effet du médicament monte les premiers jours et redescend jusqu’à la dose suivante. Ce que vous ressentez suit ce mouvement — et c’est attendu.',
 
     cicloAtual: 'Cycle en cours',
     diaDeTotal: (dia: number, total: number) => `jour ${dia} sur ${total}`,
-    proximaDose: (data: string) => `Dose suivante ${data}`,
+    proximaDose: (data: string) => `Prochaine dose : ${data}`,
 
     asQuatroFases: 'Les quatre phases',
-    comum: 'Courant',
+    comum: 'Fréquent',
     ajuda: 'Ce qui aide',
     atencao: 'Vigilance',
 
     conteudoGeral: 'Ceci est un contenu général',
     conteudoGeralTexto: 'Le cycle varie d’une personne à l’autre et avec la dose. Rien ici ne remplace l’avis de votre médecin.',
 
-    baseadoEm: (molecula: string) => `D’après le comportement typique de ${molecula}`,
+    baseadoEm: (molecula: string) => `D’après le comportement typique ${du(molecula)}`,
   },
 };

@@ -53,9 +53,13 @@ export const rotina = {
        manque d'eau est un fait de la journée, pas un défaut de caractère.
 
        ⚠️ ET « LES JOURS BIEN HYDRATÉS », ET NON « les jours où vous êtes
-       bien hydratée » : le participe avec `être` affirmerait un genre. */
-    aguaPorqueComEnjoo: 'Les jours bien hydratés, la nausée se fait moins sentir — et la journée en est encore à la moitié de l’objectif',
-    aguaPorque: 'La journée en est encore à la moitié de l’objectif, et l’eau soutient la satiété jusqu’au bout',
+       bien hydratée » : le participe avec `être` affirmerait un genre.
+
+       ⚠️ ET « EN DESSOUS DE L'OBJECTIF », PAS « À LA MOITIÉ ». La carte
+       apparaît sous 60 % de l'objectif, et « à la moitié » donnait une
+       proportion que personne n'a mesurée. Voir ../pt-BR. */
+    aguaPorqueComEnjoo: 'Les jours bien hydratés, la nausée se fait moins sentir — et la journée est encore en dessous de l’objectif',
+    aguaPorque: 'La journée est encore en dessous de l’objectif, et l’eau soutient la satiété jusqu’au bout',
 
     proteina: 'Renforcez les protéines au dîner',
     proteinaPorque: 'Vous êtes dans la phase du cycle où la faim revient, et les protéines d’aujourd’hui se voient dans la faim de demain',
@@ -66,8 +70,8 @@ export const rotina = {
     /* Le récipient arrive avec son article, depuis logic/formas : « le
        stylo », « la seringue ». La phrase est la même ; ce qui change, c'est
        la forme du médicament. */
-    aplicacao: (recipiente: string) => `Sortez ${recipiente} et choisissez l’endroit`,
-    aplicacaoPorque: 'La piqûre de la semaine approche, et alterner l’endroit réduit l’irritation de la peau',
+    aplicacao: (recipiente: string) => `Sortez ${recipiente} et choisissez le site`,
+    aplicacaoPorque: 'La piqûre de la semaine approche, et alterner les sites réduit l’irritation de la peau',
 
     receita: 'Demandez le renouvellement de l’ordonnance',
     /* ⚠️ L'ORDONNANCE EST NOMMÉE ICI, et ce n'est pas une redite du titre :
@@ -83,7 +87,7 @@ export const rotina = {
 
     consulta: 'Préparez vos questions pour la consultation',
     consultaPorque: (tipo: string, doutor: string) =>
-      `${tipo} avec ${doutor} — je construis le résumé, vous choisissez ce que vous voulez demander`,
+      `${tipo} avec ${doutor} — je prépare le résumé, vous choisissez ce que vous voulez demander`,
   },
 
   /* ⚠️ L'ÉTIQUETTE DU GROUPE SORT DU DÉLAI, ET LE DÉLAI SORT DE LA DONNÉE.

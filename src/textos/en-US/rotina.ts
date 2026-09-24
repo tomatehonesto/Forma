@@ -43,8 +43,8 @@ export const rotina = {
        "You're below half your goal" puts the subject in the position of
        whoever failed. What's missing in water is a fact of the day, not a
        character flaw. */
-    aguaPorqueComEnjoo: 'On your well-hydrated days nausea shows up less — and the day is still at half the goal',
-    aguaPorque: 'The day is still at half the goal, and water keeps you full to the end of it',
+    aguaPorqueComEnjoo: 'On your well-hydrated days nausea shows up less — and the day is still short of the goal',
+    aguaPorque: 'The day is still short of the goal, and water keeps you full to the end of it',
 
     proteina: 'Add protein at dinner',
     proteinaPorque: 'You’re in the phase of the cycle where hunger comes back, and today’s protein shows up in tomorrow’s hunger',

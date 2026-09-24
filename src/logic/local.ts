@@ -260,6 +260,11 @@ const ES: Formato = {
    ⚠️ E O INTERVALO LONGO DIZ "du … au …", que é como se lê um período em
    francês. O curto fica com o travessão, porque ele é etiqueta e não
    frase. */
+/* ⚠️ O PRIMEIRO DIA DO MÊS, EM FRANCÊS, É ORDINAL: "1er août", nunca
+   "1 août". É a única data que muda de forma, e aparece em toda parte —
+   o histórico de semanas escrevia "26 juil. – 1 août". */
+const er = (d: number) => (d === 1 ? '1er' : String(d));
+
 const FR: Formato = {
   decimal: ',',
   milhar: ' ',
@@ -270,12 +275,12 @@ const FR: Formato = {
   mesLongo: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
   diaCurto: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'],
   diaLongo: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
-  curta: (d, m) => `${d} ${FR.mesCurto[m]}`,
-  longa: (d, m) => `${d} ${FR.mesLongo[m]}`,
-  comAno: (d, m, a) => `${d} ${FR.mesLongo[m]} ${a}`,
+  curta: (d, m) => `${er(d)} ${FR.mesCurto[m]}`,
+  longa: (d, m) => `${er(d)} ${FR.mesLongo[m]}`,
+  comAno: (d, m, a) => `${er(d)} ${FR.mesLongo[m]} ${a}`,
   comDiaDaSemana: (dia, resto) => `${dia} ${resto}`,
-  periodo: (de, ate, m) => `${de}–${ate} ${FR.mesCurto[m]}`,
-  periodoLongo: (de, ate, m) => `du ${de} au ${ate} ${FR.mesLongo[m]}`,
+  periodo: (de, ate, m) => `${er(de)}–${ate} ${FR.mesCurto[m]}`,
+  periodoLongo: (de, ate, m) => `du ${er(de)} au ${ate} ${FR.mesLongo[m]}`,
   mesAno: (m, a) => `${FR.mesLongo[m]} ${a}`,
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,

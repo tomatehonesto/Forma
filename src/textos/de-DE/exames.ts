@@ -154,6 +154,7 @@ export const exames = {
     naReferencia: 'im Referenzbereich',
     blocoFora: 'Außerhalb des Referenzbereichs',
     arquivosImportados: 'Eingelesene Dateien',
+    fonteFoto: 'Foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} Marker · ${fonte} · ${data}`,
     importar: 'Befund einlesen',

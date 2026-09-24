@@ -335,7 +335,7 @@ export const home = {
     hojeEDiaDeAplicar: 'Oggi è il giorno della tua dose.',
     proximaDose: (quando: string) => `La tua prossima dose è ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · ${local} suggerita.`,
+      `${medicamento} ${dose} · zona suggerita: ${local}.`,
     verAplicacao: 'Vedi la puntura',
     criarLembrete: 'Crea un promemoria',
 
