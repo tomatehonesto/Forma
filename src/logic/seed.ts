@@ -766,12 +766,15 @@ export function comNotificacoesDeExemplo(S: State): State {
   const lista: Notificacao[] = [];
   const med = M(S);
   const forma = formaDe(S);
-  const injs = [...(S.injections as any[])].sort((a, b) => a.t - b.t);
+  /* ⚠️ TUDO COM `?? []`, porque esta função também roda na migração de
+     `ensureDefaults`, sobre um estado gravado que pode não ter cada lista.
+     Ver o fim de `ensureDefaults`. */
+  const injs = [...((S.injections as any[]) ?? [])].sort((a, b) => a.t - b.t);
   const ultima = injs[injs.length - 1];
 
   /* o aviso da véspera, na hora e com a antecedência do alerta de dose */
   const al = ((S as any).alertas as any[] ?? []).find((a) => a.tipo === 'dose' && a.on);
-  if (ultima && al) {
+  if (ultima && al && med) {
     const lead = al.lead ?? 0;
     lista.push({
       t: +startOfDay(new Date(ultima.t)) - lead * DAY + (al.horas?.[0] ?? 9) * HORA,
@@ -779,18 +782,22 @@ export function comNotificacoesDeExemplo(S: State): State {
     });
   }
 
-  /* a manchete do ciclo de hoje, às oito — ou agora, se ainda não deu */
-  lista.push({
-    t: Math.min(+now(), +startOfDay(now()) + 8 * HORA),
-    tipo: 'ciclo', fase: doseCycle(S).phase.key as FaseDoCiclo,
-  });
+  /* a manchete do ciclo de hoje, às oito — ou agora, se ainda não deu.
+     Sem aplicação não há ciclo, e a manchete não inventa um. */
+  if (ultima) {
+    lista.push({
+      t: Math.min(+now(), +startOfDay(now()) + 8 * HORA),
+      tipo: 'ciclo', fase: doseCycle(S).phase.key as FaseDoCiclo,
+    });
+  }
 
   /* a última palavra da médica, com a data dela */
-  const doc = [...(S.messages as any[])].reverse().find((m) => m.from === 'doc');
+  const doc = [...((S.messages as any[]) ?? [])].reverse().find((m) => m.from === 'doc');
   if (doc) lista.push({ t: doc.t, tipo: 'mensagem', autor: S.profile.doctor, texto: doc.text });
 
   /* o dia em que a caneta aberta cruzou a linha de renovar */
-  const ab = (S.pens as any[])[S.pens.length - 1];
+  const aberturas = (S.pens as any[]) ?? [];
+  const ab = aberturas[aberturas.length - 1];
   if (ab) {
     const doPen = injs.filter((i) => i.t >= ab.t);
     const k = doPen.findIndex((_, i) => ab.dosesPerPen - (i + 1) <= RENOVAR_COM);
@@ -1176,6 +1183,37 @@ export function ensureDefaults(S: any) {
   if (Array.isArray((S as any).favMeals)) {
     (S as any).favMeals = ((S as any).favMeals as any[])
       .map((f) => (typeof f === 'string' ? { nome: f } : f));
+  }
+  /* ⚠️⚠️ AS NOTIFICAÇÕES DE EXEMPLO ANTIGAS ERAM FRASE PRONTA, EM
+     PORTUGUÊS, e continuavam assim em qualquer idioma. A semente de antes
+     gravava seis — "Aplicação em 3 dias", "Estoque acabando"… — com
+     `title` e `body` escritos, e o estado de quem já tinha aberto o
+     aplicativo ficou com elas depois que a lista passou a guardar o fato
+     (ver logic/notificacoes). Trocar para o alemão mudava a tela inteira
+     e deixava a lista em português.
+
+     Elas se reconhecem pelo título exato, e só a semente as escreveu:
+     quem começa pelo cadastro nasce com a lista vazia. Então saem as
+     seis e entram as de exemplo de agora, tiradas dos registros deste
+     mesmo estado. O resto da lista — uma conquista gravada como frase
+     antes disto — fica como estava: frase pronta não se desfaz de volta
+     em números.
+
+     Roda por último porque as contas que usa (estoque, ciclo,
+     conquistas) dependem das migrações acima. E não pode derrubar a
+     abertura: num estado que a conta não entenda, a lista fica como
+     estava. */
+  const ANTIGAS = ['Aplicação em 3 dias', 'Novo insight', 'Dra. Helena respondeu', 'Estoque acabando', 'Exames importados', 'Dez semanas de tratamento'];
+  const daSementeAntiga = (n: any) => !n?.tipo && ANTIGAS.includes(n?.title);
+  if (Array.isArray(S.notifications) && S.notifications.some(daSementeAntiga)) {
+    const antes = S.notifications;
+    try {
+      const resto = (antes as any[]).filter((n) => !daSementeAntiga(n));
+      comNotificacoesDeExemplo(S);
+      S.notifications = [...resto, ...S.notifications].sort((a: any, b: any) => b.t - a.t);
+    } catch {
+      S.notifications = antes;
+    }
   }
   return S;
 }
