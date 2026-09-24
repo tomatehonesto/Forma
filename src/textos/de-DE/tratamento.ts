@@ -249,16 +249,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Klingelt ${quando}`,
     avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
 
-    /* ⚠️ DER STELLENWECHSEL IST KEIN SCHMUCK: immer dieselbe Stelle zu
-       treffen macht Knoten, und zu wechseln steht in der
-       Packungsbeilage. */
-    rodizioTitulo: 'Wechsel der Einstichstellen',
-    naoUsado: 'Noch nicht benutzt — sie ist dran.',
-    proximoDaRotacao: 'Sie ist als Nächste dran, auch wenn sie diese Woche schon benutzt wurde.',
-    descansandoHa: (semanas: number) =>
-      `Ruht seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'} — sie ist dran.`,
-    usadoHaPouco: 'kürzlich benutzt',
-    oProximo: 'als Nächstes',
     proxima: 'nächste',
 
     /* ⚠️ EIN BRUCH UND KEIN PROZENTSATZ. Es stand „88% im Takt“ da — und

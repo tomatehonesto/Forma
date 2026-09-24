@@ -214,13 +214,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Suena ${quando}`,
     avisoAntes: 'Un aviso antes de la dosis, a la hora que elijas',
 
-    rodizioTitulo: 'Rotación de los lugares',
-    naoUsado: 'Todavía sin usar — le toca.',
-    proximoDaRotacao: 'Es el próximo de la rotación, aunque se haya usado esta semana.',
-    descansandoHa: (semanas: number) =>
-      `Descansando hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} — le toca.`,
-    usadoHaPouco: 'usado hace poco',
-    oProximo: 'el próximo',
     proxima: 'próxima',
 
     constancia: 'Constancia',

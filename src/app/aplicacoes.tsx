@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   M, adesao, canetaAtual, cicloFases, dosesPrevistas, injCalendar,
-  nextInjectionDate, nextSite, pharmaSeries, rodizioDeLocais, siteLabel,
+  nextInjectionDate, nextSite, pharmaSeries, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
   diasAteAplicar,
@@ -20,7 +20,6 @@ import { Txt, Row } from '../ui/kit';
 import { alertasDe, proximaDe, quando, inicialDoDia } from '../logic/alertas';
 import { Icon } from '../ui/Icon';
 import { AreaCurve, Ring } from '../ui/charts';
-import { Corpo } from '../ui/corpo';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Botao,
 } from '../ui/internas';
@@ -68,7 +67,6 @@ export default function Aplicacoes() {
   const cal = injCalendar(S);
   const k = canetaAtual(S);
   const cic = cicloFases(S);
-  const rod = rodizioDeLocais(S);
   /* OS ALERTAS DE DOSE, e não mais "o lembrete". Agora podem ser
      vários: a linha conta quantos estão ligados e quando toca o primeiro
      deles — que é o que interessa a quem está olhando o ciclo. */
@@ -180,63 +178,21 @@ export default function Aplicacoes() {
         />
       </Cartao>
 
-      {/* O RODÍZIO — a única coisa deste assunto que é espacial.
+      {/* ⚠️ O MAPA DO RODÍZIO SAIU DAQUI, e com ele a silhueta.
 
-          Alternar o local não é burocracia: repetir o mesmo ponto causa
-          nódulo e irritação, e é o tipo de coisa que ninguém controla de
-          cabeça. O app tinha a resposta inteira guardada — cada aplicação
-          traz local e data — e usava isso para escrever uma linha:
-          "Abdômen (esq.) sugerido". Aqui ela vira mapa, e a pessoa
-          confere sozinha em vez de confiar na sugestão.
+          Ele desenhava os seis locais por tom de descanso, com legenda
+          de duas linhas e o contorno tracejado no próximo da rotação —
+          e era o único bloco desta tela que não falava da dose.
 
-          O TOM DIZ HÁ QUANTO TEMPO. Cheio é o que foi usado por último,
-          e vai clareando conforme o local descansa; o próximo da rotação
-          é o contorno lima tracejado, o mesmo do formulário — quem já
-          registrou uma aplicação reconhece a marca. */}
-      <Bloco titulo={K().rodizioTitulo}>
-        <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
-          <Row gap={18} style={{ alignItems: 'center' }}>
-            <Corpo escala={0.92} tons={Object.fromEntries(rod.map((l) => {
-              /* Quatro semanas de descanso é o teto da escala: além disso
-                 o local está tão livre quanto qualquer outro, e continuar
-                 clareando só inventaria diferença.
+          A ROTAÇÃO CONTINUA, no lugar em que ela decide alguma coisa:
+          /aplicacao traz a região sugerida já marcada e, embaixo do
+          lado, escreve há quanto tempo aquele ponto descansa e se ele é
+          o próximo. O histórico daqui, mais abaixo, continua dizendo o
+          local de cada aplicação.
 
-                 A cor é sempre a da marca e só a FORÇA muda — assim o
-                 desenho continua certo no tema escuro, onde o azul é
-                 outro. Nunca usado fica no cinza do corpo: ele não é "há
-                 muito tempo", é "nunca". */
-              const desc = l.semanas == null ? 1 : Math.min(1, l.semanas / 4);
-              return [l.id, {
-                fill: l.semanas == null ? c.bg2 : c.accent,
-                opacidade: l.semanas == null ? 1 : 0.40 * (1 - desc) + 0.05,
-                stroke: l.proximo ? c.limeDim : c.accentLine,
-                tracejada: l.proximo,
-              }];
-            }))} />
-            <View style={{ flex: 1, gap: 10 }}>
-              <View>
-                <Txt v="bodyMed">{siteLabel(site)}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>
-                  {(() => {
-                    const p = rod.find((l) => l.proximo);
-                    if (!p || p.semanas == null) return K().naoUsado;
-                    if (p.semanas === 0) return K().proximoDaRotacao;
-                    return K().descansandoHa(p.semanas);
-                  })()}
-                </Txt>
-              </View>
-              <Row gap={7}>
-                <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: c.accent, opacity: 0.4 }} />
-                <Txt v="caption" c={c.tx2}>{K().usadoHaPouco}</Txt>
-              </Row>
-              <Row gap={7}>
-                <View style={{ width: 11, height: 11, borderRadius: 3, borderWidth: 1, borderColor: c.limeDim, borderStyle: 'dashed' }} />
-                <Txt v="caption" c={c.tx2}>{K().oProximo}</Txt>
-              </Row>
-            </View>
-          </Row>
-        </View>
-      </Bloco>
+          `rodizioDeLocais`, em logic/derive, fica — é o formulário que
+          a chama. A silhueta não: ui/corpo perdeu as duas telas que a
+          usavam e foi apagada. Está no histórico do git. */}
 
       {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
       <Bloco

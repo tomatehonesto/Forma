@@ -218,13 +218,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Sonne ${quando}`,
     avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
 
-    rodizioTitulo: 'Rotation des endroits',
-    naoUsado: 'Pas encore utilisé — c’est son tour.',
-    proximoDaRotacao: 'C’est le suivant dans la rotation, même s’il a servi cette semaine.',
-    descansandoHa: (semanas: number) =>
-      `Au repos depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'} — c’est son tour.`,
-    usadoHaPouco: 'utilisé récemment',
-    oProximo: 'le suivant',
     proxima: 'prochaine',
 
     constancia: 'Régularité',

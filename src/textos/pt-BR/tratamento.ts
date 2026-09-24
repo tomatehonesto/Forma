@@ -298,17 +298,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Toca ${quando}`,
     avisoAntes: 'Um aviso antes da dose, na hora que você escolher',
 
-    /* ⚠️ O RODÍZIO NÃO É ENFEITE: repetir o mesmo ponto causa nódulo, e
-       alternar é orientação de bula. As três frases dizem por que aquele
-       local é a vez — e a do meio é a que existe para o caso em que a
-       rotação e o descanso discordam. */
-    rodizioTitulo: 'Rodízio dos locais',
-    naoUsado: 'Ainda não usado — é a vez dele.',
-    proximoDaRotacao: 'É o próximo da rotação, mesmo tendo sido usado esta semana.',
-    descansandoHa: (semanas: number) =>
-      `Descansando há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} — é a vez dele.`,
-    usadoHaPouco: 'usado há pouco',
-    oProximo: 'o próximo',
     proxima: 'próxima',
 
     /* ⚠️ "CONSTÂNCIA", E A NOTA É UMA FRAÇÃO E NÃO UMA PORCENTAGEM. Era

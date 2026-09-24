@@ -292,15 +292,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Suona ${quando}`,
     avisoAntes: 'Un avviso prima della dose, all’ora che scegli tu',
 
-    /* ⚠️ LA ROTAZIONE NON È UN ORNAMENTO: ripetere lo stesso punto provoca
-       noduli, e alternare è indicazione del foglietto. */
-    rodizioTitulo: 'Rotazione delle zone',
-    naoUsado: 'Non ancora usata — tocca a lei.',
-    proximoDaRotacao: 'È la prossima della rotazione, anche se è stata usata questa settimana.',
-    descansandoHa: (semanas: number) =>
-      `A riposo da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'} — tocca a lei.`,
-    usadoHaPouco: 'usata da poco',
-    oProximo: 'la prossima',
     proxima: 'prossima',
 
     /* ⚠️ "COSTANZA", E LA NOTA È UNA FRAZIONE E NON UNA PERCENTUALE. Era

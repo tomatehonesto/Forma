@@ -38,10 +38,10 @@ import { useTheme } from '../ui/useTheme';
    comprimido: são perguntas que não existem. Quem toma semaglutida oral
    não escolhe onde aplicou, e o título nem chama isso de aplicação.
 
-   ⚠️ O DESENHO DO CORPO SAIU DAQUI, e não morreu. Ele continua em
-   /aplicacoes, onde mostra o rodízio — que é o que ele sempre fez
-   melhor. Como SELETOR ele cobrava mira: alvos pequenos numa silhueta de
-   200 px, para uma escolha entre coisas que têm nome.
+   ⚠️ O DESENHO DO CORPO SAIU DAQUI. Como SELETOR ele cobrava mira:
+   alvos pequenos numa silhueta de 200 px, para uma escolha entre coisas
+   que têm nome. Por um tempo ele sobreviveu em /aplicacoes, desenhando
+   o rodízio; esse mapa também saiu, e a silhueta foi apagada com ele.
 
    ⚠️ E NÃO HÁ MAIS ROLAGEM HORIZONTAL NESTA TELA. Todo controle é o mesmo
    `Opc` — a lista inteira cabe empilhada, e o que está fora da tela não
@@ -56,8 +56,8 @@ import { useTheme } from '../ui/useTheme';
    fazia a pessoa ler "Abdômen" três vezes para achar o lado que queria.
    Separado, são três alvos e depois dois.
 
-   O id continua sendo o mesmo par: nada muda no que se grava, nem nos
-   seis gráficos de rodízio que leem isso.
+   O id continua sendo o mesmo par: nada muda no que se grava, nem no
+   descanso que `rodizioDeLocais` calcula a partir disso.
    ============================================================ */
 const REGIOES = (): [string, string][] => [
   ['braco', K().regioes.braco],

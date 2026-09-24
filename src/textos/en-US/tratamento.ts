@@ -212,13 +212,6 @@ export const tratamento = {
     tocaEm: (quando: string) => `Rings ${quando}`,
     avisoAntes: 'A heads-up before the dose, at the time you choose',
 
-    rodizioTitulo: 'Rotating the sites',
-    naoUsado: 'Not used yet — it’s its turn.',
-    proximoDaRotacao: 'It’s next in the rotation, even though it was used this week.',
-    descansandoHa: (semanas: number) =>
-      `Resting for ${semanas} ${semanas === 1 ? 'week' : 'weeks'} — it’s its turn.`,
-    usadoHaPouco: 'used recently',
-    oProximo: 'next up',
     proxima: 'next',
 
     constancia: 'Consistency',
