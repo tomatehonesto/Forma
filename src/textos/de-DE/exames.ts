@@ -159,6 +159,11 @@ export const exames = {
     importar: 'Befund einlesen',
     enviarAoMedico: 'An die Praxis schicken',
 
+    linhaVazia: 'Noch keine Werte',
+    vazioTitulo: 'Hier steht noch kein Wert',
+    vazioTexto: 'Du hast noch keinen Wert eingetragen. Sobald der erste da ist, steht er hier mit seinem Referenzbereich und dem, was der bedeutet.',
+    vazioAcao: 'Einen Wert eintragen',
+
     colhidoEm: (data: string) => `Abgenommen am ${data}`,
     vereditoOk: 'Innerhalb der Referenz',
     vereditoAlto: 'Über der Referenz',

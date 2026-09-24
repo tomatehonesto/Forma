@@ -127,6 +127,11 @@ export const exames = {
     importar: 'Importer une analyse',
     enviarAoMedico: 'Envoyer au médecin',
 
+    linhaVazia: 'Aucun résultat pour l’instant',
+    vazioTitulo: 'Aucune analyse ici',
+    vazioTexto: 'Vous n’avez encore noté aucun résultat. Dès que vous en notez un, il apparaît ici avec sa fourchette de référence et ce qu’elle veut dire.',
+    vazioAcao: 'Noter un résultat',
+
     colhidoEm: (data: string) => `Prélevé le ${data}`,
     vereditoOk: 'Dans les valeurs',
     vereditoAlto: 'Au-dessus des valeurs',

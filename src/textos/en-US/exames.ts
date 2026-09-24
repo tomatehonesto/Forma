@@ -119,6 +119,11 @@ export const exames = {
     importar: 'Import a lab result',
     enviarAoMedico: 'Send to the doctor',
 
+    linhaVazia: 'No results yet',
+    vazioTitulo: 'No lab results here',
+    vazioTexto: 'You haven’t recorded a result yet. Once you add the first one, it shows up here with its reference range and what that range means.',
+    vazioAcao: 'Record a result',
+
     colhidoEm: (data: string) => `Collected on ${data}`,
     vereditoOk: 'Within range',
     vereditoAlto: 'Above the range',

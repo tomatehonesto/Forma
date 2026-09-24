@@ -333,6 +333,15 @@ export function IconBadge({ name, size = 44, iconSize, color, bg, sw }: { name: 
    oferecer (trocar o período, a outra aba). Comentar o vazio sem oferecer
    saída é ocupar espaço com nada.
 
+   ⚠️ E A SAÍDA PODE SER BOTÃO. Há vazio que é estado passageiro — um
+   filtro sem resultado, uma semana sem registro — e há vazio que é o
+   começo: a tela nunca teve nada, e a única coisa a fazer nela é a
+   primeira. Nesse caso mandar a pessoa procurar o botão em outro canto
+   da tela é fazê-la trabalhar para responder o convite que acabou de
+   ler. O botão é pílula cheia e mora aqui dentro, e não vem do
+   vocabulário das telas internas: kit não importa de internas, ou os
+   dois passam a se importar em círculo.
+
    Mora aqui no kit, e não no vocabulário das telas internas, porque
    vazio não é assunto de tela interna: a Jornada tem, as fotos têm, o
    diário tem. */
@@ -376,8 +385,8 @@ export function Retrato({ foto, nome, tam = 40, tinta }: {
   );
 }
 
-export function Vazio({ ic, titulo, texto }: {
-  ic: string; titulo: string; texto?: string;
+export function Vazio({ ic, titulo, texto, acao, onAcao }: {
+  ic: string; titulo: string; texto?: string; acao?: string; onAcao?: () => void;
 }) {
   const { c } = useTheme();
   return (
@@ -391,6 +400,17 @@ export function Vazio({ ic, titulo, texto }: {
       <Txt v="bodyMed" c={c.tx2} style={{ textAlign: 'center' }}>{titulo}</Txt>
       {texto ? (
         <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>{texto}</Txt>
+      ) : null}
+      {acao && onAcao ? (
+        <Pressable
+          onPress={onAcao}
+          style={({ pressed }) => [{
+            marginTop: 16, backgroundColor: c.accent, borderRadius: radius.pill,
+            paddingHorizontal: 20, paddingVertical: 12, opacity: pressed ? 0.8 : 1,
+          }]}
+        >
+          <Txt v="label" c={c.accentInk}>{acao}</Txt>
+        </Pressable>
       ) : null}
     </View>
   );

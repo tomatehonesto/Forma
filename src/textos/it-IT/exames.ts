@@ -150,6 +150,11 @@ export const exames = {
     importar: 'Importa un esame',
     enviarAoMedico: 'Invia al medico',
 
+    linhaVazia: 'Ancora nessun risultato',
+    vazioTitulo: 'Qui non c’è ancora nessun esame',
+    vazioTexto: 'Non hai ancora annotato nessun risultato. Appena annoti il primo, compare qui con il suo intervallo di riferimento e che cosa significa.',
+    vazioAcao: 'Annota un risultato',
+
     /* ---------- il marcatore ---------- */
     colhidoEm: (data: string) => `Prelevato il ${data}`,
     vereditoOk: 'Nella norma',

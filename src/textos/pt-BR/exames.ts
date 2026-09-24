@@ -160,6 +160,15 @@ export const exames = {
     importar: 'Importar exame',
     enviarAoMedico: 'Enviar ao médico',
 
+    /* ---------- a tela que ainda não tem exame ----------
+       O convite fala do que vai acontecer com o resultado, e não do que
+       falta: "anote o primeiro" é tarefa, "ele aparece aqui com a faixa
+       de referência" é o motivo de anotar. */
+    linhaVazia: 'Nenhum resultado ainda',
+    vazioTitulo: 'Nenhum exame por aqui',
+    vazioTexto: 'Você ainda não anotou nenhum resultado. Quando anotar o primeiro, ele aparece aqui com a faixa de referência e o que ela quer dizer.',
+    vazioAcao: 'Anotar um resultado',
+
     /* ---------- o marcador ---------- */
     colhidoEm: (data: string) => `Colhido em ${data}`,
     vereditoOk: 'Na referência',

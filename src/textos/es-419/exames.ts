@@ -119,6 +119,11 @@ export const exames = {
     importar: 'Importar examen',
     enviarAoMedico: 'Enviar al médico',
 
+    linhaVazia: 'Todavía sin resultados',
+    vazioTitulo: 'Ningún examen por acá',
+    vazioTexto: 'Todavía no anotaste ningún resultado. Cuando anotes el primero, aparece acá con el rango de referencia y lo que ese rango quiere decir.',
+    vazioAcao: 'Anotar un resultado',
+
     colhidoEm: (data: string) => `Tomado el ${data}`,
     vereditoOk: 'Dentro del rango',
     vereditoAlto: 'Por encima del rango',

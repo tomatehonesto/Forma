@@ -11,7 +11,7 @@ import {
   nomeDoMarcador,
 } from '../logic/derive';
 import { fmtDate, nf, dataLonga } from '../logic/time';
-import { Txt, Row, Rich } from '../ui/kit';
+import { Txt, Row, Rich, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { AskCompanion } from '../ui/Ask';
 import {
@@ -991,6 +991,18 @@ export default function Exames() {
      de quando é o retrato que a tela está mostrando. */
   const ultima = todos.length ? Math.max(...todos.map((e) => examLast(e).t)) : 0;
 
+  /* ⚠️⚠️ A TELA SEM NENHUM EXAME MOSTRAVA SÓ OS TÍTULOS. As cinco
+     categorias são fixas — sangue, tireoide, fígado… —, e cada uma
+     desenhava o seu cartão com zero linhas dentro; embaixo delas,
+     "Arquivos importados" fazia o sexto. Seis títulos e seis retângulos
+     vazios não são um vazio: são uma lista que parece ter falhado ao
+     carregar. E na capa, "0 fora da referência · 0 na referência" dava
+     dois números enormes para dizer que não há número nenhum.
+
+     Aqui a tela inteira vira o convite, que é o que ela é. */
+  const semExames = todos.length === 0;
+  const arquivos = (S.examBundles as any[]) ?? [];
+
   if (sel) {
     const e = examBy(S, sel);
     /* Chegando pela rota, a seta volta para quem empurrou. Levar à lista
@@ -1009,18 +1021,26 @@ export default function Exames() {
        continuam alcançáveis depois de rolar quinze marcadores, que é
        justamente quando a vontade de mandar para a equipe aparece. */
     <TelaDeHabito
-      rodape={
+      /* Sem exame nenhum não há rodapé: importar é o botão do próprio
+         vazio, três centímetros acima, e "enviar ao médico" mandaria uma
+         folha em branco. Dois botões fixos para uma tela sem conteúdo é
+         moldura sem quadro. */
+      rodape={semExames ? undefined : (
         <>
           <Botao label={K().importar} onPress={() => router.push('/medir-exame' as any)} />
           <Botao label={K().enviarAoMedico} tom="fantasma" onPress={() => router.push('/exportar' as any)} />
         </>
-      }
+      )}
     >
       <CapaDeHabito
         foto={aurora.hero}
         titulo={K().titulo}
-        linha={K().linha(todos.length, ultima ? dataLonga(ultima) : '—')}
-        valor={
+        linha={semExames ? K().linhaVazia : K().linha(todos.length, dataLonga(ultima))}
+        valor={semExames ? (
+          /* O miolo da capa fica com a foto, e só. O par de contagens é a
+             resposta de uma pergunta que ainda não foi feita. */
+          <View />
+        ) : (
           <View>
             {/* ⚠️ SÃO DOIS NÚMEROS E NÃO UM. "3 fora da faixa" sozinho é um
                 alarme sem denominador: três de quinze e três de quatro são
@@ -1065,10 +1085,20 @@ export default function Exames() {
               </Txt>
             ) : null}
           </View>
-        }
+        )}
       />
 
       <FolhaDeHabito>
+      {semExames ? (
+        <Vazio
+          ic="doc"
+          titulo={K().vazioTitulo}
+          texto={K().vazioTexto}
+          acao={K().vazioAcao}
+          onAcao={() => router.push('/medir-exame' as any)}
+        />
+      ) : (
+      <>
 
       {/* ---- os que estão fora ----
 
@@ -1089,33 +1119,44 @@ export default function Exames() {
         </Bloco>
       ) : null}
 
-      {examCats().map(([cat, ms]) => (
-        <Bloco key={cat} titulo={cat}>
+      {examCats().map(([cat, ms]) => {
+        const linhas = ms.filter((mk) => !!examBy(S, mk));
+        /* A categoria sem nenhum marcador respondido não vira cartão
+           vazio: importar hemograma não obriga a tela a mostrar um
+           retângulo de tireoide esperando. */
+        if (!linhas.length) return null;
+        return (
+          <Bloco key={cat} titulo={cat}>
+            <Cartao>
+              {linhas.map((mk) => (
+                <LinhaDoMarcador key={mk} e={examBy(S, mk)!} onPress={() => setSel(mk)} />
+              ))}
+            </Cartao>
+          </Bloco>
+        );
+      })}
+
+      {/* Quem anotou tudo à mão nunca importou arquivo nenhum — e via o
+          título de um cartão sem nada dentro. */}
+      {arquivos.length ? (
+        <Bloco titulo={K().arquivosImportados}>
           <Cartao>
-            {ms.map((mk) => {
-              const e = examBy(S, mk);
-              if (!e) return null;
-              return <LinhaDoMarcador key={mk} e={e} onPress={() => setSel(mk)} />;
-            })}
+            {arquivos.map((b) => (
+              <Linha
+                key={b.t}
+                ic={b.source === 'PDF' ? 'doc' : 'photo'}
+                titulo={b.name}
+                sub={K().arquivoSub(b.n, b.source, fmtDate(new Date(b.t)))}
+                selo={b.shared ? K().seloEnviado : undefined}
+                seloTom="neutra"
+                seta={false}
+              />
+            ))}
           </Cartao>
         </Bloco>
-      ))}
-
-      <Bloco titulo={K().arquivosImportados}>
-        <Cartao>
-          {(S.examBundles as any[]).map((b) => (
-            <Linha
-              key={b.t}
-              ic={b.source === 'PDF' ? 'doc' : 'photo'}
-              titulo={b.name}
-              sub={K().arquivoSub(b.n, b.source, fmtDate(new Date(b.t)))}
-              selo={b.shared ? K().seloEnviado : undefined}
-              seloTom="neutra"
-              seta={false}
-            />
-          ))}
-        </Cartao>
-      </Bloco>
+      ) : null}
+      </>
+      )}
       </FolhaDeHabito>
     </TelaDeHabito>
   );
