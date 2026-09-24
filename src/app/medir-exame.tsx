@@ -65,7 +65,10 @@ export default function MedirExame() {
               return (
                 <Pressable key={m} onPress={() => setMarcador(m)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                   <View style={{ backgroundColor: on ? c.tx : c.bg1, borderRadius: radius.pill, paddingHorizontal: 13, paddingVertical: 8, marginBottom: 6 }}>
-                    <Txt v="caption" c={on ? c.onHero : c.tx2}>{m}</Txt>
+                    {/* `bg1` e não `onHero`: a pastilha escolhida é
+                        `c.tx`, que no escuro é branca — ver a nota em
+                        (tabs)/jornada, onde o mesmo par aparece. */}
+                    <Txt v="caption" c={on ? c.bg1 : c.tx2}>{m}</Txt>
                   </View>
                 </Pressable>
               );

@@ -21,7 +21,7 @@ import { AreaCurve } from '../../ui/charts';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
-import { radius, RESPIRO_ABAS } from '../../theme';
+import { radius, alfa, RESPIRO_ABAS } from '../../theme';
 import { aguaTxt, pesoTxt, pesoU } from '../../logic/medidas';
 import { T } from '../../textos';
 
@@ -730,13 +730,33 @@ export default function Jornada() {
             {K().semanaASemana}
           </Txt>
 
+          {/* ⚠️ A TINTA DA ESCOLHIDA É `bg1`, E ERA `onHero`.
+
+              A pastilha escolhida é a superfície invertida: no claro ela
+              é preta, no escuro é branca — `c.tx` é a cor do TEXTO, e no
+              escuro o texto é branco. `onHero` é branco fixo, porque
+              existe para escrever sobre a aurora, que é escura nos dois
+              temas. Sobre a pastilha invertida isso dava branco no branco:
+              no escuro a aba escolhida ficava ilegível, e só a contagem
+              em lima aparecia — mal, que lima sobre branco é quase nada.
+
+              `bg1` é o par natural de `tx`: a superfície contra a qual
+              aquela tinta foi escolhida para ler. Ela se inverte junto, e
+              é o que o balão da régua de exames já usava. A contagem é a
+              mesma tinta a 70%, como o balão faz com a unidade e a data.
+
+              ⚠️ ISSO TIRA A LIMA DA CONTAGEM TAMBÉM NO CLARO. A lima é a
+              cor do ALCANÇADO — sequência, barra de proteína, "PARA
+              HOJE" —, e quantos check-ins existem não é conquista
+              nenhuma. Ela não tinha par no escuro porque não tinha
+              trabalho a fazer em nenhum dos dois. */}
           <Rolagem horizontal showsHorizontalScrollIndicator={false}
             style={{ marginTop: 14, marginHorizontal: -PAD }}
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 6 }}>
             <Pressable onPress={() => setFiltro(null)}>
               <Row gap={6} style={{ backgroundColor: filtro === null ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
-                <Txt v="label" c={filtro === null ? c.onHero : c.tx2}>{K().porSemana}</Txt>
-                <Txt v="micro" c={filtro === null ? c.lime : c.tx4}>{semanas.length}</Txt>
+                <Txt v="label" c={filtro === null ? c.bg1 : c.tx2}>{K().porSemana}</Txt>
+                <Txt v="micro" c={filtro === null ? alfa(c.bg1, 0.7) : c.tx4}>{semanas.length}</Txt>
               </Row>
             </Pressable>
             {contagens.map((f) => {
@@ -744,8 +764,8 @@ export default function Jornada() {
               return (
                 <Pressable key={f.kind} onPress={() => setFiltro(on ? null : f.kind)}>
                   <Row gap={6} style={{ backgroundColor: on ? c.tx : c.bg1, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill }}>
-                    <Txt v="label" c={on ? c.onHero : c.tx2}>{f.label}</Txt>
-                    <Txt v="micro" c={on ? c.lime : c.tx4}>{f.n}</Txt>
+                    <Txt v="label" c={on ? c.bg1 : c.tx2}>{f.label}</Txt>
+                    <Txt v="micro" c={on ? alfa(c.bg1, 0.7) : c.tx4}>{f.n}</Txt>
                   </Row>
                 </Pressable>
               );
