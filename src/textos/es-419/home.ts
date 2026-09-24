@@ -170,7 +170,7 @@ export const home = {
      conversación. Ver ../pt-BR/home para los tres silencios. */
   telaHistorico: {
     exportar: 'Exportar',
-    lead: (data: string) => `Todo lo que registraste desde ${data}.`,
+    lead: (data: string) => `Todo lo que registraste desde el ${data}.`,
     semPesagem: 'sin pesaje',
     semanasVazias: (quantas: number) =>
       quantas === 1 ? 'Una semana quedó casi vacía' : `${quantas} semanas quedaron casi vacías`,

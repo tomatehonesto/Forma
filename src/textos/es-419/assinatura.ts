@@ -226,7 +226,7 @@ export const assinatura = {
     /* ⚠️ Y NO HAY BÚSQUEDA DE CLÍNICA, y la pantalla lo dice. Una lista de
        clínicas que no existe sería la puerta tapiada más cara de aquí. */
     conviteTitulo: 'La invitación viene de la clínica',
-    conviteTexto: 'No se puede buscar una clínica por aquí. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, vale comentárselo.',
+    conviteTexto: 'No se puede buscar una clínica por aquí. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
 
     codigoRotulo: 'Código de invitación',
     codigoAjudaAtual: 'Es el que te une a tu clínica.',

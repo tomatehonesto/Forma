@@ -348,7 +348,7 @@ export const tratamento = {
     acabou: (outroRecipiente: string) => `Leer — jetzt ${outroRecipiente} anbrechen`,
     seloFim: 'leer',
     registrarOutro: (outroRecipiente: string) => `${outroRecipiente} eintragen`,
-    voltarParaJornada: 'Zurück zum Verlauf',
+    voltarParaJornada: (aba: string) => `Zurück zum ${aba}`,
   },
 
   /* ⚠️ HIER IST DER UNTERSCHIED EIN KASUS, KEINE GROSSSCHREIBUNG. Der

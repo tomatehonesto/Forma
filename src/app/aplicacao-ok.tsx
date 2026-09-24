@@ -60,7 +60,7 @@ export default function AplicacaoOk() {
       onClose={() => router.replace('/(tabs)/jornada' as any)}
       rodape={
         <>
-          <Botao label={K().voltarParaJornada} onPress={() => router.replace('/(tabs)/jornada' as any)} />
+          <Botao label={K().voltarParaJornada(T.comum.abas.jornada)} onPress={() => router.replace('/(tabs)/jornada' as any)} />
           {acabou && vocab.injetavel
             ? <Botao label={K().registrarOutro(outro)} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
             : null}

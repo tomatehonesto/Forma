@@ -55,7 +55,7 @@ export const equilibrio = {
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
     `${doisFortes} empujan hacia arriba, y ni ${fraco.toLowerCase()} se quedó atrás. Yo no cambiaría nada por ahora.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
-    `${doisFortes} están consistentes. ${fraco} es lo que más oscila — sería mi foco para la próxima semana.`,
+    `${doisFortes} están estables. ${fraco} es lo que más oscila — sería mi foco para la próxima semana.`,
 
   /* ⚠️ EL BOTÓN LLEVA LA PREGUNTA AL COMPANION. Si el texto del botón y la
      pregunta enviada divergen, la persona toca una cosa y recibe respuesta

@@ -30,7 +30,7 @@ export const alimentacao = {
     fibraBoaQ: '¿Qué cambia la fibra en mi tratamiento?',
     fibraBoaTitulo: (media: number) => `Fibra: ${media} g por día, arriba de la meta`,
     fibraBoaTexto: (dias: number, meta: number) =>
-      `Es tu promedio en los últimos ${dias} días registrados, contra una meta de ${meta} g. Es lo que suele mantener a raya el estreñimiento del tratamiento — vale seguir así.`,
+      `Es tu promedio en los últimos ${dias} días registrados, contra una meta de ${meta} g. Es lo que suele mantener a raya el estreñimiento del tratamiento — conviene seguir así.`,
 
     /* ⚠️ EL MOMENTO FLOJO NOMBRA EL MOMENTO, y es lo que el número del día
        no dice: un desayuno de 6 g y un almuerzo de 40 g suman lo mismo que

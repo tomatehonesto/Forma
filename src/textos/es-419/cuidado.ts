@@ -68,7 +68,7 @@ export const cuidado = {
 
     consultaTitulo: 'Tu consulta está llegando.',
     consultaHoje: (doutor: string) =>
-      `Tu consulta con ${doutor} es hoy. Vale repasar lo que quieres preguntar.`,
+      `Tu consulta con ${doutor} es hoy. Conviene repasar lo que quieres preguntar.`,
     consultaFaltam: (dias: number, doutor: string) =>
       `${dias === 1 ? 'Falta 1 día' : `Faltan ${dias} días`} para tu consulta con ${doutor}.`,
     consultaPulso: (quando: string) => `Consulta ${quando}`,
@@ -79,7 +79,7 @@ export const cuidado = {
     posConsultaTituloComPlataforma: 'Tu equipo actualizó tu tratamiento.',
     posConsultaTituloSemPlataforma: 'Tuviste una consulta hace poco.',
     posConsultaTextoComPlataforma: 'Revisa las indicaciones de la consulta y qué cambia en tu dosis a partir de ahora.',
-    posConsultaTextoSemPlataforma: 'Si la dosis o el intervalo cambiaron, vale actualizarlo por aquí — es lo que mantiene bien las cuentas de la aplicación.',
+    posConsultaTextoSemPlataforma: 'Si la dosis o el intervalo cambiaron, conviene actualizarlo por aquí — es lo que mantiene bien las cuentas de la aplicación.',
     posConsultaPulso: 'Tratamiento actualizado',
 
     /* ⚠️ "TENEMOS ALGUNAS COSAS QUE ATENDER" — primera persona del plural,
@@ -91,7 +91,7 @@ export const cuidado = {
        desplazarse para descubrir si importa. Y los nombres vienen de la
        PROPIA lista, ítem por ítem. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'pendientes necesitan' : 'pendiente necesita'} atención — ${assuntos}. Nada urgente, pero vale resolverlo esta semana.`,
+      `${quantas} ${plural ? 'pendientes necesitan' : 'pendiente necesita'} atención — ${assuntos}. Nada urgente, pero conviene resolverlo esta semana.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'ítem pendiente' : 'ítems pendientes'}`,
     /* Hasta cuatro por extenso, que es el techo de pendientes que existen. */
@@ -100,11 +100,11 @@ export const cuidado = {
     emDiaTitulo: 'Tu cuidado está al día.',
     /* ⚠️ LA SEGUNDA VERSIÓN EXISTE PORQUE LA FRASE EMPEZABA POR EL NOMBRE
        DE LA MÉDICA. Sin nadie registrado abría con un espacio en blanco.
-       Quien conduce el tratamiento sola lo conduce hace el mismo tiempo. */
+       Quien conduce el tratamiento sola lo conduce desde hace el mismo tiempo. */
     emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} acompaña tu tratamiento hace ${semanas} semanas. Tienes buena adherencia y no hay ninguna pendiente importante por ahora.`,
+      `${quem} acompaña tu tratamiento desde hace ${semanas} semanas. Tienes buena adherencia y no hay ningún pendiente importante por ahora.`,
     emDiaSozinha: (semanas: number) =>
-      `Llevas ${semanas} semanas de tratamiento, con buena adherencia y ninguna pendiente importante por ahora.`,
+      `Llevas ${semanas} semanas de tratamiento, con buena adherencia y ningún pendiente importante por ahora.`,
     emDiaPulso: 'Seguimiento al día',
   },
 
@@ -112,7 +112,7 @@ export const cuidado = {
     aplicacaoHoje: 'Inyección hoy',
     proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
     nestaDoseHa: (semanas: number) =>
-      `En esta dosis hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+      `En esta dosis desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
     /* El `quando` ya llega como "en 9 días" / "mañana", con la preposición
        dentro — por eso la frase no pone otra. */
     revisaoNaConsulta: (quando: string) => `Revisión en la consulta ${quando}`,
@@ -154,8 +154,12 @@ export const cuidado = {
     responder: 'Responder',
     enviarPrimeira: 'Enviar el primer mensaje',
 
-    precisaDeVoce: 'Necesita de ti',
-    nadaPrecisa: 'Nada necesita de ti ahora.',
+    /* ⚠️ "NECESITA DE TI" É CALCO. "Necesitar de" é arcaísmo em
+       espanhol — hoje se diz "te necesita" —, e como cabeçalho de uma
+       lista do que espera a pessoa, "depende de ti" é o que um falante
+       escreveria. */
+    precisaDeVoce: 'Depende de ti',
+    nadaPrecisa: 'Nada depende de ti ahora.',
     emDia: 'Tu seguimiento está al día.',
 
     proximaConsulta: 'Tu próxima consulta',
@@ -175,7 +179,7 @@ export const cuidado = {
 
     exames: 'Exámenes',
     marcadoresAcompanhados: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'marcador seguido' : 'marcadores seguidos'}`,
+      `${quantos} ${quantos === 1 ? 'marcador en seguimiento' : 'marcadores en seguimiento'}`,
     nenhumResultado: 'Ningún resultado guardado',
     importeUmExame: 'Importa un examen para empezar a seguirlo',
     foraDaReferencia: (quantos: number) => `${quantos} fuera del rango`,

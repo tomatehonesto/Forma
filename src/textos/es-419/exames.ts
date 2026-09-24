@@ -22,19 +22,19 @@
 export const exames = {
   resumo: {
     todosDentro: (quantos: number) =>
-      `Los ${quantos} marcadores de esta toma están dentro del rango de referencia del laboratorio.`,
+      `Los ${quantos} marcadores de esta muestra están dentro del rango de referencia del laboratorio.`,
     umFora: (total: number, qual: string) =>
-      `Uno de los ${total} marcadores de esta toma quedó fuera del rango: ${qual}.`,
+      `Uno de los ${total} marcadores de esta muestra quedó fuera del rango: ${qual}.`,
     algunsFora: (fora: number, total: number, quais: string) =>
-      `${fora} de los ${total} marcadores de esta toma quedaron fuera del rango: ${quais}.`,
+      `${fora} de los ${total} marcadores de esta muestra quedaron fuera del rango: ${quais}.`,
     /* ⚠️ PASANDO DE TRES, LA CUENTA BASTA. El resumen vive en una portada
        de altura fija, y ocho nombres seguidos empujan el párrafo fuera de
        ella — y aunque cupiera, una lista de ocho en medio de una frase no
        se lee, se cuenta. */
     muitosFora: (fora: number, total: number) =>
-      `${fora} de los ${total} marcadores de esta toma quedaron fuera del rango.`,
+      `${fora} de los ${total} marcadores de esta muestra quedaron fuera del rango.`,
 
-    desde: (data: string) => ` Desde ${data},`,
+    desde: (data: string) => ` Desde el ${data},`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
       `${desde} un marcador se movió en la dirección esperada, y el mayor cambio fue en ${qual}: de ${de} a ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
@@ -82,7 +82,7 @@ export const exames = {
     subiu: 'subió',
     caiu: 'bajó',
     andou: (data: string, verbo: string, quanto: string, unidade: string, rumo: string) =>
-      ` Desde ${data} ${verbo} ${quanto}${unidade}${rumo}.`,
+      ` Desde el ${data} ${verbo} ${quanto}${unidade}${rumo}.`,
 
     /* ⚠️ ESTA ES LA ÚNICA FRASE DE LA PANTALLA QUE MIRA FUERA DE ESTE
        MARCADOR. Un número fuera del rango leído solo se vuelve el mundo
@@ -109,7 +109,7 @@ export const exames = {
   tela: {
     titulo: 'Exámenes',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última toma ${ultimaColeta}`,
+      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última muestra ${ultimaColeta}`,
     foraDaReferencia: 'fuera del rango',
     naReferencia: 'dentro del rango',
     blocoFora: 'Fuera del rango',

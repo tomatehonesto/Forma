@@ -24,7 +24,7 @@ export const rotina = {
     prepararConsulta: 'Prepara mi consulta',
   },
 
-  /* ⚠️⚠️ EL IMPERATIVO AQUÍ ES A PROPÓSITO — "Toma más agua todavía hoy",
+  /* ⚠️⚠️ EL IMPERATIVO AQUÍ ES A PROPÓSITO — "Toma más agua hoy mismo",
      "Pide la renovación". En una revisión buscando texto que le reclame a
      la persona, esta lista aparece entera y parece el peor hallazgo de la
      aplicación; no lo es.
@@ -39,7 +39,7 @@ export const rotina = {
      un hecho con verbo de orden se vuelve sermón. El de arriba manda, el de
      abajo explica. */
   empurroes: {
-    agua: 'Toma más agua todavía hoy',
+    agua: 'Toma más agua hoy mismo',
     /* ⚠️ EL MOTIVO ERA UN DÉFICIT CON EL NOMBRE DE LA PERSONA ADELANTE.
        "Estás abajo de la mitad de la meta" pone al sujeto en el lugar de
        quien falló. Lo que falta de agua es hecho del día, no defecto de

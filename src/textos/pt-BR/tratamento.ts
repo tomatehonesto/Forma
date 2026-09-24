@@ -466,7 +466,13 @@ export const tratamento = {
     acabou: (outroRecipiente: string) => `Acabou — vale abrir ${outroRecipiente}`,
     seloFim: 'fim',
     registrarOutro: (outroRecipiente: string) => `Registrar ${outroRecipiente}`,
-    voltarParaJornada: 'Voltar para a Jornada',
+    /* ⚠️ O NOME DA ABA VEM DE `comum.abas`, e estava copiado aqui. Duas
+       cópias de um nome de tela divergem no dia em que uma delas muda —
+       e divergiram na primeira escrita: o espanhol dizia "Recorrido" e a
+       aba se chama "Camino", o alemão dizia "Verlauf" e a aba se chama
+       "Weg". O que cada idioma escreve é a preposição e o artigo, que
+       são dele. */
+    voltarParaJornada: (aba: string) => `Voltar para a ${aba}`,
   },
 
   /* ============================================================

@@ -59,10 +59,14 @@ export const tratamento = {
   ritmoAcelerado: 'Ritmo acelerado',
   ritmoLento: 'Ritmo más lento',
 
-  /* Tres grados, y el del medio es el que más aparece: "vale renovar" es
-     un aviso con semanas de anticipación, no una alarma. */
+  /* Tres grados, y el del medio es el que más aparece: "conviene
+     renovar" es un aviso con semanas de anticipación, no una alarma.
+
+     ⚠️ Y ES "CONVIENE", NO "VALE". "Vale renovar" es el "vale a pena"
+     portugués con la mitad de atrás cortada: en español "vale" solo
+     quiere decir "de acuerdo". */
   estoqueUrgente: 'Renueva ahora',
-  estoqueRenovar: 'Vale renovar la receta',
+  estoqueRenovar: 'Conviene renovar la receta',
   estoqueEmDia: 'Existencias al día',
 
   /* ⚠️ EL LADO VA ABREVIADO Y ENTRE PARÉNTESIS porque estos rótulos
@@ -269,7 +273,7 @@ export const tratamento = {
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} vence antes de acabarse`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
-      `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Vale confirmar con quien te acompaña qué hacer con lo que sobre.`,
+      `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Conviene confirmar con quien te acompaña qué hacer con lo que sobre.`,
 
     momentoDeRenovar: 'Momento de pedir la renovación',
     renovarTexto: (semanas: number) =>
@@ -289,10 +293,10 @@ export const tratamento = {
     hoje: 'hoy',
     emDias: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'}`,
     restamDoses: (restam: number) => (restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`),
-    acabou: (outroRecipiente: string) => `Se acabó — vale abrir ${outroRecipiente}`,
+    acabou: (outroRecipiente: string) => `Se acabó — conviene abrir ${outroRecipiente}`,
     seloFim: 'fin',
     registrarOutro: (outroRecipiente: string) => `Registrar ${outroRecipiente}`,
-    voltarParaJornada: 'Volver al Recorrido',
+    voltarParaJornada: (aba: string) => `Volver al ${aba}`,
   },
 
   telaRecipienteNovo: {
@@ -346,7 +350,7 @@ export const tratamento = {
     naoUsado: 'Todavía sin usar en este tratamiento.',
     usadoEstaSemana: 'Usado esta semana.',
     descansandoHa: (semanas: number) =>
-      `Descansando hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}.`,
+      `Descansando desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}.`,
     eOProximo: 'Es el próximo de la rotación.',
     foraDaRotacao: 'Fuera de la rotación sugerida — sin problema, es solo un recordatorio.',
 

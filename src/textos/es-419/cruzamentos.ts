@@ -136,7 +136,7 @@ export const cruzamentos = {
     q: '¿Cómo disminuir las náuseas?',
     evid: (diferenca: string) =>
       ({ valor: `−${diferenca}`, unidade: 'de náuseas', legenda: 'en los días bien hidratados' }),
-    significa: 'De todo lo que aparece ligado a tus náuseas, el agua es lo que está más en tu mano. No sustituye conversar con tu equipo si aprietan, pero es lo primero que vale probar antes.',
+    significa: 'De todo lo que aparece ligado a tus náuseas, el agua es lo que está más en tu mano. No sustituye conversar con tu equipo si aprietan, pero es lo primero que conviene probar.',
   },
 
   /* ⚠️ ESTE ES EL HALLAZGO QUE EVITA EL ABANDONO, y por eso existe. La
@@ -147,7 +147,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balanza subió ${altas} veces y aun así perdiste ${perdido}`,
     texto: (pesagens: number, altas: number) =>
-      `En ${pesagens} pesajes, ${altas} vinieron arriba del anterior — y la línea del tramo sigue bajando. Una semana de alza no es recaída: es ruido de agua e intestino dentro de una tendencia.`,
+      `En ${pesagens} pesajes, ${altas} estuvieron por encima del anterior — y la línea que los atraviesa sigue bajando. Una semana de alza no es recaída: es ruido de agua e intestino dentro de una tendencia.`,
     q: '¿Cómo va mi evolución?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'alzas', legenda: `dentro de −${perdido} en el tramo` }),
@@ -161,12 +161,12 @@ export const cruzamentos = {
     textoSubiu: (depois: number, antes: number) =>
       `Promedio de ${depois} g/día en las últimas semanas, contra ${antes} g al inicio. La proteína preserva la masa magra durante la pérdida de peso.`,
     textoCaiu: (depois: number, antes: number) =>
-      `Promedio de ${depois} g/día en las últimas semanas, contra ${antes} g antes. Vale retomarla — la masa magra sostiene el metabolismo.`,
+      `Promedio de ${depois} g/día en las últimas semanas, contra ${antes} g antes. Conviene retomarla — la masa magra sostiene el metabolismo.`,
     q: '¿Cómo va mi proteína?',
     evid: (pct: number, antes: number, depois: number) =>
       ({ valor: `${pct > 0 ? '+' : ''}${pct}%`, unidade: '', legenda: `${antes} → ${depois} g por día` }),
     significaSubiu: 'Subió sin que te lo propusieras, que suele ser el tipo de hábito que se queda. La proteína es lo que protege tu masa magra mientras el peso baja — sin ella, parte de lo que desaparece no es grasa.',
-    significaCaiu: 'La caída fue gradual, del tipo que no se percibe de un día para el otro. La proteína es lo que protege tu masa magra mientras el peso baja; vale retomarla antes de que se vuelva lo normal.',
+    significaCaiu: 'La caída fue gradual, del tipo que no se percibe de un día para el otro. La proteína es lo que protege tu masa magra mientras el peso baja; conviene retomarla antes de que se vuelva lo normal.',
   },
 
   /* ⚠️ ESTOS DOS DESCRIBEN UN NÚMERO QUE LA PERSONA YA VE EN EL INICIO, y
@@ -182,7 +182,7 @@ export const cruzamentos = {
        Un ritmo demasiado rápido o demasiado lento es conversación de
        consulta, y la tarjeta para exactamente ahí. */
     textoAtencao: (perdido: string, semanas: number) =>
-      `${perdido} en ${semanas} semanas. Vale comentar el ritmo con tu equipo en la próxima consulta.`,
+      `${perdido} en ${semanas} semanas. Conviene comentar el ritmo con tu equipo en la próxima consulta.`,
     q: '¿Cómo va mi evolución?',
     evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
       ({ valor: ritmo, unidade: `${unidade}/sem`, legenda: `${perdido} en ${semanas} semanas` }),

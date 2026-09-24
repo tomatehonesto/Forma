@@ -299,7 +299,7 @@ export const tratamento = {
     acabou: (outroRecipiente: string) => `Terminé — il vaut mieux ouvrir ${outroRecipiente}`,
     seloFim: 'fini',
     registrarOutro: (outroRecipiente: string) => `Enregistrer ${outroRecipiente}`,
-    voltarParaJornada: 'Retour au Parcours',
+    voltarParaJornada: (aba: string) => `Retour au ${aba}`,
   },
 
   telaRecipienteNovo: {

@@ -34,7 +34,7 @@ export const leituras = {
   /* ⚠️ "CASI SIEMPRE NO ES NADA GRAVE — Y POR ESO MISMO VALE MIRARLO
      TEMPRANO" es la frase entera. Pide atención sin asustar, y el "por eso
      mismo" es lo que impide que la lectura se vuelva alarma. */
-  dorTexto: 'Un dolor fuerte en la panza, o que no pasa, pide atención el mismo día. Casi siempre no es nada grave — y por eso mismo vale mirarlo temprano.',
+  dorTexto: 'Un dolor fuerte en la panza, o que no pasa, pide atención el mismo día. Casi siempre no es nada grave — y por eso mismo conviene mirarlo temprano.',
   dorAcao: 'Habla hoy con tu equipo. Si empeora o viene con vómito, busca atención.',
 
   vomitoSobre: 'Vómito',
@@ -124,7 +124,7 @@ export const leituras = {
   presoSemanaCurto: 'toma agua, come fibra y camina',
   presoSemanaTitulo: 'El intestino está lento toda la semana',
   presoSemanaTexto: (n: number) => `${n} de los últimos siete días con el intestino estreñido. Comer menos es efecto del medicamento, y con menos comida pasa menos fibra — él lo siente antes que la balanza.`,
-  presoSemanaAcao: 'Agua, fibra y caminata ayudan. A este ritmo, vale contárselo a tu equipo.',
+  presoSemanaAcao: 'Agua, fibra y caminata ayudan. A este ritmo, conviene contárselo a tu equipo.',
 
   /* ⚠️ LOS HITOS SE INDEXAN POR EL NÚMERO DE DÍAS, y la clave es el número
      porque quien pregunta es la racha: `marcoDe(7)`. Traducir el valor no

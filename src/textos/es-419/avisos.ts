@@ -16,7 +16,7 @@ export const avisos = {
   doseHoje: 'Tu inyección es hoy',
   doseHojeCorpo: (dose: string) => `${dose}. Cuando puedas, regístrala aquí.`,
   doseAmanha: 'Tu inyección es mañana',
-  doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Vale dejar ${oRecipiente} a la vista.`,
+  doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Conviene dejar ${oRecipiente} a la vista.`,
   doseEmDias: (dias: number) => `Tu inyección es en ${dias} días`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Da tiempo de revisar cuánto queda ${doRecipiente}.`,
 

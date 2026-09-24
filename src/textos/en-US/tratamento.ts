@@ -294,7 +294,7 @@ export const tratamento = {
     acabou: (outroRecipiente: string) => `Empty — worth opening ${outroRecipiente}`,
     seloFim: 'empty',
     registrarOutro: (outroRecipiente: string) => `Log ${outroRecipiente}`,
-    voltarParaJornada: 'Back to Journey',
+    voltarParaJornada: (aba: string) => `Back to ${aba}`,
   },
 
   telaRecipienteNovo: {
