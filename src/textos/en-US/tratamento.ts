@@ -262,12 +262,11 @@ export const tratamento = {
     validadeApos: (aberto: string) => `Shelf life once ${aberto}`,
     validadeDias: (dias: number) => `${dias} days`,
     validadeNaoInformada: 'not given',
-    venceEm: (data: string) => `expires ${data}`,
+    venceEm: 'Expires on',
     quemPreparaDefine: 'whoever compounds it sets the limit',
 
-    receitaAtual: 'Current prescription',
+    receitaAte: 'Prescription until',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
-    receitaCobreAte: (data: string) => `covers until ${data}`,
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} expires before it runs out`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>

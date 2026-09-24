@@ -82,18 +82,33 @@ export default function Caneta() {
             recipiente fica sem — o cartão diz isso com todas as letras em
             vez de mostrar "0 dias", que seria o aplicativo afirmando que a
             coisa venceu no dia em que foi aberta. */}
+        {/* ⚠️⚠️ OS DOIS CARTÕES SÃO SOBRE DATAS, e escreviam frases.
+
+            `para` sai em semibold e corpo de título — é o lugar do VALOR.
+            Aqui ia "vence 4 out" e "cobre até 4 out": frases inteiras
+            nesse peso, que quebravam em duas linhas e faziam os dois
+            cartões vizinhos parecerem desalinhados. O verbo subiu para o
+            rótulo, onde ele sempre coube, e embaixo ficou a data sozinha.
+
+            ⚠️ SEM PRAZO CONHECIDO O CARTÃO MUDA DE ASSUNTO. Ele deixa de
+            ser sobre uma data — não há —, e passa a ser sobre a ausência
+            dela: o rótulo volta a falar da validade, o valor é "não
+            informada" com todas as letras, e a nota diz de quem é a
+            resposta. "0 dias" ou um travessão seriam o aplicativo
+            afirmando que a coisa venceu no dia em que foi aberta. */}
         <Metrica
           ic="clock"
-          nome={K().validadeApos(aberto)}
-          selo={k.validadeDias ? K().validadeDias(k.validadeDias) : K().validadeNaoInformada}
+          nome={k.vence ? K().venceEm : K().validadeApos(aberto)}
+          selo={k.validadeDias ? K().validadeDias(k.validadeDias) : undefined}
           seloTom="neutra"
-          para={k.vence ? K().venceEm(fmtDate(k.vence)) : K().quemPreparaDefine}
+          para={k.vence ? fmtDate(k.vence) : K().validadeNaoInformada}
+          nota={k.vence ? undefined : K().quemPreparaDefine}
         />
         <Metrica
           ic="pill"
-          nome={K().receitaAtual}
+          nome={K().receitaAte}
           selo={K().receitaSemanas(Math.round(k.semanas))}
-          para={K().receitaCobreAte(fmtDate(k.cobreAte))}
+          para={fmtDate(k.cobreAte)}
         />
       </Grade2>
 

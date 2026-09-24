@@ -392,12 +392,14 @@ export const tratamento = {
     validadeApos: (aberto: string) => `Validade após ${aberto}`,
     validadeDias: (dias: number) => `${dias} dias`,
     validadeNaoInformada: 'não informada',
-    venceEm: (data: string) => `vence ${data}`,
+    /* ⚠️ RÓTULO, E NÃO FRASE. Era `vence ${data}` e ia no VALOR do
+       cartão, em semibold — ver a nota em app/caneta. O verbo é do
+       rótulo; o valor é a data. */
+    venceEm: 'Vence em',
     quemPreparaDefine: 'quem prepara define o prazo',
 
-    receitaAtual: 'Receita atual',
+    receitaAte: 'Receita até',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
-    receitaCobreAte: (data: string) => `cobre até ${data}`,
 
     /* O recipiente pode vencer antes de a última dose sair dele — com 14
        dias de validade e quatro doses semanais isso é a regra, não a

@@ -264,12 +264,11 @@ export const tratamento = {
     validadeApos: (aberto: string) => `Validité une fois ${aberto}`,
     validadeDias: (dias: number) => `${dias} jours`,
     validadeNaoInformada: 'non renseignée',
-    venceEm: (data: string) => `expire ${data}`,
+    venceEm: 'Expire le',
     quemPreparaDefine: 'la personne qui le prépare fixe le délai',
 
-    receitaAtual: 'Ordonnance en cours',
+    receitaAte: 'Ordonnance jusqu’au',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
-    receitaCobreAte: (data: string) => `couvre jusqu’au ${data}`,
 
     /* ⚠️ « avant d’être fini » s’accorde, et le conteneur peut être
        féminin : « la plaquette … fini » était faux. La phrase a été

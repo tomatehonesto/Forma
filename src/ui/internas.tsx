@@ -827,9 +827,17 @@ export function Chips({ itens, valor, onChange }: {
 /* Métrica — o cartão pequeno da grade 2×2. Ícone e selo em cima, nome no
    meio, de-onde-para-onde embaixo: o valor atual em destaque e o inicial
    recuado, porque a comparação é o assunto, não o número solto. */
-export function Metrica({ ic, selo, seloTom, nome, de, para, onPress }: {
+/* ⚠️ O QUE VAI EM `para` É UM VALOR, E NÃO UMA FRASE. Ele sai em corpo
+   de título e semibold — é o número que o cartão existe para mostrar —, e
+   uma frase inteira nesse peso vira manchete: ela quebra em duas linhas,
+   pesa mais que o rótulo acima e faz dois cartões lado a lado parecerem
+   desalinhados. Quem precisa de palavra usa `nome`, em cima, ou `nota`.
+
+   `nota` é a linha pequena embaixo do valor, para o caso em que o valor
+   sozinho não se explica — "não informada", e embaixo por quê. */
+export function Metrica({ ic, selo, seloTom, nome, de, para, nota, onPress }: {
   ic: string; selo?: string; seloTom?: SeloTom; nome: string;
-  de?: string; para: string; onPress?: () => void;
+  de?: string; para: string; nota?: string; onPress?: () => void;
 }) {
   const { c } = useTheme();
   const corpo = (
@@ -843,6 +851,9 @@ export function Metrica({ ic, selo, seloTom, nome, de, para, onPress }: {
         {de ? `${de} › ` : ''}
         <Txt v="title" style={{ fontFamily: font.bodySemi }}>{para}</Txt>
       </Txt>
+      {nota ? (
+        <Txt v="micro" c={c.tx3} style={{ marginTop: -4, lineHeight: 15 }}>{nota}</Txt>
+      ) : null}
     </View>
   );
   if (!onPress) return corpo;

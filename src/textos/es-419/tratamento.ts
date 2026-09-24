@@ -260,12 +260,11 @@ export const tratamento = {
     validadeApos: (aberto: string) => `Validez después de ${aberto}`,
     validadeDias: (dias: number) => `${dias} días`,
     validadeNaoInformada: 'sin informar',
-    venceEm: (data: string) => `vence ${data}`,
+    venceEm: 'Vence el',
     quemPreparaDefine: 'quien la prepara define el plazo',
 
-    receitaAtual: 'Receta actual',
+    receitaAte: 'Receta hasta',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
-    receitaCobreAte: (data: string) => `cubre hasta ${data}`,
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} vence antes de acabarse`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>

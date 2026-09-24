@@ -310,12 +310,11 @@ export const tratamento = {
     validadeApos: (_aberto: string) => 'Haltbarkeit nach dem Öffnen',
     validadeDias: (dias: number) => `${dias} Tage`,
     validadeNaoInformada: 'nicht angegeben',
-    venceEm: (data: string) => `läuft ab ${data}`,
+    venceEm: 'Läuft ab am',
     quemPreparaDefine: 'wer es zubereitet, setzt die Frist',
 
-    receitaAtual: 'Aktuelles Rezept',
+    receitaAte: 'Rezept bis',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
-    receitaCobreAte: (data: string) => `deckt bis ${data}`,
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} läuft ab, bevor alles verbraucht ist`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>

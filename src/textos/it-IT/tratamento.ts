@@ -366,12 +366,11 @@ export const tratamento = {
     validadeApos: (aberto: string) => `Validità dopo ${aberto}`,
     validadeDias: (dias: number) => `${dias} giorni`,
     validadeNaoInformada: 'non indicata',
-    venceEm: (data: string) => `scade il ${data}`,
+    venceEm: 'Scade il',
     quemPreparaDefine: 'il termine lo decide chi la prepara',
 
-    receitaAtual: 'Ricetta attuale',
+    receitaAte: 'Ricetta fino al',
     receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
-    receitaCobreAte: (data: string) => `copre fino al ${data}`,
 
     /* Il contenitore può scadere prima che ne esca l'ultima dose — con 14
        giorni di validità e quattro dosi settimanali questa è la regola,
