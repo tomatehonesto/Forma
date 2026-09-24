@@ -12,7 +12,7 @@ import {
   medComDose, fichaDe,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
-import { fmtDate, diasDaSemana } from '../../logic/time';
+import { fmtDate, diasDaSemana, MO } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { temRedeParceira } from '../../logic/pais';
@@ -608,10 +608,17 @@ function Consulta() {
   }
 
   const go = (to: string) => () => router.push(to as any);
-  /* fmtDate devolve "14 ago" — dia e mês separados por espaço, não por
-     barra. O bloco de calendário quer as duas metades soltas. */
+  /* ⚠️⚠️ O MÊS VEM DA TABELA, E VINHA DE DESMONTAR UMA DATA PRONTA.
+
+     O código partia `fmtDate` no espaço e pegava a segunda metade,
+     contando com "14 ago" — dia primeiro. Isso vale em cinco idiomas e
+     quebra no sexto: em inglês `fmtDate` dá "Oct 3", a segunda metade é
+     o DIA, e o bloco de calendário mostrava "3" em cima de "3".
+
+     Formatar e depois desmontar é apostar na ordem que outro arquivo
+     escolheu. O mês curto já existe solto, em `MO()`. */
   const dia = cs.data.getDate();
-  const mes = (fmtDate(cs.data).split(' ')[1] ?? '').toUpperCase();
+  const mes = MO()[cs.data.getMonth()].toUpperCase();
 
   return (
     <View style={{ marginTop: 36 }}>
