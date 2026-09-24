@@ -58,8 +58,12 @@ export const conquistas = {
   titulacaoDesc: (a: string) => `Llegar a la dosis de ${a}`,
   titulacaoFalta: (a: string) => `Próxima: ${a}`,
 
-  /* ⚠️ EL PESO LLEGA YA ESCRITO, en la unidad de quien lee. */
-  kg: 'Kilos de menos',
+  /* ⚠️ EL PESO LLEGA YA ESCRITO, en la unidad de quien lee.
+
+     ⚠️⚠️ Y POR ESO EL TÍTULO NO DICE LA UNIDAD: "Kilos de menos" sobre
+     un valor en libras es la pantalla contradiciéndose. Las razones
+     están en ../pt-BR/conquistas.ts. */
+  kg: 'Peso de menos',
   kgDesc: (peso: string) => `${peso} abajo del peso inicial`,
   kgFalta: (peso: string) => `Faltan ${peso}`,
 
@@ -118,7 +122,8 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'medición', 'mediciones')} registrada${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Faltan ${p(r, 'medición', 'mediciones')}`,
 
-  cintura: 'Centímetros de cintura',
+  /* ⚠️ SIN UNIDAD EN EL TÍTULO, por lo mismo que en la de peso. */
+  cintura: 'Cintura',
   cinturaDesc: (comp: string) => `${comp} menos de cintura`,
   cinturaFalta: (comp: string) => `Faltan ${comp}`,
 

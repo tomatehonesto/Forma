@@ -70,8 +70,12 @@ export const conquistas = {
 
   /* ---------------- peso ---------------- */
   /* ⚠️ IL PESO ARRIVA GIÀ SCRITTO, nell'unità di chi legge — "4,4 lb sotto
-     il peso iniziale". Vedi logic/medidas. */
-  kg: 'Chili in meno',
+     il peso iniziale". Vedi logic/medidas.
+
+     ⚠️⚠️ E PER QUESTO IL TITOLO NON DICE L'UNITÀ. "Chili in meno" sopra
+     un valore in libbre è lo schermo che si contraddice. Le ragioni
+     stanno in ../pt-BR/conquistas.ts. */
+  kg: 'Peso in meno',
   kgDesc: (peso: string) => `${peso} sotto il peso iniziale`,
   kgFalta: (peso: string) => `Mancano ${peso}`,
 
@@ -136,7 +140,8 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'misurazione', 'misurazioni')} registrat${a === 1 ? 'a' : 'e'}`,
   medidasFalta: (r: number) => `Mancano ${p(r, 'misurazione', 'misurazioni')}`,
 
-  cintura: 'Centimetri di vita',
+  /* ⚠️ NIENTE UNITÀ NEL TITOLO, per la stessa ragione del peso. */
+  cintura: 'Vita',
   cinturaDesc: (comp: string) => `${comp} in meno sulla vita`,
   cinturaFalta: (comp: string) => `Mancano ${comp}`,
 

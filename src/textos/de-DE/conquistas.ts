@@ -76,8 +76,12 @@ export const conquistas = {
 
   /* ---------------- Gewicht ---------------- */
   /* ⚠️ DAS GEWICHT KOMMT FERTIG GESCHRIEBEN AN, in der Einheit derjenigen,
-     die liest — „4,4 lb unter dem Startgewicht“. Siehe logic/medidas. */
-  kg: 'Kilos weniger',
+     die liest — „4,4 lb unter dem Startgewicht“. Siehe logic/medidas.
+
+     ⚠️⚠️ UND DESHALB NENNT DER TITEL KEINE EINHEIT. „Kilos weniger“
+     über einem Wert in Pfund ist der Bildschirm, der sich selbst
+     widerspricht. Die Gründe stehen in ../pt-BR/conquistas.ts. */
+  kg: 'Gewicht weniger',
   kgDesc: (peso: string) => `${peso} unter dem Startgewicht`,
   kgFalta: (peso: string) => `Noch ${peso}`,
 
@@ -147,7 +151,8 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'Messung', 'Messungen')} eingetragen`,
   medidasFalta: (r: number) => `Noch ${p(r, 'Messung', 'Messungen')}`,
 
-  cintura: 'Zentimeter Taille',
+  /* ⚠️ KEINE EINHEIT IM TITEL, aus demselben Grund wie beim Gewicht. */
+  cintura: 'Taille',
   cinturaDesc: (comp: string) => `${comp} weniger an der Taille`,
   cinturaFalta: (comp: string) => `Noch ${comp}`,
 

@@ -64,8 +64,12 @@ export const conquistas = {
   titulacaoDesc: (a: string) => `Atteindre la dose de ${a}`,
   titulacaoFalta: (a: string) => `Prochaine : ${a}`,
 
-  /* ⚠️ LE POIDS ARRIVE DÉJÀ ÉCRIT, dans l'unité de qui lit. */
-  kg: 'Kilos en moins',
+  /* ⚠️ LE POIDS ARRIVE DÉJÀ ÉCRIT, dans l'unité de qui lit.
+
+     ⚠️⚠️ ET C'EST POURQUOI LE TITRE NE NOMME PAS L'UNITÉ : « Kilos en
+     moins » au-dessus d'une valeur en livres, c'est l'écran qui se
+     contredit. Les raisons sont dans ../pt-BR/conquistas.ts. */
+  kg: 'Poids en moins',
   kgDesc: (peso: string) => `${peso} en dessous du poids de départ`,
   kgFalta: (peso: string) => `Il manque ${peso}`,
 
@@ -125,7 +129,8 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'mesure')} notée${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Il manque ${p(r, 'mesure')}`,
 
-  cintura: 'Centimètres de tour de taille',
+  /* ⚠️ PAS D'UNITÉ DANS LE TITRE, pour la même raison que le poids. */
+  cintura: 'Tour de taille',
   cinturaDesc: (comp: string) => `${comp} de moins au tour de taille`,
   cinturaFalta: (comp: string) => `Il manque ${comp}`,
 

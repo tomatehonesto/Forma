@@ -63,8 +63,15 @@ export const conquistas = {
 
   /* ---------------- peso ---------------- */
   /* ⚠️ O PESO CHEGA JÁ ESCRITO, na unidade de quem lê — "4,4 lb abaixo do
-     peso inicial". Ver logic/medidas. */
-  kg: 'Quilos a menos',
+     peso inicial". Ver logic/medidas.
+
+     ⚠️⚠️ E POR ISSO O TÍTULO NÃO DIZ A UNIDADE. "Quilos a menos" em cima
+     de um valor em libra é a tela se contradizendo — e "Pounds down" em
+     cima de um valor em quilo é o mesmo erro pelo outro lado. Os seis
+     idiomas tinham um dos dois. A unidade é escolha de quem lê, e quem a
+     escreve é o valor; o título nomeia a grandeza, que não muda de
+     sistema. Vale igual para a cintura, lá embaixo. */
+  kg: 'Peso a menos',
   kgDesc: (peso: string) => `${peso} abaixo do peso inicial`,
   kgFalta: (peso: string) => `Faltam ${peso}`,
 
@@ -129,7 +136,9 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Faltam ${p(r, 'medição', 'medições')}`,
 
-  cintura: 'Centímetros de cintura',
+  /* ⚠️ SEM UNIDADE NO TÍTULO, pelo mesmo motivo da conquista de peso: o
+     valor chega em centímetro ou em polegada, conforme quem lê. */
+  cintura: 'Cintura',
   cinturaDesc: (comp: string) => `${comp} a menos na cintura`,
   cinturaFalta: (comp: string) => `Faltam ${comp}`,
 

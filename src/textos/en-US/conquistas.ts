@@ -57,7 +57,13 @@ export const conquistas = {
   titulacaoFalta: (a: string) => `Next: ${a}`,
 
   /* ---------------- weight ---------------- */
-  kg: 'Pounds down',
+  /* ⚠️ THE WEIGHT ARRIVES ALREADY WRITTEN, in the unit of whoever is
+     reading — "5.0 kg below your starting weight". See logic/medidas.
+
+     ⚠️⚠️ WHICH IS WHY THE TITLE NAMES NO UNIT. "Pounds down" over a
+     value in kilos was this screen contradicting itself, for every
+     reader on metric. Reasons in ../pt-BR/conquistas.ts. */
+  kg: 'Weight down',
   kgDesc: (peso: string) => `${peso} below your starting weight`,
   kgFalta: (peso: string) => `${peso} to go`,
 
@@ -122,7 +128,8 @@ export const conquistas = {
   medidasDesc: (a: number) => `${p(a, 'measurement')} logged`,
   medidasFalta: (r: number) => `${p(r, 'measurement')} to go`,
 
-  cintura: 'Inches off your waist',
+  /* ⚠️ NO UNIT IN THE TITLE, same reason as the weight track. */
+  cintura: 'Waist',
   cinturaDesc: (comp: string) => `${comp} off your waist`,
   cinturaFalta: (comp: string) => `${comp} to go`,
 
