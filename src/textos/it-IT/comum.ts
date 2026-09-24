@@ -20,6 +20,11 @@
    francese, annotata in ../fr-FR/cadastro.ts.
    ============================================================ */
 
+/* ⚠️ LA « D » EUFONICA. Davanti a una parola che comincia per « e », la
+   congiunzione diventa « ed »: « ricetta ed esami », non « ricetta e
+   esami ». Davanti alle altre vocali l'uso moderno la lascia cadere. */
+export const ed = (s: string) => (/^[eèé]/i.test(s) ? 'ed' : 'e');
+
 export const comum = {
   /* ⚠️ LA MINUSCOLA IN MEZZO ALLA FRASE È REGOLA DI LINGUA. In italiano
      vale come in portoghese: il nome comune perde la maiuscola quando
@@ -47,7 +52,7 @@ export const comum = {
     if (!itens.length) return '';
     if (itens.length === 1) return itens[0];
     if (itens.length <= mostrar) {
-      return `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`;
+      return `${itens.slice(0, -1).join(', ')} ${ed(itens[itens.length - 1])} ${itens[itens.length - 1]}`;
     }
     return `${itens.slice(0, mostrar).join(', ')} e altri ${itens.length - mostrar}`;
   },

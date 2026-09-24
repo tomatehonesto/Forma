@@ -187,8 +187,8 @@ export const cuidado = {
     enviarPrimeira: 'Invia il primo messaggio',
 
     /* ---------- che cosa chiede la tua attenzione ---------- */
-    precisaDeVoce: 'Chiede la tua attenzione',
-    nadaPrecisa: 'Adesso non c’è niente che chieda la tua attenzione.',
+    precisaDeVoce: 'Dipende da te',
+    nadaPrecisa: 'Adesso non c’è niente che dipenda da te.',
     emDia: 'Il tuo monitoraggio è in ordine.',
 
     /* ---------- la visita ---------- */

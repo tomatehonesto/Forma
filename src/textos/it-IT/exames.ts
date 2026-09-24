@@ -44,9 +44,9 @@ export const exames = {
        Arriva con la virgola perché si attacca alla frase dopo. */
     desde: (data: string) => ` Dal ${data},`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} un marcatore si è mosso nella direzione attesa, e il cambiamento più grande è stato in ${qual}: da ${de} a ${para} ${unidade}.`,
+      `${desde} un marcatore si è mosso nella direzione attesa. Il cambiamento più grande: ${qual}, da ${de} a ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} ${quantos} marcatori si sono mossi nella direzione attesa, e il cambiamento più grande è stato in ${qual}: da ${de} a ${para} ${unidade}.`,
+      `${desde} ${quantos} marcatori si sono mossi nella direzione attesa. Il cambiamento più grande: ${qual}, da ${de} a ${para} ${unidade}.`,
 
     /* ⚠️ IL PEGGIORAMENTO ARRIVA NELLA STESSA FRASE E CON LO STESSO PESO
        DEL MIGLIORAMENTO. Un riassunto che racconta solo quello che è
@@ -140,10 +140,10 @@ export const exames = {
   tela: {
     titulo: 'Esami',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marcatore' : 'marcatori'} · ultimo prelievo ${ultimaColeta}`,
-    foraDaReferencia: 'fuori dai valori di riferimento',
+      `${quantos} ${quantos === 1 ? 'marcatore' : 'marcatori'} · ultimo prelievo del ${ultimaColeta}`,
+    foraDaReferencia: 'fuori norma',
     naReferencia: 'nella norma',
-    blocoFora: 'Fuori dai valori di riferimento',
+    blocoFora: 'Fuori norma',
     arquivosImportados: 'File importati',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marcatori · ${fonte} · ${data}`,

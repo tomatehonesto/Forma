@@ -29,7 +29,7 @@ export const home = {
      cosa è la scheda.
      ============================================================ */
   metas: {
-    proteina: 'Proteine da mangiare',
+    proteina: 'Assunzione di proteine',
     agua: 'Bere più acqua',
     exercicio: 'Muoversi ogni giorno',
     batida: 'Obiettivo raggiunto',
@@ -243,7 +243,7 @@ export const home = {
     indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'indicatore' : 'indicatori'}`,
     feitasDeTotal: (feitas: number, total: number) => `${feitas} di ${total}`,
 
-    semRegistro: 'nessun registro',
+    semRegistro: 'nessuna registrazione',
     semQueixas: 'nessun disturbo nella settimana',
     /* Il sintomo arriva con il suo nome; la maiuscola è regola di
        lingua. */
@@ -263,7 +263,7 @@ export const home = {
     evolucao: 'Andamento',
     suasMetas: 'I tuoi obiettivi',
     metas: 'Obiettivi',
-    oDiaADia: 'Il giorno per giorno',
+    oDiaADia: 'Giorno per giorno',
     seuTratamento: 'La tua terapia',
     verTudo: 'Vedi tutto',
 
@@ -553,7 +553,7 @@ export const home = {
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prevista per oggi',
-    semRegistroMinusculo: 'nessun registro',
+    semRegistroMinusculo: 'nessuna registrazione',
 
     /* Il metro e il numero nella stessa frase, con il suo massimo:
        l'energia arriva a dieci e l'umore a cinque, e a saperlo è chi

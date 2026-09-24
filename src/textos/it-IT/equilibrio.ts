@@ -18,6 +18,36 @@
    condizionale, prima persona, un suggerimento su dove guardare.
    ============================================================ */
 
+import { ed } from './comum';
+
+/* ⚠️⚠️ L'ASSE DA SOLO VUOLE L'ARTICOLO, E L'ACCORDO. Il nome arriva in
+   variabile e gli otto non hanno lo stesso genere: Sonno, Umore e
+   Movimento sono maschili, gli altri femminili, e Proteine è anche
+   plurale. C'era « nemmeno movimento è rimasta indietro » — articolo
+   mancante e participio femminile fisso — e « Movimento è quella che
+   oscilla », con lo stesso « quella » per tutti.
+
+   La frase sull'asse debole è girata al contrario, « A oscillare di più è
+   il movimento », perché così l'unico accordo rimasto è il verbo, che la
+   tabella sa. */
+const ASSE: Record<string, { il: string; f: boolean; pl?: boolean }> = {
+  Sonno: { il: 'il sonno', f: false },
+  Energia: { il: 'l’energia', f: true },
+  Umore: { il: 'l’umore', f: false },
+  Idratazione: { il: 'l’idratazione', f: true },
+  Movimento: { il: 'il movimento', f: false },
+  Proteine: { il: 'le proteine', f: true, pl: true },
+  Sazietà: { il: 'la sazietà', f: true },
+  Aderenza: { il: 'l’aderenza', f: true },
+};
+const il = (eixo: string) => ASSE[eixo]?.il ?? eixo.toLowerCase();
+const essere = (eixo: string) => (ASSE[eixo]?.pl ? 'sono' : 'è');
+const rimasto = (eixo: string) => {
+  const a = ASSE[eixo];
+  if (!a) return 'rimasto';
+  return a.pl ? (a.f ? 'rimaste' : 'rimasti') : (a.f ? 'rimasta' : 'rimasto');
+};
+
 export const equilibrio = {
   /* ============================================================
      GLI OTTO ASSI
@@ -65,12 +95,12 @@ export const equilibrio = {
      In tedesco il sostantivo non scende in minuscolo; in inglese la "and"
      qui non vuole la virgola. Chi traduce cambia QUESTA funzione, non il
      resto. */
-  par: (primeiro: string, segundo: string) => `${primeiro} e ${segundo.toLowerCase()}`,
+  par: (primeiro: string, segundo: string) => `${primeiro} ${ed(segundo)} ${segundo.toLowerCase()}`,
 
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
-    `${doisFortes} tirano su, e nemmeno ${fraco.toLowerCase()} è rimasta indietro. Per ora non cambierei niente.`,
+    `${doisFortes} tirano su, e nemmeno ${il(fraco)} ${essere(fraco)} ${rimasto(fraco)} indietro. Per ora non cambierei niente.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
-    `${doisFortes} sono costanti. ${fraco} è quella che oscilla di più — sarebbe il mio punto d’attenzione per la settimana prossima.`,
+    `${doisFortes} sono costanti. A oscillare di più ${essere(fraco)} ${il(fraco)} — sarebbe il mio punto d’attenzione per la settimana prossima.`,
 
   /* ============================================================
      IL PULSANTE E LA DOMANDA — la stessa frase, di proposito
@@ -79,8 +109,8 @@ export const equilibrio = {
      pulsante e la domanda inviata divergono, la persona tocca una cosa e
      riceve la risposta di un'altra.
      ============================================================ */
-  botaoMelhorar: (eixo: string) => `Come migliorare ${eixo.toLowerCase()}`,
-  perguntaMelhorar: (eixo: string) => `Come migliorare ${eixo.toLowerCase()}?`,
+  botaoMelhorar: (eixo: string) => `Come migliorare ${il(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Come migliorare ${il(eixo)}?`,
 
   /* Il cappello del grafico a barre: l'asse in maiuscolo e quanti giorni
      copre la serie. È qui perché anche `toUpperCase()` è operazione di

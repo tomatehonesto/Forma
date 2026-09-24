@@ -77,7 +77,7 @@ export const rotina = {
 
     consulta: 'Prepara le tue domande per la visita',
     consultaPorque: (tipo: string, doutor: string) =>
-      `${tipo} con ${doutor} — il riepilogo lo costruisco io, tu scegli che cosa chiedere`,
+      `${tipo} con ${doutor} — il riepilogo lo preparo io, tu scegli che cosa chiedere`,
   },
 
   /* ⚠️ L'ETICHETTA DEL GRUPPO ESCE DALLA SCADENZA, E LA SCADENZA ESCE DAL
@@ -134,7 +134,7 @@ export const rotina = {
     aguaMeta: (quanto: string) => `Bere ${quanto} tutti i giorni`,
     proteinaMeta: (gramas: number) => `Mangiare ${gramas} g di proteine tutti i giorni`,
     exercicioMeta: (dias: number) => `Muoversi in ${dias} giorni della settimana`,
-    semRegistro: 'nessun registro nella settimana',
+    semRegistro: 'nessuna registrazione nella settimana',
     mediaDeAgua: (quanto: string) => `media di ${quanto} al giorno`,
     mediaDeProteina: (gramas: number) => `media di ${gramas} g al giorno`,
     minutosNaSemana: (minutos: number) => `${minutos} min nella settimana`,

@@ -169,7 +169,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La bilancia è salita ${altas} volte e hai perso ${perdido} lo stesso`,
     texto: (pesagens: number, altas: number) =>
-      `Su ${pesagens} pesate, ${altas} sono arrivate sopra la precedente — e la linea di fondo continua a scendere. Una settimana in salita non è una ricaduta: è rumore di acqua e intestino dentro una tendenza.`,
+      `Su ${pesagens} pesate, ${altas} erano più alte della precedente — e la tendenza di fondo continua a scendere. Una settimana in salita non è una ricaduta: è rumore di acqua e intestino dentro una tendenza.`,
     q: 'Come sta andando in generale?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'salite', legenda: `dentro a −${perdido} nel tratto` }),
