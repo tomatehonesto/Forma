@@ -790,7 +790,7 @@ export default function Jornada() {
               {!todasSemanas && semanas.length > FEED_SEMANAS && (
                 <Pressable onPress={() => setTodasSemanas(true)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                   <Row gap={6} style={{ justifyContent: 'center', paddingVertical: 16 }}>
-                    <Txt v="label" c={c.accent2}>Ver as {semanas.length} semanas</Txt>
+                    <Txt v="label" c={c.accent2}>{K().verAsSemanas(semanas.length)}</Txt>
                     <Icon name="chevdown" size={14} color={c.accent2} sw={2.2} />
                   </Row>
                 </Pressable>

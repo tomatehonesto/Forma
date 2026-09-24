@@ -440,6 +440,35 @@ export const tratamento = {
      ⚠️ E A ORDINAL DA DOSE É DE CADA IDIOMA — "3ª dose" no português,
      "3. Dosis" no alemão, "3rd dose" no inglês.
      ============================================================ */
+  /* ============================================================
+     A CONFIRMAÇÃO DA DOSE
+
+     ⚠️⚠️ ELA ERA A FOLHA MAIS VISÍVEL AINDA EM PORTUGUÊS — aparece depois
+     de TODA dose registrada —, e uma das frases saía metade em cada
+     idioma: o título era `${vocab.acao} registrada`, com o substantivo
+     traduzido por FORMAS e o particípio escrito no código. Em inglês
+     dava "Shot registrada".
+
+     ⚠️ E AS PALAVRAS DE CONCORDÂNCIA MORAVAM NO SÍTIO DE CHAMADA, em
+     português: `concordar(forma, 'novo', 'nova')`, `'próximo'`,
+     `'próxima'`. Em alemão aquilo devolvia "novo" ou "nova", que é
+     português dos dois jeitos. Quem concorda agora é `umOutro`, e cada
+     idioma resolve do seu jeito.
+     ============================================================ */
+  telaAplicacaoOk: {
+    registrada: (Acao: string) => `${Acao} registrada`,
+    proximaDose: 'Próxima dose',
+    /* O selo é curto de propósito: a data por extenso já está no sub. */
+    hoje: 'hoje',
+    emDias: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'}`,
+    /* ⚠️ O QUE RESTA, e não o que foi usado. */
+    restamDoses: (restam: number) => (restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`),
+    acabou: (outroRecipiente: string) => `Acabou — vale abrir ${outroRecipiente}`,
+    seloFim: 'fim',
+    registrarOutro: (outroRecipiente: string) => `Registrar ${outroRecipiente}`,
+    voltarParaJornada: 'Voltar para a Jornada',
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Registrar ${acao}`,
     salvar: (acao: string) => `Salvar ${acao}`,

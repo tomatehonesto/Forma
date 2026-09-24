@@ -3,9 +3,14 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
 import { diffDays, now, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { FORMAS, concordar, formaDe, oA } from '../logic/formas';
+import { FORMAS, formaDe, umOutro } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
 import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
+   de módulo congela o idioma no import. */
+const K = () => T.tratamento.telaAplicacaoOk;
 
 /* ============================================================
    APLICAÇÃO REGISTRADA
@@ -41,6 +46,10 @@ export default function AplicacaoOk() {
 
   const acabou = est.left <= 0;
   const vocab = FORMAS()[formaDe(S)];
+  /* "outra caneta", "another pen" — quem concorda é o idioma, e o inglês
+     devolve "another" sem olhar o gênero. As palavras estavam aqui, em
+     português, dentro de `concordar(forma, 'novo', 'nova')`. */
+  const outro = `${umOutro(formaDe(S))} ${vocab.recipiente}`;
 
   return (
     <SheetScreen
@@ -51,21 +60,24 @@ export default function AplicacaoOk() {
       onClose={() => router.replace('/(tabs)/jornada' as any)}
       rodape={
         <>
-          <Botao label="Voltar para a Jornada" onPress={() => router.replace('/(tabs)/jornada' as any)} />
+          <Botao label={K().voltarParaJornada} onPress={() => router.replace('/(tabs)/jornada' as any)} />
           {acabou && vocab.injetavel
-            ? <Botao label={`Registrar ${concordar(formaDe(S), 'novo', 'nova')} ${vocab.recipiente}`} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
+            ? <Botao label={K().registrarOutro(outro)} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
             : null}
         </>
       }
     >
       <Confirmacao
-        titulo={`${maiuscula(vocab.acao)} registrada`}
+        /* ⚠️ ESTA LINHA SAÍA METADE EM CADA IDIOMA: "Shot registrada". O
+           substantivo vinha de FORMAS, traduzido, e o particípio estava
+           escrito aqui, em português. */
+        titulo={K().registrada(maiuscula(vocab.acao))}
         /* O local só entra na frase de quem injeta — ver logic/formas. */
         texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li ? ` · ${siteLabel(li.site).toLowerCase()}` : ''}.`}
       >
         <Cartao>
           <Linha
-            titulo="Próxima dose"
+            titulo={K().proximaDose}
             /* A HORA DO LEMBRETE SAIU DAQUI. Havia um horário só por
               assunto, e esta linha o citava; agora podem ser vários
               alertas de dose, com horas diferentes, e escolher um deles
@@ -74,17 +86,20 @@ export default function AplicacaoOk() {
             sub={maiuscula(dataComDiaDaSemana(prox))}
             /* ⚠️ "1 dias" era raro e virou rotina: com medicamento oral a
                cadência é DIÁRIA, e a próxima dose é sempre amanhã. */
-            selo={dias === 0 ? 'hoje' : dias === 1 ? '1 dia' : `${dias} dias`}
+            selo={dias === 0 ? K().hoje : K().emDias(dias)}
             seloTom="neutra"
             seta={false}
           />
           {vocab.injetavel ? (
             <Linha
               titulo={maiuscula(vocab.recipiente)}
-              sub={acabou
-                ? `${est.total} de ${est.total} doses usadas · abrir ${oA(formaDe(S))} ${concordar(formaDe(S), 'próximo', 'próxima')}`
-                : `${est.total - est.left} de ${est.total} doses usadas`}
-              selo={acabou ? 'fim' : `restam ${est.left}`}
+              /* ⚠️ O QUE RESTA, e não o que foi usado — a mesma conta da
+                 linha do medicamento em /aplicacoes. E sem selo: ele
+                 dizia "restam 2" ao lado de um sub que dizia "2 de 4
+                 doses usadas", duas versões do mesmo número na mesma
+                 linha. */
+              sub={acabou ? K().acabou(outro) : K().restamDoses(est.left)}
+              selo={acabou ? K().seloFim : undefined}
               seloTom="neutra"
               seta={false}
             />

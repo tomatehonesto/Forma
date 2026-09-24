@@ -1,7 +1,7 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, diasDaSemana, nf, kg, relDay,
-  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt,
+  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt, maiuscula,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { numeroEnxuto } from './local';
@@ -5418,8 +5418,12 @@ export function careState(S: State) {
        rótulos dos quadros do `careStatus`, que eram outro conjunto: dava
        para a frase nomear um assunto que a lista não tinha, e para a
        lista ter um item que a frase não nomeava. */
+    /* ⚠️ O NÚMERO POR EXTENSO ABRE A FRASE, e `porExtenso` guarda a
+       forma de meio de frase — "duas", "two", "zwei". A frase anterior
+       fecha com ponto, então esta começava em minúscula nos seis
+       idiomas: "duas pendências precisam de você". */
     texto: E().pendenciaTexto(
-      E().porExtenso[pend.length] ?? String(pend.length),
+      maiuscula(E().porExtenso[pend.length] ?? String(pend.length)),
       pend.length !== 1,
       T.comum.lista(pend.map((it) => it.rotulo)),
     ),

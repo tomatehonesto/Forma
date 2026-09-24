@@ -174,6 +174,7 @@ export const home = {
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
       `${feitos} de 7 días con check-in · ${aplicadas} de ${vividas} semanas con inyección`,
     semanaASemana: 'Semana a semana. Toca para ver qué marcó cada ciclo.',
+    verAsSemanas: (quantas: number) => `Ver las ${quantas} semanas`,
     semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DÍA ${dia}`,
     noInicio: (peso: string) => `${peso} al inicio`,
     hoje: 'hoy',

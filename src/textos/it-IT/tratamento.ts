@@ -406,6 +406,18 @@ export const tratamento = {
      in portoghese, "3. Dosis" in tedesco, "3rd dose" in inglese. In
      italiano l'indicatore è femminile perché "dose" è femminile.
      ============================================================ */
+  telaAplicacaoOk: {
+    registrada: (Acao: string) => `${Acao} registrata`,
+    proximaDose: 'Prossima dose',
+    hoje: 'oggi',
+    emDias: (dias: number) => `${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
+    restamDoses: (restam: number) => (restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`),
+    acabou: (outroRecipiente: string) => `Finita — conviene aprire ${outroRecipiente}`,
+    seloFim: 'finita',
+    registrarOutro: (outroRecipiente: string) => `Registra ${outroRecipiente}`,
+    voltarParaJornada: 'Torna al Percorso',
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `Registra ${acao}`,
     salvar: (acao: string) => `Salva ${acao}`,

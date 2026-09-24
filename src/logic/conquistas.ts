@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { MEDS } from './meds';
-import { DAY, startOfDay, now, diffDays, nf } from './time';
+import { DAY, startOfDay, now, diffDays, nf, doseTxt } from './time';
 import { T } from '../textos';
 import { pesoTxt, compTxt } from './medidas';
 
@@ -223,8 +223,13 @@ const CATALOGO = (): Trilha[] => [
     id: 'titulacao', familia: 'tratamento', ic: 'dose', titulo: T.conquistas.titulacao,
     vale: (S) => (M(S).doses?.length ?? 0) > 1,
     niveis: [], // preenchida abaixo, a partir da escada do medicamento
-    desc: (a) => T.conquistas.titulacaoDesc(String(a)),
-    falta: (_r, a) => T.conquistas.titulacaoFalta(String(a)),
+    /* ⚠️ O DEGRAU É UMA DOSE, e ia como número pelado: `String(5)`
+       dava "Chegar à dose de 5" e "Reaching the 5 dose", sem miligrama
+       nenhum — e `String(2.5)` punha um PONTO decimal em cinco idiomas
+       que usam vírgula. `doseTxt` resolve as casas e a vírgula, e a
+       unidade vem do medicamento, que é quem a conhece. */
+    desc: (a, S) => T.conquistas.titulacaoDesc(`${doseTxt(a)} ${M(S).unit}`),
+    falta: (_r, a, S) => T.conquistas.titulacaoFalta(`${doseTxt(a)} ${M(S).unit}`),
     medida: (S) => {
       const injs = (S.injections as any[]).slice().sort((x, y) => x.t - y.t);
       return {

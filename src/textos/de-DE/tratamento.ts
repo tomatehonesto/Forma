@@ -339,6 +339,18 @@ export const tratamento = {
       `${periodo} · ${usadas} von ${total} Dosen`,
   },
 
+  telaAplicacaoOk: {
+    registrada: (Acao: string) => `${Acao} eingetragen`,
+    proximaDose: 'Nächste Dosis',
+    hoje: 'heute',
+    emDias: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'}`,
+    restamDoses: (restam: number) => (restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`),
+    acabou: (outroRecipiente: string) => `Leer — jetzt ${outroRecipiente} anbrechen`,
+    seloFim: 'leer',
+    registrarOutro: (outroRecipiente: string) => `${outroRecipiente} eintragen`,
+    voltarParaJornada: 'Zurück zum Verlauf',
+  },
+
   telaRegistrarAplicacao: {
     registrar: (acao: string) => `${acao} eintragen`,
     salvar: (acao: string) => `${acao} speichern`,

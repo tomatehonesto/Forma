@@ -190,6 +190,7 @@ export const home = {
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
       `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} Wochen mit Spritze`,
     semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',
+    verAsSemanas: (quantas: number) => `Alle ${quantas} Wochen ansehen`,
     semanaEDia: (semana: number, dia: number) => `WOCHE ${semana} · TAG ${dia}`,
     noInicio: (peso: string) => `${peso} am Anfang`,
     hoje: 'heute',

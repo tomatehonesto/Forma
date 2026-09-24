@@ -229,6 +229,7 @@ export const home = {
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
       `${feitos} de 7 dias com check-in · ${aplicadas} de ${vividas} semanas com aplicação`,
     semanaASemana: 'Semana a semana. Toque para ver o que marcou cada ciclo.',
+    verAsSemanas: (quantas: number) => `Ver as ${quantas} semanas`,
     /* ---------- o painel ---------- */
     semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DIA ${dia}`,
     /* ⚠️ OS TRÊS PESOS CHEGAM JÁ ESCRITOS, com a unidade de quem lê. Eles

@@ -215,6 +215,7 @@ export const home = {
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
       `${feitos} di 7 giorni con check-in · ${aplicadas} di ${vividas} settimane con puntura`,
     semanaASemana: 'Settimana per settimana. Tocca per vedere che cosa ha segnato ogni ciclo.',
+    verAsSemanas: (quantas: number) => `Vedi tutte le ${quantas} settimane`,
     /* ---------- il pannello ---------- */
     semanaEDia: (semana: number, dia: number) => `SETTIMANA ${semana} · GIORNO ${dia}`,
     /* ⚠️ I TRE PESI ARRIVANO GIÀ SCRITTI, con l'unità di chi legge. */
