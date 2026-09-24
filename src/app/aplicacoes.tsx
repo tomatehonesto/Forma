@@ -10,7 +10,7 @@ import {
   diasAteAplicar,
 } from '../logic/derive';
 import { now, diffDays, fmtWD, fmtDate, relDay, doseTxt, quandoEm, maiuscula } from '../logic/time';
-import { FORMAS, formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
+import { formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -86,6 +86,29 @@ export default function Aplicacoes() {
   const phPts = ph.pts.map((p) => ({ x: (p.t - t0) / (t1 - t0), y: p.n }));
   const tNow = +now();
   let mkIdx = 0; ph.pts.forEach((p, i) => { if (Math.abs(p.t - tNow) < Math.abs(ph.pts[mkIdx].t - tNow)) mkIdx = i; });
+
+  /* ⚠️⚠️ SEM NENHUMA APLICAÇÃO, TRÊS COISAS DESTA TELA FALAM DE UM
+     PASSADO QUE NÃO EXISTE.
+
+     "Nível no corpo" desenha uma curva farmacológica que, sem dose
+     nenhuma no passado, é uma reta no zero — e embaixo dela uma frase
+     explicando o ponto mais baixo de uma descida que não acontece. O
+     mesmo zero já tinha causado estrago na Home: ver a nota em
+     `pharmaSeries`, em logic/derive, sobre o vale de mentira.
+
+     "Histórico" abre com a próxima dose e fecha sem nenhuma linha
+     embaixo — um cartão com um item só, que é justamente o item que o
+     cartão de cima da tela já anuncia em letra grande.
+
+     E a fração da constância sai "0 de 0 doses previstas", que é a
+     conta certa para uma pergunta que ainda não foi feita. A GRADE
+     FICA: ela mostra a próxima dose tracejada e os dias da semana, e
+     isso vale para quem ainda vai aplicar a primeira.
+
+     O que sobra é uma tela coerente de quem está começando — quando é a
+     próxima, o ciclo, o medicamento, os alertas, e o botão de registrar
+     no rodapé. */
+  const semAplicacao = !S.injections.length;
 
   const doseStr = doseDoPerfil(S);
 
@@ -165,7 +188,7 @@ export default function Aplicacoes() {
             vizinhas somadas para dizer a mesma coisa. */}
         <Linha
           ic="pill"
-          titulo={K().eReceita(maiuscula(FORMAS()[formaDe(S)].recipiente))}
+          titulo={K().medicamento}
           sub={k.verdict.good
             ? K().dosesUsadas(k.atual?.usadas ?? 0, k.atual?.total ?? 4, nesteNesta(formaDe(S)))
             : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
@@ -198,7 +221,9 @@ export default function Aplicacoes() {
       {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
       <Bloco
         titulo={K().constancia}
-        nota={K().constanciaNota(constancia.feitas, constancia.previstas, constancia.semanas)}
+        nota={semAplicacao
+          ? undefined
+          : K().constanciaNota(constancia.feitas, constancia.previstas, constancia.semanas)}
       >
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <Row style={{ flexWrap: 'wrap' }}>
@@ -242,6 +267,7 @@ export default function Aplicacoes() {
       </Bloco>
 
       {/* A CURVA — a única coisa da tela que explica o que se sente. */}
+      {semAplicacao ? null : (
       <Bloco titulo={K().nivelNoCorpo}>
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <AreaCurve pts={phPts} height={130} marker={mkIdx} id="ph" />
@@ -253,6 +279,7 @@ export default function Aplicacoes() {
           </Txt>
         </View>
       </Bloco>
+      )}
 
       {/* O HISTÓRICO NÃO SE APAGA, e isso é decisão de produto.
 
@@ -265,6 +292,7 @@ export default function Aplicacoes() {
 
           Fica a lista, e só. Quem registrou errado corrige com quem
           acompanha; o app não tem por que oferecer a borracha. */}
+      {semAplicacao ? null : (
       <Bloco titulo={K().historico}>
         <Cartao>
           <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
@@ -299,6 +327,7 @@ export default function Aplicacoes() {
           ))}
         </Cartao>
       </Bloco>
+      )}
     </TelaInterna>
   );
 }

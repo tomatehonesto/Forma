@@ -57,7 +57,7 @@ export default function Caneta() {
 
   return (
     <TelaInterna
-      titulo={T.tratamento.telaAplicacoes.eReceita(maiuscula(vocab.recipiente))}
+      titulo={T.tratamento.telaAplicacoes.medicamento}
       acao={concordar(forma, K().novoM, K().novoF)}
       onAcao={() => router.push('/caneta-nova' as any)}
       rodape={<Botao label={K().lembrarRenovar} onPress={() => router.push('/lembretes' as any)} />}

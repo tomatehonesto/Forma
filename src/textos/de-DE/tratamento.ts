@@ -239,7 +239,7 @@ export const tratamento = {
     cicloSub: (dia: number, total: number, fase: string) => `Tag ${dia} von ${total} · ${fase}`,
     emCurso: 'läuft',
 
-    eReceita: (recipiente: string) => `${recipiente} und Rezept`,
+    medicamento: 'Medikament',
     dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} von ${total} Dosen verbraucht ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,

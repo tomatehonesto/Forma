@@ -282,7 +282,7 @@ export const tratamento = {
 
     /* Il contenitore arriva concordato e con la maiuscola — "Penna",
        "Flacone". */
-    eReceita: (recipiente: string) => `${recipiente} e ricetta`,
+    medicamento: 'Farmaco',
     dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} di ${total} dosi usate ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,

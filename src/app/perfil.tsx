@@ -322,12 +322,18 @@ export default function Perfil() {
               O MEDICAMENTO VIRA TAG, e deixa de ser card. Como card ele
               tinha o peso de uma seção inteira para dizer um nome e uma
               dose, e ficava entre o retrato e a primeira lista, cortando
-              a cabeça da tela em duas. O toque continua indo para as
-              aplicações, que é onde ele tem conteúdo próprio. O que ficou
-              para trás foi "3 de 4 doses na caneta", que já vive na
-              Jornada e no Cuidado — tag não é lugar de estoque. */}
+              a cabeça da tela em duas. O que ficou para trás foi "3 de 4
+              doses na caneta", que já vive na Jornada e no Cuidado — tag
+              não é lugar de estoque.
+
+              ⚠️ E O TOQUE LEVA AO MEDICAMENTO, e levava às aplicações. A
+              tag escreve "Mounjaro 5 mg" — um nome e uma concentração —,
+              e a tela que continua essa frase é a do medicamento: qual
+              recipiente está aberto, quantas doses restam nele, até
+              quando a receita cobre. /aplicacoes responde outra pergunta,
+              a do calendário, e continua a um toque dali. */}
           <Row gap={6} style={{ flexWrap: 'wrap' }}>
-            <Pressable onPress={go('/aplicacoes')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <Pressable onPress={go('/caneta')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
               <Row gap={6} style={{
                 backgroundColor: c.accentWeak, borderRadius: radius.pill,
                 paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',

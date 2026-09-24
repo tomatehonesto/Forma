@@ -288,7 +288,25 @@ export const tratamento = {
     emCurso: 'em curso',
 
     /* O recipiente chega concordado e com maiúscula — "Caneta", "Frasco". */
-    eReceita: (recipiente: string) => `${recipiente} e receita`,
+    /* ⚠️⚠️ A TELA NÃO SE CHAMA PELO RECIPIENTE, e se chamava: o título
+       era `FORMAS[forma].recipiente` mais "e receita", então saía "Caneta
+       e receita", "Frasco e receita", "Cartela e receita".
+
+       Isso resolvia a gramática e não resolvia o assunto. "Caneta" é o
+       nome brasileiro de um formato — lá fora o mesmo dispositivo é
+       "pen", "stylo", "Pen", "penna", e nem todo tratamento tem um: há
+       frasco, há cartela, há quem tome comprimido. Uma tela que muda de
+       nome conforme a embalagem obriga quem usa a reconhecer o nome da
+       embalagem antes de reconhecer a tela.
+
+       O que ela guarda é o MEDICAMENTO: qual é, quanto resta dele e até
+       quando a receita cobre. É esse o nome, e ele é o mesmo nos seis
+       idiomas e nas quatro formas.
+
+       ⚠️ E A PALAVRA JÁ EXISTIA no catálogo, em `medicamentoEDose` da
+       folha de registrar. Usar a mesma é o que faz a tag do perfil, a
+       linha de /aplicacoes e o título concordarem. */
+    medicamento: 'Medicamento',
     dosesUsadas: (usadas: number, total: number, onde: string) => `${usadas} de ${total} doses usadas ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
