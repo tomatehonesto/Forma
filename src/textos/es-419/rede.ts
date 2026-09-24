@@ -49,7 +49,6 @@ export const rede = {
   aceita: (convenio: string) => `Acepta ${convenio}`,
   soParticular: 'Solo pago particular',
   maisConvenios: (n: number) => `+${n}`,
-  tambemTeleconsulta: 'También por teleconsulta',
   deAte: (de: string, ate: string) => `${de} a ${ate}`,
   faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,

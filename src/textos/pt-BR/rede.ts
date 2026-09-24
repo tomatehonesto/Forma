@@ -71,7 +71,6 @@ export const rede = {
   soParticular: 'Só particular',
   /* o que não coube na linha: "Amil, Porto Saúde, Unimed +2" */
   maisConvenios: (n: number) => `+${n}`,
-  tambemTeleconsulta: 'Também por teleconsulta',
   /* "seg a sex" — três dias seguidos ou mais viram intervalo */
   deAte: (de: string, ate: string) => `${de} a ${ate}`,
   /* ⚠️ O U+2060 EM VOLTA DO TRAÇO NÃO É SUJEIRA: sem ele a linha quebrava

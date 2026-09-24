@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Pressable, TextInput } from 'react-native';
+import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -230,7 +230,14 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
 
    ⚠️ O ROSTO É DE QUEM RESPONDE PELA CLÍNICA. Clínica se escolhe por
    gente, e a foto de uma recepção diz menos do que a de quem vai atender.
-   Sem retrato, a foto da clínica; sem nenhuma das duas, as iniciais dela.
+   Sem retrato, a foto da clínica; sem nenhuma das duas, a névoa da paleta
+   com as iniciais — a mesma névoa que a clínica sem foto tem no alto da
+   tela dela.
+
+   ⚠️ E A IMAGEM OCUPA A ALTURA TODA, encostada na borda. Era um quadrado
+   de 72 dentro do respiro do cartão, e cada linha a mais de texto deixava
+   um vão embaixo dele; agora a imagem é a coluna da esquerda e cresce com
+   o cartão, e o corte do canto é o do próprio cartão.
 
    ⚠️ O REGISTRO NO CONSELHO NÃO ESTÁ AQUI, e está em /clinica, ao lado
    do nome de cada pessoa da equipe. O cartão responde se vale abrir; a
@@ -240,12 +247,14 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    Uma etiqueta colorida por convênio virava uma fileira que competia com
    o nome da clínica, e a pergunta que ela responde é uma só: aceita o
    meu? Com o filtro de convênio ligado, a linha responde exatamente isso,
-   na cor de ação; sem ele, os nomes que cabem e "+N" para o resto. A
-   teleconsulta, que também era etiqueta, virou a linha de baixo.
+   na cor de ação; sem ele, os nomes que cabem e "+N" para o resto.
+
+   A teleconsulta não está no cartão: ela é filtro (Modalidade) e está na
+   clínica, ao lado do horário.
 ------------------------------------------------------------------ */
 function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
   const cl = r.c;
   const rosto = responsavelDe(cl);
   const retrato = fotoDaRede(rosto);
@@ -257,37 +266,35 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
     : cl.convenios.length
       ? resumoDosConvenios([...cl.convenios, ...(cl.particular ? [K().particular] : [])])
       : cl.particular ? K().soParticular : '';
-  const tele = cl.presencial && cl.teleconsulta;
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
       <Cartao>
-        <Row gap={14} style={{ padding: 14, alignItems: 'flex-start' }}>
-          {foto ? (
-            <Image
-              source={foto}
-              style={{ width: 72, height: 72, borderRadius: radius.md, backgroundColor: c.bg2 }}
-              contentFit="cover"
-              contentPosition={retrato ? focoDaRede(rosto) : 'center'}
-            />
-          ) : (
-            <View style={{
-              width: 72, height: 72, borderRadius: radius.md,
-              backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Txt v="h2" c={c.accent}>{iniciaisDaClinica(cl.nome)}</Txt>
-            </View>
-          )}
-          <View style={{ flex: 1 }}>
+        <Row style={{ alignItems: 'stretch', minHeight: 116 }}>
+          <View style={{ width: 104, backgroundColor: c.bg2, overflow: 'hidden' }}>
+            {foto ? (
+              <Image
+                source={foto}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                contentPosition={retrato ? focoDaRede(rosto) : 'center'}
+              />
+            ) : (
+              <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+                <Nevoa altura={200} capa />
+                <Txt v="h2" c={isDark ? c.onHero : c.accent2}>{iniciaisDaClinica(cl.nome)}</Txt>
+              </View>
+            )}
+          </View>
+          <View style={{ flex: 1, paddingVertical: 14, paddingLeft: 14, paddingRight: 6, justifyContent: 'center' }}>
             <Txt v="bodyMed" numberOfLines={2}>{cl.nome}</Txt>
             <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
             <View style={{ marginTop: 8, gap: 3 }}>
               <Meta ic="pin" texto={ondeTxt(S, r)} />
               {convenios ? <Meta ic="shield" texto={convenios} destaque={!!pedido} /> : null}
-              {tele ? <Meta ic="video" texto={K().tambemTeleconsulta} /> : null}
             </View>
           </View>
-          <View style={{ alignSelf: 'center' }}>
+          <View style={{ justifyContent: 'center', paddingRight: 14 }}>
             <Icon name="chev" size={14} color={c.tx4} sw={2} />
           </View>
         </Row>
@@ -301,10 +308,10 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
    clínica, em chips.
 
    ⚠️ CABER É CONTA DE LETRAS, e não de pixels. Medir o texto desenhado
-   pediria desenhar duas vezes; a coluna do cartão leva cerca de 22 letras
-   por linha no corpo da legenda, e 44 é o que cabe em duas com folga para
+   pediria desenhar duas vezes; a coluna do cartão leva cerca de 20 letras
+   por linha no corpo da legenda, e 40 é o que cabe em duas com folga para
    o "+N". Um nome sempre entra, por maior que seja. */
-const CABE = 44;
+const CABE = 40;
 function resumoDosConvenios(nomes: string[]) {
   const vistos: string[] = [];
   for (const nome of nomes) {
