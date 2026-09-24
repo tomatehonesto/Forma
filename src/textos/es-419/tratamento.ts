@@ -197,7 +197,7 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'aplicada',
-    semCulpa: 'Sin culpa por un día que pasó — lo que cuenta es retomar. Puedes registrar una inyección anterior en cualquier momento, en el botón de abajo.',
+    semCulpa: 'Sin culpa por un día perdido — lo que cuenta es retomar. Puedes registrar una inyección anterior en cualquier momento, en el botón de abajo.',
     titulo: 'Inyecciones',
     registrar: 'Registrar inyección',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -212,7 +212,7 @@ export const tratamento = {
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+      `${veredito} — alcanza para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de inyección`,
     nenhumAlerta: 'Ninguna alerta de inyección',
@@ -227,7 +227,7 @@ export const tratamento = {
 
     nivelNoCorpo: 'Nivel en el cuerpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Estimación de ${molecula} en el cuerpo, con una vida media de ${meiaVida}. El punto más bajo, antes de la próxima dosis, suele ser cuando el hambre aumenta.`,
+      `Estimación del nivel de ${molecula} en el cuerpo, con una vida media de ${meiaVida}. El punto más bajo, antes de la próxima dosis, suele ser cuando el hambre aumenta.`,
     meiaVidaDias: (dias: number) => `${dias} días`,
     meiaVidaHoras: 'cerca de 13 horas',
 
@@ -275,7 +275,7 @@ export const tratamento = {
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Conviene confirmar con quien te acompaña qué hacer con lo que sobre.`,
 
-    momentoDeRenovar: 'Momento de pedir la renovación',
+    momentoDeRenovar: 'Es momento de pedir la renovación',
     renovarTexto: (semanas: number) =>
       `Tu receta cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedirla ahora evita quedarte sin el medicamento entre una consulta y otra.`,
 
@@ -322,7 +322,7 @@ export const tratamento = {
     salvar: (acao: string) => `Guardar ${acao}`,
 
     quando: 'Cuándo',
-    ficaRegistradaAgora: (hora: string) => `Queda registrada ahora, ${hora}.`,
+    ficaRegistradaAgora: (hora: string) => `Queda registrada ahora, a las ${hora}.`,
     registrarDepois: 'Registrarla después no cambia nada más que la fecha — la cuenta de la próxima dosis sale de aquí.',
 
     medicamentoEDose: 'Medicamento y dosis',

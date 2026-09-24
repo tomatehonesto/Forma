@@ -141,8 +141,8 @@ export const companion = {
     resumosNota: 'I tuoi dati in ordine, da portare a qualcuno.',
 
     resumoDaSemana: 'Riepilogo della settimana',
-    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
-      `settimana ${semana} · ${checkins} check-in, ${peso}`,
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>
+      `settimana ${semana} · ${checkins} check-in${peso ? `, ${peso}` : ''}`,
     preparoDaConsulta: 'Preparazione della visita',
     preparoDaConsultaSub: 'peso, aderenza, sintomi e domande',
     preparoSemEquipe: 'pronto da condividere',

@@ -111,14 +111,14 @@ export const conquistas = {
   exercSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
 
   refeicoes: 'Comidas',
-  refeicoesDesc: (a: number) => `${p(a, 'plato')} registrado${a === 1 ? '' : 's'}`,
+  refeicoesDesc: (a: number) => `${p(a, 'comida')} registrada${a === 1 ? '' : 's'}`,
   refeicoesFalta: (r: number) => `Faltan ${p(r, 'comida')}`,
 
   favoritos: 'Platos favoritos',
   favoritosDesc: (a: number) => `${p(a, 'plato')} guardado${a === 1 ? '' : 's'} para repetir`,
   favoritosFalta: (r: number) => `Faltan ${p(r, 'plato')}`,
 
-  medidas: 'Medidas de cinta',
+  medidas: 'Medidas del cuerpo',
   medidasDesc: (a: number) => `${p(a, 'medición', 'mediciones')} registrada${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Faltan ${p(r, 'medición', 'mediciones')}`,
 
@@ -128,7 +128,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `Faltan ${comp}`,
 
   exames: 'Exámenes',
-  examesDesc: (a: number) => `${p(a, 'panel', 'paneles')} importado${a === 1 ? '' : 's'}`,
+  examesDesc: (a: number) => `${p(a, 'examen', 'exámenes')} importado${a === 1 ? '' : 's'}`,
   examesFalta: (r: number) => `Faltan ${p(r, 'examen', 'exámenes')}`,
 
   consultas: 'Consultas',

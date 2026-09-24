@@ -16,6 +16,26 @@
    sugestão de onde olhar. "Você precisa melhorar X" seria outra tela.
    ============================================================ */
 
+/* ⚠️⚠️ SOZINHO, O EIXO PEDE ARTIGO. O par da abertura pode ir sem ele,
+   no estilo de manchete ("Sono e adesão estão consistentes"), mas o eixo
+   isolado não: "Exercício é o que mais oscila" e "nem exercício ficou
+   para trás" pedem "o exercício". E o botão fala como quem pergunta —
+   "Como melhorar exercício" era título de artigo; é "minha atividade
+   física". As cinco irmãs já tinham a mesma tabela. */
+const EIXO: Record<string, { o: string; meu: string }> = {
+  Sono: { o: 'o sono', meu: 'meu sono' },
+  Energia: { o: 'a energia', meu: 'minha energia' },
+  Humor: { o: 'o humor', meu: 'meu humor' },
+  Hidratação: { o: 'a hidratação', meu: 'minha hidratação' },
+  Exercício: { o: 'o exercício', meu: 'minha atividade física' },
+  Proteína: { o: 'a proteína', meu: 'meu consumo de proteína' },
+  Saciedade: { o: 'a saciedade', meu: 'minha saciedade' },
+  Adesão: { o: 'a adesão', meu: 'minha adesão' },
+};
+const o = (eixo: string) => EIXO[eixo]?.o ?? eixo.toLowerCase();
+const meu = (eixo: string) => EIXO[eixo]?.meu ?? eixo.toLowerCase();
+const maiusc = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 export const equilibrio = {
   /* ============================================================
      OS OITO EIXOS
@@ -50,7 +70,7 @@ export const equilibrio = {
      ============================================================ */
   aberturaTudoBem: 'Reparei numa coisa boa.',
   aberturaAtencao: 'Uma coisa me chamou atenção.',
-  aberturaPreciso: 'Preciso te mostrar uma coisa.',
+  aberturaPreciso: 'Tenho uma coisa para te mostrar.',
 
   /* ============================================================
      O CORPO — duas frases, e não quatro
@@ -73,9 +93,9 @@ export const equilibrio = {
   par: (primeiro: string, segundo: string) => `${primeiro} e ${segundo.toLowerCase()}`,
 
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
-    `${doisFortes} puxam para cima, e nem ${fraco.toLowerCase()} ficou para trás. Eu não mudaria nada por enquanto.`,
+    `${doisFortes} puxam para cima, e nem ${o(fraco)} ficou para trás. Eu não mudaria nada por enquanto.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
-    `${doisFortes} estão consistentes. ${fraco} é o que mais oscila — seria meu foco para a próxima semana.`,
+    `${doisFortes} estão consistentes. ${maiusc(o(fraco))} é o que mais oscila — seria meu foco para a próxima semana.`,
 
   /* ============================================================
      O BOTÃO E A PERGUNTA — a mesma frase, e é de propósito
@@ -86,8 +106,8 @@ export const equilibrio = {
      tela, com o mesmo `toLowerCase()` escrito de novo, e a pergunta aqui.
      Duas cópias da mesma frase, uma delas com ponto de interrogação.
      ============================================================ */
-  botaoMelhorar: (eixo: string) => `Como melhorar ${eixo.toLowerCase()}`,
-  perguntaMelhorar: (eixo: string) => `Como melhorar ${eixo.toLowerCase()}?`,
+  botaoMelhorar: (eixo: string) => `Como melhorar ${meu(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Como melhorar ${meu(eixo)}?`,
 
   /* O chapéu do gráfico de barras: o eixo em caixa alta e quantos dias a
      série cobre. Em caixa alta pela tipografia da tela — e é aqui porque

@@ -109,7 +109,7 @@ export const ciclo = {
      day five frightens people who think the medication stopped working,
      and quitting there is common. Saying it is the phase, not the
      failure, is the whole job of the line. */
-  faseDescidaAjuda: 'this is the phase where hunger returns — it doesn’t mean the treatment stopped working',
+  faseDescidaAjuda: 'knowing this is the phase where hunger returns — it doesn’t mean the treatment stopped working',
   /* The only phase with a caution: it is where the symptoms that need a
      doctor show up. Not an alarm — the line between what is expected and
      what shouldn't wait for the next appointment. */
@@ -120,7 +120,7 @@ export const ciclo = {
   faseBaixoComum: 'appetite closer to usual',
   /* "The dose", not "the pen": this table is constant and doesn't know
      the form of the medication. */
-  faseBaixoAjuda: 'have the dose and the injection site decided the night before',
+  faseBaixoAjuda: 'having the dose and the injection site decided the night before',
   tela: {
     titulo: 'Dose cycle',
     diaDepois: (dia: number, acao: string) => `Day ${dia} after\nyour ${acao}`,
@@ -128,11 +128,11 @@ export const ciclo = {
 
     cicloAtual: 'Current cycle',
     diaDeTotal: (dia: number, total: number) => `day ${dia} of ${total}`,
-    proximaDose: (data: string) => `Next dose ${data}`,
+    proximaDose: (data: string) => `Next dose: ${data}`,
 
     asQuatroFases: 'The four phases',
     comum: 'Common',
-    ajuda: 'Helps',
+    ajuda: 'What helps',
     atencao: 'Watch out',
 
     conteudoGeral: 'This is general content',

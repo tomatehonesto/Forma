@@ -27,7 +27,7 @@ export const ciclo = {
   picoQ: '¿Cuándo tengo más energía?',
 
   estabHead: 'Tu cuerpo está en la fase estable del ciclo.',
-  estabBody: 'Efecto constante — mantén el agua y la proteína al día para sostener la saciedad.',
+  estabBody: 'Efecto constante — suficiente agua y proteína ayudan a mantener la saciedad.',
   estabQ: '¿Cómo funciona el ciclo de la medicación?',
 
   retornoHead: 'Tu hambre puede empezar a aumentar en las próximas 24 horas.',
@@ -98,7 +98,7 @@ export const ciclo = {
      hambre vuelva al quinto día asusta a quien cree que el medicamento
      dejó de funcionar, y abandonar ahí es común. Decir que es la fase, y
      no la falla, es el trabajo entero de la línea. */
-  faseDescidaAjuda: 'es la fase en que el hambre vuelve — no significa que el tratamiento dejó de funcionar',
+  faseDescidaAjuda: 'saber que es la fase en que el hambre vuelve — no significa que el tratamiento dejó de funcionar',
   /* La única fase con atención: es donde aparecen los síntomas que piden
      médico. No es alarma — es el límite entre lo esperado y lo que no
      espera a la próxima consulta. */
@@ -110,7 +110,7 @@ export const ciclo = {
   /* "La dosis", y no "la pluma": esta tabla es constante y no sabe la
      forma del medicamento — la frase sirve igual a pluma, frasco y
      jeringa. */
-  faseBaixoAjuda: 'deja la dosis y el lugar de la inyección definidos la víspera',
+  faseBaixoAjuda: 'dejar la dosis y el lugar de la inyección definidos la víspera',
   tela: {
     titulo: 'Ciclo de la dosis',
     diaDepois: (dia: number, acao: string) => `Día ${dia} después\nde la ${acao}`,
@@ -118,11 +118,11 @@ export const ciclo = {
 
     cicloAtual: 'Ciclo actual',
     diaDeTotal: (dia: number, total: number) => `día ${dia} de ${total}`,
-    proximaDose: (data: string) => `Próxima dosis ${data}`,
+    proximaDose: (data: string) => `Próxima dosis: ${data}`,
 
     asQuatroFases: 'Las cuatro fases',
     comum: 'Común',
-    ajuda: 'Ayuda',
+    ajuda: 'Lo que ayuda',
     atencao: 'Atención',
 
     conteudoGeral: 'Esto es contenido general',

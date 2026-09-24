@@ -59,7 +59,7 @@ export const rotina = {
        de 60% da meta — meio litro de dois e meio é um quinto —, e "o dia
        ainda está na metade" dava uma proporção que ninguém mediu. */
     aguaPorqueComEnjoo: 'Nos seus dias bem hidratados o enjoo aparece menos — e o dia ainda está abaixo da meta',
-    aguaPorque: 'O dia ainda está abaixo da meta, e a água segura a saciedade até o fim dele',
+    aguaPorque: 'O dia ainda está abaixo da meta, e a água ajuda a manter a saciedade até o fim dele',
 
     proteina: 'Reforce a proteína no jantar',
     proteinaPorque: 'Você está na fase do ciclo em que a fome volta, e a proteína de hoje aparece na fome de amanhã',

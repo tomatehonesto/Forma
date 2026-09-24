@@ -64,7 +64,7 @@ export const confirmacoes = {
   anotacaoPauta: 'Na pauta da consulta',
   anotacaoComDoutor: (doutor: string) => `vai no resumo para ${doutor}`,
   anotacaoSemDoutor: 'vai no resumo para consulta',
-  anotacaoCaminho: 'Ver o resumo para consulta',
+  anotacaoCaminho: 'Ver o resumo para a consulta',
 
   /* ---------------- refeição ---------------- */
   refeicao: 'Refeição registrada',

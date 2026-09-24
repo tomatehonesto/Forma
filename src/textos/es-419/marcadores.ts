@@ -418,7 +418,7 @@ export const marcadores = {
      categoría no es decisión de idioma — es contenido clínico. */
   catMetabolico: 'Metabólico',
   catLipidico: 'Lipídico',
-  catFigadoRim: 'Hígado y riñón',
+  catFigadoRim: 'Hígado y riñones',
   catTireoide: 'Tiroides',
   catVitaminas: 'Vitaminas',
 

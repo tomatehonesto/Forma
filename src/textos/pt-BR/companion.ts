@@ -24,12 +24,12 @@ export const companion = {
      ============================================================ */
   memoria: {
     desdeAPrimeira: (dias: number) =>
-      `Acompanho seu tratamento desde a primeira aplicação, há ${dias} dias.`,
+      `Acompanho seu tratamento desde a primeira dose, há ${dias} dias.`,
     desdeOPrimeiroDiaComSemanas: (semanas: number) =>
       `Conheço sua jornada desde o primeiro dia — ${semanas} semanas até aqui.`,
     desdeOPrimeiroDia: 'Conheço sua jornada desde o primeiro dia.',
     dosesAtras: (doses: number) =>
-      `Estou com você desde a primeira aplicação, ${doses} doses atrás.`,
+      `Estou com você desde a primeira dose, há ${doses} doses.`,
   },
 
   /* ============================================================
@@ -157,14 +157,14 @@ export const companion = {
     hojeDeCem: 'hoje, de 100',
 
     proximasAcoes: 'Próximas ações',
-    proximasAcoesNota: 'Na ordem em que precisam acontecer — nunca sobre dose ou protocolo.',
+    proximasAcoesNota: 'Na ordem em que chegam — nada sobre dose ou protocolo.',
 
     resumos: 'Gerar resumos',
     resumosNota: 'Seus dados organizados para levar a alguém.',
 
     resumoDaSemana: 'Resumo da semana',
-    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
-      `semana ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>
+      `semana ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}${peso ? `, ${peso}` : ''}`,
     preparoDaConsulta: 'Preparo da consulta',
     preparoDaConsultaSub: 'peso, adesão, sintomas e perguntas',
     preparoSemEquipe: 'pronto para compartilhar',

@@ -49,7 +49,7 @@ export const cruzamentos = {
   fimDeSemana: {
     titulo: 'Seu fim de semana funciona como outro tratamento',
     texto: (copos: string, proteina: string, sono: string) =>
-      `Sábado e domingo você bebe ${copos} copos a menos${proteina}${sono}`,
+      `Aos sábados e domingos você bebe ${copos} copos a menos${proteina}${sono}`,
     /* Trecho opcional: entra só quando a diferença de proteína é grande o
        bastante — o limiar e o porquê dele estão em logic/derive. */
     textoProteina: (gramas: number) => ` e come ${gramas} g menos de proteína`,
@@ -170,7 +170,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `A balança subiu ${altas} vezes e você perdeu ${perdido} mesmo assim`,
     texto: (pesagens: number, altas: number) =>
-      `Em ${pesagens} pesagens, ${altas} vieram acima da anterior — e a linha do período continua descendo. Semana de alta não é recaída: é ruído de água e intestino dentro de uma tendência.`,
+      `Em ${pesagens} pesagens, ${altas} ficaram acima da anterior — e a tendência continua descendo. Semana de alta não é recaída: são variações de água e intestino dentro de uma tendência.`,
     q: 'Como está minha evolução?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'altas', legenda: `dentro de −${perdido} no período` }),

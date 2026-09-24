@@ -2303,16 +2303,26 @@ export function energiaDoDia(S: State, t: number) {
    ============================================================ */
 export function companionMemoria(S: State): string {
   const dias = diffDays(now(), new Date(S.profile.startT));
-  const semanas = Math.max(1, Math.floor(dias / 7));
+  const semanas = Math.floor(dias / 7);
   const nInj = S.injections.length;
   const nCheck = S.checkins.length;
+  /* ⚠️ "DESDE A PRIMEIRA DOSE" CONTA DA PRIMEIRA DOSE, e não do cadastro.
+     Contava de `startT`, e a Mariana lia "há 70 dias" com a primeira
+     aplicação registrada há 67 — três dias que a frase inventava. */
+  const primeira = nInj ? Math.min(...S.injections.map((i) => i.t)) : 0;
+  const diasDaPrimeira = nInj ? diffDays(now(), new Date(primeira)) : 0;
 
   const M = T.companion.memoria;
+  /* ⚠️ SÓ ENTRA A FRASE QUE É VERDADE HOJE. As quatro giravam sem olhar
+     para nada, e quem acabou de se cadastrar lia "desde a primeira dose,
+     há 0 dias" sem ter tomado dose nenhuma — ou "1 semanas", ou "desde a
+     primeira dose, já são 1". Com menos de dois dias, duas semanas ou
+     duas doses, a frase sai da roda; "desde o primeiro dia" vale sempre. */
   const frases = [
-    M.desdeAPrimeira(dias),
-    M.desdeOPrimeiroDiaComSemanas(semanas),
+    ...(diasDaPrimeira >= 2 ? [M.desdeAPrimeira(diasDaPrimeira)] : []),
+    ...(semanas >= 2 ? [M.desdeOPrimeiroDiaComSemanas(semanas)] : []),
     M.desdeOPrimeiroDia,
-    M.dosesAtras(nInj),
+    ...(nInj >= 2 ? [M.dosesAtras(nInj)] : []),
   ];
   return frases[nCheck % frases.length];
 }

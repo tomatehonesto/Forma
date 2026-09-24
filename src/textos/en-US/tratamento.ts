@@ -206,7 +206,7 @@ export const tratamento = {
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? '1 dose left' : `${restam} doses left`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+      `${veredito} — enough for about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
 
     alertasDeDose: (quantos: number) => `${quantos} shot ${quantos === 1 ? 'reminder' : 'reminders'}`,
     nenhumAlerta: 'No shot reminder',
@@ -221,7 +221,7 @@ export const tratamento = {
 
     nivelNoCorpo: 'Level in the body',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Estimated ${molecula} in your body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
+      `Estimated ${molecula} level in your body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
     meiaVidaDias: (dias: number) => `${dias} days`,
     meiaVidaHoras: 'about 13 hours',
 

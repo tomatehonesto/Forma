@@ -45,7 +45,7 @@ export const cuidado = {
        frase terminava num substantivo solto. */
     mensagemRotulo: 'as mensagens',
 
-    receita: 'Peça a renovação da receita',
+    receita: 'Pedir a renovação da receita',
     /* Duas contagens na mesma linha, cada uma com o próprio plural: as
        doses que restam e as semanas que elas cobrem. */
     receitaSub: (doses: number, semanas: number) =>
@@ -229,7 +229,7 @@ export const cuidado = {
     /* ⚠️ DIZIA "o app avisa quando ela chegar perto", e o aplicativo não
        fala de si em terceira pessoa. Quem avisa somos nós. */
     anotarConsultaSub: 'Com a data aqui, o resumo fica pronto e avisamos quando ela chegar perto.',
-    eQuando: (quando: string) => `É ${quando}`,
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
     preparoTexto: 'Eu monto um resumo com peso, adesão e sintomas do período — você escolhe o que quer perguntar.',
     prepararAConsulta: 'Preparar a consulta',
 
@@ -377,7 +377,7 @@ export const cuidado = {
      ============================================================ */
   telaConsultas: {
     titulo: 'Consultas',
-    leadComData: 'A próxima, o que levar nela, e as que já aconteceram.',
+    leadComData: 'A próxima, o que levar para ela, e as que já aconteceram.',
     leadSemData: 'O que levar na próxima, e as que já aconteceram.',
 
     jaPassou: 'JÁ PASSOU',
@@ -399,7 +399,7 @@ export const cuidado = {
        português. */
     paraLevarSub: (faltando: number): string =>
       faltando === 0
-        ? 'Está tudo em dia — o resumo já se monta com isso.'
+        ? 'Está tudo em dia — o resumo já sai daqui.'
         : faltando === 1
           ? 'Falta uma coisa para o resumo ficar completo.'
           : `Faltam ${faltando} coisas para o resumo ficar completo.`,
@@ -445,7 +445,7 @@ export const cuidado = {
      ============================================================ */
   telaAreaMedica: {
     titulo: 'Área médica',
-    lead: 'Quem cuida de você, e o que atravessa para o outro lado.',
+    lead: 'Quem cuida de você, e o que chega até lá.',
 
     /* Dois dos quatro atalhos, e só dois: "Consultas" e "Protocolos"
        são o nome das telas do outro lado, e já estão escritos lá. Uma
@@ -455,8 +455,8 @@ export const cuidado = {
     atalhoClinica: 'Clínica',
 
     paraLevar: 'PARA LEVAR À CONSULTA',
-    paraLevarTexto: 'Peso, adesão, sintomas, exames e as suas anotações, num documento só. Ele se monta dos seus registros e está pronto agora.',
-    verResumo: 'Ver o resumo para consulta',
+    paraLevarTexto: 'Peso, adesão, sintomas, exames e as suas anotações, num documento só. Montamos com os seus registros, e ele já está pronto.',
+    verResumo: 'Ver o resumo para a consulta',
 
     suasAnotacoes: 'Suas anotações',
     anotar: 'Anotar',

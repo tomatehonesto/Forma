@@ -43,7 +43,7 @@ export const ciclo = {
   picoQ: 'Quand ai-je le plus d’énergie ?',
 
   estabHead: 'Votre corps est dans la phase stable du cycle.',
-  estabBody: 'Effet constant — gardez l’eau et les protéines à jour pour soutenir la satiété.',
+  estabBody: 'Effet constant — l’eau et les protéines aident à maintenir la satiété.',
   estabQ: 'Comment fonctionne le cycle du médicament ?',
 
   retornoHead: 'Votre faim peut commencer à augmenter dans les 24 prochaines heures.',
@@ -115,7 +115,7 @@ export const ciclo = {
      Que la faim revienne au cinquième jour effraie qui croit que le
      médicament a cessé de marcher, et c'est là qu'on abandonne. Dire que
      c'est la phase, et non l'échec, c'est tout le travail de la ligne. */
-  faseDescidaAjuda: 'c’est la phase où la faim revient — cela ne veut pas dire que le traitement a cessé de marcher',
+  faseDescidaAjuda: 'savoir que c’est la phase où la faim revient — cela ne veut pas dire que le traitement a cessé de marcher',
   /* La seule phase avec une alerte : c'est là qu'apparaissent les
      symptômes qui demandent un médecin. Ce n'est pas une alarme — c'est la
      limite entre ce qui est attendu et ce qui n'attend pas la prochaine
@@ -128,7 +128,7 @@ export const ciclo = {
   /* « La dose », et non « le stylo » : cette table est constante et ne
      connaît pas la forme du médicament — la phrase sert au stylo, au
      flacon et à la seringue. */
-  faseBaixoAjuda: 'préparez la dose et le site de la piqûre la veille',
+  faseBaixoAjuda: 'préparer la dose et le site de la piqûre la veille',
   tela: {
     titulo: 'Cycle de la dose',
     diaDepois: (dia: number, acao: string) => `Jour ${dia} après\nvotre ${acao}`,

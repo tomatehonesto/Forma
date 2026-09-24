@@ -17,7 +17,7 @@
 /* ⚠️⚠️ SOLO, EL EJE PIDE SU ARTÍCULO. El par de apertura puede ir sin él,
    en estilo de titular ("Sueño y adherencia están estables"), pero el eje
    aislado no: "Ejercicio es lo que más oscila" y "ni ejercicio se quedó
-   atrás" son el portugués, que sí lo omite. Los ocho nombres de `eixos`
+   atrás" piden "el ejercicio". Los ocho nombres de `eixos`
    tienen aquí su artículo; "mi" no pregunta género, y la proteína sola
    sería "mi proteína", que nadie dice — es el consumo. */
 const ART: Record<string, string> = {

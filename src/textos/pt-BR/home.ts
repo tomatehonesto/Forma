@@ -31,7 +31,7 @@ export const home = {
   metas: {
     proteina: 'Ingestão de proteína',
     agua: 'Beber mais água',
-    exercicio: 'Exercitar diariamente',
+    exercicio: 'Movimentar-se todo dia',
     batida: 'Meta batida',
     faltamProteina: (gramas: number) => `Faltam ${gramas} g`,
     /* A quantidade chega já escrita, com a unidade de quem lê — litro ou
@@ -86,7 +86,7 @@ export const home = {
   tipos: {
     checkin: 'Check-ins',
     aplicacao: 'Aplicações',
-    peso: 'Peso',
+    peso: 'Pesagens',
     refeicao: 'Refeições',
     exercicio: 'Exercícios',
     consulta: 'Consultas',
@@ -301,9 +301,10 @@ export const home = {
     semRegistrosNaSemana: 'Sem registros nesta semana.',
     nadaNesteTipo: 'Nada registrado neste tipo ainda',
 
-    /* A meta pessoal não tem porcentagem: tem estado. */
-    metaFeita: 'feita',
-    metaAberta: 'aberta',
+    /* A meta pessoal não tem porcentagem: tem estado. E meta não se
+       "faz" nem fica "aberta": ela está em andamento até ser alcançada. */
+    metaFeita: 'alcançada',
+    metaAberta: 'em andamento',
   },
 
   /* ============================================================
@@ -365,7 +366,7 @@ export const home = {
     verMedicamento: 'Ver o medicamento',
 
     /* ---------- a mensagem do dia ---------- */
-    entendaOPorQue: 'Entenda o por quê',
+    entendaOPorQue: 'Entenda o porquê',
 
     /* ---------- a próxima dose ---------- */
     proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
@@ -381,7 +382,7 @@ export const home = {
        que tinham o mesmo defeito, seguem a mesma forma. */
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · local sugerido: ${local}.`,
-    verAplicacao: 'Ver a aplicação',
+    verAplicacao: 'Ver suas aplicações',
     criarLembrete: 'Criar um lembrete',
 
     /* ---------- o check-in e a sequência ----------

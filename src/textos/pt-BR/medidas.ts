@@ -49,9 +49,10 @@ export const medidas = {
     massaMagra: 'Massa magra',
   },
   /* ⚠️ A VARIAÇÃO DA GORDURA É EM PONTOS PERCENTUAIS, e a abreviação
-     morava escrita em duro na lógica: "pp", que é a do português e a do
-     inglês. Em francês "pp" são páginas — lá é "pts". */
-  pontosPercentuais: 'pp',
+     morava escrita em duro na lógica: "pp", que é a do inglês. Em
+     português é "p.p.", como a imprensa escreve, e em francês "pp" são
+     páginas — lá é "pts". */
+  pontosPercentuais: 'p.p.',
 
   /* ============================================================
      A TELA DO MARCADOR — o gráfico e a lista que se corrige

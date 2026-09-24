@@ -478,7 +478,7 @@ export const marcadores = {
      junto das chaves. */
   catMetabolico: 'Metabólico',
   catLipidico: 'Lipídico',
-  catFigadoRim: 'Fígado & rim',
+  catFigadoRim: 'Fígado e rins',
   catTireoide: 'Tireoide',
   catVitaminas: 'Vitaminas',
 

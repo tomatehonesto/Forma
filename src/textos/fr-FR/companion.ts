@@ -106,8 +106,8 @@ export const companion = {
     resumosNota: 'Vos données mises en ordre pour les apporter à quelqu’un.',
 
     resumoDaSemana: 'Résumé de la semaine',
-    resumoDaSemanaSub: (semana: number, checkins: number, peso: string) =>
-      `semaine ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}, ${peso}`,
+    resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>
+      `semaine ${semana} · ${checkins} ${checkins === 1 ? 'check-in' : 'check-ins'}${peso ? `, ${peso}` : ''}`,
     preparoDaConsulta: 'Préparation de la consultation',
     preparoDaConsultaSub: 'poids, observance, symptômes et questions',
     preparoSemEquipe: 'prêt à partager',

@@ -8,18 +8,21 @@
 
    ⚠️ QUEM FOR TRADUZIR, A REGRA QUE VALE PARA O ARQUIVO INTEIRO: nenhuma
    destas frases manda fazer nada. Elas dizem o que está acontecendo e o
-   que costuma ajudar — a diferença entre "beba mais água" e "água segura
-   a saciedade nesta fase" é a diferença entre um aplicativo que cobra e
-   um que explica, e este é o segundo.
+   que costuma ajudar — a diferença entre "beba mais água" e "água ajuda a
+   manter a saciedade nesta fase" é a diferença entre um aplicativo que
+   cobra e um que explica, e este é o segundo.
    ============================================================ */
 
 export const ciclo = {
   /* ---------- o chapéu ---------- */
-  /* ⚠️ "DIA 5 DA DOSE", E NÃO "DIA 5 DE 7". O de-sete parecia contagem
-     regressiva de um prazo — sete do quê, e o que acontece quando chegar?
-     A cadência é do medicamento, não meta a cumprir. "Da dose" diz a
-     mesma posição e nomeia o relógio que a está medindo. */
-  chapeuDia: (dia: number) => `DIA ${dia} DA DOSE`,
+  /* ⚠️ "DIA 5 DEPOIS DA DOSE", E NÃO "DIA 5 DE 7". O de-sete parecia
+     contagem regressiva de um prazo — sete do quê, e o que acontece quando
+     chegar? A cadência é do medicamento, não meta a cumprir.
+
+     Era "DIA 5 DA DOSE", e dose não é um intervalo de dias. "Depois"
+     mantém a contagem sem a meta — e é a palavra da tela do ciclo, "Dia 5
+     depois da aplicação". As cinco irmãs já tinham trocado. */
+  chapeuDia: (dia: number) => `DIA ${dia} DEPOIS DA DOSE`,
   /* Sem aplicação registrada não há ciclo, e o chapéu não inventa um. */
   chapeuSemCiclo: 'PARA HOJE',
 
@@ -29,7 +32,7 @@ export const ciclo = {
      mesma notícia gastam o carrossel — este fica com o que o outro não
      diz, que é o que acontece no corpo depois de aplicar. */
   aplicHead: 'O efeito começa a subir nas próximas horas.',
-  aplicBody: 'Enjoo leve pode aparecer — prefira refeições menores ao longo do dia.',
+  aplicBody: 'Enjoo leve pode aparecer — refeições menores ao longo do dia costumam cair melhor.',
   aplicQ: 'O que esperar no dia da aplicação?',
 
   /* ---------- pico ---------- */
@@ -39,12 +42,12 @@ export const ciclo = {
 
   /* ---------- estável ---------- */
   estabHead: 'Seu corpo está na fase estável do ciclo.',
-  estabBody: 'Efeito constante — mantenha água e proteína em dia para sustentar a saciedade.',
+  estabBody: 'Efeito constante — água e proteína em dia ajudam a sustentar a saciedade.',
   estabQ: 'Como funciona o ciclo da medicação?',
 
   /* ---------- retorno da fome ---------- */
   retornoHead: 'Sua fome pode começar a aumentar nas próximas 24 horas.',
-  retornoBody: 'Proteína e água seguram a saciedade nesta fase do ciclo.',
+  retornoBody: 'Proteína e água ajudam a manter a saciedade nesta fase do ciclo.',
   retornoQ: 'Por que sinto mais fome?',
 
   /* ---------- ponto alto da fome ---------- */
@@ -95,7 +98,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Início do retorno da fome',
   faseRetornoRange: 'Dias 5–6',
-  faseRetornoHint: 'O remédio começa a cair, e a fome tende a voltar.',
+  faseRetornoHint: 'O nível do remédio começa a cair, e a fome tende a voltar.',
 
   fasePreLabel: 'Pré-aplicação',
   fasePreRange: 'Dias 7+',
@@ -125,8 +128,12 @@ export const ciclo = {
   /* ⚠️ A METADE FINAL DESTA FRASE É O MOTIVO DE ELA EXISTIR. A fome voltar
      no quinto dia assusta quem acha que o remédio parou de funcionar, e
      desistir aí é comum. Dizer que é a fase, e não a falha, é o trabalho
-     inteiro da linha. */
-  faseDescidaAjuda: 'é a fase em que a fome volta — não significa que o tratamento parou de funcionar',
+     inteiro da linha.
+
+     E ela entra debaixo de "O que ajuda", como as outras três: por isso
+     começa em "saber que". Sem isso, o rótulo prometia uma dica e a linha
+     só descrevia a fase. */
+  faseDescidaAjuda: 'saber que é a fase em que a fome volta — não significa que o tratamento parou de funcionar',
   /* A única fase com atenção: é onde os sintomas que pedem médico
      aparecem. Não é alarme — é o limite entre o esperado e o que não
      espera a próxima consulta. */
@@ -138,7 +145,7 @@ export const ciclo = {
   /* "A dose", e não "a caneta": esta tabela é constante e não sabe a forma
      do medicamento — a frase serve caneta, frasco e seringa igualmente.
      Ver logic/formas. */
-  faseBaixoAjuda: 'deixe a dose e o local da aplicação definidos na véspera',
+  faseBaixoAjuda: 'deixar a dose e o local da aplicação definidos na véspera',
   /* ============================================================
      CICLO DA DOSE — a tela que responde "por que a fome voltou?"
 
@@ -159,11 +166,11 @@ export const ciclo = {
 
     cicloAtual: 'Ciclo atual',
     diaDeTotal: (dia: number, total: number) => `dia ${dia} de ${total}`,
-    proximaDose: (data: string) => `Próxima dose ${data}`,
+    proximaDose: (data: string) => `Próxima dose: ${data}`,
 
     asQuatroFases: 'As quatro fases',
     comum: 'Comum',
-    ajuda: 'Ajuda',
+    ajuda: 'O que ajuda',
     atencao: 'Atenção',
 
     conteudoGeral: 'Isto é conteúdo geral',

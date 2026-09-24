@@ -83,21 +83,21 @@ export const conquistas = {
   pctFalta: (r: string) => `Faltam ${r} pontos`,
 
   pesagens: 'Pesagens',
-  pesagensDesc: (a: number) => `${p(a, 'peso')} registrado${a === 1 ? '' : 's'}`,
+  pesagensDesc: (a: number) => `${p(a, 'pesagem', 'pesagens')} registrada${a === 1 ? '' : 's'}`,
   pesagensFalta: (r: number) => `Faltam ${p(r, 'pesagem', 'pesagens')}`,
 
   /* ---------------- constância ---------------- */
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'dia')} respondido${a === 1 ? '' : 's'}`,
+  checkinsDesc: (a: number) => `${p(a, 'dia')} com check-in`,
   checkinsFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
 
   sequencia: 'Dias seguidos',
-  sequenciaDesc: (a: number) => `${p(a, 'check-in')} em dias seguidos`,
+  sequenciaDesc: (a: number) => `${p(a, 'check-in')} seguidos`,
   sequenciaFalta: (r: number, alvo: number) => `Faltam ${p(r, 'dia')} para ${alvo}`,
 
   /* ---------------- hidratação ---------------- */
   aguaDias: 'Dias na meta de água',
-  aguaDiasDesc: (a: number) => `${p(a, 'dia')} de água cumprida`,
+  aguaDiasDesc: (a: number) => `${p(a, 'dia')} na meta de água`,
   aguaDiasFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
 
   aguaSemana: 'Semana hidratada',
@@ -106,7 +106,7 @@ export const conquistas = {
 
   /* ---------------- proteína ---------------- */
   protDias: 'Dias na meta de proteína',
-  protDiasDesc: (a: number) => `${p(a, 'dia')} na meta do perfil`,
+  protDiasDesc: (a: number) => `${p(a, 'dia')} na meta de proteína`,
   protDiasFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
 
   protSeq: 'Proteína seguida',
@@ -124,7 +124,7 @@ export const conquistas = {
 
   /* ---------------- alimentação ---------------- */
   refeicoes: 'Refeições',
-  refeicoesDesc: (a: number) => `${p(a, 'prato')} registrado${a === 1 ? '' : 's'}`,
+  refeicoesDesc: (a: number) => `${p(a, 'refeição', 'refeições')} registrada${a === 1 ? '' : 's'}`,
   refeicoesFalta: (r: number) => `Faltam ${p(r, 'refeição', 'refeições')}`,
 
   favoritos: 'Pratos favoritos',
@@ -132,7 +132,7 @@ export const conquistas = {
   favoritosFalta: (r: number) => `Faltam ${p(r, 'prato')}`,
 
   /* ---------------- acompanhamento ---------------- */
-  medidas: 'Medidas de fita',
+  medidas: 'Medidas do corpo',
   medidasDesc: (a: number) => `${p(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
   medidasFalta: (r: number) => `Faltam ${p(r, 'medição', 'medições')}`,
 
@@ -143,7 +143,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `Faltam ${comp}`,
 
   exames: 'Exames',
-  examesDesc: (a: number) => `${p(a, 'painel', 'painéis')} importado${a === 1 ? '' : 's'}`,
+  examesDesc: (a: number) => `${p(a, 'exame')} importado${a === 1 ? '' : 's'}`,
   examesFalta: (r: number) => `Faltam ${p(r, 'exame')}`,
 
   consultas: 'Consultas',

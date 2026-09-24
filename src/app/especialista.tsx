@@ -420,7 +420,9 @@ export default function Especialista() {
                   <Icon name="shield" size={17} color={c.tx3} sw={1.9} />
                 </View>
                 <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
-                  Dose, protocolo e qualquer ajuste no tratamento são decisão de {f.nome}.
+                  {/* O artigo sai do título, quando há: "da Dra.", "do Dr.".
+                      Sem título não há como saber, e "de" fica certo. */}
+                  Dose, protocolo e qualquer ajuste no tratamento são decisão {/^Dra\.?\s/i.test(f.nome) ? 'da' : /^Dr\.?\s/i.test(f.nome) ? 'do' : 'de'} {f.nome}.
                   A gente organiza os seus registros e prepara o que levar — não prescreve.
                 </Txt>
               </Row>

@@ -150,7 +150,7 @@ export const aviso = {
 
     gerar: 'Gerar o arquivo',
     gerando: 'Gerando...',
-    verResumo: 'Ver o resumo para consulta',
+    verResumo: 'Ver o resumo para a consulta',
 
     pronto: 'Arquivo gerado. Ele só vai para onde você escolher.',
     erro: 'Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.',

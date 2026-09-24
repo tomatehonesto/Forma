@@ -275,7 +275,7 @@ export const tratamento = {
        motivo de a grade não ter vermelho: quem perdeu uma dose quase
        sempre perdeu porque passou mal, e uma casa vermelha num calendário
        de medicamento é o aplicativo cobrando de quem já pagou. */
-    semCulpa: 'Sem culpa por um dia que passou — o que conta é retomar. Dá para registrar uma aplicação anterior a qualquer momento, no botão lá embaixo.',
+    semCulpa: 'Sem culpa por um dia perdido — o que conta é retomar. Dá para registrar uma aplicação anterior a qualquer momento, no botão lá embaixo.',
     titulo: 'Aplicações',
     registrar: 'Registrar aplicação',
     /* Os três chegam prontos: a marca, o princípio ativo e a cadência. */
@@ -310,7 +310,7 @@ export const tratamento = {
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+      `${veredito} — dá para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de aplicação`,
     nenhumAlerta: 'Nenhum alerta de aplicação',
@@ -329,7 +329,7 @@ export const tratamento = {
 
     nivelNoCorpo: 'Nível no corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Estimativa de ${molecula} no corpo, com meia-vida de ${meiaVida}. O ponto mais baixo, antes da próxima dose, costuma ser quando a fome aumenta.`,
+      `Estimativa do nível de ${molecula} no corpo, com meia-vida de ${meiaVida}. O ponto mais baixo, antes da próxima dose, costuma ser quando a fome aumenta.`,
     meiaVidaDias: (dias: number) => `${dias} dias`,
     meiaVidaHoras: 'cerca de 13 horas',
 
@@ -369,8 +369,8 @@ export const tratamento = {
     desteF: 'desta',
     novoM: 'Novo',
     novoF: 'Nova',
-    encerradoM: 'encerrado',
-    encerradoF: 'encerrada',
+    encerradoM: 'usado',
+    encerradoF: 'usada',
 
     nova: 'Nova',
     lembrarRenovar: 'Lembrar de renovar',
@@ -410,7 +410,7 @@ export const tratamento = {
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} dura ${dias} dias depois de ${aberto}, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`,
 
-    momentoDeRenovar: 'Momento de pedir a renovação',
+    momentoDeRenovar: 'Hora de pedir a renovação',
     renovarTexto: (semanas: number) =>
       `Sua receita cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem o medicamento entre uma consulta e outra.`,
 
@@ -517,7 +517,7 @@ export const tratamento = {
        o histórico mostra data, o calendário conta por dia e a curva
        farmacológica trabalha em dias. */
     quando: 'Quando',
-    ficaRegistradaAgora: (hora: string) => `Fica registrada agora, ${hora}.`,
+    ficaRegistradaAgora: (hora: string) => `Fica registrada agora, às ${hora}.`,
     registrarDepois: 'Registrar depois não muda nada além da data — a contagem da próxima dose sai daqui.',
 
     /* ---------- medicamento e dose ---------- */

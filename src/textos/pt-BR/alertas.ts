@@ -146,7 +146,7 @@ export const alertas = {
   telaNotificacoes: {
     titulo: 'Notificações',
     lead: 'O que contamos para você nos últimos dias.',
-    todos: 'Todos',
+    todos: 'Todas',
     origemTratamento: 'Tratamento',
     origemMensagens: 'Mensagens',
     vazio: 'Nada por aqui',

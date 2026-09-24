@@ -132,7 +132,7 @@ export const ciclo = {
      das Medikament habe aufgehört zu wirken, und genau dort aufzuhören ist
      häufig. Zu sagen, dass es die Phase ist und nicht das Versagen, ist
      die ganze Arbeit dieser Zeile. */
-  faseDescidaAjuda: 'das ist die Phase, in der der Hunger zurückkommt — es heißt nicht, dass die Behandlung aufgehört hat zu wirken',
+  faseDescidaAjuda: 'zu wissen, dass in dieser Phase der Hunger zurückkommt — es heißt nicht, dass die Behandlung aufgehört hat zu wirken',
   /* Die einzige Phase mit einem Achtung: hier tauchen die Symptome auf,
      die eine Ärztin brauchen. Das ist kein Alarm — es ist die Grenze
      zwischen dem Erwarteten und dem, was nicht bis zum nächsten Termin

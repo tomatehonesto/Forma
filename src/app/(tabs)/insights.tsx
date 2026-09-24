@@ -10,6 +10,7 @@ import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
   balanceRead, balanceSeries, companionMemoria, temAcompanhamento, journeySummary, respostaNoDia,
+  variacaoDe,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
 import { Txt, Row, SectionHead, ListRow, Rolagem } from '../../ui/kit';
@@ -21,7 +22,7 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
-import { pesoTxt } from '../../logic/medidas';
+import { pesoV, pesoU } from '../../logic/medidas';
 import { T } from '../../textos';
 
 /* ============================================================
@@ -199,7 +200,12 @@ export default function Insights() {
   const memoria = useMemo(() => companionMemoria(S), [S]);
 
   const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
-  const dSem = w.length >= 2 ? w[w.length - 1].kg - w[0].kg : 0;
+  /* ⚠️ COM SINAL, E SÓ QUANDO HÁ O QUE COMPARAR. Era o valor absoluto:
+     "0,4 kg" não dizia se a semana foi de perda ou de ganho. E com menos
+     de duas pesagens nos sete dias a linha escrevia "0,0 kg", uma
+     estabilidade que ninguém mediu — sem as duas, o peso sai da linha. */
+  const vSem = w.length >= 2 ? variacaoDe(pesoV(S, w[w.length - 1].kg - w[0].kg), pesoU(S)) : null;
+  const dSem = !vSem ? null : vSem.tom === 'neutro' ? vSem.delta.toLowerCase() : vSem.delta;
   /* Conta check-ins, e check-in é dia com resposta — não dia com linha. */
   const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7) && respostaNoDia(x)).length;
 
@@ -305,7 +311,7 @@ export default function Insights() {
               sob a pergunta, não uma barra de identidade no topo */}
           {/* A credencial fala em primeira pessoa e em extensão de tempo, não
               em contagem. "Leu 51 registros" é verdadeiro e soa a contador;
-              "acompanho desde a primeira aplicação" é memória, que é o que
+              "acompanho desde a primeira dose" é memória, que é o que
               faz acreditar que ele conhece ESTA pessoa. */}
           <Txt v="caption" c={c.onHero2} style={{ marginTop: 10, textAlign: 'center' }}>
             {memoria}
@@ -674,7 +680,7 @@ export default function Insights() {
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
             <ListRow ic="chart" title={K().resumoDaSemana}
-              sub={K().resumoDaSemanaSub(r.semana, ci7, pesoTxt(S, Math.abs(dSem)))}
+              sub={K().resumoDaSemanaSub(r.semana, ci7, dSem)}
               onPress={perguntar(T.rotina.perguntas.meuProgresso)} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="cal" title={K().preparoDaConsulta}

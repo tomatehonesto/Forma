@@ -49,7 +49,7 @@ export const ciclo = {
 
   /* ---------- stabile ---------- */
   estabHead: 'Il tuo corpo è nella fase stabile del ciclo.',
-  estabBody: 'Effetto costante — tieni acqua e proteine in ordine per sostenere la sazietà.',
+  estabBody: 'Effetto costante — acqua e proteine a sufficienza aiutano a mantenere la sazietà.',
   estabQ: 'Come funziona il ciclo del farmaco?',
 
   /* ---------- ritorno della fame ---------- */
@@ -126,7 +126,7 @@ export const ciclo = {
      fame torni al quinto giorno spaventa chi crede che il farmaco abbia
      smesso di funzionare, e mollare lì è comune. Dire che è la fase, e
      non il fallimento, è tutto il lavoro della riga. */
-  faseDescidaAjuda: 'è la fase in cui la fame torna — non vuol dire che la terapia abbia smesso di funzionare',
+  faseDescidaAjuda: 'sapere che è la fase in cui la fame torna — non vuol dire che la terapia abbia smesso di funzionare',
   /* L'unica fase con un'attenzione: è dove compaiono i sintomi che
      chiedono un medico. Non è un allarme — è il confine fra quello che ci
      si aspetta e quello che non aspetta la prossima visita. */
@@ -137,7 +137,7 @@ export const ciclo = {
   faseBaixoComum: 'appetito più vicino al solito',
   /* "La dose", e non "la penna": questa tabella è costante e non sa che
      forma abbia il farmaco. */
-  faseBaixoAjuda: 'lascia decise la sera prima la dose e la zona della puntura',
+  faseBaixoAjuda: 'lasciare decise la sera prima la dose e la zona della puntura',
 
   /* ============================================================
      CICLO DELLA DOSE — la schermata che risponde "perché è tornata la

@@ -116,7 +116,7 @@ export const conquistas = {
 
   /* ---------------- nutrition ---------------- */
   refeicoes: 'Meals',
-  refeicoesDesc: (a: number) => `${p(a, 'plate')} logged`,
+  refeicoesDesc: (a: number) => `${p(a, 'meal')} logged`,
   refeicoesFalta: (r: number) => `${p(r, 'meal')} to go`,
 
   favoritos: 'Favorite meals',
@@ -124,7 +124,7 @@ export const conquistas = {
   favoritosFalta: (r: number) => `${p(r, 'plate')} to go`,
 
   /* ---------------- follow-up ---------------- */
-  medidas: 'Tape measurements',
+  medidas: 'Body measurements',
   medidasDesc: (a: number) => `${p(a, 'measurement')} logged`,
   medidasFalta: (r: number) => `${p(r, 'measurement')} to go`,
 

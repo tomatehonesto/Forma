@@ -46,9 +46,9 @@ export const exames = {
        com a vírgula porque emenda na frase seguinte. */
     desde: (data: string) => ` Desde ${data},`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} um marcador caminhou na direção esperada, e a maior mudança foi em ${qual}: de ${de} para ${para} ${unidade}.`,
+      `${desde} um marcador caminhou na direção esperada. A maior mudança: ${qual}, de ${de} para ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} ${quantos} marcadores caminharam na direção esperada, e a maior mudança foi em ${qual}: de ${de} para ${para} ${unidade}.`,
+      `${desde} ${quantos} marcadores caminharam na direção esperada. A maior mudança: ${qual}, de ${de} para ${para} ${unidade}.`,
 
     /* ⚠️ A PIORA VEM NA MESMA FRASE E COM O MESMO PESO DA MELHORA. Um
        resumo que só conta o que melhorou é propaganda, e quem está lendo
@@ -150,7 +150,7 @@ export const exames = {
   tela: {
     titulo: 'Exames',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última coleta ${ultimaColeta}`,
+      `${quantos} ${quantos === 1 ? 'marcador' : 'marcadores'} · última coleta em ${ultimaColeta}`,
     foraDaReferencia: 'fora da referência',
     naReferencia: 'na referência',
     blocoFora: 'Fora da referência',

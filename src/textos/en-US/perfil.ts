@@ -38,7 +38,7 @@ export const perfil = {
   personalize: 'Make the app yours',
   aparencia: 'Appearance',
   aparenciaSub: (paleta: string, escuro: boolean) =>
-    `${paleta}, in ${escuro ? 'dark' : 'light'} · pick the app’s color`,
+    `${paleta}, ${escuro ? 'dark' : 'light'} mode · pick the app’s color`,
   idiomaSub: (idioma: string) => idioma,
   unidades: 'Units of measurement',
   unidadesSub: (sistema: string, unidades: string) => `${sistema} · ${unidades}`,
@@ -50,7 +50,7 @@ export const perfil = {
   ajudaSub: 'Frequently asked questions about the app',
 
   reportar: 'Report a problem',
-  reportarSub: 'Tell us what happened — it goes with the app version',
+  reportarSub: 'Tell us what happened — we’ll attach the app version',
   problemaAssunto: 'Morphi — problem',
   problemaSistema: (sistema: string, versao: string) => `System: ${sistema} ${versao}`,
   problemaPaleta: (paleta: string, escuro: boolean) =>

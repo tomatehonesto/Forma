@@ -82,7 +82,7 @@ export const perfil = {
   /* ⚠️ DIZIA "a cor do seu Morphi", e o aplicativo não se chama pelo nome
      quando fala com quem usa. */
   aparenciaSub: (paleta: string, escuro: boolean) =>
-    `${paleta}, no ${escuro ? 'escuro' : 'claro'} · escolha a cor do aplicativo`,
+    `${paleta}, modo ${escuro ? 'escuro' : 'claro'} · escolha a cor do aplicativo`,
   /* ⚠️ A LINHA DO IDIOMA DIZIA "Português · Brasil" EM TODO IDIOMA. Era
      um ternário de duas saídas para cinco locais e dezenas de países.
      Agora ela repete o que a tela do outro lado mostra, e os dois nomes
@@ -105,7 +105,7 @@ export const perfil = {
      aparelho. NADA DO DIÁRIO VAI JUNTO — peso, dose e sintoma não saem
      daqui sem a pessoa mandar, e um relato de defeito não é mandar. */
   reportar: 'Reportar um problema',
-  reportarSub: 'Conte o que aconteceu — vai com a versão do aplicativo',
+  reportarSub: 'Conte o que aconteceu — a versão do aplicativo vai junto',
   problemaAssunto: 'Morphi — problema',
   problemaSistema: (sistema: string, versao: string) => `Sistema: ${sistema} ${versao}`,
   problemaPaleta: (paleta: string, escuro: boolean) =>
