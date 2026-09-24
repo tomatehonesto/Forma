@@ -367,6 +367,8 @@ export const cuidado = {
       `Dein Zielgewicht in der Anwendung ist ${minha}. Die beiden bestehen nebeneinander — deins misst weiterhin den Weg —, und der Unterschied zwischen ihnen ist eine gute Frage für den nächsten Termin.`,
 
     documentos: 'Dokumente und Befunde',
+    tipoExame: 'Befund',
+    tipoResumo: 'Von der KI erstellt',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };

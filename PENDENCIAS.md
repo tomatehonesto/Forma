@@ -1907,7 +1907,7 @@ disso antes.
 
 ---
 
-## 🔴 27. A semente é uma paciente brasileira, e ela abre em todo mercado
+## 🟡 27. A semente é uma paciente brasileira, e ela abre em todo mercado
 
 `store.hydrate()` cai em `buildSeed()` quando não há nada gravado — ou
 seja, **toda instalação nova abre na demonstração**, com setenta dias de
@@ -1975,6 +1975,43 @@ caminho de quem respondeu "não" no cadastro.
 
 A segunda é mais barata e provavelmente mais certa. A primeira só se paga
 se a demonstração for material de venda.
+
+### ✅ Decidido em 24/09/2026: uma persona por idioma (a saída 1)
+
+Feito. A persona mora em `src/textos/<idioma>/semente.ts`, um módulo do
+catálogo separado dos outros porque não é o aplicativo falando, e
+`buildSeed()` lê dele na hora de montar:
+
+- **pt-BR** continua sendo a Mariana, com a Dra. Helena, a Clínica
+  Vitalis, a rede parceira e tudo que depende dela.
+- **Os outros cinco** — Sarah (en-US), Valeria (es-419), Camille (fr-FR),
+  Julia (de-DE) e Giulia (it-IT) — se tratam com **médico próprio**,
+  porque a rede parceira não existe fora do Brasil. Sem vínculo, sem
+  conversa com a equipe, sem receitas, equipe, materiais nem a tarefa de
+  exame: é o mesmo recorte do modo "sem clínica parceira" de
+  `logic/store`. Da médica, só o que a pessoa digitaria em
+  /acompanhamento — nome, especialidade e onde é atendida; registro,
+  biografia e nota de avaliação seriam números que ninguém forneceu.
+- Metas, notas, consultas, documentos, arquivos de exame, histórico e
+  sintoma próprio são de cada persona. Refeições e treinos são gravados
+  com os rótulos do catálogo, como o aplicativo grava um registro novo.
+- O tipo de documento virou chave (`'exame'`/`'resumo'`), e o rótulo sai
+  de `tipoDoDocumento` — "Exame" aparecia em português na tela do
+  médico em qualquer idioma.
+
+**O que continua em aberto:**
+
+1. **A persona é lida uma vez.** O que a semente grava fica gravado; quem
+   troca de idioma depois continua com a persona antiga até tocar em
+   "Reconstruir a semente", no fim do Perfil.
+2. **Os nomes dos alimentos são do MERCADO, não do idioma.** A build é do
+   mercado brasileiro, e "comida é do lugar" (`logic/mercado`): a Julia
+   come arroz integral e peito de frango grelhado, com os nomes da TACO.
+   Resolve-se com build por mercado — ver o item 18.
+3. **A saída 2 continua de pé como decisão separada**: instalação nova
+   ainda abre na demonstração, agora na persona do idioma do aparelho.
+4. **A prosa das cinco personas foi escrita por mim**, e entra na revisão
+   nativa do item 20 junto com o resto.
 
 ---
 

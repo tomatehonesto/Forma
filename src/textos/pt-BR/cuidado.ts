@@ -477,6 +477,8 @@ export const cuidado = {
       `A sua meta de peso, no aplicativo, é ${minha}. As duas convivem — a sua continua medindo a Jornada —, e a diferença entre elas é uma boa pergunta para a próxima consulta.`,
 
     documentos: 'Documentos e exames',
+    tipoExame: 'Exame',
+    tipoResumo: 'Gerado pela IA',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };

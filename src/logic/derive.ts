@@ -5013,6 +5013,15 @@ export function carePending(S: State) {
 export const destinoDoDocumento = (kind: string) =>
   /exame/i.test(kind) ? '/exames' : '/resumo-medico';
 
+/* ⚠️ O TIPO DO DOCUMENTO É CHAVE, E ERA RÓTULO. A semente gravava "Exame" e
+   "Gerado pela IA" em português, a tela mostrava o que estava gravado, e
+   a rota acima decidia o destino procurando "exame" dentro do rótulo.
+   Agora a semente grava 'exame' ou 'resumo', e o rótulo sai do catálogo
+   na hora de mostrar. O que foi gravado antes continua entrando pela
+   mesma regra — "Exame" casa com /exame/, e o resto é resumo. */
+export const tipoDoDocumento = (kind: string) =>
+  /exame/i.test(kind) ? T.cuidado.telaAreaMedica.tipoExame : T.cuidado.telaAreaMedica.tipoResumo;
+
 /** Documentos e exames em uma lista só, do mais recente para o mais antigo. */
 export function careDocs(S: State, n = 3) {
   const docs = (S.documents as any[]).map((d) => ({

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
 import {
-  fichaDaEquipe, destinoDoDocumento, notasAbertas, clinicaConectada,
+  fichaDaEquipe, destinoDoDocumento, tipoDoDocumento, notasAbertas, clinicaConectada,
   metaClinica, metasDiscordam, ALVOS, type ChaveDeAlvo,
 } from '../logic/derive';
 import { Txt, Card, Row, Chevron, SectionHead, Rolagem } from '../ui/kit';
@@ -543,7 +543,7 @@ export default function Medico() {
               key={`${d.name}-${i}`}
               ic="doc"
               titulo={d.name}
-              sub={K().documentoSub(d.kind, fmtDate(new Date(d.t)))}
+              sub={K().documentoSub(tipoDoDocumento(d.kind), fmtDate(new Date(d.t)))}
               onPress={go(destinoDoDocumento(d.kind))}
             />
           ))}

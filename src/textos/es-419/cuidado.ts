@@ -328,6 +328,8 @@ export const cuidado = {
       `Tu meta de peso, en la aplicación, es ${minha}. Las dos conviven — la tuya sigue midiendo el Camino —, y la diferencia entre ellas es una buena pregunta para la próxima consulta.`,
 
     documentos: 'Documentos y exámenes',
+    tipoExame: 'Estudio',
+    tipoResumo: 'Generado por IA',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };

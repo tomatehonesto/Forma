@@ -335,6 +335,8 @@ export const cuidado = {
       `Votre objectif de poids, dans l’application, est de ${minha}. Les deux coexistent — le vôtre continue de mesurer le Parcours —, et l’écart entre eux est une bonne question pour la prochaine consultation.`,
 
     documentos: 'Documents et analyses',
+    tipoExame: 'Analyse',
+    tipoResumo: 'Généré par l’IA',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };

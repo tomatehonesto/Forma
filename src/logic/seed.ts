@@ -13,11 +13,41 @@ import type { Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
 import { sistemaDe } from './medidas';
+import { T } from '../textos';
 
 export const HEIGHT = 1.67;
 
+/* O que o aplicativo sabe de quem acompanha. Com rede parceira a ficha
+   vem inteira da clínica; de médico próprio, só o que a pessoa digitou —
+   ver o comentário de `semente` em src/textos/pt-BR. */
+type FichaDaMedica = {
+  crm?: string; especialidade?: string; anos?: number; pacientes?: number;
+  rating?: number; avaliacoes?: number; sobre?: string; abordagens?: string[]; formacao?: string[];
+};
+type FichaDaClinica = {
+  especialidade?: string; cidade?: string; sobre?: string; endereco?: string; horario?: string;
+  convenios?: string[]; contato?: { site?: string; email?: string };
+};
+
 export function buildSeed() {
   const med = 'mounjaro';
+  /* ⚠️⚠️ A PERSONA SAI DO CATÁLOGO, e é lida uma vez, aqui. Cada idioma
+     tem a sua — a Mariana é a brasileira; a alemã é a Julia, com médica
+     própria em outra cidade. Ver src/textos/pt-BR/semente.ts e o item 27
+     do PENDENCIAS.
+
+     ⚠️ A CÓPIA PROFUNDA É DE PROPÓSITO. O estado não pode guardar os
+     mesmos arrays do catálogo: a primeira edição de uma nota ou de um
+     sintoma escreveria dentro do módulo de textos, e a próxima semente
+     nasceria com ela. */
+  const P = JSON.parse(JSON.stringify(T.semente)) as typeof T.semente;
+  const comRede = P.redeParceira;
+  /* Refeição e treino são gravados com o rótulo do catálogo, como o
+     aplicativo grava um registro novo — ver medir-refeicao e
+     logic/modalidades. */
+  const MOM = T.alimentacao.prato;
+  const MOD = T.aviso.modalidades;
+  const RELOGIO = T.aviso.appleSaude;
   /* Pesos: 82,4 -> 75,1 em ~70 dias.
      A curva tem platô e duas semanas de leve ganho de propósito. Perda com
      GLP-1 não é linear, e um seed em linha reta contradiz o que o próprio
@@ -48,13 +78,13 @@ export function buildSeed() {
      Aqui a ordem se inverte: o dia tem refeições, e `prot` é a SOMA
      delas. Uma fonte por campo, inclusive na semente. */
   const CARDAPIO: { name: string; itens: ItemComida[]; h: number }[] = [
-    { name: 'Café da manhã', h: 8, itens: [{ id: 'ovo-frito', qtd: 2 }, { id: 'pao-integral', qtd: 2 }] },
-    { name: 'Café da manhã', h: 8, itens: [{ id: 'iogurte', qtd: 1 }, { id: 'whey', qtd: 1 }] },
-    { name: 'Almoço', h: 12.5, itens: [{ id: 'peito-frango', qtd: 1 }, { id: 'arroz-integral', qtd: 4 }, { id: 'salada-folhas', qtd: 1 }] },
-    { name: 'Almoço', h: 12.5, itens: [{ id: 'patinho', qtd: 1 }, { id: 'arroz', qtd: 4 }, { id: 'legumes', qtd: 1 }] },
-    { name: 'Jantar', h: 19.5, itens: [{ id: 'salmao', qtd: 1 }, { id: 'brocolis', qtd: 1 }] },
-    { name: 'Jantar', h: 19.5, itens: [{ id: 'omelete', qtd: 1 }, { id: 'queijo-minas', qtd: 1 }] },
-    { name: 'Lanche', h: 16, itens: [{ id: 'queijo-minas', qtd: 1 }] },
+    { name: MOM.cafeDaManha, h: 8, itens: [{ id: 'ovo-frito', qtd: 2 }, { id: 'pao-integral', qtd: 2 }] },
+    { name: MOM.cafeDaManha, h: 8, itens: [{ id: 'iogurte', qtd: 1 }, { id: 'whey', qtd: 1 }] },
+    { name: MOM.almoco, h: 12.5, itens: [{ id: 'peito-frango', qtd: 1 }, { id: 'arroz-integral', qtd: 4 }, { id: 'salada-folhas', qtd: 1 }] },
+    { name: MOM.almoco, h: 12.5, itens: [{ id: 'patinho', qtd: 1 }, { id: 'arroz', qtd: 4 }, { id: 'legumes', qtd: 1 }] },
+    { name: MOM.jantar, h: 19.5, itens: [{ id: 'salmao', qtd: 1 }, { id: 'brocolis', qtd: 1 }] },
+    { name: MOM.jantar, h: 19.5, itens: [{ id: 'omelete', qtd: 1 }, { id: 'queijo-minas', qtd: 1 }] },
+    { name: MOM.lanche, h: 16, itens: [{ id: 'queijo-minas', qtd: 1 }] },
   ];
 
   /* Hoje entra pela metade de propósito: um dia em andamento é o estado
@@ -159,31 +189,34 @@ export function buildSeed() {
 
      A origem também é da semente: sem uma mistura de registro manual e
      integração, a linha "de onde veio" nunca aparece nas duas formas. */
+  /* ⚠️ O NOME É O DA TABELA DE MODALIDADES, lido do catálogo. Era
+     "Bicicleta" escrito aqui enquanto a tabela diz "Bike" — o treino não
+     casava com modalidade nenhuma e saía com o ícone genérico. */
   const SESSOES: Record<number, { tipo: string; min: number; fonte?: string }[]> = {
-    55: [{ tipo: 'Musculação', min: 45 }],
-    53: [{ tipo: 'Corrida', min: 30, fonte: 'Apple Saúde' }],
-    50: [{ tipo: 'Musculação', min: 45 }],
-    47: [{ tipo: 'Caminhada', min: 35, fonte: 'Apple Saúde' }],
-    44: [{ tipo: 'Musculação', min: 30 }],
-    41: [{ tipo: 'Musculação', min: 50 }],
-    39: [{ tipo: 'Bicicleta', min: 40, fonte: 'Apple Saúde' }],
-    37: [{ tipo: 'Musculação', min: 40 }],
-    35: [{ tipo: 'Caminhada', min: 20, fonte: 'Apple Saúde' }],
-    33: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
-    30: [{ tipo: 'Musculação', min: 60 }],
-    27: [{ tipo: 'Musculação', min: 55 }],
-    25: [{ tipo: 'Natação', min: 45 }],
-    23: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
-    21: [{ tipo: 'Musculação', min: 40 }],
-    19: [{ tipo: 'Musculação', min: 50 }],
-    17: [{ tipo: 'Caminhada', min: 25, fonte: 'Apple Saúde' }],
-    15: [{ tipo: 'Pilates', min: 35 }],
-    12: [{ tipo: 'Musculação', min: 40 }],
-    10: [{ tipo: 'Caminhada', min: 30, fonte: 'Apple Saúde' }],
-    8: [{ tipo: 'Corrida', min: 35, fonte: 'Apple Saúde' }],
-    5: [{ tipo: 'Musculação', min: 80 }],
-    3: [{ tipo: 'Pilates', min: 40 }],
-    1: [{ tipo: 'Corrida', min: 30, fonte: 'Apple Saúde' }],
+    55: [{ tipo: MOD.musculacao, min: 45 }],
+    53: [{ tipo: MOD.corrida, min: 30, fonte: RELOGIO }],
+    50: [{ tipo: MOD.musculacao, min: 45 }],
+    47: [{ tipo: MOD.caminhada, min: 35, fonte: RELOGIO }],
+    44: [{ tipo: MOD.musculacao, min: 30 }],
+    41: [{ tipo: MOD.musculacao, min: 50 }],
+    39: [{ tipo: MOD.bike, min: 40, fonte: RELOGIO }],
+    37: [{ tipo: MOD.musculacao, min: 40 }],
+    35: [{ tipo: MOD.caminhada, min: 20, fonte: RELOGIO }],
+    33: [{ tipo: MOD.corrida, min: 35, fonte: RELOGIO }],
+    30: [{ tipo: MOD.musculacao, min: 60 }],
+    27: [{ tipo: MOD.musculacao, min: 55 }],
+    25: [{ tipo: MOD.natacao, min: 45 }],
+    23: [{ tipo: MOD.corrida, min: 35, fonte: RELOGIO }],
+    21: [{ tipo: MOD.musculacao, min: 40 }],
+    19: [{ tipo: MOD.musculacao, min: 50 }],
+    17: [{ tipo: MOD.caminhada, min: 25, fonte: RELOGIO }],
+    15: [{ tipo: MOD.pilates, min: 35 }],
+    12: [{ tipo: MOD.musculacao, min: 40 }],
+    10: [{ tipo: MOD.caminhada, min: 30, fonte: RELOGIO }],
+    8: [{ tipo: MOD.corrida, min: 35, fonte: RELOGIO }],
+    5: [{ tipo: MOD.musculacao, min: 80 }],
+    3: [{ tipo: MOD.pilates, min: 40 }],
+    1: [{ tipo: MOD.corrida, min: 30, fonte: RELOGIO }],
   };
   const minDoDia = (d: number) => (SESSOES[d] || []).reduce((x, tr) => x + tr.min, 0);
 
@@ -270,8 +303,8 @@ export function buildSeed() {
 
   return {
     profile: {
-      name: 'Mariana Silva', med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
-      startT: +daysAgo(70), doctor: 'Dra. Helena Costa', clinic: 'Clínica Vitalis',
+      name: P.nome, med, dose: 5, startWeight: 82.4, goalWeight: 68, height: HEIGHT,
+      startT: +daysAgo(70), doctor: P.medica, clinic: P.clinica,
       /* ⚠️ EM QUE FORMA ELA APLICA — e a semente NÃO responde, de
          propósito.
 
@@ -305,8 +338,13 @@ export function buildSeed() {
 
          A semente não passou por essa porta: ela chega com o vínculo
          pronto, de setenta dias atrás, e por isso não tem `convite`. É de
-         propósito — os dois campos precisam saber viver um sem o outro. */
-      vinculo: { desde: +daysAgo(70) },
+         propósito — os dois campos precisam saber viver um sem o outro.
+
+         ⚠️ E SÓ A PERSONA BRASILEIRA TEM. A rede parceira não existe fora
+         do Brasil; as outras se tratam com médico próprio, e sem vínculo
+         as doze telas que perguntam `clinicaConectada` caem sozinhas no
+         caminho de quem não tem plataforma do outro lado. */
+      vinculo: (comRede ? { desde: +daysAgo(70) } : null) as { desde: number } | null,
       /* ⚠️ A FICHA DA CLÍNICA, e ela é OPCIONAL de ponta a ponta.
 
          `clinic` guarda o nome e já existia; isto é o resto — o que a
@@ -318,17 +356,19 @@ export function buildSeed() {
          semente é inofensivo; inventar um telefone é fazer alguém ligar
          para a casa de um estranho. Contato entra quando a clínica
          mandar. */
-      clinicInfo: {
-        especialidade: 'Endocrinologia e Metabologia',
-        cidade: 'São Paulo, SP',
-        sobre: 'Clínica especializada no cuidado integral do paciente, com foco em tratamento clínico da obesidade e saúde metabólica. O acompanhamento é feito por uma equipe que conversa entre si — o que você registra aqui chega a todo mundo que cuida de você.',
-        endereco: 'Rua Ficção Exemplar, 100 — Jardim Modelo',
-        horario: 'Seg a sex, 8h às 18h',
+      /* Só com rede parceira: a ficha é o que a clínica diz de si. Fora
+         dela não há clínica do outro lado, e a ficha fica vazia. */
+      clinicInfo: (comRede ? {
+        especialidade: P.clinicaInfo.especialidade,
+        cidade: P.clinicaInfo.cidade,
+        sobre: P.clinicaInfo.sobre,
+        endereco: P.clinicaInfo.endereco,
+        horario: P.clinicaInfo.horario,
         /* ⚠️ "PARTICULAR" É UM ITEM DA LISTA, e não a ausência dela. Clínica
            que não atende convênio nenhum tem uma lista com um item, e não
            uma seção vazia — e quem lê precisa saber a diferença entre "não
            informou" e "só atende particular". */
-        convenios: ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Particular'],
+        convenios: P.clinicaInfo.convenios,
         /* ⚠️ SEM TELEFONE E SEM WHATSAPP, DE PROPÓSITO. O campo existe e a
            tela sabe desenhá-lo; o que não existe é um número inventado.
            Um CRM falso não faz nada, um telefone falso faz alguém ligar
@@ -338,11 +378,8 @@ export function buildSeed() {
            Site e e-mail podem: `.example` é TLD reservado (RFC 2606) e
            nunca vai pertencer a ninguém. Para telefone não há reserva
            equivalente, então não há semente. */
-        contato: {
-          site: 'www.clinicavitalis.example',
-          email: 'contato@clinicavitalis.example',
-        },
-      },
+        contato: { site: P.clinicaInfo.site, email: P.clinicaInfo.email },
+      } : {}) as FichaDaClinica,
       /* COMO ESTA PESSOA SE TRATA — respondido no cadastro, e não
          deduzido de haver um nome guardado.
 
@@ -363,7 +400,7 @@ export function buildSeed() {
       /* Horizonte do plano que a equipe traçou até a dose de manutenção.
          Não é alta: é até onde a titulação foi programada, e é o número
          que dá sentido a "você está na semana 11". */
-      nutri: 'Renata Alves',
+      nutri: P.nutri,
       /* A DATA, e não a idade: idade muda sozinha todo aniversário, e um
          número guardado envelhece errado. Quem precisa dela usa idadeDe. */
       nascimento: +new Date(1988, 4, 12),
@@ -383,24 +420,25 @@ export function buildSeed() {
       /* Ficha da especialista. CRM e tempo de formação não são enfeite: são
          o que separa "alguém está te acompanhando" de "alguém habilitado
          está te acompanhando", e num app que não prescreve nada essa
-         distinção é o produto inteiro. */
-      doctorInfo: {
-        crm: 'CRM 128456-SP',
-        especialidade: 'Endocrinologista',
+         distinção é o produto inteiro.
+
+         ⚠️ E ELA INTEIRA SÓ EXISTE COM REDE PARCEIRA. De médico próprio o
+         aplicativo sabe o que a pessoa digitou em /acompanhamento — nome,
+         especialidade e onde é atendida —, e registro, biografia, anos de
+         prática e nota de avaliação seriam números que ninguém forneceu. */
+      doctorInfo: (comRede ? {
+        crm: P.medicaInfo.registro,
+        especialidade: P.medicaInfo.especialidade,
         anos: 12,
         pacientes: 2400,
         rating: 4.9,
         avaliacoes: 128,
-        sobre: 'Especialista em tratamento clínico da obesidade, modulação hormonal e saúde metabólica. Meu objetivo é promover saúde com acolhimento, ciência e personalização em cada etapa do tratamento.',
-        abordagens: ['Emagrecimento', 'Modulação hormonal', 'Metabolismo', 'Saúde intestinal'],
+        sobre: P.medicaInfo.sobre,
+        abordagens: P.medicaInfo.abordagens,
         /* A formação é a parte verificável da ficha, e é ela que separa
            "alguém está te acompanhando" de "alguém habilitado está". */
-        formacao: [
-          'Residência em Endocrinologia e Metabologia — HC-FMUSP',
-          'Título de Especialista pela SBEM',
-          'Pós-graduação em Nutrologia',
-        ],
-      },
+        formacao: P.medicaInfo.formacao,
+      } : { especialidade: P.medicaInfo.especialidade }) as FichaDaMedica,
       /* metas diárias — antes ficavam espalhadas como número fixo no
          código (proteína 90 g em derive, água na constante GOAL_WATER).
          Hoje as três saem daqui, e derive lê o perfil.
@@ -453,9 +491,9 @@ export function buildSeed() {
          semente é o retrato do que o aplicativo oferece, e nenhuma das
          duas se cria mais na tela de nova meta — energia é coisa que se
          sente, e proteína se ajusta em Os números do dia. */
-      { id: 'g3', ic: 'ruler', label: 'Vestir a calça jeans antiga', indicador: null, feita: false, em: null },
-      { id: 'g5', ic: 'sun', label: 'Voltar a ir à praia', indicador: null, feita: false, em: null },
-      { id: 'g6', ic: 'leaf', label: 'Começar a caminhar de manhã', indicador: null, feita: true, em: +daysAgo(21) },
+      { id: 'g3', ic: 'ruler', label: P.metas[0], indicador: null, feita: false, em: null },
+      { id: 'g5', ic: 'sun', label: P.metas[1], indicador: null, feita: false, em: null },
+      { id: 'g6', ic: 'leaf', label: P.metas[2], indicador: null, feita: true, em: +daysAgo(21) },
     ],
     /* O PROTOCOLO DA SEMANA — cinco itens, duas naturezas.
 
@@ -490,7 +528,7 @@ export function buildSeed() {
          é o que vem da clínica. Um número da equipe dentro da gaveta que
          a pessoa mexe seria os dois se misturando no primeiro toque. */
       metas: {
-        peso: { valor: 72, em: +daysAgo(34), por: 'Dra. Helena Costa' },
+        peso: { valor: 72, em: +daysAgo(34), por: P.medica },
         /* ⚠️ 90, E NÃO UM NÚMERO DIFERENTE DO CALCULADO. A semente é o
            retrato do estado normal, e o normal é a profissional
            CONFIRMANDO a conta do cadastro — 1,2 g por quilo dá 90 para a
@@ -501,22 +539,26 @@ export function buildSeed() {
            tag existe para quando a pessoa sobrescreve de fato, e uma
            semente que já nasce nele ensina o estado errado a quem for
            mexer nesta tela depois. */
-        prot: { valor: 90, em: +daysAgo(34), por: 'Renata Alves' },
+        /* Sem equipe não há nutricionista: a meta de proteína foi anotada
+           da própria médica. */
+        prot: { valor: 90, em: +daysAgo(34), por: P.nutri || P.medica },
       } as Record<string, { valor: number; em: number; por: string }>,
+      /* ⚠️ A TAREFA DE EXAME SÓ EXISTE COM EQUIPE, pela mesma razão que sai
+         no modo "sem clínica parceira" de logic/store: das cinco linhas da
+         semana, quatro são contas que o aplicativo faz, e a quinta é a
+         única clinicamente autoral. Sem clínica, seria uma ordem de exame
+         que ninguém deu. */
       week: 11, tasks: [
         { metrica: 'aplicacao', alvo: 1 },
         { metrica: 'agua', alvo: 7 },
         { metrica: 'prot', alvo: 7 },
         { metrica: 'exerc', alvo: 3 },
-        { t: 'Agendar exame de sangue', done: false },
+        ...(comRede ? [{ t: P.tarefaExame, done: false }] : []),
       ],
     },
-    messages: [
-      { t: +daysAgo(6), from: 'doc', text: 'Oi Mariana, vi que você passou pros 5 mg. Como está a náusea nos primeiros dias?' },
-      { t: +daysAgo(6), from: 'me', text: 'Melhorou bastante, só no primeiro dia foi mais forte.' },
-      { t: +daysAgo(2), from: 'doc', text: 'Ótimo sinal. Mantém a hidratação e a proteína que combinamos. Na consulta a gente revê a dose com calma.' },
-    ],
-    unread: 1,
+    /* A conversa com a equipe — só existe com plataforma do outro lado. */
+    messages: (comRede ? P.mensagens : []).map((m) => ({ t: +daysAgo(m.dias), from: m.de, text: m.texto })),
+    unread: comRede ? 1 : 0,
     /* ⚠️ O `heroSeen` MORAVA AQUI, e era `{ milestone, insight, replay }`.
 
        Ele foi escrito para guardar qual descoberta a Home já tinha
@@ -530,16 +572,11 @@ export function buildSeed() {
        isso" do aplicativo: mapa por id, lido com `?? {}`, escrito
        preguiçosamente. Ver src/logic/descobertas.ts. */
     descobertasVistas: {} as Record<string, { em: number; vezes: number }>,
-    documents: [
-      { t: +daysAgo(40), name: 'Hemograma completo', kind: 'Exame' },
-      { t: +daysAgo(40), name: 'Perfil lipídico', kind: 'Exame' },
-      { t: +daysAgo(14), name: 'Resumo da semana 8', kind: 'Gerado pela IA' },
-    ],
-    consult: { t: +addDays(startOfDay(now()), 9), type: 'Teleconsulta', doctor: 'Dra. Helena Costa' },
-    consultsHistory: [
-      { t: +daysAgo(32), type: 'Presencial', note: 'Ajuste de dose para 5 mg. Evolução dentro do esperado, boa tolerância.' },
-      { t: +daysAgo(60), type: 'Presencial', note: 'Início do tratamento. Metas definidas, exames de base solicitados.' },
-    ],
+    /* O `kind` é chave — 'exame' ou 'resumo' —, e o rótulo sai de
+       `tipoDoDocumento` na hora de mostrar. */
+    documents: P.documentos.map((d) => ({ t: +daysAgo(d.dias), name: d.nome, kind: d.tipo })),
+    consult: { t: +addDays(startOfDay(now()), 9), type: P.tipoDaConsulta, doctor: P.medica },
+    consultsHistory: P.consultasAnteriores.map((c) => ({ t: +daysAgo(c.dias), type: c.tipo, note: c.nota })),
     measures: [
       { t: +daysAgo(70), cintura: 104, quadril: 118, braco: 36, coxa: 64, gordura: 42, musculo: 29.0 },
       { t: +daysAgo(35), cintura: 100, quadril: 115, braco: 34.5, coxa: 62, gordura: 39, musculo: 29.4 },
@@ -570,13 +607,11 @@ export function buildSeed() {
       { marker: 'Ferritina', unit: 'ng/mL', ref: '15–150', good: '', values: [{ t: +daysAgo(3), v: 88 }] },
     ],
     examBundles: [
-      { t: +daysAgo(3), name: 'Painel metabólico', n: 12, source: 'PDF', shared: true },
-      { t: +daysAgo(120), name: 'Exames de base', n: 8, source: 'foto', shared: true },
+      { t: +daysAgo(3), name: P.arquivosDeExame[0], n: 12, source: 'PDF', shared: true },
+      { t: +daysAgo(120), name: P.arquivosDeExame[1], n: 8, source: 'foto', shared: true },
     ],
-    prescriptions: [
-      { t: +daysAgo(70), name: 'Mounjaro (tirzepatida)', detail: 'Titulação 2,5 → 5 mg · 1×/semana, subcutânea', by: 'Dra. Helena Costa' },
-      { t: +daysAgo(70), name: 'Suplemento de proteína', detail: 'Conforme necessidade, para atingir a meta diária', by: 'Renata Alves (Nutrição)' },
-    ],
+    /* Receitas que a equipe mandou — só com plataforma do outro lado. */
+    prescriptions: (comRede ? P.receitas : []).map((r) => ({ t: +daysAgo(70), name: r.nome, detail: r.detalhe, by: r.por })),
     meals,
     /* Favoritos são PRATOS, com os itens e as quantidades. O nome sai
        deles na hora de mostrar, então não há um segundo lugar guardando
@@ -594,8 +629,8 @@ export function buildSeed() {
        movimento que ela não digitou; a Withings é a balança dela, e é de
        onde vem o peso sem pesagem manual. */
     integrations: { appleHealth: true, healthConnect: false, garmin: false, fitbit: false, withings: true },
-    history: { conditions: ['Pré-diabetes', 'Hipertensão leve'], allergies: ['Nenhuma conhecida'], meds: ['Losartana 50 mg'] },
-    customSyms: ['Refluxo'],
+    history: { conditions: P.historico.condicoes, allergies: P.historico.alergias, meds: P.historico.remedios },
+    customSyms: P.sintomasProprios,
     /* OS ALERTAS, e não mais quatro interruptores fixos.
 
        Cada assunto pode ter quantos alertas a pessoa quiser, com vários
@@ -670,41 +705,14 @@ export function buildSeed() {
        ⚠️ ISTO É FICÇÃO DE SEMENTE, como o resto dela. Registro, formação
        e áreas são plausíveis e inventados; quando a clínica existir, quem
        manda essa ficha é ela. */
-    team: [
-      {
-        id: 'renata', name: 'Renata Alves', role: 'Nutricionista',
-        registro: 'CRN-3 45821',
-        sobre: 'Ajusta o plano alimentar conforme a fase do ciclo, e trabalha com o que você já come — não com uma dieta pronta.',
-        formacao: ['Nutrição — USP', 'Especialização em Nutrição Clínica Funcional'],
-        areas: ['Plano alimentar', 'Proteína', 'Saciedade', 'Efeitos digestivos'],
-      },
-      {
-        id: 'carla', name: 'Carla Mendes', role: 'Enfermeira',
-        registro: 'COREN-SP 412.905',
-        sobre: 'Orienta aplicação, locais e conservação do medicamento. É com ela que se tira dúvida de agulha, rodízio e viagem.',
-        formacao: ['Enfermagem — UNIFESP', 'Capacitação em terapia injetável'],
-        areas: ['Aplicação', 'Rodízio de locais', 'Conservação', 'Descarte'],
-      },
-      {
-        id: 'rafael', name: 'Rafael Lima', role: 'Psicólogo',
-        registro: 'CRP 06/152340',
-        sobre: 'Acompanha a relação com a comida e com o corpo — o que muda de humor, de imagem e de vontade ao longo do tratamento.',
-        formacao: ['Psicologia — PUC-SP', 'Formação em Terapia Cognitivo-Comportamental'],
-        areas: ['Compulsão', 'Imagem corporal', 'Ansiedade', 'Adesão'],
-      },
-    ],
+    team: comRede ? P.equipe : [],
 
     /* Material que a clínica mandou para você — diferente de `documents`,
        que é o que saiu de você para a clínica. A direção importa: um é
        orientação recebida, o outro é prova enviada. */
     /* `motivo` é o que separa curadoria de biblioteca: cada material diz
        por que ELE foi escolhido para esta pessoa neste momento. */
-    materials: [
-      { t: +daysAgo(32), name: 'O que fazer se enjoar', kind: 'Guia rápido', meta: '2 min', ic: 'bulb', motivo: 'Para a fase de titulação' },
-      { t: +daysAgo(70), name: 'Como aplicar sem dor', kind: 'Vídeo', meta: '4 min', ic: 'play', motivo: 'Enviado pela enfermeira' },
-      { t: +daysAgo(70), name: 'Protocolo alimentar', kind: 'Protocolo', meta: '2,4 MB', ic: 'doc', motivo: 'Montado pela nutricionista' },
-      { t: +daysAgo(60), name: 'Checklist da semana', kind: 'Checklist', meta: '8 itens', ic: 'check', motivo: 'Atualizado toda segunda' },
-    ],
+    materials: (comRede ? P.materiais : []).map(({ dias, ...m }) => ({ t: +daysAgo(dias), ...m })),
 
     /* Perguntas feitas ao Morphi. Guarda só o texto e a hora — a
        resposta é sempre recalculada sobre o estado atual, então
@@ -715,14 +723,7 @@ export function buildSeed() {
     /* Notas para a consulta. Cada uma guarda QUANDO foi anotada e se já
        foi conversada: sem a data, a nota chega na consulta sem o contexto
        que a explica ('isso foi antes ou depois de subir a dose?'). */
-    notes: [
-      { t: +daysAgo(2), text: 'A constipação piorou desde que subi para 5 mg', done: false },
-      { t: +daysAgo(7), text: 'Perguntar se posso aplicar de manhã em vez de à noite', done: false },
-      { t: +daysAgo(16), text: 'Tontura em dois dias seguidos na semana 9', done: false },
-      { t: +daysAgo(23), text: 'Confirmar se mantenho 5 mg ou subo', done: false },
-      { t: +daysAgo(38), text: 'Falar sobre os enjoos das primeiras semanas', done: true },
-      { t: +daysAgo(45), text: 'Pedir os exames de acompanhamento', done: true },
-    ],
+    notes: P.notas.map((n) => ({ t: +daysAgo(n.dias), text: n.texto, done: n.feita })),
     onboardDone: true,
     /* SISTEMA É O PADRÃO, e não claro. Quem instala o app já escolheu
        claro ou escuro uma vez, nos ajustes do telefone — repetir a

@@ -50,6 +50,7 @@ import type { metas as metasPt } from '../pt-BR/metas';
 import type { perfil as perfilPt } from '../pt-BR/perfil';
 import type { resumo as resumoPt } from '../pt-BR/resumo';
 import type { rotina as rotinaPt } from '../pt-BR/rotina';
+import type { semente as sementePt } from '../pt-BR/semente';
 import type { tempo as tempoPt } from '../pt-BR/tempo';
 import type { tratamento as tratamentoPt } from '../pt-BR/tratamento';
 
@@ -83,6 +84,7 @@ import { metas } from './metas';
 import { perfil } from './perfil';
 import { resumo } from './resumo';
 import { rotina } from './rotina';
+import { semente } from './semente';
 import { tempo } from './tempo';
 import { tratamento } from './tratamento';
 
@@ -116,7 +118,8 @@ const _metas: typeof metasPt = metas;
 const _perfil: typeof perfilPt = perfil;
 const _resumo: typeof resumoPt = resumo;
 const _rotina: typeof rotinaPt = rotina;
+const _semente: typeof sementePt = semente;
 const _tempo: typeof tempoPt = tempo;
 const _tratamento: typeof tratamentoPt = tratamento;
 
-export const conferidos = [_ajuda, _alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _marcadores, _medidas, _metas, _perfil, _resumo, _rotina, _tempo, _tratamento];
+export const conferidos = [_ajuda, _alertas, _alimentacao, _assinatura, _aviso, _avisos, _cadastro, _ciclo, _companion, _comum, _confirmacoes, _conquistas, _cruzamentos, _cuidado, _descobertas, _equilibrio, _escalas, _etapa, _exames, _fontes, _formas, _home, _idioma, _leituras, _marcadores, _medidas, _metas, _perfil, _resumo, _rotina, _semente, _tempo, _tratamento];

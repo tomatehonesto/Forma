@@ -444,6 +444,8 @@ export const cuidado = {
       `Il tuo obiettivo di peso, nell’app, è ${minha}. I due convivono — il tuo continua a misurare il Percorso — e la differenza fra loro è una buona domanda per la prossima visita.`,
 
     documentos: 'Documenti ed esami',
+    tipoExame: 'Esame',
+    tipoResumo: 'Generato dall’IA',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };

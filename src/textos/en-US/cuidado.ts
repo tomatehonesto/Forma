@@ -318,6 +318,8 @@ export const cuidado = {
       `Your weight goal, in the app, is ${minha}. The two sit side by side — yours is the one the Journey measures against — and the difference between them is a good question for the next appointment.`,
 
     documentos: 'Documents and lab results',
+    tipoExame: 'Lab result',
+    tipoResumo: 'AI-generated',
     documentoSub: (tipo: string, data: string) => `${tipo} · ${data}`,
   },
 };
