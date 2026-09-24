@@ -230,7 +230,10 @@ export const cruzamentos = {
 
   /* ---------- 10. le rythme ---------- */
   ritmo: {
-    titulo: (ritmo: string) => `Votre rythme est de ${ritmo} kg par semaine`,
+    /* ⚠️ L’UNITÉ VIENT DE L’EXTÉRIEUR, elle n’est pas écrite ici : en
+       impérial le rythme est en livres par semaine. Voir
+       ../pt-BR/cruzamentos.ts. */
+    titulo: (ritmo: string, unidade: string) => `Votre rythme est de ${ritmo} ${unidade} par semaine`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} en ${semanas} semaines, dans ce qui est attendu pour votre phase.`,
     /* ⚠️ LA VERSION HORS DE L'ATTENDU NE DIAGNOSTIQUE PAS ET N'ALARME PAS :
@@ -239,8 +242,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} en ${semanas} semaines. Ça vaut le coup d’en parler à votre équipe à la prochaine consultation.`,
     q: 'Où en est mon évolution ?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/sem', legenda: `${perdido} en ${semanas} semaines` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/sem`, legenda: `${perdido} en ${semanas} semaines` }),
     significaBom: 'C’est un rythme tenable, et c’est ce qui compte : les pertes trop rapides emportent souvent la masse maigre avec elles et reviennent ensuite. Le vôtre est dans l’intervalle que la littérature associe à un résultat qui tient.',
     /* ⚠️ « PAS AVEC MOI » — c'est la seule ligne de l'application qui dit, à
        la première personne, ce qu'elle NE fait pas. Elle existe parce que

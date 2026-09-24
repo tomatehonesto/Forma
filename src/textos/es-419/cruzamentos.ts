@@ -173,7 +173,9 @@ export const cruzamentos = {
      por eso no son hallazgo: son retrato. Van últimos a propósito. */
 
   ritmo: {
-    titulo: (ritmo: string) => `Tu ritmo es de ${ritmo} kg por semana`,
+    /* ⚠️ LA UNIDAD VIENE DE AFUERA, no está escrita acá: en imperial el
+       ritmo es en libras por semana. Ver ../pt-BR/cruzamentos.ts. */
+    titulo: (ritmo: string, unidade: string) => `Tu ritmo es de ${ritmo} ${unidade} por semana`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} en ${semanas} semanas, dentro de lo esperado para tu fase.`,
     /* ⚠️ LA VERSIÓN FUERA DE LO ESPERADO NO DIAGNOSTICA Y NO ALARMA: deriva.
@@ -182,8 +184,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} en ${semanas} semanas. Vale comentar el ritmo con tu equipo en la próxima consulta.`,
     q: '¿Cómo va mi evolución?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/sem', legenda: `${perdido} en ${semanas} semanas` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/sem`, legenda: `${perdido} en ${semanas} semanas` }),
     significaBom: 'Es un ritmo sostenible, y lo sostenible es lo que importa: las pérdidas demasiado rápidas suelen llevarse masa magra y volver después. El tuyo está en el intervalo que la literatura asocia a un resultado que se mantiene.',
     /* ⚠️ "NO CONMIGO" — es la única línea de la aplicación que dice, en
        primera persona, lo que NO hace. Existe porque la alternativa era

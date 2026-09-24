@@ -210,7 +210,16 @@ export const cruzamentos = {
 
   /* ---------- 10. o ritmo ---------- */
   ritmo: {
-    titulo: (ritmo: string) => `Seu ritmo é de ${ritmo} kg por semana`,
+    /* ⚠️ A UNIDADE VEM DE FORA, e não está escrita aqui: em imperial o
+       ritmo é em libra por semana. O título dizia "kg" em cima de um
+       número que a linha seguinte do mesmo cartão já escrevia em libra —
+       duas unidades numa leitura só.
+
+       ⚠️ A FAIXA QUE DÁ O VEREDITO FICA EM QUILO, em logic/derive: 0,5 a
+       1,5 kg por semana é marca clínica, e um limiar próprio por sistema
+       faria a mesma pessoa receber vereditos diferentes conforme uma
+       preferência de EXIBIÇÃO. Mesma regra dos degraus das conquistas. */
+    titulo: (ritmo: string, unidade: string) => `Seu ritmo é de ${ritmo} ${unidade} por semana`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} em ${semanas} semanas, dentro do esperado para a sua fase.`,
     /* ⚠️ A VERSÃO FORA DO ESPERADO NÃO DIAGNOSTICA E NÃO ALARMA: ela
@@ -219,8 +228,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} em ${semanas} semanas. Vale comentar o ritmo com sua equipe na próxima consulta.`,
     q: 'Como está minha evolução?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/sem', legenda: `${perdido} em ${semanas} semanas` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/sem`, legenda: `${perdido} em ${semanas} semanas` }),
     significaBom: 'É um ritmo sustentável, e sustentável é o que importa: perdas rápidas demais costumam levar massa magra junto e voltar depois. O seu está no intervalo que a literatura associa a resultado que se mantém.',
     /* ⚠️ "NÃO COMIGO" — é a única linha do aplicativo que diz, em
        primeira pessoa, o que ele NÃO faz. Ela existe porque a alternativa

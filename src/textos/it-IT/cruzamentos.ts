@@ -202,7 +202,9 @@ export const cruzamentos = {
 
   /* ---------- 10. il ritmo ---------- */
   ritmo: {
-    titulo: (ritmo: string) => `Il tuo ritmo è di ${ritmo} kg a settimana`,
+    /* ⚠️ L’UNITÀ ARRIVA DA FUORI e qui non è scritta: in imperiale il
+       ritmo è in libbre a settimana. Vedi ../pt-BR/cruzamentos.ts. */
+    titulo: (ritmo: string, unidade: string) => `Il tuo ritmo è di ${ritmo} ${unidade} a settimana`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} settimane, dentro quello che ci si aspetta per la tua fase.`,
     /* ⚠️ LA VERSIONE FUORI DALL'ATTESO NON DIAGNOSTICA E NON ALLARMA:
@@ -211,8 +213,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} settimane. Vale la pena parlare del ritmo con il tuo team alla prossima visita.`,
     q: 'Come sta andando in generale?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/sett', legenda: `${perdido} in ${semanas} settimane` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/sett`, legenda: `${perdido} in ${semanas} settimane` }),
     significaBom: 'È un ritmo che si può tenere, ed è quello che conta: le perdite troppo rapide di solito portano via anche massa magra e poi tornano indietro. Il tuo è nell’intervallo che la letteratura associa a un risultato che resta.',
     /* ⚠️ "NON CON ME" — è l'unica riga dell'app che dice, in prima
        persona, quello che NON fa. Esiste perché l'alternativa era opinare

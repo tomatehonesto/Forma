@@ -220,7 +220,9 @@ export const cruzamentos = {
 
   /* ---------- 10. das Tempo ---------- */
   ritmo: {
-    titulo: (ritmo: string) => `Dein Tempo liegt bei ${ritmo} kg pro Woche`,
+    /* ⚠️ DIE EINHEIT KOMMT VON AUSSEN und steht nicht hier: in Imperial
+       ist das Tempo Pfund pro Woche. Siehe ../pt-BR/cruzamentos.ts. */
+    titulo: (ritmo: string, unidade: string) => `Dein Tempo liegt bei ${ritmo} ${unidade} pro Woche`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} Wochen, im Rahmen dessen, was für deine Phase erwartet wird.`,
     /* ⚠️ DIE FASSUNG AUSSERHALB DES ERWARTETEN DIAGNOSTIZIERT NICHT UND
@@ -230,8 +232,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} Wochen. Es lohnt sich, das Tempo beim nächsten Termin mit deinem Team zu besprechen.`,
     q: 'Wie läuft meine Entwicklung?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/Wo.', legenda: `${perdido} in ${semanas} Wochen` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/Wo.`, legenda: `${perdido} in ${semanas} Wochen` }),
     significaBom: 'Das ist ein Tempo, das sich halten lässt, und Haltbarkeit ist das, was zählt: zu schnelle Verluste nehmen meist Magermasse mit und kommen danach zurück. Deines liegt in dem Bereich, den die Literatur mit einem Ergebnis verbindet, das bleibt.',
     /* ⚠️ „NICHT MIT MIR“ — es ist die einzige Zeile der App, die in der
        ersten Person sagt, was sie NICHT tut. Es gibt sie, weil die

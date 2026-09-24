@@ -171,7 +171,9 @@ export const cruzamentos = {
 
   /* ---------- 10. the pace ---------- */
   ritmo: {
-    titulo: (ritmo: string) => `Your pace is ${ritmo} kg a week`,
+    /* ⚠️ THE UNIT COMES FROM OUTSIDE, not written here: on imperial the
+       pace is pounds a week. Reasons in ../pt-BR/cruzamentos.ts. */
+    titulo: (ritmo: string, unidade: string) => `Your pace is ${ritmo} ${unidade} a week`,
     textoBom: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} weeks, within what’s expected for your stage.`,
     /* ⚠️ THE OUT-OF-RANGE VERSION DOESN'T DIAGNOSE AND DOESN'T ALARM: it
@@ -180,8 +182,8 @@ export const cruzamentos = {
     textoAtencao: (perdido: string, semanas: number) =>
       `${perdido} in ${semanas} weeks. Worth raising the pace with your care team at your next appointment.`,
     q: 'How am I doing overall?',
-    evid: (ritmo: string, perdido: string, semanas: number) =>
-      ({ valor: ritmo, unidade: 'kg/wk', legenda: `${perdido} in ${semanas} weeks` }),
+    evid: (ritmo: string, unidade: string, perdido: string, semanas: number) =>
+      ({ valor: ritmo, unidade: `${unidade}/wk`, legenda: `${perdido} in ${semanas} weeks` }),
     significaBom: 'It’s a sustainable pace, and sustainable is what counts: losses that come too fast tend to take lean mass with them and come back afterward. Yours is in the range the literature ties to results that hold.',
     /* ⚠️ "NOT WITH ME" — the only line in the app that says, in the first
        person, what it does NOT do. It exists because the alternative was
