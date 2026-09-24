@@ -453,7 +453,7 @@ export const marcadores = {
      sta in logic/derive accanto alle chiavi. */
   catMetabolico: 'Metabolico',
   catLipidico: 'Lipidico',
-  catFigadoRim: 'Fegato e rene',
+  catFigadoRim: 'Fegato e reni',
   catTireoide: 'Tiroide',
   catVitaminas: 'Vitamine',
 

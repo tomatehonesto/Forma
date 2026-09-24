@@ -30,16 +30,20 @@ import { ed } from './comum';
    La frase sull'asse debole è girata al contrario, « A oscillare di più è
    il movimento », perché così l'unico accordo rimasto è il verbo, che la
    tabella sa. */
-const ASSE: Record<string, { il: string; f: boolean; pl?: boolean }> = {
-  Sonno: { il: 'il sonno', f: false },
-  Energia: { il: 'l’energia', f: true },
-  Umore: { il: 'l’umore', f: false },
-  Idratazione: { il: 'l’idratazione', f: true },
-  Movimento: { il: 'il movimento', f: false },
-  Proteine: { il: 'le proteine', f: true, pl: true },
-  Sazietà: { il: 'la sazietà', f: true },
-  Aderenza: { il: 'l’aderenza', f: true },
+/* ⚠️ E IL PULSANTE PARLA COME CHI FA LA DOMANDA: « Come migliorare il
+   movimento » era il titolo di un articolo. `mio` dà a ogni asse la sua
+   forma in prima persona — l'attività fisica, l'apporto di proteine. */
+const ASSE: Record<string, { il: string; mio: string; f: boolean; pl?: boolean }> = {
+  Sonno: { il: 'il sonno', mio: 'il mio sonno', f: false },
+  Energia: { il: 'l’energia', mio: 'la mia energia', f: true },
+  Umore: { il: 'l’umore', mio: 'il mio umore', f: false },
+  Idratazione: { il: 'l’idratazione', mio: 'la mia idratazione', f: true },
+  Movimento: { il: 'il movimento', mio: 'la mia attività fisica', f: false },
+  Proteine: { il: 'le proteine', mio: 'il mio apporto di proteine', f: true, pl: true },
+  Sazietà: { il: 'la sazietà', mio: 'la mia sazietà', f: true },
+  Aderenza: { il: 'l’aderenza', mio: 'la mia aderenza', f: true },
 };
+const mio = (eixo: string) => ASSE[eixo]?.mio ?? il(eixo);
 const il = (eixo: string) => ASSE[eixo]?.il ?? eixo.toLowerCase();
 const essere = (eixo: string) => (ASSE[eixo]?.pl ? 'sono' : 'è');
 const rimasto = (eixo: string) => {
@@ -109,8 +113,8 @@ export const equilibrio = {
      pulsante e la domanda inviata divergono, la persona tocca una cosa e
      riceve la risposta di un'altra.
      ============================================================ */
-  botaoMelhorar: (eixo: string) => `Come migliorare ${il(eixo)}`,
-  perguntaMelhorar: (eixo: string) => `Come migliorare ${il(eixo)}?`,
+  botaoMelhorar: (eixo: string) => `Come migliorare ${mio(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Come migliorare ${mio(eixo)}?`,
 
   /* Il cappello del grafico a barre: l'asse in maiuscolo e quanti giorni
      copre la serie. È qui perché anche `toUpperCase()` è operazione di

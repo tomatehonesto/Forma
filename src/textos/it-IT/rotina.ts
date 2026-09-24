@@ -120,7 +120,7 @@ export const rotina = {
        un'iniezione, per questo la puntura porta la sua coppia. */
     unidadeDia: ['giorno', 'giorni'] as [string, string],
     unidadeAplicacao: ['puntura', 'punture'] as [string, string],
-    nota: (feito: number, alvo: number, unidade: string) => `${feito} di ${alvo} ${unidade}`,
+    nota: (feito: number, alvo: number, unidade: string) => `${feito} su ${alvo} ${unidade}`,
   },
 
   /* ============================================================

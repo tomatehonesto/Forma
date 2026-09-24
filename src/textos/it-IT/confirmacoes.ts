@@ -66,7 +66,7 @@ export const confirmacoes = {
 
   /* ---------------- pasto ---------------- */
   refeicao: 'Pasto registrato',
-  refeicaoTexto: (agora: number, alvo: number) => `${agora} di ${alvo} g di proteine oggi`,
+  refeicaoTexto: (agora: number, alvo: number) => `${agora} su ${alvo} g di proteine oggi`,
   refeicaoFesta: 'Obiettivo di proteine del giorno raggiunto',
   proteinaDoDia: 'Proteine del giorno',
   proteinaMeta: (alvo: number) => `obiettivo di ${alvo} g`,
@@ -80,7 +80,7 @@ export const confirmacoes = {
   exercicioSemTreino: (agora: number) => `${agora} min oggi`,
   exercicioFesta: 'Obiettivo di movimento del giorno raggiunto',
   movimentoDoDia: 'Movimento del giorno',
-  movimentoSub: (agora: number, alvo: number) => `${agora} di ${alvo} min`,
+  movimentoSub: (agora: number, alvo: number) => `${agora} su ${alvo} min`,
   faltamMinutos: (v: string) => `mancano ${v} min`,
   treinosHoje: 'Allenamenti oggi',
   exercicioCaminho: 'Vedi la settimana di movimento',
@@ -88,7 +88,7 @@ export const confirmacoes = {
   /* ---------------- acqua ---------------- */
   agua: 'Acqua registrata',
   aguaFechada: 'Idratazione del giorno completata',
-  aguaTexto: (agora: string, alvo: string) => `${agora} di ${alvo} oggi`,
+  aguaTexto: (agora: string, alvo: string) => `${agora} su ${alvo} oggi`,
   hidratacaoDoDia: 'Idratazione del giorno',
   hidratacaoMeta: (alvo: string) => `obiettivo di ${alvo}`,
   faltamAgua: (v: string) => `mancano ${v}`,

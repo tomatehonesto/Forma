@@ -36,7 +36,7 @@ export const conquistas = {
   familias: {
     tratamento: 'Terapia',
     peso: 'Peso',
-    constancia: 'Costanza',
+    constancia: 'Regolarità',
     hidratacao: 'Idratazione',
     proteina: 'Proteine',
     movimento: 'Movimento',
@@ -92,16 +92,16 @@ export const conquistas = {
 
   /* ---------------- costanza ---------------- */
   checkins: 'Check-in',
-  checkinsDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con risposta`,
+  checkinsDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con il check-in`,
   checkinsFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
 
   sequencia: 'Giorni di fila',
-  sequenciaDesc: (a: number) => `${p(a, 'check-in', 'check-in')} in giorni di fila`,
+  sequenciaDesc: (a: number) => `${p(a, 'check-in', 'check-in')} di fila`,
   sequenciaFalta: (r: number, alvo: number) => `Mancano ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
 
   /* ---------------- idratazione ---------------- */
   aguaDias: 'Giorni in obiettivo di acqua',
-  aguaDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con l’acqua a posto`,
+  aguaDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con l’obiettivo di acqua raggiunto`,
   aguaDiasFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
 
   aguaSemana: 'Settimana idratata',
@@ -110,7 +110,7 @@ export const conquistas = {
 
   /* ---------------- proteine ---------------- */
   protDias: 'Giorni in obiettivo di proteine',
-  protDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} nell’obiettivo del profilo`,
+  protDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con l’obiettivo di proteine raggiunto`,
   protDiasFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
 
   protSeq: 'Proteine di fila',
@@ -128,7 +128,7 @@ export const conquistas = {
 
   /* ---------------- alimentazione ---------------- */
   refeicoes: 'Pasti',
-  refeicoesDesc: (a: number) => `${p(a, 'piatto', 'piatti')} registrat${a === 1 ? 'o' : 'i'}`,
+  refeicoesDesc: (a: number) => `${p(a, 'pasto', 'pasti')} registrat${a === 1 ? 'o' : 'i'}`,
   refeicoesFalta: (r: number) => `Mancano ${p(r, 'pasto', 'pasti')}`,
 
   favoritos: 'Piatti preferiti',
@@ -136,17 +136,17 @@ export const conquistas = {
   favoritosFalta: (r: number) => `Mancano ${p(r, 'piatto', 'piatti')}`,
 
   /* ---------------- monitoraggio ---------------- */
-  medidas: 'Misure con il metro',
+  medidas: 'Misure del corpo',
   medidasDesc: (a: number) => `${p(a, 'misurazione', 'misurazioni')} registrat${a === 1 ? 'a' : 'e'}`,
   medidasFalta: (r: number) => `Mancano ${p(r, 'misurazione', 'misurazioni')}`,
 
   /* ⚠️ NIENTE UNITÀ NEL TITOLO, per la stessa ragione del peso. */
-  cintura: 'Vita',
-  cinturaDesc: (comp: string) => `${comp} in meno sulla vita`,
+  cintura: 'Girovita',
+  cinturaDesc: (comp: string) => `${comp} in meno di girovita`,
   cinturaFalta: (comp: string) => `Mancano ${comp}`,
 
   exames: 'Esami',
-  examesDesc: (a: number) => `${p(a, 'pannello', 'pannelli')} importat${a === 1 ? 'o' : 'i'}`,
+  examesDesc: (a: number) => `${p(a, 'esame', 'esami')} importat${a === 1 ? 'o' : 'i'}`,
   examesFalta: (r: number) => `Mancano ${p(r, 'esame', 'esami')}`,
 
   consultas: 'Visite',
@@ -163,7 +163,7 @@ export const conquistas = {
     titulo: 'Traguardi',
     lead: 'Segni che escono da soli da quello che hai registrato — qui nessuno decide se te li meriti.',
 
-    nivelDeTotal: (nivel: number, total: number) => `Livello ${nivel} di ${total}`,
+    nivelDeTotal: (nivel: number, total: number) => `Livello ${nivel} su ${total}`,
     niveisTotal: (total: number) => `${total} ${total === 1 ? 'livello' : 'livelli'}`,
     trilhaCompleta: 'Percorso completo',
 

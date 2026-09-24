@@ -76,15 +76,20 @@ export const home = {
      variato da nessuna parte, e la parola è questa. */
   estavel: 'Stabile',
 
+  /* ⚠️ LE FRAZIONI SI DICONO CON « SU »: « 7 su 7 giorni », « 2 su 4 ».
+     « 7 di 7 » era il « 7 de 7 » portoghese, e c'era in trenta posti del
+     catalogo. L'ordine resta quello di prima, che l'italiano ammette — « 3
+     su 10 italiani » —, e così il nome continua ad accordarsi col totale. */
+
   /* ============================================================
      LA LINEA DEL TEMPO
      ============================================================ */
   tipos: {
     checkin: 'Check-in',
     aplicacao: 'Punture',
-    peso: 'Peso',
+    peso: 'Pesate',
     refeicao: 'Pasti',
-    exercicio: 'Movimento',
+    exercicio: 'Allenamenti',
     consulta: 'Visite',
     exame: 'Esami',
   },
@@ -141,7 +146,7 @@ export const home = {
     contagem: (quantos: number, nome: string) => `${quantos} ${nome}`,
     /* ⚠️ UNA SETTIMANA VUOTA HA UNA FRASE SUA, e non uno spazio bianco:
        una settimana senza registri c'è stata, e il suo capitolo esiste. */
-    semRegistros: 'Nessun registro in questa settimana',
+    semRegistros: 'Nessuna registrazione in questa settimana',
 
     hidratacao: 'Idratazione',
     proteina: 'Proteine',
@@ -211,7 +216,7 @@ export const home = {
      ============================================================ */
   telaHistorico: {
     exportar: 'Esporta',
-    lead: (data: string) => `Tutto quello che hai annotato dal ${data}.`,
+    lead: (data: string) => `Tutto quello che hai registrato dal ${data}.`,
     semPesagem: 'senza pesata',
     semanasVazias: (quantas: number) =>
       quantas === 1 ? 'Una settimana è rimasta quasi vuota' : `${quantas} settimane sono rimaste quasi vuote`,
@@ -224,7 +229,7 @@ export const home = {
     ultimos7: 'I TUOI ULTIMI 7 GIORNI',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} di 7 giorni con check-in · ${aplicadas} di ${vividas} settimane con puntura`,
+      `${feitos} su 7 giorni con check-in · ${aplicadas} su ${vividas} settimane con puntura`,
     semanaASemana: 'Settimana per settimana. Tocca per vedere che cosa ha segnato ogni ciclo.',
     verAsSemanas: (quantas: number) => `Vedi tutte le ${quantas} settimane`,
     /* ---------- il pannello ---------- */
@@ -241,7 +246,7 @@ export const home = {
     aguaHoje: (quanto: string) => `${quanto} oggi`,
     minutosHoje: (minutos: number) => `${minutos} min oggi`,
     indicadores: (quantos: number) => `${quantos} ${quantos === 1 ? 'indicatore' : 'indicatori'}`,
-    feitasDeTotal: (feitas: number, total: number) => `${feitas} di ${total}`,
+    feitasDeTotal: (feitas: number, total: number) => `${feitas} su ${total}`,
 
     semRegistro: 'nessuna registrazione',
     semQueixas: 'nessun disturbo nella settimana',
@@ -271,12 +276,14 @@ export const home = {
     porSemana: 'Per settimana',
     semana: (numero: number) => `Settimana ${numero}`,
     doseAjustada: 'dose modificata',
-    semRegistrosNaSemana: 'Nessun registro in questa settimana.',
+    semRegistrosNaSemana: 'Nessuna registrazione in questa settimana.',
     nadaNesteTipo: 'Ancora niente registrato in questo tipo',
 
-    /* L'obiettivo personale non ha una percentuale: ha uno stato. */
-    metaFeita: 'fatto',
-    metaAberta: 'aperto',
+    /* L'obiettivo personale non ha una percentuale: ha uno stato. Era
+       "fatto" e "aperto", e un obiettivo "aperto" è il calco di "aberta":
+       in italiano è in corso, e quando arriva è raggiunto. */
+    metaFeita: 'raggiunto',
+    metaAberta: 'in corso',
   },
 
   /* ============================================================
@@ -336,7 +343,7 @@ export const home = {
     proximaDose: (quando: string) => `La tua prossima dose è ${quando}.`,
     doseCorpo: (medicamento: string, dose: string, local: string) =>
       `${medicamento} ${dose} · zona suggerita: ${local}.`,
-    verAplicacao: 'Vedi la puntura',
+    verAplicacao: 'Vedi le tue punture',
     criarLembrete: 'Crea un promemoria',
 
     /* ---------- il check-in e la serie ----------
@@ -349,7 +356,7 @@ export const home = {
        spezzava a metà a fine riga. */
     checkinFeito: 'Check-in fatto',
     fazerCheckin: 'Fai il check-in',
-    diasSeguidos: (dias: number): string => (dias === 1 ? 'giorno di check‑in' : 'giorni di fila di check‑in'),
+    diasSeguidos: (dias: number): string => (dias === 1 ? 'giorno di check‑in' : 'giorni di check‑in di fila'),
 
     /* ---------- le sezioni ----------
 
@@ -460,11 +467,11 @@ export const home = {
     /* ⚠️ L’OBIETTIVO ARRIVA CON L’UNITÀ DENTRO, e per questo qui non c’è
        nessuna "L": in imperiale i due numeri sono once. Vedi
        ../pt-BR/home.ts. */
-    aguaSub: (bebido: string, alvo: string) => `${bebido} di ${alvo}`,
+    aguaSub: (bebido: string, alvo: string) => `${bebido} su ${alvo}`,
     exercicio: 'Mi sono\nmossa',
-    exercicioSub: (feito: number, alvo: number) => `${feito} di ${alvo} min`,
+    exercicioSub: (feito: number, alvo: number) => `${feito} su ${alvo} min`,
     refeicao: 'Ho fatto un pasto',
-    refeicaoSub: (proteina: number, alvo: number) => `${proteina} di ${alvo} g`,
+    refeicaoSub: (proteina: number, alvo: number) => `${proteina} su ${alvo} g`,
 
     levaUmMinuto: 'CI VUOLE UN MINUTO',
     aplicacao: 'Ho fatto la dose',
@@ -492,7 +499,7 @@ export const home = {
 
     aplicacoes: 'Punture in ordine',
     aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} di ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'}`,
+      `${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'}`,
 
     intervalo: 'Intervallo fra le dosi',
     intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'giorno' : 'giorni'}, senza ritardi lunghi`,
@@ -525,7 +532,7 @@ export const home = {
   telaProtocolos: {
     semanaN: (n: number) => `Settimana ${n}`,
     tudoCumprido: 'tutto fatto',
-    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} di ${total} fatte`,
+    cumpridasDeTotal: (feitas: number, total: number) => `${feitas} su ${total} fatte`,
     aplicacaoEm: (quando: string) => `puntura ${quando}`,
 
     /* Compare solo con il legame: parlare con il team ha bisogno di un
@@ -560,7 +567,7 @@ export const home = {
        chiama. */
     escalaDe: (nome: string, valor: number, max: number) => `${nome} ${valor} su ${max}`,
     respondidoNesteDia: 'Risposto in questo giorno',
-    semRegistro: 'Nessun registro',
+    semRegistro: 'Nessuna registrazione',
 
     /* ⚠️ DUE BOLLINI PER LA STESSA PAROLA, e la differenza è il genere di
        quello che è stato fatto: la puntura è fatta, il check-in e il peso

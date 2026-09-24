@@ -71,7 +71,7 @@ export const cuidado = {
        polso, che può essere "3 voci in sospeso", e la parola lunga spinge
        il polso su due righe. */
     adesao: (feitas: number, previstas: number) =>
-      `${feitas} di ${previstas} ${previstas === 1 ? 'dose' : 'dosi'}`,
+      `${feitas} su ${previstas} ${previstas === 1 ? 'dose' : 'dosi'}`,
 
     /* ---------- la visita che arriva ---------- */
     consultaTitulo: 'La tua visita si avvicina.',
@@ -175,8 +175,8 @@ export const cuidado = {
 
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Settimana ',
-      temHorizonte ? ` di ${previstas} fino al tuo obiettivo · ` : ' della tua terapia · ',
-      ' con la puntura in ordine',
+      temHorizonte ? ` su ${previstas} verso il tuo obiettivo · ` : ' della tua terapia · ',
+      ' con la puntura fatta',
     ],
 
     /* ---------- chi ti segue ---------- */
@@ -198,7 +198,7 @@ export const cuidado = {
     /* ⚠️ DICEVA "l'app avvisa quando si avvicina", e l'app non parla di sé
        in terza persona. Ad avvisare siamo noi. */
     anotarConsultaSub: 'Con la data qui, il riepilogo è pronto e ti avvisiamo quando si avvicina.',
-    eQuando: (quando: string) => `È ${quando}`,
+    eQuando: (quando: string) => `${quando.charAt(0).toUpperCase()}${quando.slice(1)}`,
     preparoTexto: 'Metto insieme un riepilogo con peso, aderenza e sintomi di quel tratto — tu scegli che cosa chiedere.',
     prepararAConsulta: 'Prepara la visita',
 
@@ -211,13 +211,13 @@ export const cuidado = {
     aplicacoesLink: 'Punture',
     dosesEm: (onde: string) => `Dosi ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} di ${total} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+      `${restam} su ${total} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
     pedirRenovacao: 'Chiedi il rinnovo',
 
     /* ---------- gli esami ---------- */
     exames: 'Esami',
     marcadoresAcompanhados: (quantos: number) =>
-      `${quantos} ${quantos === 1 ? 'marcatore seguito' : 'marcatori seguiti'}`,
+      `${quantos} ${quantos === 1 ? 'marcatore monitorato' : 'marcatori monitorati'}`,
     nenhumResultado: 'Nessun risultato salvato',
     importeUmExame: 'Importa un esame per cominciare a seguirli',
     foraDaReferencia: (quantos: number) => `${quantos} fuori dai valori di riferimento`,

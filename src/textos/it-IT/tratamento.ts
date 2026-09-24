@@ -209,7 +209,7 @@ export const tratamento = {
     /* La copertina: il giorno, e la settimana subito dietro. Il numero di
        oggi DA SOLO trasforma il riposo in un fallimento. */
     hojeSemTreino: (daSemana: number) => `Oggi: ancora nessun allenamento · ${daSemana} min questa settimana`,
-    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Oggi: ${hoje} di ${alvo} min · ${resto}`,
+    hojeComTreino: (hoje: number, alvo: number, resto: string) => `Oggi: ${hoje} su ${alvo} min · ${resto}`,
     metaAlcancada: 'obiettivo raggiunto',
     faltamMin: (falta: number) => `mancano ${falta} min`,
     registrarTreino: 'Registra un allenamento',
@@ -268,7 +268,7 @@ export const tratamento = {
        saltato una dose quasi sempre l'ha saltata perché stava male, e una
        casella rossa in un calendario di farmaci è l'app che rimprovera
        chi ha già pagato. */
-    semCulpa: 'Niente sensi di colpa per un giorno che è passato — quello che conta è riprendere. Puoi registrare una puntura precedente in qualsiasi momento, con il pulsante qui sotto.',
+    semCulpa: 'Niente sensi di colpa per un giorno saltato — quello che conta è riprendere. Puoi registrare una puntura precedente in qualsiasi momento, con il pulsante qui sotto.',
     titulo: 'Punture',
     registrar: 'Registra la puntura',
     /* I tre arrivano pronti: la marca, il principio attivo e la cadenza. */
@@ -277,7 +277,7 @@ export const tratamento = {
     proximaAplicacao: 'PROSSIMA PUNTURA',
 
     cicloDaDose: 'Ciclo della dose',
-    cicloSub: (dia: number, total: number, fase: string) => `Giorno ${dia} di ${total} · ${fase.toLowerCase()}`,
+    cicloSub: (dia: number, total: number, fase: string) => `Giorno ${dia} su ${total} · ${fase.toLowerCase()}`,
     emCurso: 'in corso',
 
     /* Il contenitore arriva concordato e con la maiuscola — "Penna",
@@ -286,7 +286,7 @@ export const tratamento = {
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} ${onde}`,
     cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+      `${veredito} — basta per circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'avviso' : 'avvisi'} per la puntura`,
     nenhumAlerta: 'Nessun avviso per la puntura',
@@ -299,13 +299,13 @@ export const tratamento = {
        "88% in ordine" — e "in ordine" parla di PUNTUALITÀ, che questo
        conto non misura: chi ha fatto tutte e dieci le dosi sempre con tre
        giorni di ritardo faceva anche lei 100%. */
-    constancia: 'Costanza',
+    constancia: 'Regolarità',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} di ${previstas} dosi previste nelle ultime ${semanas} settimane.`,
+      `${feitas} su ${previstas} dosi previste nelle ultime ${semanas} settimane.`,
 
     nivelNoCorpo: 'Livello nel corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
-      `Stima di ${molecula} nel tuo corpo, con un’emivita di ${meiaVida}. Il punto più basso, prima della dose successiva, è di solito quando la fame aumenta.`,
+      `Stima della quantità di ${molecula} nel tuo corpo, con un’emivita di ${meiaVida}. Il punto più basso, prima della dose successiva, è di solito quando la fame aumenta.`,
     meiaVidaDias: (dias: number) => `${dias} giorni`,
     meiaVidaHoras: 'circa 13 ore',
 
@@ -342,8 +342,8 @@ export const tratamento = {
     desteF: 'di questa',
     novoM: 'Nuovo',
     novoF: 'Nuova',
-    encerradoM: 'chiuso',
-    encerradoF: 'chiusa',
+    encerradoM: 'finito',
+    encerradoF: 'finita',
 
     nova: 'Nuova',
     lembrarRenovar: 'Ricordami di rinnovare',
@@ -356,7 +356,7 @@ export const tratamento = {
       `${nenhum} ${recipiente} ${aberto} · ${total} dosi per ${recipiente}`,
 
     dosesUsadas: 'Dosi usate',
-    usadasDe: (usadas: number, total: number) => `${usadas} di ${total}`,
+    usadasDe: (usadas: number, total: number) => `${usadas} su ${total}`,
     ultimaDose: (deste: string, recipiente: string, data: string) =>
       `Ultima dose ${deste} ${recipiente}: ${data}`,
 
@@ -387,9 +387,9 @@ export const tratamento = {
     historico: (plural: string) => `Storico ${plural}`,
     emUso: 'in uso',
     itemEmUso: (Aberto: string, data: string, usadas: number, total: number) =>
-      `${Aberto} il ${data} · ${usadas} di ${total} dosi`,
+      `${Aberto} il ${data} · ${usadas} su ${total} dosi`,
     itemEncerrado: (periodo: string, usadas: number, total: number) =>
-      `${periodo} · ${usadas} di ${total} dosi`,
+      `${periodo} · ${usadas} su ${total} dosi`,
   },
 
   /* ============================================================
@@ -442,7 +442,7 @@ export const tratamento = {
 
     /* ---------- quando ---------- */
     quando: 'Quando',
-    ficaRegistradaAgora: (hora: string) => `Resta registrata adesso, ${hora}.`,
+    ficaRegistradaAgora: (hora: string) => `Viene registrata adesso, alle ${hora}.`,
     registrarDepois: 'Registrarla dopo non cambia niente oltre alla data — il conto della dose successiva parte da qui.',
 
     /* ---------- farmaco e dose ---------- */
@@ -477,7 +477,7 @@ export const tratamento = {
     usadoEstaSemana: 'Usata questa settimana.',
     descansandoHa: (semanas: number) =>
       `A riposo da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}.`,
-    eOProximo: 'È la prossima della rotazione.',
+    eOProximo: 'È la prossima nella rotazione.',
     foraDaRotacao: 'Fuori dalla rotazione suggerita — nessun problema, è solo un promemoria.',
 
     /* ---------- il contenitore ---------- */
@@ -535,7 +535,7 @@ export const tratamento = {
        L'articolo davanti al nome della fonte entra solo quando è una
        sola. */
     subHoje: (hoje: number, alvo: number, unidade: string, fonte: string | null, uma: boolean) =>
-      `${hoje} di ${alvo} ${unidade} oggi${fonte ? ` · già con ${uma ? 'il ' : ''}${fonte}` : ''}`,
+      `${hoje} su ${alvo} ${unidade} oggi${fonte ? ` · già con ${uma ? 'il ' : ''}${fonte}` : ''}`,
 
     botaoSemNome: 'Di’ che cosa hai fatto',
     botaoSalvarCorrecao: 'Salva la correzione',

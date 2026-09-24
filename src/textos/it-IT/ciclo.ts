@@ -13,13 +13,24 @@
    una che spiega, e questa è la seconda.
    ============================================================ */
 
+/* ⚠️ LA MOLECOLA ARRIVA SENZA ARTICOLO, e questa frase lo vuole: « il
+   comportamento tipico di tirzepatide » era il portoghese senza il suo
+   articolo. In italiano i principi attivi di questa famiglia sono
+   femminili — la tirzepatide, la semaglutide —, e l'elisione copre
+   quello che cominciasse per vocale. */
+const della = (molecula: string) => (/^[aeiouh]/i.test(molecula) ? `dell’${molecula}` : `della ${molecula}`);
+
 export const ciclo = {
   /* ---------- il cappello ---------- */
-  /* ⚠️ "GIORNO 5 DELLA DOSE", E NON "GIORNO 5 DI 7". Il "di sette"
+  /* ⚠️ "GIORNO 5 DOPO LA DOSE", E NON "GIORNO 5 DI 7". Il "di sette"
      sembrava il conto alla rovescia di una scadenza — sette di che cosa,
      e che succede quando arriva? La cadenza è del farmaco, non un
-     obiettivo da rispettare. */
-  chapeuDia: (dia: number) => `GIORNO ${dia} DELLA DOSE`,
+     obiettivo da rispettare.
+
+     Era "GIORNO 5 DELLA DOSE", e una dose non è un intervallo di giorni.
+     "Dopo" tiene il conto senza la quota — ed è la parola della
+     schermata del ciclo, "Giorno 5 dopo la puntura". */
+  chapeuDia: (dia: number) => `GIORNO ${dia} DOPO LA DOSE`,
   /* Senza una puntura registrata non c'è ciclo, e il cappello non se lo
      inventa. */
   chapeuSemCiclo: 'PER OGGI',
@@ -85,7 +96,7 @@ export const ciclo = {
 
   faseRetornoLabel: 'Inizio del ritorno della fame',
   faseRetornoRange: 'Giorni 5–6',
-  faseRetornoHint: 'Il farmaco comincia a scendere, e la fame tende a tornare.',
+  faseRetornoHint: 'Il livello del farmaco comincia a scendere, e la fame tende a tornare.',
 
   fasePreLabel: 'Prima della puntura',
   fasePreRange: 'Giorni 7+',
@@ -109,13 +120,13 @@ export const ciclo = {
   fasePlatoAjuda: 'dare la precedenza a proteine e fibre nei pasti',
 
   faseDescidaTitulo: 'Giorni 5–6 · discesa',
-  faseDescidaSub: 'Effetto che cede, fame che torna poco alla volta',
+  faseDescidaSub: 'Effetto che si attenua, fame che torna poco alla volta',
   faseDescidaComum: 'più fame dei primi giorni, energia che oscilla',
   /* ⚠️ LA SECONDA METÀ DI QUESTA FRASE È IL MOTIVO PER CUI ESISTE. Che la
      fame torni al quinto giorno spaventa chi crede che il farmaco abbia
      smesso di funzionare, e mollare lì è comune. Dire che è la fase, e
      non il fallimento, è tutto il lavoro della riga. */
-  faseDescidaAjuda: 'è la fase in cui la fame torna — non vuol dire che la terapia ha smesso di funzionare',
+  faseDescidaAjuda: 'è la fase in cui la fame torna — non vuol dire che la terapia abbia smesso di funzionare',
   /* L'unica fase con un'attenzione: è dove compaiono i sintomi che
      chiedono un medico. Non è un allarme — è il confine fra quello che ci
      si aspetta e quello che non aspetta la prossima visita. */
@@ -143,20 +154,20 @@ export const ciclo = {
   tela: {
     titulo: 'Ciclo della dose',
     diaDepois: (dia: number, acao: string) => `Giorno ${dia} dopo\nla ${acao}`,
-    lead: 'L’effetto del farmaco sale nei primi giorni e va cedendo fino alla dose successiva. Quello che senti cambia insieme — ed è quello che ci si aspetta.',
+    lead: 'L’effetto del farmaco sale nei primi giorni e poi si attenua fino alla dose successiva. Quello che senti segue lo stesso andamento — ed è quello che ci si aspetta.',
 
     cicloAtual: 'Ciclo attuale',
-    diaDeTotal: (dia: number, total: number) => `giorno ${dia} di ${total}`,
-    proximaDose: (data: string) => `Prossima dose ${data}`,
+    diaDeTotal: (dia: number, total: number) => `giorno ${dia} su ${total}`,
+    proximaDose: (data: string) => `Prossima dose: ${data}`,
 
     asQuatroFases: 'Le quattro fasi',
-    comum: 'Comune',
-    ajuda: 'Aiuta',
+    comum: 'Frequente',
+    ajuda: 'Cosa aiuta',
     atencao: 'Attenzione',
 
-    conteudoGeral: 'Questo è contenuto generale',
+    conteudoGeral: 'Questo è un contenuto generale',
     conteudoGeralTexto: 'Il ciclo varia da persona a persona e con la dose. Niente di tutto questo sostituisce le indicazioni del tuo medico.',
 
-    baseadoEm: (molecula: string) => `Basato sul comportamento tipico di ${molecula}`,
+    baseadoEm: (molecula: string) => `Basato sul comportamento tipico ${della(molecula)}`,
   },
 };

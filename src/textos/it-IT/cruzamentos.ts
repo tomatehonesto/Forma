@@ -169,7 +169,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La bilancia è salita ${altas} volte e hai perso ${perdido} lo stesso`,
     texto: (pesagens: number, altas: number) =>
-      `Su ${pesagens} pesate, ${altas} erano più alte della precedente — e la tendenza di fondo continua a scendere. Una settimana in salita non è una ricaduta: è rumore di acqua e intestino dentro una tendenza.`,
+      `Su ${pesagens} pesate, ${altas} erano più alte della precedente — e la tendenza di fondo continua a scendere. Una settimana in salita non è una ricaduta: sono oscillazioni di acqua e intestino dentro una tendenza.`,
     q: 'Come sta andando in generale?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'salite', legenda: `dentro a −${perdido} nel tratto` }),
@@ -206,7 +206,7 @@ export const cruzamentos = {
        ritmo è in libbre a settimana. Vedi ../pt-BR/cruzamentos.ts. */
     titulo: (ritmo: string, unidade: string) => `Il tuo ritmo è di ${ritmo} ${unidade} a settimana`,
     textoBom: (perdido: string, semanas: number) =>
-      `${perdido} in ${semanas} settimane, dentro quello che ci si aspetta per la tua fase.`,
+      `${perdido} in ${semanas} settimane, in linea con quello che ci si aspetta per la tua fase.`,
     /* ⚠️ LA VERSIONE FUORI DALL'ATTESO NON DIAGNOSTICA E NON ALLARMA:
        indirizza. Un ritmo troppo veloce o troppo lento è conversazione da
        visita, e la scheda si ferma esattamente lì. */

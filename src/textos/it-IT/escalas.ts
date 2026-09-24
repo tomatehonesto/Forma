@@ -150,7 +150,7 @@ export const escalas = {
     nenhumSintomaSub: (respondidos: number) =>
       `${respondidos} ${respondidos === 1 ? 'giorno con risposta' : 'giorni con risposta'}, nessuno con un disturbo.`,
     diasDe: (dias: number, respondidos: number) =>
-      `${dias} di ${respondidos} ${respondidos === 1 ? 'giorno' : 'giorni'}`,
+      `${dias} su ${respondidos} ${respondidos === 1 ? 'giorno' : 'giorni'}`,
     noPiorDia: (legenda: string) => `Nel giorno peggiore: ${legenda}`,
     voceEscreveuEm: (data: string) => `Hai scritto il ${data}`,
 

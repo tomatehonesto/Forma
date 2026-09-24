@@ -24,12 +24,12 @@ export const companion = {
      ============================================================ */
   memoria: {
     desdeAPrimeira: (dias: number) =>
-      `Seguo la tua terapia dalla prima puntura, ${dias} giorni fa.`,
+      `Seguo la tua terapia dalla prima dose, ${dias} giorni fa.`,
     desdeOPrimeiroDiaComSemanas: (semanas: number) =>
       `Conosco il tuo percorso dal primo giorno — ${semanas} settimane fin qui.`,
     desdeOPrimeiroDia: 'Conosco il tuo percorso dal primo giorno.',
     dosesAtras: (doses: number) =>
-      `Sono con te dalla prima puntura, ${doses} dosi fa.`,
+      `Sono con te dalla prima dose, ${doses} dosi fa.`,
   },
 
   /* ============================================================
@@ -135,7 +135,7 @@ export const companion = {
     hojeDeCem: 'oggi, su 100',
 
     proximasAcoes: 'Prossime azioni',
-    proximasAcoesNota: 'Nell’ordine in cui devono succedere — mai sulla dose o sul protocollo.',
+    proximasAcoesNota: 'Nell’ordine in cui arrivano — niente sulla dose né sul protocollo.',
 
     resumos: 'Crea riepiloghi',
     resumosNota: 'I tuoi dati in ordine, da portare a qualcuno.',

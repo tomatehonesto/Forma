@@ -21,7 +21,7 @@ export const etapa = {
      nell'unico momento in cui la persona non ha ancora un'esperienza
      propria da opporre. */
   antesComDoseBody: (molecula: string) =>
-    `I primi giorni con ${molecula} di solito portano meno fame e una nausea leggera. Registrare come ti senti fin da ora è quello che dà una base di confronto dopo.`,
+    `I primi giorni di terapia con ${molecula} di solito portano meno fame e una nausea leggera. Registrare come ti senti fin da ora è quello che dà una base di confronto dopo.`,
   antesComDoseQ: 'Che cosa aspettarsi il giorno della puntura?',
 
   antesSemDoseHead: 'La tua terapia non ha ancora una dose definita.',

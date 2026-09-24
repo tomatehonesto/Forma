@@ -57,7 +57,7 @@ export const alimentacao = {
        che l'app lo sappia. */
     verdeQ: 'Che verdure stanno bene con quello che mangio di solito?',
     verdeTitulo: (comVerde: number, total: number) =>
-      `Verdure in ${comVerde} di ${total} giorni registrati`,
+      `Verdure in ${comVerde} su ${total} giorni registrati`,
     verdeTexto: 'Un’insalata o un contorno di verdura a pranzo riempie il piatto con poche calorie — aiuta ad arrivare alla fine del pasto sazia senza intaccare le calorie della giornata, e porta le fibre di passaggio.',
   },
 
@@ -193,7 +193,7 @@ export const alimentacao = {
   tela: {
     titulo: 'Alimentazione',
     linhaSemProteina: (alvo: number) => `Proteine: niente registrato · obiettivo di ${alvo} g`,
-    linhaComProteina: (prot: number, alvo: number, resto: string) => `Proteine: ${prot} di ${alvo} g · ${resto}`,
+    linhaComProteina: (prot: number, alvo: number, resto: string) => `Proteine: ${prot} su ${alvo} g · ${resto}`,
     faltamParaMeta: (falta: number) => `${falta} g all’obiettivo`,
     metaAlcancada: 'obiettivo raggiunto',
     registrarRefeicao: 'Registra un pasto',
@@ -201,7 +201,7 @@ export const alimentacao = {
     /* ---------- l'energia del giorno ---------- */
     energiaTitulo: 'L’energia di oggi',
     calorias: 'CALORIE',
-    deKcal: (meta: string) => `di ${meta} kcal`,
+    deKcal: (meta: string) => `su ${meta} kcal`,
 
     sobramDoQueConta: (quanto: string) => `Avanzano <b>${quanto} kcal</b> di quello che si riesce a contare.`,
     /* ⚠️ "SPENDILE BENE" È L'UNICA RICHIESTA DI QUESTA SCHERMATA, e ci
@@ -220,7 +220,7 @@ export const alimentacao = {
     carboidrato: 'Carboidrati',
     gordura: 'Grassi',
     fibra: 'Fibre',
-    deG: (meta: number) => `di ${meta} g`,
+    deG: (meta: number) => `su ${meta} g`,
 
     /* ---------- la settimana ---------- */
     semanaTitulo: 'Le proteine della settimana',
@@ -292,7 +292,7 @@ export const alimentacao = {
        adesso. */
     hojeNada: (meta: string) => `Oggi: niente registrato · obiettivo di ${meta}`,
     hojeCom: (bebido: string, meta: string, resto: string) =>
-      `Oggi: ${bebido} di ${meta} · ${resto}`,
+      `Oggi: ${bebido} su ${meta} · ${resto}`,
     faltam: (quanto: string) => `mancano ${quanto}`,
     metaAlcancada: 'obiettivo raggiunto',
     registrar: 'Registra quello che hai bevuto',
@@ -353,7 +353,7 @@ export const alimentacao = {
     corrigir: 'Correggi il pasto',
     corrigirSub: 'Che cosa è rimasto sbagliato nel registro',
     oQueComeu: 'Che cosa hai mangiato?',
-    proteinaHoje: (hoje: number, alvo: number) => `${hoje} di ${alvo} g di proteine oggi`,
+    proteinaHoje: (hoje: number, alvo: number) => `${hoje} su ${alvo} g di proteine oggi`,
 
     /* ---------- il pulsante ---------- */
     digaOQueTinha: 'Di’ che cosa c’era nel piatto',

@@ -73,7 +73,7 @@ export const perfil = {
   personalize: 'Personalizza l’app',
   aparencia: 'Aspetto',
   aparenciaSub: (paleta: string, escuro: boolean) =>
-    `${paleta}, in ${escuro ? 'scuro' : 'chiaro'} · scegli il colore dell’app`,
+    `${paleta}, modalità ${escuro ? 'scura' : 'chiara'} · scegli il colore dell’app`,
   idiomaSub: (idioma: string) => idioma,
   unidades: 'Unità di misura',
   unidadesSub: (sistema: string, unidades: string) => `${sistema} · ${unidades}`,
@@ -92,7 +92,7 @@ export const perfil = {
      sintomo non escono di qui senza che sia la persona a mandarli, e la
      segnalazione di un difetto non è mandarli. */
   reportar: 'Segnala un problema',
-  reportarSub: 'Racconta che cos’è successo — parte con la versione dell’app',
+  reportarSub: 'Racconta che cos’è successo — alleghiamo la versione dell’app',
   problemaAssunto: 'Morphi — problema',
   problemaSistema: (sistema: string, versao: string) => `Sistema: ${sistema} ${versao}`,
   problemaPaleta: (paleta: string, escuro: boolean) =>

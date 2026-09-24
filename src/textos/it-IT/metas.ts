@@ -285,7 +285,7 @@ export const metas = {
        destra e "85% delle notti recenti" sotto — lo stesso numero due
        volte. "11 di 13 notti" risponde di quante notti stiamo parlando. */
     contagem: (quantas: number, de: number, nome: string, femininas: boolean) =>
-      `${quantas} di ${de} ${nome} ${femininas ? 'registrate' : 'registrati'}`,
+      `${quantas} su ${de} ${nome} ${femininas ? 'registrate' : 'registrati'}`,
     /* ⚠️ RICEVE LO STESSO `femininas` DEL CONTO QUI SOPRA, ed è per questo
        che la riga esiste così. Il femminile era scritto fisso —
        "registrate" — in una frase che riceve il plurale di otto
@@ -321,7 +321,7 @@ export const metas = {
   tela: {
     /* ---------- l'elenco ---------- */
     titulo: 'Obiettivi',
-    progresso: (perdido: string, total: string, alvo: string) => `${perdido} di ${total} fino a ${alvo}`,
+    progresso: (perdido: string, total: string, alvo: string) => `${perdido} su ${total} fino a ${alvo}`,
     novaMeta: 'Nuovo obiettivo',
 
     numerosTitulo: 'I numeri del giorno',

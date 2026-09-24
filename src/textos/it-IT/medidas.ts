@@ -32,7 +32,7 @@ export const medidas = {
     gordura: 'Massa grassa',
     massaMagra: 'Massa magra',
   },
-  pontosPercentuais: 'pp',
+  pontosPercentuais: 'p.p.',
 
   /* ============================================================
      LA SCHERMATA DEL MARCATORE — il grafico e l'elenco che si corregge
@@ -51,7 +51,7 @@ export const medidas = {
     /* Solo il peso ha un'ora del giorno; una misura di metro no. */
     notaManha: 'mattina',
 
-    vazioTitulo: (nome: string) => `Nessun registro di ${nome.toLowerCase()}`,
+    vazioTitulo: (nome: string) => `Nessuna registrazione di ${nome.toLowerCase()}`,
     vazioDaBalanca: 'Questa misura arriva da una bilancia a impedenza, e non ne è ancora arrivata nessuna.',
     vazioRegistre: 'Registra la prima per iniziare a seguirla.',
 
