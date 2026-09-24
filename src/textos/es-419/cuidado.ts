@@ -135,6 +135,28 @@ export const cuidado = {
     site: 'Sitio web',
     email: 'Correo',
     instagram: 'Instagram',
+    agenda: 'Agendar en línea',
+  },
+
+  /* La pantalla de la clínica — /clinica, en sus dos versiones. Ver ../pt-BR/cuidado. */
+  telaClinica: {
+    titulo: 'Clínica',
+    semClinica: 'No tienes una clínica vinculada. Quien acompaña tu tratamiento aparece en el área médica.',
+    convenios: 'Seguros médicos aceptados',
+    sobre: 'Acerca de',
+    outrosCanais: 'Otros canales',
+    outrosCanaisNota: 'Para hablar con la recepción. Lo que es del tratamiento va mejor en la conversación de la aplicación, que llega a todo el equipo.',
+    entreEmContato: 'Contacto',
+    entreEmContatoNota: 'Habla con la clínica para saber cómo empezar el seguimiento.',
+    contatosDeExemplo: 'Contactos de ejemplo — no abren nada.',
+    comoChegar: 'Cómo llegar',
+    quemAcompanha: 'Quién te acompaña',
+    quemAtende: 'Quién atiende',
+    aEquipe: 'El equipo',
+    responsavel: 'Responsable',
+    vinculoDesde: (data: string) => `Tu vínculo con esta clínica empezó el ${data}.`,
+    parceria: 'Los pacientes de clínicas asociadas no pagan por la aplicación. Al empezar el tratamiento aquí, la clínica te da un código y tu suscripción deja de cobrarse.',
+    escrever: 'Escribir al equipo',
   },
 
   tela: {

@@ -263,7 +263,7 @@ export const assinatura = {
        qui. */
     conviteTitulo: 'L’invito arriva dal centro',
     conviteTexto: 'Qui non si può cercare un centro. Chi si cura già in un centro partner riceve da lui un codice, ed è quello a unire le due estremità. Se il tuo centro non usa ancora l’app, vale la pena dirglielo.',
-    conviteTextoComRede: 'Chi si cura nella rete partner riceve dallo studio un codice dopo la prima visita, ed è quello a unire le due estremità. Se il tuo centro non usa ancora l’app, vale la pena dirglielo.',
+    conviteTextoComRede: 'Chi si cura nella rete partner riceve dal centro un codice dopo la prima visita, ed è quello a unire le due estremità. Se il tuo centro non usa ancora l’app, vale la pena dirglielo.',
 
     codigoRotulo: 'Codice di invito',
     codigoAjudaAtual: 'È quello che ti collega al tuo centro.',

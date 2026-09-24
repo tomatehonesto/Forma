@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Pressable, ScrollView, StyleSheet, Linking, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
+import { clinicaDaRede, fichaDaRede, redeDeExemplo, useVitrine, type Clinica as ClinicaDaRede } from '../logic/rede';
 import { Txt, Card, Row, CircleBtn, Chevron, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
-import { fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica } from '../ui/retratos';
+import {
+  fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, iniciaisDaClinica, fotoDaRede, focoDaRede, imagensDaRede,
+} from '../ui/retratos';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius } from '../theme';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
+import { T } from '../textos';
+
+const K = () => T.cuidado.telaClinica;
 
 /* ============================================================
    A CLÍNICA — quem está do outro lado, como instituição
@@ -97,7 +103,23 @@ import { BlurView } from 'expo-blur';
    afirmou sobre si, e não o que o aplicativo inferiu: `sobre`,
    especialidade e cidade vêm de `clinicInfo`, e sumem inteiros quando
    ela não mandou nada.
+
+   ⚠️ E AGORA SERVE. A vitrine da rede (/rede) abre esta tela com
+   `?rede=<id>`: a ficha vem do catálogo, por `fichaDaRede` (logic/rede),
+   com a mesma forma da que vem do perfil — e a versão é a parceira. A
+   equipe ganha o registro no conselho ao lado do nome, porque é aqui que
+   quem escolhe confere quem vai atender; e o endereço ganha "Como
+   chegar", porque aqui ele vem do portal e não de semente. Com a lista
+   de exemplo, nem um nem os canais abrem nada.
    ============================================================ */
+
+/* O endereço inteiro, para o aplicativo de mapas de cada sistema. */
+function urlDoMapa(c: ClinicaDaRede) {
+  const q = encodeURIComponent([c.endereco, c.bairro, `${c.cidade} - ${c.uf}`].filter(Boolean).join(', '));
+  if (Platform.OS === 'ios') return `http://maps.apple.com/?q=${q}`;
+  if (Platform.OS === 'android') return `geo:0,0?q=${q}`;
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
 
 const PAD = 24;
 
@@ -135,16 +157,28 @@ export default function Clinica() {
      é como se olha para ela — e é `__DEV__` porque uma porta que mostra a
      tela errada da clínica de alguém é exatamente o tipo de coisa que não
      pode sair daqui. */
-  const { parceira } = useLocalSearchParams<{ parceira?: string }>();
-  const vinculada = !(__DEV__ && parceira === '1');
+  const { parceira, rede } = useLocalSearchParams<{ parceira?: string; rede?: string }>();
 
-  const f = fichaDaClinica(S);
+  /* A clínica da rede chega do catálogo, e não do perfil. Sem `?rede=`,
+     é a clínica da própria pessoa, como sempre foi. */
+  const perto = useVitrine((v) => v.perto);
+  const [daRede, setDaRede] = useState<ClinicaDaRede | null | undefined>(undefined);
+  useEffect(() => {
+    if (rede) clinicaDaRede(String(rede)).then(setDaRede).catch(() => setDaRede(null));
+  }, [rede]);
+
+  const vinculada = !rede && !(__DEV__ && parceira === '1');
+  /* Com a lista de exemplo nada abre: os contatos são inventados. */
+  const exemplo = !!rede && redeDeExemplo();
+
+  const f = rede ? (daRede ? fichaDaRede(daRede, S, perto) : null) : fichaDaClinica(S);
   const contatos = contatosDaClinica(f?.contato);
-  const abrir = (url: string) => () => { Linking.openURL(url).catch(() => {}); };
+  const abrir = (url: string) => (exemplo ? undefined : () => { Linking.openURL(url).catch(() => {}); });
+  const mapa = daRede && !exemplo && f?.endereco ? urlDoMapa(daRede) : null;
   /* Vazio enquanto a clínica não mandar logo nem foto — e vazio é um
      estado inteiro, não um estado degradado: a faixa não aparece e o
      quadrado mostra as iniciais. */
-  const imagens = (f && IMAGENS_DA_CLINICA[f.nome]) || {};
+  const imagens = rede ? (daRede ? imagensDaRede(daRede) : {}) : (f && IMAGENS_DA_CLINICA[f.nome]) || {};
   /* ⚠️ O LIMIAR DEPENDE DE ONDE O NOME ESTÁ. Com foto ele mora na faixa
      de vidro colada no PÉ dela, e a barra só assume quando essa faixa
      sai; sem foto ele está logo abaixo do botão, e o limiar é o das
@@ -152,15 +186,19 @@ export default function Clinica() {
   const [passou, setPassou] = useState(false);
   const limiar = imagens.foto ? ALTURA_DA_FOTO - 150 : 38;
 
+  /* Enquanto a clínica da rede não chega, a tela fica no fundo — e não
+     diz "você não tem clínica", que seria a frase errada por meio segundo. */
+  if (rede && daRede === undefined) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
+
   if (!f) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20, paddingHorizontal: PAD }}>
         <Row style={{ marginTop: 4 }} gap={12}>
           <CircleBtn name="back" onPress={() => router.back()} />
-          <Txt v="title" style={{ flex: 1 }}>Clínica</Txt>
+          <Txt v="title" style={{ flex: 1 }}>{K().titulo}</Txt>
         </Row>
         <Txt v="note" c={c.tx3} style={{ marginTop: 28, lineHeight: 23 }}>
-          Você não tem clínica vinculada. Quem acompanha o seu tratamento aparece na área médica.
+          {K().semClinica}
         </Txt>
       </View>
     );
@@ -360,6 +398,19 @@ export default function Clinica() {
             </>
           ) : null}
           <Local f={f} fio={!imagens.foto} />
+          {mapa ? (
+            <Pressable
+              onPress={() => { Linking.openURL(mapa).catch(() => {}); }}
+              style={({ pressed }) => [{ marginTop: 12, alignSelf: 'flex-start', opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Row gap={11} style={{ alignItems: 'center' }}>
+                <View style={{ width: 18, alignItems: 'center' }}>
+                  <Icon name="send" size={16} color={c.accent} sw={1.9} />
+                </View>
+                <Txt v="caption" c={c.accent2}>{K().comoChegar}</Txt>
+              </Row>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={{ paddingHorizontal: PAD }}>
@@ -377,7 +428,7 @@ export default function Clinica() {
             particular manda uma lista de um item. */}
         {!!f.convenios?.length && (
           <View style={{ marginTop: 26 }}>
-            <Txt v="h2" style={{ marginBottom: 12 }}>Convênios atendidos</Txt>
+            <Txt v="h2" style={{ marginBottom: 12 }}>{K().convenios}</Txt>
             <Row gap={8} style={{ flexWrap: 'wrap' }}>
               {f.convenios.map((v) => (
                 /* ⚠️ PREENCHIDAS, E ERAM CONTORNO CINZA. O contorno é o
@@ -420,7 +471,7 @@ export default function Clinica() {
             Entre duas seções tituladas, ele passaria a ler como sobra. */}
         {!!f.sobre && (
           <View style={{ marginTop: 30 }}>
-            <Txt v="h2">Sobre</Txt>
+            <Txt v="h2">{K().sobre}</Txt>
             <Txt v="body" c={c.tx2} style={{ marginTop: 12, lineHeight: 26 }}>{f.sobre}</Txt>
           </View>
         )}
@@ -455,11 +506,9 @@ export default function Clinica() {
             saiu das prescrições em /medico. */}
         {!!contatos.length && (
           <View style={{ marginTop: 30 }}>
-            <Txt v="h2">{vinculada ? 'Outros canais' : 'Entre em contato'}</Txt>
+            <Txt v="h2">{vinculada ? K().outrosCanais : K().entreEmContato}</Txt>
             <Txt v="caption" c={c.tx3} style={{ marginTop: 6, marginBottom: 12, lineHeight: 21 }}>
-              {vinculada
-                ? 'Para falar com a recepção. O que é do tratamento fica melhor na conversa do aplicativo, que chega à equipe inteira.'
-                : 'Fale com a clínica para saber como começar o acompanhamento.'}
+              {vinculada ? K().outrosCanaisNota : exemplo ? K().contatosDeExemplo : K().entreEmContatoNota}
             </Txt>
             <Cartao>
               {contatos.map((ct) => (
@@ -480,7 +529,7 @@ export default function Clinica() {
         {f.equipe.length ? (
           <View style={{ marginTop: 30 }}>
             <Txt v="h2" style={{ marginBottom: 10 }}>
-              {f.equipe.length === 1 ? 'Quem acompanha você' : 'A equipe'}
+              {f.equipe.length > 1 ? K().aEquipe : vinculada ? K().quemAcompanha : K().quemAtende}
             </Txt>
             {/* ⚠️ É O <Cartao> DA CASA, e era um <Card> com as linhas e os
                 fios escritos aqui. O <Card> tem 20 de respiro; as listas do
@@ -504,7 +553,7 @@ export default function Clinica() {
                   style={({ pressed }) => [{ opacity: pressed && vinculada ? 0.6 : 1 }]}
                 >
                   <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' }}>
-                    <Avatar ficha={m} />
+                    <Avatar ficha={m} daRede={daRede?.equipe.find((p) => p.id === m.id)} />
                     {/* ⚠️ "RESPONSÁVEL" VEM PRIMEIRO, e vinha por último.
                         Era "Endocrinologista · responsável", que em 213px de
                         coluna quebrava em duas linhas: a primeira da lista
@@ -528,8 +577,13 @@ export default function Clinica() {
                     <View style={{ flex: 1 }}>
                       <Txt v="bodyMed" numberOfLines={1}>{m.nome}</Txt>
                       <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>
-                        {[m.responsavel ? 'Responsável' : null, m.papel].filter(Boolean).join(' · ')}
+                        {[m.responsavel ? K().responsavel : null, m.papel].filter(Boolean).join(' · ')}
                       </Txt>
+                      {/* Para quem ainda está escolhendo, o registro fica à
+                          vista: é aqui que se confere quem vai atender. */}
+                      {!vinculada && !!m.registro && (
+                        <Txt v="tag" c={c.tx4} numberOfLines={1} style={{ marginTop: 2 }}>{m.registro}</Txt>
+                      )}
                     </View>
                     {vinculada ? <Chevron /> : null}
                   </Row>
@@ -552,7 +606,7 @@ export default function Clinica() {
                   Care e o "Sem custo". Repetido aqui, espalha o assunto do
                   dinheiro por uma tela que é sobre quem cuida de você. */}
               <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
-                Você está vinculada a esta clínica desde {dataComAno(f.desde)}.
+                {K().vinculoDesde(dataComAno(f.desde))}
               </Txt>
             </Row>
           </View>
@@ -572,8 +626,7 @@ export default function Clinica() {
                 <Icon name="check" size={16} color={c.lime} sw={2.4} />
               </View>
               <Txt v="caption" c={c.tx3} style={{ flex: 1, lineHeight: 20 }}>
-                Pacientes de clínicas parceiras não pagam pelo aplicativo. Ao iniciar tratamento
-                aqui, a clínica passa um código e a sua assinatura deixa de ser cobrada.
+                {K().parceria}
               </Txt>
             </Row>
           </View>
@@ -594,7 +647,7 @@ export default function Clinica() {
           <Pressable onPress={go('/conversa')} style={({ pressed }) => [{ marginTop: 26, opacity: pressed ? 0.85 : 1 }]}>
             <Row gap={8} style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, justifyContent: 'center' }}>
               <Icon name="companion" size={18} color={c.accentInk} sw={1.9} />
-              <Txt v="body" c={c.accentInk}>Escrever para a equipe</Txt>
+              <Txt v="body" c={c.accentInk}>{K().escrever}</Txt>
             </Row>
           </Pressable>
         )}
@@ -603,7 +656,7 @@ export default function Clinica() {
       </Rolagem>
 
       <BarraQueColapsa
-        titulo={f?.nome ?? 'Clínica'}
+        titulo={f?.nome ?? K().titulo}
         passou={passou}
         repouso={imagens.foto ? 'branco' : 'normal'}
       />
@@ -689,9 +742,13 @@ function Local({ f, fio = true }: { f: FichaDaClinica; fio?: boolean }) {
 
 /* O mesmo quadrado de canto redondo da tela de equipe — é a mesma pessoa
    nas duas telas, e ela não pode mudar de forma no caminho. */
-function Avatar({ ficha }: { ficha: { id: string; nome: string } }) {
+function Avatar({ ficha, daRede }: {
+  ficha: { id: string; nome: string };
+  /* quem vem da rede traz a foto do portal, e não a da semente */
+  daRede?: { id: string; foto?: string };
+}) {
   const { c } = useTheme();
-  const foto = fotoDe(ficha.id);
+  const foto = daRede ? fotoDaRede(daRede) : fotoDe(ficha.id);
   const lado = 48;
   if (foto) {
     return (
@@ -699,7 +756,7 @@ function Avatar({ ficha }: { ficha: { id: string; nome: string } }) {
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.sm, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition={focoDe(ficha.id)}
+        contentPosition={daRede ? focoDaRede(daRede) : focoDe(ficha.id)}
       />
     );
   }

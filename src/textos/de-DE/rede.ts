@@ -1,25 +1,30 @@
-/* Das Partnernetzwerk — das Verzeichnis und die Seite der Fachperson.
-   Siehe ../pt-BR/rede: warum es in jeder Sprache existiert, obwohl das
-   Netzwerk brasilianisch ist, und was NICHT übersetzt wird (was die
-   Fachperson im Portal geschrieben hat). */
+/* Das Partnernetzwerk — das Verzeichnis, seine Filter und die Karte im
+   Tab Betreuung. Siehe ../pt-BR/rede: warum es in jeder Sprache existiert,
+   obwohl das Netzwerk brasilianisch ist, und was NICHT übersetzt wird
+   (was die Praxis im Portal geschrieben hat). */
 
 export const rede = {
-  titulo: 'Partnernetzwerk',
-  lead: 'Fachleute, die die Behandlung mit der App begleiten. Den ersten Kontakt nimmst du direkt mit der Praxis auf.',
+  titulo: 'Partnerpraxen',
+  lead: 'Praxen, die die Behandlung mit der App begleiten. Den ersten Kontakt nimmst du direkt mit ihnen auf.',
 
-  exemploTitulo: 'Beispielpersonen',
+  exemploTitulo: 'Beispielpraxen',
   exemploTexto: 'Namen, Registernummern und Kontakte sind erfunden — nur um zu zeigen, wie das Verzeichnis aussieht. Die echte Liste kommt aus dem Portal des Netzwerks.',
 
-  busca: 'Name oder Fachgebiet',
+  busca: 'Praxis, Ärztin, Arzt oder Fachgebiet',
 
+  perto: 'In meiner Nähe',
   localizacao: {
-    usar: 'Meinen Standort verwenden',
-    usarSub: 'Um die Entfernung zu jeder Praxis zu sehen. Er bleibt auf dem Gerät.',
     pedindo: 'Wir suchen deinen Standort …',
-    ligada: 'Nächste zuerst',
-    ligadaSub: 'Nach Entfernung sortiert. Tippen zum Ausschalten.',
-    negada: 'Keine Erlaubnis für den Standort. Du kannst die Stadt in den Filtern wählen.',
-    falhou: 'Wir konnten gerade nicht feststellen, wo du bist. Du kannst die Stadt in den Filtern wählen.',
+    negada: 'Keine Erlaubnis für den Standort. Du kannst eine Stadt wählen.',
+    falhou: 'Wir konnten gerade nicht feststellen, wo du bist. Du kannst eine Stadt wählen.',
+  },
+
+  filtro: {
+    especialidade: 'Fachgebiet',
+    convenio: 'Versicherung',
+    modalidade: 'Terminart',
+    dia: 'Tag',
+    cidade: 'Stadt',
   },
 
   /* „Nutrologia“ ist in Brasilien ein ärztliches Fachgebiet; „Nutrição“
@@ -31,21 +36,21 @@ export const rede = {
     esporte: 'Sportmedizin',
     psicologia: 'Psychologie',
   },
-  todas: 'Alle',
 
-  filtros: 'Filter',
-  filtrosSub: 'Stadt, Versicherung, Terminart und Tag',
-  resultados: (n: number) => `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'}`,
+  resultados: (n: number) => `${n} ${n === 1 ? 'Praxis' : 'Praxen'}`,
 
   aDistancia: (quanto: string) => `${quanto} entfernt`,
   soTeleconsulta: 'Nur Videosprechstunde',
+  soPresencial: 'Vor Ort',
+  presencialETele: 'Vor Ort und per Video',
   teleconsulta: 'Videosprechstunde',
-  outrosLocais: (n: number) => `${n}\u00A0weitere${n === 1 ? 'r' : ''}\u00A0Standort${n === 1 ? '' : 'e'}`,
+  particular: 'Selbstzahler',
+  maisConvenios: (n: number) => `+${n}`,
   deAte: (de: string, ate: string) => `${de}–${ate}`,
-  faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
+  faixa: (abre: string, fecha: string) => `${abre}⁠–⁠${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,
 
-  vazioTitulo: 'Niemand passt zu diesen Filtern',
+  vazioTitulo: 'Keine Praxis passt zu diesen Filtern',
   vazioTexto: 'Versuch ein anderes Fachgebiet oder nimm einen der Filter heraus.',
   limparFiltros: 'Filter zurücksetzen',
   erroTitulo: 'Wir konnten das Netzwerk nicht öffnen',
@@ -55,38 +60,26 @@ export const rede = {
   jaTenhoCodigo: 'Ich habe einen Einladungscode',
 
   folha: {
-    titulo: 'Filter',
-    cidade: 'Stadt',
-    todasAsCidades: 'Alle',
+    especialidade: 'Fachgebiet',
+    convenio: 'Versicherung',
     modalidade: 'Terminart',
+    dia: 'Sprechstundentag',
+    cidade: 'Stadt',
     todas: 'Alle',
+    qualquer: 'Egal',
+    qualquerDia: 'Jeder Tag',
+    todasAsCidades: 'Alle Städte',
+    presencialOuTele: 'Vor Ort oder per Video',
     presencial: 'Vor Ort',
     teleconsulta: 'Videosprechstunde',
-    convenio: 'Versicherung',
-    qualquer: 'Egal',
-    particular: 'Selbstzahler',
-    dia: 'Sprechstunde am',
-    qualquerDia: 'Jeder Tag',
-    ver: (n: number) => (n ? `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'} anzeigen` : 'Keine Fachperson'),
     limpar: 'Zurücksetzen',
   },
 
-  ficha: {
-    sobre: 'Vorstellung',
-    ondeAtende: 'Sprechstunden',
-    presencialETele: 'Vor Ort und per Video',
-    soPresencial: 'Vor Ort',
-    convenios: 'Versicherungen',
-    soParticular: 'Nur Selbstzahler',
-    particularNaLista: 'Selbstzahler',
-    comoChegar: 'Route',
-    falar: 'Praxis kontaktieren',
-    falarNota: 'Die Kanäle, die die Praxis angegeben hat. Jeder öffnet sich außerhalb der App.',
-    agenda: 'Online buchen',
-    exemploContatos: 'Beispielkontakte — sie öffnen nichts.',
-    proximoTitulo: 'Nach dem ersten Termin',
-    proximoTexto: 'Die Praxis gibt dir einen Einladungscode. Er verbindet die Begleitung mit der App — Nachrichten zwischen den Terminen, deine Übersicht beim Team und Termine, die schon eingetragen sind.',
-    jaTenhoCodigo: 'Ich habe einen Code',
-    naoEncontrado: 'Diese Fachperson ist nicht im Netzwerk.',
+  cartao: {
+    tag: 'Partnerpraxen',
+    titulo: 'Lass dich von Fachleuten begleiten',
+    naRede: (n: number) => `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'} im Netzwerk`,
+    pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'} · die nächsten zuerst`,
+    acao: 'Praxen ansehen',
   },
 };

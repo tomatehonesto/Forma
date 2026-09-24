@@ -276,7 +276,7 @@ export const assinatura = {
        chère d'ici. */
     conviteTitulo: 'L’invitation vient de la clinique',
     conviteTexto: 'Il n’y a pas de recherche de clinique par ici. Qui se soigne déjà dans une clinique partenaire en reçoit un code, et c’est lui qui relie les deux bouts. Si votre clinique n’utilise pas encore l’application, ça vaut le coup de lui en parler.',
-    conviteTextoComRede: 'Qui se soigne dans le réseau partenaire reçoit du cabinet un code après la première consultation, et c’est lui qui relie les deux bouts. Si votre clinique n’utilise pas encore l’application, ça vaut le coup de lui en parler.',
+    conviteTextoComRede: 'Qui se soigne dans le réseau partenaire reçoit de la clinique un code après la première consultation, et c’est lui qui relie les deux bouts. Si votre clinique n’utilise pas encore l’application, ça vaut le coup de lui en parler.',
 
     codigoRotulo: 'Code d’invitation',
     codigoAjudaAtual: 'C’est lui qui vous relie à votre clinique.',

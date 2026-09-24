@@ -5188,6 +5188,8 @@ export type ContatoDaClinica = {
   email?: string;
   /** sem arroba; a tela põe */
   instagram?: string;
+  /** a agenda on-line da clínica — vem do portal da rede */
+  agenda?: string;
 };
 
 /* As linhas da lista de contato, na ordem em que fazem sentido: o canal
@@ -5197,6 +5199,8 @@ export function contatosDaClinica(ct?: ContatoDaClinica) {
   const soDigitos = (v: string) => v.replace(/\D/g, '');
   const linhas: { ic: string; titulo: string; sub: string; url: string }[] = [];
   const C = T.cuidado.contato;
+  /* A agenda vem primeiro: é o único canal que marca a consulta sem depender de alguém atender. */
+  if (ct.agenda) linhas.push({ ic: 'cal', titulo: C.agenda, sub: ct.agenda, url: /^https?:/.test(ct.agenda) ? ct.agenda : `https://${ct.agenda}` });
   if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: C.whatsapp, sub: C.whatsappSub, url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
   if (ct.telefone) linhas.push({ ic: 'phone', titulo: C.telefone, sub: ct.telefone, url: `tel:${soDigitos(ct.telefone)}` });
   if (ct.site) linhas.push({ ic: 'site', titulo: C.site, sub: ct.site, url: /^https?:/.test(ct.site) ? ct.site : `https://${ct.site}` });

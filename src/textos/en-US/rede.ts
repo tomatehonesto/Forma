@@ -1,25 +1,30 @@
-/* The partner network — the directory and the professional's page. See
-   ../pt-BR/rede for why this exists in every language even though the
-   network is Brazilian, and for what is NOT translated (whatever the
-   professional wrote in the portal). */
+/* The partner network — the directory, its filters and the card on the
+   Care tab. See ../pt-BR/rede for why this exists in every language even
+   though the network is Brazilian, and for what is NOT translated
+   (whatever the clinic wrote in the portal). */
 
 export const rede = {
-  titulo: 'Partner network',
-  lead: 'Professionals who follow treatment through the app. You reach out to the office directly.',
+  titulo: 'Partner clinics',
+  lead: 'Clinics that follow treatment through the app. You reach out to them directly.',
 
-  exemploTitulo: 'Sample professionals',
+  exemploTitulo: 'Sample clinics',
   exemploTexto: 'Names, registrations and contacts are made up, just to show how the directory looks. The real list comes from the network’s portal.',
 
-  busca: 'Name or specialty',
+  busca: 'Clinic, doctor or specialty',
 
+  perto: 'Near me',
   localizacao: {
-    usar: 'Use my location',
-    usarSub: 'To see how far each office is. It stays on this device.',
     pedindo: 'Finding where you are…',
-    ligada: 'Closest first',
-    ligadaSub: 'Sorted by distance. Tap to turn off.',
-    negada: 'No permission to use your location. You can pick a city in the filters.',
-    falhou: 'We couldn’t tell where you are right now. You can pick a city in the filters.',
+    negada: 'No permission to use your location. You can pick a city.',
+    falhou: 'We couldn’t tell where you are right now. You can pick a city.',
+  },
+
+  filtro: {
+    especialidade: 'Specialty',
+    convenio: 'Insurance',
+    modalidade: 'Visit type',
+    dia: 'Day',
+    cidade: 'City',
   },
 
   /* "Nutrologia" is a Brazilian medical specialty — a physician who treats
@@ -31,21 +36,21 @@ export const rede = {
     esporte: 'Sports medicine',
     psicologia: 'Psychology',
   },
-  todas: 'All',
 
-  filtros: 'Filters',
-  filtrosSub: 'City, insurance, visit type and day',
-  resultados: (n: number) => `${n} ${n === 1 ? 'professional' : 'professionals'}`,
+  resultados: (n: number) => `${n} ${n === 1 ? 'clinic' : 'clinics'}`,
 
   aDistancia: (quanto: string) => `${quanto} away`,
   soTeleconsulta: 'Telehealth only',
+  soPresencial: 'In person',
+  presencialETele: 'In person and telehealth',
   teleconsulta: 'Telehealth',
-  outrosLocais: (n: number) => `${n}\u00A0more\u00A0${n === 1 ? 'location' : 'locations'}`,
+  particular: 'Self-pay',
+  maisConvenios: (n: number) => `+${n}`,
   deAte: (de: string, ate: string) => `${de}–${ate}`,
-  faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,
+  faixa: (abre: string, fecha: string) => `${abre}⁠–⁠${fecha}`,
   horario: (dias: string, faixa: string) => `${dias} · ${faixa}`,
 
-  vazioTitulo: 'No one matches these filters',
+  vazioTitulo: 'No clinics match these filters',
   vazioTexto: 'Try another specialty, or remove one of the filters.',
   limparFiltros: 'Clear filters',
   erroTitulo: 'We couldn’t open the network',
@@ -55,38 +60,26 @@ export const rede = {
   jaTenhoCodigo: 'I have an invite code',
 
   folha: {
-    titulo: 'Filters',
-    cidade: 'City',
-    todasAsCidades: 'All',
+    especialidade: 'Specialty',
+    convenio: 'Insurance',
     modalidade: 'Visit type',
+    dia: 'Day of the week',
+    cidade: 'City',
     todas: 'All',
+    qualquer: 'Any',
+    qualquerDia: 'Any day',
+    todasAsCidades: 'All cities',
+    presencialOuTele: 'In person or telehealth',
     presencial: 'In person',
     teleconsulta: 'Telehealth',
-    convenio: 'Insurance',
-    qualquer: 'Any',
-    particular: 'Self-pay',
-    dia: 'Available on',
-    qualquerDia: 'Any day',
-    ver: (n: number) => (n ? `Show ${n} ${n === 1 ? 'professional' : 'professionals'}` : 'No professionals'),
     limpar: 'Clear',
   },
 
-  ficha: {
-    sobre: 'About',
-    ondeAtende: 'Where to find them',
-    presencialETele: 'In person and telehealth',
-    soPresencial: 'In person',
-    convenios: 'Insurance',
-    soParticular: 'Self-pay only',
-    particularNaLista: 'self-pay',
-    comoChegar: 'Directions',
-    falar: 'Contact the office',
-    falarNota: 'The channels the office listed. Each one opens outside the app.',
-    agenda: 'Book online',
-    exemploContatos: 'Sample contacts — they don’t open anything.',
-    proximoTitulo: 'After the first appointment',
-    proximoTexto: 'The office gives you an invite code. That’s what connects your care to the app — messages between appointments, your summary reaching the team, and appointments already filled in.',
-    jaTenhoCodigo: 'I have a code',
-    naoEncontrado: 'We couldn’t find this professional in the network.',
+  cartao: {
+    tag: 'Partner clinics',
+    titulo: 'Get care from specialists',
+    naRede: (n: number) => `${n} ${n === 1 ? 'professional' : 'professionals'} in the network`,
+    pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'professional' : 'professionals'} · closest to you`,
+    acao: 'See clinics',
   },
 };

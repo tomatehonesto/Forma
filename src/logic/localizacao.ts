@@ -54,6 +54,22 @@ export async function pedirLocalizacao(): Promise<Resposta> {
   }
 }
 
+/** A posição SEM PEDIR NADA: só responde se a pessoa já deu a permissão
+    antes. É o que a aba Cuidado usa — ela mostra os mais próximos quando
+    sabe onde a pessoa está, e nunca abre um pedido de permissão sozinha. */
+export async function pontoSemPedir(): Promise<Ponto | null> {
+  const L = carregar();
+  if (!L) return null;
+  try {
+    const p = await L.getForegroundPermissionsAsync();
+    if (!p?.granted) return null;
+    const pos = await L.getLastKnownPositionAsync().catch(() => null);
+    return pos ? { lat: pos.coords.latitude, lng: pos.coords.longitude } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Distância em linha reta, em quilômetros — a fórmula do haversine. */
 export function distanciaKm(a: Ponto, b: Ponto): number {
   const R = 6371;

@@ -143,6 +143,28 @@ export const cuidado = {
     site: 'Site web',
     email: 'E-mail',
     instagram: 'Instagram',
+    agenda: 'Prendre rendez-vous en ligne',
+  },
+
+  /* L’écran de la clinique — /clinica, dans ses deux versions. Voir ../pt-BR/cuidado. */
+  telaClinica: {
+    titulo: 'Clinique',
+    semClinica: 'Aucune clinique n’est liée à votre suivi. La personne qui suit votre traitement apparaît dans l’espace médical.',
+    convenios: 'Assurances acceptées',
+    sobre: 'Présentation',
+    outrosCanais: 'Autres moyens de contact',
+    outrosCanaisNota: 'Pour joindre l’accueil. Ce qui concerne le traitement passe mieux par la conversation de l’application, qui arrive à toute l’équipe.',
+    entreEmContato: 'Contacter la clinique',
+    entreEmContatoNota: 'Parlez avec la clinique pour savoir comment commencer le suivi.',
+    contatosDeExemplo: 'Contacts fictifs — ils n’ouvrent rien.',
+    comoChegar: 'Itinéraire',
+    quemAcompanha: 'Qui vous suit',
+    quemAtende: 'Qui consulte',
+    aEquipe: 'L’équipe',
+    responsavel: 'Responsable',
+    vinculoDesde: (data: string) => `Votre lien avec cette clinique date du ${data}.`,
+    parceria: 'Les patients des cliniques partenaires ne paient pas l’application. Quand vous commencez un traitement ici, la clinique vous remet un code et votre abonnement n’est plus facturé.',
+    escrever: 'Écrire à l’équipe',
   },
 
   tela: {

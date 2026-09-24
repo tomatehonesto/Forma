@@ -154,6 +154,28 @@ export const cuidado = {
     site: 'Sito',
     email: 'E-mail',
     instagram: 'Instagram',
+    agenda: 'Prenota online',
+  },
+
+  /* La schermata del centro — /clinica, nelle sue due versioni. Vedi ../pt-BR/cuidado. */
+  telaClinica: {
+    titulo: 'Centro',
+    semClinica: 'Nessun centro è collegato al tuo percorso. Chi segue la tua terapia compare nell’area medica.',
+    convenios: 'Assicurazioni accettate',
+    sobre: 'Presentazione',
+    outrosCanais: 'Altri canali',
+    outrosCanaisNota: 'Per parlare con la reception. Quello che riguarda la terapia va meglio nella conversazione dell’app, che arriva a tutta l’équipe.',
+    entreEmContato: 'Contatta il centro',
+    entreEmContatoNota: 'Parla con il centro per sapere come iniziare il percorso.',
+    contatosDeExemplo: 'Contatti di esempio — non aprono nulla.',
+    comoChegar: 'Indicazioni',
+    quemAcompanha: 'Chi ti segue',
+    quemAtende: 'Chi riceve',
+    aEquipe: 'L’équipe',
+    responsavel: 'Responsabile',
+    vinculoDesde: (data: string) => `Il tuo legame con questo centro è iniziato il ${data}.`,
+    parceria: 'I pazienti dei centri partner non pagano l’app. Quando inizi la terapia qui, il centro ti dà un codice e l’abbonamento smette di essere addebitato.',
+    escrever: 'Scrivi all’équipe',
   },
 
   /* ============================================================

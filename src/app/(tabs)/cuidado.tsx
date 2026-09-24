@@ -13,13 +13,18 @@ import {
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, diasDaSemana, MO } from '../../logic/time';
-import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem } from '../../ui/kit';
+import { Txt, Row, SectionHead, Divider, ListRow, Chevron, Rolagem, Card } from '../../ui/kit';
+import { Selo } from '../../ui/internas';
 import { Icon } from '../../ui/Icon';
 import { temRedeParceira } from '../../logic/pais';
-import { redeNoAr } from '../../logic/rede';
+import {
+  redeNoAr, carregarRede, buscar, profissionaisDaRede, SEM_FILTRO,
+  type Clinica as ClinicaDaRede, type Profissional as ProfissionalDaRede,
+} from '../../logic/rede';
+import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
-import { fotoDe, focoDe } from '../../ui/retratos';
+import { fotoDe, focoDe, fotoDaRede, focoDaRede, inicialDoNome } from '../../ui/retratos';
 import { noNa, formaDe } from '../../logic/formas';
 import { T } from '../../textos';
 
@@ -953,27 +958,46 @@ function Parceiros() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
+  const noAr = redeNoAr();
+
+  /* A rede e o ponto da pessoa — o ponto só se ela já deixou antes: a aba
+     nunca abre um pedido de permissão sozinha (ver logic/localizacao). */
+  const [rede, setRede] = React.useState<ClinicaDaRede[] | null>(null);
+  const [ponto, setPonto] = React.useState<Ponto | null>(null);
+  React.useEffect(() => {
+    if (!noAr) return;
+    carregarRede().then(setRede).catch(() => {});
+    pontoSemPedir().then(setPonto).catch(() => {});
+  }, [noAr]);
+
   if (!temRedeParceira() || temAcompanhamento(S)) return null;
 
   return (
     <View style={{ marginTop: 36 }}>
       <SectionHead title={K().acompanhamentoProfissional} />
 
-      {/* Com a lista da rede no ar, o bloco abre a vitrine; sem ela, a
-          tela do código de convite, que é o único caminho que existe. */}
-      <Pressable
-        onPress={() => router.push((redeNoAr() ? '/rede' : '/parceiros') as any)}
-        style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
-      >
-        <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
-          <Row gap={12} style={{ alignItems: 'center' }}>
-            <Icon name="steth" size={20} color={c.accent} sw={1.9} />
-            <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{K().conhecaParceiros}</Txt>
-            <Icon name="chev" size={14} color={c.accent2} sw={2} />
-          </Row>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
-        </View>
-      </Pressable>
+      {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE. Rostos de quem atende
+          — os mais próximos, quando sabemos onde a pessoa está —, a
+          etiqueta da rede e um botão que diz para onde vai. Sem a rede,
+          fica o cartão de antes, que leva à tela do código de convite: é o
+          único caminho que existe enquanto não há lista. */}
+      {noAr && rede?.length ? (
+        <CartaoDaRede rede={rede} ponto={ponto} onPress={() => router.push('/rede' as any)} />
+      ) : (
+        <Pressable
+          onPress={() => router.push((noAr ? '/rede' : '/parceiros') as any)}
+          style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
+        >
+          <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
+            <Row gap={12} style={{ alignItems: 'center' }}>
+              <Icon name="steth" size={20} color={c.accent} sw={1.9} />
+              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{K().conhecaParceiros}</Txt>
+              <Icon name="chev" size={14} color={c.accent2} sw={2} />
+            </Row>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
+          </View>
+        </Pressable>
+      )}
 
       {/* ⚠️ UMA LINHA, E SÓ. É a porta para quem mudou de ideia sobre
           seguir sozinha, e ela precisa existir em algum lugar da aba —
@@ -993,6 +1017,71 @@ function Parceiros() {
         </Txt>
       </Pressable>
     </View>
+  );
+}
+
+/* ------------------------------------------------------------------
+   O CARTÃO DA REDE — rostos, e não um ícone de estetoscópio
+
+   ⚠️ OS ROSTOS SÃO DE QUEM ATENDE NA REDE, na ordem da vitrine: pela
+   distância quando sabemos onde a pessoa está, e aí são mesmo os mais
+   próximos, com ou sem foto. Sem o ponto, a ordem não diz nada de perto,
+   e quem tem retrato vem primeiro — a frase embaixo muda junto, e só diz
+   "perto de você" quando é verdade.
+
+   ⚠️ O NÚMERO CONTA PESSOAS, UMA VEZ CADA. Quem atende em duas clínicas
+   é uma pessoa só, e "9 profissionais" não pode virar 10 por isso.
+------------------------------------------------------------------ */
+function CartaoDaRede({ rede, ponto, onPress }: {
+  rede: ClinicaDaRede[]; ponto: Ponto | null; onPress: () => void;
+}) {
+  const { c } = useTheme();
+  const R = T.rede.cartao;
+
+  const vistos = new Set<string>();
+  const pessoas: ProfissionalDaRede[] = [];
+  for (const r of buscar(rede, SEM_FILTRO, ponto)) {
+    for (const p of r.c.equipe) if (!vistos.has(p.id)) { vistos.add(p.id); pessoas.push(p); }
+  }
+  const ordem = ponto ? pessoas : [...pessoas.filter((p) => fotoDaRede(p)), ...pessoas.filter((p) => !fotoDaRede(p))];
+  const rostos = ordem.slice(0, 4);
+  const n = profissionaisDaRede(rede);
+
+  return (
+    <Card onPress={onPress} style={{ marginTop: 14 }}>
+      <Selo label={R.tag} tom="lima" />
+      <Txt v="title" style={{ marginTop: 12 }}>{R.titulo}</Txt>
+      <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
+      <Row gap={12} style={{ marginTop: 18, alignItems: 'center' }}>
+        <View style={{ flex: 1 }}>
+          <Row>
+            {rostos.map((p, i) => {
+              const foto = fotoDaRede(p);
+              return (
+                <View
+                  key={p.id}
+                  style={{
+                    marginLeft: i ? -12 : 0, width: 42, height: 42, borderRadius: 21,
+                    borderWidth: 2, borderColor: c.bg1, overflow: 'hidden',
+                    backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  {foto ? (
+                    <Image source={foto} style={{ width: 42, height: 42 }} contentFit="cover" contentPosition={focoDaRede(p)} />
+                  ) : (
+                    <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
+                  )}
+                </View>
+              );
+            })}
+          </Row>
+          <Txt v="tag" c={c.tx3} style={{ marginTop: 8 }}>{ponto ? R.pertoDeVoce(n) : R.naRede(n)}</Txt>
+        </View>
+        <View style={{ backgroundColor: c.tx, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12 }}>
+          <Txt v="label" c={c.bg1}>{R.acao}</Txt>
+        </View>
+      </Row>
+    </Card>
   );
 }
 

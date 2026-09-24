@@ -2204,39 +2204,61 @@ propaganda ao consumidor é permitida, com as exigências da FDA.
 
 ## 🟡 34. A vitrine da rede parceira existe, com lista de exemplo, e espera o portal
 
-Feita em 24/09/2026 para ver como fica: `/rede` (a lista, com busca,
-especialidade, localização e filtros), `/rede-filtros` (a folha) e
-`/profissional` (a ficha, com consultórios, horários, convênios e canais).
-Abre pelo bloco do fim da aba Cuidado, para quem está no Brasil e não
-tem acompanhamento nenhum. Os médicos virão de um **portal próprio**
-(Admin/CMS), onde cada um é cadastrado e mantém a própria ficha; o contato
-é direto com o consultório, e o vínculo continua nascendo do código de
-convite que ele passa depois da primeira consulta.
+Feita em 24/09/2026 e refeita no mesmo dia. **A unidade é a clínica**: é
+com ela que o vínculo acontece e é ela que passa o código de convite.
 
-**Hoje a única fonte é a de exemplo**, e ela só existe em `__DEV__`: nove
-profissionais inventados, com o aviso no alto da vitrine e nenhum contato
-que abra. Em produção `FONTE` é nula, a vitrine não abre, e o bloco da
-aba Cuidado continua levando a `/parceiros`.
+- `/rede` — a vitrine, com a névoa da paleta no alto (`ui/nevoa`), a
+  busca por clínica, médico ou especialidade, e os chips Perto de mim,
+  Especialidade, Convênio, Modalidade, Dia e Cidade. Cada cartão tem o
+  rosto de quem responde pela clínica, o bairro com a distância e os
+  convênios em etiquetas; o CRM fica na clínica, ao lado de cada nome.
+- `/rede-filtros?qual=` — a folha de cada chip, com quantas clínicas
+  sobram em cada resposta.
+- `/clinica?rede=<id>` — a MESMA tela de quem tem vínculo, na versão
+  parceira que já existia e não tinha entrada. Os textos dela saíram do
+  JSX para o catálogo (`cuidado.telaClinica`) nos seis idiomas.
+- O cartão da aba Cuidado — etiqueta, "Tenha o acompanhamento de
+  especialistas", os rostos dos mais próximos (só quando a pessoa já deu
+  a localização antes; a aba nunca pede) e "Ver clínicas".
+
+As clínicas virão de um **portal próprio** (Admin/CMS), onde cada uma é
+cadastrada e mantém a própria ficha. O contato é direto com a clínica, e o
+vínculo continua nascendo do código de convite.
+
+**Hoje a única fonte é a de exemplo**, e ela só existe em `__DEV__`: oito
+clínicas e nove profissionais inventados, com o aviso no alto da vitrine e
+nenhum contato que abra. Em produção `FONTE` é nula, a vitrine não abre,
+e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
+`/parceiros`.
 
 **O que falta antes de valer em produção:**
 
 1. **O portal, e o contrato com ele.** Os tipos de `logic/rede.ts`
-   (`Profissional`, `Consultorio`, `Contato`) são o que a vitrine precisa
+   (`Clinica`, `Profissional`, `Contato`) são o que a vitrine precisa
    receber — é daí que sai a especificação do portal. Quando ele existir,
    `FONTE` passa a ler de lá, e só ela muda.
 2. **Revisão jurídica da vitrine — ver o item 2.** É publicidade médica:
-   a ficha já mostra CRM com UF e RQE de cada especialidade, mas quem
-   entra na lista, com que critério, e o que o profissional pode escrever
-   no "Sobre" são perguntas de advogado. A ordem é distância ou nome, sem
-   nota e sem "destaque" — os dois pediriam critério que ninguém definiu.
+   a clínica mostra CRM com UF e RQE de cada especialidade ao lado de cada
+   nome, mas o CARTÃO não mostra — foi pedido assim, e é pergunta para o
+   advogado se o cartão conta como anúncio. Quem entra na lista, com que
+   critério, e o que a clínica pode escrever no "Sobre" também. A ordem é
+   distância ou nome, sem nota e sem "destaque".
 3. **A Política de Privacidade ganha uma linha.** Ler o catálogo é uma
    chamada de rede nova. A localização não vai junto: a distância é
    calculada no aparelho (`logic/localizacao.ts`), e é isso que o texto
    da permissão promete.
 4. **Um build novo no iPhone.** `expo-location` é módulo nativo, e o
-   build de agora não o tem — a linha "Usar minha localização" some até
-   lá (o módulo é carregado com cuidado para a tela não cair). E o build
-   de produção passa a declarar a permissão de localização, mesmo com a
-   vitrine fechada.
+   build de agora não o tem — o chip "Perto de mim" some até lá (o módulo
+   é carregado com cuidado para a tela não cair). E o build de produção
+   passa a declarar a permissão de localização, mesmo com a vitrine
+   fechada.
 5. **As fotos vêm do portal, com o consentimento de quem aparece.** Sem
-   foto, o cartão mostra a inicial.
+   retrato, o cartão mostra a foto da clínica; sem nenhuma, as iniciais.
+
+⚠️ **E OS RETRATOS DA SEMENTE PRECISAM SAIR ANTES DA LOJA.** Os quatro de
+`assets/images/equipe/` não estão em `CREDITOS.txt` — a origem nunca foi
+conferida —, e o `rafael.jpg` tem **outro nome bordado no jaleco**: é a
+foto de um médico de verdade, usada como "Rafael Lima, psicólogo" na
+equipe da Mariana. A vitrine de exemplo empresta três deles, e deixa o do
+Rafael de fora de propósito (`ui/retratos.ts`). Trocar por fotos com
+licença e autorização de quem aparece resolve os dois lugares de uma vez.

@@ -175,6 +175,28 @@ export const cuidado = {
     site: 'Website',
     email: 'E-Mail',
     instagram: 'Instagram',
+    agenda: 'Online buchen',
+  },
+
+  /* Die Seite der Praxis — /clinica, in beiden Fassungen. Siehe ../pt-BR/cuidado. */
+  telaClinica: {
+    titulo: 'Praxis',
+    semClinica: 'Du bist mit keiner Praxis verbunden. Wer deine Behandlung begleitet, erscheint im medizinischen Bereich.',
+    convenios: 'Angenommene Versicherungen',
+    sobre: 'Vorstellung',
+    outrosCanais: 'Weitere Kanäle',
+    outrosCanaisNota: 'Für die Anmeldung. Was die Behandlung betrifft, ist im Chat der App besser aufgehoben — der erreicht das ganze Team.',
+    entreEmContato: 'Kontakt aufnehmen',
+    entreEmContatoNota: 'Sprich mit der Praxis, um zu erfahren, wie die Begleitung beginnt.',
+    contatosDeExemplo: 'Beispielkontakte — sie öffnen nichts.',
+    comoChegar: 'Route',
+    quemAcompanha: 'Wer dich begleitet',
+    quemAtende: 'Wer behandelt',
+    aEquipe: 'Das Team',
+    responsavel: 'Leitung',
+    vinculoDesde: (data: string) => `Du bist seit dem ${data} mit dieser Praxis verbunden.`,
+    parceria: 'Patientinnen und Patienten von Partnerpraxen zahlen nicht für die App. Wenn du hier mit der Behandlung beginnst, gibt dir die Praxis einen Code, und dein Abo wird nicht mehr berechnet.',
+    escrever: 'Dem Team schreiben',
   },
 
   tela: {

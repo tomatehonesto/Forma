@@ -176,6 +176,36 @@ export const cuidado = {
     site: 'Site',
     email: 'E-mail',
     instagram: 'Instagram',
+    agenda: 'Agendar pela internet',
+  },
+
+  /* ============================================================
+     A TELA DA CLÍNICA — /clinica, nas duas versões
+
+     ⚠️ ELA ERA ESCRITA EM PORTUGUÊS DENTRO DO JSX, porque só a clínica
+     da própria pessoa chegava nela. Agora a vitrine da rede também abre
+     esta tela, e quem mora no Brasil pode usar o aplicativo em outro
+     idioma.
+     ============================================================ */
+  telaClinica: {
+    titulo: 'Clínica',
+    semClinica: 'Você não tem clínica vinculada. Quem acompanha o seu tratamento aparece na área médica.',
+    convenios: 'Convênios atendidos',
+    sobre: 'Sobre',
+    outrosCanais: 'Outros canais',
+    outrosCanaisNota: 'Para falar com a recepção. O que é do tratamento fica melhor na conversa do aplicativo, que chega à equipe inteira.',
+    entreEmContato: 'Entre em contato',
+    entreEmContatoNota: 'Fale com a clínica para saber como começar o acompanhamento.',
+    contatosDeExemplo: 'Contatos de exemplo — não abrem nada.',
+    comoChegar: 'Como chegar',
+    quemAcompanha: 'Quem acompanha você',
+    quemAtende: 'Quem atende',
+    aEquipe: 'A equipe',
+    responsavel: 'Responsável',
+    /* ⚠️ ERA "Você está vinculada", no feminino, para qualquer pessoa. */
+    vinculoDesde: (data: string) => `O seu vínculo com esta clínica começou em ${data}.`,
+    parceria: 'Pacientes de clínicas parceiras não pagam pelo aplicativo. Ao iniciar tratamento aqui, a clínica passa um código e a sua assinatura deixa de ser cobrada.',
+    escrever: 'Escrever para a equipe',
   },
 
   /* ============================================================

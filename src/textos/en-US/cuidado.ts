@@ -131,6 +131,28 @@ export const cuidado = {
     site: 'Website',
     email: 'Email',
     instagram: 'Instagram',
+    agenda: 'Book online',
+  },
+
+  /* The clinic screen — /clinica, in both versions. See ../pt-BR/cuidado. */
+  telaClinica: {
+    titulo: 'Clinic',
+    semClinica: 'You’re not linked to a clinic. Whoever follows your treatment shows up in the medical area.',
+    convenios: 'Insurance accepted',
+    sobre: 'About',
+    outrosCanais: 'Other channels',
+    outrosCanaisNota: 'For the front desk. Anything about your treatment is better in the app’s conversation, which reaches the whole team.',
+    entreEmContato: 'Get in touch',
+    entreEmContatoNota: 'Talk to the clinic to find out how to get started.',
+    contatosDeExemplo: 'Sample contacts — they don’t open anything.',
+    comoChegar: 'Directions',
+    quemAcompanha: 'Who follows your care',
+    quemAtende: 'Who sees patients',
+    aEquipe: 'The team',
+    responsavel: 'Lead',
+    vinculoDesde: (data: string) => `You’ve been linked to this clinic since ${data}.`,
+    parceria: 'Patients of partner clinics don’t pay for the app. When you start treatment here, the clinic gives you a code and your subscription stops being charged.',
+    escrever: 'Write to the team',
   },
 
   tela: {

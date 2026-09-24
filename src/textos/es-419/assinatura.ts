@@ -227,7 +227,7 @@ export const assinatura = {
        clínicas que no existe sería la puerta tapiada más cara de aquí. */
     conviteTitulo: 'La invitación viene de la clínica',
     conviteTexto: 'No se puede buscar una clínica por aquí. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
-    conviteTextoComRede: 'Quien se trata en la red asociada recibe del consultorio un código después de la primera consulta, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
+    conviteTextoComRede: 'Quien se trata en la red asociada recibe de la clínica un código después de la primera consulta, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
 
     codigoRotulo: 'Código de invitación',
     codigoAjudaAtual: 'Es el que te une a tu clínica.',

@@ -105,6 +105,41 @@ export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {
   'Clínica Vitalis': { foto: require('../../assets/images/clinicas/vitalis.jpg') },
 };
 
+/* ============================================================
+   AS IMAGENS DA REDE PARCEIRA — ver logic/rede
+
+   Do portal vem o ENDEREÇO da foto, e a tela a carrega de lá. Na lista de
+   exemplo, que só existe em desenvolvimento, não há endereço nenhum: as
+   imagens são as mesmas da semente, emprestadas para a vitrine poder ser
+   julgada com rosto.
+
+   ⚠️ O RETRATO DO RAFAEL NÃO ENTRA AQUI. O jaleco dele tem outro nome
+   bordado — é a foto de um médico de verdade —, e emprestá-la a um médico
+   inventado, com CRM inventado, seria pôr o rosto de alguém num registro
+   que não é dele. Ele fica na inicial. Ver PENDENCIAS, item 34.
+   ============================================================ */
+const RETRATOS_DE_EXEMPLO: Record<string, string> = {
+  'beatriz-lemos': 'responsavel',
+  'marina-duarte': 'renata',
+  'camila-arantes': 'carla',
+};
+const CLINICAS_DE_EXEMPLO: Record<string, { foto?: any }> = {
+  lemos: { foto: require('../../assets/images/clinicas/vitalis.jpg') },
+};
+
+/** A foto de quem está na rede: a do portal, ou a de exemplo em desenvolvimento. */
+export const fotoDaRede = (p?: { id: string; foto?: string }) =>
+  (!p ? undefined : p.foto ? { uri: p.foto } : __DEV__ ? fotoDe(RETRATOS_DE_EXEMPLO[p.id]) : undefined);
+
+export const focoDaRede = (p?: { id: string; foto?: string }) =>
+  (p && !p.foto ? focoDe(RETRATOS_DE_EXEMPLO[p.id]) : 'top center');
+
+/** A foto e a marca de uma clínica da rede — as duas podem faltar. */
+export const imagensDaRede = (c: { id: string; foto?: string; logo?: string }): { foto?: any; logo?: any } => ({
+  foto: c.foto ? { uri: c.foto } : __DEV__ ? CLINICAS_DE_EXEMPLO[c.id]?.foto : undefined,
+  logo: c.logo ? { uri: c.logo } : undefined,
+});
+
 /** As duas primeiras iniciais: "Clínica Vitalis" dá "CV". É o que um logo
     ausente vira — e duas letras leem como marca, uma lê como falta. */
 export const iniciaisDaClinica = (n: string) =>

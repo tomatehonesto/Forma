@@ -272,7 +272,7 @@ export const assinatura = {
        tela troca para a segunda, que só diz de onde vem o código. */
     conviteTitulo: 'O convite vem da clínica',
     conviteTexto: 'Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
-    conviteTextoComRede: 'Quem se trata na rede parceira recebe do consultório um código depois da primeira consulta, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
+    conviteTextoComRede: 'Quem se trata na rede parceira recebe da clínica um código depois da primeira consulta, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
 
     codigoRotulo: 'Código de convite',
     codigoAjudaAtual: 'É ele que liga você à sua clínica.',
