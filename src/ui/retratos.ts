@@ -123,8 +123,20 @@ const RETRATOS_DE_EXEMPLO: Record<string, string> = {
   'marina-duarte': 'renata',
   'camila-arantes': 'carla',
 };
+/* ⚠️ AS FOTOS DAS CLÍNICAS DE EXEMPLO SÃO DO UNSPLASH, com licença livre
+   e a origem de cada uma em assets/images/CREDITOS.txt — e nenhuma é da
+   clínica que ela ilustra, que também não existe. A da Lemos é a da
+   semente (a sala da Vitalis). Saem todas quando o portal mandar as
+   fotos de verdade; ver PENDENCIAS, item 34. */
 const CLINICAS_DE_EXEMPLO: Record<string, { foto?: any }> = {
   lemos: { foto: require('../../assets/images/clinicas/vitalis.jpg') },
+  ibirapuera: { foto: require('../../assets/images/clinicas/ibirapuera.jpg') },
+  santana: { foto: require('../../assets/images/clinicas/santana.jpg') },
+  paulista: { foto: require('../../assets/images/clinicas/paulista.jpg') },
+  'julia-tavares': { foto: require('../../assets/images/clinicas/julia-tavares.jpg') },
+  botafogo: { foto: require('../../assets/images/clinicas/botafogo.jpg') },
+  barra: { foto: require('../../assets/images/clinicas/barra.jpg') },
+  savassi: { foto: require('../../assets/images/clinicas/savassi.jpg') },
 };
 
 /** A foto de quem está na rede: a do portal, ou a de exemplo em desenvolvimento. */

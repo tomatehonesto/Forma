@@ -41,3 +41,60 @@ exercicio-hero.jpg — o topo da tela de Exercício
   nunca resolveu — num app de perda de peso, um corpo em foco no alto da
   tela de exercício cobra em vez de convidar. Aqui não dá para ver de
   quem é o corpo.
+
+
+AS CLÍNICAS DE EXEMPLO — clinicas/
+
+As sete fotos abaixo ilustram as clínicas INVENTADAS da vitrine da rede,
+que só existe em desenvolvimento (ver src/logic/rede.ts). Nenhuma é da
+clínica que ilustra. Todas do Unsplash, baixadas em 24/09/2026 já
+redimensionadas pelo CDN deles — não são o arquivo original. Escolhidas
+sem pessoas, sem marca na parede e sem texto legível: uma sala de espera
+com o logotipo de uma empresa de verdade ficou de fora por isso, e outra
+com a letra de uma música num letreiro também.
+
+⚠️ A vitalis.jpg, que também está nesta pasta, NÃO está aqui: é a foto da
+semente e a origem dela nunca foi conferida, como a dos retratos da
+equipe. Ver PENDENCIAS, item 34.
+
+clinicas/ibirapuera.jpg — Clínica Ibirapuera
+  assunto: sala de espera moderna com cadeiras brancas e plantas
+  autor: Amelia Lowell
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/modern-waiting-room-with-white-chairs-and-plants-VBzRklOb7JA
+
+clinicas/santana.jpg — Centro Médico Santana
+  assunto: três cadeiras vermelhas numa sala de espera, junto à janela
+  autor: Adhitya Sibikumar
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/three-red-chairs-in-a-waiting-room-by-window-2d3cHa8RMSY
+
+clinicas/paulista.jpg — Espaço Paulista
+  assunto: corredor com paredes em boiserie e quadros
+  autor: Enio Pereira da Silva
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/hallway-with-paneled-walls-and-art-mISkLiMzypI
+
+clinicas/julia-tavares.jpg — Júlia Tavares Psicologia
+  assunto: duas poltronas cinza, abajur e relógio
+  autor: Fred Kleber
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/gray-sofa-chair-beside-white-floor-lamp-6mQXwgHzDyQ
+
+clinicas/botafogo.jpg — Clínica Botafogo
+  assunto: sala com sofás pretos e quadros
+  autor: Amelia Lowell
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/modern-living-room-with-black-sofas-and-art-owUBSuhloEk
+
+clinicas/barra.jpg — Centro Médico Barra
+  assunto: recepção com balcão de mármore e madeira
+  autor: Aalo Lens
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/modern-reception-desk-with-marble-and-wood-accents-ke212Tnsmw0
+
+clinicas/savassi.jpg — Consultório Savassi
+  assunto: consultório com duas mesas e sofá
+  autor: MD Shahareyar Yunus
+  licença: Unsplash License
+  origem: https://unsplash.com/photos/a-room-with-a-couch-computer-desk-and-a-chair-w8OydDk2ANc

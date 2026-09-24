@@ -2262,3 +2262,10 @@ foto de um médico de verdade, usada como "Rafael Lima, psicólogo" na
 equipe da Mariana. A vitrine de exemplo empresta três deles, e deixa o do
 Rafael de fora de propósito (`ui/retratos.ts`). Trocar por fotos com
 licença e autorização de quem aparece resolve os dois lugares de uma vez.
+
+**As fotos das clínicas de exemplo são do Unsplash** (licença livre, sem
+pessoas, sem marca e sem texto legível), com autor e origem de cada uma
+em `assets/images/CREDITOS.txt`. São sete, cerca de 1,3 MB, e entram no
+pacote do aplicativo mesmo com a vitrine fechada em produção: o `require`
+é resolvido na compilação, antes de o `__DEV__` decidir alguma coisa. Saem
+junto com a lista de exemplo quando o portal existir.
