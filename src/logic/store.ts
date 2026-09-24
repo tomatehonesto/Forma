@@ -18,6 +18,7 @@ type Store = {
   setTheme: (t: Tema) => void;
   fingir: (m: Modo | null) => void;
   verEm: (l: Local | null) => void;
+  resemear: () => void;
 };
 
 /* O ESTADO NOVO PASSA PELAS MESMAS GARANTIAS QUE O GRAVADO.
@@ -172,5 +173,33 @@ export const useStore = create<Store>((set, get) => ({
     marcarPreviaDeIdioma(!!l);
     trocarLocal(l ?? salvo);
     set({ S: { ...get().S } });
+  },
+
+  /* ⚠️⚠️ RECONSTRUIR A SEMENTE É DE DESENVOLVIMENTO, E APAGA DE VERDADE.
+
+     As outras duas ações daqui — `fingir` e `verEm` — não escrevem nada:
+     elas servem uma máscara e morrem ao recarregar. Esta é o contrário, e
+     tem de ser: a semente é construída com datas relativas a HOJE, então
+     ela só muda quando é reconstruída. Sem isto, mexer no que a Mariana
+     tem — as canetas dela, uma aplicação nova, um exame a mais — não
+     aparece em aparelho nenhum que já tenha rodado o aplicativo uma vez,
+     e o desenvolvimento passa a olhar para um estado antigo achando que é
+     o novo.
+
+     ⚠️ E NÃO É "APAGAR MEUS DADOS", que é outra coisa e fica em
+     /privacidade: aquela vai para o estado VAZIO e tranca a porta no
+     cadastro, porque devolver a semente a quem pediu para apagar seria
+     entregar setenta e um dias de registros de outra pessoa. Esta faz
+     exatamente o que aquela não pode fazer, e por isso só existe dentro
+     de `__DEV__`.
+
+     O fingimento sai junto: a máscara guarda a verdade de lado, e mantê-la
+     ligada serviria o recorte de um estado que deixou de existir. */
+  resemear: () => {
+    real = null;
+    fingirModo(null);
+    const s = semente();
+    AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
+    set({ S: s, ready: true });
   },
 }));

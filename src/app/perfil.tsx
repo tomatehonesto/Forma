@@ -135,6 +135,10 @@ export default function Perfil() {
   const fingir = useStore((s) => s.fingir);
   const modoAtual = modoFingido();
   const verEm = useStore((s) => s.verEm);
+  const resemear = useStore((s) => s.resemear);
+  /* Dois toques, como a lixeira de /privacidade: esta linha é a única do
+     cartão que escreve, e o que ela escreve por cima não volta. */
+  const [resemeando, setResemeando] = React.useState(false);
   const previaDeIdioma = idiomaEmPrevia();
   /* ⚠️ PARA ONDE A PRÉVIA VOLTA É O QUE ESTÁ GRAVADO, E NÃO `localAtual`.
      Com a prévia ligada o valor de módulo JÁ é o inglês, e cair nele para
@@ -857,6 +861,35 @@ export default function Perfil() {
               : 'Prévia que não grava — atalho de desenvolvimento'}
             selo={previaDeIdioma ? 'agora' : undefined}
             onPress={() => verEm(previaDeIdioma ? null : 'en-US')}
+          />
+
+          {/* ⚠️ A ÚNICA LINHA DESTE CARTÃO QUE ESCREVE — e ela apaga.
+
+              A semente nasce com datas relativas a hoje, então ela só
+              muda quando é reconstruída: quem já abriu o aplicativo uma
+              vez tem um estado gravado, e mexer no que a Mariana tem não
+              aparece mais. Este é o caminho de ver o que a semente virou.
+
+              Dois toques, como a lixeira de /privacidade. Diferente dela,
+              aqui não se vai para o estado vazio: volta o tratamento de
+              exemplo inteiro. */}
+          <Linha
+            ic="reset"
+            /* ⚠️ O TÍTULO NÃO MUDA, e a confirmação mora no sub. Com
+                "Tocar de novo para reconstruir" no título, a pastilha ao
+                lado espremia a coluna e a frase saía uma palavra por
+                linha — seis linhas para dizer o que cabe em duas. */
+            titulo="Reconstruir a semente"
+            sub={resemeando
+              ? 'Toque de novo — isto apaga o que está gravado'
+              : 'Volta ao tratamento de exemplo, com as datas de hoje'}
+            selo={resemeando ? 'apaga' : undefined}
+            seloTom="neutra"
+            onPress={() => {
+              if (!resemeando) { setResemeando(true); return; }
+              setResemeando(false);
+              resemear();
+            }}
           />
         </Cartao>
       ) : null}
