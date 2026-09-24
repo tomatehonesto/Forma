@@ -100,4 +100,25 @@ export const alertas = {
 
     convite: 'An alert is an invitation, not a demand. If one slips by one day, nothing here turns into a backlog.',
   },
+  /* NOTIFICATIONS — see ../pt-BR/alertas.ts. The dose notice reuses
+     `avisos`; stock reuses the verdict from Shots. */
+  telaNotificacoes: {
+    titulo: 'Notifications',
+    lead: 'What we’ve told you over the last few days.',
+    todos: 'All',
+    origemTratamento: 'Treatment',
+    origemMensagens: 'Messages',
+    vazio: 'Nothing here yet',
+    vazioTexto: 'When we have something to tell you, it shows up in this list.',
+    configurar: 'Set up reminders',
+    ligados: (n: number) => (n === 0 ? 'No reminders on' : n === 1 ? '1 reminder on' : `${n} reminders on`),
+
+    insightTitulo: 'New insight',
+    respondeu: (autor: string) => `${autor} replied`,
+    examesTitulo: 'Lab results imported',
+    examesCorpo: (nome: string, marcadores: number) =>
+      `${nome}: ${marcadores} ${marcadores === 1 ? 'marker' : 'markers'}, sorted by date.`,
+    /* `falta` arrives ready — "5 weigh-ins to go". */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} for the next level.`,
+  },
 };

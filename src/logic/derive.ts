@@ -4783,6 +4783,11 @@ export const instanteDaAplicacao = (t: number) =>
    primeira; cheio é o que combina com nenhuma aplicação registrada, e
    vira verdade no instante em que a pessoa registra qualquer uma das
    duas coisas. */
+/* A LINHA DE RENOVAR: com três doses ou menos, o estoque pede receita.
+   Mora numa constante porque a semente precisa saber em que dia a
+   caneta cruzou essa linha — ver `comNotificacoesDeExemplo`, em seed. */
+export const RENOVAR_COM = 3;
+
 export function penStock(S: State) {
   const atual = canetas(S)[0] ?? null;
   const total = atual?.total ?? dosesPorRecipiente(S);
@@ -4790,7 +4795,7 @@ export function penStock(S: State) {
   const semanas = left * (cadenciaDias(S) / 7);
   const verdict: Verdict = left <= 1
     ? { label: T.tratamento.estoqueUrgente, good: false }
-    : left <= 3
+    : left <= RENOVAR_COM
       ? { label: T.tratamento.estoqueRenovar, good: false }
       : { label: T.tratamento.estoqueEmDia, good: true };
   return { left, total, semanas, verdict };

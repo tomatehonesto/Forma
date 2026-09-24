@@ -110,4 +110,25 @@ export const alertas = {
 
     convite: 'Un aviso es una invitación, no una exigencia. Si un día se pasa, aquí no se acumula nada.',
   },
+  /* NOTIFICACIONES — ver ../pt-BR/alertas.ts. El aviso de dosis reutiliza
+     `avisos`; el de existencias, el veredicto de Inyecciones. */
+  telaNotificacoes: {
+    titulo: 'Notificaciones',
+    lead: 'Lo que te contamos en los últimos días.',
+    todos: 'Todas',
+    origemTratamento: 'Tratamiento',
+    origemMensagens: 'Mensajes',
+    vazio: 'Nada por aquí',
+    vazioTexto: 'Cuando tengamos algo que decirte, aparecerá en esta lista.',
+    configurar: 'Configurar recordatorios',
+    ligados: (n: number) => (n === 0 ? 'Ninguna alerta activa' : n === 1 ? '1 alerta activa' : `${n} alertas activas`),
+
+    insightTitulo: 'Nuevo insight',
+    respondeu: (autor: string) => `${autor} respondió`,
+    examesTitulo: 'Exámenes importados',
+    examesCorpo: (nome: string, marcadores: number) =>
+      `${nome}: ${marcadores} ${marcadores === 1 ? 'marcador, ordenado' : 'marcadores, ordenados'} por fecha.`,
+    /* El `falta` llega listo — "Faltan 5 pesajes". */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} para el siguiente nivel.`,
+  },
 };

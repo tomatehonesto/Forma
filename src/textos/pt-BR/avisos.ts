@@ -15,14 +15,19 @@
 
 export const avisos = {
   /* ---------- a aplicação, em três distâncias ---------- */
+  /* ⚠️ A AÇÃO CHEGA DE FORA, e antes era "aplicação" escrita aqui — quem
+     toma comprimido recebia "A sua aplicação é amanhã". `formas` tem a
+     palavra de cada recipiente, e nos seis idiomas as duas saídas são
+     femininas (aplicação/dose, piqûre/prise, Spritze/Einnahme), então o
+     "a sua" e o pronome do corpo continuam certos. */
   /* O `dose` chega pronto — "Mounjaro 5 mg" —, e o recipiente e o artigo
      vêm de logic/formas: "deixar a caneta à vista", "deixar o frasco à
      vista". Ver o comentário de `oA` e `doDa` lá. */
-  doseHoje: 'A sua aplicação é hoje',
+  doseHoje: (acao: string) => `A sua ${acao} é hoje`,
   doseHojeCorpo: (dose: string) => `${dose}. Quando der, registre por aqui.`,
-  doseAmanha: 'A sua aplicação é amanhã',
+  doseAmanha: (acao: string) => `A sua ${acao} é amanhã`,
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Vale deixar ${oRecipiente} à vista.`,
-  doseEmDias: (dias: number) => `A sua aplicação é em ${dias} dias`,
+  doseEmDias: (dias: number, acao: string) => `A sua ${acao} é em ${dias} dias`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Dá tempo de conferir o estoque ${doRecipiente}.`,
 
   /* ---------- os outros quatro ---------- */

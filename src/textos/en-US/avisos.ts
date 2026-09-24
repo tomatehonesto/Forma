@@ -8,12 +8,12 @@
    ============================================================ */
 
 export const avisos = {
-  doseHoje: 'Your shot is today',
+  doseHoje: (acao: string) => `Your ${acao} is today`,
   doseHojeCorpo: (dose: string) => `${dose}. Log it here whenever you can.`,
-  doseAmanha: 'Your shot is tomorrow',
+  doseAmanha: (acao: string) => `Your ${acao} is tomorrow`,
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Worth leaving ${oRecipiente} where you can see it.`,
-  doseEmDias: (dias: number) => `Your shot is in ${dias} days`,
-  doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. There’s time to check ${doRecipiente} supply.`,
+  doseEmDias: (dias: number, acao: string) => `Your ${acao} is in ${dias} days`,
+  doseEmDiasCorpo: (dose: string, _doRecipiente: string) => `${dose}. There’s time to check your supply.`,
 
   /* ⚠️ THIS ONE ASKS instead of telling. It's the only one of the five,
      and it's that way because the check-in is a question. */

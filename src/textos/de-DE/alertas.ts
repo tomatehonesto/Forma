@@ -126,4 +126,24 @@ export const alertas = {
 
     convite: 'Eine Erinnerung ist eine Einladung, keine Forderung. Geht eine mal unter, staut sich hier nichts auf.',
   },
+  /* BENACHRICHTIGUNGEN — siehe ../pt-BR/alertas.ts. Der Dosis-Hinweis
+     nimmt `avisos`, der Vorrat das Urteil aus dem Spritzen-Bildschirm. */
+  telaNotificacoes: {
+    titulo: 'Benachrichtigungen',
+    lead: 'Was wir dir in den letzten Tagen mitgeteilt haben.',
+    todos: 'Alle',
+    origemTratamento: 'Behandlung',
+    origemMensagens: 'Nachrichten',
+    vazio: 'Hier ist noch nichts',
+    vazioTexto: 'Wenn wir dir etwas mitzuteilen haben, erscheint es in dieser Liste.',
+    configurar: 'Erinnerungen einrichten',
+    ligados: (n: number) => (n === 0 ? 'Keine Erinnerung aktiv' : n === 1 ? '1 Erinnerung aktiv' : `${n} Erinnerungen aktiv`),
+
+    insightTitulo: 'Neue Erkenntnis',
+    respondeu: (autor: string) => `${autor} hat geantwortet`,
+    examesTitulo: 'Befund eingelesen',
+    examesCorpo: (nome: string, marcadores: number) => `${nome}: ${marcadores} Marker, nach Datum sortiert.`,
+    /* `falta` kommt fertig — „Noch 5 Wiegungen“. */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} bis zur nächsten Stufe.`,
+  },
 };

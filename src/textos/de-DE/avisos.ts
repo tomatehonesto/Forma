@@ -24,11 +24,12 @@ export const avisos = {
      dreht der deutsche Satz sich um: „Der Pen kann schon bereitliegen.“
      Das ist kein Trick, das ist die Lösung — wer den Fall nicht wählen
      kann, baut den Satz um den Fall herum, den er bekommt. */
-  doseHoje: 'Deine Spritze ist heute',
+  doseHoje: (acao: string) => `Deine ${acao} ist heute`,
   doseHojeCorpo: (dose: string) => `${dose}. Trag sie ein, wenn es gerade passt.`,
-  doseAmanha: 'Deine Spritze ist morgen',
-  doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. ${oRecipiente} kann schon bereitliegen.`,
-  doseEmDias: (dias: number) => `Deine Spritze ist in ${dias} Tagen`,
+  doseAmanha: (acao: string) => `Deine ${acao} ist morgen`,
+  doseAmanhaCorpo: (dose: string, oRecipiente: string) =>
+    `${dose}. ${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} kann schon bereitliegen.`,
+  doseEmDias: (dias: number, acao: string) => `Deine ${acao} ist in ${dias} Tagen`,
   /* Hier passt der Genitiv, und `doDa` liefert ihn: „den Vorrat des Pens“. */
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Zeit genug, den Vorrat ${doRecipiente} zu prüfen.`,
 

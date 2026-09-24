@@ -83,6 +83,12 @@ export type Conquista = {
   pct: number;
   /** o que falta para o próximo; vazio quando a trilha acabou */
   falta: string;
+  /** a altura do nível atual; null enquanto nenhum foi alcançado */
+  alvo: number | null;
+  /** a altura do próximo nível; null quando a trilha acabou */
+  proximo: number | null;
+  /** quanto falta até ela, em número — o `falta` é a frase disto */
+  resta: number | null;
 };
 
 /* ------------------------------------------------------------------ *
@@ -455,6 +461,9 @@ export function conquistas(S: State): Conquista[] {
            por trinta dias. */
         pct: proximo == null ? 1 : Math.max(0, Math.min(1, (feito - anterior) / (proximo - anterior))),
         falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo, S),
+        alvo: atual,
+        proximo,
+        resta: proximo == null ? null : Math.max(0, proximo - feito),
       };
     });
 }
@@ -482,6 +491,22 @@ export function degrausDe(S: State, id: string) {
       t: feito >= alvo ? quando(alvo) : null,
     })),
     falta: proximo == null ? '' : t.falta(Math.max(0, proximo - feito), proximo, S),
+  };
+}
+
+/* O TEXTO DE UM NÍVEL A PARTIR DOS NÚMEROS, no idioma de agora.
+
+   Quem guarda uma conquista para mostrar depois — a lista de
+   notificações — guarda o fato: qual trilha, qual altura, quanto faltava
+   para a próxima. A frase sai daqui na hora de mostrar, e por isso troca
+   de idioma junto com o resto do aplicativo. Guardada pronta, ela
+   ficaria no idioma do minuto em que a pessoa fechou a comemoração. */
+export function textoDeNivel(S: State, id: string, alvo: number, resta: number | null, proximo: number | null) {
+  const t = CATALOGO().find((x) => x.id === id);
+  if (!t) return null;
+  return {
+    titulo: t.titulo, ic: t.ic, desc: t.desc(alvo, S),
+    falta: resta != null && proximo != null ? t.falta(resta, proximo, S) : '',
   };
 }
 

@@ -1,13 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { alertasAtivos } from '../logic/alertas';
+import { lerNotificacao, type NotificacaoLida, type Origem } from '../logic/notificacoes';
 import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Chips, Bloco, Cartao, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
 
 /* ============================================================
    NOTIFICAÇÕES — o que o app veio te contar
@@ -28,18 +30,35 @@ import { useTheme } from '../ui/useTheme';
    —, e ela estava codificada num tom de pastilha que ninguém decifra. Em
    pastilhas de filtro, a mesma informação vira uma pergunta que se
    responde com um toque.
+
+   ⚠️⚠️ E NADA AQUI ESTAVA NO CATÁLOGO. O título, as pastilhas, o vazio e
+   a linha de lembretes eram português escrito na tela — e a lista também,
+   porque cada notificação era gravada no estado como frase pronta. Agora
+   a lista guarda o fato e a frase é montada na hora, no idioma de agora.
+   Ver logic/notificacoes.
    ============================================================ */
+
+const K = () => T.alertas.telaNotificacoes;
 
 /* As origens, com o nome que a pessoa lê. Só aparecem as que existem na
    lista: pastilha de filtro que devolve tela vazia é um caminho sem
-   saída, e uma origem sem nenhum aviso não tem por que ser oferecida. */
-const ORIGENS: { id: string; label: string }[] = [
-  { id: 'trat', label: 'Tratamento' },
-  { id: 'clin', label: 'Mensagens' },
-  { id: 'ia', label: 'Insights' },
-  { id: 'conquista', label: 'Conquistas' },
-  { id: 'exame', label: 'Exames' },
+   saída, e uma origem sem nenhum aviso não tem por que ser oferecida.
+
+   ⚠️ É FUNÇÃO, porque lê o catálogo — constante de módulo congelaria o
+   idioma no import. E três delas usam o nome da tela para onde o toque
+   leva: a pastilha e o destino não podem se chamar de dois jeitos. */
+const ORIGENS = (): { id: Origem; label: string }[] => [
+  { id: 'trat', label: K().origemTratamento },
+  { id: 'clin', label: K().origemMensagens },
+  { id: 'ia', label: T.comum.abas.insights },
+  { id: 'conquista', label: T.conquistas.tela.titulo },
+  { id: 'exame', label: T.exames.tela.titulo },
 ];
+
+/* Só três origens levam a algum lugar. As outras são recado, e recado
+   que não abre nada não ganha toque nem seta — chevron que não leva a
+   lugar nenhum cobra um toque para revelar que não há. */
+const DESTINO: Partial<Record<Origem, string>> = { trat: '/aplicacoes', exame: '/exames', conquista: '/conquistas' };
 
 export default function Notificacoes() {
   const S = useStore((s) => s.S);
@@ -47,30 +66,32 @@ export default function Notificacoes() {
   const router = useRouter();
   const [aba, setAba] = useState('todos');
 
-  /* Só dois tipos de aviso levam a algum lugar. Os outros são recado, e
-     recado que não abre nada não ganha toque nem seta — chevron que não
-     leva a lugar nenhum cobra um toque para revelar que não há. */
-  const navOf: Record<string, string> = { trat: '/aplicacoes', exame: '/exames', conquista: '/conquistas' };
   const nRem = alertasAtivos(S);
 
-  const todos = (S.notifications ?? []) as any[];
+  /* ⚠️ SEM `useMemo`. A frase depende do idioma, e a prévia de idioma
+     do desenvolvimento troca o idioma sem trocar o estado — uma lista
+     guardada pelo estado continuaria na língua de antes. São poucas
+     linhas; escrever de novo a cada desenho não custa nada. */
+  const todos = ((S.notifications ?? []) as any[])
+    .map((n) => lerNotificacao(S, n))
+    .filter((n): n is NotificacaoLida => n != null);
 
-  const chips = useMemo(() => [
-    { id: 'todos', label: 'Todos', n: todos.length },
-    ...ORIGENS
-      .map((o) => ({ ...o, n: todos.filter((x) => x.kind === o.id).length }))
+  const chips = [
+    { id: 'todos', label: K().todos, n: todos.length },
+    ...ORIGENS()
+      .map((o) => ({ ...o, n: todos.filter((x) => x.origem === o.id).length }))
       .filter((o) => o.n > 0),
-  ], [todos]);
+  ];
 
   /* A ABA ESCOLHIDA PODE DEIXAR DE EXISTIR. Quem filtrou por Exames e
      volta depois que o último saiu da lista ficaria olhando um vazio sem
      entender por quê. Sem a pastilha, a tela volta para Todos. */
   const filtro = chips.some((x) => x.id === aba) ? aba : 'todos';
-  const lista = filtro === 'todos' ? todos : todos.filter((x) => x.kind === filtro);
+  const lista = filtro === 'todos' ? todos : todos.filter((x) => x.origem === filtro);
 
   return (
-    <TelaInterna titulo="Notificações">
-      <Titulao titulo="Notificações" lead="O que contamos para você nos últimos dias." />
+    <TelaInterna titulo={K().titulo}>
+      <Titulao titulo={K().titulo} lead={K().lead} />
 
       {/* Com uma origem só na lista, o filtro seria uma pastilha de
           "Todos" e mais nada — um controle que não controla. */}
@@ -78,8 +99,8 @@ export default function Notificacoes() {
 
       {lista.length ? (
         <Cartao>
-          {lista.map((n: any) => {
-            const to = navOf[n.kind];
+          {lista.map((n, i) => {
+            const to = DESTINO[n.origem];
             const corpo = (
               /* AVISO NÃO É LINHA DE NAVEGAÇÃO, e por isso não usa a linha
                  de lista do app: ele tem data, e data quer o canto de cima.
@@ -96,30 +117,33 @@ export default function Notificacoes() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Row gap={10} style={{ alignItems: 'baseline' }}>
-                    <Txt v="bodyMed" style={{ flex: 1 }}>{n.title}</Txt>
+                    <Txt v="bodyMed" style={{ flex: 1 }}>{n.titulo}</Txt>
                     <Txt v="micro" c={c.tx4}>{relDay(new Date(n.t))}</Txt>
                   </Row>
-                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 20 }}>{n.body}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 2, lineHeight: 20 }}>{n.corpo}</Txt>
                 </View>
               </Row>
             );
-            if (!to) return <View key={n.t}>{corpo}</View>;
+            /* A chave leva a posição junto: duas conquistas fechadas na
+               mesma comemoração saem com o mesmo instante. */
+            const chave = `${n.t}-${i}`;
+            if (!to) return <View key={chave}>{corpo}</View>;
             return (
-              <Pressable key={n.t} onPress={() => router.push(to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <Pressable key={chave} onPress={() => router.push(to as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                 {corpo}
               </Pressable>
             );
           })}
         </Cartao>
       ) : (
-        <Vazio ic="bell" titulo="Nada por aqui" texto="Quando tivermos algo a dizer, aparece nesta lista." />
+        <Vazio ic="bell" titulo={K().vazio} texto={K().vazioTexto} />
       )}
 
-      <Bloco titulo="Lembretes">
+      <Bloco titulo={T.alertas.telaLembretes.titulo}>
         <Cartao>
           <Linha
-            ic="bell" titulo="Configurar lembretes"
-            sub={nRem ? `${nRem} alerta${nRem === 1 ? '' : 's'} ligado${nRem === 1 ? '' : 's'}` : 'Nenhum alerta ligado'}
+            ic="bell" titulo={K().configurar}
+            sub={K().ligados(nRem)}
             onPress={() => router.push('/lembretes' as any)}
           />
         </Cartao>

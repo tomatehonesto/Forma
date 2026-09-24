@@ -110,4 +110,25 @@ export const alertas = {
 
     convite: 'Une alerte est une invitation, pas une exigence. Si un jour elle passe à la trappe, rien ici ne s’accumule.',
   },
+  /* NOTIFICATIONS — voir ../pt-BR/alertas.ts. L'avis de dose reprend
+     `avisos` ; celui du stock, le verdict de l'écran des piqûres. */
+  telaNotificacoes: {
+    titulo: 'Notifications',
+    lead: 'Ce que nous vous avons signalé ces derniers jours.',
+    todos: 'Toutes',
+    origemTratamento: 'Traitement',
+    origemMensagens: 'Messages',
+    vazio: 'Rien pour l’instant',
+    vazioTexto: 'Quand nous aurons quelque chose à vous dire, ce sera dans cette liste.',
+    configurar: 'Configurer les rappels',
+    ligados: (n: number) => (n === 0 ? 'Aucun rappel activé' : n === 1 ? '1 rappel activé' : `${n} rappels activés`),
+
+    insightTitulo: 'Nouvel insight',
+    respondeu: (autor: string) => `${autor} a répondu`,
+    examesTitulo: 'Analyses importées',
+    examesCorpo: (nome: string, marcadores: number) =>
+      `${nome} : ${marcadores} ${marcadores === 1 ? 'marqueur, classé' : 'marqueurs, classés'} par date.`,
+    /* Le `falta` arrive prêt — « Il manque 5 pesées ». */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} pour le prochain niveau.`,
+  },
 };

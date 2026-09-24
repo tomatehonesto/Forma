@@ -2,10 +2,10 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { State } from './seed';
 import { M } from './derive';
-import { FORMAS, formaDe, oA, doDa } from './formas';
+import { formaDe } from './formas';
 import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
 import { T } from '../textos';
-import { doseTxt } from './time';
+import { textoDoAvisoDeDose } from './notificacoes';
 
 /* ============================================================
    AVISOS — os lembretes saindo do aparelho
@@ -99,14 +99,13 @@ async function canal() {
    e nenhum afirma o que o app não sabe àquela hora — se a pessoa já
    bebeu água hoje, se já comeu, se já pesou. O aviso oferece; quem sabe
    do dia é ela. */
+/* ⚠️ A FRASE MORA EM logic/notificacoes, e esta função só entrega os
+   números de agora. A lista de notificações escreve o mesmo aviso depois,
+   com os números que ele tinha quando chegou — e as duas precisam sair
+   da mesma frase, senão a lista conta uma coisa que não chegou. */
 const textoDaDose = (S: State, lead: number) => {
   const med = M(S);
-  const dose = `${med.label} ${doseTxt(S.profile.dose)} ${med.unit}`;
-  const K = T.avisos;
-  if (lead <= 0) return { title: K.doseHoje, body: K.doseHojeCorpo(dose) };
-  const rec = FORMAS()[formaDe(S)].recipiente;
-  if (lead === 1) return { title: K.doseAmanha, body: K.doseAmanhaCorpo(dose, `${oA(formaDe(S))} ${rec}`) };
-  return { title: K.doseEmDias(lead), body: K.doseEmDiasCorpo(dose, doDa(formaDe(S))) };
+  return textoDoAvisoDeDose({ dias: lead, med: med.label, dose: S.profile.dose, unidade: med.unit, forma: formaDe(S) });
 };
 
 /* ⚠️ É FUNÇÃO, como toda tabela que lê o catálogo: constante de módulo

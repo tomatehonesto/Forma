@@ -2,10 +2,12 @@
 export type Tema = 'light' | 'dark' | 'system';
 
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
-import { daysAgo, addDays, startOfDay, now, semanaDoTratamento } from './time';
-import { indicadorDe } from './derive';
+import { daysAgo, addDays, startOfDay, now, semanaDoTratamento, DAY } from './time';
+import { indicadorDe, M, doseCycle, RENOVAR_COM } from './derive';
 import { nomeItem, somaDe, type ItemComida } from './prato';
-import { marcarComoVistas } from './conquistas';
+import { marcarComoVistas, conquistas, feitas } from './conquistas';
+import { formaDe } from './formas';
+import type { Notificacao, FaseDoCiclo } from './notificacoes';
 import { PALETAS } from '../theme';
 import type { Forma } from './meds';
 import type { Sistema } from './medidas';
@@ -584,14 +586,9 @@ export function buildSeed() {
       { itens: [{ id: 'patinho', qtd: 1 }, { id: 'arroz', qtd: 4 }] },
       { itens: [{ id: 'ovo-frito', qtd: 2 }, { id: 'iogurte', qtd: 1 }] },
     ],
-    notifications: [
-      { t: +daysAgo(0.2), ic: 'syringe', kind: 'trat', title: 'Aplicação em 3 dias', body: 'Mounjaro 5 mg · quinta. Local sugerido: abdômen (esq.).' },
-      { t: +daysAgo(0.5), ic: 'spark', kind: 'ia', title: 'Novo insight', body: 'Sua fome tende a subir nos próximos dias, perto da dose.' },
-      { t: +daysAgo(1), ic: 'steth', kind: 'clin', title: 'Dra. Helena respondeu', body: 'Mantém a hidratação e a proteína que combinamos.' },
-      { t: +daysAgo(1.5), ic: 'pill', kind: 'trat', title: 'Estoque acabando', body: 'Restam 3 doses na caneta. Vale renovar a receita.' },
-      { t: +daysAgo(2), ic: 'doc', kind: 'exame', title: 'Exames importados', body: 'Painel metabólico lido e organizado por data.' },
-      { t: +daysAgo(4), ic: 'spark', kind: 'ia', title: 'Dez semanas de tratamento', body: 'Seu corpo vem respondendo de forma constante. Um sinal entre vários, no seu ritmo.' },
-    ],
+    /* Nascem vazias e são preenchidas logo depois, dos registros desta
+       mesma semente — ver `comNotificacoesDeExemplo`, logo abaixo. */
+    notifications: [] as Notificacao[],
     /* Só o que dá para ligar de verdade — ver src/logic/integracoes.ts.
        O Apple Saúde ligado é o que explica a Mariana ter minutos de
        movimento que ela não digitou; a Withings é a balança dela, e é de
@@ -741,6 +738,81 @@ export function buildSeed() {
 }
 
 export type State = ReturnType<typeof buildSeed>;
+
+/* ============================================================
+   AS NOTIFICAÇÕES DE EXEMPLO — tiradas dos registros da semente
+
+   ⚠️⚠️ ERAM SEIS FRASES EM PORTUGUÊS ESCRITAS À MÃO, e três desmentiam a
+   própria semente: "Aplicação em 3 dias · quinta" para uma dose de
+   domingo; "Restam 3 doses na caneta" datado de um dia em que restavam
+   duas; e "Dra. Helena respondeu" um dia depois da mensagem, que era de
+   dois. A sexta, "Dez semanas de tratamento — seu corpo vem respondendo
+   de forma constante", afirmava uma coisa que conta nenhuma fez, e saiu.
+
+   Agora cada uma sai de um registro que existe, e concorda com o resto
+   do aplicativo por construção: o aviso da véspera da última dose, na
+   hora do alerta; o dia em que a caneta cruzou a linha de renovar; a
+   última mensagem da médica; o último exame importado; o último nível
+   de conquista; a manchete do ciclo de hoje. E são guardadas como fato,
+   não como frase — ver logic/notificacoes.
+
+   ⚠️ NÃO RODA DENTRO DE `buildSeed` porque precisa das contas do
+   aplicativo — ciclo, conquistas —, e elas recebem o `State`, que é o
+   tipo que `buildSeed` define. Roda logo depois, em store.ts.
+   ============================================================ */
+const HORA = 36e5;
+
+export function comNotificacoesDeExemplo(S: State): State {
+  const lista: Notificacao[] = [];
+  const med = M(S);
+  const forma = formaDe(S);
+  const injs = [...(S.injections as any[])].sort((a, b) => a.t - b.t);
+  const ultima = injs[injs.length - 1];
+
+  /* o aviso da véspera, na hora e com a antecedência do alerta de dose */
+  const al = ((S as any).alertas as any[] ?? []).find((a) => a.tipo === 'dose' && a.on);
+  if (ultima && al) {
+    const lead = al.lead ?? 0;
+    lista.push({
+      t: +startOfDay(new Date(ultima.t)) - lead * DAY + (al.horas?.[0] ?? 9) * HORA,
+      tipo: 'dose', dias: lead, med: med.label, dose: ultima.dose, unidade: med.unit, forma,
+    });
+  }
+
+  /* a manchete do ciclo de hoje, às oito — ou agora, se ainda não deu */
+  lista.push({
+    t: Math.min(+now(), +startOfDay(now()) + 8 * HORA),
+    tipo: 'ciclo', fase: doseCycle(S).phase.key as FaseDoCiclo,
+  });
+
+  /* a última palavra da médica, com a data dela */
+  const doc = [...(S.messages as any[])].reverse().find((m) => m.from === 'doc');
+  if (doc) lista.push({ t: doc.t, tipo: 'mensagem', autor: S.profile.doctor, texto: doc.text });
+
+  /* o dia em que a caneta aberta cruzou a linha de renovar */
+  const ab = (S.pens as any[])[S.pens.length - 1];
+  if (ab) {
+    const doPen = injs.filter((i) => i.t >= ab.t);
+    const k = doPen.findIndex((_, i) => ab.dosesPerPen - (i + 1) <= RENOVAR_COM);
+    if (k >= 0) lista.push({ t: doPen[k].t + 15 * 60e3, tipo: 'estoque', restam: ab.dosesPerPen - (k + 1), forma });
+  }
+
+  /* o último exame importado */
+  const exame = [...((S as any).examBundles as any[] ?? [])].sort((a, b) => b.t - a.t)[0];
+  if (exame) lista.push({ t: exame.t, tipo: 'exames', nome: exame.name, marcadores: exame.n });
+
+  /* o último nível de conquista, com o que faltava no dia em que chegou */
+  const q = feitas(conquistas(S))[0];
+  if (q && q.t != null && q.alvo != null) {
+    lista.push({
+      t: q.t, tipo: 'conquista', trilha: q.id, nivel: q.nivel, alvo: q.alvo,
+      proximo: q.proximo, resta: q.proximo == null ? null : q.proximo - q.alvo,
+    });
+  }
+
+  S.notifications = lista.sort((a, b) => b.t - a.t);
+  return S;
+}
 
 /* migra estados salvos antes das novas áreas (mutação in-place). */
 export function ensureDefaults(S: any) {

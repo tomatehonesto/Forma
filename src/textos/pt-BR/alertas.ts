@@ -130,4 +130,36 @@ export const alertas = {
 
     convite: 'Um aviso é um convite, não uma cobrança. Se um dia passar, nada aqui vira atraso.',
   },
+  /* ============================================================
+     NOTIFICAÇÕES — o que já chegou
+
+     ⚠️ A TELA ERA TODA ESCRITA EM PORTUGUÊS, e a lista também: cada
+     notificação era gravada no estado como frase pronta. Agora a lista
+     guarda o fato e a frase sai daqui — ver logic/notificacoes.
+
+     O aviso de dose não tem texto aqui: ele é o mesmo da tela de
+     bloqueio, em `avisos`, porque esta lista conta o que chegou. Nem o
+     de estoque, que usa o veredito de Aplicações; nem as pastilhas de
+     Insights, Conquistas e Exames, que usam o nome da tela para onde o
+     toque leva.
+     ============================================================ */
+  telaNotificacoes: {
+    titulo: 'Notificações',
+    lead: 'O que contamos para você nos últimos dias.',
+    todos: 'Todos',
+    origemTratamento: 'Tratamento',
+    origemMensagens: 'Mensagens',
+    vazio: 'Nada por aqui',
+    vazioTexto: 'Quando tivermos algo a dizer, aparece nesta lista.',
+    configurar: 'Configurar lembretes',
+    ligados: (n: number) => (n === 0 ? 'Nenhum alerta ligado' : n === 1 ? '1 alerta ligado' : `${n} alertas ligados`),
+
+    insightTitulo: 'Novo insight',
+    respondeu: (autor: string) => `${autor} respondeu`,
+    examesTitulo: 'Exames importados',
+    examesCorpo: (nome: string, marcadores: number) =>
+      `${nome}: ${marcadores} ${marcadores === 1 ? 'marcador, organizado' : 'marcadores, organizados'} por data.`,
+    /* O `falta` chega pronto da trilha — "Faltam 5 pesagens". */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} para o próximo nível.`,
+  },
 };

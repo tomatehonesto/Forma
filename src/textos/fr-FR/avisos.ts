@@ -17,11 +17,11 @@ export const avisos = {
   /* La `dose` arrive toute faite — « Mounjaro 5 mg » —, et le récipient
      avec son article vient de logic/formas : « laisser le stylo en vue »,
      « laisser la seringue en vue ». */
-  doseHoje: 'Votre piqûre est aujourd’hui',
+  doseHoje: (acao: string) => `Votre ${acao} est aujourd’hui`,
   doseHojeCorpo: (dose: string) => `${dose}. Quand vous pourrez, notez-la ici.`,
-  doseAmanha: 'Votre piqûre est demain',
+  doseAmanha: (acao: string) => `Votre ${acao} est demain`,
   doseAmanhaCorpo: (dose: string, oRecipiente: string) => `${dose}. Autant laisser ${oRecipiente} en vue.`,
-  doseEmDias: (dias: number) => `Votre piqûre est dans ${dias} jours`,
+  doseEmDias: (dias: number, acao: string) => `Votre ${acao} est dans ${dias} jours`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Vous avez le temps de vérifier ce qu’il reste ${doRecipiente}.`,
 
   checkin: 'Comment s’est passée votre journée ?',

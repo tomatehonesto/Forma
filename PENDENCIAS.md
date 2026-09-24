@@ -958,7 +958,7 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 22/09/2026: faltam 347, em 60 arquivos.**
+**Medido em 24/09/2026: faltam 320, em 59 arquivos.** (`/notificacoes` saiu da lista.)
 
 ⚠️⚠️ **E ESTE NÚMERO SUBSTITUI OS ANTERIORES, porque a rede era cega.** A
 regra do inventário que pega texto solto de JSX barrava `\n` dentro do

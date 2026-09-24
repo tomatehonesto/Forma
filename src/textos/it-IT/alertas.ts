@@ -121,4 +121,26 @@ export const alertas = {
 
     convite: 'Un avviso è un invito, non una pretesa. Se un giorno salta, qui non si accumula niente.',
   },
+  /* NOTIFICHE — vedi ../pt-BR/alertas.ts. L'avviso della dose riprende
+     `avisos`; quello della scorta, il verdetto della schermata delle
+     punture. */
+  telaNotificacoes: {
+    titulo: 'Notifiche',
+    lead: 'Quello che ti abbiamo segnalato negli ultimi giorni.',
+    todos: 'Tutte',
+    origemTratamento: 'Trattamento',
+    origemMensagens: 'Messaggi',
+    vazio: 'Niente per ora',
+    vazioTexto: 'Quando avremo qualcosa da dirti, comparirà in questa lista.',
+    configurar: 'Imposta i promemoria',
+    ligados: (n: number) => (n === 0 ? 'Nessun avviso attivo' : n === 1 ? '1 avviso attivo' : `${n} avvisi attivi`),
+
+    insightTitulo: 'Nuovo insight',
+    respondeu: (autor: string) => `${autor} ha risposto`,
+    examesTitulo: 'Esami importati',
+    examesCorpo: (nome: string, marcadores: number) =>
+      `${nome}: ${marcadores} ${marcadores === 1 ? 'marcatore, ordinato' : 'marcatori, ordinati'} per data.`,
+    /* Il `falta` arriva pronto — "Mancano 5 pesate". */
+    conquistaCorpo: (desc: string, falta: string) => `${desc}. ${falta} per il livello successivo.`,
+  },
 };

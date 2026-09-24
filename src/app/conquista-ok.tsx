@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { marcarComoVistas, novosNiveis, type Conquista } from '../logic/conquistas';
+import type { Notificacao } from '../logic/notificacoes';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -71,11 +72,15 @@ export default function ConquistaOk() {
     update((s: any) => {
       const lista = s.notifications ?? (s.notifications = []);
       for (const q of novas) {
-        lista.unshift({
-          t: Date.now(), ic: q.ic, kind: 'conquista',
-          title: `${q.titulo} · nível ${q.nivel}`,
-          body: q.falta ? `${q.desc}. ${q.falta} para o próximo nível.` : `${q.desc}. Trilha completa.`,
-        });
+        /* O FATO, E NÃO A FRASE. Gravada como texto, a notificação
+           ficava no idioma deste minuto para sempre — e "nível" e "para o
+           próximo nível" estavam escritos aqui, em português, para os
+           seis. Ver logic/notificacoes. */
+        const n: Notificacao = {
+          t: Date.now(), tipo: 'conquista', trilha: q.id, nivel: q.nivel,
+          alvo: q.alvo ?? 0, resta: q.resta, proximo: q.proximo,
+        };
+        lista.unshift(n);
       }
       marcarComoVistas(s);
     });

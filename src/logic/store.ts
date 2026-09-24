@@ -1,7 +1,7 @@
 /* Store — zustand + persistência AsyncStorage (equivale ao load/save/localStorage do protótipo). */
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { buildSeed, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
+import { buildSeed, comNotificacoesDeExemplo, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
 import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo';
 import { trocarLocal, type Local } from './local';
 
@@ -32,7 +32,7 @@ type Store = {
 
    Rodar nos dois é a regra certa, e é barata: a função é idempotente por
    construção, porque toda linha dela pergunta antes de escrever. */
-const semente = () => ensureDefaults(buildSeed());
+const semente = () => ensureDefaults(comNotificacoesDeExemplo(buildSeed()));
 
 /* ============================================================
    A MÁSCARA DOS MODOS FINGIDOS — ver ./modo.ts
