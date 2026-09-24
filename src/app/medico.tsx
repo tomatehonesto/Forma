@@ -183,7 +183,11 @@ export default function Medico() {
 
         {responsavel ? (
           <View style={{ marginTop: 26, backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }}>
-            <Pressable onPress={go('/especialista')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            {/* ⚠️ A FICHA COMPLETA É DA REDE PARCEIRA. `/especialista` mostra
+                registro, formação e o que a clínica diz da médica — e de
+                médico próprio o aplicativo só sabe o que a pessoa digitou.
+                Para ela, o cartão leva aonde isso se corrige. */}
+            <Pressable onPress={go(clinicaConectada(S) ? '/especialista' : '/acompanhamento')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
               <Row gap={14} style={{ padding: 16, alignItems: 'center' }}>
                 <Retrato ficha={responsavel} lado={76} />
                 <View style={{ flex: 1 }}>
@@ -207,11 +211,17 @@ export default function Medico() {
             <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line }} />
 
             <Row gap={4} style={{ paddingVertical: 14, paddingHorizontal: 8 }}>
+              {/* ⚠️ MENSAGEM E CLÍNICA SÓ EXISTEM COM PLATAFORMA DO OUTRO LADO.
+                  Sem vínculo, a conversa mandaria recado para uma médica que
+                  não está aqui, e a ficha da clínica é a que a clínica
+                  parceira preenche — é a mesma regra que a Home e o Cuidado
+                  já aplicam aos mesmos destinos. Consultas e protocolos são
+                  de todo mundo que tem quem acompanhe. */}
               {([
-                ['companion', K().atalhoMensagem, '/conversa'],
+                ...(clinicaConectada(S) ? [['companion', K().atalhoMensagem, '/conversa']] : []),
                 ['cal', T.cuidado.telaConsultas.titulo, '/consultas'],
                 ['doc', T.home.telaJornada.protocolos, '/protocolos'],
-                ...(S.profile.clinic ? [['clinica', K().atalhoClinica, '/clinica']] : []),
+                ...(clinicaConectada(S) && S.profile.clinic ? [['clinica', K().atalhoClinica, '/clinica']] : []),
               ] as [string, string, string][]).map(([ic, label, to]) => (
                 <Pressable key={label} onPress={go(to)} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}>
                   <View style={{ alignItems: 'center' }}>
@@ -398,6 +408,11 @@ export default function Medico() {
             nenhum item é botão. É a mesma regra da <Linha> da casa, e é
             por segui-la que as duas listas se alinham pela mesma coluna,
             mesmo sendo desenhadas por lugares diferentes. */}
+        {/* ⚠️ E A SEÇÃO INTEIRA É DA PLATAFORMA. As receitas chegam pela
+            clínica parceira, e o "pedir uma nova" abre a conversa com ela;
+            sem vínculo sobrava um título, um cartão vazio e um pedido para
+            ninguém. */}
+        {clinicaConectada(S) ? (<>
         <SectionHead
           title={K().prescricoes}
           link={K().pedirReceita}
@@ -423,6 +438,7 @@ export default function Medico() {
             </Pressable>
           ))}
         </Cartao>
+        </>) : null}
 
         {/* ---- documentos ----
 

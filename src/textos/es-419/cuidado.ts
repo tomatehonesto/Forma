@@ -30,12 +30,12 @@ export const cuidado = {
     mensagemUma: 'Responder el mensaje de tu equipo',
     mensagemVarias: (quantas: number) => `Responder los ${quantas} mensajes de tu equipo`,
     mensagemSub: 'esperando tu respuesta',
-    mensagemRotulo: 'mensajes',
+    mensagemRotulo: 'los mensajes',
 
     receita: 'Pide la renovación de la receta',
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dosis restante' : 'dosis restantes'} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
-    receitaRotulo: 'receta',
+    receitaRotulo: 'la receta',
 
     /* El título del examen viene del protocolo — es lo que el equipo
        escribió, y no texto nuestro. Lo nuestro es de dónde vino: con
@@ -43,7 +43,7 @@ export const cuidado = {
        decir "pedido por tu equipo" inventaría uno. */
     exameSubDaEquipe: 'pedido por tu equipo',
     exameSubDoProtocolo: 'del protocolo de esta semana',
-    exameRotulo: 'exámenes',
+    exameRotulo: 'los exámenes',
 
     consulta: 'Prepara lo que vas a llevar a la consulta',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -91,7 +91,7 @@ export const cuidado = {
        desplazarse para descubrir si importa. Y los nombres vienen de la
        PROPIA lista, ítem por ítem. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'pendientes necesitan' : 'pendiente necesita'} atención — ${assuntos}. Nada urgente, pero conviene resolverlo esta semana.`,
+      `${quantas} ${plural ? 'cosas necesitan' : 'cosa necesita'} tu atención — ${assuntos}. Nada urgente, pero conviene ${plural ? 'resolverlas' : 'resolverla'} esta semana.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'ítem pendiente' : 'ítems pendientes'}`,
     /* Hasta cuatro por extenso, que es el techo de pendientes que existen. */
@@ -301,7 +301,7 @@ export const cuidado = {
 
   telaAreaMedica: {
     titulo: 'Área médica',
-    lead: 'Quien te cuida, y lo que cruza para el otro lado.',
+    lead: 'Quien te cuida, y lo que le llega.',
 
     atalhoMensagem: 'Mensaje',
     atalhoClinica: 'Clínica',
@@ -320,7 +320,7 @@ export const cuidado = {
     clinicaPreparou: 'Lo que preparó la clínica',
 
     numerosDaEquipe: 'Los números de tu equipo',
-    naoAnotada: 'no anotada',
+    naoAnotada: 'sin anotar',
     anotadoPor: (por: string, data: string) => `${por} · anotado el ${data}`,
     anoteONumero: 'Anota el número definido en la consulta',
 

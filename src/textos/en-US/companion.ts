@@ -11,12 +11,12 @@ export const companion = {
   /* ---------- the memory ---------- */
   memoria: {
     desdeAPrimeira: (dias: number) =>
-      `I’ve been following your treatment since your first injection, ${dias} days ago.`,
+      `I’ve been following your treatment since your first dose, ${dias} days ago.`,
     desdeOPrimeiroDiaComSemanas: (semanas: number) =>
       `I’ve known your journey since day one — ${semanas} weeks so far.`,
     desdeOPrimeiroDia: 'I’ve known your journey since day one.',
     dosesAtras: (doses: number) =>
-      `I’ve been with you since your first injection, ${doses} doses ago.`,
+      `I’ve been with you since your first dose, ${doses} doses ago.`,
   },
 
   /* ---------- the contextual library ---------- */
@@ -89,7 +89,7 @@ export const companion = {
     hojeDeCem: 'today, out of 100',
 
     proximasAcoes: 'Next steps',
-    proximasAcoesNota: 'In the order they need to happen — never about dose or protocol.',
+    proximasAcoesNota: 'In the order they come up — nothing about dose or protocol.',
 
     resumos: 'Create summaries',
     resumosNota: 'Your data organized to take to someone.',

@@ -80,7 +80,7 @@ export const conquistas = {
 
   /* ---------------- consistency ---------------- */
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'day')} answered`,
+  checkinsDesc: (a: number) => `${p(a, 'day')} with a check-in`,
   checkinsFalta: (r: number) => `${p(r, 'day')} to go`,
 
   sequencia: 'Days in a row',

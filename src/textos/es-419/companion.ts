@@ -96,9 +96,9 @@ export const companion = {
     hojeDeCem: 'hoy, de 100',
 
     proximasAcoes: 'Próximos pasos',
-    proximasAcoesNota: 'En el orden en que necesitan pasar — nunca sobre dosis ni protocolo.',
+    proximasAcoesNota: 'En el orden en que llegan — nada sobre la dosis ni el protocolo.',
 
-    resumos: 'Armar resúmenes',
+    resumos: 'Crear resúmenes',
     resumosNota: 'Tus datos ordenados para llevar a alguien.',
 
     resumoDaSemana: 'Resumen de la semana',

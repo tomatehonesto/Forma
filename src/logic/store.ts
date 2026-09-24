@@ -194,11 +194,20 @@ export const useStore = create<Store>((set, get) => ({
      de `__DEV__`.
 
      O fingimento sai junto: a máscara guarda a verdade de lado, e mantê-la
-     ligada serviria o recorte de um estado que deixou de existir. */
+     ligada serviria o recorte de um estado que deixou de existir.
+
+     ⚠️ E O IDIOMA ESCOLHIDO FICA. A semente nasce sem `profile.idioma`, e
+     reconstruí-la apagava a escolha: a persona saía no idioma certo —
+     ela é lida do catálogo do momento, ver src/textos/pt-BR/semente.ts —
+     e o primeiro recarregamento devolvia a tela ao idioma do aparelho,
+     com a Julia falando alemão numa interface em português. Idioma é
+     preferência de quem está olhando, não registro do tratamento. */
   resemear: () => {
+    const idioma = (real ?? get().S)?.profile?.idioma;
     real = null;
     fingirModo(null);
     const s = semente();
+    if (idioma) s.profile.idioma = idioma;
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s, ready: true });
   },

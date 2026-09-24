@@ -147,7 +147,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balanza subió ${altas} veces y aun así perdiste ${perdido}`,
     texto: (pesagens: number, altas: number) =>
-      `En ${pesagens} pesajes, ${altas} estuvieron por encima del anterior — y la línea que los atraviesa sigue bajando. Una semana de alza no es recaída: es ruido de agua e intestino dentro de una tendencia.`,
+      `En ${pesagens} pesajes, ${altas} estuvieron por encima del anterior — y la línea que los atraviesa sigue bajando. Una semana de alza no es recaída: son variaciones de agua e intestino dentro de una tendencia.`,
     q: '¿Cómo va mi evolución?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'alzas', legenda: `dentro de −${perdido} en el tramo` }),

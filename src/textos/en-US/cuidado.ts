@@ -32,16 +32,16 @@ export const cuidado = {
     mensagemUma: 'Reply to your care team’s message',
     mensagemVarias: (quantas: number) => `Reply to your care team’s ${quantas} messages`,
     mensagemSub: 'waiting on your reply',
-    mensagemRotulo: 'messages',
+    mensagemRotulo: 'your messages',
 
     receita: 'Ask for a prescription refill',
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dose left' : 'doses left'} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
-    receitaRotulo: 'prescription',
+    receitaRotulo: 'your prescription',
 
     exameSubDaEquipe: 'requested by your care team',
     exameSubDoProtocolo: 'from this week’s protocol',
-    exameRotulo: 'labs',
+    exameRotulo: 'your labs',
 
     consulta: 'Get ready for your appointment',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -85,7 +85,7 @@ export const cuidado = {
        wrong start. */
     pendenciaTitulo: 'We’ve got a few things to take care of.',
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'items need' : 'item needs'} attention — ${assuntos}. Nothing urgent, but worth clearing this week.`,
+      `${quantas} ${plural ? 'things need' : 'thing needs'} your attention — ${assuntos}. Nothing urgent, but worth clearing this week.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} open ${quantas === 1 ? 'item' : 'items'}`,
     porExtenso: ['no', 'one', 'two', 'three', 'four'],
@@ -175,7 +175,7 @@ export const cuidado = {
     nenhumResultado: 'No results saved',
     importeUmExame: 'Import a lab result to start following it',
     foraDaReferencia: (quantos: number) => `${quantos} outside the reference range`,
-    todosNaReferencia: 'All within range',
+    todosNaReferencia: 'All in range',
 
     quemAcompanha: 'Who follows your treatment',
     ninguemRegistrado: 'Nobody noted down yet',

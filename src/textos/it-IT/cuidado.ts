@@ -32,18 +32,18 @@ export const cuidado = {
     mensagemUma: 'Rispondi al messaggio del tuo team',
     mensagemVarias: (quantas: number) => `Rispondi ai ${quantas} messaggi del tuo team`,
     mensagemSub: 'in attesa di una tua risposta',
-    mensagemRotulo: 'messaggi',
+    mensagemRotulo: 'i messaggi',
 
     receita: 'Chiedi il rinnovo della ricetta',
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dose rimasta' : 'dosi rimaste'} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
-    receitaRotulo: 'ricetta',
+    receitaRotulo: 'la ricetta',
 
     /* Il titolo dell'esame viene dal protocollo — è quello che ha scritto
        il team, e non un testo nostro. Nostro è da dove arriva. */
     exameSubDaEquipe: 'richiesto dal tuo team',
     exameSubDoProtocolo: 'dal protocollo di questa settimana',
-    exameRotulo: 'esami',
+    exameRotulo: 'gli esami',
 
     consulta: 'Prepara quello che porti alla visita',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -100,7 +100,7 @@ export const cuidado = {
     /* ⚠️ NOMINA CHE COSA SIA, invece di contare quanti. "Due cose"
        obbliga a scorrere per scoprire se contino. */
     pendenciaTexto: (quantas: string, plural: boolean, assuntos: string) =>
-      `${quantas} ${plural ? 'cose chiedono' : 'cosa chiede'} la tua attenzione — ${assuntos}. Niente di urgente, ma vale la pena sistemarle questa settimana.`,
+      `${quantas} ${plural ? 'cose chiedono' : 'cosa chiede'} la tua attenzione — ${assuntos}. Niente di urgente, ma vale la pena ${plural ? 'sistemarle' : 'sistemarla'} questa settimana.`,
     pendenciaPulso: (quantas: number) =>
       `${quantas} ${quantas === 1 ? 'voce in sospeso' : 'voci in sospeso'}`,
     /* Fino a quattro per esteso, che è il tetto delle voci che esistono.
@@ -366,7 +366,7 @@ export const cuidado = {
        portoghese. */
     paraLevarSub: (faltando: number): string =>
       faltando === 0
-        ? 'È tutto in ordine — il riepilogo si costruisce già con questo.'
+        ? 'È tutto in ordine — il riepilogo parte già da qui.'
         : faltando === 1
           ? 'Manca una cosa al riepilogo.'
           : `Mancano ${faltando} cose al riepilogo.`,
@@ -411,7 +411,7 @@ export const cuidado = {
      ============================================================ */
   telaAreaMedica: {
     titulo: 'Area medica',
-    lead: 'Chi si prende cura di te, e che cosa arriva a loro.',
+    lead: 'Chi si prende cura di te, e che cosa gli arriva.',
 
     /* Due delle quattro scorciatoie, e solo due: "Visite" e "Protocolli"
        sono il nome delle schermate dall'altra parte, e sono già scritti
@@ -420,7 +420,7 @@ export const cuidado = {
     atalhoClinica: 'Centro',
 
     paraLevar: 'DA PORTARE ALLA VISITA',
-    paraLevarTexto: 'Peso, aderenza, sintomi, esami e i tuoi appunti, in un documento solo. Lo costruiamo dai tuoi registri, ed è pronto adesso.',
+    paraLevarTexto: 'Peso, aderenza, sintomi, esami e i tuoi appunti, in un documento solo. Lo prepariamo dalle tue registrazioni, ed è già pronto.',
     verResumo: 'Vedi il riepilogo per la visita',
 
     suasAnotacoes: 'I tuoi appunti',
@@ -433,7 +433,7 @@ export const cuidado = {
     clinicaPreparou: 'Quello che ha preparato il centro',
 
     numerosDaEquipe: 'I numeri del tuo team',
-    naoAnotada: 'non annotata',
+    naoAnotada: 'da annotare',
     anotadoPor: (por: string, data: string) => `${por} · annotato il ${data}`,
     /* ⚠️ ERA "il numero che LEI ha definito in visita", e l'app non sa il
        genere di chi segue la persona. La frase è stata riscritta per non

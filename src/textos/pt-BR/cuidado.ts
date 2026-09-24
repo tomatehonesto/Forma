@@ -40,14 +40,17 @@ export const cuidado = {
     mensagemUma: 'Responder a mensagem da sua equipe',
     mensagemVarias: (quantas: number) => `Responder as ${quantas} mensagens da sua equipe`,
     mensagemSub: 'aguardando sua resposta',
-    mensagemRotulo: 'mensagens',
+    /* ⚠️ COM ARTIGO, porque a lista entra no meio de uma frase — "Uma
+       pendência precisa de você — a receita." Sem ele, com um item só, a
+       frase terminava num substantivo solto. */
+    mensagemRotulo: 'as mensagens',
 
     receita: 'Peça a renovação da receita',
     /* Duas contagens na mesma linha, cada uma com o próprio plural: as
        doses que restam e as semanas que elas cobrem. */
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
-    receitaRotulo: 'receita',
+    receitaRotulo: 'a receita',
 
     /* O título do exame vem do protocolo — é o que a equipe escreveu, e
        não texto nosso. O que é nosso é de onde ele veio: com equipe, foi
@@ -55,7 +58,7 @@ export const cuidado = {
        "pedido pela sua equipe" inventaria uma. */
     exameSubDaEquipe: 'pedido pela sua equipe',
     exameSubDoProtocolo: 'do protocolo desta semana',
-    exameRotulo: 'exames',
+    exameRotulo: 'os exames',
 
     consulta: 'Prepare o que levar para a consulta',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -465,7 +468,7 @@ export const cuidado = {
     clinicaPreparou: 'O que a clínica preparou',
 
     numerosDaEquipe: 'Os números da sua equipe',
-    naoAnotada: 'não anotada',
+    naoAnotada: 'sem anotação',
     anotadoPor: (por: string, data: string) => `${por} · anotado em ${data}`,
     /* ⚠️ ERA "o número que ELA definiu na consulta", e o aplicativo não
        sabe o gênero de quem acompanha. A semente tem uma médica; o

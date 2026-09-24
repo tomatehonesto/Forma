@@ -36,14 +36,14 @@ export const cuidado = {
     mensagemUma: 'Auf die Nachricht deines Teams antworten',
     mensagemVarias: (quantas: number) => `Auf die ${quantas} Nachrichten deines Teams antworten`,
     mensagemSub: 'wartet auf deine Antwort',
-    mensagemRotulo: 'Nachrichten',
+    mensagemRotulo: 'die Nachrichten',
 
     receita: 'Ein neues Rezept anfragen',
     /* Zwei Zählungen in einer Zeile, jede mit eigenem Plural: die Dosen,
        die bleiben, und die Wochen, die sie abdecken. */
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'Dosis übrig' : 'Dosen übrig'} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
-    receitaRotulo: 'Rezept',
+    receitaRotulo: 'das Rezept',
 
     /* Der Titel der Untersuchung kommt aus dem Protokoll — das hat das
        Team geschrieben, es ist kein Text von uns. Von uns ist, woher er
@@ -51,7 +51,7 @@ export const cuidado = {
        Plan selbst an, und „von deinem Team angefordert“ erfände eines. */
     exameSubDaEquipe: 'von deinem Team angefordert',
     exameSubDoProtocolo: 'aus dem Protokoll dieser Woche',
-    exameRotulo: 'Befunde',
+    exameRotulo: 'die Befunde',
 
     consulta: 'Vorbereiten, was du zum Termin mitnimmst',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -315,7 +315,7 @@ export const cuidado = {
     paraLevar: 'Zum Mitnehmen',
     paraLevarSub: (faltando: number): string =>
       faltando === 0
-        ? 'Alles ist aktuell — die Übersicht baut sich damit auf.'
+        ? 'Alles ist aktuell — die Übersicht entsteht daraus.'
         : faltando === 1
           ? 'Eine Sache fehlt noch, damit die Übersicht vollständig ist.'
           : `${faltando} Sachen fehlen noch, damit die Übersicht vollständig ist.`,
@@ -340,13 +340,13 @@ export const cuidado = {
 
   telaAreaMedica: {
     titulo: 'Medizinischer Bereich',
-    lead: 'Wer sich um dich kümmert, und was auf die andere Seite geht.',
+    lead: 'Wer sich um dich kümmert, und was dort ankommt.',
 
     atalhoMensagem: 'Nachricht',
     atalhoClinica: 'Praxis',
 
     paraLevar: 'ZUM TERMIN MITNEHMEN',
-    paraLevarTexto: 'Gewicht, Regelmäßigkeit, Beschwerden, Befunde und deine Notizen, in einem einzigen Dokument. Es baut sich aus deinen Einträgen und ist jetzt schon fertig.',
+    paraLevarTexto: 'Gewicht, Regelmäßigkeit, Beschwerden, Befunde und deine Notizen, in einem einzigen Dokument. Wir erstellen es aus deinen Einträgen, und es ist schon fertig.',
     verResumo: 'Übersicht für den Termin ansehen',
 
     suasAnotacoes: 'Deine Notizen',
@@ -364,7 +364,7 @@ export const cuidado = {
     anoteONumero: 'Notiere die Zahl, die beim Termin festgelegt wurde',
 
     duasMetas: (minha: string) =>
-      `Dein Zielgewicht in der Anwendung ist ${minha}. Die beiden bestehen nebeneinander — deins misst weiterhin den Weg —, und der Unterschied zwischen ihnen ist eine gute Frage für den nächsten Termin.`,
+      `Dein Zielgewicht in der App ist ${minha}. Die beiden bestehen nebeneinander — deins misst weiterhin den Weg —, und der Unterschied zwischen ihnen ist eine gute Frage für den nächsten Termin.`,
 
     documentos: 'Dokumente und Befunde',
     tipoExame: 'Befund',

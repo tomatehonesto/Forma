@@ -79,7 +79,7 @@ export const conquistas = {
   pesagensFalta: (r: number) => `Faltan ${p(r, 'pesaje')}`,
 
   checkins: 'Check-ins',
-  checkinsDesc: (a: number) => `${p(a, 'día')} respondido${a === 1 ? '' : 's'}`,
+  checkinsDesc: (a: number) => `${p(a, 'día')} con check-in`,
   checkinsFalta: (r: number) => `Faltan ${p(r, 'día')}`,
 
   sequencia: 'Días seguidos',

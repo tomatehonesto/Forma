@@ -7,7 +7,7 @@
    says "that's where I'd look next week", in the conditional.
    ============================================================ */
 
-const meu = (eixo: string) => (eixo === 'Protein' ? 'my protein intake' : `my ${eixo.toLowerCase()}`);
+const meu = (eixo: string) => (eixo === 'Protein' ? 'my protein intake' : eixo === 'Exercise' ? 'my physical activity' : `my ${eixo.toLowerCase()}`);
 
 export const equilibrio = {
   /* ⚠️ THE AXIS NAME IS NOT THE KEY. The key is the id ('sono'); this is
@@ -29,7 +29,7 @@ export const equilibrio = {
      axis. */
   aberturaTudoBem: 'I noticed something good.',
   aberturaAtencao: 'Something caught my eye.',
-  aberturaPreciso: 'I need to show you something.',
+  aberturaPreciso: 'There’s something I want to show you.',
 
   /* ⚠️⚠️ THIS PAIR IS THE TRANSLATION TRAP the Portuguese file warns
      about, and it resolves differently here.

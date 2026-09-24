@@ -32,12 +32,12 @@ export const cuidado = {
     mensagemUma: 'Répondre au message de votre équipe',
     mensagemVarias: (quantas: number) => `Répondre aux ${quantas} messages de votre équipe`,
     mensagemSub: 'en attente de votre réponse',
-    mensagemRotulo: 'messages',
+    mensagemRotulo: 'les messages',
 
     receita: 'Demander le renouvellement de l’ordonnance',
     receitaSub: (doses: number, semanas: number) =>
       `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
-    receitaRotulo: 'ordonnance',
+    receitaRotulo: 'l’ordonnance',
 
     /* Le titre de l'analyse vient du protocole — c'est ce que l'équipe a
        écrit, pas notre texte. Ce qui est de nous, c'est d'où il vient :
@@ -46,7 +46,7 @@ export const cuidado = {
        une. */
     exameSubDaEquipe: 'demandée par votre équipe',
     exameSubDoProtocolo: 'du protocole de cette semaine',
-    exameRotulo: 'analyses',
+    exameRotulo: 'les analyses',
 
     consulta: 'Préparez ce que vous apporterez à la consultation',
     consultaSub: (tipo: string, quando: string, doutor: string) =>
@@ -283,7 +283,7 @@ export const cuidado = {
     paraLevar: 'À emporter',
     paraLevarSub: (faltando: number): string =>
       faltando === 0
-        ? 'Tout est à jour — le résumé se monte déjà avec ça.'
+        ? 'Tout est à jour — le résumé s’appuie déjà dessus.'
         : faltando === 1
           ? 'Il manque une chose pour que le résumé soit complet.'
           : `Il manque ${faltando} choses pour que le résumé soit complet.`,
@@ -308,13 +308,13 @@ export const cuidado = {
 
   telaAreaMedica: {
     titulo: 'Espace médical',
-    lead: 'Qui prend soin de vous, et ce qui passe de l’autre côté.',
+    lead: 'Qui prend soin de vous, et ce qui lui parvient.',
 
     atalhoMensagem: 'Message',
     atalhoClinica: 'Clinique',
 
     paraLevar: 'À EMPORTER EN CONSULTATION',
-    paraLevarTexto: 'Poids, observance, symptômes, analyses et vos notes, dans un seul document. Il se construit à partir de vos relevés et il est prêt dès maintenant.',
+    paraLevarTexto: 'Poids, observance, symptômes, analyses et vos notes, dans un seul document. Nous l’établissons à partir de vos relevés, et il est déjà prêt.',
     verResumo: 'Voir le résumé pour la consultation',
 
     suasAnotacoes: 'Vos notes',
@@ -327,7 +327,7 @@ export const cuidado = {
     clinicaPreparou: 'Ce que la clinique a préparé',
 
     numerosDaEquipe: 'Les chiffres de votre équipe',
-    naoAnotada: 'non notée',
+    naoAnotada: 'à noter',
     anotadoPor: (por: string, data: string) => `${por} · noté le ${data}`,
     anoteONumero: 'Notez le chiffre fixé en consultation',
 

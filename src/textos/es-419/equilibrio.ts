@@ -26,7 +26,7 @@ const ART: Record<string, string> = {
 };
 const el = (eixo: string) => ART[eixo] ?? eixo.toLowerCase();
 const mayus = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const mi = (eixo: string) => (eixo === 'Proteína' ? 'mi consumo de proteína' : `mi ${eixo.toLowerCase()}`);
+const mi = (eixo: string) => (eixo === 'Proteína' ? 'mi consumo de proteína' : eixo === 'Ejercicio' ? 'mi actividad física' : `mi ${eixo.toLowerCase()}`);
 
 export const equilibrio = {
   /* ⚠️ "SACIEDAD" NO ES EL NOMBRE DE LA COLUMNA que la persona respondió.
@@ -47,7 +47,7 @@ export const equilibrio = {
 
   aberturaTudoBem: 'Vi algo bueno.',
   aberturaAtencao: 'Algo me llamó la atención.',
-  aberturaPreciso: 'Necesito mostrarte una cosa.',
+  aberturaPreciso: 'Tengo algo que mostrarte.',
 
   /* ⚠️⚠️ ESTE PAR ES UNA TRAMPA DE TRADUCCIÓN, y por eso es una función y
      no una concatenación afuera.
