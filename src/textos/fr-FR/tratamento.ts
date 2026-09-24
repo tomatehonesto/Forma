@@ -59,10 +59,15 @@ export const tratamento = {
   ritmoAcelerado: 'Rythme accéléré',
   ritmoLento: 'Rythme plus lent',
 
-  /* Trois degrés, et celui du milieu est le plus fréquent : « vaut le coup
-     de renouveler » est un avis des semaines à l'avance, pas une alarme. */
+  /* Trois degrés, et celui du milieu est le plus fréquent : « pensez à
+     renouveler » est un avis des semaines à l'avance, pas une alarme.
+
+     ⚠️ C'ÉTAIT « VAUT LE COUP DE RENOUVELER » — le « vale renovar »
+     portugais, calqué, et sans le « ça » qui rend l'expression française.
+     Même corrigé, « ça vaut le coup » est familier pour un titre de carte
+     qui vouvoie. */
   estoqueUrgente: 'Renouvelez maintenant',
-  estoqueRenovar: 'Vaut le coup de renouveler l’ordonnance',
+  estoqueRenovar: 'Pensez à renouveler l’ordonnance',
   estoqueEmDia: 'Stock à jour',
 
   /* ⚠️ LE CÔTÉ EST ABRÉGÉ ET ENTRE PARENTHÈSES parce que ces étiquettes
@@ -321,8 +326,8 @@ export const tratamento = {
   },
 
   telaRegistrarAplicacao: {
-    registrar: (acao: string) => `Noter ${acao}`,
-    salvar: (acao: string) => `Enregistrer ${acao}`,
+    registrar: (acao: string) => `Noter une ${acao}`,
+    salvar: (acao: string) => `Enregistrer la ${acao}`,
 
     quando: 'Quand',
     ficaRegistradaAgora: (hora: string) => `Notée maintenant, ${hora}.`,

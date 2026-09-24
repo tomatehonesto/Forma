@@ -25,6 +25,11 @@
    accorderait le participe avec qui lit.
    ============================================================ */
 
+/* ⚠️ EN FRANÇAIS, MOINS DE DEUX EST SINGULIER : « 1,6 verre », « 0,5
+   verre », et « 2 verres ». Le nombre arrive déjà formaté, virgule
+   comprise ; c'était « 1,6 verres » partout. */
+const verre = (n: string) => (parseFloat(n.replace(',', '.')) < 2 ? 'verre' : 'verres');
+
 export const cruzamentos = {
   /* ---------- les étiquettes de catégorie ---------- */
   catAlimentacao: 'Alimentation',
@@ -50,7 +55,7 @@ export const cruzamentos = {
   fimDeSemana: {
     titulo: 'Votre week-end fonctionne comme un autre traitement',
     texto: (copos: string, proteina: string, sono: string) =>
-      `Samedi et dimanche, vous buvez ${copos} verres de moins${proteina}${sono}`,
+      `Samedi et dimanche, vous buvez ${copos} ${verre(copos)} de moins${proteina}${sono}`,
     /* Morceau facultatif : n'entre que quand l'écart de protéines est assez
        grand — le seuil et sa raison sont dans logic/derive. */
     textoProteina: (gramas: number) => ` et mangez ${gramas} g de protéines en moins`,
@@ -61,7 +66,7 @@ export const cruzamentos = {
     textoSono: (horas: string) => ` — mais vous dormez ${horas} h de plus. Le repos s’améliore ; c’est la routine qui se relâche.`,
     textoSemSono: '.',
     q: 'Comment mieux tenir le week-end ?',
-    evid: (copos: string) => ({ valor: `−${copos}`, unidade: 'verres', legenda: 'le samedi et le dimanche' }),
+    evid: (copos: string) => ({ valor: `−${copos}`, unidade: verre(copos), legenda: 'le samedi et le dimanche' }),
     porque: 'La routine de la semaine porte votre hydratation et vos repas sans que vous ayez à y penser : des horaires fixes, la bouteille sur le bureau, le déjeuner à la même heure. Le samedi, cette structure disparaît, et il reste à tout décider sur le moment — exactement quand décider est le plus difficile.',
     /* ⚠️ « IL NE FAUT PAS UNE DISCIPLINE NOUVELLE » est toute la phrase. Qui
        lit ceci sait déjà que le week-end est plus dur ; ce qu'elle ne sait
@@ -78,14 +83,14 @@ export const cruzamentos = {
        « votre rythme est de ». */
     titulo: (dia: string) => `Votre hydratation baisse ${dia}`,
     texto: (pior: string, outros: string) =>
-      `Environ ${pior} verres, contre ${outros} les autres jours. L’eau aide pour la satiété et pour la nausée — et c’est le jour où ces deux-là pèsent le plus souvent.`,
+      `Environ ${pior} ${verre(pior)}, contre ${outros} les autres jours. L’eau aide pour la satiété et pour la nausée — et c’est le jour où ces deux-là pèsent le plus souvent.`,
     q: 'Où en est mon hydratation ?',
     /* ⚠️ « CONTRE », ET NON « DE ». L'anglais écrit « 3, of 6 glasses » et
        le portugais « 3, de 6 copos » ; en français « 3 de 6 verres » serait
        une fraction, alors que le chiffre du dessous est celui des AUTRES
        jours. */
     evid: (pior: string, outros: string) =>
-      ({ valor: pior, unidade: `contre ${outros} verres`, legenda: 'la moyenne ce jour-là' }),
+      ({ valor: pior, unidade: `contre ${outros} ${verre(outros)}`, legenda: 'la moyenne ce jour-là' }),
     /* La valeur de la trouvaille, c'est que le problème a une adresse : un
        jour fixe se règle avec un rappel, surveiller l'hydratation tous les
        jours non. */
@@ -188,7 +193,7 @@ export const cruzamentos = {
     titulo: (altas: number, perdido: string) =>
       `La balance est montée ${altas} fois et vous avez perdu ${perdido} quand même`,
     texto: (pesagens: number, altas: number) =>
-      `Sur ${pesagens} pesées, ${altas} sont venues au-dessus de la précédente — et la ligne de fond continue de descendre. Une semaine en hausse n’est pas une rechute : c’est du bruit d’eau et de transit à l’intérieur d’une tendance.`,
+      `Sur ${pesagens} pesées, ${altas} étaient au-dessus de la précédente — et la tendance de fond continue de baisser. Une semaine en hausse n’est pas une rechute : c’est du bruit d’eau et de transit à l’intérieur d’une tendance.`,
     q: 'Où en est mon évolution ?',
     evid: (altas: number, perdido: string) =>
       ({ valor: String(altas), unidade: 'hausses', legenda: `dans −${perdido} sur la période` }),

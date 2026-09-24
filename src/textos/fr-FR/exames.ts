@@ -43,11 +43,17 @@ export const exames = {
 
     /* Le morceau de date qui ouvre la seconde phrase, quand il y a un
        historique. Il arrive avec la virgule parce qu'il s'enchaîne. */
-    desde: (data: string) => ` Depuis ${data},`,
+    /* ⚠️ « CELUI DE INSULINE » : NI ARTICLE NI ÉLISION. Le marqueur arrive
+       en variable et n'a pas de genre connu — « de l'insuline », « du
+       LDL », « de la glycémie » —, alors les deux phrases qui suivent ne
+       lui en demandent plus : il passe en étiquette, après les
+       deux-points. Et la date longue veut son article, « depuis le 27
+       mai ». */
+    desde: (data: string) => ` Depuis le ${data},`,
     melhoraUm: (desde: string, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} un marqueur est allé dans le sens attendu, et le plus grand changement est celui de ${qual} : de ${de} à ${para} ${unidade}.`,
+      `${desde} un marqueur est allé dans le sens attendu. Le plus grand changement : ${qual}, de ${de} à ${para} ${unidade}.`,
     melhoraVarios: (desde: string, quantos: number, qual: string, de: string, para: string, unidade: string) =>
-      `${desde} ${quantos} marqueurs sont allés dans le sens attendu, et le plus grand changement est celui de ${qual} : de ${de} à ${para} ${unidade}.`,
+      `${desde} ${quantos} marqueurs sont allés dans le sens attendu. Le plus grand changement : ${qual}, de ${de} à ${para} ${unidade}.`,
 
     /* ⚠️ L'AGGRAVATION VIENT DANS LA MÊME PHRASE ET AVEC LE MÊME POIDS QUE
        L'AMÉLIORATION. Un résumé qui ne raconte que ce qui s'est amélioré
@@ -90,7 +96,7 @@ export const exames = {
        et c'est pour ça que la préposition ne pouvait pas rester dans le
        gabarit : elle appartient à la langue, pas au modèle. */
     andou: (data: string, verbo: string, quanto: string, unidade: string, rumo: string) =>
-      ` Depuis ${data}, il ${verbo} ${quanto}${unidade}${rumo}.`,
+      ` Depuis le ${data}, il ${verbo} ${quanto}${unidade}${rumo}.`,
 
     /* ⚠️ C'EST LA SEULE PHRASE DE L'ÉCRAN QUI REGARDE HORS DE CE MARQUEUR.
        Un chiffre hors fourchette lu tout seul devient le monde entier de
@@ -117,10 +123,10 @@ export const exames = {
   tela: {
     titulo: 'Analyses',
     linha: (quantos: number, ultimaColeta: string) =>
-      `${quantos} ${quantos === 1 ? 'marqueur' : 'marqueurs'} · dernier bilan ${ultimaColeta}`,
-    foraDaReferencia: 'hors des valeurs',
-    naReferencia: 'dans les valeurs',
-    blocoFora: 'Hors des valeurs',
+      `${quantos} ${quantos === 1 ? 'marqueur' : 'marqueurs'} · dernier bilan du ${ultimaColeta}`,
+    foraDaReferencia: 'hors normes',
+    naReferencia: 'dans les normes',
+    blocoFora: 'Hors normes',
     arquivosImportados: 'Fichiers importés',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marqueurs · ${fonte} · ${data}`,
@@ -133,7 +139,7 @@ export const exames = {
     vazioAcao: 'Noter un résultat',
 
     colhidoEm: (data: string) => `Prélevé le ${data}`,
-    vereditoOk: 'Dans les valeurs',
+    vereditoOk: 'Dans les normes',
     vereditoAlto: 'Au-dessus des valeurs',
     vereditoBaixo: 'En dessous des valeurs',
     vereditoComFaixa: (veredito: string, faixa: string) => `${veredito} : ${faixa}`,
@@ -146,7 +152,7 @@ export const exames = {
 
     /* Os selos da LISTA, em caixa baixa e curtos: ali eles cabem ao lado
        do número, e o veredito por extenso mora no detalhe. */
-    seloOk: 'dans les valeurs',
+    seloOk: 'dans les normes',
     seloAlto: 'au-dessus',
     seloBaixo: 'en dessous',
     seloEnviado: 'envoyé',

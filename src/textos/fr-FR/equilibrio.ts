@@ -16,6 +16,20 @@
    conditionnel, première personne, une suggestion de regard.
    ============================================================ */
 
+const AXE: Record<string, { le: string; du: string }> = {
+  Sommeil: { le: 'le sommeil', du: 'du sommeil' },
+  Énergie: { le: 'l’énergie', du: 'de l’énergie' },
+  Humeur: { le: 'l’humeur', du: 'de l’humeur' },
+  Hydratation: { le: 'l’hydratation', du: 'de l’hydratation' },
+  Exercice: { le: 'l’exercice', du: 'de l’exercice' },
+  Protéines: { le: 'les protéines', du: 'des protéines' },
+  Satiété: { le: 'la satiété', du: 'de la satiété' },
+  Observance: { le: 'l’observance', du: 'de l’observance' },
+};
+const le = (eixo: string) => AXE[eixo]?.le ?? eixo.toLowerCase();
+const du = (eixo: string) => AXE[eixo]?.du ?? `de ${eixo.toLowerCase()}`;
+const maj = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 export const equilibrio = {
   /* ⚠️ « SATIÉTÉ » N'EST PAS LE NOM DE CE QUE LA PERSONNE A RÉPONDU. Elle
      répond FAIM au check-in, et l'axe montre le contraire : plus il y a de
@@ -70,16 +84,23 @@ export const equilibrio = {
      là-bas l'accord tombait sur qui lit, ici il tombe sur un mot que le
      code choisit à l'exécution. Le second est pire, parce qu'il est juste
      la moitié du temps. */
+  /* ⚠️⚠️ SEUL, L'AXE A BESOIN DE SON ARTICLE — et de l'élision. La paire
+     d'ouverture peut s'en passer, en style de titre (« Sommeil et
+     observance tiennent bon »), mais l'axe isolé non : « Exercice est ce
+     qui oscille » et « du côté de exercice » étaient deux fautes, la
+     seconde sans élision. La table `AXE`, en tête de fichier, suit les
+     huit noms de `eixos` ; un nom qui n'y serait pas retombe en
+     minuscules. */
   corpoEquilibrado: (doisFortes: string, fraco: string) =>
-    `${doisFortes} tirent vers le haut, et rien ne traîne du côté de ${fraco.toLowerCase()}. Je ne changerais rien pour l’instant.`,
+    `${doisFortes} tirent vers le haut, et rien ne traîne du côté ${du(fraco)}. Je ne changerais rien pour l’instant.`,
   corpoUmAtras: (doisFortes: string, fraco: string) =>
-    `${doisFortes} tiennent bon. ${fraco} est ce qui oscille le plus — ce serait mon point d’attention pour la semaine prochaine.`,
+    `${doisFortes} tiennent bon. ${maj(le(fraco))}, c’est ce qui oscille le plus — ce serait mon point d’attention pour la semaine prochaine.`,
 
   /* ⚠️ LE BOUTON EMPORTE LA QUESTION VERS LE COMPANION. Si le texte du
      bouton et la question envoyée divergent, la personne touche une chose
      et reçoit la réponse d'une autre. */
-  botaoMelhorar: (eixo: string) => `Comment améliorer ${eixo.toLowerCase()}`,
-  perguntaMelhorar: (eixo: string) => `Comment améliorer ${eixo.toLowerCase()} ?`,
+  botaoMelhorar: (eixo: string) => `Comment améliorer ${le(eixo)}`,
+  perguntaMelhorar: (eixo: string) => `Comment améliorer ${le(eixo)} ?`,
 
   serieDe: (eixo: string, dias: number) => `${eixo.toUpperCase()} · ${dias} DERNIERS JOURS`,
 };

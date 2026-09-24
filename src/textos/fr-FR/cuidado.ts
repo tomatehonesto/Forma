@@ -89,7 +89,7 @@ export const cuidado = {
        pluriel, et non « vous avez des choses en attente ». La liste en
        dessous porte sur des choses qui dépendent d'elle, et ouvrir en
        pointant du doigt sur une carte de santé est le mauvais début. */
-    pendenciaTitulo: 'Nous avons quelques choses à régler.',
+    pendenciaTitulo: 'Nous avons quelques points à régler.',
     /* ⚠️ NOMME CE QUE C'EST, au lieu de compter combien. « Deux choses »
        oblige à faire défiler pour savoir si ça compte. Et les noms
        viennent de la liste ELLE-MÊME, item par item. */
@@ -159,8 +159,8 @@ export const cuidado = {
     responder: 'Répondre',
     enviarPrimeira: 'Envoyer le premier message',
 
-    precisaDeVoce: 'A besoin de vous',
-    nadaPrecisa: 'Rien n’a besoin de vous pour le moment.',
+    precisaDeVoce: 'Ce qui dépend de vous',
+    nadaPrecisa: 'Rien ne dépend de vous pour le moment.',
     emDia: 'Votre suivi est à jour.',
 
     proximaConsulta: 'Votre prochaine consultation',
@@ -184,7 +184,7 @@ export const cuidado = {
     nenhumResultado: 'Aucun résultat enregistré',
     importeUmExame: 'Importez une analyse pour commencer à la suivre',
     foraDaReferencia: (quantos: number) => `${quantos} hors des valeurs de référence`,
-    todosNaReferencia: 'Tous dans les valeurs',
+    todosNaReferencia: 'Tous dans les normes',
 
     quemAcompanha: 'Qui suit votre traitement',
     ninguemRegistrado: 'Personne de noté pour l’instant',
