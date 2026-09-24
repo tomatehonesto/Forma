@@ -217,8 +217,8 @@ export const tratamento = {
     proxima: 'próxima',
 
     constancia: 'Constancia',
-    constanciaNota: (feitas: number, previstas: number) =>
-      `${feitas} de ${previstas} dosis previstas desde el comienzo del tratamiento.`,
+    constanciaNota: (feitas: number, previstas: number, semanas: number) =>
+      `${feitas} de ${previstas} dosis previstas en las últimas ${semanas} semanas.`,
 
     nivelNoCorpo: 'Nivel en el cuerpo',
     nivelTexto: (molecula: string, meiaVida: string) =>

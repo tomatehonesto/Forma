@@ -305,8 +305,8 @@ export const tratamento = {
        mede: quem aplicou as dez doses sempre com três dias de atraso
        também dava 100%. */
     constancia: 'Constância',
-    constanciaNota: (feitas: number, previstas: number) =>
-      `${feitas} de ${previstas} doses previstas desde o começo do tratamento.`,
+    constanciaNota: (feitas: number, previstas: number, semanas: number) =>
+      `${feitas} de ${previstas} doses previstas nas últimas ${semanas} semanas.`,
 
     nivelNoCorpo: 'Nível no corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>

@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { MEDS } from '../logic/meds';
 import { FORMAS, concordar, formaDe, faixaDaMolecula } from '../logic/formas';
-import { doseTxt } from '../logic/time';
+import { doseTxt, now } from '../logic/time';
+import { dosesPorRecipiente } from '../logic/derive';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 
@@ -52,7 +53,7 @@ export default function CanetaNova() {
      inventar o dado que a pergunta existe para não inventar. */
   const [validade, setValidade] = useState<number | null>(null);
   const catalogo = MEDS[med] ?? MEDS.mounjaro;
-  const porCaneta = (S as any).pen?.dosesPerPen ?? 4;
+  const porCaneta = dosesPorRecipiente(S);
 
   const vocab = FORMAS()[formaDe(S)];
   /* A pergunta existe quando o catálogo NÃO SABE o prazo — `shelf: 0` —, e
@@ -75,11 +76,22 @@ export default function CanetaNova() {
     update((s: any) => {
       s.profile.med = med;
       s.profile.dose = dose;
-      /* A validade vai junto com o recipiente, e não no perfil: cada
+      /* ⚠️ ESTA LINHA É O HISTÓRICO DE CANETAS. Ela zerava um contador, e
+         a resposta — que recipiente, com que concentração, aberto quando —
+         ia para o lixo; a tela de canetas então ADIVINHAVA o passado
+         fatiando aplicações, e errava. Ver a nota em logic/derive.
+
+         A validade vai junto com o recipiente, e não no perfil: cada
          frasco que chega da farmácia tem o prazo dele. Sem resposta, o
          campo some do objeto e quem lê cai no catálogo — ou em nada, e aí
          cala. */
-      s.pen = { dosesLeft: porCaneta, dosesPerPen: porCaneta, validadeDias: validade ?? undefined };
+      s.pens = [...(s.pens ?? []), {
+        t: +now(),
+        med,
+        dose,
+        dosesPerPen: porCaneta,
+        validadeDias: validade ?? undefined,
+      }];
     });
     router.back();
   };

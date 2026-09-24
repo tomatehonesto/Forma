@@ -299,8 +299,8 @@ export const tratamento = {
        conto non misura: chi ha fatto tutte e dieci le dosi sempre con tre
        giorni di ritardo faceva anche lei 100%. */
     constancia: 'Costanza',
-    constanciaNota: (feitas: number, previstas: number) =>
-      `${feitas} di ${previstas} dosi previste dall’inizio della terapia.`,
+    constanciaNota: (feitas: number, previstas: number, semanas: number) =>
+      `${feitas} di ${previstas} dosi previste nelle ultime ${semanas} settimane.`,
 
     nivelNoCorpo: 'Livello nel corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>

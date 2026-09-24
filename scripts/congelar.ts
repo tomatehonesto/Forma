@@ -391,11 +391,19 @@ for (const [nome, ajusta, local] of CENARIOS) {
       ultimaMensagem: tenta('lastMessage', () => lastMessage(V)),
     }];
   };
+  /* O RECIPIENTE ABERTO, com a capacidade que este caso precisa. Quantas
+     doses sobram deixou de ser um número gravado — é a capacidade menos
+     as aplicações que caem na janela do recipiente. Abrir um HOJE, depois
+     de todas elas, dá uma caneta intacta; a capacidade decide o
+     veredito. */
+  const recipiente = (V: any, cabem: number) => {
+    V.pens = [{ t: hoje, med: V.profile.med, dose: V.profile.dose, dosesPerPen: cabem }];
+  };
   /* Zera tudo o que produz pendência: sem isso o estado de pendências
      vence, e nenhuma das outras três manchetes chega a ser testada. */
   const semPendencia = (V: any) => {
     V.unread = 0;
-    V.pen = { ...(S as any).pen, dosesLeft: 8 };
+    recipiente(V, 8);
     V.protocol = { ...S.protocol, tasks: [] };
     V.consult = { ...(S as any).consult, t: hoje + 60 * DIA };
     V.consultsHistory = [];
@@ -421,7 +429,7 @@ for (const [nome, ajusta, local] of CENARIOS) {
     /* Uma pendência só — é o ramo do singular, em três frases diferentes. */
     cuidado('uma-pendencia', (V) => {
       semPendencia(V);
-      V.pen = { ...(S as any).pen, dosesLeft: 1 };
+      recipiente(V, 1);
     }),
     cuidado('em-dia-com-medico', semPendencia),
     cuidado('em-dia-sem-medico', (V) => {

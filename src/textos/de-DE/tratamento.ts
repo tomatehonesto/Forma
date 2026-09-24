@@ -256,8 +256,8 @@ export const tratamento = {
        misst: wer alle zehn Dosen immer drei Tage zu spät gespritzt hat,
        kam auch auf 100%. */
     constancia: 'Beständigkeit',
-    constanciaNota: (feitas: number, previstas: number) =>
-      `${feitas} von ${previstas} seit Behandlungsbeginn vorgesehenen Dosen.`,
+    constanciaNota: (feitas: number, previstas: number, semanas: number) =>
+      `${feitas} von ${previstas} in den letzten ${semanas} Wochen vorgesehenen Dosen.`,
 
     nivelNoCorpo: 'Spiegel im Körper',
     nivelTexto: (molecula: string, meiaVida: string) =>

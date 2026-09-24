@@ -99,7 +99,8 @@ export default function Aplicacao() {
     update((s: any) => {
       s.injections.push({ t: instanteDaAplicacao(quandoT), med: s.profile.med, dose, site, note: '' });
       s.profile.dose = dose;
-      if (s.pen) s.pen.dosesLeft = Math.max(0, s.pen.dosesLeft - 1);
+      /* Nada a decrementar: quantas doses saíram do recipiente é quantas
+         aplicações caíram na janela dele. Ver `canetas` em logic/derive. */
     });
     router.replace('/aplicacao-ok' as any);
   };

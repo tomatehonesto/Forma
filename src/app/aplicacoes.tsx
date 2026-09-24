@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  M, adesao, canetaAtual, cicloFases, dosesPrevistas, injCalendar,
+  M, adesao, canetaAtual, cicloFases, constanciaDaGrade, injCalendar,
   nextInjectionDate, nextSite, pharmaSeries, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
@@ -73,12 +73,13 @@ export default function Aplicacoes() {
   const alertasDaDose = alertasDe(S, 'dose').filter((a) => a.on);
   const rem = quando(alertasDaDose.map((a) => proximaDe(S, a)).filter(Boolean).sort((x, y) => +x! - +y!)[0] ?? null);
 
-  /* Quantas doses o tratamento previa até hoje, e quantas foram
-     registradas. Era "88% em dia" — e "em dia" fala de PONTUALIDADE,
-     que é coisa que esta conta não mede: quem aplicou as dez doses
-     sempre com três dias de atraso também dava 100%. A fração diz o que
-     a conta de fato sabe. */
-  const previstas = dosesPrevistas(S);
+  /* A fração da constância, e ela fala DA GRADE — não do tratamento
+     inteiro. Era "88% em dia", e "em dia" fala de PONTUALIDADE, que esta
+     conta não mede: quem aplicou as dez doses sempre com três dias de
+     atraso também dava 100%. Virou fração, e a fração contava dez semanas
+     debaixo de uma grade de seis. Agora as duas contam o mesmo período, e
+     o número de semanas vem da mesma linha que desenha as células. */
+  const constancia = constanciaDaGrade(S);
 
   const ph = pharmaSeries(S);
   const t0 = ph.pts[0].t, t1 = ph.pts[ph.pts.length - 1].t;
@@ -197,7 +198,7 @@ export default function Aplicacoes() {
       {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
       <Bloco
         titulo={K().constancia}
-        nota={K().constanciaNota(S.injections.length, previstas)}
+        nota={K().constanciaNota(constancia.feitas, constancia.previstas, constancia.semanas)}
       >
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <Row style={{ flexWrap: 'wrap' }}>

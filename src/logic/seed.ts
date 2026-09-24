@@ -610,16 +610,54 @@ export function buildSeed() {
     alertas: [
       { id: 'al-dose', tipo: 'dose', on: true, modo: 'horas', horas: [9], cada: 2, de: 8, ate: 20, dias: [] as number[], lead: 1 },
     ],
-    /* Estoque da caneta — antes era a string fixa 'Restam 3 doses' cravada
-       em derive.ts. Uma caneta de Mounjaro rende 4 doses semanais. */
-    /* ⚠️ A VALIDADE MORA NO RECIPIENTE, e não no catálogo, quando o
+    /* ⚠️⚠️ OS RECIPIENTES SÃO REGISTRO, E ERAM UM CONTADOR.
+
+       O estado guardava `pen: { dosesLeft }` — quantas doses sobravam no
+       que está aberto — e mais nada. O histórico de canetas era
+       RECONSTRUÍDO fatiando as aplicações de trás para frente em blocos
+       de quatro, e a conta mentia de dois jeitos ao mesmo tempo: rotulava
+       cada bloco com a ÚLTIMA dose dele, de modo que uma caneta que
+       entregou três doses de 2,5 mg e uma de 5 aparecia como "caneta de 5
+       mg"; e o resto da divisão virava uma caneta fantasma de "1 de 4
+       doses", afirmando três doses jogadas fora que ninguém jogou.
+
+       Caneta de 2,5 e caneta de 5 são produtos diferentes. Dizer à pessoa
+       que ela usou uma que não usou, num histórico de medicamento, não é
+       erro de desenho.
+
+       Agora cada abertura é uma linha: quando, qual medicamento, qual
+       concentração, quantas doses cabem e — quando ela responde — quantos
+       dias dura depois de aberta. As aplicações entre uma abertura e a
+       seguinte são as doses daquele recipiente, e o que sobra é contado,
+       não adivinhado.
+
+       ⚠️ E O CONTADOR SAI JUNTO. `dosesLeft` era um número gravado que
+       descia a cada registro — dois lugares afirmando a mesma coisa, e
+       nada garantindo que concordassem. Quantas doses saíram é quantas
+       aplicações caíram na janela; quantas sobram é a subtração.
+
+       A semente abre três: a de 2,5 mg no primeiro dia, e duas de 5 mg —
+       a segunda ainda em uso, com duas doses dadas.
+
+       ⚠️ A VALIDADE MORA NO RECIPIENTE, e não no catálogo, quando o
        catálogo não sabe. Um manipulado não tem prazo de bula: quem define
        é a farmácia que preparou, e cada frasco que chega tem o seu.
 
        A semente não responde — ela usa Mounjaro, cujo prazo o catálogo
        sabe. O caminho de quem não respondeu é o que o desenvolvimento
        exercita todo dia. */
-    pen: { dosesLeft: 3, dosesPerPen: 4, validadeDias: undefined as number | undefined },
+    /* ⚠️ A ABERTURA É O INSTANTE DA PRIMEIRA DOSE DELA, lido do próprio
+       array de aplicações — e não um `daysAgo` novo. `daysAgo` chama
+       `Date.now()` a cada chamada, então dois cálculos do mesmo dia saem
+       com milissegundos diferentes: a janela da caneta fecharia do lado
+       errado da primeira dose e a deixaria órfã. */
+    pens: [0, 4, 8].map((i) => ({
+      t: injections[i].t,
+      med,
+      dose: injections[i].dose,
+      dosesPerPen: 4,
+      validadeDias: undefined as number | undefined,
+    })),
     /* A equipe além da médica. Cada pessoa tem um papel distinto no
        tratamento — não é lista de contatos, é quem faz o quê.
 
@@ -902,7 +940,34 @@ export function ensureDefaults(S: any) {
       convite: (S.profile as any).convite,
     };
   }
-  if (!S.pen) S.pen = { dosesLeft: 3, dosesPerPen: 4 };
+  /* ⚠️⚠️ O CONTADOR DE DOSES VIRA UMA LISTA DE ABERTURAS. Ver a nota na
+     semente, em `pens`.
+
+     O que o estado antigo afirmava de verdade era UMA coisa: o recipiente
+     em uso e quantas doses já saíram dele. É isso que esta linha salva —
+     uma abertura só, datada na aplicação que teria sido a primeira dela.
+     As aplicações mais antigas ficam sem recipiente, e é o certo: o
+     aplicativo nunca perguntou por eles, e inventá-los era o defeito.
+
+     Quem chega agora sem nenhuma aplicação não ganha abertura nenhuma:
+     `penStock` lê a lista vazia como recipiente cheio ainda por abrir, e
+     nenhuma tela afirma que uma dose já saiu. */
+  if (!Array.isArray(S.pens)) {
+    const porPen = S.pen?.dosesPerPen || 4;
+    const usadas = Math.max(0, Math.min(porPen, porPen - (S.pen?.dosesLeft ?? porPen)));
+    const injs = ((S.injections ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
+    const primeira = usadas > 0 && injs.length >= usadas ? injs[injs.length - usadas] : null;
+    S.pens = primeira
+      ? [{
+        t: primeira.t,
+        med: S.profile?.med ?? 'mounjaro',
+        dose: primeira.dose ?? S.profile?.dose ?? 0,
+        dosesPerPen: porPen,
+        validadeDias: S.pen?.validadeDias,
+      }]
+      : [];
+    delete S.pen;
+  }
   /* ============================================================
      A SEMANA DO PROTOCOLO VIRA SOZINHA
 
@@ -1118,6 +1183,9 @@ export function estadoVazio(): State {
   /* os registros */
   S.weights = [];
   S.injections = [];
+  /* Sem abertura nenhuma: ninguém registrou recipiente ainda, e é o que
+     a lista vazia diz. */
+  S.pens = [];
   S.checkins = [];
   S.photos = [];
   S.measures = [];

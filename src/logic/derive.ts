@@ -16,7 +16,7 @@ import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
 import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
-import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV } from './medidas';
+import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, pesoN, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV } from './medidas';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
 
@@ -297,11 +297,32 @@ export function nextInjectionDate(S: State) {
    uma conta que desfaz um arredondamento com outro e erra por um sempre
    que a porcentagem cai num meio. Agora é uma função, e a adesão é que
    sai dela. */
-export const dosesPrevistas = (S: State) =>
-  Math.floor(diffDays(now(), new Date(S.profile.startT)) / cadenciaDias(S)) + 1;
+/* ⚠️⚠️ E O RELÓGIO COMEÇA NA PRIMEIRA APLICAÇÃO, e não em `startT`.
+
+   Contar de `startT` cobrava uma dose no dia em que a pessoa disse que o
+   tratamento começou — e essa dose não existe: quem responde "comecei em
+   14 de julho" está dizendo quando a receita passou a valer, não que
+   aplicou naquele dia. Na semente a diferença eram quatro dias, e bastava
+   para dizer "10 de 11 doses" a quem tinha dez aplicações de sete em sete
+   dias, nenhuma atrasada — uma dose perdida inventada, e com ela 91% de
+   adesão onde havia 100%.
+
+   A grade da casa já se ancora nas aplicações: `nextInjectionDate` é a
+   última mais a cadência. A previsão passa a ler a mesma régua, pela
+   outra ponta.
+
+   Sem nenhuma aplicação não há régua: zero, e não um. */
+export const dosesPrevistas = (S: State) => {
+  const injs = (S.injections as any[]) ?? [];
+  if (!injs.length) return 0;
+  const primeira = Math.min(...injs.map((i) => i.t));
+  return Math.floor(diffDays(now(), new Date(primeira)) / cadenciaDias(S)) + 1;
+};
 
 export function adesao(S: State) {
-  return Math.max(0, Math.min(100, Math.round((S.injections.length / dosesPrevistas(S)) * 100)));
+  const previstas = dosesPrevistas(S);
+  if (!previstas) return 0;
+  return Math.max(0, Math.min(100, Math.round((S.injections.length / previstas) * 100)));
 }
 /* O REGISTRO DO DIA e o CHECK-IN FEITO são duas perguntas diferentes.
 
@@ -776,17 +797,48 @@ export function nextSite(S: State) {
   return all.find((s) => !used.includes(s)) || all[0];
 }
 // calendário de aderência: 6 semanas, aplicadas marcadas, próxima tracejada — sem punição por dia perdido
-export function injCalendar(S: State) {
+/* Quantas semanas a grade desenha. Não é constante solta: a frase que
+   mora em cima dela diz este número, e os dois têm de sair da mesma
+   linha de código ou voltam a discordar. */
+export const SEMANAS_DA_GRADE = 6;
+
+export function injGrade(S: State) {
   const applied = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
   const nd = +startOfDay(nextInjectionDate(S)), today = +startOfDay(now());
   const anchor = new Date(Math.max(nd, today));
   const endSat = addDays(startOfDay(anchor), 6 - anchor.getDay());
+  const dias = SEMANAS_DA_GRADE * 7;
   const cells: { day: number; applied: boolean; planned: boolean; today: boolean }[] = [];
-  for (let i = 41; i >= 0; i--) {
+  for (let i = dias - 1; i >= 0; i--) {
     const d = addDays(endSat, -i); const key = +startOfDay(d);
     cells.push({ day: d.getDate(), applied: applied.has(key), planned: key === nd && key >= today, today: key === today });
   }
-  return cells;
+  return { cells, de: +startOfDay(addDays(endSat, -(dias - 1))), semanas: SEMANAS_DA_GRADE };
+}
+
+export const injCalendar = (S: State) => injGrade(S).cells;
+
+/* ⚠️⚠️ A FRAÇÃO CONTA O QUE A GRADE DESENHA, e contava o tratamento
+   inteiro.
+
+   Em cima da grade de seis semanas estava escrito "desde o começo do
+   tratamento", que na semente são dez. Quem contasse os pontos achava
+   cinco e lia onze na frase — e o jeito de descobrir qual dos dois estava
+   certo era nenhum.
+
+   As feitas saem das próprias células, e não de uma segunda contagem: o
+   número é o de pontos acesos, por construção. As previstas são os
+   encaixes da cadência que caem dentro da janela e já passaram. */
+export function constanciaDaGrade(S: State) {
+  const { cells, de, semanas } = injGrade(S);
+  const feitas = cells.filter((c) => c.applied).length;
+  const injs = (S.injections as any[]) ?? [];
+  if (!injs.length) return { feitas, previstas: 0, semanas };
+  const cad = cadenciaDias(S);
+  const primeira = new Date(Math.min(...injs.map((i) => i.t)));
+  const k0 = Math.max(0, Math.ceil(diffDays(new Date(de), primeira) / cad));
+  const k1 = Math.floor(diffDays(now(), primeira) / cad);
+  return { feitas, previstas: Math.max(0, k1 - k0 + 1), semanas };
 }
 
 /* ============================================================
@@ -1648,12 +1700,12 @@ export function patterns(S: State): Pattern[] {
   const R = T.cruzamentos.ritmo;
   if (S.weights.length >= 3 && r.semana >= 2) out.push({
     ...daCategoria('peso'), ic: 'scale', cor: 'accent', surpresa: 0,
-    titulo: R.titulo(r.ritmoLabel),
+    titulo: R.titulo(r.ritmoLabel, pesoU(S)),
     texto: r.verdict.good
       ? R.textoBom(pesoTxt(S, r.lost), r.semana)
       : R.textoAtencao(pesoTxt(S, r.lost), r.semana),
     q: R.q,
-    evid: R.evid(r.ritmoLabel, pesoTxt(S, r.lost), r.semana),
+    evid: R.evid(r.ritmoLabel, pesoU(S), pesoTxt(S, r.lost), r.semana),
     significa: r.verdict.good ? R.significaBom : R.significaAtencao,
   });
 
@@ -4718,15 +4770,26 @@ export const instanteDaAplicacao = (t: number) =>
    borracha. */
 
 /** Estoque da caneta — quantas doses restam e quando isso vira urgência. */
+/* ⚠️ O QUE SOBRA É SUBTRAÇÃO, e era um número gravado. Ver `canetas`,
+   mais abaixo, e a nota de `pens` na semente.
+
+   Sem nenhuma abertura registrada — quem acabou de se cadastrar — a
+   conta devolve o recipiente CHEIO, e não vazio. Zero doses restantes
+   faria o aplicativo pedir receita nova a quem ainda não aplicou a
+   primeira; cheio é o que combina com nenhuma aplicação registrada, e
+   vira verdade no instante em que a pessoa registra qualquer uma das
+   duas coisas. */
 export function penStock(S: State) {
-  const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
-  const semanas = p.dosesLeft * (cadenciaDias(S) / 7);
-  const verdict: Verdict = p.dosesLeft <= 1
+  const atual = canetas(S)[0] ?? null;
+  const total = atual?.total ?? dosesPorRecipiente(S);
+  const left = atual ? Math.max(0, total - atual.usadas) : total;
+  const semanas = left * (cadenciaDias(S) / 7);
+  const verdict: Verdict = left <= 1
     ? { label: T.tratamento.estoqueUrgente, good: false }
-    : p.dosesLeft <= 3
+    : left <= 3
       ? { label: T.tratamento.estoqueRenovar, good: false }
       : { label: T.tratamento.estoqueEmDia, good: true };
-  return { left: p.dosesLeft, total: p.dosesPerPen, semanas, verdict };
+  return { left, total, semanas, verdict };
 }
 
 /* Resumo do tratamento — os cinco números do topo da Jornada. */
@@ -4793,7 +4856,13 @@ export function journeySummary(S: State) {
     aplicacoes: S.injections.length,
     proximaEmDias: diasAteAplicar(S),
     /* ritmo semanal — diz mais que "71 dias de tratamento", que é trivia */
-    ritmo, ritmoLabel: nf(ritmo, 1),
+    /* ⚠️ O NÚMERO FICA EM QUILO E O RÓTULO CONVERTE. `ritmo` é de onde
+       sai o veredito, logo acima, e a faixa de 0,5 a 1,5 é clínica;
+       `ritmoLabel` é para ler, e quem lê escolheu o sistema. A conversão
+       mora aqui e não em quem consome: era `nf` cru, e o único consumidor
+       escrevia "kg" à mão ao lado. Quem imprime o rótulo tem de levar
+       `pesoU(S)` junto. */
+    ritmo, ritmoLabel: pesoN(S, ritmo),
     adesao: adesao(S), streak: streak(S),
     verdict,
   };
@@ -5475,15 +5544,51 @@ export function cicloFases(S: State) {
 /* ============================================================
    CANETAS — o histórico do que foi aberto
 
-   O estado guarda quantas doses sobraram na caneta atual, não uma lista
-   de canetas. A lista é reconstruída a partir das aplicações: a caneta em
-   uso cobre as últimas (dosesPerPen − dosesLeft) aplicações, e o resto do
-   histórico é fatiado de trás para frente em blocos do mesmo tamanho.
+   ⚠️⚠️ ELE ERA RECONSTRUÍDO, E AGORA É LIDO.
 
-   Reconstruir em vez de guardar significa que trocar a contagem de doses
-   por caneta no perfil reescreve o histórico inteiro — que é justamente o
-   comportamento certo enquanto a caneta não for uma entidade do estado.
+   O estado guardava só quantas doses sobravam no recipiente aberto, e a
+   lista de canetas saía de fatiar as aplicações de trás para frente em
+   blocos de `dosesPerPen`. Duas mentiras nasciam daí:
+
+     · o bloco era rotulado com a ÚLTIMA dose dele, então uma fatia com
+       três aplicações de 2,5 mg e uma de 5 virava "caneta de 5 mg";
+     · o resto da divisão virava uma caneta de "1 de 4 doses", afirmando
+       três doses descartadas que nunca existiram.
+
+   Nenhum arranjo de fatias conserta isso, porque a informação não estava
+   lá: quantos recipientes alguém abriu só se sabe perguntando. E o
+   aplicativo PERGUNTA — /caneta-nova existe desde sempre — e jogava a
+   resposta fora, zerando um contador.
+
+   Agora ela fica. `S.pens` é uma lista de aberturas em ordem, e a caneta
+   de índice i é dona das aplicações entre a abertura dela e a seguinte.
+   Trocar a contagem de doses por recipiente deixa de reescrever a
+   história: cada abertura congela a sua.
+
+   ⚠️ E AS APLICAÇÕES ANTERIORES À PRIMEIRA ABERTURA NÃO VIRAM CANETA
+   NENHUMA. Elas continuam inteiras em /aplicacoes, que é onde a pessoa as
+   registrou; o que sai é a afirmação de um recipiente que ela nunca
+   registrou.
    ============================================================ */
+
+/** Uma abertura: o recipiente que a pessoa disse que começou a usar. */
+export type Recipiente = {
+  t: number;
+  med: string;
+  dose: number;
+  dosesPerPen: number;
+  validadeDias?: number;
+};
+
+const recipientes = (S: State): Recipiente[] =>
+  (((S as any).pens as Recipiente[]) ?? []).slice().sort((a, b) => a.t - b.t);
+
+/** Quantas doses cabem no recipiente — a do último aberto, e quatro
+    enquanto não houver nenhum. */
+export const dosesPorRecipiente = (S: State): number => {
+  const l = recipientes(S);
+  return l.length ? l[l.length - 1].dosesPerPen : 4;
+};
 
 /* A validade depois de aberta virou campo de MEDS — ela varia por produto
    e não se deduz da molécula nem da cadência. Ver o bloco sobre `shelf`
@@ -5502,31 +5607,36 @@ export type Caneta = {
 };
 
 export function canetas(S: State): Caneta[] {
-  const p: any = (S as any).pen || { dosesLeft: 0, dosesPerPen: 4 };
-  const total: number = p.dosesPerPen || 4;
+  const abert = recipientes(S);
+  if (!abert.length) return [];
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
-  const med = M(S);
 
-  /* A caneta aberta pode estar pela metade; as anteriores sempre foram
-     usadas até o fim. Por isso o corte começa pelo pedaço de cima. */
-  const emUso = Math.max(0, Math.min(total, total - p.dosesLeft));
-  const blocos: any[][] = [];
-  let fim = injs.length;
-  if (emUso > 0) { blocos.push(injs.slice(fim - emUso)); fim -= emUso; }
-  while (fim > 0) { const ini = Math.max(0, fim - total); blocos.push(injs.slice(ini, fim)); fim = ini; }
-
-  return blocos.map((bl, i) => ({
-    id: i,
-    estado: i === 0 && emUso > 0 ? 'uso' : 'fim',
-    label: med.label,
-    dose: bl.length ? bl[bl.length - 1].dose : S.profile.dose,
-    unit: med.unit,
-    usadas: bl.length,
-    total,
-    abertaEm: bl.length ? bl[0].t : null,
-    ultimaEm: bl.length ? bl[bl.length - 1].t : null,
-    aplicacoes: bl.map((x) => ({ t: x.t, site: x.site, dose: x.dose })),
-  }));
+  const lista: Caneta[] = abert.map((ab, i) => {
+    const ate = abert[i + 1]?.t ?? Infinity;
+    const bl = injs.filter((x) => x.t >= ab.t && x.t < ate);
+    /* O catálogo do recipiente, e não o do perfil: quem trocou de
+       medicamento continua vendo o nome certo no que já usou. */
+    const cat = MEDS[ab.med] ?? M(S);
+    return {
+      /* A abertura é única no tempo, e é ela que identifica a caneta —
+         índice mudaria de dono a cada recipiente novo. */
+      id: ab.t,
+      estado: (i === abert.length - 1 && bl.length < ab.dosesPerPen ? 'uso' : 'fim') as 'uso' | 'fim',
+      label: cat.label,
+      /* A CONCENTRAÇÃO É A QUE ELA DECLAROU AO ABRIR, e não a da última
+         aplicação. Uma caneta de 2,5 mg não vira de 5 porque a dose do
+         tratamento subiu. */
+      dose: ab.dose,
+      unit: cat.unit,
+      usadas: bl.length,
+      total: ab.dosesPerPen,
+      abertaEm: ab.t,
+      ultimaEm: bl.length ? bl[bl.length - 1].t : null,
+      aplicacoes: bl.map((x) => ({ t: x.t, site: x.site, dose: x.dose })),
+    };
+  });
+  /* A de cima é a mais nova. */
+  return lista.reverse();
 }
 
 /** A caneta aberta e o que decorre dela: validade, cobertura e o veredito
@@ -5551,7 +5661,8 @@ export function canetaAtual(S: State) {
      tratamento: mandar descartar o que está bom, ou autorizar o que não
      está. */
   const doCatalogo = SHELF_DAYS(S.profile.med);
-  const validadeDias: number | null = (S as any).pen?.validadeDias ?? (doCatalogo > 0 ? doCatalogo : null);
+  const validadeDias: number | null = recipientes(S)[recipientes(S).length - 1]?.validadeDias
+    ?? (doCatalogo > 0 ? doCatalogo : null);
   const vence = atual?.abertaEm && validadeDias
     ? addDays(new Date(atual.abertaEm), validadeDias)
     : null;
