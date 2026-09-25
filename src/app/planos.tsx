@@ -12,6 +12,7 @@ import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { paletaDe, comPaleta, dark, mix, alfa, radius, font, ty } from '../theme';
+import { contaLigada } from '../logic/nuvem';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, porque lê o catálogo e a lista de argumentos abaixo é
@@ -326,8 +327,18 @@ export default function Planos() {
      atrás, e um `back` puro não faria nada — o botão de fechar de uma
      tela que pede dinheiro é o último lugar do aplicativo onde um toque
      pode não responder. Havendo história, volta; não havendo, entra no
-     aplicativo, que é para onde essa pessoa ia de qualquer jeito. */
+     aplicativo, que é para onde essa pessoa ia de qualquer jeito.
+
+     ⚠️ E PELO FIM DO CADASTRO, SEM DONO, O X LEVA À CONTA (plano do
+     Supabase, a decisão 1). É o caminho do cadastro até a conta, com ou
+     sem internet — sem ela, /conta espera. Quem veio de /assinatura não
+     traz o `de=cadastro`, e o X continua voltando. */
+  const { de } = useLocalSearchParams<{ de?: string }>();
   const fechar = () => {
+    if (de === 'cadastro' && contaLigada() && !(S as any).conta) {
+      router.replace('/conta?de=cadastro' as any);
+      return;
+    }
     if (router.canGoBack()) router.back();
     else router.replace('/(tabs)' as any);
   };

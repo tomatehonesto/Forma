@@ -754,6 +754,33 @@ ok(recusada === 'guardando' && B.S.perguntasParaUso === false && srv.perguntasDe
   'o outro aparelho, com a escolha antiga, é recusado pelo banco — e a volta seguinte desce a escolha nova');
 
 
+console.log('\nOS DOIS DIÁRIOS NÃO SE MISTURAM');
+{
+  const srv4 = new ServidorFalso();
+  srv4.criarConta(CONTA_C);
+  const X = aparelho(srv4, diarioDe(CONTA_C), CONTA_C);
+  await X.sync();
+  const daConta = new Set(vivas(srv4, CONTA_C).map((l) => l.id));
+  /* outro telefone, com o diário que acabou de montar, entra na mesma conta */
+  const Y = aparelho(srv4, (() => {
+    const v: any = vazioDe(null);
+    v.onboardDone = true;
+    v.profile.name = 'Quem ficou com este';
+    v.weights = [{ t: Date.now(), kg: 88 }];
+    return carimbar(v);
+  })(), CONTA_C);
+  Y.registrar((s) => { s.conta = { id: CONTA_C }; });
+  await Y.motor.substituirNoServidor();
+  const vivasAgora = vivas(srv4, CONTA_C);
+  ok(vivasAgora.length === 1 && vivasAgora[0].dados.kg === 88 && [...daConta].every((id) => srv4.registros.get(id)?.apagadoEm)
+    && srv4.perfis.get(CONTA_C)?.partes.pessoal?.name === 'Quem ficou com este' && Y.motor.estado() === 'guardado',
+    'ficar com o deste telefone: o diário da conta vira apagado, e este sobe no lugar — perfil e registros');
+  await X.sync(true);
+  ok(X.S.weights.length === 1 && X.S.weights[0].kg === 88 && X.S.profile.name === 'Quem ficou com este',
+    'e o outro aparelho da conta recebe o diário que ficou');
+}
+
+
 console.log('\nTROCAR DE DIÁRIO');
 {
   const antes = srv.subidas;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -12,6 +12,8 @@ import {
 import { useStore } from '../logic/store';
 import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
 import { modoFingido } from '../logic/modo';
+import { contaLigada, temConexao } from '../logic/nuvem';
+import { sincronia } from '../logic/conta';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -52,23 +54,92 @@ function Moldura({ children }: { children: React.ReactNode }) {
    tranca: enquanto for falso, qualquer endereço leva ao cadastro, e ele
    só vira verdadeiro quando o plano é montado, no fim do formulário.
 
-   NÃO É AUTENTICAÇÃO, e não finge ser: não há conta, servidor nem senha.
-   É a diferença entre "este app já é seu" e "este app ainda é uma
-   demonstração", que é a única coisa que o aparelho tem como saber
-   sozinho. */
+   A PRIMEIRA TRANCA NÃO É AUTENTICAÇÃO, e não finge ser. É a diferença
+   entre "este app já é seu" e "este app ainda é uma demonstração", que é
+   a única coisa que o aparelho tem como saber sozinho. A conta é a
+   tranca 3, logo abaixo. */
+/* ============================================================
+   AS TRANCAS
+
+   Cada tranca tem uma condição e uma lista. A primeira cuja condição
+   vale decide sozinha: se o segmento atual está na lista dela, fica;
+   senão, vai ao destino dela. As de baixo não são avaliadas.
+
+     1. sem `onboardDone` → /cadastro. Deixa ficar o cadastro, a conta
+        ("Já tenho conta", na abertura) e os documentos (os links dos
+        Termos e da Política).
+     2. (a fase 8 do plano do Supabase: o consentimento novo)
+     3. a conta ligada (`contaLigada()`), o cadastro feito, o diário sem
+        dono, o estado que não é a semente de desenvolvimento — e HÁ
+        CONEXÃO → /conta?de=cadastro. Deixa ficar o caminho do cadastro
+        até a conta (a devolutiva, os planos, o código), a conta, os
+        documentos e a exportação.
+
+   ⚠️ A TRANCA DA CONTA SÓ FECHA COM CONEXÃO. Registrar nunca espera o
+   servidor, e trancar sem internet deixaria alguém fora do próprio
+   diário, sem poder registrar a dose. Sem resposta, o aplicativo abre, e
+   a Home e o Perfil dizem que a conta nasce quando a conexão voltar. A
+   pergunta é refeita a cada volta ao aplicativo.
+
+   ⚠️ E ELA OLHA O DONO DO DIÁRIO, e não a sessão: uma sessão que venceu
+   não tranca nada — a pessoa tem conta, e a linha de estado pede para
+   entrar de novo.
+   ============================================================ */
+const FICA_NA_TRANCA_1 = ['cadastro', 'conta', 'documento'];
+const FICA_NA_TRANCA_3 = ['cadastro', 'planos', 'codigo', 'conta', 'documento', 'exportar'];
+
 function Portao({ children }: { children: React.ReactNode }) {
   const ready = useStore((s) => s.ready);
   const feito = useStore((s) => s.S.onboardDone);
+  const semDono = useStore((s) => !(s.S as any).conta);
+  const semente = useStore((s) => !!(s.S as any).semente);
   const segmentos = useSegments();
   const router = useRouter();
+  const precisaDeConta = contaLigada() && feito && semDono && !(semente && __DEV__);
+  const [conexao, setConexao] = useState(false);
+
+  useEffect(() => {
+    if (!ready || !precisaDeConta) return;
+    let viva = true;
+    const olhar = () => { temConexao().then((v) => { if (viva) setConexao(v); }); };
+    olhar();
+    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') olhar(); });
+    return () => { viva = false; sub.remove(); };
+  }, [ready, precisaDeConta]);
 
   useEffect(() => {
     if (!ready) return;
-    const noCadastro = segmentos[0] === 'cadastro';
-    if (!feito && !noCadastro) router.replace('/cadastro' as any);
-  }, [ready, feito, segmentos, router]);
+    const aqui = segmentos[0] ?? '';
+    if (!feito) {
+      if (!FICA_NA_TRANCA_1.includes(aqui)) router.replace('/cadastro' as any);
+      return;
+    }
+    if (precisaDeConta && conexao && !FICA_NA_TRANCA_3.includes(aqui)) {
+      router.replace('/conta?de=cadastro' as any);
+    }
+  }, [ready, feito, precisaDeConta, conexao, segmentos, router]);
 
   return <>{children}</>;
+}
+
+/* ============================================================
+   A SINCRONIA LIGADA
+
+   Ela começa depois da abertura, com a nuvem e a conta ligadas, e
+   desce o que mudou em outro aparelho a cada volta ao aplicativo. O
+   resto — o que pode olhar, quando sobe — é dela: ver logic/sincronia.
+   ============================================================ */
+function Sincronizador() {
+  const ready = useStore((s) => s.ready);
+  useEffect(() => {
+    if (!ready || !contaLigada()) return;
+    const m = sincronia();
+    if (!m) return;
+    m.iniciar();
+    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') m.voltouAoAplicativo(); });
+    return () => { sub.remove(); };
+  }, [ready]);
+  return null;
 }
 
 /* QUEM REMARCA OS AVISOS.
@@ -183,6 +254,8 @@ function SaudeDoAparelho() {
    E NÃO INTERROMPE O CADASTRO. Quem está respondendo as quinze perguntas
    iniciais não quer uma tela cheia de lima no meio — e o cadastro grava
    peso e aplicação, que fechariam trilha na hora. */
+const CORREDOR = ['cadastro', 'conquista-ok', 'conta', 'planos', 'codigo', 'documento'];
+
 function VigiaDeConquistas() {
   const ready = useStore((s) => s.ready);
   const S = useStore((s) => s.S);
@@ -194,7 +267,13 @@ function VigiaDeConquistas() {
      rodar a cada toque em qualquer lugar do app. */
   const quantas = ready ? novosNiveis(S).length : 0;
   const segs = segmentos as unknown as string[];
-  const ocupado = segs[0] === 'cadastro' || segs[0] === 'conquista-ok';
+  /* ⚠️ NO CORREDOR ATÉ A CONTA, NÃO HÁ O QUE COMEMORAR. A comemoração é
+     uma rota, e rota fora da lista das trancas do portão volta para o
+     destino da tranca: sem cadastro feito, a conta abria, a comemoração a
+     cobria e o portão mandava tudo de volta ao cadastro; depois dele, a
+     comemoração e a conta se revezavam sem fim. Ela espera o diário ter
+     dono e a pessoa estar no aplicativo. */
+  const ocupado = !S.onboardDone || CORREDOR.includes(segs[0]);
 
   useEffect(() => {
     if (!ready || !quantas || ocupado) return;
@@ -255,6 +334,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <Agendador />
+        <Sincronizador />
         <SaudeDoAparelho />
         <VigiaDeConquistas />
         {/* ⚠️ A ÁRVORE É REMONTADA QUANDO O IDIOMA MUDA. O React não sabe
@@ -278,6 +358,9 @@ export default function RootLayout() {
               dose — e com isso a Home sem o que dizer. O caminho de volta é
               o botão de cada passo, que preserva o que já foi respondido. */}
           <Stack.Screen name="cadastro" options={{ gestureEnabled: false }} />
+          {/* A conta também não se fecha pelo lado: pelo fim do cadastro,
+              a única saída é criar a conta ou entrar numa. */}
+          <Stack.Screen name="conta" options={{ gestureEnabled: false }} />
           {/* O check-in era folha modal. Virou tela: ele tem três escalas
               fixas, a lista de sintomas e um cartão por sintoma marcado —
               conteúdo que rola, e folha que rola muito é tela com menos

@@ -1,10 +1,9 @@
 /* ============================================================
    A NUVEM — o cliente do Supabase, e a sessão guardada no aparelho
 
-   ⚠️ NINGUÉM USA ISTO AINDA. É a fase 2 do plano
-   (docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md): o cliente
-   nasce aqui, e as portas que o usam nascem a partir da fase 4, todas
-   atrás de `contaLigada()`.
+   Quem usa o cliente: a conta e a sincronia (logic/conta, fase 4 do plano
+   em docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md), todas as
+   portas atrás de `contaLigada()`.
 
    O ENDEREÇO E A CHAVE são públicos e vêm das variáveis de ambiente —
    .env.development, no desenvolvimento. Sem as duas, `nuvem()` é nulo e o
@@ -95,6 +94,32 @@ export function nuvem(): SupabaseClient | null {
     });
   }
   return cliente;
+}
+
+/* ============================================================
+   HÁ CONEXÃO?
+
+   Uma pergunta curta ao endereço de saúde da autenticação — é ele que
+   precisa responder para criar a conta ou entrar. A tranca da conta (ver
+   o `Portao`, em app/_layout) só fecha com resposta: registrar nunca
+   espera o servidor, e trancar sem internet deixaria alguém fora do
+   próprio diário, sem poder registrar a dose.
+   ============================================================ */
+export async function temConexao(espera = 4000): Promise<boolean> {
+  if (!ENDERECO || !CHAVE_PUBLICA) return false;
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), espera);
+  try {
+    const r = await fetch(`${ENDERECO}/auth/v1/health`, {
+      headers: { apikey: CHAVE_PUBLICA },
+      signal: controle.signal,
+    });
+    return r.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(relogio);
+  }
 }
 
 /* ============================================================

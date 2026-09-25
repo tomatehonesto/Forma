@@ -8,6 +8,8 @@ import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
+import { apagarConta } from '../logic/conta';
+import { tirarDiarioDoTelefone } from '../ui/conta';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -86,18 +88,43 @@ function Bloquinho({ titulo, children }: { titulo: string; children: React.React
     MUDOU DE TELA. Estava no perfil, ao lado de tema e ajuda; agora mora
     aqui, junto da explicação do que some — que é a informação que a
     segunda pergunta precisa ter por trás. */
-function Apagar({ onApagar }: { onApagar: () => void }) {
+function Apagar({ comConta, onApagar }: {
+  comConta: boolean;
+  /** devolve a frase do que deu errado, ou nulo se apagou */
+  onApagar: () => Promise<string | null>;
+}) {
   const { c } = useTheme();
   const [armado, setArmado] = React.useState(false);
+  const [apagando, setApagando] = React.useState(false);
+  const [erro, setErro] = React.useState<string | null>(null);
+  const C = T.conta.apagarConta;
+
+  if (apagando) {
+    return (
+      <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Txt v="caption" c={c.tx2}>{C.apagando}</Txt>
+      </Row>
+    );
+  }
 
   if (armado) {
     return (
       <Row gap={12} style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{K().apagarPergunta}</Txt>
+        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{comConta ? C.pergunta : K().apagarPergunta}</Txt>
         <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Txt v="label" c={c.tx3}>{K().cancelar}</Txt>
         </Pressable>
-        <Pressable onPress={onApagar} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+        <Pressable
+          onPress={async () => {
+            setApagando(true);
+            const falha = await onApagar();
+            setApagando(false);
+            setArmado(false);
+            setErro(falha);
+          }}
+          hitSlop={8}
+          style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+        >
           <Txt v="label" c={c.cta}>{K().apagarConfirma}</Txt>
         </Pressable>
       </Row>
@@ -112,7 +139,7 @@ function Apagar({ onApagar }: { onApagar: () => void }) {
         </View>
         <View style={{ flex: 1 }}>
           <Txt v="body">{K().apagar}</Txt>
-          <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{K().apagarSub}</Txt>
+          <Txt v="caption" c={erro ? c.cta : c.tx2} style={{ marginTop: 2 }}>{erro ?? (comConta ? C.sub : K().apagarSub)}</Txt>
         </View>
       </Row>
     </Pressable>
@@ -123,7 +150,27 @@ export default function Privacidade() {
   const router = useRouter();
   const go = (p: string) => () => router.push(p as any);
   const reset = useStore((s) => s.reset);
-  const apagarTudo = () => { reset(); router.replace('/cadastro' as any); };
+  const conta = useStore((s) => (s.S as any).conta);
+  /* ⚠️ SEM DONO (a semente, ou o diário que ainda não tem conta), apagar
+     é local, sem rede e sem função, como sempre foi.
+
+     ⚠️ COM DONO, APAGA NO SERVIDOR, e o aparelho só é limpo DEPOIS de a
+     função responder que apagou: se ela falhar, nada muda, e a linha diz
+     por quê. Precisa de conexão. A cascata do banco leva o perfil, os
+     registros, as perguntas e o resto que é da pessoa (ver
+     supabase/functions/apagar-conta). */
+  const apagarTudo = async (): Promise<string | null> => {
+    if (!conta) {
+      reset();
+      router.replace('/cadastro' as any);
+      return null;
+    }
+    const r = await apagarConta();
+    if (!r.ok) return r.erro === 'sem-internet' ? T.conta.apagarConta.semInternet : T.conta.apagarConta.falhou;
+    await tirarDiarioDoTelefone();
+    router.replace('/cadastro' as any);
+    return null;
+  };
 
   return (
     <TelaInterna titulo={K().titulo}>
@@ -201,7 +248,7 @@ export default function Privacidade() {
               conferir o que sai daqui. O resumo é o que ela LEVA. */}
           <Linha ic="doc" titulo={K().resumo}
             sub={K().resumoSub} onPress={go('/resumo-medico')} />
-          <Apagar onApagar={apagarTudo} />
+          <Apagar comConta={!!conta} onApagar={apagarTudo} />
         </Cartao>
       </Bloco>
 

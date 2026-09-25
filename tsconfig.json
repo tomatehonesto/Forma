@@ -17,6 +17,7 @@
   ],
   "exclude": [
     "servidor",
-    "node_modules"
+    "node_modules",
+    "supabase/functions"
   ]
 }

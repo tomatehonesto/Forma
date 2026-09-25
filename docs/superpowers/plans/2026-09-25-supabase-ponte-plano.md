@@ -1341,6 +1341,78 @@ de 6 dígitos e a Apple (a tabela do alto).
 - **iPhone, Expo Go:** a Apple, com o console lido pelo Metro.
 - As conferências de sempre, `sincronia.ts`, `acesso.ts` e `regras.mjs`.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (25/09/2026)
+
+**O resultado, até aqui:**
+- o código da fase inteira está feito, atrás de `contaLigada()`;
+- a função `apagar-conta` foi publicada no `morphi-dev` e recusa, com
+  401, quem chama sem sessão;
+- `scripts/sincronia.ts` tem 96 afirmações, e os 30 erros plantados foram
+  todos pegos;
+- no navegador, numa segunda origem (`127.0.0.1`, que não mexe no diário
+  de teste de `localhost`), funcionaram:
+  - "Já tenho conta" na abertura do cadastro;
+  - a tranca 3 levando o diário sem dono à conta, com conexão;
+  - o corredor da conta aos planos e de volta pelo X;
+  - na semente, o Perfil sem a linha da conta e com "Refazer o cadastro";
+- as consultas do transporte passam pelo leitor do servidor (com a chave
+  pública, todas chegam à regra de permissão).
+
+**⏳ O que falta, e depende do dono:** a entrada de verdade. O painel ainda
+não tem o serviço de envio de e-mail, e sem ele o Supabase não deixa
+editar o modelo: o e-mail sairia com um link, e não com o código. Lido
+com `config pull`, sem mudar nada, o painel está com código de 8 dígitos,
+validade de 1 hora e a Apple desligada. Faltam, na tabela "O que depende
+do dono":
+- o serviço de envio e o domínio;
+- os dois modelos (`supabase/modelos/codigo.html`, que também traz o
+  assunto);
+- o código de 6 dígitos e a validade de 600 s;
+- a Apple com os Client IDs.
+
+Com isso, a verificação desta fase segue: o cadastro até a conta com o
+código, o diário conferido no banco, sair e entrar de novo, duas origens,
+apagar a conta, a Apple no iPhone.
+
+1. **A comemoração das conquistas entrava no corredor e travava o
+   portão.** Ela é uma rota, e rota fora da lista de uma tranca volta ao
+   destino da tranca.
+   - Sem cadastro feito, "Já tenho conta" abria a conta, a comemoração a
+     cobria, e o portão mandava tudo de volta ao cadastro.
+   - Depois do cadastro, a comemoração e a conta se revezavam sem fim.
+
+   Agora ela espera o cadastro feito e fica quieta no corredor inteiro
+   (cadastro, conta, planos, código e documentos).
+2. **Entrar sem conexão não segura a pessoa.** Quando o diário deste
+   telefone ganha dono, a pessoa entra no aplicativo mesmo que a subida
+   falhe: a sincronia tenta de novo, e a linha do Perfil diz. Só espera na
+   tela quem está trazendo o diário da conta, porque sem ele não há o que
+   abrir. Ali a tela mostra o erro e "Tentar de novo", e tenta sozinha na
+   volta ao aplicativo.
+3. **O código errado e o vencido são o mesmo erro no servidor**
+   (`otp_expired`), e a frase diz os dois.
+4. **O modelo vai nos dois e-mails**, "Confirm signup" e "Magic link":
+   com a confirmação ligada, a conta nova recebe o primeiro, e a existente
+   recebe o segundo. O idioma só é gravado na criação da conta, e quem já
+   tem conta recebe o e-mail na língua do cadastro.
+5. **A conta apagada em outro aparelho** é descoberta a cada descida: o
+   transporte pergunta ao servidor quem é a pessoa (`getUser`) e
+   reconhece `user_not_found`. Sem isso, o token que ainda vale
+   devolveria leituras vazias, e o diário pareceria guardado.
+6. **"Ficar com o deste telefone"** é uma operação do motor,
+   `substituirNoServidor`. A base passa a dizer que o servidor tem o
+   diário da conta inteiro e que a primeira descida já foi feita, e a
+   subida de sempre faz o resto: o que o telefone não tem vira apagado, e
+   este sobe. A trava prova, com um erro plantado.
+7. **A função usa `withSupabase({ auth: 'user' })`** do
+   `@supabase/server@1.8.0`, que confere o token e entrega o cliente
+   administrativo. A chave secreta é a que o Supabase injeta.
+   `supabase/functions` fica fora do `tsc` do aplicativo, porque é Deno.
+8. **O e-mail da pessoa** fica em `S.conta.email`, para a linha do Perfil
+   dizer de quem é a conta. Ele não sobe com o diário: a conta já o tem.
+9. **Sem biblioteca nova além da Apple** (`expo-apple-authentication`, o
+   plugin e `ios.usesAppleSignIn`).
+
 ---
 
 ## Fase 5 — o Google (build de desenvolvimento)

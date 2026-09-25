@@ -9,6 +9,7 @@ import { cadastro as cadastroPt } from './pt-BR/cadastro';
 import { ciclo as cicloPt } from './pt-BR/ciclo';
 import { companion as companionPt } from './pt-BR/companion';
 import { comum as comumPt } from './pt-BR/comum';
+import { conta as contaPt } from './pt-BR/conta';
 import { confirmacoes as confirmacoesPt } from './pt-BR/confirmacoes';
 import { conquistas as conquistasPt } from './pt-BR/conquistas';
 import { cruzamentos as cruzamentosPt } from './pt-BR/cruzamentos';
@@ -44,6 +45,7 @@ import { cadastro as cadastroEn } from './en-US/cadastro';
 import { ciclo as cicloEn } from './en-US/ciclo';
 import { companion as companionEn } from './en-US/companion';
 import { comum as comumEn } from './en-US/comum';
+import { conta as contaEn } from './en-US/conta';
 import { confirmacoes as confirmacoesEn } from './en-US/confirmacoes';
 import { conquistas as conquistasEn } from './en-US/conquistas';
 import { cruzamentos as cruzamentosEn } from './en-US/cruzamentos';
@@ -81,6 +83,7 @@ import { cadastro as cadastroEs } from './es-419/cadastro';
 import { ciclo as cicloEs } from './es-419/ciclo';
 import { companion as companionEs } from './es-419/companion';
 import { comum as comumEs } from './es-419/comum';
+import { conta as contaEs } from './es-419/conta';
 import { confirmacoes as confirmacoesEs } from './es-419/confirmacoes';
 import { conquistas as conquistasEs } from './es-419/conquistas';
 import { cruzamentos as cruzamentosEs } from './es-419/cruzamentos';
@@ -120,6 +123,7 @@ import { cadastro as cadastroFr } from './fr-FR/cadastro';
 import { ciclo as cicloFr } from './fr-FR/ciclo';
 import { companion as companionFr } from './fr-FR/companion';
 import { comum as comumFr } from './fr-FR/comum';
+import { conta as contaFr } from './fr-FR/conta';
 import { confirmacoes as confirmacoesFr } from './fr-FR/confirmacoes';
 import { conquistas as conquistasFr } from './fr-FR/conquistas';
 import { cruzamentos as cruzamentosFr } from './fr-FR/cruzamentos';
@@ -163,6 +167,7 @@ import { cadastro as cadastroDe } from './de-DE/cadastro';
 import { ciclo as cicloDe } from './de-DE/ciclo';
 import { companion as companionDe } from './de-DE/companion';
 import { comum as comumDe } from './de-DE/comum';
+import { conta as contaDe } from './de-DE/conta';
 import { confirmacoes as confirmacoesDe } from './de-DE/confirmacoes';
 import { conquistas as conquistasDe } from './de-DE/conquistas';
 import { cruzamentos as cruzamentosDe } from './de-DE/cruzamentos';
@@ -208,6 +213,7 @@ import { cadastro as cadastroIt } from './it-IT/cadastro';
 import { ciclo as cicloIt } from './it-IT/ciclo';
 import { companion as companionIt } from './it-IT/companion';
 import { comum as comumIt } from './it-IT/comum';
+import { conta as contaIt } from './it-IT/conta';
 import { confirmacoes as confirmacoesIt } from './it-IT/confirmacoes';
 import { conquistas as conquistasIt } from './it-IT/conquistas';
 import { cruzamentos as cruzamentosIt } from './it-IT/cruzamentos';
@@ -294,6 +300,8 @@ export type Textos = {
   ciclo: typeof cicloPt;
   companion: typeof companionPt;
   comum: typeof comumPt;
+  /** a conta, a entrada e a linha de estado da sincronia — ver pt-BR/conta */
+  conta: typeof contaPt;
   confirmacoes: typeof confirmacoesPt;
   conquistas: typeof conquistasPt;
   cruzamentos: typeof cruzamentosPt;
@@ -333,7 +341,7 @@ export type Textos = {
 const CATALOGOS: Record<Local, Textos> = {
   'pt-BR': {
     ajuda: ajudaPt, alertas: alertasPt, alimentacao: alimentacaoPt, assinatura: assinaturaPt, aviso: avisoPt, avisos: avisosPt,
-    cadastro: cadastroPt, ciclo: cicloPt, companion: companionPt, comum: comumPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
+    cadastro: cadastroPt, ciclo: cicloPt, companion: companionPt, comum: comumPt, conta: contaPt, confirmacoes: confirmacoesPt, conquistas: conquistasPt, cruzamentos: cruzamentosPt,
     cuidado: cuidadoPt, descobertas: descobertasPt, equilibrio: equilibrioPt, escalas: escalasPt, etapa: etapaPt,
     exames: examesPt, fontes: fontesPt, formas: formasPt, home: homePt, idioma: idiomaPt,
     leituras: leiturasPt, marcadores: marcadoresPt, medidas: medidasPt, metas: metasPt, perfil: perfilPt,
@@ -342,7 +350,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'en-US': {
     ajuda: ajudaEn, alertas: alertasEn, alimentacao: alimentacaoEn, assinatura: assinaturaEn, aviso: avisoEn, avisos: avisosEn,
-    cadastro: cadastroEn, ciclo: cicloEn, companion: companionEn, comum: comumEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
+    cadastro: cadastroEn, ciclo: cicloEn, companion: companionEn, comum: comumEn, conta: contaEn, confirmacoes: confirmacoesEn, conquistas: conquistasEn, cruzamentos: cruzamentosEn,
     cuidado: cuidadoEn, descobertas: descobertasEn, equilibrio: equilibrioEn, escalas: escalasEn, etapa: etapaEn,
     exames: examesEn, fontes: fontesEn, formas: formasEn, home: homeEn, idioma: idiomaEn,
     leituras: leiturasEn, marcadores: marcadoresEn, medidas: medidasEn, metas: metasEn, perfil: perfilEn,
@@ -351,7 +359,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'es-419': {
     ajuda: ajudaEs, alertas: alertasEs, alimentacao: alimentacaoEs, assinatura: assinaturaEs, aviso: avisoEs, avisos: avisosEs,
-    cadastro: cadastroEs, ciclo: cicloEs, companion: companionEs, comum: comumEs, confirmacoes: confirmacoesEs,
+    cadastro: cadastroEs, ciclo: cicloEs, companion: companionEs, comum: comumEs, conta: contaEs, confirmacoes: confirmacoesEs,
     conquistas: conquistasEs, cruzamentos: cruzamentosEs, cuidado: cuidadoEs, descobertas: descobertasEs, equilibrio: equilibrioEs,
     escalas: escalasEs, etapa: etapaEs, exames: examesEs, fontes: fontesEs, formas: formasEs,
     home: homeEs, idioma: idiomaEs, leituras: leiturasEs, marcadores: marcadoresEs, medidas: medidasEs,
@@ -359,7 +367,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'fr-FR': {
     ajuda: ajudaFr, alertas: alertasFr, alimentacao: alimentacaoFr, assinatura: assinaturaFr, aviso: avisoFr, avisos: avisosFr,
-    cadastro: cadastroFr, ciclo: cicloFr, companion: companionFr, comum: comumFr, confirmacoes: confirmacoesFr,
+    cadastro: cadastroFr, ciclo: cicloFr, companion: companionFr, comum: comumFr, conta: contaFr, confirmacoes: confirmacoesFr,
     conquistas: conquistasFr, cruzamentos: cruzamentosFr, cuidado: cuidadoFr, descobertas: descobertasFr, equilibrio: equilibrioFr,
     escalas: escalasFr, etapa: etapaFr, exames: examesFr, fontes: fontesFr, formas: formasFr,
     home: homeFr, idioma: idiomaFr, leituras: leiturasFr, marcadores: marcadoresFr, medidas: medidasFr,
@@ -367,7 +375,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'de-DE': {
     ajuda: ajudaDe, alertas: alertasDe, alimentacao: alimentacaoDe, assinatura: assinaturaDe, aviso: avisoDe, avisos: avisosDe,
-    cadastro: cadastroDe, ciclo: cicloDe, companion: companionDe, comum: comumDe, confirmacoes: confirmacoesDe,
+    cadastro: cadastroDe, ciclo: cicloDe, companion: companionDe, comum: comumDe, conta: contaDe, confirmacoes: confirmacoesDe,
     conquistas: conquistasDe, cruzamentos: cruzamentosDe, cuidado: cuidadoDe, descobertas: descobertasDe, equilibrio: equilibrioDe,
     escalas: escalasDe, etapa: etapaDe, exames: examesDe, fontes: fontesDe, formas: formasDe,
     home: homeDe, idioma: idiomaDe, leituras: leiturasDe, marcadores: marcadoresDe, medidas: medidasDe,
@@ -375,7 +383,7 @@ const CATALOGOS: Record<Local, Textos> = {
   },
   'it-IT': {
     ajuda: ajudaIt, alertas: alertasIt, alimentacao: alimentacaoIt, aviso: avisoIt, assinatura: assinaturaIt, avisos: avisosIt,
-    cadastro: cadastroIt, ciclo: cicloIt, companion: companionIt, comum: comumIt, confirmacoes: confirmacoesIt, conquistas: conquistasIt, cruzamentos: cruzamentosIt,
+    cadastro: cadastroIt, ciclo: cicloIt, companion: companionIt, comum: comumIt, conta: contaIt, confirmacoes: confirmacoesIt, conquistas: conquistasIt, cruzamentos: cruzamentosIt,
     cuidado: cuidadoIt, descobertas: descobertasIt, equilibrio: equilibrioIt, home: homeIt, idioma: idiomaIt,
     escalas: escalasIt, etapa: etapaIt, exames: examesIt, fontes: fontesIt, formas: formasIt,
     leituras: leiturasIt, marcadores: marcadoresIt, medidas: medidasIt, metas: metasIt, perfil: perfilIt,

@@ -30,6 +30,7 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../../ui/retratos';
+import { FaixaDaConta } from '../../ui/conta';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -681,6 +682,11 @@ export default function Home() {
             que torna o arredondamento visível (senão os cantos revelam
             o próprio fundo claro e o raio some). */}
         <View style={{ backgroundColor: c.bg, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -36, paddingTop: 32 }}>
+
+          {/* O diário que ainda não está a salvo: sem conta porque não
+              havia conexão, ou a conta apagada em outro aparelho. Ver
+              ui/conta — e ela não aparece em nenhum outro caso. */}
+          <FaixaDaConta style={{ marginHorizontal: PAD, marginBottom: 20 }} />
 
           {/* metas diarias */}
           <View style={{ paddingHorizontal: PAD }}>

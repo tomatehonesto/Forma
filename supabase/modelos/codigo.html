@@ -1,0 +1,61 @@
+<!--
+  O E-MAIL DO CÓDIGO — o modelo que o dono cola no painel do Supabase
+
+  Onde: Authentication → Emails. Ele vai em DOIS modelos, igual nos dois:
+    - "Confirm signup": o de quem está criando a conta;
+    - "Magic link": o de quem já tem conta.
+  (Com a confirmação de e-mail ligada, o servidor manda o primeiro para
+  conta nova e o segundo para conta existente — os dois pedidos de código
+  passam por um deles.)
+
+  O assunto, nos dois:
+    {{ if eq .Data.idioma "en-US" }}Your Morphi code: {{ .Token }}{{ else if eq .Data.idioma "es-419" }}Tu código de Morphi: {{ .Token }}{{ else if eq .Data.idioma "fr-FR" }}Votre code Morphi : {{ .Token }}{{ else if eq .Data.idioma "it-IT" }}Il tuo codice Morphi: {{ .Token }}{{ else if eq .Data.idioma "de-DE" }}Dein Morphi-Code: {{ .Token }}{{ else }}Seu código do Morphi: {{ .Token }}{{ end }}
+
+  ⚠️ A VALIDADE ESCRITA TEM DE BATER COM A DO PAINEL. O texto diz dez
+  minutos; o painel (Sign In / Providers → Email → "Email OTP
+  Expiration") tem de dizer 600 segundos, e o comprimento, 6. O aplicativo
+  diz o mesmo (logic/conta: DIGITOS_DO_CODIGO e VALIDADE_DO_CODIGO_MIN).
+  Mudar um é mudar os três.
+
+  ⚠️ O IDIOMA VEM DO APLICATIVO, em `options.data.idioma`, e o servidor só
+  o grava na criação da conta: quem já tem conta recebe na língua em que
+  se cadastrou. Sem idioma, o português.
+
+  ⚠️ SEM LINK. O e-mail leva só o código: um link que entra sozinho abriria
+  o navegador, e a entrada é no aplicativo.
+
+  Quem fala é o produto ("nós"), e o nome dele é Morphi.
+-->
+<div style="font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #0B1220;">
+{{ if eq .Data.idioma "en-US" }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Here is your code to sign in to Morphi:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">It’s valid for 10 minutes. Type it in the app, on the screen where you asked for it.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">If it wasn’t you, you can ignore this email — nothing changes in your account.</p>
+{{ else if eq .Data.idioma "es-419" }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Este es tu código para entrar a Morphi:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">Vale por 10 minutos. Escríbelo en la aplicación, en la pantalla donde lo pediste.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">Si no fuiste tú, puedes ignorar este correo — nada cambia en tu cuenta.</p>
+{{ else if eq .Data.idioma "fr-FR" }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Voici votre code pour vous connecter à Morphi&#8239;:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">Il est valable 10 minutes. Saisissez-le dans l’application, sur l’écran où vous l’avez demandé.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">Si ce n’était pas vous, vous pouvez ignorer cet e-mail — rien ne change dans votre compte.</p>
+{{ else if eq .Data.idioma "it-IT" }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Ecco il tuo codice per accedere a Morphi:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">Vale 10 minuti. Scrivilo nell’app, nella schermata in cui l’hai chiesto.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">Se non hai chiesto tu questo codice, puoi ignorare questa e-mail — nel tuo account non cambia niente.</p>
+{{ else if eq .Data.idioma "de-DE" }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Hier ist dein Code für die Anmeldung bei Morphi:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">Er gilt 10 Minuten. Gib ihn in der App ein, auf dem Bildschirm, auf dem du ihn angefordert hast.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">Wenn du das nicht warst, kannst du diese E-Mail ignorieren — an deinem Konto ändert sich nichts.</p>
+{{ else }}
+  <p style="font-size: 17px; line-height: 1.5; margin: 0 0 20px;">Este é o seu código para entrar no Morphi:</p>
+  <p style="font-size: 36px; letter-spacing: 8px; font-weight: 600; margin: 0 0 20px;">{{ .Token }}</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0 0 12px;">Ele vale por 10 minutos. Digite no aplicativo, na tela em que você pediu.</p>
+  <p style="font-size: 15px; line-height: 1.5; color: #4A5468; margin: 0;">Se não foi você, pode ignorar este e-mail — nada muda na sua conta.</p>
+{{ end }}
+</div>

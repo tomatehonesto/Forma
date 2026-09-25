@@ -5,11 +5,10 @@
    e esta peça leva ao servidor o que mudou e traz de lá o que mudou em
    outro aparelho. Nenhuma tela sabe que ela existe.
 
-   ⚠️ NINGUÉM A LIGA AINDA. É a fase 3 do plano
-   (docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md): o motor
-   está inteiro, com o transporte, o store e o armazenamento recebidos de
-   fora, e é assim que a trava (scripts/sincronia.ts) o prova contra um
-   servidor de mentira. A fase 4 o liga, quando existir conta.
+   O motor recebe de fora o transporte, o store e o armazenamento, e é
+   assim que a trava (scripts/sincronia.ts) o prova contra um servidor de
+   mentira. Quem o liga, com o Supabase de verdade (logic/transporte), é
+   logic/conta — atrás de `contaLigada()`.
 
    A BASE. A sincronia guarda como o servidor estava da última vez que os
    dois conversaram (`norte.sincronia.v1`): um resumo de cada linha e de
@@ -275,6 +274,8 @@ export type Sincronia = {
   voltouAoAplicativo(): void;
   /** Troca o diário: para, apaga a base, muda o estado — nessa ordem. */
   trocarDeDiario(mudar: () => void | Promise<void>): Promise<void>;
+  /** "Ficar com o deste telefone": o diário da conta sai, e este sobe no lugar. */
+  substituirNoServidor(): Promise<void>;
   estado(): EstadoDaSincronia;
   aoMudar(ouvinte: (e: EstadoDaSincronia) => void): () => void;
   /** Quanto falta subir — para a trava e para a tela. */
@@ -485,6 +486,41 @@ export function criarSincronia({ transporte, loja, guarda, fingindo, relogio = R
     mudarEstado(calcular(fim, base).total ? 'guardando' : 'guardado');
   }
 
+  /* ---------------- ficar com o deste telefone ----------------
+
+     ⚠️ OS DOIS DIÁRIOS NÃO SE MISTURAM (o plano, "Dois diários não se
+     misturam"). Quem cria a conta com um diário no telefone e entra numa
+     conta que já tem outro escolhe um. Escolher o do telefone é fazer a
+     base dizer que o servidor tem o diário da conta inteiro, e a primeira
+     descida já feita: o que o telefone não tem vira apagado, as partes do
+     perfil sobem as deste, e as linhas deste sobem todas. Nenhuma linha
+     nova no transporte — é a subida de sempre, com a base certa.
+
+     As perguntas da conta ficam (só crescem), mas não descem para a
+     janela deste diário: o cursor começa depois delas. */
+  async function substituir() {
+    const S = loja.ler();
+    const q = quem(S);
+    if (typeof q !== 'object') return;
+    const usuario = await transporte.usuario();
+    if (usuario !== q.dono) throw new FalhaDoTransporte('sessao');
+    const perfil = await transporte.baixarPerfil();
+    const registros = await transporte.baixarRegistros(null);
+    const perguntas = await transporte.baixarPerguntas(null);
+    const base = baseNova(q.dono, q.diario);
+    for (const r of registros) if (!r.apagadoEm) base.registros[r.id] = marcaDoRegistro(r);
+    base.cursor = maisRecente(null, registros.map((r) => r.atualizadoEm));
+    base.cursorPerguntas = maisRecente(null, perguntas.map((p) => p.criadoEm));
+    base.consentimento = perfil?.consentimento ?? null;
+    base.escolha = perfil?.perguntasParaUso ?? false;
+    base.iniciada = true;
+    await gravarBase(base);
+    mudarEstado('guardando');
+    await subir(base, q.dono, q.diario);
+    const fim = loja.ler();
+    if (mesmoDiario(fim, q.dono, q.diario)) mudarEstado(calcular(fim, base).total ? 'guardando' : 'guardado');
+  }
+
   async function sincronizarAgora(opcoes: { baixar?: boolean }) {
     try {
       await volta(opcoes);
@@ -554,6 +590,12 @@ export function criarSincronia({ transporte, loja, guarda, fingindo, relogio = R
       await mudar();
       parada = false;
       if (estavaRodando) api.iniciar();
+    },
+    substituirNoServidor() {
+      /* Na mesma fila das voltas: nunca ao mesmo tempo que uma delas. */
+      const esta = corrente.then(() => substituir());
+      corrente = esta.catch(() => {});
+      return esta;
     },
     estado: () => atual,
     aoMudar(ouvinte) {

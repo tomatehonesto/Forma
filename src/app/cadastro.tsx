@@ -32,6 +32,7 @@ import { useLightStatusBar } from '../ui/useLightStatusBar';
 import { radius, ty, font, shadowCard, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local } from '../logic/local';
+import { contaLigada } from '../logic/nuvem';
 import { T } from '../textos';
 
 /* ============================================================
@@ -624,7 +625,7 @@ const K = () => T.cadastro;
 
 const TITULO_ABERTURA = { fontFamily: font.body, fontSize: 38, lineHeight: 46 };
 
-function Abertura({ onComecar }: { onComecar: () => void }) {
+function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?: () => void }) {
   const aurora = useAurora();
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
@@ -723,6 +724,15 @@ function Abertura({ onComecar }: { onComecar: () => void }) {
             <Txt v="bodyMed" c="#FFFFFF">{K().comecar}</Txt>
           </LinearGradient>
         </Pressable>
+        {/* QUEM JÁ TEM CONTA NÃO RESPONDE TUDO DE NOVO: entra, e o diário
+            desce inteiro. Texto, e não um segundo botão — é a porta de
+            quem já sabe onde quer ir, e ela não pode competir com a de
+            quem está chegando. */}
+        {onJaTenho ? (
+          <Pressable onPress={onJaTenho} hitSlop={10} style={({ pressed }) => [{ alignSelf: 'center', paddingVertical: 6, opacity: pressed ? 0.6 : 1 }]}>
+            <Txt v="body" c="rgba(255,255,255,0.86)">{T.conta.jaTenho}</Txt>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -1376,7 +1386,7 @@ export default function Cadastro() {
      precisa ser apresentado ao app de novo. O quadro em branco enquanto o
      índice não chega é de um piscar; abrir a manchete da marca ali seria
      mostrar a tela errada por um instante e a certa depois. */
-  if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} />;
+  if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} onJaTenho={contaLigada() && !(S as any).conta ? () => router.push('/conta?de=abertura' as any) : undefined} />;
 
   /* ---------- o plano ----------
 
@@ -1410,7 +1420,7 @@ export default function Cadastro() {
            porque não há para onde voltar depois de salvar. Quem fecha a
            tela de planos cai no aplicativo, e quem cuida disso é o X de
            lá — ele pergunta se há história antes de tentar voltar. */
-        aoSair={() => router.replace('/planos' as any)}
+        aoSair={() => router.replace('/planos?de=cadastro' as any)}
         rotuloSair={K().verPlanos}
       />
     );

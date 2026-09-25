@@ -29,6 +29,8 @@ import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, localAtual, type Local } from '../logic/local';
+import { GrupoDaConta, BotaoDeSair } from '../ui/conta';
+import { sair } from '../logic/conta';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -505,6 +507,9 @@ export default function Perfil() {
 
           E mora no perfil porque é assunto de conta: o vínculo é quem
           presta o serviço, e um dia é quem decide a cobrança. */}
+      {/* A conta e se o diário está guardado — ver ui/conta. */}
+      <GrupoDaConta />
+
       <Grupo title={K().planoECobranca}>
         {/* ⚠️ O PLANO PRECISA DE UM LUGAR FIXO, e não só do fim do
             cadastro. Quem fecha a tela de planos naquele dia não a
@@ -780,28 +785,21 @@ export default function Perfil() {
           onboardDone volta a ser falso — e devolve a pessoa à abertura
           do cadastro, que é onde o app começa.
 
-          O QUE FOI REGISTRADO FICA. Não há conta nem servidor aqui: sair
-          é voltar para a porta, e não apagar a vida de alguém do
-          aparelho. Quem entrar de novo refaz o cadastro por cima do que
-          já existe — e apagar o histórico de tratamento de alguém por
-          causa de um toque num botão cinza seria o tipo de dano que não
-          se desfaz. */}
-      <Pressable
-        onPress={() => {
+          SEM CONTA, O QUE FOI REGISTRADO FICA: o botão se chama
+          "Refazer o cadastro" e é voltar para a porta, e não apagar a
+          vida de alguém do aparelho — apagar o histórico de tratamento
+          de alguém por causa de um toque num botão cinza seria o tipo de
+          dano que não se desfaz.
+
+          COM CONTA, É SAIR DE VERDADE: o diário sai deste telefone e
+          continua na conta, e a pergunta vem antes, com o aviso do que
+          ainda não subiu. Ver ui/conta. */}
+      <BotaoDeSair
+        refazer={() => {
           update((s: any) => { s.onboardDone = false; });
           router.replace('/cadastro' as any);
         }}
-        style={({ pressed }) => [{ marginTop: 32, opacity: pressed ? 0.75 : 1 }]}
-      >
-        <Row gap={9} style={{
-          justifyContent: 'center', backgroundColor: c.bg1,
-          borderWidth: 1, borderColor: c.line, borderRadius: radius.pill,
-          paddingVertical: 15,
-        }}>
-          <Icon name="logout" size={18} color={c.tx2} sw={1.9} />
-          <Txt v="bodyMed" c={c.tx2}>{K().sair}</Txt>
-        </Row>
-      </Pressable>
+      />
 
       {/* ⚠️ OS MODOS FINGIDOS — SÓ EM DESENVOLVIMENTO.
 
@@ -899,7 +897,9 @@ export default function Perfil() {
             onPress={() => {
               if (!resemeando) { setResemeando(true); return; }
               setResemeando(false);
-              resemear();
+              /* ⚠️ A MARIANA NUNCA SOBE: sai da conta antes, e `resemear`
+                 para a sincronia e apaga a base. A semente nasce sem dono. */
+              sair().finally(resemear);
             }}
           />
         </Cartao>
