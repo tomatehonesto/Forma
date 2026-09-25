@@ -274,6 +274,39 @@ export function assinaturaAtual(_S: State): Assinatura | null {
   return null;
 }
 
+/* ============================================================
+   O ACESSO — uma regra só, e ela é uma promessa
+
+   A folha do código diz a quem já paga pela loja: "O vínculo com a
+   clínica já garante o seu acesso ao aplicativo… e cancelar não muda nada
+   no que você já registrou." Para a frase continuar verdadeira depois que
+   a cobrança entrar, o portão que vai trancar o aplicativo (ainda não
+   existe — PENDENCIAS, itens 5 e 36) pergunta a ESTA função, e só a ela:
+
+   - com vínculo, há acesso — com a assinatura ativa, cancelada, vencida,
+     reembolsada ou sem nenhuma. A loja manda na metade dela que é da
+     loja, e nunca na do vínculo;
+   - sem vínculo, a assinatura decide: ativa dá acesso, inclusive com a
+     renovação desligada, até o fim do período pago;
+   - sem os dois, não há acesso — e "sem acesso" é a tela /suspenso, que
+     não apaga nada e deixa exportar.
+
+   ⚠️ E ELA NÃO ESCREVE NADA. Assinatura muda se a tela abre, e nunca o
+   que a pessoa registrou. A trava das duas metades da promessa é
+   scripts/acesso.ts, que roda esta regra sobre a semente e confere que os
+   registros saem idênticos de conectar, cancelar e perder o acesso.
+
+   ⚠️ O VÍNCULO VEM PRIMEIRO DE PROPÓSITO. Quem tem os dois tem acesso
+   pelo vínculo, e não pela assinatura — e é isso que torna cancelar
+   seguro: tirar a metade da loja não muda a resposta. */
+export type Acesso = { tem: true; por: 'vinculo' | 'assinatura' } | { tem: false };
+
+export function acessoDe(S: State, assinatura: Assinatura | null = assinaturaAtual(S)): Acesso {
+  if (clinicaConectada(S)) return { tem: true, por: 'vinculo' };
+  if (assinatura) return { tem: true, por: 'assinatura' };
+  return { tem: false };
+}
+
 /* ⚠️ CANCELAR E TROCAR DE PLANO É NA LOJA, E NÃO AQUI.
 
    Não é escolha de desenho: a Apple e o Google exigem que a gestão da

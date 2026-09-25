@@ -43,6 +43,11 @@ import { T } from '../textos';
    clínica informe o fim do vínculo, nem estado de "suspenso" guardado:
    esta tela existe, desenhada e pronta, e quem a liga é a integração com
    o Supabase. Ver PENDENCIAS.md.
+
+   ⚠️ QUANDO O PORTÃO EXISTIR, ELE PERGUNTA A `acessoDe` (logic/
+   assinatura), e só a ela. Com vínculo, esta tela nunca aparece — nem com
+   a assinatura da loja cancelada, que é o que a folha do código promete a
+   quem já paga.
    ============================================================ */
 
 const menorPorMes = () =>

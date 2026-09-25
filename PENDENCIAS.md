@@ -79,6 +79,11 @@ cancelamento e arrependimento de 7 dias (CDC art. 49). Nada disso está
 implementado. Descrever a mais não é violação — descrever a menos é —,
 mas o fluxo precisa existir antes de a loja cobrar alguém.
 
+**O PORTÃO PERGUNTA A `acessoDe`, E SÓ A ELA.** Quando a cobrança
+entrar e o aplicativo passar a trancar quem não paga, o vínculo com a
+clínica tem de continuar bastando sozinho — é a promessa da folha do
+código a quem já assina. Ver o item 36, e a trava `scripts/acesso.ts`.
+
 **A TELA EXISTE, A COBRANÇA NÃO.** `/planos` está desenhada e ligada em
 `src/logic/assinatura.ts`, que é a costura por onde a loja entra. Três
 coisas dela são de marcação e precisam de decisão antes da publicação:
@@ -2377,3 +2382,51 @@ nome sem artigo, e não mudam.
 **O que não muda com o artigo:** o nome entra sem verbo — "as clínicas
 usam o Morphi", e nunca "o Morphi acompanha" (ver a nota em
 `textos/pt-BR/companion.ts`). Quem fala pelo produto é "nós".
+
+---
+
+## 🟡 36. A promessa do vínculo: acesso e registros
+
+**A folha do código promete** a quem já paga pela loja e conecta uma
+clínica: "O vínculo com a clínica já garante o seu acesso ao aplicativo.
+A assinatura na {loja} continua cobrando até você cancelar por lá — e
+cancelar não muda nada no que você já registrou."
+
+**Hoje é verdade por ausência:** nada tranca o aplicativo (a cobrança não
+existe), e os registros moram só no aparelho — a loja não tem como
+encostar neles. A promessa pode quebrar no dia em que a cobrança entrar, e
+é isto que a segura:
+
+- **Uma regra só de acesso: `acessoDe`, em `logic/assinatura.ts`.** Com
+  vínculo, há acesso — com a assinatura ativa, cancelada, vencida,
+  reembolsada ou sem nenhuma. Sem vínculo, a assinatura decide. O portão
+  pergunta a ela, e só a ela; evento de loja nunca decide sozinho.
+- **Nenhum evento de assinatura escreve em registro.** Cancelar, vencer,
+  reembolsar e até perder o vínculo mudam só se a tela abre. Sem acesso é
+  a `/suspenso`, que não apaga nada e deixa exportar.
+- **A trava:** `npx tsx --tsconfig scripts/tsconfig.json scripts/acesso.ts`.
+  Ela roda a regra sobre a semente e confere as duas metades da promessa
+  — o acesso em cada combinação de vínculo e assinatura, e os registros
+  idênticos depois de conectar, recarregar, cancelar e perder o vínculo.
+  Quem mexer em cobrança roda esta sonda.
+
+**O que ainda falta para a promessa valer fora do aparelho:**
+
+1. **O vínculo só existe no aparelho.** Reinstalar ou trocar de celular
+   perde o vínculo, e o acesso some junto. Hoje a pessoa digita o código
+   de novo; com o portal, se o código for de uso único, não vai dar. O
+   vínculo tem de morar no servidor, ligado à conta — que é também o que
+   a regra 3.1.1 da Apple pede (ver MODOS.md). Depende do item 30: hoje
+   não existe conta.
+2. **A assinatura tem de ser lida no servidor** (App Store Server
+   Notifications, e as notificações em tempo real do Google Play), para o
+   portão saber de uma assinatura cancelada em outro aparelho — e para
+   cancelar pelo servidor, no Android, na hora de conectar (item 34,
+   ponto 8).
+3. **Os registros só atravessam a troca de aparelho pelo backup do
+   sistema ou pela exportação.** No iPhone, o backup do iCloud leva os
+   dados do aplicativo; no Android, o backup automático está ligado,
+   porque `android.allowBackup` não foi mexido e o padrão do Expo é
+   ligado. Sincronizar com o servidor mudaria a frase "sem vínculo, nada
+   do seu diário sai do aparelho" — é decisão de produto e de
+   privacidade, e não de código.
