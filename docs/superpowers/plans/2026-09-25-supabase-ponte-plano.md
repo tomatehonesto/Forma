@@ -1438,6 +1438,31 @@ apagar a conta, a Apple no iPhone.
     de olho nos próximos testes: sair e entrar, e o segundo aparelho.
 12. **O desenho do e-mail e das telas da conta** fica para uma rodada
     própria, pedida pelo dono depois do primeiro teste.
+13. **Os testes com o dono (25/09/2026), no iPhone e no navegador de
+    testes (`127.0.0.1`, uma segunda origem):**
+    - **sair e entrar de novo:** a mesma conta. Nada virou apagado, o
+      perfil do servidor não foi atropelado pelo vazio, e o aplicativo
+      abriu na Home;
+    - **dois aparelhos:** o navegador entrou na conta e escolheu "Ficar
+      com o da conta". Uma nota escrita no navegador chegou ao iPhone na
+      volta ao aplicativo, um copo d'água do iPhone chegou ao navegador,
+      e a nota apagada no navegador sumiu do iPhone (no banco, marcada e
+      sem conteúdo);
+    - **sair na web:** a sessão e a base saíram, e o diário da conta
+      ficou intacto;
+    - **apagar a conta**, com uma descartável (`+teste`): a função
+      respondeu, o aparelho foi limpo depois, e no banco não sobrou
+      usuário, perfil, registro nem pergunta dela. A conta do dono ficou
+      intacta.
+14. ⚠️ **A Apple não funciona no Expo Go**, ao contrário do que a
+    documentação diz. No iPhone (iOS 26.3, Expo Go do SDK 57), o módulo
+    nativo `ExpoAppleAuthentication` não existe, e `isAvailableAsync`
+    responde falso. O botão não aparece, e é o certo. **O teste da Apple
+    vai para a fase 5**, com o Google, porque os dois pedem a build de
+    desenvolvimento (item 16 das pendências). O código fica como está.
+15. ⏳ **Falta a conta apagada vista do outro aparelho** (a tela "Esta
+    conta foi apagada"). Ela pede uma conta descartável aberta em dois
+    aparelhos ao mesmo tempo, e fica para quando houver os dois.
 
 ---
 
@@ -1459,7 +1484,10 @@ depois.
      desligado. Se não, fica ligado.
 3. **O botão em `/conta`** só aparece com o módulo nativo presente.
 
-**Verificação:** no iPhone, com a build nova, entrar com Google, e a
+4. **A Apple também é verificada aqui** (ver a fase 4, correção 14): o
+   Expo Go não traz o módulo dela, e o teste pede esta mesma build.
+
+**Verificação:** no iPhone, com a build nova, entrar com a Apple e com o Google, e a
 mesma conta pelo e-mail do Google cai no mesmo usuário (a ligação
 automática por e-mail verificado). No Expo Go, o botão não aparece e nada
 quebra. Os achados vão para o item 16.

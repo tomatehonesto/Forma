@@ -92,8 +92,14 @@ export async function confirmarCodigo(email: string, codigo: string): Promise<En
 /* ============================================================
    A APPLE
 
-   Só no iOS, e só onde o sistema diz que há. O Expo Go serve: o painel do
-   `morphi-dev` aceita `host.exp.Exponent` entre os IDs.
+   Só no iOS, e só onde o sistema diz que há.
+
+   ⚠️ NÃO NO EXPO GO. A documentação diz que ele traz o módulo; no iPhone
+   (iOS 26.3, Expo Go do SDK 57) o módulo nativo não existe, e
+   `isAvailableAsync` responde falso — o botão não aparece, e é o certo.
+   A Apple, como o Google, pede a build de desenvolvimento (fase 5 do
+   plano). O painel do `morphi-dev` lista o identificador do aplicativo e
+   `host.exp.Exponent`.
 
    ⚠️ O NONCE: a Apple recebe o resumo (SHA-256 em hexadecimal) e o
    Supabase recebe o original, e confere um contra o outro. É o que impede
