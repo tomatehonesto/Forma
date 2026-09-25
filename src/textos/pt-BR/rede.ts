@@ -95,6 +95,37 @@ export const rede = {
   jaTenhoCodigo: 'Já tenho um código de convite',
 
   /* ============================================================
+     A APRESENTAÇÃO — /rede-apresentacao
+
+     O cartão da aba Cuidado a abre na primeira vez, e a vitrine nas
+     seguintes; o "Como funciona" do alto da vitrine volta a ela.
+
+     ⚠️ OS QUATRO PASSOS SÃO O CAMINHO DE VERDADE, e não um convite
+     genérico: a pessoa escolhe, marca direto com a clínica, recebe dela o
+     código, e só então a equipe entra no aplicativo. "Encontre um médico e
+     comece hoje" prometeria um vínculo que nós não criamos — quem cria é
+     a clínica, com o código (é o que `assinatura.parceiros.conviteTextoComRede`
+     diz com outras palavras).
+
+     ⚠️ E NÃO HÁ PREÇO, pelo mesmo motivo de /parceiros: a assinatura
+     ainda não existe no código.
+     ============================================================ */
+  apresentacao: {
+    tag: 'Clínicas parceiras',
+    titulo: 'Acompanhamento de perto, entre uma consulta e outra',
+    subtitulo: 'Clínicas parceiras acompanham o tratamento pelo aplicativo: a equipe conversa com você, recebe o seu resumo e cuida da receita por aqui.',
+    /* o título da seção dos passos, e também o link do alto da vitrine */
+    comoFunciona: 'Como funciona',
+    passos: [
+      { titulo: 'Você escolhe a clínica', texto: 'Pela especialidade, pelo convênio e pela distância até você.' },
+      { titulo: 'Marca a primeira consulta', texto: 'Direto com a clínica, pelo WhatsApp, pelo telefone ou pela agenda dela na internet. Esse contato não passa por nós.' },
+      { titulo: 'Recebe o código de convite', texto: 'A clínica passa o código depois da consulta, e é ele que liga o seu aplicativo à equipe.' },
+      { titulo: 'E a equipe acompanha você', texto: 'Tudo o que você já registrou continua aqui: o vínculo não recomeça nada.' },
+    ],
+    conhecer: 'Conhecer as clínicas parceiras',
+  },
+
+  /* ============================================================
      AS FOLHAS DOS FILTROS — uma por chip
      ============================================================ */
   folha: {

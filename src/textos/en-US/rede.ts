@@ -62,6 +62,20 @@ export const rede = {
 
   jaTenhoCodigo: 'I have an invite code',
 
+  apresentacao: {
+    tag: 'Partner clinics',
+    titulo: 'Care that stays close between appointments',
+    subtitulo: 'Partner clinics follow treatment through the app: the team talks with you, gets your summary and handles prescriptions right here.',
+    comoFunciona: 'How it works',
+    passos: [
+      { titulo: 'You choose the clinic', texto: 'By specialty, insurance and how far it is from you.' },
+      { titulo: 'You book the first appointment', texto: 'Directly with the clinic — on WhatsApp, by phone or through its online booking. That contact doesn’t go through us.' },
+      { titulo: 'You get the invite code', texto: 'The clinic gives it to you after the appointment, and it’s what connects your app to the team.' },
+      { titulo: 'And the team follows along', texto: 'Everything you’ve already logged stays here — the link doesn’t reset anything.' },
+    ],
+    conhecer: 'Meet the partner clinics',
+  },
+
   folha: {
     especialidade: 'Specialty',
     convenio: 'Insurance',

@@ -572,6 +572,10 @@ export function buildSeed() {
        isso" do aplicativo: mapa por id, lido com `?? {}`, escrito
        preguiçosamente. Ver src/logic/descobertas.ts. */
     descobertasVistas: {} as Record<string, { em: number; vezes: number }>,
+    /* A apresentação da rede parceira, que o cartão da aba Cuidado abre só
+       na primeira vez — mesmo formato, e o valor é quando ela foi vista.
+       Ver `viuApresentacaoDaRede`, em logic/rede. */
+    apresentacoesVistas: {} as Record<string, number>,
     /* O `kind` é chave — 'exame' ou 'resumo' —, e o rótulo sai de
        `tipoDoDocumento` na hora de mostrar. */
     documents: P.documentos.map((d) => ({ t: +daysAgo(d.dias), name: d.nome, kind: d.tipo })),
@@ -953,6 +957,9 @@ export function ensureDefaults(S: any) {
   /* Aditivo, e o `heroSeen` some de quem já o tinha: ele nunca guardou
      nada que alguém lesse, então não há registro para perder. */
   if (!S.descobertasVistas) S.descobertasVistas = {};
+  /* Aditivo também: quem já usava o aplicativo vê a apresentação da rede
+     na primeira vez que tocar no cartão, como quem chega agora. */
+  if (!S.apresentacoesVistas) S.apresentacoesVistas = {};
   /* Aditivo: quem não anotou nada continua sem meta clínica, e null é a
      resposta certa para "a sua equipe ainda não definiu um número aqui". */
   if (S.protocol && !(S.protocol as any).metas) (S.protocol as any).metas = {};

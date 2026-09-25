@@ -63,6 +63,20 @@ export const rede = {
 
   jaTenhoCodigo: 'Ya tengo un código de invitación',
 
+  apresentacao: {
+    tag: 'Clínicas asociadas',
+    titulo: 'Seguimiento cercano, entre una consulta y otra',
+    subtitulo: 'Las clínicas asociadas acompañan el tratamiento con la aplicación: el equipo conversa contigo, recibe tu resumen y se ocupa de la receta desde aquí.',
+    comoFunciona: 'Cómo funciona',
+    passos: [
+      { titulo: 'Eliges la clínica', texto: 'Por especialidad, seguro médico y distancia.' },
+      { titulo: 'Agendas la primera consulta', texto: 'Directo con la clínica, por WhatsApp, por teléfono o en su agenda en línea. Ese contacto no pasa por nosotros.' },
+      { titulo: 'Recibes el código de invitación', texto: 'La clínica te lo da después de la consulta, y es lo que conecta tu aplicación con el equipo.' },
+      { titulo: 'Y el equipo te acompaña', texto: 'Todo lo que ya registraste sigue aquí: el vínculo no reinicia nada.' },
+    ],
+    conhecer: 'Conocer las clínicas asociadas',
+  },
+
   folha: {
     especialidade: 'Especialidad',
     convenio: 'Seguro médico',

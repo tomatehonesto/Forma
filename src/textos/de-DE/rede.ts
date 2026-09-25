@@ -62,6 +62,20 @@ export const rede = {
 
   jaTenhoCodigo: 'Ich habe einen Einladungscode',
 
+  apresentacao: {
+    tag: 'Partnerpraxen',
+    titulo: 'Enge Begleitung — auch zwischen den Terminen',
+    subtitulo: 'Partnerpraxen begleiten die Behandlung mit der App: Das Team schreibt dir, bekommt deine Übersicht und kümmert sich hier um das Rezept.',
+    comoFunciona: 'So funktioniert’s',
+    passos: [
+      { titulo: 'Du wählst die Praxis', texto: 'Nach Fachgebiet, Versicherung und Entfernung.' },
+      { titulo: 'Du vereinbarst den ersten Termin', texto: 'Direkt mit der Praxis — per WhatsApp, telefonisch oder über ihre Online-Buchung. Dieser Kontakt läuft nicht über uns.' },
+      { titulo: 'Du bekommst den Einladungscode', texto: 'Die Praxis gibt ihn dir nach dem Termin, und er verbindet deine App mit dem Team.' },
+      { titulo: 'Und das Team begleitet dich', texto: 'Alles, was du schon eingetragen hast, bleibt hier — die Verbindung setzt nichts zurück.' },
+    ],
+    conhecer: 'Partnerpraxen kennenlernen',
+  },
+
   folha: {
     especialidade: 'Fachgebiet',
     convenio: 'Versicherung',

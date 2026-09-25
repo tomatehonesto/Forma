@@ -43,6 +43,20 @@ exercicio-hero.jpg — o topo da tela de Exercício
   quem é o corpo.
 
 
+A APRESENTAÇÃO DA REDE — rede-hero.jpg
+
+⚠️ ELA AINDA NÃO ESTÁ LISTADA, porque a origem não foi conferida. É o
+topo de /rede-apresentacao: um médico de jaleco azul conversando com a
+paciente. Veio do time em 24/09/2026 num arquivo de 6720 × 4480 e 14 MB
+("happy-doctor-holding-medical-paperwork-while-communicating-with-
+patient-medical-appointment-hospital.jpg"), e o pacote leva só uma cópia
+reduzida, de 1800 × 1200. Nos metadados há o título ("Smiling male
+doctor talking to his patient while going through medical reports at
+his office.") e nada de autor ou licença. O nome tem o formato de banco
+de imagem, e banco de imagem pode pedir crédito ou licença paga: falta
+anotar autor, licença e origem, como nas outras. Ver PENDENCIAS, item 34.
+
+
 AS CLÍNICAS DE EXEMPLO — clinicas/
 
 As sete fotos abaixo ilustram as clínicas INVENTADAS da vitrine da rede,

@@ -63,6 +63,20 @@ export const rede = {
 
   jaTenhoCodigo: 'J’ai un code d’invitation',
 
+  apresentacao: {
+    tag: 'Cliniques partenaires',
+    titulo: 'Un suivi de près, entre deux consultations',
+    subtitulo: 'Les cliniques partenaires suivent le traitement avec l’application — l’équipe échange avec vous, reçoit votre résumé et s’occupe de l’ordonnance, ici même.',
+    comoFunciona: 'Comment ça marche',
+    passos: [
+      { titulo: 'Vous choisissez la clinique', texto: 'Par spécialité, assurance et distance.' },
+      { titulo: 'Vous prenez le premier rendez-vous', texto: 'Directement avec la clinique, sur WhatsApp, par téléphone ou via son agenda en ligne. Ce contact ne passe pas par nous.' },
+      { titulo: 'Vous recevez le code d’invitation', texto: 'La clinique vous le remet après la consultation, et c’est lui qui relie votre application à l’équipe.' },
+      { titulo: 'Et l’équipe vous accompagne', texto: 'Tout ce que vous avez déjà enregistré reste ici — le lien ne remet rien à zéro.' },
+    ],
+    conhecer: 'Découvrir les cliniques partenaires',
+  },
+
   folha: {
     especialidade: 'Spécialité',
     convenio: 'Assurance',

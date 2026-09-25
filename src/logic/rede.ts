@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { temRedeParceira } from './pais';
 import { distanciaKm, type Ponto } from './localizacao';
 import { sistemaDe } from './medidas';
-import { WD, hm, nf, maiuscula } from './time';
+import { WD, hm, nf, maiuscula, now } from './time';
 import type { FichaDaClinica, FichaDaEquipe } from './derive';
 import { T } from '../textos';
 
@@ -103,7 +103,8 @@ const FONTE: Fonte | null = __DEV__ ? async () => EXEMPLO : null;
 /** Se a vitrine tem de onde ler. Sem isso, a porta dela não aparece. */
 export const redeNoAr = () => temRedeParceira() && FONTE !== null;
 
-/** Se o que está na tela é a lista inventada. Nesse caso nenhum contato abre. */
+/** Se o que está na tela é a lista inventada. Nesse caso a vitrine avisa, e
+    os contatos abrem sem chegar a ninguém. */
 export const redeDeExemplo = () => __DEV__ && FONTE !== null;
 
 /* A última lista lida, para /clinica abrir sem esperar a rede de novo. */
@@ -119,6 +120,24 @@ export async function clinicaDaRede(id: string): Promise<Clinica | null> {
   const lista = ultima ?? (await carregarRede());
   return lista.find((c) => c.id === id) ?? null;
 }
+
+/* ============================================================
+   A APRESENTAÇÃO — só na primeira vez
+
+   O cartão da aba Cuidado abre /rede-apresentacao enquanto ela não foi
+   vista, e a vitrine depois disso. O formato é o dos outros "já mostrei
+   isso" do aplicativo (`vistoEmConquistas`, `descobertasVistas`): mapa
+   por id, lido com `?? {}`, escrito preguiçosamente — e o valor é quando
+   ela foi vista pela primeira vez.
+   ============================================================ */
+type ComApresentacoes = { apresentacoesVistas?: Record<string, number> };
+
+export const viuApresentacaoDaRede = (S: ComApresentacoes) => !!S.apresentacoesVistas?.rede;
+
+export const marcarApresentacaoDaRede = (S: ComApresentacoes) => {
+  const m = S.apresentacoesVistas ?? (S.apresentacoesVistas = {});
+  if (!m.rede) m.rede = +now();
+};
 
 /* ============================================================
    OS FILTROS — valem enquanto o aplicativo está aberto

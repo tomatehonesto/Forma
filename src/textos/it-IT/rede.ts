@@ -63,6 +63,20 @@ export const rede = {
 
   jaTenhoCodigo: 'Ho un codice di invito',
 
+  apresentacao: {
+    tag: 'Centri partner',
+    titulo: 'Un team vicino a te, tra una visita e l’altra',
+    subtitulo: 'I centri partner seguono la terapia con l’app: il team ti scrive, riceve il tuo riepilogo e si occupa della ricetta da qui.',
+    comoFunciona: 'Come funziona',
+    passos: [
+      { titulo: 'Scegli il centro', texto: 'Per specialità, assicurazione e distanza.' },
+      { titulo: 'Prenoti la prima visita', texto: 'Direttamente con il centro, su WhatsApp, per telefono o con la sua agenda online. Quel contatto non passa da noi.' },
+      { titulo: 'Ricevi il codice di invito', texto: 'Il centro te lo dà dopo la visita, ed è quello che collega la tua app al team.' },
+      { titulo: 'E il team ti segue', texto: 'Tutto quello che hai già registrato resta qui: il legame non azzera niente.' },
+    ],
+    conhecer: 'Scopri i centri partner',
+  },
+
   folha: {
     especialidade: 'Specialità',
     convenio: 'Assicurazione',

@@ -2210,8 +2210,9 @@ com ela que o vínculo acontece e é ela que passa o código de convite.
 - `/rede` — a vitrine, com a névoa da paleta no alto (`ui/nevoa`), a
   busca por clínica, médico ou especialidade, e os chips Perto de mim,
   Especialidade, Convênio, Modalidade, Dia e Cidade. Cada cartão tem o
-  rosto de quem responde pela clínica, o bairro com a distância e os
-  convênios em etiquetas; o CRM fica na clínica, ao lado de cada nome.
+  rosto de quem responde pela clínica, o bairro com a distância, "Aceita
+  convênios" em azul e a semana em iniciais; o CRM fica na clínica, ao
+  lado de cada nome.
 - `/rede-filtros?qual=` — a folha de cada chip, com quantas clínicas
   sobram em cada resposta.
 - `/clinica?rede=<id>` — a MESMA tela de quem tem vínculo, na versão
@@ -2220,6 +2221,12 @@ com ela que o vínculo acontece e é ela que passa o código de convite.
 - O cartão da aba Cuidado — etiqueta, "Tenha o acompanhamento de
   especialistas", os rostos dos mais próximos (só quando a pessoa já deu
   a localização antes; a aba nunca pede) e "Ver clínicas".
+- `/rede-apresentacao` — a apresentação, que o cartão da aba Cuidado
+  abre na primeira vez (`apresentacoesVistas`, no estado): a foto, o que
+  é a rede, os quatro passos — escolher, marcar direto com a clínica,
+  receber dela o código, a equipe entrar — e "Conhecer as clínicas
+  parceiras". Depois de vista, o cartão vai direto à vitrine, que tem
+  "Como funciona" no alto para voltar a ela.
 
 As clínicas virão de um **portal próprio** (Admin/CMS), onde cada uma é
 cadastrada e mantém a própria ficha. O contato é direto com a clínica, e o
@@ -2242,7 +2249,8 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    nome, mas o CARTÃO não mostra — foi pedido assim, e é pergunta para o
    advogado se o cartão conta como anúncio. Quem entra na lista, com que
    critério, e o que a clínica pode escrever no "Sobre" também. A ordem é
-   distância ou nome, sem nota e sem "destaque".
+   distância ou nome, sem nota e sem "destaque". E a apresentação junto:
+   a foto do alto é de um médico que não é da rede.
 3. **A Política de Privacidade ganha uma linha.** Ler o catálogo é uma
    chamada de rede nova. A localização não vai junto: a distância é
    calculada no aparelho (`logic/localizacao.ts`), e é isso que o texto
@@ -2254,6 +2262,10 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    fechada.
 5. **As fotos vêm do portal, com o consentimento de quem aparece.** Sem
    retrato, o cartão mostra a foto da clínica; sem nenhuma, as iniciais.
+6. **A licença da foto da apresentação.** A `rede-hero.jpg` veio do
+   time, e a origem não foi conferida: nos metadados há só o título, sem
+   autor nem licença, e o nome do arquivo tem o formato de banco de
+   imagem. Ver `assets/images/CREDITOS.txt`.
 
 ⚠️ **E OS RETRATOS DA SEMENTE PRECISAM SAIR ANTES DA LOJA.** Os quatro de
 `assets/images/equipe/` não estão em `CREDITOS.txt` — a origem nunca foi

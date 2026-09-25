@@ -109,6 +109,18 @@ export default function Rede() {
         <View style={{ paddingTop: topo, paddingHorizontal: PAD + 2 }}>
           <Txt v="hero" style={{ letterSpacing: -1 }}>{K().titulo}</Txt>
           <Txt v="note" c={c.tx2} style={{ marginTop: 10 }}>{K().lead}</Txt>
+          {/* A volta à apresentação, que o cartão da aba Cuidado mostra uma
+              vez só. Daqui ela abre por cima, e o botão dela volta para cá. */}
+          <Pressable
+            onPress={() => router.push('/rede-apresentacao?de=rede' as any)}
+            hitSlop={8}
+            style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 12, opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Row gap={6}>
+              <Icon name="info" size={15} color={c.accent2} sw={2} />
+              <Txt v="label" c={c.accent2}>{K().apresentacao.comoFunciona}</Txt>
+            </Row>
+          </Pressable>
         </View>
 
         <View style={{ paddingHorizontal: PAD, marginTop: 26, gap: 14 }}>

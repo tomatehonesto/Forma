@@ -18,7 +18,7 @@ import { Selo } from '../../ui/internas';
 import { Icon } from '../../ui/Icon';
 import { temRedeParceira } from '../../logic/pais';
 import {
-  redeNoAr, carregarRede, buscar, profissionaisDaRede, SEM_FILTRO,
+  redeNoAr, carregarRede, buscar, profissionaisDaRede, SEM_FILTRO, viuApresentacaoDaRede,
   type Clinica as ClinicaDaRede, type Profissional as ProfissionalDaRede,
 } from '../../logic/rede';
 import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
@@ -972,6 +972,14 @@ function Parceiros() {
 
   if (!temRedeParceira() || temAcompanhamento(S)) return null;
 
+  /* ⚠️ NA PRIMEIRA VEZ, A APRESENTAÇÃO, e não a vitrine. Quem nunca ouviu
+     falar da rede cairia numa lista de clínicas sem saber o que acontece
+     depois de escolher uma — e o que acontece (marcar direto com a
+     clínica, receber dela o código) é justamente o que não está na lista.
+     Depois de vista, o cartão leva direto à vitrine, que tem "Como
+     funciona" no alto para quem quiser rever. */
+  const abrirRede = () => router.push((viuApresentacaoDaRede(S) ? '/rede' : '/rede-apresentacao') as any);
+
   return (
     <View style={{ marginTop: 36 }}>
       <SectionHead title={K().acompanhamentoProfissional} />
@@ -982,10 +990,10 @@ function Parceiros() {
           fica o cartão de antes, que leva à tela do código de convite: é o
           único caminho que existe enquanto não há lista. */}
       {noAr && rede?.length ? (
-        <CartaoDaRede rede={rede} ponto={ponto} onPress={() => router.push('/rede' as any)} />
+        <CartaoDaRede rede={rede} ponto={ponto} onPress={abrirRede} />
       ) : (
         <Pressable
-          onPress={() => router.push((noAr ? '/rede' : '/parceiros') as any)}
+          onPress={noAr ? abrirRede : () => router.push('/parceiros' as any)}
           style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
         >
           <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
