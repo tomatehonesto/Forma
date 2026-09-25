@@ -316,6 +316,21 @@ ok(zerado.materials.length === 0 && Object.keys(zerado.profile.clinicInfo).lengt
   'nem os materiais nem a ficha da clínica de exemplo');
 ok(estadoVazio().diario !== estadoVazio().diario && buildSeed().diario !== buildSeed().diario,
   'cada estado vazio, e cada semente, é um diário novo');
+{
+  /* um diário cadastrado antes da correção: o estado vazio de então
+     trazia os sinais vitais da Mariana */
+  const antigo: any = clone(ensureDefaults(comNotificacoesDeExemplo(buildSeed())));
+  antigo.semente = false;
+  delete antigo.vitaisHerdadosLimpos;
+  const medicoes = Object.values(antigo.vitals).reduce((n: number, l: any) => n + l.length, 0);
+  ensureDefaults(antigo);
+  const limpo = Object.values(antigo.vitals).every((l: any) => l.length === 0) && antigo.vitaisHerdadosLimpos === true;
+  antigo.vitals.pa.push({ t: Date.now(), sys: 120, dia: 80 });
+  ensureDefaults(antigo);
+  const exemplo: any = ensureDefaults(buildSeed());
+  ok(medicoes > 0 && limpo && antigo.vitals.pa.length === 1 && exemplo.vitals.pa.length > 0,
+    'o diário que já existia perde, uma vez só, os sinais vitais herdados da semente — e a semente continua com os dela');
+}
 
 
 console.log('\nA TRADUÇÃO — todo campo tem destino');

@@ -1412,6 +1412,32 @@ apagar a conta, a Apple no iPhone.
    dizer de quem é a conta. Ele não sobe com o diário: a conta já o tem.
 9. **Sem biblioteca nova além da Apple** (`expo-apple-authentication`, o
    plugin e `ios.usesAppleSignIn`).
+10. **A primeira entrada de verdade (25/09/2026)** foi feita no iPhone,
+    pelo Expo Go, com o e-mail pelo Resend (`no-reply@morphihealth.com`,
+    que caiu no spam — domínio novo). O diário subiu:
+    - as seis partes do perfil;
+    - o consentimento, com a hora do servidor;
+    - os registros.
+
+    Os registros entregaram um defeito: **dez sinais vitais da Mariana**
+    subiram. O diário do telefone foi cadastrado antes da correção da
+    fase 3, e ela só valia para diário novo.
+    - `ensureDefaults` agora limpa, uma vez só em cada diário que não é a
+      semente, os sinais vitais herdados, pela marca `vitaisHerdadosLimpos`
+      (que fica no aparelho). Nada no aplicativo escreve um sinal vital,
+      então todos vieram da semente.
+    - A limpeza subiu como apagado: no banco ficaram os dez marcados, sem
+      conteúdo.
+    - Dois erros plantados provam a regra. O reset explícito dos sinais
+      em `estadoVazio` virou uma segunda proteção, e o erro plantado nele
+      deixou de ser pego; ele saiu da lista.
+11. ⚠️ **A primeira tentativa não gravou o dono**, e não se sabe por quê:
+    a conta foi criada no servidor, e o diário do iPhone continuou sem
+    `S.conta`. Na segunda, com sondas em cada passo, o caminho inteiro
+    funcionou (o código, a conta vazia, o dono gravado, "guardado"). Fica
+    de olho nos próximos testes: sair e entrar, e o segundo aparelho.
+12. **O desenho do e-mail e das telas da conta** fica para uma rodada
+    própria, pedida pelo dono depois do primeiro teste.
 
 ---
 

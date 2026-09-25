@@ -1286,6 +1286,21 @@ export function ensureDefaults(S: any) {
   if (typeof S.diario !== 'string' || !S.diario) S.diario = novoRid();
   /* Quem gravou antes da escolha existir não escolheu: fica desligada. */
   if (typeof S.perguntasParaUso !== 'boolean') S.perguntasParaUso = false;
+  /* ⚠️ OS SINAIS VITAIS QUE O ESTADO VAZIO HERDAVA, NOS DIÁRIOS QUE JÁ
+     EXISTIAM. Até a fase 3 do plano do Supabase, `estadoVazio` deixava os
+     da Mariana no diário de quem se cadastrava — e a correção lá só vale
+     para diário novo. Nada no aplicativo escreve um sinal vital (ver
+     app/saude), então num diário que não é a semente todo sinal vital
+     veio dela: sai, uma vez só. Com a sincronia ligada, a saída sobe como
+     apagada, e limpa também a conta.
+
+     ⚠️ UMA VEZ SÓ, pela marca, e não "sempre que não for a semente": no
+     dia em que um aparelho conectado escrever pressão, esta linha não pode
+     apagar a medição de verdade. */
+  if (!S.semente && S.vitaisHerdadosLimpos !== true) {
+    S.vitals = { pa: [], fc: [], glic: [], spo2: [], fr: [] };
+    S.vitaisHerdadosLimpos = true;
+  }
   /* A identidade de cada item do diário — por último, porque algumas
      migrações acima criam itens. Ver logic/identidade. */
   carimbar(S);

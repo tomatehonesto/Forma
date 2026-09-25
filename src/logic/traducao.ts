@@ -116,6 +116,9 @@ export const DESTINO_NO_ESTADO: Record<string, Destino> = {
   semente: 'aparelho',
   conta: 'aparelho',
   diario: 'aparelho',
+  /* a limpeza dos sinais vitais herdados da semente, feita uma vez em cada
+     diário (ver `ensureDefaults`) */
+  vitaisHerdadosLimpos: 'aparelho',
 };
 
 export const DESTINO_NO_PERFIL: Record<string, Destino> = {
