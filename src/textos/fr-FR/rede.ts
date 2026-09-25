@@ -47,6 +47,7 @@ export const rede = {
   particular: 'Paiement direct',
   aceita: (convenio: string) => `Accepte ${convenio}`,
   soParticular: 'Paiement direct uniquement',
+  atendeHoje: 'Aujourd’hui',
   maisConvenios: (n: number) => `+${n}`,
   /* « du lun. au ven. » */
   deAte: (de: string, ate: string) => `du ${de} au ${ate}`,

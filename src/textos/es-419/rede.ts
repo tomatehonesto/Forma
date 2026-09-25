@@ -48,6 +48,7 @@ export const rede = {
   particular: 'Pago particular',
   aceita: (convenio: string) => `Acepta ${convenio}`,
   soParticular: 'Solo pago particular',
+  atendeHoje: 'Atiende hoy',
   maisConvenios: (n: number) => `+${n}`,
   deAte: (de: string, ate: string) => `${de} a ${ate}`,
   faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,

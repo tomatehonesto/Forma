@@ -47,6 +47,7 @@ export const rede = {
   particular: 'Privato',
   aceita: (convenio: string) => `Accetta ${convenio}`,
   soParticular: 'Solo privato',
+  atendeHoje: 'Riceve oggi',
   maisConvenios: (n: number) => `+${n}`,
   /* "da lun a ven" */
   deAte: (de: string, ate: string) => `da ${de} a ${ate}`,

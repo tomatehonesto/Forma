@@ -164,6 +164,17 @@ export const useVitrine = create<Vitrine>((set) => ({
 
 /* A semana começa na segunda para quem marca consulta. */
 const ORDEM: Dia[] = [1, 2, 3, 4, 5, 6, 0];
+/** A semana na ordem da vitrine — a fileira de dias do cartão usa a mesma. */
+export const SEMANA_DE_CONSULTA: readonly Dia[] = ORDEM;
+
+/** Se a clínica ainda atende hoje: é dia de atendimento, e o horário não
+    acabou. Às oito da noite, quem fecha às cinco não "atende hoje" para
+    ninguém que esteja procurando agora. */
+export function atendeHoje(c: Clinica, agora = new Date()) {
+  if (!c.dias.includes(agora.getDay() as Dia)) return false;
+  const [h, m] = c.fecha.split(':').map(Number);
+  return agora.getHours() * 60 + agora.getMinutes() < h * 60 + (m || 0);
+}
 
 const sem = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 

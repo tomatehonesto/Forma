@@ -6,9 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
   carregarRede, buscar, useVitrine, redeDeExemplo, cidadesDaRede, nomeDaEspecialidade,
-  especialidadesDaClinica, responsavelDe, ondeTxt,
+  especialidadesDaClinica, responsavelDe, ondeTxt, atendeHoje, horarioTxt, SEMANA_DE_CONSULTA,
   type Clinica, type Resultado, type Filtro,
 } from '../logic/rede';
+import { inicialDoDia } from '../logic/alertas';
 import { localizacaoDisponivel, pedirLocalizacao } from '../logic/localizacao';
 import { WD, maiuscula } from '../logic/time';
 import { Txt, Row, Vazio, Rolagem } from '../ui/kit';
@@ -18,7 +19,7 @@ import { Nevoa } from '../ui/nevoa';
 import { Icon } from '../ui/Icon';
 import { fotoDaRede, focoDaRede, imagensDaRede, iniciaisDaClinica } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
-import { ty, radius } from '../theme';
+import { ty, radius, font } from '../theme';
 import { T } from '../textos';
 
 const K = () => T.rede;
@@ -236,8 +237,10 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
 
    ⚠️ E A IMAGEM OCUPA A ALTURA TODA, encostada na borda. Era um quadrado
    de 72 dentro do respiro do cartão, e cada linha a mais de texto deixava
-   um vão embaixo dele; agora a imagem é a coluna da esquerda e cresce com
-   o cartão, e o corte do canto é o do próprio cartão.
+   um vão embaixo dele; agora a imagem é a coluna da esquerda, com 128 de
+   largura, e cresce com o cartão. Os cantos da esquerda são os do cartão,
+   e os da direita têm o mesmo raio — a imagem lê como uma peça, e não
+   como uma faixa cortada.
 
    ⚠️ O REGISTRO NO CONSELHO NÃO ESTÁ AQUI, e está em /clinica, ao lado
    do nome de cada pessoa da equipe. O cartão responde se vale abrir; a
@@ -251,7 +254,18 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
 
    A teleconsulta não está no cartão: ela é filtro (Modalidade) e está na
    clínica, ao lado do horário.
+
+   ⚠️ A COR DO CARTÃO É A AGENDA. Os sete dias em inicial, com os de
+   atendimento em azul — a semana inteira num olhar, sem uma frase —, e
+   "Atende hoje" em verde sobre a foto, quando hoje é dia e o horário
+   ainda não acabou. As duas cores dizem uma coisa cada; nenhuma é enfeite.
 ------------------------------------------------------------------ */
+/* ⚠️ TODOS OS CARTÕES TÊM A MESMA ALTURA, e é isso que faz a lista ler
+   como lista. Para caber, cada linha do texto é UMA linha: o nome e os
+   convênios cortam com reticências, e os convênios contam o resto em
+   "+N". Quem quer o nome inteiro ou a lista inteira abre a clínica. */
+const ALTURA_DO_CARTAO = 158;
+
 function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: string; onPress: () => void }) {
   const S = useStore((s) => s.S);
   const { c, isDark } = useTheme();
@@ -266,12 +280,20 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
     : cl.convenios.length
       ? resumoDosConvenios([...cl.convenios, ...(cl.particular ? [K().particular] : [])])
       : cl.particular ? K().soParticular : '';
+  const hoje = atendeHoje(cl);
+  /* A etiqueta mora sobre a foto, então precisa ser legível sobre
+     qualquer uma: verde claro com texto escuro no modo claro, verde cheio
+     com o texto na cor do fundo no escuro. */
+  const [fundoHoje, tintaHoje] = isDark ? [c.ok, c.bg] : [c.okBg, c.ok];
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
       <Cartao>
-        <Row style={{ alignItems: 'stretch', minHeight: 116 }}>
-          <View style={{ width: 104, backgroundColor: c.bg2, overflow: 'hidden' }}>
+        <Row style={{ alignItems: 'stretch', height: ALTURA_DO_CARTAO }}>
+          <View style={{
+            width: 128, backgroundColor: c.bg2, overflow: 'hidden',
+            borderTopRightRadius: radius.card, borderBottomRightRadius: radius.card,
+          }}>
             {foto ? (
               <Image
                 source={foto}
@@ -285,13 +307,51 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
                 <Txt v="h2" c={isDark ? c.onHero : c.accent2}>{iniciaisDaClinica(cl.nome)}</Txt>
               </View>
             )}
+            {hoje ? (
+              <View style={{
+                position: 'absolute', left: 8, bottom: 8, maxWidth: 112,
+                flexDirection: 'row', alignItems: 'center', gap: 5,
+                backgroundColor: fundoHoje, borderRadius: radius.pill,
+                paddingLeft: 7, paddingRight: 9, paddingVertical: 3,
+              }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tintaHoje }} />
+                <Txt v="micro" c={tintaHoje} numberOfLines={1} style={{ fontFamily: font.bodyMed, flexShrink: 1 }}>
+                  {K().atendeHoje}
+                </Txt>
+              </View>
+            ) : null}
           </View>
           <View style={{ flex: 1, paddingVertical: 14, paddingLeft: 14, paddingRight: 6, justifyContent: 'center' }}>
-            <Txt v="bodyMed" numberOfLines={2}>{cl.nome}</Txt>
+            <Txt v="bodyMed" numberOfLines={1}>{cl.nome}</Txt>
             <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
             <View style={{ marginTop: 8, gap: 3 }}>
               <Meta ic="pin" texto={ondeTxt(S, r)} />
               {convenios ? <Meta ic="shield" texto={convenios} destaque={!!pedido} /> : null}
+            </View>
+            {/* A semana em iniciais. Quem usa leitor de tela ouve os dias
+                e o horário por extenso, e não sete letras soltas. */}
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 10 }}
+              accessible
+              accessibilityLabel={horarioTxt(cl)}
+            >
+              {SEMANA_DE_CONSULTA.map((d) => {
+                const atende = cl.dias.includes(d);
+                return (
+                  <View
+                    key={d}
+                    style={{
+                      width: 20, height: 20, borderRadius: 6,
+                      alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: atende ? c.accentWeak : 'transparent',
+                    }}
+                  >
+                    <Txt v="micro" c={atende ? c.accent : c.tx4} style={{ fontFamily: atende ? font.bodyMed : font.body }}>
+                      {inicialDoDia(d)}
+                    </Txt>
+                  </View>
+                );
+              })}
             </View>
           </View>
           <View style={{ justifyContent: 'center', paddingRight: 14 }}>
@@ -303,15 +363,15 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
   );
 }
 
-/* "Bradesco Saúde, SulAmérica, Unimed +1": os nomes que cabem nas duas
-   linhas do cartão, e quantos ficaram de fora. A lista inteira está na
+/* "Bradesco Saúde +3": os nomes que cabem na linha do cartão, e quantos
+   ficaram de fora. A lista inteira está na
    clínica, em chips.
 
    ⚠️ CABER É CONTA DE LETRAS, e não de pixels. Medir o texto desenhado
-   pediria desenhar duas vezes; a coluna do cartão leva cerca de 20 letras
-   por linha no corpo da legenda, e 40 é o que cabe em duas com folga para
-   o "+N". Um nome sempre entra, por maior que seja. */
-const CABE = 40;
+   pediria desenhar duas vezes; a coluna do cartão leva cerca de 21 letras
+   por linha no corpo da legenda, e a linha é uma só — a altura do cartão
+   é a mesma para todos. Um nome sempre entra, por maior que seja. */
+const CABE = 21;
 function resumoDosConvenios(nomes: string[]) {
   const vistos: string[] = [];
   for (const nome of nomes) {
@@ -334,7 +394,7 @@ function Meta({ ic, texto, destaque }: { ic: string; texto: string; destaque?: b
       <View style={{ marginTop: 3 }}>
         <Icon name={ic} size={13} color={destaque ? c.accent : c.tx4} sw={1.9} />
       </View>
-      <Txt v="caption" c={destaque ? c.accent2 : c.tx3} numberOfLines={2} style={{ flex: 1 }}>{texto}</Txt>
+      <Txt v="caption" c={destaque ? c.accent2 : c.tx3} numberOfLines={1} style={{ flex: 1 }}>{texto}</Txt>
     </Row>
   );
 }
