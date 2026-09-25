@@ -129,12 +129,11 @@ export const cuidado = {
      contactos es la pantalla prometiendo un canal que no existe. Y el
      orden es del canal más rápido al más formal. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Hablar con la clínica',
-    telefone: 'Teléfono',
-    site: 'Sitio web',
-    email: 'Correo',
-    instagram: 'Instagram',
+    whatsapp: 'Escribir por WhatsApp',
+    telefone: 'Llamar',
+    site: 'Visitar el sitio web',
+    email: 'Enviar un correo',
+    instagram: 'Ver en Instagram',
     agenda: 'Agendar en línea',
   },
 
@@ -148,7 +147,7 @@ export const cuidado = {
     outrosCanaisNota: 'Para hablar con la recepción. Lo que es del tratamiento va mejor en la conversación de la aplicación, que llega a todo el equipo.',
     entreEmContato: 'Contacto',
     entreEmContatoNota: 'Habla con la clínica para saber cómo empezar el seguimiento.',
-    contatosDeExemplo: 'Contactos de ejemplo — no abren nada.',
+    contatosDeExemplo: 'Contactos de ejemplo — abren la aplicación correcta, pero no llegan a nadie.',
     comoChegar: 'Cómo llegar',
     quemAcompanha: 'Quién te acompaña',
     quemAtende: 'Quién atiende',

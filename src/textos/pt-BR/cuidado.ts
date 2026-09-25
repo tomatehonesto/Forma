@@ -169,13 +169,16 @@ export const cuidado = {
   /* ⚠️ CADA LINHA SÓ EXISTE COM O DADO DELA. "Telefone —" numa lista de
      contatos é a tela prometendo um canal que não existe. E a ordem é a
      do canal mais rápido para o mais formal. */
+  /* ⚠️ OS CANAIS SÃO AÇÕES, E NÃO NOMES. "Telefone" em cima de um número
+     é um campo de cadastro; "Ligar" em cima do mesmo número diz o que o
+     toque faz — e o toque sai do aplicativo, para o discador, o WhatsApp
+     ou o navegador. Embaixo vai o dado, para quem só quer anotar. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Falar com a clínica',
-    telefone: 'Telefone',
-    site: 'Site',
-    email: 'E-mail',
-    instagram: 'Instagram',
+    whatsapp: 'Conversar no WhatsApp',
+    telefone: 'Ligar',
+    site: 'Visitar o site',
+    email: 'Mandar um e-mail',
+    instagram: 'Ver no Instagram',
     agenda: 'Agendar pela internet',
   },
 
@@ -196,7 +199,7 @@ export const cuidado = {
     outrosCanaisNota: 'Para falar com a recepção. O que é do tratamento fica melhor na conversa do aplicativo, que chega à equipe inteira.',
     entreEmContato: 'Entre em contato',
     entreEmContatoNota: 'Fale com a clínica para saber como começar o acompanhamento.',
-    contatosDeExemplo: 'Contatos de exemplo — não abrem nada.',
+    contatosDeExemplo: 'Contatos de exemplo — abrem o aplicativo certo, mas não chegam a ninguém.',
     comoChegar: 'Como chegar',
     quemAcompanha: 'Quem acompanha você',
     quemAtende: 'Quem atende',

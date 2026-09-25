@@ -113,7 +113,7 @@ const K = () => T.cuidado.telaClinica;
    equipe ganha o registro no conselho ao lado do nome, porque é aqui que
    quem escolhe confere quem vai atender; e o endereço ganha "Como
    chegar", porque aqui ele vem do portal e não de semente. Com a lista
-   de exemplo, nem um nem os canais abrem nada.
+   de exemplo, os dois abrem, mas os telefones não existem (ver logic/rede).
    ============================================================ */
 
 /* O endereço inteiro, para o aplicativo de mapas de cada sistema. */
@@ -171,13 +171,15 @@ export default function Clinica() {
   }, [rede]);
 
   const vinculada = !rede && !(__DEV__ && parceira === '1');
-  /* Com a lista de exemplo nada abre: os contatos são inventados. */
+  /* A lista de exemplo avisa que é de exemplo — os contatos abrem, mas os
+     números começam com 0, que não existe no plano de numeração
+     brasileiro, e os endereços são do domínio reservado example.com. */
   const exemplo = !!rede && redeDeExemplo();
 
   const f = rede ? (daRede ? fichaDaRede(daRede, S, perto) : null) : fichaDaClinica(S);
   const contatos = contatosDaClinica(f?.contato);
-  const abrir = (url: string) => (exemplo ? undefined : () => { Linking.openURL(url).catch(() => {}); });
-  const mapa = daRede && !exemplo && f?.endereco ? urlDoMapa(daRede) : null;
+  const abrir = (url: string) => () => { Linking.openURL(url).catch(() => {}); };
+  const mapa = daRede && f?.endereco ? urlDoMapa(daRede) : null;
   /* Vazio enquanto a clínica não mandar logo nem foto — e vazio é um
      estado inteiro, não um estado degradado: sem foto o cabeçalho é a
      névoa, e sem logo o vidro leva só o nome. */

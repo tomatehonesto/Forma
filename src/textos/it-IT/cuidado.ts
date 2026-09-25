@@ -148,12 +148,11 @@ export const cuidado = {
      di contatti è la schermata che promette un canale che non esiste. E
      l'ordine è dal canale più rapido al più formale. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Scrivi al centro',
-    telefone: 'Telefono',
-    site: 'Sito',
-    email: 'E-mail',
-    instagram: 'Instagram',
+    whatsapp: 'Scrivi su WhatsApp',
+    telefone: 'Chiama',
+    site: 'Visita il sito',
+    email: 'Invia un’e-mail',
+    instagram: 'Vedi su Instagram',
     agenda: 'Prenota online',
   },
 
@@ -167,7 +166,7 @@ export const cuidado = {
     outrosCanaisNota: 'Per parlare con la reception. Quello che riguarda la terapia va meglio nella conversazione dell’app, che arriva a tutta l’équipe.',
     entreEmContato: 'Contatta il centro',
     entreEmContatoNota: 'Parla con il centro per sapere come iniziare il percorso.',
-    contatosDeExemplo: 'Contatti di esempio — non aprono nulla.',
+    contatosDeExemplo: 'Contatti di esempio — aprono l’app giusta, ma non arrivano a nessuno.',
     comoChegar: 'Indicazioni',
     quemAcompanha: 'Chi ti segue',
     quemAtende: 'Chi riceve',

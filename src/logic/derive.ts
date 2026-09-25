@@ -5201,7 +5201,7 @@ export function contatosDaClinica(ct?: ContatoDaClinica) {
   const C = T.cuidado.contato;
   /* A agenda vem primeiro: é o único canal que marca a consulta sem depender de alguém atender. */
   if (ct.agenda) linhas.push({ ic: 'cal', titulo: C.agenda, sub: ct.agenda, url: /^https?:/.test(ct.agenda) ? ct.agenda : `https://${ct.agenda}` });
-  if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: C.whatsapp, sub: C.whatsappSub, url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
+  if (ct.whatsapp) linhas.push({ ic: 'companion', titulo: C.whatsapp, sub: ct.whatsapp, url: `https://wa.me/${soDigitos(ct.whatsapp)}` });
   if (ct.telefone) linhas.push({ ic: 'phone', titulo: C.telefone, sub: ct.telefone, url: `tel:${soDigitos(ct.telefone)}` });
   if (ct.site) linhas.push({ ic: 'site', titulo: C.site, sub: ct.site, url: /^https?:/.test(ct.site) ? ct.site : `https://${ct.site}` });
   if (ct.email) linhas.push({ ic: 'mail', titulo: C.email, sub: ct.email, url: `mailto:${ct.email}` });

@@ -2227,7 +2227,7 @@ vínculo continua nascendo do código de convite.
 
 **Hoje a única fonte é a de exemplo**, e ela só existe em `__DEV__`: oito
 clínicas e nove profissionais inventados, com o aviso no alto da vitrine e
-nenhum contato que abra. Em produção `FONTE` é nula, a vitrine não abre,
+contatos que abrem o aplicativo certo sem chegar a ninguém (números que começam com 0, domínio example.com). Em produção `FONTE` é nula, a vitrine não abre,
 e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
 `/parceiros`.
 

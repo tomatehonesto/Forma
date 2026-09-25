@@ -137,12 +137,11 @@ export const cuidado = {
      liste de contacts, c'est l'écran qui promet un canal qui n'existe pas.
      Et l'ordre va du canal le plus rapide au plus formel. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Parler à la clinique',
-    telefone: 'Téléphone',
-    site: 'Site web',
-    email: 'E-mail',
-    instagram: 'Instagram',
+    whatsapp: 'Écrire sur WhatsApp',
+    telefone: 'Appeler',
+    site: 'Voir le site',
+    email: 'Envoyer un e-mail',
+    instagram: 'Voir sur Instagram',
     agenda: 'Prendre rendez-vous en ligne',
   },
 
@@ -156,7 +155,7 @@ export const cuidado = {
     outrosCanaisNota: 'Pour joindre l’accueil. Ce qui concerne le traitement passe mieux par la conversation de l’application, qui arrive à toute l’équipe.',
     entreEmContato: 'Contacter la clinique',
     entreEmContatoNota: 'Parlez avec la clinique pour savoir comment commencer le suivi.',
-    contatosDeExemplo: 'Contacts fictifs — ils n’ouvrent rien.',
+    contatosDeExemplo: 'Contacts fictifs — ils ouvrent la bonne application, mais n’aboutissent nulle part.',
     comoChegar: 'Itinéraire',
     quemAcompanha: 'Qui vous suit',
     quemAtende: 'Qui consulte',

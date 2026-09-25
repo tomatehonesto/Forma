@@ -27,8 +27,10 @@ import { T } from '../textos';
 
    ⚠️⚠️ OS NOMES DE EXEMPLO SÃO INVENTADOS, e uma tela de saúde com nome
    inventado é a mentira que a pessoa pode tentar ligar. Por isso eles só
-   existem em `__DEV__`, a vitrine avisa no alto que são de exemplo, e
-   nenhum contato deles abre nada (ver `redeDeExemplo`).
+   existem em `__DEV__`, a vitrine avisa no alto que são de exemplo, e os
+   contatos deles abrem o aplicativo certo sem chegar a ninguém: os
+   números começam com 0, que o plano de numeração brasileiro não usa, e
+   os endereços são do domínio reservado example.com.
    ============================================================ */
 
 export type Especialidade = 'endocrinologia' | 'nutrologia' | 'nutricao' | 'esporte' | 'psicologia';
@@ -367,8 +369,9 @@ export function fichaDaRede(
    A LISTA DE EXEMPLO — só em desenvolvimento
 
    Nomes, registros, endereços e contatos inventados. Os contatos usam o
-   domínio reservado `example.com` e números zerados, e a tela não os
-   abre de qualquer jeito. Os pontos são de bairros de verdade, para a
+   domínio reservado `example.com` e números que começam com 0 — nenhum
+   número brasileiro começa assim, e o discador e o WhatsApp abrem sem
+   chegar a ninguém. Os pontos são de bairros de verdade, para a
    distância fazer sentido na demonstração. As fotos são as da semente —
    ver `fotoDaRede`, em ui/retratos.
    ============================================================ */
@@ -381,7 +384,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -23.566, lng: -46.6835 },
     dias: [1, 3, 5], abre: '08:00', fecha: '17:00', presencial: true, teleconsulta: true,
     convenios: ['Bradesco Saúde', 'SulAmérica'], particular: true,
-    contato: { whatsapp: '+55 11 90000-0001', telefone: '(11) 3000-0001', agenda: 'agenda.example.com/clinica-lemos' },
+    contato: { whatsapp: '+55 11 00000-0001', telefone: '(11) 0000-0001', agenda: 'agenda.example.com/clinica-lemos' },
     equipe: [
       { id: 'beatriz-lemos', nome: 'Dra. Beatriz Lemos', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '154872', rqe: ['61233'], responsavel: true },
       { id: 'marina-duarte', nome: 'Marina Duarte', especialidades: ['nutricao'], conselho: 'CRN', regiao: '3', registro: '48213' },
@@ -394,7 +397,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -23.601, lng: -46.666 },
     dias: [2, 4], abre: '09:00', fecha: '18:00', presencial: true, teleconsulta: false,
     convenios: ['Amil', 'Porto Saúde', 'Unimed'], particular: true,
-    contato: { telefone: '(11) 3000-0002', site: 'clinicaibirapuera.example.com' },
+    contato: { telefone: '(11) 0000-0002', site: 'clinicaibirapuera.example.com' },
     equipe: [
       { id: 'rafael-nogueira', nome: 'Dr. Rafael Nogueira', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '138455', rqe: ['57402'], responsavel: true },
     ],
@@ -405,7 +408,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -23.501, lng: -46.625 },
     dias: [6], abre: '08:00', fecha: '12:00', presencial: true, teleconsulta: false,
     convenios: ['Unimed'], particular: true,
-    contato: { telefone: '(11) 3000-0003' },
+    contato: { telefone: '(11) 0000-0003' },
     equipe: [
       { id: 'rafael-nogueira', nome: 'Dr. Rafael Nogueira', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '138455', rqe: ['57402'], responsavel: true },
     ],
@@ -417,7 +420,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -23.568, lng: -46.652 },
     dias: [1, 2, 3, 4, 5], abre: '09:00', fecha: '19:00', presencial: true, teleconsulta: true,
     convenios: [], particular: true,
-    contato: { whatsapp: '+55 11 90000-0004', email: 'contato@espacopaulista.example.com', instagram: 'espacopaulista.exemplo' },
+    contato: { whatsapp: '+55 11 00000-0004', email: 'contato@espacopaulista.example.com' },
     equipe: [
       { id: 'camila-arantes', nome: 'Dra. Camila Arantes', especialidades: ['nutrologia'], conselho: 'CRM', regiao: 'SP', registro: '167321', rqe: ['70114'], responsavel: true },
       { id: 'felipe-sato', nome: 'Dr. Felipe Sato', especialidades: ['esporte'], conselho: 'CRM', regiao: 'SP', registro: '149903', rqe: ['66120'] },
@@ -429,7 +432,7 @@ const EXEMPLO: Clinica[] = [
     cidade: 'São Paulo', uf: 'SP',
     dias: [1, 2, 3, 4, 5], abre: '18:00', fecha: '21:00', presencial: false, teleconsulta: true,
     convenios: [], particular: true,
-    contato: { whatsapp: '+55 11 90000-0007', agenda: 'agenda.example.com/julia-tavares' },
+    contato: { whatsapp: '+55 11 00000-0007', agenda: 'agenda.example.com/julia-tavares' },
     equipe: [
       { id: 'julia-tavares', nome: 'Júlia Tavares', especialidades: ['psicologia'], conselho: 'CRP', regiao: '06', registro: '154321', responsavel: true },
     ],
@@ -441,7 +444,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -22.953, lng: -43.187 },
     dias: [1, 3, 4], abre: '08:00', fecha: '16:00', presencial: true, teleconsulta: true,
     convenios: ['Bradesco Saúde', 'SulAmérica', 'Unimed'], particular: true,
-    contato: { whatsapp: '+55 21 90000-0008', telefone: '(21) 3000-0008' },
+    contato: { whatsapp: '+55 21 00000-0008', telefone: '(21) 0000-0008' },
     equipe: [
       { id: 'luisa-cardoso', nome: 'Dra. Luísa Cardoso', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'RJ', registro: '52871', rqe: ['30118'], responsavel: true },
     ],
@@ -452,7 +455,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -23.0, lng: -43.365 },
     dias: [2, 5, 6], abre: '09:00', fecha: '15:00', presencial: true, teleconsulta: false,
     convenios: ['Amil'], particular: true,
-    contato: { telefone: '(21) 3000-0009' },
+    contato: { telefone: '(21) 0000-0009' },
     equipe: [
       { id: 'andre-moreira', nome: 'Dr. André Moreira', especialidades: ['nutrologia'], conselho: 'CRM', regiao: 'RJ', registro: '61240', rqe: ['34502'], responsavel: true },
     ],
@@ -464,7 +467,7 @@ const EXEMPLO: Clinica[] = [
     ponto: { lat: -19.938, lng: -43.935 },
     dias: [1, 2, 3, 4], abre: '08:00', fecha: '17:00', presencial: true, teleconsulta: true,
     convenios: ['Unimed'], particular: true,
-    contato: { whatsapp: '+55 31 90000-0010', telefone: '(31) 3000-0010' },
+    contato: { whatsapp: '+55 31 00000-0010', telefone: '(31) 0000-0010' },
     equipe: [
       { id: 'patricia-menezes', nome: 'Dra. Patrícia Menezes', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'MG', registro: '58210', rqe: ['29877'], responsavel: true },
     ],

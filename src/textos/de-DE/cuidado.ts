@@ -169,12 +169,11 @@ export const cuidado = {
      nicht gibt. Und die Reihenfolge geht vom schnellsten Kanal zum
      förmlichsten. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Mit der Praxis sprechen',
-    telefone: 'Telefon',
-    site: 'Website',
-    email: 'E-Mail',
-    instagram: 'Instagram',
+    whatsapp: 'Per WhatsApp schreiben',
+    telefone: 'Anrufen',
+    site: 'Website besuchen',
+    email: 'E-Mail schreiben',
+    instagram: 'Auf Instagram ansehen',
     agenda: 'Online buchen',
   },
 
@@ -188,7 +187,7 @@ export const cuidado = {
     outrosCanaisNota: 'Für die Anmeldung. Was die Behandlung betrifft, ist im Chat der App besser aufgehoben — der erreicht das ganze Team.',
     entreEmContato: 'Kontakt aufnehmen',
     entreEmContatoNota: 'Sprich mit der Praxis, um zu erfahren, wie die Begleitung beginnt.',
-    contatosDeExemplo: 'Beispielkontakte — sie öffnen nichts.',
+    contatosDeExemplo: 'Beispielkontakte — sie öffnen die richtige App, erreichen aber niemanden.',
     comoChegar: 'Route',
     quemAcompanha: 'Wer dich begleitet',
     quemAtende: 'Wer behandelt',

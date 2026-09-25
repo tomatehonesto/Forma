@@ -125,12 +125,11 @@ export const cuidado = {
      the screen promising a channel that isn't there. The order runs from
      the fastest channel to the most formal. */
   contato: {
-    whatsapp: 'WhatsApp',
-    whatsappSub: 'Message the clinic',
-    telefone: 'Phone',
-    site: 'Website',
-    email: 'Email',
-    instagram: 'Instagram',
+    whatsapp: 'Chat on WhatsApp',
+    telefone: 'Call',
+    site: 'Visit the website',
+    email: 'Send an email',
+    instagram: 'See on Instagram',
     agenda: 'Book online',
   },
 
@@ -144,7 +143,7 @@ export const cuidado = {
     outrosCanaisNota: 'For the front desk. Anything about your treatment is better in the app’s conversation, which reaches the whole team.',
     entreEmContato: 'Get in touch',
     entreEmContatoNota: 'Talk to the clinic to find out how to get started.',
-    contatosDeExemplo: 'Sample contacts — they don’t open anything.',
+    contatosDeExemplo: 'Sample contacts — they open the right app, but don’t reach anyone.',
     comoChegar: 'Directions',
     quemAcompanha: 'Who follows your care',
     quemAtende: 'Who sees patients',
