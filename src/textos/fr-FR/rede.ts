@@ -46,9 +46,8 @@ export const rede = {
   teleconsulta: 'Téléconsultation',
   particular: 'Paiement direct',
   aceita: (convenio: string) => `Accepte ${convenio}`,
-  soParticular: 'Paiement direct uniquement',
+  aceitaConvenios: 'Assurances acceptées',
   atendeHoje: 'Aujourd’hui',
-  maisConvenios: (n: number) => `+${n}`,
   /* « du lun. au ven. » */
   deAte: (de: string, ate: string) => `du ${de} au ${ate}`,
   faixa: (abre: string, fecha: string) => `${abre}\u2060–\u2060${fecha}`,

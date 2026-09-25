@@ -246,11 +246,12 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    do nome de cada pessoa da equipe. O cartão responde se vale abrir; a
    credencial é o que se confere depois de abrir.
 
-   ⚠️ E OS CONVÊNIOS SÃO UMA LINHA, COMO O ENDEREÇO — e foram etiquetas.
-   Uma etiqueta colorida por convênio virava uma fileira que competia com
-   o nome da clínica, e a pergunta que ela responde é uma só: aceita o
-   meu? Com o filtro de convênio ligado, a linha responde exatamente isso,
-   na cor de ação; sem ele, os nomes que cabem e "+N" para o resto.
+   ⚠️ E O CONVÊNIO É UMA ETIQUETA SÓ — "Aceita convênios" —, e não a
+   lista. Já foi uma etiqueta por convênio, depois a lista numa linha com
+   "+N"; nas duas o cartão lia nomes que a pessoa não procurava. A lista
+   inteira está na clínica. Com o filtro de convênio ligado, a etiqueta
+   diz o do filtro ("Aceita Unimed"); a clínica só particular não leva
+   etiqueta nenhuma.
 
    A teleconsulta não está no cartão: ela é filtro (Modalidade) e está na
    clínica, ao lado do horário.
@@ -261,9 +262,9 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    ainda não acabou. As duas cores dizem uma coisa cada; nenhuma é enfeite.
 ------------------------------------------------------------------ */
 /* ⚠️ TODOS OS CARTÕES TÊM A MESMA ALTURA, e é isso que faz a lista ler
-   como lista. Para caber, cada linha do texto é UMA linha: o nome e os
-   convênios cortam com reticências, e os convênios contam o resto em
-   "+N". Quem quer o nome inteiro ou a lista inteira abre a clínica. */
+   como lista. Para caber, cada linha do texto é UMA linha — o nome corta
+   com reticências —, e o lugar da etiqueta de convênio existe mesmo sem
+   ela. Quem quer o nome inteiro ou a lista de convênios abre a clínica. */
 const ALTURA_DO_CARTAO = 158;
 
 function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: string; onPress: () => void }) {
@@ -275,11 +276,7 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
   const foto = retrato ?? imagensDaRede(cl).foto;
 
   const pedido = convenio && convenio !== 'particular' && cl.convenios.includes(convenio) ? convenio : '';
-  const convenios = pedido
-    ? K().aceita(pedido)
-    : cl.convenios.length
-      ? resumoDosConvenios([...cl.convenios, ...(cl.particular ? [K().particular] : [])])
-      : cl.particular ? K().soParticular : '';
+  const aceita = pedido ? K().aceita(pedido) : cl.convenios.length ? K().aceitaConvenios : '';
   const hoje = atendeHoje(cl);
   /* A etiqueta mora sobre a foto, então precisa ser legível sobre
      qualquer uma: verde claro com texto escuro no modo claro, verde cheio
@@ -326,7 +323,22 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
             <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
             <View style={{ marginTop: 8, gap: 3 }}>
               <Meta ic="pin" texto={ondeTxt(S, r)} />
-              {convenios ? <Meta ic="shield" texto={convenios} destaque={!!pedido} /> : null}
+              {/* O lugar da etiqueta tem altura fixa, com ou sem ela: é o
+                  que mantém o nome e os dias na mesma altura em todos. */}
+              <View style={{ height: 22, justifyContent: 'center', alignItems: 'flex-start' }}>
+                {aceita ? (
+                  <View style={{
+                    flexDirection: 'row', alignItems: 'center', gap: 5,
+                    backgroundColor: c.limeSoft, borderRadius: radius.pill,
+                    paddingLeft: 7, paddingRight: 9, paddingVertical: 2,
+                  }}>
+                    <Icon name="shield" size={12} color={c.limeSoftInk} sw={2} />
+                    <Txt v="micro" c={c.limeSoftInk} numberOfLines={1} style={{ fontFamily: font.bodyMed, flexShrink: 1 }}>
+                      {aceita}
+                    </Txt>
+                  </View>
+                ) : null}
+              </View>
             </View>
             {/* A semana em iniciais. Quem usa leitor de tela ouve os dias
                 e o horário por extenso, e não sete letras soltas. */}
@@ -363,38 +375,15 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
   );
 }
 
-/* "Bradesco Saúde +3": os nomes que cabem na linha do cartão, e quantos
-   ficaram de fora. A lista inteira está na
-   clínica, em chips.
-
-   ⚠️ CABER É CONTA DE LETRAS, e não de pixels. Medir o texto desenhado
-   pediria desenhar duas vezes; a coluna do cartão leva cerca de 21 letras
-   por linha no corpo da legenda, e a linha é uma só — a altura do cartão
-   é a mesma para todos. Um nome sempre entra, por maior que seja. */
-const CABE = 21;
-function resumoDosConvenios(nomes: string[]) {
-  const vistos: string[] = [];
-  for (const nome of nomes) {
-    const faltam = nomes.length - vistos.length - 1;
-    const prova = [...vistos, nome].join(', ') + (faltam ? ` ${K().maisConvenios(faltam)}` : '');
-    if (vistos.length && prova.length > CABE) break;
-    vistos.push(nome);
-  }
-  const faltam = nomes.length - vistos.length;
-  return vistos.join(', ') + (faltam ? ` ${K().maisConvenios(faltam)}` : '');
-}
-
-/* Uma linha do cartão: o ícone pequeno e o texto recuado — a mesma forma
-   para onde fica, o que aceita e como atende. A que responde a um filtro
-   ligado sai na cor de ação. */
-function Meta({ ic, texto, destaque }: { ic: string; texto: string; destaque?: boolean }) {
+/* Uma linha do cartão: o ícone pequeno e o texto recuado. */
+function Meta({ ic, texto }: { ic: string; texto: string }) {
   const { c } = useTheme();
   return (
     <Row gap={6} style={{ alignItems: 'flex-start' }}>
       <View style={{ marginTop: 3 }}>
-        <Icon name={ic} size={13} color={destaque ? c.accent : c.tx4} sw={1.9} />
+        <Icon name={ic} size={13} color={c.tx4} sw={1.9} />
       </View>
-      <Txt v="caption" c={destaque ? c.accent2 : c.tx3} numberOfLines={1} style={{ flex: 1 }}>{texto}</Txt>
+      <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ flex: 1 }}>{texto}</Txt>
     </Row>
   );
 }

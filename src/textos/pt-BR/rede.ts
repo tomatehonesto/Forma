@@ -62,13 +62,11 @@ export const rede = {
   presencialETele: 'Presencial e teleconsulta',
   teleconsulta: 'Teleconsulta',
   particular: 'Particular',
-  /* ⚠️ OS CONVÊNIOS SÃO UMA LINHA, E NÃO ETIQUETAS. Etiqueta por
-     convênio virava uma fileira colorida que competia com o nome da
-     clínica — e a pergunta que ela responde é uma só: aceita o meu? Com o
-     filtro de convênio ligado, a linha responde exatamente isso; sem ele,
-     entram os nomes que cabem e o resto vira "+2". */
+  /* ⚠️ O CONVÊNIO É UMA ETIQUETA SÓ, e não a lista: a lista inteira está
+     na clínica. Com o filtro de convênio ligado, a etiqueta diz o do
+     filtro; a clínica só particular não leva etiqueta nenhuma. */
+  aceitaConvenios: 'Aceita convênios',
   aceita: (convenio: string) => `Aceita ${convenio}`,
-  soParticular: 'Só particular',
   /* ⚠️ "HOJE" É DIA DE ATENDIMENTO COM O HORÁRIO AINDA ABERTO — ver
      `atendeHoje`, em logic/rede. Feriado não entra, porque a agenda que o
      portal manda é a da semana; quando ele mandar as exceções, entram lá.
@@ -77,8 +75,6 @@ export const rede = {
      letras, no máximo. Por isso o alemão é "Heute offen" e o francês,
      "Aujourd’hui" — as frases longas quebravam em duas linhas. */
   atendeHoje: 'Atende hoje',
-  /* o que não coube na linha: "Amil, Porto Saúde, Unimed +2" */
-  maisConvenios: (n: number) => `+${n}`,
   /* "seg a sex" — três dias seguidos ou mais viram intervalo */
   deAte: (de: string, ate: string) => `${de} a ${ate}`,
   /* ⚠️ O U+2060 EM VOLTA DO TRAÇO NÃO É SUJEIRA: sem ele a linha quebrava
