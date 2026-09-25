@@ -71,7 +71,10 @@ export default function MedirMedidas() {
          gráfico de cintura não pode cair a zero porque hoje a pessoa só
          mediu o braço. Composição não se mede com fita e herda do mesmo
          jeito, até existir balança de bioimpedância conectada. */
-      const base = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
+      /* ⚠️ A IDENTIDADE NÃO SE HERDA: a última medição dá os valores, e o
+         `rid` dela ficava junto — as duas saíam com a mesma identidade, e
+         a sincronia as veria como uma só. Ver logic/identidade. */
+      const { rid: _daUltima, ...base } = ultima || { cintura: 0, quadril: 0, braco: 0, coxa: 0, gordura: 0, musculo: 0 };
       s.measures.push({
         ...base,
         t: +now(),

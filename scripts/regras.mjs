@@ -95,6 +95,23 @@ ok(daSemente.length > 0 && JSON.stringify(daSemente) === JSON.stringify(doAplica
   `semente: ${daSemente.join(', ')} · aplicativo: ${doAplicativo.join(', ')}`);
 
 
+/* ---------------- os tipos de registro ---------------- */
+console.log('\nOS TIPOS DE REGISTRO — o banco e a tradução dizem os mesmos');
+/* Um tipo que o aparelho sobe e o banco não aceita derruba o lote
+   inteiro; um que o banco aceita e o aparelho não conhece desce e fica
+   de fora. A regra mora na migração, e a lista, em logic/traducao. */
+const migracao = fs.readFileSync(path.join(RAIZ, 'supabase', 'migrations', '20260925162603_perfis_e_registros.sql'), 'utf8');
+const doBanco = [...(/registros_tipo_conhecido check \(tipo in \(([^)]*)\)\)/.exec(migracao)?.[1] ?? '').matchAll(/'([a-z_]+)'/g)]
+  .map((m) => m[1]).sort();
+const traducao = fs.readFileSync(path.join(RAIZ, 'src', 'logic', 'traducao.ts'), 'utf8');
+const iniTipos = traducao.indexOf('export const TIPOS_DE_REGISTRO');
+const daTraducao = [...traducao.slice(iniTipos, traducao.indexOf('] as const', iniTipos)).matchAll(/'([a-z_]+)'/g)]
+  .map((m) => m[1]).sort();
+ok(doBanco.length > 0 && JSON.stringify(doBanco) === JSON.stringify(daTraducao),
+  `os ${doBanco.length} tipos da regra do banco são os da tradução`,
+  `banco: ${doBanco.join(', ')} · tradução: ${daTraducao.join(', ')}`);
+
+
 /* ---------------- o tempo real acordado ----------------
    `realtime.messages` é particionada por dia, e quem cria as partições é o
    próprio serviço de tempo real, quando alguém se conecta. Sem partição,

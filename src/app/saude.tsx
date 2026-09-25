@@ -57,81 +57,95 @@ export default function Saude() {
   const { c } = useTheme();
   const router = useRouter();
 
-  const pa = vitalLast(S, 'pa'), fc = vitalLast(S, 'fc');
-  const gl = vitalLast(S, 'glic'), sp = vitalLast(S, 'spo2'), fr = vitalLast(S, 'fr');
-
-  const paSerie = (S.vitals.pa as any[]).map((x) => x.sys);
-  const glSerie = (S.vitals.glic as any[]).map((x) => x.v);
-  const pa0 = (S.vitals.pa as any[])[0];
-  const gl0 = (S.vitals.glic as any[])[0];
+  /* ⚠️ UM SINAL PODE NÃO TER MEDIÇÃO NENHUMA — e é o caso de todo mundo
+     menos a pessoa de exemplo: nada no aplicativo escreve um sinal vital
+     (ver o aviso no fim da tela). A tela lia a primeira e a última de
+     cada lista sem perguntar, e só abria porque o estado vazio herdava as
+     medições da semente — a pressão da Mariana no diário de quem acabou
+     de se cadastrar. Sem medição, o cartão não existe. */
+  const serie = (k: string) => ((S.vitals as any)?.[k] ?? []) as any[];
+  const pa = vitalLast(S, 'pa'), gl = vitalLast(S, 'glic');
+  const pa0 = serie('pa')[0];
+  const gl0 = serie('glic')[0];
 
   const pontuais = [
-    { k: 'fc', label: K().pontuais.fc, val: `${fc.v}`, u: 'bpm', num: fc.v, ic: 'activity' },
-    { k: 'spo2', label: K().pontuais.spo2, val: `${sp.v}`, u: '%', num: sp.v, ic: 'drop2' },
-    { k: 'fr', label: K().pontuais.fr, val: `${fr.v}`, u: 'rpm', num: fr.v, ic: 'waves' },
-    { k: 'glic', label: K().pontuais.glic, val: `${gl.v}`, u: 'mg/dL', num: gl.v, ic: 'water' },
-  ];
+    { k: 'fc', label: K().pontuais.fc, u: 'bpm', ic: 'activity' },
+    { k: 'spo2', label: K().pontuais.spo2, u: '%', ic: 'drop2' },
+    { k: 'fr', label: K().pontuais.fr, u: 'rpm', ic: 'waves' },
+    { k: 'glic', label: K().pontuais.glic, u: 'mg/dL', ic: 'water' },
+  ].flatMap((p) => {
+    const ultima = vitalLast(S, p.k);
+    return ultima ? [{ ...p, val: `${ultima.v}`, num: ultima.v as number }] : [];
+  });
 
   return (
     <TelaInterna titulo={K().titulo}>
       <Titulao titulo={K().titulo} lead={K().lead} />
 
-      <Bloco titulo={K().aoLongoDoTempo}>
-        <View style={{ gap: 10 }}>
-          {/* A leitura ao deslizar mostra a sistólica de cada medição com a
-              data. A curva é da sistólica sozinha — é ela que carrega a
-              tendência; a diastólica acompanha e caberia mal numa linha. */}
-          <CardCurva
-            id="pa"
-            nome={K().pressaoArterial}
-            sub={K().pressaoSub(`${pa0.sys}/${pa0.dia}`, paSerie.length)}
-            valor={`${pa.sys}/${pa.dia}`}
-            unidade="mmHg"
-            pontos={(S.vitals.pa as any[]).map((x) => ({
-              v: x.sys, rotulo: `${x.sys}/${x.dia}`, quando: fmtDate(x.t),
-            }))}
-          />
-          <CardCurva
-            id="gl"
-            nome={K().glicemiaDeJejum}
-            sub={K().glicemiaSub(gl0.v, glSerie.length)}
-            valor={`${gl.v}`}
-            unidade="mg/dL"
-            pontos={(S.vitals.glic as any[]).map((x) => ({
-              v: x.v, rotulo: `${x.v}`, quando: fmtDate(x.t),
-            }))}
-          />
-        </View>
-      </Bloco>
+      {pa || gl ? (
+        <Bloco titulo={K().aoLongoDoTempo}>
+          <View style={{ gap: 10 }}>
+            {/* A leitura ao deslizar mostra a sistólica de cada medição com a
+                data. A curva é da sistólica sozinha — é ela que carrega a
+                tendência; a diastólica acompanha e caberia mal numa linha. */}
+            {pa ? (
+              <CardCurva
+                id="pa"
+                nome={K().pressaoArterial}
+                sub={K().pressaoSub(`${pa0.sys}/${pa0.dia}`, serie('pa').length)}
+                valor={`${pa.sys}/${pa.dia}`}
+                unidade="mmHg"
+                pontos={serie('pa').map((x) => ({
+                  v: x.sys, rotulo: `${x.sys}/${x.dia}`, quando: fmtDate(x.t),
+                }))}
+              />
+            ) : null}
+            {gl ? (
+              <CardCurva
+                id="gl"
+                nome={K().glicemiaDeJejum}
+                sub={K().glicemiaSub(gl0.v, serie('glic').length)}
+                valor={`${gl.v}`}
+                unidade="mg/dL"
+                pontos={serie('glic').map((x) => ({
+                  v: x.v, rotulo: `${x.v}`, quando: fmtDate(x.t),
+                }))}
+              />
+            ) : null}
+          </View>
+        </Bloco>
+      ) : null}
 
-      <Bloco
-        titulo={K().ultimaLeitura}
-        nota={K().ultimaLeituraNota}
-      >
-        <Grade2>
-          {pontuais.map((t) => {
-            const [, , lo, hi] = FAIXA[t.k];
-            const ok = t.num >= lo && t.num <= hi;
-            return (
-              <View
-                key={t.k}
-                style={[{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 13 }, shadowCard(c)]}
-              >
-                <Row style={{ justifyContent: 'space-between', gap: 8 }}>
-                  <Icon name={t.ic} size={17} color={c.tx2} sw={1.8} />
-                  <Selo label={ok ? K().seloNormal : t.num < lo ? K().seloBaixo : K().seloAlto} tom={ok ? 'verde' : 'neutra'} />
-                </Row>
-                <Txt v="title" style={{ marginTop: 9 }}>
-                  {t.val}
-                  <Txt v="caption" c={c.tx3}>{` ${t.u}`}</Txt>
-                </Txt>
-                <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{t.label}</Txt>
-                <Regua k={t.k} num={t.num} />
-              </View>
-            );
-          })}
-        </Grade2>
-      </Bloco>
+      {pontuais.length ? (
+        <Bloco
+          titulo={K().ultimaLeitura}
+          nota={K().ultimaLeituraNota}
+        >
+          <Grade2>
+            {pontuais.map((t) => {
+              const [, , lo, hi] = FAIXA[t.k];
+              const ok = t.num >= lo && t.num <= hi;
+              return (
+                <View
+                  key={t.k}
+                  style={[{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.card, paddingHorizontal: 14, paddingVertical: 13 }, shadowCard(c)]}
+                >
+                  <Row style={{ justifyContent: 'space-between', gap: 8 }}>
+                    <Icon name={t.ic} size={17} color={c.tx2} sw={1.8} />
+                    <Selo label={ok ? K().seloNormal : t.num < lo ? K().seloBaixo : K().seloAlto} tom={ok ? 'verde' : 'neutra'} />
+                  </Row>
+                  <Txt v="title" style={{ marginTop: 9 }}>
+                    {t.val}
+                    <Txt v="caption" c={c.tx3}>{` ${t.u}`}</Txt>
+                  </Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{t.label}</Txt>
+                  <Regua k={t.k} num={t.num} />
+                </View>
+              );
+            })}
+          </Grade2>
+        </Bloco>
+      ) : null}
 
       {/* ⚠️⚠️ AQUI DIZIA "WITHINGS CONECTADA", e nada estava conectado.
 

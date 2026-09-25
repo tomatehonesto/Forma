@@ -13,7 +13,8 @@ import type { Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
 import { sistemaDe } from './medidas';
-import { carimbar } from './identidade';
+import { carimbar, novoRid } from './identidade';
+import type { OrigemDaPergunta } from './perguntas';
 import { T, NOMES_DAS_PERSONAS } from '../textos';
 
 export const HEIGHT = 1.67;
@@ -129,6 +130,12 @@ export function buildSeed() {
         });
       });
   }
+  /* ⚠️ E DE FATO NA ORDEM, dentro do dia também. O cardápio não está em
+     ordem de hora — o lanche das 16h vem depois do jantar das 19h30 —, e
+     inverter o dia deixava o lanche antes do jantar. É a ordem que a
+     sincronia usa para pôr no lugar uma refeição que chega de outro
+     aparelho (ver logic/traducao), e a semente tem de estar nela. */
+  meals.sort((a, b) => b.t - a.t);
 
   /* A ÁGUA, GOLE A GOLE.
 
@@ -581,8 +588,16 @@ export function buildSeed() {
        Ver `viuApresentacaoDaRede`, em logic/rede. */
     apresentacoesVistas: {} as Record<string, number>,
     /* O `kind` é chave — 'exame' ou 'resumo' —, e o rótulo sai de
-       `tipoDoDocumento` na hora de mostrar. */
-    documents: P.documentos.map((d) => ({ t: +daysAgo(d.dias), name: d.nome, kind: d.tipo })),
+       `tipoDoDocumento` na hora de mostrar.
+
+       Do mais recente para o mais antigo: é onde o documento novo entra
+       (`registrarEnvio` põe na frente), e a Área médica lista na ordem
+       gravada. A semente vinha ao contrário, e o resumo que a pessoa
+       mandasse hoje aparecia em cima do exame de quarenta dias atrás, que
+       aparecia em cima do resumo de catorze. */
+    documents: P.documentos
+      .map((d) => ({ t: +daysAgo(d.dias), name: d.nome, kind: d.tipo }))
+      .sort((a, b) => b.t - a.t),
     consult: { t: +addDays(startOfDay(now()), 9), type: P.tipoDaConsulta, doctor: P.medica },
     consultsHistory: P.consultasAnteriores.map((c) => ({ t: +daysAgo(c.dias), type: c.tipo, note: c.nota })),
     measures: [
@@ -724,8 +739,19 @@ export function buildSeed() {
 
     /* Perguntas feitas ao Morphi. Guarda só o texto e a hora — a
        resposta é sempre recalculada sobre o estado atual, então
-       persistir a thread inteira envelheceria o dado. */
-    asked: [] as { t: number; q: string }[],
+       persistir a thread inteira envelheceria o dado.
+
+       E de onde a pergunta veio: 'digitada' pela pessoa ou 'sugerida'
+       pelo aplicativo (ver logic/perguntas). As feitas antes de a origem
+       existir não têm, e continuam sem. */
+    asked: [] as { t: number; q: string; origem?: OrigemDaPergunta }[],
+    /* ⚠️ SE A PESSOA DEIXOU A GENTE LER AS PERGUNTAS, para entender o uso
+       do aplicativo — a decisão 2 do plano do Supabase. Nasce desligada, e
+       é uma escolha só dela, separada do consentimento geral: a pergunta
+       costuma falar de sintoma, de dose e de medo. Desligada, as perguntas
+       ficam só no aparelho; ligada, sobem para uma tabela que a clínica
+       não lê. */
+    perguntasParaUso: false as boolean,
     consultNotes: '',
 
     /* Notas para a consulta. Cada uma guarda QUANDO foi anotada e se já
@@ -743,6 +769,13 @@ export function buildSeed() {
        no estado, e não na sessão: é o que o portão lê para saber se o
        diário tem dono, sem esperar a sessão nem a rede. */
     conta: null as ContaDoDiario | null,
+    /* A IDENTIDADE DESTE DIÁRIO NESTE APARELHO. Nasce com ele — na
+       semente, no estado vazio, no cadastro que recomeça — e não muda
+       mais. A sincronia amarra a base dela a este número: um diário novo
+       nunca é comparado com o que o anterior tinha no servidor, o que
+       faria de tudo o que falta um "apagado" (ver logic/sincronia). Não
+       sobe: cada aparelho tem o seu. */
+    diario: novoRid() as string,
     /* SISTEMA É O PADRÃO, e não claro. Quem instala o app já escolheu
        claro ou escuro uma vez, nos ajustes do telefone — repetir a
        pergunta é ignorar a resposta que a pessoa já deu. */
@@ -1250,6 +1283,9 @@ export function ensureDefaults(S: any) {
     S.semente = !S.profile?.consentimento && NOMES_DAS_PERSONAS.includes(S.profile?.name);
   }
   if (S.conta === undefined) S.conta = null;
+  if (typeof S.diario !== 'string' || !S.diario) S.diario = novoRid();
+  /* Quem gravou antes da escolha existir não escolheu: fica desligada. */
+  if (typeof S.perguntasParaUso !== 'boolean') S.perguntasParaUso = false;
   /* A identidade de cada item do diário — por último, porque algumas
      migrações acima criam itens. Ver logic/identidade. */
   carimbar(S);
@@ -1325,6 +1361,12 @@ export function estadoVazio(): State {
      semente quando o campo falta, e um campo apagado voltaria cheio no
      carregamento seguinte. */
   (S.profile as any).doctorInfo = {};
+  /* E a ficha da clínica, pelo mesmo motivo: endereço, horário, convênios
+     e contato da Clínica Vitalis ficavam no perfil de quem acabou de
+     chegar. Nenhuma tela os mostrava — `fichaDaClinica` pergunta o nome
+     antes, e ele sai em branco acima —, e foi por isso que a sobra passou:
+     o diário novo carregava a ficha de uma clínica de mentira. */
+  (S.profile as any).clinicInfo = {};
   S.profile.nutri = '';
   S.profile.restricoes = [];
 
@@ -1337,6 +1379,12 @@ export function estadoVazio(): State {
   S.checkins = [];
   S.photos = [];
   S.measures = [];
+  /* ⚠️ OS SINAIS VITAIS FICAVAM, e eram os da Mariana: três pressões, duas
+     frequências, três glicemias. Nada no aplicativo escreve um sinal vital
+     — só a semente —, então quem se cadastrava carregava para sempre a
+     pressão de outra pessoa na tela de Saúde, e a sincronia os subiria
+     como medições dela. A forma fica (as cinco listas), vazias. */
+  S.vitals = { pa: [], fc: [], glic: [], spo2: [], fr: [] };
   S.exams = [];
   S.examBundles = [];
   S.prescriptions = [];
@@ -1356,6 +1404,12 @@ export function estadoVazio(): State {
   S.messages = [];
   S.unread = 0;
   S.team = [];
+  /* E o que a clínica preparou: guia, vídeo e plano alimentar da Clínica
+     Vitalis, com "enviado pela enfermeira" no motivo. A Área médica só os
+     mostra com clínica conectada, e por isso a sobra não se via — até a
+     pessoa se vincular a uma clínica de verdade e receber os materiais da
+     de mentira. */
+  S.materials = [];
 
   /* A CONSULTA NASCE SEM DATA, e zero é a resposta honesta: quem lê deve
      perguntar antes se existe uma. Ver `temConsulta`. */
@@ -1407,6 +1461,10 @@ export function estadoVazio(): State {
      conta" e "Já tenho conta". E o diário vazio ainda não tem dono. */
   S.semente = false;
   S.conta = null;
+  /* E é um diário novo: a identidade de antes, que também veio da
+     semente, fica com ela. */
+  S.diario = novoRid();
+  S.perguntasParaUso = false;
 
   return ensureDefaults(S) as State;
 }

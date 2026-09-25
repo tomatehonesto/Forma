@@ -5,6 +5,7 @@ import { buildSeed, comNotificacoesDeExemplo, estadoVazio, ensureDefaults, type 
 import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo';
 import { trocarLocal, type Local } from './local';
 import { carimbar } from './identidade';
+import { esquecerSincronia } from './sincronia';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -142,9 +143,19 @@ export const useStore = create<Store>((set, get) => ({
      exemplo, com setenta e um dias de registros de outra pessoa. Apagar
      é ir para o estado vazio, e a porta se tranca junto — sem cadastro o
      app não abre. */
+  /* ⚠️ E A BASE DA SINCRONIA SAI JUNTO: `esquecerSincronia` para a
+     sincronia, espera a volta que estiver no meio e só então apaga a base
+     — a volta não a regrava depois.
+
+     ⚠️ O ESTADO NÃO ESPERA POR ELA. Gravar o estado vazio só depois de
+     apagar a base deixava a gravação para trás de qualquer `update` feito
+     logo em seguida, e o cadastro recém-aberto seria sobrescrito pelo
+     vazio. A ordem entre os dois não importa: a base é amarrada ao
+     `diario`, e este estado é um diário novo (ver logic/sincronia). */
   reset: () => {
     const s = estadoVazio();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
+    esquecerSincronia().catch(() => {});
     set({ S: s });
   },
   setTheme: (t) => get().update((s) => { s.theme = t; }),
@@ -224,6 +235,7 @@ export const useStore = create<Store>((set, get) => ({
     const s = semente();
     if (idioma) s.profile.idioma = idioma;
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
+    esquecerSincronia().catch(() => {});
     set({ S: s, ready: true });
   },
 }));

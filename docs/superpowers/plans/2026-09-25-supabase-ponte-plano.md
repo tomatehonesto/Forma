@@ -1051,6 +1051,143 @@ nada no banco.
 conferências de sempre; o navegador idêntico. O motor ainda não liga,
 porque ninguém tem conta.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (25/09/2026)
+
+**O resultado:**
+- `scripts/sincronia.ts` tem 94 afirmações (27 da fase 2 e 67 novas), e
+  os 29 erros plantados foram todos pegos: os 7 da fase 2, os 8 do plano
+  e 14 que a execução acrescentou;
+- `scripts/regras.mjs` ganhou a comparação dos 14 tipos de registro com a
+  tradução;
+- na web, as telas da demonstração ficaram iguais, e a origem de cada
+  pergunta foi gravada pelas três portas do Insights e pelas duas do
+  companheiro.
+
+1. **O estado vazio herdava a Mariana.** Sobravam em `estadoVazio` os
+   sinais vitais (três pressões, duas frequências, três glicemias), os
+   materiais da clínica e a ficha da clínica. Nada no aplicativo escreve
+   um sinal vital: quem se cadastrava carregava para sempre a pressão de
+   outra pessoa, e a sincronia a subiria como dela.
+   - Os três agora nascem vazios.
+   - A tela de Saúde mostra só os cartões com medição. Não precisou de
+     texto novo: o aviso "Estes números não se digitam" já diz o que
+     falta.
+2. **A medição nova copiava a identidade da última** (`{ ...ultima, t }`).
+   As duas virariam uma linha só no banco, e um lote com o mesmo id duas
+   vezes é recusado inteiro.
+   - A tela deixou de copiar.
+   - O `carimbar` passou a dar identidade nova a quem repete a de outro
+     item; o primeiro mantém a sua.
+3. **A ordem das listas não era a que o plano dizia.**
+   - Do mais antigo ao mais novo: pesos, aplicações, check-ins, medidas,
+     canetas, valores de exame e sinais vitais.
+   - Do mais novo ao mais antigo: refeições, anotações, documentos, laudos
+     e fotos.
+   - Sem momento: metas e favoritas levam a posição nos dados. No empate,
+     os dois aparelhos desempatam do mesmo jeito.
+   - O que desce de outro aparelho entra onde o aplicativo o teria posto,
+     e o que já estava fica onde estava.
+   - Duas sementes estavam fora da própria ordem (as refeições dentro do
+     dia, e os documentos), e foram postas nela.
+4. **O mesmo dia em dois aparelhos.** O registro do dia (`registroDoDia`)
+   é o recipiente onde o check-in, a água, o exercício e a proteína
+   escrevem. Dois aparelhos sem conexão criam cada um o seu, com
+   identidades diferentes, e as telas leriam só o primeiro. Na mistura,
+   eles viram um:
+   - fica o de menor identidade, e os dois aparelhos escolhem o mesmo;
+   - ele recebe os goles e os treinos que faltam e as respostas que não
+     deu;
+   - o outro sobe como apagado.
+5. **A fila é calculada, e não guardada.** A base só avança com a
+   confirmação do servidor, então o que falta subir é exatamente o que
+   difere dela. Fechar no meio não perde nada, e não há fila para ficar
+   velha. A base guarda:
+   - um resumo de cada linha e de cada parte;
+   - as perguntas da janela que já subiram;
+   - os cursores e a escolha confirmada;
+   - a dívida de apagar as perguntas.
+6. **A base é amarrada ao diário, e não só ao dono.** Cada diário ganha
+   uma identidade neste aparelho (`S.diario`). Ela nasce na semente, no
+   estado vazio e no cadastro que recomeça, e não sobe. A base de outro
+   diário é jogada fora.
+   - Por quê: um caminho que esquecesse de apagar a base transformaria o
+     diário vazio numa lista de apagados na conta. É o risco que "apagar a
+     base antes" existia para evitar, e agora ele não depende de ninguém
+     lembrar.
+   - A base continua sendo apagada, por `trocarDeDiario` e por "Apagar
+     meus dados".
+   - O erro plantado "sair sem apagar a base" é pego pela afirmação de que
+     a base sai. O novo, "a base de outro diário usada", é pego pelo
+     diário novo que encontra a base velha.
+7. **Antes da primeira descida, o perfil do aparelho não é mudança.** Num
+   aparelho que acabou de entrar numa conta, o perfil é o do estado vazio,
+   e subi-lo apagaria o de verdade. Nada sobe antes de a primeira descida
+   terminar, e nela vale o servidor em cada parte que ele tiver.
+8. **O perfil desce inteiro a cada volta**, e não pelo cursor. É uma linha
+   só, e cada parte é conferida pelo resumo. O cursor fica só para
+   `registros`.
+9. **O consentimento só sobe de versão.** A versão maior vale, venha de
+   onde vier e esteja pendente ou não. Na mesma versão, vale a hora que o
+   servidor tem. Sem isso, um aparelho com a versão antiga seria recusado
+   pelo banco para sempre.
+10. **Uma linha que esta versão não conhece fica de fora do estado e da
+    base.** É um tipo novo, subido por uma versão mais nova do aplicativo.
+    Se entrasse na base, voltaria como apagada.
+11. **O que passa do teto do banco fica no aparelho** (64 KB por linha e
+    256 KB por parte, medidos como o banco mede) e não segura o resto do
+    lote. Ele conta no que falta: o estado não diz "guardado" com uma
+    linha de fora.
+12. **Os estados da tela ganharam três.**
+    - `sem-conta`: o diário tem jeito de ser de alguém e ainda não tem
+      conta.
+    - `outra-conta`: a sessão é de outra conta.
+    - `desligada`: a semente, a prévia do Perfil ou o diário sem dono.
+
+    E a recusa do banco tenta de novo descendo primeiro. A causa mais
+    provável é a escolha das perguntas desligada em outro aparelho.
+13. **A escolha das perguntas é `S.perguntasParaUso`**, desligada por
+    padrão. A tela que a liga é da fase 8. A origem viaja no endereço:
+    - sem nada, é `sugerida`, e por isso os outros atalhos não mudaram;
+    - o campo do Insights manda `digitada`;
+    - uma recente tocada de novo manda `recente`, e o companheiro a troca
+      pela origem da vez anterior, lida em `asked`.
+
+    A janela e a origem moram em `logic/perguntas`.
+14. **"Apagar meus dados" grava o estado na hora**, e esquece a sincronia
+    ao lado. Esperar a base sair antes de gravar deixava a gravação do
+    vazio para trás de um `update` feito logo em seguida.
+15. **A comparação dos tipos com a regra do banco mora em
+    `scripts/regras.mjs`**, que já lê as migrações. A trava da sincronia é
+    TypeScript e não lê arquivo.
+16. **Três campos do perfil não estavam no levantamento:**
+    - a foto, em `pessoal`;
+    - as metas ajustadas à mão (`alvosEditados`), em `tratamento`;
+    - o motivo de quem cancelou (`cancelamento`), que fica no aparelho,
+      porque nenhum texto nosso diz que ele sobe.
+17. **O servidor de mentira mora em `scripts/duble/servidor.ts`.** Ele:
+    - carimba a hora, marca o apagado e tira o conteúdo;
+    - não deixa sobrescrever linha de outra conta;
+    - recusa consentimento que desce e pergunta sem a escolha;
+    - sabe perder a conexão, perder a resposta de um lote e atrasar uma
+      transação.
+18. ⚠️ **Fica para antes do primeiro campo novo numa parte.** A parte sobe
+    inteira. Um aparelho com a versão anterior, mexendo nela, a subiria
+    sem o campo novo e o apagaria no servidor. A volta precisa guardar o
+    que não conhece. Está anotado em `logic/traducao`.
+
+**Para a fase 4:**
+- o transporte do Supabase implementa `Transporte`: as colunas em
+  `snake_case`, a descida paginada e `ignoreDuplicates` nas perguntas;
+- `usuario()` lê a sessão do aparelho, sem ir à rede, e a conta apagada
+  aparece na primeira leitura ou escrita;
+- a volta ao aplicativo chama `voltouAoAplicativo()`;
+- "Sair da conta" e "Já tenho conta" passam por `trocarDeDiario`;
+- "Apagar meus dados" e reconstruir a semente deixam a sincronia parada
+  (`esquecerSincronia`), e quem cria ou abre a conta a liga de novo;
+- medir no iPhone o custo de uma volta num diário grande. No Node, a
+  tradução e os resumos de 2.000 linhas levam uns 20 ms, e cada volta faz
+  isso até três vezes.
+
 ---
 
 ## Fase 4 — a conta: e-mail e Apple, e a sincronia ligada

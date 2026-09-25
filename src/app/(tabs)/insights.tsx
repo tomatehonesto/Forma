@@ -13,6 +13,7 @@ import {
   variacaoDe,
 } from '../../logic/derive';
 import { daysAgo, nf } from '../../logic/time';
+import { enderecoDoCompanheiro, type OrigemNoEndereco } from '../../logic/perguntas';
 import { Txt, Row, SectionHead, ListRow, Rolagem } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
 import { Malha } from '../../ui/instrumentos';
@@ -143,13 +144,17 @@ export default function Insights() {
   useLightStatusBar();
 
   const go = (to: string) => () => router.push(to as any);
-  const perguntar = (q: string) => () => router.push(`/companion?q=${encodeURIComponent(q)}` as any);
+  /* A origem vai no endereço — ver logic/perguntas: sem ela, a pergunta é
+     uma sugestão nossa; digitada no campo, é da pessoa; e uma recente
+     tocada de novo herda a da vez anterior. */
+  const perguntar = (q: string, origem?: OrigemNoEndereco) => () =>
+    router.push(enderecoDoCompanheiro(q, origem) as any);
 
   const [pergunta, setPergunta] = useState('');
   const [tudo, setTudo] = useState(false);
   const enviar = () => {
     const q = pergunta.trim();
-    if (q) { setPergunta(''); router.push(`/companion?q=${encodeURIComponent(q)}` as any); }
+    if (q) { setPergunta(''); router.push(enderecoDoCompanheiro(q, 'digitada') as any); }
   };
 
   const recentes = useMemo(() => recentQuestions(S), [S]);
@@ -345,8 +350,8 @@ export default function Insights() {
               competia com o card branco que vem logo abaixo. Translúcida,
               ela pertence ao ambiente do Morphi. */}
           <View style={{ marginTop: 20, alignItems: 'center', gap: 8 }}>
-            {chips.map(({ q }) => (
-              <Pressable key={q} onPress={perguntar(q)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1, maxWidth: '100%' }]}>
+            {chips.map(({ q, visto }) => (
+              <Pressable key={q} onPress={perguntar(q, visto ? 'recente' : undefined)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1, maxWidth: '100%' }]}>
                 <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 11 }}>
                   <Txt v="caption" c={c.onHero} numberOfLines={1}>{q}</Txt>
                 </View>

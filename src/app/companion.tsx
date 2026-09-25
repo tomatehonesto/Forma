@@ -5,6 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import type { State } from '../logic/seed';
 import {
+  acrescentarPergunta, origemDoEndereco, type OrigemDaPergunta, type PerguntaFeita,
+} from '../logic/perguntas';
+import {
   M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
   lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
   temConsulta, clinicaConectada, startWeight, variacaoDe,
@@ -236,19 +239,26 @@ export default function Companion() {
   const memoria = useMemo(() => companionMemoria(S), [S]);
   const vazio = msgs.length === 0;
 
-  const { q } = useLocalSearchParams<{ q?: string }>();
+  /* A pergunta que chega pelo endereço traz a origem junto — ver
+     logic/perguntas: sem nada, é uma sugestão nossa. */
+  const { q, origem } = useLocalSearchParams<{ q?: string; origem?: string }>();
   const askedRef = useRef(false);
   useEffect(() => {
-    if (q && !askedRef.current) { askedRef.current = true; setTimeout(() => ask(String(q)), 380); }
+    if (q && !askedRef.current) {
+      askedRef.current = true;
+      const texto = String(q);
+      const de = origemDoEndereco(((S as any).asked ?? []) as PerguntaFeita[], texto, origem);
+      setTimeout(() => ask(texto, de), 380);
+    }
   }, [q]);
 
-  const ask = (text: string) => {
+  const ask = (text: string, de: OrigemDaPergunta | undefined) => {
     const t = text.trim(); if (!t) return;
     setInput('');
     /* guarda a pergunta para o Insights poder oferecer "continue de onde
        parou" — sem isso, cada visita à aba recomeça do zero */
     update((s: any) => {
-      s.asked = [...(s.asked || []).filter((x: any) => x.q !== t), { t: Date.now(), q: t }].slice(-12);
+      s.asked = acrescentarPergunta(s.asked || [], t, de, Date.now());
     });
     setMsgs((m) => [...m, { who: 'me', text: t }]);
     setPensando(true);
@@ -372,7 +382,7 @@ export default function Companion() {
 
               <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
                 {sugestoes.map((s) => (
-                  <Pressable key={s} onPress={() => ask(s)} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
+                  <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
                     <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 15 }}>
                       <Icon name="aura" size={15} color={c.accent} sw={1.9} />
                       <Txt v="body" style={{ flex: 1 }}>{s}</Txt>
@@ -470,7 +480,7 @@ export default function Companion() {
           <Row gap={10}>
             <Row gap={10} style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 8, paddingVertical: 4 }}>
               <TextInput
-                value={input} onChangeText={setInput} onSubmitEditing={() => ask(input)}
+                value={input} onChangeText={setInput} onSubmitEditing={() => ask(input, 'digitada')}
                 /* ⚠️ O TEXTO ENCURTOU PORQUE O CAMPO ENCURTOU. Com o
                    microfone dentro da pílula, 'Pergunte sobre sua jornada'
                    passou a ser cortado no meio — e placeholder cortado lê
@@ -517,7 +527,7 @@ export default function Companion() {
             </Row>
             {/* o botão só acende quando há o que enviar: cheio e apagado
                 dizem, antes do toque, se o gesto vai levar a algo */}
-            <Pressable onPress={() => ask(input)} disabled={!input.trim()} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <Pressable onPress={() => ask(input, 'digitada')} disabled={!input.trim()} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: input.trim() ? c.accent : c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="send" size={19} color={input.trim() ? c.accentInk : c.tx4} sw={2} />
               </View>
