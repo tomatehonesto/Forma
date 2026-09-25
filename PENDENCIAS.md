@@ -231,9 +231,11 @@ entrada pelo perfil, existe para quem recebe o código depois — e esse é o
 caminho mais comum de todos. A tela de planos é onde ele se resgata na
 primeira vez; o perfil é onde ele entra em qualquer outra.
 
-⚠️ E vale conferir a regra de loja antes de desenhar: Apple e Google têm
-posição sobre desbloquear assinatura por código fora da compra no app.
-Ver "A loja olha código que libera conteúdo pago", em MODOS.md.
+⚠️ E a regra de loja foi conferida em 25/09/2026: a Apple proíbe liberar
+funções pagas por mecanismo próprio (regra 3.1.1), e o convite da clínica
+precisa ser apresentado como vínculo de cuidado, e não como código
+promocional. Ver "A loja olha código que libera conteúdo pago", em
+MODOS.md.
 
 ### 6. A transmissão para a equipe não existe no código
 
@@ -2290,6 +2292,45 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    código continua pagando até cancelar lá (ver o item 5). E é uma
    vantagem oferecida a quem se trata numa clínica da rede: vai para a
    revisão jurídica do ponto 2, junto com o resto.
+
+   **O código da clínica pode ser também um código de desconto da loja
+   ("2 em 1")? Pesquisado em 25/09/2026, nas páginas oficiais:**
+
+   - **Google Play: dá, e sem código nenhum.** Quando o convite é
+     conferido, o nosso servidor pode parar a cobrança sozinho:
+     `purchases.subscriptionsv2.cancel` com
+     `DEVELOPER_REQUESTED_STOP_PAYMENTS` (a pessoa não consegue
+     "reativar" pela loja), `revoke` com reembolso proporcional, ou
+     `defer` (adia a cobrança, até um ano por chamada). Exige guardar o
+     token da compra ligado à conta — tem de nascer junto com a cobrança.
+     Os códigos promocionais do Play NÃO servem: para assinatura dão só
+     um teste de 3 a 90 dias e renovam cobrando.
+   - **Apple: não dá para ser automático.** A App Store Server API não
+     tem como cancelar nem reembolsar a assinatura de ninguém. O "código
+     de oferta" com 100% de desconto até pode ter o mesmo texto do
+     convite (código personalizado, até 64 caracteres, sem hífen), mas:
+     a pessoa confirma numa tela da Apple; vale no máximo UM ano grátis,
+     uma vez por oferta; para quem já paga, só começa na próxima
+     renovação, sem devolver o que já foi pago; não se desfaz se o
+     vínculo acabar; e o contrato da Apple (Schedule 2, §3.13(c)) proíbe
+     receber pagamento pela distribuição dos códigos — se a clínica paga
+     o Morphi pelo acesso dos pacientes, conflita. A "oferta
+     promocional", que o servidor assina sem a pessoa digitar nada, só
+     adia a cobrança: depois renova no preço cheio.
+   - **O caminho recomendado para iOS:** no "Conectar" da folha do
+     código, se houver assinatura ativa, dizer que ela não precisa mais
+     pagar e abrir a gestão de assinaturas da Apple dentro do aplicativo
+     (`AppStore.showManageSubscriptions`), onde ela cancela com um toque.
+     É o que Calm e Headspace fazem com códigos de empresa. O reembolso
+     do período pago só a Apple decide (`Transaction.beginRefundRequest`).
+
+   Fontes: developer.apple.com/help/app-store-connect/manage-subscriptions/set-up-subscription-offer-codes,
+   developer.apple.com/documentation/appstoreserverapi,
+   developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2,
+   developer.android.com/google/play/billing/promo. E o risco maior que a
+   pesquisa achou não é este: é a regra 3.1.1 da Apple sobre o próprio
+   convite — ver "A loja olha código que libera conteúdo pago", em
+   MODOS.md.
 
 ⚠️ **E OS RETRATOS DA SEMENTE PRECISAM SAIR ANTES DA LOJA.** Os quatro de
 `assets/images/equipe/` não estão em `CREDITOS.txt` — a origem nunca foi

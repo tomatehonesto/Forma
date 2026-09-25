@@ -163,10 +163,54 @@ diário para ninguém.
 
 ### A loja olha código que libera conteúdo pago
 
-Apple e Google têm regra sobre desbloquear assinatura por código fora da
-compra no app. **Não sei qual é a regra hoje** e não vou chutar: precisa
-ser conferida antes de desenhar o fluxo do convite, porque a resposta pode
-mudar se o código entra no app ou num site.
+**Conferido em 25/09/2026, nas páginas oficiais.** Antes, este trecho
+dizia que a regra não era conhecida.
+
+**Apple — o risco é real.** A regra 3.1.1 exige compra dentro do app para
+liberar funções pagas e proíbe "mecanismos próprios" de desbloqueio —
+chaves de licença, QR codes e afins. A mensagem padrão de recusa da
+revisão cita códigos promocionais. Um convite que só "tira o paywall"
+cai nesse padrão. Nenhuma exceção fala de acesso pago por clínica,
+empregador ou plano de saúde; a que mais se aproxima é a 3.1.3(b)
+(acesso a algo adquirido fora do app, desde que o mesmo continue à venda
+dentro dele — e continua, para quem não tem clínica). A 3.1.3(c), de
+empresas, não serve: exige que o app seja vendido SÓ a organizações.
+
+Para reduzir o risco:
+- o convite se apresenta como **conectar à sua clínica** (o vínculo de
+  cuidado), e nunca como "código promocional", "voucher" ou "cupom" —
+  vale-presente e cupom são, pela própria 3.1.1, coisas que só se vendem
+  por compra dentro do app;
+- nenhuma tela manda a pessoa pedir à clínica que pague;
+- a compra continua disponível para todo mundo;
+- o direito de acesso fica guardado no servidor, ligado à conta;
+- na submissão, uma nota para a revisão citando a 3.1.3(b), com um
+  código de demonstração.
+Precedente: o Calm vende assinatura dentro do app e tem uma tela de
+"vincular assinatura da organização" com código.
+
+A via oficial para um terceiro pagar pelo acesso de alguém é nova: a
+Apple anunciou em 16/09/2026 a compra de vários acessos de uma vez
+("multiseat"). A modalidade que serve é a Group Purchases (prevista para
+o inverno de 2026): quem compra paga N acessos numa compra só e convida
+os outros — pela Apple ou por um fluxo nosso, com endpoints novos da App
+Store Server API. A Volume Purchasing não serve: exige Apple Business e
+gerenciamento de aparelhos, que celular de paciente não tem. As fontes
+não dizem em quais países vale, nem o que acontece com quem já tem
+assinatura individual. Vale avaliar antes de desenhar o acordo com as
+clínicas.
+
+**Google — risco baixo.** A política de pagamentos exige o billing do
+Play para vender dentro do app, e não tem a lista de mecanismos
+proibidos da Apple. Ela permite dizer, fora do app, que existem outras
+ofertas, e não exige o mesmo preço em toda plataforma.
+
+Fontes: developer.apple.com/app-store/review/guidelines (3.1.1 e 3.1.3),
+developer.apple.com/news/?id=likeohx4 e a sessão 391 da WWDC 2026
+(compras de vários acessos),
+support.google.com/googleplay/android-developer/answer/9858738 (pagamentos).
+O "2 em 1" com código de desconto da loja está em PENDENCIAS, item 34,
+ponto 8.
 
 ### Os documentos são brasileiros
 
