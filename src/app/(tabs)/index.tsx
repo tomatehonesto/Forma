@@ -29,7 +29,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
-import { fotoDe, focoDe } from '../../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../../ui/retratos';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -37,7 +37,6 @@ import { T } from '../../textos';
 const K = () => T.home.telaInicio;
 
 const PAD = 24;                     // margem lateral do frame
-const FOTO_MEDICA = fotoDe('responsavel');   // um mapa, três leitores
 const GOAL_W = 323;                 // largura do card de meta
 const GOAL_GAP = 4;
 const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
@@ -109,6 +108,8 @@ function TrendDot({ up, good, c }: { up: boolean; good: boolean; c: Palette }) {
 export default function Home() {
   const aurora = useAurora();
   const S = useStore((s) => s.S);
+  /* um mapa, três leitores — ver ui/retratos */
+  const fotoMedica = fotoDaEquipe(S, 'responsavel');
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
@@ -826,13 +827,22 @@ export default function Home() {
                       moldura; agora a foto cobre o quadrado inteiro e ele
                       só aparece enquanto ela carrega. Fica por isso — um
                       quadrado que pisca branco antes da foto é pior. */}
-                  <View style={{ width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, overflow: 'hidden' }}>
-                    <Image
-                      source={FOTO_MEDICA}
-                      style={{ width: '100%', height: '100%' }}
-                      contentFit="cover"
-                      contentPosition={focoDe('responsavel')}
-                    />
+                  <View style={{
+                    width: 80, height: 80, borderRadius: radius.md, backgroundColor: c.accentWeak, overflow: 'hidden',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {/* Sem retrato — quem veio da rede sem foto —, a inicial:
+                        um quadrado tingido vazio lia como imagem quebrada. */}
+                    {fotoMedica ? (
+                      <Image
+                        source={fotoMedica}
+                        style={{ width: '100%', height: '100%' }}
+                        contentFit="cover"
+                        contentPosition={focoDaEquipe(S, 'responsavel')}
+                      />
+                    ) : (
+                      <Txt v="h1" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
+                    )}
                   </View>
                   <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
                     {/* ⚠️ O OLHO-DE-BOI SAIU. Ele dizia "SUA ESPECIALISTA"

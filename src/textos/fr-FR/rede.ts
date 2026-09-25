@@ -75,6 +75,7 @@ export const rede = {
       { titulo: 'Et l’équipe vous accompagne', texto: 'Tout ce que vous avez déjà enregistré reste ici — le lien ne remet rien à zéro.' },
     ],
     conhecer: 'Découvrir les cliniques partenaires',
+    credito: 'Image de Drazen Zigic sur Magnific',
   },
 
   folha: {

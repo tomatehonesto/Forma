@@ -285,6 +285,28 @@ export const assinatura = {
   },
 
   /* ============================================================
+     A FOLHA DO CÓDIGO — /codigo
+
+     Os rótulos do campo moram em `parceiros`, que é de onde a folha
+     nasceu. Aqui fica o resto: o piso do campo, a frase de baixo e a
+     conferência, que só existe quando há de onde conferir (ver
+     `conferirConvite`, em logic/rede).
+     ============================================================ */
+  codigo: {
+    minimo: 'Digite pelo menos 4 caracteres.',
+    liberaNaHora: 'O código libera o aplicativo na hora. Nada do que você já registrou muda de lugar.',
+    conferindo: 'Conferindo…',
+    naoAchou: 'Não encontramos esse código. Confira com a clínica: ele vale do jeito que ela passou.',
+    /* só com a lista de exemplo, que só existe em desenvolvimento */
+    exemplo: (codigos: string) => `Na lista de exemplo, os códigos são inventados: ${codigos}.`,
+    conferirTitulo: 'É essa a sua clínica?',
+    conferirSub: 'O código que você digitou é desta clínica.',
+    conectar: 'Conectar',
+    naoEEssa: 'Não é essa clínica',
+    conectarTexto: 'Ao conectar, esta clínica passa a acompanhar você por aqui. Nada do que você já registrou muda de lugar.',
+  },
+
+  /* ============================================================
      O EXTRATO — /cobrancas
      ============================================================ */
   extrato: {

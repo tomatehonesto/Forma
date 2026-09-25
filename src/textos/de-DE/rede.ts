@@ -74,6 +74,7 @@ export const rede = {
       { titulo: 'Und das Team begleitet dich', texto: 'Alles, was du schon eingetragen hast, bleibt hier — die Verbindung setzt nichts zurück.' },
     ],
     conhecer: 'Partnerpraxen kennenlernen',
+    credito: 'Bild von Drazen Zigic auf Magnific',
   },
 
   folha: {

@@ -17,13 +17,13 @@ import { marcosDeConquista, emTratamento } from '../logic/derive';
 import { Selo, Cartao, Linha } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
-import { fotoDe, focoDe } from '../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../ui/retratos';
 import { modoFingido, NOME_DO_MODO, idiomaEmPrevia } from '../logic/modo';
 
 /* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
    segunda linha apontando para o mesmo arquivo. Uma pessoa, um retrato:
-   duas imagens da mesma médica divergem no dia em que uma for trocada. */
-const FOTO_MEDICA = fotoDe('responsavel');
+   duas imagens da mesma médica divergem no dia em que uma for trocada.
+   Ver `fotoDaEquipe`, em ui/retratos. */
 import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
@@ -126,6 +126,7 @@ function Dado({ valor, unidade, label, fundo, tinta, tintaRotulo, delta, largo }
 
 export default function Perfil() {
   const S = useStore((s) => s.S);
+  const fotoMedica = fotoDaEquipe(S, 'responsavel');
   /* Contada do ano de nascimento, e não guardada: idade guardada
      envelhece errado — o perfil diria 38 anos para sempre. */
   const idade = idadeDe(S);
@@ -449,12 +450,16 @@ export default function Perfil() {
                     backgroundColor: c.accentWeak,
                     alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <Image
-                      source={FOTO_MEDICA}
-                      style={{ width: '100%', height: '100%' }}
-                      contentFit="cover"
-                      contentPosition={focoDe('responsavel')}
-                    />
+                    {fotoMedica ? (
+                      <Image
+                        source={fotoMedica}
+                        style={{ width: '100%', height: '100%' }}
+                        contentFit="cover"
+                        contentPosition={focoDaEquipe(S, 'responsavel')}
+                      />
+                    ) : (
+                      <Txt v="h2" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
+                    )}
                   </View>
                   <View style={{ flex: 1 }}>
                     <Txt v="bodyMed">{S.profile.doctor}</Txt>

@@ -10,7 +10,7 @@ import {
 import { Txt, Card, Row, Chevron, SectionHead, Rolagem } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
-import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { fmtDate, dataLonga, nf } from '../logic/time';
 import { radius } from '../theme';
@@ -581,8 +581,9 @@ export default function Medico() {
    ruim, mas fica ruim de um jeito que se entende, em vez de virar um
    recorte estranho que parece defeito do aplicativo. */
 function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: number }) {
+  const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const foto = fotoDe(ficha.id);
+  const foto = fotoDaEquipe(S, ficha.id);
   if (foto) {
     return (
       <Image
@@ -598,7 +599,7 @@ function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: n
            INTEIRO: 76px de largura deixam o rosto com uns doze. Isso não é
            enquadramento, é recorte — e recorte se faz na hora do envio.
            Está em PENDENCIAS. */
-        contentPosition={focoDe(ficha.id)}
+        contentPosition={focoDaEquipe(S, ficha.id)}
       />
     );
   }

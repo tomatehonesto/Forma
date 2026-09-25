@@ -198,7 +198,16 @@ export const NOME_DO_TIPO: Record<TipoAssinatura, string> = {
    diferentes no dia em que um servidor for conferi-los. */
 export const normalizarConvite = (v: string) => v.trim().toUpperCase();
 
-export type Vinculo = { desde: number; convite: string };
+export type Vinculo = {
+  desde: number;
+  convite: string;
+  /* De quem é o código, quando houve de onde conferir — a clínica, quem
+     passou o código e o retrato dessa pessoa, se o portal mandou um. Ver
+     `conferirConvite` e `gravarConviteDaRede`, em logic/rede. */
+  clinica?: string;
+  profissional?: string;
+  retrato?: string;
+};
 
 /* ⚠️ O CÓDIGO É O VÍNCULO, E NÃO UM PEDIDO DE VÍNCULO.
 
@@ -216,18 +225,20 @@ export type Vinculo = { desde: number; convite: string };
    ela escreveu, e `vinculo` é o que o aplicativo faz com isso — mas
    agora os dois nascem no mesmo toque.
 
-   ⚠️⚠️ E NINGUÉM CONFERE O CÓDIGO, QUE É O BURACO DESTA DECISÃO. ⚠️⚠️
+   ⚠️⚠️ E SEM O PORTAL, NINGUÉM CONFERE O CÓDIGO, QUE É O BURACO DESTA
+   DECISÃO. ⚠️⚠️
 
-   Não existe lista de códigos válidos em lugar nenhum: qualquer quatro
-   caracteres ligam o vínculo e isentam a assinatura. Hoje isso é
-   inofensivo, porque não há cobrança para burlar. No dia em que houver,
-   é o aplicativo inteiro de graça para quem digitar "ABCD".
+   Sem lista de códigos válidos, qualquer quatro caracteres ligam o
+   vínculo e isentam a assinatura. Hoje isso é inofensivo, porque não há
+   cobrança para burlar. No dia em que houver, é o aplicativo inteiro de
+   graça para quem digitar "ABCD".
 
-   É esta função que vira a chamada ao Supabase — ela já é o único lugar
-   que transforma código em vínculo, e por isso já está no formato certo
-   para virar assíncrona. O que muda quando isso acontecer: ela passa a
-   devolver uma promessa, e as três telas que a chamam passam a ter um
-   estado de espera e um de recusa. Ver PENDENCIAS.md, itens 5 e 10. */
+   A conferência já tem lugar: `conferirConvite`, em logic/rede, pergunta
+   ao portal de quem é o código, e a folha do código ganhou o estado de
+   espera, o de recusa e o de "é essa a sua clínica?". Enquanto o portal
+   não existe, ela responde que não há a quem perguntar, e o código liga
+   por aqui, como sempre ligou. O cadastro e /parceiros ainda ligam direto,
+   sem perguntar. Ver PENDENCIAS.md, itens 5, 10 e 34. */
 export const vinculoDoConvite = (codigo: string): Vinculo =>
   ({ desde: Date.now(), convite: normalizarConvite(codigo) });
 

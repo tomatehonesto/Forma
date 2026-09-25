@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,9 +39,16 @@ const PAD = 24;
 
 /* ⚠️ 1800 × 1200, E O ORIGINAL TINHA 6720 × 4480 E 14 MB. Decodificada, a
    foto grande ocuparia uns 120 MB de memória para desenhar um retângulo
-   de 375 pontos. Esta é a que cabe numa tela de 3x com folga. De onde
-   ela veio está em assets/images/CREDITOS.txt. */
+   de 375 pontos. Esta é a que cabe numa tela de 3x com folga.
+
+   ⚠️ E ELA TEM DONO: é de Drazen Zigic, no Magnific (antigo Freepik), com
+   a licença gratuita — que pede o crédito, com o link, perto da imagem ou
+   no pé da página. Ele mora no pé desta, e a origem inteira está em
+   assets/images/CREDITOS.txt. Com o plano pago do Magnific, o crédito
+   deixa de ser obrigatório. */
 const FOTO = require('../../assets/images/rede-hero.jpg');
+const ORIGEM_DA_FOTO =
+  'https://www.magnific.com/free-photo/happy-doctor-holding-medical-paperwork-while-communicating-with-patient-medical-appointment-hospital_25623984.htm';
 
 /* A foto sobe por trás da barra de status, e a parte visível abaixo dela
    tem a mesma altura em qualquer aparelho. */
@@ -123,6 +130,16 @@ export default function RedeApresentacao() {
               <Passo key={p.titulo} n={i + 1} titulo={p.titulo} texto={p.texto} ultimo={i === todos.length - 1} />
             ))}
           </View>
+
+          {/* O crédito da foto, no pé da página — e o toque abre a origem,
+              que é o link que a licença pede. */}
+          <Pressable
+            onPress={() => { Linking.openURL(ORIGEM_DA_FOTO).catch(() => {}); }}
+            hitSlop={8}
+            style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 28, opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Txt v="micro" c={c.tx4}>{A().credito}</Txt>
+          </Pressable>
         </View>
       </Rolagem>
 
@@ -137,9 +154,11 @@ export default function RedeApresentacao() {
       }}>
         <Botao pilula label={A().conhecer} onPress={conhecer} />
         {/* A porta de quem já chegou pela clínica: o código é o terceiro
-            passo, e quem já o tem não precisa passar pela vitrine. */}
+            passo, e quem já o tem não precisa passar pela vitrine. Ela abre
+            direto a folha do código, que confere de quem ele é antes de
+            conectar — e, conectada, a pessoa vai para a aba Cuidado. */}
         <Pressable
-          onPress={() => router.push('/parceiros' as any)}
+          onPress={() => router.push('/codigo?de=rede' as any)}
           style={({ pressed }) => [{ alignItems: 'center', paddingTop: 14, paddingBottom: 2, opacity: pressed ? 0.6 : 1 }]}
         >
           <Txt v="label" c={c.accent}>{T.rede.jaTenhoCodigo}</Txt>

@@ -183,6 +183,19 @@ export const assinatura = {
     codigoSub: 'The code your partner clinic gave you.',
   },
 
+  codigo: {
+    minimo: 'Enter at least 4 characters.',
+    liberaNaHora: 'The code unlocks the app right away. Nothing you’ve already logged moves.',
+    conferindo: 'Checking…',
+    naoAchou: 'We couldn’t find this code. Check with the clinic — it works exactly as they gave it to you.',
+    exemplo: (codigos: string) => `In the sample list, the codes are made up: ${codigos}.`,
+    conferirTitulo: 'Is this your clinic?',
+    conferirSub: 'The code you entered belongs to this clinic.',
+    conectar: 'Connect',
+    naoEEssa: 'That’s not my clinic',
+    conectarTexto: 'Once you connect, this clinic follows your care here. Nothing you’ve already logged moves.',
+  },
+
   extrato: {
     titulo: 'Billing history',
     vazioIsenta: 'No charges',

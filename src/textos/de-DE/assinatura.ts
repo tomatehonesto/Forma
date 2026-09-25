@@ -277,6 +277,19 @@ export const assinatura = {
     codigoSub: 'Der Code, den die Partnerpraxis dir gegeben hat.',
   },
 
+  codigo: {
+    minimo: 'Gib mindestens 4 Zeichen ein.',
+    liberaNaHora: 'Der Code schaltet die App sofort frei. Nichts von dem, was du schon eingetragen hast, verschiebt sich.',
+    conferindo: 'Wird geprüft…',
+    naoAchou: 'Diesen Code haben wir nicht gefunden. Frag bei der Praxis nach — er gilt genau so, wie sie ihn dir gegeben hat.',
+    exemplo: (codigos: string) => `In der Beispielliste sind die Codes erfunden: ${codigos}.`,
+    conferirTitulo: 'Ist das deine Praxis?',
+    conferirSub: 'Der Code, den du eingegeben hast, gehört zu dieser Praxis.',
+    conectar: 'Verbinden',
+    naoEEssa: 'Das ist nicht meine Praxis',
+    conectarTexto: 'Sobald du verbunden bist, begleitet dich diese Praxis hier. Nichts von dem, was du schon eingetragen hast, verschiebt sich.',
+  },
+
   /* ============================================================
      DIE AUFSTELLUNG — /cobrancas
      ============================================================ */

@@ -288,6 +288,19 @@ export const assinatura = {
     codigoSub: 'Le code que la clinique partenaire vous a transmis.',
   },
 
+  codigo: {
+    minimo: 'Saisissez au moins 4 caractères.',
+    liberaNaHora: 'Le code débloque l’application tout de suite. Rien de ce que vous avez déjà enregistré ne change de place.',
+    conferindo: 'Vérification…',
+    naoAchou: 'Nous n’avons pas trouvé ce code. Vérifiez auprès de la clinique — il est valable tel qu’elle vous l’a donné.',
+    exemplo: (codigos: string) => `Dans la liste d’exemple, les codes sont fictifs : ${codigos}.`,
+    conferirTitulo: 'Est-ce votre clinique ?',
+    conferirSub: 'Le code saisi appartient à cette clinique.',
+    conectar: 'Rejoindre cette clinique',
+    naoEEssa: 'Ce n’est pas ma clinique',
+    conectarTexto: 'Une fois le lien établi, cette clinique vous suit ici. Rien de ce que vous avez déjà enregistré ne change de place.',
+  },
+
   /* ============================================================
      LE RELEVÉ — /cobrancas
      ============================================================ */

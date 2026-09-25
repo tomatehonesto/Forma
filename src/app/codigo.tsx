@@ -1,14 +1,24 @@
 import React from 'react';
-import { TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, TextInput, Pressable, Keyboard, StyleSheet } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
-import { SheetScreen, Txt } from '../ui/kit';
+import {
+  conferirConvite, gravarConviteDaRede, codigosDeExemplo,
+  especialidadesDaClinica, nomeDaEspecialidade, registroTxt,
+  type ConviteDaRede,
+} from '../logic/rede';
+import { SheetScreen, Txt, Row } from '../ui/kit';
 import { Botao } from '../ui/internas';
+import { fotoDaRede, focoDaRede, imagensDaRede, iniciaisDaClinica, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius } from '../theme';
 
 import { T } from '../textos';
+
+const P = () => T.assinatura.parceiros;
+const K = () => T.assinatura.codigo;
 
 /* ============================================================
    O CÓDIGO DE CONVITE — a folha
@@ -31,23 +41,34 @@ import { T } from '../textos';
    a preferência dela, a emenda é o preço mais barato.
 
    ⚠️ E ELA NÃO EXPLICA A PARCERIA. Quem chega aqui já tem o código na
-   mão; a explicação do que o vínculo muda mora em /parceiros, que é para
-   quem ainda não tem. Uma folha que ensina antes de deixar digitar é a
-   mesma fricção que tirar o campo do lugar.
+   mão; a explicação do que o vínculo muda mora na apresentação da rede e
+   em /parceiros, que são para quem ainda não tem. Uma folha que ensina
+   antes de deixar digitar é a mesma fricção que tirar o campo do lugar.
 
-   ⚠️ E CONFIRMAR LIGA NA HORA. A folha já disse que a clínica conferia
-   depois, e isso punha uma pessoa parada na quinta à noite, com o código
-   na mão e o aplicativo trancado, esperando a segunda abrir — para uma
-   clínica que não tem nada a conferir, porque foi ela quem entregou o
-   código. O porquê inteiro está em assinatura.ts, em `vinculoDoConvite`,
-   junto com o buraco que essa decisão abre.
+   ⚠️ E CONFIRMAR CONFERE, QUANDO HÁ COMO. Com o portal — hoje, a lista
+   de exemplo —, o código é perguntado antes de ligar, e a folha mostra de
+   quem ele é: a clínica e quem atende, com "Conectar" e "Não é essa
+   clínica". Um erro de digitação que caísse no código de outra clínica
+   ligaria a pessoa a uma equipe que não é a dela; com os dois nomes na
+   tela, ela percebe antes. Sem portal, não há a quem perguntar, e
+   confirmar liga na hora, como sempre ligou — o porquê de não esperar a
+   clínica está em assinatura.ts, em `vinculoDoConvite`.
+
+   ⚠️ E DE ONDE ELA ABRIU MUDA O FIM. Pelo paywall ou pelo Perfil, fechar
+   devolve a pessoa onde ela estava, e é a própria tela que diz que foi
+   resolvido. Pela rede (`?de=rede`), voltar para a vitrine não diria
+   nada: a pessoa acabou de ganhar uma equipe, e a vitrine é para quem
+   procura uma. Ela volta para as abas, e a equipe está na aba Cuidado.
    ============================================================ */
+
+type Etapa = { tipo: 'codigo' } | { tipo: 'conferir'; convite: ConviteDaRede };
 
 export default function Codigo() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const router = useRouter();
   const { c } = useTheme();
+  const { de } = useLocalSearchParams<{ de?: string }>();
 
   /* ⚠️ O CAMPO NASCE COM O QUE JÁ EXISTE, e o vínculo é a segunda fonte
      porque a primeira pode estar vazia: quem chegou com o vínculo pronto
@@ -70,28 +91,94 @@ export default function Codigo() {
 
      Fora do foco, a frase vale: ela parou, e o que ela parou não serve. */
   const [focado, setFocado] = React.useState(true);
+  const [etapa, setEtapa] = React.useState<Etapa>({ tipo: 'codigo' });
+  const [conferindo, setConferindo] = React.useState(false);
+  const [naoAchou, setNaoAchou] = React.useState(false);
+
+  const concluir = () => {
+    if (de !== 'rede') { router.back(); return; }
+    if (router.canDismiss()) router.dismissAll();
+    else router.replace('/cuidado' as any);
+  };
+
+  /* O mesmo código de agora não muda nada — e religar zeraria o "desde"
+     do vínculo, que a tela da clínica mostra. */
+  const jaLigado = !!vinculo && vinculo.convite === limpo;
 
   /* A normalização é a de assinatura.ts, e não uma cópia: "abc123 " e
-     "ABC123" precisam virar o mesmo convite nas três telas que o pedem.
+     "ABC123" precisam virar o mesmo convite em todas as telas que o
+     pedem.
 
      ⚠️ E FECHAR A FOLHA É A CONFIRMAÇÃO, sem tela de parabéns no meio. A
-     pessoa volta para o paywall e ele não pede mais dinheiro — é a
-     própria tela que ela veio resolver dizendo que foi resolvida. Um
-     aviso de sucesso por cima disso seria contar o que já está à vista. */
-  const confirmar = () => {
+     pessoa volta para onde a folha abriu, e é a própria tela de lá que diz
+     que deu certo: o paywall deixa de pedir dinheiro, e a aba Cuidado
+     mostra a equipe. */
+  const confirmar = async () => {
+    if (jaLigado) { router.back(); return; }
+    setNaoAchou(false);
+    setConferindo(true);
+    const r = await conferirConvite(limpo);
+    setConferindo(false);
+    if (r.tipo === 'achou') {
+      Keyboard.dismiss();
+      setEtapa({ tipo: 'conferir', convite: r.convite });
+      return;
+    }
+    if (r.tipo === 'nao-achou') { setNaoAchou(true); return; }
     update((st: any) => {
       st.profile.convite = limpo;
       st.profile.vinculo = vinculoDoConvite(limpo);
     });
-    router.back();
+    concluir();
   };
+
+  const conectar = (v: ConviteDaRede) => {
+    update((st) => { gravarConviteDaRede(st, v); });
+    concluir();
+  };
+
+  /* ---- a conferência: de quem é o código ---- */
+  if (etapa.tipo === 'conferir') {
+    const v = etapa.convite;
+    return (
+      <SheetScreen
+        titulo={K().conferirTitulo}
+        sub={K().conferirSub}
+        onClose={() => router.back()}
+        rodape={
+          <View>
+            <Botao label={K().conectar} onPress={() => conectar(v)} />
+            {/* Volta ao campo com o código ainda escrito: o erro mais
+                provável é uma letra, e não o código inteiro. */}
+            <Pressable
+              onPress={() => setEtapa({ tipo: 'codigo' })}
+              style={({ pressed }) => [{ alignItems: 'center', paddingTop: 14, paddingBottom: 2, opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Txt v="label" c={c.accent}>{K().naoEEssa}</Txt>
+            </Pressable>
+          </View>
+        }
+      >
+        <CartaoDoConvite v={v} />
+        <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>{K().conectarTexto}</Txt>
+      </SheetScreen>
+    );
+  }
+
+  const exemplos = codigosDeExemplo();
 
   return (
     <SheetScreen
-      titulo={T.assinatura.parceiros.codigoRotulo}
-      sub={T.assinatura.parceiros.codigoSub}
+      titulo={P().codigoRotulo}
+      sub={P().codigoSub}
       onClose={() => router.back()}
-      rodape={<Botao label={T.assinatura.parceiros.confirmar} onPress={confirmar} desligado={!vale} />}
+      rodape={
+        <Botao
+          label={conferindo ? K().conferindo : P().confirmar}
+          onPress={confirmar}
+          desligado={!vale || conferindo}
+        />
+      }
     >
       {/* ⚠️ O CAMPO SÓ VESTE O CORPO GRANDE QUANDO EXISTE O QUE VESTIR, e
           isso não é enfeite: no React Native o texto de exemplo não tem
@@ -104,8 +191,8 @@ export default function Codigo() {
           primeira tecla. */}
       <TextInput
         value={codigo}
-        onChangeText={(v) => setCodigo(v.toUpperCase())}
-        placeholder={T.assinatura.parceiros.digite}
+        onChangeText={(v) => { setCodigo(v.toUpperCase()); setNaoAchou(false); }}
+        placeholder={P().digite}
         placeholderTextColor={c.tx4}
         autoFocus
         onFocus={() => setFocado(true)}
@@ -126,15 +213,15 @@ export default function Codigo() {
           {
             marginTop: 18, height: 62, letterSpacing: codigo ? 2 : 0,
             color: c.tx, backgroundColor: c.bg1,
-            borderWidth: 1, borderColor: vale ? c.accentLine : c.line,
+            borderWidth: 1, borderColor: naoAchou ? c.ctaLine : vale ? c.accentLine : c.line,
             borderRadius: radius.lg, paddingHorizontal: 18,
           },
         ]}
       />
 
       {/* ⚠️ O PISO DE QUATRO É DESTE CAMPO, E A FRASE DIZ ISSO. Ninguém
-          aqui sabe como são os códigos da rede — não há servidor que os
-          conheça —, então prometer "os códigos têm quatro letras" seria
+          aqui sabe como são os códigos da rede — o portal ainda não
+          existe —, então prometer "os códigos têm quatro letras" seria
           inventar uma regra alheia. O que se pode afirmar é o que este
           campo faz.
 
@@ -143,7 +230,14 @@ export default function Codigo() {
           nada, e aparecer no meio da digitação é repreender quem está
           fazendo. */}
       {!focado && codigo.length > 0 && !vale ? (
-        <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>Digite pelo menos 4 caracteres.</Txt>
+        <Txt v="micro" c={c.tx4} style={{ marginTop: 8 }}>{K().minimo}</Txt>
+      ) : null}
+
+      {/* ⚠️ "NÃO ENCONTRAMOS" SÓ APARECE QUANDO HOUVE A QUEM PERGUNTAR —
+          ver `conferirConvite`. E ele diz o que fazer, e não só o que deu
+          errado: quem tem o código é a clínica. */}
+      {naoAchou ? (
+        <Txt v="caption" c={c.cta} style={{ marginTop: 8, lineHeight: 20 }}>{K().naoAchou}</Txt>
       ) : null}
 
       {/* ⚠️ DUAS FRASES, E CADA UMA RESPONDE UM MEDO DIFERENTE.
@@ -159,9 +253,78 @@ export default function Codigo() {
           Duas frases anteriores morreram nesta linha: "o código fica
           guardado com você", que soava a consolo, e "quem confirma é a
           clínica", que mandava esperar quem não tinha o que esperar. */}
-      <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>
-        O código libera o aplicativo na hora. Nada do que você já registrou muda de lugar.
-      </Txt>
+      <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>{K().liberaNaHora}</Txt>
+
+      {/* Os códigos inventados, só com a lista de exemplo — sem eles não
+          havia como ver a conferência sem abrir o código-fonte. */}
+      {exemplos.length ? (
+        <Txt v="micro" c={c.tx4} style={{ marginTop: 10, lineHeight: 17 }}>{K().exemplo(exemplos.join(', '))}</Txt>
+      ) : null}
     </SheetScreen>
+  );
+}
+
+/* ------------------------------------------------------------------
+   DE QUEM É O CÓDIGO — a clínica e quem atende
+
+   ⚠️ OS DOIS NOMES SÃO A CONFERÊNCIA. A pessoa sabe em qual clínica se
+   consultou e com quem; é batendo esses dois nomes que ela percebe um
+   código digitado errado. O registro vai junto, porque é o que distingue
+   duas pessoas de mesmo nome — e é o mesmo que a vitrine mostra.
+------------------------------------------------------------------ */
+function CartaoDoConvite({ v }: { v: ConviteDaRede }) {
+  const { c } = useTheme();
+  const { clinica: cl, profissional: p } = v;
+  const fotoDaClinica = imagensDaRede(cl).foto;
+  const rosto = fotoDaRede(p);
+  const onde = [cl.bairro ? `${cl.bairro}, ${cl.cidade}` : cl.cidade, cl.presencial ? null : T.rede.soTeleconsulta]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <View style={{
+      marginTop: 18, backgroundColor: c.bg1, borderRadius: radius.lg,
+      borderWidth: 1, borderColor: c.line, overflow: 'hidden',
+    }}>
+      <Row gap={14} style={{ padding: 16 }}>
+        <View style={{
+          width: 56, height: 56, borderRadius: radius.md, overflow: 'hidden',
+          backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+        }}>
+          {fotoDaClinica ? (
+            <Image source={fotoDaClinica} style={StyleSheet.absoluteFill} contentFit="cover" />
+          ) : (
+            <Txt v="label" c={c.accent}>{iniciaisDaClinica(cl.nome)}</Txt>
+          )}
+        </View>
+        <View style={{ flex: 1 }}>
+          <Txt v="bodyMed">{cl.nome}</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{especialidadesDaClinica(cl)}</Txt>
+          {onde ? <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>{onde}</Txt> : null}
+        </View>
+      </Row>
+
+      <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line }} />
+
+      <Row gap={14} style={{ padding: 16 }}>
+        <View style={{ width: 56, alignItems: 'center' }}>
+          <View style={{
+            width: 44, height: 44, borderRadius: 22, overflow: 'hidden',
+            backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
+          }}>
+            {rosto ? (
+              <Image source={rosto} style={{ width: 44, height: 44 }} contentFit="cover" contentPosition={focoDaRede(p)} />
+            ) : (
+              <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
+            )}
+          </View>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Txt v="bodyMed">{p.nome}</Txt>
+          <Txt v="caption" c={c.tx2} style={{ marginTop: 2 }}>{p.especialidades.map(nomeDaEspecialidade).join(' · ')}</Txt>
+          <Txt v="micro" c={c.tx3} style={{ marginTop: 3 }}>{registroTxt(p)}</Txt>
+        </View>
+      </Row>
+    </View>
   );
 }

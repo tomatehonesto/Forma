@@ -146,6 +146,32 @@ export const fotoDaRede = (p?: { id: string; foto?: string }) =>
 export const focoDaRede = (p?: { id: string; foto?: string }) =>
   (p && !p.foto ? focoDe(RETRATOS_DE_EXEMPLO[p.id]) : 'top center');
 
+/* ⚠️ O PAPEL DE RESPONSÁVEL PODE TER VINDO DA REDE, e aí o rosto é o de
+   quem passou o código — e não o da semente. `responsavel` tem retrato
+   fixo porque a semente tem uma responsável só; quem se conecta pelo
+   código de uma clínica da rede ganha outra pessoa nesse papel, e o
+   retrato fixo poria o rosto de uma ao lado do nome de outra. Sem retrato
+   na rede, a inicial — que é o que a vitrine já mostra para ela. */
+type ComVinculo = { profile?: any };
+
+const daRedeNoPapel = (S: ComVinculo | undefined, id?: string) => {
+  const v = id === 'responsavel'
+    ? (S?.profile?.vinculo as { profissional?: string; retrato?: string } | null | undefined)
+    : undefined;
+  return v?.profissional ? { id: v.profissional, foto: v.retrato } : undefined;
+};
+
+/** A foto de alguém da equipe da pessoa, pelo papel ou pelo id. */
+export const fotoDaEquipe = (S: ComVinculo | undefined, id?: string) => {
+  const r = daRedeNoPapel(S, id);
+  return r ? fotoDaRede(r) : fotoDe(id);
+};
+
+export const focoDaEquipe = (S: ComVinculo | undefined, id?: string) => {
+  const r = daRedeNoPapel(S, id);
+  return r ? focoDaRede(r) : focoDe(id);
+};
+
 /** A foto e a marca de uma clínica da rede — as duas podem faltar. */
 export const imagensDaRede = (c: { id: string; foto?: string; logo?: string }): { foto?: any; logo?: any } => ({
   foto: c.foto ? { uri: c.foto } : __DEV__ ? CLINICAS_DE_EXEMPLO[c.id]?.foto : undefined,

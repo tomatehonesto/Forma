@@ -74,6 +74,7 @@ export const rede = {
       { titulo: 'And the team follows along', texto: 'Everything you’ve already logged stays here — the link doesn’t reset anything.' },
     ],
     conhecer: 'Meet the partner clinics',
+    credito: 'Image by Drazen Zigic on Magnific',
   },
 
   folha: {

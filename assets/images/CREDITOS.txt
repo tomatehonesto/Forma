@@ -45,16 +45,25 @@ exercicio-hero.jpg — o topo da tela de Exercício
 
 A APRESENTAÇÃO DA REDE — rede-hero.jpg
 
-⚠️ ELA AINDA NÃO ESTÁ LISTADA, porque a origem não foi conferida. É o
-topo de /rede-apresentacao: um médico de jaleco azul conversando com a
-paciente. Veio do time em 24/09/2026 num arquivo de 6720 × 4480 e 14 MB
-("happy-doctor-holding-medical-paperwork-while-communicating-with-
-patient-medical-appointment-hospital.jpg"), e o pacote leva só uma cópia
-reduzida, de 1800 × 1200. Nos metadados há o título ("Smiling male
-doctor talking to his patient while going through medical reports at
-his office.") e nada de autor ou licença. O nome tem o formato de banco
-de imagem, e banco de imagem pode pedir crédito ou licença paga: falta
-anotar autor, licença e origem, como nas outras. Ver PENDENCIAS, item 34.
+⚠️ ESTA TEM OUTRA LICENÇA, E ELA PEDE CRÉDITO. É do Magnific (o antigo
+Freepik), e a licença gratuita deles exige o nome de quem fotografou e o
+da plataforma, com o link, perto da imagem ou no pé da página. O crédito
+está no pé de /rede-apresentacao, no idioma de quem lê, e o toque nele
+abre a origem. Com o plano pago do Magnific ele deixa de ser
+obrigatório — mas a origem fica anotada aqui do mesmo jeito.
+
+rede-hero.jpg — o topo de /rede-apresentacao
+  assunto: médico sorrindo, de jaleco azul, conversando com a paciente
+           sobre os exames
+  autor: Drazen Zigic
+  licença: licença gratuita do Magnific (antigo Freepik), com atribuição
+  crédito: "Image by Drazen Zigic on Magnific", que é o texto que o site
+           dá para copiar
+  origem: https://www.magnific.com/free-photo/happy-doctor-holding-medical-paperwork-while-communicating-with-patient-medical-appointment-hospital_25623984.htm
+
+  Veio do time em 24/09/2026 num arquivo de 6720 × 4480 e 14 MB, com o
+  mesmo nome da página de origem; o pacote leva só uma cópia reduzida, de
+  1800 × 1200.
 
 
 AS CLÍNICAS DE EXEMPLO — clinicas/

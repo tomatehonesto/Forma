@@ -75,6 +75,7 @@ export const rede = {
       { titulo: 'E il team ti segue', texto: 'Tutto quello che hai già registrato resta qui: il legame non azzera niente.' },
     ],
     conhecer: 'Scopri i centri partner',
+    credito: 'Immagine di Drazen Zigic su Magnific',
   },
 
   folha: {

@@ -123,6 +123,11 @@ export const rede = {
       { titulo: 'E a equipe acompanha você', texto: 'Tudo o que você já registrou continua aqui: o vínculo não recomeça nada.' },
     ],
     conhecer: 'Conhecer as clínicas parceiras',
+    /* o crédito da foto do alto: a licença gratuita do Magnific (antigo
+       Freepik) pede o nome de quem fotografou e o da plataforma, perto da
+       imagem ou no pé da página — e nenhum dos dois se traduz. Ver
+       assets/images/CREDITOS.txt. */
+    credito: 'Imagem de Drazen Zigic no Magnific',
   },
 
   /* ============================================================

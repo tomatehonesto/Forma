@@ -193,9 +193,10 @@ export default function Rede() {
             </>
           )}
 
-          {/* A porta de quem já chegou pela clínica. */}
+          {/* A porta de quem já chegou pela clínica — direto na folha do
+              código, como na apresentação. */}
           <Pressable
-            onPress={() => router.push('/parceiros' as any)}
+            onPress={() => router.push('/codigo?de=rede' as any)}
             style={({ pressed }) => [{ alignSelf: 'center', paddingVertical: 10, opacity: pressed ? 0.6 : 1 }]}
           >
             <Txt v="label" c={c.accent2}>{K().jaTenhoCodigo}</Txt>

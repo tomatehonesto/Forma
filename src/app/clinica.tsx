@@ -10,7 +10,7 @@ import { Txt, Card, Row, CircleBtn, Chevron, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import {
-  fotoDe, focoDe, inicialDoNome, IMAGENS_DA_CLINICA, fotoDaRede, focoDaRede, imagensDaRede,
+  fotoDaEquipe, focoDaEquipe, inicialDoNome, IMAGENS_DA_CLINICA, fotoDaRede, focoDaRede, imagensDaRede,
 } from '../ui/retratos';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -728,8 +728,9 @@ function Avatar({ ficha, daRede }: {
   /* quem vem da rede traz a foto do portal, e não a da semente */
   daRede?: { id: string; foto?: string };
 }) {
+  const S = useStore((s) => s.S);
   const { c } = useTheme();
-  const foto = daRede ? fotoDaRede(daRede) : fotoDe(ficha.id);
+  const foto = daRede ? fotoDaRede(daRede) : fotoDaEquipe(S, ficha.id);
   const lado = 48;
   if (foto) {
     return (
@@ -737,7 +738,7 @@ function Avatar({ ficha, daRede }: {
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.sm, backgroundColor: c.bg2 }}
         contentFit="cover"
-        contentPosition={daRede ? focoDaRede(daRede) : focoDe(ficha.id)}
+        contentPosition={daRede ? focoDaRede(daRede) : focoDaEquipe(S, ficha.id)}
       />
     );
   }

@@ -2227,6 +2227,13 @@ com ela que o vínculo acontece e é ela que passa o código de convite.
   receber dela o código, a equipe entrar — e "Conhecer as clínicas
   parceiras". Depois de vista, o cartão vai direto à vitrine, que tem
   "Como funciona" no alto para voltar a ela.
+- A folha do código (`/codigo?de=rede`) — aberta por "Já tenho um código
+  de convite", na apresentação e na vitrine. Com a rede no ar, ela confere
+  o código antes de ligar e pergunta "É essa a sua clínica?", com a
+  clínica e quem atende; conectar grava os dois como quem acompanha a
+  pessoa, e ela volta para as abas, com a equipe na aba Cuidado. O retrato
+  da responsável passa a seguir o vínculo (`fotoDaEquipe`, em
+  ui/retratos): o da semente não aparece ao lado do nome de outra pessoa.
 
 As clínicas virão de um **portal próprio** (Admin/CMS), onde cada uma é
 cadastrada e mantém a própria ficha. O contato é direto com a clínica, e o
@@ -2262,10 +2269,17 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    fechada.
 5. **As fotos vêm do portal, com o consentimento de quem aparece.** Sem
    retrato, o cartão mostra a foto da clínica; sem nenhuma, as iniciais.
-6. **A licença da foto da apresentação.** A `rede-hero.jpg` veio do
-   time, e a origem não foi conferida: nos metadados há só o título, sem
-   autor nem licença, e o nome do arquivo tem o formato de banco de
-   imagem. Ver `assets/images/CREDITOS.txt`.
+6. **O crédito da foto da apresentação fica.** A `rede-hero.jpg` é de
+   Drazen Zigic, no Magnific (antigo Freepik), com a licença gratuita — e
+   ela pede o crédito, que está no pé da tela. Tirá-lo pede o plano pago.
+   Ver `assets/images/CREDITOS.txt`.
+7. **A conferência do código também vem do portal.** `CONVITES`, em
+   `logic/rede.ts`, é a pergunta "de qual clínica é este código, e quem o
+   passou?"; hoje só a lista de exemplo responde (um código por clínica,
+   `LEMOS26` e os outros), e sem fonte o código liga sem perguntar, como
+   sempre ligou. O cadastro e /parceiros ainda ligam direto — só a folha
+   pergunta. E o que conectar grava na ficha é texto, como o resto do
+   perfil: quando o portal existir, a ficha passa a vir de lá.
 
 ⚠️ **E OS RETRATOS DA SEMENTE PRECISAM SAIR ANTES DA LOJA.** Os quatro de
 `assets/images/equipe/` não estão em `CREDITOS.txt` — a origem nunca foi

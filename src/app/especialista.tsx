@@ -13,7 +13,7 @@ import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
-import { fotoDe, focoDe, inicialDoNome } from '../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../ui/retratos';
 
 /* ============================================================
    A FICHA DE QUEM CUIDA DE VOCÊ
@@ -84,7 +84,7 @@ export default function Especialista() {
     );
   }
 
-  const retrato = fotoDe(f.id);
+  const retrato = fotoDaEquipe(S, f.id);
   /* ⚠️ O LIMIAR DEPENDE DE ONDE O NOME ESTÁ, e ele está em dois lugares
      diferentes.
 
@@ -164,7 +164,7 @@ export default function Especialista() {
               source={retrato}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
-              contentPosition={focoDe(f.id)}
+              contentPosition={focoDaEquipe(S, f.id)}
             />
             {/* O botão de voltar fica sobre a foto, e a foto pode ser uma
                 sala clara com a janela estourada. Sem o véu ele desaparece

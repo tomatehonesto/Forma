@@ -239,6 +239,19 @@ export const assinatura = {
     codigoSub: 'El código que te pasó la clínica socia.',
   },
 
+  codigo: {
+    minimo: 'Escribe al menos 4 caracteres.',
+    liberaNaHora: 'El código libera la aplicación al instante. Nada de lo que ya registraste cambia de lugar.',
+    conferindo: 'Verificando…',
+    naoAchou: 'No encontramos este código. Confírmalo con la clínica: vale tal como te lo dieron.',
+    exemplo: (codigos: string) => `En la lista de ejemplo, los códigos son inventados: ${codigos}.`,
+    conferirTitulo: '¿Es esta tu clínica?',
+    conferirSub: 'El código que escribiste es de esta clínica.',
+    conectar: 'Conectar',
+    naoEEssa: 'No es mi clínica',
+    conectarTexto: 'Al conectar, esta clínica pasa a acompañarte desde aquí. Nada de lo que ya registraste cambia de lugar.',
+  },
+
   extrato: {
     titulo: 'Historial de cobros',
     vazioIsenta: 'Ningún cobro',

@@ -24,7 +24,7 @@ import {
 import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
-import { fotoDe, focoDe, fotoDaRede, focoDaRede, inicialDoNome } from '../../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome } from '../../ui/retratos';
 import { noNa, formaDe } from '../../logic/formas';
 import { T } from '../../textos';
 
@@ -50,12 +50,12 @@ const K = () => T.cuidado.tela;
    ============================================================ */
 
 const PAD = 24;
-/* ⚠️ VEM DE `RETRATOS`, e era um `require` escrito aqui. A mesma foto
+/* ⚠️ VEM DE `fotoDaEquipe`, e era um `require` escrito aqui. A mesma foto
    aparecia por três caminhos diferentes — esta aba, a Home e o Perfil —
    e cada uma tinha a sua linha. No dia em que a clínica mandar a foto
    dela, uma das três ia ficar para trás, e seria a que ninguém abre com
-   frequência. Agora há um mapa e três leitores. */
-const FOTO_MEDICA = fotoDe('responsavel');
+   frequência. Agora há um mapa e três leitores — e o mapa sabe quando a
+   responsável veio pelo código de uma clínica da rede (ver ui/retratos). */
 
 /* ------------------------------------------------------------------ *
  * COM VÍNCULO
@@ -368,6 +368,7 @@ function LinhaDoPlano() {
     médica. */
 function BannerMedica() {
   const S = useStore((s) => s.S);
+  const fotoMedica = fotoDaEquipe(S, 'responsavel');
   const { c } = useTheme();
   const router = useRouter();
   const go = (to: string) => () => router.push(to as any);
@@ -389,19 +390,19 @@ function BannerMedica() {
       <View style={{ borderRadius: radius.lg, overflow: 'hidden' }}>
         <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
           <Row gap={13} style={{ backgroundColor: c.bg1, padding: 16, alignItems: 'center' }}>
-            {FOTO_MEDICA ? (
+            {fotoMedica ? (
               <Image
-                source={FOTO_MEDICA}
+                source={fotoMedica}
                 style={{ width: 44, height: 44, borderRadius: radius.sm, backgroundColor: c.bg2 }}
                 contentFit="cover"
-                contentPosition={focoDe('responsavel')}
+                contentPosition={focoDaEquipe(S, 'responsavel')}
               />
             ) : (
               <View style={{
                 width: 44, height: 44, borderRadius: radius.sm,
                 backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
               }}>
-                <Txt v="bodyMed" c={c.accent}>{(S.profile.doctor || '?').trim()[0]}</Txt>
+                <Txt v="bodyMed" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
               </View>
             )}
             <View style={{ flex: 1 }}>

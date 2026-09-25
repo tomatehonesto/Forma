@@ -75,6 +75,7 @@ export const rede = {
       { titulo: 'Y el equipo te acompaña', texto: 'Todo lo que ya registraste sigue aquí: el vínculo no reinicia nada.' },
     ],
     conhecer: 'Conocer las clínicas asociadas',
+    credito: 'Imagen de Drazen Zigic en Magnific',
   },
 
   folha: {

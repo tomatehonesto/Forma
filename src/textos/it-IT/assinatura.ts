@@ -275,6 +275,19 @@ export const assinatura = {
     codigoSub: 'Il codice che ti ha dato il centro partner.',
   },
 
+  codigo: {
+    minimo: 'Inserisci almeno 4 caratteri.',
+    liberaNaHora: 'Il codice sblocca l’app subito. Niente di quello che hai già registrato cambia posto.',
+    conferindo: 'Verifica in corso…',
+    naoAchou: 'Non abbiamo trovato questo codice. Controlla con il centro: vale esattamente come te l’hanno dato.',
+    exemplo: (codigos: string) => `Nell’elenco di esempio, i codici sono inventati: ${codigos}.`,
+    conferirTitulo: 'È questo il tuo centro?',
+    conferirSub: 'Il codice che hai inserito è di questo centro.',
+    conectar: 'Collega',
+    naoEEssa: 'Non è il mio centro',
+    conectarTexto: 'Una volta collegato, questo centro ti segue da qui. Niente di quello che hai già registrato cambia posto.',
+  },
+
   /* ============================================================
      L'ESTRATTO — /cobrancas
      ============================================================ */

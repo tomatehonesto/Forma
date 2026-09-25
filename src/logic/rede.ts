@@ -3,6 +3,7 @@ import { temRedeParceira } from './pais';
 import { distanciaKm, type Ponto } from './localizacao';
 import { sistemaDe } from './medidas';
 import { WD, hm, nf, maiuscula, now } from './time';
+import { normalizarConvite, vinculoDoConvite } from './assinatura';
 import type { FichaDaClinica, FichaDaEquipe } from './derive';
 import { T } from '../textos';
 
@@ -138,6 +139,96 @@ export const marcarApresentacaoDaRede = (S: ComApresentacoes) => {
   const m = S.apresentacoesVistas ?? (S.apresentacoesVistas = {});
   if (!m.rede) m.rede = +now();
 };
+
+/* ============================================================
+   O CONVITE — de quem é o código que a pessoa digitou
+
+   O código vem da clínica, e o portal sabe de qual clínica ele é e quem o
+   passou. Conferir antes de ligar é o que deixa a folha do código
+   perguntar "É essa a sua clínica?" com o nome da clínica e de quem
+   atende — e é o que impede um erro de digitação de ligar a pessoa à
+   clínica errada.
+
+   ⚠️ SEM FONTE, NÃO HÁ O QUE CONFERIR, e o código liga como sempre ligou
+   (ver `vinculoDoConvite`, em logic/assinatura). É o caso de produção
+   enquanto o portal não existe. Com a lista de exemplo, cada clínica tem
+   um código inventado, de quem responde por ela.
+
+   ⚠️ E "NÃO ACHAMOS" SÓ EXISTE QUANDO HÁ A QUEM PERGUNTAR. Recusar um
+   código sem lista nenhuma seria trancar a porta de todo mundo.
+   ============================================================ */
+export type ConviteDaRede = { codigo: string; clinica: Clinica; profissional: Profissional };
+
+export type ConferenciaDoConvite =
+  | { tipo: 'sem-fonte' }
+  | { tipo: 'nao-achou' }
+  | { tipo: 'achou'; convite: ConviteDaRede };
+
+type FonteDeConvites = (codigo: string) => Promise<ConviteDaRede | null>;
+
+/* Um por clínica, de quem responde por ela. */
+const CONVITES_DE_EXEMPLO: Record<string, [clinica: string, profissional: string]> = {
+  LEMOS26: ['lemos', 'beatriz-lemos'],
+  IBIRAPUERA26: ['ibirapuera', 'rafael-nogueira'],
+  SANTANA26: ['santana', 'rafael-nogueira'],
+  PAULISTA26: ['paulista', 'camila-arantes'],
+  TAVARES26: ['julia-tavares', 'julia-tavares'],
+  BOTAFOGO26: ['botafogo', 'luisa-cardoso'],
+  BARRA26: ['barra', 'andre-moreira'],
+  SAVASSI26: ['savassi', 'patricia-menezes'],
+};
+
+const CONVITES: FonteDeConvites | null = __DEV__
+  ? async (codigo) => {
+    const par = CONVITES_DE_EXEMPLO[codigo];
+    const clinica = par ? EXEMPLO.find((c) => c.id === par[0]) : undefined;
+    const profissional = clinica?.equipe.find((p) => p.id === par[1]);
+    return clinica && profissional ? { codigo, clinica, profissional } : null;
+  }
+  : null;
+
+export async function conferirConvite(codigo: string): Promise<ConferenciaDoConvite> {
+  if (!CONVITES) return { tipo: 'sem-fonte' };
+  const achado = await CONVITES(normalizarConvite(codigo));
+  return achado ? { tipo: 'achou', convite: achado } : { tipo: 'nao-achou' };
+}
+
+/** Os códigos da lista de exemplo, para a folha poder dizer quais são. */
+export const codigosDeExemplo = () => (redeDeExemplo() ? Object.keys(CONVITES_DE_EXEMPLO) : []);
+
+/* ⚠️ CONECTAR GRAVA O QUE A PESSOA ACABOU DE CONFERIR, e só isso: a
+   clínica e quem passou o código, com o que o portal diz de cada um. É o
+   "quem acompanha você" dela a partir de agora — e o diário não se mexe.
+   O resto da equipe, a agenda e as mensagens vêm do portal quando ele
+   existir; inventá-los aqui seria preencher o que ninguém disse.
+
+   ⚠️ E A FICHA VAI COMO TEXTO, como o resto do perfil: o horário sai
+   escrito no idioma de agora. Quando o portal existir, ela passa a vir de
+   lá, e não daqui. */
+export function gravarConviteDaRede(s: any, v: ConviteDaRede) {
+  const { clinica: c, profissional: p } = v;
+  s.profile.convite = v.codigo;
+  s.profile.vinculo = { ...vinculoDoConvite(v.codigo), clinica: c.id, profissional: p.id, retrato: p.foto };
+  s.profile.acompanhamento = 'proprio';
+  s.profile.clinic = c.nome;
+  s.profile.clinicInfo = {
+    nome: c.nome,
+    especialidade: especialidadesDaClinica(c),
+    cidade: c.bairro ? `${c.bairro}, ${c.cidade}` : c.cidade,
+    sobre: c.sobre,
+    endereco: c.presencial ? c.endereco : undefined,
+    horario: `${horarioTxt(c)} · ${modalidadeTxt(c)}`,
+    /* o perfil guarda o particular no meio da lista, como a clínica
+       escreve — ver `fichaDaClinica`, em logic/derive */
+    convenios: [...c.convenios, ...(c.particular ? ['Particular'] : [])],
+    contato: c.contato,
+  };
+  s.profile.doctor = p.nome;
+  s.profile.doctorInfo = {
+    crm: registroTxt(p),
+    especialidade: p.especialidades.map(nomeDaEspecialidade).join(' · '),
+  };
+}
 
 /* ============================================================
    OS FILTROS — valem enquanto o aplicativo está aberto
