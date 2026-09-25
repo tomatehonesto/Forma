@@ -15,7 +15,7 @@ import {
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
-import { radius } from '../theme';
+import { radius, paletaDe } from '../theme';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { Nevoa } from '../ui/nevoa';
@@ -185,6 +185,8 @@ export default function Clinica() {
   /* O vidro é escuro sobre foto — ela pode ser qualquer recepção — e
      acompanha o tema sobre a névoa, que é clara no modo claro. */
   const vidroEscuro = !!imagens.foto || isDark;
+  /* o azul cheio da paleta, o mesmo nos dois modos — ver os convênios */
+  const forte = paletaDe((S as any).paleta);
   /* O nome mora na faixa de vidro colada no PÉ do cabeçalho, com foto ou
      sem, e a barra só assume quando essa faixa sai. */
   const [passou, setPassou] = useState(false);
@@ -392,34 +394,43 @@ export default function Clinica() {
             ⚠️ E A SEÇÃO SOME QUANDO A CLÍNICA NÃO INFORMOU. "Não informou" e
             "só atende particular" são coisas diferentes, e a tela não tem
             como saber qual é — então ela não chuta. Quem atende só
-            particular manda uma lista de um item. */}
-        {!!f.convenios?.length && (
+            particular aparece com o chip de particular, e só ele. */}
+        {(!!f.convenios?.length || f.particular) && (
           <View style={{ marginTop: 26 }}>
             <Txt v="h2" style={{ marginBottom: 12 }}>{K().convenios}</Txt>
             <Row gap={8} style={{ flexWrap: 'wrap' }}>
-              {f.convenios.map((v) => (
+              {(f.convenios ?? []).map((v) => (
                 /* ⚠️ PREENCHIDAS, E ERAM CONTORNO CINZA. O contorno é o
                     desenho de chip de FILTRO, coisa que se liga e se
                     desliga, e aqui nada liga: é uma lista de fatos sobre a
                     clínica. Preenchidas elas param de pedir toque.
 
-                    ⚠️ E É `limeSoft`, E NÃO O AZUL DAS ABORDAGENS EM
-                    /especialista. As duas telas têm uma fileira de chips no
-                    mesmo lugar da rolagem, e no mesmo tom elas virariam a
-                    mesma seção vista duas vezes. Área de atuação é do
-                    accent porque descreve o trabalho de quem cuida;
-                    convênio é outra categoria de fato — administrativo, e
-                    não clínico — e ganha a outra cor da casa. */
+                    ⚠️ AZUL CHEIO COM O TEXTO EM VERDE-LIMÃO, as duas cores
+                    da casa num chip só — e o azul é o da paleta no modo
+                    CLARO, nos dois modos. O azul de ação do modo escuro é
+                    mais claro, e o limão sobre ele perdia o contraste.
+
+                    ⚠️ E O PARTICULAR É O MESMO AZUL COM O TEXTO BRANCO: é a
+                    outra resposta para "como eu pago", e não mais um
+                    convênio da lista. */
                 <View
                   key={v}
                   style={{
-                    backgroundColor: c.limeSoft, borderRadius: radius.pill,
+                    backgroundColor: forte.acaoClara, borderRadius: radius.pill,
                     paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
                   }}
                 >
-                  <Txt v="caption" c={c.limeSoftInk}>{v}</Txt>
+                  <Txt v="caption" c={c.lime}>{v}</Txt>
                 </View>
               ))}
+              {f.particular ? (
+                <View style={{
+                  backgroundColor: forte.acaoClara, borderRadius: radius.pill,
+                  paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
+                }}>
+                  <Txt v="caption" c={forte.inkClaro}>{T.rede.particular}</Txt>
+                </View>
+              ) : null}
             </Row>
           </View>
         )}

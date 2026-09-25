@@ -350,7 +350,8 @@ export function fichaDaRede(
     sobre: c.sobre,
     endereco: c.presencial ? c.endereco : undefined,
     horario: `${horarioTxt(c)} · ${modalidadeTxt(c)}`,
-    convenios: [...c.convenios, ...(c.particular ? [T.rede.particular] : [])],
+    convenios: c.convenios,
+    particular: c.particular,
     contato: c.contato,
     equipe: equipe.map((p): FichaDaEquipe => ({
       id: p.id,

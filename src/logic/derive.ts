@@ -5218,6 +5218,9 @@ export type FichaDaClinica = {
   endereco?: string;
   horario?: string;
   convenios?: string[];
+  /** se atende particular — fora da lista, porque a tela o desenha diferente
+      dos convênios e escreve a palavra no idioma de quem lê */
+  particular?: boolean;
   /* ⚠️ O ENDEREÇO É TEXTO, e não um mapa que abre. Um endereço clicável
      manda alguém até uma porta, e enquanto o dado vier de semente essa
      porta é de um estranho. A ação entra junto com o dado de verdade. */
@@ -5227,10 +5230,16 @@ export type FichaDaClinica = {
   equipe: FichaDaEquipe[];
 };
 
+/* O que o perfil guarda é a lista como a clínica escreveu, com
+   "Particular" no meio dos convênios. Ele sai da lista e vira o sinal. */
+const eParticular = (x: string) => /^particular$/i.test(x.trim());
+
 export function fichaDaClinica(S: State): FichaDaClinica | null {
   const p: any = S.profile ?? {};
   if (!p.clinic) return null;
   const info: any = p.clinicInfo ?? {};
+  const lista: string[] = info.convenios ?? [];
+  const convenios = lista.filter((x) => !eParticular(x));
   return {
     nome: p.clinic,
     especialidade: info.especialidade || undefined,
@@ -5238,7 +5247,8 @@ export function fichaDaClinica(S: State): FichaDaClinica | null {
     sobre: info.sobre || undefined,
     endereco: info.endereco || undefined,
     horario: info.horario || undefined,
-    convenios: info.convenios?.length ? info.convenios : undefined,
+    convenios: convenios.length ? convenios : undefined,
+    particular: lista.some(eParticular),
     contato: info.contato,
     desde: p.vinculo?.desde,
     equipe: fichaDaEquipe(S),
