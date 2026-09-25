@@ -6,7 +6,8 @@ import { useStore } from '../logic/store';
 import { estadoVazio } from '../logic/seed';
 import {
   DIGITOS_DO_CODIGO, ESPERA_PARA_REENVIAR_S, VALIDADE_DO_CODIGO_MIN,
-  appleDisponivel, confirmarCodigo, contaTemDiario, entrarComApple, pedirCodigo, sair, sincronia,
+  appleDisponivel, atualizarVinculo, confirmarCodigo, contaTemDiario, entrarComApple, pedirCodigo, sair, sincronia,
+  usarConvitePendente,
   type ErroDaConta,
 } from '../logic/conta';
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
@@ -153,10 +154,14 @@ export default function Conta() {
   const trazerDaConta = async (quem: Dono) => {
     setPasso('entrando');
     const m = sincronia();
+    /* O código de clínica guardado atravessa: ele é da pessoa, e não do
+       diário que sai. */
+    const pendente = (useStore.getState().S as any).convitePendente ?? null;
     await m?.trocarDeDiario(() => {
       useStore.getState().update((s: any) => {
         Object.assign(s, estadoVazio());
         s.conta = quem;
+        s.convitePendente = pendente;
       });
     });
     /* Aqui não dá para entrar sem o diário: ele ainda não desceu. A tela
@@ -166,7 +171,15 @@ export default function Conta() {
     /* Quem tem diário na conta já passou pelo cadastro — em outro
        aparelho. O portão não pode mandá-la responder tudo de novo. */
     update((s: any) => { s.onboardDone = true; });
+    await depoisDeEntrar();
     router.replace('/(tabs)' as any);
+  };
+
+  /** Com a conta nascida ou a sessão de volta: o código de clínica
+      guardado vira vínculo, e a cópia do vínculo segue o servidor. */
+  const depoisDeEntrar = async () => {
+    await usarConvitePendente();
+    await atualizarVinculo();
   };
 
   /** Este diário ganha dono e sobe.
@@ -179,6 +192,7 @@ export default function Conta() {
     setPasso('entrando');
     update((s: any) => { s.conta = quem; });
     await sincronizar();
+    await depoisDeEntrar();
     router.replace('/(tabs)' as any);
   };
 
@@ -190,6 +204,7 @@ export default function Conta() {
     try {
       await m?.substituirNoServidor();
       m?.iniciar();
+      await depoisDeEntrar();
       router.replace('/(tabs)' as any);
     } catch {
       update((s: any) => { s.conta = null; });
@@ -208,6 +223,7 @@ export default function Conta() {
       if (S.conta?.id !== quem.id) { setPasso('outra-conta'); return; }
       /* A dona de volta: o estado não muda, e a fila volta a subir. */
       await sincronizar();
+      await depoisDeEntrar();
       if (router.canGoBack()) router.back();
       else router.replace('/(tabs)' as any);
       return;

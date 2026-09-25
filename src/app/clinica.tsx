@@ -5,14 +5,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { fichaDaClinica, contatosDaClinica, type FichaDaClinica } from '../logic/derive';
-import { clinicaDaRede, fichaDaRede, redeDeExemplo, useVitrine, type Clinica as ClinicaDaRede } from '../logic/rede';
+import { clinicaDaRede, encerrarVinculo, fichaDaRede, redeDeExemplo, tirarVinculo, useVitrine, type Clinica as ClinicaDaRede } from '../logic/rede';
+import { atualizarVinculo } from '../logic/conta';
 import { Txt, Card, Row, CircleBtn, Chevron, Rolagem } from '../ui/kit';
 import { BarraQueColapsa } from '../ui/capa';
 import { Icon } from '../ui/Icon';
 import {
   fotoDaEquipe, focoDaEquipe, inicialDoNome, IMAGENS_DA_CLINICA, fotoDaRede, focoDaRede, imagensDaRede,
 } from '../ui/retratos';
-import { Cartao, Linha } from '../ui/internas';
+import { Botao, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius, paletaDe } from '../theme';
@@ -632,6 +633,13 @@ export default function Clinica() {
             </Row>
           </Pressable>
         )}
+
+        {/* ---- desconectar ----
+
+            Só com o vínculo vindo do servidor (com `id`): é lá que ele
+            acaba (`encerrar_vinculo`). Um vínculo antigo, nascido só no
+            aparelho, sai sozinho na primeira sincronia, com o aviso dele. */}
+        {vinculada && (S.profile as any).vinculo?.id ? <Desconectar /> : null}
         </View>
         </View>
       </Rolagem>
@@ -641,6 +649,59 @@ export default function Clinica() {
         passou={passou}
         repouso={imagens.foto ? 'branco' : 'normal'}
       />
+    </View>
+  );
+}
+
+/* ============================================================
+   DESCONECTAR DA CLÍNICA
+
+   Antes de confirmar, a pessoa lê o que acontece: a equipe para de ver,
+   a isenção pela clínica acaba, e os registros ficam. Depois, o servidor
+   encerra o vínculo, e a cópia no aparelho perde o que é de plataforma —
+   mensagens, receitas, equipe, material — e mais nada: o diário fica
+   inteiro (ver `tirarVinculo`, em logic/rede).
+
+   Sem o vermelho no desarmado, como "Apagar meus dados": a cor de erro é
+   clínica. Ela aparece no botão que confirma.
+   ============================================================ */
+function Desconectar() {
+  const { c } = useTheme();
+  const router = useRouter();
+  const update = useStore((s) => s.update);
+  const V = T.rede.vinculo;
+  const [armado, setArmado] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const confirmar = async () => {
+    setOcupado(true);
+    setErro(null);
+    const r = await encerrarVinculo();
+    setOcupado(false);
+    if (!r.ok) {
+      setErro(V.desconectarSemInternet);
+      return;
+    }
+    update((s: any) => { tirarVinculo(s); });
+    atualizarVinculo();
+    router.back();
+  };
+
+  return (
+    <View style={{ marginTop: 26, gap: 10 }}>
+      {armado ? (
+        <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12 }}>
+          <Txt v="caption" c={c.tx2} style={{ lineHeight: 20 }}>{V.desconectarPergunta}</Txt>
+          {erro ? <Txt v="caption" c={c.cta}>{erro}</Txt> : null}
+          <Botao label={V.desconectarSim} tom="perigo" desligado={ocupado} onPress={confirmar} />
+          <Botao label={V.desconectarCancelar} tom="fantasma" onPress={() => { setArmado(false); setErro(null); }} />
+        </View>
+      ) : (
+        <Pressable onPress={() => setArmado(true)} style={({ pressed }) => [{ alignSelf: 'center', paddingVertical: 8, opacity: pressed ? 0.6 : 1 }]}>
+          <Txt v="label" c={c.tx3}>{V.desconectar}</Txt>
+        </Pressable>
+      )}
     </View>
   );
 }

@@ -119,6 +119,8 @@ export const DESTINO_NO_ESTADO: Record<string, Destino> = {
   /* a limpeza dos sinais vitais herdados da semente, feita uma vez em cada
      diário (ver `ensureDefaults`) */
   vitaisHerdadosLimpos: 'aparelho',
+  /* o código que espera a conta para virar vínculo (logic/conta) */
+  convitePendente: 'aparelho',
 };
 
 export const DESTINO_NO_PERFIL: Record<string, Destino> = {

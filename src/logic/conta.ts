@@ -25,7 +25,8 @@ import * as Crypto from 'expo-crypto';
 import {
   FunctionsFetchError, FunctionsHttpError, isAuthRetryableFetchError, type AuthError,
 } from '@supabase/supabase-js';
-import { nuvem } from './nuvem';
+import { contaLigada, nuvem } from './nuvem';
+import { gravarVinculo, seguirVinculoDoServidor, ultimoVinculo, usarConvite } from './rede';
 import { useStore } from './store';
 import { modoFingido } from './modo';
 import { localAtual } from './local';
@@ -209,6 +210,64 @@ export function sincronia(): Sincronia | null {
     fingindo: () => modoFingido() !== null,
   });
   return motor;
+}
+
+/* ============================================================
+   O VÍNCULO — o código guardado vira vínculo, e a cópia segue o servidor
+   (fase 6 do plano)
+   ============================================================ */
+type Motivo = 'clinica-encerrou' | 'nao-confirmado' | 'nao-valeu';
+
+/** Um aviso nas notificações do aparelho — elas ficam do mais novo para o
+    mais antigo. */
+function avisar(s: any, motivo: Motivo) {
+  s.notifications = [{ t: Date.now(), tipo: 'vinculo', motivo }, ...(s.notifications ?? [])];
+}
+
+/** O diário que a sincronia pode olhar agora: com dono, que não é o
+    exemplo, e sem a prévia do Perfil no ar. */
+const diarioDaConta = () => {
+  const S: any = useStore.getState().S;
+  return contaLigada() && !!S.conta && !S.semente && modoFingido() === null;
+};
+
+/** ⚠️ O CÓDIGO GUARDADO VIRA VÍNCULO ao nascer a conta e ao voltar a
+    sessão (a conta e "entre de novo", em app/conta). A cópia sai da
+    resposta do servidor. Se o código não valer mais — outra pessoa o usou,
+    ou ele venceu —, ele sai, e um aviso diz que dá para digitar outro. Sem
+    conexão, ele espera a próxima vez. */
+export async function usarConvitePendente(): Promise<'nenhum' | 'ligou' | 'nao-valeu' | 'depois'> {
+  const pendente = (useStore.getState().S as any).convitePendente as { codigo: string; versao: number } | null;
+  if (!pendente || !diarioDaConta()) return 'nenhum';
+  const r = await usarConvite(pendente.codigo, pendente.versao);
+  if (r.ok) {
+    useStore.getState().update((s: any) => { gravarVinculo(s, r.vinculo); s.convitePendente = null; });
+    return 'ligou';
+  }
+  if (r.erro === 'nao-valeu') {
+    useStore.getState().update((s: any) => { s.convitePendente = null; avisar(s, 'nao-valeu'); });
+    return 'nao-valeu';
+  }
+  return 'depois';
+}
+
+/** A cópia do vínculo segue o servidor — na abertura, na volta ao
+    aplicativo, e depois de conectar ou desconectar. Ver
+    `seguirVinculoDoServidor`, em logic/rede. */
+export async function atualizarVinculo() {
+  if (!diarioDaConta()) return;
+  const remoto = await ultimoVinculo();
+  if (remoto === undefined || !diarioDaConta()) return;
+  const S = useStore.getState().S;
+  const copia: any = JSON.parse(JSON.stringify(S));
+  const aviso = seguirVinculoDoServidor(copia, remoto);
+  /* Só grava o que mudou: a mesma cópia regravada acordaria a sincronia
+     à toa. */
+  if (!aviso && JSON.stringify(copia) === JSON.stringify(S)) return;
+  useStore.getState().update((s: any) => {
+    const a = seguirVinculoDoServidor(s, remoto);
+    if (a) avisar(s, a);
+  });
 }
 
 const nada = () => () => {};

@@ -33,6 +33,7 @@ import { radius, ty, font, shadowCard, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoV, pesoKg, alturaV, alturaM, reguaDePeso, reguaDeAltura, alturaTxt, sistemaDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, idiomasOrdenados, localAtual, trocarLocal, type Local } from '../logic/local';
 import { contaLigada } from '../logic/nuvem';
+import { conviteDoCadastro } from '../logic/rede';
 import { T } from '../textos';
 
 /* ============================================================
@@ -1296,9 +1297,17 @@ export default function Cadastro() {
          folha do paywall — e uma delas guardando sem ligar faria a mesma
          pessoa entrar de graça ou não dependendo de por onde passou. O
          que transforma código em vínculo mora em assinatura.ts, e as três
-         chamam a mesma função. */
-      s.profile.convite = r.recomendado ? normalizarConvite(r.codigo) : '';
-      s.profile.vinculo = s.profile.convite ? vinculoDoConvite(s.profile.convite) : null;
+         chamam a mesma função.
+
+         ⚠️ SÓ QUANDO O CÓDIGO MUDOU. Editar a altura pelo lápis passava por
+         aqui e religava o vínculo com um `desde` novo — e, com o vínculo
+         vindo do servidor, a cópia seria trocada por uma sem `id`.
+
+         ⚠️ E COM A NUVEM, O CÓDIGO DAQUI NÃO LIGA: o vínculo nasce no
+         servidor, depois do consentimento de compartilhar, na folha do
+         código (/codigo). O que foi digitado aqui fica em `convite`, e a
+         folha abre com ele escrito. */
+      conviteDoCadastro(s, r.recomendado ? r.codigo : '');
       /* AS METAS DIÁRIAS DEIXAM DE SER AS DA SEMENTE. Proteína e água
          vinham fixas em 90 g e 2,5 L — os números de outra pessoa, lidos
          dez vezes cada um. */

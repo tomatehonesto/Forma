@@ -45,11 +45,28 @@ const clone = (S: State): State => JSON.parse(JSON.stringify(S));
    período pago, ela continua sendo esta; vencida, vira nulo. */
 const ativa: Assinatura = { plano: 'anual', renovaEm: Date.now() + 200 * 864e5, emTeste: false };
 
+/* O que o banco devolve — `clinica_json`, `profissional_json` e
+   `vinculo_json` (supabase/migrations, "funcoes_do_convite") —, com a
+   clínica e o código da semente do projeto de desenvolvimento. */
+const CLINICA = {
+  id: '572d0a83-bd46-5d4c-9664-72923ca8f571', nome: 'Consultório Savassi',
+  sobre: 'Endocrinologia em Belo Horizonte.', endereco: 'Rua Pernambuco, 1000', bairro: 'Savassi',
+  cidade: 'Belo Horizonte', uf: 'MG', ponto: { lat: -19.938, lng: -43.935 }, dias: [1, 2, 3, 4],
+  abre: '08:00', fecha: '17:00', presencial: true, teleconsulta: true, convenios: ['Unimed'],
+  particular: true, contato: { telefone: '(31) 0000-0010' }, exemplo: true,
+  equipe: [{ id: '411998f9-d16d-5bec-b66c-e3dca42b84ee', nome: 'Dra. Patrícia Menezes', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'MG', registro: '58210', rqe: ['29877'], responsavel: true }],
+};
+const PROFISSIONAL = CLINICA.equipe[0];
+const vinculoDoServidor = (id: string, fim?: { por: 'paciente' | 'clinica' }) => ({
+  id, convite: 'SAVASSI26', desde: '2026-09-25T12:00:00+00:00', consentimento_versao: 1,
+  ...(fim ? { encerrado_em: '2026-09-26T12:00:00+00:00', encerrado_por: fim.por } : {}),
+  clinica: CLINICA, profissional: PROFISSIONAL,
+});
+
 async function main() {
-  /* A lista de exemplo e os códigos dela só existem em `__DEV__`, e
-     logic/rede decide isso quando carrega — daí o import depois. */
-  (globalThis as any).__DEV__ = true;
-  const { conferirConvite, gravarConviteDaRede } = await import('../src/logic/rede');
+  const {
+    clinicaDoBanco, profissionalDoBanco, gravarConviteDaRede, gravarVinculo, seguirVinculoDoServidor, conviteDoCadastro,
+  } = await import('../src/logic/rede');
 
   const mariana = ensureDefaults(buildSeed()) as State;
   const sozinha = mascarar(mariana, 'sozinha');
@@ -75,11 +92,12 @@ async function main() {
   acessoDe(mariana, ativa);
   ok(registros(sozinha) === antes, 'perguntar pelo acesso não escreve nada');
 
-  /* conectar pela folha, com um código da lista de exemplo */
-  const r = await conferirConvite('savassi26');
-  ok(r.tipo === 'achou', 'o código de exemplo é achado');
+  /* conectar pela folha, com o que `conferir_convite` devolveria */
+  const convite = { codigo: 'SAVASSI26', clinica: clinicaDoBanco(CLINICA), profissional: profissionalDoBanco(PROFISSIONAL) };
+  ok(convite.clinica.exemplo === true && convite.profissional.responsavel === true && !!convite.clinica.ponto,
+    'a clínica e quem passou o código chegam do banco na forma da vitrine');
   const conectada = clone(sozinha);
-  if (r.tipo === 'achou') gravarConviteDaRede(conectada, r.convite);
+  gravarConviteDaRede(conectada, convite);
   ok(clinicaConectada(conectada), 'conectada, ela passa a ter vínculo');
   ok(registros(conectada) === antes, 'conectar não encosta em nenhum registro');
   const a4 = acessoDe(conectada, ativa);
@@ -107,6 +125,54 @@ async function main() {
   (semVinculo.profile as any).vinculo = null;
   ok(!acessoDe(semVinculo, null).tem, 'sem vínculo e sem assinatura: o acesso fica suspenso');
   ok(registros(semVinculo) === antes, 'mas nada foi apagado — é o que a tela /suspenso diz');
+
+  console.log('\n3. O VÍNCULO VINDO DO SERVIDOR (fase 6 do plano do Supabase)');
+  const V1 = '00000000-0000-4000-8000-000000000001';
+  const V2 = '00000000-0000-4000-8000-000000000002';
+  const doServidor = clone(sozinha);
+  gravarVinculo(doServidor, vinculoDoServidor(V1));
+  const copia = (doServidor.profile as any).vinculo;
+  ok(clinicaConectada(doServidor) && copia.id === V1 && copia.clinica === CLINICA.id && copia.consentimento === 1
+    && (doServidor.profile as any).clinic === CLINICA.nome,
+    'o vínculo vindo do servidor vira a cópia, com o id da linha, a clínica e a versão do consentimento');
+  ok(registros(doServidor) === antes && acessoDe(doServidor, null).tem, 'e não encosta em registro, e dá acesso');
+
+  const mesmo = clone(doServidor);
+  ok(seguirVinculoDoServidor(mesmo, vinculoDoServidor(V1)) === null && (mesmo.profile as any).vinculo.id === V1,
+    'o mesmo vínculo descendo de novo não muda nada, e não avisa');
+
+  const desconectou = clone(doServidor);
+  const avisoDesconectou = seguirVinculoDoServidor(desconectou, vinculoDoServidor(V1, { por: 'paciente' }));
+  ok(!clinicaConectada(desconectou) && avisoDesconectou === null && registros(desconectou) === antes
+    && (desconectou as any).messages.length === 0 && (desconectou as any).team.length === 0,
+    'desconectar (neste aparelho ou em outro): a cópia sai sem aviso de encerramento, com o que é de plataforma, e os registros ficam');
+  ok(!acessoDe(desconectou, null).tem && acessoDe(desconectou, ativa).tem, 'e o acesso volta a ser o da assinatura');
+
+  const encerrou = clone(doServidor);
+  ok(seguirVinculoDoServidor(encerrou, vinculoDoServidor(V1, { por: 'clinica' })) === 'clinica-encerrou'
+    && !clinicaConectada(encerrou) && registros(encerrou) === antes,
+    'a clínica encerrou: a cópia sai, com o aviso de que o diário continua — e ele continua');
+
+  const trocou = clone(doServidor);
+  ok(seguirVinculoDoServidor(trocou, vinculoDoServidor(V2)) === null && (trocou.profile as any).vinculo.id === V2
+    && registros(trocou) === antes,
+    'trocar de clínica em outro aparelho: a cópia passa a ser a do vínculo novo, sem aviso de encerramento');
+
+  const antigo = clone(sozinha);
+  (antigo.profile as any).vinculo = vinculoDoConvite('ABCD1234');
+  ok(seguirVinculoDoServidor(antigo, null) === 'nao-confirmado' && !clinicaConectada(antigo) && registros(antigo) === antes,
+    'o vínculo antigo, nascido só no aparelho: sai com o aviso de que o código não foi confirmado, e não com o da clínica');
+  const antigoEComServidor = clone(sozinha);
+  (antigoEComServidor.profile as any).vinculo = vinculoDoConvite('SAVASSI26');
+  ok(seguirVinculoDoServidor(antigoEComServidor, vinculoDoServidor(V1)) === 'nao-confirmado'
+    && (antigoEComServidor.profile as any).vinculo.id === V1,
+    'e, se o servidor tem um vínculo de verdade, a cópia passa a ser ele — com o mesmo aviso sobre o antigo');
+
+  const editou = clone(doServidor);
+  const antesDaEdicao = JSON.stringify((editou.profile as any).vinculo);
+  conviteDoCadastro(editou, 'savassi26');
+  ok(JSON.stringify((editou.profile as any).vinculo) === antesDaEdicao,
+    'editar a altura pelo lápis (o mesmo código no cadastro) não muda o vínculo nem o desde');
 
   console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
   process.exit(falhas ? 1 : 0);

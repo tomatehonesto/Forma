@@ -108,43 +108,26 @@ export const IMAGENS_DA_CLINICA: Record<string, { logo?: any; foto?: any }> = {
 /* ============================================================
    AS IMAGENS DA REDE PARCEIRA — ver logic/rede
 
-   Do portal vem o ENDEREÇO da foto, e a tela a carrega de lá. Na lista de
-   exemplo, que só existe em desenvolvimento, não há endereço nenhum: as
-   imagens são as mesmas da semente, emprestadas para a vitrine poder ser
-   julgada com rosto.
+   Do banco vem o ENDEREÇO da foto, e a tela a carrega de lá — inclusive
+   na rede de exemplo do morphi-dev, cujas fotos moram no balde `clinicas`
+   (supabase/seed.sql; a origem de cada uma em assets/images/CREDITOS.txt).
+   Sem endereço, a inicial: nada daqui empresta imagem do pacote.
 
-   ⚠️ O RETRATO DO RAFAEL NÃO ENTRA AQUI. O jaleco dele tem outro nome
-   bordado — é a foto de um médico de verdade —, e emprestá-la a um médico
+   ⚠️ O FOCO É SEMPRE O TOPO, porque o banco não guarda foco. O retrato
+   que precisava de 'centro' (o da responsável) subiu já cortado no alto;
+   foto de clínica de verdade pede o recortador na hora do envio, no
+   portal — continua em PENDENCIAS.
+
+   ⚠️ O RETRATO DO RAFAEL NÃO SUBIU. O jaleco dele tem outro nome bordado
+   — é a foto de um médico de verdade —, e emprestá-la a um médico
    inventado, com CRM inventado, seria pôr o rosto de alguém num registro
    que não é dele. Ele fica na inicial. Ver PENDENCIAS, item 34.
    ============================================================ */
-const RETRATOS_DE_EXEMPLO: Record<string, string> = {
-  'beatriz-lemos': 'responsavel',
-  'marina-duarte': 'renata',
-  'camila-arantes': 'carla',
-};
-/* ⚠️ AS FOTOS DAS CLÍNICAS DE EXEMPLO SÃO DO UNSPLASH, com licença livre
-   e a origem de cada uma em assets/images/CREDITOS.txt — e nenhuma é da
-   clínica que ela ilustra, que também não existe. A da Lemos é a da
-   semente (a sala da Vitalis). Saem todas quando o portal mandar as
-   fotos de verdade; ver PENDENCIAS, item 34. */
-const CLINICAS_DE_EXEMPLO: Record<string, { foto?: any }> = {
-  lemos: { foto: require('../../assets/images/clinicas/vitalis.jpg') },
-  ibirapuera: { foto: require('../../assets/images/clinicas/ibirapuera.jpg') },
-  santana: { foto: require('../../assets/images/clinicas/santana.jpg') },
-  paulista: { foto: require('../../assets/images/clinicas/paulista.jpg') },
-  'julia-tavares': { foto: require('../../assets/images/clinicas/julia-tavares.jpg') },
-  botafogo: { foto: require('../../assets/images/clinicas/botafogo.jpg') },
-  barra: { foto: require('../../assets/images/clinicas/barra.jpg') },
-  savassi: { foto: require('../../assets/images/clinicas/savassi.jpg') },
-};
 
-/** A foto de quem está na rede: a do portal, ou a de exemplo em desenvolvimento. */
-export const fotoDaRede = (p?: { id: string; foto?: string }) =>
-  (!p ? undefined : p.foto ? { uri: p.foto } : __DEV__ ? fotoDe(RETRATOS_DE_EXEMPLO[p.id]) : undefined);
+/** A foto de quem está na rede, pelo endereço que o banco dá. */
+export const fotoDaRede = (p?: { id: string; foto?: string }) => (p?.foto ? { uri: p.foto } : undefined);
 
-export const focoDaRede = (p?: { id: string; foto?: string }) =>
-  (p && !p.foto ? focoDe(RETRATOS_DE_EXEMPLO[p.id]) : 'top center');
+export const focoDaRede = (_p?: { id: string; foto?: string }) => 'top center' as const;
 
 /* ⚠️ O PAPEL DE RESPONSÁVEL PODE TER VINDO DA REDE, e aí o rosto é o de
    quem passou o código — e não o da semente. `responsavel` tem retrato
@@ -174,7 +157,7 @@ export const focoDaEquipe = (S: ComVinculo | undefined, id?: string) => {
 
 /** A foto e a marca de uma clínica da rede — as duas podem faltar. */
 export const imagensDaRede = (c: { id: string; foto?: string; logo?: string }): { foto?: any; logo?: any } => ({
-  foto: c.foto ? { uri: c.foto } : __DEV__ ? CLINICAS_DE_EXEMPLO[c.id]?.foto : undefined,
+  foto: c.foto ? { uri: c.foto } : undefined,
   logo: c.logo ? { uri: c.logo } : undefined,
 });
 

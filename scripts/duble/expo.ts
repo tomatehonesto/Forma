@@ -22,3 +22,10 @@ export const setNotificationChannelAsync: any = async () => {};
 export const randomUUID: any = () => globalThis.crypto.randomUUID();
 export const getRandomValues: any = (a: any) => globalThis.crypto.getRandomValues(a);
 export default {} as any;
+
+/* O cofre seguro (expo-secure-store), para as sondas poderem importar
+   logic/nuvem: sem as variáveis do projeto, `nuvem()` é nula e o cofre
+   nunca é usado. */
+export const getItemAsync: any = async () => null;
+export const setItemAsync: any = async () => {};
+export const deleteItemAsync: any = async () => {};

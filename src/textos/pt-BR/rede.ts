@@ -184,4 +184,58 @@ export const rede = {
        tem lista de clínicas — "Ver clínicas" ali seria mentira */
     saibaMais: 'Saiba mais',
   },
+
+  /* ============================================================
+     O VÍNCULO NO SERVIDOR — o consentimento de compartilhar, o código
+     guardado, desconectar e os avisos (fase 6 do plano do Supabase)
+
+     ⚠️ A LISTA DO QUE A CLÍNICA VÊ SAI DA TABELA DE TRADUÇÃO
+     (logic/compartilhamento): todo tipo de registro e toda parte do
+     perfil que a equipe lê. Um tipo novo sem frase aqui derruba a trava.
+     ============================================================ */
+  vinculo: {
+    titulo: 'O que a clínica passa a ver',
+    itens: {
+      peso: 'Pesagens',
+      aplicacao: 'Aplicações',
+      checkin: 'Check-ins: sintomas, sono, fome, água, proteína e movimento',
+      refeicao: 'Refeições',
+      refeicao_favorita: 'Refeições favoritas',
+      medida: 'Medidas do corpo',
+      exame: 'Exames',
+      laudo: 'Laudos',
+      sinal_vital: 'Sinais vitais',
+      documento: 'Documentos',
+      anotacao: 'Anotações',
+      meta_pessoal: 'Metas pessoais',
+      caneta: 'Os recipientes do medicamento',
+      pessoal: 'Seus dados: nome, nascimento, altura e foto',
+      tratamento: 'O tratamento, com o histórico de saúde: condições, alergias e medicamentos',
+      acompanhamento: 'Quem acompanha você, e as consultas que você anotou',
+      protocolo: 'O protocolo da semana e as metas',
+      preferencias: 'Preferências do aplicativo, como idioma e lembretes',
+      vistos: 'O que o aplicativo já mostrou a você',
+    },
+    antes: 'Inclui o que você registrou antes de conectar.',
+    perguntas: 'As perguntas que você faz ao Morphi não entram.',
+    dura: 'A clínica vê enquanto a conexão durar. Dá para desconectar a qualquer momento, na tela da clínica.',
+    guarda: 'O que for registrado durante o acompanhamento fica guardado pela clínica, como prontuário, mesmo depois de desconectar.',
+    aceitar: 'Conectar é concordar com o compartilhamento acima.',
+    semInternet: 'Conferir o código precisa de internet. Tente de novo quando a conexão voltar.',
+    naoValeuAgora: 'Esse código não valeu: ele já foi usado ou venceu. Peça outro à clínica.',
+    entrarPrimeiro: 'Para conectar, entre de novo na sua conta. O código fica guardado.',
+    guardadoTitulo: 'Código guardado',
+    guardadoTexto: 'Conectamos a clínica assim que a sua conta for criada.',
+    desconectar: 'Desconectar da clínica',
+    desconectarPergunta: 'A equipe deixa de ver o seu diário, e a isenção do aplicativo pela clínica acaba. Os seus registros ficam todos aqui.',
+    desconectarSim: 'Desconectar',
+    desconectarCancelar: 'Cancelar',
+    desconectarSemInternet: 'Desconectar precisa de internet. Nada mudou.',
+    avisoEncerrouTitulo: 'A clínica encerrou o acompanhamento',
+    avisoEncerrouTexto: 'O seu diário continua aqui, inteiro.',
+    avisoNaoConfirmadoTitulo: 'O código de convite não foi confirmado',
+    avisoNaoConfirmadoTexto: 'Ele nunca chegou a ser conferido com a clínica. Dá para digitar de novo na aba Cuidado.',
+    avisoNaoValeuTitulo: 'O código de convite não valeu',
+    avisoNaoValeuTexto: 'Ele já tinha sido usado ou venceu. Dá para digitar outro na aba Cuidado.',
+  },
 };

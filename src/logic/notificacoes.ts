@@ -40,6 +40,8 @@ export type Notificacao = { t: number } & (
   | { tipo: 'exames'; nome: string; marcadores: number }
   /** um nível de conquista, com o que faltava para o seguinte naquela hora */
   | { tipo: 'conquista'; trilha: string; nivel: number; alvo: number; resta: number | null; proximo: number | null }
+  /** o vínculo com a clínica que acabou, ou o código que não valeu (logic/conta) */
+  | { tipo: 'vinculo'; motivo: 'clinica-encerrou' | 'nao-confirmado' | 'nao-valeu' }
 );
 
 /** de quem é o aviso — é o que as pastilhas de filtro perguntam */
@@ -102,6 +104,15 @@ export function lerNotificacao(S: State, n: any): NotificacaoLida | null {
         titulo: T.conquistas.marco(q.titulo, n.nivel),
         corpo: q.falta ? K.conquistaCorpo(q.desc, q.falta) : `${q.desc}. ${T.conquistas.tela.trilhaCompleta}.`,
       };
+    }
+    case 'vinculo': {
+      const V = T.rede.vinculo;
+      const [titulo, corpo] = n.motivo === 'clinica-encerrou'
+        ? [V.avisoEncerrouTitulo, V.avisoEncerrouTexto]
+        : n.motivo === 'nao-confirmado'
+          ? [V.avisoNaoConfirmadoTitulo, V.avisoNaoConfirmadoTexto]
+          : [V.avisoNaoValeuTitulo, V.avisoNaoValeuTexto];
+      return { t: n.t, ic: 'steth', origem: 'clin', titulo, corpo };
     }
     default:
       /* gravada antes, como frase: aparece como foi escrita */

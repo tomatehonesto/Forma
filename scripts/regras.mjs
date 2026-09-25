@@ -85,11 +85,11 @@ console.log('\nOS CÓDIGOS DE EXEMPLO — o aplicativo e a semente dizem os mesm
 const semente = fs.readFileSync(path.join(RAIZ, 'supabase', 'seed.sql'), 'utf8');
 const blocoDaSemente = semente.slice(semente.indexOf('insert into public.convites'));
 const daSemente = [...blocoDaSemente.matchAll(/^\s*\('([A-Z0-9]+)',/gm)].map((m) => m[1]).sort();
-/* Enquanto a lista de exemplo mora em logic/rede (até a fase 6 do plano),
-   é de lá que ela é lida. */
+/* Desde a fase 6 do plano, a lista de exemplo mora só na semente; o
+   aplicativo guarda os nomes dos códigos, para a dica da folha. */
 const rede = fs.readFileSync(path.join(RAIZ, 'src', 'logic', 'rede.ts'), 'utf8');
-const ini = rede.indexOf('const CONVITES_DE_EXEMPLO');
-const doAplicativo = [...rede.slice(ini, rede.indexOf('};', ini)).matchAll(/^\s*([A-Z0-9]+):/gm)].map((m) => m[1]).sort();
+const ini = rede.indexOf('const CODIGOS_DE_EXEMPLO');
+const doAplicativo = [...rede.slice(ini, rede.indexOf('];', ini)).matchAll(/'([A-Z0-9]+)'/g)].map((m) => m[1]).sort();
 ok(daSemente.length > 0 && JSON.stringify(daSemente) === JSON.stringify(doAplicativo),
   `os ${daSemente.length} códigos da semente são os do aplicativo`,
   `semente: ${daSemente.join(', ')} · aplicativo: ${doAplicativo.join(', ')}`);

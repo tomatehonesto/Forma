@@ -1,9 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { clinicaConectada } from '../logic/derive';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { redeNoAr } from '../logic/rede';
+import { contaLigada } from '../logic/nuvem';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso, Campo, Texto, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -53,6 +55,7 @@ const MUDA = (): [string, string, string][] => [
 
 export default function Parceiros() {
   const S = useStore((s) => s.S);
+  const router = useRouter();
   const update = useStore((s) => s.update);
   const { c } = useTheme();
   const conectada = clinicaConectada(S);
@@ -74,6 +77,14 @@ export default function Parceiros() {
      estou apagando de alguém que só digitou oito letras? */
   const guardar = () => {
     const v = normalizarConvite(codigo);
+    /* ⚠️ COM A NUVEM, LIGAR É NO SERVIDOR, depois de conferir o código e
+       do consentimento de compartilhar — e isso mora na folha do código.
+       Aqui o código só fica escrito, e a folha abre com ele. */
+    if (contaLigada()) {
+      update((s: any) => { s.profile.convite = v; });
+      router.push('/codigo' as any);
+      return;
+    }
     update((s: any) => {
       s.profile.convite = v;
       /* ⚠️ O VÍNCULO SAI DAQUI JUNTO, e não de uma confirmação que nunca

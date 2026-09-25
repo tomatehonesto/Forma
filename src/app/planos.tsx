@@ -828,7 +828,20 @@ export default function Planos() {
               vendo esta barra COM um código guardado. A linha só aparecia
               pela porta de `?compra=1`, e uma linha viva só em
               desenvolvimento é uma linha morta com plateia. */}
-          {temRedeParceira() && !ehIsenta ? (
+          {/* ⚠️ E O "GUARDADO" VOLTOU, agora verdadeiro. Com a nuvem, quem
+              conecta antes de ter conta deixa o código guardado
+              (`convitePendente`): a clínica liga quando a conta nascer, e
+              até lá esta barra continua valendo — dizer que o código está
+              guardado é o que impede a pessoa de achar que ele se perdeu. */}
+          {temRedeParceira() && !ehIsenta && (S as any).convitePendente ? (
+            <View style={{ marginTop: 14, alignItems: 'center', gap: 2 }}>
+              <Row gap={7} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="check" size={14} color={c.accent2} sw={2} />
+                <Txt v="label" c={c.accent2}>{T.rede.vinculo.guardadoTitulo}</Txt>
+              </Row>
+              <Txt v="micro" c={c.tx3} style={{ textAlign: 'center' }}>{T.rede.vinculo.guardadoTexto}</Txt>
+            </View>
+          ) : temRedeParceira() && !ehIsenta ? (
             <View style={{ marginTop: 14 }}>
               <Pressable
                 onPress={() => router.push('/codigo' as any)}

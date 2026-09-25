@@ -38,6 +38,7 @@ import {
 } from '../src/logic/traducao';
 import { CHAVE_DA_BASE, criarSincronia, esperaDepoisDe, type Sincronia } from '../src/logic/sincronia';
 import { acrescentarPergunta, enderecoDoCompanheiro, origemDoEndereco } from '../src/logic/perguntas';
+import { TIPOS_COMPARTILHADOS, oQueAEquipeVe } from '../src/logic/compartilhamento';
 import { CUP_ML, mlQueContam } from '../src/logic/derive';
 import { startOfDay } from '../src/logic/time';
 import { trocarLocal } from '../src/logic/local';
@@ -356,6 +357,21 @@ const nasPartes = [
   ...Object.entries(DESTINO_NO_ESTADO), ...Object.entries(DESTINO_NO_PERFIL),
 ].filter(([, d]) => d.startsWith('parte:')).map(([k, d]) => `${d}:${k}`);
 ok(new Set(nasPartes).size === nasPartes.length, 'nenhuma parte do perfil recebe dois campos com o mesmo nome');
+
+
+{
+  /* O consentimento de compartilhar (logic/compartilhamento): a lista do
+     que a equipe vê cobre todo tipo que sobe e toda parte do perfil. */
+  const esperado = TIPOS_DE_REGISTRO.length - 1 + PARTES.length;
+  const faltam = LOCAIS.filter((l) => {
+    trocarLocal(l);
+    const lista = oQueAEquipeVe();
+    return lista.length !== esperado || lista.some((f) => typeof f !== 'string' || !f.trim());
+  });
+  trocarLocal('pt-BR');
+  ok(!faltam.length && !(TIPOS_COMPARTILHADOS as readonly string[]).includes('foto'),
+    `o consentimento de compartilhar lista todo tipo de registro e toda parte do perfil que a equipe lê, nos seis idiomas — e não as fotos, que não sobem${faltam.length ? ` — falta em ${faltam.join(', ')}` : ''}`);
+}
 
 
 console.log('\nA TRADUÇÃO — a tabela e a ida dizem a mesma coisa');

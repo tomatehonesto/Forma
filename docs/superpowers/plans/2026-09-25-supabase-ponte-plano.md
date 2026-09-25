@@ -1616,6 +1616,71 @@ quebra. Os achados vão para o item 16.
 - `acesso.ts`, `regras.mjs` (as funções mudaram de consumidor e não de
   regra, mas roda) e as conferências de sempre.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (25/09/2026)
+
+**O resultado, até aqui:**
+- o código da fase inteira está feito;
+- `acesso.ts` ganhou a seção 3, com nove afirmações, e passa;
+- `sincronia.ts` afirma que o consentimento cobre todo destino que a
+  equipe lê, nos seis idiomas (98 afirmações);
+- `regras.mjs` confere os nomes dos códigos contra o `seed.sql`;
+- `tsc`, as seis conferências, a espaça fina e `modos` passam.
+
+No navegador de testes (`127.0.0.1`), com um cadastro novo e sem conta:
+- a folha do código conferiu `SAVASSI26` no banco e mostrou a clínica,
+  com a foto vinda do balde, a Dra. Patrícia e a lista do que a clínica
+  passa a ver;
+- "Conectar" guardou o convite pendente (`SAVASSI26`, versão 1), sem
+  vínculo;
+- `/planos` disse "Código guardado".
+
+**⏳ O que falta, e depende do dono** (a entrada com o código do e-mail):
+- o pendente virando vínculo quando a conta nasce;
+- conectar com sessão;
+- desconectar;
+- a clínica encerrando;
+- apagar uma conta que conectou.
+
+1. **O cadastro não pergunta mais o código.** A pergunta saiu antes deste
+   plano: `recomendado` e `codigo` só chegam preenchidos na edição pelo
+   lápis, a partir de `profile.convite`. Então o "salvar deixa de escrever"
+   do item 4 virou `conviteDoCadastro` (em `logic/rede`):
+   - escreve só quando o código mudou, e a edição da altura não encosta no
+     vínculo (a trava prova);
+   - com a nuvem, não liga nunca.
+
+   O caminho do código no cadastro é o de sempre: `/planos`, "Tenho um
+   código de convite".
+2. **`/parceiros` não liga mais com a nuvem.** O código digitado ali fica
+   em `profile.convite` e abre `/codigo`, que é onde mora o
+   consentimento.
+3. **O vínculo segue o servidor fora do motor.** O vínculo não é registro
+   nem parte do perfil: não passa pela tradução. `atualizarVinculo()`
+   (em `logic/conta`) lê o último vínculo da pessoa e aplica
+   `seguirVinculoDoServidor`:
+   - na abertura, na volta ao aplicativo, depois de entrar e depois de
+     desconectar;
+   - antes, `usarConvitePendente()` tenta o pendente.
+
+   A cópia só é regravada quando mudou, para não acordar a sincronia.
+4. **Os avisos são notificações do aparelho**, do tipo `vinculo`, com
+   três motivos: a clínica encerrou, o código antigo não foi confirmado e
+   o código pendente não valeu.
+5. **As fotos da rede moram em `clinicas/exemplo/`** no balde, subidas com
+   `supabase storage cp --linked --experimental`. Detalhes:
+   - a CLI 2.118 não sobrescreve: a troca é `storage rm` e depois `cp`;
+   - caminho absoluto do Windows no `cp` vira "operação não suportada", e
+     o `cp` roda de dentro da pasta;
+   - `seed.sql` grava os endereços num `update` no fim, e a semente foi
+     rodada (8 clínicas com foto).
+
+   A Lemos usa uma cópia da `vitalis.jpg`, e a Beatriz, Marina e Camila,
+   cópias dos retratos da semente. O Rafael fica na inicial.
+6. **O banco não guarda foco de retrato.** `focoDaRede` agora é sempre o
+   topo. O retrato da responsável, que pedia o centro, subiu já cortado
+   no alto (240 px a menos). Foto de clínica de verdade pede o recortador
+   no envio, no portal.
+
 ---
 
 ## Fase 7 — da clínica para o paciente, na hora

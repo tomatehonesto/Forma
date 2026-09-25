@@ -4,6 +4,7 @@ import { distanciaKm, type Ponto } from './localizacao';
 import { sistemaDe } from './medidas';
 import { WD, hm, nf, maiuscula, now } from './time';
 import { normalizarConvite, vinculoDoConvite } from './assinatura';
+import { contaLigada, nuvem } from './nuvem';
 import type { FichaDaClinica, FichaDaEquipe } from './derive';
 import { T } from '../textos';
 
@@ -92,34 +93,107 @@ export type Clinica = {
   particular: boolean;
   contato: Contato;
   equipe: Profissional[];
+  /** clínica da semente do projeto de desenvolvimento — a vitrine avisa */
+  exemplo?: boolean;
 };
 
 /* ============================================================
-   A FONTE
+   A FONTE — o banco (fase 6 do plano do Supabase)
+
+   As clínicas publicadas, com a equipe e os campos públicos de cada
+   profissional, numa consulta só. Quem mantém é o portal; aqui só se lê.
+
+   ⚠️ SEM A CONTA LIGADA, NÃO HÁ REDE — é o caso das builds de loja até a
+   fase 8. A vitrine não abre, e o bloco da aba Cuidado continua levando a
+   /parceiros. A lista de exemplo saiu do aplicativo: ela mora na semente
+   do projeto de desenvolvimento (supabase/seed.sql), e cada clínica dela
+   vem marcada como `exemplo`.
    ============================================================ */
 
-type Fonte = () => Promise<Clinica[]>;
-const FONTE: Fonte | null = __DEV__ ? async () => EXEMPLO : null;
-
 /** Se a vitrine tem de onde ler. Sem isso, a porta dela não aparece. */
-export const redeNoAr = () => temRedeParceira() && FONTE !== null;
-
-/** Se o que está na tela é a lista inventada. Nesse caso a vitrine avisa, e
-    os contatos abrem sem chegar a ninguém. */
-export const redeDeExemplo = () => __DEV__ && FONTE !== null;
+export const redeNoAr = () => temRedeParceira() && contaLigada();
 
 /* A última lista lida, para /clinica abrir sem esperar a rede de novo. */
 let ultima: Clinica[] | null = null;
 
+/** Se o que está na tela é de exemplo: as clínicas lidas vêm marcadas. Aí
+    a vitrine avisa, e os contatos abrem sem chegar a ninguém. */
+export const redeDeExemplo = () => !!ultima?.some((c) => c.exemplo);
+
+/* O que o banco devolve, na forma da vitrine. A mesma forma serve para a
+   clínica de `clinica_json`, a das funções do convite (supabase/
+   migrations, "funcoes_do_convite"). */
+const numero = (x: unknown) => (typeof x === 'number' ? x : Number(x));
+
+export function profissionalDoBanco(p: any, responsavel = !!p?.responsavel): Profissional {
+  return {
+    id: p.id,
+    nome: p.nome,
+    ...(p.foto ? { foto: p.foto } : {}),
+    especialidades: p.especialidades ?? [],
+    conselho: p.conselho,
+    regiao: p.regiao,
+    registro: p.registro,
+    ...(Array.isArray(p.rqe) && p.rqe.length ? { rqe: p.rqe } : {}),
+    ...(responsavel ? { responsavel: true } : {}),
+  };
+}
+
+export function clinicaDoBanco(c: any): Clinica {
+  const lat = c.ponto?.lat ?? c.lat;
+  const lng = c.ponto?.lng ?? c.lng;
+  return {
+    id: c.id,
+    nome: c.nome,
+    ...(c.foto ? { foto: c.foto } : {}),
+    ...(c.logo ? { logo: c.logo } : {}),
+    ...(c.sobre ? { sobre: c.sobre } : {}),
+    ...(c.endereco ? { endereco: c.endereco } : {}),
+    ...(c.bairro ? { bairro: c.bairro } : {}),
+    cidade: c.cidade,
+    uf: c.uf,
+    ...(lat != null && lng != null ? { ponto: { lat: numero(lat), lng: numero(lng) } } : {}),
+    dias: (c.dias ?? []) as Dia[],
+    abre: c.abre,
+    fecha: c.fecha,
+    presencial: !!c.presencial,
+    teleconsulta: !!c.teleconsulta,
+    convenios: c.convenios ?? [],
+    particular: !!c.particular,
+    contato: c.contato ?? {},
+    equipe: c.equipe ?? [],
+    ...(c.exemplo ? { exemplo: true } : {}),
+  };
+}
+
+/* As linhas de `equipe`, com o profissional embutido, na ordem do portal. */
+const equipeDoBanco = (linhas: any[] | null | undefined): Profissional[] =>
+  (linhas ?? [])
+    .filter((e) => e?.ativo && e.profissionais)
+    .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0) || String(a.profissionais.nome).localeCompare(b.profissionais.nome))
+    .map((e) => profissionalDoBanco(e.profissionais, e.papel === 'responsavel'));
+
+const COLUNAS = 'id,nome,foto,logo,sobre,endereco,bairro,cidade,uf,lat,lng,dias,abre,fecha,presencial,teleconsulta,convenios,particular,contato,exemplo,'
+  + 'equipe(papel,ativo,ordem,profissionais(id,nome,foto,especialidades,conselho,regiao,registro,rqe))';
+
 export async function carregarRede(): Promise<Clinica[]> {
-  if (!FONTE) return [];
-  ultima = await FONTE();
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return [];
+  const { data, error } = await cliente.from('clinicas').select(COLUNAS).eq('publicada', true).order('nome');
+  if (error) throw error;
+  ultima = (data ?? []).map((c: any) => clinicaDoBanco({ ...c, equipe: equipeDoBanco(c.equipe) }));
   return ultima;
 }
 
+/** Uma clínica pelo id — da lista lida, ou do banco: a do próprio vínculo
+    vem pela regra do banco, publicada ou não. */
 export async function clinicaDaRede(id: string): Promise<Clinica | null> {
-  const lista = ultima ?? (await carregarRede());
-  return lista.find((c) => c.id === id) ?? null;
+  const achada = ultima?.find((c) => c.id === id);
+  if (achada) return achada;
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return null;
+  const { data } = await cliente.from('clinicas').select(COLUNAS).eq('id', id).maybeSingle();
+  return data ? clinicaDoBanco({ ...(data as any), equipe: equipeDoBanco((data as any).equipe) }) : null;
 }
 
 /* ============================================================
@@ -143,72 +217,130 @@ export const marcarApresentacaoDaRede = (S: ComApresentacoes) => {
 /* ============================================================
    O CONVITE — de quem é o código que a pessoa digitou
 
-   O código vem da clínica, e o portal sabe de qual clínica ele é e quem o
-   passou. Conferir antes de ligar é o que deixa a folha do código
-   perguntar "É essa a sua clínica?" com o nome da clínica e de quem
-   atende — e é o que impede um erro de digitação de ligar a pessoa à
-   clínica errada.
+   O código vem da clínica, e o banco sabe de qual clínica ele é e quem o
+   passou (`conferir_convite`). Conferir antes de ligar é o que deixa a
+   folha do código perguntar "É essa a sua clínica?" com o nome da clínica
+   e de quem atende — e é o que impede um erro de digitação de ligar a
+   pessoa à clínica errada.
 
-   ⚠️ SEM FONTE, NÃO HÁ O QUE CONFERIR, e o código liga como sempre ligou
-   (ver `vinculoDoConvite`, em logic/assinatura). É o caso de produção
-   enquanto o portal não existe. Com a lista de exemplo, cada clínica tem
-   um código inventado, de quem responde por ela.
+   ⚠️ SEM A CONTA LIGADA, NÃO HÁ O QUE CONFERIR, e o código liga como
+   sempre ligou (ver `vinculoDoConvite`, em logic/assinatura). É o caso de
+   produção até a fase 8.
 
-   ⚠️ E "NÃO ACHAMOS" SÓ EXISTE QUANDO HÁ A QUEM PERGUNTAR. Recusar um
-   código sem lista nenhuma seria trancar a porta de todo mundo.
+   ⚠️ E "NÃO ACHAMOS" SÓ EXISTE QUANDO HOUVE A QUEM PERGUNTAR. Sem conexão
+   é outra coisa, e a folha diz outra frase.
    ============================================================ */
 export type ConviteDaRede = { codigo: string; clinica: Clinica; profissional: Profissional };
 
 export type ConferenciaDoConvite =
   | { tipo: 'sem-fonte' }
+  | { tipo: 'sem-internet' }
   | { tipo: 'nao-achou' }
   | { tipo: 'achou'; convite: ConviteDaRede };
 
-type FonteDeConvites = (codigo: string) => Promise<ConviteDaRede | null>;
-
-/* Um por clínica, de quem responde por ela. */
-const CONVITES_DE_EXEMPLO: Record<string, [clinica: string, profissional: string]> = {
-  LEMOS26: ['lemos', 'beatriz-lemos'],
-  IBIRAPUERA26: ['ibirapuera', 'rafael-nogueira'],
-  SANTANA26: ['santana', 'rafael-nogueira'],
-  PAULISTA26: ['paulista', 'camila-arantes'],
-  TAVARES26: ['julia-tavares', 'julia-tavares'],
-  BOTAFOGO26: ['botafogo', 'luisa-cardoso'],
-  BARRA26: ['barra', 'andre-moreira'],
-  SAVASSI26: ['savassi', 'patricia-menezes'],
-};
-
-const CONVITES: FonteDeConvites | null = __DEV__
-  ? async (codigo) => {
-    const par = CONVITES_DE_EXEMPLO[codigo];
-    const clinica = par ? EXEMPLO.find((c) => c.id === par[0]) : undefined;
-    const profissional = clinica?.equipe.find((p) => p.id === par[1]);
-    return clinica && profissional ? { codigo, clinica, profissional } : null;
-  }
-  : null;
+const semRede = (e: { message?: string; code?: string } | null | undefined) =>
+  !!e && (!e.code || /fetch|network/i.test(e.message ?? ''));
 
 export async function conferirConvite(codigo: string): Promise<ConferenciaDoConvite> {
-  if (!CONVITES) return { tipo: 'sem-fonte' };
-  const achado = await CONVITES(normalizarConvite(codigo));
-  return achado ? { tipo: 'achou', convite: achado } : { tipo: 'nao-achou' };
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return { tipo: 'sem-fonte' };
+  try {
+    const { data, error } = await cliente.rpc('conferir_convite', { codigo: normalizarConvite(codigo) });
+    if (error) return semRede(error) ? { tipo: 'sem-internet' } : { tipo: 'nao-achou' };
+    if (!data) return { tipo: 'nao-achou' };
+    const d = data as any;
+    return {
+      tipo: 'achou',
+      convite: { codigo: d.codigo, clinica: clinicaDoBanco(d.clinica), profissional: profissionalDoBanco(d.profissional) },
+    };
+  } catch {
+    return { tipo: 'sem-internet' };
+  }
 }
 
-/** Os códigos da lista de exemplo, para a folha poder dizer quais são. */
-export const codigosDeExemplo = () => (redeDeExemplo() ? Object.keys(CONVITES_DE_EXEMPLO) : []);
+/** Os códigos da semente de desenvolvimento, para a folha poder dizer
+    quais são. Só os nomes: de quem é cada um, quem sabe é o banco.
+    ⚠️ A mesma lista de supabase/seed.sql — scripts/regras.mjs confere. */
+const CODIGOS_DE_EXEMPLO = ['LEMOS26', 'IBIRAPUERA26', 'SANTANA26', 'PAULISTA26', 'TAVARES26', 'BOTAFOGO26', 'BARRA26', 'SAVASSI26'];
+export const codigosDeExemplo = () => (__DEV__ && redeNoAr() && redeDeExemplo() ? CODIGOS_DE_EXEMPLO : []);
 
-/* ⚠️ CONECTAR GRAVA O QUE A PESSOA ACABOU DE CONFERIR, e só isso: a
-   clínica e quem passou o código, com o que o portal diz de cada um. É o
-   "quem acompanha você" dela a partir de agora — e o diário não se mexe.
-   O resto da equipe, a agenda e as mensagens vêm do portal quando ele
-   existir; inventá-los aqui seria preencher o que ninguém disse.
+/* ============================================================
+   O VÍNCULO — o servidor é a fonte, e o aparelho guarda a cópia
+
+   `profile.vinculo` é a cópia do vínculo ativo, com o `id` da linha de
+   `vinculos`. Ele nasce de `usar_convite` — que exige o consentimento de
+   compartilhar, na versão que a pessoa leu (logic/compartilhamento) — e
+   acaba em `encerrar_vinculo`, pela pessoa ou pela clínica.
+   ============================================================ */
+export type ResultadoDoVinculo =
+  | { ok: true; vinculo: any }
+  | { ok: false; erro: 'sem-internet' | 'sem-sessao' | 'nao-valeu' };
+
+/** Usa o código: o banco confere de novo, liga, e devolve o vínculo. */
+export async function usarConvite(codigo: string, versao: number): Promise<ResultadoDoVinculo> {
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return { ok: false, erro: 'sem-sessao' };
+  try {
+    const { data, error } = await cliente.rpc('usar_convite', {
+      codigo: normalizarConvite(codigo), versao_consentimento: versao,
+    });
+    if (error) return { ok: false, erro: semRede(error) ? 'sem-internet' : error.code === '42501' ? 'sem-sessao' : 'nao-valeu' };
+    return data ? { ok: true, vinculo: data } : { ok: false, erro: 'nao-valeu' };
+  } catch {
+    return { ok: false, erro: 'sem-internet' };
+  }
+}
+
+/** Desconecta: o banco encerra o vínculo ativo da pessoa. */
+export async function encerrarVinculo(): Promise<{ ok: true } | { ok: false; erro: 'sem-internet' | 'sem-sessao' }> {
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return { ok: false, erro: 'sem-sessao' };
+  try {
+    const { error } = await cliente.rpc('encerrar_vinculo', {});
+    if (error) return { ok: false, erro: semRede(error) ? 'sem-internet' : 'sem-sessao' };
+    return { ok: true };
+  } catch {
+    return { ok: false, erro: 'sem-internet' };
+  }
+}
+
+/** O último vínculo da pessoa no banco — o ativo, ou o que acabou por
+    último —, como `vinculo_json` o escreveria. Nulo quando não há nenhum;
+    `undefined` quando não deu para perguntar. */
+export async function ultimoVinculo(): Promise<any | null | undefined> {
+  const cliente = contaLigada() ? nuvem() : null;
+  if (!cliente) return undefined;
+  const { data: sessao } = await cliente.auth.getSession();
+  const eu = sessao.session?.user.id;
+  if (!eu) return undefined;
+  const { data, error } = await cliente
+    .from('vinculos')
+    .select('id,convite,desde,encerrado_em,encerrado_por,consentimento_versao,clinica_id,profissional_id,'
+      + `clinicas(${COLUNAS}),profissionais(id,nome,foto,especialidades,conselho,regiao,registro,rqe)`)
+    .eq('paciente_id', eu)
+    .order('encerrado_em', { ascending: false, nullsFirst: true })
+    .order('desde', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) return undefined;
+  if (!data) return null;
+  const v = data as any;
+  return {
+    id: v.id, convite: v.convite, desde: v.desde,
+    encerrado_em: v.encerrado_em, encerrado_por: v.encerrado_por,
+    consentimento_versao: v.consentimento_versao,
+    clinica: v.clinicas ? { ...v.clinicas, equipe: equipeDoBanco(v.clinicas.equipe) } : { id: v.clinica_id },
+    profissional: v.profissionais ?? (v.profissional_id ? { id: v.profissional_id } : null),
+  };
+}
+
+/* ⚠️ CONECTAR GRAVA O QUE O SERVIDOR DEVOLVEU, e só isso: a clínica e
+   quem passou o código, com o que o portal diz de cada um. É o "quem
+   acompanha você" dela a partir de agora — e o diário não se mexe.
 
    ⚠️ E A FICHA VAI COMO TEXTO, como o resto do perfil: o horário sai
-   escrito no idioma de agora. Quando o portal existir, ela passa a vir de
-   lá, e não daqui. */
-export function gravarConviteDaRede(s: any, v: ConviteDaRede) {
-  const { clinica: c, profissional: p } = v;
-  s.profile.convite = v.codigo;
-  s.profile.vinculo = { ...vinculoDoConvite(v.codigo), clinica: c.id, profissional: p.id, retrato: p.foto };
+   escrito no idioma de agora. */
+function gravarFicha(s: any, c: Clinica, p: Profissional | null) {
   s.profile.acompanhamento = 'proprio';
   s.profile.clinic = c.nome;
   s.profile.clinicInfo = {
@@ -217,17 +349,112 @@ export function gravarConviteDaRede(s: any, v: ConviteDaRede) {
     cidade: c.bairro ? `${c.bairro}, ${c.cidade}` : c.cidade,
     sobre: c.sobre,
     endereco: c.presencial ? c.endereco : undefined,
-    horario: `${horarioTxt(c)} · ${modalidadeTxt(c)}`,
+    horario: c.abre && c.fecha ? `${horarioTxt(c)} · ${modalidadeTxt(c)}` : undefined,
     /* o perfil guarda o particular no meio da lista, como a clínica
        escreve — ver `fichaDaClinica`, em logic/derive */
     convenios: [...c.convenios, ...(c.particular ? ['Particular'] : [])],
     contato: c.contato,
   };
-  s.profile.doctor = p.nome;
-  s.profile.doctorInfo = {
-    crm: registroTxt(p),
-    especialidade: p.especialidades.map(nomeDaEspecialidade).join(' · '),
+  if (p) {
+    s.profile.doctor = p.nome;
+    s.profile.doctorInfo = {
+      crm: registroTxt(p),
+      especialidade: p.especialidades.map(nomeDaEspecialidade).join(' · '),
+    };
+  }
+}
+
+/** A cópia do vínculo que o servidor devolveu (`vinculo_json`). */
+export function gravarVinculo(s: any, v: any) {
+  const c = clinicaDoBanco(v.clinica ?? {});
+  const p = v.profissional?.nome ? profissionalDoBanco(v.profissional) : null;
+  s.profile.convite = v.convite ?? s.profile.convite ?? '';
+  s.profile.vinculo = {
+    id: v.id,
+    desde: Date.parse(v.desde),
+    convite: v.convite ?? '',
+    clinica: c.id,
+    ...(p ? { profissional: p.id } : {}),
+    ...(p?.foto ? { retrato: p.foto } : {}),
+    consentimento: v.consentimento_versao,
   };
+  if (c.nome) gravarFicha(s, c, p);
+}
+
+/** O caminho sem nuvem: o código conferido pela lista de antes liga no
+    aparelho. Só existe sem a conta ligada. */
+export function gravarConviteDaRede(s: any, v: ConviteDaRede) {
+  s.profile.convite = v.codigo;
+  s.profile.vinculo = { ...vinculoDoConvite(v.codigo), clinica: v.clinica.id, profissional: v.profissional.id, retrato: v.profissional.foto };
+  gravarFicha(s, v.clinica, v.profissional);
+}
+
+/** O código respondido no cadastro. ⚠️ Só escreve quando ele mudou — a
+    edição da altura pelo lápis passa pelo mesmo `salvar` —, e com a nuvem
+    não liga: o vínculo nasce no servidor, depois do consentimento, na
+    folha do código, que abre com este código escrito. */
+export function conviteDoCadastro(s: any, digitado: string) {
+  const codigo = digitado ? normalizarConvite(digitado) : '';
+  if (codigo === (s.profile.convite ?? '')) return;
+  s.profile.convite = codigo;
+  if (!contaLigada()) s.profile.vinculo = codigo ? vinculoDoConvite(codigo) : null;
+}
+
+/** Desconectado: sai o que só existe porque existe alguém do outro lado
+    — o mesmo recorte de `mascarar(…, 'sem-parceira')`, em logic/store. O
+    diário fica inteiro. */
+export function tirarVinculo(s: any) {
+  s.profile.vinculo = null;
+  s.messages = [];
+  s.unread = 0;
+  s.prescriptions = [];
+  s.team = [];
+  s.materials = [];
+  s.protocol = {
+    ...s.protocol,
+    tasks: (s.protocol?.tasks ?? []).filter((x: any) => !(x.t && /exame/i.test(x.t))),
+  };
+}
+
+/* ============================================================
+   O VÍNCULO QUE DESCE — a cópia acompanha o servidor
+
+   Na abertura e na volta ao aplicativo, o último vínculo desce e a cópia
+   segue o que ele diz:
+     - um vínculo ativo que não é o da cópia (troca de clínica em outro
+       aparelho, ou a cópia ainda não existia): a cópia passa a ser ele;
+     - a cópia com o `id` de um vínculo que acabou: ela sai — e, se quem
+       encerrou foi a clínica, entra um aviso ("o seu diário continua
+       aqui"). Se foi a própria pessoa, em outro aparelho, sai calada;
+     - ⚠️ A CÓPIA SEM `id` nasceu só no aparelho, de um código que ninguém
+       conferiu. Ela sai, com um aviso honesto: o código não foi
+       confirmado, e dá para digitar de novo. Ela nunca vira vínculo no
+       servidor sem passar por /codigo e pelo consentimento.
+   ============================================================ */
+export type AvisoDoVinculo = 'clinica-encerrou' | 'nao-confirmado' | null;
+
+export function seguirVinculoDoServidor(s: any, remoto: any | null): AvisoDoVinculo {
+  const local = s.profile?.vinculo ?? null;
+  const ativo = remoto && !remoto.encerrado_em ? remoto : null;
+
+  if (ativo) {
+    if (local?.id === ativo.id) {
+      /* o mesmo vínculo: só a ficha pode ter mudado no portal */
+      gravarVinculo(s, ativo);
+      return null;
+    }
+    const semId = !!local && !local.id;
+    gravarVinculo(s, ativo);
+    return semId ? 'nao-confirmado' : null;
+  }
+
+  if (!local) return null;
+  if (!local.id) {
+    tirarVinculo(s);
+    return 'nao-confirmado';
+  }
+  tirarVinculo(s);
+  return remoto?.id === local.id && remoto.encerrado_por === 'clinica' ? 'clinica-encerrou' : null;
 }
 
 /* ============================================================
@@ -470,112 +697,3 @@ export function fichaDaRede(
     })),
   };
 }
-
-/* ============================================================
-   A LISTA DE EXEMPLO — só em desenvolvimento
-
-   Nomes, registros, endereços e contatos inventados. Os contatos usam o
-   domínio reservado `example.com` e números que começam com 0 — nenhum
-   número brasileiro começa assim, e o discador e o WhatsApp abrem sem
-   chegar a ninguém. Os pontos são de bairros de verdade, para a
-   distância fazer sentido na demonstração. As fotos são as da semente —
-   ver `fotoDaRede`, em ui/retratos.
-   ============================================================ */
-
-const EXEMPLO: Clinica[] = [
-  {
-    id: 'lemos', nome: 'Clínica Lemos',
-    sobre: 'Endocrinologia e nutrição no mesmo lugar. Acompanhamos o tratamento com GLP-1 desde o começo, com retorno a cada quatro semanas enquanto a dose está sendo ajustada.',
-    endereco: 'Rua dos Pinheiros, 1000, sala 42', bairro: 'Pinheiros', cidade: 'São Paulo', uf: 'SP',
-    ponto: { lat: -23.566, lng: -46.6835 },
-    dias: [1, 3, 5], abre: '08:00', fecha: '17:00', presencial: true, teleconsulta: true,
-    convenios: ['Bradesco Saúde', 'SulAmérica'], particular: true,
-    contato: { whatsapp: '+55 11 00000-0001', telefone: '(11) 0000-0001', agenda: 'agenda.example.com/clinica-lemos' },
-    equipe: [
-      { id: 'beatriz-lemos', nome: 'Dra. Beatriz Lemos', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '154872', rqe: ['61233'], responsavel: true },
-      { id: 'marina-duarte', nome: 'Marina Duarte', especialidades: ['nutricao'], conselho: 'CRN', regiao: '3', registro: '48213' },
-    ],
-  },
-  {
-    id: 'ibirapuera', nome: 'Clínica Ibirapuera',
-    sobre: 'Endocrinologia clínica, com atenção especial à tireoide e ao metabolismo.',
-    endereco: 'Avenida Ibirapuera, 2500, conjunto 81', bairro: 'Moema', cidade: 'São Paulo', uf: 'SP',
-    ponto: { lat: -23.601, lng: -46.666 },
-    dias: [2, 4], abre: '09:00', fecha: '18:00', presencial: true, teleconsulta: false,
-    convenios: ['Amil', 'Porto Saúde', 'Unimed'], particular: true,
-    contato: { telefone: '(11) 0000-0002', site: 'clinicaibirapuera.example.com' },
-    equipe: [
-      { id: 'rafael-nogueira', nome: 'Dr. Rafael Nogueira', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '138455', rqe: ['57402'], responsavel: true },
-    ],
-  },
-  {
-    id: 'santana', nome: 'Centro Médico Santana',
-    endereco: 'Rua Voluntários da Pátria, 3200', bairro: 'Santana', cidade: 'São Paulo', uf: 'SP',
-    ponto: { lat: -23.501, lng: -46.625 },
-    dias: [6], abre: '08:00', fecha: '12:00', presencial: true, teleconsulta: false,
-    convenios: ['Unimed'], particular: true,
-    contato: { telefone: '(11) 0000-0003' },
-    equipe: [
-      { id: 'rafael-nogueira', nome: 'Dr. Rafael Nogueira', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'SP', registro: '138455', rqe: ['57402'], responsavel: true },
-    ],
-  },
-  {
-    id: 'paulista', nome: 'Espaço Paulista',
-    sobre: 'Nutrologia com foco em composição corporal: proteína, força e o que fazer para a perda ser de gordura, e não de músculo.',
-    endereco: 'Alameda Santos, 1800, 9º andar', bairro: 'Jardim Paulista', cidade: 'São Paulo', uf: 'SP',
-    ponto: { lat: -23.568, lng: -46.652 },
-    dias: [1, 2, 3, 4, 5], abre: '09:00', fecha: '19:00', presencial: true, teleconsulta: true,
-    convenios: [], particular: true,
-    contato: { whatsapp: '+55 11 00000-0004', email: 'contato@espacopaulista.example.com' },
-    equipe: [
-      { id: 'camila-arantes', nome: 'Dra. Camila Arantes', especialidades: ['nutrologia'], conselho: 'CRM', regiao: 'SP', registro: '167321', rqe: ['70114'], responsavel: true },
-      { id: 'felipe-sato', nome: 'Dr. Felipe Sato', especialidades: ['esporte'], conselho: 'CRM', regiao: 'SP', registro: '149903', rqe: ['66120'] },
-    ],
-  },
-  {
-    id: 'julia-tavares', nome: 'Júlia Tavares Psicologia',
-    sobre: 'Atendimento on-line para quem está mudando a relação com a comida durante o tratamento — fome, ansiedade e o que muda quando o apetite muda.',
-    cidade: 'São Paulo', uf: 'SP',
-    dias: [1, 2, 3, 4, 5], abre: '18:00', fecha: '21:00', presencial: false, teleconsulta: true,
-    convenios: [], particular: true,
-    contato: { whatsapp: '+55 11 00000-0007', agenda: 'agenda.example.com/julia-tavares' },
-    equipe: [
-      { id: 'julia-tavares', nome: 'Júlia Tavares', especialidades: ['psicologia'], conselho: 'CRP', regiao: '06', registro: '154321', responsavel: true },
-    ],
-  },
-  {
-    id: 'botafogo', nome: 'Clínica Botafogo',
-    sobre: 'Obesidade, síndrome metabólica e acompanhamento de longo prazo depois que a dose se estabiliza.',
-    endereco: 'Rua São Clemente, 190, sala 301', bairro: 'Botafogo', cidade: 'Rio de Janeiro', uf: 'RJ',
-    ponto: { lat: -22.953, lng: -43.187 },
-    dias: [1, 3, 4], abre: '08:00', fecha: '16:00', presencial: true, teleconsulta: true,
-    convenios: ['Bradesco Saúde', 'SulAmérica', 'Unimed'], particular: true,
-    contato: { whatsapp: '+55 21 00000-0008', telefone: '(21) 0000-0008' },
-    equipe: [
-      { id: 'luisa-cardoso', nome: 'Dra. Luísa Cardoso', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'RJ', registro: '52871', rqe: ['30118'], responsavel: true },
-    ],
-  },
-  {
-    id: 'barra', nome: 'Centro Médico Barra',
-    endereco: 'Avenida das Américas, 4200, bloco 3', bairro: 'Barra da Tijuca', cidade: 'Rio de Janeiro', uf: 'RJ',
-    ponto: { lat: -23.0, lng: -43.365 },
-    dias: [2, 5, 6], abre: '09:00', fecha: '15:00', presencial: true, teleconsulta: false,
-    convenios: ['Amil'], particular: true,
-    contato: { telefone: '(21) 0000-0009' },
-    equipe: [
-      { id: 'andre-moreira', nome: 'Dr. André Moreira', especialidades: ['nutrologia'], conselho: 'CRM', regiao: 'RJ', registro: '61240', rqe: ['34502'], responsavel: true },
-    ],
-  },
-  {
-    id: 'savassi', nome: 'Consultório Savassi',
-    sobre: 'Endocrinologia em Belo Horizonte, com teleconsulta para quem mora no interior.',
-    endereco: 'Rua Pernambuco, 1000, sala 1102', bairro: 'Savassi', cidade: 'Belo Horizonte', uf: 'MG',
-    ponto: { lat: -19.938, lng: -43.935 },
-    dias: [1, 2, 3, 4], abre: '08:00', fecha: '17:00', presencial: true, teleconsulta: true,
-    convenios: ['Unimed'], particular: true,
-    contato: { whatsapp: '+55 31 00000-0010', telefone: '(31) 0000-0010' },
-    equipe: [
-      { id: 'patricia-menezes', nome: 'Dra. Patrícia Menezes', especialidades: ['endocrinologia'], conselho: 'CRM', regiao: 'MG', registro: '58210', rqe: ['29877'], responsavel: true },
-    ],
-  },
-];

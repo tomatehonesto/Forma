@@ -752,6 +752,12 @@ export function buildSeed() {
        ficam só no aparelho; ligada, sobem para uma tabela que a clínica
        não lê. */
     perguntasParaUso: false as boolean,
+    /* ⚠️ O CÓDIGO DA CLÍNICA QUE ESPERA A CONTA. Quem conecta na folha do
+       código antes de ter conta (o caminho do cadastro) deixa aqui o
+       código e a versão do consentimento que leu; a clínica não aparece
+       como conectada, porque ainda não está. Ao nascer a conta — ou ao
+       voltar a sessão —, ele vira vínculo no servidor (logic/conta). */
+    convitePendente: null as { codigo: string; versao: number } | null,
     consultNotes: '',
 
     /* Notas para a consulta. Cada uma guarda QUANDO foi anotada e se já
@@ -1286,6 +1292,7 @@ export function ensureDefaults(S: any) {
   if (typeof S.diario !== 'string' || !S.diario) S.diario = novoRid();
   /* Quem gravou antes da escolha existir não escolheu: fica desligada. */
   if (typeof S.perguntasParaUso !== 'boolean') S.perguntasParaUso = false;
+  if (S.convitePendente === undefined) S.convitePendente = null;
   /* ⚠️ OS SINAIS VITAIS QUE O ESTADO VAZIO HERDAVA, NOS DIÁRIOS QUE JÁ
      EXISTIAM. Até a fase 3 do plano do Supabase, `estadoVazio` deixava os
      da Mariana no diário de quem se cadastrava — e a correção lá só vale
@@ -1480,6 +1487,7 @@ export function estadoVazio(): State {
      semente, fica com ela. */
   S.diario = novoRid();
   S.perguntasParaUso = false;
+  S.convitePendente = null;
 
   return ensureDefaults(S) as State;
 }

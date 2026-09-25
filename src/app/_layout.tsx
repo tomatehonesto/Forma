@@ -13,7 +13,7 @@ import { useStore } from '../logic/store';
 import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
 import { modoFingido } from '../logic/modo';
 import { contaLigada, temConexao } from '../logic/nuvem';
-import { sincronia } from '../logic/conta';
+import { atualizarVinculo, sincronia, usarConvitePendente } from '../logic/conta';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
@@ -136,7 +136,15 @@ function Sincronizador() {
     const m = sincronia();
     if (!m) return;
     m.iniciar();
-    const sub = AppState.addEventListener('change', (e) => { if (e === 'active') m.voltouAoAplicativo(); });
+    /* O vínculo vem do servidor (fase 6): o código guardado vira vínculo,
+       e a cópia segue o que o servidor diz — ver logic/conta. */
+    const vinculo = () => { usarConvitePendente().finally(atualizarVinculo); };
+    vinculo();
+    const sub = AppState.addEventListener('change', (e) => {
+      if (e !== 'active') return;
+      m.voltouAoAplicativo();
+      vinculo();
+    });
     return () => { sub.remove(); };
   }, [ready]);
   return null;

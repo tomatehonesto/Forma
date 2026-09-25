@@ -84,3 +84,30 @@ insert into public.convites (codigo, clinica_id, profissional_id) values
 on conflict (codigo) do update set
   clinica_id = excluded.clinica_id, profissional_id = excluded.profissional_id,
   expira_em = null, usado_por = null, usado_em = null;
+
+-- As fotos moram no balde `clinicas`, em exemplo/ (subidas à mão com
+-- `supabase storage cp`; a origem de cada uma está em
+-- assets/images/CREDITOS.txt). Nenhuma é da clínica que ilustra, e o
+-- Dr. Rafael fica sem retrato: a foto que havia é de um médico de verdade
+-- (PENDENCIAS, item 34). O retrato da Dra. Beatriz foi cortado no alto
+-- para o rosto cair no terço de cima, que é onde o aplicativo ancora.
+update public.clinicas c set foto = 'https://kjagyoqykhysvasauzgo.supabase.co/storage/v1/object/public/clinicas/exemplo/' || f.arquivo
+from (values
+  ('0889a28d-edd8-5aeb-977e-c2938a5ab591'::uuid, 'lemos.jpg'),
+  ('79695249-3633-58a5-8461-606f8667ee5c'::uuid, 'ibirapuera.jpg'),
+  ('0d290932-cfcf-5604-a27b-a360141fe8c1'::uuid, 'santana.jpg'),
+  ('ebbb0dfc-41eb-5180-b884-d29f6654e47d'::uuid, 'paulista.jpg'),
+  ('86fb0c9b-015d-5138-a4a1-652b6166df32'::uuid, 'julia-tavares.jpg'),
+  ('227a502c-bffa-5616-add6-e4f016855b09'::uuid, 'botafogo.jpg'),
+  ('339144d0-8109-5e50-b66c-d33896133858'::uuid, 'barra.jpg'),
+  ('572d0a83-bd46-5d4c-9664-72923ca8f571'::uuid, 'savassi.jpg')
+) as f(id, arquivo)
+where c.id = f.id;
+
+update public.profissionais p set foto = 'https://kjagyoqykhysvasauzgo.supabase.co/storage/v1/object/public/clinicas/exemplo/equipe/' || f.arquivo
+from (values
+  ('582a3abc-c5a3-50b6-85f0-8a13c12787e7'::uuid, 'beatriz-lemos.jpg'),
+  ('25edf2e3-7062-55d1-95a3-ab68e8344a83'::uuid, 'marina-duarte.jpg'),
+  ('23647476-7689-580e-a86b-fda1f4b4579f'::uuid, 'camila-arantes.jpg')
+) as f(id, arquivo)
+where p.id = f.id;

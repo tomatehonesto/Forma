@@ -6,8 +6,10 @@ import { useStore } from '../logic/store';
 import {
   normalizarConvite, vinculoDoConvite, assinaturaAtual, GESTAO_NA_LOJA, NOME_DA_LOJA,
 } from '../logic/assinatura';
+import { contaLigada } from '../logic/nuvem';
+import { VERSAO_DO_COMPARTILHAMENTO, oQueAEquipeVe } from '../logic/compartilhamento';
 import {
-  conferirConvite, gravarConviteDaRede, codigosDeExemplo,
+  conferirConvite, gravarConviteDaRede, gravarVinculo, usarConvite, codigosDeExemplo,
   especialidadesDaClinica, nomeDaEspecialidade, registroTxt,
   type ConviteDaRede,
 } from '../logic/rede';
@@ -109,6 +111,8 @@ export default function Codigo() {
   const [etapa, setEtapa] = React.useState<Etapa>({ tipo: 'codigo' });
   const [conferindo, setConferindo] = React.useState(false);
   const [naoAchou, setNaoAchou] = React.useState(false);
+  /* o que deu errado ao conferir ou ao conectar, quando não é "não achamos" */
+  const [aviso, setAviso] = React.useState<string | null>(null);
 
   const concluir = () => {
     if (de !== 'rede') { router.back(); return; }
@@ -140,6 +144,7 @@ export default function Codigo() {
       return;
     }
     if (r.tipo === 'nao-achou') { setNaoAchou(true); return; }
+    if (r.tipo === 'sem-internet') { setAviso(T.rede.vinculo.semInternet); return; }
     update((st: any) => {
       st.profile.convite = limpo;
       st.profile.vinculo = vinculoDoConvite(limpo);
@@ -147,9 +152,46 @@ export default function Codigo() {
     depoisDeConectar();
   };
 
-  const conectar = (v: ConviteDaRede) => {
-    update((st) => { gravarConviteDaRede(st, v); });
-    depoisDeConectar();
+  /* ⚠️ CONECTAR É ACEITAR O COMPARTILHAMENTO que a etapa de cima lista
+     (logic/compartilhamento), e o vínculo nasce no servidor, com a versão
+     desse texto (`usar_convite`). A cópia no aparelho sai da resposta.
+
+     Três caminhos, conforme o diário:
+       - com dono e sessão: liga na hora;
+       - sem dono (o caminho do cadastro, antes da conta): o código e a
+         versão ficam guardados, e a clínica ainda não aparece como
+         conectada — ela liga quando a conta nascer (logic/conta);
+       - com dono e a sessão caída: guarda do mesmo jeito, e pede para
+         entrar de novo.
+     Sem a conta ligada (as builds de loja até a fase 8), o código liga no
+     aparelho, como sempre ligou. */
+  const conectar = async (v: ConviteDaRede) => {
+    if (!contaLigada()) {
+      update((st) => { gravarConviteDaRede(st, v); });
+      depoisDeConectar();
+      return;
+    }
+    const pendente = { codigo: v.codigo, versao: VERSAO_DO_COMPARTILHAMENTO };
+    if (!(S as any).conta) {
+      update((st: any) => { st.convitePendente = pendente; st.profile.convite = v.codigo; });
+      concluir();
+      return;
+    }
+    setAviso(null);
+    setConferindo(true);
+    const r = await usarConvite(v.codigo, VERSAO_DO_COMPARTILHAMENTO);
+    setConferindo(false);
+    if (r.ok) {
+      update((st: any) => { gravarVinculo(st, r.vinculo); st.convitePendente = null; });
+      depoisDeConectar();
+      return;
+    }
+    if (r.erro === 'sem-sessao') {
+      update((st: any) => { st.convitePendente = pendente; });
+      router.replace('/conta?de=sessao' as any);
+      return;
+    }
+    setAviso(r.erro === 'sem-internet' ? T.rede.vinculo.semInternet : T.rede.vinculo.naoValeuAgora);
   };
 
   /* Conectada, quem paga pela loja ainda ouve que pode cancelar; quem não
@@ -200,7 +242,7 @@ export default function Codigo() {
         onClose={() => router.back()}
         rodape={
           <View>
-            <Botao label={K().conectar} onPress={() => conectar(v)} />
+            <Botao label={conferindo ? K().conferindo : K().conectar} desligado={conferindo} onPress={() => conectar(v)} />
             {/* Volta ao campo com o código ainda escrito: o erro mais
                 provável é uma letra, e não o código inteiro. */}
             <Pressable
@@ -213,7 +255,10 @@ export default function Codigo() {
         }
       >
         <CartaoDoConvite v={v} />
-        <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>{K().conectarTexto}</Txt>
+        {contaLigada() ? <OQueAClinicaVe /> : (
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 14, lineHeight: 20 }}>{K().conectarTexto}</Txt>
+        )}
+        {aviso ? <Txt v="caption" c={c.cta} style={{ marginTop: 12, lineHeight: 20 }}>{aviso}</Txt> : null}
       </SheetScreen>
     );
   }
@@ -244,7 +289,7 @@ export default function Codigo() {
           primeira tecla. */}
       <TextInput
         value={codigo}
-        onChangeText={(v) => { setCodigo(v.toUpperCase()); setNaoAchou(false); }}
+        onChangeText={(v) => { setCodigo(v.toUpperCase()); setNaoAchou(false); setAviso(null); }}
         placeholder={P().digite}
         placeholderTextColor={c.tx4}
         autoFocus
@@ -292,6 +337,9 @@ export default function Codigo() {
       {naoAchou ? (
         <Txt v="caption" c={c.cta} style={{ marginTop: 8, lineHeight: 20 }}>{K().naoAchou}</Txt>
       ) : null}
+      {aviso ? (
+        <Txt v="caption" c={c.cta} style={{ marginTop: 8, lineHeight: 20 }}>{aviso}</Txt>
+      ) : null}
 
       {/* ⚠️ DUAS FRASES, E CADA UMA RESPONDE UM MEDO DIFERENTE.
 
@@ -314,6 +362,36 @@ export default function Codigo() {
         <Txt v="micro" c={c.tx4} style={{ marginTop: 10, lineHeight: 17 }}>{K().exemplo(exemplos.join(', '))}</Txt>
       ) : null}
     </SheetScreen>
+  );
+}
+
+/* ------------------------------------------------------------------
+   O QUE A CLÍNICA PASSA A VER — o consentimento de compartilhar
+
+   ⚠️ A LISTA NÃO É ESCRITA AQUI: sai de logic/compartilhamento, que a
+   tira da tabela de tradução. E as quatro frases dizem o que a lista não
+   diz sozinha: que entra o que veio antes, que as perguntas ao Morphi não
+   entram, que dura enquanto a conexão durar, e que o prontuário fica.
+------------------------------------------------------------------ */
+function OQueAClinicaVe() {
+  const { c } = useTheme();
+  const V = T.rede.vinculo;
+  return (
+    <View style={{ marginTop: 18, gap: 8 }}>
+      <Txt v="bodyMed">{V.titulo}</Txt>
+      <View style={{ gap: 4 }}>
+        {oQueAEquipeVe().map((item) => (
+          <Row key={item} gap={8} style={{ alignItems: 'flex-start' }}>
+            <Txt v="caption" c={c.tx3}>•</Txt>
+            <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{item}</Txt>
+          </Row>
+        ))}
+      </View>
+      {[V.antes, V.perguntas, V.dura, V.guarda].map((f) => (
+        <Txt key={f} v="caption" c={c.tx3} style={{ lineHeight: 20 }}>{f}</Txt>
+      ))}
+      <Txt v="caption" c={c.tx2} style={{ lineHeight: 20, marginTop: 4 }}>{V.aceitar}</Txt>
+    </View>
   );
 }
 
