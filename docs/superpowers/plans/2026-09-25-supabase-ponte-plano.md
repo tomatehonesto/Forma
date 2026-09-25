@@ -5,15 +5,26 @@
 **Projeto de desenvolvimento:** `morphi-dev`, ref `kjagyoqykhysvasauzgo`, São Paulo
 
 Oito fases. Cada uma termina num commit que passa nas conferências de sempre
-e num aplicativo que funciona. Nenhuma deixa uma frase mentindo para quem
-usa o aplicativo, porque tudo o que é novo fica atrás de **um interruptor
-só**, que a fase 8 liga no mesmo commit que troca os textos. É o "tudo de
-uma vez" do desenho: a pessoa recebe a conta, o diário guardado, a rede e o
-vínculo na mesma entrega. Os commits do caminho são para o desenvolvimento.
+e num aplicativo que funciona. Tudo o que é novo fica atrás de **um
+interruptor só**, que a fase 8 liga no mesmo commit que troca os textos. É
+o "tudo de uma vez" do desenho: a pessoa recebe a conta, o diário guardado,
+a rede e o vínculo na mesma entrega. Os commits do caminho são para o
+desenvolvimento.
 
 A ordem segue a regra do plano anterior: primeiro o que não muda nenhum
 pixel. As fases 1 a 3 constroem o banco, o cliente e o miolo da
 sincronização. A 4 é a primeira que se vê.
+
+**Revisado na leitura.** Duas decisões do dono entraram depois da primeira
+versão: a conta obrigatória e as perguntas ao companheiro subindo. Depois
+delas, o plano passou por duas rodadas de revisão independente:
+- na primeira, três revisores leram o plano, o desenho e o código, um pela
+  coerência, um pelo código e um pela privacidade;
+- na segunda, um conferiu se cada achado confirmado foi tratado, e outro
+  releu tudo do zero.
+
+Cada achado passou por um cético antes de entrar, e o que sobreviveu está
+incorporado abaixo.
 
 ---
 
@@ -39,9 +50,9 @@ planejar. Dez coisas do desenho mudam, e cada uma tem um motivo:
    podem editar os modelos de e-mail no envio padrão do Supabase. Sem isso,
    o e-mail leva um link, e não os 6 dígitos. O envio padrão também só
    entrega para membros da organização, duas mensagens por hora. **O
-   serviço de envio passa a ser pré-requisito da fase 4.** E o modelo é um
-   só para seis idiomas: ele escolhe o texto pelo `idioma` que o aplicativo
-   manda junto quando pede o código.
+   serviço de envio e o domínio verificado passam a ser pré-requisito da
+   fase 4.** E o modelo é um só para seis idiomas: ele escolhe o texto pelo
+   `idioma` que o aplicativo manda junto quando pede o código.
 4. **O tempo real é por Broadcast, e não por "Postgres Changes".** A
    documentação atual recomenda Broadcast, e há um motivo além da escala:
    no Postgres Changes o evento de exclusão não passa pelas regras de
@@ -72,39 +83,137 @@ planejar. Dez coisas do desenho mudam, e cada uma tem um motivo:
    existir.** O desenho dizia "sem assinatura, abre `/suspenso`". Mas sem
    cobrança ninguém tem assinatura, e abri-la só para quem perdeu o
    vínculo trancaria uma pessoa enquanto todas as outras sem vínculo
-   entram. A tela abre sozinha no dia em que o portão existir, porque ele
-   pergunta a `acessoDe`. Até lá, quem perde o vínculo recebe um aviso.
+   entram. A tela abre sozinha no dia em que o portão da cobrança existir,
+   porque ele pergunta a `acessoDe`. Até lá, quem perde o vínculo recebe um
+   aviso.
 10. **Sem biblioteca de conexão.** A falha de rede já é o sinal de "sem
     internet", e a espera crescente do desenho cobre o "quando a conexão
     voltar". É uma dependência a menos.
 
-E três coisas que o desenho não dizia e o plano decide:
+E quatro coisas que o desenho não dizia e o plano decide:
 
 - **Apagar um registro limpa o conteúdo dele no servidor.** A linha fica,
   para o outro aparelho saber, mas `dados` vira `{}`. É o que "apagar"
   quer dizer, e a clínica, que vê a versão atual, vê o apagado.
-- **O diário do aparelho tem dono.** Se a sessão cair e outra conta entrar
-  no mesmo aparelho, nada sobe para a conta errada: o aplicativo pede para
-  entrar com a conta dona do diário, ou para sair e começar de novo.
-- **Dois diários não se misturam.** Quem já usa o aplicativo sem conta e
-  entra, pelo Perfil, numa conta que já tem diário escolhe um dos dois. A
+- **O diário do aparelho tem dono**, gravado no próprio estado
+  (`S.conta`). Se a sessão cair e outra conta entrar no mesmo aparelho,
+  nada sobe para a conta errada: o aplicativo pede para entrar com a conta
+  dona do diário, ou para sair e começar de novo.
+- **Dois diários não se misturam.** Quem já usa o aplicativo sem conta e,
+  ao criar a conta, entra numa que já tem diário escolhe um dos dois. A
   mistura é outro projeto.
+- **A prova do consentimento é do servidor.** A versão aceita sobe do
+  aparelho, mas a hora em que o servidor a recebeu é carimbada por ele, e a
+  versão nunca diminui (ela desce para um aparelho novo, como o resto do
+  perfil). Cabe a nós provar o consentimento, e um registro que a própria
+  pessoa pode reescrever não prova nada.
 
-### ⚠️ Decisão para confirmar na leitura: "Agora não" na conta
+---
 
-O desenho põe a conta no fim do cadastro e não diz se o passo pode ser
-pulado. **O plano oferece "Agora não"**, que leva ao aplicativo sem conta,
-igual a quem já usa hoje, com o convite do Perfil. Dois motivos:
+## As decisões da leitura
 
-- a regra 5.1.1(v) da App Store pede que o aplicativo funcione sem login
-  quando o que ele faz não depende de conta, e o diário funciona sem;
-- sem internet no fim do cadastro não há como criar conta, e o aplicativo
-  promete funcionar sem conexão.
+### 1. A conta é obrigatória
 
-A exceção é quem conectou um código de clínica no plano: o vínculo só
-existe com conta. Ali a tela explica isso e mantém "Agora não", e o código
-fica guardado esperando a conta. **Se a conta tiver de ser obrigatória, a
-mudança é só nesta tela.**
+Não há "Agora não". O motivo do dono: o diário precisa estar ligado a uma
+pessoa. Consequências:
+
+- **O cadastro só termina com a conta.** O cadastro leva a
+  `/planos?de=cadastro`. Dali, com o diário sem dono, toda saída que
+  entraria no aplicativo vai a `/conta?de=cadastro`, com ou sem internet. A
+  tela `/conta` não tem saída que não seja criar a conta ou entrar numa.
+- **Em produção, a instalação nova passa a nascer vazia.** Hoje toda
+  instalação nova abre na demonstração da Mariana, com `onboardDone`
+  verdadeiro (`store.ts`, `hydrate`; PENDENCIAS, item 27). Com a conta
+  obrigatória, isso seria a porta para usar o aplicativo sem conta. Na
+  fase 8, junto com o interruptor, a instalação nova fora de `__DEV__`
+  nasce de `estadoVazio()` e cai no cadastro. É a "saída 2" do item 27.
+  **A Mariana passa a existir só no desenvolvimento.**
+- **O portão ganha duas trancas novas**, descritas inteiras na seção "As
+  trancas do portão": a do consentimento novo (fase 8) e a da conta. A da
+  conta cobre quem reabre o aplicativo sem ter conta, inclusive **quem já
+  usa o aplicativo hoje**: na primeira abertura depois da entrega, essa
+  pessoa cria a conta, e o diário dela sobe. O desenho dizia que ela
+  "continua funcionando igual", com um convite no Perfil. Isso sai.
+- **A tranca olha o dono do diário, e não a sessão.** Uma sessão que
+  expirou não tranca nada: a pessoa tem conta, o aplicativo segue
+  funcionando, e a linha de estado pede para entrar de novo. O dono mora
+  em `S.conta`, que `hydrate` já lê junto com o resto, sem esperar a
+  sessão nem a rede.
+- **Ao reabrir, a tranca da conta só fecha com conexão.** Registrar nunca
+  espera o servidor, e trancar sem internet deixaria alguém fora do
+  próprio diário, sem poder registrar a dose. Sem conexão, o aplicativo
+  abre com um aviso ("Sem internet — criamos a sua conta quando a conexão
+  voltar"), e a tranca fecha na próxima abertura com rede. Esperam a
+  conexão só as ações que acontecem no servidor: criar a conta ou entrar
+  nela, apagar a conta, e conferir ou usar um código de clínica.
+- **A semente só existe no desenvolvimento, e nunca pede conta nem sobe.**
+  - `buildSeed` grava `semente: true`.
+  - `estadoVazio` **parte de `buildSeed`** e herdaria a marca. Por isso
+    ele grava `semente: false` de forma explícita, antes do
+    `return ensureDefaults(S)`. Isso vale para todo caminho que passa por
+    ele: o cadastro, "Apagar meus dados", "Sair da conta" e "Já tenho
+    conta".
+  - Fora de `__DEV__`, a marca não isenta nada. Um estado gravado com
+    `semente: true` numa build de loja (quem instalou antes e nunca se
+    cadastrou) vai para o cadastro.
+- **O código de clínica do plano vira vínculo logo depois**, quando a
+  conta nasce.
+- ⚠️ **Risco conhecido: a regra 5.1.1(v) da App Store.** Ela aceita login
+  obrigatório quando o aplicativo tem recursos que dependem de conta. Aqui
+  eles existem: o diário guardado entre aparelhos e o vínculo com a
+  clínica. Mesmo assim, a revisão pode perguntar. O risco vai para as
+  pendências, com a resposta pronta.
+
+### 2. As perguntas ao companheiro sobem para nós, e a clínica não lê
+
+`asked` guarda as perguntas feitas ao companheiro, com a hora. Elas sobem
+para uma tabela própria, `perguntas`, e não para `registros`.
+
+- **`perguntas` só cresce.** No aparelho, `asked` é uma janela: guarda as
+  12 últimas e tira a repetida (`companion.tsx:251`). Se a sincronia
+  tratasse quem sai da janela como apagado, a 13ª pergunta apagaria a
+  primeira no servidor, e ele nunca teria mais de 12 por pessoa. Então
+  sair da janela não é apagar: cada pergunta é uma linha, a repetida é uma
+  linha nova, e o conteúdo nunca muda depois de subir. Ao descer, o
+  aplicativo remonta a janela das 12 últimas.
+- **Cada pergunta leva a sua origem: `digitada` ou `sugerida`.** Sem isso,
+  não há como mapear o uso, porque as sugestões do aplicativo se
+  misturariam com as dúvidas de verdade. A origem é gravada no aparelho,
+  em cada item de `asked`, por quem faz a pergunta (fase 3).
+- **A clínica não lê, por construção.** A tabela não tem regra para a
+  equipe. Também não tem `grant` para a chave secreta, então nem uma
+  função do servidor nem o futuro portal a leem. A trava das regras afirma
+  as duas coisas, cada uma com o seu mutante.
+- **Nós lemos com um papel de leitura próprio**, `analise_perguntas`, que
+  só enxerga uma visão sem o `user_id` e só com as perguntas de quem deixou.
+  Não é pela chave secreta, nem pelo papel `postgres` do painel, que lê
+  tudo.
+- **A pessoa leva todas as suas perguntas no "Exportar"**, e apagar a conta
+  leva todas.
+
+⚠️ **É uma finalidade nova, sobre texto de saúde, e o consentimento
+precisa ser livre.** A pergunta costuma falar de sintoma, de dose e de
+medo. Usá-la para entender o uso pede consentimento específico e destacado
+(LGPD, art. 11, I). E, como a conta é obrigatória, embutir essa finalidade
+no aceite geral faria dela a condição para usar o diário. Um consentimento
+assim dificilmente é livre (art. 5º, XII).
+
+Por isso, **até a revisão jurídica dizer outra coisa**, o plano faz assim:
+- a leitura das perguntas é **uma escolha própria**, no mesmo passo do
+  consentimento, **desligada por padrão**;
+- a escolha fica no servidor (`perfis.perguntas_para_uso`, com a hora
+  carimbada por ele), e a regra de `insert` de `perguntas` exige que ela
+  esteja ligada;
+- recusar não tranca nada, e quem recusa guarda as perguntas só no
+  aparelho, como hoje;
+- ligar sobe também as perguntas que estão no aparelho (as até 12);
+- desligar, a qualquer momento, em `/privacidade`, apaga as que já
+  subiram. É a revogação que a LGPD garante (art. 8º, § 5º).
+
+Assim, se a revisão permitir outra forma, muda o padrão e a tela, e o
+motor fica como está. **Consequência: só lemos as perguntas de quem
+disser sim.** A pendência vai para "🔴 Bloqueia a publicação", ao lado do
+item 2.
 
 ---
 
@@ -121,34 +230,81 @@ export const contaLigada = () => !!nuvem() && (__DEV__ || NUVEM_PARA_TODOS);
 ```
 
 Toda porta nova pergunta a `contaLigada()`: a conta no fim do cadastro,
-"Já tenho conta", o convite do Perfil, a linha de estado, a vitrine lida do
-banco e a conferência do código.
+"Já tenho conta", as duas trancas novas do portão, a linha de estado, a
+vitrine lida do banco, a conferência do código e a instalação nova vazia.
 
 - **Em desenvolvimento** (`__DEV__`, o Expo Go do dono) as portas aparecem
   a partir da fase 4. Durante as fases 4 a 7, os textos legais que o dono lê
   no aparelho dele estão atrasados em relação ao que o aplicativo faz. É o
   preço de não escrever tudo num commit só, e ele fica dentro do
   desenvolvimento.
-- **Em build de loja**, nada muda até a fase 8. E, sem as variáveis do
-  projeto de produção, `nuvem()` é nulo mesmo depois dela: a virada para a
-  produção é a seção "Depois do plano".
+- **Em build de loja**, nada muda até a fase 8. Depois dela, sem as
+  variáveis do projeto de produção, `nuvem()` continua nulo.
+- ⚠️ **Os textos da fase 8 não passam pelo interruptor.** A Política, os
+  Termos e o consentimento novo descrevem a nuvem para todas as builds.
+  Por isso, **nenhuma build fora de `__DEV__` (prévia, TestFlight ou loja)
+  sai do commit da fase 8 antes da virada para a produção** (a seção
+  "Depois do plano"). As variáveis de produção no EAS são a condição para
+  a primeira build distribuída.
+
+---
+
+## As trancas do portão
+
+Hoje o `Portao` (`_layout.tsx:59`) tem uma tranca: sem `onboardDone`,
+qualquer segmento que não seja `cadastro` volta para `/cadastro`. Com as
+duas novas, a regra inteira fica assim:
+
+**Cada tranca tem uma condição e uma lista. A primeira cuja condição vale
+decide sozinha: se o segmento atual está na lista dela, fica; senão, vai
+ao destino dela. As de baixo não são avaliadas.** O comentário do `Portao`
+passa a dizer exatamente isso.
+
+| # | condição | destino | deixa ficar |
+|---|---|---|---|
+| 1 | `!onboardDone` | `/cadastro` | `cadastro`, `conta`, `documento` |
+| 2 | fase 8: `contaLigada()`, `onboardDone`, a versão aceita é menor que `VERSAO`, e o estado não é a semente de desenvolvimento | a folha do consentimento novo | a folha, `documento`, `exportar` |
+| 3 | `contaLigada()`, `onboardDone`, sem `S.conta`, o estado não é a semente de desenvolvimento, **e há conexão** | `/conta?de=cadastro` | `cadastro`, `planos`, `codigo`, `conta`, `documento`, `exportar`, a folha |
+
+- **A tranca 1 ganha `conta` e `documento`.** Sem isso, "Já tenho conta"
+  na abertura do cadastro, onde `onboardDone` é falso, voltaria na hora
+  para o cadastro. O mesmo aconteceria com os links dos Termos e da
+  Política.
+- **A tranca 2 exige `onboardDone`.** Sem isso, um cadastro novo, que
+  ainda não tem consentimento nenhum, seria levado à folha no meio das
+  perguntas. O consentimento dele é o último passo do cadastro.
+- **A tranca 3 deixa ficar `cadastro`, `planos` e `codigo`.** O `salvar`
+  do cadastro põe `onboardDone` verdadeiro antes da devolutiva, de
+  `/planos` e de `/codigo` (`cadastro.tsx:1246` e `:1410`). Sem essas
+  exceções, a tranca levaria a pessoa à conta antes de ela escolher o
+  plano. O caminho do cadastro até a conta é a saída de
+  `/planos?de=cadastro` (a decisão 1). A tranca 3 cobre quem reabre o
+  aplicativo, e por isso só fecha com conexão.
+- **"Apagar meus dados" e "Sair da conta" levam ao cadastro, e não à
+  conta.** O estado vazio tem `onboardDone` falso, e a tranca 1 vem
+  primeiro.
+- **"Há conexão"** é uma consulta curta ao endereço de saúde da
+  autenticação, na abertura e na volta ao aplicativo. Enquanto ela não
+  responde, a tranca 3 não fecha.
 
 ---
 
 ## O que depende do dono, e quando
 
-Nenhum segredo passa pela conversa. A senha do banco e a chave secreta
-ficam no painel e no terminal do dono.
+Nenhum segredo passa pela conversa. A senha do banco, a chave secreta e a
+senha do papel de leitura ficam no painel, no terminal e no gerenciador de
+senhas do dono.
 
 | antes de | o quê | onde |
 |---|---|---|
 | passo 1.2 | `npx supabase login` no terminal dele. A autorização é dele, e os comandos da CLI passam a usá-la | terminal |
-| fase 4 | **o serviço de envio de e-mail**, pelo item 3 acima. Sugestão: **Amazon SES em São Paulo (`sa-east-1`)**, que mantém o e-mail no Brasil e fecha a pendência da transferência internacional. Domínio de envio verificado (é o item 1 das pendências) e as credenciais SMTP digitadas no painel | Supabase → Authentication → Emails → SMTP |
+| fase 4 | **o serviço de envio de e-mail e o domínio de envio verificado** (item 3 acima; o domínio é o item 1 das pendências). Sugestão: **Amazon SES em São Paulo (`sa-east-1`)**, que mantém o e-mail no Brasil e fecha a pendência da transferência internacional. As credenciais SMTP são digitadas no painel | Supabase → Authentication → Emails → SMTP |
 | fase 4 | os dois modelos de e-mail ("Magic link" e "Confirm signup"), colados de `supabase/modelos/codigo.html`; código de **6** dígitos; validade de **600 s** | Authentication → Emails; Sign In / Providers → Email |
 | fase 4 | Apple ligada, com Client IDs `br.com.selloapp.morphi,host.exp.Exponent`. Login nativo não precisa de Services ID nem de chave `.p8` | Sign In / Providers → Apple |
 | fase 5 | o item 16 das pendências (`eas init`, iPhone registrado, conta paga de desenvolvedor Apple); no Google Cloud, a tela de consentimento e três clientes OAuth (web, iOS e Android com o SHA-1); no Supabase, o Google com os IDs, o da web primeiro | EAS, Google Cloud, painel |
 | fase 7 | desligar "Allow public access" do Realtime, para só haver canal privado | Realtime → Settings |
 | fases 4 e 6 | digitar no navegador de testes o código que chegar no e-mail dele, quando eu pedir | navegador |
+| quando for ler as perguntas | dar login e senha ao papel `analise_perguntas`, no editor SQL; a senha fica no gerenciador dele | painel |
 
 ---
 
@@ -194,34 +350,69 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    `do $$ … $$` que termina num `raise` com um sentinela, e a exceção
    desfaz tudo.
 
-4. **As migrações**, cada uma criada com `npx supabase migration new`:
+4. **As migrações**, cada uma criada com `npx supabase migration new`.
+
+   **Toda chave estrangeira para `auth.users` diz o que acontece quando a
+   conta some.** Sem isso, `deleteUser` falha para quem já usou um código,
+   ou deixa linhas para trás:
+   - `on delete cascade`: `perfis.user_id`, `registros.user_id`,
+     `perguntas.user_id`, `vinculos.paciente_id` e o `paciente_id` das
+     tabelas da clínica;
+   - `on delete set null`: `convites.usado_por` e
+     `profissionais.user_id`;
+   - o `vinculo_id` das tabelas da clínica acompanha o vínculo
+     (`on delete cascade`).
 
    **a. `perfis_e_registros`**
    - O esquema `private`: `revoke all … from public`, e `usage` para
      `anon` e `authenticated`. Ele não é exposto pela API.
    - A tabela `perfis`, com:
-     - `user_id` como chave, referenciando `auth.users` com
-       `on delete cascade`;
+     - `user_id` como chave;
      - seis partes `jsonb`, cada uma com o seu `<parte>_em`;
-     - `versao_consentimento`, `consentido_em`, `criado_em` e
-       `atualizado_em`.
+     - `versao_consentimento`, `consentido_em` (a hora que o aparelho
+       declara) e **`consentimento_registrado_em`**, que só o servidor
+       escreve;
+     - **`perguntas_para_uso`** (`boolean not null default false`, a
+       escolha da decisão 2) e **`perguntas_para_uso_em`**, que só o
+       servidor escreve;
+     - `criado_em` e `atualizado_em`.
    - A tabela `registros`, com as colunas do desenho, mais:
      - `check` do `tipo` contra a lista da tradução;
      - `check (octet_length(dados::text) <= 65536)`, para ninguém guardar
        arquivo em `dados`.
+   - A tabela `perguntas` (a decisão 2):
+     - `id` (o `rid`), `user_id`, `quando` e `texto` (com o mesmo teto de
+       tamanho);
+     - `origem`, com `check (origem in ('digitada', 'sugerida'))`, e nula
+       nas perguntas feitas antes desta entrega;
+     - `criado_em`, carimbado pelo servidor (`clock_timestamp()`), e que o
+       cliente não escreve.
+
+     **Não tem `update`**: o conteúdo de uma pergunta nunca muda.
+   - A visão `private.perguntas_para_leitura`: `quando`, `texto` e
+     `origem`, **sem o `user_id`**, e só das pessoas com
+     `perguntas_para_uso` ligado. Ela roda com os direitos da dona, e por
+     isso recebe `revoke all … from public, anon, authenticated,
+     service_role`.
+   - O papel **`analise_perguntas`**: `nologin`, sem `bypassrls`, com
+     `usage` em `private` e `select` só na visão. A senha nunca entra no
+     repositório: quando alguém for ler, o dono liga o login e dá a senha
+     no editor SQL. Ele mesmo pode ler com `set role analise_perguntas`.
    - Os gatilhos:
      - `atualizado_em = clock_timestamp()` a cada escrita (o relógio do
        aparelho não decide nada);
      - o `<parte>_em` de cada parte que mudou;
-     - apagado: carimba `apagado_em` e limpa `dados`.
-   - Os índices: `registros (user_id, atualizado_em)` e
-     `perfis (atualizado_em)`.
+     - apagado: carimba `apagado_em` e limpa `dados`;
+     - consentimento: quando `versao_consentimento` sobe, carimba
+       `consentimento_registrado_em`; se ela tentar diminuir, recusa;
+     - quando `perguntas_para_uso` muda, carimba `perguntas_para_uso_em`.
+   - Os índices: `registros (user_id, atualizado_em)`,
+     `perguntas (user_id, criado_em)` e `perfis (atualizado_em)`.
 
    **b. `rede`**
    - A tabela `clinicas`, com os campos de `Clinica` em `logic/rede.ts`,
      mais `publicada` e `exemplo`.
-   - A tabela `profissionais`, com `user_id` apontando para `auth.users`
-     (`on delete set null`).
+   - A tabela `profissionais`, com `user_id`.
    - A tabela `equipe`: `clinica_id`, `profissional_id`, `papel` e `ativo`.
    - Os ids são uuid, e a semente usa uuids fixos.
 
@@ -230,8 +421,8 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
    **d. `da_clinica`**: as tabelas `mensagens`, `receitas`, `consultas`,
    `planos_da_equipe` e `materiais`.
-   - Cada uma leva `vinculo_id`, `paciente_id` (com `on delete cascade`) e
-     `atualizado_em` carimbado pelo servidor.
+   - Cada uma leva `vinculo_id`, `paciente_id` e `atualizado_em` carimbado
+     pelo servidor.
    - `materiais.paciente_id` é nulo quando o material vale para todos os
      pacientes da clínica.
 
@@ -243,9 +434,9 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
    **g. `armazenamento_da_rede`**: o balde `clinicas`, público para
    leitura. As escritas nascem com o portal; no `morphi-dev`, as fotos
-   sobem pela CLI (passo 6.7).
+   sobem pela CLI (fase 6, passo 7).
 
-   O que as migrações a, c, d, e e f dizem sobre acesso está no passo 5.
+   O que as migrações a até f dizem sobre acesso está no passo 5.
 
 5. **As permissões e as regras.** A exposição automática está desligada
    no projeto, então **cada tabela precisa do seu `grant`**. Sem ele a API
@@ -256,7 +447,9 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
    | tabela | `anon` | `authenticated` |
    |---|---|---|
-   | `perfis`, `registros` | — | `select`, `insert`, `update` (sem `delete`: apagar é marcar; a linha só sai com a conta, pela cascata) |
+   | `perfis` | — | `select`, `insert`, e `update` das partes, de `versao_consentimento`, de `consentido_em` e de `perguntas_para_uso`. **Nunca das duas colunas que o servidor carimba** |
+   | `registros` | — | `select`, `insert`, `update` (sem `delete`: apagar é marcar; a linha só sai com a conta, pela cascata) |
+   | `perguntas` | — | `select`, `insert` e `delete`. Sem `update` |
    | `clinicas`, `equipe` | `select` | `select` |
    | `profissionais` | `select` só das colunas públicas: id, nome, foto, especialidades, conselho, região, registro e RQE. **`user_id` fica de fora** | igual |
    | `convites` | — | `select`, `insert` (a equipe, pelo portal) |
@@ -264,7 +457,9 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    | `mensagens`, `receitas` | — | `select`, `insert`, e `update` só da coluna que o paciente mexe (`lida_em`, `renovacao_pedida_em`) |
    | `consultas`, `planos_da_equipe`, `materiais` | — | `select`, `insert`, `update` |
 
-   `service_role` recebe tudo, para as funções do servidor.
+   `service_role` recebe tudo, para as funções do servidor, **menos
+   `perguntas` e a visão**. A cascata de `deleteUser` continua apagando as
+   perguntas, porque a ação da chave estrangeira roda como dona da tabela.
 
    **As funções que decidem, em `private`**, todas `stable security
    definer set search_path = ''`:
@@ -290,9 +485,12 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    $$;
    ```
 
-   Mais três, no mesmo molde: `equipe_le_vinculo(vinculo)`, que vale ativo
-   ou encerrado; `equipe_escreve(vinculo, paciente)`, que só vale com
-   vínculo ativo; e `meu_vinculo_ativo()`.
+   Mais quatro, no mesmo molde:
+   - `equipe_le_vinculo(vinculo)`, que vale ativo ou encerrado;
+   - `equipe_escreve(vinculo, paciente)`, que só vale com vínculo ativo;
+   - `meu_vinculo_ativo()`;
+   - `minhas_clinicas_de_paciente()`: as clínicas dos vínculos de quem
+     pergunta, ativos e encerrados.
 
    Todas recebem `revoke execute … from public, anon`, e `grant` só para
    `authenticated`.
@@ -307,6 +505,12 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
        para ninguém mudar o dono de uma linha.
    - **`perfis`**: igual, com `private.equipe_le(user_id, null)`. Depois do
      fim, a equipe lê o perfil só por `vinculos.perfil_no_fim`.
+   - **`perguntas`**
+     - leitura e `delete` só da dona;
+     - `insert` só da dona, **e só com `perguntas_para_uso` ligado no
+       perfil dela**, conferido na própria regra;
+     - **nenhuma política para a equipe.** Essa ausência, com a falta de
+       `grant` para `service_role`, é o que faz a clínica não ler.
    - **`vinculos`**: o paciente lê os seus; a equipe lê os da sua
      clínica.
    - **as da clínica**
@@ -321,6 +525,12 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
      - clínicas com `publicada`;
      - a equipe ativa delas;
      - os profissionais que estão numa equipe ativa de clínica publicada.
+   - **a ficha da própria clínica** (`authenticated`): o paciente lê a
+     clínica, a equipe e os profissionais (as colunas públicas) das
+     clínicas dos seus vínculos, ativos e encerrados, **publicadas ou
+     não**. Sem isso, uma clínica que sai da vitrine sumiria do aplicativo
+     de quem ela acompanha, e as mensagens chegariam de autores que o
+     aparelho não sabe quem são.
 
    Os índices de cada coluna que uma regra lê: `vinculos (clinica_id)`,
    `equipe (profissional_id)`, `profissionais (user_id)` e os `vinculo_id`.
@@ -352,7 +562,8 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
      - pelo paciente, encerra o dele (`encerrado_por = 'paciente'`);
      - por alguém da equipe ativa da clínica, encerra aquele
        (`'clinica'`), que é a porta do portal, pronta antes dele;
-     - copia `perfis` para `perfil_no_fim`.
+     - copia `perfis` para `perfil_no_fim`. As perguntas não estão em
+       `perfis`, e por isso não vão junto.
 
    **O tempo real.** Gatilhos em `private` chamam `realtime.send` com o
    conteúdo `{tabela, id}`:
@@ -360,7 +571,7 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    | quando muda | para o canal |
    |---|---|
    | o que a clínica escreve para o paciente, e o vínculo dele | `paciente:<uuid>` |
-   | um registro ou o perfil de quem tem vínculo ativo (o sintoma no portal, na hora) | `clinica:<uuid>` |
+   | um registro ou o perfil de quem tem vínculo ativo (o sintoma no portal, na hora). Uma pergunta, nunca | `clinica:<uuid>` |
 
    As políticas em `realtime.messages` comparam o tópico por texto:
    `'paciente:' || auth.uid()` para o paciente, e a lista de
@@ -404,10 +615,25 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - depois do fim, lê só os registros com `quando` até o fim, e nenhum sem
      `quando`; o perfil, só pela cópia;
    - o profissional que saiu da equipe não lê mais nada;
+   - **as perguntas:**
+     - o profissional de X não lê as de A, nem com vínculo ativo;
+     - o canal da clínica não recebe evento de pergunta;
+     - `service_role` recebe `42501` em `perguntas`;
+     - com a escolha desligada, o `insert` de A em `perguntas` falha;
+     - A não muda uma pergunta que já subiu; apaga as suas, e nenhuma de B;
+     - a visão mostra as perguntas de A só com a escolha ligada, e sem o
+       `user_id`;
+     - `anon`, `authenticated` e `service_role` recebem `42501` na visão;
+     - `analise_perguntas` lê a visão e recebe `42501` em `registros`,
+       `perfis`, `mensagens` e `perguntas`;
+   - A não escreve as colunas que o servidor carimba, e não diminui a
+     versão do consentimento;
    - Y nunca lê A;
    - ninguém além de A escreve no diário de A;
    - sem login, a vitrine sim; as clínicas não publicadas, os convites e
      `profissionais.user_id`, não;
+   - A lê a ficha e a equipe de X mesmo com X fora da vitrine, porque tem
+     vínculo com ela; B, sem vínculo, não;
    - sem login, o código se confere e não se lista; código usado por outra
      pessoa é "não achamos";
    - `usar_convite` deixa um vínculo ativo só, e a troca encerra o anterior
@@ -417,35 +643,50 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - a equipe escreve para A só com vínculo ativo;
    - A mexe numa receita só no pedido de renovação;
    - os tópicos de tempo real: A ouve só o seu canal; X, só o da sua
-     clínica.
+     clínica;
+   - **apagar A de `auth.users`**, dentro da transação, não falha e não
+     deixa linha de A em tabela nenhuma (a cópia `perfil_no_fim`
+     inclusive), e o convite que A usou fica com `usado_por` nulo.
 
    **A porta da frente**, sem arreio. O executor também chama a API de
    verdade com a chave pública:
    - a vitrine responde;
-   - `convites` e `registros` respondem `42501`;
+   - `convites`, `registros` e `perguntas` respondem `42501`;
    - `conferir_convite` responde.
 
-   É o que prova as permissões e a exposição, e não só as regras.
+   É o que prova as permissões e a exposição, e não só as regras. O
+   executor confere também que a lista de códigos de exemplo que fica no
+   aplicativo (fase 6, passo 1) é igual à do `seed.sql`.
 
    **Os mutantes** ficam em `supabase/testes/mutantes/`: cada um é um trecho
    de SQL aplicado dentro da mesma transação, antes das afirmações. O
    executor exige que **cada um derrube pelo menos uma afirmação**.
-   - a regra da equipe sem o limite do fim;
-   - `using (true)` na leitura de `registros`;
-   - `equipe.ativo` ignorado;
-   - o `with check` removido do `update`;
-   - `conferir_convite` aceitando código usado;
-   - `grant select` de `convites` para `anon`.
+   1. a regra da equipe sem o limite do fim;
+   2. `using (true)` na leitura de `registros`;
+   3. `equipe.ativo` ignorado;
+   4. o `with check` removido do `update`;
+   5. `conferir_convite` aceitando código usado;
+   6. `grant select` de `convites` para `anon`;
+   7. a leitura da equipe estendida a `perguntas`;
+   8. o `grant` de `perguntas` devolvido a `service_role`;
+   9. uma chave estrangeira sem a cascata (`registros.user_id`);
+   10. a regra de `insert` de `perguntas` sem a escolha;
+   11. o `delete` de `perguntas` sem o filtro da dona;
+   12. a visão sem o filtro da escolha;
+   13. `grant select` da visão para `authenticated`;
+   14. `select` em `registros` para `analise_perguntas`;
+   15. a ficha da própria clínica sem a política (A deixa de ler X fora da
+       vitrine).
 
 **Verificação:**
-- `node scripts/regras.mjs`: todas as afirmações passam e os seis mutantes
-  são pegos;
+- `node scripts/regras.mjs`: todas as afirmações passam e os quinze
+  mutantes são pegos;
 - os avisos do passo 6 zerados;
 - as conferências de sempre, que não mudam, porque `src/` não foi tocado.
 
 ---
 
-## Fase 2 — o cliente e a identidade dos itens
+## Fase 2 — o cliente, a identidade dos itens e a marca da semente
 
 **Nada muda na tela.**
 
@@ -456,7 +697,7 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
    Três coisas ficam de fora:
    - **`react-native-url-polyfill`**, porque o SDK 57 já traz `URL` e
-     `URLSearchParams`. A prova é o passo 5; se falhar no iPhone, ele
+     `URLSearchParams`. A prova é o passo 6; se falhar no iPhone, ele
      entra;
    - **a opção `lock`**, que está obsoleta desde a supabase-js 2.107;
    - **`userStorage`**, que ainda é experimental.
@@ -467,6 +708,8 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    regras. `expo start` roda como desenvolvimento e lê esse arquivo; o
    `.env` do dono continua ignorado e continua valendo.
    `.env.example` ganha a explicação.
+   ⚠️ `expo start --no-dev` roda como produção e **não** lê
+   `.env.development` (a verificação da fase 8 depende disso).
 
 3. **`src/logic/nuvem.ts` (novo).**
    - O cliente com `persistSession`, `autoRefreshToken` e
@@ -484,7 +727,8 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 4. **A identidade dos itens: `src/logic/identidade.ts` (novo).**
    - `carimbar(S, novoId)` põe um `rid` (uuid, de `Crypto.randomUUID`) em
      todo item de lista sincronizada que chegar sem um, inclusive nos
-     aninhados: cada valor de `exams[].values` e cada medição de `vitals`.
+     aninhados (cada valor de `exams[].values` e cada medição de `vitals`)
+     e em cada pergunta de `asked`.
    - A lista de caminhos mora em `src/logic/traducao.ts`, que nasce aqui
      só com ela.
    - É chamada em `ensureDefaults`, o que cobre os itens antigos na
@@ -494,7 +738,24 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - Em `scripts/tsconfig.json`, `expo-crypto` ganha dublê em
      `scripts/duble/expo.ts`, com o `crypto` do Node.
 
-5. **Prova no aparelho, com sonda temporária.** Um `/* SONDA TEMPORÁRIA */`
+5. **A marca da semente e o dono, em `src/logic/seed.ts`** (a decisão 1).
+   - `buildSeed` grava `semente: true` e `conta: null`.
+   - `estadoVazio` grava `semente: false` e `conta: null`, de forma
+     explícita, antes do `return ensureDefaults(S)`. Ele parte de
+     `buildSeed` e herdaria a marca.
+   - **Um estado gravado antes disto, sem a marca**
+     (`typeof S.semente !== 'boolean'`), é a semente só se as duas coisas
+     forem verdade: não há `profile.consentimento` e o nome do perfil é o
+     de uma das seis personas (`src/textos/<idioma>/semente.ts`). Só a
+     falta de consentimento não basta: o cadastro já trancava a porta
+     antes de gravar o consentimento (commits de 16 e 18/09). Qualquer
+     outro estado é de alguém, e recebe `semente: false`.
+   - O `salvar` do cadastro guarda `S.conta` de antes do
+     `Object.assign(s, estadoVazio())` e o devolve depois. É o caso de
+     quem entrou pelo "Já tenho conta" numa conta vazia e fez o cadastro já
+     com dono.
+
+6. **Prova no aparelho, com sonda temporária.** Um `/* SONDA TEMPORÁRIA */`
    em `__DEV__` lê uma clínica publicada e escreve o resultado no console
    do Metro.
    - O dono abre no iPhone (Expo Go) e eu leio o `preview_logs`.
@@ -503,12 +764,16 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - A sonda sai antes do commit, com `grep SONDA` = 0.
 
 **Verificação:**
-- `scripts/sincronia.ts` nasce com a primeira parte, a identidade:
+- `scripts/sincronia.ts` nasce com a primeira parte:
   - os itens antigos ganham `rid` uma vez;
   - a segunda passada não muda nada;
   - não há `rid` repetido;
   - o item novo é carimbado no `update`;
-  - a prévia do Perfil não carimba nada que seja gravado.
+  - a prévia do Perfil não carimba nada que seja gravado;
+  - `estadoVazio().semente === false`, e `reset` não deixa a marca;
+  - um estado antigo da persona, sem consentimento, é a semente;
+  - um estado antigo cadastrado sem consentimento, com outro nome, não é;
+  - o `salvar` do cadastro não perde `S.conta`.
 - O navegador idêntico, e o `norte.v1` com `rid` nos itens (leitura, sem
   escrever).
 - Nenhuma chamada ao Supabase no painel de rede, fora da sonda.
@@ -520,15 +785,34 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
 **Nada muda na tela.** O miolo é código sem rede, e é ele que se testa.
 
-1. **`src/logic/traducao.ts`: a tabela do desenho, em código.**
-   - **`ida(S)`** transforma o estado em linhas de `registros` e em partes
-     de `perfis`.
-   - **`volta(linhas, partes)`** faz o caminho inverso, reagrupando exames
-     por marcador e sinais vitais por tipo, e devolvendo cada lista na
-     ordem em que o aplicativo a guarda. Há lista do mais antigo para o
-     mais novo, e há `documents`, ao contrário.
+1. **A origem das perguntas.** `ask(texto, origem)`, no companheiro, grava
+   `{ t, q, origem }` (o `rid` já vem da fase 2):
+   - **`digitada`**: o campo do companheiro e o botão de enviar
+     (`companion.tsx:473` e `:520`), e o campo do Insights
+     (`(tabs)/insights.tsx:152`), que manda `&origem=digitada` junto do
+     `?q=`;
+   - **`sugerida`**: as pastilhas do próprio companheiro
+     (`companion.tsx:375`) e todos os outros atalhos que abrem o
+     companheiro por `?q=`: `(tabs)/insights.tsx:146`, `ui/Ask.tsx:19`,
+     `(tabs)/index.tsx:255`, `(tabs)/cuidado.tsx:196` e `:660`, e
+     `alimentacao.tsx:298`. O companheiro lê `origem` do endereço, e usa
+     `sugerida` quando ela falta;
+   - **uma recente tocada no Insights herda a origem da primeira vez**,
+     lida em `asked`;
+   - as perguntas antigas, sem origem, sobem com ela nula.
+
+2. **`src/logic/traducao.ts`: a tabela do desenho, em código.**
+   - **`ida(S)`** transforma o estado em linhas de `registros` e de
+     `perguntas`, e em partes de `perfis`.
+   - **`volta(linhas, perguntas, partes)`** faz o caminho inverso:
+     - reagrupa exames por marcador e sinais vitais por tipo;
+     - remonta a janela de `asked` com as 12 últimas perguntas, sem as
+       repetidas, como o companheiro a guarda;
+     - devolve cada lista na ordem em que o aplicativo a guarda. Há lista
+       do mais antigo para o mais novo, e há `documents`, ao contrário.
    - **Todo campo do estado tem um destino declarado**, e só um:
      - um tipo de registro;
+     - `perguntas`;
      - uma parte do perfil;
      - "vem do servidor" (a clínica e o vínculo);
      - "se calcula";
@@ -538,7 +822,9 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 
    | campo | destino | por quê |
    |---|---|---|
-   | `asked` (as perguntas ao companheiro) | **fica no aparelho** | é conversa, e não registro do tratamento |
+   | `asked` | `perguntas`, **só com `perfis.perguntas_para_uso` ligado**; sem ela, fica no aparelho | a decisão 2 |
+   | a escolha das perguntas | `perfis.perguntas_para_uso` | a decisão 2 |
+   | `semente`, `conta` | **ficam no aparelho** | são a marca do exemplo e o dono deste diário |
    | `consultNotes` | `acompanhamento` | |
    | `alertas`, `theme`, `paleta`, `profile.idioma` | `preferencias` | |
    | `descobertasVistas`, `apresentacoesVistas`, `vistoEmConquistas`, `lastReplaySeen` | `vistos` | |
@@ -547,18 +833,31 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    | `profile.consentimento` | `perfis.versao_consentimento` e `consentido_em` | |
    | `customSyms` | `tratamento` | item 8 da lista do alto |
 
-   ⚠️ **`asked` fora da sincronia é decisão a confirmar na leitura.**
-
-2. **`src/logic/sincronia.ts`: o motor, com o transporte injetado.**
-   - **A base.** Ele guarda, numa chave própria do `AsyncStorage`
-     (`norte.sincronia.v1`):
-     - o dono do diário;
-     - o cursor;
+3. **`src/logic/sincronia.ts`: o motor, com o transporte injetado.**
+   - **A base.** Ela fica numa chave própria do `AsyncStorage`
+     (`norte.sincronia.v1`), marcada com o dono. Guarda três coisas:
+     - os cursores (um para `registros` e o perfil, e outro para
+       `perguntas`);
      - um resumo (hash) de cada linha como estava na última sincronia;
      - a fila.
+
+     O dono em si mora no estado (`S.conta`), que é o que o portão lê. Base
+     com dono diferente de `S.conta` não sobe nada.
    - **O que mudou.** Ele compara `ida(S)` com a base, e o resultado vira
      operação na fila: novo, editado, sumiu (que vira `apagado_em`) e
      parte do perfil mudada.
+     - **Em `perguntas` não existe "sumiu".** Sair da janela das 12 não é
+       apagar (a decisão 2).
+     - Pergunta sobe com `ignoreDuplicates`, que só precisa de `insert`,
+       e **depois** do perfil, porque a regra de `insert` lê a escolha nele.
+     - **Desligar a escolha** chama o `delete` das próprias perguntas,
+       esvazia as perguntas da fila e não enfileira mais nenhuma. Ligar
+       enfileira as que estão no aparelho.
+   - **Trocar de diário troca a base inteira.** "Sair da conta", "Apagar
+     meus dados", `resemear` e "Já tenho conta" param o motor e apagam
+     `norte.sincronia.v1` antes de mexer no estado, nessa ordem. Sem isso,
+     o estado vazio seria comparado com a base antiga, e tudo viraria
+     `apagado_em` na conta de antes.
    - **Subir.**
      - `upsert` por `id`, em lotes de 500;
      - reenviar o que já subiu não duplica nada, e é isso que deixa a
@@ -571,7 +870,9 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
      - item desconhecido entra, item mais novo substitui, apagado sai;
      - **item com mudança na fila não é tocado**: ela vai chegar ao
        servidor depois, e por isso vai ser a última;
-     - o perfil segue a mesma regra, por parte.
+     - o perfil segue a mesma regra, por parte;
+     - as perguntas descem por `criado_em`, pelo cursor próprio e com a
+       mesma folga. Num aparelho novo, descem só as 12 últimas.
    - **Quando corre.**
      - assina o `store` e junta mudanças em sequência (dois segundos
        parado);
@@ -581,16 +882,26 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - **⚠️ Com `modoFingido()`, ele não olha.** A prévia serve um estado
      mascarado sem a clínica, e comparar a máscara com a base mandaria
      apagar a clínica de verdade.
-   - **O estado que a tela lê**: guardado, guardando, sem internet, entrar
-     de novo ou sem conta. "Sem internet" é a falha de rede; "entrar de
-     novo" é a sessão recusada.
-   - **Sessão que cai não apaga nada.** Só "Sair da conta" apaga a cópia
-     do aparelho.
+   - **⚠️ Com `S.semente`, ele também não olha.** A Mariana é inventada,
+     e não pode subir para conta nenhuma.
+   - **O estado que a tela lê**:
+     - guardado, guardando e sem internet;
+     - entrar de novo (a sessão recusada);
+     - conta apagada (fase 4, passo 6);
+     - conta ainda não criada: aparece só quando a tranca 3 foi adiada
+       por falta de conexão, e nunca na semente.
+   - **Sessão que cai não apaga nada.** Só "Sair da conta" e "Apagar meus
+     dados" apagam a cópia do aparelho.
 
-3. **`scripts/sincronia.ts`: a trava.** O transporte é um servidor falso
-   em memória, que carimba `atualizado_em` como o de verdade. Afirmações:
-   - **ida e volta** devolvem o mesmo estado, na semente de **cada um dos
-     seis idiomas** (as personas) e no estado vazio;
+4. **`scripts/sincronia.ts`: a trava.** O transporte é um servidor falso
+   em memória, que carimba `atualizado_em` e `criado_em` como o de
+   verdade. Afirmações:
+   - **ida e volta** devolvem o mesmo estado **nos campos cujo destino é
+     um tipo de registro, `perguntas` ou uma parte do perfil**, na semente
+     de cada um dos seis idiomas (as personas) e no estado vazio. Para
+     `perguntas`, com a escolha ligada de propósito no teste. Os campos
+     que ficam no aparelho, vêm do servidor ou se calculam são conferidos
+     à parte: ficam fora de `ida`, e `volta` não os inventa;
    - **todo campo tem destino**: um campo novo no estado, sem
      classificação, derruba a trava;
    - dois aparelhos registrando coisas diferentes não perdem nada;
@@ -601,16 +912,36 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
      duplica;
    - a primeira subida interrompida retoma sem duplicar;
    - o modo de demonstração nunca põe nada na fila;
+   - a semente nunca põe nada na fila;
+   - **as perguntas:**
+     - vão para `perguntas`, e nenhuma para `registros`;
+     - sem a escolha ligada, nenhuma vai para a fila;
+     - a 13ª pergunta não apaga a primeira no servidor;
+     - a repetida vira uma linha nova, sem apagar a anterior;
+     - a pastilha tocada chega como `sugerida`, e a pergunta digitada no
+       Insights, como `digitada`;
+     - desligar a escolha apaga as do servidor e esvazia as da fila;
+     - uma pergunta feita no aparelho A aparece na janela do B na descida
+       seguinte;
    - o perfil em partes: dois aparelhos mexendo em partes diferentes não
      se atropelam;
-   - o diário com dono não sobe para outra conta.
+   - o diário com dono não sobe para outra conta;
+   - **trocar de diário:**
+     - o estado vazio com a base de outro dono não gera apagado;
+     - depois de sair, a fila está vazia e nada é enfileirado;
+     - entrar de novo na mesma conta não marca nada como apagado;
+     - depois de apagar a conta, uma conta nova sobe.
 
    Provada com mutantes, como `acesso.ts`:
    - a mistura por cima de item com mudança na fila;
    - o `apagado_em` ignorado ao baixar;
    - a folga do cursor removida (o servidor falso atrasa um commit de
      propósito);
-   - a guarda do modo fingido retirada.
+   - a guarda do modo fingido retirada;
+   - a guarda da semente retirada;
+   - o "sumiu" aplicado a `perguntas`;
+   - as perguntas subindo sem a escolha;
+   - sair sem apagar a base.
 
 **Verificação:** `scripts/sincronia.ts` inteira e os mutantes pegos; as
 conferências de sempre; o navegador idêntico. O motor ainda não liga,
@@ -620,8 +951,8 @@ porque ninguém tem conta.
 
 ## Fase 4 — a conta: e-mail e Apple, e a sincronia ligada
 
-🔑 **Depende do dono:** o serviço de envio, os modelos, o código de 6
-dígitos e a Apple (a tabela do alto).
+🔑 **Depende do dono:** o serviço de envio, o domínio, os modelos, o código
+de 6 dígitos e a Apple (a tabela do alto).
 
 **A primeira fase que se vê**, e só em desenvolvimento.
 
@@ -656,64 +987,116 @@ dígitos e a Apple (a tabela do alto).
      de dígitos numa constante só.
    - Depois de entrar, "Guardando o seu diário…", com a primeira subida
      acontecendo de verdade.
+   - **Sem saída que não seja criar a conta ou entrar numa** (a decisão 1).
+     Sem internet, a tela diz que criar a conta precisa de conexão, guarda
+     o que já foi escrito e tenta de novo sozinha quando a pessoa volta
+     para o aplicativo.
    - Três entradas por `?de=`:
-     - `cadastro`, com "Agora não";
+     - `cadastro`: o fim do cadastro e a tranca 3 do portão;
      - `abertura`, que é "Já tenho conta";
-     - `perfil`.
+     - `sessao`, que é "entre de novo". Ela só autentica e confere se quem
+       entrou é o dono gravado em `S.conta`. Se for, não mexe no estado
+       (fora o convite pendente, na fase 6) e retoma a fila. Se não for,
+       oferece entrar com a conta dona ou sair e começar de novo, sem subir
+       nada.
    - Catálogo novo, `conta`, nos seis idiomas, registrado como os outros
      34 módulos. Tem o francês com espaço fino, e as frases irmãs
      procuradas em todos.
 
 4. **As portas**, todas atrás de `contaLigada()`:
-   - **fim do cadastro**: o X e as saídas de `/planos` levam a
-     `/conta?de=cadastro` quando não há sessão;
+   - **as trancas do portão**, em `_layout.tsx`: a 1 ganha `conta` e
+     `documento`, e a 3 nasce, como está na seção "As trancas do portão";
+   - **o caminho do cadastro até a conta**: `cadastro.tsx:1410` passa a
+     levar a `/planos?de=cadastro`. Ali, sem `S.conta`, o `fechar`
+     (`planos.tsx:330-333`) e as outras saídas que entrariam no aplicativo
+     vão a `/conta?de=cadastro`, com ou sem conexão. Sem o `de=cadastro`
+     (quem veio de `/assinatura`), o `fechar` continua voltando;
    - **a abertura do cadastro** ganha "Já tenho conta". Entrou:
      - se a conta tem diário, ele desce inteiro, o estado nasce de
-       `estadoVazio()` + `volta()`, o cadastro é pulado e `onboardDone`
-       vira verdadeiro;
-     - se a conta está vazia, o cadastro segue e a conta já está ligada;
-   - **no Perfil**, quem não tem conta vê "Crie a sua conta para guardar o
-     seu diário", e recebe um aviso único ao abrir. Se a conta escolhida já
-     tem diário e o aparelho também, a pessoa escolhe um dos dois (a regra
-     do alto);
-   - **no Perfil**, a linha de estado da sincronia, com as frases do
-     desenho.
+       `estadoVazio()` + `volta()`, com `S.conta` gravado e a base nova. O
+       cadastro é pulado e `onboardDone` vira verdadeiro;
+     - se a conta está vazia, o cadastro segue, já com `S.conta`;
+   - **ao criar a conta com um diário que já existe**, se a conta escolhida
+     também tem diário, a pessoa escolhe um dos dois (a regra do alto);
+   - **a linha de estado**, no Perfil, com as frases da fase 3. "Entre de
+     novo" abre `/conta?de=sessao`. Quando a tranca 3 foi adiada por falta
+     de conexão, a linha, e uma faixa na Home, dizem: "Sem internet —
+     criamos a sua conta quando a conexão voltar". Na semente, a linha não
+     aparece.
 
 5. **"Sair da conta" de verdade.** Pendências, item 30:
    - aviso antes, e aviso de que há coisa não enviada, se houver;
-   - `sair()`, o estado vazio e a abertura do cadastro;
-   - sem conta, o botão não diz "Sair da conta".
+   - `sair()`, o motor parado, a base apagada, o estado vazio e a abertura
+     do cadastro, com "Já tenho conta";
+   - **sem dono**, em qualquer build, o botão faz o que faz hoje (volta ao
+     cadastro), mas **não diz "Sair da conta"**. O rótulo proposto é
+     "Refazer o cadastro", nos seis idiomas. É decisão do dono pelo item
+     30, e até ele decidir fica esse.
 
-6. **"Apagar meus dados" apaga no servidor.**
-   - **`supabase/functions/apagar-conta/index.ts`** usa
-     `npm:@supabase/server@1.8.0` com `withSupabase({ auth: 'user' })`. O
-     `verify_jwt` sozinho aceita também as chaves de API, então a conferência
-     do usuário é no código.
-   - A função faz `auth.admin.deleteUser`, e a cascata leva:
-     - o perfil e os registros;
-     - os vínculos, os encerrados também, com a cópia;
-     - as mensagens e o resto que é dele.
-   - Sobe com `npx supabase functions deploy apagar-conta --use-api`, e a
-     chave secreta é a que o próprio Supabase injeta na função.
-   - No aplicativo: a função, depois `sair()`, depois o estado vazio.
+6. **"Apagar meus dados".**
+   - **Sem dono** (a semente, ou um diário que ainda não tem conta), é o
+     `reset()` de hoje: local, sem rede e sem função.
+   - **Com dono**, apaga no servidor:
+     - **`supabase/functions/apagar-conta/index.ts`** usa
+       `npm:@supabase/server@1.8.0` com `withSupabase({ auth: 'user' })`.
+       O `verify_jwt` sozinho aceita também as chaves de API, então a
+       conferência do usuário é no código;
+     - a função faz `auth.admin.deleteUser`, e a cascata da fase 1 leva o
+       perfil, os registros, as perguntas, os vínculos (os encerrados
+       também, com a cópia), as mensagens e o resto que é dele;
+     - sobe com `npx supabase functions deploy apagar-conta --use-api`, e
+       a chave secreta é a que o próprio Supabase injeta na função;
+     - **precisa de conexão**, e a tela diz isso;
+     - o aparelho só é limpo **depois** de a função responder que apagou,
+       nesta ordem: o motor parado, a base apagada, `sair()` e o estado
+       vazio. Se ela falhar, nada muda, e a tela avisa.
+   - **O outro aparelho** descobre na próxima vez que falar com o servidor.
+     O sinal é o erro de usuário inexistente que a autenticação devolve
+     (o código exato, `user_not_found`, é conferido na versão fixada). A
+     tela diz que a conta foi apagada e oferece limpar a cópia daquele
+     aparelho. Se o sinal não vier, o aparelho cai em "entre de novo". Ao
+     entrar pela `sessao` com o mesmo e-mail, o `id` novo não bate com
+     `S.conta`, e a tela diz a mesma coisa.
    - ⚠️ O token de acesso já emitido vale até expirar (uma hora), mas o
      dono dele não existe mais: as regras não acham nada e a escrita falha
      na chave estrangeira.
 
 7. **A sincronia liga.** Começa em `_layout.tsx` depois do `hydrate`, com
-   `nuvem()` e sessão.
-   - `resemear` (a semente de desenvolvimento) sai da conta antes, para a
-     Mariana nunca subir.
+   `nuvem()`, `S.conta` e sessão.
+   - `resemear` (a semente de desenvolvimento) para o motor, apaga a base
+     e sai da conta antes, para a Mariana nunca subir.
 
 **Verificação:**
 - **Navegador:** o cadastro até a conta com e-mail e código (o dono
   digita o código que chegar). O diário no `morphi-dev`, conferido por
   `db query`. "Sair" e "Já tenho conta" devolvendo o diário inteiro.
+- **As trancas e os caminhos:**
+  - o cadastro inteiro passa pela devolutiva, pelo plano e por `/planos`
+    antes da conta;
+  - cadastro novo sem internet: o X de `/planos` abre `/conta`, que
+    espera; fechar ali e reabrir sem internet abre o aplicativo com o
+    aviso; com a rede de volta, a abertura seguinte vai a `/conta`;
+  - fechar em `/planos` ou em `/conta` e reabrir com internet: cai em
+    `/conta`;
+  - diário sem dono, sem internet, `/assinatura` → `/planos` → X: volta a
+    `/assinatura`;
+  - "Sair", depois "Já tenho conta" na abertura: abre `/conta`, e não
+    volta ao cadastro; os links dos Termos e da Política abrem;
+  - "Apagar meus dados" leva ao cadastro, e não a `/conta`; na semente,
+    com e sem internet, também;
+  - abertura a frio sem internet, com a sessão vencida: o aplicativo
+    abre, e não vai para `/conta`;
+  - com um registro na fila e a sessão derrubada, "entre de novo" sobe o
+    registro e não troca o estado; entrar com outra conta não sobe nada;
+  - a semente abre sem pedir conta, e sem dono o Perfil não mostra "Sair
+    da conta".
 - **Duas origens como dois aparelhos**, `localhost` e `127.0.0.1`, que
   não dividem o `localStorage`: registrar numa, voltar à outra e ver
   chegar. Apagar numa e ver sumir.
 - **Apagar a conta** com uma conta descartável (`contato+teste@…`): nada
-  dela fica no banco.
+  dela fica no banco. Sem internet, o botão não apaga nada, e diz por quê.
+  Na outra origem, a próxima conversa com o servidor leva à tela de conta
+  apagada.
 - **iPhone, Expo Go:** a Apple, com o console lido pelo Metro.
 - As conferências de sempre, `sincronia.ts`, `acesso.ts` e `regras.mjs`.
 
@@ -749,33 +1132,60 @@ quebra. Os achados vão para o item 16.
 1. **`logic/rede.ts` lê do banco.**
    - `FONTE` pede as clínicas publicadas com a equipe e os campos
      públicos, numa consulta só.
+   - A ficha da clínica do próprio vínculo vem pela regra da fase 1,
+     publicada ou não.
    - `redeNoAr()` passa a perguntar a `contaLigada()`.
    - `redeDeExemplo()` passa a perguntar se as clínicas lidas são de
      exemplo.
    - `EXEMPLO` e `CONVITES_DE_EXEMPLO` saem do aplicativo. Fica, só em
-     `__DEV__`, a lista dos **nomes** dos códigos para a dica da folha.
+     `__DEV__`, a lista dos **nomes** dos códigos para a dica da folha, e
+     `regras.mjs` confere que ela é igual à do `seed.sql`.
 2. **`conferirConvite` chama `conferir_convite`.**
    - `'sem-fonte'` só existe sem `contaLigada()`.
    - Nasce `'sem-internet'`, com frase própria.
 3. **O consentimento em `/codigo`**, na etapa "É essa a sua clínica?".
    Abaixo da clínica e do profissional:
-   - a lista do que a equipe passa a ver;
+   - **a lista do que a equipe passa a ver, tirada da tabela de
+     tradução**: todo tipo de registro e toda parte do perfil que
+     `equipe_le` entrega. Isso inclui sinais vitais, laudos, documentos e o
+     histórico de saúde (condições, alergias, medicamentos). Não entra
+     "fotos", que não sobem nesta entrega;
+   - que a equipe vê **também o que foi registrado antes de conectar**;
+   - que **as perguntas ao companheiro, não**;
    - que dura enquanto a pessoa estiver conectada;
    - que a clínica guarda o que foi registrado até o fim.
 
-   "Conectar" é aceitar.
+   "Conectar" é aceitar. A trava da tradução afirma que a lista cobre todo
+   destino que a equipe lê.
    - A versão desse consentimento é própria (`VERSAO_DO_COMPARTILHAMENTO`,
      em `src/logic/compartilhamento.ts`), e fica no vínculo.
    - **Com sessão:** `usar_convite`, e a cópia local sai da resposta do
      servidor.
-   - **Sem sessão (o plano do cadastro):** o código e o consentimento ficam
-     guardados como convite pendente, e a clínica não aparece como
-     conectada, porque ainda não está. O vínculo nasce quando a conta
-     existir.
+   - **Diário sem dono (o plano do cadastro):**
+     - o código e o consentimento ficam guardados como convite pendente;
+     - a clínica não aparece como conectada, porque ainda não está;
+     - em `/planos`, o lugar do preço diz que o código está guardado e que
+       conectamos quando a conta for criada.
+   - **Diário com dono e sessão caída:** a folha confere o código e pede
+     "entre de novo" (`/conta?de=sessao`) antes de conectar. O convite fica
+     pendente até a sessão voltar.
+   - **Quem transforma o pendente em vínculo:** ao nascer a conta (a
+     entrada `cadastro`) e ao voltar a sessão (a entrada `sessao`), o
+     aplicativo chama `usar_convite`. A cópia local sai da resposta, e o
+     pendente sai.
+   - **Se o código falhar na hora de usar** (outra pessoa usou antes, ou
+     ele expirou entre a conferência e a conta), a conta nasce do mesmo
+     jeito, e o pendente sai. A pessoa lê que o código não valeu e que pode
+     digitar outro na aba Cuidado.
    - Nos seis idiomas.
-4. **As outras portas passam pelas mesmas funções.** O cadastro (edição
-   do convite) e o caminho `'sem-fonte'` deixam de ligar com
-   `vinculoDoConvite` quando há nuvem.
+4. **As outras portas passam pelas mesmas funções.**
+   - O `salvar` do cadastro deixa de escrever `profile.convite` e
+     `profile.vinculo`, sempre. Hoje ele reescreve os dois em qualquer
+     edição pelo lápis, com `desde` novo, e numa cópia vinda do servidor
+     isso apagaria o vínculo.
+   - `/parceiros` (`parceiros.tsx:81`) e o caminho `'sem-fonte'` de
+     `/codigo` (`codigo.tsx:145`) deixam de ligar com `vinculoDoConvite`
+     quando há nuvem.
 5. **"Desconectar da clínica"**, em `/clinica`.
    - Antes de confirmar, a pessoa lê o que acontece: a equipe para de ver,
      a isenção acaba e os registros ficam.
@@ -784,11 +1194,20 @@ quebra. Os achados vão para o item 16.
      diário fica intacto.
 6. **O servidor é a fonte do vínculo.**
    - O vínculo ativo desce com o resto, e `profile.vinculo` é a cópia
-     dele.
-   - Se o servidor diz que não há vínculo e o aparelho tem um, é que a
-     clínica encerrou. A cópia sai, e entra um aviso nas notificações do
-     aparelho ("A clínica encerrou o acompanhamento; o seu diário continua
-     aqui"). Não abre `/suspenso` (item 9 do alto).
+     dele, com o `id` da linha de `vinculos`.
+   - **Vínculo antigo**, sem esse `id`, nasceu só no aparelho, de um código
+     que ninguém conferiu. Na primeira sincronia ele sai, e a pessoa lê um
+     aviso honesto: o código não foi confirmado, e ela pode digitar de novo
+     em Cuidado. Ele nunca vira vínculo no servidor sem passar por
+     `/codigo` e pelo consentimento.
+   - **Vínculo com `id` que o servidor diz ter acabado:**
+     - com `encerrado_por = 'clinica'`, a cópia sai, e entra um aviso nas
+       notificações do aparelho ("A clínica encerrou o acompanhamento; o
+       seu diário continua aqui"). Não abre `/suspenso` (item 9 do alto);
+     - com `encerrado_por = 'paciente'` (a própria pessoa desconectou em
+       outro aparelho), a cópia sai, sem esse aviso;
+     - se houver um vínculo ativo novo (troca de clínica em outro
+       aparelho), a cópia passa a ser a do novo, também sem o aviso.
 7. **As fotos da rede saem do pacote.**
    - As imagens de exemplo (~1,3 MB) sobem para o balde `clinicas` do
      `morphi-dev`, por `npx supabase storage cp` (conferido no `--help`;
@@ -798,10 +1217,19 @@ quebra. Os achados vão para o item 16.
    - Os `require` saem e as imagens saem de `assets/`.
    - `CREDITOS.txt` continua dizendo a origem.
    - Os retratos da semente da Mariana ficam (item 34).
-8. **`scripts/acesso.ts` cresce**, como o desenho pede. O vínculo vindo do
-   servidor, pela tradução de uma linha de `vinculos`; desconectar; a
-   clínica encerrar. Em todos, os registros saem intactos e o acesso segue
-   `acessoDe`.
+8. **`scripts/acesso.ts` cresce**, como o desenho pede:
+   - o vínculo vindo do servidor, pela tradução de uma linha de
+     `vinculos`;
+   - desconectar;
+   - a clínica encerrar;
+   - desconectar num aparelho não faz o outro dizer que a clínica
+     encerrou;
+   - trocar de clínica num aparelho deixa o outro com o vínculo novo, sem
+     aviso de encerramento;
+   - o vínculo antigo, que sai com o aviso certo, e não com o da clínica;
+   - editar a altura pelo lápis não muda o vínculo nem o `desde`.
+
+   Em todos, os registros saem intactos e o acesso segue `acessoDe`.
 
 **Verificação:**
 - **Navegador:**
@@ -814,6 +1242,10 @@ quebra. Os achados vão para o item 16.
     para ele.
 - **O cadastro inteiro com código:** o convite pendente vira vínculo
   quando a conta nasce.
+- **Com a sessão derrubada:** o X de `/planos` volta ao aplicativo, e um
+  código conectado vira vínculo no próximo login.
+- **Apagar a conta de novo, agora com uma conta que conectou:** o vínculo
+  some, e o convite fica com `usado_por` nulo.
 - `acesso.ts`, `regras.mjs` (as funções mudaram de consumidor e não de
   regra, mas roda) e as conferências de sempre.
 
@@ -840,8 +1272,8 @@ quebra. Os achados vão para o item 16.
 2. **O canal privado `paciente:<uuid>`.**
    - Assinado com sessão, depois de `realtime.setAuth()`.
    - Cada evento pede de novo só a tabela que ele nomeia.
-   - Um evento de `vinculos` é o caminho "a clínica encerrou", agora na
-     hora.
+   - Um evento de `vinculos` é o caminho do fim do vínculo, agora na hora,
+     e o aviso depende de `encerrado_por` (fase 6, passo 6).
 3. **O item 6 das pendências fecha na parte das mensagens.** A mensagem
    sai de verdade. O envio do resumo continua como está, e o que ele passa
    a ser, com a equipe vendo o diário inteiro, é decisão de produto que vai
@@ -860,38 +1292,116 @@ quebra. Os achados vão para o item 16.
 ## Fase 8 — os textos, e o interruptor
 
 **No mesmo commit**, porque é a regra do desenho: nenhuma frase mentindo
-nem um dia.
+nem um dia. E, a partir deste commit, nenhuma build fora de `__DEV__` sai
+antes da virada para a produção (a seção "O interruptor").
 
-1. **A lista inteira do item 10 das pendências:**
-   - a Política, seções 5, 7, 8, 10 e 14;
-   - os Termos, seções 5, 8 e 12;
-   - `consentimento.ts`, `privacidade.tsx` e `ajuda.tsx`;
-   - o comentário do `Portao` em `_layout.tsx`.
+1. **A lista inteira do item 10 das pendências, com a numeração de hoje.**
+   A numeração do item 10 envelheceu, e o `documentos.ts` atual manda:
+   - **a Política:**
+     - seções 2 (o e-mail da conta), 4, 5, 6, 7, 8, 10, 11, 13 e 14;
+     - os operadores, na 7: Supabase, Apple, Google e o serviço de envio
+       de e-mail;
+   - **os Termos:**
+     - seções 3 (o que o Morphi faz), 6 (a relação com a equipe) e 7
+       (assinatura: "cancelar não apaga… no seu aparelho");
+     - seções 9 (os seus registros: "a guarda dos registros é sua") e 12
+       (encerramento);
+   - `VERSAO_DOS_DOCUMENTOS` e `VIGENTE_DESDE` sobem;
+   - **os textos das telas**, que moram no catálogo, e não nas telas:
+     - em `src/textos/<idioma>/aviso.ts`: `guardadoTitulo`,
+       `guardadoTexto`, `saiTitulo`, `saiTexto`, o `parado` da exportação
+       ("Nada sai daqui sem o seu toque") e, em `telaPrivacidade`,
+       `noAparelhoTexto`, `desinstalar`, `desinstalarTexto`,
+       `oQueSaiNota`, `paraEquipeTexto`, `apagarSub` e `apagarPergunta`;
+     - em `src/textos/<idioma>/ajuda.ts`: as respostas de "E se eu
+       desinstalar o aplicativo?" e "O que a minha equipe consegue ver?";
+   - o comentário do `Portao` em `_layout.tsx`, com a regra das trancas.
 
-   Os operadores, na seção 7: Supabase, Apple, Google e o serviço de envio
-   de e-mail.
+   O item 10 das pendências é corrigido junto, para a próxima leitura não
+   herdar a numeração velha.
 2. **O compartilhamento com a clínica entra na Política**: o que a equipe
-   vê, desde quando, e o que ela mantém depois de desconectar.
-3. **As frases da Peça 6:**
+   vê (a mesma lista da folha do código), desde quando, e o que ela mantém
+   depois de desconectar.
+3. **As perguntas entram na Política** (a decisão 2):
+   - na seção 2, como dado tratado, e que guardamos todas as que a pessoa
+     permitir, e não só as 12 que o aplicativo mostra;
+   - na 3, a finalidade, quem lê (nós, com um papel de leitura sem a
+     identidade) e que a clínica não lê;
+   - na 4, a base: consentimento específico, art. 11, I;
+   - na 10, o prazo de guarda;
+   - na 11, como desligar a escolha e o que acontece com as que subiram;
+   - nas 7 e 13, as frases "não usamos analytics" passam a dizer que não
+     usamos ferramentas de terceiros e que lemos as perguntas como a seção
+     3 descreve;
+   - em `privacidade.tsx`, uma linha no bloco "O que sai daqui".
+4. **As frases da Peça 6:**
    - `/parceiros`: "sem vínculo, nenhuma clínica vê o seu diário", e o
      acompanhamento contínuo nos benefícios;
-   - "Apagar meus dados" apaga no servidor;
-   - "Exportar" é a garantia de portabilidade;
+   - **"Apagar meus dados"**, a confirmação e as seções 10 e 11 da
+     Política dizem o que acontece de verdade:
+     - o servidor e este aparelho são apagados agora;
+     - as cópias de segurança do banco guardam por até N dias (o N do
+       plano contratado);
+     - outro aparelho mantém a cópia local até sair da conta ali.
+
+     "Não há cópia em lugar nenhum" sai;
+   - **"Exportar" leva tudo o que sobe:** todo tipo de registro, as partes
+     do perfil com dado da pessoa e as perguntas. Hoje ele não leva sinais
+     vitais, laudos, documentos, metas pessoais, canetas, o histórico de
+     saúde nem os sintomas próprios.
+     - **As perguntas:** com sessão e conexão, vêm todas do servidor,
+       somadas às que ainda estão na fila, sem repetir. Sem isso, o arquivo
+       leva as recentes do aparelho e diz que as outras vêm com conexão.
+     - A trava da tradução afirma que todo destino tem seção no arquivo
+       exportado.
    - `privacidade.tsx`, bloco "O que sai daqui", de volta ao presente;
    - `MODOS.md`.
 
    Nos seis idiomas, onde a frase existe nos seis.
-4. **`VERSAO` do consentimento: 1 → 2.** Se o aplicativo ainda não pede o
-   consentimento de novo a quem aceitou a versão anterior, o pedido nasce
-   aqui: uma folha que abre uma vez, com o texto novo, antes de a
-   sincronia subir qualquer coisa. Quem não aceitar continua sem conta,
-   como hoje.
-5. **`NUVEM_PARA_TODOS = true`.**
-6. **`PENDENCIAS.md`:**
-   - o item 10 vira ✅, com o que mudou;
-   - o 30 fecha;
+5. **O consentimento novo.**
+   - O texto ganha a guarda no servidor, a conta obrigatória e a escolha
+     das perguntas.
+   - **A escolha das perguntas** é própria e desligada por padrão, e
+     recusá-la não tranca nada (a decisão 2). Ela também fica em
+     `/privacidade`, para ligar e desligar a qualquer momento. O texto diz
+     que ligar sobe também as perguntas que já estão no aparelho, e que
+     desligar apaga as que subiram.
+   - A `VERSAO` sobe de 1 para 2.
+   - **É a tranca 2 do portão.** A folha reabre em toda abertura até ser
+     aceita, antes da tranca da conta e antes de qualquer coisa subir.
+     Deixa ficar `documento` e `exportar`. A semente de desenvolvimento
+     não a vê.
+   - Como a conta é obrigatória, quem recusa o consentimento geral não
+     segue. A folha diz isso com clareza e oferece "Exportar" e "Apagar
+     meus dados deste aparelho", como os Termos prometem a quem não
+     concorda. O apagar roda ali mesmo, sem navegar: é o apagar local da
+     fase 4, e não precisa de conexão. Nada é apagado sem pedido.
+6. **O interruptor e a instalação nova.**
+   - `NUVEM_PARA_TODOS = true`.
+   - Fora de `__DEV__` e com `contaLigada()`, `hydrate` sem nada gravado
+     nasce de `estadoVazio()`, e um estado gravado com `semente: true`
+     vai para o cadastro. É a saída 2 do item 27 (a decisão 1).
+7. **`PENDENCIAS.md`:**
+   - o item 10 vira ✅, com o que mudou e a numeração corrigida;
+   - o 30 fecha para quem tem dono, e fica aberto até a virada para a
+     produção e até o dono decidir o rótulo de quem não tem dono;
    - o 36 ganha o servidor;
-   - o 34 ganha a vitrine no banco.
+   - o 34 ganha a vitrine no banco;
+   - o 27 registra que a saída 2 foi decidida por causa da conta
+     obrigatória.
+
+   **🔴 Bloqueia a publicação**, ao lado do item 2: **a leitura das
+   perguntas por nós.** Ela entra com o que falta decidir e as salvaguardas
+   que já valem:
+   - a revisão jurídica: se a escolha pode ser outra coisa além de
+     própria e desligada por padrão, e se a leitura pode ter a identidade
+     da pessoa;
+   - quem lê, e com qual login do papel `analise_perguntas`;
+   - MFA na organização do Supabase;
+   - quem analisa não é membro da organização no painel;
+   - nada exportado para fora de `sa-east-1`, porque a exclusão da conta
+     não alcança uma cópia;
+   - se a extensão `pgaudit` estiver disponível, o registro de quem leu.
 
    E entram os itens novos, sem travar a entrega:
    - a **revisão jurídica** do prontuário de 20 anos contra o direito de
@@ -906,20 +1416,53 @@ nem um dia.
      sem ambiguidade. Os de exemplo são fáceis de adivinhar, e a função de
      conferir não tem limite de tentativas. Isso entra antes do portal
      emitir o primeiro;
+   - **a conta obrigatória diante da regra 5.1.1(v) da App Store**, com a
+     resposta pronta: o diário guardado entre aparelhos e o vínculo com a
+     clínica dependem da conta;
    - a lista de virada para a produção, abaixo.
 
 **Verificação:**
 - os seis catálogos, o espaço fino do francês, o idioma congelado,
   `modos.ts`, `acesso.ts`, `sincronia.ts`, `regras.mjs` e o `tsc`;
-- uma varredura (`grep`) das frases do item 10 nos seis idiomas, que tem
-  de voltar vazia;
-- no navegador, um cadastro do zero, com o consentimento novo.
+- **a conferência por chave**: o `git diff` do commit mostra mudada cada
+  chave do passo 1, **nos seis arquivos de idioma**. É ela que prova a
+  troca nos seis, porque uma busca por frase em português não acha nada
+  nos outros cinco;
+- **uma busca complementar**, sem diferenciar maiúsculas, que tem de
+  voltar vazia fora dos contextos em que a frase continua verdadeira:
+  - em português: `não há cópia`, `não há conta`, `sem conta`,
+    `sem servidor`, `no seu aparelho`, `toque seu`, `sem o seu toque`,
+    `gesto seu`, `nada sai daqui`, `comando de enviar`, `escolhe enviar`,
+    `quando você manda`, `analytics`, `telemetria`;
+  - os equivalentes de cada idioma, tirados das mesmas chaves;
+- **no navegador:**
+  - um cadastro do zero, com o consentimento novo e sem passar pela folha
+    da tranca 2;
+  - com a escolha das perguntas desligada, nada chega a `perguntas`;
+    ligada, chegam também as que estavam no aparelho; desligada de novo em
+    `/privacidade`, somem do servidor;
+  - com a escolha ligada e 13 perguntas, o arquivo exportado traz as 13;
+  - consentimento antigo, sem conta e com internet: a folha, aceitar e
+    `/conta`, sem laço;
+  - recusar, fechar e reabrir: a folha volta; "Exportar" gera o arquivo, e
+    o link da Política abre; "Apagar meus dados deste aparelho", sem
+    internet, volta ao cadastro vazio;
+  - um diário antigo aberto sem internet: o aplicativo abre, com o aviso;
+- **uma instalação limpa sem `__DEV__`**, com o interruptor ligado: cai no
+  cadastro e só entra no aplicativo com conta, sem a Mariana.
+  - `expo start --no-dev` roda como produção e não lê `.env.development`.
+    As duas variáveis públicas do `morphi-dev` vão num
+    `.env.production.local` só para o teste, que o `.gitignore` já ignora e
+    que é apagado depois.
+  - Antes de julgar o resultado, conferir no painel de rede que há chamada
+    ao `morphi-dev`, e, com uma sonda temporária, que `__DEV__` é falso.
 
 ---
 
 ## Depois do plano — a produção
 
-Não é deste plano, e fica escrito para não se perder. Os passos:
+Não é deste plano, e fica escrito para não se perder. **Nenhuma build fora
+de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
 
 1. **Criar o projeto `morphi`** na organização paga, em São Paulo, com a
    exposição automática desligada e a RLS automática ligada.
@@ -933,8 +1476,11 @@ Não é deste plano, e fica escrito para não se perder. Os passos:
    - o Google;
    - o Realtime sem acesso público.
 4. **As variáveis do EAS** por ambiente: `production` e `preview`
-   apontando para o que for decidido.
+   apontando para o que for decidido. Elas são a condição para a primeira
+   build distribuída.
 5. **Subir o limite de e-mails por hora** para o tamanho do lançamento.
+6. **Resolver o que bloqueia a publicação** nas pendências: os
+   documentos, o item 2, e a leitura das perguntas.
 
 ---
 
@@ -949,6 +1495,9 @@ Não é deste plano, e fica escrito para não se perder. Os passos:
 - Não cria nem liga o projeto `morphi`.
 - Não revoga o token da Apple ao apagar a conta: vai para as pendências.
 - Não muda o que o envio do resumo significa.
+- Não dá à pessoa um lugar para ver e apagar uma pergunta de cada vez.
+  Ela as leva todas no "Exportar", com conexão, e as apaga todas
+  desligando a escolha ou apagando a conta.
 
 ## Ordem de commit
 
@@ -957,7 +1506,8 @@ Uma fase, um commit, com push na `main`.
 - As fases 1, 2 e 3 **não se juntam**: a 1 é o banco inteiro, e a trava
   dela precisa ter passado sozinha antes de qualquer código ler dali.
 - A fase 5 entra quando o dono tiver a build.
-- A fase 8 vai sozinha, porque é a que a pessoa recebe.
+- A fase 8 vai sozinha, porque é a que a pessoa recebe. **A partir dela,
+  nenhuma build fora de `__DEV__` sai antes da virada para a produção.**
 
 O que for corrigido ao executar entra neste arquivo como "⚠️ CORRIGIDO AO
 EXECUTAR", na fase em que aconteceu, como no plano anterior.
