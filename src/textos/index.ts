@@ -395,3 +395,10 @@ const CATALOGOS: Record<Local, Textos> = {
 export const T = new Proxy({} as Textos, {
   get: (_alvo, chave: string) => (CATALOGOS[localAtual()] as any)[chave],
 });
+
+/* Os nomes das personas de exemplo, dos seis idiomas. É por eles que um
+   estado gravado antes da marca da semente descobre se é a demonstração
+   ou o diário de alguém (ver `ensureDefaults`, em logic/seed). Lidos do
+   próprio catálogo, e não copiados: uma persona renomeada continua
+   reconhecida. */
+export const NOMES_DAS_PERSONAS: readonly string[] = Object.values(CATALOGOS).map((c) => c.semente.nome);

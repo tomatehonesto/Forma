@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { buildSeed, comNotificacoesDeExemplo, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
 import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo';
 import { trocarLocal, type Local } from './local';
+import { carimbar } from './identidade';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -103,10 +104,21 @@ let real: State | null = null;
 export const useStore = create<Store>((set, get) => ({
   S: semente(),
   ready: false,
+  /* ⚠️ O QUE A ABERTURA MUDA É GRAVADO NA HORA. `ensureDefaults` dá a
+     identidade dos itens antigos (ver logic/identidade), e ela tem de ser
+     a mesma na abertura seguinte: sem gravar, um item ganharia um `rid`
+     novo a cada abertura, até a primeira mudança gravar o estado — e a
+     sincronia subiria o mesmo item com dois ids. */
   hydrate: async () => {
     try {
       const raw = await AsyncStorage.getItem(KEY);
-      if (raw) { const s = ensureDefaults(JSON.parse(raw)); set({ S: s, ready: true }); return; }
+      if (raw) {
+        const s = ensureDefaults(JSON.parse(raw));
+        const agora = JSON.stringify(s);
+        if (agora !== raw) AsyncStorage.setItem(KEY, agora).catch(() => {});
+        set({ S: s, ready: true });
+        return;
+      }
     } catch {}
     const s = semente();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
@@ -119,6 +131,9 @@ export const useStore = create<Store>((set, get) => ({
   update: (mut) => {
     const s = clone(get().S);
     mut(s);
+    /* O item novo ganha a sua identidade aqui, na hora — nenhuma tela
+       precisa saber que ela existe. Ver logic/identidade. */
+    carimbar(s);
     if (!modoFingido()) AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s });
   },

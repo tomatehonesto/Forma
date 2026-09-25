@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
-import { estadoVazio, type State } from '../logic/seed';
+import { recomecarDoZero, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
 import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
@@ -1200,8 +1200,11 @@ export default function Cadastro() {
 
          Editar uma resposta NÃO passa por aqui — e não pode passar: o
          estado vazio apagaria o tratamento de quem só queria corrigir a
-         altura. */
-      if (!editando) Object.assign(s, estadoVazio());
+         altura.
+
+         E o dono do diário atravessa o recomeço: ver `recomecarDoZero`,
+         em logic/seed. */
+      if (!editando) recomecarDoZero(s);
       /* ⚠️ O IDIOMA É GRAVADO NO PERFIL, e não só no valor de módulo: o
          módulo não sobrevive a fechar o aplicativo. Ver logic/local. */
       s.profile.idioma = r.idioma;

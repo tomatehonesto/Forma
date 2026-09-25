@@ -844,6 +844,45 @@ nada no banco.
 - Nenhuma chamada ao Supabase no painel de rede, fora da sonda.
 - As conferências de sempre, e `acesso.ts`.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (25/09/2026)
+
+**O resultado:**
+- `scripts/sincronia.ts` nasceu com 27 afirmações, e os 7 erros plantados
+  de propósito foram todos pegos;
+- no iPhone (Expo Go), a sessão cifrada fez ida e volta, e a consulta ao
+  `morphi-dev` respondeu;
+- na web, a tela ficou idêntica, e os 298 itens da demonstração ganharam
+  `rid`.
+
+1. **O polyfill de URL não entra.** A consulta do `supabase-js` funcionou
+   no iPhone sem ele, e o SDK 57 dispensa mesmo.
+2. **A abertura grava o que mudou.** Como estava no plano, a identidade
+   dos itens antigos nascia no `hydrate` só em memória, e o estado só era
+   gravado na primeira mudança. Até lá, cada abertura daria ids novos aos
+   mesmos itens, e a sincronia da fase 3 subiria o mesmo item duas vezes.
+   - O `hydrate` agora grava na hora, sempre que o `ensureDefaults` mudou
+     alguma coisa.
+   - A trava confere duas aberturas seguidas, e o erro plantado ("a
+     abertura sem gravar") é pego.
+3. **As sondas ganharam um `AsyncStorage` de memória**
+   (`scripts/duble/async-storage.ts`). O de verdade falha em silêncio
+   fora do aparelho, e nenhuma trava via o que seria gravado.
+4. **A chave AES sai de `getRandomValues`.** A documentação do SDK 57 avisa
+   que `getRandomBytes` pode cair em `Math.random` em desenvolvimento.
+5. **O plugin do `expo-secure-store` entra com `faceIDPermission: false`.**
+   O `expo install` o acrescentou ao `app.json`, e sem opções ele poria no
+   iOS um pedido de Face ID, em inglês, para uma biometria que o
+   aplicativo não usa. A exclusão dos valores do cofre no backup do
+   Android fica, e é bom que fique.
+6. **A `aes-js` não traz tipos.** Uma declaração local
+   (`src/logic/aes-js.d.ts`) cobre só o que a sessão cifrada usa.
+7. **O recomeço do cadastro virou uma função, `recomecarDoZero`**, em
+   `logic/seed`, para a trava poder provar que o dono atravessa. O
+   `salvar` do cadastro passou a chamá-la.
+8. **Os nomes das personas saem do próprio catálogo**
+   (`NOMES_DAS_PERSONAS`, em `src/textos`), e não de uma lista copiada.
+   Uma persona renomeada continua reconhecida.
+
 ---
 
 ## Fase 3 — a sincronia, sem rede

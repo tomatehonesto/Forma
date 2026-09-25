@@ -15,4 +15,10 @@ export const requestPermissionsAsync: any = async () => ({ status: 'granted' });
 export const SchedulableTriggerInputTypes: any = { DAILY: 'daily', DATE: 'date' };
 export const AndroidImportance: any = { DEFAULT: 3, HIGH: 4 };
 export const setNotificationChannelAsync: any = async () => {};
+
+/* ⚠️ O expo-crypto é a exceção: ele é USADO. `ensureDefaults` carimba a
+   identidade de cada item do diário (ver logic/identidade), e toda sonda
+   que monta um estado passa por lá. O Node tem o mesmo gerador. */
+export const randomUUID: any = () => globalThis.crypto.randomUUID();
+export const getRandomValues: any = (a: any) => globalThis.crypto.getRandomValues(a);
 export default {} as any;

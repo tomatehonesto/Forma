@@ -20,6 +20,12 @@
       ],
       "expo-image-manipulator": [
         "scripts/duble/expo.ts"
+      ],
+      "expo-crypto": [
+        "scripts/duble/expo.ts"
+      ],
+      "@react-native-async-storage/async-storage": [
+        "scripts/duble/async-storage.ts"
       ]
     }
   },

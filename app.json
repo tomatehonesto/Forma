@@ -137,7 +137,13 @@
           "speechRecognitionPermission": "Transformamos a sua fala em texto no campo de pergunta. Você lê o que saiu antes de enviar."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false,

@@ -13,7 +13,8 @@ import type { Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
 import { sistemaDe } from './medidas';
-import { T } from '../textos';
+import { carimbar } from './identidade';
+import { T, NOMES_DAS_PERSONAS } from '../textos';
 
 export const HEIGHT = 1.67;
 
@@ -28,6 +29,9 @@ type FichaDaClinica = {
   especialidade?: string; cidade?: string; sobre?: string; endereco?: string; horario?: string;
   convenios?: string[]; contato?: { site?: string; email?: string };
 };
+
+/** A conta dona do diário deste aparelho, no servidor. */
+export type ContaDoDiario = { id: string; email?: string };
 
 export function buildSeed() {
   const med = 'mounjaro';
@@ -729,6 +733,16 @@ export function buildSeed() {
        que a explica ('isso foi antes ou depois de subir a dose?'). */
     notes: P.notas.map((n) => ({ t: +daysAgo(n.dias), text: n.texto, done: n.feita })),
     onboardDone: true,
+    /* ⚠️ A MARCA DA SEMENTE. Tudo o que está aqui é inventado — a Mariana
+       e as outras cinco personas —, e um estado com esta marca nunca pede
+       conta e nunca sobe para o servidor (plano do Supabase, a decisão 1).
+       `estadoVazio` a desliga de forma explícita, porque parte daqui e
+       herdaria o verdadeiro. */
+    semente: true as boolean,
+    /* O dono deste diário no servidor — nulo enquanto não há conta. Mora
+       no estado, e não na sessão: é o que o portão lê para saber se o
+       diário tem dono, sem esperar a sessão nem a rede. */
+    conta: null as ContaDoDiario | null,
     /* SISTEMA É O PADRÃO, e não claro. Quem instala o app já escolheu
        claro ou escuro uma vez, nos ajustes do telefone — repetir a
        pergunta é ignorar a resposta que a pessoa já deu. */
@@ -1223,6 +1237,22 @@ export function ensureDefaults(S: any) {
       S.notifications = antes;
     }
   }
+  /* ⚠️ A MARCA DA SEMENTE, em quem gravou antes de ela existir.
+
+     A semente nasce marcada (ver buildSeed). Um estado gravado antes da
+     marca é a semente só se as duas coisas forem verdade: não há
+     consentimento guardado, e o nome é o de uma das seis personas. Só a
+     falta de consentimento não basta — o cadastro já trancava a porta
+     antes de gravar o consentimento (16 e 18/09/2026), e quem se
+     cadastrou nesse intervalo seria tomado pela demonstração: nunca
+     pediria conta, e o diário nunca subiria. */
+  if (typeof S.semente !== 'boolean') {
+    S.semente = !S.profile?.consentimento && NOMES_DAS_PERSONAS.includes(S.profile?.name);
+  }
+  if (S.conta === undefined) S.conta = null;
+  /* A identidade de cada item do diário — por último, porque algumas
+     migrações acima criam itens. Ver logic/identidade. */
+  carimbar(S);
   return S;
 }
 
@@ -1370,5 +1400,28 @@ export function estadoVazio(): State {
   /* as integrações são permissões, e permissão não se herda */
   S.integrations = { appleHealth: false, healthConnect: false, garmin: false, fitbit: false, withings: false };
 
+  /* ⚠️ A MARCA DA SEMENTE SE DESLIGA AQUI, de forma explícita: este
+     estado parte de buildSeed e herdaria o verdadeiro — e um diário
+     marcado como semente nunca pede conta nem sobe. Vale para todo
+     caminho que passa por aqui: o cadastro, "Apagar meus dados", "Sair da
+     conta" e "Já tenho conta". E o diário vazio ainda não tem dono. */
+  S.semente = false;
+  S.conta = null;
+
   return ensureDefaults(S) as State;
+}
+
+/* ============================================================
+   O CADASTRO RECOMEÇA DO ZERO — MAS NÃO DE DONO
+
+   O cadastro escreve por cima do estado vazio (ver `salvar`, em
+   app/cadastro). Quem entrou por "Já tenho conta" numa conta ainda vazia
+   chega ao cadastro já com dono, e perdê-lo aqui faria o diário novo
+   nascer sem conta: a tranca pediria de novo a conta que a pessoa
+   acabou de abrir.
+   ============================================================ */
+export function recomecarDoZero(s: any) {
+  const conta = s.conta ?? null;
+  Object.assign(s, estadoVazio());
+  s.conta = conta;
 }
