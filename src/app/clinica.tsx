@@ -405,22 +405,23 @@ export default function Clinica() {
                     desliga, e aqui nada liga: é uma lista de fatos sobre a
                     clínica. Preenchidas elas param de pedir toque.
 
-                    ⚠️ AZUL CHEIO COM O TEXTO EM VERDE-LIMÃO, as duas cores
-                    da casa num chip só — e o azul é o da paleta no modo
-                    CLARO, nos dois modos. O azul de ação do modo escuro é
-                    mais claro, e o limão sobre ele perdia o contraste.
+                    ⚠️ VERDE-LIMÃO CHEIO COM O TEXTO PRETO — a cor de
+                    "alcançado" da paleta e a tinta dela, que é escura nos
+                    dois modos.
 
-                    ⚠️ E O PARTICULAR É O MESMO AZUL COM O TEXTO BRANCO: é a
-                    outra resposta para "como eu pago", e não mais um
-                    convênio da lista. */
+                    ⚠️ E O PARTICULAR É AZUL COM O TEXTO BRANCO: é a outra
+                    resposta para "como eu pago", e não mais um convênio da
+                    lista. O azul é o da paleta no modo CLARO, nos dois modos
+                    — o de ação do modo escuro é mais claro, e o branco sobre
+                    ele perdia o contraste. */
                 <View
                   key={v}
                   style={{
-                    backgroundColor: forte.acaoClara, borderRadius: radius.pill,
+                    backgroundColor: c.lime, borderRadius: radius.pill,
                     paddingHorizontal: 14, paddingVertical: 9, marginBottom: 8,
                   }}
                 >
-                  <Txt v="caption" c={c.lime}>{v}</Txt>
+                  <Txt v="caption" c={c.limeInk}>{v}</Txt>
                 </View>
               ))}
               {f.particular ? (
