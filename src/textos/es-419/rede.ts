@@ -99,5 +99,6 @@ export const rede = {
     titulo: 'Ten especialistas a tu lado',
     texto: 'Clínicas que usan Morphi para acompañar de cerca a sus pacientes, seguir la evolución del tratamiento y potenciar sus resultados.',
     acao: 'Ver clínicas',
+    saibaMais: 'Conoce más',
   },
 };

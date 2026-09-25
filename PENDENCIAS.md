@@ -2221,8 +2221,8 @@ com ela que o vínculo acontece e é ela que passa o código de convite.
 - O cartão da aba Cuidado — etiqueta, "Tenha especialistas ao seu lado",
   o que são as clínicas parceiras, os rostos dos mais próximos (só quando
   a pessoa já deu a localização antes; a aba nunca pede) e "Ver
-  clínicas". O cartão de antes, que vale enquanto a rede não está no ar,
-  tem o mesmo título e o mesmo texto.
+  clínicas". Sem a rede no ar, é o mesmo cartão sem os rostos, com
+  "Saiba mais" levando a /parceiros.
 - `/rede-apresentacao` — a apresentação, que o cartão da aba Cuidado
   abre na primeira vez (`apresentacoesVistas`, no estado): a foto, o que
   é a rede, os quatro passos — escolher, marcar direto com a clínica,

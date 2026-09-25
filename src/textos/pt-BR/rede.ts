@@ -172,5 +172,8 @@ export const rede = {
        (PENDENCIAS, item 34). */
     texto: 'Clínicas que usam o Morphi para acompanhar seus pacientes de perto, monitorar a evolução do tratamento e potencializar seus resultados.',
     acao: 'Ver clínicas',
+    /* o botão do cartão sem a rede no ar: ele leva a /parceiros, que não
+       tem lista de clínicas — "Ver clínicas" ali seria mentira */
+    saibaMais: 'Saiba mais',
   },
 };

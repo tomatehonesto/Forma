@@ -98,5 +98,6 @@ export const rede = {
     titulo: 'Fachleute an deiner Seite',
     texto: 'Praxen, die Morphi nutzen, um ihre Patientinnen und Patienten eng zu begleiten, den Verlauf der Behandlung zu verfolgen und ihre Ergebnisse zu verbessern.',
     acao: 'Praxen ansehen',
+    saibaMais: 'Mehr erfahren',
   },
 };

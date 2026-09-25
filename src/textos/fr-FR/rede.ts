@@ -99,5 +99,6 @@ export const rede = {
     titulo: 'Des spécialistes à vos côtés',
     texto: 'Des cliniques qui utilisent Morphi pour suivre leurs patients de près, surveiller l’évolution du traitement et optimiser leurs résultats.',
     acao: 'Voir les cliniques',
+    saibaMais: 'En savoir plus',
   },
 };

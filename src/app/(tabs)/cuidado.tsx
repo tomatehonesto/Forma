@@ -985,28 +985,18 @@ function Parceiros() {
     <View style={{ marginTop: 36 }}>
       <SectionHead title={K().acompanhamentoProfissional} />
 
-      {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE. Rostos de quem atende
-          — os mais próximos, quando sabemos onde a pessoa está —, a
-          etiqueta da rede e um botão que diz para onde vai. Sem a rede,
-          fica o cartão de antes, que leva à tela do código de convite: é o
-          único caminho que existe enquanto não há lista. Os dois têm o
-          mesmo título e o mesmo texto — ver `rede.cartao`. */}
+      {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE: os rostos de quem
+          atende — os mais próximos, quando sabemos onde a pessoa está — e
+          "Ver clínicas". Sem a rede, é o mesmo cartão sem os rostos, e o
+          botão diz "Saiba mais": ele leva à tela do código de convite, que
+          é o único caminho que existe enquanto não há lista. */}
       {noAr && rede?.length ? (
         <CartaoDaRede rede={rede} ponto={ponto} onPress={abrirRede} />
       ) : (
-        <Pressable
+        <CartaoDeParceiros
+          acao={T.rede.cartao.saibaMais}
           onPress={noAr ? abrirRede : () => router.push('/parceiros' as any)}
-          style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.8 : 1 }]}
-        >
-          <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
-            <Row gap={12} style={{ alignItems: 'center' }}>
-              <Icon name="steth" size={20} color={c.accent} sw={1.9} />
-              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{T.rede.cartao.titulo}</Txt>
-              <Icon name="chev" size={14} color={c.accent2} sw={2} />
-            </Row>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{T.rede.cartao.texto}</Txt>
-          </View>
-        </Pressable>
+        />
       )}
 
       {/* ⚠️ UMA LINHA, E SÓ. É a porta para quem mudou de ideia sobre
@@ -1046,16 +1036,34 @@ function Parceiros() {
 function CartaoDaRede({ rede, ponto, onPress }: {
   rede: ClinicaDaRede[]; ponto: Ponto | null; onPress: () => void;
 }) {
-  const { c } = useTheme();
-  const R = T.rede.cartao;
-
   const vistos = new Set<string>();
   const pessoas: ProfissionalDaRede[] = [];
   for (const r of buscar(rede, SEM_FILTRO, ponto)) {
     for (const p of r.c.equipe) if (!vistos.has(p.id)) { vistos.add(p.id); pessoas.push(p); }
   }
   const ordem = ponto ? pessoas : [...pessoas.filter((p) => fotoDaRede(p)), ...pessoas.filter((p) => !fotoDaRede(p))];
-  const rostos = ordem.slice(0, 4);
+
+  return <CartaoDeParceiros rostos={ordem.slice(0, 4)} acao={T.rede.cartao.acao} onPress={onPress} />;
+}
+
+/* ------------------------------------------------------------------
+   O CARTÃO DE PARCEIROS — o mesmo desenho, com a rede e sem ela
+
+   Etiqueta, título, texto e o botão que diz para onde o toque leva. O
+   cartão de antes era outro desenho — fundo azul, estetoscópio e seta —,
+   e o título dividia a linha com os dois ícones e quebrava deixando
+   "lado" sozinho embaixo. Agora é um cartão só, e o que muda entre os
+   dois estados é o que existe para mostrar: os rostos, e para onde o
+   botão leva.
+
+   ⚠️ O BOTÃO FICA À DIREITA NOS DOIS, com ou sem rostos: a ação mora no
+   mesmo lugar em qualquer estado do cartão.
+------------------------------------------------------------------ */
+function CartaoDeParceiros({ rostos, acao, onPress }: {
+  rostos?: ProfissionalDaRede[]; acao: string; onPress: () => void;
+}) {
+  const { c } = useTheme();
+  const R = T.rede.cartao;
 
   return (
     <Card onPress={onPress} style={{ marginTop: 14 }}>
@@ -1064,30 +1072,32 @@ function CartaoDaRede({ rede, ponto, onPress }: {
       <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{R.texto}</Txt>
       <Row gap={12} style={{ marginTop: 18, alignItems: 'center' }}>
         <View style={{ flex: 1 }}>
-          <Row>
-            {rostos.map((p, i) => {
-              const foto = fotoDaRede(p);
-              return (
-                <View
-                  key={p.id}
-                  style={{
-                    marginLeft: i ? -12 : 0, width: 42, height: 42, borderRadius: 21,
-                    borderWidth: 2, borderColor: c.bg1, overflow: 'hidden',
-                    backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  {foto ? (
-                    <Image source={foto} style={{ width: 42, height: 42 }} contentFit="cover" contentPosition={focoDaRede(p)} />
-                  ) : (
-                    <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
-                  )}
-                </View>
-              );
-            })}
-          </Row>
+          {rostos?.length ? (
+            <Row>
+              {rostos.map((p, i) => {
+                const foto = fotoDaRede(p);
+                return (
+                  <View
+                    key={p.id}
+                    style={{
+                      marginLeft: i ? -12 : 0, width: 42, height: 42, borderRadius: 21,
+                      borderWidth: 2, borderColor: c.bg1, overflow: 'hidden',
+                      backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    {foto ? (
+                      <Image source={foto} style={{ width: 42, height: 42 }} contentFit="cover" contentPosition={focoDaRede(p)} />
+                    ) : (
+                      <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
+                    )}
+                  </View>
+                );
+              })}
+            </Row>
+          ) : null}
         </View>
         <View style={{ backgroundColor: c.tx, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12 }}>
-          <Txt v="label" c={c.bg1}>{R.acao}</Txt>
+          <Txt v="label" c={c.bg1}>{acao}</Txt>
         </View>
       </Row>
     </Card>

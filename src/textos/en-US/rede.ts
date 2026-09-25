@@ -98,5 +98,6 @@ export const rede = {
     titulo: 'Have specialists by your side',
     texto: 'Clinics that use Morphi to follow their patients closely, track how treatment is progressing and boost their results.',
     acao: 'See clinics',
+    saibaMais: 'Learn more',
   },
 };

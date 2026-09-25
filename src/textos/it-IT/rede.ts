@@ -99,5 +99,6 @@ export const rede = {
     titulo: 'Specialisti al tuo fianco',
     texto: 'Centri che usano Morphi per seguire da vicino i loro pazienti, monitorare l’andamento della terapia e potenziarne i risultati.',
     acao: 'Vedi i centri',
+    saibaMais: 'Scopri di più',
   },
 };
