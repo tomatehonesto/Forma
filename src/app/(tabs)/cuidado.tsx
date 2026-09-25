@@ -1060,7 +1060,7 @@ function CartaoDaRede({ rede, ponto, onPress }: {
     <Card onPress={onPress} style={{ marginTop: 14 }}>
       <Selo label={R.tag} tom="lima" />
       <Txt v="title" style={{ marginTop: 12 }}>{R.titulo}</Txt>
-      <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
+      <Txt v="caption" c={c.tx2} style={{ marginTop: 6, lineHeight: 20 }}>{R.texto}</Txt>
       <Row gap={12} style={{ marginTop: 18, alignItems: 'center' }}>
         <View style={{ flex: 1 }}>
           <Row>

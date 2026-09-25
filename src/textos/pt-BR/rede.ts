@@ -158,7 +158,15 @@ export const rede = {
      ============================================================ */
   cartao: {
     tag: 'Clínicas parceiras',
-    titulo: 'Tenha o acompanhamento de especialistas',
+    titulo: 'Tenha especialistas ao seu lado',
+    /* ⚠️ O NOME DO APLICATIVO ENTRA COMO OBJETO, e nunca com verbo: "as
+       clínicas usam o Morphi", e não "o Morphi acompanha" (ver a nota em
+       companion). E no masculino, como em "Seus dados do Morphi".
+
+       ⚠️ "POTENCIALIZAR SEUS RESULTADOS" É PROMESSA DE RESULTADO, numa
+       peça que fala de médicos — está na revisão jurídica da vitrine
+       (PENDENCIAS, item 34). */
+    texto: 'Clínicas que usam o Morphi para acompanhar seus pacientes de perto, monitorar a evolução do tratamento e potencializar seus resultados.',
     naRede: (n: number) => `${n} ${n === 1 ? 'profissional' : 'profissionais'} na rede`,
     pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'profissional' : 'profissionais'} · os mais perto de você`,
     acao: 'Ver clínicas',

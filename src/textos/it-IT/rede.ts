@@ -96,7 +96,8 @@ export const rede = {
 
   cartao: {
     tag: 'Centri partner',
-    titulo: 'Fatti seguire da specialisti',
+    titulo: 'Specialisti al tuo fianco',
+    texto: 'Centri che usano Morphi per seguire da vicino i loro pazienti, monitorare l’andamento della terapia e potenziarne i risultati.',
     naRede: (n: number) => `${n} ${n === 1 ? 'professionista' : 'professionisti'} nella rete`,
     pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'professionista' : 'professionisti'} · i più vicini a te`,
     acao: 'Vedi i centri',

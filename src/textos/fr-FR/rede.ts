@@ -96,7 +96,8 @@ export const rede = {
 
   cartao: {
     tag: 'Cliniques partenaires',
-    titulo: 'Soyez suivi par des spécialistes',
+    titulo: 'Des spécialistes à vos côtés',
+    texto: 'Des cliniques qui utilisent Morphi pour suivre leurs patients de près, surveiller l’évolution du traitement et optimiser leurs résultats.',
     naRede: (n: number) => `${n} ${n === 1 ? 'professionnel' : 'professionnels'} dans le réseau`,
     pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'professionnel' : 'professionnels'} · les plus proches de vous`,
     acao: 'Voir les cliniques',

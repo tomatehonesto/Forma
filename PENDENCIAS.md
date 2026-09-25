@@ -2257,7 +2257,9 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    advogado se o cartão conta como anúncio. Quem entra na lista, com que
    critério, e o que a clínica pode escrever no "Sobre" também. A ordem é
    distância ou nome, sem nota e sem "destaque". E a apresentação junto:
-   a foto do alto é de um médico que não é da rede.
+   a foto do alto é de um médico que não é da rede. E o cartão da aba
+   Cuidado, que diz que as clínicas usam o aplicativo para "potencializar
+   seus resultados" — é promessa de resultado.
 3. **A Política de Privacidade ganha uma linha.** Ler o catálogo é uma
    chamada de rede nova. A localização não vai junto: a distância é
    calculada no aparelho (`logic/localizacao.ts`), e é isso que o texto

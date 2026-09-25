@@ -95,7 +95,8 @@ export const rede = {
 
   cartao: {
     tag: 'Partner clinics',
-    titulo: 'Get care from specialists',
+    titulo: 'Have specialists by your side',
+    texto: 'Clinics that use Morphi to follow their patients closely, track how treatment is progressing and boost their results.',
     naRede: (n: number) => `${n} ${n === 1 ? 'professional' : 'professionals'} in the network`,
     pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'professional' : 'professionals'} · closest to you`,
     acao: 'See clinics',

@@ -95,7 +95,8 @@ export const rede = {
 
   cartao: {
     tag: 'Partnerpraxen',
-    titulo: 'Lass dich von Fachleuten begleiten',
+    titulo: 'Fachleute an deiner Seite',
+    texto: 'Praxen, die Morphi nutzen, um ihre Patientinnen und Patienten eng zu begleiten, den Verlauf der Behandlung zu verfolgen und ihre Ergebnisse zu verbessern.',
     naRede: (n: number) => `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'} im Netzwerk`,
     pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'Fachperson' : 'Fachpersonen'} · die nächsten zuerst`,
     acao: 'Praxen ansehen',
