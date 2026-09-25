@@ -42,27 +42,43 @@ const CHAVE_PUBLICA = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
    ⚠️ Chave perdida é sessão perdida, e nada mais: sem ela, a sessão não
    se lê, e a pessoa entra de novo. O diário mora no aparelho e no
    servidor, e não aqui.
+
+   ⚠️ E UMA OPERAÇÃO DE CADA VEZ. A sessão são duas peças em dois lugares
+   (a chave no Keychain, a cifra no AsyncStorage), gravadas uma depois da
+   outra. O cliente do Supabase não tem trava (a coordenação dele é
+   "lockless"), e ler no meio de uma gravação juntava a chave nova com a
+   cifra velha: a sessão saía como lixo, o cliente a jogava fora, e a
+   pessoa voltava ao login — em laço, porque cada entrada grava de novo
+   enquanto a abertura lê. A fila abaixo faz leitura, gravação e remoção
+   esperarem a anterior terminar.
    ============================================================ */
+let fila: Promise<unknown> = Promise.resolve();
+const emFila = <T,>(passo: () => Promise<T>): Promise<T> => {
+  const vez = fila.then(passo, passo);
+  fila = vez.catch(() => {});
+  return vez;
+};
+
 const sessaoCifrada = {
-  async getItem(nome: string): Promise<string | null> {
+  getItem: (nome: string) => emFila(async (): Promise<string | null> => {
     const cifrado = await AsyncStorage.getItem(nome);
     if (!cifrado) return null;
     const chave = await SecureStore.getItemAsync(nome);
     if (!chave) return null;
     const cifra = new aesjs.ModeOfOperation.ctr(aesjs.utils.hex.toBytes(chave), new aesjs.Counter(1));
     return aesjs.utils.utf8.fromBytes(cifra.decrypt(aesjs.utils.hex.toBytes(cifrado)));
-  },
-  async setItem(nome: string, valor: string): Promise<void> {
+  }),
+  setItem: (nome: string, valor: string) => emFila(async (): Promise<void> => {
     const chave = Crypto.getRandomValues(new Uint8Array(32));
     const cifra = new aesjs.ModeOfOperation.ctr(chave, new aesjs.Counter(1));
     const cifrado = aesjs.utils.hex.fromBytes(cifra.encrypt(aesjs.utils.utf8.toBytes(valor)));
     await SecureStore.setItemAsync(nome, aesjs.utils.hex.fromBytes(chave));
     await AsyncStorage.setItem(nome, cifrado);
-  },
-  async removeItem(nome: string): Promise<void> {
+  }),
+  removeItem: (nome: string) => emFila(async (): Promise<void> => {
     await AsyncStorage.removeItem(nome);
     await SecureStore.deleteItemAsync(nome);
-  },
+  }),
 };
 
 let cliente: SupabaseClient | null | undefined;

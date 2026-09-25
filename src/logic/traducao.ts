@@ -152,6 +152,9 @@ export const DESTINO_NO_PERFIL: Record<string, Destino> = {
   clinic: 'parte:acompanhamento',
   nutri: 'parte:acompanhamento',
   doctorInfo: 'parte:acompanhamento',
+  /* o que a ficha da clínica cobriu, para voltar quando o vínculo acabar
+     (ver `guardarOQueEraAntes`, em logic/rede) */
+  antesDoVinculo: 'parte:acompanhamento',
 
   idioma: 'parte:preferencias',
 

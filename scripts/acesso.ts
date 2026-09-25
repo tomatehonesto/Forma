@@ -147,6 +147,20 @@ async function main() {
     && (desconectou as any).messages.length === 0 && (desconectou as any).team.length === 0,
     'desconectar (neste aparelho ou em outro): a cópia sai sem aviso de encerramento, com o que é de plataforma, e os registros ficam');
   ok(!acessoDe(desconectou, null).tem && acessoDe(desconectou, ativa).tem, 'e o acesso volta a ser o da assinatura');
+  const pd = desconectou.profile as any;
+  ok(pd.acompanhamento === 'nenhum' && pd.clinic === '' && pd.doctor === '' && !pd.antesDoVinculo
+    && JSON.stringify(pd.clinicInfo) === JSON.stringify((sozinha.profile as any).clinicInfo),
+    'desconectar devolve o "por conta própria" de antes: sem a clínica no perfil, e a aba Cuidado volta a oferecer a rede');
+
+  const comMedico = clone(sozinha);
+  Object.assign(comMedico.profile as any, { acompanhamento: 'proprio', doctor: 'Dr. Fulano', clinic: 'Minha Clínica', doctorInfo: { crm: 'CRM-SP 1' } });
+  gravarVinculo(comMedico, vinculoDoServidor(V1));
+  gravarVinculo(comMedico, vinculoDoServidor(V2));
+  ok((comMedico.profile as any).clinic === CLINICA.nome, 'conectada (e trocando de clínica), a ficha é a da clínica');
+  seguirVinculoDoServidor(comMedico, vinculoDoServidor(V2, { por: 'paciente' }));
+  const pm = comMedico.profile as any;
+  ok(pm.acompanhamento === 'proprio' && pm.doctor === 'Dr. Fulano' && pm.clinic === 'Minha Clínica' && pm.doctorInfo.crm === 'CRM-SP 1',
+    'quem tinha médico próprio antes de conectar volta a tê-lo, com o nome e o registro — o de antes da primeira clínica, e não o da segunda');
 
   const encerrou = clone(doServidor);
   ok(seguirVinculoDoServidor(encerrou, vinculoDoServidor(V1, { por: 'clinica' })) === 'clinica-encerrou'
@@ -160,8 +174,11 @@ async function main() {
 
   const antigo = clone(sozinha);
   (antigo.profile as any).vinculo = vinculoDoConvite('ABCD1234');
+  Object.assign(antigo.profile as any, { acompanhamento: 'proprio', doctor: 'Dra. Digitada' });
   ok(seguirVinculoDoServidor(antigo, null) === 'nao-confirmado' && !clinicaConectada(antigo) && registros(antigo) === antes,
     'o vínculo antigo, nascido só no aparelho: sai com o aviso de que o código não foi confirmado, e não com o da clínica');
+  ok((antigo.profile as any).doctor === 'Dra. Digitada' && (antigo.profile as any).acompanhamento === 'proprio',
+    'e o médico que a pessoa digitou fica: o vínculo antigo não escreveu ficha nenhuma');
   const antigoEComServidor = clone(sozinha);
   (antigoEComServidor.profile as any).vinculo = vinculoDoConvite('SAVASSI26');
   ok(seguirVinculoDoServidor(antigoEComServidor, vinculoDoServidor(V1)) === 'nao-confirmado'

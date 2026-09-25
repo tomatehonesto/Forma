@@ -1680,6 +1680,42 @@ No navegador de testes (`127.0.0.1`), com um cadastro novo e sem conta:
    topo. O retrato da responsável, que pedia o centro, subiu já cortado
    no alto (240 px a menos). Foto de clínica de verdade pede o recortador
    no envio, no portal.
+7. ⚠️ **O login em laço no iPhone era a sessão virando lixo** (e é a
+   explicação da correção 11 da fase 4). A sessão cifrada são duas peças,
+   a chave no Keychain e a cifra no AsyncStorage, gravadas uma depois da
+   outra. O cliente do Supabase 2.117 não tem trava ("lockless"), e uma
+   leitura no meio de uma gravação juntava a chave nova com a cifra velha.
+   - O cliente jogava a sessão fora, e a conta ficava sem sessão.
+   - A fase 6 multiplicou as leituras na abertura (o convite pendente e o
+     vínculo), e o encontro virou regra.
+   - Sem sessão, `contaTemDiario` respondia nulo, e a tela voltava a "Crie
+     a sua conta" com o erro de conexão: o laço.
+
+   Agora leitura, gravação e remoção esperam a anterior, numa fila em
+   `logic/nuvem`. Com sondas no aparelho: todas as leituras voltaram
+   inteiras, e a entrada seguinte gravou o dono.
+8. ⚠️ **Desconectar deixava a ficha da clínica no perfil.** Conectar marca
+   o acompanhamento e escreve a clínica e quem atende como "quem acompanha
+   você". Desconectar tirava só o vínculo. A aba Cuidado, achando que a
+   pessoa tinha médico, escondia a rede parceira, e com ela o caminho do
+   código.
+   - Agora a primeira conexão guarda os cinco campos de antes
+     (`profile.antesDoVinculo`, na parte `acompanhamento`), e o fim do
+     vínculo os devolve.
+   - Trocar de clínica não regrava o guardado.
+   - O vínculo antigo, nascido só no aparelho, não escreveu ficha, e o
+     médico digitado fica.
+
+   A trava prova as três coisas.
+9. **Os testes com o dono (25/09/2026), no iPhone, com uma conta
+   descartável (`+teste`):**
+   - conectar com `LEMOS26`: o vínculo no banco com a Dra. Beatriz, a
+     versão 1 do consentimento e o código marcado como usado;
+   - desconectar: o vínculo encerrado por `paciente`, com a cópia do
+     perfil, e o diário intacto.
+
+   ⏳ Faltam a clínica encerrando, o pendente virando vínculo quando a
+   conta nasce e apagar a conta que conectou.
 
 ---
 

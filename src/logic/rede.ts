@@ -334,6 +334,38 @@ export async function ultimoVinculo(): Promise<any | null | undefined> {
   };
 }
 
+/* ⚠️ O QUE A FICHA DA CLÍNICA COBRE VOLTA QUANDO O VÍNCULO ACABA.
+
+   Conectar escreve a clínica e quem passou o código como "quem acompanha
+   você", e marca o acompanhamento. Desconectar tirava o vínculo e deixava
+   isso tudo: a pessoa que se tratava sozinha continuava com a Clínica
+   Lemos no perfil, e a aba Cuidado, achando que ela tinha médico,
+   escondia a rede parceira — e com ela o caminho do código.
+
+   Então a primeira conexão guarda o que havia antes, e o fim do vínculo o
+   devolve. Trocar de clínica não regrava: o "antes" é o de antes da
+   primeira. Sem o guardado (vínculo de antes desta correção), o fim volta
+   a "por conta própria", que é o que o vínculo tinha substituído. */
+const CAMPOS_DA_FICHA = ['acompanhamento', 'doctor', 'clinic', 'doctorInfo', 'clinicInfo'] as const;
+
+function guardarOQueEraAntes(s: any) {
+  if (s.profile.antesDoVinculo) return;
+  s.profile.antesDoVinculo = JSON.parse(JSON.stringify(
+    Object.fromEntries(CAMPOS_DA_FICHA.map((k) => [k, s.profile[k] ?? null])),
+  ));
+}
+
+function devolverOQueEraAntes(s: any) {
+  const a = s.profile.antesDoVinculo;
+  s.profile.acompanhamento = a?.acompanhamento ?? 'nenhum';
+  s.profile.doctor = a?.doctor ?? '';
+  s.profile.clinic = a?.clinic ?? '';
+  s.profile.doctorInfo = a?.doctorInfo ?? {};
+  if (a?.clinicInfo) s.profile.clinicInfo = a.clinicInfo;
+  else delete s.profile.clinicInfo;
+  delete s.profile.antesDoVinculo;
+}
+
 /* ⚠️ CONECTAR GRAVA O QUE O SERVIDOR DEVOLVEU, e só isso: a clínica e
    quem passou o código, com o que o portal diz de cada um. É o "quem
    acompanha você" dela a partir de agora — e o diário não se mexe.
@@ -341,6 +373,7 @@ export async function ultimoVinculo(): Promise<any | null | undefined> {
    ⚠️ E A FICHA VAI COMO TEXTO, como o resto do perfil: o horário sai
    escrito no idioma de agora. */
 function gravarFicha(s: any, c: Clinica, p: Profissional | null) {
+  guardarOQueEraAntes(s);
   s.profile.acompanhamento = 'proprio';
   s.profile.clinic = c.nome;
   s.profile.clinicInfo = {
@@ -404,7 +437,11 @@ export function conviteDoCadastro(s: any, digitado: string) {
     — o mesmo recorte de `mascarar(…, 'sem-parceira')`, em logic/store. O
     diário fica inteiro. */
 export function tirarVinculo(s: any) {
+  /* O vínculo antigo, nascido só no aparelho, não escreveu ficha nenhuma:
+     o médico ali é o que a pessoa digitou, e fica. */
+  const escreveuFicha = !!s.profile.antesDoVinculo || !!s.profile.vinculo?.id;
   s.profile.vinculo = null;
+  if (escreveuFicha) devolverOQueEraAntes(s);
   s.messages = [];
   s.unread = 0;
   s.prescriptions = [];
