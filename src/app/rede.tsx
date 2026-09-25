@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
   carregarRede, buscar, useVitrine, redeDeExemplo, cidadesDaRede, nomeDaEspecialidade,
-  especialidadesDaClinica, responsavelDe, ondeTxt, atendeHoje, horarioTxt, SEMANA_DE_CONSULTA,
+  especialidadesDaClinica, responsavelDe, ondeDoCartao, atendeHoje, horarioTxt, SEMANA_DE_CONSULTA,
   type Clinica, type Resultado, type Filtro,
 } from '../logic/rede';
 import { inicialDoDia } from '../logic/alertas';
@@ -246,12 +246,13 @@ function Chip({ rotulo, on, seta, ic, onPress }: {
    do nome de cada pessoa da equipe. O cartão responde se vale abrir; a
    credencial é o que se confere depois de abrir.
 
-   ⚠️ E O CONVÊNIO É UMA ETIQUETA SÓ — "Aceita convênios" —, e não a
-   lista. Já foi uma etiqueta por convênio, depois a lista numa linha com
-   "+N"; nas duas o cartão lia nomes que a pessoa não procurava. A lista
-   inteira está na clínica. Com o filtro de convênio ligado, a etiqueta
-   diz o do filtro ("Aceita Unimed"); a clínica só particular não leva
-   etiqueta nenhuma.
+   ⚠️ E O CONVÊNIO É UMA LINHA SÓ, EM AZUL — "Aceita convênios" —, e não
+   a lista. Já foi uma etiqueta por convênio, depois a lista numa linha
+   com "+N", depois uma etiqueta; nas duas primeiras o cartão lia nomes
+   que a pessoa não procurava, e a terceira pesava mais que o endereço. A
+   lista inteira está na clínica. Com o filtro de convênio ligado, a
+   linha diz o do filtro ("Aceita Unimed"); a clínica só particular não
+   leva linha nenhuma.
 
    A teleconsulta não está no cartão: ela é filtro (Modalidade) e está na
    clínica, ao lado do horário.
@@ -322,22 +323,11 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
             <Txt v="bodyMed" numberOfLines={1}>{cl.nome}</Txt>
             <Txt v="caption" c={c.tx2} numberOfLines={1} style={{ marginTop: 1 }}>{especialidadesDaClinica(cl)}</Txt>
             <View style={{ marginTop: 8, gap: 3 }}>
-              <Meta ic="pin" texto={ondeTxt(S, r)} />
-              {/* O lugar da etiqueta tem altura fixa, com ou sem ela: é o
-                  que mantém o nome e os dias na mesma altura em todos. */}
-              <View style={{ height: 22, justifyContent: 'center', alignItems: 'flex-start' }}>
-                {aceita ? (
-                  <View style={{
-                    flexDirection: 'row', alignItems: 'center', gap: 5,
-                    backgroundColor: c.limeSoft, borderRadius: radius.pill,
-                    paddingLeft: 7, paddingRight: 9, paddingVertical: 2,
-                  }}>
-                    <Icon name="shield" size={12} color={c.limeSoftInk} sw={2} />
-                    <Txt v="micro" c={c.limeSoftInk} numberOfLines={1} style={{ fontFamily: font.bodyMed, flexShrink: 1 }}>
-                      {aceita}
-                    </Txt>
-                  </View>
-                ) : null}
+              <Onde onde={ondeDoCartao(S, r)} />
+              {/* O lugar da linha tem altura fixa, com ou sem ela: é o que
+                  mantém o nome e os dias na mesma altura em todos. */}
+              <View style={{ height: 21 }}>
+                {aceita ? <Meta ic="shield" texto={aceita} azul /> : null}
               </View>
             </View>
             {/* A semana em iniciais. Quem usa leitor de tela ouve os dias
@@ -375,15 +365,36 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
   );
 }
 
-/* Uma linha do cartão: o ícone pequeno e o texto recuado. */
-function Meta({ ic, texto }: { ic: string; texto: string }) {
+/* "Pinheiros • 7,8 km" — o bairro encurta com reticências, e a distância
+   fica sempre inteira: ela é a razão de a linha ter mudado. Quem usa
+   leitor de tela ouve a frase inteira. */
+function Onde({ onde }: { onde: { lugar: string; distancia: string | null } }) {
+  const { c } = useTheme();
+  return (
+    <View
+      style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}
+      accessible
+      accessibilityLabel={onde.distancia ? K().lugarEDistancia(onde.lugar, onde.distancia) : onde.lugar}
+    >
+      <View style={{ marginTop: 3 }}>
+        <Icon name="pin" size={13} color={c.tx4} sw={1.9} />
+      </View>
+      <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ flexShrink: 1 }}>{onde.lugar}</Txt>
+      {onde.distancia ? <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ flexShrink: 0 }}>{`• ${onde.distancia}`}</Txt> : null}
+    </View>
+  );
+}
+
+/* Uma linha do cartão: o ícone pequeno e o texto recuado. A do convênio
+   sai em azul — é a única que responde "aceita o meu?". */
+function Meta({ ic, texto, azul }: { ic: string; texto: string; azul?: boolean }) {
   const { c } = useTheme();
   return (
     <Row gap={6} style={{ alignItems: 'flex-start' }}>
       <View style={{ marginTop: 3 }}>
-        <Icon name={ic} size={13} color={c.tx4} sw={1.9} />
+        <Icon name={ic} size={13} color={azul ? c.accent : c.tx4} sw={1.9} />
       </View>
-      <Txt v="caption" c={c.tx3} numberOfLines={1} style={{ flex: 1 }}>{texto}</Txt>
+      <Txt v="caption" c={azul ? c.accent2 : c.tx3} numberOfLines={1} style={{ flex: 1 }}>{texto}</Txt>
     </Row>
   );
 }

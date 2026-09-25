@@ -40,6 +40,7 @@ export const rede = {
   resultados: (n: number) => `${n} ${n === 1 ? 'clinique' : 'cliniques'}`,
 
   aDistancia: (quanto: string) => `à ${quanto}`,
+  lugarEDistancia: (lugar: string, distancia: string) => `${lugar} • ${distancia}`,
   soTeleconsulta: 'Téléconsultation uniquement',
   soPresencial: 'En cabinet',
   presencialETele: 'En cabinet et en téléconsultation',

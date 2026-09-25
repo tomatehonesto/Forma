@@ -306,20 +306,29 @@ export const modalidadeTxt = (c: Clinica) =>
     : c.teleconsulta ? T.rede.soTeleconsulta
       : T.rede.soPresencial;
 
-/** "a 2,3 km", "a 850 m", "1.4 mi away" */
-export function distanciaTxt(S: { profile: { sistema?: 'metrico' | 'imperial' } }, km: number) {
+/** "2,3 km", "850 m", "1.4 mi" — só o número e a unidade */
+export function distanciaCurta(S: { profile: { sistema?: 'metrico' | 'imperial' } }, km: number) {
   if (sistemaDe(S) === 'imperial') {
     const mi = km * 0.621371;
-    return T.rede.aDistancia(`${nf(mi, mi < 10 ? 1 : 0)} mi`);
+    return `${nf(mi, mi < 10 ? 1 : 0)} mi`;
   }
-  if (km < 1) return T.rede.aDistancia(`${Math.max(50, Math.round((km * 1000) / 50) * 50)} m`);
-  return T.rede.aDistancia(`${nf(km, km < 10 ? 1 : 0)} km`);
+  if (km < 1) return `${Math.max(50, Math.round((km * 1000) / 50) * 50)} m`;
+  return `${nf(km, km < 10 ? 1 : 0)} km`;
 }
 
-/** "Pinheiros · a 2,9 km", ou "Só teleconsulta" */
-export function ondeTxt(S: { profile: { sistema?: 'metrico' | 'imperial' } }, r: Resultado) {
-  if (!r.c.presencial) return T.rede.soTeleconsulta;
-  return [r.c.bairro ?? r.c.cidade, r.km != null ? distanciaTxt(S, r.km) : ''].filter(Boolean).join(' · ');
+/** "a 2,3 km", "a 850 m", "1.4 mi away" — a distância dentro de uma frase */
+export const distanciaTxt = (S: { profile: { sistema?: 'metrico' | 'imperial' } }, km: number) =>
+  T.rede.aDistancia(distanciaCurta(S, km));
+
+/** "Pinheiros" e "7,8 km", separados: no cartão o bairro pode encurtar,
+    e a distância não. Sem a localização da pessoa, só o bairro; e quem
+    atende só por vídeo mostra a cidade — a teleconsulta não é assunto do
+    cartão (ver /rede). */
+export function ondeDoCartao(S: { profile: { sistema?: 'metrico' | 'imperial' } }, r: Resultado) {
+  return {
+    lugar: r.c.presencial ? (r.c.bairro ?? r.c.cidade) : r.c.cidade,
+    distancia: r.km != null ? distanciaCurta(S, r.km) : null,
+  };
 }
 
 /* ============================================================

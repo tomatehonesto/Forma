@@ -57,14 +57,17 @@ export const rede = {
 
   /* ---------- o cartão ---------- */
   aDistancia: (quanto: string) => `a ${quanto}`,
+  /* "Pinheiros • 7,8 km" — no cartão, a distância vem sem o "a" */
+  lugarEDistancia: (lugar: string, distancia: string) => `${lugar} • ${distancia}`,
   soTeleconsulta: 'Só teleconsulta',
   soPresencial: 'Presencial',
   presencialETele: 'Presencial e teleconsulta',
   teleconsulta: 'Teleconsulta',
   particular: 'Particular',
-  /* ⚠️ O CONVÊNIO É UMA ETIQUETA SÓ, e não a lista: a lista inteira está
-     na clínica. Com o filtro de convênio ligado, a etiqueta diz o do
-     filtro; a clínica só particular não leva etiqueta nenhuma. */
+  /* ⚠️ O CONVÊNIO É UMA LINHA SÓ, EM AZUL — "Aceita convênios" —, e não
+     a lista: a lista inteira está na clínica. Com o filtro de convênio
+     ligado, a linha diz o do filtro; a clínica só particular não leva
+     linha nenhuma. */
   aceitaConvenios: 'Aceita convênios',
   aceita: (convenio: string) => `Aceita ${convenio}`,
   /* ⚠️ "HOJE" É DIA DE ATENDIMENTO COM O HORÁRIO AINDA ABERTO — ver

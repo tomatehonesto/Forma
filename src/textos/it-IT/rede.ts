@@ -40,6 +40,7 @@ export const rede = {
   resultados: (n: number) => `${n} ${n === 1 ? 'centro' : 'centri'}`,
 
   aDistancia: (quanto: string) => `a ${quanto}`,
+  lugarEDistancia: (lugar: string, distancia: string) => `${lugar} • ${distancia}`,
   soTeleconsulta: 'Solo televisita',
   soPresencial: 'In presenza',
   presencialETele: 'In presenza e in televisita',
