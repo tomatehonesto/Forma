@@ -2317,12 +2317,17 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
      o Morphi pelo acesso dos pacientes, conflita. A "oferta
      promocional", que o servidor assina sem a pessoa digitar nada, só
      adia a cobrança: depois renova no preço cheio.
-   - **O caminho recomendado para iOS:** no "Conectar" da folha do
-     código, se houver assinatura ativa, dizer que ela não precisa mais
-     pagar e abrir a gestão de assinaturas da Apple dentro do aplicativo
-     (`AppStore.showManageSubscriptions`), onde ela cancela com um toque.
-     É o que Calm e Headspace fazem com códigos de empresa. O reembolso
-     do período pago só a Apple decide (`Transaction.beginRefundRequest`).
+   - **Feito em 25/09/2026, nas duas lojas:** conectada, quem tem
+     assinatura ativa ganha um terceiro passo na folha do código — "Você
+     pode cancelar a sua assinatura", com "Cancelar na {loja}" abrindo
+     `GESTAO_NA_LOJA` e "Fazer isso depois". É o que Calm e Headspace
+     fazem com códigos de empresa. Só aparece quando `assinaturaAtual`
+     souber ler o recibo; em desenvolvimento, `/codigo?assinante=1`.
+     Quando a cobrança entrar: no iOS, trocar o link pela folha nativa
+     (`AppStore.showManageSubscriptions`, dentro do aplicativo); no
+     Android, cancelar pelo servidor, e o passo vira só um aviso. O
+     reembolso do período pago, no iOS, só a Apple decide
+     (`Transaction.beginRefundRequest`).
 
    Fontes: developer.apple.com/help/app-store-connect/manage-subscriptions/set-up-subscription-offer-codes,
    developer.apple.com/documentation/appstoreserverapi,

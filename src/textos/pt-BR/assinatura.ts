@@ -304,6 +304,15 @@ export const assinatura = {
     conectar: 'Conectar',
     naoEEssa: 'Não é essa clínica',
     conectarTexto: 'Ao conectar, esta clínica passa a acompanhar você por aqui. Nada do que você já registrou muda de lugar.',
+    /* ⚠️ O TERCEIRO PASSO, SÓ PARA QUEM JÁ PAGA PELA LOJA. Conectar isenta
+       (ver `isento`), mas a loja não sabe disso: a assinatura continua
+       cobrando até a pessoa cancelar lá, e a Apple não deixa ninguém
+       cancelar por ela. É a mesma notícia de `pagandoTexto`, dada na hora
+       em que ela importa. */
+    cancelarTitulo: 'Você pode cancelar a sua assinatura',
+    cancelarTexto: (loja: string) => `O vínculo com a clínica já garante o seu acesso ao aplicativo. A assinatura na ${loja} continua cobrando até você cancelar por lá — e cancelar não muda nada no que você já registrou.`,
+    cancelarNaLoja: (loja: string) => `Cancelar na ${loja}`,
+    depois: 'Fazer isso depois',
   },
 
   /* ============================================================

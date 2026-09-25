@@ -286,6 +286,10 @@ export const assinatura = {
     conectar: 'Collega',
     naoEEssa: 'Non è il mio centro',
     conectarTexto: 'Una volta collegato, questo centro ti segue da qui. Niente di quello che hai già registrato cambia posto.',
+    cancelarTitulo: 'Puoi disdire l’abbonamento',
+    cancelarTexto: (loja: string) => `Il legame con il centro copre già il tuo accesso all’app. L’abbonamento su ${loja} continua a essere addebitato finché non lo disdici lì — e disdirlo non cambia niente di quello che hai registrato.`,
+    cancelarNaLoja: (loja: string) => `Disdici su ${loja}`,
+    depois: 'Più tardi',
   },
 
   /* ============================================================

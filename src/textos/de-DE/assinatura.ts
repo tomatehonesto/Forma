@@ -288,6 +288,10 @@ export const assinatura = {
     conectar: 'Verbinden',
     naoEEssa: 'Das ist nicht meine Praxis',
     conectarTexto: 'Sobald du verbunden bist, begleitet dich diese Praxis hier. Nichts von dem, was du schon eingetragen hast, verschiebt sich.',
+    cancelarTitulo: 'Du kannst dein Abo kündigen',
+    cancelarTexto: (loja: string) => `Die Verbindung mit der Praxis deckt deinen Zugang zur App schon ab. Das Abo im ${loja} wird weiter abgerechnet, bis du es dort kündigst — und das Kündigen ändert nichts an dem, was du schon eingetragen hast.`,
+    cancelarNaLoja: (loja: string) => `Im ${loja} kündigen`,
+    depois: 'Später',
   },
 
   /* ============================================================

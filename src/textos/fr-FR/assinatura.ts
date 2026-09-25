@@ -299,6 +299,10 @@ export const assinatura = {
     conectar: 'Rejoindre cette clinique',
     naoEEssa: 'Ce n’est pas ma clinique',
     conectarTexto: 'Une fois le lien établi, cette clinique vous suit ici. Rien de ce que vous avez déjà enregistré ne change de place.',
+    cancelarTitulo: 'Vous pouvez résilier votre abonnement',
+    cancelarTexto: (loja: string) => `Le lien avec la clinique couvre déjà votre accès à l’application. L’abonnement sur ${loja} reste facturé jusqu’à ce que vous le résiliiez là-bas — et le résilier ne change rien à ce que vous avez déjà enregistré.`,
+    cancelarNaLoja: (loja: string) => `Résilier sur ${loja}`,
+    depois: 'Plus tard',
   },
 
   /* ============================================================

@@ -194,6 +194,10 @@ export const assinatura = {
     conectar: 'Connect',
     naoEEssa: 'That’s not my clinic',
     conectarTexto: 'Once you connect, this clinic follows your care here. Nothing you’ve already logged moves.',
+    cancelarTitulo: 'You can cancel your subscription',
+    cancelarTexto: (loja: string) => `Your clinic link already covers your access to the app. The subscription on the ${loja} keeps charging until you cancel it there — and cancelling doesn’t change anything you’ve logged.`,
+    cancelarNaLoja: (loja: string) => `Cancel on the ${loja}`,
+    depois: 'Do it later',
   },
 
   extrato: {

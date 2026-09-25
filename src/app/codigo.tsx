@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, TextInput, Pressable, Keyboard, StyleSheet } from 'react-native';
+import { View, TextInput, Pressable, Keyboard, StyleSheet, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
-import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
+import {
+  normalizarConvite, vinculoDoConvite, assinaturaAtual, GESTAO_NA_LOJA, NOME_DA_LOJA,
+} from '../logic/assinatura';
 import {
   conferirConvite, gravarConviteDaRede, codigosDeExemplo,
   especialidadesDaClinica, nomeDaEspecialidade, registroTxt,
@@ -54,6 +56,15 @@ const K = () => T.assinatura.codigo;
    confirmar liga na hora, como sempre ligou — o porquê de não esperar a
    clínica está em assinatura.ts, em `vinculoDoConvite`.
 
+   ⚠️ E QUEM JÁ PAGA PELA LOJA GANHA UM TERCEIRO PASSO. Conectar isenta,
+   mas a assinatura na loja continua cobrando até a pessoa cancelar lá —
+   a Apple não deixa ninguém cancelar por ela. Então, conectada, a folha
+   diz que o vínculo já garante o acesso e oferece a gestão de
+   assinaturas da loja; "Fazer isso depois" fecha, e a tela de Assinatura
+   continua avisando. Sem cobrança ligada, `assinaturaAtual` devolve nulo
+   e o passo não aparece — em desenvolvimento, `?assinante=1` finge um
+   assinante, como na tela de Assinatura.
+
    ⚠️ E DE ONDE ELA ABRIU MUDA O FIM. Pelo paywall ou pelo Perfil, fechar
    devolve a pessoa onde ela estava, e é a própria tela que diz que foi
    resolvido. Pela rede (`?de=rede`), voltar para a vitrine não diria
@@ -61,14 +72,18 @@ const K = () => T.assinatura.codigo;
    procura uma. Ela volta para as abas, e a equipe está na aba Cuidado.
    ============================================================ */
 
-type Etapa = { tipo: 'codigo' } | { tipo: 'conferir'; convite: ConviteDaRede };
+type Etapa = { tipo: 'codigo' } | { tipo: 'conferir'; convite: ConviteDaRede } | { tipo: 'assinatura' };
 
 export default function Codigo() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
   const router = useRouter();
   const { c } = useTheme();
-  const { de } = useLocalSearchParams<{ de?: string }>();
+  const { de, assinante } = useLocalSearchParams<{ de?: string; assinante?: string }>();
+  /* Quem paga pela loja: a costura que vai ler o recibo, e a mesma porta
+     de desenvolvimento da tela de Assinatura (`?assinante=1`), que não
+     escreve nada — só finge, no desenho, que há uma assinatura. */
+  const pagando = !!assinaturaAtual(S) || (__DEV__ && assinante === '1');
 
   /* ⚠️ O CAMPO NASCE COM O QUE JÁ EXISTE, e o vínculo é a segunda fonte
      porque a primeira pode estar vazia: quem chegou com o vínculo pronto
@@ -129,13 +144,51 @@ export default function Codigo() {
       st.profile.convite = limpo;
       st.profile.vinculo = vinculoDoConvite(limpo);
     });
-    concluir();
+    depoisDeConectar();
   };
 
   const conectar = (v: ConviteDaRede) => {
     update((st) => { gravarConviteDaRede(st, v); });
+    depoisDeConectar();
+  };
+
+  /* Conectada, quem paga pela loja ainda ouve que pode cancelar; quem não
+     paga sai direto. */
+  const depoisDeConectar = () => {
+    if (pagando) { Keyboard.dismiss(); setEtapa({ tipo: 'assinatura' }); return; }
     concluir();
   };
+
+  /* ---- conectada, e ainda pagando pela loja ----
+     A clínica já está ligada quando esta etapa aparece: fechar por
+     qualquer caminho é o mesmo que "Fazer isso depois". */
+  if (etapa.tipo === 'assinatura') {
+    return (
+      <SheetScreen
+        titulo={K().cancelarTitulo}
+        onClose={concluir}
+        rodape={
+          <View>
+            {/* Cancelar é na loja, e não aqui (ver GESTAO_NA_LOJA, em
+                logic/assinatura). A folha fecha junto: a pessoa volta da
+                loja já com a clínica conectada. */}
+            <Botao
+              label={K().cancelarNaLoja(NOME_DA_LOJA)}
+              onPress={() => { Linking.openURL(GESTAO_NA_LOJA).catch(() => {}); concluir(); }}
+            />
+            <Pressable
+              onPress={concluir}
+              style={({ pressed }) => [{ alignItems: 'center', paddingTop: 14, paddingBottom: 2, opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Txt v="label" c={c.accent}>{K().depois}</Txt>
+            </Pressable>
+          </View>
+        }
+      >
+        <Txt v="note" c={c.tx2} style={{ marginTop: 10, lineHeight: 24 }}>{K().cancelarTexto(NOME_DA_LOJA)}</Txt>
+      </SheetScreen>
+    );
+  }
 
   /* ---- a conferência: de quem é o código ---- */
   if (etapa.tipo === 'conferir') {
