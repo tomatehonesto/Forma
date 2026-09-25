@@ -684,6 +684,70 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
 - os avisos do passo 6 zerados;
 - as conferências de sempre, que não mudam, porque `src/` não foi tocado.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (25/09/2026)
+
+**O resultado:** as oito migrações estão no `morphi-dev`. As 128
+afirmações passam, os 15 mutantes são pegos, e a porta da frente responde
+certo nos 10 casos. Não há nenhum aviso de segurança, e o teste não deixou
+nada no banco.
+
+1. **O login da CLI nesta máquina era de outra conta**, a de outra
+   organização, que não enxergava o `morphi-dev`. O dono entrou com a conta
+   da Morphi, e o login novo enxerga as duas.
+2. **A CLI 2.118 é um script de Node**, e não um executável baixado. Os
+   scripts a chamam pelo próprio Node, sem shell no meio
+   (`scripts/banco-dev.mjs`).
+3. **O arreio, provado antes das regras.**
+   - `db query --linked` roda como `postgres`;
+   - o teste cria contas em `auth.users`;
+   - a troca de papel e de JWT funciona, com `auth.uid()` certo;
+   - **um arquivo com várias instruções roda numa transação só.**
+
+   Por isso a trava é um bloco `do` que termina sempre num `raise`, e nada
+   do que ela cria fica no banco.
+4. **O ensaio virou modo do executor**: `node scripts/regras.mjs --ensaio`.
+   - Ele manda num envio só as migrações que ainda não subiram, a
+     semente, as regras e os mutantes, e desfaz tudo no fim.
+   - Foi assim que as sete migrações rodaram inteiras antes do primeiro
+     `db push`.
+   - Sem Docker, **toda migração nova passa por ele antes de subir**. Um
+     erro de SQL sai com o arquivo e a linha.
+5. **O tempo real dorme.** `realtime.messages` é particionada por dia, e
+   quem cria as partições é o próprio serviço de tempo real, quando alguém
+   se conecta. Num projeto novo não havia partição nenhuma, e
+   `realtime.send` engole o erro (ele troca a falha por um aviso).
+   - Isso também quer dizer que uma falha do tempo real nunca impede um
+     registro de ser gravado.
+   - O executor agora acorda o serviço com uma conexão curta, com a chave
+     pública, e a trava ganhou uma afirmação que diz quando ele não
+     acordou.
+   - ⚠️ **Na fase 7, com "Allow public access" desligado**, o despertar por
+     canal público pode ser recusado. É preciso conferir se a recusa ainda
+     acorda o serviço, ou acordar por um canal privado.
+6. **O mutante 04 passava, e com razão.** Num update com filtro, o
+   Postgres também confere a linha nova contra a regra de leitura. Por
+   isso passar uma linha para outra conta já era barrado duas vezes, e
+   afrouxar só o `with check` não aparecia. A trava ganhou o caso sem
+   filtro, em que só o `with check` protege. O mutante passou a ser pego.
+7. **O conselheiro de segurança acusou uma função do próprio Supabase.**
+   `public.rls_auto_enable()`, da opção "RLS automática", é
+   `security definer` e alcançável pela API.
+   - A migração nova `rls_automatica_fora_da_api` tira o `EXECUTE` dela.
+   - Antes, uma transação desfeita provou que a tabela nova continua
+     nascendo com RLS.
+   - Os 26 avisos de desempenho que ficaram são todos "índice não usado",
+     só informativos: o banco acabou de nascer e não teve tráfego.
+8. **`.env.development` veio para a fase 1.** A trava precisa do endereço
+   e da chave pública para testar a porta da frente.
+9. **A semente sobe por `node scripts/semente.mjs`**, que confere o
+   projeto ligado antes, e não pelo comando cru.
+10. **Duas coisas para a fase 6:**
+    - a vitrine sem login não aceita `select *` em `profissionais`, porque
+      o grant é por coluna, de propósito: a tela pede as colunas pelo nome;
+    - `conferir_convite` já devolve a clínica no formato do tipo `Clinica`
+      de `logic/rede.ts` (mais `exemplo`), para o aplicativo usar sem
+      traduzir.
+
 ---
 
 ## Fase 2 — o cliente, a identidade dos itens e a marca da semente
@@ -702,7 +766,8 @@ Todo o resto passa pela API de gestão com o login do dono: `db push`,
    - **a opção `lock`**, que está obsoleta desde a supabase-js 2.107;
    - **`userStorage`**, que ainda é experimental.
 
-2. **`.env.development`, versionado**, com as duas variáveis públicas do
+2. **`.env.development`, versionado** (⚠️ feito na fase 1, que precisou
+   dele para a trava), com as duas variáveis públicas do
    `morphi-dev` e um cabeçalho que diz por que elas podem estar ali: vão
    dentro do aplicativo de qualquer jeito, e quem protege o dado são as
    regras. `expo start` roda como desenvolvimento e lê esse arquivo; o
