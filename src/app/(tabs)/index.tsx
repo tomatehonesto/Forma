@@ -339,36 +339,16 @@ export default function Home() {
     return () => { cancelado = true; deriva.stopAnimation(); };
   }, [deriva]);
 
-  /* ⚠️ A BARRA QUE COLAPSA — o retrato e o sino não somem mais no scroll.
+  /* ⚠️ NÃO HÁ BARRA QUE COLAPSA. Ela existiu: ao rolar, uma faixa fixa
+     com o retrato, a linha do dia e o sino acendia no alto, para os dois
+     controles não ficarem a uma rolagem de distância. Saiu a pedido do
+     desenho — a Home rola inteira, e o cabeçalho sobe junto com a aurora.
+     As abas continuam no rodapé o tempo todo, e o Perfil também abre pela
+     aba Cuidado e pelos atalhos. */
 
-     Os dois moram no alto do hero, dentro do scroll, e sumiam nos
-     primeiros sessenta pixels. Ficavam a uma rolagem inteira de distância
-     de quem já estava lendo as metas do dia: para abrir o perfil ou ver
-     um aviso era preciso subir tudo de volta.
-
-     ⚠️ AQUI OS DOIS ESTADOS SÃO DESENHOS DIFERENTES, e por isso a solução
-     não é a mesma das telas de capa. Lá, o botão de voltar era o mesmo nos
-     dois e bastou tirá-lo do scroll. Aqui o estado expandido é uma
-     composição — retrato de 40, saudação em manchete, a linha do dia —
-     montada sobre a aurora; ela não cabe numa barra e não deve caber. O
-     que a barra carrega é o mínimo que continua sendo útil lá embaixo:
-     quem eu sou, onde estou no tratamento, e se chegou aviso.
-
-     ⚠️ O QUE SE REPETE É O DESENHO, NUNCA O COMPORTAMENTO. Retrato e sino
-     aparecem duas vezes na tela, mas `Perfil` e `Sino` são escritos uma vez
-     só, logo abaixo — o destino, a contagem de não lidas e a marca verde
-     saem do mesmo lugar. Dois desenhos do mesmo controle é composição;
-     dois controles fazendo a mesma coisa é o que diverge no dia em que um
-     dos dois mudar. */
-  const [colapsado, setColapsado] = useState(false);
-  const barra = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(barra, { toValue: colapsado ? 1 : 0, duration: 160, useNativeDriver: true }).start();
-  }, [colapsado, barra]);
-
-  /* O retrato e o sino, escritos uma vez e desenhados em dois tamanhos.
-     `claro` é sobre a aurora — vidro e tinta clara; escuro é sobre o fundo
-     da página. */
+  /* O retrato e o sino do cabeçalho. `claro` é sobre a aurora — vidro e
+     tinta clara; escuro é sobre o fundo da página, e ficou da barra que
+     colapsava. */
   const Perfil = ({ tam }: { tam: number }) => (
     <Pressable hitSlop={6} onPress={go('/perfil')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}>
       <Retrato foto={(S.profile as any).foto} nome={first} tam={tam} />
@@ -478,12 +458,6 @@ export default function Home() {
         bounces={false}
         overScrollMode="never"
         contentContainerStyle={{ paddingBottom: RESPIRO_ABAS }}
-        scrollEventThrottle={16}
-        /* 60 é logo depois de a linha da saudação sair: ela ocupa de
-           insets.top + 26 a + 66, e a barra cobre até + 48. Assim o
-           retrato e o sino voltam no instante em que se perderiam, sem
-           faixa morta no meio. */
-        onScroll={(e) => setColapsado(e.nativeEvent.contentOffset.y > 60)}
       >
 
         {/* ================= HERO ================= */}
@@ -529,16 +503,31 @@ export default function Home() {
             pointerEvents="none"
           />
 
-          {/* ⚠️ O CABEÇALHO SAIU DA ROLAGEM, e aqui ficou o vão dele.
+          {/* ⚠️ O CABEÇALHO MORA NA ROLAGEM, e sobe com a aurora.
 
-              Puxando a Home para baixo, ele descia junto com o conteúdo —
-              e o retrato e o sino saíam do lugar que a pessoa já decorou.
-              Agora ele mora na camada fixa, com a barra colapsada, e as
-              duas se cruzam: ver o fim deste arquivo.
+              Ele chegou a morar numa camada fixa, para não descer junto no
+              esticão ao puxar a Home para baixo — e o esticão foi travado
+              logo depois (ver `bounces`, acima). Com a barra colapsada
+              fora, não sobrou motivo para ele ficar parado enquanto o hero
+              sobe.
 
-              O vão mantém a composição do hero exatamente como era — o
-              carrossel continua a 80 px de onde a saudação acaba. */}
-          <View style={{ height: insets.top + 66 }} />
+              A altura é a mesma do vão que ele deixava: o carrossel continua
+              a 80 px de onde a saudação acaba. */}
+          <View style={{ height: insets.top + 66, paddingHorizontal: PAD, paddingTop: insets.top + 26 }}>
+            <Row style={{ alignItems: 'center' }}>
+              {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
+                  escolhe para o app inteiro — e esta é a tela que ela mais
+                  abre. Ver Retrato, em ui/kit. */}
+              <Perfil tam={40} />
+              <View style={{ flex: 1, marginLeft: 16 }}>
+                <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
+                <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
+                  {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
+                </Txt>
+              </View>
+              <Sino tam={40} claro />
+            </Row>
+          </View>
 
           {/* ---- o carrossel, que deixou de correr ----
 
@@ -957,78 +946,6 @@ export default function Home() {
         </View>
       </Rolagem>
 
-      {/* ⚠️ O CABEÇALHO EXPANDIDO, FIXO E CRUZANDO COM A BARRA.
-
-          Os dois moram na mesma camada, um por cima do outro, e trocam
-          por opacidade: enquanto o hero está à vista é este que aparece,
-          sobre a aurora; passando o limiar, ele apaga e a barra acende.
-
-          ⚠️ E O MOTIVO ORIGINAL DELE SER FIXO JÁ NÃO EXISTE. Ele saiu da
-          rolagem para não descer junto no esticão — e o esticão foi
-          travado logo depois. O que sobra a favor é o cruzamento: os dois
-          cabeçalhos trocam por opacidade, no mesmo lugar, em vez de um
-          sair de cena rolando enquanto o outro aparece.
-
-          O preço é pequeno e vale saber: nos primeiros 60 px de rolagem
-          de verdade ele fica parado enquanto o hero sobe, e descola por
-          um instante. A troca acontece logo ali, e o cruzamento cobre a
-          diferença. Devolvê-lo para dentro da rolagem é uma linha, se um
-          dia o descolamento incomodar mais do que o cruzamento ajuda. */}
-      <Animated.View
-        pointerEvents={colapsado ? 'none' : 'box-none'}
-        style={{
-          position: 'absolute', left: 0, right: 0, top: 0, zIndex: 19,
-          paddingHorizontal: PAD, paddingTop: insets.top + 26,
-          opacity: barra.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
-        }}
-      >
-        <Row style={{ alignItems: 'center' }}>
-          {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
-              escolhe para o app inteiro — e esta é a tela que ela mais
-              abre. Ver Retrato, em ui/kit. */}
-          <Perfil tam={40} />
-          <View style={{ flex: 1, marginLeft: 16 }}>
-            <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
-            <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-              {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
-            </Txt>
-          </View>
-          <Sino tam={40} claro />
-        </Row>
-      </Animated.View>
-
-      {/* ---- a barra colapsada ----
-
-          ⚠️ SÓ APARECE DEPOIS DE ROLAR, ao contrário da das telas de capa.
-          Lá ela existe o tempo todo porque carrega a ÚNICA saída da tela —
-          sumir nos primeiros pixels deixaria alguém preso. Aqui não há
-          saída para proteger: as abas estão no rodapé o tempo inteiro, e
-          o hero já mostra retrato e sino em tamanho grande. Uma barra
-          permanente por cima da aurora só taparia a manchete do dia.
-
-          ⚠️ E O MEIO LEVA A LINHA DO DIA, e não o nome. "Mariana" na barra
-          seria o aplicativo contando a ela quem ela é. "Dia 71 · Semana
-          11" é onde ela está no tratamento — a mesma frase que o hero
-          mostra, que é o fato que não cabe na cabeça de ninguém e continua
-          útil trinta cartões abaixo. */}
-      <Animated.View
-        pointerEvents={colapsado ? 'box-none' : 'none'}
-        style={{
-          position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20,
-          paddingTop: insets.top + 8, paddingHorizontal: PAD, paddingBottom: 10,
-          backgroundColor: c.bg,
-          borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line,
-          opacity: barra,
-        }}
-      >
-        <Row gap={12} style={{ alignItems: 'center' }}>
-          <Perfil tam={30} />
-          <Txt v="note" c={c.tx2} style={{ flex: 1 }} numberOfLines={1}>
-            {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
-          </Txt>
-          <Sino tam={34} claro={false} />
-        </Row>
-      </Animated.View>
     </View>
   );
 }
