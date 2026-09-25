@@ -363,10 +363,6 @@ export function diasDaRede(lista: Clinica[]): Dia[] {
   return ORDEM.filter((d) => tem.has(d));
 }
 
-/** Quantas pessoas a rede tem, contando uma vez quem atende em duas clínicas. */
-export const profissionaisDaRede = (lista: Clinica[]) =>
-  new Set(lista.flatMap((c) => c.equipe.map((p) => p.id))).size;
-
 /* ============================================================
    O QUE A TELA ESCREVE
    ============================================================ */

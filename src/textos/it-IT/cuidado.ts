@@ -254,8 +254,6 @@ export const cuidado = {
        ⚠️ ESISTE SOLO DOVE C'È UNA RETE PARTNER, e solo per chi non ha
        nessun monitoraggio. Vedi logic/pais. */
     acompanhamentoProfissional: 'Monitoraggio professionale',
-    conhecaParceiros: 'Scopri i medici partner',
-    parceirosTexto: 'Alcuni centri seguono la terapia qui dentro insieme a te — messaggi fra una visita e l’altra, il tuo riepilogo che arriva al team e l’agenda già compilata.',
     passouATer: 'Hai cominciato a farti seguire da un medico?',
     anoteQuemE: 'Annota chi è.',
   },

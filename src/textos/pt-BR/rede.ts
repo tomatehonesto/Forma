@@ -152,9 +152,13 @@ export const rede = {
   /* ============================================================
      O CARTÃO DA ABA CUIDADO — para quem não tem acompanhamento
 
-     ⚠️ "PERTO DE VOCÊ" SÓ QUANDO É VERDADE. A aba não pede a localização:
-     se a pessoa já deixou antes, os rostos são dos mais próximos e a
-     frase diz isso; se não, são da rede, e a frase também diz isso.
+     ⚠️ O TÍTULO E O TEXTO SÃO DOS DOIS CARTÕES: o da rede, com os rostos
+     e "Ver clínicas", e o de antes, que leva a /parceiros enquanto a rede
+     não está no ar. Os dois falam da mesma coisa, e dizer de dois jeitos
+     faria a pessoa achar que são duas.
+
+     ⚠️ E NÃO HÁ CONTAGEM. "9 profissionais na rede" saiu do cartão: os
+     rostos já dizem que há gente do outro lado.
      ============================================================ */
   cartao: {
     tag: 'Clínicas parceiras',
@@ -167,8 +171,6 @@ export const rede = {
        peça que fala de médicos — está na revisão jurídica da vitrine
        (PENDENCIAS, item 34). */
     texto: 'Clínicas que usam o Morphi para acompanhar seus pacientes de perto, monitorar a evolução do tratamento e potencializar seus resultados.',
-    naRede: (n: number) => `${n} ${n === 1 ? 'profissional' : 'profissionais'} na rede`,
-    pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'profissional' : 'profissionais'} · os mais perto de você`,
     acao: 'Ver clínicas',
   },
 };

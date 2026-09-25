@@ -203,8 +203,6 @@ export const cuidado = {
     seVoceSeTrata: 'If someone follows your treatment, add them here — your summary will be ready for the appointment.',
 
     acompanhamentoProfissional: 'Professional follow-up',
-    conhecaParceiros: 'Meet the partner doctors',
-    parceirosTexto: 'Some clinics work in here with you — messages between appointments, your summary going straight to the team, and your calendar already filled in.',
     passouATer: 'Started seeing someone?',
     anoteQuemE: 'Add who it is.',
   },

@@ -2218,9 +2218,11 @@ com ela que o vínculo acontece e é ela que passa o código de convite.
 - `/clinica?rede=<id>` — a MESMA tela de quem tem vínculo, na versão
   parceira que já existia e não tinha entrada. Os textos dela saíram do
   JSX para o catálogo (`cuidado.telaClinica`) nos seis idiomas.
-- O cartão da aba Cuidado — etiqueta, "Tenha o acompanhamento de
-  especialistas", os rostos dos mais próximos (só quando a pessoa já deu
-  a localização antes; a aba nunca pede) e "Ver clínicas".
+- O cartão da aba Cuidado — etiqueta, "Tenha especialistas ao seu lado",
+  o que são as clínicas parceiras, os rostos dos mais próximos (só quando
+  a pessoa já deu a localização antes; a aba nunca pede) e "Ver
+  clínicas". O cartão de antes, que vale enquanto a rede não está no ar,
+  tem o mesmo título e o mesmo texto.
 - `/rede-apresentacao` — a apresentação, que o cartão da aba Cuidado
   abre na primeira vez (`apresentacoesVistas`, no estado): a foto, o que
   é a rede, os quatro passos — escolher, marcar direto com a clínica,

@@ -18,7 +18,7 @@ import { Selo } from '../../ui/internas';
 import { Icon } from '../../ui/Icon';
 import { temRedeParceira } from '../../logic/pais';
 import {
-  redeNoAr, carregarRede, buscar, profissionaisDaRede, SEM_FILTRO, viuApresentacaoDaRede,
+  redeNoAr, carregarRede, buscar, SEM_FILTRO, viuApresentacaoDaRede,
   type Clinica as ClinicaDaRede, type Profissional as ProfissionalDaRede,
 } from '../../logic/rede';
 import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
@@ -989,7 +989,8 @@ function Parceiros() {
           — os mais próximos, quando sabemos onde a pessoa está —, a
           etiqueta da rede e um botão que diz para onde vai. Sem a rede,
           fica o cartão de antes, que leva à tela do código de convite: é o
-          único caminho que existe enquanto não há lista. */}
+          único caminho que existe enquanto não há lista. Os dois têm o
+          mesmo título e o mesmo texto — ver `rede.cartao`. */}
       {noAr && rede?.length ? (
         <CartaoDaRede rede={rede} ponto={ponto} onPress={abrirRede} />
       ) : (
@@ -1000,10 +1001,10 @@ function Parceiros() {
           <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.lg, padding: 18 }}>
             <Row gap={12} style={{ alignItems: 'center' }}>
               <Icon name="steth" size={20} color={c.accent} sw={1.9} />
-              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{K().conhecaParceiros}</Txt>
+              <Txt v="bodyMed" c={c.accent2} style={{ flex: 1 }}>{T.rede.cartao.titulo}</Txt>
               <Icon name="chev" size={14} color={c.accent2} sw={2} />
             </Row>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{K().parceirosTexto}</Txt>
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 10, lineHeight: 20 }}>{T.rede.cartao.texto}</Txt>
           </View>
         </Pressable>
       )}
@@ -1035,11 +1036,12 @@ function Parceiros() {
    ⚠️ OS ROSTOS SÃO DE QUEM ATENDE NA REDE, na ordem da vitrine: pela
    distância quando sabemos onde a pessoa está, e aí são mesmo os mais
    próximos, com ou sem foto. Sem o ponto, a ordem não diz nada de perto,
-   e quem tem retrato vem primeiro — a frase embaixo muda junto, e só diz
-   "perto de você" quando é verdade.
+   e quem tem retrato vem primeiro. Quem atende em duas clínicas aparece
+   uma vez só.
 
-   ⚠️ O NÚMERO CONTA PESSOAS, UMA VEZ CADA. Quem atende em duas clínicas
-   é uma pessoa só, e "9 profissionais" não pode virar 10 por isso.
+   ⚠️ E NÃO HÁ CONTAGEM EMBAIXO DELES. "9 profissionais na rede" saiu:
+   os rostos já dizem que há gente do outro lado, e o botão diz para
+   onde o toque leva.
 ------------------------------------------------------------------ */
 function CartaoDaRede({ rede, ponto, onPress }: {
   rede: ClinicaDaRede[]; ponto: Ponto | null; onPress: () => void;
@@ -1054,7 +1056,6 @@ function CartaoDaRede({ rede, ponto, onPress }: {
   }
   const ordem = ponto ? pessoas : [...pessoas.filter((p) => fotoDaRede(p)), ...pessoas.filter((p) => !fotoDaRede(p))];
   const rostos = ordem.slice(0, 4);
-  const n = profissionaisDaRede(rede);
 
   return (
     <Card onPress={onPress} style={{ marginTop: 14 }}>
@@ -1084,7 +1085,6 @@ function CartaoDaRede({ rede, ponto, onPress }: {
               );
             })}
           </Row>
-          <Txt v="tag" c={c.tx3} style={{ marginTop: 8 }}>{ponto ? R.pertoDeVoce(n) : R.naRede(n)}</Txt>
         </View>
         <View style={{ backgroundColor: c.tx, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12 }}>
           <Txt v="label" c={c.bg1}>{R.acao}</Txt>

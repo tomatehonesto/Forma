@@ -295,10 +295,9 @@ export const cuidado = {
     /* ---------- o convite, no fim ----------
 
        ⚠️ SÓ EXISTE ONDE HÁ REDE PARCEIRA, e só para quem não tem
-       acompanhamento nenhum. Ver logic/pais. */
+       acompanhamento nenhum. Ver logic/pais. O título e o texto do
+       cartão moram em `rede.cartao`, que é de onde os dois cartões leem. */
     acompanhamentoProfissional: 'Acompanhamento profissional',
-    conhecaParceiros: 'Conheça os médicos parceiros',
-    parceirosTexto: 'Algumas clínicas acompanham o tratamento por aqui junto com você — mensagens entre as consultas, o seu resumo chegando na equipe e a agenda já preenchida.',
     passouATer: 'Passou a ter acompanhamento médico?',
     anoteQuemE: 'Anote quem é.',
   },

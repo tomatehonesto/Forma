@@ -98,8 +98,6 @@ export const rede = {
     tag: 'Clínicas asociadas',
     titulo: 'Ten especialistas a tu lado',
     texto: 'Clínicas que usan Morphi para acompañar de cerca a sus pacientes, seguir la evolución del tratamiento y potenciar sus resultados.',
-    naRede: (n: number) => `${n} ${n === 1 ? 'profesional' : 'profesionales'} en la red`,
-    pertoDeVoce: (n: number) => `${n} ${n === 1 ? 'profesional' : 'profesionales'} · los más cercanos a ti`,
     acao: 'Ver clínicas',
   },
 };

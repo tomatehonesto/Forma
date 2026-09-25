@@ -211,8 +211,6 @@ export const cuidado = {
     seVoceSeTrata: 'Si alguien te trata, anótalo aquí — el resumen queda listo para la consulta.',
 
     acompanhamentoProfissional: 'Seguimiento profesional',
-    conhecaParceiros: 'Conoce a los médicos aliados',
-    parceirosTexto: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo — mensajes entre las consultas, tu resumen llegando al equipo y la agenda ya cargada.',
     passouATer: '¿Pasaste a tener acompañamiento médico?',
     anoteQuemE: 'Anota quién es.',
   },

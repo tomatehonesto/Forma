@@ -215,8 +215,6 @@ export const cuidado = {
     seVoceSeTrata: 'Si quelqu’un vous suit, notez-le ici — le résumé sera prêt pour la consultation.',
 
     acompanhamentoProfissional: 'Suivi professionnel',
-    conhecaParceiros: 'Découvrir les médecins partenaires',
-    parceirosTexto: 'Certaines cliniques suivent le traitement ici avec vous — des messages entre les consultations, votre résumé qui arrive à l’équipe et l’agenda déjà rempli.',
     passouATer: 'Vous avez maintenant un suivi médical ?',
     anoteQuemE: 'Notez qui c’est.',
   },

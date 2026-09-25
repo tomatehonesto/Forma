@@ -247,8 +247,6 @@ export const cuidado = {
     seVoceSeTrata: 'Wenn dich jemand behandelt, trag ihn hier ein — die Übersicht ist dann für den Termin fertig.',
 
     acompanhamentoProfissional: 'Ärztliche Begleitung',
-    conhecaParceiros: 'Die Partnerärztinnen und -ärzte kennenlernen',
-    parceirosTexto: 'Manche Praxen begleiten die Behandlung hier gemeinsam mit dir — Nachrichten zwischen den Terminen, deine Übersicht, die beim Team ankommt, und der Kalender schon gefüllt.',
     passouATer: 'Hast du jetzt eine ärztliche Begleitung?',
     anoteQuemE: 'Trag ein, wer es ist.',
   },
