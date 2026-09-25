@@ -9,7 +9,12 @@
   passam por um deles.)
 
   O assunto, nos dois:
-    {{ if eq .Data.idioma "en-US" }}Your Morphi code: {{ .Token }}{{ else if eq .Data.idioma "es-419" }}Tu código de Morphi: {{ .Token }}{{ else if eq .Data.idioma "fr-FR" }}Votre code Morphi : {{ .Token }}{{ else if eq .Data.idioma "it-IT" }}Il tuo codice Morphi: {{ .Token }}{{ else if eq .Data.idioma "de-DE" }}Dein Morphi-Code: {{ .Token }}{{ else }}Seu código do Morphi: {{ .Token }}{{ end }}
+    Morphi · {{ .Token }}
+
+  ⚠️ UM SÓ, SEM IDIOMA. O painel limita o tamanho do assunto, e os seis
+  ramos não cabiam. O nome e o código se leem em qualquer língua — e o
+  código já aparece na notificação, sem abrir o e-mail. Quem escolhe o
+  idioma é o corpo.
 
   ⚠️ A VALIDADE ESCRITA TEM DE BATER COM A DO PAINEL. O texto diz dez
   minutos; o painel (Sign In / Providers → Email → "Email OTP

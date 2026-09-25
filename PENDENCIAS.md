@@ -25,6 +25,15 @@ endereço aparece em oito lugares e não recebe nada:
 LGPD exige no art. 41 — e ele precisa ser uma caixa que alguém lê, com
 resposta em até 15 dias.
 
+**Andou (25/09/2026):** o domínio do produto existe — `morphihealth.com`,
+na Hostinger, que já tem o e-mail dela configurado no DNS. O e-mail da
+conta (o código de entrada) sai de `no-reply@morphihealth.com` pelo Resend,
+na região de São Paulo (DKIM, SPF e DMARC no DNS). **Falta:** criar a
+caixa de contato que alguém lê nesse domínio e trocar `EMPRESA.email`. E
+o Resend é empresa americana: a Política precisa citá-lo como operador
+que trata o e-mail da pessoa (a transferência internacional, junto do
+item 2).
+
 ### 2. Os dois documentos precisam de revisão de advogado
 
 `src/logic/documentos.ts`
@@ -782,7 +791,14 @@ aparelho** — seria promessa que o código não cumpre.
 
 ---
 
-## 🔴 15. O identificador do aplicativo foi escolhido por mim
+## ✅ 15. O identificador do aplicativo foi escolhido por mim — RESOLVIDO
+
+**Resolvido (25/09/2026).** O dono escolheu `com.morphihealth.app`, do
+domínio do produto (`morphihealth.com`) — o aplicativo não leva o nome da
+empresa. Está em `app.json` nos dois lugares, e é o que o provedor Apple
+do Supabase lista, ao lado de `host.exp.Exponent` (o Expo Go). Trocado
+antes de qualquer registro: o `eas init` e a conta Apple ainda não
+existiam (item 16). O relato original fica abaixo.
 
 `br.com.selloapp.morphi`, em `app.json`, nos dois lugares
 (`ios.bundleIdentifier` e `android.package`). Saiu do domínio do e-mail de

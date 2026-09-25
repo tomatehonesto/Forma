@@ -300,7 +300,7 @@ senhas do dono.
 | passo 1.2 | `npx supabase login` no terminal dele. A autorização é dele, e os comandos da CLI passam a usá-la | terminal |
 | fase 4 | **o serviço de envio de e-mail e o domínio de envio verificado** (item 3 acima; o domínio é o item 1 das pendências). Sugestão: **Amazon SES em São Paulo (`sa-east-1`)**, que mantém o e-mail no Brasil e fecha a pendência da transferência internacional. As credenciais SMTP são digitadas no painel | Supabase → Authentication → Emails → SMTP |
 | fase 4 | os dois modelos de e-mail ("Magic link" e "Confirm signup"), colados de `supabase/modelos/codigo.html`; código de **6** dígitos; validade de **600 s** | Authentication → Emails; Sign In / Providers → Email |
-| fase 4 | Apple ligada, com Client IDs `br.com.selloapp.morphi,host.exp.Exponent`. Login nativo não precisa de Services ID nem de chave `.p8` | Sign In / Providers → Apple |
+| fase 4 | Apple ligada, com Client IDs `com.morphihealth.app,host.exp.Exponent`. Login nativo não precisa de Services ID nem de chave `.p8` | Sign In / Providers → Apple |
 | fase 5 | o item 16 das pendências (`eas init`, iPhone registrado, conta paga de desenvolvedor Apple); no Google Cloud, a tela de consentimento e três clientes OAuth (web, iOS e Android com o SHA-1); no Supabase, o Google com os IDs, o da web primeiro | EAS, Google Cloud, painel |
 | fase 7 | desligar "Allow public access" do Realtime, para só haver canal privado | Realtime → Settings |
 | fases 4 e 6 | digitar no navegador de testes o código que chegar no e-mail dele, quando eu pedir | navegador |
