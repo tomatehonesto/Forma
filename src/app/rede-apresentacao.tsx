@@ -9,6 +9,7 @@ import { marcarApresentacaoDaRede, viuApresentacaoDaRede } from '../logic/rede';
 import { Txt, Row, Rolagem } from '../ui/kit';
 import { Selo, Botao } from '../ui/internas';
 import { BarraQueColapsa } from '../ui/capa';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 import { T } from '../textos';
@@ -131,6 +132,24 @@ export default function RedeApresentacao() {
             ))}
           </View>
 
+          {/* ---- a isenção ----
+              A faixa fecha os passos com o que a pessoa ganha no fim deles:
+              com o vínculo, o aplicativo não é cobrado (ver `isento`, em
+              logic/assinatura). Em verde-limão, a cor de destaque da marca e
+              a mesma da etiqueta do alto — é a única faixa da tela. */}
+          <View style={{ marginTop: 28, backgroundColor: c.lime, borderRadius: radius.card, padding: 18 }}>
+            {/* O ícone em cima do título, e o texto na largura toda: ao lado,
+                ele espremia as duas linhas numa coluna estreita. */}
+            <View style={{
+              width: 38, height: 38, borderRadius: 19, backgroundColor: c.limeDim,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon name="wallet" size={18} color={c.limeInk} sw={2} />
+            </View>
+            <Txt v="bodyMed" c={c.limeInk} style={{ marginTop: 12 }}>{A().isencaoTitulo}</Txt>
+            <Txt v="caption" c={c.limeInk} style={{ marginTop: 4, lineHeight: 20, opacity: 0.8 }}>{A().isencaoTexto}</Txt>
+          </View>
+
           {/* O crédito da foto, no pé da página — e o toque abre a origem,
               que é o link que a licença pede. */}
           <Pressable
@@ -152,17 +171,10 @@ export default function RedeApresentacao() {
         backgroundColor: c.bg,
         borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.line,
       }}>
+        {/* Um botão só. "Já tenho um código de convite" morou aqui e saiu:
+            quem já tem o código entra por ele no pé da vitrine, ou pela tela
+            de Assinatura. */}
         <Botao pilula label={A().conhecer} onPress={conhecer} />
-        {/* A porta de quem já chegou pela clínica: o código é o terceiro
-            passo, e quem já o tem não precisa passar pela vitrine. Ela abre
-            direto a folha do código, que confere de quem ele é antes de
-            conectar — e, conectada, a pessoa vai para a aba Cuidado. */}
-        <Pressable
-          onPress={() => router.push('/codigo?de=rede' as any)}
-          style={({ pressed }) => [{ alignItems: 'center', paddingTop: 14, paddingBottom: 2, opacity: pressed ? 0.6 : 1 }]}
-        >
-          <Txt v="label" c={c.accent}>{T.rede.jaTenhoCodigo}</Txt>
-        </Pressable>
       </View>
 
       <BarraQueColapsa titulo={T.rede.titulo} passou={passou} repouso="branco" />

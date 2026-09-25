@@ -2284,6 +2284,12 @@ e o bloco da aba Cuidado continua sendo o cartão antigo, que leva a
    sempre ligou. O cadastro e /parceiros ainda ligam direto — só a folha
    pergunta. E o que conectar grava na ficha é texto, como o resto do
    perfil: quando o portal existir, a ficha passa a vir de lá.
+8. **A faixa da isenção promete o que a cobrança ainda não garante.** "E
+   tem mais: você não paga pelo Morphi", na apresentação, é a regra de
+   `isento` e a dos Termos — mas quem já assina pela loja e conecta um
+   código continua pagando até cancelar lá (ver o item 5). E é uma
+   vantagem oferecida a quem se trata numa clínica da rede: vai para a
+   revisão jurídica do ponto 2, junto com o resto.
 
 ⚠️ **E OS RETRATOS DA SEMENTE PRECISAM SAIR ANTES DA LOJA.** Os quatro de
 `assets/images/equipe/` não estão em `CREDITOS.txt` — a origem nunca foi
@@ -2299,3 +2305,29 @@ em `assets/images/CREDITOS.txt`. São sete, cerca de 1,3 MB, e entram no
 pacote do aplicativo mesmo com a vitrine fechada em produção: o `require`
 é resolvido na compilação, antes de o `__DEV__` decidir alguma coisa. Saem
 junto com a lista de exemplo quando o portal existir.
+
+---
+
+## 🟡 35. O artigo da marca: "o Morphi" ou "a Morphi"
+
+**Decisão pendente, levantada em 24/09/2026.** O aplicativo trata o nome
+no masculino em todo lugar: "Seus dados do Morphi" (exportação), "negados
+para o Morphi" (ajuda), "Clínicas que usam o Morphi" (cartão da rede) e
+"você não paga pelo Morphi" (a faixa da apresentação da rede). Os
+documentos legais também: a Política de
+Privacidade e os Termos, em `logic/documentos.ts`, dizem "o Morphi" uma
+dúzia de vezes.
+
+Os textos que o time escreveu para a rede vieram no feminino ("usam a
+Morphi", "pela Morphi", "não paga pela Morphi"), e foram gravados no
+masculino para o aplicativo não falar dos dois jeitos.
+
+**Se a decisão for o feminino, a troca é de uma vez**, em todo lugar: os
+catálogos em português (`grep -rn "Morphi" src/textos/pt-BR`), os
+documentos legais — que pedem a mesma revisão jurídica do item 2 —, e os
+comentários, que também usam o masculino. Os outros cinco idiomas usam o
+nome sem artigo, e não mudam.
+
+**O que não muda com o artigo:** o nome entra sem verbo — "as clínicas
+usam o Morphi", e nunca "o Morphi acompanha" (ver a nota em
+`textos/pt-BR/companion.ts`). Quem fala pelo produto é "nós".

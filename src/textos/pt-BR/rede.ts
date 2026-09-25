@@ -107,8 +107,10 @@ export const rede = {
      a clínica, com o código (é o que `assinatura.parceiros.conviteTextoComRede`
      diz com outras palavras).
 
-     ⚠️ E NÃO HÁ PREÇO, pelo mesmo motivo de /parceiros: a assinatura
-     ainda não existe no código.
+     ⚠️ E NÃO HÁ PREÇO — há a isenção. A faixa embaixo dos passos diz que
+     quem se trata numa clínica parceira não paga, que é a regra da casa;
+     valor nenhum aparece aqui, pelo mesmo motivo de /parceiros: a
+     cobrança ainda não existe no código (PENDENCIAS, item 5).
      ============================================================ */
   apresentacao: {
     tag: 'Clínicas parceiras',
@@ -116,15 +118,18 @@ export const rede = {
     subtitulo: 'Clínicas parceiras acompanham seu tratamento pelo aplicativo: a equipe conversa com você, acompanha sua evolução e recebe as informações da sua jornada.',
     /* o título da seção dos passos, e também o link do alto da vitrine */
     comoFunciona: 'Como funciona',
-    /* ⚠️ "PELO MORPHI", NO MASCULINO, como no resto do aplicativo — e o
-       nome entra sem verbo. A quebra de linha no segundo passo é de
-       propósito: a frase de baixo é uma nota, e não a continuação. */
     passos: [
-      { titulo: 'Encontre uma clínica', texto: 'Escolha pela especialidade, convênio e distância até você.' },
-      { titulo: 'Marque a primeira consulta', texto: 'Entre em contato diretamente com a clínica pelo WhatsApp, telefone ou site.\nEsse contato não passa pelo Morphi.' },
+      { titulo: 'Encontre uma clínica', texto: 'Escolha pela especialidade, convênio ou distância até você.' },
+      { titulo: 'Marque sua primeira consulta', texto: 'Entre em contato diretamente com a clínica e agende sua consulta.' },
       { titulo: 'Receba seu código de convite', texto: 'A clínica envia o código depois da consulta. É ele que conecta seu aplicativo à equipe.' },
-      { titulo: 'E a equipe acompanha você', texto: 'Tudo o que você já registrou continua aqui. O vínculo com a clínica não apaga nada.' },
+      { titulo: 'A equipe acompanha seu tratamento', texto: 'Tudo o que você já registrou continua aqui. O vínculo com a clínica não apaga nada.' },
     ],
+    /* ⚠️ A ISENÇÃO É A REGRA DA CASA, e não uma promoção: quem tem vínculo
+       com clínica parceira não paga — ver `isento`, em logic/assinatura, e
+       os Termos. É a mesma frase que a tela de Assinatura já diz. E o nome
+       vai no masculino até a decisão do artigo (PENDENCIAS, item 35). */
+    isencaoTitulo: 'E tem mais: você não paga pelo Morphi',
+    isencaoTexto: 'Quem faz o tratamento com uma clínica parceira tem acesso gratuito ao aplicativo.',
     conhecer: 'Conhecer as clínicas parceiras',
     /* o crédito da foto do alto: a licença gratuita do Magnific (antigo
        Freepik) pede o nome de quem fotografou e o da plataforma, perto da
