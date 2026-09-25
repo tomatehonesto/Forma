@@ -66,13 +66,13 @@ export const rede = {
   apresentacao: {
     tag: 'Clínicas asociadas',
     titulo: 'Seguimiento cercano, entre una consulta y otra',
-    subtitulo: 'Las clínicas asociadas acompañan el tratamiento con la aplicación: el equipo conversa contigo, recibe tu resumen y se ocupa de la receta desde aquí.',
+    subtitulo: 'Las clínicas asociadas acompañan tu tratamiento con la aplicación: el equipo conversa contigo, sigue tu evolución y recibe la información de tu recorrido.',
     comoFunciona: 'Cómo funciona',
     passos: [
-      { titulo: 'Eliges la clínica', texto: 'Por especialidad, seguro médico y distancia.' },
-      { titulo: 'Agendas la primera consulta', texto: 'Directo con la clínica, por WhatsApp, por teléfono o en su agenda en línea. Ese contacto no pasa por nosotros.' },
-      { titulo: 'Recibes el código de invitación', texto: 'La clínica te lo da después de la consulta, y es lo que conecta tu aplicación con el equipo.' },
-      { titulo: 'Y el equipo te acompaña', texto: 'Todo lo que ya registraste sigue aquí: el vínculo no reinicia nada.' },
+      { titulo: 'Encuentra una clínica', texto: 'Elige por especialidad, seguro médico y distancia.' },
+      { titulo: 'Agenda la primera consulta', texto: 'Contacta directamente a la clínica por WhatsApp, teléfono o su sitio web.\nEse contacto no pasa por Morphi.' },
+      { titulo: 'Recibe tu código de invitación', texto: 'La clínica te envía el código después de la consulta. Es lo que conecta tu aplicación con el equipo.' },
+      { titulo: 'Y el equipo te acompaña', texto: 'Todo lo que ya registraste sigue aquí. El vínculo con la clínica no borra nada.' },
     ],
     conhecer: 'Conocer las clínicas asociadas',
     credito: 'Imagen de Drazen Zigic en Magnific',

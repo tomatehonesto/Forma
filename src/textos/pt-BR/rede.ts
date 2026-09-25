@@ -113,14 +113,17 @@ export const rede = {
   apresentacao: {
     tag: 'Clínicas parceiras',
     titulo: 'Acompanhamento de perto, entre uma consulta e outra',
-    subtitulo: 'Clínicas parceiras acompanham o tratamento pelo aplicativo: a equipe conversa com você, recebe o seu resumo e cuida da receita por aqui.',
+    subtitulo: 'Clínicas parceiras acompanham seu tratamento pelo aplicativo: a equipe conversa com você, acompanha sua evolução e recebe as informações da sua jornada.',
     /* o título da seção dos passos, e também o link do alto da vitrine */
     comoFunciona: 'Como funciona',
+    /* ⚠️ "PELO MORPHI", NO MASCULINO, como no resto do aplicativo — e o
+       nome entra sem verbo. A quebra de linha no segundo passo é de
+       propósito: a frase de baixo é uma nota, e não a continuação. */
     passos: [
-      { titulo: 'Você escolhe a clínica', texto: 'Pela especialidade, pelo convênio e pela distância até você.' },
-      { titulo: 'Marca a primeira consulta', texto: 'Direto com a clínica, pelo WhatsApp, pelo telefone ou pela agenda dela na internet. Esse contato não passa por nós.' },
-      { titulo: 'Recebe o código de convite', texto: 'A clínica passa o código depois da consulta, e é ele que liga o seu aplicativo à equipe.' },
-      { titulo: 'E a equipe acompanha você', texto: 'Tudo o que você já registrou continua aqui: o vínculo não recomeça nada.' },
+      { titulo: 'Encontre uma clínica', texto: 'Escolha pela especialidade, convênio e distância até você.' },
+      { titulo: 'Marque a primeira consulta', texto: 'Entre em contato diretamente com a clínica pelo WhatsApp, telefone ou site.\nEsse contato não passa pelo Morphi.' },
+      { titulo: 'Receba seu código de convite', texto: 'A clínica envia o código depois da consulta. É ele que conecta seu aplicativo à equipe.' },
+      { titulo: 'E a equipe acompanha você', texto: 'Tudo o que você já registrou continua aqui. O vínculo com a clínica não apaga nada.' },
     ],
     conhecer: 'Conhecer as clínicas parceiras',
     /* o crédito da foto do alto: a licença gratuita do Magnific (antigo

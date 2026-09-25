@@ -65,13 +65,13 @@ export const rede = {
   apresentacao: {
     tag: 'Partnerpraxen',
     titulo: 'Enge Begleitung — auch zwischen den Terminen',
-    subtitulo: 'Partnerpraxen begleiten die Behandlung mit der App: Das Team schreibt dir, bekommt deine Übersicht und kümmert sich hier um das Rezept.',
+    subtitulo: 'Partnerpraxen begleiten deine Behandlung mit der App: Das Team schreibt dir, verfolgt deine Fortschritte und bekommt die Informationen aus deinem Verlauf.',
     comoFunciona: 'So funktioniert’s',
     passos: [
-      { titulo: 'Du wählst die Praxis', texto: 'Nach Fachgebiet, Versicherung und Entfernung.' },
-      { titulo: 'Du vereinbarst den ersten Termin', texto: 'Direkt mit der Praxis — per WhatsApp, telefonisch oder über ihre Online-Buchung. Dieser Kontakt läuft nicht über uns.' },
-      { titulo: 'Du bekommst den Einladungscode', texto: 'Die Praxis gibt ihn dir nach dem Termin, und er verbindet deine App mit dem Team.' },
-      { titulo: 'Und das Team begleitet dich', texto: 'Alles, was du schon eingetragen hast, bleibt hier — die Verbindung setzt nichts zurück.' },
+      { titulo: 'Finde eine Praxis', texto: 'Wähle nach Fachgebiet, Versicherung und Entfernung.' },
+      { titulo: 'Vereinbare den ersten Termin', texto: 'Melde dich direkt bei der Praxis — per WhatsApp, telefonisch oder über ihre Website.\nDieser Kontakt läuft nicht über Morphi.' },
+      { titulo: 'Erhalte deinen Einladungscode', texto: 'Die Praxis schickt dir den Code nach dem Termin. Er verbindet deine App mit dem Team.' },
+      { titulo: 'Und das Team begleitet dich', texto: 'Alles, was du schon eingetragen hast, bleibt hier. Die Verbindung mit der Praxis löscht nichts.' },
     ],
     conhecer: 'Partnerpraxen kennenlernen',
     credito: 'Bild von Drazen Zigic auf Magnific',

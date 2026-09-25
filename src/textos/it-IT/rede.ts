@@ -66,13 +66,13 @@ export const rede = {
   apresentacao: {
     tag: 'Centri partner',
     titulo: 'Un team vicino a te, tra una visita e l’altra',
-    subtitulo: 'I centri partner seguono la terapia con l’app: il team ti scrive, riceve il tuo riepilogo e si occupa della ricetta da qui.',
+    subtitulo: 'I centri partner seguono la tua terapia con l’app: il team ti scrive, segue i tuoi progressi e riceve le informazioni del tuo percorso.',
     comoFunciona: 'Come funziona',
     passos: [
-      { titulo: 'Scegli il centro', texto: 'Per specialità, assicurazione e distanza.' },
-      { titulo: 'Prenoti la prima visita', texto: 'Direttamente con il centro, su WhatsApp, per telefono o con la sua agenda online. Quel contatto non passa da noi.' },
-      { titulo: 'Ricevi il codice di invito', texto: 'Il centro te lo dà dopo la visita, ed è quello che collega la tua app al team.' },
-      { titulo: 'E il team ti segue', texto: 'Tutto quello che hai già registrato resta qui: il legame non azzera niente.' },
+      { titulo: 'Trova un centro', texto: 'Scegli per specialità, assicurazione e distanza.' },
+      { titulo: 'Prenota la prima visita', texto: 'Contatta direttamente il centro su WhatsApp, per telefono o dal suo sito.\nQuesto contatto non passa da Morphi.' },
+      { titulo: 'Ricevi il codice di invito', texto: 'Il centro ti invia il codice dopo la visita. È quello che collega la tua app al team.' },
+      { titulo: 'E il team ti segue', texto: 'Tutto quello che hai già registrato resta qui. Il legame con il centro non cancella niente.' },
     ],
     conhecer: 'Scopri i centri partner',
     credito: 'Immagine di Drazen Zigic su Magnific',

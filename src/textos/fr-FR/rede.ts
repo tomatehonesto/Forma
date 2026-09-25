@@ -66,13 +66,13 @@ export const rede = {
   apresentacao: {
     tag: 'Cliniques partenaires',
     titulo: 'Un suivi de près, entre deux consultations',
-    subtitulo: 'Les cliniques partenaires suivent le traitement avec l’application — l’équipe échange avec vous, reçoit votre résumé et s’occupe de l’ordonnance, ici même.',
+    subtitulo: 'Les cliniques partenaires suivent votre traitement avec l’application — l’équipe échange avec vous, suit votre évolution et reçoit les informations de votre parcours.',
     comoFunciona: 'Comment ça marche',
     passos: [
-      { titulo: 'Vous choisissez la clinique', texto: 'Par spécialité, assurance et distance.' },
-      { titulo: 'Vous prenez le premier rendez-vous', texto: 'Directement avec la clinique, sur WhatsApp, par téléphone ou via son agenda en ligne. Ce contact ne passe pas par nous.' },
-      { titulo: 'Vous recevez le code d’invitation', texto: 'La clinique vous le remet après la consultation, et c’est lui qui relie votre application à l’équipe.' },
-      { titulo: 'Et l’équipe vous accompagne', texto: 'Tout ce que vous avez déjà enregistré reste ici — le lien ne remet rien à zéro.' },
+      { titulo: 'Trouvez une clinique', texto: 'Choisissez selon la spécialité, l’assurance et la distance.' },
+      { titulo: 'Prenez le premier rendez-vous', texto: 'Contactez directement la clinique par WhatsApp, par téléphone ou sur son site.\nCe contact ne passe pas par Morphi.' },
+      { titulo: 'Recevez votre code d’invitation', texto: 'La clinique vous envoie le code après la consultation. C’est lui qui relie votre application à l’équipe.' },
+      { titulo: 'Et l’équipe vous accompagne', texto: 'Tout ce que vous avez déjà enregistré reste ici. Le lien avec la clinique n’efface rien.' },
     ],
     conhecer: 'Découvrir les cliniques partenaires',
     credito: 'Image de Drazen Zigic sur Magnific',
