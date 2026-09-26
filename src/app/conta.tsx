@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Image } from 'expo-image';
@@ -20,7 +20,7 @@ import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
-import { ty, radius, alfa } from '../theme';
+import { ty, font, radius, alfa, mix } from '../theme';
 import { T } from '../textos';
 
 const K = () => T.conta;
@@ -142,7 +142,10 @@ export default function Conta() {
     setOcupado(false);
     if (!r.ok) {
       if (r.erro === 'codigo-errado') setCodigo('');
-      return falhou(r.erro);
+      /* Sem conexão, o código continua valendo: ele fica nas casas, e a
+         conferência se repete na volta ao aplicativo ou no "Tentar de
+         novo" — o botão Entrar, que servia para isso, não existe mais. */
+      return falhou(r.erro, () => confirmar(valor));
     }
     await entrou({ id: r.id, ...(r.email ? { email: r.email } : {}) });
   };
@@ -397,54 +400,63 @@ export default function Conta() {
 
   if (passo === 'codigo') {
     const podeReenviar = espera <= 0 && !ocupado;
+    const deNovo = erro === 'sem-internet' && repetir.current;
     return (
+      /* ⚠️ SEM BOTÃO NO PÉ (26/09/2026, pedido do dono): o sexto número
+         confere sozinho, e um "Entrar" depois disso só repetiria o que já
+         aconteceu. O teclado abre junto com a tela. */
       <TelaDePergunta
         titulo={K().codigoTitulo}
         lead={K().codigoLead(email.trim(), VALIDADE_DO_CODIGO_MIN)}
         onVoltar={voltar}
-        rodape={<Botao label={K().entrar} pilula desligado={codigo.length !== DIGITOS_DO_CODIGO || ocupado} onPress={() => confirmar()} />}
       >
-        <TextInput
-          value={codigo}
-          onChangeText={(v) => {
-            const so = v.replace(/\D/g, '').slice(0, DIGITOS_DO_CODIGO);
+        <CasasDoCodigo
+          valor={codigo}
+          onMuda={(so) => {
             setCodigo(so);
             /* Colado ou digitado até o fim, entra sozinho. */
             if (so.length === DIGITOS_DO_CODIGO) confirmar(so);
           }}
-          placeholder={'•'.repeat(DIGITOS_DO_CODIGO)}
-          placeholderTextColor={c.tx4}
-          autoFocus
-          keyboardType="number-pad"
-          inputMode="numeric"
-          textContentType="oneTimeCode"
-          autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
-          maxLength={DIGITOS_DO_CODIGO}
-          style={[ty.hero, SEM_ANEL, { color: c.tx, paddingVertical: 0, letterSpacing: 12 }]}
         />
         {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
-        {/* ⚠️ AS DUAS SAÍDAS SÃO TEXTO, e não botão. Eram dois botões do
+        {/* ⚠️ AS SAÍDAS SÃO TEXTO, e não botão. Eram dois botões do
             tamanho do principal, empilhados logo abaixo do código, e a
             tela parecia perguntar três coisas; o que ela pergunta é uma
             só. Reenviar e trocar o e-mail são a porta de quem teve um
-            problema, e ficam do tamanho de uma porta lateral. */}
-        <View style={{ gap: 18, marginTop: 32, alignItems: 'flex-start' }}>
-          <Pressable
-            onPress={podeReenviar ? mandar : undefined}
-            hitSlop={10}
-            style={({ pressed }) => [{ opacity: pressed && podeReenviar ? 0.6 : 1 }]}
-          >
-            <Txt v="label" c={podeReenviar ? c.accent : c.tx4}>
-              {espera > 0 ? K().reenviarEm(espera) : K().reenviar}
-            </Txt>
-          </Pressable>
-          <Pressable
-            onPress={() => { limpar(); setPasso('email'); }}
-            hitSlop={10}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Txt v="label" c={c.accent}>{K().outroEmail}</Txt>
-          </Pressable>
+            problema, e ficam do tamanho de uma porta lateral.
+
+            Enquanto o código é conferido, no lugar delas fica a roda de
+            espera: sem o botão, é ela que diz que o toque foi ouvido. */}
+        <View style={{ gap: 18, marginTop: 28, alignItems: 'flex-start', minHeight: 60 }}>
+          {ocupado ? <ActivityIndicator color={c.accent} /> : (
+            <>
+              {deNovo ? (
+                <Pressable
+                  onPress={() => { const r = repetir.current; limpar(); r?.(); }}
+                  hitSlop={10}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Txt v="label" c={c.accent}>{K().tentarDeNovo}</Txt>
+                </Pressable>
+              ) : null}
+              <Pressable
+                onPress={podeReenviar ? mandar : undefined}
+                hitSlop={10}
+                style={({ pressed }) => [{ opacity: pressed && podeReenviar ? 0.6 : 1 }]}
+              >
+                <Txt v="label" c={podeReenviar ? c.accent : c.tx3}>
+                  {espera > 0 ? K().reenviarEm(espera) : K().reenviar}
+                </Txt>
+              </Pressable>
+              <Pressable
+                onPress={() => { limpar(); setPasso('email'); }}
+                hitSlop={10}
+                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Txt v="label" c={c.accent}>{K().outroEmail}</Txt>
+              </Pressable>
+            </>
+          )}
         </View>
       </TelaDePergunta>
     );
@@ -486,36 +498,55 @@ export default function Conta() {
    um degradê desenhado para cá: é ela que diz que isto é o Morphi, e ela
    troca junto quando a pessoa troca a paleta.
 
-   ⚠️ A FOLHA CLARA SOBE POR CIMA DA AURORA, como na Home, e a aurora não
-   se desfaz no fundo. Desfeita, ela passava pelo cinza: o pé da imagem é
-   azul-noite, e azul-noite misturado com o fundo claro é uma faixa suja
-   no meio da tela. A folha arredondada é o jeito que o aplicativo já tem
-   de pôr o claro sobre a aurora, e os cantos só aparecem porque ela sobe
-   por cima da imagem — por isso o `SOBE`.
+   ⚠️⚠️ A AURORA VIRA LUZ ANTES DE VIRAR PAPEL. Foram duas tentativas até
+   aqui. A primeira desfazia a imagem direto no fundo claro e passava pelo
+   cinza: o pé da aurora é azul-noite, e azul-noite misturado com branco
+   é uma faixa suja. A segunda punha por cima a folha arredondada da Home,
+   e o dono achou o corte seco — a referência não tem borda, tem uma luz
+   que se abre no branco. Então, antes do fundo, entra a cor de ação
+   clareada (a mesma "tinta" da névoa da rede): o escuro clareia na cor
+   da paleta, e só então se desfaz no papel. No tema escuro não há luz a
+   acender — o fundo já é escuro, e a aurora se desfaz direto nele.
 
-   AS PORTAS FICAM EMBAIXO, perto do polegar. A folha tem uma altura
-   mínima para a aurora não tomar a tela inteira onde há uma porta só, e
-   a sobra de altura é da aurora: é ela que a tela tem para mostrar. */
+   A FRASE FICA ACIMA DA LUZ. Letra branca na parte que clareia some no
+   claro — então ela mora no trecho em que a aurora ainda é aurora.
+
+   AS PORTAS FICAM EMBAIXO, perto do polegar. */
 /* ------------------------------------------------------------------ */
-const SOBE = radius.lg;
-
 function CapaDaConta({ titulo, lead, onVoltar, children }: {
   titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
 }) {
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
   const aurora = useAurora();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+  const alto = Math.round(height * 0.62);
+  const pe = Math.round(alto * 0.46);
+  const luz = mix(c.accent, '#FFFFFF', 0.3);
+  /* o degrau entre a luz e o papel: a cor de ação quase toda papel. Sem
+     ele, a rampa ia do azul direto ao fundo e passava por um cinza. */
+  const clarao = mix(c.accent, c.bg, 0.84);
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.veu }}>
-      <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ height: alto }}>
         <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="top" />
         {/* O VÉU: mais pesado no alto, onde moram a seta e o relógio em
             corpo pequeno, e mais leve onde a frase está. */}
         <LinearGradient
           colors={[alfa(c.veu, 0.6), alfa(c.veu, 0.28)]}
           style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        {/* A LUZ E O PAPEL. O zero de cada rampa é a própria cor sem
+            opacidade, e não `transparent` — que é preto invisível, e
+            escurece a rampa antes de chegar na cor. */}
+        <LinearGradient
+          colors={isDark
+            ? [alfa(c.bg, 0), c.bg]
+            : [alfa(luz, 0), alfa(luz, 0.85), clarao, c.bg]}
+          locations={isDark ? [0, 1] : [0, 0.42, 0.72, 1]}
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: pe }}
           pointerEvents="none"
         />
 
@@ -526,8 +557,8 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
         </View>
 
         <View style={{
-          flex: 1, paddingHorizontal: 28,
-          paddingTop: insets.top + 48, paddingBottom: SOBE + 24,
+          position: 'absolute', left: 28, right: 28,
+          top: insets.top + 48, bottom: pe,
           alignItems: 'center', justifyContent: 'center', gap: 12,
         }}>
           <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>{titulo}</Txt>
@@ -536,14 +567,92 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
       </View>
 
       <View style={{
-        backgroundColor: c.bg,
-        borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
-        marginTop: -SOBE, minHeight: Math.round(height * 0.4),
-        paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 20,
-        justifyContent: 'flex-end', gap: 10,
+        flex: 1, justifyContent: 'flex-end',
+        paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 10,
       }}>
         {children}
       </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AS CASAS DO CÓDIGO — uma por número (26/09/2026, pedido do dono, com
+   referência).
+
+   ⚠️ QUEM RECEBE O QUE SE DIGITA É UM CAMPO SÓ, invisível, esticado por
+   cima das casas; elas só desenham o que ele tem. Seis campos de verdade
+   quebrariam o que o sistema faz sozinho: colar o código inteiro, o
+   iPhone oferecer acima do teclado o código que chegou no e-mail, e o
+   apagar voltar de casa em casa. Com um campo só, tudo isso continua
+   dele — e o toque em qualquer casa cai nele.
+
+   METADE E METADE, com um traço no meio: seis números seguidos se leem
+   como um número só, e em duas metades o olho confere cada uma de uma
+   vez.
+
+   A CASA DA VEZ tem a borda da cor de ação e um cursor piscando: é onde o
+   próximo número vai cair. Sem o campo em foco, nenhuma casa é da vez. */
+/* ------------------------------------------------------------------ */
+function CasasDoCodigo({ valor, onMuda }: { valor: string; onMuda: (so: string) => void }) {
+  const { c } = useTheme();
+  const [focado, setFocado] = React.useState(true);
+  const pisca = React.useRef(new Animated.Value(1)).current;
+  React.useEffect(() => {
+    const laco = Animated.loop(Animated.sequence([
+      Animated.timing(pisca, { toValue: 0, duration: 420, delay: 380, useNativeDriver: true }),
+      Animated.timing(pisca, { toValue: 1, duration: 160, useNativeDriver: true }),
+    ]));
+    laco.start();
+    return () => laco.stop();
+  }, [pisca]);
+
+  const meio = Math.ceil(DIGITOS_DO_CODIGO / 2);
+  const casa = (i: number) => {
+    const n = valor[i];
+    const daVez = focado && i === valor.length;
+    return (
+      <View
+        key={i}
+        style={{
+          flex: 1, height: 58, borderRadius: radius.md,
+          backgroundColor: c.bg1,
+          borderWidth: daVez ? 2 : 1, borderColor: daVez ? c.accent : c.line,
+          alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        {n ? (
+          <Txt style={{ fontFamily: font.body, fontSize: 28, lineHeight: 34 }}>{n}</Txt>
+        ) : daVez ? (
+          <Animated.View style={{ width: 2, height: 26, borderRadius: 1, backgroundColor: c.accent, opacity: pisca }} />
+        ) : null}
+      </View>
+    );
+  };
+
+  return (
+    <View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        {Array.from({ length: meio }, (_, i) => casa(i))}
+        <View style={{ width: 10, height: 2, borderRadius: 1, backgroundColor: c.tx4 }} />
+        {Array.from({ length: DIGITOS_DO_CODIGO - meio }, (_, i) => casa(meio + i))}
+      </View>
+      <TextInput
+        value={valor}
+        onChangeText={(v) => onMuda(v.replace(/\D/g, '').slice(0, DIGITOS_DO_CODIGO))}
+        autoFocus
+        onFocus={() => setFocado(true)}
+        onBlur={() => setFocado(false)}
+        keyboardType="number-pad"
+        inputMode="numeric"
+        textContentType="oneTimeCode"
+        autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
+        maxLength={DIGITOS_DO_CODIGO}
+        caretHidden
+        selectionColor="transparent"
+        accessibilityLabel={K().codigoTitulo}
+        style={[StyleSheet.absoluteFill, SEM_ANEL, { color: 'transparent', opacity: 0 }]}
+      />
     </View>
   );
 }

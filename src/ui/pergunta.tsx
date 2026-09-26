@@ -29,8 +29,10 @@ export function TelaDePergunta({ titulo, lead, onVoltar, rodape, children }: {
   titulo: string;
   lead?: string;
   onVoltar: () => void;
-  /* o botão do pé — ele sobe com o teclado */
-  rodape: React.ReactNode;
+  /* o botão do pé — ele sobe com o teclado. Sem ele, não há pé: o código
+     da conta se confere sozinho, e um botão que só repetiria o que já
+     aconteceu é um botão a mais. */
+  rodape?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   const { c } = useTheme();
@@ -67,7 +69,7 @@ export function TelaDePergunta({ titulo, lead, onVoltar, rodape, children }: {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Rolagem
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 26, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 26, paddingBottom: rodape ? 24 : insets.bottom + 24 }}
           keyboardShouldPersistTaps="handled"
         >
           <Txt v="h1">{titulo}</Txt>
@@ -79,13 +81,15 @@ export function TelaDePergunta({ titulo, lead, onVoltar, rodape, children }: {
 
         {/* O PÉ É OPACO: sem fundo, o que rola passava por baixo do botão e
             aparecia cortado atrás de uma pílula translúcida. */}
-        <View style={{
-          paddingHorizontal: 20, paddingTop: 12,
-          paddingBottom: teclado ? 24 : insets.bottom + 20,
-          backgroundColor: c.bg,
-        }}>
-          {rodape}
-        </View>
+        {rodape ? (
+          <View style={{
+            paddingHorizontal: 20, paddingTop: 12,
+            paddingBottom: teclado ? 24 : insets.bottom + 20,
+            backgroundColor: c.bg,
+          }}>
+            {rodape}
+          </View>
+        ) : null}
       </KeyboardAvoidingView>
     </View>
   );
