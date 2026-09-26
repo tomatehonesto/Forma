@@ -17,35 +17,46 @@
    "a sua equipe" e em "a próxima consulta", e quem tinha acabado de
    responder que não tem acompanhamento lia uma promessa vazia: preparar
    uma consulta que não existe, falar com uma equipe que não há. Agora ela
-   diz o que vale para qualquer pessoa — não substituímos o acompanhamento
-   médico, e sintoma grave e mudança de dose pedem um profissional. A irmã
-   dela na Ajuda ("O Morphi substitui o acompanhamento médico?") mudou
-   junto.
+   diz o que vale para qualquer pessoa: não substituímos o acompanhamento
+   médico. A irmã dela na Ajuda ("O Morphi substitui o acompanhamento
+   médico?") mudou junto, e a do passo do acompanhamento, no cadastro
+   (`avisoDoAcompanhamento`), também.
+
+   ⚠️ E O RECADO ÂMBAR SAIU, no mesmo dia e pelo mesmo pedido: repetia em
+   tom de alerta o que o texto já dizia.
    ============================================================ */
 
 export const aviso = {
   isencaoTitulo: 'Não substituímos o acompanhamento médico',
   isencaoTexto: 'Organizamos o que você registra e mostramos padrões nos seus próprios dados. Não fazemos diagnóstico nem prescrição, e nada do que aparece aqui substitui a orientação de um profissional de saúde.',
-  isencaoReforco: 'Em caso de sintoma grave, procure atendimento médico. Mudança de dose ou de medicação, só com orientação profissional.',
 
   /* Os quatro cartões de dado, na ordem em que a dúvida aparece.
 
      ⚠️ A VERSÃO 2 (fase 8 do plano do Supabase). A primeira dizia que tudo
      ficava no telefone, sem conta nem senha, e era verdade até a conta
-     existir. `VERSAO`, em logic/consentimento, subiu junto. */
-  guardadoTitulo: 'Guardado na sua conta',
-  guardadoTexto: 'Neste telefone e no nosso banco, em São Paulo. Só a sua conta lê o que é seu.',
+     existir. `VERSAO`, em logic/consentimento, subiu junto.
 
-  usoTitulo: 'Usado no seu acompanhamento',
-  usoTexto: 'Para as metas, a evolução e o que levar à consulta. Não é diagnóstico.',
+     ⚠️ E ELES FALAM COMO GENTE, e não como manual de aplicativo
+     (26/09/2026, pedido do dono). Diziam "neste telefone e no nosso
+     banco, em São Paulo" e "só a sua conta lê o que é seu": certo, e
+     escrito para quem entende de servidor. Agora dizem o que isso quer
+     dizer para a pessoa — guardado, só dela, volta se trocar de celular.
+     Onde o dado mora continua dito na Política de Privacidade, que é o
+     lugar do detalhe. O conteúdo é o mesmo, e por isso a `VERSAO` não
+     sobe: ninguém precisa aceitar de novo o que não mudou. */
+  guardadoTitulo: 'Seu diário fica guardado',
+  guardadoTexto: 'Na sua conta, com segurança, e só você tem acesso. Se trocar de celular, ele volta inteiro.',
+
+  usoTitulo: 'Para acompanhar a sua evolução',
+  usoTexto: 'Usamos o que você registra para mostrar a sua evolução e ajustar as suas metas. Nada disso é diagnóstico.',
 
   /* ⚠️ A PARTE QUE UM AVISO DE CONSENTIMENTO COSTUMA CALAR, e que aqui é
      a única que muda o que a pessoa decide. */
-  saiTitulo: 'Só sai com um gesto seu',
-  saiTexto: 'Para a clínica que você conectar pelo código dela, e a foto do prato, quando você pedir a leitura.',
+  saiTitulo: 'Compartilhar é escolha sua',
+  saiTexto: 'Nada é compartilhado sem você pedir. Uma clínica só vê o seu diário se você se conectar a ela, e a foto do prato só sai quando você pede a leitura.',
 
-  controleTitulo: 'Você no controle',
-  controleTexto: 'Corrija, exporte ou apague os seus dados quando quiser.',
+  controleTitulo: 'Você decide',
+  controleTexto: 'Corrija, baixe uma cópia ou apague os seus dados quando quiser.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Termos de Uso',

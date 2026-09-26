@@ -82,7 +82,6 @@ export const POLITICA = '/documento?id=privacidade';
 export const ISENCAO = () => ({
   titulo: T.aviso.isencaoTitulo,
   texto: T.aviso.isencaoTexto,
-  reforco: T.aviso.isencaoReforco,
 });
 
 export type ItemDoAviso = { ic: string; titulo: string; texto: string };

@@ -32,8 +32,10 @@ export function ListaDoAviso() {
           alignItems: 'flex-start', paddingHorizontal: 16, paddingVertical: 12,
           borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
         }}>
+          {/* O círculo é o cinza mais claro da casa (26/09/2026, pedido do
+              dono): no bg3 ele pesava mais que o próprio ícone. */}
           <View style={{
-            width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg3,
+            width: 36, height: 36, borderRadius: 18, backgroundColor: c.bg,
             alignItems: 'center', justifyContent: 'center', marginTop: 1,
           }}>
             <Icon name={a.ic} size={17} color={c.accent} sw={1.9} />

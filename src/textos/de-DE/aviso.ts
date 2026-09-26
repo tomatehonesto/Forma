@@ -19,22 +19,21 @@
 export const aviso = {
   isencaoTitulo: 'Wir ersetzen keine ärztliche Betreuung',
   isencaoTexto: 'Wir ordnen, was du einträgst, und zeigen Muster in deinen eigenen Daten. Wir stellen keine Diagnosen und verschreiben nichts, und nichts von dem, was du hier siehst, ersetzt den Rat einer medizinischen Fachkraft.',
-  isencaoReforco: 'Bei schweren Symptomen such ärztliche Hilfe. Dosis oder Medikament nur nach ärztlicher Rücksprache ändern.',
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
-  guardadoTitulo: 'In deinem Konto aufbewahrt',
-  guardadoTexto: 'Auf diesem Telefon und in unserer Datenbank in São Paulo. Nur dein Konto liest, was dir gehört.',
+  guardadoTitulo: 'Dein Tagebuch ist sicher aufbewahrt',
+  guardadoTexto: 'In deinem Konto, geschützt, und nur du hast Zugriff. Wenn du das Handy wechselst, kommt es vollständig zurück.',
 
-  usoTitulo: 'Für deine Begleitung genutzt',
-  usoTexto: 'Für deine Ziele, deinen Verlauf und das, was du zum Termin mitnimmst. Es ist keine Diagnose.',
+  usoTitulo: 'Um deinen Verlauf zu begleiten',
+  usoTexto: 'Wir nutzen, was du einträgst, um deinen Verlauf zu zeigen und deine Ziele anzupassen. Nichts davon ist eine Diagnose.',
 
   /* ⚠️ DER TEIL, DEN EIN EINWILLIGUNGSHINWEIS ÜBLICHERWEISE VERSCHWEIGT,
      und der hier als einziger ändert, wie die Person entscheidet. */
-  saiTitulo: 'Geht nur durch eine Geste von dir weg',
-  saiTexto: 'An die Praxis, mit der du dich über ihren Code verbindest, und das Foto vom Teller, wenn du die Erkennung anstößt.',
+  saiTitulo: 'Teilen ist deine Wahl',
+  saiTexto: 'Nichts wird geteilt, ohne dass du es willst. Eine Praxis sieht dein Tagebuch nur, wenn du dich mit ihr verbindest, und ein Tellerfoto geht nur raus, wenn du die Erkennung anstößt.',
 
-  controleTitulo: 'Du behältst die Kontrolle',
-  controleTexto: 'Korrigiere, exportiere oder lösche deine Daten, wann du willst.',
+  controleTitulo: 'Du entscheidest',
+  controleTexto: 'Korrigiere deine Daten, lade eine Kopie herunter oder lösche sie, wann du willst.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Nutzungsbedingungen',

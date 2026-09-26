@@ -17,22 +17,21 @@
 export const aviso = {
   isencaoTitulo: 'Non sostituiamo l’assistenza medica',
   isencaoTexto: 'Mettiamo in ordine quello che registri e mostriamo andamenti nei tuoi dati. Non facciamo diagnosi e non prescriviamo, e niente di quello che vedi qui sostituisce il parere di un professionista sanitario.',
-  isencaoReforco: 'In caso di sintomo grave, rivolgiti subito a un medico. Cambia dose o farmaco solo su indicazione medica.',
 
   /* Le quattro schede sui dati, nell'ordine in cui arriva il dubbio. */
-  guardadoTitulo: 'Salvato nel tuo account',
-  guardadoTexto: 'Su questo telefono e nel nostro database, a San Paolo. Solo il tuo account legge ciò che è tuo.',
+  guardadoTitulo: 'Il tuo diario è al sicuro',
+  guardadoTexto: 'Nel tuo account, protetto, e solo tu puoi accedervi. Se cambi telefono, torna completo.',
 
-  usoTitulo: 'Usato per seguirti',
-  usoTexto: 'Per gli obiettivi, l’andamento e quello da portare alla visita. Non è una diagnosi.',
+  usoTitulo: 'Per seguire i tuoi progressi',
+  usoTexto: 'Usiamo quello che registri per mostrare i tuoi progressi e regolare i tuoi obiettivi. Niente di tutto questo è una diagnosi.',
 
   /* ⚠️ LA PARTE CHE UN AVVISO DI CONSENSO DI SOLITO TACE, e che qui è
      l'unica che cambia quello che la persona decide. */
-  saiTitulo: 'Esce solo con un tuo gesto',
-  saiTexto: 'Verso la clinica a cui ti colleghi con il suo codice, e la foto del piatto, quando chiedi la lettura.',
+  saiTitulo: 'Condividere è una tua scelta',
+  saiTexto: 'Niente viene condiviso senza che tu lo chieda. Una clinica vede il tuo diario solo se ti colleghi a lei, e la foto del piatto parte solo quando ne chiedi la lettura.',
 
-  controleTitulo: 'Il controllo resta tuo',
-  controleTexto: 'Correggi, esporta o cancella i tuoi dati quando vuoi.',
+  controleTitulo: 'Decidi tu',
+  controleTexto: 'Correggi, scarica una copia o cancella i tuoi dati quando vuoi.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Termini d’uso',

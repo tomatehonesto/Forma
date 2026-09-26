@@ -13,21 +13,20 @@
 export const aviso = {
   isencaoTitulo: 'We don’t replace medical care',
   isencaoTexto: 'We organize what you log and show patterns in your own data. We don’t diagnose or prescribe, and nothing you see here replaces the advice of a health professional.',
-  isencaoReforco: 'If you have a severe symptom, seek medical care. Change your dose or medication only with professional guidance.',
 
-  guardadoTitulo: 'Kept in your account',
-  guardadoTexto: 'On this phone and in our database in São Paulo. Only your account reads what’s yours.',
+  guardadoTitulo: 'Your diary is kept safe',
+  guardadoTexto: 'In your account, securely, and only you can access it. If you switch phones, it comes back in full.',
 
-  usoTitulo: 'Used for your follow-up',
-  usoTexto: 'For your goals, your progress and what to bring to your appointment. It’s not a diagnosis.',
+  usoTitulo: 'To follow your progress',
+  usoTexto: 'We use what you log to show your progress and fine-tune your goals. None of it is a diagnosis.',
 
   /* ⚠️ THE PART A CONSENT NOTICE USUALLY LEAVES OUT, and the only one
      here that changes what the person decides. */
-  saiTitulo: 'Leaves only with a move from you',
-  saiTexto: 'To the clinic you connect with using its code, and the photo of your plate, when you ask for it to be read.',
+  saiTitulo: 'Sharing is your call',
+  saiTexto: 'Nothing is shared unless you ask. A clinic only sees your diary if you connect to it, and a plate photo only leaves when you ask for it to be read.',
 
-  controleTitulo: 'You’re in control',
-  controleTexto: 'Fix, export or delete your data whenever you want.',
+  controleTitulo: 'You decide',
+  controleTexto: 'Fix, download a copy or delete your data whenever you want.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Terms of Use',

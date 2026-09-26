@@ -182,6 +182,7 @@ export const cadastro = {
   sim: 'Sim',
   digiteONome: 'Digite o nome',
   nadaEnviado: 'Serve para referenciar o especialista ao longo da sua jornada. Nada é enviado a essa pessoa.',
+  avisoDoAcompanhamento: 'Não substituímos o acompanhamento médico. Se aparecer dor abdominal forte ou vômito que não passa, procure atendimento o quanto antes.',
   vouMeTratar: 'Vou me tratar com um médico ou clínica',
   meAcompanha: 'Um médico ou clínica acompanha o meu tratamento',
   porContaPropria: 'Não, por conta própria',

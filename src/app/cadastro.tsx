@@ -2399,12 +2399,16 @@ export default function Cadastro() {
                 sintomas são os mesmos que o app já usa em leituras.ts e
                 derive.ts — dor abdominal forte e vômito que não passa —,
                 porque um app que nomeia sinais de alerta de dois jeitos
-                ensina os dois pela metade. */}
+                ensina os dois pela metade.
+
+                ⚠️ E ELE ERA ESCRITO AQUI, EM PORTUGUÊS, para todos os
+                idiomas, e mandava "não esperar a próxima consulta" a quem
+                tinha acabado de responder que não tem acompanhamento. Foi
+                para o catálogo (`avisoDoAcompanhamento`) com a frase da
+                isenção: não substituímos o acompanhamento médico. */}
             <View style={{ height: 1, backgroundColor: c.line, marginHorizontal: 2 }} />
             <Txt v="caption" c={c.tx3} style={{ lineHeight: 20, paddingHorizontal: 2 }}>
-              O aplicativo acompanha e organiza, mas não substitui acompanhamento médico.
-              Se aparecer dor abdominal forte ou vômito que não passa, procure atendimento
-              o quanto antes — não espere a próxima consulta.
+              {K().avisoDoAcompanhamento}
             </Txt>
           </View>
         ) : null}
@@ -2417,8 +2421,9 @@ export default function Cadastro() {
                 um jeito que faz mal. Não tem mais chave: o Continuar é o
                 aceite, e a frase acima dele diz isso (pedido do dono).
 
-                O reforço vai num recado âmbar, e não vermelho: a cor de
-                erro deste aplicativo é clínica, e isto é conselho. */}
+                ⚠️ O RECADO ÂMBAR SAIU (26/09/2026, pedido do dono). Ele
+                repetia em tom de alerta o que o texto já diz, e numa tela
+                de boas-vindas o alerta pesava mais do que informava. */}
             <View style={{
               backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12,
               borderWidth: 1, borderColor: c.line,
@@ -2428,13 +2433,6 @@ export default function Cadastro() {
                 <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO().titulo}</Txt>
               </Row>
               <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().texto}</Txt>
-              <Row gap={10} style={{
-                alignItems: 'flex-start', backgroundColor: c.amberBg, borderRadius: radius.md,
-                paddingHorizontal: 12, paddingVertical: 10,
-              }}>
-                <Icon name="alerta" size={16} color={c.amber} sw={2} />
-                <Txt v="caption" style={{ flex: 1, lineHeight: 20 }}>{ISENCAO().reforco}</Txt>
-              </Row>
             </View>
 
             <ListaDoAviso />

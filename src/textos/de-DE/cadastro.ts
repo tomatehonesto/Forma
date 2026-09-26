@@ -173,6 +173,7 @@ export const cadastro = {
   sim: 'Ja',
   digiteONome: 'Namen eingeben',
   nadaEnviado: 'Damit du sie auf deinem Weg zur Hand hast. An diese Person wird nichts geschickt.',
+  avisoDoAcompanhamento: 'Wir ersetzen keine ärztliche Betreuung. Bei starken Bauchschmerzen oder Erbrechen, das nicht aufhört, such so schnell wie möglich ärztliche Hilfe.',
   vouMeTratar: 'Ich werde mich ärztlich behandeln lassen',
   meAcompanha: 'Eine Praxis begleitet meine Behandlung',
   porContaPropria: 'Nein, auf eigene Faust',

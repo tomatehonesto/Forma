@@ -13,21 +13,20 @@
 export const aviso = {
   isencaoTitulo: 'No reemplazamos el acompañamiento médico',
   isencaoTexto: 'Ordenamos lo que registras y mostramos patrones en tus propios datos. No hacemos diagnósticos ni recetamos, y nada de lo que aparece aquí reemplaza la orientación de un profesional de la salud.',
-  isencaoReforco: 'Ante un síntoma grave, busca atención médica. Cambia la dosis o la medicación solo con orientación profesional.',
 
-  guardadoTitulo: 'Guardado en tu cuenta',
-  guardadoTexto: 'En este teléfono y en nuestra base de datos, en São Paulo. Solo tu cuenta lee lo que es tuyo.',
+  guardadoTitulo: 'Tu diario queda guardado',
+  guardadoTexto: 'En tu cuenta, con seguridad, y solo tú tienes acceso. Si cambias de celular, vuelve completo.',
 
-  usoTitulo: 'Usado en tu seguimiento',
-  usoTexto: 'Para las metas, la evolución y lo que llevar a la consulta. No es un diagnóstico.',
+  usoTitulo: 'Para seguir tu evolución',
+  usoTexto: 'Usamos lo que registras para mostrar tu evolución y ajustar tus metas. Nada de esto es un diagnóstico.',
 
   /* ⚠️ LA PARTE QUE UN AVISO DE CONSENTIMIENTO SUELE CALLAR, y que aquí es
      la única que cambia lo que la persona decide. */
-  saiTitulo: 'Solo sale con un gesto tuyo',
-  saiTexto: 'Para la clínica a la que te conectes con su código, y la foto del plato, cuando pidas la lectura.',
+  saiTitulo: 'Compartir es decisión tuya',
+  saiTexto: 'Nada se comparte sin que lo pidas. Una clínica solo ve tu diario si te conectas a ella, y la foto del plato solo sale cuando pides que la lean.',
 
-  controleTitulo: 'Tú tienes el control',
-  controleTexto: 'Corrige, exporta o borra tus datos cuando quieras.',
+  controleTitulo: 'Tú decides',
+  controleTexto: 'Corrige, descarga una copia o borra tus datos cuando quieras.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Términos de Uso',

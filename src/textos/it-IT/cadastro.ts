@@ -181,6 +181,7 @@ export const cadastro = {
   sim: 'Sì',
   digiteONome: 'Scrivi il nome',
   nadaEnviado: 'Serve ad averlo sottomano lungo il tuo percorso. A questa persona non viene inviato niente.',
+  avisoDoAcompanhamento: 'Non sostituiamo l’assistenza medica. Se compaiono un forte dolore addominale o vomito che non passa, rivolgiti a un medico il prima possibile.',
   vouMeTratar: 'Mi curerò con un medico o un centro',
   meAcompanha: 'Un medico o un centro segue la mia terapia',
   porContaPropria: 'No, da sola',

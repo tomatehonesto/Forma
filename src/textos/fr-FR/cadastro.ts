@@ -166,6 +166,7 @@ export const cadastro = {
   sim: 'Oui',
   digiteONome: 'Saisissez le nom',
   nadaEnviado: 'C’est pour l’avoir sous la main au fil de votre parcours. Rien ne lui est envoyé.',
+  avisoDoAcompanhamento: 'Nous ne remplaçons pas le suivi médical. En cas de douleur abdominale forte ou de vomissements qui ne passent pas, consultez au plus vite.',
   vouMeTratar: 'Je vais être suivi·e par un médecin ou une clinique',
   meAcompanha: 'Un médecin ou une clinique suit mon traitement',
   porContaPropria: 'Non, par moi-même',

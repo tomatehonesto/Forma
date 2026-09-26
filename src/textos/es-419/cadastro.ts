@@ -146,6 +146,7 @@ export const cadastro = {
   sim: 'Sí',
   digiteONome: 'Escribe el nombre',
   nadaEnviado: 'Sirve para tenerlo a mano a lo largo de tu camino. No se le envía nada a esa persona.',
+  avisoDoAcompanhamento: 'No reemplazamos el acompañamiento médico. Si aparece un dolor abdominal fuerte o vómitos que no paran, busca atención lo antes posible.',
   vouMeTratar: 'Me voy a tratar con un médico o clínica',
   meAcompanha: 'Un médico o clínica acompaña mi tratamiento',
   porContaPropria: 'No, por mi cuenta',

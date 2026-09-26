@@ -129,6 +129,7 @@ export const cadastro = {
   sim: 'Yes',
   digiteONome: 'Enter the name',
   nadaEnviado: 'It’s there for you to refer back to along your journey. Nothing is sent to them.',
+  avisoDoAcompanhamento: 'We don’t replace medical care. If you get severe abdominal pain or vomiting that won’t stop, seek care as soon as possible.',
   vouMeTratar: 'I’ll be treated by a clinician or clinic',
   meAcompanha: 'A clinician or clinic follows my treatment',
   porContaPropria: 'No, on my own',

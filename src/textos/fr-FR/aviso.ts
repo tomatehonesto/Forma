@@ -14,21 +14,20 @@
 export const aviso = {
   isencaoTitulo: 'Nous ne remplaçons pas le suivi médical',
   isencaoTexto: 'Nous organisons ce que vous notez et montrons des tendances dans vos propres données. Nous ne posons pas de diagnostic et ne prescrivons pas, et rien de ce qui apparaît ici ne remplace l’avis d’un professionnel de santé.',
-  isencaoReforco: 'En cas de symptôme grave, consultez sans attendre. Ne changez de dose ou de médicament que sur avis médical.',
 
-  guardadoTitulo: 'Gardé dans votre compte',
-  guardadoTexto: 'Sur ce téléphone et dans notre base de données, à São Paulo. Seul votre compte lit ce qui est à vous.',
+  guardadoTitulo: 'Votre journal est à l’abri',
+  guardadoTexto: 'Dans votre compte, en sécurité, et vous seul y avez accès. Si vous changez de téléphone, il revient en entier.',
 
-  usoTitulo: 'Utilisé pour votre suivi',
-  usoTexto: 'Pour vos objectifs, votre évolution et ce que vous apportez à la consultation. Ce n’est pas un diagnostic.',
+  usoTitulo: 'Pour suivre votre évolution',
+  usoTexto: 'Nous utilisons ce que vous notez pour montrer votre évolution et ajuster vos objectifs. Rien de tout cela n’est un diagnostic.',
 
   /* ⚠️ LA PARTIE QU'UN AVIS DE CONSENTEMENT TAIT D'HABITUDE, et la seule
      ici qui change ce que la personne décide. */
-  saiTitulo: 'Ne sort que par un geste de votre part',
-  saiTexto: 'Vers la clinique à laquelle vous vous connectez avec son code, et la photo de l’assiette, quand vous demandez la lecture.',
+  saiTitulo: 'Partager, c’est votre choix',
+  saiTexto: 'Rien n’est partagé sans votre demande. Une clinique ne voit votre journal que si vous vous connectez à elle, et la photo de l’assiette ne part que quand vous en demandez la lecture.',
 
-  controleTitulo: 'Vous gardez la main',
-  controleTexto: 'Corrigez, exportez ou effacez vos données quand vous voulez.',
+  controleTitulo: 'Vous décidez',
+  controleTexto: 'Corrigez, téléchargez une copie ou effacez vos données quand vous voulez.',
 
   /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
   termosDeUso: 'Conditions d’utilisation',
