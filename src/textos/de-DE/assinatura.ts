@@ -105,7 +105,7 @@ export const assinatura = {
      auszusperren — und das tun wir nicht. Getrennt wird der erste Satz zu
      einer Drohung. */
   bomSaberTitulo: 'Gut zu wissen',
-  bomSaberTexto: 'Falls die Partnerpraxis uns mitteilt, dass die Behandlung beendet ist, ruht der Zugang, bis du ein Personal-Angebot nimmst — und ohne deine Wahl wird nichts abgebucht. Nichts von dem, was du eingetragen hast, geht verloren: die Einträge bleiben auf dem Gerät und lassen sich jederzeit ausgeben.',
+  bomSaberTexto: 'Falls die Partnerpraxis uns mitteilt, dass die Behandlung beendet ist, ruht der Zugang, bis du ein Personal-Angebot nimmst — und ohne deine Wahl wird nichts abgebucht. Nichts von dem, was du eingetragen hast, geht verloren: die Einträge bleiben in deinem Konto und lassen sich jederzeit ausgeben.',
 
   /* ⚠️ ZU SAGEN „DU HAST KEIN ABO“, OHNE ZU SAGEN, DASS NIEMAND EINES
      ABSCHLIESSEN KANN, lässt die Person nach einem Knopf suchen, den es
@@ -238,40 +238,18 @@ export const assinatura = {
        „was verliere ich?“ */
     tranquiloTitulo: 'KEINE SORGE',
     tranquiloAcesso: 'Der Zugang bleibt bis zum Ende des bereits bezahlten Zeitraums.',
-    tranquiloDados: 'Nichts von dem, was du eingetragen hast, geht verloren — alles bleibt auf dem Gerät.',
+    tranquiloDados: 'Nichts von dem, was du eingetragen hast, geht verloren — alles bleibt in deinem Konto.',
     tranquiloLoja: (loja: string) => `Die Kündigung läuft über den ${loja}: wir können das nicht für dich tun.`,
   },
 
   /* ============================================================
      DIE PARTNERPRAXEN — /parceiros und /codigo
      ============================================================ */
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Partnerpraxen',
-    lead: 'Manche Praxen begleiten die Behandlung hier mit dir zusammen. Ohne das behältst du alles — was sich ändert, ist, was du mit deinem Team hier machen kannst.',
-
-    jaTemTitulo: 'Du bist schon bei einer Partnerpraxis',
-    jaTemLead: 'Alles in dieser Liste gilt für dich bereits.',
-
-    conversaTitulo: 'Das Gespräch mit dem Team',
-    conversaTexto: 'Nachrichten zwischen den Terminen, ohne für eine einzelne Frage einen neuen Termin ausmachen zu müssen.',
-    resumoTitulo: 'Deine Übersicht kommt dort an',
-    resumoTexto: 'Ein Tippen schickt Gewicht, Therapietreue, Beschwerden und Befunde — geordnet, so wie sie im Termin gebraucht werden.',
-    receitaTitulo: 'Rezept und Protokoll',
-    receitaTexto: 'Du fragst eine Verlängerung an und bekommst das Protokoll der Woche in der App.',
-    agendaTitulo: 'Der Kalender kommt fertig',
-    agendaTexto: 'Die Termine erscheinen hier, ohne dass du etwas notieren musst.',
-
-    /* ⚠️ UND ES GIBT KEINE PRAXENSUCHE, und der Bildschirm sagt das. Eine
-       Praxenliste, die es nicht gibt, wäre die teuerste Attrappe hier. */
-    conviteTitulo: 'Die Einladung kommt von der Praxis',
-    conviteTexto: 'Hier lässt sich keine Praxis suchen. Wer schon in einer Partnerpraxis behandelt wird, bekommt von ihr einen Code, und er verbindet die beiden Enden. Wenn deine Praxis die App noch nicht nutzt, lohnt es sich, sie darauf anzusprechen.',
-    conviteTextoComRede: 'Wer im Partnernetzwerk behandelt wird, bekommt nach dem ersten Termin von der Praxis einen Code, und er verbindet die beiden Enden. Wenn deine Praxis die App noch nicht nutzt, lohnt es sich, sie darauf anzusprechen.',
-
     codigoRotulo: 'Einladungscode',
-    codigoAjudaAtual: 'Er ist es, der dich mit deiner Praxis verbindet.',
-    usarOutro: 'Einen anderen Code nutzen',
-    temCodigoRotulo: 'Ich habe einen Einladungscode',
-    temCodigoAjuda: 'Der Code, den die Praxis dir gegeben hat.',
     digite: 'Code eingeben',
     confirmar: 'Code bestätigen',
     codigoSub: 'Der Code, den die Partnerpraxis dir gegeben hat.',
@@ -316,7 +294,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'die Praxis, die dich behandelt hat',
-    nadaApagado: 'Nichts wurde gelöscht. Gewicht, Spritzen, Beschwerden, Befunde und Fotos bleiben auf deinem Gerät.',
+    nadaApagado: 'Nichts wurde gelöscht. Gewicht, Spritzen, Beschwerden, Befunde und Fotos sind, wo sie waren.',
     nadaCobrado: 'Es wurde nichts abgebucht, und es wird nichts ohne deine Wahl abgebucht.',
     verOsPlanos: 'Angebote ansehen',
     outroCodigo: 'Ich habe einen anderen Code',

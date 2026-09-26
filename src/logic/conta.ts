@@ -7,7 +7,7 @@
    desenvolvimento.
 
    ⚠️ TUDO AQUI PASSA POR `nuvem()`. Sem as variáveis do projeto — as
-   sondas de scripts/ e as builds de loja até a fase 8 —, não há conta, e
+   sondas de scripts/ e uma build sem as variáveis do projeto —, não há conta, e
    cada função responde que não há.
 
    ⚠️ OS ERROS SAEM COMO NOMES, e não como a mensagem do servidor: quem
@@ -31,6 +31,8 @@ import { useStore } from './store';
 import { modoFingido } from './modo';
 import { localAtual } from './local';
 import { criarSincronia, type EstadoDaSincronia, type Sincronia } from './sincronia';
+import { ida, type Pergunta } from './traducao';
+import { consentimentoPendente } from './consentimento';
 import { transporteDoSupabase } from './transporte';
 
 /** ⚠️ Os mesmos do painel do Supabase (Authentication → Sign In /
@@ -185,6 +187,39 @@ export async function apagarConta(): Promise<{ ok: true } | { ok: false; erro: '
 }
 
 /* ============================================================
+   AS PERGUNTAS DO ARQUIVO EXPORTADO (fase 8)
+
+   No aparelho, `asked` é uma janela das 12 últimas; na conta, com a
+   escolha ligada, estão todas. O arquivo leva as da conta somadas às
+   que ainda não subiram, sem repetir. Sem a escolha, nada subiu, e a
+   janela é tudo o que existe — `completas` diz se o arquivo pode dizer
+   que levou todas.
+   ============================================================ */
+export async function perguntasParaExportar(): Promise<{ lista: Pergunta[]; completas: boolean }> {
+  const S: any = useStore.getState().S;
+  const locais = ida(S).perguntas;
+  if (!S.perguntasParaUso || !diarioDaConta()) return { lista: locais, completas: !S.perguntasParaUso };
+  const cliente = nuvem();
+  const { data: sessao } = cliente ? await cliente.auth.getSession() : { data: { session: null } };
+  const eu = sessao.session?.user.id;
+  if (!cliente || !eu) return { lista: locais, completas: false };
+  try {
+    const daConta: Pergunta[] = [];
+    for (let de = 0; ; de += 1000) {
+      const r = await cliente.from('perguntas').select('id,quando,texto,origem')
+        .eq('user_id', eu).order('quando', { ascending: true }).range(de, de + 999);
+      if (r.error) return { lista: locais, completas: false };
+      daConta.push(...((r.data ?? []) as any[]).map((p) => ({ id: p.id, quando: Date.parse(p.quando), texto: p.texto, origem: p.origem })));
+      if ((r.data ?? []).length < 1000) break;
+    }
+    const vistas = new Set(daConta.map((p) => p.id));
+    return { lista: [...daConta, ...locais.filter((p) => !vistas.has(p.id))].sort((a, b) => a.quando - b.quando), completas: true };
+  } catch {
+    return { lista: locais, completas: false };
+  }
+}
+
+/* ============================================================
    A SINCRONIA LIGADA
 
    Um motor só, criado na primeira vez que alguém pede. O store entra
@@ -208,6 +243,7 @@ export function sincronia(): Sincronia | null {
     },
     guarda: AsyncStorage,
     fingindo: () => modoFingido() !== null,
+    emEspera: () => consentimentoPendente(useStore.getState().S),
   });
   return motor;
 }

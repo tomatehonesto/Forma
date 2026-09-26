@@ -6,6 +6,7 @@ import type { State } from './seed';
 import { M, cadenciaCurta, siteLabel } from './derive';
 import { now } from './time';
 import { pesoU, pesoV, compU, compV } from './medidas';
+import { ida, type Pergunta } from './traducao';
 
 /* ============================================================
    LEVAR OS DADOS EMBORA
@@ -38,6 +39,10 @@ export type Recorte = {
   /** início do período, em milissegundos */
   desde: number;
   inclui: Record<string, boolean>;
+  /** as perguntas do diário completo — da conta, somadas às do aparelho
+      (ver `perguntasParaExportar`, em logic/conta). Sem isto, só as do
+      aparelho. */
+  perguntas?: { lista: Pergunta[]; completas: boolean };
 };
 
 const iso = (t: number) => new Date(t).toISOString();
@@ -155,6 +160,38 @@ export function dadosParaExportar(S: State, r: Recorte) {
     out.exercicio = apos(S.checkins as any[])
       .filter((c: any) => (c.treinos || []).length)
       .flatMap((c: any) => (c.treinos as any[]).map((t) => ({ data: dia(c.t), tipo: t.tipo, minutos: t.min })));
+  }
+
+  /* ⚠️⚠️ O DIÁRIO COMPLETO É A PORTABILIDADE (fase 8 do plano do Supabase).
+     As seções de cima são a leitura para gente, e deixavam de fora sinais
+     vitais, laudos, documentos, metas pessoais, canetas, o histórico de
+     saúde e os sintomas próprios. Esta sai da MESMA função que monta o que
+     sobe para a conta (`ida`, em logic/traducao) — então leva tudo o que a
+     conta guarda, por construção, e um tipo novo entra aqui sem ninguém
+     lembrar. A trava da tradução (scripts/sincronia.ts) confere.
+
+     ⚠️ Os nomes de dentro de `dados` são os do aplicativo, e não os
+     traduzidos de cima: é a cópia fiel, no formato do banco.
+
+     ⚠️ As fotos do corpo ficam fora, como ficam fora da conta. */
+  if (r.inclui.completo) {
+    const i = ida(S);
+    const registros: Record<string, any[]> = {};
+    for (const reg of i.registros) {
+      if (reg.tipo === 'foto') continue;
+      (registros[reg.tipo] ??= []).push({ id: reg.id, data: reg.quando !== null ? iso(reg.quando) : null, dados: reg.dados });
+    }
+    const perguntas = r.perguntas ?? { lista: i.perguntas, completas: !i.perfil.perguntasParaUso };
+    out.diario_completo = {
+      registros,
+      perfil: i.perfil.partes,
+      consentimento: i.perfil.consentimento
+        ? { versao: i.perfil.consentimento.versao, em: iso(i.perfil.consentimento.em) }
+        : null,
+      leitura_das_perguntas_permitida: i.perfil.perguntasParaUso,
+      perguntas: perguntas.lista.map((p) => ({ data: iso(p.quando), texto: p.texto, origem: p.origem })),
+      ...(perguntas.completas ? {} : { perguntas_aviso: T.aviso.exportacaoPerguntasRecentes }),
+    };
   }
 
   return out;

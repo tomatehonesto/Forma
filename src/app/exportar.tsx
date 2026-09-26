@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notasAbertas } from '../logic/derive';
 import { dadosParaExportar, nomeDoArquivo, gerarArquivo } from '../logic/exportacao';
+import { perguntasParaExportar } from '../logic/conta';
 import { DAY, now, dataLonga } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
@@ -48,7 +49,7 @@ export default function Exportar() {
   const router = useRouter();
   const [per, setPer] = useState('consulta');
   const [inclui, setInclui] = useState<Record<string, boolean>>({
-    aplicacoes: true, peso: true, sintomas: true, exames: true, notas: true, habitos: false,
+    aplicacoes: true, peso: true, sintomas: true, exames: true, notas: true, habitos: false, completo: true,
   });
   const [estado, setEstado] = useState<'parado' | 'gerando' | 'pronto' | 'erro'>('parado');
   const alterna = (k: string) => { setInclui((x) => ({ ...x, [k]: !x[k] })); setEstado('parado'); };
@@ -75,7 +76,9 @@ export default function Exportar() {
      promete é o contrário. */
   const gerar = async () => {
     setEstado('gerando');
-    const dados = dadosParaExportar(S, { desde, inclui });
+    /* as perguntas da conta só são pedidas quando o diário completo entra */
+    const perguntas = inclui.completo ? await perguntasParaExportar() : undefined;
+    const dados = dadosParaExportar(S, { desde, inclui, perguntas });
     const r = await gerarArquivo(JSON.stringify(dados, null, 2), nomeDoArquivo());
     setEstado(r === 'erro' || r === 'sem-suporte' ? 'erro' : 'pronto');
   };
@@ -126,6 +129,7 @@ export default function Exportar() {
           {linha('exames', K().exames, K().examesSub(conta.exames))}
           {linha('notas', K().notas, K().notasSub(conta.notas))}
           {linha('habitos', K().habitos, K().habitosSub(conta.refeicoes))}
+          {linha('completo', K().completo, K().completoSub)}
         </Cartao>
       </Bloco>
 

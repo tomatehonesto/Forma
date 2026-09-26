@@ -163,7 +163,7 @@ export default function Codigo() {
          conectada — ela liga quando a conta nascer (logic/conta);
        - com dono e a sessão caída: guarda do mesmo jeito, e pede para
          entrar de novo.
-     Sem a conta ligada (as builds de loja até a fase 8), o código liga no
+     Sem a conta ligada (uma build sem as variáveis do projeto), o código liga no
      aparelho, como sempre ligou. */
   const conectar = async (v: ConviteDaRede) => {
     if (!contaLigada()) {

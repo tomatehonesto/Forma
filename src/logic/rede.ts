@@ -225,7 +225,7 @@ export const marcarApresentacaoDaRede = (S: ComApresentacoes) => {
 
    ⚠️ SEM A CONTA LIGADA, NÃO HÁ O QUE CONFERIR, e o código liga como
    sempre ligou (ver `vinculoDoConvite`, em logic/assinatura). É o caso de
-   produção até a fase 8.
+   uma build sem as variáveis do projeto.
 
    ⚠️ E "NÃO ACHAMOS" SÓ EXISTE QUANDO HOUVE A QUEM PERGUNTAR. Sem conexão
    é outra coisa, e a folha diz outra frase.

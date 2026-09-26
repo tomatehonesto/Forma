@@ -48,7 +48,7 @@ export const ajuda = {
     },
     {
       q: 'Que peut voir mon équipe ?',
-      a: 'Seulement ce que vous envoyez. Rien ne sort d’ici tout seul : le résumé part quand vous touchez envoyer, les messages quand vous les écrivez. Ce qui reste dehors reste à vous, y compris vis-à-vis de la personne qui vous suit.',
+      a: 'Rien, jusqu’à ce que vous vous connectiez à une clinique partenaire avec son code. Avec la connexion, l’équipe voit votre journal tant qu’elle dure, et la liste complète de ce qu’elle pourra voir apparaît avant que vous vous connectiez. Vos questions à Morphi restent à l’écart, et vous pouvez vous déconnecter à tout moment, sur l’écran de la clinique.',
     },
     {
       q: 'Remplacez-vous ce que dit l’équipe qui me suit ?',
@@ -56,7 +56,7 @@ export const ajuda = {
     },
     {
       q: 'Et si je désinstalle l’application ?',
-      a: 'Vos relevés vivent sur l’appareil, dans l’application — sans compte et sans serveur. Désinstaller emporte tout, et il n’y a de copie nulle part d’où les récupérer. Avant ça, vous pouvez construire un fichier avec ce que vous avez noté, dans Exporter.',
+      a: 'Votre journal est gardé dans votre compte : réinstallez, connectez-vous, et il revient entier. Seul ce que vous avez noté hors connexion, et qui n’était pas encore arrivé au compte, se perd. Et si vous voulez votre propre copie, vous pouvez construire un fichier dans Exporter.',
     },
   ] as { q: string; a: string }[],
 
@@ -66,7 +66,7 @@ export const ajuda = {
   integracoes: 'Appareils et connexions',
   integracoesSub: 'Brancher Apple Santé ou Health Connect',
   privacidade: 'Confidentialité et données',
-  privacidadeSub: 'Ce qui reste sur l’appareil et ce qui en sort',
+  privacidadeSub: 'Où votre journal est gardé et ce qui en sort',
   exportar: 'Exporter vos données',
   exportarSub: 'Construire un fichier avec ce que vous avez noté',
 

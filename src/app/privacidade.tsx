@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { aparelhoDaVez } from '../logic/integracoes';
-import { temIdentificacao, TERMOS, PRIVACIDADE } from '../logic/documentos';
+import { temIdentificacao, TERMOS, PRIVACIDADE, DIAS_DAS_COPIAS_DE_SEGURANCA } from '../logic/documentos';
+import { contaLigada } from '../logic/nuvem';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -19,19 +20,13 @@ const K = () => T.aviso.telaPrivacidade;
 /* ============================================================
    PRIVACIDADE E DADOS
 
-   ⚠️⚠️ O SUPABASE VAI DERRUBAR METADE DISTO. ⚠️⚠️
+   ⚠️⚠️ A VERSÃO 2 DESCREVE A CONTA (fase 8 do plano do Supabase). ⚠️⚠️
 
-   O aplicativo vai passar a ter conta, autenticação e banco. Hoje não
-   tem, e por isso o que está escrito aqui é verdade: um app sem
-   servidor, sem login e sem cópia. No dia em que o Supabase entrar,
-   cada frase sobre "fica no seu aparelho" vira declaração falsa numa
-   política de privacidade — que é o pior lugar possível para uma.
-
-   Não reescreva antes: descrever tratamento que ainda não acontece é o
-   erro simétrico. A lista frase por frase está em PENDENCIAS.md, item 10
-   — junto com a região já escolhida, São Paulo (sa-east-1), que mantém o
-   histórico de saúde no Brasil e poupa a seção de transferência
-   internacional.
+   A primeira descrevia um app sem servidor, sem login e sem cópia, e era
+   verdade até a nuvem ser ligada para todos. Esta diz o que existe: o
+   diário no aparelho e na conta, o que a clínica conectada vê, a escolha
+   das perguntas — que se liga e desliga aqui — e o ditado (PENDENCIAS,
+   item 14).
 
    ⚠️ O APP JÁ TEVE UMA LINHA SOBRE ISSO E ELA FOI REMOVIDA, com razão:
    dizia "seus dados ficam no seu aparelho" no meio de uma lista de
@@ -74,10 +69,29 @@ function Bloquinho({ titulo, children }: { titulo: string; children: React.React
   );
 }
 
+/** O interruptor da leitura das perguntas (a decisão 2 do plano). */
+function EscolhaDasPerguntas() {
+  const { c } = useTheme();
+  const ligada = useStore((s) => (s.S as any).perguntasParaUso === true);
+  const update = useStore((s) => s.update);
+  return (
+    <Row gap={12} style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
+      <Txt v="label" style={{ flex: 1 }}>{T.aviso.perguntasEscolha}</Txt>
+      <Switch
+        value={ligada}
+        onValueChange={(v) => update((s: any) => { s.perguntasParaUso = v; })}
+        trackColor={{ false: c.track, true: c.accent }}
+        thumbColor="#fff"
+      />
+    </Row>
+  );
+}
+
 /** Apagar tudo — a linha que se arma antes de agir.
 
     Duas perguntas, e não uma. A primeira é o toque na linha; a segunda é
-    a frase que diz o que vai embora e que não há cópia em lugar nenhum.
+    a frase que diz o que vai embora de verdade — o banco, este aparelho,
+    as cópias de segurança em até N dias e o outro aparelho.
     "Tem certeza?" é a pergunta que não informa nada, e é exatamente a que
     as pessoas respondem "sim" no automático.
 
@@ -110,7 +124,7 @@ function Apagar({ comConta, onApagar }: {
   if (armado) {
     return (
       <Row gap={12} style={{ alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
-        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{comConta ? C.pergunta : K().apagarPergunta}</Txt>
+        <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{comConta ? C.pergunta(DIAS_DAS_COPIAS_DE_SEGURANCA) : K().apagarPergunta}</Txt>
         <Pressable onPress={() => setArmado(false)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
           <Txt v="label" c={c.tx3}>{K().cancelar}</Txt>
         </Pressable>
@@ -184,35 +198,26 @@ export default function Privacidade() {
       </Bloco>
 
       {/* A SEÇÃO MAIS IMPORTANTE DA TELA, e a que um app costuma
-          esconder. Ela lista TUDO que atravessa para fora do aparelho —
-          são duas coisas —, e diz o gesto exato que faz cada uma sair. */}
-      {/* ⚠️⚠️ O PRIMEIRO BLOQUINHO DESCREVIA UM ENVIO QUE NÃO ACONTECE.
+          esconder. Ela lista TUDO que atravessa para fora do aparelho, e
+          diz o gesto exato que faz cada coisa sair. O primeiro item é o
+          único que vai sozinho — e por isso vem primeiro, e a nota diz.
 
-          Ele dizia, no presente, que o resumo "sai quando você toca em
-          enviar e vira um documento datado no que a sua equipe tem" e que
-          as mensagens "saem quando você escreve". Não saem: o aplicativo
-          inteiro tem UMA chamada de rede, a da leitura da foto do prato em
-          analise.ts, e nenhuma para clínica nenhuma. O resumo se monta no
-          aparelho e as mensagens ficam guardadas aqui.
-
-          Numa tela de privacidade essa é a frase que menos pode estar
-          errada — é onde a pessoa vai conferir o que sai do aparelho
-          dela. O erro é para o lado seguro (promete mais saída do que
-          existe), e mesmo assim é erro: quem acredita pode deixar de
-          registrar um sintoma por achar que ele já foi para alguém.
-
-          E repare no vizinho de baixo: a foto do prato é verdade, e está
-          escrita com a mesma confiança. Uma tela com uma afirmação
-          verdadeira e uma falsa lado a lado não tem como a pessoa
-          distinguir qual é qual.
-
-          A garantia que a seção existe para dar continua inteira, e agora
-          é mais forte do que era: nada viaja sozinho porque, para a
-          clínica, nada viaja. Ver PENDENCIAS, item 6. */}
+          ⚠️ NUMA TELA DE PRIVACIDADE, A FRASE ERRADA PARA O LADO SEGURO
+          TAMBÉM É ERRO. Ela já prometeu envio à equipe que não existia;
+          hoje a clínica VÊ o diário (fase 6), e não recebe nada que a
+          pessoa mande — mensagem e receita são da fase 7, adiada. */}
       <Bloco titulo={K().oQueSai} nota={K().oQueSaiNota}>
         <Cartao>
+          <Bloquinho titulo={K().paraConta}>{K().paraContaTexto}</Bloquinho>
           <Bloquinho titulo={K().paraEquipe}>{K().paraEquipeTexto}</Bloquinho>
+          <Bloquinho titulo={K().perguntas}>{K().perguntasTexto}</Bloquinho>
+          {/* ⚠️ A ESCOLHA DAS PERGUNTAS MORA AQUI TAMBÉM, e não só no
+              cadastro: consentimento que não se revoga no mesmo lugar em
+              que se lê não é livre (LGPD, art. 8º, § 5º). Desligar apaga
+              as que subiram — quem faz isso é a sincronia. */}
+          {contaLigada() ? <EscolhaDasPerguntas /> : null}
           <Bloquinho titulo={K().fotoDoPrato}>{K().fotoDoPratoTexto}</Bloquinho>
+          <Bloquinho titulo={K().ditado}>{K().ditadoTexto}</Bloquinho>
         </Cartao>
       </Bloco>
 

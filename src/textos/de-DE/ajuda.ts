@@ -51,7 +51,7 @@ export const ajuda = {
     },
     {
       q: 'Was kann mein Team sehen?',
-      a: 'Nur das, was du schickst. Von allein geht hier nichts hinaus: die Übersicht geht, wenn du auf Senden tippst, die Nachrichten, wenn du sie schreibst. Was draußen bleibt, bleibt deins — auch vor denen, die dich behandeln.',
+      a: 'Nichts, bis du dich über ihren Code mit einer Partnerpraxis verbindest. Mit der Verbindung sieht das Team dein Tagebuch, solange sie besteht, und die ganze Liste dessen, was es sehen wird, erscheint vor dem Verbinden. Deine Fragen an Morphi bleiben draußen, und du kannst dich jederzeit auf dem Bildschirm der Praxis trennen.',
     },
     {
       q: 'Ersetzt ihr das, was mir meine Praxis sagt?',
@@ -59,7 +59,7 @@ export const ajuda = {
     },
     {
       q: 'Und wenn ich die App deinstalliere?',
-      a: 'Deine Einträge wohnen auf dem Gerät, in der App — ohne Konto und ohne Server. Deinstallieren nimmt alles mit, und es gibt nirgends eine Kopie, aus der sich etwas zurückholen ließe. Davor kannst du unter Exportieren eine Datei mit dem erstellen, was du eingetragen hast.',
+      a: 'Dein Tagebuch wird in deinem Konto aufbewahrt: neu installieren, anmelden, und es kommt vollständig zurück. Verloren geht nur, was du ohne Verbindung eingetragen hast und was noch nicht im Konto angekommen war. Und wenn du eine eigene Kopie willst, kannst du unter Exportieren eine Datei bauen.',
     },
   ] as { q: string; a: string }[],
 
@@ -69,7 +69,7 @@ export const ajuda = {
   integracoes: 'Geräte und Verbindungen',
   integracoesSub: 'Apple Health oder Health Connect verbinden',
   privacidade: 'Datenschutz und Daten',
-  privacidadeSub: 'Was auf dem Gerät bleibt und was es verlässt',
+  privacidadeSub: 'Wo dein Tagebuch liegt und was es verlässt',
   exportar: 'Deine Daten exportieren',
   exportarSub: 'Eine Datei mit dem bauen, was du eingetragen hast',
 

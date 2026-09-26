@@ -11,7 +11,7 @@ import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { recomecarDoZero, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
-import { AVISO, ISENCAO, TERMOS, POLITICA, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { AVISO, ISENCAO, TERMOS, POLITICA, ESCOLHA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
@@ -244,6 +244,8 @@ type Respostas = {
   /* A chave da isenção. Ela não vem do perfil na edição: aceitar de novo
      não é o assunto de quem voltou para corrigir a altura. */
   aceite: boolean;
+  /** a leitura das perguntas ao Morphi — própria, e desligada por padrão */
+  perguntas: boolean;
   codigo: string;
 };
 
@@ -262,7 +264,7 @@ const VAZIO: Respostas = {
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
-  acompanhamento: null, profissional: '', recomendado: null, codigo: '', aceite: false,
+  acompanhamento: null, profissional: '', recomendado: null, codigo: '', aceite: false, perguntas: false,
 };
 
 /* ------------------------------------------------------------------ */
@@ -1262,7 +1264,10 @@ export default function Cadastro() {
          a pessoa leu. Só a data diria que ela concordou um dia, com um
          aviso que ninguém sabe qual era — e é a versão que permite pedir
          de novo quando o texto mudar. */
-      if (!editando) s.profile.consentimento = { em: +now(), versao: VERSAO_DO_AVISO };
+      if (!editando) {
+        s.profile.consentimento = { em: +now(), versao: VERSAO_DO_AVISO };
+        s.perguntasParaUso = r.perguntas === true;
+      }
       s.profile.startWeight = r.emTratamento ? r.pesoInicial : r.peso;
       s.profile.goalWeight = r.meta;
       s.profile.ritmo = r.ritmo;
@@ -2450,6 +2455,26 @@ export default function Cadastro() {
                 <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
               </View>
             ))}
+            {/* ⚠️ A ESCOLHA DAS PERGUNTAS TEM CHAVE PRÓPRIA, E NÃO TRAVA O
+                BOTÃO. É outra finalidade, sobre texto de saúde, e com a
+                conta obrigatória ela não pode virar condição para usar o
+                diário (a decisão 2 do plano do Supabase). Vem desligada. */}
+            {contaLigada() ? (
+              <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 8 }}>
+                <Txt v="bodyMed">{ESCOLHA_DAS_PERGUNTAS().titulo}</Txt>
+                <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ESCOLHA_DAS_PERGUNTAS().texto}</Txt>
+                <Row gap={12} style={{ alignItems: 'center', paddingTop: 4 }}>
+                  <Switch
+                    value={r.perguntas}
+                    onValueChange={(v) => p({ perguntas: v })}
+                    trackColor={{ false: c.track, true: c.accent }}
+                    thumbColor="#fff"
+                  />
+                  <Txt v="label" style={{ flex: 1 }}>{ESCOLHA_DAS_PERGUNTAS().escolha}</Txt>
+                </Row>
+                <Txt v="micro" c={c.tx3} style={{ lineHeight: 17 }}>{ESCOLHA_DAS_PERGUNTAS().detalhe}</Txt>
+              </View>
+            ) : null}
             {/* OS DOCUMENTOS SÓ APARECEM QUANDO ESTIVEREM COMPLETOS. Um
                 link para "Termos de uso" que abre um texto sem quem
                 responde por ele, numa tela de aceite, é a pior linha

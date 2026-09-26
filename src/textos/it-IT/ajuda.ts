@@ -50,7 +50,7 @@ export const ajuda = {
     },
     {
       q: 'Che cosa riesce a vedere il mio team?',
-      a: 'Solo quello che invii. Da qui non esce niente per conto suo: il riepilogo parte quando tocchi invia, i messaggi quando li scrivi. Quello che resta fuori continua a essere tuo, anche nei confronti di chi ti segue.',
+      a: 'Niente, finché non ti colleghi a una clinica partner con il suo codice. Con il collegamento, il team vede il tuo diario finché dura, e l’elenco completo di cosa potrà vedere compare prima di collegarti. Le tue domande a Morphi restano fuori, e puoi scollegarti in qualsiasi momento, dalla schermata della clinica.',
     },
     {
       q: 'Sostituite le indicazioni di chi mi segue?',
@@ -58,7 +58,7 @@ export const ajuda = {
     },
     {
       q: 'E se disinstallo l’app?',
-      a: 'I tuoi registri vivono sul dispositivo, dentro l’app — senza account e senza server. Disinstallare porta via tutto, e non c’è una copia da nessuna parte da cui recuperare. Prima di farlo, puoi creare un file con quello che hai registrato, in Esporta.',
+      a: 'Il tuo diario resta salvato nel tuo account: reinstalla, accedi, e torna intero. Si perde solo quello che hai registrato senza connessione e che non era ancora arrivato all’account. E se vuoi una tua copia, puoi preparare un file in Esporta.',
     },
   ] as { q: string; a: string }[],
 
@@ -72,7 +72,7 @@ export const ajuda = {
   integracoes: 'Dispositivi e collegamenti',
   integracoesSub: 'Collegare Apple Salute o Health Connect',
   privacidade: 'Privacy e dati',
-  privacidadeSub: 'Che cosa resta sul dispositivo e che cosa ne esce',
+  privacidadeSub: 'Dove resta il tuo diario e che cosa ne esce',
   exportar: 'Esporta i tuoi dati',
   exportarSub: 'Creare un file con quello che hai registrato',
 

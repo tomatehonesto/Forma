@@ -45,7 +45,7 @@ export const perfil = {
 
   ajudaEDados: 'Aide et données',
   privacidade: 'Confidentialité et données',
-  privacidadeSub: 'Ce qui reste sur l’appareil, exporter, effacer et les documents',
+  privacidadeSub: 'Où votre journal est gardé, exporter, effacer et les documents',
   ajuda: 'Aide',
   ajudaSub: 'Questions fréquentes sur l’application',
 

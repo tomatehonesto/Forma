@@ -89,7 +89,8 @@ export const conta = {
 
   apagarConta: {
     sub: 'Das Konto und alles darin, ohne Weg zurück',
-    pergunta: 'Das Konto und alles, was du eingetragen hast, löschen? Es bleibt nirgends eine Kopie.',
+    pergunta: (dias: number) =>
+      `Das Konto und alles, was es aufbewahrt, hier und in unserer Datenbank löschen? Die Sicherungskopien verschwinden innerhalb von ${dias} Tagen, und ein anderes Gerät, auf dem du angemeldet warst, behält seine Kopie, bis du dich dort abmeldest.`,
     apagando: 'Wird gelöscht…',
     semInternet: 'Für das Löschen des Kontos braucht es Internet. Es wurde nichts gelöscht.',
     falhou: 'Das Löschen hat gerade nicht geklappt. Es wurde nichts gelöscht — versuch es gleich noch einmal.',

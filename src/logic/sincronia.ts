@@ -288,12 +288,15 @@ type Dependencias = {
   guarda: Guarda;
   /** a prévia do Perfil está no ar (ver logic/modo) */
   fingindo: () => boolean;
+  /** o diário aceitou uma versão anterior do consentimento, e nada sobe
+      nem desce até ele aceitar a de agora (ver logic/consentimento) */
+  emEspera?: () => boolean;
   relogio?: Relogio;
 };
 
 let ligada: Sincronia | null = null;
 
-export function criarSincronia({ transporte, loja, guarda, fingindo, relogio = RELOGIO }: Dependencias): Sincronia {
+export function criarSincronia({ transporte, loja, guarda, fingindo, emEspera, relogio = RELOGIO }: Dependencias): Sincronia {
   let atual: EstadoDaSincronia = 'desligada';
   const ouvintes = new Set<(e: EstadoDaSincronia) => void>();
   const mudarEstado = (e: EstadoDaSincronia) => {
@@ -316,6 +319,9 @@ export function criarSincronia({ transporte, loja, guarda, fingindo, relogio = R
        sem a clínica — compará-lo com a base mandaria apagar a clínica de
        verdade. */
     if (fingindo()) return 'desligada';
+    /* ⚠️ NEM COM O CONSENTIMENTO VELHO: quem aceitou a versão 1 concordou
+       com um diário que ficava no telefone (fase 8 do plano). */
+    if (emEspera?.()) return 'desligada';
     /* ⚠️ E O EXEMPLO NUNCA SOBE: a Mariana é inventada. */
     if (!S || S.semente) return 'desligada';
     if (!S.conta?.id) return S.onboardDone ? 'sem-conta' : 'desligada';

@@ -8,6 +8,7 @@ import {
   NOME_DO_TIPO, type TipoAssinatura,
 } from '../logic/assinatura';
 import { temRedeParceira } from '../logic/pais';
+import { redeNoAr, viuApresentacaoDaRede } from '../logic/rede';
 import { TelaInterna, Cartao, Linha, Selo, Aviso } from '../ui/internas';
 import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -264,7 +265,9 @@ export default function Assinatura() {
 
           O rótulo é o nome da tela que abre. Quem já tem vínculo vai para
           a folha do código, porque já sabe o que é; quem não tem vai para
-          /parceiros, que explica antes de pedir. */}
+          a apresentação da rede (ou a vitrine, se já viu), que explica
+          antes de pedir e tem "Já tenho um código". Sem a rede no ar,
+          vai direto ao código. A tela /parceiros saiu na fase 8. */}
       <Cartao>
         {ehIsenta ? (
           <Linha
@@ -291,7 +294,7 @@ export default function Assinatura() {
             ic="steth"
             titulo={K.medicosParceiros}
             sub={K.medicosParceirosSub}
-            onPress={() => router.push('/parceiros' as any)}
+            onPress={() => router.push((!redeNoAr() ? '/codigo' : viuApresentacaoDaRede(S) ? '/rede' : '/rede-apresentacao') as any)}
           />
         ) : null}
       </Cartao>

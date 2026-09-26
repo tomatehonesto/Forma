@@ -135,7 +135,11 @@ export const conta = {
   /* ---- "Apagar meus dados", com conta ---- */
   apagarConta: {
     sub: 'A conta e tudo o que ela guarda, sem volta',
-    pergunta: 'Apagar a conta e tudo o que você registrou? Não fica cópia em lugar nenhum.',
+    /* ⚠️ O QUE ACONTECE DE VERDADE (fase 8): o banco e este aparelho agora;
+       as cópias de segurança em até N dias (DIAS_DAS_COPIAS_DE_SEGURANCA,
+       em logic/documentos); outro aparelho, quando sair da conta nele. */
+    pergunta: (dias: number) =>
+      `Apagar a conta e tudo o que ela guarda, aqui e no nosso banco? As cópias de segurança somem em até ${dias} dias, e outro aparelho em que você entrou guarda a cópia dele até você sair da conta ali.`,
     apagando: 'Apagando…',
     semInternet: 'Apagar a conta precisa de internet. Nada foi apagado.',
     falhou: 'Não conseguimos apagar agora. Nada foi apagado — tente de novo em instantes.',

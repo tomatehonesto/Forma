@@ -51,7 +51,7 @@ export const perfil = {
 
   ajudaEDados: 'Hilfe und Daten',
   privacidade: 'Datenschutz und Daten',
-  privacidadeSub: 'Was auf dem Gerät bleibt, exportieren, löschen und die Dokumente',
+  privacidadeSub: 'Wo dein Tagebuch liegt, exportieren, löschen und die Dokumente',
   ajuda: 'Hilfe',
   ajudaSub: 'Häufige Fragen zur App',
 

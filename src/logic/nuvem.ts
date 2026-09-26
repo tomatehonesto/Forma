@@ -141,12 +141,16 @@ export async function temConexao(espera = 4000): Promise<boolean> {
 /* ============================================================
    O INTERRUPTOR
 
-   ⚠️ Fica falso até a fase 8 do plano, que o liga no mesmo commit que
-   troca os textos legais — nenhuma frase mentindo nem um dia para quem
-   usa o aplicativo. Em desenvolvimento, as portas aparecem antes; numa
-   build de loja, nada muda até lá.
+   ⚠️ LIGADO NA FASE 8 DO PLANO, no mesmo commit que trocou os textos
+   legais — nenhuma frase mentindo nem um dia para quem usa o aplicativo.
+
+   ⚠️⚠️ E POR ISSO NENHUMA BUILD FORA DE `__DEV__` SAI ANTES DA VIRADA
+   PARA A PRODUÇÃO (a seção "Depois do plano"). Os textos descrevem a
+   nuvem para todas as builds; uma build de loja sem as variáveis do
+   projeto de produção teria `nuvem()` nulo, e aí os textos mentiriam
+   para o outro lado.
    ============================================================ */
-const NUVEM_PARA_TODOS = false;
+const NUVEM_PARA_TODOS = true;
 
 /** Se as portas da conta e da nuvem aparecem neste aparelho. */
 export const contaLigada = (): boolean => !!nuvem() && (__DEV__ || NUVEM_PARA_TODOS);

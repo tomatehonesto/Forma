@@ -95,7 +95,7 @@ export const perfil = {
   /* ---------- ajuda e dados ---------- */
   ajudaEDados: 'Ajuda e dados',
   privacidade: 'Privacidade e dados',
-  privacidadeSub: 'O que fica no aparelho, exportar, apagar e os documentos',
+  privacidadeSub: 'Onde o seu diário fica, exportar, apagar e os documentos',
   ajuda: 'Ajuda',
   ajudaSub: 'Perguntas frequentes sobre o aplicativo',
 

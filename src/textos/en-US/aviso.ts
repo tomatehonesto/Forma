@@ -16,19 +16,38 @@ export const aviso = {
   isencaoReforco: 'Before changing anything about your dose or your timing, talk to your care team. And if a symptom scares you, don’t wait for the next appointment.',
   isencaoAceite: 'I understand and agree',
 
-  guardadoTitulo: 'What you log stays on your device',
-  guardadoTexto: 'Weight, symptoms, shots, labs and notes are stored inside the app, on this phone. There’s no account and no password: nobody gets into your data with a login.',
+  guardadoTitulo: 'What you log is kept in your account',
+  guardadoTexto: 'Weight, symptoms, shots, labs and notes live on this phone and in our database in São Paulo, tied to your account. That way your journal isn’t lost if you switch or lose your phone. Only your account can read what’s yours.',
 
   usoTitulo: 'What your data is used for',
   usoTexto: 'To build your daily goals, follow how the treatment is going, and organize what you bring to your appointment. None of that is a diagnosis, and the app doesn’t prescribe or adjust a dose.',
 
   /* ⚠️ THE PART A CONSENT NOTICE USUALLY LEAVES OUT, and the only one
      here that changes what the person decides. */
-  saiTitulo: 'What can leave here, and only with a tap from you',
-  saiTexto: 'The summary and the messages you send your care team. And the photo of your plate, when you use photo reading: it’s sent to be read and isn’t kept.',
+  saiTitulo: 'What else can leave here, and only with a move from you',
+  saiTexto: 'Your journal, to the clinic you connect with using its code, after you see what it gets to see. And the photo of your plate, when you use photo reading: it’s sent to be read and isn’t kept.',
 
   controleTitulo: 'You stay in control',
   controleTexto: 'You can fix and delete any entry, export everything to a file, and erase your data entirely, at any time, in settings.',
+
+  perguntasTitulo: 'Your questions to Morphi',
+  perguntasTexto: 'If you let us, we read the questions you ask Morphi to understand which doubts come up and to improve the answers. We read them without knowing who asked, and the clinic never reads them. It starts off, and saying no changes nothing in the app.',
+  perguntasEscolha: 'Allow my questions to be read',
+  perguntasDetalhe: 'Turning it on also sends the questions already here. You can turn it off anytime in Privacy and data, and the ones sent are deleted.',
+
+  consentimentoNovo: {
+    titulo: 'We changed how we keep your journal',
+    lead: 'It’s now also kept in your account, in our database, so it isn’t lost when you switch phones. Before you go on, read what changed.',
+    aceitar: 'Agree and continue',
+    recusar: 'I don’t agree',
+    recusaTitulo: 'Without agreeing, you can’t go on',
+    recusaTexto: 'The app now keeps your journal in your account, and doesn’t work without it. If you don’t agree, you can take your data in a file and delete everything from this device. Nothing is deleted unless you ask.',
+    exportar: 'Export my data',
+    apagar: 'Delete my data from this device',
+    apagarPergunta: 'Delete everything from this device? This can’t be undone.',
+    apagarConfirma: 'Delete',
+    voltar: 'Go back and read again',
+  },
 
   /* ⚠️ ONLY APPLE'S NAME CHANGES BY LANGUAGE. Health Connect, Garmin,
      Fitbit and Withings are brands and stay in the code. */
@@ -51,6 +70,7 @@ export const aviso = {
 
   exportacaoAviso: 'Entries made by the person themselves in the app. Not a medical record or a lab report.',
   exportacaoTitulo: 'Your Morphi data',
+  exportacaoPerguntasRecentes: 'Offline, only this device’s recent questions came along. With a connection, the file brings all the ones in your account.',
 
   medIndefinido: 'Not set yet',
 
@@ -103,6 +123,8 @@ export const aviso = {
     habitos: 'Meals, water and exercise',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'meal' : 'meals'} and the day’s diary`,
+    completo: 'The complete journal',
+    completoSub: 'Everything your account keeps, with no date range, including your questions',
 
     formatoTitulo: 'You get a .json file',
     formatoTexto: 'It’s the format another app can open and read — good for keeping a copy or moving your entries somewhere else. For a version made to be read by a person, use the appointment summary.',
@@ -113,7 +135,7 @@ export const aviso = {
 
     pronto: 'File built. It only goes where you choose.',
     erro: 'We couldn’t build the file on this device. Your entries are still here, untouched.',
-    parado: 'Nothing leaves here without your tap.',
+    parado: 'The file is only built when you tap the button.',
   },
 
   telaPrivacidade: {
@@ -121,15 +143,21 @@ export const aviso = {
     lead: 'Where your entries live, what leaves here, and what the app reads from outside.',
 
     ondeFicam: 'Where your entries live',
-    noAparelho: 'On the device, inside the app',
-    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results, photos and notes are written to the app’s own storage, on this device. There’s no account and no password here: nobody gets into your data with a login, because there’s no login.',
-    desinstalar: 'Uninstalling takes it all with it',
-    desinstalarTexto: 'Since there’s no copy on any server, deleting the app deletes the entries. They can’t be recovered afterwards.',
+    noAparelho: 'On your device and in your account',
+    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results and notes live on this device and in our database in São Paulo, tied to your account. Only your account reads your journal — and the clinic you connect with, while the connection lasts. Body photos stay only here.',
+    desinstalar: 'Uninstalling doesn’t take your journal with it',
+    desinstalarTexto: 'It comes back when you sign in to your account, on this device or another. Only what was logged offline and hasn’t reached your account yet would be lost with the app.',
 
     oQueSai: 'What leaves here',
-    oQueSaiNota: 'Nothing leaves here without a move from you.',
-    paraEquipe: 'What goes to your team',
-    paraEquipeTexto: 'For now, nothing. The appointment summary is built on your device and you’re the one who shows or exports it; messages stay here. Once the clinic link exists, both will only leave with a tap from you — and nothing from your diary travels on its own, not weight, not symptoms, not meals.',
+    oQueSaiNota: 'Only the first one goes on its own. The rest depends on a move from you.',
+    paraConta: 'Your journal, to your account',
+    paraContaTexto: 'Your entries and profile go to our database whenever there’s a connection. That’s what keeps your journal across devices.',
+    paraEquipe: 'What your clinic sees',
+    paraEquipeTexto: 'Nothing, until you connect with a partner clinic using its code. Before connecting, you see the list of what it gets to see; it sees it while the connection lasts, and you can disconnect on the clinic’s screen. The appointment summary is built here, and leaves when you show or export it.',
+    perguntas: 'Your questions to Morphi',
+    perguntasTexto: 'Only if you allow reading, with the switch below. We read them without knowing who asked, and the clinic never does. Turning it off deletes the ones sent.',
+    ditado: 'Your voice, when you use the microphone',
+    ditadoTexto: 'Turning speech into text is done by your phone’s system. We ask for it to happen on the device itself, but without on-device recognition for your language, the system may send the audio to Apple or Google. Only while the microphone is on.',
     fotoDoPrato: 'The photo of your plate, when you use photo reading',
     fotoDoPratoTexto: 'It’s shrunk on the device and sent to be read by a model, which returns the items on the plate. The image isn’t kept: not in your meal entry, and not on the server in between. Logging the meal by hand sends nothing.',
 
@@ -148,7 +176,7 @@ export const aviso = {
 
     apagar: 'Delete my data',
     apagarSub: 'Everything you logged, with no way back',
-    apagarPergunta: 'Delete everything? There is no copy anywhere.',
+    apagarPergunta: 'Delete everything from this device? This journal has no account yet, and there’s no copy of it anywhere else.',
     apagarConfirma: 'Delete',
     cancelar: 'Cancel',
 

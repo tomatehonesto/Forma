@@ -69,6 +69,35 @@ texto está em dados justamente para poder ser publicado; falta a página.
 
 ---
 
+### 37. A leitura das perguntas por nós
+
+Aberto em 26/09/2026, na fase 8 do plano do Supabase (a decisão 2). A
+pessoa pode permitir que leiamos as perguntas que faz ao Morphi — uma
+escolha própria, desligada por padrão, no último passo do cadastro, na
+folha do consentimento novo e em Privacidade e dados, e desligar apaga
+as que subiram. **Ninguém lê nada antes de isto fechar.**
+
+**O que falta decidir:**
+
+- **A revisão jurídica** (junto com o item 2): se a escolha pode ser outra
+  coisa além de própria e desligada por padrão, e se a leitura pode ter a
+  identidade da pessoa. Hoje é sem: a visão `private.perguntas_para_leitura`
+  não traz o `user_id`.
+- **Quem lê, e com qual login** do papel `analise_perguntas`. O papel
+  existe sem senha; ela é dada no editor SQL, e fica no gerenciador do
+  dono.
+
+**As salvaguardas que já valem, e que precisam continuar valendo:**
+
+- MFA na organização do Supabase;
+- quem analisa não é membro da organização no painel (o papel `postgres`
+  do painel lê tudo, com identidade);
+- nada exportado para fora de `sa-east-1` — a exclusão da conta não
+  alcança uma cópia;
+- se a extensão `pgaudit` estiver disponível, o registro de quem leu.
+
+---
+
 ## 🟡 Passa a valer quando a assinatura entrar
 
 ### 4. O endereço físico volta
@@ -456,7 +485,40 @@ mesmo jeito. **Confirmar em aparelho** que o ícone troca de verdade.
 
 ---
 
-## 🔴 10. O Supabase derruba metade do que os documentos dizem
+## ✅ 10. O Supabase derruba metade do que os documentos dizem — RESOLVIDO
+
+**Resolvido em 26/09/2026, na fase 8 do plano do Supabase**
+(`docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md`), no mesmo
+commit que ligou a nuvem para todos (`NUVEM_PARA_TODOS`, em
+`logic/nuvem.ts`). O que mudou, com a numeração de hoje (a lista de baixo
+é a de quando o item foi aberto, e ela envelheceu — as seções da
+Política eram outras):
+
+- **Política, versão 2.0:** seções 2 (a conta, as perguntas, o vínculo),
+  3 (guardar o diário, compartilhar com a clínica, entender o uso só com
+  a escolha), 4 (a base de cada finalidade), 5 (o aparelho e o banco em
+  São Paulo), 6 (o que sai: o diário para a conta, o que a clínica vê,
+  as perguntas, a foto do prato e o ditado), 7 (os operadores: Supabase,
+  Resend, Apple, Vercel, Anthropic e a clínica; e "não usamos
+  ferramentas de terceiros"), 8 (o banco no Brasil; a foto, o e-mail e o
+  identificador da Apple nos Estados Unidos), 10 (a conta, as cópias de
+  segurança por até `DIAS_DAS_COPIAS_DE_SEGURANCA` dias, o outro
+  aparelho, as perguntas e o que a clínica guarda), 11, 13 e 14.
+- **Termos:** seções 2 (a conta obrigatória), 3, 6 (a clínica vê o
+  diário, e guarda o prontuário), 7, 9, 11 e 12.
+- `VERSAO_DOS_DOCUMENTOS` 2.0, vigente desde 26 de setembro de 2026, e
+  o `VERSAO` do consentimento 2 — com a folha que volta até ser aceita
+  (a tranca 2 do portão) e a sincronia parada até lá.
+- **As telas, nos seis idiomas:** os cartões do consentimento, a tela de
+  Privacidade (onde ficam, o que sai, a escolha das perguntas com o
+  interruptor, o ditado, apagar), a exportação (o diário completo), a
+  ajuda (a equipe e desinstalar), o cancelamento, a suspensão e a
+  confirmação de apagar a conta.
+- **O comportamento:** "Apagar meus dados" com conta apaga no servidor
+  (fase 4), e "Exportar" leva o diário completo, com as perguntas da
+  conta.
+
+⚠️ O texto continua sendo minuta: a revisão jurídica é o item 2.
 
 O aplicativo vai passar a usar **Supabase** — conta, autenticação e banco
 de dados. Hoje ele não tem nada disso, e **os textos estão certos**: eles
@@ -750,6 +812,13 @@ a procedência junto.
 ---
 
 ## 🔴 14. O ditado abriu a segunda saída de rede, e a tela de privacidade não sabe
+
+> **Atualizado em 26/09/2026 (fase 8 do plano do Supabase): o passo 1
+> está feito.** A Política (seção 6) e a tela de Privacidade ("A sua
+> fala, quando você usa o microfone", nos seis idiomas) dizem que o
+> reconhecimento é do sistema, que pedimos que seja no aparelho, e que
+> sem o reconhecimento local o áudio pode ir para a Apple ou o Google,
+> só com o microfone ligado. Os passos 2 a 4 continuam.
 
 Até agora o aplicativo tinha **exatamente uma** chamada de rede: a leitura
 da foto do prato, em `src/logic/analise.ts`. A tela de privacidade foi
@@ -1932,6 +2001,15 @@ disso antes.
 
 ## 🟡 27. A semente é uma paciente brasileira, e ela abre em todo mercado
 
+> **Atualizado em 26/09/2026 (fase 8 do plano do Supabase): a saída 2
+> foi decidida, por causa da conta obrigatória.** Fora de `__DEV__` e com
+> a conta ligada, a instalação nova nasce de `estadoVazio()` e cai no
+> cadastro, e um estado gravado com a marca da semente vai para o
+> cadastro também (`hydrate`, em `logic/store.ts`). A Mariana passou a
+> existir só no desenvolvimento — abrir nela numa build de loja seria a
+> porta para usar o aplicativo sem conta. O resto deste item (a persona
+> por idioma) continua valendo para o desenvolvimento e as prévias.
+
 `store.hydrate()` cai em `buildSeed()` quando não há nada gravado — ou
 seja, **toda instalação nova abre na demonstração**, com setenta dias de
 registros de outra pessoa. Isso já era conhecido; o que o alemão mostrou é
@@ -2091,6 +2169,13 @@ comportamento numa linha que este commit só traduziu.
 
 ## 🟡 30. "Sair da conta" promete uma conta que não existe
 
+> **Atualizado em 26/09/2026 (fase 8 do plano do Supabase): fechado para
+> quem tem dono.** Com conta, o botão é "Sair da conta" de verdade: sai
+> da sessão, e o diário continua na conta (`BotaoDeSair`, em
+> `ui/conta.tsx`). **Fica aberto** para o diário sem dono — que depois da
+> fase 8 só existe no desenvolvimento e sem conexão — até a virada para a
+> produção e até o dono decidir o rótulo desse caso.
+
 O botão do fim do Perfil diz "Sair da conta" — e o comentário que mora
 três linhas acima dele diz o contrário: *"Não há conta nem servidor
 aqui: sair é voltar para a porta, e não apagar a vida de alguém do
@@ -2226,6 +2311,16 @@ propaganda ao consumidor é permitida, com as exigências da FDA.
 ---
 
 ## 🟡 34. A vitrine da rede parceira existe, com lista de exemplo, e espera o portal
+
+> **Atualizado em 26/09/2026 (fases 6 e 8 do plano do Supabase): a vitrine
+> vem do banco.** As clínicas, as equipes e os códigos de exemplo moram em
+> `supabase/seed.sql`, só no `morphi-dev`, com `exemplo = true`, e as
+> fotos no balde `clinicas`. O código é conferido e usado no servidor
+> (`conferir_convite`, `usar_convite`), com o consentimento de
+> compartilhar. **A tela `/parceiros` saiu**, a pedido do dono: a
+> apresentação e a vitrine já explicam o caminho. Onde a lista abaixo diz
+> "/parceiros", hoje é a apresentação (ou a folha do código, sem a rede
+> no ar). Continua aberto o que depende do portal.
 
 Feita em 24/09/2026 e refeita no mesmo dia. **A unidade é a clínica**: é
 com ela que o vínculo acontece e é ela que passa o código de convite.
@@ -2403,6 +2498,17 @@ usam o Morphi", e nunca "o Morphi acompanha" (ver a nota em
 
 ## 🟡 36. A promessa do vínculo: acesso e registros
 
+> **Atualizado em 26/09/2026 (fases 6 e 8 do plano do Supabase):** os
+> pontos 1 e 3 de "o que ainda falta" estão resolvidos. O vínculo mora no
+> servidor, ligado à conta (`vinculos`, com `usar_convite` e
+> `encerrar_vinculo`), e o aparelho guarda uma cópia que segue o
+> servidor. Os registros atravessam a troca de aparelho pela conta, e a
+> frase "sem vínculo, nada do seu diário sai do aparelho" saiu de todo
+> lugar — sem vínculo, nenhuma clínica vê o diário, e ele vai para a
+> conta. A trava `acesso.ts` ganhou a seção do vínculo vindo do servidor.
+> **Continua aberto o ponto 2** (a assinatura lida no servidor), junto com
+> a cobrança (item 5).
+
 **A folha do código promete** a quem já paga pela loja e conecta uma
 clínica: "O vínculo com a clínica já garante o seu acesso ao aplicativo.
 A assinatura na {loja} continua cobrando até você cancelar por lá — e
@@ -2446,3 +2552,52 @@ encostar neles. A promessa pode quebrar no dia em que a cobrança entrar, e
    ligado. Sincronizar com o servidor mudaria a frase "sem vínculo, nada
    do seu diário sai do aparelho" — é decisão de produto e de
    privacidade, e não de código.
+
+---
+
+## 🟡 38. O que a fase 8 deixou para a revisão e para a virada
+
+Aberto em 26/09/2026, junto com a entrega da fase 8 do plano do Supabase
+(`docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md`). Nada
+disto trava a entrega; o que trava a publicação está nos itens 2 e 37.
+
+1. **A revisão jurídica do prontuário contra o direito de apagar.** O que
+   foi registrado durante o vínculo fica com a clínica como prontuário
+   (a regra de `private.equipe_le`, e a cópia `vinculos.perfil_no_fim`),
+   pelo prazo das regras de prontuário — que no Brasil chega a 20 anos.
+   A Política diz isso na seção 10, e o pedido de apagar vai à clínica.
+   Falta o advogado confirmar a redação e o prazo.
+2. **O papel da clínica perante a LGPD:** controladora do prontuário,
+   operadora nossa, ou as duas coisas em momentos diferentes. Define o
+   contrato com as clínicas e a seção 7 da Política.
+3. **O e-mail fora do Brasil.** O código de acesso sai pelo Resend
+   (`no-reply@morphihealth.com`). A Política diz, na seção 8, que o
+   e-mail pode ser tratado nos Estados Unidos, que é o conservador.
+   Conferir no painel do Resend a região do domínio: se for São Paulo, a
+   frase muda para território nacional.
+4. **As cópias de segurança diante do pedido de eliminação.** A Política
+   e a confirmação de apagar dizem até `DIAS_DAS_COPIAS_DE_SEGURANCA`
+   dias (7, o do plano Pro do Supabase). Na virada, conferir o plano do
+   projeto de produção e ajustar o número, que mora em
+   `logic/documentos.ts`.
+5. **A revogação do token da Apple ao apagar a conta.** A App Store
+   cobra de quem usa o login da Apple que, ao apagar a conta, o token
+   seja revogado pela API da Apple. Isso exige a chave `.p8` e entra na
+   função `apagar-conta` — junto com a fase 5, que testa a Apple.
+6. **Os códigos de verdade.** Os de exemplo (LEMOS26, SAVASSI26…) são
+   fáceis de adivinhar, e `conferir_convite` não tem limite de
+   tentativas. Os do portal têm de ser sorteados, com 8 caracteres de um
+   alfabeto sem ambiguidade (sem 0/O, 1/I/L), e a conferência precisa de
+   um limite por IP ou por sessão. Entra antes de o portal emitir o
+   primeiro.
+7. **A conta obrigatória diante da regra 5.1.1(v) da App Store.** Ela
+   aceita login obrigatório quando o aplicativo tem recursos que dependem
+   de conta. A resposta pronta para a revisão: o diário guardado entre
+   aparelhos e o vínculo com a clínica, que existe no servidor, dependem
+   da conta.
+8. **A lista de virada para a produção** está no plano, em "Depois do
+   plano — a produção". Ela é a condição para qualquer build fora de
+   `__DEV__`, porque os textos já descrevem a nuvem.
+9. **O Google na Política.** A seção 7 cita Supabase, Resend, Apple,
+   Vercel e Anthropic. O login com o Google é da fase 5, e entra na
+   Política quando existir, com a versão subindo.

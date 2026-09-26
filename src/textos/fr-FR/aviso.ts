@@ -17,19 +17,38 @@ export const aviso = {
   isencaoReforco: 'Avant de changer quoi que ce soit à votre dose ou à votre horaire, parlez-en à votre équipe. Et si un symptôme vous inquiète, n’attendez pas la prochaine consultation.',
   isencaoAceite: 'J’ai compris et j’accepte',
 
-  guardadoTitulo: 'Ce que vous notez reste sur votre appareil',
-  guardadoTexto: 'Poids, symptômes, piqûres, analyses et notes sont enregistrés dans l’application, sur ce téléphone. Il n’y a ni compte ni mot de passe : personne n’entre dans vos données avec un identifiant.',
+  guardadoTitulo: 'Ce que vous notez est gardé dans votre compte',
+  guardadoTexto: 'Poids, symptômes, piqûres, analyses et notes restent sur ce téléphone et dans notre base de données, à São Paulo, liés à votre compte. Ainsi, votre journal ne se perd pas si vous changez ou perdez de téléphone. Seul votre compte lit ce qui est à vous.',
 
   usoTitulo: 'À quoi servent vos données',
   usoTexto: 'À construire vos objectifs quotidiens, à suivre l’évolution du traitement et à organiser ce que vous apportez à la consultation. Rien de tout cela n’est un diagnostic, et l’application ne prescrit ni n’ajuste de dose.',
 
   /* ⚠️ LA PARTIE QU'UN AVIS DE CONSENTEMENT TAIT D'HABITUDE, et la seule
      ici qui change ce que la personne décide. */
-  saiTitulo: 'Ce qui peut sortir d’ici, et seulement d’un geste de vous',
-  saiTexto: 'Le résumé et les messages que vous envoyez à votre équipe de santé. Et la photo de l’assiette, quand vous utilisez la lecture par photo : elle est envoyée pour être lue et n’est pas conservée.',
+  saiTitulo: 'Ce qui peut encore sortir d’ici, et seulement par un geste de votre part',
+  saiTexto: 'Votre journal, vers la clinique à laquelle vous vous connectez avec son code, après avoir vu ce qu’elle pourra voir. Et la photo de l’assiette, quand vous utilisez la lecture par photo : elle est envoyée pour être lue et n’est pas conservée.',
 
   controleTitulo: 'Vous gardez la main',
   controleTexto: 'Vous pouvez corriger et effacer n’importe quel relevé, tout exporter dans un fichier et effacer vos données entièrement, à tout moment, dans les réglages.',
+
+  perguntasTitulo: 'Vos questions à Morphi',
+  perguntasTexto: 'Si vous le permettez, nous lisons les questions que vous posez à Morphi pour comprendre quels doutes reviennent et améliorer les réponses. Nous les lisons sans savoir qui les a posées, et la clinique ne les lit jamais. C’est désactivé au départ, et refuser ne change rien dans l’application.',
+  perguntasEscolha: 'Permettre la lecture de mes questions',
+  perguntasDetalhe: 'L’activer envoie aussi les questions déjà ici. Vous pouvez le désactiver quand vous voulez, dans Confidentialité et données, et celles envoyées sont effacées.',
+
+  consentimentoNovo: {
+    titulo: 'Nous avons changé la façon de garder votre journal',
+    lead: 'Il est désormais aussi gardé dans votre compte, dans notre base de données, pour ne pas se perdre quand vous changez de téléphone. Avant de continuer, lisez ce qui a changé.',
+    aceitar: 'Accepter et continuer',
+    recusar: 'Je ne suis pas d’accord',
+    recusaTitulo: 'Sans accepter, impossible de continuer',
+    recusaTexto: 'L’application garde maintenant le journal dans votre compte, et ne fonctionne pas sans lui. Si vous n’êtes pas d’accord, vous pouvez emporter vos données dans un fichier et tout effacer de cet appareil. Rien n’est effacé sans que vous le demandiez.',
+    exportar: 'Exporter mes données',
+    apagar: 'Effacer mes données de cet appareil',
+    apagarPergunta: 'Tout effacer de cet appareil ? C’est définitif.',
+    apagarConfirma: 'Effacer',
+    voltar: 'Revenir et relire',
+  },
 
   /* ⚠️ SEUL LE NOM D'APPLE CHANGE DE LANGUE, parce que c'est Apple qui
      traduit le nom de sa propre application. Health Connect, Garmin,
@@ -53,6 +72,7 @@ export const aviso = {
 
   exportacaoAviso: 'Relevés faits par la personne elle-même dans l’application. Ce n’est ni un dossier médical ni un compte rendu de laboratoire.',
   exportacaoTitulo: 'Vos données Morphi',
+  exportacaoPerguntasRecentes: 'Hors connexion, seules les questions récentes de cet appareil sont venues. Avec une connexion, le fichier apporte toutes celles de votre compte.',
 
   medIndefinido: 'Pas encore défini',
 
@@ -106,6 +126,8 @@ export const aviso = {
     habitos: 'Repas, eau et exercice',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'repas noté' : 'repas notés'} et le journal du jour`,
+    completo: 'Le journal complet',
+    completoSub: 'Tout ce que garde votre compte, sans limite de période, avec vos questions',
 
     formatoTitulo: 'Il en sort un fichier .json',
     formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire — il sert à garder une copie ou à emporter vos relevés ailleurs. Pour la version faite pour être lue par quelqu’un, prenez le résumé de consultation.',
@@ -116,7 +138,7 @@ export const aviso = {
 
     pronto: 'Fichier construit. Il ne va que là où vous le décidez.',
     erro: 'Nous n’avons pas pu construire le fichier sur cet appareil. Vos relevés sont toujours là, intacts.',
-    parado: 'Rien ne sort d’ici sans votre geste.',
+    parado: 'Le fichier n’est construit que quand vous touchez le bouton.',
   },
 
   telaPrivacidade: {
@@ -124,15 +146,21 @@ export const aviso = {
     lead: 'Où vos relevés restent, ce qui sort d’ici et ce que l’application lit de l’extérieur.',
 
     ondeFicam: 'Où vos relevés restent',
-    noAparelho: 'Sur l’appareil, dans l’application',
-    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses, les photos et les notes sont écrits dans le stockage de l’application elle-même, sur cet appareil. Il n’y a ni compte ni mot de passe ici : personne n’entre dans vos données avec un identifiant, parce qu’il n’y a pas d’identifiant.',
-    desinstalar: 'Désinstaller emporte tout',
-    desinstalarTexto: 'Comme il n’y a de copie sur aucun serveur, effacer l’application efface les relevés. Il n’est pas possible de les récupérer ensuite.',
+    noAparelho: 'Sur l’appareil et dans votre compte',
+    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses et les notes restent sur cet appareil et dans notre base de données, à São Paulo, liés à votre compte. Seul votre compte lit votre journal — et la clinique à laquelle vous vous connectez, tant que la connexion dure. Les photos du corps restent seulement ici.',
+    desinstalar: 'Désinstaller n’emporte pas votre journal',
+    desinstalarTexto: 'Il revient quand vous vous connectez à votre compte, sur cet appareil ou sur un autre. Seul ce qui a été noté hors connexion, et n’est pas encore arrivé au compte, se perdrait avec l’application.',
 
     oQueSai: 'Ce qui sort d’ici',
-    oQueSaiNota: 'Rien ne sort d’ici sans un geste de votre part.',
-    paraEquipe: 'Ce qui part vers votre équipe',
-    paraEquipeTexto: 'Pour l’instant, rien. Le résumé de consultation se construit sur votre appareil et c’est vous qui le montrez ou l’exportez ; les messages restent ici. Quand le lien avec la clinique existera, les deux ne partiront qu’avec un geste de votre part — et rien de votre journal ne voyage tout seul, ni le poids, ni les symptômes, ni les repas.',
+    oQueSaiNota: 'Seul le premier part tout seul. Le reste dépend d’un geste de votre part.',
+    paraConta: 'Votre journal, vers votre compte',
+    paraContaTexto: 'Les relevés et le profil partent vers notre base de données dès qu’il y a une connexion. C’est ce qui garde le journal d’un appareil à l’autre.',
+    paraEquipe: 'Ce que voit votre clinique',
+    paraEquipeTexto: 'Rien, jusqu’à ce que vous vous connectiez à une clinique partenaire avec son code. Avant de vous connecter, vous voyez la liste de ce qu’elle pourra voir ; elle le voit tant que la connexion dure, et vous pouvez vous déconnecter sur l’écran de la clinique. Le résumé de consultation se construit ici, et part quand vous le montrez ou l’exportez.',
+    perguntas: 'Vos questions à Morphi',
+    perguntasTexto: 'Seulement si vous permettez la lecture, avec l’interrupteur ci-dessous. Nous les lisons sans savoir qui les a posées, et la clinique ne les lit jamais. Le désactiver efface celles envoyées.',
+    ditado: 'Votre voix, quand vous utilisez le micro',
+    ditadoTexto: 'C’est le système de l’appareil qui transforme la voix en texte. Nous demandons que cela se fasse sur l’appareil lui-même, mais, sans la reconnaissance locale de votre langue, le système peut envoyer l’audio à Apple ou à Google. Seulement tant que le micro est allumé.',
     fotoDoPrato: 'La photo de l’assiette, quand vous utilisez la lecture par photo',
     fotoDoPratoTexto: 'Elle est réduite sur l’appareil et envoyée pour être lue par un modèle, qui renvoie les éléments de l’assiette. L’image n’est pas conservée : ni dans votre relevé de repas, ni sur le serveur qui fait le pont. Noter le repas à la main n’envoie rien.',
 
@@ -151,7 +179,7 @@ export const aviso = {
 
     apagar: 'Effacer mes données',
     apagarSub: 'Tout ce que vous avez noté, sans retour',
-    apagarPergunta: 'Tout effacer ? Il n’y a de copie nulle part.',
+    apagarPergunta: 'Tout effacer de cet appareil ? Ce journal n’a pas encore de compte, et il n’en existe pas de copie ailleurs.',
     apagarConfirma: 'Effacer',
     cancelar: 'Annuler',
 

@@ -16,19 +16,38 @@ export const aviso = {
   isencaoReforco: 'Antes de cambiar cualquier cosa en tu dosis o en tu horario, habla con tu equipo. Y si aparece un síntoma que asusta, no esperes a la próxima consulta.',
   isencaoAceite: 'Entendí y acepto',
 
-  guardadoTitulo: 'Lo que registras se queda en tu dispositivo',
-  guardadoTexto: 'Peso, síntomas, inyecciones, exámenes y notas se graban dentro de la aplicación, en este teléfono. No hay cuenta ni contraseña: nadie entra en tus datos con un inicio de sesión.',
+  guardadoTitulo: 'Lo que registras queda guardado en tu cuenta',
+  guardadoTexto: 'Peso, síntomas, inyecciones, exámenes y notas quedan en este teléfono y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Así tu diario no se pierde si cambias o pierdes el teléfono. Solo tu cuenta lee lo que es tuyo.',
 
   usoTitulo: 'Para qué se usan tus datos',
   usoTexto: 'Para armar tus metas diarias, acompañar la evolución del tratamiento y organizar lo que lleves a la consulta. Nada de eso es un diagnóstico, y la aplicación no receta ni ajusta dosis.',
 
   /* ⚠️ LA PARTE QUE UN AVISO DE CONSENTIMIENTO SUELE CALLAR, y que aquí es
      la única que cambia lo que la persona decide. */
-  saiTitulo: 'Qué puede salir de aquí, y solo con un toque tuyo',
-  saiTexto: 'El resumen y los mensajes que le envíes a tu equipo de salud. Y la foto del plato, cuando uses la lectura por foto: se envía para ser leída y no queda guardada.',
+  saiTitulo: 'Qué más puede salir de aquí, y solo con un gesto tuyo',
+  saiTexto: 'Tu diario, para la clínica a la que te conectes con su código, después de ver lo que ella pasa a ver. Y la foto del plato, cuando uses la lectura por foto: se envía para ser leída y no queda guardada.',
 
   controleTitulo: 'Tú sigues teniendo el control',
   controleTexto: 'Puedes corregir y borrar cualquier registro, exportar todo en un archivo y borrar tus datos por completo, en cualquier momento, en la configuración.',
+
+  perguntasTitulo: 'Tus preguntas a Morphi',
+  perguntasTexto: 'Si nos dejas, leemos las preguntas que le haces a Morphi para entender qué dudas aparecen y mejorar las respuestas. Las leemos sin saber quién preguntó, y la clínica nunca las lee. Viene apagado, y decir que no, no cambia nada en la aplicación.',
+  perguntasEscolha: 'Permitir que se lean mis preguntas',
+  perguntasDetalhe: 'Encenderlo envía también las preguntas que ya están aquí. Puedes apagarlo cuando quieras, en Privacidad y datos, y las enviadas se borran.',
+
+  consentimentoNovo: {
+    titulo: 'Cambiamos cómo guardamos tu diario',
+    lead: 'Ahora también queda en tu cuenta, en nuestra base de datos, para no perderse cuando cambias de teléfono. Antes de seguir, lee lo que cambió.',
+    aceitar: 'Aceptar y continuar',
+    recusar: 'No estoy de acuerdo',
+    recusaTitulo: 'Sin aceptar, no se puede seguir',
+    recusaTexto: 'La aplicación ahora guarda el diario en tu cuenta, y no funciona sin ella. Si no estás de acuerdo, puedes llevarte tus datos en un archivo y borrar todo de este aparato. No se borra nada sin que lo pidas.',
+    exportar: 'Exportar mis datos',
+    apagar: 'Borrar mis datos de este aparato',
+    apagarPergunta: '¿Borrar todo de este aparato? No se puede deshacer.',
+    apagarConfirma: 'Borrar',
+    voltar: 'Volver y leer de nuevo',
+  },
 
   /* ⚠️ SOLO EL NOMBRE DE APPLE CAMBIA DE IDIOMA, porque es Apple quien
      traduce el nombre de su propia aplicación. Health Connect, Garmin,
@@ -52,6 +71,7 @@ export const aviso = {
 
   exportacaoAviso: 'Registros hechos por la propia persona en la aplicación. No es historia clínica ni informe de laboratorio.',
   exportacaoTitulo: 'Tus datos de Morphi',
+  exportacaoPerguntasRecentes: 'Sin conexión, vinieron solo las preguntas recientes de este aparato. Con conexión, el archivo trae todas las de tu cuenta.',
 
   medIndefinido: 'Todavía sin definir',
 
@@ -105,6 +125,8 @@ export const aviso = {
     habitos: 'Comidas, agua y ejercicio',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'comida' : 'comidas'} y el diario del día`,
+    completo: 'El diario completo',
+    completoSub: 'Todo lo que guarda tu cuenta, sin recorte de período, con tus preguntas',
 
     formatoTitulo: 'Sale un archivo .json',
     formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lado. Para una versión hecha para que la lea una persona, usa el resumen para la consulta.',
@@ -115,7 +137,7 @@ export const aviso = {
 
     pronto: 'Archivo armado. Solo va adonde elijas.',
     erro: 'No pudimos armar el archivo en este aparato. Tus registros siguen aquí, intactos.',
-    parado: 'Nada sale de aquí sin que lo toques.',
+    parado: 'El archivo solo se arma cuando tocas el botón.',
   },
 
   telaPrivacidade: {
@@ -123,15 +145,21 @@ export const aviso = {
     lead: 'Dónde quedan tus registros, qué sale de aquí y qué lee la aplicación de afuera.',
 
     ondeFicam: 'Dónde quedan tus registros',
-    noAparelho: 'En el aparato, dentro de la aplicación',
-    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes, fotos y anotaciones se graban en el almacenamiento de la propia aplicación, en este aparato. No hay cuenta ni contraseña aquí: nadie entra en tus datos con un inicio de sesión, porque no existe.',
-    desinstalar: 'Desinstalar se lleva todo',
-    desinstalarTexto: 'Como no hay copia en ningún servidor, borrar la aplicación borra los registros. No es posible recuperarlos después.',
+    noAparelho: 'En el aparato y en tu cuenta',
+    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes y anotaciones quedan en este aparato y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Solo tu cuenta lee tu diario — y la clínica a la que te conectes, mientras dure la conexión. Las fotos del cuerpo quedan solo aquí.',
+    desinstalar: 'Desinstalar no se lleva tu diario',
+    desinstalarTexto: 'Vuelve cuando entras en tu cuenta, en este aparato o en otro. Solo lo que se registró sin conexión, y todavía no llegó a la cuenta, se perdería junto con la aplicación.',
 
     oQueSai: 'Qué sale de aquí',
-    oQueSaiNota: 'Nada sale de aquí sin un gesto tuyo.',
-    paraEquipe: 'Qué va para tu equipo',
-    paraEquipeTexto: 'Por ahora, nada. El resumen para la consulta se arma en tu aparato y eres tú quien lo muestra o lo exporta; los mensajes quedan guardados aquí. Cuando exista el enlace con la clínica, los dos solo van a salir con un toque tuyo — y nada de tu diario viaja solo, ni peso, ni síntoma, ni comida.',
+    oQueSaiNota: 'Solo lo primero va solo. Lo demás depende de un gesto tuyo.',
+    paraConta: 'Tu diario, para tu cuenta',
+    paraContaTexto: 'Los registros y el perfil van a nuestra base de datos siempre que hay conexión. Eso es lo que guarda el diario entre aparatos.',
+    paraEquipe: 'Lo que ve tu clínica',
+    paraEquipeTexto: 'Nada, hasta que te conectes a una clínica asociada con su código. Antes de conectar, aparece la lista de lo que pasa a ver; lo ve mientras dure la conexión, y puedes desconectarte en la pantalla de la clínica. El resumen para la consulta se arma aquí, y sale cuando lo muestras o lo exportas.',
+    perguntas: 'Tus preguntas a Morphi',
+    perguntasTexto: 'Solo si permites la lectura, con el interruptor de abajo. Las leemos sin saber quién preguntó, y la clínica nunca las lee. Apagarlo borra las que se enviaron.',
+    ditado: 'Tu voz, cuando usas el micrófono',
+    ditadoTexto: 'Quien convierte la voz en texto es el sistema del aparato. Pedimos que eso ocurra en el propio aparato, pero, sin el reconocimiento local de tu idioma, el sistema puede enviar el audio a Apple o a Google. Solo mientras el micrófono está encendido.',
     fotoDoPrato: 'La foto del plato, cuando usas la lectura por foto',
     fotoDoPratoTexto: 'Se reduce en el aparato y se envía para que la lea un modelo, que devuelve los ítems del plato. La imagen no queda guardada: ni en tu registro de la comida, ni en el servidor que hace el puente. Registrar la comida a mano no envía nada.',
 
@@ -150,7 +178,7 @@ export const aviso = {
 
     apagar: 'Borrar mis datos',
     apagarSub: 'Todo lo que registraste, sin vuelta',
-    apagarPergunta: '¿Borrar todo? No hay copia en ningún lado.',
+    apagarPergunta: '¿Borrar todo de este aparato? Este diario todavía no tiene cuenta, y no existe copia de él en otro lugar.',
     apagarConfirma: 'Borrar',
     cancelar: 'Cancelar',
 

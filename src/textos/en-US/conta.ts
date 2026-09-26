@@ -89,7 +89,8 @@ export const conta = {
 
   apagarConta: {
     sub: 'The account and everything in it, with no way back',
-    pergunta: 'Delete the account and everything you logged? No copy is left anywhere.',
+    pergunta: (dias: number) =>
+      `Delete your account and everything it keeps, here and in our database? Backups are gone within ${dias} days, and another device you signed in on keeps its copy until you sign out there.`,
     apagando: 'Deleting…',
     semInternet: 'Deleting the account needs internet. Nothing was deleted.',
     falhou: 'We couldn’t delete it right now. Nothing was deleted — try again in a moment.',

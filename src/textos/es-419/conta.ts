@@ -89,7 +89,8 @@ export const conta = {
 
   apagarConta: {
     sub: 'La cuenta y todo lo que guarda, sin vuelta',
-    pergunta: '¿Borrar la cuenta y todo lo que registraste? No queda copia en ningún lado.',
+    pergunta: (dias: number) =>
+      `¿Borrar la cuenta y todo lo que guarda, aquí y en nuestra base de datos? Las copias de seguridad desaparecen en hasta ${dias} días, y otro aparato en el que entraste guarda su copia hasta que salgas de la cuenta allí.`,
     apagando: 'Borrando…',
     semInternet: 'Borrar la cuenta necesita internet. No se borró nada.',
     falhou: 'No pudimos borrarla ahora. No se borró nada — inténtalo de nuevo en un momento.',

@@ -105,7 +105,7 @@ export const assinatura = {
      nous ne le faisons pas. Séparée, la première phrase devient une
      menace. */
   bomSaberTitulo: 'Bon à savoir',
-  bomSaberTexto: 'Si la clinique partenaire nous informe que le suivi a pris fin, l’accès reste suspendu jusqu’à ce que vous preniez une offre Personal — et aucun prélèvement n’a lieu sans que vous le choisissiez. Rien de ce que vous avez noté ne se perd : les relevés restent sur l’appareil et s’exportent quand vous voulez.',
+  bomSaberTexto: 'Si la clinique partenaire nous informe que le suivi a pris fin, l’accès reste suspendu jusqu’à ce que vous preniez une offre Personal — et aucun prélèvement n’a lieu sans que vous le choisissiez. Rien de ce que vous avez noté ne se perd : les relevés restent dans votre compte et s’exportent quand vous voulez.',
 
   /* ⚠️ DIRE « VOUS N'ÊTES PAS ABONNÉE » SANS DIRE QUE PERSONNE NE PEUT
      L'ÊTRE laisse la personne chercher un bouton qui n'existe pas. Celle-ci
@@ -248,41 +248,18 @@ export const assinatura = {
        fichier. */
     tranquiloTitulo: 'SOYEZ TRANQUILLE',
     tranquiloAcesso: 'L’accès continue jusqu’à la fin de la période déjà payée.',
-    tranquiloDados: 'Rien de ce que vous avez noté ne se perd — tout reste sur l’appareil.',
+    tranquiloDados: 'Rien de ce que vous avez noté ne se perd — tout reste dans votre compte.',
     tranquiloLoja: (loja: string) => `La résiliation se fait sur ${loja} : nous ne pouvons pas le faire à votre place.`,
   },
 
   /* ============================================================
      LES CLINIQUES PARTENAIRES — /parceiros et /codigo
      ============================================================ */
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Médecins partenaires',
-    lead: 'Certaines cliniques suivent le traitement par ici avec vous. Sans cela vous gardez tout — ce qui change, c’est ce que vous pouvez faire avec votre équipe ici.',
-
-    jaTemTitulo: 'Vous êtes déjà avec une clinique partenaire',
-    jaTemLead: 'Tout ce qui est dans cette liste vaut déjà pour vous.',
-
-    conversaTitulo: 'La conversation avec l’équipe',
-    conversaTexto: 'Des messages entre les consultations, sans avoir à en reprendre une pour une seule question.',
-    resumoTitulo: 'Votre résumé arrive là-bas',
-    resumoTexto: 'Un toucher envoie poids, assiduité, symptômes et analyses — rangés comme la consultation les utilise.',
-    receitaTitulo: 'Ordonnance et protocole',
-    receitaTexto: 'Demander un renouvellement et recevoir le protocole de la semaine dans l’application.',
-    agendaTitulo: 'L’agenda arrive prête',
-    agendaTexto: 'Les consultations apparaissent ici sans que vous ayez à noter quoi que ce soit.',
-
-    /* ⚠️ ET IL N'Y A PAS DE RECHERCHE DE CLINIQUE, et l'écran le dit. Une
-       liste de cliniques qui n'existe pas serait la fausse porte la plus
-       chère d'ici. */
-    conviteTitulo: 'L’invitation vient de la clinique',
-    conviteTexto: 'Il n’y a pas de recherche de clinique par ici. Qui se soigne déjà dans une clinique partenaire en reçoit un code, et c’est lui qui relie les deux bouts. Si votre clinique n’utilise pas encore l’application, ça vaut le coup de lui en parler.',
-    conviteTextoComRede: 'Qui se soigne dans le réseau partenaire reçoit de la clinique un code après la première consultation, et c’est lui qui relie les deux bouts. Si votre clinique n’utilise pas encore l’application, ça vaut le coup de lui en parler.',
-
     codigoRotulo: 'Code d’invitation',
-    codigoAjudaAtual: 'C’est lui qui vous relie à votre clinique.',
-    usarOutro: 'Utiliser un autre code',
-    temCodigoRotulo: 'J’ai un code d’invitation',
-    temCodigoAjuda: 'C’est le code que la clinique vous a transmis.',
     digite: 'Saisissez le code',
     confirmar: 'Confirmer le code',
     codigoSub: 'Le code que la clinique partenaire vous a transmis.',
@@ -326,7 +303,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'la clinique qui vous suivait',
-    nadaApagado: 'Rien n’a été effacé. Poids, piqûres, symptômes, analyses et photos restent sur votre appareil.',
+    nadaApagado: 'Rien n’a été effacé. Poids, piqûres, symptômes, analyses et photos sont là où ils étaient.',
     nadaCobrado: 'Rien n’a été prélevé, et rien ne le sera sans que vous le choisissiez.',
     verOsPlanos: 'Voir les offres',
     outroCodigo: 'J’ai un autre code',

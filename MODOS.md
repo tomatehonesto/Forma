@@ -4,6 +4,21 @@ Como o Morphi muda de forma conforme quem está do outro lado: quem paga,
 quem acompanha, e em que país. Escrito em 18 de setembro de 2026, a
 partir do alinhamento de produto.
 
+> **Onde isto está em 26/09/2026** (o plano do Supabase,
+> `docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md`):
+>
+> - **A conta é obrigatória** e o diário mora nela, no banco em São
+>   Paulo. O modo 3 (sem ninguém) continua sem clínica, mas não sem conta.
+> - **O vínculo mora no servidor**, ligado à conta, e o código é
+>   conferido e usado lá, depois do consentimento de compartilhar. Com
+>   vínculo, a clínica **vê** o diário; ela não **manda** nada ainda.
+> - **O que vem da clínica** — mensagens, receita, consultas, materiais,
+>   o resumo enviado — depende do portal e da fase 7, que ficou adiada.
+>   As listas abaixo continuam sendo o desenho; nenhuma tela promete
+>   isso hoje.
+> - **A tela `/parceiros` saiu**: a apresentação da rede e a vitrine
+>   explicam o caminho, e têm "Já tenho um código".
+
 ---
 
 ## O que foi pedido

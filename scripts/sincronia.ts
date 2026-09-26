@@ -39,6 +39,7 @@ import {
 import { CHAVE_DA_BASE, criarSincronia, esperaDepoisDe, type Sincronia } from '../src/logic/sincronia';
 import { acrescentarPergunta, enderecoDoCompanheiro, origemDoEndereco } from '../src/logic/perguntas';
 import { TIPOS_COMPARTILHADOS, oQueAEquipeVe } from '../src/logic/compartilhamento';
+import { dadosParaExportar } from '../src/logic/exportacao';
 import { CUP_ML, mlQueContam } from '../src/logic/derive';
 import { startOfDay } from '../src/logic/time';
 import { trocarLocal } from '../src/logic/local';
@@ -377,6 +378,24 @@ ok(new Set(nasPartes).size === nasPartes.length, 'nenhuma parte do perfil recebe
 console.log('\nA TRADUÇÃO — a tabela e a ida dizem a mesma coisa');
 const cheio = completo(sementes[0].S);
 const idaCheia = ida(cheio);
+
+{
+  /* O ARQUIVO EXPORTADO LEVA TUDO O QUE SOBE (fase 8): todo tipo que a
+     ida manda para a conta tem seção no diário completo, com o mesmo
+     número de itens, e as fotos do corpo, que não sobem, ficam fora. */
+  const arquivo = dadosParaExportar(cheio, { desde: 0, inclui: { completo: true } });
+  const dc = arquivo.diario_completo;
+  const naIda = new Map<string, number>();
+  for (const r of idaCheia.registros) if (r.tipo !== 'foto') naIda.set(r.tipo, (naIda.get(r.tipo) ?? 0) + 1);
+  const tiposErrados = [...naIda].filter(([t, n]) => dc.registros[t]?.length !== n).map(([t]) => t);
+  ok(!tiposErrados.length && !dc.registros.foto && Object.keys(dc.registros).length === naIda.size,
+    `o diário completo do arquivo exportado tem todo tipo que sobe, com todos os itens, e não as fotos do corpo${tiposErrados.length ? ` — errados: ${tiposErrados.join(', ')}` : ''}`);
+  ok(PARTES.every((p) => p in dc.perfil) && dc.perguntas.length === idaCheia.perguntas.length
+    && dc.consentimento?.versao === idaCheia.perfil.consentimento?.versao,
+    'e todas as partes do perfil, o consentimento e as perguntas do aparelho');
+  const semCompleto = dadosParaExportar(cheio, { desde: 0, inclui: {} });
+  ok(!('diario_completo' in semCompleto), 'com a linha desligada, o diário completo não entra no arquivo');
+}
 const discordam: string[] = [];
 const conferir = (campo: string, destino: string, mexer: (S: any) => void, ler: (S: any) => unknown) => {
   const S = clone(cheio);
@@ -441,7 +460,11 @@ console.log('\nA MISTURA — item por item');
     atualizadoEm: new Date(INSTANTE).toISOString(), apagadoEm: null,
   };
   const refeicao: RegistroDoServidor = {
-    id: novoRid(), tipo: 'refeicao', quando: Date.now() + 60_000, dados: { name: 'Jantar', g: 30, itens: [] },
+    /* ⚠️ DEPOIS DA MAIS NOVA DA SEMENTE, e não "agora + 1 minuto": a
+       semente põe as refeições de hoje em horas fixas (15h30), e de
+       madrugada elas ficam no futuro — a afirmação falhava conforme a
+       hora do dia em que rodava. */
+    id: novoRid(), tipo: 'refeicao', quando: Math.max(Date.now(), ...S.meals.map((m: any) => m.t)) + 60_000, dados: { name: 'Jantar', g: 30, itens: [] },
     atualizadoEm: new Date(INSTANTE).toISOString(), apagadoEm: null,
   };
   misturar(S, { registros: [antiga, refeicao] });

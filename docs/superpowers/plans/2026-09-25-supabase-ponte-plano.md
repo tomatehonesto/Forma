@@ -1970,6 +1970,97 @@ antes da virada para a produção (a seção "O interruptor").
   - Antes de julgar o resultado, conferir no painel de rede que há chamada
     ao `morphi-dev`, e, com uma sonda temporária, que `__DEV__` é falso.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (26/09/2026)
+
+**O resultado, até aqui:**
+- **as travas passam:** o `tsc`, as seis conferências, a espaça fina, o
+  idioma congelado, `modos`, `acesso` e `regras`. A `sincronia` também
+  passa, com três afirmações novas sobre o arquivo exportado;
+- **a conferência por chave:** as chaves do passo 1 mudaram nos seis
+  arquivos de idioma, por um script que troca cada chave pelo nome;
+- **a busca complementar** só acha a frase onde ela continua verdadeira:
+  - "no seu aparelho **e** no nosso banco";
+  - "sem conta e sem senha", sobre o aplicativo de saúde do celular;
+  - "telemetria" e "analytics", na frase que diz que não usamos;
+  - e comentários que contam a história.
+
+No navegador de testes (`127.0.0.1`):
+- **o consentimento antigo** (versão 1, sem conta): abriu na folha, e o
+  link da Política abriu a versão 2.0;
+- **recusar:** mostrou a exportação, apagar e voltar. "Exportar" abriu sem
+  o portão puxar de volta, com a linha nova do diário completo. Recarregar
+  trouxe a folha de novo. Apagar, com o `fetch` cortado na página, deixou o
+  diário vazio no cadastro;
+- **aceitar:** gravou a versão 2 com a escolha desligada, e a conta
+  (`/conta?de=cadastro`) ficou parada, sem laço;
+- **um cadastro do zero:** mostrou o cartão das perguntas desligado, e ele
+  não destrava o botão. Com as duas chaves ligadas, gravou a versão 2 com
+  `perguntasParaUso` ligado. A folha da tranca 2 não apareceu no caminho,
+  e a saída foi planos e depois a conta;
+- **a tela de Privacidade** (lida na semente, sem mexer) mostrou os blocos
+  novos, o interruptor e o ditado.
+
+**A instalação limpa sem `__DEV__`** (a configuração `forma-prod` do
+`.claude/launch.json`, porta 8082, que é outra origem e por isso
+armazenamento vazio):
+- o Expo leu `.env.production.local`, e não `.env.development`;
+- a sonda disse `__DEV__` falso, `contaLigada()` verdadeiro e a instalação
+  sem demonstração;
+- o aplicativo abriu no cadastro, sem a Mariana, com "Já tenho conta".
+
+Na abertura não há chamada ao `morphi-dev`, e não havia por que ter:
+nada fala com o servidor antes da conta. `contaLigada()` verdadeiro só
+acontece com as duas variáveis. O `.env.production.local` e a sonda foram
+apagados.
+
+**⏳ O que falta, e depende do dono** (a entrada com o código do e-mail):
+- a escolha das perguntas indo e voltando no servidor;
+- o arquivo com 13 perguntas;
+- a folha no iPhone, com a conta dele, que está na versão 1.
+
+1. **A tela `/parceiros` saiu**, a pedido do dono. Os cartões dela
+   prometiam conversa, receita, agenda e resumo enviado, que são da fase
+   7. As entradas passaram para:
+   - Perfil › Assinatura › "Médicos parceiros": a apresentação da rede, ou
+     a vitrine, se já vista;
+   - o cartão do Cuidado com a rede no ar: "Saiba mais", para a
+     apresentação;
+   - sem a rede no ar: a folha do código.
+
+   Do bloco de textos `parceiros` ficaram só os quatro rótulos que a
+   folha do código usa.
+2. **A sincronia espera o aceite.** Ela ganhou `emEspera`, uma dependência
+   opcional: com o consentimento velho, `quem()` responde "desligada", e
+   nada sobe nem desce. A trava da sincronia não passa `emEspera`, e segue
+   como estava.
+3. **O arquivo exportado leva o diário completo:** uma linha nova, ligada
+   por padrão, que sai da mesma `ida` da sincronia, sem as fotos do corpo.
+   As perguntas vêm da conta, somadas às do aparelho
+   (`perguntasParaExportar`). Sem conexão, o arquivo avisa que vieram só
+   as recentes. As seções de antes, com os nomes traduzidos, continuam
+   para leitura.
+4. **Mais frases falsas do que a lista do passo 1**, achadas pela busca,
+   nos seis idiomas:
+   - o cancelamento ("tudo continua no aparelho");
+   - o "Bom saber" dos planos;
+   - a suspensão;
+   - o subtítulo de Privacidade (na Ajuda e no Perfil);
+   - a confirmação de apagar a conta, que agora diz as cópias de
+     segurança e o outro aparelho.
+5. **A Política ganhou:**
+   - o ditado (PENDENCIAS 14, passo 1);
+   - a localização, que é lida no aparelho para a distância e descartada
+     (a frase dizia "não coleta");
+   - as fotos do corpo, que ficam no aparelho.
+
+   O Google não entrou, porque não existe (fase 5).
+6. **As cópias de segurança** saem de `DIAS_DAS_COPIAS_DE_SEGURANCA`
+   (7, o do plano Pro), a conferir na virada (PENDENCIAS 38).
+7. **A trava da sincronia tinha uma afirmação que dependia da hora do
+   dia:** a refeição "nova" era agora mais um minuto, e a semente põe as
+   de hoje às 15h30. De madrugada, ela falhava. Agora a nova vem depois
+   da mais nova da semente.
+
 ---
 
 ## Depois do plano — a produção

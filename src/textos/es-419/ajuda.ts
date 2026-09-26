@@ -45,7 +45,7 @@ export const ajuda = {
     },
     {
       q: '¿Qué puede ver mi equipo?',
-      a: 'Solo lo que envíes. Nada sale de aquí solo: el resumen va cuando tocas enviar, los mensajes cuando los escribes. Lo que queda afuera sigue siendo tuyo, incluso frente a quien te acompaña.',
+      a: 'Nada, hasta que te conectes a una clínica asociada con su código. Con la conexión, el equipo ve tu diario mientras dure, y la lista completa de lo que pasa a ver aparece antes de conectar. Tus preguntas a Morphi quedan fuera, y puedes desconectarte en cualquier momento, en la pantalla de la clínica.',
     },
     {
       q: '¿Ustedes reemplazan lo que me indica quien me acompaña?',
@@ -53,7 +53,7 @@ export const ajuda = {
     },
     {
       q: '¿Y si desinstalo la aplicación?',
-      a: 'Tus registros viven en el aparato, dentro de la aplicación — sin cuenta y sin servidor. Desinstalar se lleva todo, y no hay copia en ningún lado de donde recuperarlos. Antes de eso, puedes armar un archivo con lo que registraste, en Exportar.',
+      a: 'Tu diario queda guardado en tu cuenta: al instalar de nuevo y entrar, vuelve entero. Solo se pierde lo que registraste sin conexión y todavía no había llegado a la cuenta. Y, si quieres una copia tuya, puedes armar un archivo en Exportar.',
     },
   ] as { q: string; a: string }[],
 
@@ -63,7 +63,7 @@ export const ajuda = {
   integracoes: 'Dispositivos e integraciones',
   integracoesSub: 'Conectar Apple Salud o Health Connect',
   privacidade: 'Privacidad y datos',
-  privacidadeSub: 'Lo que queda en el aparato y lo que sale de él',
+  privacidadeSub: 'Dónde queda tu diario y lo que sale de él',
   exportar: 'Exportar tus datos',
   exportarSub: 'Armar un archivo con lo que registraste',
 

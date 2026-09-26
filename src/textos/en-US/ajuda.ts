@@ -45,7 +45,7 @@ export const ajuda = {
     },
     {
       q: 'What can my care team see?',
-      a: 'Only what you send. Nothing leaves here on its own: the summary goes when you tap send, the messages when you write them. What stays out stays yours — even from the people treating you.',
+      a: 'Nothing, until you connect with a partner clinic using its code. With the connection, the team sees your journal while it lasts, and the full list of what it gets to see shows up before you connect. Your questions to Morphi stay out, and you can disconnect anytime on the clinic’s screen.',
     },
     {
       q: 'Do you replace what my care team tells me?',
@@ -53,7 +53,7 @@ export const ajuda = {
     },
     {
       q: 'What if I uninstall the app?',
-      a: 'Your logs live on the device, inside the app — no account and no server. Uninstalling takes everything with it, and there’s no copy anywhere to recover from. Before that, you can build a file with what you logged, under Export.',
+      a: 'Your journal is kept in your account: reinstall, sign in, and it comes back whole. Only what you logged offline, and hadn’t reached your account yet, is lost. And if you want your own copy, you can build a file in Export.',
     },
   ] as { q: string; a: string }[],
 
@@ -63,7 +63,7 @@ export const ajuda = {
   integracoes: 'Devices and connections',
   integracoesSub: 'Connect Apple Health or Health Connect',
   privacidade: 'Privacy and data',
-  privacidadeSub: 'What stays on the device and what leaves it',
+  privacidadeSub: 'Where your journal is kept and what leaves it',
   exportar: 'Export your data',
   exportarSub: 'Build a file with what you logged',
 

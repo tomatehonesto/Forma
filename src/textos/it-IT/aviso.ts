@@ -21,19 +21,38 @@ export const aviso = {
   isencaoAceite: 'Ho capito e accetto',
 
   /* Le quattro schede sui dati, nell'ordine in cui arriva il dubbio. */
-  guardadoTitulo: 'Quello che registri resta sul tuo dispositivo',
-  guardadoTexto: 'Peso, sintomi, punture, esami e appunti sono salvati dentro l’app, su questo telefono. Non c’è né un account né una password: nessuno entra nei tuoi dati con un accesso.',
+  guardadoTitulo: 'Quello che registri resta salvato nel tuo account',
+  guardadoTexto: 'Peso, sintomi, punture, esami e appunti restano su questo telefono e nel nostro database, a San Paolo, legati al tuo account. Così il tuo diario non si perde se cambi o perdi il telefono. Solo il tuo account legge ciò che è tuo.',
 
   usoTitulo: 'A che cosa servono i tuoi dati',
   usoTexto: 'A costruire i tuoi obiettivi del giorno, a seguire l’andamento della terapia e a mettere in ordine quello che porti alla visita. Niente di tutto questo è una diagnosi, e l’app non prescrive e non regola nessuna dose.',
 
   /* ⚠️ LA PARTE CHE UN AVVISO DI CONSENSO DI SOLITO TACE, e che qui è
      l'unica che cambia quello che la persona decide. */
-  saiTitulo: 'Che cosa può uscire da qui, e solo con un tuo tocco',
-  saiTexto: 'Il riepilogo e i messaggi che invii al tuo team di cura. E la foto del piatto, quando usi la lettura da foto: viene inviata per essere letta e non resta salvata.',
+  saiTitulo: 'Cos’altro può uscire da qui, e solo con un tuo gesto',
+  saiTexto: 'Il tuo diario, verso la clinica a cui ti colleghi con il suo codice, dopo aver visto cosa potrà vedere. E la foto del piatto, quando usi la lettura da foto: viene inviata per essere letta e non resta salvata.',
 
   controleTitulo: 'Il controllo resta tuo',
   controleTexto: 'Puoi correggere e cancellare qualsiasi registro, esportare tutto in un file e cancellare i tuoi dati per intero, in qualsiasi momento, nelle impostazioni.',
+
+  perguntasTitulo: 'Le tue domande a Morphi',
+  perguntasTexto: 'Se ce lo permetti, leggiamo le domande che fai a Morphi per capire quali dubbi emergono e migliorare le risposte. Le leggiamo senza sapere chi le ha fatte, e la clinica non le legge mai. È spento all’inizio, e dire di no non cambia niente nell’app.',
+  perguntasEscolha: 'Permettere la lettura delle mie domande',
+  perguntasDetalhe: 'Accenderlo invia anche le domande già qui. Puoi spegnerlo quando vuoi, in Privacy e dati, e quelle inviate vengono cancellate.',
+
+  consentimentoNovo: {
+    titulo: 'Abbiamo cambiato come conserviamo il tuo diario',
+    lead: 'Ora resta anche nel tuo account, nel nostro database, per non perdersi quando cambi telefono. Prima di continuare, leggi cosa è cambiato.',
+    aceitar: 'Accetta e continua',
+    recusar: 'Non sono d’accordo',
+    recusaTitulo: 'Senza accettare non si può andare avanti',
+    recusaTexto: 'L’app ora conserva il diario nel tuo account, e senza non funziona. Se non sei d’accordo, puoi portare via i tuoi dati in un file e cancellare tutto da questo dispositivo. Non si cancella niente senza che tu lo chieda.',
+    exportar: 'Esporta i miei dati',
+    apagar: 'Cancella i miei dati da questo dispositivo',
+    apagarPergunta: 'Cancellare tutto da questo dispositivo? Non si può annullare.',
+    apagarConfirma: 'Cancella',
+    voltar: 'Torna indietro e rileggi',
+  },
 
   /* ============================================================
      I COLLEGAMENTI — che cosa porta ogni archivio
@@ -72,6 +91,7 @@ export const aviso = {
      della persona stessa, e non una cartella clinica. */
   exportacaoAviso: 'Registri fatti dalla persona stessa nell’app. Non è una cartella clinica né un referto.',
   exportacaoTitulo: 'I tuoi dati di Morphi',
+  exportacaoPerguntasRecentes: 'Senza connessione sono arrivate solo le domande recenti di questo dispositivo. Con la connessione, il file porta tutte quelle del tuo account.',
 
   /* Il farmaco di chi non ha ancora risposto. */
   medIndefinido: 'Non ancora definito',
@@ -144,6 +164,8 @@ export const aviso = {
     habitos: 'Pasti, acqua e movimento',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'pasto' : 'pasti'} e il diario del giorno`,
+    completo: 'Il diario completo',
+    completoSub: 'Tutto quello che conserva il tuo account, senza limiti di periodo, con le tue domande',
 
     formatoTitulo: 'Esce un file .json',
     formatoTexto: 'È il formato che un’altra app riesce ad aprire e leggere — serve a conservare una copia o a portare i registri altrove. Per una versione fatta per essere letta da una persona, usa il riepilogo per la visita.',
@@ -154,7 +176,7 @@ export const aviso = {
 
     pronto: 'File creato. Va solo dove lo mandi tu.',
     erro: 'Non siamo riusciti a creare il file su questo dispositivo. I tuoi registri sono ancora qui, intatti.',
-    parado: 'Da qui non esce niente senza un tuo tocco.',
+    parado: 'Il file viene creato solo quando tocchi il pulsante.',
   },
 
   /* ============================================================
@@ -181,16 +203,22 @@ export const aviso = {
 
     /* ---------- dove restano ---------- */
     ondeFicam: 'Dove restano i tuoi registri',
-    noAparelho: 'Sul dispositivo, dentro l’app',
-    noAparelhoTexto: 'Peso, misure, punture, check-in, esami, foto e appunti sono scritti nello spazio dell’app stessa, su questo dispositivo. Qui non c’è né un account né una password: nessuno entra nei tuoi dati con un accesso, perché un accesso non esiste.',
-    desinstalar: 'Disinstallare porta via tutto',
-    desinstalarTexto: 'Siccome non c’è una copia su nessun server, cancellare l’app cancella i registri. Dopo non è possibile recuperarli.',
+    noAparelho: 'Sul dispositivo e nel tuo account',
+    noAparelhoTexto: 'Peso, misure, punture, check-in, esami e appunti restano su questo dispositivo e nel nostro database, a San Paolo, legati al tuo account. Solo il tuo account legge il tuo diario — e la clinica a cui ti colleghi, finché dura il collegamento. Le foto del corpo restano solo qui.',
+    desinstalar: 'Disinstallare non porta via il tuo diario',
+    desinstalarTexto: 'Torna quando accedi al tuo account, su questo dispositivo o su un altro. Solo quello che è stato registrato senza connessione, e non è ancora arrivato all’account, andrebbe perso con l’app.',
 
     /* ---------- che cosa esce ---------- */
     oQueSai: 'Che cosa esce da qui',
-    oQueSaiNota: 'Da qui non esce niente senza un tuo gesto.',
-    paraEquipe: 'Che cosa va al tuo team',
-    paraEquipeTexto: 'Per ora, niente. Il riepilogo per la visita si costruisce sul tuo dispositivo e sei tu a mostrarlo o a esportarlo; i messaggi restano salvati qui. Quando il collegamento con la clinica esisterà, tutti e due usciranno solo con un tuo tocco — e niente del tuo diario viaggia da solo, né il peso, né i sintomi, né i pasti.',
+    oQueSaiNota: 'Solo il primo va da solo. Il resto dipende da un tuo gesto.',
+    paraConta: 'Il tuo diario, verso il tuo account',
+    paraContaTexto: 'I registri e il profilo vanno nel nostro database ogni volta che c’è connessione. È questo che conserva il diario tra i dispositivi.',
+    paraEquipe: 'Cosa vede la tua clinica',
+    paraEquipeTexto: 'Niente, finché non ti colleghi a una clinica partner con il suo codice. Prima di collegarti compare l’elenco di cosa potrà vedere; lo vede finché dura il collegamento, e puoi scollegarti dalla schermata della clinica. Il riepilogo per la visita si costruisce qui, ed esce quando lo mostri o lo esporti.',
+    perguntas: 'Le tue domande a Morphi',
+    perguntasTexto: 'Solo se permetti la lettura, con l’interruttore qui sotto. Le leggiamo senza sapere chi le ha fatte, e la clinica non le legge mai. Spegnerlo cancella quelle inviate.',
+    ditado: 'La tua voce, quando usi il microfono',
+    ditadoTexto: 'A trasformare la voce in testo è il sistema del dispositivo. Chiediamo che succeda sul dispositivo stesso, ma senza il riconoscimento locale della tua lingua il sistema può inviare l’audio ad Apple o a Google. Solo finché il microfono è acceso.',
     fotoDoPrato: 'La foto del piatto, quando usi la lettura da foto',
     fotoDoPratoTexto: 'Viene ridotta sul dispositivo e inviata perché la legga un modello, che restituisce gli elementi del piatto. L’immagine non resta salvata: né nel tuo registro del pasto, né sul server che fa da ponte. Registrare il pasto a mano non invia niente.',
 
@@ -225,7 +253,7 @@ export const aviso = {
        esattamente quella a cui si risponde "sì" in automatico. */
     apagar: 'Cancella i miei dati',
     apagarSub: 'Tutto quello che hai registrato, senza ritorno',
-    apagarPergunta: 'Cancellare tutto? Non c’è una copia da nessuna parte.',
+    apagarPergunta: 'Cancellare tutto da questo dispositivo? Questo diario non ha ancora un account, e non ne esiste una copia altrove.',
     apagarConfirma: 'Cancella',
     cancelar: 'Annulla',
 

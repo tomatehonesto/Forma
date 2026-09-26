@@ -18,6 +18,19 @@
         "start"
       ],
       "port": 8081
+    },
+    {
+      "name": "forma-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "expo",
+        "start",
+        "--web",
+        "--no-dev",
+        "--port",
+        "8082"
+      ],
+      "port": 8082
     }
   ]
 }

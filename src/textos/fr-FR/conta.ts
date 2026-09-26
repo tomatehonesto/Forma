@@ -89,7 +89,8 @@ export const conta = {
 
   apagarConta: {
     sub: 'Le compte et tout ce qu’il garde, sans retour',
-    pergunta: 'Supprimer le compte et tout ce que vous avez noté ? Il ne reste de copie nulle part.',
+    pergunta: (dias: number) =>
+      `Supprimer le compte et tout ce qu’il garde, ici et dans notre base de données ? Les sauvegardes disparaissent en ${dias} jours au plus, et un autre appareil où vous vous êtes connecté garde sa copie jusqu’à ce que vous vous y déconnectiez.`,
     apagando: 'Suppression…',
     semInternet: 'Supprimer le compte demande internet. Rien n’a été supprimé.',
     falhou: 'Nous n’avons pas pu le supprimer pour le moment. Rien n’a été supprimé — réessayez dans un instant.',

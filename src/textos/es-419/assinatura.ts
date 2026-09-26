@@ -88,7 +88,7 @@ export const assinatura = {
      de sus propias inyecciones y de sus propios exámenes — y eso no lo
      hacemos. Separadas, la primera frase se vuelve una amenaza. */
   bomSaberTitulo: 'Conviene que sepas',
-  bomSaberTexto: 'Si la clínica socia nos informa que el vínculo de tratamiento terminó, el acceso queda suspendido hasta que contrates un plan Personal — y no se cobra nada sin que lo elijas. Nada de lo que registraste se pierde: tus registros siguen en el dispositivo y puedes exportarlos cuando quieras.',
+  bomSaberTexto: 'Si la clínica socia nos informa que el vínculo de tratamiento terminó, el acceso queda suspendido hasta que contrates un plan Personal — y no se cobra nada sin que lo elijas. Nada de lo que registraste se pierde: tus registros siguen en tu cuenta y puedes exportarlos cuando quieras.',
 
   /* ⚠️ DECIR "NO TE SUSCRIBISTE" SIN DECIR QUE NADIE PUEDE SUSCRIBIRSE
      deja a la persona buscando un botón que no existe. Esta sale el día en
@@ -203,37 +203,15 @@ export const assinatura = {
        Las tres líneas responden la misma pregunta — "¿qué pierdo?" */
     tranquiloTitulo: 'QUÉDATE TRANQUILA',
     tranquiloAcesso: 'El acceso continúa hasta el final del período ya pagado.',
-    tranquiloDados: 'Nada de lo que registraste se pierde — todo sigue en el dispositivo.',
+    tranquiloDados: 'Nada de lo que registraste se pierde — todo sigue en tu cuenta.',
     tranquiloLoja: (loja: string) => `La cancelación se hace en ${loja}: la aplicación no puede hacerlo por ti.`,
   },
 
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Médicos socios',
-    lead: 'Algunas clínicas acompañan el tratamiento por aquí junto contigo. Sin eso sigues teniendo todo — lo que cambia es lo que pasa a ser posible con tu equipo dentro de la aplicación.',
-
-    jaTemTitulo: 'Ya estás con una clínica socia',
-    jaTemLead: 'Todo lo que está en esta lista ya vale para ti.',
-
-    conversaTitulo: 'Conversación con el equipo',
-    conversaTexto: 'Mensajes entre las consultas, sin tener que reagendar para resolver una duda.',
-    resumoTitulo: 'Tu resumen llega allá',
-    resumoTexto: 'Un toque envía peso, adherencia, síntomas y exámenes — ordenados como se usan en la consulta.',
-    receitaTitulo: 'Receta y protocolo',
-    receitaTexto: 'Pide la renovación y recibe el protocolo de la semana dentro de la aplicación.',
-    agendaTitulo: 'La agenda viene lista',
-    agendaTexto: 'Las consultas aparecen aquí sin que tengas que anotar nada.',
-
-    /* ⚠️ Y NO HAY BÚSQUEDA DE CLÍNICA, y la pantalla lo dice. Una lista de
-       clínicas que no existe sería la puerta tapiada más cara de aquí. */
-    conviteTitulo: 'La invitación viene de la clínica',
-    conviteTexto: 'No se puede buscar una clínica por aquí. Quien ya se trata en una clínica socia recibe de ella un código, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
-    conviteTextoComRede: 'Quien se trata en la red asociada recibe de la clínica un código después de la primera consulta, y es ese el que une las dos puntas. Si tu clínica todavía no usa la aplicación, conviene comentárselo.',
-
     codigoRotulo: 'Código de invitación',
-    codigoAjudaAtual: 'Es el que te une a tu clínica.',
-    usarOutro: 'Usar otro código',
-    temCodigoRotulo: 'Tengo un código de invitación',
-    temCodigoAjuda: 'Es el código que te pasó la clínica.',
     digite: 'Escribe el código',
     confirmar: 'Confirmar código',
     codigoSub: 'El código que te pasó la clínica socia.',
@@ -270,7 +248,7 @@ export const assinatura = {
      líneas de abajo son la diferencia entre un aviso y una amenaza. */
   suspenso: {
     clinicaGenerica: 'la clínica que te acompañaba',
-    nadaApagado: 'No se borró nada. Peso, inyecciones, síntomas, exámenes y fotos siguen en tu dispositivo.',
+    nadaApagado: 'No se borró nada. Peso, inyecciones, síntomas, exámenes y fotos siguen donde estaban.',
     nadaCobrado: 'No se cobró nada, y nada se va a cobrar sin que lo elijas.',
     verOsPlanos: 'Ver los planes',
     outroCodigo: 'Tengo otro código',

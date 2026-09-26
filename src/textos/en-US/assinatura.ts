@@ -59,7 +59,7 @@ export const assinatura = {
      the line about the data always travels with it: locking someone out
      of their own weight, shots and labs is not something we do. */
   bomSaberTitulo: 'Worth knowing',
-  bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you start a Personal plan — and nothing is charged without you choosing it. Nothing you logged is lost: your entries stay on the device and you can export them whenever you want.',
+  bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you start a Personal plan — and nothing is charged without you choosing it. Nothing you logged is lost: your entries stay in your account and you can export them whenever you want.',
 
   semCobrancaTitulo: 'Billing isn’t turned on yet',
   semCobrancaTexto: 'This screen exists; the subscription doesn’t yet. Nothing has been charged to you, and nothing will be without notice.',
@@ -149,35 +149,15 @@ export const assinatura = {
 
     tranquiloTitulo: 'REST EASY',
     tranquiloAcesso: 'Access continues until the end of the period you already paid for.',
-    tranquiloDados: 'Nothing you logged is lost — it all stays on the device.',
+    tranquiloDados: 'Nothing you logged is lost — it all stays in your account.',
     tranquiloLoja: (loja: string) => `Canceling is done on the ${loja}: the app can’t do it for you.`,
   },
 
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Partner clinicians',
-    lead: 'Some clinics follow treatment here alongside you. Without that you still have everything — what changes is what you can do with your care team in here.',
-
-    jaTemTitulo: 'You’re already with a partner clinic',
-    jaTemLead: 'Everything on this list already applies to you.',
-
-    conversaTitulo: 'Messages with your team',
-    conversaTexto: 'Messages between appointments, without rebooking just to ask something.',
-    resumoTitulo: 'Your summary gets there',
-    resumoTexto: 'One tap sends weight, adherence, symptoms and labs — organized the way they get used at an appointment.',
-    receitaTitulo: 'Prescription and protocol',
-    receitaTexto: 'Request a renewal and get the week’s protocol inside the app.',
-    agendaTitulo: 'Your schedule, already filled in',
-    agendaTexto: 'Appointments show up here without you writing anything down.',
-
-    conviteTitulo: 'The invite comes from the clinic',
-    conviteTexto: 'You can’t search for a clinic here. Someone already treated at a partner clinic gets a code from them, and that’s what connects the two ends. If your clinic doesn’t use the app yet, it’s worth mentioning to them.',
-    conviteTextoComRede: 'If you’re treated in the partner network, the clinic gives you a code after the first appointment, and that’s what connects the two ends. If your clinic doesn’t use the app yet, it’s worth mentioning to them.',
-
     codigoRotulo: 'Invite code',
-    codigoAjudaAtual: 'It’s what links you to your clinic.',
-    usarOutro: 'Use a different code',
-    temCodigoRotulo: 'I have an invite code',
-    temCodigoAjuda: 'It’s the code your clinic gave you.',
     digite: 'Enter the code',
     confirmar: 'Confirm code',
     codigoSub: 'The code your partner clinic gave you.',
@@ -212,7 +192,7 @@ export const assinatura = {
 
   suspenso: {
     clinicaGenerica: 'the clinic that was following your care',
-    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms, labs and photos all stay on your device.',
+    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms, labs and photos are right where they were.',
     nadaCobrado: 'Nothing was charged, and nothing will be without you choosing it.',
     verOsPlanos: 'View plans',
     outroCodigo: 'I have another code',

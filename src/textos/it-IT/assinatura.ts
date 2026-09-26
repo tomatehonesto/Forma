@@ -106,7 +106,7 @@ export const assinatura = {
      proprie punture e dai propri esami — e questo non lo facciamo.
      Separate, la prima frase diventa una minaccia. */
   bomSaberTitulo: 'È bene che tu lo sappia',
-  bomSaberTexto: 'Se il centro partner ci comunica che il percorso di cura è finito, l’accesso resta sospeso finché non scegli un piano Personal — e non viene addebitato niente senza che tu lo scelga. Niente di quello che hai registrato si perde: i registri restano sul dispositivo e puoi esportarli quando vuoi.',
+  bomSaberTexto: 'Se il centro partner ci comunica che il percorso di cura è finito, l’accesso resta sospeso finché non scegli un piano Personal — e non viene addebitato niente senza che tu lo scelga. Niente di quello che hai registrato si perde: i registri restano nel tuo account e puoi esportarli quando vuoi.',
 
   /* ⚠️ DIRE "NON TI SEI ABBONATA" SENZA DIRE CHE NESSUNO PUÒ ABBONARSI
      lascia la persona a cercare un pulsante che non esiste. Questa
@@ -235,41 +235,18 @@ export const assinatura = {
        perdo?" */
     tranquiloTitulo: 'STAI TRANQUILLA',
     tranquiloAcesso: 'L’accesso continua fino alla fine del periodo già pagato.',
-    tranquiloDados: 'Niente di quello che hai registrato si perde — resta tutto sul dispositivo.',
+    tranquiloDados: 'Niente di quello che hai registrato si perde — resta tutto nel tuo account.',
     tranquiloLoja: (loja: string) => `La disdetta si fa su ${loja}: non possiamo farla noi al posto tuo.`,
   },
 
   /* ============================================================
      I CENTRI PARTNER — /parceiros e /codigo
      ============================================================ */
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Medici partner',
-    lead: 'Alcuni centri seguono la terapia qui dentro insieme a te. Senza, resti con tutto — quello che cambia è quello che puoi fare con il tuo team qui.',
-
-    jaTemTitulo: 'Sei già con un centro partner',
-    jaTemLead: 'Tutto quello che sta in questo elenco vale già per te.',
-
-    conversaTitulo: 'Conversazione con il team',
-    conversaTexto: 'Messaggi fra una visita e l’altra, senza dover riprenotare per togliersi un dubbio.',
-    resumoTitulo: 'Il tuo riepilogo arriva lì',
-    resumoTexto: 'Un tocco invia peso, aderenza, sintomi ed esami — in ordine, come si usano in visita.',
-    receitaTitulo: 'Ricetta e protocollo',
-    receitaTexto: 'Chiedi il rinnovo e ricevi il protocollo della settimana dentro l’app.',
-    agendaTitulo: 'L’agenda, già compilata',
-    agendaTexto: 'Le visite compaiono qui senza che tu debba annotare niente.',
-
-    /* ⚠️ E NON C'È UNA RICERCA DI CENTRI, e la schermata lo dice. Un
-       elenco di centri che non esiste sarebbe la porta murata più cara di
-       qui. */
-    conviteTitulo: 'L’invito arriva dal centro',
-    conviteTexto: 'Qui non si può cercare un centro. Chi si cura già in un centro partner riceve da lui un codice, ed è quello a unire le due estremità. Se il tuo centro non usa ancora l’app, vale la pena dirglielo.',
-    conviteTextoComRede: 'Chi si cura nella rete partner riceve dal centro un codice dopo la prima visita, ed è quello a unire le due estremità. Se il tuo centro non usa ancora l’app, vale la pena dirglielo.',
-
     codigoRotulo: 'Codice di invito',
-    codigoAjudaAtual: 'È quello che ti collega al tuo centro.',
-    usarOutro: 'Usa un altro codice',
-    temCodigoRotulo: 'Ho un codice di invito',
-    temCodigoAjuda: 'È il codice che ti ha dato il centro.',
     digite: 'Scrivi il codice',
     confirmar: 'Conferma il codice',
     codigoSub: 'Il codice che ti ha dato il centro partner.',
@@ -313,7 +290,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'il centro che ti seguiva',
-    nadaApagado: 'Non è stato cancellato niente. Peso, punture, sintomi, esami e foto restano sul tuo dispositivo.',
+    nadaApagado: 'Non è stato cancellato niente. Peso, punture, sintomi, esami e foto sono dove erano.',
     nadaCobrado: 'Non è stato addebitato niente, e non lo sarà senza che tu lo scelga.',
     verOsPlanos: 'Vedi i piani',
     outroCodigo: 'Ho un altro codice',

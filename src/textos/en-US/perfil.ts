@@ -45,7 +45,7 @@ export const perfil = {
 
   ajudaEDados: 'Help and data',
   privacidade: 'Privacy and data',
-  privacidadeSub: 'What stays on the device, export, delete and the documents',
+  privacidadeSub: 'Where your journal is kept, export, delete and the documents',
   ajuda: 'Help',
   ajudaSub: 'Frequently asked questions about the app',
 

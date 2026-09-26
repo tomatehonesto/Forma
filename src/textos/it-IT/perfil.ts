@@ -81,7 +81,7 @@ export const perfil = {
   /* ---------- aiuto e dati ---------- */
   ajudaEDados: 'Aiuto e dati',
   privacidade: 'Privacy e dati',
-  privacidadeSub: 'Che cosa resta sul dispositivo, esportare, cancellare e i documenti',
+  privacidadeSub: 'Dove resta il tuo diario, esportare, cancellare e i documenti',
   ajuda: 'Aiuto',
   ajudaSub: 'Domande frequenti sull’app',
 

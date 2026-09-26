@@ -6,6 +6,7 @@ import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo
 import { trocarLocal, type Local } from './local';
 import { carimbar } from './identidade';
 import { esquecerSincronia } from './sincronia';
+import { contaLigada } from './nuvem';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -110,18 +111,30 @@ export const useStore = create<Store>((set, get) => ({
      a mesma na abertura seguinte: sem gravar, um item ganharia um `rid`
      novo a cada abertura, até a primeira mudança gravar o estado — e a
      sincronia subiria o mesmo item com dois ids. */
+  /* ⚠️⚠️ FORA DO DESENVOLVIMENTO, COM A CONTA LIGADA, NÃO HÁ MARIANA
+     (a decisão 1 do plano do Supabase; PENDENCIAS, item 27, saída 2).
+     A instalação nova nascia na demonstração, com o cadastro feito — e
+     com a conta obrigatória, isso seria a porta para usar o aplicativo
+     sem conta. Agora ela nasce vazia, e cai no cadastro. E um estado
+     gravado com a marca da semente numa build de loja (quem instalou
+     antes e nunca se cadastrou) também vai para o cadastro: o que ele
+     guarda é a paciente inventada, e não a pessoa. */
   hydrate: async () => {
+    const semDemonstracao = !(typeof __DEV__ !== 'undefined' && __DEV__) && contaLigada();
     try {
       const raw = await AsyncStorage.getItem(KEY);
       if (raw) {
-        const s = ensureDefaults(JSON.parse(raw));
-        const agora = JSON.stringify(s);
-        if (agora !== raw) AsyncStorage.setItem(KEY, agora).catch(() => {});
-        set({ S: s, ready: true });
-        return;
+        const lido = JSON.parse(raw);
+        if (!(semDemonstracao && lido?.semente)) {
+          const s = ensureDefaults(lido);
+          const agora = JSON.stringify(s);
+          if (agora !== raw) AsyncStorage.setItem(KEY, agora).catch(() => {});
+          set({ S: s, ready: true });
+          return;
+        }
       }
     } catch {}
-    const s = semente();
+    const s = semDemonstracao ? estadoVazio() : semente();
     AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s, ready: true });
   },

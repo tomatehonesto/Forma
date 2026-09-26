@@ -3,8 +3,8 @@
 
    Toda seção de configurações tem uma seção de ajuda, e quase toda uma é
    a mesma coisa: oito perguntas genéricas sobre conta e senha, escritas
-   por quem não conhece o aplicativo. Aqui não há conta nem senha, e as
-   dúvidas deste aplicativo são outras — por que uma conquista sumiu, de
+   por quem não conhece o aplicativo. A conta aqui é um e-mail com código,
+   sem senha, e as dúvidas deste aplicativo são outras — por que uma conquista sumiu, de
    onde saiu um número, por que o lembrete não tocou.
 
    ⚠️⚠️ CADA RESPOSTA É UMA REGRA DO CÓDIGO, e não uma promessa de
@@ -14,8 +14,8 @@
    e por isso cada uma diz ONDE a coisa acontece, com caminho para lá.
 
    Quem traduzir precisa saber disto antes de suavizar qualquer frase: a
-   resposta sobre desinstalar diz que não há cópia em lugar nenhum porque
-   não há, e não porque soa honesto dizer.
+   resposta sobre desinstalar diz que o diário volta com a conta porque
+   volta, e diz o que se perde sem conexão porque se perde.
 
    ⚠️ E NÃO HÁ LINHA DE CONTATO, por enquanto. Um "fale com a gente" que
    não vai a lugar nenhum é a pior linha que uma tela de ajuda pode ter:
@@ -63,7 +63,7 @@ export const ajuda = {
     },
     {
       q: 'O que a minha equipe consegue ver?',
-      a: 'Só o que você enviar. Nada sai daqui sozinho: o resumo vai quando você toca em enviar, as mensagens quando você escreve. O que fica de fora continua sendo seu, inclusive de quem te acompanha.',
+      a: 'Nada, até você se conectar a uma clínica parceira pelo código dela. Com a conexão, a equipe vê o seu diário enquanto ela durar, e a lista inteira do que ela passa a ver aparece antes de você conectar. As suas perguntas ao Morphi ficam fora, e dá para desconectar a qualquer momento, na tela da clínica.',
     },
     {
       q: 'Vocês substituem a orientação de quem me acompanha?',
@@ -71,7 +71,7 @@ export const ajuda = {
     },
     {
       q: 'E se eu desinstalar o aplicativo?',
-      a: 'Os seus registros moram no aparelho, dentro do aplicativo — sem conta e sem servidor. Desinstalar leva tudo junto, e não há cópia em lugar nenhum de onde recuperar. Antes disso, dá para montar um arquivo com o que você registrou, em Exportar.',
+      a: 'O seu diário fica guardado na sua conta: ao instalar de novo e entrar, ele volta inteiro. Só o que você registrou sem conexão, e ainda não tinha chegado à conta, se perde junto. E, se quiser uma cópia sua, dá para montar um arquivo em Exportar.',
     },
   ] as { q: string; a: string }[],
 
@@ -85,7 +85,7 @@ export const ajuda = {
   integracoes: 'Dispositivos e integrações',
   integracoesSub: 'Ligar o Apple Saúde ou o Health Connect',
   privacidade: 'Privacidade e dados',
-  privacidadeSub: 'O que fica no aparelho e o que sai dele',
+  privacidadeSub: 'Onde o seu diário fica e o que sai dele',
   exportar: 'Exportar seus dados',
   exportarSub: 'Montar um arquivo com o que você registrou',
 

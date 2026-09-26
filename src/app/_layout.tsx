@@ -13,6 +13,7 @@ import { useStore } from '../logic/store';
 import { lerAparelho, localAtual, trocarLocal } from '../logic/local';
 import { modoFingido } from '../logic/modo';
 import { contaLigada, temConexao } from '../logic/nuvem';
+import { consentimentoPendente } from '../logic/consentimento';
 import { atualizarVinculo, sincronia, usarConvitePendente } from '../logic/conta';
 import { nextInjectionDate } from '../logic/derive';
 import { reagendar } from '../logic/avisos';
@@ -68,7 +69,11 @@ function Moldura({ children }: { children: React.ReactNode }) {
      1. sem `onboardDone` → /cadastro. Deixa ficar o cadastro, a conta
         ("Já tenho conta", na abertura) e os documentos (os links dos
         Termos e da Política).
-     2. (a fase 8 do plano do Supabase: o consentimento novo)
+     2. a conta ligada, o cadastro feito, a versão aceita do
+        consentimento menor que a de agora e o estado que não é a semente
+        de desenvolvimento (`consentimentoPendente`) → /consentimento.
+        Deixa ficar a folha, os documentos e a exportação — quem não
+        concorda leva os dados antes de apagar o aparelho.
      3. a conta ligada (`contaLigada()`), o cadastro feito, o diário sem
         dono, o estado que não é a semente de desenvolvimento — e HÁ
         CONEXÃO → /conta?de=cadastro. Deixa ficar o caminho do cadastro
@@ -86,15 +91,18 @@ function Moldura({ children }: { children: React.ReactNode }) {
    entrar de novo.
    ============================================================ */
 const FICA_NA_TRANCA_1 = ['cadastro', 'conta', 'documento'];
-const FICA_NA_TRANCA_3 = ['cadastro', 'planos', 'codigo', 'conta', 'documento', 'exportar'];
+const FICA_NA_TRANCA_2 = ['consentimento', 'documento', 'exportar'];
+const FICA_NA_TRANCA_3 = ['cadastro', 'planos', 'codigo', 'conta', 'documento', 'exportar', 'consentimento'];
 
 function Portao({ children }: { children: React.ReactNode }) {
   const ready = useStore((s) => s.ready);
   const feito = useStore((s) => s.S.onboardDone);
   const semDono = useStore((s) => !(s.S as any).conta);
   const semente = useStore((s) => !!(s.S as any).semente);
+  const pendente = useStore((s) => consentimentoPendente(s.S));
   const segmentos = useSegments();
   const router = useRouter();
+  const precisaDoAceite = contaLigada() && pendente;
   const precisaDeConta = contaLigada() && feito && semDono && !(semente && __DEV__);
   const [conexao, setConexao] = useState(false);
 
@@ -114,10 +122,14 @@ function Portao({ children }: { children: React.ReactNode }) {
       if (!FICA_NA_TRANCA_1.includes(aqui)) router.replace('/cadastro' as any);
       return;
     }
+    if (precisaDoAceite) {
+      if (!FICA_NA_TRANCA_2.includes(aqui)) router.replace('/consentimento' as any);
+      return;
+    }
     if (precisaDeConta && conexao && !FICA_NA_TRANCA_3.includes(aqui)) {
       router.replace('/conta?de=cadastro' as any);
     }
-  }, [ready, feito, precisaDeConta, conexao, segmentos, router]);
+  }, [ready, feito, precisaDoAceite, precisaDeConta, conexao, segmentos, router]);
 
   return <>{children}</>;
 }
@@ -262,7 +274,7 @@ function SaudeDoAparelho() {
    E NÃO INTERROMPE O CADASTRO. Quem está respondendo as quinze perguntas
    iniciais não quer uma tela cheia de lima no meio — e o cadastro grava
    peso e aplicação, que fechariam trilha na hora. */
-const CORREDOR = ['cadastro', 'conquista-ok', 'conta', 'planos', 'codigo', 'documento'];
+const CORREDOR = ['cadastro', 'conquista-ok', 'conta', 'consentimento', 'planos', 'codigo', 'documento'];
 
 function VigiaDeConquistas() {
   const ready = useStore((s) => s.ready);
@@ -369,6 +381,9 @@ export default function RootLayout() {
           {/* A conta também não se fecha pelo lado: pelo fim do cadastro,
               a única saída é criar a conta ou entrar numa. */}
           <Stack.Screen name="conta" options={{ gestureEnabled: false }} />
+          {/* Nem a folha do consentimento novo: a saída é aceitar, ou
+              recusar e seguir o que ela oferece. */}
+          <Stack.Screen name="consentimento" options={{ gestureEnabled: false }} />
           {/* O check-in era folha modal. Virou tela: ele tem três escalas
               fixas, a lista de sintomas e um cartão por sintoma marcado —
               conteúdo que rola, e folha que rola muito é tela com menos

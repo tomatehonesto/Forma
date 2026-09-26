@@ -2,19 +2,14 @@ import { T } from '../textos';
 /* ============================================================
    O CONSENTIMENTO
 
-   ⚠️⚠️ O SUPABASE VAI DERRUBAR METADE DISTO. ⚠️⚠️
+   ⚠️⚠️ A VERSÃO 2 É A DA CONTA (fase 8 do plano do Supabase). ⚠️⚠️
 
-   O aplicativo vai passar a ter conta, autenticação e banco. Hoje não
-   tem, e por isso o que está escrito aqui é verdade: um app sem
-   servidor, sem login e sem cópia. No dia em que o Supabase entrar,
-   cada frase sobre "fica no seu aparelho" vira declaração falsa numa
-   política de privacidade — que é o pior lugar possível para uma.
-
-   Não reescreva antes: descrever tratamento que ainda não acontece é o
-   erro simétrico. A lista frase por frase está em PENDENCIAS.md, item 10
-   — junto com a região já escolhida, São Paulo (sa-east-1), que mantém o
-   histórico de saúde no Brasil e poupa a seção de transferência
-   internacional.
+   A versão 1 dizia que tudo ficava no telefone, sem conta e sem senha, e
+   era verdade até a nuvem ser ligada. A 2 diz que o diário fica na conta,
+   no banco em São Paulo, e traz a escolha das perguntas, que é própria e
+   vem desligada. Quem aceitou a 1 vê a nova na abertura (a tranca 2 do
+   portão, em app/_layout), e nada sobe enquanto não aceitar (ver
+   `consentimentoPendente` e a sincronia em logic/conta).
 
    ⚠️ NÃO HAVIA NENHUM. O cadastro perguntava altura, peso, medicamento,
    dose, restrição alimentar e autorização para ler o aplicativo de saúde
@@ -47,7 +42,7 @@ import { T } from '../textos';
    ============================================================ */
 
 /** Sobe quando o texto abaixo mudar de forma relevante. */
-export const VERSAO = 1;
+export const VERSAO = 2;
 
 /* Os documentos moram DENTRO do aplicativo, e não numa página na
    internet: um link que depende de rede escolheria a pior hora para
@@ -98,3 +93,19 @@ export type Consentimento = { em: number; versao: number };
 /** O que ficou guardado, quando ficou — ou nada. */
 export const consentimentoDe = (S: any): Consentimento | null =>
   (S?.profile?.consentimento as Consentimento) ?? null;
+
+/** A escolha das perguntas, com o que o texto dela diz — o mesmo cartão
+    no último passo do cadastro e na folha do consentimento novo. */
+export const ESCOLHA_DAS_PERGUNTAS = () => ({
+  titulo: T.aviso.perguntasTitulo,
+  texto: T.aviso.perguntasTexto,
+  escolha: T.aviso.perguntasEscolha,
+  detalhe: T.aviso.perguntasDetalhe,
+});
+
+/** Quem terminou o cadastro e aceitou uma versão anterior — ou nenhuma.
+    É a condição da tranca 2 do portão e da sincronia parada. A semente
+    de desenvolvimento não conta: ela nunca sobe, e nunca pede nada. */
+export const consentimentoPendente = (S: any): boolean =>
+  !!S?.onboardDone && !(S?.semente && typeof __DEV__ !== 'undefined' && __DEV__)
+  && (consentimentoDe(S)?.versao ?? 0) < VERSAO;

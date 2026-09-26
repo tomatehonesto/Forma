@@ -89,7 +89,8 @@ export const conta = {
 
   apagarConta: {
     sub: 'L’account e tutto quello che conserva, senza ritorno',
-    pergunta: 'Cancellare l’account e tutto quello che hai registrato? Non resta una copia da nessuna parte.',
+    pergunta: (dias: number) =>
+      `Cancellare l’account e tutto quello che conserva, qui e nel nostro database? Le copie di sicurezza spariscono entro ${dias} giorni, e un altro dispositivo in cui hai fatto l’accesso tiene la sua copia finché non esci dall’account lì.`,
     apagando: 'Cancellazione…',
     semInternet: 'Cancellare l’account richiede internet. Non è stato cancellato niente.',
     falhou: 'Non siamo riusciti a cancellarlo ora. Non è stato cancellato niente — riprova tra un attimo.',

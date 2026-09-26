@@ -1003,15 +1003,17 @@ function Parceiros() {
 
       {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE: os rostos de quem
           atende — os mais próximos, quando sabemos onde a pessoa está — e
-          "Ver clínicas". Sem a rede, é o mesmo cartão sem os rostos, e o
-          botão diz "Saiba mais": ele leva à tela do código de convite, que
-          é o único caminho que existe enquanto não há lista. */}
+          "Ver clínicas". Com a rede no ar e a lista ainda chegando, é o
+          mesmo cartão sem os rostos, e "Saiba mais" leva à apresentação.
+          Sem a rede no ar (sem nuvem), o botão é o código de convite, que é
+          o único caminho que existe sem lista — a tela /parceiros, que
+          explicava isso, saiu na fase 8. */}
       {noAr && rede?.length ? (
         <CartaoDaRede rede={rede} ponto={ponto} onPress={abrirRede} />
       ) : (
         <CartaoDeParceiros
-          acao={T.rede.cartao.saibaMais}
-          onPress={noAr ? abrirRede : () => router.push('/parceiros' as any)}
+          acao={noAr ? T.rede.cartao.saibaMais : T.rede.jaTenhoCodigo}
+          onPress={noAr ? abrirRede : () => router.push('/codigo' as any)}
         />
       )}
 

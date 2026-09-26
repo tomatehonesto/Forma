@@ -109,7 +109,7 @@ export const rede = {
 
      ⚠️ E NÃO HÁ PREÇO — há a isenção. A faixa embaixo dos passos diz que
      quem se trata numa clínica parceira não paga, que é a regra da casa;
-     valor nenhum aparece aqui, pelo mesmo motivo de /parceiros: a
+     valor nenhum aparece aqui, pelo mesmo motivo que a antiga /parceiros não dava: a
      cobrança ainda não existe no código (PENDENCIAS, item 5).
      ============================================================ */
   apresentacao: {
@@ -161,8 +161,8 @@ export const rede = {
      O CARTÃO DA ABA CUIDADO — para quem não tem acompanhamento
 
      ⚠️ O TÍTULO E O TEXTO SÃO DOS DOIS CARTÕES: o da rede, com os rostos
-     e "Ver clínicas", e o de antes, que leva a /parceiros enquanto a rede
-     não está no ar. Os dois falam da mesma coisa, e dizer de dois jeitos
+     e "Ver clínicas", e o de antes, que leva à apresentação (ou ao
+     código, sem a rede no ar). Os dois falam da mesma coisa, e dizer de dois jeitos
      faria a pessoa achar que são duas.
 
      ⚠️ E NÃO HÁ CONTAGEM. "9 profissionais na rede" saiu do cartão: os
@@ -180,8 +180,8 @@ export const rede = {
        (PENDENCIAS, item 34). */
     texto: 'Clínicas que usam o Morphi para acompanhar seus pacientes de perto, monitorar a evolução do tratamento e potencializar seus resultados.',
     acao: 'Ver clínicas',
-    /* o botão do cartão sem a rede no ar: ele leva a /parceiros, que não
-       tem lista de clínicas — "Ver clínicas" ali seria mentira */
+    /* o botão do cartão com a rede no ar e a lista ainda chegando: ele leva
+       à apresentação, que não é lista de clínicas — "Ver clínicas" ali seria mentira */
     saibaMais: 'Saiba mais',
   },
 

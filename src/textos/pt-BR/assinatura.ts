@@ -112,7 +112,7 @@ export const assinatura = {
      peso, das próprias aplicações e dos próprios exames — e isso não
      fazemos. Separadas, a primeira frase vira uma ameaça. */
   bomSaberTitulo: 'É bom você saber',
-  bomSaberTexto: 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam no aparelho e dá para exportar quando quiser.',
+  bomSaberTexto: 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam na sua conta e dá para exportar quando quiser.',
 
   /* ⚠️ DIZER "VOCÊ NÃO ASSINOU" SEM DIZER QUE NINGUÉM PODE ASSINAR deixa
      a pessoa procurando um botão que não existe. Esta sai no dia em que a
@@ -241,44 +241,18 @@ export const assinatura = {
        linhas respondem a mesma pergunta — "o que eu perco?" */
     tranquiloTitulo: 'FIQUE TRANQUILO',
     tranquiloAcesso: 'O acesso continua até o fim do período já pago.',
-    tranquiloDados: 'Nada do que você registrou se perde — tudo continua no aparelho.',
+    tranquiloDados: 'Nada do que você registrou se perde — tudo continua na sua conta.',
     tranquiloLoja: (loja: string) => `O cancelamento é feito na ${loja}: o aplicativo não consegue fazer isso por você.`,
   },
 
   /* ============================================================
      AS CLÍNICAS PARCEIRAS — /parceiros e /codigo
      ============================================================ */
+  /* Os rótulos do campo da folha do código (/codigo). A tela /parceiros,
+     de onde eles nasceram, saiu na fase 8: a apresentação da rede e a
+     vitrine já explicam o caminho, e têm "Já tenho um código". */
   parceiros: {
-    titulo: 'Médicos parceiros',
-    lead: 'Algumas clínicas acompanham o tratamento por aqui junto com você. Sem isso você continua com tudo — o que muda é o que passa a ser possível com a sua equipe dentro do aplicativo.',
-
-    jaTemTitulo: 'Você já está com uma clínica parceira',
-    jaTemLead: 'Tudo o que está nesta lista já vale para você.',
-
-    conversaTitulo: 'Conversa com a equipe',
-    conversaTexto: 'Mensagens entre as consultas, sem precisar remarcar para tirar uma dúvida.',
-    resumoTitulo: 'O seu resumo chega lá',
-    resumoTexto: 'Um toque envia peso, adesão, sintomas e exames — organizados, do jeito que a consulta usa.',
-    receitaTitulo: 'Receita e protocolo',
-    receitaTexto: 'Pedir renovação e receber o protocolo da semana dentro do aplicativo.',
-    agendaTitulo: 'A agenda vem pronta',
-    agendaTexto: 'As consultas aparecem aqui sem você precisar anotar nada.',
-
-    /* ⚠️ E NÃO HÁ BUSCA DE CLÍNICA, e a tela diz isso. Uma lista de
-       clínicas que não existe seria a porta emparedada mais cara daqui.
-
-       ⚠️ ATÉ A VITRINE DA REDE EXISTIR (ver logic/rede). Com ela no ar,
-       procurar passa a ser possível, e a frase de cima vira mentira — a
-       tela troca para a segunda, que só diz de onde vem o código. */
-    conviteTitulo: 'O convite vem da clínica',
-    conviteTexto: 'Não dá para procurar uma clínica por aqui. Quem já se trata numa clínica parceira recebe dela um código, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
-    conviteTextoComRede: 'Quem se trata na rede parceira recebe da clínica um código depois da primeira consulta, e é ele que liga as duas pontas. Se a sua clínica ainda não usa o aplicativo, vale comentar com ela.',
-
     codigoRotulo: 'Código de convite',
-    codigoAjudaAtual: 'É ele que liga você à sua clínica.',
-    usarOutro: 'Usar outro código',
-    temCodigoRotulo: 'Tenho um código de convite',
-    temCodigoAjuda: 'É o código que a clínica te passou.',
     digite: 'Digite o código',
     confirmar: 'Confirmar código',
     codigoSub: 'O código que a clínica parceira te passou.',
@@ -336,7 +310,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'a clínica que acompanhava você',
-    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam no seu aparelho.',
+    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam onde estavam.',
     nadaCobrado: 'Nada foi cobrado, e nada vai ser sem você escolher.',
     verOsPlanos: 'Ver os planos',
     outroCodigo: 'Tenho outro código',

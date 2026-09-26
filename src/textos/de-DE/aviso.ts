@@ -23,19 +23,38 @@ export const aviso = {
   isencaoAceite: 'Verstanden und einverstanden',
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
-  guardadoTitulo: 'Was du einträgst, bleibt auf deinem Gerät',
-  guardadoTexto: 'Gewicht, Beschwerden, Spritzen, Befunde und Notizen werden in der App gespeichert, auf diesem Telefon. Es gibt kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten.',
+  guardadoTitulo: 'Was du einträgst, wird in deinem Konto aufbewahrt',
+  guardadoTexto: 'Gewicht, Beschwerden, Spritzen, Befunde und Notizen liegen auf diesem Telefon und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. So geht dein Tagebuch nicht verloren, wenn du das Handy wechselst oder verlierst. Nur dein Konto liest, was dir gehört.',
 
   usoTitulo: 'Wofür deine Daten verwendet werden',
   usoTexto: 'Um deine Tagesziele zu bauen, die Entwicklung der Behandlung zu verfolgen und zu ordnen, was du zum Termin mitnimmst. Nichts davon ist eine Diagnose, und die App verschreibt nichts und passt keine Dosis an.',
 
   /* ⚠️ DER TEIL, DEN EIN EINWILLIGUNGSHINWEIS ÜBLICHERWEISE VERSCHWEIGT,
      und der hier als einziger ändert, wie die Person entscheidet. */
-  saiTitulo: 'Was von hier hinausgehen kann, und nur auf dein Tippen hin',
-  saiTexto: 'Die Übersicht und die Nachrichten, die du deinem Behandlungsteam schickst. Und das Foto vom Teller, wenn du die Foto-Erkennung nutzt: es wird zum Auslesen geschickt und nicht aufbewahrt.',
+  saiTitulo: 'Was sonst noch von hier weggehen kann, und nur durch eine Geste von dir',
+  saiTexto: 'Dein Tagebuch, an die Praxis, mit der du dich über ihren Code verbindest, nachdem du gesehen hast, was sie sehen wird. Und das Foto vom Teller, wenn du die Foto-Erkennung nutzt: es wird zum Auslesen geschickt und nicht aufbewahrt.',
 
   controleTitulo: 'Du behältst die Kontrolle',
   controleTexto: 'Du kannst jeden Eintrag korrigieren und löschen, alles in eine Datei ausgeben und deine Daten jederzeit vollständig löschen, in den Einstellungen.',
+
+  perguntasTitulo: 'Deine Fragen an Morphi',
+  perguntasTexto: 'Wenn du es erlaubst, lesen wir die Fragen, die du Morphi stellst, um zu verstehen, welche Zweifel auftauchen, und die Antworten zu verbessern. Wir lesen sie, ohne zu wissen, wer gefragt hat, und die Praxis liest sie nie. Es ist anfangs aus, und Nein zu sagen ändert nichts an der App.',
+  perguntasEscolha: 'Das Lesen meiner Fragen erlauben',
+  perguntasDetalhe: 'Einschalten schickt auch die Fragen, die schon hier sind. Du kannst es jederzeit unter Datenschutz und Daten ausschalten, und die geschickten werden gelöscht.',
+
+  consentimentoNovo: {
+    titulo: 'Wir haben geändert, wie wir dein Tagebuch aufbewahren',
+    lead: 'Es liegt jetzt auch in deinem Konto, in unserer Datenbank, damit es beim Handywechsel nicht verloren geht. Lies, was sich geändert hat, bevor du weitermachst.',
+    aceitar: 'Zustimmen und weiter',
+    recusar: 'Ich stimme nicht zu',
+    recusaTitulo: 'Ohne Zustimmung geht es nicht weiter',
+    recusaTexto: 'Die App bewahrt das Tagebuch jetzt in deinem Konto auf und funktioniert ohne es nicht. Wenn du nicht zustimmst, kannst du deine Daten als Datei mitnehmen und alles von diesem Gerät löschen. Nichts wird gelöscht, ohne dass du darum bittest.',
+    exportar: 'Meine Daten exportieren',
+    apagar: 'Meine Daten von diesem Gerät löschen',
+    apagarPergunta: 'Alles von diesem Gerät löschen? Das lässt sich nicht rückgängig machen.',
+    apagarConfirma: 'Löschen',
+    voltar: 'Zurück und noch mal lesen',
+  },
 
   /* ⚠️ NUR DER NAME VON APPLE ÄNDERT SICH. „Apple Health“ heißt auf
      Deutsch tatsächlich „Apple Health“ — Apple übersetzt den Namen dieser
@@ -67,6 +86,7 @@ export const aviso = {
      Aufzeichnungen der Person selbst sind und keine Akte. */
   exportacaoAviso: 'Von der Person selbst in der App gemachte Aufzeichnungen. Keine Akte und kein Befundbericht.',
   exportacaoTitulo: 'Deine Daten aus Morphi',
+  exportacaoPerguntasRecentes: 'Ohne Verbindung kamen nur die neueren Fragen dieses Geräts mit. Mit Verbindung bringt die Datei alle aus deinem Konto.',
 
   /* Das Medikament derer, die noch nicht geantwortet haben. */
   medIndefinido: 'Noch nicht festgelegt',
@@ -128,6 +148,8 @@ export const aviso = {
     habitos: 'Mahlzeiten, Wasser und Bewegung',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'Mahlzeit' : 'Mahlzeiten'} und das Tagebuch des Tages`,
+    completo: 'Das vollständige Tagebuch',
+    completoSub: 'Alles, was dein Konto aufbewahrt, ohne Zeitraum, mit deinen Fragen',
 
     formatoTitulo: 'Heraus kommt eine .json-Datei',
     formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — gut, um eine Kopie aufzuheben oder deine Einträge woandershin mitzunehmen. Für die Fassung, die jemand lesen soll, nimm die Übersicht für den Termin.',
@@ -138,7 +160,7 @@ export const aviso = {
 
     pronto: 'Datei gebaut. Sie geht nur dorthin, wohin du sie schickst.',
     erro: 'Wir konnten die Datei auf diesem Gerät nicht erstellen. Deine Einträge sind weiter hier, unangetastet.',
-    parado: 'Von hier geht nichts ohne deinen Fingertipp.',
+    parado: 'Die Datei wird erst erstellt, wenn du auf den Knopf tippst.',
   },
 
   /* ⚠️ HIER STEHT DIE APP ALS SUBJEKT, und zwar mit Absicht: „Was die App
@@ -150,15 +172,21 @@ export const aviso = {
     lead: 'Wo deine Einträge bleiben, was von hier weggeht und was die App von außen liest.',
 
     ondeFicam: 'Wo deine Einträge bleiben',
-    noAparelho: 'Auf dem Gerät, in der App',
-    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde, Fotos und Notizen werden im Speicher der App selbst abgelegt, auf diesem Gerät. Es gibt hier kein Konto und kein Passwort: niemand kommt mit einem Login an deine Daten, weil es kein Login gibt.',
-    desinstalar: 'Deinstallieren nimmt alles mit',
-    desinstalarTexto: 'Da es auf keinem Server eine Kopie gibt, löscht das Entfernen der App die Einträge. Sie lassen sich danach nicht wiederherstellen.',
+    noAparelho: 'Auf dem Gerät und in deinem Konto',
+    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde und Notizen liegen auf diesem Gerät und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. Nur dein Konto liest dein Tagebuch — und die Praxis, mit der du dich verbindest, solange die Verbindung besteht. Die Körperfotos bleiben nur hier.',
+    desinstalar: 'Deinstallieren nimmt dein Tagebuch nicht mit',
+    desinstalarTexto: 'Es kommt zurück, wenn du dich in deinem Konto anmeldest, auf diesem Gerät oder einem anderen. Nur was ohne Verbindung eingetragen wurde und noch nicht im Konto angekommen ist, ginge mit der App verloren.',
 
     oQueSai: 'Was von hier weggeht',
-    oQueSaiNota: 'Von hier geht nichts ohne eine Geste von dir.',
-    paraEquipe: 'Was zu deinem Team geht',
-    paraEquipeTexto: 'Bis jetzt nichts. Die Übersicht für den Termin wird auf deinem Gerät gebaut, und du zeigst oder exportierst sie; die Nachrichten bleiben hier. Wenn die Verbindung zur Praxis existiert, gehen beide nur mit einem Tippen von dir weg — und nichts aus deinem Tagebuch reist allein, weder Gewicht noch Symptom noch Mahlzeit.',
+    oQueSaiNota: 'Nur das Erste geht von allein. Der Rest hängt von einer Geste von dir ab.',
+    paraConta: 'Dein Tagebuch, in dein Konto',
+    paraContaTexto: 'Die Einträge und das Profil gehen in unsere Datenbank, sobald es eine Verbindung gibt. Das bewahrt das Tagebuch über Geräte hinweg auf.',
+    paraEquipe: 'Was deine Praxis sieht',
+    paraEquipeTexto: 'Nichts, bis du dich über ihren Code mit einer Partnerpraxis verbindest. Vor dem Verbinden erscheint die Liste dessen, was sie sehen wird; sie sieht es, solange die Verbindung besteht, und du kannst dich auf dem Bildschirm der Praxis trennen. Die Übersicht für den Termin wird hier gebaut und geht weg, wenn du sie zeigst oder exportierst.',
+    perguntas: 'Deine Fragen an Morphi',
+    perguntasTexto: 'Nur wenn du das Lesen erlaubst, mit dem Schalter unten. Wir lesen sie, ohne zu wissen, wer gefragt hat, und die Praxis liest sie nie. Ausschalten löscht die geschickten.',
+    ditado: 'Deine Stimme, wenn du das Mikrofon nutzt',
+    ditadoTexto: 'Die Sprache in Text verwandelt das System des Geräts. Wir bitten darum, dass das auf dem Gerät selbst passiert, aber ohne lokale Erkennung deiner Sprache kann das System den Ton an Apple oder Google schicken. Nur solange das Mikrofon an ist.',
     fotoDoPrato: 'Das Foto vom Teller, wenn du die Foto-Erkennung nutzt',
     fotoDoPratoTexto: 'Es wird auf dem Gerät verkleinert und zum Lesen an ein Modell geschickt, das die Bestandteile des Tellers zurückgibt. Das Bild wird nicht aufbewahrt: weder in deinem Eintrag zur Mahlzeit noch auf dem Server, der die Brücke bildet. Die Mahlzeit von Hand einzutragen schickt nichts.',
 
@@ -182,7 +210,7 @@ export const aviso = {
 
     apagar: 'Meine Daten löschen',
     apagarSub: 'Alles, was du eingetragen hast, ohne Weg zurück',
-    apagarPergunta: 'Alles löschen? Es gibt nirgends eine Kopie.',
+    apagarPergunta: 'Alles von diesem Gerät löschen? Dieses Tagebuch hat noch kein Konto, und es gibt nirgendwo anders eine Kopie davon.',
     apagarConfirma: 'Löschen',
     cancelar: 'Abbrechen',
 

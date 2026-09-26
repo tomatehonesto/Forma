@@ -45,7 +45,7 @@ export const perfil = {
 
   ajudaEDados: 'Ayuda y datos',
   privacidade: 'Privacidad y datos',
-  privacidadeSub: 'Qué queda en el aparato, exportar, borrar y los documentos',
+  privacidadeSub: 'Dónde queda tu diario, exportar, borrar y los documentos',
   ajuda: 'Ayuda',
   ajudaSub: 'Preguntas frecuentes sobre la aplicación',
 
