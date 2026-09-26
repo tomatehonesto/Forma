@@ -580,4 +580,23 @@ export const home = {
 
     semPrazo: 'I giorni senza registro restano vuoti. Puoi riempirli dopo, senza scadenza.',
   },
+  primeirosPassos: {
+    titulo: 'Primi passi',
+    progresso: (feitos: number, total: number) => `${feitos} di ${total}`,
+    feito: 'Fatto',
+    plano: 'Il tuo piano è pronto',
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Registra la tua prima puntura' : 'Registra la tua prima dose'),
+    aplicacaoSub: 'Da lì contiamo il ciclo e la prossima dose',
+    checkin: 'Fai il primo check-in',
+    checkinSub: 'Come stai oggi, in meno di un minuto',
+    lembretes: 'Consenti i promemoria',
+    lembretesSub: 'Perché il promemoria della dose suoni in tempo',
+    saude: (app: string) => `Collega ${app}`,
+    saudeSub: 'Il peso della bilancia entra da solo',
+    tudoPronto: 'Tutto pronto!',
+    tudoProntoTexto: 'Il tuo diario è pronto. Da qui in poi basta registrare: al resto pensiamo insieme a te.',
+    esconder: 'Nascondi per ora',
+    reabrir: 'Primi passi',
+    reabrirSub: (feitos: number, total: number) => `${feitos} di ${total} fatti · mostra nella Home`,
+  },
 };

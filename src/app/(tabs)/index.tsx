@@ -31,6 +31,8 @@ import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
+import { PrimeirosPassos } from '../../ui/primeirosPassos';
+import { temEvolucao } from '../../logic/primeirosPassos';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -688,6 +690,13 @@ export default function Home() {
               ui/conta — e ela não aparece em nenhum outro caso. */}
           <FaixaDaConta style={{ marginHorizontal: PAD, marginBottom: 20 }} />
 
+          {/* OS PRIMEIROS PASSOS — o que a pessoa ainda configura, enquanto
+              falta alguma coisa. Na folha, e nunca na aurora: a aurora é do
+              destaque do dia e do check-in. Some quando tudo está pronto
+              (depois de comemorar) ou quando a pessoa esconde. Ver
+              ui/primeirosPassos. */}
+          <PrimeirosPassos style={{ marginHorizontal: PAD, marginBottom: 40 }} />
+
           {/* metas diarias */}
           <View style={{ paddingHorizontal: PAD }}>
             {/* ⚠️ "METAS", E NÃO "IR PARA METAS". O link de seção é o NOME
@@ -705,7 +714,16 @@ export default function Home() {
             {targets.map((t) => <GoalCard key={t.key} t={t} onRegister={go('/registrar')} />)}
           </Rolagem>
 
-          {/* evolucao */}
+          {/* ---- evolucao ----
+
+              ⚠️ A SEÇÃO ESPERA A EVOLUÇÃO EXISTIR. Com uma pesagem só, ela
+              dizia "Peso perdido: Estável", "0 g/dia" e "Abaixo da meta" em
+              vermelho — três veredictos sobre o que ainda não aconteceu,
+              na primeira tela de quem acabou de chegar. Duas pesagens em
+              dias diferentes (`temEvolucao`) é o mínimo para "perdido"
+              querer dizer alguma coisa; quem já tinha começado e informou o
+              peso inicial no cadastro tem as duas no primeiro dia. */}
+          {temEvolucao(S) ? (
           <View style={{ paddingHorizontal: PAD, marginTop: 40 }}>
             <SectionHead title={K().evolucao} link={K().evolucaoLink} onPress={go('/evolucao')} />
 
@@ -761,6 +779,7 @@ export default function Home() {
               </View>
             </Row>
           </View>
+          ) : null}
 
           {/* ---- acompanhamento ----
 

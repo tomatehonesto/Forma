@@ -29,6 +29,8 @@ import { radius, space, font, paletaDe } from '../theme';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, localAtual, type Local } from '../logic/local';
 import { BotaoDeSair } from '../ui/conta';
+import { usePassosParaReabrir } from '../ui/primeirosPassos';
+import { reabrirPassos } from '../logic/primeirosPassos';
 import { sair } from '../logic/conta';
 import { T } from '../textos';
 
@@ -169,6 +171,7 @@ export default function Perfil() {
     .join(', ') || K().nenhuma;
   const { c, isDark } = useTheme();
   const router = useRouter();
+  const passos = usePassosParaReabrir();
   const go = (p: string) => () => router.push(p as any);
   /* Da mais recente para a mais antiga, como a fita da Jornada fazia. */
   const badges = marcosDeConquista(S).slice().sort((a, b) => b.t - a.t);
@@ -547,6 +550,14 @@ export default function Perfil() {
           encheria a gaveta de coisas que a pessoa procura por assunto, e
           esvaziaria a seção que ela abre quando quer mexer no app. */}
       <Grupo title={K().acompanhamento}>
+        {/* OS PRIMEIROS PASSOS ESCONDIDOS voltam por aqui, e só existem
+            aqui enquanto estiverem escondidos e por terminar. O toque
+            devolve o cartão à Home e volta para ela. Ver ui/primeirosPassos. */}
+        {passos ? (
+          <ListRow ic="rocket" title={T.home.primeirosPassos.reabrir}
+            sub={T.home.primeirosPassos.reabrirSub(passos.feitos, passos.total)}
+            onPress={() => { update(reabrirPassos); router.dismissTo('/'); }} />
+        ) : null}
         <ListRow ic="target" title={K().metasDiarias}
           sub={K().metasDiariasSub(S.profile.targets.prot, nf(S.profile.targets.waterMl / 1000, 1))}
           onPress={go('/metas')} />

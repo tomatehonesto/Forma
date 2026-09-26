@@ -633,4 +633,43 @@ export const home = {
 
     semPrazo: 'Dias sem registro ficam em branco. Você pode preencher depois, sem prazo.',
   },
+  /* ============================================================
+     OS PRIMEIROS PASSOS — o cartão da Home de quem acabou de chegar
+     (logic/primeirosPassos, ui/primeirosPassos)
+
+     ⚠️ CADA ITEM É UMA LEITURA DO ESTADO, e o texto diz o que falta — não
+     o que a pessoa "deveria" fazer. O subtítulo é o porquê, numa linha: é
+     ele que faz alguém tocar num item que parece burocracia.
+
+     ⚠️ O NOME DO APLICATIVO DE SAÚDE VEM DO APARELHO ("Apple Saúde" ou
+     "Health Connect"), e não se traduz. Por isso o item é função.
+
+     ⚠️ E A FORMA DECIDE A PALAVRA DA APLICAÇÃO: quem toma comprimido
+     registra a primeira dose. As duas frases vêm escritas por inteiro,
+     como no catálogo das formas — trocar só o substantivo é como a
+     concordância quebra no primeiro idioma com gênero diferente.
+
+     ⚠️ "TUDO PRONTO" FALA NA VOZ DO PRODUTO, o "nós": quem acompanha
+     somos nós, e não a tela.
+     ============================================================ */
+  primeirosPassos: {
+    titulo: 'Primeiros passos',
+    progresso: (feitos: number, total: number) => `${feitos} de ${total}`,
+    /** o que o leitor de tela diz depois do título de um item cumprido */
+    feito: 'Feito',
+    plano: 'Seu plano está pronto',
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Registre a sua primeira aplicação' : 'Registre a sua primeira dose'),
+    aplicacaoSub: 'É dela que contamos o ciclo e a próxima dose',
+    checkin: 'Faça o primeiro check-in',
+    checkinSub: 'Como você está hoje, em menos de um minuto',
+    lembretes: 'Permita os lembretes',
+    lembretesSub: 'Para o aviso da dose tocar na hora',
+    saude: (app: string) => `Conecte o ${app}`,
+    saudeSub: 'O peso da balança entra sozinho',
+    tudoPronto: 'Tudo pronto!',
+    tudoProntoTexto: 'Seu diário está montado. Daqui em diante, é só registrar — o resto acompanhamos com você.',
+    esconder: 'Esconder por agora',
+    reabrir: 'Primeiros passos',
+    reabrirSub: (feitos: number, total: number) => `${feitos} de ${total} feitos · mostrar na Home`,
+  },
 };

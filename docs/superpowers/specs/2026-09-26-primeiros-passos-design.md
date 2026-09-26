@@ -76,9 +76,9 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
 | id | Título | Pronto quando | Leva a | Não aparece quando |
 |---|---|---|---|---|
 | `plano` | Seu plano está pronto | sempre (o cadastro terminou) | — (sem toque) | — |
-| `aplicacao` | Registre a sua primeira aplicação | `S.injections.length > 0` | `/aplicacao` | — |
-| `checkin` | Faça o primeiro check-in | `S.checkins.length > 0` | `/checkin` | — |
-| `lembretes` | Permita os lembretes | `estadoDaPermissao() === 'concedida'` (logic/avisos) | `/lembretes` | a permissão é `indisponivel` (o navegador) |
+| `aplicacao` | Registre a sua primeira aplicação (dose, no comprimido) | `S.injections.length > 0` | `/aplicacao` | — |
+| `checkin` | Faça o primeiro check-in | um dia com resposta (`respostaNoDia`, logic/derive) | `/checkin` | — |
+| `lembretes` | Permita os lembretes | `estadoDaPermissao() === 'concedida'` (logic/avisos) | o pedido do sistema, no próprio toque; negada, `/lembretes` | a permissão é `indisponivel` (o navegador) |
 | `saude` | Conecte o Apple Saúde / o Health Connect | `S.integrations.appleHealth` no iPhone, `healthConnect` no Android | `/integracoes` | `aparelhoDaVez()` é nulo (o navegador) |
 
 - **O plano já vem feito**, de propósito: a pessoa começa com um item
@@ -91,6 +91,17 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
 - **O alerta da dose já existe por padrão** (`ensureDefaults`, ligado às
   9 h). Por isso o item é a permissão, e não "criar o lembrete": sem
   permissão, o alerta existe e não toca.
+- **O toque nos lembretes pede a permissão ali mesmo.** Em `/lembretes` o
+  alerta da dose já aparece ligado, e não haveria o que tocar; e a regra
+  de logic/avisos — pedir quando a pessoa quer o aviso — está cumprida,
+  porque o item e o subtítulo acabaram de dizer para quê. Negada, o
+  sistema não pergunta mais, e o toque seguinte leva a `/lembretes`, que
+  mostra o caminho dos ajustes.
+- **O check-in é o dia com resposta**, e não qualquer registro: o mesmo
+  `checkins` guarda a água e a proteína do dia, e um copo d'água não pode
+  marcar "fiz o primeiro check-in".
+- **A forma decide a palavra**: quem toma comprimido registra a primeira
+  dose, com o desenho do comprimido (`FORMAS().injetavel`).
 - **A permissão se lê de novo** ao abrir a Home e na volta ao aplicativo —
   é ela que muda fora do app, nos ajustes do sistema.
 - O total é o número de itens que aparecem: "3 de 5" no iPhone, "2 de 3" no
@@ -119,6 +130,13 @@ check-in.
 - Os itens se cumprem em outras telas (`/aplicacao`, `/checkin`, os ajustes
   do sistema). A comemoração acontece na próxima vez em que a Home aparece
   com tudo pronto, e uma vez só.
+- **Os dois segundos correm com o "Tudo pronto!" à vista**: a Home em foco
+  e o cartão na tela. Ele mora abaixo da aurora, e quem volta para a Home
+  chega no alto dela — sem esta espera, a comemoração acontecia fora da
+  vista e o cartão sumia sem ser visto. Rolar para longe antes do fim
+  recomeça a conta.
+- A marca de concluído é gravada no fim da saída, e não no começo: quem
+  fecha o aplicativo no meio dela reencontra a comemoração.
 - **Concluído não volta**, nem se a permissão for revogada depois, nem num
   aparelho novo: a marca sobe com o diário.
 
@@ -126,7 +144,10 @@ check-in.
 
 - O toque tira o cartão da Home e não pede confirmação — é reversível.
 - No Perfil, uma linha "Primeiros passos · N de M" reabre o cartão. Ela só
-  existe enquanto ele estiver escondido e não concluído.
+  existe enquanto ele estiver escondido e não concluído — e some se tudo
+  ficar pronto com ele escondido: reabrir para ver "5 de 5" seria ruído.
+- **O diário de exemplo (a semente) não tem cartão**, nem linha no Perfil:
+  ela é alguém com meses de tratamento, e é assim que serve de vitrine.
 
 ### O estado
 

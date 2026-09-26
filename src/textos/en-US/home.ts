@@ -414,4 +414,23 @@ export const home = {
 
     semPrazo: 'Days with no entry stay blank. You can fill them in later, with no deadline.',
   },
+  primeirosPassos: {
+    titulo: 'First steps',
+    progresso: (feitos: number, total: number) => `${feitos} of ${total}`,
+    feito: 'Done',
+    plano: 'Your plan is ready',
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Log your first shot' : 'Log your first dose'),
+    aplicacaoSub: 'We count your cycle and next dose from it',
+    checkin: 'Do your first check-in',
+    checkinSub: 'How you’re feeling today, in under a minute',
+    lembretes: 'Allow reminders',
+    lembretesSub: 'So your dose reminder rings on time',
+    saude: (app: string) => `Connect ${app}`,
+    saudeSub: 'Your scale’s weight comes in on its own',
+    tudoPronto: 'All set!',
+    tudoProntoTexto: 'Your diary is set up. From here on, just log — we’ll keep track of the rest with you.',
+    esconder: 'Hide for now',
+    reabrir: 'First steps',
+    reabrirSub: (feitos: number, total: number) => `${feitos} of ${total} done · show on Home`,
+  },
 };

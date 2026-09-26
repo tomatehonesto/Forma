@@ -443,4 +443,23 @@ export const home = {
 
     semPrazo: 'Les jours sans relevé restent vides. Vous pouvez les remplir plus tard, sans délai.',
   },
+  primeirosPassos: {
+    titulo: 'Premiers pas',
+    progresso: (feitos: number, total: number) => `${feitos} sur ${total}`,
+    feito: 'Fait',
+    plano: 'Votre plan est prêt',
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Enregistrez votre première piqûre' : 'Enregistrez votre première prise'),
+    aplicacaoSub: 'C’est à partir d’elle que nous comptons le cycle et la prochaine dose',
+    checkin: 'Faites votre premier check-in',
+    checkinSub: 'Comment vous allez aujourd’hui, en moins d’une minute',
+    lembretes: 'Autorisez les rappels',
+    lembretesSub: 'Pour que le rappel de la dose sonne à l’heure',
+    saude: (app: string) => `Connectez ${app}`,
+    saudeSub: 'Le poids de la balance arrive tout seul',
+    tudoPronto: 'Tout est prêt !',
+    tudoProntoTexto: 'Votre journal est prêt. Désormais, il suffit de noter : nous suivons le reste avec vous.',
+    esconder: 'Masquer pour l’instant',
+    reabrir: 'Premiers pas',
+    reabrirSub: (feitos: number, total: number) => `${feitos} sur ${total} faits · afficher sur l’Accueil`,
+  },
 };

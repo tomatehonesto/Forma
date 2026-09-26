@@ -450,4 +450,23 @@ export const home = {
 
     semPrazo: 'Tage ohne Eintrag bleiben leer. Du kannst sie später nachtragen, ohne Frist.',
   },
+  primeirosPassos: {
+    titulo: 'Erste Schritte',
+    progresso: (feitos: number, total: number) => `${feitos} von ${total}`,
+    feito: 'Erledigt',
+    plano: 'Dein Plan ist fertig',
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Trag deine erste Spritze ein' : 'Trag deine erste Einnahme ein'),
+    aplicacaoSub: 'Von ihr aus zählen wir den Zyklus und die nächste Dosis',
+    checkin: 'Mach deinen ersten Check-in',
+    checkinSub: 'Wie es dir heute geht, in unter einer Minute',
+    lembretes: 'Erlaube die Erinnerungen',
+    lembretesSub: 'Damit die Dosis-Erinnerung pünktlich klingelt',
+    saude: (app: string) => `Verbinde ${app}`,
+    saudeSub: 'Das Gewicht deiner Waage kommt von selbst',
+    tudoPronto: 'Alles bereit!',
+    tudoProntoTexto: 'Dein Tagebuch steht. Ab jetzt einfach eintragen – den Rest behalten wir mit dir im Blick.',
+    esconder: 'Vorerst ausblenden',
+    reabrir: 'Erste Schritte',
+    reabrirSub: (feitos: number, total: number) => `${feitos} von ${total} erledigt · auf Start zeigen`,
+  },
 };
