@@ -51,7 +51,7 @@ export const medidas = {
 
   telaEvolucao: {
     titulo: 'Evolución',
-    lead: 'Doce semanas de tratamiento. Toca un marcador para ver el historial y corregir registros.',
+    lead: 'Toca un marcador para ver el historial y corregir registros.',
 
     voceRegistra: 'Los que registras tú',
     voceRegistraNota: 'Marcadores que dependen solo de ti — toca para ver el historial y corregir registros.',

@@ -36,6 +36,7 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
 } from '../src/logic/derive';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
+import { resumoEmTexto } from '../src/logic/resumo';
 import { T } from '../src/textos';
 
 let falhas = 0;
@@ -200,6 +201,14 @@ ok(!injCalendar(zero).some((c) => c.planned) && injCalendar(aplicou5).some((c) =
 const temAplicacaoNaSemana = (S: State) => protocoloDaSemana(S).tarefas.some((t: any) => t.ic === 'syringe');
 ok(!temAplicacaoNaSemana(zero) && temAplicacaoNaSemana(aplicou5),
   'antes da primeira dose, "Aplicação da semana" sai do protocolo; com ela, volta');
+
+/* O documento que vai para o médico (Etapa 3, grupo B). */
+const doc0 = resumoEmTexto(zero);
+ok(doc0.includes(T.cuidado.dose.nenhumaRegistrada) && doc0.includes(T.resumo.aplicacoesNenhuma)
+  && !doc0.includes(T.resumo.aplicacoesValor(0, 0)) && !doc0.includes(T.resumo.variacao),
+  'o resumo sem dose nem evolução não diz "1 dias", "0 de 0 previstas" nem "Estável (0,0%)"');
+ok(resumoEmTexto(longe).includes(T.resumo.variacao), 'com evolução, a variação volta ao resumo');
+ok(T.resumo.emDias(1) === '1 dia', 'um dia é "1 dia"');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

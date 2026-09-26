@@ -171,6 +171,8 @@ export const home = {
     semanasVaziasTexto: 'Weeks without records stay on the list, the same size as the others. They don’t disappear and they don’t count as a failure.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'record' : 'records'} since treatment began`,
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'record' : 'records'} so far`,
   },
 
   telaJornada: {

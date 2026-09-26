@@ -177,6 +177,8 @@ export const home = {
     semanasVaziasTexto: 'Las semanas sin registro siguen en la lista, del mismo tamaño que las demás. No desaparecen ni cuentan como falla.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'registro' : 'registros'} desde el comienzo del tratamiento`,
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} hasta ahora`,
   },
 
   telaJornada: {

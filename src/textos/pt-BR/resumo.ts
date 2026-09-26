@@ -24,9 +24,12 @@ export const resumo = {
   dose: 'Dose',
   cadencia: 'Cadência',
   tempoDeTratamento: 'Tempo de tratamento',
-  emDias: (dias: number) => `${dias} dias`,
+  emDias: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'}`,
   aplicacoes: 'Aplicações',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} de ${previstas} previstas`,
+  /* Sem dose prevista, a conta não tem pergunta: "0 de 0 previstas" saía
+     no documento que vai para o médico. */
+  aplicacoesNenhuma: 'Nenhuma registrada',
 
   /* ---------------- peso ---------------- */
   peso: 'Peso',

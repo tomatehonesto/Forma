@@ -236,6 +236,10 @@ export const home = {
     semanasVaziasTexto: 'Semanas sem registro continuam na lista, do mesmo tamanho que as outras. Elas não somem nem viram falha.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'registro' : 'registros'} desde o início do tratamento`,
+    /* Sem dose registrada, "desde o início do tratamento" contaria um
+       começo que o diário não tem. */
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registro' : 'registros'} até aqui`,
   },
 
   telaJornada: {

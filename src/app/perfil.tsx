@@ -10,7 +10,7 @@ import { RESTRICOES } from '../logic/restricoes';
 import { kgTxt as kg, nf, relDay, fmtDate } from '../logic/time';
 import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
-  lostKg,
+  lostKg, diaDoTratamento, temEvolucao,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
@@ -339,7 +339,10 @@ export default function Perfil() {
               paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
             }}>
               <Icon name="cal" size={12} color={c.tx2} sw={2} />
-              <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>{K().dia(journeyDay(S))}</Txt>
+              {/* A MESMA LINHA DA HOME, de `diaDoTratamento`: antes da primeira
+                  dose registrada não há dia de tratamento, e a pastilha dizia
+                  "Dia 1" ao lado de uma Home que dizia "Antes da primeira dose". */}
+              <Txt v="micro" c={c.tx2} style={{ fontFamily: font.bodyMed }}>{diaDoTratamento(S).texto}</Txt>
             </Row>
           </Row>
         </View>
@@ -378,7 +381,8 @@ export default function Perfil() {
             corrigindo a pessoa com um sinal de menos. */}
         <Dado
           label={K().atual} valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
-          delta={`${perdeu >= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(perdeu))}`}
+          /* Só com evolução: com uma pesagem o selo dizia "−0,0 kg". */
+          delta={temEvolucao(S) ? `${perdeu >= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(perdeu))}` : undefined}
           fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)" largo
         />
         <Dado

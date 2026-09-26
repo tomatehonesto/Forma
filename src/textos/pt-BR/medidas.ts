@@ -106,7 +106,10 @@ export const medidas = {
      ============================================================ */
   telaEvolucao: {
     titulo: 'Evolução',
-    lead: 'Doze semanas de tratamento. Toque num marcador para ver o histórico e corrigir registros.',
+    /* ⚠️ "DOZE SEMANAS DE TRATAMENTO" ERA FIXO, para todo mundo — inclusive
+       para quem acabou de chegar, e para quem está na semana trinta. O
+       período é dos botões logo abaixo, e eles já o dizem. */
+    lead: 'Toque num marcador para ver o histórico e corrigir registros.',
 
     voceRegistra: 'Você registra',
     voceRegistraNota: 'Marcadores que dependem só de você — toque para ver o histórico e corrigir.',

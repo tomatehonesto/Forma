@@ -19,9 +19,10 @@ export const resumo = {
   dose: 'Dose',
   cadencia: 'Cadence',
   tempoDeTratamento: 'Time in treatment',
-  emDias: (dias: number) => `${dias} days`,
+  emDias: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'}`,
   aplicacoes: 'Injections',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} of ${previstas} expected`,
+  aplicacoesNenhuma: 'None logged',
 
   peso: 'Weight',
   inicioAtual: 'Start → current',

@@ -3,7 +3,7 @@ import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
-  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, type Nota,
+  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, doseTxt, kg, startOfDay } from './time';
 import { pesoTxt, pesoU, pesoV } from './medidas';
@@ -96,12 +96,17 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
         { k: K.medicamento, v: `${med.label} (${nomeDaMolecula(med.mol)})` },
         { k: K.dose, v: `${doseTxt(p.dose)} ${med.unit}` },
         { k: K.cadencia, v: cadenciaCurta(S) },
-        { k: K.tempoDeTratamento, v: K.emDias(journeyDay(S)) },
+        /* ⚠️ ESTE DOCUMENTO VAI PARA O MÉDICO, e sem dose registrada ele
+           dizia "Tempo de tratamento: 1 dias" e "Aplicações: 0 de 0
+           previstas" — o dia do cadastro contado como tratamento, e uma
+           conta sem pergunta. "Nenhuma dose registrada" é verdade para
+           quem vai começar e para quem já tinha começado sem registrar. */
+        { k: K.tempoDeTratamento, v: S.injections.length ? K.emDias(journeyDay(S)) : T.cuidado.dose.nenhumaRegistrada },
         /* A FRAÇÃO, E NÃO A PORCENTAGEM SOZINHA. "Adesão 91%" fala de
            pontualidade, que esta conta não mede: quem aplicou as dez doses
            sempre com três dias de atraso também dá cem por cento. "10 de
            11 previstas" diz o que a conta de fato sabe. */
-        { k: K.aplicacoes, v: K.aplicacoesValor(S.injections.length, dosesPrevistas(S)) },
+        { k: K.aplicacoes, v: dosesPrevistas(S) ? K.aplicacoesValor(S.injections.length, dosesPrevistas(S)) : K.aplicacoesNenhuma },
       ],
     },
     {
@@ -112,8 +117,14 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
         /* ⚠️ ESTA LINHA VAI PARA O MÉDICO. Ela dizia "−−3,3 kg" para quem
            ganhou peso — um documento clínico com um número ilegível é
            pior do que um documento sem aquele número. */
-        { k: K.variacao, v: `${variacaoDe(pesoV(S, cur - p.startWeight), pesoU(S)).delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
-        { k: K.em, v: K.emDias(diffDays(now(), new Date(p.startT))) },
+        /* A VARIAÇÃO SÓ COM EVOLUÇÃO. Com uma pesagem ela saía "Estável
+           (0,0%) · em 0 dias" — um intervalo que não existe, no documento
+           clínico. Sem as duas linhas, o "início → atual" logo acima já
+           diz tudo o que há. */
+        ...(temEvolucao(S) ? [
+          { k: K.variacao, v: `${variacaoDe(pesoV(S, cur - p.startWeight), pesoU(S)).delta} (${nf(Math.abs(lostPct(S)), 1)}%)` },
+          { k: K.em, v: K.emDias(diffDays(now(), new Date(p.startT))) },
+        ] : []),
         /* O NOME É O DO CADASTRO. Esta linha já se chamou "referência
            combinada", que é um terceiro nome para o número que o app
            chama de meta de peso em todas as outras telas. */

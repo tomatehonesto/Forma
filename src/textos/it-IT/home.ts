@@ -223,6 +223,8 @@ export const home = {
     semanasVaziasTexto: 'Le settimane senza registrazioni restano nella lista, grandi come le altre. Non spariscono e non contano come un fallimento.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'registrazione' : 'registrazioni'} dall’inizio della terapia`,
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'registrazione' : 'registrazioni'} finora`,
   },
 
   telaJornada: {

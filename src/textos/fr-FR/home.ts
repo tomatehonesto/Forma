@@ -184,6 +184,8 @@ export const home = {
     semanasVaziasTexto: 'Les semaines sans rien de noté restent dans la liste, de la même taille que les autres. Elles ne disparaissent pas et ne comptent pas comme un échec.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'entrée' : 'entrées'} depuis le début du traitement`,
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos > 1 ? 'entrées' : 'entrée'} jusqu’ici`,
   },
 
   telaJornada: {

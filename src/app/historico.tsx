@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { timelineWeeks, timelineEvents, timelineCounts, type TLKind } from '../logic/derive';
+import { timelineWeeks, timelineEvents, timelineCounts, temCiclo, type TLKind } from '../logic/derive';
 import { DAY, dataLonga, fmtDate, fmtPeriodo } from '../logic/time';
 import { Txt } from '../ui/kit';
 import {
@@ -140,7 +140,8 @@ export default function Historico() {
 
       <View style={{ alignItems: 'center' }}>
         <Txt v="caption" c={c.tx4}>
-          {K().registrosDesde(eventos.length)}
+          {/* "Desde o início do tratamento" pede um tratamento registrado. */}
+          {temCiclo(S) ? K().registrosDesde(eventos.length) : K().registrosAteAqui(eventos.length)}
         </Txt>
       </View>
     </TelaInterna>

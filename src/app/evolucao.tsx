@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   startWeight, curWeight, lostKg, firstMeasure, latestMeasure,
-  examBy, examFirst, examLast, examStatus, variacaoDe,
+  examBy, examFirst, examLast, examStatus, variacaoDe, temEvolucao,
 } from '../logic/derive';
 import { nf, DAY, fmtDate } from '../logic/time';
 import {
@@ -102,8 +102,14 @@ export default function Evolucao() {
           <CardCurva
             id="ev-peso"
             nome={T.medidas.corpo.peso}
-            sub={`${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))} · ${fmtDate(ultimoPeso.t)}`}
-            valor={variacaoDe(pesoV(S, curWeight(S) - startWeight(S))).numero}
+            /* ⚠️ COM UMA PESAGEM, NÃO HÁ VARIAÇÃO. O cartão dizia "80,0 ›
+               80,0 kg" e, em destaque, "0,0 kg" — a diferença entre um
+               número e ele mesmo. Sem evolução, o destaque é o peso de hoje,
+               que é o que existe, e a linha de cima diz de quando ele é. */
+            sub={temEvolucao(S)
+              ? `${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))} · ${fmtDate(ultimoPeso.t)}`
+              : fmtDate(ultimoPeso.t)}
+            valor={temEvolucao(S) ? variacaoDe(pesoV(S, curWeight(S) - startWeight(S))).numero : pesoN(S, curWeight(S))}
             unidade={pesoU(S)}
             pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}
             onPress={() => router.push('/marcador?m=peso' as any)}

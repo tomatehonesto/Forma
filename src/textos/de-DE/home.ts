@@ -191,6 +191,8 @@ export const home = {
     semanasVaziasTexto: 'Wochen ohne Eintrag bleiben in der Liste, genauso groß wie die anderen. Sie verschwinden nicht und gelten nicht als Versagen.',
     registrosDesde: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'Eintrag' : 'Einträge'} seit Behandlungsbeginn`,
+    registrosAteAqui: (quantos: number) =>
+      `${quantos} ${quantos === 1 ? 'Eintrag' : 'Einträge'} bisher`,
   },
 
   telaJornada: {

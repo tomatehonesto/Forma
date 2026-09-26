@@ -73,7 +73,7 @@ export const medidas = {
      ============================================================ */
   telaEvolucao: {
     titulo: 'Andamento',
-    lead: 'Dodici settimane di terapia. Tocca un marcatore per vedere lo storico e correggere i registri.',
+    lead: 'Tocca un marcatore per vedere lo storico e correggere i registri.',
 
     voceRegistra: 'Registri tu',
     voceRegistraNota: 'Marcatori che dipendono solo da te — tocca per vedere lo storico e correggere i registri.',

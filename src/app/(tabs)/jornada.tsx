@@ -174,7 +174,10 @@ function Painel() {
             strokeFrom={c.lime} strokeTo={c.lime} id="jp" dashed={false} />
         </View>
       )}
-      <Row style={{ justifyContent: 'space-between', marginTop: 10, alignItems: 'baseline' }}>
+      {/* Em 375 px os dois lados se encostavam ("hojefaltam 10,0 kg"): com
+          vão e quebra, o "faltam" desce para a linha de baixo quando não
+          cabe, em vez de colar no "hoje". */}
+      <Row style={{ justifyContent: 'space-between', marginTop: 10, alignItems: 'baseline', flexWrap: 'wrap', columnGap: 12, rowGap: 2 }}>
         <Row gap={5} style={{ alignItems: 'baseline' }}>
           {/* ⚠️ O "kg" ESTAVA PREGADO NAS TRÊS LINHAS, e quem lê em libra
               via o número convertido com a unidade errada. `pesoTxt`

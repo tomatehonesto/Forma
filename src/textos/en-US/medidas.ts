@@ -51,7 +51,7 @@ export const medidas = {
 
   telaEvolucao: {
     titulo: 'Progress',
-    lead: 'Twelve weeks of treatment. Tap a marker to see its history and fix entries.',
+    lead: 'Tap a marker to see its history and fix entries.',
 
     voceRegistra: 'You log these',
     voceRegistraNota: 'Markers that depend only on you — tap to see the history and fix entries.',
