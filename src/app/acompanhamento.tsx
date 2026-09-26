@@ -77,8 +77,16 @@ export default function Acompanhamento() {
      sendo preenchido, e não respondido. */
   const vale = nome.trim().length >= 2;
 
+  /* ⚠️ ANOTAR QUEM É TAMBÉM É PASSAR A TER ACOMPANHAMENTO. Esta tela é a
+     porta de "Passou a ter acompanhamento? Anote quem é", no rodapé da
+     rede parceira, e gravava o nome sem mudar a resposta: a pessoa
+     anotava a médica e continuava "por conta própria" — a aba Cuidado
+     seguia oferecendo clínicas e não mostrava quem a acompanha. A volta
+     não existe aqui: tirar o nome não tira o acompanhamento (ver
+     `remover`, e ensureDefaults em logic/seed). */
   const salvar = () => {
     update((s: any) => {
+      s.profile.acompanhamento = 'proprio';
       s.profile.doctor = nome.trim();
       s.profile.clinic = onde.trim();
       s.profile.doctorInfo = { ...(s.profile.doctorInfo ?? {}), especialidade: esp.trim() };
